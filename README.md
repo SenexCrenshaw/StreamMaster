@@ -1,3 +1,3 @@
 # StreamMaster
 
-StreamMaster
+Stream Master
