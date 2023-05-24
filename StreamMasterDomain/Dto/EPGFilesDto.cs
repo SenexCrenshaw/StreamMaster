@@ -1,0 +1,17 @@
+﻿using StreamMasterDomain.Attributes;
+using StreamMasterDomain.Mappings;
+
+namespace StreamMasterDomain.Dto;
+
+[RequireAll]
+public class EPGFilesDto : BaseFileDto, IMapFrom<EPGFile>
+{
+    public int ChannelCount { get; set; }
+
+    public int EPGRank { get; set; }
+
+    public DateTime EPGStartDate { get; set; }
+
+    public DateTime EPGStopDate { get; set; }
+    public int ProgrammeCount { get; set; }
+}

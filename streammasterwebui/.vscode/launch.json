@@ -1,0 +1,56 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "command": "npm start",
+      "name": "Run npm start",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
+      "command": "serve -s build",
+      "name": "serve",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
+      "type": "msedge",
+      // "runtimeArgs": ["--auto-open-devtools-for-tabs"],
+      "request": "launch",
+      "name": "Launch Edge",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "Sleepdelay"
+    },
+    {
+      "name": "Docker: Attach to Node",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "address": "localhost",
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "/usr/src/app",
+      "skipFiles": [
+        "${workspaceFolder}/node_modules/**/*.js",
+        "<node_internals>/**/*.js"
+      ]
+    },
+    {
+      "name": "Docker Node.js Launch",
+      "type": "docker",
+      "request": "launch",
+      "preLaunchTask": "docker-run: debug",
+      "platform": "node"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full stack",
+      "configurations": [
+        "Run npm start",
+        "Launch Edge"
+      ],
+      "stopAll": true
+    }
+  ]
+}
