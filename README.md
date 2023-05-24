@@ -10,3 +10,8 @@ There is lots more to do, documentation, this page, but it is coming along.
 
 I mostly will be watching the discord server. 
 https://discord.gg/kQmsVYRT
+
+I will be publishing documentation next. 
+
+
+As far as the state of this code. I used SM to learn react and the newer c# stuff. Its not perfect right now and I welcome PRs ;)
