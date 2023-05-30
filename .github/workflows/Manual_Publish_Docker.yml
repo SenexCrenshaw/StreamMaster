@@ -80,6 +80,11 @@ jobs:
           echo "UncommittedChanges: ${{ env.GitVersion_UncommittedChanges }}"
           echo "CommitDate: ${{ env.GitVersion_CommitDate }}"
 
+      - name: Show default environment variables
+        run: |
+          echo "DOCKER_METADATA_OUTPUT_JSON: $DOCKER_METADATA_OUTPUT_JSON"
+          echo "DOCKER_METADATA_OUTPUT_JSON: $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -89,14 +94,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Show default environment variables
-        run: |
-          echo "The job_id is: $GITHUB_JOB"   # reference the default environment variables
-          echo "The id of this action is: $GITHUB_ACTION"   # reference the default environment variables
-          echo "The run id is: $GITHUB_RUN_ID"
-          echo "The GitHub Actor's username is: $GITHUB_ACTOR"
-          echo "GitHub SHA: $GITHUB_SHA"
 
       - name: Build and push by digest
         id: build
