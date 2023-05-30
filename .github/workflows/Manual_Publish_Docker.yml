@@ -27,19 +27,20 @@ jobs:
         with:
           versionSpec: "5.x"
 
-      # - name: Docker meta
-      #   id: meta
-      #   uses: docker/metadata-action@v4
-      #   with:
-      #     images: ${{ env.REGISTRY_IMAGE }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
       - name: Determine Version
         uses: gittools/actions/gitversion/execute@v0
         with:
           useConfigFile: true
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY_IMAGE }}
+          tags: type=semver,pattern= ${{ env.GitVersion_SemVer }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
 
       - name: Display GitVersion variables (with prefix)
         run: |
@@ -101,7 +102,6 @@ jobs:
           context: .
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
-          tags: ${{ env.GitVersion_SemVer }}
           outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,name-canonical=true,push=true
 
       - name: Export digest
