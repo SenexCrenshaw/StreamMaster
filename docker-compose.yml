@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   streammaster:
-    image: senexcrenshaw/streammaster:0.1.0-alpha.582
+    image: senexcrenshaw/streammaster
     build:
       context: .
       dockerfile: ./Dockerfile

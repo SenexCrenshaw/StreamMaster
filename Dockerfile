@@ -42,9 +42,7 @@ FROM --platform=$BUILDPLATFORM base AS final
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 LABEL       org.opencontainers.image.url="https://hub.docker.com/r/SenexCrenshaw/streammaster/" \
-      org.opencontainers.image.source="https://github.com/SenexCrenshaw/StreamMaster" \
-      org.opencontainers.image.version="0.1.0-alpha.582" \
-      org.opencontainers.image.revision="{$VCS_REF}" \
+      org.opencontainers.image.source="https://github.com/SenexCrenshaw/StreamMaster" \      
       org.opencontainers.image.vendor="SenexCrenshaw" \
       org.opencontainers.image.title="Stream Master" \
       org.opencontainers.image.description="Dockerized Stream Master by SenexCrenshaw" \
