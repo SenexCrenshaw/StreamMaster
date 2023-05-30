@@ -8,13 +8,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-          - linux/amd64
-          - linux/arm/v7
-          - linux/arm64
 
     steps:
       - name: Checkout
@@ -37,6 +30,9 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY_IMAGE }}
+          tags: |
+            latest
+            ${{ env.GitVersion_SemVer }}
 
       - name: Show default environment variables
         run: |

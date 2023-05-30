@@ -37,9 +37,45 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY_IMAGE }}
+          tags: type=semver,pattern={{version}},value=${{ env.GitVersion_SemVer }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
+
+      - name: Display GitVersion variables (with prefix)
+        run: |
+          echo "Major: ${{ env.GitVersion_Major }}"
+          echo "Minor: ${{ env.GitVersion_Minor }}"
+          echo "Patch: ${{ env.GitVersion_Patch }}"
+          echo "PreReleaseTag: ${{ env.GitVersion_PreReleaseTag }}"
+          echo "PreReleaseTagWithDash: ${{ env.GitVersion_PreReleaseTagWithDash }}"
+          echo "PreReleaseLabel: ${{ env.GitVersion_PreReleaseLabel }}"
+          echo "PreReleaseNumber: ${{ env.GitVersion_PreReleaseNumber }}"
+          echo "WeightedPreReleaseNumber: ${{ env.GitVersion_WeightedPreReleaseNumber }}"
+          echo "BuildMetaData: ${{ env.GitVersion_BuildMetaData }}"
+          echo "BuildMetaDataPadded: ${{ env.GitVersion_BuildMetaDataPadded }}"
+          echo "FullBuildMetaData: ${{ env.GitVersion_FullBuildMetaData }}"
+          echo "MajorMinorPatch: ${{ env.GitVersion_MajorMinorPatch }}"
+          echo "SemVer: ${{ env.GitVersion_SemVer }}"
+          echo "LegacySemVer: ${{ env.GitVersion_LegacySemVer }}"
+          echo "LegacySemVerPadded: ${{ env.GitVersion_LegacySemVerPadded }}"
+          echo "AssemblySemVer: ${{ env.GitVersion_AssemblySemVer }}"
+          echo "AssemblySemFileVer: ${{ env.GitVersion_AssemblySemFileVer }}"
+          echo "FullSemVer: ${{ env.GitVersion_FullSemVer }}"
+          echo "InformationalVersion: ${{ env.GitVersion_InformationalVersion }}"
+          echo "BranchName: ${{ env.GitVersion_BranchName }}"
+          echo "EscapedBranchName: ${{ env.GitVersion_EscapedBranchName }}"
+          echo "Sha: ${{ env.GitVersion_Sha }}"
+          echo "ShortSha: ${{ env.GitVersion_ShortSha }}"
+          echo "NuGetVersionV2: ${{ env.GitVersion_NuGetVersionV2 }}"
+          echo "NuGetVersion: ${{ env.GitVersion_NuGetVersion }}"
+          echo "NuGetPreReleaseTagV2: ${{ env.GitVersion_NuGetPreReleaseTagV2 }}"
+          echo "NuGetPreReleaseTag: ${{ env.GitVersion_NuGetPreReleaseTag }}"
+          echo "VersionSourceSha: ${{ env.GitVersion_VersionSourceSha }}"
+          echo "CommitsSinceVersionSource: ${{ env.GitVersion_CommitsSinceVersionSource }}"
+          echo "CommitsSinceVersionSourcePadded: ${{ env.GitVersion_CommitsSinceVersionSourcePadded }}"
+          echo "UncommittedChanges: ${{ env.GitVersion_UncommittedChanges }}"
+          echo "CommitDate: ${{ env.GitVersion_CommitDate }}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -101,6 +137,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY_IMAGE }}
+          tags: type=semver,pattern={{version}},value=${{ env.GitVersion_SemVer }}
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
