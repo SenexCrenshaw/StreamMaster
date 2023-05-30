@@ -11,7 +11,7 @@ jobs:
 
       - name: Read VERSION file
         id: getversion
-        run: echo "::set-output name=version::$(cat VERSION)"
+        run: echo "::set-env name=version::$(cat VERSION)"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -34,4 +34,4 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/streammaster:latest,${{ secrets.DOCKER_USERNAME }}/streammaster:${{ steps.getversion.outputs.version }}
+          tags: senexcrenshaw/streammaster:latest,senexcrenshaw/streammaster:${{ env.version }}
