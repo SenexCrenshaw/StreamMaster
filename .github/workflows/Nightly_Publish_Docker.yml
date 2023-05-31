@@ -42,7 +42,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY_IMAGE }}
           labels: |
-            org.opencontainers.image.version=  ${{ env.GitVersion_SemVer }}-${{ env.GitVersion_BuildMetaDataPadded }}
+            org.opencontainers.image.version=${{ env.GitVersion_SemVer }}-${{ env.GitVersion_BuildMetaDataPadded }}
           tags: |
             nightly
             ${{ env.GitVersion_SemVer }}-${{ env.GitVersion_BuildMetaDataPadded }}
@@ -156,7 +156,7 @@ jobs:
           images: ${{ env.REGISTRY_IMAGE }}
           labels: |
             org.opencontainers.image.description=Stream Master Docker Image
-            org.opencontainers.image.version=  ${{ env.GitVersion_SemVer }}-${{ env.GitVersion_BuildMetaDataPadded }}
+            org.opencontainers.image.version=${{ env.GitVersion_SemVer }}-${{ env.GitVersion_BuildMetaDataPadded }}
           tags: |
             nightly
              ${{ env.GitVersion_SemVer }}-${{ env.GitVersion_BuildMetaDataPadded }}

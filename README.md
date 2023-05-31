@@ -4,7 +4,7 @@ Stream Master
 
 https://hub.docker.com/repository/docker/senexcrenshaw/streammaster/general
 
-Its a nice release. The backend proxy is stable and the UI is working nicely. Some odds and ends need to be worked out but I dont need iptveditor or xtevie anymore.
+Its a nice release. The backend proxy is stable and the UI is working nicely.
 
 There is lots more to do, documentation, this page, but it is coming along.
 
