@@ -39,6 +39,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY_IMAGE }}
           tags: |
+            latest
             type=semver,pattern={{version}}
 
       - name: Set up QEMU
@@ -101,6 +102,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY_IMAGE }}
           tags: |
+            latest
             type=semver,pattern={{version}}
 
       - name: Login to Docker Hub

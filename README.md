@@ -9,7 +9,7 @@ Its a nice release. The backend proxy is stable and the UI is working nicely.
 There is lots more to do, documentation, this page, but it is coming along.
 
 I mostly will be watching the discord server.
-<https://discord.gg/RXkz9KbU>
+<https://discord.gg/zACbUp6XvW>
 
 I will be publishing documentation next.
 
