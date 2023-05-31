@@ -40,9 +40,6 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY_IMAGE }}
-          labels: |
-            org.opencontainers.image.description=Another description
-            org.opencontainers.image.version= ${{ env.GitVersion_FullSemVer }}
           tags: |
             ${{ env.GitVersion_FullSemVer }}
 

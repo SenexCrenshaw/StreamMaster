@@ -66,6 +66,9 @@ jobs:
           context: .
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            nightly
+            ${{ env.GitVersion_FullSemVer }}
           outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,name-canonical=true,push=true
 
       - name: Export digest
@@ -152,6 +155,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY_IMAGE }}
           labels: |
+            org.opencontainers.image.description=Stream Master Docker Image
             org.opencontainers.image.version= ${{ env.GitVersion_FullSemVer }}
           tags: |
             nightly
@@ -166,7 +170,8 @@ jobs:
       - name: Build and Push Image
         working-directory: /tmp/digests
         run: |
-          docker buildx imagetools create -t nightly -t  ${{ env.GitVersion_FullSemVer }}  $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+             $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
 
       - name: Inspect image
         run: |
