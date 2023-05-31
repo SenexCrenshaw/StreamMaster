@@ -123,7 +123,7 @@ jobs:
           echo "LegacySemVerPadded: ${{ env.GitVersion_LegacySemVerPadded }}"
           echo "AssemblySemVer: ${{ env.GitVersion_AssemblySemVer }}"
           echo "AssemblySemFileVer: ${{ env.GitVersion_AssemblySemFileVer }}"
-          echo "FullSemVer:  ${{ env.GitVersion_SemVer }}-${{ env.GitVersion_BuildMetaDataPadded }}"
+          echo "FullSemVer: ${{ env.GitVersion_FullSemVer }}"
           echo "InformationalVersion: ${{ env.GitVersion_InformationalVersion }}"
           echo "BranchName: ${{ env.GitVersion_BranchName }}"
           echo "EscapedBranchName: ${{ env.GitVersion_EscapedBranchName }}"
