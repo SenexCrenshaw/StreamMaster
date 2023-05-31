@@ -44,6 +44,7 @@ jobs:
           labels: |
             org.opencontainers.image.version= ${{ env.GitVersion_FullSemVer }}
           tags: |
+            nightly
             ${{ env.GitVersion_FullSemVer }}
 
       - name: Set up QEMU
@@ -153,6 +154,7 @@ jobs:
           labels: |
             org.opencontainers.image.version= ${{ env.GitVersion_FullSemVer }}
           tags: |
+            nightly
             ${{ env.GitVersion_FullSemVer }}
 
       - name: Login to Docker Hub
