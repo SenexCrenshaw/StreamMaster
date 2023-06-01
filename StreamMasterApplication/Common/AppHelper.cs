@@ -19,4 +19,19 @@ public static class AppHelper
 
         _memoryCache.Set(channelNames != null ? channelNames.Order().ToList() : (List<string>)new());
     }
+
+    public static int GetNextNumber(this List<int> existingChannels, int nextchno)
+    {
+        if (existingChannels.Contains(nextchno))
+        {
+            while (existingChannels.Contains(nextchno))
+            {
+                nextchno++;
+            }             
+        }
+       
+        existingChannels.Add(nextchno);
+
+        return  nextchno;
+    }
 }

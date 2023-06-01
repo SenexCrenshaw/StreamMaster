@@ -10,6 +10,7 @@ using StreamMasterDomain.Dto;
 
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.IO;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
 
@@ -75,7 +76,7 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
             var existingChannels = existing.Select(a => a.User_Tvg_chno).Distinct().Order().ToList();
             var newChannels = streams.Select(a => a.Tvg_chno).Distinct().Order().ToList();
 
-            int nextchno = m3uFile.StartingChannelNumber;
+            int nextchno = m3uFile.StartingChannelNumber-1;
 
             if (existingChannels.Contains(nextchno))
             {
@@ -104,14 +105,7 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
 
                         if (stream.Tvg_chno == 0)
                         {
-                            if (existingChannels.Contains(nextchno))
-                            {
-                                while (existingChannels.Contains(nextchno))
-                                {
-                                    nextchno++;
-                                }
-                                existingChannels.Add(nextchno);
-                            }
+                            nextchno=existingChannels.GetNextNumber(nextchno);                          
                             stream.User_Tvg_chno = nextchno;
                             stream.Tvg_chno = nextchno;
                         }
@@ -133,24 +127,24 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                         dbStream.Tvg_group = stream.Tvg_group;
 
 
-                        if (stream.Tvg_chno == 0 || existingChannels.Contains(stream.Tvg_chno))
+                        if (dbStream.Tvg_chno != 0)
                         {
-                            if (existingChannels.Contains(nextchno))
-                            {
-                                while (existingChannels.Contains(nextchno))
+                            if (stream.Tvg_chno != 0) {
+                                if (dbStream.Tvg_chno == dbStream.User_Tvg_chno)
                                 {
-                                    nextchno++;
+                                    dbStream.User_Tvg_chno = stream.Tvg_chno;
                                 }
-                                existingChannels.Add(nextchno);
-                            }
-                            if (dbStream.Tvg_chno == dbStream.User_Tvg_chno)
-                            {
-                                dbStream.User_Tvg_chno = nextchno;
-                            }
-                            dbStream.Tvg_chno = nextchno;
+                                dbStream.Tvg_chno = stream.Tvg_chno;
+                            }                           
                         }
                         else
                         {
+                            if (stream.Tvg_chno == 0)
+                            {
+                                nextchno = existingChannels.GetNextNumber(nextchno);
+                                stream.Tvg_chno = nextchno;
+                            }
+
                             if (dbStream.Tvg_chno == dbStream.User_Tvg_chno)
                             {
                                 dbStream.User_Tvg_chno = stream.Tvg_chno;
@@ -184,7 +178,14 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                 else
                 {
                     stream.IsHidden = group != null && group.IsHidden;
-                    _ = _context.VideoStreams.Add(stream);
+                    if (stream.Tvg_chno == 0 || existingChannels.Contains(stream.Tvg_chno))
+                    {
+                        nextchno = existingChannels.GetNextNumber(nextchno);
+
+                        stream.Tvg_chno = nextchno;
+                        stream.User_Tvg_chno = nextchno;
+                        _ = _context.VideoStreams.Add(stream);
+                    }
                 }
             }
 

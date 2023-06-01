@@ -59,7 +59,9 @@ const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProps) => {
         }
       });
 
+    props.onFileDeleted();
     setDeleteDialog(false);
+
   };
 
   const deleteDialogFooter = (
@@ -116,7 +118,7 @@ const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProps) => {
         </div>
       </Dialog>
       <Button
-        disabled={props.selectedFile === undefined || props.selectedFile.name === ''}
+        disabled={props.selectedFile === undefined || props.selectedFile.name === undefined || props.selectedFile.name === ''}
         icon="pi pi-minus"
         onClick={() => setDeleteDialog(true)}
         rounded
@@ -133,6 +135,7 @@ const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProps) => {
 M3UFileRemoveDialog.displayName = 'M3UFileRemoveDialog';
 
 type M3UFileRemoveDialogProps = {
+  onFileDeleted: () => void;
   selectedFile?: StreamMasterApi.M3UFilesDto;
 };
 

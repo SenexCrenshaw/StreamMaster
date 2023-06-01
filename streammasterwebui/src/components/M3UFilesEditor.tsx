@@ -117,7 +117,7 @@ const M3UFilesEditor = (props: M3UFilesEditorProps) => {
               tooltipOptions={getTopToolOptions}
             />
 
-            <M3UFileRemoveDialog selectedFile={selectedM3UFile} />
+            <M3UFileRemoveDialog onFileDeleted={() => setSelectedM3UFile({} as StreamMasterApi.M3UFilesDto)} selectedFile={selectedM3UFile} />
 
           </div>
         </div>
