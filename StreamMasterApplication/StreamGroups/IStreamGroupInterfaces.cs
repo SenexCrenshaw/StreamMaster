@@ -24,6 +24,8 @@ public interface IStreamGroupController
 
     Task<ContentResult> GetStreamGroupM3U(int id);
 
+    Task<ContentResult> GetStreamGroupM3U2(int StreamGroupNumber);
+
     Task<ActionResult<IEnumerable<StreamGroupDto>>> GetStreamGroups();
 
     IActionResult SimulateStreamFailure(string streamUrl);
