@@ -809,6 +809,7 @@ export type M3UFilesAddM3UFileFromFormApiArg = {
   FormFile?: Blob | null;
   MaxStreamCount?: number;
   MetaData?: string | null;
+  StartingChannelNumber?: number | null;
   Name?: string;
   UrlSource?: string | null;
 };
@@ -1073,6 +1074,7 @@ export type AddM3UFileRequest = {
   formFile?: Blob | null;
   maxStreamCount?: number;
   metaData?: string | null;
+  startingChannelNumber?: number | null;
   name: string;
   urlSource?: string | null;
 };
@@ -1091,6 +1093,7 @@ export type RefreshM3UFileRequest = {
   m3UFileID: number;
 };
 export type UpdateM3UFileRequest = BaseFileRequest & {
+  startingChannelNumber?: number | null;
   maxStreamCount?: number | null;
 };
 export type TvAudio = {

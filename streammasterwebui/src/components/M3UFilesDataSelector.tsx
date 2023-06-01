@@ -38,13 +38,13 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
     props.onChange?.(data);
   }, [props]);
 
-  const onM3UUpdateClick = React.useCallback(async (id: number, auto?: boolean | null, days?: number | null, maxStreams?: number | null, name?: string | null, url?: string | null) => {
+  const onM3UUpdateClick = React.useCallback(async (id: number, auto?: boolean | null, days?: number | null, maxStreams?: number | null, name?: string | null, url?: string | null, startingChannelNumber?: number | null) => {
 
     if (id < 1) {
       return;
     }
 
-    if (!auto && !days && !maxStreams && !name && !url) {
+    if (!auto && !days && !maxStreams && !name && !url && !startingChannelNumber) {
       return;
     }
 
@@ -69,6 +69,10 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
 
     if (url) {
       tosend.url = url;
+    }
+
+    if (startingChannelNumber) {
+      tosend.startingChannelNumber = startingChannelNumber;
     }
 
     await Hub.UpdateM3UFile(tosend)
@@ -167,7 +171,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
         onChange={async (e) => {
           await onM3UUpdateClick(rowData.id, null, null, null, null, e)
         }}
-
+        tooltip={rowData.url}
         value={rowData.url}
       />
     )
@@ -183,13 +187,32 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
         onChange={async (e) => {
           await onM3UUpdateClick(rowData.id, null, null, e);
         }}
-        prefix='Max '
-        suffix=' streams'
+        // prefix='Max '
+        // suffix=' streams'
 
         value={rowData.maxStreamCount}
       />
     );
   }, [onM3UUpdateClick]);
+
+  const startingChannelNumberTemplate = React.useCallback((rowData: StreamMasterApi.M3UFilesDto) => {
+    if (rowData.id === 0) {
+      return (<div />);
+    }
+
+    return (
+      <NumberEditorBodyTemplate
+        onChange={async (e) => {
+          await onM3UUpdateClick(rowData.id, null, null, null, null, null, e);
+        }}
+        // prefix='Starting Channel Number '
+        // suffix=' streams'
+
+        value={rowData.startingChannelNumber}
+      />
+    );
+  }, [onM3UUpdateClick]);
+
 
   const stationCountTemplate = React.useCallback((rowData: StreamMasterApi.M3UFilesDto) => {
     if (rowData.id === 0) {
@@ -235,7 +258,18 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
     return [
       { bodyTemplate: nameEditorBodyTemplate, field: 'name', filter: true, header: 'Name', sortable: true },
       { bodyTemplate: lastDownloadedTemplate, field: 'lastDownloaded', header: 'Downloaded', sortable: true },
-      { bodyTemplate: maxStreamCountTemplate, field: 'maxStreamCount', header: 'Max Streams', sortable: true },
+      {
+        bodyTemplate: startingChannelNumberTemplate, field: 'startingChannelNumber', header: 'Start Ch #', sortable: true, style: {
+          maxWidth: '8rem',
+          width: '8rem',
+        } as React.CSSProperties,
+      },
+      {
+        bodyTemplate: maxStreamCountTemplate, field: 'maxStreamCount', header: 'Max Streams', sortable: true, style: {
+          maxWidth: '8rem',
+          width: '8rem',
+        } as React.CSSProperties,
+      },
       { bodyTemplate: stationCountTemplate, field: 'stationCount', header: 'Streams', sortable: true },
       { bodyTemplate: urlEditorBodyTemplate, field: 'url', sortable: true },
       {
@@ -247,7 +281,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
       },
 
     ]
-  }, [lastDownloadedTemplate, maxStreamCountTemplate, nameEditorBodyTemplate, stationCountTemplate, targetActionBodyTemplate, urlEditorBodyTemplate]);
+  }, [lastDownloadedTemplate, maxStreamCountTemplate, nameEditorBodyTemplate, startingChannelNumberTemplate, stationCountTemplate, targetActionBodyTemplate, urlEditorBodyTemplate]);
 
   return (
     <>

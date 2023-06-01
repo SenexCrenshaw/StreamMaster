@@ -26,7 +26,7 @@ const M3UFileAddDialog = (props: M3UFilesEditorProps) => {
         />
       </Button>
       <OverlayPanel
-        className='col-6 p-0'
+        className='col-7 p-0'
         ref={op}
         showCloseIcon={false}>
         <M3UFilesEditor
