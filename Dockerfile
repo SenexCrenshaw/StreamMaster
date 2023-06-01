@@ -53,5 +53,6 @@ WORKDIR /app
 # USER appuser
 ARG REACT_API_URL
 ENV REACT_API_URL=$REACT_API_URL
+ENV STREAMMASTER_BASEHOSTURL=http://localhost:7095/
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "StreamMasterAPI.dll"]
