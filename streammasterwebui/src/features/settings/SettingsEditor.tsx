@@ -25,6 +25,9 @@ import { getTopToolOptions } from '../../common/common';
 import useCopyToClipboard from '../../hooks/useCopyToClipboard';
 import { baseHostURL } from '../../settings';
 
+import { ScrollPanel } from 'primereact/scrollpanel';
+
+
 export const SettingsEditor = () => {
   const toast = React.useRef<Toast>(null);
 
@@ -162,7 +165,7 @@ export const SettingsEditor = () => {
         {
           getLine(label + ':',
             <Dropdown
-              className="w-full text-left"
+              className="withpadding w-full text-left"
               onChange={(e) => setNewData({ ...newData, [field]: parseInt(e.target.value) })}
               options={options}
               placeholder={label}
@@ -239,50 +242,52 @@ export const SettingsEditor = () => {
   }
 
   return (
+
     <div className="settingsEditor">
-      <Toast position="bottom-right" ref={toast} />
-      <Dock model={items} position='right' />
-      <div className="justify-content-between align-items-center">
-        <div className="flex justify-content-start align-items-center w-full text-left font-bold text-white-500 surface-overlay justify-content-start align-items-center">
-          <SettingsEditorIcon className='p-0 mr-1' />
-          {SettingsEditor.displayName?.toUpperCase()}
+      <ScrollPanel style={{ height: 'calc(100vh - 18px)', width: '100%' }}>
+        <Toast position="bottom-right" ref={toast} />
+        <Dock model={items} position='right' />
+        <div className="justify-content-between align-items-center">
+          <div className="flex justify-content-start align-items-center w-full text-left font-bold text-white-500 surface-overlay justify-content-start align-items-center">
+            <SettingsEditorIcon className='p-0 mr-1' />
+            {SettingsEditor.displayName?.toUpperCase()}
+          </div >
+
+          <Fieldset className="mt-4 pt-10" legend="General">
+            {getInputTextLine('Device ID', 'deviceID')}
+            {getCheckBoxLine('Clean Urls', 'cleanURLs')}
+          </Fieldset>
+
+          <Fieldset className="mt-4 pt-10" legend="Streaming" >
+            {getDropDownLine('Enable Stream Buffer', 'streamingProxyType', getHandlersOptions())}
+            {getInputNumberLine('Buffer Size', 'ringBufferSizeMB')}
+            {getInputNumberLine('Connection Retry Limit', 'maxConnectRetry', 999)}
+            {getInputNumberLine('Retry Timeout in MS', 'maxConnectRetryTimeMS', 999)}
+          </Fieldset>
+
+          <Fieldset className="mt-4 pt-10" legend="Files / EPG" >
+            {getCheckBoxLine('Cache Icons', 'cacheIcons')}
+            {getInputTextLine('SD Username', 'sdUserName')}
+            {getPasswordLine('SD Password', 'sdPassword')}
+          </Fieldset>
+
+          <Fieldset className="mt-4 pt-10" legend="Backup" />
+
+          <Fieldset className="mt-4 pt-10" legend="Development" >
+            <Button
+              icon='pi pi-bookmark-fill'
+              label='Swagger'
+              onClick={() => {
+                const link = `${baseHostURL}swagger`;
+                window.open(link);
+              }
+              }
+              tooltip="Swagger Link"
+              tooltipOptions={getTopToolOptions}
+            />
+          </Fieldset>
         </div >
-
-        <Fieldset className="mt-4 pt-10" legend="General">
-          {getInputTextLine('Device ID', 'deviceID')}
-          {getCheckBoxLine('Clean Urls', 'cleanURLs')}
-        </Fieldset>
-
-        <Fieldset className="mt-4 pt-10" legend="Streaming" >
-          {getDropDownLine('Enable Stream Buffer', 'streamingProxyType', getHandlersOptions())}
-          {getInputNumberLine('Buffer Size', 'ringBufferSizeMB')}
-          {getInputNumberLine('Connection Retry Limit', 'maxConnectRetry', 999)}
-          {getInputNumberLine('Retry Timeout in MS', 'maxConnectRetryTimeMS', 999)}
-        </Fieldset>
-
-        <Fieldset className="mt-4 pt-10" legend="Files / EPG" >
-          {getCheckBoxLine('Cache Icons', 'cacheIcons')}
-          {getInputTextLine('SD Username', 'sdUserName')}
-          {getPasswordLine('SD Password', 'sdPassword')}
-        </Fieldset>
-
-        <Fieldset className="mt-4 pt-10" legend="Backup" />
-
-        <Fieldset className="mt-4 pt-10" legend="Development" >
-          <Button
-            icon='pi pi-bookmark-fill'
-            label='Swagger'
-            onClick={() => {
-              const link = `${baseHostURL}swagger`;
-              window.open(link);
-            }
-            }
-            tooltip="Swagger Link"
-            tooltipOptions={getTopToolOptions}
-          />
-        </Fieldset>
-
-      </div >
+      </ScrollPanel>
     </div >
 
   );

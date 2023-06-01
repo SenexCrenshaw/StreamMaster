@@ -51,7 +51,7 @@ const AutoMatchIconToStreamsDialog = (props: AutoMatchIconToStreamsDialogProps) 
       >
         <div className="border-1 surface-border flex grid flex-wrap justify-content-center p-0 m-0">
           <div className='flex flex-column mt-2 col-6'>
-            Auto set (${props.ids.length}) channel logos ?
+            Auto set ({props.ids.length}) channel logos ?
             <span className="scalein animation-duration-500 animation-iteration-2 text-bold text-red-500 font-italic mt-2">
               This will auto match
             </span>
