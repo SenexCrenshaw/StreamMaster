@@ -583,6 +583,22 @@ const injectedRtkApi = api
         }),
         providesTags: ["StreamGroups"],
       }),
+      streamGroupsGetStreamGroupM3U22: build.query<
+        StreamGroupsGetStreamGroupM3U22ApiResponse,
+        StreamGroupsGetStreamGroupM3U22ApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/m3u2` }),
+        providesTags: ["StreamGroups"],
+      }),
+      streamGroupsGetStreamGroupM3U23: build.query<
+        StreamGroupsGetStreamGroupM3U23ApiResponse,
+        StreamGroupsGetStreamGroupM3U23ApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroups/${queryArg}/m3u2/m3u.m3u`,
+        }),
+        providesTags: ["StreamGroups"],
+      }),
       streamGroupsGetStreamGroups: build.query<
         StreamGroupsGetStreamGroupsApiResponse,
         StreamGroupsGetStreamGroupsApiArg
@@ -887,6 +903,12 @@ export type StreamGroupsGetStreamGroupM3UApiArg = number;
 export type StreamGroupsGetStreamGroupM3U2ApiResponse =
   /** status 200  */ string;
 export type StreamGroupsGetStreamGroupM3U2ApiArg = number;
+export type StreamGroupsGetStreamGroupM3U22ApiResponse =
+  /** status 200  */ string;
+export type StreamGroupsGetStreamGroupM3U22ApiArg = number;
+export type StreamGroupsGetStreamGroupM3U23ApiResponse =
+  /** status 200  */ string;
+export type StreamGroupsGetStreamGroupM3U23ApiArg = number;
 export type StreamGroupsGetStreamGroupsApiResponse =
   /** status 200  */ StreamGroupDto[];
 export type StreamGroupsGetStreamGroupsApiArg = void;
@@ -1042,6 +1064,7 @@ export type AutoMatchIconToStreamsRequest = {
   ids?: number[];
 };
 export type M3UFilesDto = BaseFileDto & {
+  startingChannelNumber?: number;
   maxStreamCount?: number;
   stationCount?: number;
 };
@@ -1382,6 +1405,8 @@ export const {
   useStreamGroupsGetStreamGroupLineUpStatusQuery,
   useStreamGroupsGetStreamGroupM3UQuery,
   useStreamGroupsGetStreamGroupM3U2Query,
+  useStreamGroupsGetStreamGroupM3U22Query,
+  useStreamGroupsGetStreamGroupM3U23Query,
   useStreamGroupsGetStreamGroupsQuery,
   useStreamGroupsGetStreamGroupVideoStreamQuery,
   useStreamGroupsSimulateStreamFailureMutation,
