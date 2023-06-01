@@ -73,9 +73,7 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
             
 
             foreach (var stream in streams)
-            {
-               
-
+            {              
                 var group = _context.ChannelGroups.FirstOrDefault(a => a.Name.ToLower() == stream.Tvg_group.ToLower());
                 if (existing.Any())
                 {
@@ -97,12 +95,40 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                             stream.IsHidden = dbStream.IsHidden ? dbStream.IsHidden : group.IsHidden;
                         }
 
+                        if (dbStream.Tvg_group == dbStream.User_Tvg_group)
+                        {
+                            dbStream.User_Tvg_group = stream.Tvg_group;
+                        }
+                        dbStream.Tvg_group = stream.Tvg_group;
+
+
+                        if (dbStream.Tvg_chno == dbStream.User_Tvg_chno)
+                        {
+                            dbStream.User_Tvg_chno = stream.Tvg_chno;
+                        }
                         dbStream.Tvg_chno = stream.Tvg_chno;
+
+                        if (dbStream.Tvg_ID == dbStream.User_Tvg_ID)
+                        {
+                            dbStream.User_Tvg_ID = stream.Tvg_ID;
+                        }
                         dbStream.Tvg_ID = stream.Tvg_ID;
+
+                        if (dbStream.Tvg_logo == dbStream.User_Tvg_logo)
+                        {
+                            dbStream.User_Tvg_logo = stream.Tvg_logo;
+                        }
                         dbStream.Tvg_logo = stream.Tvg_logo;
+
+                        if (dbStream.Tvg_name == dbStream.User_Tvg_name)
+                        {
+                            dbStream.User_Tvg_name = stream.Tvg_name;
+                        }
                         dbStream.Tvg_name = stream.Tvg_name;
+
                         dbStream.Url = stream.Url;
                         dbStream.User_Url = stream.Url;
+
                     }
                 }
                 else
