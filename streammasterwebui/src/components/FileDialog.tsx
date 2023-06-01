@@ -21,7 +21,7 @@ import { upload } from '../services/FileUploadService';
 import type * as StreamMasterApi from '../store/iptvApi';
 import * as Hub from "../store/signlar_functions";
 
-import { isValidUrl } from '../common/common';
+import { getTopToolOptions, isValidUrl } from '../common/common';
 import { Toast } from 'primereact/toast';
 import NumberEditorBodyTemplate from './NumberEditorBodyTemplate';
 
@@ -412,11 +412,14 @@ const FileDialog = (props: FileDialogProps) => {
 
                 >
                   <Button
-                    aria-label="Submit Name"
-                    className="p-button-rounded p-button-outlined"
                     disabled={!isSaveEnabled}
-                    icon="pi pi-check"
+                    icon="pi pi-plus"
                     onClick={async () => await doUpload()}
+                    rounded
+                    severity="success"
+                    size="small"
+                    tooltip="Add EPG File"
+                    tooltipOptions={getTopToolOptions}
                   />
                 </div>
               </div>

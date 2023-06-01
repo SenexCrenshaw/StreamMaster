@@ -96,7 +96,7 @@ const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
             style={{ fontSize: '2rem' }}
           />
           {props.selectedFile && (
-            <span>Are you sure you want to delete the selected? </span>
+            <span>Are you sure you want to delete? </span>
           )}
           <span className="flex flex-column align-items-center justify-content-center font-bold">
             {props.selectedFile && (
@@ -116,7 +116,7 @@ const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
         </div>
       </Dialog>
       <Button
-        disabled={props.selectedFile === undefined || props.selectedFile.name === ''}
+        disabled={props.selectedFile === undefined || props.selectedFile.name === undefined || props.selectedFile.name === ''}
         icon="pi pi-minus"
         onClick={() => setDeleteDialog(true)}
         rounded
