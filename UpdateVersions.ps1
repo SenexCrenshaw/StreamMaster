@@ -1,7 +1,9 @@
 $gitVersion = "dotnet-gitversion"
-&$gitVersion /output json /showvariable SemVer > Version
-$version = Get-Content "Version"
-Write-output "Setting version to $version"
+$json = &$gitVersion /output json
+$obj = $json | ConvertFrom-Json 
+$version = $obj.SemVer + "-" + $obj.BuildMetaDataPadded
+
+Write-output "Setting version to $version "
 
 $filePath = "StreamMasterDomain\Dto\SettingDto.cs"
 $MyFile = Get-Content $filePath
@@ -18,4 +20,4 @@ Out-File -InputObject $MyFile -FilePath $filePath
 # $dockerComposeMyFile = $dockerComposeMyFile -replace 'image: senexcrenshaw/streammaster:.*', "image: senexcrenshaw/streammaster:$version"
 # Out-File -InputObject $dockerComposeMyFile -FilePath $dockerComposeFilePath
 
-&$gitVersion /updateprojectfiles
+# &$gitVersion /updateprojectfiles
