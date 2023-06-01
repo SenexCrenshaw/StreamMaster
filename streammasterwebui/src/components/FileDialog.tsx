@@ -39,15 +39,23 @@ const FileDialog = (props: FileDialogProps) => {
   const [maxStreamCount, setMaxStreamCount] = useState<number>(1);
   const [startingChannelNumber, setStartingChannelNumber] = useState<number>(1);
   const [blocked, setBlocked] = useState<boolean>(false);
+  const [nameFromFileName, setNameFromFileName] = useState<boolean>(false);
 
 
   const onTemplateSelect = (e: FileUploadSelectEvent) => {
     setActiveFile(e.files[0]);
+
+    if (name === '' || nameFromFileName) {
+      setNameFromFileName(true);
+      setName(e.files[0].name.replace(/\.[^/.]+$/, ''));
+    }
+
   };
 
   const onTemplateClear = () => {
     setProgress(0);
     setActiveFile(undefined);
+    setNameFromFileName(false);
   };
 
   const onSetSource = (url: string | null) => {
@@ -125,6 +133,7 @@ const FileDialog = (props: FileDialogProps) => {
     setProgress(0);
     setUploadedBytes(0);
     setName('');
+    setNameFromFileName(false);
     setSource('');
 
     setBlocked(false);
@@ -350,13 +359,27 @@ const FileDialog = (props: FileDialogProps) => {
                 <i
                   className="pi pi-times-circle z-1"
                   hidden={name === null || name === ''}
-                  onClick={() => setName('')}
+                  onClick={() => {
+
+                    if (activeFile !== null && activeFile !== undefined) {
+                      setNameFromFileName(true);
+                      setName(activeFile.name.replace(/\.[^/.]+$/, ''))
+                    } else {
+                      setName('')
+                    }
+                  }
+
+                  }
                 />
                 <InputText
                   autoFocus
                   className='withpadding'
                   id="name"
-                  onChange={(event) => setName(event.target.value)}
+                  onChange={(event) => {
+                    setName(event.target.value)
+                    setNameFromFileName(false);
+                  }
+                  }
                   value={name}
                 />
                 <label htmlFor="name">Name</label>
