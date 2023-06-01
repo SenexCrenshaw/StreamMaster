@@ -425,27 +425,27 @@ const FileDialog = (props: FileDialogProps) => {
               </div>
             </AccordionTab>
             <AccordionTab header={`${name} File`}>
-              <div hidden={name === null || name === ''}>
-                <FileUpload
-                  // itemTemplate={itemTemplate}
-                  // onUpload={onTemplateUpload}
-                  accept="xml"
-                  cancelOptions={cancelOptions}
-                  chooseOptions={chooseOptions}
-                  className=""
-                  customUpload
-                  emptyTemplate={emptyTemplate}
-                  headerTemplate={headerTemplate}
-                  maxFileSize={300000000}
-                  onClear={onTemplateClear}
-                  onError={onTemplateClear}
-                  onRemove={() => setActiveFile(undefined)}
-                  onSelect={onTemplateSelect}
-                  ref={fileUploadRef}
-                  uploadHandler={doUpload}
-                  uploadOptions={uploadOptions}
-                />
-              </div>
+
+              <FileUpload
+                // itemTemplate={itemTemplate}
+                // onUpload={onTemplateUpload}
+                accept="xml"
+                cancelOptions={cancelOptions}
+                chooseOptions={chooseOptions}
+                className=""
+                customUpload
+                emptyTemplate={emptyTemplate}
+                headerTemplate={headerTemplate}
+                maxFileSize={300000000}
+                onClear={onTemplateClear}
+                onError={onTemplateClear}
+                onRemove={() => setActiveFile(undefined)}
+                onSelect={onTemplateSelect}
+                ref={fileUploadRef}
+                uploadHandler={doUpload}
+                uploadOptions={uploadOptions}
+              />
+
             </AccordionTab>
           </Accordion>
 
