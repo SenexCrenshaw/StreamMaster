@@ -11,13 +11,8 @@ public class ScanDirectoryForIconFilesRequest : IRequest<bool>
 public class ScanDirectoryForIconFilesRequestHandler : IRequestHandler<ScanDirectoryForIconFilesRequest, bool>
 {
     private readonly IAppDbContext _context;
-    private readonly IPublisher _publisher;
-
-    public ScanDirectoryForIconFilesRequestHandler(
-         IPublisher publisher,
-         IAppDbContext context)
-    {
-        _publisher = publisher;
+    
+    public ScanDirectoryForIconFilesRequestHandler(         IAppDbContext context)    {
         _context = context;
     }
 
@@ -55,7 +50,8 @@ public class ScanDirectoryForIconFilesRequestHandler : IRequestHandler<ScanDirec
 
             string originalSource = File.ReadAllText(txtName);
             ++count;
-            if (await _context.Icons.Where(a => a.FileExists).AnyAsync(a => a.OriginalSource.Equals(originalSource), cancellationToken: cancellationToken).ConfigureAwait(false))
+
+            if ( _context.Icons.Where(a => a.FileExists).ToList().Any(a => a.OriginalSource.Equals(originalSource)))
             {
                 continue;
             }

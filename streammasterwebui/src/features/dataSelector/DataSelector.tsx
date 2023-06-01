@@ -265,7 +265,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       );
     }
 
-    const m3uFile = m3uFiles.data.find((x) => x.id == id);
+    const m3uFile = m3uFiles.data.find((x) => x.id === id);
 
     return (
       <div className="flex align-items-center gap-2" >
@@ -863,7 +863,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       }
     }
 
-    if (header == undefined) {
+    if (header === undefined) {
       return camel2title(field)
     }
 

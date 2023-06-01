@@ -27,7 +27,7 @@ const IconSelector = (props: IconSelectorProps) => {
     }
 
     if (props.value) {
-      const tests = icons.data.filter((a: IconFileDto) => a.url == props.value);
+      const tests = icons.data.filter((a: IconFileDto) => a.url === props.value);
 
       if (tests && tests != undefined && tests.length > 0) {
         setSelectedIcon(tests[0]);
@@ -37,7 +37,7 @@ const IconSelector = (props: IconSelectorProps) => {
     }
 
     if (props.resetValue) {
-      const tests = icons.data.filter((a: IconFileDto) => a.url == props.resetValue);
+      const tests = icons.data.filter((a: IconFileDto) => a.url === props.resetValue);
 
       if (tests && tests != undefined && tests.length > 0) {
         setResetIcon(tests[0]);
@@ -61,7 +61,7 @@ const IconSelector = (props: IconSelectorProps) => {
   }, [props]);
 
   const selectedTemplate = React.useCallback((option: IconFileDto) => {
-    if (!option || option.url == undefined || option.url == null || option.url == '') {
+    if (!option || option.url === undefined || option.url === null || option.url === '') {
       return (<div />);
       // <QuestionMarkIcon className='flex col-1 m-0 text-red-500' sx={{ fontSize: 32 }} />
       // );

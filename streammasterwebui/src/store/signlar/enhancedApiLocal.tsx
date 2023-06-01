@@ -111,7 +111,7 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
           ) => {
             updateCachedData((draft: StreamMasterApi.VideoStreamDto[]) => {
               channelNumbers.forEach(function (cn) {
-                const foundM3UStreamel = draft.findIndex((x) => x.id == cn.id);
+                const foundM3UStreamel = draft.findIndex((x) => x.id === cn.id);
                 if (foundM3UStreamel !== -1) {
                   draft[foundM3UStreamel].user_Tvg_chno = cn.channelNumber;
                 }

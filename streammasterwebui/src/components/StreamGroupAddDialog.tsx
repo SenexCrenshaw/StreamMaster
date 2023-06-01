@@ -21,7 +21,7 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
       return 0;
     }
 
-    if (streamGroupsQuery.data.length == 0) {
+    if (streamGroupsQuery.data.length === 0) {
       return 1;
     }
 
@@ -95,13 +95,13 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
   const onAdd = React.useCallback(() => {
 
     setBlock(true);
-    if (!isSaveEnabled || !name || streamGroupNumber == 0 || name === '') {
+    if (!isSaveEnabled || !name || streamGroupNumber === 0 || name === '') {
       ReturnToParent();
       return;
     }
 
 
-    if (!isSaveEnabled || !streamGroupNumber || streamGroupNumber == 0) {
+    if (!isSaveEnabled || !streamGroupNumber || streamGroupNumber === 0) {
       return;
     }
 

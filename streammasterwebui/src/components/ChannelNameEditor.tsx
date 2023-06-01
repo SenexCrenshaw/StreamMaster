@@ -50,7 +50,7 @@ const ChannelNameEditor = (props: ChannelNameEditorProps) => {
 
   }, [props.data.id, props.data.user_Tvg_name]);
 
-  if (props.data.user_Tvg_name == undefined) {
+  if (props.data.user_Tvg_name === undefined) {
     return <span className='sm-inputtext' />
   }
 

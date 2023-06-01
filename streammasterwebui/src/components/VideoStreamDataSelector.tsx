@@ -271,7 +271,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   }, [enableEditMode]);
 
   const streamGroupEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
-    if (data.user_Tvg_group == undefined) {
+    if (data.user_Tvg_group === undefined) {
       return <span />
     }
 

@@ -21,7 +21,8 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
     private readonly Channel<BackgroundTaskQueueConfig> _queue;
     private readonly LinkedList<TaskQueueStatusDto> taskQueueStatusDtos = new();
     private readonly ISender _sender;
-
+    private static object lockObject = new object();
+    
     public BackgroundTaskQueue(int capacity, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<BackgroundTaskQueue> logger, ISender sender)
     {
         BoundedChannelOptions options = new(capacity)
@@ -55,25 +56,34 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
 
     public async Task SetQueueTS(Guid Id)
     {
-        TaskQueueStatusDto status = taskQueueStatusDtos.First(a => a.Id == Id);
-        status.QueueTS = DateTime.Now;
-        status.IsRunning = true;
+        lock (lockObject)
+        {
+            TaskQueueStatusDto status = taskQueueStatusDtos.First(a => a.Id == Id);
+            status.QueueTS = DateTime.Now;
+            status.IsRunning = true;
+        }
         await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(taskQueueStatusDtos).ConfigureAwait(false);
     }
 
     public async Task SetStart(Guid Id)
     {
-        TaskQueueStatusDto status = taskQueueStatusDtos.First(a => a.Id == Id);
-        status.StartTS = DateTime.Now;
-        status.IsRunning = true;
+        lock (lockObject)
+        {
+            TaskQueueStatusDto status = taskQueueStatusDtos.First(a => a.Id == Id);
+            status.StartTS = DateTime.Now;
+            status.IsRunning = true;
+        }
         await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(taskQueueStatusDtos).ConfigureAwait(false);
     }
 
     public async Task SetStop(Guid Id)
     {
-        TaskQueueStatusDto status = taskQueueStatusDtos.First(a => a.Id == Id);
-        status.StopTS = DateTime.Now;
-        status.IsRunning = false;
+        lock (lockObject)
+        {
+            TaskQueueStatusDto status = taskQueueStatusDtos.First(a => a.Id == Id);
+            status.StopTS = DateTime.Now;
+            status.IsRunning = false;
+        }
         await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(taskQueueStatusDtos).ConfigureAwait(false);
     }
 
@@ -105,6 +115,10 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
         });
 
         await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(taskQueueStatusDtos).ConfigureAwait(false);
-        await _queue.Writer.WriteAsync(workItem).ConfigureAwait(false);
+        lock (lockObject)
+        {
+            _queue.Writer.TryWrite(workItem);
+            //await _queue.Writer.WriteAsync(workItem).ConfigureAwait(false);
+        }
     }
 }

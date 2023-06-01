@@ -27,7 +27,7 @@ const M3UFilesSelector = (props: M3UFilesSelectorProps) => {
   }, [m3uFilesQuery.data]);
 
   const selectedTemplate = React.useCallback((option: SelectItem) => {
-    if (option == null) {
+    if (option === null) {
       return;
     }
 

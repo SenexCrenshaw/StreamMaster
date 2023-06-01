@@ -21,7 +21,7 @@ const VideoStreamAddDialog = (props: VideoStreamAddDialogProps) => {
 
   const onSave = async (e: StreamMasterApi.AddVideoStreamRequest) => {
 
-    if (e == null || e == undefined) {
+    if (e === null || e === undefined) {
       return;
     }
 

@@ -5,6 +5,9 @@ using FluentValidation;
 using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+
+using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
@@ -28,17 +31,18 @@ public class CacheIconsFromProgrammesRequestHandler : IRequestHandler<CacheIcons
 
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
-
+    private readonly ILogger<CacheIconsFromProgrammesRequestHandler> _logger;
     private readonly ISender _sender;
 
     public CacheIconsFromProgrammesRequestHandler(
+        ILogger<CacheIconsFromProgrammesRequestHandler> logger,
         IMemoryCache memoryCache,
           IMapper mapper,
 
          IAppDbContext context, ISender sender)
     {
         _memoryCache = memoryCache;
-
+        _logger = logger;
         _mapper = mapper;
         _context = context;
         _sender = sender;
@@ -134,22 +138,30 @@ public class CacheIconsFromProgrammesRequestHandler : IRequestHandler<CacheIcons
 
                     httpClient.DefaultRequestHeaders.Add("User-Agent", userAgentString);
                     using HttpResponseMessage response = await httpClient.PostAsync("https://json.schedulesdirect.org/20141201/token", content, cancellationToken).ConfigureAwait(false);
-                    _ = response.EnsureSuccessStatusCode();
-                    string responseString = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-                    SDGetToken? result = JsonSerializer.Deserialize<SDGetToken>(responseString);
-                    if (result == null || string.IsNullOrEmpty(result.token))
+                    try
                     {
-                        continue;
+                        _ = response.EnsureSuccessStatusCode();
+                        string responseString = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+                        SDGetToken? result = JsonSerializer.Deserialize<SDGetToken>(responseString);
+                        if (result == null || string.IsNullOrEmpty(result.token))
+                        {
+                            continue;
+                        }
+                        token = result.token;
+
                     }
-                    token = result.token;
-                }
-                if (string.IsNullOrEmpty(token))
+                    catch (HttpRequestException ex)
+                    {
+                        //_logger.LogCritical(ex, "Error while retieving icon");                        
+                    }
+                    if (string.IsNullOrEmpty(token))
                 {
                     continue;
                 }
 
                 string name = Path.GetFileNameWithoutExtension(tocheck);
                 (_, isNew) = await IconHelper.AddIcon(tocheck, "?token=" + token, name, _context, _mapper, setting, fd, cancellationToken).ConfigureAwait(false);
+                }
             }
             else
             {

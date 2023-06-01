@@ -70,14 +70,11 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
             Stopwatch sw = Stopwatch.StartNew();
             var existing = _context.VideoStreams.Where(a => a.M3UFileId == m3uFile.Id).ToList();
 
-            var test1 = existing.Single(a => a.Id == 460);
+            
 
             foreach (var stream in streams)
             {
-                if (stream.Id == 460)
-                {
-                    var aa = 1;
-                }
+               
 
                 var group = _context.ChannelGroups.FirstOrDefault(a => a.Name.ToLower() == stream.Tvg_group.ToLower());
                 if (existing.Any())
@@ -94,11 +91,7 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                     }
                     else
                     {
-                        if (dbStream.Id == 460)
-                        {
-                            var aa = 1;
-                        }
-
+                     
                         if (group != null)
                         {
                             stream.IsHidden = dbStream.IsHidden ? dbStream.IsHidden : group.IsHidden;

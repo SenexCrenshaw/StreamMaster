@@ -60,7 +60,7 @@ const ChannelGroupSelector = (props: ChannelGroupSelectorProps) => {
 
 
   const selectedTemplate = React.useCallback((option: SelectItem) => {
-    if (option == null) {
+    if (option === null) {
       return;
     }
 

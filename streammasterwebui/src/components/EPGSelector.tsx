@@ -19,7 +19,7 @@ const EPGSelector = (props: EPGSelectorProps) => {
     let foundProgramme = {} as StreamMasterApi.ProgrammeName | undefined;
 
     if (props.value !== '') {
-      foundProgramme = programmeNamesQuery.data.find((a) => a.channel == props.value);
+      foundProgramme = programmeNamesQuery.data.find((a) => a.channel === props.value);
     }
 
     if (foundProgramme?.channel !== undefined) {

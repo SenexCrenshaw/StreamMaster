@@ -388,7 +388,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
                 onValueChanged={
                   (e) => {
 
-                    if (e.length == 0) return;
+                    if (e.length === 0) return;
 
                     onSetVideoStreams(e);
 
