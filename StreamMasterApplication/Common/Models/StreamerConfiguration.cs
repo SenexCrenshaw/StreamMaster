@@ -12,8 +12,8 @@ namespace StreamMasterApplication.Common.Models
             BufferSize = 1 * 1024 * 1000;
             BufferChunkSize = 4096;
             FailoverCheckInterval = 200;
-            MaxConnectRetries = 20;
-            MaxConnectRetryTime = 100;
+            MaxConnectRetry = 20;
+            MaxConnectRetryTimeMS = 100;
             PreloadPercentage = .5;
             BroadcastInterval = 3;
         }
@@ -54,13 +54,13 @@ namespace StreamMasterApplication.Common.Models
         /// Gets or sets the maximum number of retries allowed when attempting
         /// to connect to the video stream.
         /// </summary>
-        public int MaxConnectRetries { get; set; }
+        public int MaxConnectRetry { get; set; }
 
         ///// <summary>
         ///// Gets or sets the identifier for the M3U stream.
         ///// </summary>
         //public int ExtendedVideoStreamDtoId { get; set; }
-        public int MaxConnectRetryTime { get; set; }
+        public int MaxConnectRetryTimeMS { get; set; }
 
         /// <summary>
         /// Gets or sets the percentage of the buffer that must be preloaded

@@ -21,7 +21,8 @@ namespace StreamMasterDomain.Common
             DefaultIcon = "images/default.png";
             DeviceID = "device1";
             FirstFreeNumber = 1000;
-            MaxStreamMissedErrors = 20;
+            MaxConnectRetry = 20;
+            MaxConnectRetryTimeMS = 100;
             RingBufferSizeMB = 4;
             SourceBufferPreBufferPercentage = 20;
             StreamingProxyType = StreamingProxyTypes.StreamMaster;
@@ -83,7 +84,8 @@ namespace StreamMasterDomain.Common
         /// The maximum number of missed errors allowed for a stream in the
         /// StreamMaster application.
         /// </summary>
-        public int MaxStreamMissedErrors { get; set; }
+        public int MaxConnectRetry { get; set; }
+        public int MaxConnectRetryTimeMS { get; set; }
 
         /// <summary>
         /// The size of the ring buffer used by the StreamMaster application in MB.

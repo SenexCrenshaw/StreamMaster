@@ -508,8 +508,8 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         int bytesRead;
 
         int retryCount = 0;
-        int maxRetries = clientInfo.MaxConnectRetries > 0 ? clientInfo.MaxConnectRetries : 3;
-        int waitTime = clientInfo.MaxConnectRetryTime > 0 ? clientInfo.MaxConnectRetryTime : 50;
+        int maxRetries = clientInfo.MaxConnectRetry > 0 ? clientInfo.MaxConnectRetry : 3;
+        int waitTime = clientInfo.MaxConnectRetryTimeMS > 0 ? clientInfo.MaxConnectRetryTimeMS : 50;
 
         while (!cancellationToken.IsCancellationRequested)
         {

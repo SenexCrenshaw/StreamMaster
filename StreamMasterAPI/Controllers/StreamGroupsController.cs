@@ -262,7 +262,9 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         {
             VideoStreams = videoStreams,
             BufferSize = settings.RingBufferSizeMB * 1024 * 1000,
-            CancellationToken = cancellationToken
+            CancellationToken = cancellationToken,
+            MaxConnectRetry=settings.MaxConnectRetry,
+            MaxConnectRetryTimeMS = settings.MaxConnectRetryTimeMS,
         };
 
         // Get the read stream for the client

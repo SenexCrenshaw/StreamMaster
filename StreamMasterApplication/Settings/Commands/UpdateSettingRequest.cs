@@ -18,13 +18,15 @@ public class UpdateSettingRequest : IRequest<SettingDto>
     public bool? CacheIcons { get; set; }
     public string? DeviceID { get; set; }
     public string? FFMPegExecutable { get; set; }
-    public long? FirstFreeNumber { get; set; }
-    public int? MaxStreamMissedErrors { get; set; }
+    public long? FirstFreeNumber { get; set; }    
     public int? RingBufferSizeMB { get; set; }
     public string? SDPassword { get; set; }
     public string? SDUserName { get; set; }
     public bool? CleanURLs { get; set; }
     public int? SourceBufferPreBufferPercentage { get; set; }
+
+    public int? MaxConnectRetry { get; set; }
+    public int? MaxConnectRetryTimeMS { get; set; }
     public StreamingProxyTypes? StreamingProxyType { get; set; }
 }
 
@@ -93,9 +95,14 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Settin
             currentSetting.FirstFreeNumber = (long)request.FirstFreeNumber;
         }
 
-        if (request.MaxStreamMissedErrors != null && request.MaxStreamMissedErrors >= 0 && request.MaxStreamMissedErrors != currentSetting.MaxStreamMissedErrors)
+        if (request.MaxConnectRetry != null && request.MaxConnectRetry >= 0 && request.MaxConnectRetry != currentSetting.MaxConnectRetry)
         {
-            currentSetting.MaxStreamMissedErrors = (int)request.MaxStreamMissedErrors;
+            currentSetting.MaxConnectRetry = (int)request.MaxConnectRetry;
+        }
+
+        if (request.MaxConnectRetryTimeMS != null && request.MaxConnectRetryTimeMS >= 0 && request.MaxConnectRetryTimeMS != currentSetting.MaxConnectRetryTimeMS)
+        {
+            currentSetting.MaxConnectRetryTimeMS = (int)request.MaxConnectRetryTimeMS;
         }
 
         if (request.RingBufferSizeMB != null && request.RingBufferSizeMB >= 0 && request.RingBufferSizeMB != currentSetting.RingBufferSizeMB)

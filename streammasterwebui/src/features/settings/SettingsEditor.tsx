@@ -87,12 +87,12 @@ export const SettingsEditor = () => {
     return toDisplay;
   }, [getRecord]);
 
-  const getInputNumberLine = React.useCallback((label: string, field: string) => {
+  const getInputNumberLine = React.useCallback((label: string, field: string, max?: number | null) => {
     return (
       getLine(label + ':',
         <InputNumber
           className="withpadding w-full text-left"
-          max={64}
+          max={max === null ? 64 : max}
           min={0}
           onValueChange={(e) => setNewData({ ...newData, [field]: e.target.value })}
           placeholder={label}
@@ -256,6 +256,8 @@ export const SettingsEditor = () => {
         <Fieldset className="mt-4 pt-10" legend="Streaming" >
           {getDropDownLine('Enable Stream Buffer', 'streamingProxyType', getHandlersOptions())}
           {getInputNumberLine('Buffer Size', 'ringBufferSizeMB')}
+          {getInputNumberLine('Connection Retry Limit', 'maxConnectRetry', 999)}
+          {getInputNumberLine('Retry Timeout in MS', 'maxConnectRetryTimeMS', 999)}
         </Fieldset>
 
         <Fieldset className="mt-4 pt-10" legend="Files / EPG" >

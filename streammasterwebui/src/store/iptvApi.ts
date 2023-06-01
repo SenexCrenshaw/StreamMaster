@@ -1199,7 +1199,8 @@ export type Setting = {
   deviceID?: string;
   ffmPegExecutable?: string;
   firstFreeNumber?: number;
-  maxStreamMissedErrors?: number;
+  maxConnectRetry?: number;
+  maxConnectRetryTimeMS?: number;
   ringBufferSizeMB?: number;
   sdPassword?: string;
   sdUserName?: string;
@@ -1219,12 +1220,13 @@ export type UpdateSettingRequest = {
   deviceID?: string | null;
   ffmPegExecutable?: string | null;
   firstFreeNumber?: number | null;
-  maxStreamMissedErrors?: number | null;
   ringBufferSizeMB?: number | null;
   sdPassword?: string | null;
   sdUserName?: string | null;
   cleanURLs?: boolean | null;
   sourceBufferPreBufferPercentage?: number | null;
+  maxConnectRetry?: number | null;
+  maxConnectRetryTimeMS?: number | null;
   streamingProxyType?: StreamingProxyTypes | null;
 };
 export type VideoStreamHandlers = 0 | 1 | 2;
