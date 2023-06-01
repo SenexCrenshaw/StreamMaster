@@ -102,6 +102,12 @@
   max-height: 1.8rem;
 }
 
+.p-inputnumber.p-component.p-inputwrapper.p-inputwrapper-filled.withpadding{
+  border: 2px solid var(--surface-border) !important;
+    max-height: 1.8rem;
+    height: 1.8rem;
+    border-radius: 6px;
+}
 
 .p-inputnumber.p-component.p-inputwrapper.p-inputnumber-buttons-stacked.withpadding.p-0.m-0{
   border: 2px solid var(--surface-border) !important;

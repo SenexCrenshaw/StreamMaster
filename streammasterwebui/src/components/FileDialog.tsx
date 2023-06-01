@@ -23,7 +23,7 @@ import * as Hub from "../store/signlar_functions";
 
 import { getTopToolOptions, isValidUrl } from '../common/common';
 import { Toast } from 'primereact/toast';
-import NumberEditorBodyTemplate from './NumberEditorBodyTemplate';
+import { InputNumber } from 'primereact/inputnumber';
 
 const FileDialog = (props: FileDialogProps) => {
 
@@ -37,7 +37,9 @@ const FileDialog = (props: FileDialogProps) => {
   const [source, setSource] = useState<string>('');
   const [uploadedBytes, setUploadedBytes] = useState<number>(0);
   const [maxStreamCount, setMaxStreamCount] = useState<number>(1);
+  const [startingChannelNumber, setStartingChannelNumber] = useState<number>(1);
   const [blocked, setBlocked] = useState<boolean>(false);
+
 
   const onTemplateSelect = (e: FileUploadSelectEvent) => {
     setActiveFile(e.files[0]);
@@ -175,8 +177,10 @@ const FileDialog = (props: FileDialogProps) => {
           addM3UFileRequest.name = name;
           addM3UFileRequest.description = '';
           addM3UFileRequest.maxStreamCount = maxStreamCount;
+          addM3UFileRequest.startingChannelNumber = startingChannelNumber;
           addM3UFileRequest.formFile = null;
           addM3UFileRequest.urlSource = source;
+
           if (await Hub.AddM3UFile(addM3UFileRequest) !== null) {
             if (toast.current) {
               toast.current.show({
@@ -358,30 +362,30 @@ const FileDialog = (props: FileDialogProps) => {
                 <label htmlFor="name">Name</label>
               </span>
             </div>
-            <div
-              className="field"
-              hidden={props.fileType !== 'm3u'}
-            >
-              <span className="withpadding p-input-icon-right p-float-label ml-3 w-full">
-                <NumberEditorBodyTemplate
-                  onChange={(e) => setMaxStreamCount(e)}
-                  prefix='Max '
-                  suffix=' streams'
-                  value={maxStreamCount}
-                />
 
-                {/* <InputNumber
-                  className="text-sm w-full"
-                  id="maxStreamCount"
-                  locale="en-US"
-                  min={0}
-                  onChange={(event) => setMaxStreamCount(event.value ?? 0)}
-                  showButtons
-                  size={4}
-                  value={maxStreamCount}
-                /> */}
-                {/* <label htmlFor="maxStreamCount">Max Stream Count</label> */}
-              </span>
+            <div className="field ml-2" hidden={props.fileType !== 'm3u'}>
+
+              <InputNumber
+                className="withpadding"
+                locale="en-US"
+                onChange={(e) => setMaxStreamCount(e.value as number)}
+                prefix='Max '
+                suffix=' streams'
+                value={maxStreamCount}
+              />
+
+            </div>
+
+            <div className="field ml-2" hidden={props.fileType !== 'm3u'}>
+
+              <InputNumber
+                className="withpadding"
+                locale="en-US"
+                onChange={(e) => setStartingChannelNumber(e.value as number)}
+                prefix='Starting Ch #'
+                value={startingChannelNumber}
+              />
+
             </div>
           </div>
           <Accordion

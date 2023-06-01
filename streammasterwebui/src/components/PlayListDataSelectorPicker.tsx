@@ -208,7 +208,6 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   ), [onRemoveRank]);
 
   const logoEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
-    console.log('logoEditorBodyTemplate', data.user_Tvg_name, data.user_Tvg_logo)
     return <ChannelLogoEditor data={data}
 
     />
