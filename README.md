@@ -1,18 +1,14 @@
-# StreamMaster
+<p align="center" width="100%">
+    <img  src="https://github.com/senexcrenshaw/StreamMaster/raw/main/WikiImages/StreamMasterx240.png" alt="StreamMaster Logo"/>
+    <H1 align="center" width="100%">Welcome to StreamMaster</H1>
+</p>
 
-Stream Master
+---
+StreamMaster, the premier video proxy streaming platform.
 
-https://hub.docker.com/repository/docker/senexcrenshaw/streammaster/general
+Please go to the wiki for further details and installation instructions.
+[Stream Master Wiki](https://github.com/SenexCrenshaw/StreamMaster/wiki)
 
-Its a nice release. The backend proxy is stable and the UI is working nicely.
+Docker Repo: [Stream Master Docker IO](https://hub.docker.com/repository/docker/senexcrenshaw/streammaster/general)
 
-There is lots more to do, documentation, this page, but it is coming along.
 
-I mostly will be watching the discord server.
-<https://discord.gg/zACbUp6XvW>
-
-I will be publishing documentation next.
-
-As far as the state of this code. I used SM to learn react and the newer c# stuff. Its not perfect right now and I welcome PRs ;)
-
-[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink)](https://www.patreon.com/user?u=52683080)
