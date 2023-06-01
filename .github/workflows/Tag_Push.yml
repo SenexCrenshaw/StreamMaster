@@ -11,12 +11,6 @@ env:
   REGISTRY_IMAGE: senexcrenshaw/streammaster
 
 jobs:
-  github-actions-environment-variables-ubuntu:
-    runs-on: ubuntu-latest
-    steps:
-      - name: List of the GitHub Actions environment variables on Windows
-        run: env
-
   build:
     runs-on: ubuntu-latest
     strategy:
