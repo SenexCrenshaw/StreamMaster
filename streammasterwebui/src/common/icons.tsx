@@ -10,8 +10,11 @@ import MenuIcon from '@mui/icons-material/Menu';
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import RotateLeftIcon from '@mui/icons-material/RotateLeft';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
+
 import { default as cancelIcon } from '@mui/icons-material/Cancel';
 
+export const HelpIcon = HelpOutlineOutlinedIcon;
 export const AutoMatchIcon = AutoAwesomeIcon;
 export const CancelIcon = cancelIcon;
 export const M3UPlaylistEditorIcon = PlaylistAddSharpIcon;

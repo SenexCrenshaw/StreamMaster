@@ -27,7 +27,7 @@ const MenuItemSM = (props: MenuItemSMProps) => {
         >
           <MenuItem
             active={location.pathname === props.link}
-            component={<Link className="link" to={props.link} />}
+            component={<Link className="link" target={props.newWindow === null ? "" : props.newWindow ? "_blank" : ""} to={props.link} />}
             icon={props.icon}
           >
             {props.children}
@@ -42,7 +42,7 @@ const MenuItemSM = (props: MenuItemSMProps) => {
   return (
     <MenuItem
       active={location.pathname === props.link}
-      component={<Link className="link" to={props.link} />}
+      component={<Link className="link" target={props.newWindow === null ? "" : props.newWindow ? "_blank" : ""} to={props.link} />}
       icon={props.icon}
     >
       {props.children}
@@ -58,6 +58,7 @@ export type MenuItemSMProps = {
   icon: React.ReactNode;
   link: string;
   name: string;
+  newWindow?: boolean;
   tooltip?: string;
 }
 
