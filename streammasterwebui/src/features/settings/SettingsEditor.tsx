@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import './SettingsEditor.css';
 import { Button } from 'primereact/button';
-import { ProgressSpinner } from 'primereact/progressspinner';
+
 import React from 'react';
 import { Fieldset } from 'primereact/fieldset';
 import { useSettingsGetSettingQuery, type SettingDto } from '../../store/iptvApi';
@@ -9,11 +9,11 @@ import { UpdateSetting } from '../../store/signlar_functions';
 import { SettingsEditorIcon } from '../../common/icons';
 import { Checkbox } from 'primereact/checkbox';
 import { InputText } from 'primereact/inputtext';
-import { BlockUI } from 'primereact/blockui';
+
 import { type MenuItem } from 'primereact/menuitem';
 import { Dock } from 'primereact/dock';
 import SaveIcon from '@mui/icons-material/Save';
-import UndoIcon from '@mui/icons-material/Undo';
+
 import HistoryIcon from '@mui/icons-material/History';
 import { Toast } from 'primereact/toast';
 import { Dropdown } from 'primereact/dropdown';
@@ -22,7 +22,7 @@ import { type SelectItem } from 'primereact/selectitem';
 import { InputNumber } from 'primereact/inputnumber';
 import { Password } from 'primereact/password';
 import { getTopToolOptions } from '../../common/common';
-import useCopyToClipboard from '../../hooks/useCopyToClipboard';
+
 import { baseHostURL } from '../../settings';
 
 import { ScrollPanel } from 'primereact/scrollpanel';
