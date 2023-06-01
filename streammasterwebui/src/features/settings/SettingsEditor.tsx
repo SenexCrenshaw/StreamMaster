@@ -21,6 +21,9 @@ import { StreamingProxyTypes } from '../../store/streammaster_enums';
 import { type SelectItem } from 'primereact/selectitem';
 import { InputNumber } from 'primereact/inputnumber';
 import { Password } from 'primereact/password';
+import { getTopToolOptions } from '../../common/common';
+import useCopyToClipboard from '../../hooks/useCopyToClipboard';
+import { baseHostURL } from '../../settings';
 
 export const SettingsEditor = () => {
   const toast = React.useRef<Toast>(null);
@@ -247,6 +250,7 @@ export const SettingsEditor = () => {
 
         <Fieldset className="mt-4 pt-10" legend="General">
           {getInputTextLine('Device ID', 'deviceID')}
+          {getCheckBoxLine('Clean Urls', 'cleanURLs')}
         </Fieldset>
 
         <Fieldset className="mt-4 pt-10" legend="Streaming" >
@@ -261,6 +265,20 @@ export const SettingsEditor = () => {
         </Fieldset>
 
         <Fieldset className="mt-4 pt-10" legend="Backup" />
+
+        <Fieldset className="mt-4 pt-10" legend="Development" >
+          <Button
+            icon='pi pi-bookmark-fill'
+            label='Swagger'
+            onClick={() => {
+              const link = `${baseHostURL}swagger`;
+              window.open(link);
+            }
+            }
+            tooltip="Swagger Link"
+            tooltipOptions={getTopToolOptions}
+          />
+        </Fieldset>
 
       </div >
     </div >

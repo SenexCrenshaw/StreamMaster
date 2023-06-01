@@ -26,7 +26,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
     private readonly IServiceProvider _serviceProvider;
     private readonly ConcurrentDictionary<Guid, RingBufferReadStream> _streamReads;
     private readonly ConcurrentDictionary<string, StreamStreamInfo> _streamStreamInfos;
-
+    private readonly Setting setting;
     public RingBufferManager(ILogger<RingBufferManager> logger, IServiceProvider serviceProvider, IHubContext<StreamMasterHub, IStreamMasterHub> hub, ISender sender)
     {
         _logger = logger;
@@ -36,7 +36,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         _clientCancellationTokenSources = new ConcurrentDictionary<Guid, CancellationTokenSource>();
         _streamReads = new ConcurrentDictionary<Guid, RingBufferReadStream>();
         _streamStreamInfos = new();
-
+         setting = FileUtil.GetSetting();
         _broadcastTimer = new Timer(BroadcastMessage, null, 3 * 1000, 3 * 1000);
     }
 
@@ -69,19 +69,19 @@ public class RingBufferManager : IDisposable, IRingBufferManager
     /// </returns>
     public SingleStreamStatisticsResult GetAllStatistics(string streamUrl)
     {
-        _logger.LogInformation("Retrieving statistics for stream: {StreamUrl}", streamUrl);
+        _logger.LogInformation("Retrieving statistics for stream: {StreamUrl}", setting.CleanURLs ? "url removed": streamUrl);
 
         CircularRingBuffer? buffer = GetBuffer(streamUrl);
         if (buffer != null)
         {
-            _logger.LogInformation("Retrieving statistics for stream: {StreamUrl}", streamUrl);
+            _logger.LogInformation("Retrieving statistics for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
             return new SingleStreamStatisticsResult
             {
                 StreamUrl = streamUrl,
                 ClientStatistics = buffer.GetAllStatistics()
             };
         }
-        _logger.LogWarning("Stream not found when retrieving statistics: {StreamUrl}", streamUrl);
+        _logger.LogWarning("Stream not found when retrieving statistics: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
         return new SingleStreamStatisticsResult();
     }
 
@@ -157,7 +157,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
 
         if (streamStreamInfo is null || streamStreamInfo.RingBuffer is null)
         {
-            _logger.LogCritical("Could not create buffer for client {ClientId} registered for stream: {StreamUrl}", config.ClientId, streamUrl);
+            _logger.LogCritical("Could not create buffer for client {ClientId} registered for stream: {StreamUrl}", config.ClientId, setting.CleanURLs ? "url removed" : streamUrl);
             //throw new ApplicationException($"Could not create buffer for client {config.ClientId} registered for stream: {streamUrl}");
             return (null, config.ClientId, null);
         }
@@ -168,7 +168,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         streamStreamInfo.RingBuffer.RegisterClient(config.ClientId);
         IncrementClientCounter(streamUrl);
 
-        _logger.LogInformation("Client {ClientId} registered for stream: {StreamUrl}", config.ClientId, streamUrl);
+        _logger.LogInformation("Client {ClientId} registered for stream: {StreamUrl}", config.ClientId, setting.CleanURLs ? "url removed" : streamUrl);
         return (streamRead, config.ClientId, null);
     }
 
@@ -185,7 +185,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         if (buffer != null)
         {
             buffer.UnregisterClient(config.ClientId);
-            _logger.LogInformation("Client {ClientId} unregistered for stream: {StreamUrl}", config.ClientId, config.CurentVideoStream.User_Url);
+            _logger.LogInformation("Client {ClientId} unregistered for stream: {StreamUrl}", config.ClientId,  setting.CleanURLs ? "url removed" : config.CurentVideoStream.User_Url);
 
             _ = _clientCancellationTokenSources.TryRemove(config.ClientId, out _);
             if (_clientCancellationTokenSources.TryGetValue(config.ClientId, out CancellationTokenSource? token))
@@ -197,7 +197,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         }
         else
         {
-            _logger.LogWarning("Unable to remove client: {ClientId}. Stream not found: {StreamUrl}", config.ClientId, config.CurentVideoStream.User_Url);
+            _logger.LogWarning("Unable to remove client: {ClientId}. Stream not found: {StreamUrl}", config.ClientId, setting.CleanURLs ? "url removed" : config.CurentVideoStream.User_Url);
         }
     }
 
@@ -222,11 +222,11 @@ public class RingBufferManager : IDisposable, IRingBufferManager
             {
                 _streamStreamInfo.StreamerCancellationToken.Cancel();
             }
-            _logger.LogInformation("Simulating stream failure for: {StreamUrl}", streamUrl);
+            _logger.LogInformation("Simulating stream failure for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
         }
         else
         {
-            _logger.LogWarning("Stream not found, cannot simulate stream failure: {StreamUrl}", streamUrl);
+            _logger.LogWarning("Stream not found, cannot simulate stream failure: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
         }
     }
 
@@ -270,7 +270,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
     /// <returns>A new instance of the CircularRingBuffer.</returns>
     private StreamStreamInfo CreateAndStartBuffer(string streamUrl, StreamerConfiguration clientInfo)
     {
-        _logger.LogInformation("Creating and starting buffer for stream: {StreamUrl}", streamUrl);
+        _logger.LogInformation("Creating and starting buffer for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
         CircularRingBuffer buffer = new(clientInfo);
 
@@ -286,7 +286,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         var m3uFileIdMaxStream = m3uFileTask.Result;
         if (m3uFileIdMaxStream == null)
         {
-            _logger.LogError("M3UFile not found for stream: {StreamUrl}", streamUrl);
+            _logger.LogError("M3UFile not found for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
             m3uFileIdMaxStream = new M3UFileIdMaxStream { M3UFileId = 0, MaxStreams = 999 };
         }
 
@@ -302,7 +302,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
             _ = _handlerTokens.TryAdd(streamUrl, handlerCancellationTokenSource);
         }
 
-        _logger.LogInformation("Buffer created and streaming started for: {StreamUrl}", streamUrl);
+        _logger.LogInformation("Buffer created and streaming started for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
         return streamStreamInfo;
     }
@@ -328,13 +328,13 @@ public class RingBufferManager : IDisposable, IRingBufferManager
             {                                
                 if (_streamStreamInfos.TryRemove(streamUrl, out _))
                 {
-                    _logger.LogInformation("Buffer removed for stream: {StreamUrl}", streamUrl);
+                    _logger.LogInformation("Buffer removed for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
                     _streamStreamInfo.Stop();
                 }                
             }
             else
             {
-                _logger.LogInformation("Client counter decremented for stream: {StreamUrl}. New count: {ClientCount}", streamUrl, _streamStreamInfo.ClientCounter);
+                _logger.LogInformation("Client counter decremented for stream: {StreamUrl}. New count: {ClientCount}", setting.CleanURLs ? "url removed" : streamUrl, _streamStreamInfo.ClientCounter);
             }
         }
     }
@@ -355,10 +355,10 @@ public class RingBufferManager : IDisposable, IRingBufferManager
     /// <returns>The existing or newly created buffer.</returns>
     private StreamStreamInfo? GetOrCreateBuffer(string streamUrl, StreamerConfiguration config)
     {
-        _logger.LogInformation("Getting or creating buffer for stream: {StreamUrl}", streamUrl);
+        _logger.LogInformation("Getting or creating buffer for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
         var si = _streamStreamInfos.GetOrAdd(streamUrl, _ =>
         {
-            _logger.LogInformation("Creating and starting a new buffer for stream: {StreamUrl}", streamUrl);
+            _logger.LogInformation("Creating and starting a new buffer for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
             return CreateAndStartBuffer(streamUrl, config);
         });
@@ -367,7 +367,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
 
         if (allStreamsCount >= si.MaxStreams)
         {
-            _logger.LogInformation("Max stream count reached for stream: {StreamUrl}", streamUrl);
+            _logger.LogInformation("Max stream count reached for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
             return null;
         }
 
@@ -386,13 +386,13 @@ public class RingBufferManager : IDisposable, IRingBufferManager
     private async Task HandleFailover(StreamerConfiguration clientInfo, CancellationToken cancellationToken)
     {
         string streamUrl = clientInfo.CurentVideoStream.User_Url;
-        _logger.LogInformation("Failover handling watching stream: {StreamUrl}", streamUrl);
+        _logger.LogInformation("Failover handling watching stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
         await Task.Delay(clientInfo.FailoverCheckInterval, cancellationToken);
 
         if (!_streamStreamInfos.TryGetValue(streamUrl, out StreamStreamInfo? _streamStreamInfo))
         {
-            _logger.LogWarning("HandleFailover streamer info not found for: {StreamUrl}", streamUrl);
+            _logger.LogWarning("HandleFailover streamer info not found for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
             return;
         }
 
@@ -401,7 +401,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         {
             if (!_streamStreamInfos.TryGetValue(streamUrl, out _streamStreamInfo))
             {
-                _logger.LogWarning("HandleFailover Stream stopped: {StreamUrl}", streamUrl);
+                _logger.LogWarning("HandleFailover Stream stopped: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
                 return;
             }
@@ -419,7 +419,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
                     {
                         _streamStreamInfo.StreamerCancellationToken.Cancel();
                     }
-                    _logger.LogWarning("No more clients for : {StreamUrl}", streamUrl);
+                    _logger.LogWarning("No more clients for : {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
                     quit = true;
                     continue;
                 }
@@ -428,7 +428,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
 
                 await Task.Delay(200, cancellationToken);
 
-                _logger.LogWarning("Stream failure detected for stream: {StreamUrl}", streamUrl);
+                _logger.LogWarning("Stream failure detected for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
                 _streamStreamInfo.Stop();
 
@@ -456,7 +456,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
                     }
                 }
 
-                _logger.LogInformation("Failover handled, switched to new stream URL: {NewStreamUrl}", newStreamUrl);
+                _logger.LogInformation("Failover handled, switched to new stream URL: {NewStreamUrl}", setting.CleanURLs ? "url removed" :  newStreamUrl);
 
                 // Update the stream URL
                 streamUrl = newStreamUrl;
@@ -468,7 +468,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         }
 
         //_streamingTasks.TryRemove(streamUrl, out _);
-        _logger.LogInformation("Failover handling stopped for stream: {StreamUrl}", streamUrl);
+        _logger.LogInformation("Failover handling stopped for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
     }
 
     private void IncrementClientCounter(string streamUrl)
@@ -494,12 +494,12 @@ public class RingBufferManager : IDisposable, IRingBufferManager
     /// <returns>A Task representing the asynchronous operation.</returns>
     private async Task StartVideoStreaming(string streamUrl, StreamerConfiguration clientInfo, CircularRingBuffer buffer, CancellationTokenSource cancellationToken)
     {
-        _logger.LogInformation("Starting video read streaming for stream: {StreamUrl}", streamUrl);
+        _logger.LogInformation("Starting video read streaming for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
         (Stream? stream, ProxyStreamError? error) = await StreamingProxies.GetProxyStream(streamUrl);
         if (stream == null || error != null)
         {
-            _logger.LogError("Error getting proxy stream for {streamUrl}: {error?.Message}", streamUrl, error?.Message);
+            _logger.LogError("Error getting proxy stream for {streamUrl}: {error?.Message}", setting.CleanURLs ? "url removed" : streamUrl, error?.Message);
 
             return;
         }
@@ -521,7 +521,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
                 {
                     break;
                 }
-                _logger.LogInformation("Input read stream received 0 bytes for stream: {StreamUrl} Retry {retryCount}/{maxRetries}", streamUrl, retryCount, maxRetries);
+                _logger.LogInformation("Input read stream received 0 bytes for stream: {StreamUrl} Retry {retryCount}/{maxRetries}", setting.CleanURLs ? "url removed" : streamUrl, retryCount, maxRetries);
                 await Task.Delay(waitTime); // wait before retrying
             }
             else
@@ -532,7 +532,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
             }
         }
 
-        _logger.LogInformation("Input read stream stopped for stream: {StreamUrl}", streamUrl);
+        _logger.LogInformation("Input read stream stopped for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
         cancellationToken.Cancel();
     }
 }

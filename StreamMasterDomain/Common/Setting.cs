@@ -16,6 +16,7 @@ namespace StreamMasterDomain.Common
             AppName = "StreamMaster";
             BaseHostURL = "http://127.0.0.1:7095/";
             CacheIcons = true;
+            CleanURLs = true;
             DatabaseName = "StreamMaster.db";
             DefaultIcon = "images/default.png";
             DeviceID = "device1";
@@ -49,6 +50,8 @@ namespace StreamMasterDomain.Common
         /// A boolean value indicating whether icons should be cached or not.
         /// </summary>
         public bool CacheIcons { get; set; }
+
+        public bool CleanURLs { get; set; }
 
         /// <summary>
         /// The name of the database used by the StreamMaster application.

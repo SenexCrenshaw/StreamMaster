@@ -1167,6 +1167,7 @@ export type Setting = {
   baseHostPost?: number;
   baseHostURL?: string;
   cacheIcons?: boolean;
+  cleanURLs?: boolean;
   databaseName?: string;
   defaultIcon?: string;
   deviceID?: string;
@@ -1196,6 +1197,7 @@ export type UpdateSettingRequest = {
   ringBufferSizeMB?: number | null;
   sdPassword?: string | null;
   sdUserName?: string | null;
+  cleanURLs?: boolean | null;
   sourceBufferPreBufferPercentage?: number | null;
   streamingProxyType?: StreamingProxyTypes | null;
 };

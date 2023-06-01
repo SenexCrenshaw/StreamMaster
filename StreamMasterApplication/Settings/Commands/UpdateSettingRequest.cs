@@ -23,6 +23,7 @@ public class UpdateSettingRequest : IRequest<SettingDto>
     public int? RingBufferSizeMB { get; set; }
     public string? SDPassword { get; set; }
     public string? SDUserName { get; set; }
+    public bool? CleanURLs { get; set; }
     public int? SourceBufferPreBufferPercentage { get; set; }
     public StreamingProxyTypes? StreamingProxyType { get; set; }
 }
@@ -70,6 +71,11 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Settin
         if (request.CacheIcons != null && request.CacheIcons != currentSetting.CacheIcons)
         {
             currentSetting.CacheIcons = (bool)request.CacheIcons;
+        }
+
+        if (request.CleanURLs != null && request.CleanURLs != currentSetting.CleanURLs)
+        {
+            currentSetting.CleanURLs = (bool)request.CleanURLs;
         }
 
         if (!string.IsNullOrEmpty(request.DeviceID) && request.DeviceID != currentSetting.DeviceID)
