@@ -58,22 +58,38 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
             M3UFile? m3uFile = await _context.M3UFiles.FindAsync(new object?[] { command.M3UFileId }, cancellationToken: cancellationToken).ConfigureAwait(false);
             if (m3uFile == null)
             {
+                _logger.LogCritical("Could not find M3U file");
                 return null;
             }
 
             List<VideoStream>? streams = await m3uFile.GetM3U().ConfigureAwait(false);
             if (streams == null)
             {
+                _logger.LogCritical("Error while processing M3U file, bad format");
                 return null;
             }
 
             Stopwatch sw = Stopwatch.StartNew();
             var existing = _context.VideoStreams.Where(a => a.M3UFileId == m3uFile.Id).ToList();
 
-            
+            var existingChannels = existing.Select(a => a.User_Tvg_chno).Distinct().Order().ToList();
+            var newChannels = streams.Select(a => a.Tvg_chno).Distinct().Order().ToList();
+
+            int nextchno = m3uFile.StartingChannelNumber;
+
+            if (existingChannels.Contains(nextchno))
+            {
+                while (existingChannels.Contains(nextchno))
+                {
+                    nextchno++;
+                }
+             
+            }
+            existingChannels.Add(nextchno);
 
             foreach (var stream in streams)
-            {              
+            {         
+                
                 var group = _context.ChannelGroups.FirstOrDefault(a => a.Name.ToLower() == stream.Tvg_group.ToLower());
                 if (existing.Any())
                 {
@@ -85,6 +101,21 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                         {
                             stream.IsHidden = group.IsHidden;
                         }
+
+                        if (stream.Tvg_chno == 0)
+                        {
+                            if (existingChannels.Contains(nextchno))
+                            {
+                                while (existingChannels.Contains(nextchno))
+                                {
+                                    nextchno++;
+                                }
+                                existingChannels.Add(nextchno);
+                            }
+                            stream.User_Tvg_chno = nextchno;
+                            stream.Tvg_chno = nextchno;
+                        }
+
                         _ = _context.VideoStreams.Add(stream);
                     }
                     else
@@ -102,11 +133,31 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                         dbStream.Tvg_group = stream.Tvg_group;
 
 
-                        if (dbStream.Tvg_chno == dbStream.User_Tvg_chno)
+                        if (stream.Tvg_chno == 0 || existingChannels.Contains(stream.Tvg_chno))
                         {
-                            dbStream.User_Tvg_chno = stream.Tvg_chno;
+                            if (existingChannels.Contains(nextchno))
+                            {
+                                while (existingChannels.Contains(nextchno))
+                                {
+                                    nextchno++;
+                                }
+                                existingChannels.Add(nextchno);
+                            }
+                            if (dbStream.Tvg_chno == dbStream.User_Tvg_chno)
+                            {
+                                dbStream.User_Tvg_chno = nextchno;
+                            }
+                            dbStream.Tvg_chno = nextchno;
                         }
-                        dbStream.Tvg_chno = stream.Tvg_chno;
+                        else
+                        {
+                            if (dbStream.Tvg_chno == dbStream.User_Tvg_chno)
+                            {
+                                dbStream.User_Tvg_chno = stream.Tvg_chno;
+                            }
+                            dbStream.Tvg_chno = stream.Tvg_chno;
+                        }                                           
+
 
                         if (dbStream.Tvg_ID == dbStream.User_Tvg_ID)
                         {

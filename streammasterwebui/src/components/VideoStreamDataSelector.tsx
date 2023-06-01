@@ -286,6 +286,16 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const targetColumns = React.useMemo((): ColumnMeta[] => {
     return [
       {
+        field: 'id',
+        filter: false,
+        header: 'id',
+        sortable: true,
+        style: {
+          maxWidth: '4rem',
+          width: '4rem',
+        } as CSSProperties,
+      },
+      {
         bodyTemplate: channelNumberEditorBodyTemplate,
         field: 'user_Tvg_chno',
         filter: false,
@@ -296,6 +306,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
           width: '4rem',
         } as CSSProperties,
       },
+
       {
         bodyTemplate: channelNameEditorBodyTemplate,
         field: 'user_Tvg_name',
