@@ -201,7 +201,7 @@ const IconSelector = (props: IconSelectorProps) => {
           value={selectedIcon}
           valueTemplate={selectedTemplate}
           virtualScrollerOptions={{
-            itemSize: 64,
+            itemSize: 72,
           }}
 
         />
