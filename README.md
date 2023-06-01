@@ -6,6 +6,8 @@
 ---
 StreamMaster, the premier video proxy streaming platform.
 
+[![Sponsor this project](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink)](https://www.patreon.com/user?u=52683080)
+
 Please go to the wiki for further details and installation instructions.
 [Stream Master Wiki](https://github.com/SenexCrenshaw/StreamMaster/wiki)
 
@@ -31,6 +33,3 @@ Please go to the wiki for further details and installation instructions.
 
 
 Docker Repo: [Stream Master Docker IO](https://hub.docker.com/repository/docker/senexcrenshaw/streammaster/general)
-
-
-[![Sponsor this project](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink)](https://www.patreon.com/user?u=52683080)
