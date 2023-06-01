@@ -14,6 +14,7 @@ namespace StreamMasterApplication.M3UFiles.Commands;
 
 public class UpdateM3UFileRequest : BaseFileRequest, IRequest<M3UFilesDto?>
 {
+    public int? StartingChannelNumber { get; set; }
     public int? MaxStreamCount { get; set; }
 }
 
@@ -86,6 +87,12 @@ public class UpdateM3UFileRequestHandler : IRequestHandler<UpdateM3UFileRequest,
             {
                 isChanged = true;
                 m3UFile.AutoUpdate = (bool)command.AutoUpdate;
+            }
+
+            if (command.StartingChannelNumber != null && m3UFile.StartingChannelNumber != command.StartingChannelNumber)
+            {
+                isChanged = true;
+                m3UFile.StartingChannelNumber = (int)command.StartingChannelNumber;
             }
 
             if (command.DaysToUpdate != null && m3UFile.DaysToUpdate != command.DaysToUpdate)

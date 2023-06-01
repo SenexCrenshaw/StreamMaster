@@ -22,6 +22,7 @@ public class AddM3UFileRequest : IRequest<M3UFilesDto?>
     public int MaxStreamCount { get; set; }
 
     public string? MetaData { get; set; }
+    public int? StartingChannelNumber { get; set; }
 
     [Required]
     public string Name { get; set; } = string.Empty;
@@ -68,6 +69,8 @@ public class AddM3UFileRequestHandler : IRequestHandler<AddM3UFileRequest, M3UFi
             return null;
         }
 
+
+        Setting setting = FileUtil.GetSetting();
         try
         {
             FileDefinition fd = FileDefinitions.M3U;
@@ -77,7 +80,8 @@ public class AddM3UFileRequestHandler : IRequestHandler<AddM3UFileRequest, M3UFi
             {
                 Description = command.Description ?? "",
                 Name = command.Name,
-                Source = command.Name + fd.FileExtension
+                Source = command.Name + fd.FileExtension,
+                StartingChannelNumber= command.StartingChannelNumber == null ? (int)setting.FirstFreeNumber :  (int) command.StartingChannelNumber,
             };
 
             if (command.FormFile != null)
