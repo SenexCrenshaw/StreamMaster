@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { type DataTableValue } from 'primereact/datatable';
 import { type CSSProperties } from 'react';
 import React from 'react';
@@ -44,8 +43,6 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
 
 
   const dataSource = React.useMemo((): T[] | undefined => {
-    const sortedObjects: T[] = [];
-
 
     if (!props.sourceDataSource) {
       return;
@@ -111,9 +108,10 @@ export type DataSelectorPickerProps<T extends DataTableValue> = {
   id: string,
   isLoading: boolean | undefined;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSelectionChange?: (value: T | T[] | any) => void;
   onTargetOnValueChanged?: (value: T[]) => void;
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onTargetSelectionChange?: (value: T | T[] | any) => void;
   selection?: T | T[] | undefined;
   sourceColumns: ColumnMeta[];

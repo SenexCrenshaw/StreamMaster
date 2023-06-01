@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unused-prop-types */
 import { Button } from "primereact/button";
 
 import React from "react";
@@ -99,7 +98,6 @@ AutoMatchIconToStreamsDialog.defaultProps = {
 
 export type AutoMatchIconToStreamsDialogProps = {
   ids: StreamMasterApi.ChannelNumberPair[];
-  onChange?: ((value: StreamMasterApi.ChannelNumberPair[]) => void) | null;
 };
 
 export default React.memo(AutoMatchIconToStreamsDialog);

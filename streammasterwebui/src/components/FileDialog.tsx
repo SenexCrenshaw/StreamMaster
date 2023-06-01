@@ -487,7 +487,6 @@ FileDialog.displayName = 'FileDialog';
 
 type FileDialogProps = {
   fileType: string,
-  // eslint-disable-next-line no-unused-vars
   onClose: (didUpload: boolean) => void,
   show: boolean,
 };

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type * as React from 'react';
 import type * as StreamMasterApi from '../store/iptvApi';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';

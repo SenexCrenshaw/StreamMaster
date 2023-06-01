@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import './DataSelector.css';
 
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { Skeleton } from 'primereact/skeleton';
-import { type ColumnFilterEvent } from 'primereact/column';
+
 import { type ColumnSortEvent } from 'primereact/column';
 
 import { Column } from 'primereact/column';

@@ -1,6 +1,4 @@
-/* eslint-disable react/no-unused-prop-types */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { type InputNumberValueChangeEvent } from "primereact/inputnumber";
+
 import { InputNumber } from "primereact/inputnumber";
 import { type TooltipOptions } from "primereact/tooltip/tooltipoptions";
 import { type CSSProperties } from "react";
