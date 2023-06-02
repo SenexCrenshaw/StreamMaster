@@ -99,7 +99,7 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
             string url = $"{setting.BaseHostURL}api/streamgroups/{command.StreamGroupNumber}/stream/{videoStream.Id}";
 
             string ttt = $"#EXTINF:0 CUID=\"{videoStream.CUID}\" channel-id=\"{videoStream.CUID}\" channel-number=\"{videoStream.User_Tvg_chno}\" tvg-name=\"{videoStream.User_Tvg_name}\" tvg-chno=\"{videoStream.User_Tvg_chno}\" ";
-            ttt += $"tvg-ID=\"{videoStream.User_Tvg_ID}\" tvg-logo=\"{videoStream.User_Tvg_logo}\" group-title=\"{videoStream.User_Tvg_group}\"";
+            ttt += $"tvg-id=\"{videoStream.User_Tvg_ID}\" tvg-logo=\"{videoStream.User_Tvg_logo}\" group-title=\"{videoStream.User_Tvg_group}\"";
             ttt += $",{videoStream.User_Tvg_name}\r\n";
             ttt += $"{url}\r\n";
 
