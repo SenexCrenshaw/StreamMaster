@@ -504,11 +504,11 @@ public class RingBufferManager : IDisposable, IRingBufferManager
 
         if (setting.StreamingProxyType == StreamingProxyTypes.FFMpeg)
         {
-            (stream, error) = await StreamingProxies.GetFFMpegStream(streamUrl,setting.FFMPegExecutable,"streammaster");
+            (stream, error) = await StreamingProxies.GetFFMpegStream(streamUrl, setting.FFMPegExecutable, "streammaster");
         }
         else
         {
-            ( stream,error) = await StreamingProxies.GetProxyStream(streamUrl);
+            (stream, error) = await StreamingProxies.GetProxyStream(streamUrl);
         }
 
         if (stream == null || error != null)
@@ -535,12 +535,6 @@ public class RingBufferManager : IDisposable, IRingBufferManager
                     _logger.LogWarning("Stream: {StreamUrl} is not readable", setting.CleanURLs ? "url removed" : streamUrl);
                     break;
                 }
-
-                //if (!stream.CanSeek)
-                //{
-                //    _logger.LogWarning("Stream: {StreamUrl} is in a faulted state", setting.CleanURLs ? "url removed" : streamUrl);
-                //    break;
-                //}
 
                 try
                 {

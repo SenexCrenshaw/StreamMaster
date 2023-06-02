@@ -1,11 +1,25 @@
 ﻿using StreamMasterDomain.Common;
 
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace StreamMasterInfrastructure.MiddleWare;
 
 public static class StreamingProxies
 {
+    private static bool IsFFmpegAvailable()
+    {
+        string command = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "where" : "which";
+        ProcessStartInfo startInfo = new ProcessStartInfo(command, "ffmpeg");
+        startInfo.RedirectStandardOutput = true;
+        startInfo.UseShellExecute = false;
+        Process process = new Process();
+        process.StartInfo = startInfo;
+        process.Start();
+        process.WaitForExit();
+        return process.ExitCode == 0;
+    }
+
     /// <summary>
     /// Get FFMpeg Stream from url <strong>Supports failover</strong>
     /// </summary>
@@ -17,7 +31,7 @@ public static class StreamingProxies
     /// <returns><strong>A FFMpeg backed stream or null</strong></returns>
     public static async Task<(Stream? stream, ProxyStreamError? error)> GetFFMpegStream(string streamUrl, string ffMPegExecutable, string user_agent)
     {
-        if (!File.Exists(ffMPegExecutable))
+        if (!IsFFmpegAvailable())
         {
             ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = $"FFmpeg executable file not found: {ffMPegExecutable}" };
             return (null, error);
@@ -66,6 +80,7 @@ public static class StreamingProxies
             int redirectCount = 0;
 
             HttpResponseMessage response = await httpClient.GetAsync(streamUrl, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
             while (response.StatusCode == System.Net.HttpStatusCode.Redirect)
             {
                 ++redirectCount;
@@ -76,11 +91,38 @@ public static class StreamingProxies
 
                 string location = response.Headers.Location.ToString();
                 response = await httpClient.GetAsync(location, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
             }
 
-            _ = response.EnsureSuccessStatusCode();
+            string contentType = response.Content.Headers.ContentType.MediaType;
+            if (contentType == "application/vnd.apple.mpegurl")
+            {
+                ProcessStartInfo ffmpegStartInfo = new ProcessStartInfo();
+                ffmpegStartInfo.FileName = "ffmpeg";
+                ffmpegStartInfo.Arguments = $"-i {streamUrl} -c copy -f mp4 pipe:1";
+                ffmpegStartInfo.RedirectStandardOutput = true;
+                Process ffmpegProcess = new Process();
+                ffmpegProcess.StartInfo = ffmpegStartInfo;
+                ffmpegProcess.Start();
 
-            return (await response.Content.ReadAsStreamAsync().ConfigureAwait(false), null);
+                MemoryStream memoryStream = new MemoryStream();
+                using (Stream ffmpegOutput = ffmpegProcess.StandardOutput.BaseStream)
+                {
+                    byte[] buffer = new byte[4096];
+                    int bytesRead;
+                    while ((bytesRead = ffmpegOutput.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        memoryStream.Write(buffer, 0, bytesRead);
+                    }
+                }
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                return (memoryStream, null);
+            }
+            else
+            {
+                Stream stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                return (stream, null);
+            }
         }
         catch (HttpRequestException ex)
         {
