@@ -1,7 +1,7 @@
 $gitVersion = "dotnet-gitversion"
 $json = &$gitVersion /output json
 $obj = $json | ConvertFrom-Json 
-$version = $obj.SemVer + "-" + $obj.BuildMetaDataPadded
+$version = $obj.SemVer #+ "-" + $obj.BuildMetaDataPadded
 
 Write-output "Setting version to $version "
 
