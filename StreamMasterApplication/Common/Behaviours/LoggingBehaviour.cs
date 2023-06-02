@@ -17,9 +17,16 @@ public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest> where T
     {
         string requestName = typeof(TRequest).Name;
 
-        _logger.LogInformation("Request: {Name}  {@Request}",
-            requestName, request);
+        if (requestName.Equals("GetM3UFileIdMaxStreamFromUrl"))
+        {
+            _logger.LogInformation("Request: {Name} ", requestName);
+        }
+        else
+        {
+            _logger.LogInformation("Request: {Name}  {@Request}",requestName, request);
+        }
 
+       
         return Task.CompletedTask;
     }
 }
