@@ -77,14 +77,8 @@ public static class StreamingProxies
                 string location = response.Headers.Location.ToString();
                 response = await httpClient.GetAsync(location, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
             }
-            try
-            {
-                _ = response.EnsureSuccessStatusCode();
-            }
-            catch (Exception ex)
-            {
-                return (null, new ProxyStreamError { ErrorCode = ProxyStreamErrorCode.HttpError, Message = ex.Message });
-            }
+
+            _ = response.EnsureSuccessStatusCode();
 
             return (await response.Content.ReadAsStreamAsync().ConfigureAwait(false), null);
         }

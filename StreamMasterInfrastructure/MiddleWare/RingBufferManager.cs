@@ -10,6 +10,7 @@ using StreamMasterApplication.Hubs;
 using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Common;
+using StreamMasterDomain.Enums;
 
 using System.Collections.Concurrent;
 
@@ -36,7 +37,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         _clientCancellationTokenSources = new ConcurrentDictionary<Guid, CancellationTokenSource>();
         _streamReads = new ConcurrentDictionary<Guid, RingBufferReadStream>();
         _streamStreamInfos = new();
-         setting = FileUtil.GetSetting();
+        setting = FileUtil.GetSetting();
         _broadcastTimer = new Timer(BroadcastMessage, null, 3 * 1000, 3 * 1000);
     }
 
@@ -69,7 +70,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
     /// </returns>
     public SingleStreamStatisticsResult GetAllStatistics(string streamUrl)
     {
-        _logger.LogInformation("Retrieving statistics for stream: {StreamUrl}", setting.CleanURLs ? "url removed": streamUrl);
+        _logger.LogInformation("Retrieving statistics for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
         CircularRingBuffer? buffer = GetBuffer(streamUrl);
         if (buffer != null)
@@ -185,7 +186,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         if (buffer != null)
         {
             buffer.UnregisterClient(config.ClientId);
-            _logger.LogInformation("Client {ClientId} unregistered for stream: {StreamUrl}", config.ClientId,  setting.CleanURLs ? "url removed" : config.CurentVideoStream.User_Url);
+            _logger.LogInformation("Client {ClientId} unregistered for stream: {StreamUrl}", config.ClientId, setting.CleanURLs ? "url removed" : config.CurentVideoStream.User_Url);
 
             _ = _clientCancellationTokenSources.TryRemove(config.ClientId, out _);
             if (_clientCancellationTokenSources.TryGetValue(config.ClientId, out CancellationTokenSource? token))
@@ -325,12 +326,12 @@ public class RingBufferManager : IDisposable, IRingBufferManager
             }
 
             if (_streamStreamInfo.ClientCounter == 0)
-            {                                
+            {
                 if (_streamStreamInfos.TryRemove(streamUrl, out _))
                 {
                     _logger.LogInformation("Buffer removed for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
                     _streamStreamInfo.Stop();
-                }                
+                }
             }
             else
             {
@@ -456,7 +457,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
                     }
                 }
 
-                _logger.LogInformation("Failover handled, switched to new stream URL: {NewStreamUrl}", setting.CleanURLs ? "url removed" :  newStreamUrl);
+                _logger.LogInformation("Failover handled, switched to new stream URL: {NewStreamUrl}", setting.CleanURLs ? "url removed" : newStreamUrl);
 
                 // Update the stream URL
                 streamUrl = newStreamUrl;
@@ -494,9 +495,22 @@ public class RingBufferManager : IDisposable, IRingBufferManager
     /// <returns>A Task representing the asynchronous operation.</returns>
     private async Task StartVideoStreaming(string streamUrl, StreamerConfiguration clientInfo, CircularRingBuffer buffer, CancellationTokenSource cancellationToken)
     {
-        _logger.LogInformation("Starting video read streaming for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+        Setting setting = FileUtil.GetSetting();
 
-        (Stream? stream, ProxyStreamError? error) = await StreamingProxies.GetProxyStream(streamUrl);
+        _logger.LogInformation("Starting video read streaming, chunck size is {ChunkSize}, for stream: {StreamUrl}", clientInfo.BufferSize, setting.CleanURLs ? "url removed" : streamUrl);
+
+        Stream? stream;
+        ProxyStreamError? error;
+
+        if (setting.StreamingProxyType == StreamingProxyTypes.FFMpeg)
+        {
+            (stream, error) = await StreamingProxies.GetFFMpegStream(streamUrl,setting.FFMPegExecutable,"streammaster");
+        }
+        else
+        {
+            ( stream,error) = await StreamingProxies.GetProxyStream(streamUrl);
+        }
+
         if (stream == null || error != null)
         {
             _logger.LogError("Error getting proxy stream for {streamUrl}: {error?.Message}", setting.CleanURLs ? "url removed" : streamUrl, error?.Message);
@@ -504,35 +518,64 @@ public class RingBufferManager : IDisposable, IRingBufferManager
             return;
         }
 
-        byte[] bufferChunk = new byte[clientInfo.BufferChunkSize];
+        byte[] bufferChunk = new byte[clientInfo.BufferSize];
         int bytesRead;
 
         int retryCount = 0;
         int maxRetries = clientInfo.MaxConnectRetry > 0 ? clientInfo.MaxConnectRetry : 3;
         int waitTime = clientInfo.MaxConnectRetryTimeMS > 0 ? clientInfo.MaxConnectRetryTimeMS : 50;
 
-        while (!cancellationToken.IsCancellationRequested)
+        using (stream)
         {
-            bytesRead = await stream.ReadAsync(bufferChunk, cancellationToken.Token);
-            if (bytesRead == 0)
+
+            while (!cancellationToken.IsCancellationRequested)
             {
-                retryCount++;
-                if (retryCount >= maxRetries)
+                if (!stream.CanRead)
                 {
+                    _logger.LogWarning("Stream: {StreamUrl} is not readable", setting.CleanURLs ? "url removed" : streamUrl);
                     break;
                 }
-                _logger.LogInformation("Input read stream received 0 bytes for stream: {StreamUrl} Retry {retryCount}/{maxRetries}", setting.CleanURLs ? "url removed" : streamUrl, retryCount, maxRetries);
-                await Task.Delay(waitTime); // wait before retrying
-            }
-            else
-            {
-                _ = buffer.WriteChunk(bufferChunk, bytesRead);
 
-                retryCount = 0; // reset retry count on successful read
+                //if (!stream.CanSeek)
+                //{
+                //    _logger.LogWarning("Stream: {StreamUrl} is in a faulted state", setting.CleanURLs ? "url removed" : streamUrl);
+                //    break;
+                //}
+
+                try
+                {
+                    bytesRead = await stream.ReadAsync(bufferChunk, cancellationToken.Token);
+                    if (bytesRead == 0)
+                    {
+                        retryCount++;
+                        if (retryCount >= maxRetries)
+                        {
+                            _logger.LogWarning("End of stream reached for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+                            break;
+                        }
+                        if (cancellationToken.Token.IsCancellationRequested)
+                        {
+                            _logger.LogInformation("Stream was cancelled for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+                        }
+                        _logger.LogInformation("Stream received 0 bytes for stream: {StreamUrl} Retry {retryCount}/{maxRetries}", setting.CleanURLs ? "url removed" : streamUrl, retryCount, maxRetries);
+                        await Task.Delay(waitTime); // wait before retrying
+                    }
+                    else
+                    {
+                        _ = buffer.WriteChunk(bufferChunk, bytesRead);
+
+                        retryCount = 0; // reset retry count on successful read
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Stream error for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+                    break;
+                }
             }
         }
 
-        _logger.LogInformation("Input read stream stopped for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+        _logger.LogInformation("Stream stopped for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
         cancellationToken.Cancel();
     }
 }

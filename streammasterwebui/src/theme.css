@@ -148,7 +148,7 @@
 }
 
 .p-dropdown-label.p-inputtext{
-  border: var(--surface-border) 2px solid !important;
+
     padding: .6rem;
     border-color: var(--surface-border) !important;
       background: var(--mask-bg) !important;

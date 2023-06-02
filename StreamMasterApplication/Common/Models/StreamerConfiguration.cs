@@ -10,7 +10,7 @@ namespace StreamMasterApplication.Common.Models
         public StreamerConfiguration()
         {
             BufferSize = 1 * 1024 * 1000;
-            BufferChunkSize = 4096;
+            BufferChunkSize2 = 4 * 1024 * 1000;
             FailoverCheckInterval = 200;
             MaxConnectRetry = 20;
             MaxConnectRetryTimeMS = 100;
@@ -23,7 +23,7 @@ namespace StreamMasterApplication.Common.Models
         /// <summary>
         /// Gets or sets the size of each chunk of data read from the video stream.
         /// </summary>
-        public int BufferChunkSize { get; set; }
+        public int BufferChunkSize2 { get; set; }
 
         /// <summary>
         /// Gets or sets the size of the buffer used to store the video stream data.
