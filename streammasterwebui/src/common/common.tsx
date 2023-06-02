@@ -1,9 +1,29 @@
-import type * as React from 'react';
+import * as React from 'react';
 import type * as StreamMasterApi from '../store/iptvApi';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 export const getTopToolOptions = { autoHide: true, hideDelay: 100, position: 'top', showDelay: 400 } as TooltipOptions;
 export const getLeftToolOptions = { autoHide: true, hideDelay: 100, position: 'left', showDelay: 400 } as TooltipOptions;
+
+<FormattedMessage defaultMessage="Stream Master" id="app.title" />;
+
+export function GetMessage(id: string): string {
+  const intl = useIntl();
+  const message = intl.formatMessage({ id: id });
+
+  return message;
+}
+
+export const GetMessageDiv = (id: string, upperCase?: boolean | null): React.ReactNode => {
+  const intl = useIntl();
+  const message = intl.formatMessage({ id: id });
+  if (upperCase) {
+    return <div>{message.toUpperCase()}</div>;
+  }
+
+  return <div>{message}</div>;
+}
 
 export function areVideoStreamsEqual(
   streams1: StreamMasterApi.VideoStreamDto[],

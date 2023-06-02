@@ -33,6 +33,7 @@ import { Tooltip } from 'primereact/tooltip';
 import { v4 as uuidv4 } from 'uuid';
 import useCopyToClipboard from '../../hooks/useCopyToClipboard';
 import { type ColumnAlign, type ColumnFieldType, type ColumnMeta, type DataSelectorSelectionMode } from './DataSelectorTypes';
+import { useIntl } from 'react-intl';
 
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
@@ -49,8 +50,25 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
   const m3uFiles = StreamMasterApi.useM3UFilesGetM3UFilesQuery();
-
+  const [globalSearchName, setGlobalSearchName] = React.useState<string>('');
   const [selections, setSelections] = React.useState<T[]>([] as T[]);
+  const intl = useIntl();
+
+  const GetMessage = React.useCallback((id: string): string => {
+    const message = intl.formatMessage({ id: id });
+
+    return message;
+  }, [intl]);
+
+
+  React.useEffect(() => {
+    if (props.globalSearchName !== null && props.globalSearchName !== undefined) {
+      setGlobalSearchName(props.globalSearchName);
+    } else {
+      setGlobalSearchName(GetMessage('keywordSearch'));
+    }
+
+  }, [GetMessage, props.globalSearchName]);
 
   const showSkeleton = React.useMemo(() => {
     return props.isLoading || (props.showSkeleton !== undefined && props.showSkeleton)
@@ -571,7 +589,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
                         disabled={props.columns === undefined || props.columns.length === 0}
                         hidden={props.columns === undefined || props.columns.length === 0}
                         onChange={((e) => onGlobalSourceFilterChange(e))}
-                        placeholder={props.globalSearchName}
+                        placeholder={globalSearchName}
                         value={globalSourceFilterValue ?? ''}
                       />
                     </>
@@ -590,7 +608,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
         </div>
       </div>
     );
-  }, [clearSourceFilter, globalSourceFilterValue, onGlobalSourceFilterChange, props, rowClick, setRowClick, showSkeleton]);
+  }, [clearSourceFilter, globalSearchName, globalSourceFilterValue, onGlobalSourceFilterChange, props, rowClick, setRowClick, showSkeleton]);
 
   const onsetSelection = React.useCallback((e: T | T[]): T | T[] | undefined => {
 
@@ -1077,7 +1095,7 @@ DataSelector.displayName = 'DataSelector';
 DataSelector.defaultProps = {
   enableState: true,
   globalSearchEnabled: true,
-  globalSearchName: 'Keyword Search',
+  // globalSearchName: 'Keyword Search',
   leftColSize: 4,
   name: '',
   onSelectionChange: undefined,

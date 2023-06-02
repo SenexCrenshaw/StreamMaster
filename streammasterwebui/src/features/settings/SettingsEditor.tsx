@@ -21,12 +21,11 @@ import { StreamingProxyTypes } from '../../store/streammaster_enums';
 import { type SelectItem } from 'primereact/selectitem';
 import { InputNumber } from 'primereact/inputnumber';
 import { Password } from 'primereact/password';
-import { getTopToolOptions } from '../../common/common';
+import { GetMessage, GetMessageDiv, getTopToolOptions } from '../../common/common';
 
 import { baseHostURL } from '../../settings';
 
 import { ScrollPanel } from 'primereact/scrollpanel';
-
 
 export const SettingsEditor = () => {
   const toast = React.useRef<Toast>(null);
@@ -35,6 +34,7 @@ export const SettingsEditor = () => {
   const [originalData, setOriginalData] = React.useState<SettingDto>({} as SettingDto);
 
   const settingsQuery = useSettingsGetSettingQuery();
+
 
   React.useMemo(() => {
     if (settingsQuery.isLoading || !settingsQuery.data)
@@ -90,7 +90,8 @@ export const SettingsEditor = () => {
     return toDisplay;
   }, [getRecord]);
 
-  const getInputNumberLine = React.useCallback((label: string, field: string, max?: number | null) => {
+  const getInputNumberLine = React.useCallback((field: string, max?: number | null) => {
+    const label = GetMessage(field);
     return (
       getLine(label + ':',
         <InputNumber
@@ -107,7 +108,8 @@ export const SettingsEditor = () => {
   }, [getLine, getRecord, newData]);
 
 
-  const getPasswordLine = React.useCallback((label: string, field: string) => {
+  const getPasswordLine = React.useCallback((field: string) => {
+    const label = GetMessage(field);
     return (
       getLine(label + ':',
         <Password
@@ -121,7 +123,8 @@ export const SettingsEditor = () => {
     );
   }, [getLine, getRecordString, newData]);
 
-  const getInputTextLine = React.useCallback((label: string, field: string) => {
+  const getInputTextLine = React.useCallback((field: string) => {
+    const label = GetMessage(field);
     return (
       getLine(label + ':',
         <InputText
@@ -133,7 +136,8 @@ export const SettingsEditor = () => {
     );
   }, [getLine, getRecordString, newData]);
 
-  const getCheckBoxLine = React.useCallback((label: string, field: string) => {
+  const getCheckBoxLine = React.useCallback((field: string) => {
+    const label = GetMessage(field);
     return (
       getLine(label + ':',
         <Checkbox
@@ -145,6 +149,8 @@ export const SettingsEditor = () => {
         />)
     );
   }, [getLine, getRecord, newData]);
+
+
 
   const getHandlersOptions = (): SelectItem[] => {
     const test = Object.entries(StreamingProxyTypes)
@@ -159,7 +165,8 @@ export const SettingsEditor = () => {
     return test;
   };
 
-  const getDropDownLine = React.useCallback((label: string, field: string, options: SelectItem[]) => {
+  const getDropDownLine = React.useCallback((field: string, options: SelectItem[]) => {
+    const label = GetMessage(field);
     return (
       <>
         {
@@ -250,30 +257,30 @@ export const SettingsEditor = () => {
         <div className="justify-content-between align-items-center">
           <div className="flex justify-content-start align-items-center w-full text-left font-bold text-white-500 surface-overlay justify-content-start align-items-center">
             <SettingsEditorIcon className='p-0 mr-1' />
-            {SettingsEditor.displayName?.toUpperCase()}
+            {GetMessageDiv('settings', true)}
           </div >
 
-          <Fieldset className="mt-4 pt-10" legend="General">
-            {getInputTextLine('Device ID', 'deviceID')}
-            {getCheckBoxLine('Clean Urls', 'cleanURLs')}
+          <Fieldset className="mt-4 pt-10" legend={GetMessage('general')}>
+            {getInputTextLine('deviceID')}
+            {getCheckBoxLine('cleanURLs')}
           </Fieldset>
 
-          <Fieldset className="mt-4 pt-10" legend="Streaming" >
-            {getDropDownLine('Enable Stream Buffer', 'streamingProxyType', getHandlersOptions())}
-            {getInputNumberLine('Buffer Size', 'ringBufferSizeMB')}
-            {getInputNumberLine('Connection Retry Limit', 'maxConnectRetry', 999)}
-            {getInputNumberLine('Retry Timeout in MS', 'maxConnectRetryTimeMS', 999)}
+          <Fieldset className="mt-4 pt-10" legend={GetMessage('streaming')}>
+            {getDropDownLine('streamingProxyType', getHandlersOptions())}
+            {getInputNumberLine('ringBufferSizeMB')}
+            {getInputNumberLine('maxConnectRetry', 999)}
+            {getInputNumberLine('maxConnectRetryTimeMS', 999)}
           </Fieldset>
 
-          <Fieldset className="mt-4 pt-10" legend="Files / EPG" >
-            {getCheckBoxLine('Cache Icons', 'cacheIcons')}
-            {getInputTextLine('SD Username', 'sdUserName')}
-            {getPasswordLine('SD Password', 'sdPassword')}
+          <Fieldset className="mt-4 pt-10" legend={GetMessage('filesEPG')} >
+            {getCheckBoxLine('cacheIcons')}
+            {getInputTextLine('sdUserName')}
+            {getPasswordLine('sdPassword')}
           </Fieldset>
 
-          <Fieldset className="mt-4 pt-10" legend="Backup" />
+          {/* <Fieldset className="mt-4 pt-10" legend={GetMessage('backup')} /> */}
 
-          <Fieldset className="mt-4 pt-10" legend="Development" >
+          <Fieldset className="mt-4 pt-10" legend={GetMessage('development')} >
             <Button
               icon='pi pi-bookmark-fill'
               label='Swagger'
