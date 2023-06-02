@@ -91,6 +91,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
+                    StartingChannelNumber = table.Column<int>(type: "INTEGER", nullable: false),
                     MaxStreamCount = table.Column<int>(type: "INTEGER", nullable: false),
                     StationCount = table.Column<int>(type: "INTEGER", nullable: false),
                     ContentType = table.Column<string>(type: "TEXT", nullable: false),

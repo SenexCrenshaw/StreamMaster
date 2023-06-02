@@ -71,6 +71,7 @@ public class ScanDirectoryForM3UFilesRequestHandler : IRequestHandler<ScanDirect
                     LastDownloadAttempt = DateTime.Now,
                     FileExists = true,
                     MetaData = "",
+                    StartingChannelNumber = 1,
                     Url = Url
                 };
                 m3uFile.SetFileDefinition(FileDefinitions.M3U);

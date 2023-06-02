@@ -11,8 +11,8 @@ using StreamMasterInfrastructure.Persistence;
 namespace StreamMasterInfrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230601173458_AddStartingChannelNumberInM3UFile")]
-    partial class AddStartingChannelNumberInM3UFile
+    [Migration("20230602160304_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -184,8 +184,9 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
 
                         stream.Tvg_chno = nextchno;
                         stream.User_Tvg_chno = nextchno;
-                        _ = _context.VideoStreams.Add(stream);
+                       
                     }
+                    _ = _context.VideoStreams.Add(stream);
                 }
             }
 
