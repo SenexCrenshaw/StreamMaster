@@ -64,7 +64,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
     let data = [] as StreamMasterApi.VideoStreamDto[];
 
-    if (props.groups === undefined || props.groups.length === 0 || props.groups[0].name === undefined) {
+    if (props.groups === undefined || props.groups.length === 0 || props.groups[0].name === undefined || props.groups.findIndex((a: StreamMasterApi.ChannelGroupDto) => a.name === 'All') !== -1) {
       data = videoStreamsQuery.data;
     } else {
       const names = props.groups.map((a: StreamMasterApi.ChannelGroupDto) => a.name.toLocaleLowerCase());
