@@ -65,8 +65,8 @@ public sealed class FileUtil
                     await stream.CopyToAsync(fileStream, cancellationdefault).ConfigureAwait(false);
                     stream.Close();
 
-                    string txtName = Path.Combine(path, Path.GetFileNameWithoutExtension(fullName) + ".url");
-                    File.WriteAllText(txtName, url);
+                    string filePath = Path.Combine(path, Path.GetFileNameWithoutExtension(fullName) + ".url");
+                    WriteUrlToFile(filePath, url);
                 }
                 fileStream.Close();
 
@@ -165,7 +165,7 @@ public sealed class FileUtil
 
             TvLogoFile tvLogo = new()
             {
-                Id= startingId++,
+                Id = startingId++,
                 Name = Path.GetFileNameWithoutExtension(name),
                 FileExists = true,
                 ContentType = "image/png",
@@ -186,7 +186,7 @@ public sealed class FileUtil
             {
                 break;
             }
-            List<TvLogoFile> files = await GetIconFilesFromDirectory(newDir, tvLogosLocation, startingId,cancellationToken).ConfigureAwait(false);
+            List<TvLogoFile> files = await GetIconFilesFromDirectory(newDir, tvLogosLocation, startingId, cancellationToken).ConfigureAwait(false);
             ret = ret.Concat(files).ToList();
         }
 
@@ -212,6 +212,47 @@ public sealed class FileUtil
         UpdateSetting(ret);
 
         return ret;
+    }
+
+    public static bool ReadUrlFromFile(string filePath, out string? url)
+    {
+        url = null;
+        try
+        {
+            if (File.Exists(filePath))
+            {
+                var lines = File.ReadAllLines(filePath);
+                if (lines.Length == 1)
+                {
+                    url = lines[0];
+                    WriteUrlToFile(filePath, url);
+                    return true;
+                }
+
+                var urlLine = lines.FirstOrDefault(line => line.StartsWith("URL="));
+
+                if (urlLine != null)
+                {
+                    url = urlLine.Substring("URL=".Length);
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("No URL found in file: " + filePath);
+                    return false;
+                }
+            }
+            else
+            {
+                Console.WriteLine("File not found: " + filePath);
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("An error occurred while reading the file: " + ex.Message);
+            return false;
+        }
     }
 
     public static void SetupDirectories(bool alwaysRun = false)
@@ -245,5 +286,21 @@ public sealed class FileUtil
         }
         string jsonString = JsonSerializer.Serialize(setting, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(Constants.SettingFile, jsonString);
+    }
+
+    public static bool WriteUrlToFile(string filePath, string url)
+    {
+        try
+        {
+            string content = "[InternetShortcut]\nURL=" + url;
+            File.WriteAllText(filePath, content);
+            Console.WriteLine("URL successfully written to file.");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("An error occurred while writing the URL to the file: " + ex.Message);
+            return false;
+        }
     }
 }

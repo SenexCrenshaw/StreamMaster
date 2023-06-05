@@ -54,10 +54,11 @@ public class ScanDirectoryForEPGFilesRequestHandler : IRequestHandler<ScanDirect
             {
                 string originalSource = EPGFileInfo.Name;
                 string Url = "";
-                string txtName = Path.Combine(EPGFileInfo.DirectoryName, Path.GetFileNameWithoutExtension(EPGFileInfo.FullName) + ".url");
-                if (File.Exists(txtName))
+                string filePath = Path.Combine(EPGFileInfo.DirectoryName, Path.GetFileNameWithoutExtension(EPGFileInfo.FullName) + ".url");
+
+                if (FileUtil.ReadUrlFromFile(filePath, out string? url))
                 {
-                    originalSource = File.ReadAllText(txtName);
+                    originalSource = url;
                     Url = originalSource;
                 }
 

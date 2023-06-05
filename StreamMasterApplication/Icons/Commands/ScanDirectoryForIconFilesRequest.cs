@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-using Microsoft.EntityFrameworkCore;
+using System.Web;
 
 namespace StreamMasterApplication.Icons.Commands;
 
@@ -11,8 +11,9 @@ public class ScanDirectoryForIconFilesRequest : IRequest<bool>
 public class ScanDirectoryForIconFilesRequestHandler : IRequestHandler<ScanDirectoryForIconFilesRequest, bool>
 {
     private readonly IAppDbContext _context;
-    
-    public ScanDirectoryForIconFilesRequestHandler(         IAppDbContext context)    {
+
+    public ScanDirectoryForIconFilesRequestHandler(IAppDbContext context)
+    {
         _context = context;
     }
 
@@ -41,17 +42,25 @@ public class ScanDirectoryForIconFilesRequestHandler : IRequestHandler<ScanDirec
                 continue;
             }
 
-            string txtName = Path.Combine(fileInfo.DirectoryName, Path.GetFileNameWithoutExtension(fileInfo.FullName) + ".url");
+            string filePath = Path.Combine(fileInfo.DirectoryName, Path.GetFileNameWithoutExtension(fileInfo.FullName) + ".url");
 
-            if (!File.Exists(txtName))
+            string originalSource = "";
+            string source = "";
+
+            if (FileUtil.ReadUrlFromFile(filePath, out string? url))
             {
-                continue;
+                originalSource = url;
+                source = url;
+            }
+            else
+            {
+                originalSource = fileInfo.FullName;
+                source = $"api/files/{(int)SMFileTypes.Icon}/{HttpUtility.UrlEncode(fileInfo.Name)}";
             }
 
-            string originalSource = File.ReadAllText(txtName);
             ++count;
 
-            if ( _context.Icons.Where(a => a.FileExists).ToList().Any(a => a.OriginalSource.Equals(originalSource)))
+            if (_context.Icons.Where(a => a.FileExists).ToList().Any(a => a.OriginalSource.Equals(originalSource)))
             {
                 continue;
             }
@@ -65,8 +74,8 @@ public class ScanDirectoryForIconFilesRequestHandler : IRequestHandler<ScanDirec
             IconFile icon = new()
             {
                 OriginalSource = originalSource,
-                Source = originalSource,
-                Url = originalSource,
+                Source = source,
+                Url = source,
                 Name = Path.GetFileNameWithoutExtension(fileInfo.Name),
                 ContentType = $"image/{ext}",
                 LastDownloaded = DateTime.Now,

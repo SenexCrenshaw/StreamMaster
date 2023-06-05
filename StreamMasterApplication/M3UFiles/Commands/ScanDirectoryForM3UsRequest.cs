@@ -54,10 +54,11 @@ public class ScanDirectoryForM3UFilesRequestHandler : IRequestHandler<ScanDirect
             {
                 string originalSource = m3uFileInfo.Name;
                 string Url = "";
-                string txtName = Path.Combine(m3uFileInfo.DirectoryName, Path.GetFileNameWithoutExtension(m3uFileInfo.FullName) + ".url");
-                if (File.Exists(txtName))
+                string filePath = Path.Combine(m3uFileInfo.DirectoryName, Path.GetFileNameWithoutExtension(m3uFileInfo.FullName) + ".url");
+
+                if (FileUtil.ReadUrlFromFile(filePath, out string? url))
                 {
-                    originalSource = File.ReadAllText(txtName);
+                    originalSource = url;
                     Url = originalSource;
                 }
 
@@ -88,7 +89,6 @@ public class ScanDirectoryForM3UFilesRequestHandler : IRequestHandler<ScanDirect
 
             M3UFilesDto ret = _mapper.Map<M3UFilesDto>(m3uFile);
             await _publisher.Publish(new M3UFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
-
         }
 
         return true;
