@@ -77,7 +77,7 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
           onSelectionChange={((e) => onSelectionChange(e as T[]))}
           rightColSize={props.sourceRightColSize}
           selection={selection}
-          selectionMode='multipleNoSelect'
+          selectionMode='multipleNoCheckBox'
           sortField={props.sourceSortField}
           style={props.sourceStyle}
         />

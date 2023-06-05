@@ -653,7 +653,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return 'multiple';
     }
 
-    if (props.selectionMode === 'multipleNoSelect') {
+    if (props.selectionMode === 'multipleNoCheckBox') {
       return 'multiple';
     }
 
@@ -1053,7 +1053,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
             className='justify-content-center align-items-center'
             field='getSelectionMode'
             headerStyle={{ padding: '0px', width: '3rem' }}
-            hidden={props.selectionMode !== 'multiple'}
+            hidden={props.selectionMode !== 'multiple' && props.selectionMode !== 'checkbox'}
             selectionMode="multiple"
             sortField="selected"
             sortFunction={sortFunction}

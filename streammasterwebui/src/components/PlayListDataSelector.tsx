@@ -186,20 +186,21 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         m3uFileId={selectedM3UFile?.id}
         name='Playlist'
         onSelectionChange={(e) => {
-
-          if (sourceEnableBulk === true) {
-            onsetSelectedChannelGroups(e as StreamMasterApi.ChannelGroupDto[])
-          } else {
-            onsetSelectedChannelGroups(e as StreamMasterApi.ChannelGroupDto)
-          }
-
+          onsetSelectedChannelGroups(e as StreamMasterApi.ChannelGroupDto[]);
         }
         }
         rightColSize={5}
         selection={selectedChannelGroups}
-        selectionMode='multiple'
+        selectionMode='checkbox'
         showHidden={showHidden}
-        showSkeleton={channelGroupsQuery.isLoading || videoStreamsQuery.isLoading || selectedM3UFile === undefined || selectedM3UFile.name === undefined || sourceEnableBulk === null || sourceEnableBulk === undefined}
+        showSkeleton={
+          channelGroupsQuery.isLoading ||
+          videoStreamsQuery.isLoading ||
+          selectedM3UFile === undefined ||
+          selectedM3UFile.name === undefined ||
+          sourceEnableBulk === null ||
+          sourceEnableBulk === undefined
+        }
         sortField='rank'
         style={{ height: 'calc(100vh - 40px)' }}
       />
