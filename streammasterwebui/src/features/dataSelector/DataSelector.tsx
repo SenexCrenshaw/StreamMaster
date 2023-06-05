@@ -1,4 +1,3 @@
-
 import './DataSelector.css';
 
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
@@ -504,6 +503,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     props?.onSelectionChange?.(data);
   }, [props]);
 
+
   const rowClass = React.useCallback((data: DataTableRowData<T[]>) => {
 
     const isHidden = getRecord(data as T, 'isHidden');
@@ -610,6 +610,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     );
   }, [clearSourceFilter, globalSearchName, globalSourceFilterValue, onGlobalSourceFilterChange, props, rowClick, setRowClick, showSkeleton]);
 
+
   const onsetSelection = React.useCallback((e: T | T[]): T | T[] | undefined => {
 
     if (props.selectionMode === 'single') {
@@ -642,6 +643,19 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     return e;
 
   }, [props]);
+
+
+  const onRowClick = React.useCallback((data: T) => {
+    if (selections.length === 0) {
+      setSelections([data]);
+      if (props.onSelectionChange) {
+        props.onSelectionChange([data]);
+      }
+
+      return;
+    }
+  }, [props, selections.length]);
+
 
   const getSelectionMode = React.useMemo((): 'checkbox' | 'multiple' | 'radiobutton' | 'single' | undefined => {
 
@@ -1002,6 +1016,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           header={sourceRenderHeader}
           loading={props.isLoading}
           metaKeySelection={false}
+          onRowClick={(e) => onRowClick(e.data as T)}
           onRowReorder={(e) => onRowReorder(e.value)}
           onRowToggle={(e: DataTableRowToggleEvent) => setExpandedRows(e.data as DataTableExpandedRows)}
           onSelectionChange={((e) => onSelectionChange(e))}
