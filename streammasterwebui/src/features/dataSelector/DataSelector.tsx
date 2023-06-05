@@ -645,16 +645,16 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }, [props]);
 
 
-  const onRowClick = React.useCallback((data: T) => {
-    if (selections.length === 0) {
-      setSelections([data]);
-      if (props.onSelectionChange) {
-        props.onSelectionChange([data]);
-      }
+  // const onRowClick = React.useCallback((data: T) => {
+  //   if (selections.length === 0) {
+  //     setSelections([data]);
+  //     if (props.onSelectionChange) {
+  //       props.onSelectionChange([data]);
+  //     }
 
-      return;
-    }
-  }, [props, selections.length]);
+  //     return;
+  //   }
+  // }, [props, selections.length]);
 
 
   const getSelectionMode = React.useMemo((): 'checkbox' | 'multiple' | 'radiobutton' | 'single' | undefined => {
@@ -1016,7 +1016,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           header={sourceRenderHeader}
           loading={props.isLoading}
           metaKeySelection={false}
-          onRowClick={(e) => onRowClick(e.data as T)}
+          // onRowClick={(e) => onRowClick(e.data as T)}
           onRowReorder={(e) => onRowReorder(e.value)}
           onRowToggle={(e: DataTableRowToggleEvent) => setExpandedRows(e.data as DataTableExpandedRows)}
           onSelectionChange={((e) => onSelectionChange(e))}
