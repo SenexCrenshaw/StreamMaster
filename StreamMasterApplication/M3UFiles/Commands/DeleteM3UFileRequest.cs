@@ -26,6 +26,7 @@ public class DeleteM3UFileHandler : IRequestHandler<DeleteM3UFileRequest, int?>
 {
     private readonly IAppDbContext _context;
     private readonly IPublisher _publisher;
+
     public DeleteM3UFileHandler(IPublisher publisher,
          IAppDbContext context
         )
@@ -62,17 +63,36 @@ public class DeleteM3UFileHandler : IRequestHandler<DeleteM3UFileRequest, int?>
             }
         }
 
+        var targetM3UFileIdGroups = _context.VideoStreams
+            .Where(vs => vs.M3UFileId == m3UFile.Id)
+            .Select(vs => vs.Tvg_group);
+
+        var otherM3UFileIdGroups = _context.VideoStreams
+            .Where(vs => vs.M3UFileId != m3UFile.Id)
+            .Select(vs => vs.Tvg_group);
+
+        var groupsToDelete = targetM3UFileIdGroups.Except(otherM3UFileIdGroups).ToList();
+
+        foreach (var gtd in groupsToDelete)
+        {
+            var group = _context.ChannelGroups.Where(tg => tg.Name == gtd).FirstOrDefault();
+            if (group != null)
+            {
+                _context.ChannelGroups.Remove(group);
+            }
+        }
+
         var streams = _context.VideoStreams.Where(a => a.M3UFileId == m3UFile.Id);
         _context.VideoStreams.RemoveRange(streams);
-        _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         await _publisher.Publish(new M3UFileDeletedEvent(m3UFile.Id), cancellationToken).ConfigureAwait(false);
 
-        foreach(var stream in streams)
+        foreach (var stream in streams)
         {
             await _publisher.Publish(new DeleteVideoStreamEvent(stream.Id), cancellationToken).ConfigureAwait(false);
         }
-                      
-      
+
         return m3UFile.Id;
     }
 }
