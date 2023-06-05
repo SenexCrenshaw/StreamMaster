@@ -31,10 +31,9 @@ public class MiscController : ApiControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> CacheIconsFromProgrammes()
+    public async Task<ActionResult> CacheIconsFromEPGs()
     {
-        _ = await Mediator.Send(new CacheIconsFromProgrammesRequest()).ConfigureAwait(false);
-        //await _taskQueue.CacheIconsFromProgrammes().ConfigureAwait(false);
+        _ = await Mediator.Send(new CacheIconsFromEPGsRequest()).ConfigureAwait(false);
         return NoContent();
     }
 

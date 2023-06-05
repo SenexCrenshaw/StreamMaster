@@ -11,9 +11,9 @@ public partial class BackgroundTaskQueue : IIconTasks
         await QueueAsync(SMQueCommand.CacheAllIcons, cancellationToken).ConfigureAwait(false);
     }
 
-    public async ValueTask CacheIconsFromProgrammes(CancellationToken cancellationToken = default)
+    public async ValueTask CacheIconsFromEPGs(CancellationToken cancellationToken = default)
     {
-        await QueueAsync(SMQueCommand.CacheIconsFromProgrammes, cancellationToken).ConfigureAwait(false);
+        await QueueAsync(SMQueCommand.CacheIconsFromEPGs, cancellationToken).ConfigureAwait(false);
     }
 
     public async ValueTask CacheIconsFromVideoStreams(CancellationToken cancellationToken = default)

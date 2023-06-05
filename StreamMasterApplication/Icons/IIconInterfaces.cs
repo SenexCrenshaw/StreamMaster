@@ -44,7 +44,7 @@ public interface IIconTasks
 {
     ValueTask CacheAllIcons(CancellationToken cancellationToken = default);
 
-    ValueTask CacheIconsFromProgrammes(CancellationToken cancellationToken = default);
+    ValueTask CacheIconsFromEPGs(CancellationToken cancellationToken = default);
 
     ValueTask CacheIconsFromVideoStreams(CancellationToken cancellationToken = default);
 

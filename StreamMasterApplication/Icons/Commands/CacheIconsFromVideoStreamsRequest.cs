@@ -33,8 +33,12 @@ public class CacheIconsFromVideoStreamsRequestHandler : IRequestHandler<CacheIco
     }
 
     public async Task<bool> Handle(CacheIconsFromVideoStreamsRequest command, CancellationToken cancellationToken)
-    {
+    { 
         StreamMasterDomain.Dto.SettingDto _setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
+        if (!_setting.CacheIcons)
+        {
+            return false;
+        }
 
         int count = 0;
         var isNew = false;

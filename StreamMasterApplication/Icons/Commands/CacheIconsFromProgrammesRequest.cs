@@ -7,35 +7,29 @@ using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMasterApplication.M3UFiles.Commands;
-
-using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 
-using System.Formats.Asn1;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
 using System.Web;
 
 namespace StreamMasterApplication.Icons.Commands;
 
-public class CacheIconsFromProgrammesRequest : IRequest<bool>
+public class CacheIconsFromEPGsRequest : IRequest<bool>
 {
 }
 
-public class CacheIconsFromProgrammesRequestHandler : IRequestHandler<CacheIconsFromProgrammesRequest, bool>
+public class CacheIconsFromEPGsRequestHandler : IRequestHandler<CacheIconsFromEPGsRequest, bool>
 {
     private readonly IAppDbContext _context;
 
+    private readonly ILogger<CacheIconsFromEPGsRequestHandler> _logger;
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
-    private readonly ILogger<CacheIconsFromProgrammesRequestHandler> _logger;
     private readonly ISender _sender;
 
-    public CacheIconsFromProgrammesRequestHandler(
-        ILogger<CacheIconsFromProgrammesRequestHandler> logger,
+    public CacheIconsFromEPGsRequestHandler(
+        ILogger<CacheIconsFromEPGsRequestHandler> logger,
         IMemoryCache memoryCache,
           IMapper mapper,
 
@@ -48,23 +42,27 @@ public class CacheIconsFromProgrammesRequestHandler : IRequestHandler<CacheIcons
         _sender = sender;
     }
 
-    public async Task<bool> Handle(CacheIconsFromProgrammesRequest command, CancellationToken cancellationToken)
+    public async Task<bool> Handle(CacheIconsFromEPGsRequest command, CancellationToken cancellationToken)
     {
         SettingDto _setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
+        if (!_setting.CacheIcons)
+        {
+            return false;
+        }
 
         var icons = new List<string>();
 
-        var epgFiles=_context.EPGFiles.ToList();
-        foreach(var epg in epgFiles)
+        var epgFiles = _context.EPGFiles.ToList();
+        foreach (var epg in epgFiles)
         {
             var tv = await epg.GetTV();
-            if ( tv == null)
+            if (tv == null)
             {
                 continue;
             }
 
             icons = tv.Channel
-                .Where(a => a is not null && a.Icon is not null  && !string.IsNullOrEmpty(a.Icon.Src))
+                .Where(a => a is not null && a.Icon is not null && !string.IsNullOrEmpty(a.Icon.Src))
                 .Select(a => a.Icon.Src)
                 .ToList();
 
@@ -73,26 +71,17 @@ public class CacheIconsFromProgrammesRequestHandler : IRequestHandler<CacheIcons
             await WorkOnIcons(FileDefinitions.Icon, icons, _setting, cancellationToken).ConfigureAwait(false);
         }
 
-        icons = new List<string>();
-
-        string token = "";
-
-        
-
         IEnumerable<StreamMasterDomain.Entities.EPG.Programme> _programmes = _memoryCache.Programmes();
 
-        var icons2 = _programmes.Where(a => a is not null && a.Icon is not null && a.Icon.Count > 0)
-             .SelectMany(a => a.Icon.Select(a => a.Src));
-
-         icons = _programmes
-            .Where(a => a is not null && a.Icon is not null && a.Icon.Count > 0 && a.Icon.Any(a => a.Src is not null))
-            .SelectMany(a => a.Icon.Where(a => a.Src is not null).Select(a => a.Src))
-            .Distinct().ToList();
+        icons = _programmes
+           .Where(a => a is not null && a.Icon is not null && a.Icon.Count > 0 && a.Icon.Any(a => a.Src is not null))
+           .SelectMany(a => a.Icon.Where(a => a.Src is not null).Select(a => a.Src))
+           .Distinct().ToList();
 
         if (!icons.Any()) { return false; }
 
-        await WorkOnIcons(FileDefinitions.ProgrammeIcon,icons, _setting, cancellationToken).ConfigureAwait(false);
-       
+        await WorkOnIcons(FileDefinitions.ProgrammeIcon, icons, _setting, cancellationToken).ConfigureAwait(false);
+
         return true;
     }
 
@@ -114,7 +103,7 @@ public class CacheIconsFromProgrammesRequestHandler : IRequestHandler<CacheIcons
             ++count;
             if (count % 100 == 0)
             {
-                Console.WriteLine($"CacheIconsFromProgrammes {count} of {icons.Count}");
+                Console.WriteLine($"CacheIconsFromEPGs {count} of {icons.Count}");
             }
 
             string source = HttpUtility.UrlDecode(icon);
@@ -148,19 +137,18 @@ public class CacheIconsFromProgrammesRequestHandler : IRequestHandler<CacheIcons
                             continue;
                         }
                         token = result.token;
-
                     }
                     catch (HttpRequestException ex)
                     {
-                        //_logger.LogCritical(ex, "Error while retieving icon");                        
+                        //_logger.LogCritical(ex, "Error while retieving icon");
                     }
                     if (string.IsNullOrEmpty(token))
-                {
-                    continue;
-                }
+                    {
+                        continue;
+                    }
 
-                string name = Path.GetFileNameWithoutExtension(tocheck);
-                (_, isNew) = await IconHelper.AddIcon(tocheck, "?token=" + token, name, _context, _mapper, setting, fd, cancellationToken).ConfigureAwait(false);
+                    string name = Path.GetFileNameWithoutExtension(tocheck);
+                    (_, isNew) = await IconHelper.AddIcon(tocheck, "?token=" + token, name, _context, _mapper, setting, fd, cancellationToken).ConfigureAwait(false);
                 }
             }
             else

@@ -72,8 +72,8 @@ public sealed class QueuedHostedService : BackgroundService
                         await _sender.Send(new CacheAllIconsRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
-                    case SMQueCommand.CacheIconsFromProgrammes:
-                        _ = await _sender.Send(new CacheIconsFromProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+                    case SMQueCommand.CacheIconsFromEPGs:
+                        _ = await _sender.Send(new CacheIconsFromEPGsRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.CacheIconsFromVideoStreams:

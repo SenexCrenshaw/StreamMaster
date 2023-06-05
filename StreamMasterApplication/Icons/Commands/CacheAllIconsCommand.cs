@@ -19,6 +19,6 @@ public class CacheAllIconsRequestHandler : IRequestHandler<CacheAllIconsRequest>
     public async Task Handle(CacheAllIconsRequest request, CancellationToken cancellationToken)
     {
         _ = await _sender.Send(new CacheIconsFromVideoStreamsRequest(), cancellationToken).ConfigureAwait(false);
-        _ = await _sender.Send(new CacheIconsFromProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+        _ = await _sender.Send(new CacheIconsFromEPGsRequest(), cancellationToken).ConfigureAwait(false);
     }
 }
