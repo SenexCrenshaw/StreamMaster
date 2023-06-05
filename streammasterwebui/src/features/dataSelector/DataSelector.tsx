@@ -231,10 +231,13 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }, [props]);
 
   const streamCount = React.useCallback((groupName: string) => {
-    if (!groupName || !videoStreamsQuery.data) {
+    if (groupName === null || groupName === undefined || !videoStreamsQuery.data) {
       return 0;
     }
 
+    if (groupName === 'All') {
+      return videoStreamsQuery.data.length;
+    }
 
     if (props.m3uFileId !== undefined && props.m3uFileId > 0) {
       return videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.m3UFileId === props.m3uFileId && x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase()).length;
@@ -246,8 +249,12 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }, [videoStreamsQuery.data, props.m3uFileId]);
 
   const streamNotHiddenCount = React.useCallback((groupName: string) => {
-    if (!groupName || !videoStreamsQuery.data) {
+    if (groupName === null || groupName === undefined || !videoStreamsQuery.data) {
       return 0;
+    }
+
+    if (groupName === 'All') {
+      return videoStreamsQuery.data.length;
     }
 
     if (props.m3uFileId !== undefined && props.m3uFileId > 0) {
@@ -260,7 +267,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
 
   const streamsBodyTemplate = React.useCallback((groupName: string) => {
-    if (!groupName || !videoStreamsQuery.data) {
+    if (groupName === null || groupName === undefined || !videoStreamsQuery.data) {
       return 0;
     }
 
