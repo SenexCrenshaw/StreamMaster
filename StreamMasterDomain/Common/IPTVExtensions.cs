@@ -17,12 +17,15 @@ public static partial class IPTVExtensions
 
         Stopwatch sw = Stopwatch.StartNew();
 
-        ConcurrentBag<VideoStream> streamList = new();
+        ConcurrentDictionary<long, VideoStream> streamLists = new();
+
         string lastExtGrp = "";
 
-        _ = Parallel.ForEach(body.Split("#EXTINF"), bodyline =>
+        var extInfArray = body.Split("#EXTINF", StringSplitOptions.RemoveEmptyEntries);
+
+        _ = Parallel.ForEach(extInfArray.Skip(1), (bodyline, state, index) =>
         {
-            VideoStream? VideoStream = bodyline.StringToVideoStream();// VideoStream.TryParse(bodyline);
+            VideoStream? VideoStream = bodyline.StringToVideoStream();
             if (VideoStream == null)
             {
                 return;
@@ -42,18 +45,21 @@ public static partial class IPTVExtensions
 
             VideoStream.IsHidden = false;
 
-            VideoStream.User_Tvg_logo = VideoStream.Tvg_logo; VideoStream.User_Tvg_name
-            = VideoStream.Tvg_name; VideoStream.User_Tvg_ID = VideoStream.Tvg_ID;
+            VideoStream.User_Tvg_logo = VideoStream.Tvg_logo;
+            VideoStream.User_Tvg_name = VideoStream.Tvg_name;
+            VideoStream.User_Tvg_ID = VideoStream.Tvg_ID;
             VideoStream.User_Tvg_chno = VideoStream.Tvg_chno;
-            VideoStream.User_Tvg_group = VideoStream.Tvg_group; VideoStream.User_Url = VideoStream.Url;
+            VideoStream.User_Tvg_group = VideoStream.Tvg_group;
+            VideoStream.User_Url = VideoStream.Url;
 
-            streamList.Add(VideoStream);
+            streamLists.TryAdd(index, VideoStream);
         });
 
+        var results = streamLists.OrderBy(s => s.Key).Select(s => s.Value).ToList();
         sw.Stop();
         long elaspsed = sw.ElapsedMilliseconds;
 
-        return streamList.ToList();
+        return results;
     }
 
     public static (string fullName, string name) GetRandomFileName(this FileDefinition fd)
@@ -191,15 +197,11 @@ public static partial class IPTVExtensions
             }
         }
 
-
         if (string.IsNullOrEmpty(VideoStream.CUID))
         {
-          
             VideoStream.CUID = VideoStream.Tvg_name;
-
         }
 
-   
         return VideoStream;
     }
 
