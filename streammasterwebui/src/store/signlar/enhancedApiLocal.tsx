@@ -1,10 +1,130 @@
 import { hubConnection } from '../../app/store';
 import * as StreamMasterApi from '../iptvApi';
 
+export type SetVideoStreamVisibleRet = {
+  isHidden?: boolean;
+  videoStreamId?: number;
+};
 
 export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
   endpoints: {
+    channelGroupsGetChannelGroups: {
+      async onCacheEntryAdded(
+        arg,
+        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+      ) {
+        try {
+          await cacheDataLoaded;
 
+          const applyResults = (
+            data: StreamMasterApi.ChannelGroupDto[]
+          ) => {
+            updateCachedData(
+              (draft: StreamMasterApi.ChannelGroupDto[]) => {
+                data.forEach(function (cn) {
+                  const foundIndex = draft.findIndex(
+                    (x) => x.id === cn.id
+                  );
+                  if (foundIndex !== -1) {
+                    draft[foundIndex] = cn;
+                  } else {
+                    draft.push(cn);
+                  }
+                });
+                return draft;
+              }
+            );
+          };
+
+          hubConnection.on(
+            'ChannelGroupDtoesUpdate',
+            (data: StreamMasterApi.ChannelGroupDto[]) => {
+              applyResults(data);
+            }
+          );
+
+          const applyVisibleResults = (
+            data: StreamMasterApi.SetChannelGroupsVisibleArg[]
+          ) => {
+            updateCachedData(
+              (draft: StreamMasterApi.ChannelGroupDto[]) => {
+                data.forEach(function (cn) {
+                  const foundIndex = draft.findIndex(
+                    (x) => x.name === cn.groupName
+                  );
+                  if (foundIndex !== -1) {
+                    draft[foundIndex] = { ...draft[foundIndex], isHidden: cn.isHidden === true }
+                  }
+                });
+                return draft;
+              }
+            );
+          };
+
+          hubConnection.on(
+            'ChannelGroupSetChannelGroupsVisible',
+            (data: StreamMasterApi.SetChannelGroupsVisibleArg[]) => {
+              applyVisibleResults(data);
+            }
+          );
+
+
+          const applyResult = (
+            data: StreamMasterApi.ChannelGroupDto
+          ) => {
+            updateCachedData(
+              (
+                draft: StreamMasterApi.ChannelGroupDto[]
+              ) => {
+                const foundIndex = draft.findIndex(
+                  (x) => x.id === data.id
+                );
+
+                if (foundIndex === -1) {
+                  draft.push(data);
+                } else {
+                  draft[foundIndex] = data;
+                }
+
+                return draft;
+              }
+            );
+          };
+
+          hubConnection.on(
+            'ChannelGroupDtoUpdate',
+            (data: StreamMasterApi.ChannelGroupDto) => {
+              applyResult(data);
+            }
+          );
+
+          const deleteResult = (
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            id: any
+          ) => {
+            updateCachedData(
+              (
+                draft: StreamMasterApi.ChannelGroupDto[]
+              ) => {
+                return draft.filter((obj) => obj.id !== id);
+              }
+            );
+          };
+
+          hubConnection.on(
+            'ChannelGroupDtoDelete',
+            (id: number) => {
+              deleteResult(id);
+            }
+          );
+
+
+        } catch { }
+
+        await cacheEntryRemoved;
+      }
+    },
     programmesGetProgrammeNames: {
       async onCacheEntryAdded(
         arg,
@@ -129,6 +249,32 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
             },
           );
 
+          const applyVisibleResults = (
+            data: SetVideoStreamVisibleRet[]
+          ) => {
+            updateCachedData(
+              (draft: StreamMasterApi.VideoStreamDto[]) => {
+                data.forEach(function (cn) {
+                  const foundIndex = draft.findIndex(
+                    (x) => x.id === cn.videoStreamId
+                  );
+                  if (foundIndex !== -1) {
+                    draft[foundIndex] = { ...draft[foundIndex], isHidden: cn.isHidden === true }
+                  }
+                });
+                return draft;
+              }
+            );
+          };
+
+          hubConnection.on(
+            'VideoStreamSetVideoStreamVisible',
+            (data: SetVideoStreamVisibleRet[]) => {
+              applyVisibleResults(data);
+            }
+          );
+
+
           const applyResults = (
             data: StreamMasterApi.VideoStreamDto[]
           ) => {
@@ -155,6 +301,7 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
               applyResults(data);
             }
           );
+
 
 
           const applyResult = (
