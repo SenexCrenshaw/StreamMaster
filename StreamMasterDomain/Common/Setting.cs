@@ -38,11 +38,6 @@ namespace StreamMasterDomain.Common
         public string AppName { get; set; }
 
         /// <summary>
-        /// The port number of the host URL.
-        /// </summary>
-        public int BaseHostPost { get; set; }
-
-        /// <summary>
         /// The base URL of the StreamMaster application.
         /// </summary>
         public string BaseHostURL { get; set; }
@@ -85,6 +80,7 @@ namespace StreamMasterDomain.Common
         /// StreamMaster application.
         /// </summary>
         public int MaxConnectRetry { get; set; }
+
         public int MaxConnectRetryTimeMS { get; set; }
 
         /// <summary>
