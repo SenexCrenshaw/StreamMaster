@@ -34,11 +34,9 @@ public static partial class IPTVExtensions
             MatchCollection extGrp = grpRegex().Matches(bodyline); if
             (extGrp.Count > 0) { lastExtGrp = extGrp[0].Groups[1].Value.Trim(); }
 
-            if (string.IsNullOrEmpty(VideoStream.Tvg_group) &&
-            !string.IsNullOrEmpty(lastExtGrp))
+            if (string.IsNullOrEmpty(VideoStream.Tvg_group) && !string.IsNullOrEmpty(lastExtGrp))
             {
-                VideoStream.Tvg_group =
-            lastExtGrp;
+                VideoStream.Tvg_group = lastExtGrp;
             }
 
             VideoStream.M3UFileId = Id;
