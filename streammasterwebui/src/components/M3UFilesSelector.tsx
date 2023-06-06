@@ -6,7 +6,7 @@ import { type SelectItem } from "primereact/selectitem";
 
 const M3UFilesSelector = (props: M3UFilesSelectorProps) => {
 
-  const [selectedM3UFile, setSelectedM3UFile] = useSessionStorage<StreamMasterApi.M3UFilesDto>({} as StreamMasterApi.M3UFilesDto, props.id + '-setSelectedM3UFile');
+  const [selectedM3UFile, setSelectedM3UFile] = useSessionStorage<StreamMasterApi.M3UFilesDto>({ id: 0, name: 'All' } as StreamMasterApi.M3UFilesDto, props.id + '-setSelectedM3UFile');
 
   const m3uFilesQuery = StreamMasterApi.useM3UFilesGetM3UFilesQuery();
 

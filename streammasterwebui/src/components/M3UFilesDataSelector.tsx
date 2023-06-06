@@ -9,11 +9,12 @@ import { Checkbox } from 'primereact/checkbox';
 import NumberEditorBodyTemplate from './NumberEditorBodyTemplate';
 import StringEditorBodyTemplate from './StringEditorBodyTemplate';
 import { type ColumnMeta } from '../features/dataSelector/DataSelectorTypes';
+import { useSessionStorage } from 'primereact/hooks';
 
 const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
 
-  const [selectedM3UFile, setSelectedM3UFile] = React.useState<StreamMasterApi.M3UFilesDto>({ id: 0, name: 'All' } as StreamMasterApi.M3UFilesDto);
+  const [selectedM3UFile, setSelectedM3UFile] = useSessionStorage<StreamMasterApi.M3UFilesDto>({ id: 0, name: 'All' } as StreamMasterApi.M3UFilesDto, 'M3UFilesDataSelector-selectedM3UFile');
 
   const m3UFilesQuery = StreamMasterApi.useM3UFilesGetM3UFilesQuery();
 
@@ -36,7 +37,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
     setSelectedM3UFile(data);
 
     props.onChange?.(data);
-  }, [props]);
+  }, [props, setSelectedM3UFile]);
 
   const onM3UUpdateClick = React.useCallback(async (id: number, auto?: boolean | null, days?: number | null, maxStreams?: number | null, name?: string | null, url?: string | null, startingChannelNumber?: number | null) => {
 
