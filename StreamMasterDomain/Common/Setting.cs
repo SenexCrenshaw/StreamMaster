@@ -19,7 +19,7 @@ namespace StreamMasterDomain.Common
             CleanURLs = true;
             DatabaseName = "StreamMaster.db";
             DefaultIcon = "images/default.png";
-            DeviceID = "device1";
+            DeviceID = "device1";            
             FirstFreeNumber = 1000;
             MaxConnectRetry = 20;
             MaxConnectRetryTimeMS = 100;

@@ -5,6 +5,7 @@ export default {
   cleanURLs: 'Clean URLs',
   development: 'Development',
   deviceID: 'Device ID',
+  ffmPegExecutable:'FFMPeg Executable',
   filesEPG: 'Files / EPG',
   general:'General',
   keywordSearch: 'Keyword Search',
