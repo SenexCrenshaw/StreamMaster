@@ -32,11 +32,15 @@ const ChannelGroupSelector = (props: ChannelGroupSelectorProps) => {
 
   }, [channelGroupsQuery.data]);
 
+  const onChannelGroupAddDialogClose = React.useCallback((newGroupName: string) => {
+    setChannelGroup(newGroupName);
+  }, []);
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   const filterTemplate = React.useCallback((filterOptions: any) => {
     return (
       <div className="flex gap-2 align-items-center">
-        <ChannelGroupAddDialog />
+        <ChannelGroupAddDialog onHide={(e) => onChannelGroupAddDialogClose(e)} />
         {filterOptions.element}
         {(props.resetValue !== undefined && props.value !== props.resetValue) &&
           < Button
@@ -56,7 +60,7 @@ const ChannelGroupSelector = (props: ChannelGroupSelectorProps) => {
         }
       </div>
     );
-  }, [props.resetValue, props.value]);
+  }, [onChannelGroupAddDialogClose, props.resetValue, props.value]);
 
 
   const selectedTemplate = React.useCallback((option: SelectItem) => {

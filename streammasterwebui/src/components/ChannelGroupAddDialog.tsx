@@ -16,10 +16,10 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
   const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);
     setInfoMessage('');
-    setNewGroupName('');
     setBlock(false);
-    props.onHide?.();
-  }, [props]);
+    props.onHide?.(newGroupName);
+    setNewGroupName('');
+  }, [newGroupName, props]);
 
   const addGroup = React.useCallback(() => {
     setBlock(true);
@@ -124,7 +124,7 @@ ChannelGroupAddDialog.defaultProps = {
 };
 
 export type ChannelGroupAddDialogProps = {
-  onHide?: () => void;
+  onHide?: (value: string) => void;
 };
 
 export default React.memo(ChannelGroupAddDialog);

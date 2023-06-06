@@ -67,6 +67,10 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
   }, [ReturnToParent, props, selectedChannelGroups]);
 
   const isDisabled = React.useMemo((): boolean => {
+    if (props.iconFilled !== true) {
+      return false;
+    }
+
     if (props.value === null || props.value === undefined || props.value.length === 0) {
       return true;
     }
@@ -75,14 +79,14 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
 
     return !t;
 
-  }, [props.value]);
+  }, [props.value, props.iconFilled]);
 
   return (
     <>
 
       <InfoMessageOverLayDialog
         blocked={block}
-        header={`Delete ${selectedChannelGroups.filter((a) => !a.isReadOnly).length < 2 ? selectedChannelGroups.filter((a) => !a.isReadOnly).length + ' Group ?' : selectedChannelGroups.filter((a) => !a.isReadOnly).length + ' Groups ?'}`}
+        header={`Delete ${selectedChannelGroups.filter((a) => !a.isReadOnly).length < 2 ? selectedChannelGroups.filter((a) => !a.isReadOnly)[0] ? selectedChannelGroups.filter((a) => !a.isReadOnly)[0].name + ' Group ?' : ' Group ?' : selectedChannelGroups.filter((a) => !a.isReadOnly).length + ' Groups ?'}`}
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
         show={showOverlay}
