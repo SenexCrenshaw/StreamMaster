@@ -28,6 +28,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
     private readonly ConcurrentDictionary<Guid, RingBufferReadStream> _streamReads;
     private readonly ConcurrentDictionary<string, StreamStreamInfo> _streamStreamInfos;
     private readonly Setting setting;
+
     public RingBufferManager(ILogger<RingBufferManager> logger, IServiceProvider serviceProvider, IHubContext<StreamMasterHub, IStreamMasterHub> hub, ISender sender)
     {
         _logger = logger;
@@ -504,11 +505,11 @@ public class RingBufferManager : IDisposable, IRingBufferManager
 
         if (setting.StreamingProxyType == StreamingProxyTypes.FFMpeg)
         {
-            (stream, error) = await StreamingProxies.GetFFMpegStream(streamUrl, setting.FFMPegExecutable, "streammaster");
+            (stream, error) = await StreamingProxies.GetFFMpegStream(streamUrl);
         }
         else
         {
-            (stream, error) = await StreamingProxies.GetProxyStream(streamUrl);
+            (stream, error) = await StreamingProxies.GetProxyStream(streamUrl, cancellationToken.Token);
         }
 
         if (stream == null || error != null)
@@ -527,7 +528,6 @@ public class RingBufferManager : IDisposable, IRingBufferManager
 
         using (stream)
         {
-
             while (!cancellationToken.IsCancellationRequested)
             {
                 if (!stream.CanRead)

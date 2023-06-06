@@ -27,6 +27,7 @@
     <PackageReference Include="System.Collections.Concurrent" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\StreamMaster.M3U8\StreamMaster.M3U8.csproj" />
     <ProjectReference Include="..\StreamMasterApplication\StreamMasterApplication.csproj" />
   </ItemGroup>
 </Project>

@@ -7,5 +7,9 @@ public enum ProxyStreamErrorCode
     IoError,
     FileNotFound,
     ChannelManagerFinished,
-    HttpError
+    HttpError,
+    DownloadError,
+    PlaylistError,
+    PlaylistDownloadError,
+    InvalidPlaylistFormat,
 }

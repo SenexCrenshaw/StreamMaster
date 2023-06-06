@@ -1,23 +1,21 @@
 ﻿using StreamMasterDomain.Common;
 
 using System.Diagnostics;
+using System.IO.Pipelines;
+using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 
 namespace StreamMasterInfrastructure.MiddleWare;
 
 public static class StreamingProxies
 {
-    private static bool IsFFmpegAvailable()
+    private static readonly HttpClient client = CreateHttpClient();
+
+    public static async Task<HttpResponseMessage> GetAsync(string url, int start, int end)
     {
-        string command = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "where" : "which";
-        ProcessStartInfo startInfo = new ProcessStartInfo(command, "ffmpeg");
-        startInfo.RedirectStandardOutput = true;
-        startInfo.UseShellExecute = false;
-        Process process = new Process();
-        process.StartInfo = startInfo;
-        process.Start();
-        process.WaitForExit();
-        return process.ExitCode == 0;
+        var client = new HttpClient();
+        client.DefaultRequestHeaders.Range = new RangeHeaderValue(start, end);
+        return await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
     }
 
     /// <summary>
@@ -29,19 +27,24 @@ public static class StreamingProxies
     /// </param>
     /// <param name="user_agent">user_agent string</param>
     /// <returns><strong>A FFMpeg backed stream or null</strong></returns>
-    public static async Task<(Stream? stream, ProxyStreamError? error)> GetFFMpegStream(string streamUrl, string ffMPegExecutable, string user_agent)
+    public static async Task<(Stream? stream, ProxyStreamError? error)> GetFFMpegStream(string streamUrl)
     {
-        if (!IsFFmpegAvailable())
+        Setting setting = FileUtil.GetSetting();
+
+        if (!File.Exists(setting.FFMPegExecutable))
         {
-            ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = $"FFmpeg executable file not found: {ffMPegExecutable}" };
-            return (null, error);
+            if (!IsFFmpegAvailable())
+            {
+                ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = $"FFmpeg executable file not found: {setting.FFMPegExecutable}" };
+                return (null, error);
+            }
         }
 
         try
         {
             using Process process = new();
-            process.StartInfo.FileName = ffMPegExecutable;
-            process.StartInfo.Arguments = $"-hide_banner -loglevel error -i \"{streamUrl}\" -c copy -f mpegts pipe:1 -user_agent \"{user_agent}\"";
+            process.StartInfo.FileName = setting.FFMPegExecutable;
+            process.StartInfo.Arguments = $"-hide_banner -loglevel error -i \"{streamUrl}\" -c copy -f mp4 pipe:1 -user_agent \"streammaster\"";
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
@@ -62,82 +65,125 @@ public static class StreamingProxies
         }
     }
 
-    /// <summary>
-    /// This is a pass through proxy <strong>Supports failover</strong>
-    /// </summary>
-    /// <param name="streamUrl">URL to stream from</param>
-    /// <param name="user_agent">user_agent string</param>
-    /// <returns><strong>A FFMpeg backed stream or null</strong></returns>
-    public static async Task<(Stream? stream, ProxyStreamError? error)> GetProxyStream(string streamUrl)
+    public static async Task<(Stream? stream, ProxyStreamError? error)> GetProxyStream(string sourceUrl, CancellationToken cancellation)
     {
         try
         {
-            using HttpClientHandler handler = new() { AllowAutoRedirect = true };
-            using HttpClient httpClient = new(handler);
-            string userAgentString = @"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.57";
-            httpClient.DefaultRequestHeaders.Add("User-Agent", userAgentString);
+            var parser = new M3u8Parser();
+            var m3u8PlayList = await parser.ParsePlaylistAsync(sourceUrl);
 
-            int redirectCount = 0;
-
-            HttpResponseMessage response = await httpClient.GetAsync(streamUrl, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
-            while (response.StatusCode == System.Net.HttpStatusCode.Redirect)
+            if (m3u8PlayList != null && m3u8PlayList.Streams.Any())
             {
-                ++redirectCount;
-                if (response.Headers.Location == null || redirectCount > 10)
+                var streams = m3u8PlayList.Streams.OrderByDescending(s => s.Bandwidth).First();
+
+                var pipe = new Pipe();
+                _ = Task.Run(async () =>
                 {
-                    break;
-                }
+                    await DownloadSegments(streams.Segments, sourceUrl, pipe.Writer, cancellation);
+                    pipe.Writer.Complete();
+                });
 
-                string location = response.Headers.Location.ToString();
-                response = await httpClient.GetAsync(location, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
-                response.EnsureSuccessStatusCode();
-            }
-
-            string contentType = response.Content.Headers.ContentType.MediaType;
-            if (contentType == "application/vnd.apple.mpegurl")
-            {
-                ProcessStartInfo ffmpegStartInfo = new ProcessStartInfo();
-                ffmpegStartInfo.FileName = "ffmpeg";
-                ffmpegStartInfo.Arguments = $"-i {streamUrl} -c copy -f mp4 pipe:1";
-                ffmpegStartInfo.RedirectStandardOutput = true;
-                Process ffmpegProcess = new Process();
-                ffmpegProcess.StartInfo = ffmpegStartInfo;
-                ffmpegProcess.Start();
-
-                MemoryStream memoryStream = new MemoryStream();
-                using (Stream ffmpegOutput = ffmpegProcess.StandardOutput.BaseStream)
-                {
-                    byte[] buffer = new byte[4096];
-                    int bytesRead;
-                    while ((bytesRead = ffmpegOutput.Read(buffer, 0, buffer.Length)) > 0)
-                    {
-                        memoryStream.Write(buffer, 0, bytesRead);
-                    }
-                }
-                memoryStream.Seek(0, SeekOrigin.Begin);
-                return (memoryStream, null);
+                return (pipe.Reader.AsStream(), null);
             }
             else
             {
-                Stream stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                HttpResponseMessage response = await client.GetAsync(sourceUrl, HttpCompletionOption.ResponseHeadersRead);
+                response.EnsureSuccessStatusCode();
+                Stream stream = await response.Content.ReadAsStreamAsync();
                 return (stream, null);
             }
         }
-        catch (HttpRequestException ex)
-        {
-            ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.HttpRequestError, Message = ex.Message };
-            return (null, error);
-        }
-        catch (IOException ex)
-        {
-            ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.IoError, Message = ex.Message };
-            return (null, error);
-        }
         catch (Exception ex)
         {
-            ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.UnknownError, Message = ex.Message };
-            return (null, error);
+            return (null, new ProxyStreamError
+            {
+                ErrorCode = ProxyStreamErrorCode.DownloadError,
+                Message = ex.Message
+            });
         }
+    }
+
+    private static HttpClient CreateHttpClient()
+    {
+        var client = new HttpClient();
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; streammaster/1.0)");
+        return client;
+    }
+
+    private static async Task DownloadSegments(List<M3u8Segment> segments, string sourceUrl, PipeWriter pipeWriter, CancellationToken cancellation)
+    {
+        while (!cancellation.IsCancellationRequested)
+        {
+            bool firstRun = true;
+            foreach (var segment in segments)
+            {
+                if (cancellation.IsCancellationRequested)
+                {
+                    break;
+                }
+                HttpResponseMessage response;
+                try
+                {
+                    long byteRangeStart = segment.ByterangeStart;
+                    long byteRangeLength = segment.ByterangeLength;
+
+                    Debug.WriteLine($"{DateTime.Now} Streaming {segment.Uri} Delay {segment.Duration} byteRangeStart {byteRangeStart} byteRangeLength {byteRangeLength} ");
+
+                    if (!firstRun && byteRangeLength != -1)
+                    {
+                        client.DefaultRequestHeaders.Range = new RangeHeaderValue(byteRangeStart, byteRangeStart + byteRangeLength);
+                    }
+                    else
+                    {
+                        firstRun = true;
+                        client.DefaultRequestHeaders.Range = null;
+                    }
+
+                    response = await client.GetAsync(segment.Uri, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        using Stream stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+
+                        await stream.CopyToAsync(pipeWriter).ConfigureAwait(false);
+                        await Task.Delay((int)segment.Duration * 700);
+                    }
+                    else
+                    {
+                        Console.Error.WriteLine($"Error downloading segment: {segment.Uri}. Status code: {response.StatusCode}");
+                    }
+                }
+                catch
+                {
+                    Console.Error.WriteLine($"Error downloading segment: {segment.Uri}");
+                    continue;
+                }
+            }
+
+            var parser = new M3u8Parser();
+            var m3u8PlayList = await parser.ParsePlaylistAsync(sourceUrl);
+
+            if (m3u8PlayList == null)
+            {
+                Debug.WriteLine($"{DateTime.Now} m3u8PlayList is null");
+                break;
+            }
+
+            var streams = m3u8PlayList.Streams.OrderByDescending(s => s.Bandwidth).First();
+            var existingMediaSequence = segments.Select(a => a.MediaSequence).ToList();
+            segments = streams.Segments.Where(a => !existingMediaSequence.Contains(a.MediaSequence)).ToList();
+        }
+    }
+
+    private static bool IsFFmpegAvailable()
+    {
+        string command = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "where" : "which";
+        ProcessStartInfo startInfo = new ProcessStartInfo(command, "ffmpeg");
+        startInfo.RedirectStandardOutput = true;
+        startInfo.UseShellExecute = false;
+        Process process = new Process();
+        process.StartInfo = startInfo;
+        process.Start();
+        process.WaitForExit();
+        return process.ExitCode == 0;
     }
 }
