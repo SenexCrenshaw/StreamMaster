@@ -13,14 +13,7 @@ const PlayListEditor = (props: PlayListEditorProps) => {
   const onsetSelectedChannelGroups = React.useCallback((selectedData: StreamMasterApi.ChannelGroupDto | StreamMasterApi.ChannelGroupDto[]) => {
     if (Array.isArray(selectedData)) {
       setSelectedChannelGroups(selectedData);
-      // if (selectedData.length > 0) {
-      //   const newDatas = selectedData.filter((cg) => cg.id !== undefined);
-      //   setSelectedChannelGroup(newDatas[0]);
-      // } else {
-      //   setSelectedChannelGroup({} as StreamMasterApi.ChannelGroupDto);
-      // }
     } else {
-      // setSelectedChannelGroups([selectedData]);
       setSelectedChannelGroups([selectedData]);
     }
 
