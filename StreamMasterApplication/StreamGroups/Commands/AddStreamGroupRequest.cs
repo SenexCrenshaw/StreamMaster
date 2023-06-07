@@ -10,17 +10,14 @@ using StreamMasterDomain.Dto;
 namespace StreamMasterApplication.StreamGroups.Commands;
 
 [RequireAll]
-public class AddStreamGroupRequest : IRequest<StreamGroupDto?>
+public record AddStreamGroupRequest(
+    string Name,
+    int StreamGroupNumber,
+    List<int>? VideoStreamIds,
+    List<string>? ChannelGroupNames
+    ) : IRequest<StreamGroupDto?>
 {
-    public AddStreamGroupRequest()
-    {
-        // StreamGroupVideoStreams = new();
-    }
-
-    public string Name { get; set; } = string.Empty;
-    public int StreamGroupNumber { get; set; }
-    //public List<StreamGroupVideoStream> StreamGroupVideoStreams { get; set; }
-}
+   }
 
 public class AddStreamGroupRequestValidator : AbstractValidator<AddStreamGroupRequest>
 {
@@ -62,9 +59,10 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
             return null;
         }
             
-        if (_context.StreamGroups.Any(a => a.StreamGroupNumber == command.StreamGroupNumber))
+        int streamGroupNumber=  command.StreamGroupNumber;
+        if (_context.StreamGroups.Any(a => a.StreamGroupNumber == streamGroupNumber))
         {
-            command.StreamGroupNumber = _context.StreamGroups.Max(a => a.StreamGroupNumber) + 1;
+            streamGroupNumber = _context.StreamGroups.Max(a => a.StreamGroupNumber) + 1;
         }
 
         // List<StreamGroupVideoStream> sgt = _mapper.Map<List<StreamGroupVideoStream>>(command.StreamGroupVideoStreams);
@@ -72,8 +70,25 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
         {
             Name = command.Name,
             StreamGroupNumber = command.StreamGroupNumber,
-            // StreamGroupVideoStreams = sgt,
+          
         };
+        
+        if ( command.ChannelGroupNames != null && command.ChannelGroupNames.Any())
+        {
+            var cgs= _context.ChannelGroups.Where(a => command.ChannelGroupNames.Contains(a.Name))  .ToList();
+            if (cgs.Any()) {
+                entity.ChannelGroups =cgs ; 
+            }
+        }
+
+        if (command.VideoStreamIds != null && command.VideoStreamIds.Any())
+        {
+            var vs = _context.VideoStreams.Where(a => command.VideoStreamIds.Contains(a.Id)).ToList();
+            if (vs.Any())
+            {
+                entity.VideoStreams = vs;
+            }
+        }
 
         _ = _context.StreamGroups.Add(entity);
         _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
