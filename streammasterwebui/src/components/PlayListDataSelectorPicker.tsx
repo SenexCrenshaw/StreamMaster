@@ -1,12 +1,10 @@
-/* eslint-disable react/no-unused-prop-types */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { type CSSProperties } from "react";
 import React from "react";
 import * as StreamMasterApi from '../store/iptvApi';
 import DataSelectorPicker from "../features/dataSelectorPicker/DataSelectorPicker";
 
 import { Button } from 'primereact/button';
-import { areVideoStreamsEqual, getTopToolOptions } from "../common/common";
+import { getTopToolOptions } from "../common/common";
 import StreamMasterSetting from "../store/signlar/StreamMasterSetting";
 import { Toast } from 'primereact/toast';
 import * as Hub from "../store/signlar_functions";
@@ -89,7 +87,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     }
     ,
     {
-      field: 'user_Tvg_ID', header: 'EPG', sortable: true,
+      field: 'user_Tvg_group', header: 'Group', sortable: true,
       style: {
         flexGrow: 0,
         flexShrink: 1,
@@ -296,17 +294,13 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
                 rank: index,
               }
             }) as StreamMasterApi.VideoStreamDto[];
-            // console.log('PlayListDataSelectorPicker onTargetOnValueChanged e', e.length)
-            // console.log('PlayListDataSelectorPicker onTargetOnValueChanged newData', newData.length)
             props.onValueChanged?.(newData as StreamMasterApi.VideoStreamDto[]);
           } else {
             props.onValueChanged?.(e as StreamMasterApi.VideoStreamDto[]);
           }
         }}
-        onTargetSelectionChange={(e) => {
-          // console.log('PlayListDataSelectorPicker onTargetSelectionChange', e.length)
-          //  onChange(e as StreamMasterApi.VideoStreamDto[]).then(() => { }).catch(() => { });
-        }}
+        // onTargetSelectionChange={(e) => {
+        // }}
         selection={targetVideoStreams}
         sourceColumns={sourceColumns}
         sourceDataSource={sourceVideoStreams}
