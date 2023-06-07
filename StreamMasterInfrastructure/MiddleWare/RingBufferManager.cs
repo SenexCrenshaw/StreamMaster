@@ -39,7 +39,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         _streamReads = new ConcurrentDictionary<Guid, RingBufferReadStream>();
         _streamStreamInfos = new();
         setting = FileUtil.GetSetting();
-        _broadcastTimer = new Timer(BroadcastMessage, null, 3 * 1000, 3 * 1000);
+        _broadcastTimer = new Timer(BroadcastMessage, null,  1000, 1000);
     }
 
     public void Dispose()
@@ -159,8 +159,8 @@ public class RingBufferManager : IDisposable, IRingBufferManager
 
         if (streamStreamInfo is null || streamStreamInfo.RingBuffer is null)
         {
-            _logger.LogCritical("Could not create buffer for client {ClientId} registered for stream: {StreamUrl}", config.ClientId, setting.CleanURLs ? "url removed" : streamUrl);
-            //throw new ApplicationException($"Could not create buffer for client {config.ClientId} registered for stream: {streamUrl}");
+            _logger.LogCritical("Could not create buffer for client {ClientId} registered for stream: {StreamUrl}", config.ClientId, setting.CleanURLs ? "url removed" : streamUrl);            
+
             return (null, config.ClientId, null);
         }
 

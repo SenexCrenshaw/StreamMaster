@@ -9,7 +9,5 @@ public enum ProxyStreamErrorCode
     ChannelManagerFinished,
     HttpError,
     DownloadError,
-    PlaylistError,
-    PlaylistDownloadError,
-    InvalidPlaylistFormat,
+    MasterPlayListNotSupported
 }

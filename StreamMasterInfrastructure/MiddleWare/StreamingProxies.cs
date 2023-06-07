@@ -1,8 +1,9 @@
 ﻿using StreamMasterDomain.Common;
 
+using StreamMasterInfrastructure.Common;
+
 using System.Diagnostics;
 using System.IO.Pipelines;
-using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 
 namespace StreamMasterInfrastructure.MiddleWare;
@@ -10,13 +11,6 @@ namespace StreamMasterInfrastructure.MiddleWare;
 public static class StreamingProxies
 {
     private static readonly HttpClient client = CreateHttpClient();
-
-    public static async Task<HttpResponseMessage> GetAsync(string url, int start, int end)
-    {
-        var client = new HttpClient();
-        client.DefaultRequestHeaders.Range = new RangeHeaderValue(start, end);
-        return await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
-    }
 
     /// <summary>
     /// Get FFMpeg Stream from url <strong>Supports failover</strong>
@@ -44,7 +38,7 @@ public static class StreamingProxies
         {
             using Process process = new();
             process.StartInfo.FileName = setting.FFMPegExecutable;
-            process.StartInfo.Arguments = $"-hide_banner -loglevel error -i \"{streamUrl}\" -c copy -f mp4 pipe:1 -user_agent \"streammaster\"";
+            process.StartInfo.Arguments = $"-hide_banner -loglevel error -i \"{streamUrl}\" -c copy -f mpegts pipe:1 -user_agent \"streammaster\"";
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
@@ -72,26 +66,39 @@ public static class StreamingProxies
             var parser = new M3u8Parser();
             var m3u8PlayList = await parser.ParsePlaylistAsync(sourceUrl);
 
-            if (m3u8PlayList != null && m3u8PlayList.Streams.Any())
+            if (m3u8PlayList == null || !m3u8PlayList.Streams.Any())
             {
-                var streams = m3u8PlayList.Streams.OrderByDescending(s => s.Bandwidth).First();
+                HttpResponseMessage? response = await client.GetWithRedirectAsync(sourceUrl, cancellationToken: cancellation).ConfigureAwait(false);
 
-                var pipe = new Pipe();
-                _ = Task.Run(async () =>
+                if (response == null || !response.IsSuccessStatusCode)
                 {
-                    await DownloadSegments(streams.Segments, sourceUrl, pipe.Writer, cancellation);
-                    pipe.Writer.Complete();
-                });
+                    return (null, new ProxyStreamError { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = "Could not retrieve stream utl" });
+                }
 
-                return (pipe.Reader.AsStream(), null);
-            }
-            else
-            {
-                HttpResponseMessage response = await client.GetAsync(sourceUrl, HttpCompletionOption.ResponseHeadersRead);
-                response.EnsureSuccessStatusCode();
                 Stream stream = await response.Content.ReadAsStreamAsync();
                 return (stream, null);
             }
+
+            if (m3u8PlayList.IndependentSegments)
+            {
+                return (null, new ProxyStreamError
+                {
+                    ErrorCode = ProxyStreamErrorCode.MasterPlayListNotSupported,
+                    Message = "M3U8 Master Playlis not supported"
+                }); ;
+            }
+
+            var streams = m3u8PlayList.Streams.OrderByDescending(s => s.Bandwidth).First();
+
+            var pipe = new Pipe();
+
+            _ = Task.Run(async () =>
+            {
+                await DownloadSegments(streams.Segments, sourceUrl, pipe.Writer, cancellation);
+                pipe.Writer.Complete();
+            });
+
+            return (pipe.Reader.AsStream(), null);
         }
         catch (Exception ex)
         {
@@ -105,7 +112,10 @@ public static class StreamingProxies
 
     private static HttpClient CreateHttpClient()
     {
-        var client = new HttpClient();
+        var client = new HttpClient(new HttpClientHandler()
+        {
+            AllowAutoRedirect = true,
+        });
         client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; streammaster/1.0)");
         return client;
     }
@@ -114,43 +124,39 @@ public static class StreamingProxies
     {
         while (!cancellation.IsCancellationRequested)
         {
-            bool firstRun = true;
             foreach (var segment in segments)
             {
                 if (cancellation.IsCancellationRequested)
                 {
                     break;
                 }
-                HttpResponseMessage response;
+                HttpResponseMessage? response;
                 try
                 {
-                    long byteRangeStart = segment.ByterangeStart;
-                    long byteRangeLength = segment.ByterangeLength;
+                    //Debug.WriteLine($"{DateTime.Now} Streaming {segment.Uri} Delay {segment.Duration} byteRangeStart {byteRangeStart} byteRangeLength {byteRangeLength} ");
 
-                    Debug.WriteLine($"{DateTime.Now} Streaming {segment.Uri} Delay {segment.Duration} byteRangeStart {byteRangeStart} byteRangeLength {byteRangeLength} ");
+                    response = await client.GetWithRedirectAsync(
+                        segment.Uri,
+                        segment.ByterangeStart,
+                        segment.ByterangeLength,
+                        cancellationToken: cancellation
+                        ).ConfigureAwait(false);
 
-                    if (!firstRun && byteRangeLength != -1)
+                    if (response == null)
                     {
-                        client.DefaultRequestHeaders.Range = new RangeHeaderValue(byteRangeStart, byteRangeStart + byteRangeLength);
-                    }
-                    else
-                    {
-                        firstRun = true;
-                        client.DefaultRequestHeaders.Range = null;
+                        continue;
                     }
 
-                    response = await client.GetAsync(segment.Uri, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        using Stream stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
-
-                        await stream.CopyToAsync(pipeWriter).ConfigureAwait(false);
-                        await Task.Delay((int)segment.Duration * 700);
-                    }
-                    else
+                    if (!response.IsSuccessStatusCode)
                     {
                         Console.Error.WriteLine($"Error downloading segment: {segment.Uri}. Status code: {response.StatusCode}");
+                        continue;
                     }
+
+                    using Stream stream = await response.Content.ReadAsStreamAsync(cancellation).ConfigureAwait(false);
+
+                    await stream.CopyToAsync(pipeWriter, cancellationToken: cancellation).ConfigureAwait(false);
+                    await Task.Delay((int)segment.Duration * 700, cancellation).ConfigureAwait(false);
                 }
                 catch
                 {
@@ -164,7 +170,7 @@ public static class StreamingProxies
 
             if (m3u8PlayList == null)
             {
-                Debug.WriteLine($"{DateTime.Now} m3u8PlayList is null");
+                //Debug.WriteLine($"{DateTime.Now} m3u8PlayList is null");
                 break;
             }
 
