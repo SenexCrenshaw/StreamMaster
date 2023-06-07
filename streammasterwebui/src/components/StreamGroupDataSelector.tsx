@@ -53,25 +53,6 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
     ];
   }, []);
 
-
-  const sourceaddtionalHeaderTemplate = () => {
-    return (
-      <div className="streamGroupEditor grid w-full flex flex-nowrap justify-content-end align-items-center p-0">
-        <div className="flex w-full w-full p-0 align-items-center justify-content-end">
-          <div className="flex justify-content-end gap-2 align-items-center mr-2">
-
-            <StreamGroupEditDialog value={selectedStreamGroup} />
-
-            <StreamGroupAddDialog />
-
-            <StreamGroupDeleteDialog value={selectedStreamGroup} />
-
-          </div >
-        </div>
-      </div >
-    );
-  };
-
   const onSetStreamGroup = React.useCallback((data: StreamMasterApi.StreamGroupDto) => {
     if (!streamGroupsQuery?.data) {
       setSelectedStreamGroup({} as StreamMasterApi.StreamGroupDto);
@@ -91,6 +72,31 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
 
   }, [props, streamGroupsQuery.data]);
 
+  const sourceaddtionalHeaderTemplate = () => {
+    return (
+      <div className="streamGroupEditor grid w-full flex flex-nowrap justify-content-end align-items-center p-0">
+        <div className="flex w-full w-full p-0 align-items-center justify-content-end">
+          <div className="flex justify-content-end gap-2 align-items-center mr-2">
+
+            <StreamGroupEditDialog
+              onHide={(sg) => {
+                if (sg !== undefined) {
+                  setSelectedStreamGroup(sg);
+                  props.onSelectionChange?.(sg);
+                }
+              }}
+              value={selectedStreamGroup}
+            />
+
+            <StreamGroupAddDialog />
+
+            <StreamGroupDeleteDialog value={selectedStreamGroup} />
+
+          </div >
+        </div>
+      </div >
+    );
+  };
 
   return (
     <>

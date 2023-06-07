@@ -76,7 +76,7 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
         ParallelOptions po = new()
         {
             CancellationToken = cancellationToken,
-            MaxDegreeOfParallelism = System.Environment.ProcessorCount
+            MaxDegreeOfParallelism = Environment.ProcessorCount
         };
 
         ConcurrentDictionary<int, string> retlist = new();

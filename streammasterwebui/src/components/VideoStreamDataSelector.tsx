@@ -28,7 +28,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
   const [enableEditMode, setEnableEditMode] = useSessionStorage(true, props.id + '-enableEditMode');
   const [selectedM3UStreams, setSelectedM3UStreams] = React.useState<StreamMasterApi.VideoStreamDto[]>([] as StreamMasterApi.VideoStreamDto[]);
-  const [showHidden, setShowHidden] = useSessionStorage<boolean | null | undefined>(null, props.id + '-showHidden');
+  const [showHidden, setShowHidden] = useSessionStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
   const [values, setValues] = React.useState<StreamMasterApi.VideoStreamDto[]>([] as StreamMasterApi.VideoStreamDto[]);
 
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
@@ -439,7 +439,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         selection={selectedM3UStreams}
         selectionMode='multiple'
         showHidden={showHidden}
-        showSkeleton={videoStreamsQuery.isLoading || enableEditMode === undefined || showHidden === undefined}
+        showSkeleton={videoStreamsQuery.isLoading || enableEditMode === undefined}
         sortField='user_Tvg_name'
         style={{ height: 'calc(100vh - 40px)' }}
       />

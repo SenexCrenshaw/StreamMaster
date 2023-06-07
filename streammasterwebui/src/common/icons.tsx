@@ -11,9 +11,11 @@ import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutl
 import RotateLeftIcon from '@mui/icons-material/RotateLeft';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
+import WorkspacesIcon from '@mui/icons-material/Workspaces';
 
 import { default as cancelIcon } from '@mui/icons-material/Cancel';
 
+export const GroupIcon = WorkspacesIcon;
 export const HelpIcon = HelpOutlineOutlinedIcon;
 export const AutoMatchIcon = AutoAwesomeIcon;
 export const CancelIcon = cancelIcon;

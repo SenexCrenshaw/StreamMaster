@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 
 using FluentValidation;
 
@@ -10,7 +11,13 @@ using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.StreamGroups.Commands;
 
-public record UpdateStreamGroupRequest(int StreamGroupId, string? Name, int? StreamGroupNumber, List<int> VideoStreamIds) : IRequest<StreamGroupDto?>
+public record UpdateStreamGroupRequest(
+    int StreamGroupId,
+    string? Name,
+    int? StreamGroupNumber,
+    List<int>? VideoStreamIds,
+    List<string>? ChannelGroupNames
+    ) : IRequest<StreamGroupDto?>
 {
 }
 
@@ -42,14 +49,18 @@ public class UpdateStreamGroupRequestHandler : IRequestHandler<UpdateStreamGroup
 
     public async Task<StreamGroupDto?> Handle(UpdateStreamGroupRequest request, CancellationToken cancellationToken)
     {
-        if (request.StreamGroupId< 1)
+        if (request.StreamGroupId < 1)
         {
             return null;
         }
 
         try
         {
-            StreamGroup? streamGroup = await _context.StreamGroups.Include(a => a.VideoStreams).FirstOrDefaultAsync(a => a.Id == request.StreamGroupId, cancellationToken: cancellationToken).ConfigureAwait(false);
+            StreamGroup? streamGroup = await _context.StreamGroups
+                .Include(a => a.VideoStreams)
+                .Include(a => a.ChannelGroups)
+                .FirstOrDefaultAsync(a => a.Id == request.StreamGroupId, cancellationToken: cancellationToken).ConfigureAwait(false);
+
             if (streamGroup == null)
             {
                 return null;
@@ -65,6 +76,34 @@ public class UpdateStreamGroupRequestHandler : IRequestHandler<UpdateStreamGroup
                 if (!await _context.StreamGroups.AnyAsync(a => a.StreamGroupNumber == (int)request.StreamGroupNumber, cancellationToken: cancellationToken).ConfigureAwait(false))
                 {
                     streamGroup.StreamGroupNumber = (int)request.StreamGroupNumber;
+                }
+            }
+
+            if (request.ChannelGroupNames != null)
+            {
+                if (streamGroup.ChannelGroups == null)
+                {
+                    streamGroup.ChannelGroups = new List<ChannelGroup>();
+                    _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    if (streamGroup.ChannelGroups.Any())
+                    {
+                        streamGroup.ChannelGroups.Clear();
+                        _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                    }
+                }
+
+                foreach (var channelGroupName in request.ChannelGroupNames)
+                {
+                    var channelGroup = _context.ChannelGroups.FirstOrDefault(a => a.Name == channelGroupName);
+                    if (channelGroup == null)
+                    {
+                        continue;
+                    }
+
+                    streamGroup.ChannelGroups.Add(channelGroup);
                 }
             }
 
@@ -99,6 +138,21 @@ public class UpdateStreamGroupRequestHandler : IRequestHandler<UpdateStreamGroup
             _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             StreamGroupDto ret = _mapper.Map<StreamGroupDto>(streamGroup);
+            var existingIds = streamGroup.VideoStreams.Select(a => a.Id).ToList();
+
+            foreach (var channegroup in streamGroup.ChannelGroups)
+            {
+                var streams = _context.VideoStreams
+                    .Where(a => !existingIds.Contains(a.Id) && a.User_Tvg_group == channegroup.Name)
+                    .AsNoTracking()
+                    .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider)
+                    .ToList();
+                foreach (var stream in streams)
+                {
+                    stream.IsReadOnly = true;
+                }
+                ret.VideoStreams.AddRange(streams);
+            }
             await _publisher.Publish(new StreamGroupUpdateEvent(ret), cancellationToken).ConfigureAwait(false);
             return ret;
         }

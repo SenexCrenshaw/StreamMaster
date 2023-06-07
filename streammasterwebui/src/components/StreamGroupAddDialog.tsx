@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 import { Button } from "primereact/button";
 import { getLeftToolOptions, getTopToolOptions } from "../common/common";
@@ -6,6 +7,8 @@ import { InputText } from "primereact/inputtext";
 import { InputNumber } from "primereact/inputnumber";
 import * as StreamMasterApi from '../store/iptvApi';
 import { AddStreamGroup } from "../store/signlar_functions";
+import PlayListDataSelector from "./PlayListDataSelector";
+import { Accordion, AccordionTab } from 'primereact/accordion';
 
 const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
@@ -13,6 +16,7 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
   const [infoMessage, setInfoMessage] = React.useState('');
   const [name, setName] = React.useState<string>('');
   const [streamGroupNumber, setStreamGroupNumber] = React.useState<number>();
+  const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[]);
 
   const streamGroupsQuery = StreamMasterApi.useStreamGroupsGetStreamGroupsQuery();
 
@@ -139,6 +143,15 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
     };
   }, [onAdd, name]);
 
+  const onsetSelectedChannelGroups = React.useCallback((selectedData: StreamMasterApi.ChannelGroupDto | StreamMasterApi.ChannelGroupDto[]) => {
+    if (Array.isArray(selectedData)) {
+      setSelectedChannelGroups(selectedData);
+    } else {
+      setSelectedChannelGroups([selectedData]);
+    }
+
+  }, []);
+
   return (
     <>
 
@@ -149,6 +162,7 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
         onClose={() => {
           ReturnToParent();
         }}
+        overlayColSize={6}
         show={showOverlay}
       >
 
@@ -190,15 +204,26 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
                     value={streamGroupNumber}
                   />
                 </div>
+
               </div>
             </div>
 
-
           </div>
 
+          <Accordion className='mt-2'>
+            <AccordionTab header="Groups">
+              <div className='col-12 m-0 p-0 pr-1' >
+                <PlayListDataSelector
+                  id='streamggroupadddialog'
+                  maxHeight={400}
+                  onSelectionChange={(e) => onsetSelectedChannelGroups(e as StreamMasterApi.ChannelGroupDto[])}
+                />
+              </div>
+            </AccordionTab>
 
+          </Accordion>
 
-          <div className=" flex col-12 mt-3 gap-2 justify-content-end">
+          <div className="flex col-12 mt-3 gap-2 justify-content-end">
             <Button
               icon="pi pi-times "
               label="Cancel"

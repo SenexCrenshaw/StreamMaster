@@ -22,33 +22,42 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
   const toast = React.useRef<Toast>(null);
 
-  const [showHidden, setShowHidden] = useSessionStorage<boolean | null | undefined>(null, props.id + '-showHidden');
+  const [showHidden, setShowHidden] = useSessionStorage<boolean | null | undefined>(undefined, props.id + '-PlayListDataSelector-showHidden');
 
   const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[]);
 
-  const [selectedM3UFile, setSelectedM3UFile] = useSessionStorage<StreamMasterApi.M3UFilesDto>({ id: 0, name: 'All' } as StreamMasterApi.M3UFilesDto, 'PlayListDataSelector-selectedM3UFile');
+  const [selectedM3UFile, setSelectedM3UFile] = useSessionStorage<StreamMasterApi.M3UFilesDto>({ id: 0, name: 'All' } as StreamMasterApi.M3UFilesDto, props.id + '-PlayListDataSelector-selectedM3UFile');
 
   const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
 
-  const [sourceEnableBulk, setSourceEnableBulk] = useSessionStorage(false, props.id + '-sourceEnableBulk');
+  // const [sourceEnableBulk, setSourceEnableBulk] = useSessionStorage(false, props.id + '-PlayListDataSelector-sourceEnableBulk');
 
+
+  // React.useEffect(() => {
+  //   const callback = (event: KeyboardEvent) => {
+
+  //     if ((event.ctrlKey) && event.code === 'KeyB') {
+  //       event.preventDefault();
+  //       setSourceEnableBulk(!sourceEnableBulk);
+  //     }
+
+  //   };
+
+  //   document.addEventListener('keydown', callback);
+  //   return () => {
+  //     document.removeEventListener('keydown', callback);
+  //   };
+  // }, [setSourceEnableBulk, sourceEnableBulk]);
 
   React.useEffect(() => {
-    const callback = (event: KeyboardEvent) => {
+    if (!props.selectChannelGroups) {
+      return;
+    }
 
-      if ((event.ctrlKey) && event.code === 'KeyB') {
-        event.preventDefault();
-        setSourceEnableBulk(!sourceEnableBulk);
-      }
-
-    };
-
-    document.addEventListener('keydown', callback);
-    return () => {
-      document.removeEventListener('keydown', callback);
-    };
-  }, [setSourceEnableBulk, sourceEnableBulk]);
+    console.log("PlayListDataSelector:useEffect:props.selectChannelGroups", props.selectChannelGroups)
+    setSelectedChannelGroups(props.selectChannelGroups);
+  }, [props.selectChannelGroups]);
 
   const channelGroupDelete = React.useCallback((ids: number[]) => {
     const test = selectedChannelGroups.filter((item) => !ids.includes(item.id));
@@ -103,14 +112,14 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       props.onSelectionChange?.(newDatas);
     } else {
       setSelectedChannelGroups([selectedData]);
-      if (sourceEnableBulk) {
-        props.onSelectionChange?.([selectedData]);
-      } else {
-        props.onSelectionChange?.(selectedData);
-      }
+      // if (sourceEnableBulk) {
+      props.onSelectionChange?.([selectedData]);
+      // } else {
+      //   props.onSelectionChange?.(selectedData);
+      // }
     }
 
-  }, [props, sourceEnableBulk]);
+  }, [props]);
 
 
 
@@ -177,10 +186,10 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       <Toast position="bottom-right" ref={toast} />
       <DataSelector
         columns={sourceColumns}
-        dataSource={channelGroupsQuery.data}
+        dataSource={props.hideControls === true ? channelGroupsQuery.data?.filter((item) => item.isHidden !== true) : channelGroupsQuery.data}
         emptyMessage="No Groups"
-        headerLeftTemplate={sourceHeaderLeftTemplate()}
-        headerRightTemplate={sourceRightHeaderTemplate()}
+        headerLeftTemplate={props.hideControls === true ? null : sourceHeaderLeftTemplate()}
+        headerRightTemplate={props.hideControls === true ? null : sourceRightHeaderTemplate()}
         id={props.id + 'DataSelector'}
         isLoading={channelGroupsQuery.isLoading}
         m3uFileId={selectedM3UFile?.id}
@@ -197,12 +206,14 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
           channelGroupsQuery.isLoading ||
           videoStreamsQuery.isLoading ||
           selectedM3UFile === undefined ||
-          selectedM3UFile.name === undefined ||
-          sourceEnableBulk === null ||
-          sourceEnableBulk === undefined
+          selectedM3UFile.name === undefined
+          // sourceEnableBulk === null ||
+          // sourceEnableBulk === undefined
         }
         sortField='rank'
-        style={{ height: 'calc(100vh - 40px)' }}
+        style={{
+          height: props.maxHeight !== null ? props.maxHeight : 'calc(100vh - 40px)',
+        }}
       />
     </>
   );
@@ -210,15 +221,18 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
 PlayListDataSelector.displayName = 'Play List Editor';
 PlayListDataSelector.defaultProps = {
+  hideControls: false,
+  maxHeight: null,
   useReadOnly: true
 };
 
 export type PlayListDataSelectorProps = {
-
+  hideControls?: boolean;
   id: string;
+  maxHeight?: number;
   onM3UFileChange?: (value: StreamMasterApi.M3UFilesDto) => void;
-
   onSelectionChange?: (value: StreamMasterApi.ChannelGroupDto | StreamMasterApi.ChannelGroupDto[]) => void;
+  selectChannelGroups?: StreamMasterApi.ChannelGroupDto[] | null
   useReadOnly?: boolean;
 };
 

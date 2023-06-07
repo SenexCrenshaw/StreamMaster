@@ -62,6 +62,7 @@ const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
       <Toast position="bottom-right" ref={toast} />
       <IconSelector
         className="p-inputtext-sm"
+        enableEditMode={props.enableEditMode}
         onChange={
           async (e: StreamMasterApi.IconFileDto) => {
 
@@ -91,10 +92,12 @@ const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
 
 ChannelLogoEditor.displayName = 'Logo Editor';
 ChannelLogoEditor.defaultProps = {
+  enableEditMode: true
 };
 
 export type StreamDataSelectorProps = {
   data: StreamMasterApi.VideoStreamDto;
+  enableEditMode?: boolean;
 };
 
 export default React.memo(ChannelLogoEditor);

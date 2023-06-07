@@ -8,4 +8,6 @@ public class ChannelGroup : BaseEntity
     public string Name { get; set; } = string.Empty;
     public int Rank { get; set; }
     public string RegexMatch { get; set; } = string.Empty;
+
+    public List<StreamGroup> StreamGroups { get; set; } = new();
 }

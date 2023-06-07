@@ -362,14 +362,11 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/misc/cacheallicons`, method: "PUT" }),
         invalidatesTags: ["Misc"],
       }),
-      miscCacheIconsFromProgrammes: build.mutation<
-        MiscCacheIconsFromProgrammesApiResponse,
-        MiscCacheIconsFromProgrammesApiArg
+      miscCacheIconsFromEpGs: build.mutation<
+        MiscCacheIconsFromEpGsApiResponse,
+        MiscCacheIconsFromEpGsApiArg
       >({
-        query: () => ({
-          url: `/api/misc/cacheiconsfromprogrammes`,
-          method: "PUT",
-        }),
+        query: () => ({ url: `/api/misc/cacheiconsfromepgs`, method: "PUT" }),
         invalidatesTags: ["Misc"],
       }),
       miscCacheIconsFromVideoStreams: build.mutation<
@@ -830,9 +827,8 @@ export type M3UFilesUpdateM3UFileApiResponse = /** status 204  */ undefined;
 export type M3UFilesUpdateM3UFileApiArg = UpdateM3UFileRequest;
 export type MiscCacheAllIconsApiResponse = /** status 204  */ undefined;
 export type MiscCacheAllIconsApiArg = void;
-export type MiscCacheIconsFromProgrammesApiResponse =
-  /** status 204  */ undefined;
-export type MiscCacheIconsFromProgrammesApiArg = void;
+export type MiscCacheIconsFromEpGsApiResponse = /** status 204  */ undefined;
+export type MiscCacheIconsFromEpGsApiArg = void;
 export type MiscCacheIconsFromVideoStreamsApiResponse =
   /** status 204  */ undefined;
 export type MiscCacheIconsFromVideoStreamsApiArg = void;
@@ -1190,7 +1186,6 @@ export type TaskQueueStatusDto = {
 export type StreamingProxyTypes = 0 | 1 | 2 | 3;
 export type Setting = {
   appName?: string;
-  baseHostPost?: number;
   baseHostURL?: string;
   cacheIcons?: boolean;
   cleanURLs?: boolean;
@@ -1266,6 +1261,7 @@ export type VideoStreamDto = BaseVideoStreamDto & {
   childVideoStreams?: ChildVideoStreamDto[];
 };
 export type StreamGroupDto = {
+  channelGroups: ChannelGroupDto[];
   id: number;
   name: string;
   streamGroupNumber: number;
@@ -1300,7 +1296,8 @@ export type UpdateStreamGroupRequest = {
   streamGroupId?: number;
   name?: string | null;
   streamGroupNumber?: number | null;
-  videoStreamIds?: number[];
+  videoStreamIds?: number[] | null;
+  channelGroupNames?: string[] | null;
 };
 export type AddVideoStreamRequest = {
   tvg_name?: string;
@@ -1384,7 +1381,7 @@ export const {
   useM3UFilesScanDirectoryForM3UFilesMutation,
   useM3UFilesUpdateM3UFileMutation,
   useMiscCacheAllIconsMutation,
-  useMiscCacheIconsFromProgrammesMutation,
+  useMiscCacheIconsFromEpGsMutation,
   useMiscCacheIconsFromVideoStreamsMutation,
   useMiscReadDirectoryLogosRequestMutation,
   useProgrammesGetProgrammeQuery,

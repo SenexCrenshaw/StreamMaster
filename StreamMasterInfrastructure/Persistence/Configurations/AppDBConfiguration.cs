@@ -13,6 +13,11 @@ public class StreamGroupConfiguration : IEntityTypeConfiguration<StreamGroup>
          .HasMany(e => e.VideoStreams)
          .WithMany(e => e.StreamGroups)
          .UsingEntity<StreamGroupVideoStream>();
+
+        modelBuilder
+        .HasMany(e => e.ChannelGroups)
+        .WithMany(e => e.StreamGroups)
+        .UsingEntity<StreamGroupChannelGroup>();
     }
 }
 

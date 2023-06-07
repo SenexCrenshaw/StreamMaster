@@ -12,6 +12,8 @@ import ChannelNumberEditor from "./ChannelNumberEditor";
 import ChannelNameEditor from "./ChannelNameEditor";
 import ChannelLogoEditor from "./ChannelLogoEditor";
 import { type ColumnMeta } from "../features/dataSelector/DataSelectorTypes";
+import { GroupIcon } from "../common/icons";
+import { Tooltip } from "primereact/tooltip";
 
 const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   const toast = React.useRef<Toast>(null);
@@ -53,12 +55,12 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
 
     if (streamGroup === undefined || streamGroup.id === undefined || streamGroup.videoStreams === undefined) {
+      const newData = [...videoStreamsQuery.data];
+
       if (props.showTriState === null) {
-        console.log('PlayListDataSelectorPicker:useMemo:videoStreamsQuery.data: ', videoStreamsQuery.data);
-        console.log('PlayListDataSelectorPicker:useMemo:videoStreamsQuery.data: ', videoStreamsQuery.data.map((m3u) => m3u.user_Tvg_name));
-        setSourceVideoStreams(videoStreamsQuery.data.sort((a, b) => a.user_Tvg_name.localeCompare(b.user_Tvg_name)));
+        setSourceVideoStreams(newData.sort((a, b) => a.user_Tvg_name.localeCompare(b.user_Tvg_name)));
       } else {
-        setSourceVideoStreams(videoStreamsQuery.data.filter((m3u) => m3u.isHidden !== props.showTriState).sort((a, b) => a.user_Tvg_name.localeCompare(b.user_Tvg_name)));
+        setSourceVideoStreams(newData.filter((m3u) => m3u.isHidden !== props.showTriState).sort((a, b) => a.user_Tvg_name.localeCompare(b.user_Tvg_name)));
       }
 
       setTargetVideoStreams([]);
@@ -66,7 +68,22 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     }
 
     const ids = streamGroup.videoStreams.map((sgvs) => sgvs.id);
-    setTargetVideoStreams(videoStreamsQuery.data.filter((m3u) => ids?.includes(m3u.id)));
+    const streams = videoStreamsQuery.data.filter((m3u) => ids?.includes(m3u.id));
+
+    const roIds = streamGroup.videoStreams.filter((vs) => vs.isReadOnly === true).map((sgvs) => sgvs.id);
+
+    const updatedStreams = streams.map((newStream) => {
+      if (roIds.includes(newStream.id)) {
+        return { ...newStream, isReadOnly: true };
+      }
+
+      return newStream;
+    });
+
+
+    setTargetVideoStreams(updatedStreams);
+
+    console.log('setTargetVideoStreams', updatedStreams)
 
     if (props.showTriState === null) {
       setSourceVideoStreams(videoStreamsQuery.data.filter((m3u) => !ids?.includes(m3u.id)));
@@ -108,6 +125,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   ];
 
   const channelNumberEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
+
     return (
       <ChannelNumberEditor
         data={data}
@@ -124,6 +142,15 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       />
     )
   }, []);
+
+  const logoEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
+    return <ChannelLogoEditor
+      data={data}
+      enableEditMode
+    />
+
+  }, []);
+
 
   const onSave = React.useCallback(async (data: StreamMasterApi.VideoStreamDto[]) => {
 
@@ -194,23 +221,38 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
   const sourceActionBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => (
     <div className='flex min-w-full min-h-full justify-content-center align-items-center'>
-      <Button
-        className="p-button-danger"
-        icon="pi pi-times"
-        onClick={async () => await onRemoveRank(data)}
-        rounded
-        text
-        tooltip="Remove"
-        tooltipOptions={getTopToolOptions} />
+      {data.isReadOnly === true &&
+        <>
+          <Tooltip target=".GroupIcon-class" />
+          <div
+            className="GroupIcon-class border-white"
+            data-pr-at="right+5 top"
+
+            data-pr-hidedelay={100}
+            data-pr-my="left center-2"
+
+            data-pr-position="left"
+            data-pr-showdelay={500}
+            data-pr-tooltip={`Group: ${data.user_Tvg_group}`}
+          // style={{ minWidth: '10rem' }}
+          >
+            <GroupIcon />
+          </div>
+        </>
+      }
+      {data.isReadOnly !== true &&
+        <Button
+          className="p-button-danger"
+          icon="pi pi-times"
+          onClick={async () => await onRemoveRank(data)}
+          rounded
+          text
+          tooltip="Remove"
+          tooltipOptions={getTopToolOptions} />
+      }
     </div>
   ), [onRemoveRank]);
 
-  const logoEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
-    return <ChannelLogoEditor data={data}
-
-    />
-
-  }, []);
 
   const targetColumns: ColumnMeta[] = [
     {
