@@ -104,7 +104,32 @@ public class UpdateStreamGroupRequestHandler : IRequestHandler<UpdateStreamGroup
                     }
 
                     streamGroup.ChannelGroups.Add(channelGroup);
+
+                    if (streamGroup.VideoStreams.Any())
+                    {
+                        var toRemove = streamGroup.VideoStreams.Where(a => a.User_Tvg_group == channelGroupName);
+                        if (toRemove.Any()  )
+                        {
+                            streamGroup.VideoStreams.RemoveAll(a => a.User_Tvg_group == channelGroupName);
+                        }
+                     
+                    }
+
+                    if (request.VideoStreamIds != null)
+                    {
+                       var toRemove = _context.VideoStreams
+                            .Where(a => (request.VideoStreamIds.Contains(a.Id) && a.User_Tvg_group == channelGroupName))
+                            .Select(a=>a.Id);
+
+                        if (toRemove.Any())
+                        {
+                            request.VideoStreamIds.RemoveAll(a => toRemove.Contains(a));
+                        }                        
+                    }
+
+                    _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
                 }
+            
             }
 
             if (request.VideoStreamIds != null)
