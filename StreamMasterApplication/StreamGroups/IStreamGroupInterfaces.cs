@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Commands;
+using StreamMasterApplication.StreamGroups.Queries;
 
 using StreamMasterDomain.Dto;
 
@@ -21,6 +22,8 @@ public interface IStreamGroupController
     Task<ActionResult<StreamGroupDto>> GetStreamGroupByStreamNumber(int StreamGroupNumber);
 
     Task<ContentResult> GetStreamGroupEPG(int id);
+
+    Task<ActionResult<EPGGuide>> GetStreamGroupEPGForGuide(int StreamGroupNumber);
 
     Task<ContentResult> GetStreamGroupM3U(int id);
 
@@ -49,6 +52,8 @@ public interface IStreamGroupHub
     Task<StreamGroupDto?> GetStreamGroup(int id);
 
     Task<StreamGroupDto?> GetStreamGroupByStreamNumber(int StreamGroupNumber);
+
+    Task<EPGGuide> GetStreamGroupEPGForGuide(int StreamGroupNumber);
 
     Task<IEnumerable<StreamGroupDto>> GetStreamGroups();
 

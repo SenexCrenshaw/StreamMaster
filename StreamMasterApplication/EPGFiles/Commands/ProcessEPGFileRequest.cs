@@ -62,10 +62,7 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
                 return null;
             }
 
-            await AddProgrammesFromEPG(epgFile, cancellationToken);
-
-            //await _sender.Send(new AddIPTVChannelFromEPGRequest { Entity = epgFile }, cancellationToken).ConfigureAwait(false);
-
+   
             Tv? tv = await epgFile.GetTV().ConfigureAwait(false);
             if (tv != null)
             {
@@ -73,6 +70,8 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
                 epgFile.ProgrammeCount = tv.Programme != null ? tv.Programme.Count : 0;
             }
             _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+            await AddProgrammesFromEPG(epgFile, cancellationToken);
 
             EPGFilesDto ret = _mapper.Map<EPGFilesDto>(epgFile);
             await _publisher.Publish(new EPGFileProcessedEvent(ret), cancellationToken).ConfigureAwait(false);

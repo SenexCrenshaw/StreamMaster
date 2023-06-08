@@ -78,6 +78,8 @@ public class CacheIconsFromEPGsRequestHandler : IRequestHandler<CacheIconsFromEP
            .SelectMany(a => a.Icon.Where(a => a.Src is not null).Select(a => a.Src))
            .Distinct().ToList();
 
+        var test = icons.FirstOrDefault(a => a.Contains("deba6af644347122056ec73f6b885215ff4534230b214addfc795ae7db60c38f"));
+
         if (!icons.Any()) { return false; }
 
         await WorkOnIcons(FileDefinitions.ProgrammeIcon, icons, _setting, cancellationToken).ConfigureAwait(false);
@@ -104,6 +106,11 @@ public class CacheIconsFromEPGsRequestHandler : IRequestHandler<CacheIconsFromEP
             if (count % 100 == 0)
             {
                 Console.WriteLine($"CacheIconsFromEPGs {count} of {icons.Count}");
+            }
+
+            if (icon.Contains("deba6af644347122056ec73f6b885215ff4534230b214addfc795ae7db60c38f"))
+            {
+                var aaa = 1;
             }
 
             string source = HttpUtility.UrlDecode(icon);
@@ -146,10 +153,9 @@ public class CacheIconsFromEPGsRequestHandler : IRequestHandler<CacheIconsFromEP
                     {
                         continue;
                     }
-
-                    string name = Path.GetFileNameWithoutExtension(tocheck);
-                    (_, isNew) = await IconHelper.AddIcon(tocheck, "?token=" + token, name, _context, _mapper, setting, fd, cancellationToken).ConfigureAwait(false);
                 }
+                string name = Path.GetFileNameWithoutExtension(tocheck);
+                (_, isNew) = await IconHelper.AddIcon(tocheck, "?token=" + token, name, _context, _mapper, setting, fd, cancellationToken).ConfigureAwait(false);
             }
             else
             {

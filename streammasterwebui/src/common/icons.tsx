@@ -12,9 +12,12 @@ import RotateLeftIcon from '@mui/icons-material/RotateLeft';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
 import WorkspacesIcon from '@mui/icons-material/Workspaces';
-
+import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
 import { default as cancelIcon } from '@mui/icons-material/Cancel';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 
+export const PlayListIcon = LibraryBooksIcon;
+export const VideoIcon = OndemandVideoIcon;
 export const GroupIcon = WorkspacesIcon;
 export const HelpIcon = HelpOutlineOutlinedIcon;
 export const AutoMatchIcon = AutoAwesomeIcon;

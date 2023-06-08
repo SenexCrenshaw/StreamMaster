@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@vidstack/react": "^0.6.5",
+    "vidstack": "^0.6.5"
+  }
+}

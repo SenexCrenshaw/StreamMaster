@@ -23,6 +23,7 @@ public class EPGFileProcessedEventHandler : INotificationHandler<EPGFileProcesse
 
     public async Task Handle(EPGFileProcessedEvent notification, CancellationToken cancellationToken)
     {
+        
         await _taskQueue.CacheIconsFromEPGs(cancellationToken).ConfigureAwait(false);
         await _hubContext.Clients.All.EPGFilesDtoUpdate(notification.EPGFile).ConfigureAwait(false);
     }

@@ -3,6 +3,7 @@
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterDomain.Dto;
 
@@ -17,14 +18,16 @@ public class ScanDirectoryForEPGFilesRequestHandler : IRequestHandler<ScanDirect
     private readonly IAppDbContext _context;
     private readonly IMapper _mapper;
     private readonly IPublisher _publisher;
-
+    private readonly IMemoryCache _memoryCache;
     public ScanDirectoryForEPGFilesRequestHandler(
          IPublisher publisher,
+          IMemoryCache memoryCache,
           IMapper mapper,
          IAppDbContext context)
     {
         _publisher = publisher;
         _mapper = mapper;
+        _memoryCache = memoryCache;
         _context = context;
     }
 
@@ -86,6 +89,8 @@ public class ScanDirectoryForEPGFilesRequestHandler : IRequestHandler<ScanDirect
                 epgFile.LastDownloaded = EPGFileInfo.LastWriteTime;
                 _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
+
+         
 
             EPGFilesDto ret = _mapper.Map<EPGFilesDto>(epgFile);
             await _publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);

@@ -25,6 +25,7 @@ import PlayListEditor from './features/playListEditor/PlayListEditor';
 import QueueStatus from './features/queueStatus/QueueStatus';
 import SettingsEditor from './features/settings/SettingsEditor';
 import StreamingStatus from './features/streamingStatus/StreamingStatus';
+import VideoPlayer from './components/VideoPlayer';
 
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error('Failed to find the root element');
@@ -41,6 +42,7 @@ const router = createBrowserRouter(
       <Route element={<PlayListEditor />} path="/editor/playlist" />
       <Route element={<StreamingStatus />} index path="/streamingstatus" />
       <Route element={<QueueStatus />} path="/queuestatus" />
+      <Route element={<VideoPlayer />} path="/player" />
 
       <Route element={<SettingsEditor />} path="/settings" />
 

@@ -17,6 +17,7 @@ import {
   type DeleteStreamGroupRequest,
   type DeleteVideoStreamRequest,
   type EpgFilesDto,
+  type EpgGuide,
   type IconFileDto,
   type M3UFilesDto,
   type ProcessEpgFileRequest,
@@ -288,6 +289,12 @@ export const GetStreamGroup = async (arg: number): Promise<StreamGroupDto> => {
 
 export const GetStreamGroupByStreamNumber = async (arg: number): Promise<StreamGroupDto> => {
     const data = await hubConnection.invoke('GetStreamGroupByStreamNumber',arg);
+
+    return data;
+};
+
+export const GetStreamGroupEPGForGuide = async (arg: number): Promise<EpgGuide> => {
+    const data = await hubConnection.invoke('GetStreamGroupEPGForGuide',arg);
 
     return data;
 };

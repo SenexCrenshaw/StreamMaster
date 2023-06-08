@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 using StreamMasterDomain.Dto;
 
+using System.Runtime.CompilerServices;
 using System.Web;
 
 namespace StreamMasterApplication.Common;
@@ -23,7 +24,10 @@ internal static class IconHelper
     public static async Task<(IconFile iconFile, bool isNew)> AddIcon(string sourceUrl, string? additionalUrl, string? recommendedName, IAppDbContext context, IMapper _mapper, SettingDto setting, FileDefinition fileDefinition, CancellationToken cancellationToken = default)
     {
         string source = HttpUtility.UrlDecode(sourceUrl);
-
+        if (sourceUrl.Contains("deba6af644347122056ec73f6b885215ff4534230b214addfc795ae7db60c38f"))
+        {
+            var aaa = 1;
+        }
         IconFile? icon = await context.Icons.AsNoTracking().FirstOrDefaultAsync(a => a.Source == source && a.SMFileType == fileDefinition.SMFileType, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         if (icon != null)

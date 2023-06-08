@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
-using StreamMasterApplication.Icons.Queries;
 using StreamMasterApplication.Settings.Queries;
 using StreamMasterApplication.StreamGroups;
 using StreamMasterApplication.StreamGroups.Commands;
@@ -151,6 +150,17 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     }
 
     [HttpGet]
+    [Route("{StreamGroupNumber}/epgGuide.json")]
+    [ProducesResponseType(typeof(EPGGuide), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<EPGGuide>> GetStreamGroupEPGForGuide(int StreamGroupNumber)
+    {
+        var data = await Mediator.Send(new GetStreamGroupEPGForGuide(StreamGroupNumber)).ConfigureAwait(false);
+        return data != null ? (ActionResult<EPGGuide>)data : (ActionResult<EPGGuide>)NotFound();
+    }
+
+    [HttpGet]
     [Route("{StreamGroupNumber}/lineup.json")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -256,14 +266,14 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         //string logourl = icon != null ? icon.Source : settings.BaseHostURL + settings.DefaultIcon;
 
         //videoStream.User_Tvg_logo = logourl;
-        
+
         List<VideoStreamDto> videoStreams = new List<VideoStreamDto> { videoStream };
         StreamerConfiguration config = new()
         {
             VideoStreams = videoStreams,
             BufferSize = settings.RingBufferSizeMB * 1024 * 1000,
             CancellationToken = cancellationToken,
-            MaxConnectRetry=settings.MaxConnectRetry,
+            MaxConnectRetry = settings.MaxConnectRetry,
             MaxConnectRetryTimeMS = settings.MaxConnectRetryTimeMS,
         };
 

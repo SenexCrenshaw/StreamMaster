@@ -83,7 +83,6 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
     setTargetVideoStreams(updatedStreams);
 
-    console.log('setTargetVideoStreams', updatedStreams)
 
     if (props.showTriState === null) {
       setSourceVideoStreams(videoStreamsQuery.data.filter((m3u) => !ids?.includes(m3u.id)));

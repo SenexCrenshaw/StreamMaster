@@ -89,7 +89,6 @@ const App = () => {
   StreamMasterApi.useStreamGroupsGetStreamGroupsQuery();
   StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
 
-
   if (!systemReady)
     return (
       <div className="flex justify-content-center flex-wrap card-container w-full h-full "  >
@@ -157,6 +156,10 @@ const App = () => {
             <MenuItemSM collapsed={collapsed} icon={<StreamingStatusIcon />} link="/streamingstatus" name='Status' />
             <MenuItemSM collapsed={collapsed} icon={<QueueStatisIcon />} link="/queuestatus" name='Queue' />
             <MenuItemSM collapsed={collapsed} icon={<SettingsEditorIcon />} link="/settings" name='Settings' />
+
+            {/* {isDev &&
+              <MenuItemSM collapsed={collapsed} icon={<VideoIcon />} link="/player" name='Video Player' newWindow />
+            } */}
 
             <MenuItemSM collapsed={collapsed} icon={<HelpIcon />} link="https://github.com/SenexCrenshaw/StreamMaster/wiki" name='Wiki' newWindow />
 

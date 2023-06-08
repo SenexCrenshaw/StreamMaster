@@ -546,6 +546,15 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/epg.xml` }),
         providesTags: ["StreamGroups"],
       }),
+      streamGroupsGetStreamGroupEpgForGuide: build.query<
+        StreamGroupsGetStreamGroupEpgForGuideApiResponse,
+        StreamGroupsGetStreamGroupEpgForGuideApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroups/${queryArg}/epgguide.json`,
+        }),
+        providesTags: ["StreamGroups"],
+      }),
       streamGroupsGetStreamGroupLineUp: build.query<
         StreamGroupsGetStreamGroupLineUpApiResponse,
         StreamGroupsGetStreamGroupLineUpApiArg
@@ -888,6 +897,9 @@ export type StreamGroupsGetStreamGroupDiscoverApiArg = number;
 export type StreamGroupsGetStreamGroupEpgApiResponse =
   /** status 200  */ string;
 export type StreamGroupsGetStreamGroupEpgApiArg = number;
+export type StreamGroupsGetStreamGroupEpgForGuideApiResponse =
+  /** status 200  */ EpgGuide;
+export type StreamGroupsGetStreamGroupEpgForGuideApiArg = number;
 export type StreamGroupsGetStreamGroupLineUpApiResponse =
   /** status 200  */ string;
 export type StreamGroupsGetStreamGroupLineUpApiArg = number;
@@ -1270,6 +1282,8 @@ export type StreamGroupDto = {
 export type AddStreamGroupRequest = {
   name: string;
   streamGroupNumber: number;
+  videoStreamIds: number[] | null;
+  channelGroupNames: string[] | null;
 };
 export type DeleteStreamGroupRequest = {
   id?: number;
@@ -1291,6 +1305,25 @@ export type StreamStatisticsResult = {
   m3UStreamName?: string;
   m3UStreamProxyType?: StreamingProxyTypes;
   streamUrl?: string | null;
+};
+export type EpgChannel = {
+  uuid?: string;
+  logo?: string;
+};
+export type EpgProgram = {
+  id?: string;
+  channelUuid?: string;
+  title?: string;
+  description?: string;
+  since?: string;
+  till?: string;
+  image?: string;
+};
+export type EpgGuide = {
+  channels: EpgChannel[];
+  endDate: string;
+  programs: EpgProgram[];
+  startDate: string;
 };
 export type UpdateStreamGroupRequest = {
   streamGroupId?: number;
@@ -1403,6 +1436,7 @@ export const {
   useStreamGroupsGetStreamGroupDeviceXmlQuery,
   useStreamGroupsGetStreamGroupDiscoverQuery,
   useStreamGroupsGetStreamGroupEpgQuery,
+  useStreamGroupsGetStreamGroupEpgForGuideQuery,
   useStreamGroupsGetStreamGroupLineUpQuery,
   useStreamGroupsGetStreamGroupLineUpStatusQuery,
   useStreamGroupsGetStreamGroupM3UQuery,

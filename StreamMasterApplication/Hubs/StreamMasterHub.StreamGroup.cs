@@ -36,6 +36,11 @@ public partial class StreamMasterHub : IStreamGroupHub
         return await _mediator.Send(new GetStreamGroupByStreamNumber(StreamGroupNumber)).ConfigureAwait(false);
     }
 
+    public async Task<EPGGuide> GetStreamGroupEPGForGuide(int StreamGroupNumber)
+    {
+        return await _mediator.Send(new GetStreamGroupEPGForGuide(StreamGroupNumber)).ConfigureAwait(false);
+    }
+
     public async Task<IEnumerable<StreamGroupDto>> GetStreamGroups()
     {
         return await _mediator.Send(new GetStreamGroups()).ConfigureAwait(false);

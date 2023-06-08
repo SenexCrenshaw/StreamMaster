@@ -294,7 +294,7 @@ public sealed class FileUtil
         {
             string content = "[InternetShortcut]\nURL=" + url;
             File.WriteAllText(filePath, content);
-            Console.WriteLine("URL successfully written to file.");
+            //Console.WriteLine("URL successfully written to file.");
             return true;
         }
         catch (Exception ex)
