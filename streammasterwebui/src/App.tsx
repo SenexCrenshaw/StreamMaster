@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import './App.css';
 
 import { Outlet } from 'react-router-dom';
@@ -13,9 +14,10 @@ import { Sidebar, Menu, MenuItem, sidebarClasses } from 'react-pro-sidebar';
 
 import { useSessionStorage } from 'primereact/hooks';
 import MenuItemSM from './components/MenuItemSM';
-import { HelpIcon, PlayListEditorIcon, QueueStatisIcon, SettingsEditorIcon, SideBarMenuIcon, StreamGroupEditorIcon, StreamingStatusIcon } from './common/icons';
+import { HelpIcon, PlayListEditorIcon, QueueStatisIcon, SettingsEditorIcon, SideBarMenuIcon, StreamGroupEditorIcon, StreamingStatusIcon, VideoIcon } from './common/icons';
 import StreamMasterSetting from './store/signlar/StreamMasterSetting';
 import { IntlProvider } from 'react-intl';
+import { isDev } from './settings';
 
 const App = () => {
   const settings = StreamMasterSetting();
