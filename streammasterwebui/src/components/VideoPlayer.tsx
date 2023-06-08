@@ -2,11 +2,10 @@
 /* eslint-disable react/no-unused-prop-types */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/consistent-type-imports */
-// import 'video-react/dist/video-react.css';
 import React, { useEffect } from "react";
 import * as StreamMasterApi from '../store/iptvApi';
 import * as Hub from '../store/signlar_functions';
-// import 'vidstack/styles/defaults.css';
+import 'vidstack/styles/defaults.css';
 import 'vidstack/styles/community-skin/video.css';
 import { PlaylistIcon } from '@vidstack/react/icons';
 import { type MediaLoadedMetadataEvent } from 'vidstack';

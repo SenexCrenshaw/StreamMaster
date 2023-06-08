@@ -11,6 +11,8 @@ import { useEpg, Epg, Layout, Channel, Program } from 'planby';
 import { ChannelItem } from './ChannelItem';
 import { ProgramComponent } from './ProgramItem';
 import { Timeline } from './Timeline';
+import { epg } from './epg';
+import { channels } from "./channels";
 
 const EPGDisplay = (props: EPGDisplayProps) => {
   const anchorRef = React.useRef<HTMLDivElement>(null);
@@ -29,26 +31,26 @@ const EPGDisplay = (props: EPGDisplayProps) => {
 
   }, [isHidden, props.hidden]);
 
-  const channels = React.useMemo((): Channel[] => {
-    if (epgForGuide.data) {
-      const ret = epgForGuide.data?.channels as Channel[];
-      console.log('channels: ', ret);
-      return ret;
-    }
+  // const channels3 = React.useMemo((): Channel[] => {
+  //   if (epgForGuide.data) {
+  //     const ret = epgForGuide.data?.channels as Channel[];
+  //     console.log('channels: ', ret);
+  //     return ret;
+  //   }
 
-    return [] as Channel[];
-  }, [epgForGuide.data]);
+  //   return [] as Channel[];
+  // }, [epgForGuide.data]);
 
 
-  const programs = React.useMemo((): Program[] => {
-    if (epgForGuide.data) {
-      const ret = epgForGuide.data?.programs as Program[];
-      console.log('programs: ', ret);
-      return ret;
-    }
+  // const programs = React.useMemo((): Program[] => {
+  //   if (epgForGuide.data) {
+  //     const ret = epgForGuide.data?.programs as Program[];
+  //     console.log('programs: ', ret);
+  //     return ret;
+  //   }
 
-    return [] as Program[];
-  }, [epgForGuide.data]);
+  //   return [] as Program[];
+  // }, [epgForGuide.data]);
 
 
   const StartDate = React.useMemo(() => {
@@ -77,44 +79,44 @@ const EPGDisplay = (props: EPGDisplayProps) => {
 
   }, [StartDate, epgForGuide.data]);
 
-  const channels2 = React.useMemo(
-    () => [
-      {
-        logo: "http://192.168.1.216:7095/api/files/7/misc-vod-the-bob-ross-channel-vod.png",
-        uuid: 'guide2go.114491.schedulesdirect.org'
-      },
-    ],
-    []
-  );
+  // const channels2 = React.useMemo(
+  //   () => [
+  //     {
+  //       logo: "http://192.168.1.216:7095/api/files/7/misc-vod-the-bob-ross-channel-vod.png",
+  //       uuid: 'guide2go.114491.schedulesdirect.org'
+  //     },
+  //   ],
+  //   []
+  // );
 
-  const epg = React.useMemo(
-    () => [
-      {
-        channelUuid: 'guide2go.114491.schedulesdirect.org',
-        description:
-          'Ut anim nisi consequat minim deserunt...',
-        id: 'b67ccaa3-3dd2-4121-8256-33dbddc7f0e6',
-        image: 'http://192.168.1.216:7095/api/files/8/https%3a%2f%2fjson.schedulesdirect.org%2f20141201%2fimage%2f880b14b8c3bb785a179e1b8bdcf6a4894793bb326e622dc6d198280683e1a0c3.jpg',
-        since: StartDate,
-        till: EndDate,
-        title: 'Title',
+  // const epg = React.useMemo(
+  //   () => [
+  //     {
+  //       channelUuid: 'guide2go.114491.schedulesdirect.org',
+  //       description:
+  //         'Ut anim nisi consequat minim deserunt...',
+  //       id: 'b67ccaa3-3dd2-4121-8256-33dbddc7f0e6',
+  //       image: 'http://192.168.1.216:7095/api/files/8/https%3a%2f%2fjson.schedulesdirect.org%2f20141201%2fimage%2f880b14b8c3bb785a179e1b8bdcf6a4894793bb326e622dc6d198280683e1a0c3.jpg',
+  //       since: StartDate,
+  //       till: EndDate,
+  //       title: 'Title',
 
-      },
-      {
-        channelUuid: 'guide2go.114491.schedulesdirect.org',
-        description:
-          'Ut anim nisi consequat minim deserunt...',
-        id: 'b67ccaa3-3dd2-4121-8256-33dbddc7f0e6',
-        image: 'http://192.168.1.216:7095/api/files/8/https%3a%2f%2fjson.schedulesdirect.org%2f20141201%2fimage%2f880b14b8c3bb785a179e1b8bdcf6a4894793bb326e622dc6d198280683e1a0c3.jpg',
+  //     },
+  //     {
+  //       channelUuid: 'guide2go.114491.schedulesdirect.org',
+  //       description:
+  //         'Ut anim nisi consequat minim deserunt...',
+  //       id: 'b67ccaa3-3dd2-4121-8256-33dbddc7f0e6',
+  //       image: 'http://192.168.1.216:7095/api/files/8/https%3a%2f%2fjson.schedulesdirect.org%2f20141201%2fimage%2f880b14b8c3bb785a179e1b8bdcf6a4894793bb326e622dc6d198280683e1a0c3.jpg',
 
-        since: StartDate.setHours(StartDate.getHours() + 1),
-        till: EndDate.setHours(EndDate.getHours() + 24),
-        title: 'Title',
+  //       since: StartDate.setHours(StartDate.getHours() + 1),
+  //       till: EndDate.setHours(EndDate.getHours() + 24),
+  //       title: 'Title',
 
-      },
-    ],
-    [EndDate, StartDate]
-  );
+  //     },
+  //   ],
+  //   [EndDate, StartDate]
+  // );
 
   const {
     getEpgProps,
@@ -125,15 +127,16 @@ const EPGDisplay = (props: EPGDisplayProps) => {
   } = useEpg({
     channels: channels,
     dayWidth: 7200,
-    endDate: EndDate,
-    epg: programs,
+
+    endDate: "2022-10-18T24:00:00",
+    epg: epg,
     isBaseTimeFormat: true,
     isLine: true,
     isSidebar: true,
     isTimeline: true,
     itemHeight: 80,
     sidebarWidth: 100,
-    startDate: StartDate
+    startDate: "2022-10-18T00:00:00",
   });
 
   if (props.hidden === true) {
