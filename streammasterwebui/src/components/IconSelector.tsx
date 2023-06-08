@@ -14,7 +14,7 @@ import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 const IconSelector = (props: IconSelectorProps) => {
 
-  const [displayAdd, setDisplayAdd] = React.useState(false);
+
   const [selectedIcon, setSelectedIcon] = React.useState<IconFileDto>();
   const [resetIcon, setResetIcon] = React.useState<IconFileDto>();
   const setting = StreamMasterSetting();
@@ -101,20 +101,9 @@ const IconSelector = (props: IconSelectorProps) => {
   const filterTemplate = React.useCallback((options: any) => {
     return (
       <div className="flex gap-2 align-items-center">
-        <Button
-          icon="pi pi-plus"
-          onClick={() => setDisplayAdd(true)}
-          rounded
-          severity="success"
-          size="small"
-          style={{
-            ...{
-              maxHeight: "2rem",
-              maxWidth: "2rem"
-            }
-          }}
-          tooltip="Add Logo"
-          tooltipOptions={getTopToolOptions}
+        <FileDialog
+          fileType="icon"
+          onHide={() => { }}
         />
 
         {options.element}
@@ -171,42 +160,35 @@ const IconSelector = (props: IconSelectorProps) => {
 
 
   return (
-    <>
-      <FileDialog
-        fileType="icon"
-        onClose={() => setDisplayAdd(false)}
-        show={displayAdd}
-      />
-      <div className="iconSelector flex w-full">
-        <Dropdown
-          className={className}
-          disabled={props.disabled}
-          filter
-          filterBy="name"
-          // filterInputAutoFocus
-          filterTemplate={filterTemplate}
-          itemTemplate={iconOptionTemplate}
-          onChange={onChange}
-          optionLabel="name"
-          options={icons.data}
-          placeholder="Select an Icon"
-          style={{
-            ...{
-              backgroundColor: 'var(--mask-bg)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            },
-          }}
-          value={selectedIcon}
-          valueTemplate={selectedTemplate}
-          virtualScrollerOptions={{
-            itemSize: 72,
-          }}
+    <div className="iconSelector flex w-full">
+      <Dropdown
+        className={className}
+        disabled={props.disabled}
+        filter
+        filterBy="name"
+        // filterInputAutoFocus
+        filterTemplate={filterTemplate}
+        itemTemplate={iconOptionTemplate}
+        onChange={onChange}
+        optionLabel="name"
+        options={icons.data}
+        placeholder="Select an Icon"
+        style={{
+          ...{
+            backgroundColor: 'var(--mask-bg)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          },
+        }}
+        value={selectedIcon}
+        valueTemplate={selectedTemplate}
+        virtualScrollerOptions={{
+          itemSize: 72,
+        }}
 
-        />
-      </div>
-    </>
+      />
+    </div>
   );
 };
 

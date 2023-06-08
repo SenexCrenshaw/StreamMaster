@@ -2,7 +2,6 @@
 import * as axios from 'axios';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Button } from 'primereact/button';
-import { Dialog } from 'primereact/dialog';
 
 import {
   FileUpload,
@@ -12,22 +11,16 @@ import {
 
 import { InputText } from 'primereact/inputtext';
 import { ProgressBar } from 'primereact/progressbar';
-
 import React, { useRef, useState } from 'react';
-import { BlockUI } from 'primereact/blockui';
-import { ProgressSpinner } from 'primereact/progressspinner';
 import { upload } from '../services/FileUploadService';
-
 import type * as StreamMasterApi from '../store/iptvApi';
 import * as Hub from "../store/signlar_functions";
-
 import { getTopToolOptions, isValidUrl } from '../common/common';
-import { Toast } from 'primereact/toast';
 import { InputNumber } from 'primereact/inputnumber';
+import InfoMessageOverLayDialog from './InfoMessageOverLayDialog';
 
 const FileDialog = (props: FileDialogProps) => {
 
-  const toast = React.useRef<Toast>(null);
   const fileUploadRef = useRef<FileUpload>(null);
 
   const [activeIndex, setActiveIndex] = useState<number>(0);
@@ -38,8 +31,11 @@ const FileDialog = (props: FileDialogProps) => {
   const [uploadedBytes, setUploadedBytes] = useState<number>(0);
   const [maxStreamCount, setMaxStreamCount] = useState<number>(1);
   const [startingChannelNumber, setStartingChannelNumber] = useState<number>(1);
-  const [blocked, setBlocked] = useState<boolean>(false);
+
   const [nameFromFileName, setNameFromFileName] = useState<boolean>(false);
+  const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
+  const [block, setBlock] = React.useState<boolean>(false);
+  const [infoMessage, setInfoMessage] = React.useState('');
 
 
   const onTemplateSelect = (e: FileUploadSelectEvent) => {
@@ -129,6 +125,10 @@ const FileDialog = (props: FileDialogProps) => {
   };
 
   const ReturnToParent = (didUpload?: boolean) => {
+    setShowOverlay(false);
+    setInfoMessage('');
+    setBlock(false);
+
     setActiveIndex(0);
     setProgress(0);
     setUploadedBytes(0);
@@ -136,14 +136,13 @@ const FileDialog = (props: FileDialogProps) => {
     setNameFromFileName(false);
     setSource('');
 
-    setBlocked(false);
-    props.onClose(didUpload ?? false);
+    setBlock(false);
+    props.onHide?.(didUpload ?? false);
 
-    // setDisplayAdd(true);
   };
 
   const doUpload = async () => {
-    setBlocked(true);
+    setBlock(true);
     if (source !== '') {
       switch (props.fileType) {
         case 'epg':
@@ -153,32 +152,17 @@ const FileDialog = (props: FileDialogProps) => {
           addEpgFileRequest.description = '';
           addEpgFileRequest.formFile = null;
           addEpgFileRequest.urlSource = source;
-          if (await Hub.AddEPGFile(addEpgFileRequest) !== null) {
-            if (toast.current) {
-              toast.current.show({
-                detail: `Uploaded ${name}${activeFile ? '/' + activeFile.name : ''}`,
-                life: 6000,
-                severity: 'success',
-                summary: 'Upload Success',
-              });
-            }
 
-          } else {
-            if (toast.current) {
-              toast.current.show({
-                detail: `Could not upload ${name}${activeFile ? '/' + activeFile.name : ''}`,
-                life: 6000,
-                severity: 'error',
-                summary: 'Upload Error',
-              });
+          Hub.AddEPGFile(addEpgFileRequest)
+            .then((returnData) => {
+              if (returnData) {
+                setInfoMessage(`Uploaded EPG: ${name}${activeFile ? '/' + activeFile.name : ''}`);
+              }
+            }).catch((e) => {
+              setInfoMessage(`Upload EPG: ${name}${activeFile ? '/' + activeFile.name : ''} Error: ${e.message}`);
+            });
 
-            }
-
-            setProgress(0);
-            setUploadedBytes(0);
-          }
-
-          ReturnToParent(true);
+          // ReturnToParent(true);
           break;
         case 'm3u':
           const addM3UFileRequest = {} as StreamMasterApi.AddM3UFileRequest;
@@ -190,32 +174,16 @@ const FileDialog = (props: FileDialogProps) => {
           addM3UFileRequest.formFile = null;
           addM3UFileRequest.urlSource = source;
 
-          if (await Hub.AddM3UFile(addM3UFileRequest) !== null) {
-            if (toast.current) {
-              toast.current.show({
-                detail: `Uploaded ${name}${activeFile ? '/' + activeFile.name : ''}`,
-                life: 6000,
-                severity: 'success',
-                summary: 'Upload Success',
-              });
-            }
+          await Hub.AddM3UFile(addM3UFileRequest)
+            .then((returnData) => {
+              if (returnData) {
+                setInfoMessage(`Uploaded M3U: ${name}${activeFile ? '/' + activeFile.name : ''}`);
+              }
+            }).catch((e) => {
+              setInfoMessage(`Upload M3U: ${name}${activeFile ? '/' + activeFile.name : ''} Error: ${e.message}`);
+            });
 
-          } else {
-            if (toast.current) {
-              toast.current.show({
-                detail: `Could not upload ${name}${activeFile ? '/' + activeFile.name : ''}`,
-                life: 6000,
-                severity: 'error',
-                summary: 'Upload Error',
-              });
-
-            }
-
-            setProgress(0);
-            setUploadedBytes(0);
-          }
-
-          ReturnToParent(true);
+          // ReturnToParent(true);
           break;
 
         case 'icon':
@@ -224,31 +192,18 @@ const FileDialog = (props: FileDialogProps) => {
           addIconFileRequest.name = name;
           addIconFileRequest.formFile = null;
           addIconFileRequest.urlSource = source;
-          if (await Hub.AddIconFile(addIconFileRequest) !== null) {
-            if (toast.current) {
-              toast.current.show({
-                detail: `Uploaded ${name}${activeFile ? '/' + activeFile.name : ''}`,
-                life: 6000,
-                severity: 'success',
-                summary: 'Upload Success',
-              });
-            }
+          await Hub.AddIconFile(addIconFileRequest)
+            .then((returnData) => {
+              if (returnData) {
+                setInfoMessage(`Uploaded Icon: ${name}${activeFile ? '/' + activeFile.name : ''}`);
+              }
+            }).catch((e) => {
+              setInfoMessage(`Upload Icon: ${name}${activeFile ? '/' + activeFile.name : ''} Error: ${e.message}`);
+            });
 
-          } else {
-            if (toast.current) {
-              toast.current.show({
-                detail: `Could not upload ${name}${activeFile ? '/' + activeFile.name : ''}`,
-                life: 6000,
-                severity: 'error',
-                summary: 'Upload Error',
-              });
-            }
-          }
-
-          ReturnToParent(true);
+          // ReturnToParent(true);
           break;
       }
-
 
     } else {
       try {
@@ -266,18 +221,21 @@ const FileDialog = (props: FileDialogProps) => {
             setProgress(prog);
           },
         );
-        ReturnToParent(true);
+        setInfoMessage(`Uploaded ${props.fileType.toLocaleUpperCase()}: ${name}${activeFile ? '/' + activeFile.name : ''}`);
+        // ReturnToParent(true);
       } catch (error: axios.AxiosError | Error | unknown) {
         if (axios.isAxiosError(error)) {
-          if (error.response) {
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-          } else if (error.request) {
-            console.log(error.request);
-          } else {
-            console.log('Error', error.message);
-          }
+          setInfoMessage(`Uploaded ${props.fileType.toLocaleUpperCase()}: ${name}${activeFile ? '/' + activeFile.name : ''} Error: ${error.message}`);
+
+          // if (error.response) {
+          //   console.log(error.response.data);
+          //   console.log(error.response.status);
+          //   console.log(error.response.headers);
+          // } else if (error.request) {
+          //   console.log(error.request);
+          // } else {
+          //   console.log('Error', error.message);
+          // }
 
           setUploadedBytes(0);
           setProgress(0);
@@ -285,19 +243,13 @@ const FileDialog = (props: FileDialogProps) => {
 
         }
 
-        if (toast.current) {
-          toast.current.show({
-            detail: `Could not upload ${name}${activeFile ? '/' + activeFile.name : ''}`,
-            life: 6000,
-            severity: 'error',
-            summary: 'Upload Error',
-          });
-        }
+
+
       }
 
       setUploadedBytes(0);
       setProgress(0);
-      setBlocked(false);
+      setBlock(false);
     }
   };
 
@@ -335,150 +287,155 @@ const FileDialog = (props: FileDialogProps) => {
 
   return (
     <>
-      <Toast position="bottom-right" ref={toast} />
-
-      <Dialog
-        header={name === '' ? 'Enter Name' : name}
-        onHide={() => {
-          ReturnToParent();
-        }}
-        style={{ width: '50vw' }}
-        visible={props.show} // && displayAdd}
+      <InfoMessageOverLayDialog
+        blocked={block}
+        header={`Add ${props.fileType.toLocaleUpperCase()} File`}
+        infoMessage={infoMessage}
+        onClose={() => { ReturnToParent(); }}
+        overlayColSize={6}
+        show={showOverlay}
       >
-        <BlockUI blocked={blocked}>
-          <span className={`${blocked ? "flex" : "hidden"} fixed z-5 top-0 left-0 justify-content-center align-items-center w-full h-full`}
-          >
-            <ProgressSpinner
-              aria-label="Loading"
-            />
-          </span>
+        <div className="flex">
+          <div className="field">
+            <span className="p-input-icon-right p-float-label">
+              <i
+                className="pi pi-times-circle z-1"
+                hidden={name === null || name === ''}
+                onClick={() => {
 
-          <div className="flex">
-            <div className="field">
-              <span className="p-input-icon-right p-float-label">
-                <i
-                  className="pi pi-times-circle z-1"
-                  hidden={name === null || name === ''}
-                  onClick={() => {
-
-                    if (activeFile !== null && activeFile !== undefined) {
-                      setNameFromFileName(true);
-                      setName(activeFile.name.replace(/\.[^/.]+$/, ''))
-                    } else {
-                      setName('')
-                    }
+                  if (activeFile !== null && activeFile !== undefined) {
+                    setNameFromFileName(true);
+                    setName(activeFile.name.replace(/\.[^/.]+$/, ''))
+                  } else {
+                    setName('')
                   }
+                }
 
-                  }
-                />
-                <InputText
-                  autoFocus
-                  className='withpadding'
-                  id="name"
-                  onChange={(event) => {
-                    setName(event.target.value)
-                    setNameFromFileName(false);
-                  }
-                  }
-                  value={name}
-                />
-                <label htmlFor="name">Name</label>
-              </span>
-            </div>
-
-            <div className="field ml-2" hidden={props.fileType !== 'm3u'}>
-
-              <InputNumber
-                className="withpadding"
-                locale="en-US"
-                onChange={(e) => setMaxStreamCount(e.value as number)}
-                prefix='Max '
-                suffix=' streams'
-                value={maxStreamCount}
+                }
               />
-
-            </div>
-
-            <div className="field ml-2" hidden={props.fileType !== 'm3u'}>
-
-              <InputNumber
-                className="withpadding"
-                locale="en-US"
-                onChange={(e) => setStartingChannelNumber(e.value as number)}
-                prefix='Starting Ch #'
-                value={startingChannelNumber}
+              <InputText
+                autoFocus
+                className='withpadding'
+                id="name"
+                onChange={(event) => {
+                  setName(event.target.value)
+                  setNameFromFileName(false);
+                }
+                }
+                value={name}
               />
-
-            </div>
+              <label htmlFor="name">Name</label>
+            </span>
           </div>
-          <Accordion
-            activeIndex={activeIndex}
-            onTabChange={(e) => nextStep(e.index as number)}
-          >
-            <AccordionTab header={`${name} URL`}>
-              <div className="flex">
-                <div className="field w-10">
-                  <span className="p-input-icon-right p-float-label w-full">
-                    <i
-                      className="pi pi-times-circle"
-                      hidden={source === null || source === ''}
-                      onClick={() => setSource('')}
-                    />
-                    <InputText
-                      className={`withpadding w-full ${isValidUrl(source) ? '' : 'p-invalid'}`}
-                      id="sourceURL"
-                      onChange={(event) => onSetSource(event.target.value)}
-                      placeholder='https://'
-                      value={source}
-                    />
-                    <label htmlFor="sourceURL">Source URL (://) </label>
-                  </span>
-                </div>
-                <div
-                  className="absolute right-0 mr-5"
 
-                >
-                  <Button
-                    disabled={!isSaveEnabled}
-                    icon="pi pi-plus"
-                    onClick={async () => await doUpload()}
-                    rounded
-                    severity="success"
-                    size="small"
-                    tooltip="Add EPG File"
-                    tooltipOptions={getTopToolOptions}
+          <div className="field ml-2" hidden={props.fileType !== 'm3u'}>
+
+            <InputNumber
+              className="withpadding"
+              locale="en-US"
+              onChange={(e) => setMaxStreamCount(e.value as number)}
+              prefix='Max '
+              suffix=' streams'
+              value={maxStreamCount}
+            />
+
+          </div>
+
+          <div className="field ml-2" hidden={props.fileType !== 'm3u'}>
+
+            <InputNumber
+              className="withpadding"
+              locale="en-US"
+              onChange={(e) => setStartingChannelNumber(e.value as number)}
+              prefix='Starting Ch #'
+              value={startingChannelNumber}
+            />
+
+          </div>
+        </div>
+        <Accordion
+          activeIndex={activeIndex}
+          onTabChange={(e) => nextStep(e.index as number)}
+        >
+          <AccordionTab header={`${name} URL`}>
+            <div className="flex">
+              <div className="field w-10">
+                <span className="p-input-icon-right p-float-label w-full">
+                  <i
+                    className="pi pi-times-circle"
+                    hidden={source === null || source === ''}
+                    onClick={() => setSource('')}
                   />
-                </div>
+                  <InputText
+                    className={`withpadding w-full ${isValidUrl(source) ? '' : 'p-invalid'}`}
+                    id="sourceURL"
+                    onChange={(event) => onSetSource(event.target.value)}
+                    placeholder='https://'
+                    value={source}
+                  />
+                  <label htmlFor="sourceURL">Source URL (://) </label>
+                </span>
               </div>
-            </AccordionTab>
-            <AccordionTab header={`${name} File`}>
+              <div
+                className="absolute right-0 mr-5"
 
-              <FileUpload
-                // itemTemplate={itemTemplate}
-                // onUpload={onTemplateUpload}
-                accept="xml"
-                cancelOptions={cancelOptions}
-                chooseOptions={chooseOptions}
-                className=""
-                customUpload
-                emptyTemplate={emptyTemplate}
-                headerTemplate={headerTemplate}
-                maxFileSize={300000000}
-                onClear={onTemplateClear}
-                onError={onTemplateClear}
-                onRemove={() => setActiveFile(undefined)}
-                onSelect={onTemplateSelect}
-                ref={fileUploadRef}
-                uploadHandler={doUpload}
-                uploadOptions={uploadOptions}
-              />
+              >
+                <Button
+                  disabled={!isSaveEnabled}
+                  icon="pi pi-plus"
+                  onClick={async () => await doUpload()}
+                  rounded
+                  severity="success"
+                  size="small"
+                  tooltip="Add EPG File"
+                  tooltipOptions={getTopToolOptions}
+                />
+              </div>
+            </div>
+          </AccordionTab>
+          <AccordionTab header={`${name} File`}>
 
-            </AccordionTab>
-          </Accordion>
+            <FileUpload
+              // itemTemplate={itemTemplate}
+              // onUpload={onTemplateUpload}
+              accept="xml"
+              cancelOptions={cancelOptions}
+              chooseOptions={chooseOptions}
+              className=""
+              customUpload
+              emptyTemplate={emptyTemplate}
+              headerTemplate={headerTemplate}
+              maxFileSize={300000000}
+              onClear={onTemplateClear}
+              onError={onTemplateClear}
+              onRemove={() => setActiveFile(undefined)}
+              onSelect={onTemplateSelect}
+              ref={fileUploadRef}
+              uploadHandler={doUpload}
+              uploadOptions={uploadOptions}
+            />
 
-        </BlockUI>
-      </Dialog>
+          </AccordionTab>
+        </Accordion>
 
+      </InfoMessageOverLayDialog>
+
+      <Button
+        className='mx-1'
+        icon="pi pi-plus"
+        onClick={() => setShowOverlay(true)}
+        rounded
+        severity="success"
+        size="small"
+        style={{
+          ...{
+            maxHeight: "2rem",
+            maxWidth: "2rem"
+          }
+        }}
+        tooltip={`Add ${props.fileType.toLocaleUpperCase()} File`}
+        tooltipOptions={getTopToolOptions}
+      />
     </>
   );
 };
@@ -487,8 +444,7 @@ FileDialog.displayName = 'FileDialog';
 
 type FileDialogProps = {
   fileType: string,
-  onClose: (didUpload: boolean) => void,
-  show: boolean,
+  onHide?: (didUpload: boolean) => void;
 };
 
 export default React.memo(FileDialog);

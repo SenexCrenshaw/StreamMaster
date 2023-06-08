@@ -13,7 +13,6 @@ import EPGFileRemoveDialog from './EPGFileRemoveDialog';
 
 const EPGFilesEditor = (props: EPGFilesEditorProps) => {
   const toast = React.useRef<Toast>(null);
-  const [displayAdd, setDisplayAdd] = React.useState(false);
 
   const [selectedEPGFile, setSelectedEPGFile] = React.useState<StreamMasterApi.EpgFilesDto>({} as StreamMasterApi.EpgFilesDto)
 
@@ -79,11 +78,7 @@ const EPGFilesEditor = (props: EPGFilesEditorProps) => {
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
-      <FileDialog
-        fileType="epg"
-        onClose={() => setDisplayAdd(false)}
-        show={displayAdd}
-      />
+
       <ConfirmDialog
         accept={acceptReload}
         header="Confirmation"
@@ -96,7 +91,7 @@ const EPGFilesEditor = (props: EPGFilesEditorProps) => {
       <div className='ePGFilesEditor flex flex-column col-12 flex-shrink-0 '>
         <div className='flex justify-content-between align-items-center mb-1'>
           <span className='m-0 p-0 gap-1' style={{ color: '#FE7600' }}>EPG Files</span>
-          <div className='m-0 p-0'>
+          <div className='m-0 p-0 gap-1'>
             <Button
               disabled={selectedEPGFile.url === undefined || selectedEPGFile.url === ''}
               icon="pi pi-sync"
@@ -106,15 +101,11 @@ const EPGFilesEditor = (props: EPGFilesEditorProps) => {
               tooltip="Refresh Data"
               tooltipOptions={getTopToolOptions}
             />
-            <Button
-              className='mx-1'
-              icon="pi pi-plus"
-              onClick={() => setDisplayAdd(true)}
-              rounded
-              severity="success"
-              size="small"
-              tooltip="Add EPG File"
-              tooltipOptions={getTopToolOptions}
+
+            <FileDialog
+
+              fileType="epg"
+              onHide={() => { }}
             />
 
             <EPGFileRemoveDialog selectedFile={selectedEPGFile} />

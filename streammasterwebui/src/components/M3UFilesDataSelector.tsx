@@ -19,11 +19,11 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
   const m3UFilesQuery = StreamMasterApi.useM3UFilesGetM3UFilesQuery();
 
   React.useMemo(() => {
-    if (props.value?.id !== undefined) {
+    if (props.value?.id !== undefined && selectedM3UFile !== undefined && props.value.id !== selectedM3UFile.id) {
 
       setSelectedM3UFile(props.value);
     }
-  }, [props.value, setSelectedM3UFile]);
+  }, [props.value, selectedM3UFile, setSelectedM3UFile]);
 
   const SetSelectedM3UFileChanged = React.useCallback((data: StreamMasterApi.M3UFilesDto) => {
     if (!data) {

@@ -13,7 +13,6 @@ import { getTopToolOptions } from '../common/common';
 
 const M3UFilesEditor = (props: M3UFilesEditorProps) => {
   const toast = React.useRef<Toast>(null);
-  const [displayAdd, setDisplayAdd] = React.useState(false);
 
   const [selectedM3UFile, setSelectedM3UFile] = React.useState<StreamMasterApi.M3UFilesDto>({} as StreamMasterApi.M3UFilesDto)
 
@@ -79,11 +78,7 @@ const M3UFilesEditor = (props: M3UFilesEditorProps) => {
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
-      <FileDialog
-        fileType="m3u"
-        onClose={() => setDisplayAdd(false)}
-        show={displayAdd}
-      />
+
       <ConfirmDialog
         accept={acceptReload}
         header="Confirmation"
@@ -106,15 +101,10 @@ const M3UFilesEditor = (props: M3UFilesEditorProps) => {
               tooltip="Refresh Data"
               tooltipOptions={getTopToolOptions}
             />
-            <Button
-              className='mx-1'
-              icon="pi pi-plus"
-              onClick={() => setDisplayAdd(true)}
-              rounded
-              severity="success"
-              size="small"
-              tooltip="Add M3U File"
-              tooltipOptions={getTopToolOptions}
+
+            <FileDialog
+              fileType="m3u"
+              onHide={() => { }}
             />
 
             <M3UFileRemoveDialog onFileDeleted={() => setSelectedM3UFile({} as StreamMasterApi.M3UFilesDto)} selectedFile={selectedM3UFile} />
@@ -140,6 +130,7 @@ M3UFilesEditor.defaultProps = {
 
 export type M3UFilesEditorProps = {
   onClick?: (e: StreamMasterApi.M3UFilesDto) => void;
+
   value?: StreamMasterApi.M3UFilesDto | undefined;
 };
 
