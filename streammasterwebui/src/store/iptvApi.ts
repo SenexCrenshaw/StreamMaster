@@ -621,6 +621,33 @@ const injectedRtkApi = api
         }),
         providesTags: ["StreamGroups"],
       }),
+      streamGroupsGetStreamGroupVideoStream2: build.query<
+        StreamGroupsGetStreamGroupVideoStream2ApiResponse,
+        StreamGroupsGetStreamGroupVideoStream2ApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroups/${queryArg.id}/stream/${queryArg.streamId}.mp4`,
+        }),
+        providesTags: ["StreamGroups"],
+      }),
+      streamGroupsGetStreamGroupVideoStream3: build.query<
+        StreamGroupsGetStreamGroupVideoStream3ApiResponse,
+        StreamGroupsGetStreamGroupVideoStream3ApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroups/${queryArg.id}/stream/${queryArg.streamId}.m3u8`,
+        }),
+        providesTags: ["StreamGroups"],
+      }),
+      streamGroupsGetStreamGroupVideoStream4: build.query<
+        StreamGroupsGetStreamGroupVideoStream4ApiResponse,
+        StreamGroupsGetStreamGroupVideoStream4ApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroups/${queryArg.id}/stream/${queryArg.streamId}.ts`,
+        }),
+        providesTags: ["StreamGroups"],
+      }),
       streamGroupsSimulateStreamFailure: build.mutation<
         StreamGroupsSimulateStreamFailureApiResponse,
         StreamGroupsSimulateStreamFailureApiArg
@@ -926,6 +953,21 @@ export type StreamGroupsGetStreamGroupVideoStreamApiArg = {
   id: number;
   streamId: number;
 };
+export type StreamGroupsGetStreamGroupVideoStream2ApiResponse = unknown;
+export type StreamGroupsGetStreamGroupVideoStream2ApiArg = {
+  id: number;
+  streamId: number;
+};
+export type StreamGroupsGetStreamGroupVideoStream3ApiResponse = unknown;
+export type StreamGroupsGetStreamGroupVideoStream3ApiArg = {
+  id: number;
+  streamId: number;
+};
+export type StreamGroupsGetStreamGroupVideoStream4ApiResponse = unknown;
+export type StreamGroupsGetStreamGroupVideoStream4ApiArg = {
+  id: number;
+  streamId: number;
+};
 export type StreamGroupsSimulateStreamFailureApiResponse =
   /** status 200  */ undefined;
 export type StreamGroupsSimulateStreamFailureApiArg = string;
@@ -1208,6 +1250,7 @@ export type Setting = {
   firstFreeNumber?: number;
   maxConnectRetry?: number;
   maxConnectRetryTimeMS?: number;
+  overWriteM3UChannels?: boolean;
   ringBufferSizeMB?: number;
   sdPassword?: string;
   sdUserName?: string;
@@ -1224,16 +1267,17 @@ export type SystemStatus = {
 };
 export type UpdateSettingRequest = {
   cacheIcons?: boolean | null;
+  cleanURLs?: boolean | null;
   deviceID?: string | null;
   ffmPegExecutable?: string | null;
   firstFreeNumber?: number | null;
+  maxConnectRetry?: number | null;
+  maxConnectRetryTimeMS?: number | null;
+  overWriteM3UChannels?: boolean | null;
   ringBufferSizeMB?: number | null;
   sdPassword?: string | null;
   sdUserName?: string | null;
-  cleanURLs?: boolean | null;
   sourceBufferPreBufferPercentage?: number | null;
-  maxConnectRetry?: number | null;
-  maxConnectRetryTimeMS?: number | null;
   streamingProxyType?: StreamingProxyTypes | null;
 };
 export type VideoStreamHandlers = 0 | 1 | 2;
@@ -1447,6 +1491,9 @@ export const {
   useStreamGroupsGetStreamGroupM3U23Query,
   useStreamGroupsGetStreamGroupsQuery,
   useStreamGroupsGetStreamGroupVideoStreamQuery,
+  useStreamGroupsGetStreamGroupVideoStream2Query,
+  useStreamGroupsGetStreamGroupVideoStream3Query,
+  useStreamGroupsGetStreamGroupVideoStream4Query,
   useStreamGroupsSimulateStreamFailureMutation,
   useStreamGroupsUpdateStreamGroupMutation,
   useVideoStreamsAddVideoStreamMutation,

@@ -19,7 +19,7 @@ namespace StreamMasterDomain.Common
             CleanURLs = true;
             DatabaseName = "StreamMaster.db";
             DefaultIcon = "images/default.png";
-            DeviceID = "device1";            
+            DeviceID = "device1";
             FirstFreeNumber = 1000;
             MaxConnectRetry = 20;
             MaxConnectRetryTimeMS = 100;
@@ -30,6 +30,7 @@ namespace StreamMasterDomain.Common
             FFMPegExecutable = "ffmpeg";
             SDUserName = "";
             SDPassword = "";
+            OverWriteM3UChannels = false;
         }
 
         /// <summary>
@@ -82,6 +83,7 @@ namespace StreamMasterDomain.Common
         public int MaxConnectRetry { get; set; }
 
         public int MaxConnectRetryTimeMS { get; set; }
+        public bool OverWriteM3UChannels { get; set; }
 
         /// <summary>
         /// The size of the ring buffer used by the StreamMaster application in MB.

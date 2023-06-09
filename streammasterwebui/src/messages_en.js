@@ -11,6 +11,7 @@ export default {
   keywordSearch: 'Keyword Search',
   maxConnectRetry:'Connection Retry Limit',
   maxConnectRetryTimeMS: 'Retry Timeout in MS',
+  overWriteM3UChannels: 'Overwrite M3U Channels',
   ringBufferSizeMB: 'Buffer Size (MB)',
   sdPassword: 'Sched Direct Password',
   sdUserName: 'Sched Direct Username',

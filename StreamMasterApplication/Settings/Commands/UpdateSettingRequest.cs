@@ -16,17 +16,17 @@ namespace StreamMasterApplication.Settings.Commands;
 public class UpdateSettingRequest : IRequest<SettingDto>
 {
     public bool? CacheIcons { get; set; }
+    public bool? CleanURLs { get; set; }
     public string? DeviceID { get; set; }
     public string? FFMPegExecutable { get; set; }
-    public long? FirstFreeNumber { get; set; }    
+    public long? FirstFreeNumber { get; set; }
+    public int? MaxConnectRetry { get; set; }
+    public int? MaxConnectRetryTimeMS { get; set; }
+    public bool? OverWriteM3UChannels { get; set; }
     public int? RingBufferSizeMB { get; set; }
     public string? SDPassword { get; set; }
     public string? SDUserName { get; set; }
-    public bool? CleanURLs { get; set; }
     public int? SourceBufferPreBufferPercentage { get; set; }
-
-    public int? MaxConnectRetry { get; set; }
-    public int? MaxConnectRetryTimeMS { get; set; }
     public StreamingProxyTypes? StreamingProxyType { get; set; }
 }
 
@@ -36,9 +36,9 @@ public class UpdateSettingValidator : AbstractValidator<UpdateSettingRequest>
 
 public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, SettingDto>
 {
+    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
     private readonly ILogger<UpdateSettingRequest> _logger;
     private readonly IMapper _mapper;
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
 
     public UpdateSettingHandler(ILogger<UpdateSettingRequest> logger, IMapper mapper, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
     {
@@ -78,6 +78,11 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Settin
         if (request.CleanURLs != null && request.CleanURLs != currentSetting.CleanURLs)
         {
             currentSetting.CleanURLs = (bool)request.CleanURLs;
+        }
+
+        if (request.OverWriteM3UChannels != null && request.OverWriteM3UChannels != currentSetting.OverWriteM3UChannels)
+        {
+            currentSetting.OverWriteM3UChannels = (bool)request.OverWriteM3UChannels;
         }
 
         if (!string.IsNullOrEmpty(request.DeviceID) && request.DeviceID != currentSetting.DeviceID)
@@ -129,6 +134,5 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Settin
         {
             currentSetting.StreamingProxyType = (StreamingProxyTypes)request.StreamingProxyType;
         }
-
     }
 }

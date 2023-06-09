@@ -264,6 +264,7 @@ export const SettingsEditor = () => {
             {getInputTextLine('deviceID')}
             {getCheckBoxLine('cleanURLs')}
             {getInputTextLine('ffmPegExecutable')}
+            {getCheckBoxLine('overWriteM3UChannels')}
           </Fieldset>
 
           <Fieldset className="mt-4 pt-10" legend={GetMessage('streaming')}>
