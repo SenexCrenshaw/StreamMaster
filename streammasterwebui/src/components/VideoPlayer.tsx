@@ -16,7 +16,6 @@ import { MediaCommunitySkin, MediaOutlet, MediaPlayer, MediaPoster, useMediaProv
 import EPGDisplay from './EPGDisplay';
 import { MediaPlayerElement } from "vidstack";
 import { baseHostURL } from "../settings";
-import TestApp from "./test";
 
 const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
   const [hideEPG, setHideEPG] = React.useState(false);
@@ -69,35 +68,34 @@ const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
 
   }, [streamGroupNumber]);
 
-  return <TestApp />
 
   // return (<VideoJS onReady={handlePlayerReady} options={videoJsOptions} />)
 
-  // return (
-  //   <MediaPlayer
-  //     controls
-  //     crossorigin="anonymous"
-  //     onUserIdleChange={(e) => {
-  //       console.log('onUserIdleChange ', e)
-  //       setHideEPG(e.detail)
-  //     }
-  //     }
-  //     poster={poster}
-  //     src={src}
-  //     title={title}
+  return (
+    <MediaPlayer
+      controls
+      crossorigin="anonymous"
+      onUserIdleChange={(e) => {
+        console.log('onUserIdleChange ', e)
+        setHideEPG(e.detail)
+      }
+      }
+      poster={poster}
+      src={src}
+      title={title}
 
-  //   >
-  //     <MediaOutlet />
+    >
+      <MediaOutlet />
 
 
-  //     <MediaCommunitySkin />
+      <MediaCommunitySkin />
 
-  //     <div className="absolute bottom-0 left-0 z-5" style={{ paddingBottom: '5rem', zIndex: '5 !important' }}      >
-  //       <EPGDisplay hidden={hideEPG} onClick={onVideoStreamClick} streamGroupNumber={streamGroupNumber} />
-  //     </div>
+      <div className="absolute bottom-0 left-0 z-5" style={{ paddingBottom: '5rem', zIndex: '5 !important' }}      >
+        <EPGDisplay hidden={hideEPG} onClick={onVideoStreamClick} streamGroupNumber={streamGroupNumber} />
+      </div>
 
-  //   </MediaPlayer >
-  // );
+    </MediaPlayer >
+  );
 }
 
 VideoPlayerDialog.displayName = 'VideoPlayerDialog';
