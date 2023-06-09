@@ -9,5 +9,5 @@ public class SettingDto : Setting, IMapFrom<Setting>
     /// <summary>
     /// The version of the StreamMaster application.
     /// </summary>
-    public string Version { get; set; } = "0.2.1";
+    public string Version { get; set; } = "0.2.3";
 }
