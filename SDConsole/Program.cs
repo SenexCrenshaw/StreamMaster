@@ -12,7 +12,7 @@ internal class Program
         CancellationToken cancellationToken = cancellationTokenSource.Token;
 
         Console.WriteLine("Getting Token");
-        var sd = new SchedulesDirect("senexcrenshaw", "IPTVR0xR0x");
+        var sd = new SchedulesDirect("", "");
 
         Console.WriteLine("Getting Status");
         var status = await sd.GetStatus(cancellationToken);
