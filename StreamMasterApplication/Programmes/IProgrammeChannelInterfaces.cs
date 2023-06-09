@@ -27,6 +27,7 @@ public interface IProgrammeChannelScoped
 
 public interface IProgrammeChannelTasks
 {
+    ValueTask AddProgrammesFromSDRequest(CancellationToken cancellationToken = default);
 }
 
 public interface IProgrammeChannelController

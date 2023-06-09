@@ -6,10 +6,7 @@ using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
 
-using StreamMasterApplication.Services;
-
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Entities;
 using StreamMasterDomain.Entities.EPG;
 
 using System.ComponentModel.DataAnnotations;
@@ -62,7 +59,6 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
                 return null;
             }
 
-   
             Tv? tv = await epgFile.GetTV().ConfigureAwait(false);
             if (tv != null)
             {
@@ -76,7 +72,6 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
             EPGFilesDto ret = _mapper.Map<EPGFilesDto>(epgFile);
             await _publisher.Publish(new EPGFileProcessedEvent(ret), cancellationToken).ConfigureAwait(false);
 
-        
             return ret;
         }
         catch (Exception)

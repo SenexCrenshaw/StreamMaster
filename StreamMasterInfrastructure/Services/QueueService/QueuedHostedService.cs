@@ -68,6 +68,10 @@ public sealed class QueuedHostedService : BackgroundService
 
                 switch (command.Command)
                 {
+                    case SMQueCommand.AddProgrammesFromSD:
+                        await _sender.Send(new AddProgrammesFromSDRequest(), cancellationToken).ConfigureAwait(false);
+                        break;
+
                     case SMQueCommand.CacheAllIcons:
                         await _sender.Send(new CacheAllIconsRequest(), cancellationToken).ConfigureAwait(false);
                         break;
