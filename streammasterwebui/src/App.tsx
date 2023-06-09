@@ -90,6 +90,7 @@ const App = () => {
   StreamMasterApi.useSettingsGetSystemStatusQuery();
   StreamMasterApi.useStreamGroupsGetStreamGroupsQuery();
   StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
+  StreamMasterApi.useStreamGroupsGetStreamGroupEpgForGuideQuery(1);
 
   if (!systemReady)
     return (

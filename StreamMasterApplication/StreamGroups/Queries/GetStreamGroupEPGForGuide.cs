@@ -10,6 +10,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Entities;
 using StreamMasterDomain.Entities.EPG;
 
 using System.Collections.Concurrent;
@@ -131,7 +132,8 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
                     t = new EPGChannel
                     {
                         UUID = videoStream.User_Tvg_ID + "-" + dummy,
-                        Logo = Logo
+                        Logo = Logo,
+                        channelNumber= videoStream.User_Tvg_chno
                     };
                 }
                 else
@@ -139,7 +141,8 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
                     t = new EPGChannel
                     {
                         UUID = videoStream.User_Tvg_ID.ToString(),
-                        Logo = Logo
+                        Logo = Logo,
+                        channelNumber = videoStream.User_Tvg_chno
                     };
                 }
 
@@ -193,7 +196,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
                                     };
                                 }
 
-                                retProgrammes.Add(GetEPGProgramFromProgramme(p));
+                                retProgrammes.Add(GetEPGProgramFromProgramme(p, videoStream.Id));
                             }
                         }
                     }
@@ -201,13 +204,13 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
             });
         }
 
-        ret.Channels = retChannels.ToList();
+        ret.Channels = retChannels.OrderBy(a => a.channelNumber).ToList();
         ret.Programs = retProgrammes.OrderBy(a=>a.Since).ToList();
 
         return ret;
     }
 
-    private static EPGProgram GetEPGProgramFromProgramme(Programme programme)
+    private static EPGProgram GetEPGProgramFromProgramme(Programme programme, int videoStreamId)
     {
         var largest = 0;
         TvIcon? Icon = null;
@@ -237,6 +240,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
             Till = programme.StopDateTime,
             Title = programme.Title.Text ?? "",
             Image = Icon?.Src ?? "",
+            VideoStreamId= videoStreamId,
         };
     }
 

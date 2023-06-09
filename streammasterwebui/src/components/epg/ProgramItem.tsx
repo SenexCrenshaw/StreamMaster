@@ -1,3 +1,4 @@
+import React from "react";
 import {
   type ProgramItem
 } from "planby";
@@ -13,7 +14,7 @@ import {
   useProgram,
 } from "planby";
 
-export const ProgramComponent = ({ program, ...rest }: ProgramItem) => {
+const ProgramComponent = ({ program, onClick, ...rest }: ProgramComponentProps) => {
   const { styles, formatTime, set12HoursTimeFormat, isLive, isMinWidth } =
     useProgram({
       program,
@@ -27,7 +28,9 @@ export const ProgramComponent = ({ program, ...rest }: ProgramItem) => {
   const tillTime = formatTime(till, set12HoursTimeFormat()).toLowerCase();
 
   return (
-    <ProgramBox style={styles.position} width={styles.width}>
+    <ProgramBox onClick={() => {
+      onClick(program.data.videoStreamId)
+    }} style={styles.position} width={styles.width}>
       <ProgramContent isLive={isLive} width={styles.width}>
         <ProgramFlex>
           {isLive && isMinWidth && <ProgramImage alt="Preview" src={image} />}
@@ -42,3 +45,14 @@ export const ProgramComponent = ({ program, ...rest }: ProgramItem) => {
     </ProgramBox>
   );
 };
+
+
+type ProgramProps = {
+
+  onClick: ((videoStreamId: number) => void);
+
+};
+
+type ProgramComponentProps = ProgramItem & ProgramProps;
+
+export default React.memo(ProgramComponent);

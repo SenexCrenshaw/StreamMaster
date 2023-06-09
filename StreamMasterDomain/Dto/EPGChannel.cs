@@ -8,12 +8,13 @@ namespace StreamMasterDomain.Dto;
 
 public class EPGChannel
 {
+    public required int channelNumber { get; set; }
     public required string UUID { get; set; }
     public required string Logo { get; set; }
 }
 
 public class EPGProgram {
-
+    public required int VideoStreamId { get; set; }
     public required string   Id { get; set; }
     public required string ChannelUuid { get; set; }
     public required string Title { get; set; }

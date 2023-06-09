@@ -1,3 +1,4 @@
+import React from "react";
 import {
   TimelineWrapper,
   TimelineBox,
@@ -17,7 +18,7 @@ type TimelineProps = {
   sidebarWidth: number;
 }
 
-export const Timeline = ({
+const Timeline = ({
   isBaseTimeFormat,
   isSidebar,
   dayWidth,
@@ -57,3 +58,5 @@ export const Timeline = ({
     </TimelineWrapper>
   );
 }
+
+export default React.memo(Timeline);

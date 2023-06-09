@@ -239,6 +239,9 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
     [HttpGet]
     [Route("{id}/stream/{streamId}")]
+    [Route("{id}/stream/{streamId}.mp4")]
+    [Route("{id}/stream/{streamId}.m3u8")]
+    [Route("{id}/stream/{streamId}.ts")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetStreamGroupVideoStream(int id, int streamId, CancellationToken cancellationToken)
     {
@@ -283,7 +286,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(_ringBufferManager, config));
         if (stream != null)
         {
-            return new FileStreamResult(stream, "video/mp2t");
+            return new FileStreamResult(stream, "video/mp4");
         }
         else if (error != null)
         {

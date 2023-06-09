@@ -7,82 +7,97 @@ import * as StreamMasterApi from '../store/iptvApi';
 import * as Hub from '../store/signlar_functions';
 import 'vidstack/styles/defaults.css';
 import 'vidstack/styles/community-skin/video.css';
-import { PlaylistIcon } from '@vidstack/react/icons';
+// import VideoJS from './videojs'
+
+import { PlayIcon, PlaylistIcon } from '@vidstack/react/icons';
 import { type MediaLoadedMetadataEvent } from 'vidstack';
 
 import { MediaCommunitySkin, MediaOutlet, MediaPlayer, MediaPoster, useMediaProvider, useMediaRemote } from '@vidstack/react';
 import EPGDisplay from './EPGDisplay';
 import { MediaPlayerElement } from "vidstack";
+import { baseHostURL } from "../settings";
+import TestApp from "./test";
 
 const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
   const [hideEPG, setHideEPG] = React.useState(false);
-  // useEffect(() => {
-  //   const handleMouseMove = (event: MouseEvent) => {
-  //     const screenWidth = window.innerWidth;
-  //     const mouseX = event.pageX;
+  const playerRef = React.useRef(null);
+  const [videoStreamId, setVideoStreamId] = React.useState(0);
+  const [src, setSrc] = React.useState<string>("http://192.168.1.216:7095/api/streamgroups/1/stream/10852.ts");
+  const [poster, setPoster] = React.useState<string>("https://media-files.vidstack.io/poster.png");
+  const [title, setTitle] = React.useState<string>("WOW");
+  const [streamGroupNumber, setStreamGroupNumber] = React.useState<number>(1);
 
-  //     if (mouseX <= screenWidth * 0.1) {
-  //       setShowEPG(true);
-  //       // Mouse is on the left 10% of the screen
-  //       // Trigger your action here
-  //     } else {
-  //       setShowEPG(false);
+  const videoJsOptions = {
+    autoplay: false,
+    controls: true,
+    fluid: true,
+
+    responsive: true,
+    sources: [{
+      src: 'http://192.168.1.216:7095/api/streamgroups/1/stream/10852.ts',
+      type: "application/x-mpegURL"
+    }]
+  };
+
+
+  const handlePlayerReady = (player: any) => {
+    playerRef.current = player;
+
+
+    player.log.level('all')
+
+    // You can handle player events here, for example:
+    player.on('waiting', () => {
+      console.log('player is waiting');
+    });
+
+    player.on('dispose', () => {
+      console.log('player will dispose');
+    });
+  };
+
+  const onVideoStreamClick = React.useCallback((videoStreamIdData: number) => {
+    console.log(videoStreamIdData);
+    setVideoStreamId(videoStreamIdData);
+    const url = `http://192.168.1.216:7095/api/streamgroups/${streamGroupNumber}/stream/${videoStreamIdData}`;
+    console.log('setSrc ', url)
+    setSrc(url);
+
+    // setPoster(videoStream.poster);
+    // setTitle(videoStream.title);
+
+
+  }, [streamGroupNumber]);
+
+  return <TestApp />
+
+  // return (<VideoJS onReady={handlePlayerReady} options={videoJsOptions} />)
+
+  // return (
+  //   <MediaPlayer
+  //     controls
+  //     crossorigin="anonymous"
+  //     onUserIdleChange={(e) => {
+  //       console.log('onUserIdleChange ', e)
+  //       setHideEPG(e.detail)
   //     }
-  //   };
+  //     }
+  //     poster={poster}
+  //     src={src}
+  //     title={title}
 
-  //   document.addEventListener('mousemove', handleMouseMove);
+  //   >
+  //     <MediaOutlet />
 
-  //   return () => {
-  //     // Cleanup the event listener when the component unmounts
-  //     document.removeEventListener('mousemove', handleMouseMove);
-  //   };
-  // }, []);
 
-  return (
+  //     <MediaCommunitySkin />
 
-    <MediaPlayer
-      aspect-ratio={16 / 9}
-      className='col-12'
-      crossorigin=""
-      onUserIdleChange={(e) => {
-        console.log('onUserIdleChange ', e)
-        setHideEPG(e.detail)
-      }
-      }
-      poster="https://image.mux.com/VZtzUzGRv02OhRnZCxcNg49OilvolTqdnFLEqBsTwaxU/thumbnail.webp?time=268&width=980"
-      src="https://stream.mux.com/VZtzUzGRv02OhRnZCxcNg49OilvolTqdnFLEqBsTwaxU/low.mp4"
-      thumbnails="https://media-files.vidstack.io/sprite-fight/thumbnails.vtt"
-      title="Sprite Fight"
-    >
-      <MediaOutlet>
-        <MediaPoster
-          alt="Girl walks into sprite gnomes around her friend on a campfire in danger!"
-        />
-        <track
-          default
-          kind="subtitles"
-          label="English"
-          src="https://media-files.vidstack.io/sprite-fight/subs/english.vtt"
-          srcLang="en-US"
-        />
-        <track
-          default
-          kind="chapters"
-          src="https://media-files.vidstack.io/sprite-fight/chapters.vtt"
-          srcLang="en-US"
-        />
-      </MediaOutlet>
+  //     <div className="absolute bottom-0 left-0 z-5" style={{ paddingBottom: '5rem', zIndex: '5 !important' }}      >
+  //       <EPGDisplay hidden={hideEPG} onClick={onVideoStreamClick} streamGroupNumber={streamGroupNumber} />
+  //     </div>
 
-      <MediaCommunitySkin />
-      <div className="absolute bottom-0 left-0 z-5"
-        style={{ paddingBottom: '5rem', zIndex: '5 !important' }}
-      >
-        <EPGDisplay hidden={hideEPG} streamGroupNumber={1} />
-      </div>
-
-    </MediaPlayer >
-
-  );
+  //   </MediaPlayer >
+  // );
 }
 
 VideoPlayerDialog.displayName = 'VideoPlayerDialog';
@@ -98,3 +113,4 @@ type VideoPlayerDialogProps = {
 };
 
 export default React.memo(VideoPlayerDialog);
+

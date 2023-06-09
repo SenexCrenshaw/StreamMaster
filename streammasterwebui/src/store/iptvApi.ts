@@ -1307,10 +1307,12 @@ export type StreamStatisticsResult = {
   streamUrl?: string | null;
 };
 export type EpgChannel = {
+  channelNumber?: number;
   uuid?: string;
   logo?: string;
 };
 export type EpgProgram = {
+  videoStreamId?: number;
   id?: string;
   channelUuid?: string;
   title?: string;
