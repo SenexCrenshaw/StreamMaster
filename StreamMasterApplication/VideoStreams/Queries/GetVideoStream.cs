@@ -51,15 +51,13 @@ internal class GetVideoStreamHandler : IRequestHandler<GetVideoStream, VideoStre
                 Rank = a.Rank
             }).ToList();
 
-      
-
         VideoStreamDto videoStreamDto = _mapper.Map<VideoStreamDto>(videoStream);
 
-        if (!string.IsNullOrEmpty(videoStreamDto.User_Tvg_logo))
+        if (setting.CacheIcons && !string.IsNullOrEmpty(videoStreamDto.User_Tvg_logo))
         {
             IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStreamDto.User_Tvg_logo || a.Name == videoStreamDto.User_Tvg_logo);
             string Logo = icon != null ? icon.Source : setting.BaseHostURL + setting.DefaultIcon;
-            
+
             videoStreamDto.User_Tvg_logo = Logo;
         }
 
@@ -67,14 +65,16 @@ internal class GetVideoStreamHandler : IRequestHandler<GetVideoStream, VideoStre
 
         foreach (var child in videoStreams)
         {
-
             if (!string.IsNullOrEmpty(child.ChildVideoStream.User_Tvg_logo))
             {
-                IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == child.ChildVideoStream.User_Tvg_logo);
-                string Logo = icon != null ? icon.Source : setting.BaseHostURL + setting.DefaultIcon;                
-                child.ChildVideoStream.User_Tvg_logo = Logo;
+                if (setting.CacheIcons)
+                {
+                    IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == child.ChildVideoStream.User_Tvg_logo);
+                    string Logo = icon != null ? icon.Source : setting.BaseHostURL + setting.DefaultIcon;
+                    child.ChildVideoStream.User_Tvg_logo = Logo;
+                }
                 var cto = _mapper.Map<ChildVideoStreamDto>(child.ChildVideoStream);
-                cto.Rank    = child.Rank;
+                cto.Rank = child.Rank;
                 childVideoStreams.Add(cto);
             }
         }

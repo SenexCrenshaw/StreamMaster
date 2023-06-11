@@ -59,7 +59,7 @@ internal class GetVideoStreamsHandler : IRequestHandler<GetVideoStreams, IEnumer
         {
             VideoStreamDto videoStreamDto = _mapper.Map<VideoStreamDto>(videoStream);
 
-            if (!string.IsNullOrEmpty(videoStreamDto.User_Tvg_logo))
+            if (setting.CacheIcons && !string.IsNullOrEmpty(videoStreamDto.User_Tvg_logo))
             {
                 IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStreamDto.User_Tvg_logo || a.Name == videoStreamDto.User_Tvg_logo);
                 string Logo = icon != null ? icon.Source : setting.BaseHostURL + setting.DefaultIcon;
@@ -83,9 +83,13 @@ internal class GetVideoStreamsHandler : IRequestHandler<GetVideoStreams, IEnumer
             {
                 if (!string.IsNullOrEmpty(child.ChildVideoStream.User_Tvg_logo))
                 {
-                    IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == child.ChildVideoStream.User_Tvg_logo);
-                    string Logo = icon != null ? icon.Source : setting.BaseHostURL + setting.DefaultIcon;
-                    child.ChildVideoStream.User_Tvg_logo = Logo;
+                    if (setting.CacheIcons)
+                    {
+                        IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == child.ChildVideoStream.User_Tvg_logo);
+                        string Logo = icon != null ? icon.Source : setting.BaseHostURL + setting.DefaultIcon;
+                        child.ChildVideoStream.User_Tvg_logo = Logo;
+                    }
+
                     var cto = _mapper.Map<ChildVideoStreamDto>(child.ChildVideoStream);
                     cto.Rank = child.Rank;
                     childVideoStreams.Add(cto);
