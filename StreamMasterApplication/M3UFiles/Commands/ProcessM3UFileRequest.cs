@@ -72,18 +72,18 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
             Stopwatch sw = Stopwatch.StartNew();
             var existing = _context.VideoStreams.Where(a => a.M3UFileId == m3uFile.Id).ToList();
 
-            var existingChannels = existing.Select(a => a.User_Tvg_chno).Distinct().Order().ToList();
+            var existingChannels = new List<int>();// existing.Select(a => a.User_Tvg_chno).Distinct().Order().ToList();
             var newChannels = streams.Select(a => a.Tvg_chno).Distinct().Order().ToList();
 
             int nextchno = m3uFile.StartingChannelNumber - 1;
 
-            if (existingChannels.Contains(nextchno))
-            {
-                while (existingChannels.Contains(nextchno))
-                {
-                    nextchno++;
-                }
-            }
+            //if (existingChannels.Contains(nextchno))
+            //{
+            //    while (existingChannels.Contains(nextchno))
+            //    {
+            //        nextchno++;
+            //    }
+            //}
             existingChannels.Add(nextchno);
 
             foreach (var stream in streams)
@@ -122,7 +122,17 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                         }
                         dbStream.Tvg_group = stream.Tvg_group;
 
-                        if (dbStream.Tvg_chno != 0 || !setting.OverWriteM3UChannels)
+                        if (setting.OverWriteM3UChannels)
+                        {
+                            nextchno = existingChannels.GetNextNumber(nextchno);
+
+                            if (dbStream.Tvg_chno == dbStream.User_Tvg_chno)
+                            {
+                                dbStream.User_Tvg_chno = nextchno;
+                            }
+                            stream.Tvg_chno = nextchno;
+                        }
+                        else
                         {
                             if (stream.Tvg_chno != 0)
                             {
@@ -132,10 +142,7 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                                 }
                                 dbStream.Tvg_chno = stream.Tvg_chno;
                             }
-                        }
-                        else
-                        {
-                            if (stream.Tvg_chno == 0 || setting.OverWriteM3UChannels)
+                            else
                             {
                                 nextchno = existingChannels.GetNextNumber(nextchno);
 
@@ -145,14 +152,6 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                                 }
                                 stream.Tvg_chno = nextchno;
                             }
-                            else
-                            {
-                                if (dbStream.Tvg_chno == dbStream.User_Tvg_chno)
-                                {
-                                    dbStream.User_Tvg_chno = stream.Tvg_chno;
-                                }
-                            }
-                            dbStream.Tvg_chno = stream.Tvg_chno;
                         }
 
                         if (dbStream.Tvg_ID == dbStream.User_Tvg_ID)
@@ -180,7 +179,7 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                 else
                 {
                     stream.IsHidden = group != null && group.IsHidden;
-                    if (stream.Tvg_chno == 0 || existingChannels.Contains(stream.Tvg_chno))
+                    if (stream.Tvg_chno == 0 || setting.OverWriteM3UChannels || existingChannels.Contains(stream.Tvg_chno))
                     {
                         nextchno = existingChannels.GetNextNumber(nextchno);
 
@@ -236,6 +235,7 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
         {
             _logger.LogCritical(ex, "Error while processing M3U file");
         }
+
         return null;
     }
 }
