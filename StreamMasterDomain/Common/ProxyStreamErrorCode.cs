@@ -8,6 +8,7 @@ public enum ProxyStreamErrorCode
     FileNotFound,
     ChannelManagerFinished,
     HttpError,
+    Canceled,
     DownloadError,
     MasterPlayListNotSupported
 }

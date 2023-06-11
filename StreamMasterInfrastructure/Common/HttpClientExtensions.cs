@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Net.Http.Headers;
 
 namespace StreamMasterInfrastructure.Common;
 
@@ -8,8 +7,8 @@ public static class HttpClientExtensions
     public static async Task<HttpResponseMessage?> GetWithRedirectAsync(
         this HttpClient httpClient,
         string requestUri,
-        long byteRangeStart = 0,
-        long byteRangeLength = -1,
+        //long byteRangeStart = 0,
+        //long byteRangeLength = -1,
         int maxRetries = 5,
         CancellationToken cancellationToken = default)
     {
@@ -19,17 +18,23 @@ public static class HttpClientExtensions
 
         while (retryCount <= maxRetries)
         {
-            if (byteRangeLength != -1)
+            //if (byteRangeLength != -1)
+            //{
+            //    httpClient.DefaultRequestHeaders.Range = new RangeHeaderValue(byteRangeStart, byteRangeStart + byteRangeLength);
+            //}
+            //else
+            //{
+            //    httpClient.DefaultRequestHeaders.Range = null;
+            //}
+            try
             {
-                httpClient.DefaultRequestHeaders.Range = new RangeHeaderValue(byteRangeStart, byteRangeStart + byteRangeLength);
+                response = await httpClient.GetAsync(redirectUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false); ;
             }
-            else
+            catch (Exception ex)
             {
-                httpClient.DefaultRequestHeaders.Range = null;
+                Console.WriteLine(ex.Message);
+                return null;
             }
-
-            response = await httpClient.GetAsync(redirectUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false); ;
-
             if (response.StatusCode == HttpStatusCode.Redirect)
             {
                 if (response.Headers.Location != null)

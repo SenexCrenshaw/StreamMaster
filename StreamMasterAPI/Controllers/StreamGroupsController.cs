@@ -281,7 +281,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         };
 
         // Get the read stream for the client
-        (Stream? stream, Guid clientId, ProxyStreamError? error) = _ringBufferManager.GetStream(config);
+        (Stream? stream, Guid clientId, ProxyStreamError? error) = await _ringBufferManager.GetStream(config);
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(_ringBufferManager, config));
         if (stream != null)

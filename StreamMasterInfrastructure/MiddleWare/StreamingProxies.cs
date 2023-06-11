@@ -3,7 +3,6 @@
 using StreamMasterInfrastructure.Common;
 
 using System.Diagnostics;
-using System.IO.Pipelines;
 using System.Runtime.InteropServices;
 
 namespace StreamMasterInfrastructure.MiddleWare;
@@ -12,16 +11,7 @@ public static class StreamingProxies
 {
     private static readonly HttpClient client = CreateHttpClient();
 
-    /// <summary>
-    /// Get FFMpeg Stream from url <strong>Supports failover</strong>
-    /// </summary>
-    /// <param name="streamUrl">URL to stream from</param>
-    /// <param name="ffMPegExecutable">
-    /// Path to FFMpeg executable. If it doesnt exist <strong>null</strong> is returned
-    /// </param>
-    /// <param name="user_agent">user_agent string</param>
-    /// <returns><strong>A FFMpeg backed stream or null</strong></returns>
-    public static async Task<(Stream? stream, ProxyStreamError? error)> GetFFMpegStream(string streamUrl)
+    public static async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetFFMpegStream(string streamUrl)
     {
         Setting setting = FileUtil.GetSetting();
 
@@ -30,7 +20,7 @@ public static class StreamingProxies
             if (!IsFFmpegAvailable())
             {
                 ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = $"FFmpeg executable file not found: {setting.FFMPegExecutable}" };
-                return (null, error);
+                return (null, -1, error);
             }
         }
 
@@ -45,64 +35,46 @@ public static class StreamingProxies
 
             _ = process.Start();
 
-            return (await Task.FromResult(process.StandardOutput.BaseStream).ConfigureAwait(false), null);
+            return (await Task.FromResult(process.StandardOutput.BaseStream).ConfigureAwait(false), process.Id, null);
         }
         catch (IOException ex)
         {
             ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.IoError, Message = ex.Message };
-            return (null, error);
+            return (null, -1, error);
         }
         catch (Exception ex)
         {
             ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.UnknownError, Message = ex.Message };
-            return (null, error);
+            return (null, -1, error);
         }
     }
 
-    public static async Task<(Stream? stream, ProxyStreamError? error)> GetProxyStream(string sourceUrl, CancellationToken cancellation)
+    public static async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxyStream(string sourceUrl, CancellationToken cancellation)
     {
         try
         {
-            var parser = new M3u8Parser();
-            var m3u8PlayList = await parser.ParsePlaylistAsync(sourceUrl);
+            HttpResponseMessage? response = await client.GetWithRedirectAsync(sourceUrl, cancellationToken: cancellation).ConfigureAwait(false);
 
-            if (m3u8PlayList == null || !m3u8PlayList.Streams.Any())
+            if (response == null || !response.IsSuccessStatusCode)
             {
-                HttpResponseMessage? response = await client.GetWithRedirectAsync(sourceUrl, cancellationToken: cancellation).ConfigureAwait(false);
-
-                if (response == null || !response.IsSuccessStatusCode)
-                {
-                    return (null, new ProxyStreamError { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = "Could not retrieve stream utl" });
-                }
-
-                Stream stream = await response.Content.ReadAsStreamAsync();
-                return (stream, null);
+                return (null, -1, new ProxyStreamError { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = "Could not retrieve stream utl" });
             }
 
-            if (m3u8PlayList.IndependentSegments)
+            string contentType = response.Content.Headers.ContentType.MediaType;
+
+            if (contentType.Equals("application/vnd.apple.mpegurl", StringComparison.OrdinalIgnoreCase) ||
+                        contentType.Equals("audio/mpegurl", StringComparison.OrdinalIgnoreCase) ||
+                       contentType.Equals("application/x-mpegURL", StringComparison.OrdinalIgnoreCase))
             {
-                return (null, new ProxyStreamError
-                {
-                    ErrorCode = ProxyStreamErrorCode.MasterPlayListNotSupported,
-                    Message = "M3U8 Master Playlis not supported"
-                }); ;
+                return await GetFFMpegStream(sourceUrl).ConfigureAwait(false);
             }
 
-            var streams = m3u8PlayList.Streams.OrderByDescending(s => s.Bandwidth).First();
-
-            var pipe = new Pipe();
-
-            _ = Task.Run(async () =>
-            {
-                await DownloadSegments(streams.Segments, sourceUrl, pipe.Writer, cancellation);
-                pipe.Writer.Complete();
-            });
-
-            return (pipe.Reader.AsStream(), null);
+            Stream stream = await response.Content.ReadAsStreamAsync(cancellation);
+            return (stream, -1, null);
         }
         catch (Exception ex)
         {
-            return (null, new ProxyStreamError
+            return (null, -1, new ProxyStreamError
             {
                 ErrorCode = ProxyStreamErrorCode.DownloadError,
                 Message = ex.Message
@@ -118,66 +90,6 @@ public static class StreamingProxies
         });
         client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; streammaster/1.0)");
         return client;
-    }
-
-    private static async Task DownloadSegments(List<M3u8Segment> segments, string sourceUrl, PipeWriter pipeWriter, CancellationToken cancellation)
-    {
-        while (!cancellation.IsCancellationRequested)
-        {
-            foreach (var segment in segments)
-            {
-                if (cancellation.IsCancellationRequested)
-                {
-                    break;
-                }
-                HttpResponseMessage? response;
-                try
-                {
-                    //Debug.WriteLine($"{DateTime.Now} Streaming {segment.Uri} Delay {segment.Duration} byteRangeStart {byteRangeStart} byteRangeLength {byteRangeLength} ");
-
-                    response = await client.GetWithRedirectAsync(
-                        segment.Uri,
-                        segment.ByterangeStart,
-                        segment.ByterangeLength,
-                        cancellationToken: cancellation
-                        ).ConfigureAwait(false);
-
-                    if (response == null)
-                    {
-                        continue;
-                    }
-
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        Console.Error.WriteLine($"Error downloading segment: {segment.Uri}. Status code: {response.StatusCode}");
-                        continue;
-                    }
-
-                    using Stream stream = await response.Content.ReadAsStreamAsync(cancellation).ConfigureAwait(false);
-
-                    await stream.CopyToAsync(pipeWriter, cancellationToken: cancellation).ConfigureAwait(false);
-                    await Task.Delay((int)segment.Duration * 700, cancellation).ConfigureAwait(false);
-                }
-                catch
-                {
-                    Console.Error.WriteLine($"Error downloading segment: {segment.Uri}");
-                    continue;
-                }
-            }
-
-            var parser = new M3u8Parser();
-            var m3u8PlayList = await parser.ParsePlaylistAsync(sourceUrl);
-
-            if (m3u8PlayList == null)
-            {
-                //Debug.WriteLine($"{DateTime.Now} m3u8PlayList is null");
-                break;
-            }
-
-            var streams = m3u8PlayList.Streams.OrderByDescending(s => s.Bandwidth).First();
-            var existingMediaSequence = segments.Select(a => a.MediaSequence).ToList();
-            segments = streams.Segments.Where(a => !existingMediaSequence.Contains(a.MediaSequence)).ToList();
-        }
     }
 
     private static bool IsFFmpegAvailable()

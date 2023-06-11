@@ -10,7 +10,7 @@ public interface IRingBufferManager
 
     List<StreamStatisticsResult> GetAllStatisticsForAllUrls();
 
-    (Stream? stream, Guid clientId, ProxyStreamError? error) GetStream(StreamerConfiguration config);
+    Task<(Stream? stream, Guid clientId, ProxyStreamError? error)> GetStream(StreamerConfiguration config);
 
     void RemoveClient(StreamerConfiguration config);
 

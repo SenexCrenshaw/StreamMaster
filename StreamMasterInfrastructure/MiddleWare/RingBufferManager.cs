@@ -13,6 +13,7 @@ using StreamMasterDomain.Common;
 using StreamMasterDomain.Enums;
 
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace StreamMasterInfrastructure.MiddleWare;
 
@@ -39,7 +40,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         _streamReads = new ConcurrentDictionary<Guid, RingBufferReadStream>();
         _streamStreamInfos = new();
         setting = FileUtil.GetSetting();
-        _broadcastTimer = new Timer(BroadcastMessage, null,  1000, 1000);
+        _broadcastTimer = new Timer(BroadcastMessage, null, 1000, 1000);
     }
 
     public void Dispose()
@@ -145,7 +146,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
     /// new one if it doesn't exist. </summary> <param name="config">The
     /// streamer configuration containing the client and stream details.</param>
     /// <returns>A tuple containing the stream and the client ID.</returns>
-    public (Stream? stream, Guid clientId, ProxyStreamError? error) GetStream(StreamerConfiguration config)
+    public async Task<(Stream? stream, Guid clientId, ProxyStreamError? error)> GetStream(StreamerConfiguration config)
     {
         string? streamUrl = ChannelUtils.ChannelManager(config);
         if (streamUrl == null)
@@ -159,7 +160,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
 
         if (streamStreamInfo is null || streamStreamInfo.RingBuffer is null)
         {
-            _logger.LogCritical("Could not create buffer for client {ClientId} registered for stream: {StreamUrl}", config.ClientId, setting.CleanURLs ? "url removed" : streamUrl);            
+            _logger.LogCritical("Could not create buffer for client {ClientId} registered for stream: {StreamUrl}", config.ClientId, setting.CleanURLs ? "url removed" : streamUrl);
 
             return (null, config.ClientId, null);
         }
@@ -232,6 +233,23 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         }
     }
 
+    private static string? CheckProcessExists(int processId)
+    {
+        Process[] processes = Process.GetProcesses();
+
+        foreach (Process process in processes)
+        {
+            if (process.Id == processId)
+            {
+                Console.WriteLine($"Process with ID {processId} exists. Name: {process.ProcessName}");
+                return process.ProcessName;
+            }
+        }
+
+        Console.WriteLine($"Process with ID {processId} does not exist.");
+        return null;
+    }
+
     private void BroadcastMessage(object? state)
     {
         _ = _hub.Clients.All.StreamStatisticsResultsUpdate(GetAllStatisticsForAllUrls());
@@ -270,14 +288,43 @@ public class RingBufferManager : IDisposable, IRingBufferManager
     /// </param>
     /// <param name="clientInfo">The client configuration for the stream.</param>
     /// <returns>A new instance of the CircularRingBuffer.</returns>
-    private StreamStreamInfo CreateAndStartBuffer(string streamUrl, StreamerConfiguration clientInfo)
+    private StreamStreamInfo? CreateAndStartBuffer(string streamUrl, StreamerConfiguration clientInfo)
     {
+        Setting setting = FileUtil.GetSetting();
+
         _logger.LogInformation("Creating and starting buffer for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
         CircularRingBuffer buffer = new(clientInfo);
 
         CancellationTokenSource cancellationTokenSource = new();
-        Task streamingTask = StartVideoStreaming(streamUrl, clientInfo, buffer, cancellationTokenSource);
+
+        _logger.LogInformation("Starting video read streaming, chunck size is {ChunkSize}, for stream: {StreamUrl}", clientInfo.BufferSize, setting.CleanURLs ? "url removed" : streamUrl);
+
+        Stream? stream;
+        ProxyStreamError? error;
+        int processId = -1;
+
+        if (setting.StreamingProxyType == StreamingProxyTypes.FFMpeg)
+        {
+            (stream, processId, error) = StreamingProxies.GetFFMpegStream(streamUrl).Result;
+            if (processId == -1)
+            {
+                _logger.LogError("Error getting proxy stream for {streamUrl}: {error?.Message}", setting.CleanURLs ? "url removed" : streamUrl, error?.Message);
+            }
+        }
+        else
+        {
+            (stream, processId, error) = StreamingProxies.GetProxyStream(streamUrl, cancellationTokenSource.Token).Result;
+        }
+
+        if (stream == null || error != null)
+        {
+            _logger.LogError("Error getting proxy stream for {streamUrl}: {error?.Message}", setting.CleanURLs ? "url removed" : streamUrl, error?.Message);
+
+            return null;
+        }
+
+        Task streamingTask = StartVideoStreaming(stream, streamUrl, clientInfo, buffer, cancellationTokenSource);
 
         using IServiceScope scope = _serviceProvider.CreateScope();
         ISender _sender = scope.ServiceProvider.GetRequiredService<ISender>();
@@ -292,7 +339,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
             m3uFileIdMaxStream = new M3UFileIdMaxStream { M3UFileId = 0, MaxStreams = 999 };
         }
 
-        StreamStreamInfo streamStreamInfo = new(streamUrl, buffer, streamingTask, m3uFileIdMaxStream.M3UFileId, m3uFileIdMaxStream.MaxStreams, cancellationTokenSource);
+        StreamStreamInfo streamStreamInfo = new(streamUrl, buffer, streamingTask, m3uFileIdMaxStream.M3UFileId, m3uFileIdMaxStream.MaxStreams, processId, cancellationTokenSource);
 
         _ = _streamStreamInfos.TryAdd(streamUrl, streamStreamInfo);
 
@@ -330,6 +377,22 @@ public class RingBufferManager : IDisposable, IRingBufferManager
             {
                 if (_streamStreamInfos.TryRemove(streamUrl, out _))
                 {
+                    if (_streamStreamInfo.ProcessId > 0)
+                    {
+                        try
+                        {
+                            var procName = CheckProcessExists(_streamStreamInfo.ProcessId);
+                            if (procName != null)
+                            {
+                                Process process = Process.GetProcessById(_streamStreamInfo.ProcessId);
+                                process.Kill();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error killing process {ProcessId}", _streamStreamInfo.ProcessId);
+                        }
+                    }
                     _logger.LogInformation("Buffer removed for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
                     _streamStreamInfo.Stop();
                 }
@@ -494,30 +557,11 @@ public class RingBufferManager : IDisposable, IRingBufferManager
     /// The cancellation token to cancel the operation.
     /// </param>
     /// <returns>A Task representing the asynchronous operation.</returns>
-    private async Task StartVideoStreaming(string streamUrl, StreamerConfiguration clientInfo, CircularRingBuffer buffer, CancellationTokenSource cancellationToken)
+    private async Task StartVideoStreaming(Stream stream, string streamUrl, StreamerConfiguration clientInfo, CircularRingBuffer buffer, CancellationTokenSource cancellationToken)
     {
         Setting setting = FileUtil.GetSetting();
 
-        _logger.LogInformation("Starting video read streaming, chunck size is {ChunkSize}, for stream: {StreamUrl}", clientInfo.BufferSize, setting.CleanURLs ? "url removed" : streamUrl);
-
-        Stream? stream;
-        ProxyStreamError? error;
-
-        if (setting.StreamingProxyType == StreamingProxyTypes.FFMpeg)
-        {
-            (stream, error) = await StreamingProxies.GetFFMpegStream(streamUrl);
-        }
-        else
-        {
-            (stream, error) = await StreamingProxies.GetProxyStream(streamUrl, cancellationToken.Token);
-        }
-
-        if (stream == null || error != null)
-        {
-            _logger.LogError("Error getting proxy stream for {streamUrl}: {error?.Message}", setting.CleanURLs ? "url removed" : streamUrl, error?.Message);
-
-            return;
-        }
+        _logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl}", clientInfo.BufferSize, setting.CleanURLs ? "url removed" : streamUrl);
 
         byte[] bufferChunk = new byte[clientInfo.BufferSize];
         int bytesRead;

@@ -17,7 +17,7 @@ namespace StreamMasterApplication.Common.Models
             PreloadPercentage = .5;
             BroadcastInterval = 3;
         }
-
+   
         public int BroadcastInterval { get; set; }
 
         /// <summary>
