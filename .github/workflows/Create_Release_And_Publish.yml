@@ -68,17 +68,17 @@ jobs:
         run: |
           cd publish
           sha256sum ../streammaster-${{ env.GitVersion_SemVer }}.zip > ../streammaster-${{ env.GitVersion_SemVer }}.zip.sha256
-     
+
       - name: Tar publish directory
         run: |
           cd publish
           tar -czvf ../streammaster-${{ env.GitVersion_SemVer }}.tar.gz .
 
-       - name: Generate SHA256 hash for tar.gz
+      - name: Generate SHA256 hash for tar.gz
         run: |
           cd publish
           sha256sum ../streammaster-${{ env.GitVersion_SemVer }}.tar.gz > ../streammaster-${{ env.GitVersion_SemVer }}.tar.gz.sha256
-          
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
