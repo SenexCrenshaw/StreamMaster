@@ -1,64 +1,92 @@
-name: Binary Release
+name: Create release and publish
 
 on:
-  workflow_dispatch:
+  push:
+    tags:
+      - "*"
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      REF_NAME: ${{ github.ref_name }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "7.0"
 
-      - name: Get latest tag
-        id: get_latest_tag
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get -y upgrade
+          sudo apt-get install -yq git curl build-essential
+
+      - name: Build project
         run: |
           git fetch --tags
-          echo "TAG=${{ github.ref }}" >> $GITHUB_ENV
+          latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1))
+          git checkout $latest_tag
 
-      - name: Get previous tag
-        id: get_previous_tag
+          dotnet restore "StreamMasterAPI/StreamMasterAPI.csproj"
+          dotnet build "StreamMasterAPI/StreamMasterAPI.csproj" -c Debug >/dev/null
+
+          cd streammasterwebui
+          npm install
+          npm run build
+          cp -R build/* "$GITHUB_WORKSPACE/publish/wwwroot/"
+          cd ..
+
+          cd StreamMasterAPI
+          dotnet publish --no-restore "StreamMasterAPI.csproj" -c Debug -o "$GITHUB_WORKSPACE/publish" /p:UseAppHost=false >/dev/null
+
+      - name: Zip publish directory
         run: |
-          echo "PREVIOUS_TAG=$(git describe --tags $(git rev-list --tags --skip=1 --max-count=1))" >> $GITHUB_ENV
+          zip -r publish-${{ env.REF_NAME }}.zip publish
 
-      - name: Get release notes summary
-        id: get_release_notes
+      - name: Tar publish directory
         run: |
-          previous_tag=$(echo "${{ env.PREVIOUS_TAG }}")
-          latest_tag=$(echo "${{ env.TAG }}")
-          git log --format=%s --no-merges ${previous_tag}..${latest_tag} > release_notes.txt
-          echo "RELEASE_NOTES=$(cat release_notes.txt)" >> $GITHUB_ENV
-
-      - name: Build binaries
-        run: |
-          chmod +x build_streammaster.sh
-          ./build_streammaster.sh
-
-      - name: Publish binaries
-        uses: actions/upload-artifact@v2
-        with:
-          name: Binaries
-          path: $GITHUB_WORKSPACE/src/publish
+          tar -czvf publish-${{ env.REF_NAME }}.tar.gz publish
 
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions
         with:
-          tag_name: ${{ env.TAG }}
-          release_name: ${{ env.TAG }}
-          body: |
-            Previous Release Notes:
-            ${{ env.RELEASE_NOTES }}
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ env.REF_NAME }}
+          draft: false
+          prerelease: false
 
-      - name: Upload Release Asset
+      - name: Upload Release Asset (zip)
+        id: upload-release-asset-zip
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: $HOME/publish/your-binary-file # Adjust the path to your binary file
-          asset_name: your-binary-file # Adjust the name of your binary file
-          asset_content_type: application/octet-stream
+          asset_path: ./publish-${{ env.REF_NAME }}.zip
+          asset_name: publish-${{ env.REF_NAME }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload Release Asset (tar.gz)
+        id: upload-release-asset-tar-gz
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./publish-${{ env.REF_NAME }}.tar.gz
+          asset_name: publish-${{ env.REF_NAME }}.tar.gz
+          asset_content_type: application/gzip
