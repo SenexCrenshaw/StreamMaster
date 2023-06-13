@@ -42,6 +42,7 @@ jobs:
           cd streammasterwebui
           npm install
           npm run build
+          mkdir -p "$GITHUB_WORKSPACE/publish/wwwroot/"
           cp -R build/* "$GITHUB_WORKSPACE/publish/wwwroot/"
           cd ..
 
