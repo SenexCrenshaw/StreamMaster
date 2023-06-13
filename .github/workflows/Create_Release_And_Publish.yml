@@ -133,3 +133,25 @@ jobs:
           asset_path: ./streammaster-${{ env.GitVersion_SemVer }}.tar.gz.sha256
           asset_name: streammaster-${{ env.GitVersion_SemVer }}.tar.gz.sha256
           asset_content_type: text/plain
+
+      - name: Upload Dockerfile
+        id: Dockerfile
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./Dockerfile
+          asset_name: Dockerfile
+          asset_content_type: text/plain
+
+      - name: Upload docker-compose.yml
+        id: docker-compose
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./docker-compose.yml
+          asset_name: docker-compose.yml
+          asset_content_type: text/plain
