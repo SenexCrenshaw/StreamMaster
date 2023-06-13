@@ -51,11 +51,13 @@ jobs:
 
       - name: Zip publish directory
         run: |
-          zip -r publish-${{ env.REF_NAME }}.zip publish
+          cd publish
+          zip -r ../publish-${{ env.REF_NAME }}.zip .
 
       - name: Tar publish directory
         run: |
-          tar -czvf publish-${{ env.REF_NAME }}.tar.gz publish
+          cd publish
+          tar -czvf ../publish-${{ env.REF_NAME }}.tar.gz .
 
       - name: Create Release
         id: create_release
@@ -63,7 +65,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions
         with:
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ env.REF_NAME }}
           release_name: Release ${{ env.REF_NAME }}
           draft: false
           prerelease: false
