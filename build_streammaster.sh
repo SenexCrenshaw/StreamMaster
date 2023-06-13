@@ -6,7 +6,7 @@ sudo apt-get install -yq git curl
 sudo apt-get install -yq dotnet-sdk-7.0
 sudo curl -sL https://deb.nodesource.com/setup_18.x | bash - && apt-get install -yq nodejs build-essential
 
-mkdir -p "$BUILD_DIR/publish"
+mkdir -p "$BUILD_DIR/publish/wwwroot/"
 
 cd "$BUILD_DIR"
 git clone https://github.com/SenexCrenshaw/StreamMaster.git
