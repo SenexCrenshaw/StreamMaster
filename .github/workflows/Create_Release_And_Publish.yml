@@ -75,8 +75,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions
         with:
-          tag_name: ${{ env.GitVersion_SemVer }}
-          release_name: Release ${{ env.GitVersion_SemVer }}
+          tag_name: v${{ env.GitVersion_SemVer }}
+          release_name: v${{ env.GitVersion_SemVer }}
           draft: false
           prerelease: false
 
@@ -87,8 +87,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./publish-${{ env.REF_NAME }}.zip
-          asset_name: publish-${{ env.REF_NAME }}.zip
+          asset_path: ./publish${{ env.GitVersion_SemVer }}.zip
+          asset_name: publish-${{ env.GitVersion_SemVer }}.zip
           asset_content_type: application/zip
 
       - name: Upload Release Asset (tar.gz)
@@ -98,6 +98,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./publish-${{ env.REF_NAME }}.tar.gz
-          asset_name: publish-${{ env.REF_NAME }}.tar.gz
+          asset_path: ./publish-${{ env.GitVersion_SemVer }}.tar.gz
+          asset_name: publish-${{ env.GitVersion_SemVer }}.tar.gz
           asset_content_type: application/gzip
