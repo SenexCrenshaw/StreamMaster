@@ -20,12 +20,12 @@ jobs:
       - name: Get previous tag
         id: get_previous_tag
         run: |
-          echo "::set-output name=tag::$(git describe --tags $(git rev-list --tags --skip=1 --max-count=1))"
+          echo "PREVIOUS_TAG=$(git describe --tags $(git rev-list --tags --skip=1 --max-count=1))" >> $GITHUB_ENV
 
       - name: Get release notes summary
         id: get_release_notes
         run: |
-          previous_tag=$(echo "${{ steps.get_previous_tag.outputs.tag }}")
+          previous_tag=$(echo "${{ env.PREVIOUS_TAG }}")
           latest_tag=$(echo "${{ env.TAG }}")
           git log --format=%s --no-merges ${previous_tag}..${latest_tag} > release_notes.txt
           echo "RELEASE_NOTES=$(cat release_notes.txt)" >> $GITHUB_ENV
@@ -45,7 +45,7 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         with:
           tag_name: ${{ env.TAG }}
           release_name: ${{ env.TAG }}
@@ -56,7 +56,7 @@ jobs:
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: $HOME/publish/your-binary-file # Adjust the path to your binary file
