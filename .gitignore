@@ -349,3 +349,5 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 StreamMasterAPI/wwwroot/initialize.js
+StreamMasterAPI/wwwroot/initialize.js
+/StreamMasterAPI/wwwroot/initialize.js
