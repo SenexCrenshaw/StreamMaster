@@ -267,6 +267,11 @@ export const SettingsEditor = () => {
             {getCheckBoxLine('overWriteM3UChannels')}
           </Fieldset>
 
+          <Fieldset className="mt-4 pt-10" legend={GetMessage('auth')}>
+            {getInputTextLine('apiUserName')}
+            {getPasswordLine('apiPassword')}
+          </Fieldset>
+
           <Fieldset className="mt-4 pt-10" legend={GetMessage('streaming')}>
             {getDropDownLine('streamingProxyType', getHandlersOptions())}
             {getInputNumberLine('ringBufferSizeMB')}

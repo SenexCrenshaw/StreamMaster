@@ -612,12 +612,21 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/streamgroups/getstreamgroups` }),
         providesTags: ["StreamGroups"],
       }),
+      streamGroupsGetStreamGroupVideoM3UStream: build.query<
+        StreamGroupsGetStreamGroupVideoM3UStreamApiResponse,
+        StreamGroupsGetStreamGroupVideoM3UStreamApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroups/${queryArg.streamGroupNumber}/stream/${queryArg.streamId}/${queryArg.clientId}.ts`,
+        }),
+        providesTags: ["StreamGroups"],
+      }),
       streamGroupsGetStreamGroupVideoStream: build.query<
         StreamGroupsGetStreamGroupVideoStreamApiResponse,
         StreamGroupsGetStreamGroupVideoStreamApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/streamgroups/${queryArg.id}/stream/${queryArg.streamId}`,
+          url: `/api/streamgroups/${queryArg.streamGroupNumber}/stream/${queryArg.streamId}`,
         }),
         providesTags: ["StreamGroups"],
       }),
@@ -626,25 +635,25 @@ const injectedRtkApi = api
         StreamGroupsGetStreamGroupVideoStream2ApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/streamgroups/${queryArg.id}/stream/${queryArg.streamId}.mp4`,
+          url: `/api/streamgroups/${queryArg.streamGroupNumber}/stream/${queryArg.streamId}.mp4`,
         }),
         providesTags: ["StreamGroups"],
       }),
-      streamGroupsGetStreamGroupVideoStream3: build.query<
-        StreamGroupsGetStreamGroupVideoStream3ApiResponse,
-        StreamGroupsGetStreamGroupVideoStream3ApiArg
+      streamGroupsGetStreamM3U8: build.query<
+        StreamGroupsGetStreamM3U8ApiResponse,
+        StreamGroupsGetStreamM3U8ApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/streamgroups/${queryArg.id}/stream/${queryArg.streamId}.m3u8`,
+          url: `/api/streamgroups/${queryArg.streamGroupNumber}/stream/${queryArg.streamId}.m3u8`,
         }),
         providesTags: ["StreamGroups"],
       }),
-      streamGroupsGetStreamGroupVideoStream4: build.query<
-        StreamGroupsGetStreamGroupVideoStream4ApiResponse,
-        StreamGroupsGetStreamGroupVideoStream4ApiArg
+      streamGroupsGetStreamM3U8WithClientId: build.query<
+        StreamGroupsGetStreamM3U8WithClientIdApiResponse,
+        StreamGroupsGetStreamM3U8WithClientIdApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/streamgroups/${queryArg.id}/stream/${queryArg.streamId}.ts`,
+          url: `/api/streamgroups/${queryArg.streamGroupNumber}/stream/${queryArg.streamId}/${queryArg.clientId}.m3u8`,
         }),
         providesTags: ["StreamGroups"],
       }),
@@ -948,25 +957,33 @@ export type StreamGroupsGetStreamGroupM3U23ApiArg = number;
 export type StreamGroupsGetStreamGroupsApiResponse =
   /** status 200  */ StreamGroupDto[];
 export type StreamGroupsGetStreamGroupsApiArg = void;
+export type StreamGroupsGetStreamGroupVideoM3UStreamApiResponse = unknown;
+export type StreamGroupsGetStreamGroupVideoM3UStreamApiArg = {
+  streamGroupNumber: number;
+  streamId: number;
+  clientId: string;
+};
 export type StreamGroupsGetStreamGroupVideoStreamApiResponse = unknown;
 export type StreamGroupsGetStreamGroupVideoStreamApiArg = {
-  id: number;
+  streamGroupNumber: number;
   streamId: number;
 };
 export type StreamGroupsGetStreamGroupVideoStream2ApiResponse = unknown;
 export type StreamGroupsGetStreamGroupVideoStream2ApiArg = {
-  id: number;
+  streamGroupNumber: number;
   streamId: number;
 };
-export type StreamGroupsGetStreamGroupVideoStream3ApiResponse = unknown;
-export type StreamGroupsGetStreamGroupVideoStream3ApiArg = {
-  id: number;
+export type StreamGroupsGetStreamM3U8ApiResponse = /** status 200  */ string;
+export type StreamGroupsGetStreamM3U8ApiArg = {
+  streamGroupNumber: number;
   streamId: number;
 };
-export type StreamGroupsGetStreamGroupVideoStream4ApiResponse = unknown;
-export type StreamGroupsGetStreamGroupVideoStream4ApiArg = {
-  id: number;
+export type StreamGroupsGetStreamM3U8WithClientIdApiResponse =
+  /** status 200  */ string;
+export type StreamGroupsGetStreamM3U8WithClientIdApiArg = {
+  streamGroupNumber: number;
   streamId: number;
+  clientId: string;
 };
 export type StreamGroupsSimulateStreamFailureApiResponse =
   /** status 200  */ undefined;
@@ -1239,6 +1256,8 @@ export type TaskQueueStatusDto = {
 };
 export type StreamingProxyTypes = 0 | 1 | 2 | 3;
 export type Setting = {
+  apiPassword?: string;
+  apiUserName?: string;
   appName?: string;
   baseHostURL?: string;
   cacheIcons?: boolean;
@@ -1490,10 +1509,11 @@ export const {
   useStreamGroupsGetStreamGroupM3U22Query,
   useStreamGroupsGetStreamGroupM3U23Query,
   useStreamGroupsGetStreamGroupsQuery,
+  useStreamGroupsGetStreamGroupVideoM3UStreamQuery,
   useStreamGroupsGetStreamGroupVideoStreamQuery,
   useStreamGroupsGetStreamGroupVideoStream2Query,
-  useStreamGroupsGetStreamGroupVideoStream3Query,
-  useStreamGroupsGetStreamGroupVideoStream4Query,
+  useStreamGroupsGetStreamM3U8Query,
+  useStreamGroupsGetStreamM3U8WithClientIdQuery,
   useStreamGroupsSimulateStreamFailureMutation,
   useStreamGroupsUpdateStreamGroupMutation,
   useVideoStreamsAddVideoStreamMutation,
