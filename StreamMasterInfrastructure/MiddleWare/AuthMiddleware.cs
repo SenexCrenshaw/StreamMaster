@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Common;
+using StreamMasterDomain.Enums;
 
 namespace StreamMasterInfrastructure.MiddleWare;
 
@@ -33,7 +34,12 @@ public class AuthMiddleware
         var remoteIpAddress = context.Connection.RemoteIpAddress.ToString();
         var url = $"{context.Request.Path}{context.Request.QueryString}";
 
-        if (url.ToLower().StartsWith("/images/"))
+        if (
+            url.ToLower().StartsWith("/images/")||
+            url.ToLower().StartsWith($"/api/files/{(int)FileDefinitions.Icon.SMFileType}/")||
+                url.ToLower().StartsWith($"/api/files/{(int)FileDefinitions.TVLogo.SMFileType}/")||
+                url.ToLower().StartsWith($"/api/files/{(int)FileDefinitions.ProgrammeIcon.SMFileType}/")
+            )
         {
             await _next(context);
             return;
