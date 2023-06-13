@@ -2,11 +2,6 @@ name: Create release and publish
 
 on:
   workflow_dispatch:
-    inputs:
-      branch:
-        description: "Target branch"
-        required: true
-        default: "main"
 
 jobs:
   build:
