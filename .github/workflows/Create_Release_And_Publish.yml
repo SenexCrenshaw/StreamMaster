@@ -87,7 +87,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./publish${{ env.GitVersion_SemVer }}.zip
+          asset_path: ./publish-${{ env.GitVersion_SemVer }}.zip
           asset_name: publish-${{ env.GitVersion_SemVer }}.zip
           asset_content_type: application/zip
 
