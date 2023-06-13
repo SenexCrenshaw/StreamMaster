@@ -501,7 +501,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
     const minRows = props.paginatorMinimumRowsToShow ? props.paginatorMinimumRowsToShow : 20;
 
-    return dataLength != minRows;
+    return dataLength !== minRows;
 
   }, [values, props.paginatorMinimumRowsToShow, dataSource]);
 
@@ -1048,8 +1048,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           sortField={props.groupRowsBy === undefined || props.groupRowsBy === '' ? props.sortField : props.groupRowsBy}
           sortMode='single'
           sortOrder={0}
-          stateKey={props.enableState != true ? undefined : props.id + '-datatable'}
-          stateStorage={props.enableState != true ? undefined : "session"}
+          stateKey={props.enableState !== true ? undefined : props.id + '-datatable'}
+          stateStorage={props.enableState !== true ? undefined : "session"}
           stripedRows
           style={props.style}
           value={dataSource}

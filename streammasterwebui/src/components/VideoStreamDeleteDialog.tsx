@@ -22,7 +22,7 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
 
   React.useMemo(() => {
 
-    if (props.values != null && props.values !== undefined) {
+    if (props.values !== null && props.values !== undefined) {
       setSelectedVideoStreams(props.values);
     }
 

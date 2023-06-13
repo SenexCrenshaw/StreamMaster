@@ -23,7 +23,7 @@ const ChannelGroupVisibleDialog = (props: ChannelGroupVisibleDialogProps) => {
 
   React.useMemo(() => {
 
-    if (props.value != null && props.value !== undefined) {
+    if (props.value !== null && props.value !== undefined) {
       setSelectedChannelGroups(props.value);
     }
 

@@ -21,7 +21,7 @@ const StreamGroupDeleteDialog = (props: StreamGroupDeleteDialogProps) => {
 
   React.useMemo(() => {
 
-    if (props.value != null && props.value !== undefined) {
+    if (props.value !== null && props.value !== undefined) {
       setSelectedStreamGroup(props.value);
     }
 
