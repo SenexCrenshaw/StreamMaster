@@ -1,4 +1,4 @@
-name: Test Publish Docker
+name: Publish Docker Test
 on:
   workflow_dispatch:
 

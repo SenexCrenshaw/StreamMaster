@@ -1,4 +1,4 @@
-name: Publish
+name: Nightly Publish Docker
 on:
   schedule:
     - cron: "0 0 * * *"
