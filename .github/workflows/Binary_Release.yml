@@ -11,6 +11,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Get latest tag
+        id: get_latest_tag
+        run: |
+          git fetch --tags
+          echo "::set-output name=tag::$(git describe --tags $(git rev-list --tags --max-count=1))"
+
+      - name: Get previous tag
+        id: get_previous_tag
+        run: |
+          echo "::set-output name=tag::$(git describe --tags $(git rev-list --tags --skip=1 --max-count=1))"
+
+      - name: Get release notes summary
+        id: get_release_notes
+        run: |
+          previous_tag=$(echo "${{ steps.get_previous_tag.outputs.tag }}")
+          latest_tag=$(echo "${{ steps.get_latest_tag.outputs.tag }}")
+          git log --format=%s --no-merges ${previous_tag}..${latest_tag} > release_notes.txt
+          echo "::set-output name=notes::$(cat release_notes.txt)"
+
       - name: Build binaries
         run: |
           chmod +x build_streammaster.sh
@@ -21,3 +40,25 @@ jobs:
         with:
           name: Binaries
           path: $HOME/src/publish
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_latest_tag.outputs.tag }}
+          release_name: ${{ steps.get_latest_tag.outputs.tag }}
+          body: |
+            Previous Release Notes:
+            ${{ steps.get_release_notes.outputs.notes }}
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: $HOME/publish/your-binary-file # Adjust the path to your binary file
+          asset_name: your-binary-file # Adjust the name of your binary file
+          asset_content_type: application/octet-stream

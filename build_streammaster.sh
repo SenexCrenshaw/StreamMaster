@@ -2,9 +2,9 @@
 BUILD_DIR="$HOME/src"
 apt update && apt -y upgrade
 
-apt-get install -y git curl
-apt-get install -y dotnet-sdk-7.0
-curl -sL https://deb.nodesource.com/setup_18.x | bash - && apt-get install -yq nodejs build-essential
+sudo apt-get install -yq git curl
+sudo apt-get install -yq dotnet-sdk-7.0
+sudo curl -sL https://deb.nodesource.com/setup_18.x | bash - && apt-get install -yq nodejs build-essential
 
 mkdir -p "$BUILD_DIR/publish"
 
