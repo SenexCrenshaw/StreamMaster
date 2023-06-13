@@ -1,9 +1,7 @@
 name: Create release and publish
 
 on:
-  push:
-    tags:
-      - "*"
+  workflow_dispatch:
 
 jobs:
   build:
