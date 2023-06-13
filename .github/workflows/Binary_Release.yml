@@ -1,0 +1,23 @@
+name: Binary Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build binaries
+        run: |
+          chmod +x build_streammaster.sh
+          ./build_streammaster.sh
+
+      - name: Publish binaries
+        uses: actions/upload-artifact@v2
+        with:
+          name: Binaries
+          path: $HOME/publish
