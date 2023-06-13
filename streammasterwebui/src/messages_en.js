@@ -1,5 +1,8 @@
 // messages_en.js
 export default {
+  apiPassword: "API Password",
+  apiUserName: "API Username",
+  auth: "Authentication",
   backup:'Backup',
   cacheIcons: 'Cache Icons',
   cleanURLs: 'Clean URLs',

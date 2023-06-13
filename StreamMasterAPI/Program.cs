@@ -46,8 +46,8 @@ scriptBuilder.AppendLine("window.StreamMaster = {");
 scriptBuilder.AppendLine($"  baseHostURL: '{_urlBase}',");
 if (!string.IsNullOrEmpty(setting.APIPassword) && !string.IsNullOrEmpty(setting.APIUserName))
 {
-    scriptBuilder.AppendLine($"  apiUserName: '{setting.APIPassword}',");
-    scriptBuilder.AppendLine($"  apiPassword: '{setting.APIUserName}',");
+    scriptBuilder.AppendLine($"  apiPassword: '{setting.APIPassword}',");
+    scriptBuilder.AppendLine($"  apiUserName: '{setting.APIUserName}',");
 }
 scriptBuilder.AppendLine($"  baseHostURL: '{_urlBase}',");
 scriptBuilder.AppendLine($"  hubName: 'streammasterhub',");

@@ -4,18 +4,24 @@ using FluentValidation;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Hubs;
 
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
+
+using System.Text;
 
 namespace StreamMasterApplication.Settings.Commands;
 
 public class UpdateSettingRequest : IRequest<SettingDto>
 {
     public bool? CacheIcons { get; set; }
+    public string? APIPassword { get; set; }
+    public string? APIUserName { get; set; }
     public bool? CleanURLs { get; set; }
     public string? DeviceID { get; set; }
     public string? FFMPegExecutable { get; set; }
@@ -70,6 +76,8 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Settin
     /// <returns>The updated setting as a SettingDto object.</returns>
     private static void UpdateSetting(Setting currentSetting, UpdateSettingRequest request)
     {
+        var initNeedsUpdating = false;
+
         if (request.CacheIcons != null && request.CacheIcons != currentSetting.CacheIcons)
         {
             currentSetting.CacheIcons = (bool)request.CacheIcons;
@@ -83,6 +91,18 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Settin
         if (request.OverWriteM3UChannels != null && request.OverWriteM3UChannels != currentSetting.OverWriteM3UChannels)
         {
             currentSetting.OverWriteM3UChannels = (bool)request.OverWriteM3UChannels;
+        }
+
+        if (!string.IsNullOrEmpty(request.APIPassword) && request.APIPassword != currentSetting.APIPassword)
+        {
+            initNeedsUpdating = true;
+            currentSetting.APIPassword = request.APIPassword;
+        }
+
+        if (!string.IsNullOrEmpty(request.APIUserName) && request.APIUserName != currentSetting.APIUserName)
+        {
+            initNeedsUpdating = true;
+            currentSetting.APIUserName = request.APIUserName;
         }
 
         if (!string.IsNullOrEmpty(request.DeviceID) && request.DeviceID != currentSetting.DeviceID)
@@ -134,5 +154,28 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Settin
         {
             currentSetting.StreamingProxyType = (StreamingProxyTypes)request.StreamingProxyType;
         }
+
+        if (initNeedsUpdating)
+        {
+            string indexFilePath = Path.GetFullPath("wwwroot") + Path.DirectorySeparatorChar + "initialize.js";
+
+            Console.WriteLine($"Writing {currentSetting.BaseHostURL} information to {indexFilePath}");
+
+            StringBuilder scriptBuilder = new();
+            scriptBuilder.AppendLine("window.StreamMaster = {");
+            scriptBuilder.AppendLine($"  baseHostURL: '{currentSetting.BaseHostURL}',");
+            if (!string.IsNullOrEmpty(currentSetting.APIPassword) && !string.IsNullOrEmpty(currentSetting.APIUserName))
+            {
+                scriptBuilder.AppendLine($"  apiUserName: '{currentSetting.APIPassword}',");
+                scriptBuilder.AppendLine($"  apiPassword: '{currentSetting.APIUserName}',");
+            }
+            scriptBuilder.AppendLine($"  baseHostURL: '{currentSetting.BaseHostURL}',");
+            scriptBuilder.AppendLine($"  hubName: 'streammasterhub',");
+            scriptBuilder.AppendLine($"  isDev: false,");
+            scriptBuilder.AppendLine("};");
+            File.WriteAllText(indexFilePath, scriptBuilder.ToString());
+
+        }
+
     }
 }

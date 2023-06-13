@@ -1286,6 +1286,8 @@ export type SystemStatus = {
 };
 export type UpdateSettingRequest = {
   cacheIcons?: boolean | null;
+  apiPassword?: string | null;
+  apiUserName?: string | null;
   cleanURLs?: boolean | null;
   deviceID?: string | null;
   ffmPegExecutable?: string | null;
