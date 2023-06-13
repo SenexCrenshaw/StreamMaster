@@ -5,7 +5,12 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        architecture: [arm64, arm32, amd64]
+
     env:
       REF_NAME: ${{ github.ref_name }}
 
@@ -37,8 +42,16 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get update && sudo apt-get -y upgrade
-          sudo apt-get install -yq git curl build-essential
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            sudo apt-get update && sudo apt-get -y upgrade
+            sudo apt-get install -yq git curl build-essential
+          elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            choco install git curl -y
+          elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+            # Install required dependencies for macOS
+            # Add commands specific to macOS environment
+            echo "macOS setup"
+          fi
 
       - name: Build project
         run: |
@@ -62,12 +75,22 @@ jobs:
       - name: Zip publish directory
         run: |
           cd publish
-          zip -r ../publish-${{ env.GitVersion_SemVer }}.zip .
+          zip -r ../streammaster-${{ env.GitVersion_SemVer }}-${{ matrix.os }}-${{ matrix.architecture }}.zip .
+
+      - name: Generate SHA256 hash for Zip archive
+        run: |
+          cd publish
+          sha256sum ../streammaster-${{ env.GitVersion_SemVer }}-${{ matrix.os }}-${{ matrix.architecture }}.zip > ../streammaster-${{ env.GitVersion_SemVer }}-${{ matrix.os }}-${{ matrix.architecture }}.zip.sha256
 
       - name: Tar publish directory
         run: |
           cd publish
-          tar -czvf ../publish-${{ env.GitVersion_SemVer }}.tar.gz .
+          tar -czvf ../streammaster-${{ env.GitVersion_SemVer }}-${{ matrix.os }}-${{ matrix.architecture }}.tar.gz .
+
+      - name: Generate SHA256 hash for Tar archive
+        run: |
+          cd publish
+          sha256sum ../streammaster-${{ env.GitVersion_SemVer }}-${{ matrix.os }}-${{ matrix.architecture }}.zip > ../streammaster-${{ env.GitVersion_SemVer }}-${{ matrix.os }}-${{ matrix.architecture }}.tar.gz.sha256
 
       - name: Create Release
         id: create_release
@@ -79,7 +102,6 @@ jobs:
           release_name: v${{ env.GitVersion_SemVer }}
           draft: false
           prerelease: false
-
       - name: Upload Release Asset (zip)
         id: upload-release-asset-zip
         uses: actions/upload-release-asset@v1
@@ -87,9 +109,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./publish-${{ env.GitVersion_SemVer }}.zip
-          asset_name: publish-${{ env.GitVersion_SemVer }}.zip
+          asset_path: ./streammaster-${{ env.GitVersion_SemVer }}-${{ matrix.os }}-${{ matrix.architecture }}.zip
+          asset_name: streammaster-${{ env.GitVersion_SemVer }}-${{ matrix.os }}-${{ matrix.architecture }}.zip
           asset_content_type: application/zip
+
+      - name: Upload SHA256 hash for zip
+        id: upload-sha256-zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./streammaster-${{ env.GitVersion_SemVer }}-${{ matrix.os }}-${{ matrix.architecture }}.zip.sha256
+          asset_name: streammaster-${{ env.GitVersion_SemVer }}-${{ matrix.os }}-${{ matrix.architecture }}.zip.sha256
+          asset_content_type: text/plain
 
       - name: Upload Release Asset (tar.gz)
         id: upload-release-asset-tar-gz
@@ -98,6 +131,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./publish-${{ env.GitVersion_SemVer }}.tar.gz
-          asset_name: publish-${{ env.GitVersion_SemVer }}.tar.gz
+          asset_path: ./streammaster-${{ env.GitVersion_SemVer }}-${{ matrix.os }}-${{ matrix.architecture }}.tar.gz
+          asset_name: streammaster-${{ env.GitVersion_SemVer }}-${{ matrix.os }}-${{ matrix.architecture }}.tar.gz
           asset_content_type: application/gzip
+
+      - name: Upload SHA256 hash for tar.gz
+        id: upload-sha256-tar-gz
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./streammaster-${{ env.GitVersion_SemVer }}-${{ matrix.os }}-${{ matrix.architecture }}.tar.gz.sha256
+          asset_name: streammaster-${{ env.GitVersion_SemVer }}-${{ matrix.os }}-${{ matrix.architecture }}.tar.gz.sha256
+          asset_content_type: text/plain
