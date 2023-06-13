@@ -25,6 +25,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0
+        with:
+          versionSpec: "5.x"
+
+      - name: Determine Version
+        uses: gittools/actions/gitversion/execute@v0
+        with:
+          useConfigFile: true
+
       - name: Install dependencies
         run: |
           sudo apt-get update && sudo apt-get -y upgrade
@@ -52,12 +62,12 @@ jobs:
       - name: Zip publish directory
         run: |
           cd publish
-          zip -r ../publish-${{ env.REF_NAME }}.zip .
+          zip -r ../publish-${{ env.GitVersion_SemVer }}.zip .
 
       - name: Tar publish directory
         run: |
           cd publish
-          tar -czvf ../publish-${{ env.REF_NAME }}.tar.gz .
+          tar -czvf ../publish-${{ env.GitVersion_SemVer }}.tar.gz .
 
       - name: Create Release
         id: create_release
@@ -65,8 +75,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions
         with:
-          tag_name: ${{ env.REF_NAME }}
-          release_name: Release ${{ env.REF_NAME }}
+          tag_name: ${{ env.GitVersion_SemVer }}
+          release_name: Release ${{ env.GitVersion_SemVer }}
           draft: false
           prerelease: false
 
