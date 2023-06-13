@@ -39,7 +39,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Binaries
-          path: $HOME/src/publish
+          path: $GITHUB_WORKSPACE/publish
 
       - name: Create Release
         id: create_release
