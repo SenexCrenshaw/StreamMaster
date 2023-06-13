@@ -22,6 +22,8 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddWebUIServices(this IServiceCollection services)
     {
+        _ = services.AddSession();
+
         _ = services.AddSignalR();//.AddMessagePackProtocol();
 
         _ = services.AddDatabaseDeveloperPageExceptionFilter();

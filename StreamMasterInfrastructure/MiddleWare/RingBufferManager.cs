@@ -169,7 +169,6 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         _ = _streamReads.TryAdd(config.ClientId, streamRead);
 
         streamStreamInfo.RingBuffer.RegisterClient(config.ClientId);
-        IncrementClientCounter(streamUrl);
 
         _logger.LogInformation("Client {ClientId} registered for stream: {StreamUrl}", config.ClientId, setting.CleanURLs ? "url removed" : streamUrl);
         return (streamRead, config.ClientId, null);
@@ -340,6 +339,8 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         }
 
         StreamStreamInfo streamStreamInfo = new(streamUrl, buffer, streamingTask, m3uFileIdMaxStream.M3UFileId, m3uFileIdMaxStream.MaxStreams, processId, cancellationTokenSource);
+        streamStreamInfo.M3UStream = clientInfo.M3UStream;
+        streamStreamInfo.ClientCounter = 1;
 
         _ = _streamStreamInfos.TryAdd(streamUrl, streamStreamInfo);
 
@@ -434,6 +435,11 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         {
             _logger.LogInformation("Max stream count reached for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
             return null;
+        }
+
+        if (!config.M3UStream || !_streamStreamInfos.TryGetValue(streamUrl, out var cl))
+        {
+            IncrementClientCounter(streamUrl);
         }
 
         return si;

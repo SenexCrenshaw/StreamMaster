@@ -1,4 +1,6 @@
-﻿namespace StreamMasterInfrastructure.MiddleWare;
+﻿using StreamMasterDomain.Entities;
+
+namespace StreamMasterInfrastructure.MiddleWare;
 
 public class StreamStreamInfo : IDisposable
 {
@@ -11,13 +13,14 @@ public class StreamStreamInfo : IDisposable
         M3UFileId =  m3uFileId;
         MaxStreams = maxStreams;
         ProcessId = processId;
-}
+        M3UStream = false;
+    }
     public int ProcessId { get; set; } = -1;
     public int M3UFileId { get; set; }
     public int MaxStreams { get; set; }
     public int ClientCounter { get; set; }
     public bool FailoverInProgress { get; set; }
-  
+    public bool M3UStream { get; set; }
     public CircularRingBuffer RingBuffer { get; set; }
 
     public CancellationTokenSource StreamerCancellationToken { get; set; }

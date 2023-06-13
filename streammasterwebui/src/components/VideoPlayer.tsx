@@ -16,38 +16,67 @@ import { MediaCommunitySkin, MediaOutlet, MediaPlayer, MediaPoster, useMediaProv
 import EPGDisplay from './EPGDisplay';
 import { MediaPlayerElement } from "vidstack";
 import { baseHostURL } from "../settings";
+import VideoJS from "./videojs";
+import { useDebounce, useTimeout } from "primereact/hooks";
 
 const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
   const [hideEPG, setHideEPG] = React.useState(false);
+  const [userGone, setUserGone] = React.useState(false);
+
   const playerRef = React.useRef(null);
   const [videoStreamId, setVideoStreamId] = React.useState(0);
-  const [src, setSrc] = React.useState<string>("http://192.168.1.216:7095/api/streamgroups/1/stream/10852.ts");
+  const [src, setSrc] = React.useState<string>("http://192.168.1.216:7095/api/streamgroups/1/stream/922/2e6db5a7-120d-4a49-8e4d-2c204db0a3a5.m3u8");
   const [poster, setPoster] = React.useState<string>("https://media-files.vidstack.io/poster.png");
   const [title, setTitle] = React.useState<string>("WOW");
   const [streamGroupNumber, setStreamGroupNumber] = React.useState<number>(1);
 
+
+  React.useEffect(() => {
+
+
+    if (!hideEPG) {
+      setTimeout(() => {
+        setHideEPG(true);
+      }, 1500);
+
+    }
+
+
+  }, [hideEPG]);
+
   const videoJsOptions = {
-    autoplay: false,
+    autoplay: true,
     controls: true,
     fluid: true,
-
     responsive: true,
     sources: [{
-      src: 'http://192.168.1.216:7095/api/streamgroups/1/stream/10852.ts',
-      type: "application/x-mpegURL"
+      src: 'http://192.168.1.216:7095/api/streamgroups/1/stream/2199.mp4',// 'http://192.168.1.216:7095/api/streamgroups/1/stream/922/2e6db5a7-120d-4a49-8e4d-2c204db0a3a5.m3u8',
+      type: "video/mp4"// "application/x-mpegURL"
     }]
   };
 
+  const onMouseEnter = (data: any) => {
+    setUserGone(false);
+    setHideEPG(false);
+  }
+
+  const onMouseLeave = (data: any) => {
+    setUserGone(true);
+
+  }
 
   const handlePlayerReady = (player: any) => {
     playerRef.current = player;
-
 
     player.log.level('all')
 
     // You can handle player events here, for example:
     player.on('waiting', () => {
       console.log('player is waiting');
+    });
+
+    player.on('suspend', () => {
+      console.log('player will suspend');
     });
 
     player.on('dispose', () => {
@@ -58,7 +87,7 @@ const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
   const onVideoStreamClick = React.useCallback((videoStreamIdData: number) => {
     console.log(videoStreamIdData);
     setVideoStreamId(videoStreamIdData);
-    const url = `http://192.168.1.216:7095/api/streamgroups/${streamGroupNumber}/stream/${videoStreamIdData}`;
+    const url = `http://192.168.1.216:7095/api/streamgroups/${streamGroupNumber}/stream/${videoStreamIdData}/2e6db5a7-120d-4a49-8e4d-2c204db0a3a5.ts`;
     console.log('setSrc ', url)
     setSrc(url);
 
@@ -69,39 +98,49 @@ const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
   }, [streamGroupNumber]);
 
 
-  // return (<VideoJS onReady={handlePlayerReady} options={videoJsOptions} />)
-
   return (
-    <MediaPlayer
-      controls
-      crossorigin="anonymous"
-      onUserIdleChange={(e) => {
-        console.log('onUserIdleChange ', e)
-        setHideEPG(e.detail)
-      }
-      }
-      poster={poster}
-      src={src}
-      title={title}
-
-    >
-      <MediaOutlet />
-
-
-      <MediaCommunitySkin />
-
-      <div className="absolute bottom-0 left-0 z-5" style={{ paddingBottom: '5rem', zIndex: '5 !important' }}      >
+    <div>
+      <VideoJS onReady={handlePlayerReady} options={videoJsOptions} />
+      <div onMouseEnter={onMouseEnter}>
         <EPGDisplay hidden={hideEPG} onClick={onVideoStreamClick} streamGroupNumber={streamGroupNumber} />
       </div>
+    </div>
+  )
 
-    </MediaPlayer >
-  );
+  // return (
+  //   <MediaPlayer
+  //     controls
+  //     // crossorigin="anonymous"
+  //     onUserIdleChange={(e) => {
+  //       console.log('onUserIdleChange ', e)
+  //       setHideEPG(e.detail)
+  //     }
+  //     }
+  //     poster={poster}
+  //     src={{
+  //       src: src,
+  //       type: 'application/x-mpegURL',
+  //     }}
+  //     title={title}
+
+  //   >
+  //     <MediaOutlet />
+
+
+  //     {/* <MediaCommunitySkin />
+
+  //     <div className="absolute bottom-0 left-0 z-5" style={{ paddingBottom: '5rem', zIndex: '5 !important' }}      >
+  //       <EPGDisplay hidden={hideEPG} onClick={onVideoStreamClick} streamGroupNumber={streamGroupNumber} />
+  //     </div> */}
+
+  //   </MediaPlayer >
+  // );
 }
 
 VideoPlayerDialog.displayName = 'VideoPlayerDialog';
 VideoPlayerDialog.defaultProps = {
   onChange: null,
-  videoUrl: "https://media.w3.org/2010/05/sintel/trailer_hd.mp4",
+  videoUrl: "http://192.168.1.216:7095/api/streamgroups/${streamGroupNumber}/stream/${videoStreamIdData}/2e6db5a7-120d-4a49-8e4d-2c204db0a3a5.ts",
 };
 
 type VideoPlayerDialogProps = {

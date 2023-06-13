@@ -105,6 +105,8 @@ else
     _ = app.UseHsts();
 }
 
+app.UseSession();
+
 using (IServiceScope scope = app.Services.CreateScope())
 {
     AppDbContextInitialiser initialiser = scope.ServiceProvider.GetRequiredService<AppDbContextInitialiser>();

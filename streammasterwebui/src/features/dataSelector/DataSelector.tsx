@@ -36,7 +36,7 @@ import { useIntl } from 'react-intl';
 
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
-  const tooltipClassName = React.useMemo(() => "menuitemsm-" + uuidv4(), []);
+  const tooltipClassName = React.useMemo(() => "menuitemds-" + uuidv4(), []);
   const [, copy] = useCopyToClipboard()
 
   const [globalSourceFilterValue, setGlobalSourceFilterValue] = useSessionStorage('', props.id + '-sourceGlobalFilterValue');

@@ -16,8 +16,9 @@ namespace StreamMasterApplication.Common.Models
             MaxConnectRetryTimeMS = 100;
             PreloadPercentage = .5;
             BroadcastInterval = 3;
+            M3UStream = false;
         }
-   
+
         public int BroadcastInterval { get; set; }
 
         /// <summary>
@@ -49,6 +50,8 @@ namespace StreamMasterApplication.Common.Models
         /// process checks for a new stream URL.
         /// </summary>
         public int FailoverCheckInterval { get; set; }
+
+        public bool M3UStream { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum number of retries allowed when attempting
