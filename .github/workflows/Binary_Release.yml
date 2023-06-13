@@ -15,7 +15,7 @@ jobs:
         id: get_latest_tag
         run: |
           git fetch --tags
-          echo "::set-output name=tag::$(git describe --tags $(git rev-list --tags --max-count=1))"
+          echo "TAG=${{ github.ref }}" >> $GITHUB_ENV
 
       - name: Get previous tag
         id: get_previous_tag
@@ -26,37 +26,37 @@ jobs:
         id: get_release_notes
         run: |
           previous_tag=$(echo "${{ steps.get_previous_tag.outputs.tag }}")
-          latest_tag=$(echo "${{ steps.get_latest_tag.outputs.tag }}")
+          latest_tag=$(echo "${{ env.TAG }}")
           git log --format=%s --no-merges ${previous_tag}..${latest_tag} > release_notes.txt
-          echo "::set-output name=notes::$(cat release_notes.txt)"
+          echo "RELEASE_NOTES=$(cat release_notes.txt)" >> $GITHUB_ENV
 
       - name: Build binaries
         run: |
-          sudo chmod +x build_streammaster.sh
+          chmod +x build_streammaster.sh
           ./build_streammaster.sh
 
       - name: Publish binaries
         uses: actions/upload-artifact@v2
         with:
           name: Binaries
-          path: $HOME/src/publish
+          path: $HOME/publish
 
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.get_latest_tag.outputs.tag }}
-          release_name: ${{ steps.get_latest_tag.outputs.tag }}
+          tag_name: ${{ env.TAG }}
+          release_name: ${{ env.TAG }}
           body: |
             Previous Release Notes:
-            ${{ steps.get_release_notes.outputs.notes }}
+            ${{ env.RELEASE_NOTES }}
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: $HOME/publish/your-binary-file # Adjust the path to your binary file
