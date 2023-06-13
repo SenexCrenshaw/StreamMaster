@@ -32,7 +32,7 @@ jobs:
 
       - name: Build binaries
         run: |
-          chmod +x build_streammaster.sh
+          sudo chmod +x build_streammaster.sh
           ./build_streammaster.sh
 
       - name: Publish binaries
@@ -45,7 +45,7 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         with:
           tag_name: ${{ steps.get_latest_tag.outputs.tag }}
           release_name: ${{ steps.get_latest_tag.outputs.tag }}
@@ -56,7 +56,7 @@ jobs:
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: $HOME/publish/your-binary-file # Adjust the path to your binary file
