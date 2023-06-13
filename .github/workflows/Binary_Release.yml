@@ -39,13 +39,13 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Binaries
-          path: $HOME/publish
+          path: $HOME/src/publish
 
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
-          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.TAG }}
           release_name: ${{ env.TAG }}
@@ -56,7 +56,7 @@ jobs:
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
-          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: $HOME/publish/your-binary-file # Adjust the path to your binary file
