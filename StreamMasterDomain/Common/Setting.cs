@@ -13,6 +13,8 @@ namespace StreamMasterDomain.Common
         /// </summary>
         public Setting()
         {
+            APIUserName = "";
+            APIPassword = "";
             AppName = "StreamMaster";
             BaseHostURL = "http://127.0.0.1:7095/";
             CacheIcons = true;
@@ -21,6 +23,7 @@ namespace StreamMasterDomain.Common
             DefaultIcon = "images/default.png";
             DeviceID = "device1";
             FirstFreeNumber = 1000;
+            //SafeNetworks = new() { "127.0.0.1" };
             MaxConnectRetry = 20;
             MaxConnectRetryTimeMS = 100;
             RingBufferSizeMB = 4;
@@ -32,6 +35,10 @@ namespace StreamMasterDomain.Common
             SDPassword = "";
             OverWriteM3UChannels = false;
         }
+
+        public string APIPassword { get; set; }
+
+        public string APIUserName { get; set; }
 
         /// <summary>
         /// The name of the StreamMaster application.
@@ -90,6 +97,20 @@ namespace StreamMasterDomain.Common
         /// </summary>
         public int RingBufferSizeMB { get; set; }
 
+        //public List<string> SafeNetworks { get; set; }
+        //{
+        //    get
+        //    {
+        //        List<string> modifiedList = new List<string>(_safeNetworks);
+        //        modifiedList.Insert(0, "test");
+        //        return= _safeNetworks.Select(s => "test" + s).ToList();
+        //    }
+        //    set
+        //    {
+        //        _safeNetworks = value;
+        //    }
+        //}
+
         /// <summary>
         /// The password used to authenticate with the SD card used by the
         /// StreamMaster application.
@@ -118,6 +139,7 @@ namespace StreamMasterDomain.Common
         /// </summary>
         public string StreamMasterIcon { get; set; }
 
+        private List<string> _safeNetworks { get; set; }
         ///// <summary>
         ///// The version of the StreamMaster application.
         ///// </summary>

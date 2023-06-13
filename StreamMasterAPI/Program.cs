@@ -6,6 +6,7 @@ using StreamMasterApplication.Hubs;
 using StreamMasterDomain.Common;
 
 using StreamMasterInfrastructure;
+using StreamMasterInfrastructure.MiddleWare;
 using StreamMasterInfrastructure.Persistence;
 
 using System.Text;
@@ -22,8 +23,7 @@ string? _urlBase = Environment.GetEnvironmentVariable("STREAMMASTER_BASEHOSTURL"
 
 if (string.IsNullOrEmpty(_urlBase))
 {
-    _urlBase =setting.BaseHostURL;
-
+    _urlBase = setting.BaseHostURL;
 }
 
 if (!_urlBase.EndsWith('/'))
@@ -43,6 +43,12 @@ Console.WriteLine($"Writing {_urlBase} information to {indexFilePath}");
 
 StringBuilder scriptBuilder = new();
 scriptBuilder.AppendLine("window.StreamMaster = {");
+scriptBuilder.AppendLine($"  baseHostURL: '{_urlBase}',");
+if (!string.IsNullOrEmpty(setting.APIPassword) && !string.IsNullOrEmpty(setting.APIUserName))
+{
+    scriptBuilder.AppendLine($"  apiUserName: '{setting.APIPassword}',");
+    scriptBuilder.AppendLine($"  apiPassword: '{setting.APIUserName}',");
+}
 scriptBuilder.AppendLine($"  baseHostURL: '{_urlBase}',");
 scriptBuilder.AppendLine($"  hubName: 'streammasterhub',");
 scriptBuilder.AppendLine($"  isDev: false,");
@@ -80,10 +86,9 @@ builder.Services.AddControllers(options =>
     options.RespectBrowserAcceptHeader = true;
     options.ReturnHttpNotAcceptable = true;
 }).AddXmlSerializerFormatters()
-.AddJsonOptions (options =>
+.AddJsonOptions(options =>
 {
-options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
 WebApplication app = builder.Build();
@@ -114,11 +119,13 @@ using (IServiceScope scope = app.Services.CreateScope())
     await initialiser.InitialiseAsync().ConfigureAwait(false);
     if (app.Environment.IsDevelopment())
     {
-         initialiser.TrySeed();
+        initialiser.TrySeed();
     }
 }
 
 app.UseCors("CorsPolicy");
+
+app.UseMiddleware<AuthMiddleware>();
 
 app.UseHealthChecks("/health");
 //app.UseHttpsRedirection();

@@ -1,5 +1,7 @@
 
 type StreamMasterApiData = {
+  apiPassword: string,
+  apiUserName: string,
   baseHostURL: string,
   hubName: string,
   isDev: boolean,
