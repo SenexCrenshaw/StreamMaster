@@ -15,8 +15,8 @@ namespace StreamMasterDomain.Common
         {
             APIUserName = "";
             APIPassword = "";
-            AdminUserName = "admin";
-            AdminPassword = "streammaster";
+            AdminUserName = "";
+            AdminPassword = "";
             AppName = "StreamMaster";
             BaseHostURL = "http://127.0.0.1:7095/";
             CacheIcons = true;

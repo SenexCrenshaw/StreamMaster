@@ -7,8 +7,18 @@ import { useLocalStorage } from 'primereact/hooks';
 import MenuItemSM from './components/MenuItemSM';
 import { HelpIcon, PlayListEditorIcon, QueueStatisIcon, SettingsEditorIcon, SideBarMenuIcon, StreamGroupEditorIcon, StreamingStatusIcon } from './common/icons';
 import StreamMasterSetting from './store/signlar/StreamMasterSetting';
+import * as StreamMasterApi from './store/iptvApi';
 
 const Home = () => {
+  StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
+  StreamMasterApi.useEpgFilesGetEpgFilesQuery();
+  StreamMasterApi.useM3UFilesGetM3UFilesQuery();
+  StreamMasterApi.useProgrammesGetProgrammeNamesQuery();
+  StreamMasterApi.useSettingsGetSettingQuery();
+  StreamMasterApi.useSettingsGetSystemStatusQuery();
+  StreamMasterApi.useStreamGroupsGetStreamGroupsQuery();
+  StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
+
   const settings = StreamMasterSetting();
   const [collapsed, setCollapsed] = useLocalStorage<boolean>(true, 'app-menu-collapsed');
 

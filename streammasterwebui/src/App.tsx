@@ -24,15 +24,7 @@ import Home from './Home';
 
 const App = () => {
 
-  StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
-  StreamMasterApi.useEpgFilesGetEpgFilesQuery();
-  StreamMasterApi.useM3UFilesGetM3UFilesQuery();
-  StreamMasterApi.useProgrammesGetProgrammeNamesQuery();
-  StreamMasterApi.useSettingsGetSettingQuery();
-  StreamMasterApi.useSettingsGetSystemStatusQuery();
-  StreamMasterApi.useStreamGroupsGetStreamGroupsQuery();
-  StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
-  StreamMasterApi.useStreamGroupsGetStreamGroupEpgForGuideQuery(1);
+
 
   const [userInformation, setUserInformation] = useLocalStorage<UserInformation>({} as UserInformation, 'userInformation');
   const [locale,] = useLocalStorage('en', 'locale');
