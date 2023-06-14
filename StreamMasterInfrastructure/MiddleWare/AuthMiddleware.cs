@@ -35,10 +35,12 @@ public class AuthMiddleware
         var url = $"{context.Request.Path}{context.Request.QueryString}";
 
         if (
-            url.ToLower().StartsWith("/images/")||
-            url.ToLower().StartsWith($"/api/files/{(int)FileDefinitions.Icon.SMFileType}/")||
-                url.ToLower().StartsWith($"/api/files/{(int)FileDefinitions.TVLogo.SMFileType}/")||
-                url.ToLower().StartsWith($"/api/files/{(int)FileDefinitions.ProgrammeIcon.SMFileType}/")
+            url.ToLower().StartsWith("/images/") ||
+            url.ToLower().StartsWith("/initialize.js") ||
+            url.ToLower().StartsWith("/favicon.ico") ||
+            url.ToLower().StartsWith($"/api/files/{(int)FileDefinitions.Icon.SMFileType}/") ||
+            url.ToLower().StartsWith($"/api/files/{(int)FileDefinitions.TVLogo.SMFileType}/") ||
+            url.ToLower().StartsWith($"/api/files/{(int)FileDefinitions.ProgrammeIcon.SMFileType}/")
             )
         {
             await _next(context);
