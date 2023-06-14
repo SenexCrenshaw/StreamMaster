@@ -72,8 +72,9 @@ const InfoMessageOverLayDialog = (props: InfoMessageOverLayDialogProps) => {
     <>
       <Dialog
         className={`col-${props.overlayColSize} p-0`}
+        closable={props.closable}
         header={props.header}
-        maximizable
+        maximizable={props.maximizable}
         modal
         onHide={() => { returnToParent(); }}
         ref={anchorRef}
@@ -104,14 +105,18 @@ const InfoMessageOverLayDialog = (props: InfoMessageOverLayDialogProps) => {
 InfoMessageOverLayDialog.displayName = 'InfoMessageOverLayDialog';
 InfoMessageOverLayDialog.defaultProps = {
   blocked: false,
-  overlayColSize: 4,
+  header: '',
+  maximizable: true,
+  overlayColSize: 4
 };
 
 type InfoMessageOverLayDialogProps = {
   blocked?: boolean | undefined;
   children: React.ReactNode;
-  header: string;
+  closable?: boolean | undefined;
+  header?: string;
   infoMessage: string;
+  maximizable?: boolean | undefined;
   onClose: () => void;
   overlayColSize?: number;
   severity?: string | null;

@@ -15,6 +15,8 @@ namespace StreamMasterApplication.Settings
 
         Task<ActionResult<SystemStatus>> GetSystemStatus();
 
+        ActionResult<bool> LogIn(LogInRequest logInRequest);
+
         Task<ActionResult<SettingDto?>> UpdateSetting(UpdateSettingRequest command);
     }
 
@@ -29,6 +31,8 @@ namespace StreamMasterApplication.Settings
         Task<SettingDto> GetSetting();
 
         Task<SystemStatus> GetSystemStatus();
+
+        Task<bool> LogIn(LogInRequest logInRequest);
 
         Task<SettingDto?> UpdateSetting(UpdateSettingRequest command);
     }

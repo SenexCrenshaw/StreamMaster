@@ -89,3 +89,9 @@ export function formatJSONDateString(jsonDate: string | undefined): string {
 
   return ret;
 }
+
+
+export type UserInformation = {
+  IsAuthenticated: boolean;
+  TokenAge: Date
+}

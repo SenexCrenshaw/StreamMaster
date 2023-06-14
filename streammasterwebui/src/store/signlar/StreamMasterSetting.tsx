@@ -10,10 +10,6 @@ const StreamMasterSetting = (): StreamMasterSettingResponse => {
   const [defaultIconName, setDefaultIconName] = React.useState<string>('');
   const [defaultIconDto, setDefaultIconDto] = React.useState<StreamMasterApi.IconFileDto>({} as StreamMasterApi.IconFileDto);
 
-  // React.useEffect(() => {
-  //   setIsLoading(settingsQuery.isLoading);
-  // }, [settingsQuery.isLoading]);
-
   React.useEffect(() => {
 
     if (

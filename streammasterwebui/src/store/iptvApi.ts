@@ -447,6 +447,12 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/settings/getsystemstatus` }),
         providesTags: ["Settings"],
       }),
+      settingsLogIn: build.query<SettingsLogInApiResponse, SettingsLogInApiArg>(
+        {
+          query: (queryArg) => ({ url: `/api/settings/login`, body: queryArg }),
+          providesTags: ["Settings"],
+        }
+      ),
       settingsUpdateSetting: build.mutation<
         SettingsUpdateSettingApiResponse,
         SettingsUpdateSettingApiArg
@@ -900,6 +906,8 @@ export type SettingsGetSettingApiArg = void;
 export type SettingsGetSystemStatusApiResponse =
   /** status 200  */ SystemStatus;
 export type SettingsGetSystemStatusApiArg = void;
+export type SettingsLogInApiResponse = /** status 200  */ boolean;
+export type SettingsLogInApiArg = LogInRequest;
 export type SettingsUpdateSettingApiResponse = /** status 204  */ undefined;
 export type SettingsUpdateSettingApiArg = UpdateSettingRequest;
 export type StreamGroupsAddStreamGroupApiResponse = /** status 200  */
@@ -1256,6 +1264,8 @@ export type TaskQueueStatusDto = {
 };
 export type StreamingProxyTypes = 0 | 1 | 2 | 3;
 export type Setting = {
+  adminPassword?: string;
+  adminUserName?: string;
   apiPassword?: string;
   apiUserName?: string;
   appName?: string;
@@ -1279,15 +1289,22 @@ export type Setting = {
 };
 export type SettingDto = Setting & {
   defaultIconDto?: IconFileDto;
+  requiresAuth?: boolean;
   version?: string;
 };
 export type SystemStatus = {
   isSystemReady?: boolean;
 };
+export type LogInRequest = {
+  password?: string;
+  userName?: string;
+};
 export type UpdateSettingRequest = {
   cacheIcons?: boolean | null;
   apiPassword?: string | null;
   apiUserName?: string | null;
+  adminPassword?: string | null;
+  adminUserName?: string | null;
   cleanURLs?: boolean | null;
   deviceID?: string | null;
   ffmPegExecutable?: string | null;
@@ -1492,6 +1509,7 @@ export const {
   useSettingsGetQueueStatusQuery,
   useSettingsGetSettingQuery,
   useSettingsGetSystemStatusQuery,
+  useSettingsLogInQuery,
   useSettingsUpdateSettingMutation,
   useStreamGroupsAddStreamGroupMutation,
   useStreamGroupsDeleteStreamGroupMutation,

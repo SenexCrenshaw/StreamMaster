@@ -22,6 +22,8 @@ public class UpdateSettingRequest : IRequest<SettingDto>
     public bool? CacheIcons { get; set; }
     public string? APIPassword { get; set; }
     public string? APIUserName { get; set; }
+    public string? AdminPassword { get; set; }
+    public string? AdminUserName { get; set; }
     public bool? CleanURLs { get; set; }
     public string? DeviceID { get; set; }
     public string? FFMPegExecutable { get; set; }
@@ -91,6 +93,16 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Settin
         if (request.OverWriteM3UChannels != null && request.OverWriteM3UChannels != currentSetting.OverWriteM3UChannels)
         {
             currentSetting.OverWriteM3UChannels = (bool)request.OverWriteM3UChannels;
+        }
+
+        if (!string.IsNullOrEmpty(request.AdminPassword) && request.AdminPassword != currentSetting.AdminPassword)
+        {
+            currentSetting.AdminPassword = request.AdminPassword;
+        }
+
+        if (!string.IsNullOrEmpty(request.AdminUserName) && request.AdminUserName != currentSetting.AdminUserName)
+        {
+            currentSetting.AdminUserName = request.AdminUserName;
         }
 
         if (!string.IsNullOrEmpty(request.APIPassword) && request.APIPassword != currentSetting.APIPassword)

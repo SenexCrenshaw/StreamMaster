@@ -1,39 +1,43 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import './App.css';
 
-import { Outlet } from 'react-router-dom';
-
+import { Navigate, Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
 import * as StreamMasterApi from './store/iptvApi';
-import { BlockUI } from 'primereact/blockui';
 import React from 'react';
 import messagesEn from './messages_en';
 import { hubConnection } from './app/store';
 import { HubConnectionState } from '@microsoft/signalr';
-
-import { Sidebar, Menu, MenuItem, sidebarClasses } from 'react-pro-sidebar';
-
-import { useSessionStorage } from 'primereact/hooks';
-import MenuItemSM from './components/MenuItemSM';
-import { HelpIcon, PlayListEditorIcon, QueueStatisIcon, SettingsEditorIcon, SideBarMenuIcon, StreamGroupEditorIcon, StreamingStatusIcon, VideoIcon } from './common/icons';
-import StreamMasterSetting from './store/signlar/StreamMasterSetting';
+import { ProSidebarProvider } from 'react-pro-sidebar';
+import { useLocalStorage } from 'primereact/hooks';
 import { IntlProvider } from 'react-intl';
-import { isDev } from './settings';
+import { requiresAuth } from './settings';
+
+import VideoPlayer from './components/VideoPlayer';
+import PlayListEditor from './features/playListEditor/PlayListEditor';
+import QueueStatus from './features/queueStatus/QueueStatus';
+import SettingsEditor from './features/settings/SettingsEditor';
+import StreamGroupEditor from './features/streamGroupEditor/StreamGroupEditor';
+import StreamingStatus from './features/streamingStatus/StreamingStatus';
+import ProtectedRoute from './_auth/ProtectedRoute';
+import Login from './_auth/Login';
+import { type UserInformation } from './common/common';
+import Home from './Home';
 
 const App = () => {
-  const settings = StreamMasterSetting();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [locale, setLocale] = React.useState('en');
+
+  StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
+  StreamMasterApi.useEpgFilesGetEpgFilesQuery();
+  StreamMasterApi.useM3UFilesGetM3UFilesQuery();
+  StreamMasterApi.useProgrammesGetProgrammeNamesQuery();
+  StreamMasterApi.useSettingsGetSettingQuery();
+  StreamMasterApi.useSettingsGetSystemStatusQuery();
+  StreamMasterApi.useStreamGroupsGetStreamGroupsQuery();
+  StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
+  StreamMasterApi.useStreamGroupsGetStreamGroupEpgForGuideQuery(1);
+
+  const [userInformation, setUserInformation] = useLocalStorage<UserInformation>({} as UserInformation, 'userInformation');
+  const [locale,] = useLocalStorage('en', 'locale');
   const messages = locale === 'en' ? messagesEn : messagesEn;
-
-  const [collapsed, setCollapsed] = useSessionStorage<boolean>(true, 'app-menu-collapsed');
   const [hubConnected, setHubConnected] = React.useState<boolean>(false);
-  // const [previousLocation, setPreviousLocation] = React.useState<string>('');
-
-  // const location = useLocation();
-
-  const onsetCollapsed = React.useCallback((isCollapsed: boolean) => {
-    setCollapsed(isCollapsed);
-  }, [setCollapsed]);
 
   React.useEffect(() => {
 
@@ -52,24 +56,29 @@ const App = () => {
     return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
   }, [hubConnected])
 
-  // React.useEffect(() => {
-
-  //   if (location.pathname !== previousLocation) {
-  //     setPreviousLocation(location.pathname);
-  //     if (!collapsed) {
-  //       setTimeout(() => {
-  //         setCollapsed(true);
-  //       }, 1000);
-
-  //     }
-  //   }
-
-  // }, [collapsed, location, previousLocation, setCollapsed]);
 
   const systemStatus = StreamMasterApi.useSettingsGetSystemStatusQuery();
 
+  const setSignIn = React.useCallback((e: boolean) => {
+    setUserInformation(
+      {
+        IsAuthenticated: e,
+        TokenAge: new Date(),
+      }
+    )
+  }, [setUserInformation]);
+
+  const logOut = React.useCallback(() => {
+    setUserInformation(
+      {
+        IsAuthenticated: false,
+        TokenAge: new Date(),
+      }
+    )
+  }, [setUserInformation]);
+
   const systemReady = React.useMemo((): boolean => {
-    if (!hubConnected) {
+    if (!hubConnected || (requiresAuth && userInformation.IsAuthenticated === undefined)) {
       return false;
     }
 
@@ -79,18 +88,55 @@ const App = () => {
 
     return systemStatus.data.isSystemReady;
 
-  }, [hubConnected, systemStatus.data]);
+  }, [hubConnected, systemStatus.data, userInformation.IsAuthenticated]);
 
 
-  StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
-  StreamMasterApi.useEpgFilesGetEpgFilesQuery();
-  StreamMasterApi.useM3UFilesGetM3UFilesQuery();
-  StreamMasterApi.useProgrammesGetProgrammeNamesQuery();
-  StreamMasterApi.useSettingsGetSettingQuery();
-  StreamMasterApi.useSettingsGetSystemStatusQuery();
-  StreamMasterApi.useStreamGroupsGetStreamGroupsQuery();
-  StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
-  StreamMasterApi.useStreamGroupsGetStreamGroupEpgForGuideQuery(1);
+  const router = createBrowserRouter(
+    createRoutesFromElements(
+      <Route element={<Home />} path="/">
+        <Route element={<Navigate to="/editor/playlist" />} index />
+
+        <Route element={
+          <ProtectedRoute isAuthenticated={userInformation.IsAuthenticated}  >
+            <StreamGroupEditor />
+          </ProtectedRoute>
+        } path="/editor/streamgroup" />
+
+        <Route element={
+          <ProtectedRoute isAuthenticated={userInformation.IsAuthenticated}  >
+            <PlayListEditor />
+          </ProtectedRoute>
+        } path="/editor/playlist" />
+
+        <Route element={
+          <ProtectedRoute isAuthenticated={userInformation.IsAuthenticated}  >
+            <StreamingStatus />
+          </ProtectedRoute>
+        } path="/streamingstatus" />
+
+        <Route element={
+          <ProtectedRoute isAuthenticated={userInformation.IsAuthenticated}  >
+            <QueueStatus />
+          </ProtectedRoute>
+        } path="/queuestatus" />
+
+        <Route element={
+          <ProtectedRoute isAuthenticated={userInformation.IsAuthenticated}  >
+            <VideoPlayer />
+          </ProtectedRoute>
+        } path="/player" />
+
+        <Route element={
+          <ProtectedRoute isAuthenticated={userInformation.IsAuthenticated}  >
+            <SettingsEditor isAuthenticated={userInformation.IsAuthenticated} logOut={() => logOut()} />
+          </ProtectedRoute>
+        } path="/settings" />
+
+        <Route element={<Login onClose={(e) => { setSignIn(e) }} />} path="/login" />
+      </Route>
+
+    )
+  );
 
   if (!systemReady)
     return (
@@ -113,85 +159,10 @@ const App = () => {
     );
 
   return (
-
     <IntlProvider locale={locale} messages={messages}>
-      <div className='flex max-h-screen'>
-        <Sidebar
-          className="app sidebar max-h-screen "
-          defaultCollapsed={collapsed}
-          rootStyles={{
-            [`.${sidebarClasses.container}`]: {
-              backgroundColor: 'var(--mask-bg)',
-            },
-          }}
-          style={{ height: 'calc(100vh - 10px)', }}
-
-        >
-          <Menu
-            menuItemStyles={{
-              button: ({ active }) => {
-                return {
-                  '&:hover': {
-                    backgroundColor: '#cb5e00',
-                  },
-                  backgroundColor: active ? '#cb5e00' : undefined,
-                };
-              }
-            }}
-          >
-            <div onClick={() => { onsetCollapsed(!collapsed); }}>
-              <MenuItem
-                className="menu1"
-                icon={<SideBarMenuIcon sx={{ color: '#FE7600', fontSize: 32 }} />}
-              >
-                <h2
-                  style={{
-                    color: '#FE7600',
-                  }}
-                >Stream Master</h2>
-              </MenuItem>
-            </div>
-
-
-            <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/editor/playlist" name='Playlist' />
-            <MenuItemSM collapsed={collapsed} icon={<StreamGroupEditorIcon />} link="/editor/streamgroup" name='Stream Group' />
-
-            <MenuItemSM collapsed={collapsed} icon={<StreamingStatusIcon />} link="/streamingstatus" name='Status' />
-            <MenuItemSM collapsed={collapsed} icon={<QueueStatisIcon />} link="/queuestatus" name='Queue' />
-            <MenuItemSM collapsed={collapsed} icon={<SettingsEditorIcon />} link="/settings" name='Settings' />
-
-            {/* {isDev &&
-              <MenuItemSM collapsed={collapsed} icon={<VideoIcon />} link="/player" name='Video Player' newWindow />
-            } */}
-
-            <MenuItemSM collapsed={collapsed} icon={<HelpIcon />} link="https://github.com/SenexCrenshaw/StreamMaster/wiki" name='Wiki' newWindow />
-
-          </Menu>
-
-          <div className='absolute bottom-0 left-0 pb-2 flex flex-column m-0 p-0 justify-content-center align-items-center'>
-            <div className='flex col-12 justify-content-center align-items-center'>
-              <img
-                alt='Stream Master Logo'
-                height={32}
-                src="/images/StreamMasterx32.png"
-                style={{
-                  objectFit: 'contain',
-                }}
-              />
-            </div>
-            <div className='flex flex-column m-0 p-0 justify-content-center align-items-center text-xs text-center'>
-              {settings.data.version ?? ''}
-            </div>
-          </div>
-        </Sidebar>
-
-
-        <div className="flex ml-2 flex-grow-1 max-h-screen max-w-full justify-content-between align-items-start">
-          <BlockUI blocked={!systemReady} className="flex flex-grow-1 max-h-screen max-w-full justify-content-between">
-            <Outlet />
-          </BlockUI >
-        </div>
-      </div >
+      <ProSidebarProvider>
+        <RouterProvider router={router} />
+      </ProSidebarProvider>
     </IntlProvider>
   );
 };

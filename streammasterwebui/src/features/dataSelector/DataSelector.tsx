@@ -19,7 +19,7 @@ import { type DataTableRowData } from 'primereact/datatable';
 
 import { DataTable } from 'primereact/datatable';
 import * as StreamMasterApi from '../../store/iptvApi';
-import { useSessionStorage } from 'primereact/hooks';
+import { useLocalStorage } from 'primereact/hooks';
 import { InputText } from 'primereact/inputtext';
 import { type CSSProperties } from 'react';
 import React from 'react';
@@ -39,13 +39,13 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   const tooltipClassName = React.useMemo(() => "menuitemds-" + uuidv4(), []);
   const [, copy] = useCopyToClipboard()
 
-  const [globalSourceFilterValue, setGlobalSourceFilterValue] = useSessionStorage('', props.id + '-sourceGlobalFilterValue');
+  const [globalSourceFilterValue, setGlobalSourceFilterValue] = useLocalStorage('', props.id + '-sourceGlobalFilterValue');
   const [dataSource, setDataSource] = React.useState<T[]>();
   const [values, setValues] = React.useState<T[]>();
   const [expandedRows, setExpandedRows] = React.useState<DataTableExpandedRows>();
 
   const setting = StreamMasterSetting();
-  const [rowClick, setRowClick] = useSessionStorage<boolean>(false, props.id + '-rowClick');
+  const [rowClick, setRowClick] = useLocalStorage<boolean>(false, props.id + '-rowClick');
 
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
   const m3uFiles = StreamMasterApi.useM3UFilesGetM3UFilesQuery();
@@ -1049,7 +1049,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           sortMode='single'
           sortOrder={0}
           stateKey={props.enableState != true ? undefined : props.id + '-datatable'}
-          stateStorage={props.enableState != true ? undefined : "session"}
+          stateStorage={props.enableState != true ? undefined : "local"}
           stripedRows
           style={props.style}
           value={dataSource}

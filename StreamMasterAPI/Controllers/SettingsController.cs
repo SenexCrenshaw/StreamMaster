@@ -6,6 +6,7 @@ using StreamMasterApplication.Settings;
 using StreamMasterApplication.Settings.Commands;
 using StreamMasterApplication.Settings.Queries;
 
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 
 namespace StreamMasterAPI.Controllers;
@@ -41,6 +42,16 @@ public class SettingsController : ApiControllerBase, ISettingController
     public async Task<ActionResult<SystemStatus>> GetSystemStatus()
     {
         return await Mediator.Send(new GetSystemStatus()).ConfigureAwait(false);
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    public ActionResult<bool> LogIn(LogInRequest logInRequest)
+    {
+        var setting = FileUtil.GetSetting();
+
+        return setting.AdminUserName == logInRequest.UserName && setting.AdminPassword == logInRequest.Password;
     }
 
     [HttpPut]

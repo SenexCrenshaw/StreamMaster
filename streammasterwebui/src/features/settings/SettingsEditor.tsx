@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import './SettingsEditor.css';
 import { Button } from 'primereact/button';
@@ -21,14 +22,22 @@ import { StreamingProxyTypes } from '../../store/streammaster_enums';
 import { type SelectItem } from 'primereact/selectitem';
 import { InputNumber } from 'primereact/inputnumber';
 import { Password } from 'primereact/password';
+import { type UserInformation } from '../../common/common';
 import { GetMessage, GetMessageDiv, getTopToolOptions } from '../../common/common';
 
 import { baseHostURL } from '../../settings';
 
 import { ScrollPanel } from 'primereact/scrollpanel';
+import { useLocalStorage } from 'primereact/hooks';
+// import { useAppSelector, useAppDispatch } from '../../app/hooks';
+// import { selectUserInformation, setUserInformation } from '../../store/userSlice';
 
-export const SettingsEditor = () => {
+export const SettingsEditor = (props: SettingsEditorProps) => {
   const toast = React.useRef<Toast>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // const [userInformation, setUserInformation] = useLocalStorage<UserInformation>({ IsAuthenticated: false, TokenAge: new Date() } as UserInformation, 'userInformation');
+
+
 
   const [newData, setNewData] = React.useState<SettingDto>({} as SettingDto);
   const [originalData, setOriginalData] = React.useState<SettingDto>({} as SettingDto);
@@ -198,6 +207,14 @@ export const SettingsEditor = () => {
               severity: 'success',
               summary: 'Successful',
             });
+
+            if (
+              (newData.adminPassword !== undefined && newData.adminPassword !== '') ||
+              (newData.adminUserName !== undefined && newData.adminUserName !== '')
+            ) {
+              props.logOut();
+            }
+
           } else {
             toast.current.show({
               detail: `Update Settings Failed`,
@@ -217,7 +234,7 @@ export const SettingsEditor = () => {
           });
         }
       });
-  }, [isSaveEnabled, newData, toast]);
+  }, [isSaveEnabled, newData, props]);
 
   const items: MenuItem[] = [
     {
@@ -240,14 +257,6 @@ export const SettingsEditor = () => {
   ];
 
 
-  if (newData === undefined || newData === null || newData.deviceID === undefined || settingsQuery.isLoading) {
-    return (
-      <>
-        Loading...
-      </>
-    )
-  }
-
   return (
 
     <div className="settingsEditor">
@@ -268,8 +277,29 @@ export const SettingsEditor = () => {
           </Fieldset>
 
           <Fieldset className="mt-4 pt-10" legend={GetMessage('auth')}>
+            {getInputTextLine('adminUserName')}
+            {getPasswordLine('admninPassword')}
             {getInputTextLine('apiUserName')}
             {getPasswordLine('apiPassword')}
+            <div className='flex col-12'>
+              <div className='flex col-2 col-offset-1'>
+                <span>{GetMessage('signout')}</span>
+              </div>
+              <div className='flex col-3 m-0 p-0 debug'>
+                <Button
+                  disabled={!props.isAuthenticated}
+                  icon="pi pi-check"
+                  label={GetMessage('signout')}
+                  onClick={() =>
+                    props.logOut()
+                  }
+                  rounded
+                  severity="success"
+                  size="small"
+                />
+              </div>
+            </div>
+
           </Fieldset>
 
           <Fieldset className="mt-4 pt-10" legend={GetMessage('streaming')}>
@@ -308,4 +338,10 @@ export const SettingsEditor = () => {
 };
 
 SettingsEditor.displayName = 'Settings';
+
+type SettingsEditorProps = {
+  isAuthenticated: boolean;
+  logOut: () => void;
+}
+
 export default React.memo(SettingsEditor);

@@ -23,6 +23,13 @@ public partial class StreamMasterHub : ISettingHub
         return await _mediator.Send(new GetSystemStatus()).ConfigureAwait(false);
     }
 
+    public Task<bool> LogIn(LogInRequest logInRequest)
+    {
+        var setting = FileUtil.GetSetting();
+
+        return Task.FromResult(setting.AdminUserName == logInRequest.UserName && setting.AdminPassword == logInRequest.Password);
+    }
+
     public async Task<SettingDto?> UpdateSetting(UpdateSettingRequest command)
     {
         return await _mediator.Send(command).ConfigureAwait(false);

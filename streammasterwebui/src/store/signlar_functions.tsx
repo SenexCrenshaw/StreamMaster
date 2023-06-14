@@ -19,6 +19,7 @@ import {
   type EpgFilesDto,
   type EpgGuide,
   type IconFileDto,
+  type LogInRequest,
   type M3UFilesDto,
   type ProcessEpgFileRequest,
   type ProcessM3UFileRequest,
@@ -253,6 +254,12 @@ export const GetSetting = async (): Promise<SettingDto> => {
 
 export const GetSystemStatus = async (): Promise<SystemStatus> => {
     const data = await hubConnection.invoke('GetSystemStatus');
+
+    return data;
+};
+
+export const LogIn = async (arg: LogInRequest): Promise<boolean> => {
+    const data = await hubConnection.invoke('LogIn',arg);
 
     return data;
 };

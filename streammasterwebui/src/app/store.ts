@@ -13,10 +13,11 @@ import { sleep } from '../common/common';
 import { baseHostURL, hubName } from '../settings';
 import { enhancedApi } from '../store/signlar/enhancedApi';
 import { enhancedApiLocal } from '../store/signlar/enhancedApiLocal';
+import userSlice from '../store/userSlice';
 
 const rootReducer = combineReducers({
   [enhancedApi.reducerPath]: enhancedApi.reducer,
-
+  ['user']: userSlice,
 });
 
 export const store = configureStore({

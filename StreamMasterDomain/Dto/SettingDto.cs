@@ -6,6 +6,7 @@ public class SettingDto : Setting, IMapFrom<Setting>
 {
     public IconFileDto DefaultIconDto { get; set; }
 
+    public bool RequiresAuth { get; set; } 
     /// <summary>
     /// The version of the StreamMaster application.
     /// </summary>

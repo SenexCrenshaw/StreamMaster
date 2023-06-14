@@ -1,5 +1,7 @@
 // messages_en.js
 export default {
+  adminUserName: "Admin Username",
+  admninPassword:"Admin Password",
   apiPassword: "API Password",
   apiUserName: "API Username",
   auth: "Authentication",
@@ -10,17 +12,24 @@ export default {
   deviceID: 'Device ID',
   ffmPegExecutable:'FFMPeg Executable',
   filesEPG: 'Files / EPG',
-  general:'General',
+  general: 'General',
   keywordSearch: 'Keyword Search',
   maxConnectRetry:'Connection Retry Limit',
   maxConnectRetryTimeMS: 'Retry Timeout in MS',
   overWriteM3UChannels: 'Overwrite M3U Channels',
+  password: "Password",
+  rememberme:'Remember Me',
   ringBufferSizeMB: 'Buffer Size (MB)',
   sdPassword: 'Sched Direct Password',
   sdUserName: 'Sched Direct Username',
   settings: 'Settings',
+  signin: "Sign In",
+  signInSuccessful:'Sign In Successful',
+  signInUnSuccessful:'Sign In Unsuccessful',
+  signout: "Sign Out",
   streaming: 'Streaming',
   streamingProxyType: 'Enable Stream Buffer',
+   user: "User",
 };
 
 

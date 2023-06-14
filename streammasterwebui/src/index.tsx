@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 
 import { createRoot } from 'react-dom/client';
@@ -17,16 +18,7 @@ import PrimeReact from 'primereact/api';
 
 import './index.css';
 
-import { ProSidebarProvider } from 'react-pro-sidebar';
 import App from './App';
-import { Navigate, Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
-import StreamGroupEditor from './features/streamGroupEditor/StreamGroupEditor';
-import PlayListEditor from './features/playListEditor/PlayListEditor';
-import QueueStatus from './features/queueStatus/QueueStatus';
-import SettingsEditor from './features/settings/SettingsEditor';
-import StreamingStatus from './features/streamingStatus/StreamingStatus';
-import VideoPlayer from './components/VideoPlayer';
-import EPGDisplay from './components/EPGDisplay';
 
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error('Failed to find the root element');
@@ -34,34 +26,12 @@ const root = createRoot(rootElement);
 
 PrimeReact.ripple = false;
 
-const router = createBrowserRouter(
-  createRoutesFromElements(
-    <Route element={<App />} path="/">
-      <Route element={<Navigate to="/editor/playlist" />} index />
-
-      <Route element={<StreamGroupEditor />} path="/editor/streamgroup" />
-      <Route element={<PlayListEditor />} path="/editor/playlist" />
-      <Route element={<StreamingStatus />} index path="/streamingstatus" />
-      <Route element={<QueueStatus />} path="/queuestatus" />
-      <Route element={<VideoPlayer />} path="/player" />
-      <Route element={<EPGDisplay hidden={false} streamGroupNumber={1} />} path="/epg" />
-      <Route element={<SettingsEditor />} path="/settings" />
-
-      <Route
-        element={<Navigate replace to="/editor/streamgroup" />}
-        path="*"
-      />
-
-    </Route>
-  )
-);
-
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <ProSidebarProvider>
-        <RouterProvider router={router} />
-      </ProSidebarProvider>
+
+      <App />
     </Provider>
-  </React.StrictMode>
+
+  </React.StrictMode >
 );
