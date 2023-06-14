@@ -35,6 +35,7 @@ public class AuthMiddleware
         var url = $"{context.Request.Path}{context.Request.QueryString}";
 
         if (
+             url.ToLower().Equals("/") ||
              url.ToLower().EndsWith("/capability") ||
              url.ToLower().EndsWith("/device.xml") ||
              url.ToLower().EndsWith("/discover.json") ||
