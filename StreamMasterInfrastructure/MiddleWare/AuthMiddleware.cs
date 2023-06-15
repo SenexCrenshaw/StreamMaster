@@ -36,7 +36,7 @@ public class AuthMiddleware
 
         if (
              url.ToLower().Equals("/") ||
-              url.ToLower().Equals("/static/") ||
+              url.ToLower().StartsWith("/static/") ||
              url.ToLower().EndsWith("/capability") ||
              url.ToLower().EndsWith("/device.xml") ||
              url.ToLower().EndsWith("/discover.json") ||
