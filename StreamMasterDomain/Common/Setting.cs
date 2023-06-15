@@ -35,6 +35,7 @@ namespace StreamMasterDomain.Common
             FFMPegExecutable = "ffmpeg";
             SDUserName = "";
             SDPassword = "";
+            AuthTest = true;
             OverWriteM3UChannels = false;
         }
 
@@ -50,6 +51,8 @@ namespace StreamMasterDomain.Common
         /// The name of the StreamMaster application.
         /// </summary>
         public string AppName { get; set; }
+
+        public bool AuthTest { get; set; }
 
         /// <summary>
         /// The base URL of the StreamMaster application.
@@ -103,6 +106,12 @@ namespace StreamMasterDomain.Common
         /// </summary>
         public int RingBufferSizeMB { get; set; }
 
+        /// <summary>
+        /// The password used to authenticate with the SD card used by the
+        /// StreamMaster application.
+        /// </summary>
+        public string SDPassword { get; set; }
+
         //public List<string> SafeNetworks { get; set; }
         //{
         //    get
@@ -116,13 +125,6 @@ namespace StreamMasterDomain.Common
         //        _safeNetworks = value;
         //    }
         //}
-
-        /// <summary>
-        /// The password used to authenticate with the SD card used by the
-        /// StreamMaster application.
-        /// </summary>
-        public string SDPassword { get; set; }
-
         /// <summary>
         /// The username used to authenticate with the SD card used by the
         /// StreamMaster application.

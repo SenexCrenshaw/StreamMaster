@@ -83,8 +83,15 @@ public class AuthMiddleware
 
         if (setting.APIPassword != apiPassword || setting.APIUserName != apiUserName)
         {
-            context.Response.StatusCode = 401;
+            if (setting.AuthTest)
+            {
+                _logger.LogWarning($"Auth Failed: {remoteIpAddress} {url} : TESTING MODE");
+                await _next(context);
+                return;
+            }
+
             _logger.LogWarning($"Auth Failed: {remoteIpAddress} {url}");
+            context.Response.StatusCode = 401;
             await context.Response.WriteAsync("Auth Failed");
             return;
         }
