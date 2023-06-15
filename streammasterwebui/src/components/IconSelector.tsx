@@ -29,7 +29,7 @@ const IconSelector = (props: IconSelectorProps) => {
     if (props.value) {
       const tests = icons.data.filter((a: IconFileDto) => a.url === props.value);
 
-      if (tests && tests != undefined && tests.length > 0) {
+      if (tests && tests !== undefined && tests.length > 0) {
         setSelectedIcon(tests[0]);
 
         return;
@@ -39,7 +39,7 @@ const IconSelector = (props: IconSelectorProps) => {
     if (props.resetValue) {
       const tests = icons.data.filter((a: IconFileDto) => a.url === props.resetValue);
 
-      if (tests && tests != undefined && tests.length > 0) {
+      if (tests && tests !== undefined && tests.length > 0) {
         setResetIcon(tests[0]);
 
         return;

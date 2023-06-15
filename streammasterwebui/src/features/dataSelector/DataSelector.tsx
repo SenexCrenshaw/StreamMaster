@@ -501,7 +501,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
     const minRows = props.paginatorMinimumRowsToShow ? props.paginatorMinimumRowsToShow : 20;
 
-    return dataLength != minRows;
+    return dataLength !== minRows;
 
   }, [values, props.paginatorMinimumRowsToShow, dataSource]);
 
