@@ -9,7 +9,6 @@ import { HubConnectionState } from '@microsoft/signalr';
 import { ProSidebarProvider } from 'react-pro-sidebar';
 import { useLocalStorage } from 'primereact/hooks';
 import { IntlProvider } from 'react-intl';
-import { requiresAuth } from './settings';
 
 import VideoPlayer from './components/VideoPlayer';
 import PlayListEditor from './features/playListEditor/PlayListEditor';
@@ -70,7 +69,7 @@ const App = () => {
   }, [setUserInformation]);
 
   const systemReady = React.useMemo((): boolean => {
-    if (!hubConnected || (requiresAuth && userInformation.IsAuthenticated === undefined)) {
+    if (!hubConnected) {
       return false;
     }
 
@@ -80,7 +79,7 @@ const App = () => {
 
     return systemStatus.data.isSystemReady;
 
-  }, [hubConnected, systemStatus.data, userInformation.IsAuthenticated]);
+  }, [hubConnected, systemStatus.data]);
 
 
   const router = createBrowserRouter(
