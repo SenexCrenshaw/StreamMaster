@@ -25,7 +25,7 @@ import { Password } from 'primereact/password';
 import { type UserInformation } from '../../common/common';
 import { GetMessage, GetMessageDiv, getTopToolOptions } from '../../common/common';
 
-import { baseHostURL } from '../../settings';
+import { baseHostURL, requiresAuth } from '../../settings';
 
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { useLocalStorage } from 'primereact/hooks';
@@ -287,7 +287,7 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
               </div>
               <div className='flex col-3 m-0 p-0 debug'>
                 <Button
-                  disabled={!props.isAuthenticated}
+                  disabled={!props.isAuthenticated || requiresAuth !== true}
                   icon="pi pi-check"
                   label={GetMessage('signout')}
                   onClick={() =>

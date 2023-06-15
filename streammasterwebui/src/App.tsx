@@ -20,6 +20,7 @@ import ProtectedRoute from './_auth/ProtectedRoute';
 import Login from './_auth/Login';
 import { type UserInformation } from './common/common';
 import Home from './Home';
+import { requiresAuth } from './settings';
 
 const App = () => {
 
@@ -29,6 +30,21 @@ const App = () => {
   const [locale,] = useLocalStorage('en', 'locale');
   const messages = locale === 'en' ? messagesEn : messagesEn;
   const [hubConnected, setHubConnected] = React.useState<boolean>(false);
+
+  const setSignIn = React.useCallback((e: boolean) => {
+    setUserInformation(
+      {
+        IsAuthenticated: e,
+        TokenAge: new Date(),
+      }
+    )
+  }, [setUserInformation]);
+
+  React.useEffect(() => {
+    if (requiresAuth !== true && userInformation.IsAuthenticated !== true) {
+      setSignIn(true)
+    }
+  }, [setSignIn, userInformation.IsAuthenticated]);
 
   React.useEffect(() => {
 
@@ -50,14 +66,7 @@ const App = () => {
 
   const systemStatus = StreamMasterApi.useSettingsGetSystemStatusQuery();
 
-  const setSignIn = React.useCallback((e: boolean) => {
-    setUserInformation(
-      {
-        IsAuthenticated: e,
-        TokenAge: new Date(),
-      }
-    )
-  }, [setUserInformation]);
+
 
   const logOut = React.useCallback(() => {
     setUserInformation(
