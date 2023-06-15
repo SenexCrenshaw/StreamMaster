@@ -35,6 +35,8 @@ public class AuthMiddleware
         var url = $"{context.Request.Path}{context.Request.QueryString}";
 
         if (
+            url.ToLower().Equals("/manifest.json") ||
+            url.ToLower().Equals("/streammasterhub") ||
              url.ToLower().Equals("/") ||
               url.ToLower().StartsWith("/static/") ||
              url.ToLower().EndsWith("/capability") ||

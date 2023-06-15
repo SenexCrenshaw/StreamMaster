@@ -52,7 +52,7 @@ if (!string.IsNullOrEmpty(setting.APIPassword) && !string.IsNullOrEmpty(setting.
 scriptBuilder.AppendLine($"  baseHostURL: '{_urlBase}',");
 scriptBuilder.AppendLine($"  hubName: 'streammasterhub',");
 scriptBuilder.AppendLine($"  isDev: false,");
-scriptBuilder.AppendLine($"  requiresAuth: {!string.IsNullOrEmpty(setting.AdminPassword) && !string.IsNullOrEmpty(setting.AdminUserName)},");
+scriptBuilder.AppendLine($"  requiresAuth: {(!string.IsNullOrEmpty(setting.AdminPassword) && !string.IsNullOrEmpty(setting.AdminUserName)).ToString().ToLower()},");
 scriptBuilder.AppendLine("};");
 File.WriteAllText(indexFilePath, scriptBuilder.ToString());
 
