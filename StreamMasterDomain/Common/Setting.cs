@@ -1,4 +1,8 @@
-﻿/// <summary>
+﻿using StreamMasterDomain.Authentication;
+
+using System.Runtime.Intrinsics.Arm;
+
+/// <summary>
 /// The Setting class represents the settings of the StreamMaster application.
 /// It contains properties that specify various settings such as the application
 /// name, database name, default icon, device ID, and more.
@@ -13,10 +17,12 @@ namespace StreamMasterDomain.Common
         /// </summary>
         public Setting()
         {
+            AuthenticationMethod = AuthenticationType.None;
             APIUserName = "";
             APIPassword = "";
             AdminUserName = "";
             AdminPassword = "";
+            ApiKey = "";
             AppName = "StreamMaster";
             BaseHostURL = "http://127.0.0.1:7095/";
             CacheIcons = true;
@@ -37,14 +43,14 @@ namespace StreamMasterDomain.Common
             SDPassword = "";
             AuthTest = true;
             OverWriteM3UChannels = false;
+            UiFolder = "wwwroot";
+            UrlBase = "";
         }
-
+        public string UrlBase { get; set; }
         public string AdminPassword { get; set; }
-
         public string AdminUserName { get; set; }
-
+        public string ApiKey { get; set; }
         public string APIPassword { get; set; }
-
         public string APIUserName { get; set; }
 
         /// <summary>
@@ -52,6 +58,7 @@ namespace StreamMasterDomain.Common
         /// </summary>
         public string AppName { get; set; }
 
+        public AuthenticationType AuthenticationMethod { get; set; }
         public bool AuthTest { get; set; }
 
         /// <summary>
@@ -147,6 +154,7 @@ namespace StreamMasterDomain.Common
         /// </summary>
         public string StreamMasterIcon { get; set; }
 
+        public string UiFolder { get; set; }
         private List<string> _safeNetworks { get; set; }
         ///// <summary>
         ///// The version of the StreamMaster application.

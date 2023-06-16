@@ -5,16 +5,15 @@ using StreamMasterApplication.M3UFiles;
 using StreamMasterApplication.Programmes;
 using StreamMasterApplication.Settings;
 using StreamMasterApplication.StreamGroups;
+using StreamMasterApplication.Users;
 using StreamMasterApplication.VideoStreams;
 
 namespace StreamMasterApplication.Common.Interfaces;
 
 public interface ISharedHub :
-    ITaskHub,
-
     IChannelGroupHub,
     IEPGFileHub,
-
+    IUsersHub,
     IM3UFileHub,
     IVideoStreamHub,
     IIconHub,
@@ -25,30 +24,25 @@ public interface ISharedHub :
 }
 
 public interface ISharedTasks :
-    ITasks,
-
     IChannelGroupTasks,
     IEPGFileTasks,
-
     IM3UFileTasks,
     IVideoStreamTasks,
     IIconTasks,
     IStreamGroupTasks,
     IProgrammeChannelTasks,
-    ISettingTasks
-
+    ISettingTasks,
+    IUsersTasks
 {
 }
 
 public interface ISharedDB :
-    ITaskDB,
     IChannelGroupDB,
-
+    IUsersDB,
     IEPGFileDB,
-
     IM3UFileDB,
     IIconDB,
-        IVideoStreamDB,
+    IVideoStreamDB,
     IStreamGroupDB,
     IProgrammeChannelDB,
     ISettingDB

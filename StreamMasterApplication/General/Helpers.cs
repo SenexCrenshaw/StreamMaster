@@ -6,8 +6,13 @@ namespace StreamMasterApplication.General;
 
 public static class Helpers
 {
-    public static string GetIPTVChannelIconSources(string IconSource, SettingDto setting, IEnumerable<IconFileDto> Icons)
+    public static string GetIPTVChannelIconSources(string IconSource, SettingDto setting, string baseHostURL, IEnumerable<IconFileDto> Icons)
     {
+        //var baseHostURL = setting.BaseHostURL;
+
+        //if (!Debugger.IsAttached)
+        //    baseHostURL = "/";
+
         if (!setting.CacheIcons)
         {
             return IconSource;
@@ -20,17 +25,17 @@ public static class Helpers
 
         if (IconSource.Equals(setting.DefaultIcon))
         {
-            return setting.BaseHostURL + IconSource;
+            return baseHostURL + IconSource;
         }
 
         if (IconSource.Equals(setting.StreamMasterIcon))
         {
-            return setting.BaseHostURL + IconSource;
+            return baseHostURL + IconSource;
         }
 
         if (IconSource.StartsWith("api/files/"))
         {
-            return $"{setting.BaseHostURL}{IconSource}";
+            return $"{baseHostURL}{IconSource}";
         }
 
         if (!Icons.Any())
@@ -62,7 +67,7 @@ public static class Helpers
 
         if (icon is null)
         {
-            IconSource = setting.BaseHostURL + Constants.IconDefault;
+            IconSource = baseHostURL + Constants.IconDefault;
             return IconSource;
         }
 
@@ -70,18 +75,18 @@ public static class Helpers
         {
             if (setting.CacheIcons)
             {
-                IconSource = $"{setting.BaseHostURL}api/files/{(int)iptvFileType}/{HttpUtility.UrlEncode(toMatch)}";
+                IconSource = $"{baseHostURL}api/files/{(int)iptvFileType}/{HttpUtility.UrlEncode(toMatch)}";
             }
             else
             {
                 IconSource = iptvFileType == SMFileTypes.Icon ?
                 Constants.IconDefault :
-                    $"{setting.BaseHostURL}api/files/{(int)iptvFileType}/{HttpUtility.UrlEncode(icon.Source)}";
+                    $"{baseHostURL}api/files/{(int)iptvFileType}/{HttpUtility.UrlEncode(icon.Source)}";
             }
         }
         else
         {
-            IconSource = setting.BaseHostURL + Constants.IconDefault;
+            IconSource = baseHostURL + Constants.IconDefault;
         }
         return IconSource;
     }

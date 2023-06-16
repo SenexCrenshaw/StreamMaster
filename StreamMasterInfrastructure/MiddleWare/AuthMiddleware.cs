@@ -31,19 +31,19 @@ public class AuthMiddleware
 
     public async Task Invoke(HttpContext context)
     {
-        var remoteIpAddress = context.Connection.RemoteIpAddress.ToString();
+        
         var url = $"{context.Request.Path}{context.Request.QueryString}";
 
         if (
             url.ToLower().Equals("/manifest.json") ||
             url.ToLower().Equals("/streammasterhub") ||
-             url.ToLower().Equals("/") ||
-              url.ToLower().StartsWith("/static/") ||
-             url.ToLower().EndsWith("/capability") ||
-             url.ToLower().EndsWith("/device.xml") ||
-             url.ToLower().EndsWith("/discover.json") ||
-             url.ToLower().EndsWith("/lineup.json") ||
-             url.ToLower().EndsWith("/lineup_status.json") ||
+            url.ToLower().Equals("/") ||
+            url.ToLower().StartsWith("/static/") ||
+            url.ToLower().EndsWith("/capability") ||
+            url.ToLower().EndsWith("/device.xml") ||
+            url.ToLower().EndsWith("/discover.json") ||
+            url.ToLower().EndsWith("/lineup.json") ||
+            url.ToLower().EndsWith("/lineup_status.json") ||
             url.ToLower().StartsWith("/images/") ||
             url.ToLower().StartsWith("/initialize.js") ||
             url.ToLower().StartsWith("/favicon.ico") ||
@@ -60,19 +60,30 @@ public class AuthMiddleware
         //Debug.WriteLine($"Path: {context.Request.Path}");
         //Debug.WriteLine($"url: {url}");
 
+        var remoteIpAddress = context.Connection.RemoteIpAddress.ToString();
+        var setting = FileUtil.GetSetting();
+
         if (
             (remoteIpAddress.Equals("::1") || remoteIpAddress.EndsWith("127.0.0.1"))
             && !url.Contains("api"))
         {
-            await _next(context);
+            if (setting.AuthTest)
+            {
+                _logger.LogInformation($"Auth Passed on local IP: {remoteIpAddress} {url} : TESTING MODE");
+            }
+                await _next(context);
             return;
         }
 
-        var setting = FileUtil.GetSetting();
-
+       
         if (string.IsNullOrEmpty(setting.APIUserName) || string.IsNullOrEmpty(setting.APIPassword))
         {
-            await _next(context);
+            if (setting.AuthTest)
+            {
+                _logger.LogInformation($"Auth Passed on APIUserName/APIPassword: {remoteIpAddress} {url} : TESTING MODE");
+
+            }
+                await _next(context);
             return;
         }
 

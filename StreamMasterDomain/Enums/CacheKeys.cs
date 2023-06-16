@@ -7,30 +7,14 @@ namespace StreamMasterDomain.Enums;
 
 public static class CacheKeys
 {
-    public const string ListIconFiles = "ListIconFileDto";
-    public const string ListProgrammeChannel = "ListProgrammeChannel";
-    public const string ListProgrammes = "ListProgrammes";
-    public const string ListTVLogos = "ListTVLogos";
     public const string IsSystemReadyKey = "IsSystemReady";
 
+    public const string ListIconFiles = "ListIconFileDto";
+    public const string ListProgrammeChannel = "ListProgrammeChannel";
+
+    public const string ListProgrammes = "ListProgrammes";
+    public const string ListTVLogos = "ListTVLogos";
     public static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
-
-    public static bool IsSystemReady(this IMemoryCache cache)
-    {
-        if (cache.TryGetValue(IsSystemReadyKey, out bool? cacheValue))
-        {
-            if (cacheValue != null)
-            {
-                return (bool)cacheValue;
-            }
-        }
-        return false;
-    }
-
-    public static void SetIsSystemReady(this IMemoryCache cache,bool isSystemReady)
-    {
-        cache.Set(IsSystemReadyKey, isSystemReady, CacheEntryOptions);
-    }
 
     public static void ClearIcons(this IMemoryCache cache)
     {
@@ -57,6 +41,18 @@ public static class CacheKeys
         return Get<IconFileDto>(ListIconFiles, cache);
     }
 
+    public static bool IsSystemReady(this IMemoryCache cache)
+    {
+        if (cache.TryGetValue(IsSystemReadyKey, out bool? cacheValue))
+        {
+            if (cacheValue != null)
+            {
+                return (bool)cacheValue;
+            }
+        }
+        return false;
+    }
+
     public static List<ProgrammeChannel> ProgrammeChannels(this IMemoryCache cache)
     {
         return Get<ProgrammeChannel>(ListProgrammeChannel, cache);
@@ -71,7 +67,7 @@ public static class CacheKeys
     {
         if (data.GetType().GenericTypeArguments.Contains(typeof(IconFileDto)))
         {
-            cache.Set(ListIconFiles, data, CacheEntryOptions);
+            //cache.Set(ListIconFiles, data, CacheEntryOptions);
             return;
         }
 
@@ -92,6 +88,11 @@ public static class CacheKeys
             cache.Set(ListProgrammeChannel, data, CacheEntryOptions);
             return;
         }
+    }
+
+    public static void SetIsSystemReady(this IMemoryCache cache, bool isSystemReady)
+    {
+        cache.Set(IsSystemReadyKey, isSystemReady, CacheEntryOptions);
     }
 
     public static List<TvLogoFile> TvLogos(this IMemoryCache cache)

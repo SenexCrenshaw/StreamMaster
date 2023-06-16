@@ -11,9 +11,6 @@ using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Dto;
 
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
-
 namespace StreamMasterApplication.Icons.Commands;
 
 public record AutoMatchIconToStreamsRequest(List<int> Ids) : IRequest<IconFileDto?>
@@ -28,20 +25,16 @@ public class AutoMatchIconToStreamsRequestValidator : AbstractValidator<AutoMatc
     }
 }
 
-
-
 public class AutoMatchIconToStreamsRequestHandler : IRequestHandler<AutoMatchIconToStreamsRequest, IconFileDto?>
 {
-    private class WeightedMatch
-    {
-        public string Name { get; set; }
-        public double Weight { get; set; }
-    }
-
     private readonly IAppDbContext _context;
+
     private readonly IMapper _mapper;
+
     private readonly IMemoryCache _memoryCache;
+
     private readonly IPublisher _publisher;
+
     private readonly ISender _sender;
 
     public AutoMatchIconToStreamsRequestHandler(
@@ -77,17 +70,15 @@ public class AutoMatchIconToStreamsRequestHandler : IRequestHandler<AutoMatchIco
         return weightedMatch;
     }
 
-
-
     public async Task<IconFileDto?> Handle(AutoMatchIconToStreamsRequest request, CancellationToken cancellationToken)
     {
         if (request.Ids == null || request.Ids.Count == 0)
         {
             return null;
         }
-        var icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
+        var icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);// CacheKeys.Icons(); //await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
         //var streams = _context.VideoStreams.Where(a => request.Ids.Contains(a.Id) && string.IsNullOrEmpty(a.User_Tvg_logo)).ToList();
-        var streams = _context.VideoStreams.Where(a => request.Ids.Contains(a.Id) ).ToList();
+        var streams = _context.VideoStreams.Where(a => request.Ids.Contains(a.Id)).ToList();
         List<VideoStreamDto> videoStreamDtos = new();
 
         foreach (var stream in streams)
@@ -102,7 +93,7 @@ public class AutoMatchIconToStreamsRequestHandler : IRequestHandler<AutoMatchIco
 
             var topCheckIcon = icons.Where(a => a.Name.ToLower().Contains(stream.User_Tvg_name.ToLower()))
                          .OrderByDescending(a => GetWeightedMatch(stream.User_Tvg_name, a.Name))
-                         .Select(a=> new {Icon= a, Weight = GetWeightedMatch(stream.User_Tvg_name, a.Name)})
+                         .Select(a => new { Icon = a, Weight = GetWeightedMatch(stream.User_Tvg_name, a.Name) })
                          .FirstOrDefault();
 
             if (topCheckIcon != null && topCheckIcon.Weight > 0.5 && stream.User_Tvg_logo != topCheckIcon.Icon.OriginalSource)
@@ -112,10 +103,9 @@ public class AutoMatchIconToStreamsRequestHandler : IRequestHandler<AutoMatchIco
                 videoStreamDtos.Add(videoStreamDto);
                 break;
             }
-
         }
         await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        if (videoStreamDtos.Any() )
+        if (videoStreamDtos.Any())
         {
             await _publisher.Publish(new UpdateVideoStreamsEvent(videoStreamDtos), cancellationToken).ConfigureAwait(false);
         }
@@ -132,5 +122,11 @@ public class AutoMatchIconToStreamsRequestHandler : IRequestHandler<AutoMatchIco
         normalized = normalized.ToLower();
 
         return normalized;
+    }
+
+    private class WeightedMatch
+    {
+        public string Name { get; set; }
+        public double Weight { get; set; }
     }
 }

@@ -43,8 +43,6 @@ public partial class AppDbContext : DbContext, IAppDbContext
     // AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor
     ) : base(options)
     {
-
-
         _logger = logger;
 
         _mediator = mediator;
@@ -72,6 +70,12 @@ public partial class AppDbContext : DbContext, IAppDbContext
 
         _ = await SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         Console.WriteLine("ResetDB ran");
+    }
+
+    public int SaveChanges()
+    {
+        _ = _mediator.DispatchDomainEvents(this).ConfigureAwait(false);
+        return base.SaveChanges();
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

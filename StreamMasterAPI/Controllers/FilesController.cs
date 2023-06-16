@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterAPI.Interfaces;
@@ -26,6 +27,7 @@ public class FilesController : ApiControllerBase, IFileController
         _context = context;
     }
 
+    [AllowAnonymous]
     [Route("{filetype}/{fileName}")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetFile(string fileName, SMFileTypes filetype)

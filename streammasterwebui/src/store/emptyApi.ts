@@ -1,6 +1,6 @@
 import { type BaseQueryFn, type FetchArgs, type FetchBaseQueryError} from '@reduxjs/toolkit/query/react';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { apiPassword, apiUserName, baseHostURL } from '../settings';
+import { apiKey, baseHostURL } from '../settings';
 
 function appendQueryStringParam (args: FetchArgs | string, key: string, value: string): FetchArgs | string {
   let urlEnd = typeof args === 'string' ? args : args.url;
@@ -15,16 +15,15 @@ function appendQueryStringParam (args: FetchArgs | string, key: string, value: s
   return typeof args === 'string' ? urlEnd : { ...args, url: urlEnd };
 }
 
-
 const rawBaseQuery = fetchBaseQuery({ baseUrl: baseHostURL });
+// const rawBaseQuery = fetchBaseQuery({ baseUrl: baseHostURL });
 
 const dynamicBaseQuery: BaseQueryFn<
 FetchArgs | string,
 unknown,
 FetchBaseQueryError
 > = async (args, api, extraOptions) => {
-  args = appendQueryStringParam(args, 'apiUserName', apiUserName);
-  args = appendQueryStringParam(args, 'apiPassword', apiPassword);
+  args = appendQueryStringParam(args, 'apiKey', apiKey);
 
   return rawBaseQuery(args, api, extraOptions);
 };

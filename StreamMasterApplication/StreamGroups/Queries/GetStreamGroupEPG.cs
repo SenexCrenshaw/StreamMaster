@@ -8,6 +8,8 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
+using StreamMasterApplication.Icons.Queries;
+
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities.EPG;
@@ -95,7 +97,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
             List<IconFile> progIcons = _context.Icons.Where(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.FileExists).ToList();
 
-            var icons = _memoryCache.Icons();
+            var icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
 
             _ = Parallel.ForEach(videoStreams, po, videoStream =>
             {

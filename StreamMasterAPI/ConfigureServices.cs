@@ -2,6 +2,8 @@ using FluentValidation.AspNetCore;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
@@ -11,7 +13,14 @@ using StreamMasterAPI.Services;
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Hubs;
 using StreamMasterApplication.Services;
+using StreamMasterApplication.Users;
 
+using StreamMasterDomain.Authentication;
+using StreamMasterDomain.Configuration;
+using StreamMasterDomain.EnvironmentInfo;
+
+using StreamMasterInfrastructure;
+using StreamMasterInfrastructure.Authentication;
 using StreamMasterInfrastructure.Persistence;
 using StreamMasterInfrastructure.Services;
 using StreamMasterInfrastructure.Services.QueueService;
@@ -22,19 +31,89 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddWebUIServices(this IServiceCollection services)
     {
+        services.AddCors(options =>
+        {
+            options.AddPolicy("DevPolicy",
+                builder =>
+            builder
+                .WithOrigins("http://localhost:3000")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials()
+                );
+
+            options.AddPolicy(VersionedApiControllerAttribute.API_CORS_POLICY,
+                builder =>
+                builder.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+
+            options.AddPolicy("AllowGet",
+                builder =>
+                builder.AllowAnyOrigin()
+                .WithMethods("GET", "OPTIONS")
+                .AllowAnyHeader());
+
+        });
+
+
+        _ = services.AddLogging();
+        _ = services.AddSingleton<ICurrentUserService, CurrentUserService>();
+
+        services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
+        });
+
+        services.AddResponseCompression(options => options.EnableForHttps = true);
+
+        services.AddSingleton<IAuthorizationPolicyProvider, UiAuthorizationPolicyProvider>();
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("SignalR", policy =>
+            {
+                policy.AuthenticationSchemes.Add("SignalR");
+                policy.RequireAuthenticatedUser();
+            });
+
+            // Require auth on everything except those marked [AllowAnonymous]
+            options.FallbackPolicy = new AuthorizationPolicyBuilder("API")
+            .RequireAuthenticatedUser()
+            .Build();
+        });
+
+        services.AddAppAuthentication();
+
         _ = services.AddSession();
+
+        // services.AddTransient<IMapHttpRequestsToDisk, HtmlMapperBase>();
+
+        // services
+        //.AddControllers(options =>
+        //{
+        //    options.ReturnHttpNotAcceptable = true;
+        //})
+        //.AddApplicationPart(typeof(StaticResourceController).Assembly)
+        //.AddControllersAsServices();
 
         _ = services.AddSignalR();//.AddMessagePackProtocol();
 
         _ = services.AddDatabaseDeveloperPageExceptionFilter();
 
         _ = services.AddSingleton<ICurrentUserService, CurrentUserService>();
+        _ = services.AddSingleton<IAppFolderInfo, AppFolderInfo>();
+        _ = services.AddSingleton<IConfigFileProvider, ConfigFileProvider>();
+
+        _ = services.AddScoped<IUserService, UserService>();
+        _ = services.AddScoped<IAuthenticationService, AuthenticationService>();
+        _ = services.AddScoped<IUserRepository, UserRepository>();
 
         _ = services.AddHttpContextAccessor();
 
         _ = services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
-
-        _ = services.AddLogging();
 
         _ = services.AddFluentValidationAutoValidation();
 
@@ -56,10 +135,10 @@ public static class ConfigureServices
        });
 
         _ = services.AddOpenApiDocument(configure =>
-       {
-           configure.Title = "StreamMaster API";
-           configure.SchemaProcessors.Add(new InheritanceSchemaProcessor());
-       });
+        {
+            configure.Title = "StreamMaster API";
+            configure.SchemaProcessors.Add(new InheritanceSchemaProcessor());
+        });
 
         _ = services.AddHostedService<PostStartup>();
         _ = services.AddSingleton<PostStartup>();

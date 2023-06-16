@@ -66,9 +66,7 @@ export type PropsComparator<C extends React.ComponentType> = (
   nextProps: Readonly<React.ComponentProps<C>>,
 ) => boolean;
 
-export async function sleep(ms: number) {
-  return await new Promise(resolve => setTimeout(resolve, ms));
-}
+
 
 export const camel2title = (camelCase: string): string => camelCase
   .replace(/([A-Z])/g, (match) => ` ${match}`)

@@ -31,4 +31,7 @@
     <ProjectReference Include="..\StreamMaster.SchedulesDirect\StreamMaster.SchedulesDirect.csproj" />
     <ProjectReference Include="..\StreamMasterDomain\StreamMasterDomain.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Users\Queries\" />
+  </ItemGroup>
 </Project>

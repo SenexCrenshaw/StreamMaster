@@ -21,7 +21,7 @@ import { type ColumnMeta } from "../features/dataSelector/DataSelectorTypes";
 import { type DataTableRowDataArray } from "primereact/datatable";
 import VideoStreamVisibleDialog from "./VideoStreamVisibleDialog";
 import VideoStreamEditDialog from "./VideoStreamEditDialog";
-import AutoMatchIconToStreamsDialog from "./AutoMatchIconToStreamsDialog";
+// import AutoMatchIconToStreamsDialog from "./AutoMatchIconToStreamsDialog";
 
 const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
@@ -394,7 +394,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
           tooltipOptions={getTopToolOptions}
           value={showHidden} />
 
-        <AutoMatchIconToStreamsDialog ids={ids} />
+        {/* <AutoMatchIconToStreamsDialog ids={ids} /> */}
 
         <AutoSetChannelNumbers ids={ids} />
 

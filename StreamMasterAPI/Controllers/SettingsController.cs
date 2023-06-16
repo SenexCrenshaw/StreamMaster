@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.General.Queries;
@@ -37,6 +38,7 @@ public class SettingsController : ApiControllerBase, ISettingController
     }
 
     [HttpGet]
+    [AllowAnonymous]
     [Route("[action]")]
     [ProducesResponseType(typeof(SystemStatus), StatusCodes.Status200OK)]
     public async Task<ActionResult<SystemStatus>> GetSystemStatus()

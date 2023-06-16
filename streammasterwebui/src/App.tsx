@@ -2,10 +2,9 @@ import './App.css';
 
 import { Navigate, Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
 import * as StreamMasterApi from './store/iptvApi';
-import React from 'react';
+import React, { version } from 'react';
 import messagesEn from './messages_en';
-import { hubConnection } from './app/store';
-import { HubConnectionState } from '@microsoft/signalr';
+
 import { ProSidebarProvider } from 'react-pro-sidebar';
 import { useLocalStorage } from 'primereact/hooks';
 import { IntlProvider } from 'react-intl';
@@ -20,11 +19,10 @@ import ProtectedRoute from './_auth/ProtectedRoute';
 import Login from './_auth/Login';
 import { type UserInformation } from './common/common';
 import Home from './Home';
-import { requiresAuth } from './settings';
+import { apiKey, apiRoot, baseHostURL, isDev, requiresAuth, urlBase } from './settings';
+import SignalRHub from './app/SignalRHub';
 
 const App = () => {
-
-
 
   const [userInformation, setUserInformation] = useLocalStorage<UserInformation>({} as UserInformation, 'userInformation');
   const [locale,] = useLocalStorage('en', 'locale');
@@ -46,27 +44,7 @@ const App = () => {
     }
   }, [setSignIn, userInformation.IsAuthenticated]);
 
-  React.useEffect(() => {
-
-    const interval = setInterval(() => {
-      if (hubConnection.state === HubConnectionState.Connected && !hubConnected) {
-        setHubConnected(true);
-        console.log("App Connected");
-
-      } else if (hubConnection.state !== HubConnectionState.Connected && hubConnected) {
-        setHubConnected(false);
-        console.log("App Disconnected");
-      }
-
-    }, 1000);
-
-    return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
-  }, [hubConnected])
-
-
   const systemStatus = StreamMasterApi.useSettingsGetSystemStatusQuery();
-
-
 
   const logOut = React.useCallback(() => {
     setUserInformation(
@@ -138,9 +116,20 @@ const App = () => {
     )
   );
 
+  console.log('baseHostURL: ', baseHostURL)
+  console.log('apiRoot: ', apiRoot)
+  console.log('apiKey: ', apiKey)
+  console.log('isDev: ', isDev)
+  console.log('requiresAuth: ', requiresAuth)
+  console.log('urlBase: ', urlBase)
+  console.log('version: ', version)
+
   if (!systemReady)
     return (
       <div className="flex justify-content-center flex-wrap card-container w-full h-full "  >
+
+        <SignalRHub onConnected={(e) => setHubConnected(e)} />
+
         <div className="flex align-items-center justify-content-center font-bold  m-2"
           style={{
             height: 'calc(100vh - 10px)',
@@ -160,6 +149,9 @@ const App = () => {
 
   return (
     <IntlProvider locale={locale} messages={messages}>
+
+      <SignalRHub onConnected={(e) => console.log('SignalRHub: ', e)} />
+
       <ProSidebarProvider>
         <RouterProvider router={router} />
       </ProSidebarProvider>

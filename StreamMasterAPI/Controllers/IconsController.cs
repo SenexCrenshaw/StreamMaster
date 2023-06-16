@@ -53,17 +53,19 @@ public class IconsController : ApiControllerBase, IIconController
     }
 
     [HttpGet]
-    [Route("{id}")]
+    [Route("[action]/{id}")]
     [ProducesResponseType(typeof(IconFileDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IconFileDto>> GetIcon(int id)
     {
+        var host = GetUrl();
         IconFileDto? data = await Mediator.Send(new GetIcon(id)).ConfigureAwait(false);
         return data != null ? (ActionResult<IconFileDto>)data : (ActionResult<IconFileDto>)NotFound();
     }
 
     [HttpGet]
+    [Route("[action]")]
     [ProducesResponseType(typeof(IEnumerable<IconFileDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -71,5 +73,18 @@ public class IconsController : ApiControllerBase, IIconController
     {
         IEnumerable<IconFileDto> data = await Mediator.Send(new GetIcons()).ConfigureAwait(false);
         return data.ToList();
+    }
+
+    public string GetUrl()
+    {
+        var request = HttpContext.Request;
+        var scheme = request.Scheme;
+        var host = request.Host;
+        var path = request.Path;
+        var queryString = request.QueryString;
+
+        var url = $"{scheme}://{host}";
+
+        return url;
     }
 }

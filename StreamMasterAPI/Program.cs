@@ -1,12 +1,14 @@
+using Microsoft.Extensions.FileProviders;
+
 using StreamMasterAPI;
 
 using StreamMasterApplication;
 using StreamMasterApplication.Hubs;
 
 using StreamMasterDomain.Common;
+using StreamMasterDomain.Dto;
 
 using StreamMasterInfrastructure;
-using StreamMasterInfrastructure.MiddleWare;
 using StreamMasterInfrastructure.Persistence;
 
 using System.Text;
@@ -38,21 +40,25 @@ if (_urlBase != setting.BaseHostURL)
 }
 
 string indexFilePath = Path.GetFullPath("wwwroot") + Path.DirectorySeparatorChar + "initialize.js";
+var apikey = setting.ApiKey;
 
 Console.WriteLine($"Writing {_urlBase} information to {indexFilePath}");
-
+var settingDto = new SettingDto();
 StringBuilder scriptBuilder = new();
 scriptBuilder.AppendLine("window.StreamMaster = {");
-scriptBuilder.AppendLine($"  baseHostURL: '{_urlBase}',");
-if (!string.IsNullOrEmpty(setting.APIPassword) && !string.IsNullOrEmpty(setting.APIUserName))
-{
-    scriptBuilder.AppendLine($"  apiPassword: '{setting.APIPassword}',");
-    scriptBuilder.AppendLine($"  apiUserName: '{setting.APIUserName}',");
-}
+scriptBuilder.AppendLine($"  apiKey: '{setting.ApiKey}',");
+scriptBuilder.AppendLine($"  apiRoot: '/api',");
+//if (!string.IsNullOrEmpty(setting.APIPassword) && !string.IsNullOrEmpty(setting.APIUserName))
+//{
+//    scriptBuilder.AppendLine($"  apiPassword: '{setting.APIPassword}',");
+//    scriptBuilder.AppendLine($"  apiUserName: '{setting.APIUserName}',");
+//}
 scriptBuilder.AppendLine($"  baseHostURL: '{_urlBase}',");
 scriptBuilder.AppendLine($"  hubName: 'streammasterhub',");
 scriptBuilder.AppendLine($"  isDev: false,");
 scriptBuilder.AppendLine($"  requiresAuth: {(!string.IsNullOrEmpty(setting.AdminPassword) && !string.IsNullOrEmpty(setting.AdminUserName)).ToString().ToLower()},");
+scriptBuilder.AppendLine($"  urlBase: '{settingDto.UrlBase}',");
+scriptBuilder.AppendLine($"  version: '{settingDto.Version}',");
 scriptBuilder.AppendLine("};");
 File.WriteAllText(indexFilePath, scriptBuilder.ToString());
 
@@ -62,15 +68,17 @@ builder.WebHost.ConfigureKestrel((context, serverOptions) =>
 {
 });
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("CorsPolicy", builder => builder
-        //.WithOrigins("http://localhost:3000")
-        .AllowAnyOrigin()
-        .AllowAnyMethod()
-        .AllowAnyHeader()
-        );
-});
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("CorsPolicy", builder => builder
+//        //.WithOrigins("http://localhost:3000")
+//        .AllowAnyOrigin()
+//        .AllowAnyMethod()
+//        .AllowAnyHeader()
+//        );
+//});
+
+
 
 // Add services to the container.
 builder.Services.AddApplicationServices();
@@ -94,22 +102,23 @@ builder.Services.AddControllers(options =>
 
 WebApplication app = builder.Build();
 
-app.UseHttpLogging();
-
-_ = app.UseMigrationsEndPoint();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     _ = app.UseDeveloperExceptionPage();
     _ = app.UseMigrationsEndPoint();
+    app.UseForwardedHeaders();
 }
 else
 {
-    // The default HSTS value is 30 days. You may want to change this for
-    // production scenarios, see https://aka.ms/aspnetcore-hsts.
     _ = app.UseExceptionHandler("/Error");
+    app.UseForwardedHeaders();
     _ = app.UseHsts();
 }
+
+app.UseHttpLogging();
+
+_ = app.UseMigrationsEndPoint();
 
 app.UseSession();
 
@@ -124,24 +133,55 @@ using (IServiceScope scope = app.Services.CreateScope())
     }
 }
 
-app.UseCors("CorsPolicy");
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("DevPolicy");
+}
+else
+{
+    app.UseCors();
+}
+app.UseAuthentication();
 
-app.UseMiddleware<AuthMiddleware>();
+//app.UseResponseCompression();
+
+//app.UseMiddleware<AuthMiddleware>();
 
 app.UseHealthChecks("/health");
 //app.UseHttpsRedirection();
-
-app.UseOpenApi();
+app.UseWebSockets(); app.UseOpenApi();
 app.UseSwaggerUi3();
+
 app.UseDefaultFiles();
-app.UseStaticFiles();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "devwwwroot")),
+        RequestPath = "/devwwwroot"
+    });
+}
+else
+{
+    app.UseStaticFiles();
+}
+
 app.UseRouting();
 //app.UseHttpsRedirection();
-
+app.UseAuthorization();
 app.MapHealthChecks("/healthz");
 app.MapDefaultControllerRoute();
 
-app.MapHub<StreamMasterHub>("/streammasterhub");
+app.UseEndpoints(endpoints =>
+{
+    endpoints.Map("/swagger", context =>
+    {
+        context.Response.Redirect("/swagger/index.html");
+        return Task.CompletedTask;
+    });
+    app.MapHub<StreamMasterHub>("/streammasterhub").RequireAuthorization("SignalR");
+});
 
 app.MapFallbackToFile("index.html");
 
