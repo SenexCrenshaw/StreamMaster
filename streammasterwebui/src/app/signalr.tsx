@@ -10,7 +10,7 @@ console.log('url: ', url)
 export const hubConnection = new HubConnectionBuilder()
   .configureLogging(LogLevel.Critical)
   // .withHubProtocol(new MessagePackHubProtocol())
-  .withUrl(baseHostURL === undefined || baseHostURL === '' ? '/streammasterhub' : baseHostURL + '/streammasterhub', {
+  .withUrl(url, {
     accessTokenFactory: () => apiKey,
     headers: { 'X-Api-Key': apiKey },
   })

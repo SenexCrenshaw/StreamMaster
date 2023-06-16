@@ -36,6 +36,14 @@ namespace StreamMasterInfrastructure.Services.Frontend
             return MapResource("Content/" + path);
         }
 
+        [EnableCors("AllowGet")]
+        [AllowAnonymous]
+        [HttpGet("/images/{**path:regex(^(?!api/).*)}")]
+        public IActionResult IndexImages([FromRoute] string path)
+        {
+            return MapResource("images/" + path);
+        }
+
         [AllowAnonymous]
         [HttpGet("login")]
         public IActionResult LoginPage()

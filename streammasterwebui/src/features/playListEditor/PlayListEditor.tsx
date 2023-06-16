@@ -6,7 +6,7 @@ import { PlayListEditorIcon } from '../../common/icons';
 
 const PlayListEditor = (props: PlayListEditorProps) => {
   const id = props.id ?? "playlisteditor";
-  // const [selectedChannelGroup, setSelectedChannelGroup] = React.useState<StreamMasterApi.ChannelGroupDto>({} as StreamMasterApi.ChannelGroupDto);
+
   const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[]);
   const [selectedM3UFile, setSelectedM3UFile] = React.useState<StreamMasterApi.M3UFilesDto>({} as StreamMasterApi.M3UFilesDto);
 
@@ -26,6 +26,9 @@ const PlayListEditor = (props: PlayListEditorProps) => {
         <div className="flex w-full text-left font-bold text-white-500 surface-overlay justify-content-start align-items-center">
           <PlayListEditorIcon className='p-0 mr-1' />
           {PlayListEditor.displayName?.toUpperCase()}
+        </div >
+        <div className="flex w-full text-left font-bold text-white-500 surface-overlay justify-content-end align-items-center">
+          A
         </div >
         <div className="flex col-12 mt-1 m-0 p-0" >
           <div className='col-4 m-0 p-0 pr-1' >

@@ -32,7 +32,7 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
         : base(options, logger, encoder, clock)
     {
         _apiKey = config.Setting.ApiKey;
-        needsAuth = true;// config.Setting.AuthenticationMethod != StreamMasterDomain.Authentication.AuthenticationType.None;
+        needsAuth = config.Setting.AuthenticationMethod != StreamMasterDomain.Authentication.AuthenticationType.None;
     }
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()

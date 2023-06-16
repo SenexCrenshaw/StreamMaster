@@ -2,6 +2,7 @@
 export default {
   adminUserName: "Admin Username",
   admninPassword:"Admin Password",
+  apiKey: "API Key",
   apiPassword: "API Password",
   apiUserName: "API Username",
   auth: "Authentication",

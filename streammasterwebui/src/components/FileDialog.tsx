@@ -289,6 +289,7 @@ const FileDialog = (props: FileDialogProps) => {
     <>
       <InfoMessageOverLayDialog
         blocked={block}
+        closable
         header={`Add ${props.fileType.toLocaleUpperCase()} File`}
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}

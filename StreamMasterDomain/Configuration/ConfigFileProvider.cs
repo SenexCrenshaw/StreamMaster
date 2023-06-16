@@ -1,4 +1,5 @@
-﻿using StreamMasterDomain.EnvironmentInfo;
+﻿using StreamMasterDomain.Authentication;
+using StreamMasterDomain.EnvironmentInfo;
 using StreamMasterDomain.Extensions;
 
 using System.Diagnostics;
@@ -34,6 +35,7 @@ public class ConfigFileProvider : IConfigFileProvider
 
         if (Debugger.IsAttached)
         {
+            currentSetting.AuthenticationMethod = AuthenticationType.None;
             currentSetting.UiFolder = "devwwwroot";
             currentSetting.ApiKey = "f835904d5a2343d8ac567c026d6c08b2";
         }

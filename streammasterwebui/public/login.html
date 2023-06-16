@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="background-color: #0e1315;">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,7 +11,7 @@
     <!-- Windows Phone -->
     <meta name="msapplication-navbutton-color" content="#464b51" />
 
-    <meta name="description" content="Stream Master (Preview)" />
+    <meta name="description" content="Stream Master" />
 
     <link
       rel="apple-touch-icon"
@@ -191,10 +191,12 @@
   </head>
 
   <body>
-    <div class="center">
+    <div class="center" style="background-color: #0e1315;">
       <div class="content">
         <div class="panel">
-          <div class="panel-header">
+          <div class="panel-header" style="
+    background-color: #CB5E01;
+">
             <img src="/images/StreamMasterx32.png" alt="Image" class="logo" />
           </div>
 
@@ -252,7 +254,10 @@
                   >Forgot your password?</a
                 >
               </div> -->
-              <button type="submit" class="button">Login</button>
+              <button type="submit" class="button" style="
+    background-color: #6dc831ee;
+    color: white;
+">Login</button>
 
               <div id="login-failed" class="login-failed hidden">
                 Incorrect Username or Password
@@ -273,7 +278,7 @@
 
   <script type="text/javascript">
     var yearSpan = document.getElementById("year");
-    yearSpan.innerHTML = "2010-" + new Date().getFullYear();
+    yearSpan.innerHTML =  new Date().getFullYear();
 
     var copyDiv = document.getElementById("copy");
     copyDiv.classList.remove("hidden");
