@@ -7,6 +7,8 @@ using StreamMasterApplication.M3UFiles.Queries;
 
 using StreamMasterDomain.Dto;
 
+using StreamMasterInfrastructure;
+
 namespace StreamMasterAPI.Controllers;
 
 public class ChannelGroupsController : ApiControllerBase, IChannelGroupController

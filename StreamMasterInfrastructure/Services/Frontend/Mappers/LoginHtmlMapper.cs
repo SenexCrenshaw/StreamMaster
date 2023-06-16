@@ -9,11 +9,11 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
     {
         public LoginHtmlMapper(IAppFolderInfo appFolderInfo,
                                IConfigFileProvider configFileProvider,
-                               ILogger logger)
+                               ILogger<LoginHtmlMapper> logger)
             : base(logger)
         {
             HtmlPath = Path.Combine(appFolderInfo.StartUpFolder, configFileProvider.Setting.UiFolder, "login.html");
-            UrlBase = "";// configFileProvider.UrlBase;
+            UrlBase = configFileProvider.Setting.UrlBase;
         }
 
         public override bool CanHandle(string resourceUrl)

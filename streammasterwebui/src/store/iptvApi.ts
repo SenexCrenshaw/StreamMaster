@@ -1390,11 +1390,12 @@ export type LogInRequest = {
   userName?: string;
 };
 export type UpdateSettingRequest = {
-  cacheIcons?: boolean | null;
-  apiPassword?: string | null;
-  apiUserName?: string | null;
   adminPassword?: string | null;
   adminUserName?: string | null;
+  apiKey?: string | null;
+  apiPassword?: string | null;
+  apiUserName?: string | null;
+  cacheIcons?: boolean | null;
   cleanURLs?: boolean | null;
   deviceID?: string | null;
   ffmPegExecutable?: string | null;

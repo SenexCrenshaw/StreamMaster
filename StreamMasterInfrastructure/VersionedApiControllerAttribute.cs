@@ -13,7 +13,8 @@ public class VersionedApiControllerAttribute : Attribute, IRouteTemplateProvider
     {
         Resource = resource;
         //Template = $"api/v{version}/{resource}";
-        Template = $"api/{resource}";
+        Template = $"{resource}";
+        //Template = "api/ChannelGroups";
         PolicyName = API_CORS_POLICY;
     }
 
@@ -24,3 +25,10 @@ public class VersionedApiControllerAttribute : Attribute, IRouteTemplateProvider
     public string Template { get; }
 }
 
+public class V1ApiControllerAttribute : VersionedApiControllerAttribute
+{
+    public V1ApiControllerAttribute(string resource = "[controller]")
+        : base(1, resource)
+    {
+    }
+}

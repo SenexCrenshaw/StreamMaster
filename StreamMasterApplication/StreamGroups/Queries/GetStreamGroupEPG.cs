@@ -111,6 +111,11 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
                 TvChannel t;
                 int dummy = 0;
+                if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
+                {
+                    videoStream.User_Tvg_ID = "dummy";
+                }
+
                 if (videoStream.User_Tvg_ID.ToLower() == "dummy")
                 {
                     dummy = GetDummy();

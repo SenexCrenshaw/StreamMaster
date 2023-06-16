@@ -20,7 +20,6 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
-       
         // Dynamically find and register services implementing IMapHttpRequestsToDisk
         var assembly = Assembly.GetExecutingAssembly(); // Or replace with the assembly where your services are defined
         var mapHttpRequestsToDiskImplementations = assembly.GetTypes()
@@ -28,7 +27,7 @@ public static class ConfigureServices
 
         foreach (var implementation in mapHttpRequestsToDiskImplementations)
         {
-            if (implementation.Name.EndsWith("Base") || implementation.Name.Contains("ogin"))
+            if (implementation.Name.EndsWith("Base"))//|| implementation.Name.Contains("ogin"))
             {
                 continue;
             }

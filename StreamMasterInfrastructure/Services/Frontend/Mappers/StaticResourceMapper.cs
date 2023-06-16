@@ -27,7 +27,7 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
                 return false;
             }
 
-            return resourceUrl.StartsWith("/static/") &&
+            return (resourceUrl.StartsWith("/static/")|| resourceUrl.StartsWith("/content/")) &&
                 (
                    resourceUrl.EndsWith(".js") && !resourceUrl.EndsWith("initialize.js") ||
                    resourceUrl.EndsWith(".map") ||
@@ -35,6 +35,7 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
                    resourceUrl.EndsWith(".woff") ||
                    resourceUrl.EndsWith(".ttf") ||
                    resourceUrl.EndsWith(".css") ||
+                       resourceUrl.EndsWith(".eot") ||
                    resourceUrl.EndsWith(".ico") && !resourceUrl.Equals("/favicon.ico") ||
                    resourceUrl.EndsWith(".swf") ||
                    resourceUrl.EndsWith("oauth.html"

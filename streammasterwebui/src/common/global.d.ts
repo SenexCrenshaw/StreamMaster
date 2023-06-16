@@ -5,7 +5,6 @@ type StreamMasterApiData = {
   baseHostURL: string,
   hubName: string,
   isDev: boolean,
-  requiresAuth: boolean,
   urlBase: string,
   version: string,
 };

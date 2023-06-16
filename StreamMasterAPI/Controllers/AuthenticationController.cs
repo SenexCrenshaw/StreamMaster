@@ -24,6 +24,7 @@ namespace StreamMasterAPI.Controllers
             _configFileProvider = configFileProvider;
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromForm] LoginResource resource, [FromQuery] string returnUrl = null)
         {
@@ -48,7 +49,8 @@ namespace StreamMasterAPI.Controllers
 
             await HttpContext.SignInAsync(AuthenticationType.Forms.ToString(), new ClaimsPrincipal(new ClaimsIdentity(claims, "Cookies", "user", "identifier")), authProperties);
 
-            return Redirect(_configFileProvider.Setting.BaseHostURL + "/");
+           
+            return Redirect(_configFileProvider.Setting.UrlBase + "/");
         }
 
         [HttpGet("logout")]
@@ -56,7 +58,7 @@ namespace StreamMasterAPI.Controllers
         {
             _authService.Logout(HttpContext);
             await HttpContext.SignOutAsync(AuthenticationType.Forms.ToString());
-            return Redirect(_configFileProvider.Setting.BaseHostURL + "/");
+            return Redirect(_configFileProvider.Setting.UrlBase+"/");
         }
     }
 }

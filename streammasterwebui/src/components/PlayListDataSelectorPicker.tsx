@@ -5,15 +5,15 @@ import DataSelectorPicker from "../features/dataSelectorPicker/DataSelectorPicke
 
 import { Button } from 'primereact/button';
 import { getTopToolOptions } from "../common/common";
-import StreamMasterSetting from "../store/signlar/StreamMasterSetting";
 import { Toast } from 'primereact/toast';
 import * as Hub from "../store/signlar_functions";
 import ChannelNumberEditor from "./ChannelNumberEditor";
 import ChannelNameEditor from "./ChannelNameEditor";
-import ChannelLogoEditor from "./ChannelLogoEditor";
+
 import { type ColumnMeta } from "../features/dataSelector/DataSelectorTypes";
 import { GroupIcon } from "../common/icons";
 import { Tooltip } from "primereact/tooltip";
+import IconSelector from "./IconSelector";
 
 const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   const toast = React.useRef<Toast>(null);
@@ -23,7 +23,6 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   const [targetVideoStreams, setTargetVideoStreams] = React.useState<StreamMasterApi.VideoStreamDto[]>([]);
   const [isVideoStreamUpdating, setIsVideoStreamUpdating] = React.useState<boolean>(false);
   const [streamGroup, setStreamGroup] = React.useState<StreamMasterApi.StreamGroupDto>({} as StreamMasterApi.StreamGroupDto);
-  const setting = StreamMasterSetting();
 
   React.useMemo(() => {
     if (!props.streamGroup || props.streamGroup.id === undefined) {
@@ -133,6 +132,54 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     )
   }, []);
 
+  const onUpdateVideoStream = React.useCallback(async (data: StreamMasterApi.VideoStreamDto, Logo: string) => {
+    if (data.id < 0) {
+      return;
+    }
+
+
+    const toSend = {} as StreamMasterApi.UpdateVideoStreamRequest;
+
+    toSend.id = data.id;
+
+    if (Logo && Logo !== '' && data.user_Tvg_logo !== Logo) {
+      toSend.tvg_logo = Logo;
+    }
+
+
+    await Hub.UpdateVideoStream(toSend)
+      .then((result) => {
+        if (toast.current) {
+          if (result) {
+            toast.current.show({
+              detail: `Updated Stream`,
+              life: 3000,
+              severity: 'success',
+              summary: 'Successful',
+            });
+          } else {
+            toast.current.show({
+              detail: `Update Stream Failed`,
+              life: 3000,
+              severity: 'error',
+              summary: 'Error',
+            });
+          }
+
+        }
+      }).catch((e) => {
+        if (toast.current) {
+          toast.current.show({
+            detail: `Update Stream Failed`,
+            life: 3000,
+            severity: 'error',
+            summary: 'Error ' + e.message,
+          });
+        }
+      });
+
+  }, []);
+
   const channelNameEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
     return (
       <ChannelNameEditor
@@ -142,13 +189,43 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     )
   }, []);
 
-  const logoEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
-    return <ChannelLogoEditor
-      data={data}
-      enableEditMode
-    />
 
-  }, []);
+  const logoEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
+    // return <ChannelLogoEditor
+    //   data={data}
+    //   enableEditMode
+    // />
+
+    return (
+      <IconSelector
+        className="p-inputtext-sm"
+        enableEditMode
+        onChange={
+          async (e: StreamMasterApi.IconFileDto) => {
+
+            // const newiconSource = e.originalSource.includes('://')
+            //   ? e.originalSource
+            //   : e.name;
+
+            await onUpdateVideoStream(data, e.name);
+          }
+        }
+        onReset={
+          async (e: StreamMasterApi.IconFileDto) => {
+
+            // const newiconSource = e.originalSource.includes('://')
+            //   ? e.originalSource
+            //   : e.name;
+
+            await onUpdateVideoStream(data, e.originalSource);
+          }
+        }
+        resetValue={data.tvg_logo}
+        value={data.user_Tvg_logo}
+      />
+    );
+
+  }, [onUpdateVideoStream]);
 
 
   const onSave = React.useCallback(async (data: StreamMasterApi.VideoStreamDto[]) => {
@@ -302,22 +379,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     },
   ];
 
-  const headerPrefixTemplate = React.useMemo(() => {
-    const record = 'hello';// props.selectedIptvChannel?.tvg_logo;
-    return (
-      <div className="flex flex-nowrap justify-content-center align-items-center p-0 h-full">
-        <img
-          alt={record ?? 'Logo'}
-          className="max-h-full max-w-3rem p-0"
-          onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => (e.currentTarget.src = (e.currentTarget.src = setting.defaultIcon))}
-          src={`${encodeURI(record ?? '')}`}
-          style={{
-            objectFit: 'contain',
-          }}
-        />
-      </div>
-    );
-  }, [setting.defaultIcon]);
+
 
   return (
     <>
@@ -346,7 +408,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
         sourceColumns={sourceColumns}
         sourceDataSource={sourceVideoStreams}
         sourceEnableState={false}
-        sourceHeaderPrefixTemplate={headerPrefixTemplate}
+
         sourceHeaderTemplate={props.sourceHeaderTemplate}
         sourceName='Streams'
         sourceRightColSize={1}

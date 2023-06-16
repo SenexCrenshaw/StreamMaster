@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import './App.css';
 
-import { Navigate, Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
+import { Navigate, Route, RouterProvider, createBrowserRouter, createRoutesFromElements, useNavigate } from 'react-router-dom';
 import * as StreamMasterApi from './store/iptvApi';
 import React, { version } from 'react';
 import messagesEn from './messages_en';
@@ -19,41 +20,37 @@ import ProtectedRoute from './_auth/ProtectedRoute';
 import Login from './_auth/Login';
 import { type UserInformation } from './common/common';
 import Home from './Home';
-import { apiKey, apiRoot, baseHostURL, isDev, requiresAuth, urlBase } from './settings';
+import { apiKey, apiRoot, baseHostURL, isDev, urlBase } from './settings';
 import SignalRHub from './app/SignalRHub';
 
 const App = () => {
-
-  const [userInformation, setUserInformation] = useLocalStorage<UserInformation>({} as UserInformation, 'userInformation');
+  // const navigate = useNavigate();
+  // const [userInformation, setUserInformation] = useLocalStorage<UserInformation>({ IsAuthenticated: true } as UserInformation, 'userInformation');
   const [locale,] = useLocalStorage('en', 'locale');
   const messages = locale === 'en' ? messagesEn : messagesEn;
   const [hubConnected, setHubConnected] = React.useState<boolean>(false);
 
-  const setSignIn = React.useCallback((e: boolean) => {
-    setUserInformation(
-      {
-        IsAuthenticated: e,
-        TokenAge: new Date(),
-      }
-    )
-  }, [setUserInformation]);
+  // const setSignIn = React.useCallback((e: boolean) => {
+  //   setUserInformation(
+  //     {
+  //       IsAuthenticated: e,
+  //       TokenAge: new Date(),
+  //     }
+  //   )
+  // }, [setUserInformation]);
 
-  React.useEffect(() => {
-    if (requiresAuth !== true && userInformation.IsAuthenticated !== true) {
-      setSignIn(true)
-    }
-  }, [setSignIn, userInformation.IsAuthenticated]);
+  // React.useEffect(() => {
+  //   if (requiresAuth !== true && true !== true) {
+  //     setSignIn(true)
+  //   }
+  // }, [setSignIn, true]);
 
   const systemStatus = StreamMasterApi.useSettingsGetSystemStatusQuery();
 
   const logOut = React.useCallback(() => {
-    setUserInformation(
-      {
-        IsAuthenticated: false,
-        TokenAge: new Date(),
-      }
-    )
-  }, [setUserInformation]);
+
+    // navigate('/logout');
+  }, []);
 
   const systemReady = React.useMemo((): boolean => {
     if (!hubConnected) {
@@ -75,42 +72,42 @@ const App = () => {
         <Route element={<Navigate to="/editor/playlist" />} index />
 
         <Route element={
-          <ProtectedRoute isAuthenticated={userInformation.IsAuthenticated}  >
+          <ProtectedRoute isAuthenticated  >
             <StreamGroupEditor />
           </ProtectedRoute>
         } path="/editor/streamgroup" />
 
         <Route element={
-          <ProtectedRoute isAuthenticated={userInformation.IsAuthenticated}  >
+          <ProtectedRoute isAuthenticated  >
             <PlayListEditor />
           </ProtectedRoute>
         } path="/editor/playlist" />
 
         <Route element={
-          <ProtectedRoute isAuthenticated={userInformation.IsAuthenticated}  >
+          <ProtectedRoute isAuthenticated  >
             <StreamingStatus />
           </ProtectedRoute>
         } path="/streamingstatus" />
 
         <Route element={
-          <ProtectedRoute isAuthenticated={userInformation.IsAuthenticated}  >
+          <ProtectedRoute isAuthenticated  >
             <QueueStatus />
           </ProtectedRoute>
         } path="/queuestatus" />
 
         <Route element={
-          <ProtectedRoute isAuthenticated={userInformation.IsAuthenticated}  >
+          <ProtectedRoute isAuthenticated  >
             <VideoPlayer />
           </ProtectedRoute>
         } path="/player" />
 
         <Route element={
-          <ProtectedRoute isAuthenticated={userInformation.IsAuthenticated}  >
-            <SettingsEditor isAuthenticated={userInformation.IsAuthenticated} logOut={() => logOut()} />
+          <ProtectedRoute isAuthenticated  >
+            <SettingsEditor isAuthenticated logOut={() => logOut()} />
           </ProtectedRoute>
         } path="/settings" />
 
-        <Route element={<Login onClose={(e) => { setSignIn(e) }} />} path="/login" />
+        {/* <Route element={<Login onClose={(e) => { setSignIn(e) }} />} path="/login2" /> */}
       </Route>
 
     )
@@ -120,7 +117,6 @@ const App = () => {
   console.log('apiRoot: ', apiRoot)
   console.log('apiKey: ', apiKey)
   console.log('isDev: ', isDev)
-  console.log('requiresAuth: ', requiresAuth)
   console.log('urlBase: ', urlBase)
   console.log('version: ', version)
 

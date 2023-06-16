@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 
 using StreamMasterDomain.Configuration;
 
+using System.Diagnostics;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
@@ -21,6 +22,7 @@ public class ApiKeyAuthenticationOptions : AuthenticationSchemeOptions
 public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthenticationOptions>
 {
     private readonly string _apiKey;
+    private readonly bool needsAuth;
 
     public ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options,
         ILoggerFactory logger,
@@ -30,6 +32,7 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
         : base(options, logger, encoder, clock)
     {
         _apiKey = config.Setting.ApiKey;
+        needsAuth = true;// config.Setting.AuthenticationMethod != StreamMasterDomain.Authentication.AuthenticationType.None;
     }
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -41,7 +44,7 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
             return Task.FromResult(AuthenticateResult.NoResult());
         }
 
-        if (_apiKey == providedApiKey )
+        if (_apiKey == providedApiKey)
         {
             var claims = new List<Claim>
                 {
@@ -73,6 +76,11 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
 
     private string ParseApiKey()
     {
+        if (needsAuth && Request.Path.Value.StartsWith("/swagger") && Debugger.IsAttached)
+        {
+            return _apiKey;
+        }
+
         // Try query parameter
         if (Request.Query.TryGetValue(Options.QueryName, out var value))
         {

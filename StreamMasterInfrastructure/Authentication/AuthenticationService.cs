@@ -21,17 +21,25 @@ public interface IAuthenticationService
 public class AuthenticationService : IAuthenticationService
 {
     private const string AnonymousUser = "Anonymous";
+    private static string AdminPassword;
+    private static string AdminUserName;
     private static string API_KEY;
     private static AuthenticationType AUTH_METHOD;
     private readonly ILogger<AuthenticationService> _logger;
-    private readonly IUserService _userService;
 
-    public AuthenticationService(IConfigFileProvider configFileProvider, IUserService userService, ILogger<AuthenticationService> logger)
+    public AuthenticationService(IConfigFileProvider configFileProvider, ILogger<AuthenticationService> logger)
     {
         _logger = logger;
-        _userService = userService;
         API_KEY = configFileProvider.Setting.ApiKey;
-        AUTH_METHOD = configFileProvider.Setting.AuthenticationMethod;
+        AdminPassword = configFileProvider.Setting.AdminPassword;
+        AdminUserName = configFileProvider.Setting.AdminUserName;
+        var authMethod = AuthenticationType.None;
+        if (!string.IsNullOrEmpty(AdminPassword) && !string.IsNullOrEmpty(AdminUserName))
+        {
+            authMethod = AuthenticationType.Forms;
+        }
+
+        AUTH_METHOD = authMethod;
     }
 
     public User Login(HttpRequest request, string username, string password)
@@ -41,14 +49,25 @@ public class AuthenticationService : IAuthenticationService
             return null;
         }
 
-        var user = _userService.FindUser(username, password);
-
-        if (user != null)
+        if (username == AdminUserName && password == AdminPassword)
         {
             LogSuccess(request, username);
 
-            return user;
+            return new User
+            {
+                Username = username,
+                Identifier = Guid.NewGuid(),
+                Password = password
+            };
         }
+        //var user = _userService.FindUser(username, password);
+
+        //if (user != null)
+        //{
+        //    LogSuccess(request, username);
+
+        //    return user;
+        //}
 
         LogFailure(request, username);
 

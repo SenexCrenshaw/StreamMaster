@@ -10,9 +10,7 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
         private readonly IConfigFileProvider _configFileProvider;
 
         public IndexHtmlMapper(IAppFolderInfo appFolderInfo,
-
                                IConfigFileProvider configFileProvider,
-
                                ILogger<IndexHtmlMapper> logger)
             : base(logger)
         {

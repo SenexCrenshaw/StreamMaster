@@ -6,12 +6,10 @@ using StreamMasterApplication;
 using StreamMasterApplication.Hubs;
 
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Dto;
 
 using StreamMasterInfrastructure;
 using StreamMasterInfrastructure.Persistence;
 
-using System.Text;
 using System.Text.Json.Serialization;
 
 Setting setting = FileUtil.GetSetting();
@@ -42,25 +40,25 @@ if (_urlBase != setting.BaseHostURL)
 string indexFilePath = Path.GetFullPath("wwwroot") + Path.DirectorySeparatorChar + "initialize.js";
 var apikey = setting.ApiKey;
 
-Console.WriteLine($"Writing {_urlBase} information to {indexFilePath}");
-var settingDto = new SettingDto();
-StringBuilder scriptBuilder = new();
-scriptBuilder.AppendLine("window.StreamMaster = {");
-scriptBuilder.AppendLine($"  apiKey: '{setting.ApiKey}',");
-scriptBuilder.AppendLine($"  apiRoot: '/api',");
-//if (!string.IsNullOrEmpty(setting.APIPassword) && !string.IsNullOrEmpty(setting.APIUserName))
-//{
-//    scriptBuilder.AppendLine($"  apiPassword: '{setting.APIPassword}',");
-//    scriptBuilder.AppendLine($"  apiUserName: '{setting.APIUserName}',");
-//}
-scriptBuilder.AppendLine($"  baseHostURL: '{_urlBase}',");
-scriptBuilder.AppendLine($"  hubName: 'streammasterhub',");
-scriptBuilder.AppendLine($"  isDev: false,");
-scriptBuilder.AppendLine($"  requiresAuth: {(!string.IsNullOrEmpty(setting.AdminPassword) && !string.IsNullOrEmpty(setting.AdminUserName)).ToString().ToLower()},");
-scriptBuilder.AppendLine($"  urlBase: '{settingDto.UrlBase}',");
-scriptBuilder.AppendLine($"  version: '{settingDto.Version}',");
-scriptBuilder.AppendLine("};");
-File.WriteAllText(indexFilePath, scriptBuilder.ToString());
+//Console.WriteLine($"Writing {_urlBase} information to {indexFilePath}");
+//var settingDto = new SettingDto();
+//StringBuilder scriptBuilder = new();
+//scriptBuilder.AppendLine("window.StreamMaster = {");
+//scriptBuilder.AppendLine($"  apiKey: '{setting.ApiKey}',");
+//scriptBuilder.AppendLine($"  apiRoot: '/api',");
+////if (!string.IsNullOrEmpty(setting.APIPassword) && !string.IsNullOrEmpty(setting.APIUserName))
+////{
+////    scriptBuilder.AppendLine($"  apiPassword: '{setting.APIPassword}',");
+////    scriptBuilder.AppendLine($"  apiUserName: '{setting.APIUserName}',");
+////}
+//scriptBuilder.AppendLine($"  baseHostURL: '{_urlBase}',");
+//scriptBuilder.AppendLine($"  hubName: 'streammasterhub',");
+//scriptBuilder.AppendLine($"  isDev: false,");
+//scriptBuilder.AppendLine($"  requiresAuth: {(!string.IsNullOrEmpty(setting.AdminPassword) && !string.IsNullOrEmpty(setting.AdminUserName)).ToString().ToLower()},");
+//scriptBuilder.AppendLine($"  urlBase: '{settingDto.UrlBase}',");
+//scriptBuilder.AppendLine($"  version: '{settingDto.Version}',");
+//scriptBuilder.AppendLine("};");
+//File.WriteAllText(indexFilePath, scriptBuilder.ToString());
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -77,8 +75,6 @@ builder.WebHost.ConfigureKestrel((context, serverOptions) =>
 //        .AllowAnyHeader()
 //        );
 //});
-
-
 
 // Add services to the container.
 builder.Services.AddApplicationServices();
@@ -133,24 +129,12 @@ using (IServiceScope scope = app.Services.CreateScope())
     }
 }
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseCors("DevPolicy");
-}
-else
-{
-    app.UseCors();
-}
-app.UseAuthentication();
-
 //app.UseResponseCompression();
 
 //app.UseMiddleware<AuthMiddleware>();
 
 app.UseHealthChecks("/health");
 //app.UseHttpsRedirection();
-app.UseWebSockets(); app.UseOpenApi();
-app.UseSwaggerUi3();
 
 app.UseDefaultFiles();
 
@@ -168,8 +152,25 @@ else
 }
 
 app.UseRouting();
+app.UseWebSockets(); app.UseOpenApi();
+app.UseSwaggerUi3();
+
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseCors("DevPolicy");
+//}
+//else
+//{
+//    app.UseCors();
+//}
+
+app.UseCors();
+app.UseAuthentication();
+
 //app.UseHttpsRedirection();
 app.UseAuthorization();
+
+
 app.MapHealthChecks("/healthz");
 app.MapDefaultControllerRoute();
 
@@ -180,9 +181,34 @@ app.UseEndpoints(endpoints =>
         context.Response.Redirect("/swagger/index.html");
         return Task.CompletedTask;
     });
+
+    endpoints.MapGet("/routes", async context =>
+    {
+        var endpointDataSource = context.RequestServices.GetRequiredService<EndpointDataSource>();
+
+        foreach (var endpoint in endpointDataSource.Endpoints)
+        {
+            var routePattern = GetRoutePattern(endpoint);
+
+            await context.Response.WriteAsync($"Route: {routePattern}\n");
+        }
+    });
+
     app.MapHub<StreamMasterHub>("/streammasterhub").RequireAuthorization("SignalR");
 });
 
-app.MapFallbackToFile("index.html");
+//app.MapFallbackToFile("index.html");
 
 app.Run();
+
+string GetRoutePattern(Endpoint endpoint)
+{
+    var routeEndpoint = endpoint as RouteEndpoint;
+
+    if (routeEndpoint is not null)
+    {
+        return routeEndpoint.RoutePattern.RawText;
+    }
+
+    return "<unknown>";
+}

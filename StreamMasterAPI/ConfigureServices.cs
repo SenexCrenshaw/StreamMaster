@@ -7,15 +7,16 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
+using NSwag;
+using NSwag.Generation.Processors.Security;
+
 using StreamMasterAPI.SchemaHelpers;
 using StreamMasterAPI.Services;
 
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Hubs;
 using StreamMasterApplication.Services;
-using StreamMasterApplication.Users;
 
-using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Configuration;
 using StreamMasterDomain.EnvironmentInfo;
 
@@ -31,6 +32,18 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddWebUIServices(this IServiceCollection services)
     {
+        _ = services.AddLogging();
+        _ = services.AddSingleton<ICurrentUserService, CurrentUserService>();
+
+        services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
+        });
+
+        services.AddResponseCompression(options => options.EnableForHttps = true);
+        services.AddRouting(options => options.LowercaseUrls = true);
         services.AddCors(options =>
         {
             options.AddPolicy("DevPolicy",
@@ -53,39 +66,7 @@ public static class ConfigureServices
                 builder.AllowAnyOrigin()
                 .WithMethods("GET", "OPTIONS")
                 .AllowAnyHeader());
-
         });
-
-
-        _ = services.AddLogging();
-        _ = services.AddSingleton<ICurrentUserService, CurrentUserService>();
-
-        services.Configure<ForwardedHeadersOptions>(options =>
-        {
-            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
-            options.KnownNetworks.Clear();
-            options.KnownProxies.Clear();
-        });
-
-        services.AddResponseCompression(options => options.EnableForHttps = true);
-
-        services.AddSingleton<IAuthorizationPolicyProvider, UiAuthorizationPolicyProvider>();
-
-        services.AddAuthorization(options =>
-        {
-            options.AddPolicy("SignalR", policy =>
-            {
-                policy.AuthenticationSchemes.Add("SignalR");
-                policy.RequireAuthenticatedUser();
-            });
-
-            // Require auth on everything except those marked [AllowAnonymous]
-            options.FallbackPolicy = new AuthorizationPolicyBuilder("API")
-            .RequireAuthenticatedUser()
-            .Build();
-        });
-
-        services.AddAppAuthentication();
 
         _ = services.AddSession();
 
@@ -99,17 +80,13 @@ public static class ConfigureServices
         //.AddApplicationPart(typeof(StaticResourceController).Assembly)
         //.AddControllersAsServices();
 
-        _ = services.AddSignalR();//.AddMessagePackProtocol();
-
         _ = services.AddDatabaseDeveloperPageExceptionFilter();
 
         _ = services.AddSingleton<ICurrentUserService, CurrentUserService>();
         _ = services.AddSingleton<IAppFolderInfo, AppFolderInfo>();
         _ = services.AddSingleton<IConfigFileProvider, ConfigFileProvider>();
 
-        _ = services.AddScoped<IUserService, UserService>();
         _ = services.AddScoped<IAuthenticationService, AuthenticationService>();
-        _ = services.AddScoped<IUserRepository, UserRepository>();
 
         _ = services.AddHttpContextAccessor();
 
@@ -138,11 +115,39 @@ public static class ConfigureServices
         {
             configure.Title = "StreamMaster API";
             configure.SchemaProcessors.Add(new InheritanceSchemaProcessor());
+            
+            configure.AddSecurity("apikey", Enumerable.Empty<string>(), new OpenApiSecurityScheme
+            {
+                Type = OpenApiSecuritySchemeType.ApiKey,
+                Name = "x-api-key",
+                In = OpenApiSecurityApiKeyLocation.Header
+            });
+
+            configure.OperationProcessors.Add(
+       new AspNetCoreOperationSecurityScopeProcessor("apikey"));
         });
 
         _ = services.AddHostedService<PostStartup>();
         _ = services.AddSingleton<PostStartup>();
 
+        _ = services.AddSignalR();//.AddMessagePackProtocol();
+        services.AddSingleton<IAuthorizationPolicyProvider, UiAuthorizationPolicyProvider>();
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("SignalR", policy =>
+            {
+                policy.AuthenticationSchemes.Add("SignalR");
+                policy.RequireAuthenticatedUser();
+            });
+
+            // Require auth on everything except those marked [AllowAnonymous]
+            options.FallbackPolicy = new AuthorizationPolicyBuilder("API")
+            .RequireAuthenticatedUser()
+            .Build();
+        });
+
+        services.AddAppAuthentication();
         return services;
     }
 }

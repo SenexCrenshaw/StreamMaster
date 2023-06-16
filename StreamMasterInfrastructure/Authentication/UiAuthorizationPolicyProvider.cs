@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 
+using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Configuration;
 
 namespace StreamMasterInfrastructure.Authentication
@@ -27,7 +28,7 @@ namespace StreamMasterInfrastructure.Authentication
         {
             if (policyName.Equals(POLICY_NAME, StringComparison.OrdinalIgnoreCase))
             {
-                var policy = new AuthorizationPolicyBuilder(_config.Setting.AuthenticationMethod.ToString())
+                var policy = new AuthorizationPolicyBuilder(AuthenticationType.Forms.ToString())
                     .RequireAuthenticatedUser();
                 return Task.FromResult(policy.Build());
             }

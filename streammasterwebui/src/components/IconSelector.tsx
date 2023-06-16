@@ -68,12 +68,19 @@ const IconSelector = (props: IconSelectorProps) => {
       // );
     }
 
+    let selectedTemplateurl = option.url ?? setting.defaultIcon;
+
+    if (isDev && selectedTemplateurl && !selectedTemplateurl.startsWith('http')) {
+      selectedTemplateurl = baseHostURL + selectedTemplateurl;
+    }
+
+
     return (
       <div className='flex h-full justify-content-start align-items-center p-0 m-0 pl-2'>
         <LazyLoadImage
           alt={option.name}
           loading="lazy"
-          src={option.url}
+          src={selectedTemplateurl}
           style={{
             maxWidth: '1.2rem',
             objectFit: 'contain',
@@ -81,7 +88,7 @@ const IconSelector = (props: IconSelectorProps) => {
         />
       </div>
     );
-  }, []);
+  }, [setting.defaultIcon]);
 
   const iconOptionTemplate = React.useCallback((option: IconFileDto) => {
 
@@ -91,7 +98,6 @@ const IconSelector = (props: IconSelectorProps) => {
       iconOptionTemplateurl = baseHostURL + iconOptionTemplateurl;
     }
 
-    console.log('iconOptionTemplateurl: ', iconOptionTemplateurl);
     return (
       <>
         <LazyLoadImage
@@ -156,8 +162,6 @@ const IconSelector = (props: IconSelectorProps) => {
   if (isDev && url && !url.startsWith('http')) {
     url = baseHostURL + url;
   }
-
-  console.log('user_Tvg_logo', url);
 
   if (props.enableEditMode !== true) {
     return (
