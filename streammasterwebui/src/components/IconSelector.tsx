@@ -11,6 +11,7 @@ import { getTopToolOptions } from '../common/common';
 
 import { ResetLogoIcon } from '../common/icons';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
+import { baseHostURL, isDev } from '../settings';
 
 const IconSelector = (props: IconSelectorProps) => {
 
@@ -46,7 +47,7 @@ const IconSelector = (props: IconSelectorProps) => {
       }
     }
 
-  }, [icons.data, props.value, props.resetValue]);
+  }, [icons, props.value, props.resetValue]);
 
 
   const onChange = React.useCallback((event: DropdownChangeEvent) => {
@@ -83,6 +84,14 @@ const IconSelector = (props: IconSelectorProps) => {
   }, []);
 
   const iconOptionTemplate = React.useCallback((option: IconFileDto) => {
+
+    let iconOptionTemplateurl = option.url ?? setting.defaultIcon;
+
+    if (isDev && iconOptionTemplateurl && !iconOptionTemplateurl.startsWith('http')) {
+      iconOptionTemplateurl = baseHostURL + iconOptionTemplateurl;
+    }
+
+    console.log('iconOptionTemplateurl: ', iconOptionTemplateurl);
     return (
       <>
         <LazyLoadImage
@@ -90,7 +99,7 @@ const IconSelector = (props: IconSelectorProps) => {
           className="flex align-items-center max-w-full h-2rem text-base text-color surface-overlay appearance-none outline-none focus:border-primary"
           loading="lazy"
 
-          src={option.url ?? setting.defaultIcon}
+          src={iconOptionTemplateurl}
         />
         <div className="white-space-normal">{option.name}</div>
       </>
@@ -143,13 +152,20 @@ const IconSelector = (props: IconSelectorProps) => {
     'p-disabled': props.disabled,
   });
 
+  let url = selectedIcon?.url ?? setting.defaultIcon;
+  if (isDev && url && !url.startsWith('http')) {
+    url = baseHostURL + url;
+  }
+
+  console.log('user_Tvg_logo', url);
+
   if (props.enableEditMode !== true) {
     return (
       <img
         alt='logo'
         className="max-h-1rem"
         onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => (e.currentTarget.src = (e.currentTarget.src = setting.defaultIcon))}
-        src={selectedIcon?.url ?? setting.defaultIcon}
+        src={url}
         style={{
           maxWidth: '1.5rem',
           objectFit: 'contain',

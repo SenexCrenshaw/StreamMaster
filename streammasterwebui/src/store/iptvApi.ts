@@ -1,5 +1,7 @@
 import { emptySplitApi as api } from "./emptyApi";
 export const addTagTypes = [
+  "Authentication",
+  "StaticResource",
   "ChannelGroups",
   "EPGFiles",
   "Files",
@@ -10,6 +12,7 @@ export const addTagTypes = [
   "Settings",
   "StreamGroups",
   "VideoStreams",
+  "InitializeJs",
 ] as const;
 const injectedRtkApi = api
   .enhanceEndpoints({
@@ -17,6 +20,32 @@ const injectedRtkApi = api
   })
   .injectEndpoints({
     endpoints: (build) => ({
+      authenticationLogin: build.mutation<
+        AuthenticationLoginApiResponse,
+        AuthenticationLoginApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/login`,
+          method: "POST",
+          body: queryArg.body,
+          params: { returnUrl: queryArg.returnUrl },
+        }),
+        invalidatesTags: ["Authentication"],
+      }),
+      staticResourceLoginPage: build.query<
+        StaticResourceLoginPageApiResponse,
+        StaticResourceLoginPageApiArg
+      >({
+        query: () => ({ url: `/login` }),
+        providesTags: ["StaticResource"],
+      }),
+      authenticationLogout: build.query<
+        AuthenticationLogoutApiResponse,
+        AuthenticationLogoutApiArg
+      >({
+        query: () => ({ url: `/logout` }),
+        providesTags: ["Authentication"],
+      }),
       channelGroupsAddChannelGroup: build.mutation<
         ChannelGroupsAddChannelGroupApiResponse,
         ChannelGroupsAddChannelGroupApiArg
@@ -215,12 +244,10 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["Icons"],
       }),
-      iconsGetIcons: build.query<IconsGetIconsApiResponse, IconsGetIconsApiArg>(
-        {
-          query: () => ({ url: `/api/icons` }),
-          providesTags: ["Icons"],
-        }
-      ),
+      iconsGetUrl: build.query<IconsGetUrlApiResponse, IconsGetUrlApiArg>({
+        query: () => ({ url: `/api/icons` }),
+        providesTags: ["Icons"],
+      }),
       iconsAddIconFileFromForm: build.mutation<
         IconsAddIconFileFromFormApiResponse,
         IconsAddIconFileFromFormApiArg
@@ -251,9 +278,15 @@ const injectedRtkApi = api
         providesTags: ["Icons"],
       }),
       iconsGetIcon: build.query<IconsGetIconApiResponse, IconsGetIconApiArg>({
-        query: (queryArg) => ({ url: `/api/icons/${queryArg}` }),
+        query: (queryArg) => ({ url: `/api/icons/geticon/${queryArg}` }),
         providesTags: ["Icons"],
       }),
+      iconsGetIcons: build.query<IconsGetIconsApiResponse, IconsGetIconsApiArg>(
+        {
+          query: () => ({ url: `/api/icons/geticons` }),
+          providesTags: ["Icons"],
+        }
+      ),
       m3UFilesAddM3UFile: build.mutation<
         M3UFilesAddM3UFileApiResponse,
         M3UFilesAddM3UFileApiArg
@@ -753,10 +786,51 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["VideoStreams"],
       }),
+      initializeJsIndex: build.query<
+        InitializeJsIndexApiResponse,
+        InitializeJsIndexApiArg
+      >({
+        query: () => ({ url: `/initialize.js` }),
+        providesTags: ["InitializeJs"],
+      }),
+      staticResourceIndex: build.query<
+        StaticResourceIndexApiResponse,
+        StaticResourceIndexApiArg
+      >({
+        query: (queryArg) => ({ url: `/` }),
+        providesTags: ["StaticResource"],
+      }),
+      staticResourceIndex2: build.query<
+        StaticResourceIndex2ApiResponse,
+        StaticResourceIndex2ApiArg
+      >({
+        query: (queryArg) => ({ url: `/${queryArg}` }),
+        providesTags: ["StaticResource"],
+      }),
+      staticResourceIndexContent: build.query<
+        StaticResourceIndexContentApiResponse,
+        StaticResourceIndexContentApiArg
+      >({
+        query: (queryArg) => ({ url: `/content/${queryArg}` }),
+        providesTags: ["StaticResource"],
+      }),
     }),
     overrideExisting: false,
   });
 export { injectedRtkApi as iptvApi };
+export type AuthenticationLoginApiResponse = unknown;
+export type AuthenticationLoginApiArg = {
+  returnUrl?: string;
+  body: {
+    Username?: string | null;
+    Password?: string | null;
+    RememberMe?: string | null;
+  };
+};
+export type StaticResourceLoginPageApiResponse = unknown;
+export type StaticResourceLoginPageApiArg = void;
+export type AuthenticationLogoutApiResponse = unknown;
+export type AuthenticationLogoutApiArg = void;
 export type ChannelGroupsAddChannelGroupApiResponse = /** status 200  */
   | undefined
   | /** status 201  */ ChannelGroupDto;
@@ -824,8 +898,8 @@ export type IconsAddIconFileApiResponse = /** status 200  */
   | undefined
   | /** status 201  */ IconFileDto;
 export type IconsAddIconFileApiArg = AddIconFileRequest;
-export type IconsGetIconsApiResponse = /** status 200  */ IconFileDto[];
-export type IconsGetIconsApiArg = void;
+export type IconsGetUrlApiResponse = /** status 200  */ string;
+export type IconsGetUrlApiArg = void;
 export type IconsAddIconFileFromFormApiResponse = /** status 200  */
   | undefined
   | /** status 201  */ IconFileDto;
@@ -843,6 +917,8 @@ export type IconsCacheIconsFromVideoStreamsRequestApiResponse =
 export type IconsCacheIconsFromVideoStreamsRequestApiArg = void;
 export type IconsGetIconApiResponse = /** status 200  */ IconFileDto;
 export type IconsGetIconApiArg = number;
+export type IconsGetIconsApiResponse = /** status 200  */ IconFileDto[];
+export type IconsGetIconsApiArg = void;
 export type M3UFilesAddM3UFileApiResponse = /** status 200  */
   | undefined
   | /** status 201  */ M3UFilesDto;
@@ -1022,6 +1098,14 @@ export type VideoStreamsUpdateVideoStreamApiArg = UpdateVideoStreamRequest;
 export type VideoStreamsUpdateVideoStreamsApiResponse =
   /** status 204  */ undefined;
 export type VideoStreamsUpdateVideoStreamsApiArg = UpdateVideoStreamsRequest;
+export type InitializeJsIndexApiResponse = unknown;
+export type InitializeJsIndexApiArg = void;
+export type StaticResourceIndexApiResponse = unknown;
+export type StaticResourceIndexApiArg = string;
+export type StaticResourceIndex2ApiResponse = unknown;
+export type StaticResourceIndex2ApiArg = string;
+export type StaticResourceIndexContentApiResponse = unknown;
+export type StaticResourceIndexContentApiArg = string;
 export type ChannelGroupArg = {
   isHidden: boolean | null;
   isReadOnly: boolean | null;
@@ -1262,13 +1346,18 @@ export type TaskQueueStatusDto = {
   startTS?: string;
   stopTS?: string;
 };
+export type AuthenticationType = 0 | 1 | 2;
 export type StreamingProxyTypes = 0 | 1 | 2 | 3;
 export type Setting = {
+  urlBase?: string;
   adminPassword?: string;
   adminUserName?: string;
+  apiKey?: string;
   apiPassword?: string;
   apiUserName?: string;
   appName?: string;
+  authenticationMethod?: AuthenticationType;
+  authTest?: boolean;
   baseHostURL?: string;
   cacheIcons?: boolean;
   cleanURLs?: boolean;
@@ -1286,6 +1375,7 @@ export type Setting = {
   sourceBufferPreBufferPercentage?: number;
   streamingProxyType?: StreamingProxyTypes;
   streamMasterIcon?: string;
+  uiFolder?: string;
 };
 export type SettingDto = Setting & {
   defaultIconDto?: IconFileDto;
@@ -1457,11 +1547,16 @@ export type VideoStreamUpdate = VideoStreamBaseUpdate & {
   streamLastStream?: string | null;
   streamProxyType?: StreamingProxyTypes | null;
 };
-export type UpdateVideoStreamRequest = VideoStreamUpdate & object;
+export type UpdateVideoStreamRequest = VideoStreamUpdate & {
+  baseHostUrl?: string;
+};
 export type UpdateVideoStreamsRequest = {
   videoStreamUpdates?: VideoStreamUpdate[];
 };
 export const {
+  useAuthenticationLoginMutation,
+  useStaticResourceLoginPageQuery,
+  useAuthenticationLogoutQuery,
   useChannelGroupsAddChannelGroupMutation,
   useChannelGroupsGetChannelGroupsQuery,
   useChannelGroupsDeleteChannelGroupMutation,
@@ -1482,11 +1577,12 @@ export const {
   useEpgFilesUpdateEpgFileMutation,
   useFilesGetFileQuery,
   useIconsAddIconFileMutation,
-  useIconsGetIconsQuery,
+  useIconsGetUrlQuery,
   useIconsAddIconFileFromFormMutation,
   useIconsAutoMatchIconToStreamsMutation,
   useIconsCacheIconsFromVideoStreamsRequestQuery,
   useIconsGetIconQuery,
+  useIconsGetIconsQuery,
   useM3UFilesAddM3UFileMutation,
   useM3UFilesGetM3UFilesQuery,
   useM3UFilesAddM3UFileFromFormMutation,
@@ -1543,4 +1639,8 @@ export const {
   useVideoStreamsSetVideoStreamChannelNumbersMutation,
   useVideoStreamsUpdateVideoStreamMutation,
   useVideoStreamsUpdateVideoStreamsMutation,
+  useInitializeJsIndexQuery,
+  useStaticResourceIndexQuery,
+  useStaticResourceIndex2Query,
+  useStaticResourceIndexContentQuery,
 } = injectedRtkApi;

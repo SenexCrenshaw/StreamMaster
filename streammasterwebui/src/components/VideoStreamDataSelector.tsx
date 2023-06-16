@@ -212,6 +212,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   }, [toast]);
 
   const logoEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
+
     return (
       <IconSelector
         className="p-inputtext-sm"

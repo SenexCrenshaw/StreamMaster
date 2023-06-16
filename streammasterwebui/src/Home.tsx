@@ -10,6 +10,7 @@ import StreamMasterSetting from './store/signlar/StreamMasterSetting';
 import * as StreamMasterApi from './store/iptvApi';
 
 const Home = () => {
+  StreamMasterApi.useIconsGetIconsQuery();
   StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
   StreamMasterApi.useEpgFilesGetEpgFilesQuery();
   StreamMasterApi.useM3UFilesGetM3UFilesQuery();
@@ -25,6 +26,8 @@ const Home = () => {
   const onsetCollapsed = React.useCallback((isCollapsed: boolean) => {
     setCollapsed(isCollapsed);
   }, [setCollapsed]);
+
+
 
   return (
     <div className='flex max-h-screen'>
