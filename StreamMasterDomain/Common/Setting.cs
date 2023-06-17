@@ -1,7 +1,5 @@
 ﻿using StreamMasterDomain.Authentication;
 
-using System.Runtime.Intrinsics.Arm;
-
 /// <summary>
 /// The Setting class represents the settings of the StreamMaster application.
 /// It contains properties that specify various settings such as the application
@@ -17,36 +15,36 @@ namespace StreamMasterDomain.Common
         /// </summary>
         public Setting()
         {
-            AuthenticationMethod = AuthenticationType.None;
-            APIUserName = "";
-            APIPassword = "";
-            AdminUserName = "";
             AdminPassword = "";
+            AdminUserName = "";
             ApiKey = "";
+            ServerKey = "";
+            APIPassword = "";
+            APIUserName = "";
             AppName = "StreamMaster";
+            AuthenticationMethod = AuthenticationType.None;
+            AuthTest = true;
             BaseHostURL = "http://127.0.0.1:7095/";
             CacheIcons = true;
             CleanURLs = true;
             DatabaseName = "StreamMaster.db";
             DefaultIcon = "images/default.png";
             DeviceID = "device1";
+            FFMPegExecutable = "ffmpeg";
             FirstFreeNumber = 1000;
-            //SafeNetworks = new() { "127.0.0.1" };
             MaxConnectRetry = 20;
             MaxConnectRetryTimeMS = 100;
+            OverWriteM3UChannels = false;
             RingBufferSizeMB = 4;
+            SDPassword = "";
+            SDUserName = "";
             SourceBufferPreBufferPercentage = 20;
             StreamingProxyType = StreamingProxyTypes.StreamMaster;
             StreamMasterIcon = "images/StreamMaster.png";
-            FFMPegExecutable = "ffmpeg";
-            SDUserName = "";
-            SDPassword = "";
-            AuthTest = true;
-            OverWriteM3UChannels = false;
             UiFolder = "wwwroot";
             UrlBase = "";
         }
-        public string UrlBase { get; set; }
+
         public string AdminPassword { get; set; }
         public string AdminUserName { get; set; }
         public string ApiKey { get; set; }
@@ -138,6 +136,8 @@ namespace StreamMasterDomain.Common
         /// </summary>
         public string SDUserName { get; set; }
 
+        public string ServerKey { get; set; }
+
         /// <summary>
         /// The percentage of the source buffer to be pre-buffered by the
         /// StreamMaster application.
@@ -155,6 +155,7 @@ namespace StreamMasterDomain.Common
         public string StreamMasterIcon { get; set; }
 
         public string UiFolder { get; set; }
+        public string UrlBase { get; set; }
         private List<string> _safeNetworks { get; set; }
         ///// <summary>
         ///// The version of the StreamMaster application.

@@ -12,13 +12,18 @@ internal partial class Program
 {
     private static readonly List<EndPoint> EndPoints = new();
 
-    private static readonly List<string> toIgnore = new() {"channelGroupsGetChannelGroups","videoStreamsGetVideoStreams", "streamGroupsGetAllStatisticsForAllUrls", "programmesGetProgrammeNames", "videoStreamsGetVideoStream", "m3UStreamsGetM3UStream", "m3UStreamsGetM3UStreams", "m3UFilesGetM3UFile" };
+    private static readonly List<string> toIgnore = new() { "login", "channelGroupsGetChannelGroups", "videoStreamsGetVideoStreams", "streamGroupsGetAllStatisticsForAllUrls", "programmesGetProgrammeNames", "videoStreamsGetVideoStream", "m3UStreamsGetM3UStream", "m3UStreamsGetM3UStreams", "m3UFilesGetM3UFile" };
     private static List<string> iptv = new();
 
     public static string GetName(string name)
     {
         try
         {
+            if (name == "LogIn")
+            {
+                return "";
+            }
+            Console.WriteLine(name);
             string? param = iptv.SingleOrDefault(a => a.ToLower().Contains(name.ToLower() + ": build."));
             if (param == null)
             {
@@ -56,7 +61,7 @@ internal partial class Program
 
         string fileName = @"..\..\..\..\StreamMasterwebui\src\store\signlar\enhancedApi.tsx";
         StringBuilder towrite = new();
-        _ = towrite.AppendLine("import { hubConnection } from '../../app/store';\r\n" +
+        _ = towrite.AppendLine("import { hubConnection } from '../../app/signalr';\r\n" +
                     "import * as StreamMasterApi from '../iptvApi';\r\n");
 
         _ = towrite.AppendLine("export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({\r\n" +
@@ -382,7 +387,7 @@ internal partial class Program
 
         List<string> towrite = new()
         {
-            "import { hubConnection } from \"../app/store\";",
+            "import { hubConnection } from \"../app/signalr\";",
             "import {"
         };
 

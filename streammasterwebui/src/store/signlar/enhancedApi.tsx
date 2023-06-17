@@ -2,7 +2,7 @@ import { hubConnection } from '../../app/signalr';
 import * as StreamMasterApi from '../iptvApi';
 
 export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
-  endpoints: {
+ endpoints: {
     channelGroupsGetChannelGroup: {
       async onCacheEntryAdded(
         arg,
@@ -18,23 +18,23 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
               (
               ) => {
                 return data;
-              }
+        }
             );
-          };
+                    };
 
-          hubConnection.on(
-            'ChannelGroupDtoUpdate',
-            (data: StreamMasterApi.ChannelGroupDto) => {
-              applyResult(data);
+                    hubConnection.on(
+                        'ChannelGroupDtoUpdate',
+                        (data: StreamMasterApi.ChannelGroupDto) => {
+                            applyResult(data);
+                        }
+                    );
+
+
+                } catch {}
+
+                await cacheEntryRemoved;
             }
-          );
-
-
-        } catch { }
-
-        await cacheEntryRemoved;
-      }
-    },
+        },
     epgFilesGetEpgFile: {
       async onCacheEntryAdded(
         arg,
@@ -50,23 +50,23 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
               (
               ) => {
                 return data;
-              }
+        }
             );
-          };
+                    };
 
-          hubConnection.on(
-            'EpgFilesDtoUpdate',
-            (data: StreamMasterApi.EpgFilesDto) => {
-              applyResult(data);
+                    hubConnection.on(
+                        'EpgFilesDtoUpdate',
+                        (data: StreamMasterApi.EpgFilesDto) => {
+                            applyResult(data);
+                        }
+                    );
+
+
+                } catch {}
+
+                await cacheEntryRemoved;
             }
-          );
-
-
-        } catch { }
-
-        await cacheEntryRemoved;
-      }
-    },
+        },
     epgFilesGetEpgFiles: {
       async onCacheEntryAdded(
         arg,
@@ -79,7 +79,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
             data: StreamMasterApi.EpgFilesDto[]
           ) => {
             updateCachedData(
-              (draft: StreamMasterApi.EpgFilesDto[]) => {
+              ( draft: StreamMasterApi.EpgFilesDto[]) => {
                 data.forEach(function (cn) {
                   const foundIndex = draft.findIndex(
                     (x) => x.id === cn.id
@@ -121,44 +121,44 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
                 }
 
                 return draft;
-              }
+        }
             );
-          };
+                    };
 
-          hubConnection.on(
-            'EPGFilesDtoUpdate',
-            (data: StreamMasterApi.EpgFilesDto) => {
-              applyResult(data);
+                    hubConnection.on(
+                        'EPGFilesDtoUpdate',
+                        (data: StreamMasterApi.EpgFilesDto) => {
+                            applyResult(data);
+                        }
+                    );
+
+                    const deleteResult = (
+
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        id: any
+                    ) => {
+                        updateCachedData(
+                            (
+                                draft: StreamMasterApi.EpgFilesDto[]
+                            ) => {
+                              return draft.filter((obj) => obj.id !== id);
+                            }
+                        );
+                    };
+
+                    hubConnection.on(
+                        'EPGFilesDtoDelete',
+                        (id: number) => {
+                            deleteResult(id);
+                        }
+                    );
+
+
+                } catch {}
+
+                await cacheEntryRemoved;
             }
-          );
-
-          const deleteResult = (
-
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            id: any
-          ) => {
-            updateCachedData(
-              (
-                draft: StreamMasterApi.EpgFilesDto[]
-              ) => {
-                return draft.filter((obj) => obj.id !== id);
-              }
-            );
-          };
-
-          hubConnection.on(
-            'EPGFilesDtoDelete',
-            (id: number) => {
-              deleteResult(id);
-            }
-          );
-
-
-        } catch { }
-
-        await cacheEntryRemoved;
-      }
-    },
+        },
     iconsGetIcon: {
       async onCacheEntryAdded(
         arg,
@@ -174,23 +174,23 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
               (
               ) => {
                 return data;
-              }
+        }
             );
-          };
+                    };
 
-          hubConnection.on(
-            'IconFileDtoUpdate',
-            (data: StreamMasterApi.IconFileDto) => {
-              applyResult(data);
+                    hubConnection.on(
+                        'IconFileDtoUpdate',
+                        (data: StreamMasterApi.IconFileDto) => {
+                            applyResult(data);
+                        }
+                    );
+
+
+                } catch {}
+
+                await cacheEntryRemoved;
             }
-          );
-
-
-        } catch { }
-
-        await cacheEntryRemoved;
-      }
-    },
+        },
     iconsGetIcons: {
       async onCacheEntryAdded(
         arg,
@@ -203,7 +203,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
             data: StreamMasterApi.IconFileDto[]
           ) => {
             updateCachedData(
-              (draft: StreamMasterApi.IconFileDto[]) => {
+              ( draft: StreamMasterApi.IconFileDto[]) => {
                 data.forEach(function (cn) {
                   const foundIndex = draft.findIndex(
                     (x) => x.id === cn.id
@@ -245,44 +245,44 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
                 }
 
                 return draft;
-              }
+        }
             );
-          };
+                    };
 
-          hubConnection.on(
-            'IconFileDtoUpdate',
-            (data: StreamMasterApi.IconFileDto) => {
-              applyResult(data);
+                    hubConnection.on(
+                        'IconFileDtoUpdate',
+                        (data: StreamMasterApi.IconFileDto) => {
+                            applyResult(data);
+                        }
+                    );
+
+                    const deleteResult = (
+
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        id: any
+                    ) => {
+                        updateCachedData(
+                            (
+                                draft: StreamMasterApi.IconFileDto[]
+                            ) => {
+                              return draft.filter((obj) => obj.id !== id);
+                            }
+                        );
+                    };
+
+                    hubConnection.on(
+                        'IconFileDtoDelete',
+                        (id: number) => {
+                            deleteResult(id);
+                        }
+                    );
+
+
+                } catch {}
+
+                await cacheEntryRemoved;
             }
-          );
-
-          const deleteResult = (
-
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            id: any
-          ) => {
-            updateCachedData(
-              (
-                draft: StreamMasterApi.IconFileDto[]
-              ) => {
-                return draft.filter((obj) => obj.id !== id);
-              }
-            );
-          };
-
-          hubConnection.on(
-            'IconFileDtoDelete',
-            (id: number) => {
-              deleteResult(id);
-            }
-          );
-
-
-        } catch { }
-
-        await cacheEntryRemoved;
-      }
-    },
+        },
     m3UFilesGetM3UFiles: {
       async onCacheEntryAdded(
         arg,
@@ -295,7 +295,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
             data: StreamMasterApi.M3UFilesDto[]
           ) => {
             updateCachedData(
-              (draft: StreamMasterApi.M3UFilesDto[]) => {
+              ( draft: StreamMasterApi.M3UFilesDto[]) => {
                 data.forEach(function (cn) {
                   const foundIndex = draft.findIndex(
                     (x) => x.id === cn.id
@@ -337,44 +337,44 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
                 }
 
                 return draft;
-              }
+        }
             );
-          };
+                    };
 
-          hubConnection.on(
-            'M3UFilesDtoUpdate',
-            (data: StreamMasterApi.M3UFilesDto) => {
-              applyResult(data);
+                    hubConnection.on(
+                        'M3UFilesDtoUpdate',
+                        (data: StreamMasterApi.M3UFilesDto) => {
+                            applyResult(data);
+                        }
+                    );
+
+                    const deleteResult = (
+
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        id: any
+                    ) => {
+                        updateCachedData(
+                            (
+                                draft: StreamMasterApi.M3UFilesDto[]
+                            ) => {
+                              return draft.filter((obj) => obj.id !== id);
+                            }
+                        );
+                    };
+
+                    hubConnection.on(
+                        'M3UFilesDtoDelete',
+                        (id: number) => {
+                            deleteResult(id);
+                        }
+                    );
+
+
+                } catch {}
+
+                await cacheEntryRemoved;
             }
-          );
-
-          const deleteResult = (
-
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            id: any
-          ) => {
-            updateCachedData(
-              (
-                draft: StreamMasterApi.M3UFilesDto[]
-              ) => {
-                return draft.filter((obj) => obj.id !== id);
-              }
-            );
-          };
-
-          hubConnection.on(
-            'M3UFilesDtoDelete',
-            (id: number) => {
-              deleteResult(id);
-            }
-          );
-
-
-        } catch { }
-
-        await cacheEntryRemoved;
-      }
-    },
+        },
     settingsGetIsSystemReady: {
       async onCacheEntryAdded(
         arg,
@@ -390,23 +390,23 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
               (
               ) => {
                 return data;
-              }
+        }
             );
-          };
+                    };
 
-          hubConnection.on(
-            'booleanUpdate',
-            (data: boolean) => {
-              applyResult(data);
+                    hubConnection.on(
+                        'booleanUpdate',
+                        (data: boolean) => {
+                            applyResult(data);
+                        }
+                    );
+
+
+                } catch {}
+
+                await cacheEntryRemoved;
             }
-          );
-
-
-        } catch { }
-
-        await cacheEntryRemoved;
-      }
-    },
+        },
     settingsGetQueueStatus: {
       async onCacheEntryAdded(
         arg,
@@ -419,7 +419,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
             data: StreamMasterApi.TaskQueueStatusDto[]
           ) => {
             updateCachedData(
-              (draft: StreamMasterApi.TaskQueueStatusDto[]) => {
+              ( draft: StreamMasterApi.TaskQueueStatusDto[]) => {
                 data.forEach(function (cn) {
                   const foundIndex = draft.findIndex(
                     (x) => x.id === cn.id
@@ -461,44 +461,44 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
                 }
 
                 return draft;
-              }
+        }
             );
-          };
+                    };
 
-          hubConnection.on(
-            'TaskQueueStatusDtoUpdate',
-            (data: StreamMasterApi.TaskQueueStatusDto) => {
-              applyResult(data);
+                    hubConnection.on(
+                        'TaskQueueStatusDtoUpdate',
+                        (data: StreamMasterApi.TaskQueueStatusDto) => {
+                            applyResult(data);
+                        }
+                    );
+
+                    const deleteResult = (
+
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        id: any
+                    ) => {
+                        updateCachedData(
+                            (
+                                draft: StreamMasterApi.TaskQueueStatusDto[]
+                            ) => {
+                              return draft.filter((obj) => obj.id !== id);
+                            }
+                        );
+                    };
+
+                    hubConnection.on(
+                        'TaskQueueStatusDtoDelete',
+                        (id: number) => {
+                            deleteResult(id);
+                        }
+                    );
+
+
+                } catch {}
+
+                await cacheEntryRemoved;
             }
-          );
-
-          const deleteResult = (
-
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            id: any
-          ) => {
-            updateCachedData(
-              (
-                draft: StreamMasterApi.TaskQueueStatusDto[]
-              ) => {
-                return draft.filter((obj) => obj.id !== id);
-              }
-            );
-          };
-
-          hubConnection.on(
-            'TaskQueueStatusDtoDelete',
-            (id: number) => {
-              deleteResult(id);
-            }
-          );
-
-
-        } catch { }
-
-        await cacheEntryRemoved;
-      }
-    },
+        },
     settingsGetSetting: {
       async onCacheEntryAdded(
         arg,
@@ -514,23 +514,23 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
               (
               ) => {
                 return data;
-              }
+        }
             );
-          };
+                    };
 
-          hubConnection.on(
-            'SettingDtoUpdate',
-            (data: StreamMasterApi.SettingDto) => {
-              applyResult(data);
+                    hubConnection.on(
+                        'SettingDtoUpdate',
+                        (data: StreamMasterApi.SettingDto) => {
+                            applyResult(data);
+                        }
+                    );
+
+
+                } catch {}
+
+                await cacheEntryRemoved;
             }
-          );
-
-
-        } catch { }
-
-        await cacheEntryRemoved;
-      }
-    },
+        },
     settingsGetSystemStatus: {
       async onCacheEntryAdded(
         arg,
@@ -546,23 +546,23 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
               (
               ) => {
                 return data;
-              }
+        }
             );
-          };
+                    };
 
-          hubConnection.on(
-            'SystemStatusUpdate',
-            (data: StreamMasterApi.SystemStatus) => {
-              applyResult(data);
+                    hubConnection.on(
+                        'SystemStatusUpdate',
+                        (data: StreamMasterApi.SystemStatus) => {
+                            applyResult(data);
+                        }
+                    );
+
+
+                } catch {}
+
+                await cacheEntryRemoved;
             }
-          );
-
-
-        } catch { }
-
-        await cacheEntryRemoved;
-      }
-    },
+        },
     streamGroupsGetStreamGroup: {
       async onCacheEntryAdded(
         arg,
@@ -578,23 +578,23 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
               (
               ) => {
                 return data;
-              }
+        }
             );
-          };
+                    };
 
-          hubConnection.on(
-            'StreamGroupDtoUpdate',
-            (data: StreamMasterApi.StreamGroupDto) => {
-              applyResult(data);
+                    hubConnection.on(
+                        'StreamGroupDtoUpdate',
+                        (data: StreamMasterApi.StreamGroupDto) => {
+                            applyResult(data);
+                        }
+                    );
+
+
+                } catch {}
+
+                await cacheEntryRemoved;
             }
-          );
-
-
-        } catch { }
-
-        await cacheEntryRemoved;
-      }
-    },
+        },
     streamGroupsGetStreamGroupEpgForGuide: {
       async onCacheEntryAdded(
         arg,
@@ -610,23 +610,55 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
               (
               ) => {
                 return data;
-              }
+        }
             );
-          };
+                    };
 
-          hubConnection.on(
-            'EpgGuideUpdate',
-            (data: StreamMasterApi.EpgGuide) => {
-              applyResult(data);
+                    hubConnection.on(
+                        'EpgGuideUpdate',
+                        (data: StreamMasterApi.EpgGuide) => {
+                            applyResult(data);
+                        }
+                    );
+
+
+                } catch {}
+
+                await cacheEntryRemoved;
             }
-          );
+        },
+    streamGroupsGetStreamGroupLinks: {
+      async onCacheEntryAdded(
+        arg,
+        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+      ) {
+        try {
+          await cacheDataLoaded;
+
+          const applyResult = (
+            data: StreamMasterApi.GetStreamGroupLinksResponse
+          ) => {
+            updateCachedData(
+              (
+              ) => {
+                return data;
+        }
+            );
+                    };
+
+                    hubConnection.on(
+                        'GetStreamGroupLinksResponseUpdate',
+                        (data: StreamMasterApi.GetStreamGroupLinksResponse) => {
+                            applyResult(data);
+                        }
+                    );
 
 
-        } catch { }
+                } catch {}
 
-        await cacheEntryRemoved;
-      }
-    },
+                await cacheEntryRemoved;
+            }
+        },
     streamGroupsGetStreamGroups: {
       async onCacheEntryAdded(
         arg,
@@ -639,7 +671,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
             data: StreamMasterApi.StreamGroupDto[]
           ) => {
             updateCachedData(
-              (draft: StreamMasterApi.StreamGroupDto[]) => {
+              ( draft: StreamMasterApi.StreamGroupDto[]) => {
                 data.forEach(function (cn) {
                   const foundIndex = draft.findIndex(
                     (x) => x.id === cn.id
@@ -681,43 +713,43 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
                 }
 
                 return draft;
-              }
+        }
             );
-          };
+                    };
 
-          hubConnection.on(
-            'StreamGroupDtoUpdate',
-            (data: StreamMasterApi.StreamGroupDto) => {
-              applyResult(data);
+                    hubConnection.on(
+                        'StreamGroupDtoUpdate',
+                        (data: StreamMasterApi.StreamGroupDto) => {
+                            applyResult(data);
+                        }
+                    );
+
+                    const deleteResult = (
+
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        id: any
+                    ) => {
+                        updateCachedData(
+                            (
+                                draft: StreamMasterApi.StreamGroupDto[]
+                            ) => {
+                              return draft.filter((obj) => obj.id !== id);
+                            }
+                        );
+                    };
+
+                    hubConnection.on(
+                        'StreamGroupDtoDelete',
+                        (id: number) => {
+                            deleteResult(id);
+                        }
+                    );
+
+
+                } catch {}
+
+                await cacheEntryRemoved;
             }
-          );
-
-          const deleteResult = (
-
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            id: any
-          ) => {
-            updateCachedData(
-              (
-                draft: StreamMasterApi.StreamGroupDto[]
-              ) => {
-                return draft.filter((obj) => obj.id !== id);
-              }
-            );
-          };
-
-          hubConnection.on(
-            'StreamGroupDtoDelete',
-            (id: number) => {
-              deleteResult(id);
-            }
-          );
-
-
-        } catch { }
-
-        await cacheEntryRemoved;
-      }
-    },
-  }
+        },
+    }
 });

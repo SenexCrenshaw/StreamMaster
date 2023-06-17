@@ -667,6 +667,19 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         };
     }
 
+    private string GetUrl()
+    {
+        var request = HttpContext.Request;
+        var scheme = request.Scheme;
+        var host = request.Host;
+        var path = request.Path;
+        var queryString = request.QueryString;
+
+        var url = $"{scheme}://{host}{path}{queryString}";
+
+        return url;
+    }
+
     private class UnregisterClientOnDispose : IDisposable
     {
         private readonly StreamerConfiguration _config;

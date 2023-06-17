@@ -32,6 +32,16 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddWebUIServices(this IServiceCollection services)
     {
+        services.AddOutputCache(options =>
+        {
+            options.AddBasePolicy(builder =>
+                builder.Expire(TimeSpan.Zero));
+            options.AddPolicy("Expire20", builder =>
+                builder.Expire(TimeSpan.FromSeconds(20)));
+            options.AddPolicy("Expire30", builder =>
+                builder.Expire(TimeSpan.FromSeconds(30)));
+        });
+
         _ = services.AddLogging();
         _ = services.AddSingleton<ICurrentUserService, CurrentUserService>();
 
@@ -115,7 +125,7 @@ public static class ConfigureServices
         {
             configure.Title = "StreamMaster API";
             configure.SchemaProcessors.Add(new InheritanceSchemaProcessor());
-            
+
             configure.AddSecurity("apikey", Enumerable.Empty<string>(), new OpenApiSecurityScheme
             {
                 Type = OpenApiSecuritySchemeType.ApiKey,

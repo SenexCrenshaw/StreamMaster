@@ -1,5 +1,7 @@
 ﻿using StreamMaster.SchedulesDirect;
 
+using StreamMasterDomain.Authentication;
+
 using System.Text.Json;
 
 namespace SDConsole;
@@ -8,6 +10,27 @@ internal class Program
 {
     private static async Task Main(string[] args)
     {
+        int originalValue = 123;
+        string valueKey = "f835904d5a2343d8ac567c026d6c08b2";
+        string serverKey = "ef1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c";
+        //string valueKey = "f835904d5a2343d8ac567c026d6c08b2";
+        //string serverKey = "0123456789abcdef0123456789abcdef";
+
+        // Encode the value
+
+        string encodedValue = originalValue.EncodeValue128("ef1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c");
+
+        Console.WriteLine($"Encoded value: {encodedValue}");
+
+        // Decode the value
+        int? decodedValue = encodedValue.DecodeValue128(serverKey);
+        if (decodedValue.HasValue)
+            Console.WriteLine($"Decoded value: {decodedValue}");
+        else
+            Console.WriteLine("Decoding failed.");
+
+        return;
+
         var cancellationTokenSource = new CancellationTokenSource();
         CancellationToken cancellationToken = cancellationTokenSource.Token;
 

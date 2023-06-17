@@ -2,15 +2,12 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMasterDomain.Common;
-
 using StreamMasterInfrastructure;
 
 namespace StreamMasterAPI.Controllers;
 
 //[ApiController]
 [V1ApiController("api/[controller]")]
-//[Route("api/[controller]")]
 public abstract class ApiControllerBase : ControllerBase
 {
     //private IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext = null!;

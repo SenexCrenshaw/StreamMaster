@@ -9,6 +9,7 @@ using StreamMasterInfrastructure.Services.Frontend.Mappers;
 namespace StreamMasterInfrastructure.Services.Frontend
 {
     [Authorize(Policy = "UI")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     [ApiController]
     public class StaticResourceController : Controller
     {

@@ -33,11 +33,18 @@ public class ConfigFileProvider : IConfigFileProvider
             UpdateSetting();
         }
 
+        if (currentSetting.ServerKey.IsNullOrWhiteSpace())
+        {
+            currentSetting.ServerKey = GenerateApiKey();
+            UpdateSetting();
+        }
+
         if (Debugger.IsAttached)
         {
             currentSetting.AuthenticationMethod = AuthenticationType.None;
             currentSetting.UiFolder = "devwwwroot";
             currentSetting.ApiKey = "f835904d5a2343d8ac567c026d6c08b2";
+            currentSetting.ServerKey = "ef1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c";
         }
     }
 

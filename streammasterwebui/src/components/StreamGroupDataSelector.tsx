@@ -14,6 +14,16 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
   const streamGroupsQuery = StreamMasterApi.useStreamGroupsGetStreamGroupsQuery();
   const [selectedStreamGroup, setSelectedStreamGroup] = React.useState<StreamMasterApi.StreamGroupDto>({} as StreamMasterApi.StreamGroupDto);
 
+  const links = StreamMasterApi.useStreamGroupsGetStreamGroupLinksQuery(selectedStreamGroup.id);
+
+  const m3uLink = React.useMemo(() => {
+    if (links.data === undefined) {
+      return '';
+    }
+
+    return links.data.m3ULink;
+  }, [links.data]);
+
   React.useMemo(() => {
     if (selectedStreamGroup.id === undefined || !streamGroupsQuery.data) {
       return;

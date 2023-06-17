@@ -612,6 +612,16 @@ const injectedRtkApi = api
         }),
         providesTags: ["StreamGroups"],
       }),
+      streamGroupsGetStreamGroupLinks: build.query<
+        StreamGroupsGetStreamGroupLinksApiResponse,
+        StreamGroupsGetStreamGroupLinksApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroups/getstreamgrouplinks`,
+          params: { StreamGroupNumber: queryArg },
+        }),
+        providesTags: ["StreamGroups"],
+      }),
       streamGroupsGetStreamGroupM3U: build.query<
         StreamGroupsGetStreamGroupM3UApiResponse,
         StreamGroupsGetStreamGroupM3UApiArg
@@ -812,6 +822,13 @@ const injectedRtkApi = api
         StaticResourceIndexContentApiArg
       >({
         query: (queryArg) => ({ url: `/content/${queryArg}` }),
+        providesTags: ["StaticResource"],
+      }),
+      staticResourceIndexImages: build.query<
+        StaticResourceIndexImagesApiResponse,
+        StaticResourceIndexImagesApiArg
+      >({
+        query: (queryArg) => ({ url: `/images/${queryArg}` }),
         providesTags: ["StaticResource"],
       }),
     }),
@@ -1026,6 +1043,9 @@ export type StreamGroupsGetStreamGroupLineUpApiArg = number;
 export type StreamGroupsGetStreamGroupLineUpStatusApiResponse =
   /** status 200  */ string;
 export type StreamGroupsGetStreamGroupLineUpStatusApiArg = number;
+export type StreamGroupsGetStreamGroupLinksApiResponse =
+  /** status 200  */ GetStreamGroupLinksResponse;
+export type StreamGroupsGetStreamGroupLinksApiArg = number;
 export type StreamGroupsGetStreamGroupM3UApiResponse =
   /** status 200  */ string;
 export type StreamGroupsGetStreamGroupM3UApiArg = number;
@@ -1106,6 +1126,8 @@ export type StaticResourceIndex2ApiResponse = unknown;
 export type StaticResourceIndex2ApiArg = string;
 export type StaticResourceIndexContentApiResponse = unknown;
 export type StaticResourceIndexContentApiArg = string;
+export type StaticResourceIndexImagesApiResponse = unknown;
+export type StaticResourceIndexImagesApiArg = string;
 export type ChannelGroupArg = {
   isHidden: boolean | null;
   isReadOnly: boolean | null;
@@ -1500,6 +1522,11 @@ export type EpgGuide = {
   programs: EpgProgram[];
   startDate: string;
 };
+export type GetStreamGroupLinksResponse = {
+  hdhrLink?: string;
+  m3ULink?: string;
+  xmlLink?: string;
+};
 export type UpdateStreamGroupRequest = {
   streamGroupId?: number;
   name?: string | null;
@@ -1621,6 +1648,7 @@ export const {
   useStreamGroupsGetStreamGroupEpgForGuideQuery,
   useStreamGroupsGetStreamGroupLineUpQuery,
   useStreamGroupsGetStreamGroupLineUpStatusQuery,
+  useStreamGroupsGetStreamGroupLinksQuery,
   useStreamGroupsGetStreamGroupM3UQuery,
   useStreamGroupsGetStreamGroupM3U2Query,
   useStreamGroupsGetStreamGroupM3U22Query,
@@ -1644,4 +1672,5 @@ export const {
   useStaticResourceIndexQuery,
   useStaticResourceIndex2Query,
   useStaticResourceIndexContentQuery,
+  useStaticResourceIndexImagesQuery,
 } = injectedRtkApi;
