@@ -13,10 +13,6 @@ internal class Program
         int originalValue = 123;
         string valueKey = "f835904d5a2343d8ac567c026d6c08b2";
         string serverKey = "ef1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c";
-        //string valueKey = "f835904d5a2343d8ac567c026d6c08b2";
-        //string serverKey = "0123456789abcdef0123456789abcdef";
-
-        // Encode the value
 
         string encodedValue = originalValue.EncodeValue128("ef1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c");
 
