@@ -8,6 +8,7 @@ using System.Text;
 
 namespace StreamMasterInfrastructure.Services.Frontend
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     [Authorize(Policy = "UI")]
     [ApiController]
     public class InitializeJsController : Controller

@@ -11,6 +11,7 @@ using System.Security.Claims;
 
 namespace StreamMasterAPI.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     [AllowAnonymous]
     [ApiController]
     public class AuthenticationController : Controller

@@ -1,7 +1,5 @@
 import { emptySplitApi as api } from "./emptyApi";
 export const addTagTypes = [
-  "Authentication",
-  "StaticResource",
   "ChannelGroups",
   "EPGFiles",
   "Files",
@@ -12,7 +10,6 @@ export const addTagTypes = [
   "Settings",
   "StreamGroups",
   "VideoStreams",
-  "InitializeJs",
 ] as const;
 const injectedRtkApi = api
   .enhanceEndpoints({
@@ -20,32 +17,6 @@ const injectedRtkApi = api
   })
   .injectEndpoints({
     endpoints: (build) => ({
-      authenticationLogin: build.mutation<
-        AuthenticationLoginApiResponse,
-        AuthenticationLoginApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/login`,
-          method: "POST",
-          body: queryArg.body,
-          params: { returnUrl: queryArg.returnUrl },
-        }),
-        invalidatesTags: ["Authentication"],
-      }),
-      staticResourceLoginPage: build.query<
-        StaticResourceLoginPageApiResponse,
-        StaticResourceLoginPageApiArg
-      >({
-        query: () => ({ url: `/login` }),
-        providesTags: ["StaticResource"],
-      }),
-      authenticationLogout: build.query<
-        AuthenticationLogoutApiResponse,
-        AuthenticationLogoutApiArg
-      >({
-        query: () => ({ url: `/logout` }),
-        providesTags: ["Authentication"],
-      }),
       channelGroupsAddChannelGroup: build.mutation<
         ChannelGroupsAddChannelGroupApiResponse,
         ChannelGroupsAddChannelGroupApiArg
@@ -612,16 +583,6 @@ const injectedRtkApi = api
         }),
         providesTags: ["StreamGroups"],
       }),
-      streamGroupsGetStreamGroupLinks: build.query<
-        StreamGroupsGetStreamGroupLinksApiResponse,
-        StreamGroupsGetStreamGroupLinksApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/streamgroups/getstreamgrouplinks`,
-          params: { StreamGroupNumber: queryArg },
-        }),
-        providesTags: ["StreamGroups"],
-      }),
       streamGroupsGetStreamGroupM3U: build.query<
         StreamGroupsGetStreamGroupM3UApiResponse,
         StreamGroupsGetStreamGroupM3UApiArg
@@ -796,58 +757,10 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["VideoStreams"],
       }),
-      initializeJsIndex: build.query<
-        InitializeJsIndexApiResponse,
-        InitializeJsIndexApiArg
-      >({
-        query: () => ({ url: `/initialize.js` }),
-        providesTags: ["InitializeJs"],
-      }),
-      staticResourceIndex: build.query<
-        StaticResourceIndexApiResponse,
-        StaticResourceIndexApiArg
-      >({
-        query: (queryArg) => ({ url: `/` }),
-        providesTags: ["StaticResource"],
-      }),
-      staticResourceIndex2: build.query<
-        StaticResourceIndex2ApiResponse,
-        StaticResourceIndex2ApiArg
-      >({
-        query: (queryArg) => ({ url: `/${queryArg}` }),
-        providesTags: ["StaticResource"],
-      }),
-      staticResourceIndexContent: build.query<
-        StaticResourceIndexContentApiResponse,
-        StaticResourceIndexContentApiArg
-      >({
-        query: (queryArg) => ({ url: `/content/${queryArg}` }),
-        providesTags: ["StaticResource"],
-      }),
-      staticResourceIndexImages: build.query<
-        StaticResourceIndexImagesApiResponse,
-        StaticResourceIndexImagesApiArg
-      >({
-        query: (queryArg) => ({ url: `/images/${queryArg}` }),
-        providesTags: ["StaticResource"],
-      }),
     }),
     overrideExisting: false,
   });
 export { injectedRtkApi as iptvApi };
-export type AuthenticationLoginApiResponse = unknown;
-export type AuthenticationLoginApiArg = {
-  returnUrl?: string;
-  body: {
-    Username?: string | null;
-    Password?: string | null;
-    RememberMe?: string | null;
-  };
-};
-export type StaticResourceLoginPageApiResponse = unknown;
-export type StaticResourceLoginPageApiArg = void;
-export type AuthenticationLogoutApiResponse = unknown;
-export type AuthenticationLogoutApiArg = void;
 export type ChannelGroupsAddChannelGroupApiResponse = /** status 200  */
   | undefined
   | /** status 201  */ ChannelGroupDto;
@@ -1043,9 +956,6 @@ export type StreamGroupsGetStreamGroupLineUpApiArg = number;
 export type StreamGroupsGetStreamGroupLineUpStatusApiResponse =
   /** status 200  */ string;
 export type StreamGroupsGetStreamGroupLineUpStatusApiArg = number;
-export type StreamGroupsGetStreamGroupLinksApiResponse =
-  /** status 200  */ GetStreamGroupLinksResponse;
-export type StreamGroupsGetStreamGroupLinksApiArg = number;
 export type StreamGroupsGetStreamGroupM3UApiResponse =
   /** status 200  */ string;
 export type StreamGroupsGetStreamGroupM3UApiArg = number;
@@ -1118,16 +1028,6 @@ export type VideoStreamsUpdateVideoStreamApiArg = UpdateVideoStreamRequest;
 export type VideoStreamsUpdateVideoStreamsApiResponse =
   /** status 204  */ undefined;
 export type VideoStreamsUpdateVideoStreamsApiArg = UpdateVideoStreamsRequest;
-export type InitializeJsIndexApiResponse = unknown;
-export type InitializeJsIndexApiArg = void;
-export type StaticResourceIndexApiResponse = unknown;
-export type StaticResourceIndexApiArg = string;
-export type StaticResourceIndex2ApiResponse = unknown;
-export type StaticResourceIndex2ApiArg = string;
-export type StaticResourceIndexContentApiResponse = unknown;
-export type StaticResourceIndexContentApiArg = string;
-export type StaticResourceIndexImagesApiResponse = unknown;
-export type StaticResourceIndexImagesApiArg = string;
 export type ChannelGroupArg = {
   isHidden: boolean | null;
   isReadOnly: boolean | null;
@@ -1371,7 +1271,6 @@ export type TaskQueueStatusDto = {
 export type AuthenticationType = 0 | 1 | 2;
 export type StreamingProxyTypes = 0 | 1 | 2 | 3;
 export type Setting = {
-  urlBase?: string;
   adminPassword?: string;
   adminUserName?: string;
   apiKey?: string;
@@ -1394,10 +1293,12 @@ export type Setting = {
   ringBufferSizeMB?: number;
   sdPassword?: string;
   sdUserName?: string;
+  serverKey?: string;
   sourceBufferPreBufferPercentage?: number;
   streamingProxyType?: StreamingProxyTypes;
   streamMasterIcon?: string;
   uiFolder?: string;
+  urlBase?: string;
 };
 export type SettingDto = Setting & {
   defaultIconDto?: IconFileDto;
@@ -1469,10 +1370,13 @@ export type VideoStreamDto = BaseVideoStreamDto & {
 };
 export type StreamGroupDto = {
   channelGroups: ChannelGroupDto[];
+  hdhrLink: string;
   id: number;
+  m3ULink: string;
   name: string;
   streamGroupNumber: number;
   videoStreams: VideoStreamDto[];
+  xmlLink: string;
 };
 export type AddStreamGroupRequest = {
   name: string;
@@ -1521,11 +1425,6 @@ export type EpgGuide = {
   endDate: string;
   programs: EpgProgram[];
   startDate: string;
-};
-export type GetStreamGroupLinksResponse = {
-  hdhrLink?: string;
-  m3ULink?: string;
-  xmlLink?: string;
 };
 export type UpdateStreamGroupRequest = {
   streamGroupId?: number;
@@ -1582,9 +1481,6 @@ export type UpdateVideoStreamsRequest = {
   videoStreamUpdates?: VideoStreamUpdate[];
 };
 export const {
-  useAuthenticationLoginMutation,
-  useStaticResourceLoginPageQuery,
-  useAuthenticationLogoutQuery,
   useChannelGroupsAddChannelGroupMutation,
   useChannelGroupsGetChannelGroupsQuery,
   useChannelGroupsDeleteChannelGroupMutation,
@@ -1648,7 +1544,6 @@ export const {
   useStreamGroupsGetStreamGroupEpgForGuideQuery,
   useStreamGroupsGetStreamGroupLineUpQuery,
   useStreamGroupsGetStreamGroupLineUpStatusQuery,
-  useStreamGroupsGetStreamGroupLinksQuery,
   useStreamGroupsGetStreamGroupM3UQuery,
   useStreamGroupsGetStreamGroupM3U2Query,
   useStreamGroupsGetStreamGroupM3U22Query,
@@ -1668,9 +1563,4 @@ export const {
   useVideoStreamsSetVideoStreamChannelNumbersMutation,
   useVideoStreamsUpdateVideoStreamMutation,
   useVideoStreamsUpdateVideoStreamsMutation,
-  useInitializeJsIndexQuery,
-  useStaticResourceIndexQuery,
-  useStaticResourceIndex2Query,
-  useStaticResourceIndexContentQuery,
-  useStaticResourceIndexImagesQuery,
 } = injectedRtkApi;
