@@ -10,20 +10,25 @@ internal class Program
 {
     private static async Task Main(string[] args)
     {
-        int originalValue = 123;
         string valueKey = "f835904d5a2343d8ac567c026d6c08b2";
+
         string serverKey = "ef1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c";
 
-        string encodedValue = originalValue.EncodeValue128("ef1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c");
+        int value1 = 123;
+        int value2 = 456;
 
-        Console.WriteLine($"Encoded value: {encodedValue}");
+        //string encodedSingleValue = value1.EncodeValue(serverKey, 128);
+        //int? decodedSingleValue = encodedSingleValue.DecodeValue128(serverKey);
 
-        // Decode the value
-        int? decodedValue = encodedValue.DecodeValue128(serverKey);
-        if (decodedValue.HasValue)
-            Console.WriteLine($"Decoded value: {decodedValue}");
-        else
-            Console.WriteLine("Decoding failed.");
+        //Console.WriteLine($"Encoded single value: {encodedSingleValue}");
+        //Console.WriteLine($"Decoded single value: {decodedSingleValue}");
+
+        string encodedTwoValues = value1.EncodeValue(serverKey, 128, value2);
+        (int? decodedValue1, int? decodedValue2) = encodedTwoValues.DecodeTwoValues128(serverKey);
+
+        Console.WriteLine($"Encoded two values: {encodedTwoValues}");
+        Console.WriteLine($"Decoded value 1: {decodedValue1}");
+        Console.WriteLine($"Decoded value 2: {decodedValue2}");
 
         return;
 
