@@ -109,8 +109,8 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
             var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _configFileProvider.Setting.ServerKey);
 
-            string url2 = GetUrl();
-            var videoUrl = $"{url2}/api/streamgroups/stream/{encodedNumbers}";
+            string url = GetUrl();
+            var videoUrl = $"{url}/api/streamgroups/stream/{encodedNumbers}";
 
             //if (!string.IsNullOrEmpty(_configFileProvider.Setting.APIPassword) && !string.IsNullOrEmpty(_configFileProvider.Setting.APIUserName))
             //{

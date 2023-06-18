@@ -2,6 +2,8 @@
 
 using MediatR;
 
+using Microsoft.AspNetCore.Http;
+
 using StreamMasterApplication.Common.Models;
 
 using StreamMasterDomain.Attributes;
@@ -25,10 +27,13 @@ public class GetStreamGroupDiscoverValidator : AbstractValidator<GetStreamGroupD
 public class GetStreamGroupDiscoverHandler : IRequestHandler<GetStreamGroupDiscover, string>
 {
     private readonly ISender _sender;
-
+    private readonly IHttpContextAccessor _httpContextAccessor;
     public GetStreamGroupDiscoverHandler(
-            ISender sender)
+           IHttpContextAccessor httpContextAccessor,
+            ISender sender
+           )
     {
+        _httpContextAccessor = httpContextAccessor;
         _sender = sender;
     }
 
@@ -44,10 +49,22 @@ public class GetStreamGroupDiscoverHandler : IRequestHandler<GetStreamGroupDisco
         }
 
         StreamMasterDomain.Dto.SettingDto setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
-
-        Discover discover = new(setting, $"{setting.BaseHostURL}api/streamgroups/{command.StreamGroupNumber}", command.StreamGroupNumber);
+        var url = GetUrl();
+        Discover discover = new(setting, url, command.StreamGroupNumber);
 
         string jsonString = JsonSerializer.Serialize(discover, new JsonSerializerOptions { WriteIndented = true });
         return jsonString;
+    }
+
+    private string GetUrl()
+    {
+        var request = _httpContextAccessor.HttpContext.Request;
+        var scheme = request.Scheme;
+        var host = request.Host;
+        var path = request.Path;
+        path = path.ToString().Replace("/discover.json", "");
+        var url = $"{scheme}://{host}{path}";
+
+        return url;
     }
 }
