@@ -38,21 +38,19 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
     private readonly IAppDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
-    private readonly IMemoryCache _memoryCache;
+
     private readonly ISender _sender;
-    private readonly object Lock = new();
 
     public GetStreamGroupM3UHandler(
            IMapper mapper,
            IHttpContextAccessor httpContextAccessor,
-            IMemoryCache memoryCache,
             ISender sender,
              IConfigFileProvider configFileProvider,
         IAppDbContext context)
     {
         _httpContextAccessor = httpContextAccessor;
         _configFileProvider = configFileProvider;
-        _memoryCache = memoryCache;
+
         _mapper = mapper;
         _context = context;
         _sender = sender;

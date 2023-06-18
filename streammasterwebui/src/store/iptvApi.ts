@@ -502,7 +502,8 @@ const injectedRtkApi = api
         StreamGroupsGetStreamGroupApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/streamgroups/getstreamgroup/${queryArg}`,
+          url: `/api/streamgroups/getstreamgroup/${queryArg.id}`,
+          params: { StreamGroupNumber: queryArg.streamGroupNumber },
         }),
         providesTags: ["StreamGroups"],
       }),
@@ -510,9 +511,7 @@ const injectedRtkApi = api
         StreamGroupsGetStreamGroupByStreamNumberApiResponse,
         StreamGroupsGetStreamGroupByStreamNumberApiArg
       >({
-        query: (queryArg) => ({
-          url: `/api/streamgroups/getstreamgroupbystreamnumber/${queryArg}`,
-        }),
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}` }),
         providesTags: ["StreamGroups"],
       }),
       streamGroupsGetStreamGroupCapability: build.query<
@@ -553,7 +552,7 @@ const injectedRtkApi = api
         StreamGroupsGetStreamGroupEpgApiResponse,
         StreamGroupsGetStreamGroupEpgApiArg
       >({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/epg.xml` }),
+        query: (queryArg) => ({ url: `/api/streamgroups/epg/${queryArg}.xml` }),
         providesTags: ["StreamGroups"],
       }),
       streamGroupsGetStreamGroupEpgForGuide: build.query<
@@ -587,28 +586,19 @@ const injectedRtkApi = api
         StreamGroupsGetStreamGroupM3UApiResponse,
         StreamGroupsGetStreamGroupM3UApiArg
       >({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/m3u` }),
+        query: (queryArg) => ({ url: `/api/streamgroups/m3u/${queryArg}.m3u` }),
         providesTags: ["StreamGroups"],
       }),
       streamGroupsGetStreamGroupM3U2: build.query<
         StreamGroupsGetStreamGroupM3U2ApiResponse,
         StreamGroupsGetStreamGroupM3U2ApiArg
       >({
-        query: (queryArg) => ({
-          url: `/api/streamgroups/${queryArg}/m3u/m3u.m3u`,
-        }),
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/m3u2` }),
         providesTags: ["StreamGroups"],
       }),
       streamGroupsGetStreamGroupM3U22: build.query<
         StreamGroupsGetStreamGroupM3U22ApiResponse,
         StreamGroupsGetStreamGroupM3U22ApiArg
-      >({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/m3u2` }),
-        providesTags: ["StreamGroups"],
-      }),
-      streamGroupsGetStreamGroupM3U23: build.query<
-        StreamGroupsGetStreamGroupM3U23ApiResponse,
-        StreamGroupsGetStreamGroupM3U23ApiArg
       >({
         query: (queryArg) => ({
           url: `/api/streamgroups/${queryArg}/m3u2/m3u.m3u`,
@@ -928,10 +918,13 @@ export type StreamGroupsGetAllStatisticsForAllUrlsApiResponse =
 export type StreamGroupsGetAllStatisticsForAllUrlsApiArg = void;
 export type StreamGroupsGetStreamGroupApiResponse =
   /** status 200  */ StreamGroupDto;
-export type StreamGroupsGetStreamGroupApiArg = number;
+export type StreamGroupsGetStreamGroupApiArg = {
+  streamGroupNumber?: number;
+  id: string;
+};
 export type StreamGroupsGetStreamGroupByStreamNumberApiResponse =
   /** status 200  */ StreamGroupDto;
-export type StreamGroupsGetStreamGroupByStreamNumberApiArg = number;
+export type StreamGroupsGetStreamGroupByStreamNumberApiArg = string;
 export type StreamGroupsGetStreamGroupCapabilityApiResponse =
   /** status 200  */ string;
 export type StreamGroupsGetStreamGroupCapabilityApiArg = number;
@@ -946,7 +939,7 @@ export type StreamGroupsGetStreamGroupDiscoverApiResponse =
 export type StreamGroupsGetStreamGroupDiscoverApiArg = number;
 export type StreamGroupsGetStreamGroupEpgApiResponse =
   /** status 200  */ string;
-export type StreamGroupsGetStreamGroupEpgApiArg = number;
+export type StreamGroupsGetStreamGroupEpgApiArg = string;
 export type StreamGroupsGetStreamGroupEpgForGuideApiResponse =
   /** status 200  */ EpgGuide;
 export type StreamGroupsGetStreamGroupEpgForGuideApiArg = number;
@@ -958,16 +951,13 @@ export type StreamGroupsGetStreamGroupLineUpStatusApiResponse =
 export type StreamGroupsGetStreamGroupLineUpStatusApiArg = number;
 export type StreamGroupsGetStreamGroupM3UApiResponse =
   /** status 200  */ string;
-export type StreamGroupsGetStreamGroupM3UApiArg = number;
+export type StreamGroupsGetStreamGroupM3UApiArg = string;
 export type StreamGroupsGetStreamGroupM3U2ApiResponse =
   /** status 200  */ string;
 export type StreamGroupsGetStreamGroupM3U2ApiArg = number;
 export type StreamGroupsGetStreamGroupM3U22ApiResponse =
   /** status 200  */ string;
 export type StreamGroupsGetStreamGroupM3U22ApiArg = number;
-export type StreamGroupsGetStreamGroupM3U23ApiResponse =
-  /** status 200  */ string;
-export type StreamGroupsGetStreamGroupM3U23ApiArg = number;
 export type StreamGroupsGetStreamGroupsApiResponse =
   /** status 200  */ StreamGroupDto[];
 export type StreamGroupsGetStreamGroupsApiArg = void;
@@ -1547,7 +1537,6 @@ export const {
   useStreamGroupsGetStreamGroupM3UQuery,
   useStreamGroupsGetStreamGroupM3U2Query,
   useStreamGroupsGetStreamGroupM3U22Query,
-  useStreamGroupsGetStreamGroupM3U23Query,
   useStreamGroupsGetStreamGroupsQuery,
   useStreamGroupsGetStreamGroupVideoM3UStreamQuery,
   useStreamGroupsGetStreamGroupVideoStreamQuery,

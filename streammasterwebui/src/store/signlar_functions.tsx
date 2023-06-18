@@ -294,12 +294,6 @@ export const GetStreamGroup = async (arg: number): Promise<StreamGroupDto> => {
     return data;
 };
 
-export const GetStreamGroupByStreamNumber = async (arg: number): Promise<StreamGroupDto> => {
-    const data = await hubConnection.invoke('GetStreamGroupByStreamNumber',arg);
-
-    return data;
-};
-
 export const GetStreamGroupEPGForGuide = async (arg: number): Promise<EpgGuide> => {
     const data = await hubConnection.invoke('GetStreamGroupEPGForGuide',arg);
 

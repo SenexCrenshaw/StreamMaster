@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Entities;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
@@ -67,7 +68,17 @@ internal class GetStreamGroupsHandler : IRequestHandler<GetStreamGroups, IEnumer
             streamGroup.HDHRLink = $"{url}/api/streamgroups/{encodedStreamGroupNumber}";
         }
 
-        ret.Insert(0, new StreamGroupDto { Id = 0, Name = "All" });
+        var encodedZero = 0.EncodeValue128(_configFileProvider.Setting.ServerKey);
+        var zeroGroup = new StreamGroupDto
+        {
+            Id = 0,
+            Name = "All",
+            M3ULink = $"{url}/api/streamgroups/m3u/{encodedZero}.m3u",
+            XMLLink = $"{url}/api/streamgroups/m3u/{encodedZero}.xml",
+            HDHRLink = $"{url}/api/streamgroups/m3u/{encodedZero}",
+        };
+
+        ret.Insert(0,zeroGroup);
 
         return ret;
     }
