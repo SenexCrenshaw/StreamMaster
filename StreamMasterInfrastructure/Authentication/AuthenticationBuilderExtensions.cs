@@ -29,6 +29,11 @@ public static class AuthenticationBuilderExtensions
                 options.HeaderName = "X-Api-Key";
                 options.QueryName = "apikey";
             })
+             .AddApiKey("SGLinks", options =>
+             {
+                 options.HeaderName = "SGLinks";
+                 options.QueryName = "SGLinks";
+             })
             .AddApiKey("SignalR", options =>
             {
                 options.HeaderName = "X-Api-Key";

@@ -151,6 +151,13 @@ public static class ConfigureServices
                 policy.RequireAuthenticatedUser();
             });
 
+            options.AddPolicy("SGLinks", policy =>
+            {
+                policy.AuthenticationSchemes.Add("SGLinks");
+                policy.RequireAuthenticatedUser();
+            });
+            
+
             // Require auth on everything except those marked [AllowAnonymous]
             options.FallbackPolicy = new AuthorizationPolicyBuilder("API")
             .RequireAuthenticatedUser()

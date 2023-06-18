@@ -37,6 +37,21 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
+        if (!needsAuth)
+        {
+            var claims = new List<Claim>
+                {
+                    new Claim("ApiKey", "true")
+                };
+
+            var identity = new ClaimsIdentity(claims, Options.AuthenticationType);
+            var identities = new List<ClaimsIdentity> { identity };
+            var principal = new ClaimsPrincipal(identities);
+            var ticket = new AuthenticationTicket(principal, Options.Scheme);
+
+            return Task.FromResult(AuthenticateResult.Success(ticket));
+        }
+
         var providedApiKey = ParseApiKey();
 
         if (string.IsNullOrWhiteSpace(providedApiKey))
@@ -74,11 +89,17 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
         return Task.CompletedTask;
     }
 
-    private string ParseApiKey()
+    private string? ParseApiKey()
     {
-        if (needsAuth && Request.Path.Value.StartsWith("/swagger") && Debugger.IsAttached)
+
+        if ( Request.Path.Value.StartsWith("/swagger") && Debugger.IsAttached)
         {
             return _apiKey;
+        }
+
+        if (Options.QueryName == "SGLinks")
+        {
+            return "SGLinks";
         }
 
         // Try query parameter

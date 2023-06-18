@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -19,6 +20,8 @@ using StreamMasterDomain.Enums;
 using System.Collections.Concurrent;
 using System.Text;
 using System.Web;
+
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace StreamMasterAPI.Controllers;
 
@@ -90,6 +93,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         return data != null ? (ActionResult<StreamGroupDto>)data : (ActionResult<StreamGroupDto>)NotFound();
     }
 
+    [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [Route("{encodedId}")]
     [ProducesResponseType(typeof(StreamGroupDto), StatusCodes.Status200OK)]
@@ -157,6 +161,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         };
     }
 
+    [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [Route("epg/{encodedId}.xml")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
@@ -170,13 +175,13 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
             return new NotFoundResult();
         }
 
+
         string xml = await Mediator.Send(new GetStreamGroupEPG((int)streamGroupNumber)).ConfigureAwait(false);
-        return new ContentResult
+        return new FileContentResult(Encoding.UTF8.GetBytes(xml), "application/xml")
         {
-            Content = xml,
-            ContentType = "application/xml",
-            StatusCode = 200
+            FileDownloadName = $"epg-{streamGroupNumber}.xml"
         };
+         
     }
 
     [HttpGet]
@@ -222,6 +227,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         };
     }
 
+    [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [Route("m3u/{encodedId}.m3u")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
@@ -237,11 +243,11 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
         string data = await Mediator.Send(new GetStreamGroupM3U((int)streamGroupNumber)).ConfigureAwait(false);
 
-        return new ContentResult
+        return new FileContentResult(Encoding.UTF8.GetBytes(data), "application/x-mpegURL")
         {
-            Content = data,
-            ContentType = "application/x-mpegURL"
+            FileDownloadName = $"m3u-{streamGroupNumber}.m3u"
         };
+
     }
 
     [HttpGet]
@@ -428,17 +434,26 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     }
 
     [HttpGet]
-    [Route("{StreamGroupNumber}/stream/{StreamId}")]
-    [Route("{StreamGroupNumber}/stream/{StreamId}.mp4")]
+    [Route("stream/{encodedIds}")]
+    [Route("stream/{encodedIds}.mp4")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetStreamGroupVideoStream(int StreamGroupNumber, int StreamId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetStreamGroupVideoStream(string encodedIds, CancellationToken cancellationToken)
     {
-        var videoStream = await Mediator.Send(new GetVideoStream(StreamId), cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId}", StreamGroupNumber, StreamId);
+        (int? StreamGroupNumberNull, int? StreamIdNull) = encodedIds.DecodeValues128(_configFileProvider.Setting.ServerKey);
+        if (StreamGroupNumberNull == null|| StreamIdNull==null)
+        {
+            return new NotFoundResult();
+        }
+
+        int streamGroupNumber = (int)StreamGroupNumberNull;
+        int videoStreamId = (int)StreamIdNull;
+
+        var videoStream = await Mediator.Send(new GetVideoStream(videoStreamId), cancellationToken).ConfigureAwait(false);
+        _logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId}", streamGroupNumber, videoStreamId);
 
         if (videoStream == null)
         {
-            _logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} not found exiting", StreamGroupNumber, StreamId);
+            _logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} not found exiting", streamGroupNumber, videoStreamId);
             return NotFound();
         }
 
@@ -448,7 +463,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
         if (settings.StreamingProxyType == StreamingProxyTypes.None)
         {
-            _logger.LogInformation("GetStreamGroupVideoStream request SG Number {id} ChannelId {channelId} proxy is none, sending redirect", StreamGroupNumber, StreamId);
+            _logger.LogInformation("GetStreamGroupVideoStream request SG Number {id} ChannelId {channelId} proxy is none, sending redirect", streamGroupNumber, videoStreamId);
 
             return Redirect(videoStream.User_Url);
         }
