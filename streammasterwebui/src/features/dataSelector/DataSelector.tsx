@@ -26,7 +26,6 @@ import React from 'react';
 import { camel2title, getTopToolOptions } from '../../common/common';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
 import { Checkbox } from 'primereact/checkbox';
-import { baseHostURL } from '../../settings';
 
 import { Tooltip } from 'primereact/tooltip';
 import { v4 as uuidv4 } from 'uuid';
@@ -297,14 +296,14 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     );
   }, [m3uFiles]);
 
-  const m3uLinkSourceTemplate = React.useCallback((streamGroupNumber: string) => {
+  const m3uLinkSourceTemplate = React.useCallback((link: string) => {
     return (
       <div>
         <div className="flex justify-content-center align-items-center">
           <Button
             icon='pi pi-bookmark-fill'
             onClick={async () => {
-              const link = `${baseHostURL}api/streamgroups/${streamGroupNumber}/m3u`;
+              // const link = `${link}api/streamgroups/${streamGroupNumber}/m3u`;
               await copy(link);
               // if (toast.current) {
               //   toast.current.show({ detail: `${link}`, severity: 'success', summary: 'Copied to clipboard' });
@@ -321,14 +320,14 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     );
   }, [copy]);
 
-  const epgLinkSourceTemplate = React.useCallback((streamGroupNumber: string) => {
+  const epgLinkSourceTemplate = React.useCallback((link: string) => {
     return (
       <div>
         <div className="flex justify-content-center align-items-center">
           <Button
             icon='pi pi-bookmark-fill'
             onClick={async () => {
-              const link = `${baseHostURL}api/streamgroups/${streamGroupNumber}/epg.xml`;
+              // const link = `${baseHostURL}api/streamgroups/${streamGroupNumber}/epg.xml`;
               await copy(link);
               // if (toast.current) {
               //   toast.current.show({ detail: `${link}`, severity: 'success', summary: 'Copied to clipboard' });
@@ -345,14 +344,14 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     );
   }, [copy]);
 
-  const urlLinkSourceTemplate = React.useCallback((streamGroupNumber: string) => {
+  const urlLinkSourceTemplate = React.useCallback((link: string) => {
     return (
       <div>
         <div className="flex justify-content-center align-items-center">
           <Button
             icon='pi pi-bookmark-fill'
             onClick={async () => {
-              const link = `${baseHostURL}api/streamgroups/${streamGroupNumber}`;
+              // const link = `${baseHostURL}api/streamgroups/${streamGroupNumber}`;
               await copy(link);
               // if (toast.current) {
               //   toast.current.show({ detail: `${link}`, severity: 'success', summary: 'Copied to clipboard' });
@@ -390,18 +389,18 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
 
     if (fieldType === 'm3ulink') {
-      const streamGroupNumber = getRecordString(data, 'streamGroupNumber');
-      return m3uLinkSourceTemplate(streamGroupNumber);
+      const link = getRecordString(data, 'm3ULink');
+      return m3uLinkSourceTemplate(link);
     }
 
     if (fieldType === 'epglink') {
-      const streamGroupNumber = getRecordString(data, 'streamGroupNumber');
-      return epgLinkSourceTemplate(streamGroupNumber);
+      const link = getRecordString(data, 'xmlLink');
+      return epgLinkSourceTemplate(link);
     }
 
     if (fieldType === 'url') {
-      const streamGroupNumber = getRecordString(data, 'streamGroupNumber');
-      return urlLinkSourceTemplate(streamGroupNumber);
+      const link = getRecordString(data, 'hdhrLink');
+      return urlLinkSourceTemplate(link);
     }
 
     if (fieldType === 'epg') {

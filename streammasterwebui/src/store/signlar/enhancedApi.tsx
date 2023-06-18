@@ -627,38 +627,6 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
                 await cacheEntryRemoved;
             }
         },
-    streamGroupsGetStreamGroupLinks: {
-      async onCacheEntryAdded(
-        arg,
-        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
-      ) {
-        try {
-          await cacheDataLoaded;
-
-          const applyResult = (
-            data: StreamMasterApi.GetStreamGroupLinksResponse
-          ) => {
-            updateCachedData(
-              (
-              ) => {
-                return data;
-        }
-            );
-                    };
-
-                    hubConnection.on(
-                        'GetStreamGroupLinksResponseUpdate',
-                        (data: StreamMasterApi.GetStreamGroupLinksResponse) => {
-                            applyResult(data);
-                        }
-                    );
-
-
-                } catch {}
-
-                await cacheEntryRemoved;
-            }
-        },
     streamGroupsGetStreamGroups: {
       async onCacheEntryAdded(
         arg,
