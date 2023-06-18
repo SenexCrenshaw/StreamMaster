@@ -23,7 +23,7 @@ internal class Program
         Console.WriteLine($"Encoded single value: {encodedSingleValue}");
         Console.WriteLine($"Decoded single value: {decodedSingleValue}");
 
-        string encodedTwoValues = value1.EncodeValue128(serverKey, value2);
+        string encodedTwoValues = value1.EncodeValues128(value2, serverKey);
         (int? decodedValue1, int? decodedValue2) = encodedTwoValues.DecodeValues128(serverKey);
 
         Console.WriteLine($"Encoded two values: {encodedTwoValues}");

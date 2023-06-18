@@ -5,12 +5,15 @@ using FluentValidation;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterApplication.Icons.Queries;
 
 using StreamMasterDomain.Attributes;
+using StreamMasterDomain.Authentication;
+using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Dto;
 
 using System.Collections.Concurrent;
@@ -31,7 +34,9 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
 
 public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, string>
 {
+    private readonly IConfigFileProvider _configFileProvider;
     private readonly IAppDbContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
     private readonly ISender _sender;
@@ -39,10 +44,14 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
     public GetStreamGroupM3UHandler(
            IMapper mapper,
+           IHttpContextAccessor httpContextAccessor,
             IMemoryCache memoryCache,
             ISender sender,
+             IConfigFileProvider configFileProvider,
         IAppDbContext context)
     {
+        _httpContextAccessor = httpContextAccessor;
+        _configFileProvider = configFileProvider;
         _memoryCache = memoryCache;
         _mapper = mapper;
         _context = context;
@@ -75,8 +84,6 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
             return "";
         }
 
-        SettingDto setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
-
         ParallelOptions po = new()
         {
             CancellationToken = cancellationToken,
@@ -98,21 +105,24 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
             }
 
             IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
-            string Logo = icon != null ? icon.Source : setting.BaseHostURL + setting.DefaultIcon;
+            string Logo = icon != null ? icon.Source : _configFileProvider.Setting.BaseHostURL + _configFileProvider.Setting.DefaultIcon;
 
             videoStream.User_Tvg_logo = Logo;
 
-            string url = $"{setting.BaseHostURL}api/streamgroups/{command.StreamGroupNumber}/stream/{videoStream.Id}";
+            var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _configFileProvider.Setting.ServerKey);
 
-            if (!string.IsNullOrEmpty(setting.APIPassword) && !string.IsNullOrEmpty(setting.APIUserName))
-            {
-                url += "?apiusername=" + setting.APIUserName + "&apipassword=" + setting.APIPassword;
-            }
+            string url2 = GetUrl();
+            var videoUrl = $"{url2}/api/streamgroups/stream/{encodedNumbers}";
+
+            //if (!string.IsNullOrEmpty(_configFileProvider.Setting.APIPassword) && !string.IsNullOrEmpty(_configFileProvider.Setting.APIUserName))
+            //{
+            //    url += "?apiusername=" + _configFileProvider.Setting.APIUserName + "&apipassword=" + _configFileProvider.Setting.APIPassword;
+            //}
 
             string ttt = $"#EXTINF:0 CUID=\"{videoStream.CUID}\" channel-id=\"{videoStream.CUID}\" channel-number=\"{videoStream.User_Tvg_chno}\" tvg-name=\"{videoStream.User_Tvg_name}\" tvg-chno=\"{videoStream.User_Tvg_chno}\" ";
             ttt += $"tvg-id=\"{videoStream.User_Tvg_ID}\" tvg-logo=\"{videoStream.User_Tvg_logo}\" group-title=\"{videoStream.User_Tvg_group}\"";
             ttt += $",{videoStream.User_Tvg_name}\r\n";
-            ttt += $"{url}\r\n";
+            ttt += $"{videoUrl}\r\n";
 
             _ = retlist.TryAdd(videoStream.User_Tvg_chno, ttt);
         });
@@ -127,5 +137,16 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
             }
         }
         return ret;
+    }
+
+    private string GetUrl()
+    {
+        var request = _httpContextAccessor.HttpContext.Request;
+        var scheme = request.Scheme;
+        var host = request.Host;
+
+        var url = $"{scheme}://{host}";
+
+        return url;
     }
 }
