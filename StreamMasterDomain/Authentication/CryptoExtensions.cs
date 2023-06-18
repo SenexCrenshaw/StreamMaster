@@ -7,65 +7,10 @@ namespace StreamMasterDomain.Authentication
     {
         private const int HMACSize = 32;
 
-        public static (int?, int?) DecodeTwoValues(this string valueKey, string serverKey, int keySize)
+        public static int? DecodeValue(this string valueKey, string serverKey, int keySize = 128)
         {
             string? decodedValue = DecodeValues(valueKey, serverKey, keySize);
-            if (!string.IsNullOrEmpty(decodedValue))
-            {
-                string[] parts = decodedValue.ToString().Split('|');
-                if (parts.Length == 2 && int.TryParse(parts[0], out int value1) && int.TryParse(parts[1], out int value2))
-                    return (value1, value2);
-            }
-
-            return (null, null);
-        }
-
-        public static (int?, int?) DecodeTwoValues128(this string valueKey, string serverKey)
-        {
-            return DecodeTwoValues(valueKey, serverKey, 128);
-        }
-
-        public static (int?, int?) DecodeTwoValues192(this string valueKey, string serverKey)
-        {
-            return DecodeTwoValues(valueKey, serverKey, 192);
-        }
-
-        public static (int?, int?) DecodeTwoValues256(this string valueKey, string serverKey)
-        {
-            return DecodeTwoValues(valueKey, serverKey, 256);
-        }
-
-        public static int? DecodeValue(this string valueKey, string serverKey, int keySize)
-        {
-            try
-            {
-                byte[] serverKeyBytes = GenerateKey(serverKey, keySize);
-                string base64String = valueKey
-                    .Replace('-', '+')
-                    .Replace('_', '/')
-                    .PadRight(valueKey.Length + (4 - valueKey.Length % 4) % 4, '=');
-                byte[] encodedBytes = Convert.FromBase64String(base64String);
-                byte[] hmacBytes = new byte[HMACSize];
-                byte[] encryptedBytes = new byte[encodedBytes.Length - HMACSize];
-                Buffer.BlockCopy(encodedBytes, 0, hmacBytes, 0, HMACSize);
-                Buffer.BlockCopy(encodedBytes, HMACSize, encryptedBytes, 0, encryptedBytes.Length);
-
-                bool isVerified = VerifyHMAC(encryptedBytes, hmacBytes, serverKeyBytes);
-                if (!isVerified)
-                {
-                    // HMAC verification failed
-                    return null;
-                }
-
-                int? decodedValue = DecryptValue(encryptedBytes, serverKeyBytes);
-                return decodedValue;
-            }
-            catch
-            {
-                // Failed to decode properly
-            }
-
-            return null;
+            return int.TryParse(decodedValue, out int result) ? result : null;
         }
 
         public static int? DecodeValue128(this string valueKey, string serverKey)
@@ -73,65 +18,19 @@ namespace StreamMasterDomain.Authentication
             return DecodeValue(valueKey, serverKey, 128);
         }
 
-        public static int? DecodeValue192(this string valueKey, string serverKey)
+        public static (int?, int?) DecodeValues128(this string valueKey, string serverKey)
         {
-            return DecodeValue(valueKey, serverKey, 192);
+            return DecodeTwoValues(valueKey, serverKey, 128);
         }
 
-        public static int? DecodeValue256(this string valueKey, string serverKey)
+        public static (int?, int?) DecodeValues192(this string valueKey, string serverKey)
         {
-            return DecodeValue(valueKey, serverKey, 256);
+            return DecodeTwoValues(valueKey, serverKey, 192);
         }
 
-        public static string? DecodeValues(this string valueKey, string serverKey, int keySize)
+        public static (int?, int?) DecodeValues256(this string valueKey, string serverKey)
         {
-            try
-            {
-                byte[] serverKeyBytes = GenerateKey(serverKey, keySize);
-                string base64String = valueKey
-                    .Replace('-', '+')
-                    .Replace('_', '/')
-                    .PadRight(valueKey.Length + (4 - valueKey.Length % 4) % 4, '=');
-                byte[] encodedBytes = Convert.FromBase64String(base64String);
-                byte[] hmacBytes = new byte[HMACSize];
-                byte[] encryptedBytes = new byte[encodedBytes.Length - HMACSize];
-                Buffer.BlockCopy(encodedBytes, 0, hmacBytes, 0, HMACSize);
-                Buffer.BlockCopy(encodedBytes, HMACSize, encryptedBytes, 0, encryptedBytes.Length);
-
-                bool isVerified = VerifyHMAC(encryptedBytes, hmacBytes, serverKeyBytes);
-                if (!isVerified)
-                {
-                    // HMAC verification failed
-                    return null;
-                }
-
-                var decodedValue = DecryptValues(encryptedBytes, serverKeyBytes);
-                return decodedValue;
-            }
-            catch
-            {
-                // Failed to decode properly
-            }
-
-            return null;
-        }
-
-        public static string EncodeValue(this int value1, string serverKey, int keySize, int? value2 = null)
-        {
-            byte[] serverKeyBytes = GenerateKey(serverKey, keySize);
-            string valueString = value2.HasValue ? $"{value1}|{value2.Value}" : value1.ToString();
-            byte[] valueBytes = Encoding.UTF8.GetBytes(valueString);
-            byte[] encryptedBytes = EncryptValue(valueBytes, serverKeyBytes);
-            byte[] hmacBytes = CalculateHMAC(encryptedBytes, serverKeyBytes);
-            byte[] encodedBytes = new byte[encryptedBytes.Length + HMACSize];
-            Buffer.BlockCopy(hmacBytes, 0, encodedBytes, 0, HMACSize);
-            Buffer.BlockCopy(encryptedBytes, 0, encodedBytes, HMACSize, encryptedBytes.Length);
-            string encodedUrlSafeString = Convert.ToBase64String(encodedBytes)
-                .Replace('+', '-')
-                .Replace('/', '_')
-                .TrimEnd('=');
-
-            return encodedUrlSafeString;
+            return DecodeTwoValues(valueKey, serverKey, 256);
         }
 
         public static string EncodeValue128(this int value1, string serverKey, int? value2 = null)
@@ -155,6 +54,7 @@ namespace StreamMasterDomain.Authentication
             return hmac.ComputeHash(data);
         }
 
+        // Private helper methods
         private static bool ConstantTimeComparison(byte[] a, byte[] b)
         {
             if (a.Length != b.Length)
@@ -169,36 +69,65 @@ namespace StreamMasterDomain.Authentication
             return result == 0;
         }
 
-        private static int? DecryptValue(byte[] encryptedValue, byte[] serverKey)
+        private static (int?, int?) DecodeTwoValues(this string valueKey, string serverKey, int keySize = 128)
         {
-            using var aes = Aes.Create();
-            aes.Key = serverKey;
-            aes.Mode = CipherMode.CBC;
-            aes.Padding = PaddingMode.PKCS7;
-            aes.IV = new byte[16]; // Use a fixed IV of all zeros (not secure)
-
-            using var ms = new MemoryStream();
-            using (var cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Write))
+            string? decodedValue = DecodeValues(valueKey, serverKey, keySize);
+            if (!string.IsNullOrEmpty(decodedValue))
             {
-                cs.Write(encryptedValue, 0, encryptedValue.Length);
-                cs.FlushFinalBlock();
+                string[] parts = decodedValue.ToString().Split('|');
+                if (parts.Length == 2 && int.TryParse(parts[0], out int value1) && int.TryParse(parts[1], out int value2))
+                    return (value1, value2);
             }
-            byte[] decryptedBytes = ms.ToArray();
-            string decryptedString = Encoding.UTF8.GetString(decryptedBytes);
 
-            if (int.TryParse(decryptedString, out int result))
-                return result;
+            return (null, null);
+        }
+
+        private static string? DecodeValues(this string valueKey, string serverKey, int keySize)
+        {
+            try
+            {
+                byte[] serverKeyBytes = GenerateKey(serverKey, keySize);
+                string base64String = valueKey
+                    .Replace('-', '+')
+                    .Replace('_', '/')
+                    .PadRight(valueKey.Length + (4 - valueKey.Length % 4) % 4, '=');
+                byte[] encodedBytes = Convert.FromBase64String(base64String);
+                byte[] hmacBytes = new byte[HMACSize];
+                byte[] encryptedBytes = new byte[encodedBytes.Length - HMACSize];
+                Buffer.BlockCopy(encodedBytes, 0, hmacBytes, 0, HMACSize);
+                Buffer.BlockCopy(encodedBytes, HMACSize, encryptedBytes, 0, encryptedBytes.Length);
+
+                bool isVerified = VerifyHMAC(encryptedBytes, hmacBytes, serverKeyBytes);
+                if (!isVerified)
+                {
+                    // HMAC verification failed
+                    return null;
+                }
+
+                // Extract the IV from the encrypted value
+                byte[] iv = new byte[16];
+                Buffer.BlockCopy(encryptedBytes, 0, iv, 0, iv.Length);
+
+                byte[] encryptedData = new byte[encryptedBytes.Length - iv.Length];
+                Buffer.BlockCopy(encryptedBytes, iv.Length, encryptedData, 0, encryptedData.Length);
+
+                return DecryptValues(encryptedData, serverKeyBytes, iv);
+            }
+            catch
+            {
+                // Failed to decode properly
+            }
 
             return null;
         }
 
-        private static string? DecryptValues(byte[] encryptedValue, byte[] serverKey)
+        private static string? DecryptValues(byte[] encryptedValue, byte[] serverKey, byte[] iv)
         {
             using var aes = Aes.Create();
             aes.Key = serverKey;
             aes.Mode = CipherMode.CBC;
             aes.Padding = PaddingMode.PKCS7;
-            aes.IV = new byte[16]; // Use a fixed IV of all zeros (not secure)
+            aes.IV = iv;
 
             using var ms = new MemoryStream();
             using (var cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Write))
@@ -207,9 +136,25 @@ namespace StreamMasterDomain.Authentication
                 cs.FlushFinalBlock();
             }
             byte[] decryptedBytes = ms.ToArray();
-            string decryptedString = Encoding.UTF8.GetString(decryptedBytes);
+            return Encoding.UTF8.GetString(decryptedBytes);
+        }
 
-            return decryptedString;
+        private static string EncodeValue(this int value1, string serverKey, int keySize = 128, int? value2 = null)
+        {
+            byte[] serverKeyBytes = GenerateKey(serverKey, keySize);
+            string valueString = value2.HasValue ? $"{value1}|{value2.Value}" : value1.ToString();
+            byte[] valueBytes = Encoding.UTF8.GetBytes(valueString);
+            byte[] encryptedBytes = EncryptValue(valueBytes, serverKeyBytes);
+            byte[] hmacBytes = CalculateHMAC(encryptedBytes, serverKeyBytes);
+            byte[] encodedBytes = new byte[encryptedBytes.Length + HMACSize];
+            Buffer.BlockCopy(hmacBytes, 0, encodedBytes, 0, HMACSize);
+            Buffer.BlockCopy(encryptedBytes, 0, encodedBytes, HMACSize, encryptedBytes.Length);
+            string encodedUrlSafeString = Convert.ToBase64String(encodedBytes)
+                .Replace('+', '-')
+                .Replace('/', '_')
+                .TrimEnd('=');
+
+            return encodedUrlSafeString;
         }
 
         private static byte[] EncryptValue(byte[] valueBytes, byte[] serverKey)
@@ -218,11 +163,16 @@ namespace StreamMasterDomain.Authentication
             aes.Key = serverKey;
             aes.Mode = CipherMode.CBC;
             aes.Padding = PaddingMode.PKCS7;
-            aes.IV = new byte[16]; // Use a fixed IV of all zeros (not secure)
+
+            // Generate a random IV
+            aes.GenerateIV();
+            byte[] iv = aes.IV;
 
             using var ms = new MemoryStream();
             using (var cs = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write))
             {
+                // Write the IV as the first 16 bytes in the encrypted value
+                ms.Write(iv, 0, iv.Length);
                 cs.Write(valueBytes, 0, valueBytes.Length);
                 cs.FlushFinalBlock();
             }
