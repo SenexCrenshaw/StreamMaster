@@ -107,7 +107,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                 }
 
                 IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
-                string Logo = icon != null ? icon.Source : setting.BaseHostURL + setting.DefaultIcon;
+                string Logo = icon != null ? icon.Source : "/"+setting.DefaultIcon;
 
                 TvChannel t;
                 int dummy = 0;
@@ -167,7 +167,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                                             {
                                                 continue;
                                             }
-                                            string IconSource = $"{setting.BaseHostURL}api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(programmeIcon.Source)}";
+                                            string IconSource = $"/api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(programmeIcon.Source)}";
                                             progIcon.Src = IconSource;
                                         }
                                     }
