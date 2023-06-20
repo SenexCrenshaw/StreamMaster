@@ -1,8 +1,12 @@
-﻿using StreamMasterApplication.Common.Models;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+
+using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.Settings;
 using StreamMasterApplication.Settings.Commands;
 
 using StreamMasterDomain.Dto;
+
+using static StreamMasterApplication.Settings.Commands.UpdateSettingHandler;
 
 namespace StreamMasterApplication.Hubs;
 
@@ -30,8 +34,10 @@ public partial class StreamMasterHub : ISettingHub
         return Task.FromResult(setting.AdminUserName == logInRequest.UserName && setting.AdminPassword == logInRequest.Password);
     }
 
-    public async Task<SettingDto?> UpdateSetting(UpdateSettingRequest command)
+    public async Task<UpdateSettingResponse> UpdateSetting(UpdateSettingRequest command)
     {
-        return await _mediator.Send(command).ConfigureAwait(false);
+         var updateSettingResponse = await _mediator.Send(command).ConfigureAwait(false);
+     
+        return updateSettingResponse;
     }
 }

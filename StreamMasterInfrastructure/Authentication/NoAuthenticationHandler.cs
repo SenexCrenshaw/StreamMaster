@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using StreamMasterDomain.Authentication;
+using StreamMasterDomain.Enums;
 
 using System.Security.Claims;
 using System.Text.Encodings.Web;

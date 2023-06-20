@@ -98,10 +98,10 @@ public class GetStreamGroupM3U2Handler : IRequestHandler<GetStreamGroupM3U2, str
             }
 
             IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
-            string Logo = icon != null ? icon.Source : setting.BaseHostURL + setting.DefaultIcon;
+            string Logo = icon != null ? icon.Source : "/" + setting.DefaultIcon;
 
             videoStream.User_Tvg_logo = Logo;
-            string url = $"{setting.BaseHostURL}api/streamgroups/{command.StreamGroupNumber}/stream/{videoStream.Id}";
+            string url = $"/api/files/{command.StreamGroupNumber}/stream/{videoStream.Id}";
 
             string ttt = $"#EXTINF:0 CUID=\"{videoStream.CUID}\" tvg-name=\"{videoStream.User_Tvg_name}\" ";
             ttt += $"tvg-id=\"{videoStream.User_Tvg_ID}\" group-title=\"{videoStream.User_Tvg_group}\"";

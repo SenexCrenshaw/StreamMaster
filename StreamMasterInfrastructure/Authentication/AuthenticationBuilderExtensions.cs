@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 
 using StreamMasterDomain.Authentication;
+using StreamMasterDomain.Enums;
 
 namespace StreamMasterInfrastructure.Authentication;
 
@@ -16,7 +17,7 @@ public static class AuthenticationBuilderExtensions
     {
         return services.AddAuthentication()
             .AddNone(AuthenticationType.None.ToString())
-            .AddBasic(AuthenticationType.Basic.ToString())
+            //.AddBasic(AuthenticationType.Basic.ToString())
             .AddCookie(AuthenticationType.Forms.ToString(), options =>
             {
                 options.Cookie.Name = "StreamMasterAuth";

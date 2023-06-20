@@ -24,8 +24,7 @@ const StreamMasterSetting = (): StreamMasterSettingResponse => {
 
     if (
       settingsQuery.data.defaultIcon &&
-      settingsQuery.data.streamMasterIcon &&
-      settingsQuery.data.baseHostURL
+      settingsQuery.data.streamMasterIcon
     ) {
       setStreamMasterIcon(settingsQuery.data.streamMasterIcon);
       setDefaultIcon(settingsQuery.data.defaultIcon);

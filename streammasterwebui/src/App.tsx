@@ -47,11 +47,6 @@ const App = () => {
 
   const systemStatus = StreamMasterApi.useSettingsGetSystemStatusQuery();
 
-  const logOut = React.useCallback(() => {
-
-    // navigate('/logout');
-  }, []);
-
   const systemReady = React.useMemo((): boolean => {
     if (!hubConnected) {
       return false;
@@ -103,7 +98,7 @@ const App = () => {
 
         <Route element={
           <ProtectedRoute isAuthenticated  >
-            <SettingsEditor isAuthenticated logOut={() => logOut()} />
+            <SettingsEditor isAuthenticated />
           </ProtectedRoute>
         } path="/settings" />
 

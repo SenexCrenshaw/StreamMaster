@@ -103,7 +103,7 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
             }
 
             IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
-            string Logo = icon != null ? icon.Source : _configFileProvider.Setting.BaseHostURL + _configFileProvider.Setting.DefaultIcon;
+            string Logo = icon != null ? icon.Source : "/" + _configFileProvider.Setting.DefaultIcon;
 
             videoStream.User_Tvg_logo = Logo;
 

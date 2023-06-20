@@ -46,8 +46,7 @@ public class CacheIconsFromVideoStreamsRequestHandler : IRequestHandler<CacheIco
         List<VideoStream> streams = _context.VideoStreams
             .Where(a =>
 
-                    a.User_Tvg_logo != null &&
-                    !a.User_Tvg_logo.Contains(_setting.BaseHostURL) &&
+                    a.User_Tvg_logo != null &&                    
                     a.User_Tvg_logo.Contains("://")
 
             )

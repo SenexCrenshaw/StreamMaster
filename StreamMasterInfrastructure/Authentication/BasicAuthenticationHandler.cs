@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Configuration;
+using StreamMasterDomain.Enums;
 
 using System.Security.Claims;
 using System.Text;
@@ -61,7 +62,7 @@ namespace StreamMasterInfrastructure.Authentication
             {
                 new Claim("user", user.Username),
                 new Claim("identifier", user.Identifier.ToString()),
-                new Claim("AuthType", AuthenticationType.Basic.ToString())
+                new Claim("AuthType", "Basic")
             };
 
             var identity = new ClaimsIdentity(claims, "Basic", "user", "identifier");

@@ -11,10 +11,13 @@ using StreamMasterApplication.Hubs;
 
 using StreamMasterDomain.Dto;
 
+using static StreamMasterApplication.Settings.Commands.UpdateSettingHandler;
+
 namespace StreamMasterApplication.Settings.Commands;
 
-public class UpdateSettingRequest : IRequest<SettingDto>
+public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
 {
+    public AuthenticationType? AuthenticationMethod { get; set; }
     public string? AdminPassword { get; set; }
     public string? AdminUserName { get; set; }
     public string? ApiKey { get; set; }
@@ -39,7 +42,7 @@ public class UpdateSettingValidator : AbstractValidator<UpdateSettingRequest>
 {
 }
 
-public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, SettingDto>
+public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
 {
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
     private readonly ILogger<UpdateSettingRequest> _logger;
@@ -52,11 +55,16 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Settin
         _hubContext = hubContext;
     }
 
-    public async Task<SettingDto> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
+    public class UpdateSettingResponse {
+       public  SettingDto Settings { get; set; }
+        public bool NeedsLogOut { get; set; }
+    }
+
+    public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
     {
         Setting currentSetting = FileUtil.GetSetting();
 
-        UpdateSetting(currentSetting, request);
+        bool needsLogOut = UpdateSetting(currentSetting, request);
 
         _logger.LogInformation("UpdateSettingRequest");
         FileUtil.UpdateSetting(currentSetting);
@@ -64,7 +72,7 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Settin
         SettingDto ret = _mapper.Map<SettingDto>(currentSetting);
         await _hubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
 
-        return ret;
+        return new UpdateSettingResponse{ Settings = ret, NeedsLogOut = needsLogOut };
     }
 
     /// <summary>
@@ -73,8 +81,9 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Settin
     /// <param name="currentSetting">The current setting.</param>
     /// <param name="request">The update setting request.</param>
     /// <returns>The updated setting as a SettingDto object.</returns>
-    private static void UpdateSetting(Setting currentSetting, UpdateSettingRequest request)
+    private static bool UpdateSetting(Setting currentSetting, UpdateSettingRequest request)
     {
+        bool needsLogOut = false;
         if (request.CacheIcons != null && request.CacheIcons != currentSetting.CacheIcons)
         {
             currentSetting.CacheIcons = (bool)request.CacheIcons;
@@ -97,11 +106,13 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Settin
         if (!string.IsNullOrEmpty(request.AdminPassword) && request.AdminPassword != currentSetting.AdminPassword)
         {
             currentSetting.AdminPassword = request.AdminPassword;
+            needsLogOut = true;
         }
 
         if (!string.IsNullOrEmpty(request.AdminUserName) && request.AdminUserName != currentSetting.AdminUserName)
         {
             currentSetting.AdminUserName = request.AdminUserName;
+            needsLogOut = true;
         }
 
         if (!string.IsNullOrEmpty(request.APIPassword) && request.APIPassword != currentSetting.APIPassword)
@@ -163,5 +174,14 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Settin
         {
             currentSetting.StreamingProxyType = (StreamingProxyTypes)request.StreamingProxyType;
         }
+
+
+        if (request.AuthenticationMethod != null && request.AuthenticationMethod != currentSetting.AuthenticationMethod)
+        {
+            needsLogOut = true;
+            currentSetting.AuthenticationMethod = (AuthenticationType)request.AuthenticationMethod;
+        }
+
+        return needsLogOut;
     }
 }

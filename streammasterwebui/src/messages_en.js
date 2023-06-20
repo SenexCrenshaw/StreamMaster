@@ -1,14 +1,15 @@
 // messages_en.js
 export default {
+  adminPassword:"Admin Password",
   adminUserName: "Admin Username",
-  admninPassword:"Admin Password",
   apiKey: "API Key",
   apiPassword: "API Password",
   apiUserName: "API Username",
   auth: "Authentication",
+  authenticationMethod: "Authentication Method",
   backup:'Backup',
   cacheIcons: 'Cache Icons',
-  cleanURLs: 'Clean URLs',
+  cleanURLs: 'Clean URLs from Logs',
   development: 'Development',
   deviceID: 'Device ID',
   ffmPegExecutable:'FFMPeg Executable',

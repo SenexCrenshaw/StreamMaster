@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Configuration;
+using StreamMasterDomain.Enums;
 
 namespace StreamMasterInfrastructure.Authentication
 {

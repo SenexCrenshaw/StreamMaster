@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import './SettingsEditor.css';
 import { Button } from 'primereact/button';
 
@@ -18,26 +16,18 @@ import SaveIcon from '@mui/icons-material/Save';
 import HistoryIcon from '@mui/icons-material/History';
 import { Toast } from 'primereact/toast';
 import { Dropdown } from 'primereact/dropdown';
-import { StreamingProxyTypes } from '../../store/streammaster_enums';
+import { AuthenticationType, StreamingProxyTypes } from '../../store/streammaster_enums';
 import { type SelectItem } from 'primereact/selectitem';
 import { InputNumber } from 'primereact/inputnumber';
 import { Password } from 'primereact/password';
-import { type UserInformation } from '../../common/common';
 import { GetMessage, GetMessageDiv, getTopToolOptions } from '../../common/common';
 
 import { baseHostURL } from '../../settings';
 
 import { ScrollPanel } from 'primereact/scrollpanel';
-import { useLocalStorage } from 'primereact/hooks';
-// import { useAppSelector, useAppDispatch } from '../../app/hooks';
-// import { selectUserInformation, setUserInformation } from '../../store/userSlice';
 
 export const SettingsEditor = (props: SettingsEditorProps) => {
   const toast = React.useRef<Toast>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  // const [userInformation, setUserInformation] = useLocalStorage<UserInformation>({ IsAuthenticated: false, TokenAge: new Date() } as UserInformation, 'userInformation');
-
-
 
   const [newData, setNewData] = React.useState<SettingDto>({} as SettingDto);
   const [originalData, setOriginalData] = React.useState<SettingDto>({} as SettingDto);
@@ -159,11 +149,22 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
     );
   }, [getLine, getRecord, newData]);
 
-
-
   const getHandlersOptions = (): SelectItem[] => {
     const test = Object.entries(StreamingProxyTypes)
       .splice(0, Object.keys(StreamingProxyTypes).length / 2)
+      .map(([number, word]) => {
+        return {
+          label: word,
+          value: number,
+        } as SelectItem;
+      });
+
+    return test;
+  };
+
+  const getAuthTypeOptions = (): SelectItem[] => {
+    const test = Object.entries(AuthenticationType)
+      .splice(0, Object.keys(AuthenticationType).length / 2)
       .map(([number, word]) => {
         return {
           label: word,
@@ -200,7 +201,7 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
     UpdateSetting(newData)
       .then((returnData) => {
         if (toast.current) {
-          if (returnData) {
+          if (returnData.settings) {
             toast.current.show({
               detail: `Update Settings Successful`,
               life: 3000,
@@ -208,11 +209,8 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
               summary: 'Successful',
             });
 
-            if (
-              (newData.adminPassword !== undefined && newData.adminPassword !== '') ||
-              (newData.adminUserName !== undefined && newData.adminUserName !== '')
-            ) {
-              props.logOut();
+            if (returnData.needsLogOut === true) {
+              window.location.href = 'logout'
             }
 
           } else {
@@ -234,7 +232,7 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
           });
         }
       });
-  }, [isSaveEnabled, newData, props]);
+  }, [isSaveEnabled, newData]);
 
   const items: MenuItem[] = [
     {
@@ -278,8 +276,9 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
 
           <Fieldset className="mt-4 pt-10" legend={GetMessage('auth')}>
             {getInputTextLine('apiKey')}
+            {getDropDownLine('authenticationMethod', getAuthTypeOptions())}
             {getInputTextLine('adminUserName')}
-            {getPasswordLine('admninPassword')}
+            {getPasswordLine('adminPassword')}
             {getInputTextLine('apiUserName')}
             {getPasswordLine('apiPassword')}
             <div className='flex col-12'>
@@ -293,7 +292,6 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
                   label={GetMessage('signout')}
                   onClick={() =>
                     window.location.href = 'logout'
-                    // props.logOut()
                   }
                   rounded
                   severity="success"
@@ -343,7 +341,7 @@ SettingsEditor.displayName = 'Settings';
 
 type SettingsEditorProps = {
   isAuthenticated: boolean;
-  logOut: () => void;
+  // logOut: () => void;
 }
 
 export default React.memo(SettingsEditor);

@@ -560,7 +560,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
         _logger.LogInformation("GetStreamM3U8 for stream {clientIdString} ", clientIdString);
 
-        string url = $"{settings.BaseHostURL}api/streamgroups/{streamGroupNumber}/stream/{streamId}/{clientIdString}.ts";
+        string url = $"/api/streamgroups/{streamGroupNumber}/stream/{streamId}/{clientIdString}.ts";
 
         int mediaSequence = GenerateMediaSequence();
 
@@ -637,7 +637,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
         _logger.LogInformation("GetStreamM3U8 for stream {clientIdString} ", clientIdString);
 
-        string url = $"{settings.BaseHostURL}api/streamgroups/{StreamGroupNumber}/stream/{StreamId}/{clientIdString}.ts";
+        string url = $"/api/streamgroups/{StreamGroupNumber}/stream/{StreamId}/{clientIdString}.ts";
 
         int mediaSequence = GenerateMediaSequence();
 

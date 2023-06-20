@@ -172,7 +172,7 @@ public sealed class FileUtil
                 LastDownloaded = DateTime.Now,
                 Source = $"api/files/{(int)SMFileTypes.TvLogo}/{HttpUtility.UrlEncode(name)}",
                 OriginalSource = file.FullName,
-                Url = $"{setting.BaseHostURL}api/files/{(int)SMFileTypes.TvLogo}/{HttpUtility.UrlEncode(name)}",
+                Url = $"/api/files/{(int)SMFileTypes.TvLogo}/{HttpUtility.UrlEncode(name)}",
             };
 
             tvLogo.SetFileDefinition(FileDefinitions.TVLogo);

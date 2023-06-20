@@ -40,7 +40,7 @@ public static class Helpers
 
         if (!Icons.Any())
         {
-            IconSource = setting.BaseHostURL + Constants.IconDefault;
+            IconSource = "/" + Constants.IconDefault;
             return IconSource;
         }
 

@@ -23,8 +23,6 @@ namespace StreamMasterDomain.Common
             APIUserName = "";
             AppName = "StreamMaster";
             AuthenticationMethod = AuthenticationType.None;
-            AuthTest = true;
-            BaseHostURL = "http://127.0.0.1:7095/";
             CacheIcons = true;
             CleanURLs = true;
             DatabaseName = "StreamMaster.db";
@@ -57,12 +55,7 @@ namespace StreamMasterDomain.Common
         public string AppName { get; set; }
 
         public AuthenticationType AuthenticationMethod { get; set; }
-        public bool AuthTest { get; set; }
 
-        /// <summary>
-        /// The base URL of the StreamMaster application.
-        /// </summary>
-        public string BaseHostURL { get; set; }
 
         /// <summary>
         /// A boolean value indicating whether icons should be cached or not.

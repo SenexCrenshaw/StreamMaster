@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Configuration;
+using StreamMasterDomain.Enums;
 
 using StreamMasterInfrastructure.Authentication;
 

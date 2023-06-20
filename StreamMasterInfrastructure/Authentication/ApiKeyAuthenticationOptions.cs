@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using StreamMasterDomain.Configuration;
+using StreamMasterDomain.Enums;
 
 using System.Diagnostics;
 using System.Security.Claims;
@@ -32,7 +33,7 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
         : base(options, logger, encoder, clock)
     {
         _apiKey = config.Setting.ApiKey;
-        needsAuth = config.Setting.AuthenticationMethod != StreamMasterDomain.Authentication.AuthenticationType.None;
+        needsAuth = config.Setting.AuthenticationMethod != AuthenticationType.None;
     }
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()

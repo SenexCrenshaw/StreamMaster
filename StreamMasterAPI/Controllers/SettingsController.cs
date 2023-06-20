@@ -10,6 +10,8 @@ using StreamMasterApplication.Settings.Queries;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 
+using static StreamMasterApplication.Settings.Commands.UpdateSettingHandler;
+
 namespace StreamMasterAPI.Controllers;
 
 public class SettingsController : ApiControllerBase, ISettingController
@@ -58,12 +60,19 @@ public class SettingsController : ApiControllerBase, ISettingController
 
     [HttpPut]
     [Route("[action]")]
+    [ProducesResponseType(typeof(UpdateSettingResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<SettingDto?>> UpdateSetting(UpdateSettingRequest command)
+    public async Task<IActionResult> UpdateSetting(UpdateSettingRequest command)
     {
-        SettingDto data = await Mediator.Send(command).ConfigureAwait(false);
-        return data == null ? NotFound() : NoContent();
+        UpdateSettingResponse updateSettingResponse = await Mediator.Send(command).ConfigureAwait(false);
+
+        if (updateSettingResponse.NeedsLogOut)
+        {
+            return Redirect("/logout");
+        }
+
+        return updateSettingResponse == null ? NotFound() : NoContent();
     }
 }

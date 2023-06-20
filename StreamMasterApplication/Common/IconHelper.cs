@@ -81,13 +81,13 @@ internal static class IconHelper
         string newUrl = "";
         if (badDownload)
         {
-            newUrl = setting.BaseHostURL + Constants.IconDefault;
+            newUrl = "/"+Constants.IconDefault;
             contentType = "image/png";
             ext = "png";
         }
         else
         {
-            newUrl = $"{setting.BaseHostURL}api/files/{(int)fileDefinition.SMFileType}/{HttpUtility.UrlEncode(source)}";
+            newUrl = $"/api/files/{(int)fileDefinition.SMFileType}/{HttpUtility.UrlEncode(source)}";
         }
 
         string name = "";
