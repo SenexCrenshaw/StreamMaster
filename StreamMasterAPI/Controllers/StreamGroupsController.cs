@@ -318,6 +318,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     }
 
     [HttpGet]
+    [AllowAnonymous]
     [Route("{StreamGroupNumber}/stream/{StreamId}/{ClientID}.ts")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetStreamGroupVideoM3UStream(int StreamGroupNumber, int StreamId, string ClientID, CancellationToken cancellationToken)
@@ -474,6 +475,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         }
     }
 
+    [AllowAnonymous]
     [HttpGet]
     [Route("stream/{encodedIds}")]
     [Route("stream/{encodedIds}.mp4")]

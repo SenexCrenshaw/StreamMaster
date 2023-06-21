@@ -339,6 +339,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         }
 
         StreamStreamInfo streamStreamInfo = new(streamUrl, buffer, streamingTask, m3uFileIdMaxStream.M3UFileId, m3uFileIdMaxStream.MaxStreams, processId, cancellationTokenSource);
+        
         streamStreamInfo.M3UStream = clientInfo.M3UStream;
         streamStreamInfo.ClientCounter = 1;
 
@@ -428,6 +429,12 @@ public class RingBufferManager : IDisposable, IRingBufferManager
 
             return CreateAndStartBuffer(streamUrl, config);
         });
+       
+        if ( si== null)
+        {
+            _streamStreamInfos.TryRemove(streamUrl,out _);            
+            return null;
+        }
 
         var allStreamsCount = _streamStreamInfos.Where(x => x.Value.M3UFileId == si.M3UFileId).Sum(a => a.Value.ClientCounter);
 
