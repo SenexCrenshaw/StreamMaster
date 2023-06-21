@@ -42,14 +42,6 @@ namespace StreamMasterDomain.Configuration
                 UpdateSetting();
             }
 
-            //if (currentSetting.AuthenticationMethod != AuthenticationType.None)
-            //{
-            //    if (string.IsNullOrEmpty(currentSetting.AdminPassword) || string.IsNullOrEmpty(currentSetting.AdminUserName))
-            //    {
-            //        currentSetting.AuthenticationMethod = AuthenticationType.None;
-            //    }
-            //}
-
             if (Debugger.IsAttached)
             {
                 currentSetting.UiFolder = "devwwwroot";

@@ -31,7 +31,7 @@ public partial class AppDbContext : DbContext, IAppDbContext
        : base(options)
     {
         _setting = FileUtil.GetSetting();
-        FileUtil.SetupDirectories();
+        //FileUtil.SetupDirectories();
 
         DbPath = Path.Join(Constants.DataDirectory, _setting.DatabaseName ?? "StreamMaster.db");
     }

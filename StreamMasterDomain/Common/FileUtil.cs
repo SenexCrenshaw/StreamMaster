@@ -110,8 +110,10 @@ public sealed class FileUtil
         }
     }
 
+   
     public static async Task<string> GetFileData(string source)
     {
+      
         string body = "";
         try
         {
@@ -122,6 +124,9 @@ public sealed class FileUtil
             byte[] outputBytes = outputStream.ToArray();
             body = Encoding.ASCII.GetString(outputBytes);
             return body;
+        }
+        catch (InvalidDataException ex) when (ex.Message.Contains("The archive entry was compressed using an unsupported compression method."))
+        {
         }
         catch (Exception ex)
         {
@@ -255,6 +260,12 @@ public sealed class FileUtil
         }
     }
 
+    private static void CreateDir(string directory)
+    {
+        Console.WriteLine($"Creaing directory for {directory}");
+        CreateDirectory(directory);
+    }
+
     public static void SetupDirectories(bool alwaysRun = false)
     {
         if (setupDirectories && !alwaysRun)
@@ -262,20 +273,27 @@ public sealed class FileUtil
             return;
         }
         setupDirectories = true;
-        foreach (System.Reflection.FieldInfo field in typeof(Constants).GetFields())
-        {
-            object? value = field.GetValue(null);
 
-            if (
-                value is not null &&
-                value is string &&
-                value.ToString() is not null &&
-                value.ToString()!.StartsWith(Constants.ConfigFolder))
+
+            if (setupDirectories)
             {
-                Console.WriteLine($"Creaing directory for {value}");
-                FileUtil.CreateDirectory(value.ToString()!);
+                return;
             }
-        }
+
+            setupDirectories = true;
+
+       var AppDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{Constants.AppName.ToLower()}{Path.DirectorySeparatorChar}";
+        var CacheFolder = $"{AppDataFolder}Cache{Path.DirectorySeparatorChar}";
+        var PlayListFolder = $"{AppDataFolder}PlayLists{Path.DirectorySeparatorChar}";
+        var IconDataFolder = $"{CacheFolder}Icons{Path.DirectorySeparatorChar}";
+        var ProgrammeIconDataFolder = $"{CacheFolder}ProgrammeIcons{Path.DirectorySeparatorChar}";
+
+        CreateDir(AppDataFolder);
+        CreateDir(CacheFolder);
+        CreateDir(IconDataFolder);
+        CreateDir(PlayListFolder);
+        CreateDir(ProgrammeIconDataFolder);
+        
     }
 
     public static void UpdateSetting(Setting setting)

@@ -56,7 +56,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
 
     public async Task SetQueueTS(Guid Id)
     {
-        lock (lockObject)
+        lock (taskQueueStatusDtos)
         {
             TaskQueueStatusDto status = taskQueueStatusDtos.First(a => a.Id == Id);
             status.QueueTS = DateTime.Now;
@@ -67,7 +67,7 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
 
     public async Task SetStart(Guid Id)
     {
-        lock (lockObject)
+        lock (taskQueueStatusDtos)
         {
             TaskQueueStatusDto status = taskQueueStatusDtos.First(a => a.Id == Id);
             status.StartTS = DateTime.Now;
@@ -78,12 +78,11 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
 
     public async Task SetStop(Guid Id)
     {
-        lock (lockObject)
-        {
+        lock (taskQueueStatusDtos) { 
             TaskQueueStatusDto status = taskQueueStatusDtos.First(a => a.Id == Id);
-            status.StopTS = DateTime.Now;
-            status.IsRunning = false;
-        }
+        status.StopTS = DateTime.Now;
+        status.IsRunning = false;
+    }
         await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(taskQueueStatusDtos).ConfigureAwait(false);
     }
 
