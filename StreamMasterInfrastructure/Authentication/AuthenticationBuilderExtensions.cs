@@ -17,7 +17,7 @@ public static class AuthenticationBuilderExtensions
     {
         return services.AddAuthentication()
             .AddNone(AuthenticationType.None.ToString())
-            //.AddBasic(AuthenticationType.Basic.ToString())
+            //.AddBasic(AuthenticationType.Basic.ToString())            
             .AddCookie(AuthenticationType.Forms.ToString(), options =>
             {
                 options.Cookie.Name = "StreamMasterAuth";

@@ -46,9 +46,9 @@ namespace StreamMasterDomain.Authentication
         {
             return EncodeValue(value1, serverKey, 256);
         }
-        public static string EncodeValues128(this int value1, int value2, string serverKey)
+        public static string EncodeValues128(this int value1, int value2, string serverKey, byte[]? iv=null)
         {
-            return EncodeValues(value1, value2, serverKey, 128);
+            return EncodeValues(value1, value2, serverKey, 128, iv);
         }
 
         public static string EncodeValues192(this int value1, int value2, string serverKey)
@@ -93,6 +93,42 @@ namespace StreamMasterDomain.Authentication
             }
 
             return (null, null);
+        }
+
+        public static byte[]? GetIV(this string valueKey, string serverKey, int keySize)
+        {
+            try
+            {
+                byte[] serverKeyBytes = GenerateKey(serverKey, keySize);
+                string base64String = valueKey
+                    .Replace('-', '+')
+                    .Replace('_', '/')
+                    .PadRight(valueKey.Length + (4 - valueKey.Length % 4) % 4, '=');
+                byte[] encodedBytes = Convert.FromBase64String(base64String);
+                byte[] hmacBytes = new byte[HMACSize];
+                byte[] encryptedBytes = new byte[encodedBytes.Length - HMACSize];
+                Buffer.BlockCopy(encodedBytes, 0, hmacBytes, 0, HMACSize);
+                Buffer.BlockCopy(encodedBytes, HMACSize, encryptedBytes, 0, encryptedBytes.Length);
+
+                bool isVerified = VerifyHMAC(encryptedBytes, hmacBytes, serverKeyBytes);
+                if (!isVerified)
+                {
+                    // HMAC verification failed
+                    return null;
+                }
+
+                // Extract the IV from the encrypted value
+                byte[] iv = new byte[16];
+                Buffer.BlockCopy(encryptedBytes, 0, iv, 0, iv.Length);
+
+                return iv;
+            }
+            catch
+            {
+                // Failed to decode properly
+            }
+
+            return null;
         }
 
         private static string? DecodeValues(this string valueKey, string serverKey, int keySize)
@@ -169,12 +205,12 @@ namespace StreamMasterDomain.Authentication
             return encodedUrlSafeString;
         }
 
-        public static string EncodeValues(this int value1, int value2 , string serverKey, int keySize = 128)
+        public static string EncodeValues(this int value1, int value2 , string serverKey, int keySize = 128, byte[]? iv=null)
         {
             byte[] serverKeyBytes = GenerateKey(serverKey, keySize);
             string valueString = $"{value1}|{value2}";
             byte[] valueBytes = Encoding.UTF8.GetBytes(valueString);
-            byte[] encryptedBytes = EncryptValue(valueBytes, serverKeyBytes);
+            byte[] encryptedBytes = EncryptValue(valueBytes, serverKeyBytes,iv);
             byte[] hmacBytes = CalculateHMAC(encryptedBytes, serverKeyBytes);
             byte[] encodedBytes = new byte[encryptedBytes.Length + HMACSize];
             Buffer.BlockCopy(hmacBytes, 0, encodedBytes, 0, HMACSize);
@@ -187,15 +223,23 @@ namespace StreamMasterDomain.Authentication
             return encodedUrlSafeString;
         }
 
-        private static byte[] EncryptValue(byte[] valueBytes, byte[] serverKey)
+        private static byte[] EncryptValue(byte[] valueBytes, byte[] serverKey, byte[]? isvKey=null)
         {
             using var aes = Aes.Create();
             aes.Key = serverKey;
             aes.Mode = CipherMode.CBC;
             aes.Padding = PaddingMode.PKCS7;
 
-            // Generate a random IV
-            aes.GenerateIV();
+            if (isvKey is not null)
+            {
+                aes.IV = isvKey;
+            }
+            else
+            {
+                // Generate a random IV
+                aes.GenerateIV();
+            }
+           
             byte[] iv = aes.IV;
 
             using var ms = new MemoryStream();

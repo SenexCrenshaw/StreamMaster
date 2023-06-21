@@ -92,7 +92,15 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
         // List<IconFileDto> icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
         var icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
-
+        var requestPath = _httpContextAccessor.HttpContext.Request.Path.Value.ToString();
+               
+        var crypt = Path.GetFileNameWithoutExtension(requestPath);
+        var iv = crypt.GetIV(_configFileProvider.Setting.ServerKey,128);
+        if (iv == null)
+        {
+            return "";
+        }
+        
         _ = Parallel.ForEach(videoStreams.OrderBy(a => a.User_Tvg_chno), po, (videoStream, state, longCid) =>
         {
             int cid = Convert.ToInt32(longCid);
@@ -107,7 +115,7 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
             videoStream.User_Tvg_logo = Logo;
 
-            var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _configFileProvider.Setting.ServerKey);
+            var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _configFileProvider.Setting.ServerKey, iv);
 
             string url = GetUrl();
             var videoUrl = $"{url}/api/streamgroups/stream/{encodedNumbers}";

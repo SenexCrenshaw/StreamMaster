@@ -4,7 +4,11 @@ using FluentValidation;
 
 using MediatR;
 
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+
+using StreamMasterApplication.Hubs;
 
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities.EPG;
@@ -35,14 +39,17 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
     private readonly IPublisher _publisher;
+    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
 
     public ProcessEPGFileRequestHandler(
            IPublisher publisher,
         IAppDbContext context,
         IMapper mapper,
+      IHubContext<StreamMasterHub, IStreamMasterHub> hubContext,
         IMemoryCache memoryCache
     )
     {
+        _hubContext = hubContext;
         _publisher = publisher;
         _context = context;
         _mapper = mapper;
@@ -70,6 +77,9 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
             await AddProgrammesFromEPG(epgFile, cancellationToken);
 
             EPGFilesDto ret = _mapper.Map<EPGFilesDto>(epgFile);
+            
+             await _hubContext.Clients.All.ProgrammeNamesUpdate(_memoryCache.Programmes()).ConfigureAwait(false);
+
             await _publisher.Publish(new EPGFileProcessedEvent(ret), cancellationToken).ConfigureAwait(false);
 
             return ret;
@@ -146,7 +156,7 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
             cacheValue.Add(p);
         }
         _memoryCache.Set(cacheValue);
-
+        
         return;
     }
 }

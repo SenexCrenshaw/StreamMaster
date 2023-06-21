@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Enums;
 
@@ -24,14 +25,16 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
 {
     private readonly string _apiKey;
     private readonly bool needsAuth;
-
+    private readonly IConfigFileProvider _configFileProvider;
     public ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options,
         ILoggerFactory logger,
+         IConfigFileProvider configFileProvider,
         UrlEncoder encoder,
         ISystemClock clock,
         IConfigFileProvider config)
         : base(options, logger, encoder, clock)
     {
+        _configFileProvider = configFileProvider;
         _apiKey = config.Setting.ApiKey;
         needsAuth = config.Setting.AuthenticationMethod != AuthenticationType.None;
     }
@@ -100,7 +103,20 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
 
         if (Options.QueryName == "SGLinks")
         {
-            return "SGLinks";
+            // Get the request path
+            var requestPath = Context.Request.Path.Value.ToString();
+
+            if (requestPath.EndsWith(".m3u"))
+            {
+                var crypt = Path.GetFileNameWithoutExtension(requestPath);
+                 var cryptTest = crypt.DecodeValue128(_configFileProvider.Setting.ServerKey);
+                if (cryptTest != null)
+                {
+                    return _apiKey;
+                }
+            }
+
+            return null;
         }
 
         // Try query parameter
