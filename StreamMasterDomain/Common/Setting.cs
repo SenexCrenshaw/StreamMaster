@@ -19,8 +19,6 @@ namespace StreamMasterDomain.Common
             AdminUserName = "";
             ApiKey = "";
             ServerKey = "";
-            APIPassword = "";
-            APIUserName = "";
             AppName = "StreamMaster";
             AuthenticationMethod = AuthenticationType.None;
             CacheIcons = true;

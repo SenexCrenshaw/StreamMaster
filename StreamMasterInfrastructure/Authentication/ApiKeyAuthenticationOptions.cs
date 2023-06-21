@@ -30,13 +30,12 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
         ILoggerFactory logger,
          IConfigFileProvider configFileProvider,
         UrlEncoder encoder,
-        ISystemClock clock,
-        IConfigFileProvider config)
+        ISystemClock clock)
         : base(options, logger, encoder, clock)
     {
         _configFileProvider = configFileProvider;
-        _apiKey = config.Setting.ApiKey;
-        needsAuth = config.Setting.AuthenticationMethod != AuthenticationType.None;
+        _apiKey = configFileProvider.Setting.ApiKey;
+        needsAuth = configFileProvider.Setting.AuthenticationMethod != AuthenticationType.None;
     }
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()

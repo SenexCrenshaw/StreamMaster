@@ -21,8 +21,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? AdminPassword { get; set; }
     public string? AdminUserName { get; set; }
     public string? ApiKey { get; set; }
-    public string? APIPassword { get; set; }
-    public string? APIUserName { get; set; }
+    
     public bool? CacheIcons { get; set; }
     public bool? CleanURLs { get; set; }
     public string? DeviceID { get; set; }
@@ -113,17 +112,7 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
         {
             currentSetting.AdminUserName = request.AdminUserName;
             needsLogOut = true;
-        }
-
-        if (!string.IsNullOrEmpty(request.APIPassword) && request.APIPassword != currentSetting.APIPassword)
-        {
-            currentSetting.APIPassword = request.APIPassword;
-        }
-
-        if (!string.IsNullOrEmpty(request.APIUserName) && request.APIUserName != currentSetting.APIUserName)
-        {
-            currentSetting.APIUserName = request.APIUserName;
-        }
+        }   
 
         if (!string.IsNullOrEmpty(request.DeviceID) && request.DeviceID != currentSetting.DeviceID)
         {

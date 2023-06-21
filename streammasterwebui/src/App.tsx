@@ -17,8 +17,6 @@ import SettingsEditor from './features/settings/SettingsEditor';
 import StreamGroupEditor from './features/streamGroupEditor/StreamGroupEditor';
 import StreamingStatus from './features/streamingStatus/StreamingStatus';
 import ProtectedRoute from './_auth/ProtectedRoute';
-import Login from './_auth/Login';
-import { type UserInformation } from './common/common';
 import Home from './Home';
 import { apiKey, apiRoot, baseHostURL, isDev, urlBase } from './settings';
 import SignalRHub from './app/SignalRHub';
@@ -140,9 +138,7 @@ const App = () => {
 
   return (
     <IntlProvider locale={locale} messages={messages}>
-
       <SignalRHub onConnected={(e) => console.log('SignalRHub: ', e)} />
-
       <ProSidebarProvider>
         <RouterProvider router={router} />
       </ProSidebarProvider>

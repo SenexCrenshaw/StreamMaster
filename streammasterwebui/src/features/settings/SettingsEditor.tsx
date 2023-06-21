@@ -25,6 +25,7 @@ import { GetMessage, GetMessageDiv, getTopToolOptions } from '../../common/commo
 import { baseHostURL } from '../../settings';
 
 import { ScrollPanel } from 'primereact/scrollpanel';
+import { getHelp } from '../../help_en';
 
 export const SettingsEditor = (props: SettingsEditorProps) => {
   const toast = React.useRef<Toast>(null);
@@ -51,17 +52,34 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
     return true;
   }, [newData, originalData]);
 
-  const getLine = React.useCallback((label: string, value: React.ReactElement) => {
+  const getLine = React.useCallback((label: string, value: React.ReactElement, help?: string | null) => {
+    if (help === null || help === undefined) {
+      return (
+        <div className='flex col-12'>
+          <div className='flex col-2 col-offset-1'>
+            <span>{label}</span>
+          </div>
+          <div className='flex col-3 m-0 p-0 debug'>
+            {value}
+          </div>
+        </div>
+      );
+    }
+
     return (
-      <div className='flex col-12'>
+      <div className='flex col-12 align-content-center'>
         <div className='flex col-2 col-offset-1'>
           <span>{label}</span>
         </div>
         <div className='flex col-3 m-0 p-0 debug'>
           {value}
         </div>
+        <div className='flex col-3 text-sm align-content-center col-offset-1 debug'>
+          {help}
+        </div>
       </div>
     );
+
   }, []);
 
   const getRecord = React.useCallback((fieldName: string) => {
@@ -91,6 +109,7 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
 
   const getInputNumberLine = React.useCallback((field: string, max?: number | null) => {
     const label = GetMessage(field);
+    const help = getHelp(field);
     return (
       getLine(label + ':',
         <InputNumber
@@ -102,13 +121,14 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
           showButtons
           size={3}
           value={getRecord(field) as number}
-        />)
+        />, help)
     );
   }, [getLine, getRecord, newData]);
 
 
   const getPasswordLine = React.useCallback((field: string) => {
     const label = GetMessage(field);
+    const help = getHelp(field);
     return (
       getLine(label + ':',
         <Password
@@ -118,25 +138,33 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
           placeholder={label}
           toggleMask
           value={getRecordString(field)}
-        />)
+        />, help)
     );
   }, [getLine, getRecordString, newData]);
 
   const getInputTextLine = React.useCallback((field: string) => {
     const label = GetMessage(field);
+    const help = getHelp(field);
+
     return (
       getLine(label + ':',
         <InputText
           className="withpadding w-full text-left"
+          id={field}
           onChange={(e) => setNewData({ ...newData, [field]: e.target.value })}
           placeholder={label}
           value={getRecordString(field)}
-        />)
+        />
+        , help
+      )
     );
+
+
   }, [getLine, getRecordString, newData]);
 
   const getCheckBoxLine = React.useCallback((field: string) => {
     const label = GetMessage(field);
+    const help = getHelp(field);
     return (
       getLine(label + ':',
         <Checkbox
@@ -145,7 +173,8 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
           onChange={(e) => setNewData({ ...newData, [field]: !e.target.value })}
           placeholder={label}
           value={getRecord(field) as boolean}
-        />)
+        />, help)
+
     );
   }, [getLine, getRecord, newData]);
 
@@ -177,6 +206,7 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
 
   const getDropDownLine = React.useCallback((field: string, options: SelectItem[]) => {
     const label = GetMessage(field);
+    const help = getHelp(field);
     return (
       <>
         {
@@ -187,7 +217,7 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
               options={options}
               placeholder={label}
               value={getRecordString(field)}
-            />)
+            />, help)
         }
       </>
     );
@@ -279,8 +309,6 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
             {getDropDownLine('authenticationMethod', getAuthTypeOptions())}
             {getInputTextLine('adminUserName')}
             {getPasswordLine('adminPassword')}
-            {getInputTextLine('apiUserName')}
-            {getPasswordLine('apiPassword')}
             <div className='flex col-12'>
               <div className='flex col-2 col-offset-1'>
                 <span>{GetMessage('signout')}</span>

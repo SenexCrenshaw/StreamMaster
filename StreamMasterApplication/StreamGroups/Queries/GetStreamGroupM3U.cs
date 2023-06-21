@@ -38,14 +38,14 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
     private readonly IAppDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
-
     private readonly ISender _sender;
+    private readonly bool needsProxy;
 
     public GetStreamGroupM3UHandler(
            IMapper mapper,
+           IConfigFileProvider configFileProvider,
            IHttpContextAccessor httpContextAccessor,
             ISender sender,
-             IConfigFileProvider configFileProvider,
         IAppDbContext context)
     {
         _httpContextAccessor = httpContextAccessor;
@@ -54,6 +54,7 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
         _mapper = mapper;
         _context = context;
         _sender = sender;
+        needsProxy = configFileProvider.Setting.StreamingProxyType != StreamingProxyTypes.None;
     }
 
     public async Task<string> Handle(GetStreamGroupM3U command, CancellationToken cancellationToken)
@@ -100,7 +101,8 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
         {
             return "";
         }
-        
+
+
         _ = Parallel.ForEach(videoStreams.OrderBy(a => a.User_Tvg_chno), po, (videoStream, state, longCid) =>
         {
             int cid = Convert.ToInt32(longCid);
@@ -115,16 +117,18 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
             videoStream.User_Tvg_logo = Logo;
 
-            var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _configFileProvider.Setting.ServerKey, iv);
+       
+            string videoUrl = videoStream.Url;
 
-            string url = GetUrl();
-            var videoUrl = $"{url}/api/streamgroups/stream/{encodedNumbers}";
+            if (needsProxy)
+            {
+                var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _configFileProvider.Setting.ServerKey, iv);
 
-            //if (!string.IsNullOrEmpty(_configFileProvider.Setting.APIPassword) && !string.IsNullOrEmpty(_configFileProvider.Setting.APIUserName))
-            //{
-            //    url += "?apiusername=" + _configFileProvider.Setting.APIUserName + "&apipassword=" + _configFileProvider.Setting.APIPassword;
-            //}
-
+                string url = GetUrl();
+             
+                videoUrl = $"{url}/api/streamgroups/stream/{encodedNumbers}";
+            }
+                 
             string ttt = $"#EXTINF:0 CUID=\"{videoStream.CUID}\" channel-id=\"{videoStream.CUID}\" channel-number=\"{videoStream.User_Tvg_chno}\" tvg-name=\"{videoStream.User_Tvg_name}\" tvg-chno=\"{videoStream.User_Tvg_chno}\" ";
             ttt += $"tvg-id=\"{videoStream.User_Tvg_ID}\" tvg-logo=\"{videoStream.User_Tvg_logo}\" group-title=\"{videoStream.User_Tvg_group}\"";
             ttt += $",{videoStream.User_Tvg_name}\r\n";
