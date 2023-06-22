@@ -53,18 +53,6 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
   }, [newData, originalData]);
 
   const getLine = React.useCallback((label: string, value: React.ReactElement, help?: string | null) => {
-    if (help === null || help === undefined) {
-      return (
-        <div className='flex col-12'>
-          <div className='flex col-2 col-offset-1'>
-            <span>{label}</span>
-          </div>
-          <div className='flex col-3 m-0 p-0 debug'>
-            {value}
-          </div>
-        </div>
-      );
-    }
 
     return (
       <div className='flex col-12 align-content-center'>
@@ -74,9 +62,11 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
         <div className='flex col-3 m-0 p-0 debug'>
           {value}
         </div>
-        <div className='flex col-3 text-sm align-content-center col-offset-1 debug'>
-          {help}
-        </div>
+        {(help !== null && help !== undefined) &&
+          <div className='flex col-3 text-sm align-content-center col-offset-1 debug'>
+            {help}
+          </div>
+        }
       </div>
     );
 
@@ -126,35 +116,45 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
   }, [getLine, getRecord, newData]);
 
 
-  const getPasswordLine = React.useCallback((field: string) => {
+  const getPasswordLine = React.useCallback((field: string, warning?: string | null) => {
     const label = GetMessage(field);
     const help = getHelp(field);
+
     return (
       getLine(label + ':',
-        <Password
-          className="withpadding"
-          feedback={false}
-          onChange={(e) => setNewData({ ...newData, [field]: e.target.value })}
-          placeholder={label}
-          toggleMask
-          value={getRecordString(field)}
-        />, help)
+        <span>
+          <Password
+            className="withpadding"
+            feedback={false}
+            onChange={(e) => setNewData({ ...newData, [field]: e.target.value })}
+            placeholder={label}
+            toggleMask
+            value={getRecordString(field)}
+          />
+          <br />
+          {(warning !== null && warning !== undefined) && <span className="text-xs text-orange-500">{warning}</span>}
+        </span >
+        , help)
     );
   }, [getLine, getRecordString, newData]);
 
-  const getInputTextLine = React.useCallback((field: string) => {
+  const getInputTextLine = React.useCallback((field: string, warning?: string | null) => {
     const label = GetMessage(field);
     const help = getHelp(field);
 
     return (
       getLine(label + ':',
-        <InputText
-          className="withpadding w-full text-left"
-          id={field}
-          onChange={(e) => setNewData({ ...newData, [field]: e.target.value })}
-          placeholder={label}
-          value={getRecordString(field)}
-        />
+        <span>
+          <InputText
+            className="withpadding w-full text-left"
+            id={field}
+            onChange={(e) => setNewData({ ...newData, [field]: e.target.value })}
+            placeholder={label}
+            value={getRecordString(field)}
+          />
+          <br />
+          {(warning !== null && warning !== undefined) && <span className="text-xs text-orange-500">{warning}</span>}
+        </span>
         , help
       )
     );
@@ -304,8 +304,8 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
             {getCheckBoxLine('enableSSL')}
             {(settingsQuery.data?.enableSSL === true && newData.enableSSL === true) &&
               <>
-                {getInputTextLine('sslCertPath')}
-                {getPasswordLine('sslCertPassword')}
+                {getInputTextLine('sslCertPath', GetMessage('changesServiceRestart'))}
+                {getPasswordLine('sslCertPassword', GetMessage('changesServiceRestart'))}
               </>
             }
             {getCheckBoxLine('overWriteM3UChannels')}

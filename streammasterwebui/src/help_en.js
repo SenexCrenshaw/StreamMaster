@@ -27,6 +27,8 @@ const help_en = {
   signInSuccessful:'Sign In Successful',
   signInUnSuccessful:'Sign In Unsuccessful',
   signout: "Sign Out",
+    sslCertPassword: 'SSL Certificate Password',
+  sslCertPath:  'SSL Certificate Path',
   streaming: 'Streaming',
   streamingProxyType: 'Stream Buffer Type to use. None will just use the original M3U URLs, FFMPEG - run the stream through FFMPEG, Streram Master - run the stream through SM own proxy',
   user: "User",
