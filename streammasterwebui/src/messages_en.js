@@ -17,7 +17,7 @@ export default {
   general: 'General',
   keywordSearch: 'Keyword Search',
   maxConnectRetry:'Connection Retry Limit',
-    maxConnectRetryTimeMS: 'Retry Timeout in MS',
+  maxConnectRetryTimeMS: 'Retry Timeout in MS',
   overWriteM3UChannels: 'Overwrite M3U Channels Numbers',
   password: "Password",
   rememberme:'Remember Me',
