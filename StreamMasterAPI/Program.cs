@@ -1,45 +1,51 @@
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterAPI;
+using StreamMasterAPI.Services;
 
 using StreamMasterApplication;
+using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.Hubs;
+
+using StreamMasterDomain.Common;
 
 using StreamMasterInfrastructure;
 using StreamMasterInfrastructure.Persistence;
 
 using System.Text.Json.Serialization;
 
-//Setting setting = FileUtil.GetSetting();
-//if (!setting.BaseHostURL.EndsWith('/'))
-//{
-//    setting.BaseHostURL += '/';
-//    FileUtil.UpdateSetting(setting);
-//}
-
-//string? _urlBase = Environment.GetEnvironmentVariable("STREAMMASTER_BASEHOSTURL");
-
-//if (string.IsNullOrEmpty(_urlBase))
-//{
-//    _urlBase = setting.BaseHostURL;
-//}
-
-//if (!_urlBase.EndsWith('/'))
-//{
-//    _urlBase += '/';
-//}
-
-//if (_urlBase != setting.BaseHostURL)
-//{
-//    setting.BaseHostURL = _urlBase;
-//    FileUtil.UpdateSetting(setting);
-//}
-
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureKestrel((context, serverOptions) =>
 {
+    serverOptions.AllowSynchronousIO = true;
+    serverOptions.Limits.MaxRequestBodySize = null;    
 });
+
+var appDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{Constants.AppName.ToLower()}{Path.DirectorySeparatorChar}";
+var settingFile = $"{appDataFolder}settings.json";
+
+builder.Configuration.AddJsonFile(settingFile, true,false);
+builder.Services.Configure<Setting>(builder.Configuration);
+
+var enableSsl = false;
+
+var sslCertPath = builder.Configuration["SSLCertPath"];
+
+if (!bool.TryParse(builder.Configuration["EnableSSL"], out enableSsl))
+{
+}
+
+var urls = new List<string> { "http://0.0.0.0:7095" };
+
+if (enableSsl && !string.IsNullOrEmpty(sslCertPath))
+{
+    urls.Add("https://0.0.0.0:7096");
+}
+
+builder.WebHost.UseUrls(urls.ToArray());
+
 
 // Add services to the container.
 builder.Services.AddApplicationServices();
@@ -94,7 +100,7 @@ using (IServiceScope scope = app.Services.CreateScope())
     }
 }
 
-//app.UseResponseCompression();
+
 
 //app.UseMiddleware<AuthMiddleware>();
 
@@ -117,7 +123,8 @@ else
 }
 
 app.UseRouting();
-app.UseWebSockets(); app.UseOpenApi();
+app.UseWebSockets();
+app.UseOpenApi();
 app.UseSwaggerUi3();
 
 if (app.Environment.IsDevelopment())
@@ -134,6 +141,7 @@ app.UseAuthentication();
 
 //app.UseHttpsRedirection();
 app.UseAuthorization();
+//app.UseResponseCompression();
 
 app.MapHealthChecks("/healthz");
 app.MapDefaultControllerRoute();
@@ -161,7 +169,6 @@ app.UseEndpoints(endpoints =>
     app.MapHub<StreamMasterHub>("/streammasterhub").RequireAuthorization("SignalR");
 });
 
-//app.MapFallbackToFile("index.html");
 
 app.Run();
 
@@ -175,4 +182,9 @@ string GetRoutePattern(Endpoint endpoint)
     }
 
     return "<unknown>";
+}
+
+ static string BuildUrl(string scheme, string bindAddress, int port)
+{
+    return $"{scheme}://{bindAddress}:{port}";
 }

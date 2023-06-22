@@ -29,7 +29,7 @@ namespace StreamMasterInfrastructure.Authentication
         {
             if (policyName.Equals(POLICY_NAME, StringComparison.OrdinalIgnoreCase))
             {
-                var policy = new AuthorizationPolicyBuilder(AuthenticationType.Forms.ToString())
+                var policy = new AuthorizationPolicyBuilder(_config.Setting.AuthenticationMethod.ToString())
                     .RequireAuthenticatedUser();
                 return Task.FromResult(policy.Build());
             }

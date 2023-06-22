@@ -53,8 +53,7 @@ public static class ConfigureServices
 
         string DbPath = Path.Join(Constants.DataDirectory, setting.DatabaseName);
 
-        _ = services.AddScoped<AuditableEntitySaveChangesInterceptor>();
-
+        
         _ = services.AddDbContext<AppDbContext>(options => options.UseSqlite($"Data Source={DbPath}", builder => builder.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
 
         _ = services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());

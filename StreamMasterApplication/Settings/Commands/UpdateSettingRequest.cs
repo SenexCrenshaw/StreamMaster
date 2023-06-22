@@ -21,11 +21,13 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? AdminPassword { get; set; }
     public string? AdminUserName { get; set; }
     public string? ApiKey { get; set; }
-    
+    public bool? EnableSSL { get; set; }
     public bool? CacheIcons { get; set; }
     public bool? CleanURLs { get; set; }
     public string? DeviceID { get; set; }
     public string? FFMPegExecutable { get; set; }
+    public string? SSLCertPath { get; set; }
+    public string? SSLCertPassword { get; set; }
     public long? FirstFreeNumber { get; set; }
     public int? MaxConnectRetry { get; set; }
     public int? MaxConnectRetryTimeMS { get; set; }
@@ -93,6 +95,21 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
             currentSetting.CleanURLs = (bool)request.CleanURLs;
         }
 
+        if (request.EnableSSL != null && request.EnableSSL != currentSetting.EnableSSL)
+        {
+            currentSetting.EnableSSL = (bool)request.EnableSSL;
+        }
+
+        if (!string.IsNullOrEmpty(request.SSLCertPath) && request.SSLCertPath != currentSetting.SSLCertPath)
+        {
+            currentSetting.SSLCertPath = request.SSLCertPath;
+        }
+
+        if (!string.IsNullOrEmpty(request.SSLCertPassword) && request.SSLCertPassword != currentSetting.SSLCertPassword)
+        {
+            currentSetting.SSLCertPassword = request.SSLCertPassword;
+        }
+
         if (request.OverWriteM3UChannels != null && request.OverWriteM3UChannels != currentSetting.OverWriteM3UChannels)
         {
             currentSetting.OverWriteM3UChannels = (bool)request.OverWriteM3UChannels;
@@ -152,11 +169,6 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
         if (!string.IsNullOrEmpty(request.SDUserName) && request.SDUserName != currentSetting.SDUserName)
         {
             currentSetting.SDUserName = request.SDUserName;
-        }
-
-        if (request.SourceBufferPreBufferPercentage != null && request.SourceBufferPreBufferPercentage >= 0 && request.SourceBufferPreBufferPercentage != currentSetting.SourceBufferPreBufferPercentage)
-        {
-            currentSetting.SourceBufferPreBufferPercentage = (int)request.SourceBufferPreBufferPercentage;
         }
 
         if (request.StreamingProxyType != null && request.StreamingProxyType != currentSetting.StreamingProxyType)

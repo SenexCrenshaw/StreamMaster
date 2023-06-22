@@ -16,14 +16,13 @@ namespace StreamMasterInfrastructure.Services.Frontend
         private static string _apiKey;
         private static string _urlBase;
         private readonly IConfigFileProvider _configFileProvider;
-        private string _generatedContent;
 
         public InitializeJsController(IConfigFileProvider configFileProvider)
         {
             _configFileProvider = configFileProvider;
 
             _apiKey = configFileProvider.Setting.ApiKey;
-            _urlBase = "";// configFileProvider.Setting.UrlBase;
+            _urlBase = configFileProvider.Setting.UrlBase;
         }
 
         [HttpGet("/initialize.js")]
@@ -47,9 +46,8 @@ namespace StreamMasterInfrastructure.Services.Frontend
             builder.AppendLine($"  version: '{settingDto.Version.ToString()}',");
             builder.AppendLine("};");
 
-            _generatedContent = builder.ToString();
 
-            return _generatedContent;
+            return builder.ToString(); ;
         }
     }
 }

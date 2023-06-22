@@ -35,7 +35,10 @@ public class AuthenticationService : IAuthenticationService
         AdminPassword = configFileProvider.Setting.AdminPassword;
         AdminUserName = configFileProvider.Setting.AdminUserName;
         var authMethod = AuthenticationType.None;
-        if (!string.IsNullOrEmpty(AdminPassword) && !string.IsNullOrEmpty(AdminUserName))
+        if (
+            configFileProvider.Setting.AuthenticationMethod != AuthenticationType.None &&
+            (!string.IsNullOrEmpty(AdminPassword) && !string.IsNullOrEmpty(AdminUserName))
+            )
         {
             authMethod = AuthenticationType.Forms;
         }
@@ -61,14 +64,6 @@ public class AuthenticationService : IAuthenticationService
                 Password = password
             };
         }
-        //var user = _userService.FindUser(username, password);
-
-        //if (user != null)
-        //{
-        //    LogSuccess(request, username);
-
-        //    return user;
-        //}
 
         LogFailure(request, username);
 

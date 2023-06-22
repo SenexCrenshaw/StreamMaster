@@ -2,9 +2,7 @@
 
 public interface IAppDbContext : ISharedDB
 {
-    ValueTask ResetDBAsync(CancellationToken cancellationToken = default);
-
-    int SaveChanges();
+      int SaveChanges();
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
