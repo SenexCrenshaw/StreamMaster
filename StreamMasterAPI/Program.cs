@@ -1,5 +1,6 @@
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using StreamMasterAPI;
 using StreamMasterAPI.Services;
@@ -13,6 +14,8 @@ using StreamMasterDomain.Common;
 using StreamMasterInfrastructure;
 using StreamMasterInfrastructure.Persistence;
 
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -32,6 +35,7 @@ builder.Services.Configure<Setting>(builder.Configuration);
 var enableSsl = false;
 
 var sslCertPath = builder.Configuration["SSLCertPath"];
+var sslCertPassword = builder.Configuration["sslCertPassword"];
 
 if (!bool.TryParse(builder.Configuration["EnableSSL"], out enableSsl))
 {
@@ -45,7 +49,10 @@ if (enableSsl && !string.IsNullOrEmpty(sslCertPath))
 }
 
 builder.WebHost.UseUrls(urls.ToArray());
-
+builder.WebHost.ConfigureKestrel(options =>
+options.ConfigureHttpsDefaults(configureOptions =>
+   configureOptions.ServerCertificate = ValidateSslCertificate(Path.Combine(appDataFolder, sslCertPath), sslCertPassword)
+));
 
 // Add services to the container.
 builder.Services.AddApplicationServices();
@@ -187,4 +194,25 @@ string GetRoutePattern(Endpoint endpoint)
  static string BuildUrl(string scheme, string bindAddress, int port)
 {
     return $"{scheme}://{bindAddress}:{port}";
+}
+
+ static X509Certificate2 ValidateSslCertificate(string cert, string password)
+{
+    X509Certificate2 certificate;
+
+    try
+    {
+        certificate = new X509Certificate2(cert, password, X509KeyStorageFlags.DefaultKeySet);
+    }
+    catch (CryptographicException ex)
+    {
+        if (ex.HResult == 0x2 || ex.HResult == 0x2006D080)
+        {
+            throw new Exception($"The SSL certificate file {cert} does not exist: {ex.Message}");
+        }
+
+        throw;
+    }
+
+    return certificate;
 }

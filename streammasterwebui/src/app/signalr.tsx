@@ -4,8 +4,6 @@ import { apiKey, baseHostURL } from '../settings';
 
 
 const url = baseHostURL === undefined || baseHostURL === '' ? '/streammasterhub' : baseHostURL + '/streammasterhub';
-console.log('baseHostURL: ', baseHostURL)
-console.log('url: ', url)
 
 export const hubConnection = new HubConnectionBuilder()
   .configureLogging(LogLevel.Critical)

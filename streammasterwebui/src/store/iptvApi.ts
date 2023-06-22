@@ -1260,10 +1260,11 @@ export type Setting = {
   adminPassword?: string;
   adminUserName?: string;
   apiKey?: string;
-  apiPassword?: string;
-  apiUserName?: string;
   appName?: string;
   authenticationMethod?: AuthenticationType;
+  enableSSL?: boolean;
+  sslCertPath?: string;
+  sslCertPassword?: string;
   cacheIcons?: boolean;
   cleanURLs?: boolean;
   databaseName?: string;
@@ -1278,7 +1279,6 @@ export type Setting = {
   sdPassword?: string;
   sdUserName?: string;
   serverKey?: string;
-  sourceBufferPreBufferPercentage?: number;
   streamingProxyType?: StreamingProxyTypes;
   streamMasterIcon?: string;
   uiFolder?: string;
@@ -1305,12 +1305,13 @@ export type UpdateSettingRequest = {
   adminPassword?: string | null;
   adminUserName?: string | null;
   apiKey?: string | null;
-  apiPassword?: string | null;
-  apiUserName?: string | null;
+  enableSSL?: boolean | null;
   cacheIcons?: boolean | null;
   cleanURLs?: boolean | null;
   deviceID?: string | null;
   ffmPegExecutable?: string | null;
+  sslCertPath?: string | null;
+  sslCertPassword?: string | null;
   firstFreeNumber?: number | null;
   maxConnectRetry?: number | null;
   maxConnectRetryTimeMS?: number | null;

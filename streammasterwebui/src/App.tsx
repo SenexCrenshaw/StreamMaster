@@ -106,13 +106,6 @@ const App = () => {
     )
   );
 
-  console.log('baseHostURL: ', baseHostURL)
-  console.log('apiRoot: ', apiRoot)
-  console.log('apiKey: ', apiKey)
-  console.log('isDev: ', isDev)
-  console.log('urlBase: ', urlBase)
-  console.log('version: ', version)
-
   if (!systemReady)
     return (
       <div className="flex justify-content-center flex-wrap card-container w-full h-full "  >
@@ -138,7 +131,7 @@ const App = () => {
 
   return (
     <IntlProvider locale={locale} messages={messages}>
-      <SignalRHub onConnected={(e) => console.log('SignalRHub: ', e)} />
+      <SignalRHub />
       <ProSidebarProvider>
         <RouterProvider router={router} />
       </ProSidebarProvider>

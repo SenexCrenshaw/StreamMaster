@@ -301,6 +301,13 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
             {getInputTextLine('deviceID')}
             {getCheckBoxLine('cleanURLs')}
             {getInputTextLine('ffmPegExecutable')}
+            {getCheckBoxLine('enableSSL')}
+            {(settingsQuery.data?.enableSSL === true && newData.enableSSL === true) &&
+              <>
+                {getInputTextLine('sslCertPath')}
+                {getPasswordLine('sslCertPassword')}
+              </>
+            }
             {getCheckBoxLine('overWriteM3UChannels')}
           </Fieldset>
 

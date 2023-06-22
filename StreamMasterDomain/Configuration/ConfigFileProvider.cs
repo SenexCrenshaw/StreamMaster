@@ -21,7 +21,6 @@ namespace StreamMasterDomain.Configuration
         private readonly string _configFile;
         private readonly IAppFolderInfo _appFolderInfo;
         private Setting currentSetting;
-        private FileSystemWatcher _fileWatcher;
 
         public ConfigFileProvider(IAppFolderInfo appFolderInfo)
         {
@@ -49,8 +48,6 @@ namespace StreamMasterDomain.Configuration
                 currentSetting.ServerKey = "ef1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c";
             }
 
-            // Start file watcher
-            StartFileWatcher();
         }
 
         public Setting Setting => currentSetting;
@@ -101,10 +98,9 @@ namespace StreamMasterDomain.Configuration
 
             if (File.Exists(_configFile))
             {
-                //jsonString = File.ReadAllText(_configFile);
 
-                using(var fileStream = new FileStream(_configFile, FileMode.Open, FileAccess.Read, FileShare.Read))
-{
+                using (var fileStream = new FileStream(_configFile, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
                     using (var reader = new StreamReader(fileStream))
                     {
                         jsonString = reader.ReadToEnd();
@@ -131,18 +127,6 @@ namespace StreamMasterDomain.Configuration
             UpdateSetting(currentSetting);
         }
 
-        private void StartFileWatcher()
-        {
-            _fileWatcher = new FileSystemWatcher(Path.GetDirectoryName(_configFile), Path.GetFileName(_configFile));
-            _fileWatcher.NotifyFilter = NotifyFilters.LastWrite;
-            _fileWatcher.Changed += ConfigFileChanged;
-            _fileWatcher.EnableRaisingEvents = true;
-        }
 
-        private void ConfigFileChanged(object sender, FileSystemEventArgs e)
-        {
-            // Reload settings when the config file is modified
-            LoadSettings();
-        }
     }
 }
