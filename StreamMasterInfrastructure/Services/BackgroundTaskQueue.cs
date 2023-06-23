@@ -3,6 +3,8 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.SchedulesDirect;
+
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.Hubs;
@@ -56,34 +58,55 @@ public partial class BackgroundTaskQueue : IBackgroundTaskQueue
 
     public async Task SetQueueTS(Guid Id)
     {
+        TaskQueueStatusDto status = null;
         lock (taskQueueStatusDtos)
         {
-            TaskQueueStatusDto status = taskQueueStatusDtos.First(a => a.Id == Id);
-            status.QueueTS = DateTime.Now;
+            status = taskQueueStatusDtos.FirstOrDefault(a => a.Id == Id);
+            if (status != null)
+            {
+                status.QueueTS = DateTime.Now;
             status.IsRunning = true;
+            }
         }
-        await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(taskQueueStatusDtos).ConfigureAwait(false);
+        if (status != null)
+        {
+            await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(taskQueueStatusDtos).ConfigureAwait(false);
+        }
     }
 
     public async Task SetStart(Guid Id)
     {
+        TaskQueueStatusDto status = null;
         lock (taskQueueStatusDtos)
         {
-            TaskQueueStatusDto status = taskQueueStatusDtos.First(a => a.Id == Id);
-            status.StartTS = DateTime.Now;
-            status.IsRunning = true;
+            status = taskQueueStatusDtos.FirstOrDefault(a => a.Id == Id);
+            if (status != null)
+            {
+                status.StartTS = DateTime.Now;
+                status.IsRunning = true;
+            }
         }
-        await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(taskQueueStatusDtos).ConfigureAwait(false);
+        if (status != null)
+        {
+            await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(taskQueueStatusDtos).ConfigureAwait(false);
+        }        
     }
 
     public async Task SetStop(Guid Id)
     {
-        lock (taskQueueStatusDtos) { 
-            TaskQueueStatusDto status = taskQueueStatusDtos.First(a => a.Id == Id);
-        status.StopTS = DateTime.Now;
+        TaskQueueStatusDto status = null;
+        lock (taskQueueStatusDtos) {
+            status = taskQueueStatusDtos.FirstOrDefault(a => a.Id == Id);
+            if (status != null)
+            {
+                status.StopTS = DateTime.Now;
         status.IsRunning = false;
-    }
-        await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(taskQueueStatusDtos).ConfigureAwait(false);
+            }
+        }
+        if (status != null)
+        {
+            await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(taskQueueStatusDtos).ConfigureAwait(false);
+        }
     }
 
     private async ValueTask QueueAsync(SMQueCommand command, CancellationToken cancellationToken = default)
