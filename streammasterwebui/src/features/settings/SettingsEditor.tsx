@@ -45,12 +45,38 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
 
   }, [settingsQuery]);
 
+
+  const adminUserNameError = React.useMemo((): string | undefined => {
+    if (
+      newData.authenticationMethod === AuthenticationType.Forms && newData.adminUserName === ''
+    )
+      return GetMessage('formsAuthRequiresAdminUserName');
+
+    return undefined;
+
+  }, [newData.adminUserName, newData.authenticationMethod]);
+
+  const adminPasswordError = React.useMemo((): string | undefined => {
+    if (
+      newData.authenticationMethod === AuthenticationType.Forms && newData.adminPassword === ''
+    )
+      return GetMessage('formsAuthRequiresAdminPassword');
+
+    return undefined;
+
+  }, [newData.adminPassword, newData.authenticationMethod]);
+
+
   const isSaveEnabled = React.useMemo((): boolean => {
     if (JSON.stringify(newData) === JSON.stringify(originalData))
       return false;
 
+    if (adminUserNameError !== undefined || adminPasswordError !== undefined) {
+      return false;
+    }
+
     return true;
-  }, [newData, originalData]);
+  }, [adminPasswordError, adminUserNameError, newData, originalData]);
 
   const getLine = React.useCallback((label: string, value: React.ReactElement, help?: string | null) => {
 
@@ -284,7 +310,6 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
     },
   ];
 
-
   return (
 
     <div className="settingsEditor">
@@ -311,11 +336,11 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
             {getCheckBoxLine('overWriteM3UChannels')}
           </Fieldset>
 
-          <Fieldset className="mt-4 pt-10" legend={GetMessage('auth')}>
+          <Fieldset className="mt-4 pt-10" legend={GetMessage('authenticatio')}>
             {getInputTextLine('apiKey')}
             {getDropDownLine('authenticationMethod', getAuthTypeOptions())}
-            {getInputTextLine('adminUserName')}
-            {getPasswordLine('adminPassword')}
+            {getInputTextLine('adminUserName', adminUserNameError)}
+            {getPasswordLine('adminPassword', adminPasswordError)}
             <div className='flex col-12'>
               <div className='flex col-2 col-offset-1'>
                 <span>{GetMessage('signout')}</span>
