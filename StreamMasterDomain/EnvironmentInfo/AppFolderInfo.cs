@@ -8,6 +8,8 @@ public interface IAppFolderInfo
     string CacheFolder { get; }
     string IconDataFolder { get; }
     string PlayListFolder { get; }
+    string PlayListEPGFolder { get; }
+    string PlayListM3UFolder { get; }
     string ProgrammeIconDataFolder { get; }
     string SettingFile { get; }
     string StartUpFolder { get; }
@@ -23,7 +25,11 @@ public class AppFolderInfo : IAppFolderInfo
         AppDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{Constants.AppName.ToLower()}{Path.DirectorySeparatorChar}";
 
         CacheFolder = $"{AppDataFolder}Cache{Path.DirectorySeparatorChar}";
+
         PlayListFolder = $"{AppDataFolder}PlayLists{Path.DirectorySeparatorChar}";
+        PlayListEPGFolder = $"{PlayListFolder}EPG{Path.DirectorySeparatorChar}";
+        PlayListM3UFolder = $"{PlayListFolder}M3U{Path.DirectorySeparatorChar}";
+
         IconDataFolder = $"{CacheFolder}Icons{Path.DirectorySeparatorChar}";
         ProgrammeIconDataFolder = $"{CacheFolder}ProgrammeIcons{Path.DirectorySeparatorChar}";
 
@@ -41,6 +47,9 @@ public class AppFolderInfo : IAppFolderInfo
 
     public string PlayListFolder { get; private set; }
 
+    public string PlayListEPGFolder { get; private set; }
+    public string PlayListM3UFolder { get; private set; }
+
     public string ProgrammeIconDataFolder { get; private set; }
 
     public string SettingFile { get; private set; }
@@ -50,8 +59,7 @@ public class AppFolderInfo : IAppFolderInfo
     public string TempFolder { get; private set; }
 
     private static void CreateDir(string directory)
-    {
-        Console.WriteLine($"Creaing directory for {directory}");
+    {        
         FileUtil.CreateDirectory(directory);
     }
 
@@ -67,6 +75,8 @@ public class AppFolderInfo : IAppFolderInfo
         CreateDir(CacheFolder);
         CreateDir(IconDataFolder);
         CreateDir(PlayListFolder);
+        CreateDir(PlayListEPGFolder);
+        CreateDir(PlayListM3UFolder);
         CreateDir(ProgrammeIconDataFolder);
     }
 }

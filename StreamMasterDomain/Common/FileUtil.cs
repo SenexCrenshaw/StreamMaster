@@ -262,7 +262,7 @@ public sealed class FileUtil
 
     private static void CreateDir(string directory)
     {
-        Console.WriteLine($"Creaing directory for {directory}");
+        Console.WriteLine($"Creating directory for {directory}");
         CreateDirectory(directory);
     }
 
@@ -288,12 +288,17 @@ public sealed class FileUtil
         var IconDataFolder = $"{CacheFolder}Icons{Path.DirectorySeparatorChar}";
         var ProgrammeIconDataFolder = $"{CacheFolder}ProgrammeIcons{Path.DirectorySeparatorChar}";
 
+        var PlayListEPGFolder = $"{PlayListFolder}EPG{Path.DirectorySeparatorChar}";
+        var PlayListM3UFolder = $"{PlayListFolder}M3U{Path.DirectorySeparatorChar}";
+
         CreateDir(AppDataFolder);
         CreateDir(CacheFolder);
         CreateDir(IconDataFolder);
         CreateDir(PlayListFolder);
+        CreateDir(PlayListEPGFolder);
+        CreateDir(PlayListM3UFolder);
         CreateDir(ProgrammeIconDataFolder);
-        
+
     }
 
     public static void UpdateSetting(Setting setting)
