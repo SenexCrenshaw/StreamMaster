@@ -479,8 +479,9 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [HttpGet]
     [Route("stream/{encodedIds}")]
     [Route("stream/{encodedIds}.mp4")]
+    [Route("stream/{encodedIds}/{name}")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetStreamGroupVideoStream(string encodedIds, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetStreamGroupVideoStream(string encodedIds,string name, CancellationToken cancellationToken)
     {
         (int? StreamGroupNumberNull, int? StreamIdNull) = encodedIds.DecodeValues128(_configFileProvider.Setting.ServerKey);
         if (StreamGroupNumberNull == null || StreamIdNull == null)

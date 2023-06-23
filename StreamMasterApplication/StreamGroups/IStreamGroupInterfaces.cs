@@ -31,7 +31,7 @@ public interface IStreamGroupController
 
     Task<ActionResult<IEnumerable<StreamGroupDto>>> GetStreamGroups();
 
-    Task<IActionResult> GetStreamGroupVideoStream(string encodedId, CancellationToken cancellationToken);
+    Task<IActionResult> GetStreamGroupVideoStream(string encodedId, string name, CancellationToken cancellationToken);
 
     IActionResult SimulateStreamFailure(string streamUrl);
 
