@@ -11,6 +11,8 @@ using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities;
 
+using StreamMasterInfrastructure.Extensions;
+
 namespace StreamMasterApplication.StreamGroups.Queries;
 
 public record GetStreamGroups() : IRequest<IEnumerable<StreamGroupDto>>;
@@ -23,7 +25,8 @@ internal class GetStreamGroupsHandler : IRequestHandler<GetStreamGroups, IEnumer
     private readonly IMapper _mapper;
 
     public GetStreamGroupsHandler(
-        IMapper mapper, IConfigFileProvider configFileProvider,
+        IMapper mapper, 
+        IConfigFileProvider configFileProvider,
         IHttpContextAccessor httpContextAccessor,
         IAppDbContext context)
     {
@@ -43,7 +46,7 @@ internal class GetStreamGroupsHandler : IRequestHandler<GetStreamGroups, IEnumer
            .OrderBy(x => x.Name)
            .ToListAsync(cancellationToken).ConfigureAwait(false);
 
-        var url = GetUrl();
+        var url = _httpContextAccessor.GetUrl();
 
         foreach (var streamGroup in ret)
         {
@@ -83,14 +86,4 @@ internal class GetStreamGroupsHandler : IRequestHandler<GetStreamGroups, IEnumer
         return ret;
     }
 
-    private string GetUrl()
-    {
-        var request = _httpContextAccessor.HttpContext.Request;
-        var scheme = request.Scheme;
-        var host = request.Host;
-
-        var url = $"{scheme}://{host}";
-
-        return url;
-    }
 }

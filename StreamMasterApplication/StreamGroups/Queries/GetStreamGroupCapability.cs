@@ -70,7 +70,8 @@ public class GetStreamGroupCapabilityHandler : IRequestHandler<GetStreamGroupCap
         var scheme = request.Scheme;
         var host = request.Host;
         var path = request.Path;
-
+        path = path.ToString().Replace("/capability", "");
+        path = path.ToString().Replace("/device.xml", "");        
         var url = $"{scheme}://{host}{path}";
 
         return url;
