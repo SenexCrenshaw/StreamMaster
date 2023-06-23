@@ -1,4 +1,3 @@
-import './SettingsEditor.css';
 import { Button } from 'primereact/button';
 
 import React from 'react';
