@@ -134,7 +134,7 @@
   border-left-color: #0e1315 !important;
 }
 
-.p-dropdown.p-component.p-inputwrapper.p-inputwrapper-filled.w-full {
+.p-dropdown.p-component.p-inputwrapper.p-inputwrapper-filled.withpadding.w-full {
   border: 2px solid var(--surface-border) !important;
   border-radius: 6px;
   max-height: 2rem !important;
