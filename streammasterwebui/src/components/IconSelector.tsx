@@ -22,7 +22,7 @@ const IconSelector = (props: IconSelectorProps) => {
   const icons = useIconsGetIconsQuery();
 
 
-  React.useMemo(() => {
+  React.useEffect(() => {
     if (!icons.data) {
       return;
     }
@@ -32,18 +32,14 @@ const IconSelector = (props: IconSelectorProps) => {
 
       if (tests && tests !== undefined && tests.length > 0) {
         setSelectedIcon(tests[0]);
-
-        return;
       }
     }
 
     if (props.resetValue) {
-      const tests = icons.data.filter((a: IconFileDto) => a.url === props.resetValue);
+      const tests = icons.data.filter((a: IconFileDto) => a.originalSource === props.resetValue);
 
       if (tests && tests !== undefined && tests.length > 0) {
         setResetIcon(tests[0]);
-
-        return;
       }
     }
 
