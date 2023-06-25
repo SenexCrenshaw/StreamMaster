@@ -100,12 +100,12 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
             currentSetting.EnableSSL = (bool)request.EnableSSL;
         }
 
-        if (!string.IsNullOrEmpty(request.SSLCertPath) && request.SSLCertPath != currentSetting.SSLCertPath)
+        if (request.SSLCertPath != null && request.SSLCertPath != currentSetting.SSLCertPath)
         {
             currentSetting.SSLCertPath = request.SSLCertPath;
         }
 
-        if (!string.IsNullOrEmpty(request.SSLCertPassword) && request.SSLCertPassword != currentSetting.SSLCertPassword)
+        if (request.SSLCertPassword != null && request.SSLCertPassword != currentSetting.SSLCertPassword)
         {
             currentSetting.SSLCertPassword = request.SSLCertPassword;
         }
@@ -119,13 +119,13 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
             currentSetting.ApiKey = request.ApiKey;
         }
 
-        if (!string.IsNullOrEmpty(request.AdminPassword) && request.AdminPassword != currentSetting.AdminPassword)
+        if (request.AdminPassword != null && request.AdminPassword != currentSetting.AdminPassword)
         {
             currentSetting.AdminPassword = request.AdminPassword;
             needsLogOut = true;
         }
 
-        if (!string.IsNullOrEmpty(request.AdminUserName) && request.AdminUserName != currentSetting.AdminUserName)
+        if (request.AdminUserName != null && request.AdminUserName != currentSetting.AdminUserName)
         {
             currentSetting.AdminUserName = request.AdminUserName;
             needsLogOut = true;
@@ -161,12 +161,12 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
             currentSetting.RingBufferSizeMB = (int)request.RingBufferSizeMB;
         }
 
-        if (!string.IsNullOrEmpty(request.SDPassword) && request.SDPassword != currentSetting.SDPassword)
+        if (request.SDPassword != null && request.SDPassword != currentSetting.SDPassword)
         {
             currentSetting.SDPassword = request.SDPassword;
         }
 
-        if (!string.IsNullOrEmpty(request.SDUserName) && request.SDUserName != currentSetting.SDUserName)
+        if (request.SDUserName != null && request.SDUserName != currentSetting.SDUserName)
         {
             currentSetting.SDUserName = request.SDUserName;
         }
