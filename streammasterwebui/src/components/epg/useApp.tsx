@@ -1,23 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-floating-promises */
-/* eslint-disable @typescript-eslint/no-shadow */
 import React from "react";
-
 import { type Channel, type Program } from "planby";
 import { useEpg } from "planby";
-import { fetchChannels, fetchEpg } from "./common";
 import * as StreamMasterApi from '../../store/iptvApi';
-import { useMountEffect } from 'primereact/hooks';
-
-// Example of globalStyles
-// const globalStyles = `
-// @import url('https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;600&display=swap');
-// .planby {
-//   font-family: "Antonio", system-ui, -apple-system,
-//     /* Firefox supports this but not yet system-ui */ "Segoe UI", Roboto,
-//     Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"; /* 2 */
-// }
-// `;
 
 export function useApp() {
   const [channels, setChannels] = React.useState<Channel[]>([]);

@@ -127,6 +127,8 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
             _memoryCache.Set(programmeChannels);
         }
 
+        if (cancellationToken.IsCancellationRequested) { return; }
+
         Tv? epg = await epgFile.GetTV().ConfigureAwait(false);
 
         if (epg is null || epg.Programme is null)
@@ -134,8 +136,11 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
             return;
         }
 
+        var needsEpgName = _context.EPGFiles.Count() > 1;
+
         foreach (Programme p in epg.Programme)
         {
+            if (cancellationToken.IsCancellationRequested) { break; }
             string channel_name = p.Channel;
             p.DisplayName = p.Channel;
 
@@ -149,7 +154,11 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
                     p.DisplayName = channel.Displayname.Last();
                 }
             }
-
+            if (needsEpgName)
+            {
+                p.DisplayName = epgFile.Name + " : " + p.DisplayName;
+            }
+            
             p.ChannelName = channel_name;
             p.EPGFileId = epgFile.Id;
             p.Channel = p.Channel;

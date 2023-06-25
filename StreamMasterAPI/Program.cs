@@ -76,6 +76,9 @@ builder.Services.AddControllers(options =>
 
 WebApplication app = builder.Build();
 
+app.UseOpenApi();
+app.UseSwaggerUi3();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -131,8 +134,7 @@ else
 
 app.UseRouting();
 app.UseWebSockets();
-app.UseOpenApi();
-app.UseSwaggerUi3();
+
 
 if (app.Environment.IsDevelopment())
 {

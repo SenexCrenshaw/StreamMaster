@@ -1,8 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import React from "react";
-import * as StreamMasterApi from '../store/iptvApi';
-
 import { Epg, Layout } from 'planby';
 import ChannelItem from './epg/ChannelItem';
 import ProgramComponent from './epg/ProgramItem';
@@ -26,6 +22,8 @@ const EPGDisplay = (props: EPGDisplayProps) => {
 
       {props.hidden !== true && (
         <Epg isLoading={isLoading} {...getEpgProps()}>
+          {/* Hmmm, this is a bit of a hack, but it works
+          // @ts-expect-error */}
           <Layout
             {...getLayoutProps()}
             renderChannel={({ channel }) => (

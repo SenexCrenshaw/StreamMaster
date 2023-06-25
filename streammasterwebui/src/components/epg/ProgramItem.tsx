@@ -22,7 +22,7 @@ const ProgramComponent = ({ program, onClick, ...rest }: ProgramComponentProps) 
     });
 
   const { data } = program;
-  const { image, title, since, till } = data;
+  const { description, image, title, since, till } = data;
 
   const sinceTime = formatTime(since, set12HoursTimeFormat()).toLowerCase();
   const tillTime = formatTime(till, set12HoursTimeFormat()).toLowerCase();
@@ -37,6 +37,7 @@ const ProgramComponent = ({ program, onClick, ...rest }: ProgramComponentProps) 
           <ProgramStack>
             <ProgramTitle>{title}</ProgramTitle>
             <ProgramText>
+              {description}<br />
               {sinceTime} - {tillTime}
             </ProgramText>
           </ProgramStack>

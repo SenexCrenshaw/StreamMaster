@@ -639,6 +639,15 @@ const injectedRtkApi = api
         }),
         providesTags: ["StreamGroups"],
       }),
+      streamGroupsGetStreamGroupVideoStream3: build.query<
+        StreamGroupsGetStreamGroupVideoStream3ApiResponse,
+        StreamGroupsGetStreamGroupVideoStream3ApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroups/stream/${queryArg.encodedIds}/${queryArg.name}`,
+        }),
+        providesTags: ["StreamGroups"],
+      }),
       streamGroupsGetStreamM3U8: build.query<
         StreamGroupsGetStreamM3U8ApiResponse,
         StreamGroupsGetStreamM3U8ApiArg
@@ -973,6 +982,11 @@ export type StreamGroupsGetStreamGroupVideoStreamApiResponse = unknown;
 export type StreamGroupsGetStreamGroupVideoStreamApiArg = string;
 export type StreamGroupsGetStreamGroupVideoStream2ApiResponse = unknown;
 export type StreamGroupsGetStreamGroupVideoStream2ApiArg = string;
+export type StreamGroupsGetStreamGroupVideoStream3ApiResponse = unknown;
+export type StreamGroupsGetStreamGroupVideoStream3ApiArg = {
+  encodedIds: string;
+  name: string;
+};
 export type StreamGroupsGetStreamM3U8ApiResponse = /** status 200  */ string;
 export type StreamGroupsGetStreamM3U8ApiArg = {
   streamGroupNumber: number;
@@ -1541,6 +1555,7 @@ export const {
   useStreamGroupsGetStreamGroupVideoM3UStreamQuery,
   useStreamGroupsGetStreamGroupVideoStreamQuery,
   useStreamGroupsGetStreamGroupVideoStream2Query,
+  useStreamGroupsGetStreamGroupVideoStream3Query,
   useStreamGroupsGetStreamM3U8Query,
   useStreamGroupsGetStreamM3U8WithClientIdQuery,
   useStreamGroupsSimulateStreamFailureMutation,

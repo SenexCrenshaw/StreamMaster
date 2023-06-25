@@ -126,7 +126,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
 
                 EPGChannel t;
                 int dummy = 0;
-                if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
+                if (string.IsNullOrEmpty(videoStream.User_Tvg_ID) || !programmes.Any(a => a.Channel.ToLower() == videoStream.User_Tvg_ID.ToLower()))
                 {
                     videoStream.User_Tvg_ID = "dummy";
                 }
@@ -156,53 +156,63 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
 
                 if (videoStream.User_Tvg_ID != null)
                 {
-                    if (programmes.Any())
+                    if (videoStream.User_Tvg_ID.ToLower() == "dummy")
                     {
-                        IEnumerable<Programme>? progs = programmes.Where(a => a.Channel.ToLower() == videoStream.User_Tvg_ID.ToLower()).DeepCopy();
+                        var prog = new Programme();
+                        prog.Channel = videoStream.User_Tvg_ID + "-" + dummy;
 
-                        if (progs != null)
+                        prog.Title = new TvTitle
                         {
-                            foreach (Programme? p in progs)
-                            {
-                                if (p.Icon.Any())
-                                {
-                                    foreach (TvIcon progIcon in p.Icon)
-                                    {
-                                        if (progIcon != null && !string.IsNullOrEmpty(progIcon.Src))
-                                        {
-                                            IconFile? programmeIcon = progIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
+                            Lang = "en",
+                            Text = videoStream.User_Tvg_name,
+                        };
+                        prog.Desc = new TvDesc
+                        {
+                            Lang = "en",
+                            Text = videoStream.User_Tvg_name,
+                        };
+                        prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = "images/transparent.png" });
+                        prog.StartDateTime = DateTime.Now.AddHours(-1);
+                        prog.StopDateTime = DateTime.Now.AddDays(7);
 
-                                            if (programmeIcon == null)
+                        retProgrammes.Add(GetEPGProgramFromProgramme(prog, videoStream.Id));
+                    }
+                    else
+                    {
+                        if (programmes.Any())
+                        {
+                            IEnumerable<Programme>? progs = programmes.Where(a => a.Channel.ToLower() == videoStream.User_Tvg_ID.ToLower()).DeepCopy();
+
+                            if (progs != null)
+                            {
+                                foreach (Programme? p in progs)
+                                {
+                                    if (p.Icon.Any())
+                                    {
+                                        foreach (TvIcon progIcon in p.Icon)
+                                        {
+                                            if (progIcon != null && !string.IsNullOrEmpty(progIcon.Src))
                                             {
-                                                continue;
+                                                IconFile? programmeIcon = progIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
+
+                                                if (programmeIcon == null)
+                                                {
+                                                    continue;
+                                                }
+                                                string IconSource = $"/api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(programmeIcon.Source)}";
+                                                progIcon.Src = IconSource;
                                             }
-                                            string IconSource = $"/api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(programmeIcon.Source)}";
-                                            progIcon.Src = IconSource;
                                         }
                                     }
-                                }
-                                else
-                                {
-                                    p.Icon.Add(new TvIcon { Height = "", Width = "", Src = "" });
-                                }
-                                p.Channel = videoStream.User_Tvg_ID;
-                                if (videoStream.User_Tvg_ID.ToLower() == "dummy")
-                                {
-                                    p.Channel = videoStream.User_Tvg_ID + "-" + dummy;
-
-                                    p.Title = new TvTitle
+                                    else
                                     {
-                                        Lang = "en",
-                                        Text = videoStream.User_Tvg_ID,
-                                    }; /// channel.Tvg_name;
-                                    p.Desc = new TvDesc
-                                    {
-                                        Lang = "en",
-                                        Text = videoStream.User_Tvg_ID,
-                                    };
-                                }
+                                        p.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = "images/transparent.png" });
+                                    }
 
-                                retProgrammes.Add(GetEPGProgramFromProgramme(p, videoStream.Id));
+                                    p.Channel = videoStream.User_Tvg_ID;
+
+                                    retProgrammes.Add(GetEPGProgramFromProgramme(p, videoStream.Id));
+                                }
                             }
                         }
                     }
