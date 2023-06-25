@@ -74,6 +74,10 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
       return false;
     }
 
+    if (newData.enableSSL === true && newData.sslCertPath === '') {
+      return false;
+    }
+
     return true;
   }, [adminPasswordError, adminUserNameError, newData, originalData]);
 
@@ -326,7 +330,8 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
             {getCheckBoxLine('cleanURLs')}
             {getInputTextLine('ffmPegExecutable')}
             {getCheckBoxLine('enableSSL')}
-            {(settingsQuery.data?.enableSSL === true && newData.enableSSL === true) &&
+            {
+              (newData.enableSSL === true) &&
               <>
                 {getInputTextLine('sslCertPath', GetMessage('changesServiceRestart'))}
                 {getPasswordLine('sslCertPassword', GetMessage('changesServiceRestart'))}
