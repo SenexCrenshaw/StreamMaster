@@ -99,8 +99,6 @@ const App = () => {
             <SettingsEditor isAuthenticated />
           </ProtectedRoute>
         } path="/settings" />
-
-        {/* <Route element={<Login onClose={(e) => { setSignIn(e) }} />} path="/login2" /> */}
       </Route>
 
     )
