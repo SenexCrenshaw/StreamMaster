@@ -62,6 +62,13 @@
   transition: border-color 0.3s;
 }
 
+.streamgroupselector.p-dropdown.p-component.p-inputwrapper {
+  border: 1px solid #FE7600 !important;
+  background: black !important;
+  opacity: 0.6 !important;
+  margin-left: .5rem;
+}
+
 .p-inputtext:enabled:focus {
   border-color: var(--blue-500) !important;
 }
@@ -115,6 +122,13 @@
   border-radius: 6px;
 }
 
+.p-password.p-component.p-inputwrapper.p-input-icon-right.withpadding {
+  border: 2px solid var(--surface-border) !important;
+  min-height: 1.8rem;
+  max-height: 1.8rem;
+  border-radius: 6px;
+}
+
 .p-inputnumber.p-component.p-inputwrapper.p-inputwrapper-filled.p-inputnumber-buttons-stacked.withpadding {
   border: 2px solid var(--surface-border) !important;
   border-radius: 6px;
@@ -142,7 +156,7 @@
 
 .p-dropdown {
   background: 0 !important;
-  border: 0;
+  /* border: 0; */
 }
 
 .p-dropdown-trigger {
@@ -210,6 +224,11 @@ body>div.p-column-filter-overlay.p-component.p-fluid.p-column-filter-overlay-men
 .iconSelector .p-dropdown .p-dropdown-label {
   min-height: 1.5rem !important;
   padding: 0rem !important;
+}
+
+.p-dropdown.p-component.p-inputwrapper.p-inputwrapper-filled.iconSelector {
+  border: 0 !important;
+
 }
 
 .p-dropdown-trigger {

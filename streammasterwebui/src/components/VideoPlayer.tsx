@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 import * as StreamMasterApi from '../store/iptvApi';
 import 'vidstack/styles/defaults.css';
@@ -11,15 +12,15 @@ import { useLocalStorage } from "primereact/hooks";
 const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
   const [hideEPG, setHideEPG] = React.useState(false);
   const [videoStreamId, setVideoStreamId] = useLocalStorage<number>(-1, 'video-player-videoStreamId');
-
+  const [epgMoused, setEpgMoused] = React.useState<boolean>(true);
   const [src, setSrc] = React.useState<string>("");
   const [poster, setPoster] = React.useState<string>("");
   const [title, setTitle] = React.useState<string>("WOW");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [streamGroupNumber, setStreamGroupNumber] = React.useState<number>(1);
+  const [streamGroupNumber, setStreamGroupNumber] = React.useState<number>(0);
 
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
-  const epgForGuide = StreamMasterApi.useStreamGroupsGetStreamGroupEpgForGuideQuery(1);
+  const epgForGuide = StreamMasterApi.useStreamGroupsGetStreamGroupEpgForGuideQuery(streamGroupNumber);
 
   const getEpg = React.useCallback((channel: string): StreamMasterApi.EpgProgram | undefined => {
     const epg = epgForGuide.data?.programs?.find((p) => p.channelUuid === channel && p.since !== undefined && p.till !== undefined && new Date(p.since) <= new Date() && new Date(p.till) >= new Date());
@@ -82,7 +83,16 @@ const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
       <MediaOutlet />
       <MediaCommunitySkin />
       <div className="absolute bottom-0 left-0 z-5" style={{ paddingBottom: '5rem', zIndex: '5 !important' }}      >
-        <EPGDisplay hidden={hideEPG} onClick={onVideoStreamClick} streamGroupNumber={streamGroupNumber} />
+        <EPGDisplay hidden={hideEPG && !epgMoused}
+          onChange={(e) => {
+            setStreamGroupNumber(e.id);
+            console.log(e);
+          }
+          }
+          onClick={onVideoStreamClick}
+          onMouseEnter={() => setEpgMoused(true)}
+          onMouseLeave={() => setEpgMoused(false)}
+        />
       </div>
     </MediaPlayer >
   );

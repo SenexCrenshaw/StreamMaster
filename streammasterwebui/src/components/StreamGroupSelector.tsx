@@ -2,7 +2,7 @@
 import { Dropdown } from 'primereact/dropdown';
 import { type SelectItem } from 'primereact/selectitem';
 import React from 'react';
-import { useStreamGroupsGetStreamGroupsQuery, type StreamGroupDto } from '../../store/iptvApi';
+import { useStreamGroupsGetStreamGroupsQuery, type StreamGroupDto } from '../store/iptvApi';
 
 export const StreamGroupSelector =
   React.forwardRef((props: StreamGroupSelectorProps, ref) => {
@@ -19,24 +19,21 @@ export const StreamGroupSelector =
 
     const streamGroups = useStreamGroupsGetStreamGroupsQuery();
 
-    React.useMemo(() => {
-      if (props.streamGroup) {
+    // React.useMemo(() => {
+    //   if (props.streamGroup) {
 
 
-        setSelectedStreamGroup(props.streamGroup);
-      }
-    }, [props.streamGroup]);
+    //     setSelectedStreamGroup(props.streamGroup);
+    //   }
+    // }, [props.streamGroup]);
 
     const isDisabled = React.useMemo((): boolean => {
       if (streamGroups.isLoading) {
         return true;
       }
 
-      if (props?.disabled)
-        return props.disabled;
-
       return false;
-    }, [props.disabled, streamGroups.isLoading]);
+    }, [streamGroups.isLoading]);
 
 
     const onDropdownChange = (sg: StreamGroupDto) => {
@@ -67,8 +64,9 @@ export const StreamGroupSelector =
       return ret;
     }, [streamGroups.data]);
 
-    return (<div >
+    return (<div  >
       <Dropdown
+        className="streamgroupselector"
         disabled={isDisabled}
         onChange={(e) => onDropdownChange(e.value)}
         options={getOptions}
@@ -81,11 +79,8 @@ export const StreamGroupSelector =
   });
 StreamGroupSelector.displayName = 'StreamGroupSelector';
 StreamGroupSelector.defaultProps = {
-  disabled: false
+
 };
 type StreamGroupSelectorProps = {
-  disabled?: boolean | null,
-  onChange?: ((value: StreamGroupDto) => void) | null;
-
-  streamGroup?: StreamGroupDto | undefined;
+  onChange: ((value: StreamGroupDto) => void);
 };

@@ -3,12 +3,12 @@ import { type Channel, type Program } from "planby";
 import { useEpg } from "planby";
 import * as StreamMasterApi from '../../store/iptvApi';
 
-export function useApp() {
+export function useApp(streamGroupNumber: number) {
   const [channels, setChannels] = React.useState<Channel[]>([]);
   const [epg, setEpg] = React.useState<Program[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
-  const epgForGuide = StreamMasterApi.useStreamGroupsGetStreamGroupEpgForGuideQuery(1);
+  const epgForGuide = StreamMasterApi.useStreamGroupsGetStreamGroupEpgForGuideQuery(streamGroupNumber);
 
   const channelsData = React.useMemo(() => channels, [channels]);
   const epgData = React.useMemo(() => epg, [epg]);
