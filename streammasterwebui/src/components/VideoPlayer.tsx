@@ -72,6 +72,7 @@ const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
     <MediaPlayer
       autoplay
       controls
+      crossorigin="anonymous"
       onUserIdleChange={(e) => {
         setHideEPG(e.detail)
       }
