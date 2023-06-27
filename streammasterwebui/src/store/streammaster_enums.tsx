@@ -1,3 +1,8 @@
+export enum AuthenticationType {
+  None = 0,
+  Forms = 2,
+}
+
 export enum SMFileTypes {
   M3U = 0,
   EPG = 1,

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.General.Queries;
@@ -6,7 +7,10 @@ using StreamMasterApplication.Settings;
 using StreamMasterApplication.Settings.Commands;
 using StreamMasterApplication.Settings.Queries;
 
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
+
+using static StreamMasterApplication.Settings.Commands.UpdateSettingHandler;
 
 namespace StreamMasterAPI.Controllers;
 
@@ -36,6 +40,7 @@ public class SettingsController : ApiControllerBase, ISettingController
     }
 
     [HttpGet]
+    [AllowAnonymous]
     [Route("[action]")]
     [ProducesResponseType(typeof(SystemStatus), StatusCodes.Status200OK)]
     public async Task<ActionResult<SystemStatus>> GetSystemStatus()
@@ -43,14 +48,31 @@ public class SettingsController : ApiControllerBase, ISettingController
         return await Mediator.Send(new GetSystemStatus()).ConfigureAwait(false);
     }
 
+    [HttpGet]
+    [Route("[action]")]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    public ActionResult<bool> LogIn(LogInRequest logInRequest)
+    {
+        var setting = FileUtil.GetSetting();
+
+        return setting.AdminUserName == logInRequest.UserName && setting.AdminPassword == logInRequest.Password;
+    }
+
     [HttpPut]
     [Route("[action]")]
+    [ProducesResponseType(typeof(UpdateSettingResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<SettingDto?>> UpdateSetting(UpdateSettingRequest command)
+    public async Task<IActionResult> UpdateSetting(UpdateSettingRequest command)
     {
-        SettingDto data = await Mediator.Send(command).ConfigureAwait(false);
-        return data == null ? NotFound() : NoContent();
+        UpdateSettingResponse updateSettingResponse = await Mediator.Send(command).ConfigureAwait(false);
+
+        if (updateSettingResponse.NeedsLogOut)
+        {
+            return Redirect("/logout");
+        }
+
+        return updateSettingResponse == null ? NotFound() : NoContent();
     }
 }

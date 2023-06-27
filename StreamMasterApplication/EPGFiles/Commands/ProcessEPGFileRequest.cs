@@ -4,7 +4,11 @@ using FluentValidation;
 
 using MediatR;
 
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+
+using StreamMasterApplication.Hubs;
 
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities.EPG;
@@ -35,14 +39,17 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
     private readonly IPublisher _publisher;
+    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
 
     public ProcessEPGFileRequestHandler(
            IPublisher publisher,
         IAppDbContext context,
         IMapper mapper,
+      IHubContext<StreamMasterHub, IStreamMasterHub> hubContext,
         IMemoryCache memoryCache
     )
     {
+        _hubContext = hubContext;
         _publisher = publisher;
         _context = context;
         _mapper = mapper;
@@ -70,6 +77,9 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
             await AddProgrammesFromEPG(epgFile, cancellationToken);
 
             EPGFilesDto ret = _mapper.Map<EPGFilesDto>(epgFile);
+            
+             await _hubContext.Clients.All.ProgrammeNamesUpdate(_memoryCache.Programmes()).ConfigureAwait(false);
+
             await _publisher.Publish(new EPGFileProcessedEvent(ret), cancellationToken).ConfigureAwait(false);
 
             return ret;
@@ -117,6 +127,8 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
             _memoryCache.Set(programmeChannels);
         }
 
+        if (cancellationToken.IsCancellationRequested) { return; }
+
         Tv? epg = await epgFile.GetTV().ConfigureAwait(false);
 
         if (epg is null || epg.Programme is null)
@@ -124,8 +136,11 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
             return;
         }
 
+        var needsEpgName = _context.EPGFiles.Count() > 1;
+
         foreach (Programme p in epg.Programme)
         {
+            if (cancellationToken.IsCancellationRequested) { break; }
             string channel_name = p.Channel;
             p.DisplayName = p.Channel;
 
@@ -139,14 +154,18 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
                     p.DisplayName = channel.Displayname.Last();
                 }
             }
-
+            if (needsEpgName)
+            {
+                p.DisplayName = epgFile.Name + " : " + p.DisplayName;
+            }
+            
             p.ChannelName = channel_name;
             p.EPGFileId = epgFile.Id;
             p.Channel = p.Channel;
             cacheValue.Add(p);
         }
         _memoryCache.Set(cacheValue);
-
+        
         return;
     }
 }

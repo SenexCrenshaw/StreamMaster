@@ -53,7 +53,7 @@ internal class GetProgrammeHandler : IRequestHandler<GetProgramme, IEnumerable<P
                     {
                         continue;
                     }
-                    string IconSource = $"{setting.BaseHostURL}api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(icon.Source)}";
+                    string IconSource = $"/api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(icon.Source)}";
                     progIcon.Src = IconSource;
                 }
             }

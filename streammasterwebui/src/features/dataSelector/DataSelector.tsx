@@ -19,33 +19,30 @@ import { type DataTableRowData } from 'primereact/datatable';
 
 import { DataTable } from 'primereact/datatable';
 import * as StreamMasterApi from '../../store/iptvApi';
-import { useSessionStorage } from 'primereact/hooks';
+import { useLocalStorage } from 'primereact/hooks';
 import { InputText } from 'primereact/inputtext';
 import { type CSSProperties } from 'react';
 import React from 'react';
 import { camel2title, getTopToolOptions } from '../../common/common';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
 import { Checkbox } from 'primereact/checkbox';
-import { baseHostURL } from '../../settings';
 
 import { Tooltip } from 'primereact/tooltip';
 import { v4 as uuidv4 } from 'uuid';
-import useCopyToClipboard from '../../hooks/useCopyToClipboard';
 import { type ColumnAlign, type ColumnFieldType, type ColumnMeta, type DataSelectorSelectionMode } from './DataSelectorTypes';
 import { useIntl } from 'react-intl';
 
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
   const tooltipClassName = React.useMemo(() => "menuitemds-" + uuidv4(), []);
-  const [, copy] = useCopyToClipboard()
 
-  const [globalSourceFilterValue, setGlobalSourceFilterValue] = useSessionStorage('', props.id + '-sourceGlobalFilterValue');
+  const [globalSourceFilterValue, setGlobalSourceFilterValue] = useLocalStorage('', props.id + '-sourceGlobalFilterValue');
   const [dataSource, setDataSource] = React.useState<T[]>();
   const [values, setValues] = React.useState<T[]>();
   const [expandedRows, setExpandedRows] = React.useState<DataTableExpandedRows>();
 
   const setting = StreamMasterSetting();
-  const [rowClick, setRowClick] = useSessionStorage<boolean>(false, props.id + '-rowClick');
+  const [rowClick, setRowClick] = useLocalStorage<boolean>(false, props.id + '-rowClick');
 
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
   const m3uFiles = StreamMasterApi.useM3UFilesGetM3UFilesQuery();
@@ -297,14 +294,23 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     );
   }, [m3uFiles]);
 
-  const m3uLinkSourceTemplate = React.useCallback((streamGroupNumber: string) => {
+  const linkIcon = (url: string) => {
+    return (
+      <a href={url} rel="noopener noreferrer" target="_blank">
+        <i className="pi pi-bookmark-fill" />
+      </a>
+    );
+  };
+
+  const m3uLinkSourceTemplate = React.useCallback((link: string) => {
     return (
       <div>
         <div className="flex justify-content-center align-items-center">
-          <Button
+          {linkIcon(link)}
+          {/* <Button
             icon='pi pi-bookmark-fill'
             onClick={async () => {
-              const link = `${baseHostURL}api/streamgroups/${streamGroupNumber}/m3u`;
+              // const link = `${link}api/streamgroups/${streamGroupNumber}/m3u`;
               await copy(link);
               // if (toast.current) {
               //   toast.current.show({ detail: `${link}`, severity: 'success', summary: 'Copied to clipboard' });
@@ -315,20 +321,21 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
             text
             tooltip="M3U Link"
             tooltipOptions={getTopToolOptions}
-          />
+          /> */}
         </div>
       </div >
     );
-  }, [copy]);
+  }, []);
 
-  const epgLinkSourceTemplate = React.useCallback((streamGroupNumber: string) => {
+  const epgLinkSourceTemplate = React.useCallback((link: string) => {
     return (
       <div>
         <div className="flex justify-content-center align-items-center">
-          <Button
+          {linkIcon(link)}
+          {/* <Button
             icon='pi pi-bookmark-fill'
             onClick={async () => {
-              const link = `${baseHostURL}api/streamgroups/${streamGroupNumber}/epg.xml`;
+              // const link = `${baseHostURL}api/streamgroups/${streamGroupNumber}/epg.xml`;
               await copy(link);
               // if (toast.current) {
               //   toast.current.show({ detail: `${link}`, severity: 'success', summary: 'Copied to clipboard' });
@@ -339,20 +346,21 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
             text
             tooltip="XMLTV Link"
             tooltipOptions={getTopToolOptions}
-          />
+          /> */}
         </div>
       </div>
     );
-  }, [copy]);
+  }, []);
 
-  const urlLinkSourceTemplate = React.useCallback((streamGroupNumber: string) => {
+  const urlLinkSourceTemplate = React.useCallback((link: string) => {
     return (
       <div>
         <div className="flex justify-content-center align-items-center">
-          <Button
+          {linkIcon(link)}
+          {/* <Button
             icon='pi pi-bookmark-fill'
             onClick={async () => {
-              const link = `${baseHostURL}api/streamgroups/${streamGroupNumber}`;
+              // const link = `${baseHostURL}api/streamgroups/${streamGroupNumber}`;
               await copy(link);
               // if (toast.current) {
               //   toast.current.show({ detail: `${link}`, severity: 'success', summary: 'Copied to clipboard' });
@@ -363,11 +371,11 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
             text
             tooltip="HDHR Link"
             tooltipOptions={getTopToolOptions}
-          />
+          /> */}
         </div>
       </div>
     );
-  }, [copy]);
+  }, []);
 
   const epgSourceTemplate = React.useCallback((tvgid: string) => {
     return (
@@ -390,18 +398,18 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
 
     if (fieldType === 'm3ulink') {
-      const streamGroupNumber = getRecordString(data, 'streamGroupNumber');
-      return m3uLinkSourceTemplate(streamGroupNumber);
+      const link = getRecordString(data, 'm3ULink');
+      return m3uLinkSourceTemplate(link);
     }
 
     if (fieldType === 'epglink') {
-      const streamGroupNumber = getRecordString(data, 'streamGroupNumber');
-      return epgLinkSourceTemplate(streamGroupNumber);
+      const link = getRecordString(data, 'xmlLink');
+      return epgLinkSourceTemplate(link);
     }
 
     if (fieldType === 'url') {
-      const streamGroupNumber = getRecordString(data, 'streamGroupNumber');
-      return urlLinkSourceTemplate(streamGroupNumber);
+      const link = getRecordString(data, 'hdhrLink');
+      return urlLinkSourceTemplate(link);
     }
 
     if (fieldType === 'epg') {
@@ -1048,8 +1056,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           sortField={props.groupRowsBy === undefined || props.groupRowsBy === '' ? props.sortField : props.groupRowsBy}
           sortMode='single'
           sortOrder={0}
-          stateKey={props.enableState !== true ? undefined : props.id + '-datatable'}
-          stateStorage={props.enableState !== true ? undefined : "session"}
+          stateKey={props.enableState != true ? undefined : props.id + '-datatable'}
+          stateStorage={props.enableState != true ? undefined : "local"}
           stripedRows
           style={props.style}
           value={dataSource}

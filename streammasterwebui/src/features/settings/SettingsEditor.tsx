@@ -1,5 +1,3 @@
-
-import './SettingsEditor.css';
 import { Button } from 'primereact/button';
 
 import React from 'react';
@@ -17,7 +15,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import HistoryIcon from '@mui/icons-material/History';
 import { Toast } from 'primereact/toast';
 import { Dropdown } from 'primereact/dropdown';
-import { StreamingProxyTypes } from '../../store/streammaster_enums';
+import { AuthenticationType, StreamingProxyTypes } from '../../store/streammaster_enums';
 import { type SelectItem } from 'primereact/selectitem';
 import { InputNumber } from 'primereact/inputnumber';
 import { Password } from 'primereact/password';
@@ -26,10 +24,12 @@ import { GetMessage, GetMessageDiv, getTopToolOptions } from '../../common/commo
 import { baseHostURL } from '../../settings';
 
 import { ScrollPanel } from 'primereact/scrollpanel';
+import { getHelp } from '../../help_en';
+import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
 
 export const SettingsEditor = () => {
   const toast = React.useRef<Toast>(null);
-
+  const setting = StreamMasterSetting();
   const [newData, setNewData] = React.useState<SettingDto>({} as SettingDto);
   const [originalData, setOriginalData] = React.useState<SettingDto>({} as SettingDto);
 
@@ -45,24 +45,61 @@ export const SettingsEditor = () => {
 
   }, [settingsQuery]);
 
+
+  const adminUserNameError = React.useMemo((): string | undefined => {
+    if (
+      newData.authenticationMethod === AuthenticationType.Forms && newData.adminUserName === ''
+    )
+      return GetMessage('formsAuthRequiresAdminUserName');
+
+    return undefined;
+
+  }, [newData.adminUserName, newData.authenticationMethod]);
+
+  const adminPasswordError = React.useMemo((): string | undefined => {
+    if (
+      newData.authenticationMethod === AuthenticationType.Forms && newData.adminPassword === ''
+    )
+      return GetMessage('formsAuthRequiresAdminPassword');
+
+    return undefined;
+
+  }, [newData.adminPassword, newData.authenticationMethod]);
+
+
   const isSaveEnabled = React.useMemo((): boolean => {
     if (JSON.stringify(newData) === JSON.stringify(originalData))
       return false;
 
-    return true;
-  }, [newData, originalData]);
+    if (adminUserNameError !== undefined || adminPasswordError !== undefined) {
+      return false;
+    }
 
-  const getLine = React.useCallback((label: string, value: React.ReactElement) => {
+    if (newData.enableSSL === true && newData.sslCertPath === '') {
+      return false;
+    }
+
+    return true;
+  }, [adminPasswordError, adminUserNameError, newData, originalData]);
+
+  const getLine = React.useCallback((label: string, value: React.ReactElement, help?: string | null) => {
+
     return (
-      <div className='flex col-12'>
+      <div className='flex col-12 align-content-center'>
         <div className='flex col-2 col-offset-1'>
           <span>{label}</span>
         </div>
         <div className='flex col-3 m-0 p-0 debug'>
           {value}
         </div>
+        {(help !== null && help !== undefined) &&
+          <div className='flex col-3 text-sm align-content-center col-offset-1 debug'>
+            {help}
+          </div>
+        }
       </div>
     );
+
   }, []);
 
   const getRecord = React.useCallback((fieldName: string) => {
@@ -92,6 +129,7 @@ export const SettingsEditor = () => {
 
   const getInputNumberLine = React.useCallback((field: string, max?: number | null) => {
     const label = GetMessage(field);
+    const help = getHelp(field);
     return (
       getLine(label + ':',
         <InputNumber
@@ -103,41 +141,60 @@ export const SettingsEditor = () => {
           showButtons
           size={3}
           value={getRecord(field) as number}
-        />)
+        />, help)
     );
   }, [getLine, getRecord, newData]);
 
 
-  const getPasswordLine = React.useCallback((field: string) => {
+  const getPasswordLine = React.useCallback((field: string, warning?: string | null) => {
     const label = GetMessage(field);
+    const help = getHelp(field);
+
     return (
       getLine(label + ':',
-        <Password
-          className="withpadding"
-          feedback={false}
-          onChange={(e) => setNewData({ ...newData, [field]: e.target.value })}
-          placeholder={label}
-          toggleMask
-          value={getRecordString(field)}
-        />)
+        <span>
+          <Password
+            className="withpadding"
+            feedback={false}
+            onChange={(e) => setNewData({ ...newData, [field]: e.target.value })}
+            placeholder={label}
+            toggleMask
+            value={getRecordString(field)}
+          />
+          <br />
+          {(warning !== null && warning !== undefined) && <span className="text-xs text-orange-500">{warning}</span>}
+        </span >
+        , help)
     );
   }, [getLine, getRecordString, newData]);
 
-  const getInputTextLine = React.useCallback((field: string) => {
+  const getInputTextLine = React.useCallback((field: string, warning?: string | null) => {
     const label = GetMessage(field);
+    const help = getHelp(field);
+
     return (
       getLine(label + ':',
-        <InputText
-          className="withpadding w-full text-left"
-          onChange={(e) => setNewData({ ...newData, [field]: e.target.value })}
-          placeholder={label}
-          value={getRecordString(field)}
-        />)
+        <span>
+          <InputText
+            className="withpadding w-full text-left"
+            id={field}
+            onChange={(e) => setNewData({ ...newData, [field]: e.target.value })}
+            placeholder={label}
+            value={getRecordString(field)}
+          />
+          <br />
+          {(warning !== null && warning !== undefined) && <span className="text-xs text-orange-500">{warning}</span>}
+        </span>
+        , help
+      )
     );
+
+
   }, [getLine, getRecordString, newData]);
 
   const getCheckBoxLine = React.useCallback((field: string) => {
     const label = GetMessage(field);
+    const help = getHelp(field);
     return (
       getLine(label + ':',
         <Checkbox
@@ -146,11 +203,10 @@ export const SettingsEditor = () => {
           onChange={(e) => setNewData({ ...newData, [field]: !e.target.value })}
           placeholder={label}
           value={getRecord(field) as boolean}
-        />)
+        />, help)
+
     );
   }, [getLine, getRecord, newData]);
-
-
 
   const getHandlersOptions = (): SelectItem[] => {
     const test = Object.entries(StreamingProxyTypes)
@@ -165,8 +221,22 @@ export const SettingsEditor = () => {
     return test;
   };
 
+  const getAuthTypeOptions = (): SelectItem[] => {
+    const test = Object.entries(AuthenticationType)
+      .splice(0, Object.keys(AuthenticationType).length / 2)
+      .map(([number, word]) => {
+        return {
+          label: word,
+          value: number,
+        } as SelectItem;
+      });
+
+    return test;
+  };
+
   const getDropDownLine = React.useCallback((field: string, options: SelectItem[]) => {
     const label = GetMessage(field);
+    const help = getHelp(field);
     return (
       <>
         {
@@ -177,7 +247,7 @@ export const SettingsEditor = () => {
               options={options}
               placeholder={label}
               value={getRecordString(field)}
-            />)
+            />, help)
         }
       </>
     );
@@ -191,13 +261,18 @@ export const SettingsEditor = () => {
     UpdateSetting(newData)
       .then((returnData) => {
         if (toast.current) {
-          if (returnData) {
+          if (returnData.settings) {
             toast.current.show({
               detail: `Update Settings Successful`,
               life: 3000,
               severity: 'success',
               summary: 'Successful',
             });
+
+            if (returnData.needsLogOut === true) {
+              //             window.location.href = '/logout'
+            }
+
           } else {
             toast.current.show({
               detail: `Update Settings Failed`,
@@ -217,7 +292,7 @@ export const SettingsEditor = () => {
           });
         }
       });
-  }, [isSaveEnabled, newData, toast]);
+  }, [isSaveEnabled, newData]);
 
   const items: MenuItem[] = [
     {
@@ -239,15 +314,6 @@ export const SettingsEditor = () => {
     },
   ];
 
-
-  if (newData === undefined || newData === null || newData.deviceID === undefined || settingsQuery.isLoading) {
-    return (
-      <>
-        Loading...
-      </>
-    )
-  }
-
   return (
 
     <div className="settingsEditor">
@@ -264,7 +330,41 @@ export const SettingsEditor = () => {
             {getInputTextLine('deviceID')}
             {getCheckBoxLine('cleanURLs')}
             {getInputTextLine('ffmPegExecutable')}
+            {getCheckBoxLine('enableSSL')}
+            {
+              (newData.enableSSL === true) &&
+              <>
+                {getInputTextLine('sslCertPath', GetMessage('changesServiceRestart'))}
+                {getPasswordLine('sslCertPassword', GetMessage('changesServiceRestart'))}
+              </>
+            }
             {getCheckBoxLine('overWriteM3UChannels')}
+          </Fieldset>
+
+          <Fieldset className="mt-4 pt-10" legend={GetMessage('authenticatio')}>
+            {getInputTextLine('apiKey')}
+            {getDropDownLine('authenticationMethod', getAuthTypeOptions())}
+            {getInputTextLine('adminUserName', adminUserNameError)}
+            {getPasswordLine('adminPassword', adminPasswordError)}
+            <div className='flex col-12'>
+              <div className='flex col-2 col-offset-1'>
+                <span>{GetMessage('signout')}</span>
+              </div>
+              <div className='flex col-3 m-0 p-0 debug'>
+                <Button
+                  disabled={!setting.authenticationType || setting.authenticationType as number === 0}
+                  icon="pi pi-check"
+                  label={GetMessage('signout')}
+                  onClick={() =>
+                    window.location.href = '/logout'
+                  }
+                  rounded
+                  severity="success"
+                  size="small"
+                />
+              </div>
+            </div>
+
           </Fieldset>
 
           <Fieldset className="mt-4 pt-10" legend={GetMessage('streaming')}>
@@ -303,4 +403,6 @@ export const SettingsEditor = () => {
 };
 
 SettingsEditor.displayName = 'Settings';
+
+
 export default React.memo(SettingsEditor);

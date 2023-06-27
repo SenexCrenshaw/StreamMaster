@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-
-using FluentValidation;
+﻿using FluentValidation;
 
 using MediatR;
 
@@ -26,18 +24,13 @@ public class GetStreamGroupLineUpStatusValidator : AbstractValidator<GetStreamGr
 
 public class GetStreamGroupLineUpStatusHandler : IRequestHandler<GetStreamGroupLineUpStatus, string>
 {
-    private readonly IAppDbContext _context;
-
-    private readonly IMapper _mapper;
     private readonly ISender _sender;
 
     public GetStreamGroupLineUpStatusHandler(
-            IMapper mapper,
-            ISender sender,
-            IAppDbContext context)
+
+            ISender sender
+           )
     {
-        _mapper = mapper;
-        _context = context;
         _sender = sender;
     }
 

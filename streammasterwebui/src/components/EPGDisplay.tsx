@@ -1,17 +1,18 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
+/* eslint-disable @typescript-eslint/prefer-ts-expect-error */
 import React from "react";
-import * as StreamMasterApi from '../store/iptvApi';
-
 import { Epg, Layout } from 'planby';
 import ChannelItem from './epg/ChannelItem';
 import ProgramComponent from './epg/ProgramItem';
 import Timeline from './epg/Timeline';
 import { useApp } from "./epg/useApp";
+import { StreamGroupSelector } from "./StreamGroupSelector";
+import { type StreamGroupDto } from "../store/iptvApi";
+import { useLocalStorage } from "primereact/hooks";
 
 const EPGDisplay = (props: EPGDisplayProps) => {
+  const [streamGroup, setStreamGroup] = useLocalStorage<StreamGroupDto>({ id: 0 } as StreamGroupDto, 'videoPlayerDialog-streamGroupNumber');
 
-  const { isLoading, getEpgProps, getLayoutProps } = useApp();
+  const { isLoading, getEpgProps, getLayoutProps } = useApp(streamGroup.id);
 
   const onVideoStreamClick = React.useCallback((videoStreamId: number) => {
     props.onClick?.(videoStreamId);
@@ -22,22 +23,31 @@ const EPGDisplay = (props: EPGDisplayProps) => {
   }
 
   return (
-    <div className="opacity-80" style={{ height: "50vh", width: "100vw" }}>
+    <div className="opacity-80" onMouseEnter={props.onMouseEnter} onMouseLeave={props.onMouseLeave} style={{ height: "50vh", width: "100vw" }}>
 
       {props.hidden !== true && (
-        <Epg isLoading={isLoading} {...getEpgProps()}>
-          <Layout
-            {...getLayoutProps()}
-            renderChannel={({ channel }) => (
-              <ChannelItem channel={channel} key={channel.uuid} />
-            )}
-            renderProgram={({ program, ...rest }) => (
-              <ProgramComponent key={program.data.id} program={program} {...rest} onClick={onVideoStreamClick} />
-            )}
-            renderTimeline={(props2) => <Timeline {...props2} />}
-          />
-        </Epg>
-      )}
+        <>
+          <StreamGroupSelector
+            onChange={(e) => {
+              setStreamGroup(e)
+            }
+            } />
+          <Epg isLoading={isLoading} {...getEpgProps()}>
+            {/* @ts-ignore */}
+            <Layout
+              {...getLayoutProps()}
+              renderChannel={({ channel }) => (
+                <ChannelItem channel={channel} key={channel.uuid} />
+              )}
+              renderProgram={({ program, ...rest }) => (
+                <ProgramComponent key={program.data.id} program={program} {...rest} onClick={onVideoStreamClick} />
+              )}
+              renderTimeline={(props2) => <Timeline {...props2} />}
+            />
+          </Epg>
+        </>
+      )
+      }
 
     </div>
   );
@@ -49,8 +59,10 @@ EPGDisplay.defaultProps = {
 
 type EPGDisplayProps = {
   hidden: boolean;
-  onClick?: ((videoStreamId: number) => void);
-  streamGroupNumber: number;
+  onChange: ((value: StreamGroupDto) => void);
+  onClick: ((videoStreamId: number) => void);
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 };
 
 export default React.memo(EPGDisplay);

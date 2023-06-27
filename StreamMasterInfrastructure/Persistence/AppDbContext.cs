@@ -1,5 +1,6 @@
 using MediatR;
 
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -14,7 +15,7 @@ using System.Reflection;
 
 namespace StreamMasterInfrastructure.Persistence;
 
-public partial class AppDbContext : DbContext, IAppDbContext
+public partial class AppDbContext : DbContext, IDataProtectionKeyContext,IAppDbContext
 
 {
     private readonly ILogger<AppDbContext> _logger;
@@ -31,10 +32,12 @@ public partial class AppDbContext : DbContext, IAppDbContext
        : base(options)
     {
         _setting = FileUtil.GetSetting();
-        FileUtil.SetupDirectories();
+        //FileUtil.SetupDirectories();
 
         DbPath = Path.Join(Constants.DataDirectory, _setting.DatabaseName ?? "StreamMaster.db");
     }
+
+    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
     public AppDbContext(
         DbContextOptions<AppDbContext> options,
@@ -43,8 +46,6 @@ public partial class AppDbContext : DbContext, IAppDbContext
     // AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor
     ) : base(options)
     {
-
-
         _logger = logger;
 
         _mediator = mediator;
@@ -57,21 +58,11 @@ public partial class AppDbContext : DbContext, IAppDbContext
 
     public string DbPath { get; }
 
-    public async ValueTask ResetDBAsync(CancellationToken cancellationToken = default)
+   
+    public int SaveChanges()
     {
-        return;
-        //_ = await Icons.ExecuteDeleteAsync(cancellationToken: cancellationToken);
-        //_ = await EPGFiles.ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-        //_ = await M3UFiles.ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-
-        //_ = await M3UStreams.ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-        //_ = await ExtendedVideoStreams.ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-        _ = await StreamGroups.ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-
-        _ = await VideoStreams.ExecuteDeleteAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-
-        _ = await SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        Console.WriteLine("ResetDB ran");
+        _ = _mediator.DispatchDomainEvents(this).ConfigureAwait(false);
+        return base.SaveChanges();
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

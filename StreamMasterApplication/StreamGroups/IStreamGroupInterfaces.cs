@@ -17,19 +17,21 @@ public interface IStreamGroupController
 
     Task<IActionResult> GetAllStatisticsForAllUrls();
 
-    Task<ActionResult<StreamGroupDto>> GetStreamGroup(int id);
+    Task<ActionResult<StreamGroupDto>> GetStreamGroup(int StreamGroupNumber);
 
     Task<ActionResult<StreamGroupDto>> GetStreamGroupByStreamNumber(int StreamGroupNumber);
 
-    Task<ContentResult> GetStreamGroupEPG(int id);
+    Task<IActionResult> GetStreamGroupEPG(string encodedId);
 
     Task<ActionResult<EPGGuide>> GetStreamGroupEPGForGuide(int StreamGroupNumber);
 
-    Task<ContentResult> GetStreamGroupM3U(int id);
+    Task<IActionResult> GetStreamGroupM3U(string encodedId);
 
     Task<ContentResult> GetStreamGroupM3U2(int StreamGroupNumber);
 
     Task<ActionResult<IEnumerable<StreamGroupDto>>> GetStreamGroups();
+
+    Task<IActionResult> GetStreamGroupVideoStream(string encodedId, string name, CancellationToken cancellationToken);
 
     IActionResult SimulateStreamFailure(string streamUrl);
 
@@ -49,10 +51,8 @@ public interface IStreamGroupHub
 
     Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls();
 
-    Task<StreamGroupDto?> GetStreamGroup(int id);
-
+    Task<StreamGroupDto?> GetStreamGroup(int StreamGroupNumber);
     Task<StreamGroupDto?> GetStreamGroupByStreamNumber(int StreamGroupNumber);
-
     Task<EPGGuide> GetStreamGroupEPGForGuide(int StreamGroupNumber);
 
     Task<IEnumerable<StreamGroupDto>> GetStreamGroups();

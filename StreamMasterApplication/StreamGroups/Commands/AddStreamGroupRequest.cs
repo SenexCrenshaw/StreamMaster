@@ -4,8 +4,14 @@ using FluentValidation;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Http;
+
 using StreamMasterDomain.Attributes;
+using StreamMasterDomain.Authentication;
+using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Dto;
+
+using StreamMasterInfrastructure.Extensions;
 
 namespace StreamMasterApplication.StreamGroups.Commands;
 
@@ -40,16 +46,22 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
     private readonly IAppDbContext _context;
     private readonly IMapper _mapper;
     private readonly IPublisher _publisher;
+    private readonly IConfigFileProvider _configFileProvider;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public AddStreamGroupRequestHandler(
         IMapper mapper,
+        IConfigFileProvider configFileProvider,
         IPublisher publisher,
+         IHttpContextAccessor httpContextAccessor,
         IAppDbContext context
         )
     {
         _publisher = publisher;
         _mapper = mapper;
+        _httpContextAccessor = httpContextAccessor;
         _context = context;
+        _configFileProvider = configFileProvider;
     }
 
     public async Task<StreamGroupDto?> Handle(AddStreamGroupRequest command, CancellationToken cancellationToken)
@@ -93,8 +105,16 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
         _ = _context.StreamGroups.Add(entity);
         _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
+        var url = _httpContextAccessor.GetUrl();
+
         StreamGroupDto ret = _mapper.Map<StreamGroupDto>(entity);
+        var encodedStreamGroupNumber = ret.StreamGroupNumber.EncodeValue128(_configFileProvider.Setting.ServerKey);
+        ret.M3ULink = $"{url}/api/streamgroups/m3u/{encodedStreamGroupNumber}.m3u";
+        ret.XMLLink = $"{url}/api/streamgroups/epg/{encodedStreamGroupNumber}.xml";
+        ret.HDHRLink = $"{url}/api/streamgroups/{encodedStreamGroupNumber}";
+
         await _publisher.Publish(new StreamGroupUpdateEvent(ret), cancellationToken).ConfigureAwait(false);
         return ret;
     }
+
 }

@@ -9,6 +9,18 @@ public sealed class FileUtil
 {
     private static bool setupDirectories = false;
 
+    public static bool IsGzipCompressed(string filePath)
+    {
+        byte[] gzipSignature = new byte[] { 0x1F, 0x8B, 0x08 };
+
+        using (FileStream fs = File.OpenRead(filePath))
+        {
+            byte[] fileSignature = new byte[gzipSignature.Length];
+            fs.Read(fileSignature, 0, fileSignature.Length);
+
+            return fileSignature.SequenceEqual(gzipSignature);
+        }
+    }
     public static void CreateDirectory(string fileName)
     {
         string? directory = Path.EndsInDirectorySeparator(fileName) ? fileName : Path.GetDirectoryName(fileName);
@@ -110,8 +122,10 @@ public sealed class FileUtil
         }
     }
 
+   
     public static async Task<string> GetFileData(string source)
     {
+      
         string body = "";
         try
         {
@@ -120,8 +134,13 @@ public sealed class FileUtil
             using MemoryStream outputStream = new();
             gzStream.CopyTo(outputStream);
             byte[] outputBytes = outputStream.ToArray();
-            body = Encoding.ASCII.GetString(outputBytes);
+          
+            body = Encoding.Default.GetString(outputBytes);
             return body;
+            
+        }
+        catch (InvalidDataException ex) when (ex.Message.Contains("The archive entry was compressed using an unsupported compression method."))
+        {
         }
         catch (Exception ex)
         {
@@ -172,7 +191,7 @@ public sealed class FileUtil
                 LastDownloaded = DateTime.Now,
                 Source = $"api/files/{(int)SMFileTypes.TvLogo}/{HttpUtility.UrlEncode(name)}",
                 OriginalSource = file.FullName,
-                Url = $"{setting.BaseHostURL}api/files/{(int)SMFileTypes.TvLogo}/{HttpUtility.UrlEncode(name)}",
+                Url = $"/api/files/{(int)SMFileTypes.TvLogo}/{HttpUtility.UrlEncode(name)}",
             };
 
             tvLogo.SetFileDefinition(FileDefinitions.TVLogo);
@@ -255,6 +274,12 @@ public sealed class FileUtil
         }
     }
 
+    private static void CreateDir(string directory)
+    {
+        Console.WriteLine($"Creating directory for {directory}");
+        CreateDirectory(directory);
+    }
+
     public static void SetupDirectories(bool alwaysRun = false)
     {
         if (setupDirectories && !alwaysRun)
@@ -262,20 +287,32 @@ public sealed class FileUtil
             return;
         }
         setupDirectories = true;
-        foreach (System.Reflection.FieldInfo field in typeof(Constants).GetFields())
-        {
-            object? value = field.GetValue(null);
 
-            if (
-                value is not null &&
-                value is string &&
-                value.ToString() is not null &&
-                value.ToString()!.StartsWith(Constants.ConfigFolder))
+
+            if (setupDirectories)
             {
-                Console.WriteLine($"Creaing directory for {value}");
-                FileUtil.CreateDirectory(value.ToString()!);
+                return;
             }
-        }
+
+            setupDirectories = true;
+
+       var AppDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{Constants.AppName.ToLower()}{Path.DirectorySeparatorChar}";
+        var CacheFolder = $"{AppDataFolder}Cache{Path.DirectorySeparatorChar}";
+        var PlayListFolder = $"{AppDataFolder}PlayLists{Path.DirectorySeparatorChar}";
+        var IconDataFolder = $"{CacheFolder}Icons{Path.DirectorySeparatorChar}";
+        var ProgrammeIconDataFolder = $"{CacheFolder}ProgrammeIcons{Path.DirectorySeparatorChar}";
+
+        var PlayListEPGFolder = $"{PlayListFolder}EPG{Path.DirectorySeparatorChar}";
+        var PlayListM3UFolder = $"{PlayListFolder}M3U{Path.DirectorySeparatorChar}";
+
+        CreateDir(AppDataFolder);
+        CreateDir(CacheFolder);
+        CreateDir(IconDataFolder);
+        CreateDir(PlayListFolder);
+        CreateDir(PlayListEPGFolder);
+        CreateDir(PlayListM3UFolder);
+        CreateDir(ProgrammeIconDataFolder);
+
     }
 
     public static void UpdateSetting(Setting setting)

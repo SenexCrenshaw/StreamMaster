@@ -94,8 +94,8 @@ const QueueStatus = () => {
               header="Running"
               key="isRunning"
               style={{
-                maxWidth: '20rem',
-                width: '20rem'
+                maxWidth: '10rem',
+                width: '10rem'
               }}
             />
 
@@ -112,8 +112,8 @@ const QueueStatus = () => {
               header="Queued Time"
               key="queueTS"
               style={{
-                maxWidth: '14rem',
-                width: '14rem'
+                maxWidth: '16rem',
+                width: '16rem'
               }}
 
             />
@@ -124,8 +124,8 @@ const QueueStatus = () => {
               header="Start Time"
               key="startTS"
               style={{
-                maxWidth: '14rem',
-                width: '14rem'
+                maxWidth: '16rem',
+                width: '16rem'
               }}
 
             />
@@ -135,8 +135,8 @@ const QueueStatus = () => {
               header="Stop Time"
               key="stopTS"
               style={{
-                maxWidth: '14rem',
-                width: '14rem'
+                maxWidth: '16rem',
+                width: '16rem'
               }}
             />
 
@@ -144,8 +144,8 @@ const QueueStatus = () => {
               body={elaspsedTemplate}
               header="Elapsed Seconds"
               style={{
-                maxWidth: '8rem',
-                width: '8rem'
+                maxWidth: '10rem',
+                width: '10rem'
               }}
             />
           </DataTable>

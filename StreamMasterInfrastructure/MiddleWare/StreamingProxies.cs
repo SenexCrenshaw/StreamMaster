@@ -15,19 +15,22 @@ public static class StreamingProxies
     {
         Setting setting = FileUtil.GetSetting();
 
-        if (!File.Exists(setting.FFMPegExecutable))
-        {
+        var ffmpegExec = Path.Combine(Constants.ConfigFolder, setting.FFMPegExecutable);
+
+        if (!File.Exists(ffmpegExec) && !File.Exists(ffmpegExec+".exe"))
+        {       
             if (!IsFFmpegAvailable())
             {
                 ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = $"FFmpeg executable file not found: {setting.FFMPegExecutable}" };
                 return (null, -1, error);
             }
+            ffmpegExec = "ffmpeg";        
         }
 
         try
         {
             using Process process = new();
-            process.StartInfo.FileName = setting.FFMPegExecutable;
+            process.StartInfo.FileName = ffmpegExec;
             process.StartInfo.Arguments = $"-hide_banner -loglevel error -i \"{streamUrl}\" -c copy -f mpegts pipe:1 -user_agent \"streammaster\"";
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.UseShellExecute = false;

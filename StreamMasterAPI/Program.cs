@@ -1,6 +1,12 @@
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
 using StreamMasterAPI;
+using StreamMasterAPI.Services;
 
 using StreamMasterApplication;
+using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.Hubs;
 
 using StreamMasterDomain.Common;
@@ -8,62 +14,45 @@ using StreamMasterDomain.Common;
 using StreamMasterInfrastructure;
 using StreamMasterInfrastructure.Persistence;
 
-using System.Text;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography;
 using System.Text.Json.Serialization;
-
-Setting setting = FileUtil.GetSetting();
-if (!setting.BaseHostURL.EndsWith('/'))
-{
-    setting.BaseHostURL += '/';
-    FileUtil.UpdateSetting(setting);
-}
-
-string? _urlBase = Environment.GetEnvironmentVariable("STREAMMASTER_BASEHOSTURL");
-
-if (string.IsNullOrEmpty(_urlBase))
-{
-    _urlBase =setting.BaseHostURL;
-
-}
-
-if (!_urlBase.EndsWith('/'))
-{
-    _urlBase += '/';
-}
-
-if (_urlBase != setting.BaseHostURL)
-{
-    setting.BaseHostURL = _urlBase;
-    FileUtil.UpdateSetting(setting);
-}
-
-string indexFilePath = Path.GetFullPath("wwwroot") + Path.DirectorySeparatorChar + "initialize.js";
-
-Console.WriteLine($"Writing {_urlBase} information to {indexFilePath}");
-
-StringBuilder scriptBuilder = new();
-scriptBuilder.AppendLine("window.StreamMaster = {");
-scriptBuilder.AppendLine($"  baseHostURL: '{_urlBase}',");
-scriptBuilder.AppendLine($"  hubName: 'streammasterhub',");
-scriptBuilder.AppendLine($"  isDev: false,");
-scriptBuilder.AppendLine("};");
-File.WriteAllText(indexFilePath, scriptBuilder.ToString());
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.ConfigureKestrel((context, serverOptions) =>
 {
+    serverOptions.AllowSynchronousIO = true;
+    serverOptions.Limits.MaxRequestBodySize = null;    
 });
 
-builder.Services.AddCors(options =>
+var appDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{Constants.AppName.ToLower()}{Path.DirectorySeparatorChar}";
+var settingFile = $"{appDataFolder}settings.json";
+
+builder.Configuration.AddJsonFile(settingFile, true,false);
+builder.Services.Configure<Setting>(builder.Configuration);
+
+var enableSsl = false;
+
+var sslCertPath = builder.Configuration["SSLCertPath"];
+var sslCertPassword = builder.Configuration["sslCertPassword"];
+
+if (!bool.TryParse(builder.Configuration["EnableSSL"], out enableSsl))
 {
-    options.AddPolicy("CorsPolicy", builder => builder
-        //.WithOrigins("http://localhost:3000")
-        .AllowAnyOrigin()
-        .AllowAnyMethod()
-        .AllowAnyHeader()
-        );
-});
+}
+
+var urls = new List<string> { "http://0.0.0.0:7095" };
+
+if (enableSsl && !string.IsNullOrEmpty(sslCertPath))
+{
+    urls.Add("https://0.0.0.0:7096");
+}
+
+builder.WebHost.UseUrls(urls.ToArray());
+builder.WebHost.ConfigureKestrel(options =>
+options.ConfigureHttpsDefaults(configureOptions =>
+   configureOptions.ServerCertificate = ValidateSslCertificate(Path.Combine(appDataFolder, sslCertPath), sslCertPassword)
+));
 
 // Add services to the container.
 builder.Services.AddApplicationServices();
@@ -80,30 +69,33 @@ builder.Services.AddControllers(options =>
     options.RespectBrowserAcceptHeader = true;
     options.ReturnHttpNotAcceptable = true;
 }).AddXmlSerializerFormatters()
-.AddJsonOptions (options =>
+.AddJsonOptions(options =>
 {
-options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
 WebApplication app = builder.Build();
 
-app.UseHttpLogging();
+app.UseOpenApi();
+app.UseSwaggerUi3();
 
-_ = app.UseMigrationsEndPoint();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     _ = app.UseDeveloperExceptionPage();
     _ = app.UseMigrationsEndPoint();
+    app.UseForwardedHeaders();
 }
 else
 {
-    // The default HSTS value is 30 days. You may want to change this for
-    // production scenarios, see https://aka.ms/aspnetcore-hsts.
     _ = app.UseExceptionHandler("/Error");
+    app.UseForwardedHeaders();
     _ = app.UseHsts();
 }
+
+app.UseHttpLogging();
+
+_ = app.UseMigrationsEndPoint();
 
 app.UseSession();
 
@@ -114,27 +106,115 @@ using (IServiceScope scope = app.Services.CreateScope())
     await initialiser.InitialiseAsync().ConfigureAwait(false);
     if (app.Environment.IsDevelopment())
     {
-         initialiser.TrySeed();
+        initialiser.TrySeed();
     }
 }
 
-app.UseCors("CorsPolicy");
+
+
+//app.UseMiddleware<AuthMiddleware>();
 
 app.UseHealthChecks("/health");
 //app.UseHttpsRedirection();
 
-app.UseOpenApi();
-app.UseSwaggerUi3();
 app.UseDefaultFiles();
-app.UseStaticFiles();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "devwwwroot")),
+        RequestPath = "/devwwwroot"
+    });
+}
+else
+{
+    app.UseStaticFiles();
+}
+
 app.UseRouting();
+app.UseWebSockets();
+
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("DevPolicy");
+}
+else
+{
+    app.UseCors();
+}
+
+//app.UseCors();
+app.UseAuthentication();
+
 //app.UseHttpsRedirection();
+app.UseAuthorization();
+//app.UseResponseCompression();
 
 app.MapHealthChecks("/healthz");
 app.MapDefaultControllerRoute();
 
-app.MapHub<StreamMasterHub>("/streammasterhub");
+app.UseEndpoints(endpoints =>
+{
+    endpoints.Map("/swagger", context =>
+    {
+        context.Response.Redirect("/swagger/index.html");
+        return Task.CompletedTask;
+    });
 
-app.MapFallbackToFile("index.html");
+    endpoints.MapGet("/routes", async context =>
+    {
+        var endpointDataSource = context.RequestServices.GetRequiredService<EndpointDataSource>();
+
+        foreach (var endpoint in endpointDataSource.Endpoints)
+        {
+            var routePattern = GetRoutePattern(endpoint);
+
+            await context.Response.WriteAsync($"Route: {routePattern}\n");
+        }
+    });
+
+    app.MapHub<StreamMasterHub>("/streammasterhub").RequireAuthorization("SignalR");
+});
+
 
 app.Run();
+
+string GetRoutePattern(Endpoint endpoint)
+{
+    var routeEndpoint = endpoint as RouteEndpoint;
+
+    if (routeEndpoint is not null)
+    {
+        return routeEndpoint.RoutePattern.RawText;
+    }
+
+    return "<unknown>";
+}
+
+ static string BuildUrl(string scheme, string bindAddress, int port)
+{
+    return $"{scheme}://{bindAddress}:{port}";
+}
+
+ static X509Certificate2 ValidateSslCertificate(string cert, string password)
+{
+    X509Certificate2 certificate;
+
+    try
+    {
+        certificate = new X509Certificate2(cert, password, X509KeyStorageFlags.DefaultKeySet);
+    }
+    catch (CryptographicException ex)
+    {
+        if (ex.HResult == 0x2 || ex.HResult == 0x2006D080)
+        {
+            throw new Exception($"The SSL certificate file {cert} does not exist: {ex.Message}");
+        }
+
+        throw;
+    }
+
+    return certificate;
+}

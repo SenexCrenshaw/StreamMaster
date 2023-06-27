@@ -9,12 +9,12 @@ import { Checkbox } from 'primereact/checkbox';
 import NumberEditorBodyTemplate from './NumberEditorBodyTemplate';
 import StringEditorBodyTemplate from './StringEditorBodyTemplate';
 import { type ColumnMeta } from '../features/dataSelector/DataSelectorTypes';
-import { useSessionStorage } from 'primereact/hooks';
+import { useLocalStorage } from 'primereact/hooks';
 
 const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
 
-  const [selectedM3UFile, setSelectedM3UFile] = useSessionStorage<StreamMasterApi.M3UFilesDto>({ id: 0, name: 'All' } as StreamMasterApi.M3UFilesDto, 'M3UFilesDataSelector-selectedM3UFile');
+  const [selectedM3UFile, setSelectedM3UFile] = useLocalStorage<StreamMasterApi.M3UFilesDto>({ id: 0, name: 'All' } as StreamMasterApi.M3UFilesDto, 'M3UFilesDataSelector-selectedM3UFile');
 
   const m3UFilesQuery = StreamMasterApi.useM3UFilesGetM3UFilesQuery();
 

@@ -10,11 +10,8 @@ using StreamMasterApplication.VideoStreams;
 namespace StreamMasterApplication.Common.Interfaces;
 
 public interface ISharedHub :
-    ITaskHub,
-
     IChannelGroupHub,
     IEPGFileHub,
-
     IM3UFileHub,
     IVideoStreamHub,
     IIconHub,
@@ -25,30 +22,23 @@ public interface ISharedHub :
 }
 
 public interface ISharedTasks :
-    ITasks,
-
     IChannelGroupTasks,
     IEPGFileTasks,
-
     IM3UFileTasks,
     IVideoStreamTasks,
     IIconTasks,
     IStreamGroupTasks,
     IProgrammeChannelTasks,
     ISettingTasks
-
 {
 }
 
 public interface ISharedDB :
-    ITaskDB,
     IChannelGroupDB,
-
     IEPGFileDB,
-
     IM3UFileDB,
     IIconDB,
-        IVideoStreamDB,
+    IVideoStreamDB,
     IStreamGroupDB,
     IProgrammeChannelDB,
     ISettingDB

@@ -68,7 +68,7 @@ internal class GetIconsQueryHandler : IRequestHandler<GetIcons, List<IconFileDto
 
             _ = Parallel.ForEach(allIcons, po, icon =>
             {
-                string IconSource = Helpers.GetIPTVChannelIconSources(icon.Source, setting, allIcons);
+                string IconSource = Helpers.GetIPTVChannelIconSources(icon.Source, setting, "/", allIcons);
                 icon.Id = count++;
                 icon.Source = IconSource;
                 icon.Url = IconSource;

@@ -11,14 +11,23 @@ using StreamMasterApplication.Hubs;
 
 using StreamMasterDomain.Dto;
 
+using static StreamMasterApplication.Settings.Commands.UpdateSettingHandler;
+
 namespace StreamMasterApplication.Settings.Commands;
 
-public class UpdateSettingRequest : IRequest<SettingDto>
+public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
 {
+    public AuthenticationType? AuthenticationMethod { get; set; }
+    public string? AdminPassword { get; set; }
+    public string? AdminUserName { get; set; }
+    public string? ApiKey { get; set; }
+    public bool? EnableSSL { get; set; }
     public bool? CacheIcons { get; set; }
     public bool? CleanURLs { get; set; }
     public string? DeviceID { get; set; }
     public string? FFMPegExecutable { get; set; }
+    public string? SSLCertPath { get; set; }
+    public string? SSLCertPassword { get; set; }
     public long? FirstFreeNumber { get; set; }
     public int? MaxConnectRetry { get; set; }
     public int? MaxConnectRetryTimeMS { get; set; }
@@ -34,7 +43,7 @@ public class UpdateSettingValidator : AbstractValidator<UpdateSettingRequest>
 {
 }
 
-public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, SettingDto>
+public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
 {
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
     private readonly ILogger<UpdateSettingRequest> _logger;
@@ -47,11 +56,16 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Settin
         _hubContext = hubContext;
     }
 
-    public async Task<SettingDto> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
+    public class UpdateSettingResponse {
+       public  SettingDto Settings { get; set; }
+        public bool NeedsLogOut { get; set; }
+    }
+
+    public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
     {
         Setting currentSetting = FileUtil.GetSetting();
 
-        UpdateSetting(currentSetting, request);
+        bool needsLogOut = UpdateSetting(currentSetting, request);
 
         _logger.LogInformation("UpdateSettingRequest");
         FileUtil.UpdateSetting(currentSetting);
@@ -59,7 +73,7 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Settin
         SettingDto ret = _mapper.Map<SettingDto>(currentSetting);
         await _hubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
 
-        return ret;
+        return new UpdateSettingResponse{ Settings = ret, NeedsLogOut = needsLogOut };
     }
 
     /// <summary>
@@ -68,8 +82,9 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Settin
     /// <param name="currentSetting">The current setting.</param>
     /// <param name="request">The update setting request.</param>
     /// <returns>The updated setting as a SettingDto object.</returns>
-    private static void UpdateSetting(Setting currentSetting, UpdateSettingRequest request)
+    private static bool UpdateSetting(Setting currentSetting, UpdateSettingRequest request)
     {
+        bool needsLogOut = false;
         if (request.CacheIcons != null && request.CacheIcons != currentSetting.CacheIcons)
         {
             currentSetting.CacheIcons = (bool)request.CacheIcons;
@@ -80,10 +95,41 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Settin
             currentSetting.CleanURLs = (bool)request.CleanURLs;
         }
 
+        if (request.EnableSSL != null && request.EnableSSL != currentSetting.EnableSSL)
+        {
+            currentSetting.EnableSSL = (bool)request.EnableSSL;
+        }
+
+        if (request.SSLCertPath != null && request.SSLCertPath != currentSetting.SSLCertPath)
+        {
+            currentSetting.SSLCertPath = request.SSLCertPath;
+        }
+
+        if (request.SSLCertPassword != null && request.SSLCertPassword != currentSetting.SSLCertPassword)
+        {
+            currentSetting.SSLCertPassword = request.SSLCertPassword;
+        }
+
         if (request.OverWriteM3UChannels != null && request.OverWriteM3UChannels != currentSetting.OverWriteM3UChannels)
         {
             currentSetting.OverWriteM3UChannels = (bool)request.OverWriteM3UChannels;
         }
+        if (!string.IsNullOrEmpty(request.ApiKey) && request.ApiKey != currentSetting.ApiKey)
+        {
+            currentSetting.ApiKey = request.ApiKey;
+        }
+
+        if (request.AdminPassword != null && request.AdminPassword != currentSetting.AdminPassword)
+        {
+            currentSetting.AdminPassword = request.AdminPassword;
+            needsLogOut = true;
+        }
+
+        if (request.AdminUserName != null && request.AdminUserName != currentSetting.AdminUserName)
+        {
+            currentSetting.AdminUserName = request.AdminUserName;
+            needsLogOut = true;
+        }   
 
         if (!string.IsNullOrEmpty(request.DeviceID) && request.DeviceID != currentSetting.DeviceID)
         {
@@ -115,24 +161,28 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Settin
             currentSetting.RingBufferSizeMB = (int)request.RingBufferSizeMB;
         }
 
-        if (!string.IsNullOrEmpty(request.SDPassword) && request.SDPassword != currentSetting.SDPassword)
+        if (request.SDPassword != null && request.SDPassword != currentSetting.SDPassword)
         {
             currentSetting.SDPassword = request.SDPassword;
         }
 
-        if (!string.IsNullOrEmpty(request.SDUserName) && request.SDUserName != currentSetting.SDUserName)
+        if (request.SDUserName != null && request.SDUserName != currentSetting.SDUserName)
         {
             currentSetting.SDUserName = request.SDUserName;
-        }
-
-        if (request.SourceBufferPreBufferPercentage != null && request.SourceBufferPreBufferPercentage >= 0 && request.SourceBufferPreBufferPercentage != currentSetting.SourceBufferPreBufferPercentage)
-        {
-            currentSetting.SourceBufferPreBufferPercentage = (int)request.SourceBufferPreBufferPercentage;
         }
 
         if (request.StreamingProxyType != null && request.StreamingProxyType != currentSetting.StreamingProxyType)
         {
             currentSetting.StreamingProxyType = (StreamingProxyTypes)request.StreamingProxyType;
         }
+
+
+        if (request.AuthenticationMethod != null && request.AuthenticationMethod != currentSetting.AuthenticationMethod)
+        {
+            needsLogOut = true;
+            currentSetting.AuthenticationMethod = (AuthenticationType)request.AuthenticationMethod;
+        }
+
+        return needsLogOut;
     }
 }

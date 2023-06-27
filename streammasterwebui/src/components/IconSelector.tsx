@@ -11,6 +11,7 @@ import { getTopToolOptions } from '../common/common';
 
 import { ResetLogoIcon } from '../common/icons';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
+import { baseHostURL, isDev } from '../settings';
 
 const IconSelector = (props: IconSelectorProps) => {
 
@@ -21,7 +22,7 @@ const IconSelector = (props: IconSelectorProps) => {
   const icons = useIconsGetIconsQuery();
 
 
-  React.useMemo(() => {
+  React.useEffect(() => {
     if (!icons.data) {
       return;
     }
@@ -31,22 +32,18 @@ const IconSelector = (props: IconSelectorProps) => {
 
       if (tests && tests !== undefined && tests.length > 0) {
         setSelectedIcon(tests[0]);
-
-        return;
       }
     }
 
     if (props.resetValue) {
-      const tests = icons.data.filter((a: IconFileDto) => a.url === props.resetValue);
+      const tests = icons.data.filter((a: IconFileDto) => a.originalSource === props.resetValue);
 
       if (tests && tests !== undefined && tests.length > 0) {
         setResetIcon(tests[0]);
-
-        return;
       }
     }
 
-  }, [icons.data, props.value, props.resetValue]);
+  }, [icons, props.value, props.resetValue]);
 
 
   const onChange = React.useCallback((event: DropdownChangeEvent) => {
@@ -67,12 +64,19 @@ const IconSelector = (props: IconSelectorProps) => {
       // );
     }
 
+    let selectedTemplateurl = option.url ?? setting.defaultIcon;
+
+    if (isDev && selectedTemplateurl && !selectedTemplateurl.startsWith('http')) {
+      selectedTemplateurl = baseHostURL + selectedTemplateurl;
+    }
+
+
     return (
       <div className='flex h-full justify-content-start align-items-center p-0 m-0 pl-2'>
         <LazyLoadImage
           alt={option.name}
           loading="lazy"
-          src={option.url}
+          src={selectedTemplateurl}
           style={{
             maxWidth: '1.2rem',
             objectFit: 'contain',
@@ -80,9 +84,16 @@ const IconSelector = (props: IconSelectorProps) => {
         />
       </div>
     );
-  }, []);
+  }, [setting.defaultIcon]);
 
   const iconOptionTemplate = React.useCallback((option: IconFileDto) => {
+
+    let iconOptionTemplateurl = option.url ?? setting.defaultIcon;
+
+    if (isDev && iconOptionTemplateurl && !iconOptionTemplateurl.startsWith('http')) {
+      iconOptionTemplateurl = baseHostURL + iconOptionTemplateurl;
+    }
+
     return (
       <>
         <LazyLoadImage
@@ -90,7 +101,7 @@ const IconSelector = (props: IconSelectorProps) => {
           className="flex align-items-center max-w-full h-2rem text-base text-color surface-overlay appearance-none outline-none focus:border-primary"
           loading="lazy"
 
-          src={option.url ?? setting.defaultIcon}
+          src={iconOptionTemplateurl}
         />
         <div className="white-space-normal">{option.name}</div>
       </>
@@ -143,13 +154,18 @@ const IconSelector = (props: IconSelectorProps) => {
     'p-disabled': props.disabled,
   });
 
+  let url = selectedIcon?.url ?? setting.defaultIcon;
+  if (isDev && url && !url.startsWith('http')) {
+    url = baseHostURL + url;
+  }
+
   if (props.enableEditMode !== true) {
     return (
       <img
         alt='logo'
         className="max-h-1rem"
         onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => (e.currentTarget.src = (e.currentTarget.src = setting.defaultIcon))}
-        src={selectedIcon?.url ?? setting.defaultIcon}
+        src={url}
         style={{
           maxWidth: '1.5rem',
           objectFit: 'contain',

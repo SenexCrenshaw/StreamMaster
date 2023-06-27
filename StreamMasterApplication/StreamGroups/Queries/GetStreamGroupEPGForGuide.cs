@@ -8,9 +8,10 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
+using StreamMasterApplication.Icons.Queries;
+
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Entities;
 using StreamMasterDomain.Entities.EPG;
 
 using System.Collections.Concurrent;
@@ -111,7 +112,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
 
             List<IconFile> progIcons = _context.Icons.Where(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.FileExists).ToList();
 
-            var icons = _memoryCache.Icons();
+            var icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
 
             _ = Parallel.ForEach(videoStreams, po, videoStream =>
             {
@@ -121,10 +122,15 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
                 }
 
                 IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
-                string Logo = icon != null ? icon.Source : setting.BaseHostURL + setting.DefaultIcon;
+                string Logo = icon != null ? icon.Source : "/" + setting.DefaultIcon;
 
                 EPGChannel t;
                 int dummy = 0;
+                if (string.IsNullOrEmpty(videoStream.User_Tvg_ID) || !programmes.Any(a => a.Channel.ToLower() == videoStream.User_Tvg_ID.ToLower()))
+                {
+                    videoStream.User_Tvg_ID = "dummy";
+                }
+
                 if (videoStream.User_Tvg_ID.ToLower() == "dummy")
                 {
                     dummy = GetDummy();
@@ -133,7 +139,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
                     {
                         UUID = videoStream.User_Tvg_ID + "-" + dummy,
                         Logo = Logo,
-                        channelNumber= videoStream.User_Tvg_chno
+                        channelNumber = videoStream.User_Tvg_chno
                     };
                 }
                 else
@@ -150,53 +156,63 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
 
                 if (videoStream.User_Tvg_ID != null)
                 {
-                    if (programmes.Any())
+                    if (videoStream.User_Tvg_ID.ToLower() == "dummy")
                     {
-                        IEnumerable<Programme>? progs = programmes.Where(a => a.Channel.ToLower() == videoStream.User_Tvg_ID.ToLower()).DeepCopy();
+                        var prog = new Programme();
+                        prog.Channel = videoStream.User_Tvg_ID + "-" + dummy;
 
-                        if (progs != null)
+                        prog.Title = new TvTitle
                         {
-                            foreach (Programme? p in progs)
-                            {
-                                if (p.Icon.Any())
-                                {
-                                    foreach (TvIcon progIcon in p.Icon)
-                                    {
-                                        if (progIcon != null && !string.IsNullOrEmpty(progIcon.Src))
-                                        {
-                                            IconFile? programmeIcon = progIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
+                            Lang = "en",
+                            Text = videoStream.User_Tvg_name,
+                        };
+                        prog.Desc = new TvDesc
+                        {
+                            Lang = "en",
+                            Text = videoStream.User_Tvg_name,
+                        };
+                        prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = "images/transparent.png" });
+                        prog.StartDateTime = DateTime.Now.AddHours(-1);
+                        prog.StopDateTime = DateTime.Now.AddDays(7);
 
-                                            if (programmeIcon == null)
+                        retProgrammes.Add(GetEPGProgramFromProgramme(prog, videoStream.Id));
+                    }
+                    else
+                    {
+                        if (programmes.Any())
+                        {
+                            IEnumerable<Programme>? progs = programmes.Where(a => a.Channel.ToLower() == videoStream.User_Tvg_ID.ToLower()).DeepCopy();
+
+                            if (progs != null)
+                            {
+                                foreach (Programme? p in progs)
+                                {
+                                    if (p.Icon.Any())
+                                    {
+                                        foreach (TvIcon progIcon in p.Icon)
+                                        {
+                                            if (progIcon != null && !string.IsNullOrEmpty(progIcon.Src))
                                             {
-                                                continue;
+                                                IconFile? programmeIcon = progIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
+
+                                                if (programmeIcon == null)
+                                                {
+                                                    continue;
+                                                }
+                                                string IconSource = $"/api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(programmeIcon.Source)}";
+                                                progIcon.Src = IconSource;
                                             }
-                                            string IconSource = $"{setting.BaseHostURL}api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(programmeIcon.Source)}";
-                                            progIcon.Src = IconSource;
                                         }
                                     }
-                                }
-                                else
-                                {
-                                    p.Icon.Add(new TvIcon { Height = "", Width = "", Src = "" });
-                                }
-                                p.Channel = videoStream.User_Tvg_ID;
-                                if (videoStream.User_Tvg_ID.ToLower() == "dummy")
-                                {
-                                    p.Channel = videoStream.User_Tvg_ID + "-" + dummy;
-
-                                    p.Title = new TvTitle
+                                    else
                                     {
-                                        Lang = "en",
-                                        Text = videoStream.User_Tvg_ID,
-                                    }; /// channel.Tvg_name;
-                                    p.Desc = new TvDesc
-                                    {
-                                        Lang = "en",
-                                        Text = videoStream.User_Tvg_ID,
-                                    };
-                                }
+                                        p.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = "images/transparent.png" });
+                                    }
 
-                                retProgrammes.Add(GetEPGProgramFromProgramme(p, videoStream.Id));
+                                    p.Channel = videoStream.User_Tvg_ID;
+
+                                    retProgrammes.Add(GetEPGProgramFromProgramme(p, videoStream.Id));
+                                }
                             }
                         }
                     }
@@ -205,7 +221,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
         }
 
         ret.Channels = retChannels.OrderBy(a => a.channelNumber).ToList();
-        ret.Programs = retProgrammes.OrderBy(a=>a.Since).ToList();
+        ret.Programs = retProgrammes.OrderBy(a => a.Since).ToList();
 
         return ret;
     }
@@ -240,7 +256,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
             Till = programme.StopDateTime,
             Title = programme.Title.Text ?? "",
             Image = Icon?.Src ?? "",
-            VideoStreamId= videoStreamId,
+            VideoStreamId = videoStreamId,
         };
     }
 

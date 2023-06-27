@@ -5,9 +5,6 @@ namespace StreamMasterDomain.Dto;
 public class SettingDto : Setting, IMapFrom<Setting>
 {
     public IconFileDto DefaultIconDto { get; set; }
-
-    /// <summary>
-    /// The version of the StreamMaster application.
-    /// </summary>
+    public bool RequiresAuth { get; set; } 
     public string Version { get; set; } = "0.2.10";
 }

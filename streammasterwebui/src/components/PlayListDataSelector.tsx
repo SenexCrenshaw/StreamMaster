@@ -6,7 +6,6 @@ import DataSelector from "../features/dataSelector/DataSelector";
 import { getTopToolOptions } from "../common/common";
 import { Toast } from 'primereact/toast';
 
-import { useSessionStorage } from "primereact/hooks";
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import M3UFileAddDialog from "./M3UFileAddDialog";
@@ -17,21 +16,22 @@ import ChannelGroupDeleteDialog from "./ChannelGroupDeleteDialog";
 import ChannelGroupVisibleDialog from "./ChannelGroupVisibleDialog";
 import ChannelGroupEditDialog from "./ChannelGroupEditDialog";
 import M3UFilesSelector from "./M3UFilesSelector";
+import { useLocalStorage } from "primereact/hooks";
 
 const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
   const toast = React.useRef<Toast>(null);
 
-  const [showHidden, setShowHidden] = useSessionStorage<boolean | null | undefined>(undefined, props.id + '-PlayListDataSelector-showHidden');
+  const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-PlayListDataSelector-showHidden');
 
   const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[]);
 
-  const [selectedM3UFile, setSelectedM3UFile] = useSessionStorage<StreamMasterApi.M3UFilesDto>({ id: 0, name: 'All' } as StreamMasterApi.M3UFilesDto, props.id + '-PlayListDataSelector-selectedM3UFile');
+  const [selectedM3UFile, setSelectedM3UFile] = useLocalStorage<StreamMasterApi.M3UFilesDto>({ id: 0, name: 'All' } as StreamMasterApi.M3UFilesDto, props.id + '-PlayListDataSelector-selectedM3UFile');
 
   const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
 
-  // const [sourceEnableBulk, setSourceEnableBulk] = useSessionStorage(false, props.id + '-PlayListDataSelector-sourceEnableBulk');
+  // const [sourceEnableBulk, setSourceEnableBulk] = useLocalStorage(false, props.id + '-PlayListDataSelector-sourceEnableBulk');
 
 
   // React.useEffect(() => {

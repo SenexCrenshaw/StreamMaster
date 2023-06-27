@@ -99,10 +99,12 @@ public class RingBufferManager : IDisposable, IRingBufferManager
     {
         // _logger.LogInformation("Retrieving statistics for all stream URLs");
         List<StreamStatisticsResult> allStatistics = new();
+        var infos = _streamStreamInfos.Select(a=>a.Value);
 
-        foreach (string streamUrl in _streamStreamInfos.Keys)
-        {
-            CircularRingBuffer? bufferEntry = _streamStreamInfos[streamUrl].RingBuffer;
+        foreach (var info in infos)
+        {           
+
+            CircularRingBuffer? bufferEntry = info.RingBuffer;
 
             if (bufferEntry is null)
             {
@@ -125,7 +127,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
                     InputStartTime = input.StartTime,
 
                     //InputStreamStatistics = bufferEntry.Value.GetInputStreamStatistics(),
-                    StreamUrl = streamUrl,
+                    StreamUrl = info.StreamUrl,
 
                     ClientBitsPerSecond = stat.BitsPerSecond,
                     ClientBytesRead = stat.BytesRead,
@@ -339,8 +341,9 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         }
 
         StreamStreamInfo streamStreamInfo = new(streamUrl, buffer, streamingTask, m3uFileIdMaxStream.M3UFileId, m3uFileIdMaxStream.MaxStreams, processId, cancellationTokenSource);
+        
         streamStreamInfo.M3UStream = clientInfo.M3UStream;
-        streamStreamInfo.ClientCounter = 1;
+        //streamStreamInfo.ClientCounter = 1;
 
         _ = _streamStreamInfos.TryAdd(streamUrl, streamStreamInfo);
 
@@ -428,6 +431,12 @@ public class RingBufferManager : IDisposable, IRingBufferManager
 
             return CreateAndStartBuffer(streamUrl, config);
         });
+       
+        if ( si== null)
+        {
+            _streamStreamInfos.TryRemove(streamUrl,out _);            
+            return null;
+        }
 
         var allStreamsCount = _streamStreamInfos.Where(x => x.Value.M3UFileId == si.M3UFileId).Sum(a => a.Value.ClientCounter);
 

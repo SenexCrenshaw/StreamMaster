@@ -1,4 +1,4 @@
-import { hubConnection } from '../../app/store';
+import { hubConnection } from '../../app/signalr';
 import * as StreamMasterApi from '../iptvApi';
 
 export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({

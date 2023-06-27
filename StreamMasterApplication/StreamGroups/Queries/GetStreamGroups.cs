@@ -3,26 +3,37 @@ using AutoMapper.QueryableExtensions;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
+using StreamMasterDomain.Authentication;
+using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities;
 
+using StreamMasterInfrastructure.Extensions;
+
 namespace StreamMasterApplication.StreamGroups.Queries;
 
-public record GetStreamGroups : IRequest<IEnumerable<StreamGroupDto>>;
+public record GetStreamGroups() : IRequest<IEnumerable<StreamGroupDto>>;
 
 internal class GetStreamGroupsHandler : IRequestHandler<GetStreamGroups, IEnumerable<StreamGroupDto>>
 {
+    private readonly IConfigFileProvider _configFileProvider;
     private readonly IAppDbContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
 
     public GetStreamGroupsHandler(
-        IMapper mapper,
+        IMapper mapper, 
+        IConfigFileProvider configFileProvider,
+        IHttpContextAccessor httpContextAccessor,
         IAppDbContext context)
     {
+        _httpContextAccessor = httpContextAccessor;
         _mapper = mapper;
         _context = context;
+        _configFileProvider = configFileProvider;
     }
 
     public async Task<IEnumerable<StreamGroupDto>> Handle(GetStreamGroups request, CancellationToken cancellationToken = default)
@@ -35,6 +46,7 @@ internal class GetStreamGroupsHandler : IRequestHandler<GetStreamGroups, IEnumer
            .OrderBy(x => x.Name)
            .ToListAsync(cancellationToken).ConfigureAwait(false);
 
+        var url = _httpContextAccessor.GetUrl();
 
         foreach (var streamGroup in ret)
         {
@@ -53,10 +65,25 @@ internal class GetStreamGroupsHandler : IRequestHandler<GetStreamGroups, IEnumer
                 }
                 streamGroup.VideoStreams.AddRange(streams);
             }
+            var encodedStreamGroupNumber = streamGroup.StreamGroupNumber.EncodeValue128(_configFileProvider.Setting.ServerKey);
+            streamGroup.M3ULink = $"{url}/api/streamgroups/m3u/{encodedStreamGroupNumber}.m3u";
+            streamGroup.XMLLink = $"{url}/api/streamgroups/epg/{encodedStreamGroupNumber}.xml";
+            streamGroup.HDHRLink = $"{url}/api/streamgroups/{encodedStreamGroupNumber}";
         }
 
-        ret.Insert(0, new StreamGroupDto { Id = 0, Name = "All" });
+        var encodedZero = 0.EncodeValue128(_configFileProvider.Setting.ServerKey);
+        var zeroGroup = new StreamGroupDto
+        {
+            Id = 0,
+            Name = "All",
+            M3ULink = $"{url}/api/streamgroups/m3u/{encodedZero}.m3u",
+            XMLLink = $"{url}/api/streamgroups/epg/{encodedZero}.xml",
+            HDHRLink = $"{url}/api/streamgroups/{encodedZero}",
+        };
+
+        ret.Insert(0,zeroGroup);
 
         return ret;
     }
+
 }

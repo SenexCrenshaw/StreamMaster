@@ -92,7 +92,7 @@ public class UpdateVideoStreamsRequestHandler : IRequestHandler<UpdateVideoStrea
                 VideoStreamDto videoStreamDto = _mapper.Map<VideoStreamDto>(videoStream);
 
                 IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
-                string Logo = icon != null ? icon.Source : setting.BaseHostURL + setting.DefaultIcon;
+                string Logo = icon != null ? icon.Source : "/" + setting.DefaultIcon;
 
                 videoStreamDto.User_Tvg_logo = newLogo;
 

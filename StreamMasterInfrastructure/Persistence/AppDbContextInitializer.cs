@@ -25,8 +25,7 @@ public class AppDbContextInitialiser
         {
             if (_context.Database.IsSqlite())
             {
-                await _context.Database.MigrateAsync().ConfigureAwait(false);
-                await _context.ResetDBAsync().ConfigureAwait(false);
+                await _context.Database.MigrateAsync().ConfigureAwait(false);                
             }
         }
         catch (Exception ex)
@@ -36,26 +35,7 @@ public class AppDbContextInitialiser
         }
     }
 
-    public async Task ResetDBAsync()
-    {
-        await _context.ResetDBAsync().ConfigureAwait(false);
-    }
-
-    //public async Task SeedAsync()
-    //{
-    //    try
-    //    {
-    //        TrySeed();
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        _logger.LogError(ex, "An error occurred while seeding the database.");
-    //        throw;
-    //    }
-
-    //    return Task.CompletedTask;
-    //}
-
+   
     public void TrySeed()
     {
         FileUtil.SetupDirectories();

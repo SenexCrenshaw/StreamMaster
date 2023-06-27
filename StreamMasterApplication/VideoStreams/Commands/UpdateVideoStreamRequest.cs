@@ -15,6 +15,7 @@ namespace StreamMasterApplication.VideoStreams.Commands;
 
 public class UpdateVideoStreamRequest : VideoStreamUpdate, IRequest<VideoStreamDto?>
 {
+    public string BaseHostUrl { get; set; }
 }
 
 public class UpdateVideoStreamRequestValidator : AbstractValidator<UpdateVideoStreamRequest>
@@ -85,7 +86,7 @@ public class UpdateVideoStreamRequestHandler : IRequestHandler<UpdateVideoStream
 
         if (request.ChildVideoStreams != null)
         {
-            isChanged= isChanged|| _context.SynchronizeChildRelationships(videoStream, request.ChildVideoStreams);
+            isChanged = isChanged || _context.SynchronizeChildRelationships(videoStream, request.ChildVideoStreams);
         }
 
         _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
@@ -100,9 +101,8 @@ public class UpdateVideoStreamRequestHandler : IRequestHandler<UpdateVideoStream
         ret.ChildVideoStreams = _mapper.Map<List<ChildVideoStreamDto>>(videoStreams);
 
         IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
-        string Logo = icon != null ? icon.Source : setting.BaseHostURL + setting.DefaultIcon;
+        string Logo = icon != null ? icon.Source : "/" + setting.DefaultIcon;
 
-       
         ret.User_Tvg_logo = Logo;
 
         if (isChanged)

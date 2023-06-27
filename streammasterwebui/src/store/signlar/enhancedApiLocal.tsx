@@ -1,4 +1,5 @@
-import { hubConnection } from '../../app/store';
+
+import { hubConnection } from '../../app/signalr';
 import * as StreamMasterApi from '../iptvApi';
 
 export type SetVideoStreamVisibleRet = {
@@ -205,7 +206,7 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
           };
 
           hubConnection.on(
-            'StreamStatisticsResultsUpdate',
+            'streamstatisticsresultsupdate',
             (data: StreamMasterApi.StreamStatisticsResult[]) => {
               applyResults(data);
             }

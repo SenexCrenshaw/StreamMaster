@@ -19,13 +19,13 @@ import PlayListDataSelectorPicker from './PlayListDataSelectorPicker';
 import { areVideoStreamsEqual, getTopToolOptions } from '../common/common';
 import { type TriStateCheckboxChangeEvent } from 'primereact/tristatecheckbox';
 import { TriStateCheckbox } from 'primereact/tristatecheckbox';
-import { useSessionStorage } from 'primereact/hooks';
+import { useLocalStorage } from 'primereact/hooks';
 
 const VideoStreamPanel = (props: VideoStreamPanelProps) => {
 
   const [name, setName] = React.useState<string>('');
   const [url, setUrl] = React.useState<string>('');
-  const [showHidden, setShowHidden] = useSessionStorage<boolean | null | undefined>(null, 'videostreampanel-showHidden');
+  const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(null, 'videostreampanel-showHidden');
   const [iconSource, setIconSource] = React.useState<string>('');
   const [icon, setIcon] = React.useState<StreamMasterApi.IconFileDto>({} as StreamMasterApi.IconFileDto);
 

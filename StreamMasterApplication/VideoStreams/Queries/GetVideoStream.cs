@@ -56,7 +56,7 @@ internal class GetVideoStreamHandler : IRequestHandler<GetVideoStream, VideoStre
         if (setting.CacheIcons && !string.IsNullOrEmpty(videoStreamDto.User_Tvg_logo))
         {
             IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStreamDto.User_Tvg_logo || a.Name == videoStreamDto.User_Tvg_logo);
-            string Logo = icon != null ? icon.Source : setting.BaseHostURL + setting.DefaultIcon;
+            string Logo = icon != null ? icon.Source : "/" + setting.DefaultIcon;
 
             videoStreamDto.User_Tvg_logo = Logo;
         }
@@ -70,7 +70,7 @@ internal class GetVideoStreamHandler : IRequestHandler<GetVideoStream, VideoStre
                 if (setting.CacheIcons)
                 {
                     IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == child.ChildVideoStream.User_Tvg_logo);
-                    string Logo = icon != null ? icon.Source : setting.BaseHostURL + setting.DefaultIcon;
+                    string Logo = icon != null ? icon.Source : "/" + setting.DefaultIcon;
                     child.ChildVideoStream.User_Tvg_logo = Logo;
                 }
                 var cto = _mapper.Map<ChildVideoStreamDto>(child.ChildVideoStream);

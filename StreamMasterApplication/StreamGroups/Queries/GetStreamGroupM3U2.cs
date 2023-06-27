@@ -6,6 +6,7 @@ using FluentValidation;
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterApplication.Icons.Queries;
 
@@ -32,14 +33,17 @@ public class GetStreamGroupM3U2Handler : IRequestHandler<GetStreamGroupM3U2, str
 {
     private readonly IAppDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IMemoryCache _memoryCache;
     private readonly ISender _sender;
     private readonly object Lock = new();
 
     public GetStreamGroupM3U2Handler(
            IMapper mapper,
+           IMemoryCache memoryCache,
             ISender sender,
         IAppDbContext context)
     {
+        _memoryCache = memoryCache;
         _mapper = mapper;
         _context = context;
         _sender = sender;
@@ -81,7 +85,8 @@ public class GetStreamGroupM3U2Handler : IRequestHandler<GetStreamGroupM3U2, str
 
         ConcurrentDictionary<int, string> retlist = new();
 
-        List<IconFileDto> icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
+        //List<IconFileDto> icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
+        var icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
 
         _ = Parallel.ForEach(videoStreams.OrderBy(a => a.User_Tvg_chno), po, (videoStream, state, longCid) =>
         {
@@ -93,10 +98,10 @@ public class GetStreamGroupM3U2Handler : IRequestHandler<GetStreamGroupM3U2, str
             }
 
             IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
-            string Logo = icon != null ? icon.Source : setting.BaseHostURL + setting.DefaultIcon;
+            string Logo = icon != null ? icon.Source : "/" + setting.DefaultIcon;
 
             videoStream.User_Tvg_logo = Logo;
-            string url = $"{setting.BaseHostURL}api/streamgroups/{command.StreamGroupNumber}/stream/{videoStream.Id}";
+            string url = $"/api/files/{command.StreamGroupNumber}/stream/{videoStream.Id}";
 
             string ttt = $"#EXTINF:0 CUID=\"{videoStream.CUID}\" tvg-name=\"{videoStream.User_Tvg_name}\" ";
             ttt += $"tvg-id=\"{videoStream.User_Tvg_ID}\" group-title=\"{videoStream.User_Tvg_group}\"";

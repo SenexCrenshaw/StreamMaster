@@ -2,6 +2,8 @@
 
 using MediatR;
 
+using Microsoft.AspNetCore.Http;
+
 using StreamMasterApplication.Common.Models;
 
 using StreamMasterDomain.Attributes;
@@ -26,13 +28,15 @@ public class GetStreamGroupCapabilityValidator : AbstractValidator<GetStreamGrou
 
 public class GetStreamGroupCapabilityHandler : IRequestHandler<GetStreamGroupCapability, string>
 {
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ISender _sender;
 
     public GetStreamGroupCapabilityHandler(
-
+        IHttpContextAccessor httpContextAccessor,
             ISender sender
            )
     {
+        _httpContextAccessor = httpContextAccessor;
         _sender = sender;
     }
 
@@ -49,12 +53,27 @@ public class GetStreamGroupCapabilityHandler : IRequestHandler<GetStreamGroupCap
 
         StreamMasterDomain.Dto.SettingDto setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
 
-        Capability capability = new($"{setting.BaseHostURL}api/streamgroups/{command.StreamGroupNumber}", $"{setting.DeviceID}-{command.StreamGroupNumber}");
+        var url = GetUrl();
+
+        Capability capability = new(url, $"{setting.DeviceID}-{command.StreamGroupNumber}");
 
         using Utf8StringWriter textWriter = new();
         XmlSerializer serializer = new(typeof(Capability));
         serializer.Serialize(textWriter, capability);
 
         return textWriter.ToString();
+    }
+
+    private string GetUrl()
+    {
+        var request = _httpContextAccessor.HttpContext.Request;
+        var scheme = request.Scheme;
+        var host = request.Host;
+        var path = request.Path;
+        path = path.ToString().Replace("/capability", "");
+        path = path.ToString().Replace("/device.xml", "");        
+        var url = $"{scheme}://{host}{path}";
+
+        return url;
     }
 }

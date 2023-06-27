@@ -5,7 +5,7 @@ import * as StreamMasterApi from '../store/iptvApi';
 import { getTopToolOptions } from "../common/common";
 import { Toast } from 'primereact/toast';
 import { UpdateVideoStream } from "../store/signlar_functions";
-import { useSessionStorage } from "primereact/hooks";
+import { useLocalStorage } from "primereact/hooks";
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import VideoStreamAddPanel from "./VideoStreamAddDialog";
@@ -21,14 +21,14 @@ import { type ColumnMeta } from "../features/dataSelector/DataSelectorTypes";
 import { type DataTableRowDataArray } from "primereact/datatable";
 import VideoStreamVisibleDialog from "./VideoStreamVisibleDialog";
 import VideoStreamEditDialog from "./VideoStreamEditDialog";
-import AutoMatchIconToStreamsDialog from "./AutoMatchIconToStreamsDialog";
+// import AutoMatchIconToStreamsDialog from "./AutoMatchIconToStreamsDialog";
 
 const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
 
-  const [enableEditMode, setEnableEditMode] = useSessionStorage(true, props.id + '-enableEditMode');
+  const [enableEditMode, setEnableEditMode] = useLocalStorage(true, props.id + '-enableEditMode');
   const [selectedM3UStreams, setSelectedM3UStreams] = React.useState<StreamMasterApi.VideoStreamDto[]>([] as StreamMasterApi.VideoStreamDto[]);
-  const [showHidden, setShowHidden] = useSessionStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
+  const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
   const [values, setValues] = React.useState<StreamMasterApi.VideoStreamDto[]>([] as StreamMasterApi.VideoStreamDto[]);
 
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
@@ -212,6 +212,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   }, [toast]);
 
   const logoEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
+
     return (
       <IconSelector
         className="p-inputtext-sm"
@@ -394,7 +395,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
           tooltipOptions={getTopToolOptions}
           value={showHidden} />
 
-        <AutoMatchIconToStreamsDialog ids={ids} />
+        {/* <AutoMatchIconToStreamsDialog ids={ids} /> */}
 
         <AutoSetChannelNumbers ids={ids} />
 

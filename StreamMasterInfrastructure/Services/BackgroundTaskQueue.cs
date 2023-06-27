@@ -3,6 +3,8 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.SchedulesDirect;
+
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.Hubs;
@@ -10,115 +12,135 @@ using StreamMasterApplication.Services;
 
 using StreamMasterDomain.Enums;
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Channels;
 
-namespace StreamMasterInfrastructure.Services;
-
-public partial class BackgroundTaskQueue : IBackgroundTaskQueue
+namespace StreamMasterInfrastructure.Services
 {
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
-    private readonly ILogger<BackgroundTaskQueue> _logger;
-    private readonly Channel<BackgroundTaskQueueConfig> _queue;
-    private readonly LinkedList<TaskQueueStatusDto> taskQueueStatusDtos = new();
-    private readonly ISender _sender;
-    private static object lockObject = new object();
-    
-    public BackgroundTaskQueue(int capacity, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<BackgroundTaskQueue> logger, ISender sender)
+    public partial class BackgroundTaskQueue : IBackgroundTaskQueue
     {
-        BoundedChannelOptions options = new(capacity)
+        private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
+        private readonly ILogger<BackgroundTaskQueue> _logger;
+        private readonly Channel<BackgroundTaskQueueConfig> _queue;
+        private readonly LinkedList<TaskQueueStatusDto> taskQueueStatusDtos = new LinkedList<TaskQueueStatusDto>();
+        private readonly ISender _sender;
+        private static readonly object lockObject = new object();
+
+        public BackgroundTaskQueue(int capacity, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<BackgroundTaskQueue> logger, ISender sender)
         {
-            FullMode = BoundedChannelFullMode.Wait
-        };
-        _sender = sender;
-        _hubContext = hubContext;
-        _queue = Channel.CreateBounded<BackgroundTaskQueueConfig>(options);
-        _logger = logger;
-    }
-
-    public async ValueTask<BackgroundTaskQueueConfig> DeQueueAsync(CancellationToken cancellationToken)
-    {
-        BackgroundTaskQueueConfig workItem = await _queue.Reader.ReadAsync(cancellationToken).ConfigureAwait(false);
-
-        _logger.LogInformation("Got {workItem.command} from Queue", workItem.Command);
-
-        return workItem;
-    }
-
-    public Task<List<TaskQueueStatusDto>> GetQueueStatus()
-    {
-        return Task.FromResult(taskQueueStatusDtos.OrderBy(a=>a.StartTS).ToList());
-    }
-
-    public async ValueTask SetIsSystemReady(bool isSystemReady, CancellationToken cancellationToken = default)
-    {
-        await QueueAsync(SMQueCommand.SetIsSystemReady, isSystemReady, cancellationToken).ConfigureAwait(false);
-    }
-
-    public async Task SetQueueTS(Guid Id)
-    {
-        lock (lockObject)
-        {
-            TaskQueueStatusDto status = taskQueueStatusDtos.First(a => a.Id == Id);
-            status.QueueTS = DateTime.Now;
-            status.IsRunning = true;
+            BoundedChannelOptions options = new(capacity)
+            {
+                FullMode = BoundedChannelFullMode.Wait
+            };
+            _sender = sender;
+            _hubContext = hubContext;
+            _queue = Channel.CreateBounded<BackgroundTaskQueueConfig>(options);
+            _logger = logger;
         }
-        await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(taskQueueStatusDtos).ConfigureAwait(false);
-    }
 
-    public async Task SetStart(Guid Id)
-    {
-        lock (lockObject)
+        public async ValueTask<BackgroundTaskQueueConfig> DeQueueAsync(CancellationToken cancellationToken)
         {
-            TaskQueueStatusDto status = taskQueueStatusDtos.First(a => a.Id == Id);
-            status.StartTS = DateTime.Now;
-            status.IsRunning = true;
+            BackgroundTaskQueueConfig workItem = await _queue.Reader.ReadAsync(cancellationToken).ConfigureAwait(false);
+            _logger.LogInformation("Got {workItem.command} from Queue", workItem.Command);
+            return workItem;
         }
-        await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(taskQueueStatusDtos).ConfigureAwait(false);
-    }
 
-    public async Task SetStop(Guid Id)
-    {
-        lock (lockObject)
+        public Task<List<TaskQueueStatusDto>> GetQueueStatus()
         {
-            TaskQueueStatusDto status = taskQueueStatusDtos.First(a => a.Id == Id);
-            status.StopTS = DateTime.Now;
-            status.IsRunning = false;
+            lock (lockObject)
+            {
+                return Task.FromResult(taskQueueStatusDtos.OrderBy(a => a.StartTS).ToList());
+            }
         }
-        await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(taskQueueStatusDtos).ConfigureAwait(false);
-    }
 
-    private async ValueTask QueueAsync(SMQueCommand command, CancellationToken cancellationToken = default)
-    {
-        _logger.LogInformation("Added {command} to Queue", command);
-
-        BackgroundTaskQueueConfig bq = new() { Command = command, CancellationToken = cancellationToken };
-
-        await QueueAsync(bq).ConfigureAwait(false);
-    }
-
-    private async ValueTask QueueAsync(SMQueCommand command, object entity, CancellationToken cancellationToken = default)
-    {
-        _logger.LogInformation("Added {command} to Queue", command);
-
-        BackgroundTaskQueueConfig bq = new() { Command = command, Entity = entity, CancellationToken = cancellationToken };
-        await QueueAsync(bq).ConfigureAwait(false);
-    }
-
-    private async ValueTask QueueAsync(BackgroundTaskQueueConfig workItem)
-    {
-        _logger.LogInformation("Added {workItem.command} to Queue", workItem.Command);
-
-        _ = taskQueueStatusDtos.AddFirst(new TaskQueueStatusDto
+        public async ValueTask SetIsSystemReady(bool isSystemReady, CancellationToken cancellationToken = default)
         {
-            Id = workItem.Id,
-            Command = workItem.Command.ToString(),
-        });
+            await QueueAsync(SMQueCommand.SetIsSystemReady, isSystemReady, cancellationToken).ConfigureAwait(false);
+        }
 
-        await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(taskQueueStatusDtos).ConfigureAwait(false);
-        lock (lockObject)
+        public async Task SetQueueTS(Guid Id)
         {
-            _queue.Writer.TryWrite(workItem);
-            //await _queue.Writer.WriteAsync(workItem).ConfigureAwait(false);
+            TaskQueueStatusDto? status = null;
+            lock (lockObject)
+            {
+                status = taskQueueStatusDtos.FirstOrDefault(a => a.Id == Id);
+                if (status != null)
+                {
+                    status.QueueTS = DateTime.Now;
+                    status.IsRunning = true;
+                }
+            }
+            if (status != null)
+            {
+                await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(await GetQueueStatus()).ConfigureAwait(false);
+            }
+        }
+
+        public async Task SetStart(Guid Id)
+        {
+            TaskQueueStatusDto? status = null;
+            lock (lockObject)
+            {
+                status = taskQueueStatusDtos.FirstOrDefault(a => a.Id == Id);
+                if (status != null)
+                {
+                    status.StartTS = DateTime.Now;
+                    status.IsRunning = true;
+                }
+            }
+            if (status != null)
+            {
+                await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(await GetQueueStatus()).ConfigureAwait(false);
+            }
+        }
+
+        public async Task SetStop(Guid Id)
+        {
+            TaskQueueStatusDto? status = null;
+            lock (lockObject)
+            {
+                status = taskQueueStatusDtos.FirstOrDefault(a => a.Id == Id);
+                if (status != null)
+                {
+                    status.StopTS = DateTime.Now;
+                    status.IsRunning = false;
+                }
+            }
+            if (status != null)
+            {
+                await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(await GetQueueStatus()).ConfigureAwait(false);
+            }
+        }
+
+        private async ValueTask QueueAsync(SMQueCommand command, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Added {command} to Queue", command);
+            BackgroundTaskQueueConfig bq = new BackgroundTaskQueueConfig { Command = command, CancellationToken = cancellationToken };
+            await QueueAsync(bq).ConfigureAwait(false);
+        }
+
+        private async ValueTask QueueAsync(SMQueCommand command, object entity, CancellationToken cancellationToken = default)
+        {
+            _logger.LogInformation("Added {command} to Queue", command);
+            BackgroundTaskQueueConfig bq = new BackgroundTaskQueueConfig { Command = command, Entity = entity, CancellationToken = cancellationToken };
+            await QueueAsync(bq).ConfigureAwait(false);
+        }
+
+        private async ValueTask QueueAsync(BackgroundTaskQueueConfig workItem)
+        {
+            _logger.LogInformation("Added {workItem.command} to Queue", workItem.Command);
+            lock (lockObject)
+            {
+                taskQueueStatusDtos.AddFirst(new TaskQueueStatusDto
+                {
+                    Id = workItem.Id,
+                    Command = workItem.Command.ToString(),
+                });
+            }
+            await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(await GetQueueStatus()).ConfigureAwait(false);
+            await _queue.Writer.WriteAsync(workItem).ConfigureAwait(false);
         }
     }
 }

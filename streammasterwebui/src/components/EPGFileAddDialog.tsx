@@ -8,6 +8,12 @@ import type * as StreamMasterApi from '../store/iptvApi';
 const EPGFileAddDialog = (props: EPGFilesEditorProps) => {
   const op = React.useRef<OverlayPanel>(null);
 
+  // let EPGFileAddDialogurl = '/images/epg_iconx32.png'
+
+  // if (isDev && EPGFileAddDialogurl && !EPGFileAddDialogurl.startsWith('http')) {
+  //   EPGFileAddDialogurl = baseHostURL + EPGFileAddDialogurl;
+  // }
+
   return (
     <div className="flex justify-content-center align-items-center max-h-2rem" >
       <Button
@@ -18,7 +24,8 @@ const EPGFileAddDialog = (props: EPGFilesEditorProps) => {
         tooltip="EPG Files Selector"
         tooltipOptions={getTopToolOptions}
       >
-        <img alt="logo" src="/images/epg_iconx32.png"
+
+        <img alt="logo" src='/images/epg_iconx32.png'
           style={{
             height: '1.5rem',
           }}

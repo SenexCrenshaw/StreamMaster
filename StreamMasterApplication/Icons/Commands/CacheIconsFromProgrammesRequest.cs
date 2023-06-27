@@ -108,10 +108,10 @@ public class CacheIconsFromEPGsRequestHandler : IRequestHandler<CacheIconsFromEP
                 Console.WriteLine($"CacheIconsFromEPGs {count} of {icons.Count}");
             }
 
-            if (icon.Contains("deba6af644347122056ec73f6b885215ff4534230b214addfc795ae7db60c38f"))
-            {
-                var aaa = 1;
-            }
+            //if (icon.Contains("deba6af644347122056ec73f6b885215ff4534230b214addfc795ae7db60c38f"))
+            //{
+            //    var aaa = 1;
+            //}
 
             string source = HttpUtility.UrlDecode(icon);
             string tocheck = source;

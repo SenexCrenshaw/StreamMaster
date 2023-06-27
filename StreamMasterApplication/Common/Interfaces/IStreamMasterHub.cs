@@ -3,6 +3,7 @@ using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Queries;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Entities.EPG;
 
 namespace StreamMasterApplication.Common.Interfaces;
 
@@ -23,6 +24,8 @@ public interface IStreamMasterHub : ISharedHub
     Task EPGFilesDtosUpdate(IEnumerable<EPGFilesDto> results);
    Task EPGFilesDtoUpdate(EPGFilesDto result);
     Task IconFileDTODelete(int result);
+
+    Task ProgrammeNamesUpdate(IEnumerable<Programme> results);
 
    Task IconFileDTOesUpdate(IEnumerable<IconFileDto> results);
 

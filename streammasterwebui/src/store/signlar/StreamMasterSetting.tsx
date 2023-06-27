@@ -1,5 +1,6 @@
 import React from 'react';
 import * as StreamMasterApi from '../iptvApi';
+import { AuthenticationType } from '../streammaster_enums';
 
 const StreamMasterSetting = (): StreamMasterSettingResponse => {
   const settingsQuery = StreamMasterApi.useSettingsGetSettingQuery();
@@ -8,11 +9,8 @@ const StreamMasterSetting = (): StreamMasterSettingResponse => {
   const [streamMasterIcon, setStreamMasterIcon] = React.useState<string>('');
   const [defaultIcon, setDefaultIcon] = React.useState<string>('');
   const [defaultIconName, setDefaultIconName] = React.useState<string>('');
+  const [authenticationType, setAuthenticationType] = React.useState<StreamMasterApi.AuthenticationType>(AuthenticationType.None);
   const [defaultIconDto, setDefaultIconDto] = React.useState<StreamMasterApi.IconFileDto>({} as StreamMasterApi.IconFileDto);
-
-  // React.useEffect(() => {
-  //   setIsLoading(settingsQuery.isLoading);
-  // }, [settingsQuery.isLoading]);
 
   React.useEffect(() => {
 
@@ -26,13 +24,15 @@ const StreamMasterSetting = (): StreamMasterSettingResponse => {
 
     setIsLoading(true);
 
+    if (settingsQuery.data.authenticationMethod)
+      setAuthenticationType(settingsQuery.data.authenticationMethod);
+
     if (
       settingsQuery.data.defaultIcon &&
-      settingsQuery.data.streamMasterIcon &&
-      settingsQuery.data.baseHostURL
+      settingsQuery.data.streamMasterIcon
     ) {
-      setStreamMasterIcon(settingsQuery.data.baseHostURL + settingsQuery.data.streamMasterIcon);
-      setDefaultIcon(settingsQuery.data.baseHostURL + settingsQuery.data.defaultIcon);
+      setStreamMasterIcon(settingsQuery.data.streamMasterIcon);
+      setDefaultIcon(settingsQuery.data.defaultIcon);
       setDefaultIconName(settingsQuery.data.defaultIcon);
 
       if (settingsQuery.data.defaultIconDto) {
@@ -46,6 +46,7 @@ const StreamMasterSetting = (): StreamMasterSettingResponse => {
   }, [settingsQuery.data, settingsQuery.isLoading]);
 
   return {
+    authenticationType,
     data,
     defaultIcon,
     defaultIconDto,
@@ -56,6 +57,7 @@ const StreamMasterSetting = (): StreamMasterSettingResponse => {
 };
 
 export type StreamMasterSettingResponse = {
+  authenticationType: StreamMasterApi.AuthenticationType;
   data: StreamMasterApi.SettingDto;
   defaultIcon: string;
   defaultIconDto: StreamMasterApi.IconFileDto;

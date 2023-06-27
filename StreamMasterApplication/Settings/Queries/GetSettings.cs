@@ -47,7 +47,7 @@ internal class GetSettingsHandler : IRequestHandler<GetSettings, SettingDto>
                 }
             }
         }
-
+        ret.RequiresAuth = !string.IsNullOrEmpty(setting.AdminPassword) && !string.IsNullOrEmpty(setting.AdminUserName);
         return ret;
     }
 }

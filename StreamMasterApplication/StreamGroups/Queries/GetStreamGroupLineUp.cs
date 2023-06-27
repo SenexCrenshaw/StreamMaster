@@ -5,11 +5,15 @@ using FluentValidation;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 using StreamMasterDomain.Attributes;
+using StreamMasterDomain.Authentication;
+using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Dto;
 
+using System.IO;
 using System.Text.Json;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
@@ -28,6 +32,8 @@ public class GetStreamGroupLineUpValidator : AbstractValidator<GetStreamGroupLin
 
 public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp, string>
 {
+    private readonly IConfigFileProvider _configFileProvider;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IAppDbContext _context;
     private readonly IMapper _mapper;
     private readonly ISender _sender;
@@ -36,12 +42,15 @@ public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp,
     public GetStreamGroupLineUpHandler(
         IAppDbContext context,
         IMapper mapper,
+           IConfigFileProvider configFileProvider,
+          IHttpContextAccessor httpContextAccessor,
             ISender sender)
     {
+        _httpContextAccessor = httpContextAccessor;
         _mapper = mapper;
+        _configFileProvider = configFileProvider;
         _context = context;
-        _sender = sender;
-        _setting = sender.Send(new GetSettings()).Result;
+        _sender = sender;        
     }
 
     public async Task<string> Handle(GetStreamGroupLineUp command, CancellationToken cancellationToken)
@@ -91,16 +100,35 @@ public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp,
             //VideoStreamDto videoStreamDto = _mapper.Map<VideoStreamDto>(videoStream);
             //videoStreamDto.MergeStreamGroupChannel();
 
+            //var request = _httpContextAccessor.HttpContext.Request;
+            //var encodedNumbers = request.Path.ToString().Replace("/lineup.json", "");
+            //encodedNumbers = encodedNumbers.Substring(encodedNumbers.LastIndexOf('/'));
+            var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _configFileProvider.Setting.ServerKey);
+
+
+            string url = GetUrl();
+            var videoUrl = $"{url}/api/streamgroups/stream/{encodedNumbers}";
+
             LineUp lu = new()
             {
                 GuideNumber = videoStream.User_Tvg_chno.ToString(),
                 GuideName = videoStream.User_Tvg_name,
-                URL = $"{_setting.BaseHostURL}api/streamgroups/{command.StreamGroupNumber}/stream/{videoStream.Id}"
+                URL = videoUrl
             };
 
             ret.Add(lu);
         }
         string jsonString = JsonSerializer.Serialize(ret, new JsonSerializerOptions { WriteIndented = true });
         return jsonString;
+    }
+    private string GetUrl()
+    {
+        var request = _httpContextAccessor.HttpContext.Request;
+        var scheme = request.Scheme;
+        var host = request.Host;
+
+        var url = $"{scheme}://{host}";
+
+        return url;
     }
 }
