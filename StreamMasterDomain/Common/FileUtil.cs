@@ -122,20 +122,10 @@ public sealed class FileUtil
             using MemoryStream outputStream = new();
             gzStream.CopyTo(outputStream);
             byte[] outputBytes = outputStream.ToArray();
-            try
-            {
-                body = Encoding.Unicode.GetString(outputBytes);
-                Console.WriteLine("The byte array is a unicode string.");
-                File.WriteAllText(source+"_test.xml", body);
-                File.WriteAllBytes(source+"_test_bytes.xml", outputBytes);                
-                return body;
-            }
-            catch (ArgumentException)
-            {
-                body = Encoding.Default.GetString(outputBytes);
-                Console.WriteLine("The byte array is NOT a unicode string.");
-                return body;
-            }
+          
+            body = Encoding.Default.GetString(outputBytes);
+            return body;
+            
         }
         catch (InvalidDataException ex) when (ex.Message.Contains("The archive entry was compressed using an unsupported compression method."))
         {

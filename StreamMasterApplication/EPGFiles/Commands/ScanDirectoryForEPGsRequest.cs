@@ -7,6 +7,8 @@ using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterDomain.Dto;
 
+using System.IO;
+
 namespace StreamMasterApplication.EPGFiles.Commands;
 
 public class ScanDirectoryForEPGFilesRequest : IRequest<bool>
@@ -39,7 +41,11 @@ public class ScanDirectoryForEPGFilesRequestHandler : IRequestHandler<ScanDirect
         {
             MatchCasing = MatchCasing.CaseInsensitive
         };
-        foreach (FileInfo EPGFileInfo in EPGDirInfo.GetFiles($"*{Constants.EPGExtension}", er))
+
+         var files = EPGDirInfo.GetFiles("*.*", SearchOption.AllDirectories)
+            .Where(s => s.FullName.ToLower().EndsWith(Constants.EPGExtension.ToLower()) || s.FullName.ToLower().EndsWith(Constants.EPGExtension+".gz".ToLower()));
+
+        foreach (FileInfo EPGFileInfo in files)
         {
             if (cancellationToken.IsCancellationRequested)
             {
