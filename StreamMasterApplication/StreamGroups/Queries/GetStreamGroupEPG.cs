@@ -5,6 +5,7 @@ using FluentValidation;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -14,12 +15,15 @@ using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities.EPG;
 
+using StreamMasterInfrastructure.Extensions;
+
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Web;
 using System.Xml.Serialization;
 
 using static StreamMasterDomain.Common.GetStreamGroupEPGHandler;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
@@ -40,7 +44,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
     private readonly IAppDbContext _context;
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
-
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ISender _sender;
     private readonly object Lock = new();
     private int dummyCount = 0;
@@ -48,8 +52,10 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
     public GetStreamGroupEPGHandler(
         IMapper mapper, IMemoryCache memoryCache,
         ISender sender,
+          IHttpContextAccessor httpContextAccessor,
         IAppDbContext context)
     {
+        _httpContextAccessor = httpContextAccessor;
         _memoryCache = memoryCache;
         _mapper = mapper;
         _context = context;
@@ -79,6 +85,8 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                 .ToList();
         }
 
+
+
         ParallelOptions po = new()
         {
             CancellationToken = cancellationToken,
@@ -89,6 +97,9 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
         if (videoStreams.Any())
         {
+
+            string url = _httpContextAccessor.GetUrl();
+
             List<string> epgids = videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID.ToLower()).Distinct().ToList();
 
             List<Programme> programmes = _memoryCache.Programmes().Where(a => a.Channel != null && epgids.Contains(a.Channel.ToLower())).ToList();
@@ -107,7 +118,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                 }
 
                 IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
-                string Logo = icon != null ? icon.Source : "/"+setting.DefaultIcon;
+                string Logo = icon != null ? url + icon.Source : url+"/" +setting.DefaultIcon;
 
                 TvChannel t;
                 int dummy = 0;
@@ -162,7 +173,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                             Lang = "en",
                             Text = videoStream.User_Tvg_name,
                         };
-                        prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = "images/transparent.png" });
+                        prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{url}/images/transparent.png" });
                         prog.StartDateTime = DateTime.Now.AddHours(-1);
                         prog.StopDateTime = DateTime.Now.AddDays(7);
                         retProgrammes.Add(prog);                        
@@ -189,7 +200,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                                                 {
                                                     continue;
                                                 }
-                                                string IconSource = $"/api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(programmeIcon.Source)}";
+                                                string IconSource = $"{url}/api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(programmeIcon.Source)}";
                                                 progIcon.Src = IconSource;
                                             }
                                         }

@@ -16,6 +16,9 @@ using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Dto;
 
+using StreamMasterInfrastructure.Extensions;
+
+using System;
 using System.Collections.Concurrent;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
@@ -39,8 +42,7 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly ISender _sender;
-    private readonly bool needsProxy;
-
+ 
     public GetStreamGroupM3UHandler(
            IMapper mapper,
            IConfigFileProvider configFileProvider,
@@ -53,8 +55,7 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
         _mapper = mapper;
         _context = context;
-        _sender = sender;
-        needsProxy = configFileProvider.Setting.StreamingProxyType != StreamingProxyTypes.None;
+        _sender = sender;        
     }
 
     public async Task<string> Handle(GetStreamGroupM3U command, CancellationToken cancellationToken)
@@ -120,17 +121,17 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
        
             string videoUrl = videoStream.Url;
 
-            if (needsProxy)
-            {
-                var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _configFileProvider.Setting.ServerKey, iv);
+            string url = _httpContextAccessor.GetUrl();
 
-                string url = GetUrl();
+
+            var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _configFileProvider.Setting.ServerKey, iv);
+
              
-                videoUrl = $"{url}/api/streamgroups/stream/{encodedNumbers}/{videoStream.User_Tvg_name.Replace(" ","_")}";
-            }
+            videoUrl = $"{url}/api/streamgroups/stream/{encodedNumbers}/{videoStream.User_Tvg_name.Replace(" ","_")}";
+          
                  
             string ttt = $"#EXTINF:0 CUID=\"{videoStream.CUID}\" channel-id=\"{videoStream.CUID}\" channel-number=\"{videoStream.User_Tvg_chno}\" tvg-name=\"{videoStream.User_Tvg_name}\" tvg-chno=\"{videoStream.User_Tvg_chno}\" ";
-            ttt += $"tvg-id=\"{videoStream.User_Tvg_ID}\" tvg-logo=\"{videoStream.User_Tvg_logo}\" group-title=\"{videoStream.User_Tvg_group}\"";
+            ttt += $"tvg-id=\"{videoStream.User_Tvg_ID}\" tvg-logo=\"{url}{videoStream.User_Tvg_logo}\" group-title=\"{videoStream.User_Tvg_group}\"";
             ttt += $",{videoStream.User_Tvg_name}\r\n";
             ttt += $"{videoUrl}\r\n";
 
@@ -149,14 +150,5 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
         return ret;
     }
 
-    private string GetUrl()
-    {
-        var request = _httpContextAccessor.HttpContext.Request;
-        var scheme = request.Scheme;
-        var host = request.Host;
-
-        var url = $"{scheme}://{host}";
-
-        return url;
-    }
+ 
 }
