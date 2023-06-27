@@ -61,7 +61,7 @@ const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
       type: 'video/mp4',
     };
 
-    if (src.toLowerCase().endsWith('.m3u') || src.toLowerCase().endsWith('.m3u8')) {
+    if (src.toLowerCase().endsWith('.ts') || src.toLowerCase().endsWith('.m3u') || src.toLowerCase().endsWith('.m3u8')) {
       srcObject.type = 'application/x-mpegurl';
     }
 

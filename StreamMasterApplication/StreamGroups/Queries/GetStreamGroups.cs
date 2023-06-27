@@ -77,8 +77,8 @@ internal class GetStreamGroupsHandler : IRequestHandler<GetStreamGroups, IEnumer
             Id = 0,
             Name = "All",
             M3ULink = $"{url}/api/streamgroups/m3u/{encodedZero}.m3u",
-            XMLLink = $"{url}/api/streamgroups/m3u/{encodedZero}.xml",
-            HDHRLink = $"{url}/api/streamgroups/m3u/{encodedZero}",
+            XMLLink = $"{url}/api/streamgroups/epg/{encodedZero}.xml",
+            HDHRLink = $"{url}/api/streamgroups/{encodedZero}",
         };
 
         ret.Insert(0,zeroGroup);
