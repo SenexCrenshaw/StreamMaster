@@ -126,6 +126,8 @@ public sealed class FileUtil
             {
                 body = Encoding.Unicode.GetString(outputBytes);
                 Console.WriteLine("The byte array is a unicode string.");
+                File.WriteAllText(source+"_test.xml", body);
+                File.WriteAllBytes(source+"_test_bytes.xml", outputBytes);
                 Console.WriteLine(body);
                 return body;
             }
