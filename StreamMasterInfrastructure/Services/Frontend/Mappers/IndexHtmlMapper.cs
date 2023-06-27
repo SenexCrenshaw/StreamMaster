@@ -17,7 +17,7 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
             _configFileProvider = configFileProvider;
 
             HtmlPath = Path.Combine(appFolderInfo.StartUpFolder, _configFileProvider.Setting.UiFolder, "index.html");
-            UrlBase = "";
+            UrlBase = _configFileProvider.Setting.UrlBase;
         }
 
         public override bool CanHandle(string resourceUrl)

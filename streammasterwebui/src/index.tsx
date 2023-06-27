@@ -29,9 +29,7 @@ PrimeReact.ripple = false;
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-
       <App />
     </Provider>
-
   </React.StrictMode >
 );

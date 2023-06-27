@@ -19,12 +19,9 @@ import Home from './Home';
 import SignalRHub from './app/SignalRHub';
 
 const App = () => {
-  // const navigate = useNavigate();
-  // const [userInformation, setUserInformation] = useLocalStorage<UserInformation>({ IsAuthenticated: true } as UserInformation, 'userInformation');
   const [locale,] = useLocalStorage('en', 'locale');
   const messages = locale === 'en' ? messagesEn : messagesEn;
   const [hubConnected, setHubConnected] = React.useState<boolean>(false);
-
   const systemStatus = StreamMasterApi.useSettingsGetSystemStatusQuery();
 
   const systemReady = React.useMemo((): boolean => {
@@ -74,7 +71,13 @@ const App = () => {
     )
   );
 
-  if (!systemReady)
+  if (!systemReady) {
+
+    if (window.location.pathname === '/') {
+      window.location.href = '/editor/playlist'
+      return null;
+    }
+
     return (
       <div className="flex justify-content-center flex-wrap card-container w-full h-full "  >
 
@@ -96,6 +99,7 @@ const App = () => {
         </div>
       </div >
     );
+  }
 
   return (
     <IntlProvider locale={locale} messages={messages}>
