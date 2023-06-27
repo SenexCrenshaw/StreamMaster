@@ -126,6 +126,7 @@ public sealed class FileUtil
             {
                 body = Encoding.Unicode.GetString(outputBytes);
                 Console.WriteLine("The byte array is a unicode string.");
+                Console.WriteLine(body);
                 return body;
             }
             catch (ArgumentException)
