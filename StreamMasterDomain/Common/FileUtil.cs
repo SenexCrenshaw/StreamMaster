@@ -9,6 +9,18 @@ public sealed class FileUtil
 {
     private static bool setupDirectories = false;
 
+    public static bool IsGzipCompressed(string filePath)
+    {
+        byte[] gzipSignature = new byte[] { 0x1F, 0x8B, 0x08 };
+
+        using (FileStream fs = File.OpenRead(filePath))
+        {
+            byte[] fileSignature = new byte[gzipSignature.Length];
+            fs.Read(fileSignature, 0, fileSignature.Length);
+
+            return fileSignature.SequenceEqual(gzipSignature);
+        }
+    }
     public static void CreateDirectory(string fileName)
     {
         string? directory = Path.EndsInDirectorySeparator(fileName) ? fileName : Path.GetDirectoryName(fileName);
