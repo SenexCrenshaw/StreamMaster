@@ -125,11 +125,13 @@ public sealed class FileUtil
             try
             {
                 body = Encoding.Unicode.GetString(outputBytes);
+                Console.WriteLine("The byte array is a unicode string.");
                 return body;
             }
             catch (ArgumentException)
             {
                 body = Encoding.Default.GetString(outputBytes);
+                Console.WriteLine("The byte array is NOT a unicode string.");
                 return body;
             }
         }
