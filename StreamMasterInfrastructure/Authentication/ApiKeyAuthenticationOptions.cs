@@ -105,14 +105,11 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
             // Get the request path
             var requestPath = Context.Request.Path.Value.ToString();
 
-            if (requestPath.EndsWith(".m3u") || requestPath.EndsWith(".xml"))
+            var crypt = Path.GetFileNameWithoutExtension(requestPath);
+                var cryptTest = crypt.GetIV(_configFileProvider.Setting.ServerKey,128);
+            if (cryptTest != null)
             {
-                var crypt = Path.GetFileNameWithoutExtension(requestPath);
-                 var cryptTest = crypt.GetIV(_configFileProvider.Setting.ServerKey,128);
-                if (cryptTest != null)
-                {
-                    return _apiKey;
-                }
+                return _apiKey;
             }
 
             return null;

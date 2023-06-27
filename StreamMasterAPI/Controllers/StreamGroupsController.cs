@@ -105,6 +105,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     }
 
     [HttpGet]
+    [Authorize(Policy = "SGLinks")]
     [Route("{encodedId}")]
     [Route("{encodedId}/capability")]
     [Route("{encodedId}/device.xml")]
