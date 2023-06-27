@@ -75,7 +75,7 @@ const Home = () => {
           <MenuItemSM collapsed={collapsed} icon={<QueueStatisIcon />} link="/queuestatus" name='Queue' />
           <MenuItemSM collapsed={collapsed} icon={<SettingsEditorIcon />} link="/settings" name='Settings' />
 
-          <MenuItemSM collapsed={collapsed} icon={<VideoIcon />} link="/player" name='Video Player' newWindow />
+          <MenuItemSM collapsed={collapsed} icon={<VideoIcon />} link="/player" name='Video Player' />
 
           <MenuItemSM collapsed={collapsed} icon={<HelpIcon />} link="https://github.com/SenexCrenshaw/StreamMaster/wiki" name='Wiki' newWindow />
 
