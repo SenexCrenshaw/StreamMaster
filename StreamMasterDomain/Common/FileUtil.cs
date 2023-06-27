@@ -122,7 +122,7 @@ public sealed class FileUtil
             using MemoryStream outputStream = new();
             gzStream.CopyTo(outputStream);
             byte[] outputBytes = outputStream.ToArray();
-            body = Encoding.ASCII.GetString(outputBytes);
+            body = Encoding.Unicode.GetString(outputBytes);
             return body;
         }
         catch (InvalidDataException ex) when (ex.Message.Contains("The archive entry was compressed using an unsupported compression method."))
