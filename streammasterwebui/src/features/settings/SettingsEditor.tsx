@@ -25,10 +25,11 @@ import { baseHostURL } from '../../settings';
 
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { getHelp } from '../../help_en';
+import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
 
-export const SettingsEditor = (props: SettingsEditorProps) => {
+export const SettingsEditor = () => {
   const toast = React.useRef<Toast>(null);
-
+  const setting = StreamMasterSetting();
   const [newData, setNewData] = React.useState<SettingDto>({} as SettingDto);
   const [originalData, setOriginalData] = React.useState<SettingDto>({} as SettingDto);
 
@@ -269,7 +270,7 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
             });
 
             if (returnData.needsLogOut === true) {
-              window.location.href = 'logout'
+              //             window.location.href = '/logout'
             }
 
           } else {
@@ -351,11 +352,11 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
               </div>
               <div className='flex col-3 m-0 p-0 debug'>
                 <Button
-                  disabled={!props.isAuthenticated}
+                  disabled={!setting.authenticationType || setting.authenticationType as number === 0}
                   icon="pi pi-check"
                   label={GetMessage('signout')}
                   onClick={() =>
-                    window.location.href = 'logout'
+                    window.location.href = '/logout'
                   }
                   rounded
                   severity="success"
@@ -403,9 +404,5 @@ export const SettingsEditor = (props: SettingsEditorProps) => {
 
 SettingsEditor.displayName = 'Settings';
 
-type SettingsEditorProps = {
-  isAuthenticated: boolean;
-  // logOut: () => void;
-}
 
 export default React.memo(SettingsEditor);

@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import './App.css';
 
-import { Navigate, Route, RouterProvider, createBrowserRouter, createRoutesFromElements, useNavigate } from 'react-router-dom';
+import { Navigate, Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
 import * as StreamMasterApi from './store/iptvApi';
-import React, { version } from 'react';
+import React from 'react';
 import messagesEn from './messages_en';
 
 import { ProSidebarProvider } from 'react-pro-sidebar';
@@ -16,9 +15,7 @@ import QueueStatus from './features/queueStatus/QueueStatus';
 import SettingsEditor from './features/settings/SettingsEditor';
 import StreamGroupEditor from './features/streamGroupEditor/StreamGroupEditor';
 import StreamingStatus from './features/streamingStatus/StreamingStatus';
-import ProtectedRoute from './_auth/ProtectedRoute';
 import Home from './Home';
-import { apiKey, apiRoot, baseHostURL, isDev, urlBase } from './settings';
 import SignalRHub from './app/SignalRHub';
 
 const App = () => {
@@ -27,21 +24,6 @@ const App = () => {
   const [locale,] = useLocalStorage('en', 'locale');
   const messages = locale === 'en' ? messagesEn : messagesEn;
   const [hubConnected, setHubConnected] = React.useState<boolean>(false);
-
-  // const setSignIn = React.useCallback((e: boolean) => {
-  //   setUserInformation(
-  //     {
-  //       IsAuthenticated: e,
-  //       TokenAge: new Date(),
-  //     }
-  //   )
-  // }, [setUserInformation]);
-
-  // React.useEffect(() => {
-  //   if (requiresAuth !== true && true !== true) {
-  //     setSignIn(true)
-  //   }
-  // }, [setSignIn, true]);
 
   const systemStatus = StreamMasterApi.useSettingsGetSystemStatusQuery();
 
@@ -65,39 +47,27 @@ const App = () => {
         <Route element={<Navigate to="/editor/playlist" />} index />
 
         <Route element={
-          <ProtectedRoute isAuthenticated  >
-            <StreamGroupEditor />
-          </ProtectedRoute>
+          <StreamGroupEditor />
         } path="/editor/streamgroup" />
 
         <Route element={
-          <ProtectedRoute isAuthenticated  >
-            <PlayListEditor />
-          </ProtectedRoute>
+          <PlayListEditor />
         } path="/editor/playlist" />
 
         <Route element={
-          <ProtectedRoute isAuthenticated  >
-            <StreamingStatus />
-          </ProtectedRoute>
+          <StreamingStatus />
         } path="/streamingstatus" />
 
         <Route element={
-          <ProtectedRoute isAuthenticated  >
-            <QueueStatus />
-          </ProtectedRoute>
+          <QueueStatus />
         } path="/queuestatus" />
 
         <Route element={
-          <ProtectedRoute isAuthenticated  >
-            <VideoPlayer />
-          </ProtectedRoute>
+          <VideoPlayer />
         } path="/player" />
 
         <Route element={
-          <ProtectedRoute isAuthenticated  >
-            <SettingsEditor isAuthenticated />
-          </ProtectedRoute>
+          <SettingsEditor />
         } path="/settings" />
       </Route>
 
