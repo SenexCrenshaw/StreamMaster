@@ -107,7 +107,7 @@ public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp,
 
 
             string url = GetUrl();
-            var videoUrl = $"{url}/api/streamgroups/stream{encodedNumbers}";
+            var videoUrl = $"{url}/api/streamgroups/stream/{encodedNumbers}";
 
             LineUp lu = new()
             {
