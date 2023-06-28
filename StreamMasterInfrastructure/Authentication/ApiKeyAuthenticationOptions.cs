@@ -102,17 +102,18 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
 
         if (Options.QueryName == "SGLinks")
         {
+          
             // Get the request path
             var requestPath = Context.Request.Path.Value.ToString();
-
-            var crypt = Path.GetFileNameWithoutExtension(requestPath);
-                var cryptTest = crypt.GetIV(_configFileProvider.Setting.ServerKey,128);
-            if (cryptTest != null)
+            if (!requestPath.StartsWith("/api/streamgroups/", StringComparison.InvariantCultureIgnoreCase))
             {
-                return _apiKey;
+                return null;
+
             }
 
-            return null;
+            var crypt = requestPath.GetAPIKeyFromPath();
+        
+            return crypt;
         }
 
         // Try query parameter

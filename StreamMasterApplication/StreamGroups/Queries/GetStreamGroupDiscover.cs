@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using StreamMasterApplication.Common.Models;
 
 using StreamMasterDomain.Attributes;
+using StreamMasterDomain.Authentication;
 
 using System.Text.Json;
 
@@ -39,6 +40,7 @@ public class GetStreamGroupDiscoverHandler : IRequestHandler<GetStreamGroupDisco
 
     public async Task<string> Handle(GetStreamGroupDiscover command, CancellationToken cancellationToken)
     {
+
         if (command.StreamGroupNumber > 0)
         {
             StreamMasterDomain.Dto.StreamGroupDto? sg = await _sender.Send(new GetStreamGroupByStreamNumber(command.StreamGroupNumber), cancellationToken).ConfigureAwait(false);

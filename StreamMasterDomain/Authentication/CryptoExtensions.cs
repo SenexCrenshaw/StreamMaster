@@ -95,15 +95,38 @@ namespace StreamMasterDomain.Authentication
             return (null, null);
         }
 
-        public static byte[]? GetIV(this string valueKey, string serverKey, int keySize)
+        public static string? GetAPIKeyFromPath(this string requestPath, int keySize=128)
+        {            
+            if (requestPath.GetIVFromPath() == null )   
+                return null;
+            
+            var setting = FileUtil.GetSetting();            
+            return setting.ApiKey;
+
+        }
+
+            public static byte[]? GetIVFromPath(this string requestPath, int keySize=128)
         {
             try
             {
-                byte[] serverKeyBytes = GenerateKey(serverKey, keySize);
-                string base64String = valueKey
+                if (!requestPath.StartsWith("/api/streamgroups/", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return null;
+
+                }
+
+                var crypt = requestPath.Replace("/api/streamgroups/stream/", "", StringComparison.InvariantCultureIgnoreCase);
+                crypt = crypt.Replace("/api/streamgroups/", "", StringComparison.InvariantCultureIgnoreCase);
+                if (crypt.Contains("/"))
+                {
+                    crypt = crypt.Substring(0, crypt.IndexOf("/"));
+                }
+                var setting = FileUtil.GetSetting();
+                byte[] serverKeyBytes = GenerateKey(setting.ServerKey, keySize);
+                string base64String = crypt
                     .Replace('-', '+')
                     .Replace('_', '/')
-                    .PadRight(valueKey.Length + (4 - valueKey.Length % 4) % 4, '=');
+                    .PadRight(crypt.Length + (4 - crypt.Length % 4) % 4, '=');
                 byte[] encodedBytes = Convert.FromBase64String(base64String);
                 byte[] hmacBytes = new byte[HMACSize];
                 byte[] encryptedBytes = new byte[encodedBytes.Length - HMACSize];

@@ -8,6 +8,7 @@ const help_en = {
   backup:'Backup',
   cacheIcons: 'Cache Icons to the local disk to speed things up',
   cleanURLs: 'Clean URLs from Logs',
+  clientUserAgent: "Client User Agent",
   development: 'Development',
   deviceID: 'HDHR Device ID and capability ID',
   ffmPegExecutable:'FFMPeg Executable. The name "ffmpeg(.exe)" will be search in the OS path as well',

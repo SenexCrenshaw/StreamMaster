@@ -554,7 +554,7 @@ const injectedRtkApi = api
         StreamGroupsGetStreamGroupEpgApiResponse,
         StreamGroupsGetStreamGroupEpgApiArg
       >({
-        query: (queryArg) => ({ url: `/api/streamgroups/epg/${queryArg}.xml` }),
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/epg.xml` }),
         providesTags: ["StreamGroups"],
       }),
       streamGroupsGetStreamGroupEpgForGuide: build.query<
@@ -588,7 +588,7 @@ const injectedRtkApi = api
         StreamGroupsGetStreamGroupM3UApiResponse,
         StreamGroupsGetStreamGroupM3UApiArg
       >({
-        query: (queryArg) => ({ url: `/api/streamgroups/m3u/${queryArg}.m3u` }),
+        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/m3u.m3u` }),
         providesTags: ["StreamGroups"],
       }),
       streamGroupsGetStreamGroupM3U2: build.query<
@@ -1281,6 +1281,7 @@ export type Setting = {
   sslCertPassword?: string;
   cacheIcons?: boolean;
   cleanURLs?: boolean;
+  clientUserAgent?: string;
   databaseName?: string;
   defaultIcon?: string;
   deviceID?: string;
@@ -1322,6 +1323,7 @@ export type UpdateSettingRequest = {
   enableSSL?: boolean | null;
   cacheIcons?: boolean | null;
   cleanURLs?: boolean | null;
+  clientUserAgent?: string | null;
   deviceID?: string | null;
   ffmPegExecutable?: string | null;
   sslCertPath?: string | null;

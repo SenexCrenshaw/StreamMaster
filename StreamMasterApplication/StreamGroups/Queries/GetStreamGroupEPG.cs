@@ -12,6 +12,7 @@ using Microsoft.Extensions.Caching.Memory;
 using StreamMasterApplication.Icons.Queries;
 
 using StreamMasterDomain.Attributes;
+using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities.EPG;
 
@@ -65,7 +66,6 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
     public async Task<string> Handle(GetStreamGroupEPG command, CancellationToken cancellationToken)
     {
-        //Stopwatch sw = Stopwatch.StartNew();
 
         List<VideoStreamDto> videoStreams = new();
         if (command.StreamGroupNumber > 0)

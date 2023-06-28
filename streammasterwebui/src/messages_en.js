@@ -9,6 +9,7 @@ export default {
   cacheIcons: 'Cache Icons',
   changesServiceRestart: "Changes require a service restart",
   cleanURLs: 'Clean URLs from Logs',
+  clientUserAgent: "Client User Agent",
   development: 'Development',
   deviceID: 'HDHR Device ID',
   enableSSL: 'Enable SSL',

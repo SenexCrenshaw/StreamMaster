@@ -24,6 +24,9 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public bool? EnableSSL { get; set; }
     public bool? CacheIcons { get; set; }
     public bool? CleanURLs { get; set; }
+    
+
+    public string? ClientUserAgent { get; set; }
     public string? DeviceID { get; set; }
     public string? FFMPegExecutable { get; set; }
     public string? SSLCertPath { get; set; }
@@ -108,6 +111,11 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
         if (request.SSLCertPassword != null && request.SSLCertPassword != currentSetting.SSLCertPassword)
         {
             currentSetting.SSLCertPassword = request.SSLCertPassword;
+        }
+
+        if (request.ClientUserAgent != null && request.ClientUserAgent != currentSetting.ClientUserAgent)
+        {
+            currentSetting.ClientUserAgent = request.ClientUserAgent;
         }
 
         if (request.OverWriteM3UChannels != null && request.OverWriteM3UChannels != currentSetting.OverWriteM3UChannels)

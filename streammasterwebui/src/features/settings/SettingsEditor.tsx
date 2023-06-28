@@ -152,9 +152,9 @@ export const SettingsEditor = () => {
 
     return (
       getLine(label + ':',
-        <span>
+        <span className='w-full'>
           <Password
-            className="withpadding"
+            className="password withpadding w-full text-left"
             feedback={false}
             onChange={(e) => setNewData({ ...newData, [field]: e.target.value })}
             placeholder={label}
@@ -174,7 +174,7 @@ export const SettingsEditor = () => {
 
     return (
       getLine(label + ':',
-        <span>
+        <span className="w-full">
           <InputText
             className="withpadding w-full text-left"
             id={field}
@@ -372,6 +372,7 @@ export const SettingsEditor = () => {
             {getInputNumberLine('ringBufferSizeMB')}
             {getInputNumberLine('maxConnectRetry', 999)}
             {getInputNumberLine('maxConnectRetryTimeMS', 999)}
+            {getInputTextLine('clientUserAgent')}
           </Fieldset>
 
           <Fieldset className="mt-4 pt-10" legend={GetMessage('filesEPG')} >

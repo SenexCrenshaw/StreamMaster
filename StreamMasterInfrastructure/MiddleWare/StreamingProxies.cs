@@ -28,10 +28,10 @@ public static class StreamingProxies
         }
 
         try
-        {
+        {            
             using Process process = new();
             process.StartInfo.FileName = ffmpegExec;
-            process.StartInfo.Arguments = $"-hide_banner -loglevel error -i \"{streamUrl}\" -c copy -f mpegts pipe:1 -user_agent \"streammaster\"";
+            process.StartInfo.Arguments = $"-hide_banner -loglevel error -i \"{streamUrl}\" -c copy -f mpegts pipe:1 -user_agent \"{setting.ClientUserAgent}\"";
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
@@ -87,11 +87,12 @@ public static class StreamingProxies
 
     private static HttpClient CreateHttpClient()
     {
+        var setting = FileUtil.GetSetting();
         var client = new HttpClient(new HttpClientHandler()
         {
             AllowAutoRedirect = true,
         });
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; streammaster/1.0)");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(setting.ClientUserAgent);
         return client;
     }
 

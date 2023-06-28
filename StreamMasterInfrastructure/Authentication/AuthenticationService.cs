@@ -21,17 +21,14 @@ public interface IAuthenticationService
 
 public class AuthenticationService : IAuthenticationService
 {
-    private const string AnonymousUser = "Anonymous";
     private static string AdminPassword;
     private static string AdminUserName;
-    private static string API_KEY;
     private static AuthenticationType AUTH_METHOD;
     private readonly ILogger<AuthenticationService> _logger;
 
     public AuthenticationService(IConfigFileProvider configFileProvider, ILogger<AuthenticationService> logger)
     {
-        _logger = logger;
-        API_KEY = configFileProvider.Setting.ApiKey;
+        _logger = logger;        
         AdminPassword = configFileProvider.Setting.AdminPassword;
         AdminUserName = configFileProvider.Setting.AdminUserName;
         var authMethod = AuthenticationType.None;

@@ -152,6 +152,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     //}
 
     [HttpGet]
+    [Authorize(Policy = "SGLinks")]
     [Route("{encodedId}/discover.json")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -197,7 +198,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
-    [Route("epg/{encodedId}.xml")]
+    [Route("{encodedId}/epg.xml")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -228,6 +229,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     }
 
     [HttpGet]
+    [Authorize(Policy = "SGLinks")]
     [Route("{encodedId}/lineup.json")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -250,6 +252,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     }
 
     [HttpGet]
+    [Authorize(Policy = "SGLinks")]
     [Route("{encodedId}/lineup_status.json")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -272,7 +275,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
-    [Route("m3u/{encodedId}.m3u")]
+    [Route("{encodedId}/m3u.m3u")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -476,7 +479,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         }
     }
 
-    [AllowAnonymous]
+    [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [Route("stream/{encodedIds}")]
     [Route("stream/{encodedIds}.mp4")]

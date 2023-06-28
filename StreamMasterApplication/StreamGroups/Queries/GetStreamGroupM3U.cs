@@ -60,6 +60,7 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
     public async Task<string> Handle(GetStreamGroupM3U command, CancellationToken cancellationToken)
     {
+
         List<VideoStreamDto> videoStreams = new();
         if (command.StreamGroupNumber > 0)
         {
@@ -94,15 +95,14 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
         // List<IconFileDto> icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
         var icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
+
+
         var requestPath = _httpContextAccessor.HttpContext.Request.Path.Value.ToString();
-               
-        var crypt = Path.GetFileNameWithoutExtension(requestPath);
-        var iv = crypt.GetIV(_configFileProvider.Setting.ServerKey,128);
+        var iv = requestPath.GetIVFromPath(128);
         if (iv == null)
         {
             return "";
         }
-
 
         _ = Parallel.ForEach(videoStreams.OrderBy(a => a.User_Tvg_chno), po, (videoStream, state, longCid) =>
         {
@@ -117,15 +117,12 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
             string Logo = icon != null ? icon.Source : "/" + _configFileProvider.Setting.DefaultIcon;
 
             videoStream.User_Tvg_logo = Logo;
-
        
             string videoUrl = videoStream.Url;
 
             string url = _httpContextAccessor.GetUrl();
 
-
             var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _configFileProvider.Setting.ServerKey, iv);
-
              
             videoUrl = $"{url}/api/streamgroups/stream/{encodedNumbers}/{videoStream.User_Tvg_name.Replace(" ","_")}";
           

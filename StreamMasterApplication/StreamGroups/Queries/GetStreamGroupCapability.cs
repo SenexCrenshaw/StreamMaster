@@ -42,6 +42,7 @@ public class GetStreamGroupCapabilityHandler : IRequestHandler<GetStreamGroupCap
 
     public async Task<string> Handle(GetStreamGroupCapability command, CancellationToken cancellationToken)
     {
+
         if (command.StreamGroupNumber > 0)
         {
             StreamMasterDomain.Dto.StreamGroupDto? sg = await _sender.Send(new GetStreamGroupByStreamNumber(command.StreamGroupNumber), cancellationToken).ConfigureAwait(false);

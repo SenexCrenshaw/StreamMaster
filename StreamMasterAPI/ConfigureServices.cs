@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using NSwag;
@@ -36,19 +37,19 @@ public static class ConfigureServices
     public static IServiceCollection AddWebUIServices(this IServiceCollection services)
     {
 
-        // services.AddLogging(logging =>
-        // {
-        //     logging.ClearProviders();
-        //     logging.AddConsole();
-        //     logging.AddDebug();
-        //     logging.SetMinimumLevel(LogLevel.Trace);
-        //     //b.AddFilter("Microsoft.AspNetCore",LogLevel.Warning);
-        //     //b.AddFilter("Radarr.Http.Authentication", LogLevel.Information);
-        //     logging.AddFilter("Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager", LogLevel.Error);
-        //     logging.AddFilter("Microsoft.AspNetCore.HttpLogging.HttpLoggingMiddleware", LogLevel.Debug);
-        //     logging.AddFilter("Microsoft.AspNetCore.Authentication", LogLevel.Debug);
-        //     logging.AddFilter("Microsoft.AspNetCore.Authorization", LogLevel.Debug);
-        // });
+        services.AddLogging(logging =>
+        {
+            logging.ClearProviders();
+            logging.AddConsole();
+            logging.AddDebug();
+            logging.SetMinimumLevel(LogLevel.Trace);
+            //b.addfilter("microsoft.aspnetcore",loglevel.warning);
+            //b.addfilter("radarr.http.authentication", loglevel.information);
+            logging.AddFilter("microsoft.aspnetcore.dataprotection.keymanagement.xmlkeymanager", LogLevel.Error);
+            logging.AddFilter("microsoft.aspnetcore.httplogging.httploggingmiddleware", LogLevel.Debug);
+            logging.AddFilter("microsoft.aspnetcore.authentication", LogLevel.Debug);
+            logging.AddFilter("microsoft.aspnetcore.authorization", LogLevel.Debug);
+        });
 
         _ = services.AddLogging();
 

@@ -66,8 +66,8 @@ internal class GetStreamGroupsHandler : IRequestHandler<GetStreamGroups, IEnumer
                 streamGroup.VideoStreams.AddRange(streams);
             }
             var encodedStreamGroupNumber = streamGroup.StreamGroupNumber.EncodeValue128(_configFileProvider.Setting.ServerKey);
-            streamGroup.M3ULink = $"{url}/api/streamgroups/m3u/{encodedStreamGroupNumber}.m3u";
-            streamGroup.XMLLink = $"{url}/api/streamgroups/epg/{encodedStreamGroupNumber}.xml";
+            streamGroup.M3ULink = $"{url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
+            streamGroup.XMLLink = $"{url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
             streamGroup.HDHRLink = $"{url}/api/streamgroups/{encodedStreamGroupNumber}";
         }
 
@@ -76,8 +76,8 @@ internal class GetStreamGroupsHandler : IRequestHandler<GetStreamGroups, IEnumer
         {
             Id = 0,
             Name = "All",
-            M3ULink = $"{url}/api/streamgroups/m3u/{encodedZero}.m3u",
-            XMLLink = $"{url}/api/streamgroups/epg/{encodedZero}.xml",
+            M3ULink = $"{url}/api/streamgroups/{encodedZero}/m3u.m3u",
+            XMLLink = $"{url}/api/streamgroups/{encodedZero}/epg.xml",
             HDHRLink = $"{url}/api/streamgroups/{encodedZero}",
         };
 

@@ -13,6 +13,8 @@ using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Dto;
 
+using StreamMasterInfrastructure.Extensions;
+
 using System.IO;
 using System.Text.Json;
 
@@ -55,6 +57,14 @@ public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp,
 
     public async Task<string> Handle(GetStreamGroupLineUp command, CancellationToken cancellationToken)
     {
+
+        var requestPath = _httpContextAccessor.HttpContext.Request.Path.Value.ToString();
+        var iv = requestPath.GetIVFromPath(128);
+        if (iv == null)
+        {
+            return "";
+        }
+
         List<LineUp> ret = new();
 
         List<VideoStreamDto> videoStreams = new();
@@ -83,31 +93,14 @@ public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp,
 
         foreach (var videoStream in videoStreams)
         {
-            //VideoStream? videoStream = await _context.VideoStreams
-            //    .AsNoTracking()
-            //    .FirstOrDefaultAsync(a => !a.IsHidden && a.Id == streamGroupVideoStream.Id)
-            //    .ConfigureAwait(false);
+         
+            string videoUrl = videoStream.Url;
 
-            //if (videoStream == null)
-            //{
-            //    continue;
-            //}
+            string url = _httpContextAccessor.GetUrl();
 
-            // var channel = await _context.IPTVChannels.Include(a =>
-            // a.M3UStreamRanks).FirstOrDefaultAsync(a => !a.IsHidden && a.Id ==
-            // sgChannel.IPTVChannelId, cancellationToken).ConfigureAwait(false);
+            var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _configFileProvider.Setting.ServerKey, iv);
 
-            //VideoStreamDto videoStreamDto = _mapper.Map<VideoStreamDto>(videoStream);
-            //videoStreamDto.MergeStreamGroupChannel();
-
-            //var request = _httpContextAccessor.HttpContext.Request;
-            //var encodedNumbers = request.Path.ToString().Replace("/lineup.json", "");
-            //encodedNumbers = encodedNumbers.Substring(encodedNumbers.LastIndexOf('/'));
-            var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _configFileProvider.Setting.ServerKey);
-
-
-            string url = GetUrl();
-            var videoUrl = $"{url}/api/streamgroups/stream/{encodedNumbers}";
+            videoUrl = $"{url}/api/streamgroups/stream/{encodedNumbers}/{videoStream.User_Tvg_name.Replace(" ", "_")}";
 
             LineUp lu = new()
             {
@@ -121,14 +114,5 @@ public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp,
         string jsonString = JsonSerializer.Serialize(ret, new JsonSerializerOptions { WriteIndented = true });
         return jsonString;
     }
-    private string GetUrl()
-    {
-        var request = _httpContextAccessor.HttpContext.Request;
-        var scheme = request.Scheme;
-        var host = request.Host;
 
-        var url = $"{scheme}://{host}";
-
-        return url;
-    }
 }

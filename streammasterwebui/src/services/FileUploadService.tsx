@@ -1,5 +1,6 @@
 import { type AxiosProgressEvent } from 'axios';
 import http from '../app/axios';
+import { apiKey } from '../settings';
 
 export const upload = async (
   name: string | null,
@@ -41,6 +42,7 @@ export const upload = async (
   return await http.post(url, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
+      'x-api-key': apiKey
     },
     onUploadProgress,
   });
