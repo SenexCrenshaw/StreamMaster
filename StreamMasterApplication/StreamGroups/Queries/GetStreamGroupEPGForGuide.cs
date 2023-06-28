@@ -69,7 +69,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
 
     public async Task<EPGGuide> Handle(GetStreamGroupEPGForGuide command, CancellationToken cancellationToken)
     {
-        Stopwatch sw = Stopwatch.StartNew();
+        //Stopwatch sw = Stopwatch.StartNew();
 
         List<VideoStreamDto> videoStreams = new();
         if (command.StreamGroupNumber > 0)
@@ -112,8 +112,19 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
 
             List<Programme> programmes = _memoryCache.Programmes().Where(a => a.Channel != null && epgids.Contains(a.Channel.ToLower())).ToList();
 
-            ret.StartDate = programmes.Min(a => a.StartDateTime);
-            ret.EndDate = programmes.Max(a => a.StopDateTime);
+            if (programmes.Any())
+            {
+                ret.StartDate = programmes.Min(a => a.StartDateTime);
+                ret.EndDate = programmes.Max(a => a.StopDateTime);
+            }
+            else
+            {
+                ret.StartDate = DateTime.Now.AddHours(-1);
+                ret.EndDate = DateTime.Now.AddDays(7);
+            }
+
+            //ret.StartDate = programmes.Min(a => a.StartDateTime);
+            //ret.EndDate = programmes.Max(a => a.StopDateTime);
 
             SettingDto setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
 
@@ -178,7 +189,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
                             Lang = "en",
                             Text = videoStream.User_Tvg_name,
                         };
-                        prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{url}images / transparent.png" });
+                        prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{url}/images/transparent.png" });
                         prog.StartDateTime = DateTime.Now.AddHours(-1);
                         prog.StopDateTime = DateTime.Now.AddDays(7);
 
@@ -213,7 +224,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
                                     }
                                     else
                                     {
-                                        p.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = "images/transparent.png" });
+                                        p.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{url}/images/transparent.png" });
                                     }
 
                                     p.Channel = videoStream.User_Tvg_ID;

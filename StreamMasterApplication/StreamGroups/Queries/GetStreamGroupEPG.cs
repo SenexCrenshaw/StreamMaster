@@ -19,6 +19,7 @@ using StreamMasterInfrastructure.Extensions;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Globalization;
 using System.Web;
 using System.Xml.Serialization;
 
@@ -64,7 +65,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
     public async Task<string> Handle(GetStreamGroupEPG command, CancellationToken cancellationToken)
     {
-        Stopwatch sw = Stopwatch.StartNew();
+        //Stopwatch sw = Stopwatch.StartNew();
 
         List<VideoStreamDto> videoStreams = new();
         if (command.StreamGroupNumber > 0)
@@ -175,7 +176,9 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                         };
                         prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{url}/images/transparent.png" });
                         prog.StartDateTime = DateTime.Now.AddHours(-1);
+                        prog.Start= prog.StartDateTime.ToString("yyyyMMddHHmmss K");
                         prog.StopDateTime = DateTime.Now.AddDays(7);
+                        prog.Stop = prog.StopDateTime.ToString("yyyyMMddHHmmss K");
                         retProgrammes.Add(prog);                        
                     }
                     else
@@ -248,8 +251,8 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
         XmlSerializer serializer = new(typeof(Tv));
         serializer.Serialize(textWriter, ret, ns);
         textWriter.Close();
-        sw.Stop();
-        long el = sw.ElapsedMilliseconds;
+        //sw.Stop();
+        //long el = sw.ElapsedMilliseconds;
         return textWriter.ToString();
     }
 
