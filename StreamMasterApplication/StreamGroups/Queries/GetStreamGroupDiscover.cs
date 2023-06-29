@@ -27,13 +27,17 @@ public class GetStreamGroupDiscoverValidator : AbstractValidator<GetStreamGroupD
 
 public class GetStreamGroupDiscoverHandler : IRequestHandler<GetStreamGroupDiscover, string>
 {
+    private readonly IAppDbContext _context;
     private readonly ISender _sender;
+
     private readonly IHttpContextAccessor _httpContextAccessor;
     public GetStreamGroupDiscoverHandler(
            IHttpContextAccessor httpContextAccessor,
+           IAppDbContext context,
             ISender sender
            )
     {
+        _context = context;
         _httpContextAccessor = httpContextAccessor;
         _sender = sender;
     }
@@ -52,7 +56,8 @@ public class GetStreamGroupDiscoverHandler : IRequestHandler<GetStreamGroupDisco
 
         StreamMasterDomain.Dto.SettingDto setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
         var url = GetUrl();
-        Discover discover = new(setting, url, command.StreamGroupNumber);
+        var maxTuners = _context.M3UFiles.Sum(a => a.MaxStreamCount);
+        Discover discover = new(setting, url, command.StreamGroupNumber, maxTuners);
 
         string jsonString = JsonSerializer.Serialize(discover, new JsonSerializerOptions { WriteIndented = true });
         return jsonString;

@@ -7,7 +7,7 @@ namespace StreamMasterApplication.Common.Models
         public Discover()
         { }
 
-        public Discover(SettingDto setting, string urlBase, int deviceID)
+        public Discover(SettingDto setting, string urlBase, int deviceID,int tunerCount)
         {
             BaseURL = urlBase;
             DeviceAuth = setting.AppName;
@@ -18,7 +18,7 @@ namespace StreamMasterApplication.Common.Models
             LineupURL = $"{urlBase}/lineup.json";
             Manufacturer = "stream master";
             ModelNumber = setting.Version;
-            TunerCount = 2;
+            TunerCount = tunerCount;
         }
 
         public string BaseURL { get; set; } = string.Empty;
