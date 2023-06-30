@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import './DataSelector.css';
 
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
@@ -8,6 +9,7 @@ import { type ColumnSortEvent } from 'primereact/column';
 
 import { Column } from 'primereact/column';
 
+import { type DataTableStateEvent } from 'primereact/datatable';
 import { type DataTableFilterMetaData } from 'primereact/datatable';
 import { type DataTableFilterMeta } from 'primereact/datatable';
 import { type DataTableExpandedRows } from 'primereact/datatable';
@@ -35,6 +37,7 @@ import { useIntl } from 'react-intl';
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
   const tooltipClassName = React.useMemo(() => "menuitemds-" + uuidv4(), []);
+  const tableRef = React.useRef<DataTable<T[]>>(null);
 
   const [globalSourceFilterValue, setGlobalSourceFilterValue] = useLocalStorage('', props.id + '-sourceGlobalFilterValue');
   const [dataSource, setDataSource] = React.useState<T[]>();
@@ -82,38 +85,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       }
     } as DataTableFilterMeta;
 
-    // let testfilter = {} as DataTableFilterMeta;
-    // console.log('showHidden', props.showHidden);
-    // props.columns.forEach((item: ColumnMeta) => {
-    //   if (item.field === 'isHidden') {
-    //     testfilter = {
-    //       ...testfilter,
-    //       [item.field]: {
-    //         constraints: [{
-    //           matchMode: FilterMatchMode.EQUALS,
-    //           value: props.showHidden === null ? null : !props.showHidden
-    //         }],
-    //         operator: FilterOperator.AND
-    //       },
-    //     } as DataTableFilterMeta;
-    //   } else {
-
-
-    //     testfilter = {
-    //       ...testfilter,
-    //       [item.field]: {
-    //         constraints: [{
-    //           matchMode: FilterMatchMode,
-    //           value: props.showHidden === null ? null : !props.showHidden
-    //         }],
-    //         operator: FilterOperator.AND
-    //       },
-    //     } as DataTableFilterMeta;
-    //   }
-
-    // });
-
-
     const filterData = props.columns.reduce((obj, item: ColumnMeta) => {
       if (item.field === 'isHidden') {
         return {
@@ -142,6 +113,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }, {}) as DataTableFilterMeta;
 
     const toret = { ...global, ...filterData };
+
     return toret;
 
   }, [props.columns, props.showHidden, globalSourceFilterValue]);
@@ -307,21 +279,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       <div>
         <div className="flex justify-content-center align-items-center">
           {linkIcon(link)}
-          {/* <Button
-            icon='pi pi-bookmark-fill'
-            onClick={async () => {
-              // const link = `${link}api/streamgroups/${streamGroupNumber}/m3u`;
-              await copy(link);
-              // if (toast.current) {
-              //   toast.current.show({ detail: `${link}`, severity: 'success', summary: 'Copied to clipboard' });
-              // }
-            }
-            }
-            rounded
-            text
-            tooltip="M3U Link"
-            tooltipOptions={getTopToolOptions}
-          /> */}
         </div>
       </div >
     );
@@ -332,21 +289,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       <div>
         <div className="flex justify-content-center align-items-center">
           {linkIcon(link)}
-          {/* <Button
-            icon='pi pi-bookmark-fill'
-            onClick={async () => {
-              // const link = `${baseHostURL}api/streamgroups/${streamGroupNumber}/epg.xml`;
-              await copy(link);
-              // if (toast.current) {
-              //   toast.current.show({ detail: `${link}`, severity: 'success', summary: 'Copied to clipboard' });
-              // }
-            }
-            }
-            rounded
-            text
-            tooltip="XMLTV Link"
-            tooltipOptions={getTopToolOptions}
-          /> */}
         </div>
       </div>
     );
@@ -357,21 +299,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       <div>
         <div className="flex justify-content-center align-items-center">
           {linkIcon(link)}
-          {/* <Button
-            icon='pi pi-bookmark-fill'
-            onClick={async () => {
-              // const link = `${baseHostURL}api/streamgroups/${streamGroupNumber}`;
-              await copy(link);
-              // if (toast.current) {
-              //   toast.current.show({ detail: `${link}`, severity: 'success', summary: 'Copied to clipboard' });
-              // }
-            }
-            }
-            rounded
-            text
-            tooltip="HDHR Link"
-            tooltipOptions={getTopToolOptions}
-          /> */}
         </div>
       </div>
     );
@@ -625,7 +552,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     );
   }, [clearSourceFilter, globalSearchName, globalSourceFilterValue, onGlobalSourceFilterChange, props, rowClick, setRowClick, showSkeleton]);
 
-
   const onsetSelection = React.useCallback((e: T | T[]): T | T[] | undefined => {
 
     if (props.selectionMode === 'single') {
@@ -660,18 +586,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }, [props]);
 
 
-  // const onRowClick = React.useCallback((data: T) => {
-  //   if (selections.length === 0) {
-  //     setSelections([data]);
-  //     if (props.onSelectionChange) {
-  //       props.onSelectionChange([data]);
-  //     }
-
-  //     return;
-  //   }
-  // }, [props, selections.length]);
-
-
   const getSelectionMode = React.useMemo((): 'checkbox' | 'multiple' | 'radiobutton' | 'single' | undefined => {
 
     if (props.selectionMode === 'selectable') {
@@ -689,13 +603,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     return props.selectionMode
 
   }, [props.selectionMode, rowClick]);
-
-  // React.useEffect(() => {
-  //   if (props.selectionMode === 'single' && !rowClick && selection.length > 1) {
-  //     const single1 = selection.slice(selection.length - 1, selection.length);
-  //     setSelection(single1);
-  //   }
-  // }, [props.selectionMode, rowClick, selection]);
 
   React.useMemo(() => {
     if (props.selection === undefined) {
@@ -762,10 +669,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     if (fieldType === 'image') {
       return false;
     }
-
-    // if (fieldType === 'isHidden') {
-    //   return true;
-    // }
 
     return filter;
   }, [])
@@ -1031,14 +934,14 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           header={sourceRenderHeader}
           loading={props.isLoading}
           metaKeySelection={false}
-          // onRowClick={(e) => onRowClick(e.data as T)}
           onRowReorder={(e) => onRowReorder(e.value)}
           onRowToggle={(e: DataTableRowToggleEvent) => setExpandedRows(e.data as DataTableExpandedRows)}
           onSelectionChange={((e) => onSelectionChange(e))}
-          onValueChange={(e) => onValueChanged(e)}
+          onValueChange={(e) => { onValueChanged(e); }}
           paginator={showPagination}
           paginatorClassName='text-xs p-0 m-0 withpadding'
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+          ref={tableRef}
           removableSort
           reorderableRows={props.reorderable}
           resizableColumns

@@ -113,6 +113,7 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
           onSetStreamGroup(e as StreamMasterApi.StreamGroupDto);
         }
         }
+
         sortField='rank'
         style={{ height: 'calc(100vh - 40px)' }}
       />
