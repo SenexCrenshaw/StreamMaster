@@ -19,14 +19,6 @@ export const StreamGroupSelector =
 
     const streamGroups = useStreamGroupsGetStreamGroupsQuery();
 
-    // React.useMemo(() => {
-    //   if (props.streamGroup) {
-
-
-    //     setSelectedStreamGroup(props.streamGroup);
-    //   }
-    // }, [props.streamGroup]);
-
     const isDisabled = React.useMemo((): boolean => {
       if (streamGroups.isLoading) {
         return true;

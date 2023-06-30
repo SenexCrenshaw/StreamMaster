@@ -11,6 +11,7 @@ using StreamMasterApplication.General;
 using StreamMasterDomain.Dto;
 
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace StreamMasterApplication.Icons.Queries;
 
@@ -53,6 +54,8 @@ internal class GetIconsQueryHandler : IRequestHandler<GetIcons, List<IconFileDto
               .OrderBy(x => x.Name)
               .ToListAsync(cancellationToken).ConfigureAwait(false);
 
+
+
             IEnumerable<IconFileDto> tvlogos = _mapper.Map<IEnumerable<IconFileDto>>(_memoryCache.TvLogos());
 
             List<IconFileDto> allIcons = tvlogos.Concat(icons).ToList();
@@ -84,6 +87,8 @@ internal class GetIconsQueryHandler : IRequestHandler<GetIcons, List<IconFileDto
 
             _memoryCache.Set(CacheKeys.ListIconFiles, cacheValue, cacheEntryOptions);
         }
+
+        // var test = cacheValue.Where(a => a.Name.StartsWith("sexy"));
 
         return cacheValue ?? new List<IconFileDto>();
     }
