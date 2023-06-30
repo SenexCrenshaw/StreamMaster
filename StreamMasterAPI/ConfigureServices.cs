@@ -44,7 +44,6 @@ public static class ConfigureServices
             logging.AddDebug();
             logging.SetMinimumLevel(LogLevel.Trace);
             //b.addfilter("microsoft.aspnetcore",loglevel.warning);
-            //b.addfilter("radarr.http.authentication", loglevel.information);
             logging.AddFilter("microsoft.aspnetcore.dataprotection.keymanagement.xmlkeymanager", LogLevel.Error);
             logging.AddFilter("microsoft.aspnetcore.httplogging.httploggingmiddleware", LogLevel.Debug);
             logging.AddFilter("microsoft.aspnetcore.authentication", LogLevel.Debug);
