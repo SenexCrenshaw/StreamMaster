@@ -134,7 +134,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
                     t = new TvChannel
                     {
-                        Id = videoStream.User_Tvg_ID + "-" + dummy,
+                        Id = "dummy-" + dummy,
                         Icon = new TvIcon { Src = Logo },
                         Displayname = new()
                     {
@@ -146,7 +146,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                 {
                     t = new TvChannel
                     {
-                        Id = videoStream.User_Tvg_ID.ToString(),
+                        Id = videoStream.User_Tvg_name,
                         Icon = new TvIcon { Src = Logo },
                         Displayname = new()
                     {
@@ -174,10 +174,11 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                             Lang = "en",
                             Text = videoStream.User_Tvg_name,
                         };
+                        DateTime now = DateTime.Now;
                         prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{url}/images/transparent.png" });
-                        prog.StartDateTime = DateTime.Now.AddHours(-1);
+                        prog.StartDateTime = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
                         prog.Start= prog.StartDateTime.ToString("yyyyMMddHHmmss K");
-                        prog.StopDateTime = DateTime.Now.AddDays(7);
+                        prog.StopDateTime = new DateTime(now.Year, now.Month, now.AddDays(7).Day, 0, 0, 0);
                         prog.Stop = prog.StopDateTime.ToString("yyyyMMddHHmmss K");
                         retProgrammes.Add(prog);                        
                     }
@@ -212,10 +213,11 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                                     {
                                         p.Icon.Add(new TvIcon { Height = "", Width = "", Src = "" });
                                     }
-                                    p.Channel = videoStream.User_Tvg_ID;
+                                    p.Channel = videoStream.User_Tvg_name;
+
                                     if (videoStream.User_Tvg_ID.ToLower() == "dummy")
                                     {
-                                        p.Channel = videoStream.User_Tvg_ID + "-" + dummy;
+                                        p.Channel = "dummy-" + dummy;
 
                                         p.Title = new TvTitle
                                         {
