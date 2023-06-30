@@ -4,25 +4,23 @@ import { type CSSProperties } from 'react';
 import React from 'react';
 import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
+import { Button } from 'primereact/button';
+import { getTopToolOptions } from '../../common/common';
 
 const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPickerProps<T>) => {
 
   const [selection, setSelection] = React.useState<T[]>([] as T[]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [previousSelection, setPreviousSelection] = React.useState<T[]>([] as T[]);
 
   const onSelectionChange = React.useCallback((value: T[]) => {
+    setPreviousSelection(selection);
     setSelection(value);
     if (props?.onSelectionChange === undefined) return;
 
     props.onSelectionChange(value);
-  }, [props]);
+  }, [props, selection]);
 
-
-  // const onTargetSelectionsChange = React.useCallback((value: T[]) => {
-  //   if (Array.isArray(value)) {
-  //     props?.onTargetSelectionChange?.(value);
-  //   }
-
-  // }, [props]);
 
   React.useMemo(() => {
     if (props?.selection === undefined) {
@@ -62,6 +60,40 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
 
   }, [props.sourceDataSource, selection]);
 
+  const targetRightHeaderTemplate = React.useMemo(() => {
+    if (props.targetHeaderTemplate && props.showUndo !== true) {
+      return props.targetHeaderTemplate;
+    }
+
+    return (
+      <>
+        {props.targetHeaderTemplate}
+        <Button
+          className="ml-1"
+          icon="pi pi-undo"
+          onClick={() => {
+            // setPreviousSelection(selection);
+            // setSelection(previousSelection)
+            onSelectionChange(previousSelection);
+          }
+          }
+          rounded
+          severity="warning"
+          size="small"
+          style={{
+            ...{
+              maxHeight: "2rem",
+              maxWidth: "2rem"
+            }
+          }}
+          tooltip="Undo Last Change"
+          tooltipOptions={getTopToolOptions}
+        />
+      </>
+    );
+
+  }, [onSelectionChange, previousSelection, props.showUndo, props.targetHeaderTemplate]);
+
   return (
     <div className='grid grid-nogutter flex flex-wrap justify-content-between h-full col-12 p-0'>
       <div className='col-6'>
@@ -75,9 +107,10 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
           isLoading={props.isLoading}
           name={props.sourceName}
           onSelectionChange={((e) => onSelectionChange(e as T[]))}
+          // onValueChanged={(e) => onSourceOnValueChanged(e as T[])}
           rightColSize={props.sourceRightColSize}
           selection={selection}
-          selectionMode='multipleNoCheckBox'
+          selectionMode='multiple'
           sortField={props.sourceSortField}
           style={props.sourceStyle}
         />
@@ -88,7 +121,7 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
           dataSource={props.targetDataSource ? props.targetDataSource : props.sourceDataSource}
           enableState={props.targetEnableState}
           headerLeftTemplate={props.targetHeaderPrefixTemplate}
-          headerRightTemplate={props.targetHeaderTemplate}
+          headerRightTemplate={targetRightHeaderTemplate}
           id={`${props.id}-ds-picker-target`}
           isLoading={props.isLoading}
           name={props.targetName}
@@ -114,6 +147,7 @@ export type DataSelectorPickerProps<T extends DataTableValue> = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onTargetSelectionChange?: (value: T | T[] | any) => void;
   selection?: T | T[] | undefined;
+  showUndo?: boolean | undefined;
   sourceColumns: ColumnMeta[];
   sourceDataSource: T[] | undefined;
   sourceEnableState?: boolean | undefined;

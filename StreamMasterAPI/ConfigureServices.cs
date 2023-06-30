@@ -37,18 +37,18 @@ public static class ConfigureServices
     public static IServiceCollection AddWebUIServices(this IServiceCollection services)
     {
 
-        services.AddLogging(logging =>
-        {
-            logging.ClearProviders();
-            logging.AddConsole();
-            logging.AddDebug();
-            logging.SetMinimumLevel(LogLevel.Trace);
-            //b.addfilter("microsoft.aspnetcore",loglevel.warning);
-            logging.AddFilter("microsoft.aspnetcore.dataprotection.keymanagement.xmlkeymanager", LogLevel.Error);
-            logging.AddFilter("microsoft.aspnetcore.httplogging.httploggingmiddleware", LogLevel.Debug);
-            logging.AddFilter("microsoft.aspnetcore.authentication", LogLevel.Debug);
-            logging.AddFilter("microsoft.aspnetcore.authorization", LogLevel.Debug);
-        });
+        //services.AddLogging(logging =>
+        //{
+        //    logging.ClearProviders();
+        //    logging.AddConsole();
+        //    logging.AddDebug();
+        //    logging.SetMinimumLevel(LogLevel.Trace);
+        //    //b.addfilter("microsoft.aspnetcore",loglevel.warning);
+        //    logging.AddFilter("microsoft.aspnetcore.dataprotection.keymanagement.xmlkeymanager", LogLevel.Error);
+        //    logging.AddFilter("microsoft.aspnetcore.httplogging.httploggingmiddleware", LogLevel.Debug);
+        //    logging.AddFilter("microsoft.aspnetcore.authentication", LogLevel.Debug);
+        //    logging.AddFilter("microsoft.aspnetcore.authorization", LogLevel.Debug);
+        //});
 
         _ = services.AddLogging();
 

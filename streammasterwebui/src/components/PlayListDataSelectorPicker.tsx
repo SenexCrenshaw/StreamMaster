@@ -14,6 +14,7 @@ import { type ColumnMeta } from "../features/dataSelector/DataSelectorTypes";
 import { GroupIcon } from "../common/icons";
 import { Tooltip } from "primereact/tooltip";
 import IconSelector from "./IconSelector";
+import EPGSelector from "./EPGSelector";
 
 const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   const toast = React.useRef<Toast>(null);
@@ -91,7 +92,39 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
   }, [videoStreamsQuery.data, props.videoStream?.childVideoStreams, props.showTriState, streamGroup]);
 
+  const channelNumberEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
+
+    return (
+      <ChannelNumberEditor
+        data={data}
+        enableEditMode
+      />
+    )
+  }, []);
+
+
   const sourceColumns: ColumnMeta[] = [
+    {
+      field: 'id',
+      filter: false,
+      header: 'id',
+      sortable: true,
+      style: {
+        maxWidth: '4rem',
+        width: '4rem',
+      } as CSSProperties,
+    },
+    {
+      bodyTemplate: channelNumberEditorBodyTemplate,
+      field: 'user_Tvg_chno',
+      filter: false,
+      header: 'Ch.',
+      sortable: true,
+      style: {
+        maxWidth: '4rem',
+        width: '4rem',
+      } as CSSProperties,
+    },
     {
       field: 'user_Tvg_name', header: 'Name', sortable: true,
       style: {
@@ -122,14 +155,14 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     }
   ];
 
-  const channelNumberEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
-
+  const epgEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
     return (
-      <ChannelNumberEditor
+      <EPGSelector
         data={data}
         enableEditMode
+        value={data.user_Tvg_ID}
       />
-    )
+    );
   }, []);
 
   const onUpdateVideoStream = React.useCallback(async (data: StreamMasterApi.VideoStreamDto, Logo: string) => {
@@ -189,7 +222,6 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     )
   }, []);
 
-
   const logoEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
     // return <ChannelLogoEditor
     //   data={data}
@@ -226,7 +258,6 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     );
 
   }, [onUpdateVideoStream]);
-
 
   const onSave = React.useCallback(async (data: StreamMasterApi.VideoStreamDto[]) => {
 
@@ -332,6 +363,16 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
   const targetColumns: ColumnMeta[] = [
     {
+      field: 'id',
+      filter: false,
+      header: 'id',
+      sortable: true,
+      style: {
+        maxWidth: '4rem',
+        width: '4rem',
+      } as CSSProperties,
+    },
+    {
       bodyTemplate: channelNumberEditorBodyTemplate,
       field: 'user_Tvg_chno',
       filter: true,
@@ -356,18 +397,16 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       header: 'Name',
       sortable: true,
     },
-    // {
-    //   bodyTemplate: epgEditorBodyTemplate,
-    //   field: 'user_Tvg_ID',
-    //   fieldType: 'epg',
-    //   filter: true,
-    //   sortable: true,
-    //   style: {
-    //     flexGrow: 0,
-    //     flexShrink: 1,
-    //     maxWidth: '13rem',
-    //   } as CSSProperties,
-    // },
+    {
+      bodyTemplate: epgEditorBodyTemplate,
+      field: 'user_Tvg_ID_DisplayName',
+      fieldType: 'epg',
+      filter: true,
+      sortable: true,
+      style: {
+        maxWidth: '16rem',
+      } as CSSProperties,
+    },
     {
       bodyTemplate: sourceActionBodyTemplate,
       field: 'x',
@@ -379,6 +418,29 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     },
   ];
 
+  const rightHeaderTemplate = React.useMemo(() => {
+
+    return (
+
+      <Button
+        className='ml-1'
+        icon="pi pi-star"
+        onClick={() => setTargetVideoStreams(targetVideoStreams.concat(sourceVideoStreams.filter((x) => !targetVideoStreams.includes(x))))}
+        rounded
+        severity="success"
+        size="small"
+        style={{
+          ...{
+            maxHeight: "2rem",
+            maxWidth: "2rem"
+          }
+        }}
+        tooltip="Add All"
+        tooltipOptions={getTopToolOptions}
+      />
+
+    );
+  }, [sourceVideoStreams, targetVideoStreams]);
 
 
   return (
@@ -402,14 +464,13 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
             props.onValueChanged?.(e as StreamMasterApi.VideoStreamDto[]);
           }
         }}
-        // onTargetSelectionChange={(e) => {
-        // }}
         selection={targetVideoStreams}
+        showUndo
         sourceColumns={sourceColumns}
         sourceDataSource={sourceVideoStreams}
         sourceEnableState={false}
 
-        sourceHeaderTemplate={props.sourceHeaderTemplate}
+        sourceHeaderTemplate={props.sourceHeaderTemplate !== undefined ? props.sourceHeaderTemplate : rightHeaderTemplate}
         sourceName='Streams'
         sourceRightColSize={1}
         sourceSortField='user_Tvg_name'
