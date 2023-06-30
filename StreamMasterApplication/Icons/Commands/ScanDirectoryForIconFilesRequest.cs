@@ -54,8 +54,8 @@ public class ScanDirectoryForIconFilesRequestHandler : IRequestHandler<ScanDirec
             }
             else
             {
-                originalSource = fileInfo.FullName;
-                source = $"api/files/{(int)SMFileTypes.Icon}/{HttpUtility.UrlEncode(fileInfo.Name)}";
+                originalSource = fileInfo.Name;
+                source = fileInfo.Name;
             }
 
             ++count;

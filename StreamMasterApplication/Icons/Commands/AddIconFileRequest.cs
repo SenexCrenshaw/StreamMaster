@@ -10,6 +10,8 @@ using Microsoft.Extensions.Caching.Memory;
 using StreamMasterDomain.Dto;
 
 using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Web;
 
 namespace StreamMasterApplication.Icons.Commands;
 
@@ -80,12 +82,15 @@ public class AddIconFileRequestHandler : IRequestHandler<AddIconFileRequest, Ico
                     return null;
                 }
                 string ext = "." + command.FormFile.ContentType.Replace("image/", string.Empty);
-                string fullName = Path.Combine(fd.DirectoryLocation, command.Name + ext);
+                string fullName = Path.Combine(fd.DirectoryLocation, command.Name + ext);                
+
+                var nameWithExtension = command.Name + ext;
+                
                 iconFile = new()
                 {
                     Name = command.Name,
-                    Source = command.Name + ext,
-                    OriginalSource = command.Name + ext,
+                    Source = nameWithExtension,
+                    OriginalSource = nameWithExtension,
                     Url = command.Name + ext,
                     ContentType = command.FormFile.ContentType,
                     FileExtension = ext[1..]

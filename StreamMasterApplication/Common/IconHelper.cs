@@ -24,19 +24,11 @@ internal static class IconHelper
     public static async Task<(IconFile iconFile, bool isNew)> AddIcon(string sourceUrl, string? additionalUrl, string? recommendedName, IAppDbContext context, IMapper _mapper, SettingDto setting, FileDefinition fileDefinition, CancellationToken cancellationToken = default)
     {
         string source = HttpUtility.UrlDecode(sourceUrl);
-        if (sourceUrl.Contains("deba6af644347122056ec73f6b885215ff4534230b214addfc795ae7db60c38f"))
-        {
-            var aaa = 1;
-        }
+
         IconFile? icon = await context.Icons.AsNoTracking().FirstOrDefaultAsync(a => a.Source == source && a.SMFileType == fileDefinition.SMFileType, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         if (icon != null)
         {
-            //if (icon.FileExists && icon.LastDownloaded.AddDays(-3) > DateTime.Now)// File Exists and last download is less then 3 days ago
-            //{
-            //    continue;
-            //}
-
             if (icon.DownloadErrors > 3)//Download errors over three and tried last 7 days ago
             {
                 if (icon.LastDownloaded.AddDays(-7 * icon.DownloadErrors) < DateTime.Now)
@@ -81,7 +73,7 @@ internal static class IconHelper
         string newUrl = "";
         if (badDownload)
         {
-            newUrl = "/"+Constants.IconDefault;
+            newUrl = "/" + Constants.IconDefault;
             contentType = "image/png";
             ext = "png";
         }

@@ -21,6 +21,7 @@ import { type ColumnMeta } from "../features/dataSelector/DataSelectorTypes";
 import { type DataTableRowDataArray } from "primereact/datatable";
 import VideoStreamVisibleDialog from "./VideoStreamVisibleDialog";
 import VideoStreamEditDialog from "./VideoStreamEditDialog";
+import FileDialog from "./FileDialog";
 // import AutoMatchIconToStreamsDialog from "./AutoMatchIconToStreamsDialog";
 
 const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
@@ -30,6 +31,8 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const [selectedM3UStreams, setSelectedM3UStreams] = React.useState<StreamMasterApi.VideoStreamDto[]>([] as StreamMasterApi.VideoStreamDto[]);
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
   const [values, setValues] = React.useState<StreamMasterApi.VideoStreamDto[]>([] as StreamMasterApi.VideoStreamDto[]);
+
+  const [addIcon, setAddIcon] = React.useState<boolean>(false);
 
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
 
@@ -214,9 +217,11 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const logoEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
 
     return (
+
       <IconSelector
         className="p-inputtext-sm"
         enableEditMode={enableEditMode}
+        onAddIcon={() => setAddIcon(true)}
         onChange={
           async (e: StreamMasterApi.IconFileDto) => {
 
@@ -240,6 +245,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         resetValue={data.tvg_logo}
         value={data.user_Tvg_logo}
       />
+
     );
   }, [enableEditMode, onUpdateVideoStream]);
 
@@ -271,7 +277,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     );
   }, [enableEditMode]);
 
-  const streamGroupEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
+  const channelGroupEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
     if (data.user_Tvg_group === undefined) {
       return <span />
     }
@@ -326,7 +332,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       },
       {
         align: 'left',
-        bodyTemplate: streamGroupEditorBodyTemplate,
+        bodyTemplate: channelGroupEditorBodyTemplate,
         field: 'user_Tvg_group',
         filter: false,
 
@@ -354,7 +360,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         } as CSSProperties,
       },
     ]
-  }, [channelNameEditorBodyTemplate, channelNumberEditorBodyTemplate, enableEditMode, epgEditorBodyTemplate, logoEditorBodyTemplate, streamGroupEditorBodyTemplate, targetActionBodyTemplate]);
+  }, [channelNameEditorBodyTemplate, channelNumberEditorBodyTemplate, enableEditMode, epgEditorBodyTemplate, logoEditorBodyTemplate, channelGroupEditorBodyTemplate, targetActionBodyTemplate]);
 
   const onsetSelectedM3UStreams = React.useCallback((selectedData: StreamMasterApi.VideoStreamDto | StreamMasterApi.VideoStreamDto[]) => {
 
@@ -422,7 +428,12 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     <>
 
       <Toast position="bottom-right" ref={toast} />
-
+      <FileDialog
+        fileType="icon"
+        onHide={() => { setAddIcon(false); }}
+        show={addIcon}
+        showButton={false}
+      />
       <DataSelector
         columns={targetColumns}
         dataSource={filteredStreams}
