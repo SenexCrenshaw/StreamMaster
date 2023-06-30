@@ -137,7 +137,6 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
     )
   }, [onEPGUpdateClick]);
 
-
   const programmeCountTemplate = React.useCallback((rowData: StreamMasterApi.EpgFilesDto) => {
     if (rowData.id === 0) {
       return (<div />);
@@ -197,6 +196,7 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
+
       <DataSelector
         columns={sourceColumns}
         dataSource={epgFilesQuery.data}
@@ -208,6 +208,7 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
           SetSelectedEPGFileChanged(e as StreamMasterApi.EpgFilesDto)
         }
         selection={selectedEPGFile}
+        style={{ height: 'calc(50vh - 40px)' }}
       />
     </>
   );

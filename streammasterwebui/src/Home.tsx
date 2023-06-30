@@ -5,7 +5,7 @@ import React from 'react';
 import { Sidebar, Menu, MenuItem, sidebarClasses } from 'react-pro-sidebar';
 import { useLocalStorage } from 'primereact/hooks';
 import MenuItemSM from './components/MenuItemSM';
-import { HelpIcon, PlayListEditorIcon, QueueStatisIcon, SettingsEditorIcon, SideBarMenuIcon, StreamGroupEditorIcon, StreamingStatusIcon, VideoIcon } from './common/icons';
+import { FilesEditorIcon, HelpIcon, PlayListEditorIcon, QueueStatisIcon, SettingsEditorIcon, SideBarMenuIcon, StreamGroupEditorIcon, StreamingStatusIcon, VideoIcon } from './common/icons';
 import StreamMasterSetting from './store/signlar/StreamMasterSetting';
 import * as StreamMasterApi from './store/iptvApi';
 
@@ -70,6 +70,8 @@ const Home = () => {
 
           <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/editor/playlist" name='Playlist' />
           <MenuItemSM collapsed={collapsed} icon={<StreamGroupEditorIcon />} link="/editor/streamgroup" name='Stream Group' />
+
+          <MenuItemSM collapsed={collapsed} icon={<FilesEditorIcon />} link="/editor/files" name='Files' />
 
           <MenuItemSM collapsed={collapsed} icon={<StreamingStatusIcon />} link="/streamingstatus" name='Status' />
           <MenuItemSM collapsed={collapsed} icon={<QueueStatisIcon />} link="/queuestatus" name='Queue' />

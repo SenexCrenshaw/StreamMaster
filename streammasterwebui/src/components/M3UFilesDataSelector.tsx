@@ -11,6 +11,7 @@ import StringEditorBodyTemplate from './StringEditorBodyTemplate';
 import { type ColumnMeta } from '../features/dataSelector/DataSelectorTypes';
 import { useLocalStorage } from 'primereact/hooks';
 
+
 const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
 
@@ -287,6 +288,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
+
       <DataSelector
         columns={sourceColumns}
         dataSource={m3UFilesQuery.data}
@@ -298,6 +300,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
           SetSelectedM3UFileChanged(e as StreamMasterApi.M3UFilesDto)
         }
         selection={selectedM3UFile}
+        style={{ height: 'calc(50vh - 40px)' }}
       />
     </>
   );
