@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import React from 'react';
 
@@ -19,7 +20,7 @@ export const StreamingStatus = () => {
         <div className="flex col-12 w-full mt-2">
           <StreamingServerStatusPanel />
         </div>
-        <div className='flex col-12 w-full'>
+        <div className='flex col-12 w-full mt-4'>
           <StreamingClientsPanel />
         </div>
       </div>

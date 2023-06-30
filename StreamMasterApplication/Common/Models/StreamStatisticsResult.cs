@@ -7,7 +7,7 @@ public class StreamStatisticsResult
     public long InputBytesWritten { get; set; }
     public TimeSpan InputElapsedTime => DateTimeOffset.UtcNow - InputStartTime;
     public DateTimeOffset InputStartTime { get; set; }
-
+    public string ClientAgent { get; set; }
     public double ClientBitsPerSecond { get; set; }
     public long ClientBytesRead { get; set; }
     public long ClientBytesWritten { get; set; }

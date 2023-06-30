@@ -1,6 +1,7 @@
 ﻿using StreamMasterApplication.Common.Models;
 
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Reflection.Metadata;
 
 namespace StreamMasterInfrastructure.MiddleWare;
@@ -13,6 +14,7 @@ public class CircularRingBuffer
     public readonly StreamInfo StreamInfo;
     private readonly Memory<byte> _buffer;
     private readonly int _bufferSize;
+
     private readonly ConcurrentDictionary<Guid, int> _clientReadIndexes;
     private readonly ConcurrentDictionary<Guid, SemaphoreSlim> _clientSemaphores;
     private readonly ConcurrentDictionary<Guid, StreamingStatistics> _clientStatistics = new();
@@ -183,7 +185,7 @@ public class CircularRingBuffer
     public void RegisterClient(Guid clientId)
     {
         if (!_clientReadIndexes.ContainsKey(clientId))
-        {
+        {           
             _ = _clientReadIndexes.TryAdd(clientId, _oldestDataIndex);
             _ = _clientSemaphores.TryAdd(clientId, new SemaphoreSlim(0, 1));
             _ = _clientStatistics.TryAdd(clientId, new StreamingStatistics());
@@ -206,6 +208,7 @@ public class CircularRingBuffer
     /// <param name="clientId">The ID of the client to unregister.</param>
     public void UnregisterClient(Guid clientId)
     {
+    
         _ = _clientReadIndexes.TryRemove(clientId, out _);
         _ = _clientSemaphores.TryRemove(clientId, out _);
         _ = _clientStatistics.TryRemove(clientId, out _);

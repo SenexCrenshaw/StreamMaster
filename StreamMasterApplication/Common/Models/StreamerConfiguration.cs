@@ -21,6 +21,9 @@ namespace StreamMasterApplication.Common.Models
 
         public int BroadcastInterval { get; set; }
 
+        public string ClientUserAgent { get; set; }
+
+
         /// <summary>
         /// Gets or sets the size of each chunk of data read from the video stream.
         /// </summary>

@@ -19,6 +19,7 @@ public class StreamingWorkerStatusDto : StreamingClientInformation
     public int ClientBufferPosition { get; set; }
     public Guid ClientId { get; set; }
     public string? IconSource { get; set; }
+    public string? ClientUserAgent { get; set; }
     public Guid Id { get; set; } = Guid.NewGuid();
 
     public double InboundBps { get; set; }

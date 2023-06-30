@@ -1399,6 +1399,7 @@ export type StreamStatisticsResult = {
   inputBytesWritten?: number;
   inputElapsedTime?: string;
   inputStartTime?: string;
+  clientAgent?: string;
   clientBitsPerSecond?: number;
   clientBytesRead?: number;
   clientBytesWritten?: number;

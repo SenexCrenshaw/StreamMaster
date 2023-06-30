@@ -13,7 +13,9 @@ using StreamMasterDomain.Common;
 using StreamMasterDomain.Enums;
 
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace StreamMasterInfrastructure.MiddleWare;
 
@@ -27,7 +29,9 @@ public class RingBufferManager : IDisposable, IRingBufferManager
     private readonly ILogger<RingBufferManager> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly ConcurrentDictionary<Guid, RingBufferReadStream> _streamReads;
+    private readonly ConcurrentDictionary<Guid, string> _clientUserAgents;
     private readonly ConcurrentDictionary<string, StreamStreamInfo> _streamStreamInfos;
+    //private readonly ConcurrentDictionary<Guid, string> _clientUserAgents;
     private readonly Setting setting;
 
     public RingBufferManager(ILogger<RingBufferManager> logger, IServiceProvider serviceProvider, IHubContext<StreamMasterHub, IStreamMasterHub> hub, ISender sender)
@@ -39,6 +43,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         _clientCancellationTokenSources = new ConcurrentDictionary<Guid, CancellationTokenSource>();
         _streamReads = new ConcurrentDictionary<Guid, RingBufferReadStream>();
         _streamStreamInfos = new();
+        _clientUserAgents = new();
         setting = FileUtil.GetSetting();
         _broadcastTimer = new Timer(BroadcastMessage, null, 1000, 1000);
     }
@@ -114,6 +119,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
             StreamingStatistics input = bufferEntry.GetInputStreamStatistics();
             foreach (ClientStreamingStatistics stat in bufferEntry.GetAllStatistics())
             {
+                _clientUserAgents.TryGetValue(stat.ClientId, out var clientAgent);
                 allStatistics.Add(new StreamStatisticsResult
                 {
                     M3UStreamId = bufferEntry.StreamInfo.M3UStreamId,
@@ -134,7 +140,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
                     ClientBytesWritten = stat.BytesWritten,
                     ClientId = stat.ClientId,
                     ClientStartTime = stat.StartTime,
-
+                    ClientAgent= clientAgent,
                     // ClientStatistics = bufferEntry.Value.GetAllStatistics()
                 });
             }
@@ -171,6 +177,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         _ = _streamReads.TryAdd(config.ClientId, streamRead);
 
         streamStreamInfo.RingBuffer.RegisterClient(config.ClientId);
+        _clientUserAgents.TryAdd(config.ClientId, config.ClientUserAgent);
 
         _logger.LogInformation("Client {ClientId} registered for stream: {StreamUrl}", config.ClientId, setting.CleanURLs ? "url removed" : streamUrl);
         return (streamRead, config.ClientId, null);
@@ -189,6 +196,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         if (buffer != null)
         {
             buffer.UnregisterClient(config.ClientId);
+            _clientUserAgents.TryRemove(config.ClientId, out _);
             _logger.LogInformation("Client {ClientId} unregistered for stream: {StreamUrl}", config.ClientId, setting.CleanURLs ? "url removed" : config.CurentVideoStream.User_Url);
 
             _ = _clientCancellationTokenSources.TryRemove(config.ClientId, out _);
@@ -256,29 +264,6 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         _ = _hub.Clients.All.StreamStatisticsResultsUpdate(GetAllStatisticsForAllUrls());
         // _logger.LogInformation("Broadcast message sent for all streams");
     }
-
-    //private bool CheckMaxStreamsForUrl(string streamUrl, StreamerConfiguration clientInfo)
-    //{
-    //    using IServiceScope scope = _serviceProvider.CreateScope();
-    //    ISender _sender = scope.ServiceProvider.GetRequiredService<ISender>();
-
-    // var m3uFileTask = _sender.Send(new
-    // GetM3UFileIdMaxStreamFromUrl(streamUrl)); m3uFileTask.Wait();
-
-    // var m3uFileIdMaxStream = m3uFileTask.Result; if (m3uFileIdMaxStream ==
-    // null) { _logger.LogError("M3UFile not found for stream: {StreamUrl}",
-    // streamUrl); return false; }
-
-    // clientInfo.CurrentM3UFileId= m3uFileIdMaxStream.M3UFileId;
-
-    // var currentStreamCount =
-    // _m3uFileIdMaxStreams.GetOrAdd(m3uFileIdMaxStream.M3UFileId, _ => { return
-    // 0; });
-
-    // if (currentStreamCount >= m3uFileIdMaxStream.MaxStreams) { return false; }
-
-    //    return true;
-    //}
 
     /// <summary>
     /// Creates a new buffer and starts the video streaming for the specified
@@ -438,9 +423,15 @@ public class RingBufferManager : IDisposable, IRingBufferManager
             return null;
         }
 
-        var allStreamsCount = _streamStreamInfos.Where(x => x.Value.M3UFileId == si.M3UFileId).Sum(a => a.Value.ClientCounter);
+        var streamUrls = _streamStreamInfos.Select(a => a.Value.StreamUrl).Distinct();
 
-        if (allStreamsCount >= si.MaxStreams)
+        var allStreamsCount = _streamStreamInfos
+            .Where(x => x.Value.M3UFileId == si.M3UFileId)
+             .Select(a => a.Value.StreamUrl)
+             .Distinct()
+            .Count();
+
+        if (allStreamsCount > si.MaxStreams)
         {
             _logger.LogInformation("Max stream count reached for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
             return null;
@@ -530,6 +521,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
                 foreach (Guid clientdId in clientIds)
                 {
                     streamStreamInfo.RingBuffer.RegisterClient(clientdId);
+                    //_clientUserAgents.TryAdd(clientdId, DJDJDJ);
                     if (_streamReads.TryGetValue(clientdId, out RingBufferReadStream? streamRead))
                     {
                         streamRead.SetBufferDelegate(() => streamStreamInfo.RingBuffer);

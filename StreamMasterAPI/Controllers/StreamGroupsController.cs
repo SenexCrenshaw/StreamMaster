@@ -524,7 +524,8 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
             CancellationToken = cancellationToken,
             MaxConnectRetry = settings.MaxConnectRetry,
             MaxConnectRetryTimeMS = settings.MaxConnectRetryTimeMS,
-        };
+            ClientUserAgent=Request.Headers["User-Agent"].ToString()
+    };
 
         // Get the read stream for the client
         (Stream? stream, Guid clientId, ProxyStreamError? error) = await _ringBufferManager.GetStream(config);

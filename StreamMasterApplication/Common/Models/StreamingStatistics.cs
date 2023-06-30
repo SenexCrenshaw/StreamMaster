@@ -17,7 +17,7 @@ public class StreamingStatistics
             return elapsedTimeInSeconds > 0 ? (BytesRead + BytesWritten) * 8 / elapsedTimeInSeconds : 0;
         }
     }
-
+    
     public long BytesRead { get; set; }
     public long BytesWritten { get; set; }
     public TimeSpan ElapsedTime => DateTimeOffset.UtcNow - StartTime;
