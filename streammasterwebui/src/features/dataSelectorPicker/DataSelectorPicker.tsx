@@ -13,12 +13,25 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [previousSelection, setPreviousSelection] = React.useState<T[]>([] as T[]);
 
-  const onSelectionChange = React.useCallback((value: T[]) => {
+  const onSelectionChange = React.useCallback((value: T | T[], isUndo?: boolean) => {
     setPreviousSelection(selection);
-    setSelection(value);
+
+    if (value instanceof Array) {
+      let newSelection = [...value];
+      if (isUndo !== true) {
+        newSelection = selection.concat(newSelection.filter((obj) => !selection.includes(obj)));
+      }
+
+      setSelection(newSelection);
+      if (props?.onSelectionChange === undefined) return;
+      props.onSelectionChange(newSelection);
+      return;
+    }
+
+    setSelection([value]);
     if (props?.onSelectionChange === undefined) return;
 
-    props.onSelectionChange(value);
+    props.onSelectionChange([value]);
   }, [props, selection]);
 
 
@@ -72,9 +85,7 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
           className="ml-1"
           icon="pi pi-undo"
           onClick={() => {
-            // setPreviousSelection(selection);
-            // setSelection(previousSelection)
-            onSelectionChange(previousSelection);
+            onSelectionChange(previousSelection, true);
           }
           }
           rounded
@@ -110,7 +121,7 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
           // onValueChanged={(e) => onSourceOnValueChanged(e as T[])}
           rightColSize={props.sourceRightColSize}
           selection={selection}
-          selectionMode='multiple'
+          selectionMode='multipleNoRowCheckBox'
           sortField={props.sourceSortField}
           style={props.sourceStyle}
         />

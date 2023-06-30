@@ -418,30 +418,6 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     },
   ];
 
-  const rightHeaderTemplate = React.useMemo(() => {
-
-    return (
-
-      <Button
-        className='ml-1'
-        icon="pi pi-star"
-        onClick={() => setTargetVideoStreams(targetVideoStreams.concat(sourceVideoStreams.filter((x) => !targetVideoStreams.includes(x))))}
-        rounded
-        severity="success"
-        size="small"
-        style={{
-          ...{
-            maxHeight: "2rem",
-            maxWidth: "2rem"
-          }
-        }}
-        tooltip="Add All"
-        tooltipOptions={getTopToolOptions}
-      />
-
-    );
-  }, [sourceVideoStreams, targetVideoStreams]);
-
 
   return (
     <>
@@ -468,9 +444,8 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
         showUndo
         sourceColumns={sourceColumns}
         sourceDataSource={sourceVideoStreams}
-        sourceEnableState={false}
 
-        sourceHeaderTemplate={props.sourceHeaderTemplate !== undefined ? props.sourceHeaderTemplate : rightHeaderTemplate}
+        sourceHeaderTemplate={props.sourceHeaderTemplate}
         sourceName='Streams'
         sourceRightColSize={1}
         sourceSortField='user_Tvg_name'
@@ -479,7 +454,6 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
         }}
         targetColumns={targetColumns}
         targetDataSource={targetVideoStreams}
-        targetEnableState={false}
         targetName='Selected'
         targetReorderable={props.isAdditionalChannels}
         targetRightColSize={3}

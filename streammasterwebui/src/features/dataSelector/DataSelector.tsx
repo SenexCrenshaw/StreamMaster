@@ -5,6 +5,7 @@ import { FilterMatchMode, FilterOperator } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { Skeleton } from 'primereact/skeleton';
 
+import { type ColumnHeaderOptions } from 'primereact/column';
 import { type ColumnSortEvent } from 'primereact/column';
 
 import { Column } from 'primereact/column';
@@ -600,6 +601,10 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return 'multiple';
     }
 
+    if (props.selectionMode === 'multipleNoRowCheckBox') {
+      return 'radiobutton';
+    }
+
     return props.selectionMode
 
   }, [props.selectionMode, rowClick]);
@@ -914,6 +919,15 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     );
   }
 
+  const multiselectHeader = (options: ColumnHeaderOptions) => {
+    return (
+      <div className="flex flex-wrap align-items-center justify-content-between gap-2">
+        <span className="text-xs text-white text-500">
+          All
+        </span>
+      </div>
+    );
+  }
 
   return (
 
@@ -959,8 +973,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           sortField={props.groupRowsBy === undefined || props.groupRowsBy === '' ? props.sortField : props.groupRowsBy}
           sortMode='single'
           sortOrder={0}
-          stateKey={props.enableState != true ? undefined : props.id + '-datatable'}
-          stateStorage={props.enableState != true ? undefined : "local"}
+          stateKey={props.enableState !== true ? undefined : props.id + '-datatable'}
+          stateStorage={props.enableState !== true ? undefined : "local"}
           stripedRows
           style={props.style}
           value={dataSource}
@@ -983,10 +997,11 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           <Column
             align='center'
             alignHeader='center'
-            className='justify-content-center align-items-center'
+            className={`justify-content-center align-items-center multiselect ${props.selectionMode}`}
             field='getSelectionMode'
+            header={multiselectHeader}
             headerStyle={{ padding: '0px', width: '3rem' }}
-            hidden={props.selectionMode !== 'multiple' && props.selectionMode !== 'checkbox'}
+            hidden={props.selectionMode !== 'multiple' && props.selectionMode !== 'checkbox' && props.selectionMode !== 'multipleNoRowCheckBox'}
             selectionMode="multiple"
             sortField="selected"
             sortFunction={sortFunction}
