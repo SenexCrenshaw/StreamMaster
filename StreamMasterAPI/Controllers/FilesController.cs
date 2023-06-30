@@ -69,11 +69,6 @@ public class FilesController : ApiControllerBase, IFileController
             return (cache, data);
         }
 
-        if (!source.Contains("://"))
-        {
-            return (null, null);
-        }
-
         cache = _context.Icons.FirstOrDefault(a => a.Source == source);
 
         if (cache is null || !cache.FileExists)

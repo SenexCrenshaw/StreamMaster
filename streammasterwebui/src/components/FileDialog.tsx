@@ -1,4 +1,3 @@
-// import axios, { type AxiosProgressEvent } from 'axios';
 import * as axios from 'axios';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Button } from 'primereact/button';
@@ -36,7 +35,6 @@ const FileDialog = (props: FileDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
-
 
   const onTemplateSelect = (e: FileUploadSelectEvent) => {
     setActiveFile(e.files[0]);
@@ -253,17 +251,18 @@ const FileDialog = (props: FileDialogProps) => {
     }
   };
 
-
   const chooseOptions = {
     className: 'p-button-rounded min-h-3rem p-button-info',
     icon: 'pi pi-fw pi-plus',
     iconOnly: true,
   };
+
   const uploadOptions = {
     className: 'p-button-rounded min-h-3rem p-button-success',
     icon: 'pi pi-fw pi-upload',
     iconOnly: true,
   };
+
   const cancelOptions = {
     className: 'p-button-rounded min-h-3rem p-button-danger',
     icon: 'pi pi-fw pi-times',
@@ -275,7 +274,6 @@ const FileDialog = (props: FileDialogProps) => {
 
     setActiveIndex(index);
   };
-
 
   const isSaveEnabled = React.useMemo((): boolean => {
     if (name === null || name === '' || source === null || source === '' || !isValidUrl(source)) {
@@ -294,7 +292,7 @@ const FileDialog = (props: FileDialogProps) => {
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
         overlayColSize={6}
-        show={showOverlay}
+        show={showOverlay || props.show === true}
       >
         <div className="flex">
           <div className="field">
@@ -420,32 +418,38 @@ const FileDialog = (props: FileDialogProps) => {
         </Accordion>
 
       </InfoMessageOverLayDialog>
-
-      <Button
-        className='mx-1'
-        icon="pi pi-plus"
-        onClick={() => setShowOverlay(true)}
-        rounded
-        severity="success"
-        size="small"
-        style={{
-          ...{
-            maxHeight: "2rem",
-            maxWidth: "2rem"
-          }
-        }}
-        tooltip={`Add ${props.fileType.toLocaleUpperCase()} File`}
-        tooltipOptions={getTopToolOptions}
-      />
+      <div hidden={props.showButton === false}>
+        <Button
+          className='mx-1'
+          icon="pi pi-plus"
+          onClick={() => setShowOverlay(true)}
+          rounded
+          severity="success"
+          size="small"
+          style={{
+            ...{
+              maxHeight: "2rem",
+              maxWidth: "2rem"
+            }
+          }}
+          tooltip={`Add ${props.fileType.toLocaleUpperCase()} File`}
+          tooltipOptions={getTopToolOptions}
+        />
+      </div>
     </>
   );
 };
 
 FileDialog.displayName = 'FileDialog';
+FileDialog.defaultProps = {
+  showButton: true,
+};
 
 type FileDialogProps = {
   fileType: string,
-  onHide?: (didUpload: boolean) => void;
+  onHide?: (didUpload: boolean) => void,
+  show?: boolean | null,
+  showButton?: boolean | null
 };
 
 export default React.memo(FileDialog);

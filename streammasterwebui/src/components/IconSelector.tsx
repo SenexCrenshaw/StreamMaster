@@ -6,7 +6,6 @@ import * as React from 'react';
 import { type IconFileDto } from '../store/iptvApi';
 import { useIconsGetIconsQuery } from '../store/iptvApi';
 import StreamMasterSetting from '../store/signlar/StreamMasterSetting';
-import FileDialog from './FileDialog';
 import { getTopToolOptions } from '../common/common';
 
 import { ResetLogoIcon } from '../common/icons';
@@ -60,8 +59,6 @@ const IconSelector = (props: IconSelectorProps) => {
   const selectedTemplate = React.useCallback((option: IconFileDto) => {
     if (!option || option.url === undefined || option.url === null || option.url === '') {
       return (<div />);
-      // <QuestionMarkIcon className='flex col-1 m-0 text-red-500' sx={{ fontSize: 32 }} />
-      // );
     }
 
     let selectedTemplateurl = option.url ?? setting.defaultIcon;
@@ -112,37 +109,44 @@ const IconSelector = (props: IconSelectorProps) => {
   const filterTemplate = React.useCallback((options: any) => {
     return (
       <div className="flex gap-2 align-items-center">
-        <FileDialog
-          fileType="icon"
-          onHide={() => { }}
-        />
-
+        <div hidden={props.onAddIcon === undefined}>
+          <Button
+            icon="pi pi-plus"
+            onClick={() => props.onAddIcon !== undefined ? props.onAddIcon() : null}
+            rounded
+            severity="success"
+            size="small"
+            tooltip="Add Icon File"
+            tooltipOptions={getTopToolOptions}
+          />
+        </div>
         {options.element}
         {/* {JSON.stringify(props.resetValue === props.value)}
         {JSON.stringify(props.resetValue)}
         {JSON.stringify(props.value)} */}
-        {props.resetValue !== props.value && <Button
-          icon={<ResetLogoIcon sx={{ fontSize: 18 }} />}
-          onClick={() => {
-            if (resetIcon !== undefined) {
-              props.onReset(resetIcon)
-            } else if (setting.defaultIconDto !== undefined) {
-              props.onReset(setting.defaultIconDto)
+        {props.resetValue !== props.value &&
+          <Button
+            icon={<ResetLogoIcon sx={{ fontSize: 18 }} />}
+            onClick={() => {
+              if (resetIcon !== undefined) {
+                props.onReset(resetIcon)
+              } else if (setting.defaultIconDto !== undefined) {
+                props.onReset(setting.defaultIconDto)
+              }
             }
-          }
-          }
-          rounded
-          severity="warning"
-          size="small"
-          style={{
-            ...{
-              maxHeight: "2rem",
-              maxWidth: "2rem"
             }
-          }}
-          tooltip="Reset Logo"
-          tooltipOptions={getTopToolOptions}
-        />
+            rounded
+            severity="warning"
+            size="small"
+            style={{
+              ...{
+                maxHeight: "2rem",
+                maxWidth: "2rem"
+              }
+            }}
+            tooltip="Reset Logo"
+            tooltipOptions={getTopToolOptions}
+          />
         }
       </div>
     );
@@ -221,6 +225,7 @@ type IconSelectorProps = {
   disabled?: boolean;
   enableEditMode?: boolean;
   loading?: boolean;
+  onAddIcon?: () => void;
   onChange: ((value: IconFileDto) => void);
   onReset: ((value: IconFileDto) => void);
   resetValue: string;
