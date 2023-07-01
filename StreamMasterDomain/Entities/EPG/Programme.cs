@@ -45,6 +45,12 @@ public class Programme
     [XmlElement(ElementName = "new")]
     public string? New { get; set; }
 
+    [XmlElement(ElementName = "live")]
+    public string? Live { get; set; }
+
+    [XmlElement(ElementName = "premiere")]
+    public string? Premiere { get; set; }
+
     [XmlElement(ElementName = "previously-shown")]
     public TvPreviouslyshown? Previouslyshown { get; set; }
 

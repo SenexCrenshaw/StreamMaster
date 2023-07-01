@@ -241,6 +241,16 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                                         p.New = null;
                                     }
 
+                                    if (string.IsNullOrEmpty(p.Live))
+                                    {
+                                        p.Live = null;
+                                    }
+
+                                    if (string.IsNullOrEmpty(p.Premiere))
+                                    {
+                                        p.Premiere = null;
+                                    }
+
                                     if (p.Previouslyshown == null || string.IsNullOrEmpty(p.Previouslyshown.Start))
                                     {
                                         p.Previouslyshown = null;
