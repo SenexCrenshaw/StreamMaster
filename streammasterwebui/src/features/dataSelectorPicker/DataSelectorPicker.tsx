@@ -13,7 +13,7 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [previousSelection, setPreviousSelection] = React.useState<T[]>([] as T[]);
 
-  const onSelectionChange = React.useCallback((value: T | T[], isUndo?: boolean) => {
+  const onSelectionChange = React.useCallback((value: T[], isUndo?: boolean) => {
     setPreviousSelection(selection);
 
     if (value instanceof Array) {

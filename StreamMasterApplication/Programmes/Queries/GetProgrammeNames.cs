@@ -30,6 +30,8 @@ internal class GetProgrammeNamesHandler : IRequestHandler<GetProgrammeNames, IEn
         var programmes = _memoryCache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel) && a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
         if (programmes.Any())
         {
+
+
             var ret = programmes.GroupBy(a => a.Channel).Select(group => group.First()).Select(a => new ProgrammeName
             {
                 Channel = a.Channel,

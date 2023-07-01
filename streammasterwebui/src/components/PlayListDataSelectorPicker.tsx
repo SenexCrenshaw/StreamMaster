@@ -444,7 +444,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
         showUndo
         sourceColumns={sourceColumns}
         sourceDataSource={sourceVideoStreams}
-
+        sourceEnableState
         sourceHeaderTemplate={props.sourceHeaderTemplate}
         sourceName='Streams'
         sourceRightColSize={1}
@@ -454,6 +454,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
         }}
         targetColumns={targetColumns}
         targetDataSource={targetVideoStreams}
+        targetEnableState
         targetName='Selected'
         targetReorderable={props.isAdditionalChannels}
         targetRightColSize={3}

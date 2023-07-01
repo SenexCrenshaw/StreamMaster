@@ -1,6 +1,3 @@
-/* eslint-disable react/no-unused-prop-types */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { type DropdownProps } from 'primereact/dropdown';
 import { Dropdown } from 'primereact/dropdown';
 import * as React from 'react';
 import * as StreamMasterApi from '../store/iptvApi';
@@ -10,18 +7,28 @@ import { classNames } from 'primereact/utils';
 
 const EPGSelector = (props: EPGSelectorProps) => {
   const toast = React.useRef<Toast>(null);
-  const [programme, setProgramme] = React.useState<StreamMasterApi.ProgrammeName | null>(null);
+  const [programme, setProgramme] = React.useState<StreamMasterApi.ProgrammeName>({} as StreamMasterApi.ProgrammeName);
+  const [dataDataSource, setDataSource] = React.useState<StreamMasterApi.ProgrammeName[]>([]);
+
   const programmeNamesQuery = StreamMasterApi.useProgrammesGetProgrammeNamesQuery();
 
-  React.useMemo(() => {
+  React.useEffect(() => {
     if (!programmeNamesQuery.data) {
+      return;
+    }
+
+    setDataSource(programmeNamesQuery.data);
+  }, [programmeNamesQuery.data]);
+
+  React.useMemo(() => {
+    if (!dataDataSource) {
       return;
     }
 
     let foundProgramme = {} as StreamMasterApi.ProgrammeName | undefined;
 
     if (props.value !== '') {
-      foundProgramme = programmeNamesQuery.data.find((a) => a.channel === props.value);
+      foundProgramme = dataDataSource.find((a) => a.channel === props.value);
     }
 
     if (foundProgramme?.channel !== undefined) {
@@ -29,15 +36,9 @@ const EPGSelector = (props: EPGSelectorProps) => {
       return;
     }
 
-    setProgramme(null);
+    setProgramme({} as StreamMasterApi.ProgrammeName);
 
-  }, [programmeNamesQuery, props.value]);
-
-  const epgOptionTemplate = React.useCallback((programmeName: StreamMasterApi.ProgrammeName) => {
-    return (
-      <span className="text-sm" >{programmeName.displayName !== '' ? programmeName.displayName : programmeName.channelName}</span>
-    );
-  }, []);
+  }, [dataDataSource, props.value]);
 
   const onEPGChange = React.useCallback(async (channel: StreamMasterApi.ProgrammeName) => {
 
@@ -94,30 +95,11 @@ const EPGSelector = (props: EPGSelectorProps) => {
 
   }, [props]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const selectedTemplate = React.useCallback((option: any, propss: DropdownProps) => {
 
-    if (propss.value === null || propss.value === undefined || propss.value.channelName === null || propss.value.channelName === undefined) {
-      return <span>{propss.placeholder}</span>;
-    }
-
-    const programmeName = propss.value as StreamMasterApi.ProgrammeName;
-
-    if (programmeName === undefined || programmeName.channel === undefined || programmeName.channelName === undefined) {
-      return <span>{propss.placeholder}</span>;
-    }
-
-    return (
-      <div className='flex h-full justify-content-start align-items-center p-0 m-0 pl-2'>
-        {programmeName.displayName !== '' ? programmeName.displayName : programmeName.channelName}
-      </div>
-    );
-
-  }, []);
 
   const className = classNames('iconSelector p-0 m-0 w-full z-5 ', props.className);
 
-  if (props.enableEditMode !== true && programme !== null) {
+  if (props.enableEditMode !== true) {
 
     return (
       <div className='flex h-full justify-content-center align-items-center p-0 m-0'>
@@ -135,9 +117,9 @@ const EPGSelector = (props: EPGSelectorProps) => {
           className={className}
           filter
           filterBy='channelName'
-          itemTemplate={epgOptionTemplate}
           onChange={async (e) => { await onEPGChange(e.value); }}
-          options={programmeNamesQuery.data}
+          optionLabel='channelName'
+          options={dataDataSource}
           placeholder="No EPG"
           style={{
             ...{
@@ -148,7 +130,7 @@ const EPGSelector = (props: EPGSelectorProps) => {
             },
           }}
           value={programme}
-          valueTemplate={selectedTemplate}
+
           virtualScrollerOptions={{
             itemSize: 32,
           }}
