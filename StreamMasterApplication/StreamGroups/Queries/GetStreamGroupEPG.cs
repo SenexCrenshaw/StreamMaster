@@ -179,9 +179,9 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                         };
                         DateTime now = DateTime.Now;
                         prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{url}/images/transparent.png" });                        
-                        prog.Start = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToString("yyyyMMddHHmmss zzz");
+                        prog.Start = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToString("yyyyMMddHHmmss zzz").Replace(":", ""); ;
                         now=now.AddDays(7);                        
-                        prog.Stop = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToString("yyyyMMddHHmmss zzz");
+                        prog.Stop = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToString("yyyyMMddHHmmss zzz").Replace(":", ""); ;
                         prog.New = null;
                         prog.Previouslyshown = null;
                         retProgrammes.Add(prog);
