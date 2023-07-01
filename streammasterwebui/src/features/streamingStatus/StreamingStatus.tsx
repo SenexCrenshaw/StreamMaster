@@ -5,8 +5,17 @@ import React from 'react';
 import StreamingClientsPanel from './StreamingClientsPanel';
 import StreamingServerStatusPanel from './StreamingServerStatusPanel';
 import { StreamingStatusIcon } from '../../common/icons';
+import { type StreamStatisticsResult } from '../../store/iptvApi';
+import { useStreamGroupsGetAllStatisticsForAllUrlsQuery } from '../../store/iptvApi';
 
 export const StreamingStatus = () => {
+  const getStreamingStatus = useStreamGroupsGetAllStatisticsForAllUrlsQuery();
+
+  const [dataSource, setDataSource] = React.useState<StreamStatisticsResult[]>([] as StreamStatisticsResult[]);
+
+  React.useEffect(() => {
+    setDataSource(getStreamingStatus.data ?? []);
+  }, [getStreamingStatus.data]);
 
   return (
     <div className="streamingStatus">
@@ -18,10 +27,10 @@ export const StreamingStatus = () => {
         </div >
 
         <div className="flex col-12 w-full mt-2">
-          <StreamingServerStatusPanel />
+          <StreamingServerStatusPanel dataSource={dataSource} isLoading={getStreamingStatus.isLoading} />
         </div>
         <div className='flex col-12 w-full mt-4'>
-          <StreamingClientsPanel />
+          <StreamingClientsPanel dataSource={dataSource} isLoading={getStreamingStatus.isLoading} />
         </div>
       </div>
     </div>

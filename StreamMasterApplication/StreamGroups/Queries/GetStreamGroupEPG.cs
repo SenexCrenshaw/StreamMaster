@@ -119,7 +119,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                 }
 
                 IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
-                string Logo = icon != null ? url + icon.Source : url+"/" +setting.DefaultIcon;
+                string Logo = icon != null ? url + icon.Source : url + "/" + setting.DefaultIcon;
 
                 TvChannel t;
                 int dummy = 0;
@@ -134,7 +134,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
                     t = new TvChannel
                     {
-                        Id = "dummy-" + dummy,
+                        Id = videoStream.User_Tvg_ID + "-" + dummy,
                         Icon = new TvIcon { Src = Logo },
                         Displayname = new()
                     {
@@ -146,7 +146,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                 {
                     t = new TvChannel
                     {
-                        Id = videoStream.User_Tvg_name,
+                        Id = videoStream.User_Tvg_ID.ToString(),
                         Icon = new TvIcon { Src = Logo },
                         Displayname = new()
                     {
@@ -176,11 +176,12 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                         };
                         DateTime now = DateTime.Now;
                         prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{url}/images/transparent.png" });
-                        prog.StartDateTime = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
-                        prog.Start= prog.StartDateTime.ToString("yyyyMMddHHmmss K");
-                        prog.StopDateTime = new DateTime(now.Year, now.Month, now.AddDays(7).Day, 0, 0, 0);
+                        prog.StartDateTime =new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
+                        prog.Start = prog.StartDateTime.ToString("yyyyMMddHHmmss K");
+                        now=now.AddDays(7);
+                        prog.StopDateTime = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
                         prog.Stop = prog.StopDateTime.ToString("yyyyMMddHHmmss K");
-                        retProgrammes.Add(prog);                        
+                        retProgrammes.Add(prog);
                     }
                     else
                     {
@@ -213,11 +214,10 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                                     {
                                         p.Icon.Add(new TvIcon { Height = "", Width = "", Src = "" });
                                     }
-                                    p.Channel = videoStream.User_Tvg_name;
-
+                                    p.Channel = videoStream.User_Tvg_ID;
                                     if (videoStream.User_Tvg_ID.ToLower() == "dummy")
                                     {
-                                        p.Channel = "dummy-" + dummy;
+                                        p.Channel = videoStream.User_Tvg_ID + "-" + dummy;
 
                                         p.Title = new TvTitle
                                         {

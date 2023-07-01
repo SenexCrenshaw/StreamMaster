@@ -3,17 +3,15 @@ import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import React from 'react';
 import { type StreamStatisticsResult } from '../../store/iptvApi';
-import { useStreamGroupsGetAllStatisticsForAllUrlsQuery } from '../../store/iptvApi';
 import { formatJSONDateString } from '../../common/common';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
 
 
-export const StreamingServerStatusPanel = () => {
+export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProps) => {
   const setting = StreamMasterSetting();
 
-  const getStreamingStatus = useStreamGroupsGetAllStatisticsForAllUrlsQuery();
 
-  const imageBodyTemplate = (rowData: StreamStatisticsResult) => {
+  const imageBodyTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
     return (
       <div className="flex align-content-center flex-wrap">
         <img
@@ -24,24 +22,28 @@ export const StreamingServerStatusPanel = () => {
         />
       </div>
     );
-  };
+  }, [setting.defaultIcon]);
 
-  const inputBitsPerSecondTemplate = (rowData: StreamStatisticsResult) => {
-    return rowData.inputBitsPerSecond?.toLocaleString('en-US');
-  };
+  const inputBitsPerSecondTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
 
-  const inputElapsedTimeTemplate = (rowData: StreamStatisticsResult) => {
+    if (rowData.inputBitsPerSecond === undefined) return undefined;
+
+    const kbps = rowData.inputBitsPerSecond / 1000;
+    return kbps.toLocaleString('en-US');
+  }, []);
+
+  const inputElapsedTimeTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
     return rowData.inputElapsedTime?.split('.')[0];
-  };
+  }, []);
 
-  const inputStartTimeTemplate = (rowData: StreamStatisticsResult) => {
+  const inputStartTimeTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
     return formatJSONDateString(rowData.inputStartTime ?? '');
-  };
+  }, []);
 
   const dataSource = React.useMemo((): StreamStatisticsResult[] => {
     let data = [] as StreamStatisticsResult[];
 
-    getStreamingStatus.data?.forEach((item) => {
+    props.dataSource.forEach((item) => {
       if (data.findIndex((x) => x.m3UStreamId === item.m3UStreamId) === -1) {
         data.push(item);
       }
@@ -49,7 +51,11 @@ export const StreamingServerStatusPanel = () => {
     });
 
     return data;
-  }, [getStreamingStatus.data]);
+  }, [props.dataSource]);
+
+  const streamCount = React.useCallback((rowData: StreamStatisticsResult) => {
+    return props.dataSource.filter((x) => x.m3UStreamId === rowData.m3UStreamId).length;
+  }, [props.dataSource])
 
   return (
 
@@ -58,7 +64,7 @@ export const StreamingServerStatusPanel = () => {
         className="w-full text-sm"
         emptyMessage="No Status Found"
         key="id"
-        loading={getStreamingStatus.isLoading}
+        loading={props.isLoading}
         showGridlines
         stripedRows
         style={{ height: 'calc(50vh - 40px)' }}
@@ -70,17 +76,23 @@ export const StreamingServerStatusPanel = () => {
           key="icon"
           sortable
         />
+
         <Column
           field='m3UStreamName'
           header="Name"
           key="m3UStreamName"
           sortable
         />
-
+        <Column
+          body={streamCount}
+          header="Count"
+          key="streamCount"
+          sortable
+        />
         <Column
           body={inputBitsPerSecondTemplate}
           field="inputBitsPerSecond"
-          header="Input Bps"
+          header="Input kbps"
           key="inputBitsPerSecond"
           sortable
         />
@@ -106,5 +118,8 @@ export const StreamingServerStatusPanel = () => {
 
 StreamingServerStatusPanel.displayName = 'Streaming Server Status';
 StreamingServerStatusPanel.defaultProps = {};
-
+type StreamingServerStatusPanelProps = {
+  dataSource: StreamStatisticsResult[];
+  isLoading: boolean;
+}
 export default React.memo(StreamingServerStatusPanel);

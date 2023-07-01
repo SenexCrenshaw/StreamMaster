@@ -5,25 +5,23 @@ import React from 'react';
 import { formatJSONDateString } from '../../common/common';
 
 import { type StreamStatisticsResult } from '../../store/iptvApi';
-import { useStreamGroupsGetAllStatisticsForAllUrlsQuery } from '../../store/iptvApi';
 
-const StreamingClientsPanel = () => {
+const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
 
-  const getStreamingStatus = useStreamGroupsGetAllStatisticsForAllUrlsQuery();
+  const clientBitsPerSecondTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
+    if (rowData.clientBitsPerSecond === undefined) return undefined;
 
+    const kbps = rowData.clientBitsPerSecond / 1000;
+    return kbps.toLocaleString('en-US');
+  }, []);
 
-  const clientBitsPerSecondTemplate = (rowData: StreamStatisticsResult) => {
-    return rowData.clientBitsPerSecond?.toLocaleString('en-US');
-  };
-
-
-  const clientStartTimeTemplate = (rowData: StreamStatisticsResult) => {
+  const clientStartTimeTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
     return formatJSONDateString(rowData.clientStartTime ?? '');
-  };
+  }, []);
 
-  const clientElapsedTimeTemplate = (rowData: StreamStatisticsResult) => {
+  const clientElapsedTimeTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
     return rowData.clientElapsedTime?.split('.')[0];
-  };
+  }, []);
 
   return (
     <div className="flex w-full">
@@ -31,13 +29,12 @@ const StreamingClientsPanel = () => {
         className="w-full text-sm"
         emptyMessage="No Status Found"
         key="id"
-        loading={getStreamingStatus.isLoading}
+        loading={props.isLoading}
         showGridlines
         stripedRows
         style={{ height: 'calc(50vh - 40px)' }}
-        value={getStreamingStatus.data}
+        value={props.dataSource}
       >
-        clientAgent
         <Column
           field='clientAgent'
           header="Client/User Agent"
@@ -67,7 +64,7 @@ const StreamingClientsPanel = () => {
         <Column
           body={clientBitsPerSecondTemplate}
           field="clientBitsPerSecond"
-          header="Client Bps"
+          header="Client kbps"
           key="clientBitsPerSecond"
           sortable
         />
@@ -78,5 +75,8 @@ const StreamingClientsPanel = () => {
 
 StreamingClientsPanel.displayName = 'Streaming Clients Panel';
 StreamingClientsPanel.defaultProps = {};
-
+type StreamingClientsPanelProps = {
+  dataSource: StreamStatisticsResult[];
+  isLoading: boolean;
+}
 export default React.memo(StreamingClientsPanel);
