@@ -50,11 +50,26 @@ public class DeleteM3UFileHandler : IRequestHandler<DeleteM3UFileRequest, int?>
             string fullName = Path.Combine(FileDefinitions.M3U.DirectoryLocation, m3UFile.Name + FileDefinitions.M3U.FileExtension);
             if (File.Exists(fullName))
             {
-                File.Delete(fullName);
+                FileAttributes attributes = File.GetAttributes(fullName);
+
+                if ((attributes & (FileAttributes.ReadOnly | FileAttributes.System)) != 0)
+                {
+                }else
+                { 
+                    File.Delete(fullName);
+                }
+             
                 string txtName = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Path.GetFileNameWithoutExtension(m3UFile.Source) + ".url");
                 if (File.Exists(txtName))
                 {
-                    File.Delete(txtName);
+                    attributes = File.GetAttributes(txtName);
+                    if ((attributes & (FileAttributes.ReadOnly | FileAttributes.System)) != 0)
+                    {
+                    }
+                    else
+                    {
+                        File.Delete(txtName);
+                    }          
                 }
             }
             else
