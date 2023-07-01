@@ -34,6 +34,7 @@ jobs:
           tags: |
             latest
             type=semver,pattern={{version}}
+            ${{ env.GitVersion_SemVer }}-${{ env.GitVersion_BuildMetaDataPadded }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -97,6 +98,7 @@ jobs:
           tags: |
             latest
             type=semver,pattern={{version}}
+            ${{ env.GitVersion_SemVer }}-${{ env.GitVersion_BuildMetaDataPadded }}
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
