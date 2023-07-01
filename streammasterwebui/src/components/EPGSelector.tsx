@@ -127,8 +127,6 @@ const EPGSelector = (props: EPGSelectorProps) => {
 
   }
 
-  console.log(programmeNamesQuery.data)
-
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
