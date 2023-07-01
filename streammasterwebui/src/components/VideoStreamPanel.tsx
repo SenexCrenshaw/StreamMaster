@@ -378,23 +378,17 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
           <div className='flex col-12 flex-wrap justify-content-start align-items-center p-0 m-0 mt-2 w-full'>
             <div className='flex col-12 p-0 justify-content-start align-items-center w-full min-w-full'>
               <PlayListDataSelectorPicker
-
+                enableState={false}
                 id='videostreampanel-ds-streams'
-
                 isAdditionalChannels
                 maxHeight={400}
                 onSelectionChange={(e) => onSetVideoStreams(e)}
-
                 onValueChanged={
                   (e) => {
-
                     if (e.length === 0) return;
-
                     onSetVideoStreams(e);
-
                   }
                 }
-
                 showTriState={showHidden}
                 sourceHeaderTemplate={rightHeaderTemplate}
                 videoStream={props.videoStream}

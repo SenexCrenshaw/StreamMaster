@@ -18,6 +18,7 @@ using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
 
 using System.Collections.Concurrent;
+using System.Data;
 using System.Text;
 using System.Web;
 
@@ -25,15 +26,15 @@ namespace StreamMasterAPI.Controllers;
 
 public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 {
+    private readonly IMapper _mapper;
     private static readonly ConcurrentDictionary<string, ClientTracker> clientTrackers = new();
     private readonly IConfigFileProvider _configFileProvider;
-    private readonly ILogger<StreamGroupsController> _logger;
-    private readonly IMapper _mapper;
+    private readonly ILogger<StreamGroupsController> _logger;    
     private readonly IMemoryCache _memoryCache;
     private readonly IRingBufferManager _ringBufferManager;
 
     public StreamGroupsController(IRingBufferManager ringBufferManager, IConfigFileProvider configFileProvider, IMapper mapper, IMemoryCache memoryCache, ILogger<StreamGroupsController> logger)
-    {
+    {        
         _configFileProvider = configFileProvider;
         _mapper = mapper;
         _memoryCache = memoryCache;
@@ -515,8 +516,22 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
             return Redirect(videoStream.User_Url);
         }
+        List<VideoStreamDto> videoStreams = new();
 
-        List<VideoStreamDto> videoStreams = new List<VideoStreamDto> { videoStream };
+        if (!string.IsNullOrEmpty(videoStream.Url)  )
+        {
+            videoStreams.Add(videoStream);
+        }
+        
+        if (videoStream.ChildVideoStreams.Any())
+        {
+            var list= videoStream.ChildVideoStreams.Where(a=> ! string.IsNullOrEmpty(a.Url)).OrderBy(a=>a.Rank).ToList();
+            var dtos = _mapper.Map<List<VideoStreamDto>>(list);
+
+            if (dtos is not null)
+                videoStreams.AddRange(dtos);
+        }
+
         StreamerConfiguration config = new()
         {
             VideoStreams = videoStreams,

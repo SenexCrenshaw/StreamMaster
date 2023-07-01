@@ -5,13 +5,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace StreamMasterDomain.Dto;
 
-public class ChildVideoStreamDto : BaseVideoStreamDto, IMapFrom<VideoStream>
+public class ChildVideoStreamDto : BaseVideoStreamDto, IMapFrom<VideoStream>, IMapFrom<VideoStreamDto>
 {
     public int Rank { get; set; }
 }
 
 [RequireAll]
-public class VideoStreamDto : BaseVideoStreamDto, IMapFrom<VideoStream>
+public class VideoStreamDto : BaseVideoStreamDto, IMapFrom<VideoStream>, IMapFrom<ChildVideoStreamDto>
 {
     public List<ChildVideoStreamDto> ChildVideoStreams { get; set; }
 }

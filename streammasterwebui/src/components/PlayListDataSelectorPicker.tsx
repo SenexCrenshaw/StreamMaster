@@ -444,7 +444,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
         showUndo
         sourceColumns={sourceColumns}
         sourceDataSource={sourceVideoStreams}
-        sourceEnableState
+        sourceEnableState={props.enableState}
         sourceHeaderTemplate={props.sourceHeaderTemplate}
         sourceName='Streams'
         sourceRightColSize={1}
@@ -454,7 +454,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
         }}
         targetColumns={targetColumns}
         targetDataSource={targetVideoStreams}
-        targetEnableState
+        targetEnableState={props.enableState}
         targetName='Selected'
         targetReorderable={props.isAdditionalChannels}
         targetRightColSize={3}
@@ -466,12 +466,14 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
 PlayListDataSelectorPicker.displayName = 'PlayList Editor';
 PlayListDataSelectorPicker.defaultProps = {
+  enableState: true,
   isAdditionalChannels: false,
   maxHeight: null,
   showTriState: true
 };
 
 export type PlayListDataSelectorPickerProps = {
+  enableState?: boolean;
   id: string;
   isAdditionalChannels?: boolean;
   maxHeight?: number;
