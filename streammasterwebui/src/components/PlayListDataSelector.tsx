@@ -139,22 +139,25 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
     return (
       <div className="flex justify-content-end align-items-center w-full gap-1">
 
-        <TriStateCheckbox
-          onChange={(e: TriStateCheckboxChangeEvent) => {
-            setShowHidden(e.value);
-          }}
-          tooltip={getToolTip(showHidden)}
-          tooltipOptions={getTopToolOptions}
-          value={showHidden} />
+        {props.hideControls !== true &&
+          <>
+            <TriStateCheckbox
+              onChange={(e: TriStateCheckboxChangeEvent) => {
+                setShowHidden(e.value);
+              }}
+              tooltip={getToolTip(showHidden)}
+              tooltipOptions={getTopToolOptions}
+              value={showHidden} />
 
-        <ChannelGroupVisibleDialog value={selectedChannelGroups} />
-
-        <ChannelGroupDeleteDialog onChange={channelGroupDelete} value={selectedChannelGroups} />
+            <ChannelGroupVisibleDialog value={selectedChannelGroups} />
+            <ChannelGroupDeleteDialog onChange={channelGroupDelete} value={selectedChannelGroups} />
+          </>
+        }
 
         <ChannelGroupAddDialog />
       </div>
     );
-  }, [showHidden, selectedChannelGroups, channelGroupDelete, setShowHidden]);
+  }, [showHidden, props.hideControls, selectedChannelGroups, channelGroupDelete, setShowHidden]);
 
   const sourceColumns = React.useMemo((): ColumnMeta[] => {
     return [
@@ -189,11 +192,11 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         dataSource={props.hideControls === true ? channelGroupsQuery.data?.filter((item) => item.isHidden !== true) : channelGroupsQuery.data}
         emptyMessage="No Groups"
         headerLeftTemplate={props.hideControls === true ? null : sourceHeaderLeftTemplate()}
-        headerRightTemplate={props.hideControls === true ? null : sourceRightHeaderTemplate()}
+        headerRightTemplate={props.hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
         id={props.id + 'DataSelector'}
         isLoading={channelGroupsQuery.isLoading}
         m3uFileId={selectedM3UFile?.id}
-        name='Playlist'
+        name={props.name === undefined ? 'Playlist' : props.name}
         onSelectionChange={(e) => {
           onsetSelectedChannelGroups(e as StreamMasterApi.ChannelGroupDto[]);
         }
@@ -221,15 +224,19 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
 PlayListDataSelector.displayName = 'Play List Editor';
 PlayListDataSelector.defaultProps = {
+  hideAddRemoveControls: false,
   hideControls: false,
   maxHeight: null,
+  name: 'Playlist',
   useReadOnly: true
 };
 
 export type PlayListDataSelectorProps = {
+  hideAddRemoveControls?: boolean;
   hideControls?: boolean;
   id: string;
   maxHeight?: number;
+  name?: string;
   onM3UFileChange?: (value: StreamMasterApi.M3UFilesDto) => void;
   onSelectionChange?: (value: StreamMasterApi.ChannelGroupDto | StreamMasterApi.ChannelGroupDto[]) => void;
   selectChannelGroups?: StreamMasterApi.ChannelGroupDto[] | null

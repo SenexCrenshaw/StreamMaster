@@ -238,6 +238,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
                   hideControls
                   id='streamggroupeditdialog'
                   maxHeight={400}
+                  name="Groups"
                   onSelectionChange={(e) => onsetSelectedChannelGroups(e as StreamMasterApi.ChannelGroupDto[])}
                   selectChannelGroups={selectedChannelGroups}
                 />

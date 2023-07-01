@@ -148,6 +148,13 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
   );
 };
 
+DataSelectorPicker.defaultProps = {
+  sourceEnableState: true,
+  targetEnableState: true,
+
+};
+
+
 export type DataSelectorPickerProps<T extends DataTableValue> = {
   id: string,
   isLoading: boolean | undefined;
