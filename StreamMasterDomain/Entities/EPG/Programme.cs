@@ -43,10 +43,10 @@ public class Programme
     public string Language { get; set; } = string.Empty;
 
     [XmlElement(ElementName = "new")]
-    public string New { get; set; } = string.Empty;
+    public string? New { get; set; }
 
     [XmlElement(ElementName = "previously-shown")]
-    public TvPreviouslyshown Previouslyshown { get; set; } = new();
+    public TvPreviouslyshown? Previouslyshown { get; set; }
 
     [XmlElement(ElementName = "rating")]
     public TvRating Rating { get; set; } = new();

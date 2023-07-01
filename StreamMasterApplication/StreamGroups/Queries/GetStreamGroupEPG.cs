@@ -182,6 +182,8 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                         prog.Start = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToString("yyyyMMddHHmmss zzz");
                         now=now.AddDays(7);                        
                         prog.Stop = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToString("yyyyMMddHHmmss zzz");
+                        prog.New = null;
+                        prog.Previouslyshown = null;
                         retProgrammes.Add(prog);
                     }
                     else
@@ -234,6 +236,16 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                                         };
                                     }
 
+                                    if (string.IsNullOrEmpty(p.New))
+                                    {
+                                        p.New = null;
+                                    }
+
+                                    if (p.Previouslyshown == null || string.IsNullOrEmpty(p.Previouslyshown.Start))
+                                    {
+                                        p.Previouslyshown = null;
+                                    }
+                                    
                                     retProgrammes.Add(p);
                                 }
                             }
