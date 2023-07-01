@@ -18,6 +18,7 @@ import StreamingStatus from './features/streamingStatus/StreamingStatus';
 import Home from './Home';
 import SignalRHub from './app/SignalRHub';
 import FilesEditor from './features/filesEditor/FilesEditor';
+import TestPanel from './components/TestPanel';
 
 const App = () => {
   const [locale,] = useLocalStorage('en', 'locale');
@@ -71,6 +72,12 @@ const App = () => {
         <Route element={
           <SettingsEditor />
         } path="/settings" />
+
+        <Route element={
+          <TestPanel />
+        } path="/test" />
+
+
       </Route>
 
     )

@@ -203,7 +203,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         }
         rightColSize={5}
         selection={selectedChannelGroups}
-        selectionMode='checkbox'
+        selectionMode='single'
         showHidden={showHidden}
         showSkeleton={
           channelGroupsQuery.isLoading ||

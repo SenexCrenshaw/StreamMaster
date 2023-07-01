@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unused-prop-types */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { type DropdownProps } from 'primereact/dropdown';
 import { Dropdown } from 'primereact/dropdown';
 import * as React from 'react';
@@ -8,7 +10,7 @@ import { classNames } from 'primereact/utils';
 
 const EPGSelector = (props: EPGSelectorProps) => {
   const toast = React.useRef<Toast>(null);
-  const [programme, setProgramme] = React.useState<StreamMasterApi.ProgrammeName>({} as StreamMasterApi.ProgrammeName);
+  const [programme, setProgramme] = React.useState<StreamMasterApi.ProgrammeName | null>(null);
   const programmeNamesQuery = StreamMasterApi.useProgrammesGetProgrammeNamesQuery();
 
   React.useMemo(() => {
@@ -27,7 +29,7 @@ const EPGSelector = (props: EPGSelectorProps) => {
       return;
     }
 
-    setProgramme({} as StreamMasterApi.ProgrammeName);
+    setProgramme(null);
 
   }, [programmeNamesQuery, props.value]);
 
@@ -115,7 +117,7 @@ const EPGSelector = (props: EPGSelectorProps) => {
 
   const className = classNames('iconSelector p-0 m-0 w-full z-5 ', props.className);
 
-  if (props.enableEditMode !== true) {
+  if (props.enableEditMode !== true && programme !== null) {
 
     return (
       <div className='flex h-full justify-content-center align-items-center p-0 m-0'>
@@ -124,6 +126,8 @@ const EPGSelector = (props: EPGSelectorProps) => {
     )
 
   }
+
+  console.log(programmeNamesQuery.data)
 
   return (
     <>
@@ -135,8 +139,6 @@ const EPGSelector = (props: EPGSelectorProps) => {
           filterBy='channelName'
           itemTemplate={epgOptionTemplate}
           onChange={async (e) => { await onEPGChange(e.value); }}
-          onClick={props.onClick}
-          optionLabel='channel'
           options={programmeNamesQuery.data}
           placeholder="No EPG"
           style={{
@@ -171,7 +173,6 @@ type EPGSelectorProps = {
   data?: StreamMasterApi.VideoStreamDto | undefined;
   enableEditMode?: boolean;
   onChange?: ((value: string) => void) | null;
-  onClick?: React.MouseEventHandler | undefined;
   value?: string | null;
 };
 

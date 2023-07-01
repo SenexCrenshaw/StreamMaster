@@ -134,24 +134,26 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
                     t = new TvChannel
                     {
-                        Id = videoStream.User_Tvg_ID + "-" + dummy,
+                        Id = videoStream.User_Tvg_name,//"dummy-" + dummy,
                         Icon = new TvIcon { Src = Logo },
                         Displayname = new()
-                    {
-                    videoStream.User_Tvg_name
-                    }
+                        {
+                            videoStream.User_Tvg_name,
+                            "dummy-" + dummy
+                        }
                     };
                 }
                 else
                 {
                     t = new TvChannel
                     {
-                        Id = videoStream.User_Tvg_ID.ToString(),
+                        //Id = videoStream.User_Tvg_ID.ToString(),
+                        Id = videoStream.User_Tvg_name,
                         Icon = new TvIcon { Src = Logo },
                         Displayname = new()
-                    {
-                    videoStream.User_Tvg_name
-                    }
+                        {
+                            videoStream.User_Tvg_name
+                        }
                     };
                 }
 
@@ -162,7 +164,8 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                     if (videoStream.User_Tvg_ID.ToLower() == "dummy")
                     {
                         var prog = new Programme();
-                        prog.Channel = videoStream.User_Tvg_ID + "-" + dummy;
+
+                        prog.Channel = videoStream.User_Tvg_name;// "dummy-" + dummy;
 
                         prog.Title = new TvTitle
                         {
@@ -175,12 +178,10 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                             Text = videoStream.User_Tvg_name,
                         };
                         DateTime now = DateTime.Now;
-                        prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{url}/images/transparent.png" });
-                        prog.StartDateTime =new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
-                        prog.Start = prog.StartDateTime.ToString("yyyyMMddHHmmss K");
-                        now=now.AddDays(7);
-                        prog.StopDateTime = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
-                        prog.Stop = prog.StopDateTime.ToString("yyyyMMddHHmmss K");
+                        prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{url}/images/transparent.png" });                        
+                        prog.Start = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToString("yyyyMMddHHmmss zzz");
+                        now=now.AddDays(7);                        
+                        prog.Stop = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToString("yyyyMMddHHmmss zzz");
                         retProgrammes.Add(prog);
                     }
                     else
@@ -214,20 +215,22 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                                     {
                                         p.Icon.Add(new TvIcon { Height = "", Width = "", Src = "" });
                                     }
-                                    p.Channel = videoStream.User_Tvg_ID;
+
+                                    p.Channel = videoStream.User_Tvg_name;
+
                                     if (videoStream.User_Tvg_ID.ToLower() == "dummy")
                                     {
-                                        p.Channel = videoStream.User_Tvg_ID + "-" + dummy;
+                                        p.Channel = videoStream.User_Tvg_name;// + "-" + dummy;
 
                                         p.Title = new TvTitle
                                         {
                                             Lang = "en",
-                                            Text = videoStream.User_Tvg_ID,
+                                            Text = videoStream.User_Tvg_name,
                                         }; /// channel.Tvg_name;
                                         p.Desc = new TvDesc
                                         {
                                             Lang = "en",
-                                            Text = videoStream.User_Tvg_ID,
+                                            Text = videoStream.User_Tvg_name,
                                         };
                                     }
 
