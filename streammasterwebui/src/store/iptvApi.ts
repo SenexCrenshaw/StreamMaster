@@ -1237,8 +1237,10 @@ export type Programme = {
   episodenum?: TvEpisodenum[];
   icon?: TvIcon[];
   language?: string;
-  new?: string;
-  previouslyshown?: TvPreviouslyshown;
+  new?: string | null;
+  live?: string | null;
+  premiere?: string | null;
+  previouslyshown?: TvPreviouslyshown | null;
   rating?: TvRating;
   start?: string;
   startDateTime?: string;
@@ -1298,6 +1300,14 @@ export type Setting = {
   streamMasterIcon?: string;
   uiFolder?: string;
   urlBase?: string;
+  m3UFieldCUID?: boolean;
+  m3UFieldChannelId?: boolean;
+  m3UFieldChannelNumber?: boolean;
+  m3UFieldTvgName?: boolean;
+  m3UFieldTvgChno?: boolean;
+  m3UFieldTvgId?: boolean;
+  m3UFieldTvgLogo?: boolean;
+  m3UFieldGroupTitle?: boolean;
 };
 export type SettingDto = Setting & {
   defaultIconDto?: IconFileDto;
@@ -1323,6 +1333,14 @@ export type UpdateSettingRequest = {
   enableSSL?: boolean | null;
   cacheIcons?: boolean | null;
   cleanURLs?: boolean | null;
+  m3UFieldCUID?: boolean | null;
+  m3UFieldChannelId?: boolean | null;
+  m3UFieldChannelNumber?: boolean | null;
+  m3UFieldTvgName?: boolean | null;
+  m3UFieldTvgChno?: boolean | null;
+  m3UFieldTvgId?: boolean | null;
+  m3UFieldTvgLogo?: boolean | null;
+  m3UFieldGroupTitle?: boolean | null;
   clientUserAgent?: string | null;
   deviceID?: string | null;
   ffmPegExecutable?: string | null;

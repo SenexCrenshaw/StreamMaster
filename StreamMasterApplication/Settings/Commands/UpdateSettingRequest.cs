@@ -24,7 +24,15 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public bool? EnableSSL { get; set; }
     public bool? CacheIcons { get; set; }
     public bool? CleanURLs { get; set; }
-    
+
+    public bool? M3UFieldCUID { get; set; }
+    public bool? M3UFieldChannelId { get; set; }
+    public bool? M3UFieldChannelNumber { get; set; }
+    public bool? M3UFieldTvgName { get; set; }
+    public bool? M3UFieldTvgChno { get; set; }
+    public bool? M3UFieldTvgId { get; set; }
+    public bool? M3UFieldTvgLogo { get; set; }
+    public bool? M3UFieldGroupTitle { get; set; }
 
     public string? ClientUserAgent { get; set; }
     public string? DeviceID { get; set; }
@@ -59,8 +67,9 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
         _hubContext = hubContext;
     }
 
-    public class UpdateSettingResponse {
-       public  SettingDto Settings { get; set; }
+    public class UpdateSettingResponse
+    {
+        public SettingDto Settings { get; set; }
         public bool NeedsLogOut { get; set; }
     }
 
@@ -76,7 +85,7 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
         SettingDto ret = _mapper.Map<SettingDto>(currentSetting);
         await _hubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
 
-        return new UpdateSettingResponse{ Settings = ret, NeedsLogOut = needsLogOut };
+        return new UpdateSettingResponse { Settings = ret, NeedsLogOut = needsLogOut };
     }
 
     /// <summary>
@@ -101,6 +110,46 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
         if (request.EnableSSL != null && request.EnableSSL != currentSetting.EnableSSL)
         {
             currentSetting.EnableSSL = (bool)request.EnableSSL;
+        }
+
+        if (request.M3UFieldCUID != null)
+        {
+            currentSetting.M3UFieldCUID = (bool)request.M3UFieldCUID;
+        }
+
+        if (request.M3UFieldChannelId != null)
+        {
+            currentSetting.M3UFieldChannelId = (bool)request.M3UFieldChannelId;
+        }
+
+        if (request.M3UFieldChannelNumber != null)
+        {
+            currentSetting.M3UFieldChannelNumber = (bool)request.M3UFieldChannelNumber;
+        }
+
+        if (request.M3UFieldTvgName != null)
+        {
+            currentSetting.M3UFieldTvgName = (bool)request.M3UFieldTvgName;
+        }
+
+        if (request.M3UFieldTvgChno != null)
+        {
+            currentSetting.M3UFieldTvgChno = (bool)request.M3UFieldTvgChno;
+        }
+
+        if (request.M3UFieldTvgId != null)
+        {
+            currentSetting.M3UFieldTvgId = (bool)request.M3UFieldTvgId;
+        }
+
+        if (request.M3UFieldTvgLogo != null)
+        {
+            currentSetting.M3UFieldTvgLogo = (bool)request.M3UFieldTvgLogo;
+        }
+
+        if (request.M3UFieldGroupTitle != null)
+        {
+            currentSetting.M3UFieldGroupTitle = (bool)request.M3UFieldGroupTitle;
         }
 
         if (request.SSLCertPath != null && request.SSLCertPath != currentSetting.SSLCertPath)
@@ -137,7 +186,7 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
         {
             currentSetting.AdminUserName = request.AdminUserName;
             needsLogOut = true;
-        }   
+        }
 
         if (!string.IsNullOrEmpty(request.DeviceID) && request.DeviceID != currentSetting.DeviceID)
         {
@@ -183,7 +232,6 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
         {
             currentSetting.StreamingProxyType = (StreamingProxyTypes)request.StreamingProxyType;
         }
-
 
         if (request.AuthenticationMethod != null && request.AuthenticationMethod != currentSetting.AuthenticationMethod)
         {

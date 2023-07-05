@@ -341,7 +341,7 @@ export const SettingsEditor = () => {
             {getCheckBoxLine('overWriteM3UChannels')}
           </Fieldset>
 
-          <Fieldset className="mt-4 pt-10" legend={GetMessage('authenticatio')}>
+          <Fieldset className="mt-4 pt-10" legend={GetMessage('authentication')}>
             {getInputTextLine('apiKey')}
             {getDropDownLine('authenticationMethod', getAuthTypeOptions())}
             {getInputTextLine('adminUserName', adminUserNameError)}
@@ -375,10 +375,20 @@ export const SettingsEditor = () => {
             {getInputTextLine('clientUserAgent')}
           </Fieldset>
 
-          <Fieldset className="mt-4 pt-10" legend={GetMessage('filesEPG')} >
+          <Fieldset className="mt-4 pt-10" legend={GetMessage('filesEPGM3U')} >
             {getCheckBoxLine('cacheIcons')}
             {getInputTextLine('sdUserName')}
             {getPasswordLine('sdPassword')}
+            <Fieldset className="mt-4 pt-10" collapsed legend={GetMessage('m3uSettings')} toggleable >
+              {getCheckBoxLine('m3UFieldCUID')}
+              {getCheckBoxLine('m3UFieldChannelId')}
+              {getCheckBoxLine('m3UFieldChannelNumber')}
+              {getCheckBoxLine('m3UFieldTvgName')}
+              {getCheckBoxLine('m3UFieldTvgChno')}
+              {getCheckBoxLine('m3UFieldTvgId')}
+              {getCheckBoxLine('m3UFieldTvgLogo')}
+              {getCheckBoxLine('m3UFieldGroupTitle')}
+            </Fieldset>
           </Fieldset>
 
           {/* <Fieldset className="mt-4 pt-10" legend={GetMessage('backup')} /> */}

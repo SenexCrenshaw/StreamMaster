@@ -35,6 +35,7 @@ jobs:
           useConfigFile: true
           updateAssemblyInfo: true
           updateAssemblyInfoFilename: true
+          targetPath: StreamMasterAPI
 
       - name: Docker meta
         id: meta
