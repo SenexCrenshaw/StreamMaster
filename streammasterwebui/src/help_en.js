@@ -8,7 +8,7 @@ const help_en = {
   backup:'Backup',
   cacheIcons: 'Cache Icons to the local disk to speed things up',
   cleanURLs: 'Clean URLs from Logs',
-  clientUserAgent: "Client User Agent",
+  clientUserAgent: "Client User Agent used for downloads, epg/m3u/icons/schedules direct",
   development: 'Development',
   deviceID: 'HDHR Device ID and capability ID',
   ffmPegExecutable:'FFMPeg Executable. The name "ffmpeg(.exe)" will be search in the OS path as well',
@@ -31,7 +31,8 @@ const help_en = {
     sslCertPassword: 'SSL Certificate Password',
   sslCertPath:  'SSL Certificate Path',
   streaming: 'Streaming',
-  streamingProxyType: 'Stream Buffer Type to use. None will just use the original M3U URLs, FFMPEG - run the stream through FFMPEG, Streram Master - run the stream through SM own proxy',
+  streamingClientUserAgent: "Client User Agent used for video streams",
+   streamingProxyType: 'Stream Buffer Type to use. None will just use the original M3U URLs, FFMPEG - run the stream through FFMPEG, Streram Master - run the stream through SM own proxy',
   user: "User",
 };
 

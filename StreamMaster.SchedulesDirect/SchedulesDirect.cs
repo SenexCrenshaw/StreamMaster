@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using StreamMasterDomain.Common;
+
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -209,14 +211,15 @@ public class SchedulesDirect
 
     private static HttpClient CreateHttpClient()
     {
+        var setting = FileUtil.GetSetting();
         var client = new HttpClient(new HttpClientHandler()
         {
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
             AllowAutoRedirect = true,
         });
         client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; streammaster/1.0)");
+        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));        
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(setting.ClientUserAgent);
 
         return client;
     }

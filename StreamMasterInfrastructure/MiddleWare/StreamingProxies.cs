@@ -92,7 +92,7 @@ public static class StreamingProxies
         {
             AllowAutoRedirect = true,
         });
-        client.DefaultRequestHeaders.UserAgent.ParseAdd(setting.ClientUserAgent);
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(setting.StreamingClientUserAgent);
         return client;
     }
 

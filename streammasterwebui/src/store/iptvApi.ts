@@ -1283,6 +1283,7 @@ export type Setting = {
   sslCertPassword?: string;
   cacheIcons?: boolean;
   cleanURLs?: boolean;
+  streamingClientUserAgent?: string;
   clientUserAgent?: string;
   databaseName?: string;
   defaultIcon?: string;
@@ -1340,6 +1341,7 @@ export type UpdateSettingRequest = {
   m3UFieldTvgId?: boolean | null;
   m3UFieldTvgLogo?: boolean | null;
   m3UFieldGroupTitle?: boolean | null;
+  streamingClientUserAgent?: string | null;
   clientUserAgent?: string | null;
   deviceID?: string | null;
   ffmPegExecutable?: string | null;

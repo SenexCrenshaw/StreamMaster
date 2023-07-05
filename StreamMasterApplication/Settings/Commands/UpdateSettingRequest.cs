@@ -34,6 +34,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public bool? M3UFieldTvgLogo { get; set; }
     public bool? M3UFieldGroupTitle { get; set; }
 
+    public string? StreamingClientUserAgent { get; set; }
     public string? ClientUserAgent { get; set; }
     public string? DeviceID { get; set; }
     public string? FFMPegExecutable { get; set; }
@@ -166,6 +167,12 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
         {
             currentSetting.ClientUserAgent = request.ClientUserAgent;
         }
+
+
+        if (request.StreamingClientUserAgent != null && request.StreamingClientUserAgent != currentSetting.StreamingClientUserAgent)
+        {
+            currentSetting.StreamingClientUserAgent = request.StreamingClientUserAgent;
+        }        
 
         if (request.OverWriteM3UChannels != null && request.OverWriteM3UChannels != currentSetting.OverWriteM3UChannels)
         {

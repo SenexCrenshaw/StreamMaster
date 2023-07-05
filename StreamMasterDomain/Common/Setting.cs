@@ -14,6 +14,7 @@ public class Setting
     public string SSLCertPassword { get; set; } = "";
     public bool CacheIcons { get; set; } = true;
     public bool CleanURLs { get; set; } = true;
+    public string StreamingClientUserAgent { get; set; } = "Mozilla/5.0 (compatible; streammaster/1.0)";
     public string ClientUserAgent { get; set; } = "Mozilla/5.0 (compatible; streammaster/1.0)";
     public string DatabaseName { get; set; } = "StreamMaster.db";
     public string DefaultIcon { get; set; } = "images/default.png";

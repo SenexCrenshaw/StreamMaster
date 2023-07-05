@@ -373,6 +373,7 @@ export const SettingsEditor = () => {
             {getInputNumberLine('maxConnectRetry', 999)}
             {getInputNumberLine('maxConnectRetryTimeMS', 999)}
             {getInputTextLine('clientUserAgent')}
+            {getInputTextLine('streamingClientUserAgent')}
           </Fieldset>
 
           <Fieldset className="mt-4 pt-10" legend={GetMessage('filesEPGM3U')} >

@@ -43,6 +43,7 @@ export default {
   sslCertPassword: 'SSL Certificate Password',
   sslCertPath:  'SSL Certificate Path',
   streaming: 'Streaming',
+  streamingClientUserAgent: "Streaming Client User Agent",
   streamingProxyType: 'Enable Stream Buffer',
   user: "User",
 };

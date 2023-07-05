@@ -39,7 +39,7 @@ namespace StreamMasterInfrastructure.Services.Frontend
             builder.AppendLine($"  apiKey: '{_apiKey}',");
             builder.AppendLine($"  apiRoot: '{_urlBase}/api/',");            
             builder.AppendLine($"  baseHostURL: '{_urlBase}',");            
-            builder.AppendLine($"  isDebug: {BuildInfo.IsDebug.ToString()},");
+            builder.AppendLine($"  isDebug: {BuildInfo.IsDebug.ToString().ToLower()},");
             builder.AppendLine($"  urlBase: '{_urlBase}',");
             builder.AppendLine($"  version: '{BuildInfo.Version.ToString()}',");
             builder.AppendLine("};");

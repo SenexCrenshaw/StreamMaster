@@ -1,4 +1,7 @@
-﻿using System.Text.RegularExpressions;
+﻿using StreamMasterDomain.Common;
+
+using System.Net.Http.Headers;
+using System.Text.RegularExpressions;
 
 public class M3u8Parser
 {
@@ -10,7 +13,14 @@ public class M3u8Parser
             Streams = new List<M3u8Stream>()
         };
 
-        using var httpClient = new HttpClient();
+        var setting = FileUtil.GetSetting();
+        var httpClient = new HttpClient(new HttpClientHandler()
+        {
+            AllowAutoRedirect = true,
+        });
+        httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+        httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
+        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(setting.ClientUserAgent);        
 
         HttpResponseMessage response = await httpClient.GetAsync(playlistUri, HttpCompletionOption.ResponseHeadersRead);
         if (!response.IsSuccessStatusCode)
