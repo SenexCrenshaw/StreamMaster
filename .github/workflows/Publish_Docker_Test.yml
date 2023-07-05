@@ -33,9 +33,8 @@ jobs:
         uses: gittools/actions/gitversion/execute@v0
         with:
           useConfigFile: true
-
-      - name: Update Assembly Info
-        run: GitVersion.exe /updateassemblyinfo AssemblyInfo.cs /ensureassemblyinfo
+          updateAssemblyInfo: true
+          updateAssemblyInfoFilename: true
 
       - name: Docker meta
         id: meta
@@ -99,9 +98,8 @@ jobs:
         uses: gittools/actions/gitversion/execute@v0
         with:
           useConfigFile: true
-
-      - name: Update Assembly Info
-        run: GitVersion.exe /updateassemblyinfo AssemblyInfo.cs /ensureassemblyinfo
+          updateAssemblyInfo: true
+          updateAssemblyInfoFilename: true
 
       - name: Download digests
         uses: actions/download-artifact@v3
