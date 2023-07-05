@@ -1,12 +1,8 @@
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 using StreamMasterAPI;
-using StreamMasterAPI.Services;
 
 using StreamMasterApplication;
-using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.Hubs;
 
 using StreamMasterDomain.Common;
@@ -14,8 +10,8 @@ using StreamMasterDomain.Common;
 using StreamMasterInfrastructure;
 using StreamMasterInfrastructure.Persistence;
 
-using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -23,13 +19,13 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel((context, serverOptions) =>
 {
     serverOptions.AllowSynchronousIO = true;
-    serverOptions.Limits.MaxRequestBodySize = null;    
+    serverOptions.Limits.MaxRequestBodySize = null;
 });
 
 var appDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{Constants.AppName.ToLower()}{Path.DirectorySeparatorChar}";
 var settingFile = $"{appDataFolder}settings.json";
 
-builder.Configuration.AddJsonFile(settingFile, true,false);
+builder.Configuration.AddJsonFile(settingFile, true, false);
 builder.Services.Configure<Setting>(builder.Configuration);
 
 var enableSsl = false;
@@ -49,10 +45,19 @@ if (enableSsl && !string.IsNullOrEmpty(sslCertPath))
 }
 
 builder.WebHost.UseUrls(urls.ToArray());
-builder.WebHost.ConfigureKestrel(options =>
-options.ConfigureHttpsDefaults(configureOptions =>
-   configureOptions.ServerCertificate = ValidateSslCertificate(Path.Combine(appDataFolder, sslCertPath), sslCertPassword)
-));
+
+if (!string.IsNullOrEmpty(sslCertPath))
+{
+    if (string.IsNullOrEmpty(sslCertPassword))
+    {
+        sslCertPassword = "";
+    }
+
+    builder.WebHost.ConfigureKestrel(options =>
+    options.ConfigureHttpsDefaults(configureOptions =>
+       configureOptions.ServerCertificate = ValidateSslCertificate(Path.Combine(appDataFolder, sslCertPath), sslCertPassword)
+    ));
+}
 
 // Add services to the container.
 builder.Services.AddApplicationServices();
@@ -110,8 +115,6 @@ using (IServiceScope scope = app.Services.CreateScope())
     }
 }
 
-
-
 //app.UseMiddleware<AuthMiddleware>();
 
 app.UseHealthChecks("/health");
@@ -135,7 +138,6 @@ else
 app.UseRouting();
 app.UseWebSockets();
 
-
 if (app.Environment.IsDevelopment())
 {
     app.UseCors("DevPolicy");
@@ -155,29 +157,25 @@ app.UseAuthorization();
 app.MapHealthChecks("/healthz");
 app.MapDefaultControllerRoute();
 
-app.UseEndpoints(endpoints =>
+app.Map("/swagger", context =>
 {
-    endpoints.Map("/swagger", context =>
-    {
-        context.Response.Redirect("/swagger/index.html");
-        return Task.CompletedTask;
-    });
-
-    endpoints.MapGet("/routes", async context =>
-    {
-        var endpointDataSource = context.RequestServices.GetRequiredService<EndpointDataSource>();
-
-        foreach (var endpoint in endpointDataSource.Endpoints)
-        {
-            var routePattern = GetRoutePattern(endpoint);
-
-            await context.Response.WriteAsync($"Route: {routePattern}\n");
-        }
-    });
-
-    app.MapHub<StreamMasterHub>("/streammasterhub").RequireAuthorization("SignalR");
+    context.Response.Redirect("/swagger/index.html");
+    return Task.CompletedTask;
 });
 
+app.MapGet("/routes", async context =>
+{
+    var endpointDataSource = context.RequestServices.GetRequiredService<EndpointDataSource>();
+
+    foreach (var endpoint in endpointDataSource.Endpoints)
+    {
+        var routePattern = GetRoutePattern(endpoint);
+
+        await context.Response.WriteAsync($"Route: {routePattern}\n");
+    }
+});
+
+app.MapHub<StreamMasterHub>("/streammasterhub").RequireAuthorization("SignalR");
 
 app.Run();
 
@@ -185,7 +183,7 @@ string GetRoutePattern(Endpoint endpoint)
 {
     var routeEndpoint = endpoint as RouteEndpoint;
 
-    if (routeEndpoint is not null)
+    if (routeEndpoint is not null && routeEndpoint.RoutePattern is not null && routeEndpoint.RoutePattern.RawText is not null)
     {
         return routeEndpoint.RoutePattern.RawText;
     }
@@ -193,12 +191,7 @@ string GetRoutePattern(Endpoint endpoint)
     return "<unknown>";
 }
 
- static string BuildUrl(string scheme, string bindAddress, int port)
-{
-    return $"{scheme}://{bindAddress}:{port}";
-}
-
- static X509Certificate2 ValidateSslCertificate(string cert, string password)
+static X509Certificate2 ValidateSslCertificate(string cert, string password)
 {
     X509Certificate2 certificate;
 

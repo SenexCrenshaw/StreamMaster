@@ -97,6 +97,9 @@ jobs:
         with:
           useConfigFile: true
 
+      - name: Update Assembly Info
+        run: dotnet-gitversion.exe /updateassemblyinfo AssemblyInfo.cs /ensureassemblyinfo
+
       - name: Download digests
         uses: actions/download-artifact@v3
         with:

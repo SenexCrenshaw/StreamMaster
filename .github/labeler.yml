@@ -1,0 +1,17 @@
+"Area: API":
+  - StreamMasterApplication/**/*
+
+"Area: Parser":
+  - StreamMaster.M3U8/**/*
+  - StreamMaster.SchedulesDirect/**/*
+
+"Area: Db-migration":
+  - StreamMasterInfrastructure/Persistence/Migrations/*
+
+"Area: Download Clients":
+  - src/NzbDrone.Core/Download/Clients/**/*
+
+"Area: UI":
+  - streammasterwebui/**/*
+  - package.json
+  - yarn.lock

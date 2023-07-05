@@ -5,14 +5,39 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>5c3e6cc7-c8af-4b3f-9ce2-65a1356eaa25</UserSecretsId>
     <Platforms>AnyCPU;ARM64</Platforms>
-    <AssemblyVersion>0.1.0.0</AssemblyVersion>
-    <FileVersion>0.1.0.0</FileVersion>
+    <AssemblyVersion></AssemblyVersion>
+    <FileVersion></FileVersion>
     <InformationalVersion>0.1.0-alpha.582+Branch.develop.Sha.95b3b4eac9a11372a0e6e5d32be2790dfac1813b</InformationalVersion>
-    <Version>0.1.0-alpha0582</Version>
+    <Version>$(VersionPrefix)</Version>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <Company>StreamMaster</Company>
+    <Copyright>Copyright 2022-$([System.DateTime]::Now.ToString('yyyy')) streammaster (MIT license)</Copyright>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Title>Stream Master</Title>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
-    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.5.2" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.6.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.8" />

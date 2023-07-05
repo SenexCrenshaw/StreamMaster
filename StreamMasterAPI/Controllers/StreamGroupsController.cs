@@ -328,7 +328,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetStreamGroupVideoM3UStream(int StreamGroupNumber, int StreamId, string ClientID, CancellationToken cancellationToken)
     {
-        string clientIdString = HttpContext.Session.GetString("ClientId");
+        string? clientIdString = HttpContext.Session.GetString("ClientId");
         if (string.IsNullOrEmpty(clientIdString))
         {
             if (string.IsNullOrEmpty(ClientID))
@@ -340,7 +340,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
             clientIdString = ClientID;
         }
 
-        ClientTracker clientTracker;
+        ClientTracker? clientTracker;
         clientTrackers.TryGetValue(clientIdString, out clientTracker);
         if (clientTracker == null)
         {
@@ -650,7 +650,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
         var clientIdString = CheckClientID(StreamGroupNumber, StreamId, clientId);
 
-        ClientTracker clientTracker;
+        ClientTracker? clientTracker;
         clientTrackers.TryGetValue(clientIdString, out clientTracker);
         if (clientTracker == null)
         {
@@ -735,10 +735,10 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
             return clientId;
         }
 
-        string clientIdString = HttpContext.Session.GetString("ClientId");
+        string? clientIdString = HttpContext.Session.GetString("ClientId");
 
         if (string.IsNullOrEmpty(clientIdString) ||
-            !clientTrackers.TryGetValue(clientIdString, out ClientTracker cl)
+            !clientTrackers.TryGetValue(clientIdString, out ClientTracker? cl)
             || cl.StreamGroupNumber != streamGroupNumber || cl.StreamId != streamId)
         {
             clientIdString = Guid.NewGuid().ToString();

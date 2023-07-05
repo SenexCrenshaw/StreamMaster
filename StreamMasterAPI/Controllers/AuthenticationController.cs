@@ -28,7 +28,7 @@ namespace StreamMasterAPI.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromForm] LoginResource resource, [FromQuery] string returnUrl = null)
+        public async Task<IActionResult> Login([FromForm] LoginResource resource, [FromQuery] string? returnUrl = null)
         {
             var user = _authService.Login(HttpContext.Request, resource.Username, resource.Password);
 

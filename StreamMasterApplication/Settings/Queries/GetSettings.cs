@@ -16,16 +16,15 @@ internal class GetSettingsHandler : IRequestHandler<GetSettings, SettingDto>
 {
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
-    
 
     public GetSettingsHandler(
         IMemoryCache memoryCache,
-        
+
         IMapper mapper
     )
     {
         _memoryCache = memoryCache;
-        
+
         _mapper = mapper;
     }
 
