@@ -39,13 +39,13 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
     props.onChange?.(data);
   }, [props]);
 
-  const onEPGUpdateClick = React.useCallback(async (id: number, auto?: boolean | null, days?: number | null, name?: string | null) => {
+  const onEPGUpdateClick = React.useCallback(async (id: number, auto?: boolean | null, days?: number | null, name?: string | null, url?: string | null) => {
 
     if (id < 1) {
       return;
     }
 
-    if (auto === undefined && !days && !name) {
+    if (auto === undefined && !url && !days && !name) {
       return;
     }
 
@@ -62,6 +62,10 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
 
     if (name) {
       tosend.name = name;
+    }
+
+    if (url) {
+      tosend.url = url;
     }
 
     await Hub.UpdateEPGFile(tosend)
@@ -176,11 +180,41 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
     );
   }, [onEPGUpdateClick]);
 
+  const urlEditorBodyTemplate = React.useCallback((rowData: StreamMasterApi.M3UFilesDto) => {
+    if (rowData.id === 0) {
+      return (
+        <div className='p-0 relative'
+          style={{
+            ...{
+              backgroundColor: 'var(--mask-bg)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            },
+          }}
+        >
+          {rowData.url}
+        </div>
+      )
+    }
+
+    return (
+      <StringEditorBodyTemplate
+        onChange={async (e) => {
+          await onEPGUpdateClick(rowData.id, null, null, null, e)
+        }}
+        tooltip={rowData.url}
+        value={rowData.url}
+      />
+    )
+  }, [onEPGUpdateClick]);
+
   const sourceColumns = React.useMemo((): ColumnMeta[] => {
     return [
       { bodyTemplate: nameEditorBodyTemplate, field: 'name', filter: true, header: 'Name', sortable: true },
       { bodyTemplate: lastDownloadedTemplate, field: 'lastDownloaded', header: 'Downloaded', sortable: true },
       { bodyTemplate: programmeCountTemplate, field: 'programmeCount', header: 'Programmes', sortable: true },
+      { bodyTemplate: urlEditorBodyTemplate, field: 'url', sortable: true },
       {
         align: 'center', bodyTemplate: targetActionBodyTemplate, field: 'autoUpdate',
         style: {
@@ -190,7 +224,7 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
       },
 
     ]
-  }, [lastDownloadedTemplate, nameEditorBodyTemplate, programmeCountTemplate, targetActionBodyTemplate]);
+  }, [lastDownloadedTemplate, nameEditorBodyTemplate, programmeCountTemplate, targetActionBodyTemplate, urlEditorBodyTemplate]);
 
   return (
     <>
