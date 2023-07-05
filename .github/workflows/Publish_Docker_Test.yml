@@ -99,7 +99,7 @@ jobs:
         with:
           useConfigFile: true
           updateAssemblyInfo: true
-          updateAssemblyInfoFilename: true
+          targetPath: StreamMasterAPI
 
       - name: Download digests
         uses: actions/download-artifact@v3
