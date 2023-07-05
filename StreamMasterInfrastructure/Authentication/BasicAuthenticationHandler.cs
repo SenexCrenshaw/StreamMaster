@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using StreamMasterDomain.Authentication;
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Enums;
 
@@ -17,16 +18,17 @@ namespace StreamMasterInfrastructure.Authentication
     {
         private readonly string _appName;
         private readonly IAuthenticationService _authService;
+        protected Setting _setting = FileUtil.GetSetting();
 
         public BasicAuthenticationHandler(IAuthenticationService authService,
-            IConfigFileProvider configFileProvider,
+
             IOptionsMonitor<AuthenticationSchemeOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
             ISystemClock clock)
             : base(options, logger, encoder, clock)
         {
-            _appName = configFileProvider.Setting.AppName;
+            _appName = _setting.AppName;
             _authService = authService;
         }
 

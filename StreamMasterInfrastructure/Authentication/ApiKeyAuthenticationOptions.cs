@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using StreamMasterDomain.Authentication;
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Enums;
 
@@ -25,17 +26,17 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
 {
     private readonly string _apiKey;
     private readonly bool needsAuth;
-    private readonly IConfigFileProvider _configFileProvider;
+    protected Setting _setting = FileUtil.GetSetting();
+
     public ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options,
         ILoggerFactory logger,
-         IConfigFileProvider configFileProvider,
+
         UrlEncoder encoder,
         ISystemClock clock)
         : base(options, logger, encoder, clock)
     {
-        _configFileProvider = configFileProvider;
-        _apiKey = configFileProvider.Setting.ApiKey;
-        needsAuth = configFileProvider.Setting.AuthenticationMethod != AuthenticationType.None;
+        _apiKey = _setting.ApiKey;
+        needsAuth = _setting.AuthenticationMethod != AuthenticationType.None;
     }
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -94,25 +95,22 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
 
     private string? ParseApiKey()
     {
-
-        if ( Request.Path.Value.StartsWith("/swagger") && Debugger.IsAttached)
+        if (Request.Path.Value.StartsWith("/swagger") && Debugger.IsAttached)
         {
             return _apiKey;
         }
 
         if (Options.QueryName == "SGLinks")
         {
-          
             // Get the request path
             var requestPath = Context.Request.Path.Value.ToString();
             if (!requestPath.StartsWith("/api/streamgroups/", StringComparison.InvariantCultureIgnoreCase))
             {
                 return null;
-
             }
 
             var crypt = requestPath.GetAPIKeyFromPath();
-        
+
             return crypt;
         }
 

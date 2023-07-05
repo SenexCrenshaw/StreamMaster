@@ -23,9 +23,10 @@ internal class GetStreamGroupsHandler : IRequestHandler<GetStreamGroups, IEnumer
     private readonly IAppDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
+    protected Setting _setting = FileUtil.GetSetting();
 
     public GetStreamGroupsHandler(
-        IMapper mapper, 
+        IMapper mapper,
         IConfigFileProvider configFileProvider,
         IHttpContextAccessor httpContextAccessor,
         IAppDbContext context)
@@ -65,13 +66,13 @@ internal class GetStreamGroupsHandler : IRequestHandler<GetStreamGroups, IEnumer
                 }
                 streamGroup.VideoStreams.AddRange(streams);
             }
-            var encodedStreamGroupNumber = streamGroup.StreamGroupNumber.EncodeValue128(_configFileProvider.Setting.ServerKey);
+            var encodedStreamGroupNumber = streamGroup.StreamGroupNumber.EncodeValue128(_setting.ServerKey);
             streamGroup.M3ULink = $"{url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
             streamGroup.XMLLink = $"{url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
             streamGroup.HDHRLink = $"{url}/api/streamgroups/{encodedStreamGroupNumber}";
         }
 
-        var encodedZero = 0.EncodeValue128(_configFileProvider.Setting.ServerKey);
+        var encodedZero = 0.EncodeValue128(_setting.ServerKey);
         var zeroGroup = new StreamGroupDto
         {
             Id = 0,
@@ -81,9 +82,8 @@ internal class GetStreamGroupsHandler : IRequestHandler<GetStreamGroups, IEnumer
             HDHRLink = $"{url}/api/streamgroups/{encodedZero}",
         };
 
-        ret.Insert(0,zeroGroup);
+        ret.Insert(0, zeroGroup);
 
         return ret;
     }
-
 }

@@ -1311,7 +1311,6 @@ export type Setting = {
 };
 export type SettingDto = Setting & {
   defaultIconDto?: IconFileDto;
-  requiresAuth?: boolean;
   version?: string;
 };
 export type SystemStatus = {

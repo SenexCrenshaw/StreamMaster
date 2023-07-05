@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Authentication;
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Entities;
 using StreamMasterDomain.Enums;
@@ -25,15 +26,16 @@ public class AuthenticationService : IAuthenticationService
     private static string AdminUserName;
     private static AuthenticationType AUTH_METHOD;
     private readonly ILogger<AuthenticationService> _logger;
+    protected Setting _setting = FileUtil.GetSetting();
 
-    public AuthenticationService(IConfigFileProvider configFileProvider, ILogger<AuthenticationService> logger)
+    public AuthenticationService(ILogger<AuthenticationService> logger)
     {
-        _logger = logger;        
-        AdminPassword = configFileProvider.Setting.AdminPassword;
-        AdminUserName = configFileProvider.Setting.AdminUserName;
+        _logger = logger;
+        AdminPassword = _setting.AdminPassword;
+        AdminUserName = _setting.AdminUserName;
         var authMethod = AuthenticationType.None;
         if (
-            configFileProvider.Setting.AuthenticationMethod != AuthenticationType.None &&
+            _setting.AuthenticationMethod != AuthenticationType.None &&
             (!string.IsNullOrEmpty(AdminPassword) && !string.IsNullOrEmpty(AdminUserName))
             )
         {

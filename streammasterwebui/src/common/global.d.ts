@@ -3,8 +3,7 @@ type StreamMasterApiData = {
   apiKey: string,
   apiRoot: string,
   baseHostURL: string,
-  hubName: string,
-  isDev: boolean,
+  isDebug: boolean,
   urlBase: string,
   version: string,
 };

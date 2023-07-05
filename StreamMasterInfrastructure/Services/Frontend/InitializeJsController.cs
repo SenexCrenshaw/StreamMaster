@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Dto;
 
@@ -15,14 +16,12 @@ namespace StreamMasterInfrastructure.Services.Frontend
     {
         private static string _apiKey;
         private static string _urlBase;
-        private readonly IConfigFileProvider _configFileProvider;
 
         public InitializeJsController(IConfigFileProvider configFileProvider)
         {
-            _configFileProvider = configFileProvider;
-
-            _apiKey = configFileProvider.Setting.ApiKey;
-            _urlBase = configFileProvider.Setting.UrlBase;
+            var setting = FileUtil.GetSetting();
+            _apiKey = setting.ApiKey;
+            _urlBase = setting.UrlBase;
         }
 
         [HttpGet("/initialize.js")]
@@ -37,15 +36,13 @@ namespace StreamMasterInfrastructure.Services.Frontend
 
             var builder = new StringBuilder();
             builder.AppendLine("window.StreamMaster = {");
-            builder.AppendLine($"  apiRoot: '{_urlBase}/api/',");
             builder.AppendLine($"  apiKey: '{_apiKey}',");
-            builder.AppendLine($"  baseHostURL: '{_urlBase}',");
-            builder.AppendLine($"  isDev: false,");
-            builder.AppendLine($"  requiresAuth: {(!string.IsNullOrEmpty(_configFileProvider.Setting.AdminPassword) && !string.IsNullOrEmpty(_configFileProvider.Setting.AdminUserName)).ToString().ToLower()},");
+            builder.AppendLine($"  apiRoot: '{_urlBase}/api/',");            
+            builder.AppendLine($"  baseHostURL: '{_urlBase}',");            
+            builder.AppendLine($"  isDebug: {BuildInfo.IsDebug.ToString()},");
             builder.AppendLine($"  urlBase: '{_urlBase}',");
-            builder.AppendLine($"  version: '{settingDto.Version.ToString()}',");
+            builder.AppendLine($"  version: '{BuildInfo.Version.ToString()}',");
             builder.AppendLine("};");
-
 
             return builder.ToString(); ;
         }

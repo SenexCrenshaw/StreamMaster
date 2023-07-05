@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Configuration;
 using StreamMasterDomain.EnvironmentInfo;
 
@@ -8,13 +9,12 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
     public class FaviconMapper : StaticResourceMapperBase
     {
         private readonly IAppFolderInfo _appFolderInfo;
-        private readonly IConfigFileProvider _configFileProvider;
+        protected Setting _setting = FileUtil.GetSetting();
 
-        public FaviconMapper(IAppFolderInfo appFolderInfo, IConfigFileProvider configFileProvider, ILogger<FaviconMapper> logger)
+        public FaviconMapper(IAppFolderInfo appFolderInfo, ILogger<FaviconMapper> logger)
             : base(logger)
         {
             _appFolderInfo = appFolderInfo;
-            _configFileProvider = configFileProvider;
         }
 
         public override bool CanHandle(string resourceUrl)
@@ -24,7 +24,7 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
 
         public override string Map(string resourceUrl)
         {
-            return Path.Combine(_appFolderInfo.StartUpFolder, _configFileProvider.Setting.UiFolder, "favicon.ico");
+            return Path.Combine(_appFolderInfo.StartUpFolder, _setting.UiFolder, "favicon.ico");
         }
     }
 }

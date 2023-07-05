@@ -23,7 +23,7 @@ public record AddStreamGroupRequest(
     List<string>? ChannelGroupNames
     ) : IRequest<StreamGroupDto?>
 {
-   }
+}
 
 public class AddStreamGroupRequestValidator : AbstractValidator<AddStreamGroupRequest>
 {
@@ -48,6 +48,7 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
     private readonly IPublisher _publisher;
     private readonly IConfigFileProvider _configFileProvider;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    protected Setting _setting = FileUtil.GetSetting();
 
     public AddStreamGroupRequestHandler(
         IMapper mapper,
@@ -66,12 +67,12 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
 
     public async Task<StreamGroupDto?> Handle(AddStreamGroupRequest command, CancellationToken cancellationToken)
     {
-        if (command.StreamGroupNumber<1)
+        if (command.StreamGroupNumber < 1)
         {
             return null;
         }
-            
-        int streamGroupNumber=  command.StreamGroupNumber;
+
+        int streamGroupNumber = command.StreamGroupNumber;
         if (_context.StreamGroups.Any(a => a.StreamGroupNumber == streamGroupNumber))
         {
             streamGroupNumber = _context.StreamGroups.Max(a => a.StreamGroupNumber) + 1;
@@ -82,14 +83,14 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
         {
             Name = command.Name,
             StreamGroupNumber = command.StreamGroupNumber,
-          
         };
-        
-        if ( command.ChannelGroupNames != null && command.ChannelGroupNames.Any())
+
+        if (command.ChannelGroupNames != null && command.ChannelGroupNames.Any())
         {
-            var cgs= _context.ChannelGroups.Where(a => command.ChannelGroupNames.Contains(a.Name))  .ToList();
-            if (cgs.Any()) {
-                entity.ChannelGroups =cgs ; 
+            var cgs = _context.ChannelGroups.Where(a => command.ChannelGroupNames.Contains(a.Name)).ToList();
+            if (cgs.Any())
+            {
+                entity.ChannelGroups = cgs;
             }
         }
 
@@ -108,7 +109,7 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
         var url = _httpContextAccessor.GetUrl();
 
         StreamGroupDto ret = _mapper.Map<StreamGroupDto>(entity);
-        var encodedStreamGroupNumber = ret.StreamGroupNumber.EncodeValue128(_configFileProvider.Setting.ServerKey);
+        var encodedStreamGroupNumber = ret.StreamGroupNumber.EncodeValue128(_setting.ServerKey);
         ret.M3ULink = $"{url}/api/streamgroups/m3u/{encodedStreamGroupNumber}.m3u";
         ret.XMLLink = $"{url}/api/streamgroups/epg/{encodedStreamGroupNumber}.xml";
         ret.HDHRLink = $"{url}/api/streamgroups/{encodedStreamGroupNumber}";
@@ -116,5 +117,4 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
         await _publisher.Publish(new StreamGroupUpdateEvent(ret), cancellationToken).ConfigureAwait(false);
         return ret;
     }
-
 }

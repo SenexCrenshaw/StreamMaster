@@ -28,14 +28,12 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 {
     private readonly IMapper _mapper;
     private static readonly ConcurrentDictionary<string, ClientTracker> clientTrackers = new();
-    private readonly IConfigFileProvider _configFileProvider;
-    private readonly ILogger<StreamGroupsController> _logger;    
+    private readonly ILogger<StreamGroupsController> _logger;
     private readonly IMemoryCache _memoryCache;
     private readonly IRingBufferManager _ringBufferManager;
 
-    public StreamGroupsController(IRingBufferManager ringBufferManager, IConfigFileProvider configFileProvider, IMapper mapper, IMemoryCache memoryCache, ILogger<StreamGroupsController> logger)
-    {        
-        _configFileProvider = configFileProvider;
+    public StreamGroupsController(IRingBufferManager ringBufferManager, IMapper mapper, IMemoryCache memoryCache, ILogger<StreamGroupsController> logger)
+    {
         _mapper = mapper;
         _memoryCache = memoryCache;
         _ringBufferManager = ringBufferManager;
@@ -115,7 +113,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetStreamGroupCapability(string encodedId)
     {
-        int? streamGroupNumber = encodedId.DecodeValue128(_configFileProvider.Setting.ServerKey);
+        int? streamGroupNumber = encodedId.DecodeValue128(_setting.ServerKey);
         if (streamGroupNumber == null)
         {
             return new NotFoundResult();
@@ -137,7 +135,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     //[ProducesResponseType(StatusCodes.Status400BadRequest)]
     //public async Task<IActionResult> GetStreamGroupDeviceXML(string encodedId)
     //{
-    //    int? streamGroupNumber = encodedId.DecodeValue128(_configFileProvider.Setting.ServerKey);
+    //    int? streamGroupNumber = encodedId.DecodeValue128(_setting.ServerKey);
     //    if (streamGroupNumber == null)
     //    {
     //        return new NotFoundResult();
@@ -160,7 +158,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetStreamGroupDiscover(string encodedId)
     {
-        int? streamGroupNumber = encodedId.DecodeValue128(_configFileProvider.Setting.ServerKey);
+        int? streamGroupNumber = encodedId.DecodeValue128(_setting.ServerKey);
         if (streamGroupNumber == null)
         {
             return new NotFoundResult();
@@ -182,7 +180,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     //[ProducesResponseType(StatusCodes.Status400BadRequest)]
     //public async Task<IActionResult> GetStreamGroupEncodedCapability(string encodedId)
     //{
-    //    int? streamGroupNumber = encodedId.DecodeValue128(_configFileProvider.Setting.ServerKey);
+    //    int? streamGroupNumber = encodedId.DecodeValue128(_setting.ServerKey);
     //    if (streamGroupNumber == null)
     //    {
     //        return new NotFoundResult();
@@ -205,7 +203,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetStreamGroupEPG(string encodedId)
     {
-        int? streamGroupNumber = encodedId.DecodeValue128(_configFileProvider.Setting.ServerKey);
+        int? streamGroupNumber = encodedId.DecodeValue128(_setting.ServerKey);
         if (streamGroupNumber == null)
         {
             return new NotFoundResult();
@@ -237,7 +235,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetStreamGroupLineUp(string encodedId)
     {
-        int? streamGroupNumber = encodedId.DecodeValue128(_configFileProvider.Setting.ServerKey);
+        int? streamGroupNumber = encodedId.DecodeValue128(_setting.ServerKey);
         if (streamGroupNumber == null)
         {
             return new NotFoundResult();
@@ -260,7 +258,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetStreamGroupLineUpStatus(string encodedId)
     {
-        int? streamGroupNumber = encodedId.DecodeValue128(_configFileProvider.Setting.ServerKey);
+        int? streamGroupNumber = encodedId.DecodeValue128(_setting.ServerKey);
         if (streamGroupNumber == null)
         {
             return new NotFoundResult();
@@ -282,7 +280,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetStreamGroupM3U(string encodedId)
     {
-        int? streamGroupNumber = encodedId.DecodeValue128(_configFileProvider.Setting.ServerKey);
+        int? streamGroupNumber = encodedId.DecodeValue128(_setting.ServerKey);
         if (streamGroupNumber == null)
         {
             return new NotFoundResult();
@@ -486,9 +484,9 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [Route("stream/{encodedIds}.mp4")]
     [Route("stream/{encodedIds}/{name}")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetStreamGroupVideoStream(string encodedIds,string name, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetStreamGroupVideoStream(string encodedIds, string name, CancellationToken cancellationToken)
     {
-        (int? StreamGroupNumberNull, int? StreamIdNull) = encodedIds.DecodeValues128(_configFileProvider.Setting.ServerKey);
+        (int? StreamGroupNumberNull, int? StreamIdNull) = encodedIds.DecodeValues128(_setting.ServerKey);
         if (StreamGroupNumberNull == null || StreamIdNull == null)
         {
             return new NotFoundResult();
@@ -518,14 +516,14 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         }
         List<VideoStreamDto> videoStreams = new();
 
-        if (!string.IsNullOrEmpty(videoStream.Url)  )
+        if (!string.IsNullOrEmpty(videoStream.Url))
         {
             videoStreams.Add(videoStream);
         }
-        
+
         if (videoStream.ChildVideoStreams.Any())
         {
-            var list= videoStream.ChildVideoStreams.Where(a=> ! string.IsNullOrEmpty(a.Url)).OrderBy(a=>a.Rank).ToList();
+            var list = videoStream.ChildVideoStreams.Where(a => !string.IsNullOrEmpty(a.Url)).OrderBy(a => a.Rank).ToList();
             var dtos = _mapper.Map<List<VideoStreamDto>>(list);
 
             if (dtos is not null)
@@ -539,8 +537,8 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
             CancellationToken = cancellationToken,
             MaxConnectRetry = settings.MaxConnectRetry,
             MaxConnectRetryTimeMS = settings.MaxConnectRetryTimeMS,
-            ClientUserAgent=Request.Headers["User-Agent"].ToString()
-    };
+            ClientUserAgent = Request.Headers["User-Agent"].ToString()
+        };
 
         // Get the read stream for the client
         (Stream? stream, Guid clientId, ProxyStreamError? error) = await _ringBufferManager.GetStream(config);

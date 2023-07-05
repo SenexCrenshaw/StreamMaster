@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 
 namespace StreamMasterDomain.Common;
 
@@ -11,7 +6,7 @@ public static class BuildInfo
 {
     static BuildInfo()
     {
-        var assembly = Assembly.GetExecutingAssembly();
+        var assembly = Assembly.GetEntryAssembly();
 
         Version = assembly.GetName().Version;
 

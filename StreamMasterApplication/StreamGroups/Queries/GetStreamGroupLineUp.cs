@@ -34,30 +34,28 @@ public class GetStreamGroupLineUpValidator : AbstractValidator<GetStreamGroupLin
 
 public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp, string>
 {
-    private readonly IConfigFileProvider _configFileProvider;
+    protected Setting _setting = FileUtil.GetSetting();
+
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IAppDbContext _context;
     private readonly IMapper _mapper;
     private readonly ISender _sender;
-    private readonly SettingDto _setting;
 
     public GetStreamGroupLineUpHandler(
         IAppDbContext context,
         IMapper mapper,
-           IConfigFileProvider configFileProvider,
           IHttpContextAccessor httpContextAccessor,
             ISender sender)
     {
         _httpContextAccessor = httpContextAccessor;
         _mapper = mapper;
-        _configFileProvider = configFileProvider;
+
         _context = context;
-        _sender = sender;        
+        _sender = sender;
     }
 
     public async Task<string> Handle(GetStreamGroupLineUp command, CancellationToken cancellationToken)
     {
-
         var requestPath = _httpContextAccessor.HttpContext.Request.Path.Value.ToString();
         var iv = requestPath.GetIVFromPath(128);
         if (iv == null)
@@ -93,12 +91,11 @@ public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp,
 
         foreach (var videoStream in videoStreams)
         {
-         
             string videoUrl = videoStream.Url;
 
             string url = _httpContextAccessor.GetUrl();
 
-            var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _configFileProvider.Setting.ServerKey, iv);
+            var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _setting.ServerKey, iv);
 
             videoUrl = $"{url}/api/streamgroups/stream/{encodedNumbers}/{videoStream.User_Tvg_name.Replace(" ", "_")}";
 
@@ -114,5 +111,4 @@ public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp,
         string jsonString = JsonSerializer.Serialize(ret, new JsonSerializerOptions { WriteIndented = true });
         return jsonString;
     }
-
 }

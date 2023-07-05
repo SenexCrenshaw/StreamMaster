@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Configuration;
 using StreamMasterDomain.EnvironmentInfo;
 
@@ -8,13 +9,12 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
     public class ImagesMapper : StaticResourceMapperBase
     {
         private readonly IAppFolderInfo _appFolderInfo;
-        private readonly IConfigFileProvider _configFileProvider;
+        protected Setting _setting = FileUtil.GetSetting();
 
-        public ImagesMapper(IAppFolderInfo appFolderInfo, IConfigFileProvider configFileProvider, ILogger<ImagesMapper> logger)
+        public ImagesMapper(IAppFolderInfo appFolderInfo, ILogger<ImagesMapper> logger)
             : base(logger)
         {
             _appFolderInfo = appFolderInfo;
-            _configFileProvider = configFileProvider;
         }
 
         public override bool CanHandle(string resourceUrl)
@@ -29,7 +29,7 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
         {
             var path = resourceUrl.Replace("/images/", "");
 
-            var ret = Path.Combine(_appFolderInfo.StartUpFolder, _configFileProvider.Setting.UiFolder, "images", path);
+            var ret = Path.Combine(_appFolderInfo.StartUpFolder, _setting.UiFolder, "images", path);
             return ret;
         }
     }

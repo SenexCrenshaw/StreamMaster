@@ -2,6 +2,8 @@
 
 using Microsoft.AspNetCore.Mvc;
 
+using StreamMasterDomain.Common;
+
 using StreamMasterInfrastructure;
 
 namespace StreamMasterAPI.Controllers;
@@ -17,6 +19,7 @@ public abstract class ApiControllerBase : ControllerBase
     //{
     //    FileUtil.SetupDirectories();
     //}
+    protected Setting _setting = FileUtil.GetSetting();
 
     //public IHubContext<StreamMasterHub, IStreamMasterHub> HubContext => _hubContext ??= HttpContext.RequestServices.GetRequiredService<IHubContext<StreamMasterHub, IStreamMasterHub>>();
     protected IMediator Mediator => _mediator ??= HttpContext.RequestServices.GetRequiredService<IMediator>();

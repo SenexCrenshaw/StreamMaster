@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Configuration;
 using StreamMasterDomain.EnvironmentInfo;
 
@@ -7,17 +8,14 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
 {
     public class IndexHtmlMapper : HtmlMapperBase
     {
-        private readonly IConfigFileProvider _configFileProvider;
+        protected Setting _setting = FileUtil.GetSetting();
 
         public IndexHtmlMapper(IAppFolderInfo appFolderInfo,
-                               IConfigFileProvider configFileProvider,
                                ILogger<IndexHtmlMapper> logger)
             : base(logger)
         {
-            _configFileProvider = configFileProvider;
-
-            HtmlPath = Path.Combine(appFolderInfo.StartUpFolder, _configFileProvider.Setting.UiFolder, "index.html");
-            UrlBase = _configFileProvider.Setting.UrlBase;
+            HtmlPath = Path.Combine(appFolderInfo.StartUpFolder, _setting.UiFolder, "index.html");
+            UrlBase = _setting.UrlBase;
         }
 
         public override bool CanHandle(string resourceUrl)

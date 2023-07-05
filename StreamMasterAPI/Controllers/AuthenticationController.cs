@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterDomain.Authentication;
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Enums;
 
@@ -51,16 +52,17 @@ namespace StreamMasterAPI.Controllers
 
             await HttpContext.SignInAsync(AuthenticationType.Forms.ToString(), new ClaimsPrincipal(new ClaimsIdentity(claims, "Cookies", "user", "identifier")), authProperties);
 
-           
-            return Redirect(_configFileProvider.Setting.UrlBase + "/");
+            var setting = FileUtil.GetSetting();
+            return Redirect(setting.UrlBase + "/");
         }
 
         [HttpGet("logout")]
         public async Task<IActionResult> Logout()
         {
+            var setting = FileUtil.GetSetting();
             _authService.Logout(HttpContext);
             await HttpContext.SignOutAsync(AuthenticationType.Forms.ToString());
-            return Redirect(_configFileProvider.Setting.UrlBase+"/");
+            return Redirect(setting.UrlBase + "/");
         }
     }
 }
