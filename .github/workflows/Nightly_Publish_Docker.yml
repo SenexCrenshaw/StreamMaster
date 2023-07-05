@@ -34,6 +34,8 @@ jobs:
         uses: gittools/actions/gitversion/execute@v0
         with:
           useConfigFile: true
+          updateAssemblyInfo: true
+          targetPath: StreamMasterAPI
 
       - name: Docker meta
         id: meta
@@ -99,6 +101,8 @@ jobs:
         uses: gittools/actions/gitversion/execute@v0
         with:
           useConfigFile: true
+          updateAssemblyInfo: true
+          targetPath: StreamMasterAPI
 
       - name: Download digests
         uses: actions/download-artifact@v3
