@@ -1312,6 +1312,7 @@ export type Setting = {
 };
 export type SettingDto = Setting & {
   defaultIconDto?: IconFileDto;
+  release?: string;
   version?: string;
 };
 export type SystemStatus = {

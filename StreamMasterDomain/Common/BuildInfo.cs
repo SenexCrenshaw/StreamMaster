@@ -13,14 +13,23 @@ public static class BuildInfo
         var attributes = assembly.GetCustomAttributes(true);
 
         Branch = "unknow";
+        Release = Version.ToString();
 
-        var config = attributes.OfType<AssemblyConfigurationAttribute>().FirstOrDefault();
-        if (config != null)
+        var informationalVersion = attributes.OfType<AssemblyInformationalVersionAttribute>().FirstOrDefault();
+        if (informationalVersion is not null)
         {
-            Branch = config.Configuration;
-        }
+            string[] parts = informationalVersion.InformationalVersion.ToString().Split('+');
 
-        Release = $"{Version}-{Branch}";
+            if (parts.Length == 2)
+            {
+                var release = parts[1];
+                if (release.Contains("."))
+                {
+                    release = release.Substring(0, release.IndexOf("."));
+                }
+                Release = $"{parts[0]}-{release}";
+            }
+        }
     }
 
     public static string AppName { get; } = "Stream Master";

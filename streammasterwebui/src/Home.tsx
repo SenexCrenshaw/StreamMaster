@@ -8,6 +8,7 @@ import MenuItemSM from './components/MenuItemSM';
 import { FilesEditorIcon, HelpIcon, PlayListEditorIcon, QueueStatisIcon, SettingsEditorIcon, SideBarMenuIcon, StreamGroupEditorIcon, StreamingStatusIcon, VideoIcon } from './common/icons';
 import StreamMasterSetting from './store/signlar/StreamMasterSetting';
 import * as StreamMasterApi from './store/iptvApi';
+import { Tooltip } from 'primereact/tooltip';
 
 const Home = () => {
   StreamMasterApi.useIconsGetIconsQuery();
@@ -94,7 +95,14 @@ const Home = () => {
               }}
             />
           </div>
-          <div className='flex flex-column m-0 p-0 justify-content-center align-items-center text-xs text-center'>
+          <Tooltip target=".custom-target-icon" />
+          <div
+            className='custom-target-icon flex flex-column m-0 p-0 justify-content-center align-items-center text-xs text-center'
+            data-pr-at="right+5 top"
+            data-pr-my="left center-2"
+            data-pr-position="right"
+            data-pr-tooltip={settings.data.release ?? ''}
+          >
             {settings.data.version ?? ''}
           </div>
         </div>
