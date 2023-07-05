@@ -10,7 +10,7 @@ import { getTopToolOptions } from '../common/common';
 
 import { ResetLogoIcon } from '../common/icons';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import { baseHostURL, isDev } from '../settings';
+import { baseHostURL, isDebug } from '../settings';
 
 const IconSelector = (props: IconSelectorProps) => {
 
@@ -63,7 +63,7 @@ const IconSelector = (props: IconSelectorProps) => {
 
     let selectedTemplateurl = option.url ?? setting.defaultIcon;
 
-    if (isDev && selectedTemplateurl && !selectedTemplateurl.startsWith('http')) {
+    if (isDebug && selectedTemplateurl && !selectedTemplateurl.startsWith('http')) {
       selectedTemplateurl = baseHostURL + selectedTemplateurl;
     }
 
@@ -87,7 +87,7 @@ const IconSelector = (props: IconSelectorProps) => {
 
     let iconOptionTemplateurl = option.url ?? setting.defaultIcon;
 
-    if (isDev && iconOptionTemplateurl && !iconOptionTemplateurl.startsWith('http')) {
+    if (isDebug && iconOptionTemplateurl && !iconOptionTemplateurl.startsWith('http')) {
       iconOptionTemplateurl = baseHostURL + iconOptionTemplateurl;
     }
 
@@ -159,7 +159,7 @@ const IconSelector = (props: IconSelectorProps) => {
   });
 
   let url = selectedIcon?.url ?? setting.defaultIcon;
-  if (isDev && url && !url.startsWith('http')) {
+  if (isDebug && url && !url.startsWith('http')) {
     url = baseHostURL + url;
   }
 

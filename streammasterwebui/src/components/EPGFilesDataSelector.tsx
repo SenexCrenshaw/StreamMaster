@@ -45,14 +45,14 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
       return;
     }
 
-    if (!auto && !days && !name) {
+    if (auto === undefined && !days && !name) {
       return;
     }
 
     const tosend = {} as StreamMasterApi.UpdateEpgFileRequest;
 
     tosend.id = id;
-    if (auto) {
+    if (auto !== undefined) {
       tosend.autoUpdate = auto;
     }
 
@@ -157,7 +157,6 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
         <Checkbox
           checked={rowData.autoUpdate}
           onChange={async (e: CheckboxChangeEvent) => {
-            console.log(e.checked);
             await onEPGUpdateClick(rowData.id, e.checked ?? false);
           }
           }

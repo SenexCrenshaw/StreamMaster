@@ -5,7 +5,7 @@ import type * as StreamMasterApi from '../store/iptvApi';
 import * as Hub from "../store/signlar_functions";
 import { Toast } from 'primereact/toast';
 import { getTopToolOptions } from "../common/common";
-import { isDev } from "../settings";
+import { isDebug } from "../settings";
 
 const ChannelNumberEditor = (props: ChannelNumberEditorProps) => {
   const toast = React.useRef<Toast>(null);
@@ -65,7 +65,7 @@ const ChannelNumberEditor = (props: ChannelNumberEditorProps) => {
         }}
         resetValue={props.data.tvg_chno}
         style={props.style}
-        tooltip={isDev ? 'id: ' + props.data.id : undefined}
+        tooltip={isDebug ? 'id: ' + props.data.id : undefined}
         tooltipOptions={getTopToolOptions}
         value={props.data.user_Tvg_chno}
       />

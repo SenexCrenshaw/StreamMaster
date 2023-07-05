@@ -46,14 +46,14 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
       return;
     }
 
-    if (!auto && !days && !maxStreams && !name && !url && !startingChannelNumber) {
+    if (auto === undefined && !days && !maxStreams && !name && !url && !startingChannelNumber) {
       return;
     }
 
     const tosend = {} as StreamMasterApi.UpdateM3UFileRequest;
 
     tosend.id = id;
-    if (auto) {
+    if (auto !== undefined) {
       tosend.autoUpdate = auto;
     }
 
@@ -236,7 +236,6 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
         <Checkbox
           checked={rowData.autoUpdate}
           onChange={async (e: CheckboxChangeEvent) => {
-            console.log(e.checked);
             await onM3UUpdateClick(rowData.id, e.checked ?? false);
           }
           }
