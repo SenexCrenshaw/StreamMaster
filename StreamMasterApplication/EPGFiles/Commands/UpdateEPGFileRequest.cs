@@ -13,7 +13,6 @@ using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Dto;
 
-
 namespace StreamMasterApplication.EPGFiles.Commands;
 
 public class UpdateEPGFileRequest : BaseFileRequest, IRequest<EPGFilesDto?>
@@ -36,6 +35,7 @@ public class UpdateEPGFileRequestHandler : IRequestHandler<UpdateEPGFileRequest,
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
     private readonly IPublisher _publisher;
+
     public UpdateEPGFileRequestHandler(
   IMapper mapper,
    IHubContext<StreamMasterHub, IStreamMasterHub> hubContext,
@@ -59,7 +59,7 @@ public class UpdateEPGFileRequestHandler : IRequestHandler<UpdateEPGFileRequest,
             {
                 return null;
             }
-            
+
             bool isChanged = false;
             bool isNameChanged = false;
 
@@ -69,11 +69,11 @@ public class UpdateEPGFileRequestHandler : IRequestHandler<UpdateEPGFileRequest,
                 epgFile.Description = command.Description;
             }
 
-            if (!string.IsNullOrEmpty(command.Url) && epgFile.Url != command.Url)
+            if (command.Url != null && epgFile.Url != command.Url)
             {
                 isChanged = true;
                 epgFile.OriginalSource = command.Url;
-                epgFile.Url = command.Url;
+                epgFile.Url = command.Url == "" ? null :command.Url;
             }
             if (!string.IsNullOrEmpty(command.MetaData) && epgFile.MetaData != command.MetaData)
             {
@@ -110,10 +110,10 @@ public class UpdateEPGFileRequestHandler : IRequestHandler<UpdateEPGFileRequest,
 
                 var channels = _memoryCache.ProgrammeChannels().RemoveAll(a => a.EPGFileId == epgFile.Id);
                 _memoryCache.Set(channels);
-                                
+
                 await _publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
             }
-         
+
             if (isChanged)
             {
                 await _hubContext.Clients.All.EPGFilesDtoUpdate(ret).ConfigureAwait(false);
