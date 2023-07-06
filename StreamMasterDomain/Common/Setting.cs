@@ -32,6 +32,7 @@ public class Setting
     public string StreamMasterIcon { get; set; } = "images/StreamMaster.png";
     public string UiFolder { get; set; } = "wwwroot";
     public string UrlBase { get; set; } = "";
+    public bool UseDummyEPGForBlanks { get; set; } = true;
     public bool M3UFieldCUID { get; set; } = true;
     public bool M3UFieldChannelId { get; set; } = true;
     public bool M3UFieldChannelNumber { get; set; } = true;

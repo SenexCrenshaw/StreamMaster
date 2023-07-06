@@ -295,23 +295,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     }
 
     [HttpGet]
-    [Route("{StreamGroupNumber}/m3u2")]
-    [Route("{StreamGroupNumber}/m3u2/m3u.m3u")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ContentResult> GetStreamGroupM3U2(int StreamGroupNumber)
-    {
-        string data = await Mediator.Send(new GetStreamGroupM3U2(StreamGroupNumber)).ConfigureAwait(false);
-
-        return new ContentResult
-        {
-            Content = data,
-            ContentType = "application/x-mpegURL"
-        };
-    }
-
-    [HttpGet]
     [Route("[action]")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<StreamGroupDto>))]
     public async Task<ActionResult<IEnumerable<StreamGroupDto>>> GetStreamGroups()

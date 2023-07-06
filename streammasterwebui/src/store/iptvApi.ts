@@ -591,22 +591,6 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/m3u.m3u` }),
         providesTags: ["StreamGroups"],
       }),
-      streamGroupsGetStreamGroupM3U2: build.query<
-        StreamGroupsGetStreamGroupM3U2ApiResponse,
-        StreamGroupsGetStreamGroupM3U2ApiArg
-      >({
-        query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/m3u2` }),
-        providesTags: ["StreamGroups"],
-      }),
-      streamGroupsGetStreamGroupM3U22: build.query<
-        StreamGroupsGetStreamGroupM3U22ApiResponse,
-        StreamGroupsGetStreamGroupM3U22ApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/streamgroups/${queryArg}/m3u2/m3u.m3u`,
-        }),
-        providesTags: ["StreamGroups"],
-      }),
       streamGroupsGetStreamGroups: build.query<
         StreamGroupsGetStreamGroupsApiResponse,
         StreamGroupsGetStreamGroupsApiArg
@@ -963,12 +947,6 @@ export type StreamGroupsGetStreamGroupLineUpStatusApiArg = string;
 export type StreamGroupsGetStreamGroupM3UApiResponse =
   /** status 200  */ string;
 export type StreamGroupsGetStreamGroupM3UApiArg = string;
-export type StreamGroupsGetStreamGroupM3U2ApiResponse =
-  /** status 200  */ string;
-export type StreamGroupsGetStreamGroupM3U2ApiArg = number;
-export type StreamGroupsGetStreamGroupM3U22ApiResponse =
-  /** status 200  */ string;
-export type StreamGroupsGetStreamGroupM3U22ApiArg = number;
 export type StreamGroupsGetStreamGroupsApiResponse =
   /** status 200  */ StreamGroupDto[];
 export type StreamGroupsGetStreamGroupsApiArg = void;
@@ -1301,6 +1279,7 @@ export type Setting = {
   streamMasterIcon?: string;
   uiFolder?: string;
   urlBase?: string;
+  useDummyEPGForBlanks?: boolean;
   m3UFieldCUID?: boolean;
   m3UFieldChannelId?: boolean;
   m3UFieldChannelNumber?: boolean;
@@ -1334,6 +1313,7 @@ export type UpdateSettingRequest = {
   enableSSL?: boolean | null;
   cacheIcons?: boolean | null;
   cleanURLs?: boolean | null;
+  useDummyEPGForBlanks?: boolean | null;
   m3UFieldCUID?: boolean | null;
   m3UFieldChannelId?: boolean | null;
   m3UFieldChannelNumber?: boolean | null;
@@ -1572,8 +1552,6 @@ export const {
   useStreamGroupsGetStreamGroupLineUpQuery,
   useStreamGroupsGetStreamGroupLineUpStatusQuery,
   useStreamGroupsGetStreamGroupM3UQuery,
-  useStreamGroupsGetStreamGroupM3U2Query,
-  useStreamGroupsGetStreamGroupM3U22Query,
   useStreamGroupsGetStreamGroupsQuery,
   useStreamGroupsGetStreamGroupVideoM3UStreamQuery,
   useStreamGroupsGetStreamGroupVideoStreamQuery,

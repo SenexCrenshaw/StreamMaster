@@ -66,7 +66,6 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
     public async Task<string> Handle(GetStreamGroupEPG command, CancellationToken cancellationToken)
     {
-
         List<VideoStreamDto> videoStreams = new();
         if (command.StreamGroupNumber > 0)
         {
@@ -86,8 +85,6 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                 .ToList();
         }
 
-
-
         ParallelOptions po = new()
         {
             CancellationToken = cancellationToken,
@@ -98,7 +95,6 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
         if (videoStreams.Any())
         {
-
             string url = _httpContextAccessor.GetUrl();
 
             List<string> epgids = videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID.ToLower()).Distinct().ToList();
@@ -122,13 +118,14 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                 string Logo = icon != null ? url + icon.Source : url + "/" + setting.DefaultIcon;
 
                 TvChannel t;
+
                 int dummy = 0;
-                if (string.IsNullOrEmpty(videoStream.User_Tvg_ID) || !programmes.Any(a => a.Channel.ToLower() == videoStream.User_Tvg_ID.ToLower()))
+                if (setting.UseDummyEPGForBlanks && string.IsNullOrEmpty(videoStream.User_Tvg_ID) || !programmes.Any(a => a.Channel.ToLower() == videoStream.User_Tvg_ID.ToLower()))
                 {
                     videoStream.User_Tvg_ID = "dummy";
                 }
 
-                if (videoStream.User_Tvg_ID.ToLower() == "dummy")
+                if (setting.UseDummyEPGForBlanks && videoStream.User_Tvg_ID.ToLower() == "dummy")
                 {
                     dummy = GetDummy();
 
@@ -161,7 +158,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
                 if (videoStream.User_Tvg_ID != null)
                 {
-                    if (videoStream.User_Tvg_ID.ToLower() == "dummy")
+                    if (setting.UseDummyEPGForBlanks && videoStream.User_Tvg_ID.ToLower() == "dummy")
                     {
                         var prog = new Programme();
 
@@ -178,9 +175,9 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                             Text = videoStream.User_Tvg_name,
                         };
                         DateTime now = DateTime.Now;
-                        prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{url}/images/transparent.png" });                        
+                        prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{url}/images/transparent.png" });
                         prog.Start = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToString("yyyyMMddHHmmss zzz").Replace(":", ""); ;
-                        now=now.AddDays(7);                        
+                        now = now.AddDays(7);
                         prog.Stop = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToString("yyyyMMddHHmmss zzz").Replace(":", ""); ;
                         prog.New = null;
                         prog.Previouslyshown = null;
@@ -220,7 +217,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
                                     p.Channel = videoStream.User_Tvg_name;
 
-                                    if (videoStream.User_Tvg_ID.ToLower() == "dummy")
+                                    if (setting.UseDummyEPGForBlanks && videoStream.User_Tvg_ID.ToLower() == "dummy")
                                     {
                                         p.Channel = videoStream.User_Tvg_name;// + "-" + dummy;
 
@@ -255,7 +252,11 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                                     {
                                         p.Previouslyshown = null;
                                     }
-                                    
+
+                                    if (!setting.UseDummyEPGForBlanks && videoStream.User_Tvg_ID.ToLower() == "dummy")
+                                    {
+                                        continue;
+                                    }
                                     retProgrammes.Add(p);
                                 }
                             }

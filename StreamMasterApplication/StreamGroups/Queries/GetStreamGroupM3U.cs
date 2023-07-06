@@ -13,6 +13,7 @@ using StreamMasterApplication.Icons.Queries;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Dto;
 
@@ -124,8 +125,7 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
             videoUrl = $"{url}/api/streamgroups/stream/{encodedNumbers}/{videoStream.User_Tvg_name.Replace(" ", "_")}";
 
-
-            var fieldList=new List<string>();
+            var fieldList = new List<string>();
 
             fieldList.Add($"#EXTINF:0 CUID=\"{videoStream.CUID}\"");
 
@@ -151,7 +151,17 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
             if (_setting.M3UFieldTvgId)
             {
-                fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
+                if (videoStream.User_Tvg_ID.ToLower() == "dummy")
+                {
+                    if (_setting.UseDummyEPGForBlanks)
+                    {
+                        fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
+                    }
+                }
+                else
+                {
+                    fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
+                }
             }
 
             if (_setting.M3UFieldTvgLogo)
@@ -165,8 +175,8 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
             fieldList.Add($",{videoStream.User_Tvg_name}\r\n");
             fieldList.Add($"{videoUrl}\r\n");
-            
-            var lines =string.Join(" ",fieldList.ToArray());
+
+            var lines = string.Join(" ", fieldList.ToArray());
 
             _ = retlist.TryAdd(videoStream.User_Tvg_chno, lines);
         });

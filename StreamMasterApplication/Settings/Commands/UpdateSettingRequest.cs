@@ -25,6 +25,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public bool? CacheIcons { get; set; }
     public bool? CleanURLs { get; set; }
 
+    public bool? UseDummyEPGForBlanks { get; set; }
     public bool? M3UFieldCUID { get; set; }
     public bool? M3UFieldChannelId { get; set; }
     public bool? M3UFieldChannelNumber { get; set; }
@@ -123,6 +124,11 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
             currentSetting.M3UFieldChannelId = (bool)request.M3UFieldChannelId;
         }
 
+        if (request.UseDummyEPGForBlanks != null)
+        {
+            currentSetting.UseDummyEPGForBlanks = (bool)request.UseDummyEPGForBlanks;
+        }
+
         if (request.M3UFieldChannelNumber != null)
         {
             currentSetting.M3UFieldChannelNumber = (bool)request.M3UFieldChannelNumber;
@@ -168,11 +174,10 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
             currentSetting.ClientUserAgent = request.ClientUserAgent;
         }
 
-
         if (request.StreamingClientUserAgent != null && request.StreamingClientUserAgent != currentSetting.StreamingClientUserAgent)
         {
             currentSetting.StreamingClientUserAgent = request.StreamingClientUserAgent;
-        }        
+        }
 
         if (request.OverWriteM3UChannels != null && request.OverWriteM3UChannels != currentSetting.OverWriteM3UChannels)
         {

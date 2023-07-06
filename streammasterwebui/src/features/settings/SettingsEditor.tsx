@@ -378,6 +378,7 @@ export const SettingsEditor = () => {
 
           <Fieldset className="mt-4 pt-10" legend={GetMessage('filesEPGM3U')} >
             {getCheckBoxLine('cacheIcons')}
+            {getCheckBoxLine('useDummyEPGForBlanks')}
             {getInputTextLine('sdUserName')}
             {getPasswordLine('sdPassword')}
             <Fieldset className="mt-4 pt-10" collapsed legend={GetMessage('m3uSettings')} toggleable >
