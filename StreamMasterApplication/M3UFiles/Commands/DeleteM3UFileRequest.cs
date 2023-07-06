@@ -4,6 +4,8 @@ using MediatR;
 
 using StreamMasterApplication.VideoStreams.Events;
 
+using System.IO;
+
 namespace StreamMasterApplication.M3UFiles.Commands;
 
 public class DeleteM3UFileRequest : IRequest<int?>
@@ -98,20 +100,13 @@ public class DeleteM3UFileHandler : IRequestHandler<DeleteM3UFileRequest, int?>
             }
         }
 
-        var streams = _context.VideoStreams.Where(a => a.M3UFileId == m3UFile.Id);
-
-        foreach (var stream in streams)
-        {
-            await _context.DeleteVideoStream(stream.Id);
-        }
+        var streams = await _context.DeleteVideoStreamsByM3UFiledId(m3UFile.Id, true);
 
         await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
         await _publisher.Publish(new M3UFileDeletedEvent(m3UFile.Id), cancellationToken).ConfigureAwait(false);
 
-        foreach (var stream in streams)
-        {
-            await _publisher.Publish(new DeleteVideoStreamEvent(stream.Id), cancellationToken).ConfigureAwait(false);
-        }
+        await _publisher.Publish(new DeleteVideoStreamsEvent(streams.Select(a => a.Id).ToList()), cancellationToken).ConfigureAwait(false);
 
         return m3UFile.Id;
     }

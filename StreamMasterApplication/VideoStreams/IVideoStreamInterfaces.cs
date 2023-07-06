@@ -33,7 +33,9 @@ public interface IVideoStreamDB
 
     public bool SynchronizeChildRelationships(VideoStream videoStream, List<ChildVideoStreamDto> videoStreamDtos);
 
-    public Task<bool> DeleteVideoStream(int VideoStreamId);
+    public Task<List<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, bool save = true);
+
+    public Task<bool> DeleteVideoStream(int VideoStreamId, bool save = true);
 }
 
 public interface IVideoStreamHub

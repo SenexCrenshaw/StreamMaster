@@ -1,6 +1,8 @@
 import { hubConnection } from "../app/signalr";
 import {
-  type UpdateSettingResponse,
+  type UpdateSettingResponse
+} from "./iptvApi";
+import {
   type AddChannelGroupRequest,
   type AddEpgFileRequest,
   type AddIconFileRequest,
@@ -44,7 +46,7 @@ import {
   type UpdateStreamGroupRequest,
   type UpdateVideoStreamRequest,
   type UpdateVideoStreamsRequest,
-  type VideoStreamDto
+  type VideoStreamDto,
 } from "./iptvApi";
 
 export const AddChannelGroup = async (arg: AddChannelGroupRequest): Promise<ChannelGroupDto> => {

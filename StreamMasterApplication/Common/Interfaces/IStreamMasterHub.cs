@@ -57,7 +57,7 @@ public interface IStreamMasterHub : ISharedHub
     Task SystemStatusUpdate(SystemStatus result);
     Task TaskQueueStatusDtoesUpdate(IEnumerable<TaskQueueStatusDto> results);
     Task VideoStreamDtoDelete(int result);
-
+    Task VideoStreamDtosDelete(List<int> result);
     Task VideoStreamDtoesUpdate(IEnumerable<VideoStreamDto> results);
 
     Task VideoStreamDtoUpdate(VideoStreamDto result);

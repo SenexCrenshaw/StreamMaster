@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.SignalR;
 
 using StreamMasterApplication.General.Queries;
 
+using StreamMasterDomain.Attributes;
+
 namespace StreamMasterApplication.Hubs;
 
 public enum ModelAction
@@ -41,6 +43,7 @@ public partial class StreamMasterHub : Hub<IStreamMasterHub>, ISharedHub
         }
     }
 
+    [BuilderIgnore]
     public override async Task OnDisconnectedAsync(Exception exception)
     {
         lock (_connections)

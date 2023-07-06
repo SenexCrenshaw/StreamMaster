@@ -16,7 +16,22 @@ public partial class AppDbContext : IVideoStreamDB
     public DbSet<VideoStreamRelationship> VideoStreamRelationships { get; set; }
     public DbSet<VideoStream> VideoStreams { get; set; }
 
-    public async Task<bool> DeleteVideoStream(int VideoStreamId)
+    public async Task<List<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, bool save = true)
+    {
+        var streams = VideoStreams.Where(a => a.M3UFileId == M3UFileId).ToList();
+
+        foreach (var stream in streams)
+        {
+            await DeleteVideoStream(stream.Id, false);
+        }
+
+        if (save)
+            await SaveChangesAsync().ConfigureAwait(false);
+
+        return streams;
+    }
+
+    public async Task<bool> DeleteVideoStream(int VideoStreamId, bool save = true)
     {
         var VideoStream = await VideoStreams.Include(a => a.ChildRelationships).FirstOrDefaultAsync(a => a.Id == VideoStreamId).ConfigureAwait(false);
         if (VideoStream == null)
@@ -32,13 +47,17 @@ public partial class AppDbContext : IVideoStreamDB
         )
         .ToList();
 
-        var sgStreams = StreamGroups.Include(a => a.VideoStreams).Where(a => a.VideoStreams.Any(a => a.Id == VideoStreamId)).ToList();
-
         VideoStreamRelationships.RemoveRange(relationsShips);
-        StreamGroups.RemoveRange(sgStreams);
+          foreach(var sg in StreamGroups)
+        {
+            sg.VideoStreams.RemoveAll(a=>a.Equals(VideoStreamId));
+        }        
+
         VideoStreams.Remove(VideoStream);
 
-        _ = await SaveChangesAsync().ConfigureAwait(false);
+        if (save)
+            _ = await SaveChangesAsync().ConfigureAwait(false);
+
         return true;
     }
 

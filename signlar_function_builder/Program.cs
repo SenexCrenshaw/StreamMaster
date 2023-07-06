@@ -12,7 +12,7 @@ internal partial class Program
 {
     private static readonly List<EndPoint> EndPoints = new();
 
-    private static readonly List<string> toIgnore = new() { "login", "channelGroupsGetChannelGroups", "videoStreamsGetVideoStreams", "streamGroupsGetAllStatisticsForAllUrls", "programmesGetProgrammeNames", "videoStreamsGetVideoStream", "m3UStreamsGetM3UStream", "m3UStreamsGetM3UStreams", "m3UFilesGetM3UFile" };
+    private static readonly List<string> toIgnore = new() { "OnDisconnectedAsync", "login", "channelGroupsGetChannelGroups", "videoStreamsGetVideoStreams", "streamGroupsGetAllStatisticsForAllUrls", "programmesGetProgrammeNames", "videoStreamsGetVideoStream", "m3UStreamsGetM3UStream", "m3UStreamsGetM3UStreams", "m3UFilesGetM3UFile" };
     private static List<string> iptv = new();
 
     public static string GetName(string name)

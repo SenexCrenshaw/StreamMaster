@@ -9,3 +9,13 @@ public class DeleteVideoStreamEvent : BaseEvent
 
     public int VideoFileId { get; }
 }
+
+public class DeleteVideoStreamsEvent : BaseEvent
+{
+    public DeleteVideoStreamsEvent(List<int> videoFileIds)
+    {
+        VideoFileIds = videoFileIds;
+    }
+
+    public List<int> VideoFileIds { get; }
+}

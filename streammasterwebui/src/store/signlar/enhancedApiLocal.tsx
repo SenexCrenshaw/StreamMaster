@@ -334,6 +334,27 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
             }
           );
 
+          const deleteResults = (
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ids: number[]
+          ) => {
+            updateCachedData(
+              (
+                draft: StreamMasterApi.VideoStreamDto[]
+              ) => {
+                return draft.filter((obj) => !ids.includes(obj.id));
+              }
+            );
+          };
+
+          hubConnection.on(
+            'VideoStreamDtosDelete',
+            (ids: number[]) => {
+              deleteResults(ids);
+            }
+          );
+
           const deleteResult = (
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
