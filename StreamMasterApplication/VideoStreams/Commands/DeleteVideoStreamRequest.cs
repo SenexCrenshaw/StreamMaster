@@ -39,12 +39,24 @@ public class DeleteVideoStreamRequestHandler : IRequestHandler<DeleteVideoStream
 
     public async Task<int?> Handle(DeleteVideoStreamRequest request, CancellationToken cancellationToken)
     {
-        var VideoStream = await _context.VideoStreams.FirstOrDefaultAsync(a => a.Id == request.VideoStreamId, cancellationToken).ConfigureAwait(false);
+        var VideoStream = await _context.VideoStreams.Include(a => a.ChildRelationships).FirstOrDefaultAsync(a => a.Id == request.VideoStreamId, cancellationToken).ConfigureAwait(false);
         if (VideoStream == null)
         {
             return null;
         }
 
+        var relationsShips = _context.VideoStreamRelationships
+            .Include(a => a.ChildVideoStream)
+            .Where(a =>
+            a.ParentVideoStreamId == request.VideoStreamId ||
+            a.ChildVideoStreamId == request.VideoStreamId
+            )
+            .ToList();
+
+        var sgStreams = _context.StreamGroups.Include(a => a.VideoStreams).Where(a => a.VideoStreams.Any(a => a.Id == request.VideoStreamId)).ToList();
+
+        _context.VideoStreamRelationships.RemoveRange(relationsShips);
+        _context.StreamGroups.RemoveRange(sgStreams);
         _context.VideoStreams.Remove(VideoStream);
 
         _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
