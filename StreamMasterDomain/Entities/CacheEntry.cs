@@ -4,12 +4,12 @@ public class AutoUpdateEntity : CacheEntity
 {
     public AutoUpdateEntity()
     {
-        DaysToUpdate = 3;
+        HoursToUpdate = 72;
         AutoUpdate = true;
     }
 
     public bool AutoUpdate { get; set; }
-    public int DaysToUpdate { get; set; }
+    public int HoursToUpdate { get; set; }
     public string Description { get; set; } = string.Empty;
 }
 
@@ -22,11 +22,7 @@ public class CacheEntity : BaseEntity
     }
 
     public string ContentType { get; set; } = string.Empty;
-
-    //public string DirectoryLocation { get; set; } = string.Empty;
-
     public int DownloadErrors { get; set; }
-
     public bool FileExists { get; set; }
     public string FileExtension { get; set; } = string.Empty;
     public DateTime LastDownloadAttempt { get; set; }
@@ -41,8 +37,6 @@ public class CacheEntity : BaseEntity
 
     public void SetFileDefinition(FileDefinition fd)
     {
-        //DirectoryLocation = fd.DirectoryLocation;
-
         if (string.IsNullOrEmpty(FileExtension))
         {
             FileExtension = fd.FileExtension;

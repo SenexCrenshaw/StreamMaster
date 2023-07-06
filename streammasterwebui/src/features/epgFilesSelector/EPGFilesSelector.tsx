@@ -59,7 +59,7 @@ export const EPGFilesSelector = (props: EPGFilesSelectorProps) => {
     }
 
     if (days) {
-      tosend.daysToUpdate = days;
+      tosend.hoursToUpdate = days;
     }
 
     if (name) {
@@ -117,7 +117,7 @@ export const EPGFilesSelector = (props: EPGFilesSelectorProps) => {
             await onEPGUpdateClick(data.id, null, e);
           }}
           suffix=' days'
-          value={data.daysToUpdate}
+          value={data.hoursToUpdate}
         />
 
       </div>

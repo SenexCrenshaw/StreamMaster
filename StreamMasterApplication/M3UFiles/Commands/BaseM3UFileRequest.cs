@@ -5,7 +5,7 @@ namespace StreamMasterApplication.M3UFiles.Commands;
 public class BaseFileRequest
 {
     public bool? AutoUpdate { get; set; }
-    public int? DaysToUpdate { get; set; }
+    public int? HoursToUpdate { get; set; }
 
     public string? Description { get; set; }
 

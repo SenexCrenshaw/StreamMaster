@@ -40,13 +40,13 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
     props.onChange?.(data);
   }, [props, setSelectedM3UFile]);
 
-  const onM3UUpdateClick = React.useCallback(async (id: number, auto?: boolean | null, days?: number | null, maxStreams?: number | null, name?: string | null, url?: string | null, startingChannelNumber?: number | null) => {
+  const onM3UUpdateClick = React.useCallback(async (id: number, auto?: boolean | null, hours?: number | null, maxStreams?: number | null, name?: string | null, url?: string | null, startingChannelNumber?: number | null) => {
 
     if (id < 1) {
       return;
     }
 
-    if (auto === undefined && !days && !maxStreams && !name && !url && !startingChannelNumber) {
+    if (auto === undefined && !hours && !maxStreams && !name && !url && !startingChannelNumber) {
       return;
     }
 
@@ -57,8 +57,8 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
       tosend.autoUpdate = auto;
     }
 
-    if (days) {
-      tosend.daysToUpdate = days;
+    if (hours) {
+      tosend.hoursToUpdate = hours;
     }
 
     if (name) {
@@ -248,7 +248,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
             await onM3UUpdateClick(rowData.id, rowData.autoUpdate, e, rowData.maxStreamCount ?? 0);
           }}
           suffix=' days'
-          value={rowData.daysToUpdate}
+          value={rowData.hoursToUpdate}
         />
 
       </div>

@@ -7,7 +7,6 @@ using MediatR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 
-using StreamMasterApplication.EPGFiles.EventHandlers;
 using StreamMasterApplication.Hubs;
 using StreamMasterApplication.M3UFiles.Commands;
 
@@ -73,7 +72,7 @@ public class UpdateEPGFileRequestHandler : IRequestHandler<UpdateEPGFileRequest,
             {
                 isChanged = true;
                 epgFile.OriginalSource = command.Url;
-                epgFile.Url = command.Url == "" ? null :command.Url;
+                epgFile.Url = command.Url == "" ? null : command.Url;
             }
             if (!string.IsNullOrEmpty(command.MetaData) && epgFile.MetaData != command.MetaData)
             {
@@ -93,10 +92,10 @@ public class UpdateEPGFileRequestHandler : IRequestHandler<UpdateEPGFileRequest,
                 epgFile.AutoUpdate = (bool)command.AutoUpdate;
             }
 
-            if (command.DaysToUpdate != null && epgFile.DaysToUpdate != command.DaysToUpdate)
+            if (command.HoursToUpdate != null && epgFile.HoursToUpdate != command.HoursToUpdate)
             {
                 isChanged = true;
-                epgFile.DaysToUpdate = (int)command.DaysToUpdate;
+                epgFile.HoursToUpdate = (int)command.HoursToUpdate;
             }
 
             _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

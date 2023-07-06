@@ -1052,7 +1052,7 @@ export type UpdateChannelGroupsRequest = {
 };
 export type BaseFileDto = {
   autoUpdate: boolean;
-  daysToUpdate: number;
+  hoursToUpdate: number;
   description: string;
   downloadErrors: number;
   id: number;
@@ -1094,7 +1094,7 @@ export type RefreshEpgFileRequest = {
 };
 export type BaseFileRequest = {
   autoUpdate?: boolean | null;
-  daysToUpdate?: number | null;
+  hoursToUpdate?: number | null;
   description?: string | null;
   id: number;
   metaData?: string | null;

@@ -95,10 +95,10 @@ public class UpdateM3UFileRequestHandler : IRequestHandler<UpdateM3UFileRequest,
                 m3UFile.StartingChannelNumber = (int)command.StartingChannelNumber;
             }
 
-            if (command.DaysToUpdate != null && m3UFile.DaysToUpdate != command.DaysToUpdate)
+            if (command.HoursToUpdate != null && m3UFile.HoursToUpdate != command.HoursToUpdate)
             {
                 isChanged = true;
-                m3UFile.DaysToUpdate = (int)command.DaysToUpdate;
+                m3UFile.HoursToUpdate = (int)command.HoursToUpdate;
             }
 
             _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

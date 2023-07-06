@@ -39,13 +39,13 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
     props.onChange?.(data);
   }, [props]);
 
-  const onEPGUpdateClick = React.useCallback(async (id: number, auto?: boolean | null, days?: number | null, name?: string | null, url?: string | null) => {
+  const onEPGUpdateClick = React.useCallback(async (id: number, auto?: boolean | null, hours?: number | null, name?: string | null, url?: string | null) => {
 
     if (id < 1) {
       return;
     }
 
-    if (auto === undefined && !url && !days && !name) {
+    if (auto === undefined && !url && !hours && !name) {
       return;
     }
 
@@ -56,8 +56,8 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
       tosend.autoUpdate = auto;
     }
 
-    if (days) {
-      tosend.daysToUpdate = days;
+    if (hours) {
+      tosend.hoursToUpdate = hours;
     }
 
     if (name) {
@@ -172,8 +172,8 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
           onChange={async (e) => {
             await onEPGUpdateClick(rowData.id, null, e);
           }}
-          suffix=' days'
-          value={rowData.daysToUpdate}
+          suffix=' hours'
+          value={rowData.hoursToUpdate}
         />
 
       </div>
