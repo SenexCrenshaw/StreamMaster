@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react/no-unused-prop-types */
 
 import { type DataTableValue } from 'primereact/datatable';
 import { type CSSProperties } from 'react';
@@ -12,6 +14,20 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
   const [selection, setSelection] = React.useState<T[]>([] as T[]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [previousSelection, setPreviousSelection] = React.useState<T[]>([] as T[]);
+
+  const [targetDataSource, setTargetDataSource] = React.useState<T[]>([] as T[]);
+
+  React.useEffect(() => {
+    if (props.targetDataSource !== undefined && props.targetDataSource.length > 0 && props.targetDataSource[0].id !== undefined) {
+      setTargetDataSource(props.targetDataSource);
+      return;
+    }
+
+    if (props.sourceDataSource !== undefined) {
+      setTargetDataSource(props.sourceDataSource);
+    }
+
+  }, [props.sourceDataSource, props.targetDataSource]);
 
   const onSelectionChange = React.useCallback((value: T[], isUndo?: boolean) => {
     setPreviousSelection(selection);
@@ -129,7 +145,7 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
       <div className='col-6 p-0'>
         <DataSelector
           columns={props.targetColumns}
-          dataSource={props.targetDataSource ? props.targetDataSource : props.sourceDataSource}
+          dataSource={targetDataSource}
           enableState={props.targetEnableState}
           headerLeftTemplate={props.targetHeaderPrefixTemplate}
           headerRightTemplate={targetRightHeaderTemplate}

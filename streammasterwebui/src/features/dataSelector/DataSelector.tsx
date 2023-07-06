@@ -413,7 +413,9 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }, [epgLinkSourceTemplate, epgSourceTemplate, getRecord, getRecordString, imageBodyTemplate, m3uFileNameBodyTemplate, m3uLinkSourceTemplate, streamsBodyTemplate, urlLinkSourceTemplate]);
 
   React.useEffect(() => {
-    setDataSource(props.dataSource);
+    if (props.dataSource !== undefined)
+      setDataSource(props.dataSource);
+
   }, [props.dataSource]);
 
   const showPagination = React.useMemo((): boolean => {
