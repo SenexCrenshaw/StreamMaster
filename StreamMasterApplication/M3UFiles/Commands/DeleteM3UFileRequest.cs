@@ -54,11 +54,12 @@ public class DeleteM3UFileHandler : IRequestHandler<DeleteM3UFileRequest, int?>
 
                 if ((attributes & (FileAttributes.ReadOnly | FileAttributes.System)) != 0)
                 {
-                }else
-                { 
+                }
+                else
+                {
                     File.Delete(fullName);
                 }
-             
+
                 string txtName = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Path.GetFileNameWithoutExtension(m3UFile.Source) + ".url");
                 if (File.Exists(txtName))
                 {
@@ -69,7 +70,7 @@ public class DeleteM3UFileHandler : IRequestHandler<DeleteM3UFileRequest, int?>
                     else
                     {
                         File.Delete(txtName);
-                    }          
+                    }
                 }
             }
             else
@@ -98,7 +99,11 @@ public class DeleteM3UFileHandler : IRequestHandler<DeleteM3UFileRequest, int?>
         }
 
         var streams = _context.VideoStreams.Where(a => a.M3UFileId == m3UFile.Id);
-        _context.VideoStreams.RemoveRange(streams);
+
+        foreach (var stream in streams)
+        {
+            await _context.DeleteVideoStream(stream.Id);
+        }
 
         await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         await _publisher.Publish(new M3UFileDeletedEvent(m3UFile.Id), cancellationToken).ConfigureAwait(false);

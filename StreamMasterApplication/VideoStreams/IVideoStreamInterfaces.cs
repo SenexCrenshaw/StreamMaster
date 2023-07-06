@@ -32,6 +32,8 @@ public interface IVideoStreamDB
     DbSet<VideoStream> VideoStreams { get; set; }
 
     public bool SynchronizeChildRelationships(VideoStream videoStream, List<ChildVideoStreamDto> videoStreamDtos);
+
+    public Task<bool> DeleteVideoStream(int VideoStreamId);
 }
 
 public interface IVideoStreamHub
