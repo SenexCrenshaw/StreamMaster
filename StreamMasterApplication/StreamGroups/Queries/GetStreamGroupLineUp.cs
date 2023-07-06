@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
-using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Dto;
 
 using StreamMasterInfrastructure.Extensions;
@@ -44,12 +43,12 @@ public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp,
     public GetStreamGroupLineUpHandler(
         IAppDbContext context,
         IMapper mapper,
-          IHttpContextAccessor httpContextAccessor,
-            ISender sender)
+        IHttpContextAccessor httpContextAccessor,
+        ISender sender
+        )
     {
         _httpContextAccessor = httpContextAccessor;
         _mapper = mapper;
-
         _context = context;
         _sender = sender;
     }

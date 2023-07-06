@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Entities;
 using StreamMasterDomain.Enums;
 

@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Enums;
 
 using System.Diagnostics;

@@ -13,7 +13,6 @@ using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
 

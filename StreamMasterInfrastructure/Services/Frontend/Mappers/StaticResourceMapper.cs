@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-using StreamMasterDomain.Configuration;
+using StreamMasterDomain.Common;
 using StreamMasterDomain.EnvironmentInfo;
 
 namespace StreamMasterInfrastructure.Services.Frontend.Mappers
@@ -8,13 +8,11 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
     public class StaticResourceMapper : StaticResourceMapperBase
     {
         private readonly IAppFolderInfo _appFolderInfo;
-        private readonly IConfigFileProvider _configFileProvider;
 
-        public StaticResourceMapper(IAppFolderInfo appFolderInfo, IConfigFileProvider configFileProvider, ILogger<StaticResourceMapper> logger)
+        public StaticResourceMapper(IAppFolderInfo appFolderInfo, ILogger<StaticResourceMapper> logger)
             : base(logger)
         {
             _appFolderInfo = appFolderInfo;
-            _configFileProvider = configFileProvider;
         }
 
         public override bool CanHandle(string resourceUrl)
@@ -27,7 +25,7 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
                 return false;
             }
 
-            return (resourceUrl.StartsWith("/static/")|| resourceUrl.StartsWith("/content/")) &&
+            return (resourceUrl.StartsWith("/static/") || resourceUrl.StartsWith("/content/")) &&
                 (
                    resourceUrl.EndsWith(".js") && !resourceUrl.EndsWith("initialize.js") ||
                    resourceUrl.EndsWith(".map") ||
@@ -47,8 +45,8 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
         {
             var path = resourceUrl.Replace('/', Path.DirectorySeparatorChar);
             path = path.Trim(Path.DirectorySeparatorChar);
-
-            return Path.Combine(_appFolderInfo.StartUpFolder, _configFileProvider.Setting.UiFolder, path);
+            var setting = FileUtil.GetSetting();
+            return Path.Combine(_appFolderInfo.StartUpFolder, setting.UiFolder, path);
         }
     }
 }

@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 using StreamMasterDomain.Authentication;
-using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities;
 
@@ -19,7 +18,6 @@ public record GetStreamGroups() : IRequest<IEnumerable<StreamGroupDto>>;
 
 internal class GetStreamGroupsHandler : IRequestHandler<GetStreamGroups, IEnumerable<StreamGroupDto>>
 {
-    private readonly IConfigFileProvider _configFileProvider;
     private readonly IAppDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
@@ -27,14 +25,12 @@ internal class GetStreamGroupsHandler : IRequestHandler<GetStreamGroups, IEnumer
 
     public GetStreamGroupsHandler(
         IMapper mapper,
-        IConfigFileProvider configFileProvider,
         IHttpContextAccessor httpContextAccessor,
         IAppDbContext context)
     {
         _httpContextAccessor = httpContextAccessor;
         _mapper = mapper;
         _context = context;
-        _configFileProvider = configFileProvider;
     }
 
     public async Task<IEnumerable<StreamGroupDto>> Handle(GetStreamGroups request, CancellationToken cancellationToken = default)

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 
 using StreamMasterDomain.Authentication;
-using StreamMasterDomain.Configuration;
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Enums;
 
 namespace StreamMasterInfrastructure.Authentication
@@ -10,13 +10,10 @@ namespace StreamMasterInfrastructure.Authentication
     public class UiAuthorizationPolicyProvider : IAuthorizationPolicyProvider
     {
         private const string POLICY_NAME = "UI";
-        private readonly IConfigFileProvider _config;
 
-        public UiAuthorizationPolicyProvider(IOptions<AuthorizationOptions> options,
-            IConfigFileProvider config)
+        public UiAuthorizationPolicyProvider(IOptions<AuthorizationOptions> options)
         {
             FallbackPolicyProvider = new DefaultAuthorizationPolicyProvider(options);
-            _config = config;
         }
 
         public DefaultAuthorizationPolicyProvider FallbackPolicyProvider { get; }
@@ -29,7 +26,8 @@ namespace StreamMasterInfrastructure.Authentication
         {
             if (policyName.Equals(POLICY_NAME, StringComparison.OrdinalIgnoreCase))
             {
-                var policy = new AuthorizationPolicyBuilder(_config.Setting.AuthenticationMethod.ToString())
+                var setting = FileUtil.GetSetting();
+                var policy = new AuthorizationPolicyBuilder(setting.AuthenticationMethod.ToString())
                     .RequireAuthenticatedUser();
                 return Task.FromResult(policy.Build());
             }

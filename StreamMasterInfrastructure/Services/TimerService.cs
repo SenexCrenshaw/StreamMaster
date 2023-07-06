@@ -111,7 +111,7 @@ public class TimerService : IHostedService, IDisposable
             }
             epgFiles.Add(epgFile);
         }
-        epgFiles.AddRange(context.EPGFiles.Where(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.DaysToUpdate > 0 && a.LastDownloaded.AddDays(a.DaysToUpdate) < now));
+        epgFiles.AddRange(context.EPGFiles.Where(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < now));
 
         IQueryable<M3UFile> m3uFilesToUpdated = context.M3UFiles.Where(a => a.AutoUpdate && string.IsNullOrEmpty(a.Url));
         foreach (M3UFile? m3uFile in m3uFilesToUpdated)
@@ -128,7 +128,7 @@ public class TimerService : IHostedService, IDisposable
             }
             m3uFiles.Add(m3uFile);
         }
-        m3uFiles.AddRange(context.M3UFiles.Where(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.DaysToUpdate > 0 && a.LastDownloaded.AddDays(a.DaysToUpdate) < now));
+        m3uFiles.AddRange(context.M3UFiles.Where(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < now));
 
         if (epgFiles.Any())
         {

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
-using StreamMasterDomain.Configuration;
+
 using StreamMasterDomain.Dto;
 
 using StreamMasterInfrastructure.Extensions;
@@ -46,13 +46,11 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
     private readonly IAppDbContext _context;
     private readonly IMapper _mapper;
     private readonly IPublisher _publisher;
-    private readonly IConfigFileProvider _configFileProvider;
     private readonly IHttpContextAccessor _httpContextAccessor;
     protected Setting _setting = FileUtil.GetSetting();
 
     public AddStreamGroupRequestHandler(
         IMapper mapper,
-        IConfigFileProvider configFileProvider,
         IPublisher publisher,
          IHttpContextAccessor httpContextAccessor,
         IAppDbContext context
@@ -62,7 +60,6 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
         _mapper = mapper;
         _httpContextAccessor = httpContextAccessor;
         _context = context;
-        _configFileProvider = configFileProvider;
     }
 
     public async Task<StreamGroupDto?> Handle(AddStreamGroupRequest command, CancellationToken cancellationToken)

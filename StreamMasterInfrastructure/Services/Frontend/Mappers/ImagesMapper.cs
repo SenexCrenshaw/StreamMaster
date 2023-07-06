@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Configuration;
 using StreamMasterDomain.EnvironmentInfo;
 
 namespace StreamMasterInfrastructure.Services.Frontend.Mappers

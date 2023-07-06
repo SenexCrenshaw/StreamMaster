@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMasterDomain.Configuration;
+using StreamMasterDomain.Common;
 using StreamMasterDomain.EnvironmentInfo;
 
 namespace StreamMasterInfrastructure.Services.Frontend.Mappers
@@ -8,13 +8,11 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
     public class ManifestJsonMapper : StaticResourceMapperBase
     {
         private readonly IAppFolderInfo _appFolderInfo;
-        private readonly IConfigFileProvider _configFileProvider;
 
-        public ManifestJsonMapper(IAppFolderInfo appFolderInfo, IConfigFileProvider configFileProvider, ILogger<ManifestJsonMapper> logger)
+        public ManifestJsonMapper(IAppFolderInfo appFolderInfo, ILogger<ManifestJsonMapper> logger)
             : base(logger)
         {
             _appFolderInfo = appFolderInfo;
-            _configFileProvider = configFileProvider;
         }
 
         public override bool CanHandle(string resourceUrl)
@@ -24,7 +22,8 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
 
         public override string Map(string resourceUrl)
         {
-            return Path.Combine(_appFolderInfo.StartUpFolder, _configFileProvider.Setting.UiFolder, "manifest.json");
+            var setting = FileUtil.GetSetting();
+            return Path.Combine(_appFolderInfo.StartUpFolder, setting.UiFolder, "manifest.json");
         }
     }
 }

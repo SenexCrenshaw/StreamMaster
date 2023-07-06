@@ -2,9 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Enums;
 
 using StreamMasterInfrastructure.Authentication;
@@ -19,12 +17,10 @@ namespace StreamMasterAPI.Controllers
     public class AuthenticationController : Controller
     {
         private readonly StreamMasterInfrastructure.Authentication.IAuthenticationService _authService;
-        private readonly IConfigFileProvider _configFileProvider;
 
-        public AuthenticationController(StreamMasterInfrastructure.Authentication.IAuthenticationService authService, IConfigFileProvider configFileProvider)
+        public AuthenticationController(StreamMasterInfrastructure.Authentication.IAuthenticationService authService)
         {
             _authService = authService;
-            _configFileProvider = configFileProvider;
         }
 
         [AllowAnonymous]

@@ -14,7 +14,6 @@ using StreamMasterApplication.Icons.Queries;
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Configuration;
 using StreamMasterDomain.Dto;
 
 using StreamMasterInfrastructure.Extensions;

@@ -20,7 +20,6 @@ using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Hubs;
 using StreamMasterApplication.Services;
 
-using StreamMasterDomain.Configuration;
 using StreamMasterDomain.EnvironmentInfo;
 
 using StreamMasterInfrastructure;
@@ -36,7 +35,6 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddWebUIServices(this IServiceCollection services)
     {
-
         //services.AddLogging(logging =>
         //{
         //    logging.ClearProviders();
@@ -91,7 +89,6 @@ public static class ConfigureServices
 
         _ = services.AddSession();
 
-
         _ = services.AddDatabaseDeveloperPageExceptionFilter();
 
         services
@@ -103,7 +100,6 @@ public static class ConfigureServices
             .AddControllersAsServices();
 
         _ = services.AddSingleton<IAppFolderInfo, AppFolderInfo>();
-        _ = services.AddSingleton<IConfigFileProvider, ConfigFileProvider>();
 
         _ = services.AddScoped<IAuthenticationService, AuthenticationService>();
 
@@ -163,7 +159,6 @@ public static class ConfigureServices
                 policy.RequireAuthenticatedUser();
             });
 
-
             // Require auth on everything except those marked [AllowAnonymous]
             options.FallbackPolicy = new AuthorizationPolicyBuilder("API")
             .RequireAuthenticatedUser()
@@ -176,7 +171,6 @@ public static class ConfigureServices
              .PersistKeysToDbContext<AppDbContext>();
 
         services.AddSingleton<IAuthorizationPolicyProvider, UiAuthorizationPolicyProvider>();
-
 
         services.AddAppAuthentication();
         return services;
