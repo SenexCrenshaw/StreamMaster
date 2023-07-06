@@ -1,16 +1,17 @@
-import { Dropdown } from 'primereact/dropdown';
 import * as React from 'react';
 import * as StreamMasterApi from '../store/iptvApi';
 import * as Hub from "../store/signlar_functions";
 import { Toast } from 'primereact/toast';
 import { classNames } from 'primereact/utils';
+import DropDownEditorBodyTemplate from './DropDownEditorBodyTemplate';
 
 const EPGSelector = (props: EPGSelectorProps) => {
   const toast = React.useRef<Toast>(null);
-  const [programme, setProgramme] = React.useState<StreamMasterApi.ProgrammeName>({} as StreamMasterApi.ProgrammeName);
+  const [programme, setProgramme] = React.useState<string>('Dummy');
   const [dataDataSource, setDataSource] = React.useState<StreamMasterApi.ProgrammeName[]>([]);
 
   const programmeNamesQuery = StreamMasterApi.useProgrammesGetProgrammeNamesQuery();
+
 
   React.useEffect(() => {
     if (!programmeNamesQuery.data) {
@@ -25,40 +26,48 @@ const EPGSelector = (props: EPGSelectorProps) => {
       return;
     }
 
-    let foundProgramme = {} as StreamMasterApi.ProgrammeName | undefined;
+    // console.log('value:', props.value);
+    // let foundProgramme = {} as StreamMasterApi.ProgrammeName | undefined;
 
-    if (props.value !== '') {
-      foundProgramme = dataDataSource.find((a) => a.channel === props.value);
-    }
+    // if (props.value !== '') {
+    //   foundProgramme = dataDataSource.find((a) => a.channel === props.value);
+    // } else {
+    //   foundProgramme = dataDataSource.find((a) => a.channel === "Dummy");
+    // }
 
-    if (foundProgramme?.channel !== undefined) {
-      setProgramme(foundProgramme);
+    // if (foundProgramme?.channel !== undefined) {
+    //   setProgramme(foundProgramme);
+    //   return;
+    // }
+
+    if (props.value === null || props.value === undefined) {
+      setProgramme('Dummy');
       return;
     }
 
-    setProgramme({} as StreamMasterApi.ProgrammeName);
+    setProgramme(props.value);
 
   }, [dataDataSource, props.value]);
 
-  const onEPGChange = React.useCallback(async (channel: StreamMasterApi.ProgrammeName) => {
+  const onEPGChange = React.useCallback(async (channel: string) => {
 
-    if (channel === undefined || channel.channel === undefined) {
+    if (channel === undefined) {// || channel.channel === undefined) {
       return;
     }
 
     setProgramme(channel);
 
-    if (props.data === undefined || props.data.id < 0 || props.data.user_Tvg_ID === channel.channel) {
+    if (props.data === undefined || props.data.id < 0 || props.data.user_Tvg_ID === channel) {
       return;
     }
 
     if (props.onChange) {
-      props.onChange(channel.channel);
+      props.onChange(channel);
     }
 
     const data = {} as StreamMasterApi.UpdateVideoStreamRequest;
     data.id = props.data.id;
-    data.tvg_ID = channel.channel;
+    data.tvg_ID = channel;
 
     await Hub.UpdateVideoStream(data)
       .then((result) => {
@@ -103,7 +112,7 @@ const EPGSelector = (props: EPGSelectorProps) => {
 
     return (
       <div className='flex h-full justify-content-center align-items-center p-0 m-0'>
-        {programme.displayName !== '' ? programme.displayName : programme.channelName}
+        {programme !== '' ? programme : 'Dummy'}
       </div>
     )
 
@@ -113,28 +122,16 @@ const EPGSelector = (props: EPGSelectorProps) => {
     <>
       <Toast position="bottom-right" ref={toast} />
       <div className="iconSelector flex w-full justify-content-center align-items-center">
-        <Dropdown
+
+        <DropDownEditorBodyTemplate
           className={className}
-          filter
-          filterBy='channelName'
-          onChange={async (e) => { await onEPGChange(e.value); }}
-          optionLabel='channelName'
-          options={dataDataSource}
-          placeholder="No EPG"
-          style={{
-            ...{
-              backgroundColor: 'var(--mask-bg)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            },
+          data={dataDataSource.map((a) => (a.displayName ?? ''))}
+          onChange={async (e) => {
+            await onEPGChange(e);
           }}
           value={programme}
-
-          virtualScrollerOptions={{
-            itemSize: 32,
-          }}
         />
+
       </div>
     </>
   );

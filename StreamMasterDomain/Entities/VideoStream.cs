@@ -97,7 +97,7 @@ public class VideoStream : BaseEntity
     /// Gets or sets the EPG ID for the video stream.
     /// </summary>
     /// <value>The EPG ID for the video stream.</value>
-    public string Tvg_ID { get; set; } = "dummy";
+    public string Tvg_ID { get; set; } = "Dummy";
 
     /// <summary>
     /// Gets or sets the URL for the channel logo for the video stream.
@@ -121,7 +121,7 @@ public class VideoStream : BaseEntity
 
     public int User_Tvg_chno { get; set; } = 0;
     public string User_Tvg_group { get; set; } = "All";
-    public string User_Tvg_ID { get; set; } = "dummy";
+    public string User_Tvg_ID { get; set; } = "Dummy";
     public string User_Tvg_logo { get; set; } = string.Empty;
     public string User_Tvg_name { get; set; } = string.Empty;
     public string User_Url { get; set; } = string.Empty;
