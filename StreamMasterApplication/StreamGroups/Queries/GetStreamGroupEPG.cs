@@ -253,6 +253,10 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                                         p.Previouslyshown = null;
                                     }
 
+                                    if (!setting.UseDummyEPGForBlanks && videoStream.User_Tvg_ID.ToLower() == "dummy")
+                                    {
+                                        continue;
+                                    }
                                     retProgrammes.Add(p);
                                 }
                             }
