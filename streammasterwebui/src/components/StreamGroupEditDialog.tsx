@@ -257,7 +257,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
             <Button
               disabled={!isSaveEnabled}
               icon="pi pi-check"
-              label="Edit"
+              label="Save"
               onClick={onUpdate}
               rounded
               severity="success"

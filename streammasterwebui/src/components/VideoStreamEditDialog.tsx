@@ -12,10 +12,18 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
 
+  const [videoStream, setVideoStream] = React.useState<StreamMasterApi.VideoStreamDto | undefined>(undefined);
+
+  React.useEffect(() => {
+    setVideoStream(props.value);
+
+  }, [props.value]);
+
   const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);
     setInfoMessage('');
     setBlock(false);
+
     props.onClose?.();
   }, [props]);
 
@@ -30,6 +38,7 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
       .then((resultData) => {
         if (resultData) {
           setInfoMessage('Set Stream Edited Successfully');
+
         } else {
           setInfoMessage('Set Stream Edited No Change');
         }
@@ -55,15 +64,17 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
         <VideoStreamPanel
           onClose={() => ReturnToParent()}
           onEdit={async (e) => await onEdit(e)}
-          videoStream={props.value}
+          videoStream={videoStream}
         />
 
       </InfoMessageOverLayDialog>
 
       <Button
-        disabled={!props.value}
+        disabled={!videoStream}
         icon="pi pi-pencil"
-        onClick={() => setShowOverlay(true)}
+        onClick={() =>
+          setShowOverlay(true)
+        }
         rounded
         size="small"
         text={props.iconFilled !== true}

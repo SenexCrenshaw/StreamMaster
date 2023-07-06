@@ -5,8 +5,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace StreamMasterDomain.Dto;
 
+[RequireAll]
 public class ChildVideoStreamDto : BaseVideoStreamDto, IMapFrom<VideoStream>, IMapFrom<VideoStreamDto>
 {
+    [Required]
     public int Rank { get; set; }
 }
 
@@ -72,8 +74,6 @@ public class BaseVideoStreamDto : IMapFrom<VideoStream>
     /// </summary>
     /// <value>The ID of the M3U file.</value>
     public int M3UFileId { get; set; }
-
-    public int Rank { get; set; }
 
     /// <summary>
     /// Gets or sets the number of errors encountered during streaming.

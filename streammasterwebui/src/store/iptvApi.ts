@@ -1348,7 +1348,6 @@ export type BaseVideoStreamDto = {
   isReadOnly: boolean;
   isUserCreated: boolean;
   m3UFileId: number;
-  rank: number;
   streamErrorCount: number;
   streamLastFail: string;
   streamLastStream: string;
@@ -1369,7 +1368,7 @@ export type BaseVideoStreamDto = {
   videoStreamHandler: VideoStreamHandlers;
 };
 export type ChildVideoStreamDto = BaseVideoStreamDto & {
-  rank?: number;
+  rank: number;
 };
 export type VideoStreamDto = BaseVideoStreamDto & {
   childVideoStreams?: ChildVideoStreamDto[];

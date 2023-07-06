@@ -17,11 +17,11 @@ const InfoMessageOverLayDialog = (props: InfoMessageOverLayDialogProps) => {
     props.onClose?.();
   }, [props]);
 
-  React.useMemo(() => {
+  React.useEffect(() => {
     setShowDialog(props.show);
   }, [props.show]);
 
-  React.useMemo(() => {
+  React.useEffect(() => {
     const startTimer = () => {
       setTimeout(() => {
         returnToParent();
@@ -40,7 +40,8 @@ const InfoMessageOverLayDialog = (props: InfoMessageOverLayDialogProps) => {
       op.current.show(null, anchorRef.current.getElement());
       startTimer();
     } else {
-      op.current.hide();
+      // op.current.hide();
+
     }
 
   }, [props.infoMessage, returnToParent]);

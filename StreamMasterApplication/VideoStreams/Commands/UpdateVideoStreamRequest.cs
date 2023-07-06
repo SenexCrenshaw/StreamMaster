@@ -91,10 +91,17 @@ public class UpdateVideoStreamRequestHandler : IRequestHandler<UpdateVideoStream
 
         _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        var videoStreams = _context.
+        var childVideoStreams = _context.
             VideoStreamRelationships.
             Include(a => a.ChildVideoStream).
-            Where(a => a.ParentVideoStreamId == videoStream.Id).Select(a => a.ChildVideoStream).ToList();
+            Where(a => a.ParentVideoStreamId == videoStream.Id).Select(a => new { childVideoStream = _mapper.Map<ChildVideoStreamDto>(a.ChildVideoStream), a.Rank }).ToList();
+
+        List<ChildVideoStreamDto> videoStreams = new();
+        foreach (var c in childVideoStreams)
+        {
+            c.childVideoStream.Rank = c.Rank;
+            videoStreams.Add(c.childVideoStream);
+        }
 
         VideoStreamDto ret = _mapper.Map<VideoStreamDto>(videoStream);
 

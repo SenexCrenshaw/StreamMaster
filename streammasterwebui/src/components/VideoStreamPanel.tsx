@@ -58,7 +58,12 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
       return;
     }
 
-    setVideoStreams(data);
+    const newStreams = data.map((x: StreamMasterApi.VideoStreamDto, index) => {
+      return { ...x, rank: index } as StreamMasterApi.VideoStreamDto
+    });
+
+
+    setVideoStreams(newStreams);
 
   }, [videoStreams]);
 
@@ -385,14 +390,13 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
                 onSelectionChange={(e) => onSetVideoStreams(e)}
                 onValueChanged={
                   (e) => {
-                    if (e.length === 0) return;
+                    // if (e.length === 0) return;
                     onSetVideoStreams(e);
                   }
                 }
                 showTriState={showHidden}
                 sourceHeaderTemplate={rightHeaderTemplate}
                 videoStream={props.videoStream}
-
               />
             </div>
           </div>

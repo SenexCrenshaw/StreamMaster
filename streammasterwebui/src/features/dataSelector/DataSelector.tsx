@@ -189,7 +189,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     setGlobalSourceFilterValue(value);
   }, [setGlobalSourceFilterValue, sourceFilters]);
 
-
   const onValueChanged = React.useCallback((data: DataTableRowDataArray<T[]>) => {
     if (!data) {
       return;
