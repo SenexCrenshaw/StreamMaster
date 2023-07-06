@@ -64,7 +64,7 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
       tosend.name = name;
     }
 
-    if (url) {
+    if (url !== undefined) {
       tosend.url = url;
     }
 

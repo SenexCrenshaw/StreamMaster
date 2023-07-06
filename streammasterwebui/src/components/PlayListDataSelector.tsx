@@ -164,7 +164,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       {
         field: 'name', filter: true, sortable: true, style: {
           flexGrow: 1,
-          flexShrink: 1,
+          flexShrink: 0,
         } as CSSProperties,
       },
       {
@@ -203,7 +203,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         }
         rightColSize={5}
         selection={selectedChannelGroups}
-        selectionMode='single'
+        selectionMode='multiple'
         showHidden={showHidden}
         showSkeleton={
           channelGroupsQuery.isLoading ||

@@ -449,7 +449,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         onValueChanged={(e) => onValueChanged(e as StreamMasterApi.VideoStreamDto[])}
         rightColSize={4}
         selection={selectedM3UStreams}
-        selectionMode='single'
+        selectionMode='multiple'
         showHidden={showHidden}
         showSkeleton={videoStreamsQuery.isLoading || enableEditMode === undefined}
         sortField='user_Tvg_name'
