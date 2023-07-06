@@ -30,12 +30,12 @@ internal class GetProgrammesHandler : IRequestHandler<GetProgrammes, IEnumerable
         _sender = sender;
         _context = context;
         _mapper = mapper;
-        memoryCache = memoryCache;
+        _memoryCache = memoryCache;
     }
 
     public async Task<IEnumerable<Programme>> Handle(GetProgrammes request, CancellationToken cancellationToken)
     {
-        IEnumerable<Programme> programmes = _memoryCache.Programmes().Where(a => a.StopDateTime > DateTime.Now.AddDays(-1));
+        IEnumerable<Programme> programmes = _memoryCache.Programmes().Where(a => a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
         if (programmes == null)
         {
             return new List<Programme>();

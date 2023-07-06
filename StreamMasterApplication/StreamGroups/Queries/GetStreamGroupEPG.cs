@@ -54,7 +54,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
     public GetStreamGroupEPGHandler(
         IMapper mapper, IMemoryCache memoryCache,
         ISender sender,
-          IHttpContextAccessor httpContextAccessor,
+        IHttpContextAccessor httpContextAccessor,
         IAppDbContext context)
     {
         _httpContextAccessor = httpContextAccessor;
@@ -97,9 +97,16 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
         {
             string url = _httpContextAccessor.GetUrl();
 
-            List<string> epgids = videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID.ToLower()).Distinct().ToList();
+            List<string> epgids = videoStreams.Where(a => !a.IsHidden).SelectMany(r => new string[] { r.User_Tvg_ID.ToLower(), r.User_Tvg_ID_DisplayName.ToLower() }).Distinct().ToList();
 
-            List<Programme> programmes = _memoryCache.Programmes().Where(a => a.Channel != null && epgids.Contains(a.Channel.ToLower())).ToList();
+            List<Programme> programmes = _memoryCache.Programmes()
+                .Where(a =>
+                a.Channel != null &&
+                (
+                    epgids.Contains(a.Channel.ToLower()) ||
+                    epgids.Contains(a.DisplayName.ToLower())
+                )
+                ).ToList();
 
             SettingDto setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
 
@@ -120,7 +127,16 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                 TvChannel t;
 
                 int dummy = 0;
-                if (setting.UseDummyEPGForBlanks && string.IsNullOrEmpty(videoStream.User_Tvg_ID) || !programmes.Any(a => a.Channel.ToLower() == videoStream.User_Tvg_ID.ToLower()))
+                if (
+                    setting.UseDummyEPGForBlanks &&
+                    (
+                    string.IsNullOrEmpty(videoStream.User_Tvg_ID) ||
+
+                    !programmes.Any(a => a.Channel.ToLower() == videoStream.User_Tvg_ID.ToLower() || a.Channel.ToLower() == videoStream.User_Tvg_ID_DisplayName.ToLower()
+
+                    )
+                    )
+                )
                 {
                     videoStream.User_Tvg_ID = "dummy";
                 }
@@ -131,7 +147,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
                     t = new TvChannel
                     {
-                        Id = videoStream.User_Tvg_name,//"dummy-" + dummy,
+                        Id = videoStream.User_Tvg_name,
                         Icon = new TvIcon { Src = Logo },
                         Displayname = new()
                         {
@@ -144,7 +160,6 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                 {
                     t = new TvChannel
                     {
-                        //Id = videoStream.User_Tvg_ID.ToString(),
                         Id = videoStream.User_Tvg_name,
                         Icon = new TvIcon { Src = Logo },
                         Displayname = new()
@@ -162,7 +177,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                     {
                         var prog = new Programme();
 
-                        prog.Channel = videoStream.User_Tvg_name;// "dummy-" + dummy;
+                        prog.Channel = videoStream.User_Tvg_name;
 
                         prog.Title = new TvTitle
                         {
@@ -187,7 +202,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                     {
                         if (programmes.Any())
                         {
-                            IEnumerable<Programme>? progs = programmes.Where(a => a.Channel.ToLower() == videoStream.User_Tvg_ID.ToLower()).DeepCopy();
+                            IEnumerable<Programme>? progs = programmes.Where(a => a.DisplayName.ToLower() == videoStream.User_Tvg_ID.ToLower() || a.Channel.ToLower() == videoStream.User_Tvg_ID.ToLower()).DeepCopy();
 
                             if (progs != null)
                             {
@@ -219,13 +234,13 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
                                     if (setting.UseDummyEPGForBlanks && videoStream.User_Tvg_ID.ToLower() == "dummy")
                                     {
-                                        p.Channel = videoStream.User_Tvg_name;// + "-" + dummy;
+                                        p.Channel = videoStream.User_Tvg_name;
 
                                         p.Title = new TvTitle
                                         {
                                             Lang = "en",
                                             Text = videoStream.User_Tvg_name,
-                                        }; /// channel.Tvg_name;
+                                        };
                                         p.Desc = new TvDesc
                                         {
                                             Lang = "en",
@@ -279,8 +294,6 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
         XmlSerializer serializer = new(typeof(Tv));
         serializer.Serialize(textWriter, ret, ns);
         textWriter.Close();
-        //sw.Stop();
-        //long el = sw.ElapsedMilliseconds;
         return textWriter.ToString();
     }
 
