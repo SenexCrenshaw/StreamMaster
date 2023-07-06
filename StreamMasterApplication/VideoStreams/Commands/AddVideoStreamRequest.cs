@@ -66,8 +66,8 @@ public class AddVideoStreamRequestHandler : IRequestHandler<AddVideoStreamReques
             Tvg_group = request.Tvg_group is null ? "All" : request.Tvg_group,
             User_Tvg_group = request.Tvg_group is null ? "All" : request.Tvg_group,
 
-            Tvg_ID = request.Tvg_ID is null ? "dummy" : request.Tvg_ID,
-            User_Tvg_ID = request.Tvg_ID is null ? "dummy" : request.Tvg_ID,
+            Tvg_ID = request.Tvg_ID is null ? "Dummy" : request.Tvg_ID,
+            User_Tvg_ID = request.Tvg_ID is null ? "Dummy" : request.Tvg_ID,
 
             Tvg_logo = request.Tvg_logo is null ? settings.StreamMasterIcon : request.Tvg_logo,
             User_Tvg_logo = request.Tvg_logo is null ? settings.StreamMasterIcon : request.Tvg_logo,
