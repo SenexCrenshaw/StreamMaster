@@ -197,7 +197,7 @@ public static partial class IPTVExtensions
 
         if (string.IsNullOrEmpty(VideoStream.CUID))
         {
-            VideoStream.CUID = VideoStream.Tvg_name;
+            VideoStream.CUID = VideoStream.Url.ConvertUrlToCuid();
         }
 
         return VideoStream;
