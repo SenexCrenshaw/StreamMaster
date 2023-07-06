@@ -27,8 +27,6 @@ public interface IStreamGroupController
 
     Task<IActionResult> GetStreamGroupM3U(string encodedId);
 
-    Task<ContentResult> GetStreamGroupM3U2(int StreamGroupNumber);
-
     Task<ActionResult<IEnumerable<StreamGroupDto>>> GetStreamGroups();
 
     Task<IActionResult> GetStreamGroupVideoStream(string encodedId, string name, CancellationToken cancellationToken);
@@ -52,7 +50,9 @@ public interface IStreamGroupHub
     Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls();
 
     Task<StreamGroupDto?> GetStreamGroup(int StreamGroupNumber);
+
     Task<StreamGroupDto?> GetStreamGroupByStreamNumber(int StreamGroupNumber);
+
     Task<EPGGuide> GetStreamGroupEPGForGuide(int StreamGroupNumber);
 
     Task<IEnumerable<StreamGroupDto>> GetStreamGroups();

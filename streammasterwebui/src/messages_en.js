@@ -45,6 +45,7 @@ export default {
   streaming: 'Streaming',
   streamingClientUserAgent: "Streaming Client User Agent",
   streamingProxyType: 'Enable Stream Buffer',
+  useDummyEPGForBlanks: 'Use Dummy EPG',
   user: "User",
 };
 
