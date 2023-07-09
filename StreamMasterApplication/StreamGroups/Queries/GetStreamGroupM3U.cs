@@ -171,12 +171,11 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
             {
                 fieldList.Add($"group-title=\"{videoStream.User_Tvg_group}\"");
             }
-
-            fieldList.Add($",{videoStream.User_Tvg_name}\r\n");
-            fieldList.Add($"{videoUrl}\r\n");
-
             var lines = string.Join(" ", fieldList.ToArray());
 
+            lines +=$",{videoStream.User_Tvg_name}\r\n";
+            lines += $"{videoUrl}\r\n";
+            
             _ = retlist.TryAdd(videoStream.User_Tvg_chno, lines);
         });
 
