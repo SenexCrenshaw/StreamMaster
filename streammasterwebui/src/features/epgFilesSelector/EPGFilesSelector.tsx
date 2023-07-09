@@ -41,13 +41,13 @@ export const EPGFilesSelector = (props: EPGFilesSelectorProps) => {
     );
   }, []);
 
-  const onEPGUpdateClick = React.useCallback(async (id: number, auto?: boolean | null, days?: number | null, name?: string | null) => {
+  const onEPGUpdateClick = React.useCallback(async (id: number, auto?: boolean | null, hours?: number | null, name?: string | null) => {
 
     if (id < 1) {
       return;
     }
 
-    if (!auto && !days && !name) {
+    if (!auto && !hours && !name) {
       return;
     }
 
@@ -58,8 +58,8 @@ export const EPGFilesSelector = (props: EPGFilesSelectorProps) => {
       tosend.autoUpdate = auto;
     }
 
-    if (days) {
-      tosend.hoursToUpdate = days;
+    if (hours) {
+      tosend.hoursToUpdate = hours;
     }
 
     if (name) {
@@ -116,7 +116,7 @@ export const EPGFilesSelector = (props: EPGFilesSelectorProps) => {
           onChange={async (e) => {
             await onEPGUpdateClick(data.id, null, e);
           }}
-          suffix=' days'
+          suffix=' hours'
           value={data.hoursToUpdate}
         />
 

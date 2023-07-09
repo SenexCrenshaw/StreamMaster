@@ -247,7 +247,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
           onChange={async (e) => {
             await onM3UUpdateClick(rowData.id, rowData.autoUpdate, e, rowData.maxStreamCount ?? 0);
           }}
-          suffix=' days'
+          suffix=' hours'
           value={rowData.hoursToUpdate}
         />
 
