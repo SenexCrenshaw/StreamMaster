@@ -65,7 +65,7 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
 
   const dataSource = React.useMemo((): T[] | undefined => {
 
-    if (!props.sourceDataSource) {
+    if (!props.sourceDataSource || selection.length === 0) {
       return;
     }
 
