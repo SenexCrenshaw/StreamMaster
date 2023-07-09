@@ -12,20 +12,14 @@ import { getTopToolOptions } from '../../common/common';
 const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPickerProps<T>) => {
 
   const [selection, setSelection] = React.useState<T[]>([] as T[]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [previousSelection, setPreviousSelection] = React.useState<T[]>([] as T[]);
 
-  const [targetDataSource, setTargetDataSource] = React.useState<T[]>([] as T[]);
+  const [previousSelection, setPreviousSelection] = React.useState<T[]>([] as T[]);
+  const [targetDataSource, setTargetDataSource] = React.useState<T[] | undefined>(undefined);
 
   React.useEffect(() => {
-    if (props.targetDataSource !== undefined && props.targetDataSource.length > 0 && props.targetDataSource[0].id !== undefined) {
-      setTargetDataSource(props.targetDataSource);
-      return;
-    }
+    setTargetDataSource(props.targetDataSource);
 
-    if (props.sourceDataSource !== undefined) {
-      setTargetDataSource(props.sourceDataSource);
-    }
+    return;
 
   }, [props.sourceDataSource, props.targetDataSource]);
 

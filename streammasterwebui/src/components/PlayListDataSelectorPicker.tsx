@@ -21,7 +21,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
   const [sourceVideoStreams, setSourceVideoStreams] = React.useState<StreamMasterApi.VideoStreamDto[]>([]);
-  const [targetVideoStreams, setTargetVideoStreams] = React.useState<StreamMasterApi.ChildVideoStreamDto[]>([]);
+  const [targetVideoStreams, setTargetVideoStreams] = React.useState<StreamMasterApi.ChildVideoStreamDto[] | undefined>(undefined);
   const [isVideoStreamUpdating, setIsVideoStreamUpdating] = React.useState<boolean>(false);
   const [streamGroup, setStreamGroup] = React.useState<StreamMasterApi.StreamGroupDto>({} as StreamMasterApi.StreamGroupDto);
 
@@ -66,7 +66,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
         setSourceVideoStreams(newData.filter((m3u) => m3u.isHidden !== props.showTriState).sort((a, b) => a.user_Tvg_name.localeCompare(b.user_Tvg_name)));
       }
 
-      setTargetVideoStreams([]);
+      setTargetVideoStreams(undefined);
       return;
     }
 
@@ -338,6 +338,10 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   }, [onSave, props]);
 
   const onRemoveRank = React.useCallback(async (data: StreamMasterApi.VideoStreamDto) => {
+    if (targetVideoStreams === undefined) {
+      return;
+    }
+
     const newtargetVideoStreams = targetVideoStreams.filter((m3u) => m3u.id !== data.id);
     if (props.isAdditionalChannels === true) {
       setTargetVideoStreams(newtargetVideoStreams.sort((a, b) => a.rank - b.rank));
