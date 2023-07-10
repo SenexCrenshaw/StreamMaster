@@ -133,7 +133,7 @@
     },
     {
       "extends": [
-        "canonical/react",
+        // "canonical/react",
         "canonical/typescript",
         "canonical/typescript-type-checking",
         "canonical/module",

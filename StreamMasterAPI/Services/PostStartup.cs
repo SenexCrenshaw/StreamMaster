@@ -1,31 +1,19 @@
-﻿using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-
-using StreamMasterApplication.Common.Interfaces;
-using StreamMasterApplication.Hubs;
-using StreamMasterApplication.Services;
+﻿using StreamMasterApplication.Services;
 
 namespace StreamMasterAPI.Services;
 
 public class PostStartup : BackgroundService
 {
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
     private readonly ILogger _logger;
-    private readonly ISender _mediator;
-    private readonly IServiceProvider _serviceProvider;
     private readonly IBackgroundTaskQueue _taskQueue;
 
     public PostStartup(
         ILogger<PostStartup> logger,
-        ISender mediator,
-        IHubContext<StreamMasterHub, IStreamMasterHub> hubContext,
-        IServiceProvider serviceProvider,
+
         IBackgroundTaskQueue taskQueue
         )
     {
-        (_logger, _serviceProvider, _taskQueue, _mediator, _hubContext) =
-        (logger, serviceProvider, taskQueue, mediator, hubContext);
+        (_logger, _taskQueue) = (logger, taskQueue);
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -38,7 +26,7 @@ public class PostStartup : BackgroundService
         _logger.LogInformation(
         $"{nameof(PostStartup)} is running.");
 
-        await _hubContext.Clients.All.SystemStatusUpdate(new StreamMasterApplication.Settings.Queries.SystemStatus { IsSystemReady = false }).ConfigureAwait(false);
+        //await _hubContext.Clients.All.SystemStatusUpdate(new StreamMasterApplication.Settings.Queries.SystemStatus { IsSystemReady = false }).ConfigureAwait(false);
 
         await _taskQueue.ScanDirectoryForIconFiles(cancellationToken).ConfigureAwait(false);
 
