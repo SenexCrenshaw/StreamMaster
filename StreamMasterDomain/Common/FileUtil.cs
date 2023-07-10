@@ -9,18 +9,6 @@ public sealed class FileUtil
 {
     private static bool setupDirectories = false;
 
-    public static bool IsGzipCompressed(string filePath)
-    {
-        byte[] gzipSignature = new byte[] { 0x1F, 0x8B, 0x08 };
-
-        using (FileStream fs = File.OpenRead(filePath))
-        {
-            byte[] fileSignature = new byte[gzipSignature.Length];
-            fs.Read(fileSignature, 0, fileSignature.Length);
-
-            return fileSignature.SequenceEqual(gzipSignature);
-        }
-    }
     public static void CreateDirectory(string fileName)
     {
         string? directory = Path.EndsInDirectorySeparator(fileName) ? fileName : Path.GetDirectoryName(fileName);
@@ -122,10 +110,8 @@ public sealed class FileUtil
         }
     }
 
-   
     public static async Task<string> GetFileData(string source)
     {
-      
         string body = "";
         try
         {
@@ -134,10 +120,9 @@ public sealed class FileUtil
             using MemoryStream outputStream = new();
             gzStream.CopyTo(outputStream);
             byte[] outputBytes = outputStream.ToArray();
-          
+
             body = Encoding.Default.GetString(outputBytes);
             return body;
-            
         }
         catch (InvalidDataException ex) when (ex.Message.Contains("The archive entry was compressed using an unsupported compression method."))
         {
@@ -233,6 +218,19 @@ public sealed class FileUtil
         return ret;
     }
 
+    public static bool IsGzipCompressed(string filePath)
+    {
+        byte[] gzipSignature = new byte[] { 0x1F, 0x8B, 0x08 };
+
+        using (FileStream fs = File.OpenRead(filePath))
+        {
+            byte[] fileSignature = new byte[gzipSignature.Length];
+            fs.Read(fileSignature, 0, fileSignature.Length);
+
+            return fileSignature.SequenceEqual(gzipSignature);
+        }
+    }
+
     public static bool ReadUrlFromFile(string filePath, out string? url)
     {
         url = null;
@@ -274,12 +272,6 @@ public sealed class FileUtil
         }
     }
 
-    private static void CreateDir(string directory)
-    {
-        Console.WriteLine($"Creating directory for {directory}");
-        CreateDirectory(directory);
-    }
-
     public static void SetupDirectories(bool alwaysRun = false)
     {
         if (setupDirectories && !alwaysRun)
@@ -288,15 +280,7 @@ public sealed class FileUtil
         }
         setupDirectories = true;
 
-
-            if (setupDirectories)
-            {
-                return;
-            }
-
-            setupDirectories = true;
-
-       var AppDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{Constants.AppName.ToLower()}{Path.DirectorySeparatorChar}";
+        var AppDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{Constants.AppName.ToLower()}{Path.DirectorySeparatorChar}";
         var CacheFolder = $"{AppDataFolder}Cache{Path.DirectorySeparatorChar}";
         var PlayListFolder = $"{AppDataFolder}PlayLists{Path.DirectorySeparatorChar}";
         var IconDataFolder = $"{CacheFolder}Icons{Path.DirectorySeparatorChar}";
@@ -312,7 +296,6 @@ public sealed class FileUtil
         CreateDir(PlayListEPGFolder);
         CreateDir(PlayListM3UFolder);
         CreateDir(ProgrammeIconDataFolder);
-
     }
 
     public static void UpdateSetting(Setting setting)
@@ -339,5 +322,11 @@ public sealed class FileUtil
             Console.WriteLine("An error occurred while writing the URL to the file: " + ex.Message);
             return false;
         }
+    }
+
+    private static void CreateDir(string directory)
+    {
+        Console.WriteLine($"Creating directory for {directory}");
+        CreateDirectory(directory);
     }
 }
