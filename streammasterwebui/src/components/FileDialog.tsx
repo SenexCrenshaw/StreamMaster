@@ -386,7 +386,7 @@ const FileDialog = (props: FileDialogProps) => {
                   rounded
                   severity="success"
                   size="small"
-                  tooltip="Add EPG File"
+                  tooltip={`Add ${props.fileType.toLocaleUpperCase()} File`}
                   tooltipOptions={getTopToolOptions}
                 />
               </div>
