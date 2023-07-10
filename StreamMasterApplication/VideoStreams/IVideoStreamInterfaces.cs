@@ -31,11 +31,13 @@ public interface IVideoStreamDB
 
     DbSet<VideoStream> VideoStreams { get; set; }
 
-    public bool SynchronizeChildRelationships(VideoStream videoStream, List<ChildVideoStreamDto> videoStreamDtos);
+    public Task<bool> DeleteVideoStream(int VideoStreamId, bool save = true);
 
     public Task<List<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, bool save = true);
 
-    public Task<bool> DeleteVideoStream(int VideoStreamId, bool save = true);
+    public M3UFileIdMaxStream? GetM3UFileIdMaxStreamFromUrl(string Url);
+
+    public bool SynchronizeChildRelationships(VideoStream videoStream, List<ChildVideoStreamDto> videoStreamDtos);
 }
 
 public interface IVideoStreamHub

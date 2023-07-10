@@ -7,15 +7,12 @@ using Microsoft.Extensions.Logging;
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.Hubs;
-using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Enums;
 
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 namespace StreamMasterInfrastructure.MiddleWare;
 
@@ -24,13 +21,14 @@ public class RingBufferManager : IDisposable, IRingBufferManager
     private readonly Timer _broadcastTimer;
 
     private readonly ConcurrentDictionary<Guid, CancellationTokenSource> _clientCancellationTokenSources;
+    private readonly ConcurrentDictionary<Guid, string> _clientUserAgents;
     private readonly ConcurrentDictionary<string, CancellationTokenSource> _handlerTokens;
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hub;
     private readonly ILogger<RingBufferManager> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly ConcurrentDictionary<Guid, RingBufferReadStream> _streamReads;
-    private readonly ConcurrentDictionary<Guid, string> _clientUserAgents;
     private readonly ConcurrentDictionary<string, StreamStreamInfo> _streamStreamInfos;
+
     //private readonly ConcurrentDictionary<Guid, string> _clientUserAgents;
     private readonly Setting setting;
 
@@ -104,11 +102,10 @@ public class RingBufferManager : IDisposable, IRingBufferManager
     {
         // _logger.LogInformation("Retrieving statistics for all stream URLs");
         List<StreamStatisticsResult> allStatistics = new();
-        var infos = _streamStreamInfos.Select(a=>a.Value);
+        var infos = _streamStreamInfos.Select(a => a.Value);
 
         foreach (var info in infos)
-        {           
-
+        {
             CircularRingBuffer? bufferEntry = info.RingBuffer;
 
             if (bufferEntry is null)
@@ -140,7 +137,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
                     ClientBytesWritten = stat.BytesWritten,
                     ClientId = stat.ClientId,
                     ClientStartTime = stat.StartTime,
-                    ClientAgent= clientAgent,
+                    ClientAgent = clientAgent,
                     // ClientStatistics = bufferEntry.Value.GetAllStatistics()
                 });
             }
@@ -313,20 +310,22 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         Task streamingTask = StartVideoStreaming(stream, streamUrl, clientInfo, buffer, cancellationTokenSource);
 
         using IServiceScope scope = _serviceProvider.CreateScope();
-        ISender _sender = scope.ServiceProvider.GetRequiredService<ISender>();
+        //ISender _sender = scope.ServiceProvider.GetRequiredService<ISender>();
+        var _context = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
 
-        var m3uFileTask = _sender.Send(new GetM3UFileIdMaxStreamFromUrl(streamUrl));
-        m3uFileTask.Wait();
+        //var m3uFileTask = _sender.Send(new GetM3UFileIdMaxStreamFromUrl(streamUrl));
+        //m3uFileTask.Wait();
 
-        var m3uFileIdMaxStream = m3uFileTask.Result;
+        var m3uFileIdMaxStream = _context.GetM3UFileIdMaxStreamFromUrl(streamUrl);
         if (m3uFileIdMaxStream == null)
         {
             _logger.LogError("M3UFile not found for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
-            m3uFileIdMaxStream = new M3UFileIdMaxStream { M3UFileId = 0, MaxStreams = 999 };
+            //m3uFileIdMaxStream = new M3UFileIdMaxStream { M3UFileId = 0, MaxStreams = 999 };
+            return null;
         }
 
         StreamStreamInfo streamStreamInfo = new(streamUrl, buffer, streamingTask, m3uFileIdMaxStream.M3UFileId, m3uFileIdMaxStream.MaxStreams, processId, cancellationTokenSource);
-        
+
         streamStreamInfo.M3UStream = clientInfo.M3UStream;
         //streamStreamInfo.ClientCounter = 1;
 
@@ -416,10 +415,10 @@ public class RingBufferManager : IDisposable, IRingBufferManager
 
             return CreateAndStartBuffer(streamUrl, config);
         });
-       
-        if ( si== null)
+
+        if (si == null)
         {
-            _streamStreamInfos.TryRemove(streamUrl,out _);            
+            _streamStreamInfos.TryRemove(streamUrl, out _);
             return null;
         }
 

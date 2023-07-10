@@ -15,7 +15,7 @@ using System.Reflection;
 
 namespace StreamMasterInfrastructure.Persistence;
 
-public partial class AppDbContext : DbContext, IDataProtectionKeyContext,IAppDbContext
+public partial class AppDbContext : DbContext, IDataProtectionKeyContext, IAppDbContext
 
 {
     private readonly ILogger<AppDbContext> _logger;
@@ -58,7 +58,6 @@ public partial class AppDbContext : DbContext, IDataProtectionKeyContext,IAppDbC
 
     public string DbPath { get; }
 
-   
     public int SaveChanges()
     {
         _ = _mediator.DispatchDomainEvents(this).ConfigureAwait(false);
