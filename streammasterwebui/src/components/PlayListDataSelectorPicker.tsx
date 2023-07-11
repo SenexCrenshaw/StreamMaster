@@ -40,7 +40,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       return;
     }
 
-    if (props.videoStream?.childVideoStreams !== undefined) {
+    if (props.videoStream?.childVideoStreams !== undefined && props.videoStream.childVideoStreams.length > 0) {
       const newStreams = [...props.videoStream.childVideoStreams];
 
       const dsIds = newStreams.map((sgvs) => sgvs.id);

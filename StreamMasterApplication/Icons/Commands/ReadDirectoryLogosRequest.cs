@@ -28,6 +28,11 @@ public class ReadDirectoryLogosRequestHandler : IRequestHandler<ReadDirectoryLog
 
     public async Task Handle(ReadDirectoryLogosRequest command, CancellationToken cancellationToken)
     {
+        if (!Directory.Exists(Constants.TVLogoDirectory))
+        {
+            return;
+        }
+
         Setting setting = FileUtil.GetSetting();
         DirectoryInfo dirInfo = new(Constants.TVLogoDirectory);
 

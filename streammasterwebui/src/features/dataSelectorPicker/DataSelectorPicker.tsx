@@ -11,9 +11,12 @@ import { getTopToolOptions } from '../../common/common';
 
 const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPickerProps<T>) => {
 
-  const [selection, setSelection] = React.useState<T[]>([] as T[]);
+  const [selection, setSelection] = React.useState<T[] | undefined>(undefined);
 
   const [previousSelection, setPreviousSelection] = React.useState<T[]>([] as T[]);
+
+
+  const [sourceDataSource, setSourceDataSource] = React.useState<T[] | undefined>(undefined);
   const [targetDataSource, setTargetDataSource] = React.useState<T[] | undefined>(undefined);
 
   React.useEffect(() => {
@@ -24,6 +27,9 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
   }, [props.sourceDataSource, props.targetDataSource]);
 
   const onSelectionChange = React.useCallback((value: T[], isUndo?: boolean) => {
+    if (!selection)
+      return;
+
     setPreviousSelection(selection);
 
     if (value instanceof Array) {
@@ -45,7 +51,7 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
   }, [props, selection]);
 
 
-  React.useMemo(() => {
+  React.useEffect(() => {
     if (props?.selection === undefined) {
       return;
     }
@@ -61,11 +67,11 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
 
   }, [props.selection]);
 
+  console.log('props.sourceDataSource:', props.sourceDataSource);
 
+  React.useEffect(() => {
 
-  const dataSource = React.useMemo((): T[] | undefined => {
-
-    if (!props.sourceDataSource || selection.length === 0) {
+    if (!props.sourceDataSource || !selection || selection.length === 0) {
       return;
     }
 
@@ -78,10 +84,11 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
     });
 
     const test = props.sourceDataSource.filter((obj) => !idsToMoveToTop.includes(obj.id));
+    setSourceDataSource(test);
+    console.log('test:', test)
 
-    return test;
 
-  }, [props.sourceDataSource, selection]);
+  }, [props, selection]);
 
   const targetRightHeaderTemplate = React.useMemo(() => {
     if (props.targetHeaderTemplate && props.showUndo !== true) {
@@ -120,7 +127,7 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
       <div className='col-6'>
         <DataSelector
           columns={props.sourceColumns}
-          dataSource={dataSource}
+          dataSource={sourceDataSource}
           enableState={props.sourceEnableState}
           headerLeftTemplate={props.sourceHeaderPrefixTemplate}
           headerRightTemplate={props.sourceHeaderTemplate}
