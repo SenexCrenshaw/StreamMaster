@@ -8,12 +8,11 @@ const FilesEditor = () => {
 
   return (
     <>
-      <EPGFilesEditor />
-      <div className="my-1" />
       <M3UFilesEditor
         onClick={() => { }}
       />
-
+      <div className="my-1" />
+      <EPGFilesEditor />
     </>
   );
 }
