@@ -10,6 +10,7 @@ import { Checkbox } from 'primereact/checkbox';
 import NumberEditorBodyTemplate from './NumberEditorBodyTemplate';
 import StringEditorBodyTemplate from './StringEditorBodyTemplate';
 import { type ColumnMeta } from '../features/dataSelector/DataSelectorTypes';
+import SMDataTable from './SMDataTable';
 
 const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
@@ -229,7 +230,7 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
-
+      <SMDataTable />
       <DataSelector
         columns={sourceColumns}
         dataSource={epgFilesQuery.data}

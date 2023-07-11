@@ -8,6 +8,11 @@ import { store } from './app/store';
 
 import 'normalize.css';
 
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+
 import 'primeflex/primeflex.css'; // css utility
 import 'primeicons/primeicons.css'; // icons
 import 'primereact/resources/primereact.css'; // core css
