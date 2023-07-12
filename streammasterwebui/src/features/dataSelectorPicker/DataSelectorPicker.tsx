@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react/no-unused-prop-types */
 
 import { type DataTableValue } from 'primereact/datatable';
 import { type CSSProperties } from 'react';
@@ -15,27 +13,30 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
 
   const [previousSelection, setPreviousSelection] = React.useState<T[]>([] as T[]);
 
-
   const [sourceDataSource, setSourceDataSource] = React.useState<T[] | undefined>(undefined);
   const [targetDataSource, setTargetDataSource] = React.useState<T[] | undefined>(undefined);
 
   React.useEffect(() => {
     setTargetDataSource(props.targetDataSource);
 
-    return;
+    return () => {
+      setTargetDataSource(undefined);
+    };
 
   }, [props.sourceDataSource, props.targetDataSource]);
 
   const onSelectionChange = React.useCallback((value: T[], isUndo?: boolean) => {
-    if (!selection)
-      return;
 
-    setPreviousSelection(selection);
+    if (selection) {
+      setPreviousSelection(selection);
+    }
 
     if (value instanceof Array) {
       let newSelection = [...value];
       if (isUndo !== true) {
-        newSelection = selection.concat(newSelection.filter((obj) => !selection.includes(obj)));
+        if (selection) {
+          newSelection = selection.concat(newSelection.filter((obj) => !selection.includes(obj)));
+        }
       }
 
       setSelection(newSelection);
@@ -64,30 +65,36 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
 
     setSelection([props.selection as T]);
 
-
+    return () => {
+      setSelection(undefined);
+    }
   }, [props.selection]);
 
-  console.log('props.sourceDataSource:', props.sourceDataSource);
 
   React.useEffect(() => {
 
-    if (!props.sourceDataSource || !selection || selection.length === 0) {
+    if (!props.sourceDataSource) {
       return;
     }
 
-    const idsToMoveToTop = selection.map((obj) => {
+    if (!selection || selection.length === 0) {
+      setSourceDataSource(props.sourceDataSource);
+      return;
+    }
+
+    const idsToMoveToTop: number[] = [];
+    selection.forEach((obj) => {
       if (!obj || obj.id === null || !obj.id || obj.id === undefined) {
-        console.log('ee')
+        console.log('ee');
       }
 
-      return obj.id;
+      idsToMoveToTop.push(obj.id);
     });
 
-    const test = props.sourceDataSource.filter((obj) => !idsToMoveToTop.includes(obj.id));
-    setSourceDataSource(test);
-    console.log('test:', test)
-
-
+    setSourceDataSource(props.sourceDataSource.filter((obj) => !idsToMoveToTop.includes(obj.id)));
+    return () => {
+      setSourceDataSource(undefined);
+    }
   }, [props, selection]);
 
   const targetRightHeaderTemplate = React.useMemo(() => {

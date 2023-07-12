@@ -1,4 +1,3 @@
-
 import React from "react";
 
 import { Dropdown } from "primereact/dropdown";
@@ -10,14 +9,10 @@ import { useClickOutside } from "primereact/hooks";
 const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
   const [originalValue, setOriginalValue] = React.useState<string>('');
   const [isFocused, setIsFocused] = React.useState<boolean>(false);
-
   const [ignoreSave, setIgnoreSave] = React.useState<boolean>(true);
   const overlayRef = React.useRef(null);
-
   const [inputValue, setInputValue] = React.useState<string>('');
-
   const className = classNames('iconSelector p-0 m-0 w-full z-5 ', props.className);
-
 
   const debounced = useDebouncedCallback(
     React.useCallback((value) => {
@@ -25,7 +20,7 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
       if (!ignoreSave && value !== originalValue) {
         setInputValue(value);
         setIgnoreSave(true);
-        // console.log('Saved', value);
+
         props.onChange(value);
       }
     }, [ignoreSave, originalValue, props]),
@@ -49,9 +44,7 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
       props.onChange(inputValue);
     }
 
-
   }, [debounced, ignoreSave, inputValue, originalValue, props]);
-
 
   // Keyboard Enter
   React.useEffect(() => {
@@ -72,19 +65,18 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
   }, [isFocused, save]);
 
   useClickOutside(overlayRef, () => {
+    if (!isFocused) {
+      return;
+    }
+
     setIsFocused(false);
     if (originalValue !== inputValue) {
-      // console.log('useClickOutside saved');
       save();
     }
   });
 
-
-  React.useMemo(() => {
-
-    // if (props.value !== undefined && props.value !== originalValue) {
+  React.useEffect(() => {
     if (props.value !== undefined) {
-      // console.log('setOriginalValue', props.value);
       setInputValue(props.value);
       setOriginalValue(props.value);
       setIgnoreSave(false);

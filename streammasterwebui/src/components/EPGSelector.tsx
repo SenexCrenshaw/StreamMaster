@@ -19,26 +19,17 @@ const EPGSelector = (props: EPGSelectorProps) => {
     }
 
     setDataSource(programmeNamesQuery.data);
+
+    return () => {
+      setDataSource([]);
+    };
+
   }, [programmeNamesQuery.data]);
 
-  React.useMemo(() => {
+  React.useEffect(() => {
     if (!dataDataSource) {
       return;
     }
-
-    // console.log('value:', props.value);
-    // let foundProgramme = {} as StreamMasterApi.ProgrammeName | undefined;
-
-    // if (props.value !== '') {
-    //   foundProgramme = dataDataSource.find((a) => a.channel === props.value);
-    // } else {
-    //   foundProgramme = dataDataSource.find((a) => a.channel === "Dummy");
-    // }
-
-    // if (foundProgramme?.channel !== undefined) {
-    //   setProgramme(foundProgramme);
-    //   return;
-    // }
 
     if (props.value === null || props.value === undefined) {
       setProgramme('Dummy');
@@ -103,8 +94,6 @@ const EPGSelector = (props: EPGSelectorProps) => {
 
 
   }, [props]);
-
-
 
   const className = classNames('iconSelector p-0 m-0 w-full z-5 ', props.className);
 

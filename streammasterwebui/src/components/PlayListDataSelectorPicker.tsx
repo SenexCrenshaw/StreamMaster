@@ -17,7 +17,6 @@ import IconSelector from "./IconSelector";
 import EPGSelector from "./EPGSelector";
 
 const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
-  console.log('PlayListDataSelectorPicker');
   const toast = React.useRef<Toast>(null);
 
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
@@ -123,8 +122,8 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       header: 'id',
       sortable: true,
       style: {
-        maxWidth: '4rem',
-        width: '4rem',
+        maxWidth: '3rem',
+        width: '3rem',
       } as CSSProperties,
     },
     {
@@ -134,37 +133,28 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       header: 'Ch.',
       sortable: true,
       style: {
-        maxWidth: '4rem',
-        width: '4rem',
+        maxWidth: '3rem',
+        width: '3rem',
       } as CSSProperties,
     },
     {
       field: 'user_Tvg_name', header: 'Name', sortable: true,
       style: {
-        flexGrow: 0,
-        flexShrink: 1,
-        maxWidth: '5rem',
+        flexGrow: 1,
+        flexShrink: 1
       }
     }
     ,
     {
       field: 'user_Tvg_group', header: 'Group', sortable: true,
-      style: {
-        flexGrow: 0,
-        flexShrink: 1,
-        maxWidth: '5rem',
-      }
+
     }
     ,
     {
       field: 'm3UFileId',
       fieldType: 'm3uFileName', header: 'File',
       sortable: true,
-      style: {
-        flexGrow: 0,
-        flexShrink: 1,
-        maxWidth: '2rem',
-      }
+
     }
   ];
 
@@ -236,32 +226,17 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   }, []);
 
   const logoEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
-    // return <ChannelLogoEditor
-    //   data={data}
-    //   enableEditMode
-    // />
-
     return (
       <IconSelector
         className="p-inputtext-sm"
         enableEditMode
         onChange={
           async (e: StreamMasterApi.IconFileDto) => {
-
-            // const newiconSource = e.originalSource.includes('://')
-            //   ? e.originalSource
-            //   : e.name;
-
             await onUpdateVideoStream(data, e.name);
           }
         }
         onReset={
           async (e: StreamMasterApi.IconFileDto) => {
-
-            // const newiconSource = e.originalSource.includes('://')
-            //   ? e.originalSource
-            //   : e.name;
-
             await onUpdateVideoStream(data, e.originalSource);
           }
         }
@@ -274,7 +249,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
   const onSave = React.useCallback(async (data: StreamMasterApi.VideoStreamDto[]) => {
 
-    if (isVideoStreamUpdating || !props.streamGroup) {
+    if (isVideoStreamUpdating || !props.streamGroup || data.length === 0 || data[0].id === undefined) {
       return;
     }
 
@@ -288,7 +263,6 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       return stream.id;
     });
 
-
     await Hub.UpdateStreamGroup(toSend)
       .then((returnData) => {
         if (toast.current) {
@@ -299,7 +273,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
               severity: 'success',
               summary: 'Successful',
             });
-            // console.log('returnData', returnData.videoStreams.length);
+
             setStreamGroup(returnData);
 
           } else {
@@ -401,7 +375,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       field: 'id',
       filter: false,
       header: 'id',
-
+      sortable: true,
       style: {
         maxWidth: '4rem',
         width: '4rem',
@@ -413,7 +387,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       filter: true,
       header: 'Ch.',
       isHidden: props.isAdditionalChannels === true,
-
+      sortable: true,
       style: {
         maxWidth: '4rem',
         width: '4rem',
@@ -475,7 +449,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
             props.onValueChanged?.(e as StreamMasterApi.ChildVideoStreamDto[]);
           }
         }}
-        onTargetSelectionChange={onChange}
+        // onTargetSelectionChange={onChange}
         selection={targetVideoStreams}
         showUndo
         sourceColumns={sourceColumns}

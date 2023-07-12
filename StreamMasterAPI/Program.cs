@@ -1,5 +1,3 @@
-using Microsoft.Extensions.FileProviders;
-
 using StreamMasterAPI;
 
 using StreamMasterApplication;
@@ -124,18 +122,20 @@ app.UseHealthChecks("/health");
 
 app.UseDefaultFiles();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseStaticFiles(new StaticFileOptions
-    {
-        FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "devwwwroot")),
-        RequestPath = "/devwwwroot"
-    });
-}
-else
-{
-    app.UseStaticFiles();
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseStaticFiles(new StaticFileOptions
+//    {
+//        FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "devwwwroot")),
+//        RequestPath = "/devwwwroot"
+//    });
+//}
+//else
+//{
+//    app.UseStaticFiles();
+//}
+
+app.UseStaticFiles();
 
 app.UseRouting();
 app.UseWebSockets();
