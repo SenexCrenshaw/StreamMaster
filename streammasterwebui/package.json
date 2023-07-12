@@ -90,6 +90,7 @@
   "scripts": {
     "babel-extract-messages": "NODE_ENV=production babel src --out-dir build --plugins=babel-plugin-react-intl",
     "build": "react-scripts build",
+    "buildAndCopy": "react-scripts build && cp --force -R build/* ../StreamMasterAPI/wwwroot/",
     "compile": "formatjs compile",
     "eject": "react-scripts eject",
     "extract": "formatjs extract src/**/*.ts* --out-file en.json --id-interpolation-pattern [sha512:contenthash:base64:6]",
