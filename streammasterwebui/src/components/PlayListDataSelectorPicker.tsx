@@ -17,25 +17,28 @@ import IconSelector from "./IconSelector";
 import EPGSelector from "./EPGSelector";
 
 const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
+  console.log('PlayListDataSelectorPicker');
   const toast = React.useRef<Toast>(null);
 
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
-  const [sourceVideoStreams, setSourceVideoStreams] = React.useState<StreamMasterApi.VideoStreamDto[]>([]);
+
+  const [sourceVideoStreams, setSourceVideoStreams] = React.useState<StreamMasterApi.VideoStreamDto[] | undefined>(undefined);
   const [targetVideoStreams, setTargetVideoStreams] = React.useState<StreamMasterApi.ChildVideoStreamDto[] | undefined>(undefined);
   const [isVideoStreamUpdating, setIsVideoStreamUpdating] = React.useState<boolean>(false);
-  const [streamGroup, setStreamGroup] = React.useState<StreamMasterApi.StreamGroupDto>({} as StreamMasterApi.StreamGroupDto);
+  const [streamGroup, setStreamGroup] = React.useState<StreamMasterApi.StreamGroupDto | undefined>(undefined);
 
-  React.useMemo(() => {
+  React.useEffect(() => {
     if (!props.streamGroup || props.streamGroup.id === undefined) {
-      setStreamGroup({} as StreamMasterApi.StreamGroupDto);
+      setStreamGroup(undefined);
       return;
     }
 
     setStreamGroup(props.streamGroup);
+    return () => setStreamGroup(undefined);
 
   }, [props.streamGroup])
 
-  React.useMemo(() => {
+  React.useEffect(() => {
     if (!videoStreamsQuery.data) {
       return;
     }
@@ -96,7 +99,11 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       setSourceVideoStreams(videoStreamsQuery.data.filter((m3u) => m3u.isHidden !== props.showTriState && !ids?.includes(m3u.id)));
     }
 
-  }, [videoStreamsQuery.data, props.videoStream?.childVideoStreams, props.showTriState, props.isAdditionalChannels, streamGroup]);
+    return () => {
+      setSourceVideoStreams(undefined);
+      setTargetVideoStreams(undefined);
+    }
+  }, [props.isAdditionalChannels, props.showTriState, props.videoStream, streamGroup, videoStreamsQuery.data]);
 
   const channelNumberEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
 
