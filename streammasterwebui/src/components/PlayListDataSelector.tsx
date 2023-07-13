@@ -31,25 +31,6 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
 
-  // const [sourceEnableBulk, setSourceEnableBulk] = useLocalStorage(false, props.id + '-PlayListDataSelector-sourceEnableBulk');
-
-
-  // React.useEffect(() => {
-  //   const callback = (event: KeyboardEvent) => {
-
-  //     if ((event.ctrlKey) && event.code === 'KeyB') {
-  //       event.preventDefault();
-  //       setSourceEnableBulk(!sourceEnableBulk);
-  //     }
-
-  //   };
-
-  //   document.addEventListener('keydown', callback);
-  //   return () => {
-  //     document.removeEventListener('keydown', callback);
-  //   };
-  // }, [setSourceEnableBulk, sourceEnableBulk]);
-
   React.useEffect(() => {
     if (!props.selectChannelGroups) {
       return;
@@ -96,7 +77,6 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         </div>
 
         <div className='flex col-10 justify-content-start align-items-center p-0 m-0 pl-1'>
-          {/* {selectedM3UFile?.name ?? ''} */}
           <M3UFilesSelector id={props.id} onChange={(e) => setSelectedM3UFile(e)} value={selectedM3UFile} />
         </div>
 
@@ -112,11 +92,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       props.onSelectionChange?.(newDatas);
     } else {
       setSelectedChannelGroups([selectedData]);
-      // if (sourceEnableBulk) {
       props.onSelectionChange?.([selectedData]);
-      // } else {
-      //   props.onSelectionChange?.(selectedData);
-      // }
     }
 
   }, [props]);
@@ -210,8 +186,6 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
           videoStreamsQuery.isLoading ||
           selectedM3UFile === undefined ||
           selectedM3UFile.name === undefined
-          // sourceEnableBulk === null ||
-          // sourceEnableBulk === undefined
         }
         sortField='rank'
         style={{
