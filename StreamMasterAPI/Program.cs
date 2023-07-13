@@ -115,25 +115,9 @@ using (IServiceScope scope = app.Services.CreateScope())
     }
 }
 
-//app.UseMiddleware<AuthMiddleware>();
-
 app.UseHealthChecks("/health");
-//app.UseHttpsRedirection();
 
 app.UseDefaultFiles();
-
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseStaticFiles(new StaticFileOptions
-//    {
-//        FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "devwwwroot")),
-//        RequestPath = "/devwwwroot"
-//    });
-//}
-//else
-//{
-//    app.UseStaticFiles();
-//}
 
 app.UseStaticFiles();
 
@@ -149,12 +133,8 @@ else
     app.UseCors();
 }
 
-//app.UseCors();
 app.UseAuthentication();
-
-//app.UseHttpsRedirection();
 app.UseAuthorization();
-//app.UseResponseCompression();
 
 app.MapHealthChecks("/healthz");
 app.MapDefaultControllerRoute();
