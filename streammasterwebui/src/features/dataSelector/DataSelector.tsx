@@ -34,8 +34,6 @@ import { useIntl } from 'react-intl';
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
   const tooltipClassName = React.useMemo(() => "menuitemds-" + uuidv4(), []);
-  const tableRef = React.useRef<DataTable<T[]>>(null);
-
   const [globalSourceFilterValue, setGlobalSourceFilterValue] = useLocalStorage('', props.id + '-sourceGlobalFilterValue');
   const [dataSource, setDataSource] = React.useState<T[]>();
   const [values, setValues] = React.useState<T[]>();
@@ -932,7 +930,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     <div className='dataselector flex justify-content-start align-items-center' >
       <div className={`${props.className !== undefined ? props.className : ''}  min-w-full min-h-full surface-overlay`}>
         <DataTable
-          currentPageReportTemplate="{first}/{last} of {totalRecords}"
           dataKey='id'
           editMode='cell'
           emptyMessage={props.emptyMessage}
@@ -949,10 +946,9 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           onRowToggle={(e: DataTableRowToggleEvent) => setExpandedRows(e.data as DataTableExpandedRows)}
           onSelectionChange={((e) => onSelectionChange(e))}
           onValueChange={(e) => { onValueChanged(e); }}
-          paginator={showPagination}
+          paginator={props.enableVirtual === true ? undefined : showPagination}
           paginatorClassName='text-xs p-0 m-0 withpadding'
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-          ref={tableRef}
           removableSort
           reorderableRows={props.reorderable}
           resizableColumns
@@ -974,7 +970,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           stripedRows
           style={props.style}
           value={dataSource}
-          virtualScrollerOptions={{ autoSize: true, itemSize: 18, orientation: undefined }}
+          virtualScrollerOptions={props.enableVirtual === true ? { autoSize: true, itemSize: 22, orientation: undefined } : undefined}
         >
           <Column
             body={<i className="pi pi-chevron-right" />}
@@ -1039,8 +1035,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 DataSelector.displayName = 'DataSelector';
 DataSelector.defaultProps = {
   enableState: true,
+  enableVirtual: false,
   globalSearchEnabled: true,
-  // globalSearchName: 'Keyword Search',
   leftColSize: 4,
   name: '',
   onSelectionChange: undefined,
@@ -1075,6 +1071,7 @@ export type DataSelectorProps<T> = {
    */
   emptyMessage?: React.ReactNode;
   enableState?: boolean | undefined;
+  enableVirtual?: boolean | undefined;
   /**
    * Whether to enable global searching.
    */
