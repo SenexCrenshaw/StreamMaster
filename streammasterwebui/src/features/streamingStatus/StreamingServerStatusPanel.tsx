@@ -29,7 +29,8 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
     if (rowData.inputBitsPerSecond === undefined) return undefined;
 
     const kbps = rowData.inputBitsPerSecond / 1000;
-    return kbps.toLocaleString('en-US');
+    const roundedKbps = Math.ceil(kbps);
+    return roundedKbps.toLocaleString('en-US');
   }, []);
 
   const inputElapsedTimeTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
