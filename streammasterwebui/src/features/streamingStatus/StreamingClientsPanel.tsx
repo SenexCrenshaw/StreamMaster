@@ -12,7 +12,8 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
     if (rowData.clientBitsPerSecond === undefined) return undefined;
 
     const kbps = rowData.clientBitsPerSecond / 1000;
-    return kbps.toLocaleString('en-US');
+    const roundedKbps = Math.ceil(kbps);
+    return roundedKbps.toLocaleString('en-US');
   }, []);
 
   const clientStartTimeTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
