@@ -9,7 +9,6 @@ import StreamMasterSetting from '../store/signlar/StreamMasterSetting';
 import { getTopToolOptions } from '../common/common';
 
 import { ResetLogoIcon } from '../common/icons';
-import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { baseHostURL, isDebug } from '../settings';
 
 const IconSelector = (props: IconSelectorProps) => {
@@ -70,9 +69,8 @@ const IconSelector = (props: IconSelectorProps) => {
 
     return (
       <div className='flex h-full justify-content-start align-items-center p-0 m-0 pl-2'>
-        <LazyLoadImage
+        <img
           alt={option.name}
-          loading="lazy"
           src={selectedTemplateurl}
           style={{
             maxWidth: '1.2rem',
@@ -93,11 +91,9 @@ const IconSelector = (props: IconSelectorProps) => {
 
     return (
       <>
-        <LazyLoadImage
+        <img
           alt={option.name ?? 'name'}
           className="flex align-items-center max-w-full h-2rem text-base text-color surface-overlay appearance-none outline-none focus:border-primary"
-          loading="lazy"
-
           src={iconOptionTemplateurl}
         />
         <div className="white-space-normal">{option.name}</div>
