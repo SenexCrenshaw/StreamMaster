@@ -1,5 +1,7 @@
 ﻿using StreamMasterApplication.Common.Models;
 
+using StreamMasterDomain.Common;
+
 namespace StreamMasterApplication.Common.Interfaces;
 
 public interface IRingBufferManager
@@ -10,7 +12,7 @@ public interface IRingBufferManager
 
     List<StreamStatisticsResult> GetAllStatisticsForAllUrls();
 
-    Task<(Stream? stream, Guid clientId, ProxyStreamError? error)> GetStream(StreamerConfiguration config);
+    (Stream? stream, Guid clientId, ProxyStreamError? error) GetStream(StreamerConfiguration config);
 
     void RemoveClient(StreamerConfiguration config);
 

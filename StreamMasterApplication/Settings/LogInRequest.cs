@@ -1,4 +1,4 @@
-﻿namespace StreamMasterDomain.Dto;
+﻿namespace StreamMasterApplication.Settings;
 
 public class LogInRequest
 {

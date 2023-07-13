@@ -1,15 +1,14 @@
-﻿using StreamMasterApplication.Common.Models;
+﻿using StreamMasterApplication.Common.Interfaces;
+using StreamMasterApplication.Common.Models;
 
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Reflection.Metadata;
 
 namespace StreamMasterInfrastructure.MiddleWare;
 
 /// <summary>
 /// Represents a circular ring buffer for streaming data.
 /// </summary>
-public class CircularRingBuffer
+public class CircularRingBuffer : ICircularRingBuffer
 {
     public readonly StreamInfo StreamInfo;
     private readonly Memory<byte> _buffer;
@@ -131,7 +130,9 @@ public class CircularRingBuffer
     /// Reads a single byte of data from the buffer for the specified client.
     /// </summary>
     /// <param name="clientId">The ID of the client.</param>
-    /// <param name="cancellationToken">Cancellation token for cancelling the operation.</param>
+    /// <param name="cancellationToken">
+    /// Cancellation token for cancelling the operation.
+    /// </param>
     /// <returns>The read byte, or -1 if the read fails.</returns>
     public byte Read(Guid clientId, CancellationToken cancellationToken)
     {
@@ -153,9 +154,13 @@ public class CircularRingBuffer
     /// </summary>
     /// <param name="clientId">The ID of the client.</param>
     /// <param name="buffer">The buffer to read data into.</param>
-    /// <param name="offset">The offset within the buffer to start reading data.</param>
+    /// <param name="offset">
+    /// The offset within the buffer to start reading data.
+    /// </param>
     /// <param name="count">The number of bytes to read.</param>
-    /// <param name="cancellationToken">Cancellation token for cancelling the operation.</param>
+    /// <param name="cancellationToken">
+    /// Cancellation token for cancelling the operation.
+    /// </param>
     /// <returns>The number of bytes read.</returns>
     public int ReadChunk(Guid clientId, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
@@ -166,7 +171,7 @@ public class CircularRingBuffer
             buffer[offset + i] = _buffer.Span[readIndex];
             readIndex = (readIndex + 1) % _buffer.Length;
         }
-       
+
         _clientReadIndexes[clientId] = readIndex;
 
         // Update client statistics
@@ -185,7 +190,7 @@ public class CircularRingBuffer
     public void RegisterClient(Guid clientId)
     {
         if (!_clientReadIndexes.ContainsKey(clientId))
-        {           
+        {
             _ = _clientReadIndexes.TryAdd(clientId, _oldestDataIndex);
             _ = _clientSemaphores.TryAdd(clientId, new SemaphoreSlim(0, 1));
             _ = _clientStatistics.TryAdd(clientId, new StreamingStatistics());
@@ -208,7 +213,6 @@ public class CircularRingBuffer
     /// <param name="clientId">The ID of the client to unregister.</param>
     public void UnregisterClient(Guid clientId)
     {
-    
         _ = _clientReadIndexes.TryRemove(clientId, out _);
         _ = _clientSemaphores.TryRemove(clientId, out _);
         _ = _clientStatistics.TryRemove(clientId, out _);
@@ -228,7 +232,9 @@ public class CircularRingBuffer
     /// Asynchronously waits for the semaphore for the specified client.
     /// </summary>
     /// <param name="clientId">The ID of the client.</param>
-    /// <param name="cancellationToken">Cancellation token for cancelling the operation.</param>
+    /// <param name="cancellationToken">
+    /// Cancellation token for cancelling the operation.
+    /// </param>
     /// <returns>The task representing the asynchronous operation.</returns>
     public async Task WaitSemaphoreAsync(Guid clientId, CancellationToken cancellationToken)
     {
@@ -279,7 +285,6 @@ public class CircularRingBuffer
     /// <returns>The number of bytes written.</returns>
     public int WriteChunk(byte[] data, int count)
     {
-
         int bytesWritten = 0;
 
         for (int i = 0; i < count; i++)
@@ -315,6 +320,5 @@ public class CircularRingBuffer
         }
 
         return bytesWritten;
-  
     }
 }

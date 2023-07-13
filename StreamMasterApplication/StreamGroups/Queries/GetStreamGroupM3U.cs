@@ -9,14 +9,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
+using StreamMasterApplication.Common.Extensions;
 using StreamMasterApplication.Icons.Queries;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
-
-using StreamMasterInfrastructure.Extensions;
 
 using System;
 using System.Collections.Concurrent;

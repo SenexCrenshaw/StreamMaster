@@ -6,11 +6,11 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
+using StreamMasterApplication.Common.Extensions;
+
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities;
-
-using StreamMasterInfrastructure.Extensions;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 

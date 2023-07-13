@@ -25,9 +25,9 @@ namespace StreamMasterAPI.Controllers;
 
 public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 {
-    private readonly IMapper _mapper;
     private static readonly ConcurrentDictionary<string, ClientTracker> clientTrackers = new();
     private readonly ILogger<StreamGroupsController> _logger;
+    private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
     private readonly IRingBufferManager _ringBufferManager;
 
@@ -369,7 +369,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         config.ClientId = clientId;
 
         // Get the read stream for the client
-        (Stream? stream, Guid clientIdNew, ProxyStreamError? error) = await _ringBufferManager.GetStream(config);
+        (Stream? stream, Guid clientIdNew, ProxyStreamError? error) = _ringBufferManager.GetStream(config);
 
         if (stream != null)
         {
@@ -523,7 +523,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         };
 
         // Get the read stream for the client
-        (Stream? stream, Guid clientId, ProxyStreamError? error) = await _ringBufferManager.GetStream(config);
+        (Stream? stream, Guid clientId, ProxyStreamError? error) = _ringBufferManager.GetStream(config);
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(_ringBufferManager, config));
         if (stream != null)

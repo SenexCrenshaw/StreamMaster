@@ -6,12 +6,12 @@ using MediatR;
 
 using Microsoft.AspNetCore.Http;
 
+using StreamMasterApplication.Common.Extensions;
+
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
 
 using StreamMasterDomain.Dto;
-
-using StreamMasterInfrastructure.Extensions;
 
 namespace StreamMasterApplication.StreamGroups.Commands;
 

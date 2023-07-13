@@ -21,9 +21,6 @@ namespace StreamMasterApplication.Common.Models
 
         public int BroadcastInterval { get; set; }
 
-        public string ClientUserAgent { get; set; }
-
-
         /// <summary>
         /// Gets or sets the size of each chunk of data read from the video stream.
         /// </summary>
@@ -40,6 +37,8 @@ namespace StreamMasterApplication.Common.Models
         /// Gets or sets the unique identifier for the client.
         /// </summary>
         public Guid ClientId { get; set; } = Guid.NewGuid();
+
+        public string ClientUserAgent { get; set; }
 
         /// <summary>
         /// Gets or sets the IPTV channel information.
@@ -74,6 +73,7 @@ namespace StreamMasterApplication.Common.Models
         /// </summary>
         public double PreloadPercentage { get; set; }
 
+        public IRingBufferReadStream ReadBuffer { get; set; }
         ///// <summary>
         ///// Gets or sets the IPTV channel information.
         ///// </summary>

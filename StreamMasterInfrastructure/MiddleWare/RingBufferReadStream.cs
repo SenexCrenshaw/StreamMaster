@@ -1,10 +1,12 @@
-﻿namespace StreamMasterInfrastructure.MiddleWare;
+﻿using StreamMasterApplication.Common.Interfaces;
 
-public class RingBufferReadStream : Stream
+namespace StreamMasterInfrastructure.MiddleWare;
+
+public class RingBufferReadStream : Stream, IRingBufferReadStream
 {
     private readonly CancellationToken _cancellationTokenSource;
     private readonly Guid _clientId;
-    private Func<CircularRingBuffer> _bufferDelegate;
+    private Func<ICircularRingBuffer> _bufferDelegate;
 
     public RingBufferReadStream(Func<CircularRingBuffer> bufferDelegate, Guid clientId, CancellationToken cancellationTokenSource)
     {
@@ -13,7 +15,7 @@ public class RingBufferReadStream : Stream
         _cancellationTokenSource = cancellationTokenSource;
     }
 
-    public CircularRingBuffer Buffer => _bufferDelegate();
+    public ICircularRingBuffer Buffer => _bufferDelegate();
 
     public override bool CanRead => true;
 
@@ -83,7 +85,7 @@ public class RingBufferReadStream : Stream
         throw new NotSupportedException();
     }
 
-    public void SetBufferDelegate(Func<CircularRingBuffer> newBufferDelegate)
+    public void SetBufferDelegate(Func<ICircularRingBuffer> newBufferDelegate)
     {
         _bufferDelegate = newBufferDelegate;
     }

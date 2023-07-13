@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace StreamMasterInfrastructure.Extensions;
+namespace StreamMasterApplication.Common.Extensions;
 
 public static class HttpContextAccessorExtensions
 {

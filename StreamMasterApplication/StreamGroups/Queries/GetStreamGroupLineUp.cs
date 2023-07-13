@@ -8,11 +8,11 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
+using StreamMasterApplication.Common.Extensions;
+
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Dto;
-
-using StreamMasterInfrastructure.Extensions;
 
 using System.IO;
 using System.Text.Json;
