@@ -1,16 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import './DataSelector.css';
 
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { Skeleton } from 'primereact/skeleton';
 
-import { type ColumnHeaderOptions } from 'primereact/column';
 import { type ColumnSortEvent } from 'primereact/column';
 
 import { Column } from 'primereact/column';
-
-import { type DataTableStateEvent } from 'primereact/datatable';
 import { type DataTableFilterMetaData } from 'primereact/datatable';
 import { type DataTableFilterMeta } from 'primereact/datatable';
 import { type DataTableExpandedRows } from 'primereact/datatable';
@@ -869,6 +865,17 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     ]
   }, []);
 
+  const multiselectHeader = () => {
+    return (
+      <div className="flex flex-wrap align-items-center justify-content-between gap-2">
+        <span className="text-xs text-white text-500">
+          All
+        </span>
+      </div>
+    );
+  }
+
+
   if (showSkeleton) {
     return (
       <div className='dataselector flex justify-content-start align-items-center' >
@@ -920,21 +927,10 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     );
   }
 
-  const multiselectHeader = (options: ColumnHeaderOptions) => {
-    return (
-      <div className="flex flex-wrap align-items-center justify-content-between gap-2">
-        <span className="text-xs text-white text-500">
-          All
-        </span>
-      </div>
-    );
-  }
-
   return (
 
     <div className='dataselector flex justify-content-start align-items-center' >
       <div className={`${props.className !== undefined ? props.className : ''}  min-w-full min-h-full surface-overlay`}>
-
         <DataTable
           currentPageReportTemplate="{first}/{last} of {totalRecords}"
           dataKey='id'
@@ -965,12 +961,11 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           rowGroupMode={props.groupRowsBy !== undefined && props.groupRowsBy !== '' ? 'subheader' : undefined}
           rows={25}
           rowsPerPageOptions={[25, 50, 100, 250]}
-          scrollHeight="flex"
+          scrollHeight='flex'
           scrollable
           selection={selections}
           selectionMode={getSelectionMode}
           showGridlines
-          size="small"
           sortField={props.groupRowsBy === undefined || props.groupRowsBy === '' ? props.sortField : props.groupRowsBy}
           sortMode='single'
           sortOrder={0}
@@ -979,6 +974,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           stripedRows
           style={props.style}
           value={dataSource}
+          virtualScrollerOptions={{ autoSize: true, itemSize: 18, orientation: undefined }}
         >
           <Column
             body={<i className="pi pi-chevron-right" />}
