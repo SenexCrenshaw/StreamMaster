@@ -22,7 +22,6 @@ import { type DataTableRowDataArray } from "primereact/datatable";
 import VideoStreamVisibleDialog from "./VideoStreamVisibleDialog";
 import VideoStreamEditDialog from "./VideoStreamEditDialog";
 import FileDialog from "./FileDialog";
-// import AutoMatchIconToStreamsDialog from "./AutoMatchIconToStreamsDialog";
 
 const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
@@ -225,19 +224,11 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         onChange={
           async (e: StreamMasterApi.IconFileDto) => {
 
-            // const newiconSource = e.originalSource.includes('://')
-            //   ? e.originalSource
-            //   : e.name;
-
             await onUpdateVideoStream(data, null, null, e.originalSource);
           }
         }
         onReset={
           async (e: StreamMasterApi.IconFileDto) => {
-
-            // const newiconSource = e.originalSource.includes('://')
-            //   ? e.originalSource
-            //   : e.name;
 
             await onUpdateVideoStream(data, null, null, e.originalSource);
           }
@@ -277,7 +268,9 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     );
   }, [enableEditMode]);
 
+
   const channelGroupEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
+
     if (data.user_Tvg_group === undefined) {
       return <span />
     }
