@@ -54,6 +54,10 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProps) => {
 
 
   useClickOutside(overlayRef, () => {
+    if (!isFocused) {
+      return;
+    }
+
     setIsFocused(false);
     if (originalValue !== inputValue) {
       // console.log('useClickOutside saved');

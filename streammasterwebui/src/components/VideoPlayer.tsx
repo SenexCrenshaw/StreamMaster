@@ -3,17 +3,28 @@ import React from "react";
 import * as StreamMasterApi from '../store/iptvApi';
 import 'vidstack/styles/defaults.css';
 import 'vidstack/styles/community-skin/video.css';
+import ReactPlayer from 'react-player';
 
 import { MediaCommunitySkin, MediaOutlet, MediaPlayer } from '@vidstack/react';
 import EPGDisplay from './EPGDisplay';
 
 import { useLocalStorage } from "primereact/hooks";
+import {
+  Player,
+  ControlBar,
+  ReplayControl,
+  ForwardControl,
+  CurrentTimeDisplay,
+  TimeDivider,
+  PlaybackRateMenuButton,
+  VolumeMenuButton
+} from 'video-react';
 
 const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
   const [hideEPG, setHideEPG] = React.useState(false);
   const [videoStreamId, setVideoStreamId] = useLocalStorage<number>(-1, 'video-player-videoStreamId');
   const [epgMoused, setEpgMoused] = React.useState<boolean>(true);
-  const [src, setSrc] = React.useState<string>("");
+  const [src, setSrc] = React.useState<string>("http://shine.jserv.me/live/Senex/CNG4s5XGZZ/50b31b45-30d3-4ee3-b6ea-c7e54b7bc021.ts");
   const [poster, setPoster] = React.useState<string>("");
   const [title, setTitle] = React.useState<string>("WOW");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -62,7 +73,7 @@ const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
     };
 
     if (src.toLowerCase().endsWith('.ts')) {
-      srcObject.type = 'video/mp2t';
+      srcObject.type = 'video/mpeg';
     }
 
     if (src.toLowerCase().endsWith('.m3u') || src.toLowerCase().endsWith('.m3u8')) {
@@ -71,6 +82,15 @@ const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
 
     return srcObject;
   }
+
+  // return (
+  //   <ReactPlayer
+  //     controls
+  //     height="100%"
+  //     url={src}
+  //     width="100%"
+  //   />
+  // )
 
   return (
     <MediaPlayer

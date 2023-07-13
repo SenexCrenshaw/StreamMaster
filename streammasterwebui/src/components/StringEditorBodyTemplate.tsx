@@ -71,6 +71,10 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
   }, [isFocused, save]);
 
   useClickOutside(overlayRef, () => {
+    if (!isFocused) {
+      return;
+    }
+
     setIsFocused(false);
     if (originalValue !== inputValue) {
       // console.log('useClickOutside saved');
