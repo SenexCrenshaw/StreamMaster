@@ -17,39 +17,38 @@ namespace StreamMasterApplication.Settings.Commands;
 
 public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
 {
-    public AuthenticationType? AuthenticationMethod { get; set; }
     public string? AdminPassword { get; set; }
     public string? AdminUserName { get; set; }
     public string? ApiKey { get; set; }
-    public bool? EnableSSL { get; set; }
+    public AuthenticationType? AuthenticationMethod { get; set; }
     public bool? CacheIcons { get; set; }
     public bool? CleanURLs { get; set; }
-
-    public bool? UseDummyEPGForBlanks { get; set; }
-    public bool? M3UFieldCUID { get; set; }
+    public string? ClientUserAgent { get; set; }
+    public string? DeviceID { get; set; }
+    public bool? EnableSSL { get; set; }
+    public string? FFMPegExecutable { get; set; }
+    public long? FirstFreeNumber { get; set; }
     public bool? M3UFieldChannelId { get; set; }
     public bool? M3UFieldChannelNumber { get; set; }
-    public bool? M3UFieldTvgName { get; set; }
+    public bool? M3UFieldCUID { get; set; }
+    public bool? M3UFieldGroupTitle { get; set; }
     public bool? M3UFieldTvgChno { get; set; }
     public bool? M3UFieldTvgId { get; set; }
     public bool? M3UFieldTvgLogo { get; set; }
-    public bool? M3UFieldGroupTitle { get; set; }
-
-    public string? StreamingClientUserAgent { get; set; }
-    public string? ClientUserAgent { get; set; }
-    public string? DeviceID { get; set; }
-    public string? FFMPegExecutable { get; set; }
-    public string? SSLCertPath { get; set; }
-    public string? SSLCertPassword { get; set; }
-    public long? FirstFreeNumber { get; set; }
+    public bool? M3UFieldTvgName { get; set; }
     public int? MaxConnectRetry { get; set; }
     public int? MaxConnectRetryTimeMS { get; set; }
     public bool? OverWriteM3UChannels { get; set; }
+    public int? PreloadPercentage { get; set; }
     public int? RingBufferSizeMB { get; set; }
     public string? SDPassword { get; set; }
     public string? SDUserName { get; set; }
     public int? SourceBufferPreBufferPercentage { get; set; }
+    public string? SSLCertPassword { get; set; }
+    public string? SSLCertPath { get; set; }
+    public string? StreamingClientUserAgent { get; set; }
     public StreamingProxyTypes? StreamingProxyType { get; set; }
+    public bool? UseDummyEPGForBlanks { get; set; }
 }
 
 public class UpdateSettingValidator : AbstractValidator<UpdateSettingRequest>
@@ -67,12 +66,6 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
         _logger = logger;
         _mapper = mapper;
         _hubContext = hubContext;
-    }
-
-    public class UpdateSettingResponse
-    {
-        public SettingDto Settings { get; set; }
-        public bool NeedsLogOut { get; set; }
     }
 
     public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
@@ -225,6 +218,11 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
             currentSetting.MaxConnectRetryTimeMS = (int)request.MaxConnectRetryTimeMS;
         }
 
+        if (request.PreloadPercentage != null && request.PreloadPercentage >= 0 && request.PreloadPercentage <= 100 && request.PreloadPercentage != currentSetting.PreloadPercentage)
+        {
+            currentSetting.PreloadPercentage = (int)request.PreloadPercentage;
+        }
+
         if (request.RingBufferSizeMB != null && request.RingBufferSizeMB >= 0 && request.RingBufferSizeMB != currentSetting.RingBufferSizeMB)
         {
             currentSetting.RingBufferSizeMB = (int)request.RingBufferSizeMB;
@@ -252,5 +250,11 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
         }
 
         return needsLogOut;
+    }
+
+    public class UpdateSettingResponse
+    {
+        public bool NeedsLogOut { get; set; }
+        public SettingDto Settings { get; set; }
     }
 }
