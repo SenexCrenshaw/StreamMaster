@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 
 using StreamMasterDomain.Common;
@@ -82,7 +83,7 @@ public class StreamManager
         return _streamInformations.Values.Select(a => a.StreamUrl).Distinct();
     }
 
-    public CircularRingBuffer? GetBufferFromStreamUrl(string streamUrl)
+    public ICircularRingBuffer? GetBufferFromStreamUrl(string streamUrl)
     {
         return _streamInformations.TryGetValue(streamUrl, out var _streamInformation) ? _streamInformation.RingBuffer : null;
     }

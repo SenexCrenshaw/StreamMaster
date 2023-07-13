@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirect;
 
-namespace StreamMasterApplication.EPGFiles.Commands;
+namespace StreamMasterApplication.Programmes.Commands;
 
 public record AddProgrammesFromSDRequest() : IRequest { }
 

@@ -31,6 +31,7 @@ export default {
   maxConnectRetryTimeMS: 'Retry Timeout in MS',
   overWriteM3UChannels: 'Overwrite M3U Channels Numbers',
   password: "Password",
+  preloadPercentage: 'Buffer Preload Percentage',
   rememberme:'Remember Me',
   ringBufferSizeMB: 'Buffer Size (MB)',
   sdPassword: 'Sched Direct Password',

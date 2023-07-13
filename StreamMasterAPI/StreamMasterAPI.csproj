@@ -56,6 +56,5 @@
   <ItemGroup>
     <Folder Include="Common\" />
     <Folder Include="Models\" />
-    <Folder Include="devwwwroot\" />
   </ItemGroup>
 </Project>

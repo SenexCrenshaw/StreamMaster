@@ -127,28 +127,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         };
     }
 
-    //[HttpGet]
-    //[Route("{encodedId}/device.xml")]
-    //[ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    //[ProducesResponseType(StatusCodes.Status404NotFound)]
-    //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-    //public async Task<IActionResult> GetStreamGroupDeviceXML(string encodedId)
-    //{
-    //    int? streamGroupNumber = encodedId.DecodeValue128(_setting.ServerKey);
-    //    if (streamGroupNumber == null)
-    //    {
-    //        return new NotFoundResult();
-    //    }
-
-    //    string xml = await Mediator.Send(new GetStreamGroupCapability((int)streamGroupNumber)).ConfigureAwait(false);
-    //    return new ContentResult
-    //    {
-    //        Content = xml,
-    //        ContentType = "application/xml",
-    //        StatusCode = 200
-    //    };
-    //}
-
     [HttpGet]
     [Authorize(Policy = "SGLinks")]
     [Route("{encodedId}/discover.json")]
@@ -171,28 +149,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
             StatusCode = 200
         };
     }
-
-    //[HttpGet]
-    //[Route("{encodedId}/capability")]
-    //[ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    //[ProducesResponseType(StatusCodes.Status404NotFound)]
-    //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-    //public async Task<IActionResult> GetStreamGroupEncodedCapability(string encodedId)
-    //{
-    //    int? streamGroupNumber = encodedId.DecodeValue128(_setting.ServerKey);
-    //    if (streamGroupNumber == null)
-    //    {
-    //        return new NotFoundResult();
-    //    }
-
-    //    string xml = await Mediator.Send(new GetStreamGroupCapability((int)streamGroupNumber)).ConfigureAwait(false);
-    //    return new ContentResult
-    //    {
-    //        Content = xml,
-    //        ContentType = "application/xml",
-    //        StatusCode = 200
-    //    };
-    //}
 
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
@@ -364,7 +320,8 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
             CancellationToken = cancellationToken,
             MaxConnectRetry = settings.MaxConnectRetry,
             MaxConnectRetryTimeMS = settings.MaxConnectRetryTimeMS,
-            M3UStream = true
+            M3UStream = true,
+            PreloadPercentage = settings.PreloadPercentage,
         };
         config.ClientId = clientId;
 

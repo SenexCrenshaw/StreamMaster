@@ -1,4 +1,5 @@
 ﻿using StreamMasterApplication.Common.Interfaces;
+using StreamMasterApplication.Common.Models;
 
 namespace StreamMasterInfrastructure.MiddleWare;
 
@@ -8,11 +9,11 @@ public class RingBufferReadStream : Stream, IRingBufferReadStream
     private readonly Guid _clientId;
     private Func<ICircularRingBuffer> _bufferDelegate;
 
-    public RingBufferReadStream(Func<CircularRingBuffer> bufferDelegate, Guid clientId, CancellationToken cancellationTokenSource)
+    public RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, StreamerConfiguration config)
     {
-        _bufferDelegate = bufferDelegate;
-        _clientId = clientId;
-        _cancellationTokenSource = cancellationTokenSource;
+        _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
+        _clientId = config.ClientId;
+        _cancellationTokenSource = config.CancellationToken;
     }
 
     public ICircularRingBuffer Buffer => _bufferDelegate();
@@ -37,11 +38,12 @@ public class RingBufferReadStream : Stream, IRingBufferReadStream
             return 0;
         }
 
+        var ringBuffer = Buffer;
         int bytesRead = 0;
 
         while (bytesRead < count)
         {
-            buffer[offset + bytesRead] = Buffer.Read(_clientId, CancellationToken.None);
+            buffer[offset + bytesRead] = ringBuffer.Read(_clientId, CancellationToken.None).Result;
             bytesRead++;
         }
 
@@ -53,27 +55,26 @@ public class RingBufferReadStream : Stream, IRingBufferReadStream
         int bytesRead = 0;
         int availableBytes;
 
-        while (bytesRead < count && !cancellationToken.IsCancellationRequested && !_cancellationTokenSource.IsCancellationRequested)
+        var ringBuffer = Buffer;
+
+        while (bytesRead < count)
         {
-            availableBytes = Buffer.GetAvailableBytes(_clientId);
+            if (cancellationToken.IsCancellationRequested || _cancellationTokenSource.IsCancellationRequested)
+            {
+                break;
+            }
+
+            availableBytes = ringBuffer.GetAvailableBytes(_clientId);
 
             if (availableBytes > 0)
             {
                 int bytesToRead = Math.Min(count - bytesRead, availableBytes);
-                bytesRead += Buffer.ReadChunk(_clientId, buffer, offset, bytesToRead, cancellationToken);
+                bytesRead += await ringBuffer.ReadChunk(_clientId, buffer, offset, bytesToRead, cancellationToken);
                 offset = (offset + bytesToRead) % buffer.Length;
             }
             else
             {
-                // Wait for new data or delay
-                if (Buffer.NewDataAvailable(_clientId))
-                {
-                    await Buffer.WaitSemaphoreAsync(_clientId, cancellationToken);
-                }
-                else
-                {
-                    await Task.Delay(5, cancellationToken);
-                }
+                await ringBuffer.WaitSemaphoreAsync(_clientId, cancellationToken);
             }
         }
 

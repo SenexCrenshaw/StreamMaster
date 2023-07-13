@@ -14,7 +14,7 @@ namespace StreamMasterApplication.Common.Models
             FailoverCheckInterval = 200;
             MaxConnectRetry = 20;
             MaxConnectRetryTimeMS = 100;
-            PreloadPercentage = .5;
+            PreloadPercentage = 25;
             BroadcastInterval = 3;
             M3UStream = false;
         }
@@ -71,7 +71,7 @@ namespace StreamMasterApplication.Common.Models
         /// Gets or sets the percentage of the buffer that must be preloaded
         /// before clients are allowed to read from it.
         /// </summary>
-        public double PreloadPercentage { get; set; }
+        public int PreloadPercentage { get; set; }
 
         public IRingBufferReadStream ReadBuffer { get; set; }
         ///// <summary>

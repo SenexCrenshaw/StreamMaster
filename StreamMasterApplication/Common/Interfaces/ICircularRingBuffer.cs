@@ -7,20 +7,39 @@ namespace StreamMasterApplication.Common.Interfaces
         int BufferSize { get; }
 
         List<ClientStreamingStatistics> GetAllStatistics();
+
+        List<StreamStatisticsResult> GetAllStatisticsForAllUrls();
+
         int GetAvailableBytes(Guid clientId);
-        IReadOnlyList<Guid> GetClientIds();
+
+        ICollection<Guid> GetClientIds();
+
         StreamingStatistics? GetClientStatistics(Guid clientId);
+
         StreamingStatistics GetInputStreamStatistics();
+
         int GetReadIndex(Guid clientId);
-        bool NewDataAvailable(Guid clientId);
-        byte Read(Guid clientId, CancellationToken cancellationToken);
-        int ReadChunk(Guid clientId, byte[] buffer, int offset, int count, CancellationToken cancellationToken);
-        void RegisterClient(Guid clientId);
+
+        SingleStreamStatisticsResult GetSingleStreamStatisticsResult();
+
+        bool IsPreBuffered();
+
+        Task<byte> Read(Guid clientId, CancellationToken cancellationToken);
+
+        Task<int> ReadChunk(Guid clientId, byte[] buffer, int offset, int count, CancellationToken cancellationToken);
+
+        void RegisterClient(Guid clientId, string clientAgent);
+
         void ReleaseSemaphore(Guid clientId);
+
         void UnregisterClient(Guid clientId);
+
         void UpdateReadIndex(Guid clientId, int newIndex);
+
         Task WaitSemaphoreAsync(Guid clientId, CancellationToken cancellationToken);
+
         void Write(byte data);
+
         int WriteChunk(byte[] data, int count);
     }
 }

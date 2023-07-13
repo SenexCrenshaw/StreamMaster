@@ -2,11 +2,12 @@
 
 public class StreamingStatistics
 {
-    public StreamingStatistics()
+    public StreamingStatistics(string ClientAgent)
     {
         BytesRead = 0;
         BytesWritten = 0;
         StartTime = DateTimeOffset.UtcNow;
+        this.ClientAgent = ClientAgent;
     }
 
     public double BitsPerSecond
@@ -17,9 +18,10 @@ public class StreamingStatistics
             return elapsedTimeInSeconds > 0 ? (BytesRead + BytesWritten) * 8 / elapsedTimeInSeconds : 0;
         }
     }
-    
+
     public long BytesRead { get; set; }
     public long BytesWritten { get; set; }
+    public string ClientAgent { get; set; }
     public TimeSpan ElapsedTime => DateTimeOffset.UtcNow - StartTime;
     public DateTimeOffset StartTime { get; set; }
 

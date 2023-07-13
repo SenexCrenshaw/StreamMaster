@@ -56,15 +56,11 @@ public class RingBufferManager : IDisposable, IRingBufferManager
     {
         _logger.LogInformation("Retrieving statistics for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
-        CircularRingBuffer? buffer = _streamManager.GetBufferFromStreamUrl(streamUrl);
+        var buffer = _streamManager.GetBufferFromStreamUrl(streamUrl);
         if (buffer != null)
         {
             _logger.LogInformation("Retrieving statistics for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
-            return new SingleStreamStatisticsResult
-            {
-                StreamUrl = streamUrl,
-                ClientStatistics = buffer.GetAllStatistics()
-            };
+            return buffer.GetSingleStreamStatisticsResult();
         }
         _logger.LogWarning("Stream not found when retrieving statistics: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
         return new SingleStreamStatisticsResult();
@@ -73,45 +69,11 @@ public class RingBufferManager : IDisposable, IRingBufferManager
     public List<StreamStatisticsResult> GetAllStatisticsForAllUrls()
     {
         List<StreamStatisticsResult> allStatistics = new();
-        var infos = _streamManager.GetStreamInformations();// _streamInformations.Select(a => a.Value);
 
-        foreach (var info in infos)
+        var infos = _streamManager.GetStreamInformations();
+        foreach (var info in infos.Where(a => a.RingBuffer != null))
         {
-            CircularRingBuffer? bufferEntry = info.RingBuffer;
-
-            if (bufferEntry is null)
-            {
-                continue;
-            }
-
-            StreamingStatistics input = bufferEntry.GetInputStreamStatistics();
-            foreach (ClientStreamingStatistics stat in bufferEntry.GetAllStatistics())
-            {
-                //_clientUserAgents.TryGetValue(stat.ClientId, out var clientAgent);
-                var test = info.GetStreamConfiguration(stat.ClientId);
-
-                allStatistics.Add(new StreamStatisticsResult
-                {
-                    M3UStreamId = bufferEntry.StreamInfo.M3UStreamId,
-                    M3UStreamName = bufferEntry.StreamInfo.M3UStreamName,
-                    M3UStreamProxyType = bufferEntry.StreamInfo.StreamProxyType,
-                    Logo = bufferEntry.StreamInfo.Logo,
-
-                    InputBytesRead = input.BytesRead,
-                    InputBytesWritten = input.BytesWritten,
-                    InputBitsPerSecond = input.BitsPerSecond,
-                    InputStartTime = input.StartTime,
-
-                    StreamUrl = info.StreamUrl,
-
-                    ClientBitsPerSecond = stat.BitsPerSecond,
-                    ClientBytesRead = stat.BytesRead,
-                    ClientBytesWritten = stat.BytesWritten,
-                    ClientId = stat.ClientId,
-                    ClientStartTime = stat.StartTime,
-                    ClientAgent = test?.ClientUserAgent ?? "Unknown",
-                });
-            }
+            allStatistics.AddRange(info.RingBuffer.GetAllStatisticsForAllUrls());
         }
 
         return allStatistics;
@@ -136,7 +98,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
             return (null, config.ClientId, null);
         }
 
-        RingBufferReadStream streamRead = new(() => streamStreamInfo.RingBuffer, config.ClientId, config.CancellationToken);
+        RingBufferReadStream streamRead = new RingBufferReadStream(() => streamStreamInfo.RingBuffer, config);
         config.ReadBuffer = streamRead;
 
         RegisterClientToNewStream(config.ClientId, streamStreamInfo);
@@ -147,7 +109,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
 
     public void RemoveClient(StreamerConfiguration config)
     {
-        CircularRingBuffer? buffer = _streamManager.GetBufferFromStreamUrl(config.CurentVideoStream.User_Url);
+        var buffer = _streamManager.GetBufferFromStreamUrl(config.CurentVideoStream.User_Url);
 
         if (buffer != null)
         {
@@ -155,7 +117,6 @@ public class RingBufferManager : IDisposable, IRingBufferManager
             _logger.LogInformation("Client {ClientId} unregistered for stream: {StreamUrl}", config.ClientId, setting.CleanURLs ? "url removed" : config.CurentVideoStream.User_Url);
 
             DecrementClientCounter(config);
-            _logger.LogInformation("Client removed: {ClientId}", config.ClientId);
         }
         else
         {
@@ -229,35 +190,34 @@ public class RingBufferManager : IDisposable, IRingBufferManager
 
         Task streamingTask = StartVideoStreaming(stream, streamUrl, clientInfo, buffer, cancellationTokenSource);
 
-        using (IServiceScope scope = _serviceProvider.CreateScope())
+        using IServiceScope scope = _serviceProvider.CreateScope();
+        var _context = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
+
+        var m3uFileIdMaxStream = _context.GetM3UFileIdMaxStreamFromUrl(streamUrl);
+        if (m3uFileIdMaxStream == null)
         {
-            var _context = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
-
-            var m3uFileIdMaxStream = _context.GetM3UFileIdMaxStreamFromUrl(streamUrl);
-            if (m3uFileIdMaxStream == null)
-            {
-                _logger.LogError("M3UFile not found for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
-                return null;
-            }
-
-            StreamInformation streamStreamInfo = new(streamUrl, buffer, streamingTask, m3uFileIdMaxStream.M3UFileId, m3uFileIdMaxStream.MaxStreams, processId, cancellationTokenSource);
-
-            streamStreamInfo.M3UStream = clientInfo.M3UStream;
-
-            _streamManager.AddStreamInfo(streamStreamInfo);
-
-            // Add a handler to handle the stream if one doesn't exist
-            if (!_handlerTokens.ContainsKey(streamUrl))
-            {
-                CancellationTokenSource handlerCancellationTokenSource = new();
-                _ = HandleFailover(clientInfo, handlerCancellationTokenSource.Token);
-                _handlerTokens.TryAdd(streamUrl, handlerCancellationTokenSource);
-            }
-
-            _logger.LogInformation("Buffer created and streaming started for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
-
-            return streamStreamInfo;
+            _logger.LogError("M3UFile not found for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+            return null;
         }
+
+        StreamInformation streamStreamInfo = new(streamUrl, buffer, streamingTask, m3uFileIdMaxStream.M3UFileId, m3uFileIdMaxStream.MaxStreams, processId, cancellationTokenSource)
+        {
+            M3UStream = clientInfo.M3UStream
+        };
+
+        _streamManager.AddStreamInfo(streamStreamInfo);
+
+        // Add a handler to handle the stream if one doesn't exist
+        if (!_handlerTokens.ContainsKey(streamUrl))
+        {
+            CancellationTokenSource handlerCancellationTokenSource = new();
+            _ = HandleFailover(clientInfo, handlerCancellationTokenSource.Token);
+            _handlerTokens.TryAdd(streamUrl, handlerCancellationTokenSource);
+        }
+
+        _logger.LogInformation("Buffer created and streaming started for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+
+        return streamStreamInfo;
     }
 
     private void DecrementClientCounter(StreamerConfiguration config)
@@ -388,7 +348,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         return false;
     }
 
-    private void RegisterClientsToNewStream(IReadOnlyList<Guid> clientIds, StreamInformation streamStreamInfo)
+    private void RegisterClientsToNewStream(ICollection<Guid> clientIds, StreamInformation streamStreamInfo)
     {
         foreach (Guid clientId in clientIds)
         {
@@ -398,7 +358,8 @@ public class RingBufferManager : IDisposable, IRingBufferManager
 
     private void RegisterClientToNewStream(Guid clientId, StreamInformation streamStreamInfo)
     {
-        streamStreamInfo.RingBuffer.RegisterClient(clientId);
+        var clientInfo = streamStreamInfo.GetStreamConfiguration(clientId);
+        streamStreamInfo.RingBuffer.RegisterClient(clientId, clientInfo.ClientUserAgent);
         streamStreamInfo.SetClientBufferDelegate(clientId, () => streamStreamInfo.RingBuffer);
     }
 
@@ -469,7 +430,7 @@ public class RingBufferManager : IDisposable, IRingBufferManager
 
     private void SwitchToNewStreamUrl(StreamerConfiguration clientInfo, StreamInformation _streamInformation)
     {
-        IReadOnlyList<Guid> clientIds = _streamInformation.RingBuffer.GetClientIds();
+        var clientIds = _streamInformation.RingBuffer.GetClientIds();
 
         _streamManager.RemoveStreamInfo(clientInfo.CurentVideoStream.User_Url);
 

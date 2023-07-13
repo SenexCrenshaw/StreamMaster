@@ -19,6 +19,7 @@ const help_en = {
   maxConnectRetryTimeMS: 'Receiving Data Retry Timeout in MS',
   overWriteM3UChannels: 'Overwrite M3U Channels Numbers even if they are set',
   password: "Password",
+  preloadPercentage: 'How much of the buffer (in percentage) to preload before starting playback',
   rememberme:'Remember Me',
   ringBufferSizeMB: 'Buffer Size (MB)',
   sdPassword: 'Sched Direct Password',

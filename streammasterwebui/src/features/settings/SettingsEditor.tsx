@@ -370,6 +370,7 @@ export const SettingsEditor = () => {
           <Fieldset className="mt-4 pt-10" legend={GetMessage('streaming')}>
             {getDropDownLine('streamingProxyType', getHandlersOptions())}
             {getInputNumberLine('ringBufferSizeMB')}
+            {getInputNumberLine('preloadPercentage', 999)}
             {getInputNumberLine('maxConnectRetry', 999)}
             {getInputNumberLine('maxConnectRetryTimeMS', 999)}
             {getInputTextLine('clientUserAgent')}

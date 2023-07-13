@@ -1,14 +1,12 @@
-﻿using StreamMasterApplication.Common.Models;
+﻿using System.Collections.Concurrent;
 
-using System.Collections.Concurrent;
-
-namespace StreamMasterInfrastructure.MiddleWare;
+namespace StreamMasterApplication.Common.Models;
 
 public class StreamInformation : IDisposable
 {
     private ConcurrentDictionary<Guid, StreamerConfiguration> _clientInformations;
 
-    public StreamInformation(string streamUrl, CircularRingBuffer buffer, Task streamingTask, int m3uFileId, int maxStreams, int processId, CancellationTokenSource cancellationTokenSource)
+    public StreamInformation(string streamUrl, ICircularRingBuffer buffer, Task streamingTask, int m3uFileId, int maxStreams, int processId, CancellationTokenSource cancellationTokenSource)
     {
         StreamUrl = streamUrl;
         StreamerCancellationToken = cancellationTokenSource;
@@ -32,7 +30,7 @@ public class StreamInformation : IDisposable
 
     public int ProcessId { get; set; } = -1;
 
-    public CircularRingBuffer RingBuffer { get; set; }
+    public ICircularRingBuffer RingBuffer { get; set; }
 
     public CancellationTokenSource StreamerCancellationToken { get; set; }
 
@@ -70,15 +68,7 @@ public class StreamInformation : IDisposable
         return _clientInformations.TryRemove(streamerConfiguration.ClientId, out _);
     }
 
-    public void Stop()
-    {
-        if (StreamerCancellationToken is not null && !StreamerCancellationToken.IsCancellationRequested)
-        {
-            StreamerCancellationToken.Cancel();
-        }
-    }
-
-    internal void SetClientBufferDelegate(Guid ClientId, Func<CircularRingBuffer> func)
+    public void SetClientBufferDelegate(Guid ClientId, Func<ICircularRingBuffer> func)
     {
         var sc = GetStreamConfiguration(ClientId);
         if (sc == null)
@@ -86,5 +76,13 @@ public class StreamInformation : IDisposable
             return;
         }
         sc.ReadBuffer.SetBufferDelegate(func);
+    }
+
+    public void Stop()
+    {
+        if (StreamerCancellationToken is not null && !StreamerCancellationToken.IsCancellationRequested)
+        {
+            StreamerCancellationToken.Cancel();
+        }
     }
 }

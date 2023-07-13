@@ -2,6 +2,9 @@
 
 public class ClientStreamingStatistics : StreamingStatistics
 {
+    public ClientStreamingStatistics(string ClientAgent) : base(ClientAgent)
+    {
+    }
+
     public Guid ClientId { get; set; }
-    // public StreamingStatistics Statistics { get; set; }
 }

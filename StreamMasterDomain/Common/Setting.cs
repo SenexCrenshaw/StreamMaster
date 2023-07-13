@@ -49,9 +49,8 @@ public class Setting
     public int MaxConnectRetry { get; set; } = 20;
 
     public int MaxConnectRetryTimeMS { get; set; } = 100;
-
     public bool OverWriteM3UChannels { get; set; } = false;
-
+    public int PreloadPercentage { get; set; } = 25;
     public int RingBufferSizeMB { get; set; } = 4;
 
     public string SDPassword { get; set; } = "";
