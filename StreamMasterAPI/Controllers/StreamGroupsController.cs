@@ -311,11 +311,8 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         }
 
         int streamBufferSize = 128 * 1024;
-
-        List<VideoStreamDto> videoStreams = new List<VideoStreamDto> { videoStream };
         StreamerConfiguration config = new()
         {
-            VideoStreams = videoStreams,
             BufferSize = settings.RingBufferSizeMB * 1024 * 1000,
             CancellationToken = cancellationToken,
             MaxConnectRetry = settings.MaxConnectRetry,
@@ -323,6 +320,17 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
             M3UStream = true,
             PreloadPercentage = settings.PreloadPercentage,
         };
+
+        if (!videoStream.ChildVideoStreams.Any())
+        {
+            var childVideoStreamDto = _mapper.Map<ChildVideoStreamDto>(videoStream);
+            config.VideoStreams = new List<ChildVideoStreamDto> { childVideoStreamDto };
+        }
+        else
+        {
+            config.VideoStreams = videoStream.ChildVideoStreams.OrderBy(a => a.Rank).ToList();
+        }
+
         config.ClientId = clientId;
 
         // Get the read stream for the client
@@ -443,6 +451,12 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
             return NotFound();
         }
 
+        if (string.IsNullOrEmpty(videoStream.User_Url) && !videoStream.ChildVideoStreams.Any() && string.IsNullOrEmpty(videoStream.ChildVideoStreams.First().User_Url))
+        {
+            _logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} missing url or additional streams", streamGroupNumber, videoStreamId);
+            return new NotFoundResult();
+        }
+
         HttpContext.Session.Remove("ClientId");
 
         var settings = FileUtil.GetSetting();
@@ -453,31 +467,25 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
             return Redirect(videoStream.User_Url);
         }
-        List<VideoStreamDto> videoStreams = new();
-
-        if (!string.IsNullOrEmpty(videoStream.Url))
-        {
-            videoStreams.Add(videoStream);
-        }
-
-        if (videoStream.ChildVideoStreams.Any())
-        {
-            var list = videoStream.ChildVideoStreams.Where(a => !string.IsNullOrEmpty(a.Url)).OrderBy(a => a.Rank).ToList();
-            var dtos = _mapper.Map<List<VideoStreamDto>>(list);
-
-            if (dtos is not null)
-                videoStreams.AddRange(dtos);
-        }
 
         StreamerConfiguration config = new()
         {
-            VideoStreams = videoStreams,
             BufferSize = settings.RingBufferSizeMB * 1024 * 1000,
             CancellationToken = cancellationToken,
             MaxConnectRetry = settings.MaxConnectRetry,
             MaxConnectRetryTimeMS = settings.MaxConnectRetryTimeMS,
             ClientUserAgent = Request.Headers["User-Agent"].ToString()
         };
+
+        if (!videoStream.ChildVideoStreams.Any())
+        {
+            var childVideoStreamDto = _mapper.Map<ChildVideoStreamDto>(videoStream);
+            config.VideoStreams = new List<ChildVideoStreamDto> { childVideoStreamDto };
+        }
+        else
+        {
+            config.VideoStreams = videoStream.ChildVideoStreams.OrderBy(a => a.Rank).ToList();
+        }
 
         // Get the read stream for the client
         (Stream? stream, Guid clientId, ProxyStreamError? error) = _ringBufferManager.GetStream(config);
@@ -541,28 +549,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
         var m3u8Playlist = playlistBuilder.ToString();
 
-        //        string m3u8Playlist = @"#EXTM3U
-        //#EXT-X-VERSION:3
-        //#EXT-X-ALLOW-CACHE:YES
-        //#EXT-X-TARGETDURATION:10
-        //#EXT-X-MEDIA-SEQUENCE:" + mediaSequence + @"
-
-        //#EXTINF:1,
-        //" + url + @"
-        //#EXTINF:10.010000,
-        //" + url + @"
-        //#EXTINF:86400,
-        //" + url + @"
-        //#EXTINF:10.010000,
-        //" + url + @"
-        //#EXTINF:10.010000,
-        //" + url + @"
-        //#EXTINF:10.010000,
-        //" + url;
-
-        // _logger.LogInformation("GetStreamM3U8 for stream {clientIdString}
-        // returning playlist:\n{m3u8Playlist}", clientIdString, m3u8Playlist);
-
         return new ContentResult
         {
             Content = m3u8Playlist,
@@ -623,8 +609,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         }
 
         var m3u8Playlist = playlistBuilder.ToString();
-
-        //_logger.LogInformation("GetStreamM3U8 for stream {clientIdString} returning playlist:\n{m3u8Playlist}", clientIdString, m3u8Playlist);
 
         return new ContentResult
         {

@@ -274,14 +274,12 @@ public class RingBufferManager : IDisposable, IRingBufferManager
             _logger.LogInformation("Failover watcher starting for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
             await DelayWithCancellation(clientInfo.FailoverCheckInterval, cancellationToken);
-
             if (!TryGetStreamInfo(streamUrl, out StreamInformation? _streamInformation))
             {
                 _logger.LogWarning("HandleFailover streamer info not found for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
                 return;
             }
-
             bool quit = false;
             while (!cancellationToken.IsCancellationRequested && !quit)
             {
@@ -440,13 +438,17 @@ public class RingBufferManager : IDisposable, IRingBufferManager
             return;
         }
 
-        StreamInformation? streamStreamInfo = GetOrCreateBuffer(newStreamUrl, clientInfo);
-        if (streamStreamInfo == null)
+        StreamInformation? newStreamInfo = GetOrCreateBuffer(newStreamUrl, clientInfo);
+        if (newStreamInfo == null)
         {
             return;
         }
 
-        RegisterClientsToNewStream(clientIds, streamStreamInfo);
+        // Update the old StreamInformation's CancellationToken with the new one
+        _streamInformation.StreamerCancellationToken = newStreamInfo.StreamerCancellationToken;
+
+
+        RegisterClientsToNewStream(clientIds, newStreamInfo);
 
         _logger.LogInformation("Failover handled, switched to new stream URL: {NewStreamUrl}", setting.CleanURLs ? "url removed" : newStreamUrl);
     }

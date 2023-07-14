@@ -43,7 +43,7 @@ namespace StreamMasterApplication.Common.Models
         /// <summary>
         /// Gets or sets the IPTV channel information.
         /// </summary>
-        public VideoStreamDto? CurentVideoStream { get; set; }
+        public ChildVideoStreamDto? CurentVideoStream { get; set; }
 
         public int CurrentM3UFileId { get; set; }
 
@@ -80,6 +80,6 @@ namespace StreamMasterApplication.Common.Models
         //public VideoStreamDto? VideoStream { get; set; }
 
         public VideoStreamHandlers VideoStreamHandler { get; set; } = VideoStreamHandlers.SystemDefault;
-        public List<VideoStreamDto>? VideoStreams { get; set; }
+        public List<ChildVideoStreamDto>? VideoStreams { get; set; }
     }
 }
