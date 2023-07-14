@@ -66,14 +66,19 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
 
   }, [videoStreams]);
 
-  React.useMemo(() => {
+  const onValueChanged = React.useCallback((data: StreamMasterApi.VideoStreamDto[] | undefined) => {
+    console.log('onValueChanged', data);
+
+  }, []);
+
+  React.useEffect(() => {
     if (props.group) {
       setChannelGroup(props.group);
     }
   }, [props.group]);
 
 
-  React.useMemo(() => {
+  React.useEffect(() => {
     if (props.videoStream === undefined) {
       return;
     }
@@ -169,24 +174,9 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
       return true;
     }
 
-    if (videoStreams !== undefined) {
-
-      if (props.videoStream.childVideoStreams === null || props.videoStream.childVideoStreams === undefined) {
-        return true;
-      }
-
-      if (props.videoStream.childVideoStreams.length !== videoStreams.length) {
-        return true;
-      }
-
-      if (areVideoStreamsEqual(props.videoStream.childVideoStreams, videoStreams) === false) {
-        return true;
-      }
-    }
-
     return false;
 
-  }, [channelNumber, iconSource, name, props.videoStream, url, videoStreams]);
+  }, [channelNumber, iconSource, name, props.videoStream, url]);
 
   const ReturnToParent = () => {
     setChannelGroup(undefined);
@@ -195,7 +185,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
     setIconSource('');
     setChannelNumber(0);
     setEpgId('');
-    setVideoStreams([] as StreamMasterApi.VideoStreamDto[]);
+    //  setVideoStreams([] as StreamMasterApi.VideoStreamDto[]);
     props.onClose?.();
   }
 
@@ -387,12 +377,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
                 isAdditionalChannels
                 maxHeight={400}
                 onSelectionChange={(e) => onSetVideoStreams(e)}
-                onValueChanged={
-                  (e) => {
-                    // if (e.length === 0) return;
-                    onSetVideoStreams(e);
-                  }
-                }
+                onValueChanged={(e) => onValueChanged(e)}
                 showTriState={showHidden}
                 sourceHeaderTemplate={rightHeaderTemplate}
                 videoStream={props.videoStream}
@@ -402,13 +387,10 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
         </AccordionTab>
 
       </Accordion>
-      {/* <div className='flex max-h-3rem p-0 m-0 col-12 surface-overlay justify-content-start align-items-center' > */}
       <div className="flex col-12 justify-content-between align-items-center p-0 mt-3 gap-2 ">
 
         <div className="flex flex-wrap col-12 gap-1 align-items-center justify-content-end max-h-3rem p-0 m-0">
           <div className='flex col-6 flex-wrap justify-content-start align-items-center p-0 m-0' >
-            {/* Channel Handler */}
-
             <div className="flex flex-wrap col-6 align-items-center justify-content-end p-0 m-0">
               {(videoStreams !== undefined && videoStreams.length > 0) &&
                 <div className='flex w-full p-0 m-0 col-12 justify-content-start align-items-center p-0 pl-2 m-0 h-full border-2 border-round surface-border '>
@@ -435,7 +417,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
                 icon="pi pi-check"
                 label={props.videoStream ? "Edit" : "Add"}
                 onClick={() => props.videoStream ? props.onEdit?.({
-                  childVideoStreams: videoStreams,
+                  // childVideoStreams: videoStreams,
                   id: props.videoStream.id,
                   tvg_chno: channelNumber,
                   tvg_group: channelGroup,

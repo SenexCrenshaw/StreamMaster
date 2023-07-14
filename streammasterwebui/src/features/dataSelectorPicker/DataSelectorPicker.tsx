@@ -160,7 +160,10 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
           id={`${props.id}-ds-picker-target`}
           isLoading={props.isLoading}
           name={props.targetName}
-          onSelectionChange={(e) => props?.onTargetSelectionChange?.(e as T[])}
+          onSelectionChange={(e) => {
+            props?.onTargetSelectionChange?.(e as T[])
+          }
+          }
           onValueChanged={(e) => props.onTargetOnValueChanged?.(e as T[])}
           reorderable={props.targetReorderable}
           rightColSize={props.targetRightColSize}

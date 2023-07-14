@@ -247,9 +247,63 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
   }, [onUpdateVideoStream]);
 
+  const onEdit = React.useCallback(async (data: StreamMasterApi.VideoStreamDto[]) => {
+    if (data === null || data === undefined || !props.videoStream) {
+
+      return;
+    }
+
+    const toSend = {} as StreamMasterApi.UpdateVideoStreamRequest;
+
+    toSend.id = props.videoStream.id;
+
+    const newData = data.map((x: StreamMasterApi.VideoStreamDto, index: number) => { return { ...x, rank: index, } }) as StreamMasterApi.ChildVideoStreamDto[];
+
+    toSend.childVideoStreams = newData;
+
+    Hub.UpdateVideoStream(toSend)
+      .then((resultData) => {
+        if (toast.current) {
+          if (resultData) {
+            toast.current.show({
+              detail: `Video Stream Update Successful`,
+              life: 3000,
+              severity: 'success',
+              summary: 'Successful',
+            });
+
+          } else {
+            toast.current.show({
+              detail: `Video Stream Update Failed`,
+              life: 3000,
+              severity: 'error',
+              summary: 'Error',
+            });
+          }
+        }
+      }
+      ).catch((error) => {
+        if (toast.current) {
+          toast.current.show({
+            detail: `Channel Update Failed`,
+            life: 3000,
+            severity: 'error',
+            summary: 'Error ' + error.message,
+          });
+        }
+      });
+
+  }, [props.videoStream]);
+
+
   const onSave = React.useCallback(async (data: StreamMasterApi.VideoStreamDto[]) => {
 
-    if (isVideoStreamUpdating || !props.streamGroup || data.length === 0 || data[0].id === undefined) {
+    if (props.isAdditionalChannels == true) {
+      await onEdit(data);
+      return;
+    }
+
+    if (isVideoStreamUpdating || data.length === 0 || data[0].id === undefined) {
       return;
     }
 
@@ -257,7 +311,8 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
     var toSend = {} as StreamMasterApi.UpdateStreamGroupRequest;
 
-    toSend.streamGroupId = props.streamGroup.id;
+    if (props.streamGroup)
+      toSend.streamGroupId = props.streamGroup.id;
 
     toSend.videoStreamIds = data.map((stream) => {
       return stream.id;
@@ -297,17 +352,12 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       });
 
     setIsVideoStreamUpdating(false);
-  }, [isVideoStreamUpdating, props.streamGroup]);
+  }, [isVideoStreamUpdating, onEdit, props.isAdditionalChannels, props.streamGroup]);
 
   const onChange = React.useCallback(async (e: StreamMasterApi.ChildVideoStreamDto[]) => {
     if (props.isAdditionalChannels === true) {
 
-      const newData = e.map((x: StreamMasterApi.ChildVideoStreamDto, index: number) => {
-        return {
-          ...x,
-          rank: index,
-        }
-      }) as StreamMasterApi.ChildVideoStreamDto[];
+      const newData = e.map((x: StreamMasterApi.ChildVideoStreamDto, index: number) => { return { ...x, rank: index, } }) as StreamMasterApi.ChildVideoStreamDto[];
 
       setTargetVideoStreams(newData.sort((a, b) => a.rank - b.rank));
     } else {
@@ -435,7 +485,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
         id={props.id + '-dataselectorpicker'}
         isLoading={videoStreamsQuery.isLoading}
         onSelectionChange={onChange}
-        onTargetOnValueChanged={(e) => {
+        onTargetOnValueChanged={async (e) => {
           if (props.isAdditionalChannels === true) {
             const d = e as StreamMasterApi.VideoStreamDto[];
             const newData = d.map((x: StreamMasterApi.VideoStreamDto, index: number) => {
@@ -449,7 +499,19 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
             props.onValueChanged?.(e as StreamMasterApi.ChildVideoStreamDto[]);
           }
         }}
-        // onTargetSelectionChange={onChange}
+        onTargetSelectionChange={async (e) => {
+          if (props.isAdditionalChannels === true) {
+            const d = e as StreamMasterApi.VideoStreamDto[];
+            const newData = d.map((x: StreamMasterApi.VideoStreamDto, index: number) => {
+              return {
+                ...x,
+                rank: index,
+              }
+            }) as StreamMasterApi.ChildVideoStreamDto[];
+            await onEdit(newData);
+          }
+        }
+        }
         selection={targetVideoStreams}
         showUndo
         sourceColumns={sourceColumns}

@@ -438,7 +438,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   const onRowReorder = React.useCallback((data: T[]) => {
     setDataSource(data);
-    props?.onSelectionChange?.(data);
+    props.onSelectionChange?.(data);
   }, [props]);
 
 
