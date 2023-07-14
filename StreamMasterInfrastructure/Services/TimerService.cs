@@ -86,7 +86,7 @@ public class TimerService : IHostedService, IDisposable
             return;
         }
 
-        IMapper mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
+        //IMapper mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
         IAppDbContext context = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
 
         //_logger.LogInformation("Timer Service is working.");

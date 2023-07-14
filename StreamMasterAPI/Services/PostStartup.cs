@@ -40,6 +40,6 @@ public class PostStartup : BackgroundService
 
         await _taskQueue.SetIsSystemReady(true, cancellationToken).ConfigureAwait(false);
 
-        await _taskQueue.CacheAllIcons(cancellationToken).ConfigureAwait(false);
+        //await _taskQueue.CacheAllIcons(cancellationToken).ConfigureAwait(false);
     }
 }
