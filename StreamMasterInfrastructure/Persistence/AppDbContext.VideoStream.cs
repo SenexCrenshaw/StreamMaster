@@ -5,6 +5,7 @@ using StreamMasterApplication.VideoStreams;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities;
+using StreamMasterDomain.Enums;
 
 namespace StreamMasterInfrastructure.Persistence;
 
@@ -76,6 +77,94 @@ public partial class AppDbContext : IVideoStreamDB
         var m3uFile = M3UFiles.Single(a => a.Id == videoStream.M3UFileId);
 
         return new M3UFileIdMaxStream { M3UFileId = videoStream.M3UFileId, MaxStreams = m3uFile.MaxStreamCount };
+    }
+
+    public async Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(int videoStreamId, CancellationToken cancellationToken = default)
+    {
+        var videoStream = await GetVideoStream(videoStreamId, cancellationToken);
+        if (videoStream == null)
+        {
+            return null;
+        }
+
+        if (!videoStream.ChildVideoStreams.Any())
+        {
+            var childVideoStreamDto = _mapper.Map<ChildVideoStreamDto>(videoStream);
+            var result = GetM3UFileIdMaxStreamFromUrl(childVideoStreamDto.User_Url);
+            if (result == null)
+            {
+                return null;
+            }
+            childVideoStreamDto.MaxStreams = result.MaxStreams;
+
+            return (videoStream.VideoStreamHandler, new List<ChildVideoStreamDto> { childVideoStreamDto });
+        }
+
+        var childVideoStreamDtos = videoStream.ChildVideoStreams.OrderBy(a => a.Rank).ToList();
+        foreach (var childVideoStreamDto in childVideoStreamDtos)
+        {
+            var result = GetM3UFileIdMaxStreamFromUrl(childVideoStreamDto.User_Url);
+            if (result == null)
+            {
+                return null;
+            }
+            childVideoStreamDto.MaxStreams = result.MaxStreams;
+        }
+
+        return (videoStream.VideoStreamHandler, childVideoStreamDtos);
+    }
+
+    public async Task<VideoStreamDto?> GetVideoStream(int videoStreamId, CancellationToken cancellationToken = default)
+    {
+        var videoStream = VideoStreams.FirstOrDefault(a => a.Id == videoStreamId);
+        if (videoStream == null)
+        {
+            return null;
+        }
+
+        List<IconFileDto> icons = await GetIcons(cancellationToken).ConfigureAwait(false);
+
+        var videoStreams =
+            VideoStreamRelationships.
+            Include(c => c.ChildVideoStream).
+            Where(a => a.ParentVideoStreamId == videoStream.Id).
+            Select(a => new
+            {
+                ChildVideoStream = a.ChildVideoStream,
+                Rank = a.Rank
+            }).ToList();
+
+        VideoStreamDto videoStreamDto = _mapper.Map<VideoStreamDto>(videoStream);
+
+        if (setting.CacheIcons && !string.IsNullOrEmpty(videoStreamDto.User_Tvg_logo))
+        {
+            IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStreamDto.User_Tvg_logo || a.Name == videoStreamDto.User_Tvg_logo);
+            string Logo = icon != null ? icon.Source : "/" + setting.DefaultIcon;
+
+            videoStreamDto.User_Tvg_logo = Logo;
+        }
+
+        var childVideoStreams = new List<ChildVideoStreamDto>();
+
+        foreach (var child in videoStreams)
+        {
+            if (!string.IsNullOrEmpty(child.ChildVideoStream.User_Tvg_logo))
+            {
+                if (setting.CacheIcons)
+                {
+                    IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == child.ChildVideoStream.User_Tvg_logo);
+                    string Logo = icon != null ? icon.Source : "/" + setting.DefaultIcon;
+                    child.ChildVideoStream.User_Tvg_logo = Logo;
+                }
+                var cto = _mapper.Map<ChildVideoStreamDto>(child.ChildVideoStream);
+                cto.Rank = child.Rank;
+                childVideoStreams.Add(cto);
+            }
+        }
+
+        videoStreamDto.ChildVideoStreams = childVideoStreams;
+
+        return videoStreamDto;
     }
 
     public bool SynchronizeChildRelationships(VideoStream videoStream, List<ChildVideoStreamDto> childVideoStreams)

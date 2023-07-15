@@ -1,7 +1,10 @@
+using AutoMapper;
+
 using MediatR;
 
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Interfaces;
@@ -19,35 +22,30 @@ public partial class AppDbContext : DbContext, IDataProtectionKeyContext, IAppDb
 
 {
     private readonly ILogger<AppDbContext> _logger;
+    private readonly IMapper _mapper;
     private readonly IMediator _mediator;
-
+    private readonly IMemoryCache _memoryCache;
     private readonly Setting _setting;
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-
-    public AppDbContext(
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-       DbContextOptions<AppDbContext> options
-        )
+    public AppDbContext(DbContextOptions<AppDbContext> options)
        : base(options)
     {
         _setting = FileUtil.GetSetting();
-        //FileUtil.SetupDirectories();
 
         DbPath = Path.Join(Constants.DataDirectory, _setting.DatabaseName ?? "StreamMaster.db");
     }
 
-    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
-
     public AppDbContext(
         DbContextOptions<AppDbContext> options,
         IMediator mediator,
+         IMapper mapper,
+          IMemoryCache memoryCache,
         ILogger<AppDbContext> logger
-    // AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor
     ) : base(options)
     {
+        _memoryCache = memoryCache;
         _logger = logger;
-
+        _mapper = mapper;
         _mediator = mediator;
         _setting = FileUtil.GetSetting();
 
@@ -56,7 +54,17 @@ public partial class AppDbContext : DbContext, IDataProtectionKeyContext, IAppDb
         //_auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
     }
 
+    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
+
     public string DbPath { get; }
+
+    private Setting setting
+    {
+        get
+        {
+            return FileUtil.GetSetting();
+        }
+    }
 
     public int SaveChanges()
     {

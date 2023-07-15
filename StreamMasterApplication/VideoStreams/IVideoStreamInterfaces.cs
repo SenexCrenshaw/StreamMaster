@@ -37,6 +37,10 @@ public interface IVideoStreamDB
 
     public M3UFileIdMaxStream? GetM3UFileIdMaxStreamFromUrl(string Url);
 
+    Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(int videoStreamId, CancellationToken cancellationToken = default);
+
+    Task<VideoStreamDto?> GetVideoStream(int videoStreamId, CancellationToken cancellationToken = default);
+
     public bool SynchronizeChildRelationships(VideoStream videoStream, List<ChildVideoStreamDto> videoStreamDtos);
 }
 

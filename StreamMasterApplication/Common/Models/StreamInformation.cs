@@ -4,12 +4,18 @@ namespace StreamMasterApplication.Common.Models;
 
 public class StreamInformation : IDisposable
 {
-    private ConcurrentDictionary<Guid, StreamerConfiguration> _clientInformations;
+    private ConcurrentDictionary<Guid, ClientStreamerConfiguration> _clientInformations;
+
+    //public StreamInformation()
+    //{
+    //    M3UStream = false;
+    //    _clientInformations = new();
+    //}
 
     public StreamInformation(string streamUrl, ICircularRingBuffer buffer, Task streamingTask, int m3uFileId, int maxStreams, int processId, CancellationTokenSource cancellationTokenSource)
     {
         StreamUrl = streamUrl;
-        StreamerCancellationToken = cancellationTokenSource;
+        VideoStreamingCancellationToken = cancellationTokenSource;
         StreamingTask = streamingTask;
         RingBuffer = buffer;
         M3UFileId = m3uFileId;
@@ -32,13 +38,11 @@ public class StreamInformation : IDisposable
 
     public ICircularRingBuffer RingBuffer { get; set; }
 
-    public CancellationTokenSource StreamerCancellationToken { get; set; }
-
     public Task StreamingTask { get; set; }
-
     public string StreamUrl { get; set; }
+    public CancellationTokenSource VideoStreamingCancellationToken { get; set; }
 
-    public bool AddStreamConfiguration(StreamerConfiguration streamerConfiguration)
+    public bool AddStreamConfiguration(ClientStreamerConfiguration streamerConfiguration)
     {
         return _clientInformations.TryAdd(streamerConfiguration.ClientId, streamerConfiguration);
     }
@@ -48,22 +52,22 @@ public class StreamInformation : IDisposable
         Stop();
     }
 
-    public StreamerConfiguration? GetStreamConfiguration(Guid ClientId)
+    public ClientStreamerConfiguration? GetStreamConfiguration(Guid ClientId)
     {
         return _clientInformations.FirstOrDefault(a => a.Value.ClientId == ClientId).Value;
     }
 
-    public List<StreamerConfiguration> GetStreamConfigurations()
+    public List<ClientStreamerConfiguration> GetStreamConfigurations()
     {
         return _clientInformations.Values.ToList();
     }
 
-    public bool MoveStreamConfiguration(StreamerConfiguration streamerConfiguration)
+    public bool MoveStreamConfiguration(ClientStreamerConfiguration streamerConfiguration)
     {
         return _clientInformations.TryAdd(streamerConfiguration.ClientId, streamerConfiguration);
     }
 
-    public bool RemoveStreamConfiguration(StreamerConfiguration streamerConfiguration)
+    public bool RemoveStreamConfiguration(ClientStreamerConfiguration streamerConfiguration)
     {
         return _clientInformations.TryRemove(streamerConfiguration.ClientId, out _);
     }
@@ -75,14 +79,15 @@ public class StreamInformation : IDisposable
         {
             return;
         }
-        sc.ReadBuffer.SetBufferDelegate(func);
+
+        sc.ReadBuffer.SetBufferDelegate(func, sc);
     }
 
     public void Stop()
     {
-        if (StreamerCancellationToken is not null && !StreamerCancellationToken.IsCancellationRequested)
+        if (VideoStreamingCancellationToken is not null && !VideoStreamingCancellationToken.IsCancellationRequested)
         {
-            StreamerCancellationToken.Cancel();
+            VideoStreamingCancellationToken.Cancel();
         }
     }
 }

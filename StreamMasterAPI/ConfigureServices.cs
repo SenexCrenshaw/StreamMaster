@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 using NSwag;
 using NSwag.Generation.Processors.Security;
@@ -47,7 +45,7 @@ public static class ConfigureServices
         //    logging.AddFilter("microsoft.aspnetcore.authentication", LogLevel.Debug);
         //    logging.AddFilter("microsoft.aspnetcore.authorization", LogLevel.Debug);
         //});
-
+        services.AddMemoryCache();
         _ = services.AddLogging();
 
         //_ = services.AddSingleton<ICurrentUserService, CurrentUserService>();

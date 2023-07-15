@@ -258,173 +258,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         return data.ToList();
     }
 
-    [HttpGet]
-    [AllowAnonymous]
-    [Route("{StreamGroupNumber}/stream/{StreamId}/{ClientID}.ts")]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetStreamGroupVideoM3UStream(int StreamGroupNumber, int StreamId, string ClientID, CancellationToken cancellationToken)
-    {
-        string? clientIdString = HttpContext.Session.GetString("ClientId");
-        if (string.IsNullOrEmpty(clientIdString))
-        {
-            if (string.IsNullOrEmpty(ClientID))
-            {
-                _logger.LogCritical("ClientID null or mismatch for stream {streamId} as proxy is set to none", StreamId);
-                return NotFound();
-            }
-
-            clientIdString = ClientID;
-        }
-
-        ClientTracker? clientTracker;
-        clientTrackers.TryGetValue(clientIdString, out clientTracker);
-        if (clientTracker == null)
-        {
-            _logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} not found exiting", StreamGroupNumber, StreamId);
-            return NotFound();
-        }
-
-        _logger.LogInformation("GetStreamM3U8 for stream {clientIdString} ", clientIdString);
-
-        Guid clientId;
-        if (string.IsNullOrEmpty(clientIdString) || clientIdString != ClientID || !Guid.TryParse(clientIdString, out clientId))
-        {
-            _logger.LogCritical("ClientID null or mismatch for stream {streamId} as proxy is set to none", StreamId);
-            return NotFound();
-        }
-
-        var settings = FileUtil.GetSetting();
-
-        if (settings.StreamingProxyType == StreamingProxyTypes.None)
-        {
-            _logger.LogCritical("Cannot get M3U8 for stream {streamId} as proxy is set to none", StreamId);
-            return NotFound();
-        }
-
-        var videoStream = await Mediator.Send(new GetVideoStream(StreamId), cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId}", StreamGroupNumber, StreamId);
-
-        if (videoStream == null)
-        {
-            _logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} not found exiting", StreamGroupNumber, StreamId);
-            return NotFound();
-        }
-
-        int streamBufferSize = 128 * 1024;
-        StreamerConfiguration config = new()
-        {
-            BufferSize = settings.RingBufferSizeMB * 1024 * 1000,
-            CancellationToken = cancellationToken,
-            MaxConnectRetry = settings.MaxConnectRetry,
-            MaxConnectRetryTimeMS = settings.MaxConnectRetryTimeMS,
-            M3UStream = true,
-            PreloadPercentage = settings.PreloadPercentage,
-        };
-
-        if (!videoStream.ChildVideoStreams.Any())
-        {
-            var childVideoStreamDto = _mapper.Map<ChildVideoStreamDto>(videoStream);
-            config.VideoStreams = new List<ChildVideoStreamDto> { childVideoStreamDto };
-        }
-        else
-        {
-            config.VideoStreams = videoStream.ChildVideoStreams.OrderBy(a => a.Rank).ToList();
-        }
-
-        config.ClientId = clientId;
-
-        // Get the read stream for the client
-        (Stream? stream, Guid clientIdNew, ProxyStreamError? error) = _ringBufferManager.GetStream(config);
-
-        if (stream != null)
-        {
-            int maxbytes = (int)(3.7 * 1000 * 1024);
-
-            // Send the response in chunks
-            var outputStream = Response.Body;
-
-            var buffTimeOut = 6;
-
-            if (clientTracker.SegmentCount < 1)
-            {
-                ++clientTracker.SegmentCount;
-                maxbytes = 1 * 1000 * 1024;
-                buffTimeOut = 1;
-            }
-
-            byte[] buffer = new byte[streamBufferSize];
-
-            FileStreamResult fileStreamResult = new(stream, "video/mp4");
-            var fileStream = fileStreamResult.FileStream;
-
-            var cts = new CancellationTokenSource();
-            cts.CancelAfter(TimeSpan.FromSeconds(buffTimeOut));
-            _logger.LogDebug("clientTracker offset: {OffSet}", clientTracker.OffSet);
-            var sent = 0;
-
-            while (!cts.Token.IsCancellationRequested)
-            {
-                int bytesRead = await fileStream.ReadAsync(buffer, 0, buffer.Length);
-
-                if (bytesRead == 0)
-                {
-                    // No more data to read
-                    break;
-                }
-
-                await outputStream.WriteAsync(buffer, 0, bytesRead);
-                await outputStream.FlushAsync();
-                //clientTracker.OffSet += bytesRead;
-
-                if (cts.Token.IsCancellationRequested)
-                {
-                    _logger.LogInformation("GetStreamGroupVideoM3UStream Token Cancelled {sent}", sent);
-                    // Stop sending data after 10 seconds
-                    break;
-                }
-
-                sent += bytesRead;
-                if (maxbytes != 0 && sent >= maxbytes)
-                {
-                    _logger.LogInformation("GetStreamGroupVideoM3UStream Max Bytes Cancelled {sent}", sent);
-                    break;
-                }
-                //if (maxbytes == 0)
-                //{
-                //    // Check if cancellation has been requested
-                //    if (cts.Token.IsCancellationRequested)
-                //    {
-                //        // Stop sending data after 10 seconds
-                //        break;
-                //    }
-                //}
-                //else
-                //{
-                //    sent += bytesRead;
-                //    if (maxbytes != 0 && sent + bytesRead >= maxbytes)
-                //    {
-                //        break;
-                //    }
-                //}
-            }
-
-            return new EmptyResult();
-        }
-        else if (error != null)
-        {
-            // Log the error using the built-in logging framework
-            _logger.LogError("Error getting FFmpeg stream: {error.Message}", error.Message);
-
-            return GetStatus(error.ErrorCode);
-            // Return an appropriate error response to the client
-        }
-        else
-        {
-            // Unknown error occurred
-            return StatusCode(StatusCodes.Status500InternalServerError, "An unknown error occurred");
-        }
-    }
-
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [Route("stream/{encodedIds}")]
@@ -468,41 +301,24 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
             return Redirect(videoStream.User_Url);
         }
 
-        StreamerConfiguration config = new()
-        {
-            BufferSize = settings.RingBufferSizeMB * 1024 * 1000,
-            CancellationToken = cancellationToken,
-            MaxConnectRetry = settings.MaxConnectRetry,
-            MaxConnectRetryTimeMS = settings.MaxConnectRetryTimeMS,
-            ClientUserAgent = Request.Headers["User-Agent"].ToString()
-        };
-
-        if (!videoStream.ChildVideoStreams.Any())
-        {
-            var childVideoStreamDto = _mapper.Map<ChildVideoStreamDto>(videoStream);
-            config.VideoStreams = new List<ChildVideoStreamDto> { childVideoStreamDto };
-        }
-        else
-        {
-            config.VideoStreams = videoStream.ChildVideoStreams.OrderBy(a => a.Rank).ToList();
-        }
+        ClientStreamerConfiguration config = new(videoStream.Id, Request.Headers["User-Agent"].ToString(), cancellationToken);
 
         // Get the read stream for the client
-        (Stream? stream, Guid clientId, ProxyStreamError? error) = _ringBufferManager.GetStream(config);
+        Stream? stream = await _ringBufferManager.GetStream(config);
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(_ringBufferManager, config));
         if (stream != null)
         {
             return new FileStreamResult(stream, "video/mp4");
         }
-        else if (error != null)
-        {
-            // Log the error using the built-in logging framework
-            _logger.LogError("Error getting FFmpeg stream: {error.Message}", error.Message);
+        //else if (error != null)
+        //{
+        //    // Log the error using the built-in logging framework
+        //    _logger.LogError("Error getting FFmpeg stream: {error.Message}", error.Message);
 
-            return GetStatus(error.ErrorCode);
-            // Return an appropriate error response to the client
-        }
+        //    return GetStatus(error.ErrorCode);
+        //    // Return an appropriate error response to the client
+        //}
         else
         {
             // Unknown error occurred
@@ -633,6 +449,16 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         return Ok();
     }
 
+    [HttpPost]
+    [Route("[action]")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public IActionResult SimulateStreamFailureForAll()
+    {
+        _ringBufferManager.SimulateStreamFailureForAll();
+        return Ok();
+    }
+
     [HttpPut]
     [Route("[action]")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -701,10 +527,10 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
     private class UnregisterClientOnDispose : IDisposable
     {
-        private readonly StreamerConfiguration _config;
+        private readonly ClientStreamerConfiguration _config;
         private readonly IRingBufferManager _ringBufferManager;
 
-        public UnregisterClientOnDispose(IRingBufferManager ringBufferManager, StreamerConfiguration config)
+        public UnregisterClientOnDispose(IRingBufferManager ringBufferManager, ClientStreamerConfiguration config)
         {
             _ringBufferManager = ringBufferManager;
             _config = config;

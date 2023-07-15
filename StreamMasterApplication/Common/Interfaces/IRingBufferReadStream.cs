@@ -1,4 +1,6 @@
-﻿namespace StreamMasterApplication.Common.Interfaces
+﻿using StreamMasterApplication.Common.Models;
+
+namespace StreamMasterApplication.Common.Interfaces
 {
     public interface IRingBufferReadStream
     {
@@ -17,7 +19,7 @@
 
         long Seek(long offset, SeekOrigin origin);
 
-        void SetBufferDelegate(Func<ICircularRingBuffer> newBufferDelegate);
+        void SetBufferDelegate(Func<ICircularRingBuffer> bufferDelegate, ClientStreamerConfiguration config);
 
         void SetLength(long value);
 

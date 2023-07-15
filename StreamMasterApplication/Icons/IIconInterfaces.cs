@@ -23,6 +23,8 @@ public interface IIconController
 public interface IIconDB
 {
     DbSet<IconFile> Icons { get; set; }
+
+    Task<List<IconFileDto>> GetIcons(CancellationToken cancellationToken);
 }
 
 public interface IIconHub

@@ -1,22 +1,22 @@
 ﻿using StreamMasterApplication.Common.Models;
 
-using StreamMasterDomain.Common;
-
 namespace StreamMasterApplication.Common.Interfaces;
 
 public interface IRingBufferManager
 {
     void Dispose();
 
-    SingleStreamStatisticsResult GetAllStatistics(string streamUrl);
-
     List<StreamStatisticsResult> GetAllStatisticsForAllUrls();
 
-    (Stream? stream, Guid clientId, ProxyStreamError? error) GetStream(StreamerConfiguration config);
+    SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl);
 
-    void RemoveClient(StreamerConfiguration config);
+    Task<Stream?> GetStream(ClientStreamerConfiguration config);
+
+    void RemoveClient(ClientStreamerConfiguration config);
 
     void SimulateStreamFailure(string streamUrl);
+
+    void SimulateStreamFailureForAll();
 
     // void StopStream(string streamUrl);
 }

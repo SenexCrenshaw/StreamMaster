@@ -1,6 +1,9 @@
 ﻿using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 
+using StreamMasterDomain.Common;
+using StreamMasterDomain.Dto;
+
 using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.MiddleWare;
@@ -24,20 +27,21 @@ public class CircularRingBuffer : ICircularRingBuffer
     private float _preBuffPercent;
     private int _writeIndex;
 
-    public CircularRingBuffer(StreamerConfiguration clientInfo, int tempbuffersize = 0)
+    public CircularRingBuffer(ChildVideoStreamDto childVideoStreamDto, int tempbuffersize = 0)
     {
-        if (clientInfo.PreloadPercentage < 0 || clientInfo.PreloadPercentage > 100)
-            clientInfo.PreloadPercentage = 0;
+        if (setting.PreloadPercentage < 0 || setting.PreloadPercentage > 100)
+            setting.PreloadPercentage = 0;
 
-        _bufferSize = tempbuffersize > 0 ? tempbuffersize : clientInfo.BufferSize;
-        _preBuffPercent = clientInfo.PreloadPercentage;
+        _bufferSize = tempbuffersize > 0 ? tempbuffersize : setting.RingBufferSizeMB * 1024 * 1000;
+        _preBuffPercent = setting.PreloadPercentage;
+
         StreamInfo = new StreamInfo
         {
-            M3UStreamId = clientInfo.CurentVideoStream.Id,
-            M3UStreamName = clientInfo.CurentVideoStream.User_Tvg_name,
-            Logo = clientInfo.CurentVideoStream.User_Tvg_logo,
-            StreamProxyType = clientInfo.CurentVideoStream.StreamProxyType,
-            StreamUrl = clientInfo.CurentVideoStream.User_Url,
+            M3UStreamId = childVideoStreamDto.Id,
+            M3UStreamName = childVideoStreamDto.User_Tvg_name,
+            Logo = childVideoStreamDto.User_Tvg_logo,
+            StreamProxyType = childVideoStreamDto.StreamProxyType,
+            StreamUrl = childVideoStreamDto.User_Url,
         };
 
         _buffer = new byte[_bufferSize];
@@ -46,8 +50,8 @@ public class CircularRingBuffer : ICircularRingBuffer
     }
 
     public int BufferSize => _buffer.Length;
-
     private bool isPreBuffered { get; set; } = false;
+    private Setting setting => FileUtil.GetSetting();
 
     /// <summary>
     /// Returns a List with all the clients' streaming statistics.
@@ -302,7 +306,7 @@ public class CircularRingBuffer : ICircularRingBuffer
     public async Task WaitSemaphoreAsync(Guid clientId, CancellationToken cancellationToken)
     {
         SemaphoreSlim semaphore = _clientSemaphores[clientId];
-        await semaphore.WaitAsync(cancellationToken);
+        await semaphore.WaitAsync(50, cancellationToken);
     }
 
     /// <summary>

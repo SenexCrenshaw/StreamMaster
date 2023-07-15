@@ -6,7 +6,7 @@ namespace StreamMasterApplication.General;
 
 public static class Helpers
 {
-    public static string GetIPTVChannelIconSources(string IconSource, SettingDto setting, string baseHostURL, IEnumerable<IconFileDto> Icons)
+    public static string GetIPTVChannelIconSources(string IconSource, Setting setting, string baseHostURL, IEnumerable<IconFileDto> Icons)
     {
         //var baseHostURL = setting.BaseHostURL;
 

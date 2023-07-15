@@ -1,17 +1,10 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
 
 using MediatR;
 
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
-using StreamMasterApplication.General;
-
 using StreamMasterDomain.Dto;
-
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 namespace StreamMasterApplication.Icons.Queries;
 
@@ -43,53 +36,42 @@ internal class GetIconsQueryHandler : IRequestHandler<GetIcons, List<IconFileDto
 
     public async Task<List<IconFileDto>> Handle(GetIcons request, CancellationToken cancellationToken)
     {
-        if (!_memoryCache.TryGetValue(CacheKeys.ListIconFiles, out List<IconFileDto>? cacheValue))
-        {
-            SettingDto setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
+        //if (!_memoryCache.TryGetValue(CacheKeys.ListIconFiles, out List<IconFileDto>? cacheValue))
+        //{
+        //    SettingDto setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
 
-            List<IconFileDto> icons = await _context.Icons.Where(a => a.FileExists)
-              .AsNoTracking()
-              .Where(a => a.FileExists && a.SMFileType == SMFileTypes.Icon)
-              .ProjectTo<IconFileDto>(_mapper.ConfigurationProvider)
-              .OrderBy(x => x.Name)
-              .ToListAsync(cancellationToken).ConfigureAwait(false);
+        // List<IconFileDto> icons = await _context.Icons.Where(a =>
+        // a.FileExists) .AsNoTracking() .Where(a => a.FileExists &&
+        // a.SMFileType == SMFileTypes.Icon)
+        // .ProjectTo<IconFileDto>(_mapper.ConfigurationProvider) .OrderBy(x =>
+        // x.Name) .ToListAsync(cancellationToken).ConfigureAwait(false);
 
+        // IEnumerable<IconFileDto> tvlogos = _mapper.Map<IEnumerable<IconFileDto>>(_memoryCache.TvLogos());
 
+        // List<IconFileDto> allIcons = tvlogos.Concat(icons).ToList();
 
-            IEnumerable<IconFileDto> tvlogos = _mapper.Map<IEnumerable<IconFileDto>>(_memoryCache.TvLogos());
+        // int count = 0;
 
-            List<IconFileDto> allIcons = tvlogos.Concat(icons).ToList();
+        // Stopwatch sw = Stopwatch.StartNew(); ParallelOptions po = new() {
+        // CancellationToken = cancellationToken, MaxDegreeOfParallelism =
+        // Environment.ProcessorCount };
 
-            int count = 0;
+        // _ = Parallel.ForEach(allIcons, po, icon => { string IconSource =
+        // Helpers.GetIPTVChannelIconSources(icon.Source, setting, "/",
+        // allIcons); icon.Id = count++; icon.Source = IconSource; icon.Url =
+        // IconSource; });
 
-            Stopwatch sw = Stopwatch.StartNew();
-            ParallelOptions po = new()
-            {
-                CancellationToken = cancellationToken,
-                MaxDegreeOfParallelism = Environment.ProcessorCount
-            };
+        // sw.Stop(); long el = sw.ElapsedMilliseconds;
 
-            _ = Parallel.ForEach(allIcons, po, icon =>
-            {
-                string IconSource = Helpers.GetIPTVChannelIconSources(icon.Source, setting, "/", allIcons);
-                icon.Id = count++;
-                icon.Source = IconSource;
-                icon.Url = IconSource;
-            });
+        // cacheValue = allIcons;
 
-            sw.Stop();
-            long el = sw.ElapsedMilliseconds;
+        // var cacheEntryOptions = new MemoryCacheEntryOptions() .SetPriority(CacheItemPriority.NeverRemove);
 
-            cacheValue = allIcons;
+        //    _memoryCache.Set(CacheKeys.ListIconFiles, cacheValue, cacheEntryOptions);
+        //}
 
-            var cacheEntryOptions = new MemoryCacheEntryOptions()
-                .SetPriority(CacheItemPriority.NeverRemove);
+        //// var test = cacheValue.Where(a => a.Name.StartsWith("sexy"));
 
-            _memoryCache.Set(CacheKeys.ListIconFiles, cacheValue, cacheEntryOptions);
-        }
-
-        // var test = cacheValue.Where(a => a.Name.StartsWith("sexy"));
-
-        return cacheValue ?? new List<IconFileDto>();
+        return await _context.GetIcons(cancellationToken);
     }
 }

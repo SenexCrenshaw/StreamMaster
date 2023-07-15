@@ -9,6 +9,9 @@ namespace StreamMasterDomain.Dto;
 public class ChildVideoStreamDto : BaseVideoStreamDto, IMapFrom<VideoStream>, IMapFrom<VideoStreamDto>
 {
     [Required]
+    public int MaxStreams { get; set; }
+
+    [Required]
     public int Rank { get; set; }
 }
 
