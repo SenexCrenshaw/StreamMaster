@@ -1,16 +1,11 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace StreamMasterApplication.Common.Models;
 
 public class StreamInformation : IDisposable
 {
     private ConcurrentDictionary<Guid, ClientStreamerConfiguration> _clientInformations;
-
-    //public StreamInformation()
-    //{
-    //    M3UStream = false;
-    //    _clientInformations = new();
-    //}
 
     public StreamInformation(string streamUrl, ICircularRingBuffer buffer, Task streamingTask, int m3uFileId, int maxStreams, int processId, CancellationTokenSource cancellationTokenSource)
     {
@@ -75,7 +70,7 @@ public class StreamInformation : IDisposable
     public void SetClientBufferDelegate(Guid ClientId, Func<ICircularRingBuffer> func)
     {
         var sc = GetStreamConfiguration(ClientId);
-        if (sc == null)
+        if (sc is null || sc.ReadBuffer is null)
         {
             return;
         }
@@ -88,6 +83,41 @@ public class StreamInformation : IDisposable
         if (VideoStreamingCancellationToken is not null && !VideoStreamingCancellationToken.IsCancellationRequested)
         {
             VideoStreamingCancellationToken.Cancel();
+        }
+
+        //if (streamerConfiguration is not null)
+        //    RemoveStreamConfiguration(streamerConfiguration);
+
+        if (ProcessId > 0)
+        {
+            try
+            {
+                var procName = CheckProcessExists(ProcessId);
+                if (procName != null)
+                {
+                    Process process = Process.GetProcessById(ProcessId);
+                    process.Kill();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error killing process {ProcessId} : {ex}", ProcessId, ex.ToString());
+            }
+        }
+    }
+
+    private static string? CheckProcessExists(int processId)
+    {
+        try
+        {
+            Process process = Process.GetProcessById(processId);
+            Console.WriteLine($"Process with ID {processId} exists. Name: {process.ProcessName}");
+            return process.ProcessName;
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine($"Process with ID {processId} does not exist.");
+            return null;
         }
     }
 }

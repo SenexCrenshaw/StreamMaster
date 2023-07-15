@@ -33,9 +33,9 @@ public class ChannelManager : IDisposable, IChannelManager
 
     private Setting setting => FileUtil.GetSetting();
 
-    public static bool ShouldHandleFailover(ChannelStatus channelManagerStatus)
+    public static bool ShouldHandleFailover(ChannelStatus channelStatus)
     {
-        StreamInformation _streamInformation = channelManagerStatus.StreamInformation;
+        StreamInformation _streamInformation = channelStatus.StreamInformation;
         return _streamInformation.ClientCount == 0 || _streamInformation.VideoStreamingCancellationToken.IsCancellationRequested || _streamInformation.StreamingTask.IsFaulted || _streamInformation.StreamingTask.IsCanceled;
     }
 
@@ -84,23 +84,23 @@ public class ChannelManager : IDisposable, IChannelManager
         UnRegisterWithChannelManager(config);
     }
 
-    private async Task ChannelWatcher(ChannelStatus channelManagerStatus)
+    private async Task ChannelWatcher(ChannelStatus channelStatus)
     {
         try
         {
-            _logger.LogInformation("Channel watcher starting for channel: {videoStreamId}", channelManagerStatus.VideoStreamId);
+            _logger.LogInformation("Channel watcher starting for channel: {videoStreamId}", channelStatus.VideoStreamId);
 
             bool quit = false;
 
-            while (!channelManagerStatus.ChannelWatcherToken.Token.IsCancellationRequested)
+            while (!channelStatus.ChannelWatcherToken.Token.IsCancellationRequested)
             {
-                (quit, var newInfo) = await ProcessStreamStatus(channelManagerStatus);
+                (quit, var newInfo) = await ProcessStreamStatus(channelStatus);
                 if (quit)
                 {
                     break;
                 }
 
-                await DelayWithCancellation(50, channelManagerStatus.ChannelWatcherToken.Token);
+                await DelayWithCancellation(50, channelStatus.ChannelWatcherToken.Token);
             }
         }
         catch (TaskCanceledException)
@@ -108,10 +108,11 @@ public class ChannelManager : IDisposable, IChannelManager
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Channel watcher error for channel: {videoStreamId}", channelManagerStatus.VideoStreamId);
+            _logger.LogError(ex, "Channel watcher error for channel: {videoStreamId}", channelStatus.VideoStreamId);
             return;
         }
-        _logger.LogInformation("Channel watcher stopped for channel: {videoStreamId}", channelManagerStatus.VideoStreamId);
+        _logger.LogInformation("Channel watcher stopped for channel: {videoStreamId}", channelStatus.VideoStreamId);
+        //_channelStatuses.TryRemove(channelStatus.VideoStreamId, out _);
     }
 
     private async Task DelayWithCancellation(int milliseconds, CancellationToken cancellationToken)
@@ -127,9 +128,9 @@ public class ChannelManager : IDisposable, IChannelManager
         }
     }
 
-    private async Task<ChildVideoStreamDto?> GetNextChildVideoStream(ChannelStatus channelManagerStatus)
+    private async Task<ChildVideoStreamDto?> GetNextChildVideoStream(ChannelStatus channelStatus)
     {
-        var videoStreamId = channelManagerStatus.VideoStreamId;
+        var videoStreamId = channelStatus.VideoStreamId;
 
         using IServiceScope scope = _serviceProvider.CreateScope();
         IAppDbContext context = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
@@ -151,21 +152,21 @@ public class ChannelManager : IDisposable, IChannelManager
 
         var videoHandler = result.Value.videoStreamHandler == VideoStreamHandlers.SystemDefault ? VideoStreamHandlers.Loop : result.Value.videoStreamHandler;
 
-        if (channelManagerStatus.Rank == 0)
+        if (channelStatus.Rank == 0)
         {
-            channelManagerStatus.Rank = 1;
+            channelStatus.Rank = 1;
             return videoStreams[0];
         }
 
-        if (channelManagerStatus.Rank > videoStreams.Count)
+        if (channelStatus.Rank > videoStreams.Count)
         {
             if (videoHandler != VideoStreamHandlers.Loop)
                 return null;
 
-            channelManagerStatus.Rank = 0;
+            channelStatus.Rank = 0;
         }
 
-        return videoStreams.First(a => a.Rank == channelManagerStatus.Rank++);
+        return videoStreams.First(a => a.Rank == channelStatus.Rank++);
     }
 
     private async Task<StreamInformation?> HandleNextVideoStream(ChannelStatus channelStatus)
@@ -225,9 +226,9 @@ public class ChannelManager : IDisposable, IChannelManager
         //    return (false, ret);
         //}
 
-        // var st = _streamManager.GetStreamInformationFromStreamUrl(channelManagerStatus.VideoStreamId);
-        // if (channelManagerStatus.Clients)
-        //string? streamUrl = await GetUrl(channelManagerStatus.VideoStreamId);
+        // var st = _streamManager.GetStreamInformationFromStreamUrl(channelStatus.VideoStreamId);
+        // if (channelStatus.Clients)
+        //string? streamUrl = await GetUrl(channelStatus.VideoStreamId);
         //if (string.IsNullOrEmpty(streamUrl))
         //{
         //    return;
@@ -307,20 +308,20 @@ public class ChannelManager : IDisposable, IChannelManager
 
         if (channelStatus is null)
         {
-            throw new ApplicationException("GetUrl _channelManagerStatus should be not have an entry");
+            throw new ApplicationException("GetUrl _channelStatus should be not have an entry");
         }
 
         return channelStatus;
     }
 
-    private void SwitchToNewStreamUrl(ChannelStatus channelManagerStatus)
+    private void SwitchToNewStreamUrl(ChannelStatus channelStatus)
     {
-        if (channelManagerStatus.StreamInformation is null)
+        if (channelStatus.StreamInformation is null)
         {
             return;
         }
 
-        StreamInformation _streamInformation = channelManagerStatus.StreamInformation;
+        StreamInformation _streamInformation = channelStatus.StreamInformation;
 
         var clientIds = _streamInformation.RingBuffer.GetClientIds();
 
@@ -341,7 +342,9 @@ public class ChannelManager : IDisposable, IChannelManager
         if (channelStatus.GetClientStreamerCount() == 0)
         {
             if (channelStatus.StreamInformation is not null)
-                channelStatus.StreamInformation.VideoStreamingCancellationToken.Cancel();
+            {
+                _streamManager.Stop(channelStatus.StreamInformation.StreamUrl);
+            }
 
             channelStatus.ChannelWatcherToken.Cancel();
             _channelStatuses.TryRemove(config.VideoStreamId, out _);

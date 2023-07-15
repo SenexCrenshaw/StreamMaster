@@ -8,7 +8,6 @@ using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
 
 using System.Collections.Concurrent;
-using System.Diagnostics;
 
 namespace StreamMasterInfrastructure.MiddleWare;
 
@@ -30,24 +29,6 @@ public class StreamManager : IStreamManager
         _streamInformations.Clear();
     }
 
-    public int GetActiveStreamsCount()
-    {
-        return _streamInformations.Count;
-    }
-
-    public IEnumerable<string> GetActiveStreamUrls()
-    {
-        return _streamInformations.Values.Select(a => a.StreamUrl).Distinct();
-    }
-
-    public SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl)
-    {
-        if (_streamInformations.TryGetValue(streamUrl, out var _streamInformation))
-        {            
-            return _streamInformation.RingBuffer.GetSingleStreamStatisticsResult();
-        }
-        return new SingleStreamStatisticsResult();
-    }
     public async Task<StreamInformation?> GetOrCreateBuffer(ChildVideoStreamDto childVideoStreamDto)
     {
         var streamUrl = childVideoStreamDto.User_Url;
@@ -85,29 +66,16 @@ public class StreamManager : IStreamManager
 
         _logger.LogInformation("Buffer created and streaming started for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
-        IncrementClientCounter(childVideoStreamDto);
-
         return streamStreamInfo;
     }
 
-    public ClientStreamerConfiguration? GetStreamerConfigurationFromID(string StreamUrl, Guid id)
-    {
-        var si = GetStreamInformationFromStreamUrl(StreamUrl);
-        if (si is null)
-        {
-            return null;
-        }
-
-        return si.GetStreamConfigurations().FirstOrDefault(a => a.ClientId == id);
-    }
-
-    public StreamInformation? GetStreamInformationFromStreamUrl(string streamUrl)
+    public SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl)
     {
         if (_streamInformations.TryGetValue(streamUrl, out var _streamInformation))
         {
-            return _streamInformation;
+            return _streamInformation.RingBuffer.GetSingleStreamStatisticsResult();
         }
-        return null;
+        return new SingleStreamStatisticsResult();
     }
 
     public ICollection<StreamInformation> GetStreamInformations()
@@ -115,73 +83,15 @@ public class StreamManager : IStreamManager
         return _streamInformations.Values;
     }
 
-    public int GetStreamsCountForM3UFile(int m3uFileId)
-    {
-        return _streamInformations
-            .Count(x => x.Value.M3UFileId == m3uFileId);
-    }
-
-    public void IncrementClientCounter(ChildVideoStreamDto childVideoStreamDto)
-    {
-        if (_streamInformations.TryGetValue(childVideoStreamDto.User_Url, out var _streamInformation))
-        {
-            //_streamInformation.AddStreamConfiguration(childVideoStreamDto);
-            //_logger.LogInformation("Client counter incremented for stream: {StreamUrl}. New count: {ClientCount}", setting.CleanURLs ? "url removed" : config.CurentVideoStream.User_Url, _streamInformation.ClientCount);
-        }
-    }
-
-    public StreamInformation? RemoveStreamInfo(string streamUrl)
+    public StreamInformation? Stop(string streamUrl)
     {
         if (_streamInformations.TryRemove(streamUrl, out var _streamInformation))
         {
+            _streamInformation.Stop();
             return _streamInformation;
         }
 
         return null;
-    }
-
-    private static string? CheckProcessExists(int processId)
-    {
-        try
-        {
-            Process process = Process.GetProcessById(processId);
-            Console.WriteLine($"Process with ID {processId} exists. Name: {process.ProcessName}");
-            return process.ProcessName;
-        }
-        catch (ArgumentException)
-        {
-            Console.WriteLine($"Process with ID {processId} does not exist.");
-            return null;
-        }
-    }
-
-    private bool DecrementClientCounter(ClientStreamerConfiguration config)
-    {
-        //if (_streamInformations.TryGetValue(config.CurentVideoStream.User_Url, out var _streamInformation))
-        //{
-        //    _streamInformation.RemoveStreamConfiguration(config);
-
-        // if (_streamInformation.ClientCount == 0) {
-        // _streamInformations.TryRemove(config.CurentVideoStream.User_Url, out
-        // _); _streamInformation.Stop();
-
-        // if (_streamInformation.ProcessId > 0) { try { var procName =
-        // CheckProcessExists(_streamInformation.ProcessId); if (procName !=
-        // null) { Process process =
-        // Process.GetProcessById(_streamInformation.ProcessId); process.Kill();
-        // } } catch (Exception ex) { _logger.LogError(ex, "Error killing
-        // process {ProcessId}", _streamInformation.ProcessId); } }
-
-        //        _logger.LogInformation("Buffer removed for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : config.CurentVideoStream.User_Url);
-        //    }
-        //    else
-        //    {
-        //        _logger.LogInformation("Client counter decremented for stream: {StreamUrl}. New count: {ClientCount}", setting.CleanURLs ? "url removed" : config.CurentVideoStream.User_Url, _streamInformation.ClientCount);
-        //    }
-        //    return true;
-        //}
-
-        return true;
     }
 
     private async Task DelayWithCancellation(int milliseconds, CancellationToken cancellationToken)
@@ -190,7 +100,7 @@ public class StreamManager : IStreamManager
         {
             await Task.Delay(milliseconds, cancellationToken);
         }
-        catch (TaskCanceledException ex)
+        catch (TaskCanceledException)
         {
             _logger.LogInformation("Task was cancelled");
             throw;
@@ -222,6 +132,12 @@ public class StreamManager : IStreamManager
         }
 
         return (stream, processId, error);
+    }
+
+    private int GetStreamsCountForM3UFile(int m3uFileId)
+    {
+        return _streamInformations
+            .Count(x => x.Value.M3UFileId == m3uFileId);
     }
 
     private async Task LogRetryAndDelay(int retryCount, int maxRetries, int waitTime, CancellationToken token, string streamUrl)
