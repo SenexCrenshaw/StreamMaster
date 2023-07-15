@@ -12,7 +12,7 @@ using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.MiddleWare;
 
-public class ChannelManager : IDisposable
+public class ChannelManager : IDisposable, IChannelManager
 {
     private readonly ConcurrentDictionary<int, ChannelStatus> _channelStatuses;
     private readonly ConcurrentDictionary<Guid, ClientStreamerConfiguration> _clients;
@@ -33,10 +33,17 @@ public class ChannelManager : IDisposable
 
     private Setting setting => FileUtil.GetSetting();
 
+    public static bool ShouldHandleFailover(ChannelStatus channelManagerStatus)
+    {
+        StreamInformation _streamInformation = channelManagerStatus.StreamInformation;
+        return _streamInformation.ClientCount == 0 || _streamInformation.VideoStreamingCancellationToken.IsCancellationRequested || _streamInformation.StreamingTask.IsFaulted || _streamInformation.StreamingTask.IsCanceled;
+    }
+
     public void Dispose()
     {
         _channelStatuses.Clear();
         _clients.Clear();
+        GC.SuppressFinalize(this);
     }
 
     public List<StreamStatisticsResult> GetAllStatisticsForAllUrls()
@@ -65,46 +72,11 @@ public class ChannelManager : IDisposable
     public async Task<Stream> RegisterClient(ClientStreamerConfiguration config)
     {
         var channelStatus = await RegisterWithChannelManager(config);
-        if (channelStatus == null)
+        if (channelStatus is null || config.ReadBuffer is null)
         {
             throw new Exception("Could not register new channel manager");
         }
         return (Stream)config.ReadBuffer;
-    }
-
-    public void RegisterClientsToNewStream(ICollection<Guid> clientIds, StreamInformation streamStreamInfo)
-    {
-        foreach (Guid clientId in clientIds)
-        {
-            RegisterClientToNewStream(clientId, streamStreamInfo);
-        }
-    }
-
-    public void RegisterClientToNewStream(Guid clientId, StreamInformation streamStreamInfo)
-    {
-        var clientInfo = streamStreamInfo.GetStreamConfiguration(clientId);
-        if (clientInfo == null)
-        {
-            _logger.LogError("Could not find client info for client id: {clientId}", clientId);
-            return;
-        }
-        streamStreamInfo.RingBuffer.RegisterClient(clientId, clientInfo.ClientUserAgent);
-        streamStreamInfo.SetClientBufferDelegate(clientId, () => streamStreamInfo.RingBuffer);
-    }
-
-    public bool ShouldHandleFailover(ChannelStatus channelManagerStatus)
-    {
-        StreamInformation _streamInformation = channelManagerStatus.StreamInformation;
-        return _streamInformation.ClientCount == 0 || _streamInformation.VideoStreamingCancellationToken.IsCancellationRequested || _streamInformation.StreamingTask.IsFaulted || _streamInformation.StreamingTask.IsCanceled;
-    }
-
-    public void SwitchToNewStreamUrl(ChannelStatus channelManagerStatus)
-    {
-        StreamInformation _streamInformation = channelManagerStatus.StreamInformation;
-
-        var clientIds = _streamInformation.RingBuffer.GetClientIds();
-
-        RegisterClientsToNewStream(clientIds, _streamInformation);
     }
 
     public void UnRegisterClient(ClientStreamerConfiguration config)
@@ -148,7 +120,7 @@ public class ChannelManager : IDisposable
         {
             await Task.Delay(milliseconds, cancellationToken);
         }
-        catch (TaskCanceledException ex)
+        catch (TaskCanceledException)
         {
             _logger.LogInformation("Task was cancelled");
             throw;
@@ -163,7 +135,7 @@ public class ChannelManager : IDisposable
         IAppDbContext context = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
 
         var result = await context.GetStreamsFromVideoStreamById(videoStreamId);
-        if (result == null)
+        if (result is null)
         {
             _logger.LogError("GetNextChildVideoStream could get videoStreams for id {VideoStreamId}", videoStreamId);
             return null;
@@ -171,14 +143,13 @@ public class ChannelManager : IDisposable
 
         var videoStreams = result.Value.childVideoStreamDtos;
 
-        if (videoStreams == null || !videoStreams.Any() || videoStreams.Count == 0)
+        if (videoStreams is null || !videoStreams.Any() || videoStreams.Count == 0)
         {
             _logger.LogError("GetNextChildVideoStream could get videoStreams for id {VideoStreamId}", videoStreamId);
             return null;
         }
-        var videoHandler = result.Value.videoStreamHandler;
 
-        var handler = videoHandler == VideoStreamHandlers.SystemDefault ? VideoStreamHandlers.Loop : videoHandler;
+        var videoHandler = result.Value.videoStreamHandler == VideoStreamHandlers.SystemDefault ? VideoStreamHandlers.Loop : result.Value.videoStreamHandler;
 
         if (channelManagerStatus.Rank == 0)
         {
@@ -186,9 +157,12 @@ public class ChannelManager : IDisposable
             return videoStreams[0];
         }
 
-        if (channelManagerStatus.Rank > videoStreams.Count && handler != VideoStreamHandlers.Loop)
+        if (channelManagerStatus.Rank > videoStreams.Count)
         {
-            return null;
+            if (videoHandler != VideoStreamHandlers.Loop)
+                return null;
+
+            channelManagerStatus.Rank = 0;
         }
 
         return videoStreams.First(a => a.Rank == channelManagerStatus.Rank++);
@@ -229,7 +203,7 @@ public class ChannelManager : IDisposable
             return (true, null);
         }
 
-        if (channelStatus.StreamInformation == null)
+        if (channelStatus.StreamInformation is null)
         {
             var ret = await HandleNextVideoStream(channelStatus);
             return (false, ret);
@@ -245,7 +219,7 @@ public class ChannelManager : IDisposable
         //    return (false, null);
         //}
 
-        //if (channelStatus.StreamInformation.RingBuffer == null)
+        //if (channelStatus.StreamInformation.RingBuffer is null)
         //{
         //    var ret = HandleStreamAction(channelStatus);
         //    return (false, ret);
@@ -279,6 +253,26 @@ public class ChannelManager : IDisposable
         return (false, null);
     }
 
+    private void RegisterClientsToNewStream(ICollection<Guid> clientIds, StreamInformation streamStreamInfo)
+    {
+        foreach (Guid clientId in clientIds)
+        {
+            RegisterClientToNewStream(clientId, streamStreamInfo);
+        }
+    }
+
+    private void RegisterClientToNewStream(Guid clientId, StreamInformation streamStreamInfo)
+    {
+        var clientInfo = streamStreamInfo.GetStreamConfiguration(clientId);
+        if (clientInfo is null)
+        {
+            _logger.LogError("Could not find client info for client id: {clientId}", clientId);
+            return;
+        }
+        streamStreamInfo.RingBuffer.RegisterClient(clientId, clientInfo.ClientUserAgent);
+        streamStreamInfo.SetClientBufferDelegate(clientId, () => streamStreamInfo.RingBuffer);
+    }
+
     private async Task<ChannelStatus> RegisterWithChannelManager(ClientStreamerConfiguration config)
     {
         ChannelStatus channelStatus;
@@ -306,16 +300,31 @@ public class ChannelManager : IDisposable
         }
 
         _logger.LogInformation("ChannelManager added channel: {videoStreamId}", config.VideoStreamId);
+
         channelStatus.AddClientStreamerConfiguration(config);
         channelStatus.StreamInformation.RingBuffer.RegisterClient(config.ClientId, config.ClientUserAgent);
         config.ReadBuffer = new RingBufferReadStream(() => channelStatus.StreamInformation.RingBuffer, config);
 
-        if (channelStatus == null)
+        if (channelStatus is null)
         {
             throw new ApplicationException("GetUrl _channelManagerStatus should be not have an entry");
         }
 
         return channelStatus;
+    }
+
+    private void SwitchToNewStreamUrl(ChannelStatus channelManagerStatus)
+    {
+        if (channelManagerStatus.StreamInformation is null)
+        {
+            return;
+        }
+
+        StreamInformation _streamInformation = channelManagerStatus.StreamInformation;
+
+        var clientIds = _streamInformation.RingBuffer.GetClientIds();
+
+        RegisterClientsToNewStream(clientIds, _streamInformation);
     }
 
     private void UnRegisterWithChannelManager(ClientStreamerConfiguration config)
@@ -331,7 +340,9 @@ public class ChannelManager : IDisposable
 
         if (channelStatus.GetClientStreamerCount() == 0)
         {
-            channelStatus.StreamInformation.VideoStreamingCancellationToken.Cancel();
+            if (channelStatus.StreamInformation is not null)
+                channelStatus.StreamInformation.VideoStreamingCancellationToken.Cancel();
+
             channelStatus.ChannelWatcherToken.Cancel();
             _channelStatuses.TryRemove(config.VideoStreamId, out _);
             _logger.LogInformation("ChannelManager No more clients, stopping streaming for {videoStreamId}", config.VideoStreamId);

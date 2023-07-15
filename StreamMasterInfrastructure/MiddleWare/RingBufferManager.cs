@@ -7,15 +7,12 @@ using StreamMasterApplication.Hubs;
 
 using StreamMasterDomain.Common;
 
-using System.Collections.Concurrent;
-
 namespace StreamMasterInfrastructure.MiddleWare;
 
 public class RingBufferManager : IDisposable, IRingBufferManager
 {
     private readonly Timer _broadcastTimer;
-    private readonly ChannelManager _channeManager;
-    private readonly ConcurrentDictionary<string, CancellationTokenSource> _handlerTokens;
+    private readonly IChannelManager _channeManager;
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hub;
     private readonly ILogger<RingBufferManager> _logger;
     private readonly IServiceProvider _serviceProvider;
@@ -30,7 +27,6 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         _logger = logger;
         _hub = hub;
         _serviceProvider = serviceProvider;
-        _handlerTokens = new ConcurrentDictionary<string, CancellationTokenSource>();
         _broadcastTimer = new Timer(BroadcastMessage, null, 1000, 1000);
         _channeManager = new ChannelManager(logger, _serviceProvider);
     }
@@ -117,10 +113,5 @@ public class RingBufferManager : IDisposable, IRingBufferManager
         }
 
         _ = _hub.Clients.All.StreamStatisticsResultsUpdate(GetAllStatisticsForAllUrls());
-    }
-
-    private void DecrementClientCounter(ClientStreamerConfiguration config)
-    {
-        //_streamManager.DecrementClientCounter(config);
     }
 }
