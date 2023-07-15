@@ -90,6 +90,9 @@ public class StreamInformation : IDisposable, IStreamInformation
 
     public bool UnRegisterStreamConfiguration(ClientStreamerConfiguration streamerConfiguration)
     {
+        _clientInformations.TryAdd(streamerConfiguration.ClientId, streamerConfiguration);
+        RingBuffer.UnregisterClient(streamerConfiguration.ClientId);
+
         return _clientInformations.TryRemove(streamerConfiguration.ClientId, out _);
     }
 

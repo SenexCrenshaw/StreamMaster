@@ -317,12 +317,13 @@ public class ChannelManager : IDisposable, IChannelManager
 
             if (channelStatus.StreamInformation.ClientCount == 0)
             {
+                channelStatus.ChannelWatcherToken.Cancel();
+
                 if (channelStatus.StreamInformation is not null)
                 {
                     _streamManager.Stop(channelStatus.StreamInformation.StreamUrl);
                 }
-
-                channelStatus.ChannelWatcherToken.Cancel();
+                
                 _channelStatuses.TryRemove(config.VideoStreamId, out _);
                 _logger.LogInformation("ChannelManager No more clients, stopping streaming for {videoStreamId}", config.VideoStreamId);
             }
