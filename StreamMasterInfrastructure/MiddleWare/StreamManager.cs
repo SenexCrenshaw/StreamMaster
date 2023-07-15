@@ -14,12 +14,12 @@ namespace StreamMasterInfrastructure.MiddleWare;
 public class StreamManager : IStreamManager
 {
     private readonly ILogger _logger;
-    private readonly ConcurrentDictionary<string, StreamInformation> _streamInformations;
+    private readonly ConcurrentDictionary<string, IStreamInformation> _streamInformations;
 
     public StreamManager(ILogger logger)
     {
         _logger = logger;
-        _streamInformations = new ConcurrentDictionary<string, StreamInformation>();
+        _streamInformations = new ConcurrentDictionary<string, IStreamInformation>();
     }
 
     private Setting setting => FileUtil.GetSetting();
@@ -29,7 +29,7 @@ public class StreamManager : IStreamManager
         _streamInformations.Clear();
     }
 
-    public async Task<StreamInformation?> GetOrCreateBuffer(ChildVideoStreamDto childVideoStreamDto)
+    public async Task<IStreamInformation?> GetOrCreateBuffer(ChildVideoStreamDto childVideoStreamDto)
     {
         var streamUrl = childVideoStreamDto.User_Url;
         if (_streamInformations.TryGetValue(streamUrl, out var _streamInformation))
@@ -47,7 +47,7 @@ public class StreamManager : IStreamManager
 
         _logger.LogInformation("Creating and starting buffer for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
-        CircularRingBuffer buffer = new(childVideoStreamDto);
+        ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto);
         CancellationTokenSource cancellationTokenSource = new();
 
         (Stream? stream, int processId, ProxyStreamError? error) = await GetProxy(streamUrl, cancellationTokenSource.Token);
@@ -78,12 +78,12 @@ public class StreamManager : IStreamManager
         return new SingleStreamStatisticsResult();
     }
 
-    public ICollection<StreamInformation> GetStreamInformations()
+    public ICollection<IStreamInformation> GetStreamInformations()
     {
         return _streamInformations.Values;
     }
 
-    public StreamInformation? Stop(string streamUrl)
+    public IStreamInformation? Stop(string streamUrl)
     {
         if (_streamInformations.TryRemove(streamUrl, out var _streamInformation))
         {
@@ -155,7 +155,7 @@ public class StreamManager : IStreamManager
         await DelayWithCancellation(waitTime, token);
     }
 
-    private async Task StartVideoStreaming(Stream stream, string streamUrl, CircularRingBuffer buffer, CancellationTokenSource cancellationToken)
+    private async Task StartVideoStreaming(Stream stream, string streamUrl, ICircularRingBuffer buffer, CancellationTokenSource cancellationToken)
     {
         var chunkSize = setting.RingBufferSizeMB * 1024 * 1000;
 
@@ -198,7 +198,8 @@ public class StreamManager : IStreamManager
         }
 
         _logger.LogInformation("Stream stopped for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
-        cancellationToken.Cancel();
+        if (!cancellationToken.IsCancellationRequested)
+            cancellationToken.Cancel();
     }
 
     private async Task<int> TryReadStream(byte[] bufferChunk, CancellationToken token, Stream stream)

@@ -94,23 +94,20 @@ public class RingBufferManager : IDisposable, IRingBufferManager
 
     public void SimulateStreamFailureForAll()
     {
-        //foreach (var s in _streamManager.GetStreamInformations())
-        //{
-        //    SimulateStreamFailure(s.StreamUrl);
-        //}
+        _channeManager.SimulateStreamFailureForAll();
     }
 
     private void BroadcastMessage(object? state)
     {
-        if (BuildInfo.IsDebug)
-        {
-            var infos = _channeManager.GetStreamInformations().ToList();
+        //if (BuildInfo.IsDebug)
+        //{
+        //    var infos = _channeManager.GetStreamInformations().ToList();
 
-            foreach (var info in infos.Where(a => a.RingBuffer != null))
-            {
-                _logger.LogInformation("{StreamUrl} {clientCount}", info.StreamUrl, info.ClientCount);
-            }
-        }
+        //    foreach (var info in infos.Where(a => a.RingBuffer != null))
+        //    {
+        //        _logger.LogInformation("{StreamUrl} {clientCount}", info.StreamUrl, info.ClientCount);
+        //    }
+        //}
 
         _ = _hub.Clients.All.StreamStatisticsResultsUpdate(GetAllStatisticsForAllUrls());
     }

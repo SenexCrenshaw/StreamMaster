@@ -1,9 +1,12 @@
-﻿using System.Collections.Concurrent;
+﻿using StreamMasterApplication.Common.Interfaces;
+using StreamMasterApplication.Common.Models;
+
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
-namespace StreamMasterApplication.Common.Models;
+namespace StreamMasterInfrastructure.MiddleWare;
 
-public class StreamInformation : IDisposable
+public class StreamInformation : IDisposable, IStreamInformation
 {
     private ConcurrentDictionary<Guid, ClientStreamerConfiguration> _clientInformations;
 
@@ -31,16 +34,11 @@ public class StreamInformation : IDisposable
 
     public int ProcessId { get; set; } = -1;
 
-    public ICircularRingBuffer RingBuffer { get; set; }
+    public ICircularRingBuffer RingBuffer { get; private set; }
 
     public Task StreamingTask { get; set; }
     public string StreamUrl { get; set; }
     public CancellationTokenSource VideoStreamingCancellationToken { get; set; }
-
-    public bool AddStreamConfiguration(ClientStreamerConfiguration streamerConfiguration)
-    {
-        return _clientInformations.TryAdd(streamerConfiguration.ClientId, streamerConfiguration);
-    }
 
     public void Dispose()
     {
@@ -57,25 +55,12 @@ public class StreamInformation : IDisposable
         return _clientInformations.Values.ToList();
     }
 
-    public bool MoveStreamConfiguration(ClientStreamerConfiguration streamerConfiguration)
+    public void RegisterStreamConfiguration(ClientStreamerConfiguration streamerConfiguration)
     {
-        return _clientInformations.TryAdd(streamerConfiguration.ClientId, streamerConfiguration);
-    }
+        _clientInformations.TryAdd(streamerConfiguration.ClientId, streamerConfiguration);
+        RingBuffer.RegisterClient(streamerConfiguration.ClientId, streamerConfiguration.ClientUserAgent);
 
-    public bool RemoveStreamConfiguration(ClientStreamerConfiguration streamerConfiguration)
-    {
-        return _clientInformations.TryRemove(streamerConfiguration.ClientId, out _);
-    }
-
-    public void SetClientBufferDelegate(Guid ClientId, Func<ICircularRingBuffer> func)
-    {
-        var sc = GetStreamConfiguration(ClientId);
-        if (sc is null || sc.ReadBuffer is null)
-        {
-            return;
-        }
-
-        sc.ReadBuffer.SetBufferDelegate(func, sc);
+        SetClientBufferDelegate(streamerConfiguration, () => RingBuffer);
     }
 
     public void Stop()
@@ -84,9 +69,6 @@ public class StreamInformation : IDisposable
         {
             VideoStreamingCancellationToken.Cancel();
         }
-
-        //if (streamerConfiguration is not null)
-        //    RemoveStreamConfiguration(streamerConfiguration);
 
         if (ProcessId > 0)
         {
@@ -106,6 +88,11 @@ public class StreamInformation : IDisposable
         }
     }
 
+    public bool UnRegisterStreamConfiguration(ClientStreamerConfiguration streamerConfiguration)
+    {
+        return _clientInformations.TryRemove(streamerConfiguration.ClientId, out _);
+    }
+
     private static string? CheckProcessExists(int processId)
     {
         try
@@ -119,5 +106,16 @@ public class StreamInformation : IDisposable
             Console.WriteLine($"Process with ID {processId} does not exist.");
             return null;
         }
+    }
+
+    private void SetClientBufferDelegate(ClientStreamerConfiguration config, Func<ICircularRingBuffer> func)
+    {
+        var sc = GetStreamConfiguration(config.ClientId);
+        if (sc is null || sc.ReadBuffer is null)
+        {
+            return;
+        }
+
+        sc.ReadBuffer.SetBufferDelegate(func, sc);
     }
 }

@@ -8,11 +8,11 @@ public interface IStreamManager
 {
     void Dispose();
 
-    Task<StreamInformation?> GetOrCreateBuffer(ChildVideoStreamDto childVideoStreamDto);
+    Task<IStreamInformation?> GetOrCreateBuffer(ChildVideoStreamDto childVideoStreamDto);
 
     SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl);
 
-    ICollection<StreamInformation> GetStreamInformations();
+    ICollection<IStreamInformation> GetStreamInformations();
 
-    StreamInformation? Stop(string streamUrl);
+    IStreamInformation? Stop(string streamUrl);
 }
