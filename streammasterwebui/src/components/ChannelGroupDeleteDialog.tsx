@@ -86,7 +86,7 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
 
       <InfoMessageOverLayDialog
         blocked={block}
-        header={`Delete ${selectedChannelGroups.filter((a) => !a.isReadOnly).length < 2 ? selectedChannelGroups.filter((a) => !a.isReadOnly)[0] ? selectedChannelGroups.filter((a) => !a.isReadOnly)[0].name + ' Group ?' : ' Group ?' : selectedChannelGroups.filter((a) => !a.isReadOnly).length + ' Groups ?'}`}
+        header={`Delete "${selectedChannelGroups.filter((a) => !a.isReadOnly).length < 2 ? selectedChannelGroups.filter((a) => !a.isReadOnly)[0] ? selectedChannelGroups.filter((a) => !a.isReadOnly)[0].name + '" Group ?' : ' Group ?' : selectedChannelGroups.filter((a) => !a.isReadOnly).length + ' Groups ?'}`}
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
         show={showOverlay}
