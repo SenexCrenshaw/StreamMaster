@@ -36,6 +36,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   const tooltipClassName = React.useMemo(() => "menuitemds-" + uuidv4(), []);
   const [globalSourceFilterValue, setGlobalSourceFilterValue] = useLocalStorage('', props.id + '-sourceGlobalFilterValue');
   const [dataSource, setDataSource] = React.useState<T[]>();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [values, setValues] = React.useState<T[]>();
   const [expandedRows, setExpandedRows] = React.useState<DataTableExpandedRows>();
 
@@ -415,26 +416,23 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   const showPagination = React.useMemo((): boolean => {
     let dataLength = 0;
 
-
-    if (values && values.length > 0) {
-      dataLength = values.length;
-
-    } else {
-      if (dataSource && dataSource.length > 0) {
-        dataLength = dataSource.length;
-
-      }
-      else {
-        return true;
-      }
+    // if (values && values.length > 0) {
+    //   dataLength = values.length;
+    // } else {
+    if (dataSource && dataSource.length > 0) {
+      dataLength = dataSource.length;
     }
+    else {
+      return false;
+    }
+    // }
 
 
     const minRows = props.paginatorMinimumRowsToShow ? props.paginatorMinimumRowsToShow : 20;
 
-    return dataLength !== minRows;
+    return dataLength >= minRows;
 
-  }, [values, props.paginatorMinimumRowsToShow, dataSource]);
+  }, [props.paginatorMinimumRowsToShow, dataSource]);
 
   const onRowReorder = React.useCallback((data: T[]) => {
     setDataSource(data);

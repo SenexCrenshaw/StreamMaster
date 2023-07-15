@@ -13,7 +13,7 @@ namespace StreamMasterApplication.Common.Interfaces
         ICollection<IStreamInformation> GetStreamInformations();
 
         Task<Stream> RegisterClient(ClientStreamerConfiguration config);
-
+        void SimulateStreamFailure(string streamUrl);
         void SimulateStreamFailureForAll();
 
         void UnRegisterClient(ClientStreamerConfiguration config);

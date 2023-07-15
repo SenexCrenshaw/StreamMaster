@@ -598,15 +598,6 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/streamgroups/getstreamgroups` }),
         providesTags: ["StreamGroups"],
       }),
-      streamGroupsGetStreamGroupVideoM3UStream: build.query<
-        StreamGroupsGetStreamGroupVideoM3UStreamApiResponse,
-        StreamGroupsGetStreamGroupVideoM3UStreamApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/streamgroups/${queryArg.streamGroupNumber}/stream/${queryArg.streamId}/${queryArg.clientId}.ts`,
-        }),
-        providesTags: ["StreamGroups"],
-      }),
       streamGroupsGetStreamGroupVideoStream: build.query<
         StreamGroupsGetStreamGroupVideoStreamApiResponse,
         StreamGroupsGetStreamGroupVideoStreamApiArg
@@ -656,6 +647,16 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/streamgroups/simulatestreamfailure/${queryArg}`,
+          method: "POST",
+        }),
+        invalidatesTags: ["StreamGroups"],
+      }),
+      streamGroupsSimulateStreamFailureForAll: build.mutation<
+        StreamGroupsSimulateStreamFailureForAllApiResponse,
+        StreamGroupsSimulateStreamFailureForAllApiArg
+      >({
+        query: () => ({
+          url: `/api/streamgroups/simulatestreamfailureforall`,
           method: "POST",
         }),
         invalidatesTags: ["StreamGroups"],
@@ -950,12 +951,6 @@ export type StreamGroupsGetStreamGroupM3UApiArg = string;
 export type StreamGroupsGetStreamGroupsApiResponse =
   /** status 200  */ StreamGroupDto[];
 export type StreamGroupsGetStreamGroupsApiArg = void;
-export type StreamGroupsGetStreamGroupVideoM3UStreamApiResponse = unknown;
-export type StreamGroupsGetStreamGroupVideoM3UStreamApiArg = {
-  streamGroupNumber: number;
-  streamId: number;
-  clientId: string;
-};
 export type StreamGroupsGetStreamGroupVideoStreamApiResponse = unknown;
 export type StreamGroupsGetStreamGroupVideoStreamApiArg = string;
 export type StreamGroupsGetStreamGroupVideoStream2ApiResponse = unknown;
@@ -980,6 +975,9 @@ export type StreamGroupsGetStreamM3U8WithClientIdApiArg = {
 export type StreamGroupsSimulateStreamFailureApiResponse =
   /** status 200  */ undefined;
 export type StreamGroupsSimulateStreamFailureApiArg = string;
+export type StreamGroupsSimulateStreamFailureForAllApiResponse =
+  /** status 200  */ undefined;
+export type StreamGroupsSimulateStreamFailureForAllApiArg = void;
 export type StreamGroupsUpdateStreamGroupApiResponse =
   /** status 204  */ undefined;
 export type StreamGroupsUpdateStreamGroupApiArg = UpdateStreamGroupRequest;
@@ -1303,41 +1301,42 @@ export type LogInRequest = {
   userName?: string;
 };
 export type UpdateSettingResponse = {
-  settings?: SettingDto;
   needsLogOut?: boolean;
+  settings?: SettingDto;
 };
 export type UpdateSettingRequest = {
-  authenticationMethod?: AuthenticationType | null;
   adminPassword?: string | null;
   adminUserName?: string | null;
   apiKey?: string | null;
-  enableSSL?: boolean | null;
+  authenticationMethod?: AuthenticationType | null;
   cacheIcons?: boolean | null;
   cleanURLs?: boolean | null;
-  useDummyEPGForBlanks?: boolean | null;
-  m3UFieldCUID?: boolean | null;
+  clientUserAgent?: string | null;
+  deviceID?: string | null;
+  enableSSL?: boolean | null;
+  ffmPegExecutable?: string | null;
+  firstFreeNumber?: number | null;
   m3UFieldChannelId?: boolean | null;
   m3UFieldChannelNumber?: boolean | null;
-  m3UFieldTvgName?: boolean | null;
+  m3UFieldCUID?: boolean | null;
+  m3UFieldGroupTitle?: boolean | null;
   m3UFieldTvgChno?: boolean | null;
   m3UFieldTvgId?: boolean | null;
   m3UFieldTvgLogo?: boolean | null;
-  m3UFieldGroupTitle?: boolean | null;
-  streamingClientUserAgent?: string | null;
-  clientUserAgent?: string | null;
-  deviceID?: string | null;
-  ffmPegExecutable?: string | null;
-  sslCertPath?: string | null;
-  sslCertPassword?: string | null;
-  firstFreeNumber?: number | null;
+  m3UFieldTvgName?: boolean | null;
   maxConnectRetry?: number | null;
   maxConnectRetryTimeMS?: number | null;
   overWriteM3UChannels?: boolean | null;
+  preloadPercentage?: number | null;
   ringBufferSizeMB?: number | null;
   sdPassword?: string | null;
   sdUserName?: string | null;
   sourceBufferPreBufferPercentage?: number | null;
+  sslCertPassword?: string | null;
+  sslCertPath?: string | null;
+  streamingClientUserAgent?: string | null;
   streamingProxyType?: StreamingProxyTypes | null;
+  useDummyEPGForBlanks?: boolean | null;
 };
 export type VideoStreamHandlers = 0 | 1 | 2;
 export type BaseVideoStreamDto = {
@@ -1369,6 +1368,7 @@ export type BaseVideoStreamDto = {
   videoStreamHandler: VideoStreamHandlers;
 };
 export type ChildVideoStreamDto = BaseVideoStreamDto & {
+  maxStreams: number;
   rank: number;
 };
 export type VideoStreamDto = BaseVideoStreamDto & {
@@ -1394,6 +1394,7 @@ export type DeleteStreamGroupRequest = {
   id?: number;
 };
 export type StreamStatisticsResult = {
+  rank?: number;
   inputBitsPerSecond?: number;
   inputBytesRead?: number;
   inputBytesWritten?: number;
@@ -1553,13 +1554,13 @@ export const {
   useStreamGroupsGetStreamGroupLineUpStatusQuery,
   useStreamGroupsGetStreamGroupM3UQuery,
   useStreamGroupsGetStreamGroupsQuery,
-  useStreamGroupsGetStreamGroupVideoM3UStreamQuery,
   useStreamGroupsGetStreamGroupVideoStreamQuery,
   useStreamGroupsGetStreamGroupVideoStream2Query,
   useStreamGroupsGetStreamGroupVideoStream3Query,
   useStreamGroupsGetStreamM3U8Query,
   useStreamGroupsGetStreamM3U8WithClientIdQuery,
   useStreamGroupsSimulateStreamFailureMutation,
+  useStreamGroupsSimulateStreamFailureForAllMutation,
   useStreamGroupsUpdateStreamGroupMutation,
   useVideoStreamsAddVideoStreamMutation,
   useVideoStreamsGetVideoStreamsQuery,

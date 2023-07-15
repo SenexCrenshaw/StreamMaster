@@ -70,26 +70,13 @@ public class RingBufferManager : IDisposable, IRingBufferManager
 
     public void SimulateStreamFailure(string streamUrl)
     {
-        //if (string.IsNullOrEmpty(streamUrl))
-        //{
-        //    _logger.LogWarning("Stream URL is empty or null, cannot simulate stream failure");
-        //    return;
-        //}
-
-        //StreamInformation? _streamInformation = _streamManager.GetStreamInformationFromStreamUrl(streamUrl);
-
-        //if (_streamInformation is not null)
-        //{
-        //    if (_streamInformation.StreamerCancellationToken is not null)
-        //    {
-        //        _streamInformation.StreamerCancellationToken.Cancel();
-        //    }
-        //    _logger.LogInformation("Simulating stream failure for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
-        //}
-        //else
-        //{
-        //    _logger.LogWarning("Stream not found, cannot simulate stream failure: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
-        //}
+        if (string.IsNullOrEmpty(streamUrl))
+        {
+            _logger.LogWarning("Stream URL is empty or null, cannot simulate stream failure");
+            return;
+        }
+        _channeManager.SimulateStreamFailure(streamUrl);
+     
     }
 
     public void SimulateStreamFailureForAll()

@@ -2,6 +2,7 @@
 
 public class StreamStatisticsResult
 {
+    public int Rank { get; set; }
     public double InputBitsPerSecond { get; set; }
     public long InputBytesRead { get; set; }
     public long InputBytesWritten { get; set; }
@@ -15,8 +16,6 @@ public class StreamStatisticsResult
     public DateTimeOffset ClientStartTime { get; set; }
     public Guid ClientId { get; set; }
 
-    //public List<ClientStreamingStatistics> ClientStatistics { get; set; }
-    //public StreamingStatistics InputStreamStatistics { get; set; }
 
     public string? Logo { get; set; }
 
@@ -40,6 +39,7 @@ public class StreamStatisticsResult
 
 public class StreamInfo
 {
+    public int Rank { get; set; }
     public string? Logo { get; set; }
 
     /// <summary>

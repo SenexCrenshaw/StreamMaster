@@ -81,6 +81,24 @@ public class ChannelManager : IDisposable, IChannelManager
         return (Stream)config.ReadBuffer;
     }
 
+    public void SimulateStreamFailure(string streamUrl)
+    {
+        var _streamInformation = _streamManager.GetStreamInformationFromStreamUrl(streamUrl);
+
+        if (_streamInformation is not null)
+        {
+            if (_streamInformation.VideoStreamingCancellationToken is not null && !_streamInformation.VideoStreamingCancellationToken.IsCancellationRequested)
+            {
+                _streamInformation.VideoStreamingCancellationToken.Cancel();
+            }
+            _logger.LogInformation("Simulating stream failure for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+        }
+        else
+        {
+            _logger.LogWarning("Stream not found, cannot simulate stream failure: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+        }
+    }
+
     public void SimulateStreamFailureForAll()
     {
         foreach (var s in _streamManager.GetStreamInformations())
@@ -189,7 +207,7 @@ public class ChannelManager : IDisposable, IChannelManager
             oldConfigs = channelStatus.StreamInformation.GetStreamConfigurations();
         }
 
-        channelStatus.StreamInformation = await _streamManager.GetOrCreateBuffer(childVideoStreamDto);
+        channelStatus.StreamInformation = await _streamManager.GetOrCreateBuffer(childVideoStreamDto, channelStatus.Rank);
 
         if (channelStatus.StreamInformation is null)
         {

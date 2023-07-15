@@ -29,7 +29,7 @@ public class StreamManager : IStreamManager
         _streamInformations.Clear();
     }
 
-    public async Task<IStreamInformation?> GetOrCreateBuffer(ChildVideoStreamDto childVideoStreamDto)
+    public async Task<IStreamInformation?> GetOrCreateBuffer(ChildVideoStreamDto childVideoStreamDto, int rank)
     {
         var streamUrl = childVideoStreamDto.User_Url;
         if (_streamInformations.TryGetValue(streamUrl, out var _streamInformation))
@@ -47,7 +47,7 @@ public class StreamManager : IStreamManager
 
         _logger.LogInformation("Creating and starting buffer for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
-        ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto);
+        ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, rank);
         CancellationTokenSource cancellationTokenSource = new();
 
         (Stream? stream, int processId, ProxyStreamError? error) = await GetProxy(streamUrl, cancellationTokenSource.Token);
@@ -77,7 +77,10 @@ public class StreamManager : IStreamManager
         }
         return new SingleStreamStatisticsResult();
     }
-
+    public IStreamInformation? GetStreamInformationFromStreamUrl(string streamUrl)
+    {
+        return _streamInformations.Values.FirstOrDefault(x => x.StreamUrl == streamUrl);
+    }
     public ICollection<IStreamInformation> GetStreamInformations()
     {
         return _streamInformations.Values;

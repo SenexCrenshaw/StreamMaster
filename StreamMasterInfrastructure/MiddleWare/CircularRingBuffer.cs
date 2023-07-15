@@ -27,7 +27,7 @@ public class CircularRingBuffer : ICircularRingBuffer
     private float _preBuffPercent;
     private int _writeIndex;
 
-    public CircularRingBuffer(ChildVideoStreamDto childVideoStreamDto, int tempbuffersize = 0)
+    public CircularRingBuffer(ChildVideoStreamDto childVideoStreamDto, int rank, int tempbuffersize = 0)
     {
         if (setting.PreloadPercentage < 0 || setting.PreloadPercentage > 100)
             setting.PreloadPercentage = 0;
@@ -42,6 +42,7 @@ public class CircularRingBuffer : ICircularRingBuffer
             Logo = childVideoStreamDto.User_Tvg_logo,
             StreamProxyType = childVideoStreamDto.StreamProxyType,
             StreamUrl = childVideoStreamDto.User_Url,
+            Rank =rank
         };
 
         _buffer = new byte[_bufferSize];
@@ -85,7 +86,7 @@ public class CircularRingBuffer : ICircularRingBuffer
                 M3UStreamName = StreamInfo.M3UStreamName,
                 M3UStreamProxyType = StreamInfo.StreamProxyType,
                 Logo = StreamInfo.Logo,
-
+                Rank=StreamInfo.Rank,
                 InputBytesRead = input.BytesRead,
                 InputBytesWritten = input.BytesWritten,
                 InputBitsPerSecond = input.BitsPerSecond,
