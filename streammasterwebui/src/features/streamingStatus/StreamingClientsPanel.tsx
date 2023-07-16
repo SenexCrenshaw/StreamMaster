@@ -3,6 +3,9 @@
 import React from 'react';
 import { formatJSONDateString, getTopToolOptions } from '../../common/common';
 import { Toast } from 'primereact/toast';
+import { type VideoStreamDto } from '../../store/iptvApi';
+import { type ChangeVideoStreamChannelRequest } from '../../store/iptvApi';
+import { type FailClientRequest } from '../../store/iptvApi';
 import { type StreamStatisticsResult } from '../../store/iptvApi';
 import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
@@ -21,16 +24,51 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
   }, []);
 
 
+  const onChangeVideoStreamChannel = React.useCallback(async (playingVideoStreamId: number, newVideoStreamId: number) => {
+    if (playingVideoStreamId === undefined || playingVideoStreamId < 1 ||
+      newVideoStreamId === undefined || newVideoStreamId < 1
+    ) {
+      return;
+    }
+
+    var toSend = {} as ChangeVideoStreamChannelRequest;
+    toSend.playingVideoStreamId = playingVideoStreamId;
+    toSend.newVideoStreamId = newVideoStreamId;
+
+    await Hub.ChangeVideoStreamChannel(toSend)
+      .then(() => {
+        if (toast.current) {
+          toast.current.show({
+            detail: `Changed Client Channel`,
+            life: 3000,
+            severity: 'success',
+            summary: 'Successful',
+          });
+        }
+      }).catch(() => {
+        if (toast.current) {
+          toast.current.show({
+            detail: `Failed Client Channel`,
+            life: 3000,
+            severity: 'error',
+            summary: 'Error'
+          });
+        }
+      });
+
+  }, []);
+
+
   const videoStreamTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
     return (
       <VideoStreamSelector
-        onChange={(e) => {
-          console.debug(e);
+        onChange={async (e) => {
+          await onChangeVideoStreamChannel(rowData.videoStreamId ?? 0, e.id);
         }}
         value={rowData.m3UStreamName}
       />
     );
-  }, []);
+  }, [onChangeVideoStreamChannel]);
 
   const clientStartTimeTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
     return (<div>{formatJSONDateString(rowData.clientStartTime ?? '')}</div>);
@@ -40,16 +78,19 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
     return (<div>{rowData.clientElapsedTime?.split('.')[0]}</div >);
   }, []);
 
-  const onFailStream = React.useCallback(async (rowData: StreamStatisticsResult) => {
-    if (!rowData.streamUrl || rowData.streamUrl === undefined || rowData.streamUrl === '') {
+  const onFailClient = React.useCallback(async (rowData: StreamStatisticsResult) => {
+    if (!rowData.clientId || rowData.clientId === undefined || rowData.clientId === '') {
       return;
     }
 
-    await Hub.SimulateStreamFailure(rowData.streamUrl)
+    var toSend = {} as FailClientRequest;
+    toSend.clientId = rowData.clientId;
+
+    await Hub.FailClient(toSend)
       .then(() => {
         if (toast.current) {
           toast.current.show({
-            detail: `Failed Stream`,
+            detail: `Failed Client`,
             life: 3000,
             severity: 'success',
             summary: 'Successful',
@@ -58,7 +99,7 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
       }).catch(() => {
         if (toast.current) {
           toast.current.show({
-            detail: `Failed Stream Failed`,
+            detail: `Failed to Fail Client`,
             life: 3000,
             severity: 'error',
             summary: 'Error'
@@ -76,14 +117,14 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
         <Button
           className="p-button-danger"
           icon="pi pi-times"
-          onClick={async () => await onFailStream(rowData)}
+          onClick={async () => await onFailClient(rowData)}
           rounded
           text
           tooltip="Fail Client"
           tooltipOptions={getTopToolOptions} />
       </div>
     );
-  }, [onFailStream]);
+  }, [onFailClient]);
 
   const sourceColumns = React.useMemo((): ColumnMeta[] => {
     return [

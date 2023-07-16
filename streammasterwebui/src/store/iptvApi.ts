@@ -694,12 +694,12 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["VideoStreams"],
       }),
-      videoStreamsChangeVideoStreamRequest: build.mutation<
-        VideoStreamsChangeVideoStreamRequestApiResponse,
-        VideoStreamsChangeVideoStreamRequestApiArg
+      videoStreamsChangeVideoStreamChannel: build.mutation<
+        VideoStreamsChangeVideoStreamChannelApiResponse,
+        VideoStreamsChangeVideoStreamChannelApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/videostreams/changevideostreamrequest`,
+          url: `/api/videostreams/changevideostreamchannel`,
           method: "POST",
           body: queryArg,
         }),
@@ -1009,9 +1009,9 @@ export type VideoStreamsAddVideoStreamApiResponse = /** status 200  */
   | undefined
   | /** status 201  */ VideoStreamDto;
 export type VideoStreamsAddVideoStreamApiArg = AddVideoStreamRequest;
-export type VideoStreamsChangeVideoStreamRequestApiResponse =
+export type VideoStreamsChangeVideoStreamChannelApiResponse =
   /** status 200  */ undefined;
-export type VideoStreamsChangeVideoStreamRequestApiArg =
+export type VideoStreamsChangeVideoStreamChannelApiArg =
   ChangeVideoStreamChannelRequest;
 export type VideoStreamsDeleteVideoStreamApiResponse =
   /** status 200  */ undefined;
@@ -1604,7 +1604,7 @@ export const {
   useStreamGroupsSimulateStreamFailureForAllMutation,
   useStreamGroupsUpdateStreamGroupMutation,
   useVideoStreamsAddVideoStreamMutation,
-  useVideoStreamsChangeVideoStreamRequestMutation,
+  useVideoStreamsChangeVideoStreamChannelMutation,
   useVideoStreamsDeleteVideoStreamMutation,
   useVideoStreamsGetVideoStreamQuery,
   useVideoStreamsGetVideoStreamsQuery,

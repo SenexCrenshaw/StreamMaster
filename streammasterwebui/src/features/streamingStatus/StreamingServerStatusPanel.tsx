@@ -21,7 +21,7 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
       .then(() => {
         if (toast.current) {
           toast.current.show({
-            detail: `Failed Stream`,
+            detail: `Next Stream`,
             life: 3000,
             severity: 'success',
             summary: 'Successful',
@@ -30,7 +30,7 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
       }).catch(() => {
         if (toast.current) {
           toast.current.show({
-            detail: `Failed Stream Failed`,
+            detail: `Next Stream Failed`,
             life: 3000,
             severity: 'error',
             summary: 'Error'

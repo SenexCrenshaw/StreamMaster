@@ -1,8 +1,6 @@
 import { hubConnection } from "../app/signalr";
 import {
-  type UpdateSettingResponse
-} from "./iptvApi";
-import {
+  type UpdateSettingResponse,
   type AddChannelGroupRequest,
   type AddEpgFileRequest,
   type AddIconFileRequest,
@@ -12,6 +10,7 @@ import {
   type AutoMatchIconToStreamsRequest,
   type ChangeEpgFileNameRequest,
   type ChangeM3UFileNameRequest,
+  type ChangeVideoStreamChannelRequest,
   type ChannelGroupDto,
   type ChannelNumberPair,
   type DeleteChannelGroupRequest,
@@ -21,6 +20,7 @@ import {
   type DeleteVideoStreamRequest,
   type EpgFilesDto,
   type EpgGuide,
+  type FailClientRequest,
   type IconFileDto,
   type LogInRequest,
   type M3UFilesDto,
@@ -285,6 +285,10 @@ export const DeleteStreamGroup = async (arg: DeleteStreamGroupRequest): Promise<
   return data;
 };
 
+export const FailClient = async (arg: FailClientRequest): Promise<void> => {
+  await hubConnection.invoke('FailClient', arg);
+};
+
 export const GetAllStatisticsForAllUrls = async (): Promise<StreamStatisticsResult[]> => {
   const data = await hubConnection.invoke('GetAllStatisticsForAllUrls');
 
@@ -329,6 +333,10 @@ export const AddVideoStream = async (arg: AddVideoStreamRequest): Promise<VideoS
   const data = await hubConnection.invoke('AddVideoStream', arg);
 
   return data;
+};
+
+export const ChangeVideoStreamChannel = async (arg: ChangeVideoStreamChannelRequest): Promise<void> => {
+  await hubConnection.invoke('ChangeVideoStreamChannel', arg);
 };
 
 export const DeleteVideoStream = async (arg: DeleteVideoStreamRequest): Promise<number> => {

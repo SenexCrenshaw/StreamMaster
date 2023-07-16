@@ -1,9 +1,12 @@
 ﻿using StreamMasterApplication.Common.Interfaces;
 
+using System.Collections.Concurrent;
+
 namespace StreamMasterInfrastructure.MiddleWare;
 
 public class ChannelStatus
 {
+    public  ConcurrentDictionary<Guid, Guid> ClientIds;
 
     public ChannelStatus(int videoStreamId, string videoStreamName)
     {
@@ -12,7 +15,7 @@ public class ChannelStatus
         ChannelWatcherToken = new CancellationTokenSource();
         FailoverInProgress = false;
         VideoStreamName = videoStreamName;
-
+        ClientIds = new();
     }
 
     public CancellationTokenSource ChannelWatcherToken { get; set; }

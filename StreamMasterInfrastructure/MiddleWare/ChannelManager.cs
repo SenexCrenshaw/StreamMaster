@@ -55,8 +55,26 @@ public class ChannelManager : IDisposable, IChannelManager
     {
         if (_channelStatuses.TryGetValue(playingVideoStreamId, out var channelStatus))
         {
-            _logger.LogWarning("Channel changing for {videoStreamId} switching video stream id to {newVideoStreamId}", playingVideoStreamId, newVideoStreamId);
+            var oldInfo = channelStatus.StreamInformation;
+
             await HandleNextVideoStream(channelStatus, newVideoStreamId);
+
+            if (oldInfo is not null && channelStatus.StreamInformation is not null)
+            {
+                var clientIds = channelStatus.ClientIds.Values.ToList();
+                foreach (var client in clientIds)
+                {
+                    var c = channelStatus.StreamInformation.GetStreamConfiguration(client);
+
+                    if (c == null)
+                        continue;
+
+                    channelStatus.ClientIds.TryRemove(client, out _);
+                    oldInfo.UnRegisterStreamConfiguration(c);
+                }
+            }
+            _logger.LogWarning("Channel changed for {videoStreamId} switching video stream id to {newVideoStreamId}", playingVideoStreamId, newVideoStreamId);
+
             return;
         }
         _logger.LogWarning("Channel not found: {videoStreamId}", playingVideoStreamId);
@@ -141,16 +159,6 @@ public class ChannelManager : IDisposable, IChannelManager
 
     private void BroadcastMessage(object? state)
     {
-        //if (BuildInfo.IsDebug)
-        //{
-        //    var infos = _channeManager.GetStreamInformations().ToList();
-
-        //    foreach (var info in infos.Where(a => a.RingBuffer != null))
-        //    {
-        //        _logger.LogInformation("{StreamUrl} {clientCount}", info.StreamUrl, info.ClientCount);
-        //    }
-        //}
-
         _ = _hub.Clients.All.StreamStatisticsResultsUpdate(GetAllStatisticsForAllUrls());
     }
 
@@ -364,6 +372,8 @@ public class ChannelManager : IDisposable, IChannelManager
             throw new ApplicationException("RegisterWithChannelManager StreamInformation is null");
         }
 
+        channelStatus.ClientIds.TryAdd(config.ClientId, config.ClientId);
+
         _logger.LogInformation("ChannelManager added channel: {videoStreamId}", config.VideoStreamId);
 
         config.ReadBuffer = new RingBufferReadStream(() => channelStatus.StreamInformation.RingBuffer, config);
@@ -409,5 +419,7 @@ public class ChannelManager : IDisposable, IChannelManager
                 _logger.LogInformation("ChannelManager No more clients, stopping streaming for {videoStreamId}", config.VideoStreamId);
             }
         }
+
+        channelStatus.ClientIds.TryRemove(config.ClientId, out _);
     }
 }

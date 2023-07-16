@@ -25,7 +25,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [Route("[action]")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> ChangeVideoStreamRequest(ChangeVideoStreamChannelRequest request)
+    public async Task<ActionResult> ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request)
     {
         await Mediator.Send(request).ConfigureAwait(false);
         return Ok();

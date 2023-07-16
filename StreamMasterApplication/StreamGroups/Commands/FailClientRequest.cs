@@ -32,6 +32,8 @@ public class FailClientRequestHandler : IRequestHandler<FailClientRequest>
 
     public Task Handle(FailClientRequest request, CancellationToken cancellationToken)
     {
+        //var clientId = Guid.Parse(request.clientId);
+
         _channelManager.FailClient(request.clientId);
         return Task.CompletedTask;
     }

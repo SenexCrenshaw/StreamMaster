@@ -12,7 +12,7 @@ public interface IVideoStreamController
 {
     Task<ActionResult> AddVideoStream(AddVideoStreamRequest request);
 
-    Task<ActionResult> ChangeVideoStreamRequest(ChangeVideoStreamChannelRequest request);
+    Task<ActionResult> ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request);
 
     Task<ActionResult> DeleteVideoStream(DeleteVideoStreamRequest request);
 
@@ -50,7 +50,7 @@ public interface IVideoStreamHub
 {
     Task<VideoStreamDto?> AddVideoStream(AddVideoStreamRequest request);
 
-    Task ChangeVideoStreamRequest(ChangeVideoStreamChannelRequest request);
+    Task ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request);
 
     Task<int?> DeleteVideoStream(DeleteVideoStreamRequest request);
 
