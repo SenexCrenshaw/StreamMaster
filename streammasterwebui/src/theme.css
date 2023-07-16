@@ -249,7 +249,10 @@ body>div.p-column-filter-overlay.p-component.p-fluid.p-column-filter-overlay-men
 
 .p-dropdown.p-component.p-inputwrapper.p-inputwrapper-filled.iconSelector {
   border: 0 !important;
+}
 
+.p-dropdown.p-component.p-inputwrapper.iconSelector {
+  border: 0 !important;
 }
 
 .p-dropdown-trigger {
