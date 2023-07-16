@@ -77,10 +77,12 @@ public class StreamManager : IStreamManager
         }
         return new SingleStreamStatisticsResult();
     }
+
     public IStreamInformation? GetStreamInformationFromStreamUrl(string streamUrl)
     {
         return _streamInformations.Values.FirstOrDefault(x => x.StreamUrl == streamUrl);
     }
+
     public ICollection<IStreamInformation> GetStreamInformations()
     {
         return _streamInformations.Values;
@@ -119,19 +121,12 @@ public class StreamManager : IStreamManager
         if (setting.StreamingProxyType == StreamingProxyTypes.FFMpeg)
         {
             (stream, processId, error) = await StreamingProxies.GetFFMpegStream(streamUrl);
-            if (processId == -1)
-            {
-                _logger.LogError("Error getting proxy stream for {StreamUrl}: {Error?.Message}", setting.CleanURLs ? "url removed" : streamUrl, error?.Message);
-            }
+            LogErrorIfAny(stream, error, streamUrl);
         }
         else
         {
             (stream, processId, error) = await StreamingProxies.GetProxyStream(streamUrl, cancellationToken);
-        }
-
-        if (stream == null || error != null)
-        {
-            _logger.LogError("Error getting proxy stream for {StreamUrl}: {Error?.Message}", setting.CleanURLs ? "url removed" : streamUrl, error?.Message);
+            LogErrorIfAny(stream, error, streamUrl);
         }
 
         return (stream, processId, error);
@@ -141,6 +136,14 @@ public class StreamManager : IStreamManager
     {
         return _streamInformations
             .Count(x => x.Value.M3UFileId == m3uFileId);
+    }
+
+    private void LogErrorIfAny(Stream? stream, ProxyStreamError? error, string streamUrl)
+    {
+        if (stream == null || error != null)
+        {
+            _logger.LogError("Error getting proxy stream for {StreamUrl}: {Error?.Message}", setting.CleanURLs ? "url removed" : streamUrl, error?.Message);
+        }
     }
 
     private async Task LogRetryAndDelay(int retryCount, int maxRetries, int waitTime, CancellationToken token, string streamUrl)
@@ -160,14 +163,14 @@ public class StreamManager : IStreamManager
 
     private async Task StartVideoStreaming(Stream stream, string streamUrl, ICircularRingBuffer buffer, CancellationTokenSource cancellationToken)
     {
-        var chunkSize = setting.RingBufferSizeMB * 1024 * 1000;
+        var chunkSize = 24 * 1024;
 
         _logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl}", chunkSize, setting.CleanURLs ? "url removed" : streamUrl);
 
         byte[] bufferChunk = new byte[chunkSize];
 
-        var maxRetries = setting.MaxConnectRetry > 0 ? setting.MaxConnectRetry : 3;
-        var waitTime = setting.MaxConnectRetryTimeMS > 0 ? setting.MaxConnectRetryTimeMS : 50;
+        var maxRetries = 3; //setting.MaxConnectRetry > 0 ? setting.MaxConnectRetry : 3;
+        var waitTime = 50;// setting.MaxConnectRetryTimeMS > 0 ? setting.MaxConnectRetryTimeMS : 50;
 
         using (stream)
         {
@@ -176,7 +179,7 @@ public class StreamManager : IStreamManager
             {
                 try
                 {
-                    var bytesRead = await TryReadStream(bufferChunk, cancellationToken.Token, stream);
+                    var bytesRead = await TryReadStream(bufferChunk, stream, cancellationToken.Token);
                     if (bytesRead == -1)
                     {
                         break;
@@ -205,17 +208,17 @@ public class StreamManager : IStreamManager
             cancellationToken.Cancel();
     }
 
-    private async Task<int> TryReadStream(byte[] bufferChunk, CancellationToken token, Stream stream)
+    private async Task<int> TryReadStream(byte[] bufferChunk, Stream stream, CancellationToken cancellationToken)
     {
         try
         {
-            if (!stream.CanRead || token.IsCancellationRequested)
+            if (!stream.CanRead || cancellationToken.IsCancellationRequested)
             {
                 _logger.LogWarning("Stream is not readable or cancelled");
                 return -1;
             }
 
-            return await stream.ReadAsync(bufferChunk);
+            return await stream.ReadAsync(bufferChunk, cancellationToken);
         }
         catch (TaskCanceledException)
         {

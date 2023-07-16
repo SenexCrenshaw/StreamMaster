@@ -12,7 +12,7 @@ using StreamMasterDomain.Dto;
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
 [RequireAll]
-public record AddChannelGroupRequest(string GroupName, int Rank) : IRequest<ChannelGroupDto?>
+public record AddChannelGroupRequest(string GroupName, int Rank, string? Regex) : IRequest<ChannelGroupDto?>
 {
 }
 
@@ -53,7 +53,10 @@ public class AddChannelGroupRequestHandler : IRequestHandler<AddChannelGroupRequ
         }
 
         ChannelGroup channelGroup = new() { Name = request.GroupName, Rank = request.Rank, IsReadOnly = false };
-
+        if (!string.IsNullOrEmpty(request.Regex))
+        {
+            channelGroup.RegexMatch = request.Regex;
+        }
         _ = _context.ChannelGroups.Add(channelGroup);
         _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 

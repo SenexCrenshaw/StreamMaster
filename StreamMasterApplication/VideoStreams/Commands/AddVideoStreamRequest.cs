@@ -7,6 +7,7 @@ using MediatR;
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Entities;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
@@ -18,7 +19,8 @@ public record AddVideoStreamRequest(
     string? Tvg_logo,
     string? Url,
     int? IPTVChannelHandler,
-    bool? createChannel
+    bool? createChannel,
+      List<ChildVideoStreamDto>? ChildVideoStreams 
     ) : IRequest<VideoStreamDto?>
 {
 }
@@ -55,7 +57,7 @@ public class AddVideoStreamRequestHandler : IRequestHandler<AddVideoStreamReques
     {
         SettingDto settings = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
 
-        VideoStream VideoStream = new()
+        VideoStream videoStream = new()
         {
             CUID = request.Tvg_name,
             IsUserCreated = true,
@@ -79,16 +81,23 @@ public class AddVideoStreamRequestHandler : IRequestHandler<AddVideoStreamReques
             User_Url = request.Url ?? string.Empty
         };
 
-        _ = await _context.VideoStreams.AddAsync(VideoStream, cancellationToken).ConfigureAwait(false);
+        _ = await _context.VideoStreams.AddAsync(videoStream, cancellationToken).ConfigureAwait(false);
+        await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        if (await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false) > 0)
+        if (request.ChildVideoStreams != null)
         {
-            VideoStreamDto ret = _mapper.Map<VideoStreamDto>(VideoStream);
+             _context.SynchronizeChildRelationships(videoStream, request.ChildVideoStreams);
+            await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        //if (await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false) > 0)
+        //{
+            VideoStreamDto ret = _mapper.Map<VideoStreamDto>(videoStream);
 
             await _publisher.Publish(new AddVideoStreamEvent(ret), cancellationToken).ConfigureAwait(false);
             return ret;
-        }
+        //}
 
-        return null;
+        //return null;
     }
 }

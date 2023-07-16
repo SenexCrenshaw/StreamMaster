@@ -15,7 +15,7 @@ using StreamMasterDomain.Dto;
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
 [RequireAll]
-public record UpdateChannelGroupRequest(string GroupName, string? NewGroupName, bool? IsHidden, int? Rank) : IRequest<ChannelGroupDto?>
+public record UpdateChannelGroupRequest(string GroupName, string? NewGroupName, bool? IsHidden, int? Rank, string? Regex) : IRequest<ChannelGroupDto?>
 {
 }
 
@@ -84,7 +84,12 @@ public class UpdateChannelGroupRequestHandler : IRequestHandler<UpdateChannelGro
             isChanged = true;
         }
 
-         _context.ChannelGroups.Update(channelGroup);
+        if (!string.IsNullOrEmpty(request.Regex))
+        {
+            channelGroup.RegexMatch = request.Regex;
+        }
+
+        _context.ChannelGroups.Update(channelGroup);
          await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         ChannelGroupDto cgresult = _mapper.Map<ChannelGroupDto>(channelGroup);

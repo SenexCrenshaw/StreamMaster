@@ -146,12 +146,12 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       {
         field: 'name', fieldType: 'streams', header: "Streams (acitve/count)", sortable: true,
         style: {
-          maxWidth: '4rem',
+          maxWidth: '5rem',
           width: '4rem',
         } as CSSProperties,
       },
       {
-        bodyTemplate: sourceActionBodyTemplate, field: 'isHidden', fieldType: 'isHidden', sortable: true,
+        bodyTemplate: sourceActionBodyTemplate, field: 'isHidden', fieldType: 'isHidden', header: 'Hidden', sortable: true,
         style: {
           maxWidth: '8rem',
           width: '8rem',

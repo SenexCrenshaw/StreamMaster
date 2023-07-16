@@ -44,6 +44,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   const [rowClick, setRowClick] = useLocalStorage<boolean>(false, props.id + '-rowClick');
 
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
+  const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
+
   const m3uFiles = StreamMasterApi.useM3UFilesGetM3UFilesQuery();
   const [globalSearchName, setGlobalSearchName] = React.useState<string>('');
   const [selections, setSelections] = React.useState<T[]>([] as T[]);
@@ -203,6 +205,18 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return videoStreamsQuery.data.length;
     }
 
+    const cg = channelGroupsQuery.data?.find((x: StreamMasterApi.ChannelGroupDto) => x.name.toLowerCase() === groupName.toLowerCase());
+    if (cg?.regexMatch !== undefined && cg.regexMatch !== '') {
+      const filteredData = videoStreamsQuery.data.filter((item) => {
+        const regexToTest = new RegExp(`.*${cg.regexMatch}.*`, 'i');
+        return regexToTest.test(item.user_Tvg_name);
+      });
+
+      const goodLength = videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase()).length;
+
+      return goodLength + filteredData.length;
+    }
+
     if (props.m3uFileId !== undefined && props.m3uFileId > 0) {
       return videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.m3UFileId === props.m3uFileId && x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase()).length;
     }
@@ -210,7 +224,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
     return videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase()).length;
 
-  }, [videoStreamsQuery.data, props.m3uFileId]);
+  }, [videoStreamsQuery.data, channelGroupsQuery.data, props.m3uFileId]);
 
   const streamNotHiddenCount = React.useCallback((groupName: string) => {
     if (groupName === null || groupName === undefined || !videoStreamsQuery.data) {
@@ -221,13 +235,29 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return videoStreamsQuery.data.length;
     }
 
+    const cg = channelGroupsQuery.data?.find((x: StreamMasterApi.ChannelGroupDto) => x.name.toLowerCase() === groupName.toLowerCase());
+    if (cg?.regexMatch !== undefined && cg.regexMatch !== '') {
+      const filteredData = videoStreamsQuery.data.filter((item) => {
+        if (item.isHidden) {
+          return false;
+        }
+
+        const regexToTest = new RegExp(`.*${cg.regexMatch}.*`, 'i');
+        return regexToTest.test(item.user_Tvg_name);
+      });
+
+      const goodLength = videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase() && !x.isHidden).length;
+
+      return goodLength + filteredData.length;
+    }
+
     if (props.m3uFileId !== undefined && props.m3uFileId > 0) {
       return videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.m3UFileId === props.m3uFileId && x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase() && !x.isHidden).length;
     }
 
     return videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase() && !x.isHidden).length;
 
-  }, [videoStreamsQuery.data, props.m3uFileId]);
+  }, [videoStreamsQuery.data, channelGroupsQuery.data, props.m3uFileId]);
 
 
   const streamsBodyTemplate = React.useCallback((groupName: string) => {
@@ -960,6 +990,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           selection={selections}
           selectionMode={getSelectionMode}
           showGridlines
+          showHeaders={props.showHeaders}
           sortField={props.groupRowsBy === undefined || props.groupRowsBy === '' ? props.sortField : props.groupRowsBy}
           sortMode='single'
           sortOrder={0}
@@ -1042,7 +1073,8 @@ DataSelector.defaultProps = {
   reorderable: false,
   rightColSize: 8,
   selectionMode: 'single',
-  showHidden: null
+  showHeaders: true,
+  showHidden: null,
 };
 
 
@@ -1142,6 +1174,7 @@ export type DataSelectorProps<T> = {
   /**
    * Whether to show the selector column.
    */
+  showHeaders?: boolean | undefined;
   showHidden?: boolean | null | undefined;
   showSelector?: boolean;
   showSkeleton?: boolean;

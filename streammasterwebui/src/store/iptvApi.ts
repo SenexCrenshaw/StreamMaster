@@ -1025,6 +1025,7 @@ export type ProblemDetails = {
 export type AddChannelGroupRequest = {
   groupName: string;
   rank: number;
+  regex: string | null;
 };
 export type DeleteChannelGroupRequest = {
   groupName: string;
@@ -1041,6 +1042,7 @@ export type UpdateChannelGroupRequest = {
   newGroupName: string | null;
   isHidden: boolean | null;
   rank: number | null;
+  regex: string | null;
 };
 export type UpdateChannelGroupOrderRequest = {
   channelGroups: ChannelGroupArg[] | null;
@@ -1450,6 +1452,7 @@ export type AddVideoStreamRequest = {
   url?: string | null;
   iptvChannelHandler?: number | null;
   createChannel?: boolean | null;
+  childVideoStreams?: ChildVideoStreamDto[] | null;
 };
 export type DeleteVideoStreamRequest = {
   videoStreamId?: number;

@@ -34,6 +34,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const [addIcon, setAddIcon] = React.useState<boolean>(false);
 
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
+  const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
 
   React.useEffect(() => {
     const callback = (event: KeyboardEvent) => {
@@ -69,8 +70,31 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     if (props.groups === undefined || props.groups.length === 0 || props.groups[0].name === undefined || props.groups.findIndex((a: StreamMasterApi.ChannelGroupDto) => a.name === 'All') !== -1) {
       data = videoStreamsQuery.data;
     } else {
-      const names = props.groups.map((a: StreamMasterApi.ChannelGroupDto) => a.name.toLocaleLowerCase());
-      data = videoStreamsQuery.data.filter((a: StreamMasterApi.VideoStreamDto) => a.user_Tvg_group !== undefined && names.includes(a.user_Tvg_group.toLocaleLowerCase()));
+      const groupNames = props.groups.map((a: StreamMasterApi.ChannelGroupDto) => a.name.toLocaleLowerCase());
+
+      data = videoStreamsQuery.data.filter((a: StreamMasterApi.VideoStreamDto) => a.user_Tvg_group !== undefined && groupNames.includes(a.user_Tvg_group.toLocaleLowerCase()));
+
+      groupNames.forEach((groupName: string) => {
+        const cg = channelGroupsQuery.data?.find((x: StreamMasterApi.ChannelGroupDto) => x.name.toLowerCase() === groupName.toLowerCase());
+        if (cg?.regexMatch !== undefined && cg.regexMatch !== '') {
+
+          const filteredData = videoStreamsQuery.data?.filter((item) => {
+            if (item.isHidden)
+              return false;
+
+            const regexToTest = new RegExp(`.*${cg.regexMatch}.*`, 'i');
+            const test = regexToTest.test(item.user_Tvg_name);
+            if (test) {
+              return data.includes(item) === false;
+            }
+
+            return false;
+          });
+          if (filteredData !== undefined) {
+            data = data.concat(filteredData);
+          }
+        }
+      });
     }
 
     if (props.m3uFileId && props.m3uFileId > 0) {
@@ -80,7 +104,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
     return data;
 
-  }, [videoStreamsQuery.data, props.groups, props.m3uFileId]);
+  }, [videoStreamsQuery.data, props.groups, props.m3uFileId, channelGroupsQuery.data]);
 
   const ids = React.useMemo((): StreamMasterApi.ChannelNumberPair[] => {
 

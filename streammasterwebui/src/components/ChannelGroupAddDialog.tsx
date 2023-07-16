@@ -1,22 +1,28 @@
 import React from "react";
-import type * as StreamMasterApi from '../store/iptvApi';
+import * as StreamMasterApi from '../store/iptvApi';
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { AddChannelGroup } from "../store/signlar_functions";
 import { getTopToolOptions } from "../common/common";
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
+import DataSelector from "../features/dataSelector/DataSelector";
+import { type ColumnMeta } from "../features/dataSelector/DataSelectorTypes";
 
 const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
 
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
   const [newGroupName, setNewGroupName] = React.useState('');
+  const [regex, setRegex] = React.useState<string | undefined>(undefined);
   const [infoMessage, setInfoMessage] = React.useState('');
+
+  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
 
   const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);
     setInfoMessage('');
     setBlock(false);
+    setRegex(undefined);
     props.onHide?.(newGroupName);
     setNewGroupName('');
   }, [newGroupName, props]);
@@ -31,13 +37,17 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
     const data = {} as StreamMasterApi.AddChannelGroupRequest;
     data.groupName = newGroupName;
 
+    if (regex !== undefined && regex !== '') {
+      data.regex = regex;
+    }
+
     AddChannelGroup(data).then(() => {
       setInfoMessage('Channel Group Added Successfully');
     }).catch((e) => {
       setInfoMessage('Channel Group Add Error: ' + e.message);
     });
 
-  }, [ReturnToParent, newGroupName]);
+  }, [ReturnToParent, newGroupName, regex]);
 
   React.useEffect(() => {
     const callback = (event: KeyboardEvent) => {
@@ -55,6 +65,29 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
       document.removeEventListener('keydown', callback);
     };
   }, [addGroup, newGroupName]);
+
+  const sourceColumns = React.useMemo((): ColumnMeta[] => {
+    return [
+
+      { field: 'user_Tvg_name', header: 'Name' },
+    ]
+  }, []);
+
+  const dataSource = React.useMemo((): StreamMasterApi.VideoStreamDto[] | undefined => {
+    if (regex === undefined || regex === '' || !videoStreamsQuery.data)
+      return (undefined);
+
+
+    const filteredData = videoStreamsQuery.data.filter((item) => {
+      if (item.isHidden)
+        return false;
+
+      const regexToTest = new RegExp(`.*${regex}.*`, 'i');
+      return regexToTest.test(item.user_Tvg_name);
+    });
+
+    return filteredData;
+  }, [regex, videoStreamsQuery.data]);
 
   return (
     <>
@@ -77,6 +110,12 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
               placeholder="Group Name"
               value={newGroupName}
             />
+            <InputText
+              className="withpadding p-inputtext-sm w-full mt-2"
+              onChange={(e) => setRegex(e.target.value)}
+              placeholder="Group Regex"
+              value={regex}
+            />
             <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
               <Button
                 icon="pi pi-times "
@@ -93,9 +132,22 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
                 severity="success"
               />
             </div>
+            <div hidden={regex === undefined || regex === ''}>
+              <div className='m3uFilesEditor flex flex-column col-12 flex-shrink-0 '>
+                <DataSelector
+                  columns={sourceColumns}
+                  dataSource={dataSource}
+                  emptyMessage="No Streams"
+                  globalSearchEnabled={false}
+                  id='StreamingServerStatusPanel'
+                  showHeaders={false}
+                  style={{ height: 'calc(50vh - 40px)' }}
+                />
+              </div>
+            </div>
           </div>
         </div >
-      </InfoMessageOverLayDialog>
+      </InfoMessageOverLayDialog >
 
       <Button
         icon="pi pi-plus"

@@ -172,13 +172,20 @@ public partial class AppDbContext : IVideoStreamDB
         bool isChanged = false;
         try
         {
-            foreach (var item in videoStream.ParentRelationships)
+            if (videoStream.ParentRelationships is not null)
             {
-                if (!childVideoStreams.Any(a => a.Id == item.ChildVideoStreamId))
+                foreach (var item in videoStream.ParentRelationships)
                 {
-                    VideoStreamRelationships.Remove(item);
-                    isChanged = true;
+                    if (!childVideoStreams.Any(a => a.Id == item.ChildVideoStreamId))
+                    {
+                        VideoStreamRelationships.Remove(item);
+                        isChanged = true;
+                    }
                 }
+            }
+            else
+            {
+                videoStream.ParentRelationships = new();
             }
 
             foreach (var ch in childVideoStreams)

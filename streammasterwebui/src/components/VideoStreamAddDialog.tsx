@@ -19,42 +19,13 @@ const VideoStreamAddDialog = (props: VideoStreamAddDialogProps) => {
     props.onClose?.();
   };
 
-  const onSave = async (e: StreamMasterApi.AddVideoStreamRequest) => {
+  const onSave = async (data: StreamMasterApi.AddVideoStreamRequest) => {
 
-    if (e === null || e === undefined) {
+    if (data === null || data === undefined) {
       return;
     }
 
     setBlock(true);
-    const data = {} as StreamMasterApi.AddVideoStreamRequest
-
-    data.tvg_name = e.tvg_name;
-
-
-    if (e.tvg_group !== undefined) {
-      data.tvg_group = e.tvg_group;
-    }
-
-    if (e.tvg_chno !== undefined && e.tvg_chno !== 0) {
-      data.tvg_chno = e.tvg_chno;
-    }
-
-    if (e.tvg_ID !== undefined && e.tvg_ID !== '') {
-      data.tvg_ID = e.tvg_ID;
-    }
-
-    if (e.tvg_logo !== undefined && e.tvg_logo !== '') {
-      data.tvg_logo = e.tvg_logo;
-    }
-
-    if (e.url !== undefined && e.url !== '') {
-      data.url = e.url;
-    }
-
-    // if (channelHandler !== null && channelHandler !== undefined) {
-    //   // const channelHandlerInt = parseInt(channelHandler);
-    //   data.iptvChannelHandler = channelHandler;
-    // }
 
     await Hub.AddVideoStream(data)
       .then((returnData) => {

@@ -19,11 +19,11 @@ public class ChannelManager : IDisposable, IChannelManager
 {
     private readonly ConcurrentDictionary<int, ChannelStatus> _channelStatuses;
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hub;
-    private readonly ILogger _logger;
+    private readonly ILogger<ChannelManager> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly IStreamManager _streamManager;
 
-    public ChannelManager(ILogger logger, IServiceProvider serviceProvider, IHubContext<StreamMasterHub, IStreamMasterHub> hub)
+    public ChannelManager(ILogger<ChannelManager> logger, IServiceProvider serviceProvider, IHubContext<StreamMasterHub, IStreamMasterHub> hub)
     {
         _logger = logger;
         _hub = hub;
