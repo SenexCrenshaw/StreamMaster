@@ -250,6 +250,7 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
           columns={sourceColumns}
           dataSource={dataSource}
           emptyMessage="No Streams"
+          enableState={false}
           globalSearchEnabled={false}
           id='StreamingServerStatusPanel'
           isLoading={props.isLoading}

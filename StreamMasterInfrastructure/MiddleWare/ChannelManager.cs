@@ -69,7 +69,6 @@ public class ChannelManager : IDisposable, IChannelManager
                     if (c == null)
                         continue;
 
-                    channelStatus.ClientIds.TryRemove(client, out _);
                     oldInfo.UnRegisterStreamConfiguration(c);
                 }
             }

@@ -135,6 +135,7 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
           columns={sourceColumns}
           dataSource={props.dataSource}
           emptyMessage="No Clients Streaming"
+          enableState={false}
           globalSearchEnabled={false}
           id='StreamingServerStatusPanel'
           isLoading={props.isLoading}
