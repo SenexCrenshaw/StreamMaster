@@ -20,13 +20,13 @@ public static class ConfigureServices
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         // Dynamically find and register services implementing IMapHttpRequestsToDisk
-        var assembly = Assembly.GetExecutingAssembly(); // Or replace with the assembly where your services are defined
+        var assembly = Assembly.GetExecutingAssembly(); 
         var mapHttpRequestsToDiskImplementations = assembly.GetTypes()
             .Where(type => typeof(IMapHttpRequestsToDisk).IsAssignableFrom(type) && !type.IsInterface);
 
         foreach (var implementation in mapHttpRequestsToDiskImplementations)
         {
-            if (implementation.Name.EndsWith("Base"))//|| implementation.Name.Contains("ogin"))
+            if (implementation.Name.EndsWith("Base"))
             {
                 continue;
             }

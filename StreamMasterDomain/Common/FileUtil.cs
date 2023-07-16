@@ -111,39 +111,29 @@ public sealed class FileUtil
     }
 
     public static async Task<string> GetFileData(string source)
-    {
-        string body = "";
+    {       
         try
         {
+            if (!IsFileGzipped(source))
+            {
+                return await File.ReadAllTextAsync(source).ConfigureAwait(false);
+            }
+
             using FileStream fs = File.Open(source, FileMode.Open);
             using GZipStream gzStream = new(fs, CompressionMode.Decompress);
             using MemoryStream outputStream = new();
             gzStream.CopyTo(outputStream);
             byte[] outputBytes = outputStream.ToArray();
 
-            body = Encoding.Default.GetString(outputBytes);
+            var body = Encoding.Default.GetString(outputBytes);
             return body;
-        }
-        catch (InvalidDataException ex) when (ex.Message.Contains("The archive entry was compressed using an unsupported compression method."))
-        {
+
         }
         catch (Exception ex)
         {
-            if (!ex.ToString().Contains("The archive entry was compressed using an unsupported compression method."))
-            {
-                Console.WriteLine(ex.ToString());
-                return "";
-            }
-        }
-
-        try
-        {
-            body = await File.ReadAllTextAsync(source).ConfigureAwait(false);
-        }
-        catch (Exception)
-        {
-        }
-        return body;
+            Console.WriteLine(ex.ToString());
+            return "";
+        }        
     }
 
     public static async Task<List<TvLogoFile>> GetIconFilesFromDirectory(DirectoryInfo dirInfo, string tvLogosLocation, int startingId, CancellationToken cancellationToken = default)
@@ -216,6 +206,28 @@ public sealed class FileUtil
         UpdateSetting(ret);
 
         return ret;
+    }
+
+    public static bool IsFileGzipped(string filePath)
+    {
+        try
+        {
+            using (FileStream fileStream = File.OpenRead(filePath))
+            {
+                byte[] signature = new byte[2];
+
+                // Read the first two bytes from the file
+                fileStream.Read(signature, 0, 2);
+
+                // Gzip files start with the signature bytes 0x1F 0x8B
+                return signature[0] == 0x1F && signature[1] == 0x8B;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: " + ex.Message);
+            return false;
+        }
     }
 
     public static bool IsGzipCompressed(string filePath)

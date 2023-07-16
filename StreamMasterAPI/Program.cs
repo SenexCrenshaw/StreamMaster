@@ -99,9 +99,7 @@ else
 }
 
 app.UseHttpLogging();
-
-_ = app.UseMigrationsEndPoint();
-
+app.UseMigrationsEndPoint();
 app.UseSession();
 
 using (IServiceScope scope = app.Services.CreateScope())
@@ -135,6 +133,8 @@ else
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseResponseCompression();
 
 app.MapHealthChecks("/healthz");
 app.MapDefaultControllerRoute();

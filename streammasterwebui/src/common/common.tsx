@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import { FormattedMessage, useIntl } from 'react-intl';
+
 import { type VideoStreamDto } from '../store/iptvApi';
 import { type ChildVideoStreamDto } from '../store/iptvApi';
 
@@ -38,6 +39,29 @@ export const GetMessageDiv = (id: string, upperCase?: boolean | null): React.Rea
 
   return <div>{message}</div>;
 }
+
+// export function areStreamGroupsEqual(
+//   streams1: StreamGroupDto[],
+//   streams2: StreamGroupDto[]
+// ): boolean {
+//   if (streams1.length !== streams2.length) {
+//     return false;
+//   }
+
+//   for (let i = 0; i < streams1.length; i++) {
+//     if (streams1[i].id !== streams2[i].id) {
+//       return false;
+//     }
+
+//     if (isChildVideoStreamDto(streams1[i]) && isChildVideoStreamDto(streams2[i])) {
+//       if ((streams1[i] as ChildVideoStreamDto).rank !== (streams2[i] as ChildVideoStreamDto).rank) {
+//         return false;
+//       }
+//     }
+//   }
+
+//   return true;
+// }
 
 export function areVideoStreamsEqual(
   streams1: ChildVideoStreamDto[] | VideoStreamDto[],

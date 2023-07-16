@@ -45,6 +45,7 @@ const StreamGroupEditor = () => {
           <div className="col-9 m-0 p-0 pl-1">
             <BlockUI blocked={selectedStreamGroup === undefined || selectedStreamGroup.id === undefined || selectedStreamGroup.id === 0}>
               <PlayListDataSelectorPicker
+                enableState={false}
                 id='streamgroupeditor-ds-streams'
                 streamGroup={selectedStreamGroup}
               />
