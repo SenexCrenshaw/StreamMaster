@@ -49,6 +49,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     }
 
     [HttpPost]
+    [Route("[action]")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(StreamGroupDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -67,6 +68,14 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     {
         int? data = await Mediator.Send(request).ConfigureAwait(false);
         return data == null ? NotFound() : NoContent();
+    }
+
+    [HttpPost]
+    [Route("[action]")]
+    public async Task<ActionResult> FailClient(FailClientRequest request)
+    {
+        await _channelManager.FailClient(request.clientId);
+        return Ok();
     }
 
     [Route("[action]")]

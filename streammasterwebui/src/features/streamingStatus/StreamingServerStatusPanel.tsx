@@ -109,12 +109,12 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
     return (
       <div className="dataselector p-inputgroup align-items-center justify-content-center">
         <Button
-          className="p-button-danger"
-          icon="pi pi-times"
+          // className="p-button-danger"
+          icon="pi pi-angle-right"
           onClick={async () => await onFailStream(rowData)}
           rounded
           text
-          tooltip="Fail Stream"
+          tooltip="Next Stream"
           tooltipOptions={getTopToolOptions} />
       </div>
     );
@@ -122,13 +122,59 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
 
   const sourceColumns = React.useMemo((): ColumnMeta[] => {
     return [
-      { bodyTemplate: imageBodyTemplate, field: 'icon' },
-      { field: 'm3UStreamName', header: 'Name' },
-      { field: 'rank', header: 'Rank' },
-      { bodyTemplate: streamCount, field: 'Count', header: 'Count' },
-      { bodyTemplate: inputBitsPerSecondTemplate, field: 'inputBitsPerSecond', header: 'Input kbps' },
-      { bodyTemplate: inputElapsedTimeTemplate, field: 'inputElapsedTime', header: 'Input Elapsed' },
-      { bodyTemplate: inputStartTimeTemplate, field: 'inputStartTime', header: 'Input Start' },
+      {
+        bodyTemplate: imageBodyTemplate, field: 'icon', style: {
+          maxWidth: '4rem',
+          width: '4rem',
+        } as React.CSSProperties,
+      },
+
+      {
+        align: 'center',
+        field: 'videoStreamId', header: 'Video Id'
+        , style: {
+          maxWidth: '4rem',
+          width: '4rem',
+        } as React.CSSProperties,
+      },
+      { field: 'videoStreamName', header: 'Name' },
+      {
+        align: 'center',
+        field: 'rank', header: 'Rank', style: {
+          maxWidth: '4rem',
+          width: '4rem',
+        } as React.CSSProperties,
+      },
+
+      {
+        align: 'center',
+        bodyTemplate: streamCount, field: 'Count', header: 'Count', style: {
+          maxWidth: '4rem',
+          width: '4rem',
+        } as React.CSSProperties,
+      },
+      {
+        align: 'center',
+        bodyTemplate: inputBitsPerSecondTemplate, field: 'inputBitsPerSecond', header: 'Input kbps'
+        , style: {
+          maxWidth: '10rem',
+          width: '10rem',
+        } as React.CSSProperties,
+      },
+      {
+        align: 'center',
+        bodyTemplate: inputElapsedTimeTemplate, field: 'inputElapsedTime', header: 'Input Elapsed', style: {
+          maxWidth: '10rem',
+          width: '10rem',
+        } as React.CSSProperties,
+      },
+      {
+        align: 'center',
+        bodyTemplate: inputStartTimeTemplate, field: 'inputStartTime', header: 'Input Start', style: {
+          maxWidth: '10rem',
+          width: '10rem',
+        } as React.CSSProperties,
+      },
       {
         align: 'center', bodyTemplate: targetActionBodyTemplate, field: 'Actions',
         style: {

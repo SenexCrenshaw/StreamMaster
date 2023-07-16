@@ -12,12 +12,23 @@ namespace StreamMasterAPI.Controllers;
 public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 {
     [HttpPost]
+    [Route("[action]")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(VideoStreamDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> AddVideoStream(AddVideoStreamRequest request)
     {
         return Ok(await Mediator.Send(request).ConfigureAwait(false));
+    }
+
+    [HttpPost]
+    [Route("[action]")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> ChangeVideoStreamRequest(ChangeVideoStreamChannelRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
     }
 
     [HttpDelete]

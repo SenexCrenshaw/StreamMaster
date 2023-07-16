@@ -6,6 +6,8 @@ namespace StreamMasterApplication.Common.Interfaces
     {
         int BufferSize { get; }
 
+        public int VideoStreamId { get; }
+
         List<ClientStreamingStatistics> GetAllStatistics();
 
         List<StreamStatisticsResult> GetAllStatisticsForAllUrls();

@@ -11,11 +11,12 @@
             VideoStreamId = videoStreamId;
             ClientUserAgent = clientUserAgent;
             CancellationToken = cancellationToken;
+            CancellationTokenSource = new CancellationTokenSource();
         }
 
         public Func<ICircularRingBuffer> BufferDelegate { get; set; }
         public CancellationToken CancellationToken { get; set; }
-
+        public CancellationTokenSource CancellationTokenSource { get; set; }
         public Guid ClientId { get; set; }
 
         public string ClientUserAgent { get; set; }
@@ -23,5 +24,7 @@
         public IRingBufferReadStream? ReadBuffer { get; set; }
 
         public int VideoStreamId { get; set; }
+
+        public string VideoStreamName { get; set; }
     }
 }

@@ -661,7 +661,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   }, [getSelectionMode, onsetSelection]);
 
-  const getAlign = React.useCallback((align: ColumnAlign | undefined, fieldType: ColumnFieldType): ColumnAlign => {
+  const getAlign = React.useCallback((align: ColumnAlign | null | undefined, fieldType: ColumnFieldType): ColumnAlign => {
+
     if (fieldType === 'image') {
       return 'center'
     }
@@ -670,11 +671,12 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return 'center'
     }
 
-    if (align === undefined) {
-      return 'left';
+    if (align === undefined || align === null) {
+      return 'left'
     }
 
     return align;
+
   }, []);
 
   const getAlignHeader = React.useCallback((align: ColumnAlign | undefined, fieldType: ColumnFieldType): ColumnAlign => {

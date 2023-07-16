@@ -12,6 +12,8 @@ public interface IVideoStreamController
 {
     Task<ActionResult> AddVideoStream(AddVideoStreamRequest request);
 
+    Task<ActionResult> ChangeVideoStreamRequest(ChangeVideoStreamChannelRequest request);
+
     Task<ActionResult> DeleteVideoStream(DeleteVideoStreamRequest request);
 
     Task<ActionResult<VideoStreamDto?>> GetVideoStream(int id);
@@ -47,6 +49,8 @@ public interface IVideoStreamDB
 public interface IVideoStreamHub
 {
     Task<VideoStreamDto?> AddVideoStream(AddVideoStreamRequest request);
+
+    Task ChangeVideoStreamRequest(ChangeVideoStreamChannelRequest request);
 
     Task<int?> DeleteVideoStream(DeleteVideoStreamRequest request);
 

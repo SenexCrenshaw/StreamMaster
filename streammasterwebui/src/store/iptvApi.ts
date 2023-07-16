@@ -473,7 +473,7 @@ const injectedRtkApi = api
         StreamGroupsAddStreamGroupApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/streamgroups`,
+          url: `/api/streamgroups/addstreamgroup`,
           method: "POST",
           body: queryArg,
         }),
@@ -486,6 +486,17 @@ const injectedRtkApi = api
         query: (queryArg) => ({
           url: `/api/streamgroups/deletestreamgroup`,
           method: "DELETE",
+          body: queryArg,
+        }),
+        invalidatesTags: ["StreamGroups"],
+      }),
+      streamGroupsFailClient: build.mutation<
+        StreamGroupsFailClientApiResponse,
+        StreamGroupsFailClientApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroups/failclient`,
+          method: "POST",
           body: queryArg,
         }),
         invalidatesTags: ["StreamGroups"],
@@ -677,18 +688,22 @@ const injectedRtkApi = api
         VideoStreamsAddVideoStreamApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/videostreams`,
+          url: `/api/videostreams/addvideostream`,
           method: "POST",
           body: queryArg,
         }),
         invalidatesTags: ["VideoStreams"],
       }),
-      videoStreamsGetVideoStreams: build.query<
-        VideoStreamsGetVideoStreamsApiResponse,
-        VideoStreamsGetVideoStreamsApiArg
+      videoStreamsChangeVideoStreamRequest: build.mutation<
+        VideoStreamsChangeVideoStreamRequestApiResponse,
+        VideoStreamsChangeVideoStreamRequestApiArg
       >({
-        query: () => ({ url: `/api/videostreams` }),
-        providesTags: ["VideoStreams"],
+        query: (queryArg) => ({
+          url: `/api/videostreams/changevideostreamrequest`,
+          method: "POST",
+          body: queryArg,
+        }),
+        invalidatesTags: ["VideoStreams"],
       }),
       videoStreamsDeleteVideoStream: build.mutation<
         VideoStreamsDeleteVideoStreamApiResponse,
@@ -706,6 +721,13 @@ const injectedRtkApi = api
         VideoStreamsGetVideoStreamApiArg
       >({
         query: (queryArg) => ({ url: `/api/videostreams/${queryArg}` }),
+        providesTags: ["VideoStreams"],
+      }),
+      videoStreamsGetVideoStreams: build.query<
+        VideoStreamsGetVideoStreamsApiResponse,
+        VideoStreamsGetVideoStreamsApiArg
+      >({
+        query: () => ({ url: `/api/videostreams` }),
         providesTags: ["VideoStreams"],
       }),
       videoStreamsSetVideoStreamChannelNumbers: build.mutation<
@@ -909,6 +931,8 @@ export type StreamGroupsAddStreamGroupApiArg = AddStreamGroupRequest;
 export type StreamGroupsDeleteStreamGroupApiResponse =
   /** status 200  */ undefined;
 export type StreamGroupsDeleteStreamGroupApiArg = DeleteStreamGroupRequest;
+export type StreamGroupsFailClientApiResponse = unknown;
+export type StreamGroupsFailClientApiArg = FailClientRequest;
 export type StreamGroupsGetAllStatisticsForAllUrlsApiResponse =
   /** status 200  */ StreamStatisticsResult[];
 export type StreamGroupsGetAllStatisticsForAllUrlsApiArg = void;
@@ -985,15 +1009,19 @@ export type VideoStreamsAddVideoStreamApiResponse = /** status 200  */
   | undefined
   | /** status 201  */ VideoStreamDto;
 export type VideoStreamsAddVideoStreamApiArg = AddVideoStreamRequest;
-export type VideoStreamsGetVideoStreamsApiResponse =
-  /** status 200  */ VideoStreamDto[];
-export type VideoStreamsGetVideoStreamsApiArg = void;
+export type VideoStreamsChangeVideoStreamRequestApiResponse =
+  /** status 200  */ undefined;
+export type VideoStreamsChangeVideoStreamRequestApiArg =
+  ChangeVideoStreamChannelRequest;
 export type VideoStreamsDeleteVideoStreamApiResponse =
   /** status 200  */ undefined;
 export type VideoStreamsDeleteVideoStreamApiArg = DeleteVideoStreamRequest;
 export type VideoStreamsGetVideoStreamApiResponse =
   /** status 200  */ VideoStreamDto;
 export type VideoStreamsGetVideoStreamApiArg = number;
+export type VideoStreamsGetVideoStreamsApiResponse =
+  /** status 200  */ VideoStreamDto[];
+export type VideoStreamsGetVideoStreamsApiArg = void;
 export type VideoStreamsSetVideoStreamChannelNumbersApiResponse =
   /** status 200  */ ChannelNumberPair[] | /** status 204  */ undefined;
 export type VideoStreamsSetVideoStreamChannelNumbersApiArg =
@@ -1395,25 +1423,30 @@ export type AddStreamGroupRequest = {
 export type DeleteStreamGroupRequest = {
   id?: number;
 };
+export type FailClientRequest = {
+  clientId: string;
+};
 export type StreamStatisticsResult = {
-  rank?: number;
-  inputBitsPerSecond?: number;
-  inputBytesRead?: number;
-  inputBytesWritten?: number;
-  inputElapsedTime?: string;
-  inputStartTime?: string;
   clientAgent?: string;
   clientBitsPerSecond?: number;
   clientBytesRead?: number;
   clientBytesWritten?: number;
   clientElapsedTime?: string;
-  clientStartTime?: string;
   clientId?: string;
+  clientStartTime?: string;
+  inputBitsPerSecond?: number;
+  inputBytesRead?: number;
+  inputBytesWritten?: number;
+  inputElapsedTime?: string;
+  inputStartTime?: string;
   logo?: string | null;
   m3UStreamId?: number;
   m3UStreamName?: string;
   m3UStreamProxyType?: StreamingProxyTypes;
+  rank?: number;
   streamUrl?: string | null;
+  videoStreamId?: number;
+  videoStreamName?: string;
 };
 export type EpgChannel = {
   channelNumber?: number;
@@ -1453,6 +1486,10 @@ export type AddVideoStreamRequest = {
   iptvChannelHandler?: number | null;
   createChannel?: boolean | null;
   childVideoStreams?: ChildVideoStreamDto[] | null;
+};
+export type ChangeVideoStreamChannelRequest = {
+  playingVideoStreamId?: number;
+  newVideoStreamId?: number;
 };
 export type DeleteVideoStreamRequest = {
   videoStreamId?: number;
@@ -1544,6 +1581,7 @@ export const {
   useSettingsUpdateSettingMutation,
   useStreamGroupsAddStreamGroupMutation,
   useStreamGroupsDeleteStreamGroupMutation,
+  useStreamGroupsFailClientMutation,
   useStreamGroupsGetAllStatisticsForAllUrlsQuery,
   useStreamGroupsGetStreamGroupQuery,
   useStreamGroupsGetStreamGroupByStreamNumberQuery,
@@ -1566,9 +1604,10 @@ export const {
   useStreamGroupsSimulateStreamFailureForAllMutation,
   useStreamGroupsUpdateStreamGroupMutation,
   useVideoStreamsAddVideoStreamMutation,
-  useVideoStreamsGetVideoStreamsQuery,
+  useVideoStreamsChangeVideoStreamRequestMutation,
   useVideoStreamsDeleteVideoStreamMutation,
   useVideoStreamsGetVideoStreamQuery,
+  useVideoStreamsGetVideoStreamsQuery,
   useVideoStreamsSetVideoStreamChannelNumbersMutation,
   useVideoStreamsUpdateVideoStreamMutation,
   useVideoStreamsUpdateVideoStreamsMutation,

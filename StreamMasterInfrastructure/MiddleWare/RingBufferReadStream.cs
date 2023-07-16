@@ -6,7 +6,8 @@ namespace StreamMasterInfrastructure.MiddleWare;
 public class RingBufferReadStream : Stream, IRingBufferReadStream
 {
     private Func<ICircularRingBuffer> _bufferDelegate;
-    private CancellationToken _cancellationTokenSource;
+    private CancellationToken _cancellationSource;
+    private CancellationTokenSource _cancellationTokenSource;
     private Guid _clientId;
 
     public RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ClientStreamerConfiguration config)
@@ -14,7 +15,8 @@ public class RingBufferReadStream : Stream, IRingBufferReadStream
         config.BufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(config.BufferDelegate));
         _bufferDelegate = config.BufferDelegate ?? throw new ArgumentNullException(nameof(config.BufferDelegate));
         _clientId = config.ClientId;
-        _cancellationTokenSource = config.CancellationToken;
+        _cancellationSource = config.CancellationToken;
+        _cancellationTokenSource = config.CancellationTokenSource;
     }
 
     public ICircularRingBuffer Buffer => _bufferDelegate();
@@ -57,10 +59,9 @@ public class RingBufferReadStream : Stream, IRingBufferReadStream
 
         while (bytesRead < count)
         {
-            if (cancellationToken.IsCancellationRequested || _cancellationTokenSource.IsCancellationRequested)
-            {
-                break;
-            }
+            cancellationToken.ThrowIfCancellationRequested();
+            _cancellationSource.ThrowIfCancellationRequested();
+            _cancellationTokenSource.Token.ThrowIfCancellationRequested();
 
             availableBytes = Buffer.GetAvailableBytes(_clientId);
 
@@ -88,7 +89,8 @@ public class RingBufferReadStream : Stream, IRingBufferReadStream
     {
         _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
         _clientId = config.ClientId;
-        _cancellationTokenSource = config.CancellationToken;
+        _cancellationSource = config.CancellationToken;
+        _cancellationTokenSource = config.CancellationTokenSource;
     }
 
     public override void SetLength(long value)

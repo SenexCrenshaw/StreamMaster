@@ -1,15 +1,10 @@
 import { Button } from 'primereact/button';
-
 import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
-
 import React from 'react';
-
 import * as StreamMasterApi from '../store/iptvApi';
 import StreamMasterSetting from '../store/signlar/StreamMasterSetting';
-
 import { Accordion, AccordionTab } from 'primereact/accordion';
-
 import IconSelector from './IconSelector';
 import EPGSelector from './EPGSelector';
 import ChannelGroupSelector from './ChannelGroupSelector';
@@ -407,7 +402,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
             <div className="flex flex-wrap col-6 align-items-center justify-content-end gap-1 p-0 m-0">
               <Button
                 icon="pi pi-times"
-                label="Cancel"
+                label="Close"
                 onClick={() => ReturnToParent()}
                 rounded
                 severity="warning"
@@ -417,7 +412,6 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
                 icon="pi pi-check"
                 label={props.videoStream ? "Edit" : "Add"}
                 onClick={() => props.videoStream ? props.onEdit?.({
-                  // childVideoStreams: videoStreams,
                   id: props.videoStream.id,
                   tvg_chno: channelNumber,
                   tvg_group: channelGroup,

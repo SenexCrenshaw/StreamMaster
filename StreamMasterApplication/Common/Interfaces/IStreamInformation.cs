@@ -11,7 +11,7 @@ namespace StreamMasterApplication.Common.Interfaces
         int MaxStreams { get; set; }
         int ProcessId { get; set; }
         ICircularRingBuffer RingBuffer { get; }
-        Task StreamingTask { get; set; }
+        Task StreamingTask { get; set; }        
         string StreamUrl { get; set; }
         CancellationTokenSource VideoStreamingCancellationToken { get; set; }
 

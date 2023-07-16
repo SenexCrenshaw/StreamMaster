@@ -15,6 +15,8 @@ public interface IStreamGroupController
 
     Task<ActionResult> DeleteStreamGroup(DeleteStreamGroupRequest request);
 
+    Task<ActionResult> FailClient(FailClientRequest request);
+
     Task<IActionResult> GetAllStatisticsForAllUrls();
 
     Task<ActionResult<StreamGroupDto>> GetStreamGroup(int StreamGroupNumber);
@@ -43,9 +45,11 @@ public interface IStreamGroupDB
 
 public interface IStreamGroupHub
 {
-    public Task<StreamGroupDto?> AddStreamGroup(AddStreamGroupRequest request);
+    Task<StreamGroupDto?> AddStreamGroup(AddStreamGroupRequest request);
 
     Task<int?> DeleteStreamGroup(DeleteStreamGroupRequest request);
+
+    Task FailClient(FailClientRequest request);
 
     Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls();
 

@@ -14,6 +14,11 @@ public partial class StreamMasterHub : IVideoStreamHub
         return await _mediator.Send(request).ConfigureAwait(false);
     }
 
+    public async Task ChangeVideoStreamRequest(ChangeVideoStreamChannelRequest request)
+    {
+        await _mediator.Send(request).ConfigureAwait(false);
+    }
+
     public async Task<int?> DeleteVideoStream(DeleteVideoStreamRequest request)
     {
         return await _mediator.Send(request).ConfigureAwait(false);

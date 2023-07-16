@@ -16,18 +16,15 @@ public class CircularRingBuffer : ICircularRingBuffer
     public readonly StreamInfo StreamInfo;
     private readonly Memory<byte> _buffer;
     private readonly int _bufferSize;
-
     private readonly ConcurrentDictionary<Guid, int> _clientReadIndexes = new();
     private readonly Dictionary<Guid, SemaphoreSlim> _clientSemaphores = new();
     private readonly Dictionary<Guid, StreamingStatistics> _clientStatistics = new();
     private readonly StreamingStatistics _inputStreamStatistics = new("Unknown");
-
     private int _oldestDataIndex;
-
     private float _preBuffPercent;
     private int _writeIndex;
 
-    public CircularRingBuffer(ChildVideoStreamDto childVideoStreamDto, int rank, int tempbuffersize = 0)
+    public CircularRingBuffer(ChildVideoStreamDto childVideoStreamDto, int videoStreamId, string videoStreamName, int rank, int tempbuffersize = 0)
     {
         if (setting.PreloadPercentage < 0 || setting.PreloadPercentage > 100)
             setting.PreloadPercentage = 0;
@@ -37,12 +34,14 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         StreamInfo = new StreamInfo
         {
+            VideoStreamId = videoStreamId,
+            VideoStreamName= videoStreamName,
             M3UStreamId = childVideoStreamDto.Id,
             M3UStreamName = childVideoStreamDto.User_Tvg_name,
             Logo = childVideoStreamDto.User_Tvg_logo,
             StreamProxyType = childVideoStreamDto.StreamProxyType,
             StreamUrl = childVideoStreamDto.User_Url,
-            Rank =rank
+            Rank = rank
         };
 
         _buffer = new byte[_bufferSize];
@@ -51,6 +50,7 @@ public class CircularRingBuffer : ICircularRingBuffer
     }
 
     public int BufferSize => _buffer.Length;
+    public int VideoStreamId => StreamInfo.VideoStreamId;
     private bool isPreBuffered { get; set; } = false;
     private Setting setting => FileUtil.GetSetting();
 
@@ -82,11 +82,13 @@ public class CircularRingBuffer : ICircularRingBuffer
         {
             allStatistics.Add(new StreamStatisticsResult
             {
+                VideoStreamId = StreamInfo.VideoStreamId,
+                VideoStreamName = StreamInfo.VideoStreamName,
                 M3UStreamId = StreamInfo.M3UStreamId,
                 M3UStreamName = StreamInfo.M3UStreamName,
                 M3UStreamProxyType = StreamInfo.StreamProxyType,
                 Logo = StreamInfo.Logo,
-                Rank=StreamInfo.Rank,
+                Rank = StreamInfo.Rank,
                 InputBytesRead = input.BytesRead,
                 InputBytesWritten = input.BytesWritten,
                 InputBitsPerSecond = input.BitsPerSecond,
@@ -108,11 +110,11 @@ public class CircularRingBuffer : ICircularRingBuffer
 
     public int GetAvailableBytes(Guid clientId)
     {
-        if ( !_clientReadIndexes.ContainsKey(clientId))
+        if (!_clientReadIndexes.ContainsKey(clientId))
         {
             return 0;
         }
-           
+
         int readIndex = _clientReadIndexes[clientId];
         return (_writeIndex - readIndex + _buffer.Length) % _buffer.Length;
     }

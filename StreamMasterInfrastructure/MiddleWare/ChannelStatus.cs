@@ -4,15 +4,15 @@ namespace StreamMasterInfrastructure.MiddleWare;
 
 public class ChannelStatus
 {
-    //private readonly ConcurrentDictionary<Guid, ClientStreamerConfiguration> _clientStreamerConfigurations;
 
-    public ChannelStatus(int VideoStreamId)
+    public ChannelStatus(int videoStreamId, string videoStreamName)
     {
-        this.VideoStreamId = VideoStreamId;
+        VideoStreamId = videoStreamId;
         Rank = 0;
         ChannelWatcherToken = new CancellationTokenSource();
         FailoverInProgress = false;
-        //_clientStreamerConfigurations = new();
+        VideoStreamName = videoStreamName;
+
     }
 
     public CancellationTokenSource ChannelWatcherToken { get; set; }
@@ -22,19 +22,6 @@ public class ChannelStatus
 
     public IStreamInformation? StreamInformation { get; set; }
     public int VideoStreamId { get; set; }
+    public string VideoStreamName { get; set; }
 
-    //public void AddClientStreamerConfiguration(ClientStreamerConfiguration clientStreamerConfiguration)
-    //{
-    //    _clientStreamerConfigurations.TryAdd(clientStreamerConfiguration.ClientId, clientStreamerConfiguration);
-    //}
-
-    //public int GetClientStreamerCount()
-    //{
-    //    return _clientStreamerConfigurations.Count;
-    //}
-
-    //public void RemoveClientStreamerConfiguration(Guid ClientId)
-    //{
-    //    _clientStreamerConfigurations.TryRemove(ClientId, out _);
-    //}
 }

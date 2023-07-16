@@ -20,6 +20,11 @@ public partial class StreamMasterHub : IStreamGroupHub
         return await _mediator.Send(request).ConfigureAwait(false);
     }
 
+    public async Task FailClient(FailClientRequest request)
+    {
+        await _mediator.Send(request).ConfigureAwait(false);
+    }
+
     [JustUpdates]
     public async Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls()
     {

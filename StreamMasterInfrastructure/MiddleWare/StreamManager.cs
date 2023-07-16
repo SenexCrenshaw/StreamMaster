@@ -29,7 +29,7 @@ public class StreamManager : IStreamManager
         _streamInformations.Clear();
     }
 
-    public async Task<IStreamInformation?> GetOrCreateBuffer(ChildVideoStreamDto childVideoStreamDto, int rank)
+    public async Task<IStreamInformation?> GetOrCreateBuffer(ChildVideoStreamDto childVideoStreamDto, int videoStreamId, string videoStreamName, int rank)
     {
         var streamUrl = childVideoStreamDto.User_Url;
         if (_streamInformations.TryGetValue(streamUrl, out var _streamInformation))
@@ -47,7 +47,7 @@ public class StreamManager : IStreamManager
 
         _logger.LogInformation("Creating and starting buffer for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
-        ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, rank);
+        ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, videoStreamId, videoStreamName,rank);
         CancellationTokenSource cancellationTokenSource = new();
 
         (Stream? stream, int processId, ProxyStreamError? error) = await GetProxy(streamUrl, cancellationTokenSource.Token);
@@ -146,7 +146,7 @@ public class StreamManager : IStreamManager
         }
     }
 
-    private async Task LogRetryAndDelay(int retryCount, int maxRetries, int waitTime, CancellationToken token, string streamUrl)
+    private async Task LogRetryAndDelay(int retryCount, int maxRetries, int waitTime, string streamUrl, CancellationToken token)
     {
         if (token.IsCancellationRequested)
         {
@@ -187,7 +187,7 @@ public class StreamManager : IStreamManager
                     if (bytesRead == 0)
                     {
                         retryCount++;
-                        await LogRetryAndDelay(retryCount, maxRetries, waitTime, cancellationToken.Token, streamUrl);
+                        await LogRetryAndDelay(retryCount, maxRetries, waitTime, streamUrl, cancellationToken.Token);
                     }
                     else
                     {
