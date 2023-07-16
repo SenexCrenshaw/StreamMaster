@@ -11,17 +11,12 @@ namespace StreamMasterApplication.Common.Interfaces
         SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl);
 
         Task<Stream?> GetStream(ClientStreamerConfiguration config);
-
-        ICollection<IStreamInformation> GetStreamInformations();
-
-        Task<Stream> RegisterClient(ClientStreamerConfiguration config);
-
+        
         void RemoveClient(ClientStreamerConfiguration config);
 
         void SimulateStreamFailure(string streamUrl);
 
         void SimulateStreamFailureForAll();
-
-        void UnRegisterClient(ClientStreamerConfiguration config);
+        
     }
 }

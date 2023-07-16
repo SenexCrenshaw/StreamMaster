@@ -17,6 +17,7 @@ namespace StreamMasterInfrastructure.MiddleWare;
 
 public class ChannelManager : IDisposable, IChannelManager
 {
+    private readonly Timer _broadcastTimer;
     private readonly ConcurrentDictionary<int, ChannelStatus> _channelStatuses;
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hub;
     private readonly ILogger<ChannelManager> _logger;
@@ -25,9 +26,11 @@ public class ChannelManager : IDisposable, IChannelManager
 
     public ChannelManager(ILogger<ChannelManager> logger, IServiceProvider serviceProvider, IHubContext<StreamMasterHub, IStreamMasterHub> hub)
     {
+
         _logger = logger;
         _hub = hub;
         _streamManager = new StreamManager(logger);
+        _broadcastTimer = new Timer(BroadcastMessage, null, 1000, 1000);
         _serviceProvider = serviceProvider;
         _channelStatuses = new();
     }
@@ -47,6 +50,7 @@ public class ChannelManager : IDisposable, IChannelManager
 
     public void Dispose()
     {
+        _broadcastTimer?.Dispose();
         _channelStatuses.Clear();
         GC.SuppressFinalize(this);
     }
@@ -74,12 +78,12 @@ public class ChannelManager : IDisposable, IChannelManager
         return await RegisterClient(config);
     }
 
-    public ICollection<IStreamInformation> GetStreamInformations()
+    private ICollection<IStreamInformation> GetStreamInformations()
     {
         return _streamManager.GetStreamInformations();
     }
 
-    public async Task<Stream> RegisterClient(ClientStreamerConfiguration config)
+    private async Task<Stream> RegisterClient(ClientStreamerConfiguration config)
     {
         var channelStatus = await RegisterWithChannelManager(config);
         if (channelStatus is null || config.ReadBuffer is null)
@@ -120,7 +124,7 @@ public class ChannelManager : IDisposable, IChannelManager
         }
     }
 
-    public void UnRegisterClient(ClientStreamerConfiguration config)
+    private void UnRegisterClient(ClientStreamerConfiguration config)
     {
         UnRegisterWithChannelManager(config);
     }
