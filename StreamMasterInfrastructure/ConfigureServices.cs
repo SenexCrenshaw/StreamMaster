@@ -8,7 +8,6 @@ using StreamMasterDomain.Common;
 
 using StreamMasterInfrastructure.MiddleWare;
 using StreamMasterInfrastructure.Persistence;
-using StreamMasterInfrastructure.Persistence.Interceptors;
 using StreamMasterInfrastructure.Services;
 using StreamMasterInfrastructure.Services.Frontend.Mappers;
 
@@ -53,7 +52,6 @@ public static class ConfigureServices
 
         string DbPath = Path.Join(Constants.DataDirectory, setting.DatabaseName);
 
-        
         _ = services.AddDbContext<AppDbContext>(options => options.UseSqlite($"Data Source={DbPath}", builder => builder.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
 
         _ = services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
@@ -61,7 +59,7 @@ public static class ConfigureServices
 
         _ = services.AddTransient<IDateTime, DateTimeService>();
 
-        _ = services.AddSingleton<IRingBufferManager, RingBufferManager>();
+        _ = services.AddSingleton<IChannelManager, ChannelManager>();
 
         _ = services.AddHostedService<TimerService>();
 

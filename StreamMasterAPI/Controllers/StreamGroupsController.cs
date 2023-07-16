@@ -26,16 +26,16 @@ namespace StreamMasterAPI.Controllers;
 public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 {
     private static readonly ConcurrentDictionary<string, ClientTracker> clientTrackers = new();
+    private readonly IChannelManager _channelManager;
     private readonly ILogger<StreamGroupsController> _logger;
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
-    private readonly IRingBufferManager _ringBufferManager;
 
-    public StreamGroupsController(IRingBufferManager ringBufferManager, IMapper mapper, IMemoryCache memoryCache, ILogger<StreamGroupsController> logger)
+    public StreamGroupsController(IChannelManager channelManager, IMapper mapper, IMemoryCache memoryCache, ILogger<StreamGroupsController> logger)
     {
         _mapper = mapper;
         _memoryCache = memoryCache;
-        _ringBufferManager = ringBufferManager;
+        _channelManager = channelManager;
         _logger = logger;
     }
 
@@ -304,9 +304,9 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         ClientStreamerConfiguration config = new(videoStream.Id, Request.Headers["User-Agent"].ToString(), cancellationToken);
 
         // Get the read stream for the client
-        Stream? stream = await _ringBufferManager.GetStream(config);
+        Stream? stream = await _channelManager.GetStream(config);
 
-        HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(_ringBufferManager, config));
+        HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(_channelManager, config));
         if (stream != null)
         {
             return new FileStreamResult(stream, "video/mp4");
@@ -445,7 +445,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
             return BadRequest("streamUrl is required.");
         }
 
-        _ringBufferManager.SimulateStreamFailure(HttpUtility.UrlDecode(streamUrl));
+        _channelManager.SimulateStreamFailure(HttpUtility.UrlDecode(streamUrl));
         return Ok();
     }
 
@@ -455,7 +455,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult SimulateStreamFailureForAll()
     {
-        _ringBufferManager.SimulateStreamFailureForAll();
+        _channelManager.SimulateStreamFailureForAll();
         return Ok();
     }
 
@@ -527,18 +527,18 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
     private class UnregisterClientOnDispose : IDisposable
     {
+        private readonly IChannelManager _channelManager;
         private readonly ClientStreamerConfiguration _config;
-        private readonly IRingBufferManager _ringBufferManager;
 
-        public UnregisterClientOnDispose(IRingBufferManager ringBufferManager, ClientStreamerConfiguration config)
+        public UnregisterClientOnDispose(IChannelManager channelManager, ClientStreamerConfiguration config)
         {
-            _ringBufferManager = ringBufferManager;
+            _channelManager = channelManager;
             _config = config;
         }
 
         public void Dispose()
         {
-            _ringBufferManager.RemoveClient(_config);
+            _channelManager.RemoveClient(_config);
         }
     }
 }

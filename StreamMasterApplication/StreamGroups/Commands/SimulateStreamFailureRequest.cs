@@ -23,16 +23,16 @@ public class SimulateStreamFailureRequestValidator : AbstractValidator<SimulateS
 
 public class SimulateStreamFailureRequestHandler : IRequestHandler<SimulateStreamFailureRequest>
 {
-    private readonly IRingBufferManager _ringBufferManager;
+    private readonly IChannelManager _channelManager;
 
-    public SimulateStreamFailureRequestHandler(IRingBufferManager ringBufferManager)
+    public SimulateStreamFailureRequestHandler(IChannelManager channelManager)
     {
-        _ringBufferManager = ringBufferManager;
+        _channelManager = channelManager;
     }
 
     public Task Handle(SimulateStreamFailureRequest request, CancellationToken cancellationToken)
     {
-        _ringBufferManager.SimulateStreamFailure(request.StreamUrl);
+        _channelManager.SimulateStreamFailure(request.StreamUrl);
         return Task.CompletedTask;
     }
 }

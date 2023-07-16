@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
+using StreamMasterApplication.Hubs;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
@@ -16,14 +18,15 @@ namespace StreamMasterInfrastructure.MiddleWare;
 public class ChannelManager : IDisposable, IChannelManager
 {
     private readonly ConcurrentDictionary<int, ChannelStatus> _channelStatuses;
-
+    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hub;
     private readonly ILogger _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly IStreamManager _streamManager;
 
-    public ChannelManager(ILogger logger, IServiceProvider serviceProvider)
+    public ChannelManager(ILogger logger, IServiceProvider serviceProvider, IHubContext<StreamMasterHub, IStreamMasterHub> hub)
     {
         _logger = logger;
+        _hub = hub;
         _streamManager = new StreamManager(logger);
         _serviceProvider = serviceProvider;
         _channelStatuses = new();
@@ -66,6 +69,11 @@ public class ChannelManager : IDisposable, IChannelManager
         return _streamManager.GetSingleStreamStatisticsResult(streamUrl);
     }
 
+    public async Task<Stream?> GetStream(ClientStreamerConfiguration config)
+    {
+        return await RegisterClient(config);
+    }
+
     public ICollection<IStreamInformation> GetStreamInformations()
     {
         return _streamManager.GetStreamInformations();
@@ -79,6 +87,11 @@ public class ChannelManager : IDisposable, IChannelManager
             throw new Exception("Could not register new channel manager");
         }
         return (Stream)config.ReadBuffer;
+    }
+
+    public void RemoveClient(ClientStreamerConfiguration config)
+    {
+        UnRegisterClient(config);
     }
 
     public void SimulateStreamFailure(string streamUrl)
@@ -110,6 +123,21 @@ public class ChannelManager : IDisposable, IChannelManager
     public void UnRegisterClient(ClientStreamerConfiguration config)
     {
         UnRegisterWithChannelManager(config);
+    }
+
+    private void BroadcastMessage(object? state)
+    {
+        //if (BuildInfo.IsDebug)
+        //{
+        //    var infos = _channeManager.GetStreamInformations().ToList();
+
+        //    foreach (var info in infos.Where(a => a.RingBuffer != null))
+        //    {
+        //        _logger.LogInformation("{StreamUrl} {clientCount}", info.StreamUrl, info.ClientCount);
+        //    }
+        //}
+
+        _ = _hub.Clients.All.StreamStatisticsResultsUpdate(GetAllStatisticsForAllUrls());
     }
 
     private async Task ChannelWatcher(ChannelStatus channelStatus)
@@ -323,7 +351,7 @@ public class ChannelManager : IDisposable, IChannelManager
                 {
                     _streamManager.Stop(channelStatus.StreamInformation.StreamUrl);
                 }
-                
+
                 _channelStatuses.TryRemove(config.VideoStreamId, out _);
                 _logger.LogInformation("ChannelManager No more clients, stopping streaming for {videoStreamId}", config.VideoStreamId);
             }

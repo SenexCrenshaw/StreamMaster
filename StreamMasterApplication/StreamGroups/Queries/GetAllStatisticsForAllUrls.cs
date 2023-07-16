@@ -8,15 +8,15 @@ public record GetAllStatisticsForAllUrls() : IRequest<List<StreamStatisticsResul
 
 internal class GetAllStatisticsForAllUrlsHandler : IRequestHandler<GetAllStatisticsForAllUrls, List<StreamStatisticsResult>>
 {
-    private readonly IRingBufferManager _ringBufferManager;
+    private readonly IChannelManager _channelManager;
 
-    public GetAllStatisticsForAllUrlsHandler(IRingBufferManager ringBufferManager)
+    public GetAllStatisticsForAllUrlsHandler(IChannelManager channelManager)
     {
-        _ringBufferManager = ringBufferManager;
+        _channelManager = channelManager;
     }
 
     public Task<List<StreamStatisticsResult>> Handle(GetAllStatisticsForAllUrls request, CancellationToken cancellationToken)
     {
-        return Task.FromResult(_ringBufferManager.GetAllStatisticsForAllUrls());
+        return Task.FromResult(_channelManager.GetAllStatisticsForAllUrls());
     }
 }
