@@ -323,7 +323,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
         if (toast.current) {
           if (returnData) {
             toast.current.show({
-              detail: `Channel Update Successful`,
+              detail: `Stream Group Update Successful`,
               life: 3000,
               severity: 'success',
               summary: 'Successful',
@@ -333,7 +333,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
           } else {
             toast.current.show({
-              detail: `Channel Update Failed`,
+              detail: `Stream Group Update Failed`,
               life: 3000,
               severity: 'error',
               summary: 'Error',
@@ -343,7 +343,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       }).catch((e) => {
         if (toast.current) {
           toast.current.show({
-            detail: `Channel Update Failed`,
+            detail: `Stream Group Update Failed`,
             life: 3000,
             severity: 'error',
             summary: 'Error ' + e.message,

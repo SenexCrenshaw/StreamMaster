@@ -227,6 +227,11 @@ body>div.p-column-filter-overlay.p-component.p-fluid.p-column-filter-overlay-men
 }
 
 .p-paginator.p-component.p-paginator-bottom.text-xs.p-0.m-0.withpadding>div>span {
+  border: 0 !important;
+  padding: .6rem;
+}
+
+.p-paginator.p-component.p-paginator-bottom.text-xs.p-0.m-0.withpadding>div {
   border: var(--surface-border) 2px solid !important;
   padding: .6rem;
 }
