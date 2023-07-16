@@ -24,51 +24,6 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
   }, []);
 
 
-  const onChangeVideoStreamChannel = React.useCallback(async (playingVideoStreamId: number, newVideoStreamId: number) => {
-    if (playingVideoStreamId === undefined || playingVideoStreamId < 1 ||
-      newVideoStreamId === undefined || newVideoStreamId < 1
-    ) {
-      return;
-    }
-
-    var toSend = {} as ChangeVideoStreamChannelRequest;
-    toSend.playingVideoStreamId = playingVideoStreamId;
-    toSend.newVideoStreamId = newVideoStreamId;
-
-    await Hub.ChangeVideoStreamChannel(toSend)
-      .then(() => {
-        if (toast.current) {
-          toast.current.show({
-            detail: `Changed Client Channel`,
-            life: 3000,
-            severity: 'success',
-            summary: 'Successful',
-          });
-        }
-      }).catch(() => {
-        if (toast.current) {
-          toast.current.show({
-            detail: `Failed Client Channel`,
-            life: 3000,
-            severity: 'error',
-            summary: 'Error'
-          });
-        }
-      });
-
-  }, []);
-
-
-  const videoStreamTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
-    return (
-      <VideoStreamSelector
-        onChange={async (e) => {
-          await onChangeVideoStreamChannel(rowData.videoStreamId ?? 0, e.id);
-        }}
-        value={rowData.m3UStreamName}
-      />
-    );
-  }, [onChangeVideoStreamChannel]);
 
   const clientStartTimeTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
     return (<div>{formatJSONDateString(rowData.clientStartTime ?? '')}</div>);
@@ -143,13 +98,7 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
         } as React.CSSProperties,
       },
       { field: 'm3UStreamName', header: 'Name' },
-      {
-        align: 'center',
-        bodyTemplate: videoStreamTemplate, field: 'videoStreamTemplate', header: 'Video Stream', style: {
-          maxWidth: '14rem',
-          width: '14rem',
-        } as React.CSSProperties,
-      },
+
       {
         align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'clientStartTime', header: 'Client Start', style: {
           maxWidth: '10rem',
@@ -176,7 +125,7 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
         } as React.CSSProperties,
       },
     ]
-  }, [clientBitsPerSecondTemplate, clientElapsedTimeTemplate, clientStartTimeTemplate, targetActionBodyTemplate, videoStreamTemplate]);
+  }, [clientBitsPerSecondTemplate, clientElapsedTimeTemplate, clientStartTimeTemplate, targetActionBodyTemplate]);
 
   return (
     <>

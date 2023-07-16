@@ -1,4 +1,5 @@
 import React from 'react';
+import { type ChangeVideoStreamChannelRequest } from '../../store/iptvApi';
 import { type StreamStatisticsResult } from '../../store/iptvApi';
 import { formatJSONDateString, getTopToolOptions } from '../../common/common';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
@@ -7,10 +8,59 @@ import DataSelector from '../dataSelector/DataSelector';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import * as Hub from "../../store/signlar_functions";
+import { VideoStreamSelector } from '../../components/VideoStreamSelector';
 
 export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProps) => {
   const setting = StreamMasterSetting();
   const toast = React.useRef<Toast>(null);
+
+
+  const onChangeVideoStreamChannel = React.useCallback(async (playingVideoStreamId: number, newVideoStreamId: number) => {
+    if (playingVideoStreamId === undefined || playingVideoStreamId < 1 ||
+      newVideoStreamId === undefined || newVideoStreamId < 1
+    ) {
+      return;
+    }
+
+    var toSend = {} as ChangeVideoStreamChannelRequest;
+    toSend.playingVideoStreamId = playingVideoStreamId;
+    toSend.newVideoStreamId = newVideoStreamId;
+
+    await Hub.ChangeVideoStreamChannel(toSend)
+      .then(() => {
+        if (toast.current) {
+          toast.current.show({
+            detail: `Changed Client Channel`,
+            life: 3000,
+            severity: 'success',
+            summary: 'Successful',
+          });
+        }
+      }).catch(() => {
+        if (toast.current) {
+          toast.current.show({
+            detail: `Failed Client Channel`,
+            life: 3000,
+            severity: 'error',
+            summary: 'Error'
+          });
+        }
+      });
+
+  }, []);
+
+
+  const videoStreamTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
+    return (
+      <VideoStreamSelector
+        onChange={async (e) => {
+          await onChangeVideoStreamChannel(rowData.videoStreamId ?? 0, e.id);
+        }}
+        value={rowData.m3UStreamName}
+      />
+    );
+  }, [onChangeVideoStreamChannel]);
+
 
   const onFailStream = React.useCallback(async (rowData: StreamStatisticsResult) => {
     if (!rowData.streamUrl || rowData.streamUrl === undefined || rowData.streamUrl === '') {
@@ -140,6 +190,13 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
       { field: 'videoStreamName', header: 'Name' },
       {
         align: 'center',
+        bodyTemplate: videoStreamTemplate, field: 'videoStreamTemplate', header: 'Video Stream', style: {
+          maxWidth: '14rem',
+          width: '14rem',
+        } as React.CSSProperties,
+      },
+      {
+        align: 'center',
         field: 'rank', header: 'Rank', style: {
           maxWidth: '4rem',
           width: '4rem',
@@ -183,7 +240,7 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
         } as React.CSSProperties,
       },
     ]
-  }, [imageBodyTemplate, inputBitsPerSecondTemplate, inputElapsedTimeTemplate, inputStartTimeTemplate, streamCount, targetActionBodyTemplate]);
+  }, [imageBodyTemplate, inputBitsPerSecondTemplate, inputElapsedTimeTemplate, inputStartTimeTemplate, streamCount, targetActionBodyTemplate, videoStreamTemplate]);
 
   return (
     <>
