@@ -1,7 +1,5 @@
 ﻿using StreamMaster.SchedulesDirect;
 
-using StreamMasterDomain.Authentication;
-
 using System.Text.Json;
 
 namespace SDConsole;
@@ -10,32 +8,9 @@ internal class Program
 {
     private static async Task Main(string[] args)
     {
-        string valueKey = "f835904d5a2343d8ac567c026d6c08b2";
-
-        string serverKey = "ef1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c";
-
-        int value1 = 123;
-        int value2 = 456;
-
-        string encodedSingleValue = value1.EncodeValue128(serverKey);
-        int? decodedSingleValue = encodedSingleValue.DecodeValue128(serverKey);
-
-        Console.WriteLine($"Encoded single value: {encodedSingleValue}");
-        Console.WriteLine($"Decoded single value: {decodedSingleValue}");
-
-        string encodedTwoValues = value1.EncodeValues128(value2, serverKey);
-        (int? decodedValue1, int? decodedValue2) = encodedTwoValues.DecodeValues128(serverKey);
-
-        Console.WriteLine($"Encoded two values: {encodedTwoValues}");
-        Console.WriteLine($"Decoded value 1: {decodedValue1}");
-        Console.WriteLine($"Decoded value 2: {decodedValue2}");
-
-        return;
-
         var cancellationTokenSource = new CancellationTokenSource();
         CancellationToken cancellationToken = cancellationTokenSource.Token;
 
-        Console.WriteLine("Getting Token");
         var sd = new SchedulesDirect("", "");
 
         Console.WriteLine("Getting Status");
@@ -55,7 +30,7 @@ internal class Program
         Console.WriteLine("System Is Online");
 
         Console.WriteLine("Getting Headends");
-        var headends = await sd.GetHeadends(cancellationToken: cancellationToken);
+        var headends = await sd.GetHeadends("", "", cancellationToken: cancellationToken);
 
         Console.WriteLine("Getting Countries");
         var countries = await sd.GetCountries(cancellationToken: cancellationToken);

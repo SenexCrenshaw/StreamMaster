@@ -38,16 +38,9 @@ public class StreamManager : IStreamManager
             return _streamInformation;
         }
 
-        var allStreamsCount = GetStreamsCountForM3UFile(childVideoStreamDto.M3UFileId);
-        if (allStreamsCount > childVideoStreamDto.MaxStreams)
-        {
-            _logger.LogInformation("Max stream count {MaxStreams} reached for stream: {StreamUrl}", childVideoStreamDto.MaxStreams, setting.CleanURLs ? "url removed" : streamUrl);
-            return null;
-        }
-
         _logger.LogInformation("Creating and starting buffer for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
-        ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, videoStreamId, videoStreamName,rank);
+        ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, videoStreamId, videoStreamName, rank);
         CancellationTokenSource cancellationTokenSource = new();
 
         (Stream? stream, int processId, ProxyStreamError? error) = await GetProxy(streamUrl, cancellationTokenSource.Token);
@@ -86,6 +79,12 @@ public class StreamManager : IStreamManager
     public ICollection<IStreamInformation> GetStreamInformations()
     {
         return _streamInformations.Values;
+    }
+
+    public int GetStreamsCountForM3UFile(int m3uFileId)
+    {
+        return _streamInformations
+            .Count(x => x.Value.M3UFileId == m3uFileId);
     }
 
     public IStreamInformation? Stop(string streamUrl)
@@ -130,12 +129,6 @@ public class StreamManager : IStreamManager
         }
 
         return (stream, processId, error);
-    }
-
-    private int GetStreamsCountForM3UFile(int m3uFileId)
-    {
-        return _streamInformations
-            .Count(x => x.Value.M3UFileId == m3uFileId);
     }
 
     private void LogErrorIfAny(Stream? stream, ProxyStreamError? error, string streamUrl)

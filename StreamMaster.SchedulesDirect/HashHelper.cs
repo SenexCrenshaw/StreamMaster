@@ -6,20 +6,20 @@ public static class HashHelper
 {
     public static string GetSHA1Hash(this string input)
     {
-        using (SHA1 sha1 = SHA1.Create())
+        using (var sha1 = new SHA1CryptoServiceProvider())
         {
             byte[] bytes = Encoding.UTF8.GetBytes(input);
             byte[] hash = sha1.ComputeHash(bytes);
-
-            StringBuilder sb = new StringBuilder(hash.Length * 2);
-
+            StringBuilder sb = new StringBuilder();
             foreach (byte b in hash)
             {
                 sb.Append(b.ToString("x2"));
             }
+            string strSHA1 = sb.ToString();
+            return strSHA1;
 
-            return sb.ToString();
         }
+      
     }
 
     public static bool TestSha1HexHash(string text)

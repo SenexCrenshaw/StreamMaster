@@ -18,7 +18,7 @@ import StreamingStatus from './features/streamingStatus/StreamingStatus';
 import Home from './Home';
 import SignalRHub from './app/SignalRHub';
 import FilesEditor from './features/filesEditor/FilesEditor';
-import TestPanel from './components/TestPanel';
+// import SDEditor from './features/sdEditor/SDEditor';
 
 const App = () => {
   const [locale,] = useLocalStorage('en', 'locale');
@@ -73,9 +73,9 @@ const App = () => {
           <SettingsEditor />
         } path="/settings" />
 
-        <Route element={
-          <TestPanel />
-        } path="/test" />
+        {/* <Route element={
+          <SDEditor />
+        } path="/editor/sd" /> */}
 
 
       </Route>

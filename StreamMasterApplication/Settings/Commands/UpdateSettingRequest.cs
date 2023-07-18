@@ -228,9 +228,9 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
             currentSetting.RingBufferSizeMB = (int)request.RingBufferSizeMB;
         }
 
-        if (request.SDPassword != null && request.SDPassword != currentSetting.SDPassword)
+        if (request.SDPassword != null)
         {
-            currentSetting.SDPassword = request.SDPassword;
+            currentSetting.SDPassword = HashHelper.GetSHA1Hash(request.SDPassword);
         }
 
         if (request.SDUserName != null && request.SDUserName != currentSetting.SDUserName)

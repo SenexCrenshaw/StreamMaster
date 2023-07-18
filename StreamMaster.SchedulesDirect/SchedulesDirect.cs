@@ -15,7 +15,14 @@ public class SchedulesDirect
     public SchedulesDirect(string sdUserName, string sdPassword)
     {
         SDUserName = sdUserName;
-        SDHashedPassword = sdPassword.GetSHA1Hash();
+        if (HashHelper.TestSha1HexHash(sdPassword))
+        {
+            SDHashedPassword = sdPassword;
+        }
+        else
+        {
+            SDHashedPassword = sdPassword.GetSHA1Hash();
+        }
     }
 
     public string SDHashedPassword { get; private set; }
@@ -23,6 +30,7 @@ public class SchedulesDirect
     public string SDUserName { get; private set; }
 
     public string Token { get; private set; }
+    public DateTime TokenDateTime { get; private set; }
 
     public async Task<Countries?> GetCountries(CancellationToken cancellationToken)
     {
@@ -48,7 +56,7 @@ public class SchedulesDirect
         }
     }
 
-    public async Task<List<Headend>?> GetHeadends(string country = "USA", string postalCode = "19087", CancellationToken cancellationToken = default)
+    public async Task<List<Headend>?> GetHeadends(string country, string postalCode, CancellationToken cancellationToken = default)
     {
         await CheckToken();
 
@@ -185,7 +193,7 @@ public class SchedulesDirect
         }
     }
 
-    public async Task<Status?> GetStatus(CancellationToken cancellationToken)
+    public async Task<SDStatus?> GetStatus(CancellationToken cancellationToken)
     {
         await CheckToken();
 
@@ -196,7 +204,7 @@ public class SchedulesDirect
         {
             _ = response.EnsureSuccessStatusCode();
             string responseString = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-            var result = JsonSerializer.Deserialize<Status>(responseString);
+            var result = JsonSerializer.Deserialize<SDStatus>(responseString);
             if (result == null)
             {
                 return null;
@@ -218,7 +226,7 @@ public class SchedulesDirect
             AllowAutoRedirect = true,
         });
         client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
-        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));        
+        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
         client.DefaultRequestHeaders.UserAgent.ParseAdd(setting.ClientUserAgent);
 
         return client;
@@ -226,12 +234,14 @@ public class SchedulesDirect
 
     private async Task<bool> CheckToken(CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(Token))
+        if (string.IsNullOrEmpty(Token) || TokenDateTime.AddHours(23) < DateTime.Now)
         {
             await GetToken(cancellationToken);
 
             if (string.IsNullOrEmpty(Token))
                 throw new ApplicationException("Unable to get token");
+
+            TokenDateTime=  DateTime.Now;
         }
         return true;
     }

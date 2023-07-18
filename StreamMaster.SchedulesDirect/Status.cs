@@ -1,6 +1,6 @@
 ﻿namespace StreamMaster.SchedulesDirect;
 
-public class Status
+public class SDStatus
 {
     public Account account { get; set; }
     public int code { get; set; }

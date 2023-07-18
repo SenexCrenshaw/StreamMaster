@@ -16,5 +16,7 @@ public interface IStreamManager
 
     ICollection<IStreamInformation> GetStreamInformations();
 
+    int GetStreamsCountForM3UFile(int m3uFileId);
+
     IStreamInformation? Stop(string streamUrl);
 }

@@ -13,6 +13,7 @@ public interface ISharedHub :
     IChannelGroupHub,
     IEPGFileHub,
     IM3UFileHub,
+    ISchedulesDirectHub,
     IVideoStreamHub,
     IIconHub,
     IStreamGroupHub,
@@ -27,6 +28,7 @@ public interface ISharedTasks :
     IM3UFileTasks,
     IVideoStreamTasks,
     IIconTasks,
+    ISchedulesDirectTasks,
     IStreamGroupTasks,
     IProgrammeChannelTasks,
     ISettingTasks
@@ -39,6 +41,7 @@ public interface ISharedDB :
     IM3UFileDB,
     IIconDB,
     IVideoStreamDB,
+    ISchedulesDirectDB,
     IStreamGroupDB,
     IProgrammeChannelDB,
     ISettingDB

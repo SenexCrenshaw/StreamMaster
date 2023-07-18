@@ -7,6 +7,7 @@ export const addTagTypes = [
   "M3UFiles",
   "Misc",
   "Programmes",
+  "SchedulesDirect",
   "Settings",
   "StreamGroups",
   "VideoStreams",
@@ -422,6 +423,60 @@ const injectedRtkApi = api
       >({
         query: () => ({ url: `/api/programmes/getprogrammes` }),
         providesTags: ["Programmes"],
+      }),
+      schedulesDirectGetCountries: build.query<
+        SchedulesDirectGetCountriesApiResponse,
+        SchedulesDirectGetCountriesApiArg
+      >({
+        query: () => ({ url: `/api/schedulesdirect/getcountries` }),
+        providesTags: ["SchedulesDirect"],
+      }),
+      schedulesDirectGetHeadends: build.query<
+        SchedulesDirectGetHeadendsApiResponse,
+        SchedulesDirectGetHeadendsApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/schedulesdirect/getheadends`,
+          params: {
+            country: queryArg.country,
+            postalCode: queryArg.postalCode,
+          },
+        }),
+        providesTags: ["SchedulesDirect"],
+      }),
+      schedulesDirectGetLineup: build.query<
+        SchedulesDirectGetLineupApiResponse,
+        SchedulesDirectGetLineupApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/schedulesdirect/getlineup`,
+          params: { lineup: queryArg },
+        }),
+        providesTags: ["SchedulesDirect"],
+      }),
+      schedulesDirectGetLineups: build.query<
+        SchedulesDirectGetLineupsApiResponse,
+        SchedulesDirectGetLineupsApiArg
+      >({
+        query: () => ({ url: `/api/schedulesdirect/getlineups` }),
+        providesTags: ["SchedulesDirect"],
+      }),
+      schedulesDirectGetSchedules: build.query<
+        SchedulesDirectGetSchedulesApiResponse,
+        SchedulesDirectGetSchedulesApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/schedulesdirect/getschedules`,
+          body: queryArg,
+        }),
+        providesTags: ["SchedulesDirect"],
+      }),
+      schedulesDirectGetStatus: build.query<
+        SchedulesDirectGetStatusApiResponse,
+        SchedulesDirectGetStatusApiArg
+      >({
+        query: () => ({ url: `/api/schedulesdirect/getstatus` }),
+        providesTags: ["SchedulesDirect"],
       }),
       settingsGetIsSystemReady: build.query<
         SettingsGetIsSystemReadyApiResponse,
@@ -908,6 +963,26 @@ export type ProgrammesGetProgrammeNamesApiResponse =
 export type ProgrammesGetProgrammeNamesApiArg = void;
 export type ProgrammesGetProgrammesApiResponse = /** status 200  */ Programme[];
 export type ProgrammesGetProgrammesApiArg = void;
+export type SchedulesDirectGetCountriesApiResponse =
+  /** status 200  */ Countries;
+export type SchedulesDirectGetCountriesApiArg = void;
+export type SchedulesDirectGetHeadendsApiResponse =
+  /** status 200  */ HeadendDto[];
+export type SchedulesDirectGetHeadendsApiArg = {
+  country?: string;
+  postalCode?: string;
+};
+export type SchedulesDirectGetLineupApiResponse =
+  /** status 200  */ LineUpResult;
+export type SchedulesDirectGetLineupApiArg = string;
+export type SchedulesDirectGetLineupsApiResponse =
+  /** status 200  */ LineUpsResult;
+export type SchedulesDirectGetLineupsApiArg = void;
+export type SchedulesDirectGetSchedulesApiResponse =
+  /** status 200  */ Schedule[];
+export type SchedulesDirectGetSchedulesApiArg = string[];
+export type SchedulesDirectGetStatusApiResponse = /** status 200  */ SdStatus;
+export type SchedulesDirectGetStatusApiArg = void;
 export type SettingsGetIsSystemReadyApiResponse = /** status 200  */ boolean;
 export type SettingsGetIsSystemReadyApiArg = void;
 export type SettingsGetQueueStatusApiResponse =
@@ -1268,6 +1343,159 @@ export type ProgrammeName = {
   channelName?: string;
   displayName?: string;
 };
+export type NorthAmerica = {
+  fullName?: string;
+  shortName?: string;
+  postalCodeExample?: string;
+  postalCode?: string;
+};
+export type Europe = {
+  fullName?: string;
+  shortName?: string;
+  postalCodeExample?: string;
+  postalCode?: string;
+  onePostalCode?: boolean | null;
+};
+export type LatinAmerica = {
+  fullName?: string;
+  shortName?: string;
+  postalCodeExample?: string;
+  postalCode?: string;
+  onePostalCode?: boolean | null;
+};
+export type Caribbean = {
+  fullName?: string;
+  shortName?: string;
+  postalCodeExample?: string;
+  postalCode?: string;
+  onePostalCode?: boolean;
+};
+export type Oceanium = {
+  fullName?: string;
+  shortName?: string;
+  postalCodeExample?: string;
+  postalCode?: string;
+};
+export type Countries = {
+  "North America"?: NorthAmerica[];
+  Europe?: Europe[];
+  "Latin America"?: LatinAmerica[];
+  Caribbean?: Caribbean[];
+  Oceania?: Oceanium[];
+};
+export type HeadendDto = {
+  headend?: string;
+  lineup?: string;
+  location?: string;
+  name?: string;
+  transport?: string;
+};
+export type Map = {
+  stationID?: string;
+  uhfVhf?: number;
+  atscMajor?: number;
+  atscMinor?: number;
+};
+export type Broadcaster = {
+  city?: string;
+  state?: string;
+  postalcode?: string;
+  country?: string;
+};
+export type StationLogo = {
+  URL?: string;
+  height?: number;
+  width?: number;
+  md5?: string;
+  source?: string;
+  category?: string;
+};
+export type Logo = {
+  URL?: string;
+  height?: number;
+  width?: number;
+  md5?: string;
+};
+export type Station = {
+  stationID?: string;
+  name?: string;
+  callsign?: string;
+  affiliate?: string;
+  broadcastLanguage?: string[];
+  descriptionLanguage?: string[];
+  broadcaster?: Broadcaster;
+  stationLogo?: StationLogo[];
+  logo?: Logo;
+  isCommercialFree?: boolean | null;
+};
+export type Metadata = {
+  lineup?: string;
+  modified?: string;
+  transport?: string;
+};
+export type LineUpResult = {
+  map?: Map[];
+  stations?: Station[];
+  metadata?: Metadata;
+};
+export type Lineup = {
+  id?: string;
+  lineup?: string;
+  name?: string;
+  transport?: string;
+  location?: string;
+  uri?: string;
+  isDeleted?: boolean;
+};
+export type LineUpsResult = {
+  code?: number;
+  serverID?: string;
+  datetime?: string;
+  lineups?: Lineup[];
+};
+export type Program = {
+  programID?: string;
+  airDateTime?: string;
+  duration?: number;
+  md5?: string;
+  audioProperties?: string[];
+  videoProperties?: string[];
+  new?: boolean | null;
+  liveTapeDelay?: string;
+  educational?: boolean | null;
+  isPremiereOrFinale?: string;
+  premiere?: boolean | null;
+};
+export type ScheduleMetadata = {
+  modified?: string;
+  md5?: string;
+  startDate?: string;
+};
+export type Schedule = {
+  stationID?: string;
+  programs?: Program[];
+  metadata?: ScheduleMetadata;
+};
+export type Account = {
+  expires?: string;
+  maxLineups?: number;
+  messages?: any[];
+};
+export type Systemstatus = {
+  date?: string;
+  message?: string;
+  status?: string;
+};
+export type SdStatus = {
+  account?: Account;
+  code?: number;
+  datetime?: string;
+  lastDataUpdate?: string;
+  lineups?: Lineup[];
+  notifications?: any[];
+  serverID?: string;
+  systemStatus?: Systemstatus[];
+};
 export type TaskQueueStatusDto = {
   command?: string;
   id?: string;
@@ -1573,6 +1801,12 @@ export const {
   useProgrammesGetProgrammeChannelsQuery,
   useProgrammesGetProgrammeNamesQuery,
   useProgrammesGetProgrammesQuery,
+  useSchedulesDirectGetCountriesQuery,
+  useSchedulesDirectGetHeadendsQuery,
+  useSchedulesDirectGetLineupQuery,
+  useSchedulesDirectGetLineupsQuery,
+  useSchedulesDirectGetSchedulesQuery,
+  useSchedulesDirectGetStatusQuery,
   useSettingsGetIsSystemReadyQuery,
   useSettingsGetQueueStatusQuery,
   useSettingsGetSettingQuery,

@@ -394,8 +394,6 @@ export const SettingsEditor = () => {
             </Fieldset>
           </Fieldset>
 
-          {/* <Fieldset className="mt-4 pt-10" legend={GetMessage('backup')} /> */}
-
           <Fieldset className="mt-4 pt-10" legend={GetMessage('development')} >
             <Button
               icon='pi pi-bookmark-fill'

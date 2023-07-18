@@ -2,7 +2,7 @@
 
 public static class SDExtensions
 {
-    public static List<string>? CheckStatus(this Status status)
+    public static List<string>? CheckStatus(this SDStatus status)
     {
         var ret = new List<string>();
 

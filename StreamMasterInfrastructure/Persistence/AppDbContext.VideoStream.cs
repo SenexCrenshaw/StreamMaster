@@ -96,7 +96,7 @@ public partial class AppDbContext : IVideoStreamDB
                 return null;
             }
             childVideoStreamDto.MaxStreams = result.MaxStreams;
-
+            childVideoStreamDto.M3UFileId = result.M3UFileId;
             return (videoStream.VideoStreamHandler, new List<ChildVideoStreamDto> { childVideoStreamDto });
         }
 
@@ -108,6 +108,7 @@ public partial class AppDbContext : IVideoStreamDB
             {
                 return null;
             }
+            childVideoStreamDto.M3UFileId = result.M3UFileId;
             childVideoStreamDto.MaxStreams = result.MaxStreams;
         }
 
