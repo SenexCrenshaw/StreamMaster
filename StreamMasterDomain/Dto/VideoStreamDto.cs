@@ -25,16 +25,17 @@ public class VideoStreamDto : BaseVideoStreamDto, IMapFrom<VideoStream>, IMapFro
 public class BaseVideoStreamDto : IMapFrom<VideoStream>
 {
     /// <summary>
-    /// Gets or sets the collection of video streams associated with the IPTV channel.
-    /// </summary>
-    /// <value>The collection of video streams associated with the IPTV channel.</value>
-
-    /// <summary>
     /// Gets or sets the CUID (Content Unique Identifier) of the M3U stream.
     /// </summary>
     /// <value>The CUID of the M3U stream.</value>
     public string CUID { get; set; } = string.Empty;
 
+    public string ExID { get; set; }
+
+    /// <summary>
+    /// Gets or sets the collection of video streams associated with the IPTV channel.
+    /// </summary>
+    /// <value>The collection of video streams associated with the IPTV channel.</value>
     [Required]
     public int Id { get; set; }
 

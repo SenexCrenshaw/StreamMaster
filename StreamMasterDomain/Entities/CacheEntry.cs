@@ -1,18 +1,5 @@
 ﻿namespace StreamMasterDomain.Entities;
 
-public class AutoUpdateEntity : CacheEntity
-{
-    public AutoUpdateEntity()
-    {
-        HoursToUpdate = 72;
-        AutoUpdate = true;
-    }
-
-    public bool AutoUpdate { get; set; }
-    public int HoursToUpdate { get; set; }
-    public string Description { get; set; } = string.Empty;
-}
-
 public class CacheEntity : BaseEntity
 {
     public CacheEntity()
@@ -23,6 +10,7 @@ public class CacheEntity : BaseEntity
 
     public string ContentType { get; set; } = string.Empty;
     public int DownloadErrors { get; set; }
+
     public bool FileExists { get; set; }
     public string FileExtension { get; set; } = string.Empty;
     public DateTime LastDownloadAttempt { get; set; }

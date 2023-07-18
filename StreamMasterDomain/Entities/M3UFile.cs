@@ -9,10 +9,8 @@ public class M3UFile : AutoUpdateEntity
         SMFileType = FileDefinitions.M3U.SMFileType;
     }
 
-    public int StartingChannelNumber { get; set; }
-
     public int MaxStreamCount { get; set; }
-
+    public int StartingChannelNumber { get; set; }
     public int StationCount { get; set; }
 
     public async Task<List<VideoStream>?> GetM3U()

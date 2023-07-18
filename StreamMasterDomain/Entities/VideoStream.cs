@@ -13,6 +13,8 @@ public class VideoStream : BaseEntity
     /// <value>The CUID of the M3U stream.</value>
     public string CUID { get; set; } = string.Empty;
 
+    public string ExID => $"{M3UFileId}-{Tvg_name}";
+
     /// <summary>
     /// Gets or sets a value indicating whether the video stream is currently active.
     /// </summary>

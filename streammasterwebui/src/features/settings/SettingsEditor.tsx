@@ -7,11 +7,9 @@ import { UpdateSetting } from '../../store/signlar_functions';
 import { SettingsEditorIcon } from '../../common/icons';
 import { Checkbox } from 'primereact/checkbox';
 import { InputText } from 'primereact/inputtext';
-
 import { type MenuItem } from 'primereact/menuitem';
 import { Dock } from 'primereact/dock';
 import SaveIcon from '@mui/icons-material/Save';
-
 import HistoryIcon from '@mui/icons-material/History';
 import { Toast } from 'primereact/toast';
 import { Dropdown } from 'primereact/dropdown';
@@ -20,9 +18,7 @@ import { type SelectItem } from 'primereact/selectitem';
 import { InputNumber } from 'primereact/inputnumber';
 import { Password } from 'primereact/password';
 import { GetMessage, GetMessageDiv, getTopToolOptions } from '../../common/common';
-
 import { baseHostURL } from '../../settings';
-
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { getHelp } from '../../help_en';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
