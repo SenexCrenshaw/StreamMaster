@@ -2,8 +2,6 @@
 
 using MediatR;
 
-using Microsoft.EntityFrameworkCore;
-
 using StreamMasterApplication.VideoStreams.Events;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
@@ -39,13 +37,12 @@ public class DeleteVideoStreamRequestHandler : IRequestHandler<DeleteVideoStream
 
     public async Task<int?> Handle(DeleteVideoStreamRequest request, CancellationToken cancellationToken)
     {
-        if ( await _context.DeleteVideoStream(request.VideoStreamId) )
+        if (await _context.DeleteVideoStreamAsync(request.VideoStreamId, cancellationToken))
         {
             await _publisher.Publish(new DeleteVideoStreamEvent(request.VideoStreamId), cancellationToken).ConfigureAwait(false);
             return request.VideoStreamId;
         }
 
         return null;
-        
     }
 }

@@ -58,8 +58,11 @@ public class ScanDirectoryForM3UFilesRequestHandler : IRequestHandler<ScanDirect
 
                 if (FileUtil.ReadUrlFromFile(filePath, out string? url))
                 {
-                    originalSource = url;
-                    Url = originalSource;
+                    if (url is not null)
+                    {
+                        originalSource = url;
+                        Url = originalSource;
+                    }
                 }
 
                 m3uFile = new M3UFile

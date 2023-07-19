@@ -10,6 +10,7 @@ using StreamMasterApplication.Icons.Queries;
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Extensions;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
@@ -54,7 +55,7 @@ public class UpdateVideoStreamsRequestHandler : IRequestHandler<UpdateVideoStrea
         foreach (var request in requests.VideoStreamUpdates)
         {
             VideoStream? videoStream = _context.VideoStreams
-           .Include(vs => vs.ParentRelationships)
+           .Include(vs => vs.ParentVideoStreams)
            .FirstOrDefault(a => a.Id == request.Id);
 
             if (videoStream == null)
@@ -66,7 +67,7 @@ public class UpdateVideoStreamsRequestHandler : IRequestHandler<UpdateVideoStrea
 
             if (request.ChildVideoStreams != null)
             {
-                _context.SynchronizeChildRelationships(videoStream, request.ChildVideoStreams);
+                await _context.SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
             }
 
             var newLogo = request.Tvg_logo;

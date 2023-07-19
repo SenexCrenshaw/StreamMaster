@@ -1,4 +1,6 @@
-﻿using StreamMasterDomain.Attributes;
+﻿using AutoMapper.Configuration.Annotations;
+
+using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Mappings;
 
 using System.ComponentModel.DataAnnotations;
@@ -18,6 +20,7 @@ public class ChildVideoStreamDto : BaseVideoStreamDto, IMapFrom<VideoStream>, IM
 [RequireAll]
 public class VideoStreamDto : BaseVideoStreamDto, IMapFrom<VideoStream>, IMapFrom<ChildVideoStreamDto>
 {
+    [Ignore]
     public List<ChildVideoStreamDto> ChildVideoStreams { get; set; }
 }
 
@@ -29,8 +32,6 @@ public class BaseVideoStreamDto : IMapFrom<VideoStream>
     /// </summary>
     /// <value>The CUID of the M3U stream.</value>
     public string CUID { get; set; } = string.Empty;
-
-    public string ExID { get; set; }
 
     /// <summary>
     /// Gets or sets the collection of video streams associated with the IPTV channel.
@@ -78,24 +79,6 @@ public class BaseVideoStreamDto : IMapFrom<VideoStream>
     /// </summary>
     /// <value>The ID of the M3U file.</value>
     public int M3UFileId { get; set; }
-
-    /// <summary>
-    /// Gets or sets the number of errors encountered during streaming.
-    /// </summary>
-    /// <value>The number of errors encountered during streaming.</value>
-    public int StreamErrorCount { get; set; } = 0;
-
-    /// <summary>
-    /// Gets or sets the time of the last failed streaming attempt.
-    /// </summary>
-    /// <value>The time of the last failed streaming attempt.</value>
-    public DateTime StreamLastFail { get; set; } = DateTime.MinValue;
-
-    /// <summary>
-    /// Gets or sets the time of the last successful streaming attempt.
-    /// </summary>
-    /// <value>The time of the last successful streaming attempt.</value>
-    public DateTime StreamLastStream { get; set; } = DateTime.MinValue;
 
     /// <summary>
     /// Gets or sets the type of streaming proxy to use.

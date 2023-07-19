@@ -36,18 +36,16 @@ public class AddStreamGroupRequestValidator : AbstractValidator<AddStreamGroupRe
         _ = RuleFor(v => v.Name)
            .MaximumLength(32)
            .NotEmpty();
-
-        //_ = RuleFor(v => v.StreamGroupVideoStreams).NotNull().NotEmpty();
     }
 }
 
 public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupRequest, StreamGroupDto?>
 {
+    protected Setting _setting = FileUtil.GetSetting();
     private readonly IAppDbContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly IPublisher _publisher;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    protected Setting _setting = FileUtil.GetSetting();
 
     public AddStreamGroupRequestHandler(
         IMapper mapper,
@@ -75,7 +73,6 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
             streamGroupNumber = _context.StreamGroups.Max(a => a.StreamGroupNumber) + 1;
         }
 
-        // List<StreamGroupVideoStream> sgt = _mapper.Map<List<StreamGroupVideoStream>>(command.StreamGroupVideoStreams);
         StreamGroup entity = new()
         {
             Name = command.Name,

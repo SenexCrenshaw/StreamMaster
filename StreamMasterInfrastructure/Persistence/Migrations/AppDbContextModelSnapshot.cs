@@ -362,15 +362,6 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.Property<int>("M3UFileId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("StreamErrorCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("StreamLastFail")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("StreamLastStream")
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("StreamProxyType")
                         .HasColumnType("INTEGER");
 
@@ -428,7 +419,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.ToTable("VideoStreams");
                 });
 
-            modelBuilder.Entity("StreamMasterDomain.Entities.VideoStreamRelationship", b =>
+            modelBuilder.Entity("StreamMasterDomain.Entities.VideoStreamLink", b =>
                 {
                     b.Property<int>("ParentVideoStreamId")
                         .HasColumnType("INTEGER");
@@ -443,7 +434,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
                     b.HasIndex("ChildVideoStreamId");
 
-                    b.ToTable("VideoStreamRelationships");
+                    b.ToTable("VideoStreamLinks");
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Entities.StreamGroupChannelGroup", b =>
@@ -476,18 +467,18 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("StreamMasterDomain.Entities.VideoStreamRelationship", b =>
+            modelBuilder.Entity("StreamMasterDomain.Entities.VideoStreamLink", b =>
                 {
                     b.HasOne("StreamMasterDomain.Entities.VideoStream", "ChildVideoStream")
-                        .WithMany("ChildRelationships")
+                        .WithMany("ParentVideoStreams")
                         .HasForeignKey("ChildVideoStreamId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("StreamMasterDomain.Entities.VideoStream", "ParentVideoStream")
-                        .WithMany("ParentRelationships")
+                        .WithMany("ChildVideoStreams")
                         .HasForeignKey("ParentVideoStreamId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("ChildVideoStream");
@@ -497,9 +488,9 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
             modelBuilder.Entity("StreamMasterDomain.Entities.VideoStream", b =>
                 {
-                    b.Navigation("ChildRelationships");
+                    b.Navigation("ChildVideoStreams");
 
-                    b.Navigation("ParentRelationships");
+                    b.Navigation("ParentVideoStreams");
                 });
 #pragma warning restore 612, 618
         }

@@ -21,23 +21,20 @@ public class StreamGroupConfiguration : IEntityTypeConfiguration<StreamGroup>
     }
 }
 
-public class VideoStreamConfiguration : IEntityTypeConfiguration<VideoStreamRelationship>
+public class VideoStreamConfiguration : IEntityTypeConfiguration<VideoStreamLink>
 {
-    public void Configure(EntityTypeBuilder<VideoStreamRelationship> modelBuilder)
+    public void Configure(EntityTypeBuilder<VideoStreamLink> modelBuilder)
     {
-        modelBuilder
-        .HasKey(r => new { r.ParentVideoStreamId, r.ChildVideoStreamId });
+        modelBuilder.HasKey(vsl => new { vsl.ParentVideoStreamId, vsl.ChildVideoStreamId }); // Composite key
 
-        modelBuilder
-       .HasOne(cr => cr.ParentVideoStream)
-        .WithMany(vs => vs.ParentRelationships)
-        .HasForeignKey(cr => cr.ParentVideoStreamId)
-        .OnDelete(DeleteBehavior.NoAction);
+        modelBuilder.HasOne(vsl => vsl.ParentVideoStream)
+            .WithMany(vs => vs.ChildVideoStreams)
+            .HasForeignKey(vsl => vsl.ParentVideoStreamId)
+            .OnDelete(DeleteBehavior.Restrict); // Prevent cascading delete
 
-        modelBuilder
-        .HasOne(cr => cr.ChildVideoStream)
-        .WithMany(vs => vs.ChildRelationships)
-        .HasForeignKey(cr => cr.ChildVideoStreamId)
-        .OnDelete(DeleteBehavior.NoAction);
+        modelBuilder.HasOne(vsl => vsl.ChildVideoStream)
+            .WithMany(vs => vs.ParentVideoStreams)
+            .HasForeignKey(vsl => vsl.ChildVideoStreamId)
+            .OnDelete(DeleteBehavior.Restrict); // Prevent cascading delete
     }
 }

@@ -38,8 +38,8 @@ public partial class AppDbContext : DbContext, IDataProtectionKeyContext, IAppDb
     public AppDbContext(
         DbContextOptions<AppDbContext> options,
         IMediator mediator,
-         IMapper mapper,
-          IMemoryCache memoryCache,
+        IMapper mapper,
+        IMemoryCache memoryCache,
         ILogger<AppDbContext> logger
     ) : base(options)
     {
@@ -50,8 +50,6 @@ public partial class AppDbContext : DbContext, IDataProtectionKeyContext, IAppDb
         _setting = FileUtil.GetSetting();
 
         DbPath = Path.Join(Constants.DataDirectory, _setting.DatabaseName ?? "StreamMaster.db");
-
-        //_auditableEntitySaveChangesInterceptor = auditableEntitySaveChangesInterceptor;
     }
 
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
@@ -66,7 +64,7 @@ public partial class AppDbContext : DbContext, IDataProtectionKeyContext, IAppDb
         }
     }
 
-    public int SaveChanges()
+    public override int SaveChanges()
     {
         _ = _mediator.DispatchDomainEvents(this).ConfigureAwait(false);
         return base.SaveChanges();

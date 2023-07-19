@@ -29,21 +29,30 @@ public interface IVideoStreamController
 
 public interface IVideoStreamDB
 {
-    DbSet<VideoStreamRelationship> VideoStreamRelationships { get; set; }
-
+    DbSet<VideoStreamLink> VideoStreamLinks { get; set; }
     DbSet<VideoStream> VideoStreams { get; set; }
 
-    public Task<bool> DeleteVideoStream(int VideoStreamId, bool save = true);
+    Task<bool> DeleteVideoStreamAsync(int videoStreamId, CancellationToken cancellationToken);
 
-    public Task<List<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, bool save = true);
+    public Task<List<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken);
+
+    Task<List<VideoStream>> GetAllVideoStreamsWithChildrenAsync();
+
+    Task<List<VideoStream>> GetChildVideoStreamsAsync(int parentId);
 
     public M3UFileIdMaxStream? GetM3UFileIdMaxStreamFromUrl(string Url);
 
     Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(int videoStreamId, CancellationToken cancellationToken = default);
 
-    Task<VideoStreamDto?> GetVideoStream(int videoStreamId, CancellationToken cancellationToken = default);
+    //Task<VideoStreamDto?> GetVideoStream(int videoStreamId, CancellationToken cancellationToken = default);
 
-    public bool SynchronizeChildRelationships(VideoStream videoStream, List<ChildVideoStreamDto> videoStreamDtos);
+    Task<VideoStreamDto> GetVideoStreamDtoWithChildrenAsync(int videoStreamId, CancellationToken cancellationToken);
+
+    Task<VideoStream> GetVideoStreamWithChildrenAsync(int videoStreamId, CancellationToken cancellationToken);
+
+    Task<bool> SynchronizeChildRelationships(VideoStream videoStream, List<ChildVideoStreamDto> videoStreamDtos, CancellationToken cancellationToken);
+
+    Task<VideoStreamDto?> UpdateVideoStreamAsync(UpdateVideoStreamRequest request, CancellationToken cancellationToken);
 }
 
 public interface IVideoStreamHub

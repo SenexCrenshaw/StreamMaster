@@ -2,10 +2,6 @@
 
 using MediatR;
 
-using Microsoft.EntityFrameworkCore;
-
-using StreamMasterApplication.Icons.Queries;
-
 using StreamMasterDomain.Dto;
 
 using System.Collections.Concurrent;
@@ -35,25 +31,18 @@ internal class GetVideoStreamsHandler : IRequestHandler<GetVideoStreams, IEnumer
 
     public async Task<IEnumerable<VideoStreamDto>> Handle(GetVideoStreams request, CancellationToken cancellationToken)
     {
-        SettingDto setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
-        List<IconFileDto> icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
+        Setting setting = FileUtil.GetSetting();
+        List<IconFileDto> icons = await _context.GetIcons(cancellationToken).ConfigureAwait(false);
 
         ConcurrentBag<VideoStreamDto> streamsDtos = new();
 
-        var streams = _context.VideoStreams.ToList();
+        var streams = await _context.GetAllVideoStreamsWithChildrenAsync().ConfigureAwait(false);
 
         ParallelOptions po = new()
         {
             CancellationToken = cancellationToken,
             MaxDegreeOfParallelism = Environment.ProcessorCount
         };
-
-        var allStreams = _context.
-                 VideoStreamRelationships.
-                 Include(a => a.ChildVideoStream).
-                 AsNoTracking().ToList();
-
-        var relationsShips = _context.VideoStreamRelationships.Include(a => a.ChildVideoStream).ToList();
 
         _ = Parallel.ForEach(streams, po, videoStream =>
         {
@@ -67,19 +56,7 @@ internal class GetVideoStreamsHandler : IRequestHandler<GetVideoStreams, IEnumer
                 videoStreamDto.User_Tvg_logo = Logo;
             }
 
-            var videoStreams = relationsShips
-                .Where(a => a.ParentVideoStreamId == videoStream.Id)
-                .Select(a => new
-                {
-                    ChildVideoStream = a.ChildVideoStream,
-                    Rank = a.Rank
-                }
-                )
-                .ToList();
-
-            var childVideoStreams = new List<ChildVideoStreamDto>();
-
-            foreach (var child in videoStreams)
+            foreach (var child in videoStream.ChildVideoStreams)
             {
                 if (!string.IsNullOrEmpty(child.ChildVideoStream.User_Tvg_logo))
                 {
@@ -89,17 +66,13 @@ internal class GetVideoStreamsHandler : IRequestHandler<GetVideoStreams, IEnumer
                         string Logo = icon != null ? icon.Source : "/" + setting.DefaultIcon;
                         child.ChildVideoStream.User_Tvg_logo = Logo;
                     }
-
-                    var cto = _mapper.Map<ChildVideoStreamDto>(child.ChildVideoStream);
-                    cto.Rank = child.Rank;
-                    childVideoStreams.Add(cto);
                 }
             }
 
-            videoStreamDto.ChildVideoStreams = childVideoStreams;
-
             streamsDtos.Add(videoStreamDto);
         });
+
+        var test = streamsDtos.FirstOrDefault(streamsDtos => streamsDtos.Id == 3678);
 
         return streamsDtos;
     }

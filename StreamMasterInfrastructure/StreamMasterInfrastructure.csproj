@@ -32,4 +32,7 @@
     <ProjectReference Include="..\StreamMaster.M3U8\StreamMaster.M3U8.csproj" />
     <ProjectReference Include="..\StreamMasterApplication\StreamMasterApplication.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Persistence\Extensions\" />
+  </ItemGroup>
 </Project>

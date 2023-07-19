@@ -50,6 +50,7 @@
     <PackageReference Include="System.Security.Cryptography.Xml" Version="7.0.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\StreamMaster.SchedulesDirectAPI\StreamMaster.SchedulesDirectAPI.csproj" />
     <ProjectReference Include="..\StreamMasterApplication\StreamMasterApplication.csproj" />
     <ProjectReference Include="..\StreamMasterInfrastructure\StreamMasterInfrastructure.csproj" />
   </ItemGroup>

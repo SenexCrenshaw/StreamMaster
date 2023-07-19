@@ -1,6 +1,7 @@
-﻿using StreamMaster.SchedulesDirect;
+﻿using StreamMaster.SchedulesDirectAPI;
 
-using StreamMasterApplication.Settings;
+using StreamMasterApplication.SchedulesDirectAPI;
+using StreamMasterApplication.SchedulesDirectAPI.Queries;
 
 using StreamMasterDomain.Dto;
 

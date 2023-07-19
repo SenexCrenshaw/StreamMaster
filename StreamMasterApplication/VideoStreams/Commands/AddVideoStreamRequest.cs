@@ -7,7 +7,6 @@ using MediatR;
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Entities;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
@@ -20,7 +19,7 @@ public record AddVideoStreamRequest(
     string? Url,
     int? IPTVChannelHandler,
     bool? createChannel,
-      List<ChildVideoStreamDto>? ChildVideoStreams 
+      List<ChildVideoStreamDto>? ChildVideoStreams
     ) : IRequest<VideoStreamDto?>
 {
 }
@@ -86,16 +85,16 @@ public class AddVideoStreamRequestHandler : IRequestHandler<AddVideoStreamReques
 
         if (request.ChildVideoStreams != null)
         {
-             _context.SynchronizeChildRelationships(videoStream, request.ChildVideoStreams);
+            _context.SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
             await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 
         //if (await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false) > 0)
         //{
-            VideoStreamDto ret = _mapper.Map<VideoStreamDto>(videoStream);
+        VideoStreamDto ret = _mapper.Map<VideoStreamDto>(videoStream);
 
-            await _publisher.Publish(new AddVideoStreamEvent(ret), cancellationToken).ConfigureAwait(false);
-            return ret;
+        await _publisher.Publish(new AddVideoStreamEvent(ret), cancellationToken).ConfigureAwait(false);
+        return ret;
         //}
 
         //return null;

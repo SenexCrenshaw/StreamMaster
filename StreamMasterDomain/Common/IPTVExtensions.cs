@@ -118,9 +118,9 @@ public static partial class IPTVExtensions
                             VideoStream.Tvg_name = parameter[1].Trim();
                             break;
 
-                        case "cuid":
-                            VideoStream.CUID = parameter[1].Trim();
-                            break;
+                        //case "cuid":
+                        //    VideoStream.CUID = parameter[1].Trim();
+                        //    break;
 
                         case "tvg-chno":
                             string num = parameter[1].Trim();
@@ -195,10 +195,10 @@ public static partial class IPTVExtensions
             }
         }
 
-        if (string.IsNullOrEmpty(VideoStream.CUID))
-        {
-            VideoStream.CUID = VideoStream.Url.ConvertUrlToCuid();
-        }
+        //if (string.IsNullOrEmpty(VideoStream.CUID))
+        //{
+        VideoStream.CUID = VideoStream.Url.ConvertUrlToCuid();
+        //}
 
         return VideoStream;
     }

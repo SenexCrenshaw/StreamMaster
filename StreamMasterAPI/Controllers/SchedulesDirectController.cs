@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.SchedulesDirect;
+using StreamMaster.SchedulesDirectAPI;
 
-using StreamMasterApplication.Settings;
-using StreamMasterApplication.Settings.Queries;
+using StreamMasterApplication.SchedulesDirectAPI;
+using StreamMasterApplication.SchedulesDirectAPI.Queries;
 
 using StreamMasterDomain.Dto;
 

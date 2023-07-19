@@ -7,6 +7,8 @@ using MediatR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.SchedulesDirectAPI;
+
 using StreamMasterApplication.Hubs;
 
 using StreamMasterDomain.Dto;

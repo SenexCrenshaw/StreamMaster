@@ -1606,9 +1606,6 @@ export type BaseVideoStreamDto = {
   isReadOnly: boolean;
   isUserCreated: boolean;
   m3UFileId: number;
-  streamErrorCount: number;
-  streamLastFail: string;
-  streamLastStream: string;
   streamProxyType: StreamingProxyTypes;
   tvg_chno: number;
   tvg_group: string;
@@ -1745,9 +1742,6 @@ export type VideoStreamUpdate = VideoStreamBaseUpdate & {
   isHidden?: boolean | null;
   isReadOnly?: boolean | null;
   isUserCreated?: boolean | null;
-  streamErrorCount?: number | null;
-  streamLastFail?: string | null;
-  streamLastStream?: string | null;
   streamProxyType?: StreamingProxyTypes | null;
 };
 export type UpdateVideoStreamRequest = VideoStreamUpdate & {

@@ -465,13 +465,13 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
             modelBuilder.Entity("StreamMasterDomain.Entities.VideoStreamRelationship", b =>
                 {
                     b.HasOne("StreamMasterDomain.Entities.VideoStream", "ChildVideoStream")
-                        .WithMany("ChildRelationships")
+                        .WithMany("ChildVideoStreams")
                         .HasForeignKey("ChildVideoStreamId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("StreamMasterDomain.Entities.VideoStream", "ParentVideoStream")
-                        .WithMany("ParentRelationships")
+                        .WithMany("ParentVideoStreams")
                         .HasForeignKey("ParentVideoStreamId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -483,9 +483,9 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
             modelBuilder.Entity("StreamMasterDomain.Entities.VideoStream", b =>
                 {
-                    b.Navigation("ChildRelationships");
+                    b.Navigation("ChildVideoStreams");
 
-                    b.Navigation("ParentRelationships");
+                    b.Navigation("ParentVideoStreams");
                 });
 #pragma warning restore 612, 618
         }

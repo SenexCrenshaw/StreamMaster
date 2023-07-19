@@ -3,7 +3,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.SchedulesDirect;
+
 
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;

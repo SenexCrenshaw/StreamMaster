@@ -7,43 +7,43 @@ using StreamMasterDomain.Dto;
 
 using static StreamMasterApplication.Settings.Commands.UpdateSettingHandler;
 
-namespace StreamMasterApplication.Settings
+namespace StreamMasterApplication.Settings;
+
+public interface ISettingController
 {
-    public interface ISettingController
-    {
-        Task<ActionResult<List<TaskQueueStatusDto>>> GetQueueStatus();
+    Task<ActionResult<List<TaskQueueStatusDto>>> GetQueueStatus();
 
-        Task<ActionResult<SettingDto>> GetSetting();
+    Task<ActionResult<SettingDto>> GetSetting();
 
-        Task<ActionResult<SystemStatus>> GetSystemStatus();
+    Task<ActionResult<SystemStatus>> GetSystemStatus();
 
-        ActionResult<bool> LogIn(LogInRequest logInRequest);
+    ActionResult<bool> LogIn(LogInRequest logInRequest);
 
-        Task<IActionResult> UpdateSetting(UpdateSettingRequest command);
-    }
+    Task<IActionResult> UpdateSetting(UpdateSettingRequest command);
+}
 
-    public interface ISettingDB
-    {
-    }
+public interface ISettingDB
+{
+}
 
-    public interface ISettingHub
-    {
-        Task<List<TaskQueueStatusDto>> GetQueueStatus();
+public interface ISettingHub
+{
+    Task<List<TaskQueueStatusDto>> GetQueueStatus();
 
-        Task<SettingDto> GetSetting();
+    Task<SettingDto> GetSetting();
 
-        Task<SystemStatus> GetSystemStatus();
-        Task<bool> LogIn(LogInRequest logInRequest);
+    Task<SystemStatus> GetSystemStatus();
 
-        Task<UpdateSettingResponse> UpdateSetting(UpdateSettingRequest command);
-    }
+    Task<bool> LogIn(LogInRequest logInRequest);
 
-    public interface ISettingScoped
-    {
-    }
+    Task<UpdateSettingResponse> UpdateSetting(UpdateSettingRequest command);
+}
 
-    public interface ISettingTasks
-    {
-        ValueTask SetIsSystemReady(bool isSystemReady, CancellationToken cancellationToken = default);
-    }
+public interface ISettingScoped
+{
+}
+
+public interface ISettingTasks
+{
+    ValueTask SetIsSystemReady(bool isSystemReady, CancellationToken cancellationToken = default);
 }

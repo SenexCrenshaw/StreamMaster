@@ -3,6 +3,7 @@ using StreamMasterApplication.EPGFiles;
 using StreamMasterApplication.Icons;
 using StreamMasterApplication.M3UFiles;
 using StreamMasterApplication.Programmes;
+using StreamMasterApplication.SchedulesDirectAPI;
 using StreamMasterApplication.Settings;
 using StreamMasterApplication.StreamGroups;
 using StreamMasterApplication.VideoStreams;
