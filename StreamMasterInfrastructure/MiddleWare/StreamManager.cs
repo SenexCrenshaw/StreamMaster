@@ -29,7 +29,7 @@ public class StreamManager : IStreamManager
         _streamInformations.Clear();
     }
 
-    public async Task<IStreamInformation?> GetOrCreateBuffer(ChildVideoStreamDto childVideoStreamDto, int videoStreamId, string videoStreamName, int rank)
+    public async Task<IStreamInformation?> GetOrCreateBuffer(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank)
     {
         var streamUrl = childVideoStreamDto.User_Url;
         if (_streamInformations.TryGetValue(streamUrl, out var _streamInformation))

@@ -6,7 +6,7 @@ using StreamMasterApplication.VideoStreams.Events;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
-public record DeleteVideoStreamRequest(int VideoStreamId) : IRequest<int?>
+public record DeleteVideoStreamRequest(string VideoStreamId) : IRequest<string?>
 {
 }
 
@@ -14,11 +14,11 @@ public class DeleteVideoStreamRequestValidator : AbstractValidator<DeleteVideoSt
 {
     public DeleteVideoStreamRequestValidator()
     {
-        _ = RuleFor(v => v.VideoStreamId).NotNull().GreaterThan(0);
+        _ = RuleFor(v => v.VideoStreamId).NotNull().NotEmpty();
     }
 }
 
-public class DeleteVideoStreamRequestHandler : IRequestHandler<DeleteVideoStreamRequest, int?>
+public class DeleteVideoStreamRequestHandler : IRequestHandler<DeleteVideoStreamRequest, string?>
 {
     private readonly IAppDbContext _context;
 
@@ -35,7 +35,7 @@ public class DeleteVideoStreamRequestHandler : IRequestHandler<DeleteVideoStream
         _context = context;
     }
 
-    public async Task<int?> Handle(DeleteVideoStreamRequest request, CancellationToken cancellationToken)
+    public async Task<string?> Handle(DeleteVideoStreamRequest request, CancellationToken cancellationToken)
     {
         if (await _context.DeleteVideoStreamAsync(request.VideoStreamId, cancellationToken))
         {

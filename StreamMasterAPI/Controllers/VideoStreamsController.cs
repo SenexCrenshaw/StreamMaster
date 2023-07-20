@@ -38,14 +38,14 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> DeleteVideoStream(DeleteVideoStreamRequest request)
     {
-        int? data = await Mediator.Send(request).ConfigureAwait(false);
+        string? data = await Mediator.Send(request).ConfigureAwait(false);
         return data == null ? NotFound() : NoContent();
     }
 
     [HttpGet]
     [Route("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VideoStreamDto))]
-    public async Task<ActionResult<VideoStreamDto?>> GetVideoStream(int id)
+    public async Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id)
     {
         return await Mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
     }

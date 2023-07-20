@@ -13,7 +13,7 @@ using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.Icons.Commands;
 
-public record AutoMatchIconToStreamsRequest(List<int> Ids) : IRequest<IconFileDto?>
+public record AutoMatchIconToStreamsRequest(List<string> Ids) : IRequest<IconFileDto?>
 {
 }
 

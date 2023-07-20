@@ -58,7 +58,7 @@ public class AddVideoStreamRequestHandler : IRequestHandler<AddVideoStreamReques
 
         VideoStream videoStream = new()
         {
-            CUID = request.Tvg_name,
+            Id = request.Tvg_name,
             IsUserCreated = true,
 
             Tvg_chno = request.Tvg_chno is null ? 0 : (int)request.Tvg_chno,

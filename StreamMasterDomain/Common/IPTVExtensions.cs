@@ -128,9 +128,9 @@ public static partial class IPTVExtensions
 
                             break;
 
-                        case "channel-id":
-                            VideoStream.CUID = parameter[1].Trim();
-                            break;
+                        //case "channel-id":
+                        //    VideoStream.Id = parameter[1].Trim();
+                        //    break;
 
                         case "channel-number":
                             string channum = parameter[1].Trim();
@@ -197,7 +197,7 @@ public static partial class IPTVExtensions
 
         //if (string.IsNullOrEmpty(VideoStream.CUID))
         //{
-        VideoStream.CUID = VideoStream.Url.ConvertUrlToCuid();
+        VideoStream.Id = VideoStream.Url.ConvertUrlToCuid();
         //}
 
         return VideoStream;

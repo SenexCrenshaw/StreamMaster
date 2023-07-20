@@ -16,7 +16,7 @@ public interface IVideoStreamController
 
     Task<ActionResult> DeleteVideoStream(DeleteVideoStreamRequest request);
 
-    Task<ActionResult<VideoStreamDto?>> GetVideoStream(int id);
+    Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id);
 
     Task<ActionResult<List<VideoStreamDto>>> GetVideoStreams();
 
@@ -32,7 +32,7 @@ public interface IVideoStreamDB
     DbSet<VideoStreamLink> VideoStreamLinks { get; set; }
     DbSet<VideoStream> VideoStreams { get; set; }
 
-    Task<bool> DeleteVideoStreamAsync(int videoStreamId, CancellationToken cancellationToken);
+    Task<bool> DeleteVideoStreamAsync(string videoStreamId, CancellationToken cancellationToken);
 
     public Task<List<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken);
 
@@ -40,11 +40,11 @@ public interface IVideoStreamDB
 
     public M3UFileIdMaxStream? GetM3UFileIdMaxStreamFromUrl(string Url);
 
-    Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(int videoStreamId, CancellationToken cancellationToken = default);
+    Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(string videoStreamId, CancellationToken cancellationToken = default);
 
-    Task<VideoStreamDto> GetVideoStreamDto(int videoStreamId, CancellationToken cancellationToken);
+    Task<VideoStreamDto> GetVideoStreamDto(string videoStreamId, CancellationToken cancellationToken);
 
-    Task<List<VideoStream>> GetVideoStreamsForParentAsync(int parentVideoId, CancellationToken cancellationToken);
+    Task<List<VideoStream>> GetVideoStreamsForParentAsync(string parentVideoId, CancellationToken cancellationToken);
 
     Task<bool> SynchronizeChildRelationships(VideoStream videoStream, List<ChildVideoStreamDto> videoStreamDtos, CancellationToken cancellationToken);
 
@@ -57,9 +57,9 @@ public interface IVideoStreamHub
 
     Task ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request);
 
-    Task<int?> DeleteVideoStream(DeleteVideoStreamRequest request);
+    Task<string?> DeleteVideoStream(DeleteVideoStreamRequest request);
 
-    Task<VideoStreamDto?> GetVideoStream(int id);
+    Task<VideoStreamDto?> GetVideoStream(string id);
 
     Task<IEnumerable<VideoStreamDto>> GetVideoStreams();
 

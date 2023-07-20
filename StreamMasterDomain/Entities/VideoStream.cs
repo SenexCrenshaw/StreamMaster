@@ -3,9 +3,11 @@
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Mappings;
 
+using System.ComponentModel.DataAnnotations;
+
 namespace StreamMasterDomain.Entities;
 
-public class VideoStream : BaseEntity, IMapFrom<VideoStreamDto>, IMapFrom<ChildVideoStreamDto>
+public class VideoStream : IMapFrom<VideoStreamDto>, IMapFrom<ChildVideoStreamDto>
 {
     public VideoStream()
     {
@@ -15,9 +17,10 @@ public class VideoStream : BaseEntity, IMapFrom<VideoStreamDto>, IMapFrom<ChildV
     [Ignore]
     public ICollection<VideoStreamLink> ChildVideoStreams { get; set; }
 
-    public string CUID { get; set; } = string.Empty;
-
     public int FilePosition { get; set; }
+
+    [Key]
+    public string Id { get; set; } = string.Empty;
 
     public bool IsActive { get; set; } = true;
 

@@ -176,7 +176,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     Logo?: string | null,
     EPGID?: string | null,
   ) => {
-    if (oldData.id < 0) {
+    if (oldData.id === '') {
       return;
     }
 
@@ -391,7 +391,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   }, []);
 
 
-  const videoStreamDelete = React.useCallback((videoStreamDeleteids: number[]) => {
+  const videoStreamDelete = React.useCallback((videoStreamDeleteids: string[]) => {
     const test = selectedM3UStreams.filter((item) => !videoStreamDeleteids.includes(item.id));
     setSelectedM3UStreams(test);
   }, [selectedM3UStreams]);

@@ -4,7 +4,7 @@ using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.VideoStreams.Queries;
 
-public record GetVideoStream(int Id) : IRequest<VideoStreamDto?>;
+public record GetVideoStream(string Id) : IRequest<VideoStreamDto?>;
 
 internal class GetVideoStreamHandler : IRequestHandler<GetVideoStream, VideoStreamDto?>
 {

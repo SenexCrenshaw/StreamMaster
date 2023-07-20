@@ -5,7 +5,7 @@ namespace StreamMasterDomain.Entities;
 public class VideoStreamBaseUpdate
 {
     [Key]
-    public int Id { get; set; }
+    public string Id { get; set; }
 
     /// <summary>
     /// Gets or sets the channel number for the video stream.

@@ -48,7 +48,7 @@ public partial class AppDbContext : IStreamGroupDB
         return true;
     }
 
-    public async Task AddOrUpdatVideoStreamToStreamGroupAsync(int streamgroupId, int childId, bool isReadOnly, CancellationToken cancellationToken)
+    public async Task AddOrUpdatVideoStreamToStreamGroupAsync(int streamgroupId, string childId, bool isReadOnly, CancellationToken cancellationToken)
     {
         var streamGroupVideoStream = await StreamGroupVideoStreams
             .FirstOrDefaultAsync(sgcg => sgcg.StreamGroupId == streamgroupId && sgcg.ChildVideoStreamId == childId, cancellationToken).ConfigureAwait(false);
@@ -117,16 +117,6 @@ public partial class AppDbContext : IStreamGroupDB
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<StreamGroupDto?> GetStreamGroupDtoByStreamGroupNumber(int streamGroupNumber, string Url, CancellationToken cancellationToken = default)
-    {
-        var sg = await StreamGroups.FirstOrDefaultAsync(a=>a.StreamGroupNumber == streamGroupNumber, cancellationToken).ConfigureAwait(false);
-        if (sg is not null)
-        {
-            return await GetStreamGroupDto(sg?.Id ?? 0, Url, cancellationToken).ConfigureAwait(false);
-        }
-        return null;
-    }
-    
     public async Task<StreamGroupDto?> GetStreamGroupDto(int streamGroupId, string Url, CancellationToken cancellationToken = default)
     {
         if (streamGroupId == 0) return new StreamGroupDto { Id = 0, Name = "All" };
@@ -188,6 +178,16 @@ public partial class AppDbContext : IStreamGroupDB
         return ret;
     }
 
+    public async Task<StreamGroupDto?> GetStreamGroupDtoByStreamGroupNumber(int streamGroupNumber, string Url, CancellationToken cancellationToken = default)
+    {
+        var sg = await StreamGroups.FirstOrDefaultAsync(a => a.StreamGroupNumber == streamGroupNumber, cancellationToken).ConfigureAwait(false);
+        if (sg is not null)
+        {
+            return await GetStreamGroupDto(sg?.Id ?? 0, Url, cancellationToken).ConfigureAwait(false);
+        }
+        return null;
+    }
+
     public async Task<List<StreamGroupDto>> GetStreamGroupDtos(string Url, CancellationToken cancellationToken = default)
     {
         var ret = new List<StreamGroupDto>();
@@ -224,7 +224,7 @@ public partial class AppDbContext : IStreamGroupDB
             .SingleOrDefaultAsync(sg => sg.StreamGroupNumber == streamGroupNumber, cancellationToken);
     }
 
-    public async Task<List<int>> GetVideoStreamIdsByStreamGroupAsync(int streamGroupId, CancellationToken cancellationToken)
+    public async Task<List<string>> GetVideoStreamIdsByStreamGroupAsync(int streamGroupId, CancellationToken cancellationToken)
     {
         // Fetch the stream group with associated channel groups
         var streamGroup = await StreamGroups
@@ -241,7 +241,7 @@ public partial class AppDbContext : IStreamGroupDB
         // If no regexes exist, return an empty list
         if (!regexes.Any())
         {
-            return new List<int>();
+            return new List<string>();
         }
 
         // Fetch all video streams
@@ -256,7 +256,7 @@ public partial class AppDbContext : IStreamGroupDB
         return matchingVideoStreamIds;
     }
 
-    public async Task<List<int>> GetVideoStreamIdsByUserGroupMatchAsync(int streamGroupId, CancellationToken cancellationToken)
+    public async Task<List<string>> GetVideoStreamIdsByUserGroupMatchAsync(int streamGroupId, CancellationToken cancellationToken)
     {
         // Fetch the stream group with associated channel groups
         var streamGroup = await StreamGroups
@@ -267,7 +267,7 @@ public partial class AppDbContext : IStreamGroupDB
         // If the stream group doesn't exist, return an empty list
         if (streamGroup == null)
         {
-            return new List<int>();
+            return new List<string>();
         }
 
         // Fetch all channel group names
@@ -292,7 +292,7 @@ public partial class AppDbContext : IStreamGroupDB
             .ToList();
     }
 
-    public async Task<bool> RemoveChildVideoStreamFromStreamGroupAsync(int streamGroupId, int videoStreamId, CancellationToken cancellationToken)
+    public async Task<bool> RemoveChildVideoStreamFromStreamGroupAsync(int streamGroupId, string videoStreamId, CancellationToken cancellationToken)
     {
         // Find the relationship in the DbSet
         var streamGroupVideoStream = await StreamGroupVideoStreams
@@ -314,7 +314,7 @@ public partial class AppDbContext : IStreamGroupDB
         return true;
     }
 
-    public async Task<int> RemoveChildVideoStreamsFromStreamGroupAsync(int streamGroupId, List<int> videoStreamIds, CancellationToken cancellationToken)
+    public async Task<int> RemoveChildVideoStreamsFromStreamGroupAsync(int streamGroupId, List<string> videoStreamIds, CancellationToken cancellationToken)
     {
         // Find the relationships in the DbSet
         var streamGroupVideoStreams = await StreamGroupVideoStreams
@@ -442,7 +442,7 @@ public partial class AppDbContext : IStreamGroupDB
                 }
             }
 
-            var channelIds = new List<int>();
+            var channelIds = new List<string>();
 
             if (request.ChannelGroupNames != null)
             {

@@ -2,20 +2,20 @@
 
 public class DeleteVideoStreamEvent : BaseEvent
 {
-    public DeleteVideoStreamEvent(int videoFileId)
+    public DeleteVideoStreamEvent(string videoFileId)
     {
         VideoFileId = videoFileId;
     }
 
-    public int VideoFileId { get; }
+    public string VideoFileId { get; }
 }
 
 public class DeleteVideoStreamsEvent : BaseEvent
 {
-    public DeleteVideoStreamsEvent(List<int> videoFileIds)
+    public DeleteVideoStreamsEvent(List<string> videoFileIds)
     {
         VideoFileIds = videoFileIds;
     }
 
-    public List<int> VideoFileIds { get; }
+    public List<string> VideoFileIds { get; }
 }

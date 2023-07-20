@@ -61,7 +61,7 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
         if (command.StreamGroupNumber > 0)
         {
-            StreamGroupDto? sg = await _context.GetStreamGroupDtoByStreamGroupNumber(command.StreamGroupNumber,url,cancellationToken).ConfigureAwait(false);
+            StreamGroupDto? sg = await _context.GetStreamGroupDtoByStreamGroupNumber(command.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
             if (sg == null)
             {
                 return "";
@@ -115,19 +115,17 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
             string videoUrl = videoStream.Url;
 
-       
-
             var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _setting.ServerKey, iv);
 
             videoUrl = $"{url}/api/streamgroups/stream/{encodedNumbers}/{videoStream.User_Tvg_name.Replace(" ", "_")}";
 
             var fieldList = new List<string>();
 
-            fieldList.Add($"#EXTINF:0 CUID=\"{videoStream.CUID}\"");
+            fieldList.Add($"#EXTINF:0 CUID=\"{videoStream.Id}\"");
 
             if (_setting.M3UFieldChannelId)
             {
-                fieldList.Add($"channel-id=\"{videoStream.CUID}\"");
+                fieldList.Add($"channel-id=\"{videoStream.Id}\"");
             }
 
             if (_setting.M3UFieldChannelNumber)

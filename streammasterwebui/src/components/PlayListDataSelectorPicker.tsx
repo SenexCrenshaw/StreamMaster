@@ -173,7 +173,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   }, []);
 
   const onUpdateVideoStream = React.useCallback(async (data: StreamMasterApi.VideoStreamDto, Logo: string) => {
-    if (data.id < 0) {
+    if (data.id === '') {
       return;
     }
 

@@ -339,7 +339,7 @@ export const ChangeVideoStreamChannel = async (arg: ChangeVideoStreamChannelRequ
   await hubConnection.invoke('ChangeVideoStreamChannel', arg);
 };
 
-export const DeleteVideoStream = async (arg: DeleteVideoStreamRequest): Promise<number> => {
+export const DeleteVideoStream = async (arg: DeleteVideoStreamRequest): Promise<string> => {
   const data = await hubConnection.invoke('DeleteVideoStream', arg);
 
   return data;

@@ -48,7 +48,7 @@ const EPGSelector = (props: EPGSelectorProps) => {
 
     setProgramme(channel);
 
-    if (props.data === undefined || props.data.id < 0 || props.data.user_Tvg_ID === channel) {
+    if (props.data === undefined || props.data.id === '' || props.data.user_Tvg_ID === channel) {
       return;
     }
 

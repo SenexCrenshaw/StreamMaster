@@ -4,9 +4,11 @@ namespace StreamMasterApplication.Common.Interfaces
 {
     public interface IChannelManager
     {
-        Task ChangeVideoStreamChannel(int playingVideoStreamId, int newVideoStreamId);
-        Task FailClient(Guid clientId);
+        Task ChangeVideoStreamChannel(string playingVideoStreamId, string newVideoStreamId);
+
         void Dispose();
+
+        Task FailClient(Guid clientId);
 
         List<StreamStatisticsResult> GetAllStatisticsForAllUrls();
 

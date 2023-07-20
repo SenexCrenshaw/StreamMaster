@@ -6,5 +6,5 @@ namespace StreamMasterApplication.Common.Models;
 public class ChannelNumberPair
 {
     public int ChannelNumber { get; set; }
-    public int Id { get; set; }
+    public string Id { get; set; }
 }

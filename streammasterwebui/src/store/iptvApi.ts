@@ -1089,7 +1089,7 @@ export type VideoStreamsDeleteVideoStreamApiResponse =
 export type VideoStreamsDeleteVideoStreamApiArg = DeleteVideoStreamRequest;
 export type VideoStreamsGetVideoStreamApiResponse =
   /** status 200  */ VideoStreamDto;
-export type VideoStreamsGetVideoStreamApiArg = number;
+export type VideoStreamsGetVideoStreamApiArg = string;
 export type VideoStreamsGetVideoStreamsApiResponse =
   /** status 200  */ VideoStreamDto[];
 export type VideoStreamsGetVideoStreamsApiArg = void;
@@ -1220,7 +1220,7 @@ export type AddIconFileRequest = {
   urlSource?: string | null;
 };
 export type AutoMatchIconToStreamsRequest = {
-  ids?: number[];
+  ids?: string[];
 };
 export type M3UFilesDto = BaseFileDto & {
   startingChannelNumber?: number;
@@ -1541,7 +1541,6 @@ export type Setting = {
   streamMasterIcon?: string;
   uiFolder?: string;
   urlBase?: string;
-  useDummyEPGForBlanks?: boolean;
 };
 export type SettingDto = Setting & {
   defaultIconDto?: IconFileDto;
@@ -1592,12 +1591,10 @@ export type UpdateSettingRequest = {
   sslCertPath?: string | null;
   streamingClientUserAgent?: string | null;
   streamingProxyType?: StreamingProxyTypes | null;
-  useDummyEPGForBlanks?: boolean | null;
 };
 export type VideoStreamHandlers = 0 | 1 | 2;
 export type BaseVideoStreamDto = {
-  cuid: string;
-  id: number;
+  id: string;
   isActive: boolean;
   isDeleted: boolean;
   isHidden: boolean;
@@ -1639,7 +1636,7 @@ export type StreamGroupDto = {
 };
 export type VideoStreamIsReadOnly = {
   isReadOnly?: boolean;
-  videoStreamId?: number;
+  videoStreamId?: string;
 };
 export type AddStreamGroupRequest = {
   name: string;
@@ -1667,28 +1664,28 @@ export type StreamStatisticsResult = {
   inputElapsedTime?: string;
   inputStartTime?: string;
   logo?: string | null;
-  m3UStreamId?: number;
+  m3UStreamId?: string;
   m3UStreamName?: string;
   m3UStreamProxyType?: StreamingProxyTypes;
   rank?: number;
   streamUrl?: string | null;
-  videoStreamId?: number;
+  videoStreamId?: string;
   videoStreamName?: string;
 };
 export type EpgChannel = {
   channelNumber?: number;
-  uuid?: string;
   logo?: string;
+  uuid?: string;
 };
 export type EpgProgram = {
-  videoStreamId?: number;
-  id?: string;
   channelUuid?: string;
-  title?: string;
   description?: string;
+  id?: string;
+  image?: string;
   since?: string;
   till?: string;
-  image?: string;
+  title?: string;
+  videoStreamId?: string;
 };
 export type EpgGuide = {
   channels: EpgChannel[];
@@ -1715,21 +1712,21 @@ export type AddVideoStreamRequest = {
   childVideoStreams?: ChildVideoStreamDto[] | null;
 };
 export type ChangeVideoStreamChannelRequest = {
-  playingVideoStreamId?: number;
-  newVideoStreamId?: number;
+  playingVideoStreamId?: string;
+  newVideoStreamId?: string;
 };
 export type DeleteVideoStreamRequest = {
-  videoStreamId?: number;
+  videoStreamId?: string;
 };
 export type ChannelNumberPair = {
   channelNumber: number;
-  id: number;
+  id: string;
 };
 export type SetVideoStreamChannelNumbersRequest = {
   channelNumberPairs: ChannelNumberPair[];
 };
 export type VideoStreamBaseUpdate = {
-  id?: number;
+  id?: string;
   tvg_chno?: number | null;
   tvg_group?: string | null;
   tvg_ID?: string | null;

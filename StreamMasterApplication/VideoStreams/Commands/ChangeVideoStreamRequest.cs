@@ -4,7 +4,7 @@ using MediatR;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
-public record ChangeVideoStreamChannelRequest(int playingVideoStreamId, int newVideoStreamId) : IRequest
+public record ChangeVideoStreamChannelRequest(string playingVideoStreamId, string newVideoStreamId) : IRequest
 {
 }
 
@@ -12,8 +12,8 @@ public class ChangeVideoStreamChannelRequestValidator : AbstractValidator<Change
 {
     public ChangeVideoStreamChannelRequestValidator()
     {
-        _ = RuleFor(v => v.playingVideoStreamId).NotNull().GreaterThan(0);
-        _ = RuleFor(v => v.newVideoStreamId).NotNull().GreaterThan(0);
+        _ = RuleFor(v => v.playingVideoStreamId).NotNull().NotEmpty();
+        _ = RuleFor(v => v.newVideoStreamId).NotNull().NotEmpty();
     }
 }
 

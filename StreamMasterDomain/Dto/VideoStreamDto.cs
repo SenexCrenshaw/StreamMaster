@@ -27,18 +27,18 @@ public class VideoStreamDto : BaseVideoStreamDto, IMapFrom<VideoStream>
 [RequireAll]
 public class BaseVideoStreamDto : IMapFrom<VideoStream>
 {
-    /// <summary>
-    /// Gets or sets the CUID (Content Unique Identifier) of the M3U stream.
-    /// </summary>
-    /// <value>The CUID of the M3U stream.</value>
-    public string CUID { get; set; } = string.Empty;
+    ///// <summary>
+    ///// Gets or sets the CUID (Content Unique Identifier) of the M3U stream.
+    ///// </summary>
+    ///// <value>The CUID of the M3U stream.</value>
+    //public string CUID { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the collection of video streams associated with the IPTV channel.
     /// </summary>
     /// <value>The collection of video streams associated with the IPTV channel.</value>
     [Required]
-    public int Id { get; set; }
+    public string Id { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the video stream is currently active.

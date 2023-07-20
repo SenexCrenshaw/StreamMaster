@@ -16,7 +16,7 @@ public class UpdateVideoStreamRequestValidator : AbstractValidator<UpdateVideoSt
 {
     public UpdateVideoStreamRequestValidator()
     {
-        _ = RuleFor(v => v.Id).NotNull().GreaterThan(0);
+        _ = RuleFor(v => v.Id).NotNull().NotEmpty();
     }
 }
 

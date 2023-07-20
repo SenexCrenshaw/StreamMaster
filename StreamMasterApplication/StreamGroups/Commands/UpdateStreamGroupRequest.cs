@@ -25,7 +25,7 @@ public class UpdateStreamGroupRequestValidator : AbstractValidator<UpdateStreamG
 public class VideoStreamIsReadOnly
 {
     public bool IsReadOnly { get; set; }
-    public int VideoStreamId { get; set; }
+    public string VideoStreamId { get; set; }
 }
 
 public record UpdateStreamGroupRequest(

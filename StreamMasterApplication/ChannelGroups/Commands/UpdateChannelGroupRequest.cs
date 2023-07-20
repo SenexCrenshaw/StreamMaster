@@ -148,7 +148,7 @@ public class UpdateChannelGroupRequestHandler : IRequestHandler<UpdateChannelGro
 
             var sgs = await _context.GetStreamGroupsByVideoStreamIdsAsync(distinctList.Select(a => a.Id).ToList(), url, cancellationToken).ConfigureAwait(false);
             if (sgs != null && sgs.Any())
-            {                
+            {
                 foreach (var sg in sgs)
                 {
                     await _publisher.Publish(new StreamGroupUpdateEvent(sg), cancellationToken).ConfigureAwait(false);

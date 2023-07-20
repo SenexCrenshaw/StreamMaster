@@ -22,7 +22,7 @@ import {
 
 const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
   const [hideEPG, setHideEPG] = React.useState(false);
-  const [videoStreamId, setVideoStreamId] = useLocalStorage<number>(-1, 'video-player-videoStreamId');
+  const [videoStreamId, setVideoStreamId] = useLocalStorage<string>('', 'video-player-videoStreamId');
   const [epgMoused, setEpgMoused] = React.useState<boolean>(true);
   const [src, setSrc] = React.useState<string>("http://shine.jserv.me/live/Senex/CNG4s5XGZZ/50b31b45-30d3-4ee3-b6ea-c7e54b7bc021.ts");
   const [poster, setPoster] = React.useState<string>("");
@@ -40,7 +40,7 @@ const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
 
 
   React.useEffect(() => {
-    if (videoStreamId !== -1) {
+    if (videoStreamId !== '') {
       const videoStream = videoStreamsQuery.data?.find((v) => v.id === videoStreamId);
       if (videoStream) {
         setSrc(videoStream.user_Url);
@@ -60,7 +60,7 @@ const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
   }, [getEpg, props, videoStreamId, videoStreamsQuery.data]);
 
 
-  const onVideoStreamClick = React.useCallback((videoStreamIdData: number) => {
+  const onVideoStreamClick = React.useCallback((videoStreamIdData: string) => {
     setVideoStreamId(videoStreamIdData);
 
   }, [setVideoStreamId]);
@@ -129,7 +129,7 @@ VideoPlayerDialog.defaultProps = {
 };
 
 type VideoPlayerDialogProps = {
-  onChange?: ((value: number) => void) | null;
+  onChange?: ((value: string) => void) | null;
 };
 
 export default React.memo(VideoPlayerDialog);

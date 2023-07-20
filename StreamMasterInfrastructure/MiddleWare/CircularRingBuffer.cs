@@ -24,7 +24,7 @@ public class CircularRingBuffer : ICircularRingBuffer
     private float _preBuffPercent;
     private int _writeIndex;
 
-    public CircularRingBuffer(ChildVideoStreamDto childVideoStreamDto, int videoStreamId, string videoStreamName, int rank, int tempbuffersize = 0)
+    public CircularRingBuffer(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank, int tempbuffersize = 0)
     {
         if (setting.PreloadPercentage < 0 || setting.PreloadPercentage > 100)
             setting.PreloadPercentage = 0;
@@ -35,7 +35,7 @@ public class CircularRingBuffer : ICircularRingBuffer
         StreamInfo = new StreamInfo
         {
             VideoStreamId = videoStreamId,
-            VideoStreamName= videoStreamName,
+            VideoStreamName = videoStreamName,
             M3UStreamId = childVideoStreamDto.Id,
             M3UStreamName = childVideoStreamDto.User_Tvg_name,
             Logo = childVideoStreamDto.User_Tvg_logo,
@@ -50,7 +50,7 @@ public class CircularRingBuffer : ICircularRingBuffer
     }
 
     public int BufferSize => _buffer.Length;
-    public int VideoStreamId => StreamInfo.VideoStreamId;
+    public string VideoStreamId => StreamInfo.VideoStreamId;
     private bool isPreBuffered { get; set; } = false;
     private Setting setting => FileUtil.GetSetting();
 

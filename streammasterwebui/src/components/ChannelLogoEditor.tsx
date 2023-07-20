@@ -10,7 +10,7 @@ const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
 
   const onUpdateVideoStream = React.useCallback(async (Logo: string) => {
-    if (props.data.id < 0) {
+    if (props.data.id === '') {
       return;
     }
 

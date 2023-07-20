@@ -23,7 +23,7 @@ namespace StreamMasterInfrastructure.MiddleWare;
 public class ChannelManager : IDisposable, IChannelManager
 {
     private readonly Timer _broadcastTimer;
-    private readonly ConcurrentDictionary<int, ChannelStatus> _channelStatuses;
+    private readonly ConcurrentDictionary<string, ChannelStatus> _channelStatuses;
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hub;
     private readonly ILogger<ChannelManager> _logger;
     private readonly IServiceProvider _serviceProvider;
@@ -52,7 +52,7 @@ public class ChannelManager : IDisposable, IChannelManager
         return _streamInformation.ClientCount == 0 || _streamInformation.VideoStreamingCancellationToken.IsCancellationRequested || _streamInformation.StreamingTask.IsFaulted || _streamInformation.StreamingTask.IsCanceled;
     }
 
-    public async Task ChangeVideoStreamChannel(int playingVideoStreamId, int newVideoStreamId)
+    public async Task ChangeVideoStreamChannel(string playingVideoStreamId, string newVideoStreamId)
     {
         if (_channelStatuses.TryGetValue(playingVideoStreamId, out var channelStatus))
         {
@@ -205,7 +205,7 @@ public class ChannelManager : IDisposable, IChannelManager
         }
     }
 
-    private async Task<ChildVideoStreamDto?> GetNextChildVideoStream(ChannelStatus channelStatus, int? overrideNextVideoStreamId = null)
+    private async Task<ChildVideoStreamDto?> GetNextChildVideoStream(ChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
     {
         using IServiceScope scope = _serviceProvider.CreateScope();
         IAppDbContext context = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
@@ -213,7 +213,7 @@ public class ChannelManager : IDisposable, IChannelManager
         M3UFile? m3uFile;
         int allStreamsCount = 0;
 
-        if (overrideNextVideoStreamId != null && overrideNextVideoStreamId > 0)
+        if (!string.IsNullOrEmpty(overrideNextVideoStreamId))
         {
             var newVideoStream = context.VideoStreams.AsNoTracking().ProjectTo<ChildVideoStreamDto>(mapper.ConfigurationProvider).FirstOrDefault(a => a.Id == overrideNextVideoStreamId);
             if (newVideoStream == null)
@@ -230,7 +230,7 @@ public class ChannelManager : IDisposable, IChannelManager
 
             allStreamsCount = _streamManager.GetStreamsCountForM3UFile(newVideoStream.M3UFileId);
 
-            if (newVideoStream.M3UFileId != channelStatus.VideoStreamId && allStreamsCount >= m3uFile.MaxStreamCount)
+            if (newVideoStream.Id != channelStatus.VideoStreamId && allStreamsCount >= m3uFile.MaxStreamCount)
             {
                 _logger.LogInformation("Max stream count {MaxStreams} reached for stream: {StreamUrl}", newVideoStream.MaxStreams, setting.CleanURLs ? "url removed" : newVideoStream.User_Url);
             }
@@ -292,7 +292,7 @@ public class ChannelManager : IDisposable, IChannelManager
         return _streamManager.GetStreamInformations();
     }
 
-    private async Task<bool> HandleNextVideoStream(ChannelStatus channelStatus, int? overrideNextVideoStreamId = null)
+    private async Task<bool> HandleNextVideoStream(ChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
     {
         channelStatus.FailoverInProgress = true;
 
@@ -395,7 +395,7 @@ public class ChannelManager : IDisposable, IChannelManager
 
             if (!await HandleNextVideoStream(channelStatus).ConfigureAwait(false) || channelStatus.StreamInformation is null)
             {
-               return null;
+                return null;
             }
 
             _channelStatuses.TryAdd(config.VideoStreamId, channelStatus);
@@ -424,7 +424,7 @@ public class ChannelManager : IDisposable, IChannelManager
             return null;
         }
 
-            return channelStatus;
+        return channelStatus;
     }
 
     private void UnRegisterClient(ClientStreamerConfiguration config)

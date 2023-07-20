@@ -6,9 +6,9 @@ namespace StreamMasterInfrastructure.MiddleWare;
 
 public class ChannelStatus
 {
-    public  ConcurrentDictionary<Guid, Guid> ClientIds;
+    public ConcurrentDictionary<Guid, Guid> ClientIds;
 
-    public ChannelStatus(int videoStreamId, string videoStreamName)
+    public ChannelStatus(string videoStreamId, string videoStreamName)
     {
         VideoStreamId = videoStreamId;
         Rank = 0;
@@ -24,7 +24,6 @@ public class ChannelStatus
     public int Rank { get; set; }
 
     public IStreamInformation? StreamInformation { get; set; }
-    public int VideoStreamId { get; set; }
+    public string VideoStreamId { get; set; }
     public string VideoStreamName { get; set; }
-
 }

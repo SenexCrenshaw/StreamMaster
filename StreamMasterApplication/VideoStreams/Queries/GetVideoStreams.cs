@@ -72,8 +72,6 @@ internal class GetVideoStreamsHandler : IRequestHandler<GetVideoStreams, IEnumer
             streamsDtos.Add(videoStreamDto);
         });
 
-        var test = streamsDtos.FirstOrDefault(streamsDtos => streamsDtos.Id == 3678);
-
         return streamsDtos;
     }
 }

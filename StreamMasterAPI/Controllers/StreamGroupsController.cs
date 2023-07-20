@@ -275,14 +275,14 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetStreamGroupVideoStream(string encodedIds, string name, CancellationToken cancellationToken)
     {
-        (int? StreamGroupNumberNull, int? StreamIdNull) = encodedIds.DecodeValues128(_setting.ServerKey);
+        (int? StreamGroupNumberNull, string? StreamIdNull) = encodedIds.DecodeTwoValuesAsString128(_setting.ServerKey);
         if (StreamGroupNumberNull == null || StreamIdNull == null)
         {
             return new NotFoundResult();
         }
 
         int streamGroupNumber = (int)StreamGroupNumberNull;
-        int videoStreamId = (int)StreamIdNull;
+        string videoStreamId = (string)StreamIdNull;
 
         var videoStream = await Mediator.Send(new GetVideoStream(videoStreamId), cancellationToken).ConfigureAwait(false);
         _logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId}", streamGroupNumber, videoStreamId);

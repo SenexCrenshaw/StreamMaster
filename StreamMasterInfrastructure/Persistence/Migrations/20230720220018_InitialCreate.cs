@@ -29,6 +29,20 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DataProtectionKeys",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    FriendlyName = table.Column<string>(type: "TEXT", nullable: true),
+                    Xml = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DataProtectionKeys", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "EPGFiles",
                 columns: table => new
                 {
@@ -52,7 +66,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     Source = table.Column<string>(type: "TEXT", nullable: false),
                     Url = table.Column<string>(type: "TEXT", nullable: true),
                     AutoUpdate = table.Column<bool>(type: "INTEGER", nullable: false),
-                    DaysToUpdate = table.Column<int>(type: "INTEGER", nullable: false),
+                    HoursToUpdate = table.Column<int>(type: "INTEGER", nullable: false),
                     Description = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -91,8 +105,8 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    StartingChannelNumber = table.Column<int>(type: "INTEGER", nullable: false),
                     MaxStreamCount = table.Column<int>(type: "INTEGER", nullable: false),
+                    StartingChannelNumber = table.Column<int>(type: "INTEGER", nullable: false),
                     StationCount = table.Column<int>(type: "INTEGER", nullable: false),
                     ContentType = table.Column<string>(type: "TEXT", nullable: false),
                     DownloadErrors = table.Column<int>(type: "INTEGER", nullable: false),
@@ -108,7 +122,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     Source = table.Column<string>(type: "TEXT", nullable: false),
                     Url = table.Column<string>(type: "TEXT", nullable: true),
                     AutoUpdate = table.Column<bool>(type: "INTEGER", nullable: false),
-                    DaysToUpdate = table.Column<int>(type: "INTEGER", nullable: false),
+                    HoursToUpdate = table.Column<int>(type: "INTEGER", nullable: false),
                     Description = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -134,18 +148,14 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                 name: "VideoStreams",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    CUID = table.Column<string>(type: "TEXT", nullable: false),
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    FilePosition = table.Column<int>(type: "INTEGER", nullable: false),
                     IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
                     IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false),
                     IsHidden = table.Column<bool>(type: "INTEGER", nullable: false),
                     IsReadOnly = table.Column<bool>(type: "INTEGER", nullable: false),
                     IsUserCreated = table.Column<bool>(type: "INTEGER", nullable: false),
                     M3UFileId = table.Column<int>(type: "INTEGER", nullable: false),
-                    StreamErrorCount = table.Column<int>(type: "INTEGER", nullable: false),
-                    StreamLastFail = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    StreamLastStream = table.Column<DateTime>(type: "TEXT", nullable: false),
                     StreamProxyType = table.Column<int>(type: "INTEGER", nullable: false),
                     Tvg_chno = table.Column<int>(type: "INTEGER", nullable: false),
                     Tvg_group = table.Column<string>(type: "TEXT", nullable: false),
@@ -167,68 +177,92 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "StreamGroupVideoStream",
+                name: "StreamGroupChannelGroups",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Rank = table.Column<int>(type: "INTEGER", nullable: false),
-                    StreamGroupId = table.Column<int>(type: "INTEGER", nullable: false),
-                    VideoStreamId = table.Column<int>(type: "INTEGER", nullable: false)
+                    ChannelGroupId = table.Column<int>(type: "INTEGER", nullable: false),
+                    StreamGroupId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StreamGroupVideoStream", x => x.Id);
+                    table.PrimaryKey("PK_StreamGroupChannelGroups", x => new { x.ChannelGroupId, x.StreamGroupId });
                     table.ForeignKey(
-                        name: "FK_StreamGroupVideoStream_StreamGroups_StreamGroupId",
+                        name: "FK_StreamGroupChannelGroups_ChannelGroups_ChannelGroupId",
+                        column: x => x.ChannelGroupId,
+                        principalTable: "ChannelGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StreamGroupChannelGroups_StreamGroups_StreamGroupId",
+                        column: x => x.StreamGroupId,
+                        principalTable: "StreamGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StreamGroupVideoStreams",
+                columns: table => new
+                {
+                    ChildVideoStreamId = table.Column<string>(type: "TEXT", nullable: false),
+                    StreamGroupId = table.Column<int>(type: "INTEGER", nullable: false),
+                    IsReadOnly = table.Column<bool>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StreamGroupVideoStreams", x => new { x.ChildVideoStreamId, x.StreamGroupId });
+                    table.ForeignKey(
+                        name: "FK_StreamGroupVideoStreams_StreamGroups_StreamGroupId",
                         column: x => x.StreamGroupId,
                         principalTable: "StreamGroups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_StreamGroupVideoStream_VideoStreams_VideoStreamId",
-                        column: x => x.VideoStreamId,
+                        name: "FK_StreamGroupVideoStreams_VideoStreams_ChildVideoStreamId",
+                        column: x => x.ChildVideoStreamId,
                         principalTable: "VideoStreams",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "VideoStreamRelationships",
+                name: "VideoStreamLinks",
                 columns: table => new
                 {
-                    ChildVideoStreamId = table.Column<int>(type: "INTEGER", nullable: false),
-                    ParentVideoStreamId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ChildVideoStreamId = table.Column<string>(type: "TEXT", nullable: false),
+                    ParentVideoStreamId = table.Column<string>(type: "TEXT", nullable: false),
                     Rank = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_VideoStreamRelationships", x => new { x.ParentVideoStreamId, x.ChildVideoStreamId });
+                    table.PrimaryKey("PK_VideoStreamLinks", x => new { x.ParentVideoStreamId, x.ChildVideoStreamId });
                     table.ForeignKey(
-                        name: "FK_VideoStreamRelationships_VideoStreams_ChildVideoStreamId",
+                        name: "FK_VideoStreamLinks_VideoStreams_ChildVideoStreamId",
                         column: x => x.ChildVideoStreamId,
                         principalTable: "VideoStreams",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_VideoStreamRelationships_VideoStreams_ParentVideoStreamId",
+                        name: "FK_VideoStreamLinks_VideoStreams_ParentVideoStreamId",
                         column: x => x.ParentVideoStreamId,
                         principalTable: "VideoStreams",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_StreamGroupVideoStream_StreamGroupId",
-                table: "StreamGroupVideoStream",
+                name: "IX_StreamGroupChannelGroups_StreamGroupId",
+                table: "StreamGroupChannelGroups",
                 column: "StreamGroupId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StreamGroupVideoStream_VideoStreamId",
-                table: "StreamGroupVideoStream",
-                column: "VideoStreamId");
+                name: "IX_StreamGroupVideoStreams_StreamGroupId",
+                table: "StreamGroupVideoStreams",
+                column: "StreamGroupId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VideoStreamRelationships_ChildVideoStreamId",
-                table: "VideoStreamRelationships",
+                name: "IX_VideoStreamLinks_ChildVideoStreamId",
+                table: "VideoStreamLinks",
                 column: "ChildVideoStreamId");
         }
 
@@ -236,7 +270,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ChannelGroups");
+                name: "DataProtectionKeys");
 
             migrationBuilder.DropTable(
                 name: "EPGFiles");
@@ -248,10 +282,16 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                 name: "M3UFiles");
 
             migrationBuilder.DropTable(
-                name: "StreamGroupVideoStream");
+                name: "StreamGroupChannelGroups");
 
             migrationBuilder.DropTable(
-                name: "VideoStreamRelationships");
+                name: "StreamGroupVideoStreams");
+
+            migrationBuilder.DropTable(
+                name: "VideoStreamLinks");
+
+            migrationBuilder.DropTable(
+                name: "ChannelGroups");
 
             migrationBuilder.DropTable(
                 name: "StreamGroups");

@@ -14,7 +14,7 @@ const EPGDisplay = (props: EPGDisplayProps) => {
 
   const { isLoading, getEpgProps, getLayoutProps } = useApp(streamGroup.id);
 
-  const onVideoStreamClick = React.useCallback((videoStreamId: number) => {
+  const onVideoStreamClick = React.useCallback((videoStreamId: string) => {
     props.onClick?.(videoStreamId);
   }, [props]);
 
@@ -60,7 +60,7 @@ EPGDisplay.defaultProps = {
 type EPGDisplayProps = {
   hidden: boolean;
   onChange: ((value: StreamGroupDto) => void);
-  onClick: ((videoStreamId: number) => void);
+  onClick: ((videoStreamId: string) => void);
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
 };

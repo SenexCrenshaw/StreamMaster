@@ -240,7 +240,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
         return ret;
     }
 
-    private static EPGProgram GetEPGProgramFromProgramme(Programme programme, int videoStreamId)
+    private static EPGProgram GetEPGProgramFromProgramme(Programme programme, string videoStreamId)
     {
         var largest = 0;
         TvIcon? Icon = null;

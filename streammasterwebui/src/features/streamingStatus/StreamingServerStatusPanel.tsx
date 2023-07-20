@@ -15,9 +15,9 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
   const toast = React.useRef<Toast>(null);
 
 
-  const onChangeVideoStreamChannel = React.useCallback(async (playingVideoStreamId: number, newVideoStreamId: number) => {
-    if (playingVideoStreamId === undefined || playingVideoStreamId < 1 ||
-      newVideoStreamId === undefined || newVideoStreamId < 1
+  const onChangeVideoStreamChannel = React.useCallback(async (playingVideoStreamId: string, newVideoStreamId: string) => {
+    if (playingVideoStreamId === undefined || playingVideoStreamId === '' ||
+      newVideoStreamId === undefined || newVideoStreamId === ''
     ) {
       return;
     }
@@ -54,7 +54,7 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
     return (
       <VideoStreamSelector
         onChange={async (e) => {
-          await onChangeVideoStreamChannel(rowData.videoStreamId ?? 0, e.id);
+          await onChangeVideoStreamChannel(rowData.videoStreamId ?? '', e.id);
         }}
         value={rowData.m3UStreamName}
       />

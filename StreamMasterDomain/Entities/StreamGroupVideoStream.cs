@@ -3,7 +3,7 @@
 public class StreamGroupVideoStream
 {
     public VideoStream ChildVideoStream { get; set; }
-    public int ChildVideoStreamId { get; set; }
+    public string ChildVideoStreamId { get; set; }
 
     public bool IsReadOnly
     {

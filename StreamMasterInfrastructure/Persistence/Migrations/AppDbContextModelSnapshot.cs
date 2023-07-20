@@ -306,8 +306,8 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
             modelBuilder.Entity("StreamMasterDomain.Entities.StreamGroupVideoStream", b =>
                 {
-                    b.Property<int>("ChildVideoStreamId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("ChildVideoStreamId")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("StreamGroupId")
                         .HasColumnType("INTEGER");
@@ -324,12 +324,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
             modelBuilder.Entity("StreamMasterDomain.Entities.VideoStream", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("CUID")
-                        .IsRequired()
+                    b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("FilePosition")
@@ -412,11 +407,11 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
             modelBuilder.Entity("StreamMasterDomain.Entities.VideoStreamLink", b =>
                 {
-                    b.Property<int>("ParentVideoStreamId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("ParentVideoStreamId")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("ChildVideoStreamId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("ChildVideoStreamId")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Rank")
                         .HasColumnType("INTEGER");

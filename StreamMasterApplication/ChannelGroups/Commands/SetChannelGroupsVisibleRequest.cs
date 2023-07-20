@@ -15,7 +15,7 @@ public record SetChannelGroupsVisibleArg(string GroupName, bool IsHidden)
 {
 }
 
-public record SetVideoStreamVisibleRet(int videoStreamId, bool IsHidden)
+public record SetVideoStreamVisibleRet(string videoStreamId, bool IsHidden)
 {
 }
 

@@ -85,11 +85,11 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
 
                 var group = groups.FirstOrDefault(a => a.Name.ToLower() == stream.Tvg_group.ToLower());
 
-                if (existing.Any() && existing.Any(a => a.CUID == stream.CUID))
+                if (existing.Any() && existing.Any(a => a.Id == stream.Id))
                 {
                     try
                     {
-                        VideoStream dbStream = existing.Single(a => a.CUID == stream.CUID);
+                        VideoStream dbStream = existing.Single(a => a.Id == stream.Id);
 
                         if (group != null)
                         {
@@ -144,7 +144,7 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"Error while processing M3U file, duplicate CUID for {stream.CUID}", ex);
+                        _logger.LogError($"Error while processing M3U file, duplicate Id for {stream.Id}", ex);
                     }
                 }
                 else

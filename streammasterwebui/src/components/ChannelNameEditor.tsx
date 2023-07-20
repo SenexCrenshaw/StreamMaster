@@ -9,7 +9,7 @@ const ChannelNameEditor = (props: ChannelNameEditorProps) => {
   const toast = React.useRef<Toast>(null);
 
   const onUpdateM3UStream = React.useCallback(async (name: string,) => {
-    if (props.data.id < 0 || !name || name === '' || props.data.user_Tvg_name === name) {
+    if (props.data.id === '' || !name || name === '' || props.data.user_Tvg_name === name) {
       return;
     }
 

@@ -13,7 +13,7 @@ namespace StreamMasterInfrastructure.Persistence;
 
 public partial class AppDbContext
 {
-    public async Task AddOrUpdateChildToVideoStreamAsync(int parentId, int childId, int rank, CancellationToken cancellationToken)
+    public async Task AddOrUpdateChildToVideoStreamAsync(string parentId, string childId, int rank, CancellationToken cancellationToken)
     {
         var videoStreamLink = await VideoStreamLinks
             .FirstOrDefaultAsync(vsl => vsl.ParentVideoStreamId == parentId && vsl.ChildVideoStreamId == childId, cancellationToken).ConfigureAwait(false);
@@ -37,7 +37,7 @@ public partial class AppDbContext
         await SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<bool> DeleteVideoStreamAsync(int videoStreamId, CancellationToken cancellationToken)
+    public async Task<bool> DeleteVideoStreamAsync(string videoStreamId, CancellationToken cancellationToken)
     {
         // Get the VideoStream
         var videoStream = await VideoStreams.FindAsync(new object[] { videoStreamId }, cancellationToken).ConfigureAwait(false);
@@ -73,7 +73,7 @@ public partial class AppDbContext
         }
     }
 
-    public async Task<List<VideoStream>> GetChildVideoStreamsAsync(int parentId, CancellationToken cancellationToken)
+    public async Task<List<VideoStream>> GetChildVideoStreamsAsync(string parentId, CancellationToken cancellationToken)
     {
         return await VideoStreamLinks
             .Where(vsl => vsl.ParentVideoStreamId == parentId)
@@ -81,7 +81,7 @@ public partial class AppDbContext
             .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<VideoStream> GetVideoStreamWithChildrenAsync(int videoStreamId, CancellationToken cancellationToken)
+    public async Task<VideoStream> GetVideoStreamWithChildrenAsync(string videoStreamId, CancellationToken cancellationToken)
     {
         return await VideoStreams
             .Include(vs => vs.ChildVideoStreams)
@@ -116,7 +116,7 @@ public partial class AppDbContext : IVideoStreamDB
             .ToListAsync().ConfigureAwait(false);
     }
 
-    public async Task<List<VideoStream>> GetChildVideoStreamsAsync(int parentId)
+    public async Task<List<VideoStream>> GetChildVideoStreamsAsync(string parentId)
     {
         return await VideoStreamLinks
             .Where(vsl => vsl.ParentVideoStreamId == parentId)
@@ -143,7 +143,7 @@ public partial class AppDbContext : IVideoStreamDB
         return new M3UFileIdMaxStream { M3UFileId = videoStream.M3UFileId, MaxStreams = m3uFile.MaxStreamCount };
     }
 
-    public async Task<List<StreamGroupDto>> GetStreamGroupsByVideoStreamIdsAsync(List<int> videoStreamIds, string url, CancellationToken cancellationToken)
+    public async Task<List<StreamGroupDto>> GetStreamGroupsByVideoStreamIdsAsync(List<string> videoStreamIds, string url, CancellationToken cancellationToken)
     {
         var sgs = await GetStreamGroupDtos(url, cancellationToken);
 
@@ -154,7 +154,7 @@ public partial class AppDbContext : IVideoStreamDB
         return matchingStreamGroups;
     }
 
-    public async Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(int videoStreamId, CancellationToken cancellationToken = default)
+    public async Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(string videoStreamId, CancellationToken cancellationToken = default)
     {
         var videoStream = await GetVideoStreamWithChildrenAsync(videoStreamId, cancellationToken).ConfigureAwait(false);
         if (videoStream == null)
@@ -192,7 +192,7 @@ public partial class AppDbContext : IVideoStreamDB
         return (videoStream.VideoStreamHandler, childVideoStreamDtos);
     }
 
-    public async Task<VideoStreamDto> GetVideoStreamDto(int videoStreamId, CancellationToken cancellationToken)
+    public async Task<VideoStreamDto> GetVideoStreamDto(string videoStreamId, CancellationToken cancellationToken)
     {
         var stream = await GetVideoStreamWithChildrenAsync(videoStreamId, cancellationToken).ConfigureAwait(false);
 
@@ -201,7 +201,7 @@ public partial class AppDbContext : IVideoStreamDB
         return videoStreamDto;
     }
 
-    public async Task<List<VideoStream>> GetVideoStreamsForParentAsync(int parentVideoId, CancellationToken cancellationToken)
+    public async Task<List<VideoStream>> GetVideoStreamsForParentAsync(string parentVideoId, CancellationToken cancellationToken)
     {
         return await VideoStreamLinks
             .Where(vsl => vsl.ParentVideoStreamId == parentVideoId)
@@ -307,7 +307,6 @@ public partial class AppDbContext : IVideoStreamDB
 
             ret.ChildVideoStreams = dtoStreams;
         }
-
 
         IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
         string Logo = icon != null ? icon.Source : "/" + setting.DefaultIcon;
