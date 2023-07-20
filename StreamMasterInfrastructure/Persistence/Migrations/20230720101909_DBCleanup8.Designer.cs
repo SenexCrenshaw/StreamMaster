@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StreamMasterInfrastructure.Persistence;
 
@@ -10,9 +11,11 @@ using StreamMasterInfrastructure.Persistence;
 namespace StreamMasterInfrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230720101909_DBCleanup8")]
+    partial class DBCleanup8
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.8");
@@ -312,7 +315,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.Property<int>("StreamGroupId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("IsReadOnly")
+                    b.Property<int>("Rank")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("ChildVideoStreamId", "StreamGroupId");
@@ -431,9 +434,9 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
             modelBuilder.Entity("StreamMasterDomain.Entities.StreamGroupChannelGroup", b =>
                 {
                     b.HasOne("StreamMasterDomain.Entities.ChannelGroup", "ChannelGroup")
-                        .WithMany()
+                        .WithMany("StreamGroups")
                         .HasForeignKey("ChannelGroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("StreamMasterDomain.Entities.StreamGroup", "StreamGroup")
@@ -481,6 +484,11 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.Navigation("ChildVideoStream");
 
                     b.Navigation("ParentVideoStream");
+                });
+
+            modelBuilder.Entity("StreamMasterDomain.Entities.ChannelGroup", b =>
+                {
+                    b.Navigation("StreamGroups");
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Entities.StreamGroup", b =>

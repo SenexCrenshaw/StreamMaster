@@ -132,7 +132,9 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
     data.streamGroupId = props.value.id;
     data.streamGroupNumber = streamGroupNumber;
 
-    data.channelGroupNames = selectedChannelGroups.map((x) => x.name);
+    if (selectedChannelGroups.length > 0) {
+      data.channelGroupNames = selectedChannelGroups.map((x) => x.name);
+    }
 
     UpdateStreamGroup(data)
       .then((result) => {

@@ -19,7 +19,7 @@ namespace StreamMasterApplication.StreamGroups.Commands;
 public record AddStreamGroupRequest(
     string Name,
     int StreamGroupNumber,
-    List<int>? VideoStreamIds,
+    List<VideoStreamIsReadOnly>? VideoStreams,
     List<string>? ChannelGroupNames
     ) : IRequest<StreamGroupDto?>
 {
@@ -79,26 +79,33 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
             StreamGroupNumber = command.StreamGroupNumber,
         };
 
+        _ = _context.StreamGroups.Add(entity);
+        _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
         if (command.ChannelGroupNames != null && command.ChannelGroupNames.Any())
         {
             var cgs = _context.ChannelGroups.Where(a => command.ChannelGroupNames.Contains(a.Name)).ToList();
             if (cgs.Any())
             {
-                entity.ChannelGroups = cgs;
+                foreach (var cg in cgs)
+                {
+                    await _context.AddChannelGroupToStreamGroupAsync(entity.Id, cg.Id, cancellationToken);
+                }
             }
         }
 
-        if (command.VideoStreamIds != null && command.VideoStreamIds.Any())
-        {
-            var vs = _context.VideoStreams.Where(a => command.VideoStreamIds.Contains(a.Id)).ToList();
-            if (vs.Any())
-            {
-                entity.VideoStreams = vs;
-            }
-        }
-
-        _ = _context.StreamGroups.Add(entity);
-        _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        //if (command.VideoStreamIds != null && command.VideoStreamIds.Any())
+        //{
+        //    var vss = _context.VideoStreams.Where(a => command.VideoStreamIds.Contains(a.Id)).ToList();
+        //    if (vss.Any())
+        //    {
+        //        for (int index = 0; index < vss.Count; index++)
+        //        {
+        //            VideoStream? vs = vss[index];
+        //            await _context.AddOrUpdatVideoStreamToStreamGroupAsync(entity.Id, vs.Id, false, cancellationToken);
+        //        }
+        //    }
+        //}
 
         var url = _httpContextAccessor.GetUrl();
 

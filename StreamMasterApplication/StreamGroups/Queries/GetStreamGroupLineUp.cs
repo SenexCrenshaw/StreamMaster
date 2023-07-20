@@ -14,7 +14,6 @@ using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Dto;
 
-using System.IO;
 using System.Text.Json;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
@@ -35,8 +34,8 @@ public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp,
 {
     protected Setting _setting = FileUtil.GetSetting();
 
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IAppDbContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly ISender _sender;
 
@@ -67,12 +66,12 @@ public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp,
         List<VideoStreamDto> videoStreams = new();
         if (command.StreamGroupNumber > 0)
         {
-            StreamGroupDto? sg = await _sender.Send(new GetStreamGroupByStreamNumber(command.StreamGroupNumber), cancellationToken).ConfigureAwait(false);
+            StreamGroupDto? sg = await _context.GetStreamGroupWithRelatedEntitiesByStreamGroupNumberAsync(command.StreamGroupNumber, cancellationToken);
             if (sg == null)
             {
                 return "";
             }
-            videoStreams = sg.VideoStreams.Where(a => !a.IsHidden).ToList();
+            videoStreams = sg.ChildVideoStreams.Where(a => !a.IsHidden).ToList();
         }
         else
         {

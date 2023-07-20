@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StreamMasterInfrastructure.Persistence;
 
@@ -10,9 +11,11 @@ using StreamMasterInfrastructure.Persistence;
 namespace StreamMasterInfrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230720090641_DBCleanup7")]
+    partial class DBCleanup7
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.8");
@@ -223,6 +226,9 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("FilePosition")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("HoursToUpdate")
                         .HasColumnType("INTEGER");
 
@@ -291,35 +297,47 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
             modelBuilder.Entity("StreamMasterDomain.Entities.StreamGroupChannelGroup", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("ChannelGroupId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("StreamGroupId")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("ChannelGroupId", "StreamGroupId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChannelGroupId");
 
                     b.HasIndex("StreamGroupId");
 
-                    b.ToTable("StreamGroupChannelGroups");
+                    b.ToTable("StreamGroupChannelGroup");
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Entities.StreamGroupVideoStream", b =>
                 {
-                    b.Property<int>("ChildVideoStreamId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Rank")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("StreamGroupId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("IsReadOnly")
+                    b.Property<int>("VideoStreamId")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("ChildVideoStreamId", "StreamGroupId");
+                    b.HasKey("Id");
 
                     b.HasIndex("StreamGroupId");
 
-                    b.ToTable("StreamGroupVideoStreams");
+                    b.HasIndex("VideoStreamId");
+
+                    b.ToTable("StreamGroupVideoStream");
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Entities.VideoStream", b =>
@@ -331,9 +349,6 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.Property<string>("CUID")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("FilePosition")
-                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
@@ -430,46 +445,40 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
             modelBuilder.Entity("StreamMasterDomain.Entities.StreamGroupChannelGroup", b =>
                 {
-                    b.HasOne("StreamMasterDomain.Entities.ChannelGroup", "ChannelGroup")
+                    b.HasOne("StreamMasterDomain.Entities.ChannelGroup", null)
                         .WithMany()
                         .HasForeignKey("ChannelGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("StreamMasterDomain.Entities.StreamGroup", "StreamGroup")
-                        .WithMany("ChannelGroups")
+                    b.HasOne("StreamMasterDomain.Entities.StreamGroup", null)
+                        .WithMany()
                         .HasForeignKey("StreamGroupId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("ChannelGroup");
-
-                    b.Navigation("StreamGroup");
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Entities.StreamGroupVideoStream", b =>
                 {
-                    b.HasOne("StreamMasterDomain.Entities.VideoStream", "ChildVideoStream")
-                        .WithMany("StreamGroups")
-                        .HasForeignKey("ChildVideoStreamId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("StreamMasterDomain.Entities.StreamGroup", null)
-                        .WithMany("ChildVideoStreams")
+                        .WithMany()
                         .HasForeignKey("StreamGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ChildVideoStream");
+                    b.HasOne("StreamMasterDomain.Entities.VideoStream", null)
+                        .WithMany()
+                        .HasForeignKey("VideoStreamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Entities.VideoStreamLink", b =>
                 {
                     b.HasOne("StreamMasterDomain.Entities.VideoStream", "ChildVideoStream")
-                        .WithMany()
+                        .WithMany("ParentVideoStreams")
                         .HasForeignKey("ChildVideoStreamId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("StreamMasterDomain.Entities.VideoStream", "ParentVideoStream")
@@ -483,18 +492,11 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.Navigation("ParentVideoStream");
                 });
 
-            modelBuilder.Entity("StreamMasterDomain.Entities.StreamGroup", b =>
-                {
-                    b.Navigation("ChannelGroups");
-
-                    b.Navigation("ChildVideoStreams");
-                });
-
             modelBuilder.Entity("StreamMasterDomain.Entities.VideoStream", b =>
                 {
                     b.Navigation("ChildVideoStreams");
 
-                    b.Navigation("StreamGroups");
+                    b.Navigation("ParentVideoStreams");
                 });
 #pragma warning restore 612, 618
         }

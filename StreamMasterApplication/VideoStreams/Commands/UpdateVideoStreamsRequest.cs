@@ -4,17 +4,13 @@ using FluentValidation;
 
 using MediatR;
 
-using Microsoft.EntityFrameworkCore;
-
-using StreamMasterApplication.Icons.Queries;
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Extensions;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
-public record UpdateVideoStreamsRequest(IEnumerable<VideoStreamUpdate> VideoStreamUpdates) : IRequest<IEnumerable<VideoStreamDto>>
+public record UpdateVideoStreamsRequest(IEnumerable<UpdateVideoStreamRequest> VideoStreamUpdates) : IRequest<IEnumerable<VideoStreamDto>>
 {
 }
 
@@ -48,58 +44,17 @@ public class UpdateVideoStreamsRequestHandler : IRequestHandler<UpdateVideoStrea
 
     public async Task<IEnumerable<VideoStreamDto>> Handle(UpdateVideoStreamsRequest requests, CancellationToken cancellationToken)
     {
-        bool isChanged = false;
         List<VideoStreamDto> results = new();
-        List<IconFileDto> icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
-        SettingDto setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
+
         foreach (var request in requests.VideoStreamUpdates)
         {
-            VideoStream? videoStream = _context.VideoStreams
-           .Include(vs => vs.ParentVideoStreams)
-           .FirstOrDefault(a => a.Id == request.Id);
-
-            if (videoStream == null)
+            var ret = await _context.UpdateVideoStreamAsync(request, cancellationToken).ConfigureAwait(false);
+            if (ret is not null)
             {
-                continue;
-            }
-
-            isChanged = videoStream.UpdateVideoStream(request);
-
-            if (request.ChildVideoStreams != null)
-            {
-                await _context.SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
-            }
-
-            var newLogo = request.Tvg_logo;
-            if (request.Tvg_logo != null && videoStream.User_Tvg_logo != request.Tvg_logo)
-            {
-                IconFileDto? logo = icons.FirstOrDefault(a => a.OriginalSource == request.Tvg_logo);
-
-                if (logo != null)
-                {
-                    videoStream.User_Tvg_logo = logo.OriginalSource;
-                    newLogo = logo.Source;
-                }
-                else
-                {
-                    videoStream.User_Tvg_logo = request.Tvg_logo;
-                }
-            }
-
-            if (isChanged)
-            {
-                _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-
-                VideoStreamDto videoStreamDto = _mapper.Map<VideoStreamDto>(videoStream);
-
-                IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
-                string Logo = icon != null ? icon.Source : "/" + setting.DefaultIcon;
-
-                videoStreamDto.User_Tvg_logo = newLogo;
-
-                results.Add(videoStreamDto);
+                results.Add(ret);
             }
         }
+
         if (results.Any())
         {
             await _publisher.Publish(new UpdateVideoStreamsEvent(results), cancellationToken).ConfigureAwait(false);

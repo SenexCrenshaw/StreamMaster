@@ -7,19 +7,24 @@ namespace StreamMasterDomain.Entities;
 
 public class VideoStream : BaseEntity, IMapFrom<VideoStreamDto>, IMapFrom<ChildVideoStreamDto>
 {
+    public VideoStream()
+    {
+        StreamGroups = new List<StreamGroupVideoStream>();
+    }
+
+    [Ignore]
+    public ICollection<VideoStreamLink> ChildVideoStreams { get; set; }
+
     public string CUID { get; set; } = string.Empty;
+    public int FilePosition { get; set; }
     public bool IsActive { get; set; } = true;
     public bool IsDeleted { get; set; } = false;
     public bool IsHidden { get; set; } = false;
     public bool IsReadOnly { get; set; } = false;
     public bool IsUserCreated { get; set; } = false;
     public int M3UFileId { get; set; } = 0;
-    // Navigation properties
-    [Ignore]
-    public ICollection<VideoStreamLink> ParentVideoStreams { get; set; }
-    [Ignore]
-    public ICollection<VideoStreamLink> ChildVideoStreams { get; set; }
-    public List<StreamGroup> StreamGroups { get; set; } = new();
+
+    public ICollection<StreamGroupVideoStream> StreamGroups { get; set; }
 
     public StreamingProxyTypes StreamProxyType { get; set; } = StreamingProxyTypes.SystemDefault;
     public int Tvg_chno { get; set; } = 0;

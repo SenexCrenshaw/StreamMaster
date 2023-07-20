@@ -10,7 +10,6 @@ namespace StreamMasterApplication.VideoStreams.Commands;
 
 public class UpdateVideoStreamRequest : VideoStreamUpdate, IRequest<VideoStreamDto?>
 {
-    public string BaseHostUrl { get; set; }
 }
 
 public class UpdateVideoStreamRequestValidator : AbstractValidator<UpdateVideoStreamRequest>

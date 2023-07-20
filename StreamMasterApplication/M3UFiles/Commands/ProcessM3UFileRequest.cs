@@ -72,24 +72,23 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
             Stopwatch sw = Stopwatch.StartNew();
             var existing = _context.VideoStreams.Where(a => a.M3UFileId == m3uFile.Id).ToList();
 
-            var existingChannels = new List<int>();
+            var existingChannels = new ThreadSafeIntList(m3uFile.StartingChannelNumber < 1 ? 1 : m3uFile.StartingChannelNumber);
 
             var newChannels = streams.Select(a => a.Tvg_chno).Distinct().Order().ToList();
 
             var groups = _context.ChannelGroups.ToList();
-            int nextchno = m3uFile.StartingChannelNumber;
+            int nextchno = 0;
 
-            existingChannels.Add(nextchno);
-
-            foreach (var stream in streams)
+            for (int index = 0; index < streams.Count; index++)
             {
+                VideoStream? stream = streams[index];
+
                 var group = groups.FirstOrDefault(a => a.Name.ToLower() == stream.Tvg_group.ToLower());
 
                 if (existing.Any() && existing.Any(a => a.CUID == stream.CUID))
                 {
                     try
                     {
-                       
                         VideoStream dbStream = existing.Single(a => a.CUID == stream.CUID);
 
                         if (group != null)
@@ -103,9 +102,9 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                         }
                         dbStream.Tvg_group = stream.Tvg_group;
 
-                        if (setting.OverWriteM3UChannels)
+                        if (stream.Tvg_chno == 0 || setting.OverWriteM3UChannels || existingChannels.ContainsInt(stream.Tvg_chno))
                         {
-                            nextchno = existingChannels.GetNextNumber(nextchno);
+                            nextchno = existingChannels.GetNextInt(nextchno);
 
                             if (dbStream.Tvg_chno == dbStream.User_Tvg_chno)
                             {
@@ -115,24 +114,11 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                         }
                         else
                         {
-                            if (stream.Tvg_chno == 0 || setting.OverWriteM3UChannels || existingChannels.Contains(stream.Tvg_chno))
+                            if (dbStream.Tvg_chno == dbStream.User_Tvg_chno)
                             {
-                                nextchno = existingChannels.GetNextNumber(nextchno);
-
-                                if (dbStream.Tvg_chno == dbStream.User_Tvg_chno)
-                                {
-                                    dbStream.User_Tvg_chno = nextchno;
-                                }
-                                stream.Tvg_chno = nextchno;
+                                dbStream.User_Tvg_chno = stream.Tvg_chno;
                             }
-                            else
-                            {
-                                if (dbStream.Tvg_chno == dbStream.User_Tvg_chno)
-                                {
-                                    dbStream.User_Tvg_chno = stream.Tvg_chno;
-                                }
-                                dbStream.Tvg_chno = stream.Tvg_chno;
-                            }
+                            dbStream.Tvg_chno = stream.Tvg_chno;
                         }
 
                         if (dbStream.Tvg_ID == dbStream.User_Tvg_ID)
@@ -153,8 +139,8 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                         }
                         dbStream.Tvg_name = stream.Tvg_name;
 
-                        dbStream.Url = stream.Url;
-                        dbStream.User_Url = stream.Url;
+                        //dbStream.Url = stream.Url;
+                        //dbStream.User_Url = stream.Url;
                     }
                     catch (Exception ex)
                     {
@@ -164,13 +150,12 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                 else
                 {
                     stream.IsHidden = group != null && group.IsHidden;
-                    if (stream.User_Tvg_chno == 0 || setting.OverWriteM3UChannels || existingChannels.Contains(stream.Tvg_chno))
+                    if (stream.User_Tvg_chno == 0 || setting.OverWriteM3UChannels || existingChannels.ContainsInt(stream.Tvg_chno))
                     {
-                        nextchno = existingChannels.GetNextNumber(nextchno);
-
-                        //stream.Tvg_chno = nextchno;
+                        nextchno = existingChannels.GetNextInt(nextchno);
                         stream.User_Tvg_chno = nextchno;
                     }
+                    stream.FilePosition = index;
                     _ = _context.VideoStreams.Add(stream);
                 }
             }

@@ -59,7 +59,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     }
 
 
-    if (streamGroup === undefined || streamGroup.id === undefined || streamGroup.videoStreams === undefined) {
+    if (streamGroup === undefined || streamGroup.id === undefined || streamGroup.childVideoStreams === undefined) {
       const newData = [...videoStreamsQuery.data];
 
       if (props.showTriState === null) {
@@ -73,10 +73,10 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     }
 
 
-    const ids = streamGroup.videoStreams.map((sgvs) => sgvs.id);
+    const ids = streamGroup.childVideoStreams.map((sgvs) => sgvs.id);
     const streams = videoStreamsQuery.data.filter((m3u) => ids?.includes(m3u.id));
 
-    const roIds = streamGroup.videoStreams.filter((vs) => vs.isReadOnly === true).map((sgvs) => sgvs.id);
+    const roIds = streamGroup.childVideoStreams.filter((vs) => vs.isReadOnly === true).map((sgvs) => sgvs.id);
 
     const updatedStreams = streams.map((newStream) => {
       if (roIds.includes(newStream.id)) {
@@ -314,8 +314,8 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     if (props.streamGroup)
       toSend.streamGroupId = props.streamGroup.id;
 
-    toSend.videoStreamIds = data.map((stream) => {
-      return stream.id;
+    toSend.videoStreams = data.map((stream) => {
+      return { isReadOnly: stream.isReadOnly, videoStreamId: stream.id } as StreamMasterApi.VideoStreamIsReadOnly;
     });
 
     await Hub.UpdateStreamGroup(toSend)
@@ -385,10 +385,11 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
   }, [onSave, props, targetVideoStreams]);
 
-  const sourceActionBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => (
-    <div className='flex min-w-full min-h-full justify-content-center align-items-center'>
-      {data.isReadOnly === true &&
-        <>
+  const sourceActionBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
+
+    if (data.isReadOnly === true) {
+      return (
+        <div className='flex min-w-full min-h-full justify-content-center align-items-center'>
           <Tooltip target=".GroupIcon-class" />
           <div
             className="GroupIcon-class border-white"
@@ -399,25 +400,27 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
             data-pr-position="left"
             data-pr-showdelay={500}
-            data-pr-tooltip={`Group: ${data.user_Tvg_group}`}
+            // data-pr-tooltip={`Group: ${data.user_Tvg_group}`}
+            data-pr-tooltip='From Group'
           // style={{ minWidth: '10rem' }}
           >
             <GroupIcon />
           </div>
-        </>
-      }
-      {data.isReadOnly !== true &&
-        <Button
-          className="p-button-danger"
-          icon="pi pi-times"
-          onClick={async () => await onRemoveRank(data)}
-          rounded
-          text
-          tooltip="Remove"
-          tooltipOptions={getTopToolOptions} />
-      }
-    </div>
-  ), [onRemoveRank]);
+        </div>
+      );
+    }
+
+    return (
+      <Button
+        className="p-button-danger"
+        icon="pi pi-times"
+        onClick={async () => await onRemoveRank(data)}
+        rounded
+        text
+        tooltip="Remove"
+        tooltipOptions={getTopToolOptions} />
+    );
+  }, [onRemoveRank]);
 
 
   const targetColumns: ColumnMeta[] = [

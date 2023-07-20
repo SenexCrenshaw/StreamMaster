@@ -32,7 +32,7 @@ internal class GetM3UFilesHandler : IRequestHandler<GetM3UFiles, IEnumerable<M3U
            .OrderBy(x => x.Name)
            .ToListAsync(cancellationToken).ConfigureAwait(false);
 
-        ret.Insert  (0, new M3UFilesDto { Id = 0, Name = "All" });
+        //ret.Insert  (0, new M3UFilesDto { Id = 0, Name = "All" });
 
         return ret;
     }

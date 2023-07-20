@@ -4,7 +4,6 @@ public class M3UFile : AutoUpdateEntity
 {
     public M3UFile()
     {
-        //DirectoryLocation = FileDefinitions.M3U.DirectoryLocation;
         FileExtension = FileDefinitions.M3U.FileExtension;
         SMFileType = FileDefinitions.M3U.SMFileType;
     }

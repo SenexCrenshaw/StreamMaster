@@ -91,9 +91,9 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [ProducesResponseType(typeof(StreamGroupDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<StreamGroupDto>> GetStreamGroup(int StreamGroupNumber)
+    public async Task<ActionResult<StreamGroupDto>> GetStreamGroup(int id)
     {
-        StreamGroupDto? data = await Mediator.Send(new GetStreamGroup(StreamGroupNumber)).ConfigureAwait(false);
+        StreamGroupDto? data = await Mediator.Send(new GetStreamGroup(id)).ConfigureAwait(false);
 
         return data != null ? (ActionResult<StreamGroupDto>)data : (ActionResult<StreamGroupDto>)NotFound();
     }

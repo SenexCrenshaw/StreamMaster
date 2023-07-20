@@ -95,30 +95,6 @@ public partial class AppDbContext : IVideoStreamDB
     public DbSet<VideoStreamLink> VideoStreamLinks { get; set; }
     public DbSet<VideoStream> VideoStreams { get; set; }
 
-    public async Task AddOrUpdateChildToVideoStreamAsync(int parentId, int childId, int rank)
-    {
-        var videoStreamLink = await VideoStreamLinks
-            .FirstOrDefaultAsync(vsl => vsl.ParentVideoStreamId == parentId && vsl.ChildVideoStreamId == childId).ConfigureAwait(false);
-
-        if (videoStreamLink == null)
-        {
-            videoStreamLink = new VideoStreamLink
-            {
-                ParentVideoStreamId = parentId,
-                ChildVideoStreamId = childId,
-                Rank = rank
-            };
-
-            await VideoStreamLinks.AddAsync(videoStreamLink).ConfigureAwait(false);
-        }
-        else
-        {
-            videoStreamLink.Rank = rank;
-        }
-
-        await SaveChangesAsync();
-    }
-
     public async Task<List<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken)
     {
         var streams = VideoStreams.Where(a => a.M3UFileId == M3UFileId).ToList();
@@ -233,7 +209,7 @@ public partial class AppDbContext : IVideoStreamDB
         {
             foreach (var ch in childVideoStreams)
             {
-                await AddOrUpdateChildToVideoStreamAsync(videoStream.Id, ch.Id, ch.Rank).ConfigureAwait(false);
+                await AddOrUpdateChildToVideoStreamAsync(videoStream.Id, ch.Id, ch.Rank, cancellationToken).ConfigureAwait(false);
             }
 
             await RemoveNonExistingVideoStreamLinksAsync(childVideoStreams.ToList(), cancellationToken).ConfigureAwait(false);

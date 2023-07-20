@@ -5,7 +5,10 @@ using FluentValidation;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+
+using StreamMasterApplication.Common.Extensions;
 
 using StreamMasterDomain.Dto;
 
@@ -26,43 +29,26 @@ internal class GetStreamGroupByStreamNumberHandler : IRequestHandler<GetStreamGr
 {
     private readonly IAppDbContext _context;
     private readonly IMapper _mapper;
-
+    private readonly IHttpContextAccessor _httpContextAccessor;
     public GetStreamGroupByStreamNumberHandler(
-         IMapper mapper,
+         IMapper mapper, IHttpContextAccessor httpContextAccessor,
         IAppDbContext context)
     {
+        _httpContextAccessor = httpContextAccessor;
         _mapper = mapper;
         _context = context;
     }
 
     public async Task<StreamGroupDto?> Handle(GetStreamGroupByStreamNumber request, CancellationToken cancellationToken = default)
     {
-        StreamGroup? streamGroup = await _context.StreamGroups
-            .Include(a => a.VideoStreams)
-            .Include(a => a.ChannelGroups)
-            .FirstOrDefaultAsync(a => a.StreamGroupNumber == request.StreamGroupNumber, cancellationToken: cancellationToken).ConfigureAwait(false);
-
-
+        var streamGroup = await _context.StreamGroups.FirstOrDefaultAsync(a=>a.StreamGroupNumber== request.StreamGroupNumber).ConfigureAwait(false);
         if (streamGroup == null)
-            return null;
-
-        var ret = _mapper.Map<StreamGroupDto>(streamGroup);
-
-        var existingIds = streamGroup.VideoStreams.Select(a => a.Id).ToList();
-
-        foreach (var channegroup in streamGroup.ChannelGroups)
         {
-            var streams = _context.VideoStreams
-                .Where(a => !existingIds.Contains(a.Id) && a.User_Tvg_group == channegroup.Name)
-                .AsNoTracking()
-                .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider)
-                .ToList();
-            foreach (var stream in streams)
-            {
-                stream.IsReadOnly = true;
-            }
-            ret.VideoStreams.AddRange(streams);
+            return null;
         }
+
+        var url = _httpContextAccessor.GetUrl();
+        var ret = await _context.GetStreamGroupDto(streamGroup.Id, url, cancellationToken).ConfigureAwait(false);
 
         return ret;
     }

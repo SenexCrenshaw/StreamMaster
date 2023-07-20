@@ -2,8 +2,6 @@
 
 using MediatR;
 
-using Microsoft.EntityFrameworkCore;
-
 namespace StreamMasterApplication.StreamGroups.Commands;
 
 public class DeleteStreamGroupRequest : IRequest<int?>
@@ -42,34 +40,10 @@ public class DeleteStreamGroupHandler : IRequestHandler<DeleteStreamGroupRequest
             return null;
         }
 
-        StreamGroup? streamGroup = await _context.StreamGroups
-            .Include(a => a.VideoStreams)
-            .Include(a => a.ChannelGroups)
-            .FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
-
-        if (streamGroup == null)
+        if (await _context.DeleteStreamGroupsync(request.Id, cancellationToken))
         {
-            return null;
-        }
-
-        if (streamGroup.ChannelGroups is not null && streamGroup.ChannelGroups.Any())
-        {
-            streamGroup.ChannelGroups.Clear();
-            _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        }
-
-        if (streamGroup.VideoStreams is not null && streamGroup.VideoStreams.Any())
-        {
-            streamGroup.VideoStreams.Clear();
-            _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        }
-
-        _ = _context.StreamGroups.Remove(streamGroup);
-
-        if (await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false) > 0)
-        {
-            await _publisher.Publish(new StreamGroupDeleteEvent(streamGroup.Id), cancellationToken).ConfigureAwait(false);
-            return streamGroup.Id;
+            await _publisher.Publish(new StreamGroupDeleteEvent(request.Id), cancellationToken).ConfigureAwait(false);
+            return request.Id;
         }
 
         return null;

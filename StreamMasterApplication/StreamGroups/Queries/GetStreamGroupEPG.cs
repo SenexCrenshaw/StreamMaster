@@ -13,18 +13,14 @@ using StreamMasterApplication.Common.Extensions;
 using StreamMasterApplication.Icons.Queries;
 
 using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities.EPG;
 
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Globalization;
 using System.Web;
 using System.Xml.Serialization;
 
 using static StreamMasterDomain.Common.GetStreamGroupEPGHandler;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
@@ -43,9 +39,9 @@ public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
 public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEPG, string>
 {
     private readonly IAppDbContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ISender _sender;
     private readonly object Lock = new();
     private int dummyCount = 0;
@@ -68,12 +64,12 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
         List<VideoStreamDto> videoStreams = new();
         if (command.StreamGroupNumber > 0)
         {
-            StreamGroupDto? sg = await _sender.Send(new GetStreamGroupByStreamNumber(command.StreamGroupNumber), cancellationToken).ConfigureAwait(false);
+            StreamGroupDto? sg = await _context.GetStreamGroupWithRelatedEntitiesByStreamGroupNumberAsync(command.StreamGroupNumber, cancellationToken);
             if (sg == null)
             {
                 return "";
             }
-            videoStreams = sg.VideoStreams.Where(a => !a.IsHidden).ToList();
+            videoStreams = sg.ChildVideoStreams.Where(a => !a.IsHidden).ToList();
         }
         else
         {

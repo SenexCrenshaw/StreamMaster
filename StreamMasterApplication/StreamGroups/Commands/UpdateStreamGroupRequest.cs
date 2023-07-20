@@ -1,25 +1,16 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
 
 using FluentValidation;
 
 using MediatR;
 
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+
+using StreamMasterApplication.Common.Extensions;
 
 using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.StreamGroups.Commands;
-
-public record UpdateStreamGroupRequest(
-    int StreamGroupId,
-    string? Name,
-    int? StreamGroupNumber,
-    List<int>? VideoStreamIds,
-    List<string>? ChannelGroupNames
-    ) : IRequest<StreamGroupDto?>
-{
-}
 
 public class UpdateStreamGroupRequestValidator : AbstractValidator<UpdateStreamGroupRequest>
 {
@@ -31,17 +22,36 @@ public class UpdateStreamGroupRequestValidator : AbstractValidator<UpdateStreamG
     }
 }
 
+public class VideoStreamIsReadOnly
+{
+    public bool IsReadOnly { get; set; }
+    public int VideoStreamId { get; set; }
+}
+
+public record UpdateStreamGroupRequest(
+    int StreamGroupId,
+    string? Name,
+    int? StreamGroupNumber,
+    List<VideoStreamIsReadOnly>? VideoStreams,
+    List<string>? ChannelGroupNames
+    ) : IRequest<StreamGroupDto?>
+{
+}
+
 public class UpdateStreamGroupRequestHandler : IRequestHandler<UpdateStreamGroupRequest, StreamGroupDto?>
 {
     private readonly IAppDbContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly IPublisher _publisher;
 
     public UpdateStreamGroupRequestHandler(
         IMapper mapper,
          IPublisher publisher,
+         IHttpContextAccessor httpContextAccessor,
         IAppDbContext context)
     {
+        _httpContextAccessor = httpContextAccessor;
         _publisher = publisher;
         _mapper = mapper;
         _context = context;
@@ -53,138 +63,13 @@ public class UpdateStreamGroupRequestHandler : IRequestHandler<UpdateStreamGroup
         {
             return null;
         }
-
-        try
+        string url = _httpContextAccessor.GetUrl();
+        var ret = await _context.UpdateStreamGroupAsync(request, url, cancellationToken).ConfigureAwait(false);
+        if (ret is not null)
         {
-            StreamGroup? streamGroup = await _context.StreamGroups
-                .Include(a => a.VideoStreams)
-                .Include(a => a.ChannelGroups)
-                .FirstOrDefaultAsync(a => a.Id == request.StreamGroupId, cancellationToken: cancellationToken).ConfigureAwait(false);
-
-            if (streamGroup == null)
-            {
-                return null;
-            }
-
-            if (!string.IsNullOrEmpty(request.Name))
-            {
-                streamGroup.Name = request.Name;
-            }
-
-            if (request.StreamGroupNumber != null)
-            {
-                if (!await _context.StreamGroups.AnyAsync(a => a.StreamGroupNumber == (int)request.StreamGroupNumber, cancellationToken: cancellationToken).ConfigureAwait(false))
-                {
-                    streamGroup.StreamGroupNumber = (int)request.StreamGroupNumber;
-                }
-            }
-
-            if (request.ChannelGroupNames != null)
-            {
-                if (streamGroup.ChannelGroups == null)
-                {
-                    streamGroup.ChannelGroups = new List<ChannelGroup>();
-                    _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                }
-                else
-                {
-                    if (streamGroup.ChannelGroups.Any())
-                    {
-                        streamGroup.ChannelGroups.Clear();
-                        _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                    }
-                }
-
-                foreach (var channelGroupName in request.ChannelGroupNames)
-                {
-                    var channelGroup = _context.ChannelGroups.FirstOrDefault(a => a.Name == channelGroupName);
-                    if (channelGroup == null)
-                    {
-                        continue;
-                    }
-
-                    streamGroup.ChannelGroups.Add(channelGroup);
-
-                    if (streamGroup.VideoStreams.Any())
-                    {
-                        var toRemove = streamGroup.VideoStreams.Where(a => a.User_Tvg_group == channelGroupName);
-                        if (toRemove.Any()  )
-                        {
-                            streamGroup.VideoStreams.RemoveAll(a => a.User_Tvg_group == channelGroupName);
-                        }
-                     
-                    }
-
-                    if (request.VideoStreamIds != null)
-                    {
-                       var toRemove = _context.VideoStreams
-                            .Where(a => (request.VideoStreamIds.Contains(a.Id) && a.User_Tvg_group == channelGroupName))
-                            .Select(a=>a.Id);
-
-                        if (toRemove.Any())
-                        {
-                            request.VideoStreamIds.RemoveAll(a => toRemove.Contains(a));
-                        }                        
-                    }
-
-                    _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                }
-            
-            }
-
-            if (request.VideoStreamIds != null)
-            {
-                if (streamGroup.VideoStreams == null)
-                {
-                    streamGroup.VideoStreams = new List<VideoStream>();
-                    _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                }
-                else
-                {
-                    if (streamGroup.VideoStreams.Any())
-                    {
-                        streamGroup.VideoStreams.Clear();
-                        _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                    }
-                }
-
-                foreach (var videoStreamId in request.VideoStreamIds)
-                {
-                    var stream = _context.VideoStreams.FirstOrDefault(a => a.Id == videoStreamId);
-                    if (stream == null)
-                    {
-                        continue;
-                    }
-
-                    streamGroup.VideoStreams.Add(stream);
-                }
-            }
-
-            _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-
-            StreamGroupDto ret = _mapper.Map<StreamGroupDto>(streamGroup);
-            var existingIds = streamGroup.VideoStreams.Select(a => a.Id).ToList();
-
-            foreach (var channegroup in streamGroup.ChannelGroups)
-            {
-                var streams = _context.VideoStreams
-                    .Where(a => !existingIds.Contains(a.Id) && a.User_Tvg_group == channegroup.Name)
-                    .AsNoTracking()
-                    .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider)
-                    .ToList();
-                foreach (var stream in streams)
-                {
-                    stream.IsReadOnly = true;
-                }
-                ret.VideoStreams.AddRange(streams);
-            }
             await _publisher.Publish(new StreamGroupUpdateEvent(ret), cancellationToken).ConfigureAwait(false);
-            return ret;
-        }
-        catch (Exception)
-        {
         }
 
-        return null;
+        return ret;
     }
 }

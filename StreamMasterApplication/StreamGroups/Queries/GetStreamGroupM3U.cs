@@ -7,17 +7,14 @@ using MediatR;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterApplication.Common.Extensions;
 using StreamMasterApplication.Icons.Queries;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
-using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 
-using System;
 using System.Collections.Concurrent;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
@@ -36,11 +33,11 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
 
 public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, string>
 {
-    private readonly Setting _setting;
     private readonly IAppDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly ISender _sender;
+    private readonly Setting _setting;
 
     public GetStreamGroupM3UHandler(
         IMapper mapper,
@@ -62,12 +59,12 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
         List<VideoStreamDto> videoStreams = new();
         if (command.StreamGroupNumber > 0)
         {
-            StreamGroupDto? sg = await _sender.Send(new GetStreamGroupByStreamNumber(command.StreamGroupNumber), cancellationToken).ConfigureAwait(false);
+            StreamGroupDto? sg = await _context.GetStreamGroupWithRelatedEntitiesByStreamGroupNumberAsync(command.StreamGroupNumber, cancellationToken);
             if (sg == null)
             {
                 return "";
             }
-            videoStreams = sg.VideoStreams.Where(a => !a.IsHidden).ToList();
+            videoStreams = sg.ChildVideoStreams.Where(a => !a.IsHidden).ToList();
         }
         else
         {
@@ -172,9 +169,9 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
             }
             var lines = string.Join(" ", fieldList.ToArray());
 
-            lines +=$",{videoStream.User_Tvg_name}\r\n";
+            lines += $",{videoStream.User_Tvg_name}\r\n";
             lines += $"{videoUrl}\r\n";
-            
+
             _ = retlist.TryAdd(videoStream.User_Tvg_chno, lines);
         });
 

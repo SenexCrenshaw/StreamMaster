@@ -10,7 +10,8 @@ using StreamMasterApplication.Common.Extensions;
 
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Entities;
+
+using System.Linq.Expressions;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
@@ -18,10 +19,10 @@ public record GetStreamGroups() : IRequest<IEnumerable<StreamGroupDto>>;
 
 internal class GetStreamGroupsHandler : IRequestHandler<GetStreamGroups, IEnumerable<StreamGroupDto>>
 {
+    protected Setting _setting = FileUtil.GetSetting();
     private readonly IAppDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
-    protected Setting _setting = FileUtil.GetSetting();
 
     public GetStreamGroupsHandler(
         IMapper mapper,
@@ -35,39 +36,10 @@ internal class GetStreamGroupsHandler : IRequestHandler<GetStreamGroups, IEnumer
 
     public async Task<IEnumerable<StreamGroupDto>> Handle(GetStreamGroups request, CancellationToken cancellationToken = default)
     {
-        var ret = await _context.StreamGroups
-           .Include(a => a.VideoStreams)
-           .Include(a => a.ChannelGroups)
-           .AsNoTracking()
-           .ProjectTo<StreamGroupDto>(_mapper.ConfigurationProvider)
-           .OrderBy(x => x.Name)
-           .ToListAsync(cancellationToken).ConfigureAwait(false);
-
+        
         var url = _httpContextAccessor.GetUrl();
-
-        foreach (var streamGroup in ret)
-        {
-            var existingIds = streamGroup.VideoStreams.Select(a => a.Id).ToList();
-
-            foreach (var channegroup in streamGroup.ChannelGroups)
-            {
-                var streams = _context.VideoStreams
-                    .Where(a => !existingIds.Contains(a.Id) && a.User_Tvg_group == channegroup.Name)
-                    .AsNoTracking()
-                    .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider)
-                    .ToList();
-                foreach (var stream in streams)
-                {
-                    stream.IsReadOnly = true;
-                }
-                streamGroup.VideoStreams.AddRange(streams);
-            }
-            var encodedStreamGroupNumber = streamGroup.StreamGroupNumber.EncodeValue128(_setting.ServerKey);
-            streamGroup.M3ULink = $"{url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
-            streamGroup.XMLLink = $"{url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
-            streamGroup.HDHRLink = $"{url}/api/streamgroups/{encodedStreamGroupNumber}";
-        }
-
+        var ret = await _context.GetStreamGroupDtos(url,cancellationToken).ConfigureAwait(false);
+     
         var encodedZero = 0.EncodeValue128(_setting.ServerKey);
         var zeroGroup = new StreamGroupDto
         {

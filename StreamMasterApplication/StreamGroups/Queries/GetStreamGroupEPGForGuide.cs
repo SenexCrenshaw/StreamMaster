@@ -17,7 +17,6 @@ using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities.EPG;
 
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Web;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
@@ -46,9 +45,9 @@ public class GetStreamGroupEPGForGuideValidator : AbstractValidator<GetStreamGro
 public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStreamGroupEPGForGuide, EPGGuide>
 {
     private readonly IAppDbContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ISender _sender;
     private readonly object Lock = new();
     private int dummyCount = 0;
@@ -73,7 +72,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
         List<VideoStreamDto> videoStreams = new();
         if (command.StreamGroupNumber > 0)
         {
-            StreamGroupDto? sg = await _sender.Send(new GetStreamGroupByStreamNumber(command.StreamGroupNumber), cancellationToken).ConfigureAwait(false);
+            StreamGroupDto? sg = await _context.GetStreamGroupWithRelatedEntitiesByStreamGroupNumberAsync(command.StreamGroupNumber, cancellationToken);
             if (sg == null)
             {
                 return new()
@@ -82,7 +81,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
                     Programs = new()
                 };
             }
-            videoStreams = sg.VideoStreams.Where(a => !a.IsHidden).ToList();
+            videoStreams = sg.ChildVideoStreams.Where(a => !a.IsHidden).ToList();
         }
         else
         {
@@ -139,7 +138,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
                 }
 
                 IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
-                string Logo = icon != null ? url+icon.Source : url+"/" + setting.DefaultIcon;
+                string Logo = icon != null ? url + icon.Source : url + "/" + setting.DefaultIcon;
 
                 EPGChannel t;
                 int dummy = 0;

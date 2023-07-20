@@ -568,8 +568,7 @@ const injectedRtkApi = api
         StreamGroupsGetStreamGroupApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/streamgroups/getstreamgroup/${queryArg.id}`,
-          params: { StreamGroupNumber: queryArg.streamGroupNumber },
+          url: `/api/streamgroups/getstreamgroup/${queryArg}`,
         }),
         providesTags: ["StreamGroups"],
       }),
@@ -1013,10 +1012,7 @@ export type StreamGroupsGetAllStatisticsForAllUrlsApiResponse =
 export type StreamGroupsGetAllStatisticsForAllUrlsApiArg = void;
 export type StreamGroupsGetStreamGroupApiResponse =
   /** status 200  */ StreamGroupDto;
-export type StreamGroupsGetStreamGroupApiArg = {
-  streamGroupNumber?: number;
-  id: string;
-};
+export type StreamGroupsGetStreamGroupApiArg = number;
 export type StreamGroupsGetStreamGroupByStreamNumberApiResponse =
   /** status 200  */ StreamGroupDto;
 export type StreamGroupsGetStreamGroupByStreamNumberApiArg = number;
@@ -1631,18 +1627,22 @@ export type VideoStreamDto = BaseVideoStreamDto & {
 };
 export type StreamGroupDto = {
   channelGroups: ChannelGroupDto[];
+  childVideoStreams: VideoStreamDto[];
   hdhrLink: string;
   id: number;
   m3ULink: string;
   name: string;
   streamGroupNumber: number;
-  videoStreams: VideoStreamDto[];
   xmlLink: string;
+};
+export type VideoStreamIsReadOnly = {
+  isReadOnly?: boolean;
+  videoStreamId?: number;
 };
 export type AddStreamGroupRequest = {
   name: string;
   streamGroupNumber: number;
-  videoStreamIds: number[] | null;
+  videoStreams: VideoStreamIsReadOnly[] | null;
   channelGroupNames: string[] | null;
 };
 export type DeleteStreamGroupRequest = {
@@ -1698,7 +1698,7 @@ export type UpdateStreamGroupRequest = {
   streamGroupId?: number;
   name?: string | null;
   streamGroupNumber?: number | null;
-  videoStreamIds?: number[] | null;
+  videoStreams?: VideoStreamIsReadOnly[] | null;
   channelGroupNames?: string[] | null;
 };
 export type AddVideoStreamRequest = {
@@ -1744,11 +1744,9 @@ export type VideoStreamUpdate = VideoStreamBaseUpdate & {
   isUserCreated?: boolean | null;
   streamProxyType?: StreamingProxyTypes | null;
 };
-export type UpdateVideoStreamRequest = VideoStreamUpdate & {
-  baseHostUrl?: string;
-};
+export type UpdateVideoStreamRequest = VideoStreamUpdate & object;
 export type UpdateVideoStreamsRequest = {
-  videoStreamUpdates?: VideoStreamUpdate[];
+  videoStreamUpdates?: UpdateVideoStreamRequest[];
 };
 export const {
   useChannelGroupsAddChannelGroupMutation,
