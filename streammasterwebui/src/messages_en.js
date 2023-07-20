@@ -12,6 +12,7 @@ export default {
   clientUserAgent: "Client User Agent",
   development: 'Development',
   deviceID: 'HDHR Device ID',
+  dummyRegex:"Dummy Regex",
   enableSSL: 'Enable SSL',
   ffmPegExecutable:'FFMPeg Executable',
   filesEPGM3U: 'Files / EPG / M3U',

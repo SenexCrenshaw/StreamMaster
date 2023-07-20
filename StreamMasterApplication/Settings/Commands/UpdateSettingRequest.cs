@@ -25,6 +25,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public bool? CleanURLs { get; set; }
     public string? ClientUserAgent { get; set; }
     public string? DeviceID { get; set; }
+    public string? DummyRegex { get; set; }
     public bool? EnableSSL { get; set; }
     public string? FFMPegExecutable { get; set; }
     public long? FirstFreeNumber { get; set; }
@@ -48,7 +49,6 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? SSLCertPath { get; set; }
     public string? StreamingClientUserAgent { get; set; }
     public StreamingProxyTypes? StreamingProxyType { get; set; }
-    public bool? UseDummyEPGForBlanks { get; set; }
 }
 
 public class UpdateSettingValidator : AbstractValidator<UpdateSettingRequest>
@@ -117,10 +117,6 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
             currentSetting.M3UFieldChannelId = (bool)request.M3UFieldChannelId;
         }
 
-        if (request.UseDummyEPGForBlanks != null)
-        {
-            currentSetting.UseDummyEPGForBlanks = (bool)request.UseDummyEPGForBlanks;
-        }
 
         if (request.M3UFieldChannelNumber != null)
         {
@@ -130,6 +126,11 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
         if (request.M3UFieldTvgName != null)
         {
             currentSetting.M3UFieldTvgName = (bool)request.M3UFieldTvgName;
+        }
+
+        if (request.DummyRegex != null)
+        {
+            currentSetting.DummyRegex = request.DummyRegex;
         }
 
         if (request.M3UFieldTvgChno != null)

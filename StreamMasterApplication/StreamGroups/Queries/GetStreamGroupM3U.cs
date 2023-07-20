@@ -7,17 +7,14 @@ using MediatR;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterApplication.Common.Extensions;
 using StreamMasterApplication.Icons.Queries;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
-using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 
-using System;
 using System.Collections.Concurrent;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
@@ -36,11 +33,11 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
 
 public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, string>
 {
-    private readonly Setting _setting;
     private readonly IAppDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly ISender _sender;
+    private readonly Setting _setting;
 
     public GetStreamGroupM3UHandler(
         IMapper mapper,
@@ -149,17 +146,14 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
             if (_setting.M3UFieldTvgId)
             {
-                if (videoStream.User_Tvg_ID.ToLower() == "dummy")
-                {
-                    if (_setting.UseDummyEPGForBlanks)
-                    {
-                        fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
-                    }
-                }
-                else
-                {
-                    fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
-                }
+                //if (videoStream.User_Tvg_ID.ToLower() == "dummy")
+                //{
+                //    fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
+                //}
+                //else
+                //{
+                fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
+                //}
             }
 
             if (_setting.M3UFieldTvgLogo)
@@ -172,9 +166,9 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
             }
             var lines = string.Join(" ", fieldList.ToArray());
 
-            lines +=$",{videoStream.User_Tvg_name}\r\n";
+            lines += $",{videoStream.User_Tvg_name}\r\n";
             lines += $"{videoUrl}\r\n";
-            
+
             _ = retlist.TryAdd(videoStream.User_Tvg_chno, lines);
         });
 

@@ -11,6 +11,7 @@ const help_en = {
   clientUserAgent: "Client User Agent used for downloads, epg/m3u/icons/schedules direct",
   development: 'Development',
   deviceID: 'HDHR Device ID and capability ID',
+  dummyRegex:"EPG will be set to dummy if this matches the channel EPG",
   ffmPegExecutable:'FFMPeg Executable. The name "ffmpeg(.exe)" will be search in the OS path as well',
   filesEPG: 'Files / EPG',
   general: 'General',

@@ -10,21 +10,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterApplication.Common.Extensions;
-using StreamMasterApplication.Icons.Queries;
 
 using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities.EPG;
 
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml.Serialization;
 
 using static StreamMasterDomain.Common.GetStreamGroupEPGHandler;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
@@ -42,10 +38,11 @@ public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
 
 public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEPG, string>
 {
+    protected Setting _setting = FileUtil.GetSetting();
     private readonly IAppDbContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ISender _sender;
     private readonly object Lock = new();
     private int dummyCount = 0;
@@ -111,7 +108,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
             List<IconFile> progIcons = _context.Icons.Where(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.FileExists).ToList();
 
-            var icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
+            var icons = await _context.GetIcons(cancellationToken).ConfigureAwait(false);// _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
 
             _ = Parallel.ForEach(videoStreams, po, videoStream =>
             {
@@ -126,21 +123,13 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                 TvChannel t;
 
                 int dummy = 0;
-                if (
-                    setting.UseDummyEPGForBlanks &&
-                    (
-                    string.IsNullOrEmpty(videoStream.User_Tvg_ID) ||
 
-                    !programmes.Any(a => a.Channel.ToLower() == videoStream.User_Tvg_ID.ToLower() || a.Channel.ToLower() == videoStream.User_Tvg_ID_DisplayName.ToLower()
-
-                    )
-                    )
-                )
+                if (IsVideoStreamADummy(videoStream) || IsNotInProgrammes(programmes, videoStream))
                 {
                     videoStream.User_Tvg_ID = "dummy";
                 }
 
-                if (setting.UseDummyEPGForBlanks && videoStream.User_Tvg_ID.ToLower() == "dummy")
+                if (videoStream.User_Tvg_ID.ToLower() == "dummy")
                 {
                     dummy = GetDummy();
 
@@ -172,7 +161,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
                 if (videoStream.User_Tvg_ID != null)
                 {
-                    if (setting.UseDummyEPGForBlanks && videoStream.User_Tvg_ID.ToLower() == "dummy")
+                    if (videoStream.User_Tvg_ID.ToLower() == "dummy")
                     {
                         var prog = new Programme();
 
@@ -231,7 +220,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
                                     p.Channel = videoStream.User_Tvg_name;
 
-                                    if (setting.UseDummyEPGForBlanks && videoStream.User_Tvg_ID.ToLower() == "dummy")
+                                    if (videoStream.User_Tvg_ID.ToLower() == "dummy")
                                     {
                                         p.Channel = videoStream.User_Tvg_name;
 
@@ -267,7 +256,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                                         p.Previouslyshown = null;
                                     }
 
-                                    if (!setting.UseDummyEPGForBlanks && videoStream.User_Tvg_ID.ToLower() == "dummy")
+                                    if (videoStream.User_Tvg_ID.ToLower() == "dummy")
                                     {
                                         continue;
                                     }
@@ -303,5 +292,32 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
             ++dummyCount;
             return dummyCount;
         }
+    }
+
+    private bool IsNotInProgrammes(IEnumerable<Programme> programmes, VideoStreamDto videoStream)
+    {
+        string userTvgId = videoStream.User_Tvg_ID.ToLower();
+        string userTvgIdDisplayName = videoStream.User_Tvg_ID_DisplayName.ToLower();
+
+        return !programmes.Any(p =>
+            string.Equals(p.Channel, userTvgId, StringComparison.InvariantCultureIgnoreCase) ||
+            string.Equals(p.Channel, userTvgIdDisplayName, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private bool IsVideoStreamADummy(VideoStreamDto videoStream)
+    {
+        if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
+        {
+            return true;
+        }
+
+        if (!string.IsNullOrEmpty(_setting.DummyRegex))
+        {
+            Regex regex = new(_setting.DummyRegex, RegexOptions.ECMAScript | RegexOptions.IgnoreCase);
+            var test = regex.IsMatch(videoStream.User_Tvg_ID);
+            return test;
+        }
+
+        return false;
     }
 }

@@ -1518,6 +1518,7 @@ export type Setting = {
   databaseName?: string;
   defaultIcon?: string;
   deviceID?: string;
+  dummyRegex?: string;
   enableSSL?: boolean;
   ffmPegExecutable?: string;
   firstFreeNumber?: number;
@@ -1571,6 +1572,7 @@ export type UpdateSettingRequest = {
   cleanURLs?: boolean | null;
   clientUserAgent?: string | null;
   deviceID?: string | null;
+  dummyRegex?: string | null;
   enableSSL?: boolean | null;
   ffmPegExecutable?: string | null;
   firstFreeNumber?: number | null;
