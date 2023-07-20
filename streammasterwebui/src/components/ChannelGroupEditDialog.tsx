@@ -48,9 +48,9 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
     }
 
     Hub.UpdateChannelGroup(tosend).then(() => {
-      setInfoMessage('Channel Group Renamed Successfully');
+      setInfoMessage('Channel Group Edit Successfully');
     }).catch((e) => {
-      setInfoMessage('Channel Group Rename Error: ' + e.message);
+      setInfoMessage('Channel Group Edit Error: ' + e.message);
     });
 
   }

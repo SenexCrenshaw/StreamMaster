@@ -180,6 +180,18 @@ public partial class AppDbContext : IVideoStreamDB
         return (videoStream.VideoStreamHandler, childVideoStreamDtos);
     }
 
+    public async Task<List<StreamGroupDto>> GetStreamGroupsByVideoStreamIdsAsync(List<int> videoStreamIds,string url, CancellationToken cancellationToken)
+    {
+        var sgs = await GetStreamGroupDtos(url,cancellationToken);
+
+        var matchingStreamGroups = sgs
+            .Where(sg => sg.ChildVideoStreams.Any(sgvs => videoStreamIds.Contains(sgvs.Id)))
+            .ToList();
+
+        return matchingStreamGroups;
+    }
+
+
     public async Task<VideoStreamDto> GetVideoStreamDtoWithChildrenAsync(int videoStreamId, CancellationToken cancellationToken)
     {
         var stream = await GetVideoStreamWithChildrenAsync(videoStreamId, cancellationToken).ConfigureAwait(false);

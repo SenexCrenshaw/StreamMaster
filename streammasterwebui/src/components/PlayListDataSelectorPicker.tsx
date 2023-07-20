@@ -88,7 +88,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     });
 
     if (props.isAdditionalChannels === true) {
-      setTargetVideoStreams((updatedStreams as StreamMasterApi.ChildVideoStreamDto[]).sort((a, b) => a.rank - b.rank));
+      setTargetVideoStreams((updatedStreams as StreamMasterApi.ChildVideoStreamDto[]).filter((m3u) => props.showHidden === true || m3u.isHidden !== true).sort((a, b) => a.rank - b.rank));
     } else {
 
       setTargetVideoStreams(

@@ -40,8 +40,9 @@ public interface IStreamGroupController
 
 public interface IStreamGroupDB
 {
+    Task<List<StreamGroupDto>> GetStreamGroupsByVideoStreamIdsAsync(List<int> videoStreamIds, string url, CancellationToken cancellationToken);
     DbSet<StreamGroup> StreamGroups { get; set; }
-
+    Task<List<VideoStream>> GetVideoStreamsByNamePatternAsync(string pattern, CancellationToken cancellationToken);
     Task<bool> AddChannelGroupToStreamGroupAsync(int streamGroupId, int channelGroupId, CancellationToken cancellationToken);
 
     Task AddOrUpdatVideoStreamToStreamGroupAsync(int streamgroupId, int childId, bool isReadOnly, CancellationToken cancellationToken);
