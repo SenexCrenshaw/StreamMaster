@@ -38,17 +38,13 @@ public interface IVideoStreamDB
 
     Task<List<VideoStream>> GetAllVideoStreamsWithChildrenAsync();
 
-    Task<List<VideoStream>> GetChildVideoStreamsAsync(int parentId);
-
     public M3UFileIdMaxStream? GetM3UFileIdMaxStreamFromUrl(string Url);
 
     Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(int videoStreamId, CancellationToken cancellationToken = default);
 
-    //Task<VideoStreamDto?> GetVideoStream(int videoStreamId, CancellationToken cancellationToken = default);
+    Task<VideoStreamDto> GetVideoStreamDto(int videoStreamId, CancellationToken cancellationToken);
 
-    Task<VideoStreamDto> GetVideoStreamDtoWithChildrenAsync(int videoStreamId, CancellationToken cancellationToken);
-
-    Task<VideoStream> GetVideoStreamWithChildrenAsync(int videoStreamId, CancellationToken cancellationToken);
+    Task<List<VideoStream>> GetVideoStreamsForParentAsync(int parentVideoId, CancellationToken cancellationToken);
 
     Task<bool> SynchronizeChildRelationships(VideoStream videoStream, List<ChildVideoStreamDto> videoStreamDtos, CancellationToken cancellationToken);
 

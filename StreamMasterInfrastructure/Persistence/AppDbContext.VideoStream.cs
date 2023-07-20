@@ -93,6 +93,7 @@ public partial class AppDbContext
 public partial class AppDbContext : IVideoStreamDB
 {
     public DbSet<VideoStreamLink> VideoStreamLinks { get; set; }
+
     public DbSet<VideoStream> VideoStreams { get; set; }
 
     public async Task<List<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken)
@@ -142,6 +143,17 @@ public partial class AppDbContext : IVideoStreamDB
         return new M3UFileIdMaxStream { M3UFileId = videoStream.M3UFileId, MaxStreams = m3uFile.MaxStreamCount };
     }
 
+    public async Task<List<StreamGroupDto>> GetStreamGroupsByVideoStreamIdsAsync(List<int> videoStreamIds, string url, CancellationToken cancellationToken)
+    {
+        var sgs = await GetStreamGroupDtos(url, cancellationToken);
+
+        var matchingStreamGroups = sgs
+            .Where(sg => sg.ChildVideoStreams.Any(sgvs => videoStreamIds.Contains(sgvs.Id)))
+            .ToList();
+
+        return matchingStreamGroups;
+    }
+
     public async Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(int videoStreamId, CancellationToken cancellationToken = default)
     {
         var videoStream = await GetVideoStreamWithChildrenAsync(videoStreamId, cancellationToken).ConfigureAwait(false);
@@ -180,25 +192,21 @@ public partial class AppDbContext : IVideoStreamDB
         return (videoStream.VideoStreamHandler, childVideoStreamDtos);
     }
 
-    public async Task<List<StreamGroupDto>> GetStreamGroupsByVideoStreamIdsAsync(List<int> videoStreamIds,string url, CancellationToken cancellationToken)
-    {
-        var sgs = await GetStreamGroupDtos(url,cancellationToken);
-
-        var matchingStreamGroups = sgs
-            .Where(sg => sg.ChildVideoStreams.Any(sgvs => videoStreamIds.Contains(sgvs.Id)))
-            .ToList();
-
-        return matchingStreamGroups;
-    }
-
-
-    public async Task<VideoStreamDto> GetVideoStreamDtoWithChildrenAsync(int videoStreamId, CancellationToken cancellationToken)
+    public async Task<VideoStreamDto> GetVideoStreamDto(int videoStreamId, CancellationToken cancellationToken)
     {
         var stream = await GetVideoStreamWithChildrenAsync(videoStreamId, cancellationToken).ConfigureAwait(false);
 
         VideoStreamDto videoStreamDto = _mapper.Map<VideoStreamDto>(stream);
 
         return videoStreamDto;
+    }
+
+    public async Task<List<VideoStream>> GetVideoStreamsForParentAsync(int parentVideoId, CancellationToken cancellationToken)
+    {
+        return await VideoStreamLinks
+            .Where(vsl => vsl.ParentVideoStreamId == parentVideoId)
+            .Select(vsl => vsl.ChildVideoStream)
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public async Task RemoveNonExistingVideoStreamLinksAsync(List<ChildVideoStreamDto> existingVideoStreamLinks, CancellationToken cancellationToken)
@@ -236,7 +244,7 @@ public partial class AppDbContext : IVideoStreamDB
 
     public async Task<VideoStreamDto?> UpdateVideoStreamAsync(UpdateVideoStreamRequest request, CancellationToken cancellationToken)
     {
-        VideoStream? videoStream = await GetVideoStreamWithChildrenAsync(request.Id, cancellationToken).ConfigureAwait(false);
+        var videoStream = await GetVideoStreamWithChildrenAsync(request.Id, cancellationToken).ConfigureAwait(false);
 
         if (videoStream == null)
         {
@@ -275,11 +283,35 @@ public partial class AppDbContext : IVideoStreamDB
         }
 
         _ = await SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        var ret = _mapper.Map<VideoStreamDto>(videoStream);
 
-        VideoStreamDto ret = _mapper.Map<VideoStreamDto>(videoStream);
+        if (videoStream.ChildVideoStreams.Any())
+        {
+            var ids = videoStream.ChildVideoStreams.Select(a => a.ChildVideoStreamId).ToList();
+            var streams = VideoStreams.Where(a => ids.Contains(a.Id)).ToList();
+            var dtoStreams = _mapper.Map<List<ChildVideoStreamDto>>(streams);
+
+            foreach (var stream in videoStream.ChildVideoStreams)
+            {
+                var toUpdate = dtoStreams.SingleOrDefault(a => a.Id == stream.ChildVideoStreamId);
+
+                if (toUpdate == null)
+                {
+                    var goodCV = videoStream.ChildVideoStreams.SingleOrDefault(a => a.ChildVideoStreamId == stream.ChildVideoStreamId);
+                    toUpdate = _mapper.Map<ChildVideoStreamDto>(goodCV);
+                    dtoStreams.Add(toUpdate);
+                }
+
+                toUpdate.Rank = stream.Rank;
+            }
+
+            ret.ChildVideoStreams = dtoStreams;
+        }
+
 
         IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
         string Logo = icon != null ? icon.Source : "/" + setting.DefaultIcon;
+
         ret.User_Tvg_logo = Logo;
 
         return ret;

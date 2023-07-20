@@ -18,7 +18,7 @@ public class ChildVideoStreamDto : BaseVideoStreamDto, IMapFrom<VideoStream>, IM
 }
 
 [RequireAll]
-public class VideoStreamDto : BaseVideoStreamDto, IMapFrom<VideoStream>, IMapFrom<ChildVideoStreamDto>
+public class VideoStreamDto : BaseVideoStreamDto, IMapFrom<VideoStream>
 {
     [Ignore]
     public List<ChildVideoStreamDto> ChildVideoStreams { get; set; }

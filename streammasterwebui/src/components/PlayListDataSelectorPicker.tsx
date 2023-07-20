@@ -537,7 +537,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
         targetName='Selected'
         targetReorderable={props.isAdditionalChannels}
         targetRightColSize={3}
-        targetSortField={props.isAdditionalChannels === true ? '' : 'user_Tvg_chno'}
+        targetSortField={props.isAdditionalChannels === true ? 'rank' : 'user_Tvg_chno'}
       />
     </>
   );

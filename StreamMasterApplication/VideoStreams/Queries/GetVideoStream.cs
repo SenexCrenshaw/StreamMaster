@@ -20,6 +20,6 @@ internal class GetVideoStreamHandler : IRequestHandler<GetVideoStream, VideoStre
 
     public async Task<VideoStreamDto?> Handle(GetVideoStream request, CancellationToken cancellationToken)
     {
-        return await _context.GetVideoStreamDtoWithChildrenAsync(request.Id, cancellationToken).ConfigureAwait(false);
+        return await _context.GetVideoStreamDto(request.Id, cancellationToken).ConfigureAwait(false);
     }
 }
