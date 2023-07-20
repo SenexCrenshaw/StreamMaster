@@ -7,7 +7,7 @@ namespace StreamMasterApplication.Common.Models
         public Discover()
         { }
 
-        public Discover(SettingDto setting, string urlBase, int deviceID,int tunerCount)
+        public Discover(SettingDto setting, string urlBase, int deviceID, int tunerCount)
         {
             BaseURL = urlBase;
             DeviceAuth = setting.AppName;

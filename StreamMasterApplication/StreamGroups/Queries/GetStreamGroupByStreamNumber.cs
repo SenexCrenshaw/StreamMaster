@@ -1,12 +1,8 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-
-using FluentValidation;
+﻿using FluentValidation;
 
 using MediatR;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.Common.Extensions;
 
@@ -28,28 +24,22 @@ public class GetStreamGroupByStreamNumberValidator : AbstractValidator<GetStream
 internal class GetStreamGroupByStreamNumberHandler : IRequestHandler<GetStreamGroupByStreamNumber, StreamGroupDto?>
 {
     private readonly IAppDbContext _context;
-    private readonly IMapper _mapper;
     private readonly IHttpContextAccessor _httpContextAccessor;
+
     public GetStreamGroupByStreamNumberHandler(
-         IMapper mapper, IHttpContextAccessor httpContextAccessor,
-        IAppDbContext context)
+        IHttpContextAccessor httpContextAccessor,
+        IAppDbContext context
+    )
     {
         _httpContextAccessor = httpContextAccessor;
-        _mapper = mapper;
         _context = context;
     }
 
     public async Task<StreamGroupDto?> Handle(GetStreamGroupByStreamNumber request, CancellationToken cancellationToken = default)
     {
-        var streamGroup = await _context.StreamGroups.FirstOrDefaultAsync(a=>a.StreamGroupNumber== request.StreamGroupNumber).ConfigureAwait(false);
-        if (streamGroup == null)
-        {
-            return null;
-        }
-
         var url = _httpContextAccessor.GetUrl();
-        var ret = await _context.GetStreamGroupDto(streamGroup.Id, url, cancellationToken).ConfigureAwait(false);
+        var streamGroup = await _context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
 
-        return ret;
+        return streamGroup;
     }
 }

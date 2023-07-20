@@ -37,22 +37,19 @@ public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp,
     private readonly IAppDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
-    private readonly ISender _sender;
 
     public GetStreamGroupLineUpHandler(
         IAppDbContext context,
         IMapper mapper,
-        IHttpContextAccessor httpContextAccessor,
-        ISender sender
+        IHttpContextAccessor httpContextAccessor
         )
     {
         _httpContextAccessor = httpContextAccessor;
         _mapper = mapper;
         _context = context;
-        _sender = sender;
     }
 
-    public async Task<string> Handle(GetStreamGroupLineUp command, CancellationToken cancellationToken)
+    public async Task<string> Handle(GetStreamGroupLineUp request, CancellationToken cancellationToken)
     {
         var requestPath = _httpContextAccessor.HttpContext.Request.Path.Value.ToString();
         var iv = requestPath.GetIVFromPath(128);
@@ -61,17 +58,18 @@ public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp,
             return "";
         }
 
+        string url = _httpContextAccessor.GetUrl();
         List<LineUp> ret = new();
 
         List<VideoStreamDto> videoStreams = new();
-        if (command.StreamGroupNumber > 0)
+        if (request.StreamGroupNumber > 0)
         {
-            StreamGroupDto? sg = await _context.GetStreamGroupWithRelatedEntitiesByStreamGroupNumberAsync(command.StreamGroupNumber, cancellationToken);
-            if (sg == null)
+            var streamGroup = await _context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            if (streamGroup == null)
             {
                 return "";
             }
-            videoStreams = sg.ChildVideoStreams.Where(a => !a.IsHidden).ToList();
+            videoStreams = streamGroup.ChildVideoStreams.Where(a => !a.IsHidden).ToList();
         }
         else
         {
@@ -91,9 +89,7 @@ public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp,
         {
             string videoUrl = videoStream.Url;
 
-            string url = _httpContextAccessor.GetUrl();
-
-            var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _setting.ServerKey, iv);
+            var encodedNumbers = request.StreamGroupNumber.EncodeValues128(videoStream.Id, _setting.ServerKey, iv);
 
             videoUrl = $"{url}/api/streamgroups/stream/{encodedNumbers}/{videoStream.User_Tvg_name.Replace(" ", "_")}";
 

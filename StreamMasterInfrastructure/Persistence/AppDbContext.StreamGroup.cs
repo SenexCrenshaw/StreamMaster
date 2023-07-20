@@ -117,6 +117,16 @@ public partial class AppDbContext : IStreamGroupDB
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<StreamGroupDto?> GetStreamGroupDtoByStreamGroupNumber(int streamGroupNumber, string Url, CancellationToken cancellationToken = default)
+    {
+        var sg = await StreamGroups.FirstOrDefaultAsync(a=>a.StreamGroupNumber == streamGroupNumber, cancellationToken).ConfigureAwait(false);
+        if (sg is not null)
+        {
+            return await GetStreamGroupDto(sg?.Id ?? 0, Url, cancellationToken).ConfigureAwait(false);
+        }
+        return null;
+    }
+    
     public async Task<StreamGroupDto?> GetStreamGroupDto(int streamGroupId, string Url, CancellationToken cancellationToken = default)
     {
         if (streamGroupId == 0) return new StreamGroupDto { Id = 0, Name = "All" };

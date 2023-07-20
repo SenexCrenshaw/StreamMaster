@@ -57,9 +57,11 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
     public async Task<string> Handle(GetStreamGroupM3U command, CancellationToken cancellationToken)
     {
         List<VideoStreamDto> videoStreams = new();
+        string url = _httpContextAccessor.GetUrl();
+
         if (command.StreamGroupNumber > 0)
         {
-            StreamGroupDto? sg = await _context.GetStreamGroupWithRelatedEntitiesByStreamGroupNumberAsync(command.StreamGroupNumber, cancellationToken);
+            StreamGroupDto? sg = await _context.GetStreamGroupDtoByStreamGroupNumber(command.StreamGroupNumber,url,cancellationToken).ConfigureAwait(false);
             if (sg == null)
             {
                 return "";
@@ -114,7 +116,7 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
             string videoUrl = videoStream.Url;
 
-            string url = _httpContextAccessor.GetUrl();
+       
 
             var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _setting.ServerKey, iv);
 

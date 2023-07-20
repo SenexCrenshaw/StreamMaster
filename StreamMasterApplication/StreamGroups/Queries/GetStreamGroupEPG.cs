@@ -59,17 +59,18 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
         _sender = sender;
     }
 
-    public async Task<string> Handle(GetStreamGroupEPG command, CancellationToken cancellationToken)
+    public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
         List<VideoStreamDto> videoStreams = new();
-        if (command.StreamGroupNumber > 0)
+        string url = _httpContextAccessor.GetUrl();
+        if (request.StreamGroupNumber > 0)
         {
-            StreamGroupDto? sg = await _context.GetStreamGroupWithRelatedEntitiesByStreamGroupNumberAsync(command.StreamGroupNumber, cancellationToken);
-            if (sg == null)
+            var streamGroup = await _context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            if (streamGroup == null)
             {
                 return "";
             }
-            videoStreams = sg.ChildVideoStreams.Where(a => !a.IsHidden).ToList();
+            videoStreams = streamGroup.ChildVideoStreams.Where(a => !a.IsHidden).ToList();
         }
         else
         {
@@ -90,8 +91,6 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
         if (videoStreams.Any())
         {
-            string url = _httpContextAccessor.GetUrl();
-
             List<string> epgids = videoStreams.Where(a => !a.IsHidden).SelectMany(r => new string[] { r.User_Tvg_ID.ToLower(), r.User_Tvg_ID_DisplayName.ToLower() }).Distinct().ToList();
 
             List<Programme> programmes = _memoryCache.Programmes()

@@ -65,15 +65,15 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
         _sender = sender;
     }
 
-    public async Task<EPGGuide> Handle(GetStreamGroupEPGForGuide command, CancellationToken cancellationToken)
+    public async Task<EPGGuide> Handle(GetStreamGroupEPGForGuide request, CancellationToken cancellationToken)
     {
         //Stopwatch sw = Stopwatch.StartNew();
-
+        string url = _httpContextAccessor.GetUrl();
         List<VideoStreamDto> videoStreams = new();
-        if (command.StreamGroupNumber > 0)
+        if (request.StreamGroupNumber > 0)
         {
-            StreamGroupDto? sg = await _context.GetStreamGroupWithRelatedEntitiesByStreamGroupNumberAsync(command.StreamGroupNumber, cancellationToken);
-            if (sg == null)
+            var streamGroup = await _context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            if (streamGroup == null)
             {
                 return new()
                 {
@@ -81,7 +81,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
                     Programs = new()
                 };
             }
-            videoStreams = sg.ChildVideoStreams.Where(a => !a.IsHidden).ToList();
+            videoStreams = streamGroup.ChildVideoStreams.Where(a => !a.IsHidden).ToList();
         }
         else
         {
@@ -104,8 +104,6 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
 
         if (videoStreams.Any())
         {
-            string url = _httpContextAccessor.GetUrl();
-
             List<string> epgids = videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID.ToLower()).Distinct().ToList();
 
             List<Programme> programmes = _memoryCache.Programmes().Where(a => a.Channel != null && epgids.Contains(a.Channel.ToLower())).ToList();
