@@ -147,17 +147,14 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
             if (_setting.M3UFieldTvgId)
             {
-                if (videoStream.User_Tvg_ID.ToLower() == "dummy")
-                {
-                    if (_setting.UseDummyEPGForBlanks)
-                    {
-                        fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
-                    }
-                }
-                else
-                {
-                    fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
-                }
+                //if (videoStream.User_Tvg_ID.ToLower() == "dummy")
+                //{
+                //    fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
+                //}
+                //else
+                //{
+                fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
+                //}
             }
 
             if (_setting.M3UFieldTvgLogo)
