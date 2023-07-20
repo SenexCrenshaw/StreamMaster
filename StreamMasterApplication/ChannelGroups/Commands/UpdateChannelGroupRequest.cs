@@ -14,6 +14,8 @@ using StreamMasterApplication.VideoStreams.Events;
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Dto;
 
+using System.Linq;
+
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
 [RequireAll]
@@ -129,16 +131,12 @@ public class UpdateChannelGroupRequestHandler : IRequestHandler<UpdateChannelGro
             afterResults.AddRange(mapped);
         }
 
-        List<VideoStreamDto> distinctList = new List<VideoStreamDto>();
-        if (beforeResults is not null)
-        {
-            distinctList = beforeResults;
-        }
+        List<VideoStreamDto> distinctList = beforeResults ?? new List<VideoStreamDto>();
 
         if (afterResults is not null)
         {
-            var existingsIds = distinctList.Select(a => a.Id).ToList();
-            var diff = afterResults.Where(a => !existingsIds.Contains(a.Id)).ToList();
+            var existingIds = new HashSet<string>(distinctList.Select(a => a.Id));
+            var diff = afterResults.Where(a => !existingIds.Contains(a.Id));
             distinctList = distinctList.Concat(diff).ToList();
         }
 

@@ -7,6 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 
 using StreamMasterApplication.Common.Extensions;
+using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Dto;
 
@@ -68,6 +69,11 @@ public class UpdateStreamGroupRequestHandler : IRequestHandler<UpdateStreamGroup
         if (ret is not null)
         {
             await _publisher.Publish(new StreamGroupUpdateEvent(ret), cancellationToken).ConfigureAwait(false);
+            var streamGroup = await _context.GetStreamGroupDto(ret.Id, url, cancellationToken).ConfigureAwait(false);
+            if (streamGroup is not null && streamGroup.ChildVideoStreams.Any())
+            {
+                await _publisher.Publish(new UpdateVideoStreamsEvent(streamGroup.ChildVideoStreams), cancellationToken).ConfigureAwait(false);
+            }
         }
 
         return ret;

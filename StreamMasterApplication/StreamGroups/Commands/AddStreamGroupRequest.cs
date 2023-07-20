@@ -7,6 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 
 using StreamMasterApplication.Common.Extensions;
+using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
@@ -116,6 +117,13 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
         ret.HDHRLink = $"{url}/api/streamgroups/{encodedStreamGroupNumber}";
 
         await _publisher.Publish(new StreamGroupUpdateEvent(ret), cancellationToken).ConfigureAwait(false);
+
+        var streamGroup = await _context.GetStreamGroupDto(ret.Id, url, cancellationToken).ConfigureAwait(false);
+        if (streamGroup is not null && streamGroup.ChildVideoStreams.Any())
+        {
+            await _publisher.Publish(new UpdateVideoStreamsEvent(streamGroup.ChildVideoStreams), cancellationToken).ConfigureAwait(false);
+        }
+
         return ret;
     }
 }
