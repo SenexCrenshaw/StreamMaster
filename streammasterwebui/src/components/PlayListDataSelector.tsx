@@ -46,7 +46,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   }, [selectedChannelGroups]);
 
   const sourceActionBodyTemplate = React.useCallback((data: StreamMasterApi.ChannelGroupDto) => (
-    <div className='flex p-0 justify-content-center align-items-center'>
+    <div className='flex p-0 justify-content-end align-items-center'>
       <div hidden={data.isReadOnly === true && props.useReadOnly}>
         <ChannelGroupDeleteDialog iconFilled={false} onChange={channelGroupDelete} value={[data]} />
       </div>
@@ -144,13 +144,14 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         } as CSSProperties,
       },
       {
-        field: 'name', fieldType: 'streams', header: "Streams (acitve/count)", sortable: true,
+        field: 'name', fieldType: 'streams', header: "Streams (active/total)",
         style: {
-          maxWidth: '5rem',
-          width: '4rem',
+          maxWidth: '6rem',
+          width: '6rem',
         } as CSSProperties,
       },
       {
+        align: 'right',
         bodyTemplate: sourceActionBodyTemplate, field: 'isHidden', fieldType: 'isHidden', header: 'Hidden', sortable: true,
         style: {
           maxWidth: '8rem',

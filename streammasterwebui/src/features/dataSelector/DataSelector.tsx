@@ -197,6 +197,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }, [props]);
 
   const streamCount = React.useCallback((groupName: string) => {
+
     if (groupName === null || groupName === undefined || !videoStreamsQuery.data) {
       return 0;
     }
@@ -208,6 +209,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     const cg = channelGroupsQuery.data?.find((x: StreamMasterApi.ChannelGroupDto) => x.name.toLowerCase() === groupName.toLowerCase());
     if (cg?.regexMatch !== undefined && cg.regexMatch !== '') {
       const filteredData = videoStreamsQuery.data.filter((item) => {
+
         const regexToTest = new RegExp(`.*${cg.regexMatch}.*`, 'i');
         return regexToTest.test(item.user_Tvg_name);
       });
@@ -220,7 +222,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     if (props.m3uFileId !== undefined && props.m3uFileId > 0) {
       return videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.m3UFileId === props.m3uFileId && x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase()).length;
     }
-
 
     return videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase()).length;
 
@@ -834,7 +835,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
               data-pr-showdelay={200}
               data-pr-tooltip="Active/Total Count"
             >
-              Streams
+              Streams<br />(active/total)
             </div>
           </>
         )

@@ -150,7 +150,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
   const targetActionBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
     return (
-      <div className='flex p-0 justify-content-center align-items-center'>
+      <div className='flex p-0 justify-content-end align-items-center'>
 
         <VideoStreamVisibleDialog iconFilled={false} skipOverLayer values={[data]} />
         <VideoStreamEditDialog iconFilled={false} value={data} />

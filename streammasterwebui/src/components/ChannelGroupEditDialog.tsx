@@ -11,20 +11,22 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
+  const [regex, setRegex] = React.useState<string | undefined>('');
   const [newGroupName, setNewGroupName] = React.useState('');
 
   const ReturnToParent = React.useCallback(() => {
-    setNewGroupName('');
     setShowOverlay(false);
     setInfoMessage('');
     setBlock(false);
     props.onClose?.();
   }, [props]);
 
-  React.useMemo(() => {
+  React.useEffect(() => {
 
     if (props.value) {
       setNewGroupName(props.value.name);
+      if (props.value.regexMatch !== null)
+        setRegex(props.value.regexMatch);
     }
 
   }, [props.value]);
@@ -41,6 +43,10 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
     tosend.groupName = props.value?.name;
     tosend.newGroupName = newGroupName;
 
+    if (regex !== undefined && regex !== '') {
+      tosend.regex = regex;
+    }
+
     Hub.UpdateChannelGroup(tosend).then(() => {
       setInfoMessage('Channel Group Renamed Successfully');
     }).catch((e) => {
@@ -53,20 +59,26 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
     <>
       <InfoMessageOverLayDialog
         blocked={block}
-        header="Rename Group"
+        header="Edit Group"
         infoMessage={infoMessage}
         onClose={() => { setInfoMessage(''); }}
         show={showOverlay}
       >
         <div className='m-0 p-0 border-1 border-round surface-border'>
           <div className='m-3'>
-            <h3>Rename Group</h3>
+            <h3>Edit Group</h3>
             <InputText
               autoFocus
               className="withpadding p-inputtext-sm w-full"
               onChange={(e) => setNewGroupName(e.target.value)}
               placeholder="Group Name"
               value={newGroupName}
+            />
+            <InputText
+              className="withpadding p-inputtext-sm w-full mt-2"
+              onChange={(e) => setRegex(e.target.value)}
+              placeholder="Group Regex"
+              value={regex}
             />
             <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
               <Button
@@ -78,7 +90,7 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
               />
               <Button
                 icon="pi pi-check"
-                label="Rename"
+                label="Ok"
                 onClick={changeGroupName}
                 rounded
                 severity="success"
@@ -94,7 +106,7 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
         rounded
         size="small"
         text
-        tooltip="Rename Group"
+        tooltip="Edit Group"
         tooltipOptions={getTopToolOptions}
       />
 

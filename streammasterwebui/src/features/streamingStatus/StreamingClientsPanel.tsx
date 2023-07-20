@@ -68,7 +68,7 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
   const targetActionBodyTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
 
     return (
-      <div className="dataselector p-inputgroup align-items-center justify-content-center">
+      <div className="dataselector p-inputgroup align-items-center justify-content-end">
         <Button
           className="p-button-danger"
           icon="pi pi-times"

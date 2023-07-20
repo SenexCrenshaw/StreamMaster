@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unused-prop-types */
 import { type CSSProperties } from "react";
 import React from "react";
 import * as StreamMasterApi from '../store/iptvApi';
@@ -47,7 +48,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
       const dsIds = newStreams.map((sgvs) => sgvs.id);
 
-      setTargetVideoStreams(newStreams.sort((a, b) => a.rank - b.rank)); // videoStreamsQuery.data.filter((m3u) => dsIds?.includes(m3u.id)));
+      setTargetVideoStreams(newStreams.sort((a, b) => a.rank - b.rank));
 
       if (props.showTriState === null) {
         setSourceVideoStreams(videoStreamsQuery.data.filter((m3u) => !dsIds?.includes(m3u.id)));
@@ -89,7 +90,10 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     if (props.isAdditionalChannels === true) {
       setTargetVideoStreams((updatedStreams as StreamMasterApi.ChildVideoStreamDto[]).sort((a, b) => a.rank - b.rank));
     } else {
-      setTargetVideoStreams(updatedStreams as StreamMasterApi.ChildVideoStreamDto[]);
+
+      setTargetVideoStreams(
+        (updatedStreams as StreamMasterApi.ChildVideoStreamDto[]).filter((m3u) => props.showHidden === true || m3u.isHidden !== true)
+      );
     }
 
     if (props.showTriState === null) {
@@ -102,7 +106,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       setSourceVideoStreams(undefined);
       setTargetVideoStreams(undefined);
     }
-  }, [props.isAdditionalChannels, props.showTriState, props.videoStream, streamGroup, videoStreamsQuery.data]);
+  }, [props.isAdditionalChannels, props.showHidden, props.showTriState, props.videoStream, streamGroup, videoStreamsQuery.data]);
 
   const channelNumberEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
 
@@ -389,7 +393,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
     if (data.isReadOnly === true) {
       return (
-        <div className='flex min-w-full min-h-full justify-content-center align-items-center'>
+        <div className='flex min-w-full min-h-full justify-content-end align-items-center'>
           <Tooltip target=".GroupIcon-class" />
           <div
             className="GroupIcon-class border-white"
@@ -544,6 +548,7 @@ PlayListDataSelectorPicker.defaultProps = {
   enableState: true,
   isAdditionalChannels: false,
   maxHeight: null,
+  showHidden: true,
   showTriState: true
 };
 
@@ -554,6 +559,7 @@ export type PlayListDataSelectorPickerProps = {
   maxHeight?: number;
   onSelectionChange?: (value: StreamMasterApi.ChildVideoStreamDto[]) => void;
   onValueChanged?: (value: StreamMasterApi.ChildVideoStreamDto[]) => void;
+  showHidden?: boolean | undefined;
   showTriState?: boolean | null | undefined;
   sourceHeaderTemplate?: React.ReactNode | undefined;
   streamGroup?: StreamMasterApi.StreamGroupDto | undefined;

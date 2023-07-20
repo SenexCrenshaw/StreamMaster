@@ -90,7 +90,6 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
         ConcurrentDictionary<int, string> retlist = new();
 
-        // List<IconFileDto> icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
         var icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
 
         var requestPath = _httpContextAccessor.HttpContext.Request.Path.Value.ToString();
