@@ -380,6 +380,7 @@ export const SettingsEditor = () => {
             {getInputTextLine('sdUserName')}
             {getPasswordLine('sdPassword')}
             <Fieldset className="mt-4 pt-10" collapsed legend={GetMessage('m3uSettings')} toggleable >
+              {getCheckBoxLine('m3UIgnoreEmptyEPGID')}
               {getCheckBoxLine('m3UFieldCUID')}
               {getCheckBoxLine('m3UFieldChannelId')}
               {getCheckBoxLine('m3UFieldChannelNumber')}

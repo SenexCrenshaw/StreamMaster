@@ -27,6 +27,7 @@ export default {
   m3UFieldTvgId: "Enable M3U Tvg Id",
   m3UFieldTvgLogo: "Enable M3U Tvg Logo",
   m3UFieldTvgName: "Enable M3U Tvg Name",
+  m3UIgnoreEmptyEPGID:'Ignore Empty EPG ID',
   m3uSettings: 'M3U Settings',
   maxConnectRetry:'Connection Retry Limit',
   maxConnectRetryTimeMS: 'Retry Timeout in MS',

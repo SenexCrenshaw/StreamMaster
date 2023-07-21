@@ -8,13 +8,13 @@ public class Setting
 
     public string ApiKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
 
-    public string AppName { get; set; } = "StreamMaster";
     public AuthenticationType AuthenticationMethod { get; set; } = AuthenticationType.None;
     public bool CacheIcons { get; set; } = true;
     public bool CleanURLs { get; set; } = true;
     public string ClientUserAgent { get; set; } = "Mozilla/5.0 (compatible; streammaster/1.0)";
-    public string DatabaseName { get; set; } = "StreamMaster.db";
+    
     public string DefaultIcon { get; set; } = "images/default.png";
+
     public string DeviceID { get; set; } = "device1";
     public string DummyRegex { get; set; } = "(no tvg-id)";
     public bool EnableSSL { get; set; } = false;
@@ -66,5 +66,5 @@ public class Setting
 
     public string UrlBase { get; set; } = "";
 
-    //public bool UseDummyEPGForBlanks { get; set; } = true;
+    public bool M3UIgnoreEmptyEPGID { get; set; } = true;
 }

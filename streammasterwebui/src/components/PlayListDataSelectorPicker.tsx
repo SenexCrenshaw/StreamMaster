@@ -120,16 +120,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
 
   const sourceColumns: ColumnMeta[] = [
-    {
-      field: 'id',
-      filter: false,
-      header: 'id',
-      sortable: true,
-      style: {
-        maxWidth: '3rem',
-        width: '3rem',
-      } as CSSProperties,
-    },
+
     {
       bodyTemplate: channelNumberEditorBodyTemplate,
       field: 'user_Tvg_chno',
@@ -429,16 +420,6 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
   const targetColumns: ColumnMeta[] = [
     {
-      field: 'id',
-      filter: false,
-      header: 'id',
-      sortable: true,
-      style: {
-        maxWidth: '4rem',
-        width: '4rem',
-      } as CSSProperties,
-    },
-    {
       bodyTemplate: channelNumberEditorBodyTemplate,
       field: 'user_Tvg_chno',
       filter: true,
@@ -458,10 +439,8 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     },
     {
       bodyTemplate: channelNameEditorBodyTemplate,
-      field:
-        'user_Tvg_name',
+      field: 'user_Tvg_name',
       header: 'Name',
-
     },
     {
       bodyTemplate: epgEditorBodyTemplate,

@@ -30,6 +30,7 @@ public interface IVideoStreamController
 public interface IVideoStreamDB
 {
     DbSet<VideoStreamLink> VideoStreamLinks { get; set; }
+
     DbSet<VideoStream> VideoStreams { get; set; }
 
     Task<bool> DeleteVideoStreamAsync(string videoStreamId, CancellationToken cancellationToken);
@@ -37,6 +38,8 @@ public interface IVideoStreamDB
     public Task<List<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken);
 
     Task<List<VideoStream>> GetAllVideoStreamsWithChildrenAsync();
+
+    Task<string> GetAvailableID();
 
     public M3UFileIdMaxStream? GetM3UFileIdMaxStreamFromUrl(string Url);
 

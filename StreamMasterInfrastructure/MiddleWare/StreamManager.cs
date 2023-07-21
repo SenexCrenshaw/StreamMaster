@@ -13,13 +13,15 @@ namespace StreamMasterInfrastructure.MiddleWare;
 
 public class StreamManager : IStreamManager
 {
-    private readonly ILogger _logger;
+    private readonly ILogger<CircularRingBuffer> _circularBufferLogger;
+    private readonly ILogger<StreamManager> _logger;
     private readonly ConcurrentDictionary<string, IStreamInformation> _streamInformations;
 
-    public StreamManager(ILogger logger)
+    public StreamManager(ILoggerFactory loggerFactory)
     {
-        _logger = logger;
+        _logger = loggerFactory.CreateLogger<StreamManager>();
         _streamInformations = new ConcurrentDictionary<string, IStreamInformation>();
+        _circularBufferLogger = loggerFactory.CreateLogger<CircularRingBuffer>();
     }
 
     private Setting setting => FileUtil.GetSetting();
@@ -40,7 +42,7 @@ public class StreamManager : IStreamManager
 
         _logger.LogInformation("Creating and starting buffer for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
-        ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, videoStreamId, videoStreamName, rank);
+        ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, videoStreamId, videoStreamName, rank, _circularBufferLogger);
         CancellationTokenSource cancellationTokenSource = new();
 
         (Stream? stream, int processId, ProxyStreamError? error) = await GetProxy(streamUrl, cancellationTokenSource.Token);
@@ -119,16 +121,27 @@ public class StreamManager : IStreamManager
 
         if (setting.StreamingProxyType == StreamingProxyTypes.FFMpeg)
         {
-            (stream, processId, error) = await StreamingProxies.GetFFMpegStream(streamUrl);
+            (stream, processId, error) = await StreamingProxies.GetFFMpegStream(streamUrl, _logger);
             LogErrorIfAny(stream, error, streamUrl);
         }
         else
         {
-            (stream, processId, error) = await StreamingProxies.GetProxyStream(streamUrl, cancellationToken);
+            (stream, processId, error) = await StreamingProxies.GetProxyStream(streamUrl, _logger, cancellationToken);
             LogErrorIfAny(stream, error, streamUrl);
         }
 
         return (stream, processId, error);
+    }
+
+    private void LogBufferHealth(ICircularRingBuffer buffer)
+    {
+        // Calculate buffer utilization percentage
+        var bufferUtilization = buffer.GetBufferUtilization();
+        if (bufferUtilization < 95.0)
+        {
+            // Log the buffer health information
+            _logger.LogWarning("Buffer health below 95% - Capacity: {BufferCapacity}, Utilization: {BufferUtilization}%", buffer.BufferSize, bufferUtilization);
+        }
     }
 
     private void LogErrorIfAny(Stream? stream, ProxyStreamError? error, string streamUrl)
@@ -186,7 +199,12 @@ public class StreamManager : IStreamManager
                     {
                         buffer.WriteChunk(bufferChunk, bytesRead);
                         retryCount = 0;
+                        LogBufferHealth(buffer);
                     }
+                }
+                catch (TaskCanceledException ex)
+                {
+                    _logger.LogError(ex, "Stream cancelled for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
                 }
                 catch (Exception ex)
                 {

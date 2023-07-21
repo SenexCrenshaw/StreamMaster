@@ -33,6 +33,7 @@
     <ProjectReference Include="..\StreamMasterApplication\StreamMasterApplication.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Statistics\" />
     <Folder Include="Persistence\Extensions\" />
   </ItemGroup>
 </Project>

@@ -1,15 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import React from 'react';
 import { formatJSONDateString, getTopToolOptions } from '../../common/common';
 import { Toast } from 'primereact/toast';
-import { type VideoStreamDto } from '../../store/iptvApi';
-import { type ChangeVideoStreamChannelRequest } from '../../store/iptvApi';
 import { type FailClientRequest } from '../../store/iptvApi';
 import { type StreamStatisticsResult } from '../../store/iptvApi';
 import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
-import { VideoStreamSelector } from '../../components/VideoStreamSelector';
 import { Button } from 'primereact/button';
 import * as Hub from "../../store/signlar_functions";
 
@@ -64,7 +60,6 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
 
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const targetActionBodyTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
 
     return (
@@ -88,13 +83,6 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
         field: 'clientAgent', header: 'Client/User Agent', style: {
           maxWidth: '14rem',
           width: '14rem',
-        } as React.CSSProperties,
-      },
-
-      {
-        align: 'center', field: 'm3UStreamId', header: 'Video Id', style: {
-          maxWidth: '4rem',
-          width: '4rem',
         } as React.CSSProperties,
       },
       { field: 'm3UStreamName', header: 'Name' },
@@ -130,8 +118,9 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
-      <div className='m3uFilesEditor flex flex-column col-12 flex-shrink-0 '>
+      <div className='m3uFilesEditor flex flex-column col-12 flex-shrink-0 ' >
         <DataSelector
+          className={props.className}
           columns={sourceColumns}
           dataSource={props.dataSource}
           emptyMessage="No Clients Streaming"
@@ -139,7 +128,7 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
           globalSearchEnabled={false}
           id='StreamingServerStatusPanel'
           isLoading={props.isLoading}
-          style={{ height: 'calc(50vh - 40px)' }}
+          style={props.style}
         />
       </div>
     </>
@@ -150,7 +139,9 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
 StreamingClientsPanel.displayName = 'Streaming Clients Panel';
 StreamingClientsPanel.defaultProps = {};
 type StreamingClientsPanelProps = {
+  className?: string;
   dataSource: StreamStatisticsResult[];
   isLoading: boolean;
+  style?: React.CSSProperties;
 }
 export default React.memo(StreamingClientsPanel);

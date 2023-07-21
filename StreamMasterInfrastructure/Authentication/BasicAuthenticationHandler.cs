@@ -2,10 +2,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using StreamMasterDomain.Authentication;
-using StreamMasterDomain.Common;
-using StreamMasterDomain.Enums;
-
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -17,7 +13,6 @@ namespace StreamMasterInfrastructure.Authentication
     {
         private readonly string _appName;
         private readonly IAuthenticationService _authService;
-        protected Setting _setting = FileUtil.GetSetting();
 
         public BasicAuthenticationHandler(IAuthenticationService authService,
 
@@ -27,7 +22,7 @@ namespace StreamMasterInfrastructure.Authentication
             ISystemClock clock)
             : base(options, logger, encoder, clock)
         {
-            _appName = _setting.AppName;
+            _appName = "StreamMaster";
             _authService = authService;
         }
 

@@ -32,7 +32,7 @@ public partial class AppDbContext : DbContext, IDataProtectionKeyContext, IAppDb
     {
         _setting = FileUtil.GetSetting();
 
-        DbPath = Path.Join(Constants.DataDirectory, _setting.DatabaseName ?? "StreamMaster.db");
+        DbPath = Path.Join(Constants.DataDirectory, "StreamMaster.db");
     }
 
     public AppDbContext(
@@ -49,12 +49,12 @@ public partial class AppDbContext : DbContext, IDataProtectionKeyContext, IAppDb
         _mediator = mediator;
         _setting = FileUtil.GetSetting();
 
-        DbPath = Path.Join(Constants.DataDirectory, _setting.DatabaseName ?? "StreamMaster.db");
+        DbPath = Path.Join(Constants.DataDirectory, "StreamMaster.db");
     }
 
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
-    public string DbPath { get; }
+    public string DbPath { get; }    
 
     private Setting setting
     {

@@ -238,22 +238,18 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   }, [toast]);
 
   const logoEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
-
     return (
-
       <IconSelector
         className="p-inputtext-sm"
         enableEditMode={enableEditMode}
         onAddIcon={() => setAddIcon(true)}
         onChange={
           async (e: StreamMasterApi.IconFileDto) => {
-
             await onUpdateVideoStream(data, null, null, e.originalSource);
           }
         }
         onReset={
           async (e: StreamMasterApi.IconFileDto) => {
-
             await onUpdateVideoStream(data, null, null, e.originalSource);
           }
         }
@@ -310,35 +306,14 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const targetColumns = React.useMemo((): ColumnMeta[] => {
     return [
       {
-        field: 'id',
-        filter: false,
-        header: 'id',
-        sortable: true,
-        style: {
-          maxWidth: '4rem',
-          width: '4rem',
-        } as CSSProperties,
-      },
-      {
         bodyTemplate: channelNumberEditorBodyTemplate,
         field: 'user_Tvg_chno',
         filter: false,
         header: 'Ch.',
         sortable: true,
         style: {
-          maxWidth: '4rem',
-          width: '4rem',
-        } as CSSProperties,
-      },
-
-      {
-        bodyTemplate: channelNameEditorBodyTemplate,
-        field: 'user_Tvg_name',
-        filter: true,
-        header: 'Name',
-        sortable: true,
-        style: {
-          width: '22rem',
+          maxWidth: '123rem',
+          width: '123rem',
         } as CSSProperties,
       },
       {
@@ -348,11 +323,17 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         header: "Logo"
       },
       {
+        bodyTemplate: channelNameEditorBodyTemplate,
+        field: 'user_Tvg_name',
+        filter: true,
+        header: 'Name',
+        sortable: true,
+      },
+      {
         align: 'left',
         bodyTemplate: channelGroupEditorBodyTemplate,
         field: 'user_Tvg_group',
         filter: false,
-
         header: 'Group',
         sortable: true,
         style: {
@@ -364,13 +345,12 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         field: 'user_Tvg_ID_DisplayName',
         fieldType: 'epg',
         filter: true,
-        sortable: true,
         style: {
           maxWidth: '16rem',
         } as CSSProperties,
       },
       {
-        bodyTemplate: targetActionBodyTemplate, field: 'isHidden', fieldType: 'isHidden', isHidden: !enableEditMode, sortable: true,
+        bodyTemplate: targetActionBodyTemplate, field: 'isHidden', header: 'Actions', isHidden: !enableEditMode, sortable: true,
         style: {
           maxWidth: '8rem',
           width: '8rem',

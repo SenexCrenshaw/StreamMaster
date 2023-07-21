@@ -69,12 +69,14 @@ const IconSelector = (props: IconSelectorProps) => {
 
     return (
       <div className='flex h-full justify-content-start align-items-center p-0 m-0 pl-2'>
+
         <img
           alt={option.name}
           src={selectedTemplateurl}
           style={{
             maxWidth: '1.2rem',
             objectFit: 'contain',
+            width: '1.2rem',
           }}
         />
       </div>

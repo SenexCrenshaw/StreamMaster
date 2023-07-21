@@ -1,4 +1,6 @@
-﻿using StreamMasterApplication.Common.Interfaces;
+﻿using Microsoft.Extensions.Logging;
+
+using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 
 using StreamMasterDomain.Common;
@@ -20,16 +22,18 @@ public class CircularRingBuffer : ICircularRingBuffer
     private readonly Dictionary<Guid, SemaphoreSlim> _clientSemaphores = new();
     private readonly Dictionary<Guid, StreamingStatistics> _clientStatistics = new();
     private readonly StreamingStatistics _inputStreamStatistics = new("Unknown");
+    private readonly ILogger<CircularRingBuffer> _logger;
     private int _oldestDataIndex;
     private float _preBuffPercent;
     private int _writeIndex;
 
-    public CircularRingBuffer(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank, int tempbuffersize = 0)
+    public CircularRingBuffer(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank, ILogger<CircularRingBuffer> logger)
     {
+        _logger = logger;
         if (setting.PreloadPercentage < 0 || setting.PreloadPercentage > 100)
             setting.PreloadPercentage = 0;
 
-        _bufferSize = tempbuffersize > 0 ? tempbuffersize : setting.RingBufferSizeMB * 1024 * 1000;
+        _bufferSize = setting.RingBufferSizeMB * 1024 * 1000;
         _preBuffPercent = setting.PreloadPercentage;
 
         StreamInfo = new StreamInfo
@@ -150,8 +154,11 @@ public class CircularRingBuffer : ICircularRingBuffer
 
     public bool IsPreBuffered()
     {
+        _logger.LogDebug($"Starting IsPreBuffered");
+
         if (isPreBuffered)
         {
+            _logger.LogDebug($"Finished IsPreBuffered with true (already pre-buffered)");
             return true;
         }
 
@@ -159,14 +166,18 @@ public class CircularRingBuffer : ICircularRingBuffer
         float percentBuffered = ((float)dataInBuffer / _buffer.Length) * 100;
 
         isPreBuffered = percentBuffered >= _preBuffPercent;
+
+        _logger.LogDebug($"Finished IsPreBuffered with {isPreBuffered}");
         return isPreBuffered;
     }
 
     public async Task<byte> Read(Guid clientId, CancellationToken cancellationToken)
     {
+        _logger.LogDebug($"Starting Read for clientId: {clientId}");
+
         while (!IsPreBuffered())
         {
-            await Task.Delay(100, cancellationToken);  // Wait for 100 milliseconds before checking again
+            await Task.Delay(50, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
         }
 
@@ -179,11 +190,14 @@ public class CircularRingBuffer : ICircularRingBuffer
             clientStats.IncrementBytesRead();
         }
 
+        _logger.LogDebug($"Finished Read for clientId: {clientId}");
         return data;
     }
 
     public async Task<int> ReadChunk(Guid clientId, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
+        _logger.LogDebug($"Starting ReadChunk for clientId: {clientId}");
+
         while (!IsPreBuffered())
         {
             await Task.Delay(100, cancellationToken);
@@ -205,18 +219,23 @@ public class CircularRingBuffer : ICircularRingBuffer
         {
             clientStats.AddBytesRead(count);
         }
+        _logger.LogDebug("Finished ReadChunk for clientId: {clientId}", clientId);
 
         return count;
     }
 
     public void RegisterClient(Guid clientId, string clientAgent)
     {
+        _logger.LogDebug("Starting RegisterClient for clientId: {clientId}", clientId);
+
         if (!_clientReadIndexes.ContainsKey(clientId))
         {
             _ = _clientReadIndexes.TryAdd(clientId, _oldestDataIndex);
             _ = _clientSemaphores.TryAdd(clientId, new SemaphoreSlim(0, 1));
             _ = _clientStatistics.TryAdd(clientId, new StreamingStatistics(clientAgent));
         }
+
+        _logger.LogDebug("Finished RegisterClient for clientId: {clientId}", clientId);
     }
 
     public void ReleaseSemaphore(Guid clientId)
@@ -227,9 +246,13 @@ public class CircularRingBuffer : ICircularRingBuffer
 
     public void UnregisterClient(Guid clientId)
     {
+        _logger.LogDebug("Starting UnregisterClient for clientId: {clientId}", clientId);
+
         _ = _clientReadIndexes.TryRemove(clientId, out _);
         _ = _clientSemaphores.Remove(clientId);
         _ = _clientStatistics.Remove(clientId, out _);
+
+        _logger.LogDebug("Finished UnregisterClient for clientId: {clientId}", clientId);
     }
 
     public void UpdateReadIndex(Guid clientId, int newIndex)
@@ -239,12 +262,30 @@ public class CircularRingBuffer : ICircularRingBuffer
 
     public async Task WaitSemaphoreAsync(Guid clientId, CancellationToken cancellationToken)
     {
+        _logger.LogDebug("Starting WaitSemaphoreAsync for clientId: {clientId}", clientId);
+
+        if (cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogDebug("Exiting WaitSemaphoreAsync early due to CancellationToken cancellation request for clientId: {clientId}", clientId);
+            return;
+        }
+
+        if (!_clientSemaphores.ContainsKey(clientId))
+        {
+            _logger.LogDebug("Exiting WaitSemaphoreAsync early due to clientId not registered: {clientId}", clientId);
+            return;
+        }
+
         SemaphoreSlim semaphore = _clientSemaphores[clientId];
         await semaphore.WaitAsync(50, cancellationToken);
+
+        _logger.LogDebug("Exiting WaitSemaphoreAsync for clientId: {clientId}", clientId);
     }
 
     public void Write(byte data)
     {
+        _logger.LogDebug($"Starting Write with data: {data}");
+
         int nextWriteIndex = (_writeIndex + 1) % _buffer.Length;
 
         if (nextWriteIndex == _oldestDataIndex)
@@ -256,6 +297,7 @@ public class CircularRingBuffer : ICircularRingBuffer
         _writeIndex = nextWriteIndex;
 
         _inputStreamStatistics.IncrementBytesWritten();
+
         try
         {
             foreach (KeyValuePair<Guid, SemaphoreSlim> kvp in _clientSemaphores)
@@ -264,19 +306,22 @@ public class CircularRingBuffer : ICircularRingBuffer
 
                 if (semaphore.CurrentCount == 0)
                 {
-                    _ = semaphore.Release();
+                    semaphore.Release();
                 }
             }
         }
         catch (Exception ex)
         {
-            // Consider logging the exception here
-            //_logger.LogError(ex, "An error occurred while releasing semaphores.");
+            _logger.LogError(ex, "An error occurred while releasing semaphores during Write.");
         }
+
+        _logger.LogDebug($"Write completed with data: {data}");
     }
 
     public int WriteChunk(byte[] data, int count)
     {
+        _logger.LogDebug($"Starting WriteChunk with count: {count}");
+
         int bytesWritten = 0;
 
         for (int i = 0; i < count; i++)
@@ -309,10 +354,17 @@ public class CircularRingBuffer : ICircularRingBuffer
         }
         catch (Exception ex)
         {
-            // Consider logging the exception here
-            //_logger.LogError(ex, "An error occurred while releasing semaphores.");
+            _logger.LogError(ex, "An error occurred while releasing semaphores during WriteChunk.");
         }
 
+        _logger.LogDebug($"WriteChunk completed with count: {count}");
+
         return bytesWritten;
+    }
+
+    public float GetBufferUtilization()
+    {
+        int dataInBuffer = (_writeIndex - _oldestDataIndex + _buffer.Length) % _buffer.Length;
+        return ((float)dataInBuffer / _buffer.Length) * 100;
     }
 }

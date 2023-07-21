@@ -22,6 +22,7 @@ using StreamMasterDomain.EnvironmentInfo;
 
 using StreamMasterInfrastructure;
 using StreamMasterInfrastructure.Authentication;
+using StreamMasterInfrastructure.Logging;
 using StreamMasterInfrastructure.Persistence;
 using StreamMasterInfrastructure.Services;
 using StreamMasterInfrastructure.Services.Frontend;
@@ -33,6 +34,14 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddWebUIServices(this IServiceCollection services)
     {
+        services.AddLogging(logging =>
+        { 
+            logging.AddConsole();
+            logging.AddDebug();
+            logging.AddProvider(new SMLoggerProvider());
+        });
+
+
         //services.AddLogging(logging =>
         //{
         //    logging.ClearProviders();
@@ -46,8 +55,9 @@ public static class ConfigureServices
         //    logging.AddFilter("microsoft.aspnetcore.authorization", LogLevel.Debug);
         //});
         services.AddMemoryCache();
-        _ = services.AddLogging();
+        //_ = services.AddLogging();
 
+    
         //_ = services.AddSingleton<ICurrentUserService, CurrentUserService>();
 
         services.Configure<ForwardedHeadersOptions>(options =>

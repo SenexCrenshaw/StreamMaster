@@ -1,9 +1,13 @@
-﻿using StreamMasterDomain.Common;
+﻿using Microsoft.Extensions.Logging;
+
+using StreamMasterDomain.Common;
 
 using StreamMasterInfrastructure.Common;
 
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace StreamMasterInfrastructure.MiddleWare;
 
@@ -11,24 +15,24 @@ public static class StreamingProxies
 {
     private static readonly HttpClient client = CreateHttpClient();
 
-    public static async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetFFMpegStream(string streamUrl)
+    public static async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetFFMpegStream(string streamUrl, ILogger logger)
     {
         Setting setting = FileUtil.GetSetting();
 
         var ffmpegExec = Path.Combine(Constants.ConfigFolder, setting.FFMPegExecutable);
 
-        if (!File.Exists(ffmpegExec) && !File.Exists(ffmpegExec+".exe"))
-        {       
+        if (!File.Exists(ffmpegExec) && !File.Exists(ffmpegExec + ".exe"))
+        {
             if (!IsFFmpegAvailable())
             {
                 ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = $"FFmpeg executable file not found: {setting.FFMPegExecutable}" };
                 return (null, -1, error);
             }
-            ffmpegExec = "ffmpeg";        
+            ffmpegExec = "ffmpeg";
         }
 
         try
-        {            
+        {
             using Process process = new();
             process.StartInfo.FileName = ffmpegExec;
             process.StartInfo.Arguments = $"-hide_banner -loglevel error -i \"{streamUrl}\" -c copy -f mpegts pipe:1 -user_agent \"{setting.ClientUserAgent}\"";
@@ -37,22 +41,25 @@ public static class StreamingProxies
             process.StartInfo.RedirectStandardOutput = true;
 
             _ = process.Start();
+            logger.LogInformation("FFMpeg process started for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
 
             return (await Task.FromResult(process.StandardOutput.BaseStream).ConfigureAwait(false), process.Id, null);
         }
         catch (IOException ex)
         {
             ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.IoError, Message = ex.Message };
+            logger.LogError(error.Message);
             return (null, -1, error);
         }
         catch (Exception ex)
         {
             ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.UnknownError, Message = ex.Message };
+            logger.LogError(error.Message);
             return (null, -1, error);
         }
     }
 
-    public static async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxyStream(string sourceUrl, CancellationToken cancellation)
+    public static async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxyStream(string sourceUrl, ILogger logger, CancellationToken cancellation)
     {
         try
         {
@@ -60,28 +67,30 @@ public static class StreamingProxies
 
             if (response == null || !response.IsSuccessStatusCode)
             {
-                return (null, -1, new ProxyStreamError { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = "Could not retrieve stream utl" });
+                ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = "Could not retrieve stream url" };
+                logger.LogError(error.Message);
+                return (null, -1, error);
             }
 
             string contentType = response.Content.Headers.ContentType.MediaType;
 
-            if (contentType.Equals("application/vnd.apple.mpegurl", StringComparison.OrdinalIgnoreCase) ||
+            if (contentType is not null && contentType.Equals("application/vnd.apple.mpegurl", StringComparison.OrdinalIgnoreCase) ||
                         contentType.Equals("audio/mpegurl", StringComparison.OrdinalIgnoreCase) ||
                        contentType.Equals("application/x-mpegURL", StringComparison.OrdinalIgnoreCase))
             {
-                return await GetFFMpegStream(sourceUrl).ConfigureAwait(false);
+                logger.LogInformation("Stream URL has HLS content, using FFMpeg for streaming: {StreamUrl}", sourceUrl);
+                return await GetFFMpegStream(sourceUrl,logger).ConfigureAwait(false);
             }
 
             Stream stream = await response.Content.ReadAsStreamAsync(cancellation);
+            logger.LogInformation("Successfully retrieved stream for: {StreamUrl}", sourceUrl);
             return (stream, -1, null);
         }
         catch (Exception ex)
         {
-            return (null, -1, new ProxyStreamError
-            {
-                ErrorCode = ProxyStreamErrorCode.DownloadError,
-                Message = ex.Message
-            });
+            ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = ex.Message };
+            logger.LogError(error.Message);
+            return (null, -1, error);
         }
     }
 
@@ -99,11 +108,15 @@ public static class StreamingProxies
     private static bool IsFFmpegAvailable()
     {
         string command = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "where" : "which";
-        ProcessStartInfo startInfo = new ProcessStartInfo(command, "ffmpeg");
-        startInfo.RedirectStandardOutput = true;
-        startInfo.UseShellExecute = false;
-        Process process = new Process();
-        process.StartInfo = startInfo;
+        ProcessStartInfo startInfo = new(command, "ffmpeg")
+        {
+            RedirectStandardOutput = true,
+            UseShellExecute = false
+        };
+        Process process = new()
+        {
+            StartInfo = startInfo
+        };
         process.Start();
         process.WaitForExit();
         return process.ExitCode == 0;

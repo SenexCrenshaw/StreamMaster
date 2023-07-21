@@ -238,8 +238,16 @@ public partial class AppDbContext : IStreamGroupDB
             .Select(cg => new Regex(cg.ChannelGroup.RegexMatch, RegexOptions.ECMAScript | RegexOptions.IgnoreCase))
             .ToList();
 
+        // Fetch all channel group names
+        var channelGroupNames = streamGroup.ChannelGroups.Select(cg => cg.ChannelGroup.Name).ToList();
+        //// Fetch video stream IDs that match the user group
+        var matchedIds = await VideoStreams
+            .Where(vs => channelGroupNames.Contains(vs.User_Tvg_group))
+            .Select(vs => vs.Id)
+            .ToListAsync(cancellationToken);
+
         // If no regexes exist, return an empty list
-        if (!regexes.Any())
+        if (!regexes.Any() && !matchedIds.Any())
         {
             return new List<string>();
         }
@@ -253,34 +261,31 @@ public partial class AppDbContext : IStreamGroupDB
             .Select(vs => vs.Id)
             .ToList();
 
-        return matchingVideoStreamIds;
+        var ret = matchingVideoStreamIds.Concat(matchedIds).Distinct().ToList();
+
+        return ret;
     }
 
-    public async Task<List<string>> GetVideoStreamIdsByUserGroupMatchAsync(int streamGroupId, CancellationToken cancellationToken)
-    {
-        // Fetch the stream group with associated channel groups
-        var streamGroup = await StreamGroups
-            .Include(sg => sg.ChannelGroups)
-            .ThenInclude(sgcg => sgcg.ChannelGroup)
-            .SingleOrDefaultAsync(sg => sg.Id == streamGroupId, cancellationToken);
+    //public async Task<List<string>> GetVideoStreamIdsByUserGroupMatchAsync(int streamGroupId, CancellationToken cancellationToken)
+    //{
+    //    //// Fetch the stream group with associated channel groups
+    //    //var streamGroup = await StreamGroups
+    //    //    .Include(sg => sg.ChannelGroups)
+    //    //    .ThenInclude(sgcg => sgcg.ChannelGroup)
+    //    //    .SingleOrDefaultAsync(sg => sg.Id == streamGroupId, cancellationToken);
 
-        // If the stream group doesn't exist, return an empty list
-        if (streamGroup == null)
-        {
-            return new List<string>();
-        }
+    // //// If the stream group doesn't exist, return an empty list //if
+    // (streamGroup == null) //{ // return new List<string>(); //} //// Fetch
+    // all channel group names //var channelGroupNames =
+    // streamGroup.ChannelGroups.Select(cg => cg.ChannelGroup.Name).ToList();
+    // ////// Fetch video stream IDs that match the user group //var
+    // matchingVideoStreamIds = await VideoStreams // .Where(vs =>
+    // channelGroupNames.Contains(vs.User_Tvg_group)) // .Select(vs => vs.Id) // .ToListAsync(cancellationToken);
 
-        // Fetch all channel group names
-        var channelGroupNames = streamGroup.ChannelGroups.Select(cg => cg.ChannelGroup.Name).ToList();
+    // var test = await GetVideoStreamIdsByStreamGroupAsync(streamGroupId, cancellationToken);
 
-        // Fetch video stream IDs that match the user group
-        var matchingVideoStreamIds = await VideoStreams
-            .Where(vs => channelGroupNames.Contains(vs.User_Tvg_group))
-            .Select(vs => vs.Id)
-            .ToListAsync(cancellationToken);
-
-        return matchingVideoStreamIds;
-    }
+    //    return test;
+    //}
 
     public async Task<List<VideoStream>> GetVideoStreamsByNamePatternAsync(string pattern, CancellationToken cancellationToken)
     {
@@ -451,9 +456,9 @@ public partial class AppDbContext : IStreamGroupDB
 
             if (streamGroup.ChannelGroups.Any())
             {
-                var fromRegex = await GetVideoStreamIdsByStreamGroupAsync(streamGroup.Id, cancellationToken);
-                channelIds = await GetVideoStreamIdsByUserGroupMatchAsync(streamGroup.Id, cancellationToken);
-                channelIds = channelIds.Concat(fromRegex).ToList();
+                channelIds = await GetVideoStreamIdsByStreamGroupAsync(streamGroup.Id, cancellationToken);
+                //channelIds = await GetVideoStreamIdsByUserGroupMatchAsync(streamGroup.Id, cancellationToken);
+                //channelIds = channelIds.Concat(fromRegex).ToList();
 
                 if (streamGroup.ChildVideoStreams.Any(a => channelIds.Contains(a.Id)))
                 {

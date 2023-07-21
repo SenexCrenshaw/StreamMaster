@@ -16,6 +16,7 @@ const help_en = {
   filesEPG: 'Files / EPG',
   general: 'General',
   keywordSearch: 'Keyword Search',
+  m3UIgnoreEmptyEPGID:'Ignore Streams with Empty EPG ID',
   maxConnectRetry:'How many times to retry receiving data from the source stream',
   maxConnectRetryTimeMS: 'Receiving Data Retry Timeout in MS',
   overWriteM3UChannels: 'Overwrite M3U Channels Numbers even if they are set',

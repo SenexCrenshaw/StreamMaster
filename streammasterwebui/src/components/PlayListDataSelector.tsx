@@ -152,7 +152,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       },
       {
         align: 'right',
-        bodyTemplate: sourceActionBodyTemplate, field: 'isHidden', fieldType: 'isHidden', header: 'Hidden', sortable: true,
+        bodyTemplate: sourceActionBodyTemplate, field: 'isHidden', fieldType: 'isHidden', header: 'Actions',
         style: {
           maxWidth: '8rem',
           width: '8rem',

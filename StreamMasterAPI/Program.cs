@@ -6,6 +6,7 @@ using StreamMasterApplication.Hubs;
 using StreamMasterDomain.Common;
 
 using StreamMasterInfrastructure;
+using StreamMasterInfrastructure.Logging;
 using StreamMasterInfrastructure.Persistence;
 
 using System.Security.Cryptography;
@@ -111,6 +112,13 @@ using (IServiceScope scope = app.Services.CreateScope())
     {
         initialiser.TrySeed();
     }
+
+    LogDbContextInitialiser logInitialiser = scope.ServiceProvider.GetRequiredService<LogDbContextInitialiser>();
+    await logInitialiser.InitialiseAsync().ConfigureAwait(false);
+    if (app.Environment.IsDevelopment())
+    {
+        logInitialiser.TrySeed();
+    }
 }
 
 app.UseHealthChecks("/health");
@@ -161,7 +169,7 @@ app.MapHub<StreamMasterHub>("/streammasterhub").RequireAuthorization("SignalR");
 
 app.Run();
 
-string GetRoutePattern(Endpoint endpoint)
+static string GetRoutePattern(Endpoint endpoint)
 {
     var routeEndpoint = endpoint as RouteEndpoint;
 

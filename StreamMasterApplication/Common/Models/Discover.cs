@@ -10,11 +10,11 @@ namespace StreamMasterApplication.Common.Models
         public Discover(SettingDto setting, string urlBase, int deviceID, int tunerCount)
         {
             BaseURL = urlBase;
-            DeviceAuth = setting.AppName;
+            DeviceAuth = "StreamMaster";
             DeviceID = $"2022-6MOKBM:{deviceID}";
             FirmwareName = $"bin_{setting.Version}";
             FirmwareVersion = setting.Version;
-            FriendlyName = setting.AppName;
+            FriendlyName = "StreamMaster";
             LineupURL = $"{urlBase}/lineup.json";
             Manufacturer = "stream master";
             ModelNumber = setting.Version;

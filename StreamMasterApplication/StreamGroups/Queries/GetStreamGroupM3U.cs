@@ -16,6 +16,7 @@ using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Dto;
 
 using System.Collections.Concurrent;
+using System.Text.RegularExpressions;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
@@ -101,6 +102,11 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
         _ = Parallel.ForEach(videoStreams.OrderBy(a => a.User_Tvg_chno), po, (videoStream, state, longCid) =>
         {
+            if (_setting.M3UFieldTvgId && _setting.M3UIgnoreEmptyEPGID && IsVideoStreamADummy(videoStream))
+            {
+                return;
+            }
+
             int cid = Convert.ToInt32(longCid);
 
             if (command.StreamGroupNumber == 0 && videoStream.User_Tvg_chno == 0)
@@ -119,9 +125,10 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
             videoUrl = $"{url}/api/streamgroups/stream/{encodedNumbers}/{videoStream.User_Tvg_name.Replace(" ", "_")}";
 
-            var fieldList = new List<string>();
-
-            fieldList.Add($"#EXTINF:0 CUID=\"{videoStream.Id}\"");
+            var fieldList = new List<string>
+            {
+                $"#EXTINF:0 CUID=\"{videoStream.Id}\""
+            };
 
             if (_setting.M3UFieldChannelId)
             {
@@ -182,5 +189,22 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
             }
         }
         return ret;
+    }
+
+    private bool IsVideoStreamADummy(VideoStreamDto videoStream)
+    {
+        if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
+        {
+            return true;
+        }
+
+        if (!string.IsNullOrEmpty(_setting.DummyRegex))
+        {
+            Regex regex = new(_setting.DummyRegex, RegexOptions.ECMAScript | RegexOptions.IgnoreCase);
+            var test = regex.IsMatch(videoStream.User_Tvg_ID);
+            return test;
+        }
+
+        return false;
     }
 }

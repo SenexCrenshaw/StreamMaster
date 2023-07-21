@@ -116,6 +116,17 @@ public partial class AppDbContext : IVideoStreamDB
             .ToListAsync().ConfigureAwait(false);
     }
 
+    public async Task<string> GetAvailableID()
+    {
+        var id = IdConverter.GetID();
+        while (await VideoStreams.AnyAsync(a => a.Id == id))
+        {
+            id = IdConverter.GetID();
+        }
+
+        return id;
+    }
+
     public async Task<List<VideoStream>> GetChildVideoStreamsAsync(string parentId)
     {
         return await VideoStreamLinks

@@ -54,11 +54,11 @@ public class AddVideoStreamRequestHandler : IRequestHandler<AddVideoStreamReques
 
     public async Task<VideoStreamDto?> Handle(AddVideoStreamRequest request, CancellationToken cancellationToken)
     {
-        SettingDto settings = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
+        var setting = FileUtil.GetSetting();
 
         VideoStream videoStream = new()
         {
-            Id = request.Tvg_name,
+            Id = await _context.GetAvailableID(),
             IsUserCreated = true,
 
             Tvg_chno = request.Tvg_chno is null ? 0 : (int)request.Tvg_chno,
@@ -70,8 +70,8 @@ public class AddVideoStreamRequestHandler : IRequestHandler<AddVideoStreamReques
             Tvg_ID = request.Tvg_ID is null ? "Dummy" : request.Tvg_ID,
             User_Tvg_ID = request.Tvg_ID is null ? "Dummy" : request.Tvg_ID,
 
-            Tvg_logo = request.Tvg_logo is null ? settings.StreamMasterIcon : request.Tvg_logo,
-            User_Tvg_logo = request.Tvg_logo is null ? settings.StreamMasterIcon : request.Tvg_logo,
+            Tvg_logo = request.Tvg_logo is null ? setting.StreamMasterIcon : request.Tvg_logo,
+            User_Tvg_logo = request.Tvg_logo is null ? setting.StreamMasterIcon : request.Tvg_logo,
 
             Tvg_name = request.Tvg_name,
             User_Tvg_name = request.Tvg_name,
@@ -89,14 +89,9 @@ public class AddVideoStreamRequestHandler : IRequestHandler<AddVideoStreamReques
             await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        //if (await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false) > 0)
-        //{
         VideoStreamDto ret = _mapper.Map<VideoStreamDto>(videoStream);
 
         await _publisher.Publish(new AddVideoStreamEvent(ret), cancellationToken).ConfigureAwait(false);
         return ret;
-        //}
-
-        //return null;
     }
 }
