@@ -9,7 +9,7 @@ using StreamMasterDomain.Enums;
 
 using System.Collections.Concurrent;
 
-namespace StreamMasterInfrastructure.MiddleWare;
+namespace StreamMasterInfrastructure.VideoStreamManager;
 
 public class StreamManager : IStreamManager
 {

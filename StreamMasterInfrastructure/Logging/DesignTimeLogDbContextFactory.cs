@@ -4,9 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using StreamMasterDomain.Common;
 
-using StreamMasterInfrastructure.Logging;
-
-namespace StreamMasterInfrastructure.Persistence;
+namespace StreamMasterInfrastructure.Logging;
 
 public class DesignTimeLogDbContextFactory : IDesignTimeDbContextFactory<LogDbContext>
 {

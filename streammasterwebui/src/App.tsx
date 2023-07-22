@@ -18,6 +18,7 @@ import StreamingStatus from './features/streamingStatus/StreamingStatus';
 import Home from './Home';
 import SignalRHub from './app/SignalRHub';
 import FilesEditor from './features/filesEditor/FilesEditor';
+import LogViewer from './features/logViewer/LogViewer';
 // import SDEditor from './features/sdEditor/SDEditor';
 
 const App = () => {
@@ -73,9 +74,9 @@ const App = () => {
           <SettingsEditor />
         } path="/settings" />
 
-        {/* <Route element={
-          <SDEditor />
-        } path="/editor/sd" /> */}
+        <Route element={
+          <LogViewer />
+        } path="/log" />
 
 
       </Route>

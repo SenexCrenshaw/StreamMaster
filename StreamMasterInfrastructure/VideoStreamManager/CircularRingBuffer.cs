@@ -8,7 +8,7 @@ using StreamMasterDomain.Dto;
 
 using System.Collections.Concurrent;
 
-namespace StreamMasterInfrastructure.MiddleWare;
+namespace StreamMasterInfrastructure.VideoStreamManager;
 
 /// <summary>
 /// Represents a circular ring buffer for streaming data.
@@ -163,7 +163,7 @@ public class CircularRingBuffer : ICircularRingBuffer
         }
 
         int dataInBuffer = (_writeIndex - _oldestDataIndex + _buffer.Length) % _buffer.Length;
-        float percentBuffered = ((float)dataInBuffer / _buffer.Length) * 100;
+        float percentBuffered = (float)dataInBuffer / _buffer.Length * 100;
 
         isPreBuffered = percentBuffered >= _preBuffPercent;
 
@@ -365,6 +365,6 @@ public class CircularRingBuffer : ICircularRingBuffer
     public float GetBufferUtilization()
     {
         int dataInBuffer = (_writeIndex - _oldestDataIndex + _buffer.Length) % _buffer.Length;
-        return ((float)dataInBuffer / _buffer.Length) * 100;
+        return (float)dataInBuffer / _buffer.Length * 100;
     }
 }

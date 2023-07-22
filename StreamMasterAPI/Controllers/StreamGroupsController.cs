@@ -1,41 +1,24 @@
-﻿using AutoMapper;
-
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 
-using StreamMasterApplication.Common.Interfaces;
-using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups;
 using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.StreamGroups.Queries;
-using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Enums;
 
-using System.Collections.Concurrent;
-using System.Data;
 using System.Text;
-using System.Web;
 
 namespace StreamMasterAPI.Controllers;
 
 public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 {
-    private static readonly ConcurrentDictionary<string, ClientTracker> clientTrackers = new();
-    private readonly IChannelManager _channelManager;
     private readonly ILogger<StreamGroupsController> _logger;
-    private readonly IMapper _mapper;
-    private readonly IMemoryCache _memoryCache;
 
-    public StreamGroupsController(IChannelManager channelManager, IMapper mapper, IMemoryCache memoryCache, ILogger<StreamGroupsController> logger)
+    public StreamGroupsController(ILogger<StreamGroupsController> logger)
     {
-        _mapper = mapper;
-        _memoryCache = memoryCache;
-        _channelManager = channelManager;
         _logger = logger;
     }
 
@@ -68,22 +51,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     {
         int? data = await Mediator.Send(request).ConfigureAwait(false);
         return data == null ? NotFound() : NoContent();
-    }
-
-    [HttpPost]
-    [Route("[action]")]
-    public async Task<ActionResult> FailClient(FailClientRequest request)
-    {
-        await _channelManager.FailClient(request.clientId);
-        return Ok();
-    }
-
-    [Route("[action]")]
-    [ProducesResponseType(typeof(List<StreamStatisticsResult>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllStatisticsForAllUrls()
-    {
-        List<StreamStatisticsResult> data = await Mediator.Send(new GetAllStatisticsForAllUrls()).ConfigureAwait(false);
-        return Ok(data);
     }
 
     [HttpGet]
@@ -267,206 +234,98 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         return data.ToList();
     }
 
-    [Authorize(Policy = "SGLinks")]
-    [HttpGet]
-    [Route("stream/{encodedIds}")]
-    [Route("stream/{encodedIds}.mp4")]
-    [Route("stream/{encodedIds}/{name}")]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetStreamGroupVideoStream(string encodedIds, string name, CancellationToken cancellationToken)
-    {
-        (int? StreamGroupNumberNull, string? StreamIdNull) = encodedIds.DecodeTwoValuesAsString128(_setting.ServerKey);
-        if (StreamGroupNumberNull == null || StreamIdNull == null)
-        {
-            return new NotFoundResult();
-        }
+    //[HttpGet]
+    //[Route("{streamGroupNumber}/stream/{streamId}.m3u8")]
+    //[ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    //[ProducesResponseType(StatusCodes.Status404NotFound)]
+    //public IActionResult GetStreamM3U8(int streamGroupNumber, int streamId, CancellationToken cancellationToken)
+    //{
+    //    var settings = FileUtil.GetSetting();
 
-        int streamGroupNumber = (int)StreamGroupNumberNull;
-        string videoStreamId = (string)StreamIdNull;
+    // if (settings.StreamingProxyType == StreamingProxyTypes.None) {
+    // _logger.LogCritical("Cannot get M3U8 Playlist for stream {streamId} as
+    // proxy is set to none", streamId); return NotFound(); }
 
-        var videoStream = await Mediator.Send(new GetVideoStream(videoStreamId), cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId}", streamGroupNumber, videoStreamId);
+    // var clientIdString = CheckClientID(streamGroupNumber, streamId);
 
-        if (videoStream == null)
-        {
-            _logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} not found exiting", streamGroupNumber, videoStreamId);
-            return NotFound();
-        }
+    // _logger.LogInformation("GetStreamM3U8 for stream {clientIdString} ", clientIdString);
 
-        if (string.IsNullOrEmpty(videoStream.User_Url) && !videoStream.ChildVideoStreams.Any() && string.IsNullOrEmpty(videoStream.ChildVideoStreams.First().User_Url))
-        {
-            _logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId} missing url or additional streams", streamGroupNumber, videoStreamId);
-            return new NotFoundResult();
-        }
+    // string url = $"/api/streamgroups/{streamGroupNumber}/stream/{streamId}/{clientIdString}.ts";
 
-        HttpContext.Session.Remove("ClientId");
+    // int mediaSequence = GenerateMediaSequence();
 
-        var settings = FileUtil.GetSetting();
+    // StringBuilder playlistBuilder = new StringBuilder();
 
-        if (settings.StreamingProxyType == StreamingProxyTypes.None)
-        {
-            _logger.LogInformation("GetStreamGroupVideoStream request SG Number {id} ChannelId {channelId} proxy is none, sending redirect", streamGroupNumber, videoStreamId);
+    // playlistBuilder.AppendLine("#EXTM3U");
+    // playlistBuilder.AppendLine("#EXT-X-VERSION:3");
+    // playlistBuilder.AppendLine("#EXT-X-ALLOW-CACHE:YES");
+    // playlistBuilder.AppendLine("#EXT-X-TARGETDURATION:10");
+    // playlistBuilder.AppendLine("#EXT-X-MEDIA-SEQUENCE:" + mediaSequence); playlistBuilder.AppendLine();
 
-            return Redirect(videoStream.User_Url);
-        }
+    // for (int i = 0; i < 48; i++) {
+    // playlistBuilder.AppendLine("#EXTINF:10.010000,");
+    // playlistBuilder.AppendLine(url); }
 
-        ClientStreamerConfiguration config = new(videoStream.Id, Request.Headers["User-Agent"].ToString(), cancellationToken);
+    // var m3u8Playlist = playlistBuilder.ToString();
 
-        // Get the read stream for the client
-        Stream? stream = await _channelManager.GetStream(config);
+    //    return new ContentResult
+    //    {
+    //        Content = m3u8Playlist,
+    //        ContentType = "application/x-mpegURL",
+    //        StatusCode = 200
+    //    };
+    //}
 
-        HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(_channelManager, config));
-        if (stream != null)
-        {
-            return new FileStreamResult(stream, "video/mp4");
-        }
-        //else if (error != null)
-        //{
-        //    // Log the error using the built-in logging framework
-        //    _logger.LogError("Error getting FFmpeg stream: {error.Message}", error.Message);
+    //[HttpGet]
+    //[Route("{StreamGroupNumber}/stream/{StreamId}/{clientId}.m3u8")]
+    //[ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    //[ProducesResponseType(StatusCodes.Status404NotFound)]
+    //public IActionResult GetStreamM3U8WithClientId(int StreamGroupNumber, int StreamId, string clientId, CancellationToken cancellationToken)
+    //{
+    //    var settings = FileUtil.GetSetting();
 
-        //    return GetStatus(error.ErrorCode);
-        //    // Return an appropriate error response to the client
-        //}
-        else
-        {
-            // Unknown error occurred
-            return StatusCode(StatusCodes.Status500InternalServerError, "An unknown error occurred");
-        }
-    }
+    // if (settings.StreamingProxyType == StreamingProxyTypes.None) {
+    // _logger.LogCritical("Cannot get M3U8 Playlist for stream {streamId} as
+    // proxy is set to none", StreamId); return NotFound(); }
 
-    [HttpGet]
-    [Route("{streamGroupNumber}/stream/{streamId}.m3u8")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult GetStreamM3U8(int streamGroupNumber, int streamId, CancellationToken cancellationToken)
-    {
-        var settings = FileUtil.GetSetting();
+    // var clientIdString = CheckClientID(StreamGroupNumber, StreamId, clientId);
 
-        if (settings.StreamingProxyType == StreamingProxyTypes.None)
-        {
-            _logger.LogCritical("Cannot get M3U8 Playlist for stream {streamId} as proxy is set to none", streamId);
-            return NotFound();
-        }
+    // ClientTracker? clientTracker; clientTrackers.TryGetValue(clientIdString,
+    // out clientTracker); if (clientTracker == null) {
+    // _logger.LogInformation("GetStreamM3U8WithClientId request. SG Number {id}
+    // ChannelId {channelId} not found exiting", StreamGroupNumber, StreamId);
+    // return NotFound(); }
 
-        var clientIdString = CheckClientID(streamGroupNumber, streamId);
+    // _logger.LogInformation("GetStreamM3U8 for stream {clientIdString} ", clientIdString);
 
-        _logger.LogInformation("GetStreamM3U8 for stream {clientIdString} ", clientIdString);
+    // string url = $"/api/streamgroups/{StreamGroupNumber}/stream/{StreamId}/{clientIdString}.ts";
 
-        string url = $"/api/streamgroups/{streamGroupNumber}/stream/{streamId}/{clientIdString}.ts";
+    // int mediaSequence = GenerateMediaSequence();
 
-        int mediaSequence = GenerateMediaSequence();
+    // const string timeout = "10.0"; StringBuilder playlistBuilder = new StringBuilder();
 
-        StringBuilder playlistBuilder = new StringBuilder();
+    // playlistBuilder.AppendLine("#EXTM3U");
+    // playlistBuilder.AppendLine("#EXT-X-VERSION:3");
+    // playlistBuilder.AppendLine("#EXT-X-ALLOW-CACHE:YES");
+    // playlistBuilder.AppendLine("#EXT-X-TARGETDURATION:" + timeout);
+    // playlistBuilder.AppendLine("#EXT-X-MEDIA-SEQUENCE:" + mediaSequence); playlistBuilder.AppendLine();
 
-        playlistBuilder.AppendLine("#EXTM3U");
-        playlistBuilder.AppendLine("#EXT-X-VERSION:3");
-        playlistBuilder.AppendLine("#EXT-X-ALLOW-CACHE:YES");
-        playlistBuilder.AppendLine("#EXT-X-TARGETDURATION:10");
-        playlistBuilder.AppendLine("#EXT-X-MEDIA-SEQUENCE:" + mediaSequence);
-        playlistBuilder.AppendLine();
+    // ++clientTracker.M3UGet; if (clientTracker.M3UGet == 1 ||
+    // clientTracker.SegmentCount < 1) {
+    // playlistBuilder.AppendLine($"#EXTINF:1,\n{url}"); }
 
-        for (int i = 0; i < 48; i++)
-        {
-            playlistBuilder.AppendLine("#EXTINF:10.010000,");
-            playlistBuilder.AppendLine(url);
-        }
+    // for (int i = 0; i < 5; i++) {
+    // playlistBuilder.AppendLine($"#EXTINF:{timeout},\n{url}"); }
 
-        var m3u8Playlist = playlistBuilder.ToString();
+    // var m3u8Playlist = playlistBuilder.ToString();
 
-        return new ContentResult
-        {
-            Content = m3u8Playlist,
-            ContentType = "application/x-mpegURL",
-            StatusCode = 200
-        };
-    }
-
-    [HttpGet]
-    [Route("{StreamGroupNumber}/stream/{StreamId}/{clientId}.m3u8")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult GetStreamM3U8WithClientId(int StreamGroupNumber, int StreamId, string clientId, CancellationToken cancellationToken)
-    {
-        var settings = FileUtil.GetSetting();
-
-        if (settings.StreamingProxyType == StreamingProxyTypes.None)
-        {
-            _logger.LogCritical("Cannot get M3U8 Playlist for stream {streamId} as proxy is set to none", StreamId);
-            return NotFound();
-        }
-
-        var clientIdString = CheckClientID(StreamGroupNumber, StreamId, clientId);
-
-        ClientTracker? clientTracker;
-        clientTrackers.TryGetValue(clientIdString, out clientTracker);
-        if (clientTracker == null)
-        {
-            _logger.LogInformation("GetStreamM3U8WithClientId request. SG Number {id} ChannelId {channelId} not found exiting", StreamGroupNumber, StreamId);
-            return NotFound();
-        }
-
-        _logger.LogInformation("GetStreamM3U8 for stream {clientIdString} ", clientIdString);
-
-        string url = $"/api/streamgroups/{StreamGroupNumber}/stream/{StreamId}/{clientIdString}.ts";
-
-        int mediaSequence = GenerateMediaSequence();
-
-        const string timeout = "10.0";
-        StringBuilder playlistBuilder = new StringBuilder();
-
-        playlistBuilder.AppendLine("#EXTM3U");
-        playlistBuilder.AppendLine("#EXT-X-VERSION:3");
-        playlistBuilder.AppendLine("#EXT-X-ALLOW-CACHE:YES");
-        playlistBuilder.AppendLine("#EXT-X-TARGETDURATION:" + timeout);
-        playlistBuilder.AppendLine("#EXT-X-MEDIA-SEQUENCE:" + mediaSequence);
-        playlistBuilder.AppendLine();
-
-        ++clientTracker.M3UGet;
-        if (clientTracker.M3UGet == 1 || clientTracker.SegmentCount < 1)
-        {
-            playlistBuilder.AppendLine($"#EXTINF:1,\n{url}");
-        }
-
-        for (int i = 0; i < 5; i++)
-        {
-            playlistBuilder.AppendLine($"#EXTINF:{timeout},\n{url}");
-        }
-
-        var m3u8Playlist = playlistBuilder.ToString();
-
-        return new ContentResult
-        {
-            Content = m3u8Playlist,
-            ContentType = "application/x-mpegURL",
-            StatusCode = 200
-        };
-    }
-
-    [HttpPost]
-    [Route("[action]/{streamUrl}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public IActionResult SimulateStreamFailure(string streamUrl)
-    {
-        if (string.IsNullOrEmpty(streamUrl))
-        {
-            return BadRequest("streamUrl is required.");
-        }
-
-        _channelManager.SimulateStreamFailure(HttpUtility.UrlDecode(streamUrl));
-        return Ok();
-    }
-
-    [HttpPost]
-    [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public IActionResult SimulateStreamFailureForAll()
-    {
-        _channelManager.SimulateStreamFailureForAll();
-        return Ok();
-    }
+    //    return new ContentResult
+    //    {
+    //        Content = m3u8Playlist,
+    //        ContentType = "application/x-mpegURL",
+    //        StatusCode = 200
+    //    };
+    //}
 
     [HttpPut]
     [Route("[action]")]
@@ -479,31 +338,30 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         return entity == null ? NotFound() : NoContent();
     }
 
-    private string CheckClientID(int streamGroupNumber, int streamId, string clientId = "")
-    {
-        if (!string.IsNullOrEmpty(clientId))
-        {
-            if (!clientTrackers.TryGetValue(clientId, out _))
-            {
-                clientTrackers.TryAdd(clientId, new ClientTracker { StreamGroupNumber = streamGroupNumber, StreamId = streamId });
-            }
-            HttpContext.Session.SetString("ClientId", clientId);
-            return clientId;
-        }
+    //private string CheckClientID(int streamGroupNumber, int streamId, string clientId = "")
+    //{
+    //    if (!string.IsNullOrEmpty(clientId))
+    //    {
+    //        if (!clientTrackers.TryGetValue(clientId, out _))
+    //        {
+    //            clientTrackers.TryAdd(clientId, new ClientTracker { StreamGroupNumber = streamGroupNumber, StreamId = streamId });
+    //        }
+    //        HttpContext.Session.SetString("ClientId", clientId);
+    //        return clientId;
+    //    }
 
-        string? clientIdString = HttpContext.Session.GetString("ClientId");
+    // string? clientIdString = HttpContext.Session.GetString("ClientId");
 
-        if (string.IsNullOrEmpty(clientIdString) ||
-            !clientTrackers.TryGetValue(clientIdString, out ClientTracker? cl)
-            || cl.StreamGroupNumber != streamGroupNumber || cl.StreamId != streamId)
-        {
-            clientIdString = Guid.NewGuid().ToString();
-            clientTrackers.TryAdd(clientIdString, new ClientTracker { StreamGroupNumber = streamGroupNumber, StreamId = streamId });
-        }
+    // if (string.IsNullOrEmpty(clientIdString) ||
+    // !clientTrackers.TryGetValue(clientIdString, out ClientTracker? cl) ||
+    // cl.StreamGroupNumber != streamGroupNumber || cl.StreamId != streamId) {
+    // clientIdString = Guid.NewGuid().ToString();
+    // clientTrackers.TryAdd(clientIdString, new ClientTracker {
+    // StreamGroupNumber = streamGroupNumber, StreamId = streamId }); }
 
-        HttpContext.Session.SetString("ClientId", clientIdString);
-        return clientIdString;
-    }
+    //    HttpContext.Session.SetString("ClientId", clientIdString);
+    //    return clientIdString;
+    //}
 
     private ObjectResult GetStatus(ProxyStreamErrorCode proxyStreamErrorCode)
     {
@@ -533,31 +391,4 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
         return url;
     }
-
-    private class UnregisterClientOnDispose : IDisposable
-    {
-        private readonly IChannelManager _channelManager;
-        private readonly ClientStreamerConfiguration _config;
-
-        public UnregisterClientOnDispose(IChannelManager channelManager, ClientStreamerConfiguration config)
-        {
-            _channelManager = channelManager;
-            _config = config;
-        }
-
-        public void Dispose()
-        {
-            _channelManager.RemoveClient(_config);
-        }
-    }
-}
-
-public class ClientTracker
-{
-    public Guid ClientId { get; set; }
-    public int M3UGet { get; set; } = 0;
-    public int OffSet { get; set; }
-    public int SegmentCount { get; set; } = 0;
-    public int StreamGroupNumber { get; set; }
-    public int StreamId { get; set; }
 }

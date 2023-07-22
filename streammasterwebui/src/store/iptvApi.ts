@@ -4,6 +4,7 @@ export const addTagTypes = [
   "EPGFiles",
   "Files",
   "Icons",
+  "Logs",
   "M3UFiles",
   "Misc",
   "Programmes",
@@ -259,6 +260,17 @@ const injectedRtkApi = api
           providesTags: ["Icons"],
         }
       ),
+      logsGetLogRequest: build.mutation<
+        LogsGetLogRequestApiResponse,
+        LogsGetLogRequestApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/logs/getlogrequest`,
+          method: "POST",
+          body: queryArg,
+        }),
+        invalidatesTags: ["Logs"],
+      }),
       m3UFilesAddM3UFile: build.mutation<
         M3UFilesAddM3UFileApiResponse,
         M3UFilesAddM3UFileApiArg
@@ -545,24 +557,6 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["StreamGroups"],
       }),
-      streamGroupsFailClient: build.mutation<
-        StreamGroupsFailClientApiResponse,
-        StreamGroupsFailClientApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/streamgroups/failclient`,
-          method: "POST",
-          body: queryArg,
-        }),
-        invalidatesTags: ["StreamGroups"],
-      }),
-      streamGroupsGetAllStatisticsForAllUrls: build.query<
-        StreamGroupsGetAllStatisticsForAllUrlsApiResponse,
-        StreamGroupsGetAllStatisticsForAllUrlsApiArg
-      >({
-        query: () => ({ url: `/api/streamgroups/getallstatisticsforallurls` }),
-        providesTags: ["StreamGroups"],
-      }),
       streamGroupsGetStreamGroup: build.query<
         StreamGroupsGetStreamGroupApiResponse,
         StreamGroupsGetStreamGroupApiArg
@@ -663,69 +657,6 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/streamgroups/getstreamgroups` }),
         providesTags: ["StreamGroups"],
       }),
-      streamGroupsGetStreamGroupVideoStream: build.query<
-        StreamGroupsGetStreamGroupVideoStreamApiResponse,
-        StreamGroupsGetStreamGroupVideoStreamApiArg
-      >({
-        query: (queryArg) => ({ url: `/api/streamgroups/stream/${queryArg}` }),
-        providesTags: ["StreamGroups"],
-      }),
-      streamGroupsGetStreamGroupVideoStream2: build.query<
-        StreamGroupsGetStreamGroupVideoStream2ApiResponse,
-        StreamGroupsGetStreamGroupVideoStream2ApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/streamgroups/stream/${queryArg}.mp4`,
-        }),
-        providesTags: ["StreamGroups"],
-      }),
-      streamGroupsGetStreamGroupVideoStream3: build.query<
-        StreamGroupsGetStreamGroupVideoStream3ApiResponse,
-        StreamGroupsGetStreamGroupVideoStream3ApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/streamgroups/stream/${queryArg.encodedIds}/${queryArg.name}`,
-        }),
-        providesTags: ["StreamGroups"],
-      }),
-      streamGroupsGetStreamM3U8: build.query<
-        StreamGroupsGetStreamM3U8ApiResponse,
-        StreamGroupsGetStreamM3U8ApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/streamgroups/${queryArg.streamGroupNumber}/stream/${queryArg.streamId}.m3u8`,
-        }),
-        providesTags: ["StreamGroups"],
-      }),
-      streamGroupsGetStreamM3U8WithClientId: build.query<
-        StreamGroupsGetStreamM3U8WithClientIdApiResponse,
-        StreamGroupsGetStreamM3U8WithClientIdApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/streamgroups/${queryArg.streamGroupNumber}/stream/${queryArg.streamId}/${queryArg.clientId}.m3u8`,
-        }),
-        providesTags: ["StreamGroups"],
-      }),
-      streamGroupsSimulateStreamFailure: build.mutation<
-        StreamGroupsSimulateStreamFailureApiResponse,
-        StreamGroupsSimulateStreamFailureApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/streamgroups/simulatestreamfailure/${queryArg}`,
-          method: "POST",
-        }),
-        invalidatesTags: ["StreamGroups"],
-      }),
-      streamGroupsSimulateStreamFailureForAll: build.mutation<
-        StreamGroupsSimulateStreamFailureForAllApiResponse,
-        StreamGroupsSimulateStreamFailureForAllApiArg
-      >({
-        query: () => ({
-          url: `/api/streamgroups/simulatestreamfailureforall`,
-          method: "POST",
-        }),
-        invalidatesTags: ["StreamGroups"],
-      }),
       streamGroupsUpdateStreamGroup: build.mutation<
         StreamGroupsUpdateStreamGroupApiResponse,
         StreamGroupsUpdateStreamGroupApiArg
@@ -770,6 +701,49 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["VideoStreams"],
       }),
+      videoStreamsFailClient: build.mutation<
+        VideoStreamsFailClientApiResponse,
+        VideoStreamsFailClientApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/failclient`,
+          method: "POST",
+          body: queryArg,
+        }),
+        invalidatesTags: ["VideoStreams"],
+      }),
+      videoStreamsGetAllStatisticsForAllUrls: build.query<
+        VideoStreamsGetAllStatisticsForAllUrlsApiResponse,
+        VideoStreamsGetAllStatisticsForAllUrlsApiArg
+      >({
+        query: () => ({ url: `/api/videostreams/getallstatisticsforallurls` }),
+        providesTags: ["VideoStreams"],
+      }),
+      videoStreamsGetVideoStreamStream: build.query<
+        VideoStreamsGetVideoStreamStreamApiResponse,
+        VideoStreamsGetVideoStreamStreamApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/videostreams/stream/${queryArg}` }),
+        providesTags: ["VideoStreams"],
+      }),
+      videoStreamsGetVideoStreamStream2: build.query<
+        VideoStreamsGetVideoStreamStream2ApiResponse,
+        VideoStreamsGetVideoStreamStream2ApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/stream/${queryArg}.mp4`,
+        }),
+        providesTags: ["VideoStreams"],
+      }),
+      videoStreamsGetVideoStreamStream3: build.query<
+        VideoStreamsGetVideoStreamStream3ApiResponse,
+        VideoStreamsGetVideoStreamStream3ApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/stream/${queryArg.encodedIds}/${queryArg.name}`,
+        }),
+        providesTags: ["VideoStreams"],
+      }),
       videoStreamsGetVideoStream: build.query<
         VideoStreamsGetVideoStreamApiResponse,
         VideoStreamsGetVideoStreamApiArg
@@ -792,6 +766,26 @@ const injectedRtkApi = api
           url: `/api/videostreams/setvideostreamchannelnumbers`,
           method: "PATCH",
           body: queryArg,
+        }),
+        invalidatesTags: ["VideoStreams"],
+      }),
+      videoStreamsSimulateStreamFailure: build.mutation<
+        VideoStreamsSimulateStreamFailureApiResponse,
+        VideoStreamsSimulateStreamFailureApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/simulatestreamfailure/${queryArg}`,
+          method: "POST",
+        }),
+        invalidatesTags: ["VideoStreams"],
+      }),
+      videoStreamsSimulateStreamFailureForAll: build.mutation<
+        VideoStreamsSimulateStreamFailureForAllApiResponse,
+        VideoStreamsSimulateStreamFailureForAllApiArg
+      >({
+        query: () => ({
+          url: `/api/videostreams/simulatestreamfailureforall`,
+          method: "POST",
         }),
         invalidatesTags: ["VideoStreams"],
       }),
@@ -909,6 +903,8 @@ export type IconsGetIconApiResponse = /** status 200  */ IconFileDto;
 export type IconsGetIconApiArg = number;
 export type IconsGetIconsApiResponse = /** status 200  */ IconFileDto[];
 export type IconsGetIconsApiArg = void;
+export type LogsGetLogRequestApiResponse = /** status 200  */ LogEntryDto[];
+export type LogsGetLogRequestApiArg = GetLog;
 export type M3UFilesAddM3UFileApiResponse = /** status 200  */
   | undefined
   | /** status 201  */ M3UFilesDto;
@@ -1005,11 +1001,6 @@ export type StreamGroupsAddStreamGroupApiArg = AddStreamGroupRequest;
 export type StreamGroupsDeleteStreamGroupApiResponse =
   /** status 200  */ undefined;
 export type StreamGroupsDeleteStreamGroupApiArg = DeleteStreamGroupRequest;
-export type StreamGroupsFailClientApiResponse = unknown;
-export type StreamGroupsFailClientApiArg = FailClientRequest;
-export type StreamGroupsGetAllStatisticsForAllUrlsApiResponse =
-  /** status 200  */ StreamStatisticsResult[];
-export type StreamGroupsGetAllStatisticsForAllUrlsApiArg = void;
 export type StreamGroupsGetStreamGroupApiResponse =
   /** status 200  */ StreamGroupDto;
 export type StreamGroupsGetStreamGroupApiArg = number;
@@ -1046,33 +1037,6 @@ export type StreamGroupsGetStreamGroupM3UApiArg = string;
 export type StreamGroupsGetStreamGroupsApiResponse =
   /** status 200  */ StreamGroupDto[];
 export type StreamGroupsGetStreamGroupsApiArg = void;
-export type StreamGroupsGetStreamGroupVideoStreamApiResponse = unknown;
-export type StreamGroupsGetStreamGroupVideoStreamApiArg = string;
-export type StreamGroupsGetStreamGroupVideoStream2ApiResponse = unknown;
-export type StreamGroupsGetStreamGroupVideoStream2ApiArg = string;
-export type StreamGroupsGetStreamGroupVideoStream3ApiResponse = unknown;
-export type StreamGroupsGetStreamGroupVideoStream3ApiArg = {
-  encodedIds: string;
-  name: string;
-};
-export type StreamGroupsGetStreamM3U8ApiResponse = /** status 200  */ string;
-export type StreamGroupsGetStreamM3U8ApiArg = {
-  streamGroupNumber: number;
-  streamId: number;
-};
-export type StreamGroupsGetStreamM3U8WithClientIdApiResponse =
-  /** status 200  */ string;
-export type StreamGroupsGetStreamM3U8WithClientIdApiArg = {
-  streamGroupNumber: number;
-  streamId: number;
-  clientId: string;
-};
-export type StreamGroupsSimulateStreamFailureApiResponse =
-  /** status 200  */ undefined;
-export type StreamGroupsSimulateStreamFailureApiArg = string;
-export type StreamGroupsSimulateStreamFailureForAllApiResponse =
-  /** status 200  */ undefined;
-export type StreamGroupsSimulateStreamFailureForAllApiArg = void;
 export type StreamGroupsUpdateStreamGroupApiResponse =
   /** status 204  */ undefined;
 export type StreamGroupsUpdateStreamGroupApiArg = UpdateStreamGroupRequest;
@@ -1087,6 +1051,20 @@ export type VideoStreamsChangeVideoStreamChannelApiArg =
 export type VideoStreamsDeleteVideoStreamApiResponse =
   /** status 200  */ undefined;
 export type VideoStreamsDeleteVideoStreamApiArg = DeleteVideoStreamRequest;
+export type VideoStreamsFailClientApiResponse = unknown;
+export type VideoStreamsFailClientApiArg = FailClientRequest;
+export type VideoStreamsGetAllStatisticsForAllUrlsApiResponse =
+  /** status 200  */ StreamStatisticsResult[];
+export type VideoStreamsGetAllStatisticsForAllUrlsApiArg = void;
+export type VideoStreamsGetVideoStreamStreamApiResponse = unknown;
+export type VideoStreamsGetVideoStreamStreamApiArg = string;
+export type VideoStreamsGetVideoStreamStream2ApiResponse = unknown;
+export type VideoStreamsGetVideoStreamStream2ApiArg = string;
+export type VideoStreamsGetVideoStreamStream3ApiResponse = unknown;
+export type VideoStreamsGetVideoStreamStream3ApiArg = {
+  encodedIds: string;
+  name: string;
+};
 export type VideoStreamsGetVideoStreamApiResponse =
   /** status 200  */ VideoStreamDto;
 export type VideoStreamsGetVideoStreamApiArg = string;
@@ -1097,6 +1075,12 @@ export type VideoStreamsSetVideoStreamChannelNumbersApiResponse =
   /** status 200  */ ChannelNumberPair[] | /** status 204  */ undefined;
 export type VideoStreamsSetVideoStreamChannelNumbersApiArg =
   SetVideoStreamChannelNumbersRequest;
+export type VideoStreamsSimulateStreamFailureApiResponse =
+  /** status 200  */ undefined;
+export type VideoStreamsSimulateStreamFailureApiArg = string;
+export type VideoStreamsSimulateStreamFailureForAllApiResponse =
+  /** status 200  */ undefined;
+export type VideoStreamsSimulateStreamFailureForAllApiArg = void;
 export type VideoStreamsUpdateVideoStreamApiResponse =
   /** status 204  */ undefined;
 export type VideoStreamsUpdateVideoStreamApiArg = UpdateVideoStreamRequest;
@@ -1221,6 +1205,19 @@ export type AddIconFileRequest = {
 };
 export type AutoMatchIconToStreamsRequest = {
   ids?: string[];
+};
+export type LogLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+export type LogEntry = {
+  id?: number;
+  logLevel?: LogLevel;
+  logLevelName?: string;
+  message?: string;
+  timeStamp?: string;
+};
+export type LogEntryDto = LogEntry & object;
+export type GetLog = {
+  lastId?: number;
+  maxLines?: number;
 };
 export type M3UFilesDto = BaseFileDto & {
   startingChannelNumber?: number;
@@ -1477,7 +1474,7 @@ export type Account = {
   maxLineups?: number;
   messages?: any[];
 };
-export type Systemstatus = {
+export type SdSystemstatus = {
   date?: string;
   message?: string;
   status?: string;
@@ -1490,7 +1487,7 @@ export type SdStatus = {
   lineups?: Lineup[];
   notifications?: any[];
   serverID?: string;
-  systemStatus?: Systemstatus[];
+  systemStatus?: SdSystemstatus[];
 };
 export type TaskQueueStatusDto = {
   command?: string;
@@ -1647,31 +1644,6 @@ export type AddStreamGroupRequest = {
 export type DeleteStreamGroupRequest = {
   id?: number;
 };
-export type FailClientRequest = {
-  clientId: string;
-};
-export type StreamStatisticsResult = {
-  clientAgent?: string;
-  clientBitsPerSecond?: number;
-  clientBytesRead?: number;
-  clientBytesWritten?: number;
-  clientElapsedTime?: string;
-  clientId?: string;
-  clientStartTime?: string;
-  inputBitsPerSecond?: number;
-  inputBytesRead?: number;
-  inputBytesWritten?: number;
-  inputElapsedTime?: string;
-  inputStartTime?: string;
-  logo?: string | null;
-  m3UStreamId?: string;
-  m3UStreamName?: string;
-  m3UStreamProxyType?: StreamingProxyTypes;
-  rank?: number;
-  streamUrl?: string | null;
-  videoStreamId?: string;
-  videoStreamName?: string;
-};
 export type EpgChannel = {
   channelNumber?: number;
   logo?: string;
@@ -1717,6 +1689,31 @@ export type ChangeVideoStreamChannelRequest = {
 };
 export type DeleteVideoStreamRequest = {
   videoStreamId?: string;
+};
+export type FailClientRequest = {
+  clientId: string;
+};
+export type StreamStatisticsResult = {
+  clientAgent?: string;
+  clientBitsPerSecond?: number;
+  clientBytesRead?: number;
+  clientBytesWritten?: number;
+  clientElapsedTime?: string;
+  clientId?: string;
+  clientStartTime?: string;
+  inputBitsPerSecond?: number;
+  inputBytesRead?: number;
+  inputBytesWritten?: number;
+  inputElapsedTime?: string;
+  inputStartTime?: string;
+  logo?: string | null;
+  m3UStreamId?: string;
+  m3UStreamName?: string;
+  m3UStreamProxyType?: StreamingProxyTypes;
+  rank?: number;
+  streamUrl?: string | null;
+  videoStreamId?: string;
+  videoStreamName?: string;
 };
 export type ChannelNumberPair = {
   channelNumber: number;
@@ -1774,6 +1771,7 @@ export const {
   useIconsCacheIconsFromVideoStreamsRequestQuery,
   useIconsGetIconQuery,
   useIconsGetIconsQuery,
+  useLogsGetLogRequestMutation,
   useM3UFilesAddM3UFileMutation,
   useM3UFilesGetM3UFilesQuery,
   useM3UFilesAddM3UFileFromFormMutation,
@@ -1806,8 +1804,6 @@ export const {
   useSettingsUpdateSettingMutation,
   useStreamGroupsAddStreamGroupMutation,
   useStreamGroupsDeleteStreamGroupMutation,
-  useStreamGroupsFailClientMutation,
-  useStreamGroupsGetAllStatisticsForAllUrlsQuery,
   useStreamGroupsGetStreamGroupQuery,
   useStreamGroupsGetStreamGroupByStreamNumberQuery,
   useStreamGroupsGetStreamGroupCapabilityQuery,
@@ -1820,20 +1816,20 @@ export const {
   useStreamGroupsGetStreamGroupLineUpStatusQuery,
   useStreamGroupsGetStreamGroupM3UQuery,
   useStreamGroupsGetStreamGroupsQuery,
-  useStreamGroupsGetStreamGroupVideoStreamQuery,
-  useStreamGroupsGetStreamGroupVideoStream2Query,
-  useStreamGroupsGetStreamGroupVideoStream3Query,
-  useStreamGroupsGetStreamM3U8Query,
-  useStreamGroupsGetStreamM3U8WithClientIdQuery,
-  useStreamGroupsSimulateStreamFailureMutation,
-  useStreamGroupsSimulateStreamFailureForAllMutation,
   useStreamGroupsUpdateStreamGroupMutation,
   useVideoStreamsAddVideoStreamMutation,
   useVideoStreamsChangeVideoStreamChannelMutation,
   useVideoStreamsDeleteVideoStreamMutation,
+  useVideoStreamsFailClientMutation,
+  useVideoStreamsGetAllStatisticsForAllUrlsQuery,
+  useVideoStreamsGetVideoStreamStreamQuery,
+  useVideoStreamsGetVideoStreamStream2Query,
+  useVideoStreamsGetVideoStreamStream3Query,
   useVideoStreamsGetVideoStreamQuery,
   useVideoStreamsGetVideoStreamsQuery,
   useVideoStreamsSetVideoStreamChannelNumbersMutation,
+  useVideoStreamsSimulateStreamFailureMutation,
+  useVideoStreamsSimulateStreamFailureForAllMutation,
   useVideoStreamsUpdateVideoStreamMutation,
   useVideoStreamsUpdateVideoStreamsMutation,
 } = injectedRtkApi;

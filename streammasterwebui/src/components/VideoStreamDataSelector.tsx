@@ -325,8 +325,8 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         header: 'Ch.',
         sortable: true,
         style: {
-          maxWidth: '123rem',
-          width: '123rem',
+          maxWidth: '1rem',
+          width: '1rem',
         } as CSSProperties,
       },
       {
@@ -442,6 +442,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         columns={targetColumns}
         dataSource={filteredStreams}
         emptyMessage="No Streams"
+        enableState={false}
         headerRightTemplate={rightHeaderTemplate}
         id={props.id + 'DataSelector'}
         isLoading={videoStreamsQuery.isLoading}

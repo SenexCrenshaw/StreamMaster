@@ -123,7 +123,7 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
             var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _setting.ServerKey, iv);
 
-            videoUrl = $"{url}/api/streamgroups/stream/{encodedNumbers}/{videoStream.User_Tvg_name.Replace(" ", "_")}";
+            videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{videoStream.User_Tvg_name.Replace(" ", "_")}";
 
             var fieldList = new List<string>
             {

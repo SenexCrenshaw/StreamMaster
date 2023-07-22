@@ -1,10 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+using StreamMasterApplication.Logs;
+
 using StreamMasterDomain.Common;
+using StreamMasterDomain.Entities;
 
 namespace StreamMasterInfrastructure.Logging;
 
-public class LogDbContext : DbContext
+public class LogDbContext : DbContext, ILogDB
 {
     private string DbPath = "";
 
@@ -23,14 +26,11 @@ public class LogDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        var DbPath = Path.Join(Constants.DataDirectory, "StreamMaster_Log.db");
         optionsBuilder.UseSqlite($"Data Source={DbPath}");
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        //_ = builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-
         base.OnModelCreating(builder);
     }
 }

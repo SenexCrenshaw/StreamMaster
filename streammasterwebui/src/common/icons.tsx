@@ -17,7 +17,9 @@ import { default as cancelIcon } from '@mui/icons-material/Cancel';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import SendTimeExtensionIcon from '@mui/icons-material/SendTimeExtension';
 import GroupsIcon from '@mui/icons-material/Groups';
+import AddToQueueIcon from '@mui/icons-material/AddToQueue';
 
+export const LogIcon = AddToQueueIcon;
 export const SDIcon = SendTimeExtensionIcon;
 export const PlayListIcon = LibraryBooksIcon;
 export const VideoIcon = OndemandVideoIcon;

@@ -15,10 +15,6 @@ public interface IStreamGroupController
 
     Task<ActionResult> DeleteStreamGroup(DeleteStreamGroupRequest request);
 
-    Task<ActionResult> FailClient(FailClientRequest request);
-
-    Task<IActionResult> GetAllStatisticsForAllUrls();
-
     Task<ActionResult<StreamGroupDto>> GetStreamGroup(int StreamGroupNumber);
 
     Task<ActionResult<StreamGroupDto>> GetStreamGroupByStreamNumber(int StreamGroupNumber);
@@ -30,10 +26,6 @@ public interface IStreamGroupController
     Task<IActionResult> GetStreamGroupM3U(string encodedId);
 
     Task<ActionResult<IEnumerable<StreamGroupDto>>> GetStreamGroups();
-
-    Task<IActionResult> GetStreamGroupVideoStream(string encodedId, string name, CancellationToken cancellationToken);
-
-    IActionResult SimulateStreamFailure(string streamUrl);
 
     Task<ActionResult> UpdateStreamGroup(UpdateStreamGroupRequest request);
 }

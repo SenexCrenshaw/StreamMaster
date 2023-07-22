@@ -31,8 +31,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { type ColumnAlign, type ColumnFieldType, type ColumnMeta, type DataSelectorSelectionMode } from './DataSelectorTypes';
 import { useIntl } from 'react-intl';
 
-
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
+  const tableRef = React.useRef<DataTable<T[]>>(null);
+
   const tooltipClassName = React.useMemo(() => "menuitemds-" + uuidv4(), []);
   const [globalSourceFilterValue, setGlobalSourceFilterValue] = useLocalStorage('', props.id + '-sourceGlobalFilterValue');
   const [globalSearchName, setGlobalSearchName] = React.useState<string>('');
@@ -370,6 +371,11 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       camelize = true;
     }
 
+    if (fieldType === 'blank') {
+      return (<div />);
+      ;
+    }
+
     if (fieldType === 'm3uFileName') {
       const m3UFileId = getRecordString(data, 'm3UFileId');
       return m3uFileNameBodyTemplate(parseInt(m3UFileId));
@@ -464,10 +470,20 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }, [epgLinkSourceTemplate, epgSourceTemplate, getRecord, getRecordString, imageBodyTemplate, m3uFileNameBodyTemplate, m3uLinkSourceTemplate, streamsBodyTemplate, urlLinkSourceTemplate]);
 
   React.useEffect(() => {
-    if (props.dataSource !== undefined)
+    if (props.dataSource !== undefined) {
       setDataSource(props.dataSource);
+    }
 
   }, [props.dataSource]);
+
+  React.useEffect(() => {
+
+    if (dataSource !== undefined && props.enableVirtualScroll === true) {
+      console.debug("Scroll to ", dataSource.length);
+      tableRef.current?.getVirtualScroller()?.scrollToIndex(dataSource.length, 'auto');
+    }
+
+  }, [dataSource, props.enableVirtualScroll]);
 
   const showPagination = React.useMemo((): boolean => {
     let dataLength = 0;
@@ -772,9 +788,13 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }, [selections]);
 
   const getStyle = React.useCallback((style: CSSProperties | undefined, fieldType: ColumnFieldType | undefined): CSSProperties | undefined => {
-    // if (!fieldType) {
-    //   return style;
-    // }
+
+    if (fieldType === 'blank') {
+      return {
+        maxWidth: '1rem',
+        width: '1rem',
+      } as CSSProperties;
+    }
 
     if (fieldType === 'image' || fieldType === 'm3ulink' || fieldType === 'epglink' || fieldType === 'url') {
       return {
@@ -820,29 +840,16 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }, [getRecordString, props]);
 
   const getHeader = React.useCallback((field: string, header: string | undefined, fieldType: ColumnFieldType | undefined): React.ReactNode => {
-
     if (fieldType) {
-      if (fieldType === 'epg') {
-        return 'EPG';
-      }
-    }
+      if (fieldType === 'blank') { return (<div />); }
 
-    if (fieldType) {
-      if (fieldType === 'm3ulink') {
-        return 'M3U';
-      }
-    }
+      if (fieldType === 'epg') { return 'EPG'; }
 
-    if (fieldType) {
-      if (fieldType === 'epglink') {
-        return 'XMLTV';
-      }
-    }
+      if (fieldType === 'm3ulink') { return 'M3U'; }
 
-    if (fieldType) {
-      if (fieldType === 'url') {
-        return 'HDHR URL';
-      }
+      if (fieldType === 'epglink') { return 'XMLTV'; }
+
+      if (fieldType === 'url') { return 'HDHR URL'; }
     }
 
     if (fieldType) {
@@ -931,7 +938,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   if (showSkeleton) {
     return (
       <div className='dataselector flex justify-content-start align-items-center' >
-        <div className={`${props.className !== undefined ? props.className : ''}  min-w-full min-h-full surface-overlay`}>
+        <div className={`${props.className !== undefined ? props.className : ''} flex min-w-full min-h-full surface-overlay`}>
 
           <DataTable className="p-datatable-striped" header={sourceRenderHeader} value={items.concat(items)}>
             <Column
@@ -981,8 +988,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   return (
 
-    <div className='dataselector flex justify-content-start align-items-center' >
-      <div className={`${props.className !== undefined ? props.className : ''}  min-w-full w-full min-h-full surface-overlay`}>
+    <div className='dataselector flex w-full min-w-full  justify-content-start align-items-center' >
+      <div className={`${props.className !== undefined ? props.className : ''} min-h-full w-full surface-overlay`}>
         <DataTable
           dataKey='id'
           editMode='cell'
@@ -1000,9 +1007,10 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           onRowToggle={(e: DataTableRowToggleEvent) => setExpandedRows(e.data as DataTableExpandedRows)}
           onSelectionChange={((e) => onSelectionChange(e))}
           onValueChange={(e) => { onValueChanged(e); }}
-          paginator={props.enableVirtual === true ? undefined : showPagination}
+          paginator={props.enableVirtualScroll === true ? undefined : showPagination}
           paginatorClassName='text-xs p-0 m-0 withpadding'
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+          ref={tableRef}
           removableSort
           reorderableRows={props.reorderable}
           resizableColumns
@@ -1011,7 +1019,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           rowGroupMode={props.groupRowsBy !== undefined && props.groupRowsBy !== '' ? 'subheader' : undefined}
           rows={25}
           rowsPerPageOptions={[25, 50, 100, 250]}
-          scrollHeight='flex'
+          scrollHeight={props.enableVirtualScroll === true ? props.virtualScrollHeight !== undefined ? props.virtualScrollHeight : '400px' : 'flex'}
           scrollable
           selection={selections}
           selectionMode={getSelectionMode}
@@ -1025,7 +1033,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           stripedRows
           style={props.style}
           value={dataSource}
-          virtualScrollerOptions={props.enableVirtual === true ? { autoSize: true, itemSize: 22, orientation: undefined } : undefined}
+          virtualScrollerOptions={props.enableVirtualScroll === true ? { autoSize: true, itemSize: 22, orientation: undefined } : undefined}
         >
           <Column
             body={<i className="pi pi-chevron-right" />}
@@ -1090,7 +1098,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 DataSelector.displayName = 'DataSelector';
 DataSelector.defaultProps = {
   enableState: true,
-  enableVirtual: false,
+  enableVirtualScroll: false,
   globalSearchEnabled: true,
   leftColSize: 4,
   name: '',
@@ -1127,7 +1135,7 @@ export type DataSelectorProps<T> = {
    */
   emptyMessage?: React.ReactNode;
   enableState?: boolean | undefined;
-  enableVirtual?: boolean | undefined;
+  enableVirtualScroll?: boolean | undefined;
   /**
    * Whether to enable global searching.
    */
@@ -1166,6 +1174,7 @@ export type DataSelectorProps<T> = {
    * A function that is called when the multi-select button is clicked.
    */
   onMultiSelectClick?: (value: boolean) => void;
+
   /**
    * A function that is called when a row's visibility is changed.
    */
@@ -1212,6 +1221,7 @@ export type DataSelectorProps<T> = {
    * The inline style of the component.
    */
   style?: CSSProperties;
+  virtualScrollHeight?: string | undefined;
 }
 
 export default React.memo(DataSelector);

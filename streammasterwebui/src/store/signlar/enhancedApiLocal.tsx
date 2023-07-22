@@ -186,7 +186,7 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
         await cacheEntryRemoved;
       },
     },
-    streamGroupsGetAllStatisticsForAllUrls: {
+    videoStreamsGetAllStatisticsForAllUrls: {
       async onCacheEntryAdded(
         arg,
         { updateCachedData, cacheDataLoaded, cacheEntryRemoved }

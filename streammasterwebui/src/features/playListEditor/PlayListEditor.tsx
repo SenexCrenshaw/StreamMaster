@@ -1,6 +1,6 @@
 import React from "react";
 import type * as StreamMasterApi from '../../store/iptvApi';
-import StreamDataSelector from '../../components/VideoStreamDataSelector';
+import VideoStreamDataSelector from '../../components/VideoStreamDataSelector';
 import PlayListDataSelector from '../../components/PlayListDataSelector';
 import { PlayListEditorIcon } from '../../common/icons';
 
@@ -35,7 +35,7 @@ const PlayListEditor = (props: PlayListEditorProps) => {
             />
           </div>
           <div className="col-8 m-0 p-0">
-            <StreamDataSelector
+            <VideoStreamDataSelector
               groups={selectedChannelGroups}
               id='playlistTarget'
             />

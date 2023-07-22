@@ -42,23 +42,8 @@ public static class ConfigureServices
         });
 
 
-        //services.AddLogging(logging =>
-        //{
-        //    logging.ClearProviders();
-        //    logging.AddConsole();
-        //    logging.AddDebug();
-        //    logging.SetMinimumLevel(LogLevel.Trace);
-        //    //b.addfilter("microsoft.aspnetcore",loglevel.warning);
-        //    logging.AddFilter("microsoft.aspnetcore.dataprotection.keymanagement.xmlkeymanager", LogLevel.Error);
-        //    logging.AddFilter("microsoft.aspnetcore.httplogging.httploggingmiddleware", LogLevel.Debug);
-        //    logging.AddFilter("microsoft.aspnetcore.authentication", LogLevel.Debug);
-        //    logging.AddFilter("microsoft.aspnetcore.authorization", LogLevel.Debug);
-        //});
         services.AddMemoryCache();
-        //_ = services.AddLogging();
-
-    
-        //_ = services.AddSingleton<ICurrentUserService, CurrentUserService>();
+      
 
         services.Configure<ForwardedHeadersOptions>(options =>
         {

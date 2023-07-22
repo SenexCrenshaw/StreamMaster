@@ -15,9 +15,9 @@ namespace StreamMasterInfrastructure.Logging.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "7.0.8");
+            modelBuilder.HasAnnotation("ProductVersion", "7.0.9");
 
-            modelBuilder.Entity("StreamMasterInfrastructure.Logging.LogEntry", b =>
+            modelBuilder.Entity("StreamMasterDomain.Entities.LogEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

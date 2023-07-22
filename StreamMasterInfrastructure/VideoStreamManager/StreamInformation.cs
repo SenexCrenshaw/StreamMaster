@@ -4,7 +4,7 @@ using StreamMasterApplication.Common.Models;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
-namespace StreamMasterInfrastructure.MiddleWare;
+namespace StreamMasterInfrastructure.VideoStreamManager;
 
 public class StreamInformation : IDisposable, IStreamInformation
 {

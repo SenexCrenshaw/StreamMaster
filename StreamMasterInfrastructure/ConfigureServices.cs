@@ -3,14 +3,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using StreamMasterApplication.Common.Interfaces;
+using StreamMasterApplication.Logs;
 
 using StreamMasterDomain.Common;
 
 using StreamMasterInfrastructure.Logging;
-using StreamMasterInfrastructure.MiddleWare;
 using StreamMasterInfrastructure.Persistence;
 using StreamMasterInfrastructure.Services;
 using StreamMasterInfrastructure.Services.Frontend.Mappers;
+using StreamMasterInfrastructure.VideoStreamManager;
 
 using System.Reflection;
 
@@ -58,6 +59,7 @@ public static class ConfigureServices
         _ = services.AddDbContext<LogDbContext>(options => options.UseSqlite($"Data Source={LogDbPath}", builder => builder.MigrationsAssembly(typeof(LogDbContext).Assembly.FullName)));
 
         _ = services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
+        _ = services.AddScoped<ILogDB>(provider => provider.GetRequiredService<LogDbContext>());
         _ = services.AddScoped<AppDbContextInitialiser>();
         _ = services.AddScoped<LogDbContextInitialiser>();
 

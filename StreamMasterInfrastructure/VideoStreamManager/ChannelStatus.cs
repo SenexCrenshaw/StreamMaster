@@ -2,7 +2,7 @@
 
 using System.Collections.Concurrent;
 
-namespace StreamMasterInfrastructure.MiddleWare;
+namespace StreamMasterInfrastructure.VideoStreamManager;
 
 public class ChannelStatus
 {

@@ -18,7 +18,7 @@ using StreamMasterDomain.Enums;
 using System.Collections.Concurrent;
 using System.Data;
 
-namespace StreamMasterInfrastructure.MiddleWare;
+namespace StreamMasterInfrastructure.VideoStreamManager;
 
 public class ChannelManager : IDisposable, IChannelManager
 {
@@ -51,7 +51,7 @@ public class ChannelManager : IDisposable, IChannelManager
 
             var oldInfo = channelStatus.StreamInformation;
 
-           if ( ! await HandleNextVideoStream(channelStatus, newVideoStreamId))
+            if (!await HandleNextVideoStream(channelStatus, newVideoStreamId))
             {
                 _logger.LogWarning("Exiting ChangeVideoStreamChannel. Could not change channel to {newVideoStreamId}", newVideoStreamId);
                 return;
@@ -395,7 +395,7 @@ public class ChannelManager : IDisposable, IChannelManager
             return !handled;
         }
 
-      //  _logger.LogDebug($"Exiting ProcessStreamStatus with false, no action taken for channelStatus: {channelStatus}");
+        //  _logger.LogDebug($"Exiting ProcessStreamStatus with false, no action taken for channelStatus: {channelStatus}");
         return false;
     }
 
@@ -470,7 +470,7 @@ public class ChannelManager : IDisposable, IChannelManager
         channelStatus.ClientIds.TryAdd(config.ClientId, config.ClientId);
 
         _logger.LogInformation("ChannelManager added channel: {videoStreamId}", config.VideoStreamId);
-        
+
         config.ReadBuffer = new RingBufferReadStream(() => channelStatus.StreamInformation.RingBuffer, config);
 
         channelStatus.StreamInformation.RegisterStreamConfiguration(config);

@@ -3,6 +3,7 @@
 public enum AuthenticationType
 {
     None = 0,
-    //Basic = 1,
+
+    // Basic = 1,
     Forms = 2
 }

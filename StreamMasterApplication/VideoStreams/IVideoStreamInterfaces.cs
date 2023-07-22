@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.Common.Models;
+using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.VideoStreams.Commands;
 
 using StreamMasterDomain.Dto;
@@ -16,11 +17,19 @@ public interface IVideoStreamController
 
     Task<ActionResult> DeleteVideoStream(DeleteVideoStreamRequest request);
 
+    Task<ActionResult> FailClient(FailClientRequest request);
+
+    Task<IActionResult> GetAllStatisticsForAllUrls();
+
+    Task<IActionResult> GetVideoStreamStream(string encodedId, string name, CancellationToken cancellationToken);
+
     Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id);
 
     Task<ActionResult<List<VideoStreamDto>>> GetVideoStreams();
 
     Task<ActionResult> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
+
+    IActionResult SimulateStreamFailure(string streamUrl);
 
     Task<ActionResult> UpdateVideoStream(UpdateVideoStreamRequest request);
 

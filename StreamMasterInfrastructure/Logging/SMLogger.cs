@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMasterDomain.Entities;
+
 namespace StreamMasterInfrastructure.Logging;
 
 public class SMLogger : ILogger

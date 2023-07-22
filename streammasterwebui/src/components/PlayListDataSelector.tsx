@@ -120,12 +120,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
   const sourceColumns = React.useMemo((): ColumnMeta[] => {
     return [
-      {
-        field: 'name', filter: true, sortable: true, style: {
-          flexGrow: 1,
-          flexShrink: 0,
-        } as CSSProperties,
-      },
+      { field: 'name', filter: true, sortable: true },
       {
         field: 'name', fieldType: 'streams', header: "Streams (active/total)",
         style: {
@@ -151,6 +146,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         columns={sourceColumns}
         dataSource={props.hideControls === true ? channelGroupsQuery.data?.filter((item) => item.isHidden !== true) : channelGroupsQuery.data}
         emptyMessage="No Groups"
+        enableState={false}
         headerRightTemplate={props.hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
         id={props.id + 'DataSelector'}
         isLoading={isLoading}

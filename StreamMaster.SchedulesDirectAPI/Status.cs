@@ -9,5 +9,5 @@ public class SDStatus
     public Lineup[] lineups { get; set; }
     public object[] notifications { get; set; }
     public string serverID { get; set; }
-    public Systemstatus[] systemStatus { get; set; }
+    public SDSystemstatus[] systemStatus { get; set; }
 }

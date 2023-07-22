@@ -130,8 +130,8 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
   }, [onSelectionChange, previousSelection, props.showUndo, props.targetHeaderTemplate]);
 
   return (
-    <div className='grid grid-nogutter h-full w-full col-12 p-0'>
-      <div className='col-6 p-0'>
+    <div className='grid grid-nogutter flex flex-wrap justify-content-between h-full col-12 p-0'>
+      <div className='col-6'>
         <DataSelector
           columns={props.sourceColumns}
           dataSource={sourceDataSource}

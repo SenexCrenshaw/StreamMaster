@@ -1,7 +1,7 @@
 ﻿using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 
-namespace StreamMasterInfrastructure.MiddleWare;
+namespace StreamMasterInfrastructure.VideoStreamManager;
 
 public class RingBufferReadStream : Stream, IRingBufferReadStream
 {

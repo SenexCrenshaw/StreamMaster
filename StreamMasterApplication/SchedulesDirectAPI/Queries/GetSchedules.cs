@@ -4,6 +4,11 @@ using StreamMaster.SchedulesDirectAPI;
 
 namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 
+public class Stations
+{
+    public string StationId { get; set; }
+}
+
 public record GetSchedules(List<string> stationIds) : IRequest<List<Schedule>?>;
 
 internal class GetSchedulesHandler : IRequestHandler<GetSchedules, List<Schedule>?>

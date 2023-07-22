@@ -3,7 +3,7 @@ import { Button } from 'primereact/button';
 import React from 'react';
 import { Fieldset } from 'primereact/fieldset';
 import { useSettingsGetSettingQuery, type SettingDto } from '../../store/iptvApi';
-import { UpdateSetting } from '../../store/signlar_functions';
+import { UpdateSetting } from '../../store/signlar_functions_local';
 import { SettingsEditorIcon } from '../../common/icons';
 import { Checkbox } from 'primereact/checkbox';
 import { InputText } from 'primereact/inputtext';
@@ -255,36 +255,22 @@ export const SettingsEditor = () => {
     }
 
     UpdateSetting(newData)
-      .then((returnData) => {
+      .then(() => {
         if (toast.current) {
-          if (returnData.settings) {
-            toast.current.show({
-              detail: `Update Settings Successful`,
-              life: 3000,
-              severity: 'success',
-              summary: 'Successful',
-            });
-
-            if (returnData.needsLogOut === true) {
-              //             window.location.href = '/logout'
-            }
-
-          } else {
-            toast.current.show({
-              detail: `Update Settings Failed`,
-              life: 3000,
-              severity: 'error',
-              summary: 'Error',
-            });
-          }
+          toast.current.show({
+            detail: `Update Settings Successful`,
+            life: 3000,
+            severity: 'success',
+            summary: 'Successful',
+          });
         }
-      }).catch((e) => {
+      }).catch(() => {
         if (toast.current) {
           toast.current.show({
             detail: `Update Settings Failed`,
             life: 3000,
             severity: 'error',
-            summary: 'Error ' + e.message,
+            summary: 'Error'
           });
         }
       });

@@ -2,7 +2,7 @@ import { type FilterMatchMode } from "primereact/api";
 import { type ColumnEditorOptions, type ColumnEvent } from "primereact/column";
 import { type CSSProperties } from "react";
 
-export type ColumnFieldType = 'deleted' | 'epg' | 'epglink' | 'image' | 'isHidden' | 'm3uFileName' | 'm3ulink' | 'streams' | 'url' | undefined;
+export type ColumnFieldType = 'blank' | 'deleted' | 'epg' | 'epglink' | 'image' | 'isHidden' | 'm3uFileName' | 'm3ulink' | 'streams' | 'url' | undefined;
 export type ColumnAlign = 'center' | 'left' | 'right' | null | undefined;
 export type DataSelectorSelectionMode = 'checkbox' | 'multiple' | 'multipleNoCheckBox' | 'multipleNoRowCheckBox' | 'selectable' | 'single' | undefined;
 

@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace StreamMasterInfrastructure.MiddleWare;
+namespace StreamMasterInfrastructure.VideoStreamManager;
 
 public static class StreamingProxies
 {
@@ -79,7 +79,7 @@ public static class StreamingProxies
                        contentType.Equals("application/x-mpegURL", StringComparison.OrdinalIgnoreCase))
             {
                 logger.LogInformation("Stream URL has HLS content, using FFMpeg for streaming: {StreamUrl}", sourceUrl);
-                return await GetFFMpegStream(sourceUrl,logger).ConfigureAwait(false);
+                return await GetFFMpegStream(sourceUrl, logger).ConfigureAwait(false);
             }
 
             Stream stream = await response.Content.ReadAsStreamAsync(cancellation);
