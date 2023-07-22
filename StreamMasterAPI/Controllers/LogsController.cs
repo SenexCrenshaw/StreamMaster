@@ -2,8 +2,8 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMasterApplication.Logs;
-using StreamMasterApplication.Logs.Queries;
+using StreamMasterApplication.LogApp;
+using StreamMasterApplication.LogApp.Queries;
 
 using StreamMasterDomain.Dto;
 

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using StreamMasterApplication.Logs;
+using StreamMasterApplication.LogApp;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Entities;

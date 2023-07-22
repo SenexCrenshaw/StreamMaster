@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using StreamMasterApplication.Common.Interfaces;
-using StreamMasterApplication.Logs;
+using StreamMasterApplication.LogApp;
 
 using StreamMasterDomain.Common;
 

@@ -1,7 +1,7 @@
 ﻿using StreamMasterApplication.ChannelGroups;
 using StreamMasterApplication.EPGFiles;
 using StreamMasterApplication.Icons;
-using StreamMasterApplication.Logs;
+using StreamMasterApplication.LogApp;
 using StreamMasterApplication.M3UFiles;
 using StreamMasterApplication.Programmes;
 using StreamMasterApplication.SchedulesDirectAPI;
