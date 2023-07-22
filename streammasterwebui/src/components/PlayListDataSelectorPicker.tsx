@@ -142,14 +142,16 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     ,
     {
       field: 'user_Tvg_group', header: 'Group', sortable: true,
-
     }
     ,
     {
       field: 'm3UFileId',
       fieldType: 'm3uFileName', header: 'File',
       sortable: true,
-
+      style: {
+        maxWidth: '3rem',
+        width: '3rem',
+      } as CSSProperties,
     }
   ];
 
@@ -509,6 +511,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
         sourceSortField='user_Tvg_name'
         sourceStyle={{
           height: props.maxHeight !== null ? props.maxHeight : 'calc(100vh - 40px)',
+
         }}
         targetColumns={targetColumns}
         targetDataSource={targetVideoStreams}

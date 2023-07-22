@@ -7,7 +7,6 @@ import StreamingServerStatusPanel from './StreamingServerStatusPanel';
 import { StreamingStatusIcon } from '../../common/icons';
 import { type StreamStatisticsResult } from '../../store/iptvApi';
 import { useStreamGroupsGetAllStatisticsForAllUrlsQuery } from '../../store/iptvApi';
-import { type GraphData } from '../../components/StreamingStatusGraph';
 import StreamingStatusGraph from '../../components/StreamingStatusGraph';
 import { set } from 'video.js/dist/types/tech/middleware';
 
@@ -36,15 +35,15 @@ export const StreamingStatus = () => {
         </div >
 
         <div className="flex col-12 w-full mt-1">
-          <StreamingServerStatusPanel dataSource={dataSource} isLoading={getStreamingStatus.isLoading} style={{ height: 'calc(30vh)' }} />
+          <StreamingServerStatusPanel dataSource={dataSource} isLoading={getStreamingStatus.isLoading} style={{ height: 'calc(50vh - 140px)' }} />
         </div>
         <div className='flex col-12 w-full mt-1'>
-          <StreamingClientsPanel dataSource={dataSource} isLoading={getStreamingStatus.isLoading} style={{ height: 'calc(30vh)' }} />
+          <StreamingClientsPanel dataSource={dataSource} isLoading={getStreamingStatus.isLoading} style={{ height: 'calc(50vh + 60px)' }} />
         </div>
-
+        {/*
         <div className="flex col-12 w-full">
           <StreamingStatusGraph className='border-1 w-full' dataSource={dataSource} isLoading={getStreamingStatus.isLoading} style={{ height: 'calc(20vh)' }} />
-        </div>
+        </div> */}
 
       </div>
     </div>

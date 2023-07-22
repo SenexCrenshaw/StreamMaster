@@ -10,7 +10,6 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import * as Hub from "../../store/signlar_functions";
 import { VideoStreamSelector } from '../../components/VideoStreamSelector';
-import { type GraphData } from '../../components/StreamingStatusGraph';
 
 export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProps) => {
   const setting = StreamMasterSetting();

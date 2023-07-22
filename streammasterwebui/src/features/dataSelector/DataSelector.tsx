@@ -35,9 +35,10 @@ import { useIntl } from 'react-intl';
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
   const tooltipClassName = React.useMemo(() => "menuitemds-" + uuidv4(), []);
   const [globalSourceFilterValue, setGlobalSourceFilterValue] = useLocalStorage('', props.id + '-sourceGlobalFilterValue');
+  const [globalSearchName, setGlobalSearchName] = React.useState<string>('');
+
   const [dataSource, setDataSource] = React.useState<T[]>();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [values, setValues] = React.useState<T[]>();
+
   const [expandedRows, setExpandedRows] = React.useState<DataTableExpandedRows>();
 
   const setting = StreamMasterSetting();
@@ -47,7 +48,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
 
   const m3uFiles = StreamMasterApi.useM3UFilesGetM3UFilesQuery();
-  const [globalSearchName, setGlobalSearchName] = React.useState<string>('');
+
   const [selections, setSelections] = React.useState<T[]>([] as T[]);
   const intl = useIntl();
 
@@ -67,9 +68,34 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   }, [GetMessage, props.globalSearchName]);
 
+  const isLoading = React.useMemo(() => {
+    if (props.isLoading) {
+      return true;
+    }
+
+    if (globalSourceFilterValue === undefined) {
+      return true;
+    }
+
+    if (rowClick === undefined) {
+      return true;
+    }
+
+    if (videoStreamsQuery.isLoading || !videoStreamsQuery.data) {
+      return true;
+    }
+
+    if (channelGroupsQuery.isLoading || !channelGroupsQuery.data) {
+      return true;
+    }
+
+    return false;
+
+  }, [channelGroupsQuery.data, channelGroupsQuery.isLoading, globalSourceFilterValue, props.isLoading, rowClick, videoStreamsQuery.data, videoStreamsQuery.isLoading]);
+
   const showSkeleton = React.useMemo(() => {
-    return props.isLoading || (props.showSkeleton !== undefined && props.showSkeleton)
-  }, [props.isLoading, props.showSkeleton]);
+    return isLoading || (props.showSkeleton !== undefined && props.showSkeleton)
+  }, [isLoading, props.showSkeleton]);
 
   const sourceFilter = React.useMemo((): DataTableFilterMeta => {
     if (props.columns === undefined) {
@@ -191,7 +217,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return;
     }
 
-    setValues(data);
     props?.onValueChanged?.(data);
 
   }, [props]);
@@ -896,10 +921,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   const multiselectHeader = () => {
     return (
-      <div className="flex flex-wrap align-items-center justify-content-between gap-2">
-        <span className="text-xs text-white text-500">
-          All
-        </span>
+      <div className="absolute top-0 left-50 text-xs text-white text-500">
+        All
       </div>
     );
   }
@@ -959,7 +982,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   return (
 
     <div className='dataselector flex justify-content-start align-items-center' >
-      <div className={`${props.className !== undefined ? props.className : ''}  min-w-full min-h-full surface-overlay`}>
+      <div className={`${props.className !== undefined ? props.className : ''}  min-w-full w-full min-h-full surface-overlay`}>
         <DataTable
           dataKey='id'
           editMode='cell'
@@ -971,7 +994,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           globalFilterFields={props.columns.map((item) => item.field)}
           groupRowsBy={props.groupRowsBy}
           header={sourceRenderHeader}
-          loading={props.isLoading}
+          loading={isLoading}
           metaKeySelection={false}
           onRowReorder={(e) => onRowReorder(e.value)}
           onRowToggle={(e: DataTableRowToggleEvent) => setExpandedRows(e.data as DataTableExpandedRows)}

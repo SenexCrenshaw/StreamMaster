@@ -199,7 +199,7 @@ public class StreamManager : IStreamManager
                     {
                         buffer.WriteChunk(bufferChunk, bytesRead);
                         retryCount = 0;
-                        LogBufferHealth(buffer);
+                        //LogBufferHealth(buffer);
                     }
                 }
                 catch (TaskCanceledException ex)

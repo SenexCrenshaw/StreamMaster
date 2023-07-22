@@ -15,7 +15,6 @@ import AutoSetChannelNumbers from "./AutoSetChannelNumbers";
 import ChannelNumberEditor from "./ChannelNumberEditor";
 import ChannelNameEditor from "./ChannelNameEditor";
 import EPGSelector from "./EPGSelector";
-import EPGFileAddDialog from "./EPGFileAddDialog";
 import VideoStreamDeleteDialog from "./VideoStreamDeleteDialog";
 import { type ColumnMeta } from "../features/dataSelector/DataSelectorTypes";
 import { type DataTableRowDataArray } from "primereact/datatable";
@@ -28,9 +27,10 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
   const [enableEditMode, setEnableEditMode] = useLocalStorage(true, props.id + '-enableEditMode');
   const [selectedM3UStreams, setSelectedM3UStreams] = React.useState<StreamMasterApi.VideoStreamDto[]>([] as StreamMasterApi.VideoStreamDto[]);
-  const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
-  const [values, setValues] = React.useState<StreamMasterApi.VideoStreamDto[]>([] as StreamMasterApi.VideoStreamDto[]);
 
+  const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
+
+  const [values, setValues] = React.useState<StreamMasterApi.VideoStreamDto[]>([] as StreamMasterApi.VideoStreamDto[]);
   const [addIcon, setAddIcon] = React.useState<boolean>(false);
 
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
@@ -53,36 +53,47 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
 
   const onValueChanged = React.useCallback((data: DataTableRowDataArray<StreamMasterApi.VideoStreamDto[]>) => {
-    if (!data) {
-      return;
+    if (data) {
+      setValues(data);
     }
-
-    setValues(data);
   }, []);
 
-  const filteredStreams = React.useMemo((): StreamMasterApi.VideoStreamDto[] => {
+  const filteredStreams = React.useMemo(() => {
     if (!videoStreamsQuery.data || videoStreamsQuery.data.length === 0) {
       return [] as StreamMasterApi.VideoStreamDto[];
     }
 
     let data = [] as StreamMasterApi.VideoStreamDto[];
 
-    if (props.groups === undefined || props.groups.length === 0 || props.groups[0].name === undefined || props.groups.findIndex((a: StreamMasterApi.ChannelGroupDto) => a.name === 'All') !== -1) {
+    if (
+      props.groups === undefined ||
+      props.groups.length === 0 ||
+      props.groups[0].name === undefined ||
+      props.groups.findIndex(
+        (a: StreamMasterApi.ChannelGroupDto) => a.name === "All"
+      ) !== -1
+    ) {
       data = videoStreamsQuery.data;
     } else {
-      const groupNames = props.groups.map((a: StreamMasterApi.ChannelGroupDto) => a.name.toLocaleLowerCase());
+      const groupNames = props.groups.map(
+        (a: StreamMasterApi.ChannelGroupDto) => a.name.toLocaleLowerCase()
+      );
 
-      data = videoStreamsQuery.data.filter((a: StreamMasterApi.VideoStreamDto) => a.user_Tvg_group !== undefined && groupNames.includes(a.user_Tvg_group.toLocaleLowerCase()));
+      data = videoStreamsQuery.data.filter(
+        (a: StreamMasterApi.VideoStreamDto) =>
+          a.user_Tvg_group !== undefined &&
+          groupNames.includes(a.user_Tvg_group.toLocaleLowerCase())
+      );
 
       groupNames.forEach((groupName: string) => {
-        const cg = channelGroupsQuery.data?.find((x: StreamMasterApi.ChannelGroupDto) => x.name.toLowerCase() === groupName.toLowerCase());
-        if (cg?.regexMatch !== undefined && cg.regexMatch !== '') {
-
+        const cg = channelGroupsQuery.data?.find(
+          (x: StreamMasterApi.ChannelGroupDto) =>
+            x.name.toLowerCase() === groupName.toLowerCase()
+        );
+        if (cg?.regexMatch !== undefined && cg.regexMatch !== "") {
           const filteredData = videoStreamsQuery.data?.filter((item) => {
-            if (item.isHidden)
-              return false;
-
-            const regexToTest = new RegExp(`.*${cg.regexMatch}.*`, 'i');
+            if (item.isHidden) return false;
+            const regexToTest = new RegExp(`.*${cg.regexMatch}.*`, "i");
             const test = regexToTest.test(item.user_Tvg_name);
             if (test) {
               return data.includes(item) === false;
@@ -98,13 +109,15 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     }
 
     if (props.m3uFileId && props.m3uFileId > 0) {
-      const d = data.filter((a: StreamMasterApi.VideoStreamDto) => a.m3UFileId === props.m3uFileId);
+      const d = data.filter(
+        (a: StreamMasterApi.VideoStreamDto) => a.m3UFileId === props.m3uFileId
+      );
       return d;
     }
 
     return data;
-
   }, [videoStreamsQuery.data, props.groups, props.m3uFileId, channelGroupsQuery.data]);
+
 
   const ids = React.useMemo((): StreamMasterApi.ChannelNumberPair[] => {
 
@@ -413,13 +426,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
   }, [ids, props.groups, selectedM3UStreams, setShowHidden, showHidden, videoStreamDelete]);
 
-  const leftHeaderTemplate = React.useMemo(() => {
-    return (
 
-      <EPGFileAddDialog />
-
-    );
-  }, []);
 
   return (
     <>
@@ -435,7 +442,6 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         columns={targetColumns}
         dataSource={filteredStreams}
         emptyMessage="No Streams"
-        headerLeftTemplate={leftHeaderTemplate}
         headerRightTemplate={rightHeaderTemplate}
         id={props.id + 'DataSelector'}
         isLoading={videoStreamsQuery.isLoading}

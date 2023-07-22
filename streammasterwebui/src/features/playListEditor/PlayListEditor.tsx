@@ -8,7 +8,6 @@ const PlayListEditor = (props: PlayListEditorProps) => {
   const id = props.id ?? "playlisteditor";
 
   const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[]);
-  const [selectedM3UFile, setSelectedM3UFile] = React.useState<StreamMasterApi.M3UFilesDto>({} as StreamMasterApi.M3UFilesDto);
 
   const onsetSelectedChannelGroups = React.useCallback((selectedData: StreamMasterApi.ChannelGroupDto | StreamMasterApi.ChannelGroupDto[]) => {
     if (Array.isArray(selectedData)) {
@@ -17,7 +16,7 @@ const PlayListEditor = (props: PlayListEditorProps) => {
       setSelectedChannelGroups([selectedData]);
     }
 
-  }, []);
+  }, [setSelectedChannelGroups]);
 
 
   return (
@@ -32,7 +31,6 @@ const PlayListEditor = (props: PlayListEditorProps) => {
           <div className='col-4 m-0 p-0 pr-1' >
             <PlayListDataSelector
               id={id}
-              onM3UFileChange={(e) => { setSelectedM3UFile(e); }}
               onSelectionChange={(e) => onsetSelectedChannelGroups(e as StreamMasterApi.ChannelGroupDto[])}
             />
           </div>
@@ -40,7 +38,6 @@ const PlayListEditor = (props: PlayListEditorProps) => {
             <StreamDataSelector
               groups={selectedChannelGroups}
               id='playlistTarget'
-              m3uFileId={selectedM3UFile.id}
             />
           </div>
         </div >
