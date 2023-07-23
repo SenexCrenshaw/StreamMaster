@@ -10,13 +10,12 @@ const LogViewer = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [maxLines, setMaxLines] = React.useState<number | null>(null);
   const [lastLogId, setLastLogId] = React.useState<number>(0);
-
   const [dataSource, setDataSource] = React.useState<StreamMasterApi.LogEntryDto[]>([] as StreamMasterApi.LogEntryDto[]);
 
   const getLogData = React.useCallback(() => {
     // console.debug('LogViewer: ', lastLogId);
 
-    Hub.GetLogRequest({ lastId: lastLogId, maxLines: 500 } as StreamMasterApi.GetLog)
+    Hub.GetLogRequest({ lastId: lastLogId, maxLines: 5000 } as StreamMasterApi.GetLog)
       .then((returnData) => {
         if (returnData !== null && returnData !== undefined && returnData.length > 0) {
           // console.debug('dataSource: ', dataSource.length);
@@ -24,12 +23,13 @@ const LogViewer = () => {
 
           setDataSource([...dataSource, ...returnData].slice(-1000));
           setLastLogId(returnData[returnData.length - 1].id ?? 0);
-          console.debug('lastLogId: ', returnData[returnData.length - 1].id ?? 0);
+          console.debug('dataSource: ', [...dataSource, ...returnData].slice(-3));
+          console.debug('lastLogId: ', returnData[returnData.length - 1].id ?? 0, ' dataSource: ', [...dataSource, ...returnData].slice(-1000).length);
         }
       }).catch(() => { })
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lastLogId]);
+
+  }, [dataSource, lastLogId]);
 
   React.useEffect(() => {
     const intervalId = setInterval(() => {
@@ -128,11 +128,11 @@ const LogViewer = () => {
         globalSearchEnabled
         id='LogViewer'
         isLoading={dataSource === undefined || dataSource.length === 0}
+        showPagination={false}
         style={{
-          height: 'calc(100vh - 2rem)',
-          maxWidth: '100%',
+          height: 'calc(100vh - 100px)',
         }}
-        virtualScrollHeight='calc(100vh - 2rem)'
+        virtualScrollHeight='calc(100vh - 140px)'
       />
     </div>
   );

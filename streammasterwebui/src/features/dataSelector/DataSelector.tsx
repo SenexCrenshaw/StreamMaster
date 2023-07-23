@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import './DataSelector.css';
 
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
@@ -30,6 +31,8 @@ import { Tooltip } from 'primereact/tooltip';
 import { v4 as uuidv4 } from 'uuid';
 import { type ColumnAlign, type ColumnFieldType, type ColumnMeta, type DataSelectorSelectionMode } from './DataSelectorTypes';
 import { useIntl } from 'react-intl';
+import { type VirtualScrollerChangeEvent } from 'primereact/virtualscroller';
+import { type VirtualScrollerOptionsType } from 'primereact/virtualscroller';
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
   const tableRef = React.useRef<DataTable<T[]>>(null);
@@ -478,14 +481,26 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   React.useEffect(() => {
 
-    if (dataSource !== undefined && props.enableVirtualScroll === true) {
+    if (dataSource !== undefined && props.enableVirtualScroll === true && dataSource.length > 0) {
       console.debug("Scroll to ", dataSource.length);
-      tableRef.current?.getVirtualScroller()?.scrollToIndex(dataSource.length, 'auto');
+
+      if (tableRef.current?.getVirtualScroller()?.scrollToIndex !== undefined) {
+        tableRef.current.getVirtualScroller().scrollToIndex(10, 'auto');
+      }
     }
 
   }, [dataSource, props.enableVirtualScroll]);
 
   const showPagination = React.useMemo((): boolean => {
+
+    if (props.enableVirtualScroll === true) {
+      return false;
+    }
+
+    if (props.showPagination !== true) {
+      return false;
+    }
+
     let dataLength = 0;
 
     // if (values && values.length > 0) {
@@ -504,7 +519,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
     return dataLength >= minRows;
 
-  }, [props.paginatorMinimumRowsToShow, dataSource]);
+  }, [props.enableVirtualScroll, props.showPagination, props.paginatorMinimumRowsToShow, dataSource]);
 
   const onRowReorder = React.useCallback((data: T[]) => {
     setDataSource(data);
@@ -998,6 +1013,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           expandedRows={expandedRows}
           filterDelay={1000}
           filters={sourceFilters}
+          first={props.first}
           globalFilterFields={props.columns.map((item) => item.field)}
           groupRowsBy={props.groupRowsBy}
           header={sourceRenderHeader}
@@ -1007,7 +1023,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           onRowToggle={(e: DataTableRowToggleEvent) => setExpandedRows(e.data as DataTableExpandedRows)}
           onSelectionChange={((e) => onSelectionChange(e))}
           onValueChange={(e) => { onValueChanged(e); }}
-          paginator={props.enableVirtualScroll === true ? undefined : showPagination}
+          paginator={showPagination}
           paginatorClassName='text-xs p-0 m-0 withpadding'
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           ref={tableRef}
@@ -1033,7 +1049,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           stripedRows
           style={props.style}
           value={dataSource}
-          virtualScrollerOptions={props.enableVirtualScroll === true ? { autoSize: true, itemSize: 22, orientation: undefined } : undefined}
+          virtualScrollerOptions={props.enableVirtualScroll === true ? { itemSize: 16, orientation: 'vertical' } : undefined}
         >
           <Column
             body={<i className="pi pi-chevron-right" />}
@@ -1099,6 +1115,7 @@ DataSelector.displayName = 'DataSelector';
 DataSelector.defaultProps = {
   enableState: true,
   enableVirtualScroll: false,
+  first: 0,
   globalSearchEnabled: true,
   leftColSize: 4,
   name: '',
@@ -1109,6 +1126,7 @@ DataSelector.defaultProps = {
   selectionMode: 'single',
   showHeaders: true,
   showHidden: null,
+  showPagination: true
 };
 
 
@@ -1118,6 +1136,7 @@ DataSelector.defaultProps = {
  * @typeparam T The type of data being displayed in the table.
  */
 export type DataSelectorProps<T> = {
+
   /**
    * The CSS class name for the component.
    */
@@ -1136,6 +1155,7 @@ export type DataSelectorProps<T> = {
   emptyMessage?: React.ReactNode;
   enableState?: boolean | undefined;
   enableVirtualScroll?: boolean | undefined;
+  first?: number | undefined;
   /**
    * Whether to enable global searching.
    */
@@ -1211,6 +1231,7 @@ export type DataSelectorProps<T> = {
    */
   showHeaders?: boolean | undefined;
   showHidden?: boolean | null | undefined;
+  showPagination?: boolean;
   showSelector?: boolean;
   showSkeleton?: boolean;
   /**

@@ -27,11 +27,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
   const isLoading = React.useMemo(() => {
 
-    if (channelGroupsQuery.isLoading || !channelGroupsQuery.data) {
-      return true;
-    }
-
-    if (showHidden === undefined) {
+    if (channelGroupsQuery.isLoading) {
       return true;
     }
 
@@ -40,7 +36,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
     }
 
     return false;
-  }, [channelGroupsQuery.isLoading, channelGroupsQuery.data, showHidden, selectedChannelGroups]);
+  }, [channelGroupsQuery.isLoading, selectedChannelGroups]);
 
   React.useEffect(() => {
     if (!props.selectChannelGroups) {
@@ -142,6 +138,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
+      {JSON.stringify(isLoading)}
       <DataSelector
         columns={sourceColumns}
         dataSource={props.hideControls === true ? channelGroupsQuery.data?.filter((item) => item.isHidden !== true) : channelGroupsQuery.data}

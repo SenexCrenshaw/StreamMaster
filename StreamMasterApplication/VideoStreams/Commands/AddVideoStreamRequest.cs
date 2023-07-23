@@ -8,6 +8,8 @@ using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Dto;
 
+using System.Text.RegularExpressions;
+
 namespace StreamMasterApplication.VideoStreams.Commands;
 
 public record AddVideoStreamRequest(
@@ -56,6 +58,9 @@ public class AddVideoStreamRequestHandler : IRequestHandler<AddVideoStreamReques
     {
         var setting = FileUtil.GetSetting();
 
+        var group = string.IsNullOrEmpty(request.Tvg_group) ? "(None)" : request.Tvg_group;
+        var epgId = string.IsNullOrEmpty(request.Tvg_ID) ? "Dummy" : request.Tvg_ID;
+
         VideoStream videoStream = new()
         {
             Id = await _context.GetAvailableID(),
@@ -64,11 +69,11 @@ public class AddVideoStreamRequestHandler : IRequestHandler<AddVideoStreamReques
             Tvg_chno = request.Tvg_chno is null ? 0 : (int)request.Tvg_chno,
             User_Tvg_chno = request.Tvg_chno is null ? 0 : (int)request.Tvg_chno,
 
-            Tvg_group = request.Tvg_group is null ? "All" : request.Tvg_group,
-            User_Tvg_group = request.Tvg_group is null ? "All" : request.Tvg_group,
+            Tvg_group = group,
+            User_Tvg_group = group,
 
-            Tvg_ID = request.Tvg_ID is null ? "Dummy" : request.Tvg_ID,
-            User_Tvg_ID = request.Tvg_ID is null ? "Dummy" : request.Tvg_ID,
+            Tvg_ID = epgId,
+            User_Tvg_ID = epgId,
 
             Tvg_logo = request.Tvg_logo is null ? setting.StreamMasterIcon : request.Tvg_logo,
             User_Tvg_logo = request.Tvg_logo is null ? setting.StreamMasterIcon : request.Tvg_logo,
@@ -85,7 +90,7 @@ public class AddVideoStreamRequestHandler : IRequestHandler<AddVideoStreamReques
 
         if (request.ChildVideoStreams != null)
         {
-            _context.SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
+            await _context.SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
             await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 
