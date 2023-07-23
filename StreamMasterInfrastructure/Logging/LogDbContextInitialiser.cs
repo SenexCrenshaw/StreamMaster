@@ -25,9 +25,9 @@ public class LogDbContextInitialiser
         {
             if (_context.Database.IsSqlite())
             {
+                await _context.Database.MigrateAsync().ConfigureAwait(false);
                 _context.RemoveRange(_context.LogEntries);
                 await _context.SaveChangesAsync().ConfigureAwait(false);
-                await _context.Database.MigrateAsync().ConfigureAwait(false);
             }
         }
         catch (Exception ex)
