@@ -75,6 +75,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     ) {
       data = videoStreamsQuery.data;
     } else {
+
       const groupNames = props.groups.map(
         (a: StreamMasterApi.ChannelGroupDto) => a.name.toLocaleLowerCase()
       );

@@ -3,7 +3,7 @@ import { apiKey, baseHostURL } from '../settings';
 
 
 
-const url = baseHostURL === undefined || baseHostURL === '' ? '/streammasterhub' : baseHostURL + '/streammasterhub';
+const url = baseHostURL === undefined || baseHostURL === '' ? '/streammasterhub' : baseHostURL + 'streammasterhub';
 
 export const hubConnection = new HubConnectionBuilder()
   .configureLogging(LogLevel.Critical)

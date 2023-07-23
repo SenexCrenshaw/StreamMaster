@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Button } from 'primereact/button';
 import { type DropdownChangeEvent } from 'primereact/dropdown';
 import { Dropdown } from 'primereact/dropdown';
@@ -6,10 +7,11 @@ import * as React from 'react';
 import { type IconFileDto } from '../store/iptvApi';
 import { useIconsGetIconsQuery } from '../store/iptvApi';
 import StreamMasterSetting from '../store/signlar/StreamMasterSetting';
-import { getTopToolOptions } from '../common/common';
+import { getIconUrl, getTopToolOptions } from '../common/common';
 
 import { ResetLogoIcon } from '../common/icons';
 import { baseHostURL, isDebug } from '../settings';
+import { SMFileTypes } from '../store/streammaster_enums';
 
 const IconSelector = (props: IconSelectorProps) => {
 
@@ -26,7 +28,9 @@ const IconSelector = (props: IconSelectorProps) => {
     }
 
     if (props.value) {
-      const tests = icons.data.filter((a: IconFileDto) => a.url === props.value);
+      const tests = icons.data.filter((a: IconFileDto) => a.originalSource === props.value);
+      console.debug('props.value', props.value);
+      console.debug('tests', tests);
 
       if (tests && tests !== undefined && tests.length > 0) {
         setSelectedIcon(tests[0]);
@@ -60,19 +64,14 @@ const IconSelector = (props: IconSelectorProps) => {
       return (<div />);
     }
 
-    let selectedTemplateurl = option.url ?? setting.defaultIcon;
-
-    if (isDebug && selectedTemplateurl && !selectedTemplateurl.startsWith('http')) {
-      selectedTemplateurl = baseHostURL + selectedTemplateurl;
-    }
-
+    const iconUrl = getIconUrl(option.url, setting);
 
     return (
       <div className='flex h-full justify-content-start align-items-center p-0 m-0 pl-2'>
 
         <img
           alt={option.name}
-          src={selectedTemplateurl}
+          src={iconUrl}
           style={{
             maxWidth: '1.2rem',
             objectFit: 'contain',
@@ -81,27 +80,23 @@ const IconSelector = (props: IconSelectorProps) => {
         />
       </div>
     );
-  }, [setting.defaultIcon]);
+  }, [setting]);
 
   const iconOptionTemplate = React.useCallback((option: IconFileDto) => {
 
-    let iconOptionTemplateurl = option.url ?? setting.defaultIcon;
-
-    if (isDebug && iconOptionTemplateurl && !iconOptionTemplateurl.startsWith('http')) {
-      iconOptionTemplateurl = baseHostURL + iconOptionTemplateurl;
-    }
+    const iconUrl = getIconUrl(option.url, setting);
 
     return (
       <>
         <img
           alt={option.name ?? 'name'}
           className="flex align-items-center max-w-full h-2rem text-base text-color surface-overlay appearance-none outline-none focus:border-primary"
-          src={iconOptionTemplateurl}
+          src={iconUrl}
         />
         <div className="white-space-normal">{option.name}</div>
       </>
     );
-  }, [setting.defaultIcon]);
+  }, [setting]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   const filterTemplate = React.useCallback((options: any) => {
@@ -156,18 +151,19 @@ const IconSelector = (props: IconSelectorProps) => {
     'p-disabled': props.disabled,
   });
 
-  let url = selectedIcon?.url ?? setting.defaultIcon;
-  if (isDebug && url && !url.startsWith('http')) {
-    url = baseHostURL + url;
-  }
+  // let url = selectedIcon?.url ?? setting.defaultIcon;
+  // if (isDebug && url && !url.startsWith('http')) {
+  //   url = baseHostURL + url;
+  // }
 
   if (props.enableEditMode !== true) {
+    const iconUrl = getIconUrl(selectedIcon?.url ?? setting.defaultIcon, setting);
     return (
       <img
         alt='logo'
         className="max-h-1rem"
         onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => (e.currentTarget.src = (e.currentTarget.src = setting.defaultIcon))}
-        src={url}
+        src={iconUrl}
         style={{
           maxWidth: '1.5rem',
           objectFit: 'contain',

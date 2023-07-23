@@ -64,7 +64,8 @@ public class FilesController : ApiControllerBase, IFileController
             }
 
             Response.ContentType = cache.ContentType;
-            var data = await System.IO.File.ReadAllBytesAsync(cache.OriginalSource).ConfigureAwait(false);
+            
+            var data = await System.IO.File.ReadAllBytesAsync(FileDefinitions.TVLogo.DirectoryLocation+ cache.OriginalSource).ConfigureAwait(false);
 
             return (cache, data);
         }

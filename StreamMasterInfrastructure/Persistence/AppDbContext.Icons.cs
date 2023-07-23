@@ -3,15 +3,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
-using StreamMasterApplication.General;
 using StreamMasterApplication.Icons;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities;
 using StreamMasterDomain.Enums;
-
-using System.Diagnostics;
 
 namespace StreamMasterInfrastructure.Persistence;
 
@@ -34,37 +31,13 @@ public partial class AppDbContext : IIconDB
 
             IEnumerable<IconFileDto> tvlogos = _mapper.Map<IEnumerable<IconFileDto>>(_memoryCache.TvLogos());
 
-            List<IconFileDto> allIcons = tvlogos.Concat(icons).ToList();
-
-            int count = 0;
-
-            Stopwatch sw = Stopwatch.StartNew();
-            ParallelOptions po = new()
-            {
-                CancellationToken = cancellationToken,
-                MaxDegreeOfParallelism = Environment.ProcessorCount
-            };
-
-            _ = Parallel.ForEach(allIcons, po, icon =>
-            {
-                string IconSource = Helpers.GetIPTVChannelIconSources(icon.Source, setting, "/", allIcons);
-                icon.Id = count++;
-                icon.Source = IconSource;
-                icon.Url = IconSource;
-            });
-
-            sw.Stop();
-            long el = sw.ElapsedMilliseconds;
-
-            cacheValue = allIcons;
+            cacheValue = tvlogos.Concat(icons).ToList();
 
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetPriority(CacheItemPriority.NeverRemove);
 
             _memoryCache.Set(CacheKeys.ListIconFiles, cacheValue, cacheEntryOptions);
         }
-
-        // var test = cacheValue.Where(a => a.Name.StartsWith("sexy"));
 
         return cacheValue ?? new List<IconFileDto>();
     }

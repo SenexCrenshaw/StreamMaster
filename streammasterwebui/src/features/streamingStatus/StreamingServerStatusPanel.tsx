@@ -2,7 +2,7 @@
 import React from 'react';
 import { type ChangeVideoStreamChannelRequest } from '../../store/iptvApi';
 import { type StreamStatisticsResult } from '../../store/iptvApi';
-import { formatJSONDateString, getTopToolOptions } from '../../common/common';
+import { formatJSONDateString, getIconUrl, getTopToolOptions } from '../../common/common';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 import DataSelector from '../dataSelector/DataSelector';
@@ -91,17 +91,19 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
   }, []);
 
   const imageBodyTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
+    const iconUrl = getIconUrl(rowData.logo ?? setting.defaultIcon, setting);
+
     return (
       <div className="flex align-content-center flex-wrap">
         <img
           alt={rowData.logo ?? 'logo'}
           className="flex align-items-center justify-content-center max-w-full max-h-2rem h-2rem"
           onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => (e.currentTarget.src = (e.currentTarget.src = setting.defaultIcon))}
-          src={`${encodeURI(rowData.logo ?? '')}`}
+          src={iconUrl} // {`${encodeURI(rowData.logo ?? '')}`}
         />
       </div>
     );
-  }, [setting.defaultIcon]);
+  }, [setting]);
 
   const inputBitsPerSecondTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
 
@@ -134,6 +136,10 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
   }, []);
 
   const dataSource = React.useMemo((): StreamStatisticsResult[] => {
+    if (props.dataSource === undefined || props.dataSource.length === 0 || props.dataSource === null) {
+      return [];
+    }
+
     let data = [] as StreamStatisticsResult[];
 
     props.dataSource.forEach((item) => {
@@ -247,6 +253,7 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
           globalSearchEnabled={false}
           id='StreamingServerStatusPanel'
           isLoading={props.isLoading}
+          key='m3UStreamId'
           style={props.style}
         />
 

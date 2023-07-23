@@ -9,7 +9,7 @@ import { getTopToolOptions } from '../../common/common';
 
 const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPickerProps<T>) => {
 
-  const [selection, setSelection] = React.useState<T[] | undefined>(undefined);
+  const [selection, setSelection] = React.useState<T[] | undefined>([] as T[]);
 
   const [previousSelection, setPreviousSelection] = React.useState<T[]>([] as T[]);
 

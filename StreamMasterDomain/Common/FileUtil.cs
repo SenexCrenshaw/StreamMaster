@@ -111,7 +111,7 @@ public sealed class FileUtil
     }
 
     public static async Task<string> GetFileData(string source)
-    {       
+    {
         try
         {
             if (!IsFileGzipped(source))
@@ -127,13 +127,12 @@ public sealed class FileUtil
 
             var body = Encoding.Default.GetString(outputBytes);
             return body;
-
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.ToString());
             return "";
-        }        
+        }
     }
 
     public static async Task<List<TvLogoFile>> GetIconFilesFromDirectory(DirectoryInfo dirInfo, string tvLogosLocation, int startingId, CancellationToken cancellationToken = default)
@@ -148,13 +147,13 @@ public sealed class FileUtil
                 break;
             }
 
-            string basename = dirInfo.FullName.Replace(tvLogosLocation, "");
-            if (basename.StartsWith(Path.DirectorySeparatorChar))
+            string basePath = dirInfo.FullName.Replace(tvLogosLocation, "");
+            if (basePath.StartsWith(Path.DirectorySeparatorChar))
             {
-                basename = basename.Remove(0, 1);
+                basePath = basePath.Remove(0, 1);
             }
 
-            basename = basename.Replace(Path.DirectorySeparatorChar, '-');
+            var basename = basePath.Replace(Path.DirectorySeparatorChar, '-');
             string name = $"{basename}-{file.Name}";
 
             TvLogoFile tvLogo = new()
@@ -165,7 +164,7 @@ public sealed class FileUtil
                 ContentType = "image/png",
                 LastDownloaded = DateTime.Now,
                 Source = $"api/files/{(int)SMFileTypes.TvLogo}/{HttpUtility.UrlEncode(name)}",
-                OriginalSource = file.FullName,
+                OriginalSource = $"{basePath}{Path.DirectorySeparatorChar}{file.Name}",
                 Url = $"/api/files/{(int)SMFileTypes.TvLogo}/{HttpUtility.UrlEncode(name)}",
             };
 

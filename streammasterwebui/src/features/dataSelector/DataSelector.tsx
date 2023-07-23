@@ -1017,6 +1017,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           globalFilterFields={props.columns.map((item) => item.field)}
           groupRowsBy={props.groupRowsBy}
           header={sourceRenderHeader}
+          key={props.key !== undefined && props.key !== '' ? props.key : undefined}
           loading={isLoading}
           metaKeySelection={false}
           onRowReorder={(e) => onRowReorder(e.value)}
@@ -1117,6 +1118,7 @@ DataSelector.defaultProps = {
   enableVirtualScroll: false,
   first: 0,
   globalSearchEnabled: true,
+  key: undefined,
   leftColSize: 4,
   name: '',
   onSelectionChange: undefined,
@@ -1184,6 +1186,7 @@ export type DataSelectorProps<T> = {
    * Whether the component is currently loading data.
    */
   isLoading?: boolean;
+  key?: string | undefined;
   leftColSize?: number;
   m3uFileId?: number;
   /**

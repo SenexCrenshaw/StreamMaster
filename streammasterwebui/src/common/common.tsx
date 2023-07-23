@@ -5,6 +5,9 @@ import { FormattedMessage, useIntl } from 'react-intl';
 
 import { type VideoStreamDto } from '../store/iptvApi';
 import { type ChildVideoStreamDto } from '../store/iptvApi';
+import { baseHostURL, isDebug } from '../settings';
+import { type StreamMasterSettingResponse } from '../store/signlar/StreamMasterSetting';
+import { SMFileTypes } from '../store/streammaster_enums';
 
 export const getTopToolOptions = { autoHide: true, hideDelay: 100, position: 'top', showDelay: 400 } as TooltipOptions;
 export const getLeftToolOptions = { autoHide: true, hideDelay: 100, position: 'left', showDelay: 400 } as TooltipOptions;
@@ -39,29 +42,6 @@ export const GetMessageDiv = (id: string, upperCase?: boolean | null): React.Rea
 
   return <div>{message}</div>;
 }
-
-// export function areStreamGroupsEqual(
-//   streams1: StreamGroupDto[],
-//   streams2: StreamGroupDto[]
-// ): boolean {
-//   if (streams1.length !== streams2.length) {
-//     return false;
-//   }
-
-//   for (let i = 0; i < streams1.length; i++) {
-//     if (streams1[i].id !== streams2[i].id) {
-//       return false;
-//     }
-
-//     if (isChildVideoStreamDto(streams1[i]) && isChildVideoStreamDto(streams2[i])) {
-//       if ((streams1[i] as ChildVideoStreamDto).rank !== (streams2[i] as ChildVideoStreamDto).rank) {
-//         return false;
-//       }
-//     }
-//   }
-
-//   return true;
-// }
 
 export function areVideoStreamsEqual(
   streams1: ChildVideoStreamDto[] | VideoStreamDto[],
@@ -131,6 +111,35 @@ export function formatJSONDateString(jsonDate: string | undefined): string {
   });
 
   return ret;
+}
+
+export function getIconUrl(iconOriginalSource: string, setting: StreamMasterSettingResponse): string {
+
+  if (iconOriginalSource === '' || iconOriginalSource === null || iconOriginalSource === undefined) {
+    return setting.defaultIcon;
+  }
+
+  console.debug(setting.cacheIcon);
+
+  const originalUrl = iconOriginalSource;
+
+  if (!iconOriginalSource.startsWith('http')) {
+    if (isDebug) {
+      iconOriginalSource = baseHostURL + iconOriginalSource;
+    } else {
+      iconOriginalSource = '/' + iconOriginalSource;
+    }
+  } else {
+    if (setting.cacheIcon) {
+      if (isDebug) {
+        iconOriginalSource = baseHostURL + 'api/files/' + SMFileTypes.Icon + '/' + encodeURIComponent(originalUrl);
+      } else {
+        iconOriginalSource = '/api/files/' + SMFileTypes.Icon + '/' + encodeURIComponent(originalUrl);
+      }
+    }
+  }
+
+  return iconOriginalSource;
 }
 
 

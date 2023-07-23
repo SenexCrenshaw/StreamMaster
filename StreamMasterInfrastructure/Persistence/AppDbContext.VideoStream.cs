@@ -108,12 +108,12 @@ public partial class AppDbContext : IVideoStreamDB
         return streams;
     }
 
-    public async Task<List<VideoStream>> GetAllVideoStreamsWithChildrenAsync()
+    public async Task<List<VideoStream>> GetAllVideoStreamsWithChildrenAsync(CancellationToken cancellationToken)
     {
         return await VideoStreams
             .Include(vs => vs.ChildVideoStreams)
             .ThenInclude(vsl => vsl.ChildVideoStream)
-            .ToListAsync().ConfigureAwait(false);
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<string> GetAvailableID()
@@ -212,6 +212,15 @@ public partial class AppDbContext : IVideoStreamDB
         return videoStreamDto;
     }
 
+    public async Task<List<VideoStreamDto>> GetVideoStreamsDto(CancellationToken cancellationToken)
+    {
+        var streams = await GetAllVideoStreamsWithChildrenAsync(cancellationToken).ConfigureAwait(false);
+
+        var videoStreamDtos = _mapper.Map<List<VideoStreamDto>>(streams);
+
+        return videoStreamDtos;
+    }
+
     public async Task<List<VideoStream>> GetVideoStreamsForParentAsync(string parentVideoId, CancellationToken cancellationToken)
     {
         return await VideoStreamLinks
@@ -267,21 +276,11 @@ public partial class AppDbContext : IVideoStreamDB
 
         bool isChanged = videoStream.UpdateVideoStream(request);
 
-        var newLogo = videoStream.User_Tvg_logo;
-
         if (request.Tvg_logo != null && videoStream.User_Tvg_logo != request.Tvg_logo)
         {
-            isChanged = true;
-
-            IconFileDto? logo = icons.FirstOrDefault(a => a.OriginalSource == request.Tvg_logo);
-
-            if (logo != null)
+            if (icons.Any(a => a.OriginalSource == request.Tvg_logo))
             {
-                videoStream.User_Tvg_logo = logo.OriginalSource;
-                newLogo = logo.Source;
-            }
-            else
-            {
+                isChanged = true;
                 videoStream.User_Tvg_logo = request.Tvg_logo;
             }
         }
@@ -319,10 +318,10 @@ public partial class AppDbContext : IVideoStreamDB
             ret.ChildVideoStreams = dtoStreams;
         }
 
-        IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
-        string Logo = icon != null ? icon.Source : "/" + setting.DefaultIcon;
+        //IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
+        //string Logo = icon != null ? icon.Source : "/" + setting.DefaultIcon;
 
-        ret.User_Tvg_logo = Logo;
+        //ret.User_Tvg_logo = Logo;
 
         return ret;
     }

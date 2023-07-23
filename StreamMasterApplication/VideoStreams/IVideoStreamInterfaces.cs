@@ -21,11 +21,11 @@ public interface IVideoStreamController
 
     Task<IActionResult> GetAllStatisticsForAllUrls();
 
-    Task<IActionResult> GetVideoStreamStream(string encodedId, string name, CancellationToken cancellationToken);
-
     Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id);
 
     Task<ActionResult<List<VideoStreamDto>>> GetVideoStreams();
+
+    Task<IActionResult> GetVideoStreamStream(string encodedId, string name, CancellationToken cancellationToken);
 
     Task<ActionResult> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
 
@@ -46,7 +46,7 @@ public interface IVideoStreamDB
 
     public Task<List<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken);
 
-    Task<List<VideoStream>> GetAllVideoStreamsWithChildrenAsync();
+    Task<List<VideoStream>> GetAllVideoStreamsWithChildrenAsync(CancellationToken cancellationToken);
 
     Task<string> GetAvailableID();
 
@@ -55,6 +55,8 @@ public interface IVideoStreamDB
     Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(string videoStreamId, CancellationToken cancellationToken = default);
 
     Task<VideoStreamDto> GetVideoStreamDto(string videoStreamId, CancellationToken cancellationToken);
+
+    Task<List<VideoStreamDto>> GetVideoStreamsDto(CancellationToken cancellationToken);
 
     Task<List<VideoStream>> GetVideoStreamsForParentAsync(string parentVideoId, CancellationToken cancellationToken);
 
