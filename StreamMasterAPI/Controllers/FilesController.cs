@@ -56,16 +56,13 @@ public class FilesController : ApiControllerBase, IFileController
         CacheEntity? cache;
         if (request.IPTVFileType == SMFileTypes.TvLogo)
         {
-            cache = _memoryCache.TvLogos().FirstOrDefault(a => a.Name + a.FileExtension == source);
+            cache = _memoryCache.TvLogos().FirstOrDefault(a => a.Source == source);
 
-            if (cache == null || !cache.FileExists)
-            {
-                return (cache, null);
-            }
+            if (cache == null || !cache.FileExists) { return (cache, null); }
 
-            Response.ContentType = cache.ContentType;
-            
-            var data = await System.IO.File.ReadAllBytesAsync(FileDefinitions.TVLogo.DirectoryLocation+ cache.OriginalSource).ConfigureAwait(false);
+            var data = await
+            System.IO.File.ReadAllBytesAsync(FileDefinitions.TVLogo.DirectoryLocation
+            + cache.Source).ConfigureAwait(false);
 
             return (cache, data);
         }
@@ -107,6 +104,7 @@ public class FilesController : ApiControllerBase, IFileController
                 break;
 
             case SMFileTypes.TvLogo:
+                fd = FileDefinitions.TVLogo;
                 break;
 
             default:

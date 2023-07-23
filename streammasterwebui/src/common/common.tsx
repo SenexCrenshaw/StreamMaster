@@ -113,35 +113,31 @@ export function formatJSONDateString(jsonDate: string | undefined): string {
   return ret;
 }
 
-export function getIconUrl(iconOriginalSource: string, setting: StreamMasterSettingResponse): string {
+function getApiUrl(path: SMFileTypes, originalUrl: string): string {
+  return `${isDebug ? baseHostURL : ''}/api/files/${path}/${encodeURIComponent(originalUrl)}`;
+}
 
-  if (iconOriginalSource === '' || iconOriginalSource === null || iconOriginalSource === undefined) {
-    return setting.defaultIcon;
+export function getIconUrl(iconOriginalSource: string, setting: StreamMasterSettingResponse): string {
+  if (!iconOriginalSource) {
+    iconOriginalSource = `${isDebug ? baseHostURL + '/' : '/'}${setting.defaultIcon}`;
   }
 
-  console.debug(setting.cacheIcon);
+  let originalUrl = iconOriginalSource;
 
-  const originalUrl = iconOriginalSource;
+  if (iconOriginalSource.startsWith('/')) {
+    iconOriginalSource = iconOriginalSource.substring(1);
+  }
 
-  if (!iconOriginalSource.startsWith('http')) {
-    if (isDebug) {
-      iconOriginalSource = baseHostURL + iconOriginalSource;
-    } else {
-      iconOriginalSource = '/' + iconOriginalSource;
-    }
-  } else {
-    if (setting.cacheIcon) {
-      if (isDebug) {
-        iconOriginalSource = baseHostURL + 'api/files/' + SMFileTypes.Icon + '/' + encodeURIComponent(originalUrl);
-      } else {
-        iconOriginalSource = '/api/files/' + SMFileTypes.Icon + '/' + encodeURIComponent(originalUrl);
-      }
-    }
+  if (iconOriginalSource.startsWith('images/')) {
+    iconOriginalSource = `${isDebug ? baseHostURL + '/' : ''}${iconOriginalSource}`;
+  } else if (!iconOriginalSource.startsWith('http')) {
+    iconOriginalSource = getApiUrl(SMFileTypes.TvLogo, originalUrl);
+  } else if (setting.cacheIcon) {
+    iconOriginalSource = getApiUrl(SMFileTypes.Icon, originalUrl);
   }
 
   return iconOriginalSource;
 }
-
 
 export type UserInformation = {
   IsAuthenticated: boolean;

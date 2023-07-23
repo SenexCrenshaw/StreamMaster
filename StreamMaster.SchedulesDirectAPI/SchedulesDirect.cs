@@ -232,7 +232,7 @@ public class SchedulesDirect
         return client;
     }
 
-    private async Task<bool> CheckToken(CancellationToken cancellationToken = default)
+    public async Task<bool> CheckToken(CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(Token) || TokenDateTime.AddHours(23) < DateTime.Now)
         {

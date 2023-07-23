@@ -58,16 +58,14 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     FileExtension = table.Column<string>(type: "TEXT", nullable: false),
                     LastDownloadAttempt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     LastDownloaded = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    MetaData = table.Column<string>(type: "TEXT", nullable: false),
                     MinimumMinutesBetweenDownloads = table.Column<int>(type: "INTEGER", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    OriginalSource = table.Column<string>(type: "TEXT", nullable: false),
                     SMFileType = table.Column<int>(type: "INTEGER", nullable: false),
                     Source = table.Column<string>(type: "TEXT", nullable: false),
-                    Url = table.Column<string>(type: "TEXT", nullable: true),
                     AutoUpdate = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: false),
                     HoursToUpdate = table.Column<int>(type: "INTEGER", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: false)
+                    Url = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -86,13 +84,10 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     FileExtension = table.Column<string>(type: "TEXT", nullable: false),
                     LastDownloadAttempt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     LastDownloaded = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    MetaData = table.Column<string>(type: "TEXT", nullable: false),
                     MinimumMinutesBetweenDownloads = table.Column<int>(type: "INTEGER", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    OriginalSource = table.Column<string>(type: "TEXT", nullable: false),
                     SMFileType = table.Column<int>(type: "INTEGER", nullable: false),
-                    Source = table.Column<string>(type: "TEXT", nullable: false),
-                    Url = table.Column<string>(type: "TEXT", nullable: true)
+                    Source = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -114,16 +109,14 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     FileExtension = table.Column<string>(type: "TEXT", nullable: false),
                     LastDownloadAttempt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     LastDownloaded = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    MetaData = table.Column<string>(type: "TEXT", nullable: false),
                     MinimumMinutesBetweenDownloads = table.Column<int>(type: "INTEGER", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
-                    OriginalSource = table.Column<string>(type: "TEXT", nullable: false),
                     SMFileType = table.Column<int>(type: "INTEGER", nullable: false),
                     Source = table.Column<string>(type: "TEXT", nullable: false),
-                    Url = table.Column<string>(type: "TEXT", nullable: true),
                     AutoUpdate = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: false),
                     HoursToUpdate = table.Column<int>(type: "INTEGER", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: false)
+                    Url = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {

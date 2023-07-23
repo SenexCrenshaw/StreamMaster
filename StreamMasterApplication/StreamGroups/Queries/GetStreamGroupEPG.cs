@@ -16,8 +16,8 @@ using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities.EPG;
 
 using System.Collections.Concurrent;
+using System.Net;
 using System.Text.RegularExpressions;
-using System.Web;
 using System.Xml.Serialization;
 
 using static StreamMasterDomain.Common.GetStreamGroupEPGHandler;
@@ -58,6 +58,39 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
         _mapper = mapper;
         _context = context;
         _sender = sender;
+    }
+
+    public string GetIconUrl(string iconOriginalSource)
+    {
+        string url = _httpContextAccessor.GetUrl();
+
+        if (string.IsNullOrEmpty(iconOriginalSource))
+        {
+            iconOriginalSource = $"{url}{_setting.DefaultIcon}";
+            return iconOriginalSource;
+        }
+
+        string originalUrl = iconOriginalSource;
+
+        if (iconOriginalSource.StartsWith('/'))
+        {
+            iconOriginalSource = iconOriginalSource[1..];
+        }
+
+        if (iconOriginalSource.StartsWith("images/"))
+        {
+            iconOriginalSource = $"{url}/{iconOriginalSource}";
+        }
+        else if (!iconOriginalSource.StartsWith("http"))
+        {
+            iconOriginalSource = GetApiUrl(SMFileTypes.TvLogo, originalUrl);
+        }
+        else if (_setting.CacheIcons)
+        {
+            iconOriginalSource = GetApiUrl(SMFileTypes.Icon, originalUrl);
+        }
+
+        return iconOriginalSource;
     }
 
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
@@ -116,8 +149,9 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                     return;
                 }
 
-                IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
-                string Logo = icon != null ? url + icon.Source : url + "/" + setting.DefaultIcon;
+                //IconFileDto? icon = icons.SingleOrDefault(a => a.Source == videoStream.User_Tvg_logo);
+                //string Logo = icon != null ? url + icon.Source : url + "/" + setting.DefaultIcon;
+                var logo = GetIconUrl(videoStream.User_Tvg_logo);
 
                 TvChannel t;
 
@@ -135,7 +169,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                     t = new TvChannel
                     {
                         Id = videoStream.User_Tvg_name,
-                        Icon = new TvIcon { Src = Logo },
+                        Icon = new TvIcon { Src = logo },
                         Displayname = new()
                         {
                             videoStream.User_Tvg_name,
@@ -148,7 +182,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                     t = new TvChannel
                     {
                         Id = videoStream.User_Tvg_name,
-                        Icon = new TvIcon { Src = Logo },
+                        Icon = new TvIcon { Src = logo },
                         Displayname = new()
                         {
                             videoStream.User_Tvg_name
@@ -207,7 +241,8 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                                                 {
                                                     continue;
                                                 }
-                                                string IconSource = $"{url}/api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(programmeIcon.Source)}";
+                                                // string IconSource = $"{url}/api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(programmeIcon.Source)}";
+                                                string IconSource = GetApiUrl(SMFileTypes.ProgrammeIcon, programmeIcon.Source);
                                                 progIcon.Src = IconSource;
                                             }
                                         }
@@ -282,6 +317,12 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
         serializer.Serialize(textWriter, ret, ns);
         textWriter.Close();
         return textWriter.ToString();
+    }
+
+    private string GetApiUrl(SMFileTypes path, string source)
+    {
+        string url = _httpContextAccessor.GetUrl();
+        return $"{url}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
     }
 
     private int GetDummy()

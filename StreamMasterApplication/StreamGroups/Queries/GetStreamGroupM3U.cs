@@ -14,8 +14,13 @@ using StreamMasterApplication.Icons.Queries;
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Entities;
 
+using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.IO;
+using System.Net;
 using System.Text.RegularExpressions;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
@@ -54,6 +59,46 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
         _context = context;
         _sender = sender;
     }
+
+     string GetApiUrl( SMFileTypes path, string source)
+    {
+        string url = _httpContextAccessor.GetUrl();
+        return $"{url}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
+    }
+
+    public string GetIconUrl( string iconOriginalSource)
+    {
+        string url = _httpContextAccessor.GetUrl();
+
+        if (string.IsNullOrEmpty(iconOriginalSource))
+        {
+            iconOriginalSource = $"{url}{_setting.DefaultIcon}";
+            return iconOriginalSource;
+        }
+
+        string originalUrl = iconOriginalSource;
+
+        if (iconOriginalSource.StartsWith('/'))
+        {
+            iconOriginalSource = iconOriginalSource[1..];
+        }
+
+        if (iconOriginalSource.StartsWith("images/"))
+        {
+            iconOriginalSource = $"{url}/{iconOriginalSource}";
+        }
+        else if (!iconOriginalSource.StartsWith("http"))
+        {
+            iconOriginalSource = GetApiUrl(SMFileTypes.TvLogo, originalUrl);
+        }
+        else if (_setting.CacheIcons)
+        {
+            iconOriginalSource = GetApiUrl(SMFileTypes.Icon, originalUrl);
+        }
+
+        return iconOriginalSource;
+    }
+
 
     public async Task<string> Handle(GetStreamGroupM3U command, CancellationToken cancellationToken)
     {
@@ -114,10 +159,23 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
                 videoStream.User_Tvg_chno = cid;
             }
 
-            IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
-            string Logo = icon != null ? icon.Source : "/" + _setting.DefaultIcon;
+            var logo = GetIconUrl(videoStream.User_Tvg_logo);
 
-            videoStream.User_Tvg_logo = Logo;
+            //IconFileDto? icon = icons.SingleOrDefault(a => a.Source == videoStream.User_Tvg_logo);
+            //if ( icon == null)
+            //{
+
+            //}
+            //else
+            //{
+
+            //}
+
+            //string Logo = icon != null ? icon.Source : "/" + _setting.DefaultIcon;
+
+            
+
+            videoStream.User_Tvg_logo = logo;
 
             string videoUrl = videoStream.Url;
 
@@ -164,7 +222,7 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
             if (_setting.M3UFieldTvgLogo)
             {
-                fieldList.Add($"tvg-logo=\"{url}{videoStream.User_Tvg_logo}\"");
+                fieldList.Add($"tvg-logo=\"{videoStream.User_Tvg_logo}\"");
             }
             if (_setting.M3UFieldGroupTitle)
             {

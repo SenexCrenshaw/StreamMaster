@@ -24,6 +24,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   const [selectedChannelGroups, setSelectedChannelGroups] = useLocalStorage<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[], props.id + '-PlayListDataSelector-selectedChannelGroups');
 
   const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
+  StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
 
   const isLoading = React.useMemo(() => {
 
@@ -138,13 +139,13 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
-      {JSON.stringify(isLoading)}
       <DataSelector
         columns={sourceColumns}
         dataSource={props.hideControls === true ? channelGroupsQuery.data?.filter((item) => item.isHidden !== true) : channelGroupsQuery.data}
         emptyMessage="No Groups"
         enableState={false}
         headerRightTemplate={props.hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
+        hideControls={props.hideControls}
         id={props.id + 'DataSelector'}
         isLoading={isLoading}
         name={props.name === undefined ? 'Playlist' : props.name}

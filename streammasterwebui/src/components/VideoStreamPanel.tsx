@@ -21,7 +21,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
   const [url, setUrl] = React.useState<string>('');
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(null, 'videostreampanel-showHidden');
   const [iconSource, setIconSource] = React.useState<string>('');
-  const [icon, setIcon] = React.useState<StreamMasterApi.IconFileDto>({} as StreamMasterApi.IconFileDto);
+  // const [icon, setIcon] = React.useState<string>('');
 
   const [videoStreams, setVideoStreams] = React.useState<StreamMasterApi.VideoStreamDto[] | undefined>(undefined);
 
@@ -91,11 +91,11 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
     }
 
     if (props.videoStream.user_Tvg_logo && props.videoStream.user_Tvg_logo !== undefined) {
-      if (iconsQuery.data) {
-        const iconData = iconsQuery.data.find((x: StreamMasterApi.IconFileDto) => x.url === props.videoStream?.user_Tvg_logo);
-        if (iconData)
-          setIcon(iconData);
-      }
+      // if (iconsQuery.data) {
+      //   const iconData = iconsQuery.data.find((x: StreamMasterApi.IconFileDto) => x.url === props.videoStream?.user_Tvg_logo);
+      //   if (iconData)
+      //     setIcon(iconData);
+      // }
 
       setIconSource(props.videoStream?.user_Tvg_logo);
     }
@@ -120,13 +120,13 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
 
   }, [channelGroups.data, iconsQuery.data, props.videoStream]);
 
-  const onIconChange = (newIconSource: StreamMasterApi.IconFileDto) => {
+  const onIconChange = (newIconSource: string) => {
     if (!newIconSource) {
       return;
     }
 
-    setIcon(newIconSource);
-    setIconSource(newIconSource.originalSource);
+    // setIcon(newIconSource);
+    setIconSource(newIconSource);
   };
 
   const onIconReset = () => {
@@ -240,7 +240,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
                 alt={iconSource ?? 'Logo'}
                 className="max-h-8rem h-8rem max-w-full"
                 onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => (e.currentTarget.src = (e.currentTarget.src = setting.defaultIcon))}
-                src={`${encodeURI(icon.url ?? iconSource)}`}
+                src={`${encodeURI(iconSource)}`}
                 style={{
                   objectFit: 'contain',
                 }}
@@ -381,7 +381,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
                 tvg_chno: channelNumber,
                 tvg_group: channelGroup,
                 tvg_ID: epgId,
-                tvg_logo: icon.originalSource,
+                tvg_logo: iconSource,
                 tvg_name: name,
                 url: url
               } as StreamMasterApi.UpdateVideoStreamRequest) : props.onSave?.({
@@ -389,7 +389,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
                 tvg_chno: channelNumber,
                 tvg_group: channelGroup,
                 tvg_ID: epgId,
-                tvg_logo: icon.originalSource,
+                tvg_logo: iconSource,
                 tvg_name: name,
                 url: url
               } as StreamMasterApi.AddVideoStreamRequest

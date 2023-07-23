@@ -15,13 +15,14 @@ public class CacheEntity : BaseEntity
     public string FileExtension { get; set; } = string.Empty;
     public DateTime LastDownloadAttempt { get; set; }
     public DateTime LastDownloaded { get; set; }
-    public string MetaData { get; set; } = string.Empty;
+
     public int MinimumMinutesBetweenDownloads { get; set; }
+
     public string Name { get; set; } = string.Empty;
-    public string OriginalSource { get; set; } = string.Empty;
+
     public SMFileTypes SMFileType { get; set; }
+
     public string Source { get; set; } = string.Empty;
-    public string? Url { get; set; }
 
     public void SetFileDefinition(FileDefinition fd)
     {

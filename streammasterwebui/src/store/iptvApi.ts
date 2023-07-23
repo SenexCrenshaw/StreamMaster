@@ -919,8 +919,8 @@ export type M3UFilesAddM3UFileFromFormApiArg = {
   FormFile?: Blob | null;
   MaxStreamCount?: number;
   MetaData?: string | null;
-  StartingChannelNumber?: number | null;
   Name?: string;
+  StartingChannelNumber?: number | null;
   UrlSource?: string | null;
 };
 export type M3UFilesChangeM3UFileNameApiResponse = /** status 204  */ undefined;
@@ -1135,21 +1135,18 @@ export type UpdateChannelGroupsRequest = {
 };
 export type BaseFileDto = {
   autoUpdate: boolean;
-  hoursToUpdate: number;
   description: string;
   downloadErrors: number;
+  hoursToUpdate: number;
   id: number;
   lastDownloadAttempt: string;
   lastDownloaded: string;
-  metaData: string;
   name: string;
   needsUpdate: boolean;
-  originalSource: string;
   url: string;
 };
 export type EpgFilesDto = BaseFileDto & {
   channelCount?: number;
-  epgRank?: number;
   epgStartDate?: string;
   epgStopDate?: string;
   programmeCount?: number;
@@ -1189,13 +1186,10 @@ export type UpdateEpgFileRequest = BaseFileRequest & {
 };
 export type SmFileTypes = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 export type IconFileDto = {
-  fileExists: boolean;
+  contentType: string;
   id: number;
   name: string;
-  originalSource: string;
-  smFileType: SmFileTypes;
   source: string;
-  url: string;
 };
 export type AddIconFileRequest = {
   description?: string | null;
@@ -1229,8 +1223,8 @@ export type AddM3UFileRequest = {
   formFile?: Blob | null;
   maxStreamCount?: number;
   metaData?: string | null;
-  startingChannelNumber?: number | null;
   name: string;
+  startingChannelNumber?: number | null;
   urlSource?: string | null;
 };
 export type ChangeM3UFileNameRequest = {
@@ -1248,8 +1242,8 @@ export type RefreshM3UFileRequest = {
   m3UFileID: number;
 };
 export type UpdateM3UFileRequest = BaseFileRequest & {
-  startingChannelNumber?: number | null;
   maxStreamCount?: number | null;
+  startingChannelNumber?: number | null;
 };
 export type TvAudio = {
   stereo?: string | null;

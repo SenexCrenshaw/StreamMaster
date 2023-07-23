@@ -11,14 +11,14 @@ using StreamMasterInfrastructure.Persistence;
 namespace StreamMasterInfrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230721133934_Test")]
-    partial class Test
+    [Migration("20230723154243_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "7.0.8");
+            modelBuilder.HasAnnotation("ProductVersion", "7.0.9");
 
             modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
                 {
@@ -107,18 +107,10 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.Property<DateTime>("LastDownloaded")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("MetaData")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("MinimumMinutesBetweenDownloads")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OriginalSource")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -169,18 +161,10 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.Property<DateTime>("LastDownloaded")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("MetaData")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("MinimumMinutesBetweenDownloads")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OriginalSource")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -189,9 +173,6 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
                     b.Property<string>("Source")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Url")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -238,18 +219,10 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.Property<int>("MaxStreamCount")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("MetaData")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("MinimumMinutesBetweenDownloads")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OriginalSource")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

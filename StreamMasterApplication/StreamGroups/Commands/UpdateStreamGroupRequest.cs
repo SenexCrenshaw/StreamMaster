@@ -10,6 +10,7 @@ using StreamMasterApplication.Common.Extensions;
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Entities;
 
 namespace StreamMasterApplication.StreamGroups.Commands;
 
@@ -43,18 +44,15 @@ public class UpdateStreamGroupRequestHandler : IRequestHandler<UpdateStreamGroup
 {
     private readonly IAppDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IMapper _mapper;
     private readonly IPublisher _publisher;
 
     public UpdateStreamGroupRequestHandler(
-        IMapper mapper,
          IPublisher publisher,
          IHttpContextAccessor httpContextAccessor,
         IAppDbContext context)
     {
         _httpContextAccessor = httpContextAccessor;
         _publisher = publisher;
-        _mapper = mapper;
         _context = context;
     }
 
@@ -65,17 +63,17 @@ public class UpdateStreamGroupRequestHandler : IRequestHandler<UpdateStreamGroup
             return null;
         }
         string url = _httpContextAccessor.GetUrl();
-        var ret = await _context.UpdateStreamGroupAsync(request, url, cancellationToken).ConfigureAwait(false);
-        if (ret is not null)
+        var streamGroup = await _context.UpdateStreamGroupAsync(request, url, cancellationToken).ConfigureAwait(false);
+        if (streamGroup is not null)
         {
-            await _publisher.Publish(new StreamGroupUpdateEvent(ret), cancellationToken).ConfigureAwait(false);
-            var streamGroup = await _context.GetStreamGroupDto(ret.Id, url, cancellationToken).ConfigureAwait(false);
+            await _publisher.Publish(new StreamGroupUpdateEvent(streamGroup), cancellationToken).ConfigureAwait(false);
+            //var streamGroup = await _context.GetStreamGroupDto(ret.Id, url, cancellationToken).ConfigureAwait(false);
             if (streamGroup is not null && streamGroup.ChildVideoStreams.Any())
             {
                 await _publisher.Publish(new UpdateVideoStreamsEvent(streamGroup.ChildVideoStreams), cancellationToken).ConfigureAwait(false);
             }
         }
 
-        return ret;
+        return streamGroup;
     }
 }

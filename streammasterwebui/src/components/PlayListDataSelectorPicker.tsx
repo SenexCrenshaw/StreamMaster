@@ -170,7 +170,6 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       return;
     }
 
-
     const toSend = {} as StreamMasterApi.UpdateVideoStreamRequest;
 
     toSend.id = data.id;
@@ -178,7 +177,6 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     if (Logo && Logo !== '' && data.user_Tvg_logo !== Logo) {
       toSend.tvg_logo = Logo;
     }
-
 
     await Hub.UpdateVideoStream(toSend)
       .then((result) => {
@@ -228,13 +226,13 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
         className="p-inputtext-sm"
         enableEditMode
         onChange={
-          async (e: StreamMasterApi.IconFileDto) => {
-            await onUpdateVideoStream(data, e.name);
+          async (e: string) => {
+            await onUpdateVideoStream(data, e);
           }
         }
         onReset={
-          async (e: StreamMasterApi.IconFileDto) => {
-            await onUpdateVideoStream(data, e.originalSource);
+          async (e: string) => {
+            await onUpdateVideoStream(data, e);
           }
         }
         resetValue={data.tvg_logo}

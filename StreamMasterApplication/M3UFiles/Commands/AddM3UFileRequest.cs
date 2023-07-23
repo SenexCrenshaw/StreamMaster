@@ -22,11 +22,11 @@ public class AddM3UFileRequest : IRequest<M3UFilesDto?>
     public int MaxStreamCount { get; set; }
 
     public string? MetaData { get; set; }
-    public int? StartingChannelNumber { get; set; }
 
     [Required]
     public string Name { get; set; } = string.Empty;
 
+    public int? StartingChannelNumber { get; set; }
     public string? UrlSource { get; set; }
 }
 
@@ -69,7 +69,6 @@ public class AddM3UFileRequestHandler : IRequestHandler<AddM3UFileRequest, M3UFi
             return null;
         }
 
-
         Setting setting = FileUtil.GetSetting();
         try
         {
@@ -81,13 +80,11 @@ public class AddM3UFileRequestHandler : IRequestHandler<AddM3UFileRequest, M3UFi
                 Description = command.Description ?? "",
                 Name = command.Name,
                 Source = command.Name + fd.FileExtension,
-                StartingChannelNumber= command.StartingChannelNumber == null ? (int)setting.FirstFreeNumber :  (int) command.StartingChannelNumber,
+                StartingChannelNumber = command.StartingChannelNumber == null ? (int)setting.FirstFreeNumber : (int)command.StartingChannelNumber,
             };
 
             if (command.FormFile != null)
             {
-                m3UFile.OriginalSource = command.Name + fd.FileExtension;
-
                 _logger.LogInformation("Adding M3U From Form: {fullName}", fullName);
                 (bool success, Exception? ex) = await FormHelper.SaveFormFileAsync(command.FormFile!, fullName).ConfigureAwait(false);
                 if (success)
@@ -105,7 +102,6 @@ public class AddM3UFileRequestHandler : IRequestHandler<AddM3UFileRequest, M3UFi
             {
                 string source = HttpUtility.UrlDecode(command.UrlSource);
                 m3UFile.Url = source;
-                m3UFile.OriginalSource = source;
                 m3UFile.LastDownloadAttempt = DateTime.Now;
 
                 _logger.LogInformation("Add M3U From URL {command.UrlSource}", command.UrlSource);
@@ -122,7 +118,6 @@ public class AddM3UFileRequestHandler : IRequestHandler<AddM3UFileRequest, M3UFi
                 }
             }
 
-            m3UFile.MetaData = command.MetaData ?? "";
             m3UFile.MaxStreamCount = command.MaxStreamCount;
 
             var streams = await m3UFile.GetM3U().ConfigureAwait(false);

@@ -1090,7 +1090,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
               filter={getFilter(col.filter, col.fieldType)}
               filterPlaceholder={col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)}
               header={getHeader(col.field, col.header, col.fieldType)}
-              hidden={col.isHidden ?? false}
+              hidden={col.isHidden === true || (props.hideControls === true && getHeader(col.field, col.header, col.fieldType) === 'Actions') ? true : undefined}
               key={!col.fieldType ? col.field : col.field + col.fieldType}
               onCellEditComplete={col.handleOnCellEditComplete}
               showAddButton={false}
@@ -1118,6 +1118,7 @@ DataSelector.defaultProps = {
   enableVirtualScroll: false,
   first: 0,
   globalSearchEnabled: true,
+  hideControls: false,
   key: undefined,
   leftColSize: 4,
   name: '',
@@ -1178,6 +1179,7 @@ export type DataSelectorProps<T> = {
    * A React node that can be used to display additional content in the right side of the header of the table.
    */
   headerRightTemplate?: React.ReactNode;
+  hideControls?: boolean;
   /**
    * The unique identifier of the component.
    */

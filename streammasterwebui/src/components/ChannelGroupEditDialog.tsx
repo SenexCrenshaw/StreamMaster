@@ -1,11 +1,13 @@
 
 import React from "react";
-import type * as StreamMasterApi from '../store/iptvApi';
+import * as StreamMasterApi from '../store/iptvApi';
 import * as Hub from '../store/signlar_functions';
 import { Button } from "primereact/button";
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
 import { getTopToolOptions } from "../common/common";
 import { InputText } from "primereact/inputtext";
+import DataSelector from "../features/dataSelector/DataSelector";
+import { type ColumnMeta } from "../features/dataSelector/DataSelectorTypes";
 
 const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
@@ -14,10 +16,13 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
   const [regex, setRegex] = React.useState<string | undefined>('');
   const [newGroupName, setNewGroupName] = React.useState('');
 
+  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
+
   const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);
     setInfoMessage('');
     setBlock(false);
+    setRegex('');
     props.onClose?.();
   }, [props]);
 
@@ -55,13 +60,40 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
 
   }
 
+  const sourceColumns = React.useMemo((): ColumnMeta[] => {
+    return [
+
+      { field: 'user_Tvg_name', header: 'Name' },
+    ]
+  }, []);
+
+  const dataSource = React.useMemo((): StreamMasterApi.VideoStreamDto[] | undefined => {
+    if (regex === undefined || regex === '' || !videoStreamsQuery.data)
+      return (undefined);
+
+
+    const filteredData = videoStreamsQuery.data.filter((item) => {
+      if (item.isHidden)
+        return false;
+
+      const regexToTest = new RegExp(`.*${regex}.*`, 'i');
+      return regexToTest.test(item.user_Tvg_name);
+    });
+
+    return filteredData;
+  }, [regex, videoStreamsQuery.data]);
+
+
+
   return (
     <>
       <InfoMessageOverLayDialog
         blocked={block}
         header="Edit Group"
         infoMessage={infoMessage}
-        onClose={() => { setInfoMessage(''); }}
+        onClose={() => {
+          ReturnToParent();
+        }}
         show={showOverlay}
       >
         <div className='m-0 p-0 border-1 border-round surface-border'>
@@ -95,6 +127,19 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
                 rounded
                 severity="success"
               />
+            </div>
+            <div hidden={regex === undefined || regex === ''}>
+              <div className='m3uFilesEditor flex flex-column col-12 flex-shrink-0 '>
+                <DataSelector
+                  columns={sourceColumns}
+                  dataSource={dataSource}
+                  emptyMessage="No Streams"
+                  globalSearchEnabled={false}
+                  id='StreamingServerStatusPanel'
+                  showHeaders={false}
+                  style={{ height: 'calc(50vh - 40px)' }}
+                />
+              </div>
             </div>
           </div>
         </div >

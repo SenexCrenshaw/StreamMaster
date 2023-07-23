@@ -1,5 +1,7 @@
 ﻿using AutoMapper.QueryableExtensions;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.StreamGroups;
@@ -10,6 +12,7 @@ using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities;
 
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace StreamMasterInfrastructure.Persistence;
 
@@ -342,7 +345,7 @@ public partial class AppDbContext : IStreamGroupDB
         return streamGroupVideoStreams.Count;
     }
 
-    public async Task SynchronizeChannelGroupsInStreamGroupAsync(int streamGroupId, List<string> validChannelGroupNames, CancellationToken cancellationToken)
+    public async Task SynchronizeChannelGroupsInStreamGroupAsync(int streamGroupId, List<string>? validChannelGroupNames, CancellationToken cancellationToken)
     {
         var streamGroup = await StreamGroups.Include(sg => sg.ChannelGroups)
             .ThenInclude(cg => cg.ChannelGroup)
@@ -351,6 +354,11 @@ public partial class AppDbContext : IStreamGroupDB
         if (streamGroup == null)
         {
             throw new Exception("StreamGroup not found.");
+        }
+
+        if (validChannelGroupNames == null)
+        {
+            validChannelGroupNames = streamGroup.ChannelGroups.Select(cg => cg.ChannelGroup.Name).ToList();
         }
 
         // Remove ChannelGroups not in validChannelGroupNames
@@ -447,31 +455,7 @@ public partial class AppDbContext : IStreamGroupDB
                 }
             }
 
-            var channelIds = new List<string>();
-
-            if (request.ChannelGroupNames != null)
-            {
-                await SynchronizeChannelGroupsInStreamGroupAsync(streamGroup.Id, request.ChannelGroupNames, cancellationToken);
-            }
-
-            if (streamGroup.ChannelGroups.Any())
-            {
-                channelIds = await GetVideoStreamIdsByStreamGroupAsync(streamGroup.Id, cancellationToken);
-                //channelIds = await GetVideoStreamIdsByUserGroupMatchAsync(streamGroup.Id, cancellationToken);
-                //channelIds = channelIds.Concat(fromRegex).ToList();
-
-                if (streamGroup.ChildVideoStreams.Any(a => channelIds.Contains(a.Id)))
-                {
-                    var toRemove = streamGroup.ChildVideoStreams.Where(a => channelIds.Contains(a.Id)).ToList();
-                    await RemoveChildVideoStreamsFromStreamGroupAsync(streamGroup.Id, toRemove.Select(a => a.Id).ToList(), cancellationToken).ConfigureAwait(false);
-                }
-            }
-
-            if (request.VideoStreams != null)
-            {
-                var toDo = request.VideoStreams.Where(a => !channelIds.Contains(a.VideoStreamId)).ToList();
-                await SynchronizeChildVideoStreamsInStreamGroupAsync(streamGroup.Id, toDo, cancellationToken).ConfigureAwait(false);
-            }
+            await SynchronizeStreamGroupChannelsAndVideoStreams(streamGroup, request.ChannelGroupNames, request.VideoStreams, cancellationToken);
 
             var ret = await GetStreamGroupDto(streamGroup.Id, Url, cancellationToken);
             return ret;
@@ -480,5 +464,39 @@ public partial class AppDbContext : IStreamGroupDB
         {
             return null;
         }
+    }
+
+    private async Task SynchronizeStreamGroupChannelsAndVideoStreams(
+            StreamGroupDto streamGroup, 
+            List<string>? ChannelGroupNames,
+            List<VideoStreamIsReadOnly>? VideoStreams,
+            CancellationToken cancellationToken
+        )
+    {
+        var channelIds = new List<string>();
+
+        if (ChannelGroupNames != null)
+        {
+            await SynchronizeChannelGroupsInStreamGroupAsync(streamGroup.Id, ChannelGroupNames, cancellationToken);
+        }
+
+        if (streamGroup.ChannelGroups.Any())
+        {
+            channelIds = await GetVideoStreamIdsByStreamGroupAsync(streamGroup.Id, cancellationToken);
+
+            if (streamGroup.ChildVideoStreams.Any(a => channelIds.Contains(a.Id)))
+            {
+                var toRemove = streamGroup.ChildVideoStreams.Where(a => channelIds.Contains(a.Id)).ToList();
+                await RemoveChildVideoStreamsFromStreamGroupAsync(streamGroup.Id, toRemove.Select(a => a.Id).ToList(), cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        if (VideoStreams != null)
+        {
+            var toDo = VideoStreams.Where(a => !channelIds.Contains(a.VideoStreamId)).ToList();
+            await SynchronizeChildVideoStreamsInStreamGroupAsync(streamGroup.Id, toDo, cancellationToken).ConfigureAwait(false);
+        }
+        await SynchronizeChannelGroupsInStreamGroupAsync(streamGroup.Id, ChannelGroupNames, cancellationToken);
+
     }
 }

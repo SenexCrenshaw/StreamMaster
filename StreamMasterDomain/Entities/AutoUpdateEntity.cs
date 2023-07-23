@@ -9,6 +9,7 @@ public class AutoUpdateEntity : CacheEntity
     }
 
     public bool AutoUpdate { get; set; }
-    public int HoursToUpdate { get; set; }
     public string Description { get; set; } = string.Empty;
+    public int HoursToUpdate { get; set; }
+    public string? Url { get; set; }
 }

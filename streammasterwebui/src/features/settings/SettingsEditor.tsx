@@ -383,7 +383,7 @@ export const SettingsEditor = () => {
               icon='pi pi-bookmark-fill'
               label='Swagger'
               onClick={() => {
-                const link = `${baseHostURL}swagger`;
+                const link = `${baseHostURL}/swagger`;
                 window.open(link);
               }
               }

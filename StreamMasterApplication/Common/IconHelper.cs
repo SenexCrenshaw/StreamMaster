@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 using StreamMasterDomain.Dto;
 
-using System.Runtime.CompilerServices;
 using System.Web;
 
 namespace StreamMasterApplication.Common;
@@ -106,15 +105,12 @@ internal static class IconHelper
             isNew = true;
             icon = new IconFile
             {
-                OriginalSource = source,
                 Source = source,
-                Url = newUrl,
                 Name = Path.GetFileNameWithoutExtension(name),
                 ContentType = contentType,
                 LastDownloaded = DateTime.Now,
                 LastDownloadAttempt = DateTime.Now,
                 FileExists = false,
-                MetaData = "",
                 FileExtension = ext,
                 SMFileType = fileDefinition.SMFileType
             };

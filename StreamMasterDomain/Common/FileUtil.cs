@@ -1,7 +1,6 @@
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
-using System.Web;
 
 namespace StreamMasterDomain.Common;
 
@@ -163,9 +162,7 @@ public sealed class FileUtil
                 FileExists = true,
                 ContentType = "image/png",
                 LastDownloaded = DateTime.Now,
-                Source = $"api/files/{(int)SMFileTypes.TvLogo}/{HttpUtility.UrlEncode(name)}",
-                OriginalSource = $"{basePath}{Path.DirectorySeparatorChar}{file.Name}",
-                Url = $"/api/files/{(int)SMFileTypes.TvLogo}/{HttpUtility.UrlEncode(name)}",
+                Source = $"{basePath}{Path.DirectorySeparatorChar}{file.Name}"
             };
 
             tvLogo.SetFileDefinition(FileDefinitions.TVLogo);

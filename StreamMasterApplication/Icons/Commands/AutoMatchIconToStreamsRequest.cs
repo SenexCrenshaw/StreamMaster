@@ -86,7 +86,7 @@ public class AutoMatchIconToStreamsRequestHandler : IRequestHandler<AutoMatchIco
             var icon = icons.FirstOrDefault(a => a.Name.Equals(stream.User_Tvg_name, StringComparison.CurrentCultureIgnoreCase));
             if (icon != null)
             {
-                stream.User_Tvg_logo = icon.OriginalSource;
+                stream.User_Tvg_logo = icon.Source;
                 videoStreamDtos.Add(_mapper.Map<VideoStreamDto>(stream));
                 continue;
             }
@@ -96,9 +96,9 @@ public class AutoMatchIconToStreamsRequestHandler : IRequestHandler<AutoMatchIco
                          .Select(a => new { Icon = a, Weight = GetWeightedMatch(stream.User_Tvg_name, a.Name) })
                          .FirstOrDefault();
 
-            if (topCheckIcon != null && topCheckIcon.Weight > 0.5 && stream.User_Tvg_logo != topCheckIcon.Icon.OriginalSource)
+            if (topCheckIcon != null && topCheckIcon.Weight > 0.5 && stream.User_Tvg_logo != topCheckIcon.Icon.Source)
             {
-                stream.User_Tvg_logo = topCheckIcon.Icon.OriginalSource;
+                stream.User_Tvg_logo = topCheckIcon.Icon.Source;
                 var videoStreamDto = _mapper.Map<VideoStreamDto>(stream);
                 videoStreamDtos.Add(videoStreamDto);
                 break;

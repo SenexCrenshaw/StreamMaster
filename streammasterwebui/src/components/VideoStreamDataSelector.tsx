@@ -258,13 +258,13 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         enableEditMode={enableEditMode}
         onAddIcon={() => setAddIcon(true)}
         onChange={
-          async (e: StreamMasterApi.IconFileDto) => {
-            await onUpdateVideoStream(data, null, null, e.originalSource);
+          async (e: string) => {
+            await onUpdateVideoStream(data, null, null, e);
           }
         }
         onReset={
-          async (e: StreamMasterApi.IconFileDto) => {
-            await onUpdateVideoStream(data, null, null, e.originalSource);
+          async (e: string) => {
+            await onUpdateVideoStream(data, null, null, e);
           }
         }
         resetValue={data.tvg_logo}

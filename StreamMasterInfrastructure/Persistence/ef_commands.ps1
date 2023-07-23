@@ -4,6 +4,10 @@
 # dotnet tool install --global dotnet-ef
 
 #dotnet ef database drop -f
+
+# dotnet ef database drop -f
+# dotnet ef database drop -f -c AppDbContext
+
 #rm -Recurse .\Persistence\Migrations\
 dotnet ef migrations add InitialCreate -c LogDbContext -o .\Logging\Migrations
 

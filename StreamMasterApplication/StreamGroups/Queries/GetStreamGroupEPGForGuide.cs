@@ -135,7 +135,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
                     return;
                 }
 
-                IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
+                IconFileDto? icon = icons.SingleOrDefault(a => a.Source == videoStream.User_Tvg_logo);
                 string Logo = icon != null ? url + icon.Source : url + "/" + setting.DefaultIcon;
 
                 EPGChannel t;

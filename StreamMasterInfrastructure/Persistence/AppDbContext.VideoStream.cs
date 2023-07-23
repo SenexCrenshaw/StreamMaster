@@ -274,13 +274,12 @@ public partial class AppDbContext : IVideoStreamDB
 
         List<IconFileDto> icons = await GetIcons(cancellationToken).ConfigureAwait(false);
 
-        bool isChanged = videoStream.UpdateVideoStream(request);
+        videoStream.UpdateVideoStream(request);
 
         if (request.Tvg_logo != null && videoStream.User_Tvg_logo != request.Tvg_logo)
         {
-            if (icons.Any(a => a.OriginalSource == request.Tvg_logo))
+            if (icons.Any(a => a.Source == request.Tvg_logo))
             {
-                isChanged = true;
                 videoStream.User_Tvg_logo = request.Tvg_logo;
             }
         }
@@ -289,7 +288,7 @@ public partial class AppDbContext : IVideoStreamDB
 
         if (request.ChildVideoStreams != null)
         {
-            isChanged = isChanged || await SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
+             await SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
         }
 
         _ = await SaveChangesAsync(cancellationToken).ConfigureAwait(false);
@@ -317,11 +316,6 @@ public partial class AppDbContext : IVideoStreamDB
 
             ret.ChildVideoStreams = dtoStreams;
         }
-
-        //IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
-        //string Logo = icon != null ? icon.Source : "/" + setting.DefaultIcon;
-
-        //ret.User_Tvg_logo = Logo;
 
         return ret;
     }
