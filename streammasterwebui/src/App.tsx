@@ -19,6 +19,7 @@ import Home from './Home';
 import SignalRHub from './app/SignalRHub';
 import FilesEditor from './features/filesEditor/FilesEditor';
 import LogViewer from './features/logViewer/LogViewer';
+import SDEditor from './features/sdEditor/SDEditor';
 // import SDEditor from './features/sdEditor/SDEditor';
 
 const App = () => {
@@ -57,6 +58,10 @@ const App = () => {
         <Route element={
           <FilesEditor />
         } path="/editor/files" />
+
+        <Route element={
+          <SDEditor />
+        } path="/editor/sd" />
 
         <Route element={
           <StreamingStatus />

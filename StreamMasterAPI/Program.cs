@@ -23,8 +23,7 @@ builder.WebHost.ConfigureKestrel((context, serverOptions) =>
     serverOptions.Limits.MaxRequestBodySize = null;
 });
 
-var appDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{Constants.AppName.ToLower()}{Path.DirectorySeparatorChar}";
-var settingFile = $"{appDataFolder}settings.json";
+var settingFile = $"{BuildInfo.AppDataFolder}settings.json";
 
 builder.Configuration.AddJsonFile(settingFile, true, false);
 builder.Services.Configure<Setting>(builder.Configuration);
@@ -56,7 +55,7 @@ if (!string.IsNullOrEmpty(sslCertPath))
 
     builder.WebHost.ConfigureKestrel(options =>
     options.ConfigureHttpsDefaults(configureOptions =>
-       configureOptions.ServerCertificate = ValidateSslCertificate(Path.Combine(appDataFolder, sslCertPath), sslCertPassword)
+       configureOptions.ServerCertificate = ValidateSslCertificate(Path.Combine(BuildInfo.AppDataFolder, sslCertPath), sslCertPassword)
     ));
 }
 

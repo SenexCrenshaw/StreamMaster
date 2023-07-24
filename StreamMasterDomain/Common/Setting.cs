@@ -11,6 +11,10 @@ public class Setting
     public AuthenticationType AuthenticationMethod { get; set; } = AuthenticationType.None;
     public bool CacheIcons { get; set; } = true;
     public bool CleanURLs { get; set; } = true;
+
+    public List<string> SDStationIds { get; set; } = new();
+    public string SDCountry { get; set; } = string.Empty;
+    public string SDPostalCode { get; set; } = string.Empty;
     public string ClientUserAgent { get; set; } = "Mozilla/5.0 (compatible; streammaster/1.0)";
 
     public string DefaultIcon { get; set; } = "images/default.png";

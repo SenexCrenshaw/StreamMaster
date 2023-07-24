@@ -7,36 +7,39 @@ using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirectAPI;
 
-public class SchedulesDirect
+public class StationPreview
 {
-    private const string SD_BASE_URL = "https://json.schedulesdirect.org/20141201/";
-    private static readonly HttpClient httpClient = CreateHttpClient();
+    public StationPreview()
+    { }
 
-    public SchedulesDirect(string sdUserName, string sdPassword)
+    public StationPreview(Station station)
     {
-        SDUserName = sdUserName;
-        if (HashHelper.TestSha1HexHash(sdPassword))
-        {
-            SDHashedPassword = sdPassword;
-        }
-        else
-        {
-            SDHashedPassword = sdPassword.GetSHA1Hash();
-        }
+        Affiliate = station.Affiliate;
+        Callsign = station.Callsign;
+        LineUp = station.LineUp;
+        Name = station.Name;
+        StationId = station.StationID;
     }
 
-    public string SDHashedPassword { get; private set; }
+    public string Affiliate { get; set; }
+    public string Callsign { get; set; }
+    public int Id { get; internal set; }
+    public string LineUp { get; set; }
+    public string Name { get; set; }
+    public string StationId { get; set; }
+}
 
-    public string SDUserName { get; private set; }
+public class SchedulesDirect
+{
+    private static readonly HttpClient httpClient = CreateHttpClient();
 
-    public string Token { get; private set; }
-    public DateTime TokenDateTime { get; private set; }
+    public SchedulesDirect()
+    {
+    }
 
     public async Task<Countries?> GetCountries(CancellationToken cancellationToken)
     {
-        await CheckToken();
-
-        var url = GetUrl("available/countries");
+        var url = await SDToken.GetAPIUrl("available/countries", cancellationToken);
 
         using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
         try
@@ -58,9 +61,7 @@ public class SchedulesDirect
 
     public async Task<List<Headend>?> GetHeadends(string country, string postalCode, CancellationToken cancellationToken = default)
     {
-        await CheckToken();
-
-        var url = GetUrl($"headends?country={country}&postalcode={postalCode}");
+        var url = await SDToken.GetAPIUrl($"headends?country={country}&postalcode={postalCode}", cancellationToken);
 
         using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
         try
@@ -82,9 +83,7 @@ public class SchedulesDirect
 
     public async Task<LineUpResult?> GetLineup(string lineUp, CancellationToken cancellationToken)
     {
-        await CheckToken();
-
-        var url = GetUrl($"lineups/{lineUp}");
+        var url = await SDToken.GetAPIUrl($"lineups/{lineUp}", cancellationToken).ConfigureAwait(false);
 
         using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
         try
@@ -104,11 +103,53 @@ public class SchedulesDirect
         }
     }
 
+    public async Task<List<LineUpPreview>> GetLineUpPreviews(CancellationToken cancellationToken)
+    {
+        var res = new List<LineUpPreview>();
+        var lineups = await GetLineups(cancellationToken);
+
+        if (lineups is null)
+        {
+            return res;
+        }
+
+        foreach (var lineup in lineups.Lineups)
+        {
+            var url = await SDToken.GetAPIUrl($"lineups/preview/{lineup.LineupString}", cancellationToken);
+
+            using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
+            try
+            {
+                _ = response.EnsureSuccessStatusCode();
+                string responseString = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+                var results = JsonSerializer.Deserialize<List<LineUpPreview>>(responseString);
+                if (results == null)
+                {
+                    continue;
+                }
+                for (int index = 0; index < results.Count; index++)
+                {
+                    LineUpPreview? lineUpPreview = results[index];
+                    lineUpPreview.LineUp = lineup.LineupString;
+                    lineUpPreview.Id = index;
+                }
+
+                res.AddRange(results);
+            }
+            catch (Exception ex)
+            {
+                continue;
+            }
+        }
+
+        return res;
+    }
+
     public async Task<LineUpsResult?> GetLineups(CancellationToken cancellationToken)
     {
-        await CheckToken();
+        var url = await SDToken.GetAPIUrl("lineups", cancellationToken);
 
-        var url = GetUrl("lineups");
+        //httpClient.DefaultRequestHeaders.Add("verboseMap", "true");
 
         using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
         try
@@ -120,6 +161,7 @@ public class SchedulesDirect
             {
                 return null;
             }
+
             return result;
         }
         catch (Exception ex)
@@ -130,7 +172,7 @@ public class SchedulesDirect
 
     public async Task<List<SDProgram>?> GetPrograms(List<string> programIds, CancellationToken cancellationToken)
     {
-        await CheckToken();
+        //await CheckToken(cancellationToken).ConfigureAwait(false);
 
         //var dt = DateTime.Now;
 
@@ -140,7 +182,7 @@ public class SchedulesDirect
         //    toSend.Add(new StationId(stationId));//, new List<string> { dt.ToShortDateString(), dt.AddDays(2).ToShortDateString(), }));
         //}
 
-        var url = GetUrl("programs");
+        var url = await SDToken.GetAPIUrl("programs", cancellationToken);
 
         string jsonString = JsonSerializer.Serialize(programIds);
         StringContent content = new(jsonString, Encoding.UTF8, "application/json");
@@ -164,17 +206,13 @@ public class SchedulesDirect
 
     public async Task<List<Schedule>?> GetSchedules(List<string> stationIds, CancellationToken cancellationToken)
     {
-        await CheckToken();
-
-        //var dt = DateTime.Now;
-
         List<StationId> StationIds = new();
         foreach (var stationId in stationIds)
         {
-            StationIds.Add(new StationId(stationId));//, new List<string> { dt.ToShortDateString(), dt.AddDays(2).ToShortDateString(), }));
+            StationIds.Add(new StationId(stationId));
         }
 
-        var url = GetUrl("schedules");
+        var url = await SDToken.GetAPIUrl("schedules", cancellationToken);
 
         string jsonString = JsonSerializer.Serialize(StationIds);
         StringContent content = new(jsonString, Encoding.UTF8, "application/json");
@@ -193,28 +231,60 @@ public class SchedulesDirect
         }
     }
 
+    public async Task<List<StationPreview>> GetStationPreviews(CancellationToken cancellationToken)
+    {
+        var stations = await GetStations(cancellationToken).ConfigureAwait(false);
+        if (stations is null)
+        {
+            return new();
+        }
+        var ret = new List<StationPreview>();
+        for (int index = 0; index < stations.Count; index++)
+        {
+            Station? station = stations[index];
+            var sp = new StationPreview(station)
+            {
+                Id = index
+            };
+            ret.Add(sp);
+        }
+        return ret;
+    }
+
+    public async Task<List<Station>> GetStations(CancellationToken cancellationToken)
+    {
+        var ret = new List<Station>();
+
+        var lineUps = await GetLineups(cancellationToken).ConfigureAwait(false);
+        if (lineUps == null || lineUps.Lineups == null)
+        {
+            return ret;
+        }
+
+        foreach (var lineUp in lineUps.Lineups)
+        {
+            var res = await GetLineup(lineUp.LineupString, cancellationToken).ConfigureAwait(false);
+            if (res == null)
+                continue;
+
+            foreach (var station in res.Stations)
+            {
+                station.LineUp = lineUp.LineupString;
+            }
+            ret.AddRange(res.Stations);
+        }
+
+        return ret;
+    }
+
     public async Task<SDStatus?> GetStatus(CancellationToken cancellationToken)
     {
-        await CheckToken();
+        return await SDToken.GetStatus(cancellationToken);
+    }
 
-        var url = GetUrl("status");
-
-        using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
-        try
-        {
-            _ = response.EnsureSuccessStatusCode();
-            string responseString = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-            var result = JsonSerializer.Deserialize<SDStatus>(responseString);
-            if (result == null)
-            {
-                return null;
-            }
-            return result;
-        }
-        catch (Exception ex)
-        {
-            throw;
-        }
+    public async Task<bool> GetSystemReady(CancellationToken cancellationToken)
+    {
+        return await SDToken.GetSystemReady(cancellationToken);
     }
 
     private static HttpClient CreateHttpClient()
@@ -231,66 +301,4 @@ public class SchedulesDirect
 
         return client;
     }
-
-    public async Task<bool> CheckToken(CancellationToken cancellationToken = default)
-    {
-        if (string.IsNullOrEmpty(Token) || TokenDateTime.AddHours(23) < DateTime.Now)
-        {
-            await GetToken(cancellationToken);
-
-            if (string.IsNullOrEmpty(Token))
-                throw new ApplicationException("Unable to get token");
-
-            TokenDateTime = DateTime.Now;
-        }
-        return true;
-    }
-
-    private async Task<string?> GetToken(CancellationToken cancellationToken)
-    {
-        SDGetTokenRequest data = new()
-        {
-            username = SDUserName,
-            password = SDHashedPassword
-        };
-
-        string jsonString = JsonSerializer.Serialize(data);
-        StringContent content = new(jsonString, Encoding.UTF8, "application/json");
-
-        using HttpResponseMessage response = await httpClient.PostAsync($"{SD_BASE_URL}token", content, cancellationToken).ConfigureAwait(false);
-        try
-        {
-            _ = response.EnsureSuccessStatusCode();
-            string responseString = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-            SDGetToken? result = JsonSerializer.Deserialize<SDGetToken>(responseString);
-            if (result == null || string.IsNullOrEmpty(result.token))
-            {
-                return Token;
-            }
-            Token = result.token;
-        }
-        catch (Exception ex)
-        {
-            throw;
-        }
-
-        return Token;
-    }
-
-    private string GetUrl(string commnand)
-    {
-        if (commnand.Contains("?"))
-        {
-            return $"{SD_BASE_URL}{commnand}&token={Token}";
-        }
-        return $"{SD_BASE_URL}{commnand}?token={Token}";
-    }
-}
-
-public class Oceania
-{
-    public string fullName { get; set; }
-    public string postalCode { get; set; }
-    public string postalCodeExample { get; set; }
-    public string shortName { get; set; }
 }

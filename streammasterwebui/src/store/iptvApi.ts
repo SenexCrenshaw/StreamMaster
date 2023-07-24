@@ -466,6 +466,13 @@ const injectedRtkApi = api
         }),
         providesTags: ["SchedulesDirect"],
       }),
+      schedulesDirectGetLineupPreviews: build.query<
+        SchedulesDirectGetLineupPreviewsApiResponse,
+        SchedulesDirectGetLineupPreviewsApiArg
+      >({
+        query: () => ({ url: `/api/schedulesdirect/getlineuppreviews` }),
+        providesTags: ["SchedulesDirect"],
+      }),
       schedulesDirectGetLineups: build.query<
         SchedulesDirectGetLineupsApiResponse,
         SchedulesDirectGetLineupsApiArg
@@ -477,10 +484,21 @@ const injectedRtkApi = api
         SchedulesDirectGetSchedulesApiResponse,
         SchedulesDirectGetSchedulesApiArg
       >({
-        query: (queryArg) => ({
-          url: `/api/schedulesdirect/getschedules`,
-          body: queryArg,
-        }),
+        query: () => ({ url: `/api/schedulesdirect/getschedules` }),
+        providesTags: ["SchedulesDirect"],
+      }),
+      schedulesDirectGetStationPreviews: build.query<
+        SchedulesDirectGetStationPreviewsApiResponse,
+        SchedulesDirectGetStationPreviewsApiArg
+      >({
+        query: () => ({ url: `/api/schedulesdirect/getstationpreviews` }),
+        providesTags: ["SchedulesDirect"],
+      }),
+      schedulesDirectGetStations: build.query<
+        SchedulesDirectGetStationsApiResponse,
+        SchedulesDirectGetStationsApiArg
+      >({
+        query: () => ({ url: `/api/schedulesdirect/getstations` }),
         providesTags: ["SchedulesDirect"],
       }),
       schedulesDirectGetStatus: build.query<
@@ -970,12 +988,21 @@ export type SchedulesDirectGetHeadendsApiArg = {
 export type SchedulesDirectGetLineupApiResponse =
   /** status 200  */ LineUpResult;
 export type SchedulesDirectGetLineupApiArg = string;
+export type SchedulesDirectGetLineupPreviewsApiResponse =
+  /** status 200  */ LineUpPreview[];
+export type SchedulesDirectGetLineupPreviewsApiArg = void;
 export type SchedulesDirectGetLineupsApiResponse =
   /** status 200  */ LineUpsResult;
 export type SchedulesDirectGetLineupsApiArg = void;
 export type SchedulesDirectGetSchedulesApiResponse =
   /** status 200  */ Schedule[];
-export type SchedulesDirectGetSchedulesApiArg = string[];
+export type SchedulesDirectGetSchedulesApiArg = void;
+export type SchedulesDirectGetStationPreviewsApiResponse =
+  /** status 200  */ StationPreview[];
+export type SchedulesDirectGetStationPreviewsApiArg = void;
+export type SchedulesDirectGetStationsApiResponse =
+  /** status 200  */ Station[];
+export type SchedulesDirectGetStationsApiArg = void;
 export type SchedulesDirectGetStatusApiResponse = /** status 200  */ SdStatus;
 export type SchedulesDirectGetStatusApiArg = void;
 export type SettingsGetIsSystemReadyApiResponse = /** status 200  */ boolean;
@@ -1389,6 +1416,12 @@ export type Broadcaster = {
   postalcode?: string;
   country?: string;
 };
+export type Logo = {
+  URL?: string;
+  height?: number;
+  width?: number;
+  md5?: string;
+};
 export type StationLogo = {
   URL?: string;
   height?: number;
@@ -1397,23 +1430,18 @@ export type StationLogo = {
   source?: string;
   category?: string;
 };
-export type Logo = {
-  URL?: string;
-  height?: number;
-  width?: number;
-  md5?: string;
-};
 export type Station = {
-  stationID?: string;
-  name?: string;
-  callsign?: string;
   affiliate?: string;
-  broadcastLanguage?: string[];
-  descriptionLanguage?: string[];
   broadcaster?: Broadcaster;
-  stationLogo?: StationLogo[];
-  logo?: Logo;
+  broadcastLanguage?: string[];
+  callsign?: string;
+  descriptionLanguage?: string[];
   isCommercialFree?: boolean | null;
+  lineUp?: string;
+  logo?: Logo;
+  name?: string;
+  stationID?: string;
+  stationLogo?: StationLogo[];
 };
 export type Metadata = {
   lineup?: string;
@@ -1424,6 +1452,14 @@ export type LineUpResult = {
   map?: Map[];
   stations?: Station[];
   metadata?: Metadata;
+};
+export type LineUpPreview = {
+  id?: number;
+  affiliate?: string;
+  callsign?: string;
+  channel?: string;
+  lineUp?: string;
+  name?: string;
 };
 export type Lineup = {
   id?: string;
@@ -1463,6 +1499,14 @@ export type Schedule = {
   programs?: Program[];
   metadata?: ScheduleMetadata;
 };
+export type StationPreview = {
+  affiliate?: string;
+  callsign?: string;
+  id?: number;
+  lineUp?: string;
+  name?: string;
+  stationId?: string;
+};
 export type Account = {
   expires?: string;
   maxLineups?: number;
@@ -1500,6 +1544,9 @@ export type Setting = {
   authenticationMethod?: AuthenticationType;
   cacheIcons?: boolean;
   cleanURLs?: boolean;
+  sdStationIds?: string[];
+  sdCountry?: string;
+  sdPostalCode?: string;
   clientUserAgent?: string;
   defaultIcon?: string;
   deviceID?: string;
@@ -1578,7 +1625,10 @@ export type UpdateSettingRequest = {
   preloadPercentage?: number | null;
   ringBufferSizeMB?: number | null;
   sdPassword?: string | null;
+  sdCountry?: string | null;
+  sdPostalCode?: string | null;
   sdUserName?: string | null;
+  sdStationIds?: string[] | null;
   sourceBufferPreBufferPercentage?: number | null;
   sslCertPassword?: string | null;
   sslCertPath?: string | null;
@@ -1789,8 +1839,11 @@ export const {
   useSchedulesDirectGetCountriesQuery,
   useSchedulesDirectGetHeadendsQuery,
   useSchedulesDirectGetLineupQuery,
+  useSchedulesDirectGetLineupPreviewsQuery,
   useSchedulesDirectGetLineupsQuery,
   useSchedulesDirectGetSchedulesQuery,
+  useSchedulesDirectGetStationPreviewsQuery,
+  useSchedulesDirectGetStationsQuery,
   useSchedulesDirectGetStatusQuery,
   useSettingsGetIsSystemReadyQuery,
   useSettingsGetQueueStatusQuery,

@@ -11,7 +11,7 @@ internal partial class Program
 {
     private static readonly List<EndPoint> EndPoints = new();
 
-    private static readonly List<string> toIgnore = new() {"logsGetLogRequest", "videoStreamsGetAllStatisticsForAllUrls", "settingsGetIsSystemReady", "schedulesDirectGetSchedules", "schedulesDirectGetStatus", "schedulesDirectGetCountries", "schedulesDirectGetLineups", "schedulesDirectGetLineup", "schedulesDirectGetHeadends", "OnDisconnectedAsync", "login", "channelGroupsGetChannelGroups", "videoStreamsGetVideoStreams", "streamGroupsGetAllStatisticsForAllUrls", "programmesGetProgrammeNames", "videoStreamsGetVideoStream", "m3UStreamsGetM3UStream", "m3UStreamsGetM3UStreams", "m3UFilesGetM3UFile" };
+    private static readonly List<string> toIgnore = new() {"schedulesDirectGetStations","schedulesDirectGetLineupPreviews","logsGetLogRequest", "videoStreamsGetAllStatisticsForAllUrls", "settingsGetIsSystemReady", "schedulesDirectGetSchedules", "schedulesDirectGetStatus", "schedulesDirectGetCountries", "schedulesDirectGetLineups", "schedulesDirectGetLineup", "schedulesDirectGetHeadends", "OnDisconnectedAsync", "login", "channelGroupsGetChannelGroups", "videoStreamsGetVideoStreams", "streamGroupsGetAllStatisticsForAllUrls", "programmesGetProgrammeNames", "videoStreamsGetVideoStream", "m3UStreamsGetM3UStream", "m3UStreamsGetM3UStreams", "m3UFilesGetM3UFile" };
     private static List<string> iptv = new();
 
     public static string GetName(string name)

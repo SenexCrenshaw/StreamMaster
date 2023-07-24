@@ -210,32 +210,19 @@ public sealed class FileUtil
         {
             using (FileStream fileStream = File.OpenRead(filePath))
             {
-                byte[] signature = new byte[2];
+                byte[] signature = new byte[3];
 
                 // Read the first two bytes from the file
-                fileStream.Read(signature, 0, 2);
+                fileStream.Read(signature, 0, 3);
 
                 // Gzip files start with the signature bytes 0x1F 0x8B
-                return signature[0] == 0x1F && signature[1] == 0x8B;
+                return signature[0] == 0x1F && signature[1] == 0x8B && signature[2] == 0x08;
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine("Error: " + ex.Message);
             return false;
-        }
-    }
-
-    public static bool IsGzipCompressed(string filePath)
-    {
-        byte[] gzipSignature = new byte[] { 0x1F, 0x8B, 0x08 };
-
-        using (FileStream fs = File.OpenRead(filePath))
-        {
-            byte[] fileSignature = new byte[gzipSignature.Length];
-            fs.Read(fileSignature, 0, fileSignature.Length);
-
-            return fileSignature.SequenceEqual(gzipSignature);
         }
     }
 
@@ -288,16 +275,15 @@ public sealed class FileUtil
         }
         setupDirectories = true;
 
-        var AppDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{Constants.AppName.ToLower()}{Path.DirectorySeparatorChar}";
-        var CacheFolder = $"{AppDataFolder}Cache{Path.DirectorySeparatorChar}";
-        var PlayListFolder = $"{AppDataFolder}PlayLists{Path.DirectorySeparatorChar}";
+        var CacheFolder = $"{BuildInfo.AppDataFolder}Cache{Path.DirectorySeparatorChar}";
+        var PlayListFolder = $"{BuildInfo.AppDataFolder}PlayLists{Path.DirectorySeparatorChar}";
         var IconDataFolder = $"{CacheFolder}Icons{Path.DirectorySeparatorChar}";
         var ProgrammeIconDataFolder = $"{CacheFolder}ProgrammeIcons{Path.DirectorySeparatorChar}";
 
         var PlayListEPGFolder = $"{PlayListFolder}EPG{Path.DirectorySeparatorChar}";
         var PlayListM3UFolder = $"{PlayListFolder}M3U{Path.DirectorySeparatorChar}";
 
-        CreateDir(AppDataFolder);
+        CreateDir(BuildInfo.AppDataFolder);
         CreateDir(CacheFolder);
         CreateDir(IconDataFolder);
         CreateDir(PlayListFolder);

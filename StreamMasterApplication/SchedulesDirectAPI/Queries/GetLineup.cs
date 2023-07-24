@@ -10,9 +10,7 @@ internal class GetLineupHandler : IRequestHandler<GetLineup, LineUpResult?>
 {
     public async Task<LineUpResult?> Handle(GetLineup request, CancellationToken cancellationToken)
     {
-        Setting setting = FileUtil.GetSetting();
-
-        var sd = new SchedulesDirect(setting.SDUserName, setting.SDPassword);
+        var sd = new SchedulesDirect();
         var status = await sd.GetStatus(cancellationToken).ConfigureAwait(false);
         if (status == null || !status.systemStatus.Any())
         {

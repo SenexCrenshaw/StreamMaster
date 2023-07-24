@@ -24,6 +24,7 @@ import {
   type GetLog,
   type HeadendDto,
   type IconFileDto,
+  type LineUpPreview,
   type LineUpResult,
   type LineUpsResult,
   type LogEntryDto,
@@ -40,6 +41,8 @@ import {
   type SetChannelGroupsVisibleRequest,
   type SettingDto,
   type SetVideoStreamChannelNumbersRequest,
+  type Station,
+  type StationPreview,
   type StreamGroupDto,
   type StreamStatisticsResult,
   type SystemStatus,
@@ -273,14 +276,32 @@ export const GetLineup = async (arg: string): Promise<LineUpResult> => {
     return data;
 };
 
+export const GetLineupPreviews = async (): Promise<LineUpPreview[]> => {
+    const data = await hubConnection.invoke('GetLineupPreviews');
+
+    return data;
+};
+
 export const GetLineups = async (): Promise<LineUpsResult> => {
     const data = await hubConnection.invoke('GetLineups');
 
     return data;
 };
 
-export const GetSchedules = async (arg: string[]): Promise<Schedule[]> => {
-    const data = await hubConnection.invoke('GetSchedules',arg);
+export const GetSchedules = async (): Promise<Schedule[]> => {
+    const data = await hubConnection.invoke('GetSchedules');
+
+    return data;
+};
+
+export const GetStationPreviews = async (): Promise<StationPreview[]> => {
+    const data = await hubConnection.invoke('GetStationPreviews');
+
+    return data;
+};
+
+export const GetStations = async (): Promise<Station[]> => {
+    const data = await hubConnection.invoke('GetStations');
 
     return data;
 };

@@ -6,8 +6,8 @@ public class SDStatus
     public int code { get; set; }
     public DateTime datetime { get; set; }
     public DateTime lastDataUpdate { get; set; }
-    public Lineup[] lineups { get; set; }
+    public List<Lineup> lineups { get; set; } = new();
     public object[] notifications { get; set; }
     public string serverID { get; set; }
-    public SDSystemstatus[] systemStatus { get; set; }
+    public List<SDSystemstatus> systemStatus { get; set; } = new();
 }

@@ -54,7 +54,7 @@ internal class Program
         var cancellationTokenSource = new CancellationTokenSource();
         CancellationToken cancellationToken = cancellationTokenSource.Token;
 
-        var sd = new SchedulesDirect("", "");
+        var sd = new SchedulesDirect();
 
         Console.WriteLine("Getting Status");
         var status = await sd.GetStatus(cancellationToken);
@@ -90,7 +90,7 @@ internal class Program
         string jsonString = JsonSerializer.Serialize(lineups);
         File.WriteAllText(fileName, jsonString);
 
-        var lineup = await sd.GetLineup("USA-OTA-19087", cancellationToken: cancellationToken);
+        var lineup = await sd.GetLineup("", cancellationToken: cancellationToken);
         if (lineup == null)
         {
             Console.WriteLine($"lineup is null");
@@ -103,15 +103,15 @@ internal class Program
 
         //lineup.OutputFormattedResult();
 
-        var wpvi = lineup.Stations.FirstOrDefault(a => a.Callsign.ToLower().Contains("wpvi"));
-        if (wpvi != null)
+        var testStation = lineup.Stations.FirstOrDefault(a => a.Callsign.ToLower().Contains(""));
+        if (testStation != null)
         {
-            fileName = "wpvi.json";
-            jsonString = JsonSerializer.Serialize(wpvi);
+            fileName = "testStation.json";
+            jsonString = JsonSerializer.Serialize(testStation);
             File.WriteAllText(fileName, jsonString);
 
             Console.WriteLine("Getting Schedules");
-            var schedules = await sd.GetSchedules(new List<string> { wpvi.StationID }, cancellationToken: cancellationToken);
+            var schedules = await sd.GetSchedules(new List<string> { testStation.StationID }, cancellationToken: cancellationToken);
             if (schedules != null)
             {
                 fileName = "schedules.json";
