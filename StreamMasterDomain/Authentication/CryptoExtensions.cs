@@ -222,17 +222,28 @@ namespace StreamMasterDomain.Authentication
             return setting.ApiKey;
         }
 
+
+
         public static byte[]? GetIVFromPath(this string requestPath, int keySize = 128)
         {
             try
             {
-                if (!requestPath.StartsWith("/api/videostreams/", StringComparison.InvariantCultureIgnoreCase))
+                if (
+                !requestPath.StartsWith("/api/videostreams/", StringComparison.InvariantCultureIgnoreCase)
+                &&
+                !requestPath.StartsWith("/api/streamgroups/", StringComparison.InvariantCultureIgnoreCase)
+                )
                 {
                     return null;
                 }
 
                 var crypt = requestPath.Replace("/api/videostreams/stream/", "", StringComparison.InvariantCultureIgnoreCase);
-                crypt = crypt.Replace("/api/videostreams/", "", StringComparison.InvariantCultureIgnoreCase);
+                crypt = crypt.Replace("/api/streamgroups/stream/", "", StringComparison.InvariantCultureIgnoreCase);
+
+                crypt = crypt.Replace("/api/videostreams/", "", StringComparison.InvariantCultureIgnoreCase);                               
+                crypt = crypt.Replace("/api/streamgroups/", "", StringComparison.InvariantCultureIgnoreCase);
+
+
                 if (crypt.Contains("/"))
                 {
                     crypt = crypt.Substring(0, crypt.IndexOf("/"));
