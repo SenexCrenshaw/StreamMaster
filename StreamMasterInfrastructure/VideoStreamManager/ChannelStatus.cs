@@ -16,8 +16,10 @@ public class ChannelStatus
         FailoverInProgress = false;
         VideoStreamName = videoStreamName;
         ClientIds = new();
+        IsGlobal = false;
     }
 
+    public  bool IsGlobal  { get; set; }
     public CancellationTokenSource ChannelWatcherToken { get; set; }
     public bool FailoverInProgress { get; set; }
 

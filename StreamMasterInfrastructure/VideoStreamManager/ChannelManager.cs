@@ -229,9 +229,20 @@ public class ChannelManager : IDisposable, IChannelManager
         }
     }
 
+    private void SetIsGlobal(ChannelStatus channelStatus)
+    {
+        channelStatus.IsGlobal = true;
+        _channelStatuses.TryUpdate(channelStatus.VideoStreamId, channelStatus, channelStatus);
+    }
+
+    private int GetGlobalStreamsCount()
+    {
+        return _channelStatuses.Count(a => a.Value.IsGlobal);
+    }
+
     private async Task<ChildVideoStreamDto?> GetNextChildVideoStream(ChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
     {
-        _logger.LogDebug($"Starting GetNextChildVideoStream with channelStatus: {channelStatus} and overrideNextVideoStreamId: {overrideNextVideoStreamId}");
+        _logger.LogDebug($"Starting GetNextChildVideoStream with channelStatus: {channelStatus.VideoStreamName} and overrideNextVideoStreamId: {overrideNextVideoStreamId}");
 
         using IServiceScope scope = _serviceProvider.CreateScope();
         IAppDbContext context = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
@@ -252,20 +263,30 @@ public class ChannelManager : IDisposable, IChannelManager
             m3uFile = await context.M3UFiles.AsNoTracking().FirstOrDefaultAsync(a => a.Id == newVideoStream.M3UFileId);
             if (m3uFile == null)
             {
-                _logger.LogDebug($"Exiting GetNextChildVideoStream with null due to m3uFile being null");
-                return null;
-            }
+                if (GetGlobalStreamsCount() >= setting.GlobalStreamLimit)
+                {
+                    _logger.LogInformation("Max Global stream count {GlobalStreamsCount} reached for stream: {StreamUrl}", GetGlobalStreamsCount(), setting.CleanURLs ? "url removed" : newVideoStream.User_Url);
+                    return null;
+                }
 
-            allStreamsCount = _streamManager.GetStreamsCountForM3UFile(newVideoStream.M3UFileId);
-
-            if (newVideoStream.Id != channelStatus.VideoStreamId && allStreamsCount >= m3uFile.MaxStreamCount)
-            {
-                _logger.LogInformation("Max stream count {MaxStreams} reached for stream: {StreamUrl}", newVideoStream.MaxStreams, setting.CleanURLs ? "url removed" : newVideoStream.User_Url);
+                SetIsGlobal(channelStatus);                 
+                _logger.LogInformation("Global stream count {GlobalStreamsCount}", GetGlobalStreamsCount());
+                return newVideoStream;
+               
             }
             else
             {
-                _logger.LogDebug($"Exiting GetNextChildVideoStream with newVideoStream: {newVideoStream}");
-                return newVideoStream;
+                allStreamsCount = _streamManager.GetStreamsCountForM3UFile(newVideoStream.M3UFileId);
+
+                if (newVideoStream.Id != channelStatus.VideoStreamId && allStreamsCount >= m3uFile.MaxStreamCount)
+                {
+                    _logger.LogInformation("Max stream count {MaxStreams} reached for stream: {StreamUrl}", newVideoStream.MaxStreams, setting.CleanURLs ? "url removed" : newVideoStream.User_Url);
+                }
+                else
+                {
+                    _logger.LogDebug($"Exiting GetNextChildVideoStream with newVideoStream: {newVideoStream}");
+                    return newVideoStream;
+                }
             }
         }
 
@@ -299,15 +320,23 @@ public class ChannelManager : IDisposable, IChannelManager
             m3uFile = await context.M3UFiles.AsNoTracking().FirstOrDefaultAsync(a => a.Id == toReturn.M3UFileId);
             if (m3uFile == null)
             {
-                _logger.LogDebug($"Exiting GetNextChildVideoStream with null due to m3uFile being null for videoStream: {toReturn}");
-                return null;
+                if (GetGlobalStreamsCount() >= setting.GlobalStreamLimit)
+                {
+                    _logger.LogInformation("Max Global stream count {GlobalStreamsCount} reached for stream: {StreamUrl}", GetGlobalStreamsCount(), setting.CleanURLs ? "url removed" : toReturn.User_Url);
+                    continue;
+                }
+                
+                SetIsGlobal(channelStatus);
+                _logger.LogInformation("Global stream count {GlobalStreamsCount}", GetGlobalStreamsCount());               
             }
-
-            allStreamsCount = _streamManager.GetStreamsCountForM3UFile(toReturn.M3UFileId);
-            if (allStreamsCount >= m3uFile.MaxStreamCount)
+            else
             {
-                _logger.LogInformation("Max stream count {MaxStreams} reached for stream: {StreamUrl}", toReturn.MaxStreams, setting.CleanURLs ? "url removed" : toReturn.User_Url);
-                continue;
+                allStreamsCount = _streamManager.GetStreamsCountForM3UFile(toReturn.M3UFileId);
+                if (allStreamsCount >= m3uFile.MaxStreamCount)
+                {
+                    _logger.LogInformation("Max stream count {MaxStreams} reached for stream: {StreamUrl}", toReturn.MaxStreams, setting.CleanURLs ? "url removed" : toReturn.User_Url);
+                    continue;
+                }
             }
 
             _logger.LogDebug($"Exiting GetNextChildVideoStream with toReturn: {toReturn}");
@@ -317,11 +346,6 @@ public class ChannelManager : IDisposable, IChannelManager
         _logger.LogDebug($"Exiting GetNextChildVideoStream with null due to no suitable videoStream found");
         return null;
     }
-
-    //private ICollection<IStreamInformation> GetStreamInformations()
-    //{
-    //    return _streamManager.GetStreamInformations();
-    //}
 
     private async Task<bool> HandleNextVideoStream(ChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
     {
@@ -369,8 +393,6 @@ public class ChannelManager : IDisposable, IChannelManager
 
     private async Task<bool> ProcessStreamStatus(ChannelStatus channelStatus)
     {
-        //_logger.LogDebug($"Starting ProcessStreamStatus with channelStatus: {channelStatus}");
-
         if (channelStatus.ChannelWatcherToken.Token.IsCancellationRequested)
         {
             _logger.LogDebug($"ChannelWatcherToken cancellation requested for channelStatus: {channelStatus}");
@@ -395,7 +417,6 @@ public class ChannelManager : IDisposable, IChannelManager
             return !handled;
         }
 
-        //  _logger.LogDebug($"Exiting ProcessStreamStatus with false, no action taken for channelStatus: {channelStatus}");
         return false;
     }
 
@@ -491,7 +512,7 @@ public class ChannelManager : IDisposable, IChannelManager
         UnRegisterWithChannelManager(config);
     }
 
-    private void UnRegisterWithChannelManager(ClientStreamerConfiguration config)
+    private async Task UnRegisterWithChannelManager(ClientStreamerConfiguration config)
     {
         _logger.LogDebug($"Starting UnRegisterWithChannelManager with config: {config}");
 

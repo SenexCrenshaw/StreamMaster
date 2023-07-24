@@ -18,6 +18,7 @@ export default {
   filesEPGM3U: 'Files / EPG / M3U',
   formsAuthRequiresAdminUserName: 'Forms Authentication requires an Admin Username',
   general: 'General',
+  globalStreamLimit: 'Global Stream Limit',
   keywordSearch: 'Keyword Search',
   m3UFieldChannelId: "Enable M3U Channel ID",
   m3UFieldChannelNumber: "Enable M3U Channel Number",

@@ -1507,6 +1507,7 @@ export type Setting = {
   enableSSL?: boolean;
   ffmPegExecutable?: string;
   firstFreeNumber?: number;
+  globalStreamLimit?: number;
   m3UFieldChannelId?: boolean;
   m3UFieldChannelNumber?: boolean;
   m3UFieldCUID?: boolean;
@@ -1515,6 +1516,7 @@ export type Setting = {
   m3UFieldTvgId?: boolean;
   m3UFieldTvgLogo?: boolean;
   m3UFieldTvgName?: boolean;
+  m3UIgnoreEmptyEPGID?: boolean;
   maxConnectRetry?: number;
   maxConnectRetryTimeMS?: number;
   overWriteM3UChannels?: boolean;
@@ -1530,7 +1532,6 @@ export type Setting = {
   streamMasterIcon?: string;
   uiFolder?: string;
   urlBase?: string;
-  m3UIgnoreEmptyEPGID?: boolean;
 };
 export type SettingDto = Setting & {
   defaultIconDto?: IconFileDto;
@@ -1549,11 +1550,19 @@ export type UpdateSettingResponse = {
   settings?: SettingDto;
 };
 export type UpdateSettingRequest = {
-  m3UIgnoreEmptyEPGID?: boolean | null;
+  adminPassword?: string | null;
+  adminUserName?: string | null;
+  apiKey?: string | null;
   authenticationMethod?: AuthenticationType | null;
   cacheIcons?: boolean | null;
   cleanURLs?: boolean | null;
+  clientUserAgent?: string | null;
+  deviceID?: string | null;
+  dummyRegex?: string | null;
   enableSSL?: boolean | null;
+  ffmPegExecutable?: string | null;
+  firstFreeNumber?: number | null;
+  globalStreamLimit?: number | null;
   m3UFieldChannelId?: boolean | null;
   m3UFieldChannelNumber?: boolean | null;
   m3UFieldCUID?: boolean | null;
@@ -1562,26 +1571,19 @@ export type UpdateSettingRequest = {
   m3UFieldTvgId?: boolean | null;
   m3UFieldTvgLogo?: boolean | null;
   m3UFieldTvgName?: boolean | null;
-  overWriteM3UChannels?: boolean | null;
+  m3UIgnoreEmptyEPGID?: boolean | null;
   maxConnectRetry?: number | null;
   maxConnectRetryTimeMS?: number | null;
+  overWriteM3UChannels?: boolean | null;
   preloadPercentage?: number | null;
   ringBufferSizeMB?: number | null;
-  sourceBufferPreBufferPercentage?: number | null;
-  firstFreeNumber?: number | null;
-  streamingProxyType?: StreamingProxyTypes | null;
-  adminPassword?: string | null;
-  adminUserName?: string | null;
-  apiKey?: string | null;
-  clientUserAgent?: string | null;
-  deviceID?: string | null;
-  dummyRegex?: string | null;
-  ffmPegExecutable?: string | null;
   sdPassword?: string | null;
   sdUserName?: string | null;
+  sourceBufferPreBufferPercentage?: number | null;
   sslCertPassword?: string | null;
   sslCertPath?: string | null;
   streamingClientUserAgent?: string | null;
+  streamingProxyType?: StreamingProxyTypes | null;
 };
 export type VideoStreamHandlers = 0 | 1 | 2;
 export type BaseVideoStreamDto = {

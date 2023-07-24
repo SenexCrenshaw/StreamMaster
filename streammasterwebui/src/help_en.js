@@ -15,6 +15,7 @@ const help_en = {
   ffmPegExecutable:'FFMPeg Executable. The name "ffmpeg(.exe)" will be search in the OS path as well',
   filesEPG: 'Files / EPG',
   general: 'General',
+  globalStreamLimit: 'Global Stream Limit for custom URLs that do not belong to a M3U playlist',
   keywordSearch: 'Keyword Search',
   m3UIgnoreEmptyEPGID:'Ignore Streams with Empty EPG ID',
   maxConnectRetry:'How many times to retry receiving data from the source stream',
