@@ -10,9 +10,7 @@ internal class GetCountriesHandler : IRequestHandler<GetCountries, Countries?>
 {
     public async Task<Countries?> Handle(GetCountries request, CancellationToken cancellationToken)
     {
-        Setting setting = FileUtil.GetSetting();
-
-        var sd = new SchedulesDirect(setting.SDUserName, setting.SDPassword);
+        var sd = new SchedulesDirect();
         var status = await sd.GetStatus(cancellationToken).ConfigureAwait(false);
         if (status == null || !status.systemStatus.Any())
         {

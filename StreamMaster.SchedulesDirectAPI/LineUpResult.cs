@@ -39,18 +39,40 @@ public record LineUpResult(
     [property: JsonPropertyName("metadata")] Metadata Metadata
 );
 
-public record Station(
-    [property: JsonPropertyName("stationID")] string StationID,
-    [property: JsonPropertyName("name")] string Name,
-    [property: JsonPropertyName("callsign")] string Callsign,
-    [property: JsonPropertyName("affiliate")] string Affiliate,
-    [property: JsonPropertyName("broadcastLanguage")] IReadOnlyList<string> BroadcastLanguage,
-    [property: JsonPropertyName("descriptionLanguage")] IReadOnlyList<string> DescriptionLanguage,
-    [property: JsonPropertyName("broadcaster")] Broadcaster Broadcaster,
-    [property: JsonPropertyName("stationLogo")] IReadOnlyList<StationLogo> StationLogo,
-    [property: JsonPropertyName("logo")] Logo Logo,
-    [property: JsonPropertyName("isCommercialFree")] bool? IsCommercialFree
-);
+public class Station
+{
+    [JsonPropertyName("affiliate")]
+    public string Affiliate { get; set; }
+
+    [JsonPropertyName("broadcaster")]
+    public Broadcaster Broadcaster { get; set; }
+
+    [JsonPropertyName("broadcastLanguage")]
+    public IReadOnlyList<string> BroadcastLanguage { get; set; }
+
+    [JsonPropertyName("callsign")]
+    public string Callsign { get; set; }
+
+    [JsonPropertyName("descriptionLanguage")]
+    public IReadOnlyList<string> DescriptionLanguage { get; set; }
+
+    [JsonPropertyName("isCommercialFree")]
+    public bool? IsCommercialFree { get; set; }
+
+    public string LineUp { get; set; }
+
+    [JsonPropertyName("logo")]
+    public Logo Logo { get; set; }
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; }
+
+    [JsonPropertyName("stationID")]
+    public string StationID { get; set; }
+
+    [JsonPropertyName("stationLogo")]
+    public IReadOnlyList<StationLogo> StationLogo { get; set; }
+}
 
 public record StationLogo(
     [property: JsonPropertyName("URL")] string URL,

@@ -7,8 +7,8 @@ public interface IAppFolderInfo
     string AppDataFolder { get; }
     string CacheFolder { get; }
     string IconDataFolder { get; }
-    string PlayListFolder { get; }
     string PlayListEPGFolder { get; }
+    string PlayListFolder { get; }
     string PlayListM3UFolder { get; }
     string ProgrammeIconDataFolder { get; }
     string SettingFile { get; }
@@ -22,11 +22,11 @@ public class AppFolderInfo : IAppFolderInfo
 
     public AppFolderInfo()
     {
-        AppDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{Constants.AppName.ToLower()}{Path.DirectorySeparatorChar}";
+        BuildInfo.AppDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{Constants.AppName.ToLower()}{Path.DirectorySeparatorChar}";
 
-        CacheFolder = $"{AppDataFolder}Cache{Path.DirectorySeparatorChar}";
+        CacheFolder = $"{BuildInfo.AppDataFolder}Cache{Path.DirectorySeparatorChar}";
 
-        PlayListFolder = $"{AppDataFolder}PlayLists{Path.DirectorySeparatorChar}";
+        PlayListFolder = $"{BuildInfo.AppDataFolder}PlayLists{Path.DirectorySeparatorChar}";
         PlayListEPGFolder = $"{PlayListFolder}EPG{Path.DirectorySeparatorChar}";
         PlayListM3UFolder = $"{PlayListFolder}M3U{Path.DirectorySeparatorChar}";
 
@@ -35,7 +35,7 @@ public class AppFolderInfo : IAppFolderInfo
 
         StartUpFolder = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName;
         TempFolder = Path.GetTempPath();
-        SettingFile = $"{AppDataFolder}settings.json";
+        SettingFile = $"{BuildInfo.AppDataFolder}settings.json";
         SetupDirectories();
     }
 
@@ -45,9 +45,8 @@ public class AppFolderInfo : IAppFolderInfo
 
     public string IconDataFolder { get; private set; }
 
-    public string PlayListFolder { get; private set; }
-
     public string PlayListEPGFolder { get; private set; }
+    public string PlayListFolder { get; private set; }
     public string PlayListM3UFolder { get; private set; }
 
     public string ProgrammeIconDataFolder { get; private set; }
@@ -59,7 +58,7 @@ public class AppFolderInfo : IAppFolderInfo
     public string TempFolder { get; private set; }
 
     private static void CreateDir(string directory)
-    {        
+    {
         FileUtil.CreateDirectory(directory);
     }
 
@@ -71,7 +70,7 @@ public class AppFolderInfo : IAppFolderInfo
         }
 
         setupDirectories = true;
-        CreateDir(AppDataFolder);
+        CreateDir(BuildInfo.AppDataFolder);
         CreateDir(CacheFolder);
         CreateDir(IconDataFolder);
         CreateDir(PlayListFolder);

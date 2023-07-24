@@ -375,6 +375,98 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
                 await cacheEntryRemoved;
             }
         },
+    schedulesDirectGetStationPreviews: {
+      async onCacheEntryAdded(
+        arg,
+        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+      ) {
+        try {
+          await cacheDataLoaded;
+
+          const applyResults = (
+            data: StreamMasterApi.StationPreview[]
+          ) => {
+            updateCachedData(
+              ( draft: StreamMasterApi.StationPreview[]) => {
+                data.forEach(function (cn) {
+                  const foundIndex = draft.findIndex(
+                    (x) => x.id === cn.id
+                  );
+                  if (foundIndex !== -1) {
+                    draft[foundIndex] = cn;
+                  } else {
+                    draft.push(cn);
+                  }
+                });
+                return draft;
+              }
+            );
+          };
+
+          hubConnection.on(
+            'StationPreviewsUpdate',
+            (data: StreamMasterApi.StationPreview[]) => {
+              applyResults(data);
+            }
+          );
+
+
+          const applyResult = (
+            data: StreamMasterApi.StationPreview
+          ) => {
+            updateCachedData(
+              (
+                draft: StreamMasterApi.StationPreview[]
+              ) => {
+                const foundIndex = draft.findIndex(
+                  (x) => x.id === data.id
+                );
+
+                if (foundIndex === -1) {
+                  draft.push(data);
+                } else {
+                  draft[foundIndex] = data;
+                }
+
+                return draft;
+        }
+            );
+                    };
+
+                    hubConnection.on(
+                        'StationPreviewUpdate',
+                        (data: StreamMasterApi.StationPreview) => {
+                            applyResult(data);
+                        }
+                    );
+
+                    const deleteResult = (
+
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        id: any
+                    ) => {
+                        updateCachedData(
+                            (
+                                draft: StreamMasterApi.StationPreview[]
+                            ) => {
+                              return draft.filter((obj) => obj.id !== id);
+                            }
+                        );
+                    };
+
+                    hubConnection.on(
+                        'StationPreviewDelete',
+                        (id: number) => {
+                            deleteResult(id);
+                        }
+                    );
+
+
+                } catch {}
+
+                await cacheEntryRemoved;
+            }
+        },
     settingsGetQueueStatus: {
       async onCacheEntryAdded(
         arg,

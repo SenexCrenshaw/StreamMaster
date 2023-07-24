@@ -118,52 +118,51 @@ public class CacheIconsFromEPGsRequestHandler : IRequestHandler<CacheIconsFromEP
 
             if (tocheck.ToLower().StartsWith("https://json.schedulesdirect.org/20141201/image/"))
             {
-                var sd = new SchedulesDirect(setting.SDUserName, setting.SDPassword);
-                if (await sd.CheckToken())
-                {
-                    token = sd.Token;
+                var sd = new SchedulesDirect();
+                //if (await sd.CheckToken())
+                //{
+                //    token = sd.Token;
 
-                    //if (token == "")
-                    //{
-                    //    using HttpClient httpClient = new();
+                //if (token == "")
+                //{
+                //    using HttpClient httpClient = new();
 
-                    // SDGetTokenRequest data = new() { username =
-                    // setting.SDUserName, password = setting.SDPassword };
+                // SDGetTokenRequest data = new() { username =
+                // setting.SDUserName, password = setting.SDPassword };
 
-                    // string jsonString = JsonSerializer.Serialize(data);
-                    // StringContent content = new(jsonString, Encoding.UTF8,
-                    // "application/json"); string userAgentString =
-                    // @"Mozilla/5.0 (Windows NT 10.0; Win64; x64)
-                    // AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0
-                    // Safari/537.36 Edg/110.0.1587.57";
+                // string jsonString = JsonSerializer.Serialize(data);
+                // StringContent content = new(jsonString, Encoding.UTF8,
+                // "application/json"); string userAgentString = @"Mozilla/5.0
+                // (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like
+                // Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.57";
 
-                    //    httpClient.DefaultRequestHeaders.Add("User-Agent", userAgentString);
-                    //    using HttpResponseMessage response = await httpClient.PostAsync("https://json.schedulesdirect.org/20141201/token", content, cancellationToken).ConfigureAwait(false);
-                    //    try
-                    //    {
-                    //        _ = response.EnsureSuccessStatusCode();
-                    //        string responseString = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-                    //        SDGetToken? result = JsonSerializer.Deserialize<SDGetToken>(responseString);
-                    //        if (result == null || string.IsNullOrEmpty(result.token))
-                    //        {
-                    //            continue;
-                    //        }
-                    //        token = result.token;
-                    //    }
-                    //    catch (HttpRequestException ex)
-                    //    {
-                    //        //_logger.LogCritical(ex, "Error while retieving icon");
-                    //    }
-                    //    if (string.IsNullOrEmpty(token))
-                    //    {
-                    //        continue;
-                    //    }
-                    //}
+                //    httpClient.DefaultRequestHeaders.Add("User-Agent", userAgentString);
+                //    using HttpResponseMessage response = await httpClient.PostAsync("https://json.schedulesdirect.org/20141201/token", content, cancellationToken).ConfigureAwait(false);
+                //    try
+                //    {
+                //        _ = response.EnsureSuccessStatusCode();
+                //        string responseString = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+                //        SDGetToken? result = JsonSerializer.Deserialize<SDGetToken>(responseString);
+                //        if (result == null || string.IsNullOrEmpty(result.token))
+                //        {
+                //            continue;
+                //        }
+                //        token = result.token;
+                //    }
+                //    catch (HttpRequestException ex)
+                //    {
+                //        //_logger.LogCritical(ex, "Error while retieving icon");
+                //    }
+                //    if (string.IsNullOrEmpty(token))
+                //    {
+                //        continue;
+                //    }
+                //}
 
-                    // FIX ME
-                    //string name = Path.GetFileNameWithoutExtension(tocheck);
-                    //(_, isNew) = await IconHelper.AddIcon(tocheck, "?token=" + token, name, _context, _mapper, setting, fd, cancellationToken).ConfigureAwait(false);
-                }
+                // FIX ME
+                //string name = Path.GetFileNameWithoutExtension(tocheck);
+                //(_, isNew) = await IconHelper.AddIcon(tocheck, "?token=" + token, name, _context, _mapper, setting, fd, cancellationToken).ConfigureAwait(false);
+                //}
             }
             else
             {

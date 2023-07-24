@@ -4,36 +4,28 @@ using StreamMaster.SchedulesDirectAPI;
 
 namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 
-public class Stations
-{
-    public string StationId { get; set; }
-}
+public record GetSchedules() : IRequest<List<Schedule>>;
 
-public record GetSchedules(List<string> stationIds) : IRequest<List<Schedule>?>;
-
-internal class GetSchedulesHandler : IRequestHandler<GetSchedules, List<Schedule>?>
+internal class GetSchedulesHandler : IRequestHandler<GetSchedules, List<Schedule>>
 {
-    public async Task<List<Schedule>?> Handle(GetSchedules request, CancellationToken cancellationToken)
+    public async Task<List<Schedule>> Handle(GetSchedules request, CancellationToken cancellationToken)
     {
-        Setting setting = FileUtil.GetSetting();
-
-        var sd = new SchedulesDirect(setting.SDUserName, setting.SDPassword);
-        var status = await sd.GetStatus(cancellationToken).ConfigureAwait(false);
-        if (status == null || !status.systemStatus.Any())
+        var sd = new SchedulesDirect();
+        var status = await sd.GetSystemReady(cancellationToken).ConfigureAwait(false);
+        if (!status)
         {
-            Console.WriteLine("Status is null");
-            return null;
+            Console.WriteLine($"Status is {status}");
+            return new();
+        }
+        var setting = FileUtil.GetSetting();
+        if ( setting.SDStationIds== null || !setting.SDStationIds.Any())
+        {
+            Console.WriteLine($"No station ids");
+            return new();
         }
 
-        var systemStatus = status.systemStatus[0];
-        if (systemStatus.status == "Offline")
-        {
-            Console.WriteLine($"Status is {systemStatus.status}");
-            return null;
-        }
+        var ret = await sd.GetSchedules(setting.SDStationIds, cancellationToken).ConfigureAwait(false);
 
-        var ret = await sd.GetSchedules(request.stationIds, cancellationToken).ConfigureAwait(false);
-
-        return ret;
+        return ret ?? new();
     }
 }

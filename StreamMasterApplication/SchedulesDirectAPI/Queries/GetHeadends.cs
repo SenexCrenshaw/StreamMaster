@@ -13,9 +13,8 @@ internal class GetHeadendsHandler : IRequestHandler<GetHeadends, List<HeadendDto
     public async Task<List<HeadendDto>> Handle(GetHeadends request, CancellationToken cancellationToken)
     {
         var ret = new List<HeadendDto>();
-        Setting setting = FileUtil.GetSetting();
 
-        var sd = new SchedulesDirect(setting.SDUserName, setting.SDPassword);
+        var sd = new SchedulesDirect();
         var status = await sd.GetStatus(cancellationToken).ConfigureAwait(false);
         if (status == null || !status.systemStatus.Any())
         {

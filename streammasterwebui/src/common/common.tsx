@@ -117,6 +117,26 @@ function getApiUrl(path: SMFileTypes, originalUrl: string): string {
   return `${isDebug ? baseHostURL : ''}/api/files/${path}/${encodeURIComponent(originalUrl)}`;
 }
 
+export const arraysMatch = (arr1: string[], arr2: string[]): boolean => {
+  if (arr1.length !== arr2.length) {
+    return false;
+  }
+
+  // Sort both arrays using localeCompare for proper string comparison
+  const sortedArr1 = arr1.slice().sort((a, b) => a.localeCompare(b));
+  const sortedArr2 = arr2.slice().sort((a, b) => a.localeCompare(b));
+
+  // Compare the sorted arrays element by element
+  for (let i = 0; i < sortedArr1.length; i++) {
+    if (sortedArr1[i] !== sortedArr2[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+
 export function getIconUrl(iconOriginalSource: string, setting: StreamMasterSettingResponse): string {
   if (!iconOriginalSource) {
     iconOriginalSource = `${isDebug ? baseHostURL + '/' : '/'}${setting.defaultIcon}`;

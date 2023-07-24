@@ -47,7 +47,10 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public int? PreloadPercentage { get; set; }
     public int? RingBufferSizeMB { get; set; }
     public string? SDPassword { get; set; }
+    public string? SDCountry { get; set; }
+    public string? SDPostalCode { get; set; }
     public string? SDUserName { get; set; }
+    public List<string>? SDStationIds { get; set; }
     public int? SourceBufferPreBufferPercentage { get; set; }
     public string? SSLCertPassword { get; set; }
     public string? SSLCertPath { get; set; }
@@ -248,10 +251,37 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
             currentSetting.SDPassword = HashHelper.GetSHA1Hash(request.SDPassword);
         }
 
+        if (request.SDCountry != null)
+        {
+            currentSetting.SDCountry = request.SDCountry;
+        }
+
+        if (request.SDPostalCode != null)
+        {
+            currentSetting.SDPostalCode = request.SDPostalCode;
+        }
+
+
+        if (request.SDPassword != null)
+        {
+            currentSetting.SDPassword = HashHelper.GetSHA1Hash(request.SDPassword);
+        }
+
+
         if (request.SDUserName != null && request.SDUserName != currentSetting.SDUserName)
         {
             currentSetting.SDUserName = request.SDUserName;
         }
+
+
+        if (request.SDStationIds != null && request.SDStationIds != currentSetting.SDStationIds)
+        {
+            currentSetting.SDStationIds = request.SDStationIds;
+        }
+
+
+        
+
 
         if (request.StreamingProxyType != null && request.StreamingProxyType != currentSetting.StreamingProxyType)
         {

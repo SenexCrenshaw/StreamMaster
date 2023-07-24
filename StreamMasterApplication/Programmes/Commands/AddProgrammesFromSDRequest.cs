@@ -50,7 +50,7 @@ public class AddProgrammesFromSDRequestHandler : IRequestHandler<AddProgrammesFr
 
         _logger.LogInformation("Getting Token");
 
-        var sd = new SchedulesDirect("senexcrenshaw", "IPTVR0xR0x");
+        var sd = new SchedulesDirect();
 
         _logger.LogInformation("Getting Status");
         var status = await sd.GetStatus(cancellationToken);
