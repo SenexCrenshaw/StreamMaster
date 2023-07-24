@@ -7,8 +7,6 @@ using StreamMasterInfrastructure.Common;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
 public static class StreamingProxies
@@ -61,6 +59,7 @@ public static class StreamingProxies
 
     public static async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxyStream(string sourceUrl, ILogger logger, CancellationToken cancellation)
     {
+        Setting setting = FileUtil.GetSetting();
         try
         {
             HttpResponseMessage? response = await client.GetWithRedirectAsync(sourceUrl, cancellationToken: cancellation).ConfigureAwait(false);
@@ -78,12 +77,12 @@ public static class StreamingProxies
                         contentType.Equals("audio/mpegurl", StringComparison.OrdinalIgnoreCase) ||
                        contentType.Equals("application/x-mpegURL", StringComparison.OrdinalIgnoreCase))
             {
-                logger.LogInformation("Stream URL has HLS content, using FFMpeg for streaming: {StreamUrl}", sourceUrl);
+                logger.LogInformation("Stream URL has HLS content, using FFMpeg for streaming: {StreamUrl}", setting.CleanURLs ? "url removed" : sourceUrl);
                 return await GetFFMpegStream(sourceUrl, logger).ConfigureAwait(false);
             }
 
             Stream stream = await response.Content.ReadAsStreamAsync(cancellation);
-            logger.LogInformation("Successfully retrieved stream for: {StreamUrl}", sourceUrl);
+            logger.LogInformation("Successfully retrieved stream for: {StreamUrl}", setting.CleanURLs ? "url removed" : sourceUrl);
             return (stream, -1, null);
         }
         catch (Exception ex)

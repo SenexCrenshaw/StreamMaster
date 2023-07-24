@@ -14,12 +14,8 @@ using StreamMasterApplication.Icons.Queries;
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Entities;
 
-using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
 
@@ -60,13 +56,7 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
         _sender = sender;
     }
 
-     string GetApiUrl( SMFileTypes path, string source)
-    {
-        string url = _httpContextAccessor.GetUrl();
-        return $"{url}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
-    }
-
-    public string GetIconUrl( string iconOriginalSource)
+    public string GetIconUrl(string iconOriginalSource)
     {
         string url = _httpContextAccessor.GetUrl();
 
@@ -98,7 +88,6 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
         return iconOriginalSource;
     }
-
 
     public async Task<string> Handle(GetStreamGroupM3U command, CancellationToken cancellationToken)
     {
@@ -147,9 +136,12 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
         _ = Parallel.ForEach(videoStreams.OrderBy(a => a.User_Tvg_chno), po, (videoStream, state, longCid) =>
         {
-            if (_setting.M3UFieldTvgId && _setting.M3UIgnoreEmptyEPGID && IsVideoStreamADummy(videoStream))
+            if (_setting.M3UFieldTvgId)
             {
-                return;
+                if (_setting.M3UIgnoreEmptyEPGID && string.IsNullOrEmpty(videoStream.User_Tvg_ID))
+                {
+                    return;
+                }
             }
 
             int cid = Convert.ToInt32(longCid);
@@ -164,16 +156,12 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
             //IconFileDto? icon = icons.SingleOrDefault(a => a.Source == videoStream.User_Tvg_logo);
             //if ( icon == null)
             //{
-
             //}
             //else
             //{
-
             //}
 
             //string Logo = icon != null ? icon.Source : "/" + _setting.DefaultIcon;
-
-            
 
             videoStream.User_Tvg_logo = logo;
 
@@ -247,6 +235,12 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
             }
         }
         return ret;
+    }
+
+    private string GetApiUrl(SMFileTypes path, string source)
+    {
+        string url = _httpContextAccessor.GetUrl();
+        return $"{url}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
     }
 
     private bool IsVideoStreamADummy(VideoStreamDto videoStream)

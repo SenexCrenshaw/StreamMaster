@@ -103,7 +103,11 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
         {
             // Get the request path
             var requestPath = Context.Request.Path.Value.ToString();
-            if (!requestPath.StartsWith("/api/videostreams/", StringComparison.InvariantCultureIgnoreCase))
+            if (
+                !requestPath.StartsWith("/api/videostreams/", StringComparison.InvariantCultureIgnoreCase)
+                &&
+                !requestPath.StartsWith("/api/streamgroups/", StringComparison.InvariantCultureIgnoreCase)
+                )
             {
                 return null;
             }

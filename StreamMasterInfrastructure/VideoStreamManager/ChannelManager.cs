@@ -229,12 +229,6 @@ public class ChannelManager : IDisposable, IChannelManager
         }
     }
 
-    private void SetIsGlobal(ChannelStatus channelStatus)
-    {
-        channelStatus.IsGlobal = true;
-        _channelStatuses.TryUpdate(channelStatus.VideoStreamId, channelStatus, channelStatus);
-    }
-
     private int GetGlobalStreamsCount()
     {
         return _channelStatuses.Count(a => a.Value.IsGlobal);
@@ -269,10 +263,9 @@ public class ChannelManager : IDisposable, IChannelManager
                     return null;
                 }
 
-                SetIsGlobal(channelStatus);                 
+                SetIsGlobal(channelStatus);
                 _logger.LogInformation("Global stream count {GlobalStreamsCount}", GetGlobalStreamsCount());
                 return newVideoStream;
-               
             }
             else
             {
@@ -325,9 +318,9 @@ public class ChannelManager : IDisposable, IChannelManager
                     _logger.LogInformation("Max Global stream count {GlobalStreamsCount} reached for stream: {StreamUrl}", GetGlobalStreamsCount(), setting.CleanURLs ? "url removed" : toReturn.User_Url);
                     continue;
                 }
-                
+
                 SetIsGlobal(channelStatus);
-                _logger.LogInformation("Global stream count {GlobalStreamsCount}", GetGlobalStreamsCount());               
+                _logger.LogInformation("Global stream count {GlobalStreamsCount}", GetGlobalStreamsCount());
             }
             else
             {
@@ -505,6 +498,12 @@ public class ChannelManager : IDisposable, IChannelManager
         _logger.LogDebug($"Finished RegisterWithChannelManager with config: {config}");
 
         return channelStatus;
+    }
+
+    private void SetIsGlobal(ChannelStatus channelStatus)
+    {
+        channelStatus.IsGlobal = true;
+        _channelStatuses.TryUpdate(channelStatus.VideoStreamId, channelStatus, channelStatus);
     }
 
     private void UnRegisterClient(ClientStreamerConfiguration config)

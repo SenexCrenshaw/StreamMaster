@@ -226,13 +226,13 @@ namespace StreamMasterDomain.Authentication
         {
             try
             {
-                if (!requestPath.StartsWith("/api/streamgroups/", StringComparison.InvariantCultureIgnoreCase))
+                if (!requestPath.StartsWith("/api/videostreams/", StringComparison.InvariantCultureIgnoreCase))
                 {
                     return null;
                 }
 
-                var crypt = requestPath.Replace("/api/streamgroups/stream/", "", StringComparison.InvariantCultureIgnoreCase);
-                crypt = crypt.Replace("/api/streamgroups/", "", StringComparison.InvariantCultureIgnoreCase);
+                var crypt = requestPath.Replace("/api/videostreams/stream/", "", StringComparison.InvariantCultureIgnoreCase);
+                crypt = crypt.Replace("/api/videostreams/", "", StringComparison.InvariantCultureIgnoreCase);
                 if (crypt.Contains("/"))
                 {
                     crypt = crypt.Substring(0, crypt.IndexOf("/"));
