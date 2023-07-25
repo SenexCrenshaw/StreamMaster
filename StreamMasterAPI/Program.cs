@@ -104,19 +104,18 @@ app.UseSession();
 
 using (IServiceScope scope = app.Services.CreateScope())
 {
-    AppDbContextInitialiser initialiser = scope.ServiceProvider.GetRequiredService<AppDbContextInitialiser>();
-
-    await initialiser.InitialiseAsync().ConfigureAwait(false);
-    if (app.Environment.IsDevelopment())
-    {
-        initialiser.TrySeed();
-    }
-
     LogDbContextInitialiser logInitialiser = scope.ServiceProvider.GetRequiredService<LogDbContextInitialiser>();
     await logInitialiser.InitialiseAsync().ConfigureAwait(false);
     if (app.Environment.IsDevelopment())
     {
         logInitialiser.TrySeed();
+    }
+
+    AppDbContextInitialiser initialiser = scope.ServiceProvider.GetRequiredService<AppDbContextInitialiser>();
+    await initialiser.InitialiseAsync().ConfigureAwait(false);
+    if (app.Environment.IsDevelopment())
+    {
+        initialiser.TrySeed();
     }
 }
 
