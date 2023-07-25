@@ -12,30 +12,17 @@ public class Setting
     public bool CacheIcons { get; set; } = true;
     public bool CleanURLs { get; set; } = true;
 
-    public List<string> SDStationIds { get; set; } = new();
-    public string SDCountry { get; set; } = string.Empty;
-    public string SDPostalCode { get; set; } = string.Empty;
     public string ClientUserAgent { get; set; } = "Mozilla/5.0 (compatible; streammaster/1.0)";
-
     public string DefaultIcon { get; set; } = "images/default.png";
-
     public string DeviceID { get; set; } = "device1";
     public string DummyRegex { get; set; } = "(no tvg-id)";
     public bool EnableSSL { get; set; } = false;
-
     public string FFMPegExecutable { get; set; } = "ffmpeg";
-
-    public int FirstFreeNumber { get; set; } = 1;
-
     public int GlobalStreamLimit { get; set; } = 1;
     public bool M3UFieldChannelId { get; set; } = true;
-
     public bool M3UFieldChannelNumber { get; set; } = true;
-
     public bool M3UFieldCUID { get; set; } = true;
-
     public bool M3UFieldGroupTitle { get; set; } = true;
-
     public bool M3UFieldTvgChno { get; set; } = true;
     public bool M3UFieldTvgId { get; set; } = true;
     public bool M3UFieldTvgLogo { get; set; } = true;
@@ -46,7 +33,10 @@ public class Setting
     public bool OverWriteM3UChannels { get; set; } = false;
     public int PreloadPercentage { get; set; } = 25;
     public int RingBufferSizeMB { get; set; } = 4;
+    public string SDCountry { get; set; } = string.Empty;
     public string SDPassword { get; set; } = "";
+    public string SDPostalCode { get; set; } = string.Empty;
+    public List<string> SDStationIds { get; set; } = new();
     public string SDUserName { get; set; } = "";
     public string ServerKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
     public string SSLCertPassword { get; set; } = "";

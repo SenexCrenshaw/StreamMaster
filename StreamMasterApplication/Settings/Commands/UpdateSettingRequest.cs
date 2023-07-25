@@ -30,7 +30,6 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? DummyRegex { get; set; }
     public bool? EnableSSL { get; set; }
     public string? FFMPegExecutable { get; set; }
-    public int? FirstFreeNumber { get; set; }
     public int? GlobalStreamLimit { get; set; }
     public bool? M3UFieldChannelId { get; set; }
     public bool? M3UFieldChannelNumber { get; set; }
@@ -46,11 +45,11 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public bool? OverWriteM3UChannels { get; set; }
     public int? PreloadPercentage { get; set; }
     public int? RingBufferSizeMB { get; set; }
-    public string? SDPassword { get; set; }
     public string? SDCountry { get; set; }
+    public string? SDPassword { get; set; }
     public string? SDPostalCode { get; set; }
-    public string? SDUserName { get; set; }
     public List<string>? SDStationIds { get; set; }
+    public string? SDUserName { get; set; }
     public int? SourceBufferPreBufferPercentage { get; set; }
     public string? SSLCertPassword { get; set; }
     public string? SSLCertPath { get; set; }
@@ -215,11 +214,6 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
             currentSetting.FFMPegExecutable = request.FFMPegExecutable;
         }
 
-        if (request.FirstFreeNumber != null && request.FirstFreeNumber >= 0 && request.FirstFreeNumber != currentSetting.FirstFreeNumber)
-        {
-            currentSetting.FirstFreeNumber = (int)request.FirstFreeNumber;
-        }
-
         if (request.MaxConnectRetry != null && request.MaxConnectRetry >= 0 && request.MaxConnectRetry != currentSetting.MaxConnectRetry)
         {
             currentSetting.MaxConnectRetry = (int)request.MaxConnectRetry;
@@ -234,7 +228,6 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
         {
             currentSetting.GlobalStreamLimit = (int)request.GlobalStreamLimit;
         }
-                
 
         if (request.PreloadPercentage != null && request.PreloadPercentage >= 0 && request.PreloadPercentage <= 100 && request.PreloadPercentage != currentSetting.PreloadPercentage)
         {
@@ -261,27 +254,20 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
             currentSetting.SDPostalCode = request.SDPostalCode;
         }
 
-
         if (request.SDPassword != null)
         {
             currentSetting.SDPassword = HashHelper.GetSHA1Hash(request.SDPassword);
         }
-
 
         if (request.SDUserName != null && request.SDUserName != currentSetting.SDUserName)
         {
             currentSetting.SDUserName = request.SDUserName;
         }
 
-
         if (request.SDStationIds != null && request.SDStationIds != currentSetting.SDStationIds)
         {
             currentSetting.SDStationIds = request.SDStationIds;
         }
-
-
-        
-
 
         if (request.StreamingProxyType != null && request.StreamingProxyType != currentSetting.StreamingProxyType)
         {

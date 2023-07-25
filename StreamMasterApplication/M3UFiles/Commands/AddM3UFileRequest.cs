@@ -80,7 +80,7 @@ public class AddM3UFileRequestHandler : IRequestHandler<AddM3UFileRequest, M3UFi
                 Description = command.Description ?? "",
                 Name = command.Name,
                 Source = command.Name + fd.FileExtension,
-                StartingChannelNumber = command.StartingChannelNumber == null ? (int)setting.FirstFreeNumber : (int)command.StartingChannelNumber,
+                StartingChannelNumber = command.StartingChannelNumber == null ? 1 : (int)command.StartingChannelNumber,
             };
 
             if (command.FormFile != null)

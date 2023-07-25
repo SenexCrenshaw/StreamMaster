@@ -74,10 +74,8 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
 
             var existingChannels = new ThreadSafeIntList(m3uFile.StartingChannelNumber < 1 ? 1 : m3uFile.StartingChannelNumber);
 
-            //var newChannels = streams.Select(a => a.Tvg_chno).Distinct().Order().ToList();
-
             var groups = _context.ChannelGroups.ToList();
-            int nextchno = setting.FirstFreeNumber;
+            int nextchno = m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber;
 
             for (int index = 0; index < streams.Count; index++)
             {
