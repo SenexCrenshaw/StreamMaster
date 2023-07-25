@@ -93,7 +93,9 @@ public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp,
             var encodedNumbers = request.StreamGroupNumber.EncodeValues128(videoStream.Id, _setting.ServerKey, iv);
 
             var encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name);
-            videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+
+            //videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+            videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{videoStream.User_Tvg_name.Replace(" ", "_")}";
 
             LineUp lu = new()
             {
