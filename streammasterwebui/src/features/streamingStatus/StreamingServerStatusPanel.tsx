@@ -91,7 +91,7 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
   }, []);
 
   const imageBodyTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
-    const iconUrl = getIconUrl(rowData.logo ?? setting.defaultIcon, setting);
+    const iconUrl = getIconUrl(rowData.logo, setting.defaultIcon, setting.cacheIcon);
 
     return (
       <div className="flex align-content-center flex-wrap">

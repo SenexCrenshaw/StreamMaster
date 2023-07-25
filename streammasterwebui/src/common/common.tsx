@@ -6,7 +6,6 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { type VideoStreamDto } from '../store/iptvApi';
 import { type ChildVideoStreamDto } from '../store/iptvApi';
 import { baseHostURL, isDebug } from '../settings';
-import { type StreamMasterSettingResponse } from '../store/signlar/StreamMasterSetting';
 import { SMFileTypes } from '../store/streammaster_enums';
 
 export const getTopToolOptions = { autoHide: true, hideDelay: 100, position: 'top', showDelay: 400 } as TooltipOptions;
@@ -137,9 +136,9 @@ export const arraysMatch = (arr1: string[], arr2: string[]): boolean => {
 }
 
 
-export function getIconUrl(iconOriginalSource: string, setting: StreamMasterSettingResponse): string {
-  if (!iconOriginalSource) {
-    iconOriginalSource = `${isDebug ? baseHostURL + '/' : '/'}${setting.defaultIcon}`;
+export function getIconUrl(iconOriginalSource: string | null | undefined, defaultIcon: string, cacheIcon: boolean): string {
+  if (!iconOriginalSource || iconOriginalSource === '') {
+    iconOriginalSource = `${isDebug ? baseHostURL + '/' : '/'}${defaultIcon}`;
   }
 
   let originalUrl = iconOriginalSource;
@@ -152,7 +151,7 @@ export function getIconUrl(iconOriginalSource: string, setting: StreamMasterSett
     iconOriginalSource = `${isDebug ? baseHostURL + '/' : ''}${iconOriginalSource}`;
   } else if (!iconOriginalSource.startsWith('http')) {
     iconOriginalSource = getApiUrl(SMFileTypes.TvLogo, originalUrl);
-  } else if (setting.cacheIcon) {
+  } else if (cacheIcon) {
     iconOriginalSource = getApiUrl(SMFileTypes.Icon, originalUrl);
   }
 
