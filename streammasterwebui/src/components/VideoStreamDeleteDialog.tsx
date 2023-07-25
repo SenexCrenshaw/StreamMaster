@@ -35,7 +35,7 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
       return;
     }
 
-    const ret = [] as number[];
+    const ret = [] as string[];
     const promises = [];
 
     for (const stream of selectedVideoStreams) {
@@ -119,7 +119,7 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
 VideoStreamDeleteDialog.displayName = 'VideoStreamDeleteDialog';
 
 type VideoStreamDeleteDialogProps = {
-  onChange?: ((value: number[]) => void) | null;
+  onChange?: ((value: string[]) => void) | null;
   onClose?: (() => void);
   values?: StreamMasterApi.VideoStreamDto[] | undefined;
 };

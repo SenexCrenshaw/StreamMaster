@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unused-prop-types */
 import { type CSSProperties } from "react";
 import React from "react";
 import * as StreamMasterApi from '../store/iptvApi';
@@ -47,7 +48,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
       const dsIds = newStreams.map((sgvs) => sgvs.id);
 
-      setTargetVideoStreams(newStreams.sort((a, b) => a.rank - b.rank)); // videoStreamsQuery.data.filter((m3u) => dsIds?.includes(m3u.id)));
+      setTargetVideoStreams(newStreams.sort((a, b) => a.rank - b.rank));
 
       if (props.showTriState === null) {
         setSourceVideoStreams(videoStreamsQuery.data.filter((m3u) => !dsIds?.includes(m3u.id)));
@@ -59,7 +60,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     }
 
 
-    if (streamGroup === undefined || streamGroup.id === undefined || streamGroup.videoStreams === undefined) {
+    if (streamGroup === undefined || streamGroup.id === undefined || streamGroup.childVideoStreams === undefined) {
       const newData = [...videoStreamsQuery.data];
 
       if (props.showTriState === null) {
@@ -73,10 +74,10 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     }
 
 
-    const ids = streamGroup.videoStreams.map((sgvs) => sgvs.id);
+    const ids = streamGroup.childVideoStreams.map((sgvs) => sgvs.id);
     const streams = videoStreamsQuery.data.filter((m3u) => ids?.includes(m3u.id));
 
-    const roIds = streamGroup.videoStreams.filter((vs) => vs.isReadOnly === true).map((sgvs) => sgvs.id);
+    const roIds = streamGroup.childVideoStreams.filter((vs) => vs.isReadOnly === true).map((sgvs) => sgvs.id);
 
     const updatedStreams = streams.map((newStream) => {
       if (roIds.includes(newStream.id)) {
@@ -87,9 +88,12 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     });
 
     if (props.isAdditionalChannels === true) {
-      setTargetVideoStreams((updatedStreams as StreamMasterApi.ChildVideoStreamDto[]).sort((a, b) => a.rank - b.rank));
+      setTargetVideoStreams((updatedStreams as StreamMasterApi.ChildVideoStreamDto[]).filter((m3u) => props.showHidden === true || m3u.isHidden !== true).sort((a, b) => a.rank - b.rank));
     } else {
-      setTargetVideoStreams(updatedStreams as StreamMasterApi.ChildVideoStreamDto[]);
+
+      setTargetVideoStreams(
+        (updatedStreams as StreamMasterApi.ChildVideoStreamDto[]).filter((m3u) => props.showHidden === true || m3u.isHidden !== true)
+      );
     }
 
     if (props.showTriState === null) {
@@ -102,7 +106,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       setSourceVideoStreams(undefined);
       setTargetVideoStreams(undefined);
     }
-  }, [props.isAdditionalChannels, props.showTriState, props.videoStream, streamGroup, videoStreamsQuery.data]);
+  }, [props.isAdditionalChannels, props.showHidden, props.showTriState, props.videoStream, streamGroup, videoStreamsQuery.data]);
 
   const channelNumberEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
 
@@ -116,16 +120,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
 
   const sourceColumns: ColumnMeta[] = [
-    {
-      field: 'id',
-      filter: false,
-      header: 'id',
-      sortable: true,
-      style: {
-        maxWidth: '3rem',
-        width: '3rem',
-      } as CSSProperties,
-    },
+
     {
       bodyTemplate: channelNumberEditorBodyTemplate,
       field: 'user_Tvg_chno',
@@ -147,14 +142,16 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     ,
     {
       field: 'user_Tvg_group', header: 'Group', sortable: true,
-
     }
     ,
     {
       field: 'm3UFileId',
       fieldType: 'm3uFileName', header: 'File',
       sortable: true,
-
+      style: {
+        maxWidth: '3rem',
+        width: '3rem',
+      } as CSSProperties,
     }
   ];
 
@@ -169,10 +166,9 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   }, []);
 
   const onUpdateVideoStream = React.useCallback(async (data: StreamMasterApi.VideoStreamDto, Logo: string) => {
-    if (data.id < 0) {
+    if (data.id === '') {
       return;
     }
-
 
     const toSend = {} as StreamMasterApi.UpdateVideoStreamRequest;
 
@@ -181,7 +177,6 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     if (Logo && Logo !== '' && data.user_Tvg_logo !== Logo) {
       toSend.tvg_logo = Logo;
     }
-
 
     await Hub.UpdateVideoStream(toSend)
       .then((result) => {
@@ -231,13 +226,13 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
         className="p-inputtext-sm"
         enableEditMode
         onChange={
-          async (e: StreamMasterApi.IconFileDto) => {
-            await onUpdateVideoStream(data, e.name);
+          async (e: string) => {
+            await onUpdateVideoStream(data, e);
           }
         }
         onReset={
-          async (e: StreamMasterApi.IconFileDto) => {
-            await onUpdateVideoStream(data, e.originalSource);
+          async (e: string) => {
+            await onUpdateVideoStream(data, e);
           }
         }
         resetValue={data.tvg_logo}
@@ -314,8 +309,8 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     if (props.streamGroup)
       toSend.streamGroupId = props.streamGroup.id;
 
-    toSend.videoStreamIds = data.map((stream) => {
-      return stream.id;
+    toSend.videoStreams = data.map((stream) => {
+      return { isReadOnly: stream.isReadOnly, videoStreamId: stream.id } as StreamMasterApi.VideoStreamIsReadOnly;
     });
 
     await Hub.UpdateStreamGroup(toSend)
@@ -385,10 +380,11 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
   }, [onSave, props, targetVideoStreams]);
 
-  const sourceActionBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => (
-    <div className='flex min-w-full min-h-full justify-content-center align-items-center'>
-      {data.isReadOnly === true &&
-        <>
+  const sourceActionBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
+
+    if (data.isReadOnly === true) {
+      return (
+        <div className='flex min-w-full min-h-full justify-content-end align-items-center'>
           <Tooltip target=".GroupIcon-class" />
           <div
             className="GroupIcon-class border-white"
@@ -399,38 +395,30 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
             data-pr-position="left"
             data-pr-showdelay={500}
-            data-pr-tooltip={`Group: ${data.user_Tvg_group}`}
+            // data-pr-tooltip={`Group: ${data.user_Tvg_group}`}
+            data-pr-tooltip='From Group'
           // style={{ minWidth: '10rem' }}
           >
             <GroupIcon />
           </div>
-        </>
-      }
-      {data.isReadOnly !== true &&
-        <Button
-          className="p-button-danger"
-          icon="pi pi-times"
-          onClick={async () => await onRemoveRank(data)}
-          rounded
-          text
-          tooltip="Remove"
-          tooltipOptions={getTopToolOptions} />
-      }
-    </div>
-  ), [onRemoveRank]);
+        </div>
+      );
+    }
+
+    return (
+      <Button
+        className="p-button-danger"
+        icon="pi pi-times"
+        onClick={async () => await onRemoveRank(data)}
+        rounded
+        text
+        tooltip="Remove"
+        tooltipOptions={getTopToolOptions} />
+    );
+  }, [onRemoveRank]);
 
 
   const targetColumns: ColumnMeta[] = [
-    {
-      field: 'id',
-      filter: false,
-      header: 'id',
-      sortable: true,
-      style: {
-        maxWidth: '4rem',
-        width: '4rem',
-      } as CSSProperties,
-    },
     {
       bodyTemplate: channelNumberEditorBodyTemplate,
       field: 'user_Tvg_chno',
@@ -451,10 +439,8 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     },
     {
       bodyTemplate: channelNameEditorBodyTemplate,
-      field:
-        'user_Tvg_name',
+      field: 'user_Tvg_name',
       header: 'Name',
-
     },
     {
       bodyTemplate: epgEditorBodyTemplate,
@@ -523,6 +509,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
         sourceSortField='user_Tvg_name'
         sourceStyle={{
           height: props.maxHeight !== null ? props.maxHeight : 'calc(100vh - 40px)',
+
         }}
         targetColumns={targetColumns}
         targetDataSource={targetVideoStreams}
@@ -530,7 +517,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
         targetName='Selected'
         targetReorderable={props.isAdditionalChannels}
         targetRightColSize={3}
-        targetSortField={props.isAdditionalChannels === true ? '' : 'user_Tvg_chno'}
+        targetSortField={props.isAdditionalChannels === true ? 'rank' : 'user_Tvg_chno'}
       />
     </>
   );
@@ -541,6 +528,7 @@ PlayListDataSelectorPicker.defaultProps = {
   enableState: true,
   isAdditionalChannels: false,
   maxHeight: null,
+  showHidden: true,
   showTriState: true
 };
 
@@ -551,6 +539,7 @@ export type PlayListDataSelectorPickerProps = {
   maxHeight?: number;
   onSelectionChange?: (value: StreamMasterApi.ChildVideoStreamDto[]) => void;
   onValueChanged?: (value: StreamMasterApi.ChildVideoStreamDto[]) => void;
+  showHidden?: boolean | undefined;
   showTriState?: boolean | null | undefined;
   sourceHeaderTemplate?: React.ReactNode | undefined;
   streamGroup?: StreamMasterApi.StreamGroupDto | undefined;

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 import { Button } from "primereact/button";
 import { getLeftToolOptions, getTopToolOptions } from "../common/common";
@@ -114,6 +113,10 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
     data.name = name;
     data.streamGroupNumber = streamGroupNumber;
 
+    if (selectedChannelGroups.length > 0) {
+      data.channelGroupNames = selectedChannelGroups.map((x) => x.name);
+    }
+
     AddStreamGroup(data)
       .then((result) => {
         if (result) {
@@ -124,7 +127,7 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
       }).catch((e) => {
         setInfoMessage('Stream Group Add Error: ' + e.message);
       });
-  }, [ReturnToParent, isSaveEnabled, name, streamGroupNumber]);
+  }, [ReturnToParent, isSaveEnabled, name, selectedChannelGroups, streamGroupNumber]);
 
   React.useEffect(() => {
     const callback = (event: KeyboardEvent) => {

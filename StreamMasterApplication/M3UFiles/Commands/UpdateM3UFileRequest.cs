@@ -14,8 +14,8 @@ namespace StreamMasterApplication.M3UFiles.Commands;
 
 public class UpdateM3UFileRequest : BaseFileRequest, IRequest<M3UFilesDto?>
 {
-    public int? StartingChannelNumber { get; set; }
     public int? MaxStreamCount { get; set; }
+    public int? StartingChannelNumber { get; set; }
 }
 
 public class UpdateM3UFileRequestValidator : AbstractValidator<UpdateM3UFileRequest>
@@ -63,14 +63,9 @@ public class UpdateM3UFileRequestHandler : IRequestHandler<UpdateM3UFileRequest,
             if (!string.IsNullOrEmpty(command.Url) && m3UFile.Url != command.Url)
             {
                 isChanged = true;
-                m3UFile.OriginalSource = command.Url;
                 m3UFile.Url = command.Url;
             }
-            if (!string.IsNullOrEmpty(command.MetaData) && m3UFile.MetaData != command.MetaData)
-            {
-                isChanged = true;
-                m3UFile.MetaData = command.MetaData;
-            }
+
             if (!string.IsNullOrEmpty(command.Name) && m3UFile.Name != command.Name)
             {
                 isChanged = true;

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.SchedulesDirect;
+using StreamMaster.SchedulesDirectAPI;
 
-using StreamMasterApplication.Settings;
-using StreamMasterApplication.Settings.Queries;
+using StreamMasterApplication.SchedulesDirectAPI;
+using StreamMasterApplication.SchedulesDirectAPI.Queries;
 
 using StreamMasterDomain.Dto;
 
@@ -34,6 +34,13 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
 
     [HttpGet]
     [Route("[action]")]
+    public async Task<ActionResult<List<LineUpPreview>>> GetLineupPreviews()
+    {
+        return await Mediator.Send(new GetLineupPreviews()).ConfigureAwait(false);
+    }
+
+    [HttpGet]
+    [Route("[action]")]
     public async Task<ActionResult<LineUpsResult?>> GetLineups()
     {
         return await Mediator.Send(new GetLineups()).ConfigureAwait(false);
@@ -41,9 +48,23 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<List<Schedule>?>> GetSchedules(List<string> stationIds)
+    public async Task<ActionResult<List<Schedule>?>> GetSchedules()
     {
-        return await Mediator.Send(new GetSchedules(stationIds)).ConfigureAwait(false);
+        return await Mediator.Send(new GetSchedules()).ConfigureAwait(false);
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<StationPreview>>> GetStationPreviews()
+    {
+        return await Mediator.Send(new GetStationPreviewsRequest()).ConfigureAwait(false);
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<Station>>> GetStations()
+    {
+        return await Mediator.Send(new GetStations()).ConfigureAwait(false);
     }
 
     [HttpGet]

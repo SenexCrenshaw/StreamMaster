@@ -4,7 +4,7 @@ using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.VideoStreams.Queries;
 
-public record GetVideoStream(int Id) : IRequest<VideoStreamDto?>;
+public record GetVideoStream(string Id) : IRequest<VideoStreamDto?>;
 
 internal class GetVideoStreamHandler : IRequestHandler<GetVideoStream, VideoStreamDto?>
 {
@@ -20,6 +20,6 @@ internal class GetVideoStreamHandler : IRequestHandler<GetVideoStream, VideoStre
 
     public async Task<VideoStreamDto?> Handle(GetVideoStream request, CancellationToken cancellationToken)
     {
-        return await _context.GetVideoStream(request.Id, cancellationToken).ConfigureAwait(false);
+        return await _context.GetVideoStreamDto(request.Id, cancellationToken).ConfigureAwait(false);
     }
 }

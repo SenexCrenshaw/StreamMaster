@@ -5,7 +5,7 @@
     /// </summary>
     public class ClientStreamerConfiguration
     {
-        public ClientStreamerConfiguration(int videoStreamId, string clientUserAgent, CancellationToken cancellationToken)
+        public ClientStreamerConfiguration(string videoStreamId, string clientUserAgent, CancellationToken cancellationToken)
         {
             ClientId = Guid.NewGuid();
             VideoStreamId = videoStreamId;
@@ -23,7 +23,7 @@
 
         public IRingBufferReadStream? ReadBuffer { get; set; }
 
-        public int VideoStreamId { get; set; }
+        public string VideoStreamId { get; set; }
 
         public string VideoStreamName { get; set; }
     }

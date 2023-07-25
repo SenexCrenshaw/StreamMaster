@@ -1,7 +1,6 @@
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
-using System.Web;
 
 namespace StreamMasterDomain.Common;
 
@@ -111,7 +110,7 @@ public sealed class FileUtil
     }
 
     public static async Task<string> GetFileData(string source)
-    {       
+    {
         try
         {
             if (!IsFileGzipped(source))
@@ -127,13 +126,12 @@ public sealed class FileUtil
 
             var body = Encoding.Default.GetString(outputBytes);
             return body;
-
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.ToString());
             return "";
-        }        
+        }
     }
 
     public static async Task<List<TvLogoFile>> GetIconFilesFromDirectory(DirectoryInfo dirInfo, string tvLogosLocation, int startingId, CancellationToken cancellationToken = default)
@@ -148,13 +146,13 @@ public sealed class FileUtil
                 break;
             }
 
-            string basename = dirInfo.FullName.Replace(tvLogosLocation, "");
-            if (basename.StartsWith(Path.DirectorySeparatorChar))
+            string basePath = dirInfo.FullName.Replace(tvLogosLocation, "");
+            if (basePath.StartsWith(Path.DirectorySeparatorChar))
             {
-                basename = basename.Remove(0, 1);
+                basePath = basePath.Remove(0, 1);
             }
 
-            basename = basename.Replace(Path.DirectorySeparatorChar, '-');
+            var basename = basePath.Replace(Path.DirectorySeparatorChar, '-');
             string name = $"{basename}-{file.Name}";
 
             TvLogoFile tvLogo = new()
@@ -164,9 +162,7 @@ public sealed class FileUtil
                 FileExists = true,
                 ContentType = "image/png",
                 LastDownloaded = DateTime.Now,
-                Source = $"api/files/{(int)SMFileTypes.TvLogo}/{HttpUtility.UrlEncode(name)}",
-                OriginalSource = file.FullName,
-                Url = $"/api/files/{(int)SMFileTypes.TvLogo}/{HttpUtility.UrlEncode(name)}",
+                Source = $"{basePath}{Path.DirectorySeparatorChar}{file.Name}"
             };
 
             tvLogo.SetFileDefinition(FileDefinitions.TVLogo);
@@ -214,32 +210,19 @@ public sealed class FileUtil
         {
             using (FileStream fileStream = File.OpenRead(filePath))
             {
-                byte[] signature = new byte[2];
+                byte[] signature = new byte[3];
 
                 // Read the first two bytes from the file
-                fileStream.Read(signature, 0, 2);
+                fileStream.Read(signature, 0, 3);
 
                 // Gzip files start with the signature bytes 0x1F 0x8B
-                return signature[0] == 0x1F && signature[1] == 0x8B;
+                return signature[0] == 0x1F && signature[1] == 0x8B && signature[2] == 0x08;
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine("Error: " + ex.Message);
             return false;
-        }
-    }
-
-    public static bool IsGzipCompressed(string filePath)
-    {
-        byte[] gzipSignature = new byte[] { 0x1F, 0x8B, 0x08 };
-
-        using (FileStream fs = File.OpenRead(filePath))
-        {
-            byte[] fileSignature = new byte[gzipSignature.Length];
-            fs.Read(fileSignature, 0, fileSignature.Length);
-
-            return fileSignature.SequenceEqual(gzipSignature);
         }
     }
 
@@ -292,16 +275,15 @@ public sealed class FileUtil
         }
         setupDirectories = true;
 
-        var AppDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{Constants.AppName.ToLower()}{Path.DirectorySeparatorChar}";
-        var CacheFolder = $"{AppDataFolder}Cache{Path.DirectorySeparatorChar}";
-        var PlayListFolder = $"{AppDataFolder}PlayLists{Path.DirectorySeparatorChar}";
+        var CacheFolder = $"{BuildInfo.AppDataFolder}Cache{Path.DirectorySeparatorChar}";
+        var PlayListFolder = $"{BuildInfo.AppDataFolder}PlayLists{Path.DirectorySeparatorChar}";
         var IconDataFolder = $"{CacheFolder}Icons{Path.DirectorySeparatorChar}";
         var ProgrammeIconDataFolder = $"{CacheFolder}ProgrammeIcons{Path.DirectorySeparatorChar}";
 
         var PlayListEPGFolder = $"{PlayListFolder}EPG{Path.DirectorySeparatorChar}";
         var PlayListM3UFolder = $"{PlayListFolder}M3U{Path.DirectorySeparatorChar}";
 
-        CreateDir(AppDataFolder);
+        CreateDir(BuildInfo.AppDataFolder);
         CreateDir(CacheFolder);
         CreateDir(IconDataFolder);
         CreateDir(PlayListFolder);

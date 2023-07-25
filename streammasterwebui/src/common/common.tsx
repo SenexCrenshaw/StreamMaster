@@ -5,6 +5,9 @@ import { FormattedMessage, useIntl } from 'react-intl';
 
 import { type VideoStreamDto } from '../store/iptvApi';
 import { type ChildVideoStreamDto } from '../store/iptvApi';
+import { baseHostURL, isDebug } from '../settings';
+import { type StreamMasterSettingResponse } from '../store/signlar/StreamMasterSetting';
+import { SMFileTypes } from '../store/streammaster_enums';
 
 export const getTopToolOptions = { autoHide: true, hideDelay: 100, position: 'top', showDelay: 400 } as TooltipOptions;
 export const getLeftToolOptions = { autoHide: true, hideDelay: 100, position: 'left', showDelay: 400 } as TooltipOptions;
@@ -39,29 +42,6 @@ export const GetMessageDiv = (id: string, upperCase?: boolean | null): React.Rea
 
   return <div>{message}</div>;
 }
-
-// export function areStreamGroupsEqual(
-//   streams1: StreamGroupDto[],
-//   streams2: StreamGroupDto[]
-// ): boolean {
-//   if (streams1.length !== streams2.length) {
-//     return false;
-//   }
-
-//   for (let i = 0; i < streams1.length; i++) {
-//     if (streams1[i].id !== streams2[i].id) {
-//       return false;
-//     }
-
-//     if (isChildVideoStreamDto(streams1[i]) && isChildVideoStreamDto(streams2[i])) {
-//       if ((streams1[i] as ChildVideoStreamDto).rank !== (streams2[i] as ChildVideoStreamDto).rank) {
-//         return false;
-//       }
-//     }
-//   }
-
-//   return true;
-// }
 
 export function areVideoStreamsEqual(
   streams1: ChildVideoStreamDto[] | VideoStreamDto[],
@@ -133,6 +113,51 @@ export function formatJSONDateString(jsonDate: string | undefined): string {
   return ret;
 }
 
+function getApiUrl(path: SMFileTypes, originalUrl: string): string {
+  return `${isDebug ? baseHostURL : ''}/api/files/${path}/${encodeURIComponent(originalUrl)}`;
+}
+
+export const arraysMatch = (arr1: string[], arr2: string[]): boolean => {
+  if (arr1.length !== arr2.length) {
+    return false;
+  }
+
+  // Sort both arrays using localeCompare for proper string comparison
+  const sortedArr1 = arr1.slice().sort((a, b) => a.localeCompare(b));
+  const sortedArr2 = arr2.slice().sort((a, b) => a.localeCompare(b));
+
+  // Compare the sorted arrays element by element
+  for (let i = 0; i < sortedArr1.length; i++) {
+    if (sortedArr1[i] !== sortedArr2[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+
+export function getIconUrl(iconOriginalSource: string, setting: StreamMasterSettingResponse): string {
+  if (!iconOriginalSource) {
+    iconOriginalSource = `${isDebug ? baseHostURL + '/' : '/'}${setting.defaultIcon}`;
+  }
+
+  let originalUrl = iconOriginalSource;
+
+  if (iconOriginalSource.startsWith('/')) {
+    iconOriginalSource = iconOriginalSource.substring(1);
+  }
+
+  if (iconOriginalSource.startsWith('images/')) {
+    iconOriginalSource = `${isDebug ? baseHostURL + '/' : ''}${iconOriginalSource}`;
+  } else if (!iconOriginalSource.startsWith('http')) {
+    iconOriginalSource = getApiUrl(SMFileTypes.TvLogo, originalUrl);
+  } else if (setting.cacheIcon) {
+    iconOriginalSource = getApiUrl(SMFileTypes.Icon, originalUrl);
+  }
+
+  return iconOriginalSource;
+}
 
 export type UserInformation = {
   IsAuthenticated: boolean;

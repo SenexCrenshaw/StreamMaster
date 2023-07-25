@@ -7,6 +7,8 @@ using MediatR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.SchedulesDirectAPI;
+
 using StreamMasterApplication.Hubs;
 
 using StreamMasterDomain.Dto;
@@ -28,7 +30,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? DummyRegex { get; set; }
     public bool? EnableSSL { get; set; }
     public string? FFMPegExecutable { get; set; }
-    public long? FirstFreeNumber { get; set; }
+    public int? GlobalStreamLimit { get; set; }
     public bool? M3UFieldChannelId { get; set; }
     public bool? M3UFieldChannelNumber { get; set; }
     public bool? M3UFieldCUID { get; set; }
@@ -37,12 +39,16 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public bool? M3UFieldTvgId { get; set; }
     public bool? M3UFieldTvgLogo { get; set; }
     public bool? M3UFieldTvgName { get; set; }
+    public bool? M3UIgnoreEmptyEPGID { get; set; }
     public int? MaxConnectRetry { get; set; }
     public int? MaxConnectRetryTimeMS { get; set; }
     public bool? OverWriteM3UChannels { get; set; }
     public int? PreloadPercentage { get; set; }
     public int? RingBufferSizeMB { get; set; }
+    public string? SDCountry { get; set; }
     public string? SDPassword { get; set; }
+    public string? SDPostalCode { get; set; }
+    public List<string>? SDStationIds { get; set; }
     public string? SDUserName { get; set; }
     public int? SourceBufferPreBufferPercentage { get; set; }
     public string? SSLCertPassword { get; set; }
@@ -107,6 +113,11 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
             currentSetting.EnableSSL = (bool)request.EnableSSL;
         }
 
+        if (request.M3UIgnoreEmptyEPGID != null)
+        {
+            currentSetting.M3UIgnoreEmptyEPGID = (bool)request.M3UIgnoreEmptyEPGID;
+        }
+
         if (request.M3UFieldCUID != null)
         {
             currentSetting.M3UFieldCUID = (bool)request.M3UFieldCUID;
@@ -116,7 +127,6 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
         {
             currentSetting.M3UFieldChannelId = (bool)request.M3UFieldChannelId;
         }
-
 
         if (request.M3UFieldChannelNumber != null)
         {
@@ -204,11 +214,6 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
             currentSetting.FFMPegExecutable = request.FFMPegExecutable;
         }
 
-        if (request.FirstFreeNumber != null && request.FirstFreeNumber >= 0 && request.FirstFreeNumber != currentSetting.FirstFreeNumber)
-        {
-            currentSetting.FirstFreeNumber = (long)request.FirstFreeNumber;
-        }
-
         if (request.MaxConnectRetry != null && request.MaxConnectRetry >= 0 && request.MaxConnectRetry != currentSetting.MaxConnectRetry)
         {
             currentSetting.MaxConnectRetry = (int)request.MaxConnectRetry;
@@ -217,6 +222,11 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
         if (request.MaxConnectRetryTimeMS != null && request.MaxConnectRetryTimeMS >= 0 && request.MaxConnectRetryTimeMS != currentSetting.MaxConnectRetryTimeMS)
         {
             currentSetting.MaxConnectRetryTimeMS = (int)request.MaxConnectRetryTimeMS;
+        }
+
+        if (request.GlobalStreamLimit != null && request.GlobalStreamLimit >= 0 && request.GlobalStreamLimit != currentSetting.GlobalStreamLimit)
+        {
+            currentSetting.GlobalStreamLimit = (int)request.GlobalStreamLimit;
         }
 
         if (request.PreloadPercentage != null && request.PreloadPercentage >= 0 && request.PreloadPercentage <= 100 && request.PreloadPercentage != currentSetting.PreloadPercentage)
@@ -234,9 +244,29 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
             currentSetting.SDPassword = HashHelper.GetSHA1Hash(request.SDPassword);
         }
 
+        if (request.SDCountry != null)
+        {
+            currentSetting.SDCountry = request.SDCountry;
+        }
+
+        if (request.SDPostalCode != null)
+        {
+            currentSetting.SDPostalCode = request.SDPostalCode;
+        }
+
+        if (request.SDPassword != null)
+        {
+            currentSetting.SDPassword = HashHelper.GetSHA1Hash(request.SDPassword);
+        }
+
         if (request.SDUserName != null && request.SDUserName != currentSetting.SDUserName)
         {
             currentSetting.SDUserName = request.SDUserName;
+        }
+
+        if (request.SDStationIds != null && request.SDStationIds != currentSetting.SDStationIds)
+        {
+            currentSetting.SDStationIds = request.SDStationIds;
         }
 
         if (request.StreamingProxyType != null && request.StreamingProxyType != currentSetting.StreamingProxyType)

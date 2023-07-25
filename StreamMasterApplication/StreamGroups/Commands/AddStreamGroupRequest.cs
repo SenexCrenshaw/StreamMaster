@@ -7,6 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 
 using StreamMasterApplication.Common.Extensions;
+using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
@@ -19,7 +20,7 @@ namespace StreamMasterApplication.StreamGroups.Commands;
 public record AddStreamGroupRequest(
     string Name,
     int StreamGroupNumber,
-    List<int>? VideoStreamIds,
+    List<VideoStreamIsReadOnly>? VideoStreams,
     List<string>? ChannelGroupNames
     ) : IRequest<StreamGroupDto?>
 {
@@ -36,18 +37,16 @@ public class AddStreamGroupRequestValidator : AbstractValidator<AddStreamGroupRe
         _ = RuleFor(v => v.Name)
            .MaximumLength(32)
            .NotEmpty();
-
-        //_ = RuleFor(v => v.StreamGroupVideoStreams).NotNull().NotEmpty();
     }
 }
 
 public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupRequest, StreamGroupDto?>
 {
+    protected Setting _setting = FileUtil.GetSetting();
     private readonly IAppDbContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly IPublisher _publisher;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    protected Setting _setting = FileUtil.GetSetting();
 
     public AddStreamGroupRequestHandler(
         IMapper mapper,
@@ -75,33 +74,39 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
             streamGroupNumber = _context.StreamGroups.Max(a => a.StreamGroupNumber) + 1;
         }
 
-        // List<StreamGroupVideoStream> sgt = _mapper.Map<List<StreamGroupVideoStream>>(command.StreamGroupVideoStreams);
         StreamGroup entity = new()
         {
             Name = command.Name,
             StreamGroupNumber = command.StreamGroupNumber,
         };
 
+        _ = _context.StreamGroups.Add(entity);
+        _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
         if (command.ChannelGroupNames != null && command.ChannelGroupNames.Any())
         {
             var cgs = _context.ChannelGroups.Where(a => command.ChannelGroupNames.Contains(a.Name)).ToList();
             if (cgs.Any())
             {
-                entity.ChannelGroups = cgs;
+                foreach (var cg in cgs)
+                {
+                    await _context.AddChannelGroupToStreamGroupAsync(entity.Id, cg.Id, cancellationToken);
+                }
             }
         }
 
-        if (command.VideoStreamIds != null && command.VideoStreamIds.Any())
-        {
-            var vs = _context.VideoStreams.Where(a => command.VideoStreamIds.Contains(a.Id)).ToList();
-            if (vs.Any())
-            {
-                entity.VideoStreams = vs;
-            }
-        }
-
-        _ = _context.StreamGroups.Add(entity);
-        _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        //if (command.VideoStreamIds != null && command.VideoStreamIds.Any())
+        //{
+        //    var vss = _context.VideoStreams.Where(a => command.VideoStreamIds.Contains(a.Id)).ToList();
+        //    if (vss.Any())
+        //    {
+        //        for (int index = 0; index < vss.Count; index++)
+        //        {
+        //            VideoStream? vs = vss[index];
+        //            await _context.AddOrUpdatVideoStreamToStreamGroupAsync(entity.Id, vs.Id, false, cancellationToken);
+        //        }
+        //    }
+        //}
 
         var url = _httpContextAccessor.GetUrl();
 
@@ -112,6 +117,13 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
         ret.HDHRLink = $"{url}/api/streamgroups/{encodedStreamGroupNumber}";
 
         await _publisher.Publish(new StreamGroupUpdateEvent(ret), cancellationToken).ConfigureAwait(false);
+
+        var streamGroup = await _context.GetStreamGroupDto(ret.Id, url, cancellationToken).ConfigureAwait(false);
+        if (streamGroup is not null && streamGroup.ChildVideoStreams.Any())
+        {
+            await _publisher.Publish(new UpdateVideoStreamsEvent(streamGroup.ChildVideoStreams), cancellationToken).ConfigureAwait(false);
+        }
+
         return ret;
     }
 }

@@ -6,16 +6,24 @@ import StreamingClientsPanel from './StreamingClientsPanel';
 import StreamingServerStatusPanel from './StreamingServerStatusPanel';
 import { StreamingStatusIcon } from '../../common/icons';
 import { type StreamStatisticsResult } from '../../store/iptvApi';
-import { useStreamGroupsGetAllStatisticsForAllUrlsQuery } from '../../store/iptvApi';
+import { useVideoStreamsGetAllStatisticsForAllUrlsQuery } from '../../store/iptvApi';
+import StreamingStatusGraph from '../../components/StreamingStatusGraph';
+import { set } from 'video.js/dist/types/tech/middleware';
 
 export const StreamingStatus = () => {
-  const getStreamingStatus = useStreamGroupsGetAllStatisticsForAllUrlsQuery();
+  const getStreamingStatus = useVideoStreamsGetAllStatisticsForAllUrlsQuery();
+
 
   const [dataSource, setDataSource] = React.useState<StreamStatisticsResult[]>([] as StreamStatisticsResult[]);
 
   React.useEffect(() => {
-    setDataSource(getStreamingStatus.data ?? []);
+    if (getStreamingStatus.data === undefined || getStreamingStatus.data === null) {
+      return;
+    }
+
+    setDataSource(getStreamingStatus.data);
   }, [getStreamingStatus.data]);
+
 
   return (
     <div className="streamingStatus">
@@ -26,12 +34,17 @@ export const StreamingStatus = () => {
           {StreamingStatus.displayName?.toUpperCase()}
         </div >
 
-        <div className="flex col-12 w-full mt-2">
-          <StreamingServerStatusPanel dataSource={dataSource} isLoading={getStreamingStatus.isLoading} />
+        <div className="flex col-12 w-full mt-1">
+          <StreamingServerStatusPanel dataSource={dataSource} isLoading={getStreamingStatus.isLoading} style={{ height: 'calc(50vh - 140px)' }} />
         </div>
-        <div className='flex col-12 w-full mt-4'>
-          <StreamingClientsPanel dataSource={dataSource} isLoading={getStreamingStatus.isLoading} />
+        <div className='flex col-12 w-full mt-1'>
+          <StreamingClientsPanel dataSource={dataSource} isLoading={getStreamingStatus.isLoading} style={{ height: 'calc(50vh + 60px)' }} />
         </div>
+        {/*
+        <div className="flex col-12 w-full">
+          <StreamingStatusGraph className='border-1 w-full' dataSource={dataSource} isLoading={getStreamingStatus.isLoading} style={{ height: 'calc(20vh)' }} />
+        </div> */}
+
       </div>
     </div>
   );

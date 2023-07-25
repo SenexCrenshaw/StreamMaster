@@ -3,13 +3,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using StreamMasterApplication.Common.Interfaces;
+using StreamMasterApplication.LogApp;
 
 using StreamMasterDomain.Common;
 
-using StreamMasterInfrastructure.MiddleWare;
+using StreamMasterInfrastructure.Logging;
 using StreamMasterInfrastructure.Persistence;
 using StreamMasterInfrastructure.Services;
 using StreamMasterInfrastructure.Services.Frontend.Mappers;
+using StreamMasterInfrastructure.VideoStreamManager;
 
 using System.Reflection;
 
@@ -20,7 +22,7 @@ public static class ConfigureServices
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         // Dynamically find and register services implementing IMapHttpRequestsToDisk
-        var assembly = Assembly.GetExecutingAssembly(); 
+        var assembly = Assembly.GetExecutingAssembly();
         var mapHttpRequestsToDiskImplementations = assembly.GetTypes()
             .Where(type => typeof(IMapHttpRequestsToDisk).IsAssignableFrom(type) && !type.IsInterface);
 
@@ -50,12 +52,16 @@ public static class ConfigureServices
 
         Setting setting = FileUtil.GetSetting();
 
-        string DbPath = Path.Join(Constants.DataDirectory, setting.DatabaseName);
+        string DbPath = Path.Join(Constants.DataDirectory, "StreamMaster.db");
+        string LogDbPath = Path.Join(Constants.DataDirectory, "StreamMaster_Log.db");
 
         _ = services.AddDbContext<AppDbContext>(options => options.UseSqlite($"Data Source={DbPath}", builder => builder.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
+        _ = services.AddDbContext<LogDbContext>(options => options.UseSqlite($"Data Source={LogDbPath}", builder => builder.MigrationsAssembly(typeof(LogDbContext).Assembly.FullName)));
 
         _ = services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
+        _ = services.AddScoped<ILogDB>(provider => provider.GetRequiredService<LogDbContext>());
         _ = services.AddScoped<AppDbContextInitialiser>();
+        _ = services.AddScoped<LogDbContextInitialiser>();
 
         _ = services.AddTransient<IDateTime, DateTimeService>();
 

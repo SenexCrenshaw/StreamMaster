@@ -7,6 +7,8 @@ const StreamMasterSetting = (): StreamMasterSettingResponse => {
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [data, setData] = React.useState<StreamMasterApi.SettingDto>({} as StreamMasterApi.SettingDto);
   const [streamMasterIcon, setStreamMasterIcon] = React.useState<string>('');
+
+  const [cacheIcon, setCacheIcon] = React.useState<boolean>(false);
   const [defaultIcon, setDefaultIcon] = React.useState<string>('');
   const [defaultIconName, setDefaultIconName] = React.useState<string>('');
   const [authenticationType, setAuthenticationType] = React.useState<StreamMasterApi.AuthenticationType>(AuthenticationType.None);
@@ -31,10 +33,11 @@ const StreamMasterSetting = (): StreamMasterSettingResponse => {
       settingsQuery.data.defaultIcon &&
       settingsQuery.data.streamMasterIcon
     ) {
-      const base = settingsQuery.data.urlBase !== '' ? settingsQuery.data.urlBase : '/';
-      setStreamMasterIcon(base + settingsQuery.data.streamMasterIcon);
-      setDefaultIcon(base + settingsQuery.data.defaultIcon);
+      // const base = settingsQuery.data.urlBase !== '' ? settingsQuery.data.urlBase : '/';
+      setStreamMasterIcon(settingsQuery.data.streamMasterIcon);
+      setDefaultIcon(settingsQuery.data.defaultIcon);
       setDefaultIconName(settingsQuery.data.defaultIcon);
+      setCacheIcon(settingsQuery.data.cacheIcons === true);
 
       if (settingsQuery.data.defaultIconDto) {
         setDefaultIconDto(settingsQuery.data.defaultIconDto);
@@ -48,6 +51,7 @@ const StreamMasterSetting = (): StreamMasterSettingResponse => {
 
   return {
     authenticationType,
+    cacheIcon,
     data,
     defaultIcon,
     defaultIconDto,
@@ -59,6 +63,7 @@ const StreamMasterSetting = (): StreamMasterSettingResponse => {
 
 export type StreamMasterSettingResponse = {
   authenticationType: StreamMasterApi.AuthenticationType;
+  cacheIcon: boolean;
   data: StreamMasterApi.SettingDto;
   defaultIcon: string;
   defaultIconDto: StreamMasterApi.IconFileDto;

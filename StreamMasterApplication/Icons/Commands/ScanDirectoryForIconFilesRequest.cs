@@ -1,7 +1,5 @@
 ﻿using MediatR;
 
-using System.Web;
-
 namespace StreamMasterApplication.Icons.Commands;
 
 public class ScanDirectoryForIconFilesRequest : IRequest<bool>
@@ -44,23 +42,20 @@ public class ScanDirectoryForIconFilesRequestHandler : IRequestHandler<ScanDirec
 
             string filePath = Path.Combine(fileInfo.DirectoryName, Path.GetFileNameWithoutExtension(fileInfo.FullName) + ".url");
 
-            string originalSource = "";
             string source = "";
 
             if (FileUtil.ReadUrlFromFile(filePath, out string? url))
             {
-                originalSource = url;
                 source = url;
             }
             else
             {
-                originalSource = fileInfo.Name;
                 source = fileInfo.Name;
             }
 
             ++count;
 
-            if (_context.Icons.Where(a => a.FileExists).ToList().Any(a => a.OriginalSource.Equals(originalSource)))
+            if (_context.Icons.Where(a => a.FileExists).ToList().Any(a => a.Source.Equals(source)))
             {
                 continue;
             }
@@ -73,15 +68,12 @@ public class ScanDirectoryForIconFilesRequestHandler : IRequestHandler<ScanDirec
             fd.FileExtension = ext;
             IconFile icon = new()
             {
-                OriginalSource = originalSource,
                 Source = source,
-                Url = source,
                 Name = Path.GetFileNameWithoutExtension(fileInfo.Name),
                 ContentType = $"image/{ext}",
                 LastDownloaded = DateTime.Now,
                 LastDownloadAttempt = DateTime.Now,
                 FileExists = true,
-                MetaData = "",
                 FileExtension = ext
             };
 
@@ -90,7 +82,6 @@ public class ScanDirectoryForIconFilesRequestHandler : IRequestHandler<ScanDirec
             _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        // await _publisher.Publish(new IconFileAddedEvent(icon), cancellationToken).ConfigureAwait(false);
         return true;
     }
 }

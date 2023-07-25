@@ -25,10 +25,7 @@ public abstract class IPTVFile : BaseEntity
     public string FileName { get; set; } = string.Empty;
     public string FileSource { get; set; } = string.Empty;
 
-    public abstract SMFileTypes SMFileType { get; }
-
     public DateTime LastModified { get; set; }
-
     public DateTime LastUpdated { get; set; }
 
     public string Name
@@ -45,5 +42,5 @@ public abstract class IPTVFile : BaseEntity
         set => name = value;
     }
 
-    public abstract void UpdateStats();
+    public abstract SMFileTypes SMFileType { get; }
 }

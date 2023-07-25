@@ -16,8 +16,8 @@ using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities.EPG;
 
 using System.Collections.Concurrent;
+using System.Net;
 using System.Text.RegularExpressions;
-using System.Web;
 using System.Xml.Serialization;
 
 using static StreamMasterDomain.Common.GetStreamGroupEPGHandler;
@@ -60,17 +60,51 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
         _sender = sender;
     }
 
-    public async Task<string> Handle(GetStreamGroupEPG command, CancellationToken cancellationToken)
+    public string GetIconUrl(string iconOriginalSource)
+    {
+        string url = _httpContextAccessor.GetUrl();
+
+        if (string.IsNullOrEmpty(iconOriginalSource))
+        {
+            iconOriginalSource = $"{url}{_setting.DefaultIcon}";
+            return iconOriginalSource;
+        }
+
+        string originalUrl = iconOriginalSource;
+
+        if (iconOriginalSource.StartsWith('/'))
+        {
+            iconOriginalSource = iconOriginalSource[1..];
+        }
+
+        if (iconOriginalSource.StartsWith("images/"))
+        {
+            iconOriginalSource = $"{url}/{iconOriginalSource}";
+        }
+        else if (!iconOriginalSource.StartsWith("http"))
+        {
+            iconOriginalSource = GetApiUrl(SMFileTypes.TvLogo, originalUrl);
+        }
+        else if (_setting.CacheIcons)
+        {
+            iconOriginalSource = GetApiUrl(SMFileTypes.Icon, originalUrl);
+        }
+
+        return iconOriginalSource;
+    }
+
+    public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
         List<VideoStreamDto> videoStreams = new();
-        if (command.StreamGroupNumber > 0)
+        string url = _httpContextAccessor.GetUrl();
+        if (request.StreamGroupNumber > 0)
         {
-            StreamGroupDto? sg = await _sender.Send(new GetStreamGroupByStreamNumber(command.StreamGroupNumber), cancellationToken).ConfigureAwait(false);
-            if (sg == null)
+            var streamGroup = await _context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            if (streamGroup == null)
             {
                 return "";
             }
-            videoStreams = sg.VideoStreams.Where(a => !a.IsHidden).ToList();
+            videoStreams = streamGroup.ChildVideoStreams.Where(a => !a.IsHidden).ToList();
         }
         else
         {
@@ -91,8 +125,6 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
         if (videoStreams.Any())
         {
-            string url = _httpContextAccessor.GetUrl();
-
             List<string> epgids = videoStreams.Where(a => !a.IsHidden).SelectMany(r => new string[] { r.User_Tvg_ID.ToLower(), r.User_Tvg_ID_DisplayName.ToLower() }).Distinct().ToList();
 
             List<Programme> programmes = _memoryCache.Programmes()
@@ -117,8 +149,14 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                     return;
                 }
 
-                IconFileDto? icon = icons.SingleOrDefault(a => a.OriginalSource == videoStream.User_Tvg_logo);
-                string Logo = icon != null ? url + icon.Source : url + "/" + setting.DefaultIcon;
+                if (setting.M3UIgnoreEmptyEPGID && string.IsNullOrEmpty(videoStream.User_Tvg_ID))
+                {
+                    return;
+                }
+
+                //IconFileDto? icon = icons.SingleOrDefault(a => a.Source == videoStream.User_Tvg_logo);
+                //string Logo = icon != null ? url + icon.Source : url + "/" + setting.DefaultIcon;
+                var logo = GetIconUrl(videoStream.User_Tvg_logo);
 
                 TvChannel t;
 
@@ -136,7 +174,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                     t = new TvChannel
                     {
                         Id = videoStream.User_Tvg_name,
-                        Icon = new TvIcon { Src = Logo },
+                        Icon = new TvIcon { Src = logo },
                         Displayname = new()
                         {
                             videoStream.User_Tvg_name,
@@ -149,7 +187,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                     t = new TvChannel
                     {
                         Id = videoStream.User_Tvg_name,
-                        Icon = new TvIcon { Src = Logo },
+                        Icon = new TvIcon { Src = logo },
                         Displayname = new()
                         {
                             videoStream.User_Tvg_name
@@ -208,7 +246,8 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                                                 {
                                                     continue;
                                                 }
-                                                string IconSource = $"{url}/api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(programmeIcon.Source)}";
+                                                // string IconSource = $"{url}/api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(programmeIcon.Source)}";
+                                                string IconSource = GetApiUrl(SMFileTypes.ProgrammeIcon, programmeIcon.Source);
                                                 progIcon.Src = IconSource;
                                             }
                                         }
@@ -283,6 +322,12 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
         serializer.Serialize(textWriter, ret, ns);
         textWriter.Close();
         return textWriter.ToString();
+    }
+
+    private string GetApiUrl(SMFileTypes path, string source)
+    {
+        string url = _httpContextAccessor.GetUrl();
+        return $"{url}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
     }
 
     private int GetDummy()

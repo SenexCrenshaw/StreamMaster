@@ -2,8 +2,15 @@
 
 public class StreamGroup : BaseEntity
 {
-    public List<ChannelGroup> ChannelGroups { get; set; } = new();
+    public StreamGroup()
+    {
+        ChildVideoStreams = new List<StreamGroupVideoStream>();
+        ChannelGroups = new List<StreamGroupChannelGroup>();
+    }
+
+    public ICollection<StreamGroupChannelGroup> ChannelGroups { get; set; }
+    public ICollection<StreamGroupVideoStream> ChildVideoStreams { get; set; }
+
     public string Name { get; set; } = string.Empty;
     public int StreamGroupNumber { get; set; }
-    public List<VideoStream> VideoStreams { get; set; } = new();
 }

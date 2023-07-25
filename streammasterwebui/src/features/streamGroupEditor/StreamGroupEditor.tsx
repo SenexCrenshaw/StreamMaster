@@ -1,21 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import type * as StreamMasterApi from '../../store/iptvApi';
 import React from 'react';
 import StreamGroupDataSelector from '../../components/StreamGroupDataSelector';
 
 import { StreamGroupEditorIcon } from '../../common/icons';
-import PlayListDataSelector from '../../components/PlayListDataSelector';
 import PlayListDataSelectorPicker from '../../components/PlayListDataSelectorPicker';
 
 import { BlockUI } from 'primereact/blockui';
-import { Button } from 'primereact/button';
-import { getTopToolOptions } from '../../common/common';
 
 const StreamGroupEditor = () => {
-
   const [selectedStreamGroup, setSelectedStreamGroup] = React.useState<StreamMasterApi.StreamGroupDto>();
-
 
   return (
     <div className="streamGroupEditor">
@@ -47,6 +40,7 @@ const StreamGroupEditor = () => {
               <PlayListDataSelectorPicker
                 enableState={false}
                 id='streamgroupeditor-ds-streams'
+                showHidden={false}
                 streamGroup={selectedStreamGroup}
               />
             </BlockUI>

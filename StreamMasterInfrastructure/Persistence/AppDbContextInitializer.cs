@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Common;
+using StreamMasterDomain.Entities;
 
 namespace StreamMasterInfrastructure.Persistence;
 
@@ -25,7 +26,12 @@ public class AppDbContextInitialiser
         {
             if (_context.Database.IsSqlite())
             {
-                await _context.Database.MigrateAsync().ConfigureAwait(false);                
+                await _context.Database.MigrateAsync().ConfigureAwait(false);       
+                if (!_context.ChannelGroups.Any(a=>a.Name=="(None)"))
+                {
+                    _context.Add(new ChannelGroup { Name = "(None)", IsReadOnly = false, Rank = 1 });
+                    await _context.SaveChangesAsync().ConfigureAwait(false);
+                }
             }
         }
         catch (Exception ex)

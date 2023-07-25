@@ -2,6 +2,9 @@
 
 using MediatR;
 
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+
 using StreamMasterApplication.Common.Models;
 
 using StreamMasterDomain.Attributes;
@@ -24,23 +27,24 @@ public class GetStreamGroupLineUpStatusValidator : AbstractValidator<GetStreamGr
 
 public class GetStreamGroupLineUpStatusHandler : IRequestHandler<GetStreamGroupLineUpStatus, string>
 {
-    private readonly ISender _sender;
+    private readonly IAppDbContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public GetStreamGroupLineUpStatusHandler(
-
-            ISender sender
-           )
+         IHttpContextAccessor httpContextAccessor,
+        IAppDbContext context
+    )
     {
-        _sender = sender;
+        _httpContextAccessor = httpContextAccessor;
+        _context = context;
     }
 
-    public async Task<string> Handle(GetStreamGroupLineUpStatus command, CancellationToken cancellationToken)
+    public async Task<string> Handle(GetStreamGroupLineUpStatus request, CancellationToken cancellationToken)
     {
-
-        if (command.StreamGroupNumber > 0)
+        if (request.StreamGroupNumber > 0)
         {
-            StreamMasterDomain.Dto.StreamGroupDto? sg = await _sender.Send(new GetStreamGroupByStreamNumber(command.StreamGroupNumber), cancellationToken).ConfigureAwait(false);
-            if (sg == null)
+            var streamGroupExists = await _context.StreamGroups.AnyAsync(x => x.StreamGroupNumber == request.StreamGroupNumber, cancellationToken).ConfigureAwait(false);
+            if (!streamGroupExists)
             {
                 return "";
             }

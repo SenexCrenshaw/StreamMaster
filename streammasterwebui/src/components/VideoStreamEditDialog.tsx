@@ -54,6 +54,7 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
     <>
       <InfoMessageOverLayDialog
         blocked={block}
+        closable
         header="Edit Video Stream"
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}

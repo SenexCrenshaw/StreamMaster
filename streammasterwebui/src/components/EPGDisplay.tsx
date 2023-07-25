@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/prefer-ts-expect-error */
 import React from "react";
 import { Epg, Layout } from 'planby';
 import ChannelItem from './epg/ChannelItem';
@@ -14,7 +13,7 @@ const EPGDisplay = (props: EPGDisplayProps) => {
 
   const { isLoading, getEpgProps, getLayoutProps } = useApp(streamGroup.id);
 
-  const onVideoStreamClick = React.useCallback((videoStreamId: number) => {
+  const onVideoStreamClick = React.useCallback((videoStreamId: string) => {
     props.onClick?.(videoStreamId);
   }, [props]);
 
@@ -33,7 +32,7 @@ const EPGDisplay = (props: EPGDisplayProps) => {
             }
             } />
           <Epg isLoading={isLoading} {...getEpgProps()}>
-            {/* @ts-ignore */}
+
             <Layout
               {...getLayoutProps()}
               renderChannel={({ channel }) => (
@@ -60,7 +59,7 @@ EPGDisplay.defaultProps = {
 type EPGDisplayProps = {
   hidden: boolean;
   onChange: ((value: StreamGroupDto) => void);
-  onClick: ((videoStreamId: number) => void);
+  onClick: ((videoStreamId: string) => void);
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
 };

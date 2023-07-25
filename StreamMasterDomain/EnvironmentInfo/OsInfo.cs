@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 public class OsVersionModel
 {
-    public OsVersionModel(string name, string version, string fullName = null)
+    public OsVersionModel(string name, string version, string? fullName = null)
     {
         Name = Trim(name);
         Version = Trim(version);
@@ -45,11 +45,11 @@ public class OsInfo : IOsInfo
     public static bool IsWindows => Os == Os.Windows;
 
     // this needs to not be static so we can mock it
-    public bool IsDocker { get; }
+    public bool IsDocker { get; } = false;
 
-    public string Version { get; }
-    public string Name { get; }
-    public string FullName { get; }
+    public string Version { get; } = string.Empty;
+    public string Name { get; } = string.Empty;
+    public string FullName { get; } = string.Empty;
 
     static OsInfo()
     {
@@ -74,7 +74,7 @@ public class OsInfo : IOsInfo
 
     public OsInfo(IEnumerable<IOsVersionAdapter> versionAdapters)
     {
-        OsVersionModel osInfo = null;
+        OsVersionModel? osInfo = null;
 
         foreach (var osVersionAdapter in versionAdapters.Where(c => c.Enabled))
         {

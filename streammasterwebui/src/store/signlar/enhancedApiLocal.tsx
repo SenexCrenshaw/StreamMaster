@@ -4,7 +4,7 @@ import * as StreamMasterApi from '../iptvApi';
 
 export type SetVideoStreamVisibleRet = {
   isHidden?: boolean;
-  videoStreamId?: number;
+  videoStreamId?: string;
 };
 
 export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
@@ -186,7 +186,7 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
         await cacheEntryRemoved;
       },
     },
-    streamGroupsGetAllStatisticsForAllUrls: {
+    videoStreamsGetAllStatisticsForAllUrls: {
       async onCacheEntryAdded(
         arg,
         { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
@@ -337,7 +337,7 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
           const deleteResults = (
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ids: number[]
+            ids: string[]
           ) => {
             updateCachedData(
               (
@@ -350,7 +350,7 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
 
           hubConnection.on(
             'VideoStreamDtosDelete',
-            (ids: number[]) => {
+            (ids: string[]) => {
               deleteResults(ids);
             }
           );

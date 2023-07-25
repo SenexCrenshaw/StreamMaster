@@ -1,11 +1,10 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-
-using FluentValidation;
+﻿using FluentValidation;
 
 using MediatR;
 
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+
+using StreamMasterApplication.Common.Extensions;
 
 using StreamMasterDomain.Dto;
 
@@ -25,45 +24,22 @@ public class GetStreamGroupByStreamNumberValidator : AbstractValidator<GetStream
 internal class GetStreamGroupByStreamNumberHandler : IRequestHandler<GetStreamGroupByStreamNumber, StreamGroupDto?>
 {
     private readonly IAppDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public GetStreamGroupByStreamNumberHandler(
-         IMapper mapper,
-        IAppDbContext context)
+        IHttpContextAccessor httpContextAccessor,
+        IAppDbContext context
+    )
     {
-        _mapper = mapper;
+        _httpContextAccessor = httpContextAccessor;
         _context = context;
     }
 
     public async Task<StreamGroupDto?> Handle(GetStreamGroupByStreamNumber request, CancellationToken cancellationToken = default)
     {
-        StreamGroup? streamGroup = await _context.StreamGroups
-            .Include(a => a.VideoStreams)
-            .Include(a => a.ChannelGroups)
-            .FirstOrDefaultAsync(a => a.StreamGroupNumber == request.StreamGroupNumber, cancellationToken: cancellationToken).ConfigureAwait(false);
+        var url = _httpContextAccessor.GetUrl();
+        var streamGroup = await _context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
 
-
-        if (streamGroup == null)
-            return null;
-
-        var ret = _mapper.Map<StreamGroupDto>(streamGroup);
-
-        var existingIds = streamGroup.VideoStreams.Select(a => a.Id).ToList();
-
-        foreach (var channegroup in streamGroup.ChannelGroups)
-        {
-            var streams = _context.VideoStreams
-                .Where(a => !existingIds.Contains(a.Id) && a.User_Tvg_group == channegroup.Name)
-                .AsNoTracking()
-                .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider)
-                .ToList();
-            foreach (var stream in streams)
-            {
-                stream.IsReadOnly = true;
-            }
-            ret.VideoStreams.AddRange(streams);
-        }
-
-        return ret;
+        return streamGroup;
     }
 }

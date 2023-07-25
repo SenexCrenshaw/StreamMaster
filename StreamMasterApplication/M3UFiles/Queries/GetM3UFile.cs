@@ -23,7 +23,7 @@ internal class GetM3UFileHandler : IRequestHandler<GetM3UFile, M3UFilesDto?>
 
     public async Task<M3UFilesDto?> Handle(GetM3UFile request, CancellationToken cancellationToken = default)
     {
-        if ( request.Id == 0 ) return new M3UFilesDto { Id = 0, Name = "All" };
+        //if ( request.Id == 0 ) return new M3UFilesDto { Id = 0, Name = "All" };
 
         M3UFile? m3uFile = await _context.M3UFiles.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken).ConfigureAwait(false);
         return m3uFile == null ? null : _mapper.Map<M3UFilesDto>(m3uFile);

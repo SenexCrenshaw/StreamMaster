@@ -52,26 +52,25 @@ public class ScanDirectoryForM3UFilesRequestHandler : IRequestHandler<ScanDirect
             M3UFile? m3uFile = await _context.M3UFiles.FirstOrDefaultAsync(a => a.Source.ToLower().Equals(m3uFileInfo.Name.ToLower()), cancellationToken: cancellationToken).ConfigureAwait(false);
             if (m3uFile == null)
             {
-                string originalSource = m3uFileInfo.Name;
                 string Url = "";
                 string filePath = Path.Combine(m3uFileInfo.DirectoryName, Path.GetFileNameWithoutExtension(m3uFileInfo.FullName) + ".url");
 
                 if (FileUtil.ReadUrlFromFile(filePath, out string? url))
                 {
-                    originalSource = url;
-                    Url = originalSource;
+                    if (url is not null)
+                    {
+                        Url = url;
+                    }
                 }
 
                 m3uFile = new M3UFile
                 {
                     Name = Path.GetFileNameWithoutExtension(m3uFileInfo.Name),
-                    OriginalSource = originalSource,
                     Source = m3uFileInfo.Name,
                     Description = $"Imported from {m3uFileInfo.Name}",
                     LastDownloaded = m3uFileInfo.LastWriteTime,
                     LastDownloadAttempt = DateTime.Now,
                     FileExists = true,
-                    MetaData = "",
                     MaxStreamCount = 1,
                     StartingChannelNumber = 1,
                     Url = Url

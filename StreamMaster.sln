@@ -30,9 +30,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "M3U8ParserConsole", "M3U8Pa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamMaster.M3U8", "StreamMaster.M3U8\StreamMaster.M3U8.csproj", "{EFAE52E3-60E8-4897-AA61-8D588F79D01F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamMaster.SchedulesDirect", "StreamMaster.SchedulesDirect\StreamMaster.SchedulesDirect.csproj", "{06596C65-B147-438E-B069-9D11E52978C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamMaster.SchedulesDirectAPI", "StreamMaster.SchedulesDirectAPI\StreamMaster.SchedulesDirectAPI.csproj", "{06596C65-B147-438E-B069-9D11E52978C3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SDConsole", "SDConsole\SDConsole.csproj", "{617C443A-1A54-4F1F-ACDF-5AA86315CA28}"
+	ProjectSection(ProjectDependencies) = postProject
+		{06596C65-B147-438E-B069-9D11E52978C3} = {06596C65-B147-438E-B069-9D11E52978C3}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

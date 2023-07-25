@@ -71,14 +71,9 @@ public class UpdateEPGFileRequestHandler : IRequestHandler<UpdateEPGFileRequest,
             if (command.Url != null && epgFile.Url != command.Url)
             {
                 isChanged = true;
-                epgFile.OriginalSource = command.Url;
                 epgFile.Url = command.Url == "" ? null : command.Url;
             }
-            if (!string.IsNullOrEmpty(command.MetaData) && epgFile.MetaData != command.MetaData)
-            {
-                isChanged = true;
-                epgFile.MetaData = command.MetaData;
-            }
+
             if (!string.IsNullOrEmpty(command.Name) && epgFile.Name != command.Name)
             {
                 isChanged = true;

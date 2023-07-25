@@ -44,6 +44,7 @@ export const VideoStreamSelector = (props: VideoStreamSelectorProps) => {
       ];
 
     const ret = VideoStreams.data?.filter((a) => !a.isHidden)
+      .sort((a, b) => a.user_Tvg_name.localeCompare(b.user_Tvg_name))
       .map((a) => {
         return { label: a.user_Tvg_name, value: a } as SelectItem;
       });

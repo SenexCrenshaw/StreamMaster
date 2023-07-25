@@ -3,11 +3,8 @@
 using StreamMasterApplication.ChannelGroups;
 using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.ChannelGroups.Queries;
-using StreamMasterApplication.M3UFiles.Queries;
 
 using StreamMasterDomain.Dto;
-
-using StreamMasterInfrastructure;
 
 namespace StreamMasterAPI.Controllers;
 
@@ -20,7 +17,7 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
     public async Task<ActionResult> AddChannelGroup(AddChannelGroupRequest request)
     {
         ChannelGroupDto? entity = await Mediator.Send(request).ConfigureAwait(false);
-        return entity == null ? Ok() : CreatedAtAction(nameof(GetM3UFile), new { id = entity.Id }, entity);
+        return Ok();
     }
 
     [HttpDelete]

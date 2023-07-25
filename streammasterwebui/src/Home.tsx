@@ -5,7 +5,8 @@ import React from 'react';
 import { Sidebar, Menu, MenuItem, sidebarClasses } from 'react-pro-sidebar';
 import { useLocalStorage } from 'primereact/hooks';
 import MenuItemSM from './components/MenuItemSM';
-import { FilesEditorIcon, HelpIcon, PlayListEditorIcon, QueueStatisIcon, SDIcon, SettingsEditorIcon, SideBarMenuIcon, StreamGroupEditorIcon, StreamingStatusIcon, VideoIcon } from './common/icons';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { FilesEditorIcon, HelpIcon, LogIcon, PlayListEditorIcon, QueueStatisIcon, SDIcon, SettingsEditorIcon, SideBarMenuIcon, StreamGroupEditorIcon, StreamingStatusIcon, VideoIcon } from './common/icons';
 import StreamMasterSetting from './store/signlar/StreamMasterSetting';
 import * as StreamMasterApi from './store/iptvApi';
 import { Tooltip } from 'primereact/tooltip';
@@ -78,9 +79,10 @@ const Home = () => {
           <MenuItemSM collapsed={collapsed} icon={<QueueStatisIcon />} link="/queuestatus" name='Queue' />
           <MenuItemSM collapsed={collapsed} icon={<SettingsEditorIcon />} link="/settings" name='Settings' />
 
-          <MenuItemSM collapsed={collapsed} icon={<SDIcon />} link="/editor/sd" name='Schedules Direct' />
+          {/* <MenuItemSM collapsed={collapsed} icon={<SDIcon />} link="/editor/sd" name='Schedules Direct' /> */}
           <MenuItemSM collapsed={collapsed} icon={<VideoIcon />} link="/player" name='Video Player' />
 
+          <MenuItemSM collapsed={collapsed} icon={<LogIcon />} link="/log" name='Log' />
           <MenuItemSM collapsed={collapsed} icon={<HelpIcon />} link="https://github.com/SenexCrenshaw/StreamMaster/wiki" name='Wiki' newWindow />
 
         </Menu>

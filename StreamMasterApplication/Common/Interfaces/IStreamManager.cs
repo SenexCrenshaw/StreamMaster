@@ -8,7 +8,7 @@ public interface IStreamManager
 {
     void Dispose();
 
-    Task<IStreamInformation?> GetOrCreateBuffer(ChildVideoStreamDto childVideoStreamDto, int videoStreamId, string videoStreamName, int rank);
+    Task<IStreamInformation?> GetOrCreateBuffer(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank);
 
     SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl);
 

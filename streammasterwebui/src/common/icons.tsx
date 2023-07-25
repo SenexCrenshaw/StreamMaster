@@ -11,16 +11,19 @@ import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutl
 import RotateLeftIcon from '@mui/icons-material/RotateLeft';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
-import WorkspacesIcon from '@mui/icons-material/Workspaces';
+// import WorkspacesIcon from '@mui/icons-material/Workspaces';
 import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
 import { default as cancelIcon } from '@mui/icons-material/Cancel';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import SendTimeExtensionIcon from '@mui/icons-material/SendTimeExtension';
+import GroupsIcon from '@mui/icons-material/Groups';
+import AddToQueueIcon from '@mui/icons-material/AddToQueue';
 
+export const LogIcon = AddToQueueIcon;
 export const SDIcon = SendTimeExtensionIcon;
 export const PlayListIcon = LibraryBooksIcon;
 export const VideoIcon = OndemandVideoIcon;
-export const GroupIcon = WorkspacesIcon;
+export const GroupIcon = GroupsIcon;
 export const HelpIcon = HelpOutlineOutlinedIcon;
 export const AutoMatchIcon = AutoAwesomeIcon;
 export const CancelIcon = cancelIcon;

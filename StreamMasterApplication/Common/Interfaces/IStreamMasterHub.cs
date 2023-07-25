@@ -22,20 +22,22 @@ public interface IStreamMasterHub : ISharedHub
     Task EPGFilesDtoDelete(int result);
 
     Task EPGFilesDtosUpdate(IEnumerable<EPGFilesDto> results);
-   Task EPGFilesDtoUpdate(EPGFilesDto result);
+
+    Task EPGFilesDtoUpdate(EPGFilesDto result);
+
     Task IconFileDTODelete(int result);
 
-    Task ProgrammeNamesUpdate(IEnumerable<Programme> results);
+    Task IconFileDTOesUpdate(IEnumerable<IconFileDto> results);
 
-   Task IconFileDTOesUpdate(IEnumerable<IconFileDto> results);
-
-     Task IconFileDTOUpdate(IconFileDto result);
+    Task IconFileDTOUpdate(IconFileDto result);
 
     Task M3UFilesDtoDelete(int result);
 
     Task M3UFilesDtosUpdate(IEnumerable<M3UFilesDto> results);
 
     Task M3UFilesDtoUpdate(M3UFilesDto result);
+
+    Task ProgrammeNamesUpdate(IEnumerable<Programme> results);
 
     Task ScanEPGDirectorty();
 
@@ -54,16 +56,20 @@ public interface IStreamMasterHub : ISharedHub
     Task StreamingStatusDtoUpdate(StreamingStatusDto result);
 
     Task StreamStatisticsResultsUpdate(List<StreamStatisticsResult> result);
+
     Task SystemStatusUpdate(SystemStatus result);
+
     Task TaskQueueStatusDtoesUpdate(IEnumerable<TaskQueueStatusDto> results);
-    Task VideoStreamDtoDelete(int result);
-    Task VideoStreamDtosDelete(List<int> result);
+
+    Task VideoStreamDtoDelete(string result);
+
     Task VideoStreamDtoesUpdate(IEnumerable<VideoStreamDto> results);
+
+    Task VideoStreamDtosDelete(List<string> result);
 
     Task VideoStreamDtoUpdate(VideoStreamDto result);
 
     Task VideoStreamSetVideoStreamVisible(IEnumerable<SetVideoStreamVisibleRet> results);
 
     Task VideoStreamUpdateChannelNumbers(IEnumerable<ChannelNumberPair> data);
-
 }

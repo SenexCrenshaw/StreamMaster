@@ -76,7 +76,7 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
   });
 
   React.useEffect(() => {
-    if (props.value !== undefined) {
+    if (props.value !== null && props.value !== undefined) {
       setInputValue(props.value);
       setOriginalValue(props.value);
       setIgnoreSave(false);
@@ -95,11 +95,6 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
           (e) => {
             setInputValue(e.target.value as string);
             debounced(e.target.value as string);
-          }
-        }
-        onClick={
-          () => {
-            props.onClick?.();
           }
         }
         onFocus={() => setIsFocused(true)}
@@ -133,7 +128,6 @@ type DropDownEditorBodyTemplateProps = {
   className?: string | null;
   data: string[] | null;
   onChange: (value: string) => void;
-  onClick?: () => void;
   tooltip?: string | undefined;
   tooltipOptions?: TooltipOptions | undefined;
   value: string | undefined;

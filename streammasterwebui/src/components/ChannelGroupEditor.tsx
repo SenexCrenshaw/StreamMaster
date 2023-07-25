@@ -8,7 +8,7 @@ const ChannelGroupEditor = (props: ChannelGroupEditorProps) => {
   const toast = React.useRef<Toast>(null);
 
   const onUpdateStream = React.useCallback(async (groupName: string,) => {
-    if (props.data === undefined || props.data.id === undefined || props.data.id < 0 || !groupName || groupName === '' || props.data.user_Tvg_group === groupName) {
+    if (props.data === undefined || props.data.id === undefined || props.data.id === '' || !groupName || groupName === '' || props.data.user_Tvg_group === groupName) {
       return;
     }
 

@@ -10,7 +10,7 @@ const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
 
   const onUpdateVideoStream = React.useCallback(async (Logo: string) => {
-    if (props.data.id < 0) {
+    if (props.data.id === '') {
       return;
     }
 
@@ -64,23 +64,13 @@ const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
         className="p-inputtext-sm"
         enableEditMode={props.enableEditMode}
         onChange={
-          async (e: StreamMasterApi.IconFileDto) => {
-
-            // const newiconSource = e.originalSource.includes('://')
-            //   ? e.originalSource
-            //   : e.name;
-
-            await onUpdateVideoStream(e.originalSource);
+          async (e: string) => {
+            await onUpdateVideoStream(e);
           }
         }
         onReset={
-          async (e: StreamMasterApi.IconFileDto) => {
-
-            // const newiconSource = e.originalSource.includes('://')
-            //   ? e.originalSource
-            //   : e.name;
-
-            await onUpdateVideoStream(e.originalSource);
+          async (e: string) => {
+            await onUpdateVideoStream(e);
           }
         }
         resetValue={props.data.tvg_logo}

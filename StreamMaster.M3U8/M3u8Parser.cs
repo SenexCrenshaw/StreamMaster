@@ -20,7 +20,7 @@ public class M3u8Parser
         });
         httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
         httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
-        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(setting.ClientUserAgent);        
+        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(setting.ClientUserAgent);
 
         HttpResponseMessage response = await httpClient.GetAsync(playlistUri, HttpCompletionOption.ResponseHeadersRead);
         if (!response.IsSuccessStatusCode)
@@ -55,7 +55,7 @@ public class M3u8Parser
 
                 var attributes = new Dictionary<string, string>();
 
-                foreach (Match match in attributeMatches)
+                foreach (Match match in attributeMatches.Cast<Match>())
                 {
                     var attributeName = match.Groups[1].Value;
                     var attributeValue = match.Groups[3].Success ? match.Groups[3].Value : match.Groups[4].Value;
@@ -65,9 +65,9 @@ public class M3u8Parser
 
                 var streamUri = new Uri(new Uri(playlistUri), lines[++i].Trim());
 
-                int.TryParse(GetValueByKey("AVERAGE-BANDWIDTH"), out int averageBandwidth);
-                int.TryParse(GetValueByKey("BANDWIDTH"), out int bandwidth);
-                int.TryParse(GetValueByKey("FRAME-RATE"), out int frameRate);
+                _ = int.TryParse(GetValueByKey("AVERAGE-BANDWIDTH"), out int averageBandwidth);
+                _ = int.TryParse(GetValueByKey("BANDWIDTH"), out int bandwidth);
+                _ = int.TryParse(GetValueByKey("FRAME-RATE"), out int frameRate);
 
                 var stream = new M3u8Stream
                 {
@@ -150,7 +150,7 @@ public class M3u8Parser
 
         M3u8Segment segment = null;
 
-        var isPlayListFile = streamLines.Any(a=>a.Contains("#EXT-X-STREAM-INF"));
+        var isPlayListFile = streamLines.Any(a => a.Contains("#EXT-X-STREAM-INF"));
 
         for (int i = 0; i < streamLines.Length; i++)
         {

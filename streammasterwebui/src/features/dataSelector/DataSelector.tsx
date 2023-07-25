@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import './DataSelector.css';
 
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
@@ -30,14 +31,18 @@ import { Tooltip } from 'primereact/tooltip';
 import { v4 as uuidv4 } from 'uuid';
 import { type ColumnAlign, type ColumnFieldType, type ColumnMeta, type DataSelectorSelectionMode } from './DataSelectorTypes';
 import { useIntl } from 'react-intl';
-
+import { type VirtualScrollerChangeEvent } from 'primereact/virtualscroller';
+import { type VirtualScrollerOptionsType } from 'primereact/virtualscroller';
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
+  const tableRef = React.useRef<DataTable<T[]>>(null);
+
   const tooltipClassName = React.useMemo(() => "menuitemds-" + uuidv4(), []);
   const [globalSourceFilterValue, setGlobalSourceFilterValue] = useLocalStorage('', props.id + '-sourceGlobalFilterValue');
+  const [globalSearchName, setGlobalSearchName] = React.useState<string>('');
+
   const [dataSource, setDataSource] = React.useState<T[]>();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [values, setValues] = React.useState<T[]>();
+
   const [expandedRows, setExpandedRows] = React.useState<DataTableExpandedRows>();
 
   const setting = StreamMasterSetting();
@@ -47,7 +52,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
 
   const m3uFiles = StreamMasterApi.useM3UFilesGetM3UFilesQuery();
-  const [globalSearchName, setGlobalSearchName] = React.useState<string>('');
+
   const [selections, setSelections] = React.useState<T[]>([] as T[]);
   const intl = useIntl();
 
@@ -67,9 +72,34 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   }, [GetMessage, props.globalSearchName]);
 
+  const isLoading = React.useMemo(() => {
+    if (props.isLoading) {
+      return true;
+    }
+
+    if (globalSourceFilterValue === undefined) {
+      return true;
+    }
+
+    if (rowClick === undefined) {
+      return true;
+    }
+
+    if (videoStreamsQuery.isLoading || !videoStreamsQuery.data) {
+      return true;
+    }
+
+    if (channelGroupsQuery.isLoading || !channelGroupsQuery.data) {
+      return true;
+    }
+
+    return false;
+
+  }, [channelGroupsQuery.data, channelGroupsQuery.isLoading, globalSourceFilterValue, props.isLoading, rowClick, videoStreamsQuery.data, videoStreamsQuery.isLoading]);
+
   const showSkeleton = React.useMemo(() => {
-    return props.isLoading || (props.showSkeleton !== undefined && props.showSkeleton)
-  }, [props.isLoading, props.showSkeleton]);
+    return isLoading || (props.showSkeleton !== undefined && props.showSkeleton)
+  }, [isLoading, props.showSkeleton]);
 
   const sourceFilter = React.useMemo((): DataTableFilterMeta => {
     if (props.columns === undefined) {
@@ -191,12 +221,12 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return;
     }
 
-    setValues(data);
     props?.onValueChanged?.(data);
 
   }, [props]);
 
   const streamCount = React.useCallback((groupName: string) => {
+
     if (groupName === null || groupName === undefined || !videoStreamsQuery.data) {
       return 0;
     }
@@ -208,6 +238,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     const cg = channelGroupsQuery.data?.find((x: StreamMasterApi.ChannelGroupDto) => x.name.toLowerCase() === groupName.toLowerCase());
     if (cg?.regexMatch !== undefined && cg.regexMatch !== '') {
       const filteredData = videoStreamsQuery.data.filter((item) => {
+
         const regexToTest = new RegExp(`.*${cg.regexMatch}.*`, 'i');
         return regexToTest.test(item.user_Tvg_name);
       });
@@ -220,7 +251,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     if (props.m3uFileId !== undefined && props.m3uFileId > 0) {
       return videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.m3UFileId === props.m3uFileId && x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase()).length;
     }
-
 
     return videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase()).length;
 
@@ -344,6 +374,11 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       camelize = true;
     }
 
+    if (fieldType === 'blank') {
+      return (<div />);
+      ;
+    }
+
     if (fieldType === 'm3uFileName') {
       const m3UFileId = getRecordString(data, 'm3UFileId');
       return m3uFileNameBodyTemplate(parseInt(m3UFileId));
@@ -438,12 +473,34 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }, [epgLinkSourceTemplate, epgSourceTemplate, getRecord, getRecordString, imageBodyTemplate, m3uFileNameBodyTemplate, m3uLinkSourceTemplate, streamsBodyTemplate, urlLinkSourceTemplate]);
 
   React.useEffect(() => {
-    if (props.dataSource !== undefined)
+    if (props.dataSource !== undefined) {
       setDataSource(props.dataSource);
+    }
 
   }, [props.dataSource]);
 
+  React.useEffect(() => {
+
+    if (dataSource !== undefined && props.enableVirtualScroll === true && dataSource.length > 0) {
+      console.debug("Scroll to ", dataSource.length);
+
+      if (tableRef.current?.getVirtualScroller()?.scrollToIndex !== undefined) {
+        tableRef.current.getVirtualScroller().scrollToIndex(10, 'auto');
+      }
+    }
+
+  }, [dataSource, props.enableVirtualScroll]);
+
   const showPagination = React.useMemo((): boolean => {
+
+    if (props.enableVirtualScroll === true) {
+      return false;
+    }
+
+    if (props.showPagination !== true) {
+      return false;
+    }
+
     let dataLength = 0;
 
     // if (values && values.length > 0) {
@@ -462,7 +519,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
     return dataLength >= minRows;
 
-  }, [props.paginatorMinimumRowsToShow, dataSource]);
+  }, [props.enableVirtualScroll, props.showPagination, props.paginatorMinimumRowsToShow, dataSource]);
 
   const onRowReorder = React.useCallback((data: T[]) => {
     setDataSource(data);
@@ -746,9 +803,13 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }, [selections]);
 
   const getStyle = React.useCallback((style: CSSProperties | undefined, fieldType: ColumnFieldType | undefined): CSSProperties | undefined => {
-    // if (!fieldType) {
-    //   return style;
-    // }
+
+    if (fieldType === 'blank') {
+      return {
+        maxWidth: '1rem',
+        width: '1rem',
+      } as CSSProperties;
+    }
 
     if (fieldType === 'image' || fieldType === 'm3ulink' || fieldType === 'epglink' || fieldType === 'url') {
       return {
@@ -794,29 +855,16 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }, [getRecordString, props]);
 
   const getHeader = React.useCallback((field: string, header: string | undefined, fieldType: ColumnFieldType | undefined): React.ReactNode => {
-
     if (fieldType) {
-      if (fieldType === 'epg') {
-        return 'EPG';
-      }
-    }
+      if (fieldType === 'blank') { return (<div />); }
 
-    if (fieldType) {
-      if (fieldType === 'm3ulink') {
-        return 'M3U';
-      }
-    }
+      if (fieldType === 'epg') { return 'EPG'; }
 
-    if (fieldType) {
-      if (fieldType === 'epglink') {
-        return 'XMLTV';
-      }
-    }
+      if (fieldType === 'm3ulink') { return 'M3U'; }
 
-    if (fieldType) {
-      if (fieldType === 'url') {
-        return 'HDHR URL';
-      }
+      if (fieldType === 'epglink') { return 'XMLTV'; }
+
+      if (fieldType === 'url') { return 'HDHR URL'; }
     }
 
     if (fieldType) {
@@ -834,7 +882,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
               data-pr-showdelay={200}
               data-pr-tooltip="Active/Total Count"
             >
-              Streams
+              Streams<br />(active/total)
             </div>
           </>
         )
@@ -895,10 +943,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   const multiselectHeader = () => {
     return (
-      <div className="flex flex-wrap align-items-center justify-content-between gap-2">
-        <span className="text-xs text-white text-500">
-          All
-        </span>
+      <div className="absolute top-0 left-50 text-xs text-white text-500">
+        All
       </div>
     );
   }
@@ -907,7 +953,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   if (showSkeleton) {
     return (
       <div className='dataselector flex justify-content-start align-items-center' >
-        <div className={`${props.className !== undefined ? props.className : ''}  min-w-full min-h-full surface-overlay`}>
+        <div className={`${props.className !== undefined ? props.className : ''} flex min-w-full min-h-full surface-overlay`}>
 
           <DataTable className="p-datatable-striped" header={sourceRenderHeader} value={items.concat(items)}>
             <Column
@@ -957,8 +1003,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   return (
 
-    <div className='dataselector flex justify-content-start align-items-center' >
-      <div className={`${props.className !== undefined ? props.className : ''}  min-w-full min-h-full surface-overlay`}>
+    <div className='dataselector flex w-full min-w-full  justify-content-start align-items-center' >
+      <div className={`${props.className !== undefined ? props.className : ''} min-h-full w-full surface-overlay`}>
         <DataTable
           dataKey='id'
           editMode='cell'
@@ -967,18 +1013,21 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           expandedRows={expandedRows}
           filterDelay={1000}
           filters={sourceFilters}
+          first={props.first}
           globalFilterFields={props.columns.map((item) => item.field)}
           groupRowsBy={props.groupRowsBy}
           header={sourceRenderHeader}
-          loading={props.isLoading}
+          key={props.key !== undefined && props.key !== '' ? props.key : undefined}
+          loading={isLoading}
           metaKeySelection={false}
           onRowReorder={(e) => onRowReorder(e.value)}
           onRowToggle={(e: DataTableRowToggleEvent) => setExpandedRows(e.data as DataTableExpandedRows)}
           onSelectionChange={((e) => onSelectionChange(e))}
           onValueChange={(e) => { onValueChanged(e); }}
-          paginator={props.enableVirtual === true ? undefined : showPagination}
+          paginator={showPagination}
           paginatorClassName='text-xs p-0 m-0 withpadding'
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+          ref={tableRef}
           removableSort
           reorderableRows={props.reorderable}
           resizableColumns
@@ -987,7 +1036,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           rowGroupMode={props.groupRowsBy !== undefined && props.groupRowsBy !== '' ? 'subheader' : undefined}
           rows={25}
           rowsPerPageOptions={[25, 50, 100, 250]}
-          scrollHeight='flex'
+          scrollHeight={props.enableVirtualScroll === true ? props.virtualScrollHeight !== undefined ? props.virtualScrollHeight : '400px' : 'flex'}
           scrollable
           selection={selections}
           selectionMode={getSelectionMode}
@@ -1001,7 +1050,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           stripedRows
           style={props.style}
           value={dataSource}
-          virtualScrollerOptions={props.enableVirtual === true ? { autoSize: true, itemSize: 22, orientation: undefined } : undefined}
+          virtualScrollerOptions={props.enableVirtualScroll === true ? { itemSize: 16, orientation: 'vertical' } : undefined}
         >
           <Column
             body={<i className="pi pi-chevron-right" />}
@@ -1041,7 +1090,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
               filter={getFilter(col.filter, col.fieldType)}
               filterPlaceholder={col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)}
               header={getHeader(col.field, col.header, col.fieldType)}
-              hidden={col.isHidden ?? false}
+              hidden={col.isHidden === true || (props.hideControls === true && getHeader(col.field, col.header, col.fieldType) === 'Actions') ? true : undefined}
               key={!col.fieldType ? col.field : col.field + col.fieldType}
               onCellEditComplete={col.handleOnCellEditComplete}
               showAddButton={false}
@@ -1066,8 +1115,11 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 DataSelector.displayName = 'DataSelector';
 DataSelector.defaultProps = {
   enableState: true,
-  enableVirtual: false,
+  enableVirtualScroll: false,
+  first: 0,
   globalSearchEnabled: true,
+  hideControls: false,
+  key: undefined,
   leftColSize: 4,
   name: '',
   onSelectionChange: undefined,
@@ -1077,6 +1129,7 @@ DataSelector.defaultProps = {
   selectionMode: 'single',
   showHeaders: true,
   showHidden: null,
+  showPagination: true
 };
 
 
@@ -1086,6 +1139,7 @@ DataSelector.defaultProps = {
  * @typeparam T The type of data being displayed in the table.
  */
 export type DataSelectorProps<T> = {
+
   /**
    * The CSS class name for the component.
    */
@@ -1103,7 +1157,8 @@ export type DataSelectorProps<T> = {
    */
   emptyMessage?: React.ReactNode;
   enableState?: boolean | undefined;
-  enableVirtual?: boolean | undefined;
+  enableVirtualScroll?: boolean | undefined;
+  first?: number | undefined;
   /**
    * Whether to enable global searching.
    */
@@ -1124,6 +1179,7 @@ export type DataSelectorProps<T> = {
    * A React node that can be used to display additional content in the right side of the header of the table.
    */
   headerRightTemplate?: React.ReactNode;
+  hideControls?: boolean;
   /**
    * The unique identifier of the component.
    */
@@ -1132,6 +1188,7 @@ export type DataSelectorProps<T> = {
    * Whether the component is currently loading data.
    */
   isLoading?: boolean;
+  key?: string | undefined;
   leftColSize?: number;
   m3uFileId?: number;
   /**
@@ -1142,6 +1199,7 @@ export type DataSelectorProps<T> = {
    * A function that is called when the multi-select button is clicked.
    */
   onMultiSelectClick?: (value: boolean) => void;
+
   /**
    * A function that is called when a row's visibility is changed.
    */
@@ -1178,6 +1236,7 @@ export type DataSelectorProps<T> = {
    */
   showHeaders?: boolean | undefined;
   showHidden?: boolean | null | undefined;
+  showPagination?: boolean;
   showSelector?: boolean;
   showSkeleton?: boolean;
   /**
@@ -1188,6 +1247,7 @@ export type DataSelectorProps<T> = {
    * The inline style of the component.
    */
   style?: CSSProperties;
+  virtualScrollHeight?: string | undefined;
 }
 
 export default React.memo(DataSelector);

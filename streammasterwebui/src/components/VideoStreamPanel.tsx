@@ -21,7 +21,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
   const [url, setUrl] = React.useState<string>('');
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(null, 'videostreampanel-showHidden');
   const [iconSource, setIconSource] = React.useState<string>('');
-  const [icon, setIcon] = React.useState<StreamMasterApi.IconFileDto>({} as StreamMasterApi.IconFileDto);
+  // const [icon, setIcon] = React.useState<string>('');
 
   const [videoStreams, setVideoStreams] = React.useState<StreamMasterApi.VideoStreamDto[] | undefined>(undefined);
 
@@ -91,11 +91,11 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
     }
 
     if (props.videoStream.user_Tvg_logo && props.videoStream.user_Tvg_logo !== undefined) {
-      if (iconsQuery.data) {
-        const iconData = iconsQuery.data.find((x: StreamMasterApi.IconFileDto) => x.url === props.videoStream?.user_Tvg_logo);
-        if (iconData)
-          setIcon(iconData);
-      }
+      // if (iconsQuery.data) {
+      //   const iconData = iconsQuery.data.find((x: StreamMasterApi.IconFileDto) => x.url === props.videoStream?.user_Tvg_logo);
+      //   if (iconData)
+      //     setIcon(iconData);
+      // }
 
       setIconSource(props.videoStream?.user_Tvg_logo);
     }
@@ -120,13 +120,13 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
 
   }, [channelGroups.data, iconsQuery.data, props.videoStream]);
 
-  const onIconChange = (newIconSource: StreamMasterApi.IconFileDto) => {
+  const onIconChange = (newIconSource: string) => {
     if (!newIconSource) {
       return;
     }
 
-    setIcon(newIconSource);
-    setIconSource(newIconSource.originalSource);
+    // setIcon(newIconSource);
+    setIconSource(newIconSource);
   };
 
   const onIconReset = () => {
@@ -209,235 +209,234 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
     );
   }, [setShowHidden, showHidden]);
 
+
+
   const onsetActiveIndex = (index: number) => {
 
     if (index === null) {
-      setActiveIndex(lastActiveIndex)
-    } else {
-      setLastActiveIndex(index);
-      setActiveIndex(index);
+      if (lastActiveIndex === 0) {
+        index = 1;
+
+      } else {
+        index = 0;
+      }
     }
 
+    setLastActiveIndex(index);
+    setActiveIndex(index);
   }
 
   return (
-    <>
-      <Accordion activeIndex={activeIndex} onTabChange={(e) => onsetActiveIndex(e.index as number)}>
+    <Accordion activeIndex={activeIndex} onTabChange={(e) => onsetActiveIndex(e.index as number)}>
 
-        <AccordionTab header="General">
-          <div className="grid flex flex-wrap justify-content-start align-items-center surface-overlay m-0">
-            <div className="flex col-12 flex-wrap justify-content-start align-items-center p-0 m-0">
+      <AccordionTab header="General">
+        <div className="grid flex flex-wrap justify-content-start align-items-center surface-overlay m-0">
+          <div className="flex col-12 flex-wrap justify-content-start align-items-center p-0 m-0">
 
-              {/* Image */}
-              <div className='flex col-2 justify-content-center align-items-center'>
+            {/* Image */}
+            <div className='flex col-2 justify-content-center align-items-center'>
 
-                <img
-                  alt={iconSource ?? 'Logo'}
-                  className="max-h-8rem h-8rem max-w-full"
-                  onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => (e.currentTarget.src = (e.currentTarget.src = setting.defaultIcon))}
-                  src={`${encodeURI(icon.url ?? iconSource)}`}
-                  style={{
-                    objectFit: 'contain',
-                  }}
-                />
+              <img
+                alt={iconSource ?? 'Logo'}
+                className="max-h-8rem h-8rem max-w-full"
+                onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => (e.currentTarget.src = (e.currentTarget.src = setting.defaultIcon))}
+                src={`${encodeURI(iconSource)}`}
+                style={{
+                  objectFit: 'contain',
+                }}
+              />
+            </div>
+
+            <div className="flex flex-wrap col-10 justify-content-start align-items-center p-0 m-0 pl-4">
+              <div className="flex flex-wrap col-9 justify-content-start align-items-center p-0 m-0">
+                {/* Name */}
+                <div className="flex col-12 p-0 m-0 pl-4 text-xs">
+                  Name
+                </div>
+                <div className='flex col-12 justify-content-start align-items-center p-0 m-0'>
+                  <InputText
+                    autoFocus
+                    className="withpadding p-inputtext-sm w-full"
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Name"
+                    type="text"
+                    value={name}
+                  />
+                </div>
               </div>
 
-              <div className="flex flex-wrap col-10 justify-content-start align-items-center p-0 m-0 pl-4">
-                <div className="flex flex-wrap col-9 justify-content-start align-items-center p-0 m-0">
-                  {/* Name */}
-                  <div className="flex col-12 p-0 m-0 pl-4 text-xs">
-                    Name
+              <div className="flex flex-wrap col-3 justify-content-start align-items-center p-0 m-0">
+                {/* Ch #*/}
+                <div className="flex flex-wrap col-12 p-0 m-0 text-xs">
+                  <div className="flex col-12 justify-content-center align-items-center p-0 m-0">
+                    <span className="text-xs"                >
+                      Ch. #
+                    </span>
                   </div>
-                  <div className='flex col-12 justify-content-start align-items-center p-0 m-0'>
-                    <InputText
-                      autoFocus
-                      className="withpadding p-inputtext-sm w-full"
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Name"
-                      type="text"
-                      value={name}
+                  <div className='flex col-12 justify-content-center align-items-center p-0 m-0'>
+                    <InputNumber
+                      className='withpadding p-0 m-0'
+                      id="channelNumber"
+                      max={999999}
+                      min={0}
+                      onChange={(e) => { setChannelNumber(e.value ?? 0) }}
+                      showButtons
+                      size={3}
+                      value={channelNumber}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex col-12 flex-wrap align-items-center justify-content-start p-0 m-0 mt-2 gap-2">
+                {/* Logo Selector */}
+                <div className="flex flex-wrap col-5 justify-content-start align-items-center p-0 m-0">
+                  <div className="flex col-12 justify-content-start align-items-center p-0 m-0 pl-4 text-xs">
+                    Logo
+                  </div>
+                  <div className='flex col-12 justify-content-start align-items-center p-0 m-0 border-2 border-round surface-border'>
+                    <IconSelector
+                      className="p-inputtext-sm"
+                      onChange={(e) => onIconChange(e)}
+                      onReset={() => { onIconReset(); }}
+                      resetValue={props.videoStream === undefined ? '' : props.videoStream.user_Tvg_logo}
+                      value={iconSource}
                     />
                   </div>
                 </div>
 
-                <div className="flex flex-wrap col-3 justify-content-start align-items-center p-0 m-0">
-                  {/* Ch #*/}
-                  <div className="flex flex-wrap col-12 p-0 m-0 text-xs">
-                    <div className="flex col-12 justify-content-center align-items-center p-0 m-0">
-                      <span className="text-xs"                >
-                        Ch. #
-                      </span>
-                    </div>
-                    <div className='flex col-12 justify-content-center align-items-center p-0 m-0'>
-                      <InputNumber
-                        className='withpadding p-0 m-0'
-                        id="channelNumber"
-                        max={999999}
-                        min={0}
-                        onChange={(e) => { setChannelNumber(e.value ?? 0) }}
-                        showButtons
-                        size={3}
-                        value={channelNumber}
-                      />
-                    </div>
+                {/* URL */}
+                <div className="flex flex-wrap col-6 justify-content-start align-items-center p-0 m-0">
+
+                  <div className="flex col-12 p-0 m-0 pl-4 text-xs">
+                    Stream URL
                   </div>
-                </div>
-
-                <div className="flex col-12 flex-wrap align-items-center justify-content-start p-0 m-0 mt-2 gap-2">
-                  {/* Logo Selector */}
-                  <div className="flex flex-wrap col-5 justify-content-start align-items-center p-0 m-0">
-                    <div className="flex col-12 justify-content-start align-items-center p-0 m-0 pl-4 text-xs">
-                      Logo
-                    </div>
-                    <div className='flex col-12 justify-content-start align-items-center p-0 m-0 border-2 border-round surface-border'>
-                      <IconSelector
-                        className="p-inputtext-sm"
-                        onChange={(e) => onIconChange(e)}
-                        onReset={() => { onIconReset(); }}
-                        resetValue={props.videoStream === undefined ? '' : props.videoStream.user_Tvg_logo}
-                        value={iconSource}
-                      />
-                    </div>
-                  </div>
-
-                  {/* URL */}
-                  <div className="flex flex-wrap col-6 justify-content-start align-items-center p-0 m-0">
-
-                    <div className="flex col-12 p-0 m-0 pl-4 text-xs">
-                      Stream URL
-                    </div>
-                    <div className='flex col-12 justify-content-start align-items-center p-0 m-0'>
-                      <InputText
-                        className="withpadding p-inputtext-sm w-full"
-                        onChange={(e) => setUrl(e.target.value)}
-                        placeholder="URL"
-                        type="text"
-                        value={url}
-                      />
-                    </div>
-
+                  <div className='flex col-12 justify-content-start align-items-center p-0 m-0'>
+                    <InputText
+                      className="withpadding p-inputtext-sm w-full"
+                      onChange={(e) => setUrl(e.target.value)}
+                      placeholder="URL"
+                      type="text"
+                      value={url}
+                    />
                   </div>
 
                 </div>
 
               </div>
-            </div>
 
-            <div className='flex col-12 flex-wrap justify-content-start align-items-center p-0 m-0' >
-              {/* EPG */}
-              <div className="flex flex-wrap col-6 align-items-center justify-content-center p-0 m-0">
-                <div className="flex col-12 justify-content-start align-items-center p-0 m-0 pl-4">
-                  <div className="text-xs"            >
-                    EPG
-                  </div>
-                </div>
-                <div className='flex col-12 justify-content-start align-items-center p-0 pl-2 m-0 h-full border-2 border-round surface-border '>
-
-                  <EPGSelector
-                    onChange={(e: string) => onEPGChange(e)}
-                    value={programme}
-                  />
-
-                </div>
-              </div>
-
-              {/* Group */}
-              <div className="flex flex-wrap col-6 align-items-center justify-content-center p-0 m-0">
-                <div className="flex col-12 justify-content-start align-items-center p-0 m-0 pl-4">
-                  <div
-                    className="text-xs"
-                  >
-                    Group
-                  </div>
-                </div>
-                <div className='flex col-10 justify-content-start align-items-center h-full p-0 pl-2 m-0 border-2 border-round surface-border'>
-                  <ChannelGroupSelector
-                    onChange={(e) => setChannelGroup(e)}
-                    value={channelGroup}
-                  />
-                </div>
-              </div>
-            </div>
-
-
-          </div >
-        </AccordionTab>
-
-        <AccordionTab header='Additional Streams'>
-          <div className='flex col-12 flex-wrap justify-content-start align-items-center p-0 m-0 mt-2 w-full'>
-            <div className='flex col-12 p-0 justify-content-start align-items-center w-full min-w-full'>
-              <PlayListDataSelectorPicker
-                enableState={false}
-                id='videostreampanel-ds-streams'
-                isAdditionalChannels
-                maxHeight={400}
-                onSelectionChange={(e) => onSetVideoStreams(e)}
-                onValueChanged={(e) => onValueChanged(e)}
-                showTriState={showHidden}
-                sourceHeaderTemplate={rightHeaderTemplate}
-                videoStream={props.videoStream}
-              />
             </div>
           </div>
-        </AccordionTab>
 
-      </Accordion>
-      <div className="flex col-12 justify-content-between align-items-center p-0 mt-3 gap-2 ">
-
-        <div className="flex flex-wrap col-12 gap-1 align-items-center justify-content-end max-h-3rem p-0 m-0">
-          <div className='flex col-6 flex-wrap justify-content-start align-items-center p-0 m-0' >
-            <div className="flex flex-wrap col-6 align-items-center justify-content-end p-0 m-0">
-              {(videoStreams !== undefined && videoStreams.length > 0) &&
-                <div className='flex w-full p-0 m-0 col-12 justify-content-start align-items-center p-0 pl-2 m-0 h-full border-2 border-round surface-border '>
-                  Channel Handler
-                  <ChannelHandlerSelector
-                    className="w-full p-0 m-0"
-                    onChange={(e) => setChannelHandler(e)}
-                    value={channelHandler}
-                  />
+          <div className='flex col-12 flex-wrap justify-content-start align-items-center p-0 m-0' >
+            {/* EPG */}
+            <div className="flex flex-wrap col-6 align-items-center justify-content-center p-0 m-0">
+              <div className="flex col-12 justify-content-start align-items-center p-0 m-0 pl-4">
+                <div className="text-xs"            >
+                  EPG
                 </div>
-              }
+              </div>
+              <div className='flex col-12 justify-content-start align-items-center p-0 pl-2 m-0 h-full border-2 border-round surface-border '>
+
+                <EPGSelector
+                  onChange={(e: string) => onEPGChange(e)}
+                  value={programme}
+                />
+
+              </div>
             </div>
 
-            <div className="flex flex-wrap col-6 align-items-center justify-content-end gap-1 p-0 m-0">
-              <Button
-                icon="pi pi-times"
-                label="Close"
-                onClick={() => ReturnToParent()}
-                rounded
-                severity="warning"
-              />
-              <Button
-                disabled={!isSaveEnabled}
-                icon="pi pi-check"
-                label={props.videoStream ? "Edit" : "Add"}
-                onClick={() => props.videoStream ? props.onEdit?.({
-                  id: props.videoStream.id,
-                  tvg_chno: channelNumber,
-                  tvg_group: channelGroup,
-                  tvg_ID: epgId,
-                  tvg_logo: icon.originalSource,
-                  tvg_name: name,
-                  url: url
-                } as StreamMasterApi.UpdateVideoStreamRequest) : props.onSave?.({
-                  childVideoStreams: videoStreams,
-                  tvg_chno: channelNumber,
-                  tvg_group: channelGroup,
-                  tvg_ID: epgId,
-                  tvg_logo: icon.originalSource,
-                  tvg_name: name,
-                  url: url
-                } as StreamMasterApi.AddVideoStreamRequest
-                )}
-                rounded
-                severity="success"
-              />
+            {/* Group */}
+            <div className="flex flex-wrap col-6 align-items-center justify-content-center p-0 m-0">
+              <div className="flex col-12 justify-content-start align-items-center p-0 m-0 pl-4">
+                <div
+                  className="text-xs"
+                >
+                  Group
+                </div>
+              </div>
+              <div className='flex col-10 justify-content-start align-items-center h-full p-0 pl-2 m-0 border-2 border-round surface-border'>
+                <ChannelGroupSelector
+                  onChange={(e) => setChannelGroup(e)}
+                  value={channelGroup}
+                />
+              </div>
             </div>
+          </div>
+
+          <div className="flex col-12 align-items-center justify-content-end gap-1 p-0 mt-2">
+            <Button
+              icon="pi pi-times"
+              label="Close"
+              onClick={() => ReturnToParent()}
+              rounded
+              severity="warning"
+            />
+            <Button
+              disabled={!isSaveEnabled}
+              icon="pi pi-check"
+              label={props.videoStream ? "Edit" : "Add"}
+              onClick={() => props.videoStream ? props.onEdit?.({
+                id: props.videoStream.id,
+                tvg_chno: channelNumber,
+                tvg_group: channelGroup,
+                tvg_ID: epgId,
+                tvg_logo: iconSource,
+                tvg_name: name,
+                url: url
+              } as StreamMasterApi.UpdateVideoStreamRequest) : props.onSave?.({
+                childVideoStreams: videoStreams,
+                tvg_chno: channelNumber,
+                tvg_group: channelGroup,
+                tvg_ID: epgId,
+                tvg_logo: iconSource,
+                tvg_name: name,
+                url: url
+              } as StreamMasterApi.AddVideoStreamRequest
+              )}
+              rounded
+              severity="success"
+            />
+          </div>
+        </div >
+      </AccordionTab>
+
+      <AccordionTab header='Additional Streams'>
+        <div className='flex col-12 flex-wrap justify-content-start align-items-center p-0 m-0 mt-2 w-full'>
+          <div className='flex col-12 p-0 justify-content-start align-items-center w-full'>
+            <PlayListDataSelectorPicker
+              enableState={false}
+              id='videostreampanel-ds-streams'
+              isAdditionalChannels
+              maxHeight={400}
+              onSelectionChange={(e) => onSetVideoStreams(e)}
+              onValueChanged={(e) => onValueChanged(e)}
+              showTriState={showHidden}
+              sourceHeaderTemplate={rightHeaderTemplate}
+              videoStream={props.videoStream}
+            />
           </div>
         </div>
-      </div>
+        <div className='flex col-12 m-0 p-0 justify-content-end align-items-center w-full'>
 
-    </>
+          <div className='flex col-6 m-0 p-0 align-items-center'>
+            <div className='flex col-6 m-0 p-0 justify-content-end align-items-center mr-2'>
+              Handler
+            </div>
+            <div className='flex col-6 m-0 p-0 align-items-center border-2 border-round surface-border '>
+              <ChannelHandlerSelector
+                className="w-full p-0 m-0"
+                onChange={(e) => setChannelHandler(e)}
+                value={channelHandler}
+              />
+            </div>
+          </div>
+
+        </div>
+
+      </AccordionTab>
+
+    </Accordion>
 
   );
 };

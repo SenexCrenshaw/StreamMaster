@@ -1,32 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
-
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace StreamMasterDomain.Common;
 
-public static class CuidConverter
+public static class IdConverter
 {
-    public static string ConvertUrlToCuid(this string url)
+    public static string ConvertStringToId(this string str)
     {
-        // Create an instance of SHA256 to compute the hash
-        using (var sha256 = SHA256.Create())
+        using (MD5 md5 = MD5.Create())
         {
-            // Compute the hash of the URL
-            byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(url));
+            byte[] inputBytes = Encoding.UTF8.GetBytes(str);
+            byte[] hashBytes = md5.ComputeHash(inputBytes);
+            StringBuilder sb = new StringBuilder();
 
-            // Convert the hash bytes to a hexadecimal string
-            string hashString = BitConverter.ToString(hashBytes).Replace("-", string.Empty);
+            for (int i = 0; i < hashBytes.Length; i++)
+            {
+                sb.Append(hashBytes[i].ToString("x2"));
+            }
 
-            // Take the first 8 characters as the CUID
-            string cuid = hashString.Substring(0, 8);
-
-            return cuid;
+            return sb.ToString();
         }
+    }
+
+    public static string GenerateRandomString()
+    {
+        return Guid.NewGuid().ToString().Replace("-", "");
+    }
+
+    public static string GetID()
+    {
+        return GenerateRandomString().ConvertStringToId();
     }
 }

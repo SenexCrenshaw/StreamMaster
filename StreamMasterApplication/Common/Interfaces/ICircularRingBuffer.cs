@@ -6,7 +6,9 @@ namespace StreamMasterApplication.Common.Interfaces
     {
         int BufferSize { get; }
 
-        public int VideoStreamId { get; }
+        float GetBufferUtilization();
+
+        public string VideoStreamId { get; }
 
         List<ClientStreamingStatistics> GetAllStatistics();
 

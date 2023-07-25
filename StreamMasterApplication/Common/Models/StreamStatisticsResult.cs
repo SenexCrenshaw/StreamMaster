@@ -19,7 +19,7 @@ public class StreamStatisticsResult
     /// <summary>
     /// Gets or sets the identifier for the M3U stream.
     /// </summary>
-    public int M3UStreamId { get; set; }
+    public string M3UStreamId { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the M3U stream.
@@ -33,7 +33,7 @@ public class StreamStatisticsResult
 
     public int Rank { get; set; }
     public string? StreamUrl { get; set; }
-    public int VideoStreamId { get; set; }
+    public string VideoStreamId { get; set; }
     public string VideoStreamName { get; set; }
 }
 
@@ -44,7 +44,7 @@ public class StreamInfo
     /// <summary>
     /// Gets or sets the identifier for the M3U stream.
     /// </summary>
-    public int M3UStreamId { get; set; }
+    public string M3UStreamId { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the M3U stream.
@@ -60,6 +60,6 @@ public class StreamInfo
 
     public string? StreamUrl { get; set; }
 
-    public int VideoStreamId { get; set; }
+    public string VideoStreamId { get; set; }
     public string VideoStreamName { get; set; }
 }

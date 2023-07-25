@@ -40,7 +40,7 @@ public class SetVideoStreamChannelNumbersRequestHandler : IRequestHandler<SetVid
             var VideoStream = _context.VideoStreams.SingleOrDefault(c => c.Id == cp.Id);
             if (VideoStream == null)
             {
-                cp.Id = -1;
+                cp.Id = String.Empty;
                 continue;
             }
             VideoStream.User_Tvg_chno = cp.ChannelNumber;

@@ -1,4 +1,6 @@
-﻿using System.Collections.Concurrent;
+﻿using MediatR;
+
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
@@ -34,9 +36,10 @@ public static partial class IPTVExtensions
             MatchCollection extGrp = grpRegex().Matches(bodyline); if
             (extGrp.Count > 0) { lastExtGrp = extGrp[0].Groups[1].Value.Trim(); }
 
-            if (string.IsNullOrEmpty(VideoStream.Tvg_group) && !string.IsNullOrEmpty(lastExtGrp))
+            if (string.IsNullOrEmpty(VideoStream.Tvg_group) )
             {
-                VideoStream.Tvg_group = lastExtGrp;
+                //VideoStream.Tvg_group = lastExtGrp;
+                VideoStream.Tvg_group = "(None)";
             }
 
             VideoStream.M3UFileId = Id;
@@ -50,6 +53,7 @@ public static partial class IPTVExtensions
             VideoStream.User_Tvg_group = VideoStream.Tvg_group;
             VideoStream.User_Url = VideoStream.Url;
 
+         
             streamLists.TryAdd(index, VideoStream);
         });
 
@@ -118,9 +122,9 @@ public static partial class IPTVExtensions
                             VideoStream.Tvg_name = parameter[1].Trim();
                             break;
 
-                        case "cuid":
-                            VideoStream.CUID = parameter[1].Trim();
-                            break;
+                        //case "cuid":
+                        //    VideoStream.CUID = parameter[1].Trim();
+                        //    break;
 
                         case "tvg-chno":
                             string num = parameter[1].Trim();
@@ -128,9 +132,9 @@ public static partial class IPTVExtensions
 
                             break;
 
-                        case "channel-id":
-                            VideoStream.CUID = parameter[1].Trim();
-                            break;
+                        //case "channel-id":
+                        //    VideoStream.Id = parameter[1].Trim();
+                        //    break;
 
                         case "channel-number":
                             string channum = parameter[1].Trim();
@@ -195,10 +199,10 @@ public static partial class IPTVExtensions
             }
         }
 
-        if (string.IsNullOrEmpty(VideoStream.CUID))
-        {
-            VideoStream.CUID = VideoStream.Url.ConvertUrlToCuid();
-        }
+        //if (string.IsNullOrEmpty(VideoStream.CUID))
+        //{
+        VideoStream.Id = VideoStream.Url.ConvertStringToId();
+        //}
 
         return VideoStream;
     }

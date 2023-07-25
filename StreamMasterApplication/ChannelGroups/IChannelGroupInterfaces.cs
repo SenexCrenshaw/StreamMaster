@@ -29,6 +29,8 @@ public interface IChannelGroupController
 public interface IChannelGroupDB
 {
     DbSet<ChannelGroup> ChannelGroups { get; set; }
+
+    Task<(ChannelGroupDto? channelGroup, List<VideoStreamDto>? distinctList, List<StreamGroupDto>? streamGroupIds)> UpdateChannelGroup(UpdateChannelGroupRequest request, string url, CancellationToken cancellationToken);
 }
 
 public interface IChannelGroupHub

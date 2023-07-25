@@ -1,6 +1,7 @@
-﻿using StreamMaster.SchedulesDirect;
+﻿using StreamMaster.SchedulesDirectAPI;
 
-using StreamMasterApplication.Settings;
+using StreamMasterApplication.SchedulesDirectAPI;
+using StreamMasterApplication.SchedulesDirectAPI.Queries;
 
 using StreamMasterDomain.Dto;
 
@@ -23,14 +24,29 @@ public partial class StreamMasterHub : ISchedulesDirectHub
         return await _mediator.Send(new GetLineup(lineup)).ConfigureAwait(false);
     }
 
+    public async Task<List<LineUpPreview>> GetLineupPreviews()
+    {
+        return await _mediator.Send(new GetLineupPreviews()).ConfigureAwait(false);
+    }
+
     public async Task<LineUpsResult?> GetLineups()
     {
         return await _mediator.Send(new GetLineups()).ConfigureAwait(false);
     }
 
-    public async Task<List<Schedule>?> GetSchedules(List<string> stationIds)
+    public async Task<List<Schedule>?> GetSchedules()
     {
-        return await _mediator.Send(new GetSchedules(stationIds)).ConfigureAwait(false);
+        return await _mediator.Send(new GetSchedules()).ConfigureAwait(false);
+    }
+
+    public async Task<List<StationPreview>> GetStationPreviews()
+    {
+        return await _mediator.Send(new GetStationPreviewsRequest()).ConfigureAwait(false);
+    }
+
+    public async Task<List<Station>> GetStations()
+    {
+        return await _mediator.Send(new GetStations()).ConfigureAwait(false);
     }
 
     public async Task<SDStatus> GetStatus()

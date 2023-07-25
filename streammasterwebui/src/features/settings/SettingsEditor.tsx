@@ -3,15 +3,13 @@ import { Button } from 'primereact/button';
 import React from 'react';
 import { Fieldset } from 'primereact/fieldset';
 import { useSettingsGetSettingQuery, type SettingDto } from '../../store/iptvApi';
-import { UpdateSetting } from '../../store/signlar_functions';
+import { UpdateSetting } from '../../store/signlar_functions_local';
 import { SettingsEditorIcon } from '../../common/icons';
 import { Checkbox } from 'primereact/checkbox';
 import { InputText } from 'primereact/inputtext';
-
 import { type MenuItem } from 'primereact/menuitem';
 import { Dock } from 'primereact/dock';
 import SaveIcon from '@mui/icons-material/Save';
-
 import HistoryIcon from '@mui/icons-material/History';
 import { Toast } from 'primereact/toast';
 import { Dropdown } from 'primereact/dropdown';
@@ -20,9 +18,7 @@ import { type SelectItem } from 'primereact/selectitem';
 import { InputNumber } from 'primereact/inputnumber';
 import { Password } from 'primereact/password';
 import { GetMessage, GetMessageDiv, getTopToolOptions } from '../../common/common';
-
 import { baseHostURL } from '../../settings';
-
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { getHelp } from '../../help_en';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
@@ -259,36 +255,22 @@ export const SettingsEditor = () => {
     }
 
     UpdateSetting(newData)
-      .then((returnData) => {
+      .then(() => {
         if (toast.current) {
-          if (returnData.settings) {
-            toast.current.show({
-              detail: `Update Settings Successful`,
-              life: 3000,
-              severity: 'success',
-              summary: 'Successful',
-            });
-
-            if (returnData.needsLogOut === true) {
-              //             window.location.href = '/logout'
-            }
-
-          } else {
-            toast.current.show({
-              detail: `Update Settings Failed`,
-              life: 3000,
-              severity: 'error',
-              summary: 'Error',
-            });
-          }
+          toast.current.show({
+            detail: `Update Settings Successful`,
+            life: 3000,
+            severity: 'success',
+            summary: 'Successful',
+          });
         }
-      }).catch((e) => {
+      }).catch(() => {
         if (toast.current) {
           toast.current.show({
             detail: `Update Settings Failed`,
             life: 3000,
             severity: 'error',
-            summary: 'Error ' + e.message,
+            summary: 'Error'
           });
         }
       });
@@ -369,6 +351,7 @@ export const SettingsEditor = () => {
 
           <Fieldset className="mt-4 pt-10" legend={GetMessage('streaming')}>
             {getDropDownLine('streamingProxyType', getHandlersOptions())}
+            {getInputNumberLine('globalStreamLimit')}
             {getInputNumberLine('ringBufferSizeMB')}
             {getInputNumberLine('preloadPercentage', 999)}
             {getInputNumberLine('maxConnectRetry', 999)}
@@ -384,6 +367,7 @@ export const SettingsEditor = () => {
             {getInputTextLine('sdUserName')}
             {getPasswordLine('sdPassword')}
             <Fieldset className="mt-4 pt-10" collapsed legend={GetMessage('m3uSettings')} toggleable >
+              {getCheckBoxLine('m3UIgnoreEmptyEPGID')}
               {getCheckBoxLine('m3UFieldCUID')}
               {getCheckBoxLine('m3UFieldChannelId')}
               {getCheckBoxLine('m3UFieldChannelNumber')}
@@ -400,7 +384,7 @@ export const SettingsEditor = () => {
               icon='pi pi-bookmark-fill'
               label='Swagger'
               onClick={() => {
-                const link = `${baseHostURL}swagger`;
+                const link = `${baseHostURL}/swagger`;
                 window.open(link);
               }
               }

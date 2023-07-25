@@ -41,8 +41,6 @@ public class ReadDirectoryLogosRequestHandler : IRequestHandler<ReadDirectoryLog
             new TvLogoFile
             {
                 Id=0,
-                Url = "/" + Constants.IconDefault,
-                OriginalSource = Constants.IconDefault,
                 Source = Constants.IconDefault,
                 FileExists = true,
                 Name = "Default Icon"
@@ -51,8 +49,6 @@ public class ReadDirectoryLogosRequestHandler : IRequestHandler<ReadDirectoryLog
             new TvLogoFile
             {
                 Id=1,
-                Url =  "/" + setting.StreamMasterIcon,
-                OriginalSource = setting.StreamMasterIcon,
                 Source = setting.StreamMasterIcon,
                 FileExists = true,
                 Name = "Stream Master"

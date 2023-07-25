@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+
+using FluentValidation;
 
 using MediatR;
 
@@ -7,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 using StreamMasterApplication.Common.Models;
 
 using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Authentication;
+using StreamMasterDomain.Dto;
 
 using System.Text.Json;
 
@@ -28,36 +30,35 @@ public class GetStreamGroupDiscoverValidator : AbstractValidator<GetStreamGroupD
 public class GetStreamGroupDiscoverHandler : IRequestHandler<GetStreamGroupDiscover, string>
 {
     private readonly IAppDbContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IMapper _mapper;
     private readonly ISender _sender;
 
-    private readonly IHttpContextAccessor _httpContextAccessor;
     public GetStreamGroupDiscoverHandler(
            IHttpContextAccessor httpContextAccessor,
            IAppDbContext context,
-            ISender sender
+           IMapper mapper
            )
     {
+        _mapper = mapper;
         _context = context;
         _httpContextAccessor = httpContextAccessor;
-        _sender = sender;
     }
 
-    public async Task<string> Handle(GetStreamGroupDiscover command, CancellationToken cancellationToken)
+    public async Task<string> Handle(GetStreamGroupDiscover request, CancellationToken cancellationToken)
     {
-
-        if (command.StreamGroupNumber > 0)
+        var url = GetUrl();
+        if (request.StreamGroupNumber > 0)
         {
-            StreamMasterDomain.Dto.StreamGroupDto? sg = await _sender.Send(new GetStreamGroupByStreamNumber(command.StreamGroupNumber), cancellationToken).ConfigureAwait(false);
-            if (sg == null)
+            var streamGroup = await _context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            if (streamGroup == null)
             {
                 return "";
             }
         }
-
-        StreamMasterDomain.Dto.SettingDto setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
-        var url = GetUrl();
+        var settings = _mapper.Map<SettingDto>(FileUtil.GetSetting());
         var maxTuners = _context.M3UFiles.Sum(a => a.MaxStreamCount);
-        Discover discover = new(setting, url, command.StreamGroupNumber, maxTuners);
+        Discover discover = new(settings, url, request.StreamGroupNumber, maxTuners);
 
         string jsonString = JsonSerializer.Serialize(discover, new JsonSerializerOptions { WriteIndented = true });
         return jsonString;

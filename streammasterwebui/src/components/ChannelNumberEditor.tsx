@@ -11,7 +11,7 @@ const ChannelNumberEditor = (props: ChannelNumberEditorProps) => {
   const toast = React.useRef<Toast>(null);
 
   const onUpdateVideoStream = React.useCallback(async (channelNumber: number,) => {
-    if (props.data.id < 0 || props.data.user_Tvg_chno === channelNumber) {
+    if (props.data.id === '' || props.data.user_Tvg_chno === channelNumber) {
       return;
     }
 

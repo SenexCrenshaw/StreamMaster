@@ -28,35 +28,33 @@ public class GetStreamGroupCapabilityValidator : AbstractValidator<GetStreamGrou
 
 public class GetStreamGroupCapabilityHandler : IRequestHandler<GetStreamGroupCapability, string>
 {
+    private readonly IAppDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ISender _sender;
 
     public GetStreamGroupCapabilityHandler(
         IHttpContextAccessor httpContextAccessor,
-            ISender sender
-           )
+        IAppDbContext context
+    )
     {
         _httpContextAccessor = httpContextAccessor;
-        _sender = sender;
+        _context = context;
     }
 
-    public async Task<string> Handle(GetStreamGroupCapability command, CancellationToken cancellationToken)
+    public async Task<string> Handle(GetStreamGroupCapability request, CancellationToken cancellationToken)
     {
+        var url = GetUrl();
 
-        if (command.StreamGroupNumber > 0)
+        if (request.StreamGroupNumber > 0)
         {
-            StreamMasterDomain.Dto.StreamGroupDto? sg = await _sender.Send(new GetStreamGroupByStreamNumber(command.StreamGroupNumber), cancellationToken).ConfigureAwait(false);
-            if (sg == null)
+            var streamGroup = await _context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            if (streamGroup == null)
             {
                 return "";
             }
         }
+        var settings = FileUtil.GetSetting();
 
-        StreamMasterDomain.Dto.SettingDto setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
-
-        var url = GetUrl();
-
-        Capability capability = new(url, $"{setting.DeviceID}-{command.StreamGroupNumber}");
+        Capability capability = new(url, $"{settings.DeviceID}-{request.StreamGroupNumber}");
 
         using Utf8StringWriter textWriter = new();
         XmlSerializer serializer = new(typeof(Capability));
@@ -72,7 +70,7 @@ public class GetStreamGroupCapabilityHandler : IRequestHandler<GetStreamGroupCap
         var host = request.Host;
         var path = request.Path;
         path = path.ToString().Replace("/capability", "");
-        path = path.ToString().Replace("/device.xml", "");        
+        path = path.ToString().Replace("/device.xml", "");
         var url = $"{scheme}://{host}{path}";
 
         return url;

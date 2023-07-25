@@ -37,7 +37,7 @@ public static class BuildInfo
     public static Version Version { get; }
     public static string Branch { get; }
     public static string Release { get; }
-
+    public static string AppDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{Constants.AppName.ToLower()}{Path.DirectorySeparatorChar}";
     public static DateTime BuildDateTime
     {
         get

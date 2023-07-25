@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import { type ChangeVideoStreamChannelRequest } from '../../store/iptvApi';
 import { type StreamStatisticsResult } from '../../store/iptvApi';
-import { formatJSONDateString, getTopToolOptions } from '../../common/common';
+import { formatJSONDateString, getIconUrl, getTopToolOptions } from '../../common/common';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 import DataSelector from '../dataSelector/DataSelector';
@@ -14,10 +15,9 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
   const setting = StreamMasterSetting();
   const toast = React.useRef<Toast>(null);
 
-
-  const onChangeVideoStreamChannel = React.useCallback(async (playingVideoStreamId: number, newVideoStreamId: number) => {
-    if (playingVideoStreamId === undefined || playingVideoStreamId < 1 ||
-      newVideoStreamId === undefined || newVideoStreamId < 1
+  const onChangeVideoStreamChannel = React.useCallback(async (playingVideoStreamId: string, newVideoStreamId: string) => {
+    if (playingVideoStreamId === undefined || playingVideoStreamId === '' ||
+      newVideoStreamId === undefined || newVideoStreamId === ''
     ) {
       return;
     }
@@ -54,7 +54,7 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
     return (
       <VideoStreamSelector
         onChange={async (e) => {
-          await onChangeVideoStreamChannel(rowData.videoStreamId ?? 0, e.id);
+          await onChangeVideoStreamChannel(rowData.videoStreamId ?? '', e.id);
         }}
         value={rowData.m3UStreamName}
       />
@@ -91,17 +91,19 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
   }, []);
 
   const imageBodyTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
+    const iconUrl = getIconUrl(rowData.logo ?? setting.defaultIcon, setting);
+
     return (
       <div className="flex align-content-center flex-wrap">
         <img
           alt={rowData.logo ?? 'logo'}
           className="flex align-items-center justify-content-center max-w-full max-h-2rem h-2rem"
           onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => (e.currentTarget.src = (e.currentTarget.src = setting.defaultIcon))}
-          src={`${encodeURI(rowData.logo ?? '')}`}
+          src={iconUrl} // {`${encodeURI(rowData.logo ?? '')}`}
         />
       </div>
     );
-  }, [setting.defaultIcon]);
+  }, [setting]);
 
   const inputBitsPerSecondTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
 
@@ -134,6 +136,10 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
   }, []);
 
   const dataSource = React.useMemo((): StreamStatisticsResult[] => {
+    if (props.dataSource === undefined || props.dataSource.length === 0 || props.dataSource === null) {
+      return [];
+    }
+
     let data = [] as StreamStatisticsResult[];
 
     props.dataSource.forEach((item) => {
@@ -157,7 +163,7 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
   const targetActionBodyTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
 
     return (
-      <div className="dataselector p-inputgroup align-items-center justify-content-center">
+      <div className="dataselector p-inputgroup align-items-center justify-content-end">
         <Button
           // className="p-button-danger"
           icon="pi pi-angle-right"
@@ -179,20 +185,12 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
         } as React.CSSProperties,
       },
 
-      {
-        align: 'center',
-        field: 'videoStreamId', header: 'Video Id'
-        , style: {
-          maxWidth: '4rem',
-          width: '4rem',
-        } as React.CSSProperties,
-      },
       { field: 'videoStreamName', header: 'Name' },
       {
         align: 'center',
         bodyTemplate: videoStreamTemplate, field: 'videoStreamTemplate', header: 'Video Stream', style: {
-          maxWidth: '14rem',
-          width: '14rem',
+          maxWidth: '18rem',
+          width: '18rem',
         } as React.CSSProperties,
       },
       {
@@ -247,6 +245,7 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
       <Toast position="bottom-right" ref={toast} />
       <div className='m3uFilesEditor flex flex-column col-12 flex-shrink-0 '>
         <DataSelector
+          className={props.className}
           columns={sourceColumns}
           dataSource={dataSource}
           emptyMessage="No Streams"
@@ -254,8 +253,10 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
           globalSearchEnabled={false}
           id='StreamingServerStatusPanel'
           isLoading={props.isLoading}
-          style={{ height: 'calc(50vh - 40px)' }}
+          key='m3UStreamId'
+          style={props.style}
         />
+
       </div>
     </>
   );
@@ -264,7 +265,9 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
 StreamingServerStatusPanel.displayName = 'Streaming Server Status';
 StreamingServerStatusPanel.defaultProps = {};
 type StreamingServerStatusPanelProps = {
+  className?: string;
   dataSource: StreamStatisticsResult[];
   isLoading: boolean;
+  style?: React.CSSProperties;
 }
 export default React.memo(StreamingServerStatusPanel);

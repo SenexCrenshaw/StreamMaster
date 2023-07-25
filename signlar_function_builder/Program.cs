@@ -2,7 +2,6 @@ using StreamMasterApplication.Hubs;
 
 using StreamMasterDomain.Attributes;
 
-using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 
@@ -12,7 +11,7 @@ internal partial class Program
 {
     private static readonly List<EndPoint> EndPoints = new();
 
-    private static readonly List<string> toIgnore = new() { "OnDisconnectedAsync", "login", "channelGroupsGetChannelGroups", "videoStreamsGetVideoStreams", "streamGroupsGetAllStatisticsForAllUrls", "programmesGetProgrammeNames", "videoStreamsGetVideoStream", "m3UStreamsGetM3UStream", "m3UStreamsGetM3UStreams", "m3UFilesGetM3UFile" };
+    private static readonly List<string> toIgnore = new() {"schedulesDirectGetStations","schedulesDirectGetLineupPreviews","logsGetLogRequest", "videoStreamsGetAllStatisticsForAllUrls", "settingsGetIsSystemReady", "schedulesDirectGetSchedules", "schedulesDirectGetStatus", "schedulesDirectGetCountries", "schedulesDirectGetLineups", "schedulesDirectGetLineup", "schedulesDirectGetHeadends", "OnDisconnectedAsync", "login", "channelGroupsGetChannelGroups", "videoStreamsGetVideoStreams", "streamGroupsGetAllStatisticsForAllUrls", "programmesGetProgrammeNames", "videoStreamsGetVideoStream", "m3UStreamsGetM3UStream", "m3UStreamsGetM3UStreams", "m3UFilesGetM3UFile" };
     private static List<string> iptv = new();
 
     public static string GetName(string name)
@@ -42,14 +41,23 @@ internal partial class Program
 
     public static string GetReal(string name)
     {
-        string? param = iptv.SingleOrDefault(a => a.ToLower().Contains("export type " + name.ToLower() + " "));
-        if (param == null)
+        try
         {
-            return "";
+            string? param = iptv.SingleOrDefault(a => a.ToLower().Contains("export type " + name.ToLower() + " "));
+            if (param == null)
+            {
+                return "";
+            }
+            param = param.Replace("export type ", "");
+            param = param[..param.IndexOf(" ")];
+            return param;
         }
-        param = param.Replace("export type ", "");
-        param = param[..param.IndexOf(" ")];
-        return param;
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Cannot GetReal for {name}");
+            Console.WriteLine(ex.Message);
+            throw;
+        }
     }
 
     private static void BuildEndpoints()
@@ -236,7 +244,7 @@ internal partial class Program
                     returnValue = GetReal(returnValue);
                     if (returnValue == "")
                     {
-                        Debug.Assert(returnValue == "");
+                        continue;
                     }
                     imports.Add("  type " + returnValue + ",");
                 }
@@ -406,6 +414,10 @@ internal partial class Program
         if (name.ToLower() == "int32")
         {
             return "number";
+        }
+        else if (name.ToLower() == "list`1")
+        {
+            return "string[]";
         }
         else if (name.ToLower() == "string")
         {

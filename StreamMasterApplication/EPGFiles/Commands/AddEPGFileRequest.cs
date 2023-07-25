@@ -81,7 +81,6 @@ public class AddEPGFileRequestHandler : IRequestHandler<AddEPGFileRequest, EPGFi
 
             if (command.FormFile != null)
             {
-                epgFile.OriginalSource = command.Name + fd.FileExtension;
                 epgFile.Source = command.Name + fd.FileExtension;
 
                 _logger.LogInformation("Adding EPG From Form: {fullName}", fullName);
@@ -101,7 +100,6 @@ public class AddEPGFileRequestHandler : IRequestHandler<AddEPGFileRequest, EPGFi
             {
                 string source = HttpUtility.UrlDecode(command.UrlSource);
                 epgFile.Url = source;
-                epgFile.OriginalSource = source;
                 epgFile.LastDownloadAttempt = DateTime.Now;
 
                 _logger.LogInformation("Add EPG From URL {command.UrlSource}", command.UrlSource);
