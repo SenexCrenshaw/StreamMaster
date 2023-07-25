@@ -9,6 +9,8 @@ public interface IBackgroundTaskQueue : ISharedTasks
 
     Task<List<TaskQueueStatusDto>> GetQueueStatus();
 
+    bool IsCurrent();
+
     Task SetStart(Guid Id);
 
     Task SetStop(Guid Id);

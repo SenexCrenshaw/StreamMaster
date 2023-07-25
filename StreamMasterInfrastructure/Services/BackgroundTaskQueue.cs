@@ -3,8 +3,6 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
-
-
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.Hubs;
@@ -12,21 +10,18 @@ using StreamMasterApplication.Services;
 
 using StreamMasterDomain.Enums;
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Channels;
 
 namespace StreamMasterInfrastructure.Services
 {
     public partial class BackgroundTaskQueue : IBackgroundTaskQueue
     {
+        private static readonly object lockObject = new object();
         private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
         private readonly ILogger<BackgroundTaskQueue> _logger;
         private readonly Channel<BackgroundTaskQueueConfig> _queue;
-        private readonly LinkedList<TaskQueueStatusDto> taskQueueStatusDtos = new LinkedList<TaskQueueStatusDto>();
         private readonly ISender _sender;
-        private static readonly object lockObject = new object();
+        private readonly LinkedList<TaskQueueStatusDto> taskQueueStatusDtos = new LinkedList<TaskQueueStatusDto>();
 
         public BackgroundTaskQueue(int capacity, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<BackgroundTaskQueue> logger, ISender sender)
         {
@@ -52,6 +47,14 @@ namespace StreamMasterInfrastructure.Services
             lock (lockObject)
             {
                 return Task.FromResult(taskQueueStatusDtos.OrderBy(a => a.StartTS).ToList());
+            }
+        }
+
+        public bool IsCurrent()
+        {
+            lock (lockObject)
+            {
+                return !taskQueueStatusDtos.Any(a => a.StopTS == DateTime.MinValue);
             }
         }
 
