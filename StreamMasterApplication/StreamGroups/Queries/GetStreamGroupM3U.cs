@@ -18,6 +18,7 @@ using StreamMasterDomain.Dto;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Web;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
@@ -153,23 +154,14 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
             var logo = GetIconUrl(videoStream.User_Tvg_logo);
 
-            //IconFileDto? icon = icons.SingleOrDefault(a => a.Source == videoStream.User_Tvg_logo);
-            //if ( icon == null)
-            //{
-            //}
-            //else
-            //{
-            //}
-
-            //string Logo = icon != null ? icon.Source : "/" + _setting.DefaultIcon;
-
             videoStream.User_Tvg_logo = logo;
 
             string videoUrl = videoStream.Url;
 
             var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _setting.ServerKey, iv);
 
-            videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{videoStream.User_Tvg_name.Replace(" ", "_")}";
+            var encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name);
+            videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
             var fieldList = new List<string>
             {

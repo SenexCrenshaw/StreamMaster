@@ -15,6 +15,7 @@ using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Dto;
 
 using System.Text.Json;
+using System.Web;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
@@ -91,7 +92,8 @@ public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp,
 
             var encodedNumbers = request.StreamGroupNumber.EncodeValues128(videoStream.Id, _setting.ServerKey, iv);
 
-            videoUrl = $"{url}/api/streamgroups/stream/{encodedNumbers}/{videoStream.User_Tvg_name.Replace(" ", "_")}";
+            var encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name);
+            videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
             LineUp lu = new()
             {
