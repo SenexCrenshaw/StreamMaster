@@ -70,7 +70,7 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
             Setting setting = FileUtil.GetSetting();
 
             Stopwatch sw = Stopwatch.StartNew();
-            var existing = _context.VideoStreams.Where(a => a.M3UFileId == m3uFile.Id).ToList();
+            var existing = _context.VideoStreams.Where(a => a.M3UFileId == m3uFile.Id);
 
             var existingChannels = new ThreadSafeIntList(m3uFile.StartingChannelNumber < 1 ? 1 : m3uFile.StartingChannelNumber);
 
@@ -106,15 +106,12 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                         {
                             nextchno = existingChannels.GetNextInt(nextchno);
 
-                            if (dbStream.Tvg_chno == dbStream.User_Tvg_chno)
-                            {
-                                dbStream.User_Tvg_chno = nextchno;
-                            }
-                            stream.Tvg_chno = nextchno;
+                            dbStream.User_Tvg_chno = nextchno;
+                            dbStream.Tvg_chno = nextchno;
                         }
                         else
                         {
-                            if (dbStream.Tvg_chno == dbStream.User_Tvg_chno)
+                            if (dbStream.User_Tvg_chno == 0 || dbStream.Tvg_chno == dbStream.User_Tvg_chno)
                             {
                                 dbStream.User_Tvg_chno = stream.Tvg_chno;
                             }
@@ -139,6 +136,7 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                         }
                         dbStream.Tvg_name = stream.Tvg_name;
 
+                        dbStream.FilePosition = index;
                         //dbStream.Url = stream.Url;
                         //dbStream.User_Url = stream.Url;
                     }
@@ -154,6 +152,7 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                     {
                         nextchno = existingChannels.GetNextInt(nextchno);
                         stream.User_Tvg_chno = nextchno;
+                        stream.Tvg_chno = nextchno;
                     }
                     stream.FilePosition = index;
                     _ = _context.VideoStreams.Add(stream);

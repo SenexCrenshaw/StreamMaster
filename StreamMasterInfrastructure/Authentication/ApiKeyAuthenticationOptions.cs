@@ -6,6 +6,9 @@ using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Enums;
 
+using StreamMasterInfrastructure.Logging;
+using StreamMasterInfrastructure.VideoStreamManager;
+
 using System.Diagnostics;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
@@ -25,15 +28,17 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
 {
     private readonly string _apiKey;
     private readonly bool needsAuth;
+    private readonly ILogger<ApiKeyAuthenticationHandler> _logger;
     protected Setting _setting = FileUtil.GetSetting();
 
     public ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options,
         ILoggerFactory logger,
 
         UrlEncoder encoder,
-        ISystemClock clock)
+    ISystemClock clock)
         : base(options, logger, encoder, clock)
     {
+        _logger = logger.CreateLogger<ApiKeyAuthenticationHandler>();
         _apiKey = _setting.ApiKey;
         needsAuth = _setting.AuthenticationMethod != AuthenticationType.None;
     }
@@ -51,7 +56,7 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
             var identities = new List<ClaimsIdentity> { identity };
             var principal = new ClaimsPrincipal(identities);
             var ticket = new AuthenticationTicket(principal, Options.Scheme);
-
+            _logger.LogDebug("Authentication is off");
             return Task.FromResult(AuthenticateResult.Success(ticket));
         }
 
@@ -59,6 +64,7 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
 
         if (string.IsNullOrWhiteSpace(providedApiKey))
         {
+            _logger.LogDebug("No Authentication: providedApiKey is blank");
             return Task.FromResult(AuthenticateResult.NoResult());
         }
 
@@ -73,7 +79,7 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
             var identities = new List<ClaimsIdentity> { identity };
             var principal = new ClaimsPrincipal(identities);
             var ticket = new AuthenticationTicket(principal, Options.Scheme);
-
+            _logger.LogDebug("ApiKey Authentication success");
             return Task.FromResult(AuthenticateResult.Success(ticket));
         }
 
@@ -96,39 +102,50 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
     {
         if (Request.Path.Value.StartsWith("/swagger") && Debugger.IsAttached)
         {
+            _logger.LogDebug("Swagger Authentication success");
             return _apiKey;
         }
+        var requestPath = Context.Request.Path.Value.ToString();
 
         if (Options.QueryName == "SGLinks")
         {
-            // Get the request path
-            var requestPath = Context.Request.Path.Value.ToString();
+           
+            _logger.LogDebug("SGLinks Authentication start for {requestPath}", requestPath);
+            // Get the request path            
             if (
                 !requestPath.StartsWith("/api/videostreams/", StringComparison.InvariantCultureIgnoreCase)
                 &&
                 !requestPath.StartsWith("/api/streamgroups/", StringComparison.InvariantCultureIgnoreCase)
                 )
             {
+                _logger.LogDebug("SGLinks: Bad path No Authentication for {requestPath}", requestPath);
                 return null;
             }
 
             var crypt = requestPath.GetAPIKeyFromPath();
-
+            if (string.IsNullOrEmpty(crypt))
+            {
+                _logger.LogDebug("SGLinks: crypt is blank for {requestPath}", requestPath);
+            }
+           
             return crypt;
         }
-
+        _logger.LogDebug("Authentication start for {requestPath}", requestPath);
         // Try query parameter
         if (Request.Query.TryGetValue(Options.QueryName, out var value))
         {
+            _logger.LogDebug("Authentication used query parameter {value}", value.FirstOrDefault());
             return value.FirstOrDefault();
         }
 
         // No ApiKey query parameter found try headers
         if (Request.Headers.TryGetValue(Options.HeaderName, out var headerValue))
         {
+            _logger.LogDebug("Authentication used headers {headerName} : {value}", Options.HeaderName,headerValue.FirstOrDefault());
             return headerValue.FirstOrDefault();
         }
 
+        _logger.LogDebug("Authentication used bearer : {value}",  Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", ""));
         return Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", "");
     }
 }
