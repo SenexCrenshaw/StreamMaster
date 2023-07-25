@@ -55,15 +55,16 @@ public static class ConfigureServices
         string DbPath = Path.Join(Constants.DataDirectory, "StreamMaster.db");
         string LogDbPath = Path.Join(Constants.DataDirectory, "StreamMaster_Log.db");
 
-        _ = services.AddDbContext<AppDbContext>(options => options.UseSqlite($"Data Source={DbPath}", builder => builder.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
         _ = services.AddDbContext<LogDbContext>(options => options.UseSqlite($"Data Source={LogDbPath}", builder => builder.MigrationsAssembly(typeof(LogDbContext).Assembly.FullName)));
-
-        _ = services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
-        _ = services.AddScoped<ILogDB>(provider => provider.GetRequiredService<LogDbContext>());
-        _ = services.AddScoped<AppDbContextInitialiser>();
         _ = services.AddScoped<LogDbContextInitialiser>();
 
-        _ = services.AddTransient<IDateTime, DateTimeService>();
+        _ = services.AddDbContext<AppDbContext>(options => options.UseSqlite($"Data Source={DbPath}", builder => builder.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));              
+        _ = services.AddScoped<AppDbContextInitialiser>();
+
+        _ = services.AddScoped<ILogDB>(provider => provider.GetRequiredService<LogDbContext>());
+        _ = services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
+        
+                _ = services.AddTransient<IDateTime, DateTimeService>();
 
         _ = services.AddSingleton<IChannelManager, ChannelManager>();
 
