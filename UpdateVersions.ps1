@@ -1,14 +1,16 @@
 $gitVersion = "dotnet-gitversion"
-$json = &$gitVersion /output json
-$obj = $json | ConvertFrom-Json 
-$version = $obj.SemVer #+ "-" + $obj.BuildMetaDataPadded
+&$gitVersion /updateAssemblyInfo
 
-Write-output "Setting version to $version "
+# $json = &$gitVersion /output json
+# $obj = $json | ConvertFrom-Json 
+# $version = $obj.SemVer #+ "-" + $obj.BuildMetaDataPadded
 
-$filePath = "StreamMasterDomain\Dto\SettingDto.cs"
-$MyFile = Get-Content $filePath
-$MyFile = $MyFile -replace 'Version { get; set; } = ".*";', "Version { get; set; } = `"$version`";"
-Out-File -InputObject $MyFile -FilePath $filePath
+# Write-output "Setting version to $version "
+
+# $filePath = "StreamMasterDomain\Dto\SettingDto.cs"
+# $MyFile = Get-Content $filePath
+# $MyFile = $MyFile -replace 'Version { get; set; } = ".*";', "Version { get; set; } = `"$version`";"
+# Out-File -InputObject $MyFile -FilePath $filePath
 
 # $dockerFilePath = "Dockerfile"
 # $dockerMyFile = Get-Content $dockerFilePath
