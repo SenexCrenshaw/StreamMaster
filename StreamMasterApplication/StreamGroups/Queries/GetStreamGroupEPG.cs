@@ -136,11 +136,12 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                 )
                 ).ToList();
 
-            SettingDto setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
+            var setting = FileUtil.GetSetting();
 
-            List<IconFile> progIcons = _context.Icons.Where(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.FileExists).ToList();
+            var icons = _memoryCache.Icons();
+            var progIcons = icons.Where(a => a.SMFileType == SMFileTypes.ProgrammeIcon).ToList();
 
-            var icons = await _context.GetIcons(cancellationToken).ConfigureAwait(false);// _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
+            //var icons = await _context.GetIcons(cancellationToken).ConfigureAwait(false);// _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
 
             _ = Parallel.ForEach(videoStreams, po, videoStream =>
             {
@@ -240,7 +241,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                                         {
                                             if (progIcon != null && !string.IsNullOrEmpty(progIcon.Src))
                                             {
-                                                IconFile? programmeIcon = progIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
+                                                var programmeIcon = progIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
 
                                                 if (programmeIcon == null)
                                                 {

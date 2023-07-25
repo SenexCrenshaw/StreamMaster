@@ -1,8 +1,5 @@
-﻿using AutoMapper;
+﻿using MediatR;
 
-using MediatR;
-
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterDomain.Entities.EPG;
@@ -15,21 +12,13 @@ public record GetProgrammes : IRequest<IEnumerable<Programme>>;
 
 internal class GetProgrammesHandler : IRequestHandler<GetProgrammes, IEnumerable<Programme>>
 {
-    private readonly IAppDbContext _context;
-    private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
-    private readonly ISender _sender;
 
     public GetProgrammesHandler(
-        IMapper mapper,
-        ISender sender,
-        IAppDbContext context,
+
        IMemoryCache memoryCache
     )
     {
-        _sender = sender;
-        _context = context;
-        _mapper = mapper;
         _memoryCache = memoryCache;
     }
 
@@ -40,7 +29,9 @@ internal class GetProgrammesHandler : IRequestHandler<GetProgrammes, IEnumerable
         {
             return new List<Programme>();
         }
-        StreamMasterDomain.Dto.SettingDto setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
+
+        var setting = FileUtil.GetSetting();
+        var icons = _memoryCache.Icons();
 
         foreach (Programme? prog in programmes.Where(a => a.Icon.Any()))
         {
@@ -48,7 +39,7 @@ internal class GetProgrammesHandler : IRequestHandler<GetProgrammes, IEnumerable
             {
                 if (progIcon != null && !string.IsNullOrEmpty(progIcon.Src))
                 {
-                    IconFile? icon = await _context.Icons.FirstOrDefaultAsync(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src, cancellationToken: cancellationToken).ConfigureAwait(false);
+                    var icon = icons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
                     if (icon == null)
                     {
                         continue;

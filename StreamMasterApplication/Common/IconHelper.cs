@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterDomain.Dto;
 
@@ -20,44 +20,31 @@ internal static class IconHelper
     /// <param name="setting"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public static async Task<(IconFile iconFile, bool isNew)> AddIcon(string sourceUrl, string? additionalUrl, string? recommendedName, IAppDbContext context, IMapper _mapper, SettingDto setting, FileDefinition fileDefinition, CancellationToken cancellationToken = default)
+    public static async Task<IconFileDto> AddIcon(string sourceUrl, string? recommendedName, IMapper _mapper, IMemoryCache memoryCache, FileDefinition fileDefinition, CancellationToken cancellationToken)
     {
         string source = HttpUtility.UrlDecode(sourceUrl);
+        var icons = memoryCache.Icons();
+        if (!icons.Any() || icons.Count == 0)
+        {
+            if (await ReadDirectoryLogos(memoryCache, cancellationToken))
+            {
+                var cacheValue = _mapper.Map<List<IconFileDto>>(memoryCache.TvLogos());
+                icons = cacheValue;
+                memoryCache.Set(icons);
+            }
+        }
 
-        IconFile? icon = await context.Icons.AsNoTracking().FirstOrDefaultAsync(a => a.Source == source && a.SMFileType == fileDefinition.SMFileType, cancellationToken: cancellationToken).ConfigureAwait(false);
+        var icon = icons.FirstOrDefault(a => a.Source == source && a.SMFileType == fileDefinition.SMFileType);
 
         if (icon != null)
         {
-            if (icon.DownloadErrors > 3)//Download errors over three and tried last 7 days ago
-            {
-                if (icon.LastDownloaded.AddDays(-7 * icon.DownloadErrors) < DateTime.Now)
-                {
-                    return (icon, false);
-                }
-            }
-            else
-            {
-                return (icon, false);
-            }
+            return icon;
         }
 
-        bool badDownload = false;
-
+        string name = "";
+        string fullName = "";
         string contentType = "";
         string ext = "";
-
-        additionalUrl ??= "";
-
-        contentType = await FileUtil.GetContentType(source + additionalUrl).ConfigureAwait(false);
-
-        if (!string.IsNullOrEmpty(contentType))
-        {
-            ext = contentType == "" ? "" : Path.GetFileName(contentType);
-        }
-        else
-        {
-            badDownload = true;
-        }
 
         if (string.IsNullOrEmpty(ext))
         {
@@ -67,25 +54,6 @@ internal static class IconHelper
             {
                 ext = ext.Remove(0, 1);
             }
-        }
-
-        string newUrl = "";
-        if (badDownload)
-        {
-            newUrl = "/" + Constants.IconDefault;
-            contentType = "image/png";
-            ext = "png";
-        }
-        else
-        {
-            newUrl = $"/api/files/{(int)fileDefinition.SMFileType}/{HttpUtility.UrlEncode(source)}";
-        }
-
-        string name = "";
-        string fullName = "";
-        if (ext == "jpeg")
-        {
-            ext = "jpg";
         }
 
         if (!string.IsNullOrEmpty(recommendedName))
@@ -98,50 +66,52 @@ internal static class IconHelper
             (fullName, name) = fileDefinition.DirectoryLocation.GetRandomFileName($".{ext}");
         }
 
-        fileDefinition.FileExtension = ext;
-        bool isNew = false;
-        if (icon == null)
+        icon = new IconFileDto
         {
-            isNew = true;
-            icon = new IconFile
-            {
-                Source = source,
-                Name = Path.GetFileNameWithoutExtension(name),
-                ContentType = contentType,
-                LastDownloaded = DateTime.Now,
-                LastDownloadAttempt = DateTime.Now,
-                FileExists = false,
-                FileExtension = ext,
-                SMFileType = fileDefinition.SMFileType
-            };
+            Source = source,
+            Extension = ext,
+            Name = Path.GetFileNameWithoutExtension(name),
+            SMFileType = fileDefinition.SMFileType
+        };
 
-            if (!badDownload && fileDefinition.SMFileType == SMFileTypes.Icon)
-            {
-                icon.AddDomainEvent(new IconFileAddedEvent(_mapper.Map<IconFileDto>(icon)));
-            }
+        memoryCache.Add(icon);
 
-            _ = context.Icons.Add(icon);
+        return icon;
+    }
+
+    private static async Task<bool> ReadDirectoryLogos(IMemoryCache memoryCache, CancellationToken cancellationToken)
+    {
+        if (!Directory.Exists(Constants.TVLogoDirectory))
+        {
+            return false;
         }
 
-        if (!badDownload)
-        {
-            (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(source + additionalUrl, fullName, cancellationToken).ConfigureAwait(false);
+        Setting setting = FileUtil.GetSetting();
+        DirectoryInfo dirInfo = new(Constants.TVLogoDirectory);
 
-            if (success)
-            {
-                icon.FileExists = true;
-                icon.DownloadErrors = 0;
-            }
-            else
-            {
-                ++icon.DownloadErrors;
-            }
-        }
-        else
+        List<TvLogoFile> tvLogos = new()
         {
-            ++icon.DownloadErrors;
-        }
-        _ = await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        return (icon, isNew);
+            new TvLogoFile
+            {
+                Id=0,
+                Source = Constants.IconDefault,
+                FileExists = true,
+                Name = "Default Icon"
+            },
+
+            new TvLogoFile
+            {
+                Id=1,
+                Source = setting.StreamMasterIcon,
+                FileExists = true,
+                Name = "Stream Master"
+            }
+        };
+
+        tvLogos.AddRange(await FileUtil.GetIconFilesFromDirectory(dirInfo, Constants.TVLogoDirectory, tvLogos.Count, cancellationToken).ConfigureAwait(false));
+
+        memoryCache.ClearIcons();
+        memoryCache.Set(tvLogos);
+        return true;
     }
 }

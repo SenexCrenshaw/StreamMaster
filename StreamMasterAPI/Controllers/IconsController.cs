@@ -10,26 +10,26 @@ namespace StreamMasterAPI.Controllers;
 
 public class IconsController : ApiControllerBase, IIconController
 {
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(IconFileDto))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> AddIconFile(AddIconFileRequest request)
-    {
-        IconFileDto? entity = await Mediator.Send(request).ConfigureAwait(false);
-        return entity == null ? Ok() : CreatedAtAction(nameof(GetIcon), new { id = entity.Id }, entity);
-    }
+    //[HttpPost]
+    //[ProducesResponseType(StatusCodes.Status200OK)]
+    //[ProducesResponseType(StatusCodes.Status201Created, Type = typeof(IconFileDto))]
+    //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+    //public async Task<ActionResult> AddIconFile(AddIconFileRequest request)
+    //{
+    //    IconFileDto? entity = await Mediator.Send(request).ConfigureAwait(false);
+    //    return entity == null ? Ok() : CreatedAtAction(nameof(GetIcon), new { id = entity.Id }, entity);
+    //}
 
-    [HttpPost]
-    [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(IconFileDto))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> AddIconFileFromForm([FromForm] AddIconFileRequest request)
-    {
-        IconFileDto? entity = await Mediator.Send(request).ConfigureAwait(false);
-        return entity == null ? BadRequest() : CreatedAtAction(nameof(GetIcon), new { id = entity.Id }, entity);
-    }
+    //[HttpPost]
+    //[Route("[action]")]
+    //[ProducesResponseType(StatusCodes.Status200OK)]
+    //[ProducesResponseType(StatusCodes.Status201Created, Type = typeof(IconFileDto))]
+    //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+    //public async Task<ActionResult> AddIconFileFromForm([FromForm] AddIconFileRequest request)
+    //{
+    //    IconFileDto? entity = await Mediator.Send(request).ConfigureAwait(false);
+    //    return entity == null ? BadRequest() : CreatedAtAction(nameof(GetIcon), new { id = entity.Id }, entity);
+    //}
 
     [HttpPost]
     [Route("[action]")]

@@ -6,5 +6,5 @@ namespace StreamMasterAPI.Interfaces;
 
 public interface IFileController
 {
-    Task<IActionResult> GetFile(string fileName, SMFileTypes filetype);
+    Task<IActionResult> GetFile(string source, SMFileTypes filetype, CancellationToken cancellationToken);
 }

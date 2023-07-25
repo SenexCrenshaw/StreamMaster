@@ -28,7 +28,7 @@ public class PostStartup : BackgroundService
 
         //await _hubContext.Clients.All.SystemStatusUpdate(new StreamMasterApplication.Settings.Queries.SystemStatus { IsSystemReady = false }).ConfigureAwait(false);
 
-        await _taskQueue.ScanDirectoryForIconFiles(cancellationToken).ConfigureAwait(false);
+        // await _taskQueue.ScanDirectoryForIconFiles(cancellationToken).ConfigureAwait(false);
 
         await _taskQueue.ReadDirectoryLogosRequest(cancellationToken).ConfigureAwait(false);
 

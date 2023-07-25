@@ -16,6 +16,34 @@ public static class CacheKeys
     public const string ListTVLogos = "ListTVLogos";
     public static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
 
+    public static void Add(this IMemoryCache cache, object data)
+    {
+        if (data.GetType() == (typeof(IconFileDto)))
+        {
+            var datas = Get<IconFileDto>(ListIconFiles, cache);
+            datas.Add((IconFileDto)data);
+            cache.Set(ListIconFiles, datas, CacheEntryOptions);
+        }
+
+        //if (data.GetType().GenericTypeArguments.Contains(typeof(TvLogoFile)))
+        //{
+        //    cache.Set(ListTVLogos, data, CacheEntryOptions);
+        //    return;
+        //}
+
+        //if (data.GetType().GenericTypeArguments.Contains(typeof(Programme)))
+        //{
+        //    cache.Set(ListProgrammes, data, CacheEntryOptions);
+        //    return;
+        //}
+
+        //if (data.GetType().GenericTypeArguments.Contains(typeof(ProgrammeChannel)))
+        //{
+        //    cache.Set(ListProgrammeChannel, data, CacheEntryOptions);
+        //    return;
+        //}
+    }
+
     public static void ClearIcons(this IMemoryCache cache)
     {
         cache.Remove(ListIconFiles);
@@ -67,8 +95,7 @@ public static class CacheKeys
     {
         if (data.GetType().GenericTypeArguments.Contains(typeof(IconFileDto)))
         {
-            //cache.Set(ListIconFiles, data, CacheEntryOptions);
-            return;
+            cache.Set(ListIconFiles, data, CacheEntryOptions);
         }
 
         if (data.GetType().GenericTypeArguments.Contains(typeof(TvLogoFile)))

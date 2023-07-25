@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterApplication.Common.Extensions;
-using StreamMasterApplication.Icons.Queries;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Dto;
@@ -122,11 +121,10 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
             //ret.StartDate = programmes.Min(a => a.StartDateTime);
             //ret.EndDate = programmes.Max(a => a.StopDateTime);
 
-            SettingDto setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
+            var icons = _memoryCache.Icons();
+            var setting = FileUtil.GetSetting();
 
-            List<IconFile> progIcons = _context.Icons.Where(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.FileExists).ToList();
-
-            var icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
+            var progIcons = icons.Where(a => a.SMFileType == SMFileTypes.ProgrammeIcon).ToList();
 
             _ = Parallel.ForEach(videoStreams, po, videoStream =>
             {
@@ -207,7 +205,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
                                         {
                                             if (progIcon != null && !string.IsNullOrEmpty(progIcon.Src))
                                             {
-                                                IconFile? programmeIcon = progIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
+                                                var programmeIcon = progIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
 
                                                 if (programmeIcon == null)
                                                 {

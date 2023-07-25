@@ -46,7 +46,7 @@ const IconSelector = (props: IconSelectorProps) => {
       return (<div />);
     }
 
-    const iconUrl = getIconUrl(option.source, setting.defaultIcon, setting.cacheIcon);
+    const iconUrl = getIconUrl(option.source, setting.defaultIcon, false);
 
     return (
       <div className='flex h-full justify-content-start align-items-center p-0 m-0 pl-2'>
@@ -132,7 +132,7 @@ const IconSelector = (props: IconSelectorProps) => {
 
 
   if (props.enableEditMode !== true) {
-    const iconUrl = getIconUrl(selectedIcon, setting.defaultIcon, setting.cacheIcon);
+    const iconUrl = getIconUrl(selectedIcon, setting.defaultIcon, false);
     return (
       <img
         alt='logo'

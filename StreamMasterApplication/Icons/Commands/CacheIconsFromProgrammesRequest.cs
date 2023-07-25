@@ -7,8 +7,6 @@ using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.SchedulesDirectAPI;
-
 using StreamMasterDomain.Dto;
 
 using System.Web;
@@ -44,6 +42,7 @@ public class CacheIconsFromEPGsRequestHandler : IRequestHandler<CacheIconsFromEP
 
     public async Task<bool> Handle(CacheIconsFromEPGsRequest command, CancellationToken cancellationToken)
     {
+        return false;
         SettingDto _setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
         if (!_setting.CacheIcons)
         {
@@ -118,7 +117,7 @@ public class CacheIconsFromEPGsRequestHandler : IRequestHandler<CacheIconsFromEP
 
             if (tocheck.ToLower().StartsWith("https://json.schedulesdirect.org/20141201/image/"))
             {
-                var sd = new SchedulesDirect();
+                //var sd = new SchedulesDirect();
                 //if (await sd.CheckToken())
                 //{
                 //    token = sd.Token;
@@ -167,7 +166,7 @@ public class CacheIconsFromEPGsRequestHandler : IRequestHandler<CacheIconsFromEP
             else
             {
                 string name = Path.GetFileNameWithoutExtension(tocheck);
-                (_, isNew) = await IconHelper.AddIcon(tocheck, null, name, _context, _mapper, setting, fd, cancellationToken).ConfigureAwait(false);
+                await IconHelper.AddIcon(tocheck, name, _mapper, _memoryCache, fd, cancellationToken);
             }
         }
 

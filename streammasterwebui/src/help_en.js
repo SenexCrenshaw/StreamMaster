@@ -36,7 +36,7 @@ const help_en = {
   sslCertPath:  'SSL Certificate Path',
   streaming: 'Streaming',
   streamingClientUserAgent: "Client User Agent used for video streams",
-   streamingProxyType: 'Stream Buffer Type to use. None will just use the original M3U URLs, FFMPEG - run the stream through FFMPEG, Streram Master - run the stream through SM own proxy',
+   streamingProxyType: 'Stream Buffer Type to use. None will just use the original M3U URLs, FFMPEG - run the stream through FFMPEG, Stream Master - run the stream through SM own proxy',
   useDummyEPGForBlanks: 'Use Dummy EPG for streams with missing EPG',
   user: "User",
 };
