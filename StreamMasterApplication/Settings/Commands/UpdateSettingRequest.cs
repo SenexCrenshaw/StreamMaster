@@ -30,7 +30,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? DummyRegex { get; set; }
     public bool? EnableSSL { get; set; }
     public string? FFMPegExecutable { get; set; }
-    public long? FirstFreeNumber { get; set; }
+    public int? FirstFreeNumber { get; set; }
     public int? GlobalStreamLimit { get; set; }
     public bool? M3UFieldChannelId { get; set; }
     public bool? M3UFieldChannelNumber { get; set; }
@@ -217,7 +217,7 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
 
         if (request.FirstFreeNumber != null && request.FirstFreeNumber >= 0 && request.FirstFreeNumber != currentSetting.FirstFreeNumber)
         {
-            currentSetting.FirstFreeNumber = (long)request.FirstFreeNumber;
+            currentSetting.FirstFreeNumber = (int)request.FirstFreeNumber;
         }
 
         if (request.MaxConnectRetry != null && request.MaxConnectRetry >= 0 && request.MaxConnectRetry != currentSetting.MaxConnectRetry)

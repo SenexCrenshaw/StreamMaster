@@ -25,7 +25,7 @@ public class Setting
 
     public string FFMPegExecutable { get; set; } = "ffmpeg";
 
-    public long FirstFreeNumber { get; set; } = 1000;
+    public int FirstFreeNumber { get; set; } = 1;
 
     public int GlobalStreamLimit { get; set; } = 1;
     public bool M3UFieldChannelId { get; set; } = true;
