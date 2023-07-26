@@ -42,17 +42,6 @@ public class IconsController : ApiControllerBase, IIconController
     }
 
     [HttpGet]
-    [Route("[action]")]
-    [ProducesResponseType(typeof(IEnumerable<IconFileDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CacheIconsFromVideoStreamsRequest()
-    {
-        _ = await Mediator.Send(new CacheIconsFromVideoStreamsRequest()).ConfigureAwait(false);
-        return Ok();
-    }
-
-    [HttpGet]
     [Route("[action]/{id}")]
     [ProducesResponseType(typeof(IconFileDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

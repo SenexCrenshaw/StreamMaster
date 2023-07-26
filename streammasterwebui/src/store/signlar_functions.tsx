@@ -2,7 +2,6 @@ import { hubConnection } from "../app/signalr";
 import {
   type AddChannelGroupRequest,
   type AddEpgFileRequest,
-  type AddIconFileRequest,
   type AddM3UFileRequest,
   type AddStreamGroupRequest,
   type AddVideoStreamRequest,
@@ -11,6 +10,7 @@ import {
   type ChangeM3UFileNameRequest,
   type ChangeVideoStreamChannelRequest,
   type ChannelGroupDto,
+  type ChannelLogoDto,
   type ChannelNumberPair,
   type Countries,
   type DeleteChannelGroupRequest,
@@ -166,12 +166,6 @@ export const ScanDirectoryForEPGFiles = async (): Promise<boolean> => {
 
 export const UpdateEPGFile = async (arg: UpdateEpgFileRequest): Promise<EpgFilesDto> => {
     const data = await hubConnection.invoke('UpdateEPGFile',arg);
-
-    return data;
-};
-
-export const AddIconFile = async (arg: AddIconFileRequest): Promise<IconFileDto> => {
-    const data = await hubConnection.invoke('AddIconFile',arg);
 
     return data;
 };
@@ -404,6 +398,12 @@ export const ChangeVideoStreamChannel = async (arg: ChangeVideoStreamChannelRequ
 
 export const DeleteVideoStream = async (arg: DeleteVideoStreamRequest): Promise<string> => {
     const data = await hubConnection.invoke('DeleteVideoStream',arg);
+
+    return data;
+};
+
+export const GetChannelLogoDtos = async (): Promise<ChannelLogoDto[]> => {
+    const data = await hubConnection.invoke('GetChannelLogoDtos');
 
     return data;
 };

@@ -21,6 +21,8 @@ public interface IVideoStreamController
 
     Task<IActionResult> GetAllStatisticsForAllUrls();
 
+    Task<IActionResult> GetChannelLogoDtos();
+
     Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id);
 
     Task<ActionResult<List<VideoStreamDto>>> GetVideoStreams();
@@ -42,6 +44,10 @@ public interface IVideoStreamDB
 
     DbSet<VideoStream> VideoStreams { get; set; }
 
+    Task<bool> BuildIconsCacheFromVideoStreams(CancellationToken cancellationToken);
+
+    Task<bool> CacheIconsFromVideoStreams(CancellationToken cancellationToken);
+
     Task<bool> DeleteVideoStreamAsync(string videoStreamId, CancellationToken cancellationToken);
 
     public Task<List<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken);
@@ -58,7 +64,7 @@ public interface IVideoStreamDB
 
     Task<List<VideoStreamDto>> GetVideoStreamsDto(CancellationToken cancellationToken);
 
-    Task<List<VideoStream>> GetVideoStreamsForParentAsync(string parentVideoId, CancellationToken cancellationToken);
+    Task<List<VideoStream>> GetVideoStreamsForParentAsync(string parentVideoStreamId, CancellationToken cancellationToken);
 
     Task<bool> SynchronizeChildRelationships(VideoStream videoStream, List<ChildVideoStreamDto> videoStreamDtos, CancellationToken cancellationToken);
 
@@ -72,6 +78,8 @@ public interface IVideoStreamHub
     Task ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request);
 
     Task<string?> DeleteVideoStream(DeleteVideoStreamRequest request);
+
+    Task<IEnumerable<ChannelLogoDto>> GetChannelLogoDtos();
 
     Task<VideoStreamDto?> GetVideoStream(string id);
 

@@ -84,7 +84,7 @@ const IconSelector = (props: IconSelectorProps) => {
   const filterTemplate = React.useCallback((options: any) => {
     return (
       <div className="flex gap-2 align-items-center">
-        <div hidden={props.onAddIcon === undefined}>
+        {/* <div hidden={props.onAddIcon === undefined}>
           <Button
             icon="pi pi-plus"
             onClick={() => props.onAddIcon !== undefined ? props.onAddIcon() : null}
@@ -94,7 +94,7 @@ const IconSelector = (props: IconSelectorProps) => {
             tooltip="Add Icon File"
             tooltipOptions={getTopToolOptions}
           />
-        </div>
+        </div> */}
         {options.element}
         {props.resetValue !== props.value &&
           <Button
@@ -195,7 +195,7 @@ type IconSelectorProps = {
   disabled?: boolean;
   enableEditMode?: boolean;
   loading?: boolean;
-  onAddIcon?: () => void;
+  // onAddIcon?: () => void;
   onChange: ((value: string) => void);
   onReset: ((value: string) => void);
   resetValue: string;

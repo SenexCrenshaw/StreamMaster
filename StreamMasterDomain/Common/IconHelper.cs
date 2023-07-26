@@ -6,9 +6,9 @@ using StreamMasterDomain.Dto;
 
 using System.Web;
 
-namespace StreamMasterApplication.Common;
+namespace StreamMasterDomain.Common;
 
-internal static class IconHelper
+public static class IconHelper
 {
     /// <summary>
     /// AddIcon from URL
@@ -24,9 +24,9 @@ internal static class IconHelper
     {
         string source = HttpUtility.UrlDecode(sourceUrl);
         var icons = memoryCache.Icons();
-        if (!icons.Any() || icons.Count == 0)
+        if (!icons.Any())
         {
-            if (await ReadDirectoryLogos(memoryCache, cancellationToken))
+            if (await ReadDirectoryLogos(memoryCache, cancellationToken).ConfigureAwait(false))
             {
                 var cacheValue = _mapper.Map<List<IconFileDto>>(memoryCache.TvLogos());
                 icons = cacheValue;
@@ -41,21 +41,10 @@ internal static class IconHelper
             return icon;
         }
 
-        string name = "";
-        string fullName = "";
-        string contentType = "";
-        string ext = "";
+        string ext = Path.GetExtension(source)?.TrimStart('.') ?? string.Empty;
 
-        if (string.IsNullOrEmpty(ext))
-        {
-            ext = Path.GetExtension(source);
-
-            if (!string.IsNullOrEmpty(ext))
-            {
-                ext = ext.Remove(0, 1);
-            }
-        }
-
+        string name;
+        string fullName;
         if (!string.IsNullOrEmpty(recommendedName))
         {
             name = string.Join("_", recommendedName.Split(Path.GetInvalidFileNameChars())) + $".{ext}";

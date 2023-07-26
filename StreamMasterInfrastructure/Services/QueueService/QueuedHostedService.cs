@@ -73,16 +73,16 @@ public sealed class QueuedHostedService : BackgroundService
                         await _sender.Send(new AddProgrammesFromSDRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
-                    case SMQueCommand.CacheAllIcons:
-                        await _sender.Send(new CacheAllIconsRequest(), cancellationToken).ConfigureAwait(false);
+                    case SMQueCommand.BuilIconCaches:
+                        await _sender.Send(new BuilIconCachesRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
-                    case SMQueCommand.CacheIconsFromEPGs:
-                        _ = await _sender.Send(new CacheIconsFromEPGsRequest(), cancellationToken).ConfigureAwait(false);
+                    case SMQueCommand.BuildProgIconsCacheFromEPGs:
+                        _ = await _sender.Send(new BuildProgIconsCacheFromEPGsRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
-                    case SMQueCommand.CacheIconsFromVideoStreams:
-                        _ = await _sender.Send(new CacheIconsFromVideoStreamsRequest(), cancellationToken).ConfigureAwait(false);
+                    case SMQueCommand.BuildIconsCacheFromVideoStreams:
+                        _ = await _sender.Send(new BuildIconsCacheFromVideoStreamRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.ReadDirectoryLogosRequest:

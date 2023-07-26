@@ -98,7 +98,7 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
           }
         }
         onFocus={() => setIsFocused(true)}
-        options={props.data ?? ['Dummy']}
+        options={props.data ?? ['']}
         placeholder="No EPG"
         style={{
           ...{

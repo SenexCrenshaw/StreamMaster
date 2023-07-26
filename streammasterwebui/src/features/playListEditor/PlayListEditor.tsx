@@ -3,11 +3,13 @@ import type * as StreamMasterApi from '../../store/iptvApi';
 import VideoStreamDataSelector from '../../components/VideoStreamDataSelector';
 import PlayListDataSelector from '../../components/PlayListDataSelector';
 import { PlayListEditorIcon } from '../../common/icons';
+import { useLocalStorage } from 'primereact/hooks';
 
 const PlayListEditor = (props: PlayListEditorProps) => {
   const id = props.id ?? "playlisteditor";
 
-  const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[]);
+  const [selectedChannelGroups, setSelectedChannelGroups] = useLocalStorage<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[], props.id + '-selectedChannelGroups');
+
 
   const onsetSelectedChannelGroups = React.useCallback((selectedData: StreamMasterApi.ChannelGroupDto | StreamMasterApi.ChannelGroupDto[]) => {
     if (Array.isArray(selectedData)) {
@@ -18,6 +20,9 @@ const PlayListEditor = (props: PlayListEditorProps) => {
 
   }, [setSelectedChannelGroups]);
 
+  if (selectedChannelGroups === undefined) {
+    return null;
+  }
 
   return (
     <div className="playListEditor">
@@ -37,7 +42,7 @@ const PlayListEditor = (props: PlayListEditorProps) => {
           <div className="col-8 m-0 p-0">
             <VideoStreamDataSelector
               groups={selectedChannelGroups}
-              id='playlistTarget'
+              id={id}
             />
           </div>
         </div >

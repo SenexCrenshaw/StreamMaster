@@ -5,10 +5,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterAPI.Interfaces;
 
-using StreamMasterApplication.Common.Interfaces;
-
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Entities;
 using StreamMasterDomain.Enums;
 
 using System.Web;
@@ -18,7 +15,7 @@ namespace StreamMasterAPI.Controllers;
 public class FilesController : ApiControllerBase, IFileController
 {
     private static readonly IDictionary<string, string> _contentTypesCache = new Dictionary<string, string>();
-    
+
     private readonly IMemoryCache _memoryCache;
     private readonly IContentTypeProvider _mimeTypeProvider;
     private readonly Setting setting;
@@ -29,7 +26,7 @@ public class FilesController : ApiControllerBase, IFileController
     )
     {
         _mimeTypeProvider = mimeTypeProvider;
-        _memoryCache = memoryCache;    
+        _memoryCache = memoryCache;
         setting = FileUtil.GetSetting();
     }
 
@@ -38,15 +35,15 @@ public class FilesController : ApiControllerBase, IFileController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetFile(string source, SMFileTypes filetype, CancellationToken cancellationToken)
     {
-        var sourceDecoded = HttpUtility.UrlDecode(source);
+        string sourceDecoded = HttpUtility.UrlDecode(source);
 
-        var (image, fileName) = await GetCacheEntryAsync(sourceDecoded, filetype, cancellationToken).ConfigureAwait(false);
+        (byte[]? image, string? fileName) = await GetCacheEntryAsync(sourceDecoded, filetype, cancellationToken).ConfigureAwait(false);
         if (image == null || fileName == null)
         {
             return Redirect(sourceDecoded);
         }
 
-        var contentType = GetContentType(sourceDecoded);
+        string contentType = GetContentType(sourceDecoded);
         return File(image, contentType, fileName);
     }
 
@@ -58,19 +55,23 @@ public class FilesController : ApiControllerBase, IFileController
         }
 
         string source = HttpUtility.UrlDecode(URL);
-        string fileName = "";        
+        string fileName = "";
         FileDefinition fd = FileDefinitions.Icon;
 
         if (IPTVFileType == SMFileTypes.TvLogo)
-        {            
-            var cache = _memoryCache.TvLogos().FirstOrDefault(a => a.Source == source);
+        {
+            StreamMasterDomain.Entities.TvLogoFile? cache = _memoryCache.TvLogos().FirstOrDefault(a => a.Source == source);
             if (cache == null || !cache.FileExists) { return (null, null); }
             fileName = FileDefinitions.TVLogo.DirectoryLocation + cache.Source;
         }
         else
         {
-            var icons = _memoryCache.Icons();
-            var icon = icons.FirstOrDefault(a => a.Source == source);
+            if (!setting.CacheIcons)
+            {
+                return (null, null);
+            }
+            List<StreamMasterDomain.Dto.IconFileDto> icons = _memoryCache.Icons();
+            StreamMasterDomain.Dto.IconFileDto? icon = icons.FirstOrDefault(a => a.Source == source);
 
             if (icon is null)
             {
@@ -114,16 +115,17 @@ public class FilesController : ApiControllerBase, IFileController
                     break;
             }
             fileName = $"{fd.DirectoryLocation}{icon.Name}.{icon.Extension}";
-        }
 
-        if (!System.IO.File.Exists(fileName) && IPTVFileType != SMFileTypes.TvLogo  && setting.CacheIcons)
-        {
-            (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(source, fileName, cancellationToken).ConfigureAwait(false);
-            if (!success)
+            if (!System.IO.File.Exists(fileName) )
             {
-                return (null, null);
+                (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(source, fileName, cancellationToken).ConfigureAwait(false);
+                if (!success)
+                {
+                    return (null, null);
+                }
             }
         }
+              
 
         if (System.IO.File.Exists(fileName))
         {
@@ -136,12 +138,12 @@ public class FilesController : ApiControllerBase, IFileController
 
     private string GetContentType(string fileName)
     {
-        if (_contentTypesCache.TryGetValue(fileName, out var cachedContentType))
+        if (_contentTypesCache.TryGetValue(fileName, out string? cachedContentType))
         {
             return cachedContentType;
         }
 
-        if (!_mimeTypeProvider.TryGetContentType(fileName, out var contentType))
+        if (!_mimeTypeProvider.TryGetContentType(fileName, out string? contentType))
         {
             contentType = "application/octet-stream";
         }

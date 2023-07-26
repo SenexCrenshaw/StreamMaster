@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MediatR;
+
+using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterApplication.Icons.Commands;
 using StreamMasterApplication.Services;
@@ -8,10 +10,12 @@ namespace StreamMasterAPI.Controllers;
 public class MiscController : ApiControllerBase
 {
     private readonly IBackgroundTaskQueue _taskQueue;
+    private readonly ISender _sender;
 
-    public MiscController(IBackgroundTaskQueue taskQueue)
+    public MiscController(IBackgroundTaskQueue taskQueue,ISender sender)
     {
         _taskQueue = taskQueue;
+        _sender = sender;
     }
 
     [HttpPut]
@@ -19,32 +23,9 @@ public class MiscController : ApiControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> CacheAllIcons()
+    public async Task<ActionResult> BuildIconsCacheFromVideoStreams()
     {
-        await _taskQueue.CacheAllIcons().ConfigureAwait(false);
-
-        return NoContent();
-    }
-
-    [HttpPut]
-    [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> CacheIconsFromEPGs()
-    {
-        _ = await Mediator.Send(new CacheIconsFromEPGsRequest()).ConfigureAwait(false);
-        return NoContent();
-    }
-
-    [HttpPut]
-    [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> CacheIconsFromVideoStreams()
-    {
-        await _taskQueue.CacheIconsFromVideoStreams().ConfigureAwait(false);
+        await _taskQueue.BuildIconsCacheFromVideoStreams().ConfigureAwait(false);
         return NoContent();
     }
 
@@ -59,4 +40,16 @@ public class MiscController : ApiControllerBase
 
         return NoContent();
     }
+
+
+    [HttpPut]
+    [Route("[action]")]
+    public async Task<ActionResult> BuildProgIconsCacheFromEPGsRequest()
+    {
+        await _sender.Send(new BuildProgIconsCacheFromEPGsRequest()).ConfigureAwait(false);
+
+        return NoContent();
+    }
+
+    
 }

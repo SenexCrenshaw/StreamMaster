@@ -45,7 +45,7 @@ public class PostStartup : BackgroundService
 
         while (!_taskQueue.IsCurrent())
         {
-            await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
+            await Task.Delay(250, cancellationToken).ConfigureAwait(false);
         }
 
         await _taskQueue.SetIsSystemReady(true, cancellationToken).ConfigureAwait(false);

@@ -10,13 +10,13 @@ import EPGSelector from './EPGSelector';
 import ChannelGroupSelector from './ChannelGroupSelector';
 import ChannelHandlerSelector from './ChannelHandlerSelector';
 import PlayListDataSelectorPicker from './PlayListDataSelectorPicker';
-import { areVideoStreamsEqual, getTopToolOptions } from '../common/common';
+import { areVideoStreamsEqual, getIconUrl, getTopToolOptions } from '../common/common';
 import { type TriStateCheckboxChangeEvent } from 'primereact/tristatecheckbox';
 import { TriStateCheckbox } from 'primereact/tristatecheckbox';
 import { useLocalStorage } from 'primereact/hooks';
 
 const VideoStreamPanel = (props: VideoStreamPanelProps) => {
-
+  const settings = StreamMasterSetting();
   const [name, setName] = React.useState<string>('');
   const [url, setUrl] = React.useState<string>('');
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(null, 'videostreampanel-showHidden');
@@ -39,8 +39,6 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
   const [programme, setProgramme] = React.useState<string>('');
 
   const iconsQuery = StreamMasterApi.useIconsGetIconsQuery();
-
-  const setting = StreamMasterSetting();
 
   const onSetVideoStreams = React.useCallback((data: StreamMasterApi.VideoStreamDto[] | undefined) => {
     if (data === undefined || data === null) {
@@ -67,6 +65,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
   }, []);
 
   React.useEffect(() => {
+
     if (props.group) {
       setChannelGroup(props.group);
     }
@@ -235,12 +234,10 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
 
             {/* Image */}
             <div className='flex col-2 justify-content-center align-items-center'>
-
               <img
                 alt={iconSource ?? 'Logo'}
                 className="max-h-8rem h-8rem max-w-full"
-                onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => (e.currentTarget.src = (e.currentTarget.src = setting.defaultIcon))}
-                src={`${encodeURI(iconSource)}`}
+                src={getIconUrl(iconSource, settings.defaultIconUrl, settings.cacheIcon)}
                 style={{
                   objectFit: 'contain',
                 }}

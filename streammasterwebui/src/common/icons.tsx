@@ -18,7 +18,9 @@ import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import SendTimeExtensionIcon from '@mui/icons-material/SendTimeExtension';
 import GroupsIcon from '@mui/icons-material/Groups';
 import AddToQueueIcon from '@mui/icons-material/AddToQueue';
+import AddPhotoAlternateOutlinedIcon from '@mui/icons-material/AddPhotoAlternateOutlined';
 
+export const IconFromEPGIcon = AddPhotoAlternateOutlinedIcon;
 export const LogIcon = AddToQueueIcon;
 export const SDIcon = SendTimeExtensionIcon;
 export const PlayListIcon = LibraryBooksIcon;

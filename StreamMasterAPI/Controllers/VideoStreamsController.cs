@@ -83,6 +83,31 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         return Ok(data);
     }
 
+    [HttpGet]
+    [Route("[action]")]
+    [ProducesResponseType(typeof(List<ChannelLogoDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetChannelLogoDtos()
+    {
+       var data=  await Mediator.Send(new GetChannelLogoDtos()).ConfigureAwait(false);
+        return Ok(data);
+    }
+
+    [HttpGet]
+    [Route("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VideoStreamDto))]
+    public async Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id)
+    {
+        return await Mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
+    }
+
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<VideoStreamDto>))]
+    public async Task<ActionResult<List<VideoStreamDto>>> GetVideoStreams()
+    {
+        IEnumerable<VideoStreamDto> data = await Mediator.Send(new GetVideoStreams()).ConfigureAwait(false);
+        return data.ToList();
+    }
+
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [Route("stream/{encodedIds}")]
@@ -149,22 +174,6 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
             // Unknown error occurred
             return StatusCode(StatusCodes.Status500InternalServerError, "An unknown error occurred");
         }
-    }
-
-    [HttpGet]
-    [Route("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VideoStreamDto))]
-    public async Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id)
-    {
-        return await Mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
-    }
-
-    [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<VideoStreamDto>))]
-    public async Task<ActionResult<List<VideoStreamDto>>> GetVideoStreams()
-    {
-        IEnumerable<VideoStreamDto> data = await Mediator.Send(new GetVideoStreams()).ConfigureAwait(false);
-        return data.ToList();
     }
 
     [HttpPatch]

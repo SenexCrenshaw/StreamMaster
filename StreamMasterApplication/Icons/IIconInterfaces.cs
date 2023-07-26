@@ -43,11 +43,11 @@ public interface IIconScoped
 
 public interface IIconTasks
 {
-    ValueTask CacheAllIcons(CancellationToken cancellationToken = default);
+    ValueTask BuildIconsCacheFromVideoStreams(CancellationToken cancellationToken = default);
 
-    ValueTask CacheIconsFromEPGs(CancellationToken cancellationToken = default);
+    ValueTask BuildProgIconsCacheFromEPGs(CancellationToken cancellationToken = default);
 
-    ValueTask CacheIconsFromVideoStreams(CancellationToken cancellationToken = default);
+    ValueTask BuilIconCaches(CancellationToken cancellationToken = default);
 
     Task ReadDirectoryLogosRequest(CancellationToken cancellationToken = default);
 

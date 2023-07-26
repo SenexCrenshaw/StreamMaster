@@ -4,7 +4,7 @@ import { type CheckboxChangeEvent } from "primereact/checkbox";
 import { Checkbox } from "primereact/checkbox";
 import { InputNumber } from "primereact/inputnumber";
 import React from "react";
-import StreamMasterSetting from "../store/signlar/StreamMasterSetting";
+// import StreamMasterSetting from "../store/signlar/StreamMasterSetting";
 import type * as StreamMasterApi from '../store/iptvApi';
 import { SetVideoStreamChannelNumbers } from "../store/signlar_functions";
 import { getTopToolOptions } from "../common/common";
@@ -17,7 +17,7 @@ const AutoSetChannelNumbers = (props: AutoSetChannelNumbersProps) => {
 
   const [overwriteNumbers, setOverwriteNumbers] = React.useState<boolean>(true);
   const [startNumber, setStartNumber] = React.useState<number>(1);
-  const setting = StreamMasterSetting();
+  // const setting = StreamMasterSetting();
 
   const ReturnToParent = () => {
     setShowOverlay(false);
@@ -25,11 +25,11 @@ const AutoSetChannelNumbers = (props: AutoSetChannelNumbersProps) => {
     setBlock(false);
   };
 
-  React.useMemo(() => {
-    if (setting.data.firstFreeNumber) {
-      setStartNumber(setting.data.firstFreeNumber);
-    }
-  }, [setting.data.firstFreeNumber]);
+  // React.useMemo(() => {
+  //   if (setting.data.firstFreeNumber) {
+  //     setStartNumber(setting.data.firstFreeNumber);
+  //   }
+  // }, [setting.data.firstFreeNumber]);
 
   const getNextNumber = React.useCallback((sn: number, nums: number[]): number => {
     if (nums.length === 0) return sn;

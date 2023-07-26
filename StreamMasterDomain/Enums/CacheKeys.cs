@@ -9,6 +9,7 @@ public static class CacheKeys
 {
     public const string IsSystemReadyKey = "IsSystemReady";
 
+    public const string ListChannelLogos = "ListChannelLogos";
     public const string ListIconFiles = "ListIconFileDto";
     public const string ListProgrammeChannel = "ListProgrammeChannel";
 
@@ -23,13 +24,16 @@ public static class CacheKeys
             var datas = Get<IconFileDto>(ListIconFiles, cache);
             datas.Add((IconFileDto)data);
             cache.Set(ListIconFiles, datas, CacheEntryOptions);
+            return;
         }
 
-        //if (data.GetType().GenericTypeArguments.Contains(typeof(TvLogoFile)))
-        //{
-        //    cache.Set(ListTVLogos, data, CacheEntryOptions);
-        //    return;
-        //}
+        if (data.GetType() == (typeof(ChannelLogoDto)))
+        {
+            var datas = Get<ChannelLogoDto>(ListChannelLogos, cache);
+            datas.Add((ChannelLogoDto)data);
+            cache.Set(ListChannelLogos, datas, CacheEntryOptions);
+            return;
+        }
 
         //if (data.GetType().GenericTypeArguments.Contains(typeof(Programme)))
         //{
@@ -42,6 +46,16 @@ public static class CacheKeys
         //    cache.Set(ListProgrammeChannel, data, CacheEntryOptions);
         //    return;
         //}
+    }
+
+    public static List<ChannelLogoDto> ChannelLogos(this IMemoryCache cache)
+    {
+        return Get<ChannelLogoDto>(ListChannelLogos, cache);
+    }
+
+    public static void ClearChannelLogos(this IMemoryCache cache)
+    {
+        cache.Remove(ListChannelLogos);
     }
 
     public static void ClearIcons(this IMemoryCache cache)
@@ -96,11 +110,18 @@ public static class CacheKeys
         if (data.GetType().GenericTypeArguments.Contains(typeof(IconFileDto)))
         {
             cache.Set(ListIconFiles, data, CacheEntryOptions);
+            return;
         }
 
         if (data.GetType().GenericTypeArguments.Contains(typeof(TvLogoFile)))
         {
             cache.Set(ListTVLogos, data, CacheEntryOptions);
+            return;
+        }
+
+        if (data.GetType().GenericTypeArguments.Contains(typeof(ChannelLogoDto)))
+        {
+            cache.Set(ListChannelLogos, data, CacheEntryOptions);
             return;
         }
 
@@ -115,6 +136,7 @@ public static class CacheKeys
             cache.Set(ListProgrammeChannel, data, CacheEntryOptions);
             return;
         }
+        throw new Exception($"Cache set Unknown type {data.GetType().Name.ToString()}");
     }
 
     public static void SetIsSystemReady(this IMemoryCache cache, bool isSystemReady)

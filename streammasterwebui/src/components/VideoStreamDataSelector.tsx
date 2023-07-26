@@ -11,7 +11,7 @@ import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import VideoStreamAddPanel from "./VideoStreamAddDialog";
 import IconSelector from "./IconSelector";
 import ChannelGroupEditor from "./ChannelGroupEditor";
-import AutoSetChannelNumbers from "./AutoSetChannelNumbers";
+
 import ChannelNumberEditor from "./ChannelNumberEditor";
 import ChannelNameEditor from "./ChannelNameEditor";
 import EPGSelector from "./EPGSelector";
@@ -20,7 +20,9 @@ import { type ColumnMeta } from "../features/dataSelector/DataSelectorTypes";
 import { type DataTableRowDataArray } from "primereact/datatable";
 import VideoStreamVisibleDialog from "./VideoStreamVisibleDialog";
 import VideoStreamEditDialog from "./VideoStreamEditDialog";
-import FileDialog from "./FileDialog";
+
+import VideoStreamSetIconFromEPGDialog from "./VideoStreamSetIconFromEPGDialog";
+import AutoSetChannelNumbers from "./AutoSetChannelNumbers";
 
 const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
@@ -31,7 +33,6 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
 
   const [values, setValues] = React.useState<StreamMasterApi.VideoStreamDto[]>([] as StreamMasterApi.VideoStreamDto[]);
-  const [addIcon, setAddIcon] = React.useState<boolean>(false);
 
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
   const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
@@ -165,7 +166,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const targetActionBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
     return (
       <div className='flex p-0 justify-content-end align-items-center'>
-
+        <VideoStreamSetIconFromEPGDialog value={data} />
         <VideoStreamVisibleDialog iconFilled={false} skipOverLayer values={[data]} />
         <VideoStreamEditDialog iconFilled={false} value={data} />
       </div>
@@ -256,7 +257,6 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       <IconSelector
         className="p-inputtext-sm"
         enableEditMode={enableEditMode}
-        onAddIcon={() => setAddIcon(true)}
         onChange={
           async (e: string) => {
             await onUpdateVideoStream(data, null, null, e);
@@ -433,12 +433,12 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     <>
 
       <Toast position="bottom-right" ref={toast} />
-      <FileDialog
+      {/* <FileDialog
         fileType="icon"
         onHide={() => { setAddIcon(false); }}
         show={addIcon}
         showButton={false}
-      />
+      /> */}
       <DataSelector
         columns={targetColumns}
         dataSource={filteredStreams}

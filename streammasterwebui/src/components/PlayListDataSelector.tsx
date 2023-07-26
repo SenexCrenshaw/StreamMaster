@@ -143,7 +143,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         columns={sourceColumns}
         dataSource={props.hideControls === true ? channelGroupsQuery.data?.filter((item) => item.isHidden !== true) : channelGroupsQuery.data}
         emptyMessage="No Groups"
-        enableState={false}
+        enableState={props.enableState}
         headerRightTemplate={props.hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
         hideControls={props.hideControls}
         id={props.id + 'DataSelector'}
@@ -169,6 +169,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
 PlayListDataSelector.displayName = 'Play List Editor';
 PlayListDataSelector.defaultProps = {
+  enableState: false,
   hideAddRemoveControls: false,
   hideControls: false,
   maxHeight: null,
@@ -177,6 +178,7 @@ PlayListDataSelector.defaultProps = {
 };
 
 export type PlayListDataSelectorProps = {
+  enableState?: boolean | undefined;
   hideAddRemoveControls?: boolean;
   hideControls?: boolean;
   id: string;
