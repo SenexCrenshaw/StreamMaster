@@ -7,8 +7,9 @@ import DropDownEditorBodyTemplate from './DropDownEditorBodyTemplate';
 
 const EPGSelector = (props: EPGSelectorProps) => {
   const toast = React.useRef<Toast>(null);
-  const [programme, setProgramme] = React.useState<string>('Dummy');
-  const [dataDataSource, setDataSource] = React.useState<StreamMasterApi.ProgrammeName[]>([]);
+
+  const [programme, setProgramme] = React.useState<string>('');
+  const [dataDataSource, setDataSource] = React.useState<StreamMasterApi.ProgrammeNameDto[]>([]);
 
   const programmeNamesQuery = StreamMasterApi.useProgrammesGetProgrammeNamesQuery();
 
@@ -18,7 +19,9 @@ const EPGSelector = (props: EPGSelectorProps) => {
       return;
     }
 
-    setDataSource(programmeNamesQuery.data);
+    const newData = [...programmeNamesQuery.data];
+    newData.unshift({ displayName: '<Blank>' });
+    setDataSource(newData);
 
     return () => {
       setDataSource([]);
@@ -42,7 +45,7 @@ const EPGSelector = (props: EPGSelectorProps) => {
 
   const onEPGChange = React.useCallback(async (channel: string) => {
 
-    if (channel === undefined) {// || channel.channel === undefined) {
+    if (channel === undefined) {
       return;
     }
 
@@ -57,8 +60,11 @@ const EPGSelector = (props: EPGSelectorProps) => {
     }
 
     const data = {} as StreamMasterApi.UpdateVideoStreamRequest;
-    data.id = props.data.id;
     data.tvg_ID = channel;
+    data.id = props.data.id;
+    if (channel === '<Blank>') {
+      channel = '';
+    }
 
     await Hub.UpdateVideoStream(data)
       .then((result) => {

@@ -1,13 +1,12 @@
 import React from "react";
 import { Button } from "primereact/button";
-import { getLeftToolOptions, getTopToolOptions } from "../common/common";
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
 import { InputText } from "primereact/inputtext";
-import { InputNumber } from "primereact/inputnumber";
 import * as StreamMasterApi from '../store/iptvApi';
 import { AddStreamGroup } from "../store/signlar_functions";
 import PlayListDataSelector from "./PlayListDataSelector";
 import { Accordion, AccordionTab } from 'primereact/accordion';
+import { getTopToolOptions } from "../common/common";
 
 const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
@@ -62,23 +61,6 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
     props.onHide?.();
   }, [props]);
 
-  const doesStreamGroupNumberExist = (
-    sgNumber: number | undefined,
-  ): boolean => {
-    if (!sgNumber || !streamGroupsQuery || !streamGroupsQuery.data) return false;
-
-    if (streamGroupsQuery.data.map((x) => x.streamGroupNumber).includes(sgNumber)) {
-      return true;
-    }
-
-    return false;
-  };
-
-  const onChannelStreamGroupNumberChange = (e: number) => {
-    if (e && e > 0 && e < 1000000) {
-      setStreamGroupNumber(e);
-    }
-  };
 
   const isSaveEnabled = React.useMemo((): boolean => {
 
@@ -160,6 +142,7 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
 
       <InfoMessageOverLayDialog
         blocked={block}
+        closable
         header='Add Stream Group'
         infoMessage={infoMessage}
         onClose={() => {
@@ -186,30 +169,6 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
               >Name</label>
             </span>
 
-            <div className="flex col-6 justify-content-end align-items-center p-0 m-0">
-              {/* Ch #*/}
-              <div className="flex flex-wrap col-12 p-0 m-0 text-xs">
-                <div className="flex col-12 justify-content-end align-items-center p-0 m-0">
-                  <span className="text-xs"                >
-                    {doesStreamGroupNumberExist(streamGroupNumber) ? 'Stream Group Number Exists: # Wont Update' : 'Stream Group Number'}
-                  </span>
-                </div>
-                <div className='flex col-12 justify-content-end align-items-center p-0 m-0'>
-                  <InputNumber
-                    className='withpadding p-0 m-0'
-                    max={999999}
-                    min={1}
-                    onChange={(e) => { onChannelStreamGroupNumberChange(e.value ?? 0) }}
-                    showButtons
-                    size={3}
-                    tooltip="Stream Group Number used as a key in URLs"
-                    tooltipOptions={getLeftToolOptions}
-                    value={streamGroupNumber}
-                  />
-                </div>
-
-              </div>
-            </div>
 
           </div>
 
@@ -227,13 +186,6 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
           </Accordion>
 
           <div className="flex col-12 mt-3 gap-2 justify-content-end">
-            <Button
-              icon="pi pi-times "
-              label="Cancel"
-              onClick={(() => ReturnToParent())}
-              rounded
-              severity="warning"
-            />
             <Button
               disabled={!isSaveEnabled}
               icon="pi pi-check"

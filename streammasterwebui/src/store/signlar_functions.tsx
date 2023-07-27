@@ -2,7 +2,6 @@ import { hubConnection } from "../app/signalr";
 import {
   type AddChannelGroupRequest,
   type AddEpgFileRequest,
-  type AddIconFileRequest,
   type AddM3UFileRequest,
   type AddStreamGroupRequest,
   type AddVideoStreamRequest,
@@ -11,6 +10,7 @@ import {
   type ChangeM3UFileNameRequest,
   type ChangeVideoStreamChannelRequest,
   type ChannelGroupDto,
+  type ChannelLogoDto,
   type ChannelNumberPair,
   type Countries,
   type DeleteChannelGroupRequest,
@@ -32,15 +32,17 @@ import {
   type M3UFilesDto,
   type ProcessEpgFileRequest,
   type ProcessM3UFileRequest,
-  type ProgrammeName,
+  type ProgrammeNameDto,
   type RefreshEpgFileRequest,
   type RefreshM3UFileRequest,
+  type ReSetVideoStreamsLogoRequest,
   type Schedule,
   type SdStatus,
   type SetChannelGroupsVisibleArg,
   type SetChannelGroupsVisibleRequest,
   type SettingDto,
   type SetVideoStreamChannelNumbersRequest,
+  type SetVideoStreamsLogoToEpgRequest,
   type Station,
   type StationPreview,
   type StreamGroupDto,
@@ -170,12 +172,6 @@ export const UpdateEPGFile = async (arg: UpdateEpgFileRequest): Promise<EpgFiles
     return data;
 };
 
-export const AddIconFile = async (arg: AddIconFileRequest): Promise<IconFileDto> => {
-    const data = await hubConnection.invoke('AddIconFile',arg);
-
-    return data;
-};
-
 export const AutoMatchIconToStreams = async (arg: AutoMatchIconToStreamsRequest): Promise<void> => {
     await hubConnection.invoke('AutoMatchIconToStreams',arg);
 };
@@ -252,7 +248,7 @@ export const UpdateM3UFile = async (arg: UpdateM3UFileRequest): Promise<M3UFiles
     return data;
 };
 
-export const GetProgrammeNames = async (): Promise<ProgrammeName[]> => {
+export const GetProgrammeNames = async (): Promise<ProgrammeNameDto[]> => {
     const data = await hubConnection.invoke('GetProgrammeNames');
 
     return data;
@@ -408,6 +404,12 @@ export const DeleteVideoStream = async (arg: DeleteVideoStreamRequest): Promise<
     return data;
 };
 
+export const GetChannelLogoDtos = async (): Promise<ChannelLogoDto[]> => {
+    const data = await hubConnection.invoke('GetChannelLogoDtos');
+
+    return data;
+};
+
 export const GetVideoStream = async (arg: string): Promise<VideoStreamDto> => {
     const data = await hubConnection.invoke('GetVideoStream',arg);
 
@@ -420,10 +422,18 @@ export const GetVideoStreams = async (): Promise<VideoStreamDto[]> => {
     return data;
 };
 
+export const ReSetVideoStreamsLogo = async (arg: ReSetVideoStreamsLogoRequest): Promise<void> => {
+    await hubConnection.invoke('ReSetVideoStreamsLogo',arg);
+};
+
 export const SetVideoStreamChannelNumbers = async (arg: SetVideoStreamChannelNumbersRequest): Promise<ChannelNumberPair[]> => {
     const data = await hubConnection.invoke('SetVideoStreamChannelNumbers',arg);
 
     return data;
+};
+
+export const SetVideoStreamsLogoToEPG = async (arg: SetVideoStreamsLogoToEpgRequest): Promise<void> => {
+    await hubConnection.invoke('SetVideoStreamsLogoToEPG',arg);
 };
 
 export const UpdateVideoStream = async (arg: UpdateVideoStreamRequest): Promise<VideoStreamDto> => {

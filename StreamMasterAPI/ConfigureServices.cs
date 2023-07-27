@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.StaticFiles;
 
 using NSwag;
 using NSwag.Generation.Processors.Security;
@@ -35,15 +36,13 @@ public static class ConfigureServices
     public static IServiceCollection AddWebUIServices(this IServiceCollection services)
     {
         services.AddLogging(logging =>
-        { 
+        {
             logging.AddConsole();
             logging.AddDebug();
             logging.AddProvider(new SMLoggerProvider());
         });
 
-
         services.AddMemoryCache();
-      
 
         services.Configure<ForwardedHeadersOptions>(options =>
         {
@@ -51,7 +50,7 @@ public static class ConfigureServices
             options.KnownNetworks.Clear();
             options.KnownProxies.Clear();
         });
-
+        services.AddSingleton<IContentTypeProvider, FileExtensionContentTypeProvider>();
         services.AddRouting(options => options.LowercaseUrls = true);
 
         services.AddResponseCompression(options => options.EnableForHttps = true);

@@ -29,7 +29,7 @@ public class M3UFileProcessedEventHandler : INotificationHandler<M3UFileProcesse
     {
         var streams = await _sender.Send(new GetVideoStreams(), cancellationToken).ConfigureAwait(false);
 
-        await _taskQueue.CacheIconsFromVideoStreams(cancellationToken).ConfigureAwait(false);
+        await _taskQueue.BuildIconsCacheFromVideoStreams(cancellationToken).ConfigureAwait(false);
         await _hubContext.Clients.All.M3UFilesDtoUpdate(notification.M3UFile).ConfigureAwait(false);
         await _hubContext.Clients.All.VideoStreamDtoesUpdate(streams).ConfigureAwait(false);
     }

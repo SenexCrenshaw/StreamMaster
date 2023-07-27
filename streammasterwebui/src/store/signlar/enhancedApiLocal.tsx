@@ -24,7 +24,7 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
               (draft: StreamMasterApi.ChannelGroupDto[]) => {
                 data.forEach(function (cn) {
                   const foundIndex = draft.findIndex(
-                    (x) => x.id === cn.id
+                    (x) => x.name === cn.name
                   );
                   if (foundIndex !== -1) {
                     draft[foundIndex] = cn;
@@ -32,7 +32,7 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
                     draft.push(cn);
                   }
                 });
-                return draft;
+                return draft.sort((a, b) => a.name.localeCompare(b.name));
               }
             );
           };
@@ -135,7 +135,7 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const applyResults = (
-            data: StreamMasterApi.ProgrammeName[]
+            data: StreamMasterApi.ProgrammeNameDto[]
           ) => {
             updateCachedData(
               () => {
@@ -147,7 +147,7 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
 
           hubConnection.on(
             'ProgrammeNamesUpdate',
-            (data: StreamMasterApi.ProgrammeName[]) => {
+            (data: StreamMasterApi.ProgrammeNameDto[]) => {
               applyResults(data);
             }
           );
@@ -286,7 +286,8 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
                     (x) => x.id === cn.id
                   );
                   if (foundIndex !== -1) {
-                    draft[foundIndex] = cn;
+                    draft[foundIndex] = { ...cn }
+                    // draft[foundIndex] = cn;
                   } else {
                     draft.push(cn);
                   }

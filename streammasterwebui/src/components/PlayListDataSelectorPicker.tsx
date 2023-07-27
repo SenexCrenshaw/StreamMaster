@@ -230,12 +230,6 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
             await onUpdateVideoStream(data, e);
           }
         }
-        onReset={
-          async (e: string) => {
-            await onUpdateVideoStream(data, e);
-          }
-        }
-        resetValue={data.tvg_logo}
         value={data.user_Tvg_logo}
       />
     );

@@ -1,7 +1,5 @@
 ﻿using AutoMapper.QueryableExtensions;
 
-using MediatR;
-
 using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.StreamGroups;
@@ -12,7 +10,6 @@ using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities;
 
 using System.Text.RegularExpressions;
-using System.Threading;
 
 namespace StreamMasterInfrastructure.Persistence;
 
@@ -435,12 +432,13 @@ public partial class AppDbContext : IStreamGroupDB
     {
         try
         {
-            var streamGroup = await GetStreamGroupDto(request.StreamGroupId, Url, cancellationToken).ConfigureAwait(false);
+            var streamGroup = await StreamGroups.FirstOrDefaultAsync(a => a.Id == request.StreamGroupId, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             if (streamGroup == null)
             {
                 return null;
             }
+
 
             if (!string.IsNullOrEmpty(request.Name))
             {
@@ -455,7 +453,16 @@ public partial class AppDbContext : IStreamGroupDB
                 }
             }
 
-            await SynchronizeStreamGroupChannelsAndVideoStreams(streamGroup, request.ChannelGroupNames, request.VideoStreams, cancellationToken);
+            await SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+            var streamGroupDto = await GetStreamGroupDto(request.StreamGroupId, Url, cancellationToken).ConfigureAwait(false);
+
+            if (streamGroupDto == null)
+            {
+                return null;
+            }
+
+            await SynchronizeStreamGroupChannelsAndVideoStreams(streamGroupDto, request.ChannelGroupNames, request.VideoStreams, cancellationToken);
 
             var ret = await GetStreamGroupDto(streamGroup.Id, Url, cancellationToken);
             return ret;
@@ -467,7 +474,7 @@ public partial class AppDbContext : IStreamGroupDB
     }
 
     private async Task SynchronizeStreamGroupChannelsAndVideoStreams(
-            StreamGroupDto streamGroup, 
+            StreamGroupDto streamGroup,
             List<string>? ChannelGroupNames,
             List<VideoStreamIsReadOnly>? VideoStreams,
             CancellationToken cancellationToken
@@ -497,6 +504,5 @@ public partial class AppDbContext : IStreamGroupDB
             await SynchronizeChildVideoStreamsInStreamGroupAsync(streamGroup.Id, toDo, cancellationToken).ConfigureAwait(false);
         }
         await SynchronizeChannelGroupsInStreamGroupAsync(streamGroup.Id, ChannelGroupNames, cancellationToken);
-
     }
 }

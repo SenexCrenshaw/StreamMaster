@@ -202,35 +202,9 @@ const injectedRtkApi = api
       }),
       filesGetFile: build.query<FilesGetFileApiResponse, FilesGetFileApiArg>({
         query: (queryArg) => ({
-          url: `/api/files/${queryArg.filetype}/${queryArg.fileName}`,
+          url: `/api/files/${queryArg.filetype}/${queryArg.source}`,
         }),
         providesTags: ["Files"],
-      }),
-      iconsAddIconFile: build.mutation<
-        IconsAddIconFileApiResponse,
-        IconsAddIconFileApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/icons`,
-          method: "POST",
-          body: queryArg,
-        }),
-        invalidatesTags: ["Icons"],
-      }),
-      iconsGetUrl: build.query<IconsGetUrlApiResponse, IconsGetUrlApiArg>({
-        query: () => ({ url: `/api/icons` }),
-        providesTags: ["Icons"],
-      }),
-      iconsAddIconFileFromForm: build.mutation<
-        IconsAddIconFileFromFormApiResponse,
-        IconsAddIconFileFromFormApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/icons/addiconfilefromform`,
-          method: "POST",
-          body: queryArg,
-        }),
-        invalidatesTags: ["Icons"],
       }),
       iconsAutoMatchIconToStreams: build.mutation<
         IconsAutoMatchIconToStreamsApiResponse,
@@ -243,13 +217,6 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["Icons"],
       }),
-      iconsCacheIconsFromVideoStreamsRequest: build.query<
-        IconsCacheIconsFromVideoStreamsRequestApiResponse,
-        IconsCacheIconsFromVideoStreamsRequestApiArg
-      >({
-        query: () => ({ url: `/api/icons/cacheiconsfromvideostreamsrequest` }),
-        providesTags: ["Icons"],
-      }),
       iconsGetIcon: build.query<IconsGetIconApiResponse, IconsGetIconApiArg>({
         query: (queryArg) => ({ url: `/api/icons/geticon/${queryArg}` }),
         providesTags: ["Icons"],
@@ -260,6 +227,10 @@ const injectedRtkApi = api
           providesTags: ["Icons"],
         }
       ),
+      iconsGetUrl: build.query<IconsGetUrlApiResponse, IconsGetUrlApiArg>({
+        query: () => ({ url: `/api/icons` }),
+        providesTags: ["Icons"],
+      }),
       logsGetLogRequest: build.mutation<
         LogsGetLogRequestApiResponse,
         LogsGetLogRequestApiArg
@@ -372,26 +343,12 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["M3UFiles"],
       }),
-      miscCacheAllIcons: build.mutation<
-        MiscCacheAllIconsApiResponse,
-        MiscCacheAllIconsApiArg
-      >({
-        query: () => ({ url: `/api/misc/cacheallicons`, method: "PUT" }),
-        invalidatesTags: ["Misc"],
-      }),
-      miscCacheIconsFromEpGs: build.mutation<
-        MiscCacheIconsFromEpGsApiResponse,
-        MiscCacheIconsFromEpGsApiArg
-      >({
-        query: () => ({ url: `/api/misc/cacheiconsfromepgs`, method: "PUT" }),
-        invalidatesTags: ["Misc"],
-      }),
-      miscCacheIconsFromVideoStreams: build.mutation<
-        MiscCacheIconsFromVideoStreamsApiResponse,
-        MiscCacheIconsFromVideoStreamsApiArg
+      miscBuildIconsCacheFromVideoStreams: build.mutation<
+        MiscBuildIconsCacheFromVideoStreamsApiResponse,
+        MiscBuildIconsCacheFromVideoStreamsApiArg
       >({
         query: () => ({
-          url: `/api/misc/cacheiconsfromvideostreams`,
+          url: `/api/misc/buildiconscachefromvideostreams`,
           method: "PUT",
         }),
         invalidatesTags: ["Misc"],
@@ -402,6 +359,16 @@ const injectedRtkApi = api
       >({
         query: () => ({
           url: `/api/misc/readdirectorylogosrequest`,
+          method: "PUT",
+        }),
+        invalidatesTags: ["Misc"],
+      }),
+      miscBuildProgIconsCacheFromEpGsRequest: build.mutation<
+        MiscBuildProgIconsCacheFromEpGsRequestApiResponse,
+        MiscBuildProgIconsCacheFromEpGsRequestApiArg
+      >({
+        query: () => ({
+          url: `/api/misc/buildprogiconscachefromepgsrequest`,
           method: "PUT",
         }),
         invalidatesTags: ["Misc"],
@@ -737,6 +704,27 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/videostreams/getallstatisticsforallurls` }),
         providesTags: ["VideoStreams"],
       }),
+      videoStreamsGetChannelLogoDtos: build.query<
+        VideoStreamsGetChannelLogoDtosApiResponse,
+        VideoStreamsGetChannelLogoDtosApiArg
+      >({
+        query: () => ({ url: `/api/videostreams/getchannellogodtos` }),
+        providesTags: ["VideoStreams"],
+      }),
+      videoStreamsGetVideoStream: build.query<
+        VideoStreamsGetVideoStreamApiResponse,
+        VideoStreamsGetVideoStreamApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/videostreams/${queryArg}` }),
+        providesTags: ["VideoStreams"],
+      }),
+      videoStreamsGetVideoStreams: build.query<
+        VideoStreamsGetVideoStreamsApiResponse,
+        VideoStreamsGetVideoStreamsApiArg
+      >({
+        query: () => ({ url: `/api/videostreams` }),
+        providesTags: ["VideoStreams"],
+      }),
       videoStreamsGetVideoStreamStream: build.query<
         VideoStreamsGetVideoStreamStreamApiResponse,
         VideoStreamsGetVideoStreamStreamApiArg
@@ -762,18 +750,14 @@ const injectedRtkApi = api
         }),
         providesTags: ["VideoStreams"],
       }),
-      videoStreamsGetVideoStream: build.query<
-        VideoStreamsGetVideoStreamApiResponse,
-        VideoStreamsGetVideoStreamApiArg
+      videoStreamsReSetVideoStreamsLogo: build.query<
+        VideoStreamsReSetVideoStreamsLogoApiResponse,
+        VideoStreamsReSetVideoStreamsLogoApiArg
       >({
-        query: (queryArg) => ({ url: `/api/videostreams/${queryArg}` }),
-        providesTags: ["VideoStreams"],
-      }),
-      videoStreamsGetVideoStreams: build.query<
-        VideoStreamsGetVideoStreamsApiResponse,
-        VideoStreamsGetVideoStreamsApiArg
-      >({
-        query: () => ({ url: `/api/videostreams` }),
+        query: (queryArg) => ({
+          url: `/api/videostreams/resetvideostreamslogo`,
+          body: queryArg,
+        }),
         providesTags: ["VideoStreams"],
       }),
       videoStreamsSetVideoStreamChannelNumbers: build.mutation<
@@ -786,6 +770,16 @@ const injectedRtkApi = api
           body: queryArg,
         }),
         invalidatesTags: ["VideoStreams"],
+      }),
+      videoStreamsSetVideoStreamsLogoToEpg: build.query<
+        VideoStreamsSetVideoStreamsLogoToEpgApiResponse,
+        VideoStreamsSetVideoStreamsLogoToEpgApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/setvideostreamslogotoepg`,
+          body: queryArg,
+        }),
+        providesTags: ["VideoStreams"],
       }),
       videoStreamsSimulateStreamFailure: build.mutation<
         VideoStreamsSimulateStreamFailureApiResponse,
@@ -893,34 +887,18 @@ export type EpgFilesUpdateEpgFileApiResponse = /** status 204  */ undefined;
 export type EpgFilesUpdateEpgFileApiArg = UpdateEpgFileRequest;
 export type FilesGetFileApiResponse = unknown;
 export type FilesGetFileApiArg = {
-  fileName: string;
+  source: string;
   filetype: SmFileTypes;
-};
-export type IconsAddIconFileApiResponse = /** status 200  */
-  | undefined
-  | /** status 201  */ IconFileDto;
-export type IconsAddIconFileApiArg = AddIconFileRequest;
-export type IconsGetUrlApiResponse = /** status 200  */ string;
-export type IconsGetUrlApiArg = void;
-export type IconsAddIconFileFromFormApiResponse = /** status 200  */
-  | undefined
-  | /** status 201  */ IconFileDto;
-export type IconsAddIconFileFromFormApiArg = {
-  Description?: string | null;
-  FormFile?: Blob | null;
-  Name?: string;
-  UrlSource?: string | null;
 };
 export type IconsAutoMatchIconToStreamsApiResponse =
   /** status 200  */ undefined;
 export type IconsAutoMatchIconToStreamsApiArg = AutoMatchIconToStreamsRequest;
-export type IconsCacheIconsFromVideoStreamsRequestApiResponse =
-  /** status 200  */ IconFileDto[];
-export type IconsCacheIconsFromVideoStreamsRequestApiArg = void;
 export type IconsGetIconApiResponse = /** status 200  */ IconFileDto;
 export type IconsGetIconApiArg = number;
 export type IconsGetIconsApiResponse = /** status 200  */ IconFileDto[];
 export type IconsGetIconsApiArg = void;
+export type IconsGetUrlApiResponse = /** status 200  */ string;
+export type IconsGetUrlApiArg = void;
 export type LogsGetLogRequestApiResponse = /** status 200  */ LogEntryDto[];
 export type LogsGetLogRequestApiArg = GetLog;
 export type M3UFilesAddM3UFileApiResponse = /** status 200  */
@@ -956,23 +934,21 @@ export type M3UFilesScanDirectoryForM3UFilesApiResponse =
 export type M3UFilesScanDirectoryForM3UFilesApiArg = void;
 export type M3UFilesUpdateM3UFileApiResponse = /** status 204  */ undefined;
 export type M3UFilesUpdateM3UFileApiArg = UpdateM3UFileRequest;
-export type MiscCacheAllIconsApiResponse = /** status 204  */ undefined;
-export type MiscCacheAllIconsApiArg = void;
-export type MiscCacheIconsFromEpGsApiResponse = /** status 204  */ undefined;
-export type MiscCacheIconsFromEpGsApiArg = void;
-export type MiscCacheIconsFromVideoStreamsApiResponse =
+export type MiscBuildIconsCacheFromVideoStreamsApiResponse =
   /** status 204  */ undefined;
-export type MiscCacheIconsFromVideoStreamsApiArg = void;
+export type MiscBuildIconsCacheFromVideoStreamsApiArg = void;
 export type MiscReadDirectoryLogosRequestApiResponse =
   /** status 204  */ undefined;
 export type MiscReadDirectoryLogosRequestApiArg = void;
+export type MiscBuildProgIconsCacheFromEpGsRequestApiResponse = unknown;
+export type MiscBuildProgIconsCacheFromEpGsRequestApiArg = void;
 export type ProgrammesGetProgrammeApiResponse = /** status 200  */ Programme[];
 export type ProgrammesGetProgrammeApiArg = string;
 export type ProgrammesGetProgrammeChannelsApiResponse =
   /** status 200  */ ProgrammeChannel[];
 export type ProgrammesGetProgrammeChannelsApiArg = void;
 export type ProgrammesGetProgrammeNamesApiResponse =
-  /** status 200  */ ProgrammeName[];
+  /** status 200  */ ProgrammeNameDto[];
 export type ProgrammesGetProgrammeNamesApiArg = void;
 export type ProgrammesGetProgrammesApiResponse = /** status 200  */ Programme[];
 export type ProgrammesGetProgrammesApiArg = void;
@@ -1083,6 +1059,15 @@ export type VideoStreamsFailClientApiArg = FailClientRequest;
 export type VideoStreamsGetAllStatisticsForAllUrlsApiResponse =
   /** status 200  */ StreamStatisticsResult[];
 export type VideoStreamsGetAllStatisticsForAllUrlsApiArg = void;
+export type VideoStreamsGetChannelLogoDtosApiResponse =
+  /** status 200  */ ChannelLogoDto[];
+export type VideoStreamsGetChannelLogoDtosApiArg = void;
+export type VideoStreamsGetVideoStreamApiResponse =
+  /** status 200  */ VideoStreamDto;
+export type VideoStreamsGetVideoStreamApiArg = string;
+export type VideoStreamsGetVideoStreamsApiResponse =
+  /** status 200  */ VideoStreamDto[];
+export type VideoStreamsGetVideoStreamsApiArg = void;
 export type VideoStreamsGetVideoStreamStreamApiResponse = unknown;
 export type VideoStreamsGetVideoStreamStreamApiArg = string;
 export type VideoStreamsGetVideoStreamStream2ApiResponse = unknown;
@@ -1092,16 +1077,16 @@ export type VideoStreamsGetVideoStreamStream3ApiArg = {
   encodedIds: string;
   name: string;
 };
-export type VideoStreamsGetVideoStreamApiResponse =
-  /** status 200  */ VideoStreamDto;
-export type VideoStreamsGetVideoStreamApiArg = string;
-export type VideoStreamsGetVideoStreamsApiResponse =
-  /** status 200  */ VideoStreamDto[];
-export type VideoStreamsGetVideoStreamsApiArg = void;
+export type VideoStreamsReSetVideoStreamsLogoApiResponse = unknown;
+export type VideoStreamsReSetVideoStreamsLogoApiArg =
+  ReSetVideoStreamsLogoRequest;
 export type VideoStreamsSetVideoStreamChannelNumbersApiResponse =
   /** status 200  */ ChannelNumberPair[] | /** status 204  */ undefined;
 export type VideoStreamsSetVideoStreamChannelNumbersApiArg =
   SetVideoStreamChannelNumbersRequest;
+export type VideoStreamsSetVideoStreamsLogoToEpgApiResponse = unknown;
+export type VideoStreamsSetVideoStreamsLogoToEpgApiArg =
+  SetVideoStreamsLogoToEpgRequest;
 export type VideoStreamsSimulateStreamFailureApiResponse =
   /** status 200  */ undefined;
 export type VideoStreamsSimulateStreamFailureApiArg = string;
@@ -1212,20 +1197,13 @@ export type UpdateEpgFileRequest = BaseFileRequest & {
   epgRank?: number | null;
 };
 export type SmFileTypes = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+export type AutoMatchIconToStreamsRequest = {
+  ids?: string[];
+};
 export type IconFileDto = {
-  contentType: string;
   id: number;
   name: string;
   source: string;
-};
-export type AddIconFileRequest = {
-  description?: string | null;
-  formFile?: Blob | null;
-  name: string;
-  urlSource?: string | null;
-};
-export type AutoMatchIconToStreamsRequest = {
-  ids?: string[];
 };
 export type LogLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type LogEntry = {
@@ -1352,7 +1330,7 @@ export type ProgrammeChannel = {
   programmeCount?: number;
   startDateTime?: string;
 };
-export type ProgrammeName = {
+export type ProgrammeNameDto = {
   channel?: string;
   channelName?: string;
   displayName?: string;
@@ -1544,16 +1522,12 @@ export type Setting = {
   authenticationMethod?: AuthenticationType;
   cacheIcons?: boolean;
   cleanURLs?: boolean;
-  sdStationIds?: string[];
-  sdCountry?: string;
-  sdPostalCode?: string;
   clientUserAgent?: string;
   defaultIcon?: string;
   deviceID?: string;
   dummyRegex?: string;
   enableSSL?: boolean;
   ffmPegExecutable?: string;
-  firstFreeNumber?: number;
   globalStreamLimit?: number;
   m3UFieldChannelId?: boolean;
   m3UFieldChannelNumber?: boolean;
@@ -1569,7 +1543,10 @@ export type Setting = {
   overWriteM3UChannels?: boolean;
   preloadPercentage?: number;
   ringBufferSizeMB?: number;
+  sdCountry?: string;
   sdPassword?: string;
+  sdPostalCode?: string;
+  sdStationIds?: string[];
   sdUserName?: string;
   serverKey?: string;
   sslCertPassword?: string;
@@ -1579,6 +1556,7 @@ export type Setting = {
   streamMasterIcon?: string;
   uiFolder?: string;
   urlBase?: string;
+  videoStreamAlwaysUseEPGLogo?: boolean;
 };
 export type SettingDto = Setting & {
   defaultIconDto?: IconFileDto;
@@ -1607,8 +1585,8 @@ export type UpdateSettingRequest = {
   deviceID?: string | null;
   dummyRegex?: string | null;
   enableSSL?: boolean | null;
+  videoStreamAlwaysUseEPGLogo?: boolean | null;
   ffmPegExecutable?: string | null;
-  firstFreeNumber?: number | null;
   globalStreamLimit?: number | null;
   m3UFieldChannelId?: boolean | null;
   m3UFieldChannelNumber?: boolean | null;
@@ -1624,11 +1602,11 @@ export type UpdateSettingRequest = {
   overWriteM3UChannels?: boolean | null;
   preloadPercentage?: number | null;
   ringBufferSizeMB?: number | null;
-  sdPassword?: string | null;
   sdCountry?: string | null;
+  sdPassword?: string | null;
   sdPostalCode?: string | null;
-  sdUserName?: string | null;
   sdStationIds?: string[] | null;
+  sdUserName?: string | null;
   sourceBufferPreBufferPercentage?: number | null;
   sslCertPassword?: string | null;
   sslCertPath?: string | null;
@@ -1761,12 +1739,23 @@ export type StreamStatisticsResult = {
   videoStreamId?: string;
   videoStreamName?: string;
 };
+export type ChannelLogoDto = {
+  epgId?: string;
+  epgFileId?: number;
+  logoUrl?: string;
+};
+export type ReSetVideoStreamsLogoRequest = {
+  ids?: string[];
+};
 export type ChannelNumberPair = {
   channelNumber: number;
   id: string;
 };
 export type SetVideoStreamChannelNumbersRequest = {
   channelNumberPairs: ChannelNumberPair[];
+};
+export type SetVideoStreamsLogoToEpgRequest = {
+  ids?: string[];
 };
 export type VideoStreamBaseUpdate = {
   id?: string;
@@ -1810,13 +1799,10 @@ export const {
   useEpgFilesScanDirectoryForEpgFilesMutation,
   useEpgFilesUpdateEpgFileMutation,
   useFilesGetFileQuery,
-  useIconsAddIconFileMutation,
-  useIconsGetUrlQuery,
-  useIconsAddIconFileFromFormMutation,
   useIconsAutoMatchIconToStreamsMutation,
-  useIconsCacheIconsFromVideoStreamsRequestQuery,
   useIconsGetIconQuery,
   useIconsGetIconsQuery,
+  useIconsGetUrlQuery,
   useLogsGetLogRequestMutation,
   useM3UFilesAddM3UFileMutation,
   useM3UFilesGetM3UFilesQuery,
@@ -1828,10 +1814,9 @@ export const {
   useM3UFilesRefreshM3UFileMutation,
   useM3UFilesScanDirectoryForM3UFilesMutation,
   useM3UFilesUpdateM3UFileMutation,
-  useMiscCacheAllIconsMutation,
-  useMiscCacheIconsFromEpGsMutation,
-  useMiscCacheIconsFromVideoStreamsMutation,
+  useMiscBuildIconsCacheFromVideoStreamsMutation,
   useMiscReadDirectoryLogosRequestMutation,
+  useMiscBuildProgIconsCacheFromEpGsRequestMutation,
   useProgrammesGetProgrammeQuery,
   useProgrammesGetProgrammeChannelsQuery,
   useProgrammesGetProgrammeNamesQuery,
@@ -1871,12 +1856,15 @@ export const {
   useVideoStreamsDeleteVideoStreamMutation,
   useVideoStreamsFailClientMutation,
   useVideoStreamsGetAllStatisticsForAllUrlsQuery,
+  useVideoStreamsGetChannelLogoDtosQuery,
+  useVideoStreamsGetVideoStreamQuery,
+  useVideoStreamsGetVideoStreamsQuery,
   useVideoStreamsGetVideoStreamStreamQuery,
   useVideoStreamsGetVideoStreamStream2Query,
   useVideoStreamsGetVideoStreamStream3Query,
-  useVideoStreamsGetVideoStreamQuery,
-  useVideoStreamsGetVideoStreamsQuery,
+  useVideoStreamsReSetVideoStreamsLogoQuery,
   useVideoStreamsSetVideoStreamChannelNumbersMutation,
+  useVideoStreamsSetVideoStreamsLogoToEpgQuery,
   useVideoStreamsSimulateStreamFailureMutation,
   useVideoStreamsSimulateStreamFailureForAllMutation,
   useVideoStreamsUpdateVideoStreamMutation,

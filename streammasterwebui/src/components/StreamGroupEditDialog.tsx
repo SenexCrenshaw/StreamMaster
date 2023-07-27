@@ -15,7 +15,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
   const [name, setName] = React.useState<string>('');
-  const [streamGroupNumber, setStreamGroupNumber] = React.useState<number>();
+  // const [streamGroupNumber, setStreamGroupNumber] = React.useState<number>();
   const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[]);
   const streamGroupsQuery = StreamMasterApi.useStreamGroupsGetStreamGroupsQuery();
 
@@ -28,9 +28,9 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
       setName(props.value.name);
     }
 
-    if (props.value.streamGroupNumber !== undefined) {
-      setStreamGroupNumber(props.value.streamGroupNumber);
-    }
+    // if (props.value.streamGroupNumber !== undefined) {
+    //   setStreamGroupNumber(props.value.streamGroupNumber);
+    // }
 
     if (props.value.channelGroups !== undefined) {
       setSelectedChannelGroups(props.value.channelGroups);
@@ -66,11 +66,11 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
     return max + 1;
   }, [streamGroupsQuery.data]);
 
-  React.useEffect(() => {
-    if (streamGroupNumber === undefined || streamGroupNumber === 0) {
-      setStreamGroupNumber(getNextStreamGroupNumber());
-    }
-  }, [getNextStreamGroupNumber, streamGroupNumber]);
+  // React.useEffect(() => {
+  //   if (streamGroupNumber === undefined || streamGroupNumber === 0) {
+  //     setStreamGroupNumber(getNextStreamGroupNumber());
+  //   }
+  // }, [getNextStreamGroupNumber, streamGroupNumber]);
 
   const ReturnToParent = React.useCallback((retData?: StreamMasterApi.StreamGroupDto) => {
     setShowOverlay(false);
@@ -91,11 +91,11 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
     return false;
   };
 
-  const onChannelStreamGroupNumberChange = (e: number) => {
-    if (e && e > 0 && e < 1000000) {
-      setStreamGroupNumber(e);
-    }
-  };
+  // const onChannelStreamGroupNumberChange = (e: number) => {
+  //   if (e && e > 0 && e < 1000000) {
+  //     setStreamGroupNumber(e);
+  //   }
+  // };
 
   const isSaveEnabled = React.useMemo((): boolean => {
 
@@ -103,25 +103,25 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
       return true;
     }
 
-    if (streamGroupNumber !== undefined && streamGroupNumber !== 0) {
-      return true;
-    }
+    // if (streamGroupNumber !== undefined && streamGroupNumber !== 0) {
+    //   return true;
+    // }
 
     return false;
 
-  }, [name, streamGroupNumber]);
+  }, [name]);
 
 
   const onUpdate = React.useCallback(() => {
 
     setBlock(true);
-    if (!isSaveEnabled || !name || streamGroupNumber === 0 || name === '' || props.value === undefined || props.value.id === undefined) {
+    if (!isSaveEnabled || !name || name === '' || props.value === undefined || props.value.id === undefined) {
       ReturnToParent();
       return;
     }
 
 
-    if (!isSaveEnabled || !streamGroupNumber || streamGroupNumber === 0) {
+    if (!isSaveEnabled) {
       return;
     }
 
@@ -130,7 +130,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
     data.name = name;
 
     data.streamGroupId = props.value.id;
-    data.streamGroupNumber = streamGroupNumber;
+    // data.streamGroupNumber = streamGroupNumber;
 
     if (selectedChannelGroups.length > 0) {
       data.channelGroupNames = selectedChannelGroups.map((x) => x.name);
@@ -147,7 +147,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
       }).catch((e) => {
         setInfoMessage('Stream Group Edit Error: ' + e.message);
       });
-  }, [ReturnToParent, isSaveEnabled, name, props.value, selectedChannelGroups, streamGroupNumber]);
+  }, [ReturnToParent, isSaveEnabled, name, props.value, selectedChannelGroups]);
 
   React.useEffect(() => {
     const callback = (event: KeyboardEvent) => {
@@ -181,12 +181,13 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
 
       <InfoMessageOverLayDialog
         blocked={block}
+        closable
         header='Edit Stream Group'
         infoMessage={infoMessage}
         onClose={() => {
           ReturnToParent();
         }}
-        overlayColSize={6}
+        overlayColSize={4}
         show={showOverlay}
       >
 
@@ -207,30 +208,6 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
               >Name</label>
             </span>
 
-            <div className="flex col-6 justify-content-end align-items-center p-0 m-0">
-              {/* Ch #*/}
-              <div className="flex flex-wrap col-12 p-0 m-0 text-xs">
-                <div className="flex col-12 justify-content-end align-items-center p-0 m-0">
-                  <span className="text-xs"                >
-                    {doesStreamGroupNumberExist(streamGroupNumber) ? 'Stream Group Number Exists!' : 'Stream Group Number'}
-                  </span>
-                </div>
-                <div className='flex col-12 justify-content-end align-items-center p-0 m-0'>
-                  <InputNumber
-                    className='withpadding p-0 m-0'
-                    id="channelNumber"
-                    max={999999}
-                    min={0}
-                    onChange={(e) => { onChannelStreamGroupNumberChange(e.value ?? 0) }}
-                    showButtons
-                    size={3}
-
-                    value={streamGroupNumber}
-                  />
-                </div>
-              </div>
-            </div>
-
           </div>
 
           <Accordion className='mt-2'>
@@ -249,13 +226,13 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
           </Accordion>
 
           <div className="flex col-12 mt-3 gap-2 justify-content-end">
-            <Button
+            {/* <Button
               icon="pi pi-times "
               label="Cancel"
               onClick={(() => ReturnToParent())}
               rounded
               severity="warning"
-            />
+            /> */}
             <Button
               disabled={!isSaveEnabled}
               icon="pi pi-check"

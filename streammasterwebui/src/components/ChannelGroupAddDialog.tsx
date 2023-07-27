@@ -12,9 +12,11 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
 
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
+  const [infoMessage, setInfoMessage] = React.useState('');
+
   const [newGroupName, setNewGroupName] = React.useState('');
   const [regex, setRegex] = React.useState<string>('');
-  const [infoMessage, setInfoMessage] = React.useState('');
+
 
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
 

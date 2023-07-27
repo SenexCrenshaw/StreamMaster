@@ -362,7 +362,7 @@ export const SettingsEditor = () => {
 
           <Fieldset className="mt-4 pt-10" legend={GetMessage('filesEPGM3U')} >
             {getCheckBoxLine('cacheIcons')}
-            {/* {getCheckBoxLine('useDummyEPGForBlanks')} */}
+            {getCheckBoxLine('videoStreamAlwaysUseEPGLogo')}
             {getInputTextLine('dummyRegex')}
             {getInputTextLine('sdUserName')}
             {getPasswordLine('sdPassword')}

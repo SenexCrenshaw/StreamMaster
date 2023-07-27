@@ -1,8 +1,5 @@
-﻿using AutoMapper;
-
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
@@ -25,13 +22,9 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 {
     private readonly IChannelManager _channelManager;
     private readonly ILogger<VideoStreamsController> _logger;
-    private readonly IMapper _mapper;
-    private readonly IMemoryCache _memoryCache;
 
-    public VideoStreamsController(IChannelManager channelManager, IMapper mapper, IMemoryCache memoryCache, ILogger<VideoStreamsController> logger)
+    public VideoStreamsController(IChannelManager channelManager, ILogger<VideoStreamsController> logger)
     {
-        _mapper = mapper;
-        _memoryCache = memoryCache;
         _channelManager = channelManager;
         _logger = logger;
     }
@@ -81,6 +74,31 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     {
         List<StreamStatisticsResult> data = await Mediator.Send(new GetAllStatisticsForAllUrls()).ConfigureAwait(false);
         return Ok(data);
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    [ProducesResponseType(typeof(List<ChannelLogoDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetChannelLogoDtos()
+    {
+        var data = await Mediator.Send(new GetChannelLogoDtos()).ConfigureAwait(false);
+        return Ok(data);
+    }
+
+    [HttpGet]
+    [Route("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VideoStreamDto))]
+    public async Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id)
+    {
+        return await Mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
+    }
+
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<VideoStreamDto>))]
+    public async Task<ActionResult<List<VideoStreamDto>>> GetVideoStreams()
+    {
+        IEnumerable<VideoStreamDto> data = await Mediator.Send(new GetVideoStreams()).ConfigureAwait(false);
+        return data.ToList();
     }
 
     [Authorize(Policy = "SGLinks")]
@@ -152,19 +170,11 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     }
 
     [HttpGet]
-    [Route("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VideoStreamDto))]
-    public async Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id)
+    [Route("[action]")]
+    public async Task<IActionResult> ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request)
     {
-        return await Mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
-    }
-
-    [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<VideoStreamDto>))]
-    public async Task<ActionResult<List<VideoStreamDto>>> GetVideoStreams()
-    {
-        IEnumerable<VideoStreamDto> data = await Mediator.Send(new GetVideoStreams()).ConfigureAwait(false);
-        return data.ToList();
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
     }
 
     [HttpPatch]
@@ -176,6 +186,14 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     {
         await Mediator.Send(request).ConfigureAwait(false);
         return NoContent();
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<IActionResult> SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
     }
 
     [HttpPost]

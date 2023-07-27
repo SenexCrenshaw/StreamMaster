@@ -67,6 +67,9 @@ public class DeleteEPGFileHandler : IRequestHandler<DeleteEPGFileRequest, int?>
         var channels = _memoryCache.ProgrammeChannels().RemoveAll(a => a.EPGFileId == EPGFile.Id);
         _memoryCache.Set(channels);
 
+        var channelLogos = _memoryCache.ChannelLogos().RemoveAll(a => a.EPGFileId == EPGFile.Id);
+        _memoryCache.Set(channelLogos);
+
         AppHelper.RebuildProgrammeChannelNames(_memoryCache, _context.EPGFiles.ToList());
 
         EPGFile.AddDomainEvent(new EPGFileDeletedEvent(EPGFile.Id));

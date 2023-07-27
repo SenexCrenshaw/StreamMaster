@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterAPI.Interfaces;
 
-using StreamMasterApplication.Common.Interfaces;
-
-using StreamMasterDomain.Entities;
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Enums;
 
 using System.Web;
@@ -15,107 +14,144 @@ namespace StreamMasterAPI.Controllers;
 
 public class FilesController : ApiControllerBase, IFileController
 {
-    private readonly IAppDbContext _context;
+    private static readonly IDictionary<string, string> _contentTypesCache = new Dictionary<string, string>();
+
     private readonly IMemoryCache _memoryCache;
+    private readonly IContentTypeProvider _mimeTypeProvider;
+    private readonly Setting setting;
 
     public FilesController(
         IMemoryCache memoryCache,
-        IAppDbContext context
+        IContentTypeProvider mimeTypeProvider
     )
     {
+        _mimeTypeProvider = mimeTypeProvider;
         _memoryCache = memoryCache;
-        _context = context;
+        setting = FileUtil.GetSetting();
     }
 
     [AllowAnonymous]
-    [Route("{filetype}/{fileName}")]
+    [Route("{filetype}/{source}")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetFile(string fileName, SMFileTypes filetype)
+    public async Task<IActionResult> GetFile(string source, SMFileTypes filetype, CancellationToken cancellationToken)
     {
-        //Console.WriteLine($"{filetype}/{fileName}");
-        fileName = HttpUtility.UrlDecode(fileName);
+        string sourceDecoded = HttpUtility.UrlDecode(source);
 
-        (CacheEntity? cache, byte[]? image) = await GetCacheEntryAsync(new GetCacheEntryAsyncRequest { URL = fileName, IPTVFileType = filetype }).ConfigureAwait(false);
-        if (image == null || cache == null)
+        (byte[]? image, string? fileName) = await GetCacheEntryAsync(sourceDecoded, filetype, cancellationToken).ConfigureAwait(false);
+        if (image == null || fileName == null)
         {
-            Console.WriteLine($"{fileName} is null");
-            return NotFound();
+            return Redirect(sourceDecoded);
         }
-        return File(image, cache.ContentType, cache.Name + "." + cache.FileExtension);
+
+        string contentType = GetContentType(sourceDecoded);
+        return File(image, contentType, fileName);
     }
 
-    private async Task<(CacheEntity? cacheEntry, byte[]? data)> GetCacheEntryAsync(GetCacheEntryAsyncRequest request)
+    private async Task<(byte[]? image, string? fileName)> GetCacheEntryAsync(string URL, SMFileTypes IPTVFileType, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(request.URL))
+        if (string.IsNullOrEmpty(URL))
         {
             return (null, null);
         }
 
-        string source = HttpUtility.UrlDecode(request.URL);
-
-        CacheEntity? cache;
-        if (request.IPTVFileType == SMFileTypes.TvLogo)
-        {
-            cache = _memoryCache.TvLogos().FirstOrDefault(a => a.Source == source);
-
-            if (cache == null || !cache.FileExists) { return (cache, null); }
-
-            var data = await
-            System.IO.File.ReadAllBytesAsync(FileDefinitions.TVLogo.DirectoryLocation
-            + cache.Source).ConfigureAwait(false);
-
-            return (cache, data);
-        }
-
-        cache = _context.Icons.FirstOrDefault(a => a.Source == source);
-
-        if (cache is null || !cache.FileExists)
-        {
-            return (cache, null);
-        }
-
+        string source = HttpUtility.UrlDecode(URL);
+        string fileName = "";
+        string returnName = "";
         FileDefinition fd = FileDefinitions.Icon;
-        switch (request.IPTVFileType)
+
+        if (IPTVFileType == SMFileTypes.TvLogo)
         {
-            case SMFileTypes.Icon:
-                fd = FileDefinitions.Icon;
-                break;
+            StreamMasterDomain.Entities.TvLogoFile? cache = _memoryCache.TvLogos().FirstOrDefault(a => a.Source == source);
+            if (cache == null || !cache.FileExists) { return (null, null); }
+            returnName = cache.Source;
+            fileName = FileDefinitions.TVLogo.DirectoryLocation + returnName;
+        }
+        else
+        {
+            if (!setting.CacheIcons)
+            {
+                return (null, null);
+            }
+            List<StreamMasterDomain.Dto.IconFileDto> icons = _memoryCache.Icons();
+            StreamMasterDomain.Dto.IconFileDto? icon = icons.FirstOrDefault(a => a.Source == source);
 
-            case SMFileTypes.ProgrammeIcon:
-                fd = FileDefinitions.ProgrammeIcon;
-                break;
+            if (icon is null)
+            {
+                return (null, null);
+            }
 
-            case SMFileTypes.M3U:
-                break;
+            switch (IPTVFileType)
+            {
+                case SMFileTypes.Icon:
+                    fd = FileDefinitions.Icon;
+                    break;
 
-            case SMFileTypes.EPG:
-                break;
+                case SMFileTypes.ProgrammeIcon:
+                    fd = FileDefinitions.ProgrammeIcon;
+                    break;
 
-            case SMFileTypes.HDHR:
-                break;
+                case SMFileTypes.M3U:
+                    break;
 
-            case SMFileTypes.Channel:
-                break;
+                case SMFileTypes.EPG:
+                    break;
 
-            case SMFileTypes.M3UStream:
-                break;
+                case SMFileTypes.HDHR:
+                    break;
 
-            case SMFileTypes.Image:
-                break;
+                case SMFileTypes.Channel:
+                    break;
 
-            case SMFileTypes.TvLogo:
-                fd = FileDefinitions.TVLogo;
-                break;
+                case SMFileTypes.M3UStream:
+                    break;
 
-            default:
-                fd = FileDefinitions.Icon;
-                break;
+                case SMFileTypes.Image:
+                    break;
+
+                case SMFileTypes.TvLogo:
+                    fd = FileDefinitions.TVLogo;
+                    break;
+
+                default:
+                    fd = FileDefinitions.Icon;
+                    break;
+            }
+            returnName = $"{icon.Name}.{icon.Extension}";
+            fileName = $"{fd.DirectoryLocation}{returnName}";
+
+            if (!System.IO.File.Exists(fileName) )
+            {
+                (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(source, fileName, cancellationToken).ConfigureAwait(false);
+                if (!success)
+                {
+                    return (null, null);
+                }
+            }
+        }
+              
+
+        if (System.IO.File.Exists(fileName))
+        {
+            byte[] ret = await System.IO.File.ReadAllBytesAsync(fileName).ConfigureAwait(false);
+            return (ret, returnName);
         }
 
-        Response.ContentType = cache.ContentType;
+        return (null, null);
+    }
 
-        (CacheEntity cache, byte[]) ret = (cache, await System.IO.File.ReadAllBytesAsync($"{fd.DirectoryLocation}{cache.Name}.{cache.FileExtension}").ConfigureAwait(false));
+    private string GetContentType(string fileName)
+    {
+        if (_contentTypesCache.TryGetValue(fileName, out string? cachedContentType))
+        {
+            return cachedContentType;
+        }
 
-        return ret;
+        if (!_mimeTypeProvider.TryGetContentType(fileName, out string? contentType))
+        {
+            contentType = "application/octet-stream";
+        }
+
+        _contentTypesCache[fileName] = contentType;
+        return contentType;
     }
 }

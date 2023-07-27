@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.Icons.Commands;
 
@@ -9,9 +8,9 @@ namespace StreamMasterApplication.Icons;
 
 public interface IIconController
 {
-    Task<ActionResult> AddIconFile(AddIconFileRequest request);
+    //Task<ActionResult> AddIconFile(AddIconFileRequest request);
 
-    Task<ActionResult> AddIconFileFromForm([FromForm] AddIconFileRequest request);
+    //Task<ActionResult> AddIconFileFromForm([FromForm] AddIconFileRequest request);
 
     Task<ActionResult> AutoMatchIconToStreams(AutoMatchIconToStreamsRequest request);
 
@@ -22,14 +21,14 @@ public interface IIconController
 
 public interface IIconDB
 {
-    DbSet<IconFile> Icons { get; set; }
+    //DbSet<IconFile> Icons { get; set; }
 
     Task<List<IconFileDto>> GetIcons(CancellationToken cancellationToken);
 }
 
 public interface IIconHub
 {
-    Task<IconFileDto?> AddIconFile(AddIconFileRequest request);
+    //Task<IconFileDto?> AddIconFile(AddIconFileRequest request);
 
     Task AutoMatchIconToStreams(AutoMatchIconToStreamsRequest request);
 
@@ -44,11 +43,11 @@ public interface IIconScoped
 
 public interface IIconTasks
 {
-    ValueTask CacheAllIcons(CancellationToken cancellationToken = default);
+    ValueTask BuildIconsCacheFromVideoStreams(CancellationToken cancellationToken = default);
 
-    ValueTask CacheIconsFromEPGs(CancellationToken cancellationToken = default);
+    ValueTask BuildProgIconsCacheFromEPGs(CancellationToken cancellationToken = default);
 
-    ValueTask CacheIconsFromVideoStreams(CancellationToken cancellationToken = default);
+    ValueTask BuilIconCaches(CancellationToken cancellationToken = default);
 
     Task ReadDirectoryLogosRequest(CancellationToken cancellationToken = default);
 

@@ -132,51 +132,6 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.ToTable("EPGFiles", (string)null);
                 });
 
-            modelBuilder.Entity("StreamMasterDomain.Entities.IconFile", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("DownloadErrors")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("FileExists")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("FileExtension")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("LastDownloadAttempt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("LastDownloaded")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("MinimumMinutesBetweenDownloads")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("SMFileType")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Source")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Icons");
-                });
-
             modelBuilder.Entity("StreamMasterDomain.Entities.M3UFile", b =>
                 {
                     b.Property<int>("Id")

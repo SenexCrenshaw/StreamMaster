@@ -185,22 +185,22 @@ const FileDialog = (props: FileDialogProps) => {
           break;
 
         case 'icon':
-          const addIconFileRequest = {} as StreamMasterApi.AddIconFileRequest;
+        // const addIconFileRequest = {} as StreamMasterApi.AddIconFileRequest;
 
-          addIconFileRequest.name = name;
-          addIconFileRequest.formFile = null;
-          addIconFileRequest.urlSource = source;
-          await Hub.AddIconFile(addIconFileRequest)
-            .then((returnData) => {
-              if (returnData) {
-                setInfoMessage(`Uploaded Icon: ${name}${activeFile ? '/' + activeFile.name : ''}`);
-              }
-            }).catch((e) => {
-              setInfoMessage(`Upload Icon: ${name}${activeFile ? '/' + activeFile.name : ''} Error: ${e.message}`);
-            });
+        // addIconFileRequest.name = name;
+        // addIconFileRequest.formFile = null;
+        // addIconFileRequest.urlSource = source;
+        // await Hub.AddIconFile(addIconFileRequest)
+        //   .then((returnData) => {
+        //     if (returnData) {
+        //       setInfoMessage(`Uploaded Icon: ${name}${activeFile ? '/' + activeFile.name : ''}`);
+        //     }
+        //   }).catch((e) => {
+        //     setInfoMessage(`Upload Icon: ${name}${activeFile ? '/' + activeFile.name : ''} Error: ${e.message}`);
+        //   });
 
-          // ReturnToParent(true);
-          break;
+        // // ReturnToParent(true);
+        // break;
       }
 
     } else {

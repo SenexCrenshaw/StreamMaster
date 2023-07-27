@@ -1,19 +1,13 @@
 ﻿using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
+using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.Programmes.Queries;
 
-public class ProgrammeName
-{
-    public string Channel { get; set; }
-    public string ChannelName { get; set; }
-    public string DisplayName { get; set; }
-}
+public record GetProgrammeNames : IRequest<IEnumerable<ProgrammeNameDto>>;
 
-public record GetProgrammeNames : IRequest<IEnumerable<ProgrammeName>>;
-
-internal class GetProgrammeNamesHandler : IRequestHandler<GetProgrammeNames, IEnumerable<ProgrammeName>>
+internal class GetProgrammeNamesHandler : IRequestHandler<GetProgrammeNames, IEnumerable<ProgrammeNameDto>>
 {
     private readonly IMemoryCache _memoryCache;
 
@@ -25,23 +19,20 @@ internal class GetProgrammeNamesHandler : IRequestHandler<GetProgrammeNames, IEn
         _memoryCache = memoryCache;
     }
 
-    public async Task<IEnumerable<ProgrammeName>> Handle(GetProgrammeNames request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<ProgrammeNameDto>> Handle(GetProgrammeNames request, CancellationToken cancellationToken)
     {
         var programmes = _memoryCache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel) && a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
         if (programmes.Any())
         {
-            var ret = programmes.GroupBy(a => a.Channel).Select(group => group.First()).Select(a => new ProgrammeName
+            var ret = programmes.GroupBy(a => a.Channel).Select(group => group.First()).Select(a => new ProgrammeNameDto
             {
                 Channel = a.Channel,
                 ChannelName = a.ChannelName,
                 DisplayName = a.DisplayName
             });
 
-            var test = ret.ToList();
-            var test2 = ret.Distinct().ToList();
-
-            return ret;
+            return ret.OrderBy(a => a.DisplayName);
         }
-        return new List<ProgrammeName>();
+        return new List<ProgrammeNameDto>();
     }
 }

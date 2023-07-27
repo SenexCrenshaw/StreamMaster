@@ -475,6 +475,13 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   React.useEffect(() => {
     if (props.dataSource !== undefined) {
       setDataSource(props.dataSource);
+      // console.debug("Set Data Source", props.dataSource.length);
+
+
+      // if (props.dataSource.length < 4) {
+      //   console.debug("Set Data Source", props.dataSource);
+      // }
+
     }
 
   }, [props.dataSource]);
@@ -943,9 +950,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   const multiselectHeader = () => {
     return (
-      <div className="absolute top-0 left-50 text-xs text-white text-500">
-        All
-      </div>
+      <div className="absolute top-0 left-50 text-xs text-white text-500" />
     );
   }
 
@@ -1045,8 +1050,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           sortField={props.groupRowsBy === undefined || props.groupRowsBy === '' ? props.sortField : props.groupRowsBy}
           sortMode='single'
           sortOrder={0}
-          stateKey={props.enableState !== true ? undefined : props.id + '-datatable'}
-          stateStorage={props.enableState !== true ? undefined : "local"}
+          // stateKey={props.enableState !== true ? undefined : props.id + '-datatable'}
+          // stateStorage={props.enableState !== true ? undefined : "local"}
           stripedRows
           style={props.style}
           value={dataSource}
@@ -1156,6 +1161,7 @@ export type DataSelectorProps<T> = {
    * A React node that is displayed when there is no data to display.
    */
   emptyMessage?: React.ReactNode;
+  // eslint-disable-next-line react/no-unused-prop-types
   enableState?: boolean | undefined;
   enableVirtualScroll?: boolean | undefined;
   first?: number | undefined;

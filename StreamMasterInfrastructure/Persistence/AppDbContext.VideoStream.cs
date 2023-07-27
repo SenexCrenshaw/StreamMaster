@@ -7,22 +7,54 @@ using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities;
 using StreamMasterDomain.Enums;
-using StreamMasterDomain.Extensions;
+
+using System.Web;
 
 namespace StreamMasterInfrastructure.Persistence;
 
-public partial class AppDbContext
+public partial class AppDbContext : IVideoStreamDB
 {
-    public async Task AddOrUpdateChildToVideoStreamAsync(string parentId, string childId, int rank, CancellationToken cancellationToken)
+    public DbSet<VideoStreamLink> VideoStreamLinks { get; set; }
+
+    public DbSet<VideoStream> VideoStreams { get; set; }
+
+    public static bool UpdateVideoStream(VideoStream videoStream, VideoStreamUpdate update)
+    {
+        bool isChanged = false;
+
+        if (update.IsActive != null && videoStream.IsActive != update.IsActive) { isChanged = true; videoStream.IsActive = (bool)update.IsActive; }
+        if (update.IsDeleted != null && videoStream.IsDeleted != update.IsDeleted) { isChanged = true; videoStream.IsDeleted = (bool)update.IsDeleted; }
+        if (update.IsHidden != null && videoStream.IsHidden != update.IsHidden) { isChanged = true; videoStream.IsHidden = (bool)update.IsHidden; }
+
+        // Update object properties
+        if (update.Tvg_chno != null && videoStream.User_Tvg_chno != update.Tvg_chno) { isChanged = true; videoStream.User_Tvg_chno = (int)update.Tvg_chno; }
+        if (update.Tvg_group != null && videoStream.User_Tvg_group != update.Tvg_group) { isChanged = true; videoStream.User_Tvg_group = update.Tvg_group; }
+
+        if (update.Tvg_name != null && videoStream.User_Tvg_name != update.Tvg_name) { isChanged = true; videoStream.User_Tvg_name = update.Tvg_name; }
+
+        if (update.Url != null && videoStream.User_Url != update.Url)
+        {
+            isChanged = true;
+            if (videoStream.Url == "")
+            {
+                videoStream.Url = update.Url;
+            }
+            videoStream.User_Url = update.Url;
+        }
+
+        return isChanged;
+    }
+
+    public async Task AddOrUpdateChildToVideoStreamAsync(string parentVideoStreamId, string childId, int rank, CancellationToken cancellationToken)
     {
         var videoStreamLink = await VideoStreamLinks
-            .FirstOrDefaultAsync(vsl => vsl.ParentVideoStreamId == parentId && vsl.ChildVideoStreamId == childId, cancellationToken).ConfigureAwait(false);
+            .FirstOrDefaultAsync(vsl => vsl.ParentVideoStreamId == parentVideoStreamId && vsl.ChildVideoStreamId == childId, cancellationToken).ConfigureAwait(false);
 
         if (videoStreamLink == null)
         {
             videoStreamLink = new VideoStreamLink
             {
-                ParentVideoStreamId = parentId,
+                ParentVideoStreamId = parentVideoStreamId,
                 ChildVideoStreamId = childId,
                 Rank = rank
             };
@@ -35,6 +67,35 @@ public partial class AppDbContext
         }
 
         await SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<bool> BuildIconsCacheFromVideoStreams(CancellationToken cancellationToken)
+    {
+        var streams = VideoStreams
+         .Where(a => a.User_Tvg_logo != null && a.User_Tvg_logo.Contains("://"))
+         .AsQueryable();
+
+        if (!await streams.AnyAsync(cancellationToken: cancellationToken)) { return false; }
+
+        await foreach (var stream in streams.AsAsyncEnumerable().WithCancellation(cancellationToken))
+        {
+            if (cancellationToken.IsCancellationRequested) { return false; }
+            string source = HttpUtility.UrlDecode(stream.Tvg_logo);
+
+            await IconHelper.AddIcon(source, stream.User_Tvg_name, _mapper, _memoryCache, FileDefinitions.Icon, cancellationToken);
+        }
+
+        return true;
+    }
+
+    public async Task<bool> CacheIconsFromVideoStreams(CancellationToken cancellationToken)
+    {
+        if (!await BuildIconsCacheFromVideoStreams(cancellationToken).ConfigureAwait(false))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     public async Task<bool> DeleteVideoStreamAsync(string videoStreamId, CancellationToken cancellationToken)
@@ -73,29 +134,6 @@ public partial class AppDbContext
         }
     }
 
-    public async Task<List<VideoStream>> GetChildVideoStreamsAsync(string parentId, CancellationToken cancellationToken)
-    {
-        return await VideoStreamLinks
-            .Where(vsl => vsl.ParentVideoStreamId == parentId)
-            .Select(vsl => vsl.ChildVideoStream)
-            .ToListAsync(cancellationToken).ConfigureAwait(false);
-    }
-
-    public async Task<VideoStream> GetVideoStreamWithChildrenAsync(string videoStreamId, CancellationToken cancellationToken)
-    {
-        return await VideoStreams
-            .Include(vs => vs.ChildVideoStreams)
-                .ThenInclude(vsl => vsl.ChildVideoStream)
-            .SingleOrDefaultAsync(vs => vs.Id == videoStreamId, cancellationToken).ConfigureAwait(false);
-    }
-}
-
-public partial class AppDbContext : IVideoStreamDB
-{
-    public DbSet<VideoStreamLink> VideoStreamLinks { get; set; }
-
-    public DbSet<VideoStream> VideoStreams { get; set; }
-
     public async Task<List<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken)
     {
         var streams = VideoStreams.Where(a => a.M3UFileId == M3UFileId).ToList();
@@ -125,6 +163,14 @@ public partial class AppDbContext : IVideoStreamDB
         }
 
         return id;
+    }
+
+    public async Task<List<VideoStream>> GetChildVideoStreamsAsync(string parentId, CancellationToken cancellationToken)
+    {
+        return await VideoStreamLinks
+            .Where(vsl => vsl.ParentVideoStreamId == parentId)
+            .Select(vsl => vsl.ChildVideoStream)
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<List<VideoStream>> GetChildVideoStreamsAsync(string parentId)
@@ -221,20 +267,28 @@ public partial class AppDbContext : IVideoStreamDB
         return videoStreamDtos;
     }
 
-    public async Task<List<VideoStream>> GetVideoStreamsForParentAsync(string parentVideoId, CancellationToken cancellationToken)
+    public async Task<List<VideoStream>> GetVideoStreamsForParentAsync(string parentVideoStreamId, CancellationToken cancellationToken)
     {
         return await VideoStreamLinks
-            .Where(vsl => vsl.ParentVideoStreamId == parentVideoId)
+            .Where(vsl => vsl.ParentVideoStreamId == parentVideoStreamId)
             .Select(vsl => vsl.ChildVideoStream)
             .ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task RemoveNonExistingVideoStreamLinksAsync(List<ChildVideoStreamDto> existingVideoStreamLinks, CancellationToken cancellationToken)
+    public async Task<VideoStream> GetVideoStreamWithChildrenAsync(string videoStreamId, CancellationToken cancellationToken)
+    {
+        return await VideoStreams
+            .Include(vs => vs.ChildVideoStreams)
+                .ThenInclude(vsl => vsl.ChildVideoStream)
+            .SingleOrDefaultAsync(vs => vs.Id == videoStreamId, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task RemoveNonExistingVideoStreamLinksAsync(string parentVideoStreamId, List<ChildVideoStreamDto> existingVideoStreamLinks, CancellationToken cancellationToken)
     {
         var existingLinkIds = existingVideoStreamLinks.Select(vsl => vsl.Id).ToList();
 
         var linksToRemove = await VideoStreamLinks
-            .Where(vsl => !existingLinkIds.Contains(vsl.ChildVideoStreamId))
+            .Where(vsl => !existingLinkIds.Contains(vsl.ChildVideoStreamId) && vsl.ParentVideoStreamId == parentVideoStreamId)
             .ToListAsync(cancellationToken);
 
         VideoStreamLinks.RemoveRange(linksToRemove);
@@ -252,7 +306,7 @@ public partial class AppDbContext : IVideoStreamDB
                 await AddOrUpdateChildToVideoStreamAsync(videoStream.Id, ch.Id, ch.Rank, cancellationToken).ConfigureAwait(false);
             }
 
-            await RemoveNonExistingVideoStreamLinksAsync(childVideoStreams.ToList(), cancellationToken).ConfigureAwait(false);
+            await RemoveNonExistingVideoStreamLinksAsync(videoStream.Id, childVideoStreams.ToList(), cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -272,15 +326,36 @@ public partial class AppDbContext : IVideoStreamDB
         }
         Setting setting = FileUtil.GetSetting();
 
-        List<IconFileDto> icons = await GetIcons(cancellationToken).ConfigureAwait(false);
+        UpdateVideoStream(videoStream, request);
 
-        videoStream.UpdateVideoStream(request);
-
-        if (request.Tvg_logo != null && videoStream.User_Tvg_logo != request.Tvg_logo)
+        bool epglogo = false;
+        if (request.Tvg_ID != null && videoStream.User_Tvg_ID != request.Tvg_ID)
         {
-            if (icons.Any(a => a.Source == request.Tvg_logo))
+            videoStream.User_Tvg_ID = request.Tvg_ID;
+            if (setting.VideoStreamAlwaysUseEPGLogo && videoStream.User_Tvg_ID != null)
             {
-                videoStream.User_Tvg_logo = request.Tvg_logo;
+                var logoUrl = _memoryCache.GetEPGChannelByTvgId(videoStream.User_Tvg_ID);
+                if (logoUrl != null)
+                {
+                    videoStream.User_Tvg_logo = logoUrl;
+                    epglogo = true;
+                }
+            }
+        }
+
+        if (!epglogo && request.Tvg_logo != null && videoStream.User_Tvg_logo != request.Tvg_logo)
+        {
+            if (request.Tvg_logo == "")
+            {
+                videoStream.User_Tvg_logo = "";
+            }
+            else
+            {
+                List<IconFileDto> icons = await GetIcons(cancellationToken).ConfigureAwait(false);
+                if (icons.Any(a => a.Source == request.Tvg_logo))
+                {
+                    videoStream.User_Tvg_logo = request.Tvg_logo;
+                }
             }
         }
 
@@ -288,7 +363,7 @@ public partial class AppDbContext : IVideoStreamDB
 
         if (request.ChildVideoStreams != null)
         {
-             await SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
+            await SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
         }
 
         _ = await SaveChangesAsync(cancellationToken).ConfigureAwait(false);

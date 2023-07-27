@@ -51,6 +51,7 @@ export default {
   streamingProxyType: 'Enable Stream Buffer',
   useDummyEPGForBlanks: 'Use Dummy EPG',
   user: "User",
+  videoStreamAlwaysUseEPGLogo:"Always use EPG Logo",
 };
 
 

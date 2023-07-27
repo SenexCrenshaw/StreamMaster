@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
-using StreamMasterApplication.Programmes.Queries;
-
+using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities.EPG;
 
 namespace StreamMasterApplication.Programmes;
@@ -16,7 +14,7 @@ public interface IProgrammeChannelHub
 
     Task<IEnumerable<ProgrammeChannel>> GetProgrammeChannels();
 
-    Task<IEnumerable<ProgrammeName>> GetProgrammeNames();
+    Task<IEnumerable<ProgrammeNameDto>> GetProgrammeNames();
 
     Task<IEnumerable<Programme>> GetProgrammes();
 }
@@ -36,7 +34,7 @@ public interface IProgrammeChannelController
 
     Task<ActionResult<IEnumerable<ProgrammeChannel>>> GetProgrammeChannels();
 
-    Task<ActionResult<IEnumerable<ProgrammeName>>> GetProgrammeNames();
+    Task<ActionResult<IEnumerable<ProgrammeNameDto>>> GetProgrammeNames();
 
     Task<ActionResult<IEnumerable<Programme>>> GetProgrammes();
 }

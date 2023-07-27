@@ -6,19 +6,19 @@ namespace StreamMasterInfrastructure.Services;
 
 public partial class BackgroundTaskQueue : IIconTasks
 {
-    public async ValueTask CacheAllIcons(CancellationToken cancellationToken = default)
+    public async ValueTask BuildIconsCacheFromVideoStreams(CancellationToken cancellationToken = default)
     {
-        await QueueAsync(SMQueCommand.CacheAllIcons, cancellationToken).ConfigureAwait(false);
+        await QueueAsync(SMQueCommand.BuildIconsCacheFromVideoStreams, cancellationToken).ConfigureAwait(false);
     }
 
-    public async ValueTask CacheIconsFromEPGs(CancellationToken cancellationToken = default)
+    public async ValueTask BuildProgIconsCacheFromEPGs(CancellationToken cancellationToken = default)
     {
-        await QueueAsync(SMQueCommand.CacheIconsFromEPGs, cancellationToken).ConfigureAwait(false);
+        await QueueAsync(SMQueCommand.BuildProgIconsCacheFromEPGs, cancellationToken).ConfigureAwait(false);
     }
 
-    public async ValueTask CacheIconsFromVideoStreams(CancellationToken cancellationToken = default)
+    public async ValueTask BuilIconCaches(CancellationToken cancellationToken = default)
     {
-        await QueueAsync(SMQueCommand.CacheIconsFromVideoStreams, cancellationToken).ConfigureAwait(false);
+        await QueueAsync(SMQueCommand.BuilIconCaches, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task ReadDirectoryLogosRequest(CancellationToken cancellationToken = default)
