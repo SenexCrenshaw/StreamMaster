@@ -37,11 +37,14 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
     private readonly IMapper _mapper;
     private readonly IPublisher _publisher;
 
-    public ProcessM3UFileRequestHandler(
-        ILogger<ProcessM3UFileRequestHandler> logger,
+    private ThreadSafeIntList existingChannels;
 
+    private int nextchno;
+
+    public ProcessM3UFileRequestHandler(
+                ILogger<ProcessM3UFileRequestHandler> logger,
         IMapper mapper,
-          IPublisher publisher,
+        IPublisher publisher,
         IAppDbContext context
     )
     {
@@ -73,10 +76,29 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
             Stopwatch sw = Stopwatch.StartNew();
             var existing = _context.VideoStreams.Where(a => a.M3UFileId == m3uFile.Id).ToList();
 
-            var existingChannels = new ThreadSafeIntList(m3uFile.StartingChannelNumber < 1 ? 1 : m3uFile.StartingChannelNumber);
+            existingChannels = new ThreadSafeIntList(m3uFile.StartingChannelNumber < 1 ? 1 : m3uFile.StartingChannelNumber);
 
             var groups = _context.ChannelGroups.AsNoTracking().ToList();
-            int nextchno = m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber;
+            nextchno = m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber;
+
+            var dupes = streams.Where(a => streams.Count(b => b.Id == a.Id) > 1).OrderBy(a => a.Id).ToList();
+            if (dupes.Any())
+            {
+                var fileName = $"dupes_{m3uFile.Id}.csv";
+
+                _logger.LogError("Streams in M3U file have duplicate Ids, will only use the first entry, check {fileName} for more information", fileName);
+                // Remove duplicates based on id
+                streams = streams.GroupBy(x => x.Id).Select(x => x.First()).ToList();
+
+                var lines = new List<string>
+                {
+                    VideoStream.GetCsvHeader()
+                };
+
+                lines.AddRange(dupes.Select(a => a.ToString()));
+
+                File.WriteAllLines(fileName, lines);
+            }
 
             foreach (var stream in streams.Select((value, index) => new { value, index }))
             {
@@ -87,7 +109,7 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                 {
                     try
                     {
-                        ProcessExistingStream(stream.value, dbStream, group, setting, existingChannels, nextchno, stream.index);
+                        ProcessExistingStream(stream.value, dbStream, group, setting, stream.index);
                     }
                     catch (Exception ex)
                     {
@@ -96,7 +118,7 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                 }
                 else
                 {
-                    ProcessNewStream(stream.value, group, setting, existingChannels, nextchno, stream.index);
+                    ProcessNewStream(stream.value, group, setting, stream.index);
                     _context.VideoStreams.Add(stream.value);
                 }
             }
@@ -127,7 +149,34 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
         return null;
     }
 
-    private static void ProcessExistingStream(VideoStream stream, VideoStream dbStream, ChannelGroup? group, Setting setting, ThreadSafeIntList existingChannels, int nextchno, int index)
+    private async Task AddChannelGroupsFromStreams(IEnumerable<VideoStream> streams, CancellationToken cancellationToken)
+    {
+        List<string> newGroups = streams.Where(a => a.User_Tvg_group != null).Select(a => a.User_Tvg_group).Distinct().ToList();
+        var channelGroups = _context.ChannelGroups.ToList();
+        int rank = _context.ChannelGroups.Any() ? _context.ChannelGroups.Max(a => a.Rank) + 1 : 1;
+
+        foreach (string? ng in newGroups)
+        {
+            if (!channelGroups.Any(a => string.Equals(a.Name, ng, StringComparison.OrdinalIgnoreCase)))
+            {
+                ChannelGroup channelGroup = new()
+                {
+                    Name = ng,
+                    Rank = rank++,
+                    IsReadOnly = true,
+                };
+
+                await _context.ChannelGroups.AddAsync(channelGroup, cancellationToken);
+            }
+        }
+
+        if (await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false) > 0)
+        {
+            await _publisher.Publish(new AddChannelGroupsEvent(), cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private void ProcessExistingStream(VideoStream stream, VideoStream dbStream, ChannelGroup? group, Setting setting, int index)
     {
         if (group != null)
         {
@@ -165,7 +214,7 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
         dbStream.FilePosition = index;
     }
 
-    private static void ProcessNewStream(VideoStream stream, ChannelGroup? group, Setting setting, ThreadSafeIntList existingChannels, int nextchno, int index)
+    private void ProcessNewStream(VideoStream stream, ChannelGroup? group, Setting setting, int index)
     {
         stream.IsHidden = group?.IsHidden ?? false;
         if (stream.User_Tvg_chno == 0 || setting.OverWriteM3UChannels || existingChannels.ContainsInt(stream.Tvg_chno))
@@ -176,32 +225,5 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
         }
 
         stream.FilePosition = index;
-    }
-
-    private async Task AddChannelGroupsFromStreams(IEnumerable<VideoStream> streams, CancellationToken cancellationToken)
-    {
-        List<string> newGroups = streams.Where(a => a.User_Tvg_group != null).Select(a => a.User_Tvg_group).Distinct().ToList();
-
-        int rank = _context.ChannelGroups.Any() ? _context.ChannelGroups.Max(a => a.Rank) + 1 : 1;
-
-        foreach (string? ng in newGroups)
-        {
-            if (!_context.ChannelGroups.Any(a => a.Name.ToLower() == ng.ToLower()))
-            {
-                ChannelGroup channelGroup = new()
-                {
-                    Name = ng,
-                    Rank = rank++,
-                    IsReadOnly = true,
-                };
-
-                await _context.ChannelGroups.AddAsync(channelGroup, cancellationToken);
-            }
-        }
-
-        if (await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false) > 0)
-        {
-            await _publisher.Publish(new AddChannelGroupsEvent(), cancellationToken).ConfigureAwait(false);
-        }
     }
 }

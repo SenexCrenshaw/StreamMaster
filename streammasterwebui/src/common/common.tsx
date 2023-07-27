@@ -135,6 +135,16 @@ export const arraysMatch = (arr1: string[], arr2: string[]): boolean => {
   return true;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function checkData(data: any): boolean {
+  if (data === null || data === undefined || data.data === null || data.data === undefined) {
+    return false;
+  }
+
+  return true;
+
+}
+
 
 export function getIconUrl(iconOriginalSource: string | null | undefined, defaultIcon: string, cacheIcon: boolean): string {
   if (!iconOriginalSource || iconOriginalSource === '') {

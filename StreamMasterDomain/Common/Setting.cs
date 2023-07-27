@@ -50,4 +50,6 @@ public class Setting
     public string UiFolder { get; set; } = "wwwroot";
 
     public string UrlBase { get; set; } = "";
+
+    public bool VideoStreamAlwaysUseEPGLogo { get; set; } = false;
 }

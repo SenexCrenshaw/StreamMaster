@@ -750,6 +750,16 @@ const injectedRtkApi = api
         }),
         providesTags: ["VideoStreams"],
       }),
+      videoStreamsReSetVideoStreamsLogo: build.query<
+        VideoStreamsReSetVideoStreamsLogoApiResponse,
+        VideoStreamsReSetVideoStreamsLogoApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/resetvideostreamslogo`,
+          body: queryArg,
+        }),
+        providesTags: ["VideoStreams"],
+      }),
       videoStreamsSetVideoStreamChannelNumbers: build.mutation<
         VideoStreamsSetVideoStreamChannelNumbersApiResponse,
         VideoStreamsSetVideoStreamChannelNumbersApiArg
@@ -760,6 +770,16 @@ const injectedRtkApi = api
           body: queryArg,
         }),
         invalidatesTags: ["VideoStreams"],
+      }),
+      videoStreamsSetVideoStreamsLogoToEpg: build.query<
+        VideoStreamsSetVideoStreamsLogoToEpgApiResponse,
+        VideoStreamsSetVideoStreamsLogoToEpgApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/setvideostreamslogotoepg`,
+          body: queryArg,
+        }),
+        providesTags: ["VideoStreams"],
       }),
       videoStreamsSimulateStreamFailure: build.mutation<
         VideoStreamsSimulateStreamFailureApiResponse,
@@ -928,7 +948,7 @@ export type ProgrammesGetProgrammeChannelsApiResponse =
   /** status 200  */ ProgrammeChannel[];
 export type ProgrammesGetProgrammeChannelsApiArg = void;
 export type ProgrammesGetProgrammeNamesApiResponse =
-  /** status 200  */ ProgrammeName[];
+  /** status 200  */ ProgrammeNameDto[];
 export type ProgrammesGetProgrammeNamesApiArg = void;
 export type ProgrammesGetProgrammesApiResponse = /** status 200  */ Programme[];
 export type ProgrammesGetProgrammesApiArg = void;
@@ -1057,10 +1077,16 @@ export type VideoStreamsGetVideoStreamStream3ApiArg = {
   encodedIds: string;
   name: string;
 };
+export type VideoStreamsReSetVideoStreamsLogoApiResponse = unknown;
+export type VideoStreamsReSetVideoStreamsLogoApiArg =
+  ReSetVideoStreamsLogoRequest;
 export type VideoStreamsSetVideoStreamChannelNumbersApiResponse =
   /** status 200  */ ChannelNumberPair[] | /** status 204  */ undefined;
 export type VideoStreamsSetVideoStreamChannelNumbersApiArg =
   SetVideoStreamChannelNumbersRequest;
+export type VideoStreamsSetVideoStreamsLogoToEpgApiResponse = unknown;
+export type VideoStreamsSetVideoStreamsLogoToEpgApiArg =
+  SetVideoStreamsLogoToEpgRequest;
 export type VideoStreamsSimulateStreamFailureApiResponse =
   /** status 200  */ undefined;
 export type VideoStreamsSimulateStreamFailureApiArg = string;
@@ -1304,7 +1330,7 @@ export type ProgrammeChannel = {
   programmeCount?: number;
   startDateTime?: string;
 };
-export type ProgrammeName = {
+export type ProgrammeNameDto = {
   channel?: string;
   channelName?: string;
   displayName?: string;
@@ -1530,6 +1556,7 @@ export type Setting = {
   streamMasterIcon?: string;
   uiFolder?: string;
   urlBase?: string;
+  videoStreamAlwaysUseEPGLogo?: boolean;
 };
 export type SettingDto = Setting & {
   defaultIconDto?: IconFileDto;
@@ -1558,6 +1585,7 @@ export type UpdateSettingRequest = {
   deviceID?: string | null;
   dummyRegex?: string | null;
   enableSSL?: boolean | null;
+  videoStreamAlwaysUseEPGLogo?: boolean | null;
   ffmPegExecutable?: string | null;
   globalStreamLimit?: number | null;
   m3UFieldChannelId?: boolean | null;
@@ -1716,12 +1744,18 @@ export type ChannelLogoDto = {
   epgFileId?: number;
   logoUrl?: string;
 };
+export type ReSetVideoStreamsLogoRequest = {
+  ids?: string[];
+};
 export type ChannelNumberPair = {
   channelNumber: number;
   id: string;
 };
 export type SetVideoStreamChannelNumbersRequest = {
   channelNumberPairs: ChannelNumberPair[];
+};
+export type SetVideoStreamsLogoToEpgRequest = {
+  ids?: string[];
 };
 export type VideoStreamBaseUpdate = {
   id?: string;
@@ -1828,7 +1862,9 @@ export const {
   useVideoStreamsGetVideoStreamStreamQuery,
   useVideoStreamsGetVideoStreamStream2Query,
   useVideoStreamsGetVideoStreamStream3Query,
+  useVideoStreamsReSetVideoStreamsLogoQuery,
   useVideoStreamsSetVideoStreamChannelNumbersMutation,
+  useVideoStreamsSetVideoStreamsLogoToEpgQuery,
   useVideoStreamsSimulateStreamFailureMutation,
   useVideoStreamsSimulateStreamFailureForAllMutation,
   useVideoStreamsUpdateVideoStreamMutation,

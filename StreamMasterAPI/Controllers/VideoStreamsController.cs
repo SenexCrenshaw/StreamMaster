@@ -1,8 +1,5 @@
-﻿using AutoMapper;
-
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
@@ -25,13 +22,9 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 {
     private readonly IChannelManager _channelManager;
     private readonly ILogger<VideoStreamsController> _logger;
-    private readonly IMapper _mapper;
-    private readonly IMemoryCache _memoryCache;
 
-    public VideoStreamsController(IChannelManager channelManager, IMapper mapper, IMemoryCache memoryCache, ILogger<VideoStreamsController> logger)
+    public VideoStreamsController(IChannelManager channelManager, ILogger<VideoStreamsController> logger)
     {
-        _mapper = mapper;
-        _memoryCache = memoryCache;
         _channelManager = channelManager;
         _logger = logger;
     }
@@ -88,7 +81,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [ProducesResponseType(typeof(List<ChannelLogoDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetChannelLogoDtos()
     {
-       var data=  await Mediator.Send(new GetChannelLogoDtos()).ConfigureAwait(false);
+        var data = await Mediator.Send(new GetChannelLogoDtos()).ConfigureAwait(false);
         return Ok(data);
     }
 
@@ -176,6 +169,14 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         }
     }
 
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<IActionResult> ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
+    }
+
     [HttpPatch]
     [Route("[action]")]
     [ProducesResponseType(typeof(IEnumerable<ChannelNumberPair>), StatusCodes.Status200OK)]
@@ -185,6 +186,14 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     {
         await Mediator.Send(request).ConfigureAwait(false);
         return NoContent();
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<IActionResult> SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
     }
 
     [HttpPost]

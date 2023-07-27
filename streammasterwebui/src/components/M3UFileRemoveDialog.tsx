@@ -3,94 +3,60 @@ import { Button } from "primereact/button";
 import { getTopToolOptions } from "../common/common";
 import type * as StreamMasterApi from '../store/iptvApi';
 import { Checkbox } from "primereact/checkbox";
-import { Dialog } from "primereact/dialog";
 import { type DeleteM3UFileRequest } from "../store/iptvApi";
 import { DeleteM3UFile } from "../store/signlar_functions";
-import { Toast } from 'primereact/toast';
+import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
 
 const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProps) => {
-  const toast = React.useRef<Toast>(null);
-  const [deleteDialog, setDeleteDialog] = React.useState<boolean>();
+
+  const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
+  const [block, setBlock] = React.useState<boolean>(false);
+  const [infoMessage, setInfoMessage] = React.useState('');
+
+
   const [deleteFSFile, setDeleteFSFile] = React.useState<boolean>(true);
 
-  const deleteFile = async () => {
+  const ReturnToParent = React.useCallback(() => {
+    setShowOverlay(false);
+    setInfoMessage('');
+    setBlock(false);
+    props.onFileDeleted?.();
+  }, [props]);
+
+  const deleteFile = () => {
+
     if (!props.selectedFile) {
-      toast.current?.show({
-        detail: `M3U File Delete Failed`,
-        life: 3000,
-        severity: 'error',
-        summary: 'Error',
-      });
       return;
     }
 
+    setBlock(true);
     const tosend = {} as DeleteM3UFileRequest;
 
     tosend.id = props.selectedFile.id;
     tosend.deleteFile = deleteFSFile;
 
-    await DeleteM3UFile(tosend)
-      .then((returnData) => {
-        if (toast.current) {
-          if (returnData) {
-            toast.current.show({
-              detail: `M3U File Delete Successful`,
-              life: 3000,
-              severity: 'success',
-              summary: 'Successful',
-            });
-          } else {
-            toast.current.show({
-              detail: `M3U File Delete Failed`,
-              life: 3000,
-              severity: 'error',
-              summary: 'Error',
-            });
-          }
-        }
+    DeleteM3UFile(tosend)
+      .then(() => {
+        setInfoMessage('M3U File Removed Successfully');
       }).catch((e) => {
-        if (toast.current) {
-          toast.current.show({
-            detail: `M3U File Delete Failed`,
-            life: 3000,
-            severity: 'error',
-            summary: 'Error ' + e.message,
-          });
-        }
+        setInfoMessage('M3U File Removed Error: ' + e.message);
       });
 
-    props.onFileDeleted();
-    setDeleteDialog(false);
 
   };
 
-  const deleteDialogFooter = (
-    <>
-      <Button
-        className="p-button-text"
-        icon="pi pi-times"
-        label="No"
-        onClick={() => setDeleteDialog(false)}
-      />
-      <Button
-        className="p-button-text"
-        icon="pi pi-check"
-        label="Yes"
-        onClick={deleteFile}
-      />
-    </>
-  );
 
   return (
     <>
-      <Toast position="bottom-right" ref={toast} />
-      <Dialog
-        footer={deleteDialogFooter}
-        header="Confirm"
-        modal
-        onHide={() => setDeleteDialog(false)}
-        style={{ width: '450px' }}
-        visible={deleteDialog}
+
+      <InfoMessageOverLayDialog
+        blocked={block}
+        header='Add Group'
+        infoMessage={infoMessage}
+        onClose={() => {
+          ReturnToParent();
+        }}
+        show={showOverlay}
       >
         <div className="confirmation-content ">
           <i
@@ -115,15 +81,37 @@ const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProps) => {
               </div>
             )}
           </span>
+          <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
+            <Button
+              icon="pi pi-times "
+              label="Cancel"
+              onClick={(() => ReturnToParent())}
+              rounded
+              severity="warning"
+            />
+            <Button
+              icon="pi pi-check"
+              label="Add"
+              onClick={deleteFile}
+              rounded
+              severity="success"
+            />
+          </div>
         </div>
-      </Dialog>
+      </InfoMessageOverLayDialog>
+
       <Button
-        disabled={props.selectedFile === undefined || props.selectedFile.name === undefined || props.selectedFile.name === ''}
-        icon="pi pi-minus"
-        onClick={() => setDeleteDialog(true)}
+        icon="pi pi-plus"
+        onClick={() => setShowOverlay(true)}
         rounded
-        severity="danger"
+        severity="success"
         size="small"
+        style={{
+          ...{
+            maxHeight: "2rem",
+            maxWidth: "2rem"
+          }
+        }}
         tooltip="Delete M3U File"
         tooltipOptions={getTopToolOptions}
       />

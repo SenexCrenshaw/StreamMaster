@@ -80,7 +80,7 @@ const Home = () => {
           <MenuItemSM collapsed={collapsed} icon={<SettingsEditorIcon />} link="/settings" name='Settings' />
 
           {/* <MenuItemSM collapsed={collapsed} icon={<SDIcon />} link="/editor/sd" name='Schedules Direct' /> */}
-          <MenuItemSM collapsed={collapsed} icon={<VideoIcon />} link="/player" name='Video Player' />
+          {/* <MenuItemSM collapsed={collapsed} icon={<VideoIcon />} link="/player" name='Video Player' /> */}
 
           <MenuItemSM collapsed={collapsed} icon={<LogIcon />} link="/log" name='Log' />
           <MenuItemSM collapsed={collapsed} icon={<HelpIcon />} link="https://github.com/SenexCrenshaw/StreamMaster/wiki" name='Wiki' newWindow />

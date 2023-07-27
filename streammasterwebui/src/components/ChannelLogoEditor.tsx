@@ -68,12 +68,6 @@ const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
             await onUpdateVideoStream(e);
           }
         }
-        onReset={
-          async (e: string) => {
-            await onUpdateVideoStream(e);
-          }
-        }
-        resetValue={props.data.tvg_logo}
         value={props.data.user_Tvg_logo}
       />
     </>

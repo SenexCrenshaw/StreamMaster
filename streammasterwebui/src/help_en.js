@@ -39,6 +39,7 @@ const help_en = {
    streamingProxyType: 'Stream Buffer Type to use. None will just use the original M3U URLs, FFMPEG - run the stream through FFMPEG, Stream Master - run the stream through SM own proxy',
   useDummyEPGForBlanks: 'Use Dummy EPG for streams with missing EPG',
   user: "User",
+  videoStreamAlwaysUseEPGLogo:"Always use EPG Logo for Video Stream",
 };
 
 export const getHelp = (key) => {

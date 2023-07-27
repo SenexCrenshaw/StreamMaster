@@ -2,6 +2,7 @@
 using StreamMasterApplication.Programmes.Queries;
 
 using StreamMasterDomain.Attributes;
+using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities.EPG;
 
 namespace StreamMasterApplication.Hubs;
@@ -21,7 +22,7 @@ public partial class StreamMasterHub : IProgrammeChannelHub
     }
 
     [JustUpdates]
-    public async Task<IEnumerable<ProgrammeName>> GetProgrammeNames()
+    public async Task<IEnumerable<ProgrammeNameDto>> GetProgrammeNames()
     {
         return await _mediator.Send(new GetProgrammeNames()).ConfigureAwait(false);
     }

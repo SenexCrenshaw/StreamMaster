@@ -2,7 +2,7 @@
 
 using StreamMasterApplication.Programmes;
 using StreamMasterApplication.Programmes.Queries;
-
+using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities;
 using StreamMasterDomain.Entities.EPG;
 
@@ -29,8 +29,8 @@ public class ProgrammesController : ApiControllerBase, IProgrammeChannelControll
 
     [HttpGet]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProgrammeName>))]
-    public async Task<ActionResult<IEnumerable<ProgrammeName>>> GetProgrammeNames()
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProgrammeNameDto>))]
+    public async Task<ActionResult<IEnumerable<ProgrammeNameDto>>> GetProgrammeNames()
     {
         return Ok(await Mediator.Send(new GetProgrammeNames()).ConfigureAwait(false));
     }

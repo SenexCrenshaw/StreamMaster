@@ -25,7 +25,7 @@ const ChannelHandlerSelector = (props: ChannelHandlerSelectorProps) => {
 
   const className = classNames('iconSelector p-0 m-0 w-full z-5 ', props.className);
 
-  const handlerOptionTemplate = React.useCallback((programmeName: StreamMasterApi.ProgrammeName) => {
+  const handlerOptionTemplate = React.useCallback((programmeName: StreamMasterApi.ProgrammeNameDto) => {
     return (
       <span className="text-sm" >{programmeName.displayName !== '' ? programmeName.displayName : programmeName.channelName}</span>
     );

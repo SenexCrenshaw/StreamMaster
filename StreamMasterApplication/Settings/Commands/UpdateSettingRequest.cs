@@ -29,6 +29,9 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? DeviceID { get; set; }
     public string? DummyRegex { get; set; }
     public bool? EnableSSL { get; set; }
+    public bool? VideoStreamAlwaysUseEPGLogo { get; set; }
+
+    
     public string? FFMPegExecutable { get; set; }
     public int? GlobalStreamLimit { get; set; }
     public bool? M3UFieldChannelId { get; set; }
@@ -112,6 +115,12 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
         {
             currentSetting.EnableSSL = (bool)request.EnableSSL;
         }
+
+        if (request.VideoStreamAlwaysUseEPGLogo != null && request.VideoStreamAlwaysUseEPGLogo != currentSetting.VideoStreamAlwaysUseEPGLogo)
+        {
+            currentSetting.VideoStreamAlwaysUseEPGLogo = (bool)request.VideoStreamAlwaysUseEPGLogo;
+        }
+        
 
         if (request.M3UIgnoreEmptyEPGID != null)
         {

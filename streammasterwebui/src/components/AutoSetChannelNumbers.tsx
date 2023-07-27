@@ -197,9 +197,8 @@ const AutoSetChannelNumbers = (props: AutoSetChannelNumbersProps) => {
         </div>
       </InfoMessageOverLayDialog>
 
-
       <Button
-        disabled={props.ids === undefined || props.ids.length === 0}
+        disabled={props.ids === null || props.ids.length === 0}
         icon="pi pi-sort-numeric-up-alt"
         onClick={() => setShowOverlay(true)}
         rounded

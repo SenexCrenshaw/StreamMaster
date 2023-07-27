@@ -59,10 +59,10 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
 
   }, [videoStreams]);
 
-  const onValueChanged = React.useCallback((data: StreamMasterApi.VideoStreamDto[] | undefined) => {
-    console.log('onValueChanged', data);
+  // const onValueChanged = React.useCallback((data: StreamMasterApi.VideoStreamDto[] | undefined) => {
+  //   // console.log('onValueChanged', data);
 
-  }, []);
+  // }, []);
 
   React.useEffect(() => {
 
@@ -127,15 +127,6 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
     // setIcon(newIconSource);
     setIconSource(newIconSource);
   };
-
-  const onIconReset = () => {
-    if (props.videoStream === undefined) {
-      return;
-    }
-
-
-    setIconSource(props.videoStream.user_Tvg_logo);
-  }
 
   const onEPGChange = (e: string) => {
     setProgramme(e);
@@ -237,7 +228,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
               <img
                 alt={iconSource ?? 'Logo'}
                 className="max-h-8rem h-8rem max-w-full"
-                src={getIconUrl(iconSource, settings.defaultIconUrl, settings.cacheIcon)}
+                src={getIconUrl(iconSource, settings.defaultIcon, settings.cacheIcon)}
                 style={{
                   objectFit: 'contain',
                 }}
@@ -295,8 +286,6 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
                     <IconSelector
                       className="p-inputtext-sm"
                       onChange={(e) => onIconChange(e)}
-                      onReset={() => { onIconReset(); }}
-                      resetValue={props.videoStream === undefined ? '' : props.videoStream.user_Tvg_logo}
                       value={iconSource}
                     />
                   </div>
@@ -407,7 +396,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
               isAdditionalChannels
               maxHeight={400}
               onSelectionChange={(e) => onSetVideoStreams(e)}
-              onValueChanged={(e) => onValueChanged(e)}
+              // onValueChanged={(e) => onValueChanged(e)}
               showTriState={showHidden}
               sourceHeaderTemplate={rightHeaderTemplate}
               videoStream={props.videoStream}

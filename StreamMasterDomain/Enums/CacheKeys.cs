@@ -78,6 +78,26 @@ public static class CacheKeys
         cache.Remove(ListTVLogos);
     }
 
+    public static string? GetEPGChannelByTvgId(this IMemoryCache cache, string User_Tvg_ID)
+    {
+        var programmeNames = cache.ProgrammeNames();
+
+        var channelLogos = cache.ChannelLogos();
+
+        var pn = programmeNames.FirstOrDefault(a => a.DisplayName == User_Tvg_ID);
+        if (pn == null)
+        {
+            return null;
+        }
+
+        var channelLogo = channelLogos.FirstOrDefault(a => a.EPGId == pn.Channel);
+        if (channelLogo != null)
+        {
+            return channelLogo.LogoUrl;
+        }
+        return null;
+    }
+
     public static List<IconFileDto> Icons(this IMemoryCache cache)
     {
         return Get<IconFileDto>(ListIconFiles, cache);
@@ -98,6 +118,23 @@ public static class CacheKeys
     public static List<ProgrammeChannel> ProgrammeChannels(this IMemoryCache cache)
     {
         return Get<ProgrammeChannel>(ListProgrammeChannel, cache);
+    }
+
+    public static IEnumerable<ProgrammeNameDto> ProgrammeNames(this IMemoryCache cache)
+    {
+        var programmes = cache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel) && a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
+        if (programmes.Any())
+        {
+            var ret = programmes.GroupBy(a => a.Channel).Select(group => group.First()).Select(a => new ProgrammeNameDto
+            {
+                Channel = a.Channel,
+                ChannelName = a.ChannelName,
+                DisplayName = a.DisplayName
+            });
+
+            return ret.OrderBy(a => a.DisplayName);
+        }
+        return new List<ProgrammeNameDto>();
     }
 
     public static List<Programme> Programmes(this IMemoryCache cache)

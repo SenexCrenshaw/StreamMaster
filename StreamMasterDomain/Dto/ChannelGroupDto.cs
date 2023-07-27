@@ -12,6 +12,7 @@ public class ChannelGroupArg
     public bool? IsReadOnly { get; set; } = false;
 
     [Required]
+    [SortBy]
     public string Name { get; set; } = string.Empty;
 
     [Required]

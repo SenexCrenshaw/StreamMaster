@@ -7,8 +7,9 @@ import DropDownEditorBodyTemplate from './DropDownEditorBodyTemplate';
 
 const EPGSelector = (props: EPGSelectorProps) => {
   const toast = React.useRef<Toast>(null);
+
   const [programme, setProgramme] = React.useState<string>('');
-  const [dataDataSource, setDataSource] = React.useState<StreamMasterApi.ProgrammeName[]>([]);
+  const [dataDataSource, setDataSource] = React.useState<StreamMasterApi.ProgrammeNameDto[]>([]);
 
   const programmeNamesQuery = StreamMasterApi.useProgrammesGetProgrammeNamesQuery();
 

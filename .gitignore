@@ -354,4 +354,4 @@ StreamMasterAPI/wwwroot/initialize.js
 /StreamMasterAPI/devwwwroot
 /StreamMasterAPI/wwwroot
 /StreamMasterAPI/sd_token.json
-/StreamMasterAPI/dupes_2.csv
+/StreamMasterAPI/dupes*

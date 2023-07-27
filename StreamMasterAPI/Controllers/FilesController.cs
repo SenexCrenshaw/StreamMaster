@@ -56,13 +56,15 @@ public class FilesController : ApiControllerBase, IFileController
 
         string source = HttpUtility.UrlDecode(URL);
         string fileName = "";
+        string returnName = "";
         FileDefinition fd = FileDefinitions.Icon;
 
         if (IPTVFileType == SMFileTypes.TvLogo)
         {
             StreamMasterDomain.Entities.TvLogoFile? cache = _memoryCache.TvLogos().FirstOrDefault(a => a.Source == source);
             if (cache == null || !cache.FileExists) { return (null, null); }
-            fileName = FileDefinitions.TVLogo.DirectoryLocation + cache.Source;
+            returnName = cache.Source;
+            fileName = FileDefinitions.TVLogo.DirectoryLocation + returnName;
         }
         else
         {
@@ -114,7 +116,8 @@ public class FilesController : ApiControllerBase, IFileController
                     fd = FileDefinitions.Icon;
                     break;
             }
-            fileName = $"{fd.DirectoryLocation}{icon.Name}.{icon.Extension}";
+            returnName = $"{icon.Name}.{icon.Extension}";
+            fileName = $"{fd.DirectoryLocation}{returnName}";
 
             if (!System.IO.File.Exists(fileName) )
             {
@@ -130,7 +133,7 @@ public class FilesController : ApiControllerBase, IFileController
         if (System.IO.File.Exists(fileName))
         {
             byte[] ret = await System.IO.File.ReadAllBytesAsync(fileName).ConfigureAwait(false);
-            return (ret, fileName);
+            return (ret, returnName);
         }
 
         return (null, null);

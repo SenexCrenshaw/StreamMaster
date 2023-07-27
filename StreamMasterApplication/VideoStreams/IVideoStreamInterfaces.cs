@@ -29,7 +29,11 @@ public interface IVideoStreamController
 
     Task<IActionResult> GetVideoStreamStream(string encodedId, string name, CancellationToken cancellationToken);
 
+    Task<IActionResult> ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request);
+
     Task<ActionResult> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
+
+    Task<IActionResult> SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request);
 
     IActionResult SimulateStreamFailure(string streamUrl);
 
@@ -85,7 +89,11 @@ public interface IVideoStreamHub
 
     Task<IEnumerable<VideoStreamDto>> GetVideoStreams();
 
+    Task ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request);
+
     Task<IEnumerable<ChannelNumberPair>> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
+
+    Task SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request);
 
     Task<VideoStreamDto?> UpdateVideoStream(UpdateVideoStreamRequest request);
 
