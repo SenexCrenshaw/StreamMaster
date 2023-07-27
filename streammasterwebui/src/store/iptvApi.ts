@@ -1712,7 +1712,7 @@ export type StreamStatisticsResult = {
   videoStreamName?: string;
 };
 export type ChannelLogoDto = {
-  channelName?: string;
+  epgId?: string;
   epgFileId?: number;
   logoUrl?: string;
 };

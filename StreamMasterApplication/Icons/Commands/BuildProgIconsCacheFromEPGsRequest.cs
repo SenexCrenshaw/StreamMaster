@@ -107,7 +107,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler : IRequestHandler<BuildPr
                 var channelLogos = _memoryCache.ChannelLogos();
                 if (!channelLogos.Any(a => a.LogoUrl == source))
                 {
-                    var cl = new ChannelLogoDto { LogoUrl = source, ChannelName = channel.Displayname[0].ToString(), EPGFileId = epgFileId };
+                    var cl = new ChannelLogoDto { LogoUrl = source, EPGId = channel.Id, EPGFileId = epgFileId };
 
                     _memoryCache.Add(cl);
                 }

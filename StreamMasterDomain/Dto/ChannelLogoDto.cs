@@ -2,7 +2,7 @@
 
 public class ChannelLogoDto
 {
-    public string ChannelName { get; set; }
+    public string EPGId { get; set; }
     public int EPGFileId { get; set; }
     public string LogoUrl { get; set; }
 }

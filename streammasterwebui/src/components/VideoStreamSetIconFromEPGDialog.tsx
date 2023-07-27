@@ -29,6 +29,22 @@ const VideoStreamSetIconFromEPGDialog = (props: VideoStreamSetIconFromEPGDialogP
     props.onClose?.();
   }, [props]);
 
+  const channelLogo = React.useMemo((): string | undefined => {
+
+    if (props.value === null || props.value === undefined || props.value.user_Tvg_ID === undefined || props.value.user_Tvg_ID === '' || !channelLogos || channelLogos.data === null || channelLogos.data === undefined || channelLogos.data.length === 0) {
+      return undefined;
+    }
+
+    console.debug(props.value?.user_Tvg_ID);
+    const found = channelLogos.data.find((x) => x.epgId === props.value?.user_Tvg_ID);
+    if (found) {
+      return found.logoUrl;
+    }
+
+    return undefined;
+
+  }, [channelLogos, props.value]);
+
   const onEdit = React.useCallback(async () => {
     setBlock(true);
     if (props.value === null || props.value === undefined || !channelLogos || channelLogos.data === null || channelLogos.data === undefined || channelLogos.data.length === 0) {
@@ -68,7 +84,7 @@ const VideoStreamSetIconFromEPGDialog = (props: VideoStreamSetIconFromEPGDialogP
 
   return (
     <Button
-      // disabled={!videoStream}
+      disabled={!channelLogo}
       icon='pi pi-image'
       onClick={async () =>
         await onEdit()
