@@ -23,8 +23,8 @@ const LogViewer = () => {
 
           setDataSource([...dataSource, ...returnData].slice(-1000));
           setLastLogId(returnData[returnData.length - 1].id ?? 0);
-          console.debug('dataSource: ', [...dataSource, ...returnData].slice(-3));
-          console.debug('lastLogId: ', returnData[returnData.length - 1].id ?? 0, ' dataSource: ', [...dataSource, ...returnData].slice(-1000).length);
+          // console.debug('dataSource: ', [...dataSource, ...returnData].slice(-3));
+          // console.debug('lastLogId: ', returnData[returnData.length - 1].id ?? 0, ' dataSource: ', [...dataSource, ...returnData].slice(-1000).length);
         }
       }).catch(() => { })
 
@@ -123,8 +123,10 @@ const LogViewer = () => {
         columns={sourceColumns}
         dataSource={dataSource}
         emptyMessage="No Clients Streaming"
+        enableExport
         enableState={false}
         enableVirtualScroll
+        exportFilename={`StreamMaster_Logs_${new Date().toISOString()}`}
         globalSearchEnabled
         id='LogViewer'
         isLoading={dataSource === undefined || dataSource.length === 0}

@@ -489,7 +489,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   React.useEffect(() => {
 
     if (dataSource !== undefined && props.enableVirtualScroll === true && dataSource.length > 0) {
-      console.debug("Scroll to ", dataSource.length);
+      // console.debug("Scroll to ", dataSource.length);
 
       if (tableRef.current?.getVirtualScroller()?.scrollToIndex !== undefined) {
         tableRef.current.getVirtualScroller().scrollToIndex(10, 'auto');
@@ -555,6 +555,13 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
     return {};
   }, [getRecord, streamNotHiddenCount]);
+
+
+  const exportCSV = () => {
+    tableRef.current?.exportCSV({ selectionOnly: false });
+  };
+
+
 
   const sourceRenderHeader = React.useMemo(() => {
     if (!props.headerLeftTemplate && !props.headerRightTemplate && !props.globalSearchEnabled) {
@@ -622,16 +629,31 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
                         placeholder={globalSearchName}
                         value={globalSourceFilterValue ?? ''}
                       />
+
+
                     </>
                   }
                 </div>
-                <div className={`col-${props.rightColSize !== undefined ? props.rightColSize : '6'} debug p-0 m-0 justify-content-end align-items-center`}>
-                  {showSkeleton ?
-                    <Skeleton className="mb-2" height="1.5rem" />
-                    :
-                    props.headerRightTemplate
-                  }
-                </div>
+                {props.enableExport === true &&
+                  <div className={`flex col-${props.rightColSize !== undefined ? props.rightColSize : '6'} debug p-0 m-0 justify-content-end align-items-center`} >
+                    <Button
+                      className="p-button-text justify-content-end"
+                      data-pr-tooltip="CSV"
+                      icon="pi pi-file-export"
+                      onClick={() => exportCSV()}
+                      rounded
+                      text
+                      tooltip="Clear Filter"
+                      tooltipOptions={getTopToolOptions}
+                      type="button"
+                    />
+                    {showSkeleton ?
+                      <Skeleton className="mb-2" height="1.5rem" />
+                      :
+                      props.headerRightTemplate
+                    }
+                  </div>
+                }
               </div>
             </div >
           </div >
@@ -954,7 +976,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     );
   }
 
-
   if (showSkeleton) {
     return (
       <div className='dataselector flex justify-content-start align-items-center' >
@@ -1016,6 +1037,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           emptyMessage={props.emptyMessage}
           expandableRowGroups={props.groupRowsBy !== undefined && props.groupRowsBy !== ''}
           expandedRows={expandedRows}
+          exportFilename={props.exportFilename ?? 'streammaster'}
           filterDelay={1000}
           filters={sourceFilters}
           first={props.first}
@@ -1161,9 +1183,12 @@ export type DataSelectorProps<T> = {
    * A React node that is displayed when there is no data to display.
    */
   emptyMessage?: React.ReactNode;
+
+  enableExport?: boolean;
   // eslint-disable-next-line react/no-unused-prop-types
   enableState?: boolean | undefined;
   enableVirtualScroll?: boolean | undefined;
+  exportFilename?: string;
   first?: number | undefined;
   /**
    * Whether to enable global searching.
@@ -1214,10 +1239,6 @@ export type DataSelectorProps<T> = {
    * A function that is called when a row is selected.
    */
   onSelectionChange?: (value: T | T[]) => void;
-  // /**
-  //  * A function that is called when the selection changes.
-  //  */
-  // onSelectionsChange?: (value: T | T[]) => void;
   /**
      * A function that is called when the value changes.
      */
