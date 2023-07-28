@@ -319,17 +319,9 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   }, [isVideoStreamUpdating, onEdit, props.isAdditionalChannels, props.streamGroup]);
 
   const onChange = React.useCallback(async (e: StreamMasterApi.ChildVideoStreamDto[]) => {
-    if (props.isAdditionalChannels === true) {
-
-      const newData = e.map((x: StreamMasterApi.ChildVideoStreamDto, index: number) => { return { ...x, rank: index, } }) as StreamMasterApi.ChildVideoStreamDto[];
-
-      setTargetVideoStreams(newData.sort((a, b) => a.rank - b.rank));
-    } else {
-      setTargetVideoStreams(e as StreamMasterApi.ChildVideoStreamDto[]);
-    }
 
     await onSave(e);
-  }, [onSave, props]);
+  }, [onSave]);
 
   const onRemoveRank = React.useCallback(async (data: StreamMasterApi.VideoStreamDto) => {
     if (targetVideoStreams === undefined) {
