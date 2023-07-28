@@ -11,7 +11,6 @@ import {
   type ChangeVideoStreamChannelRequest,
   type ChannelGroupDto,
   type ChannelLogoDto,
-  type ChannelNumberPair,
   type Countries,
   type DeleteChannelGroupRequest,
   type DeleteEpgFileRequest,
@@ -42,6 +41,7 @@ import {
   type SetChannelGroupsVisibleRequest,
   type SettingDto,
   type SetVideoStreamChannelNumbersRequest,
+  type SetVideoStreamSetEpGsFromNameRequest,
   type SetVideoStreamsLogoToEpgRequest,
   type Station,
   type StationPreview,
@@ -388,20 +388,16 @@ export const UpdateStreamGroup = async (arg: UpdateStreamGroupRequest): Promise<
     return data;
 };
 
-export const AddVideoStream = async (arg: AddVideoStreamRequest): Promise<VideoStreamDto> => {
-    const data = await hubConnection.invoke('AddVideoStream',arg);
-
-    return data;
+export const AddVideoStream = async (arg: AddVideoStreamRequest): Promise<void> => {
+    await hubConnection.invoke('AddVideoStream',arg);
 };
 
 export const ChangeVideoStreamChannel = async (arg: ChangeVideoStreamChannelRequest): Promise<void> => {
     await hubConnection.invoke('ChangeVideoStreamChannel',arg);
 };
 
-export const DeleteVideoStream = async (arg: DeleteVideoStreamRequest): Promise<string> => {
-    const data = await hubConnection.invoke('DeleteVideoStream',arg);
-
-    return data;
+export const DeleteVideoStream = async (arg: DeleteVideoStreamRequest): Promise<void> => {
+    await hubConnection.invoke('DeleteVideoStream',arg);
 };
 
 export const GetChannelLogoDtos = async (): Promise<ChannelLogoDto[]> => {
@@ -426,25 +422,23 @@ export const ReSetVideoStreamsLogo = async (arg: ReSetVideoStreamsLogoRequest): 
     await hubConnection.invoke('ReSetVideoStreamsLogo',arg);
 };
 
-export const SetVideoStreamChannelNumbers = async (arg: SetVideoStreamChannelNumbersRequest): Promise<ChannelNumberPair[]> => {
-    const data = await hubConnection.invoke('SetVideoStreamChannelNumbers',arg);
+export const SetVideoStreamChannelNumbers = async (arg: SetVideoStreamChannelNumbersRequest): Promise<void> => {
+    await hubConnection.invoke('SetVideoStreamChannelNumbers',arg);
+};
 
-    return data;
+export const SetVideoStreamSetEPGsFromName = async (arg: SetVideoStreamSetEpGsFromNameRequest): Promise<void> => {
+    await hubConnection.invoke('SetVideoStreamSetEPGsFromName',arg);
 };
 
 export const SetVideoStreamsLogoToEPG = async (arg: SetVideoStreamsLogoToEpgRequest): Promise<void> => {
     await hubConnection.invoke('SetVideoStreamsLogoToEPG',arg);
 };
 
-export const UpdateVideoStream = async (arg: UpdateVideoStreamRequest): Promise<VideoStreamDto> => {
-    const data = await hubConnection.invoke('UpdateVideoStream',arg);
-
-    return data;
+export const UpdateVideoStream = async (arg: UpdateVideoStreamRequest): Promise<void> => {
+    await hubConnection.invoke('UpdateVideoStream',arg);
 };
 
-export const UpdateVideoStreams = async (arg: UpdateVideoStreamsRequest): Promise<VideoStreamDto[]> => {
-    const data = await hubConnection.invoke('UpdateVideoStreams',arg);
-
-    return data;
+export const UpdateVideoStreams = async (arg: UpdateVideoStreamsRequest): Promise<void> => {
+    await hubConnection.invoke('UpdateVideoStreams',arg);
 };
 

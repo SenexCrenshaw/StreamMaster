@@ -11,13 +11,13 @@ namespace StreamMasterApplication.VideoStreams;
 
 public interface IVideoStreamController
 {
-    Task<ActionResult> AddVideoStream(AddVideoStreamRequest request);
+    Task<IActionResult> AddVideoStream(AddVideoStreamRequest request);
 
-    Task<ActionResult> ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request);
+    Task<IActionResult> ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request);
 
-    Task<ActionResult> DeleteVideoStream(DeleteVideoStreamRequest request);
+    Task<IActionResult> DeleteVideoStream(DeleteVideoStreamRequest request);
 
-    Task<ActionResult> FailClient(FailClientRequest request);
+    Task<IActionResult> FailClient(FailClientRequest request);
 
     Task<IActionResult> GetAllStatisticsForAllUrls();
 
@@ -31,15 +31,16 @@ public interface IVideoStreamController
 
     Task<IActionResult> ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request);
 
-    Task<ActionResult> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
+    Task<IActionResult> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
 
     Task<IActionResult> SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request);
+    Task<IActionResult> SetVideoStreamSetEPGsFromName(SetVideoStreamSetEPGsFromNameRequest request);
 
     IActionResult SimulateStreamFailure(string streamUrl);
 
-    Task<ActionResult> UpdateVideoStream(UpdateVideoStreamRequest request);
+    Task<IActionResult> UpdateVideoStream(UpdateVideoStreamRequest request);
 
-    Task<ActionResult> UpdateVideoStreams(UpdateVideoStreamsRequest request);
+    Task<IActionResult> UpdateVideoStreams(UpdateVideoStreamsRequest request);
 }
 
 public interface IVideoStreamDB
@@ -77,27 +78,28 @@ public interface IVideoStreamDB
 
 public interface IVideoStreamHub
 {
-    Task<VideoStreamDto?> AddVideoStream(AddVideoStreamRequest request);
+    Task AddVideoStream(AddVideoStreamRequest request);
 
     Task ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request);
 
-    Task<string?> DeleteVideoStream(DeleteVideoStreamRequest request);
+    Task DeleteVideoStream(DeleteVideoStreamRequest request);
 
     Task<IEnumerable<ChannelLogoDto>> GetChannelLogoDtos();
-
+    
     Task<VideoStreamDto?> GetVideoStream(string id);
 
     Task<IEnumerable<VideoStreamDto>> GetVideoStreams();
 
     Task ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request);
 
-    Task<IEnumerable<ChannelNumberPair>> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
+    Task SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
 
     Task SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request);
+    Task SetVideoStreamSetEPGsFromName(SetVideoStreamSetEPGsFromNameRequest request);
 
-    Task<VideoStreamDto?> UpdateVideoStream(UpdateVideoStreamRequest request);
+    Task UpdateVideoStream(UpdateVideoStreamRequest request);
 
-    Task<IEnumerable<VideoStreamDto>> UpdateVideoStreams(UpdateVideoStreamsRequest request);
+    Task UpdateVideoStreams(UpdateVideoStreamsRequest request);
 }
 
 public interface IVideoStreamScoped

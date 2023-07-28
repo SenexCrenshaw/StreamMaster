@@ -28,12 +28,10 @@ const VideoStreamAddDialog = (props: VideoStreamAddDialogProps) => {
     setBlock(true);
 
     await Hub.AddVideoStream(data)
-      .then((returnData) => {
-        if (returnData) {
-          setInfoMessage('Add Stream Successful');
-        } else {
-          setInfoMessage('Add Stream No Changes');
-        }
+      .then(() => {
+
+        setInfoMessage('Add Stream Successful');
+
       }).catch((error) => {
         setInfoMessage('Add Stream Error: ' + error.message);
       }

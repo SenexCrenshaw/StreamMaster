@@ -29,9 +29,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? DeviceID { get; set; }
     public string? DummyRegex { get; set; }
     public bool? EnableSSL { get; set; }
-    public bool? VideoStreamAlwaysUseEPGLogo { get; set; }
-
-    
+    public bool? EPGAlwaysUseVideoStreamName { get; set; } = false;
     public string? FFMPegExecutable { get; set; }
     public int? GlobalStreamLimit { get; set; }
     public bool? M3UFieldChannelId { get; set; }
@@ -58,6 +56,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? SSLCertPath { get; set; }
     public string? StreamingClientUserAgent { get; set; }
     public StreamingProxyTypes? StreamingProxyType { get; set; }
+    public bool? VideoStreamAlwaysUseEPGLogo { get; set; }
 }
 
 public class UpdateSettingValidator : AbstractValidator<UpdateSettingRequest>
@@ -120,7 +119,11 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
         {
             currentSetting.VideoStreamAlwaysUseEPGLogo = (bool)request.VideoStreamAlwaysUseEPGLogo;
         }
-        
+
+        if (request.EPGAlwaysUseVideoStreamName != null && request.EPGAlwaysUseVideoStreamName != currentSetting.EPGAlwaysUseVideoStreamName)
+        {
+            currentSetting.EPGAlwaysUseVideoStreamName = (bool)request.EPGAlwaysUseVideoStreamName;
+        }
 
         if (request.M3UIgnoreEmptyEPGID != null)
         {

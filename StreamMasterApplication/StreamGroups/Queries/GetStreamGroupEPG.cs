@@ -150,10 +150,13 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                     return;
                 }
 
-                if (setting.M3UIgnoreEmptyEPGID && string.IsNullOrEmpty(videoStream.User_Tvg_ID))
-                {
-                    return;
-                }
+      
+                    if (_setting.M3UIgnoreEmptyEPGID &&
+                    (string.IsNullOrEmpty(videoStream.User_Tvg_ID) || videoStream.User_Tvg_ID.ToLower() == "dummy"))
+                    {
+                        return;
+                    }
+                
 
                 //IconFileDto? icon = icons.SingleOrDefault(a => a.Source == videoStream.User_Tvg_logo);
                 //string Logo = icon != null ? url + icon.Source : url + "/" + setting.DefaultIcon;

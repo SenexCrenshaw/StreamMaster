@@ -25,6 +25,8 @@ import AutoSetChannelNumbers from "./AutoSetChannelNumbers";
 import VideoStreamResetLogoDialog from "./VideoStreamResetLogoDialog";
 import VideoStreamSetLogosFromEPGDialog from "./VideoStreamSetLogosFromEPGDialog";
 import VideoStreamResetLogosDialog from "./VideoStreamResetLogosDialog";
+import VideoStreamSetEPGFromNameDialog from "./VideoStreamSetEPGFromNameDialog";
+import VideoStreamSetEPGsFromNameDialog from "./VideoStreamSetEPGsFromNameDialog";
 
 const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
@@ -94,14 +96,14 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       data = videoStreamsQuery.data;
     } else {
 
-      const groupNames = props.groups.map(
-        (a: StreamMasterApi.ChannelGroupDto) => a.name.toLocaleLowerCase()
-      );
+      const propsGroupIds = props.groups.map((a: StreamMasterApi.ChannelGroupDto) => a.id);
+
+      const groupNames = channelGroupsQuery.data?.filter((a) => propsGroupIds.includes(a.id)).map((a) => a.name) ?? [];
 
       data = videoStreamsQuery.data.filter(
         (a: StreamMasterApi.VideoStreamDto) =>
           a.user_Tvg_group !== undefined &&
-          groupNames.includes(a.user_Tvg_group.toLocaleLowerCase())
+          groupNames.includes(a.user_Tvg_group)
       );
 
       groupNames.forEach((groupName: string) => {
@@ -166,6 +168,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     return (
       <div className='flex p-0 justify-content-end align-items-center'>
         <VideoStreamResetLogoDialog value={data} />
+        <VideoStreamSetEPGFromNameDialog value={data} />
         <VideoStreamSetIconFromEPGDialog value={data} />
         <VideoStreamVisibleDialog iconFilled={false} skipOverLayer values={[data]} />
         <VideoStreamEditDialog iconFilled={false} value={data} />
@@ -209,23 +212,14 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     }
 
     await UpdateVideoStream(data)
-      .then((result) => {
+      .then(() => {
         if (toast.current) {
-          if (result) {
-            toast.current.show({
-              detail: `Updated Stream`,
-              life: 3000,
-              severity: 'success',
-              summary: 'Successful',
-            });
-          } else {
-            toast.current.show({
-              detail: `Update Stream Failed`,
-              life: 3000,
-              severity: 'error',
-              summary: 'Error',
-            });
-          }
+          toast.current.show({
+            detail: `Updated Stream`,
+            life: 3000,
+            severity: 'success',
+            summary: 'Successful',
+          });
 
         }
       }).catch((e) => {
@@ -368,11 +362,6 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   }, []);
 
 
-  const videoStreamDelete = React.useCallback((videoStreamDeleteids: string[]) => {
-    const test = selectedVideoStreams.filter((item) => !videoStreamDeleteids.includes(item.id));
-    setSelectedVideoStreams(test);
-  }, [selectedVideoStreams]);
-
   const rightHeaderTemplate = React.useMemo(() => {
     const getToolTip = (value: boolean | null | undefined) => {
       if (value === null) {
@@ -398,6 +387,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         {/* <AutoMatchIconToStreamsDialog ids={ids} /> */}
 
         <VideoStreamResetLogosDialog values={selectedVideoStreams} />
+        <VideoStreamSetEPGsFromNameDialog values={selectedVideoStreams} />
 
         <VideoStreamSetLogosFromEPGDialog values={selectedVideoStreams} />
 
@@ -405,14 +395,14 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
         <VideoStreamVisibleDialog iconFilled values={selectedVideoStreams} />
 
-        <VideoStreamDeleteDialog onChange={videoStreamDelete} values={selectedVideoStreams} />
+        <VideoStreamDeleteDialog values={selectedVideoStreams} />
 
         <VideoStreamAddPanel group={props.groups !== undefined && props.groups.length > 0 ? props.groups[0].name : undefined} />
 
       </div>
     );
 
-  }, [ids, props.groups, selectedVideoStreams, setShowHidden, showHidden, videoStreamDelete]);
+  }, [ids, props.groups, selectedVideoStreams, setShowHidden, showHidden]);
 
 
 
@@ -426,7 +416,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         emptyMessage="No Streams"
         enableState={false}
         headerRightTemplate={rightHeaderTemplate}
-        id={props.id + 'DataSelector'}
+        id={props.id + 'VideoStreamDataSelector'}
         isLoading={videoStreamsQuery.isLoading}
         leftColSize={1}
         name='Playlist Streams'

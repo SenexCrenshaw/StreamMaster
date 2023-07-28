@@ -771,6 +771,17 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["VideoStreams"],
       }),
+      videoStreamsSetVideoStreamSetEpGsFromName: build.mutation<
+        VideoStreamsSetVideoStreamSetEpGsFromNameApiResponse,
+        VideoStreamsSetVideoStreamSetEpGsFromNameApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/setvideostreamsetepgsfromname`,
+          method: "PATCH",
+          body: queryArg,
+        }),
+        invalidatesTags: ["VideoStreams"],
+      }),
       videoStreamsSetVideoStreamsLogoToEpg: build.query<
         VideoStreamsSetVideoStreamsLogoToEpgApiResponse,
         VideoStreamsSetVideoStreamsLogoToEpgApiArg
@@ -1043,16 +1054,12 @@ export type StreamGroupsGetStreamGroupsApiArg = void;
 export type StreamGroupsUpdateStreamGroupApiResponse =
   /** status 204  */ undefined;
 export type StreamGroupsUpdateStreamGroupApiArg = UpdateStreamGroupRequest;
-export type VideoStreamsAddVideoStreamApiResponse = /** status 200  */
-  | undefined
-  | /** status 201  */ VideoStreamDto;
+export type VideoStreamsAddVideoStreamApiResponse = unknown;
 export type VideoStreamsAddVideoStreamApiArg = AddVideoStreamRequest;
-export type VideoStreamsChangeVideoStreamChannelApiResponse =
-  /** status 200  */ undefined;
+export type VideoStreamsChangeVideoStreamChannelApiResponse = unknown;
 export type VideoStreamsChangeVideoStreamChannelApiArg =
   ChangeVideoStreamChannelRequest;
-export type VideoStreamsDeleteVideoStreamApiResponse =
-  /** status 200  */ undefined;
+export type VideoStreamsDeleteVideoStreamApiResponse = unknown;
 export type VideoStreamsDeleteVideoStreamApiArg = DeleteVideoStreamRequest;
 export type VideoStreamsFailClientApiResponse = unknown;
 export type VideoStreamsFailClientApiArg = FailClientRequest;
@@ -1080,24 +1087,22 @@ export type VideoStreamsGetVideoStreamStream3ApiArg = {
 export type VideoStreamsReSetVideoStreamsLogoApiResponse = unknown;
 export type VideoStreamsReSetVideoStreamsLogoApiArg =
   ReSetVideoStreamsLogoRequest;
-export type VideoStreamsSetVideoStreamChannelNumbersApiResponse =
-  /** status 200  */ ChannelNumberPair[] | /** status 204  */ undefined;
+export type VideoStreamsSetVideoStreamChannelNumbersApiResponse = unknown;
 export type VideoStreamsSetVideoStreamChannelNumbersApiArg =
   SetVideoStreamChannelNumbersRequest;
+export type VideoStreamsSetVideoStreamSetEpGsFromNameApiResponse = unknown;
+export type VideoStreamsSetVideoStreamSetEpGsFromNameApiArg =
+  SetVideoStreamSetEpGsFromNameRequest;
 export type VideoStreamsSetVideoStreamsLogoToEpgApiResponse = unknown;
 export type VideoStreamsSetVideoStreamsLogoToEpgApiArg =
   SetVideoStreamsLogoToEpgRequest;
-export type VideoStreamsSimulateStreamFailureApiResponse =
-  /** status 200  */ undefined;
+export type VideoStreamsSimulateStreamFailureApiResponse = unknown;
 export type VideoStreamsSimulateStreamFailureApiArg = string;
-export type VideoStreamsSimulateStreamFailureForAllApiResponse =
-  /** status 200  */ undefined;
+export type VideoStreamsSimulateStreamFailureForAllApiResponse = unknown;
 export type VideoStreamsSimulateStreamFailureForAllApiArg = void;
-export type VideoStreamsUpdateVideoStreamApiResponse =
-  /** status 204  */ undefined;
+export type VideoStreamsUpdateVideoStreamApiResponse = unknown;
 export type VideoStreamsUpdateVideoStreamApiArg = UpdateVideoStreamRequest;
-export type VideoStreamsUpdateVideoStreamsApiResponse =
-  /** status 204  */ undefined;
+export type VideoStreamsUpdateVideoStreamsApiResponse = unknown;
 export type VideoStreamsUpdateVideoStreamsApiArg = UpdateVideoStreamsRequest;
 export type ChannelGroupArg = {
   isHidden: boolean | null;
@@ -1527,6 +1532,7 @@ export type Setting = {
   deviceID?: string;
   dummyRegex?: string;
   enableSSL?: boolean;
+  epgAlwaysUseVideoStreamName?: boolean;
   ffmPegExecutable?: string;
   globalStreamLimit?: number;
   m3UFieldChannelId?: boolean;
@@ -1585,7 +1591,7 @@ export type UpdateSettingRequest = {
   deviceID?: string | null;
   dummyRegex?: string | null;
   enableSSL?: boolean | null;
-  videoStreamAlwaysUseEPGLogo?: boolean | null;
+  epgAlwaysUseVideoStreamName?: boolean | null;
   ffmPegExecutable?: string | null;
   globalStreamLimit?: number | null;
   m3UFieldChannelId?: boolean | null;
@@ -1612,6 +1618,7 @@ export type UpdateSettingRequest = {
   sslCertPath?: string | null;
   streamingClientUserAgent?: string | null;
   streamingProxyType?: StreamingProxyTypes | null;
+  videoStreamAlwaysUseEPGLogo?: boolean | null;
 };
 export type VideoStreamHandlers = 0 | 1 | 2;
 export type BaseVideoStreamDto = {
@@ -1754,6 +1761,9 @@ export type ChannelNumberPair = {
 export type SetVideoStreamChannelNumbersRequest = {
   channelNumberPairs: ChannelNumberPair[];
 };
+export type SetVideoStreamSetEpGsFromNameRequest = {
+  ids?: string[];
+};
 export type SetVideoStreamsLogoToEpgRequest = {
   ids?: string[];
 };
@@ -1864,6 +1874,7 @@ export const {
   useVideoStreamsGetVideoStreamStream3Query,
   useVideoStreamsReSetVideoStreamsLogoQuery,
   useVideoStreamsSetVideoStreamChannelNumbersMutation,
+  useVideoStreamsSetVideoStreamSetEpGsFromNameMutation,
   useVideoStreamsSetVideoStreamsLogoToEpgQuery,
   useVideoStreamsSimulateStreamFailureMutation,
   useVideoStreamsSimulateStreamFailureForAllMutation,

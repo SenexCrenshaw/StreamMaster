@@ -8,8 +8,6 @@ using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Dto;
 
-using System.Text.RegularExpressions;
-
 namespace StreamMasterApplication.VideoStreams.Commands;
 
 public record AddVideoStreamRequest(
@@ -59,7 +57,7 @@ public class AddVideoStreamRequestHandler : IRequestHandler<AddVideoStreamReques
         var setting = FileUtil.GetSetting();
 
         var group = string.IsNullOrEmpty(request.Tvg_group) ? "(None)" : request.Tvg_group;
-        var epgId = string.IsNullOrEmpty(request.Tvg_ID) ? "Dummy" : request.Tvg_ID;
+        var epgId = string.IsNullOrEmpty(request.Tvg_ID) ? "" : request.Tvg_ID;
 
         VideoStream videoStream = new()
         {

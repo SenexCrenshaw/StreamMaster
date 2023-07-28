@@ -3,20 +3,17 @@
 public class Setting
 {
     public string AdminPassword { get; set; } = "";
-
     public string AdminUserName { get; set; } = "";
-
     public string ApiKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
-
     public AuthenticationType AuthenticationMethod { get; set; } = AuthenticationType.None;
     public bool CacheIcons { get; set; } = true;
     public bool CleanURLs { get; set; } = true;
-
     public string ClientUserAgent { get; set; } = "Mozilla/5.0 (compatible; streammaster/1.0)";
     public string DefaultIcon { get; set; } = "images/default.png";
     public string DeviceID { get; set; } = "device1";
     public string DummyRegex { get; set; } = "(no tvg-id)";
     public bool EnableSSL { get; set; } = false;
+    public bool EPGAlwaysUseVideoStreamName { get; set; } = false;
     public string FFMPegExecutable { get; set; } = "ffmpeg";
     public int GlobalStreamLimit { get; set; } = 1;
     public bool M3UFieldChannelId { get; set; } = true;
@@ -42,14 +39,9 @@ public class Setting
     public string SSLCertPassword { get; set; } = "";
     public string SSLCertPath { get; set; } = "";
     public string StreamingClientUserAgent { get; set; } = "Mozilla/5.0 (compatible; streammaster/1.0)";
-
     public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.StreamMaster;
-
     public string StreamMasterIcon { get; set; } = "images/StreamMaster.png";
-
     public string UiFolder { get; set; } = "wwwroot";
-
     public string UrlBase { get; set; } = "";
-
     public bool VideoStreamAlwaysUseEPGLogo { get; set; } = false;
 }

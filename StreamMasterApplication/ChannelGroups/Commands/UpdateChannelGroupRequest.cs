@@ -1,8 +1,11 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+
+using FluentValidation;
 
 using MediatR;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.Common.Extensions;
 using StreamMasterApplication.VideoStreams.Events;
@@ -30,14 +33,18 @@ public class UpdateChannelGroupRequestHandler : IRequestHandler<UpdateChannelGro
 {
     private readonly IAppDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IMapper _mapper;
     private readonly IPublisher _publisher;
 
     public UpdateChannelGroupRequestHandler(
         IHttpContextAccessor httpContextAccessor,
+
+        IMapper mapper,
         IPublisher publisher,
         IAppDbContext context
     )
     {
+        _mapper = mapper;
         _httpContextAccessor = httpContextAccessor;
         _publisher = publisher;
         _context = context;
@@ -45,6 +52,8 @@ public class UpdateChannelGroupRequestHandler : IRequestHandler<UpdateChannelGro
 
     public async Task<ChannelGroupDto?> Handle(UpdateChannelGroupRequest request, CancellationToken cancellationToken)
     {
+        var originalStreamsIds = await _context.VideoStreams.Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == request.GroupName.ToLower()).Select(a => a.Id).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
         string url = _httpContextAccessor.GetUrl();
         var (cg, distinctList, streamGroups) = await _context.UpdateChannelGroup(request, url, cancellationToken).ConfigureAwait(false);
 
@@ -66,7 +75,14 @@ public class UpdateChannelGroupRequestHandler : IRequestHandler<UpdateChannelGro
             }
         }
 
-        if ( cg is not null)
+        if (originalStreamsIds.Any())
+        {
+            var orginalStreams = await _context.VideoStreams.Where(a => originalStreamsIds.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+            var originalStreamsDto = _mapper.Map<List<VideoStreamDto>>(orginalStreams);
+            await _publisher.Publish(new UpdateVideoStreamsEvent(originalStreamsDto), cancellationToken).ConfigureAwait(false);
+        }
+
+        if (cg is not null)
         {
             await _publisher.Publish(new UpdateChannelGroupEvent(cg), cancellationToken).ConfigureAwait(false);
         }

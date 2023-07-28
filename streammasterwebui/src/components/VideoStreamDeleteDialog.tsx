@@ -35,7 +35,6 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
       return;
     }
 
-    const ret = [] as string[];
     const promises = [];
 
     for (const stream of selectedVideoStreams) {
@@ -46,8 +45,8 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
 
       promises.push(
         Hub.DeleteVideoStream(data)
-          .then((returnData) => {
-            ret.push(returnData);
+          .then(() => {
+
           }).catch(() => { })
       );
     }
@@ -55,13 +54,9 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
     const p = Promise.all(promises);
 
     await p.then(() => {
-      if (ret.length === 0) {
-        setInfoMessage('Delete Stream No Changes');
-      } else {
-        setInfoMessage('Delete Stream Successful');
-      }
 
-      props.onChange?.(ret);
+      setInfoMessage('Delete Stream Successful');
+
     }).catch((error) => {
       setInfoMessage('Delete Stream Error: ' + error.message);
     });
@@ -119,7 +114,7 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
 VideoStreamDeleteDialog.displayName = 'VideoStreamDeleteDialog';
 
 type VideoStreamDeleteDialogProps = {
-  onChange?: ((value: string[]) => void) | null;
+  // onChange?: ((value: string[]) => void) | null;
   onClose?: (() => void);
   values?: StreamMasterApi.VideoStreamDto[] | undefined;
 };

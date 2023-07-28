@@ -139,10 +139,11 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
         {
             if (_setting.M3UFieldTvgId)
             {
-                if (_setting.M3UIgnoreEmptyEPGID && string.IsNullOrEmpty(videoStream.User_Tvg_ID))
+                if (_setting.M3UIgnoreEmptyEPGID &&
+                (string.IsNullOrEmpty(videoStream.User_Tvg_ID) ||   videoStream.User_Tvg_ID.ToLower() == "dummy"))
                 {
                     return;
-                }
+                }              
             }
 
             int cid = Convert.ToInt32(longCid);

@@ -31,19 +31,14 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpPost]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(VideoStreamDto))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> AddVideoStream(AddVideoStreamRequest request)
+    public async Task<IActionResult> AddVideoStream(AddVideoStreamRequest request)
     {
         return Ok(await Mediator.Send(request).ConfigureAwait(false));
     }
 
     [HttpPost]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request)
+    public async Task<IActionResult> ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request)
     {
         await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
@@ -51,10 +46,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpDelete]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> DeleteVideoStream(DeleteVideoStreamRequest request)
+    public async Task<IActionResult> DeleteVideoStream(DeleteVideoStreamRequest request)
     {
         string? data = await Mediator.Send(request).ConfigureAwait(false);
         return data == null ? NotFound() : NoContent();
@@ -62,7 +54,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpPost]
     [Route("[action]")]
-    public async Task<ActionResult> FailClient(FailClientRequest request)
+    public async Task<IActionResult> FailClient(FailClientRequest request)
     {
         await _channelManager.FailClient(request.clientId);
         return Ok();
@@ -90,7 +82,8 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VideoStreamDto))]
     public async Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id)
     {
-        return await Mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
+        var data= await Mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
+        return data;
     }
 
     [HttpGet]
@@ -106,7 +99,6 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [Route("stream/{encodedIds}")]
     [Route("stream/{encodedIds}.mp4")]
     [Route("stream/{encodedIds}/{name}")]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetVideoStreamStream(string encodedIds, string name, CancellationToken cancellationToken)
     {
         (int? StreamGroupNumberNull, string? StreamIdNull) = encodedIds.DecodeTwoValuesAsString128(_setting.ServerKey);
@@ -179,10 +171,15 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpPatch]
     [Route("[action]")]
-    [ProducesResponseType(typeof(IEnumerable<ChannelNumberPair>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request)
+    public async Task<IActionResult> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return NoContent();
+    }
+
+    [HttpPatch]
+    [Route("[action]")]
+    public async Task<IActionResult> SetVideoStreamSetEPGsFromName(SetVideoStreamSetEPGsFromNameRequest request)
     {
         await Mediator.Send(request).ConfigureAwait(false);
         return NoContent();
@@ -198,8 +195,6 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpPost]
     [Route("[action]/{streamUrl}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult SimulateStreamFailure(string streamUrl)
     {
         if (string.IsNullOrEmpty(streamUrl))
@@ -213,8 +208,6 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpPost]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult SimulateStreamFailureForAll()
     {
         _channelManager.SimulateStreamFailureForAll();
@@ -223,10 +216,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpPut]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> UpdateVideoStream(UpdateVideoStreamRequest request)
+    public async Task<IActionResult> UpdateVideoStream(UpdateVideoStreamRequest request)
     {
         _ = await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
@@ -234,10 +224,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpPut]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> UpdateVideoStreams(UpdateVideoStreamsRequest request)
+    public async Task<IActionResult> UpdateVideoStreams(UpdateVideoStreamsRequest request)
     {
         _ = await Mediator.Send(request).ConfigureAwait(false);
         return Ok();

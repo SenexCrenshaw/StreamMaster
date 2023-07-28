@@ -179,23 +179,15 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     }
 
     await Hub.UpdateVideoStream(toSend)
-      .then((result) => {
+      .then(() => {
         if (toast.current) {
-          if (result) {
-            toast.current.show({
-              detail: `Updated Stream`,
-              life: 3000,
-              severity: 'success',
-              summary: 'Successful',
-            });
-          } else {
-            toast.current.show({
-              detail: `Update Stream Failed`,
-              life: 3000,
-              severity: 'error',
-              summary: 'Error',
-            });
-          }
+
+          toast.current.show({
+            detail: `Updated Stream`,
+            life: 3000,
+            severity: 'success',
+            summary: 'Successful',
+          });
 
         }
       }).catch((e) => {
@@ -251,24 +243,17 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     toSend.childVideoStreams = newData;
 
     Hub.UpdateVideoStream(toSend)
-      .then((resultData) => {
+      .then(() => {
         if (toast.current) {
-          if (resultData) {
-            toast.current.show({
-              detail: `Video Stream Update Successful`,
-              life: 3000,
-              severity: 'success',
-              summary: 'Successful',
-            });
 
-          } else {
-            toast.current.show({
-              detail: `Video Stream Update Failed`,
-              life: 3000,
-              severity: 'error',
-              summary: 'Error',
-            });
-          }
+          toast.current.show({
+            detail: `Video Stream Update Successful`,
+            life: 3000,
+            severity: 'success',
+            summary: 'Successful',
+          });
+
+
         }
       }
       ).catch((error) => {

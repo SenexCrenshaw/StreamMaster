@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 import { Button } from "primereact/button";
 import { getTopToolOptions } from "../common/common";
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
 import { InputText } from "primereact/inputtext";
-import { InputNumber } from "primereact/inputnumber";
-import * as StreamMasterApi from '../store/iptvApi';
+import type * as StreamMasterApi from '../store/iptvApi';
 import { UpdateStreamGroup } from "../store/signlar_functions";
 import { Accordion, AccordionTab } from "primereact/accordion";
 import PlayListDataSelector from "./PlayListDataSelector";
@@ -15,9 +13,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
   const [name, setName] = React.useState<string>('');
-  // const [streamGroupNumber, setStreamGroupNumber] = React.useState<number>();
   const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[]);
-  const streamGroupsQuery = StreamMasterApi.useStreamGroupsGetStreamGroupsQuery();
 
   React.useMemo(() => {
     if (props.value === undefined) {
@@ -28,49 +24,12 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
       setName(props.value.name);
     }
 
-    // if (props.value.streamGroupNumber !== undefined) {
-    //   setStreamGroupNumber(props.value.streamGroupNumber);
-    // }
-
     if (props.value.channelGroups !== undefined) {
       setSelectedChannelGroups(props.value.channelGroups);
     }
 
   }, [props.value]);
 
-  const getNextStreamGroupNumber = React.useCallback((): number => {
-    if (!streamGroupsQuery?.data) {
-      return 0;
-    }
-
-    if (streamGroupsQuery.data.length === 0) {
-      return 1;
-    }
-
-    const numbers = streamGroupsQuery.data.map((x) => x.streamGroupNumber);
-
-    const [min, max] = [1, Math.max(...numbers)];
-
-    if (max < min) {
-      return min;
-    }
-
-    const out = Array.from(Array(max - min), (v, i) => i + min).filter(
-      (i) => !numbers.includes(i),
-    );
-
-    if (out.length > 0) {
-      return out[0];
-    }
-
-    return max + 1;
-  }, [streamGroupsQuery.data]);
-
-  // React.useEffect(() => {
-  //   if (streamGroupNumber === undefined || streamGroupNumber === 0) {
-  //     setStreamGroupNumber(getNextStreamGroupNumber());
-  //   }
-  // }, [getNextStreamGroupNumber, streamGroupNumber]);
 
   const ReturnToParent = React.useCallback((retData?: StreamMasterApi.StreamGroupDto) => {
     setShowOverlay(false);
@@ -79,33 +38,11 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
     props.onHide?.(retData);
   }, [props]);
 
-  const doesStreamGroupNumberExist = (
-    sgNumber: number | undefined,
-  ): boolean => {
-    if (!sgNumber || !streamGroupsQuery || !streamGroupsQuery.data) return false;
-
-    if (streamGroupsQuery.data.map((x) => x.streamGroupNumber).includes(sgNumber)) {
-      return true;
-    }
-
-    return false;
-  };
-
-  // const onChannelStreamGroupNumberChange = (e: number) => {
-  //   if (e && e > 0 && e < 1000000) {
-  //     setStreamGroupNumber(e);
-  //   }
-  // };
-
   const isSaveEnabled = React.useMemo((): boolean => {
 
     if (name && name !== '') {
       return true;
     }
-
-    // if (streamGroupNumber !== undefined && streamGroupNumber !== 0) {
-    //   return true;
-    // }
 
     return false;
 
@@ -130,7 +67,6 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
     data.name = name;
 
     data.streamGroupId = props.value.id;
-    // data.streamGroupNumber = streamGroupNumber;
 
     if (selectedChannelGroups.length > 0) {
       data.channelGroupNames = selectedChannelGroups.map((x) => x.name);
@@ -151,6 +87,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
 
   React.useEffect(() => {
     const callback = (event: KeyboardEvent) => {
+
       if (event.code === 'Enter' || event.code === 'NumpadEnter') {
         event.preventDefault();
         if (name !== "") {
@@ -165,6 +102,8 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
       document.removeEventListener('keydown', callback);
     };
   }, [onUpdate, name]);
+
+
 
   const onsetSelectedChannelGroups = React.useCallback((selectedData: StreamMasterApi.ChannelGroupDto | StreamMasterApi.ChannelGroupDto[]) => {
     if (Array.isArray(selectedData)) {
@@ -226,13 +165,6 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
           </Accordion>
 
           <div className="flex col-12 mt-3 gap-2 justify-content-end">
-            {/* <Button
-              icon="pi pi-times "
-              label="Cancel"
-              onClick={(() => ReturnToParent())}
-              rounded
-              severity="warning"
-            /> */}
             <Button
               disabled={!isSaveEnabled}
               icon="pi pi-check"

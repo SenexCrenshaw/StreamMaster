@@ -23,8 +23,10 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
     setInfoMessage('');
     setBlock(false);
     setRegex('');
+    setNewGroupName('');
     props.onClose?.();
   }, [props]);
+
 
   React.useEffect(() => {
 
@@ -36,7 +38,7 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
 
   }, [props.value]);
 
-  const changeGroupName = () => {
+  const changeGroupName = React.useCallback(() => {
     setBlock(true);
     if (!newGroupName || !props.value) {
       ReturnToParent();
@@ -57,8 +59,8 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
     }).catch((e) => {
       setInfoMessage('Channel Group Edit Error: ' + e.message);
     });
-
-  }
+    setNewGroupName('');
+  }, [ReturnToParent, newGroupName, props.value, regex]);
 
   const sourceColumns = React.useMemo((): ColumnMeta[] => {
     return [

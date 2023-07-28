@@ -42,7 +42,7 @@ public class VideoStream : IMapFrom<VideoStreamDto>, IMapFrom<ChildVideoStreamDt
 
     public string Tvg_group { get; set; } = "All";
 
-    public string Tvg_ID { get; set; } = "Dummy";
+    public string Tvg_ID { get; set; } = string.Empty;
 
     public string Tvg_logo { get; set; } = string.Empty;
 
@@ -54,7 +54,7 @@ public class VideoStream : IMapFrom<VideoStreamDto>, IMapFrom<ChildVideoStreamDt
 
     public string User_Tvg_group { get; set; } = "All";
 
-    public string User_Tvg_ID { get; set; } = "Dummy";
+    public string User_Tvg_ID { get; set; } = string.Empty;
 
     public string User_Tvg_logo { get; set; } = string.Empty;
 

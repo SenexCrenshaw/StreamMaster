@@ -63,16 +63,16 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
 
     public async Task<StreamGroupDto?> Handle(AddStreamGroupRequest command, CancellationToken cancellationToken)
     {
-        if (command.StreamGroupNumber < 1)
+        if (command.StreamGroupNumber < 0)
         {
             return null;
         }
 
-        int streamGroupNumber = command.StreamGroupNumber;
-        if (_context.StreamGroups.Any(a => a.StreamGroupNumber == streamGroupNumber))
-        {
-            streamGroupNumber = _context.StreamGroups.Max(a => a.StreamGroupNumber) + 1;
-        }
+        int streamGroupNumber = _context.StreamGroups.Max(a => a.StreamGroupNumber) + 1;
+        //if (_context.StreamGroups.Any(a => a.StreamGroupNumber == streamGroupNumber))
+        //{
+        //    streamGroupNumber = _context.StreamGroups.Max(a => a.StreamGroupNumber) + 1;
+        //}
 
         StreamGroup entity = new()
         {

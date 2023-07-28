@@ -88,6 +88,14 @@ public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp,
 
         foreach (var videoStream in videoStreams)
         {
+        
+                if (_setting.M3UIgnoreEmptyEPGID &&
+                (string.IsNullOrEmpty(videoStream.User_Tvg_ID) || videoStream.User_Tvg_ID.ToLower() == "dummy"))
+                {
+                    continue;
+                }
+            
+
             string videoUrl = videoStream.Url;
 
             var encodedNumbers = request.StreamGroupNumber.EncodeValues128(videoStream.Id, _setting.ServerKey, iv);

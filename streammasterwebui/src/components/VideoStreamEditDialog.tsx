@@ -35,13 +35,11 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
     }
 
     Hub.UpdateVideoStream(data)
-      .then((resultData) => {
-        if (resultData) {
-          setInfoMessage('Set Stream Edited Successfully');
+      .then(() => {
 
-        } else {
-          setInfoMessage('Set Stream Edited No Change');
-        }
+        setInfoMessage('Set Stream Edited Successfully');
+
+
       }
       ).catch((error) => {
         setInfoMessage('Set Stream Edited Error: ' + error.message);

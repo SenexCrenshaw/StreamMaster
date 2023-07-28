@@ -6,47 +6,48 @@ import { Toast } from 'primereact/toast';
 import { getTopToolOptions } from "../common/common";
 
 
-const VideoStreamSetLogoFromEPGDialog = (props: VideoStreamSetLogoFromEPGDialogProps) => {
+const VideoStreamSetEPGFromNameDialog = (props: VideoStreamSetEPGFromNameDialogProps) => {
   const toast = React.useRef<Toast>(null);
-  const channelLogos = StreamMasterApi.useVideoStreamsGetChannelLogoDtosQuery();
+
   const programmeNamesQuery = StreamMasterApi.useProgrammesGetProgrammeNamesQuery();
 
-  const [epgLogoUrl, setEpgLogoUrl] = React.useState<string | undefined>(undefined);
+  const [canSet, setCanSet] = React.useState<string>('');
 
   const ReturnToParent = React.useCallback(() => {
-    setEpgLogoUrl(undefined);
+    setCanSet('');
     props.onClose?.();
   }, [props]);
 
   React.useEffect(() => {
 
     if (props.value === null || props.value === undefined || props.value.user_Tvg_ID === undefined || props.value.user_Tvg_ID === ''
-      || (channelLogos === null || channelLogos === undefined || channelLogos.data === null || channelLogos.data === undefined)
       || (programmeNamesQuery === null || programmeNamesQuery === undefined || programmeNamesQuery.data === null || programmeNamesQuery.data === undefined)
-      || channelLogos?.data?.length === 0) {
+    ) {
       return;
     }
 
-    const epg = programmeNamesQuery.data.find((x) => x.displayName === props.value?.user_Tvg_ID);
-    if (epg) {
-      const found = channelLogos.data.find((x) => x.epgId === epg.channel);
-      if (found?.logoUrl !== undefined && found.logoUrl !== '') {
-        setEpgLogoUrl(found.logoUrl);
-      }
+    if (programmeNamesQuery.data.find((x) => x.displayName === props.value?.user_Tvg_name)) {
+      setCanSet(props.value?.user_Tvg_name);
+      return;
     }
 
-  }, [channelLogos, programmeNamesQuery, props.value]);
+    if (programmeNamesQuery.data.find((x) => x.channelName === props.value?.user_Tvg_name)) {
+      setCanSet(props.value?.user_Tvg_name);
+      return;
+    }
 
-  const onChangeLogo = React.useCallback(async () => {
+  }, [programmeNamesQuery, props.value]);
 
-    if (props.value === undefined || props.value.id === undefined || epgLogoUrl === undefined || epgLogoUrl === undefined) {
+  const onChangeEPG = React.useCallback(async () => {
+
+    if (props.value === undefined || props.value.id === undefined || canSet === '') {
       ReturnToParent();
       return;
     }
 
     const toSend = {} as StreamMasterApi.UpdateVideoStreamRequest;
     toSend.id = props.value?.id;
-    toSend.tvg_logo = epgLogoUrl;
+    toSend.tvg_ID = canSet;
 
     await Hub.UpdateVideoStream(toSend)
       .then(() => {
@@ -72,35 +73,35 @@ const VideoStreamSetLogoFromEPGDialog = (props: VideoStreamSetLogoFromEPGDialogP
         }
       });
 
-  }, [ReturnToParent, epgLogoUrl, props.value]);
+  }, [ReturnToParent, canSet, props.value]);
 
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
       <Button
-        disabled={!epgLogoUrl || props.value?.user_Tvg_logo === epgLogoUrl}
-        icon='pi pi-image'
+        disabled={canSet === '' || props.value?.user_Tvg_ID === canSet}
+        icon='pi pi-book'
         onClick={async () =>
-          await onChangeLogo()
+          await onChangeEPG()
         }
         rounded
         size="small"
         text={props.iconFilled !== true}
-        tooltip="Change Logo to EPG"
+        tooltip="Match EPG to Name"
         tooltipOptions={getTopToolOptions}
       />
     </>
   );
 }
 
-VideoStreamSetLogoFromEPGDialog.displayName = 'VideoStreamSetLogoFromEPGDialog';
-VideoStreamSetLogoFromEPGDialog.defaultProps = {
+VideoStreamSetEPGFromNameDialog.displayName = 'VideoStreamSetEPGFromNameDialog';
+VideoStreamSetEPGFromNameDialog.defaultProps = {
 }
 
-type VideoStreamSetLogoFromEPGDialogProps = {
+type VideoStreamSetEPGFromNameDialogProps = {
   iconFilled?: boolean | undefined;
   onClose?: (() => void);
   value?: StreamMasterApi.VideoStreamDto | undefined;
 };
 
-export default React.memo(VideoStreamSetLogoFromEPGDialog);
+export default React.memo(VideoStreamSetEPGFromNameDialog);

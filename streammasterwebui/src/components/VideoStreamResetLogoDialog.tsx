@@ -26,23 +26,16 @@ const VideoStreamResetLogoDialog = (props: VideoStreamResetLogoDialogProps) => {
     toSend.tvg_logo = props.value.tvg_logo;
 
     await Hub.UpdateVideoStream(toSend)
-      .then((result) => {
+      .then(() => {
         if (toast.current) {
-          if (result) {
-            toast.current.show({
-              detail: `Updated Stream`,
-              life: 3000,
-              severity: 'success',
-              summary: 'Successful',
-            });
-          } else {
-            toast.current.show({
-              detail: `Update Stream Failed`,
-              life: 3000,
-              severity: 'error',
-              summary: 'Error',
-            });
-          }
+
+          toast.current.show({
+            detail: `Updated Stream`,
+            life: 3000,
+            severity: 'success',
+            summary: 'Successful',
+          });
+
         }
       }
       ).catch((error) => {

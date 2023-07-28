@@ -44,13 +44,10 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
 
 
     Hub.UpdateVideoStreams(tosend)
-      .then((resultData) => {
-        if (resultData.length === 0) {
-          setInfoMessage('Set Stream Visibilty No Change');
-        } else {
-          // const ret = resultData.map((a) => a.id);
-          setInfoMessage('Set Stream Visibilty Successfully');
-        }
+      .then(() => {
+
+        setInfoMessage('Set Stream Visibilty Successfully');
+
       }
       ).catch((error) => {
         setInfoMessage('Set Stream Visibilty Error: ' + error.message);

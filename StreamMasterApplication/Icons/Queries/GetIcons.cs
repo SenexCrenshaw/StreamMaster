@@ -1,4 +1,8 @@
-﻿using MediatR;
+﻿using AutoMapper;
+
+using MediatR;
+
+using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterDomain.Dto;
 
@@ -8,15 +12,17 @@ public record GetIcons : IRequest<List<IconFileDto>>;
 
 internal class GetIconsQueryHandler : IRequestHandler<GetIcons, List<IconFileDto>>
 {
-    private readonly IAppDbContext _context;
+    private readonly IMapper _mapper;
+    private readonly IMemoryCache _memoryCache;
 
-    public GetIconsQueryHandler(IAppDbContext context)
+    public GetIconsQueryHandler(IMemoryCache memoryCache, IMapper mapper)
     {
-        _context = context;
+        _memoryCache = memoryCache;
+        _mapper = mapper;
     }
 
     public async Task<List<IconFileDto>> Handle(GetIcons request, CancellationToken cancellationToken)
     {
-        return await _context.GetIcons(cancellationToken);
+        return _memoryCache.GetIcons(_mapper);
     }
 }

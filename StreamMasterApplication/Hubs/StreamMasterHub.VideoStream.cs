@@ -9,9 +9,9 @@ namespace StreamMasterApplication.Hubs;
 
 public partial class StreamMasterHub : IVideoStreamHub
 {
-    public async Task<VideoStreamDto?> AddVideoStream(AddVideoStreamRequest request)
+    public async Task AddVideoStream(AddVideoStreamRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+         await _mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request)
@@ -19,9 +19,9 @@ public partial class StreamMasterHub : IVideoStreamHub
         await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<string?> DeleteVideoStream(DeleteVideoStreamRequest request)
+    public async Task DeleteVideoStream(DeleteVideoStreamRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+         await _mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<ChannelLogoDto>> GetChannelLogoDtos()
@@ -44,9 +44,14 @@ public partial class StreamMasterHub : IVideoStreamHub
         await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<ChannelNumberPair>> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request)
+    public async Task SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+         await _mediator.Send(request).ConfigureAwait(false);
+    }
+
+    public async Task SetVideoStreamSetEPGsFromName(SetVideoStreamSetEPGsFromNameRequest request)
+    {
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request)
@@ -54,13 +59,13 @@ public partial class StreamMasterHub : IVideoStreamHub
         await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<VideoStreamDto?> UpdateVideoStream(UpdateVideoStreamRequest request)
+    public async Task UpdateVideoStream(UpdateVideoStreamRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+         await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<VideoStreamDto>> UpdateVideoStreams(UpdateVideoStreamsRequest request)
+    public async Task UpdateVideoStreams(UpdateVideoStreamsRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+         await _mediator.Send(request).ConfigureAwait(false);
     }
 }

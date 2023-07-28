@@ -82,7 +82,7 @@ const AutoSetChannelNumbers = (props: AutoSetChannelNumbersProps) => {
 
     let count = 0;
 
-    const ret = [] as StreamMasterApi.ChannelNumberPair[];
+
     const promises = [];
 
     while (count < newChannels.length) {
@@ -96,8 +96,8 @@ const AutoSetChannelNumbers = (props: AutoSetChannelNumbersProps) => {
 
       promises.push(
         SetVideoStreamChannelNumbers(data)
-          .then((returnData) => {
-            ret.push(...returnData);
+          .then(() => {
+
           }).catch(() => { })
       );
 
@@ -106,13 +106,9 @@ const AutoSetChannelNumbers = (props: AutoSetChannelNumbersProps) => {
     const p = Promise.all(promises);
 
     await p.then(() => {
-      if (ret.length === 0) {
-        setInfoMessage('Auto Set Channels No Changes');
-      } else {
-        setInfoMessage('Auto Set Channels Successful');
-      }
 
-      props.onChange?.(ret);
+      setInfoMessage('Auto Set Channels Successful');
+
     }).catch((error) => {
       setInfoMessage('Auto Set Channels Error: ' + error.message);
     });
@@ -217,7 +213,6 @@ AutoSetChannelNumbers.defaultProps = {
 
 export type AutoSetChannelNumbersProps = {
   ids: StreamMasterApi.ChannelNumberPair[];
-  onChange?: ((value: StreamMasterApi.ChannelNumberPair[]) => void) | null;
 };
 
 export default React.memo(AutoSetChannelNumbers);

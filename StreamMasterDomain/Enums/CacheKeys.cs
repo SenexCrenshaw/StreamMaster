@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using AutoMapper;
+
+using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities.EPG;
@@ -96,6 +98,39 @@ public static class CacheKeys
             return channelLogo.LogoUrl;
         }
         return null;
+    }
+
+    public static string? GetEPGNameTvgName(this IMemoryCache cache, string User_Tvg_Name)
+    {
+        var programmeNames = cache.ProgrammeNames();
+
+        var channelLogos = cache.ChannelLogos();
+
+        var pn = programmeNames.FirstOrDefault(a => a.DisplayName == User_Tvg_Name);
+        if (pn == null)
+        {
+            pn = programmeNames.FirstOrDefault(a => a.ChannelName == User_Tvg_Name);
+            if (pn == null)
+            {
+                return null;
+            }
+        }
+        return User_Tvg_Name;
+    }
+
+    public static List<IconFileDto> GetIcons(this IMemoryCache cache, IMapper mapper)
+    {
+        if (!cache.TryGetValue(ListIconFiles, out List<IconFileDto>? cacheValue))
+        {
+            cacheValue = mapper.Map<List<IconFileDto>>(cache.TvLogos());
+
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetPriority(CacheItemPriority.NeverRemove);
+
+            cache.Set(ListIconFiles, cacheValue, cacheEntryOptions);
+        }
+
+        return cacheValue ?? new List<IconFileDto>();
     }
 
     public static List<IconFileDto> Icons(this IMemoryCache cache)

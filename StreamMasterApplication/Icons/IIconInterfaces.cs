@@ -8,10 +8,6 @@ namespace StreamMasterApplication.Icons;
 
 public interface IIconController
 {
-    //Task<ActionResult> AddIconFile(AddIconFileRequest request);
-
-    //Task<ActionResult> AddIconFileFromForm([FromForm] AddIconFileRequest request);
-
     Task<ActionResult> AutoMatchIconToStreams(AutoMatchIconToStreamsRequest request);
 
     Task<ActionResult<IconFileDto>> GetIcon(int Id);
@@ -21,15 +17,10 @@ public interface IIconController
 
 public interface IIconDB
 {
-    //DbSet<IconFile> Icons { get; set; }
-
-    Task<List<IconFileDto>> GetIcons(CancellationToken cancellationToken);
 }
 
 public interface IIconHub
 {
-    //Task<IconFileDto?> AddIconFile(AddIconFileRequest request);
-
     Task AutoMatchIconToStreams(AutoMatchIconToStreamsRequest request);
 
     Task<IconFileDto?> GetIcon(int Id);

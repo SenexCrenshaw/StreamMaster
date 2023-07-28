@@ -8,6 +8,7 @@ using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities;
 using StreamMasterDomain.Enums;
 
+using System.Data;
 using System.Web;
 
 namespace StreamMasterInfrastructure.Persistence;
@@ -17,33 +18,6 @@ public partial class AppDbContext : IVideoStreamDB
     public DbSet<VideoStreamLink> VideoStreamLinks { get; set; }
 
     public DbSet<VideoStream> VideoStreams { get; set; }
-
-    public static bool UpdateVideoStream(VideoStream videoStream, VideoStreamUpdate update)
-    {
-        bool isChanged = false;
-
-        if (update.IsActive != null && videoStream.IsActive != update.IsActive) { isChanged = true; videoStream.IsActive = (bool)update.IsActive; }
-        if (update.IsDeleted != null && videoStream.IsDeleted != update.IsDeleted) { isChanged = true; videoStream.IsDeleted = (bool)update.IsDeleted; }
-        if (update.IsHidden != null && videoStream.IsHidden != update.IsHidden) { isChanged = true; videoStream.IsHidden = (bool)update.IsHidden; }
-
-        // Update object properties
-        if (update.Tvg_chno != null && videoStream.User_Tvg_chno != update.Tvg_chno) { isChanged = true; videoStream.User_Tvg_chno = (int)update.Tvg_chno; }
-        if (update.Tvg_group != null && videoStream.User_Tvg_group != update.Tvg_group) { isChanged = true; videoStream.User_Tvg_group = update.Tvg_group; }
-
-        if (update.Tvg_name != null && videoStream.User_Tvg_name != update.Tvg_name) { isChanged = true; videoStream.User_Tvg_name = update.Tvg_name; }
-
-        if (update.Url != null && videoStream.User_Url != update.Url)
-        {
-            isChanged = true;
-            if (videoStream.Url == "")
-            {
-                videoStream.Url = update.Url;
-            }
-            videoStream.User_Url = update.Url;
-        }
-
-        return isChanged;
-    }
 
     public async Task AddOrUpdateChildToVideoStreamAsync(string parentVideoStreamId, string childId, int rank, CancellationToken cancellationToken)
     {
@@ -327,8 +301,21 @@ public partial class AppDbContext : IVideoStreamDB
         Setting setting = FileUtil.GetSetting();
 
         UpdateVideoStream(videoStream, request);
-
         bool epglogo = false;
+
+        if (request.Tvg_name != null && videoStream.User_Tvg_name != request.Tvg_name)
+        {
+            videoStream.User_Tvg_name = request.Tvg_name;
+            if (setting.EPGAlwaysUseVideoStreamName)
+            {
+                var test = _memoryCache.GetEPGNameTvgName(videoStream.User_Tvg_name);
+                if (test is not null)
+                {
+                    videoStream.User_Tvg_ID = test;
+                }
+            }
+        }
+
         if (request.Tvg_ID != null && videoStream.User_Tvg_ID != request.Tvg_ID)
         {
             videoStream.User_Tvg_ID = request.Tvg_ID;
@@ -351,7 +338,7 @@ public partial class AppDbContext : IVideoStreamDB
             }
             else
             {
-                List<IconFileDto> icons = await GetIcons(cancellationToken).ConfigureAwait(false);
+                List<IconFileDto> icons = _memoryCache.GetIcons(_mapper);
                 if (icons.Any(a => a.Source == request.Tvg_logo))
                 {
                     videoStream.User_Tvg_logo = request.Tvg_logo;
@@ -393,5 +380,30 @@ public partial class AppDbContext : IVideoStreamDB
         }
 
         return ret;
+    }
+
+    private static bool UpdateVideoStream(VideoStream videoStream, VideoStreamUpdate update)
+    {
+        bool isChanged = false;
+
+        if (update.IsActive != null && videoStream.IsActive != update.IsActive) { isChanged = true; videoStream.IsActive = (bool)update.IsActive; }
+        if (update.IsDeleted != null && videoStream.IsDeleted != update.IsDeleted) { isChanged = true; videoStream.IsDeleted = (bool)update.IsDeleted; }
+        if (update.IsHidden != null && videoStream.IsHidden != update.IsHidden) { isChanged = true; videoStream.IsHidden = (bool)update.IsHidden; }
+
+        // Update object properties
+        if (update.Tvg_chno != null && videoStream.User_Tvg_chno != update.Tvg_chno) { isChanged = true; videoStream.User_Tvg_chno = (int)update.Tvg_chno; }
+        if (update.Tvg_group != null && videoStream.User_Tvg_group != update.Tvg_group) { isChanged = true; videoStream.User_Tvg_group = update.Tvg_group; }
+
+        if (update.Url != null && videoStream.User_Url != update.Url)
+        {
+            isChanged = true;
+            if (videoStream.Url == "")
+            {
+                videoStream.Url = update.Url;
+            }
+            videoStream.User_Url = update.Url;
+        }
+
+        return isChanged;
     }
 }

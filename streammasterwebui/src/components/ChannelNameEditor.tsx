@@ -18,23 +18,15 @@ const ChannelNameEditor = (props: ChannelNameEditorProps) => {
     data.tvg_name = name;
 
     await Hub.UpdateVideoStream(data)
-      .then((result) => {
+      .then(() => {
         if (toast.current) {
-          if (result) {
-            toast.current.show({
-              detail: `Updated Stream`,
-              life: 3000,
-              severity: 'success',
-              summary: 'Successful',
-            });
-          } else {
-            toast.current.show({
-              detail: `Update Stream Failed`,
-              life: 3000,
-              severity: 'error',
-              summary: 'Error',
-            });
-          }
+
+          toast.current.show({
+            detail: `Updated Stream`,
+            life: 3000,
+            severity: 'success',
+            summary: 'Successful',
+          });
 
         }
       }).catch((e) => {

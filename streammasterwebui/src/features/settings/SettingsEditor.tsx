@@ -354,8 +354,8 @@ export const SettingsEditor = () => {
             {getInputNumberLine('globalStreamLimit')}
             {getInputNumberLine('ringBufferSizeMB')}
             {getInputNumberLine('preloadPercentage', 999)}
-            {getInputNumberLine('maxConnectRetry', 999)}
-            {getInputNumberLine('maxConnectRetryTimeMS', 999)}
+            {/* {getInputNumberLine('maxConnectRetry', 999)}
+            {getInputNumberLine('maxConnectRetryTimeMS', 999)} */}
             {getInputTextLine('clientUserAgent')}
             {getInputTextLine('streamingClientUserAgent')}
           </Fieldset>

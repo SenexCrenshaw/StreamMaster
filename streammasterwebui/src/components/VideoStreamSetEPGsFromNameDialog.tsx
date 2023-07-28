@@ -1,31 +1,31 @@
-import { Button } from "primereact/button";
-
 import React from "react";
-// import StreamMasterSetting from "../store/signlar/StreamMasterSetting";
 import type * as StreamMasterApi from '../store/iptvApi';
-import { SetVideoStreamsLogoToEPG } from "../store/signlar_functions";
+import { Button } from "primereact/button";
 import { getTopToolOptions } from "../common/common";
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
+import { SetVideoStreamSetEPGsFromName } from "../store/signlar_functions";
 
-const VideoStreamSetLogosFromEPGDialog = (props: VideoStreamSetLogosFromEPGDialogProps) => {
+
+const VideoStreamSetEPGsFromNameDialog = (props: VideoStreamSetEPGsFromNameDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
   const [block, setBlock] = React.useState<boolean>(false);
 
 
-  const ReturnToParent = () => {
+  const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);
     setInfoMessage('');
     setBlock(false);
-  };
+  }, []);
 
-  const onSetLogoSave = React.useCallback(async () => {
+
+  const onChangeEPG = React.useCallback(async () => {
     setBlock(true);
 
 
     const ids = [...new Set(props.values.map((item: StreamMasterApi.VideoStreamDto) => item.id))] as string[];
 
-    const toSend = {} as StreamMasterApi.SetVideoStreamsLogoToEpgRequest;
+    const toSend = {} as StreamMasterApi.SetVideoStreamSetEpGsFromNameRequest;
     const max = 500;
 
     let count = 0;
@@ -41,7 +41,7 @@ const VideoStreamSetLogosFromEPGDialog = (props: VideoStreamSetLogosFromEPGDialo
 
       count += max;
       promises.push(
-        SetVideoStreamsLogoToEPG(toSend)
+        SetVideoStreamSetEPGsFromName(toSend)
           .then(() => {
           }).catch(() => { })
       );
@@ -57,15 +57,13 @@ const VideoStreamSetLogosFromEPGDialog = (props: VideoStreamSetLogosFromEPGDialo
     });
 
 
-  }, [props]);
-
+  }, [props.values]);
 
   return (
     <>
-
       <InfoMessageOverLayDialog
         blocked={block}
-        header="Match Logos"
+        header="Match EPGs"
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
         overlayColSize={4}
@@ -73,7 +71,7 @@ const VideoStreamSetLogosFromEPGDialog = (props: VideoStreamSetLogosFromEPGDialo
       >
         <div className="border-1 surface-border flex grid flex-wrap justify-content-center p-0 m-0">
           <div className='flex flex-column mt-2 col-6'>
-            {`Match (${props.values.length}) video stream logo${props.values.length > 1 ? 's' : ''} to ${props.values.length > 1 ? 'their' : 'its'} EPG logo${props.values.length > 1 ? 's' : ''}?'`}
+            {`Match (${props.values.length}) video stream EPG${props.values.length > 1 ? 's' : ''} to ${props.values.length > 1 ? 'their' : 'its'} EPG logo${props.values.length > 1 ? 's' : ''}?'`}
           </div>
 
           <div className="flex col-12 gap-2 mt-4 justify-content-center ">
@@ -88,7 +86,7 @@ const VideoStreamSetLogosFromEPGDialog = (props: VideoStreamSetLogosFromEPGDialo
             <Button
               icon="pi pi-check"
               label="Set & Save"
-              onClick={async () => await onSetLogoSave()}
+              onClick={async () => await onChangeEPG()}
               rounded
               severity="success"
               size="small"
@@ -100,24 +98,24 @@ const VideoStreamSetLogosFromEPGDialog = (props: VideoStreamSetLogosFromEPGDialo
 
       <Button
         disabled={props.values === undefined || props.values.length === 0}
-        icon="pi pi-image"
+        icon="pi pi-book"
         onClick={() => setShowOverlay(true)}
         rounded
         size="small"
-        tooltip={`Set Logo from EPG for (${props.values.length}) Streams`}
+        tooltip={`Set EPG from Name for (${props.values.length}) Streams`}
         tooltipOptions={getTopToolOptions}
       />
 
     </>
-  )
+  );
 }
 
-VideoStreamSetLogosFromEPGDialog.displayName = 'VideoStreamSetLogosFromEPGDialog';
-VideoStreamSetLogosFromEPGDialog.defaultProps = {
-};
+VideoStreamSetEPGsFromNameDialog.displayName = 'VideoStreamSetEPGsFromNameDialog';
+VideoStreamSetEPGsFromNameDialog.defaultProps = {
+}
 
-export type VideoStreamSetLogosFromEPGDialogProps = {
+type VideoStreamSetEPGsFromNameDialogProps = {
   values: StreamMasterApi.VideoStreamDto[];
 };
 
-export default React.memo(VideoStreamSetLogosFromEPGDialog);
+export default React.memo(VideoStreamSetEPGsFromNameDialog);

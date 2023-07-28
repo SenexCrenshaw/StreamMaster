@@ -289,6 +289,11 @@ public partial class AppDbContext : IStreamGroupDB
 
     public async Task<List<VideoStream>> GetVideoStreamsByNamePatternAsync(string pattern, CancellationToken cancellationToken)
     {
+        if (string.IsNullOrEmpty(pattern))
+        {
+            return new();
+        }
+
         var regex = new Regex(pattern, RegexOptions.ECMAScript | RegexOptions.IgnoreCase);
         var allVideoStreams = await VideoStreams.AsNoTracking().ToListAsync(cancellationToken);
 
@@ -438,7 +443,6 @@ public partial class AppDbContext : IStreamGroupDB
             {
                 return null;
             }
-
 
             if (!string.IsNullOrEmpty(request.Name))
             {
