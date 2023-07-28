@@ -28,20 +28,20 @@ public class ReadDirectoryLogosRequestHandler : IRequestHandler<ReadDirectoryLog
 
     public async Task Handle(ReadDirectoryLogosRequest command, CancellationToken cancellationToken)
     {
-        if (!Directory.Exists(Constants.TVLogoDirectory))
+        if (!Directory.Exists(BuildInfo.TVLogoDataFolder))
         {
             return;
         }
 
         Setting setting = FileUtil.GetSetting();
-        DirectoryInfo dirInfo = new(Constants.TVLogoDirectory);
+        DirectoryInfo dirInfo = new(BuildInfo.TVLogoDataFolder);
 
         List<TvLogoFile> tvLogos = new()
         {
             new TvLogoFile
             {
                 Id=0,
-                Source = Constants.IconDefault,
+                Source = BuildInfo.IconDefault,
                 FileExists = true,
                 Name = "Default Icon"
             },
@@ -55,7 +55,7 @@ public class ReadDirectoryLogosRequestHandler : IRequestHandler<ReadDirectoryLog
             }
         };
 
-        tvLogos.AddRange(await FileUtil.GetIconFilesFromDirectory(dirInfo, Constants.TVLogoDirectory, tvLogos.Count, cancellationToken).ConfigureAwait(false));
+        tvLogos.AddRange(await FileUtil.GetIconFilesFromDirectory(dirInfo, BuildInfo.TVLogoDataFolder, tvLogos.Count, cancellationToken).ConfigureAwait(false));
 
         _memoryCache.ClearIcons();
         _memoryCache.Set(tvLogos);

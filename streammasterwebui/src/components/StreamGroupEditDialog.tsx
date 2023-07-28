@@ -57,7 +57,6 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
       return;
     }
 
-
     if (!isSaveEnabled) {
       return;
     }
@@ -73,13 +72,10 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
     }
 
     UpdateStreamGroup(data)
-      .then((result) => {
-        if (result) {
-          setInfoMessage('Stream Group Edit Successfully');
-          ReturnToParent(result);
-        } else {
-          setInfoMessage('Stream Group Edit No Changes');
-        }
+      .then(() => {
+
+        setInfoMessage('Stream Group Edit Successfully');
+
       }).catch((e) => {
         setInfoMessage('Stream Group Edit Error: ' + e.message);
       });
@@ -158,7 +154,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
                   maxHeight={400}
                   name="Groups"
                   onSelectionChange={(e) => onsetSelectedChannelGroups(e as StreamMasterApi.ChannelGroupDto[])}
-                  selectChannelGroups={selectedChannelGroups}
+
                 />
               </div>
             </AccordionTab>

@@ -41,19 +41,19 @@ const ChannelGroupVisibleDialog = (props: ChannelGroupVisibleDialogProps) => {
     data.requests = selectedChannelGroups.map((item) => { return { groupName: item.name, isHidden: !item.isHidden }; });
 
     await SetChannelGroupsVisible(data)
-      .then((returnData) => {
-        if (returnData) {
-          setInfoMessage('Channel Group Set Visibilty Successfully');
-          returnData.forEach((item) => {
-            const index = selectedChannelGroups.findIndex((x) => x.name === item.groupName);
-            if (index !== -1) {
-              selectedChannelGroups[index] = { ...selectedChannelGroups[index], isHidden: item.isHidden === true }
-            }
-          });
+      .then(() => {
 
-        } else {
-          setInfoMessage('Channel Group Visibilty No Change');
-        }
+        setInfoMessage('Channel Group Set Visibilty Successfully');
+        // returnData.forEach((item) => {
+        //   const index = selectedChannelGroups.findIndex((x) => x.name === item.groupName);
+        //   if (index !== -1) {
+        //     selectedChannelGroups[index] = { ...selectedChannelGroups[index], isHidden: item.isHidden === true }
+        //   }
+        // });
+
+        // } else {
+        //   setInfoMessage('Channel Group Visibilty No Change');
+        // }
       }).catch((e) => {
         setInfoMessage('Channel Group Set Visibilty Error: ' + e.message);
       });

@@ -5,8 +5,6 @@ using StreamMasterApplication.Settings.Commands;
 
 using StreamMasterDomain.Dto;
 
-using static StreamMasterApplication.Settings.Commands.UpdateSettingHandler;
-
 namespace StreamMasterApplication.Settings;
 
 public interface ISettingController
@@ -36,7 +34,7 @@ public interface ISettingHub
 
     Task<bool> LogIn(LogInRequest logInRequest);
 
-    Task<UpdateSettingResponse> UpdateSetting(UpdateSettingRequest command);
+    Task UpdateSetting(UpdateSettingRequest command);
 }
 
 public interface ISettingScoped

@@ -34,17 +34,15 @@ const StreamGroupDeleteDialog = (props: StreamGroupDeleteDialogProps) => {
       return;
     }
 
-    const ret = [] as number[];
     const promises = [];
-
 
     const data = {} as StreamMasterApi.DeleteStreamGroupRequest;
     data.id = selectedStreamGroup.id;
 
     promises.push(
       Hub.DeleteStreamGroup(data)
-        .then((returnData) => {
-          ret.push(returnData);
+        .then(() => {
+
         }).catch(() => { })
     );
 
@@ -52,18 +50,14 @@ const StreamGroupDeleteDialog = (props: StreamGroupDeleteDialogProps) => {
     const p = Promise.all(promises);
 
     await p.then(() => {
-      if (ret.length === 0) {
-        setInfoMessage('Stream Group No changes made');
-      } else {
-        setInfoMessage('Stream Group Delete Successful');
-      }
 
-      props.onChange?.(ret);
+      setInfoMessage('Stream Group No changes made');
+
     }).catch((error) => {
       setInfoMessage('Stream Group Delete Error: ' + error.message);
     });
 
-  }, [ReturnToParent, props, selectedStreamGroup]);
+  }, [ReturnToParent, selectedStreamGroup]);
 
   return (
     <>
@@ -116,13 +110,11 @@ const StreamGroupDeleteDialog = (props: StreamGroupDeleteDialogProps) => {
 StreamGroupDeleteDialog.displayName = 'StreamGroupDeleteDialog';
 StreamGroupDeleteDialog.defaultProps = {
   iconFilled: true,
-  onChange: null,
   value: null,
 };
 
 type StreamGroupDeleteDialogProps = {
   iconFilled?: boolean | undefined;
-  onChange?: ((value: number[]) => void) | null;
   onHide?: () => void;
   value?: StreamMasterApi.StreamGroupDto | undefined;
 };

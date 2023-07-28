@@ -30,14 +30,16 @@ public class ScanDirectoryForM3UFilesRequestHandler : IRequestHandler<ScanDirect
 
     public async Task<bool> Handle(ScanDirectoryForM3UFilesRequest command, CancellationToken cancellationToken)
     {
-        DirectoryInfo m3uDirInfo = new(Constants.M3UDirectory);
+        var fd = FileDefinitions.M3U;
+
+        DirectoryInfo m3uDirInfo = new(fd.DirectoryLocation);
 
         EnumerationOptions er = new()
         {
             MatchCasing = MatchCasing.CaseInsensitive
         };
 
-        foreach (FileInfo m3uFileInfo in m3uDirInfo.GetFiles($"*{Constants.M3UExtension}", er))
+        foreach (FileInfo m3uFileInfo in m3uDirInfo.GetFiles($"*{fd.FileExtension}", er))
         {
             if (cancellationToken.IsCancellationRequested)
             {

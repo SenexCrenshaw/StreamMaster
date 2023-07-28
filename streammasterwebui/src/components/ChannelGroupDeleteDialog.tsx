@@ -34,7 +34,6 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
       return;
     }
 
-    const ret = [] as number[];
     const promises = [];
 
     for (const group of selectedChannelGroups.filter((a) => !a.isReadOnly)) {
@@ -44,8 +43,8 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
 
       promises.push(
         Hub.DeleteChannelGroup(data)
-          .then((returnData) => {
-            ret.push(returnData);
+          .then(() => {
+
           }).catch(() => { })
       );
     }
@@ -53,18 +52,15 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
     const p = Promise.all(promises);
 
     await p.then(() => {
-      if (ret.length === 0) {
-        setInfoMessage('Channel Group No changes made');
-      } else {
-        setInfoMessage('Channel Group Delete Successful');
-      }
 
-      props.onChange?.(ret);
+      setInfoMessage('Channel Group Delete Successful');
+
+
     }).catch((error) => {
       setInfoMessage('Channel Group Delete Error: ' + error.message);
     });
 
-  }, [ReturnToParent, props, selectedChannelGroups]);
+  }, [ReturnToParent, selectedChannelGroups]);
 
   const isDisabled = React.useMemo((): boolean => {
     if (props.iconFilled !== true) {
@@ -132,13 +128,11 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
 ChannelGroupDeleteDialog.displayName = 'ChannelGroupDeleteDialog';
 ChannelGroupDeleteDialog.defaultProps = {
   iconFilled: true,
-  onChange: null,
   value: null,
 };
 
 type ChannelGroupDeleteDialogProps = {
   iconFilled?: boolean | undefined;
-  onChange?: ((value: number[]) => void) | null;
   onHide?: () => void;
   value?: StreamMasterApi.ChannelGroupDto[] | undefined;
 };

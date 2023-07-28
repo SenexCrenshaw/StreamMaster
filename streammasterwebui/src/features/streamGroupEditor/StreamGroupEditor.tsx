@@ -6,9 +6,10 @@ import { StreamGroupEditorIcon } from '../../common/icons';
 import PlayListDataSelectorPicker from '../../components/PlayListDataSelectorPicker';
 
 import { BlockUI } from 'primereact/blockui';
+import { useLocalStorage } from 'primereact/hooks';
 
 const StreamGroupEditor = () => {
-  const [selectedStreamGroup, setSelectedStreamGroup] = React.useState<StreamMasterApi.StreamGroupDto>();
+  const [selectedStreamGroup, setSelectedStreamGroup] = useLocalStorage<StreamMasterApi.StreamGroupDto | undefined>(undefined, 'streamgroupeditor-selectedstreamgroup');
 
   return (
     <div className="streamGroupEditor">

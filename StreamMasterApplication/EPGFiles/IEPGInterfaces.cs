@@ -37,23 +37,23 @@ public interface IEPGFileDB
 
 public interface IEPGFileHub
 {
-    Task<EPGFilesDto?> AddEPGFile(AddEPGFileRequest request);
+    Task AddEPGFile(AddEPGFileRequest request);
 
-    Task<EPGFilesDto?> ChangeEPGFileName(ChangeEPGFileNameRequest request);
+    Task ChangeEPGFileName(ChangeEPGFileNameRequest request);
 
-    Task<int?> DeleteEPGFile(DeleteEPGFileRequest request);
+    Task DeleteEPGFile(DeleteEPGFileRequest request);
 
     Task<EPGFilesDto?> GetEPGFile(int id);
 
     Task<IEnumerable<EPGFilesDto>> GetEPGFiles();
 
-    Task<EPGFilesDto?> ProcessEPGFile(ProcessEPGFileRequest request);
+    Task ProcessEPGFile(ProcessEPGFileRequest request);
 
-    Task<EPGFilesDto?> RefreshEPGFile(RefreshEPGFileRequest request);
+    Task RefreshEPGFile(RefreshEPGFileRequest request);
 
-    Task<bool> ScanDirectoryForEPGFiles();
+    Task ScanDirectoryForEPGFiles();
 
-    Task<EPGFilesDto?> UpdateEPGFile(UpdateEPGFileRequest request);
+    Task UpdateEPGFile(UpdateEPGFileRequest request);
 }
 
 public interface IEPGFileScoped

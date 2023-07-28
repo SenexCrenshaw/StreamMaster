@@ -52,19 +52,19 @@ public static class ConfigureServices
 
         Setting setting = FileUtil.GetSetting();
 
-        string DbPath = Path.Join(Constants.DataDirectory, "StreamMaster.db");
-        string LogDbPath = Path.Join(Constants.DataDirectory, "StreamMaster_Log.db");
+        string DbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster.db");
+        string LogDbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster_Log.db");
 
         _ = services.AddDbContext<LogDbContext>(options => options.UseSqlite($"Data Source={LogDbPath}", builder => builder.MigrationsAssembly(typeof(LogDbContext).Assembly.FullName)));
         _ = services.AddScoped<LogDbContextInitialiser>();
 
-        _ = services.AddDbContext<AppDbContext>(options => options.UseSqlite($"Data Source={DbPath}", builder => builder.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));              
+        _ = services.AddDbContext<AppDbContext>(options => options.UseSqlite($"Data Source={DbPath}", builder => builder.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
         _ = services.AddScoped<AppDbContextInitialiser>();
 
         _ = services.AddScoped<ILogDB>(provider => provider.GetRequiredService<LogDbContext>());
         _ = services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
-        
-                _ = services.AddTransient<IDateTime, DateTimeService>();
+
+        _ = services.AddTransient<IDateTime, DateTimeService>();
 
         _ = services.AddSingleton<IChannelManager, ChannelManager>();
 

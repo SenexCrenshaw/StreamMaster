@@ -14,6 +14,7 @@ export enum SMFileTypes {
   Image = 6,
   TvLogo = 7,
   ProgrammeIcon = 8,
+  ChannelIcon = 9,
 }
 
 export enum StreamingProxyTypes {

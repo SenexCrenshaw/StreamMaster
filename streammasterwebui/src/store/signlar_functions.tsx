@@ -37,7 +37,6 @@ import {
   type ReSetVideoStreamsLogoRequest,
   type Schedule,
   type SdStatus,
-  type SetChannelGroupsVisibleArg,
   type SetChannelGroupsVisibleRequest,
   type SettingDto,
   type SetVideoStreamChannelNumbersRequest,
@@ -54,22 +53,19 @@ import {
   type UpdateChannelGroupsRequest,
   type UpdateEpgFileRequest,
   type UpdateM3UFileRequest,
+  type UpdateSettingRequest,
   type UpdateStreamGroupRequest,
   type UpdateVideoStreamRequest,
   type UpdateVideoStreamsRequest,
   type VideoStreamDto,
 } from "./iptvApi";
 
-export const AddChannelGroup = async (arg: AddChannelGroupRequest): Promise<ChannelGroupDto> => {
-    const data = await hubConnection.invoke('AddChannelGroup',arg);
-
-    return data;
+export const AddChannelGroup = async (arg: AddChannelGroupRequest): Promise<void> => {
+    await hubConnection.invoke('AddChannelGroup',arg);
 };
 
-export const DeleteChannelGroup = async (arg: DeleteChannelGroupRequest): Promise<number> => {
-    const data = await hubConnection.invoke('DeleteChannelGroup',arg);
-
-    return data;
+export const DeleteChannelGroup = async (arg: DeleteChannelGroupRequest): Promise<void> => {
+    await hubConnection.invoke('DeleteChannelGroup',arg);
 };
 
 export const GetChannelGroup = async (arg: number): Promise<ChannelGroupDto> => {
@@ -84,28 +80,20 @@ export const GetChannelGroups = async (): Promise<ChannelGroupDto[]> => {
     return data;
 };
 
-export const SetChannelGroupsVisible = async (arg: SetChannelGroupsVisibleRequest): Promise<SetChannelGroupsVisibleArg[]> => {
-    const data = await hubConnection.invoke('SetChannelGroupsVisible',arg);
-
-    return data;
+export const SetChannelGroupsVisible = async (arg: SetChannelGroupsVisibleRequest): Promise<void> => {
+    await hubConnection.invoke('SetChannelGroupsVisible',arg);
 };
 
-export const UpdateChannelGroup = async (arg: UpdateChannelGroupRequest): Promise<ChannelGroupDto> => {
-    const data = await hubConnection.invoke('UpdateChannelGroup',arg);
-
-    return data;
+export const UpdateChannelGroup = async (arg: UpdateChannelGroupRequest): Promise<void> => {
+    await hubConnection.invoke('UpdateChannelGroup',arg);
 };
 
-export const UpdateChannelGroupOrder = async (arg: UpdateChannelGroupOrderRequest): Promise<ChannelGroupDto[]> => {
-    const data = await hubConnection.invoke('UpdateChannelGroupOrder',arg);
-
-    return data;
+export const UpdateChannelGroupOrder = async (arg: UpdateChannelGroupOrderRequest): Promise<void> => {
+    await hubConnection.invoke('UpdateChannelGroupOrder',arg);
 };
 
-export const UpdateChannelGroups = async (arg: UpdateChannelGroupsRequest): Promise<ChannelGroupDto[]> => {
-    const data = await hubConnection.invoke('UpdateChannelGroups',arg);
-
-    return data;
+export const UpdateChannelGroups = async (arg: UpdateChannelGroupsRequest): Promise<void> => {
+    await hubConnection.invoke('UpdateChannelGroups',arg);
 };
 
 export const GetIsSystemReady = async (): Promise<boolean> => {
@@ -118,22 +106,16 @@ export const OnConnectedAsync = async (): Promise<void> => {
     await hubConnection.invoke('OnConnectedAsync');
 };
 
-export const AddEPGFile = async (arg: AddEpgFileRequest): Promise<EpgFilesDto> => {
-    const data = await hubConnection.invoke('AddEPGFile',arg);
-
-    return data;
+export const AddEPGFile = async (arg: AddEpgFileRequest): Promise<void> => {
+    await hubConnection.invoke('AddEPGFile',arg);
 };
 
-export const ChangeEPGFileName = async (arg: ChangeEpgFileNameRequest): Promise<EpgFilesDto> => {
-    const data = await hubConnection.invoke('ChangeEPGFileName',arg);
-
-    return data;
+export const ChangeEPGFileName = async (arg: ChangeEpgFileNameRequest): Promise<void> => {
+    await hubConnection.invoke('ChangeEPGFileName',arg);
 };
 
-export const DeleteEPGFile = async (arg: DeleteEpgFileRequest): Promise<number> => {
-    const data = await hubConnection.invoke('DeleteEPGFile',arg);
-
-    return data;
+export const DeleteEPGFile = async (arg: DeleteEpgFileRequest): Promise<void> => {
+    await hubConnection.invoke('DeleteEPGFile',arg);
 };
 
 export const GetEPGFile = async (arg: number): Promise<EpgFilesDto> => {
@@ -148,28 +130,20 @@ export const GetEPGFiles = async (): Promise<EpgFilesDto[]> => {
     return data;
 };
 
-export const ProcessEPGFile = async (arg: ProcessEpgFileRequest): Promise<EpgFilesDto> => {
-    const data = await hubConnection.invoke('ProcessEPGFile',arg);
-
-    return data;
+export const ProcessEPGFile = async (arg: ProcessEpgFileRequest): Promise<void> => {
+    await hubConnection.invoke('ProcessEPGFile',arg);
 };
 
-export const RefreshEPGFile = async (arg: RefreshEpgFileRequest): Promise<EpgFilesDto> => {
-    const data = await hubConnection.invoke('RefreshEPGFile',arg);
-
-    return data;
+export const RefreshEPGFile = async (arg: RefreshEpgFileRequest): Promise<void> => {
+    await hubConnection.invoke('RefreshEPGFile',arg);
 };
 
-export const ScanDirectoryForEPGFiles = async (): Promise<boolean> => {
-    const data = await hubConnection.invoke('ScanDirectoryForEPGFiles');
-
-    return data;
+export const ScanDirectoryForEPGFiles = async (): Promise<void> => {
+    await hubConnection.invoke('ScanDirectoryForEPGFiles');
 };
 
-export const UpdateEPGFile = async (arg: UpdateEpgFileRequest): Promise<EpgFilesDto> => {
-    const data = await hubConnection.invoke('UpdateEPGFile',arg);
-
-    return data;
+export const UpdateEPGFile = async (arg: UpdateEpgFileRequest): Promise<void> => {
+    await hubConnection.invoke('UpdateEPGFile',arg);
 };
 
 export const AutoMatchIconToStreams = async (arg: AutoMatchIconToStreamsRequest): Promise<void> => {
@@ -194,22 +168,16 @@ export const GetLogRequest = async (arg: GetLog): Promise<LogEntryDto[]> => {
     return data;
 };
 
-export const AddM3UFile = async (arg: AddM3UFileRequest): Promise<M3UFilesDto> => {
-    const data = await hubConnection.invoke('AddM3UFile',arg);
-
-    return data;
+export const AddM3UFile = async (arg: AddM3UFileRequest): Promise<void> => {
+    await hubConnection.invoke('AddM3UFile',arg);
 };
 
-export const ChangeM3UFileName = async (arg: ChangeM3UFileNameRequest): Promise<M3UFilesDto> => {
-    const data = await hubConnection.invoke('ChangeM3UFileName',arg);
-
-    return data;
+export const ChangeM3UFileName = async (arg: ChangeM3UFileNameRequest): Promise<void> => {
+    await hubConnection.invoke('ChangeM3UFileName',arg);
 };
 
-export const DeleteM3UFile = async (arg: DeleteM3UFileRequest): Promise<number> => {
-    const data = await hubConnection.invoke('DeleteM3UFile',arg);
-
-    return data;
+export const DeleteM3UFile = async (arg: DeleteM3UFileRequest): Promise<void> => {
+    await hubConnection.invoke('DeleteM3UFile',arg);
 };
 
 export const GetM3UFile = async (arg: number): Promise<M3UFilesDto> => {
@@ -224,28 +192,20 @@ export const GetM3UFiles = async (): Promise<M3UFilesDto[]> => {
     return data;
 };
 
-export const ProcessM3UFile = async (arg: ProcessM3UFileRequest): Promise<M3UFilesDto> => {
-    const data = await hubConnection.invoke('ProcessM3UFile',arg);
-
-    return data;
+export const ProcessM3UFile = async (arg: ProcessM3UFileRequest): Promise<void> => {
+    await hubConnection.invoke('ProcessM3UFile',arg);
 };
 
-export const RefreshM3UFile = async (arg: RefreshM3UFileRequest): Promise<M3UFilesDto> => {
-    const data = await hubConnection.invoke('RefreshM3UFile',arg);
-
-    return data;
+export const RefreshM3UFile = async (arg: RefreshM3UFileRequest): Promise<void> => {
+    await hubConnection.invoke('RefreshM3UFile',arg);
 };
 
-export const ScanDirectoryForM3UFiles = async (): Promise<boolean> => {
-    const data = await hubConnection.invoke('ScanDirectoryForM3UFiles');
-
-    return data;
+export const ScanDirectoryForM3UFiles = async (): Promise<void> => {
+    await hubConnection.invoke('ScanDirectoryForM3UFiles');
 };
 
-export const UpdateM3UFile = async (arg: UpdateM3UFileRequest): Promise<M3UFilesDto> => {
-    const data = await hubConnection.invoke('UpdateM3UFile',arg);
-
-    return data;
+export const UpdateM3UFile = async (arg: UpdateM3UFileRequest): Promise<void> => {
+    await hubConnection.invoke('UpdateM3UFile',arg);
 };
 
 export const GetProgrammeNames = async (): Promise<ProgrammeNameDto[]> => {
@@ -332,16 +292,16 @@ export const LogIn = async (arg: LogInRequest): Promise<boolean> => {
     return data;
 };
 
-export const AddStreamGroup = async (arg: AddStreamGroupRequest): Promise<StreamGroupDto> => {
-    const data = await hubConnection.invoke('AddStreamGroup',arg);
-
-    return data;
+export const UpdateSetting = async (arg: UpdateSettingRequest): Promise<void> => {
+    await hubConnection.invoke('UpdateSetting',arg);
 };
 
-export const DeleteStreamGroup = async (arg: DeleteStreamGroupRequest): Promise<number> => {
-    const data = await hubConnection.invoke('DeleteStreamGroup',arg);
+export const AddStreamGroup = async (arg: AddStreamGroupRequest): Promise<void> => {
+    await hubConnection.invoke('AddStreamGroup',arg);
+};
 
-    return data;
+export const DeleteStreamGroup = async (arg: DeleteStreamGroupRequest): Promise<void> => {
+    await hubConnection.invoke('DeleteStreamGroup',arg);
 };
 
 export const FailClient = async (arg: FailClientRequest): Promise<void> => {
@@ -382,10 +342,8 @@ export const SimulateStreamFailure = async (arg: string): Promise<void> => {
     await hubConnection.invoke('SimulateStreamFailure',arg);
 };
 
-export const UpdateStreamGroup = async (arg: UpdateStreamGroupRequest): Promise<StreamGroupDto> => {
-    const data = await hubConnection.invoke('UpdateStreamGroup',arg);
-
-    return data;
+export const UpdateStreamGroup = async (arg: UpdateStreamGroupRequest): Promise<void> => {
+    await hubConnection.invoke('UpdateStreamGroup',arg);
 };
 
 export const AddVideoStream = async (arg: AddVideoStreamRequest): Promise<void> => {

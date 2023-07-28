@@ -14,12 +14,12 @@ public class LogDbContext : DbContext, ILogDB
     public LogDbContext(DbContextOptions<LogDbContext> options)
       : base(options)
     {
-        DbPath = Path.Join(Constants.DataDirectory, "StreamMaster_Log.db");
+        DbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster_Log.db");
     }
 
     public LogDbContext()
     {
-        DbPath = Path.Join(Constants.DataDirectory, "StreamMaster_Log.db");
+        DbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster_Log.db");
     }
 
     public DbSet<LogEntry> LogEntries { get; set; }

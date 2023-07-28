@@ -8,7 +8,7 @@ namespace StreamMasterInfrastructure.Persistence;
 
 public class DesignTimeAuthDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
-    private readonly string DbPath = Path.Join(Constants.DataDirectory, "file.db");
+    private readonly string DbPath = Path.Join(BuildInfo.DataFolder, "file.db");
 
     public AppDbContext CreateDbContext(string[] args)
     {

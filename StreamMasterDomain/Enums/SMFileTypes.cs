@@ -1,6 +1,4 @@
-﻿using static System.Runtime.InteropServices.JavaScript.JSType;
-
-namespace StreamMasterDomain.Enums;
+﻿namespace StreamMasterDomain.Enums;
 
 public enum SMFileTypes
 {
@@ -12,5 +10,6 @@ public enum SMFileTypes
     Icon = 5,
     Image = 6,
     TvLogo = 7,
-    ProgrammeIcon = 8
+    ProgrammeIcon = 8,
+    ChannelIcon = 9
 }

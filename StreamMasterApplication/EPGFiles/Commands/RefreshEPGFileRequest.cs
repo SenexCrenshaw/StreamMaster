@@ -111,8 +111,6 @@ public class RefreshEPGFileRequestHandler : IRequestHandler<RefreshEPGFileReques
                 var channels = _memoryCache.ProgrammeChannels().RemoveAll(a => a.EPGFileId == epgFile.Id);
                 _memoryCache.Set(channels);
 
-                AppHelper.RebuildProgrammeChannelNames(_memoryCache, _context.EPGFiles.ToList());
-
                 EPGFilesDto ret = _mapper.Map<EPGFilesDto>(epgFile);
                 await _publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
                 return ret;

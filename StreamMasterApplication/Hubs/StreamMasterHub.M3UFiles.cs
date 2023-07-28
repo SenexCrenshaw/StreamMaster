@@ -8,19 +8,19 @@ namespace StreamMasterApplication.Hubs;
 
 public partial class StreamMasterHub : IM3UFileHub
 {
-    public async Task<M3UFilesDto?> AddM3UFile(AddM3UFileRequest request)
+    public async Task AddM3UFile(AddM3UFileRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<M3UFilesDto?> ChangeM3UFileName(ChangeM3UFileNameRequest request)
+    public async Task ChangeM3UFileName(ChangeM3UFileNameRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<int?> DeleteM3UFile(DeleteM3UFileRequest request)
+    public async Task DeleteM3UFile(DeleteM3UFileRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task<M3UFilesDto?> GetM3UFile(int id)
@@ -33,30 +33,23 @@ public partial class StreamMasterHub : IM3UFileHub
         return await _mediator.Send(new GetM3UFiles()).ConfigureAwait(false);
     }
 
-    public async Task<M3UFilesDto?> ProcessM3UFile(ProcessM3UFileRequest request)
+    public async Task ProcessM3UFile(ProcessM3UFileRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
-        //if (data == null)
-        //{
-        //    return null;
-        //}
-
-        //await Clients.All.M3UFilesDtoUpdate(data).ConfigureAwait(false);
-        //return data;
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<M3UFilesDto?> RefreshM3UFile(RefreshM3UFileRequest request)
+    public async Task RefreshM3UFile(RefreshM3UFileRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<bool> ScanDirectoryForM3UFiles()
+    public async Task ScanDirectoryForM3UFiles()
     {
-        return await _mediator.Send(new ScanDirectoryForM3UFilesRequest()).ConfigureAwait(false);
+        await _mediator.Send(new ScanDirectoryForM3UFilesRequest()).ConfigureAwait(false);
     }
 
-    public async Task<M3UFilesDto?> UpdateM3UFile(UpdateM3UFileRequest request)
+    public async Task UpdateM3UFile(UpdateM3UFileRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 }

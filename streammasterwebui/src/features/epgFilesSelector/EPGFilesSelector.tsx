@@ -67,23 +67,16 @@ export const EPGFilesSelector = (props: EPGFilesSelectorProps) => {
     }
 
     await Hub.UpdateEPGFile(tosend)
-      .then((returnData) => {
+      .then(() => {
         if (toast.current) {
-          if (returnData) {
-            toast.current.show({
-              detail: `EPG Update Successful`,
-              life: 3000,
-              severity: 'success',
-              summary: 'Successful',
-            });
-          } else {
-            toast.current.show({
-              detail: `EPG Update Failed`,
-              life: 3000,
-              severity: 'error',
-              summary: 'Error',
-            });
-          }
+
+          toast.current.show({
+            detail: `EPG Update Successful`,
+            life: 3000,
+            severity: 'success',
+            summary: 'Successful',
+          });
+
         }
       }).catch((e) => {
         if (toast.current) {

@@ -81,6 +81,19 @@ public class SchedulesDirect
         }
     }
 
+    public async Task<bool> GetImageUrl(string source, string fileName, CancellationToken cancellationToken)
+    {
+        var url = await SDToken.GetAPIUrl($"image/{source}", cancellationToken);
+        if (url == null)
+        {
+            return false;
+        }
+
+        (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(url, fileName, cancellationToken).ConfigureAwait(false);
+
+        return success;
+    }
+
     public async Task<LineUpResult?> GetLineup(string lineUp, CancellationToken cancellationToken)
     {
         var url = await SDToken.GetAPIUrl($"lineups/{lineUp}", cancellationToken).ConfigureAwait(false);

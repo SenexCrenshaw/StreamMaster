@@ -11,6 +11,9 @@ public class IconFileDto : IMapFrom<IconFile>
     [JsonIgnore]
     public string Extension { get; set; } = string.Empty;
 
+    [JsonIgnore]
+    public int FileId { get; set; }
+
     public int Id { get; set; }
 
     public string Name { get; set; } = string.Empty;

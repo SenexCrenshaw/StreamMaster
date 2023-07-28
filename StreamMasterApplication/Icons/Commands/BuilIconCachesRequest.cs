@@ -2,21 +2,21 @@
 
 namespace StreamMasterApplication.Icons.Commands;
 
-public class BuilIconCachesRequest : IRequest
+public class BuildIconCachesRequest : IRequest
 { }
 
-public class BuilIconCachesRequestHandler : IRequestHandler<BuilIconCachesRequest>
+public class BuildIconCachesRequestHandler : IRequestHandler<BuildIconCachesRequest>
 {
     private readonly ISender _sender;
 
-    public BuilIconCachesRequestHandler(
+    public BuildIconCachesRequestHandler(
         ISender sender
         )
     {
         _sender = sender;
     }
 
-    public async Task Handle(BuilIconCachesRequest request, CancellationToken cancellationToken)
+    public async Task Handle(BuildIconCachesRequest request, CancellationToken cancellationToken)
     {
         var settings = FileUtil.GetSetting();
         if (!settings.CacheIcons)

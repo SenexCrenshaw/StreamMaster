@@ -19,7 +19,7 @@ import { useLocalStorage } from "primereact/hooks";
 const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
   const toast = React.useRef<Toast>(null);
-
+  const [dataSource, setDataSource] = React.useState([] as StreamMasterApi.ChannelGroupDto[]);
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-PlayListDataSelector-showHidden');
   const [selectedChannelGroups, setSelectedChannelGroups] = useLocalStorage<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[], props.id + '-PlayListDataSelector-selectedChannelGroups');
 
@@ -40,23 +40,39 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   }, [channelGroupsQuery.isLoading, selectedChannelGroups]);
 
   React.useEffect(() => {
-    if (!props.selectChannelGroups) {
+    if (!selectedChannelGroups || selectedChannelGroups.length === 0) {
       return;
     }
 
-    console.log("PlayListDataSelector:useEffect:props.selectChannelGroups", props.selectChannelGroups)
-    setSelectedChannelGroups(props.selectChannelGroups);
-  }, [props.selectChannelGroups, setSelectedChannelGroups]);
+    if (dataSource.length === 0) {
+      return;
+    }
 
-  const channelGroupDelete = React.useCallback((ids: number[]) => {
-    const test = selectedChannelGroups.filter((item) => !ids.includes(item.id));
-    setSelectedChannelGroups(test);
-  }, [selectedChannelGroups, setSelectedChannelGroups]);
+    const ids = selectedChannelGroups.map((item) => item.id);
+    const newSelectedChannelGroups = dataSource.filter((item) => ids.includes(item.id));
+
+    setSelectedChannelGroups(newSelectedChannelGroups);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataSource]);
+
+  React.useEffect(() => {
+    if (channelGroupsQuery.data === undefined) {
+      return;
+    }
+
+    if (props.hideControls === true) {
+      setDataSource(channelGroupsQuery.data?.filter((item) => item.isHidden !== true));
+    } else {
+      setDataSource(channelGroupsQuery.data);
+    }
+
+  }, [channelGroupsQuery.data, props.hideControls]);
+
 
   const sourceActionBodyTemplate = React.useCallback((data: StreamMasterApi.ChannelGroupDto) => (
     <div className='flex p-0 justify-content-end align-items-center'>
       <div hidden={data.isReadOnly === true && props.useReadOnly}>
-        <ChannelGroupDeleteDialog iconFilled={false} onChange={channelGroupDelete} value={[data]} />
+        <ChannelGroupDeleteDialog iconFilled={false} value={[data]} />
       </div>
 
       <ChannelGroupEditDialog value={data} />
@@ -64,7 +80,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       <ChannelGroupVisibleDialog iconFilled={false} skipOverLayer value={[data]} />
 
     </div>
-  ), [channelGroupDelete, props.useReadOnly]);
+  ), [props.useReadOnly]);
 
   const onsetSelectedChannelGroups = React.useCallback((selectedData: StreamMasterApi.ChannelGroupDto | StreamMasterApi.ChannelGroupDto[]) => {
 
@@ -106,14 +122,14 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
               value={showHidden} />
 
             <ChannelGroupVisibleDialog value={selectedChannelGroups} />
-            <ChannelGroupDeleteDialog onChange={channelGroupDelete} value={selectedChannelGroups} />
+            <ChannelGroupDeleteDialog value={selectedChannelGroups} />
           </>
         }
 
         <ChannelGroupAddDialog />
       </div>
     );
-  }, [showHidden, props.hideControls, selectedChannelGroups, channelGroupDelete, setShowHidden]);
+  }, [showHidden, props.hideControls, selectedChannelGroups, setShowHidden]);
 
   const sourceColumns = React.useMemo((): ColumnMeta[] => {
     return [
@@ -141,7 +157,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       <Toast position="bottom-right" ref={toast} />
       <DataSelector
         columns={sourceColumns}
-        dataSource={props.hideControls === true ? channelGroupsQuery.data?.filter((item) => item.isHidden !== true) : channelGroupsQuery.data}
+        dataSource={dataSource}
         emptyMessage="No Groups"
         enableState={props.enableState}
         headerRightTemplate={props.hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
@@ -185,7 +201,7 @@ export type PlayListDataSelectorProps = {
   maxHeight?: number;
   name?: string;
   onSelectionChange?: (value: StreamMasterApi.ChannelGroupDto | StreamMasterApi.ChannelGroupDto[]) => void;
-  selectChannelGroups?: StreamMasterApi.ChannelGroupDto[] | null
+  // selectChannelGroups?: StreamMasterApi.ChannelGroupDto[] | null
   useReadOnly?: boolean;
 };
 

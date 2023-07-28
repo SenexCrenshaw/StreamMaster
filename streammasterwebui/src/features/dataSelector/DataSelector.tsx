@@ -634,8 +634,9 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
                     </>
                   }
                 </div>
-                {props.enableExport === true &&
-                  <div className={`flex col-${props.rightColSize !== undefined ? props.rightColSize : '6'} debug p-0 m-0 justify-content-end align-items-center`} >
+
+                <div className={`flex col-${props.rightColSize !== undefined ? props.rightColSize : '6'} debug p-0 m-0 justify-content-end align-items-center`} >
+                  {props.enableExport === true &&
                     <Button
                       className="p-button-text justify-content-end"
                       data-pr-tooltip="CSV"
@@ -647,13 +648,14 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
                       tooltipOptions={getTopToolOptions}
                       type="button"
                     />
-                    {showSkeleton ?
-                      <Skeleton className="mb-2" height="1.5rem" />
-                      :
-                      props.headerRightTemplate
-                    }
-                  </div>
-                }
+                  }
+                  {showSkeleton ?
+                    <Skeleton className="mb-2" height="1.5rem" />
+                    :
+                    props.headerRightTemplate
+                  }
+                </div>
+
               </div>
             </div >
           </div >
@@ -1072,8 +1074,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           sortField={props.groupRowsBy === undefined || props.groupRowsBy === '' ? props.sortField : props.groupRowsBy}
           sortMode='single'
           sortOrder={0}
-          // stateKey={props.enableState !== true ? undefined : props.id + '-datatable'}
-          // stateStorage={props.enableState !== true ? undefined : "local"}
+          stateKey={props.enableState !== true ? undefined : props.id + '-datatable'}
+          stateStorage={props.enableState !== true ? undefined : "local"}
           stripedRows
           style={props.style}
           value={dataSource}

@@ -34,7 +34,9 @@ public class ScanDirectoryForEPGFilesRequestHandler : IRequestHandler<ScanDirect
 
     public async Task<bool> Handle(ScanDirectoryForEPGFilesRequest command, CancellationToken cancellationToken)
     {
-        DirectoryInfo EPGDirInfo = new(Constants.EPGDirectory);
+        var fd = FileDefinitions.EPG;
+
+        DirectoryInfo EPGDirInfo = new(fd.DirectoryLocation);
 
         EnumerationOptions er = new()
         {
@@ -42,7 +44,7 @@ public class ScanDirectoryForEPGFilesRequestHandler : IRequestHandler<ScanDirect
         };
 
         var files = EPGDirInfo.GetFiles("*.*", SearchOption.AllDirectories)
-           .Where(s => s.FullName.ToLower().EndsWith(Constants.EPGExtension.ToLower()) || s.FullName.ToLower().EndsWith(Constants.EPGExtension + ".gz".ToLower()));
+           .Where(s => s.FullName.ToLower().EndsWith(fd.FileExtension.ToLower()) || s.FullName.ToLower().EndsWith(fd.FileExtension + ".gz".ToLower()));
 
         foreach (FileInfo EPGFileInfo in files)
         {

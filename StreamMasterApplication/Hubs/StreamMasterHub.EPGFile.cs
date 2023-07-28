@@ -8,19 +8,19 @@ namespace StreamMasterApplication.Hubs;
 
 public partial class StreamMasterHub : IEPGFileHub
 {
-    public async Task<EPGFilesDto?> AddEPGFile(AddEPGFileRequest request)
+    public async Task AddEPGFile(AddEPGFileRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<EPGFilesDto?> ChangeEPGFileName(ChangeEPGFileNameRequest request)
+    public async Task ChangeEPGFileName(ChangeEPGFileNameRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<int?> DeleteEPGFile(DeleteEPGFileRequest request)
+    public async Task DeleteEPGFile(DeleteEPGFileRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task<EPGFilesDto?> GetEPGFile(int id)
@@ -33,23 +33,23 @@ public partial class StreamMasterHub : IEPGFileHub
         return await _mediator.Send(new GetEPGFiles()).ConfigureAwait(false);
     }
 
-    public async Task<EPGFilesDto?> ProcessEPGFile(ProcessEPGFileRequest request)
+    public async Task ProcessEPGFile(ProcessEPGFileRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<EPGFilesDto?> RefreshEPGFile(RefreshEPGFileRequest request)
+    public async Task RefreshEPGFile(RefreshEPGFileRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<bool> ScanDirectoryForEPGFiles()
+    public async Task ScanDirectoryForEPGFiles()
     {
-        return await _mediator.Send(new ScanDirectoryForEPGFilesRequest()).ConfigureAwait(false);
+        await _mediator.Send(new ScanDirectoryForEPGFilesRequest()).ConfigureAwait(false);
     }
 
-    public async Task<EPGFilesDto?> UpdateEPGFile(UpdateEPGFileRequest request)
+    public async Task UpdateEPGFile(UpdateEPGFileRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 }

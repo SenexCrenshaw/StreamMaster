@@ -10,7 +10,7 @@ import EPGSelector from './EPGSelector';
 import ChannelGroupSelector from './ChannelGroupSelector';
 import ChannelHandlerSelector from './ChannelHandlerSelector';
 import PlayListDataSelectorPicker from './PlayListDataSelectorPicker';
-import { areVideoStreamsEqual, getIconUrl, getTopToolOptions } from '../common/common';
+import { getIconUrl, getTopToolOptions } from '../common/common';
 import { type TriStateCheckboxChangeEvent } from 'primereact/tristatecheckbox';
 import { TriStateCheckbox } from 'primereact/tristatecheckbox';
 import { useLocalStorage } from 'primereact/hooks';
@@ -21,7 +21,6 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
   const [url, setUrl] = React.useState<string>('');
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(null, 'videostreampanel-showHidden');
   const [iconSource, setIconSource] = React.useState<string>('');
-  // const [icon, setIcon] = React.useState<string>('');
 
   const [videoStreams, setVideoStreams] = React.useState<StreamMasterApi.VideoStreamDto[] | undefined>(undefined);
 
@@ -34,35 +33,30 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
 
 
   const [channelGroup, setChannelGroup] = React.useState<string | undefined>(undefined);
-  const channelGroups = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
 
   const [programme, setProgramme] = React.useState<string>('');
 
   const iconsQuery = StreamMasterApi.useIconsGetIconsQuery();
 
-  const onSetVideoStreams = React.useCallback((data: StreamMasterApi.VideoStreamDto[] | undefined) => {
-    if (data === undefined || data === null) {
-      setVideoStreams(undefined);
-      return;
-    }
+  // const onSetVideoStreams = (data: StreamMasterApi.VideoStreamDto[] | undefined) => {
+  //   if (data === undefined || data === null) {
+  //     setVideoStreams(undefined);
+  //     return;
+  //   }
 
-    if (videoStreams && areVideoStreamsEqual(data, videoStreams)) {
-      return;
-    }
+  //   if (videoStreams && areVideoStreamsEqual(data, videoStreams)) {
+  //     return;
+  //   }
 
-    const newStreams = data.map((x: StreamMasterApi.VideoStreamDto, index) => {
-      return { ...x, rank: index } as StreamMasterApi.VideoStreamDto
-    });
+  //   const newStreams = data.map((x: StreamMasterApi.VideoStreamDto, index) => {
+  //     return { ...x, rank: index } as StreamMasterApi.VideoStreamDto
+  //   });
 
 
-    setVideoStreams(newStreams);
+  //   setVideoStreams(newStreams);
 
-  }, [videoStreams]);
+  // };
 
-  // const onValueChanged = React.useCallback((data: StreamMasterApi.VideoStreamDto[] | undefined) => {
-  //   // console.log('onValueChanged', data);
-
-  // }, []);
 
   React.useEffect(() => {
 
@@ -111,13 +105,12 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
       setChannelHandler(props.videoStream.videoStreamHandler);
     }
 
-    if (props.videoStream.user_Tvg_group && props.videoStream.user_Tvg_group !== undefined && props.videoStream && channelGroups.data) {
-      const cg = channelGroups.data.find((x: StreamMasterApi.ChannelGroupDto) => x.name === props.videoStream?.user_Tvg_group);
-      if (cg)
-        setChannelGroup(cg.name);
+    if (props.videoStream.user_Tvg_group && props.videoStream.user_Tvg_group !== undefined && props.videoStream) {
+
+      setChannelGroup(props.videoStream?.user_Tvg_group);
     }
 
-  }, [channelGroups.data, iconsQuery.data, props.videoStream]);
+  }, [iconsQuery.data, props.videoStream]);
 
   const onIconChange = (newIconSource: string) => {
     if (!newIconSource) {
@@ -395,8 +388,6 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
               id='videostreampanel-ds-streams'
               isAdditionalChannels
               maxHeight={400}
-              onSelectionChange={(e) => onSetVideoStreams(e)}
-              // onValueChanged={(e) => onValueChanged(e)}
               showTriState={showHidden}
               sourceHeaderTemplate={rightHeaderTemplate}
               videoStream={props.videoStream}

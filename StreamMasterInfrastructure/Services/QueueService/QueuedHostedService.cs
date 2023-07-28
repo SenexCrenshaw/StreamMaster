@@ -73,8 +73,8 @@ public sealed class QueuedHostedService : BackgroundService
                         await _sender.Send(new AddProgrammesFromSDRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
-                    case SMQueCommand.BuilIconCaches:
-                        await _sender.Send(new BuilIconCachesRequest(), cancellationToken).ConfigureAwait(false);
+                    case SMQueCommand.BuildIconCaches:
+                        await _sender.Send(new BuildIconCachesRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.BuildProgIconsCacheFromEPGs:

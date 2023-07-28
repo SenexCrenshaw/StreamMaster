@@ -32,12 +32,32 @@ public static class BuildInfo
         }
     }
 
-    public static string AppName { get; } = "Stream Master";
+    public static string AppName { get; } = "StreamMaster";
 
     public static Version Version { get; }
     public static string Branch { get; }
     public static string Release { get; }
-    public static string AppDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{Constants.AppName.ToLower()}{Path.DirectorySeparatorChar}";
+    public static string AppDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{AppName.ToLower()}{Path.DirectorySeparatorChar}";
+    public static readonly string DataFolder = $"{AppDataFolder}";
+    public static readonly string CacheFolder = $"{AppDataFolder}Cache{Path.DirectorySeparatorChar}";
+    public static readonly string PlayListFolder = $"{AppDataFolder}PlayLists{Path.DirectorySeparatorChar}";
+
+    //public static readonly string IconCacheFolder = $"{CacheFolder}Icons{Path.DirectorySeparatorChar}";
+    public static readonly string IconDataFolder = $"{CacheFolder}Icons{Path.DirectorySeparatorChar}";
+
+    public static readonly string ChannelIconDataFolder = $"{CacheFolder}ChannelIcons{Path.DirectorySeparatorChar}";
+    public static readonly string ProgrammeIconDataFolder = $"{CacheFolder}ProgrammeIcons{Path.DirectorySeparatorChar}";
+    public static readonly string TVLogoDataFolder = $"{CacheFolder}tv-logos{Path.DirectorySeparatorChar}";
+
+    public static readonly string PlayListEPGFolder = $"{PlayListFolder}EPG{Path.DirectorySeparatorChar}";
+    public static readonly string PlayListM3UFolder = $"{PlayListFolder}M3U{Path.DirectorySeparatorChar}";
+
+    public static readonly string EPGFolder = $"{PlayListFolder}EPG{Path.DirectorySeparatorChar}";
+    public static readonly string M3UFolder = $"{PlayListFolder}M3U{Path.DirectorySeparatorChar}";
+
+    public static readonly string SettingFile = $"{AppDataFolder}settings.json";
+    public static readonly string IconDefault = "images/default.png";
+
     public static DateTime BuildDateTime
     {
         get

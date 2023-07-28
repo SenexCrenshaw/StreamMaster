@@ -2,6 +2,8 @@
 
 using MediatR;
 
+using Microsoft.Extensions.Caching.Memory;
+
 using StreamMasterApplication.VideoStreams.Events;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
@@ -25,13 +27,13 @@ public class DeleteM3UFileRequestValidator : AbstractValidator<DeleteM3UFileRequ
 public class DeleteM3UFileHandler : IRequestHandler<DeleteM3UFileRequest, int?>
 {
     private readonly IAppDbContext _context;
+    private readonly IMemoryCache _memoryCache;
     private readonly IPublisher _publisher;
 
-    public DeleteM3UFileHandler(IPublisher publisher,
-         IAppDbContext context
-        )
+    public DeleteM3UFileHandler(IPublisher publisher, IMemoryCache memoryCache, IAppDbContext context)
     {
         _publisher = publisher;
+        _memoryCache = memoryCache;
         _context = context;
     }
 
@@ -99,6 +101,10 @@ public class DeleteM3UFileHandler : IRequestHandler<DeleteM3UFileRequest, int?>
         }
 
         var streams = await _context.DeleteVideoStreamsByM3UFiledId(m3UFile.Id, cancellationToken);
+
+        var icons = _memoryCache.Icons();
+        icons.RemoveAll(a => a.FileId == m3UFile.Id);
+        _memoryCache.Set(icons);
 
         await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 

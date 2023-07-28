@@ -107,15 +107,15 @@ public partial class AppDbContext : IStreamGroupDB
         }
     }
 
-    public async Task<List<StreamGroup>> GetAllStreamGroupsWithRelatedEntitiesAsync(CancellationToken cancellationToken)
-    {
-        return await StreamGroups
-            .Include(sg => sg.ChannelGroups)
-                .ThenInclude(sgcg => sgcg.ChannelGroup)
-            .Include(sg => sg.ChildVideoStreams)
-                .ThenInclude(sgvs => sgvs.ChildVideoStream)
-            .ToListAsync(cancellationToken);
-    }
+    //public async Task<List<StreamGroup>> GetAllStreamGroupsWithRelatedEntitiesAsync(CancellationToken cancellationToken)
+    //{
+    //    return await StreamGroups
+    //        .Include(sg => sg.ChannelGroups)
+    //            .ThenInclude(sgcg => sgcg.ChannelGroup)
+    //        .Include(sg => sg.ChildVideoStreams)
+    //            .ThenInclude(sgvs => sgvs.ChildVideoStream)
+    //        .ToListAsync(cancellationToken);
+    //}
 
     public async Task<StreamGroupDto?> GetStreamGroupDto(int streamGroupId, string Url, CancellationToken cancellationToken = default)
     {

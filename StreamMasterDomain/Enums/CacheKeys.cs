@@ -12,11 +12,13 @@ public static class CacheKeys
     public const string IsSystemReadyKey = "IsSystemReady";
 
     public const string ListChannelLogos = "ListChannelLogos";
-    public const string ListIconFiles = "ListIconFileDto";
+    public const string ListIconFiles = "ListIconFiles";
     public const string ListProgrammeChannel = "ListProgrammeChannel";
 
     public const string ListProgrammes = "ListProgrammes";
+    public const string ListProgrammesLogos = "ListProgrammesLogos";
     public const string ListTVLogos = "ListTVLogos";
+
     public static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
 
     public static void Add(this IMemoryCache cache, object data)
@@ -48,6 +50,14 @@ public static class CacheKeys
         //    cache.Set(ListProgrammeChannel, data, CacheEntryOptions);
         //    return;
         //}
+    }
+
+    public static void AddProgrammeLogo(this IMemoryCache cache, IconFileDto icon)
+    {
+        var datas = Get<IconFileDto>(ListProgrammesLogos, cache);
+        datas.Add(icon);
+        cache.Set(ListProgrammesLogos, datas, CacheEntryOptions);
+        return;
     }
 
     public static List<ChannelLogoDto> ChannelLogos(this IMemoryCache cache)
@@ -155,6 +165,11 @@ public static class CacheKeys
         return Get<ProgrammeChannel>(ListProgrammeChannel, cache);
     }
 
+    public static List<IconFileDto> ProgrammeIcons(this IMemoryCache cache)
+    {
+        return Get<IconFileDto>(ListProgrammesLogos, cache);
+    }
+
     public static IEnumerable<ProgrammeNameDto> ProgrammeNames(this IMemoryCache cache)
     {
         var programmes = cache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel) && a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
@@ -208,12 +223,24 @@ public static class CacheKeys
             cache.Set(ListProgrammeChannel, data, CacheEntryOptions);
             return;
         }
+
+        if (data.GetType().GenericTypeArguments.Contains(typeof(Programme)))
+        {
+            cache.Set(ListProgrammeChannel, data, CacheEntryOptions);
+            return;
+        }
         throw new Exception($"Cache set Unknown type {data.GetType().Name.ToString()}");
     }
 
     public static void SetIsSystemReady(this IMemoryCache cache, bool isSystemReady)
     {
         cache.Set(IsSystemReadyKey, isSystemReady, CacheEntryOptions);
+    }
+
+    public static void SetProgrammeLogos(this IMemoryCache cache, List<IconFileDto> icons)
+    {
+        cache.Set(ListProgrammesLogos, icons, CacheEntryOptions);
+        return;
     }
 
     public static List<TvLogoFile> TvLogos(this IMemoryCache cache)

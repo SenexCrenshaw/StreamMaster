@@ -3,26 +3,31 @@ import React from "react";
 import { Button } from "primereact/button";
 import { getTopToolOptions } from "../common/common";
 import { Checkbox } from "primereact/checkbox";
-import { Dialog } from "primereact/dialog";
 import type * as StreamMasterApi from '../store/iptvApi';
 import { DeleteEPGFile } from "../store/signlar_functions";
-import { Toast } from 'primereact/toast';
+import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
 
 const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
-  const toast = React.useRef<Toast>(null);
-  const [deleteDialog, setDeleteDialog] = React.useState<boolean>();
+  const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
+  const [block, setBlock] = React.useState<boolean>(false);
+  const [infoMessage, setInfoMessage] = React.useState('');
+
+
   const [deleteFSFile, setDeleteFSFile] = React.useState<boolean>(true);
+
+  const ReturnToParent = React.useCallback(() => {
+    setShowOverlay(false);
+    setInfoMessage('');
+    setBlock(false);
+  }, []);
+
 
   const deleteFile = async () => {
     if (!props.selectedFile) {
-      toast.current?.show({
-        detail: `EPG File Delete Failed`,
-        life: 3000,
-        severity: 'error',
-        summary: 'Error',
-      });
       return;
     }
+
+    setBlock(true);
 
     const tosend = {} as StreamMasterApi.DeleteEpgFileRequest;
 
@@ -30,66 +35,28 @@ const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
     tosend.deleteFile = deleteFSFile;
 
     await DeleteEPGFile(tosend)
-      .then((returnData) => {
-        if (toast.current) {
-          if (returnData) {
-            toast.current.show({
-              detail: `EPG File Delete Successful`,
-              life: 3000,
-              severity: 'success',
-              summary: 'Successful',
-            });
-          } else {
-            toast.current.show({
-              detail: `EPG File Delete Failed`,
-              life: 3000,
-              severity: 'error',
-              summary: 'Error',
-            });
-          }
-        }
+      .then(() => {
+        setInfoMessage('EPG File Removed Successfully');
       }).catch((e) => {
-        if (toast.current) {
-          toast.current.show({
-            detail: `EPG File Delete Failed`,
-            life: 3000,
-            severity: 'error',
-            summary: 'Error ' + e.message,
-          });
-        }
+        setInfoMessage('EPG File Removed Error: ' + e.message);
       });
 
-    setDeleteDialog(false);
   };
 
-  const deleteDialogFooter = (
-    <>
-      <Button
-        className="p-button-text"
-        icon="pi pi-times"
-        label="No"
-        onClick={() => setDeleteDialog(false)}
-      />
-      <Button
-        className="p-button-text"
-        icon="pi pi-check"
-        label="Yes"
-        onClick={deleteFile}
-      />
-    </>
-  );
+
 
   return (
     <>
-      <Toast position="bottom-right" ref={toast} />
-      <Dialog
-        footer={deleteDialogFooter}
-        header="Confirm"
-        modal
-        onHide={() => setDeleteDialog(false)}
-        style={{ width: '450px' }}
-        visible={deleteDialog}
+      <InfoMessageOverLayDialog
+        blocked={block}
+        header='Delete EPG File'
+        infoMessage={infoMessage}
+        onClose={() => {
+          ReturnToParent();
+        }}
+        show={showOverlay}
       >
+
         <div className="confirmation-content ">
           <i
             className="pi pi-exclamation-triangle mr-3"
@@ -113,12 +80,28 @@ const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
               </div>
             )}
           </span>
+          <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
+            <Button
+              icon="pi pi-times "
+              label="Cancel"
+              onClick={(() => ReturnToParent())}
+              rounded
+              severity="warning"
+            />
+            <Button
+              icon="pi pi-check"
+              label="Delete"
+              onClick={deleteFile}
+              rounded
+              severity="danger"
+            />
+          </div>
         </div>
-      </Dialog>
+      </InfoMessageOverLayDialog>
       <Button
         disabled={props.selectedFile === undefined || props.selectedFile.name === undefined || props.selectedFile.name === ''}
         icon="pi pi-minus"
-        onClick={() => setDeleteDialog(true)}
+        onClick={() => setShowOverlay(true)}
         rounded
         severity="danger"
         size="small"

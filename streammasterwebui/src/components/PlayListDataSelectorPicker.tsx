@@ -27,6 +27,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   const [isVideoStreamUpdating, setIsVideoStreamUpdating] = React.useState<boolean>(false);
   const [streamGroup, setStreamGroup] = React.useState<StreamMasterApi.StreamGroupDto | undefined>(undefined);
 
+
   React.useEffect(() => {
     if (!props.streamGroup || props.streamGroup.id === undefined) {
       setStreamGroup(undefined);
@@ -293,26 +294,15 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     });
 
     await Hub.UpdateStreamGroup(toSend)
-      .then((returnData) => {
+      .then(() => {
         if (toast.current) {
-          if (returnData) {
-            toast.current.show({
-              detail: `Stream Group Update Successful`,
-              life: 3000,
-              severity: 'success',
-              summary: 'Successful',
-            });
 
-            setStreamGroup(returnData);
-
-          } else {
-            toast.current.show({
-              detail: `Stream Group Update Failed`,
-              life: 3000,
-              severity: 'error',
-              summary: 'Error',
-            });
-          }
+          toast.current.show({
+            detail: `Stream Group Update Successful`,
+            life: 3000,
+            severity: 'success',
+            summary: 'Successful',
+          });
         }
       }).catch((e) => {
         if (toast.current) {
@@ -338,7 +328,6 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       setTargetVideoStreams(e as StreamMasterApi.ChildVideoStreamDto[]);
     }
 
-    props?.onSelectionChange?.(e);
     await onSave(e);
   }, [onSave, props]);
 
@@ -354,7 +343,6 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       setTargetVideoStreams(newtargetVideoStreams);
     }
 
-    props?.onSelectionChange?.(newtargetVideoStreams);
     await onSave(newtargetVideoStreams);
 
   }, [onSave, props, targetVideoStreams]);
@@ -516,7 +504,6 @@ export type PlayListDataSelectorPickerProps = {
   id: string;
   isAdditionalChannels?: boolean;
   maxHeight?: number;
-  onSelectionChange?: (value: StreamMasterApi.ChildVideoStreamDto[]) => void;
   onValueChanged?: (value: StreamMasterApi.ChildVideoStreamDto[]) => void;
   showHidden?: boolean | undefined;
   showTriState?: boolean | null | undefined;

@@ -5,7 +5,6 @@ using FluentValidation;
 using MediatR;
 
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterApplication.Hubs;
@@ -36,10 +35,10 @@ public class ProcessEPGFileRequestValidator : AbstractValidator<ProcessEPGFileRe
 public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileRequest, EPGFilesDto?>
 {
     private readonly IAppDbContext _context;
+    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
     private readonly IPublisher _publisher;
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
 
     public ProcessEPGFileRequestHandler(
            IPublisher publisher,
@@ -77,8 +76,8 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
             await AddProgrammesFromEPG(epgFile, cancellationToken);
 
             EPGFilesDto ret = _mapper.Map<EPGFilesDto>(epgFile);
-            
-             await _hubContext.Clients.All.ProgrammeNamesUpdate(_memoryCache.Programmes()).ConfigureAwait(false);
+
+            await _hubContext.Clients.All.ProgrammeNamesUpdate(_memoryCache.Programmes()).ConfigureAwait(false);
 
             await _publisher.Publish(new EPGFileProcessedEvent(ret), cancellationToken).ConfigureAwait(false);
 
@@ -158,14 +157,14 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
             {
                 p.DisplayName = epgFile.Name + " : " + p.DisplayName;
             }
-            
+
             p.ChannelName = channel_name;
             p.EPGFileId = epgFile.Id;
             p.Channel = p.Channel;
             cacheValue.Add(p);
         }
         _memoryCache.Set(cacheValue);
-        
+
         return;
     }
 }

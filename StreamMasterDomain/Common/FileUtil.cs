@@ -17,11 +17,11 @@ public sealed class FileUtil
         }
 
         if (
-            !directory.ToLower().StartsWith(Constants.ConfigFolder.ToLower()) &&
-            !$"{directory.ToLower()}{Path.DirectorySeparatorChar}".StartsWith(Constants.ConfigFolder.ToLower())
+            !directory.ToLower().StartsWith(BuildInfo.AppDataFolder.ToLower()) &&
+            !$"{directory.ToLower()}{Path.DirectorySeparatorChar}".StartsWith(BuildInfo.AppDataFolder.ToLower())
             )
         {
-            throw new Exception($"Illegal directory outside of {Constants.ConfigFolder} : {directory}");
+            throw new Exception($"Illegal directory outside of {BuildInfo.AppDataFolder} : {directory}");
         }
 
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
@@ -188,9 +188,9 @@ public sealed class FileUtil
         string jsonString;
         Setting? ret;
 
-        if (File.Exists(Constants.SettingFile))
+        if (File.Exists(BuildInfo.SettingFile))
         {
-            jsonString = File.ReadAllText(Constants.SettingFile);
+            jsonString = File.ReadAllText(BuildInfo.SettingFile);
             ret = JsonSerializer.Deserialize<Setting>(jsonString);
             if (ret != null)
             {
@@ -275,31 +275,24 @@ public sealed class FileUtil
         }
         setupDirectories = true;
 
-        var CacheFolder = $"{BuildInfo.AppDataFolder}Cache{Path.DirectorySeparatorChar}";
-        var PlayListFolder = $"{BuildInfo.AppDataFolder}PlayLists{Path.DirectorySeparatorChar}";
-        var IconDataFolder = $"{CacheFolder}Icons{Path.DirectorySeparatorChar}";
-        var ProgrammeIconDataFolder = $"{CacheFolder}ProgrammeIcons{Path.DirectorySeparatorChar}";
-
-        var PlayListEPGFolder = $"{PlayListFolder}EPG{Path.DirectorySeparatorChar}";
-        var PlayListM3UFolder = $"{PlayListFolder}M3U{Path.DirectorySeparatorChar}";
-
         CreateDir(BuildInfo.AppDataFolder);
-        CreateDir(CacheFolder);
-        CreateDir(IconDataFolder);
-        CreateDir(PlayListFolder);
-        CreateDir(PlayListEPGFolder);
-        CreateDir(PlayListM3UFolder);
-        CreateDir(ProgrammeIconDataFolder);
+        CreateDir(BuildInfo.CacheFolder);
+        CreateDir(BuildInfo.PlayListFolder);
+        CreateDir(BuildInfo.IconDataFolder);
+        CreateDir(BuildInfo.ChannelIconDataFolder);
+        CreateDir(BuildInfo.ProgrammeIconDataFolder);
+        CreateDir(BuildInfo.EPGFolder);
+        CreateDir(BuildInfo.M3UFolder);
     }
 
     public static void UpdateSetting(Setting setting)
     {
-        if (!Directory.Exists(Constants.ConfigFolder))
+        if (!Directory.Exists(BuildInfo.AppDataFolder))
         {
-            _ = Directory.CreateDirectory(Constants.ConfigFolder);
+            _ = Directory.CreateDirectory(BuildInfo.AppDataFolder);
         }
         string jsonString = JsonSerializer.Serialize(setting, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(Constants.SettingFile, jsonString);
+        File.WriteAllText(BuildInfo.SettingFile, jsonString);
     }
 
     public static bool WriteUrlToFile(string filePath, string url)

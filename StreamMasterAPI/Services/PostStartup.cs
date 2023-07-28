@@ -43,6 +43,8 @@ public class PostStartup : BackgroundService
 
         await _taskQueue.ProcessM3UFiles(cancellationToken).ConfigureAwait(false);
 
+        await _taskQueue.BuildIconCaches(cancellationToken).ConfigureAwait(false);
+
         while (!_taskQueue.IsCurrent())
         {
             await Task.Delay(250, cancellationToken).ConfigureAwait(false);

@@ -45,23 +45,16 @@ const M3UFilesEditor = (props: M3UFilesEditorProps) => {
     data.m3UFileID = selectedM3UFile.id;
 
     await RefreshM3UFile(data)
-      .then((returnData) => {
+      .then(() => {
         if (toast.current) {
-          if (returnData) {
-            toast.current.show({
-              detail: `M3U Reload Successful`,
-              life: 3000,
-              severity: 'success',
-              summary: 'Successful',
-            });
-          } else {
-            toast.current.show({
-              detail: `M3U Reload Failed`,
-              life: 3000,
-              severity: 'error',
-              summary: 'Error',
-            });
-          }
+
+          toast.current.show({
+            detail: `M3U Reload Successful`,
+            life: 3000,
+            severity: 'success',
+            summary: 'Successful',
+          });
+
         }
       }).catch((e) => {
         if (toast.current) {
@@ -91,7 +84,7 @@ const M3UFilesEditor = (props: M3UFilesEditorProps) => {
       <div className='m3uFilesEditor flex flex-column col-12 flex-shrink-0 '>
         <div className='flex justify-content-between align-items-center mb-1'>
           <span className='m-0 p-0 gap-1' style={{ color: '#FE7600' }}>M3U Files</span>
-          <div className='m-0 p-0 flex'>
+          <div className='m-0 p-0 flex gap-1'>
             <Button
               disabled={selectedM3UFile.url === undefined || selectedM3UFile.url === ''}
               icon="pi pi-sync"
@@ -107,7 +100,7 @@ const M3UFilesEditor = (props: M3UFilesEditorProps) => {
               onHide={() => { }}
             />
 
-            <M3UFileRemoveDialog onFileDeleted={() => setSelectedM3UFile({} as StreamMasterApi.M3UFilesDto)} selectedFile={selectedM3UFile} />
+            <M3UFileRemoveDialog selectedFile={selectedM3UFile} />
 
           </div>
         </div>

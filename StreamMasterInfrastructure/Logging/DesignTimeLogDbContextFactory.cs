@@ -8,7 +8,7 @@ namespace StreamMasterInfrastructure.Logging;
 
 public class DesignTimeLogDbContextFactory : IDesignTimeDbContextFactory<LogDbContext>
 {
-    private readonly string DbPath = Path.Join(Constants.DataDirectory, "file.db");
+    private readonly string DbPath = Path.Join(BuildInfo.DataFolder, "file.db");
 
     public LogDbContext CreateDbContext(string[] args)
     {

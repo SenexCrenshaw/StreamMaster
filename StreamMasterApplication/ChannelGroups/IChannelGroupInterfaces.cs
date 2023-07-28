@@ -35,21 +35,21 @@ public interface IChannelGroupDB
 
 public interface IChannelGroupHub
 {
-    Task<ChannelGroupDto?> AddChannelGroup(AddChannelGroupRequest request);
+    Task AddChannelGroup(AddChannelGroupRequest request);
 
-    Task<int?> DeleteChannelGroup(DeleteChannelGroupRequest request);
+    Task DeleteChannelGroup(DeleteChannelGroupRequest request);
 
     Task<ChannelGroupDto?> GetChannelGroup(int id);
 
     Task<IEnumerable<ChannelGroupDto>?> GetChannelGroups();
 
-    Task<IEnumerable<SetChannelGroupsVisibleArg>> SetChannelGroupsVisible(SetChannelGroupsVisibleRequest request);
+    Task SetChannelGroupsVisible(SetChannelGroupsVisibleRequest request);
 
-    Task<ChannelGroupDto?> UpdateChannelGroup(UpdateChannelGroupRequest request);
+    Task UpdateChannelGroup(UpdateChannelGroupRequest request);
 
-    Task<IEnumerable<ChannelGroupDto>?> UpdateChannelGroupOrder(UpdateChannelGroupOrderRequest request);
+    Task UpdateChannelGroupOrder(UpdateChannelGroupOrderRequest request);
 
-    Task<IEnumerable<ChannelGroupDto>?> UpdateChannelGroups(UpdateChannelGroupsRequest request);
+    Task UpdateChannelGroups(UpdateChannelGroupsRequest request);
 }
 
 public interface IChannelGroupScoped

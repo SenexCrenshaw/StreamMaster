@@ -20,8 +20,7 @@ const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProps) => {
     setShowOverlay(false);
     setInfoMessage('');
     setBlock(false);
-    props.onFileDeleted?.();
-  }, [props]);
+  }, []);
 
   const deleteFile = () => {
 
@@ -51,7 +50,7 @@ const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProps) => {
 
       <InfoMessageOverLayDialog
         blocked={block}
-        header='Add Group'
+        header='Delete M3U File'
         infoMessage={infoMessage}
         onClose={() => {
           ReturnToParent();
@@ -91,20 +90,20 @@ const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProps) => {
             />
             <Button
               icon="pi pi-check"
-              label="Add"
+              label="Delete"
               onClick={deleteFile}
               rounded
-              severity="success"
+              severity="danger"
             />
           </div>
         </div>
       </InfoMessageOverLayDialog>
 
       <Button
-        icon="pi pi-plus"
+        icon="pi pi-minus"
         onClick={() => setShowOverlay(true)}
         rounded
-        severity="success"
+        severity="danger"
         size="small"
         style={{
           ...{
@@ -115,15 +114,15 @@ const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProps) => {
         tooltip="Delete M3U File"
         tooltipOptions={getTopToolOptions}
       />
-    </>
 
+    </>
   );
 }
 
 M3UFileRemoveDialog.displayName = 'M3UFileRemoveDialog';
 
 type M3UFileRemoveDialogProps = {
-  onFileDeleted: () => void;
+  // onFileDeleted: () => void;
   selectedFile?: StreamMasterApi.M3UFilesDto;
 };
 

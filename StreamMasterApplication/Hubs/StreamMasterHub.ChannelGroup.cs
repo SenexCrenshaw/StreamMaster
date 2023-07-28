@@ -8,14 +8,14 @@ namespace StreamMasterApplication.Hubs;
 
 public partial class StreamMasterHub : IChannelGroupHub
 {
-    public async Task<ChannelGroupDto?> AddChannelGroup(AddChannelGroupRequest request)
+    public async Task AddChannelGroup(AddChannelGroupRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<int?> DeleteChannelGroup(DeleteChannelGroupRequest request)
+    public async Task DeleteChannelGroup(DeleteChannelGroupRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task<ChannelGroupDto?> GetChannelGroup(int id)
@@ -28,23 +28,23 @@ public partial class StreamMasterHub : IChannelGroupHub
         return await _mediator.Send(new GetChannelGroups()).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<SetChannelGroupsVisibleArg>> SetChannelGroupsVisible(SetChannelGroupsVisibleRequest request)
+    public async Task SetChannelGroupsVisible(SetChannelGroupsVisibleRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<ChannelGroupDto?> UpdateChannelGroup(UpdateChannelGroupRequest request)
+    public async Task UpdateChannelGroup(UpdateChannelGroupRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<ChannelGroupDto>?> UpdateChannelGroupOrder(UpdateChannelGroupOrderRequest request)
+    public async Task UpdateChannelGroupOrder(UpdateChannelGroupOrderRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<ChannelGroupDto>?> UpdateChannelGroups(UpdateChannelGroupsRequest request)
+    public async Task UpdateChannelGroups(UpdateChannelGroupsRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 }

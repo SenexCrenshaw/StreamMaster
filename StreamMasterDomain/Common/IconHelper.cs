@@ -20,7 +20,7 @@ public static class IconHelper
     /// <param name="setting"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public static async Task<IconFileDto> AddIcon(string sourceUrl, string? recommendedName, IMapper _mapper, IMemoryCache memoryCache, FileDefinition fileDefinition, CancellationToken cancellationToken)
+    public static async Task<IconFileDto> AddIcon(string sourceUrl, string? recommendedName, int fileId, IMapper _mapper, IMemoryCache memoryCache, FileDefinition fileDefinition, CancellationToken cancellationToken)
     {
         string source = HttpUtility.UrlDecode(sourceUrl);
         var icons = memoryCache.Icons();
@@ -60,30 +60,39 @@ public static class IconHelper
             Source = source,
             Extension = ext,
             Name = Path.GetFileNameWithoutExtension(name),
-            SMFileType = fileDefinition.SMFileType
+            SMFileType = fileDefinition.SMFileType,
+            FileId = fileId
         };
 
-        memoryCache.Add(icon);
+        if (fileDefinition.SMFileType != SMFileTypes.ProgrammeIcon)
+        {
+            memoryCache.Add(icon);
+        }
+        else
+        {
+            memoryCache.AddProgrammeLogo(icon);
+        }
 
         return icon;
     }
 
     private static async Task<bool> ReadDirectoryLogos(IMemoryCache memoryCache, CancellationToken cancellationToken)
     {
-        if (!Directory.Exists(Constants.TVLogoDirectory))
+        var fd = FileDefinitions.TVLogo;
+        if (!Directory.Exists(fd.DirectoryLocation))
         {
             return false;
         }
 
         Setting setting = FileUtil.GetSetting();
-        DirectoryInfo dirInfo = new(Constants.TVLogoDirectory);
+        DirectoryInfo dirInfo = new(BuildInfo.TVLogoDataFolder);
 
         List<TvLogoFile> tvLogos = new()
         {
             new TvLogoFile
             {
                 Id=0,
-                Source = Constants.IconDefault,
+                Source = BuildInfo.IconDefault,
                 FileExists = true,
                 Name = "Default Icon"
             },
@@ -97,7 +106,7 @@ public static class IconHelper
             }
         };
 
-        tvLogos.AddRange(await FileUtil.GetIconFilesFromDirectory(dirInfo, Constants.TVLogoDirectory, tvLogos.Count, cancellationToken).ConfigureAwait(false));
+        tvLogos.AddRange(await FileUtil.GetIconFilesFromDirectory(dirInfo, fd.DirectoryLocation, tvLogos.Count, cancellationToken).ConfigureAwait(false));
 
         memoryCache.ClearIcons();
         memoryCache.Set(tvLogos);

@@ -152,10 +152,10 @@ const FileDialog = (props: FileDialogProps) => {
           addEpgFileRequest.urlSource = source;
 
           Hub.AddEPGFile(addEpgFileRequest)
-            .then((returnData) => {
-              if (returnData) {
-                setInfoMessage(`Uploaded EPG: ${name}${activeFile ? '/' + activeFile.name : ''}`);
-              }
+            .then(() => {
+
+              setInfoMessage(`Uploaded EPG: ${name}${activeFile ? '/' + activeFile.name : ''}`);
+
             }).catch((e) => {
               setInfoMessage(`Upload EPG: ${name}${activeFile ? '/' + activeFile.name : ''} Error: ${e.message}`);
             });
@@ -173,10 +173,10 @@ const FileDialog = (props: FileDialogProps) => {
           addM3UFileRequest.urlSource = source;
 
           await Hub.AddM3UFile(addM3UFileRequest)
-            .then((returnData) => {
-              if (returnData) {
-                setInfoMessage(`Uploaded M3U: ${name}${activeFile ? '/' + activeFile.name : ''}`);
-              }
+            .then(() => {
+
+              setInfoMessage(`Uploaded M3U: ${name}${activeFile ? '/' + activeFile.name : ''}`);
+
             }).catch((e) => {
               setInfoMessage(`Upload M3U: ${name}${activeFile ? '/' + activeFile.name : ''} Error: ${e.message}`);
             });

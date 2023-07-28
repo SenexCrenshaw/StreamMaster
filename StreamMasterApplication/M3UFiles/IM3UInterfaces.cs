@@ -37,23 +37,23 @@ public interface IM3UFileDB
 
 public interface IM3UFileHub
 {
-    Task<M3UFilesDto?> AddM3UFile(AddM3UFileRequest request);
+    Task AddM3UFile(AddM3UFileRequest request);
 
-    Task<M3UFilesDto?> ChangeM3UFileName(ChangeM3UFileNameRequest request);
+    Task ChangeM3UFileName(ChangeM3UFileNameRequest request);
 
-    Task<int?> DeleteM3UFile(DeleteM3UFileRequest request);
+    Task DeleteM3UFile(DeleteM3UFileRequest request);
 
     Task<M3UFilesDto?> GetM3UFile(int id);
 
     Task<IEnumerable<M3UFilesDto>> GetM3UFiles();
 
-    Task<M3UFilesDto?> ProcessM3UFile(ProcessM3UFileRequest request);
+    Task ProcessM3UFile(ProcessM3UFileRequest request);
 
-    Task<M3UFilesDto?> RefreshM3UFile(RefreshM3UFileRequest request);
+    Task RefreshM3UFile(RefreshM3UFileRequest request);
 
-    Task<bool> ScanDirectoryForM3UFiles();
+    Task ScanDirectoryForM3UFiles();
 
-    Task<M3UFilesDto?> UpdateM3UFile(UpdateM3UFileRequest request);
+    Task UpdateM3UFile(UpdateM3UFileRequest request);
 }
 
 public interface IM3UFileTasks

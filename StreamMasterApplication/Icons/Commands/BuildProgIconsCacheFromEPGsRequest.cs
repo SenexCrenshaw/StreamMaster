@@ -7,6 +7,8 @@ using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.SchedulesDirectAPI;
+
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities.EPG;
 
@@ -54,32 +56,19 @@ public class BuildProgIconsCacheFromEPGsRequestHandler : IRequestHandler<BuildPr
                 continue;
             }
 
-            //fix me. channellogo should have the channel name
             var epgChannels = tv.Channel.Where(a => a != null && a.Icon != null && a.Icon.Src != null && a.Icon.Src != "");
-            //var epgIcons = epgChannels.Select(a => new { a.Displayname, a.Icon.Src }).ToList();
 
             if (!epgChannels.Any()) { continue; }
 
-            await WorkOnIcons(epg.Id, FileDefinitions.Icon, epgChannels, cancellationToken).ConfigureAwait(false);
+            await WorkOnEPGChannelIcons(epg.Id, epgChannels, cancellationToken).ConfigureAwait(false);
         }
 
-        //IEnumerable<StreamMasterDomain.Entities.EPG.Programme> _programmes = _memoryCache.Programmes();
-
-        //icons = _programmes
-        //   .Where(a => a is not null && a.Icon is not null && a.Icon.Count > 0 && a.Icon.Any(a => a.Src is not null))
-        //   .SelectMany(a => a.Icon.Where(a => a.Src is not null).Select(a => a.Src))
-        //   .Distinct().ToList();
-
-        //var test = icons.FirstOrDefault(a => a.Contains("deba6af644347122056ec73f6b885215ff4534230b214addfc795ae7db60c38f"));
-
-        //if (!icons.Any()) { return false; }
-
-        //await WorkOnIcons(FileDefinitions.ProgrammeIcon, icons, _setting, cancellationToken).ConfigureAwait(false);
+        await WorkOnProgrammeIcons(cancellationToken).ConfigureAwait(false);
 
         return true;
     }
 
-    private async Task WorkOnIcons(int epgFileId, FileDefinition fd, IEnumerable<TvChannel> channels, CancellationToken cancellationToken)
+    private async Task WorkOnEPGChannelIcons(int epgFileId, IEnumerable<TvChannel> channels, CancellationToken cancellationToken)
     {
         foreach (var channel in channels)
         {
@@ -94,11 +83,12 @@ public class BuildProgIconsCacheFromEPGsRequestHandler : IRequestHandler<BuildPr
 
             if (source.ToLower().StartsWith("https://json.schedulesdirect.org/20141201/image/"))
             {
+                var aaa = 1;
             }
             else
             {
                 string name = channel.Displayname != null ? channel.Displayname[0].ToString() : Path.GetFileNameWithoutExtension(source);
-                var iconDto = await IconHelper.AddIcon(source, name, _mapper, _memoryCache, fd, cancellationToken);
+                var iconDto = await IconHelper.AddIcon(source, name, epgFileId, _mapper, _memoryCache, FileDefinitions.ChannelIcon, cancellationToken);
                 if (iconDto is null)
                 {
                     continue;
@@ -111,6 +101,52 @@ public class BuildProgIconsCacheFromEPGsRequestHandler : IRequestHandler<BuildPr
 
                     _memoryCache.Add(cl);
                 }
+            }
+        }
+    }
+
+    private async Task WorkOnProgrammeIcons(CancellationToken cancellationToken)
+    {
+        var sgs = await _context.GetStreamGroupDtos("", cancellationToken).ConfigureAwait(false);
+        var epgids = sgs.SelectMany(x => x.ChildVideoStreams.Select(a => a.User_Tvg_ID)).Distinct();
+
+        List<Programme> programmes = _memoryCache.Programmes()
+               .Where(a =>
+               a.Channel != null &&
+               (
+                   epgids.Contains(a.Channel.ToLower()) ||
+                   epgids.Contains(a.DisplayName.ToLower())
+               )
+               && a.Icon is not null && a.Icon.Count > 0 && a.Icon.Any(a => a.Src is not null)
+               ).ToList();
+
+        if (!programmes.Any()) { return; }
+
+        foreach (var programme in programmes)
+        {
+            if (cancellationToken.IsCancellationRequested) { return; }
+
+            if (programme is null || !programme.Icon.Any() || string.IsNullOrEmpty(programme.Icon[0].Src))
+            {
+                continue;
+            }
+
+            string source = HttpUtility.UrlDecode(programme.Icon[0].Src);
+            var ext = Path.GetExtension(source);
+            string name = string.Join("_", programme.Title.Text.Split(Path.GetInvalidFileNameChars())) + $".{ext}";
+            string fileName = $"{FileDefinitions.ProgrammeIcon.DirectoryLocation}{name}";
+
+            if (source.ToLower().StartsWith("https://json.schedulesdirect.org/20141201/image/"))
+            {
+                var sd = new SchedulesDirect();
+                source = source.ToLower().Replace("https://json.schedulesdirect.org/20141201/image/", "");
+                var result = await sd.GetImageUrl(source, fileName, cancellationToken).ConfigureAwait(false);
+            }
+
+            var iconDto = await IconHelper.AddIcon(source, programme.Title.Text, programme.EPGFileId, _mapper, _memoryCache, FileDefinitions.ProgrammeIcon, cancellationToken);
+            if (iconDto is null)
+            {
+                continue;
             }
         }
     }

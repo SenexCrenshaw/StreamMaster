@@ -26,11 +26,13 @@ public class DeleteEPGFileHandler : IRequestHandler<DeleteEPGFileRequest, int?>
 {
     private readonly IAppDbContext _context;
     private readonly IMemoryCache _memoryCache;
+    private readonly IPublisher _publisher;
 
-    public DeleteEPGFileHandler(IAppDbContext context, IMemoryCache memoryCache)
+    public DeleteEPGFileHandler(IPublisher publisher, IAppDbContext context, IMemoryCache memoryCache)
     {
-        _context = context;
+        _publisher = publisher;
         _memoryCache = memoryCache;
+        _context = context;
     }
 
     public async Task<int?> Handle(DeleteEPGFileRequest request, CancellationToken cancellationToken = default)
@@ -61,20 +63,25 @@ public class DeleteEPGFileHandler : IRequestHandler<DeleteEPGFileRequest, int?>
             }
         }
 
-        var programmes = _memoryCache.Programmes().RemoveAll(a => a.EPGFileId == EPGFile.Id);
+        var programmes = _memoryCache.ChannelLogos();
+        programmes.RemoveAll(a => a.EPGFileId == EPGFile.Id);
         _memoryCache.Set(programmes);
 
-        var channels = _memoryCache.ProgrammeChannels().RemoveAll(a => a.EPGFileId == EPGFile.Id);
+        var channels = _memoryCache.ChannelLogos();
+        channels.RemoveAll(a => a.EPGFileId == EPGFile.Id);
         _memoryCache.Set(channels);
 
-        var channelLogos = _memoryCache.ChannelLogos().RemoveAll(a => a.EPGFileId == EPGFile.Id);
+        var channelLogos = _memoryCache.ChannelLogos();
+        channelLogos.RemoveAll(a => a.EPGFileId == EPGFile.Id);
         _memoryCache.Set(channelLogos);
 
-        AppHelper.RebuildProgrammeChannelNames(_memoryCache, _context.EPGFiles.ToList());
+        var programmeIcons = _memoryCache.ProgrammeIcons();
+        programmeIcons.RemoveAll(a => a.FileId == EPGFile.Id);
+        _memoryCache.SetProgrammeLogos(programmeIcons);        
 
-        EPGFile.AddDomainEvent(new EPGFileDeletedEvent(EPGFile.Id));
-        _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
+        await _publisher.Publish(new EPGFileDeletedEvent(EPGFile.Id), cancellationToken).ConfigureAwait(false);
         return EPGFile.Id;
     }
 }

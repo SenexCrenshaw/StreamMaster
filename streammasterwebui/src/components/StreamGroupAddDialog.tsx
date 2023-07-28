@@ -100,12 +100,10 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
     }
 
     AddStreamGroup(data)
-      .then((result) => {
-        if (result) {
-          setInfoMessage('Stream Group Added Successfully');
-        } else {
-          setInfoMessage('Stream Group Add No Changes');
-        }
+      .then(() => {
+
+        setInfoMessage('Stream Group Added Successfully');
+
       }).catch((e) => {
         setInfoMessage('Stream Group Add Error: ' + e.message);
       });

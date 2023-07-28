@@ -10,14 +10,14 @@ namespace StreamMasterApplication.Hubs;
 
 public partial class StreamMasterHub : IStreamGroupHub
 {
-    public async Task<StreamGroupDto?> AddStreamGroup(AddStreamGroupRequest request)
+    public async Task AddStreamGroup(AddStreamGroupRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<int?> DeleteStreamGroup(DeleteStreamGroupRequest request)
+    public async Task DeleteStreamGroup(DeleteStreamGroupRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task FailClient(FailClientRequest request)
@@ -56,8 +56,8 @@ public partial class StreamMasterHub : IStreamGroupHub
         await _mediator.Send(new SimulateStreamFailureRequest(streamUrl)).ConfigureAwait(false);
     }
 
-    public async Task<StreamGroupDto?> UpdateStreamGroup(UpdateStreamGroupRequest request)
+    public async Task UpdateStreamGroup(UpdateStreamGroupRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 }

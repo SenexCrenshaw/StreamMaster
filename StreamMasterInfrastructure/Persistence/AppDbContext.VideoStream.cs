@@ -56,7 +56,7 @@ public partial class AppDbContext : IVideoStreamDB
             if (cancellationToken.IsCancellationRequested) { return false; }
             string source = HttpUtility.UrlDecode(stream.Tvg_logo);
 
-            await IconHelper.AddIcon(source, stream.User_Tvg_name, _mapper, _memoryCache, FileDefinitions.Icon, cancellationToken);
+            await IconHelper.AddIcon(source, stream.User_Tvg_name, stream.M3UFileId, _mapper, _memoryCache, FileDefinitions.Icon, cancellationToken);
         }
 
         return true;

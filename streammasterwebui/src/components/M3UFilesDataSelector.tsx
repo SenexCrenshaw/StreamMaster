@@ -78,23 +78,16 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
     }
 
     await Hub.UpdateM3UFile(tosend)
-      .then((returnData) => {
+      .then(() => {
         if (toast.current) {
-          if (returnData) {
-            toast.current.show({
-              detail: `M3U File Update Successful`,
-              life: 3000,
-              severity: 'success',
-              summary: 'Successful',
-            });
-          } else {
-            toast.current.show({
-              detail: `M3U File Update Failed`,
-              life: 3000,
-              severity: 'error',
-              summary: 'Error',
-            });
-          }
+
+          toast.current.show({
+            detail: `M3U File Update Successful`,
+            life: 3000,
+            severity: 'success',
+            summary: 'Successful',
+          });
+
         }
       }).catch((e) => {
         if (toast.current) {

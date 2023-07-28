@@ -17,7 +17,7 @@ public static class StreamingProxies
     {
         Setting setting = FileUtil.GetSetting();
 
-        var ffmpegExec = Path.Combine(Constants.ConfigFolder, setting.FFMPegExecutable);
+        var ffmpegExec = Path.Combine(BuildInfo.AppDataFolder, setting.FFMPegExecutable);
 
         if (!File.Exists(ffmpegExec) && !File.Exists(ffmpegExec + ".exe"))
         {

@@ -1201,7 +1201,7 @@ export type BaseFileRequest = {
 export type UpdateEpgFileRequest = BaseFileRequest & {
   epgRank?: number | null;
 };
-export type SmFileTypes = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+export type SmFileTypes = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 export type AutoMatchIconToStreamsRequest = {
   ids?: string[];
 };

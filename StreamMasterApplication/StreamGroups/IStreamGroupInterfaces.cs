@@ -40,6 +40,8 @@ public interface IStreamGroupDB
 
     Task<bool> DeleteStreamGroupsync(int streamGroupId, CancellationToken cancellationToken);
 
+    //Task<List<StreamGroup>> GetAllStreamGroupsWithRelatedEntitiesAsync(CancellationToken cancellationToken);
+
     Task<StreamGroupDto?> GetStreamGroupDto(int streamGroupId, string Url, CancellationToken cancellationToken = default);
 
     Task<StreamGroupDto?> GetStreamGroupDtoByStreamGroupNumber(int streamGroupNumber, string Url, CancellationToken cancellationToken = default);
@@ -66,9 +68,9 @@ public interface IStreamGroupDB
 
 public interface IStreamGroupHub
 {
-    Task<StreamGroupDto?> AddStreamGroup(AddStreamGroupRequest request);
+    Task AddStreamGroup(AddStreamGroupRequest request);
 
-    Task<int?> DeleteStreamGroup(DeleteStreamGroupRequest request);
+    Task DeleteStreamGroup(DeleteStreamGroupRequest request);
 
     Task FailClient(FailClientRequest request);
 
@@ -84,7 +86,7 @@ public interface IStreamGroupHub
 
     public Task SimulateStreamFailure(string streamUrl);
 
-    Task<StreamGroupDto?> UpdateStreamGroup(UpdateStreamGroupRequest request);
+    Task UpdateStreamGroup(UpdateStreamGroupRequest request);
 }
 
 public interface IStreamGroupTasks
