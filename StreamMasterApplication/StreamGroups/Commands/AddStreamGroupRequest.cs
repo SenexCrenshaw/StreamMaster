@@ -68,11 +68,11 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
             return null;
         }
 
-        int streamGroupNumber = _context.StreamGroups.Max(a => a.StreamGroupNumber) + 1;
-        //if (_context.StreamGroups.Any(a => a.StreamGroupNumber == streamGroupNumber))
-        //{
-        //    streamGroupNumber = _context.StreamGroups.Max(a => a.StreamGroupNumber) + 1;
-        //}
+        int streamGroupNumber = 1;
+        if (_context.StreamGroups.Any())
+        {
+            streamGroupNumber = _context.StreamGroups.Max(a => a.StreamGroupNumber) + 1;
+        }
 
         StreamGroup entity = new()
         {

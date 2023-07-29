@@ -45,11 +45,18 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     }
 
     if (props.videoStream?.childVideoStreams !== undefined && props.videoStream.childVideoStreams.length > 0) {
-      const newStreams = [...props.videoStream.childVideoStreams];
+      const newStream = videoStreamsQuery.data.find((m3u: StreamMasterApi.VideoStreamDto) => m3u.id === props.videoStream?.id);
+      if (newStream === undefined || newStream.childVideoStreams === undefined) {
+        return;
+      }
 
+      const newStreams = [...newStream.childVideoStreams];
       const dsIds = newStreams.map((sgvs) => sgvs.id);
 
-      setTargetVideoStreams(newStreams.sort((a, b) => a.rank - b.rank));
+      const toSet = newStreams.sort((a, b) => a.rank - b.rank);
+
+
+      setTargetVideoStreams(toSet);
 
       if (props.showTriState === null) {
         setSourceVideoStreams(videoStreamsQuery.data.filter((m3u) => !dsIds?.includes(m3u.id)));
@@ -89,7 +96,8 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     });
 
     if (props.isAdditionalChannels === true) {
-      setTargetVideoStreams((updatedStreams as StreamMasterApi.ChildVideoStreamDto[]).filter((m3u) => props.showHidden === true || m3u.isHidden !== true).sort((a, b) => a.rank - b.rank));
+      const toSet = (updatedStreams as StreamMasterApi.ChildVideoStreamDto[]).filter((m3u) => props.showHidden === true || m3u.isHidden !== true).sort((a, b) => a.rank - b.rank);
+      setTargetVideoStreams(toSet);
     } else {
 
       setTargetVideoStreams(
@@ -107,6 +115,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       setSourceVideoStreams(undefined);
       setTargetVideoStreams(undefined);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.isAdditionalChannels, props.showHidden, props.showTriState, props.videoStream, streamGroup, videoStreamsQuery.data]);
 
   const channelNumberEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
