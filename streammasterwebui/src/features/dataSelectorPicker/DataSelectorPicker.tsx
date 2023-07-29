@@ -95,7 +95,7 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
     return () => {
       setSourceDataSource(undefined);
     }
-  }, [props, selection]);
+  }, [props.sourceDataSource, selection]);
 
   const targetRightHeaderTemplate = React.useMemo(() => {
     if (props.targetHeaderTemplate && props.showUndo !== true) {

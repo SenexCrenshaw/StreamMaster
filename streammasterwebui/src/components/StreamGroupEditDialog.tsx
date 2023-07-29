@@ -15,7 +15,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
   const [name, setName] = React.useState<string>('');
   const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[]);
 
-  React.useMemo(() => {
+  React.useEffect(() => {
     if (props.value === undefined) {
       return;
     }
@@ -69,6 +69,8 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
 
     if (selectedChannelGroups.length > 0) {
       data.channelGroupNames = selectedChannelGroups.map((x) => x.name);
+    } else {
+      data.channelGroupNames = [];
     }
 
     UpdateStreamGroup(data)

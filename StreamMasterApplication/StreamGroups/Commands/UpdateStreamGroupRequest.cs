@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-
-using FluentValidation;
+﻿using FluentValidation;
 
 using MediatR;
 
@@ -10,7 +8,6 @@ using StreamMasterApplication.Common.Extensions;
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Entities;
 
 namespace StreamMasterApplication.StreamGroups.Commands;
 
@@ -66,12 +63,12 @@ public class UpdateStreamGroupRequestHandler : IRequestHandler<UpdateStreamGroup
         var streamGroup = await _context.UpdateStreamGroupAsync(request, url, cancellationToken).ConfigureAwait(false);
         if (streamGroup is not null)
         {
-            await _publisher.Publish(new StreamGroupUpdateEvent(streamGroup), cancellationToken).ConfigureAwait(false);
             //var streamGroup = await _context.GetStreamGroupDto(ret.Id, url, cancellationToken).ConfigureAwait(false);
             if (streamGroup is not null && streamGroup.ChildVideoStreams.Any())
             {
                 await _publisher.Publish(new UpdateVideoStreamsEvent(streamGroup.ChildVideoStreams), cancellationToken).ConfigureAwait(false);
             }
+            await _publisher.Publish(new StreamGroupUpdateEvent(streamGroup), cancellationToken).ConfigureAwait(false);
         }
 
         return streamGroup;

@@ -21,6 +21,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   const toast = React.useRef<Toast>(null);
 
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
+  const streamGroupsQuery = StreamMasterApi.useStreamGroupsGetStreamGroupsQuery();
 
   const [sourceVideoStreams, setSourceVideoStreams] = React.useState<StreamMasterApi.VideoStreamDto[] | undefined>(undefined);
   const [targetVideoStreams, setTargetVideoStreams] = React.useState<StreamMasterApi.ChildVideoStreamDto[] | undefined>(undefined);
@@ -29,15 +30,21 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
 
   React.useEffect(() => {
-    if (!props.streamGroup || props.streamGroup.id === undefined) {
+    if (!props.streamGroup || props.streamGroup === undefined || streamGroupsQuery.data === undefined) {
       setStreamGroup(undefined);
       return;
     }
 
-    setStreamGroup(props.streamGroup);
+    const sg = streamGroupsQuery.data.find((x: StreamMasterApi.StreamGroupDto) => x.id === props.streamGroup?.id);
+    if (sg === null || sg === undefined) {
+      setStreamGroup({} as StreamMasterApi.StreamGroupDto);
+      return;
+    }
+
+    setStreamGroup(sg);
     return () => setStreamGroup(undefined);
 
-  }, [props.streamGroup])
+  }, [props.streamGroup, streamGroupsQuery.data])
 
   React.useEffect(() => {
     if (!videoStreamsQuery.data) {
@@ -436,6 +443,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     <>
       <Toast position="bottom-right" ref={toast} />
       <DataSelectorPicker
+
         id={props.id + '-dataselectorpicker'}
         isLoading={videoStreamsQuery.isLoading}
         onSelectionChange={onChange}

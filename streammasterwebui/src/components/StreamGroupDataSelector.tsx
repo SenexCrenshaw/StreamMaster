@@ -21,7 +21,8 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
 
     if (selectedStreamGroup.id) {
       const index = streamGroupsQuery.data.findIndex((e) => e.id === selectedStreamGroup.id);
-      setSelectedStreamGroup({ ...streamGroupsQuery.data[index] });
+      const newSG = { ...streamGroupsQuery.data[index] };
+      setSelectedStreamGroup(newSG);
     }
 
   }, [selectedStreamGroup.id, streamGroupsQuery.data]);

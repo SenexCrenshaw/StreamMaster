@@ -9,6 +9,7 @@ const EPGSelector = (props: EPGSelectorProps) => {
   const toast = React.useRef<Toast>(null);
 
   const [programme, setProgramme] = React.useState<string>('');
+  const [channel, setChannel] = React.useState<string>('');
   const [dataDataSource, setDataSource] = React.useState<StreamMasterApi.ProgrammeNameDto[]>([]);
 
   const programmeNamesQuery = StreamMasterApi.useProgrammesGetProgrammeNamesQuery();
@@ -35,36 +36,58 @@ const EPGSelector = (props: EPGSelectorProps) => {
     }
 
     if (props.value === null || props.value === undefined) {
-      setProgramme('Dummy');
+      setProgramme('<Blank>');
+      setChannel('<Blank>');
       return;
     }
 
-    setProgramme(props.value);
-
-  }, [dataDataSource, props.value]);
-
-  const onEPGChange = React.useCallback(async (channel: string) => {
-
-    if (channel === undefined) {
+    if (programmeNamesQuery.data === undefined) {
       return;
     }
 
-    setProgramme(channel);
-
-    if (props.data === undefined || props.data.id === '' || props.data.user_Tvg_ID === channel) {
+    const test = programmeNamesQuery.data.find((a) => a.channel === props.value);
+    if (test === undefined || test.displayName === undefined || test.channel === undefined) {
       return;
+    }
+
+    setProgramme(test.displayName);
+    setChannel(test.channel);
+
+  }, [channel, dataDataSource, programmeNamesQuery.data, props.value]);
+
+  const onEPGChange = React.useCallback(async (displayName: string) => {
+
+    if (programmeNamesQuery.data === undefined || props.data === undefined || props.data.id === '') {
+      return;
+    }
+
+    let toChange = '';
+
+    if (displayName !== '<Blank>') {
+      const test = programmeNamesQuery.data.find((a) => a.displayName === displayName);
+      if (test === undefined || test.displayName === undefined || test.channel === undefined) {
+        return;
+      }
+
+      if (props.data.user_Tvg_ID === test.channel) {
+        return;
+      }
+
+      setProgramme(test.displayName);
+      setChannel(test.channel);
+      toChange = test.channel;
     }
 
     if (props.onChange) {
       props.onChange(channel);
     }
 
+
+    console.debug(channel);
     const data = {} as StreamMasterApi.UpdateVideoStreamRequest;
-    data.tvg_ID = channel;
+    data.tvg_ID = toChange;
     data.id = props.data.id;
-    if (channel === '<Blank>') {
-      channel = '';
-    }
+
 
     await Hub.UpdateVideoStream(data)
       .then(() => {
@@ -91,7 +114,7 @@ const EPGSelector = (props: EPGSelectorProps) => {
 
 
 
-  }, [props]);
+  }, [channel, programmeNamesQuery.data, props]);
 
   const className = classNames('iconSelector p-0 m-0 w-full z-5 ', props.className);
 
