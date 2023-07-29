@@ -141,8 +141,6 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
             var icons = _memoryCache.Icons();
             var progIcons = _memoryCache.ProgrammeIcons();
 
-            //var icons = await _context.GetIcons(cancellationToken).ConfigureAwait(false);// _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
-
             _ = Parallel.ForEach(videoStreams, po, videoStream =>
             {
                 if (videoStream == null)
@@ -150,14 +148,6 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
                     return;
                 }
 
-                if (_setting.M3UIgnoreEmptyEPGID &&
-                (string.IsNullOrEmpty(videoStream.User_Tvg_ID) || videoStream.User_Tvg_ID.ToLower() == "dummy"))
-                {
-                    return;
-                }
-
-                //IconFileDto? icon = icons.SingleOrDefault(a => a.Source == videoStream.User_Tvg_logo);
-                //string Logo = icon != null ? url + icon.Source : url + "/" + setting.DefaultIcon;
                 var logo = GetIconUrl(videoStream.User_Tvg_logo);
 
                 TvChannel t;

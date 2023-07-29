@@ -137,20 +137,20 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
         _ = Parallel.ForEach(videoStreams.OrderBy(a => a.User_Tvg_chno), po, (videoStream, state, longCid) =>
         {
-            bool skipM3UFieldTvgId = false;
-            if (_setting.M3UFieldTvgId)
-            {
-                skipM3UFieldTvgId = true;
-                //if (_setting.M3UIgnoreEmptyEPGID && videoStream.User_Tvg_ID.ToLower() == "dummy"){
-                //    skipM3UFieldTvgId = true;
+            bool showM3UFieldTvgId = _setting.M3UFieldTvgId;
 
-                //}
-                if (_setting.M3UIgnoreEmptyEPGID)
+            bool isUserTvgIdInvalid = string.IsNullOrEmpty(videoStream.User_Tvg_ID)
+                          || StringComparer.OrdinalIgnoreCase.Equals(videoStream.User_Tvg_ID, "dummy");
+
+            if (_setting.M3UIgnoreEmptyEPGID && isUserTvgIdInvalid)
+            {
+                if (_setting.M3UFieldTvgId)
                 {
-                    if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
-                    {
-                        return;
-                    }
+                    showM3UFieldTvgId = false;
+                }
+                else
+                {
+                    return;
                 }
             }
 
@@ -197,7 +197,7 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
                 fieldList.Add($"tvg-chno=\"{videoStream.User_Tvg_chno}\"");
             }
 
-            if (skipM3UFieldTvgId)
+            if (showM3UFieldTvgId)
             {
                 //if (videoStream.User_Tvg_ID.ToLower() == "dummy")
                 //{
