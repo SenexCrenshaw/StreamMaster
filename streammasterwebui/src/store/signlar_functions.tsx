@@ -6,7 +6,6 @@ import {
   type AddStreamGroupRequest,
   type AddVideoStreamRequest,
   type AutoMatchIconToStreamsRequest,
-  type ChangeEpgFileNameRequest,
   type ChangeM3UFileNameRequest,
   type ChangeVideoStreamChannelRequest,
   type ChannelGroupDto,
@@ -108,10 +107,6 @@ export const OnConnectedAsync = async (): Promise<void> => {
 
 export const AddEPGFile = async (arg: AddEpgFileRequest): Promise<void> => {
     await hubConnection.invoke('AddEPGFile',arg);
-};
-
-export const ChangeEPGFileName = async (arg: ChangeEpgFileNameRequest): Promise<void> => {
-    await hubConnection.invoke('ChangeEPGFileName',arg);
 };
 
 export const DeleteEPGFile = async (arg: DeleteEpgFileRequest): Promise<void> => {

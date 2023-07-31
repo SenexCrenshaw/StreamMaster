@@ -34,6 +34,10 @@ public class Setting
     public string SDPassword { get; set; } = "";
     public string SDPostalCode { get; set; } = string.Empty;
     public List<string> SDStationIds { get; set; } = new();
+
+    public List<string> NameRegex { get; set; } = new();
+
+  
     public string SDUserName { get; set; } = "";
     public string ServerKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
     public string SSLCertPassword { get; set; } = "";

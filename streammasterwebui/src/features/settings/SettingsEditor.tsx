@@ -22,6 +22,7 @@ import { baseHostURL } from '../../settings';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { getHelp } from '../../help_en';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
+import SettingsNameRegexDataSelector from '../../components/SettingsNameRegexDataSelector';
 
 export const SettingsEditor = () => {
   const toast = React.useRef<Toast>(null);
@@ -366,6 +367,9 @@ export const SettingsEditor = () => {
             {getInputTextLine('dummyRegex')}
             {getInputTextLine('sdUserName')}
             {getPasswordLine('sdPassword')}
+            <Fieldset className="mt-4 pt-10" collapsed legend={GetMessage('nameregexSettings')} toggleable >
+              <SettingsNameRegexDataSelector data={settingsQuery.data?.nameRegex} />
+            </Fieldset>
             <Fieldset className="mt-4 pt-10" collapsed legend={GetMessage('m3uSettings')} toggleable >
               {getCheckBoxLine('m3UIgnoreEmptyEPGID')}
               {getCheckBoxLine('m3UFieldCUID')}

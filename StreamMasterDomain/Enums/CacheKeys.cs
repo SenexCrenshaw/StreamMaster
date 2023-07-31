@@ -5,6 +5,9 @@ using Microsoft.Extensions.Caching.Memory;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities.EPG;
 
+using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
+
 namespace StreamMasterDomain.Enums;
 
 public static class CacheKeys
@@ -25,9 +28,12 @@ public static class CacheKeys
     {
         if (data.GetType() == (typeof(IconFileDto)))
         {
-            var datas = Get<IconFileDto>(ListIconFiles, cache);
-            datas.Add((IconFileDto)data);
-            cache.Set(ListIconFiles, datas, CacheEntryOptions);
+            lock (_lock)
+            {
+                var datas = Get<IconFileDto>(ListIconFiles, cache);
+                datas.Add((IconFileDto)data);
+                cache.Set(ListIconFiles, datas, CacheEntryOptions);
+            }
             return;
         }
 
@@ -148,6 +154,17 @@ public static class CacheKeys
         return Get<IconFileDto>(ListIconFiles, cache);
     }
 
+    private static readonly object _lock = new object();
+    public static IconFileDto? GetIcon(this IMemoryCache cache, string source, SMFileTypes sMFileTypes)
+    {
+        lock (_lock)
+        {
+            var testIcon = cache.Icons().FirstOrDefault(a => a.Source == source && a.SMFileType == sMFileTypes);
+            return testIcon;
+        } 
+     
+    }
+
     public static bool IsSystemReady(this IMemoryCache cache)
     {
         if (cache.TryGetValue(IsSystemReadyKey, out bool? cacheValue))
@@ -250,7 +267,8 @@ public static class CacheKeys
 
     private static List<T> Get<T>(string key, IMemoryCache cache)
     {
-        if (cache.TryGetValue(key, out List<T>? cacheValue))
+        lock (_lock) { 
+            if (cache.TryGetValue(key, out List<T>? cacheValue))
         {
             if (cacheValue != null)
             {
@@ -258,5 +276,6 @@ public static class CacheKeys
             }
         }
         return new List<T>();
+        }
     }
 }

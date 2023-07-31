@@ -15,7 +15,7 @@ public class CacheEntity : BaseEntity
     public string FileExtension { get; set; } = string.Empty;
     public DateTime LastDownloadAttempt { get; set; }
     public DateTime LastDownloaded { get; set; }
-
+    public DateTime LastUpdated { get; set; }
     public int MinimumMinutesBetweenDownloads { get; set; }
 
     public string Name { get; set; } = string.Empty;

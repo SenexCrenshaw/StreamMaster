@@ -32,6 +32,7 @@ export default {
   m3uSettings: 'M3U Settings',
   maxConnectRetry:'Connection Retry Limit',
   maxConnectRetryTimeMS: 'Retry Timeout in MS',
+  nameregexSettings: 'Name Blacklist',
   overWriteM3UChannels: 'Overwrite M3U Channels Numbers',
   password: "Password",
   preloadPercentage: 'Buffer Preload Percentage',

@@ -57,6 +57,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? StreamingClientUserAgent { get; set; }
     public StreamingProxyTypes? StreamingProxyType { get; set; }
     public bool? VideoStreamAlwaysUseEPGLogo { get; set; }
+    public List<string>? NameRegex { get; set; } = new();
 }
 
 public class UpdateSettingValidator : AbstractValidator<UpdateSettingRequest>
@@ -276,10 +277,16 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
             currentSetting.SDUserName = request.SDUserName;
         }
 
-        if (request.SDStationIds != null && request.SDStationIds != currentSetting.SDStationIds)
+        if (request.SDStationIds != null)
         {
             currentSetting.SDStationIds = request.SDStationIds;
         }
+
+        if (request.NameRegex != null )
+        {
+            currentSetting.NameRegex = request.NameRegex;
+        }
+        
 
         if (request.StreamingProxyType != null && request.StreamingProxyType != currentSetting.StreamingProxyType)
         {

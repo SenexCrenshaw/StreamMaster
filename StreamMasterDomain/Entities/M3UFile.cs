@@ -12,6 +12,14 @@ public class M3UFile : AutoUpdateEntity
     public int StartingChannelNumber { get; set; }
     public int StationCount { get; set; }
 
+    public DateTime LastWrite()
+    {
+        var fileName = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source);
+        var lastWrite = File.GetLastWriteTime(fileName);
+
+        return lastWrite; 
+    }
+
     public async Task<List<VideoStream>?> GetM3U()
     {
         string body = await FileUtil.GetFileData(Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source)).ConfigureAwait(false);

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.VideoStreams;
 using StreamMasterApplication.VideoStreams.Commands;
@@ -8,10 +9,35 @@ using StreamMasterDomain.Dto;
 using StreamMasterDomain.Entities;
 using StreamMasterDomain.Enums;
 
+using System.Collections.Concurrent;
 using System.Data;
+using System.Diagnostics;
 using System.Web;
 
 namespace StreamMasterInfrastructure.Persistence;
+
+public class IconFileDtoComparer : IEqualityComparer<IconFileDto>
+{
+    public bool Equals(IconFileDto x, IconFileDto y)
+    {
+        if (ReferenceEquals(x, y)) return true;
+        if (ReferenceEquals(x, null) || ReferenceEquals(y, null)) return false;
+
+        // Assuming Source is the unique identifier for IconFileDto
+        return x.Source == y.Source;
+    }
+
+    public int GetHashCode(IconFileDto obj)
+    {
+        if (ReferenceEquals(obj, null)) return 0;
+
+        // Assuming Source is the unique identifier for IconFileDto
+        int hashProductName = obj.Source == null ? 0 : obj.Source.GetHashCode();
+
+        return hashProductName;
+    }
+}
+
 
 public partial class AppDbContext : IVideoStreamDB
 {
@@ -51,15 +77,89 @@ public partial class AppDbContext : IVideoStreamDB
 
         if (!await streams.AnyAsync(cancellationToken: cancellationToken)) { return false; }
 
-        await foreach (var stream in streams.AsAsyncEnumerable().WithCancellation(cancellationToken))
+        // For progress reporting
+        int totalCount = await streams.CountAsync(cancellationToken: cancellationToken);
+        int processedCount = 0;
+
+        Stopwatch processSw = new Stopwatch();
+        processSw.Start();
+
+        var parallelOptions = new ParallelOptions
         {
-            if (cancellationToken.IsCancellationRequested) { return false; }
+            CancellationToken = cancellationToken,
+            MaxDegreeOfParallelism = Environment.ProcessorCount // or any number depending on how much parallelism you want
+        };
+
+        var streamsList = await streams.ToListAsync();
+        var progressCount = 5000;
+
+        var toWrite= new ConcurrentBag<IconFileDto>();
+
+        Parallel.ForEach(streamsList, parallelOptions, stream =>
+        {
+            if (cancellationToken.IsCancellationRequested) { return; }
+
             string source = HttpUtility.UrlDecode(stream.Tvg_logo);
+                      
+                processSw.Start();
+                 var icon = IconHelper.GetIcon(source, stream.User_Tvg_name, stream.M3UFileId,  FileDefinitions.Icon);
+            toWrite.Add(icon); ;
+            // Report progress for every stream
+            var currentProgress = Interlocked.Increment(ref processedCount);
+                if (currentProgress % progressCount == 0)
+                {
+                    processSw.Stop();
 
-            await IconHelper.AddIcon(source, stream.User_Tvg_name, stream.M3UFileId, _mapper, _memoryCache, FileDefinitions.Icon, cancellationToken);
-        }
+                    var percentage = ((double)currentProgress / totalCount * 100).ToString("F2");
+                    var speed = processSw.ElapsedMilliseconds.ToString("F3");
+                    var avgTimePerItem = processSw.ElapsedMilliseconds / progressCount;
+                    int remainingItems = totalCount - currentProgress;
 
+                    double estRemainingTime = (avgTimePerItem * remainingItems) / 1000;
+
+                    _logger.LogInformation($"Progress: {percentage}%, {currentProgress}/{totalCount}, Speed: {speed} ms, ETA: {estRemainingTime} sec");
+
+                    processSw.Restart(); // Reset and start the Stopwatch for the next 1000 items
+                }
+           
+        });
+
+        var icons = _memoryCache.GetIcons(_mapper);
+        var missingIcons = toWrite.Except(icons, new IconFileDtoComparer());
+
+        icons.AddRange(missingIcons);
+        _memoryCache.Set(icons);
+
+        //totalCount = missingIcons.Count();
+        //processedCount = 0;
+
+        //Parallel.ForEach(missingIcons, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, icon =>
+        //{
+          
+        //    icons.Add(icon);
+
+        //    // Report progress for every stream
+        //    var currentProgress = Interlocked.Increment(ref processedCount);
+        //    if (currentProgress % progressCount == 0)
+        //    {
+        //        processSw.Stop();
+
+        //        var percentage = ((double)currentProgress / totalCount * 100).ToString("F2");
+        //        var speed = processSw.ElapsedMilliseconds.ToString("F3");
+        //        var avgTimePerItem = processSw.ElapsedMilliseconds / progressCount;
+        //        int remainingItems = totalCount - currentProgress;
+
+        //        double estRemainingTime = (avgTimePerItem * remainingItems) / 1000;
+
+        //        _logger.LogInformation($"Progress: {percentage}%, {currentProgress}/{totalCount}, Speed: {speed} ms, ETA: {estRemainingTime} sec");
+
+        //        processSw.Restart(); // Reset and start the Stopwatch for the next 1000 items
+        //    }
+        //});
+
+        //_memoryCache.Set(icons);
         return true;
+
     }
 
     public async Task<bool> CacheIconsFromVideoStreams(CancellationToken cancellationToken)

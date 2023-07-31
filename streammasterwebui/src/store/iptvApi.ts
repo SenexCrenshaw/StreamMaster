@@ -128,17 +128,6 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["EPGFiles"],
       }),
-      epgFilesChangeEpgFileName: build.mutation<
-        EpgFilesChangeEpgFileNameApiResponse,
-        EpgFilesChangeEpgFileNameApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/epgfiles/changeepgfilename`,
-          method: "PUT",
-          body: queryArg,
-        }),
-        invalidatesTags: ["EPGFiles"],
-      }),
       epgFilesDeleteEpgFile: build.mutation<
         EpgFilesDeleteEpgFileApiResponse,
         EpgFilesDeleteEpgFileApiArg
@@ -865,9 +854,7 @@ export type ChannelGroupsUpdateChannelGroupOrderApiArg =
 export type ChannelGroupsUpdateChannelGroupsApiResponse =
   /** status 204  */ undefined;
 export type ChannelGroupsUpdateChannelGroupsApiArg = UpdateChannelGroupsRequest;
-export type EpgFilesAddEpgFileApiResponse = /** status 200  */
-  | undefined
-  | /** status 201  */ EpgFilesDto;
+export type EpgFilesAddEpgFileApiResponse = unknown;
 export type EpgFilesAddEpgFileApiArg = AddEpgFileRequest;
 export type EpgFilesGetEpgFilesApiResponse = /** status 200  */ EpgFilesDto[];
 export type EpgFilesGetEpgFilesApiArg = void;
@@ -881,8 +868,6 @@ export type EpgFilesAddEpgFileFromFormApiArg = {
   Name?: string;
   UrlSource?: string | null;
 };
-export type EpgFilesChangeEpgFileNameApiResponse = /** status 204  */ undefined;
-export type EpgFilesChangeEpgFileNameApiArg = ChangeEpgFileNameRequest;
 export type EpgFilesDeleteEpgFileApiResponse = /** status 200  */ undefined;
 export type EpgFilesDeleteEpgFileApiArg = DeleteEpgFileRequest;
 export type EpgFilesGetEpgFileApiResponse = /** status 200  */ EpgFilesDto;
@@ -1150,6 +1135,13 @@ export type UpdateChannelGroupOrderRequest = {
 export type UpdateChannelGroupsRequest = {
   channelGroupRequests: UpdateChannelGroupRequest[];
 };
+export type AddEpgFileRequest = {
+  description?: string | null;
+  epgRank?: number;
+  formFile?: Blob | null;
+  name: string;
+  urlSource?: string | null;
+};
 export type BaseFileDto = {
   autoUpdate: boolean;
   description: string;
@@ -1167,17 +1159,6 @@ export type EpgFilesDto = BaseFileDto & {
   epgStartDate?: string;
   epgStopDate?: string;
   programmeCount?: number;
-};
-export type AddEpgFileRequest = {
-  description?: string | null;
-  epgRank?: number;
-  formFile?: Blob | null;
-  name: string;
-  urlSource?: string | null;
-};
-export type ChangeEpgFileNameRequest = {
-  id?: number;
-  name?: string;
 };
 export type DeleteEpgFileRequest = {
   deleteFile?: boolean;
@@ -1553,6 +1534,7 @@ export type Setting = {
   sdPassword?: string;
   sdPostalCode?: string;
   sdStationIds?: string[];
+  nameRegex?: string[];
   sdUserName?: string;
   serverKey?: string;
   sslCertPassword?: string;
@@ -1619,6 +1601,7 @@ export type UpdateSettingRequest = {
   streamingClientUserAgent?: string | null;
   streamingProxyType?: StreamingProxyTypes | null;
   videoStreamAlwaysUseEPGLogo?: boolean | null;
+  nameRegex?: string[] | null;
 };
 export type VideoStreamHandlers = 0 | 1 | 2;
 export type BaseVideoStreamDto = {
@@ -1801,7 +1784,6 @@ export const {
   useEpgFilesAddEpgFileMutation,
   useEpgFilesGetEpgFilesQuery,
   useEpgFilesAddEpgFileFromFormMutation,
-  useEpgFilesChangeEpgFileNameMutation,
   useEpgFilesDeleteEpgFileMutation,
   useEpgFilesGetEpgFileQuery,
   useEpgFilesProcessEpgFileMutation,

@@ -8,7 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Extensions;
 
+using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 
@@ -64,77 +66,149 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                 _logger.LogCritical("Could not find M3U file");
                 return null;
             }
-
-            List<VideoStream>? streams = await m3uFile.GetM3U().ConfigureAwait(false);
-            if (streams == null)
-            {
-                _logger.LogCritical("Error while processing M3U file, bad format");
-                return null;
-            }
-
-            Setting setting = FileUtil.GetSetting();
             Stopwatch sw = Stopwatch.StartNew();
-            var existing = _context.VideoStreams.Where(a => a.M3UFileId == m3uFile.Id).ToList();
 
-            existingChannels = new ThreadSafeIntList(m3uFile.StartingChannelNumber < 1 ? 1 : m3uFile.StartingChannelNumber);
-
-            var groups = _context.ChannelGroups.AsNoTracking().ToList();
-            nextchno = m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber;
-
-            var dupes = streams.Where(a => streams.Count(b => b.Id == a.Id) > 1).OrderBy(a => a.Id).ToList();
-            if (dupes.Any())
+            if (m3uFile.LastWrite() >=m3uFile.LastUpdated)
             {
-                var fileName = $"dupes_{m3uFile.Id}.csv";
 
-                _logger.LogError("Streams in M3U file have duplicate Ids, will only use the first entry, check {fileName} for more information", fileName);
-                // Remove duplicates based on id
-                streams = streams.GroupBy(x => x.Id).Select(x => x.First()).ToList();
+                List<VideoStream>? streams = await m3uFile.GetM3U().ConfigureAwait(false);
+                if (streams == null)
+                {
+                    _logger.LogCritical("Error while processing M3U file, bad format");
+                    return null;
+                }
 
-                var lines = new List<string>
+                Setting setting = FileUtil.GetSetting();
+               
+                if (setting.NameRegex.Any())
+                {
+                    foreach (var regex in setting.NameRegex)
+                    {
+                        var toIgnore = ListHelper.GetMatchingProperty(streams, "Tvg_name", regex);
+
+                        HashSet<VideoStream> matchingObjects = new HashSet<VideoStream>(toIgnore);
+                        streams.RemoveAll(x => toIgnore.Contains(x));
+                    }
+                }
+                sw.Stop();
+                _logger.LogInformation($"Regex of ID: {m3uFile.Id} {m3uFile.Name}, took {sw.Elapsed.TotalSeconds} seconds");
+
+                sw = Stopwatch.StartNew();
+                var existing = _context.VideoStreams.Where(a => a.M3UFileId == m3uFile.Id).ToList();
+
+                existingChannels = new ThreadSafeIntList(m3uFile.StartingChannelNumber < 1 ? 1 : m3uFile.StartingChannelNumber);
+
+                var groups = _context.ChannelGroups.AsNoTracking().ToList();
+                nextchno = m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber;
+
+                // var dupes = streams.Where(a => streams.Count(b => b.Id == a.Id) > 1).OrderBy(a => a.Id).ToList();
+                var groupedStreams = streams.GroupBy(x => x.Id).ToList();
+
+                var dupes = groupedStreams
+                    .Where(g => g.Count() > 1)
+                    .SelectMany(g => g.Skip(1)) // We skip the first one as it will be kept
+                    .OrderBy(a => a.Id)
+                    .ToList();
+
+
+                if (dupes.Any())
+                {
+                    var fileName = $"dupes_{m3uFile.Id}.csv";
+
+                    _logger.LogError($"Streams in M3U file ID: {m3uFile.Id} {m3uFile.Name}, have duplicate Ids, will only use the first entry, check {fileName} for more information", fileName);
+
+                    // Remove duplicates based on id
+                    streams = groupedStreams.Select(g => g.First()).ToList();
+
+                    var lines = new List<string>
                 {
                     VideoStream.GetCsvHeader()
                 };
 
-                lines.AddRange(dupes.Select(a => a.ToString()));
+                    lines.AddRange(dupes.Select(a => a.ToString()));
 
-                File.WriteAllLines(fileName, lines);
-            }
-
-            foreach (var stream in streams.Select((value, index) => new { value, index }))
-            {
-                var group = groups.FirstOrDefault(a => a.Name.ToLower().Equals(stream.value.Tvg_group.ToLower()));
-                VideoStream dbStream = existing.FirstOrDefault(a => a.Id == stream.value.Id);
-
-                if (dbStream != null)
-                {
-                    try
+                    using (StreamWriter file = new StreamWriter(fileName))
                     {
-                        ProcessExistingStream(stream.value, dbStream, group, setting, stream.index);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError($"Error while processing M3U file, duplicate Id for {stream.value.Id}", ex);
+                        foreach (string line in lines)
+                        {
+                            file.WriteLine(line);
+                        }
                     }
                 }
-                else
-                {
-                    ProcessNewStream(stream.value, group, setting, stream.index);
-                    _context.VideoStreams.Add(stream.value);
-                }
-            }
+                sw.Stop();
+                _logger.LogInformation($"Dupe check ID: {m3uFile.Id} {m3uFile.Name}, took {sw.Elapsed.TotalSeconds} seconds");
 
-            await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                sw.Restart();
+
+                ConcurrentBag<VideoStream> toWrite = new();
+                // For progress reporting
+                int totalCount = streams.Count();
+                int processedCount = 0;
+                int progressRecords = 5000;
+              
+                Stopwatch processSw = new Stopwatch();
+
+                Parallel.ForEach(streams.Select((value, index) => new { value, index }), (stream) =>
+                {
+                    processSw.Start();
+                    var group = groups.FirstOrDefault(a => a.Name.ToLower().Equals(stream.value.Tvg_group.ToLower()));
+                    VideoStream dbStream = existing.FirstOrDefault(a => a.Id == stream.value.Id);
+
+                    if (dbStream != null)
+                    {
+                        try
+                        {
+                            ProcessExistingStream(stream.value, dbStream, group, setting, stream.index);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError($"Error while processing M3U file ID: {m3uFile.Id} {m3uFile.Name}, duplicate Id for {stream.value.Id}", ex);
+                        }
+                    }
+                    else
+                    {
+                        ProcessNewStream(stream.value, group, setting, stream.index);
+                        toWrite.Add(stream.value);
+                    }
+                    // Report progress for every 1000 lines
+                    var currentProgress = Interlocked.Increment(ref processedCount);
+                    if (currentProgress % progressRecords == 0)
+                    {
+                        processSw.Stop();
+
+
+
+                        // Log every 1000 items
+
+                        var percentage = ((double)currentProgress / totalCount * 100).ToString("F2");
+                        var speed = processSw.ElapsedMilliseconds.ToString("F3");
+                        var avgTimePerItem = processSw.ElapsedMilliseconds / progressRecords;
+                        int remainingItems = totalCount - currentProgress;
+                        // Estimate remaining time
+                        double estRemainingTime = (avgTimePerItem * remainingItems) / 1000;
+
+                        _logger.LogInformation($"Progress: {percentage}%, {currentProgress}/{totalCount}, Speed: {speed} ms, ETA: {estRemainingTime} sec");
+                        processSw.Restart();
+                    }
+                });
+
+                _context.VideoStreams.AddRange(toWrite);
+                m3uFile.LastUpdated = DateTime.Now;
+                await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+
+                if (m3uFile.StationCount != streams.Count)
+                {
+                    m3uFile.StationCount = streams.Count;
+                    await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                }
+
+                await AddChannelGroupsFromStreams(streams, cancellationToken).ConfigureAwait(false);
+            }
 
             sw.Stop();
-            _logger.LogInformation($"Update of{m3uFile.Id} {m3uFile.Name}, took {sw.Elapsed.TotalSeconds} seconds");
+            _logger.LogInformation($"Update of ID: {m3uFile.Id} {m3uFile.Name}, took {sw.Elapsed.TotalSeconds} seconds");
 
-            if (m3uFile.StationCount != streams.Count)
-            {
-                m3uFile.StationCount = streams.Count;
-                await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-            }
-
-            await AddChannelGroupsFromStreams(streams, cancellationToken).ConfigureAwait(false);
 
             M3UFilesDto ret = _mapper.Map<M3UFilesDto>(m3uFile);
             await _publisher.Publish(new M3UFileProcessedEvent(ret), cancellationToken).ConfigureAwait(false);

@@ -88,7 +88,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler : IRequestHandler<BuildPr
             else
             {
                 string name = channel.Displayname != null ? channel.Displayname[0].ToString() : Path.GetFileNameWithoutExtension(source);
-                var iconDto = await IconHelper.AddIcon(source, name, epgFileId, _mapper, _memoryCache, FileDefinitions.ChannelIcon, cancellationToken);
+                var iconDto =  IconHelper.AddIcon(source, name, epgFileId, _mapper, _memoryCache, FileDefinitions.ChannelIcon, cancellationToken);
                 if (iconDto is null)
                 {
                     continue;
@@ -143,7 +143,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler : IRequestHandler<BuildPr
                 var result = await sd.GetImageUrl(source, fileName, cancellationToken).ConfigureAwait(false);
             }
 
-            var iconDto = await IconHelper.AddIcon(source, programme.Title.Text, programme.EPGFileId, _mapper, _memoryCache, FileDefinitions.ProgrammeIcon, cancellationToken);
+            var iconDto =  IconHelper.AddIcon(source, programme.Title.Text, programme.EPGFileId, _mapper, _memoryCache, FileDefinitions.ProgrammeIcon, cancellationToken);
             if (iconDto is null)
             {
                 continue;

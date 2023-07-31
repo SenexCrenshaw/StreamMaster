@@ -3,6 +3,7 @@
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Enums;
 
 using System.Web;
 
@@ -10,37 +11,11 @@ namespace StreamMasterDomain.Common;
 
 public static class IconHelper
 {
-    /// <summary>
-    /// AddIcon from URL
-    /// </summary>
-    /// <param name="sourceUrl"></param>
-    /// <param name="recommendedName"></param>
-    /// <param name="context"></param>
-    /// <param name="_mapper"></param>
-    /// <param name="setting"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    public static async Task<IconFileDto> AddIcon(string sourceUrl, string? recommendedName, int fileId, IMapper _mapper, IMemoryCache memoryCache, FileDefinition fileDefinition, CancellationToken cancellationToken)
+   
+    private static readonly object _lock = new object();
+    public static IconFileDto GetIcon(string sourceUrl, string? recommendedName, int fileId, FileDefinition fileDefinition)
     {
         string source = HttpUtility.UrlDecode(sourceUrl);
-        var icons = memoryCache.Icons();
-        if (!icons.Any())
-        {
-            if (await ReadDirectoryLogos(memoryCache, cancellationToken).ConfigureAwait(false))
-            {
-                var cacheValue = _mapper.Map<List<IconFileDto>>(memoryCache.TvLogos());
-                icons = cacheValue;
-                memoryCache.Set(icons);
-            }
-        }
-
-        var icon = icons.FirstOrDefault(a => a.Source == source && a.SMFileType == fileDefinition.SMFileType);
-
-        if (icon != null)
-        {
-            return icon;
-        }
-
         string ext = Path.GetExtension(source)?.TrimStart('.') ?? string.Empty;
 
         string name;
@@ -48,14 +23,14 @@ public static class IconHelper
         if (!string.IsNullOrEmpty(recommendedName))
         {
             name = string.Join("_", recommendedName.Split(Path.GetInvalidFileNameChars())) + $".{ext}";
-            fullName = $"{fileDefinition.DirectoryLocation}{name}";
+            //fullName = $"{fileDefinition.DirectoryLocation}{name}";
         }
         else
         {
-            (fullName, name) = fileDefinition.DirectoryLocation.GetRandomFileName($".{ext}");
+            (_, name) = fileDefinition.DirectoryLocation.GetRandomFileName($".{ext}");
         }
 
-        icon = new IconFileDto
+        var icon = new IconFileDto
         {
             Source = source,
             Extension = ext,
@@ -63,6 +38,41 @@ public static class IconHelper
             SMFileType = fileDefinition.SMFileType,
             FileId = fileId
         };
+
+        return icon;
+    }
+
+        /// <summary>
+        /// AddIcon from URL
+        /// </summary>
+        /// <param name="sourceUrl"></param>
+        /// <param name="recommendedName"></param>
+        /// <param name="context"></param>
+        /// <param name="_mapper"></param>
+        /// <param name="setting"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public static IconFileDto AddIcon(string sourceUrl, string? recommendedName, int fileId, IMapper _mapper, IMemoryCache memoryCache, FileDefinition fileDefinition, CancellationToken cancellationToken, bool ignoreAdd=false)
+    {
+        string source = HttpUtility.UrlDecode(sourceUrl);
+       
+            var testIcon = memoryCache.GetIcon(source, fileDefinition.SMFileType);
+
+            //var testIcon = icons.FirstOrDefault(a => a.Source == source && a.SMFileType == fileDefinition.SMFileType);
+
+            if (testIcon != null)
+            {
+                return testIcon;
+            }
+
+        var icon = GetIcon(sourceUrl, recommendedName, fileId, fileDefinition);
+
+
+
+        if ( ignoreAdd)
+        {
+            return icon;
+        }
 
         if (fileDefinition.SMFileType != SMFileTypes.ProgrammeIcon)
         {
@@ -76,7 +86,7 @@ public static class IconHelper
         return icon;
     }
 
-    private static async Task<bool> ReadDirectoryLogos(IMemoryCache memoryCache, CancellationToken cancellationToken)
+    public static async Task<bool> ReadDirectoryLogos(IMemoryCache memoryCache, CancellationToken cancellationToken)
     {
         var fd = FileDefinitions.TVLogo;
         if (!Directory.Exists(fd.DirectoryLocation))
