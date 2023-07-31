@@ -105,11 +105,22 @@ public class RefreshEPGFileRequestHandler : IRequestHandler<RefreshEPGFileReques
 
                 _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-                var programmes = _memoryCache.Programmes().RemoveAll(a => a.EPGFileId == epgFile.Id);
+                var programmes = _memoryCache.ChannelLogos();
+                programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
                 _memoryCache.Set(programmes);
 
-                var channels = _memoryCache.ProgrammeChannels().RemoveAll(a => a.EPGFileId == epgFile.Id);
+                var channels = _memoryCache.ChannelLogos();
+                channels.RemoveAll(a => a.EPGFileId == epgFile.Id);
                 _memoryCache.Set(channels);
+
+                var channelLogos = _memoryCache.ChannelLogos();
+                channelLogos.RemoveAll(a => a.EPGFileId == epgFile.Id);
+                _memoryCache.Set(channelLogos);
+
+                var programmeIcons = _memoryCache.ProgrammeIcons();
+                programmeIcons.RemoveAll(a => a.FileId == epgFile.Id);
+                _memoryCache.SetProgrammeLogos(programmeIcons);
+
 
                 EPGFilesDto ret = _mapper.Map<EPGFilesDto>(epgFile);
                 await _publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
