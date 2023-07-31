@@ -13,11 +13,6 @@ public partial class StreamMasterHub : IEPGFileHub
         await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task ChangeEPGFileName(ChangeEPGFileNameRequest request)
-    {
-        await _mediator.Send(request).ConfigureAwait(false);
-    }
-
     public async Task DeleteEPGFile(DeleteEPGFileRequest request)
     {
         await _mediator.Send(request).ConfigureAwait(false);

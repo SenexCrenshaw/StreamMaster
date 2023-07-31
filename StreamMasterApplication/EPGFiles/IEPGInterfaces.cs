@@ -13,7 +13,6 @@ public interface IEPGFileController
 
     Task<ActionResult> AddEPGFileFromForm([FromForm] AddEPGFileRequest request);
 
-    Task<ActionResult> ChangeEPGFileName(ChangeEPGFileNameRequest request);
 
     Task<ActionResult> DeleteEPGFile(DeleteEPGFileRequest request);
 
@@ -38,8 +37,6 @@ public interface IEPGFileDB
 public interface IEPGFileHub
 {
     Task AddEPGFile(AddEPGFileRequest request);
-
-    Task ChangeEPGFileName(ChangeEPGFileNameRequest request);
 
     Task DeleteEPGFile(DeleteEPGFileRequest request);
 

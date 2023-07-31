@@ -11,9 +11,7 @@ namespace StreamMasterAPI.Controllers;
 public class EPGFilesController : ApiControllerBase, IEPGFileController
 {
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(EPGFilesDto))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+   
     public async Task<ActionResult> AddEPGFile(AddEPGFileRequest request)
     {
         EPGFilesDto? entity = await Mediator.Send(request).ConfigureAwait(false);
@@ -31,16 +29,6 @@ public class EPGFilesController : ApiControllerBase, IEPGFileController
         return entity == null ? BadRequest() : CreatedAtAction(nameof(GetEPGFile), new { id = entity.Id }, entity);
     }
 
-    [HttpPut]
-    [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> ChangeEPGFileName(ChangeEPGFileNameRequest request)
-    {
-        EPGFilesDto? entity = await Mediator.Send(request).ConfigureAwait(false);
-        return entity == null ? NotFound() : NoContent();
-    }
 
     [HttpDelete]
     [Route("[action]")]
