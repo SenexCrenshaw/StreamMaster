@@ -160,6 +160,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         dataSource={dataSource}
         emptyMessage="No Groups"
         enableState={props.enableState}
+        enableVirtualScroll
         headerRightTemplate={props.hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
         hideControls={props.hideControls}
         id={props.id + 'DataSelector'}
@@ -178,6 +179,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         style={{
           height: props.maxHeight !== null ? props.maxHeight : 'calc(100vh - 40px)',
         }}
+
       />
     </>
   );

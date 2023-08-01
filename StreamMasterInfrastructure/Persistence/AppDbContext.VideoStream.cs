@@ -100,64 +100,18 @@ public partial class AppDbContext : IVideoStreamDB
             if (cancellationToken.IsCancellationRequested) { return; }
 
             string source = HttpUtility.UrlDecode(stream.Tvg_logo);
-                      
-                processSw.Start();
-                 var icon = IconHelper.GetIcon(source, stream.User_Tvg_name, stream.M3UFileId,  FileDefinitions.Icon);
+
+            var icon = IconHelper.GetIcon(source, stream.User_Tvg_name, stream.M3UFileId,  FileDefinitions.Icon);
             toWrite.Add(icon); ;
-            // Report progress for every stream
-            var currentProgress = Interlocked.Increment(ref processedCount);
-                if (currentProgress % progressCount == 0)
-                {
-                    processSw.Stop();
-
-                    var percentage = ((double)currentProgress / totalCount * 100).ToString("F2");
-                    var speed = processSw.ElapsedMilliseconds.ToString("F3");
-                    var avgTimePerItem = processSw.ElapsedMilliseconds / progressCount;
-                    int remainingItems = totalCount - currentProgress;
-
-                    double estRemainingTime = (avgTimePerItem * remainingItems) / 1000;
-
-                    _logger.LogInformation($"Progress: {percentage}%, {currentProgress}/{totalCount}, Speed: {speed} ms, ETA: {estRemainingTime} sec");
-
-                    processSw.Restart(); // Reset and start the Stopwatch for the next 1000 items
-                }
            
         });
 
         var icons = _memoryCache.GetIcons(_mapper);
         var missingIcons = toWrite.Except(icons, new IconFileDtoComparer());
-
+        missingIcons=missingIcons.Distinct(new IconFileDtoComparer());
         icons.AddRange(missingIcons);
         _memoryCache.Set(icons);
 
-        //totalCount = missingIcons.Count();
-        //processedCount = 0;
-
-        //Parallel.ForEach(missingIcons, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, icon =>
-        //{
-          
-        //    icons.Add(icon);
-
-        //    // Report progress for every stream
-        //    var currentProgress = Interlocked.Increment(ref processedCount);
-        //    if (currentProgress % progressCount == 0)
-        //    {
-        //        processSw.Stop();
-
-        //        var percentage = ((double)currentProgress / totalCount * 100).ToString("F2");
-        //        var speed = processSw.ElapsedMilliseconds.ToString("F3");
-        //        var avgTimePerItem = processSw.ElapsedMilliseconds / progressCount;
-        //        int remainingItems = totalCount - currentProgress;
-
-        //        double estRemainingTime = (avgTimePerItem * remainingItems) / 1000;
-
-        //        _logger.LogInformation($"Progress: {percentage}%, {currentProgress}/{totalCount}, Speed: {speed} ms, ETA: {estRemainingTime} sec");
-
-        //        processSw.Restart(); // Reset and start the Stopwatch for the next 1000 items
-        //    }
-        //});
-
-        //_memoryCache.Set(icons);
         return true;
 
     }
