@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.VideoStreams.Commands;
 
@@ -33,8 +32,9 @@ public interface IVideoStreamController
 
     Task<IActionResult> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
 
-    Task<IActionResult> SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request);
     Task<IActionResult> SetVideoStreamSetEPGsFromName(SetVideoStreamSetEPGsFromNameRequest request);
+
+    Task<IActionResult> SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request);
 
     IActionResult SimulateStreamFailure(string streamUrl);
 
@@ -54,6 +54,8 @@ public interface IVideoStreamDB
     Task<bool> CacheIconsFromVideoStreams(CancellationToken cancellationToken);
 
     Task<bool> DeleteVideoStreamAsync(string videoStreamId, CancellationToken cancellationToken);
+
+    Task<int> DeleteVideoStreamsAsync(List<VideoStream> videoStreams, CancellationToken cancellationToken);
 
     public Task<List<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken);
 
@@ -85,7 +87,7 @@ public interface IVideoStreamHub
     Task DeleteVideoStream(DeleteVideoStreamRequest request);
 
     Task<IEnumerable<ChannelLogoDto>> GetChannelLogoDtos();
-    
+
     Task<VideoStreamDto?> GetVideoStream(string id);
 
     Task<IEnumerable<VideoStreamDto>> GetVideoStreams();
@@ -94,8 +96,9 @@ public interface IVideoStreamHub
 
     Task SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
 
-    Task SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request);
     Task SetVideoStreamSetEPGsFromName(SetVideoStreamSetEPGsFromNameRequest request);
+
+    Task SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request);
 
     Task UpdateVideoStream(UpdateVideoStreamRequest request);
 

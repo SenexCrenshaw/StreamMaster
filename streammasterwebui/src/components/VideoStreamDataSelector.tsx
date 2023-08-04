@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react/no-unused-prop-types */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 import { type CSSProperties } from "react";
 import React from "react";
 import DataSelector from "../features/dataSelector/DataSelector";
@@ -27,17 +31,22 @@ import VideoStreamSetLogosFromEPGDialog from "./VideoStreamSetLogosFromEPGDialog
 import VideoStreamResetLogosDialog from "./VideoStreamResetLogosDialog";
 import VideoStreamSetEPGFromNameDialog from "./VideoStreamSetEPGFromNameDialog";
 import VideoStreamSetEPGsFromNameDialog from "./VideoStreamSetEPGsFromNameDialog";
+import { useFilteredStreams } from "./useFilteredStreams";
 
 const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
 
   const [enableEditMode, setEnableEditMode] = useLocalStorage(true, props.id + '-enableEditMode');
-  const [filteredStreams, setFilteredStreams] = React.useState<StreamMasterApi.VideoStreamDto[] | undefined>(undefined);
+
+  // const [filteredStreams, setFilteredStreams] = React.useState<StreamMasterApi.VideoStreamDto[] | undefined>(undefined);
   const [selectedVideoStreams, setSelectedVideoStreams] = React.useState<StreamMasterApi.VideoStreamDto[]>([] as StreamMasterApi.VideoStreamDto[]);
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
 
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
   const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
+
+  const filteredStreams = useFilteredStreams(channelGroupsQuery, props, videoStreamsQuery);
+
 
   React.useEffect(() => {
     const callback = (event: KeyboardEvent) => {
@@ -72,73 +81,15 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
   }, [selectedVideoStreams]);
 
+
+
   React.useEffect(() => {
-    if (!videoStreamsQuery.data || videoStreamsQuery.data.length === 0) {
-      setFilteredStreams([] as StreamMasterApi.VideoStreamDto[]);
-      return;
+    if (filteredStreams !== undefined && filteredStreams.length > 0) {
+      console.debug(filteredStreams.length);
+      // setFilteredStreams(filteredStreamsOp);
     }
 
-    if (!videoStreamsQuery.data || videoStreamsQuery.data.length === 0) {
-      setFilteredStreams([] as StreamMasterApi.VideoStreamDto[]);
-      return;
-    }
-
-    let data = [] as StreamMasterApi.VideoStreamDto[];
-
-    if (
-      props.groups === undefined ||
-      props.groups.length === 0 ||
-      props.groups[0].name === undefined ||
-      props.groups.findIndex(
-        (a: StreamMasterApi.ChannelGroupDto) => a.name === "All"
-      ) !== -1
-    ) {
-      data = videoStreamsQuery.data;
-    } else {
-
-      const propsGroupIds = props.groups.map((a: StreamMasterApi.ChannelGroupDto) => a.id);
-
-      const groupNames = channelGroupsQuery.data?.filter((a) => propsGroupIds.includes(a.id)).map((a) => a.name) ?? [];
-
-      data = videoStreamsQuery.data.filter(
-        (a: StreamMasterApi.VideoStreamDto) =>
-          a.user_Tvg_group !== undefined &&
-          groupNames.includes(a.user_Tvg_group)
-      );
-
-      groupNames.forEach((groupName: string) => {
-        const cg = channelGroupsQuery.data?.find(
-          (x: StreamMasterApi.ChannelGroupDto) =>
-            x.name.toLowerCase() === groupName.toLowerCase()
-        );
-        if (cg?.regexMatch !== undefined && cg.regexMatch !== "") {
-          const filteredData = videoStreamsQuery.data?.filter((item) => {
-            if (item.isHidden) return false;
-            const regexToTest = new RegExp(`.*${cg.regexMatch}.*`, "i");
-            const test = regexToTest.test(item.user_Tvg_name);
-            if (test) {
-              return data.includes(item) === false;
-            }
-
-            return false;
-          });
-          if (filteredData !== undefined) {
-            data = data.concat(filteredData);
-          }
-        }
-      });
-    }
-
-    if (props.m3uFileId && props.m3uFileId > 0) {
-      const d = data.filter(
-        (a: StreamMasterApi.VideoStreamDto) => a.m3UFileId === props.m3uFileId
-      );
-      setFilteredStreams(d);
-    }
-
-    setFilteredStreams(data);
-
-  }, [channelGroupsQuery.data, props.groups, props.m3uFileId, videoStreamsQuery.data]);
+  }, [filteredStreams]);
 
   React.useEffect(() => {
     if (selectedVideoStreams === undefined || selectedVideoStreams.length === 0 || filteredStreams === undefined || filteredStreams.length === 0) {

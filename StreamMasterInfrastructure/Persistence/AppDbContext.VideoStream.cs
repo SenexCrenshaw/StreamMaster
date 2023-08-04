@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.VideoStreams;
 using StreamMasterApplication.VideoStreams.Commands;
@@ -15,29 +14,6 @@ using System.Diagnostics;
 using System.Web;
 
 namespace StreamMasterInfrastructure.Persistence;
-
-public class IconFileDtoComparer : IEqualityComparer<IconFileDto>
-{
-    public bool Equals(IconFileDto x, IconFileDto y)
-    {
-        if (ReferenceEquals(x, y)) return true;
-        if (ReferenceEquals(x, null) || ReferenceEquals(y, null)) return false;
-
-        // Assuming Source is the unique identifier for IconFileDto
-        return x.Source == y.Source;
-    }
-
-    public int GetHashCode(IconFileDto obj)
-    {
-        if (ReferenceEquals(obj, null)) return 0;
-
-        // Assuming Source is the unique identifier for IconFileDto
-        int hashProductName = obj.Source == null ? 0 : obj.Source.GetHashCode();
-
-        return hashProductName;
-    }
-}
-
 
 public partial class AppDbContext : IVideoStreamDB
 {
@@ -93,7 +69,7 @@ public partial class AppDbContext : IVideoStreamDB
         var streamsList = await streams.ToListAsync();
         var progressCount = 5000;
 
-        var toWrite= new ConcurrentBag<IconFileDto>();
+        var toWrite = new ConcurrentBag<IconFileDto>();
 
         Parallel.ForEach(streamsList, parallelOptions, stream =>
         {
@@ -101,19 +77,17 @@ public partial class AppDbContext : IVideoStreamDB
 
             string source = HttpUtility.UrlDecode(stream.Tvg_logo);
 
-            var icon = IconHelper.GetIcon(source, stream.User_Tvg_name, stream.M3UFileId,  FileDefinitions.Icon);
+            var icon = IconHelper.GetIcon(source, stream.User_Tvg_name, stream.M3UFileId, FileDefinitions.Icon);
             toWrite.Add(icon); ;
-           
         });
 
         var icons = _memoryCache.GetIcons(_mapper);
         var missingIcons = toWrite.Except(icons, new IconFileDtoComparer());
-        missingIcons=missingIcons.Distinct(new IconFileDtoComparer());
+        missingIcons = missingIcons.Distinct(new IconFileDtoComparer());
         icons.AddRange(missingIcons);
         _memoryCache.Set(icons);
 
         return true;
-
     }
 
     public async Task<bool> CacheIconsFromVideoStreams(CancellationToken cancellationToken)
@@ -162,16 +136,68 @@ public partial class AppDbContext : IVideoStreamDB
         }
     }
 
-    public async Task<List<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken)
+    public async Task<int> DeleteVideoStreamsAsync(List<VideoStream> videoStreams, CancellationToken cancellationToken)
     {
-        var streams = VideoStreams.Where(a => a.M3UFileId == M3UFileId).ToList();
+        // Get the VideoStreams
+        var videoStreamIds = videoStreams.Select(vs => vs.Id).ToList();
 
-        foreach (var stream in streams)
+        if (videoStreams.Count == 0)
         {
-            await DeleteVideoStreamAsync(stream.Id, cancellationToken).ConfigureAwait(false);
+            return 0;
         }
 
-        return streams;
+        var deletedCount = 0;
+
+        // Remove associated VideoStreamLinks where the VideoStream is a parent
+        var parentLinks = await VideoStreamLinks
+            .Where(vsl => videoStreamIds.Contains(vsl.ParentVideoStreamId))
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+        if (parentLinks.Count > 0)
+        {
+            VideoStreamLinks.RemoveRange(parentLinks);
+            deletedCount += parentLinks.Count;
+        }
+
+        // Remove associated VideoStreamLinks where the VideoStream is a child
+        var childLinks = await VideoStreamLinks
+            .Where(vsl => videoStreamIds.Contains(vsl.ChildVideoStreamId))
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+        if (childLinks.Count > 0)
+        {
+            VideoStreamLinks.RemoveRange(childLinks);
+            deletedCount += childLinks.Count;
+        }
+
+        // Remove the VideoStreams
+        VideoStreams.RemoveRange(videoStreams);
+        deletedCount += videoStreams.Count;
+
+        // Save changes
+        try
+        {
+            await SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            // You can decide how to handle exceptions here, for example by
+            // logging them. In this case, we're simply swallowing the exception.
+        }
+
+        return deletedCount;
+    }
+
+    public async Task<List<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken)
+    {
+        var videoStreams = await VideoStreams
+          .Where(a => a.M3UFileId == M3UFileId)
+          .ToListAsync(cancellationToken)
+          .ConfigureAwait(false);
+
+        await DeleteVideoStreamsAsync(videoStreams, cancellationToken).ConfigureAwait(false);
+
+        return videoStreams;
     }
 
     public async Task<List<VideoStream>> GetAllVideoStreamsWithChildrenAsync(CancellationToken cancellationToken)

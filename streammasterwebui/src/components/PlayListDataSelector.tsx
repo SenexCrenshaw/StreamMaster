@@ -160,7 +160,6 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         dataSource={dataSource}
         emptyMessage="No Groups"
         enableState={props.enableState}
-        enableVirtualScroll
         headerRightTemplate={props.hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
         hideControls={props.hideControls}
         id={props.id + 'DataSelector'}
