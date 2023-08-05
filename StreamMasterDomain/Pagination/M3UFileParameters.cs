@@ -1,4 +1,4 @@
-﻿namespace StreamMasterInfrastructure.Pagination
+﻿namespace StreamMasterDomain.Pagination
 {
     public class M3UFileParameters : QueryStringParameters
     {

@@ -163,16 +163,16 @@ const FileDialog = (props: FileDialogProps) => {
           // ReturnToParent(true);
           break;
         case 'm3u':
-          const addM3UFileRequest = {} as StreamMasterApi.AddM3UFileRequest;
+          const createM3UFileRequest = {} as StreamMasterApi.CreateM3UFileRequest;
 
-          addM3UFileRequest.name = name;
-          addM3UFileRequest.description = '';
-          addM3UFileRequest.maxStreamCount = maxStreamCount;
-          addM3UFileRequest.startingChannelNumber = startingChannelNumber;
-          addM3UFileRequest.formFile = null;
-          addM3UFileRequest.urlSource = source;
+          createM3UFileRequest.name = name;
+          createM3UFileRequest.description = '';
+          createM3UFileRequest.maxStreamCount = maxStreamCount;
+          createM3UFileRequest.startingChannelNumber = startingChannelNumber;
+          createM3UFileRequest.formFile = null;
+          createM3UFileRequest.urlSource = source;
 
-          await Hub.AddM3UFile(addM3UFileRequest)
+          await Hub.CreateM3UFile(createM3UFileRequest)
             .then(() => {
 
               setInfoMessage(`Uploaded M3U: ${name}${activeFile ? '/' + activeFile.name : ''}`);

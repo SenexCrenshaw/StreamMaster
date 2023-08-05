@@ -1,4 +1,4 @@
-﻿namespace StreamMasterInfrastructure.Pagination
+﻿namespace StreamMasterDomain.Pagination
 {
     public class TagParameters : QueryStringParameters
     {

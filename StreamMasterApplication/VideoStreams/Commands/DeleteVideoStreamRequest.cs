@@ -1,12 +1,17 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+
+using FluentValidation;
 
 using MediatR;
 
+using Microsoft.Extensions.Logging;
+
+using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
-public record DeleteVideoStreamRequest(string VideoStreamId) : IRequest<string?>
+public record DeleteVideoStreamRequest(string Id) : IRequest<string?>
 {
 }
 
@@ -14,35 +19,30 @@ public class DeleteVideoStreamRequestValidator : AbstractValidator<DeleteVideoSt
 {
     public DeleteVideoStreamRequestValidator()
     {
-        _ = RuleFor(v => v.VideoStreamId).NotNull().NotEmpty();
+        _ = RuleFor(v => v.Id).NotNull().NotEmpty();
     }
 }
 
-public class DeleteVideoStreamRequestHandler : IRequestHandler<DeleteVideoStreamRequest, string?>
+public class DeleteVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequestHandler<DeleteVideoStreamRequest, string?>
 {
-    private readonly IAppDbContext _context;
 
-    private readonly IPublisher _publisher;
-
-    public DeleteVideoStreamRequestHandler(
-
-         IPublisher publisher,
-        IAppDbContext context
-        )
-    {
-        _publisher = publisher;
-
-        _context = context;
-    }
+    public DeleteVideoStreamRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender) { }
 
     public async Task<string?> Handle(DeleteVideoStreamRequest request, CancellationToken cancellationToken)
     {
-        if (await _context.DeleteVideoStreamAsync(request.VideoStreamId, cancellationToken))
+        var videostream = await Repository.VideoStream.GetVideoStreamByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
+        if (videostream == null)
         {
-            await _publisher.Publish(new DeleteVideoStreamEvent(request.VideoStreamId), cancellationToken).ConfigureAwait(false);
-            return request.VideoStreamId;
+            return null;
         }
 
-        return null;
+        Repository.VideoStream.Delete(videostream);
+        await Repository.SaveAsync().ConfigureAwait(false);
+
+
+        await Publisher.Publish(new DeleteVideoStreamEvent(request.Id), cancellationToken).ConfigureAwait(false);
+        return request.Id;
+
     }
 }

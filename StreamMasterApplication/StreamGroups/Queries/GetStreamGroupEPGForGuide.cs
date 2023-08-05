@@ -6,10 +6,11 @@ using FluentValidation;
 using MediatR;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Extensions;
+using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Dto;
@@ -41,37 +42,28 @@ public class GetStreamGroupEPGForGuideValidator : AbstractValidator<GetStreamGro
     }
 }
 
-public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStreamGroupEPGForGuide, EPGGuide>
+public partial class GetStreamGroupEPGForGuideHandler : BaseDBRequestHandler, IRequestHandler<GetStreamGroupEPGForGuide, EPGGuide>
 {
-    private readonly IAppDbContext _context;
+
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IMapper _mapper;
-    private readonly IMemoryCache _memoryCache;
-    private readonly ISender _sender;
+
     private readonly object Lock = new();
     private int dummyCount = 0;
 
-    public GetStreamGroupEPGForGuideHandler(
-        IMapper mapper, IMemoryCache memoryCache,
-        ISender sender,
-         IHttpContextAccessor httpContextAccessor,
-        IAppDbContext context)
+    public GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpContextAccessor, IAppDbContext context, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, context, memoryCache)
     {
         _httpContextAccessor = httpContextAccessor;
-        _memoryCache = memoryCache;
-        _mapper = mapper;
-        _context = context;
-        _sender = sender;
     }
 
     public async Task<EPGGuide> Handle(GetStreamGroupEPGForGuide request, CancellationToken cancellationToken)
     {
         //Stopwatch sw = Stopwatch.StartNew();
         string url = _httpContextAccessor.GetUrl();
-        List<VideoStreamDto> videoStreams = new();
+        IEnumerable<VideoStreamDto> videoStreams;
         if (request.StreamGroupNumber > 0)
         {
-            var streamGroup = await _context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            var streamGroup = await Context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
             if (streamGroup == null)
             {
                 return new()
@@ -80,15 +72,12 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
                     Programs = new()
                 };
             }
-            videoStreams = streamGroup.ChildVideoStreams.Where(a => !a.IsHidden).ToList();
+            videoStreams = streamGroup.ChildVideoStreams.Where(a => !a.IsHidden);
         }
         else
         {
-            videoStreams = _context.VideoStreams
-                .Where(a => !a.IsHidden)
-                .AsNoTracking()
-                .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider)
-                .ToList();
+            videoStreams = Repository.VideoStream.GetVideoStreamsHidden()
+               .ProjectTo<VideoStreamDto>(Mapper.ConfigurationProvider);
         }
 
         ParallelOptions po = new()
@@ -105,7 +94,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
         {
             List<string> epgids = videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID.ToLower()).Distinct().ToList();
 
-            List<Programme> programmes = _memoryCache.Programmes().Where(a => a.Channel != null && epgids.Contains(a.Channel.ToLower())).ToList();
+            List<Programme> programmes = MemoryCache.Programmes().Where(a => a.Channel != null && epgids.Contains(a.Channel.ToLower())).ToList();
 
             if (programmes.Any())
             {
@@ -121,7 +110,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
             //ret.StartDate = programmes.Min(a => a.StartDateTime);
             //ret.EndDate = programmes.Max(a => a.StopDateTime);
 
-            var icons = _memoryCache.Icons();
+            var icons = MemoryCache.Icons();
             var setting = FileUtil.GetSetting();
 
             var progIcons = icons.Where(a => a.SMFileType == SMFileTypes.ProgrammeIcon).ToList();

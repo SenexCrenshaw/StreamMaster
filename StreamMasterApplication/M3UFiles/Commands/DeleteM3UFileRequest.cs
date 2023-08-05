@@ -78,11 +78,13 @@ public class DeleteM3UFileHandler : BaseDBRequestHandler, IRequestHandler<Delete
             }
         }
 
-        var targetM3UFileIdGroups = Context.VideoStreams
+        var videoStreams = await Repository.VideoStream.GetAllVideoStreamsAsync().ConfigureAwait(false);
+
+        var targetM3UFileIdGroups = videoStreams
             .Where(vs => vs.M3UFileId == m3UFile.Id)
             .Select(vs => vs.Tvg_group);
 
-        var otherM3UFileIdGroups = Context.VideoStreams
+        var otherM3UFileIdGroups = videoStreams
             .Where(vs => vs.M3UFileId != m3UFile.Id)
             .Select(vs => vs.Tvg_group);
 

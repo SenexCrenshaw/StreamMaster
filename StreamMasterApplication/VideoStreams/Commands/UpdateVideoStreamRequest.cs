@@ -1,11 +1,15 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+
+using FluentValidation;
 
 using MediatR;
 
+using Microsoft.Extensions.Logging;
+
+using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
@@ -21,27 +25,19 @@ public class UpdateVideoStreamRequestValidator : AbstractValidator<UpdateVideoSt
     }
 }
 
-public class UpdateVideoStreamRequestHandler : IRequestHandler<UpdateVideoStreamRequest, VideoStreamDto?>
+public class UpdateVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateVideoStreamRequest, VideoStreamDto?>
 {
-    private readonly IAppDbContext _context;
-    private readonly IPublisher _publisher;
 
-    public UpdateVideoStreamRequestHandler(
-        IPublisher publisher,
-        IAppDbContext context
-        )
-    {
-        _publisher = publisher;
-        _context = context;
-    }
+    public UpdateVideoStreamRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender) { }
 
     public async Task<VideoStreamDto?> Handle(UpdateVideoStreamRequest request, CancellationToken cancellationToken)
     {
-        var ret = await _context.UpdateVideoStreamAsync(request, cancellationToken).ConfigureAwait(false);
+        var ret = await Repository.VideoStream.UpdateVideoStreamAsync(request, cancellationToken).ConfigureAwait(false);
 
         if (ret is not null)
         {
-            await _publisher.Publish(new UpdateVideoStreamEvent(ret), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateVideoStreamEvent(ret), cancellationToken).ConfigureAwait(false);
         }
 
         return ret;

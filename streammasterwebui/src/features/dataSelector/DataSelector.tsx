@@ -51,7 +51,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
   const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
 
-  const m3uFiles = StreamMasterApi.useM3UFilesGetM3UFilesQuery();
+  const m3uFiles = StreamMasterApi.useM3UFilesGetM3UFilesQuery({ pageNumber: 0, pageSize: 25 } as StreamMasterApi.QueryStringParameters);
 
   const [selections, setSelections] = React.useState<T[]>([] as T[]);
   const intl = useIntl();

@@ -1,4 +1,10 @@
-﻿using MediatR;
+﻿using AutoMapper;
+
+using MediatR;
+
+using Microsoft.Extensions.Logging;
+
+using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
 
@@ -6,13 +12,10 @@ public class ScanDirectoryForM3UFilesRequest : IRequest<bool>
 {
 }
 
-public class ScanDirectoryForM3UFilesRequestHandler : IRequestHandler<ScanDirectoryForM3UFilesRequest, bool>
+public class ScanDirectoryForM3UFilesRequestHandler : BaseMediatorRequestHandler, IRequestHandler<ScanDirectoryForM3UFilesRequest, bool>
 {
-    private IRepositoryWrapper Repository { get; }
-    public ScanDirectoryForM3UFilesRequestHandler(IRepositoryWrapper repository)
-    {
-        Repository = repository;
-    }
+    public ScanDirectoryForM3UFilesRequestHandler(ILogger<RefreshM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender) { }
 
     public async Task<bool> Handle(ScanDirectoryForM3UFilesRequest command, CancellationToken cancellationToken)
     {
@@ -75,8 +78,8 @@ public class ScanDirectoryForM3UFilesRequestHandler : IRequestHandler<ScanDirect
                 await Repository.SaveAsync().ConfigureAwait(false);
             }
 
-            //M3UFileDto ret = _mapper.Map<M3UFileDto>(m3uFile);
-            //await _publisher.Publish(new M3UFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
+            var ret = Mapper.Map<M3UFileDto>(m3uFile);
+            await Publisher.Publish(new M3UFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
         }
 
         return true;

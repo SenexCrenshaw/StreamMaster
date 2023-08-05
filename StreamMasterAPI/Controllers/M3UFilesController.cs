@@ -7,8 +7,7 @@ using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.M3UFiles.Queries;
 
 using StreamMasterDomain.Dto;
-
-using StreamMasterInfrastructure.Pagination;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterAPI.Controllers;
 

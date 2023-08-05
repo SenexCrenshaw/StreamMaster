@@ -6,12 +6,14 @@ using FluentValidation;
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
+using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
@@ -29,22 +31,11 @@ public class UpdateChannelGroupsRequestValidator : AbstractValidator<UpdateChann
     //}
 }
 
-public class UpdateChannelGroupsRequestHandler : IRequestHandler<UpdateChannelGroupsRequest, IEnumerable<ChannelGroupDto>?>
+public class UpdateChannelGroupsRequestHandler : BaseDBRequestHandler, IRequestHandler<UpdateChannelGroupsRequest, IEnumerable<ChannelGroupDto>?>
 {
-    private readonly IAppDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IPublisher _publisher;
 
-    public UpdateChannelGroupsRequestHandler(
-         IMapper mapper,
-           IPublisher publisher,
-        IAppDbContext context
-        )
-    {
-        _publisher = publisher;
-        _mapper = mapper;
-        _context = context;
-    }
+    public UpdateChannelGroupsRequestHandler(IAppDbContext context, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, context, memoryCache) { }
 
     public async Task<IEnumerable<ChannelGroupDto>?> Handle(UpdateChannelGroupsRequest requests, CancellationToken cancellationToken)
     {
@@ -53,7 +44,7 @@ public class UpdateChannelGroupsRequestHandler : IRequestHandler<UpdateChannelGr
 
         foreach (UpdateChannelGroupRequest request in requests.ChannelGroupRequests)
         {
-            ChannelGroup? channelGroup = await _context.ChannelGroups.FirstOrDefaultAsync(a => a.Name.ToLower() == request.GroupName.ToLower(), cancellationToken: cancellationToken).ConfigureAwait(false);
+            ChannelGroup? channelGroup = await Context.ChannelGroups.FirstOrDefaultAsync(a => a.Name.ToLower() == request.GroupName.ToLower(), cancellationToken: cancellationToken).ConfigureAwait(false);
 
             if (channelGroup == null)
             {
@@ -71,44 +62,39 @@ public class UpdateChannelGroupsRequestHandler : IRequestHandler<UpdateChannelGr
             {
                 channelGroup.IsHidden = (bool)request.IsHidden;
 
-                await _context.VideoStreams
-                    .Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == channelGroup.Name.ToLower())
-                    .ExecuteUpdateAsync(s => s.SetProperty(b => b.IsHidden, (bool)request.IsHidden), cancellationToken: cancellationToken)
-                    .ConfigureAwait(false);
+                await Repository.VideoStream.SetGroupVisibleByGroupName(channelGroup.Name, (bool)request.IsHidden, cancellationToken).ConfigureAwait(false);
 
                 isChanged = true;
             }
 
             if (!string.IsNullOrEmpty(request.NewGroupName))
             {
-                await _context.VideoStreams
-              .Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == channelGroup.Name.ToLower())
-              .ExecuteUpdateAsync(s => s.SetProperty(b => b.User_Tvg_group, request.NewGroupName), cancellationToken: cancellationToken)
-              .ConfigureAwait(false);
+                await Repository.VideoStream.SetGroupNameByGroupName(channelGroup.Name, request.NewGroupName, cancellationToken).ConfigureAwait(false);
 
                 channelGroup.Name = request.NewGroupName;
                 isChanged = true;
             }
 
-            _ = _context.ChannelGroups.Update(channelGroup);
-            _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            _ = Context.ChannelGroups.Update(channelGroup);
+            _ = await Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await Repository.SaveAsync().ConfigureAwait(false);
 
-            cgResults.Add(_mapper.Map<ChannelGroupDto>(channelGroup));
+            cgResults.Add(Mapper.Map<ChannelGroupDto>(channelGroup));
 
             if (isChanged)
             {
-                results.AddRange(_context.VideoStreams
+
+                results.AddRange(Repository.VideoStream.GetVideoStreamsChannelGroupName(channelGroup.Name)
                     .Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == channelGroup.Name.ToLower())
-                    .AsNoTracking()
-                    .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider));
+                    .ProjectTo<VideoStreamDto>(Mapper.ConfigurationProvider));
             }
         }
 
-        await _publisher.Publish(new UpdateChannelGroupsEvent(cgResults), cancellationToken).ConfigureAwait(false);
+        await Publisher.Publish(new UpdateChannelGroupsEvent(cgResults), cancellationToken).ConfigureAwait(false);
 
         if (results.Any())
         {
-            await _publisher.Publish(new UpdateVideoStreamsEvent(results), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateVideoStreamsEvent(results), cancellationToken).ConfigureAwait(false);
         }
 
         return cgResults;

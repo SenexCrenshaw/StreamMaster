@@ -83,7 +83,8 @@ public class ProcessM3UFileRequestHandler : BaseDBRequestHandler, IRequestHandle
                 Logger.LogInformation($"Regex of ID: {m3uFile.Id} {m3uFile.Name}, took {sw.Elapsed.TotalSeconds} seconds");
 
                 sw = Stopwatch.StartNew();
-                var existing = Context.VideoStreams.Where(a => a.M3UFileId == m3uFile.Id).ToList();
+                var existing = Repository.VideoStream.GetVideoStreamsByM3UFileId(m3uFile.Id);
+                //var existing = Context.VideoStreams.Where(a => a.M3UFileId == m3uFile.Id).ToList();
 
                 existingChannels = new ThreadSafeIntList(m3uFile.StartingChannelNumber < 1 ? 1 : m3uFile.StartingChannelNumber);
 
@@ -181,7 +182,8 @@ public class ProcessM3UFileRequestHandler : BaseDBRequestHandler, IRequestHandle
                     }
                 });
 
-                Context.VideoStreams.AddRange(toWrite);
+                Repository.VideoStream.Create(toWrite.ToArray());
+                //Context.VideoStreams.AddRange(toWrite);
                 m3uFile.LastUpdated = DateTime.Now;
 
                 //await Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

@@ -1,53 +1,51 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.VideoStreams.Commands;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.VideoStreams;
 
 public interface IVideoStreamController
 {
-    Task<IActionResult> AddVideoStream(AddVideoStreamRequest request);
+    Task<ActionResult> CreateVideoStream(CreateVideoStreamRequest request);
 
-    Task<IActionResult> ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request);
+    Task<ActionResult> ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request);
 
-    Task<IActionResult> DeleteVideoStream(DeleteVideoStreamRequest request);
+    Task<ActionResult> DeleteVideoStream(DeleteVideoStreamRequest request);
 
-    Task<IActionResult> FailClient(FailClientRequest request);
+    Task<ActionResult> FailClient(FailClientRequest request);
 
-    Task<IActionResult> GetAllStatisticsForAllUrls();
+    Task<ActionResult> GetAllStatisticsForAllUrls();
 
-    Task<IActionResult> GetChannelLogoDtos();
+    Task<ActionResult> GetChannelLogoDtos();
 
     Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id);
 
-    Task<ActionResult<List<VideoStreamDto>>> GetVideoStreams();
+    Task<ActionResult<IEnumerable<VideoStreamDto>>> GetVideoStreams(VideoStreamParameters Parameters);
 
-    Task<IActionResult> GetVideoStreamStream(string encodedId, string name, CancellationToken cancellationToken);
+    Task<ActionResult> GetVideoStreamStream(string encodedId, string name, CancellationToken cancellationToken);
 
-    Task<IActionResult> ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request);
+    Task<ActionResult> ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request);
 
-    Task<IActionResult> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
+    Task<ActionResult> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
 
-    Task<IActionResult> SetVideoStreamSetEPGsFromName(SetVideoStreamSetEPGsFromNameRequest request);
+    Task<ActionResult> SetVideoStreamSetEPGsFromName(SetVideoStreamSetEPGsFromNameRequest request);
 
-    Task<IActionResult> SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request);
+    Task<ActionResult> SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request);
 
-    IActionResult SimulateStreamFailure(string streamUrl);
+    ActionResult SimulateStreamFailure(string streamUrl);
 
-    Task<IActionResult> UpdateVideoStream(UpdateVideoStreamRequest request);
+    Task<ActionResult> UpdateVideoStream(UpdateVideoStreamRequest request);
 
-    Task<IActionResult> UpdateVideoStreams(UpdateVideoStreamsRequest request);
+    Task<ActionResult> UpdateVideoStreams(UpdateVideoStreamsRequest request);
 }
 
 public interface IVideoStreamDB
 {
-    DbSet<VideoStreamLink> VideoStreamLinks { get; set; }
 
-    DbSet<VideoStream> VideoStreams { get; set; }
 
     Task<bool> BuildIconsCacheFromVideoStreams(CancellationToken cancellationToken);
 
@@ -73,14 +71,14 @@ public interface IVideoStreamDB
 
     Task<List<VideoStream>> GetVideoStreamsForParentAsync(string parentVideoStreamId, CancellationToken cancellationToken);
 
-    Task<bool> SynchronizeChildRelationships(VideoStream videoStream, List<ChildVideoStreamDto> videoStreamDtos, CancellationToken cancellationToken);
+    //Task<bool> SynchronizeChildRelationships(VideoStream videoStream, List<ChildVideoStreamDto> videoStreamDtos, CancellationToken cancellationToken);
 
     Task<VideoStreamDto?> UpdateVideoStreamAsync(UpdateVideoStreamRequest request, CancellationToken cancellationToken);
 }
 
 public interface IVideoStreamHub
 {
-    Task AddVideoStream(AddVideoStreamRequest request);
+    Task CreateVideoStream(CreateVideoStreamRequest request);
 
     Task ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request);
 
@@ -90,7 +88,7 @@ public interface IVideoStreamHub
 
     Task<VideoStreamDto?> GetVideoStream(string id);
 
-    Task<IEnumerable<VideoStreamDto>> GetVideoStreams();
+    Task<PagedList<VideoStream>> GetVideoStreams(VideoStreamParameters Parameters);
 
     Task ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request);
 

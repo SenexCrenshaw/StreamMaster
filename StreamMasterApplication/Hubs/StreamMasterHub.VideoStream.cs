@@ -1,17 +1,17 @@
-﻿using StreamMasterApplication.Common.Models;
-using StreamMasterApplication.VideoStreams;
+﻿using StreamMasterApplication.VideoStreams;
 using StreamMasterApplication.VideoStreams.Commands;
 using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Hubs;
 
 public partial class StreamMasterHub : IVideoStreamHub
 {
-    public async Task AddVideoStream(AddVideoStreamRequest request)
+    public async Task CreateVideoStream(CreateVideoStreamRequest request)
     {
-         await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request)
@@ -21,7 +21,7 @@ public partial class StreamMasterHub : IVideoStreamHub
 
     public async Task DeleteVideoStream(DeleteVideoStreamRequest request)
     {
-         await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<ChannelLogoDto>> GetChannelLogoDtos()
@@ -34,9 +34,9 @@ public partial class StreamMasterHub : IVideoStreamHub
         return await _mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<VideoStreamDto>> GetVideoStreams()
+    public async Task<PagedList<VideoStream>> GetVideoStreams(VideoStreamParameters Parameters)
     {
-        return await _mediator.Send(new GetVideoStreams()).ConfigureAwait(false);
+        return await _mediator.Send(new GetVideoStreams(Parameters)).ConfigureAwait(false);
     }
 
     public async Task ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request)
@@ -46,7 +46,7 @@ public partial class StreamMasterHub : IVideoStreamHub
 
     public async Task SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request)
     {
-         await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task SetVideoStreamSetEPGsFromName(SetVideoStreamSetEPGsFromNameRequest request)
@@ -61,11 +61,11 @@ public partial class StreamMasterHub : IVideoStreamHub
 
     public async Task UpdateVideoStream(UpdateVideoStreamRequest request)
     {
-         await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task UpdateVideoStreams(UpdateVideoStreamsRequest request)
     {
-         await _mediator.Send(request).ConfigureAwait(false);
+        await _mediator.Send(request).ConfigureAwait(false);
     }
 }

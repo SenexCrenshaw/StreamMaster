@@ -2,7 +2,6 @@ import { hubConnection } from "../app/signalr";
 import {
   type AddChannelGroupRequest,
   type AddEpgFileRequest,
-  type AddM3UFileRequest,
   type AddStreamGroupRequest,
   type AddVideoStreamRequest,
   type AutoMatchIconToStreamsRequest,
@@ -11,6 +10,7 @@ import {
   type ChannelGroupDto,
   type ChannelLogoDto,
   type Countries,
+  type CreateM3UFileRequest,
   type DeleteChannelGroupRequest,
   type DeleteEpgFileRequest,
   type DeleteM3UFileRequest,
@@ -28,6 +28,7 @@ import {
   type LogEntryDto,
   type LogInRequest,
   type M3UFileDto,
+  type M3UFileParameters,
   type ProcessEpgFileRequest,
   type ProcessM3UFileRequest,
   type ProgrammeNameDto,
@@ -163,8 +164,8 @@ export const GetLogRequest = async (arg: GetLog): Promise<LogEntryDto[]> => {
     return data;
 };
 
-export const AddM3UFile = async (arg: AddM3UFileRequest): Promise<void> => {
-    await hubConnection.invoke('AddM3UFile',arg);
+export const CreateM3UFile = async (arg: CreateM3UFileRequest): Promise<void> => {
+    await hubConnection.invoke('CreateM3UFile',arg);
 };
 
 export const ChangeM3UFileName = async (arg: ChangeM3UFileNameRequest): Promise<void> => {
@@ -173,18 +174,6 @@ export const ChangeM3UFileName = async (arg: ChangeM3UFileNameRequest): Promise<
 
 export const DeleteM3UFile = async (arg: DeleteM3UFileRequest): Promise<void> => {
     await hubConnection.invoke('DeleteM3UFile',arg);
-};
-
-export const GetM3UFile = async (arg: number): Promise<M3UFileDto> => {
-    const data = await hubConnection.invoke('GetM3UFile',arg);
-
-    return data;
-};
-
-export const GetM3UFiles = async (): Promise<M3UFileDto[]> => {
-    const data = await hubConnection.invoke('GetM3UFiles');
-
-    return data;
 };
 
 export const ProcessM3UFile = async (arg: ProcessM3UFileRequest): Promise<void> => {
@@ -201,6 +190,18 @@ export const ScanDirectoryForM3UFiles = async (): Promise<void> => {
 
 export const UpdateM3UFile = async (arg: UpdateM3UFileRequest): Promise<void> => {
     await hubConnection.invoke('UpdateM3UFile',arg);
+};
+
+export const GetM3UFiles = async (arg: M3UFileParameters): Promise<M3UFileDto[]> => {
+    const data = await hubConnection.invoke('GetM3UFiles',arg);
+
+    return data;
+};
+
+export const GetM3UFile = async (arg: number): Promise<M3UFileDto> => {
+    const data = await hubConnection.invoke('GetM3UFile',arg);
+
+    return data;
 };
 
 export const GetProgrammeNames = async (): Promise<ProgrammeNameDto[]> => {

@@ -4,6 +4,9 @@ using FluentValidation;
 
 using MediatR;
 
+using Microsoft.Extensions.Logging;
+
+using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Dto;
@@ -22,33 +25,18 @@ public class UpdateVideoStreamsRequestValidator : AbstractValidator<UpdateVideoS
     }
 }
 
-public class UpdateVideoStreamsRequestHandler : IRequestHandler<UpdateVideoStreamsRequest, IEnumerable<VideoStreamDto>>
+public class UpdateVideoStreamsRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateVideoStreamsRequest, IEnumerable<VideoStreamDto>>
 {
-    private readonly IAppDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IPublisher _publisher;
-    private readonly ISender _sender;
 
-    public UpdateVideoStreamsRequestHandler(
-        IMapper mapper,
-        ISender sender,
-        IPublisher publisher,
-        IAppDbContext context
-        )
-    {
-        _sender = sender;
-        _publisher = publisher;
-        _mapper = mapper;
-        _context = context;
-    }
-
+    public UpdateVideoStreamsRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender) { }
     public async Task<IEnumerable<VideoStreamDto>> Handle(UpdateVideoStreamsRequest requests, CancellationToken cancellationToken)
     {
         List<VideoStreamDto> results = new();
 
         foreach (var request in requests.VideoStreamUpdates)
         {
-            var ret = await _context.UpdateVideoStreamAsync(request, cancellationToken).ConfigureAwait(false);
+            var ret = await Repository.VideoStream.UpdateVideoStreamAsync(request, cancellationToken).ConfigureAwait(false);
             if (ret is not null)
             {
                 results.Add(ret);
@@ -57,7 +45,7 @@ public class UpdateVideoStreamsRequestHandler : IRequestHandler<UpdateVideoStrea
 
         if (results.Any())
         {
-            await _publisher.Publish(new UpdateVideoStreamsEvent(results), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateVideoStreamsEvent(results), cancellationToken).ConfigureAwait(false);
         }
 
         return results;

@@ -42,7 +42,7 @@ const M3UFilesEditor = (props: M3UFilesEditorProps) => {
 
     const data = {} as StreamMasterApi.RefreshM3UFileRequest;
 
-    data.m3UFileID = selectedM3UFile.id;
+    data.id = selectedM3UFile.id;
 
     await RefreshM3UFile(data)
       .then(() => {

@@ -4,14 +4,16 @@ using FluentValidation;
 
 using MediatR;
 
+using Microsoft.Extensions.Logging;
+
+using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
-public record AddVideoStreamRequest(
+public record CreateVideoStreamRequest(
      string Tvg_name,
     int? Tvg_chno,
     string? Tvg_group,
@@ -25,35 +27,21 @@ public record AddVideoStreamRequest(
 {
 }
 
-public class AddVideoStreamRequestValidator : AbstractValidator<AddVideoStreamRequest>
+public class CreateVideoStreamRequestValidator : AbstractValidator<CreateVideoStreamRequest>
 {
-    public AddVideoStreamRequestValidator()
+    public CreateVideoStreamRequestValidator()
     {
         _ = RuleFor(v => v.Tvg_name).NotNull().NotEmpty();
     }
 }
 
-public class AddVideoStreamRequestHandler : IRequestHandler<AddVideoStreamRequest, VideoStreamDto?>
+public class CreateVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateVideoStreamRequest, VideoStreamDto?>
 {
-    private readonly IAppDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IPublisher _publisher;
-    private readonly ISender _sender;
 
-    public AddVideoStreamRequestHandler(
-        IMapper mapper,
-          ISender sender,
-         IPublisher publisher,
-        IAppDbContext context
-        )
-    {
-        _sender = sender;
-        _publisher = publisher;
-        _mapper = mapper;
-        _context = context;
-    }
+    public CreateVideoStreamRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender) { }
 
-    public async Task<VideoStreamDto?> Handle(AddVideoStreamRequest request, CancellationToken cancellationToken)
+    public async Task<VideoStreamDto?> Handle(CreateVideoStreamRequest request, CancellationToken cancellationToken)
     {
         var setting = FileUtil.GetSetting();
 
@@ -62,7 +50,7 @@ public class AddVideoStreamRequestHandler : IRequestHandler<AddVideoStreamReques
 
         VideoStream videoStream = new()
         {
-            Id = await _context.GetAvailableID(),
+            Id = IdConverter.GetID(),
             IsUserCreated = true,
 
             Tvg_chno = request.Tvg_chno is null ? 0 : (int)request.Tvg_chno,
@@ -84,18 +72,17 @@ public class AddVideoStreamRequestHandler : IRequestHandler<AddVideoStreamReques
             User_Url = request.Url ?? string.Empty
         };
 
-        _ = await _context.VideoStreams.AddAsync(videoStream, cancellationToken).ConfigureAwait(false);
-        await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        Repository.VideoStream.Create(videoStream);
+        await Repository.SaveAsync().ConfigureAwait(false);
 
         if (request.ChildVideoStreams != null)
         {
-            await _context.SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
-            await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await Repository.VideoStream.SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
         }
 
-        VideoStreamDto ret = _mapper.Map<VideoStreamDto>(videoStream);
+        VideoStreamDto ret = Mapper.Map<VideoStreamDto>(videoStream);
 
-        await _publisher.Publish(new AddVideoStreamEvent(ret), cancellationToken).ConfigureAwait(false);
+        await Publisher.Publish(new CreateVideoStreamEvent(ret), cancellationToken).ConfigureAwait(false);
         return ret;
     }
 }

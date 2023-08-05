@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
 
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -247,7 +245,15 @@ public class ChannelManager : IDisposable, IChannelManager
 
         if (!string.IsNullOrEmpty(overrideNextVideoStreamId))
         {
-            var newVideoStream = context.VideoStreams.AsNoTracking().ProjectTo<ChildVideoStreamDto>(mapper.ConfigurationProvider).FirstOrDefault(a => a.Id == overrideNextVideoStreamId);
+            var vs = await repository.VideoStream.GetVideoStreamByIdAsync(overrideNextVideoStreamId);
+            if (vs == null)
+            {
+                _logger.LogError("GetNextChildVideoStream could not get videoStream for id {VideoStreamId}", overrideNextVideoStreamId);
+                _logger.LogDebug($"Exiting GetNextChildVideoStream with null due to newVideoStream being null");
+                return null;
+            }
+
+            var newVideoStream = mapper.Map<ChildVideoStreamDto>(vs);
             if (newVideoStream == null)
             {
                 _logger.LogError("GetNextChildVideoStream could not get videoStream for id {VideoStreamId}", overrideNextVideoStreamId);
@@ -455,9 +461,9 @@ public class ChannelManager : IDisposable, IChannelManager
         if (!_channelStatuses.ContainsKey(config.VideoStreamId))
         {
             using IServiceScope scope = _serviceProvider.CreateScope();
-            IAppDbContext context = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
+            IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+            var videoStream = await repository.VideoStream.GetVideoStreamByIdAsync(config.VideoStreamId);
 
-            var videoStream = await context.VideoStreams.AsNoTracking().FirstOrDefaultAsync(a => a.Id == config.VideoStreamId);
 
             if (videoStream is null)
                 return null;

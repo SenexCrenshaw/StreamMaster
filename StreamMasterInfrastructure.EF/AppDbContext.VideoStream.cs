@@ -17,9 +17,6 @@ namespace StreamMasterInfrastructure.EF;
 
 public partial class AppDbContext : IVideoStreamDB
 {
-    public DbSet<VideoStreamLink> VideoStreamLinks { get; set; }
-
-    public DbSet<VideoStream> VideoStreams { get; set; }
 
     public async Task AddOrUpdateChildToVideoStreamAsync(string parentVideoStreamId, string childId, int rank, CancellationToken cancellationToken)
     {

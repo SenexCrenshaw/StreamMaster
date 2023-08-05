@@ -6,10 +6,12 @@ using FluentValidation;
 using MediatR;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Extensions;
 using StreamMasterApplication.Icons.Queries;
+using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
@@ -34,28 +36,19 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
     }
 }
 
-public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, string>
+public class GetStreamGroupM3UHandler : BaseDBRequestHandler, IRequestHandler<GetStreamGroupM3U, string>
 {
-    private readonly IAppDbContext _context;
+
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IMapper _mapper;
-    private readonly ISender _sender;
+
     private readonly Setting _setting;
 
-    public GetStreamGroupM3UHandler(
-        IMapper mapper,
-        IHttpContextAccessor httpContextAccessor,
-        ISender sender,
-        IAppDbContext context
-    )
+    public GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, IAppDbContext context, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, context, memoryCache)
     {
         _httpContextAccessor = httpContextAccessor;
-        _setting = FileUtil.GetSetting();
-
-        _mapper = mapper;
-        _context = context;
-        _sender = sender;
     }
+
 
     public string GetIconUrl(string iconOriginalSource)
     {
@@ -92,25 +85,22 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
     public async Task<string> Handle(GetStreamGroupM3U command, CancellationToken cancellationToken)
     {
-        List<VideoStreamDto> videoStreams = new();
+        IEnumerable<VideoStreamDto> videoStreams;
         string url = _httpContextAccessor.GetUrl();
 
         if (command.StreamGroupNumber > 0)
         {
-            StreamGroupDto? sg = await _context.GetStreamGroupDtoByStreamGroupNumber(command.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            StreamGroupDto? sg = await Context.GetStreamGroupDtoByStreamGroupNumber(command.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
             if (sg == null)
             {
                 return "";
             }
-            videoStreams = sg.ChildVideoStreams.Where(a => !a.IsHidden).ToList();
+            videoStreams = sg.ChildVideoStreams.Where(a => !a.IsHidden);
         }
         else
         {
-            videoStreams = _context.VideoStreams
-                .Where(a => !a.IsHidden)
-                .AsNoTracking()
-                .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider)
-                .ToList();
+            videoStreams = Repository.VideoStream.GetVideoStreamsHidden()
+                .ProjectTo<VideoStreamDto>(Mapper.ConfigurationProvider);
         }
 
         if (!videoStreams.Any())
@@ -126,7 +116,7 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
 
         ConcurrentDictionary<int, string> retlist = new();
 
-        var icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
+        var icons = await Sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
 
         var requestPath = _httpContextAccessor.HttpContext.Request.Path.Value.ToString();
         var iv = requestPath.GetIVFromPath(128);

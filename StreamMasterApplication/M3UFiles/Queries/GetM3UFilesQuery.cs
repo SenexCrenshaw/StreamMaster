@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-using StreamMasterInfrastructure.Pagination;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.M3UFiles.Queries;
 

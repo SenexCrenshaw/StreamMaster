@@ -1,9 +1,13 @@
-﻿using MediatR;
+﻿using AutoMapper;
+
+using MediatR;
 
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.Hubs;
+using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Attributes;
 
@@ -20,32 +24,33 @@ public class SetVideoStreamChannelNumbersRequest : IRequest<IEnumerable<ChannelN
     public List<ChannelNumberPair> ChannelNumberPairs { get; set; }
 }
 
-public class SetVideoStreamChannelNumbersRequestHandler : IRequestHandler<SetVideoStreamChannelNumbersRequest, IEnumerable<ChannelNumberPair>>
+public class SetVideoStreamChannelNumbersRequestHandler : BaseRequestHandler, IRequestHandler<SetVideoStreamChannelNumbersRequest, IEnumerable<ChannelNumberPair>>
 {
-    private readonly IAppDbContext _context;
+
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
 
-    public SetVideoStreamChannelNumbersRequestHandler(
-        IHubContext<StreamMasterHub, IStreamMasterHub> hubContext,
-        IAppDbContext Context)
+    public SetVideoStreamChannelNumbersRequestHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper)
+        : base(logger, repository, mapper)
     {
         _hubContext = hubContext;
-        _context = Context;
     }
 
     public async Task<IEnumerable<ChannelNumberPair>> Handle(SetVideoStreamChannelNumbersRequest request, CancellationToken cancellationToken)
     {
+        var videoStreams = await Repository.VideoStream.GetAllVideoStreamsAsync().ConfigureAwait(false);
+
         foreach (ChannelNumberPair cp in request.ChannelNumberPairs)
         {
-            var VideoStream = _context.VideoStreams.SingleOrDefault(c => c.Id == cp.Id);
-            if (VideoStream == null)
+            var videoStream = videoStreams.SingleOrDefault(c => c.Id == cp.Id);
+            if (videoStream == null)
             {
                 cp.Id = String.Empty;
                 continue;
             }
-            VideoStream.User_Tvg_chno = cp.ChannelNumber;
+            videoStream.User_Tvg_chno = cp.ChannelNumber;
+            Repository.VideoStream.Update(videoStream);
         }
-        _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await Repository.SaveAsync().ConfigureAwait(false);
 
         await _hubContext.Clients.All.VideoStreamUpdateChannelNumbers(request.ChannelNumberPairs).ConfigureAwait(false);
 

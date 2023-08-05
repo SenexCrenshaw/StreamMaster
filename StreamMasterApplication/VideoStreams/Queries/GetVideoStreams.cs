@@ -1,22 +1,25 @@
-﻿using MediatR;
+﻿using AutoMapper;
 
-using StreamMasterDomain.Dto;
+using MediatR;
+
+using Microsoft.Extensions.Logging;
+
+using StreamMasterApplication.M3UFiles.Commands;
+
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.VideoStreams.Queries;
 
-public record GetVideoStreams : IRequest<IEnumerable<VideoStreamDto>>;
+public record GetVideoStreams(VideoStreamParameters Parameters) : IRequest<PagedList<VideoStream>>;
 
-internal class GetVideoStreamsHandler : IRequestHandler<GetVideoStreams, IEnumerable<VideoStreamDto>>
+internal class GetVideoStreamsHandler : BaseRequestHandler, IRequestHandler<GetVideoStreams, PagedList<VideoStream>>
 {
-    private readonly IAppDbContext _context;
 
-    public GetVideoStreamsHandler(IAppDbContext context)
-    {
-        _context = context;
-    }
+    public GetVideoStreamsHandler(ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper)
+        : base(logger, repository, mapper) { }
 
-    public async Task<IEnumerable<VideoStreamDto>> Handle(GetVideoStreams request, CancellationToken cancellationToken)
+    public async Task<PagedList<VideoStream>> Handle(GetVideoStreams request, CancellationToken cancellationToken)
     {
-        return await _context.GetVideoStreamsDto(cancellationToken).ConfigureAwait(false);
+        return await Repository.VideoStream.GetVideoStreamsAsync(request.Parameters, cancellationToken).ConfigureAwait(false);
     }
 }

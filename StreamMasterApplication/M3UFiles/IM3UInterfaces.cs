@@ -3,8 +3,7 @@
 using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Dto;
-
-using StreamMasterInfrastructure.Pagination;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.M3UFiles;
 

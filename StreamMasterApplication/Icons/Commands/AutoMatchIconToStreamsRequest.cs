@@ -5,8 +5,10 @@ using FluentValidation;
 using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Icons.Queries;
+using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Dto;
@@ -25,31 +27,11 @@ public class AutoMatchIconToStreamsRequestValidator : AbstractValidator<AutoMatc
     }
 }
 
-public class AutoMatchIconToStreamsRequestHandler : IRequestHandler<AutoMatchIconToStreamsRequest, IconFileDto?>
+public class AutoMatchIconToStreamsRequestHandler : BaseDBRequestHandler, IRequestHandler<AutoMatchIconToStreamsRequest, IconFileDto?>
 {
-    private readonly IAppDbContext _context;
 
-    private readonly IMapper _mapper;
-
-    private readonly IMemoryCache _memoryCache;
-
-    private readonly IPublisher _publisher;
-
-    private readonly ISender _sender;
-
-    public AutoMatchIconToStreamsRequestHandler(
-         IMapper mapper,
-         IPublisher publisher,
-         ISender sender,
-          IMemoryCache memoryCache,
-        IAppDbContext context)
-    {
-        _memoryCache = memoryCache;
-        _publisher = publisher;
-        _mapper = mapper;
-        _context = context;
-        _sender = sender;
-    }
+    public AutoMatchIconToStreamsRequestHandler(IAppDbContext context, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, context, memoryCache) { }
 
     public static double GetWeightedMatch(string sentence1, string sentence2)
     {
@@ -76,9 +58,9 @@ public class AutoMatchIconToStreamsRequestHandler : IRequestHandler<AutoMatchIco
         {
             return null;
         }
-        var icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);// CacheKeys.Icons(); //await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
-        //var streams = _context.VideoStreams.Where(a => request.Ids.Contains(a.Id) && string.IsNullOrEmpty(a.User_Tvg_logo)).ToList();
-        var streams = _context.VideoStreams.Where(a => request.Ids.Contains(a.Id)).ToList();
+        var icons = await Sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);// CacheKeys.Icons(); //await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
+
+        var streams = Repository.VideoStream.GetVideoStreamsByMatchingIds(request.Ids);
         List<VideoStreamDto> videoStreamDtos = new();
 
         foreach (var stream in streams)
@@ -87,7 +69,8 @@ public class AutoMatchIconToStreamsRequestHandler : IRequestHandler<AutoMatchIco
             if (icon != null)
             {
                 stream.User_Tvg_logo = icon.Source;
-                videoStreamDtos.Add(_mapper.Map<VideoStreamDto>(stream));
+                Repository.VideoStream.Update(stream);
+                videoStreamDtos.Add(Mapper.Map<VideoStreamDto>(stream));
                 continue;
             }
 
@@ -99,15 +82,16 @@ public class AutoMatchIconToStreamsRequestHandler : IRequestHandler<AutoMatchIco
             if (topCheckIcon != null && topCheckIcon.Weight > 0.5 && stream.User_Tvg_logo != topCheckIcon.Icon.Source)
             {
                 stream.User_Tvg_logo = topCheckIcon.Icon.Source;
-                var videoStreamDto = _mapper.Map<VideoStreamDto>(stream);
+                Repository.VideoStream.Update(stream);
+                var videoStreamDto = Mapper.Map<VideoStreamDto>(stream);
                 videoStreamDtos.Add(videoStreamDto);
                 break;
             }
         }
-        await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await Repository.SaveAsync().ConfigureAwait(false);
         if (videoStreamDtos.Any())
         {
-            await _publisher.Publish(new UpdateVideoStreamsEvent(videoStreamDtos), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateVideoStreamsEvent(videoStreamDtos), cancellationToken).ConfigureAwait(false);
         }
 
         return null;

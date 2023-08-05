@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 using System.Text.Json;
 
-namespace StreamMasterInfrastructure.Pagination
+namespace StreamMasterDomain.Pagination
 {
     public class PagedList<T> : List<T>
     {

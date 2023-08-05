@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterApplication.Common.Interfaces;
@@ -13,6 +15,7 @@ using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
+using StreamMasterDomain.Pagination;
 
 using System.Web;
 
@@ -23,22 +26,26 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     private readonly IChannelManager _channelManager;
     private readonly ILogger<VideoStreamsController> _logger;
 
-    public VideoStreamsController(IChannelManager channelManager, ILogger<VideoStreamsController> logger)
+    private readonly IMapper _mapper;
+
+
+    public VideoStreamsController(IChannelManager channelManager, ILogger<VideoStreamsController> logger, IMapper mapper)
     {
         _channelManager = channelManager;
         _logger = logger;
+        _mapper = mapper;
     }
 
     [HttpPost]
     [Route("[action]")]
-    public async Task<IActionResult> AddVideoStream(AddVideoStreamRequest request)
+    public async Task<ActionResult> CreateVideoStream(CreateVideoStreamRequest request)
     {
         return Ok(await Mediator.Send(request).ConfigureAwait(false));
     }
 
     [HttpPost]
     [Route("[action]")]
-    public async Task<IActionResult> ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request)
+    public async Task<ActionResult> ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request)
     {
         await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
@@ -46,7 +53,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpDelete]
     [Route("[action]")]
-    public async Task<IActionResult> DeleteVideoStream(DeleteVideoStreamRequest request)
+    public async Task<ActionResult> DeleteVideoStream(DeleteVideoStreamRequest request)
     {
         string? data = await Mediator.Send(request).ConfigureAwait(false);
         return data == null ? NotFound() : NoContent();
@@ -54,15 +61,14 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpPost]
     [Route("[action]")]
-    public async Task<IActionResult> FailClient(FailClientRequest request)
+    public async Task<ActionResult> FailClient(FailClientRequest request)
     {
         await _channelManager.FailClient(request.clientId);
         return Ok();
     }
 
     [Route("[action]")]
-    [ProducesResponseType(typeof(List<StreamStatisticsResult>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllStatisticsForAllUrls()
+    public async Task<ActionResult> GetAllStatisticsForAllUrls()
     {
         List<StreamStatisticsResult> data = await Mediator.Send(new GetAllStatisticsForAllUrls()).ConfigureAwait(false);
         return Ok(data);
@@ -70,8 +76,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpGet]
     [Route("[action]")]
-    [ProducesResponseType(typeof(List<ChannelLogoDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetChannelLogoDtos()
+    public async Task<ActionResult> GetChannelLogoDtos()
     {
         var data = await Mediator.Send(new GetChannelLogoDtos()).ConfigureAwait(false);
         return Ok(data);
@@ -79,19 +84,20 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpGet]
     [Route("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VideoStreamDto))]
     public async Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id)
     {
-        var data= await Mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
+        var data = await Mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
         return data;
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<VideoStreamDto>))]
-    public async Task<ActionResult<List<VideoStreamDto>>> GetVideoStreams()
+    public async Task<ActionResult<IEnumerable<VideoStreamDto>>> GetVideoStreams(VideoStreamParameters Parameters)
     {
-        IEnumerable<VideoStreamDto> data = await Mediator.Send(new GetVideoStreams()).ConfigureAwait(false);
-        return data.ToList();
+        var videoStreams = await Mediator.Send(new GetVideoStreams(Parameters)).ConfigureAwait(false);
+        Response.Headers.Add("X-Pagination", videoStreams.GetMetadata());
+        var m3uFilesResult = _mapper.Map<IEnumerable<VideoStreamDto>>(videoStreams);
+        return Ok(m3uFilesResult);
+
     }
 
     [Authorize(Policy = "SGLinks")]
@@ -99,7 +105,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [Route("stream/{encodedIds}")]
     [Route("stream/{encodedIds}.mp4")]
     [Route("stream/{encodedIds}/{name}")]
-    public async Task<IActionResult> GetVideoStreamStream(string encodedIds, string name, CancellationToken cancellationToken)
+    public async Task<ActionResult> GetVideoStreamStream(string encodedIds, string name, CancellationToken cancellationToken)
     {
         (int? StreamGroupNumberNull, string? StreamIdNull) = encodedIds.DecodeTwoValuesAsString128(_setting.ServerKey);
         if (StreamGroupNumberNull == null || StreamIdNull == null)
@@ -163,7 +169,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<IActionResult> ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request)
+    public async Task<ActionResult> ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request)
     {
         await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
@@ -171,7 +177,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpPatch]
     [Route("[action]")]
-    public async Task<IActionResult> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request)
+    public async Task<ActionResult> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request)
     {
         await Mediator.Send(request).ConfigureAwait(false);
         return NoContent();
@@ -179,7 +185,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpPatch]
     [Route("[action]")]
-    public async Task<IActionResult> SetVideoStreamSetEPGsFromName(SetVideoStreamSetEPGsFromNameRequest request)
+    public async Task<ActionResult> SetVideoStreamSetEPGsFromName(SetVideoStreamSetEPGsFromNameRequest request)
     {
         await Mediator.Send(request).ConfigureAwait(false);
         return NoContent();
@@ -187,7 +193,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<IActionResult> SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request)
+    public async Task<ActionResult> SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request)
     {
         await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
@@ -195,7 +201,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpPost]
     [Route("[action]/{streamUrl}")]
-    public IActionResult SimulateStreamFailure(string streamUrl)
+    public ActionResult SimulateStreamFailure(string streamUrl)
     {
         if (string.IsNullOrEmpty(streamUrl))
         {
@@ -208,7 +214,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpPost]
     [Route("[action]")]
-    public IActionResult SimulateStreamFailureForAll()
+    public ActionResult SimulateStreamFailureForAll()
     {
         _channelManager.SimulateStreamFailureForAll();
         return Ok();
@@ -216,7 +222,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpPut]
     [Route("[action]")]
-    public async Task<IActionResult> UpdateVideoStream(UpdateVideoStreamRequest request)
+    public async Task<ActionResult> UpdateVideoStream(UpdateVideoStreamRequest request)
     {
         _ = await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
@@ -224,7 +230,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpPut]
     [Route("[action]")]
-    public async Task<IActionResult> UpdateVideoStreams(UpdateVideoStreamsRequest request)
+    public async Task<ActionResult> UpdateVideoStreams(UpdateVideoStreamsRequest request)
     {
         _ = await Mediator.Send(request).ConfigureAwait(false);
         return Ok();

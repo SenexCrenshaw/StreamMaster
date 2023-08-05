@@ -15,7 +15,7 @@ const Home = () => {
   StreamMasterApi.useIconsGetIconsQuery();
   StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
   StreamMasterApi.useEpgFilesGetEpgFilesQuery();
-  StreamMasterApi.useM3UFilesGetM3UFilesQuery();
+  StreamMasterApi.useM3UFilesGetM3UFilesQuery({ pageNumber: 0, pageSize: 25 } as StreamMasterApi.QueryStringParameters);
   StreamMasterApi.useProgrammesGetProgrammeNamesQuery();
   StreamMasterApi.useSettingsGetSettingQuery();
   StreamMasterApi.useSettingsGetSystemStatusQuery();

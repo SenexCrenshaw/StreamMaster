@@ -312,7 +312,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
           };
 
           hubConnection.on(
-            'M3UFilesDtosUpdate',
+            'M3UFileDtosUpdate',
             (data: StreamMasterApi.M3UFileDto[]) => {
               applyResults(data);
             }
@@ -342,7 +342,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
           };
 
           hubConnection.on(
-            'M3UFilesDtoUpdate',
+            'M3UFileDtoUpdate',
             (data: StreamMasterApi.M3UFileDto) => {
               applyResult(data);
             }
@@ -363,7 +363,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
           };
 
           hubConnection.on(
-            'M3UFilesDtoDelete',
+            'M3UFileDtoDelete',
             (id: number) => {
               deleteResult(id);
             }

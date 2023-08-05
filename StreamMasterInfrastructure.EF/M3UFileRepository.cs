@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
-
-using StreamMasterInfrastructure.Pagination;
 
 namespace StreamMasterInfrastructure.EF;
 
@@ -48,11 +47,8 @@ public class M3UFileRepository : RepositoryBase<M3UFile>, IM3UFileRepository
 
     public async Task<M3UFile> GetM3UFileBySourceAsync(string source)
     {
-        //return await FindByCondition(m3uFile => m3uFile.Source.ToLower().Equals(source.ToLower()))
-        //                  .FirstOrDefaultAsync();
-        return await FindByCondition(m3uFile =>
-            StringComparer.OrdinalIgnoreCase.Equals(m3uFile.Source, source))
-            .FirstOrDefaultAsync();
+        return await FindByCondition(m3uFile => m3uFile.Source.ToLower().Equals(source.ToLower()))
+                          .FirstOrDefaultAsync();
     }
 
     public async Task<PagedList<M3UFile>> GetM3UFilesAsync(M3UFileParameters m3uFileParameters)

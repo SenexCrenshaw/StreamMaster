@@ -231,30 +231,23 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["Logs"],
       }),
-      m3UFilesAddM3UFile: build.mutation<
-        M3UFilesAddM3UFileApiResponse,
-        M3UFilesAddM3UFileApiArg
+      m3UFilesCreateM3UFile: build.mutation<
+        M3UFilesCreateM3UFileApiResponse,
+        M3UFilesCreateM3UFileApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/m3ufiles`,
+          url: `/api/m3ufiles/createm3ufile`,
           method: "POST",
           body: queryArg,
         }),
         invalidatesTags: ["M3UFiles"],
       }),
-      m3UFilesGetM3UFiles: build.query<
-        M3UFilesGetM3UFilesApiResponse,
-        M3UFilesGetM3UFilesApiArg
-      >({
-        query: () => ({ url: `/api/m3ufiles` }),
-        providesTags: ["M3UFiles"],
-      }),
-      m3UFilesAddM3UFileFromForm: build.mutation<
-        M3UFilesAddM3UFileFromFormApiResponse,
-        M3UFilesAddM3UFileFromFormApiArg
+      m3UFilesCreateM3UFileFromForm: build.mutation<
+        M3UFilesCreateM3UFileFromFormApiResponse,
+        M3UFilesCreateM3UFileFromFormApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/m3ufiles/addm3ufilefromform`,
+          url: `/api/m3ufiles/createm3ufilefromform`,
           method: "POST",
           body: queryArg,
         }),
@@ -287,6 +280,13 @@ const injectedRtkApi = api
         M3UFilesGetM3UFileApiArg
       >({
         query: (queryArg) => ({ url: `/api/m3ufiles/${queryArg}` }),
+        providesTags: ["M3UFiles"],
+      }),
+      m3UFilesGetM3UFiles: build.query<
+        M3UFilesGetM3UFilesApiResponse,
+        M3UFilesGetM3UFilesApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/m3ufiles`, body: queryArg }),
         providesTags: ["M3UFiles"],
       }),
       m3UFilesProcessM3UFile: build.mutation<
@@ -642,12 +642,12 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["StreamGroups"],
       }),
-      videoStreamsAddVideoStream: build.mutation<
-        VideoStreamsAddVideoStreamApiResponse,
-        VideoStreamsAddVideoStreamApiArg
+      videoStreamsCreateVideoStream: build.mutation<
+        VideoStreamsCreateVideoStreamApiResponse,
+        VideoStreamsCreateVideoStreamApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/videostreams/addvideostream`,
+          url: `/api/videostreams/createvideostream`,
           method: "POST",
           body: queryArg,
         }),
@@ -711,7 +711,7 @@ const injectedRtkApi = api
         VideoStreamsGetVideoStreamsApiResponse,
         VideoStreamsGetVideoStreamsApiArg
       >({
-        query: () => ({ url: `/api/videostreams` }),
+        query: (queryArg) => ({ url: `/api/videostreams`, body: queryArg }),
         providesTags: ["VideoStreams"],
       }),
       videoStreamsGetVideoStreamStream: build.query<
@@ -897,16 +897,10 @@ export type IconsGetUrlApiResponse = /** status 200  */ string;
 export type IconsGetUrlApiArg = void;
 export type LogsGetLogRequestApiResponse = /** status 200  */ LogEntryDto[];
 export type LogsGetLogRequestApiArg = GetLog;
-export type M3UFilesAddM3UFileApiResponse = /** status 200  */
-  | undefined
-  | /** status 201  */ M3UFileDto;
-export type M3UFilesAddM3UFileApiArg = AddM3UFileRequest;
-export type M3UFilesGetM3UFilesApiResponse = /** status 200  */ M3UFileDto[];
-export type M3UFilesGetM3UFilesApiArg = void;
-export type M3UFilesAddM3UFileFromFormApiResponse = /** status 200  */
-  | undefined
-  | /** status 201  */ M3UFileDto;
-export type M3UFilesAddM3UFileFromFormApiArg = {
+export type M3UFilesCreateM3UFileApiResponse = unknown;
+export type M3UFilesCreateM3UFileApiArg = CreateM3UFileRequest;
+export type M3UFilesCreateM3UFileFromFormApiResponse = unknown;
+export type M3UFilesCreateM3UFileFromFormApiArg = {
   Description?: string | null;
   FormFile?: Blob | null;
   MaxStreamCount?: number;
@@ -915,20 +909,21 @@ export type M3UFilesAddM3UFileFromFormApiArg = {
   StartingChannelNumber?: number | null;
   UrlSource?: string | null;
 };
-export type M3UFilesChangeM3UFileNameApiResponse = /** status 204  */ undefined;
+export type M3UFilesChangeM3UFileNameApiResponse = unknown;
 export type M3UFilesChangeM3UFileNameApiArg = ChangeM3UFileNameRequest;
-export type M3UFilesDeleteM3UFileApiResponse = /** status 200  */ undefined;
+export type M3UFilesDeleteM3UFileApiResponse = unknown;
 export type M3UFilesDeleteM3UFileApiArg = DeleteM3UFileRequest;
 export type M3UFilesGetM3UFileApiResponse = /** status 200  */ M3UFileDto;
 export type M3UFilesGetM3UFileApiArg = number;
-export type M3UFilesProcessM3UFileApiResponse = /** status 204  */ undefined;
+export type M3UFilesGetM3UFilesApiResponse = /** status 200  */ M3UFileDto[];
+export type M3UFilesGetM3UFilesApiArg = M3UFileParameters;
+export type M3UFilesProcessM3UFileApiResponse = unknown;
 export type M3UFilesProcessM3UFileApiArg = ProcessM3UFileRequest;
-export type M3UFilesRefreshM3UFileApiResponse = /** status 204  */ undefined;
+export type M3UFilesRefreshM3UFileApiResponse = unknown;
 export type M3UFilesRefreshM3UFileApiArg = RefreshM3UFileRequest;
-export type M3UFilesScanDirectoryForM3UFilesApiResponse =
-  /** status 204  */ undefined;
+export type M3UFilesScanDirectoryForM3UFilesApiResponse = unknown;
 export type M3UFilesScanDirectoryForM3UFilesApiArg = void;
-export type M3UFilesUpdateM3UFileApiResponse = /** status 204  */ undefined;
+export type M3UFilesUpdateM3UFileApiResponse = unknown;
 export type M3UFilesUpdateM3UFileApiArg = UpdateM3UFileRequest;
 export type MiscBuildIconsCacheFromVideoStreamsApiResponse =
   /** status 204  */ undefined;
@@ -1039,8 +1034,8 @@ export type StreamGroupsGetStreamGroupsApiArg = void;
 export type StreamGroupsUpdateStreamGroupApiResponse =
   /** status 204  */ undefined;
 export type StreamGroupsUpdateStreamGroupApiArg = UpdateStreamGroupRequest;
-export type VideoStreamsAddVideoStreamApiResponse = unknown;
-export type VideoStreamsAddVideoStreamApiArg = AddVideoStreamRequest;
+export type VideoStreamsCreateVideoStreamApiResponse = unknown;
+export type VideoStreamsCreateVideoStreamApiArg = CreateVideoStreamRequest;
 export type VideoStreamsChangeVideoStreamChannelApiResponse = unknown;
 export type VideoStreamsChangeVideoStreamChannelApiArg =
   ChangeVideoStreamChannelRequest;
@@ -1048,18 +1043,16 @@ export type VideoStreamsDeleteVideoStreamApiResponse = unknown;
 export type VideoStreamsDeleteVideoStreamApiArg = DeleteVideoStreamRequest;
 export type VideoStreamsFailClientApiResponse = unknown;
 export type VideoStreamsFailClientApiArg = FailClientRequest;
-export type VideoStreamsGetAllStatisticsForAllUrlsApiResponse =
-  /** status 200  */ StreamStatisticsResult[];
+export type VideoStreamsGetAllStatisticsForAllUrlsApiResponse = unknown;
 export type VideoStreamsGetAllStatisticsForAllUrlsApiArg = void;
-export type VideoStreamsGetChannelLogoDtosApiResponse =
-  /** status 200  */ ChannelLogoDto[];
+export type VideoStreamsGetChannelLogoDtosApiResponse = unknown;
 export type VideoStreamsGetChannelLogoDtosApiArg = void;
 export type VideoStreamsGetVideoStreamApiResponse =
   /** status 200  */ VideoStreamDto;
 export type VideoStreamsGetVideoStreamApiArg = string;
 export type VideoStreamsGetVideoStreamsApiResponse =
   /** status 200  */ VideoStreamDto[];
-export type VideoStreamsGetVideoStreamsApiArg = void;
+export type VideoStreamsGetVideoStreamsApiArg = VideoStreamParameters;
 export type VideoStreamsGetVideoStreamStreamApiResponse = unknown;
 export type VideoStreamsGetVideoStreamStreamApiArg = string;
 export type VideoStreamsGetVideoStreamStream2ApiResponse = unknown;
@@ -1204,12 +1197,7 @@ export type GetLog = {
   lastId?: number;
   maxLines?: number;
 };
-export type M3UFileDto = BaseFileDto & {
-  startingChannelNumber?: number;
-  maxStreamCount?: number;
-  stationCount?: number;
-};
-export type AddM3UFileRequest = {
+export type CreateM3UFileRequest = {
   description?: string | null;
   formFile?: Blob | null;
   maxStreamCount?: number;
@@ -1226,11 +1214,24 @@ export type DeleteM3UFileRequest = {
   deleteFile?: boolean;
   id?: number;
 };
+export type M3UFileDto = BaseFileDto & {
+  startingChannelNumber?: number;
+  maxStreamCount?: number;
+  stationCount?: number;
+};
+export type QueryStringParameters = {
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+};
+export type M3UFileParameters = QueryStringParameters & {
+  name?: string;
+};
 export type ProcessM3UFileRequest = {
-  m3UFileId: number;
+  id: number;
 };
 export type RefreshM3UFileRequest = {
-  m3UFileID: number;
+  id: number;
 };
 export type UpdateM3UFileRequest = BaseFileRequest & {
   maxStreamCount?: number | null;
@@ -1686,7 +1687,7 @@ export type UpdateStreamGroupRequest = {
   videoStreams?: VideoStreamIsReadOnly[] | null;
   channelGroupNames?: string[] | null;
 };
-export type AddVideoStreamRequest = {
+export type CreateVideoStreamRequest = {
   tvg_name?: string;
   tvg_chno?: number | null;
   tvg_group?: string | null;
@@ -1702,37 +1703,13 @@ export type ChangeVideoStreamChannelRequest = {
   newVideoStreamId?: string;
 };
 export type DeleteVideoStreamRequest = {
-  videoStreamId?: string;
+  id?: string;
 };
 export type FailClientRequest = {
   clientId: string;
 };
-export type StreamStatisticsResult = {
-  clientAgent?: string;
-  clientBitsPerSecond?: number;
-  clientBytesRead?: number;
-  clientBytesWritten?: number;
-  clientElapsedTime?: string;
-  clientId?: string;
-  clientStartTime?: string;
-  inputBitsPerSecond?: number;
-  inputBytesRead?: number;
-  inputBytesWritten?: number;
-  inputElapsedTime?: string;
-  inputStartTime?: string;
-  logo?: string | null;
-  m3UStreamId?: string;
-  m3UStreamName?: string;
-  m3UStreamProxyType?: StreamingProxyTypes;
-  rank?: number;
-  streamUrl?: string | null;
-  videoStreamId?: string;
-  videoStreamName?: string;
-};
-export type ChannelLogoDto = {
-  epgId?: string;
-  epgFileId?: number;
-  logoUrl?: string;
+export type VideoStreamParameters = QueryStringParameters & {
+  name?: string;
 };
 export type ReSetVideoStreamsLogoRequest = {
   ids?: string[];
@@ -1796,12 +1773,12 @@ export const {
   useIconsGetIconsQuery,
   useIconsGetUrlQuery,
   useLogsGetLogRequestMutation,
-  useM3UFilesAddM3UFileMutation,
-  useM3UFilesGetM3UFilesQuery,
-  useM3UFilesAddM3UFileFromFormMutation,
+  useM3UFilesCreateM3UFileMutation,
+  useM3UFilesCreateM3UFileFromFormMutation,
   useM3UFilesChangeM3UFileNameMutation,
   useM3UFilesDeleteM3UFileMutation,
   useM3UFilesGetM3UFileQuery,
+  useM3UFilesGetM3UFilesQuery,
   useM3UFilesProcessM3UFileMutation,
   useM3UFilesRefreshM3UFileMutation,
   useM3UFilesScanDirectoryForM3UFilesMutation,
@@ -1843,7 +1820,7 @@ export const {
   useStreamGroupsGetStreamGroupM3UQuery,
   useStreamGroupsGetStreamGroupsQuery,
   useStreamGroupsUpdateStreamGroupMutation,
-  useVideoStreamsAddVideoStreamMutation,
+  useVideoStreamsCreateVideoStreamMutation,
   useVideoStreamsChangeVideoStreamChannelMutation,
   useVideoStreamsDeleteVideoStreamMutation,
   useVideoStreamsFailClientMutation,

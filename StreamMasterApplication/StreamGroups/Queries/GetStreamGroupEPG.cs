@@ -6,10 +6,11 @@ using FluentValidation;
 using MediatR;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Extensions;
+using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Dto;
@@ -36,29 +37,21 @@ public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
     }
 }
 
-public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEPG, string>
+public partial class GetStreamGroupEPGHandler : BaseDBRequestHandler, IRequestHandler<GetStreamGroupEPG, string>
 {
     protected Setting _setting = FileUtil.GetSetting();
-    private readonly IAppDbContext _context;
+
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IMapper _mapper;
-    private readonly IMemoryCache _memoryCache;
-    private readonly ISender _sender;
+
     private readonly object Lock = new();
     private int dummyCount = 0;
 
-    public GetStreamGroupEPGHandler(
-        IMapper mapper, IMemoryCache memoryCache,
-        ISender sender,
-        IHttpContextAccessor httpContextAccessor,
-        IAppDbContext context)
+    public GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, IAppDbContext context, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, context, memoryCache)
     {
         _httpContextAccessor = httpContextAccessor;
-        _memoryCache = memoryCache;
-        _mapper = mapper;
-        _context = context;
-        _sender = sender;
     }
+
 
     public string GetIconUrl(string iconOriginalSource)
     {
@@ -95,30 +88,27 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
-        List<VideoStreamDto> videoStreams = new();
+        IEnumerable<VideoStreamDto> videoStreams;
         string url = _httpContextAccessor.GetUrl();
         if (request.StreamGroupNumber > 0)
         {
-            var streamGroup = await _context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            var streamGroup = await Context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
             if (streamGroup == null)
             {
                 return "";
             }
-            videoStreams = streamGroup.ChildVideoStreams.Where(a => !a.IsHidden).ToList();
+            videoStreams = streamGroup.ChildVideoStreams.Where(a => !a.IsHidden);
         }
         else
         {
-            videoStreams = _context.VideoStreams
-                .Where(a => !a.IsHidden)
-                .AsNoTracking()
-                .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider)
-                .ToList();
+            videoStreams = Repository.VideoStream.GetVideoStreamsHidden()
+                .ProjectTo<VideoStreamDto>(Mapper.ConfigurationProvider);
         }
 
         ParallelOptions po = new()
         {
             CancellationToken = cancellationToken,
-            MaxDegreeOfParallelism = System.Environment.ProcessorCount
+            MaxDegreeOfParallelism = Environment.ProcessorCount
         };
         ConcurrentBag<TvChannel> retChannels = new();
         ConcurrentBag<Programme> retProgrammes = new();
@@ -127,7 +117,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
         {
             List<string> epgids = videoStreams.Where(a => !a.IsHidden).SelectMany(r => new string[] { r.User_Tvg_ID.ToLower(), r.User_Tvg_ID_DisplayName.ToLower() }).Distinct().ToList();
 
-            List<Programme> programmes = _memoryCache.Programmes()
+            List<Programme> programmes = MemoryCache.Programmes()
                 .Where(a =>
                 a.Channel != null &&
                 (
@@ -138,8 +128,8 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
             var setting = FileUtil.GetSetting();
 
-            var icons = _memoryCache.Icons();
-            var progIcons = _memoryCache.ProgrammeIcons();
+            var icons = MemoryCache.Icons();
+            var progIcons = MemoryCache.ProgrammeIcons();
 
             _ = Parallel.ForEach(videoStreams, po, videoStream =>
             {

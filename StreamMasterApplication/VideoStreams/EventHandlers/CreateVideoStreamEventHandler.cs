@@ -8,16 +8,16 @@ using StreamMasterApplication.VideoStreams.Events;
 
 namespace StreamMasterApplication.VideoStreams.EventHandlers;
 
-public class AddVideoStreamEventHandler : INotificationHandler<AddVideoStreamEvent>
+public class CreateVideoStreamEventHandler : INotificationHandler<CreateVideoStreamEvent>
 {
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
-    private readonly ILogger<AddVideoStreamEventHandler> _logger;
+    private readonly ILogger<CreateVideoStreamEventHandler> _logger;
     private readonly ISender _sender;
 
-    public AddVideoStreamEventHandler(
+    public CreateVideoStreamEventHandler(
          IHubContext<StreamMasterHub, IStreamMasterHub> hubContext,
            ISender sender,
-        ILogger<AddVideoStreamEventHandler> logger
+        ILogger<CreateVideoStreamEventHandler> logger
         )
     {
         _sender = sender;
@@ -25,7 +25,7 @@ public class AddVideoStreamEventHandler : INotificationHandler<AddVideoStreamEve
         _logger = logger;
     }
 
-    public async Task Handle(AddVideoStreamEvent notification, CancellationToken cancellationToken = default)
+    public async Task Handle(CreateVideoStreamEvent notification, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Domain Event: {DomainEvent}", notification.GetType().Name);
 

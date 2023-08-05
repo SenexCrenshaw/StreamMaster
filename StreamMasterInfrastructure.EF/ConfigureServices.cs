@@ -21,6 +21,7 @@ public static class ConfigureServices
         services.AddScoped<RepositoryContextInitializer>();
 
         services.AddScoped<ISortHelper<M3UFile>, SortHelper<M3UFile>>();
+        services.AddScoped<ISortHelper<VideoStream>, SortHelper<VideoStream>>();
         services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
         return services;
     }

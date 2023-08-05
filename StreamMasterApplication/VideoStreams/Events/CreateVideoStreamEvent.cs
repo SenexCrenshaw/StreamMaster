@@ -2,9 +2,9 @@
 
 namespace StreamMasterApplication.VideoStreams.Events;
 
-public class AddVideoStreamEvent : BaseEvent
+public class CreateVideoStreamEvent : BaseEvent
 {
-    public AddVideoStreamEvent(VideoStreamDto videoStreamsDto)
+    public CreateVideoStreamEvent(VideoStreamDto videoStreamsDto)
     {
         VideoStreamsDto = videoStreamsDto;
     }
