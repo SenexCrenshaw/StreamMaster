@@ -7,8 +7,9 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
+using StreamMasterApplication.M3UFiles.Commands;
+
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Repository;
 using StreamMasterDomain.Repository.EPG;
 
 using System.ComponentModel.DataAnnotations;
@@ -16,7 +17,7 @@ using System.Web;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
-public class AddEPGFileRequest : IRequest<EPGFilesDto?>
+public class CreateEPGFileRequest : IRequest<EPGFilesDto?>
 {
     public string? Description { get; set; }
 
@@ -29,9 +30,9 @@ public class AddEPGFileRequest : IRequest<EPGFilesDto?>
     public string? UrlSource { get; set; }
 }
 
-public class AddEPGFileRequestValidator : AbstractValidator<AddEPGFileRequest>
+public class CreateEPGFileRequestValidator : AbstractValidator<CreateEPGFileRequest>
 {
-    public AddEPGFileRequestValidator()
+    public CreateEPGFileRequestValidator()
     {
         _ = RuleFor(v => v.Name)
             .MaximumLength(32)
@@ -42,26 +43,13 @@ public class AddEPGFileRequestValidator : AbstractValidator<AddEPGFileRequest>
     }
 }
 
-public class AddEPGFileRequestHandler : IRequestHandler<AddEPGFileRequest, EPGFilesDto?>
+public class CreateEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateEPGFileRequest, EPGFilesDto?>
 {
-    private readonly IAppDbContext _context;
-    private readonly ILogger<AddEPGFileRequestHandler> _logger;
-    private readonly IMapper _mapper;
-    private readonly IPublisher _publisher;
 
-    public AddEPGFileRequestHandler(
-        ILogger<AddEPGFileRequestHandler> logger,
-         IMapper mapper,
-         IPublisher publisher,
-        IAppDbContext context)
-    {
-        _logger = logger;
-        _publisher = publisher;
-        _mapper = mapper;
-        _context = context;
-    }
+    public CreateEPGFileRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender) { }
 
-    public async Task<EPGFilesDto?> Handle(AddEPGFileRequest command, CancellationToken cancellationToken)
+    public async Task<EPGFilesDto?> Handle(CreateEPGFileRequest command, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(command.UrlSource) && command.FormFile != null && command.FormFile.Length <= 0)
         {
@@ -85,7 +73,7 @@ public class AddEPGFileRequestHandler : IRequestHandler<AddEPGFileRequest, EPGFi
             {
                 epgFile.Source = command.Name + fd.FileExtension;
 
-                _logger.LogInformation("Adding EPG From Form: {fullName}", fullName);
+                Logger.LogInformation("Adding EPG From Form: {fullName}", fullName);
                 (bool success, Exception? ex) = await FormHelper.SaveFormFileAsync(command.FormFile!, fullName).ConfigureAwait(false);
                 if (success)
                 {
@@ -94,7 +82,7 @@ public class AddEPGFileRequestHandler : IRequestHandler<AddEPGFileRequest, EPGFi
                 }
                 else
                 {
-                    _logger.LogCritical("Exception EPG From Form {ex}", ex);
+                    Logger.LogCritical("Exception EPG From Form {ex}", ex);
                     return null;
                 }
             }
@@ -104,7 +92,7 @@ public class AddEPGFileRequestHandler : IRequestHandler<AddEPGFileRequest, EPGFi
                 epgFile.Url = source;
                 epgFile.LastDownloadAttempt = DateTime.Now;
 
-                _logger.LogInformation("Add EPG From URL {command.UrlSource}", command.UrlSource);
+                Logger.LogInformation("Add EPG From URL {command.UrlSource}", command.UrlSource);
                 (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(source, fullName, cancellationToken).ConfigureAwait(false);
                 if (success)
                 {
@@ -114,7 +102,7 @@ public class AddEPGFileRequestHandler : IRequestHandler<AddEPGFileRequest, EPGFi
                 else
                 {
                     ++epgFile.DownloadErrors;
-                    _logger.LogCritical("Exception EPG From URL {ex}", ex);
+                    Logger.LogCritical("Exception EPG From URL {ex}", ex);
                 }
             }
 
@@ -123,7 +111,7 @@ public class AddEPGFileRequestHandler : IRequestHandler<AddEPGFileRequest, EPGFi
             Tv? tv = await epgFile.GetTV().ConfigureAwait(false);
             if (tv == null)
             {
-                _logger.LogCritical("Exception EPG {fullName} format is not supported", fullName);
+                Logger.LogCritical("Exception EPG {fullName} format is not supported", fullName);
                 //Bad EPG
                 if (File.Exists(fullName))
                 {
@@ -135,17 +123,18 @@ public class AddEPGFileRequestHandler : IRequestHandler<AddEPGFileRequest, EPGFi
             epgFile.ChannelCount = tv.Channel != null ? tv.Channel.Count : 0;
             epgFile.ProgrammeCount = tv.Programme != null ? tv.Programme.Count : 0;
 
-            _ = _context.EPGFiles.Add(epgFile);
-            _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            Repository.EPGFile.CreateEPGFile(epgFile);
+            await Repository.SaveAsync().ConfigureAwait(false);
 
-            EPGFilesDto ret = _mapper.Map<EPGFilesDto>(epgFile);
-            await _publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
+
+            EPGFilesDto ret = Mapper.Map<EPGFilesDto>(epgFile);
+            await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
 
             return ret;
         }
         catch (Exception exception)
         {
-            _logger.LogCritical("Exception EPG From Form {exception}", exception);
+            Logger.LogCritical("Exception EPG From Form {exception}", exception);
         }
 
         return null;

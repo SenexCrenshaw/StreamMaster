@@ -1,12 +1,17 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+
+using FluentValidation;
 
 using MediatR;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Models;
+using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Attributes;
+using StreamMasterDomain.Dto;
 
 using System.Text.Json;
 
@@ -24,32 +29,29 @@ public class GetStreamGroupDiscoverValidator : AbstractValidator<GetStreamGroupD
     }
 }
 
-public class GetStreamGroupDiscoverHandler : IRequestHandler<GetStreamGroupDiscover, string>
+public class GetStreamGroupDiscoverHandler : BaseMediatorRequestHandler, IRequestHandler<GetStreamGroupDiscover, string>
 {
-    private readonly IAppDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
-
-    private IRepositoryWrapper Repository { get; }
-    public GetStreamGroupDiscoverHandler(IHttpContextAccessor httpContextAccessor, IAppDbContext context, IRepositoryWrapper repository)
+    public GetStreamGroupDiscoverHandler(IHttpContextAccessor httpContextAccessor, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender)
     {
-        Repository = repository;
-        _context = context;
         _httpContextAccessor = httpContextAccessor;
     }
 
+
     public async Task<string> Handle(GetStreamGroupDiscover request, CancellationToken cancellationToken)
     {
-        var url = GetUrl();
+        string url = GetUrl();
         if (request.StreamGroupNumber > 0)
         {
-            var streamGroup = await _context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
             if (streamGroup == null)
             {
                 return "";
             }
         }
 
-        var maxTuners = await Repository.M3UFile.GetM3UMaxStreamCountAsync();
+        int maxTuners = await Repository.M3UFile.GetM3UMaxStreamCountAsync();
         Discover discover = new(url, request.StreamGroupNumber, maxTuners);
 
         string jsonString = JsonSerializer.Serialize(discover, new JsonSerializerOptions { WriteIndented = true });
@@ -58,12 +60,12 @@ public class GetStreamGroupDiscoverHandler : IRequestHandler<GetStreamGroupDisco
 
     private string GetUrl()
     {
-        var request = _httpContextAccessor.HttpContext.Request;
-        var scheme = request.Scheme;
-        var host = request.Host;
-        var path = request.Path;
+        HttpRequest request = _httpContextAccessor.HttpContext.Request;
+        string scheme = request.Scheme;
+        HostString host = request.Host;
+        PathString path = request.Path;
         path = path.ToString().Replace("/discover.json", "");
-        var url = $"{scheme}://{host}{path}";
+        string url = $"{scheme}://{host}{path}";
 
         return url;
     }

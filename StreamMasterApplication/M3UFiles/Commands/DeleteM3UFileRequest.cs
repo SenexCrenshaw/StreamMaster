@@ -27,11 +27,11 @@ public class DeleteM3UFileRequestValidator : AbstractValidator<DeleteM3UFileRequ
     }
 }
 
-public class DeleteM3UFileHandler : BaseDBRequestHandler, IRequestHandler<DeleteM3UFileRequest, int?>
+public class DeleteM3UFileHandler : BaseMemoryRequestHandler, IRequestHandler<DeleteM3UFileRequest, int?>
 {
 
-    public DeleteM3UFileHandler(IAppDbContext context, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, context, memoryCache) { }
+    public DeleteM3UFileHandler(ILogger<ProcessM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
 
     public async Task<int?> Handle(DeleteM3UFileRequest request, CancellationToken cancellationToken = default)
     {
@@ -40,7 +40,6 @@ public class DeleteM3UFileHandler : BaseDBRequestHandler, IRequestHandler<Delete
         {
             return null;
         }
-
         Repository.M3UFile.DeleteM3UFile(m3UFile);
 
 
@@ -78,35 +77,35 @@ public class DeleteM3UFileHandler : BaseDBRequestHandler, IRequestHandler<Delete
             }
         }
 
-        var videoStreams = await Repository.VideoStream.GetAllVideoStreamsAsync().ConfigureAwait(false);
+        IQueryable<VideoStream> videoStreams = Repository.VideoStream.GetAllVideoStreams();
 
-        var targetM3UFileIdGroups = videoStreams
+        IQueryable<string> targetM3UFileIdGroups = videoStreams
             .Where(vs => vs.M3UFileId == m3UFile.Id)
             .Select(vs => vs.Tvg_group);
 
-        var otherM3UFileIdGroups = videoStreams
+        IQueryable<string> otherM3UFileIdGroups = videoStreams
             .Where(vs => vs.M3UFileId != m3UFile.Id)
             .Select(vs => vs.Tvg_group);
 
-        var groupsToDelete = targetM3UFileIdGroups.Except(otherM3UFileIdGroups).ToList();
+        List<string> groupsToDelete = targetM3UFileIdGroups.Except(otherM3UFileIdGroups).ToList();
 
-        foreach (var gtd in groupsToDelete)
+        foreach (string? gtd in groupsToDelete)
         {
-            var group = Context.ChannelGroups.Where(tg => tg.Name == gtd).FirstOrDefault();
+            ChannelGroup? group = Repository.ChannelGroup.GetAllChannelGroups().Where(tg => tg.Name == gtd).FirstOrDefault();
             if (group != null)
             {
-                Context.ChannelGroups.Remove(group);
+                Repository.ChannelGroup.DeleteChannelGroup(group);
+                await Repository.SaveAsync().ConfigureAwait(false);
             }
         }
 
-        var streams = await Context.DeleteVideoStreamsByM3UFiledId(m3UFile.Id, cancellationToken);
+        IEnumerable<VideoStream> streams = await Repository.VideoStream.DeleteVideoStreamsByM3UFiledId(m3UFile.Id, cancellationToken);
 
-        var icons = MemoryCache.Icons();
+        List<StreamMasterDomain.Dto.IconFileDto> icons = MemoryCache.Icons();
         icons.RemoveAll(a => a.FileId == m3UFile.Id);
         MemoryCache.Set(icons);
 
         await Repository.SaveAsync().ConfigureAwait(false);
-        await Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         await Publisher.Publish(new M3UFileDeletedEvent(m3UFile.Id), cancellationToken).ConfigureAwait(false);
 

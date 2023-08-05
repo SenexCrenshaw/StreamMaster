@@ -8,11 +8,11 @@ using StreamMasterInfrastructure.EF;
 
 #nullable disable
 
-namespace StreamMasterInfrastructure.EF.Migrations.Persistence
+namespace StreamMasterInfrastructure.EF.Migrations.Repository
 {
-    [DbContext(typeof(AppDbContext))]
-    [Migration("20230805001720_RemoveM3U")]
-    partial class RemoveM3U
+    [DbContext(typeof(RepositoryContext))]
+    [Migration("20230805151626_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -135,7 +135,7 @@ namespace StreamMasterInfrastructure.EF.Migrations.Persistence
 
                     b.HasKey("Id");
 
-                    b.ToTable("EPGFiles", (string)null);
+                    b.ToTable("EPGFiles");
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Repository.M3UFile", b =>
@@ -205,7 +205,7 @@ namespace StreamMasterInfrastructure.EF.Migrations.Persistence
 
                     b.HasKey("Id");
 
-                    b.ToTable("M3UFiles", (string)null);
+                    b.ToTable("M3UFiles");
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Repository.StreamGroup", b =>

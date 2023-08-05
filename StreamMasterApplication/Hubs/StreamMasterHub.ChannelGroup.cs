@@ -3,12 +3,13 @@ using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.ChannelGroups.Queries;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Hubs;
 
 public partial class StreamMasterHub : IChannelGroupHub
 {
-    public async Task AddChannelGroup(AddChannelGroupRequest request)
+    public async Task CreateChannelGroup(CreateChannelGroupRequest request)
     {
         await _mediator.Send(request).ConfigureAwait(false);
     }
@@ -23,9 +24,9 @@ public partial class StreamMasterHub : IChannelGroupHub
         return await _mediator.Send(new GetChannelGroup(id)).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<ChannelGroupDto>?> GetChannelGroups()
+    public async Task<PagedList<ChannelGroup>> GetChannelGroups(ChannelGroupParameters channelGroupParameters)
     {
-        return await _mediator.Send(new GetChannelGroups()).ConfigureAwait(false);
+        return await _mediator.Send(new GetChannelGroupsQuery(channelGroupParameters)).ConfigureAwait(false);
     }
 
     public async Task SetChannelGroupsVisible(SetChannelGroupsVisibleRequest request)
@@ -34,11 +35,6 @@ public partial class StreamMasterHub : IChannelGroupHub
     }
 
     public async Task UpdateChannelGroup(UpdateChannelGroupRequest request)
-    {
-        await _mediator.Send(request).ConfigureAwait(false);
-    }
-
-    public async Task UpdateChannelGroupOrder(UpdateChannelGroupOrderRequest request)
     {
         await _mediator.Send(request).ConfigureAwait(false);
     }

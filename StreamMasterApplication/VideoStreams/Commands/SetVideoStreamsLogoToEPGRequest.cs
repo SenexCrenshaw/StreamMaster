@@ -17,20 +17,20 @@ public class SetVideoStreamsLogoToEPGRequest : IRequest<List<VideoStreamDto>>
     public List<string> Ids { get; set; } = new List<string>();
 }
 
-public class SetVideoStreamsLogoToEPGHandler : BaseDBRequestHandler, IRequestHandler<SetVideoStreamsLogoToEPGRequest, List<VideoStreamDto>>
+public class SetVideoStreamsLogoToEPGHandler : BaseMemoryRequestHandler, IRequestHandler<SetVideoStreamsLogoToEPGRequest, List<VideoStreamDto>>
 {
 
-    public SetVideoStreamsLogoToEPGHandler(IAppDbContext context, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, context, memoryCache) { }
+    public SetVideoStreamsLogoToEPGHandler( ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
 
     public async Task<List<VideoStreamDto>> Handle(SetVideoStreamsLogoToEPGRequest request, CancellationToken cancellationToken)
     {
-        var results = new List<VideoStreamDto>();
-        var videoStreams = await Repository.VideoStream.GetAllVideoStreamsAsync().ConfigureAwait(false);
+        List<VideoStreamDto> results = new();
+        IQueryable<VideoStream> videoStreams = Repository.VideoStream.GetAllVideoStreams();
 
-        foreach (var videoStream in videoStreams)
+        foreach (VideoStream videoStream in videoStreams)
         {
-            var channelLogo = MemoryCache.GetEPGChannelByTvgId(videoStream.User_Tvg_ID);
+            string? channelLogo = MemoryCache.GetEPGChannelByTvgId(videoStream.User_Tvg_ID);
 
             if (channelLogo != null)
             {

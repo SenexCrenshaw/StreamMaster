@@ -29,12 +29,12 @@ public class UpdateM3UFileRequestValidator : AbstractValidator<UpdateM3UFileRequ
     }
 }
 
-public class UpdateM3UFileRequestHandler : BaseDBRequestHandler, IRequestHandler<UpdateM3UFileRequest, M3UFile?>
+public class UpdateM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<UpdateM3UFileRequest, M3UFile?>
 {
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
 
-    public UpdateM3UFileRequestHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IAppDbContext context, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, context, memoryCache)
+    public UpdateM3UFileRequestHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache)
     {
 
         _hubContext = hubContext;

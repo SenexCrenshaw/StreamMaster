@@ -3,12 +3,13 @@ using StreamMasterApplication.EPGFiles.Commands;
 using StreamMasterApplication.EPGFiles.Queries;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Hubs;
 
 public partial class StreamMasterHub : IEPGFileHub
 {
-    public async Task AddEPGFile(AddEPGFileRequest request)
+    public async Task CreateEPGFile(CreateEPGFileRequest request)
     {
         await _mediator.Send(request).ConfigureAwait(false);
     }
@@ -23,9 +24,9 @@ public partial class StreamMasterHub : IEPGFileHub
         return await _mediator.Send(new GetEPGFile(id)).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<EPGFilesDto>> GetEPGFiles()
+    public async Task<IEnumerable<EPGFilesDto>> GetEPGFiles(EPGFileParameters parameters)
     {
-        return await _mediator.Send(new GetEPGFiles()).ConfigureAwait(false);
+        return await _mediator.Send(new GetEPGFiles(parameters)).ConfigureAwait(false);
     }
 
     public async Task ProcessEPGFile(ProcessEPGFileRequest request)

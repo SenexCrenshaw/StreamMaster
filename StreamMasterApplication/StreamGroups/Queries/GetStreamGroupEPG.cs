@@ -37,7 +37,7 @@ public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
     }
 }
 
-public partial class GetStreamGroupEPGHandler : BaseDBRequestHandler, IRequestHandler<GetStreamGroupEPG, string>
+public partial class GetStreamGroupEPGHandler : BaseMemoryRequestHandler, IRequestHandler<GetStreamGroupEPG, string>
 {
     protected Setting _setting = FileUtil.GetSetting();
 
@@ -46,8 +46,8 @@ public partial class GetStreamGroupEPGHandler : BaseDBRequestHandler, IRequestHa
     private readonly object Lock = new();
     private int dummyCount = 0;
 
-    public GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, IAppDbContext context, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, context, memoryCache)
+    public GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache)
     {
         _httpContextAccessor = httpContextAccessor;
     }
@@ -92,7 +92,7 @@ public partial class GetStreamGroupEPGHandler : BaseDBRequestHandler, IRequestHa
         string url = _httpContextAccessor.GetUrl();
         if (request.StreamGroupNumber > 0)
         {
-            var streamGroup = await Context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
             if (streamGroup == null)
             {
                 return "";
@@ -126,10 +126,10 @@ public partial class GetStreamGroupEPGHandler : BaseDBRequestHandler, IRequestHa
                 )
                 ).ToList();
 
-            var setting = FileUtil.GetSetting();
+            Setting setting = FileUtil.GetSetting();
 
-            var icons = MemoryCache.Icons();
-            var progIcons = MemoryCache.ProgrammeIcons();
+            List<IconFileDto> icons = MemoryCache.Icons();
+            List<IconFileDto> progIcons = MemoryCache.ProgrammeIcons();
 
             _ = Parallel.ForEach(videoStreams, po, videoStream =>
             {
@@ -138,7 +138,7 @@ public partial class GetStreamGroupEPGHandler : BaseDBRequestHandler, IRequestHa
                     return;
                 }
 
-                var logo = GetIconUrl(videoStream.User_Tvg_logo);
+                string logo = GetIconUrl(videoStream.User_Tvg_logo);
 
                 TvChannel t;
 
@@ -183,7 +183,7 @@ public partial class GetStreamGroupEPGHandler : BaseDBRequestHandler, IRequestHa
                 {
                     if (videoStream.User_Tvg_ID.ToLower() == "dummy")
                     {
-                        var prog = new Programme();
+                        Programme prog = new();
 
                         prog.Channel = videoStream.User_Tvg_name;
 
@@ -222,7 +222,7 @@ public partial class GetStreamGroupEPGHandler : BaseDBRequestHandler, IRequestHa
                                         {
                                             if (progIcon != null && !string.IsNullOrEmpty(progIcon.Src))
                                             {
-                                                var programmeIcon = progIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
+                                                IconFileDto? programmeIcon = progIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
 
                                                 if (programmeIcon == null)
                                                 {
@@ -341,7 +341,7 @@ public partial class GetStreamGroupEPGHandler : BaseDBRequestHandler, IRequestHa
         if (!string.IsNullOrEmpty(_setting.DummyRegex))
         {
             Regex regex = new(_setting.DummyRegex, RegexOptions.ECMAScript | RegexOptions.IgnoreCase);
-            var test = regex.IsMatch(videoStream.User_Tvg_ID);
+            bool test = regex.IsMatch(videoStream.User_Tvg_ID);
             return test;
         }
 

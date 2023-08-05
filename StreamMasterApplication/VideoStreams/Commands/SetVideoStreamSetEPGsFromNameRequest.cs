@@ -19,23 +19,23 @@ public class SetVideoStreamSetEPGsFromNameRequest : IRequest<List<VideoStreamDto
     public List<string> Ids { get; set; } = new List<string>();
 }
 
-public class SetVideoStreamSetEPGsFromNameRequestHandler : BaseDBRequestHandler, IRequestHandler<SetVideoStreamSetEPGsFromNameRequest, List<VideoStreamDto>>
+public class SetVideoStreamSetEPGsFromNameRequestHandler : BaseMemoryRequestHandler, IRequestHandler<SetVideoStreamSetEPGsFromNameRequest, List<VideoStreamDto>>
 {
 
-    public SetVideoStreamSetEPGsFromNameRequestHandler(IAppDbContext context, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, context, memoryCache) { }
+    public SetVideoStreamSetEPGsFromNameRequestHandler( ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
 
     public async Task<List<VideoStreamDto>> Handle(SetVideoStreamSetEPGsFromNameRequest request, CancellationToken cancellationToken)
     {
-        var results = new List<VideoStreamDto>();
+        List<VideoStreamDto> results = new();
 
-        var videoStreamsRepo = await Repository.VideoStream.GetAllVideoStreamsAsync().ConfigureAwait(false);
-        var videoStreams = videoStreamsRepo.Where(a => request.Ids.Contains(a.Id));
+        IQueryable<VideoStream> videoStreamsRepo = Repository.VideoStream.GetAllVideoStreams().Where(a => request.Ids.Contains(a.Id));
+        IQueryable<VideoStream> videoStreams = videoStreamsRepo.Where(a => request.Ids.Contains(a.Id));
 
-        foreach (var videoStream in videoStreams)
+        foreach (VideoStream? videoStream in videoStreams)
         {
 
-            var test = MemoryCache.GetEPGNameTvgName(videoStream.User_Tvg_name);
+            string? test = MemoryCache.GetEPGNameTvgName(videoStream.User_Tvg_name);
             if (test is not null)
             {
                 videoStream.User_Tvg_ID = test;

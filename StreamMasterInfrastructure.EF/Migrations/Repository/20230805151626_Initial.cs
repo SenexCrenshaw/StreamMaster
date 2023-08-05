@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace StreamMasterInfrastructure.EF.Migrations
+namespace StreamMasterInfrastructure.EF.Migrations.Repository
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -58,6 +58,7 @@ namespace StreamMasterInfrastructure.EF.Migrations
                     FileExtension = table.Column<string>(type: "TEXT", nullable: false),
                     LastDownloadAttempt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     LastDownloaded = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    LastUpdated = table.Column<DateTime>(type: "TEXT", nullable: false),
                     MinimumMinutesBetweenDownloads = table.Column<int>(type: "INTEGER", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     SMFileType = table.Column<int>(type: "INTEGER", nullable: false),
@@ -70,28 +71,6 @@ namespace StreamMasterInfrastructure.EF.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_EPGFiles", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Icons",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    ContentType = table.Column<string>(type: "TEXT", nullable: false),
-                    DownloadErrors = table.Column<int>(type: "INTEGER", nullable: false),
-                    FileExists = table.Column<bool>(type: "INTEGER", nullable: false),
-                    FileExtension = table.Column<string>(type: "TEXT", nullable: false),
-                    LastDownloadAttempt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    LastDownloaded = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    MinimumMinutesBetweenDownloads = table.Column<int>(type: "INTEGER", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    SMFileType = table.Column<int>(type: "INTEGER", nullable: false),
-                    Source = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Icons", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -109,6 +88,7 @@ namespace StreamMasterInfrastructure.EF.Migrations
                     FileExtension = table.Column<string>(type: "TEXT", nullable: false),
                     LastDownloadAttempt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     LastDownloaded = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    LastUpdated = table.Column<DateTime>(type: "TEXT", nullable: false),
                     MinimumMinutesBetweenDownloads = table.Column<int>(type: "INTEGER", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     SMFileType = table.Column<int>(type: "INTEGER", nullable: false),
@@ -267,9 +247,6 @@ namespace StreamMasterInfrastructure.EF.Migrations
 
             migrationBuilder.DropTable(
                 name: "EPGFiles");
-
-            migrationBuilder.DropTable(
-                name: "Icons");
 
             migrationBuilder.DropTable(
                 name: "M3UFiles");

@@ -5,15 +5,16 @@ using FluentValidation;
 using MediatR;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Extensions;
+using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.StreamGroups.Commands;
 
@@ -41,25 +42,15 @@ public class AddStreamGroupRequestValidator : AbstractValidator<AddStreamGroupRe
     }
 }
 
-public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupRequest, StreamGroupDto?>
+public class AddStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<AddStreamGroupRequest, StreamGroupDto?>
 {
     protected Setting _setting = FileUtil.GetSetting();
-    private readonly IAppDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IMapper _mapper;
-    private readonly IPublisher _publisher;
 
-    public AddStreamGroupRequestHandler(
-        IMapper mapper,
-        IPublisher publisher,
-         IHttpContextAccessor httpContextAccessor,
-        IAppDbContext context
-        )
+    public AddStreamGroupRequestHandler(IHttpContextAccessor httpContextAccessor, ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender)
     {
-        _publisher = publisher;
-        _mapper = mapper;
         _httpContextAccessor = httpContextAccessor;
-        _context = context;
     }
 
     public async Task<StreamGroupDto?> Handle(AddStreamGroupRequest command, CancellationToken cancellationToken)
@@ -70,9 +61,9 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
         }
 
         int streamGroupNumber = 1;
-        if (_context.StreamGroups.Any())
+        if (Repository.StreamGroup.GetAllStreamGroups().Any())
         {
-            streamGroupNumber = _context.StreamGroups.Max(a => a.StreamGroupNumber) + 1;
+            streamGroupNumber = Repository.StreamGroup.GetAllStreamGroups().Max(a => a.StreamGroupNumber) + 1;
         }
 
         StreamGroup entity = new()
@@ -81,17 +72,17 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
             StreamGroupNumber = command.StreamGroupNumber,
         };
 
-        _ = _context.StreamGroups.Add(entity);
-        _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        Repository.StreamGroup.CreateStreamGroup(entity);
+        await Repository.SaveAsync().ConfigureAwait(false);
 
         if (command.ChannelGroupNames != null && command.ChannelGroupNames.Any())
         {
-            var cgs = _context.ChannelGroups.Where(a => command.ChannelGroupNames.Contains(a.Name)).ToList();
+            IQueryable<ChannelGroup> cgs = Repository.ChannelGroup.GetAllChannelGroups().Where(a => command.ChannelGroupNames.Contains(a.Name));
             if (cgs.Any())
             {
-                foreach (var cg in cgs)
+                foreach (ChannelGroup? cg in cgs)
                 {
-                    await _context.AddChannelGroupToStreamGroupAsync(entity.Id, cg.Id, cancellationToken);
+                    await Repository.StreamGroup.AddChannelGroupToStreamGroupAsync(entity.Id, cg.Id, cancellationToken);
                 }
             }
         }
@@ -109,20 +100,20 @@ public class AddStreamGroupRequestHandler : IRequestHandler<AddStreamGroupReques
         //    }
         //}
 
-        var url = _httpContextAccessor.GetUrl();
+        string url = _httpContextAccessor.GetUrl();
 
-        StreamGroupDto ret = _mapper.Map<StreamGroupDto>(entity);
-        var encodedStreamGroupNumber = ret.StreamGroupNumber.EncodeValue128(_setting.ServerKey);
+        StreamGroupDto ret = Mapper.Map<StreamGroupDto>(entity);
+        string encodedStreamGroupNumber = ret.StreamGroupNumber.EncodeValue128(_setting.ServerKey);
         ret.M3ULink = $"{url}/api/streamgroups/m3u/{encodedStreamGroupNumber}.m3u";
         ret.XMLLink = $"{url}/api/streamgroups/epg/{encodedStreamGroupNumber}.xml";
         ret.HDHRLink = $"{url}/api/streamgroups/{encodedStreamGroupNumber}";
 
-        await _publisher.Publish(new StreamGroupUpdateEvent(ret), cancellationToken).ConfigureAwait(false);
+        await Publisher.Publish(new StreamGroupUpdateEvent(ret), cancellationToken).ConfigureAwait(false);
 
-        var streamGroup = await _context.GetStreamGroupDto(ret.Id, url, cancellationToken).ConfigureAwait(false);
+        StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(ret.Id, url, cancellationToken).ConfigureAwait(false);
         if (streamGroup is not null && streamGroup.ChildVideoStreams.Any())
         {
-            await _publisher.Publish(new UpdateVideoStreamsEvent(streamGroup.ChildVideoStreams), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateVideoStreamsEvent(streamGroup.ChildVideoStreams), cancellationToken).ConfigureAwait(false);
         }
 
         return ret;

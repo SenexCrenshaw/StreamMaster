@@ -34,16 +34,13 @@ public class BaseMediatorRequestHandler : BaseRequestHandler
     }
 }
 
-public class BaseDBRequestHandler : BaseMediatorRequestHandler
+public class BaseMemoryRequestHandler : BaseMediatorRequestHandler
 {
-    protected readonly IAppDbContext Context;
     protected readonly IMemoryCache MemoryCache;
 
-    public BaseDBRequestHandler(ILogger logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IAppDbContext context, IMemoryCache memoryCache)
+    public BaseMemoryRequestHandler(ILogger logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
         : base(logger, repository, mapper, publisher, sender)
     {
-
-        Context = context;
         MemoryCache = memoryCache;
     }
 }

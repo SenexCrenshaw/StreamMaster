@@ -25,11 +25,9 @@ public class ReSetVideoStreamsLogoHandler : BaseMediatorRequestHandler, IRequest
     public async Task<List<VideoStreamDto>> Handle(ReSetVideoStreamsLogoRequest request, CancellationToken cancellationToken)
     {
 
-        var videoStreamsRepo = await Repository.VideoStream.GetAllVideoStreamsAsync().ConfigureAwait(false);
-        var videoStreams = videoStreamsRepo.Where(a => request.Ids.Contains(a.Id));
+        IQueryable<VideoStream> videoStreams = Repository.VideoStream.GetAllVideoStreams().Where(a => request.Ids.Contains(a.Id));
 
-
-        foreach (var videoStream in videoStreams)
+        foreach (VideoStream? videoStream in videoStreams)
         {
             videoStream.User_Tvg_logo = videoStream.Tvg_logo;
             Repository.VideoStream.Update(videoStream);
@@ -37,7 +35,7 @@ public class ReSetVideoStreamsLogoHandler : BaseMediatorRequestHandler, IRequest
 
         await Repository.SaveAsync().ConfigureAwait(false);
 
-        var ret = Mapper.Map<List<VideoStreamDto>>(videoStreams);
+        List<VideoStreamDto> ret = Mapper.Map<List<VideoStreamDto>>(videoStreams);
         await Publisher.Publish(new UpdateVideoStreamsEvent(ret), cancellationToken).ConfigureAwait(false);
 
         return ret;

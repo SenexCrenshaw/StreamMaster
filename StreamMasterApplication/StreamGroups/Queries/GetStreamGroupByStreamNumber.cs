@@ -1,10 +1,14 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+
+using FluentValidation;
 
 using MediatR;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Extensions;
+using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Dto;
 
@@ -21,24 +25,19 @@ public class GetStreamGroupByStreamNumberValidator : AbstractValidator<GetStream
     }
 }
 
-internal class GetStreamGroupByStreamNumberHandler : IRequestHandler<GetStreamGroupByStreamNumber, StreamGroupDto?>
+internal class GetStreamGroupByStreamNumberHandler : BaseMediatorRequestHandler, IRequestHandler<GetStreamGroupByStreamNumber, StreamGroupDto?>
 {
-    private readonly IAppDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public GetStreamGroupByStreamNumberHandler(
-        IHttpContextAccessor httpContextAccessor,
-        IAppDbContext context
-    )
+    public GetStreamGroupByStreamNumberHandler(IHttpContextAccessor httpContextAccessor, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender)
     {
         _httpContextAccessor = httpContextAccessor;
-        _context = context;
     }
 
     public async Task<StreamGroupDto?> Handle(GetStreamGroupByStreamNumber request, CancellationToken cancellationToken = default)
     {
-        var url = _httpContextAccessor.GetUrl();
-        var streamGroup = await _context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+        string url = _httpContextAccessor.GetUrl();
+        StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
 
         return streamGroup;
     }

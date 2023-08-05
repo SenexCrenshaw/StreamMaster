@@ -7,7 +7,6 @@ using StreamMasterApplication.LogApp;
 
 using StreamMasterDomain.Common;
 
-using StreamMasterInfrastructure.EF;
 using StreamMasterInfrastructure.Logging;
 using StreamMasterInfrastructure.Services;
 using StreamMasterInfrastructure.Services.Frontend.Mappers;
@@ -23,11 +22,11 @@ public static class ConfigureServices
     {
 
         // Dynamically find and register services implementing IMapHttpRequestsToDisk
-        var assembly = Assembly.GetExecutingAssembly();
-        var mapHttpRequestsToDiskImplementations = assembly.GetTypes()
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        IEnumerable<Type> mapHttpRequestsToDiskImplementations = assembly.GetTypes()
             .Where(type => typeof(IMapHttpRequestsToDisk).IsAssignableFrom(type) && !type.IsInterface);
 
-        foreach (var implementation in mapHttpRequestsToDiskImplementations)
+        foreach (Type? implementation in mapHttpRequestsToDiskImplementations)
         {
             if (implementation.Name.EndsWith("Base"))
             {
@@ -59,11 +58,7 @@ public static class ConfigureServices
         _ = services.AddDbContext<LogDbContext>(options => options.UseSqlite($"Data Source={LogDbPath}", builder => builder.MigrationsAssembly(typeof(LogDbContext).Assembly.FullName)));
         _ = services.AddScoped<LogDbContextInitialiser>();
 
-        _ = services.AddDbContext<AppDbContext>(options => options.UseSqlite($"Data Source={DbPath}", builder => builder.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
-        _ = services.AddScoped<AppDbContextInitialiser>();
-
         _ = services.AddScoped<ILogDB>(provider => provider.GetRequiredService<LogDbContext>());
-        _ = services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
 
         _ = services.AddTransient<IDateTime, DateTimeService>();
 

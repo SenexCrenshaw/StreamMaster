@@ -23,21 +23,21 @@ builder.WebHost.ConfigureKestrel((context, serverOptions) =>
     serverOptions.Limits.MaxRequestBodySize = null;
 });
 
-var settingFile = $"{BuildInfo.AppDataFolder}settings.json";
+string settingFile = $"{BuildInfo.AppDataFolder}settings.json";
 
 builder.Configuration.AddJsonFile(settingFile, true, false);
 builder.Services.Configure<Setting>(builder.Configuration);
 
-var enableSsl = false;
+bool enableSsl = false;
 
-var sslCertPath = builder.Configuration["SSLCertPath"];
-var sslCertPassword = builder.Configuration["sslCertPassword"];
+string? sslCertPath = builder.Configuration["SSLCertPath"];
+string? sslCertPassword = builder.Configuration["sslCertPassword"];
 
 if (!bool.TryParse(builder.Configuration["EnableSSL"], out enableSsl))
 {
 }
 
-var urls = new List<string> { "http://0.0.0.0:7095" };
+List<string> urls = new() { "http://0.0.0.0:7095" };
 
 if (enableSsl && !string.IsNullOrEmpty(sslCertPath))
 {
@@ -112,7 +112,7 @@ using (IServiceScope scope = app.Services.CreateScope())
         logInitialiser.TrySeed();
     }
 
-    AppDbContextInitialiser initialiser = scope.ServiceProvider.GetRequiredService<AppDbContextInitialiser>();
+    RepositoryContextInitializer initialiser = scope.ServiceProvider.GetRequiredService<RepositoryContextInitializer>();
     await initialiser.InitialiseAsync().ConfigureAwait(false);
     if (app.Environment.IsDevelopment())
     {
@@ -154,11 +154,11 @@ app.Map("/swagger", context =>
 
 app.MapGet("/routes", async context =>
 {
-    var endpointDataSource = context.RequestServices.GetRequiredService<EndpointDataSource>();
+    EndpointDataSource endpointDataSource = context.RequestServices.GetRequiredService<EndpointDataSource>();
 
-    foreach (var endpoint in endpointDataSource.Endpoints)
+    foreach (Endpoint endpoint in endpointDataSource.Endpoints)
     {
-        var routePattern = GetRoutePattern(endpoint);
+        string routePattern = GetRoutePattern(endpoint);
 
         await context.Response.WriteAsync($"Route: {routePattern}\n");
     }
@@ -170,7 +170,7 @@ app.Run();
 
 static string GetRoutePattern(Endpoint endpoint)
 {
-    var routeEndpoint = endpoint as RouteEndpoint;
+    RouteEndpoint? routeEndpoint = endpoint as RouteEndpoint;
 
     if (routeEndpoint is not null && routeEndpoint.RoutePattern is not null && routeEndpoint.RoutePattern.RawText is not null)
     {

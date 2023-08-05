@@ -1,25 +1,24 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.EPGFiles.Commands;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Repository;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.EPGFiles;
 
 public interface IEPGFileController
 {
-    Task<ActionResult> AddEPGFile(AddEPGFileRequest request);
+    Task<ActionResult> CreateEPGFile(CreateEPGFileRequest request);
 
-    Task<ActionResult> AddEPGFileFromForm([FromForm] AddEPGFileRequest request);
+    Task<ActionResult> CreateEPGFileFromForm([FromForm] CreateEPGFileRequest request);
 
 
     Task<ActionResult> DeleteEPGFile(DeleteEPGFileRequest request);
 
     Task<ActionResult<EPGFilesDto>> GetEPGFile(int id);
 
-    Task<ActionResult<IEnumerable<EPGFilesDto>>> GetEPGFiles();
+    Task<ActionResult<IEnumerable<EPGFilesDto>>> GetEPGFiles(EPGFileParameters parameters);
 
     Task<ActionResult> ProcessEPGFile(ProcessEPGFileRequest request);
 
@@ -32,18 +31,18 @@ public interface IEPGFileController
 
 public interface IEPGFileDB
 {
-    DbSet<EPGFile> EPGFiles { get; set; }
+
 }
 
 public interface IEPGFileHub
 {
-    Task AddEPGFile(AddEPGFileRequest request);
+    Task CreateEPGFile(CreateEPGFileRequest request);
 
     Task DeleteEPGFile(DeleteEPGFileRequest request);
 
     Task<EPGFilesDto?> GetEPGFile(int id);
 
-    Task<IEnumerable<EPGFilesDto>> GetEPGFiles();
+    Task<IEnumerable<EPGFilesDto>> GetEPGFiles(EPGFileParameters parameters);
 
     Task ProcessEPGFile(ProcessEPGFileRequest request);
 

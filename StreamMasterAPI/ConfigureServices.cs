@@ -97,7 +97,7 @@ public static class ConfigureServices
 
         _ = services.AddHttpContextAccessor();
 
-        _ = services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
+        _ = services.AddHealthChecks().AddDbContextCheck<RepositoryContext>();
 
         _ = services.AddFluentValidationAutoValidation();
 
@@ -160,7 +160,7 @@ public static class ConfigureServices
         _ = services.AddSignalR();//.AddMessagePackProtocol();
 
         services.AddDataProtection()
-             .PersistKeysToDbContext<AppDbContext>();
+             .PersistKeysToDbContext<RepositoryContext>();
 
         services.AddSingleton<IAuthorizationPolicyProvider, UiAuthorizationPolicyProvider>();
 

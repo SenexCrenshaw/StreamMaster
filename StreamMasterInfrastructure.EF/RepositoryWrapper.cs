@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 
+using MediatR;
+
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterDomain.Repository;
@@ -9,18 +11,57 @@ namespace StreamMasterInfrastructure.EF
 {
     public class RepositoryWrapper : IRepositoryWrapper
     {
-        private RepositoryContext _repoContext;
-        private ISortHelper<M3UFile> _m3uFileSortHelper;
+        private readonly RepositoryContext _repoContext;
+        private readonly ISortHelper<M3UFile> _m3uFileSortHelper;
+        private readonly ISortHelper<VideoStream> _videoStreamSortHelper;
+        private readonly ISortHelper<ChannelGroup> _channelGroupSortHelper;
+        private readonly ISortHelper<StreamGroup> _streamGroupSortHelper;
+        private readonly ISortHelper<EPGFile> _epgFileSortHelper;
         private readonly IMapper _mapper;
+        private readonly ISender _sender;
         private readonly IMemoryCache _memoryCache;
-        ISortHelper<VideoStream> _videoStreamSortHelper;
-        public RepositoryWrapper(RepositoryContext repositoryContext, ISortHelper<M3UFile> m3uFileSortHelper, ISortHelper<VideoStream> videoStreamSortHelper, IMapper mapper, IMemoryCache memoryCache)
+
+        public RepositoryWrapper(RepositoryContext repositoryContext, ISortHelper<EPGFile> epgGFileSortHelper, ISortHelper<StreamGroup> streamGroupSortHelper, ISortHelper<M3UFile> m3uFileSortHelper, ISortHelper<VideoStream> videoStreamSortHelper, ISortHelper<ChannelGroup> channelGroupSortHelper, IMapper mapper, IMemoryCache memoryCache, ISender sender)
         {
             _repoContext = repositoryContext;
             _m3uFileSortHelper = m3uFileSortHelper;
             _videoStreamSortHelper = videoStreamSortHelper;
+            _channelGroupSortHelper = channelGroupSortHelper;
+            _streamGroupSortHelper = streamGroupSortHelper;
+            _epgFileSortHelper = epgGFileSortHelper;
             _mapper = mapper;
             _memoryCache = memoryCache;
+            _sender = sender;
+        }
+
+        private IStreamGroupRepository _streamGroup;
+
+        public IStreamGroupRepository StreamGroup
+        {
+            get
+            {
+                if (_streamGroup == null)
+                {
+                    _streamGroup = new StreamGroupRepository(_repoContext, _streamGroupSortHelper, _mapper, _memoryCache, _sender);
+                }
+                return _streamGroup;
+
+            }
+        }
+
+        private IChannelGroupRepository _channelGroup;
+
+        public IChannelGroupRepository ChannelGroup
+        {
+            get
+            {
+                if (_channelGroup == null)
+                {
+                    _channelGroup = new ChannelGroupRepository(_repoContext, _channelGroupSortHelper, _mapper, _memoryCache, _sender);
+                }
+                return _channelGroup;
+
+            }
         }
 
         private IM3UFileRepository _m3uFile;
@@ -38,6 +79,20 @@ namespace StreamMasterInfrastructure.EF
             }
         }
 
+        private IEPGFileRepository _epgFile;
+
+        public IEPGFileRepository EPGFile
+        {
+            get
+            {
+                if (_epgFile == null)
+                {
+                    _epgFile = new EPGFileRepository(_repoContext, _epgFileSortHelper);
+                }
+                return _epgFile;
+
+            }
+        }
 
         private IVideoStreamRepository _videoStream;
 
@@ -47,7 +102,7 @@ namespace StreamMasterInfrastructure.EF
             {
                 if (_videoStream == null)
                 {
-                    _videoStream = new VideoStreamRepository(_repoContext, _videoStreamSortHelper, _mapper, _memoryCache);
+                    _videoStream = new VideoStreamRepository(_repoContext, _videoStreamSortHelper, _mapper, _memoryCache, _sender);
                 }
                 return _videoStream;
 
@@ -55,9 +110,9 @@ namespace StreamMasterInfrastructure.EF
         }
 
 
-        public async Task SaveAsync()
+        public async Task<int> SaveAsync()
         {
-            await _repoContext.SaveChangesAsync();
+            return await _repoContext.SaveChangesAsync();
         }
     }
 }

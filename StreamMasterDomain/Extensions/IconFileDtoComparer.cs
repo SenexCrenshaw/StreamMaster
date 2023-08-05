@@ -1,6 +1,6 @@
 ﻿using StreamMasterDomain.Dto;
 
-namespace StreamMasterInfrastructure.EF;
+namespace StreamMasterDomain.Extensions;
 
 public class IconFileDtoComparer : IEqualityComparer<IconFileDto>
 {

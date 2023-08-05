@@ -6,11 +6,12 @@ using MediatR;
 
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Hubs;
+using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Repository;
 using StreamMasterDomain.Repository.EPG;
 
 using System.ComponentModel.DataAnnotations;
@@ -20,47 +21,35 @@ namespace StreamMasterApplication.EPGFiles.Commands;
 public class ProcessEPGFileRequest : IRequest<EPGFilesDto?>
 {
     [Required]
-    public int EPGFileId { get; set; }
+    public int Id { get; set; }
 }
 
 public class ProcessEPGFileRequestValidator : AbstractValidator<ProcessEPGFileRequest>
 {
     public ProcessEPGFileRequestValidator()
     {
-        _ = RuleFor(v => v.EPGFileId)
+        _ = RuleFor(v => v.Id)
             .NotNull()
             .GreaterThanOrEqualTo(0);
     }
 }
 
-public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileRequest, EPGFilesDto?>
+public class ProcessEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<ProcessEPGFileRequest, EPGFilesDto?>
 {
-    private readonly IAppDbContext _context;
+
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
     private readonly IPublisher _publisher;
 
-    public ProcessEPGFileRequestHandler(
-           IPublisher publisher,
-        IAppDbContext context,
-        IMapper mapper,
-      IHubContext<StreamMasterHub, IStreamMasterHub> hubContext,
-        IMemoryCache memoryCache
-    )
-    {
-        _hubContext = hubContext;
-        _publisher = publisher;
-        _context = context;
-        _mapper = mapper;
-        _memoryCache = memoryCache;
-    }
+    public ProcessEPGFileRequestHandler(ILogger<ProcessM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
 
-    public async Task<EPGFilesDto?> Handle(ProcessEPGFileRequest command, CancellationToken cancellationToken)
+    public async Task<EPGFilesDto?> Handle(ProcessEPGFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            EPGFile? epgFile = await _context.EPGFiles.FindAsync(new object?[] { command.EPGFileId }, cancellationToken: cancellationToken).ConfigureAwait(false);
+            EPGFile? epgFile = await Repository.EPGFile.GetEPGFileByIdAsync(request.Id).ConfigureAwait(false);
             if (epgFile == null)
             {
                 return null;
@@ -71,8 +60,11 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
             {
                 epgFile.ChannelCount = tv.Channel != null ? tv.Channel.Count : 0;
                 epgFile.ProgrammeCount = tv.Programme != null ? tv.Programme.Count : 0;
+
             }
-            _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+            Repository.EPGFile.UpdateEPGFile(epgFile);
+            await Repository.SaveAsync().ConfigureAwait(false);
 
             await AddProgrammesFromEPG(epgFile, cancellationToken);
 
@@ -136,7 +128,8 @@ public class ProcessEPGFileRequestHandler : IRequestHandler<ProcessEPGFileReques
             return;
         }
 
-        var needsEpgName = _context.EPGFiles.Count() > 1;
+        IEnumerable<EPGFile> epgs = await Repository.EPGFile.GetAllEPGFilesAsync();
+        bool needsEpgName = epgs.Count() > 1;
 
         foreach (Programme p in epg.Programme)
         {

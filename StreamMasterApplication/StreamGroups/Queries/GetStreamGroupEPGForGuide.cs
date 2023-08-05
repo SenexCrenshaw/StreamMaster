@@ -42,7 +42,7 @@ public class GetStreamGroupEPGForGuideValidator : AbstractValidator<GetStreamGro
     }
 }
 
-public partial class GetStreamGroupEPGForGuideHandler : BaseDBRequestHandler, IRequestHandler<GetStreamGroupEPGForGuide, EPGGuide>
+public partial class GetStreamGroupEPGForGuideHandler : BaseMemoryRequestHandler, IRequestHandler<GetStreamGroupEPGForGuide, EPGGuide>
 {
 
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -50,8 +50,8 @@ public partial class GetStreamGroupEPGForGuideHandler : BaseDBRequestHandler, IR
     private readonly object Lock = new();
     private int dummyCount = 0;
 
-    public GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpContextAccessor, IAppDbContext context, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, context, memoryCache)
+    public GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpContextAccessor,  ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache)
     {
         _httpContextAccessor = httpContextAccessor;
     }
@@ -63,7 +63,7 @@ public partial class GetStreamGroupEPGForGuideHandler : BaseDBRequestHandler, IR
         IEnumerable<VideoStreamDto> videoStreams;
         if (request.StreamGroupNumber > 0)
         {
-            var streamGroup = await Context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
             if (streamGroup == null)
             {
                 return new()
@@ -110,10 +110,10 @@ public partial class GetStreamGroupEPGForGuideHandler : BaseDBRequestHandler, IR
             //ret.StartDate = programmes.Min(a => a.StartDateTime);
             //ret.EndDate = programmes.Max(a => a.StopDateTime);
 
-            var icons = MemoryCache.Icons();
-            var setting = FileUtil.GetSetting();
+            List<IconFileDto> icons = MemoryCache.Icons();
+            Setting setting = FileUtil.GetSetting();
 
-            var progIcons = icons.Where(a => a.SMFileType == SMFileTypes.ProgrammeIcon).ToList();
+            List<IconFileDto> progIcons = icons.Where(a => a.SMFileType == SMFileTypes.ProgrammeIcon).ToList();
 
             _ = Parallel.ForEach(videoStreams, po, videoStream =>
             {
@@ -159,7 +159,7 @@ public partial class GetStreamGroupEPGForGuideHandler : BaseDBRequestHandler, IR
                 {
                     if (videoStream.User_Tvg_ID.ToLower() == "dummy")
                     {
-                        var prog = new Programme();
+                        Programme prog = new();
                         prog.Channel = videoStream.User_Tvg_ID + "-" + dummy;
 
                         prog.Title = new TvTitle
@@ -194,7 +194,7 @@ public partial class GetStreamGroupEPGForGuideHandler : BaseDBRequestHandler, IR
                                         {
                                             if (progIcon != null && !string.IsNullOrEmpty(progIcon.Src))
                                             {
-                                                var programmeIcon = progIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
+                                                IconFileDto? programmeIcon = progIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
 
                                                 if (programmeIcon == null)
                                                 {
@@ -229,17 +229,16 @@ public partial class GetStreamGroupEPGForGuideHandler : BaseDBRequestHandler, IR
 
     private static EPGProgram GetEPGProgramFromProgramme(Programme programme, string videoStreamId)
     {
-        var largest = 0;
+        int largest = 0;
         TvIcon? Icon = null;
 
-        foreach (var icon in programme.Icon)
+        foreach (TvIcon icon in programme.Icon)
         {
-            int w, h = 0;
 
-            int.TryParse(icon.Width, out w);
-            int.TryParse(icon.Height, out h);
+            int.TryParse(icon.Width, out int w);
+            int.TryParse(icon.Height, out int h);
 
-            var res = w * h;
+            int res = w * h;
 
             if (res > largest)
             {

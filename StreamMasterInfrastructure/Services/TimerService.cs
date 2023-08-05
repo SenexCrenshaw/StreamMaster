@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.EPGFiles.Commands;
 using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.Settings.Queries;
@@ -73,7 +72,7 @@ public class TimerService : IHostedService, IDisposable
         using IServiceScope scope = _serviceProvider.CreateScope();
         IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-        SystemStatus status = new SystemStatus { IsSystemReady = _memoryCache.IsSystemReady() };
+        SystemStatus status = new() { IsSystemReady = _memoryCache.IsSystemReady() };
 
         if (!status.IsSystemReady)
         {
@@ -84,8 +83,6 @@ public class TimerService : IHostedService, IDisposable
             return;
         }
 
-
-        IAppDbContext context = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
         IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
 
         //_logger.LogInformation("Timer Service is working.");
@@ -95,7 +92,8 @@ public class TimerService : IHostedService, IDisposable
         List<EPGFile> epgFiles = new();
         List<M3UFile> m3uFiles = new();
 
-        IQueryable<EPGFile> epgFilesToUpdated = context.EPGFiles.Where(a => a.AutoUpdate && string.IsNullOrEmpty(a.Url));
+        IEnumerable<EPGFile> epgFilesRepo = await repository.EPGFile.GetAllEPGFilesAsync();
+        IEnumerable<EPGFile> epgFilesToUpdated = epgFilesRepo.Where(a => a.AutoUpdate && string.IsNullOrEmpty(a.Url));
         foreach (EPGFile? epgFile in epgFilesToUpdated)
         {
             string epgPath = Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source);
@@ -110,11 +108,15 @@ public class TimerService : IHostedService, IDisposable
             }
             epgFiles.Add(epgFile);
         }
-        epgFiles.AddRange(context.EPGFiles.Where(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < now));
 
-        var m3uFilesRepo = await repository.M3UFile.GetAllM3UFilesAsync();
+        epgFilesRepo = await repository.EPGFile.GetAllEPGFilesAsync();
+        epgFilesToUpdated = epgFilesRepo.Where(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < now);
+        epgFiles.AddRange(epgFilesToUpdated);
 
-        var m3uFilesToUpdated = m3uFilesRepo.Where(a => a.AutoUpdate && string.IsNullOrEmpty(a.Url));
+        //   epgFiles.AddRange(context.EPGFiles.Where(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < now));
+
+        IEnumerable<M3UFile> m3uFilesRepo = await repository.M3UFile.GetAllM3UFilesAsync();
+        IEnumerable<M3UFile> m3uFilesToUpdated = m3uFilesRepo.Where(a => a.AutoUpdate && string.IsNullOrEmpty(a.Url));
         foreach (M3UFile? m3uFile in m3uFilesToUpdated)
         {
             string m3uPath = Path.Combine(FileDefinitions.M3U.DirectoryLocation, m3uFile.Source);
@@ -130,6 +132,7 @@ public class TimerService : IHostedService, IDisposable
             m3uFiles.Add(m3uFile);
         }
 
+        m3uFilesRepo = await repository.M3UFile.GetAllM3UFilesAsync();
         m3uFilesToUpdated = m3uFilesRepo.Where(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < now);
         m3uFiles.AddRange(m3uFilesToUpdated);
 
@@ -138,7 +141,7 @@ public class TimerService : IHostedService, IDisposable
             _logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFiles.Count());
             foreach (EPGFile epgFile in epgFiles)
             {
-                _ = await mediator.Send(new RefreshEPGFileRequest { EPGFileID = epgFile.Id }, cancellationToken).ConfigureAwait(false);
+                _ = await mediator.Send(new RefreshEPGFileRequest { Id = epgFile.Id }, cancellationToken).ConfigureAwait(false);
             }
         }
 

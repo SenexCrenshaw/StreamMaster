@@ -8,11 +8,11 @@ public class ScanDirectoryForIconFilesRequest : IRequest<bool>
 
 public class ScanDirectoryForIconFilesRequestHandler : IRequestHandler<ScanDirectoryForIconFilesRequest, bool>
 {
-    private readonly IAppDbContext _context;
+   
 
-    public ScanDirectoryForIconFilesRequestHandler(IAppDbContext context)
+    public ScanDirectoryForIconFilesRequestHandler()
     {
-        _context = context;
+        
     }
 
     public async Task<bool> Handle(ScanDirectoryForIconFilesRequest command, CancellationToken cancellationToken)

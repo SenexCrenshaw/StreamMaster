@@ -1,11 +1,14 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+
+using FluentValidation;
 
 using MediatR;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Models;
+using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Attributes;
 
@@ -25,26 +28,20 @@ public class GetStreamGroupLineUpStatusValidator : AbstractValidator<GetStreamGr
     }
 }
 
-public class GetStreamGroupLineUpStatusHandler : IRequestHandler<GetStreamGroupLineUpStatus, string>
+public class GetStreamGroupLineUpStatusHandler : BaseRequestHandler, IRequestHandler<GetStreamGroupLineUpStatus, string>
 {
-    private readonly IAppDbContext _context;
+   
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public GetStreamGroupLineUpStatusHandler(
-         IHttpContextAccessor httpContextAccessor,
-        IAppDbContext context
-    )
-    {
-        _httpContextAccessor = httpContextAccessor;
-        _context = context;
-    }
+    public GetStreamGroupLineUpStatusHandler(ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper)
+        : base(logger, repository, mapper) { }
 
     public async Task<string> Handle(GetStreamGroupLineUpStatus request, CancellationToken cancellationToken)
     {
         if (request.StreamGroupNumber > 0)
         {
-            var streamGroupExists = await _context.StreamGroups.AnyAsync(x => x.StreamGroupNumber == request.StreamGroupNumber, cancellationToken).ConfigureAwait(false);
-            if (!streamGroupExists)
+            IQueryable<StreamGroup> streamGroupExists = Repository.StreamGroup.GetAllStreamGroups().Where(x => x.StreamGroupNumber == request.StreamGroupNumber);
+            if (!streamGroupExists.Any())
             {
                 return "";
             }

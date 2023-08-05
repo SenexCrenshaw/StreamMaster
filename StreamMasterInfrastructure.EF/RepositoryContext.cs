@@ -1,26 +1,34 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructure.EF
 {
-    public class RepositoryContext : DbContext
+    public class RepositoryContext : DbContext, IDataProtectionKeyContext
     {
         public RepositoryContext(DbContextOptions<RepositoryContext> options)
           : base(options)
         {
-            DbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster2.db");
+            DbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster.db");
         }
         public string DbPath { get; }
+        public DbSet<EPGFile> EPGFiles { get; set; }
         public DbSet<M3UFile> M3UFiles { get; set; }
         public DbSet<VideoStreamLink> VideoStreamLinks { get; set; }
-
+        public DbSet<ChannelGroup> ChannelGroups { get; set; }
         public DbSet<VideoStream> VideoStreams { get; set; }
+
+        public DbSet<StreamGroupChannelGroup> StreamGroupChannelGroups { get; set; }
+        public DbSet<StreamGroup> StreamGroups { get; set; }
+        public DbSet<StreamGroupVideoStream> StreamGroupVideoStreams { get; set; }
+
+        public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new Configurations.StreamGroupVideoStreamConfiguration());
-            modelBuilder.ApplyConfiguration(new Configurations.VideoStreamLinkConfiguration());
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(RepositoryContext).Assembly);
             base.OnModelCreating(modelBuilder);
 
         }

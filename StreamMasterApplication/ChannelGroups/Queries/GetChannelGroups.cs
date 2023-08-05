@@ -1,38 +1,26 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
 
 using MediatR;
 
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
-using StreamMasterDomain.Dto;
+using StreamMasterApplication.M3UFiles.Commands;
+
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.ChannelGroups.Queries;
 
-public record GetChannelGroups : IRequest<IEnumerable<ChannelGroupDto>>;
+public record GetChannelGroupsQuery(ChannelGroupParameters Parameters) : IRequest<PagedList<ChannelGroup>>;
 
-internal class GetChannelGroupsHandler : IRequestHandler<GetChannelGroups, IEnumerable<ChannelGroupDto>>
+internal class GetChannelGroupsQueryHandler : BaseMediatorRequestHandler, IRequestHandler<GetChannelGroupsQuery, PagedList<ChannelGroup>>
 {
-    private readonly IAppDbContext _context;
-    private readonly IMapper _mapper;
 
-    public GetChannelGroupsHandler(
-         IAppDbContext context,
-         IMapper mapper
-    )
+    public GetChannelGroupsQueryHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender) { }
+
+    public async Task<PagedList<ChannelGroup>> Handle(GetChannelGroupsQuery request, CancellationToken cancellationToken)
     {
-        _context = context;
-        _mapper = mapper;
-    }
+        return await Repository.ChannelGroup.GetChannelGroupsAsync(request.Parameters).ConfigureAwait(false);
 
-    public async Task<IEnumerable<ChannelGroupDto>> Handle(GetChannelGroups request, CancellationToken cancellationToken)
-    {
-        List<ChannelGroupDto> ret = await _context.ChannelGroups
-            .AsNoTracking()
-            .ProjectTo<ChannelGroupDto>(_mapper.ConfigurationProvider)
-            .OrderBy(x => x.Name)
-            .ToListAsync(cancellationToken).ConfigureAwait(false);
-
-        return ret;
     }
 }

@@ -31,18 +31,13 @@ public class DeleteVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequ
 
     public async Task<string?> Handle(DeleteVideoStreamRequest request, CancellationToken cancellationToken)
     {
-        var videostream = await Repository.VideoStream.GetVideoStreamByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
-        if (videostream == null)
+
+        if (await Repository.VideoStream.DeleteVideoStreamAsync(request.Id, cancellationToken).ConfigureAwait(false))
         {
-            return null;
+            await Publisher.Publish(new DeleteVideoStreamEvent(request.Id), cancellationToken).ConfigureAwait(false);
+            return request.Id;
         }
 
-        Repository.VideoStream.Delete(videostream);
-        await Repository.SaveAsync().ConfigureAwait(false);
-
-
-        await Publisher.Publish(new DeleteVideoStreamEvent(request.Id), cancellationToken).ConfigureAwait(false);
-        return request.Id;
-
+        return null;
     }
 }

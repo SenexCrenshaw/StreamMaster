@@ -3,42 +3,35 @@
 using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+
+using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Repository;
 using StreamMasterDomain.Repository.EPG;
 
 namespace StreamMasterApplication.EPGFiles.Queries;
 
 public record GetEPGFile(int Id) : IRequest<EPGFilesDto?>;
 
-internal class GetEPGFileHandler : IRequestHandler<GetEPGFile, EPGFilesDto?>
+internal class GetEPGFileHandler : BaseMemoryRequestHandler, IRequestHandler<GetEPGFile, EPGFilesDto?>
 {
-    private readonly IAppDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IMemoryCache _memoryCache;
 
-    public GetEPGFileHandler(
-         IMapper mapper,
-        IMemoryCache memoryCache,
-        IAppDbContext context)
-    {
-        _memoryCache = memoryCache;
-        _mapper = mapper;
-        _context = context;
-    }
+
+    public GetEPGFileHandler(ILogger<ProcessM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
 
     public async Task<EPGFilesDto?> Handle(GetEPGFile request, CancellationToken cancellationToken = default)
     {
-        EPGFile? EPGFile = await _context.EPGFiles.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken).ConfigureAwait(false);
-        if (EPGFile == null)
+        EPGFile? epgFile = await Repository.EPGFile.GetEPGFileByIdAsync(request.Id).ConfigureAwait(false);
+        if (epgFile == null)
         {
             return null;
         }
 
-        EPGFilesDto ret = _mapper.Map<EPGFilesDto>(EPGFile);
+        EPGFilesDto ret = Mapper.Map<EPGFilesDto>(epgFile);
 
-        List<Programme> proprammes = _memoryCache.Programmes().Where(a => a.EPGFileId == EPGFile.Id).ToList();
+        List<Programme> proprammes = MemoryCache.Programmes().Where(a => a.EPGFileId == epgFile.Id).ToList();
         if (proprammes.Any())
         {
             ret.EPGStartDate = proprammes.Min(a => a.StartDateTime);

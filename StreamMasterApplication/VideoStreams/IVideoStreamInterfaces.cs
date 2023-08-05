@@ -47,33 +47,33 @@ public interface IVideoStreamDB
 {
 
 
-    Task<bool> BuildIconsCacheFromVideoStreams(CancellationToken cancellationToken);
+    //Task<bool> BuildIconsCacheFromVideoStreams(CancellationToken cancellationToken);
 
-    Task<bool> CacheIconsFromVideoStreams(CancellationToken cancellationToken);
+    //Task<bool> CacheIconsFromVideoStreams(CancellationToken cancellationToken);
 
-    Task<bool> DeleteVideoStreamAsync(string videoStreamId, CancellationToken cancellationToken);
+    //Task<bool> DeleteVideoStreamAsync(string videoStreamId, CancellationToken cancellationToken);
 
-    Task<int> DeleteVideoStreamsAsync(List<VideoStream> videoStreams, CancellationToken cancellationToken);
+    //Task<int> DeleteVideoStreamsAsync(List<VideoStream> videoStreams, CancellationToken cancellationToken);
 
-    public Task<List<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken);
+    //public Task<List<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken);
 
-    Task<List<VideoStream>> GetAllVideoStreamsWithChildrenAsync(CancellationToken cancellationToken);
+    //Task<List<VideoStream>> GetAllVideoStreamsWithChildrenAsync(CancellationToken cancellationToken);
 
-    Task<string> GetAvailableID();
+    //Task<string> GetAvailableID();
 
-    Task<M3UFileIdMaxStream?> GetM3UFileIdMaxStreamFromUrl(string Url);
+    //Task<M3UFileIdMaxStream?> GetM3UFileIdMaxStreamFromUrl(string Url);
 
-    Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(string videoStreamId, CancellationToken cancellationToken = default);
+    //Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(string videoStreamId, CancellationToken cancellationToken = default);
 
-    Task<VideoStreamDto> GetVideoStreamDto(string videoStreamId, CancellationToken cancellationToken);
+    //Task<VideoStreamDto> GetVideoStreamDto(string videoStreamId, CancellationToken cancellationToken);
 
-    Task<List<VideoStreamDto>> GetVideoStreamsDto(CancellationToken cancellationToken);
+    //Task<List<VideoStreamDto>> GetVideoStreamsDto(CancellationToken cancellationToken);
 
-    Task<List<VideoStream>> GetVideoStreamsForParentAsync(string parentVideoStreamId, CancellationToken cancellationToken);
+    //Task<List<VideoStream>> GetVideoStreamsForParentAsync(string parentVideoStreamId, CancellationToken cancellationToken);
 
-    //Task<bool> SynchronizeChildRelationships(VideoStream videoStream, List<ChildVideoStreamDto> videoStreamDtos, CancellationToken cancellationToken);
+    ////Task<bool> SynchronizeChildRelationships(VideoStream videoStream, List<ChildVideoStreamDto> videoStreamDtos, CancellationToken cancellationToken);
 
-    Task<VideoStreamDto?> UpdateVideoStreamAsync(UpdateVideoStreamRequest request, CancellationToken cancellationToken);
+    //Task<VideoStreamDto?> UpdateVideoStreamAsync(UpdateVideoStreamRequest request, CancellationToken cancellationToken);
 }
 
 public interface IVideoStreamHub

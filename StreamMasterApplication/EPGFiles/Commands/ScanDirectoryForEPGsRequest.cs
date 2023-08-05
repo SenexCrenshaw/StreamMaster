@@ -2,11 +2,11 @@
 
 using MediatR;
 
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+
+using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
@@ -14,28 +14,15 @@ public class ScanDirectoryForEPGFilesRequest : IRequest<bool>
 {
 }
 
-public class ScanDirectoryForEPGFilesRequestHandler : IRequestHandler<ScanDirectoryForEPGFilesRequest, bool>
+public class ScanDirectoryForEPGFilesRequestHandler : BaseMediatorRequestHandler, IRequestHandler<ScanDirectoryForEPGFilesRequest, bool>
 {
-    private readonly IAppDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IMemoryCache _memoryCache;
-    private readonly IPublisher _publisher;
 
-    public ScanDirectoryForEPGFilesRequestHandler(
-         IPublisher publisher,
-          IMemoryCache memoryCache,
-          IMapper mapper,
-         IAppDbContext context)
-    {
-        _publisher = publisher;
-        _mapper = mapper;
-        _memoryCache = memoryCache;
-        _context = context;
-    }
+    public ScanDirectoryForEPGFilesRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender) { }
 
     public async Task<bool> Handle(ScanDirectoryForEPGFilesRequest command, CancellationToken cancellationToken)
     {
-        var fd = FileDefinitions.EPG;
+        FileDefinition fd = FileDefinitions.EPG;
 
         DirectoryInfo EPGDirInfo = new(fd.DirectoryLocation);
 
@@ -44,7 +31,7 @@ public class ScanDirectoryForEPGFilesRequestHandler : IRequestHandler<ScanDirect
             MatchCasing = MatchCasing.CaseInsensitive
         };
 
-        var files = EPGDirInfo.GetFiles("*.*", SearchOption.AllDirectories)
+        IEnumerable<FileInfo> files = EPGDirInfo.GetFiles("*.*", SearchOption.AllDirectories)
            .Where(s => s.FullName.ToLower().EndsWith(fd.FileExtension.ToLower()) || s.FullName.ToLower().EndsWith(fd.FileExtension + ".gz".ToLower()));
 
         foreach (FileInfo EPGFileInfo in files)
@@ -59,7 +46,7 @@ public class ScanDirectoryForEPGFilesRequestHandler : IRequestHandler<ScanDirect
                 continue;
             }
 
-            EPGFile? epgFile = await _context.EPGFiles.FirstOrDefaultAsync(a => a.Source.ToLower().Equals(EPGFileInfo.Name.ToLower()), cancellationToken: cancellationToken).ConfigureAwait(false);
+            EPGFile? epgFile = await Repository.EPGFile.GetEPGFileBySourceAsync(EPGFileInfo.Name).ConfigureAwait(false);
 
             if (epgFile == null)
             {
@@ -84,18 +71,20 @@ public class ScanDirectoryForEPGFilesRequestHandler : IRequestHandler<ScanDirect
 
                 epgFile.SetFileDefinition(FileDefinitions.EPG);
 
-                _ = _context.EPGFiles.Add(epgFile);
-                _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                Repository.EPGFile.CreateEPGFile(epgFile);
+                await Repository.SaveAsync().ConfigureAwait(false);
+
             }
 
             if (string.IsNullOrEmpty(epgFile.Url))
             {
                 epgFile.LastDownloaded = EPGFileInfo.LastWriteTime;
-                _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                Repository.EPGFile.UpdateEPGFile(epgFile);
+                await Repository.SaveAsync().ConfigureAwait(false);
             }
 
-            EPGFilesDto ret = _mapper.Map<EPGFilesDto>(epgFile);
-            await _publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
+            EPGFilesDto ret = Mapper.Map<EPGFilesDto>(epgFile);
+            await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
         }
 
         return true;

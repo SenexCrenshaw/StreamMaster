@@ -36,15 +36,15 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
     }
 }
 
-public class GetStreamGroupM3UHandler : BaseDBRequestHandler, IRequestHandler<GetStreamGroupM3U, string>
+public class GetStreamGroupM3UHandler : BaseMemoryRequestHandler, IRequestHandler<GetStreamGroupM3U, string>
 {
 
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     private readonly Setting _setting;
 
-    public GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, IAppDbContext context, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, context, memoryCache)
+    public GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,  ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache)
     {
         _httpContextAccessor = httpContextAccessor;
     }
@@ -90,7 +90,7 @@ public class GetStreamGroupM3UHandler : BaseDBRequestHandler, IRequestHandler<Ge
 
         if (command.StreamGroupNumber > 0)
         {
-            StreamGroupDto? sg = await Context.GetStreamGroupDtoByStreamGroupNumber(command.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            StreamGroupDto? sg = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(command.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
             if (sg == null)
             {
                 return "";
@@ -116,10 +116,10 @@ public class GetStreamGroupM3UHandler : BaseDBRequestHandler, IRequestHandler<Ge
 
         ConcurrentDictionary<int, string> retlist = new();
 
-        var icons = await Sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
+        List<IconFileDto> icons = await Sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
 
-        var requestPath = _httpContextAccessor.HttpContext.Request.Path.Value.ToString();
-        var iv = requestPath.GetIVFromPath(128);
+        string requestPath = _httpContextAccessor.HttpContext.Request.Path.Value.ToString();
+        byte[]? iv = requestPath.GetIVFromPath(128);
         if (iv == null)
         {
             return "";
@@ -151,18 +151,18 @@ public class GetStreamGroupM3UHandler : BaseDBRequestHandler, IRequestHandler<Ge
                 videoStream.User_Tvg_chno = cid;
             }
 
-            var logo = GetIconUrl(videoStream.User_Tvg_logo);
+            string logo = GetIconUrl(videoStream.User_Tvg_logo);
 
             videoStream.User_Tvg_logo = logo;
 
             string videoUrl = videoStream.Url;
 
-            var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _setting.ServerKey, iv);
+            string encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _setting.ServerKey, iv);
 
-            var encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
+            string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
             videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
-            var fieldList = new List<string>
+            List<string> fieldList = new()
             {
                 $"#EXTINF:0 CUID=\"{videoStream.Id}\""
             };
@@ -207,7 +207,7 @@ public class GetStreamGroupM3UHandler : BaseDBRequestHandler, IRequestHandler<Ge
             {
                 fieldList.Add($"group-title=\"{videoStream.User_Tvg_group}\"");
             }
-            var lines = string.Join(" ", fieldList.ToArray());
+            string lines = string.Join(" ", fieldList.ToArray());
 
             lines += $",{videoStream.User_Tvg_name}\r\n";
             lines += $"{videoUrl}\r\n";
@@ -244,7 +244,7 @@ public class GetStreamGroupM3UHandler : BaseDBRequestHandler, IRequestHandler<Ge
         if (!string.IsNullOrEmpty(_setting.DummyRegex))
         {
             Regex regex = new(_setting.DummyRegex, RegexOptions.ECMAScript | RegexOptions.IgnoreCase);
-            var test = regex.IsMatch(videoStream.User_Tvg_ID);
+            bool test = regex.IsMatch(videoStream.User_Tvg_ID);
             return test;
         }
 

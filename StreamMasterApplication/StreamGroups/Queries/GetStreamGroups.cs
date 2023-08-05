@@ -1,47 +1,41 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
 
 using MediatR;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Extensions;
+using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Dto;
-
-using System.Linq.Expressions;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
 public record GetStreamGroups() : IRequest<IEnumerable<StreamGroupDto>>;
 
-internal class GetStreamGroupsHandler : IRequestHandler<GetStreamGroups, IEnumerable<StreamGroupDto>>
+internal class GetStreamGroupsHandler : BaseMediatorRequestHandler, IRequestHandler<GetStreamGroups, IEnumerable<StreamGroupDto>>
 {
     protected Setting _setting = FileUtil.GetSetting();
-    private readonly IAppDbContext _context;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IMapper _mapper;
 
-    public GetStreamGroupsHandler(
-        IMapper mapper,
-        IHttpContextAccessor httpContextAccessor,
-        IAppDbContext context)
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+
+    public GetStreamGroupsHandler(IHttpContextAccessor httpContextAccessor, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender)
     {
         _httpContextAccessor = httpContextAccessor;
-        _mapper = mapper;
-        _context = context;
     }
 
     public async Task<IEnumerable<StreamGroupDto>> Handle(GetStreamGroups request, CancellationToken cancellationToken = default)
     {
-        
-        var url = _httpContextAccessor.GetUrl();
-        var ret = await _context.GetStreamGroupDtos(url,cancellationToken).ConfigureAwait(false);
-     
-        var encodedZero = 0.EncodeValue128(_setting.ServerKey);
-        var zeroGroup = new StreamGroupDto
+
+        string url = _httpContextAccessor.GetUrl();
+        List<StreamGroupDto> ret = await Repository.StreamGroup.GetStreamGroupDtos(url, cancellationToken).ConfigureAwait(false);
+
+        string encodedZero = 0.EncodeValue128(_setting.ServerKey);
+        StreamGroupDto zeroGroup = new()
         {
             Id = 0,
             Name = "All",

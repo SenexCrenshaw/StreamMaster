@@ -1,11 +1,14 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+
+using FluentValidation;
 
 using MediatR;
 
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+
+using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
@@ -22,31 +25,26 @@ public class DeleteChannelGroupRequestValidator : AbstractValidator<DeleteChanne
     }
 }
 
-public class DeleteChannelGroupRequestHandler : IRequestHandler<DeleteChannelGroupRequest, int?>
+public class DeleteChannelGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<DeleteChannelGroupRequest, int?>
 {
-    private readonly IAppDbContext _context;
+    public DeleteChannelGroupRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender) { }
 
-    public DeleteChannelGroupRequestHandler(
-
-        IAppDbContext context
-        )
-    {
-        _context = context;
-    }
 
     public async Task<int?> Handle(DeleteChannelGroupRequest request, CancellationToken cancellationToken)
     {
-        ChannelGroup? channelGroup = await _context.ChannelGroups.FirstOrDefaultAsync(a => a.Name.ToLower() == request.GroupName.ToLower(), cancellationToken: cancellationToken).ConfigureAwait(false);
+        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupByNameAsync(request.GroupName.ToLower()).ConfigureAwait(false);
 
         if (channelGroup == null)
         {
             return null;
         }
-        channelGroup.AddDomainEvent(new DeleteChannelGroupEvent(channelGroup.Id));
 
-        _ = _context.ChannelGroups.Remove(channelGroup);
+        Repository.ChannelGroup.DeleteChannelGroup(channelGroup);
+        await Repository.SaveAsync().ConfigureAwait(false);
 
-        _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await Publisher.Publish(new DeleteChannelGroupEvent(channelGroup.Id), cancellationToken);
+
         return channelGroup.Id;
     }
 }

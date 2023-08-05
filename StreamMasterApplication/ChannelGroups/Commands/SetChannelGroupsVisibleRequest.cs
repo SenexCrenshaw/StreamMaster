@@ -5,7 +5,6 @@ using FluentValidation;
 using MediatR;
 
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Hubs;
@@ -34,7 +33,7 @@ public class SetChannelGroupsVisibleRequestValidator : AbstractValidator<SetChan
 
 public class SetChannelGroupsVisibleRequestHandler : BaseRequestHandler, IRequestHandler<SetChannelGroupsVisibleRequest, IEnumerable<SetChannelGroupsVisibleArg>>
 {
-    private readonly IAppDbContext _context;
+
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
 
     public SetChannelGroupsVisibleRequestHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper)
@@ -49,9 +48,9 @@ public class SetChannelGroupsVisibleRequestHandler : BaseRequestHandler, IReques
         List<SetVideoStreamVisibleRet> ret = new();
         bool isChanged = false;
 
-        foreach (var request in requests.requests)
+        foreach (SetChannelGroupsVisibleArg request in requests.requests)
         {
-            ChannelGroup? channelGroup = await _context.ChannelGroups.FirstOrDefaultAsync(a => a.Name.ToLower() == request.GroupName.ToLower(), cancellationToken: cancellationToken).ConfigureAwait(false);
+            ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupByNameAsync(request.GroupName.ToLower()).ConfigureAwait(false);
 
             if (channelGroup == null)
             {
@@ -65,10 +64,10 @@ public class SetChannelGroupsVisibleRequestHandler : BaseRequestHandler, IReques
                 await Repository.VideoStream.SetGroupVisibleByGroupName(channelGroup.Name, request.IsHidden, cancellationToken).ConfigureAwait(false);
                 await Repository.SaveAsync().ConfigureAwait(false);
 
-                var videoStreamsRepo = await Repository.VideoStream.GetAllVideoStreamsAsync().ConfigureAwait(false);
-                var videoStreams = videoStreamsRepo.ToList();
+                IQueryable<VideoStream> videoStreamsRepo = Repository.VideoStream.GetAllVideoStreams();
+                List<VideoStream> videoStreams = videoStreamsRepo.ToList();
 
-                var changes = videoStreams
+                IEnumerable<SetVideoStreamVisibleRet> changes = videoStreams
                     .Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == channelGroup.Name.ToLower())
                     .Select(a => new SetVideoStreamVisibleRet(a.Id, a.IsHidden));
 
@@ -80,7 +79,7 @@ public class SetChannelGroupsVisibleRequestHandler : BaseRequestHandler, IReques
 
         if (isChanged)
         {
-            _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await Repository.SaveAsync().ConfigureAwait(false);
 
             await _hubContext.Clients.All.ChannelGroupSetChannelGroupsVisible(requests.requests).ConfigureAwait(false);
             await _hubContext.Clients.All.VideoStreamSetVideoStreamVisible(ret).ConfigureAwait(false);

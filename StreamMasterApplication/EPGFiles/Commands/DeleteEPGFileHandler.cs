@@ -1,10 +1,13 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+
+using FluentValidation;
 
 using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
-using StreamMasterDomain.Repository;
+using StreamMasterApplication.M3UFiles.Commands;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
@@ -24,36 +27,30 @@ public class DeleteEPGFileRequestValidator : AbstractValidator<DeleteEPGFileRequ
     }
 }
 
-public class DeleteEPGFileHandler : IRequestHandler<DeleteEPGFileRequest, int?>
+public class DeleteEPGFileHandler : BaseMemoryRequestHandler, IRequestHandler<DeleteEPGFileRequest, int?>
 {
-    private readonly IAppDbContext _context;
-    private readonly IMemoryCache _memoryCache;
-    private readonly IPublisher _publisher;
 
-    public DeleteEPGFileHandler(IPublisher publisher, IAppDbContext context, IMemoryCache memoryCache)
-    {
-        _publisher = publisher;
-        _memoryCache = memoryCache;
-        _context = context;
-    }
+    public DeleteEPGFileHandler(ILogger<ProcessM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
 
     public async Task<int?> Handle(DeleteEPGFileRequest request, CancellationToken cancellationToken = default)
     {
-        EPGFile? EPGFile = await _context.EPGFiles.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken).ConfigureAwait(false);
-        if (EPGFile == null)
+        EPGFile? epgFile = await Repository.EPGFile.GetEPGFileByIdAsync(request.Id).ConfigureAwait(false);
+        if (epgFile == null)
         {
             return null;
         }
 
-        _ = _context.EPGFiles.Remove(EPGFile);
+        Repository.EPGFile.DeleteEPGFile(epgFile);
+
 
         if (request.DeleteFile)
         {
-            string fullName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, EPGFile.Name + FileDefinitions.EPG.FileExtension);
+            string fullName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Name + FileDefinitions.EPG.FileExtension);
             if (File.Exists(fullName))
             {
                 File.Delete(fullName);
-                string txtName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(EPGFile.Source) + ".url");
+                string txtName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(epgFile.Source) + ".url");
                 if (File.Exists(txtName))
                 {
                     File.Delete(txtName);
@@ -65,25 +62,25 @@ public class DeleteEPGFileHandler : IRequestHandler<DeleteEPGFileRequest, int?>
             }
         }
 
-        var programmes = _memoryCache.ChannelLogos();
-        programmes.RemoveAll(a => a.EPGFileId == EPGFile.Id);
-        _memoryCache.Set(programmes);
+        List<StreamMasterDomain.Dto.ChannelLogoDto> programmes = MemoryCache.ChannelLogos();
+        programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
+        MemoryCache.Set(programmes);
 
-        var channels = _memoryCache.ChannelLogos();
-        channels.RemoveAll(a => a.EPGFileId == EPGFile.Id);
-        _memoryCache.Set(channels);
+        List<StreamMasterDomain.Dto.ChannelLogoDto> channels = MemoryCache.ChannelLogos();
+        channels.RemoveAll(a => a.EPGFileId == epgFile.Id);
+        MemoryCache.Set(channels);
 
-        var channelLogos = _memoryCache.ChannelLogos();
-        channelLogos.RemoveAll(a => a.EPGFileId == EPGFile.Id);
-        _memoryCache.Set(channelLogos);
+        List<StreamMasterDomain.Dto.ChannelLogoDto> channelLogos = MemoryCache.ChannelLogos();
+        channelLogos.RemoveAll(a => a.EPGFileId == epgFile.Id);
+        MemoryCache.Set(channelLogos);
 
-        var programmeIcons = _memoryCache.ProgrammeIcons();
-        programmeIcons.RemoveAll(a => a.FileId == EPGFile.Id);
-        _memoryCache.SetProgrammeLogos(programmeIcons);        
+        List<StreamMasterDomain.Dto.IconFileDto> programmeIcons = MemoryCache.ProgrammeIcons();
+        programmeIcons.RemoveAll(a => a.FileId == epgFile.Id);
+        MemoryCache.SetProgrammeLogos(programmeIcons);
 
-        await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await Repository.SaveAsync().ConfigureAwait(false);
 
-        await _publisher.Publish(new EPGFileDeletedEvent(EPGFile.Id), cancellationToken).ConfigureAwait(false);
-        return EPGFile.Id;
+        await Publisher.Publish(new EPGFileDeletedEvent(epgFile.Id), cancellationToken).ConfigureAwait(false);
+        return epgFile.Id;
     }
 }

@@ -27,11 +27,11 @@ public class AutoMatchIconToStreamsRequestValidator : AbstractValidator<AutoMatc
     }
 }
 
-public class AutoMatchIconToStreamsRequestHandler : BaseDBRequestHandler, IRequestHandler<AutoMatchIconToStreamsRequest, IconFileDto?>
+public class AutoMatchIconToStreamsRequestHandler : BaseMemoryRequestHandler, IRequestHandler<AutoMatchIconToStreamsRequest, IconFileDto?>
 {
 
-    public AutoMatchIconToStreamsRequestHandler(IAppDbContext context, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, context, memoryCache) { }
+    public AutoMatchIconToStreamsRequestHandler( ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
 
     public static double GetWeightedMatch(string sentence1, string sentence2)
     {

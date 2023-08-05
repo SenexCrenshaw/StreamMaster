@@ -5,8 +5,6 @@ using FluentValidation;
 
 using MediatR;
 
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.M3UFiles.Commands;
@@ -31,11 +29,11 @@ public class UpdateChannelGroupsRequestValidator : AbstractValidator<UpdateChann
     //}
 }
 
-public class UpdateChannelGroupsRequestHandler : BaseDBRequestHandler, IRequestHandler<UpdateChannelGroupsRequest, IEnumerable<ChannelGroupDto>?>
+public class UpdateChannelGroupsRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateChannelGroupsRequest, IEnumerable<ChannelGroupDto>?>
 {
 
-    public UpdateChannelGroupsRequestHandler(IAppDbContext context, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, context, memoryCache) { }
+    public UpdateChannelGroupsRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender) { }
 
     public async Task<IEnumerable<ChannelGroupDto>?> Handle(UpdateChannelGroupsRequest requests, CancellationToken cancellationToken)
     {
@@ -44,7 +42,7 @@ public class UpdateChannelGroupsRequestHandler : BaseDBRequestHandler, IRequestH
 
         foreach (UpdateChannelGroupRequest request in requests.ChannelGroupRequests)
         {
-            ChannelGroup? channelGroup = await Context.ChannelGroups.FirstOrDefaultAsync(a => a.Name.ToLower() == request.GroupName.ToLower(), cancellationToken: cancellationToken).ConfigureAwait(false);
+            ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupByNameAsync(request.GroupName.ToLower()).ConfigureAwait(false);
 
             if (channelGroup == null)
             {
@@ -75,8 +73,7 @@ public class UpdateChannelGroupsRequestHandler : BaseDBRequestHandler, IRequestH
                 isChanged = true;
             }
 
-            _ = Context.ChannelGroups.Update(channelGroup);
-            _ = await Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            Repository.ChannelGroup.UpdateChannelGroup(channelGroup);
             await Repository.SaveAsync().ConfigureAwait(false);
 
             cgResults.Add(Mapper.Map<ChannelGroupDto>(channelGroup));

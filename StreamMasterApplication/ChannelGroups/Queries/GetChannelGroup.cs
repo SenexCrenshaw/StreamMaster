@@ -2,39 +2,32 @@
 
 using MediatR;
 
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+
+using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.ChannelGroups.Queries;
 
 public record GetChannelGroup(int Id) : IRequest<ChannelGroupDto?>;
 
-internal class GetChannelGroupHandler : IRequestHandler<GetChannelGroup, ChannelGroupDto?>
+internal class GetChannelGroupHandler : BaseMediatorRequestHandler, IRequestHandler<GetChannelGroup, ChannelGroupDto?>
 {
-    private readonly IAppDbContext _context;
-    private readonly IMapper _mapper;
 
-    public GetChannelGroupHandler(
-         IAppDbContext context,
-         IMapper mapper
-    )
-    {
-        _context = context;
-        _mapper = mapper;
-    }
+    public GetChannelGroupHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender) { }
 
     public async Task<ChannelGroupDto?> Handle(GetChannelGroup request, CancellationToken cancellationToken)
     {
-        ChannelGroup? channelGroup = await _context.ChannelGroups.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
+        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupAsync(request.Id);
 
         if (channelGroup == null)
         {
             return null;
         }
 
-        ChannelGroupDto ret = _mapper.Map<ChannelGroupDto>(channelGroup);
+        ChannelGroupDto ret = Mapper.Map<ChannelGroupDto>(channelGroup);
 
         return ret;
     }

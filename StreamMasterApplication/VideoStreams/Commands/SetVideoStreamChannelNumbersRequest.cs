@@ -37,11 +37,11 @@ public class SetVideoStreamChannelNumbersRequestHandler : BaseRequestHandler, IR
 
     public async Task<IEnumerable<ChannelNumberPair>> Handle(SetVideoStreamChannelNumbersRequest request, CancellationToken cancellationToken)
     {
-        var videoStreams = await Repository.VideoStream.GetAllVideoStreamsAsync().ConfigureAwait(false);
+        IQueryable<VideoStream> videoStreams = Repository.VideoStream.GetAllVideoStreams();
 
         foreach (ChannelNumberPair cp in request.ChannelNumberPairs)
         {
-            var videoStream = videoStreams.SingleOrDefault(c => c.Id == cp.Id);
+            VideoStream? videoStream = videoStreams.SingleOrDefault(c => c.Id == cp.Id);
             if (videoStream == null)
             {
                 cp.Id = String.Empty;

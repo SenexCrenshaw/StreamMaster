@@ -17,6 +17,124 @@ namespace StreamMasterInfrastructure.EF.Migrations.Repository
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.9");
 
+            modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FriendlyName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Xml")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DataProtectionKeys");
+                });
+
+            modelBuilder.Entity("StreamMasterDomain.Repository.ChannelGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsReadOnly")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Rank")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("RegexMatch")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ChannelGroups");
+                });
+
+            modelBuilder.Entity("StreamMasterDomain.Repository.EPGFile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AutoUpdate")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ChannelCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DownloadErrors")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("EPGRank")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("FileExists")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FileExtension")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("HoursToUpdate")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("LastDownloadAttempt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("LastDownloaded")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("MinimumMinutesBetweenDownloads")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ProgrammeCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("SMFileType")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<float>("TimeShift")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EPGFiles");
+                });
+
             modelBuilder.Entity("StreamMasterDomain.Repository.M3UFile", b =>
                 {
                     b.Property<int>("Id")
@@ -87,6 +205,39 @@ namespace StreamMasterInfrastructure.EF.Migrations.Repository
                     b.ToTable("M3UFiles");
                 });
 
+            modelBuilder.Entity("StreamMasterDomain.Repository.StreamGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("StreamGroupNumber")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StreamGroups");
+                });
+
+            modelBuilder.Entity("StreamMasterDomain.Repository.StreamGroupChannelGroup", b =>
+                {
+                    b.Property<int>("ChannelGroupId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("StreamGroupId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ChannelGroupId", "StreamGroupId");
+
+                    b.HasIndex("StreamGroupId");
+
+                    b.ToTable("StreamGroupChannelGroups");
+                });
+
             modelBuilder.Entity("StreamMasterDomain.Repository.StreamGroupVideoStream", b =>
                 {
                     b.Property<string>("ChildVideoStreamId")
@@ -100,7 +251,9 @@ namespace StreamMasterInfrastructure.EF.Migrations.Repository
 
                     b.HasKey("ChildVideoStreamId", "StreamGroupId");
 
-                    b.ToTable("StreamGroupVideoStream");
+                    b.HasIndex("StreamGroupId");
+
+                    b.ToTable("StreamGroupVideoStreams");
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Repository.VideoStream", b =>
@@ -204,12 +357,37 @@ namespace StreamMasterInfrastructure.EF.Migrations.Repository
                     b.ToTable("VideoStreamLinks");
                 });
 
+            modelBuilder.Entity("StreamMasterDomain.Repository.StreamGroupChannelGroup", b =>
+                {
+                    b.HasOne("StreamMasterDomain.Repository.ChannelGroup", "ChannelGroup")
+                        .WithMany()
+                        .HasForeignKey("ChannelGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("StreamMasterDomain.Repository.StreamGroup", "StreamGroup")
+                        .WithMany("ChannelGroups")
+                        .HasForeignKey("StreamGroupId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ChannelGroup");
+
+                    b.Navigation("StreamGroup");
+                });
+
             modelBuilder.Entity("StreamMasterDomain.Repository.StreamGroupVideoStream", b =>
                 {
                     b.HasOne("StreamMasterDomain.Repository.VideoStream", "ChildVideoStream")
                         .WithMany("StreamGroups")
                         .HasForeignKey("ChildVideoStreamId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("StreamMasterDomain.Repository.StreamGroup", null)
+                        .WithMany("ChildVideoStreams")
+                        .HasForeignKey("StreamGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ChildVideoStream");
@@ -232,6 +410,13 @@ namespace StreamMasterInfrastructure.EF.Migrations.Repository
                     b.Navigation("ChildVideoStream");
 
                     b.Navigation("ParentVideoStream");
+                });
+
+            modelBuilder.Entity("StreamMasterDomain.Repository.StreamGroup", b =>
+                {
+                    b.Navigation("ChannelGroups");
+
+                    b.Navigation("ChildVideoStreams");
                 });
 
             modelBuilder.Entity("StreamMasterDomain.Repository.VideoStream", b =>

@@ -33,22 +33,22 @@ public class GetStreamGroupLineUpValidator : AbstractValidator<GetStreamGroupLin
     }
 }
 
-public class GetStreamGroupLineUpHandler : BaseDBRequestHandler, IRequestHandler<GetStreamGroupLineUp, string>
+public class GetStreamGroupLineUpHandler : BaseMemoryRequestHandler, IRequestHandler<GetStreamGroupLineUp, string>
 {
     protected Setting _setting = FileUtil.GetSetting();
 
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public GetStreamGroupLineUpHandler(IHttpContextAccessor httpContextAccessor, IAppDbContext context, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, context, memoryCache)
+    public GetStreamGroupLineUpHandler(IHttpContextAccessor httpContextAccessor,  ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache)
     {
         _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<string> Handle(GetStreamGroupLineUp request, CancellationToken cancellationToken)
     {
-        var requestPath = _httpContextAccessor.HttpContext.Request.Path.Value.ToString();
-        var iv = requestPath.GetIVFromPath(128);
+        string requestPath = _httpContextAccessor.HttpContext.Request.Path.Value.ToString();
+        byte[]? iv = requestPath.GetIVFromPath(128);
         if (iv == null)
         {
             return "";
@@ -60,7 +60,7 @@ public class GetStreamGroupLineUpHandler : BaseDBRequestHandler, IRequestHandler
         IEnumerable<VideoStreamDto> videoStreams;
         if (request.StreamGroupNumber > 0)
         {
-            var streamGroup = await Context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
             if (streamGroup == null)
             {
                 return "";
@@ -78,7 +78,7 @@ public class GetStreamGroupLineUpHandler : BaseDBRequestHandler, IRequestHandler
             return JsonSerializer.Serialize(ret);
         }
 
-        foreach (var videoStream in videoStreams)
+        foreach (VideoStreamDto videoStream in videoStreams)
         {
 
             if (_setting.M3UIgnoreEmptyEPGID &&
@@ -90,9 +90,9 @@ public class GetStreamGroupLineUpHandler : BaseDBRequestHandler, IRequestHandler
 
             string videoUrl = videoStream.Url;
 
-            var encodedNumbers = request.StreamGroupNumber.EncodeValues128(videoStream.Id, _setting.ServerKey, iv);
+            string encodedNumbers = request.StreamGroupNumber.EncodeValues128(videoStream.Id, _setting.ServerKey, iv);
 
-            var encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
+            string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
             videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
             LineUp lu = new()

@@ -6,12 +6,12 @@ using MediatR;
 
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Hubs;
 using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
@@ -28,33 +28,18 @@ public class UpdateEPGFileRequestValidator : AbstractValidator<UpdateEPGFileRequ
     }
 }
 
-public class UpdateEPGFileRequestHandler : IRequestHandler<UpdateEPGFileRequest, EPGFilesDto?>
+public class UpdateEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<UpdateEPGFileRequest, EPGFilesDto?>
 {
-    private readonly IAppDbContext _context;
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
-    private readonly IMapper _mapper;
-    private readonly IMemoryCache _memoryCache;
-    private readonly IPublisher _publisher;
 
-    public UpdateEPGFileRequestHandler(
-  IMapper mapper,
-   IHubContext<StreamMasterHub, IStreamMasterHub> hubContext,
-    IMemoryCache memoryCache,
-    IPublisher publisher,
-        IAppDbContext context)
-    {
-        _mapper = mapper;
-        _publisher = publisher;
-        _context = context;
-        _hubContext = hubContext;
-        _memoryCache = memoryCache;
-    }
+    public UpdateEPGFileRequestHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<ProcessM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache) { _hubContext = hubContext; }
 
-    public async Task<EPGFilesDto?> Handle(UpdateEPGFileRequest command, CancellationToken cancellationToken)
+    public async Task<EPGFilesDto?> Handle(UpdateEPGFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            EPGFile? epgFile = await _context.EPGFiles.FindAsync(new object?[] { command.Id, cancellationToken }, cancellationToken: cancellationToken).ConfigureAwait(false);
+            EPGFile? epgFile = await Repository.EPGFile.GetEPGFileByIdAsync(request.Id).ConfigureAwait(false);
             if (epgFile == null)
             {
                 return null;
@@ -63,60 +48,61 @@ public class UpdateEPGFileRequestHandler : IRequestHandler<UpdateEPGFileRequest,
             bool isChanged = false;
             bool isNameChanged = false;
 
-            if (!string.IsNullOrEmpty(command.Description) && epgFile.Description != command.Description)
+            if (!string.IsNullOrEmpty(request.Description) && epgFile.Description != request.Description)
             {
                 isChanged = true;
-                epgFile.Description = command.Description;
+                epgFile.Description = request.Description;
             }
 
-            if (command.Url != null && epgFile.Url != command.Url)
+            if (request.Url != null && epgFile.Url != request.Url)
             {
                 isChanged = true;
-                epgFile.Url = command.Url == "" ? null : command.Url;
+                epgFile.Url = request.Url == "" ? null : request.Url;
             }
 
-            if (!string.IsNullOrEmpty(command.Name) && epgFile.Name != command.Name)
+            if (!string.IsNullOrEmpty(request.Name) && epgFile.Name != request.Name)
             {
                 isChanged = true;
                 isNameChanged = true;
-                epgFile.Name = command.Name;
+                epgFile.Name = request.Name;
             }
 
-            if (command.AutoUpdate != null && epgFile.AutoUpdate != command.AutoUpdate)
+            if (request.AutoUpdate != null && epgFile.AutoUpdate != request.AutoUpdate)
             {
                 isChanged = true;
-                epgFile.AutoUpdate = (bool)command.AutoUpdate;
+                epgFile.AutoUpdate = (bool)request.AutoUpdate;
             }
 
-            if (command.HoursToUpdate != null && epgFile.HoursToUpdate != command.HoursToUpdate)
+            if (request.HoursToUpdate != null && epgFile.HoursToUpdate != request.HoursToUpdate)
             {
                 isChanged = true;
-                epgFile.HoursToUpdate = (int)command.HoursToUpdate;
+                epgFile.HoursToUpdate = (int)request.HoursToUpdate;
             }
 
-            _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            Repository.EPGFile.UpdateEPGFile(epgFile);
+            await Repository.SaveAsync().ConfigureAwait(false);
 
-            EPGFilesDto ret = _mapper.Map<EPGFilesDto>(epgFile);
+            EPGFilesDto ret = Mapper.Map<EPGFilesDto>(epgFile);
 
             if (isNameChanged)
             {
-                var programmes = _memoryCache.ChannelLogos();
+                List<ChannelLogoDto> programmes = MemoryCache.ChannelLogos();
                 programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                _memoryCache.Set(programmes);
+                MemoryCache.Set(programmes);
 
-                var channels = _memoryCache.ChannelLogos();
+                List<ChannelLogoDto> channels = MemoryCache.ChannelLogos();
                 channels.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                _memoryCache.Set(channels);
+                MemoryCache.Set(channels);
 
-                var channelLogos = _memoryCache.ChannelLogos();
+                List<ChannelLogoDto> channelLogos = MemoryCache.ChannelLogos();
                 channelLogos.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                _memoryCache.Set(channelLogos);
+                MemoryCache.Set(channelLogos);
 
-                var programmeIcons = _memoryCache.ProgrammeIcons();
+                List<IconFileDto> programmeIcons = MemoryCache.ProgrammeIcons();
                 programmeIcons.RemoveAll(a => a.FileId == epgFile.Id);
-                _memoryCache.SetProgrammeLogos(programmeIcons);
+                MemoryCache.SetProgrammeLogos(programmeIcons);
 
-                await _publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
+                await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
             }
 
             if (isChanged)

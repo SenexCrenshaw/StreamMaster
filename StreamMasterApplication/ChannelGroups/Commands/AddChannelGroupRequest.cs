@@ -4,51 +4,38 @@ using FluentValidation;
 
 using MediatR;
 
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+
+using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
 [RequireAll]
-public record AddChannelGroupRequest(string GroupName, int Rank, string? Regex) : IRequest<ChannelGroupDto?>
+public record CreateChannelGroupRequest(string GroupName, int Rank, string? Regex) : IRequest<ChannelGroupDto?>
 {
 }
 
-public class AddChannelGroupRequestValidator : AbstractValidator<AddChannelGroupRequest>
+public class CreateChannelGroupRequestValidator : AbstractValidator<CreateChannelGroupRequest>
 {
-    public AddChannelGroupRequestValidator()
+    public CreateChannelGroupRequestValidator()
     {
         _ = RuleFor(v => v.GroupName).NotNull().NotEmpty();
         _ = RuleFor(v => v.Rank).NotNull().GreaterThan(0);
     }
 }
 
-public class AddChannelGroupRequestHandler : IRequestHandler<AddChannelGroupRequest, ChannelGroupDto?>
+public class CreateChannelGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateChannelGroupRequest, ChannelGroupDto?>
 {
-    private readonly IAppDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IPublisher _publisher;
-    private readonly ISender _sender;
 
-    public AddChannelGroupRequestHandler(
-        IMapper mapper,
-        ISender sender,
-         IPublisher publisher,
-        IAppDbContext context
-        )
-    {
-        _sender = sender;
-        _publisher = publisher;
-        _mapper = mapper;
-        _context = context;
-    }
+    public CreateChannelGroupRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender) { }
 
-    public async Task<ChannelGroupDto?> Handle(AddChannelGroupRequest request, CancellationToken cancellationToken)
+    public async Task<ChannelGroupDto?> Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)
     {
-        if (await _context.ChannelGroups.AnyAsync(a => a.Name.ToLower() == request.GroupName.ToLower(), cancellationToken: cancellationToken).ConfigureAwait(false))
+        if (await Repository.ChannelGroup.GetChannelGroupByNameAsync(request.GroupName).ConfigureAwait(false) == null)
         {
             return null;
         }
@@ -58,11 +45,12 @@ public class AddChannelGroupRequestHandler : IRequestHandler<AddChannelGroupRequ
         {
             channelGroup.RegexMatch = request.Regex;
         }
-        _ = _context.ChannelGroups.Add(channelGroup);
-        _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        ChannelGroupDto result = _mapper.Map<ChannelGroupDto>(channelGroup);
-        await _publisher.Publish(new AddChannelGroupEvent(result), cancellationToken).ConfigureAwait(false);
+        Repository.ChannelGroup.CreateChannelGroup(channelGroup);
+        await Repository.SaveAsync().ConfigureAwait(false);
+
+        ChannelGroupDto result = Mapper.Map<ChannelGroupDto>(channelGroup);
+        await Publisher.Publish(new AddChannelGroupEvent(result), cancellationToken).ConfigureAwait(false);
         return result;
     }
 }
