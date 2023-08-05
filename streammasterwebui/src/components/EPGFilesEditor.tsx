@@ -42,7 +42,7 @@ const EPGFilesEditor = (props: EPGFilesEditorProps) => {
 
     const data = {} as StreamMasterApi.RefreshEpgFileRequest;
 
-    data.epgFileID = selectedEPGFile.id;
+    data.id = selectedEPGFile.id;
 
     await Hub.RefreshEPGFile(data)
       .then(() => {

@@ -78,7 +78,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [Route("[action]")]
     public async Task<ActionResult> GetChannelLogoDtos()
     {
-        var data = await Mediator.Send(new GetChannelLogoDtos()).ConfigureAwait(false);
+        IEnumerable<ChannelLogoDto> data = await Mediator.Send(new GetChannelLogoDtos()).ConfigureAwait(false);
         return Ok(data);
     }
 
@@ -86,16 +86,16 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [Route("{id}")]
     public async Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id)
     {
-        var data = await Mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
+        VideoStreamDto? data = await Mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
         return data;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<VideoStreamDto>>> GetVideoStreams(VideoStreamParameters Parameters)
     {
-        var videoStreams = await Mediator.Send(new GetVideoStreams(Parameters)).ConfigureAwait(false);
+        PagedList<StreamMasterDomain.Repository.VideoStream> videoStreams = await Mediator.Send(new GetVideoStreams(Parameters)).ConfigureAwait(false);
         Response.Headers.Add("X-Pagination", videoStreams.GetMetadata());
-        var m3uFilesResult = _mapper.Map<IEnumerable<VideoStreamDto>>(videoStreams);
+        IEnumerable<VideoStreamDto> m3uFilesResult = _mapper.Map<IEnumerable<VideoStreamDto>>(videoStreams);
         return Ok(m3uFilesResult);
 
     }
@@ -114,9 +114,9 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         }
 
         int streamGroupNumber = (int)StreamGroupNumberNull;
-        string videoStreamId = (string)StreamIdNull;
+        string videoStreamId = StreamIdNull;
 
-        var videoStream = await Mediator.Send(new GetVideoStream(videoStreamId), cancellationToken).ConfigureAwait(false);
+        VideoStreamDto? videoStream = await Mediator.Send(new GetVideoStream(videoStreamId), cancellationToken).ConfigureAwait(false);
         _logger.LogInformation("GetStreamGroupVideoStream request. SG Number {id} ChannelId {channelId}", streamGroupNumber, videoStreamId);
 
         if (videoStream == null)
@@ -133,7 +133,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
         HttpContext.Session.Remove("ClientId");
 
-        var settings = FileUtil.GetSetting();
+        Setting settings = FileUtil.GetSetting();
 
         if (settings.StreamingProxyType == StreamingProxyTypes.None)
         {
@@ -231,6 +231,14 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [HttpPut]
     [Route("[action]")]
     public async Task<ActionResult> UpdateVideoStreams(UpdateVideoStreamsRequest request)
+    {
+        _ = await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<IEnumerable<VideoStreamDto>>> GetVideoStreamsByNamePattern(GetVideoStreamsByNamePatternQuery request)
     {
         _ = await Mediator.Send(request).ConfigureAwait(false);
         return Ok();

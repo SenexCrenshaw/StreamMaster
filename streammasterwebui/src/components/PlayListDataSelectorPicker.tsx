@@ -20,8 +20,8 @@ import EPGSelector from "./EPGSelector";
 const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   const toast = React.useRef<Toast>(null);
 
-  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
-  const streamGroupsQuery = StreamMasterApi.useStreamGroupsGetStreamGroupsQuery();
+  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery({} as StreamMasterApi.QueryStringParameters);
+  const streamGroupsQuery = StreamMasterApi.useStreamGroupsGetStreamGroupsQuery({} as StreamMasterApi.QueryStringParameters);
 
   const [sourceVideoStreams, setSourceVideoStreams] = React.useState<StreamMasterApi.VideoStreamDto[] | undefined>(undefined);
   const [targetVideoStreams, setTargetVideoStreams] = React.useState<StreamMasterApi.ChildVideoStreamDto[] | undefined>(undefined);

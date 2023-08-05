@@ -19,7 +19,7 @@ const VideoStreamAddDialog = (props: VideoStreamAddDialogProps) => {
     props.onClose?.();
   };
 
-  const onSave = async (data: StreamMasterApi.AddVideoStreamRequest) => {
+  const onSave = async (data: StreamMasterApi.CreateVideoStreamRequest) => {
 
     if (data === null || data === undefined) {
       return;
@@ -27,7 +27,7 @@ const VideoStreamAddDialog = (props: VideoStreamAddDialogProps) => {
 
     setBlock(true);
 
-    await Hub.AddVideoStream(data)
+    await Hub.CreateVideoStream(data)
       .then(() => {
 
         setInfoMessage('Add Stream Successful');

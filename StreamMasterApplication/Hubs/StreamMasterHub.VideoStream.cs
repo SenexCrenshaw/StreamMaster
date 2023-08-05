@@ -68,4 +68,9 @@ public partial class StreamMasterHub : IVideoStreamHub
     {
         await _mediator.Send(request).ConfigureAwait(false);
     }
+
+    public async Task<IEnumerable<VideoStream>> GetVideoStreamsByNamePattern(GetVideoStreamsByNamePatternQuery request)
+    {
+        return await _mediator.Send(request).ConfigureAwait(false);
+    }
 }

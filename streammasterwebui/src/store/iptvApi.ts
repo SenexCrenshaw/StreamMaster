@@ -19,9 +19,9 @@ const injectedRtkApi = api
   })
   .injectEndpoints({
     endpoints: (build) => ({
-      channelGroupsAddChannelGroup: build.mutation<
-        ChannelGroupsAddChannelGroupApiResponse,
-        ChannelGroupsAddChannelGroupApiArg
+      channelGroupsCreateChannelGroup: build.mutation<
+        ChannelGroupsCreateChannelGroupApiResponse,
+        ChannelGroupsCreateChannelGroupApiArg
       >({
         query: (queryArg) => ({
           url: `/api/channelgroups`,
@@ -34,7 +34,7 @@ const injectedRtkApi = api
         ChannelGroupsGetChannelGroupsApiResponse,
         ChannelGroupsGetChannelGroupsApiArg
       >({
-        query: () => ({ url: `/api/channelgroups` }),
+        query: (queryArg) => ({ url: `/api/channelgroups`, body: queryArg }),
         providesTags: ["ChannelGroups"],
       }),
       channelGroupsDeleteChannelGroup: build.mutation<
@@ -77,17 +77,6 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["ChannelGroups"],
       }),
-      channelGroupsUpdateChannelGroupOrder: build.mutation<
-        ChannelGroupsUpdateChannelGroupOrderApiResponse,
-        ChannelGroupsUpdateChannelGroupOrderApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/channelgroups/updatechannelgrouporder`,
-          method: "PUT",
-          body: queryArg,
-        }),
-        invalidatesTags: ["ChannelGroups"],
-      }),
       channelGroupsUpdateChannelGroups: build.mutation<
         ChannelGroupsUpdateChannelGroupsApiResponse,
         ChannelGroupsUpdateChannelGroupsApiArg
@@ -99,30 +88,23 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["ChannelGroups"],
       }),
-      epgFilesAddEpgFile: build.mutation<
-        EpgFilesAddEpgFileApiResponse,
-        EpgFilesAddEpgFileApiArg
+      epgFilesCreateEpgFile: build.mutation<
+        EpgFilesCreateEpgFileApiResponse,
+        EpgFilesCreateEpgFileApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/epgfiles`,
+          url: `/api/epgfiles/createepgfile`,
           method: "POST",
           body: queryArg,
         }),
         invalidatesTags: ["EPGFiles"],
       }),
-      epgFilesGetEpgFiles: build.query<
-        EpgFilesGetEpgFilesApiResponse,
-        EpgFilesGetEpgFilesApiArg
-      >({
-        query: () => ({ url: `/api/epgfiles` }),
-        providesTags: ["EPGFiles"],
-      }),
-      epgFilesAddEpgFileFromForm: build.mutation<
-        EpgFilesAddEpgFileFromFormApiResponse,
-        EpgFilesAddEpgFileFromFormApiArg
+      epgFilesCreateEpgFileFromForm: build.mutation<
+        EpgFilesCreateEpgFileFromFormApiResponse,
+        EpgFilesCreateEpgFileFromFormApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/epgfiles/addepgfilefromform`,
+          url: `/api/epgfiles/createepgfilefromform`,
           method: "POST",
           body: queryArg,
         }),
@@ -144,6 +126,13 @@ const injectedRtkApi = api
         EpgFilesGetEpgFileApiArg
       >({
         query: (queryArg) => ({ url: `/api/epgfiles/${queryArg}` }),
+        providesTags: ["EPGFiles"],
+      }),
+      epgFilesGetEpgFiles: build.query<
+        EpgFilesGetEpgFilesApiResponse,
+        EpgFilesGetEpgFilesApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/epgfiles`, body: queryArg }),
         providesTags: ["EPGFiles"],
       }),
       epgFilesProcessEpgFile: build.mutation<
@@ -823,63 +812,60 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["VideoStreams"],
       }),
+      videoStreamsGetVideoStreamsByNamePattern: build.query<
+        VideoStreamsGetVideoStreamsByNamePatternApiResponse,
+        VideoStreamsGetVideoStreamsByNamePatternApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/getvideostreamsbynamepattern`,
+          body: queryArg,
+        }),
+        providesTags: ["VideoStreams"],
+      }),
     }),
     overrideExisting: false,
   });
 export { injectedRtkApi as iptvApi };
-export type ChannelGroupsAddChannelGroupApiResponse = /** status 200  */
-  | undefined
-  | /** status 201  */ ChannelGroupDto;
-export type ChannelGroupsAddChannelGroupApiArg = AddChannelGroupRequest;
+export type ChannelGroupsCreateChannelGroupApiResponse = unknown;
+export type ChannelGroupsCreateChannelGroupApiArg = CreateChannelGroupRequest;
 export type ChannelGroupsGetChannelGroupsApiResponse =
   /** status 200  */ ChannelGroupDto[];
-export type ChannelGroupsGetChannelGroupsApiArg = void;
-export type ChannelGroupsDeleteChannelGroupApiResponse =
-  /** status 200  */ undefined;
+export type ChannelGroupsGetChannelGroupsApiArg = ChannelGroupParameters;
+export type ChannelGroupsDeleteChannelGroupApiResponse = unknown;
 export type ChannelGroupsDeleteChannelGroupApiArg = DeleteChannelGroupRequest;
 export type ChannelGroupsGetChannelGroupApiResponse =
   /** status 200  */ ChannelGroupDto;
 export type ChannelGroupsGetChannelGroupApiArg = number;
-export type ChannelGroupsSetChannelGroupsVisibleApiResponse =
-  /** status 204  */ undefined;
+export type ChannelGroupsSetChannelGroupsVisibleApiResponse = unknown;
 export type ChannelGroupsSetChannelGroupsVisibleApiArg =
   SetChannelGroupsVisibleRequest;
-export type ChannelGroupsUpdateChannelGroupApiResponse =
-  /** status 204  */ undefined;
+export type ChannelGroupsUpdateChannelGroupApiResponse = unknown;
 export type ChannelGroupsUpdateChannelGroupApiArg = UpdateChannelGroupRequest;
-export type ChannelGroupsUpdateChannelGroupOrderApiResponse =
-  /** status 204  */ undefined;
-export type ChannelGroupsUpdateChannelGroupOrderApiArg =
-  UpdateChannelGroupOrderRequest;
-export type ChannelGroupsUpdateChannelGroupsApiResponse =
-  /** status 204  */ undefined;
+export type ChannelGroupsUpdateChannelGroupsApiResponse = unknown;
 export type ChannelGroupsUpdateChannelGroupsApiArg = UpdateChannelGroupsRequest;
-export type EpgFilesAddEpgFileApiResponse = unknown;
-export type EpgFilesAddEpgFileApiArg = AddEpgFileRequest;
-export type EpgFilesGetEpgFilesApiResponse = /** status 200  */ EpgFilesDto[];
-export type EpgFilesGetEpgFilesApiArg = void;
-export type EpgFilesAddEpgFileFromFormApiResponse = /** status 200  */
-  | undefined
-  | /** status 201  */ EpgFilesDto;
-export type EpgFilesAddEpgFileFromFormApiArg = {
+export type EpgFilesCreateEpgFileApiResponse = unknown;
+export type EpgFilesCreateEpgFileApiArg = CreateEpgFileRequest;
+export type EpgFilesCreateEpgFileFromFormApiResponse = unknown;
+export type EpgFilesCreateEpgFileFromFormApiArg = {
   Description?: string | null;
   EPGRank?: number;
   FormFile?: Blob | null;
   Name?: string;
   UrlSource?: string | null;
 };
-export type EpgFilesDeleteEpgFileApiResponse = /** status 200  */ undefined;
+export type EpgFilesDeleteEpgFileApiResponse = unknown;
 export type EpgFilesDeleteEpgFileApiArg = DeleteEpgFileRequest;
 export type EpgFilesGetEpgFileApiResponse = /** status 200  */ EpgFilesDto;
 export type EpgFilesGetEpgFileApiArg = number;
-export type EpgFilesProcessEpgFileApiResponse = /** status 204  */ undefined;
+export type EpgFilesGetEpgFilesApiResponse = /** status 200  */ EpgFilesDto[];
+export type EpgFilesGetEpgFilesApiArg = EpgFileParameters;
+export type EpgFilesProcessEpgFileApiResponse = unknown;
 export type EpgFilesProcessEpgFileApiArg = ProcessEpgFileRequest;
-export type EpgFilesRefreshEpgFileApiResponse = /** status 204  */ undefined;
+export type EpgFilesRefreshEpgFileApiResponse = unknown;
 export type EpgFilesRefreshEpgFileApiArg = RefreshEpgFileRequest;
-export type EpgFilesScanDirectoryForEpgFilesApiResponse =
-  /** status 204  */ undefined;
+export type EpgFilesScanDirectoryForEpgFilesApiResponse = unknown;
 export type EpgFilesScanDirectoryForEpgFilesApiArg = void;
-export type EpgFilesUpdateEpgFileApiResponse = /** status 204  */ undefined;
+export type EpgFilesUpdateEpgFileApiResponse = unknown;
 export type EpgFilesUpdateEpgFileApiArg = UpdateEpgFileRequest;
 export type FilesGetFileApiResponse = unknown;
 export type FilesGetFileApiArg = {
@@ -1082,6 +1068,15 @@ export type VideoStreamsUpdateVideoStreamApiResponse = unknown;
 export type VideoStreamsUpdateVideoStreamApiArg = UpdateVideoStreamRequest;
 export type VideoStreamsUpdateVideoStreamsApiResponse = unknown;
 export type VideoStreamsUpdateVideoStreamsApiArg = UpdateVideoStreamsRequest;
+export type VideoStreamsGetVideoStreamsByNamePatternApiResponse =
+  /** status 200  */ VideoStreamDto[];
+export type VideoStreamsGetVideoStreamsByNamePatternApiArg =
+  GetVideoStreamsByNamePatternQuery;
+export type CreateChannelGroupRequest = {
+  groupName: string;
+  rank: number;
+  regex: string | null;
+};
 export type ChannelGroupArg = {
   isHidden: boolean | null;
   isReadOnly: boolean | null;
@@ -1092,18 +1087,13 @@ export type ChannelGroupArg = {
 export type ChannelGroupDto = ChannelGroupArg & {
   id: number;
 };
-export type ProblemDetails = {
-  type?: string | null;
-  title?: string | null;
-  status?: number | null;
-  detail?: string | null;
-  instance?: string | null;
-  [key: string]: any | null;
+export type QueryStringParameters = {
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
 };
-export type AddChannelGroupRequest = {
-  groupName: string;
-  rank: number;
-  regex: string | null;
+export type ChannelGroupParameters = QueryStringParameters & {
+  name?: string;
 };
 export type DeleteChannelGroupRequest = {
   groupName: string;
@@ -1116,24 +1106,25 @@ export type SetChannelGroupsVisibleRequest = {
   requests: SetChannelGroupsVisibleArg[];
 };
 export type UpdateChannelGroupRequest = {
-  groupName: string;
-  newGroupName: string | null;
-  isHidden: boolean | null;
-  rank: number | null;
-  regex: string | null;
-};
-export type UpdateChannelGroupOrderRequest = {
-  channelGroups: ChannelGroupArg[] | null;
+  groupName?: string;
+  newGroupName?: string | null;
+  isHidden?: boolean | null;
+  rank?: number | null;
+  regex?: string | null;
 };
 export type UpdateChannelGroupsRequest = {
   channelGroupRequests: UpdateChannelGroupRequest[];
 };
-export type AddEpgFileRequest = {
+export type CreateEpgFileRequest = {
   description?: string | null;
   epgRank?: number;
   formFile?: Blob | null;
   name: string;
   urlSource?: string | null;
+};
+export type DeleteEpgFileRequest = {
+  deleteFile?: boolean;
+  id?: number;
 };
 export type BaseFileDto = {
   autoUpdate: boolean;
@@ -1153,15 +1144,14 @@ export type EpgFilesDto = BaseFileDto & {
   epgStopDate?: string;
   programmeCount?: number;
 };
-export type DeleteEpgFileRequest = {
-  deleteFile?: boolean;
-  id?: number;
+export type EpgFileParameters = QueryStringParameters & {
+  name?: string;
 };
 export type ProcessEpgFileRequest = {
-  epgFileId: number;
+  id: number;
 };
 export type RefreshEpgFileRequest = {
-  epgFileID: number;
+  id: number;
 };
 export type BaseFileRequest = {
   autoUpdate?: boolean | null;
@@ -1174,6 +1164,14 @@ export type BaseFileRequest = {
 };
 export type UpdateEpgFileRequest = BaseFileRequest & {
   epgRank?: number | null;
+};
+export type ProblemDetails = {
+  type?: string | null;
+  title?: string | null;
+  status?: number | null;
+  detail?: string | null;
+  instance?: string | null;
+  [key: string]: any | null;
 };
 export type SmFileTypes = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 export type AutoMatchIconToStreamsRequest = {
@@ -1218,11 +1216,6 @@ export type M3UFileDto = BaseFileDto & {
   startingChannelNumber?: number;
   maxStreamCount?: number;
   stationCount?: number;
-};
-export type QueryStringParameters = {
-  pageNumber?: number;
-  pageSize?: number;
-  orderBy?: string;
 };
 export type M3UFileParameters = QueryStringParameters & {
   name?: string;
@@ -1749,20 +1742,22 @@ export type UpdateVideoStreamRequest = VideoStreamUpdate & object;
 export type UpdateVideoStreamsRequest = {
   videoStreamUpdates?: UpdateVideoStreamRequest[];
 };
+export type GetVideoStreamsByNamePatternQuery = {
+  pattern?: string;
+};
 export const {
-  useChannelGroupsAddChannelGroupMutation,
+  useChannelGroupsCreateChannelGroupMutation,
   useChannelGroupsGetChannelGroupsQuery,
   useChannelGroupsDeleteChannelGroupMutation,
   useChannelGroupsGetChannelGroupQuery,
   useChannelGroupsSetChannelGroupsVisibleMutation,
   useChannelGroupsUpdateChannelGroupMutation,
-  useChannelGroupsUpdateChannelGroupOrderMutation,
   useChannelGroupsUpdateChannelGroupsMutation,
-  useEpgFilesAddEpgFileMutation,
-  useEpgFilesGetEpgFilesQuery,
-  useEpgFilesAddEpgFileFromFormMutation,
+  useEpgFilesCreateEpgFileMutation,
+  useEpgFilesCreateEpgFileFromFormMutation,
   useEpgFilesDeleteEpgFileMutation,
   useEpgFilesGetEpgFileQuery,
+  useEpgFilesGetEpgFilesQuery,
   useEpgFilesProcessEpgFileMutation,
   useEpgFilesRefreshEpgFileMutation,
   useEpgFilesScanDirectoryForEpgFilesMutation,
@@ -1839,4 +1834,5 @@ export const {
   useVideoStreamsSimulateStreamFailureForAllMutation,
   useVideoStreamsUpdateVideoStreamMutation,
   useVideoStreamsUpdateVideoStreamsMutation,
+  useVideoStreamsGetVideoStreamsByNamePatternQuery,
 } = injectedRtkApi;

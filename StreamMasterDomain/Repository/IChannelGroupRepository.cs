@@ -1,5 +1,4 @@
 ﻿using StreamMasterDomain.Dto;
-using StreamMasterDomain.Pagination;
 
 namespace StreamMasterDomain.Repository
 {
@@ -8,7 +7,7 @@ namespace StreamMasterDomain.Repository
         IQueryable<ChannelGroup> GetAllChannelGroups();
         Task<ChannelGroup?> GetChannelGroupByNameAsync(string name);
         Task<ChannelGroup?> GetChannelGroupAsync(int Id);
-        Task<PagedList<ChannelGroup>> GetChannelGroupsAsync(ChannelGroupParameters channelGroupParameters);
+        //Task<IEnumerable<ChannelGroup>> GetChannelGroupsAsync();
         void CreateChannelGroup(ChannelGroup ChannelGroup);
         void DeleteChannelGroup(ChannelGroup ChannelGroup);
         void UpdateChannelGroup(ChannelGroup ChannelGroup);

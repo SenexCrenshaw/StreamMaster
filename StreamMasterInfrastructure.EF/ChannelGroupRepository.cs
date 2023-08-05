@@ -10,7 +10,6 @@ using StreamMasterApplication.StreamGroups.Queries;
 using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
 
@@ -44,7 +43,7 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
             .AsNoTracking()
             .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider).ToList();
 
-        List<VideoStream> beforeRegexStreams = await _sender.Send(new GetVideoStreamsByNamePatternQuery(channelGroup.RegexMatch), cancellationToken).ConfigureAwait(false);
+        IEnumerable<VideoStream> beforeRegexStreams = await _sender.Send(new GetVideoStreamsByNamePatternQuery(channelGroup.RegexMatch), cancellationToken).ConfigureAwait(false);
         if (beforeRegexStreams != null)
         {
             List<VideoStreamDto> mapped = _mapper.Map<List<VideoStreamDto>>(beforeRegexStreams);
@@ -101,7 +100,7 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         .AsNoTracking()
            .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider).ToList();
 
-        List<VideoStream> afterRegexStreams = await _sender.Send(new GetVideoStreamsByNamePatternQuery(channelGroup.RegexMatch), cancellationToken).ConfigureAwait(false);
+        IEnumerable<VideoStream> afterRegexStreams = await _sender.Send(new GetVideoStreamsByNamePatternQuery(channelGroup.RegexMatch), cancellationToken).ConfigureAwait(false);
         if (afterRegexStreams != null)
         {
             List<VideoStreamDto> mapped = _mapper.Map<List<VideoStreamDto>>(afterRegexStreams);
@@ -150,14 +149,14 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         return FindAll().OrderBy(p => p.Name);
     }
 
-    public async Task<PagedList<ChannelGroup>> GetChannelGroupsAsync(ChannelGroupParameters channelGroupParameters)
-    {
-        IQueryable<ChannelGroup> channelGroups = FindAll();
+    //public async Task<IEnumerable<ChannelGroup>> GetChannelGroupsAsync(ChannelGroupParameters channelGroupParameters)
+    //{
+    //    IQueryable<ChannelGroup> channelGroups = FindAll();
 
-        IQueryable<ChannelGroup> sorderChannelGroups = _channelGroupSortHelper.ApplySort(channelGroups, channelGroupParameters.OrderBy);
+    //    IQueryable<ChannelGroup> sorderChannelGroups = _channelGroupSortHelper.ApplySort(channelGroups, channelGroupParameters.OrderBy);
 
-        return await PagedList<ChannelGroup>.ToPagedList(sorderChannelGroups, channelGroupParameters.PageNumber, channelGroupParameters.PageSize);
-    }
+    //    return await PagedList<ChannelGroup>.ToPagedList(sorderChannelGroups, channelGroupParameters.PageNumber, channelGroupParameters.PageSize);
+    //}
 
     public async Task<ChannelGroup?> GetChannelGroupAsync(int Id)
     {

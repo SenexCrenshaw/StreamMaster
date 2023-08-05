@@ -39,15 +39,3 @@ public interface ISharedTasks :
 {
 }
 
-public interface ISharedDB :
-    IChannelGroupDB,
-    IEPGFileDB,
-    IM3UFileDB,
-    IIconDB,
-    IVideoStreamDB,
-    ISchedulesDirectDB,
-    IStreamGroupDB,
-    IProgrammeChannelDB,
-    ISettingDB
-{
-}

@@ -11,7 +11,7 @@ import { Toast } from 'primereact/toast';
 const ChannelGroupSelector = (props: ChannelGroupSelectorProps) => {
   const toast = React.useRef<Toast>(null);
 
-  const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
+  const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery({} as StreamMasterApi.QueryStringParameters);
 
   const [channelGroup, setChannelGroup] = React.useState<string>('');
 

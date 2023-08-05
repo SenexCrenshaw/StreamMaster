@@ -2,7 +2,7 @@ import React from "react";
 import * as StreamMasterApi from '../store/iptvApi';
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
-import { AddChannelGroup } from "../store/signlar_functions";
+import { CreateChannelGroup } from "../store/signlar_functions";
 import { getTopToolOptions } from "../common/common";
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
 import DataSelector from "../features/dataSelector/DataSelector";
@@ -17,8 +17,7 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
   const [newGroupName, setNewGroupName] = React.useState('');
   const [regex, setRegex] = React.useState<string>('');
 
-
-  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
+  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsByNamePatternQuery({ pattern: regex } as StreamMasterApi.GetVideoStreamsByNamePatternQuery);
 
   const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);
@@ -36,14 +35,14 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
       return;
     }
 
-    const data = {} as StreamMasterApi.AddChannelGroupRequest;
+    const data = {} as StreamMasterApi.CreateChannelGroupRequest;
     data.groupName = newGroupName;
 
     if (regex !== undefined && regex !== '') {
       data.regex = regex;
     }
 
-    AddChannelGroup(data).then(() => {
+    CreateChannelGroup(data).then(() => {
       setInfoMessage('Channel Group Added Successfully');
     }).catch((e) => {
       setInfoMessage('Channel Group Add Error: ' + e.message);
@@ -75,21 +74,21 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
     ]
   }, []);
 
-  const dataSource = React.useMemo((): StreamMasterApi.VideoStreamDto[] | undefined => {
-    if (regex === undefined || regex === '' || !videoStreamsQuery.data)
-      return (undefined);
+  // const dataSource = React.useMemo((): StreamMasterApi.VideoStreamDto[] | undefined => {
+  //   if (regex === undefined || regex === '' || !videoStreamsQuery.data)
+  //     return (undefined);
 
 
-    const filteredData = videoStreamsQuery.data.filter((item) => {
-      if (item.isHidden)
-        return false;
+  //   const filteredData = videoStreamsQuery.data.filter((item) => {
+  //     if (item.isHidden)
+  //       return false;
 
-      const regexToTest = new RegExp(`.*${regex}.*`, 'i');
-      return regexToTest.test(item.user_Tvg_name);
-    });
+  //     const regexToTest = new RegExp(`.*${regex}.*`, 'i');
+  //     return regexToTest.test(item.user_Tvg_name);
+  //   });
 
-    return filteredData;
-  }, [regex, videoStreamsQuery.data]);
+  //   return filteredData;
+  // }, [regex, videoStreamsQuery.data]);
 
   return (
     <>
@@ -138,10 +137,11 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
               <div className='m3uFilesEditor flex flex-column col-12 flex-shrink-0 '>
                 <DataSelector
                   columns={sourceColumns}
-                  dataSource={dataSource}
+                  dataSource={videoStreamsQuery.data}
                   emptyMessage="No Streams"
                   globalSearchEnabled={false}
                   id='StreamingServerStatusPanel'
+                  isLoading={videoStreamsQuery.isLoading}
                   showHeaders={false}
                   style={{ height: 'calc(50vh - 40px)' }}
                 />

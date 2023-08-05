@@ -16,7 +16,7 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
   const [regex, setRegex] = React.useState<string | undefined>('');
   const [newGroupName, setNewGroupName] = React.useState('');
 
-  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
+  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsByNamePatternQuery({ pattern: regex } as StreamMasterApi.GetVideoStreamsByNamePatternQuery);
 
   const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);
@@ -69,22 +69,6 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
     ]
   }, []);
 
-  const dataSource = React.useMemo((): StreamMasterApi.VideoStreamDto[] | undefined => {
-    if (regex === undefined || regex === '' || !videoStreamsQuery.data)
-      return (undefined);
-
-
-    const filteredData = videoStreamsQuery.data.filter((item) => {
-      if (item.isHidden)
-        return false;
-
-      const regexToTest = new RegExp(`.*${regex}.*`, 'i');
-      return regexToTest.test(item.user_Tvg_name);
-    });
-
-    return filteredData;
-  }, [regex, videoStreamsQuery.data]);
-
 
 
   return (
@@ -134,10 +118,11 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
               <div className='m3uFilesEditor flex flex-column col-12 flex-shrink-0 '>
                 <DataSelector
                   columns={sourceColumns}
-                  dataSource={dataSource}
+                  dataSource={videoStreamsQuery.data}
                   emptyMessage="No Streams"
                   globalSearchEnabled={false}
                   id='StreamingServerStatusPanel'
+                  isLoading={videoStreamsQuery.isLoading}
                   showHeaders={false}
                   style={{ height: 'calc(50vh - 40px)' }}
                 />

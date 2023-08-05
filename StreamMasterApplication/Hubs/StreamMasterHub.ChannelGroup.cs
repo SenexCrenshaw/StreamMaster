@@ -3,7 +3,6 @@ using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.ChannelGroups.Queries;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Hubs;
 
@@ -24,9 +23,9 @@ public partial class StreamMasterHub : IChannelGroupHub
         return await _mediator.Send(new GetChannelGroup(id)).ConfigureAwait(false);
     }
 
-    public async Task<PagedList<ChannelGroup>> GetChannelGroups(ChannelGroupParameters channelGroupParameters)
+    public async Task<List<ChannelGroupDto>> GetChannelGroups()
     {
-        return await _mediator.Send(new GetChannelGroupsQuery(channelGroupParameters)).ConfigureAwait(false);
+        return await _mediator.Send(new GetChannelGroupsQuery()).ConfigureAwait(false);
     }
 
     public async Task SetChannelGroupsVisible(SetChannelGroupsVisibleRequest request)

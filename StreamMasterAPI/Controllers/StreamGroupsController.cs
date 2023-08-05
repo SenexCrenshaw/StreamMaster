@@ -24,7 +24,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
     public static int GenerateMediaSequence()
     {
-        DateTime epochStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime epochStart = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         TimeSpan elapsedTime = DateTime.UtcNow - epochStart;
         int mediaSequence = (int)(elapsedTime.TotalSeconds / 10);
 
@@ -33,9 +33,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
     [HttpPost]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(StreamGroupDto))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+
     public async Task<ActionResult> AddStreamGroup(AddStreamGroupRequest request)
     {
         StreamGroupDto? entity = await Mediator.Send(request).ConfigureAwait(false);
@@ -44,9 +42,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
     [HttpDelete]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+
     public async Task<ActionResult> DeleteStreamGroup(DeleteStreamGroupRequest request)
     {
         int? data = await Mediator.Send(request).ConfigureAwait(false);
@@ -55,9 +51,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
     [HttpGet]
     [Route("[action]/{id}")]
-    [ProducesResponseType(typeof(StreamGroupDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<StreamGroupDto>> GetStreamGroup(int id)
     {
         StreamGroupDto? data = await Mediator.Send(new GetStreamGroup(id)).ConfigureAwait(false);
@@ -68,9 +61,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [Route("[action]/{StreamGroupNumber}")]
-    [ProducesResponseType(typeof(StreamGroupDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<StreamGroupDto>> GetStreamGroupByStreamNumber(int StreamGroupNumber)
     {
         StreamGroupDto? data = await Mediator.Send(new GetStreamGroupByStreamNumber(StreamGroupNumber)).ConfigureAwait(false);
@@ -83,9 +73,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [Route("{encodedId}")]
     [Route("{encodedId}/capability")]
     [Route("{encodedId}/device.xml")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetStreamGroupCapability(string encodedId)
     {
         int? streamGroupNumber = encodedId.DecodeValue128(_setting.ServerKey);
@@ -106,9 +93,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [HttpGet]
     [Authorize(Policy = "SGLinks")]
     [Route("{encodedId}/discover.json")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetStreamGroupDiscover(string encodedId)
     {
         int? streamGroupNumber = encodedId.DecodeValue128(_setting.ServerKey);
@@ -129,9 +113,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [Route("{encodedId}/epg.xml")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetStreamGroupEPG(string encodedId)
     {
         int? streamGroupNumber = encodedId.DecodeValue128(_setting.ServerKey);
@@ -149,21 +130,15 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
     [HttpGet]
     [Route("{StreamGroupNumber}/epgGuide.json")]
-    [ProducesResponseType(typeof(EPGGuide), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<EPGGuide>> GetStreamGroupEPGForGuide(int StreamGroupNumber)
     {
-        var data = await Mediator.Send(new GetStreamGroupEPGForGuide(StreamGroupNumber)).ConfigureAwait(false);
+        EPGGuide data = await Mediator.Send(new GetStreamGroupEPGForGuide(StreamGroupNumber)).ConfigureAwait(false);
         return data != null ? (ActionResult<EPGGuide>)data : (ActionResult<EPGGuide>)NotFound();
     }
 
     [HttpGet]
     [Authorize(Policy = "SGLinks")]
     [Route("{encodedId}/lineup.json")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetStreamGroupLineUp(string encodedId)
     {
         int? streamGroupNumber = encodedId.DecodeValue128(_setting.ServerKey);
@@ -184,9 +159,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [HttpGet]
     [Authorize(Policy = "SGLinks")]
     [Route("{encodedId}/lineup_status.json")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetStreamGroupLineUpStatus(string encodedId)
     {
         int? streamGroupNumber = encodedId.DecodeValue128(_setting.ServerKey);
@@ -206,9 +178,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
     [Route("{encodedId}/m3u.m3u")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetStreamGroupM3U(string encodedId)
     {
         int? streamGroupNumber = encodedId.DecodeValue128(_setting.ServerKey);
@@ -329,9 +298,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
     [HttpPut]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> UpdateStreamGroup(UpdateStreamGroupRequest request)
     {
         StreamGroupDto? entity = await Mediator.Send(request).ConfigureAwait(false);
@@ -381,13 +347,13 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
     private string GetUrl()
     {
-        var request = HttpContext.Request;
-        var scheme = request.Scheme;
-        var host = request.Host;
-        var path = request.Path;
-        var queryString = request.QueryString;
+        HttpRequest request = HttpContext.Request;
+        string scheme = request.Scheme;
+        HostString host = request.Host;
+        PathString path = request.Path;
+        QueryString queryString = request.QueryString;
 
-        var url = $"{scheme}://{host}{path}{queryString}";
+        string url = $"{scheme}://{host}{path}{queryString}";
 
         return url;
     }

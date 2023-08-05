@@ -23,8 +23,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-PlayListDataSelector-showHidden');
   const [selectedChannelGroups, setSelectedChannelGroups] = useLocalStorage<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[], props.id + '-PlayListDataSelector-selectedChannelGroups');
 
-  const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
-  StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
+  const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery({} as StreamMasterApi.QueryStringParameters);
 
   const isLoading = React.useMemo(() => {
 

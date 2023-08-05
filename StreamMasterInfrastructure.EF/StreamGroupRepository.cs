@@ -131,7 +131,7 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
 
             if (cg is not null && !string.IsNullOrEmpty(cg.RegexMatch))
             {
-                List<VideoStream> regexStreams = await _sender.Send(new GetVideoStreamsByNamePatternQuery(cg.RegexMatch), cancellationToken).ConfigureAwait(false);
+                IEnumerable<VideoStream> regexStreams = await _sender.Send(new GetVideoStreamsByNamePatternQuery(cg.RegexMatch), cancellationToken).ConfigureAwait(false);
                 foreach (VideoStream? stream in regexStreams)
                 {
                     if (!existingIds.Contains(stream.Id))

@@ -144,14 +144,14 @@ const FileDialog = (props: FileDialogProps) => {
     if (source !== '') {
       switch (props.fileType) {
         case 'epg':
-          const addEpgFileRequest = {} as StreamMasterApi.AddEpgFileRequest;
+          const addEpgFileRequest = {} as StreamMasterApi.CreateEpgFileRequest;
 
           addEpgFileRequest.name = name;
           addEpgFileRequest.description = '';
           addEpgFileRequest.formFile = null;
           addEpgFileRequest.urlSource = source;
 
-          Hub.AddEPGFile(addEpgFileRequest)
+          Hub.CreateEPGFile(addEpgFileRequest)
             .then(() => {
 
               setInfoMessage(`Uploaded EPG: ${name}${activeFile ? '/' + activeFile.name : ''}`);

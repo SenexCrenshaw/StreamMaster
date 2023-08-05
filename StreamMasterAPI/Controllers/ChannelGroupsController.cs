@@ -7,7 +7,6 @@ using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.ChannelGroups.Queries;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Pagination;
 
 namespace StreamMasterAPI.Controllers;
 
@@ -45,12 +44,10 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ChannelGroupDto>>> GetChannelGroups(ChannelGroupParameters channelGroupParameters)
+    public async Task<ActionResult<IEnumerable<ChannelGroupDto>>> GetChannelGroups()
     {
-        PagedList<StreamMasterDomain.Repository.ChannelGroup> channelGroups = await Mediator.Send(new GetChannelGroupsQuery(channelGroupParameters)).ConfigureAwait(false);
-        Response.Headers.Add("X-Pagination", channelGroups.GetMetadata());
-        IEnumerable<M3UFileDto> channelGroupsResult = _mapper.Map<IEnumerable<M3UFileDto>>(channelGroups);
-        return Ok(channelGroupsResult);
+        List<ChannelGroupDto> channelGroups = await Mediator.Send(new GetChannelGroupsQuery()).ConfigureAwait(false);
+        return Ok(channelGroups);
     }
 
     [HttpPut]

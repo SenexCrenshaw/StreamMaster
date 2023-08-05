@@ -37,7 +37,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SDConsole", "SDConsole\SDCo
 		{06596C65-B147-438E-B069-9D11E52978C3} = {06596C65-B147-438E-B069-9D11E52978C3}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamMasterInfrastructure.EF", "StreamMasterInfrastructure.EF\StreamMasterInfrastructure.EF.csproj", "{50CED38E-3AA3-48F4-9478-452E36DE3395}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamMasterInfrastructure.EF", "StreamMasterInfrastructure.EF\StreamMasterInfrastructure.EF.csproj", "{50CED38E-3AA3-48F4-9478-452E36DE3395}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
