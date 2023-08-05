@@ -13,6 +13,7 @@ using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.StreamGroups.Commands;
 

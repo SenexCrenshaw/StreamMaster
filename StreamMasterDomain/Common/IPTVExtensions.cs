@@ -1,5 +1,7 @@
 ﻿using MediatR;
 
+using StreamMasterDomain.Repository;
+
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text.RegularExpressions;

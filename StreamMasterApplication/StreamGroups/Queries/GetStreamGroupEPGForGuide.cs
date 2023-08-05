@@ -13,7 +13,7 @@ using StreamMasterApplication.Common.Extensions;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Entities.EPG;
+using StreamMasterDomain.Repository.EPG;
 
 using System.Collections.Concurrent;
 using System.Web;

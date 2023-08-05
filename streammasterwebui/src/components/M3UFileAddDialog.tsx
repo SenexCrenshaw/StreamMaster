@@ -43,8 +43,8 @@ M3UFileAddDialog.defaultProps = {
 };
 
 export type M3UFilesEditorProps = {
-  onClick?: (e: StreamMasterApi.M3UFilesDto) => void;
-  value?: StreamMasterApi.M3UFilesDto | undefined;
+  onClick?: (e: StreamMasterApi.M3UFileDto) => void;
+  value?: StreamMasterApi.M3UFileDto | undefined;
 };
 
 export default React.memo(M3UFileAddDialog);

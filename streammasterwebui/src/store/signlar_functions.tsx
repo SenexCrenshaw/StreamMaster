@@ -27,7 +27,7 @@ import {
   type LineUpsResult,
   type LogEntryDto,
   type LogInRequest,
-  type M3UFilesDto,
+  type M3UFileDto,
   type ProcessEpgFileRequest,
   type ProcessM3UFileRequest,
   type ProgrammeNameDto,
@@ -175,13 +175,13 @@ export const DeleteM3UFile = async (arg: DeleteM3UFileRequest): Promise<void> =>
     await hubConnection.invoke('DeleteM3UFile',arg);
 };
 
-export const GetM3UFile = async (arg: number): Promise<M3UFilesDto> => {
+export const GetM3UFile = async (arg: number): Promise<M3UFileDto> => {
     const data = await hubConnection.invoke('GetM3UFile',arg);
 
     return data;
 };
 
-export const GetM3UFiles = async (): Promise<M3UFilesDto[]> => {
+export const GetM3UFiles = async (): Promise<M3UFileDto[]> => {
     const data = await hubConnection.invoke('GetM3UFiles');
 
     return data;

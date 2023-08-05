@@ -3,7 +3,8 @@ using StreamMasterApplication.Programmes.Queries;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Entities.EPG;
+using StreamMasterDomain.Repository;
+using StreamMasterDomain.Repository.EPG;
 
 namespace StreamMasterApplication.Hubs;
 

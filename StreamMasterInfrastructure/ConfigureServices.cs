@@ -7,8 +7,8 @@ using StreamMasterApplication.LogApp;
 
 using StreamMasterDomain.Common;
 
+using StreamMasterInfrastructure.EF;
 using StreamMasterInfrastructure.Logging;
-using StreamMasterInfrastructure.Persistence;
 using StreamMasterInfrastructure.Services;
 using StreamMasterInfrastructure.Services.Frontend.Mappers;
 using StreamMasterInfrastructure.VideoStreamManager;
@@ -21,6 +21,7 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
+
         // Dynamically find and register services implementing IMapHttpRequestsToDisk
         var assembly = Assembly.GetExecutingAssembly();
         var mapHttpRequestsToDiskImplementations = assembly.GetTypes()

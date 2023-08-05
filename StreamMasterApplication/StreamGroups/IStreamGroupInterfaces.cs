@@ -6,6 +6,7 @@ using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.StreamGroups.Queries;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.StreamGroups;
 

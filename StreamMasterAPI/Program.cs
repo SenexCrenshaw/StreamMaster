@@ -6,8 +6,8 @@ using StreamMasterApplication.Hubs;
 using StreamMasterDomain.Common;
 
 using StreamMasterInfrastructure;
+using StreamMasterInfrastructure.EF;
 using StreamMasterInfrastructure.Logging;
-using StreamMasterInfrastructure.Persistence;
 
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -61,6 +61,7 @@ if (!string.IsNullOrEmpty(sslCertPath))
 
 // Add services to the container.
 builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureEFServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddWebUIServices();
 

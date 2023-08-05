@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using StreamMaster.SchedulesDirectAPI;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Entities.EPG;
+using StreamMasterDomain.Repository.EPG;
 
 using System.Web;
 

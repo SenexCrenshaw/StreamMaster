@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMasterDomain.Entities;
+using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructure.Logging;
 

@@ -12,8 +12,8 @@ using StreamMasterApplication.Hubs;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Entities;
 using StreamMasterDomain.Enums;
+using StreamMasterDomain.Repository;
 
 using System.Collections.Concurrent;
 using System.Data;
@@ -240,6 +240,7 @@ public class ChannelManager : IDisposable, IChannelManager
 
         using IServiceScope scope = _serviceProvider.CreateScope();
         IAppDbContext context = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
+        IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
         IMapper mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
         M3UFile? m3uFile;
         int allStreamsCount = 0;
@@ -254,7 +255,9 @@ public class ChannelManager : IDisposable, IChannelManager
                 return null;
             }
 
-            m3uFile = await context.M3UFiles.AsNoTracking().FirstOrDefaultAsync(a => a.Id == newVideoStream.M3UFileId);
+            var m3uFilesRepo = await repository.M3UFile.GetAllM3UFilesAsync();
+
+            m3uFile = m3uFilesRepo.FirstOrDefault(a => a.Id == newVideoStream.M3UFileId);
             if (m3uFile == null)
             {
                 if (GetGlobalStreamsCount() >= setting.GlobalStreamLimit)
@@ -309,8 +312,9 @@ public class ChannelManager : IDisposable, IChannelManager
         while (channelStatus.Rank < videoStreams.Length)
         {
             var toReturn = videoStreams[channelStatus.Rank++];
+            var m3uFilesRepo = await repository.M3UFile.GetAllM3UFilesAsync();
 
-            m3uFile = await context.M3UFiles.AsNoTracking().FirstOrDefaultAsync(a => a.Id == toReturn.M3UFileId);
+            m3uFile = m3uFilesRepo.FirstOrDefault(a => a.Id == toReturn.M3UFileId);
             if (m3uFile == null)
             {
                 if (GetGlobalStreamsCount() >= setting.GlobalStreamLimit)

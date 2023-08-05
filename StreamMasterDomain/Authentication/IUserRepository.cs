@@ -1,4 +1,4 @@
-﻿using StreamMasterDomain.Entities;
+﻿using StreamMasterDomain.Repository;
 
 namespace StreamMasterDomain.Authentication;
 

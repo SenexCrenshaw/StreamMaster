@@ -11,6 +11,7 @@ using StreamMasterApplication.Hubs;
 using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 

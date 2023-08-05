@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using StreamMasterApplication.EPGFiles.Commands;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.EPGFiles;
 

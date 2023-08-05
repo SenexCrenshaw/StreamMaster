@@ -8,7 +8,7 @@ import { M3UPlaylistEditorIcon } from "../common/icons";
 
 
 const M3UPlaylistEditor = () => {
-  // const [m3uFileDto, setM3uFileDto] = React.useState<StreamMasterApi.M3UFilesDto>({} as StreamMasterApi.M3UFilesDto);
+  // const [m3uFileDto, setM3uFileDto] = React.useState<StreamMasterApi.M3UFileDto>({} as StreamMasterApi.M3UFileDto);
 
   return (
     <div className="grid grid-nogutter flex justify-content-between align-items-center">

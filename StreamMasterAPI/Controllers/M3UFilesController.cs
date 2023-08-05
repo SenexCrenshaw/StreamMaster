@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+
+using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterApplication.M3UFiles;
 using StreamMasterApplication.M3UFiles.Commands;
@@ -6,47 +8,45 @@ using StreamMasterApplication.M3UFiles.Queries;
 
 using StreamMasterDomain.Dto;
 
+using StreamMasterInfrastructure.Pagination;
+
 namespace StreamMasterAPI.Controllers;
 
 public class M3UFilesController : ApiControllerBase, IM3UFileController
 {
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(M3UFilesDto))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> AddM3UFile(AddM3UFileRequest request)
+    private readonly IMapper _mapper;
+
+    public M3UFilesController(IMapper mapper)
     {
-        M3UFilesDto? entity = await Mediator.Send(request).ConfigureAwait(false);
-        return entity == null ? Ok() : CreatedAtAction(nameof(GetM3UFile), new { id = entity.Id }, entity);
+        _mapper = mapper;
     }
 
     [HttpPost]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(M3UFilesDto))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> AddM3UFileFromForm([FromForm] AddM3UFileRequest request)
+    public async Task<ActionResult> CreateM3UFile(CreateM3UFileRequest request)
     {
-        M3UFilesDto? entity = await Mediator.Send(request).ConfigureAwait(false);
-        return entity == null ? BadRequest() : CreatedAtAction(nameof(GetM3UFile), new { id = entity.Id }, entity);
+        var result = await Mediator.Send(request).ConfigureAwait(false);
+        return result ? Ok() : BadRequest();
+    }
+
+    [HttpPost]
+    [Route("[action]")]
+    public async Task<ActionResult> CreateM3UFileFromForm([FromForm] CreateM3UFileRequest request)
+    {
+        var result = await Mediator.Send(request).ConfigureAwait(false);
+        return result ? Ok() : BadRequest();
     }
 
     [HttpPut]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ChangeM3UFileName(ChangeM3UFileNameRequest request)
     {
-        M3UFilesDto? entity = await Mediator.Send(request).ConfigureAwait(false);
-        return entity == null ? NotFound() : NoContent();
+        var result = await Mediator.Send(request).ConfigureAwait(false);
+        return result ? Ok() : BadRequest();
     }
 
     [HttpDelete]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> DeleteM3UFile(DeleteM3UFileRequest request)
     {
         int? data = await Mediator.Send(request).ConfigureAwait(false);
@@ -55,66 +55,52 @@ public class M3UFilesController : ApiControllerBase, IM3UFileController
 
     [HttpGet]
     [Route("{id}")]
-    [ProducesResponseType(typeof(M3UFilesDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<M3UFilesDto>> GetM3UFile(int id)
+    public async Task<ActionResult<M3UFileDto>> GetM3UFile(int id)
     {
-        M3UFilesDto? data = await Mediator.Send(new GetM3UFile(id)).ConfigureAwait(false);
+        M3UFileDto? data = await Mediator.Send(new GetM3UFileByIdQuery(id)).ConfigureAwait(false);
 
-        return data != null ? (ActionResult<M3UFilesDto>)data : (ActionResult<M3UFilesDto>)NotFound();
+        return data != null ? (ActionResult<M3UFileDto>)data : (ActionResult<M3UFileDto>)NotFound();
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<M3UFilesDto>))]
-    public async Task<ActionResult<IEnumerable<M3UFilesDto>>> GetM3UFiles()
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<M3UFileDto>))]
+    public async Task<ActionResult<IEnumerable<M3UFileDto>>> GetM3UFiles(M3UFileParameters Parameters)
     {
-        IEnumerable<M3UFilesDto> data = await Mediator.Send(new GetM3UFiles()).ConfigureAwait(false);
-        return data.ToList();
+        var m3uFiles = await Mediator.Send(new GetM3UFilesQuery(Parameters)).ConfigureAwait(false);
+        Response.Headers.Add("X-Pagination", m3uFiles.GetMetadata());
+        var m3uFilesResult = _mapper.Map<IEnumerable<M3UFileDto>>(m3uFiles);
+        return Ok(m3uFilesResult);
     }
 
     [HttpPut]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ProcessM3UFile(ProcessM3UFileRequest request)
     {
-        M3UFilesDto? entity = await Mediator.Send(request).ConfigureAwait(false);
-        return entity == null ? NotFound() : NoContent();
+        var data = await Mediator.Send(request).ConfigureAwait(false);
+        return data == null ? NotFound() : NoContent();
     }
 
     [HttpPut]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> RefreshM3UFile(RefreshM3UFileRequest request)
     {
-        M3UFilesDto? entity = await Mediator.Send(request).ConfigureAwait(false);
-        return entity == null ? NotFound() : NoContent();
+        var data = await Mediator.Send(request).ConfigureAwait(false);
+        return data == null ? NotFound() : NoContent();
     }
 
     [HttpPut]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ScanDirectoryForM3UFiles()
     {
         _ = await Mediator.Send(new ScanDirectoryForM3UFilesRequest()).ConfigureAwait(false);
-
         return NoContent();
     }
 
     [HttpPut]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> UpdateM3UFile(UpdateM3UFileRequest request)
     {
-        M3UFilesDto? entity = await Mediator.Send(request).ConfigureAwait(false);
-        return entity == null ? NotFound() : NoContent();
+        var data = await Mediator.Send(request).ConfigureAwait(false);
+        return data == null ? NotFound() : NoContent();
     }
 }

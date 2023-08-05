@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
 

@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-
-using FluentValidation;
+﻿using FluentValidation;
 
 using MediatR;
 
@@ -9,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using StreamMasterApplication.Common.Models;
 
 using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Dto;
 
 using System.Text.Json;
 
@@ -31,16 +28,11 @@ public class GetStreamGroupDiscoverHandler : IRequestHandler<GetStreamGroupDisco
 {
     private readonly IAppDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IMapper _mapper;
-    private readonly ISender _sender;
 
-    public GetStreamGroupDiscoverHandler(
-           IHttpContextAccessor httpContextAccessor,
-           IAppDbContext context,
-           IMapper mapper
-           )
+    private IRepositoryWrapper Repository { get; }
+    public GetStreamGroupDiscoverHandler(IHttpContextAccessor httpContextAccessor, IAppDbContext context, IRepositoryWrapper repository)
     {
-        _mapper = mapper;
+        Repository = repository;
         _context = context;
         _httpContextAccessor = httpContextAccessor;
     }
@@ -56,9 +48,9 @@ public class GetStreamGroupDiscoverHandler : IRequestHandler<GetStreamGroupDisco
                 return "";
             }
         }
-        var settings = _mapper.Map<SettingDto>(FileUtil.GetSetting());
-        var maxTuners = _context.M3UFiles.Sum(a => a.MaxStreamCount);
-        Discover discover = new(settings, url, request.StreamGroupNumber, maxTuners);
+
+        var maxTuners = await Repository.M3UFile.GetM3UMaxStreamCountAsync();
+        Discover discover = new(url, request.StreamGroupNumber, maxTuners);
 
         string jsonString = JsonSerializer.Serialize(discover, new JsonSerializerOptions { WriteIndented = true });
         return jsonString;

@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using AutoMapper;
+
+using MediatR;
 
 using Microsoft.AspNetCore.SignalR;
 
@@ -28,6 +30,8 @@ public class SignalRMessage
 
 public partial class StreamMasterHub : Hub<IStreamMasterHub>, ISharedHub
 {
+    private readonly IMapper _mapper;
+
     private readonly ISender _mediator = null!;
 
     private static HashSet<string> _connections = new HashSet<string>();
@@ -55,9 +59,10 @@ public partial class StreamMasterHub : Hub<IStreamMasterHub>, ISharedHub
     }
 
     public StreamMasterHub(
-        ISender mediator
+        ISender mediator, IMapper mapper
         )
     {
+        _mapper = mapper;
         _mediator = mediator;
     }
 

@@ -3,7 +3,8 @@
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Entities.EPG;
+using StreamMasterDomain.Repository;
+using StreamMasterDomain.Repository.EPG;
 
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;

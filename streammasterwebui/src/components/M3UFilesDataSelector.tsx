@@ -15,7 +15,7 @@ import { useLocalStorage } from 'primereact/hooks';
 const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
 
-  const [selectedM3UFile, setSelectedM3UFile] = useLocalStorage<StreamMasterApi.M3UFilesDto>({ id: 0, name: 'All' } as StreamMasterApi.M3UFilesDto, 'M3UFilesDataSelector-selectedM3UFile');
+  const [selectedM3UFile, setSelectedM3UFile] = useLocalStorage<StreamMasterApi.M3UFileDto>({ id: 0, name: 'All' } as StreamMasterApi.M3UFileDto, 'M3UFilesDataSelector-selectedM3UFile');
 
   const m3UFilesQuery = StreamMasterApi.useM3UFilesGetM3UFilesQuery();
 
@@ -26,7 +26,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
     }
   }, [props.value, selectedM3UFile, setSelectedM3UFile]);
 
-  const SetSelectedM3UFileChanged = React.useCallback((data: StreamMasterApi.M3UFilesDto) => {
+  const SetSelectedM3UFileChanged = React.useCallback((data: StreamMasterApi.M3UFileDto) => {
     if (!data) {
       return;
     }
@@ -102,7 +102,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
 
   }, [toast]);
 
-  const lastDownloadedTemplate = React.useCallback((rowData: StreamMasterApi.M3UFilesDto) => {
+  const lastDownloadedTemplate = React.useCallback((rowData: StreamMasterApi.M3UFileDto) => {
     if (rowData.id === 0) {
       return (<div />);
     }
@@ -114,7 +114,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
     );
   }, []);
 
-  const nameEditorBodyTemplate = React.useCallback((rowData: StreamMasterApi.M3UFilesDto) => {
+  const nameEditorBodyTemplate = React.useCallback((rowData: StreamMasterApi.M3UFileDto) => {
     if (rowData.id === 0) {
       return (
         <div className='p-0 relative'
@@ -143,7 +143,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
     )
   }, [onM3UUpdateClick]);
 
-  const urlEditorBodyTemplate = React.useCallback((rowData: StreamMasterApi.M3UFilesDto) => {
+  const urlEditorBodyTemplate = React.useCallback((rowData: StreamMasterApi.M3UFileDto) => {
     if (rowData.id === 0) {
       return (
         <div className='p-0 relative'
@@ -172,7 +172,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
     )
   }, [onM3UUpdateClick]);
 
-  const maxStreamCountTemplate = React.useCallback((rowData: StreamMasterApi.M3UFilesDto) => {
+  const maxStreamCountTemplate = React.useCallback((rowData: StreamMasterApi.M3UFileDto) => {
     if (rowData.id === 0) {
       return (<div />);
     }
@@ -190,7 +190,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
     );
   }, [onM3UUpdateClick]);
 
-  const startingChannelNumberTemplate = React.useCallback((rowData: StreamMasterApi.M3UFilesDto) => {
+  const startingChannelNumberTemplate = React.useCallback((rowData: StreamMasterApi.M3UFileDto) => {
     if (rowData.id === 0) {
       return (<div />);
     }
@@ -209,7 +209,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
   }, [onM3UUpdateClick]);
 
 
-  const stationCountTemplate = React.useCallback((rowData: StreamMasterApi.M3UFilesDto) => {
+  const stationCountTemplate = React.useCallback((rowData: StreamMasterApi.M3UFileDto) => {
     if (rowData.id === 0) {
       return (<div />);
     }
@@ -219,7 +219,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
     );
   }, []);
 
-  const targetActionBodyTemplate = React.useCallback((rowData: StreamMasterApi.M3UFilesDto) => {
+  const targetActionBodyTemplate = React.useCallback((rowData: StreamMasterApi.M3UFileDto) => {
     if (rowData.id === 0) {
       return (<div />);
     }
@@ -289,7 +289,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
         id='m3ufilesdataselector'
         isLoading={m3UFilesQuery.isLoading}
         onSelectionChange={(e) =>
-          SetSelectedM3UFileChanged(e as StreamMasterApi.M3UFilesDto)
+          SetSelectedM3UFileChanged(e as StreamMasterApi.M3UFileDto)
         }
         selection={selectedM3UFile}
         style={{ height: 'calc(50vh - 40px)' }}
@@ -300,8 +300,8 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
 
 M3UFilesDataSelector.displayName = 'M3UFilesDataSelector';
 type M3UFilesDataSelectorProps = {
-  onChange?: (value: StreamMasterApi.M3UFilesDto) => void;
-  value?: StreamMasterApi.M3UFilesDto | undefined;
+  onChange?: (value: StreamMasterApi.M3UFileDto) => void;
+  value?: StreamMasterApi.M3UFileDto | undefined;
 };
 
 export default React.memo(M3UFilesDataSelector);

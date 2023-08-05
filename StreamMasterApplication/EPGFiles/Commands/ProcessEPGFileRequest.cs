@@ -10,7 +10,8 @@ using Microsoft.Extensions.Caching.Memory;
 using StreamMasterApplication.Hubs;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Entities.EPG;
+using StreamMasterDomain.Repository;
+using StreamMasterDomain.Repository.EPG;
 
 using System.ComponentModel.DataAnnotations;
 

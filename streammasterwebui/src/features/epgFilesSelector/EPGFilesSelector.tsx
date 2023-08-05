@@ -91,7 +91,7 @@ export const EPGFilesSelector = (props: EPGFilesSelectorProps) => {
 
   }, [toast]);
 
-  const targetActionBodyTemplate = React.useCallback((data: StreamMasterApi.M3UFilesDto) => {
+  const targetActionBodyTemplate = React.useCallback((data: StreamMasterApi.M3UFileDto) => {
     return (
       <div className="dataselector p-inputgroup align-items-center">
         <Checkbox

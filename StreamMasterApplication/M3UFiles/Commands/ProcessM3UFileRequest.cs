@@ -5,6 +5,7 @@ using FluentValidation;
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Dto;
@@ -16,70 +17,58 @@ using System.Diagnostics;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
 
-public class ProcessM3UFileRequest : IRequest<M3UFilesDto?>
+public class ProcessM3UFileRequest : IRequest<M3UFile?>
 {
     [Required]
-    public int M3UFileId { get; set; }
+    public int Id { get; set; }
 }
 
 public class ProcessM3UFileRequestValidator : AbstractValidator<ProcessM3UFileRequest>
 {
     public ProcessM3UFileRequestValidator()
     {
-        _ = RuleFor(v => v.M3UFileId)
+        _ = RuleFor(v => v.Id)
             .NotNull()
             .GreaterThanOrEqualTo(0);
     }
 }
 
-public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileRequest, M3UFilesDto?>
+public class ProcessM3UFileRequestHandler : BaseDBRequestHandler, IRequestHandler<ProcessM3UFileRequest, M3UFile?>
 {
-    private readonly IAppDbContext _context;
-    private readonly ILogger<ProcessM3UFileRequestHandler> _logger;
-    private readonly IMapper _mapper;
-    private readonly IPublisher _publisher;
+
 
     private ThreadSafeIntList existingChannels;
 
     private int nextchno;
 
-    public ProcessM3UFileRequestHandler(
-                ILogger<ProcessM3UFileRequestHandler> logger,
-        IMapper mapper,
-        IPublisher publisher,
-        IAppDbContext context
-    )
-    {
-        _publisher = publisher;
-        _context = context;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    public ProcessM3UFileRequestHandler(IAppDbContext context, ILogger<ProcessM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, context, memoryCache) { }
 
-    public async Task<M3UFilesDto?> Handle(ProcessM3UFileRequest command, CancellationToken cancellationToken)
+
+    public async Task<M3UFile?> Handle(ProcessM3UFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            M3UFile? m3uFile = await _context.M3UFiles.FindAsync(new object?[] { command.M3UFileId }, cancellationToken: cancellationToken).ConfigureAwait(false);
+            var m3uFile = await Repository.M3UFile.GetM3UFileByIdAsync(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
-                _logger.LogCritical("Could not find M3U file");
+                Logger.LogCritical("Could not find M3U file");
                 return null;
             }
             Stopwatch sw = Stopwatch.StartNew();
 
-            if (m3uFile.LastWrite() >=m3uFile.LastUpdated)
+            if (m3uFile.LastWrite() >= m3uFile.LastUpdated)
             {
 
                 List<VideoStream>? streams = await m3uFile.GetM3U().ConfigureAwait(false);
                 if (streams == null)
                 {
-                    _logger.LogCritical("Error while processing M3U file, bad format");
+                    Logger.LogCritical("Error while processing M3U file, bad format");
                     return null;
                 }
 
                 Setting setting = FileUtil.GetSetting();
-               
+
                 if (setting.NameRegex.Any())
                 {
                     foreach (var regex in setting.NameRegex)
@@ -91,14 +80,14 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                     }
                 }
                 sw.Stop();
-                _logger.LogInformation($"Regex of ID: {m3uFile.Id} {m3uFile.Name}, took {sw.Elapsed.TotalSeconds} seconds");
+                Logger.LogInformation($"Regex of ID: {m3uFile.Id} {m3uFile.Name}, took {sw.Elapsed.TotalSeconds} seconds");
 
                 sw = Stopwatch.StartNew();
-                var existing = _context.VideoStreams.Where(a => a.M3UFileId == m3uFile.Id).ToList();
+                var existing = Context.VideoStreams.Where(a => a.M3UFileId == m3uFile.Id).ToList();
 
                 existingChannels = new ThreadSafeIntList(m3uFile.StartingChannelNumber < 1 ? 1 : m3uFile.StartingChannelNumber);
 
-                var groups = _context.ChannelGroups.AsNoTracking().ToList();
+                var groups = Context.ChannelGroups.AsNoTracking().ToList();
                 nextchno = m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber;
 
                 // var dupes = streams.Where(a => streams.Count(b => b.Id == a.Id) > 1).OrderBy(a => a.Id).ToList();
@@ -115,7 +104,7 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                 {
                     var fileName = $"dupes_{m3uFile.Id}.csv";
 
-                    _logger.LogError($"Streams in M3U file ID: {m3uFile.Id} {m3uFile.Name}, have duplicate Ids, will only use the first entry, check {fileName} for more information", fileName);
+                    Logger.LogError($"Streams in M3U file ID: {m3uFile.Id} {m3uFile.Name}, have duplicate Ids, will only use the first entry, check {fileName} for more information", fileName);
 
                     // Remove duplicates based on id
                     streams = groupedStreams.Select(g => g.First()).ToList();
@@ -136,7 +125,7 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                     }
                 }
                 sw.Stop();
-                _logger.LogInformation($"Dupe check ID: {m3uFile.Id} {m3uFile.Name}, took {sw.Elapsed.TotalSeconds} seconds");
+                Logger.LogInformation($"Dupe check ID: {m3uFile.Id} {m3uFile.Name}, took {sw.Elapsed.TotalSeconds} seconds");
 
                 sw.Restart();
 
@@ -145,7 +134,7 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                 int totalCount = streams.Count();
                 int processedCount = 0;
                 int progressRecords = 5000;
-              
+
                 Stopwatch processSw = new Stopwatch();
 
                 Parallel.ForEach(streams.Select((value, index) => new { value, index }), (stream) =>
@@ -162,7 +151,7 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogError($"Error while processing M3U file ID: {m3uFile.Id} {m3uFile.Name}, duplicate Id for {stream.value.Id}", ex);
+                            Logger.LogError($"Error while processing M3U file ID: {m3uFile.Id} {m3uFile.Name}, duplicate Id for {stream.value.Id}", ex);
                         }
                     }
                     else
@@ -187,37 +176,41 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                         // Estimate remaining time
                         double estRemainingTime = (avgTimePerItem * remainingItems) / 1000;
 
-                        _logger.LogInformation($"Progress: {percentage}%, {currentProgress}/{totalCount}, Speed: {speed} ms, ETA: {estRemainingTime} sec");
+                        Logger.LogInformation($"Progress: {percentage}%, {currentProgress}/{totalCount}, Speed: {speed} ms, ETA: {estRemainingTime} sec");
                         processSw.Restart();
                     }
                 });
 
-                _context.VideoStreams.AddRange(toWrite);
+                Context.VideoStreams.AddRange(toWrite);
                 m3uFile.LastUpdated = DateTime.Now;
-                await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+                //await Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
 
                 if (m3uFile.StationCount != streams.Count)
                 {
                     m3uFile.StationCount = streams.Count;
-                    await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                    //await Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
                 }
+
+                Repository.M3UFile.UpdateM3UFile(m3uFile);
+                await Repository.SaveAsync().ConfigureAwait(false);
 
                 await AddChannelGroupsFromStreams(streams, cancellationToken).ConfigureAwait(false);
             }
 
             sw.Stop();
-            _logger.LogInformation($"Update of ID: {m3uFile.Id} {m3uFile.Name}, took {sw.Elapsed.TotalSeconds} seconds");
+            Logger.LogInformation($"Update of ID: {m3uFile.Id} {m3uFile.Name}, took {sw.Elapsed.TotalSeconds} seconds");
 
 
-            M3UFilesDto ret = _mapper.Map<M3UFilesDto>(m3uFile);
-            await _publisher.Publish(new M3UFileProcessedEvent(ret), cancellationToken).ConfigureAwait(false);
+            var ret = Mapper.Map<M3UFileDto>(m3uFile);
+            await Publisher.Publish(new M3UFileProcessedEvent(ret), cancellationToken).ConfigureAwait(false);
 
-            return ret;
+            return m3uFile;
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, "Error while processing M3U file");
+            Logger.LogCritical(ex, "Error while processing M3U file");
         }
 
         return null;
@@ -226,8 +219,8 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
     private async Task AddChannelGroupsFromStreams(IEnumerable<VideoStream> streams, CancellationToken cancellationToken)
     {
         List<string> newGroups = streams.Where(a => a.User_Tvg_group != null).Select(a => a.User_Tvg_group).Distinct().ToList();
-        var channelGroups = _context.ChannelGroups.ToList();
-        int rank = _context.ChannelGroups.Any() ? _context.ChannelGroups.Max(a => a.Rank) + 1 : 1;
+        var channelGroups = Context.ChannelGroups.ToList();
+        int rank = Context.ChannelGroups.Any() ? Context.ChannelGroups.Max(a => a.Rank) + 1 : 1;
 
         foreach (string? ng in newGroups)
         {
@@ -240,13 +233,13 @@ public class ProcessM3UFileRequestHandler : IRequestHandler<ProcessM3UFileReques
                     IsReadOnly = true,
                 };
 
-                await _context.ChannelGroups.AddAsync(channelGroup, cancellationToken);
+                await Context.ChannelGroups.AddAsync(channelGroup, cancellationToken);
             }
         }
 
-        if (await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false) > 0)
+        if (await Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false) > 0)
         {
-            await _publisher.Publish(new AddChannelGroupsEvent(), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new AddChannelGroupsEvent(), cancellationToken).ConfigureAwait(false);
         }
     }
 

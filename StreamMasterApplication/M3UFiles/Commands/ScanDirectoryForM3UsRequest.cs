@@ -1,10 +1,4 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.EntityFrameworkCore;
-
-using StreamMasterDomain.Dto;
+﻿using MediatR;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
 
@@ -14,18 +8,10 @@ public class ScanDirectoryForM3UFilesRequest : IRequest<bool>
 
 public class ScanDirectoryForM3UFilesRequestHandler : IRequestHandler<ScanDirectoryForM3UFilesRequest, bool>
 {
-    private readonly IAppDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IPublisher _publisher;
-
-    public ScanDirectoryForM3UFilesRequestHandler(
-        IPublisher publisher,
-          IMapper mapper,
-         IAppDbContext context)
+    private IRepositoryWrapper Repository { get; }
+    public ScanDirectoryForM3UFilesRequestHandler(IRepositoryWrapper repository)
     {
-        _publisher = publisher;
-        _mapper = mapper;
-        _context = context;
+        Repository = repository;
     }
 
     public async Task<bool> Handle(ScanDirectoryForM3UFilesRequest command, CancellationToken cancellationToken)
@@ -51,7 +37,7 @@ public class ScanDirectoryForM3UFilesRequestHandler : IRequestHandler<ScanDirect
                 continue;
             }
 
-            M3UFile? m3uFile = await _context.M3UFiles.FirstOrDefaultAsync(a => a.Source.ToLower().Equals(m3uFileInfo.Name.ToLower()), cancellationToken: cancellationToken).ConfigureAwait(false);
+            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileBySourceAsync(m3uFileInfo.Name).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 string Url = "";
@@ -79,18 +65,18 @@ public class ScanDirectoryForM3UFilesRequestHandler : IRequestHandler<ScanDirect
                 };
                 m3uFile.SetFileDefinition(FileDefinitions.M3U);
 
-                _ = _context.M3UFiles.Add(m3uFile);
-                _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                Repository.M3UFile.CreateM3UFile(m3uFile);
+                await Repository.SaveAsync().ConfigureAwait(false);
             }
 
             if (string.IsNullOrEmpty(m3uFile.Url))
             {
                 m3uFile.LastDownloaded = m3uFileInfo.LastWriteTime;
-                _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                await Repository.SaveAsync().ConfigureAwait(false);
             }
 
-            M3UFilesDto ret = _mapper.Map<M3UFilesDto>(m3uFile);
-            await _publisher.Publish(new M3UFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
+            //M3UFileDto ret = _mapper.Map<M3UFileDto>(m3uFile);
+            //await _publisher.Publish(new M3UFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
         }
 
         return true;

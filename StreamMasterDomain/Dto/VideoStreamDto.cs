@@ -2,6 +2,7 @@
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Mappings;
+using StreamMasterDomain.Repository;
 
 using System.ComponentModel.DataAnnotations;
 

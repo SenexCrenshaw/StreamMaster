@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Repository;
+using StreamMasterDomain.Repository.EPG;
 
 using System.ComponentModel.DataAnnotations;
 using System.Web;
@@ -118,7 +120,7 @@ public class AddEPGFileRequestHandler : IRequestHandler<AddEPGFileRequest, EPGFi
 
             epgFile.EPGRank = command.EPGRank;
 
-            StreamMasterDomain.Entities.EPG.Tv? tv = await epgFile.GetTV().ConfigureAwait(false);
+            Tv? tv = await epgFile.GetTV().ConfigureAwait(false);
             if (tv == null)
             {
                 _logger.LogCritical("Exception EPG {fullName} format is not supported", fullName);

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using StreamMasterApplication.ChannelGroups.Commands;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.ChannelGroups;
 

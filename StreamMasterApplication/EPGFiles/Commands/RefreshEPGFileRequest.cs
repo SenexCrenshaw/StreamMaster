@@ -9,6 +9,8 @@ using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Repository;
+using StreamMasterDomain.Repository.EPG;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
@@ -85,7 +87,7 @@ public class RefreshEPGFileRequestHandler : IRequestHandler<RefreshEPGFileReques
                     }
                 }
 
-                StreamMasterDomain.Entities.EPG.Tv? tv = await epgFile.GetTV().ConfigureAwait(false);
+                Tv? tv = await epgFile.GetTV().ConfigureAwait(false);
                 if (tv == null)
                 {
                     _logger.LogCritical("Exception EPG {fullName} format is not supported", fullName);

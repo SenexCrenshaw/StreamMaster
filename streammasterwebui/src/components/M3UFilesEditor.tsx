@@ -14,7 +14,7 @@ import { getTopToolOptions } from '../common/common';
 const M3UFilesEditor = (props: M3UFilesEditorProps) => {
   const toast = React.useRef<Toast>(null);
 
-  const [selectedM3UFile, setSelectedM3UFile] = React.useState<StreamMasterApi.M3UFilesDto>({} as StreamMasterApi.M3UFilesDto)
+  const [selectedM3UFile, setSelectedM3UFile] = React.useState<StreamMasterApi.M3UFileDto>({} as StreamMasterApi.M3UFileDto)
 
   const [reloadDialogVisible, setReloadDialogVisible] = React.useState<boolean>(false);
 
@@ -24,7 +24,7 @@ const M3UFilesEditor = (props: M3UFilesEditorProps) => {
     }
   }, [props]);
 
-  const M3UFileChanged = React.useCallback((e: StreamMasterApi.M3UFilesDto): void => {
+  const M3UFileChanged = React.useCallback((e: StreamMasterApi.M3UFileDto): void => {
     if (!e || e === undefined || e.id === undefined) {
       return;
     }
@@ -122,9 +122,9 @@ M3UFilesEditor.defaultProps = {
 };
 
 export type M3UFilesEditorProps = {
-  onClick?: (e: StreamMasterApi.M3UFilesDto) => void;
+  onClick?: (e: StreamMasterApi.M3UFileDto) => void;
 
-  value?: StreamMasterApi.M3UFilesDto | undefined;
+  value?: StreamMasterApi.M3UFileDto | undefined;
 };
 
 

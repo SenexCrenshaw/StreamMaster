@@ -1,7 +1,7 @@
 ﻿using MediatR;
 
-using StreamMasterDomain.Entities;
 using StreamMasterDomain.Enums;
+using StreamMasterDomain.Repository;
 
 namespace StreamMasterAPI.Controllers;
 

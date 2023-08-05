@@ -5,6 +5,8 @@ using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Repository;
+using StreamMasterDomain.Repository.EPG;
 
 namespace StreamMasterApplication.EPGFiles.Queries;
 
@@ -36,7 +38,7 @@ internal class GetEPGFileHandler : IRequestHandler<GetEPGFile, EPGFilesDto?>
 
         EPGFilesDto ret = _mapper.Map<EPGFilesDto>(EPGFile);
 
-        List<StreamMasterDomain.Entities.EPG.Programme> proprammes = _memoryCache.Programmes().Where(a => a.EPGFileId == EPGFile.Id).ToList();
+        List<Programme> proprammes = _memoryCache.Programmes().Where(a => a.EPGFileId == EPGFile.Id).ToList();
         if (proprammes.Any())
         {
             ret.EPGStartDate = proprammes.Min(a => a.StartDateTime);

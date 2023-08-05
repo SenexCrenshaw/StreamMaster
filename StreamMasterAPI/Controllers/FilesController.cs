@@ -7,6 +7,7 @@ using StreamMasterAPI.Interfaces;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Enums;
+using StreamMasterDomain.Repository;
 
 using System.Web;
 
@@ -61,7 +62,7 @@ public class FilesController : ApiControllerBase, IFileController
 
         if (IPTVFileType == SMFileTypes.TvLogo)
         {
-            StreamMasterDomain.Entities.TvLogoFile? cache = _memoryCache.TvLogos().FirstOrDefault(a => a.Source == source);
+            TvLogoFile? cache = _memoryCache.TvLogos().FirstOrDefault(a => a.Source == source);
             if (cache == null || !cache.FileExists) { return (null, null); }
             returnName = cache.Source;
             fileName = FileDefinitions.TVLogo.DirectoryLocation + returnName;

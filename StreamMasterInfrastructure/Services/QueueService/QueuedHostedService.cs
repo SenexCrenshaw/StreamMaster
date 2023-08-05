@@ -101,7 +101,7 @@ public sealed class QueuedHostedService : BackgroundService
 
                         if (command.Entity is not null && command.Entity.GetType() == typeof(int))
                         {
-                            _ = await _sender.Send(new ProcessM3UFileRequest { M3UFileId = (int)command.Entity }, cancellationToken).ConfigureAwait(false);
+                            _ = await _sender.Send(new ProcessM3UFileRequest { Id = (int)command.Entity }, cancellationToken).ConfigureAwait(false);
                         }
                         break;
 

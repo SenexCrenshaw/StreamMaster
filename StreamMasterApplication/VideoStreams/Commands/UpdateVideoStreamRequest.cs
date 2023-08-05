@@ -5,6 +5,7 @@ using MediatR;
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 

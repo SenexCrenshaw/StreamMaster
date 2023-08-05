@@ -2,6 +2,8 @@
 
 using Microsoft.Extensions.Caching.Memory;
 
+using StreamMasterDomain.Repository;
+
 namespace StreamMasterApplication.Programmes.Queries;
 
 public record GetProgrammeChannels : IRequest<List<ProgrammeChannel>>;

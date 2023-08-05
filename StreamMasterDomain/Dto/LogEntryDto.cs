@@ -1,4 +1,5 @@
 ﻿using StreamMasterDomain.Mappings;
+using StreamMasterDomain.Repository;
 
 namespace StreamMasterDomain.Dto;
 

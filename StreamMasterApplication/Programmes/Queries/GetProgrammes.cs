@@ -2,7 +2,7 @@
 
 using Microsoft.Extensions.Caching.Memory;
 
-using StreamMasterDomain.Entities.EPG;
+using StreamMasterDomain.Repository.EPG;
 
 using System.Web;
 

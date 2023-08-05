@@ -23,8 +23,8 @@ using StreamMasterDomain.EnvironmentInfo;
 
 using StreamMasterInfrastructure;
 using StreamMasterInfrastructure.Authentication;
+using StreamMasterInfrastructure.EF;
 using StreamMasterInfrastructure.Logging;
-using StreamMasterInfrastructure.Persistence;
 using StreamMasterInfrastructure.Services;
 using StreamMasterInfrastructure.Services.Frontend;
 using StreamMasterInfrastructure.Services.QueueService;

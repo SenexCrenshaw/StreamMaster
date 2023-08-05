@@ -292,10 +292,10 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const applyResults = (
-            data: StreamMasterApi.M3UFilesDto[]
+            data: StreamMasterApi.M3UFileDto[]
           ) => {
             updateCachedData(
-              (draft: StreamMasterApi.M3UFilesDto[]) => {
+              (draft: StreamMasterApi.M3UFileDto[]) => {
                 data.forEach(function (cn) {
                   const foundIndex = draft.findIndex(
                     (x) => x.id === cn.id
@@ -313,18 +313,18 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
 
           hubConnection.on(
             'M3UFilesDtosUpdate',
-            (data: StreamMasterApi.M3UFilesDto[]) => {
+            (data: StreamMasterApi.M3UFileDto[]) => {
               applyResults(data);
             }
           );
 
 
           const applyResult = (
-            data: StreamMasterApi.M3UFilesDto
+            data: StreamMasterApi.M3UFileDto
           ) => {
             updateCachedData(
               (
-                draft: StreamMasterApi.M3UFilesDto[]
+                draft: StreamMasterApi.M3UFileDto[]
               ) => {
                 const foundIndex = draft.findIndex(
                   (x) => x.id === data.id
@@ -343,7 +343,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
 
           hubConnection.on(
             'M3UFilesDtoUpdate',
-            (data: StreamMasterApi.M3UFilesDto) => {
+            (data: StreamMasterApi.M3UFileDto) => {
               applyResult(data);
             }
           );
@@ -355,7 +355,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
           ) => {
             updateCachedData(
               (
-                draft: StreamMasterApi.M3UFilesDto[]
+                draft: StreamMasterApi.M3UFileDto[]
               ) => {
                 return draft.filter((obj) => obj.id !== id);
               }

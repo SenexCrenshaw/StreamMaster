@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-
-using MediatR;
+﻿using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,8 +10,8 @@ using StreamMasterApplication.EPGFiles.Commands;
 using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.Settings.Queries;
 
-using StreamMasterDomain.Entities;
 using StreamMasterDomain.Enums;
+using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructure.Services;
 
@@ -86,8 +84,9 @@ public class TimerService : IHostedService, IDisposable
             return;
         }
 
-        //IMapper mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
+
         IAppDbContext context = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
+        IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
 
         //_logger.LogInformation("Timer Service is working.");
 
@@ -113,7 +112,9 @@ public class TimerService : IHostedService, IDisposable
         }
         epgFiles.AddRange(context.EPGFiles.Where(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < now));
 
-        IQueryable<M3UFile> m3uFilesToUpdated = context.M3UFiles.Where(a => a.AutoUpdate && string.IsNullOrEmpty(a.Url));
+        var m3uFilesRepo = await repository.M3UFile.GetAllM3UFilesAsync();
+
+        var m3uFilesToUpdated = m3uFilesRepo.Where(a => a.AutoUpdate && string.IsNullOrEmpty(a.Url));
         foreach (M3UFile? m3uFile in m3uFilesToUpdated)
         {
             string m3uPath = Path.Combine(FileDefinitions.M3U.DirectoryLocation, m3uFile.Source);
@@ -128,7 +129,9 @@ public class TimerService : IHostedService, IDisposable
             }
             m3uFiles.Add(m3uFile);
         }
-        m3uFiles.AddRange(context.M3UFiles.Where(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < now));
+
+        m3uFilesToUpdated = m3uFilesRepo.Where(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < now);
+        m3uFiles.AddRange(m3uFilesToUpdated);
 
         if (epgFiles.Any())
         {
@@ -144,7 +147,7 @@ public class TimerService : IHostedService, IDisposable
             _logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFiles.Count());
             foreach (M3UFile m3uFile in m3uFiles)
             {
-                _ = await mediator.Send(new RefreshM3UFileRequest { M3UFileID = m3uFile.Id }, cancellationToken).ConfigureAwait(false);
+                _ = await mediator.Send(new RefreshM3UFileRequest { Id = m3uFile.Id }, cancellationToken).ConfigureAwait(false);
             }
         }
 

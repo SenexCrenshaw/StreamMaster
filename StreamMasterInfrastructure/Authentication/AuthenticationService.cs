@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Entities;
 using StreamMasterDomain.Enums;
+using StreamMasterDomain.Repository;
 
 using StreamMasterInfrastructure.Extensions;
 

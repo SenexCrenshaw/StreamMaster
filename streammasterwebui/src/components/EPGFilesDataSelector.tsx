@@ -173,7 +173,7 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
     );
   }, [onEPGUpdateClick]);
 
-  const urlEditorBodyTemplate = React.useCallback((rowData: StreamMasterApi.M3UFilesDto) => {
+  const urlEditorBodyTemplate = React.useCallback((rowData: StreamMasterApi.M3UFileDto) => {
     if (rowData.id === 0) {
       return (
         <div className='p-0 relative'

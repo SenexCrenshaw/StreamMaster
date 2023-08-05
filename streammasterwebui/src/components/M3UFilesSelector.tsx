@@ -6,7 +6,7 @@ import { type SelectItem } from "primereact/selectitem";
 
 const M3UFilesSelector = (props: M3UFilesSelectorProps) => {
 
-  const [selectedM3UFile, setSelectedM3UFile] = useLocalStorage<StreamMasterApi.M3UFilesDto>({ id: 0, name: 'All' } as StreamMasterApi.M3UFilesDto, props.id + '-setSelectedM3UFile');
+  const [selectedM3UFile, setSelectedM3UFile] = useLocalStorage<StreamMasterApi.M3UFileDto>({ id: 0, name: 'All' } as StreamMasterApi.M3UFileDto, props.id + '-setSelectedM3UFile');
 
   const m3uFilesQuery = StreamMasterApi.useM3UFilesGetM3UFilesQuery();
 
@@ -72,8 +72,8 @@ M3UFilesSelector.defaultProps = {
 
 type M3UFilesSelectorProps = {
   id: string;
-  onChange: ((value: StreamMasterApi.M3UFilesDto) => void);
-  value: StreamMasterApi.M3UFilesDto;
+  onChange: ((value: StreamMasterApi.M3UFileDto) => void);
+  value: StreamMasterApi.M3UFileDto;
 };
 
 export default React.memo(M3UFilesSelector);

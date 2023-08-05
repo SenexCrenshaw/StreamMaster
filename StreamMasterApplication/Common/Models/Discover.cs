@@ -1,23 +1,23 @@
-﻿using StreamMasterDomain.Dto;
-
-namespace StreamMasterApplication.Common.Models
+﻿namespace StreamMasterApplication.Common.Models
 {
     public class Discover
     {
         public Discover()
         { }
 
-        public Discover(SettingDto setting, string urlBase, int deviceID, int tunerCount)
+        public Discover(string urlBase, int deviceID, int tunerCount)
         {
+            string version = BuildInfo.Version.ToString();
+
             BaseURL = urlBase;
             DeviceAuth = "StreamMaster";
             DeviceID = $"2022-6MOKBM:{deviceID}";
-            FirmwareName = $"bin_{setting.Version}";
-            FirmwareVersion = setting.Version;
+            FirmwareName = $"bin_{version}";
+            FirmwareVersion = version;
             FriendlyName = "StreamMaster";
             LineupURL = $"{urlBase}/lineup.json";
             Manufacturer = "stream master";
-            ModelNumber = setting.Version;
+            ModelNumber = version;
             TunerCount = tunerCount;
         }
 

@@ -3,7 +3,7 @@ using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Queries;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Entities.EPG;
+using StreamMasterDomain.Repository.EPG;
 
 namespace StreamMasterApplication.Common.Interfaces;
 
@@ -33,9 +33,9 @@ public interface IStreamMasterHub : ISharedHub
 
     Task M3UFilesDtoDelete(int result);
 
-    Task M3UFilesDtosUpdate(IEnumerable<M3UFilesDto> results);
+    Task M3UFilesDtosUpdate(IEnumerable<M3UFileDto> results);
 
-    Task M3UFilesDtoUpdate(M3UFilesDto result);
+    Task M3UFilesDtoUpdate(M3UFileDto result);
 
     Task ProgrammeNamesUpdate(IEnumerable<Programme> results);
 

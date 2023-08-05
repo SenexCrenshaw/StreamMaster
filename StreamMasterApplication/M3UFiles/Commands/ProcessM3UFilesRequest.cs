@@ -19,41 +19,23 @@ public class ProcessM3UFilesRequestValidator : AbstractValidator<ProcessM3UFiles
     }
 }
 
-public class ProcessM3UFilesRequestHandler : IRequestHandler<ProcessM3UFilesRequest>
+public class ProcessM3UFilesRequestHandler : BaseMediatorRequestHandler, IRequestHandler<ProcessM3UFilesRequest>
 {
-    private readonly IAppDbContext _context;
-    private readonly ILogger<ProcessM3UFilesRequestHandler> _logger;
-    private readonly IMapper _mapper;
-    private readonly IPublisher _publisher;
-    private readonly ISender _sender;
-
-    public ProcessM3UFilesRequestHandler(
-        ILogger<ProcessM3UFilesRequestHandler> logger,
-        ISender sender,
-        IMapper mapper,
-          IPublisher publisher,
-        IAppDbContext context
-    )
-    {
-        _sender = sender;
-        _publisher = publisher;
-        _context = context;
-        _mapper = mapper;
-        _logger = logger;
-    }
+    public ProcessM3UFilesRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender) { }
 
     public async Task Handle(ProcessM3UFilesRequest command, CancellationToken cancellationToken)
     {
         try
         {
-            foreach (M3UFile m3uFile in _context.M3UFiles)
+            foreach (M3UFile m3uFile in await Repository.M3UFile.GetAllM3UFilesAsync().ConfigureAwait(false))
             {
-                _ = await _sender.Send(new ProcessM3UFileRequest { M3UFileId = m3uFile.Id }, cancellationToken).ConfigureAwait(false);
+                _ = await Sender.Send(new ProcessM3UFileRequest { Id = m3uFile.Id }, cancellationToken).ConfigureAwait(false);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, "Error while processing M3U file");
+            Logger.LogCritical(ex, "Error while processing M3U file");
         }
     }
 }

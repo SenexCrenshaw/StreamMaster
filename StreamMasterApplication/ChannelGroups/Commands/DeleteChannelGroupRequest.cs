@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 using StreamMasterDomain.Attributes;
+using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
 

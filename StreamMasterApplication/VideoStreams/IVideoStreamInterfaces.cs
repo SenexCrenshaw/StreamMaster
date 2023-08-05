@@ -63,7 +63,7 @@ public interface IVideoStreamDB
 
     Task<string> GetAvailableID();
 
-    public M3UFileIdMaxStream? GetM3UFileIdMaxStreamFromUrl(string Url);
+    Task<M3UFileIdMaxStream?> GetM3UFileIdMaxStreamFromUrl(string Url);
 
     Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(string videoStreamId, CancellationToken cancellationToken = default);
 

@@ -123,7 +123,7 @@ M3UFileRemoveDialog.displayName = 'M3UFileRemoveDialog';
 
 type M3UFileRemoveDialogProps = {
   // onFileDeleted: () => void;
-  selectedFile?: StreamMasterApi.M3UFilesDto;
+  selectedFile?: StreamMasterApi.M3UFileDto;
 };
 
 export default React.memo(M3UFileRemoveDialog);

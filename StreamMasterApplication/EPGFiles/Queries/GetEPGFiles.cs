@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Repository.EPG;
 
 namespace StreamMasterApplication.EPGFiles.Queries;
 
@@ -39,7 +40,7 @@ internal class GetEPGFilesHandler : IRequestHandler<GetEPGFiles, IEnumerable<EPG
 
         foreach (EPGFilesDto epgFileDto in ret)
         {
-            List<StreamMasterDomain.Entities.EPG.Programme> proprammes = _memoryCache.Programmes().Where(a => a.EPGFileId == epgFileDto.Id).ToList();
+            List<Programme> proprammes = _memoryCache.Programmes().Where(a => a.EPGFileId == epgFileDto.Id).ToList();
             if (proprammes.Any())
             {
                 epgFileDto.EPGStartDate = proprammes.Min(a => a.StartDateTime);

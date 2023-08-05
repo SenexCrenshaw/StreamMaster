@@ -12,50 +12,33 @@ using StreamMasterDomain.Dto;
 namespace StreamMasterApplication.M3UFiles.Commands;
 
 [RequireAll]
-public class RefreshM3UFileRequest : IRequest<M3UFilesDto?>
+public class RefreshM3UFileRequest : IRequest<M3UFile?>
 {
-    //public bool ForceDownload { get; set; }
-    public int M3UFileID { get; set; }
+    public int Id { get; set; }
 }
 
 public class RefreshM3UFileRequestValidator : AbstractValidator<RefreshM3UFileRequest>
 {
     public RefreshM3UFileRequestValidator()
     {
-        _ = RuleFor(v => v.M3UFileID).NotNull().GreaterThanOrEqualTo(0);
+        _ = RuleFor(v => v.Id).NotNull().GreaterThanOrEqualTo(0);
     }
 }
 
-public class RefreshM3UFileRequestHandler : IRequestHandler<RefreshM3UFileRequest, M3UFilesDto?>
+public class RefreshM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<RefreshM3UFileRequest, M3UFile?>
 {
-    private readonly IAppDbContext _context;
-    private readonly ILogger<RefreshM3UFileRequest> _logger;
-    private readonly IMapper _mapper;
-    private readonly IPublisher _publisher;
+    public RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender) { }
 
-    public RefreshM3UFileRequestHandler(
-        ILogger<RefreshM3UFileRequest> logger,
-        IMapper mapper,
-        IPublisher publisher,
-        IAppDbContext context)
-    {
-        _publisher = publisher;
-        _mapper = mapper;
-        _logger = logger;
-        _context = context;
-    }
-
-    public async Task<M3UFilesDto?> Handle(RefreshM3UFileRequest request, CancellationToken cancellationToken)
+    public async Task<M3UFile?> Handle(RefreshM3UFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            M3UFile? m3uFile = await _context.M3UFiles.FindAsync(new object?[] { request.M3UFileID, cancellationToken }, cancellationToken: cancellationToken).ConfigureAwait(false);
+            var m3uFile = await Repository.M3UFile.GetM3UFileByIdAsync(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 return null;
             }
-
-            M3UFilesDto m3uFileDto = _mapper.Map<M3UFilesDto>(m3uFile);
 
             if (m3uFile.LastDownloadAttempt.AddMinutes(m3uFile.MinimumMinutesBetweenDownloads) < DateTime.Now)
             {
@@ -64,7 +47,7 @@ public class RefreshM3UFileRequestHandler : IRequestHandler<RefreshM3UFileReques
 
                 if (m3uFile.Url != null && m3uFile.Url.Contains("://"))
                 {
-                    _logger.LogInformation("Refresh M3U From URL {m3uFile.Url}", m3uFile.Url);
+                    Logger.LogInformation("Refresh M3U From URL {m3uFile.Url}", m3uFile.Url);
 
                     m3uFile.LastDownloadAttempt = DateTime.Now;
 
@@ -78,14 +61,14 @@ public class RefreshM3UFileRequestHandler : IRequestHandler<RefreshM3UFileReques
                     else
                     {
                         ++m3uFile.DownloadErrors;
-                        _logger.LogCritical("Exception M3U From URL {ex}", ex);
+                        Logger.LogCritical("Exception M3U From URL {ex}", ex);
                     }
                 }
 
                 List<VideoStream>? streams = await m3uFile.GetM3U().ConfigureAwait(false);
                 if (streams == null)
                 {
-                    _logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);
+                    Logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);
                     //Bad M3U
                     if (File.Exists(fullName))
                     {
@@ -99,15 +82,14 @@ public class RefreshM3UFileRequestHandler : IRequestHandler<RefreshM3UFileReques
                     m3uFile.StationCount = streams.Count;
                 }
 
-                _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                Repository.M3UFile.UpdateM3UFile(m3uFile);
+                await Repository.SaveAsync().ConfigureAwait(false);
 
-                M3UFilesDto ret = _mapper.Map<M3UFilesDto>(m3uFile);
-                await _publisher.Publish(new M3UFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
-
-                return ret;
+                M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
+                await Publisher.Publish(new M3UFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
             }
 
-            return m3uFileDto;
+            return m3uFile;
         }
         catch (Exception)
         {

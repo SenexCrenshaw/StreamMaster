@@ -4,6 +4,8 @@ using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
 
+using StreamMasterDomain.Repository;
+
 namespace StreamMasterApplication.Icons.Commands;
 
 public record ReadDirectoryLogosRequest : IRequest

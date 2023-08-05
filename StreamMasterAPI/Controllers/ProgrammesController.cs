@@ -2,9 +2,10 @@
 
 using StreamMasterApplication.Programmes;
 using StreamMasterApplication.Programmes.Queries;
+
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Entities;
-using StreamMasterDomain.Entities.EPG;
+using StreamMasterDomain.Repository;
+using StreamMasterDomain.Repository.EPG;
 
 namespace StreamMasterAPI.Controllers;
 

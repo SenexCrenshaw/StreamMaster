@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using StreamMasterApplication.Hubs;
 
 using StreamMasterDomain.Attributes;
+using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
 

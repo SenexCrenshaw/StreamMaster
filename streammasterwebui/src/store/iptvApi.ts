@@ -899,13 +899,13 @@ export type LogsGetLogRequestApiResponse = /** status 200  */ LogEntryDto[];
 export type LogsGetLogRequestApiArg = GetLog;
 export type M3UFilesAddM3UFileApiResponse = /** status 200  */
   | undefined
-  | /** status 201  */ M3UFilesDto;
+  | /** status 201  */ M3UFileDto;
 export type M3UFilesAddM3UFileApiArg = AddM3UFileRequest;
-export type M3UFilesGetM3UFilesApiResponse = /** status 200  */ M3UFilesDto[];
+export type M3UFilesGetM3UFilesApiResponse = /** status 200  */ M3UFileDto[];
 export type M3UFilesGetM3UFilesApiArg = void;
 export type M3UFilesAddM3UFileFromFormApiResponse = /** status 200  */
   | undefined
-  | /** status 201  */ M3UFilesDto;
+  | /** status 201  */ M3UFileDto;
 export type M3UFilesAddM3UFileFromFormApiArg = {
   Description?: string | null;
   FormFile?: Blob | null;
@@ -919,7 +919,7 @@ export type M3UFilesChangeM3UFileNameApiResponse = /** status 204  */ undefined;
 export type M3UFilesChangeM3UFileNameApiArg = ChangeM3UFileNameRequest;
 export type M3UFilesDeleteM3UFileApiResponse = /** status 200  */ undefined;
 export type M3UFilesDeleteM3UFileApiArg = DeleteM3UFileRequest;
-export type M3UFilesGetM3UFileApiResponse = /** status 200  */ M3UFilesDto;
+export type M3UFilesGetM3UFileApiResponse = /** status 200  */ M3UFileDto;
 export type M3UFilesGetM3UFileApiArg = number;
 export type M3UFilesProcessM3UFileApiResponse = /** status 204  */ undefined;
 export type M3UFilesProcessM3UFileApiArg = ProcessM3UFileRequest;
@@ -1204,7 +1204,7 @@ export type GetLog = {
   lastId?: number;
   maxLines?: number;
 };
-export type M3UFilesDto = BaseFileDto & {
+export type M3UFileDto = BaseFileDto & {
   startingChannelNumber?: number;
   maxStreamCount?: number;
   stationCount?: number;
