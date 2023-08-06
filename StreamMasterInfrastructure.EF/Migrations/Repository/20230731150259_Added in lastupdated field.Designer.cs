@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StreamMasterInfrastructure.EF;
 
@@ -10,9 +11,11 @@ using StreamMasterInfrastructure.EF;
 namespace StreamMasterInfrastructure.Persistence.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    partial class RepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20230731150259_Added in lastupdated field")]
+    partial class Addedinlastupdatedfield
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.9");
@@ -34,7 +37,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.ToTable("DataProtectionKeys");
                 });
 
-            modelBuilder.Entity("StreamMasterDomain.Repository.ChannelGroup", b =>
+            modelBuilder.Entity("StreamMasterDomain.Entities.ChannelGroup", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -62,7 +65,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.ToTable("ChannelGroups");
                 });
 
-            modelBuilder.Entity("StreamMasterDomain.Repository.EPGFile", b =>
+            modelBuilder.Entity("StreamMasterDomain.Entities.EPGFile", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -132,10 +135,10 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EPGFiles");
+                    b.ToTable("EPGFiles", (string)null);
                 });
 
-            modelBuilder.Entity("StreamMasterDomain.Repository.M3UFile", b =>
+            modelBuilder.Entity("StreamMasterDomain.Entities.M3UFile", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -202,10 +205,10 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("M3UFiles");
+                    b.ToTable("M3UFiles", (string)null);
                 });
 
-            modelBuilder.Entity("StreamMasterDomain.Repository.StreamGroup", b =>
+            modelBuilder.Entity("StreamMasterDomain.Entities.StreamGroup", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -223,7 +226,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.ToTable("StreamGroups");
                 });
 
-            modelBuilder.Entity("StreamMasterDomain.Repository.StreamGroupChannelGroup", b =>
+            modelBuilder.Entity("StreamMasterDomain.Entities.StreamGroupChannelGroup", b =>
                 {
                     b.Property<int>("ChannelGroupId")
                         .HasColumnType("INTEGER");
@@ -238,7 +241,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.ToTable("StreamGroupChannelGroups");
                 });
 
-            modelBuilder.Entity("StreamMasterDomain.Repository.StreamGroupVideoStream", b =>
+            modelBuilder.Entity("StreamMasterDomain.Entities.StreamGroupVideoStream", b =>
                 {
                     b.Property<string>("ChildVideoStreamId")
                         .HasColumnType("TEXT");
@@ -256,7 +259,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.ToTable("StreamGroupVideoStreams");
                 });
 
-            modelBuilder.Entity("StreamMasterDomain.Repository.VideoStream", b =>
+            modelBuilder.Entity("StreamMasterDomain.Entities.VideoStream", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -339,7 +342,7 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.ToTable("VideoStreams");
                 });
 
-            modelBuilder.Entity("StreamMasterDomain.Repository.VideoStreamLink", b =>
+            modelBuilder.Entity("StreamMasterDomain.Entities.VideoStreamLink", b =>
                 {
                     b.Property<string>("ParentVideoStreamId")
                         .HasColumnType("TEXT");
@@ -357,15 +360,15 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.ToTable("VideoStreamLinks");
                 });
 
-            modelBuilder.Entity("StreamMasterDomain.Repository.StreamGroupChannelGroup", b =>
+            modelBuilder.Entity("StreamMasterDomain.Entities.StreamGroupChannelGroup", b =>
                 {
-                    b.HasOne("StreamMasterDomain.Repository.ChannelGroup", "ChannelGroup")
+                    b.HasOne("StreamMasterDomain.Entities.ChannelGroup", "ChannelGroup")
                         .WithMany()
                         .HasForeignKey("ChannelGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("StreamMasterDomain.Repository.StreamGroup", "StreamGroup")
+                    b.HasOne("StreamMasterDomain.Entities.StreamGroup", "StreamGroup")
                         .WithMany("ChannelGroups")
                         .HasForeignKey("StreamGroupId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -376,15 +379,15 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.Navigation("StreamGroup");
                 });
 
-            modelBuilder.Entity("StreamMasterDomain.Repository.StreamGroupVideoStream", b =>
+            modelBuilder.Entity("StreamMasterDomain.Entities.StreamGroupVideoStream", b =>
                 {
-                    b.HasOne("StreamMasterDomain.Repository.VideoStream", "ChildVideoStream")
+                    b.HasOne("StreamMasterDomain.Entities.VideoStream", "ChildVideoStream")
                         .WithMany("StreamGroups")
                         .HasForeignKey("ChildVideoStreamId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("StreamMasterDomain.Repository.StreamGroup", null)
+                    b.HasOne("StreamMasterDomain.Entities.StreamGroup", null)
                         .WithMany("ChildVideoStreams")
                         .HasForeignKey("StreamGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -393,15 +396,15 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.Navigation("ChildVideoStream");
                 });
 
-            modelBuilder.Entity("StreamMasterDomain.Repository.VideoStreamLink", b =>
+            modelBuilder.Entity("StreamMasterDomain.Entities.VideoStreamLink", b =>
                 {
-                    b.HasOne("StreamMasterDomain.Repository.VideoStream", "ChildVideoStream")
+                    b.HasOne("StreamMasterDomain.Entities.VideoStream", "ChildVideoStream")
                         .WithMany()
                         .HasForeignKey("ChildVideoStreamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("StreamMasterDomain.Repository.VideoStream", "ParentVideoStream")
+                    b.HasOne("StreamMasterDomain.Entities.VideoStream", "ParentVideoStream")
                         .WithMany("ChildVideoStreams")
                         .HasForeignKey("ParentVideoStreamId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -412,14 +415,14 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.Navigation("ParentVideoStream");
                 });
 
-            modelBuilder.Entity("StreamMasterDomain.Repository.StreamGroup", b =>
+            modelBuilder.Entity("StreamMasterDomain.Entities.StreamGroup", b =>
                 {
                     b.Navigation("ChannelGroups");
 
                     b.Navigation("ChildVideoStreams");
                 });
 
-            modelBuilder.Entity("StreamMasterDomain.Repository.VideoStream", b =>
+            modelBuilder.Entity("StreamMasterDomain.Entities.VideoStream", b =>
                 {
                     b.Navigation("ChildVideoStreams");
 
