@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using StreamMasterApplication.ChannelGroups;
 using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.ChannelGroups.Queries;
+using StreamMasterApplication.M3UFiles.Queries;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterAPI.Controllers;
 
@@ -44,10 +46,12 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ChannelGroupDto>>> GetChannelGroups()
+    public async Task<ActionResult<PagedList<ChannelGroupDto>>> GetChannelGroups([FromQuery] ChannelGroupParameters Parameters)
     {
-        List<ChannelGroupDto> channelGroups = await Mediator.Send(new GetChannelGroupsQuery()).ConfigureAwait(false);
-        return Ok(channelGroups);
+        var channelGroups = await Mediator.Send(new GetChannelGroupsQuery(Parameters)).ConfigureAwait(false);
+        Response.Headers.Add("X-Pagination", channelGroups.GetMetadata());
+        var mchannelGroupsResult = _mapper.Map<IEnumerable<M3UFileDto>>(channelGroups);
+        return Ok(mchannelGroupsResult);
     }
 
     [HttpPut]

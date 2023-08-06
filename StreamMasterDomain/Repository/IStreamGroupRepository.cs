@@ -14,6 +14,7 @@ namespace StreamMasterDomain.Repository
         IQueryable<StreamGroup> GetAllStreamGroups();
         Task<StreamGroup?> GetStreamGroupByIdAsync(int id);
         Task<PagedList<StreamGroup>> GetStreamGroupsAsync(StreamGroupParameters StreamGroupParameters);
+        Task<PagedList<StreamGroupDto>> GetStreamGroupDtosPagedAsync(StreamGroupParameters StreamGroupParameters, string Url);
         void CreateStreamGroup(StreamGroup StreamGroup);
         Task<bool> DeleteStreamGroupsync(int streamGroupId, CancellationToken cancellationToken);
     }

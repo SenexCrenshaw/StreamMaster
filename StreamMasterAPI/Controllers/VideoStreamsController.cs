@@ -67,6 +67,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         return Ok();
     }
 
+    [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult> GetAllStatisticsForAllUrls()
     {
@@ -91,7 +92,8 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<VideoStreamDto>>> GetVideoStreams(VideoStreamParameters Parameters)
+    [Route("[action]")]
+    public async Task<ActionResult<IEnumerable<VideoStreamDto>>> GetVideoStreams([FromQuery] VideoStreamParameters Parameters)
     {
         PagedList<StreamMasterDomain.Repository.VideoStream> videoStreams = await Mediator.Send(new GetVideoStreams(Parameters)).ConfigureAwait(false);
         Response.Headers.Add("X-Pagination", videoStreams.GetMetadata());

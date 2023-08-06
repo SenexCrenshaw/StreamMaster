@@ -3,6 +3,7 @@
 using StreamMasterApplication.ChannelGroups.Commands;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.ChannelGroups;
 
@@ -14,8 +15,7 @@ public interface IChannelGroupController
 
     Task<ActionResult<ChannelGroupDto>> GetChannelGroup(int id);
 
-
-    Task<ActionResult<IEnumerable<ChannelGroupDto>>> GetChannelGroups();
+    Task<ActionResult<PagedList<ChannelGroupDto>>> GetChannelGroups(ChannelGroupParameters Parameters);
     Task<ActionResult> SetChannelGroupsVisible(SetChannelGroupsVisibleRequest request);
 
     Task<ActionResult> UpdateChannelGroup(UpdateChannelGroupRequest request);
@@ -38,7 +38,7 @@ public interface IChannelGroupHub
     Task DeleteChannelGroup(DeleteChannelGroupRequest request);
 
     Task<ChannelGroupDto?> GetChannelGroup(int id);
-    Task<List<ChannelGroupDto>> GetChannelGroups();
+    Task<PagedList<ChannelGroup>> GetChannelGroups(ChannelGroupParameters channelGroupParameters);
 
     Task SetChannelGroupsVisible(SetChannelGroupsVisibleRequest request);
 

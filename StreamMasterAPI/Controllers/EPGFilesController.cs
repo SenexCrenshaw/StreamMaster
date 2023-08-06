@@ -46,7 +46,7 @@ public class EPGFilesController : ApiControllerBase, IEPGFileController
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<EPGFilesDto>))]
-    public async Task<ActionResult<IEnumerable<EPGFilesDto>>> GetEPGFiles(EPGFileParameters parameters)
+    public async Task<ActionResult<IEnumerable<EPGFilesDto>>> GetEPGFiles([FromQuery] EPGFileParameters parameters)
     {
         IEnumerable<EPGFilesDto> data = await Mediator.Send(new GetEPGFiles(parameters)).ConfigureAwait(false);
         return data.ToList();

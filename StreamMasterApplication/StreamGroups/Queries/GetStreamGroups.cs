@@ -10,12 +10,13 @@ using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
-public record GetStreamGroups() : IRequest<IEnumerable<StreamGroupDto>>;
+public record GetStreamGroups(StreamGroupParameters Parameters) : IRequest<PagedList<StreamGroupDto>>;
 
-internal class GetStreamGroupsHandler : BaseMediatorRequestHandler, IRequestHandler<GetStreamGroups, IEnumerable<StreamGroupDto>>
+internal class GetStreamGroupsHandler : BaseMediatorRequestHandler, IRequestHandler<GetStreamGroups, PagedList<StreamGroupDto>>
 {
     protected Setting _setting = FileUtil.GetSetting();
 
@@ -28,11 +29,10 @@ internal class GetStreamGroupsHandler : BaseMediatorRequestHandler, IRequestHand
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<IEnumerable<StreamGroupDto>> Handle(GetStreamGroups request, CancellationToken cancellationToken = default)
+    public async Task<PagedList<StreamGroupDto>> Handle(GetStreamGroups request, CancellationToken cancellationToken = default)
     {
-
         string url = _httpContextAccessor.GetUrl();
-        List<StreamGroupDto> ret = await Repository.StreamGroup.GetStreamGroupDtos(url, cancellationToken).ConfigureAwait(false);
+        var ret = await Repository.StreamGroup.GetStreamGroupDtosPagedAsync(request.Parameters, url).ConfigureAwait(false);
 
         string encodedZero = 0.EncodeValue128(_setting.ServerKey);
         StreamGroupDto zeroGroup = new()
@@ -45,6 +45,7 @@ internal class GetStreamGroupsHandler : BaseMediatorRequestHandler, IRequestHand
         };
 
         ret.Insert(0, zeroGroup);
+    
 
         return ret;
     }

@@ -5,6 +5,7 @@ using StreamMasterApplication.StreamGroups.Queries;
 
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Hubs;
 
@@ -46,9 +47,9 @@ public partial class StreamMasterHub : IStreamGroupHub
         return await _mediator.Send(new GetStreamGroupEPGForGuide(StreamGroupNumber)).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<StreamGroupDto>> GetStreamGroups()
+    public async Task<PagedList<StreamGroupDto>> GetStreamGroups(StreamGroupParameters streamGroupParameters)
     {
-        return await _mediator.Send(new GetStreamGroups()).ConfigureAwait(false);
+        return await _mediator.Send(new GetStreamGroups(streamGroupParameters)).ConfigureAwait(false);
     }
 
     public async Task SimulateStreamFailure(string streamUrl)

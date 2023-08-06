@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using StreamMasterApplication.M3UFiles.Queries;
 using StreamMasterApplication.StreamGroups;
 using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.StreamGroups.Queries;
@@ -8,6 +11,7 @@ using StreamMasterApplication.StreamGroups.Queries;
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 using System.Text;
 
@@ -17,10 +21,15 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 {
     private readonly ILogger<StreamGroupsController> _logger;
 
-    public StreamGroupsController(ILogger<StreamGroupsController> logger)
+    public StreamGroupsController(ILogger<StreamGroupsController> logger, IMapper mapper)
     {
         _logger = logger;
+        _mapper = mapper;
     }
+
+    private readonly IMapper _mapper;
+
+  
 
     public static int GenerateMediaSequence()
     {
@@ -197,11 +206,14 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [HttpGet]
     [Route("[action]")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<StreamGroupDto>))]
-    public async Task<ActionResult<IEnumerable<StreamGroupDto>>> GetStreamGroups()
+    public async Task<ActionResult<IEnumerable<StreamGroupDto>>> GetStreamGroups([FromQuery] StreamGroupParameters parameters)
     {
-        IEnumerable<StreamGroupDto> data = await Mediator.Send(new GetStreamGroups()).ConfigureAwait(false);
-        return data.ToList();
+        var streamGroups = await Mediator.Send(new GetStreamGroups(parameters)).ConfigureAwait(false);
+        Response.Headers.Add("X-Pagination", streamGroups.GetMetadata());
+        //var streamGroupsResult = _mapper.Map<IEnumerable<StreamGroupDto>>(streamGroups);
+        return Ok(streamGroups);
     }
+
 
     //[HttpGet]
     //[Route("{streamGroupNumber}/stream/{streamId}.m3u8")]

@@ -63,7 +63,7 @@ public class M3UFilesController : ApiControllerBase, IM3UFileController
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<M3UFileDto>))]
-    public async Task<ActionResult<IEnumerable<M3UFileDto>>> GetM3UFiles(M3UFileParameters Parameters)
+    public async Task<ActionResult<IEnumerable<M3UFileDto>>> GetM3UFiles([FromQuery] M3UFileParameters Parameters)
     {
         var m3uFiles = await Mediator.Send(new GetM3UFilesQuery(Parameters)).ConfigureAwait(false);
         Response.Headers.Add("X-Pagination", m3uFiles.GetMetadata());

@@ -5,6 +5,7 @@ using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.StreamGroups.Queries;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.StreamGroups;
 
@@ -24,7 +25,7 @@ public interface IStreamGroupController
 
     Task<IActionResult> GetStreamGroupM3U(string encodedId);
 
-    Task<ActionResult<IEnumerable<StreamGroupDto>>> GetStreamGroups();
+    Task<ActionResult<IEnumerable<StreamGroupDto>>> GetStreamGroups(StreamGroupParameters parameters);
 
     Task<ActionResult> UpdateStreamGroup(UpdateStreamGroupRequest request);
 }
@@ -81,7 +82,7 @@ public interface IStreamGroupHub
 
     Task<EPGGuide> GetStreamGroupEPGForGuide(int StreamGroupNumber);
 
-    Task<IEnumerable<StreamGroupDto>> GetStreamGroups();
+    Task<PagedList<StreamGroupDto>> GetStreamGroups(StreamGroupParameters streamGroupParameters);
 
     public Task SimulateStreamFailure(string streamUrl);
 

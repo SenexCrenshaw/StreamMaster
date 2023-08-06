@@ -10,6 +10,7 @@ using StreamMasterApplication.StreamGroups.Queries;
 using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
 
@@ -149,14 +150,14 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         return FindAll().OrderBy(p => p.Name);
     }
 
-    //public async Task<IEnumerable<ChannelGroup>> GetChannelGroupsAsync(ChannelGroupParameters channelGroupParameters)
-    //{
-    //    IQueryable<ChannelGroup> channelGroups = FindAll();
+    public async Task<PagedList<ChannelGroup>> GetChannelGroupsAsync(ChannelGroupParameters channelGroupParameters)
+    {
+        IQueryable<ChannelGroup> channelGroups = FindAll();
 
-    //    IQueryable<ChannelGroup> sorderChannelGroups = _channelGroupSortHelper.ApplySort(channelGroups, channelGroupParameters.OrderBy);
+        IQueryable<ChannelGroup> sorderChannelGroups = _channelGroupSortHelper.ApplySort(channelGroups, channelGroupParameters.OrderBy);
 
-    //    return await PagedList<ChannelGroup>.ToPagedList(sorderChannelGroups, channelGroupParameters.PageNumber, channelGroupParameters.PageSize);
-    //}
+        return await PagedList<ChannelGroup>.ToPagedList(sorderChannelGroups, channelGroupParameters.PageNumber, channelGroupParameters.PageSize);
+    }
 
     public async Task<ChannelGroup?> GetChannelGroupAsync(int Id)
     {

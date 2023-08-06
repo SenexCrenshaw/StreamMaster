@@ -7,21 +7,23 @@ using Microsoft.Extensions.Logging;
 using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
+
+using System;
 
 namespace StreamMasterApplication.ChannelGroups.Queries;
 
-public record GetChannelGroupsQuery() : IRequest<List<ChannelGroupDto>>;
+public record GetChannelGroupsQuery(ChannelGroupParameters Parameters) : IRequest<PagedList<ChannelGroup>>;
 
-internal class GetChannelGroupsQueryHandler : BaseMediatorRequestHandler, IRequestHandler<GetChannelGroupsQuery, List<ChannelGroupDto>>
+internal class GetChannelGroupsQueryHandler : BaseMediatorRequestHandler, IRequestHandler<GetChannelGroupsQuery, PagedList<ChannelGroup>>
 {
 
     public GetChannelGroupsQueryHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
         : base(logger, repository, mapper, publisher, sender) { }
 
-    public Task<List<ChannelGroupDto>> Handle(GetChannelGroupsQuery request, CancellationToken cancellationToken)
+    public async Task<PagedList<ChannelGroup>> Handle(GetChannelGroupsQuery request, CancellationToken cancellationToken)
     {
-        List<ChannelGroupDto> ret = Mapper.Map<List<ChannelGroupDto>>(Repository.ChannelGroup.GetAllChannelGroups());
-        return Task.FromResult(ret);
+        return await Repository.ChannelGroup.GetChannelGroupsAsync(request.Parameters).ConfigureAwait(false);
 
     }
 }

@@ -16,6 +16,8 @@ using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
 
+using System.Threading;
+
 namespace StreamMasterInfrastructure.EF;
 
 public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRepository
@@ -420,5 +422,29 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
     private void UpdateStreamGroup(StreamGroup StreamGroup)
     {
         Update(StreamGroup);
+    }
+
+    public async Task<PagedList<StreamGroupDto>> GetStreamGroupDtosPagedAsync(StreamGroupParameters StreamGroupParameters, string Url)
+    {
+        var StreamGroups = FindAll();
+
+        IQueryable<StreamGroup> sorderStreamGroups = _StreamGroupSortHelper.ApplySort(StreamGroups, StreamGroupParameters.OrderBy);
+        var list = await PagedList<StreamGroup>.ToPagedList(sorderStreamGroups, StreamGroupParameters.PageNumber, StreamGroupParameters.PageSize);
+
+
+        List<StreamGroupDto> ret = new();
+
+        foreach (int streamGroupId in list.Select(a=>a.Id))
+        {
+            StreamGroupDto? streamGroup = await GetStreamGroupDto(streamGroupId, Url);
+            if (streamGroup == null)
+                continue;
+            ret.Add(streamGroup);
+        }
+
+        var dtoList = await PagedList<StreamGroupDto>.ToPagedList(ret.AsQueryable(), StreamGroupParameters.PageNumber, StreamGroupParameters.PageSize);
+
+
+        return dtoList;
     }
 }
