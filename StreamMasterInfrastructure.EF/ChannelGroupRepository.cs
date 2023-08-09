@@ -21,6 +21,8 @@ using System.Linq.Dynamic.Core;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+
 namespace StreamMasterInfrastructureEF;
 
 public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGroupRepository
@@ -160,30 +162,9 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
 
     public async Task<PagedResponse<ChannelGroupDto>> GetChannelGroupsAsync(ChannelGroupParameters channelGroupParameters)
     {
-        IQueryable<ChannelGroup> channelGroups;
-        //var test = DbSet<ChannelGroup>()
-        //  .Where(entity => entity.Name.Contains("2") && entity.IsHidden == true)
-        //  .AsNoTracking()
-        //  .Any();
+        var result = await GetEntitiesAsync<ChannelGroupDto>(channelGroupParameters, _mapper);
 
-        if (!string.IsNullOrEmpty(channelGroupParameters.JSONFiltersString))
-        {
-            var filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(channelGroupParameters.JSONFiltersString);
-            var filterExpression = FilterExpressionBuilder.BuildFilterExpression<ChannelGroup>(filters);
-            channelGroups = FindByCondition(filterExpression);
-        }
-        else
-        {
-            channelGroups = FindAll();
-        }
-
-        IQueryable<ChannelGroup> sorderChannelGroups = _channelGroupSortHelper.ApplySort(channelGroups, channelGroupParameters.OrderBy);
-
-        var destination = _mapper.Map<List<ChannelGroupDto>>(sorderChannelGroups);
-
-        var pagedResult = await destination.ToPagedListAsync(channelGroupParameters.PageNumber, channelGroupParameters.PageSize).ConfigureAwait(false);
-        var pagedResponse = pagedResult.ToPagedResponse(channelGroups.Count());
-        return pagedResponse;
+        return result;
     }
 
     public async Task<ChannelGroup?> GetChannelGroupAsync(int Id)

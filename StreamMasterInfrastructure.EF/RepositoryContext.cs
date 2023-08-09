@@ -16,6 +16,7 @@ namespace StreamMasterInfrastructureEF
         {
             DbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster.db");
         }
+
         public string DbPath { get; }
         public DbSet<EPGFile> EPGFiles { get; set; }
         public DbSet<M3UFile> M3UFiles { get; set; }
@@ -33,12 +34,11 @@ namespace StreamMasterInfrastructureEF
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(RepositoryContext).Assembly);
             base.OnModelCreating(modelBuilder);
-
         }
+
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             FileUtil.SetupDirectories();
-            options.LogTo(message => Debug.WriteLine(message));
             _ = options.UseSqlite(
                 $"Data Source={DbPath}",
                 o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)

@@ -77,7 +77,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
     console.debug('PlayListDataSelector channelGroupsQuery.data', channelGroupsQuery.data);
     console.debug('PlayListDataSelector channelGroupsQuery.data TotalCount', channelGroupsQuery.data.totalItemCount);
-    if (!channelGroupsQuery.data?.data || channelGroupsQuery.data.data.length === 0) {
+    if (!channelGroupsQuery.data?.data) {
       return;
     }
 
