@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using StreamMasterApplication.Common.Extensions;
 using StreamMasterApplication.M3UFiles.Commands;
 
-using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 

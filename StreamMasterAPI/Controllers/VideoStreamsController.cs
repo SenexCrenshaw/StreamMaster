@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterAPI.Extensions;
 
+using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Commands;
@@ -94,13 +95,10 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     }
 
     [HttpGet]
-    public async Task<ActionResult<IPagedList<VideoStreamDto>>> GetVideoStreams([FromQuery] VideoStreamParameters Parameters)
+    public async Task<ActionResult<PagedResponse<VideoStreamDto>>> GetVideoStreams([FromQuery] VideoStreamParameters Parameters)
     {
-        var videoStreams = await Mediator.Send(new GetVideoStreams(Parameters)).ConfigureAwait(false);
-
-        var result = APIExtensions.GetPagedResult<VideoStream, VideoStreamDto>(videoStreams, Response, _mapper);
-
-        return Ok(result);
+        var res = await Mediator.Send(new GetVideoStreamsQuery(Parameters)).ConfigureAwait(false);
+        return Ok(res);
     }
 
     [Authorize(Policy = "SGLinks")]

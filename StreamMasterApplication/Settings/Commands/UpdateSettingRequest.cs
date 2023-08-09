@@ -282,11 +282,11 @@ public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, Update
             currentSetting.SDStationIds = request.SDStationIds;
         }
 
-        if (request.NameRegex != null )
+        if (request.NameRegex != null)
         {
             currentSetting.NameRegex = request.NameRegex;
         }
-        
+
 
         if (request.StreamingProxyType != null && request.StreamingProxyType != currentSetting.StreamingProxyType)
         {

@@ -18,6 +18,7 @@ public class M3UFileProcessedEventHandler : INotificationHandler<M3UFileProcesse
     private readonly IBackgroundTaskQueue _taskQueue;
     private readonly IRepositoryWrapper _repositoryWrapper;
     private readonly IMapper _mapper;
+
     public M3UFileProcessedEventHandler(
         IRepositoryWrapper repositoryWrapper,
         IBackgroundTaskQueue taskQueue,
@@ -35,12 +36,12 @@ public class M3UFileProcessedEventHandler : INotificationHandler<M3UFileProcesse
 
     public async Task Handle(M3UFileProcessedEvent notification, CancellationToken cancellationToken)
     {
-        var streams = _repositoryWrapper.VideoStream.GetVideoStreamsByM3UFileId(notification.M3UFile.Id);
-        var toSend = _mapper.Map<IEnumerable<VideoStreamDto>>(streams);
+        //var streams = _repositoryWrapper.VideoStream.GetVideoStreamsByM3UFileId(notification.M3UFile.Id);
+        //var toSend = _mapper.Map<IEnumerable<VideoStreamDto>>(streams);
         //var streams = await _sender.Send(new GetVideoStreams(), cancellationToken).ConfigureAwait(false);
 
         await _taskQueue.BuildIconsCacheFromVideoStreams(cancellationToken).ConfigureAwait(false);
         await _hubContext.Clients.All.M3UFilesDtoUpdate(notification.M3UFile).ConfigureAwait(false);
-        await _hubContext.Clients.All.VideoStreamDtoesUpdate(toSend).ConfigureAwait(false);
+        await _hubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);
     }
 }

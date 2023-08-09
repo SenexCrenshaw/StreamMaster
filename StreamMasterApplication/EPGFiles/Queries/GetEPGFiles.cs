@@ -9,7 +9,6 @@ using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
-using StreamMasterDomain.Repository;
 using StreamMasterDomain.Repository.EPG;
 
 namespace StreamMasterApplication.EPGFiles.Queries;

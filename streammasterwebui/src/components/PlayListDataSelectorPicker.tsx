@@ -52,7 +52,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     }
 
     if (props.videoStream?.childVideoStreams !== undefined && props.videoStream.childVideoStreams.length > 0) {
-      const newStream = videoStreamsQuery.data.find((m3u: StreamMasterApi.VideoStreamDto) => m3u.id === props.videoStream?.id);
+      const newStream = videoStreamsQuery.data.data.find((m3u: StreamMasterApi.VideoStreamDto) => m3u.id === props.videoStream?.id);
       if (newStream === undefined || newStream.childVideoStreams === undefined) {
         return;
       }
@@ -66,9 +66,9 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       setTargetVideoStreams(toSet);
 
       if (props.showTriState === null) {
-        setSourceVideoStreams(videoStreamsQuery.data.filter((m3u) => !dsIds?.includes(m3u.id)));
+        setSourceVideoStreams(videoStreamsQuery.data.data.filter((m3u) => !dsIds?.includes(m3u.id)));
       } else {
-        setSourceVideoStreams(videoStreamsQuery.data.filter((m3u) => m3u.isHidden !== props.showTriState && !dsIds?.includes(m3u.id)));
+        setSourceVideoStreams(videoStreamsQuery.data.data.filter((m3u) => m3u.isHidden !== props.showTriState && !dsIds?.includes(m3u.id)));
       }
 
       return;
@@ -76,7 +76,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
 
     if (streamGroup === undefined || streamGroup.id === undefined || streamGroup.childVideoStreams === undefined) {
-      const newData = [...videoStreamsQuery.data];
+      const newData = [...videoStreamsQuery.data.data];
 
       if (props.showTriState === null) {
         setSourceVideoStreams(newData.sort((a, b) => a.user_Tvg_name.localeCompare(b.user_Tvg_name)));
@@ -90,7 +90,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
 
     const ids = streamGroup.childVideoStreams.map((sgvs) => sgvs.id);
-    const streams = videoStreamsQuery.data.filter((m3u) => ids?.includes(m3u.id));
+    const streams = videoStreamsQuery.data.data.filter((m3u) => ids?.includes(m3u.id));
 
     const roIds = streamGroup.childVideoStreams.filter((vs) => vs.isReadOnly === true).map((sgvs) => sgvs.id);
 
@@ -113,9 +113,9 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     }
 
     if (props.showTriState === null) {
-      setSourceVideoStreams(videoStreamsQuery.data.filter((m3u) => !ids?.includes(m3u.id)));
+      setSourceVideoStreams(videoStreamsQuery.data.data.filter((m3u) => !ids?.includes(m3u.id)));
     } else {
-      setSourceVideoStreams(videoStreamsQuery.data.filter((m3u) => m3u.isHidden !== props.showTriState && !ids?.includes(m3u.id)));
+      setSourceVideoStreams(videoStreamsQuery.data.data.filter((m3u) => m3u.isHidden !== props.showTriState && !ids?.includes(m3u.id)));
     }
 
     return () => {

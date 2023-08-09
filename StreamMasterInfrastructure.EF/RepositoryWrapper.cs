@@ -7,6 +7,8 @@ using Microsoft.Extensions.Caching.Memory;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
 
+using StreamMasterInfrastructureEF.Repositories;
+
 namespace StreamMasterInfrastructureEF
 {
     public class RepositoryWrapper : IRepositoryWrapper
@@ -45,7 +47,6 @@ namespace StreamMasterInfrastructureEF
                     _streamGroup = new StreamGroupRepository(_repoContext, _streamGroupSortHelper, _mapper, _memoryCache, _sender);
                 }
                 return _streamGroup;
-
             }
         }
 
@@ -57,10 +58,9 @@ namespace StreamMasterInfrastructureEF
             {
                 if (_channelGroup == null)
                 {
-                    _channelGroup = new ChannelGroupRepository(_repoContext, _channelGroupSortHelper, _mapper, _memoryCache, _sender);
+                    _channelGroup = new ChannelGroupRepository(_repoContext, _mapper, _sender);
                 }
                 return _channelGroup;
-
             }
         }
 
@@ -75,7 +75,6 @@ namespace StreamMasterInfrastructureEF
                     _m3uFile = new M3UFileRepository(_repoContext, _m3uFileSortHelper);
                 }
                 return _m3uFile;
-
             }
         }
 
@@ -90,7 +89,6 @@ namespace StreamMasterInfrastructureEF
                     _epgFile = new EPGFileRepository(_repoContext, _epgFileSortHelper);
                 }
                 return _epgFile;
-
             }
         }
 
@@ -105,10 +103,8 @@ namespace StreamMasterInfrastructureEF
                     _videoStream = new VideoStreamRepository(_repoContext, _videoStreamSortHelper, _mapper, _memoryCache, _sender);
                 }
                 return _videoStream;
-
             }
         }
-
 
         public async Task<int> SaveAsync()
         {

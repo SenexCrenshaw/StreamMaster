@@ -19,15 +19,8 @@ internal class GetChannelGroupHandler : BaseMediatorRequestHandler, IRequestHand
 
     public async Task<ChannelGroupDto?> Handle(GetChannelGroup request, CancellationToken cancellationToken)
     {
-        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupAsync(request.Id);
+        var channelGroup = await Repository.ChannelGroup.GetChannelGroupAsync(request.Id);
 
-        if (channelGroup == null)
-        {
-            return null;
-        }
-
-        ChannelGroupDto ret = Mapper.Map<ChannelGroupDto>(channelGroup);
-
-        return ret;
+        return channelGroup;
     }
 }

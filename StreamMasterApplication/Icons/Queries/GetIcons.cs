@@ -7,8 +7,6 @@ using Microsoft.Extensions.Caching.Memory;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
-using X.PagedList;
-
 namespace StreamMasterApplication.Icons.Queries;
 
 public record GetIcons(IconFileParameters iconFileParameters) : IRequest<IPagedList<IconFileDto>>;

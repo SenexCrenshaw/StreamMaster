@@ -18,7 +18,7 @@ using StreamMasterDomain.Sorting;
 
 using System.Threading;
 
-namespace StreamMasterInfrastructureEF;
+namespace StreamMasterInfrastructureEF.Repositories;
 
 public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRepository
 {

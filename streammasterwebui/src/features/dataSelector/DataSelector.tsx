@@ -231,27 +231,27 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
 
     if (groupName === 'All') {
-      return videoStreamsQuery.data.length;
+      return videoStreamsQuery.data.data.length;
     }
 
     const cg = channelGroupsQuery.data?.data?.find((x: StreamMasterApi.ChannelGroupDto) => x.name.toLowerCase() === groupName.toLowerCase());
     if (cg?.regexMatch !== undefined && cg.regexMatch !== '') {
-      const filteredData = videoStreamsQuery.data.filter((item) => {
+      const filteredData = videoStreamsQuery.data.data.filter((item) => {
 
         const regexToTest = new RegExp(`.*${cg.regexMatch}.*`, 'i');
         return regexToTest.test(item.user_Tvg_name);
       });
 
-      const goodLength = videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase()).length;
+      const goodLength = videoStreamsQuery.data.data.filter((x: StreamMasterApi.VideoStreamDto) => x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase()).length;
 
       return goodLength + filteredData.length;
     }
 
     if (props.m3uFileId !== undefined && props.m3uFileId > 0) {
-      return videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.m3UFileId === props.m3uFileId && x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase()).length;
+      return videoStreamsQuery.data.data.filter((x: StreamMasterApi.VideoStreamDto) => x.m3UFileId === props.m3uFileId && x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase()).length;
     }
 
-    return videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase()).length;
+    return videoStreamsQuery.data.data.filter((x: StreamMasterApi.VideoStreamDto) => x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase()).length;
 
   }, [videoStreamsQuery.data, channelGroupsQuery.data, props.m3uFileId]);
 
@@ -261,12 +261,12 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
 
     if (groupName === 'All') {
-      return videoStreamsQuery.data.length;
+      return videoStreamsQuery.data.data.length;
     }
 
     const cg = channelGroupsQuery.data?.data?.find((x: StreamMasterApi.ChannelGroupDto) => x.name.toLowerCase() === groupName.toLowerCase());
     if (cg?.regexMatch !== undefined && cg.regexMatch !== '') {
-      const filteredData = videoStreamsQuery.data.filter((item) => {
+      const filteredData = videoStreamsQuery.data.data.filter((item) => {
         if (item.isHidden) {
           return false;
         }
@@ -275,16 +275,16 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
         return regexToTest.test(item.user_Tvg_name);
       });
 
-      const goodLength = videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase() && !x.isHidden).length;
+      const goodLength = videoStreamsQuery.data.data.filter((x: StreamMasterApi.VideoStreamDto) => x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase() && !x.isHidden).length;
 
       return goodLength + filteredData.length;
     }
 
     if (props.m3uFileId !== undefined && props.m3uFileId > 0) {
-      return videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.m3UFileId === props.m3uFileId && x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase() && !x.isHidden).length;
+      return videoStreamsQuery.data.data.filter((x: StreamMasterApi.VideoStreamDto) => x.m3UFileId === props.m3uFileId && x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase() && !x.isHidden).length;
     }
 
-    return videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase() && !x.isHidden).length;
+    return videoStreamsQuery.data.data.filter((x: StreamMasterApi.VideoStreamDto) => x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase() && !x.isHidden).length;
 
   }, [videoStreamsQuery.data, channelGroupsQuery.data, props.m3uFileId]);
 

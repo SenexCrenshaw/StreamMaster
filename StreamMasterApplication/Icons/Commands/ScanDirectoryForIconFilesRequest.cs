@@ -8,11 +8,11 @@ public class ScanDirectoryForIconFilesRequest : IRequest<bool>
 
 public class ScanDirectoryForIconFilesRequestHandler : IRequestHandler<ScanDirectoryForIconFilesRequest, bool>
 {
-   
+
 
     public ScanDirectoryForIconFilesRequestHandler()
     {
-        
+
     }
 
     public async Task<bool> Handle(ScanDirectoryForIconFilesRequest command, CancellationToken cancellationToken)

@@ -50,7 +50,7 @@ public partial class GetStreamGroupEPGForGuideHandler : BaseMemoryRequestHandler
     private readonly object Lock = new();
     private int dummyCount = 0;
 
-    public GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpContextAccessor,  ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+    public GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpContextAccessor, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
         : base(logger, repository, mapper, publisher, sender, memoryCache)
     {
         _httpContextAccessor = httpContextAccessor;

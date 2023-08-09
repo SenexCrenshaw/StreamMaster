@@ -10,7 +10,7 @@ using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Text.Json;
 
-namespace StreamMasterInfrastructureEF
+namespace StreamMasterInfrastructureEF.Repositories
 {
     public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     {

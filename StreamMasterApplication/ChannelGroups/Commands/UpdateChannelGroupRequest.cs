@@ -45,7 +45,7 @@ public class UpdateChannelGroupRequestHandler : BaseMediatorRequestHandler, IReq
         IQueryable<string> originalStreamsIds = videoStreamsRepo.Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == request.GroupName.ToLower()).Select(a => a.Id);
 
         string url = _httpContextAccessor.GetUrl();
-        (ChannelGroupDto cg, List<VideoStreamDto> distinctList, List<StreamGroupDto> streamGroups) = await Repository.ChannelGroup.UpdateChannelGroup(request, url, cancellationToken).ConfigureAwait(false);
+        (ChannelGroupDto? cg, List<VideoStreamDto>? distinctList, List<StreamGroupDto>? streamGroups) = await Repository.ChannelGroup.UpdateChannelGroup(request, url, cancellationToken).ConfigureAwait(false);
 
         if (distinctList != null && distinctList.Any())
         {

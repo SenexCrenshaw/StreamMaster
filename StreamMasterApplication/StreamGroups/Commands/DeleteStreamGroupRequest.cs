@@ -27,7 +27,7 @@ public class DeleteStreamGroupRequestValidator : AbstractValidator<DeleteStreamG
 
 public class DeleteStreamGroupHandler : BaseMediatorRequestHandler, IRequestHandler<DeleteStreamGroupRequest, int?>
 {
-   
+
     private readonly IPublisher _publisher;
 
     public DeleteStreamGroupHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)

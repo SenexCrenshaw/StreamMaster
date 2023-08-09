@@ -18,7 +18,7 @@ internal class GetSchedulesHandler : IRequestHandler<GetSchedules, List<Schedule
             return new();
         }
         var setting = FileUtil.GetSetting();
-        if ( setting.SDStationIds== null || !setting.SDStationIds.Any())
+        if (setting.SDStationIds == null || !setting.SDStationIds.Any())
         {
             Console.WriteLine($"No station ids");
             return new();

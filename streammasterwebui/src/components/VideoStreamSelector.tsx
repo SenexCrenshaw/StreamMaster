@@ -13,7 +13,7 @@ export const VideoStreamSelector = (props: VideoStreamSelectorProps) => {
 
   React.useEffect(() => {
     if (props.value !== undefined && props.value !== selectedVideoStream.user_Tvg_ID) {
-      const v = videoStreamsQuery.data?.find((a: VideoStreamDto) => a.user_Tvg_name === props.value);
+      const v = videoStreamsQuery.data?.data.find((a: VideoStreamDto) => a.user_Tvg_name === props.value);
       if (v)
         setSelectedVideoStream(v);
     }
@@ -44,7 +44,7 @@ export const VideoStreamSelector = (props: VideoStreamSelectorProps) => {
         } as SelectItem,
       ];
 
-    const ret = videoStreamsQuery.data?.filter((a) => !a.isHidden)
+    const ret = videoStreamsQuery.data?.data?.filter((a) => !a.isHidden)
       .sort((a, b) => a.user_Tvg_name.localeCompare(b.user_Tvg_name))
       .map((a) => {
         return { label: a.user_Tvg_name, value: a } as SelectItem;

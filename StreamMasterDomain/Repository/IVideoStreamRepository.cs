@@ -27,7 +27,7 @@ namespace StreamMasterDomain.Repository
 
         IQueryable<VideoStream> GetAllVideoStreams();
 
-        Task<IPagedList<VideoStream>> GetVideoStreamsAsync(VideoStreamParameters VideoStreamParameters, CancellationToken cancellationToken);
+        Task<PagedResponse<VideoStream>> GetVideoStreamsAsync(VideoStreamParameters VideoStreamParameters, CancellationToken cancellationToken);
 
         Task<VideoStream> GetVideoStreamByIdAsync(string Id, CancellationToken cancellationToken = default);
 

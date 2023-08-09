@@ -19,6 +19,6 @@ public class AddChannelGroupEventHandler : INotificationHandler<AddChannelGroupE
 
     public async Task Handle(AddChannelGroupEvent notification, CancellationToken cancellationToken)
     {
-        await _hubContext.Clients.All.ChannelGroupDtoUpdate(notification.Item).ConfigureAwait(false);
+        await _hubContext.Clients.All.ChannelGroupsRefresh().ConfigureAwait(false);
     }
 }

@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using StreamMasterApplication.LogApp.Queries;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Repository;
 
 namespace StreamMasterApplication.LogApp;
 

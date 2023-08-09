@@ -6,6 +6,7 @@ import { FilterMatchMode, FilterOperator } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { Skeleton } from 'primereact/skeleton';
 
+import { type ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { type ColumnSortEvent } from 'primereact/column';
 
 import { Column } from 'primereact/column';
@@ -36,8 +37,7 @@ import { Tooltip } from 'primereact/tooltip';
 import { v4 as uuidv4 } from 'uuid';
 
 import { useIntl } from 'react-intl';
-import { type VirtualScrollerChangeEvent } from 'primereact/virtualscroller';
-import { type VirtualScrollerOptionsType } from 'primereact/virtualscroller';
+
 import { type ColumnAlign, type ColumnFieldType, type DataSelectorSelectionMode } from './DataSelectorTypes2';
 import { type ColumnMeta } from './DataSelectorTypes2';
 
@@ -54,6 +54,8 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
   const [sortField, setSortField] = useLocalStorage<string>('name', props.id + '-sortField');
   const [rowClick, setRowClick] = useLocalStorage<boolean>(false, props.id + '-rowClick');
   const [selections, setSelections] = useLocalStorage<T[]>([] as T[], props.id + '-selections');
+
+  const [previousSourceFilters, setPreviousSourceFilters] = React.useState<DataTableFilterMeta>({} as DataTableFilterMeta);
   const [sourceFilters, setSourceFilters] = React.useState<DataTableFilterMeta>({} as DataTableFilterMeta);
 
   const [dataSource, setDataSource] = React.useState<PagedTableDto<T>>();
@@ -62,10 +64,8 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
   const setting = StreamMasterSetting();
 
-  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery({} as StreamMasterApi.VideoStreamsGetVideoStreamsApiArg);
   const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery({} as StreamMasterApi.ChannelGroupsGetChannelGroupsApiArg);
   const m3uFiles = StreamMasterApi.useM3UFilesGetM3UFilesQuery({} as StreamMasterApi.M3UFilesGetM3UFilesApiArg);
-
 
   const intl = useIntl();
 
@@ -98,66 +98,17 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
       return true;
     }
 
-    if (videoStreamsQuery.isLoading || !videoStreamsQuery.data) {
-      return true;
-    }
-
     if (channelGroupsQuery.isLoading || !channelGroupsQuery.data) {
       return true;
     }
 
     return false;
 
-  }, [channelGroupsQuery.data, channelGroupsQuery.isLoading, globalSourceFilterValue, props.isLoading, rowClick, videoStreamsQuery.data, videoStreamsQuery.isLoading]);
+  }, [channelGroupsQuery.data, channelGroupsQuery.isLoading, globalSourceFilterValue, props.isLoading, rowClick]);
 
   const showSkeleton = React.useMemo(() => {
     return isLoading || (props.showSkeleton !== undefined && props.showSkeleton)
   }, [isLoading, props.showSkeleton]);
-
-  // const sourceGlobalFilter = React.useMemo((): DataTableFilterMeta => {
-  //   if (props.columns === undefined) {
-  //     return {} as DataTableFilterMeta;
-  //   }
-
-  //   const global = {
-  //     global: {
-  //       matchMode: FilterMatchMode.CONTAINS,
-  //       value: globalSourceFilterValue,
-  //     }
-  //   } as DataTableFilterMeta;
-
-  //   const filterData = props.columns.reduce((obj, item: ColumnMeta) => {
-  //     if (item.field === 'isHidden') {
-  //       return {
-  //         ...obj,
-  //         [item.field]: {
-  //           constraints: [{
-  //             matchMode: FilterMatchMode.EQUALS,
-  //             value: props.showHidden === null ? null : !props.showHidden
-  //           }],
-  //           operator: FilterOperator.AND
-  //         },
-  //       } as DataTableFilterMeta;
-  //     }
-
-  //     return {
-  //       ...obj,
-  //       [item.field]: {
-  //         constraints: [{
-  //           matchMode: item.filterMatchMode ?? FilterMatchMode.CONTAINS,
-  //           value: ''
-  //         }],
-  //         operator: FilterOperator.AND
-  //       },
-  //     } as DataTableFilterMeta;
-
-  //   }, {}) as DataTableFilterMeta;
-
-  //   const toret = { ...global, ...filterData };
-
-  //   return toret;
-
-  // }, [props.columns, props.showHidden, globalSourceFilterValue]);
 
   React.useEffect(() => {
     if (props.columns === undefined) {
@@ -166,6 +117,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
     const filterData = props.columns.reduce((obj, item: ColumnMeta) => {
       if (item.field === 'isHidden') {
+        console.debug('isHidden', props.showHidden)
         return {
           ...obj,
           [item.field]: {
@@ -192,6 +144,16 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
   }, [props.columns, props.showHidden]);
 
 
+  React.useEffect(() => {
+    if (sourceFilters !== previousSourceFilters) {
+      if (props.onSetSourceFilters !== undefined) {
+        setPreviousSourceFilters(sourceFilters);
+        props.onSetSourceFilters(sourceFilters);
+      }
+    }
+
+
+  }, [previousSourceFilters, props, sourceFilters]);
 
   const getRecord = React.useCallback((data: T, fieldName: string) => {
     type ObjectKey = keyof typeof data;
@@ -263,83 +225,18 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
   }, [props]);
 
-  const streamCount = React.useCallback((groupName: string) => {
-
-    if (groupName === null || groupName === undefined || !videoStreamsQuery.data) {
-      return 0;
-    }
-
-    if (groupName === 'All') {
-      return videoStreamsQuery.data.length;
-    }
-
-    const cg = channelGroupsQuery.data?.data?.find((x: StreamMasterApi.ChannelGroupDto) => x.name.toLowerCase() === groupName.toLowerCase());
-    if (cg?.regexMatch !== undefined && cg.regexMatch !== '') {
-      const filteredData = videoStreamsQuery.data.filter((item) => {
-
-        const regexToTest = new RegExp(`.*${cg.regexMatch}.*`, 'i');
-        return regexToTest.test(item.user_Tvg_name);
-      });
-
-      const goodLength = videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase()).length;
-
-      return goodLength + filteredData.length;
-    }
-
-    if (props.m3uFileId !== undefined && props.m3uFileId > 0) {
-      return videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.m3UFileId === props.m3uFileId && x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase()).length;
-    }
-
-    return videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase()).length;
-
-  }, [videoStreamsQuery.data, channelGroupsQuery.data, props.m3uFileId]);
-
-  const streamNotHiddenCount = React.useCallback((groupName: string) => {
-    if (groupName === null || groupName === undefined || !videoStreamsQuery.data) {
-      return 0;
-    }
-
-    if (groupName === 'All') {
-      return videoStreamsQuery.data.length;
-    }
-
-    const cg = channelGroupsQuery.data?.data?.find((x: StreamMasterApi.ChannelGroupDto) => x.name.toLowerCase() === groupName.toLowerCase());
-    if (cg?.regexMatch !== undefined && cg.regexMatch !== '') {
-      const filteredData = videoStreamsQuery.data.filter((item) => {
-        if (item.isHidden) {
-          return false;
-        }
-
-        const regexToTest = new RegExp(`.*${cg.regexMatch}.*`, 'i');
-        return regexToTest.test(item.user_Tvg_name);
-      });
-
-      const goodLength = videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase() && !x.isHidden).length;
-
-      return goodLength + filteredData.length;
-    }
-
-    if (props.m3uFileId !== undefined && props.m3uFileId > 0) {
-      return videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.m3UFileId === props.m3uFileId && x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase() && !x.isHidden).length;
-    }
-
-    return videoStreamsQuery.data.filter((x: StreamMasterApi.VideoStreamDto) => x.user_Tvg_group !== null && x.user_Tvg_group.toLowerCase() === groupName.toLowerCase() && !x.isHidden).length;
-
-  }, [videoStreamsQuery.data, channelGroupsQuery.data, props.m3uFileId]);
-
-
-  const streamsBodyTemplate = React.useCallback((groupName: string) => {
-    if (groupName === null || groupName === undefined || !videoStreamsQuery.data) {
-      return 0;
+  const streamsBodyTemplate = React.useCallback((activeCount: string, totalCount: string) => {
+    if (activeCount === null || totalCount === undefined) {
+      return null;
     }
 
     return (
       <div className="flex align-items-center gap-2" >
-        {streamNotHiddenCount(groupName)}/{streamCount(groupName)}
+        {activeCount}/{totalCount}
       </div>
     );
 
-  }, [videoStreamsQuery.data, streamCount, streamNotHiddenCount]);
+  }, []);
 
   const m3uFileNameBodyTemplate = React.useCallback((id: number) => {
     if (!id || id === 0 || !m3uFiles || !m3uFiles.data) {
@@ -446,8 +343,9 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
     }
 
     if (fieldType === 'streams') {
-      const recordstr = getRecordString(data, fieldName);
-      return streamsBodyTemplate(recordstr);
+      const activeCount = getRecord(data, 'activeCount');
+      const totalCount = getRecord(data, 'totalCount');
+      return streamsBodyTemplate(activeCount, totalCount);
     }
 
     const record = getRecord(data, fieldName);
@@ -535,35 +433,6 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
   }, [dataSource, props.enableVirtualScroll]);
 
-  const showPagination = React.useMemo((): boolean => {
-
-    if (props.enableVirtualScroll === true) {
-      return false;
-    }
-
-    if (props.showPagination !== true) {
-      return false;
-    }
-
-    let dataLength = 0;
-
-    // if (values && values.length > 0) {
-    //   dataLength = values.length;
-    // } else {
-    if (dataSource?.data && dataSource.data.length > 0) {
-      dataLength = dataSource.data.length;
-    }
-    else {
-      return false;
-    }
-    // }
-
-
-    const minRows = props.paginatorMinimumRowsToShow ? props.paginatorMinimumRowsToShow : 20;
-
-    return dataLength >= minRows;
-
-  }, [props.enableVirtualScroll, props.showPagination, props.paginatorMinimumRowsToShow, dataSource]);
 
   const onRowReorder = React.useCallback((data: T[]) => {
     // setDataSource(data);
@@ -580,9 +449,9 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
       const groupName = getRecord(data as T, 'name');
 
       if (groupName !== undefined && groupName !== '') {
-        if (streamNotHiddenCount(groupName) > 0) {
-          return {};
-        }
+        // if (streamNotHiddenCount(groupName) > 0) {
+        //   return {};
+        // }
       }
     }
 
@@ -591,14 +460,12 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
     }
 
     return {};
-  }, [getRecord, streamNotHiddenCount]);
+  }, [getRecord]);
 
 
   const exportCSV = () => {
     tableRef.current?.exportCSV({ selectionOnly: false });
   };
-
-
 
   const sourceRenderHeader = React.useMemo(() => {
     if (!props.headerLeftTemplate && !props.headerRightTemplate && !props.globalSearchEnabled) {
@@ -721,7 +588,6 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
         return;
       }
 
-      // const single1 = data.slice(data.length - 1, data.length);
       setSelections(data);
       if (props.onSelectionChange) {
         props.onSelectionChange(data[0])
@@ -762,19 +628,6 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
   }, [props.selectionMode, rowClick]);
 
-  // React.useMemo(() => {
-  //   if (props.selection === undefined) {
-  //     return;
-  //   }
-
-  //   if (props.selection instanceof Array) {
-  //     // console.log('useEffect', props.selection);
-  //     setSelections(props.selection as T[]);
-  //   } else {
-  //     setSelections([props.selection as T]);
-  //   }
-
-  // }, [props.selection, setSelections])
 
   const onSelectionChange = React.useCallback((e: DataTableSelectionChangeEvent<T[]>) => {
     if (e.value === null || e.value === undefined) {
@@ -927,6 +780,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
     );
   }, [getRecordString, props]);
 
+
   const getHeader = React.useCallback((field: string, header: string | undefined, fieldType: ColumnFieldType | undefined): React.ReactNode => {
     if (fieldType) {
       if (fieldType === 'blank') { return (<div />); }
@@ -962,6 +816,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
       }
     }
+
 
     if (header === undefined) {
       return camel2title(field)
@@ -1019,6 +874,8 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
       <div className="absolute top-0 left-50 text-xs text-white text-500" />
     );
   }
+
+
 
   const onFilter = (event: DataTableFilterEvent) => {
     console.debug("onFilter", event);
@@ -1122,7 +979,6 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
           filterDisplay="row"
           filters={sourceFilters}
           first={dataSource?.first}
-          // globalFilterFields={props.columns.map((item) => item.field)}
           groupRowsBy={props.groupRowsBy}
           header={sourceRenderHeader}
           key={props.key !== undefined && props.key !== '' ? props.key : undefined}
@@ -1324,6 +1180,7 @@ export type DataSelector2Props<T> = {
    * A function that is called when a row is selected.
    */
   onSelectionChange?: (value: T | T[]) => void;
+  onSetSourceFilters?: (filter: DataTableFilterMeta) => void;
   onSort?: (event: DataTableSortEvent) => void;
   /**
      * A function that is called when the value changes.
@@ -1340,8 +1197,8 @@ export type DataSelector2Props<T> = {
  */
   // selection?: T | T[];
   /**
-   * The mode for row selection.
-   */
+     * The mode for row selection.
+     */
   selectionMode?: DataSelectorSelectionMode;
   /**
    * Whether to show the selector column.

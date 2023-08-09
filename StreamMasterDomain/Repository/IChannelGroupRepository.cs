@@ -9,7 +9,7 @@ namespace StreamMasterDomain.Repository
 
         Task<ChannelGroup?> GetChannelGroupByNameAsync(string name);
 
-        Task<ChannelGroup?> GetChannelGroupAsync(int Id);
+        Task<ChannelGroupDto?> GetChannelGroupAsync(int Id, CancellationToken cancellationToken = default);
 
         Task<PagedResponse<ChannelGroupDto>> GetChannelGroupsAsync(ChannelGroupParameters channelGroupParameters);
 

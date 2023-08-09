@@ -23,10 +23,10 @@ public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest> where T
         }
         else
         {
-            _logger.LogInformation("Request: {Name}  {@Request}",requestName, request);
+            _logger.LogInformation("Request: {Name}  {@Request}", requestName, request);
         }
 
-       
+
         return Task.CompletedTask;
     }
 }

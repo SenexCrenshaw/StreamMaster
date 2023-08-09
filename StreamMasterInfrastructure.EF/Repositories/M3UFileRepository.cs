@@ -4,7 +4,7 @@ using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
 
-namespace StreamMasterInfrastructureEF;
+namespace StreamMasterInfrastructureEF.Repositories;
 
 public class M3UFileRepository : RepositoryBase<M3UFile>, IM3UFileRepository
 {

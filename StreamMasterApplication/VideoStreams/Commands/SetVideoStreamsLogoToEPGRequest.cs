@@ -20,7 +20,7 @@ public class SetVideoStreamsLogoToEPGRequest : IRequest<List<VideoStreamDto>>
 public class SetVideoStreamsLogoToEPGHandler : BaseMemoryRequestHandler, IRequestHandler<SetVideoStreamsLogoToEPGRequest, List<VideoStreamDto>>
 {
 
-    public SetVideoStreamsLogoToEPGHandler( ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+    public SetVideoStreamsLogoToEPGHandler(ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
         : base(logger, repository, mapper, publisher, sender, memoryCache) { }
 
     public async Task<List<VideoStreamDto>> Handle(SetVideoStreamsLogoToEPGRequest request, CancellationToken cancellationToken)

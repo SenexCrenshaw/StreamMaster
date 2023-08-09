@@ -14,22 +14,20 @@ public record GetVideoStreamsByNamePatternQuery(string pattern) : IRequest<IEnum
 
 internal class GetVideoStreamsByNamePatternQueryHandler : BaseRequestHandler, IRequestHandler<GetVideoStreamsByNamePatternQuery, IEnumerable<VideoStream>>
 {
-
     public GetVideoStreamsByNamePatternQueryHandler(ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper)
         : base(logger, repository, mapper) { }
 
-
-    public async Task<IEnumerable<VideoStream>> Handle(GetVideoStreamsByNamePatternQuery request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<VideoStream>?> Handle(GetVideoStreamsByNamePatternQuery request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(request.pattern))
         {
-            return new List<VideoStream>();
+            return null;
         }
 
         Regex regex = new(request.pattern, RegexOptions.ECMAScript | RegexOptions.IgnoreCase);
-        IQueryable<VideoStream> allVideoStreams = Repository.VideoStream.GetAllVideoStreams();
-
-        return allVideoStreams
-            .Where(vs => regex.IsMatch(vs.User_Tvg_name));
+        var allVideoStreams = Repository.VideoStream.GetAllVideoStreams().ToList();
+        var regexVideoStreams = allVideoStreams.Where(vs => regex.IsMatch(vs.User_Tvg_name));
+        
+        return allVideoStreams.Where(vs => regex.IsMatch(vs.User_Tvg_name));
     }
 }

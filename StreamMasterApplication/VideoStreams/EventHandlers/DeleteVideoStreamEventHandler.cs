@@ -20,6 +20,6 @@ public class DeleteVideoStreamEventHandler : INotificationHandler<DeleteVideoStr
 
     public async Task Handle(DeleteVideoStreamEvent notification, CancellationToken cancellationToken)
     {
-        await _hubContext.Clients.All.VideoStreamDtoDelete(notification.VideoFileId).ConfigureAwait(false);
+        await _hubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);
     }
 }

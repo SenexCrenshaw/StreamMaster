@@ -34,7 +34,7 @@ public partial class StreamMasterHub : Hub<IStreamMasterHub>, ISharedHub
 
     private readonly ISender _mediator = null!;
 
-    private static HashSet<string> _connections = new HashSet<string>();
+    private static readonly HashSet<string> _connections = new HashSet<string>();
 
     public static bool IsConnected
     {

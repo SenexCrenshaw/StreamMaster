@@ -37,8 +37,8 @@ namespace StreamMasterApplication.Common.Models
 
         }
         public Capability(string urlBase, string deviceID)
-        {                      
-            URLBase = urlBase;            
+        {
+            URLBase = urlBase;
             Device = new Device
             {
                 DeviceType = "urn:schemas-upnp-org:device:MediaServer:1",
@@ -50,6 +50,6 @@ namespace StreamMasterApplication.Common.Models
                 UDN = deviceID
             };
         }
-        
+
     }
 }

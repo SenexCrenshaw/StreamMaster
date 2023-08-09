@@ -2,8 +2,6 @@
 
 using StreamMaster.SchedulesDirectAPI;
 
-using StreamMasterDomain.Common;
-
 namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 
 public record GetStations : IRequest<List<Station>>;

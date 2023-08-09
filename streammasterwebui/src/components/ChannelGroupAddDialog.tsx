@@ -2,7 +2,6 @@ import React from "react";
 import * as StreamMasterApi from '../store/iptvApi';
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
-import { CreateChannelGroup } from "../store/signlar_functions";
 import { getTopToolOptions } from "../common/common";
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
 import DataSelector from "../features/dataSelector/DataSelector";
@@ -16,6 +15,8 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
 
   const [newGroupName, setNewGroupName] = React.useState('');
   const [regex, setRegex] = React.useState<string>('');
+
+  const [channelGroupsCreateChannelGroupMutation] = StreamMasterApi.useChannelGroupsCreateChannelGroupMutation();
 
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsByNamePatternQuery(regex ?? '');
 
@@ -42,13 +43,13 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
       data.regex = regex;
     }
 
-    CreateChannelGroup(data).then(() => {
+    channelGroupsCreateChannelGroupMutation(data).then(() => {
       setInfoMessage('Channel Group Added Successfully');
     }).catch((e) => {
       setInfoMessage('Channel Group Add Error: ' + e.message);
     });
 
-  }, [ReturnToParent, newGroupName, regex]);
+  }, [ReturnToParent, channelGroupsCreateChannelGroupMutation, newGroupName, regex]);
 
   React.useEffect(() => {
     const callback = (event: KeyboardEvent) => {
@@ -73,22 +74,6 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
       { field: 'user_Tvg_name', header: 'Name' },
     ]
   }, []);
-
-  // const dataSource = React.useMemo((): StreamMasterApi.VideoStreamDto[] | undefined => {
-  //   if (regex === undefined || regex === '' || !videoStreamsQuery.data)
-  //     return (undefined);
-
-
-  //   const filteredData = videoStreamsQuery.data.filter((item) => {
-  //     if (item.isHidden)
-  //       return false;
-
-  //     const regexToTest = new RegExp(`.*${regex}.*`, 'i');
-  //     return regexToTest.test(item.user_Tvg_name);
-  //   });
-
-  //   return filteredData;
-  // }, [regex, videoStreamsQuery.data]);
 
   return (
     <>

@@ -22,16 +22,10 @@ public record UpdateChannelGroupsRequest(IEnumerable<UpdateChannelGroupRequest> 
 
 public class UpdateChannelGroupsRequestValidator : AbstractValidator<UpdateChannelGroupsRequest>
 {
-    //public UpdateChannelGroupsRequestValidator()
-    //{
-    //    _ = RuleFor(v => v.GroupName).NotNull().NotEmpty();
-    //    _ = RuleFor(v => v.Rank).NotNull().GreaterThan(0);
-    //}
 }
 
 public class UpdateChannelGroupsRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateChannelGroupsRequest, IEnumerable<ChannelGroupDto>?>
 {
-
     public UpdateChannelGroupsRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
         : base(logger, repository, mapper, publisher, sender) { }
 
@@ -80,7 +74,6 @@ public class UpdateChannelGroupsRequestHandler : BaseMediatorRequestHandler, IRe
 
             if (isChanged)
             {
-
                 results.AddRange(Repository.VideoStream.GetVideoStreamsChannelGroupName(channelGroup.Name)
                     .Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == channelGroup.Name.ToLower())
                     .ProjectTo<VideoStreamDto>(Mapper.ConfigurationProvider));

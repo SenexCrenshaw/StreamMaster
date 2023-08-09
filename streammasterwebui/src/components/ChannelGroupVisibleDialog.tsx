@@ -1,8 +1,7 @@
 
 import React from "react";
-import type * as StreamMasterApi from '../store/iptvApi';
+import * as StreamMasterApi from '../store/iptvApi';
 import { Button } from "primereact/button";
-import { SetChannelGroupsVisible } from "../store/signlar_functions";
 
 import { getTopToolOptions } from "../common/common";
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
@@ -13,6 +12,8 @@ const ChannelGroupVisibleDialog = (props: ChannelGroupVisibleDialogProps) => {
   const [block, setBlock] = React.useState<boolean>(false);
   const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[]);
   const [infoMessage, setInfoMessage] = React.useState('');
+
+  const [channelGroupsSetChannelGroupsVisible] = StreamMasterApi.useChannelGroupsSetChannelGroupsVisibleMutation();
 
   const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);
@@ -36,30 +37,15 @@ const ChannelGroupVisibleDialog = (props: ChannelGroupVisibleDialogProps) => {
       return;
     }
 
-
     const data = {} as StreamMasterApi.SetChannelGroupsVisibleRequest;
     data.requests = selectedChannelGroups.map((item) => { return { groupName: item.name, isHidden: !item.isHidden }; });
+    channelGroupsSetChannelGroupsVisible(data).then(() => {
+      setInfoMessage('Channel Group Set Visibilty Successfully');
+    }).catch((e) => {
+      setInfoMessage('Channel Group Set Visibilty Error: ' + e.message);
+    });
 
-    await SetChannelGroupsVisible(data)
-      .then(() => {
-
-        setInfoMessage('Channel Group Set Visibilty Successfully');
-        // returnData.forEach((item) => {
-        //   const index = selectedChannelGroups.findIndex((x) => x.name === item.groupName);
-        //   if (index !== -1) {
-        //     selectedChannelGroups[index] = { ...selectedChannelGroups[index], isHidden: item.isHidden === true }
-        //   }
-        // });
-
-        // } else {
-        //   setInfoMessage('Channel Group Visibilty No Change');
-        // }
-      }).catch((e) => {
-        setInfoMessage('Channel Group Set Visibilty Error: ' + e.message);
-      });
-
-
-  }, [ReturnToParent, selectedChannelGroups]);
+  }, [ReturnToParent, channelGroupsSetChannelGroupsVisible, selectedChannelGroups]);
 
 
   if (props.skipOverLayer === true) {

@@ -41,7 +41,7 @@ const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
 
   React.useEffect(() => {
     if (videoStreamId !== '') {
-      const videoStream = videoStreamsQuery.data?.find((v) => v.id === videoStreamId);
+      const videoStream = videoStreamsQuery.data?.data?.find((v) => v.id === videoStreamId);
       if (videoStream) {
         setSrc(videoStream.user_Url);
         const epg = getEpg(videoStream.user_Tvg_ID);

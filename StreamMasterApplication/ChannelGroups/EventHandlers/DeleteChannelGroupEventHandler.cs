@@ -17,6 +17,6 @@ public class DeleteChannelGroupEventHandler : INotificationHandler<DeleteChannel
 
     public async Task Handle(DeleteChannelGroupEvent notification, CancellationToken cancellationToken)
     {
-        await _hubContext.Clients.All.ChannelGroupDtoDelete(notification.ChannelGroupId).ConfigureAwait(false);
+        await _hubContext.Clients.All.ChannelGroupsRefresh().ConfigureAwait(false);
     }
 }

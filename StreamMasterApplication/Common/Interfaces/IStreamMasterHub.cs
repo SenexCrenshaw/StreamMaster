@@ -11,13 +11,7 @@ public interface IStreamMasterHub : ISharedHub
 {
     Task BroadcastStartUpData();
 
-    Task ChannelGroupDtoDelete(int result);
-
-    Task ChannelGroupDtoesUpdate(IEnumerable<ChannelGroupDto> channelGroupDto);
-
-    Task ChannelGroupDtoUpdate(ChannelGroupDto channelGroupDto);
-
-    Task ChannelGroupSetChannelGroupsVisible(IEnumerable<SetChannelGroupsVisibleArg> results);
+    Task ChannelGroupsRefresh();
 
     Task EPGFilesDtoDelete(int result);
 
@@ -61,15 +55,17 @@ public interface IStreamMasterHub : ISharedHub
 
     Task TaskQueueStatusDtoesUpdate(IEnumerable<TaskQueueStatusDto> results);
 
-    Task VideoStreamDtoDelete(string result);
+    Task VideoStreamsRefresh();
 
-    Task VideoStreamDtoesUpdate(IEnumerable<VideoStreamDto> results);
+    //Task VideoStreamDtoDelete(string result);
 
-    Task VideoStreamDtosDelete(List<string> result);
+    //Task VideoStreamDtoesUpdate(IEnumerable<VideoStreamDto> results);
 
-    Task VideoStreamDtoUpdate(VideoStreamDto result);
+    //Task VideoStreamDtosDelete(List<string> result);
 
-    Task VideoStreamSetVideoStreamVisible(IEnumerable<SetVideoStreamVisibleRet> results);
+    //Task VideoStreamDtoUpdate(VideoStreamDto result);
 
-    Task VideoStreamUpdateChannelNumbers(IEnumerable<ChannelNumberPair> data);
+    //Task VideoStreamSetVideoStreamVisible(IEnumerable<SetVideoStreamVisibleRet> results);
+
+    //Task VideoStreamUpdateChannelNumbers(IEnumerable<ChannelNumberPair> data);
 }

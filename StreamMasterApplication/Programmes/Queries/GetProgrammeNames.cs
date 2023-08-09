@@ -1,6 +1,7 @@
 ﻿using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
+
 using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.Programmes.Queries;

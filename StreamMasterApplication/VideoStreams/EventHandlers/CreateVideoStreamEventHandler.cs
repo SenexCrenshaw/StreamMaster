@@ -27,8 +27,6 @@ public class CreateVideoStreamEventHandler : INotificationHandler<CreateVideoStr
 
     public async Task Handle(CreateVideoStreamEvent notification, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Domain Event: {DomainEvent}", notification.GetType().Name);
-
-        await _hubContext.Clients.All.VideoStreamDtoUpdate(notification.VideoStreamsDto).ConfigureAwait(false);
+        await _hubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);
     }
 }

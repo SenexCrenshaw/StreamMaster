@@ -9,8 +9,6 @@ using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
-using System;
-
 namespace StreamMasterApplication.ChannelGroups.Queries;
 
 public record GetChannelGroupsQuery(ChannelGroupParameters Parameters) : IRequest<PagedResponse<ChannelGroupDto>>;

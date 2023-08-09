@@ -26,7 +26,6 @@ public class SetVideoStreamChannelNumbersRequest : IRequest<IEnumerable<ChannelN
 
 public class SetVideoStreamChannelNumbersRequestHandler : BaseRequestHandler, IRequestHandler<SetVideoStreamChannelNumbersRequest, IEnumerable<ChannelNumberPair>>
 {
-
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
 
     public SetVideoStreamChannelNumbersRequestHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper)
@@ -52,7 +51,7 @@ public class SetVideoStreamChannelNumbersRequestHandler : BaseRequestHandler, IR
         }
         await Repository.SaveAsync().ConfigureAwait(false);
 
-        await _hubContext.Clients.All.VideoStreamUpdateChannelNumbers(request.ChannelNumberPairs).ConfigureAwait(false);
+        await _hubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);
 
         return request.ChannelNumberPairs;
     }

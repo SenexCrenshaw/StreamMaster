@@ -1,30 +1,21 @@
-﻿using AutoMapper;
-
+﻿
 using Microsoft.AspNetCore.Mvc;
-
-using StreamMasterAPI.Extensions;
 
 using StreamMasterApplication.ChannelGroups;
 using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.ChannelGroups.Queries;
-using StreamMasterApplication.M3UFiles.Queries;
 
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
-using StreamMasterDomain.Repository;
-
-using System.Linq.Dynamic.Core;
-using System.Text.Json;
 
 namespace StreamMasterAPI.Controllers;
 
 public class ChannelGroupsController : ApiControllerBase, IChannelGroupController
 {
-    private readonly IMapper _mapper;
 
-    public ChannelGroupsController(IMapper mapper)
+    public ChannelGroupsController()
     {
-        _mapper = mapper;
+      
     }
 
     [HttpPost]
@@ -54,7 +45,7 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
     [HttpGet]
     public async Task<ActionResult<PagedResponse<ChannelGroupDto>>> GetChannelGroups([FromQuery] ChannelGroupParameters Parameters)
     {
-        var res = await Mediator.Send(new GetChannelGroupsQuery(Parameters)).ConfigureAwait(false);        
+        var res = await Mediator.Send(new GetChannelGroupsQuery(Parameters)).ConfigureAwait(false);
         return Ok(res);
     }
 

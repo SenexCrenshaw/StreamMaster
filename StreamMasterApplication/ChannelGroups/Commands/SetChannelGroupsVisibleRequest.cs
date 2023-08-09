@@ -33,7 +33,6 @@ public class SetChannelGroupsVisibleRequestValidator : AbstractValidator<SetChan
 
 public class SetChannelGroupsVisibleRequestHandler : BaseRequestHandler, IRequestHandler<SetChannelGroupsVisibleRequest, IEnumerable<SetChannelGroupsVisibleArg>>
 {
-
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
 
     public SetChannelGroupsVisibleRequestHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper)
@@ -42,10 +41,8 @@ public class SetChannelGroupsVisibleRequestHandler : BaseRequestHandler, IReques
         _hubContext = hubContext;
     }
 
-
     public async Task<IEnumerable<SetChannelGroupsVisibleArg>> Handle(SetChannelGroupsVisibleRequest requests, CancellationToken cancellationToken)
     {
-        List<SetVideoStreamVisibleRet> ret = new();
         bool isChanged = false;
 
         foreach (SetChannelGroupsVisibleArg request in requests.requests)
@@ -71,7 +68,7 @@ public class SetChannelGroupsVisibleRequestHandler : BaseRequestHandler, IReques
                     .Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == channelGroup.Name.ToLower())
                     .Select(a => new SetVideoStreamVisibleRet(a.Id, a.IsHidden));
 
-                ret.AddRange(changes);
+                Repository.ChannelGroup.UpdateChannelGroup(channelGroup);
 
                 isChanged = true;
             }
@@ -81,8 +78,8 @@ public class SetChannelGroupsVisibleRequestHandler : BaseRequestHandler, IReques
         {
             await Repository.SaveAsync().ConfigureAwait(false);
 
-            await _hubContext.Clients.All.ChannelGroupSetChannelGroupsVisible(requests.requests).ConfigureAwait(false);
-            await _hubContext.Clients.All.VideoStreamSetVideoStreamVisible(ret).ConfigureAwait(false);
+            await _hubContext.Clients.All.ChannelGroupsRefresh().ConfigureAwait(false);
+            await _hubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);
         }
         return requests.requests;
     }

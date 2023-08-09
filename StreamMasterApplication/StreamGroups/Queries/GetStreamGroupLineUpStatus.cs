@@ -30,7 +30,7 @@ public class GetStreamGroupLineUpStatusValidator : AbstractValidator<GetStreamGr
 
 public class GetStreamGroupLineUpStatusHandler : BaseRequestHandler, IRequestHandler<GetStreamGroupLineUpStatus, string>
 {
-   
+
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public GetStreamGroupLineUpStatusHandler(ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper)

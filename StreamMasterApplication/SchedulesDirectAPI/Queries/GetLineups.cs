@@ -13,7 +13,7 @@ internal class GetLineupsHandler : IRequestHandler<GetLineups, LineUpsResult?>
         var sd = new SchedulesDirect();
         var isReady = await sd.GetSystemReady(cancellationToken).ConfigureAwait(false);
         if (!isReady)
-        {        
+        {
             Console.WriteLine($"Status is Offline");
             return null;
         }

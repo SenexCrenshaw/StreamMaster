@@ -14,7 +14,7 @@ using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
 
-namespace StreamMasterInfrastructureEF;
+namespace StreamMasterInfrastructureEF.Repositories;
 
 public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRepository
 {
@@ -434,12 +434,9 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         return ret;
     }
 
-    public async Task<IPagedList<VideoStream>> GetVideoStreamsAsync(VideoStreamParameters VideoStreamParameters, CancellationToken cancellationToken)
+    public async Task<PagedResponse<VideoStream>> GetVideoStreamsAsync(VideoStreamParameters videoStreamParameters, CancellationToken cancellationToken)
     {
-        IQueryable<VideoStream> streams = GetAllVideoStreams();
-        IQueryable<VideoStream> sorderVideoStreams = _VideoStreamSortHelper.ApplySort(streams, VideoStreamParameters.OrderBy);
-
-        return await sorderVideoStreams.ToPagedListAsync(VideoStreamParameters.PageNumber, VideoStreamParameters.PageSize).ConfigureAwait(false);
+        return await GetEntitiesAsync<VideoStream>(videoStreamParameters, _mapper);
     }
 
     public void UpdateVideoStream(VideoStream VideoStream)

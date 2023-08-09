@@ -28,7 +28,7 @@ public interface IVideoStreamController
 
     Task<ActionResult<IEnumerable<VideoStreamDto>>> GetVideoStreamsByNamePattern(GetVideoStreamsByNamePatternQuery request);
 
-    Task<ActionResult<IPagedList<VideoStreamDto>>> GetVideoStreams(VideoStreamParameters Parameters);
+    Task<ActionResult<PagedResponse<VideoStreamDto>>> GetVideoStreams(VideoStreamParameters Parameters);
 
     Task<ActionResult> GetVideoStreamStream(string encodedId, string name, CancellationToken cancellationToken);
 
@@ -59,7 +59,7 @@ public interface IVideoStreamHub
 
     Task<VideoStreamDto?> GetVideoStream(string id);
 
-    Task<IPagedList<VideoStream>> GetVideoStreams(VideoStreamParameters Parameters);
+    Task<PagedResponse<VideoStream>> GetVideoStreams(VideoStreamParameters Parameters);
 
     Task<IEnumerable<VideoStream>> GetVideoStreamsByNamePattern(GetVideoStreamsByNamePatternQuery request);
 

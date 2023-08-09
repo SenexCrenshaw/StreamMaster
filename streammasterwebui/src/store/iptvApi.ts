@@ -1101,7 +1101,7 @@ export type VideoStreamsGetVideoStreamApiResponse =
   /** status 200  */ VideoStreamDto;
 export type VideoStreamsGetVideoStreamApiArg = string;
 export type VideoStreamsGetVideoStreamsApiResponse =
-  /** status 200  */ VideoStreamDto[];
+  /** status 200  */ PagedResponseOfVideoStreamDto;
 export type VideoStreamsGetVideoStreamsApiArg = {
   name?: string;
   pageNumber?: number;
@@ -1146,16 +1146,20 @@ export type CreateChannelGroupRequest = {
   rank: number;
   regex: string | null;
 };
-export type ChannelGroupArg = {
-  isHidden: boolean | null;
-  isReadOnly: boolean | null;
+export type GetVideoStreamCountForChannelGroupResponse = {
+  id?: number;
+  activeCount?: number;
+  totalCount?: number;
+  hiddenCount?: number;
+};
+export type ChannelGroupArg = GetVideoStreamCountForChannelGroupResponse & {
+  isHidden?: boolean | null;
+  isReadOnly?: boolean | null;
   name: string;
   rank: number;
-  regexMatch: string | null;
+  regexMatch?: string | null;
 };
-export type ChannelGroupDto = ChannelGroupArg & {
-  id: number;
-};
+export type ChannelGroupDto = ChannelGroupArg & object;
 export type PagedResponseOfChannelGroupDto = {
   data: ChannelGroupDto[];
   pageNumber: number;
@@ -1781,6 +1785,15 @@ export type ChannelLogoDto = {
   epgId?: string;
   epgFileId?: number;
   logoUrl?: string;
+};
+export type PagedResponseOfVideoStreamDto = {
+  data: VideoStreamDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalItemCount: number;
+  totalPageCount: number;
+  totalRecords: number;
+  first: number;
 };
 export type ReSetVideoStreamsLogoRequest = {
   ids?: string[];
