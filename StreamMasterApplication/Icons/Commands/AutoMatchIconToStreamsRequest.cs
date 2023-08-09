@@ -12,6 +12,7 @@ using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Icons.Commands;
 
@@ -29,8 +30,7 @@ public class AutoMatchIconToStreamsRequestValidator : AbstractValidator<AutoMatc
 
 public class AutoMatchIconToStreamsRequestHandler : BaseMemoryRequestHandler, IRequestHandler<AutoMatchIconToStreamsRequest, IconFileDto?>
 {
-
-    public AutoMatchIconToStreamsRequestHandler( ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+    public AutoMatchIconToStreamsRequestHandler(ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
         : base(logger, repository, mapper, publisher, sender, memoryCache) { }
 
     public static double GetWeightedMatch(string sentence1, string sentence2)
@@ -58,7 +58,9 @@ public class AutoMatchIconToStreamsRequestHandler : BaseMemoryRequestHandler, IR
         {
             return null;
         }
-        var icons = await Sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);// CacheKeys.Icons(); //await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
+
+        IconFileParameters iconFileParameters = new IconFileParameters();
+        var icons = await Sender.Send(new GetIcons(iconFileParameters), cancellationToken).ConfigureAwait(false);
 
         var streams = Repository.VideoStream.GetVideoStreamsByMatchingIds(request.Ids);
         List<VideoStreamDto> videoStreamDtos = new();

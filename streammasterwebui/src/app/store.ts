@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 // import { MessagePackHubProtocol } from '@microsoft/signalr-protocol-msgpack';
 import { configureStore } from '@reduxjs/toolkit';

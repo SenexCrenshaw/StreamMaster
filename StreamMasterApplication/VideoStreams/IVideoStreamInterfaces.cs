@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
+using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.VideoStreams.Commands;
 using StreamMasterApplication.VideoStreams.Queries;
@@ -19,16 +20,15 @@ public interface IVideoStreamController
 
     Task<ActionResult> FailClient(FailClientRequest request);
 
-    Task<ActionResult> GetAllStatisticsForAllUrls();
+    Task<ActionResult<List<StreamStatisticsResult>>> GetAllStatisticsForAllUrls();
 
-    Task<ActionResult> GetChannelLogoDtos();
+    Task<ActionResult<List<ChannelLogoDto>>> GetChannelLogoDtos();
 
     Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id);
 
-
     Task<ActionResult<IEnumerable<VideoStreamDto>>> GetVideoStreamsByNamePattern(GetVideoStreamsByNamePatternQuery request);
 
-    Task<ActionResult<IEnumerable<VideoStreamDto>>> GetVideoStreams(VideoStreamParameters Parameters);
+    Task<ActionResult<IPagedList<VideoStreamDto>>> GetVideoStreams(VideoStreamParameters Parameters);
 
     Task<ActionResult> GetVideoStreamStream(string encodedId, string name, CancellationToken cancellationToken);
 
@@ -59,7 +59,8 @@ public interface IVideoStreamHub
 
     Task<VideoStreamDto?> GetVideoStream(string id);
 
-    Task<PagedList<VideoStream>> GetVideoStreams(VideoStreamParameters Parameters);
+    Task<IPagedList<VideoStream>> GetVideoStreams(VideoStreamParameters Parameters);
+
     Task<IEnumerable<VideoStream>> GetVideoStreamsByNamePattern(GetVideoStreamsByNamePatternQuery request);
 
     Task ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request);

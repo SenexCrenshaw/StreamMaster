@@ -6,8 +6,9 @@ using StreamMasterApplication.Hubs;
 using StreamMasterDomain.Common;
 
 using StreamMasterInfrastructure;
-using StreamMasterInfrastructure.EF;
 using StreamMasterInfrastructure.Logging;
+
+using StreamMasterInfrastructureEF;
 
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;

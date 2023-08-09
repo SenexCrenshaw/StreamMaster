@@ -13,12 +13,11 @@ public interface IEPGFileController
 
     Task<ActionResult> CreateEPGFileFromForm([FromForm] CreateEPGFileRequest request);
 
-
     Task<ActionResult> DeleteEPGFile(DeleteEPGFileRequest request);
 
     Task<ActionResult<EPGFilesDto>> GetEPGFile(int id);
 
-    Task<ActionResult<IEnumerable<EPGFilesDto>>> GetEPGFiles(EPGFileParameters parameters);
+    Task<ActionResult<IPagedList<EPGFilesDto>>> GetEPGFiles(EPGFileParameters parameters);
 
     Task<ActionResult> ProcessEPGFile(ProcessEPGFileRequest request);
 
@@ -31,7 +30,6 @@ public interface IEPGFileController
 
 public interface IEPGFileDB
 {
-
 }
 
 public interface IEPGFileHub
@@ -42,7 +40,7 @@ public interface IEPGFileHub
 
     Task<EPGFilesDto?> GetEPGFile(int id);
 
-    Task<IEnumerable<EPGFilesDto>> GetEPGFiles(EPGFileParameters parameters);
+    Task<IPagedList<EPGFilesDto>> GetEPGFiles(EPGFileParameters parameters);
 
     Task ProcessEPGFile(ProcessEPGFileRequest request);
 

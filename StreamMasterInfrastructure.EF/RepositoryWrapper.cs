@@ -7,7 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
 
-namespace StreamMasterInfrastructure.EF
+namespace StreamMasterInfrastructureEF
 {
     public class RepositoryWrapper : IRepositoryWrapper
     {

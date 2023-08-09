@@ -42,8 +42,8 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const [selectedVideoStreams, setSelectedVideoStreams] = React.useState<StreamMasterApi.VideoStreamDto[]>([] as StreamMasterApi.VideoStreamDto[]);
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
 
-  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
-  const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
+  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery({} as StreamMasterApi.VideoStreamsGetVideoStreamsApiArg);
+  const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery({} as StreamMasterApi.ChannelGroupsGetChannelGroupsApiArg);
 
   const filteredStreams = useFilteredStreams(channelGroupsQuery, props, videoStreamsQuery);
 

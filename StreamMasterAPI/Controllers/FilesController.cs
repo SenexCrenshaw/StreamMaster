@@ -33,7 +33,6 @@ public class FilesController : ApiControllerBase, IFileController
 
     [AllowAnonymous]
     [Route("{filetype}/{source}")]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetFile(string source, SMFileTypes filetype, CancellationToken cancellationToken)
     {
         string sourceDecoded = HttpUtility.UrlDecode(source);
@@ -120,7 +119,7 @@ public class FilesController : ApiControllerBase, IFileController
             returnName = $"{icon.Name}.{icon.Extension}";
             fileName = $"{fd.DirectoryLocation}{returnName}";
 
-            if (!System.IO.File.Exists(fileName) )
+            if (!System.IO.File.Exists(fileName))
             {
                 (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(source, fileName, cancellationToken).ConfigureAwait(false);
                 if (!success)
@@ -129,7 +128,6 @@ public class FilesController : ApiControllerBase, IFileController
                 }
             }
         }
-              
 
         if (System.IO.File.Exists(fileName))
         {

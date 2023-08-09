@@ -16,7 +16,7 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
   const [streamGroupNumber, setStreamGroupNumber] = React.useState<number>();
   const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[]);
 
-  const streamGroupsQuery = StreamMasterApi.useStreamGroupsGetStreamGroupsQuery();
+  const streamGroupsQuery = StreamMasterApi.useStreamGroupsGetStreamGroupsQuery({} as StreamMasterApi.StreamGroupsGetStreamGroupsApiArg);
 
   const getNextStreamGroupNumber = React.useCallback((): number => {
     if (!streamGroupsQuery?.data) {

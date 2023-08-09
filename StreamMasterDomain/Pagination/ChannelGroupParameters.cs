@@ -4,7 +4,7 @@
     {
         public ChannelGroupParameters()
         {
-            OrderBy = "name desc";
+            OrderBy = "name";
         }
 
         public string Name { get; set; }

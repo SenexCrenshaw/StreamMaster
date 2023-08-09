@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Repository;
 
-namespace StreamMasterInfrastructure.EF;
+namespace StreamMasterInfrastructureEF;
 
 public class RepositoryContextInitializer
 {
@@ -29,7 +29,7 @@ public class RepositoryContextInitializer
                 await _context.Database.MigrateAsync().ConfigureAwait(false);
                 if (!_context.ChannelGroups.Any(a => a.Name == "(None)"))
                 {
-                    _context.Add(new ChannelGroup { Name = "(None)", IsReadOnly = false, Rank = 1 });
+                    _context.Add(new ChannelGroup { Name = "(None)", IsReadOnly = true, Rank = 1 });
                     await _context.SaveChangesAsync().ConfigureAwait(false);
                 }
             }
@@ -41,10 +41,8 @@ public class RepositoryContextInitializer
         }
     }
 
-
     public void TrySeed()
     {
         FileUtil.SetupDirectories();
-
     }
 }

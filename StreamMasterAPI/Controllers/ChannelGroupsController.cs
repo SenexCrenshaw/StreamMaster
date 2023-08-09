@@ -2,6 +2,8 @@
 
 using Microsoft.AspNetCore.Mvc;
 
+using StreamMasterAPI.Extensions;
+
 using StreamMasterApplication.ChannelGroups;
 using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.ChannelGroups.Queries;
@@ -9,6 +11,10 @@ using StreamMasterApplication.M3UFiles.Queries;
 
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
+using StreamMasterDomain.Repository;
+
+using System.Linq.Dynamic.Core;
+using System.Text.Json;
 
 namespace StreamMasterAPI.Controllers;
 
@@ -46,12 +52,10 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedList<ChannelGroupDto>>> GetChannelGroups([FromQuery] ChannelGroupParameters Parameters)
+    public async Task<ActionResult<PagedResponse<ChannelGroupDto>>> GetChannelGroups([FromQuery] ChannelGroupParameters Parameters)
     {
-        var channelGroups = await Mediator.Send(new GetChannelGroupsQuery(Parameters)).ConfigureAwait(false);
-        Response.Headers.Add("X-Pagination", channelGroups.GetMetadata());
-        var mchannelGroupsResult = _mapper.Map<IEnumerable<M3UFileDto>>(channelGroups);
-        return Ok(mchannelGroupsResult);
+        var res = await Mediator.Send(new GetChannelGroupsQuery(Parameters)).ConfigureAwait(false);        
+        return Ok(res);
     }
 
     [HttpPut]
@@ -69,8 +73,6 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
         ChannelGroupDto? entity = await Mediator.Send(request).ConfigureAwait(false);
         return entity == null ? NotFound() : NoContent();
     }
-
-
 
     [HttpPut]
     [Route("[action]")]

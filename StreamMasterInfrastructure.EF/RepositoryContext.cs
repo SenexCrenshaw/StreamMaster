@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Repository;
 
-namespace StreamMasterInfrastructure.EF
+using System.Diagnostics;
+
+namespace StreamMasterInfrastructureEF
 {
     public class RepositoryContext : DbContext, IDataProtectionKeyContext
     {
@@ -35,7 +38,7 @@ namespace StreamMasterInfrastructure.EF
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             FileUtil.SetupDirectories();
-
+            options.LogTo(message => Debug.WriteLine(message));
             _ = options.UseSqlite(
                 $"Data Source={DbPath}",
                 o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)

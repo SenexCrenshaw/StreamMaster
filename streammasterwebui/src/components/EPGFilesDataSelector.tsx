@@ -16,7 +16,7 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
 
   const [selectedEPGFile, setSelectedEPGFile] = React.useState<StreamMasterApi.EpgFilesDto>({} as StreamMasterApi.EpgFilesDto);
 
-  const epgFilesQuery = StreamMasterApi.useEpgFilesGetEpgFilesQuery({} as StreamMasterApi.QueryStringParameters);
+  const epgFilesQuery = StreamMasterApi.useEpgFilesGetEpgFilesQuery({} as StreamMasterApi.EpgFilesGetEpgFilesApiArg);
 
   React.useMemo(() => {
     if (props.value?.id !== undefined) {

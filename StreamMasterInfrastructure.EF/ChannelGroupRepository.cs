@@ -10,11 +10,18 @@ using StreamMasterApplication.StreamGroups.Queries;
 using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Filtering;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
 
-namespace StreamMasterInfrastructure.EF;
+using StreamMasterInfrastructureEF.Helpers;
+
+using System.Linq.Dynamic.Core;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+
+namespace StreamMasterInfrastructureEF;
 
 public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGroupRepository
 {
@@ -30,6 +37,7 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         _mapper = mapper;
         _channelGroupSortHelper = ChannelGroupSortHelper;
     }
+
     public async Task<(ChannelGroupDto? channelGroup, List<VideoStreamDto>? distinctList, List<StreamGroupDto>? streamGroupIds)> UpdateChannelGroup(UpdateChannelGroupRequest request, string url, CancellationToken cancellationToken)
     {
         ChannelGroup? channelGroup = await GetChannelGroupByNameAsync(request.GroupName).ConfigureAwait(false);
@@ -150,19 +158,39 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         return FindAll().OrderBy(p => p.Name);
     }
 
-    public async Task<PagedList<ChannelGroup>> GetChannelGroupsAsync(ChannelGroupParameters channelGroupParameters)
+    public async Task<PagedResponse<ChannelGroupDto>> GetChannelGroupsAsync(ChannelGroupParameters channelGroupParameters)
     {
-        IQueryable<ChannelGroup> channelGroups = FindAll();
+        IQueryable<ChannelGroup> channelGroups;
+        //var test = DbSet<ChannelGroup>()
+        //  .Where(entity => entity.Name.Contains("2") && entity.IsHidden == true)
+        //  .AsNoTracking()
+        //  .Any();
+
+        if (!string.IsNullOrEmpty(channelGroupParameters.JSONFiltersString))
+        {
+            var filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(channelGroupParameters.JSONFiltersString);
+            var filterExpression = FilterExpressionBuilder.BuildFilterExpression<ChannelGroup>(filters);
+            channelGroups = FindByCondition(filterExpression);
+        }
+        else
+        {
+            channelGroups = FindAll();
+        }
 
         IQueryable<ChannelGroup> sorderChannelGroups = _channelGroupSortHelper.ApplySort(channelGroups, channelGroupParameters.OrderBy);
 
-        return await PagedList<ChannelGroup>.ToPagedList(sorderChannelGroups, channelGroupParameters.PageNumber, channelGroupParameters.PageSize);
+        var destination = _mapper.Map<List<ChannelGroupDto>>(sorderChannelGroups);
+
+        var pagedResult = await destination.ToPagedListAsync(channelGroupParameters.PageNumber, channelGroupParameters.PageSize).ConfigureAwait(false);
+        var pagedResponse = pagedResult.ToPagedResponse(channelGroups.Count());
+        return pagedResponse;
     }
 
     public async Task<ChannelGroup?> GetChannelGroupAsync(int Id)
     {
         return await FindByCondition(channelGroup => channelGroup.Id == Id).FirstOrDefaultAsync();
     }
+
     public async Task<ChannelGroup?> GetChannelGroupByNameAsync(string name)
     {
         return await FindByCondition(channelGroup => channelGroup.Name.ToLower().Equals(name.ToLower()))
@@ -185,7 +213,6 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
     {
         Delete(ChannelGroup);
     }
-
 
     public void UpdateChannelGroup(ChannelGroup ChannelGroup)
     {

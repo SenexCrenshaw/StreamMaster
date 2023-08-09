@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using StreamMasterDomain.Common;
 
-namespace StreamMasterInfrastructure.EF;
+namespace StreamMasterInfrastructureEF;
 
 public class DesignTimeRepositoryContextFactory : IDesignTimeDbContextFactory<RepositoryContext>
 {

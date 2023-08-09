@@ -6,9 +6,9 @@ using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.VideoStreams.Queries;
 
-public record GetChannelLogoDtos : IRequest<IEnumerable<ChannelLogoDto>>;
+public record GetChannelLogoDtos : IRequest<List<ChannelLogoDto>>;
 
-internal class GetChannelLogoDtosHandler : IRequestHandler<GetChannelLogoDtos, IEnumerable<ChannelLogoDto>>
+internal class GetChannelLogoDtosHandler : IRequestHandler<GetChannelLogoDtos, List<ChannelLogoDto>>
 {
     private readonly IMemoryCache _memoryCache;
 
@@ -17,7 +17,7 @@ internal class GetChannelLogoDtosHandler : IRequestHandler<GetChannelLogoDtos, I
         _memoryCache = memoryCache;
     }
 
-    public async Task<IEnumerable<ChannelLogoDto>> Handle(GetChannelLogoDtos request, CancellationToken cancellationToken)
+    public async Task<List<ChannelLogoDto>> Handle(GetChannelLogoDtos request, CancellationToken cancellationToken)
     {
         return await Task.FromResult(_memoryCache.ChannelLogos());
     }

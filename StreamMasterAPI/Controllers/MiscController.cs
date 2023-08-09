@@ -12,7 +12,7 @@ public class MiscController : ApiControllerBase
     private readonly IBackgroundTaskQueue _taskQueue;
     private readonly ISender _sender;
 
-    public MiscController(IBackgroundTaskQueue taskQueue,ISender sender)
+    public MiscController(IBackgroundTaskQueue taskQueue, ISender sender)
     {
         _taskQueue = taskQueue;
         _sender = sender;
@@ -20,9 +20,6 @@ public class MiscController : ApiControllerBase
 
     [HttpPut]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> BuildIconsCacheFromVideoStreams()
     {
         await _taskQueue.BuildIconsCacheFromVideoStreams().ConfigureAwait(false);
@@ -31,16 +28,12 @@ public class MiscController : ApiControllerBase
 
     [HttpPut]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ReadDirectoryLogosRequest()
     {
         await _taskQueue.ReadDirectoryLogosRequest().ConfigureAwait(false);
 
         return NoContent();
     }
-
 
     [HttpPut]
     [Route("[action]")]
@@ -50,6 +43,4 @@ public class MiscController : ApiControllerBase
 
         return NoContent();
     }
-
-    
 }

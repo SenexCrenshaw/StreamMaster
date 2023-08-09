@@ -14,7 +14,6 @@ public record GetChannelGroup(int Id) : IRequest<ChannelGroupDto?>;
 
 internal class GetChannelGroupHandler : BaseMediatorRequestHandler, IRequestHandler<GetChannelGroup, ChannelGroupDto?>
 {
-
     public GetChannelGroupHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
         : base(logger, repository, mapper, publisher, sender) { }
 

@@ -6,3 +6,5 @@ global using StreamMasterApplication.Settings.Queries;
 global using StreamMasterDomain.Common;
 global using StreamMasterDomain.Enums;
 global using StreamMasterDomain.Repository;
+
+global using X.PagedList;

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using StreamMasterDomain.Repository;
 
-namespace StreamMasterInfrastructure.EF.Configurations;
+namespace StreamMasterInfrastructureEF.Configurations;
 
 public class StreamGroupChannelGroupConfiguration : IEntityTypeConfiguration<StreamGroupChannelGroup>
 {

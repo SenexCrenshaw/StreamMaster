@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { type CSSProperties } from "react";
 import React from "react";
 import * as StreamMasterApi from '../store/iptvApi';
 
-import DataSelector from "../features/dataSelector/DataSelector";
-import { getTopToolOptions } from "../common/common";
+import { convertFiltersToQueryString, getTopToolOptions } from "../common/common";
 import { Toast } from 'primereact/toast';
 
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
@@ -15,55 +16,76 @@ import ChannelGroupDeleteDialog from "./ChannelGroupDeleteDialog";
 import ChannelGroupVisibleDialog from "./ChannelGroupVisibleDialog";
 import ChannelGroupEditDialog from "./ChannelGroupEditDialog";
 import { useLocalStorage } from "primereact/hooks";
+import DataSelector2 from "../features/dataSelector2/DataSelector2";
+
+import { notDeepStrictEqual } from "assert";
+import { normalizeContent } from "video.js/dist/types/utils/dom";
+import { isStringObject } from "util/types";
+import { type DataTableFilterEvent } from "primereact/datatable";
+import { DataTableFilterMeta } from "primereact/datatable";
 
 const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
   const toast = React.useRef<Toast>(null);
-  const [dataSource, setDataSource] = React.useState([] as StreamMasterApi.ChannelGroupDto[]);
+  const [dataSource, setDataSource] = React.useState({} as StreamMasterApi.PagedResponseOfChannelGroupDto);
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-PlayListDataSelector-showHidden');
-  const [selectedChannelGroups, setSelectedChannelGroups] = useLocalStorage<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[], props.id + '-PlayListDataSelector-selectedChannelGroups');
 
-  const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery({} as StreamMasterApi.QueryStringParameters);
+  const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[]);
 
-  const isLoading = React.useMemo(() => {
+  const [pageSize, setPageSize] = React.useState<number>(25);
+  const [pageNumber, setPageNumber] = React.useState<number>(1);
+  const [filters, setFilters] = React.useState<string>('');
+  const [filtersMeta, setFiltersMeta] = React.useState<DataTableFilterMetaData[]>([] as DataTableFilterMetaData[]);
 
-    if (channelGroupsQuery.isLoading) {
-      return true;
-    }
+  const [orderBy, setOrderBy] = React.useState<string>('name');
 
-    if (selectedChannelGroups === undefined) {
-      return true;
-    }
+  const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery({ jsonFiltersString: filters, orderBy: orderBy ?? 'name', pageNumber: pageNumber === 0 ? 25 : pageNumber, pageSize: pageSize } as StreamMasterApi.ChannelGroupsGetChannelGroupsApiArg);
 
-    return false;
-  }, [channelGroupsQuery.isLoading, selectedChannelGroups]);
+  // const isLoading = React.useMemo(() => {
 
-  React.useEffect(() => {
-    if (!selectedChannelGroups || selectedChannelGroups.length === 0) {
-      return;
-    }
+  //   if (channelGroupsQuery.isLoading) {
+  //     return true;
+  //   }
 
-    if (dataSource.length === 0) {
-      return;
-    }
+  //   // if (selectedChannelGroups === undefined) {
+  //   //   return true;
+  //   // }
 
-    const ids = selectedChannelGroups.map((item) => item.id);
-    const newSelectedChannelGroups = dataSource.filter((item) => ids.includes(item.id));
+  //   return false;
+  // }, [channelGroupsQuery.isLoading, selectedChannelGroups]);
 
-    setSelectedChannelGroups(newSelectedChannelGroups);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataSource]);
+  // React.useEffect(() => {
+  //   if (!selectedChannelGroups || selectedChannelGroups.length === 0) {
+  //     return;
+  //   }
+
+  //   if (!dataSource.data || dataSource.data.length === 0) {
+  //     return;
+  //   }
+
+  //   const ids = selectedChannelGroups.map((item) => item.id);
+  //   const newSelectedChannelGroups = dataSource.data.filter((item) => ids.includes(item.id));
+
+  //   setSelectedChannelGroups(newSelectedChannelGroups);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [dataSource]);
 
   React.useEffect(() => {
     if (channelGroupsQuery.data === undefined) {
       return;
     }
 
-    if (props.hideControls === true) {
-      setDataSource(channelGroupsQuery.data?.filter((item) => item.isHidden !== true));
-    } else {
-      setDataSource(channelGroupsQuery.data);
+    console.debug('PlayListDataSelector channelGroupsQuery.data', channelGroupsQuery.data);
+    console.debug('PlayListDataSelector channelGroupsQuery.data TotalCount', channelGroupsQuery.data.totalItemCount);
+    if (!channelGroupsQuery.data?.data || channelGroupsQuery.data.data.length === 0) {
+      return;
     }
+
+    // if (props.hideControls === true) {
+    //   setDataSource(channelGroupsQuery.data.data.filter((item) => item.isHidden !== true));
+    // } else {
+    setDataSource(channelGroupsQuery.data);
+    // }
 
   }, [channelGroupsQuery.data, props.hideControls]);
 
@@ -81,18 +103,66 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
     </div>
   ), [props.useReadOnly]);
 
-  const onsetSelectedChannelGroups = React.useCallback((selectedData: StreamMasterApi.ChannelGroupDto | StreamMasterApi.ChannelGroupDto[]) => {
+  // const onsetSelectedChannelGroups = React.useCallback((selectedData: StreamMasterApi.ChannelGroupDto | StreamMasterApi.ChannelGroupDto[]) => {
 
-    if (Array.isArray(selectedData)) {
-      const newDatas = selectedData.filter((cg) => cg.id !== undefined);
-      setSelectedChannelGroups(newDatas);
-      props.onSelectionChange?.(newDatas);
-    } else {
-      setSelectedChannelGroups([selectedData]);
-      props.onSelectionChange?.([selectedData]);
+  //   if (Array.isArray(selectedData)) {
+  //     const newDatas = selectedData.filter((cg) => cg.id !== undefined);
+  //     setSelectedChannelGroups(newDatas);
+  //     props.onSelectionChange?.(newDatas);
+  //   } else {
+  //     setSelectedChannelGroups([selectedData]);
+  //     props.onSelectionChange?.([selectedData]);
+  //   }
+
+  // }, [props, setSelectedChannelGroups]);
+
+
+  const sourceColumns = React.useMemo((): ColumnMeta[] => {
+    return [
+      { field: 'name', filter: true, sortable: true },
+      { field: 'regexMatch', filter: true, sortable: true },
+      {
+        field: 'name', fieldType: 'streams', header: "Streams (active/total)",
+        style: {
+          maxWidth: '6rem',
+          width: '6rem',
+        } as CSSProperties,
+      },
+      {
+        align: 'right',
+        bodyTemplate: sourceActionBodyTemplate, field: 'isHidden', fieldType: 'isHidden', header: 'Actions',
+        style: {
+          maxWidth: '8rem',
+          width: '8rem',
+        } as CSSProperties,
+      },
+    ]
+  }, [sourceActionBodyTemplate]);
+
+  const setThin = (filterInfo: DataTableFilterEvent): DataTableFilterMetaData[] => {
+    const tosend = [] as DataTableFilterMetaData[];
+    if (filterInfo.filters === undefined) {
+      return [] as DataTableFilterMetaData[];
     }
 
-  }, [props, setSelectedChannelGroups]);
+    Object.keys(filterInfo.filters).forEach((key) => {
+      const value = filterInfo.filters[key] as DataTableFilterMetaData;
+      if (value.value === null || value.value === undefined || value.value === '') {
+        return;
+      }
+
+      const newValue = { ...value } as DataTableFilterMetaData;
+      newValue.fieldName = key;
+      newValue.valueType = typeof value.value;
+
+      tosend.push(newValue);
+    });
+
+    console.debug('PlayListDataSelector onFilter', tosend)
+    setFilters(JSON.stringify(tosend));
+    setFiltersMeta(tosend);
+    return tosend;
+  }
 
   const sourceRightHeaderTemplate = React.useCallback(() => {
     const getToolTip = (value: boolean | null | undefined) => {
@@ -115,6 +185,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
             <TriStateCheckbox
               onChange={(e: TriStateCheckboxChangeEvent) => {
                 setShowHidden(e.value);
+                // setThin(filtersMeta);
               }}
               tooltip={getToolTip(showHidden)}
               tooltipOptions={getTopToolOptions}
@@ -128,33 +199,13 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         <ChannelGroupAddDialog />
       </div>
     );
-  }, [showHidden, props.hideControls, selectedChannelGroups, setShowHidden]);
+  }, [props.hideControls, showHidden, selectedChannelGroups, setShowHidden]);
 
-  const sourceColumns = React.useMemo((): ColumnMeta[] => {
-    return [
-      { field: 'name', filter: true, sortable: true },
-      {
-        field: 'name', fieldType: 'streams', header: "Streams (active/total)",
-        style: {
-          maxWidth: '6rem',
-          width: '6rem',
-        } as CSSProperties,
-      },
-      {
-        align: 'right',
-        bodyTemplate: sourceActionBodyTemplate, field: 'isHidden', fieldType: 'isHidden', header: 'Actions',
-        style: {
-          maxWidth: '8rem',
-          width: '8rem',
-        } as CSSProperties,
-      },
-    ]
-  }, [sourceActionBodyTemplate]);
 
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
-      <DataSelector
+      <DataSelector2
         columns={sourceColumns}
         dataSource={dataSource}
         emptyMessage="No Groups"
@@ -162,22 +213,49 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         headerRightTemplate={props.hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
         hideControls={props.hideControls}
         id={props.id + 'DataSelector'}
-        isLoading={isLoading}
+        isLoading={channelGroupsQuery.isLoading}
         name={props.name === undefined ? 'Playlist' : props.name}
+        onFilter={(filterInfo) => {
+          setThin(filterInfo);
+
+        }}
+
+        onPage={(pageInfo) => {
+          console.debug(pageInfo.page, pageInfo.first, pageInfo.rows, pageInfo.pageCount, pageInfo.pageCount);
+          if (pageInfo.page !== undefined) {
+            setPageNumber(pageInfo.page + 1);
+          }
+
+          if (pageInfo.rows !== undefined) {
+            setPageSize(pageInfo.rows);
+          }
+        }
+        }
+
         onSelectionChange={(e) => {
-          onsetSelectedChannelGroups(e as StreamMasterApi.ChannelGroupDto[]);
+          setSelectedChannelGroups(e as StreamMasterApi.ChannelGroupDto[]);
+          props.onSelectionChange?.(e as StreamMasterApi.ChannelGroupDto[]);
         }
         }
+        onSort={(sortInfo) => {
+          console.debug('PlayListDataSelector onSort', sortInfo);
+          if (sortInfo.sortField !== null && sortInfo.sortField !== undefined) {
+            if (sortInfo.sortOrder === 1) {
+              setOrderBy(sortInfo.sortField + " asc");
+            }
+            else {
+              setOrderBy(sortInfo.sortField + " desc");
+            }
+          }
+
+        }}
         rightColSize={5}
-        selection={selectedChannelGroups}
         selectionMode='multiple'
         showHidden={showHidden}
-        showSkeleton={isLoading}
-        sortField='rank'
+        showSkeleton={channelGroupsQuery.isLoading}
         style={{
           height: props.maxHeight !== null ? props.maxHeight : 'calc(100vh - 40px)',
         }}
-
       />
     </>
   );
@@ -192,6 +270,19 @@ PlayListDataSelector.defaultProps = {
   name: 'Playlist',
   useReadOnly: true
 };
+
+type DataTableFilterMetaData = {
+  fieldName: string;
+  /**
+   * Type of filter match.
+   */
+  matchMode: 'between' | 'contains' | 'custom' | 'dateAfter' | 'dateBefore' | 'dateIs' | 'dateIsNot' | 'endsWith' | 'equals' | 'gt' | 'gte' | 'in' | 'lt' | 'lte' | 'notContains' | 'notEquals' | 'startsWith' | undefined;
+  /**
+   * Value to filter against.
+   */
+  value: any;
+  valueType: string;
+}
 
 export type PlayListDataSelectorProps = {
   enableState?: boolean | undefined;

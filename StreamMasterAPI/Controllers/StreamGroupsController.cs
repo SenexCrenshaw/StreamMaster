@@ -12,8 +12,10 @@ using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
+using StreamMasterDomain.Repository;
 
 using System.Text;
+using System.Text.Json;
 
 namespace StreamMasterAPI.Controllers;
 
@@ -29,8 +31,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
     private readonly IMapper _mapper;
 
-  
-
     public static int GenerateMediaSequence()
     {
         DateTime epochStart = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -42,7 +42,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
     [HttpPost]
     [Route("[action]")]
-
     public async Task<ActionResult> AddStreamGroup(AddStreamGroupRequest request)
     {
         StreamGroupDto? entity = await Mediator.Send(request).ConfigureAwait(false);
@@ -51,7 +50,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
     [HttpDelete]
     [Route("[action]")]
-
     public async Task<ActionResult> DeleteStreamGroup(DeleteStreamGroupRequest request)
     {
         int? data = await Mediator.Send(request).ConfigureAwait(false);
@@ -204,16 +202,14 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     }
 
     [HttpGet]
-    [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<StreamGroupDto>))]
-    public async Task<ActionResult<IEnumerable<StreamGroupDto>>> GetStreamGroups([FromQuery] StreamGroupParameters parameters)
+    public async Task<ActionResult<PagedList<StreamGroupDto>>> GetStreamGroups([FromQuery] StreamGroupParameters parameters)
     {
         var streamGroups = await Mediator.Send(new GetStreamGroups(parameters)).ConfigureAwait(false);
-        Response.Headers.Add("X-Pagination", streamGroups.GetMetadata());
-        //var streamGroupsResult = _mapper.Map<IEnumerable<StreamGroupDto>>(streamGroups);
+        var json = JsonSerializer.Serialize(streamGroups.GetMetaData());
+        Response.Headers.Add("X-Pagination", json);
+
         return Ok(streamGroups);
     }
-
 
     //[HttpGet]
     //[Route("{streamGroupNumber}/stream/{streamId}.m3u8")]

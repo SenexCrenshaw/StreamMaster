@@ -42,12 +42,12 @@ public static class BuildInfo
     public static readonly string CacheFolder = $"{AppDataFolder}Cache{Path.DirectorySeparatorChar}";
     public static readonly string PlayListFolder = $"{AppDataFolder}PlayLists{Path.DirectorySeparatorChar}";
 
-    //public static readonly string IconCacheFolder = $"{CacheFolder}Icons{Path.DirectorySeparatorChar}";
+    public static readonly string TVLogoDataFolder = $"{AppDataFolder}tv-logos{Path.DirectorySeparatorChar}";
+
     public static readonly string IconDataFolder = $"{CacheFolder}Icons{Path.DirectorySeparatorChar}";
 
     public static readonly string ChannelIconDataFolder = $"{CacheFolder}ChannelIcons{Path.DirectorySeparatorChar}";
     public static readonly string ProgrammeIconDataFolder = $"{CacheFolder}ProgrammeIcons{Path.DirectorySeparatorChar}";
-    public static readonly string TVLogoDataFolder = $"{CacheFolder}tv-logos{Path.DirectorySeparatorChar}";
 
     public static readonly string PlayListEPGFolder = $"{PlayListFolder}EPG{Path.DirectorySeparatorChar}";
     public static readonly string PlayListM3UFolder = $"{PlayListFolder}M3U{Path.DirectorySeparatorChar}";

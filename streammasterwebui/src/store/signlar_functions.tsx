@@ -15,7 +15,7 @@ import {
   type DeleteM3UFileRequest,
   type DeleteStreamGroupRequest,
   type DeleteVideoStreamRequest,
-  type EpgFileParameters,
+  type EpgFilesGetEpgFilesApiArg,
   type EpgFilesDto,
   type EpgGuide,
   type FailClientRequest,
@@ -28,7 +28,7 @@ import {
   type LogEntryDto,
   type LogInRequest,
   type M3UFileDto,
-  type M3UFileParameters,
+  type M3UFilesGetM3UFilesApiArg,
   type ProcessEpgFileRequest,
   type ProcessM3UFileRequest,
   type ProgrammeNameDto,
@@ -59,310 +59,310 @@ import {
 } from "./iptvApi";
 
 export const CreateChannelGroup = async (arg: CreateChannelGroupRequest): Promise<void> => {
-    await hubConnection.invoke('CreateChannelGroup',arg);
+  await hubConnection.invoke('CreateChannelGroup', arg);
 };
 
 export const DeleteChannelGroup = async (arg: DeleteChannelGroupRequest): Promise<void> => {
-    await hubConnection.invoke('DeleteChannelGroup',arg);
+  await hubConnection.invoke('DeleteChannelGroup', arg);
 };
 
 export const GetChannelGroup = async (arg: number): Promise<ChannelGroupDto> => {
-    const data = await hubConnection.invoke('GetChannelGroup',arg);
+  const data = await hubConnection.invoke('GetChannelGroup', arg);
 
-    return data;
+  return data;
 };
 
 export const SetChannelGroupsVisible = async (arg: SetChannelGroupsVisibleRequest): Promise<void> => {
-    await hubConnection.invoke('SetChannelGroupsVisible',arg);
+  await hubConnection.invoke('SetChannelGroupsVisible', arg);
 };
 
 export const UpdateChannelGroup = async (arg: UpdateChannelGroupRequest): Promise<void> => {
-    await hubConnection.invoke('UpdateChannelGroup',arg);
+  await hubConnection.invoke('UpdateChannelGroup', arg);
 };
 
 export const UpdateChannelGroups = async (arg: UpdateChannelGroupsRequest): Promise<void> => {
-    await hubConnection.invoke('UpdateChannelGroups',arg);
+  await hubConnection.invoke('UpdateChannelGroups', arg);
 };
 
 export const GetIsSystemReady = async (): Promise<boolean> => {
-    const data = await hubConnection.invoke('GetIsSystemReady');
+  const data = await hubConnection.invoke('GetIsSystemReady');
 
-    return data;
+  return data;
 };
 
 export const OnConnectedAsync = async (): Promise<void> => {
-    await hubConnection.invoke('OnConnectedAsync');
+  await hubConnection.invoke('OnConnectedAsync');
 };
 
 export const CreateEPGFile = async (arg: CreateEpgFileRequest): Promise<void> => {
-    await hubConnection.invoke('CreateEPGFile',arg);
+  await hubConnection.invoke('CreateEPGFile', arg);
 };
 
 export const DeleteEPGFile = async (arg: DeleteEpgFileRequest): Promise<void> => {
-    await hubConnection.invoke('DeleteEPGFile',arg);
+  await hubConnection.invoke('DeleteEPGFile', arg);
 };
 
 export const GetEPGFile = async (arg: number): Promise<EpgFilesDto> => {
-    const data = await hubConnection.invoke('GetEPGFile',arg);
+  const data = await hubConnection.invoke('GetEPGFile', arg);
 
-    return data;
+  return data;
 };
 
-export const GetEPGFiles = async (arg: EpgFileParameters): Promise<EpgFilesDto[]> => {
-    const data = await hubConnection.invoke('GetEPGFiles',arg);
+export const GetEPGFiles = async (arg: EpgFilesGetEpgFilesApiArg): Promise<EpgFilesDto[]> => {
+  const data = await hubConnection.invoke('GetEPGFiles', arg);
 
-    return data;
+  return data;
 };
 
 export const ProcessEPGFile = async (arg: ProcessEpgFileRequest): Promise<void> => {
-    await hubConnection.invoke('ProcessEPGFile',arg);
+  await hubConnection.invoke('ProcessEPGFile', arg);
 };
 
 export const RefreshEPGFile = async (arg: RefreshEpgFileRequest): Promise<void> => {
-    await hubConnection.invoke('RefreshEPGFile',arg);
+  await hubConnection.invoke('RefreshEPGFile', arg);
 };
 
 export const ScanDirectoryForEPGFiles = async (): Promise<void> => {
-    await hubConnection.invoke('ScanDirectoryForEPGFiles');
+  await hubConnection.invoke('ScanDirectoryForEPGFiles');
 };
 
 export const UpdateEPGFile = async (arg: UpdateEpgFileRequest): Promise<void> => {
-    await hubConnection.invoke('UpdateEPGFile',arg);
+  await hubConnection.invoke('UpdateEPGFile', arg);
 };
 
 export const AutoMatchIconToStreams = async (arg: AutoMatchIconToStreamsRequest): Promise<void> => {
-    await hubConnection.invoke('AutoMatchIconToStreams',arg);
+  await hubConnection.invoke('AutoMatchIconToStreams', arg);
 };
 
 export const GetIcon = async (arg: number): Promise<IconFileDto> => {
-    const data = await hubConnection.invoke('GetIcon',arg);
+  const data = await hubConnection.invoke('GetIcon', arg);
 
-    return data;
+  return data;
 };
 
 export const GetIcons = async (): Promise<IconFileDto[]> => {
-    const data = await hubConnection.invoke('GetIcons');
+  const data = await hubConnection.invoke('GetIcons');
 
-    return data;
+  return data;
 };
 
 export const GetLogRequest = async (arg: GetLog): Promise<LogEntryDto[]> => {
-    const data = await hubConnection.invoke('GetLogRequest',arg);
+  const data = await hubConnection.invoke('GetLogRequest', arg);
 
-    return data;
+  return data;
 };
 
 export const CreateM3UFile = async (arg: CreateM3UFileRequest): Promise<void> => {
-    await hubConnection.invoke('CreateM3UFile',arg);
+  await hubConnection.invoke('CreateM3UFile', arg);
 };
 
 export const ChangeM3UFileName = async (arg: ChangeM3UFileNameRequest): Promise<void> => {
-    await hubConnection.invoke('ChangeM3UFileName',arg);
+  await hubConnection.invoke('ChangeM3UFileName', arg);
 };
 
 export const DeleteM3UFile = async (arg: DeleteM3UFileRequest): Promise<void> => {
-    await hubConnection.invoke('DeleteM3UFile',arg);
+  await hubConnection.invoke('DeleteM3UFile', arg);
 };
 
 export const ProcessM3UFile = async (arg: ProcessM3UFileRequest): Promise<void> => {
-    await hubConnection.invoke('ProcessM3UFile',arg);
+  await hubConnection.invoke('ProcessM3UFile', arg);
 };
 
 export const RefreshM3UFile = async (arg: RefreshM3UFileRequest): Promise<void> => {
-    await hubConnection.invoke('RefreshM3UFile',arg);
+  await hubConnection.invoke('RefreshM3UFile', arg);
 };
 
 export const ScanDirectoryForM3UFiles = async (): Promise<void> => {
-    await hubConnection.invoke('ScanDirectoryForM3UFiles');
+  await hubConnection.invoke('ScanDirectoryForM3UFiles');
 };
 
 export const UpdateM3UFile = async (arg: UpdateM3UFileRequest): Promise<void> => {
-    await hubConnection.invoke('UpdateM3UFile',arg);
+  await hubConnection.invoke('UpdateM3UFile', arg);
 };
 
-export const GetM3UFiles = async (arg: M3UFileParameters): Promise<M3UFileDto[]> => {
-    const data = await hubConnection.invoke('GetM3UFiles',arg);
+export const GetM3UFiles = async (arg: M3UFilesGetM3UFilesApiArg): Promise<M3UFileDto[]> => {
+  const data = await hubConnection.invoke('GetM3UFiles', arg);
 
-    return data;
+  return data;
 };
 
 export const GetM3UFile = async (arg: number): Promise<M3UFileDto> => {
-    const data = await hubConnection.invoke('GetM3UFile',arg);
+  const data = await hubConnection.invoke('GetM3UFile', arg);
 
-    return data;
+  return data;
 };
 
 export const GetProgrammeNames = async (): Promise<ProgrammeNameDto[]> => {
-    const data = await hubConnection.invoke('GetProgrammeNames');
+  const data = await hubConnection.invoke('GetProgrammeNames');
 
-    return data;
+  return data;
 };
 
 export const GetCountries = async (): Promise<Countries> => {
-    const data = await hubConnection.invoke('GetCountries');
+  const data = await hubConnection.invoke('GetCountries');
 
-    return data;
+  return data;
 };
 
 export const GetHeadends = async (arg: string): Promise<HeadendDto[]> => {
-    const data = await hubConnection.invoke('GetHeadends',arg);
+  const data = await hubConnection.invoke('GetHeadends', arg);
 
-    return data;
+  return data;
 };
 
 export const GetLineup = async (arg: string): Promise<LineUpResult> => {
-    const data = await hubConnection.invoke('GetLineup',arg);
+  const data = await hubConnection.invoke('GetLineup', arg);
 
-    return data;
+  return data;
 };
 
 export const GetLineupPreviews = async (): Promise<LineUpPreview[]> => {
-    const data = await hubConnection.invoke('GetLineupPreviews');
+  const data = await hubConnection.invoke('GetLineupPreviews');
 
-    return data;
+  return data;
 };
 
 export const GetLineups = async (): Promise<LineUpsResult> => {
-    const data = await hubConnection.invoke('GetLineups');
+  const data = await hubConnection.invoke('GetLineups');
 
-    return data;
+  return data;
 };
 
 export const GetSchedules = async (): Promise<Schedule[]> => {
-    const data = await hubConnection.invoke('GetSchedules');
+  const data = await hubConnection.invoke('GetSchedules');
 
-    return data;
+  return data;
 };
 
 export const GetStationPreviews = async (): Promise<StationPreview[]> => {
-    const data = await hubConnection.invoke('GetStationPreviews');
+  const data = await hubConnection.invoke('GetStationPreviews');
 
-    return data;
+  return data;
 };
 
 export const GetStations = async (): Promise<Station[]> => {
-    const data = await hubConnection.invoke('GetStations');
+  const data = await hubConnection.invoke('GetStations');
 
-    return data;
+  return data;
 };
 
 export const GetStatus = async (): Promise<SdStatus> => {
-    const data = await hubConnection.invoke('GetStatus');
+  const data = await hubConnection.invoke('GetStatus');
 
-    return data;
+  return data;
 };
 
 export const GetQueueStatus = async (): Promise<TaskQueueStatusDto[]> => {
-    const data = await hubConnection.invoke('GetQueueStatus');
+  const data = await hubConnection.invoke('GetQueueStatus');
 
-    return data;
+  return data;
 };
 
 export const GetSetting = async (): Promise<SettingDto> => {
-    const data = await hubConnection.invoke('GetSetting');
+  const data = await hubConnection.invoke('GetSetting');
 
-    return data;
+  return data;
 };
 
 export const GetSystemStatus = async (): Promise<SystemStatus> => {
-    const data = await hubConnection.invoke('GetSystemStatus');
+  const data = await hubConnection.invoke('GetSystemStatus');
 
-    return data;
+  return data;
 };
 
 export const LogIn = async (arg: LogInRequest): Promise<boolean> => {
-    const data = await hubConnection.invoke('LogIn',arg);
+  const data = await hubConnection.invoke('LogIn', arg);
 
-    return data;
+  return data;
 };
 
 export const UpdateSetting = async (arg: UpdateSettingRequest): Promise<void> => {
-    await hubConnection.invoke('UpdateSetting',arg);
+  await hubConnection.invoke('UpdateSetting', arg);
 };
 
 export const AddStreamGroup = async (arg: AddStreamGroupRequest): Promise<void> => {
-    await hubConnection.invoke('AddStreamGroup',arg);
+  await hubConnection.invoke('AddStreamGroup', arg);
 };
 
 export const DeleteStreamGroup = async (arg: DeleteStreamGroupRequest): Promise<void> => {
-    await hubConnection.invoke('DeleteStreamGroup',arg);
+  await hubConnection.invoke('DeleteStreamGroup', arg);
 };
 
 export const FailClient = async (arg: FailClientRequest): Promise<void> => {
-    await hubConnection.invoke('FailClient',arg);
+  await hubConnection.invoke('FailClient', arg);
 };
 
 export const GetStreamGroup = async (arg: number): Promise<StreamGroupDto> => {
-    const data = await hubConnection.invoke('GetStreamGroup',arg);
+  const data = await hubConnection.invoke('GetStreamGroup', arg);
 
-    return data;
+  return data;
 };
 
 export const GetStreamGroupByStreamNumber = async (arg: number): Promise<StreamGroupDto> => {
-    const data = await hubConnection.invoke('GetStreamGroupByStreamNumber',arg);
+  const data = await hubConnection.invoke('GetStreamGroupByStreamNumber', arg);
 
-    return data;
+  return data;
 };
 
 export const GetStreamGroupEPGForGuide = async (arg: number): Promise<EpgGuide> => {
-    const data = await hubConnection.invoke('GetStreamGroupEPGForGuide',arg);
+  const data = await hubConnection.invoke('GetStreamGroupEPGForGuide', arg);
 
-    return data;
+  return data;
 };
 
 export const GetStreamGroups = async (): Promise<StreamGroupDto[]> => {
-    const data = await hubConnection.invoke('GetStreamGroups');
+  const data = await hubConnection.invoke('GetStreamGroups');
 
-    return data;
+  return data;
 };
 
 export const SimulateStreamFailure = async (arg: string): Promise<void> => {
-    await hubConnection.invoke('SimulateStreamFailure',arg);
+  await hubConnection.invoke('SimulateStreamFailure', arg);
 };
 
 export const UpdateStreamGroup = async (arg: UpdateStreamGroupRequest): Promise<void> => {
-    await hubConnection.invoke('UpdateStreamGroup',arg);
+  await hubConnection.invoke('UpdateStreamGroup', arg);
 };
 
 export const CreateVideoStream = async (arg: CreateVideoStreamRequest): Promise<void> => {
-    await hubConnection.invoke('CreateVideoStream',arg);
+  await hubConnection.invoke('CreateVideoStream', arg);
 };
 
 export const ChangeVideoStreamChannel = async (arg: ChangeVideoStreamChannelRequest): Promise<void> => {
-    await hubConnection.invoke('ChangeVideoStreamChannel',arg);
+  await hubConnection.invoke('ChangeVideoStreamChannel', arg);
 };
 
 export const DeleteVideoStream = async (arg: DeleteVideoStreamRequest): Promise<void> => {
-    await hubConnection.invoke('DeleteVideoStream',arg);
+  await hubConnection.invoke('DeleteVideoStream', arg);
 };
 
 export const GetVideoStream = async (arg: string): Promise<VideoStreamDto> => {
-    const data = await hubConnection.invoke('GetVideoStream',arg);
+  const data = await hubConnection.invoke('GetVideoStream', arg);
 
-    return data;
+  return data;
 };
 
 export const ReSetVideoStreamsLogo = async (arg: ReSetVideoStreamsLogoRequest): Promise<void> => {
-    await hubConnection.invoke('ReSetVideoStreamsLogo',arg);
+  await hubConnection.invoke('ReSetVideoStreamsLogo', arg);
 };
 
 export const SetVideoStreamChannelNumbers = async (arg: SetVideoStreamChannelNumbersRequest): Promise<void> => {
-    await hubConnection.invoke('SetVideoStreamChannelNumbers',arg);
+  await hubConnection.invoke('SetVideoStreamChannelNumbers', arg);
 };
 
 export const SetVideoStreamSetEPGsFromName = async (arg: SetVideoStreamSetEpGsFromNameRequest): Promise<void> => {
-    await hubConnection.invoke('SetVideoStreamSetEPGsFromName',arg);
+  await hubConnection.invoke('SetVideoStreamSetEPGsFromName', arg);
 };
 
 export const SetVideoStreamsLogoToEPG = async (arg: SetVideoStreamsLogoToEpgRequest): Promise<void> => {
-    await hubConnection.invoke('SetVideoStreamsLogoToEPG',arg);
+  await hubConnection.invoke('SetVideoStreamsLogoToEPG', arg);
 };
 
 export const UpdateVideoStream = async (arg: UpdateVideoStreamRequest): Promise<void> => {
-    await hubConnection.invoke('UpdateVideoStream',arg);
+  await hubConnection.invoke('UpdateVideoStream', arg);
 };
 
 export const UpdateVideoStreams = async (arg: UpdateVideoStreamsRequest): Promise<void> => {
-    await hubConnection.invoke('UpdateVideoStreams',arg);
+  await hubConnection.invoke('UpdateVideoStreams', arg);
 };
 

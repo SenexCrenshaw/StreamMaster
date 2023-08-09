@@ -48,10 +48,9 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   const setting = StreamMasterSetting();
   const [rowClick, setRowClick] = useLocalStorage<boolean>(false, props.id + '-rowClick');
 
-  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
-  const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
-
-  const m3uFiles = StreamMasterApi.useM3UFilesGetM3UFilesQuery({ pageNumber: 0, pageSize: 25 } as StreamMasterApi.QueryStringParameters);
+  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery({} as StreamMasterApi.VideoStreamsGetVideoStreamsApiArg);
+  const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery({} as StreamMasterApi.ChannelGroupsGetChannelGroupsApiArg);
+  const m3uFiles = StreamMasterApi.useM3UFilesGetM3UFilesQuery({} as StreamMasterApi.M3UFilesGetM3UFilesApiArg);
 
   const [selections, setSelections] = React.useState<T[]>([] as T[]);
   const intl = useIntl();
@@ -235,7 +234,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return videoStreamsQuery.data.length;
     }
 
-    const cg = channelGroupsQuery.data?.find((x: StreamMasterApi.ChannelGroupDto) => x.name.toLowerCase() === groupName.toLowerCase());
+    const cg = channelGroupsQuery.data?.data?.find((x: StreamMasterApi.ChannelGroupDto) => x.name.toLowerCase() === groupName.toLowerCase());
     if (cg?.regexMatch !== undefined && cg.regexMatch !== '') {
       const filteredData = videoStreamsQuery.data.filter((item) => {
 
@@ -265,7 +264,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return videoStreamsQuery.data.length;
     }
 
-    const cg = channelGroupsQuery.data?.find((x: StreamMasterApi.ChannelGroupDto) => x.name.toLowerCase() === groupName.toLowerCase());
+    const cg = channelGroupsQuery.data?.data?.find((x: StreamMasterApi.ChannelGroupDto) => x.name.toLowerCase() === groupName.toLowerCase());
     if (cg?.regexMatch !== undefined && cg.regexMatch !== '') {
       const filteredData = videoStreamsQuery.data.filter((item) => {
         if (item.isHidden) {

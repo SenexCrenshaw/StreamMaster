@@ -2,12 +2,15 @@
 
 using Microsoft.AspNetCore.Mvc;
 
+using StreamMasterAPI.Extensions;
+
 using StreamMasterApplication.M3UFiles;
 using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.M3UFiles.Queries;
 
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
+using StreamMasterDomain.Repository;
 
 namespace StreamMasterAPI.Controllers;
 
@@ -62,13 +65,12 @@ public class M3UFilesController : ApiControllerBase, IM3UFileController
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<M3UFileDto>))]
-    public async Task<ActionResult<IEnumerable<M3UFileDto>>> GetM3UFiles([FromQuery] M3UFileParameters Parameters)
+    public async Task<ActionResult<PagedList<M3UFileDto>>> GetM3UFiles([FromQuery] M3UFileParameters Parameters)
     {
         var m3uFiles = await Mediator.Send(new GetM3UFilesQuery(Parameters)).ConfigureAwait(false);
-        Response.Headers.Add("X-Pagination", m3uFiles.GetMetadata());
-        var m3uFilesResult = _mapper.Map<IEnumerable<M3UFileDto>>(m3uFiles);
-        return Ok(m3uFilesResult);
+        PagedList<M3UFileDto> result = APIExtensions.GetPagedResult<M3UFile, M3UFileDto>(m3uFiles, Response, _mapper);
+
+        return Ok(result);
     }
 
     [HttpPut]

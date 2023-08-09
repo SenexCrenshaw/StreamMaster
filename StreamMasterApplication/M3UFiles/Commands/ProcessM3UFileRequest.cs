@@ -34,15 +34,12 @@ public class ProcessM3UFileRequestValidator : AbstractValidator<ProcessM3UFileRe
 
 public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<ProcessM3UFileRequest, M3UFile?>
 {
-
-
     private ThreadSafeIntList existingChannels;
 
     private int nextchno;
 
     public ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
         : base(logger, repository, mapper, publisher, sender, memoryCache) { }
-
 
     public async Task<M3UFile?> Handle(ProcessM3UFileRequest request, CancellationToken cancellationToken)
     {
@@ -58,7 +55,6 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
 
             if (m3uFile.LastWrite() >= m3uFile.LastUpdated)
             {
-
                 List<VideoStream>? streams = await m3uFile.GetM3U().ConfigureAwait(false);
                 if (streams == null)
                 {
@@ -98,7 +94,6 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
                     .SelectMany(g => g.Skip(1)) // We skip the first one as it will be kept
                     .OrderBy(a => a.Id)
                     .ToList();
-
 
                 if (dupes.Any())
                 {
@@ -163,8 +158,6 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
                     {
                         processSw.Stop();
 
-
-
                         // Log every 1000 items
 
                         string percentage = ((double)currentProgress / totalCount * 100).ToString("F2");
@@ -185,7 +178,6 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
 
                 //await Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-
                 if (m3uFile.StationCount != streams.Count)
                 {
                     m3uFile.StationCount = streams.Count;
@@ -200,7 +192,6 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
 
             sw.Stop();
             Logger.LogInformation($"Update of ID: {m3uFile.Id} {m3uFile.Name}, took {sw.Elapsed.TotalSeconds} seconds");
-
 
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
             await Publisher.Publish(new M3UFileProcessedEvent(ret), cancellationToken).ConfigureAwait(false);
@@ -223,7 +214,7 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
 
         foreach (string? ng in newGroups)
         {
-            if (!channelGroups.Any(a => string.Equals(a.Name, ng, StringComparison.OrdinalIgnoreCase)))
+            if (!channelGroups.Any(a => a.Name.ToLower() == ng.ToLower()))
             {
                 ChannelGroup channelGroup = new()
                 {

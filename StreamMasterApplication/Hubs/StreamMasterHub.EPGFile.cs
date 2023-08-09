@@ -24,7 +24,7 @@ public partial class StreamMasterHub : IEPGFileHub
         return await _mediator.Send(new GetEPGFile(id)).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<EPGFilesDto>> GetEPGFiles(EPGFileParameters parameters)
+    public async Task<IPagedList<EPGFilesDto>> GetEPGFiles(EPGFileParameters parameters)
     {
         return await _mediator.Send(new GetEPGFiles(parameters)).ConfigureAwait(false);
     }

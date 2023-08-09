@@ -36,7 +36,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
 
   const [programme, setProgramme] = React.useState<string>('');
 
-  const iconsQuery = StreamMasterApi.useIconsGetIconsQuery();
+  const iconsQuery = StreamMasterApi.useIconsGetIconsQuery({} as StreamMasterApi.IconsGetIconsApiArg);
 
   // const onSetVideoStreams = (data: StreamMasterApi.VideoStreamDto[] | undefined) => {
   //   if (data === undefined || data === null) {
@@ -371,7 +371,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
                 tvg_logo: iconSource,
                 tvg_name: name,
                 url: url
-              } as StreamMasterApi.AddVideoStreamRequest
+              } as StreamMasterApi.CreateVideoStreamRequest
               )}
               rounded
               severity="success"
@@ -426,7 +426,7 @@ type VideoStreamPanelProps = {
   group?: string;
   onClose?: () => void;
   onEdit?: (e: StreamMasterApi.UpdateVideoStreamRequest) => void;
-  onSave?: (e: StreamMasterApi.AddVideoStreamRequest) => void;
+  onSave?: (e: StreamMasterApi.CreateVideoStreamRequest) => void;
   videoStream?: StreamMasterApi.VideoStreamDto | undefined;
 };
 

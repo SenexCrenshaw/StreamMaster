@@ -4,7 +4,7 @@ using StreamMasterDomain.Repository;
 
 using System.Linq.Expressions;
 
-namespace StreamMasterInfrastructure.EF
+namespace StreamMasterInfrastructureEF
 {
     public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     {

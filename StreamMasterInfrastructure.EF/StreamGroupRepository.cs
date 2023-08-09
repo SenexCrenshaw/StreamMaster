@@ -18,7 +18,7 @@ using StreamMasterDomain.Sorting;
 
 using System.Threading;
 
-namespace StreamMasterInfrastructure.EF;
+namespace StreamMasterInfrastructureEF;
 
 public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRepository
 {
@@ -74,13 +74,13 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
         return true;
     }
 
-    public async Task<PagedList<StreamGroup>> GetStreamGroupsAsync(StreamGroupParameters StreamGroupParameters)
+    public async Task<IPagedList<StreamGroup>> GetStreamGroupsAsync(StreamGroupParameters StreamGroupParameters)
     {
         IQueryable<StreamGroup> StreamGroups = FindAll();
 
         IQueryable<StreamGroup> sorderStreamGroups = _StreamGroupSortHelper.ApplySort(StreamGroups, StreamGroupParameters.OrderBy);
 
-        return await PagedList<StreamGroup>.ToPagedList(sorderStreamGroups, StreamGroupParameters.PageNumber, StreamGroupParameters.PageSize);
+        return await sorderStreamGroups.ToPagedListAsync(StreamGroupParameters.PageNumber, StreamGroupParameters.PageSize).ConfigureAwait(false);
     }
 
     public async Task<StreamGroup?> GetStreamGroupByIdAsync(int id)
@@ -190,7 +190,6 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
 
         return ret;
     }
-
 
     public void CreateStreamGroup(StreamGroup StreamGroup)
     {
@@ -419,22 +418,23 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
 
         await RepositoryContext.SaveChangesAsync(cancellationToken);
     }
+
     private void UpdateStreamGroup(StreamGroup StreamGroup)
     {
         Update(StreamGroup);
     }
 
-    public async Task<PagedList<StreamGroupDto>> GetStreamGroupDtosPagedAsync(StreamGroupParameters StreamGroupParameters, string Url)
+    public async Task<IPagedList<StreamGroupDto>> GetStreamGroupDtosPagedAsync(StreamGroupParameters StreamGroupParameters, string Url)
     {
         var StreamGroups = FindAll();
 
         IQueryable<StreamGroup> sorderStreamGroups = _StreamGroupSortHelper.ApplySort(StreamGroups, StreamGroupParameters.OrderBy);
-        var list = await PagedList<StreamGroup>.ToPagedList(sorderStreamGroups, StreamGroupParameters.PageNumber, StreamGroupParameters.PageSize);
 
+        var list = await sorderStreamGroups.ToPagedListAsync(StreamGroupParameters.PageNumber, StreamGroupParameters.PageSize).ConfigureAwait(false);
 
         List<StreamGroupDto> ret = new();
 
-        foreach (int streamGroupId in list.Select(a=>a.Id))
+        foreach (int streamGroupId in list.Select(a => a.Id))
         {
             StreamGroupDto? streamGroup = await GetStreamGroupDto(streamGroupId, Url);
             if (streamGroup == null)
@@ -442,8 +442,7 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
             ret.Add(streamGroup);
         }
 
-        var dtoList = await PagedList<StreamGroupDto>.ToPagedList(ret.AsQueryable(), StreamGroupParameters.PageNumber, StreamGroupParameters.PageSize);
-
+        var dtoList = await ret.ToPagedListAsync(StreamGroupParameters.PageNumber, StreamGroupParameters.PageSize).ConfigureAwait(false);
 
         return dtoList;
     }

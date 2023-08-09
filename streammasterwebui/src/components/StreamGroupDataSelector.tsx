@@ -11,7 +11,7 @@ import StreamGroupDeleteDialog from './StreamGroupDeleteDialog';
 
 const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
-  const streamGroupsQuery = StreamMasterApi.useStreamGroupsGetStreamGroupsQuery();
+  const streamGroupsQuery = StreamMasterApi.useStreamGroupsGetStreamGroupsQuery({} as StreamMasterApi.StreamGroupsGetStreamGroupsApiArg);
   const [selectedStreamGroup, setSelectedStreamGroup] = React.useState<StreamMasterApi.StreamGroupDto>({} as StreamMasterApi.StreamGroupDto);
 
   React.useMemo(() => {

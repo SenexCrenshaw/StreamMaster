@@ -3,6 +3,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using StreamMasterAPI.Extensions;
+
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Commands;
@@ -16,6 +18,7 @@ using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
 using StreamMasterDomain.Pagination;
+using StreamMasterDomain.Repository;
 
 using System.Web;
 
@@ -27,7 +30,6 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     private readonly ILogger<VideoStreamsController> _logger;
 
     private readonly IMapper _mapper;
-
 
     public VideoStreamsController(IChannelManager channelManager, ILogger<VideoStreamsController> logger, IMapper mapper)
     {
@@ -69,7 +71,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult> GetAllStatisticsForAllUrls()
+    public async Task<ActionResult<List<StreamStatisticsResult>>> GetAllStatisticsForAllUrls()
     {
         List<StreamStatisticsResult> data = await Mediator.Send(new GetAllStatisticsForAllUrls()).ConfigureAwait(false);
         return Ok(data);
@@ -77,9 +79,9 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult> GetChannelLogoDtos()
+    public async Task<ActionResult<List<ChannelLogoDto>>> GetChannelLogoDtos()
     {
-        IEnumerable<ChannelLogoDto> data = await Mediator.Send(new GetChannelLogoDtos()).ConfigureAwait(false);
+        List<ChannelLogoDto> data = await Mediator.Send(new GetChannelLogoDtos()).ConfigureAwait(false);
         return Ok(data);
     }
 
@@ -92,14 +94,13 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     }
 
     [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<IEnumerable<VideoStreamDto>>> GetVideoStreams([FromQuery] VideoStreamParameters Parameters)
+    public async Task<ActionResult<IPagedList<VideoStreamDto>>> GetVideoStreams([FromQuery] VideoStreamParameters Parameters)
     {
-        PagedList<StreamMasterDomain.Repository.VideoStream> videoStreams = await Mediator.Send(new GetVideoStreams(Parameters)).ConfigureAwait(false);
-        Response.Headers.Add("X-Pagination", videoStreams.GetMetadata());
-        IEnumerable<VideoStreamDto> m3uFilesResult = _mapper.Map<IEnumerable<VideoStreamDto>>(videoStreams);
-        return Ok(m3uFilesResult);
+        var videoStreams = await Mediator.Send(new GetVideoStreams(Parameters)).ConfigureAwait(false);
 
+        var result = APIExtensions.GetPagedResult<VideoStream, VideoStreamDto>(videoStreams, Response, _mapper);
+
+        return Ok(result);
     }
 
     [Authorize(Policy = "SGLinks")]
@@ -240,10 +241,10 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<IEnumerable<VideoStreamDto>>> GetVideoStreamsByNamePattern(GetVideoStreamsByNamePatternQuery request)
+    public async Task<ActionResult<IEnumerable<VideoStreamDto>>> GetVideoStreamsByNamePattern([FromQuery] GetVideoStreamsByNamePatternQuery request)
     {
-        _ = await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
+        var result = await Mediator.Send(request).ConfigureAwait(false);
+        return Ok(result);
     }
 
     private class UnregisterClientOnDispose : IDisposable

@@ -27,7 +27,6 @@ public class EPGFilesController : ApiControllerBase, IEPGFileController
         return entity == null ? BadRequest() : CreatedAtAction(nameof(GetEPGFile), new { id = entity.Id }, entity);
     }
 
-
     [HttpDelete]
     [Route("[action]")]
     public async Task<ActionResult> DeleteEPGFile(DeleteEPGFileRequest request)
@@ -45,11 +44,10 @@ public class EPGFilesController : ApiControllerBase, IEPGFileController
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<EPGFilesDto>))]
-    public async Task<ActionResult<IEnumerable<EPGFilesDto>>> GetEPGFiles([FromQuery] EPGFileParameters parameters)
+    public async Task<ActionResult<IPagedList<EPGFilesDto>>> GetEPGFiles([FromQuery] EPGFileParameters parameters)
     {
-        IEnumerable<EPGFilesDto> data = await Mediator.Send(new GetEPGFiles(parameters)).ConfigureAwait(false);
-        return data.ToList();
+        var data = await Mediator.Send(new GetEPGFiles(parameters)).ConfigureAwait(false);
+        return data;
     }
 
     [HttpPut]

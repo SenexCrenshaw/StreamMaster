@@ -13,7 +13,6 @@ public class ProgrammesController : ApiControllerBase, IProgrammeChannelControll
 {
     [HttpGet]
     [Route("GetProgramme/{channel}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Programme>))]
     public async Task<ActionResult<IEnumerable<Programme>?>> GetProgramme(string channel)
     {
         IEnumerable<Programme>? data = await Mediator.Send(new GetProgramme(channel)).ConfigureAwait(false);
@@ -22,7 +21,6 @@ public class ProgrammesController : ApiControllerBase, IProgrammeChannelControll
 
     [HttpGet]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProgrammeChannel>))]
     public async Task<ActionResult<IEnumerable<ProgrammeChannel>>> GetProgrammeChannels()
     {
         return Ok(await Mediator.Send(new GetProgrammeChannels()).ConfigureAwait(false));
@@ -38,7 +36,6 @@ public class ProgrammesController : ApiControllerBase, IProgrammeChannelControll
 
     [HttpGet]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Programme>))]
     public async Task<ActionResult<IEnumerable<Programme>>> GetProgrammes()
     {
         return Ok(await Mediator.Send(new GetProgrammes()).ConfigureAwait(false));

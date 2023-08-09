@@ -5,6 +5,8 @@ using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
+
+
 namespace StreamMasterApplication.M3UFiles;
 
 public interface IM3UFileController
@@ -19,7 +21,7 @@ public interface IM3UFileController
 
     Task<ActionResult<M3UFileDto>> GetM3UFile(int id);
 
-    Task<ActionResult<IEnumerable<M3UFileDto>>> GetM3UFiles(M3UFileParameters Parameters);
+    Task<ActionResult<PagedList<M3UFileDto>>> GetM3UFiles(M3UFileParameters Parameters);
 
     Task<ActionResult> ProcessM3UFile(ProcessM3UFileRequest request);
 
@@ -32,13 +34,11 @@ public interface IM3UFileController
 
 public interface IM3UFileDB
 {
-
 }
 
 public interface IM3UFileHub
 {
     Task CreateM3UFile(CreateM3UFileRequest request);
-
 
     Task ChangeM3UFileName(ChangeM3UFileNameRequest request);
 

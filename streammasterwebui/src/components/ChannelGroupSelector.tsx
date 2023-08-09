@@ -11,7 +11,7 @@ import { Toast } from 'primereact/toast';
 const ChannelGroupSelector = (props: ChannelGroupSelectorProps) => {
   const toast = React.useRef<Toast>(null);
 
-  const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery({} as StreamMasterApi.QueryStringParameters);
+  const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery({} as StreamMasterApi.ChannelGroupsGetChannelGroupsApiArg);
 
   const [channelGroup, setChannelGroup] = React.useState<string>('');
 
@@ -24,9 +24,9 @@ const ChannelGroupSelector = (props: ChannelGroupSelectorProps) => {
   }, [props.value]);
 
   const options = React.useMemo(() => {
-    if (!channelGroupsQuery.data) return [];
+    if (!channelGroupsQuery.data?.data) return [];
 
-    return channelGroupsQuery.data.map((cg) => {
+    return channelGroupsQuery.data.data.map((cg) => {
       return { label: cg.name, value: cg.name };
     });
 

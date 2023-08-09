@@ -5,6 +5,8 @@ using StreamMasterApplication.M3UFiles.Queries;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
+
+
 namespace StreamMasterApplication.Hubs;
 
 public partial class StreamMasterHub : IM3UFileHub
@@ -50,7 +52,6 @@ public partial class StreamMasterHub : IM3UFileHub
         var ret = _mapper.Map<PagedList<M3UFileDto>>(data);
         return ret;
     }
-
 
     public async Task<M3UFileDto?> GetM3UFile(int id)
     {

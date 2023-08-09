@@ -17,7 +17,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
 
   const [selectedM3UFile, setSelectedM3UFile] = useLocalStorage<StreamMasterApi.M3UFileDto>({ id: 0, name: 'All' } as StreamMasterApi.M3UFileDto, 'M3UFilesDataSelector-selectedM3UFile');
 
-  const m3UFilesQuery = StreamMasterApi.useM3UFilesGetM3UFilesQuery({ pageNumber: 0, pageSize: 25 } as StreamMasterApi.QueryStringParameters);
+  const m3UFilesQuery = StreamMasterApi.useM3UFilesGetM3UFilesQuery({} as StreamMasterApi.M3UFilesGetM3UFilesApiArg);
 
   React.useMemo(() => {
     if (props.value?.id !== undefined && selectedM3UFile !== undefined && props.value.id !== selectedM3UFile.id) {

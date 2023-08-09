@@ -4,11 +4,12 @@ using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
 
-namespace StreamMasterInfrastructure.EF;
+namespace StreamMasterInfrastructureEF;
 
 public class EPGFileRepository : RepositoryBase<EPGFile>, IEPGFileRepository
 {
     private readonly ISortHelper<EPGFile> _EPGFileSortHelper;
+
     public EPGFileRepository(RepositoryContext repositoryContext, ISortHelper<EPGFile> EPGFileSortHelper) : base(repositoryContext)
     {
         _EPGFileSortHelper = EPGFileSortHelper;
@@ -37,20 +38,19 @@ public class EPGFileRepository : RepositoryBase<EPGFile>, IEPGFileRepository
                          .FirstOrDefaultAsync();
     }
 
-
     public async Task<EPGFile> GetEPGFileBySourceAsync(string source)
     {
         return await FindByCondition(EPGFile => EPGFile.Source.ToLower().Equals(source.ToLower()))
                           .FirstOrDefaultAsync();
     }
 
-    public async Task<PagedList<EPGFile>> GetEPGFilesAsync(EPGFileParameters EPGFileParameters)
+    public async Task<IPagedList<EPGFile>> GetEPGFilesAsync(EPGFileParameters EPGFileParameters)
     {
         IQueryable<EPGFile> EPGFiles = FindAll();
 
         IQueryable<EPGFile> sorderEPGFiles = _EPGFileSortHelper.ApplySort(EPGFiles, EPGFileParameters.OrderBy);
 
-        return await PagedList<EPGFile>.ToPagedList(sorderEPGFiles, EPGFileParameters.PageNumber, EPGFileParameters.PageSize);
+        return await sorderEPGFiles.ToPagedListAsync(EPGFileParameters.PageNumber, EPGFileParameters.PageSize).ConfigureAwait(false);
     }
 
     public void UpdateEPGFile(EPGFile EPGFile)

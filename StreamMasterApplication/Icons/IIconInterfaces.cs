@@ -3,6 +3,7 @@
 using StreamMasterApplication.Icons.Commands;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Icons;
 
@@ -12,7 +13,7 @@ public interface IIconController
 
     Task<ActionResult<IconFileDto>> GetIcon(int Id);
 
-    Task<ActionResult<IEnumerable<IconFileDto>>> GetIcons();
+    Task<ActionResult<IEnumerable<IconFileDto>>> GetIcons(IconFileParameters iconFileParameters);
 }
 
 public interface IIconDB
@@ -25,7 +26,7 @@ public interface IIconHub
 
     Task<IconFileDto?> GetIcon(int Id);
 
-    Task<IEnumerable<IconFileDto>> GetIcons();
+    Task<IEnumerable<IconFileDto>> GetIcons(IconFileParameters iconFileParameters);
 }
 
 public interface IIconScoped

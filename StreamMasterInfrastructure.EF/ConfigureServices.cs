@@ -5,9 +5,9 @@ using StreamMasterDomain.Common;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
 
-using StreamMasterInfrastructure.EF.Helpers;
+using StreamMasterInfrastructureEF.Helpers;
 
-namespace StreamMasterInfrastructure.EF;
+namespace StreamMasterInfrastructureEF;
 
 public static class ConfigureServices
 {

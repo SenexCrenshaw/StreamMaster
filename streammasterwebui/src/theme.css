@@ -207,6 +207,12 @@
   margin-top: 0.1rem !important;
 }
 
+.p-inputtext.p-component.p-column-filter {
+  border: 2px solid var(--surface-border) !important;
+  border-radius: 6px;
+  padding: .2rem;
+}
+
 .p-dropdown-panel.p-component.p-ripple-disabled.p-connected-overlay-enter-done {
   font-size: calc(1 * (0.5vw + 0.5vh)) !important;
 }

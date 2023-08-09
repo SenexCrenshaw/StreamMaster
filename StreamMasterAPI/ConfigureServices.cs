@@ -23,11 +23,12 @@ using StreamMasterDomain.EnvironmentInfo;
 
 using StreamMasterInfrastructure;
 using StreamMasterInfrastructure.Authentication;
-using StreamMasterInfrastructure.EF;
 using StreamMasterInfrastructure.Logging;
 using StreamMasterInfrastructure.Services;
 using StreamMasterInfrastructure.Services.Frontend;
 using StreamMasterInfrastructure.Services.QueueService;
+
+using StreamMasterInfrastructureEF;
 
 namespace StreamMasterAPI;
 
@@ -86,6 +87,7 @@ public static class ConfigureServices
         services
             .AddControllers(options =>
             {
+                options.RespectBrowserAcceptHeader = true;
                 options.ReturnHttpNotAcceptable = true;
             })
             .AddApplicationPart(typeof(StaticResourceController).Assembly)

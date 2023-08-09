@@ -30,7 +30,7 @@ const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [streamGroupNumber, setStreamGroupNumber] = React.useState<number>(0);
 
-  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
+  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery({} as StreamMasterApi.VideoStreamsGetVideoStreamsApiArg);
   const epgForGuide = StreamMasterApi.useStreamGroupsGetStreamGroupEpgForGuideQuery(streamGroupNumber);
 
   const getEpg = React.useCallback((channel: string): StreamMasterApi.EpgProgram | undefined => {

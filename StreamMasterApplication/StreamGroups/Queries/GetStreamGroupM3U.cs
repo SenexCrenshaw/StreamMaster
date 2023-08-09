@@ -16,6 +16,7 @@ using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 using System.Collections.Concurrent;
 using System.Net;
@@ -38,17 +39,15 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
 
 public class GetStreamGroupM3UHandler : BaseMemoryRequestHandler, IRequestHandler<GetStreamGroupM3U, string>
 {
-
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     private readonly Setting _setting;
 
-    public GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor,  ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+    public GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
         : base(logger, repository, mapper, publisher, sender, memoryCache)
     {
         _httpContextAccessor = httpContextAccessor;
     }
-
 
     public string GetIconUrl(string iconOriginalSource)
     {
@@ -116,7 +115,8 @@ public class GetStreamGroupM3UHandler : BaseMemoryRequestHandler, IRequestHandle
 
         ConcurrentDictionary<int, string> retlist = new();
 
-        List<IconFileDto> icons = await Sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
+        IconFileParameters iconFileParameters = new IconFileParameters();
+        var icons = await Sender.Send(new GetIcons(iconFileParameters), cancellationToken).ConfigureAwait(false);
 
         string requestPath = _httpContextAccessor.HttpContext.Request.Path.Value.ToString();
         byte[]? iv = requestPath.GetIVFromPath(128);

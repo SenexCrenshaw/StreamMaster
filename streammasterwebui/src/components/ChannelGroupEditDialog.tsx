@@ -16,7 +16,7 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
   const [regex, setRegex] = React.useState<string | undefined>('');
   const [newGroupName, setNewGroupName] = React.useState('');
 
-  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsByNamePatternQuery({ pattern: regex } as StreamMasterApi.GetVideoStreamsByNamePatternQuery);
+  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsByNamePatternQuery(regex ?? '');
 
   const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);

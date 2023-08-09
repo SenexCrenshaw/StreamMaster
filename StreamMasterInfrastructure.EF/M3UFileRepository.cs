@@ -4,11 +4,12 @@ using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
 
-namespace StreamMasterInfrastructure.EF;
+namespace StreamMasterInfrastructureEF;
 
 public class M3UFileRepository : RepositoryBase<M3UFile>, IM3UFileRepository
 {
     private ISortHelper<M3UFile> _m3uFileSortHelper;
+
     public M3UFileRepository(RepositoryContext repositoryContext, ISortHelper<M3UFile> m3uFileSortHelper) : base(repositoryContext)
     {
         _m3uFileSortHelper = m3uFileSortHelper;
@@ -42,7 +43,6 @@ public class M3UFileRepository : RepositoryBase<M3UFile>, IM3UFileRepository
         var m3uFiles = await FindAll().ToListAsync();
 
         return m3uFiles.Sum(a => a.MaxStreamCount);
-
     }
 
     public async Task<M3UFile> GetM3UFileBySourceAsync(string source)
@@ -51,13 +51,13 @@ public class M3UFileRepository : RepositoryBase<M3UFile>, IM3UFileRepository
                           .FirstOrDefaultAsync();
     }
 
-    public async Task<PagedList<M3UFile>> GetM3UFilesAsync(M3UFileParameters m3uFileParameters)
+    public async Task<IPagedList<M3UFile>> GetM3UFilesAsync(M3UFileParameters m3uFileParameters)
     {
         var m3uFiles = FindAll();
 
         var sorderM3UFiles = _m3uFileSortHelper.ApplySort(m3uFiles, m3uFileParameters.OrderBy);
 
-        return await PagedList<M3UFile>.ToPagedList(sorderM3UFiles, m3uFileParameters.PageNumber, m3uFileParameters.PageSize);
+        return await sorderM3UFiles.ToPagedListAsync(m3uFileParameters.PageNumber, m3uFileParameters.PageSize).ConfigureAwait(false);
     }
 
     public void UpdateM3UFile(M3UFile m3uFile)

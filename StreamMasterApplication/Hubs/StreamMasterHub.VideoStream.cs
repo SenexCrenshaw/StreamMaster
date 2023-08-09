@@ -34,7 +34,7 @@ public partial class StreamMasterHub : IVideoStreamHub
         return await _mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
     }
 
-    public async Task<PagedList<VideoStream>> GetVideoStreams(VideoStreamParameters Parameters)
+    public async Task<IPagedList<VideoStream>> GetVideoStreams(VideoStreamParameters Parameters)
     {
         return await _mediator.Send(new GetVideoStreams(Parameters)).ConfigureAwait(false);
     }

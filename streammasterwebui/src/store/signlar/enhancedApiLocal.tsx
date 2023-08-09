@@ -18,28 +18,33 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const applyResults = (
-            data: StreamMasterApi.ChannelGroupDto[]
+            data: StreamMasterApi.PagedResponseOfChannelGroupDto
           ) => {
             updateCachedData(
-              (draft: StreamMasterApi.ChannelGroupDto[]) => {
-                data.forEach(function (cn) {
-                  const foundIndex = draft.findIndex(
-                    (x) => x.name === cn.name
-                  );
-                  if (foundIndex !== -1) {
-                    draft[foundIndex] = cn;
-                  } else {
-                    draft.push(cn);
-                  }
-                });
-                return draft.sort((a, b) => a.name.localeCompare(b.name));
+              (draft: StreamMasterApi.PagedResponseOfChannelGroupDto) => {
+                if (data.data !== undefined && draft.data !== undefined) {
+                  data.data.forEach(function (cn) {
+                    if (draft.data !== undefined) {
+                      const foundIndex = draft.data.findIndex(
+                        (x) => x.name === cn.name
+                      );
+                      if (foundIndex !== -1) {
+                        draft.data[foundIndex] = cn;
+                      } else {
+                        draft.data.push(cn);
+                      }
+                    }
+                  });
+                }
+
+                return draft;
               }
             );
           };
 
           hubConnection.on(
             'ChannelGroupDtoesUpdate',
-            (data: StreamMasterApi.ChannelGroupDto[]) => {
+            (data: StreamMasterApi.PagedResponseOfChannelGroupDto) => {
               applyResults(data);
             }
           );
@@ -48,13 +53,15 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
             data: StreamMasterApi.SetChannelGroupsVisibleArg[]
           ) => {
             updateCachedData(
-              (draft: StreamMasterApi.ChannelGroupDto[]) => {
+              (draft: StreamMasterApi.PagedResponseOfChannelGroupDto) => {
                 data.forEach(function (cn) {
-                  const foundIndex = draft.findIndex(
-                    (x) => x.name === cn.groupName
-                  );
-                  if (foundIndex !== -1) {
-                    draft[foundIndex] = { ...draft[foundIndex], isHidden: cn.isHidden === true }
+                  if (draft.data !== undefined) {
+                    const foundIndex = draft.data.findIndex(
+                      (x) => x.name === cn.groupName
+                    );
+                    if (foundIndex !== -1) {
+                      draft.data[foundIndex] = { ...draft.data[foundIndex], isHidden: cn.isHidden === true }
+                    }
                   }
                 });
                 return draft;
@@ -70,55 +77,6 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
           );
 
 
-          const applyResult = (
-            data: StreamMasterApi.ChannelGroupDto
-          ) => {
-            updateCachedData(
-              (
-                draft: StreamMasterApi.ChannelGroupDto[]
-              ) => {
-                const foundIndex = draft.findIndex(
-                  (x) => x.id === data.id
-                );
-
-                if (foundIndex === -1) {
-                  draft.push(data);
-                } else {
-                  draft[foundIndex] = data;
-                }
-
-                return draft;
-              }
-            );
-          };
-
-          hubConnection.on(
-            'ChannelGroupDtoUpdate',
-            (data: StreamMasterApi.ChannelGroupDto) => {
-              applyResult(data);
-            }
-          );
-
-          const deleteResult = (
-
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            id: any
-          ) => {
-            updateCachedData(
-              (
-                draft: StreamMasterApi.ChannelGroupDto[]
-              ) => {
-                return draft.filter((obj) => obj.id !== id);
-              }
-            );
-          };
-
-          hubConnection.on(
-            'ChannelGroupDtoDelete',
-            (id: number) => {
-              deleteResult(id);
-            }
-          );
 
 
         } catch { }

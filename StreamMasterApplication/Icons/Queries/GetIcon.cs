@@ -3,6 +3,7 @@
 using MediatR;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Icons.Queries;
 
@@ -26,7 +27,8 @@ internal class GetIconQueryHandler : IRequestHandler<GetIcon, IconFileDto?>
     {
         SettingDto setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
 
-        List<IconFileDto> icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
+        IconFileParameters iconFileParameters = new IconFileParameters();
+        var icons = await _sender.Send(new GetIcons(iconFileParameters), cancellationToken).ConfigureAwait(false);
 
         IconFileDto? icon = icons.FirstOrDefault(a => a.Id == request.Id);
 

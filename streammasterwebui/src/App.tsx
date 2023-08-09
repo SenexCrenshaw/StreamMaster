@@ -20,6 +20,8 @@ import SignalRHub from './app/SignalRHub';
 import FilesEditor from './features/filesEditor/FilesEditor';
 import LogViewer from './features/logViewer/LogViewer';
 import SDEditor from './features/sdEditor/SDEditor';
+import TestPanel from './features/testPanel/TestPanel';
+
 // import SDEditor from './features/sdEditor/SDEditor';
 
 const App = () => {
@@ -46,6 +48,10 @@ const App = () => {
     createRoutesFromElements(
       <Route element={<Home />} path="/">
         <Route element={<Navigate to="/editor/playlist" />} index />
+
+        <Route element={
+          <TestPanel />
+        } path="/testpanel" />
 
         <Route element={
           <StreamGroupEditor />

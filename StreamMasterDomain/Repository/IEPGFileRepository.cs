@@ -6,11 +6,16 @@ namespace StreamMasterDomain.Repository
     {
         Task<IEnumerable<EPGFile>> GetAllEPGFilesAsync();
 
-        Task<PagedList<EPGFile>> GetEPGFilesAsync(EPGFileParameters EPGFileParameters);
+        Task<IPagedList<EPGFile>> GetEPGFilesAsync(EPGFileParameters EPGFileParameters);
+
         Task<EPGFile> GetEPGFileByIdAsync(int Id);
+
         Task<EPGFile> GetEPGFileBySourceAsync(string source);
+
         void CreateEPGFile(EPGFile EPGFile);
+
         void UpdateEPGFile(EPGFile EPGFile);
+
         void DeleteEPGFile(EPGFile EPGFile);
     }
 }

@@ -24,9 +24,10 @@ public partial class StreamMasterHub : IChannelGroupHub
         return await _mediator.Send(new GetChannelGroup(id)).ConfigureAwait(false);
     }
 
-    public async Task<PagedList<ChannelGroup>> GetChannelGroups(ChannelGroupParameters channelGroupParameters)
+    public async Task<PagedResponse<ChannelGroupDto>> GetChannelGroups(ChannelGroupParameters channelGroupParameters)
     {
-        return await _mediator.Send(new GetChannelGroupsQuery(channelGroupParameters)).ConfigureAwait(false);
+        var ret = await _mediator.Send(new GetChannelGroupsQuery(channelGroupParameters)).ConfigureAwait(false);
+        return ret;
     }
 
     public async Task SetChannelGroupsVisible(SetChannelGroupsVisibleRequest request)

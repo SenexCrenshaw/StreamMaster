@@ -12,15 +12,15 @@ import * as StreamMasterApi from './store/iptvApi';
 import { Tooltip } from 'primereact/tooltip';
 
 const Home = () => {
-  StreamMasterApi.useIconsGetIconsQuery();
-  StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
-  StreamMasterApi.useEpgFilesGetEpgFilesQuery();
-  StreamMasterApi.useM3UFilesGetM3UFilesQuery({ pageNumber: 0, pageSize: 25 } as StreamMasterApi.QueryStringParameters);
-  StreamMasterApi.useProgrammesGetProgrammeNamesQuery();
+  // StreamMasterApi.useIconsGetIconsQuery();
+  // StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
+  // StreamMasterApi.useEpgFilesGetEpgFilesQuery();
+  // StreamMasterApi.useM3UFilesGetM3UFilesQuery({ pageNumber: 0, pageSize: 25 } as StreamMasterApi.QueryStringParameters);
+  // StreamMasterApi.useProgrammesGetProgrammeNamesQuery();
   StreamMasterApi.useSettingsGetSettingQuery();
-  StreamMasterApi.useSettingsGetSystemStatusQuery();
-  StreamMasterApi.useStreamGroupsGetStreamGroupsQuery();
-  StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
+  // StreamMasterApi.useSettingsGetSystemStatusQuery();
+  // StreamMasterApi.useStreamGroupsGetStreamGroupsQuery();
+  // StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
 
   const settings = StreamMasterSetting();
   const [collapsed, setCollapsed] = useLocalStorage<boolean>(true, 'app-menu-collapsed');
@@ -69,6 +69,7 @@ const Home = () => {
             </MenuItem>
           </div>
 
+          <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/testpanel" name='Test Panel' />
 
           <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/editor/playlist" name='Playlist' />
           <MenuItemSM collapsed={collapsed} icon={<StreamGroupEditorIcon />} link="/editor/streamgroup" name='Stream Group' />

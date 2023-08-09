@@ -21,7 +21,7 @@ export const EPGFilesSelector = (props: EPGFilesSelectorProps) => {
     }
   }, [props.SetSelection]);
 
-  const epgFiles = StreamMasterApi.useEpgFilesGetEpgFilesQuery();
+  const epgFiles = StreamMasterApi.useEpgFilesGetEpgFilesQuery({} as StreamMasterApi.EpgFilesGetEpgFilesApiArg);
 
   const SetSelectedFileChanged = (data: StreamMasterApi.EpgFilesDto) => {
     if (!data) {

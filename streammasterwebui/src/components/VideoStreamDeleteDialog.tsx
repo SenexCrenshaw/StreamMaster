@@ -41,7 +41,7 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
 
       const data = {} as StreamMasterApi.DeleteVideoStreamRequest;
 
-      data.videoStreamId = stream.id;
+      data.id = stream.id;
 
       promises.push(
         Hub.DeleteVideoStream(data)

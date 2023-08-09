@@ -6,9 +6,7 @@ using StreamMasterApplication.Common.Interfaces;
 
 using StreamMasterDomain.Common;
 
-using StreamMasterInfrastructure.EF.Interceptors;
-
-namespace StreamMasterInfrastructure.EF.Interceptors;
+namespace StreamMasterInfrastructureEF.Interceptors;
 
 public class AuditableEntitySaveChangesInterceptor : SaveChangesInterceptor
 {
