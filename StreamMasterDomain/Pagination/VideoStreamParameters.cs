@@ -9,4 +9,9 @@ public class VideoStreamParameters : QueryStringParameters
     }
 
     public string Name { get; set; }
+
+    public static explicit operator VideoStreamParameters(ChannelGroupParameters v)
+    {
+        throw new NotImplementedException();
+    }
 }

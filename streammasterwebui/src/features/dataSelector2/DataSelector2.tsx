@@ -49,9 +49,11 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
   const [globalSearchName, setGlobalSearchName] = React.useState<string>('');
 
   const [globalSourceFilterValue, setGlobalSourceFilterValue] = useLocalStorage('', props.id + '-sourceGlobalFilterValue');
+
   const [pageSize, setPageSize] = useLocalStorage(25, props.id + '-rowsPerPage');
   const [sortOrder, setSortOrder] = useLocalStorage<-1 | 0 | 1 | null>(1, props.id + '-sortOrder');
   const [sortField, setSortField] = useLocalStorage<string>('name', props.id + '-sortField');
+
   const [rowClick, setRowClick] = useLocalStorage<boolean>(false, props.id + '-rowClick');
   const [selections, setSelections] = useLocalStorage<T[]>([] as T[], props.id + '-selections');
 

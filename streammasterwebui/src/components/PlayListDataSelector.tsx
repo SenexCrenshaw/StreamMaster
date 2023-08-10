@@ -31,7 +31,6 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   const [pageSize, setPageSize] = React.useState<number>(25);
   const [pageNumber, setPageNumber] = React.useState<number>(1);
   const [filters, setFilters] = React.useState<string>('');
-
   const [orderBy, setOrderBy] = React.useState<string>('name');
 
   const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery({ jsonFiltersString: filters, orderBy: orderBy ?? 'name', pageNumber: pageNumber === 0 ? 25 : pageNumber, pageSize: pageSize } as StreamMasterApi.ChannelGroupsGetChannelGroupsApiArg);
@@ -161,7 +160,6 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         name={props.name === undefined ? 'Playlist' : props.name}
         onFilter={(filterInfo) => {
           setFilter(filterInfo);
-
         }}
 
         onPage={(pageInfo) => {
@@ -173,14 +171,13 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
           if (pageInfo.rows !== undefined) {
             setPageSize(pageInfo.rows);
           }
-        }
-        }
+        }}
 
         onSelectionChange={(e) => {
           setSelectedChannelGroups(e as StreamMasterApi.ChannelGroupDto[]);
           props.onSelectionChange?.(e as StreamMasterApi.ChannelGroupDto[]);
-        }
-        }
+        }}
+
         onSetSourceFilters={(filterInfo) => setFilter({ filters: filterInfo } as DataTableFilterEvent)}
         onSort={(sortInfo) => {
           console.debug('PlayListDataSelector onSort', sortInfo);

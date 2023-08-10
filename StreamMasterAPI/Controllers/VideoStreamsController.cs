@@ -95,9 +95,9 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedResponse<VideoStreamDto>>> GetVideoStreams([FromQuery] VideoStreamParameters Parameters)
+    public async Task<ActionResult<PagedResponse<VideoStreamDto>>> GetVideoStreams([FromQuery] VideoStreamParameters videoStreamParameters)
     {
-        var res = await Mediator.Send(new GetVideoStreamsQuery(Parameters)).ConfigureAwait(false);
+        var res = await Mediator.Send(new GetVideoStreams(videoStreamParameters)).ConfigureAwait(false);
         return Ok(res);
     }
 

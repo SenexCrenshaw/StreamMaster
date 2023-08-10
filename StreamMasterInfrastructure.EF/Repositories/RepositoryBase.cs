@@ -2,6 +2,7 @@
 
 using Microsoft.EntityFrameworkCore;
 
+using StreamMasterDomain.Dto;
 using StreamMasterDomain.Filtering;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
@@ -159,8 +160,10 @@ namespace StreamMasterInfrastructureEF.Repositories
             var pagedResult = await entities.ToPagedListAsync(parameters.PageNumber, parameters.PageSize).ConfigureAwait(false);
             var destination = mapper.Map<List<TDto>>(pagedResult);
 
-            var destinationPagedResult = await destination.ToPagedListAsync(parameters.PageNumber, parameters.PageSize).ConfigureAwait(false);
-            var pagedResponse = destinationPagedResult.ToPagedResponse(entities.Count());
+            
+            var test = new StaticPagedList<TDto>(destination, pagedResult.GetMetaData());
+            
+            var pagedResponse = test.ToPagedResponse(entities.Count());
 
             return pagedResponse;
         }

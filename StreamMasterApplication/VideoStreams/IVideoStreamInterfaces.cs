@@ -59,7 +59,7 @@ public interface IVideoStreamHub
 
     Task<VideoStreamDto?> GetVideoStream(string id);
 
-    Task<PagedResponse<VideoStream>> GetVideoStreams(VideoStreamParameters Parameters);
+    Task<PagedResponse<VideoStreamDto>> GetVideoStreams(VideoStreamParameters Parameters);
 
     Task<IEnumerable<VideoStream>> GetVideoStreamsByNamePattern(GetVideoStreamsByNamePatternQuery request);
 

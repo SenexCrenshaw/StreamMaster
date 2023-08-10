@@ -74,9 +74,9 @@ public class UpdateChannelGroupsRequestHandler : BaseMediatorRequestHandler, IRe
 
             if (isChanged)
             {
-                results.AddRange(Repository.VideoStream.GetVideoStreamsChannelGroupName(channelGroup.Name)
-                    .Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == channelGroup.Name.ToLower())
-                    .ProjectTo<VideoStreamDto>(Mapper.ConfigurationProvider));
+                var re = await Repository.VideoStream.GetVideoStreamsChannelGroupName(channelGroup.Name).ConfigureAwait(false);
+                var toadd = Mapper.Map<List<VideoStreamDto>>(re);
+                results.AddRange(toadd);
             }
         }
 

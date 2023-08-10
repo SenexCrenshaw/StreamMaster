@@ -31,7 +31,7 @@ internal class GetVideoStreamCountForChannelGroupHandler : BaseMediatorRequestHa
         List<string> ids = new List<string>();
         IEnumerable<VideoStream> reg;
 
-        var t = Repository.VideoStream.GetVideoStreamsChannelGroupName(request.channelGropupName);
+        var t = await Repository.VideoStream.GetVideoStreamsChannelGroupName(request.channelGropupName);
         ids = t.Select(a => a.Id).ToList();
         var hiddenCount = t.Where(a => a.IsHidden).Count();
 
@@ -45,7 +45,7 @@ internal class GetVideoStreamCountForChannelGroupHandler : BaseMediatorRequestHa
 
         res.TotalCount = ids.Count;
         res.ActiveCount = ids.Count - hiddenCount;
-        
+
         res.HiddenCount = hiddenCount;
         res.Id = cg.Id;
         return res;

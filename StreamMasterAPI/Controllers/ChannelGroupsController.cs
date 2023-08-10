@@ -1,9 +1,9 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterApplication.ChannelGroups;
 using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.ChannelGroups.Queries;
+using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
@@ -12,10 +12,8 @@ namespace StreamMasterAPI.Controllers;
 
 public class ChannelGroupsController : ApiControllerBase, IChannelGroupController
 {
-
     public ChannelGroupsController()
     {
-      
     }
 
     [HttpPost]
@@ -46,6 +44,14 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
     public async Task<ActionResult<PagedResponse<ChannelGroupDto>>> GetChannelGroups([FromQuery] ChannelGroupParameters Parameters)
     {
         var res = await Mediator.Send(new GetChannelGroupsQuery(Parameters)).ConfigureAwait(false);
+        return Ok(res);
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<PagedResponse<VideoStreamDto>>> GetVideoStreamsForChannelGroups([FromQuery] VideoStreamParameters videoStreamParameters)
+    {
+        var res = await Mediator.Send(new GetVideoStreamsForChannelGroups(videoStreamParameters)).ConfigureAwait(false);
         return Ok(res);
     }
 

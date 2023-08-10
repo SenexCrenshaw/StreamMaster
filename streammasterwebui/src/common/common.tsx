@@ -7,8 +7,6 @@ import { type VideoStreamDto } from '../store/iptvApi';
 import { type ChildVideoStreamDto } from '../store/iptvApi';
 import { baseHostURL, isDebug } from '../settings';
 import { SMFileTypes } from '../store/streammaster_enums';
-import { type DataTableFilterEvent } from 'primereact/datatable';
-import { type DataTableFilterMetaData } from 'primereact/datatable';
 
 export const getTopToolOptions = { autoHide: true, hideDelay: 100, position: 'top', showDelay: 400 } as TooltipOptions;
 export const getLeftToolOptions = { autoHide: true, hideDelay: 100, position: 'left', showDelay: 400 } as TooltipOptions;
@@ -22,57 +20,12 @@ export function GetMessage(id: string): string {
   return message;
 }
 
-export function convertFiltersToQueryString(filterInfo: DataTableFilterEvent): string {
-  const filters: string[] = [];
-
-  if (filterInfo.filters !== undefined) {
-    Object.keys(filterInfo.filters).forEach((key) => {
-      const value = filterInfo.filters[key] as DataTableFilterMetaData;
-      if (value.value === null || value.value === undefined || value.value === '') {
-        return;
-      }
-
-      switch (value.matchMode) {
-        case 'contains':
-          filters.push(`${key} like '%${value.value}%'`);
-          break;
-        case 'startsWith':
-          filters.push(`${key} like '${value.value}%'`);
-          break;
-        case 'endsWith':
-          filters.push(`${key} like '%${value.value}'`);
-          break;
-        case 'equals':
-          filters.push(`${key}='${value.value}'`);
-          break;
-        case 'in':
-          filters.push(`${key}=${value.value}`);
-          break;
-        case 'lt':
-          filters.push(`${key}<${value.value}`);
-          break;
-        case 'lte':
-          filters.push(`${key}<=${value.value}`);
-          break;
-        case 'gt':
-          filters.push(`${key}>${value.value}`);
-          break;
-        case 'gte':
-          filters.push(`${key}>=${value.value}`);
-          break;
-        case 'between':
-          filters.push(`${key}=${value.value}`);
-          break;
-        case 'custom':
-          filters.push(`${key}=${value.value}`);
-          break;
-        default:
-          break;
-      }
-    });
-  }
-
-  return filters.join(' AND ');
+export type DataTableFilterMetaData = {
+  fieldName: string;
+  matchMode: 'between' | 'contains' | 'custom' | 'dateAfter' | 'dateBefore' | 'dateIs' | 'dateIsNot' | 'endsWith' | 'equals' | 'gt' | 'gte' | 'in' | 'lt' | 'lte' | 'notContains' | 'notEquals' | 'startsWith' | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any;
+  valueType: string;
 }
 
 export function isChildVideoStreamDto(value: unknown): value is ChildVideoStreamDto {

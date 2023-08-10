@@ -23,11 +23,11 @@ namespace StreamMasterDomain.Repository
 
         IQueryable<VideoStream> GetVideoStreamsByMatchingIds(IEnumerable<string> ids);
 
-        IQueryable<VideoStream> GetVideoStreamsChannelGroupName(string channelGroupName);
+        Task<List<VideoStream>> GetVideoStreamsChannelGroupName(string channelGroupName);
 
         IQueryable<VideoStream> GetAllVideoStreams();
 
-        Task<PagedResponse<VideoStream>> GetVideoStreamsAsync(VideoStreamParameters VideoStreamParameters, CancellationToken cancellationToken);
+        Task<PagedResponse<VideoStreamDto>> GetVideoStreamsAsync(VideoStreamParameters VideoStreamParameters, CancellationToken cancellationToken);
 
         Task<VideoStream> GetVideoStreamByIdAsync(string Id, CancellationToken cancellationToken = default);
 

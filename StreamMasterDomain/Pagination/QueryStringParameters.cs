@@ -21,7 +21,7 @@ namespace StreamMasterDomain.Pagination
         }
 
         public string OrderBy { get; set; }
-
+        public string? JSONArgumentString { get; set; }
         public string? JSONFiltersString { get; set; }
     }
 }

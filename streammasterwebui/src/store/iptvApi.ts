@@ -41,6 +41,7 @@ const injectedRtkApi = api
             PageNumber: queryArg.pageNumber,
             PageSize: queryArg.pageSize,
             OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
             JSONFiltersString: queryArg.jsonFiltersString,
           },
         }),
@@ -62,6 +63,23 @@ const injectedRtkApi = api
         ChannelGroupsGetChannelGroupApiArg
       >({
         query: (queryArg) => ({ url: `/api/channelgroups/${queryArg}` }),
+        providesTags: ["ChannelGroups"],
+      }),
+      channelGroupsGetVideoStreamsForChannelGroups: build.query<
+        ChannelGroupsGetVideoStreamsForChannelGroupsApiResponse,
+        ChannelGroupsGetVideoStreamsForChannelGroupsApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/channelgroups/getvideostreamsforchannelgroups`,
+          params: {
+            Name: queryArg.name,
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString,
+          },
+        }),
         providesTags: ["ChannelGroups"],
       }),
       channelGroupsSetChannelGroupsVisible: build.mutation<
@@ -148,6 +166,7 @@ const injectedRtkApi = api
             PageNumber: queryArg.pageNumber,
             PageSize: queryArg.pageSize,
             OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
             JSONFiltersString: queryArg.jsonFiltersString,
           },
         }),
@@ -226,6 +245,7 @@ const injectedRtkApi = api
               PageNumber: queryArg.pageNumber,
               PageSize: queryArg.pageSize,
               OrderBy: queryArg.orderBy,
+              JSONArgumentString: queryArg.jsonArgumentString,
               JSONFiltersString: queryArg.jsonFiltersString,
             },
           }),
@@ -305,6 +325,7 @@ const injectedRtkApi = api
             PageNumber: queryArg.pageNumber,
             PageSize: queryArg.pageSize,
             OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
             JSONFiltersString: queryArg.jsonFiltersString,
           },
         }),
@@ -656,6 +677,7 @@ const injectedRtkApi = api
             PageNumber: queryArg.pageNumber,
             PageSize: queryArg.pageSize,
             OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
             JSONFiltersString: queryArg.jsonFiltersString,
           },
         }),
@@ -748,6 +770,7 @@ const injectedRtkApi = api
             PageNumber: queryArg.pageNumber,
             PageSize: queryArg.pageSize,
             OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
             JSONFiltersString: queryArg.jsonFiltersString,
           },
         }),
@@ -885,6 +908,7 @@ export type ChannelGroupsGetChannelGroupsApiArg = {
   pageNumber?: number;
   pageSize?: number;
   orderBy?: string;
+  jsonArgumentString?: string | null;
   jsonFiltersString?: string | null;
 };
 export type ChannelGroupsDeleteChannelGroupApiResponse = unknown;
@@ -892,6 +916,16 @@ export type ChannelGroupsDeleteChannelGroupApiArg = DeleteChannelGroupRequest;
 export type ChannelGroupsGetChannelGroupApiResponse =
   /** status 200  */ ChannelGroupDto;
 export type ChannelGroupsGetChannelGroupApiArg = number;
+export type ChannelGroupsGetVideoStreamsForChannelGroupsApiResponse =
+  /** status 200  */ PagedResponseOfVideoStreamDto;
+export type ChannelGroupsGetVideoStreamsForChannelGroupsApiArg = {
+  name?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
 export type ChannelGroupsSetChannelGroupsVisibleApiResponse = unknown;
 export type ChannelGroupsSetChannelGroupsVisibleApiArg =
   SetChannelGroupsVisibleRequest;
@@ -919,6 +953,7 @@ export type EpgFilesGetEpgFilesApiArg = {
   pageNumber?: number;
   pageSize?: number;
   orderBy?: string;
+  jsonArgumentString?: string | null;
   jsonFiltersString?: string | null;
 };
 export type EpgFilesProcessEpgFileApiResponse = unknown;
@@ -944,6 +979,7 @@ export type IconsGetIconsApiArg = {
   pageNumber?: number;
   pageSize?: number;
   orderBy?: string;
+  jsonArgumentString?: string | null;
   jsonFiltersString?: string | null;
 };
 export type LogsGetLogRequestApiResponse = /** status 200  */ LogEntryDto[];
@@ -973,6 +1009,7 @@ export type M3UFilesGetM3UFilesApiArg = {
   pageNumber?: number;
   pageSize?: number;
   orderBy?: string;
+  jsonArgumentString?: string | null;
   jsonFiltersString?: string | null;
 };
 export type M3UFilesProcessM3UFileApiResponse = unknown;
@@ -1078,6 +1115,7 @@ export type StreamGroupsGetStreamGroupsApiArg = {
   pageNumber?: number;
   pageSize?: number;
   orderBy?: string;
+  jsonArgumentString?: string | null;
   jsonFiltersString?: string | null;
 };
 export type StreamGroupsUpdateStreamGroupApiResponse = unknown;
@@ -1107,6 +1145,7 @@ export type VideoStreamsGetVideoStreamsApiArg = {
   pageNumber?: number;
   pageSize?: number;
   orderBy?: string;
+  jsonArgumentString?: string | null;
   jsonFiltersString?: string | null;
 };
 export type VideoStreamsGetVideoStreamStreamApiResponse = unknown;
@@ -1171,6 +1210,48 @@ export type PagedResponseOfChannelGroupDto = {
 };
 export type DeleteChannelGroupRequest = {
   groupName: string;
+};
+export type StreamingProxyTypes = 0 | 1 | 2 | 3;
+export type VideoStreamHandlers = 0 | 1 | 2;
+export type BaseVideoStreamDto = {
+  id: string;
+  isActive: boolean;
+  isDeleted: boolean;
+  isHidden: boolean;
+  isReadOnly: boolean;
+  isUserCreated: boolean;
+  m3UFileId: number;
+  streamProxyType: StreamingProxyTypes;
+  tvg_chno: number;
+  tvg_group: string;
+  tvg_ID: string;
+  tvg_logo: string;
+  tvg_name: string;
+  url: string;
+  user_Tvg_chno: number;
+  user_Tvg_group: string;
+  user_Tvg_ID: string;
+  user_Tvg_ID_DisplayName: string;
+  user_Tvg_logo: string;
+  user_Tvg_name: string;
+  user_Url: string;
+  videoStreamHandler: VideoStreamHandlers;
+};
+export type ChildVideoStreamDto = BaseVideoStreamDto & {
+  maxStreams: number;
+  rank: number;
+};
+export type VideoStreamDto = BaseVideoStreamDto & {
+  childVideoStreams?: ChildVideoStreamDto[];
+};
+export type PagedResponseOfVideoStreamDto = {
+  data: VideoStreamDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalItemCount: number;
+  totalPageCount: number;
+  totalRecords: number;
+  first: number;
 };
 export type SetChannelGroupsVisibleArg = {
   groupName?: string;
@@ -1555,7 +1636,6 @@ export type TaskQueueStatusDto = {
   stopTS?: string;
 };
 export type AuthenticationType = 0 | 2;
-export type StreamingProxyTypes = 0 | 1 | 2 | 3;
 export type Setting = {
   adminPassword?: string;
   adminUserName?: string;
@@ -1667,38 +1747,6 @@ export type AddStreamGroupRequest = {
 export type DeleteStreamGroupRequest = {
   id?: number;
 };
-export type VideoStreamHandlers = 0 | 1 | 2;
-export type BaseVideoStreamDto = {
-  id: string;
-  isActive: boolean;
-  isDeleted: boolean;
-  isHidden: boolean;
-  isReadOnly: boolean;
-  isUserCreated: boolean;
-  m3UFileId: number;
-  streamProxyType: StreamingProxyTypes;
-  tvg_chno: number;
-  tvg_group: string;
-  tvg_ID: string;
-  tvg_logo: string;
-  tvg_name: string;
-  url: string;
-  user_Tvg_chno: number;
-  user_Tvg_group: string;
-  user_Tvg_ID: string;
-  user_Tvg_ID_DisplayName: string;
-  user_Tvg_logo: string;
-  user_Tvg_name: string;
-  user_Url: string;
-  videoStreamHandler: VideoStreamHandlers;
-};
-export type ChildVideoStreamDto = BaseVideoStreamDto & {
-  maxStreams: number;
-  rank: number;
-};
-export type VideoStreamDto = BaseVideoStreamDto & {
-  childVideoStreams?: ChildVideoStreamDto[];
-};
 export type StreamGroupDto = {
   channelGroups: ChannelGroupDto[];
   childVideoStreams: VideoStreamDto[];
@@ -1786,15 +1834,6 @@ export type ChannelLogoDto = {
   epgFileId?: number;
   logoUrl?: string;
 };
-export type PagedResponseOfVideoStreamDto = {
-  data: VideoStreamDto[];
-  pageNumber: number;
-  pageSize: number;
-  totalItemCount: number;
-  totalPageCount: number;
-  totalRecords: number;
-  first: number;
-};
 export type ReSetVideoStreamsLogoRequest = {
   ids?: string[];
 };
@@ -1838,6 +1877,7 @@ export const {
   useChannelGroupsGetChannelGroupsQuery,
   useChannelGroupsDeleteChannelGroupMutation,
   useChannelGroupsGetChannelGroupQuery,
+  useChannelGroupsGetVideoStreamsForChannelGroupsQuery,
   useChannelGroupsSetChannelGroupsVisibleMutation,
   useChannelGroupsUpdateChannelGroupMutation,
   useChannelGroupsUpdateChannelGroupsMutation,

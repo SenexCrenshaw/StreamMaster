@@ -34,9 +34,9 @@ public partial class StreamMasterHub : IVideoStreamHub
         return await _mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
     }
 
-    public async Task<PagedResponse<VideoStream>> GetVideoStreams(VideoStreamParameters Parameters)
+    public async Task<PagedResponse<VideoStreamDto>> GetVideoStreams(VideoStreamParameters Parameters)
     {
-        return await _mediator.Send(new GetVideoStreamsQuery(Parameters)).ConfigureAwait(false);
+        return await _mediator.Send(new GetVideoStreams(Parameters)).ConfigureAwait(false);
     }
 
     public async Task ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request)
