@@ -11,6 +11,7 @@ using StreamMasterApplication.Hubs;
 using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Attributes;
+using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
@@ -31,12 +32,12 @@ public class SetChannelGroupsVisibleRequestValidator : AbstractValidator<SetChan
 {
 }
 
-public class SetChannelGroupsVisibleRequestHandler : BaseRequestHandler, IRequestHandler<SetChannelGroupsVisibleRequest, IEnumerable<SetChannelGroupsVisibleArg>>
+public class SetChannelGroupsVisibleRequestHandler : BaseMediatorRequestHandler, IRequestHandler<SetChannelGroupsVisibleRequest, IEnumerable<SetChannelGroupsVisibleArg>>
 {
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
 
-    public SetChannelGroupsVisibleRequestHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper)
-        : base(logger, repository, mapper)
+    public SetChannelGroupsVisibleRequestHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+        : base(logger, repository, mapper, publisher, sender)
     {
         _hubContext = hubContext;
     }
@@ -44,7 +45,7 @@ public class SetChannelGroupsVisibleRequestHandler : BaseRequestHandler, IReques
     public async Task<IEnumerable<SetChannelGroupsVisibleArg>> Handle(SetChannelGroupsVisibleRequest requests, CancellationToken cancellationToken)
     {
         bool isChanged = false;
-
+        List<ChannelGroup> channelGroups = new();
         foreach (SetChannelGroupsVisibleArg request in requests.requests)
         {
             ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupByNameAsync(request.GroupName.ToLower()).ConfigureAwait(false);
@@ -69,7 +70,7 @@ public class SetChannelGroupsVisibleRequestHandler : BaseRequestHandler, IReques
                     .Select(a => new SetVideoStreamVisibleRet(a.Id, a.IsHidden));
 
                 Repository.ChannelGroup.UpdateChannelGroup(channelGroup);
-
+                channelGroups.Add(channelGroup);
                 isChanged = true;
             }
         }
@@ -78,7 +79,12 @@ public class SetChannelGroupsVisibleRequestHandler : BaseRequestHandler, IReques
         {
             await Repository.SaveAsync().ConfigureAwait(false);
 
-            await _hubContext.Clients.All.ChannelGroupsRefresh().ConfigureAwait(false);
+            if (channelGroups.Count > 0)
+            {
+                IEnumerable<ChannelGroupDto> dtos = Mapper.Map<IEnumerable<ChannelGroupDto>>(channelGroups);
+                await Publisher.Publish(new UpdateChannelGroupsEvent(dtos), cancellationToken).ConfigureAwait(false);
+            }
+
             await _hubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);
         }
         return requests.requests;

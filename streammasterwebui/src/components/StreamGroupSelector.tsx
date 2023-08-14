@@ -38,7 +38,7 @@ export const StreamGroupSelector = (props: StreamGroupSelectorProps) => {
         } as SelectItem,
       ];
 
-    const ret = streamGroups.data?.map((a) => {
+    const ret = streamGroups.data?.data?.map((a) => {
       return { label: a.name, value: a } as SelectItem;
     });
 

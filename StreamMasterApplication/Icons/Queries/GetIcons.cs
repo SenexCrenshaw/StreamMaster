@@ -4,6 +4,7 @@ using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
 
+using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
@@ -24,8 +25,8 @@ internal class GetIconsQueryHandler : IRequestHandler<GetIcons, IPagedList<IconF
 
     public async Task<IPagedList<IconFileDto>> Handle(GetIcons request, CancellationToken cancellationToken)
     {
-        var icons = _memoryCache.GetIcons(_mapper);
-        var test = await icons.ToPagedListAsync(request.iconFileParameters.PageNumber, request.iconFileParameters.PageSize).ConfigureAwait(false);
+        List<IconFileDto> icons = _memoryCache.GetIcons(_mapper);
+        IPagedList<IconFileDto> test = await icons.ToPagedListAsync(request.iconFileParameters.PageNumber, request.iconFileParameters.PageSize).ConfigureAwait(false);
         return test;
     }
 }

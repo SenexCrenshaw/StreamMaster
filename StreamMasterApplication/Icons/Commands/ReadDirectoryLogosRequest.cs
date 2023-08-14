@@ -3,6 +3,7 @@
 using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
+using StreamMasterDomain.Cache;
 
 namespace StreamMasterApplication.Icons.Commands;
 

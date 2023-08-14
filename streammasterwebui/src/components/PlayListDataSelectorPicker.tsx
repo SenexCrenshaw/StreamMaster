@@ -30,12 +30,12 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
 
   React.useEffect(() => {
-    if (!props.streamGroup || props.streamGroup === undefined || streamGroupsQuery.data === undefined) {
+    if (!props.streamGroup || props.streamGroup === undefined || streamGroupsQuery.data === undefined || streamGroupsQuery.data.data === undefined) {
       setStreamGroup(undefined);
       return;
     }
 
-    const sg = streamGroupsQuery.data.find((x: StreamMasterApi.StreamGroupDto) => x.id === props.streamGroup?.id);
+    const sg = streamGroupsQuery.data.data.find((x: StreamMasterApi.StreamGroupDto) => x.id === props.streamGroup?.id);
     if (sg === null || sg === undefined) {
       setStreamGroup({} as StreamMasterApi.StreamGroupDto);
       return;

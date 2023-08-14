@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterApplication.ChannelGroups.Commands;
-using StreamMasterApplication.ChannelGroups.Queries;
-using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
@@ -57,4 +55,5 @@ public interface IChannelGroupScoped
 
 public interface IChannelGroupTasks
 {
+    ValueTask UpdateChannelGroupCounts(CancellationToken cancellationToken = default);
 }

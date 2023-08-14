@@ -1,13 +1,10 @@
-﻿using StreamMasterDomain.Dto;
-
-namespace StreamMasterApplication.Common.Events;
+﻿namespace StreamMasterApplication.Common.Events;
 
 public class StreamGroupUpdateEvent : BaseEvent
 {
-    public StreamGroupUpdateEvent(StreamGroupDto streamGroup)
+    public StreamGroupUpdateEvent()
     {
-        StreamGroup = streamGroup;
+
     }
 
-    public StreamGroupDto StreamGroup { get; }
 }

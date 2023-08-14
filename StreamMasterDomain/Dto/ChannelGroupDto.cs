@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 namespace StreamMasterDomain.Dto;
 
 [RequireAll]
-public class ChannelGroupArg : GetVideoStreamCountForChannelGroupResponse
+public class ChannelGroupArg : GetChannelGroupVideoStreamCountResponse
 {
     public bool? IsHidden { get; set; } = false;
     public bool? IsReadOnly { get; set; } = false;

@@ -2,45 +2,44 @@
 
 using Microsoft.Extensions.Caching.Memory;
 
+using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Repository;
 using StreamMasterDomain.Repository.EPG;
 
-using System.Reflection.Metadata;
-using System.Runtime.CompilerServices;
-
-namespace StreamMasterDomain.Enums;
+namespace StreamMasterDomain.Cache;
 
 public static class CacheKeys
 {
-    public const string IsSystemReadyKey = "IsSystemReady";
+    const string IsSystemReadyKey = "IsSystemReady";
 
-    public const string ListChannelLogos = "ListChannelLogos";
-    public const string ListIconFiles = "ListIconFiles";
-    public const string ListProgrammeChannel = "ListProgrammeChannel";
+    const string ListChannelLogos = "ListChannelLogos";
+    const string ListIconFiles = "ListIconFiles";
+    const string ListProgrammeChannel = "ListProgrammeChannel";
 
-    public const string ListProgrammes = "ListProgrammes";
-    public const string ListProgrammesLogos = "ListProgrammesLogos";
-    public const string ListTVLogos = "ListTVLogos";
+    const string ListProgrammes = "ListProgrammes";
+    const string ListProgrammesLogos = "ListProgrammesLogos";
+    const string ListTVLogos = "ListTVLogos";
 
-    public static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
+    const string ListChannelGroupVideoStreamCounts = "ListChannelGroupVideoStreamCounts";
+
+    static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
 
     public static void Add(this IMemoryCache cache, object data)
     {
-        if (data.GetType() == (typeof(IconFileDto)))
+        if (data.GetType() == typeof(IconFileDto))
         {
             lock (_lock)
             {
-                var datas = Get<IconFileDto>(ListIconFiles, cache);
+                List<IconFileDto> datas = Get<IconFileDto>(ListIconFiles, cache);
                 datas.Add((IconFileDto)data);
                 cache.Set(ListIconFiles, datas, CacheEntryOptions);
             }
             return;
         }
 
-        if (data.GetType() == (typeof(ChannelLogoDto)))
+        if (data.GetType() == typeof(ChannelLogoDto))
         {
-            var datas = Get<ChannelLogoDto>(ListChannelLogos, cache);
+            List<ChannelLogoDto> datas = Get<ChannelLogoDto>(ListChannelLogos, cache);
             datas.Add((ChannelLogoDto)data);
             cache.Set(ListChannelLogos, datas, CacheEntryOptions);
             return;
@@ -58,10 +57,31 @@ public static class CacheKeys
         //    return;
         //}
     }
+    public static bool ChannelGroupVideoStreamCountExists(this IMemoryCache cache, int id)
+    {
+        List<GetChannelGroupVideoStreamCountResponse> datas = Get<GetChannelGroupVideoStreamCountResponse>(ListChannelGroupVideoStreamCounts, cache);
+        return datas.Any(a => a.Id == id);
+    }
+    public static void AddOrUpdateChannelGroupVideoStreamCount(this IMemoryCache cache, GetChannelGroupVideoStreamCountResponse response)
+    {
+
+        List<GetChannelGroupVideoStreamCountResponse> datas = Get<GetChannelGroupVideoStreamCountResponse>(ListChannelGroupVideoStreamCounts, cache);
+        if (!datas.Any(a => a.Id == response.Id))
+        {
+            datas.Add(response);
+        }
+        else
+        {
+            datas.Remove(datas.First(a => a.Id == response.Id));
+            datas.Add(response);
+        }
+        cache.Set(ListChannelGroupVideoStreamCounts, datas, CacheEntryOptions);
+        return;
+    }
 
     public static void AddProgrammeLogo(this IMemoryCache cache, IconFileDto icon)
     {
-        var datas = Get<IconFileDto>(ListProgrammesLogos, cache);
+        List<IconFileDto> datas = Get<IconFileDto>(ListProgrammesLogos, cache);
         datas.Add(icon);
         cache.Set(ListProgrammesLogos, datas, CacheEntryOptions);
         return;
@@ -99,17 +119,17 @@ public static class CacheKeys
 
     public static string? GetEPGChannelByTvgId(this IMemoryCache cache, string User_Tvg_ID)
     {
-        var programmeNames = cache.ProgrammeNames();
+        IEnumerable<ProgrammeNameDto> programmeNames = cache.ProgrammeNames();
 
-        var channelLogos = cache.ChannelLogos();
+        List<ChannelLogoDto> channelLogos = cache.ChannelLogos();
 
-        var pn = programmeNames.FirstOrDefault(a => a.DisplayName == User_Tvg_ID);
+        ProgrammeNameDto? pn = programmeNames.FirstOrDefault(a => a.DisplayName == User_Tvg_ID);
         if (pn == null)
         {
             return null;
         }
 
-        var channelLogo = channelLogos.FirstOrDefault(a => a.EPGId == pn.Channel);
+        ChannelLogoDto? channelLogo = channelLogos.FirstOrDefault(a => a.EPGId == pn.Channel);
         if (channelLogo != null)
         {
             return channelLogo.LogoUrl;
@@ -119,11 +139,11 @@ public static class CacheKeys
 
     public static string? GetEPGNameTvgName(this IMemoryCache cache, string User_Tvg_Name)
     {
-        var programmeNames = cache.ProgrammeNames();
+        IEnumerable<ProgrammeNameDto> programmeNames = cache.ProgrammeNames();
 
-        var channelLogos = cache.ChannelLogos();
+        List<ChannelLogoDto> channelLogos = cache.ChannelLogos();
 
-        var pn = programmeNames.FirstOrDefault(a => a.DisplayName == User_Tvg_Name);
+        ProgrammeNameDto? pn = programmeNames.FirstOrDefault(a => a.DisplayName == User_Tvg_Name);
         if (pn == null)
         {
             pn = programmeNames.FirstOrDefault(a => a.ChannelName == User_Tvg_Name);
@@ -141,7 +161,7 @@ public static class CacheKeys
         {
             cacheValue = mapper.Map<List<IconFileDto>>(cache.TvLogos());
 
-            var cacheEntryOptions = new MemoryCacheEntryOptions()
+            MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetPriority(CacheItemPriority.NeverRemove);
 
             cache.Set(ListIconFiles, cacheValue, cacheEntryOptions);
@@ -150,20 +170,46 @@ public static class CacheKeys
         return cacheValue ?? new List<IconFileDto>();
     }
 
+
     public static List<IconFileDto> Icons(this IMemoryCache cache)
     {
         return Get<IconFileDto>(ListIconFiles, cache);
     }
 
-    private static readonly object _lock = new object();
+    public static GetChannelGroupVideoStreamCountResponse? GetChannelGroupVideoStreamCount(this IMemoryCache cache, int id)
+    {
+        return cache.GetChannelGroupVideoStreamCounts().FirstOrDefault(a => a.Id == id);
+    }
+
+    public static bool RemoveChannelGroupVideoStreamCount(this IMemoryCache cache, int id)
+    {
+        List<GetChannelGroupVideoStreamCountResponse> datas = cache.GetChannelGroupVideoStreamCounts();
+        GetChannelGroupVideoStreamCountResponse? d = datas.FirstOrDefault(a => a.Id == id);
+
+        if (d == null)
+        {
+            return true;
+        }
+        datas.Remove(d);
+        cache.Set(ListChannelGroupVideoStreamCounts, datas, CacheEntryOptions);
+        return true;
+    }
+
+
+    public static List<GetChannelGroupVideoStreamCountResponse> GetChannelGroupVideoStreamCounts(this IMemoryCache cache)
+    {
+        return Get<GetChannelGroupVideoStreamCountResponse>(ListChannelGroupVideoStreamCounts, cache);
+    }
+
+    private static readonly object _lock = new();
     public static IconFileDto? GetIcon(this IMemoryCache cache, string source, SMFileTypes sMFileTypes)
     {
         lock (_lock)
         {
-            var testIcon = cache.Icons().FirstOrDefault(a => a.Source == source && a.SMFileType == sMFileTypes);
+            IconFileDto? testIcon = cache.Icons().FirstOrDefault(a => a.Source == source && a.SMFileType == sMFileTypes);
             return testIcon;
-        } 
-     
+        }
+
     }
 
     public static bool IsSystemReady(this IMemoryCache cache)
@@ -190,10 +236,10 @@ public static class CacheKeys
 
     public static IEnumerable<ProgrammeNameDto> ProgrammeNames(this IMemoryCache cache)
     {
-        var programmes = cache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel) && a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
+        List<Programme> programmes = cache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel) && a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
         if (programmes.Any())
         {
-            var ret = programmes.GroupBy(a => a.Channel).Select(group => group.First()).Select(a => new ProgrammeNameDto
+            IEnumerable<ProgrammeNameDto> ret = programmes.GroupBy(a => a.Channel).Select(group => group.First()).Select(a => new ProgrammeNameDto
             {
                 Channel = a.Channel,
                 ChannelName = a.ChannelName,
@@ -247,7 +293,7 @@ public static class CacheKeys
             cache.Set(ListProgrammeChannel, data, CacheEntryOptions);
             return;
         }
-        throw new Exception($"Cache set Unknown type {data.GetType().Name.ToString()}");
+        throw new Exception($"Cache set Unknown type {data.GetType().Name}");
     }
 
     public static void SetIsSystemReady(this IMemoryCache cache, bool isSystemReady)
@@ -268,15 +314,16 @@ public static class CacheKeys
 
     private static List<T> Get<T>(string key, IMemoryCache cache)
     {
-        lock (_lock) { 
-            if (cache.TryGetValue(key, out List<T>? cacheValue))
+        lock (_lock)
         {
-            if (cacheValue != null)
+            if (cache.TryGetValue(key, out List<T>? cacheValue))
             {
-                return cacheValue;
+                if (cacheValue != null)
+                {
+                    return cacheValue;
+                }
             }
-        }
-        return new List<T>();
+            return new List<T>();
         }
     }
 }

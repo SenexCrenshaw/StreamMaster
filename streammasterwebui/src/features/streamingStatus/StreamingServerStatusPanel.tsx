@@ -98,8 +98,7 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
         <img
           alt={rowData.logo ?? 'logo'}
           className="flex align-items-center justify-content-center max-w-full max-h-2rem h-2rem"
-          onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => (e.currentTarget.src = (e.currentTarget.src = setting.defaultIcon))}
-          src={iconUrl} // {`${encodeURI(rowData.logo ?? '')}`}
+          src={iconUrl}
         />
       </div>
     );

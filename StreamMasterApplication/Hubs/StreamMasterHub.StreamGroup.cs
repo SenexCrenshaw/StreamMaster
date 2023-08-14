@@ -47,7 +47,7 @@ public partial class StreamMasterHub : IStreamGroupHub
         return await _mediator.Send(new GetStreamGroupEPGForGuide(StreamGroupNumber)).ConfigureAwait(false);
     }
 
-    public async Task<IPagedList<StreamGroupDto>> GetStreamGroups(StreamGroupParameters streamGroupParameters)
+    public async Task<PagedResponse<StreamGroupDto>> GetStreamGroups(StreamGroupParameters streamGroupParameters)
     {
         return await _mediator.Send(new GetStreamGroups(streamGroupParameters)).ConfigureAwait(false);
     }

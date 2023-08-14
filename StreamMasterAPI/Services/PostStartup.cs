@@ -6,9 +6,9 @@ using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterApplication.Services;
 
+using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Enums;
 
 namespace StreamMasterAPI.Services;
 
@@ -52,15 +52,15 @@ public class PostStartup : BackgroundService
 
         await _taskQueue.ScanDirectoryForM3UFiles(cancellationToken).ConfigureAwait(false);
 
-       
-            if (await IconHelper.ReadDirectoryLogos(_memoryCache, cancellationToken).ConfigureAwait(false))
-            {
-                var cacheValue = _mapper.Map<List<IconFileDto>>(_memoryCache.TvLogos());
-                 _memoryCache.Set(cacheValue);
-            }
-      
+        if (await IconHelper.ReadDirectoryLogos(_memoryCache, cancellationToken).ConfigureAwait(false))
+        {
+            List<IconFileDto> cacheValue = _mapper.Map<List<IconFileDto>>(_memoryCache.TvLogos());
+            _memoryCache.Set(cacheValue);
+        }
 
         await _taskQueue.ProcessM3UFiles(cancellationToken).ConfigureAwait(false);
+
+        await _taskQueue.UpdateChannelGroupCounts(cancellationToken).ConfigureAwait(false);
 
         await _taskQueue.BuildIconCaches(cancellationToken).ConfigureAwait(false);
 

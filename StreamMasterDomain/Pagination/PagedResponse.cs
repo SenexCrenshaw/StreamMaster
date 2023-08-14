@@ -1,13 +1,14 @@
 ﻿using StreamMasterDomain.Attributes;
 
-using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace StreamMasterDomain.Pagination;
 
-[RequireAll    ]
+[RequireAll]
 public class PagedResponse<T>
 {
-    public IPagedList<T> Data { get; set; }
+    [XmlIgnore]
+    public List<T> Data { get; set; }
     public int PageNumber { get; set; }
     public int PageSize { get; set; }
     public int TotalItemCount { get; set; }
@@ -20,11 +21,11 @@ public static class PagedListExtensions
 {
     public static PagedResponse<T> ToPagedResponse<T>(this IPagedList<T> pagedList, int totalRecords)
     {
-        var first = (pagedList.PageNumber - 1) * pagedList.PageSize;
+        int first = (pagedList.PageNumber - 1) * pagedList.PageSize;
         return new PagedResponse<T>
         {
-            Data = pagedList,
-            First= first,
+            Data = pagedList.ToList(),
+            First = first,
             PageNumber = pagedList.PageNumber,
             PageSize = pagedList.PageSize,
             TotalItemCount = pagedList.TotalItemCount,

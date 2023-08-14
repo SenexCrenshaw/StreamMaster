@@ -13,9 +13,9 @@ using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
-public record GetStreamGroups(StreamGroupParameters Parameters) : IRequest<IPagedList<StreamGroupDto>>;
+public record GetStreamGroups(StreamGroupParameters Parameters) : IRequest<PagedResponse<StreamGroupDto>>;
 
-internal class GetStreamGroupsHandler : BaseMediatorRequestHandler, IRequestHandler<GetStreamGroups, IPagedList<StreamGroupDto>>
+internal class GetStreamGroupsHandler : BaseMediatorRequestHandler, IRequestHandler<GetStreamGroups, PagedResponse<StreamGroupDto>>
 {
     protected Setting _setting = FileUtil.GetSetting();
 
@@ -27,11 +27,10 @@ internal class GetStreamGroupsHandler : BaseMediatorRequestHandler, IRequestHand
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<IPagedList<StreamGroupDto>> Handle(GetStreamGroups request, CancellationToken cancellationToken = default)
+    public async Task<PagedResponse<StreamGroupDto>> Handle(GetStreamGroups request, CancellationToken cancellationToken = default)
     {
         string url = _httpContextAccessor.GetUrl();
-        var ret = await Repository.StreamGroup.GetStreamGroupDtosPagedAsync(request.Parameters, url).ConfigureAwait(false);
+        return await Repository.StreamGroup.GetStreamGroupDtosPagedAsync(request.Parameters, url).ConfigureAwait(false);
 
-        return ret;
     }
 }

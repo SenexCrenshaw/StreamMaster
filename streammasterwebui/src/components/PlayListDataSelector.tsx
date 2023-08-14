@@ -46,12 +46,13 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
     setDataSource(channelGroupsQuery.data);
 
-
   }, [channelGroupsQuery.data, props.hideControls]);
 
 
   const sourceActionBodyTemplate = React.useCallback((data: StreamMasterApi.ChannelGroupDto) => (
+
     <div className='flex p-0 justify-content-end align-items-center'>
+
       <div hidden={data.isReadOnly === true && props.useReadOnly}>
         <ChannelGroupDeleteDialog iconFilled={false} value={[data]} />
       </div>
@@ -61,6 +62,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       <ChannelGroupVisibleDialog iconFilled={false} skipOverLayer value={[data]} />
 
     </div>
+
   ), [props.useReadOnly]);
 
   const sourceColumns = React.useMemo((): ColumnMeta[] => {

@@ -54,15 +54,16 @@ public class UpdateChannelGroupRequestHandler : BaseMediatorRequestHandler, IReq
 
         if (streamGroups != null && streamGroups.Any())
         {
-            foreach (StreamGroupDto? streamGroup in streamGroups.Where(a => a is not null))
-            {
-                await Publisher.Publish(new StreamGroupUpdateEvent(streamGroup), cancellationToken).ConfigureAwait(false);
-                //var streamGroup = await _context.GetStreamGroupDto(ret.Id, url, cancellationToken).ConfigureAwait(false);
-                //if (streamGroup is not null && streamGroup.ChildVideoStreams.Any())
-                //{
-                //    await _publisher.Publish(new UpdateVideoStreamsEvent(streamGroup.ChildVideoStreams), cancellationToken).ConfigureAwait(false);
-                //}
-            }
+            await Publisher.Publish(new StreamGroupUpdateEvent(), cancellationToken).ConfigureAwait(false);
+            //foreach (StreamGroupDto? streamGroup in streamGroups.Where(a => a is not null))
+            //{
+            //    await Publisher.Publish(new StreamGroupUpdateEvent(), cancellationToken).ConfigureAwait(false);
+            //    //var streamGroup = await _context.GetStreamGroupDto(ret.Id, url, cancellationToken).ConfigureAwait(false);
+            //    //if (streamGroup is not null && streamGroup.ChildVideoStreams.Any())
+            //    //{
+            //    //    await _publisher.Publish(new UpdateVideoStreamsEvent(streamGroup.ChildVideoStreams), cancellationToken).ConfigureAwait(false);
+            //    //}
+            //}
         }
 
         if (originalStreamsIds.Any())

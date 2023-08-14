@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterAPI.Interfaces;
-
+using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Enums;
 using StreamMasterDomain.Repository;

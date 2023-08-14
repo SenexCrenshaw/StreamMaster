@@ -185,7 +185,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
         <img
           alt={record ?? 'Logo'}
           className="max-h-1rem max-w-full p-0"
-          onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => (e.currentTarget.src = (e.currentTarget.src = setting.defaultIcon))}
           src={`${encodeURI(record ?? '')}`}
           style={{
             objectFit: 'contain',
@@ -193,7 +192,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
         />
       </div>
     );
-  }, [getRecordString, setting.defaultIcon]);
+  }, [getRecordString]);
 
   const clearSourceFilter = React.useCallback(() => {
     setSourceFilters(sourceFilter);

@@ -2,42 +2,20 @@
 
 namespace StreamMaster.SchedulesDirectAPI;
 
-public record StationId(
-        [property: JsonPropertyName("stationID")] string StationID
-    );
 
-public record Broadcaster(
-    [property: JsonPropertyName("city")] string City,
-    [property: JsonPropertyName("state")] string State,
-    [property: JsonPropertyName("postalcode")] string Postalcode,
-    [property: JsonPropertyName("country")] string Country
-);
+public class LineUpResult
+{
+    public LineUpResult() { }
 
-public record Logo(
-    [property: JsonPropertyName("URL")] string URL,
-    [property: JsonPropertyName("height")] int Height,
-    [property: JsonPropertyName("width")] int Width,
-    [property: JsonPropertyName("md5")] string Md5
-);
+    [JsonPropertyName("map")]
+    public List<Map> Map { get; set; }
 
-public record Map(
-    [property: JsonPropertyName("stationID")] string StationID,
-    [property: JsonPropertyName("uhfVhf")] int UhfVhf,
-    [property: JsonPropertyName("atscMajor")] int AtscMajor,
-    [property: JsonPropertyName("atscMinor")] int AtscMinor
-);
+    [JsonPropertyName("stations")]
+    public List<Station> Stations { get; set; }
 
-public record Metadata(
-    [property: JsonPropertyName("lineup")] string Lineup,
-    [property: JsonPropertyName("modified")] DateTime Modified,
-    [property: JsonPropertyName("transport")] string Transport
-);
-
-public record LineUpResult(
-    [property: JsonPropertyName("map")] IReadOnlyList<Map> Map,
-    [property: JsonPropertyName("stations")] IReadOnlyList<Station> Stations,
-    [property: JsonPropertyName("metadata")] Metadata Metadata
-);
+    [JsonPropertyName("metadata")]
+    public Metadata Metadata { get; set; }
+}
 
 public class Station
 {
@@ -48,13 +26,13 @@ public class Station
     public Broadcaster Broadcaster { get; set; }
 
     [JsonPropertyName("broadcastLanguage")]
-    public IReadOnlyList<string> BroadcastLanguage { get; set; }
+    public List<string> BroadcastLanguage { get; set; }
 
     [JsonPropertyName("callsign")]
     public string Callsign { get; set; }
 
     [JsonPropertyName("descriptionLanguage")]
-    public IReadOnlyList<string> DescriptionLanguage { get; set; }
+    public List<string> DescriptionLanguage { get; set; }
 
     [JsonPropertyName("isCommercialFree")]
     public bool? IsCommercialFree { get; set; }
@@ -71,40 +49,141 @@ public class Station
     public string StationID { get; set; }
 
     [JsonPropertyName("stationLogo")]
-    public IReadOnlyList<StationLogo> StationLogo { get; set; }
+    public List<StationLogo> StationLogo { get; set; }
+}
+public class StationId
+
+{
+    public StationId(string stationID)
+    {
+        StationID = stationID;
+    }
+    [JsonPropertyName("stationID")]
+    public string StationID { get; set; }
 }
 
-public record StationLogo(
-    [property: JsonPropertyName("URL")] string URL,
-    [property: JsonPropertyName("height")] int Height,
-    [property: JsonPropertyName("width")] int Width,
-    [property: JsonPropertyName("md5")] string Md5,
-    [property: JsonPropertyName("source")] string Source,
-    [property: JsonPropertyName("category")] string Category
-);
+public class Broadcaster
+{
+    [JsonPropertyName("city")]
+    public string City { get; set; }
 
-public record ScheduleMetadata(
-    [property: JsonPropertyName("modified")] DateTime Modified,
-    [property: JsonPropertyName("md5")] string Md5,
-    [property: JsonPropertyName("startDate")] string StartDate
-);
+    [JsonPropertyName("state")]
+    public string State { get; set; }
 
-public record Program(
-    [property: JsonPropertyName("programID")] string ProgramID,
-    [property: JsonPropertyName("airDateTime")] DateTime AirDateTime,
-    [property: JsonPropertyName("duration")] int Duration,
-    [property: JsonPropertyName("md5")] string Md5,
-    [property: JsonPropertyName("audioProperties")] IReadOnlyList<string> AudioProperties,
-    [property: JsonPropertyName("videoProperties")] IReadOnlyList<string> VideoProperties,
-    [property: JsonPropertyName("new")] bool? New,
-    [property: JsonPropertyName("liveTapeDelay")] string LiveTapeDelay,
-    [property: JsonPropertyName("educational")] bool? Educational,
-    [property: JsonPropertyName("isPremiereOrFinale")] string IsPremiereOrFinale,
-    [property: JsonPropertyName("premiere")] bool? Premiere
-);
+    [JsonPropertyName("postalcode")]
+    public string Postalcode { get; set; }
 
-public record Schedule(
-    [property: JsonPropertyName("stationID")] string StationID,
-    [property: JsonPropertyName("programs")] IReadOnlyList<Program> Programs,
-    [property: JsonPropertyName("metadata")] ScheduleMetadata Metadata
-);
+    [JsonPropertyName("country")]
+    public string Country { get; set; }
+}
+
+public class Logo
+{
+    [JsonPropertyName("URL")]
+    public string URL { get; set; }
+
+    [JsonPropertyName("height")]
+    public int Height { get; set; }
+
+    [JsonPropertyName("width")]
+    public int Width { get; set; }
+
+    [JsonPropertyName("md5")]
+    public string Md5 { get; set; }
+}
+
+public class Map
+{
+    [JsonPropertyName("stationID")]
+    public string StationID { get; set; }
+
+    [JsonPropertyName("uhfVhf")]
+    public int UhfVhf { get; set; }
+
+    [JsonPropertyName("atscMajor")]
+    public int AtscMajor { get; set; }
+
+    [JsonPropertyName("atscMinor")]
+    public int AtscMinor { get; set; }
+}
+
+public class Metadata
+{
+    [JsonPropertyName("lineup")]
+    public string Lineup { get; set; }
+
+    [JsonPropertyName("modified")]
+    public DateTime Modified { get; set; }
+
+    [JsonPropertyName("transport")]
+    public string Transport { get; set; }
+}
+
+public class StationLogo : Logo
+{
+    [JsonPropertyName("source")]
+    public string Source { get; set; }
+
+    [JsonPropertyName("category")]
+    public string Category { get; set; }
+}
+
+public class ScheduleMetadata
+{
+    [JsonPropertyName("modified")]
+    public DateTime Modified { get; set; }
+
+    [JsonPropertyName("md5")]
+    public string Md5 { get; set; }
+
+    [JsonPropertyName("startDate")]
+    public string StartDate { get; set; }
+}
+
+public class Program
+{
+    [JsonPropertyName("programID")]
+    public string ProgramID { get; set; }
+
+    [JsonPropertyName("airDateTime")]
+    public DateTime AirDateTime { get; set; }
+
+    [JsonPropertyName("duration")]
+    public int Duration { get; set; }
+
+    [JsonPropertyName("md5")]
+    public string Md5 { get; set; }
+
+    [JsonPropertyName("audioProperties")]
+    public List<string> AudioProperties { get; set; }
+
+    [JsonPropertyName("videoProperties")]
+    public List<string> VideoProperties { get; set; }
+
+    [JsonPropertyName("new")]
+    public bool? New { get; set; }
+
+    [JsonPropertyName("liveTapeDelay")]
+    public string LiveTapeDelay { get; set; }
+
+    [JsonPropertyName("educational")]
+    public bool? Educational { get; set; }
+
+    [JsonPropertyName("isPremiereOrFinale")]
+    public string IsPremiereOrFinale { get; set; }
+
+    [JsonPropertyName("premiere")]
+    public bool? Premiere { get; set; }
+}
+
+public class Schedule
+{
+    [JsonPropertyName("stationID")]
+    public string StationID { get; set; }
+
+    [JsonPropertyName("programs")]
+    public List<Program> Programs { get; set; }
+
+    [JsonPropertyName("metadata")]
+    public ScheduleMetadata Metadata { get; set; }
+}

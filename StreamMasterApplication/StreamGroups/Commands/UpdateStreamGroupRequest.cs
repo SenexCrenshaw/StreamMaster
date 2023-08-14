@@ -52,7 +52,7 @@ public class UpdateStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequ
             {
                 await Publisher.Publish(new UpdateVideoStreamsEvent(streamGroup.ChildVideoStreams), cancellationToken).ConfigureAwait(false);
             }
-            await Publisher.Publish(new StreamGroupUpdateEvent(streamGroup), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new StreamGroupUpdateEvent(), cancellationToken).ConfigureAwait(false);
         }
 
         return streamGroup;

@@ -2,10 +2,9 @@
 
 public class StreamGroupDeleteEvent : BaseEvent
 {
-    public StreamGroupDeleteEvent(int streamGroupId)
+    public StreamGroupDeleteEvent()
     {
-        StreamGroupId = streamGroupId;
+
     }
 
-    public int StreamGroupId { get; }
 }

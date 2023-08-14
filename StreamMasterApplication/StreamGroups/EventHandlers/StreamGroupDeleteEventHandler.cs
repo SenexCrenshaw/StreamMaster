@@ -19,6 +19,6 @@ public class StreamGroupDeleteEventHandler : INotificationHandler<StreamGroupDel
 
     public async Task Handle(StreamGroupDeleteEvent notification, CancellationToken cancellationToken)
     {
-        await _hubContext.Clients.All.StreamGroupDtoDelete(notification.StreamGroupId).ConfigureAwait(false);
+        await _hubContext.Clients.All.StreamGroupsRefresh().ConfigureAwait(false);
     }
 }

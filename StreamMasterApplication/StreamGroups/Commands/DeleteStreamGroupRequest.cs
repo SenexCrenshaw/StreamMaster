@@ -42,7 +42,7 @@ public class DeleteStreamGroupHandler : BaseMediatorRequestHandler, IRequestHand
 
         if (await Repository.StreamGroup.DeleteStreamGroupsync(request.Id, cancellationToken))
         {
-            await _publisher.Publish(new StreamGroupDeleteEvent(request.Id), cancellationToken).ConfigureAwait(false);
+            await _publisher.Publish(new StreamGroupDeleteEvent(), cancellationToken).ConfigureAwait(false);
             return request.Id;
         }
 

@@ -43,7 +43,7 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
     [HttpGet]
     public async Task<ActionResult<PagedResponse<ChannelGroupDto>>> GetChannelGroups([FromQuery] ChannelGroupParameters Parameters)
     {
-        var res = await Mediator.Send(new GetChannelGroupsQuery(Parameters)).ConfigureAwait(false);
+        PagedResponse<ChannelGroupDto> res = await Mediator.Send(new GetChannelGroupsQuery(Parameters)).ConfigureAwait(false);
         return Ok(res);
     }
 
@@ -51,7 +51,7 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
     [Route("[action]")]
     public async Task<ActionResult<PagedResponse<VideoStreamDto>>> GetVideoStreamsForChannelGroups([FromQuery] VideoStreamParameters videoStreamParameters)
     {
-        var res = await Mediator.Send(new GetVideoStreamsForChannelGroups(videoStreamParameters)).ConfigureAwait(false);
+        PagedResponse<VideoStreamDto> res = await Mediator.Send(new GetVideoStreamsForChannelGroups(videoStreamParameters)).ConfigureAwait(false);
         return Ok(res);
     }
 

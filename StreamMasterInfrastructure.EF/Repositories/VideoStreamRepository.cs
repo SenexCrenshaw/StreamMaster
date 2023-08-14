@@ -8,33 +8,26 @@ using Microsoft.Extensions.Caching.Memory;
 using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.M3UFiles.Queries;
 using StreamMasterApplication.VideoStreams.Queries;
-
+using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
-using StreamMasterDomain.Sorting;
-
-using System.Reflection;
-
-using System.Threading;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
 public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRepository
 {
-    private readonly ISortHelper<VideoStream> _VideoStreamSortHelper;
     private readonly IMemoryCache _memoryCache;
     private readonly IMapper _mapper;
     private readonly ISender _sender;
 
-    public VideoStreamRepository(RepositoryContext repositoryContext, ISortHelper<VideoStream> VideoStreamSortHelper, IMapper mapper, IMemoryCache memoryCache, ISender sender) : base(repositoryContext)
+    public VideoStreamRepository(RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : base(repositoryContext)
     {
         _memoryCache = memoryCache;
         _mapper = mapper;
         _sender = sender;
-        _VideoStreamSortHelper = VideoStreamSortHelper;
     }
 
     public async Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(string videoStreamId, CancellationToken cancellationToken = default)
@@ -411,22 +404,30 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
     public async Task<List<VideoStream>> GetVideoStreamsChannelGroupName(string channelGroupName)
     {
         IQueryable<VideoStream> streams = GetAllVideoStreams();
-        IQueryable<VideoStream> ret = streams.Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == channelGroupName.ToLower());
-        var ids = ret.Select(a => a.Id).ToList();
 
-        var cg = await _sender.Send(new GetChannelGroupByName(channelGroupName)).ConfigureAwait(false);
+        string lowerChannelGroupName = channelGroupName.ToLower();
+        List<VideoStream> filteredStreams = streams
+            .Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == lowerChannelGroupName)
+            .ToList(); // Convert to list once to avoid multiple enumerations
+
+        HashSet<string> ids = new(filteredStreams.Select(a => a.Id)); // Using HashSet for O(1) lookup
+
+        ChannelGroupDto? cg = await _sender.Send(new GetChannelGroupByName(channelGroupName)).ConfigureAwait(false);
 
         if (cg != null && !string.IsNullOrEmpty(cg.RegexMatch))
         {
-            var reg = await _sender.Send(new GetVideoStreamsByNamePatternQuery(cg.RegexMatch)).ConfigureAwait(false);
-            var toAdd = reg.Where(a => !ids.Contains(a.Id)).ToList();
-            var result = toAdd.ToList();
-            result.AddRange(result);
-            return result.OrderBy(a => a.User_Tvg_name).ToList();
+            IEnumerable<VideoStream> reg = await _sender.Send(new GetVideoStreamsByNamePatternQuery(cg.RegexMatch)).ConfigureAwait(false);
+            List<VideoStream> additionalStreams = reg.Where(a => !ids.Contains(a.Id)).ToList();
+
+            // Combine the lists
+            filteredStreams.AddRange(additionalStreams);
         }
-        
-        return ret.OrderBy(a => a.User_Tvg_name).ToList();
+
+        // Return the ordered list
+        return filteredStreams.OrderBy(a => a.User_Tvg_name).ToList();
     }
+
+
 
     //public IQueryable<VideoStream> GetVideoStreamsAllChannelGroupName(string channelGroupName)
     //{

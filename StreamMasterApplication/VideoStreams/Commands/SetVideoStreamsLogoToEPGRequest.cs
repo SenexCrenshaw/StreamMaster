@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.VideoStreams.Events;
-
+using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.VideoStreams.Commands;

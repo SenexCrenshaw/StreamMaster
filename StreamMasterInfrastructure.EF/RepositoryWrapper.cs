@@ -100,7 +100,7 @@ namespace StreamMasterInfrastructureEF
             {
                 if (_videoStream == null)
                 {
-                    _videoStream = new VideoStreamRepository(_repoContext, _videoStreamSortHelper, _mapper, _memoryCache, _sender);
+                    _videoStream = new VideoStreamRepository(_repoContext, _mapper, _memoryCache, _sender);
                 }
                 return _videoStream;
             }

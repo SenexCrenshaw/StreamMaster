@@ -3,7 +3,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMasterApplication.M3UFiles.Queries;
 using StreamMasterApplication.StreamGroups;
 using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.StreamGroups.Queries;
@@ -12,10 +11,8 @@ using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
-using StreamMasterDomain.Repository;
 
 using System.Text;
-using System.Text.Json;
 
 namespace StreamMasterAPI.Controllers;
 
@@ -202,13 +199,10 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedList<StreamGroupDto>>> GetStreamGroups([FromQuery] StreamGroupParameters parameters)
+    public async Task<ActionResult<PagedResponse<StreamGroupDto>>> GetStreamGroups([FromQuery] StreamGroupParameters parameters)
     {
-        var streamGroups = await Mediator.Send(new GetStreamGroups(parameters)).ConfigureAwait(false);
-        var json = JsonSerializer.Serialize(streamGroups.GetMetaData());
-        Response.Headers.Add("X-Pagination", json);
-
-        return Ok(streamGroups);
+        PagedResponse<StreamGroupDto> res = await Mediator.Send(new GetStreamGroups(parameters)).ConfigureAwait(false);
+        return Ok(res);
     }
 
     //[HttpGet]

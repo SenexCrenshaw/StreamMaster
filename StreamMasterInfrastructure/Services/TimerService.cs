@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using StreamMasterApplication.EPGFiles.Commands;
 using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.Settings.Queries;
-
+using StreamMasterDomain.Cache;
 using StreamMasterDomain.Enums;
 using StreamMasterDomain.Repository;
 

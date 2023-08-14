@@ -15,13 +15,13 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
   const [selectedStreamGroup, setSelectedStreamGroup] = React.useState<StreamMasterApi.StreamGroupDto>({} as StreamMasterApi.StreamGroupDto);
 
   React.useMemo(() => {
-    if (selectedStreamGroup.id === undefined || !streamGroupsQuery.data) {
+    if (selectedStreamGroup.id === undefined || !streamGroupsQuery.data || streamGroupsQuery.data.data === undefined) {
       return;
     }
 
     if (selectedStreamGroup.id) {
-      const index = streamGroupsQuery.data.findIndex((e) => e.id === selectedStreamGroup.id);
-      const newSG = { ...streamGroupsQuery.data[index] };
+      const index = streamGroupsQuery.data.data.findIndex((e) => e.id === selectedStreamGroup.id);
+      const newSG = { ...streamGroupsQuery.data.data[index] };
       setSelectedStreamGroup(newSG);
     }
 
@@ -61,7 +61,7 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
       return;
     }
 
-    const sg = streamGroupsQuery.data.find((x: StreamMasterApi.StreamGroupDto) => x.id === data.id);
+    const sg = streamGroupsQuery.data.data.find((x: StreamMasterApi.StreamGroupDto) => x.id === data.id);
     if (sg === null || sg === undefined) {
       setSelectedStreamGroup({} as StreamMasterApi.StreamGroupDto);
       props.onSelectionChange?.({} as StreamMasterApi.StreamGroupDto);
@@ -105,7 +105,7 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
 
       <DataSelector
         columns={StreamGroupColumns}
-        dataSource={streamGroupsQuery.data}
+        dataSource={streamGroupsQuery.data?.data}
         headerRightTemplate={sourceaddtionalHeaderTemplate()}
         id={props.id + '-ds-source'}
         isLoading={streamGroupsQuery.isLoading}

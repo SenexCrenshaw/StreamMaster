@@ -23,7 +23,7 @@ namespace StreamMasterDomain.Repository
 
         Task<IPagedList<StreamGroup>> GetStreamGroupsAsync(StreamGroupParameters StreamGroupParameters);
 
-        Task<IPagedList<StreamGroupDto>> GetStreamGroupDtosPagedAsync(StreamGroupParameters StreamGroupParameters, string Url);
+        Task<PagedResponse<StreamGroupDto>> GetStreamGroupDtosPagedAsync(StreamGroupParameters StreamGroupParameters, string Url);
 
         void CreateStreamGroup(StreamGroup StreamGroup);
 

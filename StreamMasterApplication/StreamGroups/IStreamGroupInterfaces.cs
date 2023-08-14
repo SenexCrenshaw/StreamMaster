@@ -25,7 +25,7 @@ public interface IStreamGroupController
 
     Task<IActionResult> GetStreamGroupM3U(string encodedId);
 
-    Task<ActionResult<PagedList<StreamGroupDto>>> GetStreamGroups(StreamGroupParameters parameters);
+    Task<ActionResult<PagedResponse<StreamGroupDto>>> GetStreamGroups(StreamGroupParameters parameters);
 
     Task<ActionResult> UpdateStreamGroup(UpdateStreamGroupRequest request);
 }
@@ -82,7 +82,7 @@ public interface IStreamGroupHub
 
     Task<EPGGuide> GetStreamGroupEPGForGuide(int StreamGroupNumber);
 
-    Task<IPagedList<StreamGroupDto>> GetStreamGroups(StreamGroupParameters streamGroupParameters);
+    Task<PagedResponse<StreamGroupDto>> GetStreamGroups(StreamGroupParameters streamGroupParameters);
 
     public Task SimulateStreamFailure(string streamUrl);
 

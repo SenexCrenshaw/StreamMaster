@@ -23,7 +23,7 @@ public class StationPreview
 
     public string Affiliate { get; set; }
     public string Callsign { get; set; }
-    public int Id { get; internal set; }
+    public int Id { get; set; }
     public string LineUp { get; set; }
     public string Name { get; set; }
     public string StationId { get; set; }
@@ -39,21 +39,21 @@ public class SchedulesDirect
 
     public async Task<Countries?> GetCountries(CancellationToken cancellationToken)
     {
-        var url = await SDToken.GetAPIUrl("available/countries", cancellationToken);
+        string? url = await SDToken.GetAPIUrl("available/countries", cancellationToken);
 
         using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
         try
         {
             _ = response.EnsureSuccessStatusCode();
             string responseString = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-            var result = JsonSerializer.Deserialize<Countries>(responseString);
+            Countries? result = JsonSerializer.Deserialize<Countries>(responseString);
             if (result == null)
             {
                 return null;
             }
             return result;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             throw;
         }
@@ -61,21 +61,21 @@ public class SchedulesDirect
 
     public async Task<List<Headend>?> GetHeadends(string country, string postalCode, CancellationToken cancellationToken = default)
     {
-        var url = await SDToken.GetAPIUrl($"headends?country={country}&postalcode={postalCode}", cancellationToken);
+        string? url = await SDToken.GetAPIUrl($"headends?country={country}&postalcode={postalCode}", cancellationToken);
 
         using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
         try
         {
             _ = response.EnsureSuccessStatusCode();
             string responseString = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-            var result = JsonSerializer.Deserialize<List<Headend>>(responseString);
+            List<Headend>? result = JsonSerializer.Deserialize<List<Headend>>(responseString);
             if (result == null)
             {
                 return null;
             }
             return result;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             throw;
         }
@@ -83,7 +83,7 @@ public class SchedulesDirect
 
     public async Task<bool> GetImageUrl(string source, string fileName, CancellationToken cancellationToken)
     {
-        var url = await SDToken.GetAPIUrl($"image/{source}", cancellationToken);
+        string? url = await SDToken.GetAPIUrl($"image/{source}", cancellationToken);
         if (url == null)
         {
             return false;
@@ -96,21 +96,21 @@ public class SchedulesDirect
 
     public async Task<LineUpResult?> GetLineup(string lineUp, CancellationToken cancellationToken)
     {
-        var url = await SDToken.GetAPIUrl($"lineups/{lineUp}", cancellationToken).ConfigureAwait(false);
+        string? url = await SDToken.GetAPIUrl($"lineups/{lineUp}", cancellationToken).ConfigureAwait(false);
 
         using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
         try
         {
             _ = response.EnsureSuccessStatusCode();
             string responseString = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-            var result = JsonSerializer.Deserialize<LineUpResult>(responseString);
+            LineUpResult? result = JsonSerializer.Deserialize<LineUpResult>(responseString);
             if (result == null)
             {
                 return null;
             }
             return result;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             throw;
         }
@@ -118,24 +118,24 @@ public class SchedulesDirect
 
     public async Task<List<LineUpPreview>> GetLineUpPreviews(CancellationToken cancellationToken)
     {
-        var res = new List<LineUpPreview>();
-        var lineups = await GetLineups(cancellationToken);
+        List<LineUpPreview> res = new();
+        LineUpsResult? lineups = await GetLineups(cancellationToken);
 
         if (lineups is null)
         {
             return res;
         }
 
-        foreach (var lineup in lineups.Lineups)
+        foreach (Lineup lineup in lineups.Lineups)
         {
-            var url = await SDToken.GetAPIUrl($"lineups/preview/{lineup.LineupString}", cancellationToken);
+            string? url = await SDToken.GetAPIUrl($"lineups/preview/{lineup.LineupString}", cancellationToken);
 
             using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
             try
             {
                 _ = response.EnsureSuccessStatusCode();
                 string responseString = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-                var results = JsonSerializer.Deserialize<List<LineUpPreview>>(responseString);
+                List<LineUpPreview>? results = JsonSerializer.Deserialize<List<LineUpPreview>>(responseString);
                 if (results == null)
                 {
                     continue;
@@ -149,7 +149,7 @@ public class SchedulesDirect
 
                 res.AddRange(results);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 continue;
             }
@@ -160,7 +160,7 @@ public class SchedulesDirect
 
     public async Task<LineUpsResult?> GetLineups(CancellationToken cancellationToken)
     {
-        var url = await SDToken.GetAPIUrl("lineups", cancellationToken);
+        string? url = await SDToken.GetAPIUrl("lineups", cancellationToken);
 
         //httpClient.DefaultRequestHeaders.Add("verboseMap", "true");
 
@@ -169,7 +169,7 @@ public class SchedulesDirect
         {
             _ = response.EnsureSuccessStatusCode();
             string responseString = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-            var result = JsonSerializer.Deserialize<LineUpsResult>(responseString);
+            LineUpsResult? result = JsonSerializer.Deserialize<LineUpsResult>(responseString);
             if (result == null)
             {
                 return null;
@@ -177,7 +177,7 @@ public class SchedulesDirect
 
             return result;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             throw;
         }
@@ -195,7 +195,7 @@ public class SchedulesDirect
         //    toSend.Add(new StationId(stationId));//, new List<string> { dt.ToShortDateString(), dt.AddDays(2).ToShortDateString(), }));
         //}
 
-        var url = await SDToken.GetAPIUrl("programs", cancellationToken);
+        string? url = await SDToken.GetAPIUrl("programs", cancellationToken);
 
         string jsonString = JsonSerializer.Serialize(programIds);
         StringContent content = new(jsonString, Encoding.UTF8, "application/json");
@@ -208,10 +208,10 @@ public class SchedulesDirect
         {
             _ = response.EnsureSuccessStatusCode();
             string responseString = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-            var result = JsonSerializer.Deserialize<List<SDProgram>>(responseString);
+            List<SDProgram>? result = JsonSerializer.Deserialize<List<SDProgram>>(responseString);
             return result;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             throw;
         }
@@ -220,12 +220,12 @@ public class SchedulesDirect
     public async Task<List<Schedule>?> GetSchedules(List<string> stationIds, CancellationToken cancellationToken)
     {
         List<StationId> StationIds = new();
-        foreach (var stationId in stationIds)
+        foreach (string stationId in stationIds)
         {
             StationIds.Add(new StationId(stationId));
         }
 
-        var url = await SDToken.GetAPIUrl("schedules", cancellationToken);
+        string? url = await SDToken.GetAPIUrl("schedules", cancellationToken);
 
         string jsonString = JsonSerializer.Serialize(StationIds);
         StringContent content = new(jsonString, Encoding.UTF8, "application/json");
@@ -235,10 +235,10 @@ public class SchedulesDirect
         {
             _ = response.EnsureSuccessStatusCode();
             string responseString = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-            var result = JsonSerializer.Deserialize<List<Schedule>>(responseString);
+            List<Schedule>? result = JsonSerializer.Deserialize<List<Schedule>>(responseString);
             return result;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             throw;
         }
@@ -246,16 +246,16 @@ public class SchedulesDirect
 
     public async Task<List<StationPreview>> GetStationPreviews(CancellationToken cancellationToken)
     {
-        var stations = await GetStations(cancellationToken).ConfigureAwait(false);
+        List<Station>? stations = await GetStations(cancellationToken).ConfigureAwait(false);
         if (stations is null)
         {
             return new();
         }
-        var ret = new List<StationPreview>();
+        List<StationPreview> ret = new();
         for (int index = 0; index < stations.Count; index++)
         {
             Station? station = stations[index];
-            var sp = new StationPreview(station)
+            StationPreview sp = new(station)
             {
                 Id = index
             };
@@ -266,21 +266,21 @@ public class SchedulesDirect
 
     public async Task<List<Station>> GetStations(CancellationToken cancellationToken)
     {
-        var ret = new List<Station>();
+        List<Station> ret = new();
 
-        var lineUps = await GetLineups(cancellationToken).ConfigureAwait(false);
+        LineUpsResult? lineUps = await GetLineups(cancellationToken).ConfigureAwait(false);
         if (lineUps == null || lineUps.Lineups == null)
         {
             return ret;
         }
 
-        foreach (var lineUp in lineUps.Lineups)
+        foreach (Lineup lineUp in lineUps.Lineups)
         {
-            var res = await GetLineup(lineUp.LineupString, cancellationToken).ConfigureAwait(false);
+            LineUpResult? res = await GetLineup(lineUp.LineupString, cancellationToken).ConfigureAwait(false);
             if (res == null)
                 continue;
 
-            foreach (var station in res.Stations)
+            foreach (Station station in res.Stations)
             {
                 station.LineUp = lineUp.LineupString;
             }
@@ -302,8 +302,8 @@ public class SchedulesDirect
 
     private static HttpClient CreateHttpClient()
     {
-        var setting = FileUtil.GetSetting();
-        var client = new HttpClient(new HttpClientHandler()
+        Setting setting = FileUtil.GetSetting();
+        HttpClient client = new(new HttpClientHandler()
         {
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
             AllowAutoRedirect = true,

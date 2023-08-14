@@ -19,15 +19,15 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
   const streamGroupsQuery = StreamMasterApi.useStreamGroupsGetStreamGroupsQuery({} as StreamMasterApi.StreamGroupsGetStreamGroupsApiArg);
 
   const getNextStreamGroupNumber = React.useCallback((): number => {
-    if (!streamGroupsQuery?.data) {
+    if (!streamGroupsQuery?.data?.data) {
       return 0;
     }
 
-    if (streamGroupsQuery.data.length === 0) {
+    if (streamGroupsQuery.data.data.length === 0) {
       return 1;
     }
 
-    const numbers = streamGroupsQuery.data.map((x) => x.streamGroupNumber);
+    const numbers = streamGroupsQuery.data.data.map((x) => x.streamGroupNumber);
 
     const [min, max] = [1, Math.max(...numbers)];
 

@@ -4,25 +4,16 @@ using AutoMapper.QueryableExtensions;
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 
+using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.StreamGroups.Queries;
 using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Filtering;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
-using StreamMasterDomain.Sorting;
-
-using StreamMasterInfrastructureEF.Helpers;
 
 using System.Linq.Dynamic.Core;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Threading;
-
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
@@ -94,7 +85,7 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
 
         UpdateChannelGroup(channelGroup);
 
-        var retint = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        int retint = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         ChannelGroupDto cgresult = _mapper.Map<ChannelGroupDto>(channelGroup);
 
@@ -154,17 +145,17 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
 
     public IQueryable<ChannelGroup> GetAllChannelGroups()
     {
-        return FindAll().OrderBy(p => p.Name);
+        return FindAll();
     }
 
     public async Task<PagedResponse<ChannelGroupDto>> GetChannelGroupsAsync(ChannelGroupParameters channelGroupParameters)
     {
-        var channelGroups = await GetEntitiesAsync<ChannelGroupDto>(channelGroupParameters, _mapper).ConfigureAwait(false);
-        var actives = await _sender.Send(new GetVideoStreamCountForChannelGroups()).ConfigureAwait(false);
+        PagedResponse<ChannelGroupDto> channelGroups = await GetEntitiesAsync<ChannelGroupDto>(channelGroupParameters, _mapper).ConfigureAwait(false);
+        IEnumerable<GetChannelGroupVideoStreamCountResponse> actives = await _sender.Send(new GetVideoStreamCountForChannelGroups()).ConfigureAwait(false);
 
-        foreach (var active in actives)
+        foreach (GetChannelGroupVideoStreamCountResponse? active in actives)
         {
-            var dto = channelGroups.Data.FirstOrDefault(a => a.Id == active.Id);
+            ChannelGroupDto? dto = channelGroups.Data.FirstOrDefault(a => a.Id == active.Id);
             if (dto == null)
             {
                 continue;
@@ -179,12 +170,12 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
 
     public async Task<ChannelGroupDto?> GetChannelGroupAsync(int Id, CancellationToken cancellationToken = default)
     {
-        var res = await FindByCondition(channelGroup => channelGroup.Id == Id).FirstOrDefaultAsync();
+        ChannelGroup? res = await FindByCondition(channelGroup => channelGroup.Id == Id).FirstOrDefaultAsync();
         if (res == null)
         {
             return null;
         }
-        var dtos = _mapper.Map<ChannelGroupDto>(res);
+        ChannelGroupDto dtos = _mapper.Map<ChannelGroupDto>(res);
 
         return dtos;
     }

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.VideoStreams.Events;
+using StreamMasterDomain.Cache;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
 

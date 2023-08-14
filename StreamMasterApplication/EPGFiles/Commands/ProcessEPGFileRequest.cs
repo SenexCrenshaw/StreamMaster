@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Hubs;
 using StreamMasterApplication.M3UFiles.Commands;
-
+using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Repository.EPG;
 
@@ -84,10 +84,9 @@ public class ProcessEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
 
     private async Task AddProgrammesFromEPG(EPGFile epgFile, CancellationToken cancellationToken = default)
     {
-        if (!_memoryCache.TryGetValue(CacheKeys.ListProgrammes, out List<Programme>? cacheValue))
+        List<Programme> cacheValue = new();
+        if (_memoryCache.ProgrammeIcons().Count == 0)
         {
-            cacheValue = new List<Programme>();
-
             DateTime start = DateTime.Now.AddDays(-1);
             DateTime end = DateTime.Now.AddDays(7);
 
@@ -101,12 +100,12 @@ public class ProcessEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
             });
         }
 
-        if (!_memoryCache.TryGetValue(CacheKeys.ListProgrammeChannel, out List<ProgrammeChannel>? programmeChannels))
+        if (_memoryCache.ProgrammeChannels().Count == 0)
         {
             DateTime start = DateTime.Now.AddDays(-1);
             DateTime end = DateTime.Now.AddDays(7);
 
-            programmeChannels = new List<ProgrammeChannel>(){
+            List<ProgrammeChannel> programmeChannels = new(){
                 new ProgrammeChannel
                 {
                     Channel = "Dummy",

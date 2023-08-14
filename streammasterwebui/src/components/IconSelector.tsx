@@ -46,7 +46,7 @@ const IconSelector = (props: IconSelectorProps) => {
       return (<div />);
     }
 
-    const iconUrl = getIconUrl(option.source, setting.defaultIcon, false);
+    const iconUrl = getIconUrl(option.source, setting.defaultIconUrl, false);
     return (
       <div className='flex h-full justify-content-start align-items-center p-0 m-0 pl-2'>
 
@@ -61,7 +61,7 @@ const IconSelector = (props: IconSelectorProps) => {
         />
       </div>
     );
-  }, [props.useDefault, setting.defaultIcon]);
+  }, [props.useDefault, setting.defaultIconUrl]);
 
   const iconOptionTemplate = React.useCallback((option: IconFileDto) => {
 
@@ -86,12 +86,12 @@ const IconSelector = (props: IconSelectorProps) => {
 
 
   if (props.enableEditMode !== true) {
-    const iconUrl = getIconUrl(selectedIcon, setting.defaultIcon, false);
+    const iconUrl = getIconUrl(selectedIcon, setting.defaultIconUrl, false);
+
     return (
       <img
         alt='logo'
         className="max-h-1rem"
-        onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => (e.currentTarget.src = (e.currentTarget.src = setting.defaultIcon))}
         src={iconUrl}
         style={{
           maxWidth: '1.5rem',

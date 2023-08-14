@@ -1,84 +1,116 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace StreamMaster.SchedulesDirectAPI;
-public record Caribbean(
-    [property: JsonPropertyName("fullName")] string FullName,
-    [property: JsonPropertyName("shortName")] string ShortName,
-    [property: JsonPropertyName("postalCodeExample")] string PostalCodeExample,
-    [property: JsonPropertyName("postalCode")] string PostalCode,
-    [property: JsonPropertyName("onePostalCode")] bool OnePostalCode
-)
+public class Caribbean
 {
-    public Caribbean() : this("", "", "", "", false)
-    {
-        // Parameterless constructor body
-    }
+    [JsonPropertyName("fullName")]
+    public string FullName { get; set; }
+
+    [JsonPropertyName("shortName")]
+    public string ShortName { get; set; }
+
+    [JsonPropertyName("postalCodeExample")]
+    public string PostalCodeExample { get; set; }
+
+    [JsonPropertyName("postalCode")]
+    public string PostalCode { get; set; }
+
+    [JsonPropertyName("onePostalCode")]
+    public bool OnePostalCode { get; set; }
+
+    public Caribbean() { }
 }
 
-public record Europe(
-    [property: JsonPropertyName("fullName")] string FullName,
-    [property: JsonPropertyName("shortName")] string ShortName,
-    [property: JsonPropertyName("postalCodeExample")] string PostalCodeExample,
-    [property: JsonPropertyName("postalCode")] string PostalCode,
-    [property: JsonPropertyName("onePostalCode")] bool? OnePostalCode
-)
+public class Europe
 {
-    public Europe() : this("", "", "", "", null)
-    {
-        // Parameterless constructor body
-    }
+    [JsonPropertyName("fullName")]
+    public string FullName { get; set; }
+
+    [JsonPropertyName("shortName")]
+    public string ShortName { get; set; }
+
+    [JsonPropertyName("postalCodeExample")]
+    public string PostalCodeExample { get; set; }
+
+    [JsonPropertyName("postalCode")]
+    public string PostalCode { get; set; }
+
+    [JsonPropertyName("onePostalCode")]
+    public bool? OnePostalCode { get; set; }
+
+    public Europe() { }
 }
 
-public record LatinAmerica(
-    [property: JsonPropertyName("fullName")] string FullName,
-    [property: JsonPropertyName("shortName")] string ShortName,
-    [property: JsonPropertyName("postalCodeExample")] string PostalCodeExample,
-    [property: JsonPropertyName("postalCode")] string PostalCode,
-    [property: JsonPropertyName("onePostalCode")] bool? OnePostalCode
-)
+public class LatinAmerica
 {
-    public LatinAmerica() : this("", "", "", "", null)
-    {
-        // Parameterless constructor body
-    }
+    [JsonPropertyName("fullName")]
+    public string FullName { get; set; }
+
+    [JsonPropertyName("shortName")]
+    public string ShortName { get; set; }
+
+    [JsonPropertyName("postalCodeExample")]
+    public string PostalCodeExample { get; set; }
+
+    [JsonPropertyName("postalCode")]
+    public string PostalCode { get; set; }
+
+    [JsonPropertyName("onePostalCode")]
+    public bool? OnePostalCode { get; set; }
+
+    public LatinAmerica() { }
 }
 
-public record NorthAmerica(
-    [property: JsonPropertyName("fullName")] string FullName,
-    [property: JsonPropertyName("shortName")] string ShortName,
-    [property: JsonPropertyName("postalCodeExample")] string PostalCodeExample,
-    [property: JsonPropertyName("postalCode")] string PostalCode
-)
+public class NorthAmerica
 {
-    public NorthAmerica() : this("", "", "", "")
-    {
-        // Parameterless constructor body
-    }
+    [JsonPropertyName("fullName")]
+    public string FullName { get; set; }
+
+    [JsonPropertyName("shortName")]
+    public string ShortName { get; set; }
+
+    [JsonPropertyName("postalCodeExample")]
+    public string PostalCodeExample { get; set; }
+
+    [JsonPropertyName("postalCode")]
+    public string PostalCode { get; set; }
+
+    public NorthAmerica() { }
 }
 
-public record Oceanium(
-    [property: JsonPropertyName("fullName")] string FullName,
-    [property: JsonPropertyName("shortName")] string ShortName,
-    [property: JsonPropertyName("postalCodeExample")] string PostalCodeExample,
-    [property: JsonPropertyName("postalCode")] string PostalCode
-)
+public class Oceanium
 {
-    public Oceanium() : this("", "", "", "")
-    {
-        // Parameterless constructor body
-    }
+    [JsonPropertyName("fullName")]
+    public string FullName { get; set; }
+
+    [JsonPropertyName("shortName")]
+    public string ShortName { get; set; }
+
+    [JsonPropertyName("postalCodeExample")]
+    public string PostalCodeExample { get; set; }
+
+    [JsonPropertyName("postalCode")]
+    public string PostalCode { get; set; }
+
+    public Oceanium() { }
 }
 
-public record Countries(
-    [property: JsonPropertyName("North America")] IReadOnlyList<NorthAmerica> NorthAmerica,
-    [property: JsonPropertyName("Europe")] IReadOnlyList<Europe> Europe,
-    [property: JsonPropertyName("Latin America")] IReadOnlyList<LatinAmerica> LatinAmerica,
-    [property: JsonPropertyName("Caribbean")] IReadOnlyList<Caribbean> Caribbean,
-    [property: JsonPropertyName("Oceania")] IReadOnlyList<Oceanium> Oceania
-)
+public class Countries
 {
-    public Countries() : this(new List<NorthAmerica>(), new List<Europe>(), new List<LatinAmerica>(), new List<Caribbean>(), new List<Oceanium>())
-    {
-        // Parameterless constructor body
-    }
+    [JsonPropertyName("North America")]
+    public List<NorthAmerica> NorthAmerica { get; set; }
+
+    [JsonPropertyName("Europe")]
+    public List<Europe> Europe { get; set; }
+
+    [JsonPropertyName("Latin America")]
+    public List<LatinAmerica> LatinAmerica { get; set; }
+
+    [JsonPropertyName("Caribbean")]
+    public List<Caribbean> Caribbean { get; set; }
+
+    [JsonPropertyName("Oceania")]
+    public List<Oceanium> Oceania { get; set; }
+
+    public Countries() { }
 }

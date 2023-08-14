@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using StreamMaster.SchedulesDirectAPI;
 
 using StreamMasterApplication.M3UFiles.Commands;
-
+using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Repository.EPG;
 

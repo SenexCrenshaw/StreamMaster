@@ -2,7 +2,6 @@
 
 using Microsoft.EntityFrameworkCore;
 
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Filtering;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
@@ -20,7 +19,7 @@ namespace StreamMasterInfrastructureEF.Repositories
             if (filters != null)
             {
                 // Apply filters
-                foreach (var filter in filters)
+                foreach (DataTableFilterMetaData filter in filters)
                 {
                     query = ApplyFilter(query, filter);
                 }
@@ -37,9 +36,9 @@ namespace StreamMasterInfrastructureEF.Repositories
 
         private IQueryable<T> ApplyFilter(IQueryable<T> query, DataTableFilterMetaData filter)
         {
-            var parameter = Expression.Parameter(typeof(T), "entity");
+            ParameterExpression parameter = Expression.Parameter(typeof(T), "entity");
 
-            var property = typeof(T).GetProperties().FirstOrDefault(p => string.Equals(p.Name, filter.FieldName, StringComparison.OrdinalIgnoreCase));
+            System.Reflection.PropertyInfo? property = typeof(T).GetProperties().FirstOrDefault(p => string.Equals(p.Name, filter.FieldName, StringComparison.OrdinalIgnoreCase));
 
             if (property == null)
             {
@@ -49,7 +48,7 @@ namespace StreamMasterInfrastructureEF.Repositories
             Expression propertyAccess = Expression.Property(parameter, property);
 
             // Convert filter value to property type
-            var convertedValue = ConvertValue(filter.Value, property.PropertyType);
+            object convertedValue = ConvertValue(filter.Value, property.PropertyType);
 
             Expression filterExpression = null;
 
@@ -85,7 +84,7 @@ namespace StreamMasterInfrastructureEF.Repositories
                     break;
             }
 
-            var lambda = Expression.Lambda<Func<T, bool>>(filterExpression, parameter);
+            Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(filterExpression, parameter);
             return query.Where(lambda);
         }
 
@@ -138,7 +137,7 @@ namespace StreamMasterInfrastructureEF.Repositories
         }
 
         public async Task<PagedResponse<TDto>> GetEntitiesAsync<TDto>(QueryStringParameters parameters, IMapper mapper)
-    where TDto : class
+where TDto : class
         {
             IQueryable<T> entities;
 
@@ -157,23 +156,37 @@ namespace StreamMasterInfrastructureEF.Repositories
                 entities = FindAll();
             }
 
-            var pagedResult = await entities.ToPagedListAsync(parameters.PageNumber, parameters.PageSize).ConfigureAwait(false);
-            var destination = mapper.Map<List<TDto>>(pagedResult);
+            // If there are no entities, return an empty response early
+            if (!entities.Any())
+            {
+                return new PagedResponse<TDto>
+                {
+                    PageNumber = parameters.PageNumber,
+                    TotalPageCount = 0,
+                    PageSize = parameters.PageSize,
+                    TotalItemCount = 0,
+                    Data = new List<TDto>()
+                };
+            }
 
-            
-            var test = new StaticPagedList<TDto>(destination, pagedResult.GetMetaData());
-            
-            var pagedResponse = test.ToPagedResponse(entities.Count());
+            IPagedList<T> pagedResult = await entities.ToPagedListAsync(parameters.PageNumber, parameters.PageSize).ConfigureAwait(false);
+            List<TDto> destination = mapper.Map<List<TDto>>(pagedResult);
+
+            StaticPagedList<TDto> test = new(destination, pagedResult.GetMetaData());
+
+            // Use the TotalItemCount from the metadata instead of counting entities again
+            int totalCount = pagedResult.TotalItemCount;
+            PagedResponse<TDto> pagedResponse = test.ToPagedResponse(totalCount);
 
             return pagedResponse;
         }
 
         public IQueryable<T> FindByCondition(List<DataTableFilterMetaData>? filters, string orderBy)
         {
-            var query = RepositoryContext.Set<T>();
+            DbSet<T> query = RepositoryContext.Set<T>();
 
             // Apply filters and sorting
-            var filteredAndSortedQuery = ApplyFiltersAndSort(query, filters, orderBy);
+            IQueryable<T> filteredAndSortedQuery = ApplyFiltersAndSort(query, filters, orderBy);
 
             return filteredAndSortedQuery.AsNoTracking();
         }

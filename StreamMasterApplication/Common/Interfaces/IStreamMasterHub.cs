@@ -1,5 +1,4 @@
-﻿using StreamMasterApplication.ChannelGroups.Commands;
-using StreamMasterApplication.Common.Models;
+﻿using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Queries;
 
 using StreamMasterDomain.Dto;
@@ -39,11 +38,8 @@ public interface IStreamMasterHub : ISharedHub
 
     Task SettingsUpdate(SettingDto setting);
 
-    Task StreamGroupDtoDelete(int result);
+    Task StreamGroupsRefresh();
 
-    Task StreamGroupDtoesUpdate(IEnumerable<StreamGroupDto> results);
-
-    Task StreamGroupDtoUpdate(StreamGroupDto result);
 
     Task StreamingStatusDelete(int result);
 

@@ -108,7 +108,7 @@ public class AddStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequest
         ret.XMLLink = $"{url}/api/streamgroups/epg/{encodedStreamGroupNumber}.xml";
         ret.HDHRLink = $"{url}/api/streamgroups/{encodedStreamGroupNumber}";
 
-        await Publisher.Publish(new StreamGroupUpdateEvent(ret), cancellationToken).ConfigureAwait(false);
+        await Publisher.Publish(new StreamGroupUpdateEvent(), cancellationToken).ConfigureAwait(false);
 
         StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(ret.Id, url, cancellationToken).ConfigureAwait(false);
         if (streamGroup is not null && streamGroup.ChildVideoStreams.Any())

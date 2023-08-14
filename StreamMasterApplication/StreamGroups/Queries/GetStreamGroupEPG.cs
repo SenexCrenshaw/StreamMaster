@@ -13,6 +13,7 @@ using StreamMasterApplication.Common.Extensions;
 using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Attributes;
+using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Repository.EPG;
 

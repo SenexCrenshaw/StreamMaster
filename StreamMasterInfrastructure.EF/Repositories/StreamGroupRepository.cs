@@ -16,8 +16,6 @@ using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
 
-using System.Threading;
-
 namespace StreamMasterInfrastructureEF.Repositories;
 
 public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRepository
@@ -424,26 +422,29 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
         Update(StreamGroup);
     }
 
-    public async Task<IPagedList<StreamGroupDto>> GetStreamGroupDtosPagedAsync(StreamGroupParameters StreamGroupParameters, string Url)
+    public async Task<PagedResponse<StreamGroupDto>> GetStreamGroupDtosPagedAsync(StreamGroupParameters StreamGroupParameters, string Url)
     {
-        var StreamGroups = FindAll();
 
-        IQueryable<StreamGroup> sorderStreamGroups = _StreamGroupSortHelper.ApplySort(StreamGroups, StreamGroupParameters.OrderBy);
+        return await GetEntitiesAsync<StreamGroupDto>(StreamGroupParameters, _mapper);
 
-        var list = await sorderStreamGroups.ToPagedListAsync(StreamGroupParameters.PageNumber, StreamGroupParameters.PageSize).ConfigureAwait(false);
+        //IQueryable<StreamGroup> StreamGroups = FindAll();
 
-        List<StreamGroupDto> ret = new();
+        //IQueryable<StreamGroup> sorderStreamGroups = _StreamGroupSortHelper.ApplySort(StreamGroups, StreamGroupParameters.OrderBy);
 
-        foreach (int streamGroupId in list.Select(a => a.Id))
-        {
-            StreamGroupDto? streamGroup = await GetStreamGroupDto(streamGroupId, Url);
-            if (streamGroup == null)
-                continue;
-            ret.Add(streamGroup);
-        }
+        //IPagedList<StreamGroup> list = await sorderStreamGroups.ToPagedListAsync(StreamGroupParameters.PageNumber, StreamGroupParameters.PageSize).ConfigureAwait(false);
 
-        var dtoList = await ret.ToPagedListAsync(StreamGroupParameters.PageNumber, StreamGroupParameters.PageSize).ConfigureAwait(false);
+        //List<StreamGroupDto> ret = new();
 
-        return dtoList;
+        //foreach (int streamGroupId in list.Select(a => a.Id))
+        //{
+        //    StreamGroupDto? streamGroup = await GetStreamGroupDto(streamGroupId, Url);
+        //    if (streamGroup == null)
+        //        continue;
+        //    ret.Add(streamGroup);
+        //}
+
+        //IPagedList<StreamGroupDto> dtoList = await ret.ToPagedListAsync(StreamGroupParameters.PageNumber, StreamGroupParameters.PageSize).ConfigureAwait(false);
+
+        //return dtoList;
     }
 }

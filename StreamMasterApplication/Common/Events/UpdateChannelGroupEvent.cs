@@ -6,8 +6,8 @@ public class UpdateChannelGroupEvent : BaseEvent
 {
     public UpdateChannelGroupEvent(ChannelGroupDto item)
     {
-        Item = item;
+        ChannelGroupDto = item;
     }
 
-    public ChannelGroupDto Item { get; }
+    public ChannelGroupDto ChannelGroupDto { get; }
 }

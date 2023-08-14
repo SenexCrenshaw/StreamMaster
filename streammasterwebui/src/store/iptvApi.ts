@@ -1109,7 +1109,7 @@ export type StreamGroupsGetStreamGroupLineUpStatusApiArg = string;
 export type StreamGroupsGetStreamGroupM3UApiResponse = unknown;
 export type StreamGroupsGetStreamGroupM3UApiArg = string;
 export type StreamGroupsGetStreamGroupsApiResponse =
-  /** status 200  */ PagedListOfStreamGroupDto;
+  /** status 200  */ PagedResponseOfStreamGroupDto;
 export type StreamGroupsGetStreamGroupsApiArg = {
   name?: string;
   pageNumber?: number;
@@ -1522,11 +1522,7 @@ export type Logo = {
   width?: number;
   md5?: string;
 };
-export type StationLogo = {
-  URL?: string;
-  height?: number;
-  width?: number;
-  md5?: string;
+export type StationLogo = Logo & {
   source?: string;
   category?: string;
 };
@@ -1778,7 +1774,15 @@ export type EpgGuide = {
   programs: EpgProgram[];
   startDate: string;
 };
-export type PagedListOfStreamGroupDto = StreamGroupDto[];
+export type PagedResponseOfStreamGroupDto = {
+  data: StreamGroupDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalItemCount: number;
+  totalPageCount: number;
+  totalRecords: number;
+  first: number;
+};
 export type UpdateStreamGroupRequest = {
   streamGroupId?: number;
   name?: string | null;
