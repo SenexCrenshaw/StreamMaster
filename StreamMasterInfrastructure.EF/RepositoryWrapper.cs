@@ -3,6 +3,7 @@
 using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
@@ -22,8 +23,8 @@ namespace StreamMasterInfrastructureEF
         private readonly IMapper _mapper;
         private readonly ISender _sender;
         private readonly IMemoryCache _memoryCache;
-
-        public RepositoryWrapper(RepositoryContext repositoryContext, ISortHelper<EPGFile> epgGFileSortHelper, ISortHelper<StreamGroup> streamGroupSortHelper, ISortHelper<M3UFile> m3uFileSortHelper, ISortHelper<VideoStream> videoStreamSortHelper, ISortHelper<ChannelGroup> channelGroupSortHelper, IMapper mapper, IMemoryCache memoryCache, ISender sender)
+        private readonly ILogger<ChannelGroupRepository> _channelGroupRepository;
+        public RepositoryWrapper(ILogger<ChannelGroupRepository> channelGroupRepository, RepositoryContext repositoryContext, ISortHelper<EPGFile> epgGFileSortHelper, ISortHelper<StreamGroup> streamGroupSortHelper, ISortHelper<M3UFile> m3uFileSortHelper, ISortHelper<VideoStream> videoStreamSortHelper, ISortHelper<ChannelGroup> channelGroupSortHelper, IMapper mapper, IMemoryCache memoryCache, ISender sender)
         {
             _repoContext = repositoryContext;
             _m3uFileSortHelper = m3uFileSortHelper;
@@ -34,6 +35,7 @@ namespace StreamMasterInfrastructureEF
             _mapper = mapper;
             _memoryCache = memoryCache;
             _sender = sender;
+            _channelGroupRepository = channelGroupRepository;
         }
 
         private IStreamGroupRepository _streamGroup;
@@ -58,7 +60,7 @@ namespace StreamMasterInfrastructureEF
             {
                 if (_channelGroup == null)
                 {
-                    _channelGroup = new ChannelGroupRepository(_repoContext, _mapper, _sender);
+                    _channelGroup = new ChannelGroupRepository(_channelGroupRepository, _repoContext, _mapper, _sender);
                 }
                 return _channelGroup;
             }

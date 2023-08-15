@@ -50,7 +50,7 @@ public class UpdateStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequ
             //var streamGroup = await _context.GetStreamGroupDto(ret.Id, url, cancellationToken).ConfigureAwait(false);
             if (streamGroup is not null && streamGroup.ChildVideoStreams.Any())
             {
-                await Publisher.Publish(new UpdateVideoStreamsEvent(streamGroup.ChildVideoStreams), cancellationToken).ConfigureAwait(false);
+                await Publisher.Publish(new UpdateVideoStreamsEvent(), cancellationToken).ConfigureAwait(false);
             }
             await Publisher.Publish(new StreamGroupUpdateEvent(), cancellationToken).ConfigureAwait(false);
         }

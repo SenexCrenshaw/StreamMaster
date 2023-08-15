@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
 
 using FluentValidation;
 
@@ -36,7 +35,7 @@ public class UpdateChannelGroupsRequestHandler : BaseMediatorRequestHandler, IRe
 
         foreach (UpdateChannelGroupRequest request in requests.ChannelGroupRequests)
         {
-            ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupByNameAsync(request.GroupName.ToLower()).ConfigureAwait(false);
+            ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupByNameAsync(request.ChannelGroupName.ToLower()).ConfigureAwait(false);
 
             if (channelGroup == null)
             {
@@ -48,15 +47,12 @@ public class UpdateChannelGroupsRequestHandler : BaseMediatorRequestHandler, IRe
                 channelGroup.Rank = (int)request.Rank;
             }
 
-            bool isChanged = false;
-
             if (request.IsHidden != null)
             {
                 channelGroup.IsHidden = (bool)request.IsHidden;
 
                 await Repository.VideoStream.SetGroupVisibleByGroupName(channelGroup.Name, (bool)request.IsHidden, cancellationToken).ConfigureAwait(false);
 
-                isChanged = true;
             }
 
             if (!string.IsNullOrEmpty(request.NewGroupName))
@@ -64,7 +60,7 @@ public class UpdateChannelGroupsRequestHandler : BaseMediatorRequestHandler, IRe
                 await Repository.VideoStream.SetGroupNameByGroupName(channelGroup.Name, request.NewGroupName, cancellationToken).ConfigureAwait(false);
 
                 channelGroup.Name = request.NewGroupName;
-                isChanged = true;
+
             }
 
             Repository.ChannelGroup.UpdateChannelGroup(channelGroup);
@@ -72,19 +68,13 @@ public class UpdateChannelGroupsRequestHandler : BaseMediatorRequestHandler, IRe
 
             cgResults.Add(Mapper.Map<ChannelGroupDto>(channelGroup));
 
-            if (isChanged)
-            {
-                var re = await Repository.VideoStream.GetVideoStreamsChannelGroupName(channelGroup.Name).ConfigureAwait(false);
-                var toadd = Mapper.Map<List<VideoStreamDto>>(re);
-                results.AddRange(toadd);
-            }
         }
 
         await Publisher.Publish(new UpdateChannelGroupsEvent(cgResults), cancellationToken).ConfigureAwait(false);
 
         if (results.Any())
         {
-            await Publisher.Publish(new UpdateVideoStreamsEvent(results), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateVideoStreamsEvent(), cancellationToken).ConfigureAwait(false);
         }
 
         return cgResults;

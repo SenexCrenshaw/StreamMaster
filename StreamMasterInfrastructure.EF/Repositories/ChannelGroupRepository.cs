@@ -4,6 +4,7 @@ using AutoMapper.QueryableExtensions;
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.StreamGroups.Queries;
@@ -13,7 +14,9 @@ using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 
+using System.Diagnostics;
 using System.Linq.Dynamic.Core;
+using System.Text.RegularExpressions;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
@@ -21,16 +24,18 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
 {
     private readonly IMapper _mapper;
     private readonly ISender _sender;
-
-    public ChannelGroupRepository(RepositoryContext repositoryContext, IMapper mapper, ISender sender) : base(repositoryContext)
+    private readonly ILogger _logger;
+    public ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, RepositoryContext repositoryContext, IMapper mapper, ISender sender) : base(repositoryContext)
     {
         _sender = sender;
         _mapper = mapper;
+
+        _logger = logger;
     }
 
     public async Task<(ChannelGroupDto? channelGroup, List<VideoStreamDto>? distinctList, List<StreamGroupDto>? streamGroupIds)> UpdateChannelGroup(UpdateChannelGroupRequest request, string url, CancellationToken cancellationToken)
     {
-        ChannelGroup? channelGroup = await GetChannelGroupByNameAsync(request.GroupName).ConfigureAwait(false);
+        ChannelGroup? channelGroup = await GetChannelGroupByNameAsync(request.ChannelGroupName).ConfigureAwait(false);
 
         if (channelGroup == null)
         {
@@ -151,7 +156,7 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
     public async Task<PagedResponse<ChannelGroupDto>> GetChannelGroupsAsync(ChannelGroupParameters channelGroupParameters)
     {
         PagedResponse<ChannelGroupDto> channelGroups = await GetEntitiesAsync<ChannelGroupDto>(channelGroupParameters, _mapper).ConfigureAwait(false);
-        IEnumerable<GetChannelGroupVideoStreamCountResponse> actives = await _sender.Send(new GetVideoStreamCountForChannelGroups()).ConfigureAwait(false);
+        IEnumerable<GetChannelGroupVideoStreamCountResponse> actives = await _sender.Send(new GetChannelGroupsVideoStreamCount()).ConfigureAwait(false);
 
         foreach (GetChannelGroupVideoStreamCountResponse? active in actives)
         {
@@ -166,6 +171,37 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         }
 
         return channelGroups;
+    }
+
+    public async Task<List<string>> GetChannelNamesFromVideoStream(VideoStreamDto videoStreamDto, CancellationToken cancellationToken)
+    {
+        Stopwatch stopwatch = new();
+        stopwatch.Start();
+        ChannelGroup? channelGroup = await GetChannelGroupByNameAsync(videoStreamDto.User_Tvg_group).ConfigureAwait(false);
+
+        if (channelGroup == null)
+        {
+            return new();
+        }
+
+        List<string> results = new() { videoStreamDto.User_Tvg_group };
+
+        List<ChannelGroup> channelGroups = RepositoryContext.ChannelGroups.Where(a => a.RegexMatch != null && a.RegexMatch != string.Empty)
+            .AsNoTracking()
+            .ToList();
+
+        foreach (ChannelGroup? cg in channelGroups)
+        {
+            Regex regex = new(cg.RegexMatch, RegexOptions.ECMAScript | RegexOptions.IgnoreCase);
+            if (regex.IsMatch(videoStreamDto.User_Tvg_name))
+            {
+                results.Add(cg.Name);
+            }
+        }
+
+        stopwatch.Stop();
+        _logger.LogInformation($"GetChannelNamesFromVideoStream took {stopwatch.ElapsedMilliseconds} ms");
+        return results;
     }
 
     public async Task<ChannelGroupDto?> GetChannelGroupAsync(int Id, CancellationToken cancellationToken = default)

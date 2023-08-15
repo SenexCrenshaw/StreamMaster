@@ -1,6 +1,5 @@
 import React from "react";
-import type * as StreamMasterApi from '../store/iptvApi';
-import * as Hub from '../store/signlar_functions';
+import * as StreamMasterApi from '../store/iptvApi';
 import { Button } from "primereact/button";
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
 import { getTopToolOptions } from "../common/common";
@@ -10,6 +9,11 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
   const [selectedVideoStreams, setSelectedVideoStreams] = React.useState<StreamMasterApi.VideoStreamDto[]>([] as StreamMasterApi.VideoStreamDto[]);
+
+
+
+  const [videoStreamsUpdateVideoStreams] = StreamMasterApi.useVideoStreamsUpdateVideoStreamsMutation();
+
 
   const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);
@@ -43,7 +47,7 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
     });
 
 
-    Hub.UpdateVideoStreams(tosend)
+    videoStreamsUpdateVideoStreams(tosend)
       .then(() => {
 
         setInfoMessage('Set Stream Visibilty Successfully');
@@ -53,7 +57,7 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
         setInfoMessage('Set Stream Visibilty Error: ' + error.message);
       });
 
-  }, [ReturnToParent, selectedVideoStreams]);
+  }, [ReturnToParent, selectedVideoStreams, videoStreamsUpdateVideoStreams]);
 
   if (props.skipOverLayer === true) {
     return (

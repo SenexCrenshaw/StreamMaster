@@ -5,14 +5,12 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.M3UFiles.Commands;
+using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Filtering;
 using StreamMasterDomain.Pagination;
 
-using System.Text.Json;
-
-namespace StreamMasterApplication.VideoStreams.Queries;
+namespace StreamMasterApplication.ChannelGroups.Queries;
 
 public record GetVideoStreamsForChannelGroups(VideoStreamParameters VideoStreamParameters) : IRequest<PagedResponse<VideoStreamDto>>;
 
@@ -21,40 +19,43 @@ internal class GetVideoStreamsForChannelGroupsHandler : BaseMediatorRequestHandl
     public GetVideoStreamsForChannelGroupsHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
         : base(logger, repository, mapper, publisher, sender) { }
 
-    public async Task<PagedResponse<VideoStreamDto>?> Handle(GetVideoStreamsForChannelGroups request, CancellationToken cancellationToken)
+    public async Task<PagedResponse<VideoStreamDto>> Handle(GetVideoStreamsForChannelGroups request, CancellationToken cancellationToken)
     {
-        var results = new List<VideoStreamDto>();
-        List<string>? channelGroupNames = null;
 
-        if (!string.IsNullOrEmpty(request.VideoStreamParameters.JSONArgumentString))
-        {
-            channelGroupNames = JsonSerializer.Deserialize<List<string>>(request.VideoStreamParameters.JSONArgumentString);
-        }
-        else
-        {
-            var ret = await Sender.Send(new GetVideoStreams(request.VideoStreamParameters), cancellationToken).ConfigureAwait(false);
-            return ret;
-        }
+        PagedResponse<VideoStreamDto> ret = await Sender.Send(new GetVideoStreams(request.VideoStreamParameters), cancellationToken).ConfigureAwait(false);
+        return ret;
+        //List<VideoStreamDto> results = new();
+        //List<string> channelGroupNames = null;
 
-        if (channelGroupNames == null)
-        {
-            return null;
-        }
+        //if (!string.IsNullOrEmpty(request.VideoStreamParameters.JSONArgumentString))
+        //{
+        //    channelGroupNames = JsonSerializer.Deserialize<List<string>>(request.VideoStreamParameters.JSONArgumentString);
+        //}
+        //else
+        //{
+        //    PagedResponse<VideoStreamDto> ret = await Sender.Send(new GetVideoStreams(request.VideoStreamParameters), cancellationToken).ConfigureAwait(false);
+        //    return ret;
+        //}
 
-        List<string> ids = new List<string>();
+        //if (channelGroupNames == null)
+        //{
+        //    return null;
+        //}
 
-        foreach (var cgName in channelGroupNames)
-        {
-            var videoStreams = await Repository.VideoStream.GetVideoStreamsChannelGroupName(cgName);
-            var toAdd = Mapper.Map<List<VideoStreamDto>>(videoStreams.Where(a => !ids.Contains(a.Id)));
-            ids.AddRange(toAdd.Select(a => a.Id));
-            results.AddRange(toAdd);
-        }
+        //List<string> ids = new();
 
-        var pagedResult = await results.ToPagedListAsync(request.VideoStreamParameters.PageNumber, request.VideoStreamParameters.PageSize).ConfigureAwait(false);
+        //foreach (string cgName in channelGroupNames)
+        //{
+        //    PagedResponse<VideoStreamDto> videoStreams = await Repository.VideoStream.GetVideoStreamsChannelGroupName(request.VideoStreamParameters, cgName, cancellationToken);
+        //    //List<VideoStreamDto> toAdd = Mapper.Map<List<VideoStreamDto>>(videoStreams.Where(a => !ids.Contains(a.Id)));
+        //    ids.AddRange(videoStreams.Data.Select(a => a.Id));
+        //    results.AddRange(videoStreams.Data);
+        //}
 
-        var pagedResponse = pagedResult.ToPagedResponse(ids.Count());
+        //IPagedList<VideoStreamDto> pagedResult = await results.ToPagedListAsync(request.VideoStreamParameters.PageNumber, request.VideoStreamParameters.PageSize).ConfigureAwait(false);
 
-        return pagedResponse;
+        //PagedResponse<VideoStreamDto> pagedResponse = pagedResult.ToPagedResponse(ids.Count());
+
+        //return pagedResponse;
     }
 }

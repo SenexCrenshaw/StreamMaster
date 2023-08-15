@@ -8,6 +8,7 @@ using Microsoft.Extensions.Caching.Memory;
 using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.M3UFiles.Queries;
 using StreamMasterApplication.VideoStreams.Queries;
+
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
@@ -311,7 +312,7 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
             await SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
         }
 
-        _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         VideoStreamDto ret = _mapper.Map<VideoStreamDto>(videoStream);
 
         if (videoStream.ChildVideoStreams.Any())
@@ -401,18 +402,15 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         return stream;
     }
 
-    public async Task<List<VideoStream>> GetVideoStreamsChannelGroupName(string channelGroupName)
+    public async Task<PagedResponse<VideoStreamDto>> GetVideoStreamsChannelGroupName(VideoStreamParameters VideoStreamParameters, string channelGroupName, CancellationToken cancellationToken)
     {
-        IQueryable<VideoStream> streams = GetAllVideoStreams();
 
         string lowerChannelGroupName = channelGroupName.ToLower();
-        List<VideoStream> filteredStreams = streams
-            .Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == lowerChannelGroupName)
-            .ToList(); // Convert to list once to avoid multiple enumerations
+        PagedResponse<VideoStreamDto> filteredStreams = await GetVideoStreamsAsync(VideoStreamParameters, cancellationToken);
 
-        HashSet<string> ids = new(filteredStreams.Select(a => a.Id)); // Using HashSet for O(1) lookup
+        HashSet<string> ids = new(filteredStreams.Data.Select(a => a.Id));
 
-        ChannelGroupDto? cg = await _sender.Send(new GetChannelGroupByName(channelGroupName)).ConfigureAwait(false);
+        ChannelGroupDto? cg = await _sender.Send(new GetChannelGroupByName(channelGroupName), cancellationToken).ConfigureAwait(false);
 
         if (cg != null && !string.IsNullOrEmpty(cg.RegexMatch))
         {
@@ -420,22 +418,17 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
             List<VideoStream> additionalStreams = reg.Where(a => !ids.Contains(a.Id)).ToList();
 
             // Combine the lists
-            filteredStreams.AddRange(additionalStreams);
+            if (additionalStreams.Any())
+            {
+                List<VideoStreamDto> dtos = _mapper.Map<List<VideoStreamDto>>(additionalStreams);
+                filteredStreams.Data.AddRange(dtos);
+            }
+
         }
 
         // Return the ordered list
-        return filteredStreams.OrderBy(a => a.User_Tvg_name).ToList();
+        return filteredStreams;
     }
-
-
-
-    //public IQueryable<VideoStream> GetVideoStreamsAllChannelGroupName(string channelGroupName)
-    //{
-    //    IQueryable<VideoStream> streams = GetAllVideoStreams();
-    //    IQueryable<VideoStream> ret = streams.Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == channelGroupName.ToLower());
-
-    //    return ret;
-    //}
 
     public IQueryable<VideoStream> GetVideoStreamsByM3UFileId(int m3uFileId)
     {

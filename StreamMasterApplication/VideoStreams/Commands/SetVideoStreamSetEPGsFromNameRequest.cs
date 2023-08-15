@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.VideoStreams.Events;
+
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
 
@@ -47,7 +48,7 @@ public class SetVideoStreamSetEPGsFromNameRequestHandler : BaseMemoryRequestHand
         await Repository.SaveAsync().ConfigureAwait(false);
         if (results.Count > 0)
         {
-            await Publisher.Publish(new UpdateVideoStreamsEvent(results), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateVideoStreamsEvent(), cancellationToken).ConfigureAwait(false);
         }
 
         return results;

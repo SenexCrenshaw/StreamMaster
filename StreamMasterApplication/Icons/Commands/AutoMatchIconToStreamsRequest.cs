@@ -44,7 +44,7 @@ public class AutoMatchIconToStreamsRequestHandler : BaseMemoryRequestHandler, IR
         string[] words2 = normalizedSentence2.Split(' ');
 
         // Calculate the intersection of words between the two sentences
-        var wordIntersection = words1.Intersect(words2, StringComparer.OrdinalIgnoreCase);
+        IEnumerable<string> wordIntersection = words1.Intersect(words2, StringComparer.OrdinalIgnoreCase);
 
         // Calculate the weighted match
         double weightedMatch = (double)wordIntersection.Count() / words1.Length;
@@ -59,15 +59,15 @@ public class AutoMatchIconToStreamsRequestHandler : BaseMemoryRequestHandler, IR
             return null;
         }
 
-        IconFileParameters iconFileParameters = new IconFileParameters();
-        var icons = await Sender.Send(new GetIcons(iconFileParameters), cancellationToken).ConfigureAwait(false);
+        IconFileParameters iconFileParameters = new();
+        IPagedList<IconFileDto> icons = await Sender.Send(new GetIcons(iconFileParameters), cancellationToken).ConfigureAwait(false);
 
-        var streams = Repository.VideoStream.GetVideoStreamsByMatchingIds(request.Ids);
+        IQueryable<VideoStream> streams = Repository.VideoStream.GetVideoStreamsByMatchingIds(request.Ids);
         List<VideoStreamDto> videoStreamDtos = new();
 
-        foreach (var stream in streams)
+        foreach (VideoStream stream in streams)
         {
-            var icon = icons.FirstOrDefault(a => a.Name.Equals(stream.User_Tvg_name, StringComparison.CurrentCultureIgnoreCase));
+            IconFileDto? icon = icons.FirstOrDefault(a => a.Name.Equals(stream.User_Tvg_name, StringComparison.CurrentCultureIgnoreCase));
             if (icon != null)
             {
                 stream.User_Tvg_logo = icon.Source;
@@ -85,7 +85,7 @@ public class AutoMatchIconToStreamsRequestHandler : BaseMemoryRequestHandler, IR
             {
                 stream.User_Tvg_logo = topCheckIcon.Icon.Source;
                 Repository.VideoStream.Update(stream);
-                var videoStreamDto = Mapper.Map<VideoStreamDto>(stream);
+                VideoStreamDto videoStreamDto = Mapper.Map<VideoStreamDto>(stream);
                 videoStreamDtos.Add(videoStreamDto);
                 break;
             }
@@ -93,7 +93,7 @@ public class AutoMatchIconToStreamsRequestHandler : BaseMemoryRequestHandler, IR
         await Repository.SaveAsync().ConfigureAwait(false);
         if (videoStreamDtos.Any())
         {
-            await Publisher.Publish(new UpdateVideoStreamsEvent(videoStreamDtos), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateVideoStreamsEvent(), cancellationToken).ConfigureAwait(false);
         }
 
         return null;
@@ -102,7 +102,7 @@ public class AutoMatchIconToStreamsRequestHandler : BaseMemoryRequestHandler, IR
     private static string NormalizeString(string input)
     {
         // Remove punctuation characters
-        string normalized = new string(input.Where(c => !char.IsPunctuation(c)).ToArray());
+        string normalized = new(input.Where(c => !char.IsPunctuation(c)).ToArray());
 
         // Convert to lowercase
         normalized = normalized.ToLower();

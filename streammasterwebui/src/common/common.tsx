@@ -7,11 +7,43 @@ import { type VideoStreamDto } from '../store/iptvApi';
 import { type ChildVideoStreamDto } from '../store/iptvApi';
 import { baseHostURL, isDebug } from '../settings';
 import { SMFileTypes } from '../store/streammaster_enums';
+import { type DataTableFilterMeta } from 'primereact/datatable';
 
 export const getTopToolOptions = { autoHide: true, hideDelay: 100, position: 'top', showDelay: 400 } as TooltipOptions;
 export const getLeftToolOptions = { autoHide: true, hideDelay: 100, position: 'left', showDelay: 400 } as TooltipOptions;
 
 <FormattedMessage defaultMessage="Stream Master" id="app.title" />;
+
+export function areFilterMetaEqual(a: DataTableFilterMeta, b: DataTableFilterMeta): boolean {
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+
+  // Compare if both objects have the same keys
+  if (aKeys.length !== bKeys.length) {
+    return false;
+  }
+
+  for (const key of aKeys) {
+    if (!b[key]) {
+      return false; // Key doesn't exist in 'b'
+    }
+
+    const aData = a[key] as DataTableFilterMetaData;
+    const bData = b[key] as DataTableFilterMetaData;
+
+    // Compare 'matchMode'
+    if (aData.matchMode !== bData.matchMode) {
+      return false;
+    }
+
+    // Compare 'value' (this assumes a simple comparison; for deep object comparison, consider using lodash's isEqual or similar)
+    if (aData.value !== bData.value) {
+      return false;
+    }
+  }
+
+  return true;
+}
 
 export function GetMessage(id: string): string {
   const intl = useIntl();
@@ -20,9 +52,65 @@ export function GetMessage(id: string): string {
   return message;
 }
 
+export type MatchMode = 'between' | 'channelGroups' | 'contains' | 'custom' | 'dateAfter' | 'dateBefore' | 'dateIs' | 'dateIsNot' | 'endsWith' | 'equals' | 'gt' | 'gte' | 'in' | 'lt' | 'lte' | 'notContains' | 'notEquals' | 'startsWith' | undefined;
+
+export function addOrUpdateValueForField(
+  data: DataTableFilterMetaData[],
+  targetFieldName: string,
+  matchMode: MatchMode,
+  newValue: string
+): void {
+
+  // let itemFound = false;
+
+  // data.forEach(item => {
+  //   if (item.fieldName === targetFieldName) {
+  //     item.matchMode = matchMode;
+  //     item.value = newValue;
+  //     item.valueType = typeof newValue;
+  //     itemFound = true;
+  //   }
+  // });
+
+  // if (!itemFound) {
+  data.push({
+    fieldName: targetFieldName,
+    matchMode: matchMode,
+    value: newValue,
+    valueType: typeof newValue,
+  });
+  // }
+}
+
+export function areDataTableFilterMetaDataEqual(a: DataTableFilterMetaData, b: DataTableFilterMetaData): boolean {
+  // Compare simple string properties
+  if (a.fieldName !== b.fieldName) return false;
+  if (a.matchMode !== b.matchMode) return false;
+  if (a.valueType !== b.valueType) return false;
+
+  // Deep comparison of 'value'. This assumes simple equality check; for objects or arrays, you might need a deeper comparison.
+  if (a.value !== b.value) return false;
+
+  return true;
+}
+
+export function areDataTableFilterMetaDatasEqual(arr1: DataTableFilterMetaData[], arr2: DataTableFilterMetaData[]): boolean {
+  if (arr1.length !== arr2.length) return false;
+
+  for (let i = 0; i < arr1.length; i++) {
+    if (!areDataTableFilterMetaDataEqual(arr1[i], arr2[i])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+
+
 export type DataTableFilterMetaData = {
   fieldName: string;
-  matchMode: 'between' | 'contains' | 'custom' | 'dateAfter' | 'dateBefore' | 'dateIs' | 'dateIsNot' | 'endsWith' | 'equals' | 'gt' | 'gte' | 'in' | 'lt' | 'lte' | 'notContains' | 'notEquals' | 'startsWith' | undefined;
+  matchMode: MatchMode;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   valueType: string;

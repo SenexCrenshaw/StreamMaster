@@ -113,7 +113,7 @@ public class AddStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequest
         StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(ret.Id, url, cancellationToken).ConfigureAwait(false);
         if (streamGroup is not null && streamGroup.ChildVideoStreams.Any())
         {
-            await Publisher.Publish(new UpdateVideoStreamsEvent(streamGroup.ChildVideoStreams), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateVideoStreamsEvent(), cancellationToken).ConfigureAwait(false);
         }
 
         return ret;

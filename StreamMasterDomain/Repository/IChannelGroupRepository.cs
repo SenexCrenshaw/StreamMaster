@@ -18,7 +18,7 @@ namespace StreamMasterDomain.Repository
         void DeleteChannelGroup(ChannelGroup ChannelGroup);
 
         void UpdateChannelGroup(ChannelGroup ChannelGroup);
-
+        Task<List<string>> GetChannelNamesFromVideoStream(VideoStreamDto videoStreamDto, CancellationToken cancellationToken);
         Task<(ChannelGroupDto? channelGroup, List<VideoStreamDto>? distinctList, List<StreamGroupDto>? streamGroupIds)> UpdateChannelGroup(UpdateChannelGroupRequest request, string url, CancellationToken cancellationToken);
     }
 }

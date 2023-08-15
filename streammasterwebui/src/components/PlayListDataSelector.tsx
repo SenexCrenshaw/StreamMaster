@@ -18,6 +18,7 @@ import ChannelGroupEditDialog from "./ChannelGroupEditDialog";
 import { useLocalStorage } from "primereact/hooks";
 import DataSelector2 from "../features/dataSelector2/DataSelector2";
 
+import { type DataTableFilterMeta } from "primereact/datatable";
 import { type DataTableFilterEvent } from "primereact/datatable";
 
 const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
@@ -86,14 +87,14 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
     ]
   }, [sourceActionBodyTemplate]);
 
-  const setFilter = React.useCallback((filterInfo: DataTableFilterEvent): DataTableFilterMetaData[] => {
+  const setFilter = React.useCallback((toFilter: DataTableFilterEvent): DataTableFilterMetaData[] => {
     const tosend = [] as DataTableFilterMetaData[];
-    if (filterInfo.filters === undefined) {
+    if (toFilter === undefined || toFilter.filters === undefined) {
       return [] as DataTableFilterMetaData[];
     }
 
-    Object.keys(filterInfo.filters).forEach((key) => {
-      const value = filterInfo.filters[key] as DataTableFilterMetaData;
+    Object.keys(toFilter.filters).forEach((key) => {
+      const value = toFilter.filters[key] as DataTableFilterMetaData;
       if (value.value === null || value.value === undefined || value.value === '') {
         return;
       }
@@ -101,7 +102,6 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       const newValue = { ...value } as DataTableFilterMetaData;
       newValue.fieldName = key;
       newValue.valueType = typeof value.value;
-
       tosend.push(newValue);
     });
 
@@ -161,7 +161,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         isLoading={channelGroupsQuery.isLoading}
         name={props.name === undefined ? 'Playlist' : props.name}
         onFilter={(filterInfo) => {
-          setFilter(filterInfo);
+          setFilter(filterInfo as DataTableFilterEvent);
         }}
 
         onPage={(pageInfo) => {

@@ -4,9 +4,11 @@ using FluentValidation;
 
 using MediatR;
 
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMasterApplication.M3UFiles.Commands;
+using StreamMasterApplication.ChannelGroups.Commands;
+using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Dto;
@@ -25,27 +27,39 @@ public class UpdateVideoStreamsRequestValidator : AbstractValidator<UpdateVideoS
     }
 }
 
-public class UpdateVideoStreamsRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateVideoStreamsRequest, IEnumerable<VideoStreamDto>>
+public class UpdateVideoStreamsRequestHandler : BaseMemoryRequestHandler, IRequestHandler<UpdateVideoStreamsRequest, IEnumerable<VideoStreamDto>>
 {
 
-    public UpdateVideoStreamsRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
+    public UpdateVideoStreamsRequestHandler(ILogger<UpdateVideoStreamsRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
     public async Task<IEnumerable<VideoStreamDto>> Handle(UpdateVideoStreamsRequest requests, CancellationToken cancellationToken)
     {
         List<VideoStreamDto> results = new();
+        List<string> channelnames = new();
 
-        foreach (var request in requests.VideoStreamUpdates)
+        foreach (UpdateVideoStreamRequest request in requests.VideoStreamUpdates)
         {
-            var ret = await Repository.VideoStream.UpdateVideoStreamAsync(request, cancellationToken).ConfigureAwait(false);
+            VideoStreamDto? ret = await Repository.VideoStream.UpdateVideoStreamAsync(request, cancellationToken).ConfigureAwait(false);
             if (ret is not null)
             {
+                channelnames.AddRange(await Sender.Send(new GetChannelGroupNamesFromVideoStream(ret), cancellationToken).ConfigureAwait(false));
                 results.Add(ret);
             }
         }
 
+        if (channelnames.Any())
+        {
+            foreach (string channelname in channelnames)
+            {
+                await Sender.Send(new UpdateChannelGroupCountRequest(channelname), cancellationToken).ConfigureAwait(false);
+            }
+            await Publisher.Publish(new UpdateChannelGroupEvent(), cancellationToken).ConfigureAwait(false);
+        }
+
         if (results.Any())
         {
-            await Publisher.Publish(new UpdateVideoStreamsEvent(results), cancellationToken).ConfigureAwait(false);
+
+            await Publisher.Publish(new UpdateVideoStreamsEvent(), cancellationToken).ConfigureAwait(false);
         }
 
         return results;

@@ -21,7 +21,7 @@ public class UpdateChannelGroupRequestValidator : AbstractValidator<UpdateChanne
 {
     public UpdateChannelGroupRequestValidator()
     {
-        _ = RuleFor(v => v.GroupName).NotNull().NotEmpty();
+        _ = RuleFor(v => v.ChannelGroupName).NotNull().NotEmpty();
         _ = RuleFor(v => v.Rank).NotNull().GreaterThan(0);
     }
 }
@@ -40,16 +40,16 @@ public class UpdateChannelGroupRequestHandler : BaseMediatorRequestHandler, IReq
 
     public async Task<ChannelGroupDto?> Handle(UpdateChannelGroupRequest request, CancellationToken cancellationToken)
     {
-        IQueryable<VideoStream> videoStreamsRepo = Repository.VideoStream.GetAllVideoStreams();
+        //IQueryable<VideoStream> videoStreamsRepo = Repository.VideoStream.GetAllVideoStreams();
 
-        IQueryable<string> originalStreamsIds = videoStreamsRepo.Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == request.GroupName.ToLower()).Select(a => a.Id);
+        //IQueryable<string> originalStreamsIds = videoStreamsRepo.Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == request.GroupName.ToLower()).Select(a => a.Id);
 
         string url = _httpContextAccessor.GetUrl();
         (ChannelGroupDto? cg, List<VideoStreamDto>? distinctList, List<StreamGroupDto>? streamGroups) = await Repository.ChannelGroup.UpdateChannelGroup(request, url, cancellationToken).ConfigureAwait(false);
 
         if (distinctList != null && distinctList.Any())
         {
-            await Publisher.Publish(new UpdateVideoStreamsEvent(distinctList), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateVideoStreamsEvent(), cancellationToken).ConfigureAwait(false);
         }
 
         if (streamGroups != null && streamGroups.Any())
@@ -66,17 +66,17 @@ public class UpdateChannelGroupRequestHandler : BaseMediatorRequestHandler, IReq
             //}
         }
 
-        if (originalStreamsIds.Any())
-        {
+        //if (originalStreamsIds.Any())
+        //{
 
-            IQueryable<VideoStream> orginalStreams = Repository.VideoStream.GetVideoStreamsByMatchingIds(originalStreamsIds);
-            List<VideoStreamDto> originalStreamsDto = Mapper.Map<List<VideoStreamDto>>(orginalStreams);
-            await Publisher.Publish(new UpdateVideoStreamsEvent(originalStreamsDto), cancellationToken).ConfigureAwait(false);
-        }
+        //    //IQueryable<VideoStream> orginalStreams = Repository.VideoStream.GetVideoStreamsByMatchingIds(originalStreamsIds);
+        //    //List<VideoStreamDto> originalStreamsDto = Mapper.Map<List<VideoStreamDto>>(orginalStreams);
+        //    await Publisher.Publish(new UpdateVideoStreamsEvent(), cancellationToken).ConfigureAwait(false);
+        //}
 
         if (cg is not null)
         {
-            await Publisher.Publish(new UpdateChannelGroupEvent(cg), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateChannelGroupEvent(), cancellationToken).ConfigureAwait(false);
         }
 
         return cg;

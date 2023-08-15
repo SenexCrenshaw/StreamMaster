@@ -10,7 +10,6 @@ const PlayListEditor = (props: PlayListEditorProps) => {
 
   const [selectedChannelGroups, setSelectedChannelGroups] = useLocalStorage<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[], props.id + '-selectedChannelGroups');
 
-
   const onsetSelectedChannelGroups = React.useCallback((selectedData: StreamMasterApi.ChannelGroupDto | StreamMasterApi.ChannelGroupDto[]) => {
     if (Array.isArray(selectedData)) {
       setSelectedChannelGroups(selectedData);
@@ -42,7 +41,7 @@ const PlayListEditor = (props: PlayListEditorProps) => {
           </div>
           <div className="col-8 m-0 p-0">
             <VideoStreamDataSelector
-              groups={selectedChannelGroups}
+              channelGroups={selectedChannelGroups}
               id={id}
             />
           </div>

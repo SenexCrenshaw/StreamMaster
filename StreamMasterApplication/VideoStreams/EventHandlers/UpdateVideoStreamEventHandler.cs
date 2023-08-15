@@ -13,10 +13,7 @@ public class UpdateVideoStreamEventHandler : INotificationHandler<UpdateVideoStr
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
     private readonly ILogger<UpdateVideoStreamEventHandler> _logger;
 
-    public UpdateVideoStreamEventHandler(
-         IHubContext<StreamMasterHub, IStreamMasterHub> hubContext,
-        ILogger<UpdateVideoStreamEventHandler> logger
-        )
+    public UpdateVideoStreamEventHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<UpdateVideoStreamEventHandler> logger)
     {
         _hubContext = hubContext;
         _logger = logger;
@@ -24,6 +21,7 @@ public class UpdateVideoStreamEventHandler : INotificationHandler<UpdateVideoStr
 
     public async Task Handle(UpdateVideoStreamEvent notification, CancellationToken cancellationToken = default)
     {
+
         await _hubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);
     }
 }

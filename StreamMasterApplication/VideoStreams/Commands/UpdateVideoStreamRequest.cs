@@ -4,9 +4,10 @@ using FluentValidation;
 
 using MediatR;
 
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMasterApplication.M3UFiles.Commands;
+using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Dto;
@@ -25,18 +26,21 @@ public class UpdateVideoStreamRequestValidator : AbstractValidator<UpdateVideoSt
     }
 }
 
-public class UpdateVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateVideoStreamRequest, VideoStreamDto?>
+public class UpdateVideoStreamRequestHandler : BaseMemoryRequestHandler, IRequestHandler<UpdateVideoStreamRequest, VideoStreamDto?>
 {
 
-    public UpdateVideoStreamRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
+    public UpdateVideoStreamRequestHandler(ILogger<UpdateVideoStreamRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache)
+    { }
 
     public async Task<VideoStreamDto?> Handle(UpdateVideoStreamRequest request, CancellationToken cancellationToken)
     {
-        var ret = await Repository.VideoStream.UpdateVideoStreamAsync(request, cancellationToken).ConfigureAwait(false);
+        VideoStreamDto? ret = await Repository.VideoStream.UpdateVideoStreamAsync(request, cancellationToken).ConfigureAwait(false);
 
         if (ret is not null)
         {
+            List<string> channelnames = await Sender.Send(new GetChannelGroupNamesFromVideoStream(ret), cancellationToken).ConfigureAwait(false);
+            //await Sender.Send(new UpdateChannelGroupCountRequest(ret.User_Tvg_group), cancellationToken).ConfigureAwait(false);
             await Publisher.Publish(new UpdateVideoStreamEvent(ret), cancellationToken).ConfigureAwait(false);
         }
 

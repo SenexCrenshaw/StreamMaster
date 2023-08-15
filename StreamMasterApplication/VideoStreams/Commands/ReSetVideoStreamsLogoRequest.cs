@@ -35,9 +35,9 @@ public class ReSetVideoStreamsLogoHandler : BaseMediatorRequestHandler, IRequest
 
         await Repository.SaveAsync().ConfigureAwait(false);
 
-        List<VideoStreamDto> ret = Mapper.Map<List<VideoStreamDto>>(videoStreams);
-        await Publisher.Publish(new UpdateVideoStreamsEvent(ret), cancellationToken).ConfigureAwait(false);
 
+        await Publisher.Publish(new UpdateVideoStreamsEvent(), cancellationToken).ConfigureAwait(false);
+        List<VideoStreamDto> ret = Mapper.Map<List<VideoStreamDto>>(videoStreams);
         return ret;
     }
 }

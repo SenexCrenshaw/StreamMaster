@@ -2,7 +2,6 @@
 
 using Microsoft.AspNetCore.SignalR;
 
-using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.Hubs;
 
 namespace StreamMasterApplication.ChannelGroups.EventHandlers;
@@ -20,7 +19,7 @@ public class UpdateChannelGroupEventHandler : INotificationHandler<UpdateChannel
 
     public async Task Handle(UpdateChannelGroupEvent notification, CancellationToken cancellationToken)
     {
-        await _sender.Send(new UpdateChannelGroupCountRequest(notification.ChannelGroupDto.Name), cancellationToken).ConfigureAwait(false);
+        //await _sender.Send(new UpdateChannelGroupCountRequest(notification.ChannelGroupDto.Name), cancellationToken).ConfigureAwait(false);
         await _hubContext.Clients.All.ChannelGroupsRefresh().ConfigureAwait(false);
     }
 }

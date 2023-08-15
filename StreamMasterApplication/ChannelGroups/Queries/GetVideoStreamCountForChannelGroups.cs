@@ -10,14 +10,14 @@ using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.ChannelGroups.Queries;
 
-public record GetVideoStreamCountForChannelGroups() : IRequest<IEnumerable<GetChannelGroupVideoStreamCountResponse>>;
+public record GetChannelGroupsVideoStreamCount() : IRequest<IEnumerable<GetChannelGroupVideoStreamCountResponse>>;
 
-internal class GetVideoStreamCountForChannelGroupsHandler : BaseMemoryRequestHandler, IRequestHandler<GetVideoStreamCountForChannelGroups, IEnumerable<GetChannelGroupVideoStreamCountResponse>>
+internal class GetChannelGroupsVideoStreamCountHandler : BaseMemoryRequestHandler, IRequestHandler<GetChannelGroupsVideoStreamCount, IEnumerable<GetChannelGroupVideoStreamCountResponse>>
 {
-    public GetVideoStreamCountForChannelGroupsHandler(ILogger<GetVideoStreamCountForChannelGroupsHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+    public GetChannelGroupsVideoStreamCountHandler(ILogger<GetChannelGroupsVideoStreamCountHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
         : base(logger, repository, mapper, publisher, sender, memoryCache) { }
 
-    public async Task<IEnumerable<GetChannelGroupVideoStreamCountResponse>> Handle(GetVideoStreamCountForChannelGroups request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<GetChannelGroupVideoStreamCountResponse>> Handle(GetChannelGroupsVideoStreamCount request, CancellationToken cancellationToken)
     {
         return MemoryCache.GetChannelGroupVideoStreamCounts();
     }

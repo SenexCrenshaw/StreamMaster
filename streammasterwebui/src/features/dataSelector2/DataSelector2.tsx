@@ -29,7 +29,7 @@ import { useLocalStorage } from 'primereact/hooks';
 import { InputText } from 'primereact/inputtext';
 import { type CSSProperties } from 'react';
 import React from 'react';
-import { camel2title, getTopToolOptions } from '../../common/common';
+import { areFilterMetaEqual, camel2title, getTopToolOptions } from '../../common/common';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
 import { Checkbox } from 'primereact/checkbox';
 
@@ -56,9 +56,8 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
   const [rowClick, setRowClick] = useLocalStorage<boolean>(false, props.id + '-rowClick');
   const [selections, setSelections] = useLocalStorage<T[]>([] as T[], props.id + '-selections');
+  const [sourceFilters, setSourceFilters] = useLocalStorage<DataTableFilterMeta>({} as DataTableFilterMeta, props.id + '-sourceFilters');
 
-  const [previousSourceFilters, setPreviousSourceFilters] = React.useState<DataTableFilterMeta>({} as DataTableFilterMeta);
-  const [sourceFilters, setSourceFilters] = React.useState<DataTableFilterMeta>({} as DataTableFilterMeta);
 
   const [dataSource, setDataSource] = React.useState<PagedTableDto<T>>();
 
@@ -112,50 +111,53 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
     return isLoading || (props.showSkeleton !== undefined && props.showSkeleton)
   }, [isLoading, props.showSkeleton]);
 
+  const onFilter = React.useCallback((event: DataTableStateEvent) => {
+    console.debug("dataselector onFilter", event);
+    setSourceFilters(event.filters);
+    const pageInfo = { ...event };
+
+    pageInfo.page = 0;
+    props.onPage?.(pageInfo);
+    props.onFilter?.(event);
+  }, [props, setSourceFilters]);
+
+
   React.useEffect(() => {
     if (props.columns === undefined) {
       return;
     }
 
-    const filterData = props.columns.reduce((obj, item: ColumnMeta) => {
-      if (item.field === 'isHidden') {
-        console.debug('isHidden', props.showHidden)
-        return {
-          ...obj,
-          [item.field]: {
-            matchMode: FilterMatchMode.EQUALS,
-            value: props.showHidden === null ? null : !props.showHidden
-          },
-        } as DataTableFilterMeta;
-      }
+    if (Object.keys(sourceFilters).length === 0) {
+      return;
+    }
 
-      return {
-        ...obj,
-        [item.field]: {
-          matchMode: item.filterMatchMode ?? FilterMatchMode.CONTAINS,
-          value: ''
-        },
-      } as DataTableFilterMeta;
+    const newSourceFilters = { ...sourceFilters }
 
-    }, {}) as DataTableFilterMeta;
+    newSourceFilters.isHidden = {
+      matchMode: FilterMatchMode.EQUALS,
+      value: props.showHidden
+    }
 
-    const toret = { ...filterData };
+    console.debug('newSourceFilters', newSourceFilters);
+    setSourceFilters(newSourceFilters);
 
-    setSourceFilters(toret);
-
+    // const ret = {} as DataTableStateEvent;
+    // ret.filters = newSourceFilters;
+    // onFilter(ret);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.columns, props.showHidden]);
 
 
-  React.useEffect(() => {
-    if (sourceFilters !== previousSourceFilters) {
-      if (props.onSetSourceFilters !== undefined) {
-        setPreviousSourceFilters(sourceFilters);
-        props.onSetSourceFilters(sourceFilters);
-      }
-    }
+  // React.useEffect(() => {
+  //   if (sourceFilters !== previousSourceFilters) {
+  //     if (props.onSetSourceFilters !== undefined) {
+  //       setPreviousSourceFilters(sourceFilters);
+  //       props.onSetSourceFilters(sourceFilters);
+  //     }
+  //   }
 
 
-  }, [previousSourceFilters, props, sourceFilters]);
+  // }, [previousSourceFilters, props, sourceFilters]);
 
   const getRecord = React.useCallback((data: T, fieldName: string) => {
     type ObjectKey = keyof typeof data;
@@ -201,7 +203,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
   const clearSourceFilter = React.useCallback(() => {
     setSourceFilters({} as DataTableFilterMeta);
     setGlobalSourceFilterValue('');
-  }, [setGlobalSourceFilterValue]);
+  }, [setGlobalSourceFilterValue, setSourceFilters]);
 
   const onGlobalSourceFilterChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -216,7 +218,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
     setSourceFilters(filtersToSet);
 
     setGlobalSourceFilterValue(value);
-  }, [setGlobalSourceFilterValue, sourceFilters]);
+  }, [setGlobalSourceFilterValue, setSourceFilters, sourceFilters]);
 
   const onValueChanged = React.useCallback((data: DataTableRowDataArray<T[]>) => {
     if (!data) {
@@ -878,19 +880,6 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
   }
 
 
-
-  const onFilter = (event: DataTableFilterEvent) => {
-    console.debug("onFilter", event);
-
-    if (event.filters !== undefined) {
-      setSourceFilters(event.filters)
-    }
-
-    props.onFilter?.(event);
-  };
-
-
-
   const onPage = (event: DataTablePageEvent) => {
     console.debug("onPage", event);
     if (event.rows !== undefined) {
@@ -1168,7 +1157,7 @@ export type DataSelector2Props<T> = {
    * The name of the component.
    */
   name?: string;
-  onFilter?: (event: DataTableFilterEvent) => void;
+  onFilter?: (event: DataTableFilterMeta) => void;
   /**
    * A function that is called when the multi-select button is clicked.
    */
