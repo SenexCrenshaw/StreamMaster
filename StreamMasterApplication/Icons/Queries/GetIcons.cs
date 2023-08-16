@@ -6,7 +6,10 @@ using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Filtering;
 using StreamMasterDomain.Pagination;
+
+using System.Text.Json;
 
 namespace StreamMasterApplication.Icons.Queries;
 
@@ -25,10 +28,21 @@ internal class GetIconsHandler : IRequestHandler<GetIcons, PagedResponse<IconFil
 
     public async Task<PagedResponse<IconFileDto>> Handle(GetIcons request, CancellationToken cancellationToken)
     {
-        List<IconFileDto> icons = _memoryCache.GetIcons(_mapper);
+        IQueryable<IconFileDto> icons = _memoryCache.GetIcons(_mapper).AsQueryable();
+
+        if (!string.IsNullOrEmpty(request.iconFileParameters.JSONFiltersString) || !string.IsNullOrEmpty(request.iconFileParameters.OrderBy))
+        {
+            if (!string.IsNullOrEmpty(request.iconFileParameters.JSONFiltersString))
+            {
+                List<DataTableFilterMetaData>? filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(request.iconFileParameters.JSONFiltersString);
+                icons = FilterHelper<IconFileDto>.ApplyFiltersAndSort(icons, filters, request.iconFileParameters.OrderBy);
+            }
+        }
+
+
         IPagedList<IconFileDto> test = await icons.ToPagedListAsync(request.iconFileParameters.PageNumber, request.iconFileParameters.PageSize).ConfigureAwait(false);
 
-        PagedResponse<IconFileDto> pagedResponse = test.ToPagedResponse(icons.Count);
+        PagedResponse<IconFileDto> pagedResponse = test.ToPagedResponse(test.TotalItemCount);
         return pagedResponse;
     }
 }

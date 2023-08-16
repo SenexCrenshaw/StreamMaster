@@ -1,16 +1,18 @@
 
+import { type DropdownFilterEvent } from 'primereact/dropdown';
 import { type DropdownChangeEvent } from 'primereact/dropdown';
 import { Dropdown } from 'primereact/dropdown';
 import { classNames } from 'primereact/utils';
-import { type IconSimpleDto } from '../store/iptvApi';
+import { type IconsGetIconsApiArg } from '../store/iptvApi';
+import { useIconsGetIconsQuery } from '../store/iptvApi';
 import { type IconsGetIconsSimpleQueryApiArg } from '../store/iptvApi';
 import { type IconFileDto } from '../store/iptvApi';
 import { useIconsGetIconsSimpleQueryQuery } from '../store/iptvApi';
 import StreamMasterSetting from '../store/signlar/StreamMasterSetting';
-import { areIconSimpleDtosEqual, getIconUrl } from '../common/common';
+import { areIconFileDtosEqual, type DataTableFilterMetaData } from '../common/common';
+import { addOrUpdateValueForField, getIconUrl } from '../common/common';
 
 import { type VirtualScrollerTemplateOptions } from 'primereact/virtualscroller';
-import { type VirtualScrollerLazyEvent } from 'primereact/virtualscroller';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Skeleton } from 'primereact/skeleton';
 import { GetIconFromSource } from '../store/signlar_functions';
@@ -18,6 +20,7 @@ import { GetIconFromSource } from '../store/signlar_functions';
 
 const IconSelector = (props: IconSelectorProps) => {
   const [selectedIcon, setSelectedIcon] = useState<string>('');
+  const [filter, setFilter] = useState<string>('');
   const setting = StreamMasterSetting();
 
   const [index, setIndex] = useState<number>(0);
@@ -26,37 +29,49 @@ const IconSelector = (props: IconSelectorProps) => {
   const [first, setFirst] = useState<number>(0);
   const [last, setLast] = useState<number>(100);
 
-  const [dataSource, setDataSource] = useState<IconSimpleDto[]>([]);
+  const [dataSource, setDataSource] = useState<IconFileDto[]>([]);
+  const [oldDataSource, setOldDataSource] = useState<IconFileDto[]>([]);
 
-  // const icon = useIconsGetIconFromSourceQuery(selectedIcon);
+  const filteredIcons = useIconsGetIconsQuery({ jsonFiltersString: filter, pageSize: 40 } as IconsGetIconsApiArg);
   const icons = useIconsGetIconsSimpleQueryQuery({ first: first, last: last === 0 ? 1 : last } as IconsGetIconsSimpleQueryApiArg);
 
-  // useEffect(() => {
+  useEffect(() => {
+    if (filter === undefined || filter === '') {
+      if (oldDataSource.length > 0) {
+        setDataSource([...oldDataSource]);
+        setIndex(oldDataSource.length);
+        setOldDataSource([]);
+      }
+    }
 
-  //   if (icon.data === undefined || icon.data.id === undefined) {
-  //     return;
-  //   }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter]);
 
-  //   const newDataSource = [...dataSource];
+  useEffect(() => {
+    if (filteredIcons.data?.data !== undefined && filteredIcons.data.data.length > 0) {
+      setOldDataSource([...dataSource]);
 
-  //   const foundIndex = newDataSource.findIndex((x) => x.id === icon.data?.id);
-  //   if (foundIndex === -1) {
-  //     newDataSource.push(icon.data);
-  //   }
+      const newDataSource = [] as IconFileDto[];
+      filteredIcons.data.data.forEach(function (cn) {
+        const foundIndex = newDataSource.findIndex((x) => x.id === cn.id || x.source === cn.source);
+        if (foundIndex === -1) {
+          newDataSource.push(cn);
+        }
+      });
 
-  //   setIndex(newDataSource.length);
-  //   setDataSource(newDataSource);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [icon.data]);
-
+      setIndex(newDataSource.length);
+      setDataSource(newDataSource);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredIcons]);
 
   useEffect(() => {
     if (icons.data !== undefined && icons.data.length > 0) {
-      if (!areIconSimpleDtosEqual(icons.data, dataSource)) {
+      if (!areIconFileDtosEqual(icons.data, dataSource)) {
 
         const newDataSource = [...dataSource];
         icons.data.forEach(function (cn) {
-          const foundIndex = newDataSource.findIndex((x) => x.id === cn.id);
+          const foundIndex = newDataSource.findIndex((x) => x.id === cn.id || x.source === cn.source);
           if (foundIndex === -1) {
             newDataSource.push(cn);
           }
@@ -185,6 +200,13 @@ const IconSelector = (props: IconSelectorProps) => {
     );
   };
 
+  const onFilter = (event: DropdownFilterEvent) => {
+    console.debug(event);
+    const tosend = [] as DataTableFilterMetaData[];
+    addOrUpdateValueForField(tosend, 'name', 'contains', event.filter);
+    setFilter(JSON.stringify(tosend));
+  }
+
   return (
     <div className="iconSelector flex align-contents-center w-full min-w-full min-w-10rem" >
       <Dropdown
@@ -195,6 +217,7 @@ const IconSelector = (props: IconSelectorProps) => {
         filterInputAutoFocus
         itemTemplate={iconOptionTemplate}
         onChange={onChange}
+        onFilter={onFilter}
         optionLabel="name"
         optionValue="source"
         options={dataSource}
@@ -215,8 +238,9 @@ const IconSelector = (props: IconSelectorProps) => {
           itemSize: 78,
           lazy: true,
           loadingTemplate: loadingTemplate,
-          onLazyLoad: (e: VirtualScrollerLazyEvent) => {
-            if (e.last as number >= index) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          onLazyLoad: (e: any) => {
+            if (e.filter === '' && e.last as number >= index) {
               console.debug(index, e, (e.last as number + 100));
               let firstRecord = e.first as number < index ? index : e.first as number;
               setFirst(firstRecord);

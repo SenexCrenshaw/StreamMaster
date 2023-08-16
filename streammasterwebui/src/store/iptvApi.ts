@@ -1033,7 +1033,7 @@ export type IconsGetIconsApiArg = {
   jsonFiltersString?: string | null;
 };
 export type IconsGetIconsSimpleQueryApiResponse =
-  /** status 200  */ IconSimpleDto[];
+  /** status 200  */ IconFileDto[];
 export type IconsGetIconsSimpleQueryApiArg = {
   count?: number;
   first?: number;
@@ -1406,11 +1406,6 @@ export type PagedResponseOfIconFileDto = {
   totalPageCount: number;
   totalRecords: number;
   first: number;
-};
-export type IconSimpleDto = {
-  id?: number;
-  source?: string;
-  name?: string;
 };
 export type LogLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type LogEntry = {

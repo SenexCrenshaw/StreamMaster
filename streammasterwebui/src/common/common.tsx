@@ -3,7 +3,7 @@ import * as React from 'react';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import { FormattedMessage, useIntl } from 'react-intl';
 
-import { type IconSimpleDto } from '../store/iptvApi';
+import { type IconFileDto } from '../store/iptvApi';
 import { type VideoStreamDto } from '../store/iptvApi';
 import { type ChildVideoStreamDto } from '../store/iptvApi';
 import { baseHostURL, isDebug } from '../settings';
@@ -107,7 +107,7 @@ export function areDataTableFilterMetaDatasEqual(arr1: DataTableFilterMetaData[]
   return true;
 }
 
-export function compareIconSimpleDto(a: IconSimpleDto, b: IconSimpleDto): number {
+export function compareIconFileDto(a: IconFileDto, b: IconFileDto): number {
   // Compare by id
   if (a.id !== undefined && b.id !== undefined) {
     if (a.id < b.id) return -1;
@@ -128,13 +128,13 @@ export function compareIconSimpleDto(a: IconSimpleDto, b: IconSimpleDto): number
   return 0;
 }
 
-export function areIconSimpleDtosEqual(array1: IconSimpleDto[], array2: IconSimpleDto[]): boolean {
+export function areIconFileDtosEqual(array1: IconFileDto[], array2: IconFileDto[]): boolean {
   if (array1.length !== array2.length) {
     return false;
   }
 
   for (let i = 0; i < array1.length; i++) {
-    if (compareIconSimpleDto(array1[i], array2[i]) !== 0) {
+    if (compareIconFileDto(array1[i], array2[i]) !== 0) {
       return false;
     }
   }
