@@ -153,6 +153,11 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         return FindAll();
     }
 
+    public IQueryable<string> GetAllChannelGroupNames()
+    {
+        return FindAll().OrderBy(a => a.Name).Select(a => a.Name);
+    }
+
     public async Task<PagedResponse<ChannelGroupDto>> GetChannelGroupsAsync(ChannelGroupParameters channelGroupParameters)
     {
         PagedResponse<ChannelGroupDto> channelGroups = await GetEntitiesAsync<ChannelGroupDto>(channelGroupParameters, _mapper).ConfigureAwait(false);

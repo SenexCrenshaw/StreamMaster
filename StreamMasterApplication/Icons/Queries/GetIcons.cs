@@ -12,12 +12,12 @@ namespace StreamMasterApplication.Icons.Queries;
 
 public record GetIcons(IconFileParameters iconFileParameters) : IRequest<IPagedList<IconFileDto>>;
 
-internal class GetIconsQueryHandler : IRequestHandler<GetIcons, IPagedList<IconFileDto>>
+internal class GetIconsHandler : IRequestHandler<GetIcons, IPagedList<IconFileDto>>
 {
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
 
-    public GetIconsQueryHandler(IMemoryCache memoryCache, IMapper mapper)
+    public GetIconsHandler(IMemoryCache memoryCache, IMapper mapper)
     {
         _memoryCache = memoryCache;
         _mapper = mapper;

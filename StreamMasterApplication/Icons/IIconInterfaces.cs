@@ -14,6 +14,7 @@ public interface IIconController
     Task<ActionResult<IconFileDto>> GetIcon(int Id);
 
     Task<ActionResult<IEnumerable<IconFileDto>>> GetIcons(IconFileParameters iconFileParameters);
+    Task<ActionResult<IEnumerable<IconSimpleDto>>> GetIconsSimpleQuery();
 }
 
 public interface IIconDB
@@ -25,8 +26,8 @@ public interface IIconHub
     Task AutoMatchIconToStreams(AutoMatchIconToStreamsRequest request);
 
     Task<IconFileDto?> GetIcon(int Id);
-
     Task<IEnumerable<IconFileDto>> GetIcons(IconFileParameters iconFileParameters);
+    Task<IEnumerable<IconSimpleDto>> GetIconsSimpleQuery();
 }
 
 public interface IIconScoped

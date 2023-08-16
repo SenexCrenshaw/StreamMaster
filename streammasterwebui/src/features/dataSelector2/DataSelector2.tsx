@@ -56,7 +56,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
   const [rowClick, setRowClick] = useLocalStorage<boolean>(false, props.id + '-rowClick');
   const [selections, setSelections] = useLocalStorage<T[]>([] as T[], props.id + '-selections');
-  const [sourceFilters, setSourceFilters] = useLocalStorage<DataTableFilterMeta>({} as DataTableFilterMeta, props.id + '-sourceFilters');
+  const [sourceFilters, setSourceFilters] = useLocalStorage<DataTableFilterMeta | undefined>(undefined, props.id + '-sourceFilters');
 
 
   const [dataSource, setDataSource] = React.useState<PagedTableDto<T>>();
@@ -99,20 +99,20 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
       return true;
     }
 
-    if (channelGroupsQuery.isLoading || !channelGroupsQuery.data) {
+    if (channelGroupsQuery.isLoading || channelGroupsQuery.isFetching) {
       return true;
     }
 
     return false;
 
-  }, [channelGroupsQuery.data, channelGroupsQuery.isLoading, globalSourceFilterValue, props.isLoading, rowClick]);
+  }, [channelGroupsQuery.isFetching, channelGroupsQuery.isLoading, globalSourceFilterValue, props.isLoading, rowClick]);
 
-  const showSkeleton = React.useMemo(() => {
-    return isLoading || (props.showSkeleton !== undefined && props.showSkeleton)
-  }, [isLoading, props.showSkeleton]);
+  // const showSkeleton = React.useMemo(() => {
+  //   return isLoading || (props.showSkeleton !== undefined && props.showSkeleton)
+  // }, [isLoading, props.showSkeleton]);
 
   const onFilter = React.useCallback((event: DataTableStateEvent) => {
-    console.debug("dataselector onFilter", event);
+
     setSourceFilters(event.filters);
     const pageInfo = { ...event };
 
@@ -127,37 +127,51 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
       return;
     }
 
-    if (Object.keys(sourceFilters).length === 0) {
+    if (sourceFilters === undefined) {
       return;
     }
 
-    const newSourceFilters = { ...sourceFilters }
+    const filterData = props.columns.reduce<DataTableFilterMeta>((obj, item: ColumnMeta) => {
+      if (item.field === 'isHidden') {
 
-    newSourceFilters.isHidden = {
-      matchMode: FilterMatchMode.EQUALS,
-      value: props.showHidden
+        return {
+          ...obj,
+          [item.field]: {
+            matchMode: FilterMatchMode.EQUALS,
+            value: props.showHidden === null ? null : !props.showHidden
+          },
+        } as DataTableFilterMeta;
+      }
+
+      let value = '';
+      if (Object.keys(sourceFilters).length > 0) {
+        const test = sourceFilters[item.field] as DataTableFilterMetaData;
+        if (test !== undefined) {
+          value = test.value;
+        }
+      }
+
+      return {
+        ...obj,
+        [item.field]: {
+          matchMode: item.filterMatchMode ?? FilterMatchMode.CONTAINS,
+          value: value
+        },
+      } as DataTableFilterMeta;
+    }, {});
+
+    if (!areFilterMetaEqual(filterData, sourceFilters)) {
+      setSourceFilters(filterData);
     }
 
-    console.debug('newSourceFilters', newSourceFilters);
-    setSourceFilters(newSourceFilters);
 
-    // const ret = {} as DataTableStateEvent;
-    // ret.filters = newSourceFilters;
-    // onFilter(ret);
+    const event = {} as DataTableStateEvent;
+    event.filters = filterData;
+    props.onFilter?.(event);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.columns, props.showHidden]);
+  }, [props.columns, props.showHidden, sourceFilters]);
 
 
-  // React.useEffect(() => {
-  //   if (sourceFilters !== previousSourceFilters) {
-  //     if (props.onSetSourceFilters !== undefined) {
-  //       setPreviousSourceFilters(sourceFilters);
-  //       props.onSetSourceFilters(sourceFilters);
-  //     }
-  //   }
-
-
-  // }, [previousSourceFilters, props, sourceFilters]);
 
   const getRecord = React.useCallback((data: T, fieldName: string) => {
     type ObjectKey = keyof typeof data;
@@ -414,13 +428,6 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
   React.useEffect(() => {
     if (props.dataSource !== undefined) {
       setDataSource(props.dataSource);
-      // console.debug("Set Data Source", props.dataSource.length);
-
-
-      // if (props.dataSource.length < 4) {
-      //   console.debug("Set Data Source", props.dataSource);
-      // }
-
     }
 
   }, [props.dataSource]);
@@ -428,7 +435,6 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
   React.useEffect(() => {
 
     if (dataSource?.data !== undefined && props.enableVirtualScroll === true && dataSource.data.length > 0) {
-      // console.debug("Scroll to ", dataSource.length);
 
       if (tableRef.current?.getVirtualScroller()?.scrollToIndex !== undefined) {
         tableRef.current.getVirtualScroller().scrollToIndex(10, 'auto');
@@ -481,19 +487,19 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
         <div className="flex col-2 text-orange-500 h-full text-sm align-items-center p-0 debug" >
           {props.name}
           <div hidden={props.selectionMode !== 'selectable'}>
-            {showSkeleton && <Skeleton height="1rem" width="2rem" />}
-            {showSkeleton !== true &&
-              <Checkbox
-                checked={rowClick}
-                onChange={(e) => {
-                  props?.onMultiSelectClick?.(e.checked ?? false);
-                  setRowClick(e.checked ?? false);
-                }
-                }
-                tooltip="Multi Select"
-                tooltipOptions={getTopToolOptions}
-              />
-            }
+            {/* {showSkeleton && <Skeleton height="1rem" width="2rem" />}
+            {showSkeleton !== true && */}
+            <Checkbox
+              checked={rowClick}
+              onChange={(e) => {
+                props?.onMultiSelectClick?.(e.checked ?? false);
+                setRowClick(e.checked ?? false);
+              }
+              }
+              tooltip="Multi Select"
+              tooltipOptions={getTopToolOptions}
+            />
+            {/* } */}
           </div>
         </div>
         <div className="flex flex-wrap col-10 h-full justify-contents-between align-items-center p-0 m-0 debug">
@@ -502,9 +508,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
             <div className={`flex debug flex-nowrap justify-content-start header p-0 m-0 align-items-center ${props?.headerLeftTemplate !== undefined ? `col-${props.leftColSize !== undefined ? props.leftColSize : 4}` : 'col-1'}`}>
 
               {props.headerLeftTemplate ?
-                showSkeleton ? <Skeleton className="mb-2" height="1.5rem" />
-                  :
-                  props.headerLeftTemplate
+                props.headerLeftTemplate
                 : null}
             </div >
 
@@ -513,38 +517,31 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
 
                 <div className={`col-${props.rightColSize !== undefined ? 12 - props.rightColSize : '6'} flex debug p-0 m-0 justify-content-start align-items-center`}>
-                  {showSkeleton ?
+
+                  {props.globalSearchEnabled === true &&
                     <>
-                      <Skeleton className="mb-2" height="1.5rem" />
-                      <Skeleton className="mb-2" height="1.5rem" />
-                    </>
-                    :
-                    <>
-                      {props.globalSearchEnabled === true &&
-                        <>
-                          <Button
-                            className="p-button-text"
-                            hidden={props.columns === undefined || props.columns.length === 0}
-                            icon="pi pi-filter-slash"
-                            onClick={clearSourceFilter}
-                            rounded
-                            text
-                            tooltip="Clear Filter"
-                            tooltipOptions={getTopToolOptions}
-                            type="button"
-                          />
-                          <InputText
-                            className="withpadding flex w-full"
-                            disabled={props.columns === undefined || props.columns.length === 0}
-                            hidden={props.columns === undefined || props.columns.length === 0}
-                            onChange={((e) => onGlobalSourceFilterChange(e))}
-                            placeholder={globalSearchName}
-                            value={globalSourceFilterValue ?? ''}
-                          />
-                        </>
-                      }
+                      <Button
+                        className="p-button-text"
+                        hidden={props.columns === undefined || props.columns.length === 0}
+                        icon="pi pi-filter-slash"
+                        onClick={clearSourceFilter}
+                        rounded
+                        text
+                        tooltip="Clear Filter"
+                        tooltipOptions={getTopToolOptions}
+                        type="button"
+                      />
+                      <InputText
+                        className="withpadding flex w-full"
+                        disabled={props.columns === undefined || props.columns.length === 0}
+                        hidden={props.columns === undefined || props.columns.length === 0}
+                        onChange={((e) => onGlobalSourceFilterChange(e))}
+                        placeholder={globalSearchName}
+                        value={globalSourceFilterValue ?? ''}
+                      />
                     </>
                   }
+
                 </div>
 
 
@@ -562,11 +559,9 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
                       type="button"
                     />
                   }
-                  {showSkeleton ?
-                    <Skeleton className="mb-2" height="1.5rem" />
-                    :
-                    props.headerRightTemplate
-                  }
+
+                  {props.headerRightTemplate}
+
                 </div>
 
               </div>
@@ -575,7 +570,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
         </div>
       </div>
     );
-  }, [clearSourceFilter, globalSearchName, globalSourceFilterValue, onGlobalSourceFilterChange, props, rowClick, setRowClick, showSkeleton]);
+  }, [clearSourceFilter, globalSearchName, globalSourceFilterValue, onGlobalSourceFilterChange, props, rowClick, setRowClick]);
 
   const onsetSelection = React.useCallback((e: T | T[]): T | T[] | undefined => {
 
@@ -881,7 +876,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
 
   const onPage = (event: DataTablePageEvent) => {
-    console.debug("onPage", event);
+
     if (event.rows !== undefined) {
       setPageSize(event.rows);
     }
@@ -890,7 +885,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
   };
 
   const onSort = (event: DataTableSortEvent) => {
-    console.debug("onSort", event);
+
     if (event.sortOrder !== undefined) {
       setSortOrder(event.sortOrder);
     }
@@ -901,58 +896,6 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
     props.onSort?.(event);
   };
-
-
-  if (showSkeleton) {
-    return (
-      <div className='dataselector2 flex justify-content-start align-items-center' >
-        <div className={`${props.className !== undefined ? props.className : ''} flex min-w-full min-h-full surface-overlay`}>
-
-          <DataTable className="p-datatable-striped" header={sourceRenderHeader} value={items.concat(items)}>
-            <Column
-              body={<Skeleton />}
-              className='max-w-1rem p-0 justify-content-center align-items-center'
-              field='selector'
-              header=""
-              hidden={!props.showSelector}
-              style={{ width: '1rem' }}
-            />
-            <Column
-              body={<Skeleton />}
-              className='max-w-2rem p-0 justify-content-center align-items-center'
-              field='rank'
-              hidden={!props.reorderable}
-              rowReorder
-              style={{ width: '2rem' }}
-            />
-            <Column
-              align='center'
-              alignHeader='center'
-              body={<Skeleton />}
-              className='max-w-3rem p-0'
-              field='getSelectionMode'
-              headerStyle={{ width: '3rem' }}
-              hidden={getSelectionMode === 'single'}
-            />
-            {props.columns.map((col) => (
-              <Column
-                align={getAlign(col.align, col.fieldType)}
-                alignHeader={getAlignHeader(col.align, col.fieldType)}
-                body={<Skeleton />}
-
-                header={getHeader(col.field, col.header, col.fieldType)}
-                hidden={col.isHidden ?? false}
-                key={!col.fieldType ? col.field : col.field + col.fieldType}
-                style={getStyle(col.style, col.fieldType)}
-              />
-
-            ))}
-          </DataTable>
-
-        </div>
-      </div >
-    );
-  }
 
 
   return (
@@ -1198,7 +1141,6 @@ export type DataSelector2Props<T> = {
   showHidden?: boolean | null | undefined;
   showPagination?: boolean;
   showSelector?: boolean;
-  showSkeleton?: boolean;
   /**
    * The field to sort the data by.
    */

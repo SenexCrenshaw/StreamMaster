@@ -11,7 +11,7 @@ import { Toast } from 'primereact/toast';
 const ChannelGroupSelector = (props: ChannelGroupSelectorProps) => {
   const toast = React.useRef<Toast>(null);
 
-  const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery({} as StreamMasterApi.ChannelGroupsGetChannelGroupsApiArg);
+  const channelGroupNamesQuery = StreamMasterApi.useChannelGroupsGetChannelGroupNamesQuery();
 
   const [channelGroup, setChannelGroup] = React.useState<string>('');
 
@@ -24,13 +24,13 @@ const ChannelGroupSelector = (props: ChannelGroupSelectorProps) => {
   }, [props.value]);
 
   const options = React.useMemo(() => {
-    if (!channelGroupsQuery.data?.data) return [];
+    if (!channelGroupNamesQuery.data) return [];
 
-    return channelGroupsQuery.data.data.map((cg) => {
-      return { label: cg.name, value: cg.name };
+    return channelGroupNamesQuery.data.map((cg) => {
+      return { label: cg, value: cg };
     });
 
-  }, [channelGroupsQuery.data]);
+  }, [channelGroupNamesQuery.data]);
 
   const onChannelGroupAddDialogClose = React.useCallback((newGroupName: string) => {
     setChannelGroup(newGroupName);
@@ -83,10 +83,9 @@ const ChannelGroupSelector = (props: ChannelGroupSelectorProps) => {
         <Dropdown
           className='iconSelector p-0 m-0 w-full'
           filter
-          filterTemplate={filterTemplate}
           onChange={((e) => props.onChange(e.value))}
           options={options}
-          placeholder="Group"
+          placeholder="No Group"
           style={{
             ...{
               backgroundColor: 'var(--mask-bg)',

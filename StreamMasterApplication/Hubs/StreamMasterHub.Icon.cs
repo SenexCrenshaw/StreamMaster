@@ -9,10 +9,6 @@ namespace StreamMasterApplication.Hubs;
 
 public partial class StreamMasterHub : IIconHub
 {
-    //public async Task<IconFileDto?> AddIconFile(AddIconFileRequest request)
-    //{
-    //    return await _mediator.Send(request).ConfigureAwait(false);
-    //}
 
     public async Task AutoMatchIconToStreams(AutoMatchIconToStreamsRequest request)
     {
@@ -27,6 +23,12 @@ public partial class StreamMasterHub : IIconHub
     public async Task<IEnumerable<IconFileDto>> GetIcons(IconFileParameters iconFileParameters)
     {
         IEnumerable<IconFileDto> data = await _mediator.Send(new GetIcons(iconFileParameters)).ConfigureAwait(false);
-        return data.ToList();
+        return data;
+    }
+
+    public async Task<IEnumerable<IconSimpleDto>> GetIconsSimpleQuery()
+    {
+        IEnumerable<IconSimpleDto> data = await _mediator.Send(new GetIconsSimpleQuery()).ConfigureAwait(false);
+        return data;
     }
 }

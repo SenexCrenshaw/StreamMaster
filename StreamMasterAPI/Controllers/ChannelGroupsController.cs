@@ -3,7 +3,6 @@
 using StreamMasterApplication.ChannelGroups;
 using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.ChannelGroups.Queries;
-using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
@@ -38,6 +37,14 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
         ChannelGroupDto? data = await Mediator.Send(new GetChannelGroup(id)).ConfigureAwait(false);
 
         return data != null ? (ActionResult<ChannelGroupDto>)data : (ActionResult<ChannelGroupDto>)NotFound();
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<string>>> GetChannelGroupNames()
+    {
+        List<string> res = await Mediator.Send(new GetChannelGroupNamesQuery()).ConfigureAwait(false);
+        return Ok(res);
     }
 
     [HttpGet]

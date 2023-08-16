@@ -22,10 +22,8 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
     setShowOverlay(false);
     setInfoMessage('');
     setBlock(false);
-    setRegex('');
-    setNewGroupName('');
-    props.onClose?.();
-  }, [props]);
+    props.onClose?.(newGroupName);
+  }, [props, newGroupName]);
 
 
   React.useEffect(() => {
@@ -47,7 +45,7 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
 
     const tosend = {} as StreamMasterApi.UpdateChannelGroupRequest;
 
-    tosend.groupName = props.value?.name;
+    tosend.channelGroupName = props.value?.name;
     tosend.newGroupName = newGroupName;
 
     if (regex !== undefined && regex !== '') {
@@ -153,7 +151,7 @@ ChannelGroupEditDialog.defaultProps = {
 };
 
 type ChannelGroupEditDialogProps = {
-  onClose?: (() => void);
+  onClose?: ((newName: string) => void);
   value?: StreamMasterApi.ChannelGroupDto | undefined;
 };
 

@@ -5,6 +5,7 @@ namespace StreamMasterDomain.Repository
 {
     public interface IChannelGroupRepository
     {
+        IQueryable<string> GetAllChannelGroupNames();
         IQueryable<ChannelGroup> GetAllChannelGroups();
 
         Task<ChannelGroup?> GetChannelGroupByNameAsync(string name);

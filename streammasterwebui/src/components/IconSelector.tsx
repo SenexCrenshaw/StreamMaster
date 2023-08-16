@@ -2,9 +2,8 @@ import { type DropdownChangeEvent } from 'primereact/dropdown';
 import { Dropdown } from 'primereact/dropdown';
 import { classNames } from 'primereact/utils';
 import * as React from 'react';
-import { type IconsGetIconsApiArg } from '../store/iptvApi';
 import { type IconFileDto } from '../store/iptvApi';
-import { useIconsGetIconsQuery } from '../store/iptvApi';
+import { useIconsGetIconsSimpleQueryQuery } from '../store/iptvApi';
 import StreamMasterSetting from '../store/signlar/StreamMasterSetting';
 import { getIconUrl } from '../common/common';
 
@@ -13,7 +12,7 @@ const IconSelector = (props: IconSelectorProps) => {
   const [selectedIcon, setSelectedIcon] = React.useState<string>('');
   const setting = StreamMasterSetting();
 
-  const icons = useIconsGetIconsQuery({} as IconsGetIconsApiArg);
+  const icons = useIconsGetIconsSimpleQueryQuery();
 
   React.useEffect(() => {
     if (props.value !== undefined) {
@@ -39,8 +38,6 @@ const IconSelector = (props: IconSelectorProps) => {
     if (!option || option.source === undefined || option.source === null) {
       return (<div />);
     }
-
-
 
     if (props.useDefault !== true && option.source === '') {
       return (<div />);

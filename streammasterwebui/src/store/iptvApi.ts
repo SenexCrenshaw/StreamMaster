@@ -65,6 +65,13 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/channelgroups/${queryArg}` }),
         providesTags: ["ChannelGroups"],
       }),
+      channelGroupsGetChannelGroupNames: build.query<
+        ChannelGroupsGetChannelGroupNamesApiResponse,
+        ChannelGroupsGetChannelGroupNamesApiArg
+      >({
+        query: () => ({ url: `/api/channelgroups/getchannelgroupnames` }),
+        providesTags: ["ChannelGroups"],
+      }),
       channelGroupsGetVideoStreamsForChannelGroups: build.query<
         ChannelGroupsGetVideoStreamsForChannelGroupsApiResponse,
         ChannelGroupsGetVideoStreamsForChannelGroupsApiArg
@@ -252,6 +259,13 @@ const injectedRtkApi = api
           providesTags: ["Icons"],
         }
       ),
+      iconsGetIconsSimpleQuery: build.query<
+        IconsGetIconsSimpleQueryApiResponse,
+        IconsGetIconsSimpleQueryApiArg
+      >({
+        query: () => ({ url: `/api/icons/geticonssimplequery` }),
+        providesTags: ["Icons"],
+      }),
       logsGetLogRequest: build.mutation<
         LogsGetLogRequestApiResponse,
         LogsGetLogRequestApiArg
@@ -916,6 +930,9 @@ export type ChannelGroupsDeleteChannelGroupApiArg = DeleteChannelGroupRequest;
 export type ChannelGroupsGetChannelGroupApiResponse =
   /** status 200  */ ChannelGroupDto;
 export type ChannelGroupsGetChannelGroupApiArg = number;
+export type ChannelGroupsGetChannelGroupNamesApiResponse =
+  /** status 200  */ string[];
+export type ChannelGroupsGetChannelGroupNamesApiArg = void;
 export type ChannelGroupsGetVideoStreamsForChannelGroupsApiResponse =
   /** status 200  */ PagedResponseOfVideoStreamDto;
 export type ChannelGroupsGetVideoStreamsForChannelGroupsApiArg = {
@@ -982,6 +999,9 @@ export type IconsGetIconsApiArg = {
   jsonArgumentString?: string | null;
   jsonFiltersString?: string | null;
 };
+export type IconsGetIconsSimpleQueryApiResponse =
+  /** status 200  */ IconSimpleDto[];
+export type IconsGetIconsSimpleQueryApiArg = void;
 export type LogsGetLogRequestApiResponse = /** status 200  */ LogEntryDto[];
 export type LogsGetLogRequestApiArg = GetLog;
 export type M3UFilesCreateM3UFileApiResponse = unknown;
@@ -1185,13 +1205,13 @@ export type CreateChannelGroupRequest = {
   rank: number;
   regex: string | null;
 };
-export type GetVideoStreamCountForChannelGroupResponse = {
+export type GetChannelGroupVideoStreamCountResponse = {
   id?: number;
   activeCount?: number;
   totalCount?: number;
   hiddenCount?: number;
 };
-export type ChannelGroupArg = GetVideoStreamCountForChannelGroupResponse & {
+export type ChannelGroupArg = GetChannelGroupVideoStreamCountResponse & {
   isHidden?: boolean | null;
   isReadOnly?: boolean | null;
   name: string;
@@ -1261,7 +1281,7 @@ export type SetChannelGroupsVisibleRequest = {
   requests: SetChannelGroupsVisibleArg[];
 };
 export type UpdateChannelGroupRequest = {
-  groupName?: string;
+  channelGroupName?: string;
   newGroupName?: string | null;
   isHidden?: boolean | null;
   rank?: number | null;
@@ -1325,6 +1345,11 @@ export type IconFileDto = {
   id: number;
   name: string;
   source: string;
+};
+export type IconSimpleDto = {
+  id?: number;
+  source?: string;
+  name?: string;
 };
 export type LogLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type LogEntry = {
@@ -1881,6 +1906,7 @@ export const {
   useChannelGroupsGetChannelGroupsQuery,
   useChannelGroupsDeleteChannelGroupMutation,
   useChannelGroupsGetChannelGroupQuery,
+  useChannelGroupsGetChannelGroupNamesQuery,
   useChannelGroupsGetVideoStreamsForChannelGroupsQuery,
   useChannelGroupsSetChannelGroupsVisibleMutation,
   useChannelGroupsUpdateChannelGroupMutation,
@@ -1898,6 +1924,7 @@ export const {
   useIconsAutoMatchIconToStreamsMutation,
   useIconsGetIconQuery,
   useIconsGetIconsQuery,
+  useIconsGetIconsSimpleQueryQuery,
   useLogsGetLogRequestMutation,
   useM3UFilesCreateM3UFileMutation,
   useM3UFilesCreateM3UFileFromFormMutation,

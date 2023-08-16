@@ -1,9 +1,6 @@
-﻿using MediatR;
-
-using StreamMasterApplication.ChannelGroups;
+﻿using StreamMasterApplication.ChannelGroups;
 using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.ChannelGroups.Queries;
-using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
@@ -27,15 +24,21 @@ public partial class StreamMasterHub : IChannelGroupHub
         return await _mediator.Send(new GetChannelGroup(id)).ConfigureAwait(false);
     }
 
+    public async Task<List<string>> GetChannelGroupNames()
+    {
+        List<string> ret = await _mediator.Send(new GetChannelGroupNamesQuery()).ConfigureAwait(false);
+        return ret;
+    }
+
     public async Task<PagedResponse<ChannelGroupDto>> GetChannelGroups(ChannelGroupParameters channelGroupParameters)
     {
-        var ret = await _mediator.Send(new GetChannelGroupsQuery(channelGroupParameters)).ConfigureAwait(false);
+        PagedResponse<ChannelGroupDto> ret = await _mediator.Send(new GetChannelGroupsQuery(channelGroupParameters)).ConfigureAwait(false);
         return ret;
     }
 
     public async Task<PagedResponse<VideoStreamDto>> GetVideoStreamsForChannelGroups(VideoStreamParameters videoStreamParameters)
     {
-        var ret = await _mediator.Send(new GetVideoStreamsForChannelGroups(videoStreamParameters)).ConfigureAwait(false);
+        PagedResponse<VideoStreamDto> ret = await _mediator.Send(new GetVideoStreamsForChannelGroups(videoStreamParameters)).ConfigureAwait(false);
         return ret;
     }
 

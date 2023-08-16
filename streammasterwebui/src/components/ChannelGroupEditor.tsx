@@ -12,6 +12,7 @@ const ChannelGroupEditor = (props: ChannelGroupEditorProps) => {
       return;
     }
 
+    return;
     const data = {} as StreamMasterApi.UpdateVideoStreamRequest;
     data.id = props.data.id;
     data.tvg_group = groupName;

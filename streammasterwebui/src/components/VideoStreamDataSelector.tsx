@@ -1,14 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react/no-unused-prop-types */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 
 import { type CSSProperties } from "react";
 import React from "react";
-import DataSelector from "../features/dataSelector/DataSelector";
+
 import * as StreamMasterApi from '../store/iptvApi';
-import { addOrUpdateValueForField, areDataTableFilterMetaDataEqual, areDataTableFilterMetaDatasEqual, areFilterMetaEqual, type DataTableFilterMetaData } from "../common/common";
+
+import { addOrUpdateValueForField, type DataTableFilterMetaData } from "../common/common";
 import { getTopToolOptions } from "../common/common";
-import { Toast } from 'primereact/toast';
 import { UpdateVideoStream } from "../store/signlar_functions";
 import { useLocalStorage } from "primereact/hooks";
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
@@ -34,23 +31,24 @@ import VideoStreamSetEPGFromNameDialog from "./VideoStreamSetEPGFromNameDialog";
 import VideoStreamSetEPGsFromNameDialog from "./VideoStreamSetEPGsFromNameDialog";
 import DataSelector2 from "../features/dataSelector2/DataSelector2";
 import { type DataTableFilterEvent } from "primereact/datatable";
-import { type DataTableFilterMeta, type DataTableFilterMetaData as DMD } from "primereact/datatable";
+import { Toast } from "primereact/toast";
 
 const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
-
   const [enableEditMode, setEnableEditMode] = useLocalStorage(true, props.id + '-enableEditMode');
 
   const [selectedVideoStreams, setSelectedVideoStreams] = React.useState<StreamMasterApi.VideoStreamDto[]>([] as StreamMasterApi.VideoStreamDto[]);
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
   const [channelGroupNamesString, setChannelGroupNamesString] = React.useState<string>('');
-  const [filter, setFilter] = React.useState<string>('');
-  const [filters, setFilters] = React.useState<DataTableFilterMetaData[]>([] as DataTableFilterMetaData[]);
+
+  const [dataFilters, setDataFilters] = React.useState<DataTableFilterMetaData[]>([] as DataTableFilterMetaData[]);
+  const [filters, setFilters] = React.useState<string>('');
+
   const [pageSize, setPageSize] = React.useState<number>(25);
   const [pageNumber, setPageNumber] = React.useState<number>(1);
   const [orderBy, setOrderBy] = React.useState<string>('user_tvg_name');
 
-  const videoStreamsQuery = StreamMasterApi.useChannelGroupsGetVideoStreamsForChannelGroupsQuery({ jsonArgumentString: channelGroupNamesString, jsonFiltersString: filter, orderBy: orderBy ?? 'name', pageNumber: pageNumber === 0 ? 25 : pageNumber, pageSize: pageSize } as StreamMasterApi.ChannelGroupsGetVideoStreamsForChannelGroupsApiArg);
+  const videoStreamsQuery = StreamMasterApi.useChannelGroupsGetVideoStreamsForChannelGroupsQuery({ jsonArgumentString: channelGroupNamesString, jsonFiltersString: filters, orderBy: orderBy ?? 'name', pageNumber: pageNumber === 0 ? 1 : pageNumber, pageSize: pageSize } as StreamMasterApi.ChannelGroupsGetVideoStreamsForChannelGroupsApiArg);
 
   React.useEffect(() => {
     const callback = (event: KeyboardEvent) => {
@@ -327,43 +325,35 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
     const tosend = [] as DataTableFilterMetaData[];
 
-    filters.forEach((item) => {
+    dataFilters.forEach((item) => {
       const newValue = { ...item } as DataTableFilterMetaData;
       tosend.push(newValue);
 
     })
 
+    const findIndex = tosend.findIndex((a) => a.matchMode === 'channelGroups');
+    if (findIndex !== -1) {
+      tosend.splice(findIndex, 1);
+    }
+
     if (props.channelGroups && props.channelGroups.length > 0) {
       const channelNames = JSON.stringify(props.channelGroups.map(a => a.name));
-      const findIndex = tosend.findIndex((a) => a.matchMode === 'channelGroups');
-      if (findIndex !== -1) {
-        tosend.splice(findIndex, 1);
-      }
-
       addOrUpdateValueForField(tosend, 'user_Tvg_group', 'channelGroups', channelNames);
     }
 
-    if (areDataTableFilterMetaDatasEqual(filters, tosend)) {
-      return;
-    }
+    setFilters(JSON.stringify(tosend));
+    setDataFilters(tosend);
 
-    console.debug('PlayListDataSelector useEffect ', tosend)
-    setFilters(tosend);
-    setFilter(JSON.stringify(tosend));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.channelGroups]);
 
-  const setFilterByEvent = React.useCallback((toFilter: DataTableFilterEvent): DataTableFilterMetaData[] => {
-    if (!props.channelGroups) {
-      return [] as DataTableFilterMetaData[];
-    }
+  const setFilter = React.useCallback((toFilter: DataTableFilterEvent): DataTableFilterMetaData[] => {
 
-    if (toFilter.filters === undefined) {
+    if (toFilter === undefined || toFilter.filters === undefined) {
       return [] as DataTableFilterMetaData[];
     }
 
     const tosend = [] as DataTableFilterMetaData[];
-
     Object.keys(toFilter.filters).forEach((key) => {
       const value = toFilter.filters[key] as DataTableFilterMetaData;
       if (value.value === null || value.value === undefined || value.value === '') {
@@ -373,26 +363,25 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       const newValue = { ...value } as DataTableFilterMetaData;
       newValue.fieldName = key;
       newValue.valueType = typeof value.value;
-
       tosend.push(newValue);
     });
+
 
     if (props.channelGroups && props.channelGroups.length > 0) {
       const channelNames = JSON.stringify(props.channelGroups.map(a => a.name));
       addOrUpdateValueForField(tosend, 'user_Tvg_group', 'channelGroups', channelNames);
     }
 
-    console.debug('setFilterByEvent', tosend)
-    setFilters(tosend);
-    setFilter(JSON.stringify(tosend));
-
+    setFilters(JSON.stringify(tosend));
+    setDataFilters(tosend);
     return tosend;
+
   }, [props.channelGroups]);
 
 
   return (
-    <>
 
+    <>
       <Toast position="bottom-right" ref={toast} />
       <DataSelector2
         columns={targetColumns}
@@ -401,14 +390,13 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         enableState={false}
         headerRightTemplate={rightHeaderTemplate}
         id={props.id + 'VideoStreamDataSelector'}
-        isLoading={videoStreamsQuery.isLoading}
+        isLoading={videoStreamsQuery.isLoading || videoStreamsQuery.isFetching}
         leftColSize={1}
         name='Playlist Streams'
         onFilter={(filterInfo) => {
-          setFilterByEvent(filterInfo as DataTableFilterEvent);
+          setFilter(filterInfo as DataTableFilterEvent);
         }}
         onPage={(pageInfo) => {
-          console.debug(pageInfo.page, pageInfo.first, pageInfo.rows, pageInfo.pageCount, pageInfo.pageCount);
           if (pageInfo.page !== undefined) {
             setPageNumber(pageInfo.page + 1);
           }
@@ -423,10 +411,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
           props.onSelectionChange?.(e as StreamMasterApi.VideoStreamDto[]);
         }}
         onSort={(sortInfo) => {
-          console.debug('PlayListDataSelector onSort', sortInfo);
           if (sortInfo.sortField !== null && sortInfo.sortField !== undefined) {
-            const index = targetColumns.findIndex((c) => c.field === sortInfo.sortField);
-
             if (sortInfo.sortOrder === 1) {
               setOrderBy(sortInfo.sortField + " asc");
             }
@@ -437,11 +422,8 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
         }}
         rightColSize={4}
-        // selection={selectedVideoStreams}
         selectionMode='multiple'
         showHidden={showHidden}
-        showSkeleton={videoStreamsQuery.isLoading || enableEditMode === undefined}
-        // sortField='user_Tvg_name'
         style={{ height: 'calc(100vh - 40px)' }}
       />
 
@@ -458,7 +440,6 @@ VideoStreamDataSelector.defaultProps = {
 export type VideoStreamDataSelectorProps = {
   channelGroups?: StreamMasterApi.ChannelGroupDto[];
   id: string;
-  m3uFileId?: number;
   onSelectionChange?: (value: StreamMasterApi.VideoStreamDto | StreamMasterApi.VideoStreamDto[]) => void;
 };
 

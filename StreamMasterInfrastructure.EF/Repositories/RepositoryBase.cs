@@ -182,9 +182,12 @@ where TDto : class
             if (!string.IsNullOrEmpty(parameters.JSONFiltersString))
             {
                 filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(parameters.JSONFiltersString);
+                entities = FindByCondition(filters, parameters.OrderBy);
             }
-
-            entities = FindByCondition(filters, parameters.OrderBy);
+            else
+            {
+                entities = FindAll();
+            }
         }
         else
         {

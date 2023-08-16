@@ -1,12 +1,10 @@
-﻿using StreamMasterDomain.Filtering;
-
-namespace StreamMasterDomain.Pagination
+﻿namespace StreamMasterDomain.Pagination
 {
     public abstract class QueryStringParameters
     {
-        private const int maxPageSize = 50;
+        private const int maxPageSize = 500;
         public int PageNumber { get; set; } = 1;
-        private int _pageSize = 10;
+        private int _pageSize = 25;
 
         public int PageSize
         {
