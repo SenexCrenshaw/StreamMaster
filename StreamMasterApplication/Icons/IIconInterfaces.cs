@@ -12,9 +12,9 @@ public interface IIconController
     Task<ActionResult> AutoMatchIconToStreams(AutoMatchIconToStreamsRequest request);
 
     Task<ActionResult<IconFileDto>> GetIcon(int Id);
-
-    Task<ActionResult<IEnumerable<IconFileDto>>> GetIcons(IconFileParameters iconFileParameters);
-    Task<ActionResult<IEnumerable<IconSimpleDto>>> GetIconsSimpleQuery();
+    Task<ActionResult<IconFileDto>> GetIconFromSource(string source);
+    Task<ActionResult<PagedResponse<IconFileDto>>> GetIcons(IconFileParameters iconFileParameters);
+    Task<ActionResult<IEnumerable<IconSimpleDto>>> GetIconsSimpleQuery(IconFileParameters iconFileParameters);
 }
 
 public interface IIconDB
@@ -24,10 +24,10 @@ public interface IIconDB
 public interface IIconHub
 {
     Task AutoMatchIconToStreams(AutoMatchIconToStreamsRequest request);
-
+    Task<IconFileDto?> GetIconFromSource(string source);
     Task<IconFileDto?> GetIcon(int Id);
-    Task<IEnumerable<IconFileDto>> GetIcons(IconFileParameters iconFileParameters);
-    Task<IEnumerable<IconSimpleDto>> GetIconsSimpleQuery();
+    Task<PagedResponse<IconFileDto>> GetIcons(IconFileParameters iconFileParameters);
+    Task<IEnumerable<IconSimpleDto>> GetIconsSimpleQuery(IconFileParameters iconFileParameters);
 }
 
 public interface IIconScoped

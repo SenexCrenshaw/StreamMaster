@@ -20,15 +20,20 @@ public partial class StreamMasterHub : IIconHub
         return await _mediator.Send(new GetIcon(Id)).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<IconFileDto>> GetIcons(IconFileParameters iconFileParameters)
+    public async Task<IconFileDto?> GetIconFromSource(string source)
     {
-        IEnumerable<IconFileDto> data = await _mediator.Send(new GetIcons(iconFileParameters)).ConfigureAwait(false);
+        return await _mediator.Send(new GetIconFromSource(source)).ConfigureAwait(false);
+    }
+
+    public async Task<PagedResponse<IconFileDto>> GetIcons(IconFileParameters iconFileParameters)
+    {
+        PagedResponse<IconFileDto> data = await _mediator.Send(new GetIcons(iconFileParameters)).ConfigureAwait(false);
         return data;
     }
 
-    public async Task<IEnumerable<IconSimpleDto>> GetIconsSimpleQuery()
+    public async Task<IEnumerable<IconSimpleDto>> GetIconsSimpleQuery(IconFileParameters iconFileParameters)
     {
-        IEnumerable<IconSimpleDto> data = await _mediator.Send(new GetIconsSimpleQuery()).ConfigureAwait(false);
+        IEnumerable<IconSimpleDto> data = await _mediator.Send(new GetIconsSimpleQuery(iconFileParameters)).ConfigureAwait(false);
         return data;
     }
 }

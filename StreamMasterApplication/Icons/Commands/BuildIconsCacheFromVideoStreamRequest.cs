@@ -6,6 +6,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.M3UFiles.Commands;
+
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Extensions;
@@ -64,6 +65,10 @@ public class BuildIconsCacheFromVideoStreamRequestHandler : BaseMemoryRequestHan
         IEnumerable<IconFileDto> missingIcons = toWrite.Except(icons, new IconFileDtoComparer());
         missingIcons = missingIcons.Distinct(new IconFileDtoComparer());
         icons.AddRange(missingIcons);
+        for (int i = 0; i < icons.Count; i++)
+        {
+            icons[i].Id = i;
+        }
         MemoryCache.Set(icons);
 
         return Task.FromResult(true);

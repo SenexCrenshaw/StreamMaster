@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Hubs;
 using StreamMasterApplication.M3UFiles.Commands;
+
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Repository.EPG;
@@ -38,12 +39,9 @@ public class ProcessEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
 {
 
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
-    private readonly IMapper _mapper;
-    private readonly IMemoryCache _memoryCache;
-    private readonly IPublisher _publisher;
 
-    public ProcessEPGFileRequestHandler(ILogger<ProcessM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
+    public ProcessEPGFileRequestHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<ProcessM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache) { _hubContext = hubContext; }
 
     public async Task<EPGFilesDto?> Handle(ProcessEPGFileRequest request, CancellationToken cancellationToken)
     {
@@ -68,11 +66,11 @@ public class ProcessEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
 
             await AddProgrammesFromEPG(epgFile, cancellationToken);
 
-            EPGFilesDto ret = _mapper.Map<EPGFilesDto>(epgFile);
+            EPGFilesDto ret = Mapper.Map<EPGFilesDto>(epgFile);
 
-            await _hubContext.Clients.All.ProgrammeNamesUpdate(_memoryCache.Programmes()).ConfigureAwait(false);
+            await _hubContext.Clients.All.ProgrammeNamesUpdate(MemoryCache.Programmes()).ConfigureAwait(false);
 
-            await _publisher.Publish(new EPGFileProcessedEvent(ret), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new EPGFileProcessedEvent(ret), cancellationToken).ConfigureAwait(false);
 
             return ret;
         }
@@ -85,7 +83,7 @@ public class ProcessEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
     private async Task AddProgrammesFromEPG(EPGFile epgFile, CancellationToken cancellationToken = default)
     {
         List<Programme> cacheValue = new();
-        if (_memoryCache.ProgrammeIcons().Count == 0)
+        if (MemoryCache.ProgrammeIcons().Count == 0)
         {
             DateTime start = DateTime.Now.AddDays(-1);
             DateTime end = DateTime.Now.AddDays(7);
@@ -100,7 +98,7 @@ public class ProcessEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
             });
         }
 
-        if (_memoryCache.ProgrammeChannels().Count == 0)
+        if (MemoryCache.ProgrammeChannels().Count == 0)
         {
             DateTime start = DateTime.Now.AddDays(-1);
             DateTime end = DateTime.Now.AddDays(7);
@@ -115,7 +113,7 @@ public class ProcessEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
                 }
             };
 
-            _memoryCache.Set(programmeChannels);
+            MemoryCache.Set(programmeChannels);
         }
 
         if (cancellationToken.IsCancellationRequested) { return; }
@@ -156,7 +154,7 @@ public class ProcessEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
             p.Channel = p.Channel;
             cacheValue.Add(p);
         }
-        _memoryCache.Set(cacheValue);
+        MemoryCache.Set(cacheValue);
 
         return;
     }

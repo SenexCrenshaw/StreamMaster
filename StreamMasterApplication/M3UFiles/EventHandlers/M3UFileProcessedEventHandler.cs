@@ -3,41 +3,31 @@
 using MediatR;
 
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Hubs;
+using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.Services;
 
 namespace StreamMasterApplication.M3UFiles.EventHandlers;
 
-public class M3UFileProcessedEventHandler : INotificationHandler<M3UFileProcessedEvent>
+public class M3UFileProcessedEventHandler : BaseMemoryRequestHandler, INotificationHandler<M3UFileProcessedEvent>
 {
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
-    private readonly ISender _sender;
     private readonly IBackgroundTaskQueue _taskQueue;
-    private readonly IRepositoryWrapper _repositoryWrapper;
-    private readonly IMapper _mapper;
 
     public M3UFileProcessedEventHandler(
-        IRepositoryWrapper repositoryWrapper,
         IBackgroundTaskQueue taskQueue,
-        ISender sender,
-         IMapper mapper,
-         IHubContext<StreamMasterHub, IStreamMasterHub> hubContext
-        )
+        IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<ProcessM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache)
     {
-        _repositoryWrapper = repositoryWrapper;
-        _taskQueue = taskQueue;
-        _sender = sender;
         _hubContext = hubContext;
-        _mapper = mapper;
+        _taskQueue = taskQueue;
     }
 
     public async Task Handle(M3UFileProcessedEvent notification, CancellationToken cancellationToken)
     {
-        //var streams = _repositoryWrapper.VideoStream.GetVideoStreamsByM3UFileId(notification.M3UFile.Id);
-        //var toSend = _mapper.Map<IEnumerable<VideoStreamDto>>(streams);
-        //var streams = await _sender.Send(new GetVideoStreams(), cancellationToken).ConfigureAwait(false);
-
         await _taskQueue.BuildIconsCacheFromVideoStreams(cancellationToken).ConfigureAwait(false);
         await _hubContext.Clients.All.M3UFilesRefresh().ConfigureAwait(false);
         await _hubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);

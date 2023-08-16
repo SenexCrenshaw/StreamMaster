@@ -10,9 +10,9 @@ using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Icons.Queries;
 
-public record GetIcons(IconFileParameters iconFileParameters) : IRequest<IPagedList<IconFileDto>>;
+public record GetIcons(IconFileParameters iconFileParameters) : IRequest<PagedResponse<IconFileDto>>;
 
-internal class GetIconsHandler : IRequestHandler<GetIcons, IPagedList<IconFileDto>>
+internal class GetIconsHandler : IRequestHandler<GetIcons, PagedResponse<IconFileDto>>
 {
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
@@ -23,10 +23,12 @@ internal class GetIconsHandler : IRequestHandler<GetIcons, IPagedList<IconFileDt
         _mapper = mapper;
     }
 
-    public async Task<IPagedList<IconFileDto>> Handle(GetIcons request, CancellationToken cancellationToken)
+    public async Task<PagedResponse<IconFileDto>> Handle(GetIcons request, CancellationToken cancellationToken)
     {
         List<IconFileDto> icons = _memoryCache.GetIcons(_mapper);
         IPagedList<IconFileDto> test = await icons.ToPagedListAsync(request.iconFileParameters.PageNumber, request.iconFileParameters.PageSize).ConfigureAwait(false);
-        return test;
+
+        PagedResponse<IconFileDto> pagedResponse = test.ToPagedResponse(icons.Count);
+        return pagedResponse;
     }
 }

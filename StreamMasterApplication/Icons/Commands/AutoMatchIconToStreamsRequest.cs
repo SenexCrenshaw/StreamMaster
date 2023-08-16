@@ -60,14 +60,14 @@ public class AutoMatchIconToStreamsRequestHandler : BaseMemoryRequestHandler, IR
         }
 
         IconFileParameters iconFileParameters = new();
-        IPagedList<IconFileDto> icons = await Sender.Send(new GetIcons(iconFileParameters), cancellationToken).ConfigureAwait(false);
+        PagedResponse<IconFileDto> icons = await Sender.Send(new GetIcons(iconFileParameters), cancellationToken).ConfigureAwait(false);
 
         IQueryable<VideoStream> streams = Repository.VideoStream.GetVideoStreamsByMatchingIds(request.Ids);
         List<VideoStreamDto> videoStreamDtos = new();
 
         foreach (VideoStream stream in streams)
         {
-            IconFileDto? icon = icons.FirstOrDefault(a => a.Name.Equals(stream.User_Tvg_name, StringComparison.CurrentCultureIgnoreCase));
+            IconFileDto? icon = icons.Data.FirstOrDefault(a => a.Name.Equals(stream.User_Tvg_name, StringComparison.CurrentCultureIgnoreCase));
             if (icon != null)
             {
                 stream.User_Tvg_logo = icon.Source;
@@ -76,7 +76,7 @@ public class AutoMatchIconToStreamsRequestHandler : BaseMemoryRequestHandler, IR
                 continue;
             }
 
-            var topCheckIcon = icons.Where(a => a.Name.ToLower().Contains(stream.User_Tvg_name.ToLower()))
+            var topCheckIcon = icons.Data.Where(a => a.Name.ToLower().Contains(stream.User_Tvg_name.ToLower()))
                          .OrderByDescending(a => GetWeightedMatch(stream.User_Tvg_name, a.Name))
                          .Select(a => new { Icon = a, Weight = GetWeightedMatch(stream.User_Tvg_name, a.Name) })
                          .FirstOrDefault();

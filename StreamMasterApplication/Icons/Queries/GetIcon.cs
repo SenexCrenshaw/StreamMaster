@@ -27,10 +27,10 @@ internal class GetIconQueryHandler : IRequestHandler<GetIcon, IconFileDto?>
     {
         SettingDto setting = await _sender.Send(new GetSettings(), cancellationToken).ConfigureAwait(false);
 
-        IconFileParameters iconFileParameters = new IconFileParameters();
-        var icons = await _sender.Send(new GetIcons(iconFileParameters), cancellationToken).ConfigureAwait(false);
+        IconFileParameters iconFileParameters = new();
+        PagedResponse<IconFileDto> icons = await _sender.Send(new GetIcons(iconFileParameters), cancellationToken).ConfigureAwait(false);
 
-        IconFileDto? icon = icons.FirstOrDefault(a => a.Id == request.Id);
+        IconFileDto? icon = icons.Data.FirstOrDefault(a => a.Id == request.Id);
 
         if (icon == null)
         {

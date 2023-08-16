@@ -10,6 +10,10 @@
   width: 2rem !important;
 }
 
+.p-dropdown-panel.p-component.p-ripple-disabled.p-connected-overlay-enter-done {
+  width: 20vw !important;
+}
+
 .p-button.p-component.p-button-rounded.min-h-3rem.p-button-danger.p-button-icon-only {
   height: 2rem !important;
   padding: 0 !important;

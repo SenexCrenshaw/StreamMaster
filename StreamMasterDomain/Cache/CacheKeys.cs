@@ -32,6 +32,7 @@ public static class CacheKeys
             {
                 List<IconFileDto> datas = Get<IconFileDto>(ListIconFiles, cache);
                 datas.Add((IconFileDto)data);
+
                 cache.Set(ListIconFiles, datas, CacheEntryOptions);
             }
             return;

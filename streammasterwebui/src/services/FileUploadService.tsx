@@ -29,13 +29,13 @@ export const upload = async (
   let url = '';
   switch (fileType) {
     case 'epg':
-      url = '/api/epgfiles/addepgfilefromform/'
+      url = '/api/epgfiles/createepgfilefromform/'
       break;
     case 'm3u':
-      url = '/api/m3ufiles/addm3ufilefromform/'
+      url = '/api/m3ufiles/createm3ufilefromform'
       break;
     case 'icon':
-      url = '/api/icons/addiconfilefromform/'
+      url = '/api/icons/createiconfilefromform/'
       break;
   }
 

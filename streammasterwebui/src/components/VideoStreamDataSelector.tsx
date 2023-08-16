@@ -160,7 +160,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     return (
       <IconSelector
         className="p-inputtext-sm"
-        enableEditMode={enableEditMode}
+        enableEditMode
         onChange={
           async (e: string) => {
             await onUpdateVideoStream(data, null, null, e);
@@ -170,7 +170,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       />
 
     );
-  }, [enableEditMode, onUpdateVideoStream]);
+  }, [onUpdateVideoStream]);
 
   const channelNameEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
     return (

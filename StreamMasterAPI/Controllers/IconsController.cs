@@ -28,19 +28,25 @@ public class IconsController : ApiControllerBase, IIconController
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<IconFileDto>>> GetIcons([FromQuery] IconFileParameters iconFileParameters)
+    [Route("[action]")]
+    public async Task<ActionResult<IconFileDto>> GetIconFromSource([FromQuery] string source)
     {
-        IPagedList<IconFileDto> result = await Mediator.Send(new GetIcons(iconFileParameters)).ConfigureAwait(false);
+        IconFileDto? data = await Mediator.Send(new GetIconFromSource(source)).ConfigureAwait(false);
+        return data != null ? (ActionResult<IconFileDto>)data : (ActionResult<IconFileDto>)NotFound();
+    }
 
-        //var result = await PagedList<IconFileDto>.ToPagedList(data.AsQueryable(), iconFileParameters.PageNumber, iconFileParameters.PageSize);
+    [HttpGet]
+    public async Task<ActionResult<PagedResponse<IconFileDto>>> GetIcons([FromQuery] IconFileParameters iconFileParameters)
+    {
+        PagedResponse<IconFileDto> result = await Mediator.Send(new GetIcons(iconFileParameters)).ConfigureAwait(false);
 
         return Ok(result);
     }
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<IEnumerable<IconSimpleDto>>> GetIconsSimpleQuery()
+    public async Task<ActionResult<IEnumerable<IconSimpleDto>>> GetIconsSimpleQuery([FromQuery] IconFileParameters iconFileParameters)
     {
-        IEnumerable<IconSimpleDto> result = await Mediator.Send(new GetIconsSimpleQuery()).ConfigureAwait(false);
+        IEnumerable<IconSimpleDto> result = await Mediator.Send(new GetIconsSimpleQuery(iconFileParameters)).ConfigureAwait(false);
         return Ok(result);
     }
 }

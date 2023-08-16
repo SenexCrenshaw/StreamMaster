@@ -18,8 +18,9 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
   const [pageNumber, setPageNumber] = React.useState<number>(1);
 
   const [selectedM3UFile, setSelectedM3UFile] = useLocalStorage<StreamMasterApi.M3UFileDto>({ id: 0, name: 'All' } as StreamMasterApi.M3UFileDto, 'M3UFilesDataSelector-selectedM3UFile');
+  const [orderBy, setOrderBy] = React.useState<string>('user_tvg_name');
 
-  const m3UFilesQuery = StreamMasterApi.useM3UFilesGetM3UFilesQuery({ pageNumber: pageNumber === 0 ? 1 : pageNumber, pageSize: pageSize } as StreamMasterApi.M3UFilesGetM3UFilesApiArg);
+  const m3UFilesQuery = StreamMasterApi.useM3UFilesGetM3UFilesQuery({ orderBy: orderBy, pageNumber: pageNumber === 0 ? 1 : pageNumber, pageSize: pageSize } as StreamMasterApi.M3UFilesGetM3UFilesApiArg);
 
   React.useMemo(() => {
     if (props.value?.id !== undefined && selectedM3UFile !== undefined && props.value.id !== selectedM3UFile.id) {
@@ -302,7 +303,18 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
         onSelectionChange={(e) =>
           SetSelectedM3UFileChanged(e as StreamMasterApi.M3UFileDto)
         }
-        // selection={selectedM3UFile}
+
+        onSort={(sortInfo) => {
+          if (sortInfo.sortField !== null && sortInfo.sortField !== undefined) {
+            if (sortInfo.sortOrder === 1) {
+              setOrderBy(sortInfo.sortField + " asc");
+            }
+            else {
+              setOrderBy(sortInfo.sortField + " desc");
+            }
+          }
+
+        }}
         style={{ height: 'calc(50vh - 40px)' }}
       />
     </>

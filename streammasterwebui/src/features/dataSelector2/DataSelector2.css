@@ -13,6 +13,10 @@
   padding: 0.0rem 0 !important;
 }
 
+.dataselector2 .p-filter-column {
+  padding-top: 0.2rem !important;
+  padding-bottom: 0.2rem !important;
+}
 
 .dataselector2 .p-paginator .p-paginator-first,
 .p-paginator .p-paginator-prev,

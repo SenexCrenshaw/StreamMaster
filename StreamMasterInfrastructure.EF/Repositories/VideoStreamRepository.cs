@@ -249,7 +249,7 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
 
     public async Task<VideoStreamDto?> UpdateVideoStreamAsync(VideoStreamUpdate request, CancellationToken cancellationToken)
     {
-        VideoStream videoStream = await GetVideoStreamWithChildrenAsync(request.Id, cancellationToken).ConfigureAwait(false);
+        VideoStream? videoStream = await GetVideoStreamWithChildrenAsync(request.Id, cancellationToken).ConfigureAwait(false);
 
         if (videoStream == null)
         {

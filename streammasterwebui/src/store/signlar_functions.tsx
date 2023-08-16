@@ -140,6 +140,13 @@ export const GetIcon = async (arg: number): Promise<IconFileDto> => {
   return data;
 };
 
+
+export const GetIconFromSource = async (arg: string): Promise<IconFileDto> => {
+  const data = await hubConnection.invoke('GetIconFromSource', arg);
+
+  return data;
+};
+
 export const GetIcons = async (): Promise<IconFileDto[]> => {
   const data = await hubConnection.invoke('GetIcons');
 

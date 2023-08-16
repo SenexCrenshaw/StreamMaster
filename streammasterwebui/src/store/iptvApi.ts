@@ -243,11 +243,24 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/icons/geticon/${queryArg}` }),
         providesTags: ["Icons"],
       }),
+      iconsGetIconFromSource: build.query<
+        IconsGetIconFromSourceApiResponse,
+        IconsGetIconFromSourceApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/icons/geticonfromsource`,
+          params: { source: queryArg },
+        }),
+        providesTags: ["Icons"],
+      }),
       iconsGetIcons: build.query<IconsGetIconsApiResponse, IconsGetIconsApiArg>(
         {
           query: (queryArg) => ({
             url: `/api/icons`,
             params: {
+              Count: queryArg.count,
+              First: queryArg.first,
+              Last: queryArg.last,
               Name: queryArg.name,
               PageNumber: queryArg.pageNumber,
               PageSize: queryArg.pageSize,
@@ -263,7 +276,20 @@ const injectedRtkApi = api
         IconsGetIconsSimpleQueryApiResponse,
         IconsGetIconsSimpleQueryApiArg
       >({
-        query: () => ({ url: `/api/icons/geticonssimplequery` }),
+        query: (queryArg) => ({
+          url: `/api/icons/geticonssimplequery`,
+          params: {
+            Count: queryArg.count,
+            First: queryArg.first,
+            Last: queryArg.last,
+            Name: queryArg.name,
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString,
+          },
+        }),
         providesTags: ["Icons"],
       }),
       logsGetLogRequest: build.mutation<
@@ -991,8 +1017,14 @@ export type IconsAutoMatchIconToStreamsApiResponse = unknown;
 export type IconsAutoMatchIconToStreamsApiArg = AutoMatchIconToStreamsRequest;
 export type IconsGetIconApiResponse = /** status 200  */ IconFileDto;
 export type IconsGetIconApiArg = number;
-export type IconsGetIconsApiResponse = /** status 200  */ IconFileDto[];
+export type IconsGetIconFromSourceApiResponse = /** status 200  */ IconFileDto;
+export type IconsGetIconFromSourceApiArg = string;
+export type IconsGetIconsApiResponse =
+  /** status 200  */ PagedResponseOfIconFileDto;
 export type IconsGetIconsApiArg = {
+  count?: number;
+  first?: number;
+  last?: number;
   name?: string;
   pageNumber?: number;
   pageSize?: number;
@@ -1002,7 +1034,17 @@ export type IconsGetIconsApiArg = {
 };
 export type IconsGetIconsSimpleQueryApiResponse =
   /** status 200  */ IconSimpleDto[];
-export type IconsGetIconsSimpleQueryApiArg = void;
+export type IconsGetIconsSimpleQueryApiArg = {
+  count?: number;
+  first?: number;
+  last?: number;
+  name?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
 export type LogsGetLogRequestApiResponse = /** status 200  */ LogEntryDto[];
 export type LogsGetLogRequestApiArg = GetLog;
 export type M3UFilesCreateM3UFileApiResponse = unknown;
@@ -1355,6 +1397,15 @@ export type IconFileDto = {
   id: number;
   name: string;
   source: string;
+};
+export type PagedResponseOfIconFileDto = {
+  data: IconFileDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalItemCount: number;
+  totalPageCount: number;
+  totalRecords: number;
+  first: number;
 };
 export type IconSimpleDto = {
   id?: number;
@@ -1941,6 +1992,7 @@ export const {
   useFilesGetFileQuery,
   useIconsAutoMatchIconToStreamsMutation,
   useIconsGetIconQuery,
+  useIconsGetIconFromSourceQuery,
   useIconsGetIconsQuery,
   useIconsGetIconsSimpleQueryQuery,
   useLogsGetLogRequestMutation,

@@ -3,6 +3,7 @@ import * as React from 'react';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import { FormattedMessage, useIntl } from 'react-intl';
 
+import { type IconSimpleDto } from '../store/iptvApi';
 import { type VideoStreamDto } from '../store/iptvApi';
 import { type ChildVideoStreamDto } from '../store/iptvApi';
 import { baseHostURL, isDebug } from '../settings';
@@ -106,7 +107,40 @@ export function areDataTableFilterMetaDatasEqual(arr1: DataTableFilterMetaData[]
   return true;
 }
 
+export function compareIconSimpleDto(a: IconSimpleDto, b: IconSimpleDto): number {
+  // Compare by id
+  if (a.id !== undefined && b.id !== undefined) {
+    if (a.id < b.id) return -1;
+    if (a.id > b.id) return 1;
+  }
 
+  // Compare by source
+  if (a.source !== undefined && b.source !== undefined) {
+    const sourceComparison = a.source.localeCompare(b.source);
+    if (sourceComparison !== 0) return sourceComparison;
+  }
+
+  // Compare by name
+  if (a.name !== undefined && b.name !== undefined) {
+    return a.name.localeCompare(b.name);
+  }
+
+  return 0;
+}
+
+export function areIconSimpleDtosEqual(array1: IconSimpleDto[], array2: IconSimpleDto[]): boolean {
+  if (array1.length !== array2.length) {
+    return false;
+  }
+
+  for (let i = 0; i < array1.length; i++) {
+    if (compareIconSimpleDto(array1[i], array2[i]) !== 0) {
+      return false;
+    }
+  }
+
+  return true;
+}
 
 export type DataTableFilterMetaData = {
   fieldName: string;
