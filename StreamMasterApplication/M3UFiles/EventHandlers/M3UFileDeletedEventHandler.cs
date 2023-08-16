@@ -19,6 +19,6 @@ public class M3UFileDeletedEventHandler : INotificationHandler<M3UFileDeletedEve
 
     public async Task Handle(M3UFileDeletedEvent notification, CancellationToken cancellationToken)
     {
-        await _hubContext.Clients.All.M3UFilesDtoDelete(notification.M3UFileId).ConfigureAwait(false);
+        await _hubContext.Clients.All.M3UFilesRefresh().ConfigureAwait(false);
     }
 }

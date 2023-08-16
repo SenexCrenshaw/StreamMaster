@@ -1,19 +1,21 @@
 import * as React from 'react';
-import * as StreamMasterApi from '../store/iptvApi';
-import * as Hub from "../store/signlar_functions";
+
 import { Toast } from 'primereact/toast';
 import { classNames } from 'primereact/utils';
 import DropDownEditorBodyTemplate from './DropDownEditorBodyTemplate';
+import { type ProgrammeNameDto, type UpdateVideoStreamRequest, type VideoStreamDto } from '../store/iptvApi';
+import { useProgrammesGetProgrammeNamesQuery, useVideoStreamsUpdateVideoStreamMutation } from '../store/iptvApi';
 
 const EPGSelector = (props: EPGSelectorProps) => {
   const toast = React.useRef<Toast>(null);
 
   const [programme, setProgramme] = React.useState<string>('');
   const [channel, setChannel] = React.useState<string>('');
-  const [dataDataSource, setDataSource] = React.useState<StreamMasterApi.ProgrammeNameDto[]>([]);
+  const [dataDataSource, setDataSource] = React.useState<ProgrammeNameDto[]>([]);
 
-  const programmeNamesQuery = StreamMasterApi.useProgrammesGetProgrammeNamesQuery();
+  const programmeNamesQuery = useProgrammesGetProgrammeNamesQuery();
 
+  const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
 
   React.useEffect(() => {
     if (!programmeNamesQuery.data) {
@@ -84,12 +86,12 @@ const EPGSelector = (props: EPGSelectorProps) => {
 
 
     console.debug(channel);
-    const data = {} as StreamMasterApi.UpdateVideoStreamRequest;
+    const data = {} as UpdateVideoStreamRequest;
     data.tvg_ID = toChange;
     data.id = props.data.id;
 
 
-    await Hub.UpdateVideoStream(data)
+    await videoStreamsUpdateVideoStreamMutation(data)
       .then(() => {
         if (toast.current) {
 
@@ -101,20 +103,20 @@ const EPGSelector = (props: EPGSelectorProps) => {
           });
 
         }
-      }).catch((e) => {
+      }).catch(() => {
         if (toast.current) {
           toast.current.show({
             detail: `Update Stream Failed`,
             life: 3000,
             severity: 'error',
-            summary: 'Error ' + e.message,
+            summary: 'Error',
           });
         }
       });
 
 
 
-  }, [channel, programmeNamesQuery.data, props]);
+  }, [channel, programmeNamesQuery.data, props, videoStreamsUpdateVideoStreamMutation]);
 
   const className = classNames('iconSelector p-0 m-0 w-full z-5 ', props.className);
 
@@ -157,7 +159,7 @@ EPGSelector.defaultProps = {
 
 type EPGSelectorProps = {
   className?: string | null;
-  data?: StreamMasterApi.VideoStreamDto | undefined;
+  data?: VideoStreamDto | undefined;
   enableEditMode?: boolean;
   onChange?: ((value: string) => void) | null;
   value?: string | null;

@@ -302,7 +302,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }, [videoStreamsQuery.data, streamCount, streamNotHiddenCount]);
 
   const m3uFileNameBodyTemplate = React.useCallback((id: number) => {
-    if (!id || id === 0 || !m3uFiles || !m3uFiles.data) {
+    if (!id || id === 0 || !m3uFiles || !m3uFiles.data?.data) {
       return (
         <div className="flex align-items-center gap-2" >
           User Created
@@ -310,7 +310,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       );
     }
 
-    const m3uFile = m3uFiles.data.find((x) => x.id === id);
+    const m3uFile = m3uFiles.data.data.find((x) => x.id === id);
 
     return (
       <div className="flex align-items-center gap-2" >

@@ -1,15 +1,17 @@
 import React from "react";
-import * as StreamMasterApi from '../store/iptvApi';
-import * as Hub from '../store/signlar_functions';
+
 import { Button } from "primereact/button";
 import { Toast } from 'primereact/toast';
 import { getTopToolOptions } from "../common/common";
+import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../store/iptvApi";
+import { useVideoStreamsUpdateVideoStreamMutation, useProgrammesGetProgrammeNamesQuery } from "../store/iptvApi";
 
 
 const VideoStreamSetEPGFromNameDialog = (props: VideoStreamSetEPGFromNameDialogProps) => {
   const toast = React.useRef<Toast>(null);
+  const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
 
-  const programmeNamesQuery = StreamMasterApi.useProgrammesGetProgrammeNamesQuery();
+  const programmeNamesQuery = useProgrammesGetProgrammeNamesQuery();
 
   const [canSet, setCanSet] = React.useState<string>('');
 
@@ -45,11 +47,11 @@ const VideoStreamSetEPGFromNameDialog = (props: VideoStreamSetEPGFromNameDialogP
       return;
     }
 
-    const toSend = {} as StreamMasterApi.UpdateVideoStreamRequest;
+    const toSend = {} as UpdateVideoStreamRequest;
     toSend.id = props.value?.id;
     toSend.tvg_ID = canSet;
 
-    await Hub.UpdateVideoStream(toSend)
+    await videoStreamsUpdateVideoStreamMutation(toSend)
       .then(() => {
         if (toast.current) {
 
@@ -73,7 +75,7 @@ const VideoStreamSetEPGFromNameDialog = (props: VideoStreamSetEPGFromNameDialogP
         }
       });
 
-  }, [ReturnToParent, canSet, props.value]);
+  }, [ReturnToParent, canSet, props.value, videoStreamsUpdateVideoStreamMutation]);
 
   return (
     <>
@@ -101,7 +103,7 @@ VideoStreamSetEPGFromNameDialog.defaultProps = {
 type VideoStreamSetEPGFromNameDialogProps = {
   iconFilled?: boolean | undefined;
   onClose?: (() => void);
-  value?: StreamMasterApi.VideoStreamDto | undefined;
+  value?: VideoStreamDto | undefined;
 };
 
 export default React.memo(VideoStreamSetEPGFromNameDialog);

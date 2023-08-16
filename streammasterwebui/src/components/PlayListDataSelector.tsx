@@ -154,7 +154,6 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       columns={sourceColumns}
       dataSource={dataSource}
       emptyMessage="No Groups"
-      enableState={false}
       headerRightTemplate={props.hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
       hideControls={props.hideControls}
       id={props.id + 'DataSelector'}

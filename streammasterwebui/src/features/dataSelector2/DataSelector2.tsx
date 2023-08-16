@@ -257,7 +257,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
   }, []);
 
   const m3uFileNameBodyTemplate = React.useCallback((id: number) => {
-    if (!id || id === 0 || !m3uFiles || !m3uFiles.data) {
+    if (!id || id === 0 || !m3uFiles || !m3uFiles.data?.data) {
       return (
         <div className="flex align-items-center gap-2" >
           User Created
@@ -265,7 +265,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
       );
     }
 
-    const m3uFile = m3uFiles.data.find((x) => x.id === id);
+    const m3uFile = m3uFiles.data.data.find((x) => x.id === id);
 
     return (
       <div className="flex align-items-center gap-2" >
@@ -947,8 +947,8 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
           sortField={sortField}
           sortMode='single'
           sortOrder={sortOrder}
-          stateKey={props.enableState !== true ? undefined : props.id + '-datatable'}
-          stateStorage={props.enableState !== true ? undefined : "local"}
+          // stateKey={props.id + '-datatable'}
+          // stateStorage="local"
           stripedRows
           style={props.style}
           totalRecords={dataSource?.totalRecords}
@@ -1017,7 +1017,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
 DataSelector2.displayName = 'dataselector22';
 DataSelector2.defaultProps = {
-  enableState: true,
+  // enableState: true,
   enableVirtualScroll: false,
   globalSearchEnabled: false,
   hideControls: false,
@@ -1061,7 +1061,7 @@ export type DataSelector2Props<T> = {
 
   enableExport?: boolean;
   // eslint-disable-next-line react/no-unused-prop-types
-  enableState?: boolean | undefined;
+  // enableState?: boolean | undefined;
   enableVirtualScroll?: boolean | undefined;
   exportFilename?: string;
   /**

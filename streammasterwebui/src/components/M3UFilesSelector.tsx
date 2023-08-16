@@ -18,9 +18,9 @@ const M3UFilesSelector = (props: M3UFilesSelectorProps) => {
   }, [props.value, selectedM3UFile, setSelectedM3UFile]);
 
   const options = React.useMemo(() => {
-    if (!m3uFilesQuery.data) return [];
+    if (!m3uFilesQuery.data?.data) return [];
 
-    return m3uFilesQuery.data.map((cg) => {
+    return m3uFilesQuery.data.data.map((cg) => {
       return { label: cg.name, value: cg };
     });
 

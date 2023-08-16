@@ -1,23 +1,24 @@
 import React from "react";
 
-import type * as StreamMasterApi from '../store/iptvApi';
-import * as Hub from "../store/signlar_functions";
 import { Toast } from 'primereact/toast';
 import StringEditorBodyTemplate from "./StringEditorBodyTemplate";
+import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../store/iptvApi";
+import { useVideoStreamsUpdateVideoStreamMutation } from "../store/iptvApi";
 
 const ChannelNameEditor = (props: ChannelNameEditorProps) => {
   const toast = React.useRef<Toast>(null);
+  const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
 
   const onUpdateM3UStream = React.useCallback(async (name: string,) => {
     if (props.data.id === '' || !name || name === '' || props.data.user_Tvg_name === name) {
       return;
     }
 
-    const data = {} as StreamMasterApi.UpdateVideoStreamRequest;
+    const data = {} as UpdateVideoStreamRequest;
     data.id = props.data.id;
     data.tvg_name = name;
 
-    await Hub.UpdateVideoStream(data)
+    await videoStreamsUpdateVideoStreamMutation(data)
       .then(() => {
         if (toast.current) {
 
@@ -40,7 +41,7 @@ const ChannelNameEditor = (props: ChannelNameEditorProps) => {
         }
       });
 
-  }, [props.data.id, props.data.user_Tvg_name]);
+  }, [props.data.id, props.data.user_Tvg_name, videoStreamsUpdateVideoStreamMutation]);
 
   if (props.data.user_Tvg_name === undefined) {
     return <span className='sm-inputtext' />
@@ -83,7 +84,7 @@ ChannelNameEditor.defaultProps = {
 };
 
 export type ChannelNameEditorProps = {
-  data: StreamMasterApi.VideoStreamDto;
+  data: VideoStreamDto;
   enableEditMode: boolean;
   width?: string;
 };

@@ -1,23 +1,23 @@
 import React from "react";
-import type * as StreamMasterApi from '../store/iptvApi';
+import * as StreamMasterApi from '../store/iptvApi';
 import { Toast } from 'primereact/toast';
-import * as Hub from "../store/signlar_functions";
+
 import ChannelGroupSelector from "./ChannelGroupSelector";
 
 const ChannelGroupEditor = (props: ChannelGroupEditorProps) => {
   const toast = React.useRef<Toast>(null);
-
+  const [videoStreamsUpdateVideoStreamMutation] = StreamMasterApi.useVideoStreamsUpdateVideoStreamMutation();
   const onUpdateStream = React.useCallback(async (groupName: string,) => {
     if (props.data === undefined || props.data.id === undefined || props.data.id === '' || !groupName || groupName === '' || props.data.user_Tvg_group === groupName) {
       return;
     }
 
-    return;
+
     const data = {} as StreamMasterApi.UpdateVideoStreamRequest;
     data.id = props.data.id;
     data.tvg_group = groupName;
 
-    await Hub.UpdateVideoStream(data)
+    await videoStreamsUpdateVideoStreamMutation(data)
       .then(() => {
         if (toast.current) {
 
@@ -40,7 +40,7 @@ const ChannelGroupEditor = (props: ChannelGroupEditorProps) => {
         }
       });
 
-  }, [props.data]);
+  }, [props.data, videoStreamsUpdateVideoStreamMutation]);
 
   return (
     <>

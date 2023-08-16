@@ -24,6 +24,51 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
         await cacheEntryRemoved;
       }
     },
+    epgFilesGetEpgFiles: {
+      async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
+        try {
+          await cacheDataLoaded;
+          hubConnection.on(
+            'EPGFilesRefresh',
+            () => {
+              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["EPGFiles"]));
+            }
+          );
+        } catch { }
+
+        await cacheEntryRemoved;
+      }
+    },
+    iconsGetIcons: {
+      async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
+        try {
+          await cacheDataLoaded;
+          hubConnection.on(
+            'IconsRefresh',
+            () => {
+              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["Icons"]));
+            }
+          );
+        } catch { }
+
+        await cacheEntryRemoved;
+      }
+    },
+    m3UFilesGetM3UFiles: {
+      async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
+        try {
+          await cacheDataLoaded;
+          hubConnection.on(
+            'M3UFilesRefresh',
+            () => {
+              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["M3UFiles"]));
+            }
+          );
+        } catch { }
+
+        await cacheEntryRemoved;
+      }
+    },
     programmesGetProgrammeNames: {
       async onCacheEntryAdded(
         arg,

@@ -21,7 +21,6 @@ import VideoStreamDeleteDialog from "./VideoStreamDeleteDialog";
 import { type ColumnMeta } from "../features/dataSelector/DataSelectorTypes";
 import VideoStreamVisibleDialog from "./VideoStreamVisibleDialog";
 import VideoStreamEditDialog from "./VideoStreamEditDialog";
-
 import VideoStreamSetIconFromEPGDialog from "./VideoStreamSetLogoFromEPGDialog";
 import AutoSetChannelNumbers from "./AutoSetChannelNumbers";
 import VideoStreamResetLogoDialog from "./VideoStreamResetLogoDialog";
@@ -33,13 +32,16 @@ import DataSelector2 from "../features/dataSelector2/DataSelector2";
 import { type DataTableFilterEvent } from "primereact/datatable";
 import { Toast } from "primereact/toast";
 
+import { type CheckboxChangeEvent } from "primereact/checkbox";
+import { Checkbox } from "primereact/checkbox";
+
 const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
+
   const [enableEditMode, setEnableEditMode] = useLocalStorage(true, props.id + '-enableEditMode');
 
   const [selectedVideoStreams, setSelectedVideoStreams] = React.useState<StreamMasterApi.VideoStreamDto[]>([] as StreamMasterApi.VideoStreamDto[]);
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
-  const [channelGroupNamesString, setChannelGroupNamesString] = React.useState<string>('');
 
   const [dataFilters, setDataFilters] = React.useState<DataTableFilterMetaData[]>([] as DataTableFilterMetaData[]);
   const [filters, setFilters] = React.useState<string>('');
@@ -48,7 +50,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const [pageNumber, setPageNumber] = React.useState<number>(1);
   const [orderBy, setOrderBy] = React.useState<string>('user_tvg_name');
 
-  const videoStreamsQuery = StreamMasterApi.useChannelGroupsGetVideoStreamsForChannelGroupsQuery({ jsonArgumentString: channelGroupNamesString, jsonFiltersString: filters, orderBy: orderBy ?? 'name', pageNumber: pageNumber === 0 ? 1 : pageNumber, pageSize: pageSize } as StreamMasterApi.ChannelGroupsGetVideoStreamsForChannelGroupsApiArg);
+  const videoStreamsQuery = StreamMasterApi.useChannelGroupsGetVideoStreamsForChannelGroupsQuery({ jsonFiltersString: filters, orderBy: orderBy ?? 'name', pageNumber: pageNumber === 0 ? 1 : pageNumber, pageSize: pageSize } as StreamMasterApi.ChannelGroupsGetVideoStreamsForChannelGroupsApiArg);
 
   React.useEffect(() => {
     const callback = (event: KeyboardEvent) => {
@@ -64,14 +66,6 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       document.removeEventListener('keydown', callback);
     };
   }, [enableEditMode, setEnableEditMode]);
-
-  React.useEffect(() => {
-    if (props.channelGroups) {
-      const names = props.channelGroups.map((a: StreamMasterApi.ChannelGroupDto) => a.name);
-      setChannelGroupNamesString(JSON.stringify(names));
-    }
-  }, [props.channelGroups]);
-
 
   const ids = React.useMemo((): StreamMasterApi.ChannelNumberPair[] => {
 
@@ -298,9 +292,19 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
           tooltipOptions={getTopToolOptions}
           value={showHidden} />
 
-        {/* <AutoMatchIconToStreamsDialog ids={ids} /> */}
+        <Checkbox
+          checked={enableEditMode}
+
+          onChange={(e: CheckboxChangeEvent) => {
+            setEnableEditMode(e.checked ?? false);
+          }}
+
+          tooltip={`Edit Mode ${enableEditMode ? 'Enabled' : 'Disabled'}  `}
+          tooltipOptions={getTopToolOptions}
+        />
 
         <VideoStreamResetLogosDialog values={selectedVideoStreams} />
+
         <VideoStreamSetEPGsFromNameDialog values={selectedVideoStreams} />
 
         <VideoStreamSetLogosFromEPGDialog values={selectedVideoStreams} />
@@ -316,7 +320,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       </div>
     );
 
-  }, [ids, props.channelGroups, selectedVideoStreams, setShowHidden, showHidden]);
+  }, [enableEditMode, ids, props.channelGroups, selectedVideoStreams, setEnableEditMode, setShowHidden, showHidden]);
 
   React.useEffect(() => {
     if (!props.channelGroups) {
@@ -378,16 +382,13 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
   }, [props.channelGroups]);
 
-
   return (
-
     <>
       <Toast position="bottom-right" ref={toast} />
       <DataSelector2
         columns={targetColumns}
         dataSource={videoStreamsQuery.data}
         emptyMessage="No Streams"
-        enableState={false}
         headerRightTemplate={rightHeaderTemplate}
         id={props.id + 'VideoStreamDataSelector'}
         isLoading={videoStreamsQuery.isLoading || videoStreamsQuery.isFetching}
@@ -434,7 +435,6 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 VideoStreamDataSelector.displayName = 'Stream Editor';
 VideoStreamDataSelector.defaultProps = {
   channelGroups: [] as StreamMasterApi.ChannelGroupDto[],
-
 };
 
 export type VideoStreamDataSelectorProps = {

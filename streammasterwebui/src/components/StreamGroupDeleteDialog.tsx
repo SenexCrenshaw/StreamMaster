@@ -99,7 +99,7 @@ const StreamGroupDeleteDialog = (props: StreamGroupDeleteDialogProps) => {
         severity="danger"
         size="small"
         text={props.iconFilled !== true}
-        tooltip="Delete Group"
+        tooltip="Delete Stream Group"
         tooltipOptions={getTopToolOptions}
       />
 

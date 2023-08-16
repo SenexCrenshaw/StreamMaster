@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Hubs;
 using StreamMasterApplication.M3UFiles.Commands;
+
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
 
@@ -107,7 +108,7 @@ public class UpdateEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHan
 
             if (isChanged)
             {
-                await _hubContext.Clients.All.EPGFilesDtoUpdate(ret).ConfigureAwait(false);
+                await _hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
             }
 
             return ret;

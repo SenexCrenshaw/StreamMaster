@@ -964,7 +964,8 @@ export type EpgFilesDeleteEpgFileApiResponse = unknown;
 export type EpgFilesDeleteEpgFileApiArg = DeleteEpgFileRequest;
 export type EpgFilesGetEpgFileApiResponse = /** status 200  */ EpgFilesDto;
 export type EpgFilesGetEpgFileApiArg = number;
-export type EpgFilesGetEpgFilesApiResponse = /** status 200  */ EpgFilesDto[];
+export type EpgFilesGetEpgFilesApiResponse =
+  /** status 200  */ PagedResponseOfEpgFilesDto;
 export type EpgFilesGetEpgFilesApiArg = {
   name?: string;
   pageNumber?: number;
@@ -1023,7 +1024,7 @@ export type M3UFilesDeleteM3UFileApiArg = DeleteM3UFileRequest;
 export type M3UFilesGetM3UFileApiResponse = /** status 200  */ M3UFileDto;
 export type M3UFilesGetM3UFileApiArg = number;
 export type M3UFilesGetM3UFilesApiResponse =
-  /** status 200  */ PagedListOfM3UFileDto;
+  /** status 200  */ PagedResponseOfM3UFileDto;
 export type M3UFilesGetM3UFilesApiArg = {
   name?: string;
   pageNumber?: number;
@@ -1319,6 +1320,15 @@ export type EpgFilesDto = BaseFileDto & {
   epgStopDate?: string;
   programmeCount?: number;
 };
+export type PagedResponseOfEpgFilesDto = {
+  data: EpgFilesDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalItemCount: number;
+  totalPageCount: number;
+  totalRecords: number;
+  first: number;
+};
 export type ProcessEpgFileRequest = {
   id: number;
 };
@@ -1386,7 +1396,15 @@ export type M3UFileDto = BaseFileDto & {
   maxStreamCount?: number;
   stationCount?: number;
 };
-export type PagedListOfM3UFileDto = M3UFileDto[];
+export type PagedResponseOfM3UFileDto = {
+  data: M3UFileDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalItemCount: number;
+  totalPageCount: number;
+  totalRecords: number;
+  first: number;
+};
 export type ProcessM3UFileRequest = {
   id: number;
 };

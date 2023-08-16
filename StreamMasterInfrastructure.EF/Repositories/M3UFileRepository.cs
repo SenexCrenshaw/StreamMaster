@@ -1,18 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
 
+using Microsoft.EntityFrameworkCore;
+
+using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
-using StreamMasterDomain.Sorting;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
 public class M3UFileRepository : RepositoryBase<M3UFile>, IM3UFileRepository
 {
-    private ISortHelper<M3UFile> _m3uFileSortHelper;
+    private readonly IMapper _mapper;
 
-    public M3UFileRepository(RepositoryContext repositoryContext, ISortHelper<M3UFile> m3uFileSortHelper) : base(repositoryContext)
+    public M3UFileRepository(RepositoryContext repositoryContext, IMapper mapper) : base(repositoryContext)
     {
-        _m3uFileSortHelper = m3uFileSortHelper;
+        _mapper = mapper;
     }
 
     public void CreateM3UFile(M3UFile m3uFile)
@@ -40,7 +42,7 @@ public class M3UFileRepository : RepositoryBase<M3UFile>, IM3UFileRepository
 
     public async Task<int> GetM3UMaxStreamCountAsync()
     {
-        var m3uFiles = await FindAll().ToListAsync();
+        List<M3UFile> m3uFiles = await FindAll().ToListAsync();
 
         return m3uFiles.Sum(a => a.MaxStreamCount);
     }
@@ -51,13 +53,10 @@ public class M3UFileRepository : RepositoryBase<M3UFile>, IM3UFileRepository
                           .FirstOrDefaultAsync();
     }
 
-    public async Task<IPagedList<M3UFile>> GetM3UFilesAsync(M3UFileParameters m3uFileParameters)
+    public async Task<PagedResponse<M3UFileDto>> GetM3UFilesAsync(M3UFileParameters m3uFileParameters)
     {
-        var m3uFiles = FindAll();
+        return await GetEntitiesAsync<M3UFileDto>(m3uFileParameters, _mapper);
 
-        var sorderM3UFiles = _m3uFileSortHelper.ApplySort(m3uFiles, m3uFileParameters.OrderBy);
-
-        return await sorderM3UFiles.ToPagedListAsync(m3uFileParameters.PageNumber, m3uFileParameters.PageSize).ConfigureAwait(false);
     }
 
     public void UpdateM3UFile(M3UFile m3uFile)

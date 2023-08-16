@@ -23,6 +23,6 @@ public class IconFileAddedEventHandler : INotificationHandler<IconFileAddedEvent
 
     public async Task Handle(IconFileAddedEvent notification, CancellationToken cancellationToken)
     {
-        await _hubContext.Clients.All.IconFileDTOUpdate(notification.Item).ConfigureAwait(false);
+        await _hubContext.Clients.All.IconsRefresh().ConfigureAwait(false);
     }
 }

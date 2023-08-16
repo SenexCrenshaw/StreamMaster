@@ -1,18 +1,19 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
 
+using Microsoft.EntityFrameworkCore;
+
+using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
-using StreamMasterDomain.Sorting;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
 public class EPGFileRepository : RepositoryBase<EPGFile>, IEPGFileRepository
 {
-    private readonly ISortHelper<EPGFile> _EPGFileSortHelper;
-
-    public EPGFileRepository(RepositoryContext repositoryContext, ISortHelper<EPGFile> EPGFileSortHelper) : base(repositoryContext)
+    private readonly IMapper _mapper;
+    public EPGFileRepository(RepositoryContext repositoryContext, IMapper mapper) : base(repositoryContext)
     {
-        _EPGFileSortHelper = EPGFileSortHelper;
+        _mapper = mapper;
     }
 
     public void CreateEPGFile(EPGFile EPGFile)
@@ -44,13 +45,15 @@ public class EPGFileRepository : RepositoryBase<EPGFile>, IEPGFileRepository
                           .FirstOrDefaultAsync();
     }
 
-    public async Task<IPagedList<EPGFile>> GetEPGFilesAsync(EPGFileParameters EPGFileParameters)
+    public async Task<PagedResponse<EPGFilesDto>> GetEPGFilesAsync(EPGFileParameters EPGFileParameters)
     {
-        IQueryable<EPGFile> EPGFiles = FindAll();
+        return await GetEntitiesAsync<EPGFilesDto>(EPGFileParameters, _mapper);
 
-        IQueryable<EPGFile> sorderEPGFiles = _EPGFileSortHelper.ApplySort(EPGFiles, EPGFileParameters.OrderBy);
+        //IQueryable<EPGFile> EPGFiles = FindAll();
 
-        return await sorderEPGFiles.ToPagedListAsync(EPGFileParameters.PageNumber, EPGFileParameters.PageSize).ConfigureAwait(false);
+        //IQueryable<EPGFile> sorderEPGFiles = _EPGFileSortHelper.ApplySort(EPGFiles, EPGFileParameters.OrderBy);
+
+        //return await sorderEPGFiles.ToPagedListAsync(EPGFileParameters.PageNumber, EPGFileParameters.PageSize).ConfigureAwait(false);
     }
 
     public void UpdateEPGFile(EPGFile EPGFile)

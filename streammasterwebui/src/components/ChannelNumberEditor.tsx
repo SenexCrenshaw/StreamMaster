@@ -1,25 +1,28 @@
 import { type CSSProperties } from "react";
 import React from "react";
 import NumberEditorBodyTemplate from "./NumberEditorBodyTemplate";
-import type * as StreamMasterApi from '../store/iptvApi';
-import * as Hub from "../store/signlar_functions";
+
 import { Toast } from 'primereact/toast';
 import { getTopToolOptions } from "../common/common";
 import { isDebug } from "../settings";
+import { type UpdateVideoStreamRequest } from "../store/iptvApi";
+import { type VideoStreamDto } from "../store/iptvApi";
+import { useVideoStreamsUpdateVideoStreamMutation } from "../store/iptvApi";
 
 const ChannelNumberEditor = (props: ChannelNumberEditorProps) => {
   const toast = React.useRef<Toast>(null);
+  const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
 
   const onUpdateVideoStream = React.useCallback(async (channelNumber: number,) => {
     if (props.data.id === '' || props.data.user_Tvg_chno === channelNumber) {
       return;
     }
 
-    const data = {} as StreamMasterApi.UpdateVideoStreamRequest;
+    const data = {} as UpdateVideoStreamRequest;
     data.id = props.data.id;
     data.tvg_chno = channelNumber;
 
-    await Hub.UpdateVideoStream(data)
+    await videoStreamsUpdateVideoStreamMutation(data)
       .then(() => {
         if (toast.current) {
 
@@ -42,7 +45,7 @@ const ChannelNumberEditor = (props: ChannelNumberEditorProps) => {
         }
       });
 
-  }, [props.data.id, props.data.user_Tvg_chno]);
+  }, [props.data.id, props.data.user_Tvg_chno, videoStreamsUpdateVideoStreamMutation]);
 
   if (!props.enableEditMode) {
     return <span className='smallshiftleft'>{props.data.user_Tvg_chno}</span>
@@ -70,7 +73,7 @@ ChannelNumberEditor.defaultProps = {
 };
 
 export type ChannelNumberEditorProps = {
-  data: StreamMasterApi.VideoStreamDto;
+  data: VideoStreamDto;
   enableEditMode: boolean;
   style?: CSSProperties;
 };

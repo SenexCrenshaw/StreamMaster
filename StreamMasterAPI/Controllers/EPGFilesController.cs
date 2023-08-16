@@ -44,9 +44,9 @@ public class EPGFilesController : ApiControllerBase, IEPGFileController
     }
 
     [HttpGet]
-    public async Task<ActionResult<IPagedList<EPGFilesDto>>> GetEPGFiles([FromQuery] EPGFileParameters parameters)
+    public async Task<ActionResult<PagedResponse<EPGFilesDto>>> GetEPGFiles([FromQuery] EPGFileParameters parameters)
     {
-        var data = await Mediator.Send(new GetEPGFiles(parameters)).ConfigureAwait(false);
+        PagedResponse<EPGFilesDto> data = await Mediator.Send(new GetEPGFiles(parameters)).ConfigureAwait(false);
         return data;
     }
 

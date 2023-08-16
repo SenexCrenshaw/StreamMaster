@@ -1,33 +1,32 @@
-/* eslint-disable react/no-unused-prop-types */
 import { type CSSProperties } from "react";
 import React from "react";
-import * as StreamMasterApi from '../store/iptvApi';
 import DataSelectorPicker from "../features/dataSelectorPicker/DataSelectorPicker";
-
 import { Button } from 'primereact/button';
 import { getTopToolOptions } from "../common/common";
 import { Toast } from 'primereact/toast';
-import * as Hub from "../store/signlar_functions";
 import ChannelNumberEditor from "./ChannelNumberEditor";
 import ChannelNameEditor from "./ChannelNameEditor";
-
 import { type ColumnMeta } from "../features/dataSelector/DataSelectorTypes";
 import { GroupIcon } from "../common/icons";
 import { Tooltip } from "primereact/tooltip";
 import IconSelector from "./IconSelector";
 import EPGSelector from "./EPGSelector";
+import { type VideoStreamsGetVideoStreamsApiArg, type StreamGroupsGetStreamGroupsApiArg, type VideoStreamDto, type ChildVideoStreamDto, type StreamGroupDto, type UpdateVideoStreamRequest, type UpdateStreamGroupRequest, type VideoStreamIsReadOnly } from "../store/iptvApi";
+import { useVideoStreamsGetVideoStreamsQuery, useStreamGroupsGetStreamGroupsQuery, useVideoStreamsUpdateVideoStreamMutation } from "../store/iptvApi";
 
 const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   const toast = React.useRef<Toast>(null);
 
-  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery({} as StreamMasterApi.VideoStreamsGetVideoStreamsApiArg);
-  const streamGroupsQuery = StreamMasterApi.useStreamGroupsGetStreamGroupsQuery({} as StreamMasterApi.StreamGroupsGetStreamGroupsApiArg);
+  const videoStreamsQuery = useVideoStreamsGetVideoStreamsQuery({} as VideoStreamsGetVideoStreamsApiArg);
+  const streamGroupsQuery = useStreamGroupsGetStreamGroupsQuery({} as StreamGroupsGetStreamGroupsApiArg);
+  const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
 
-  const [sourceVideoStreams, setSourceVideoStreams] = React.useState<StreamMasterApi.VideoStreamDto[] | undefined>(undefined);
-  const [targetVideoStreams, setTargetVideoStreams] = React.useState<StreamMasterApi.ChildVideoStreamDto[] | undefined>(undefined);
+  const [sourceVideoStreams, setSourceVideoStreams] = React.useState<VideoStreamDto[] | undefined>(undefined);
+  const [targetVideoStreams, setTargetVideoStreams] = React.useState<ChildVideoStreamDto[] | undefined>(undefined);
   const [isVideoStreamUpdating, setIsVideoStreamUpdating] = React.useState<boolean>(false);
-  const [streamGroup, setStreamGroup] = React.useState<StreamMasterApi.StreamGroupDto | undefined>(undefined);
+  const [streamGroup, setStreamGroup] = React.useState<StreamGroupDto | undefined>(undefined);
 
+  const [streamGroupsUpdateStreamGroupMutation] = useVideoStreamsUpdateVideoStreamMutation();
 
   React.useEffect(() => {
     if (!props.streamGroup || props.streamGroup === undefined || streamGroupsQuery.data === undefined || streamGroupsQuery.data.data === undefined) {
@@ -35,9 +34,9 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       return;
     }
 
-    const sg = streamGroupsQuery.data.data.find((x: StreamMasterApi.StreamGroupDto) => x.id === props.streamGroup?.id);
+    const sg = streamGroupsQuery.data.data.find((x: StreamGroupDto) => x.id === props.streamGroup?.id);
     if (sg === null || sg === undefined) {
-      setStreamGroup({} as StreamMasterApi.StreamGroupDto);
+      setStreamGroup({} as StreamGroupDto);
       return;
     }
 
@@ -52,7 +51,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     }
 
     if (props.videoStream?.childVideoStreams !== undefined && props.videoStream.childVideoStreams.length > 0) {
-      const newStream = videoStreamsQuery.data.data.find((m3u: StreamMasterApi.VideoStreamDto) => m3u.id === props.videoStream?.id);
+      const newStream = videoStreamsQuery.data.data.find((m3u: VideoStreamDto) => m3u.id === props.videoStream?.id);
       if (newStream === undefined || newStream.childVideoStreams === undefined) {
         return;
       }
@@ -103,12 +102,12 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     });
 
     if (props.isAdditionalChannels === true) {
-      const toSet = (updatedStreams as StreamMasterApi.ChildVideoStreamDto[]).filter((m3u) => props.showHidden === true || m3u.isHidden !== true).sort((a, b) => a.rank - b.rank);
+      const toSet = (updatedStreams as ChildVideoStreamDto[]).filter((m3u) => props.showHidden === true || m3u.isHidden !== true).sort((a, b) => a.rank - b.rank);
       setTargetVideoStreams(toSet);
     } else {
 
       setTargetVideoStreams(
-        (updatedStreams as StreamMasterApi.ChildVideoStreamDto[]).filter((m3u) => props.showHidden === true || m3u.isHidden !== true)
+        (updatedStreams as ChildVideoStreamDto[]).filter((m3u) => props.showHidden === true || m3u.isHidden !== true)
       );
     }
 
@@ -125,7 +124,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.isAdditionalChannels, props.showHidden, props.showTriState, props.videoStream, streamGroup, videoStreamsQuery.data]);
 
-  const channelNumberEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
+  const channelNumberEditorBodyTemplate = React.useCallback((data: VideoStreamDto) => {
 
     return (
       <ChannelNumberEditor
@@ -172,7 +171,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     }
   ];
 
-  const epgEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
+  const epgEditorBodyTemplate = React.useCallback((data: VideoStreamDto) => {
     return (
       <EPGSelector
         data={data}
@@ -182,12 +181,12 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     );
   }, []);
 
-  const onUpdateVideoStream = React.useCallback(async (data: StreamMasterApi.VideoStreamDto, Logo: string) => {
+  const onUpdateVideoStream = React.useCallback(async (data: VideoStreamDto, Logo: string) => {
     if (data.id === '') {
       return;
     }
 
-    const toSend = {} as StreamMasterApi.UpdateVideoStreamRequest;
+    const toSend = {} as UpdateVideoStreamRequest;
 
     toSend.id = data.id;
 
@@ -195,7 +194,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       toSend.tvg_logo = Logo;
     }
 
-    await Hub.UpdateVideoStream(toSend)
+    await videoStreamsUpdateVideoStreamMutation(toSend)
       .then(() => {
         if (toast.current) {
 
@@ -218,9 +217,9 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
         }
       });
 
-  }, []);
+  }, [videoStreamsUpdateVideoStreamMutation]);
 
-  const channelNameEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
+  const channelNameEditorBodyTemplate = React.useCallback((data: VideoStreamDto) => {
     return (
       <ChannelNameEditor
         data={data}
@@ -229,7 +228,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     )
   }, []);
 
-  const logoEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
+  const logoEditorBodyTemplate = React.useCallback((data: VideoStreamDto) => {
     return (
       <IconSelector
         className="p-inputtext-sm"
@@ -245,21 +244,21 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
   }, [onUpdateVideoStream]);
 
-  const onEdit = React.useCallback(async (data: StreamMasterApi.VideoStreamDto[]) => {
+  const onEdit = React.useCallback(async (data: VideoStreamDto[]) => {
     if (data === null || data === undefined || !props.videoStream) {
 
       return;
     }
 
-    const toSend = {} as StreamMasterApi.UpdateVideoStreamRequest;
+    const toSend = {} as UpdateVideoStreamRequest;
 
     toSend.id = props.videoStream.id;
 
-    const newData = data.map((x: StreamMasterApi.VideoStreamDto, index: number) => { return { ...x, rank: index, } }) as StreamMasterApi.ChildVideoStreamDto[];
+    const newData = data.map((x: VideoStreamDto, index: number) => { return { ...x, rank: index, } }) as ChildVideoStreamDto[];
 
     toSend.childVideoStreams = newData;
 
-    Hub.UpdateVideoStream(toSend)
+    videoStreamsUpdateVideoStreamMutation(toSend)
       .then(() => {
         if (toast.current) {
 
@@ -273,21 +272,21 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
         }
       }
-      ).catch((error) => {
+      ).catch(() => {
         if (toast.current) {
           toast.current.show({
             detail: `Channel Update Failed`,
             life: 3000,
             severity: 'error',
-            summary: 'Error ' + error.message,
+            summary: 'Error',
           });
         }
       });
 
-  }, [props.videoStream]);
+  }, [props.videoStream, videoStreamsUpdateVideoStreamMutation]);
 
 
-  const onSave = React.useCallback(async (data: StreamMasterApi.VideoStreamDto[]) => {
+  const onSave = React.useCallback(async (data: VideoStreamDto[]) => {
 
     if (props.isAdditionalChannels == true) {
       await onEdit(data);
@@ -300,16 +299,16 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
     setIsVideoStreamUpdating(true);
 
-    var toSend = {} as StreamMasterApi.UpdateStreamGroupRequest;
+    var toSend = {} as UpdateStreamGroupRequest;
 
     if (props.streamGroup)
       toSend.streamGroupId = props.streamGroup.id;
 
     toSend.videoStreams = data.map((stream) => {
-      return { isReadOnly: stream.isReadOnly, videoStreamId: stream.id } as StreamMasterApi.VideoStreamIsReadOnly;
+      return { isReadOnly: stream.isReadOnly, videoStreamId: stream.id } as VideoStreamIsReadOnly;
     });
 
-    await Hub.UpdateStreamGroup(toSend)
+    await streamGroupsUpdateStreamGroupMutation(toSend)
       .then(() => {
         if (toast.current) {
 
@@ -320,26 +319,26 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
             summary: 'Successful',
           });
         }
-      }).catch((e) => {
+      }).catch(() => {
         if (toast.current) {
           toast.current.show({
             detail: `Stream Group Update Failed`,
             life: 3000,
             severity: 'error',
-            summary: 'Error ' + e.message,
+            summary: 'Error',
           });
         }
       });
 
     setIsVideoStreamUpdating(false);
-  }, [isVideoStreamUpdating, onEdit, props.isAdditionalChannels, props.streamGroup]);
+  }, [isVideoStreamUpdating, onEdit, props.isAdditionalChannels, props.streamGroup, streamGroupsUpdateStreamGroupMutation]);
 
-  const onChange = React.useCallback(async (e: StreamMasterApi.ChildVideoStreamDto[]) => {
+  const onChange = React.useCallback(async (e: ChildVideoStreamDto[]) => {
 
     await onSave(e);
   }, [onSave]);
 
-  const onRemoveRank = React.useCallback(async (data: StreamMasterApi.VideoStreamDto) => {
+  const onRemoveRank = React.useCallback(async (data: VideoStreamDto) => {
     if (targetVideoStreams === undefined) {
       return;
     }
@@ -355,7 +354,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
   }, [onSave, props, targetVideoStreams]);
 
-  const sourceActionBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
+  const sourceActionBodyTemplate = React.useCallback((data: VideoStreamDto) => {
 
     if (data.isReadOnly === true) {
       return (
@@ -449,27 +448,27 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
         onSelectionChange={onChange}
         onTargetOnValueChanged={async (e) => {
           if (props.isAdditionalChannels === true) {
-            const d = e as StreamMasterApi.VideoStreamDto[];
-            const newData = d.map((x: StreamMasterApi.VideoStreamDto, index: number) => {
+            const d = e as VideoStreamDto[];
+            const newData = d.map((x: VideoStreamDto, index: number) => {
               return {
                 ...x,
                 rank: index,
               }
-            }) as StreamMasterApi.ChildVideoStreamDto[];
+            }) as ChildVideoStreamDto[];
             props.onValueChanged?.(newData);
           } else {
-            props.onValueChanged?.(e as StreamMasterApi.ChildVideoStreamDto[]);
+            props.onValueChanged?.(e as ChildVideoStreamDto[]);
           }
         }}
         onTargetSelectionChange={async (e) => {
           if (props.isAdditionalChannels === true) {
-            const d = e as StreamMasterApi.VideoStreamDto[];
-            const newData = d.map((x: StreamMasterApi.VideoStreamDto, index: number) => {
+            const d = e as VideoStreamDto[];
+            const newData = d.map((x: VideoStreamDto, index: number) => {
               return {
                 ...x,
                 rank: index,
               }
-            }) as StreamMasterApi.ChildVideoStreamDto[];
+            }) as ChildVideoStreamDto[];
             await onEdit(newData);
           }
         }
@@ -513,12 +512,12 @@ export type PlayListDataSelectorPickerProps = {
   id: string;
   isAdditionalChannels?: boolean;
   maxHeight?: number;
-  onValueChanged?: (value: StreamMasterApi.ChildVideoStreamDto[]) => void;
+  onValueChanged?: (value: ChildVideoStreamDto[]) => void;
   showHidden?: boolean | undefined;
   showTriState?: boolean | null | undefined;
   sourceHeaderTemplate?: React.ReactNode | undefined;
-  streamGroup?: StreamMasterApi.StreamGroupDto | undefined;
-  videoStream?: StreamMasterApi.VideoStreamDto | undefined;
+  streamGroup?: StreamGroupDto | undefined;
+  videoStream?: VideoStreamDto | undefined;
 };
 
 export default React.memo(PlayListDataSelectorPicker);

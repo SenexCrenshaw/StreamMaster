@@ -74,7 +74,7 @@ namespace StreamMasterInfrastructureEF
             {
                 if (_m3uFile == null)
                 {
-                    _m3uFile = new M3UFileRepository(_repoContext, _m3uFileSortHelper);
+                    _m3uFile = new M3UFileRepository(_repoContext, _mapper);
                 }
                 return _m3uFile;
             }
@@ -88,7 +88,7 @@ namespace StreamMasterInfrastructureEF
             {
                 if (_epgFile == null)
                 {
-                    _epgFile = new EPGFileRepository(_repoContext, _epgFileSortHelper);
+                    _epgFile = new EPGFileRepository(_repoContext, _mapper);
                 }
                 return _epgFile;
             }

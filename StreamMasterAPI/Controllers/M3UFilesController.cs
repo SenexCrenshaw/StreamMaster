@@ -1,8 +1,4 @@
-﻿using AutoMapper;
-
-using Microsoft.AspNetCore.Mvc;
-
-using StreamMasterAPI.Extensions;
+﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterApplication.M3UFiles;
 using StreamMasterApplication.M3UFiles.Commands;
@@ -16,18 +12,17 @@ namespace StreamMasterAPI.Controllers;
 
 public class M3UFilesController : ApiControllerBase, IM3UFileController
 {
-    private readonly IMapper _mapper;
 
-    public M3UFilesController(IMapper mapper)
+    public M3UFilesController()
     {
-        _mapper = mapper;
+
     }
 
     [HttpPost]
     [Route("[action]")]
     public async Task<ActionResult> CreateM3UFile(CreateM3UFileRequest request)
     {
-        var result = await Mediator.Send(request).ConfigureAwait(false);
+        bool result = await Mediator.Send(request).ConfigureAwait(false);
         return result ? Ok() : BadRequest();
     }
 
@@ -35,7 +30,7 @@ public class M3UFilesController : ApiControllerBase, IM3UFileController
     [Route("[action]")]
     public async Task<ActionResult> CreateM3UFileFromForm([FromForm] CreateM3UFileRequest request)
     {
-        var result = await Mediator.Send(request).ConfigureAwait(false);
+        bool result = await Mediator.Send(request).ConfigureAwait(false);
         return result ? Ok() : BadRequest();
     }
 
@@ -43,7 +38,7 @@ public class M3UFilesController : ApiControllerBase, IM3UFileController
     [Route("[action]")]
     public async Task<ActionResult> ChangeM3UFileName(ChangeM3UFileNameRequest request)
     {
-        var result = await Mediator.Send(request).ConfigureAwait(false);
+        bool result = await Mediator.Send(request).ConfigureAwait(false);
         return result ? Ok() : BadRequest();
     }
 
@@ -65,19 +60,18 @@ public class M3UFilesController : ApiControllerBase, IM3UFileController
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedList<M3UFileDto>>> GetM3UFiles([FromQuery] M3UFileParameters Parameters)
+    public async Task<ActionResult<PagedResponse<M3UFileDto>>> GetM3UFiles([FromQuery] M3UFileParameters Parameters)
     {
-        var m3uFiles = await Mediator.Send(new GetM3UFilesQuery(Parameters)).ConfigureAwait(false);
-        PagedList<M3UFileDto> result = APIExtensions.GetPagedResult<M3UFile, M3UFileDto>(m3uFiles, Response, _mapper);
+        PagedResponse<M3UFileDto> m3uFiles = await Mediator.Send(new GetM3UFilesQuery(Parameters)).ConfigureAwait(false);
 
-        return Ok(result);
+        return Ok(m3uFiles);
     }
 
     [HttpPut]
     [Route("[action]")]
     public async Task<ActionResult> ProcessM3UFile(ProcessM3UFileRequest request)
     {
-        var data = await Mediator.Send(request).ConfigureAwait(false);
+        M3UFile? data = await Mediator.Send(request).ConfigureAwait(false);
         return data == null ? NotFound() : NoContent();
     }
 
@@ -85,7 +79,7 @@ public class M3UFilesController : ApiControllerBase, IM3UFileController
     [Route("[action]")]
     public async Task<ActionResult> RefreshM3UFile(RefreshM3UFileRequest request)
     {
-        var data = await Mediator.Send(request).ConfigureAwait(false);
+        M3UFile? data = await Mediator.Send(request).ConfigureAwait(false);
         return data == null ? NotFound() : NoContent();
     }
 
@@ -101,7 +95,7 @@ public class M3UFilesController : ApiControllerBase, IM3UFileController
     [Route("[action]")]
     public async Task<ActionResult> UpdateM3UFile(UpdateM3UFileRequest request)
     {
-        var data = await Mediator.Send(request).ConfigureAwait(false);
+        M3UFile? data = await Mediator.Send(request).ConfigureAwait(false);
         return data == null ? NotFound() : NoContent();
     }
 }

@@ -12,11 +12,11 @@ import { InputText } from 'primereact/inputtext';
 import { ProgressBar } from 'primereact/progressbar';
 import React, { useRef, useState } from 'react';
 import { upload } from '../services/FileUploadService';
-import type * as StreamMasterApi from '../store/iptvApi';
-import * as Hub from "../store/signlar_functions";
 import { getTopToolOptions, isValidUrl } from '../common/common';
 import { InputNumber } from 'primereact/inputnumber';
 import InfoMessageOverLayDialog from './InfoMessageOverLayDialog';
+import { useEpgFilesCreateEpgFileMutation, type CreateM3UFileRequest, useM3UFilesCreateM3UFileMutation } from '../store/iptvApi';
+import { type CreateEpgFileRequest } from '../store/iptvApi';
 
 const FileDialog = (props: FileDialogProps) => {
 
@@ -35,6 +35,9 @@ const FileDialog = (props: FileDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
+
+  const [epgFilesCreateEpgFileMutation] = useEpgFilesCreateEpgFileMutation();
+  const [m3uFilesCreateM3UFileMutation] = useM3UFilesCreateM3UFileMutation();
 
   const onTemplateSelect = (e: FileUploadSelectEvent) => {
     setActiveFile(e.files[0]);
@@ -144,14 +147,14 @@ const FileDialog = (props: FileDialogProps) => {
     if (source !== '') {
       switch (props.fileType) {
         case 'epg':
-          const addEpgFileRequest = {} as StreamMasterApi.CreateEpgFileRequest;
+          const addEpgFileRequest = {} as CreateEpgFileRequest;
 
           addEpgFileRequest.name = name;
           addEpgFileRequest.description = '';
           addEpgFileRequest.formFile = null;
           addEpgFileRequest.urlSource = source;
 
-          Hub.CreateEPGFile(addEpgFileRequest)
+          epgFilesCreateEpgFileMutation(addEpgFileRequest)
             .then(() => {
 
               setInfoMessage(`Uploaded EPG: ${name}${activeFile ? '/' + activeFile.name : ''}`);
@@ -163,7 +166,7 @@ const FileDialog = (props: FileDialogProps) => {
           // ReturnToParent(true);
           break;
         case 'm3u':
-          const createM3UFileRequest = {} as StreamMasterApi.CreateM3UFileRequest;
+          const createM3UFileRequest = {} as CreateM3UFileRequest;
 
           createM3UFileRequest.name = name;
           createM3UFileRequest.description = '';
@@ -172,7 +175,7 @@ const FileDialog = (props: FileDialogProps) => {
           createM3UFileRequest.formFile = null;
           createM3UFileRequest.urlSource = source;
 
-          await Hub.CreateM3UFile(createM3UFileRequest)
+          await m3uFilesCreateM3UFileMutation(createM3UFileRequest)
             .then(() => {
 
               setInfoMessage(`Uploaded M3U: ${name}${activeFile ? '/' + activeFile.name : ''}`);
@@ -185,7 +188,7 @@ const FileDialog = (props: FileDialogProps) => {
           break;
 
         case 'icon':
-        // const addIconFileRequest = {} as StreamMasterApi.AddIconFileRequest;
+        // const addIconFileRequest = {} as AddIconFileRequest;
 
         // addIconFileRequest.name = name;
         // addIconFileRequest.formFile = null;

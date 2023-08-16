@@ -45,15 +45,15 @@ const IconSelector = (props: IconSelectorProps) => {
 
     const iconUrl = getIconUrl(option.source, setting.defaultIconUrl, false);
     return (
-      <div className='flex h-full justify-content-start align-items-center p-0 m-0 pl-2'>
+      <div className='flex max-h-1rem justify-content-start align-items-center p-0 m-0 pl-2'>
 
         <img
           alt={option.name}
           src={iconUrl}
           style={{
-            maxWidth: '1.2rem',
+            maxWidth: '1rem',
             objectFit: 'contain',
-            width: '1.2rem',
+
           }}
         />
       </div>
@@ -65,18 +65,23 @@ const IconSelector = (props: IconSelectorProps) => {
     const iconUrl = getIconUrl(option.source, setting.defaultIcon, false);
 
     return (
-      <>
+      <div className="flex h-full max-w-5rem align-items-center text-base text-color surface-overlay appearance-none outline-none focus:border-primary">
         <img
           alt={option.name ?? 'name'}
-          className="flex align-items-center max-w-full h-2rem text-base text-color surface-overlay appearance-none outline-none focus:border-primary"
+          className="surface-overlay appearance-none outline-none focus:border-primary"
           src={iconUrl}
+          style={{
+            maxWidth: '5rem',
+            objectFit: 'contain',
+            width: '5rem',
+          }}
         />
         <div className="white-space-normal">{option.name}</div>
-      </>
+      </div>
     );
   }, [setting]);
 
-  const className = classNames('iconSelector p-0 m-0 w-full z-5 ', props.className, {
+  const className = classNames('iconSelector  align-contents-center p-0 m-0 w-full z-5 ', props.className, {
     'p-button-loading': props.loading,
     'p-disabled': props.disabled,
   });
@@ -100,7 +105,7 @@ const IconSelector = (props: IconSelectorProps) => {
 
 
   return (
-    <div className="iconSelector flex w-full">
+    <div className="iconSelector flex align-contents-center" >
       <Dropdown
         className={className}
         disabled={props.disabled}
@@ -124,7 +129,7 @@ const IconSelector = (props: IconSelectorProps) => {
         value={selectedIcon}
         valueTemplate={selectedTemplate}
         virtualScrollerOptions={{
-          itemSize: 72,
+          itemSize: 82,
         }}
 
       />

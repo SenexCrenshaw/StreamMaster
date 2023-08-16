@@ -1,12 +1,13 @@
 ﻿using MediatR;
 
+using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.M3UFiles.Queries;
 
-public record GetM3UFilesQuery(M3UFileParameters Parameters) : IRequest<IPagedList<M3UFile>>;
+public record GetM3UFilesQuery(M3UFileParameters Parameters) : IRequest<PagedResponse<M3UFileDto>>;
 
-internal class GetM3UFilesQueryHandler : IRequestHandler<GetM3UFilesQuery, IPagedList<M3UFile>>
+internal class GetM3UFilesQueryHandler : IRequestHandler<GetM3UFilesQuery, PagedResponse<M3UFileDto>>
 {
     private IRepositoryWrapper Repository { get; }
 
@@ -15,9 +16,9 @@ internal class GetM3UFilesQueryHandler : IRequestHandler<GetM3UFilesQuery, IPage
         Repository = repository;
     }
 
-    public async Task<IPagedList<M3UFile>> Handle(GetM3UFilesQuery request, CancellationToken cancellationToken = default)
+    public async Task<PagedResponse<M3UFileDto>> Handle(GetM3UFilesQuery request, CancellationToken cancellationToken = default)
     {
-        var m3uFiles = await Repository.M3UFile.GetM3UFilesAsync(request.Parameters).ConfigureAwait(false);
+        PagedResponse<StreamMasterDomain.Dto.M3UFileDto> m3uFiles = await Repository.M3UFile.GetM3UFilesAsync(request.Parameters).ConfigureAwait(false);
         return m3uFiles;
     }
 }

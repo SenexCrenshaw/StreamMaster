@@ -21,7 +21,7 @@ public interface IM3UFileController
 
     Task<ActionResult<M3UFileDto>> GetM3UFile(int id);
 
-    Task<ActionResult<PagedList<M3UFileDto>>> GetM3UFiles(M3UFileParameters Parameters);
+    Task<ActionResult<PagedResponse<M3UFileDto>>> GetM3UFiles(M3UFileParameters Parameters);
 
     Task<ActionResult> ProcessM3UFile(ProcessM3UFileRequest request);
 
@@ -46,7 +46,7 @@ public interface IM3UFileHub
 
     Task<M3UFileDto?> GetM3UFile(int id);
 
-    Task<PagedList<M3UFileDto>> GetM3UFiles(M3UFileParameters Parameters);
+    Task<PagedResponse<M3UFileDto>> GetM3UFiles(M3UFileParameters Parameters);
 
     Task ProcessM3UFile(ProcessM3UFileRequest request);
 

@@ -101,7 +101,7 @@ public class UpdateM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHan
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
             if (isChanged)
             {
-                await _hubContext.Clients.All.M3UFilesDtoUpdate(ret).ConfigureAwait(false);
+                await _hubContext.Clients.All.M3UFilesRefresh().ConfigureAwait(false);
             }
 
             return m3uFile;

@@ -1,8 +1,5 @@
 import React from 'react';
-import * as StreamMasterApi from '../store/iptvApi';
-import * as Hub from "../store/signlar_functions";
 
-import DataSelector from '../features/dataSelector/DataSelector';
 import { formatJSONDateString, getTopToolOptions } from '../common/common';
 import { Toast } from 'primereact/toast';
 import { type CheckboxChangeEvent } from 'primereact/checkbox';
@@ -10,22 +7,28 @@ import { Checkbox } from 'primereact/checkbox';
 import NumberEditorBodyTemplate from './NumberEditorBodyTemplate';
 import StringEditorBodyTemplate from './StringEditorBodyTemplate';
 import { type ColumnMeta } from '../features/dataSelector/DataSelectorTypes';
+import DataSelector2 from '../features/dataSelector2/DataSelector2';
+import { type EpgFilesDto, type EpgFilesGetEpgFilesApiArg, type UpdateEpgFileRequest, type M3UFileDto, useEpgFilesUpdateEpgFileMutation } from '../store/iptvApi';
+import { useEpgFilesGetEpgFilesQuery } from '../store/iptvApi';
 
 const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
 
-  const [selectedEPGFile, setSelectedEPGFile] = React.useState<StreamMasterApi.EpgFilesDto>({} as StreamMasterApi.EpgFilesDto);
+  // const [selectedEPGFile, setSelectedEPGFile] = React.useState<EpgFilesDto>({} as EpgFilesDto);
+  const [pageSize, setPageSize] = React.useState<number>(25);
+  const [pageNumber, setPageNumber] = React.useState<number>(1);
 
-  const epgFilesQuery = StreamMasterApi.useEpgFilesGetEpgFilesQuery({} as StreamMasterApi.EpgFilesGetEpgFilesApiArg);
+  const [epgFilesUpdateEpgFileMutation] = useEpgFilesUpdateEpgFileMutation();
+  const epgFilesQuery = useEpgFilesGetEpgFilesQuery({ pageNumber: pageNumber === 0 ? 1 : pageNumber, pageSize: pageSize } as EpgFilesGetEpgFilesApiArg);
 
-  React.useMemo(() => {
-    if (props.value?.id !== undefined) {
+  // React.useMemo(() => {
+  //   if (props.value?.id !== undefined) {
 
-      setSelectedEPGFile(props.value);
-    }
-  }, [props.value, setSelectedEPGFile]);
+  //     setSelectedEPGFile(props.value);
+  //   }
+  // }, [props.value, setSelectedEPGFile]);
 
-  const SetSelectedEPGFileChanged = React.useCallback((data: StreamMasterApi.EpgFilesDto) => {
+  const SetSelectedEPGFileChanged = React.useCallback((data: EpgFilesDto) => {
     if (!data) {
       return;
     }
@@ -34,7 +37,7 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
       return;
     }
 
-    setSelectedEPGFile(data);
+    // setSelectedEPGFile(data);
 
     props.onChange?.(data);
   }, [props]);
@@ -49,7 +52,7 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
       return;
     }
 
-    const tosend = {} as StreamMasterApi.UpdateEpgFileRequest;
+    const tosend = {} as UpdateEpgFileRequest;
 
     tosend.id = id;
     if (auto !== undefined) {
@@ -68,7 +71,7 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
       tosend.url = url;
     }
 
-    await Hub.UpdateEPGFile(tosend)
+    await epgFilesUpdateEpgFileMutation(tosend)
       .then(() => {
         if (toast.current) {
 
@@ -91,9 +94,9 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
         }
       });
 
-  }, [toast]);
+  }, [epgFilesUpdateEpgFileMutation]);
 
-  const lastDownloadedTemplate = React.useCallback((rowData: StreamMasterApi.EpgFilesDto) => {
+  const lastDownloadedTemplate = React.useCallback((rowData: EpgFilesDto) => {
     if (rowData.id === 0) {
       return (<div />);
     }
@@ -105,7 +108,7 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
     );
   }, []);
 
-  const nameEditorBodyTemplate = React.useCallback((rowData: StreamMasterApi.EpgFilesDto) => {
+  const nameEditorBodyTemplate = React.useCallback((rowData: EpgFilesDto) => {
     if (rowData.id === 0) {
       return (
         <div className='p-0 relative'
@@ -134,7 +137,7 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
     )
   }, [onEPGUpdateClick]);
 
-  const programmeCountTemplate = React.useCallback((rowData: StreamMasterApi.EpgFilesDto) => {
+  const programmeCountTemplate = React.useCallback((rowData: EpgFilesDto) => {
     if (rowData.id === 0) {
       return (<div />);
     }
@@ -144,7 +147,7 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
     );
   }, []);
 
-  const targetActionBodyTemplate = React.useCallback((rowData: StreamMasterApi.EpgFilesDto) => {
+  const targetActionBodyTemplate = React.useCallback((rowData: EpgFilesDto) => {
     if (rowData.id === 0) {
       return (<div />);
     }
@@ -173,7 +176,7 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
     );
   }, [onEPGUpdateClick]);
 
-  const urlEditorBodyTemplate = React.useCallback((rowData: StreamMasterApi.M3UFileDto) => {
+  const urlEditorBodyTemplate = React.useCallback((rowData: M3UFileDto) => {
     if (rowData.id === 0) {
       return (
         <div className='p-0 relative'
@@ -222,18 +225,25 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
-      {/* <SMDataTable /> */}
-      <DataSelector
+      <DataSelector2
         columns={sourceColumns}
         dataSource={epgFilesQuery.data}
         emptyMessage="No EPG Files"
         globalSearchEnabled={false}
         id='epgfilesdataselector'
         isLoading={epgFilesQuery.isLoading}
+        onPage={(pageInfo) => {
+          if (pageInfo.page !== undefined) {
+            setPageNumber(pageInfo.page + 1);
+          }
+
+          if (pageInfo.rows !== undefined) {
+            setPageSize(pageInfo.rows);
+          }
+        }}
         onSelectionChange={(e) =>
-          SetSelectedEPGFileChanged(e as StreamMasterApi.EpgFilesDto)
+          SetSelectedEPGFileChanged(e as EpgFilesDto)
         }
-        selection={selectedEPGFile}
         style={{ height: 'calc(50vh - 40px)' }}
       />
     </>
@@ -242,8 +252,8 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
 
 EPGFilesDataSelector.displayName = 'EPGFilesDataSelector';
 type EPGFilesDataSelectorProps = {
-  onChange?: (value: StreamMasterApi.EpgFilesDto) => void;
-  value?: StreamMasterApi.EpgFilesDto | undefined;
+  onChange?: (value: EpgFilesDto) => void;
+  value?: EpgFilesDto | undefined;
 };
 
 export default React.memo(EPGFilesDataSelector);

@@ -1,7 +1,6 @@
 
 import React from "react";
 import * as StreamMasterApi from '../store/iptvApi';
-import * as Hub from '../store/signlar_functions';
 import { Button } from "primereact/button";
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
 import { getTopToolOptions } from "../common/common";
@@ -16,6 +15,7 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
   const [regex, setRegex] = React.useState<string | undefined>('');
   const [newGroupName, setNewGroupName] = React.useState('');
 
+  const [channelGroupsUpdateChannelGroupMutation] = StreamMasterApi.useChannelGroupsUpdateChannelGroupMutation();
   const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsByNamePatternQuery(regex ?? '');
 
   const ReturnToParent = React.useCallback(() => {
@@ -52,13 +52,13 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
       tosend.regex = regex;
     }
 
-    Hub.UpdateChannelGroup(tosend).then(() => {
+    channelGroupsUpdateChannelGroupMutation(tosend).then(() => {
       setInfoMessage('Channel Group Edit Successfully');
     }).catch((e) => {
       setInfoMessage('Channel Group Edit Error: ' + e.message);
     });
     setNewGroupName('');
-  }, [ReturnToParent, newGroupName, props.value, regex]);
+  }, [ReturnToParent, channelGroupsUpdateChannelGroupMutation, newGroupName, props.value, regex]);
 
   const sourceColumns = React.useMemo((): ColumnMeta[] => {
     return [

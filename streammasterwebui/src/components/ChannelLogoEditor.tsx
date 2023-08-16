@@ -1,13 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
-import type * as StreamMasterApi from '../store/iptvApi';
+
 import { Toast } from 'primereact/toast';
-import * as Hub from "../store/signlar_functions";
 import IconSelector from "./IconSelector";
+import { type VideoStreamDto } from "../store/iptvApi";
+import { type UpdateVideoStreamRequest } from "../store/iptvApi";
+import { useChannelGroupsUpdateChannelGroupMutation } from "../store/iptvApi";
 
 
 const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
+  const [channelGroupsUpdateChannelGroupMutation] = useChannelGroupsUpdateChannelGroupMutation();
 
   const onUpdateVideoStream = React.useCallback(async (Logo: string) => {
     if (props.data.id === '') {
@@ -15,7 +17,7 @@ const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
     }
 
 
-    const data = {} as StreamMasterApi.UpdateVideoStreamRequest;
+    const data = {} as UpdateVideoStreamRequest;
 
     data.id = props.data.id;
 
@@ -24,7 +26,7 @@ const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
     }
 
 
-    await Hub.UpdateVideoStream(data)
+    await channelGroupsUpdateChannelGroupMutation(data)
       .then(() => {
         if (toast.current) {
 
@@ -47,7 +49,7 @@ const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
         }
       });
 
-  }, [props.data.id, props.data.user_Tvg_logo]);
+  }, [channelGroupsUpdateChannelGroupMutation, props.data.id, props.data.user_Tvg_logo]);
 
   return (
     <>
@@ -72,7 +74,7 @@ ChannelLogoEditor.defaultProps = {
 };
 
 export type StreamDataSelectorProps = {
-  data: StreamMasterApi.VideoStreamDto;
+  data: VideoStreamDto;
   enableEditMode?: boolean;
 };
 

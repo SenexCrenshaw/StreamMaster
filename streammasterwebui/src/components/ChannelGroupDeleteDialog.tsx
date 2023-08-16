@@ -1,6 +1,5 @@
 import React from "react";
-import type * as StreamMasterApi from '../store/iptvApi';
-import * as Hub from "../store/signlar_functions";
+import * as StreamMasterApi from '../store/iptvApi';
 import { Button } from "primereact/button";
 import { getTopToolOptions } from "../common/common";
 
@@ -11,6 +10,8 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
   const [block, setBlock] = React.useState<boolean>(false);
   const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[]);
   const [infoMessage, setInfoMessage] = React.useState('');
+
+  const [channelGroupsDeleteChannelGroupMutation] = StreamMasterApi.useChannelGroupsDeleteChannelGroupMutation();
 
   const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);
@@ -42,7 +43,7 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
       data.groupName = group.name;
 
       promises.push(
-        Hub.DeleteChannelGroup(data)
+        channelGroupsDeleteChannelGroupMutation(data)
           .then(() => {
 
           }).catch(() => { })
@@ -60,7 +61,7 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
       setInfoMessage('Channel Group Delete Error: ' + error.message);
     });
 
-  }, [ReturnToParent, selectedChannelGroups]);
+  }, [ReturnToParent, channelGroupsDeleteChannelGroupMutation, selectedChannelGroups]);
 
   const isDisabled = React.useMemo((): boolean => {
     if (props.iconFilled !== true) {

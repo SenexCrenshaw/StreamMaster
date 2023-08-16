@@ -6,6 +6,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.M3UFiles.Commands;
+
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
@@ -13,20 +14,18 @@ using StreamMasterDomain.Repository.EPG;
 
 namespace StreamMasterApplication.EPGFiles.Queries;
 
-public record GetEPGFiles(EPGFileParameters Parameters) : IRequest<StaticPagedList<EPGFilesDto>>;
+public record GetEPGFiles(EPGFileParameters Parameters) : IRequest<PagedResponse<EPGFilesDto>>;
 
-internal class GetEPGFilesHandler : BaseMemoryRequestHandler, IRequestHandler<GetEPGFiles, StaticPagedList<EPGFilesDto>>
+internal class GetEPGFilesHandler : BaseMemoryRequestHandler, IRequestHandler<GetEPGFiles, PagedResponse<EPGFilesDto>>
 {
     public GetEPGFilesHandler(ILogger<ProcessM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
         : base(logger, repository, mapper, publisher, sender, memoryCache) { }
 
-    public async Task<StaticPagedList<EPGFilesDto>> Handle(GetEPGFiles request, CancellationToken cancellationToken = default)
+    public async Task<PagedResponse<EPGFilesDto>> Handle(GetEPGFiles request, CancellationToken cancellationToken = default)
     {
-        var epgFiles = await Repository.EPGFile.GetEPGFilesAsync(request.Parameters);
+        PagedResponse<EPGFilesDto> epgFiles = await Repository.EPGFile.GetEPGFilesAsync(request.Parameters);
 
-        IEnumerable<EPGFilesDto> epgFileDtos = Mapper.Map<IEnumerable<EPGFilesDto>>(epgFiles);
-
-        foreach (EPGFilesDto epgFileDto in epgFileDtos)
+        foreach (EPGFilesDto epgFileDto in epgFiles.Data)
         {
             List<Programme> proprammes = MemoryCache.Programmes().Where(a => a.EPGFileId == epgFileDto.Id).ToList();
             if (proprammes.Any())
@@ -35,10 +34,6 @@ internal class GetEPGFilesHandler : BaseMemoryRequestHandler, IRequestHandler<Ge
                 epgFileDto.EPGStopDate = proprammes.Max(a => a.StopDateTime);
             }
         }
-
-        var result = new StaticPagedList<EPGFilesDto>(epgFileDtos, epgFiles.GetMetaData());
-
-        //PagedList<EPGFilesDto> result = new(epgFileDtos.ToList(), epgFiles.TotalCount, epgFiles.CurrentPage, epgFiles.PageSize);
-        return result;
+        return epgFiles;
     }
 }

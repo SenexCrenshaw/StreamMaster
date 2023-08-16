@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.SignalR;
 using StreamMasterApplication.Hubs;
 using StreamMasterApplication.Services;
 
-using StreamMasterDomain.Dto;
-
 namespace StreamMasterApplication.M3UFiles.EventHandlers;
 
 public class M3UFileProcessedEventHandler : INotificationHandler<M3UFileProcessedEvent>
@@ -41,7 +39,7 @@ public class M3UFileProcessedEventHandler : INotificationHandler<M3UFileProcesse
         //var streams = await _sender.Send(new GetVideoStreams(), cancellationToken).ConfigureAwait(false);
 
         await _taskQueue.BuildIconsCacheFromVideoStreams(cancellationToken).ConfigureAwait(false);
-        await _hubContext.Clients.All.M3UFilesDtoUpdate(notification.M3UFile).ConfigureAwait(false);
+        await _hubContext.Clients.All.M3UFilesRefresh().ConfigureAwait(false);
         await _hubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);
     }
 }

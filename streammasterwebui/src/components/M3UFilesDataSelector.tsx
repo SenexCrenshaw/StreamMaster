@@ -1,7 +1,6 @@
 import React from 'react';
 import * as StreamMasterApi from '../store/iptvApi';
 import * as Hub from "../store/signlar_functions";
-import DataSelector from '../features/dataSelector/DataSelector';
 import { formatJSONDateString, getTopToolOptions } from '../common/common';
 import { Toast } from 'primereact/toast';
 import { type CheckboxChangeEvent } from 'primereact/checkbox';
@@ -10,14 +9,17 @@ import NumberEditorBodyTemplate from './NumberEditorBodyTemplate';
 import StringEditorBodyTemplate from './StringEditorBodyTemplate';
 import { type ColumnMeta } from '../features/dataSelector/DataSelectorTypes';
 import { useLocalStorage } from 'primereact/hooks';
+import DataSelector2 from '../features/dataSelector2/DataSelector2';
 
 
 const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
+  const [pageSize, setPageSize] = React.useState<number>(25);
+  const [pageNumber, setPageNumber] = React.useState<number>(1);
 
   const [selectedM3UFile, setSelectedM3UFile] = useLocalStorage<StreamMasterApi.M3UFileDto>({ id: 0, name: 'All' } as StreamMasterApi.M3UFileDto, 'M3UFilesDataSelector-selectedM3UFile');
 
-  const m3UFilesQuery = StreamMasterApi.useM3UFilesGetM3UFilesQuery({} as StreamMasterApi.M3UFilesGetM3UFilesApiArg);
+  const m3UFilesQuery = StreamMasterApi.useM3UFilesGetM3UFilesQuery({ pageNumber: pageNumber === 0 ? 1 : pageNumber, pageSize: pageSize } as StreamMasterApi.M3UFilesGetM3UFilesApiArg);
 
   React.useMemo(() => {
     if (props.value?.id !== undefined && selectedM3UFile !== undefined && props.value.id !== selectedM3UFile.id) {
@@ -281,17 +283,26 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
     <>
       <Toast position="bottom-right" ref={toast} />
 
-      <DataSelector
+      <DataSelector2
         columns={sourceColumns}
         dataSource={m3UFilesQuery.data}
         emptyMessage="No M3U Files"
         globalSearchEnabled={false}
         id='m3ufilesdataselector'
         isLoading={m3UFilesQuery.isLoading}
+        onPage={(pageInfo) => {
+          if (pageInfo.page !== undefined) {
+            setPageNumber(pageInfo.page + 1);
+          }
+
+          if (pageInfo.rows !== undefined) {
+            setPageSize(pageInfo.rows);
+          }
+        }}
         onSelectionChange={(e) =>
           SetSelectedM3UFileChanged(e as StreamMasterApi.M3UFileDto)
         }
-        selection={selectedM3UFile}
+        // selection={selectedM3UFile}
         style={{ height: 'calc(50vh - 40px)' }}
       />
     </>

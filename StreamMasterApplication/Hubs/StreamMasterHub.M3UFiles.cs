@@ -46,11 +46,10 @@ public partial class StreamMasterHub : IM3UFileHub
         await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<PagedList<M3UFileDto>> GetM3UFiles(M3UFileParameters m3uFileParameters)
+    public async Task<PagedResponse<M3UFileDto>> GetM3UFiles(M3UFileParameters m3uFileParameters)
     {
-        var data = await _mediator.Send(new GetM3UFilesQuery(m3uFileParameters)).ConfigureAwait(false);
-        var ret = _mapper.Map<PagedList<M3UFileDto>>(data);
-        return ret;
+        PagedResponse<M3UFileDto> data = await _mediator.Send(new GetM3UFilesQuery(m3uFileParameters)).ConfigureAwait(false);
+        return data;
     }
 
     public async Task<M3UFileDto?> GetM3UFile(int id)

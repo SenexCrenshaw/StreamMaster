@@ -1,18 +1,21 @@
 
 import React from "react";
-import type * as StreamMasterApi from '../store/iptvApi';
-import * as Hub from '../store/signlar_functions';
+
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
 import { Button } from "primereact/button";
 import { getTopToolOptions } from "../common/common";
 import VideoStreamPanel from "./VideoStreamPanel";
+import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../store/iptvApi";
+import { useVideoStreamsUpdateVideoStreamMutation } from "../store/iptvApi";
 
 const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
 
-  const [videoStream, setVideoStream] = React.useState<StreamMasterApi.VideoStreamDto | undefined>(undefined);
+  const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
+
+  const [videoStream, setVideoStream] = React.useState<VideoStreamDto | undefined>(undefined);
 
   React.useEffect(() => {
     setVideoStream(props.value);
@@ -27,14 +30,14 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
     props.onClose?.();
   }, [props]);
 
-  const onEdit = React.useCallback(async (data: StreamMasterApi.UpdateVideoStreamRequest) => {
+  const onEdit = React.useCallback(async (data: UpdateVideoStreamRequest) => {
     setBlock(true);
     if (data === null || data === undefined) {
       ReturnToParent();
       return;
     }
 
-    Hub.UpdateVideoStream(data)
+    videoStreamsUpdateVideoStreamMutation(data)
       .then(() => {
 
         setInfoMessage('Set Stream Edited Successfully');
@@ -45,7 +48,7 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
         setInfoMessage('Set Stream Edited Error: ' + error.message);
       });
 
-  }, [ReturnToParent]);
+  }, [ReturnToParent, videoStreamsUpdateVideoStreamMutation]);
 
 
   return (
@@ -92,7 +95,7 @@ VideoStreamEditDialog.defaultProps = {
 type VideoStreamEditDialogProps = {
   iconFilled?: boolean | undefined;
   onClose?: (() => void);
-  value?: StreamMasterApi.VideoStreamDto | undefined;
+  value?: VideoStreamDto | undefined;
 };
 
 export default React.memo(VideoStreamEditDialog);

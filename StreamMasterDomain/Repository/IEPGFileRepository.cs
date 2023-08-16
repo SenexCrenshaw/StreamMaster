@@ -1,4 +1,5 @@
-﻿using StreamMasterDomain.Pagination;
+﻿using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterDomain.Repository
 {
@@ -6,7 +7,7 @@ namespace StreamMasterDomain.Repository
     {
         Task<IEnumerable<EPGFile>> GetAllEPGFilesAsync();
 
-        Task<IPagedList<EPGFile>> GetEPGFilesAsync(EPGFileParameters EPGFileParameters);
+        Task<PagedResponse<EPGFilesDto>> GetEPGFilesAsync(EPGFileParameters EPGFileParameters);
 
         Task<EPGFile> GetEPGFileByIdAsync(int Id);
 

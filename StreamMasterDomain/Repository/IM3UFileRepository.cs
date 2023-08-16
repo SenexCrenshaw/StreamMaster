@@ -1,4 +1,5 @@
-﻿using StreamMasterDomain.Pagination;
+﻿using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterDomain.Repository
 {
@@ -6,7 +7,7 @@ namespace StreamMasterDomain.Repository
     {
         Task<IEnumerable<M3UFile>> GetAllM3UFilesAsync();
 
-        Task<IPagedList<M3UFile>> GetM3UFilesAsync(M3UFileParameters m3uFileParameters);
+        Task<PagedResponse<M3UFileDto>> GetM3UFilesAsync(M3UFileParameters m3uFileParameters);
 
         Task<M3UFile> GetM3UFileByIdAsync(int Id);
 
