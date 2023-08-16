@@ -33,7 +33,7 @@ public class UpdateEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHan
 {
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
 
-    public UpdateEPGFileRequestHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<ProcessM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+    public UpdateEPGFileRequestHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<UpdateEPGFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
         : base(logger, repository, mapper, publisher, sender, memoryCache) { _hubContext = hubContext; }
 
     public async Task<EPGFilesDto?> Handle(UpdateEPGFileRequest request, CancellationToken cancellationToken)

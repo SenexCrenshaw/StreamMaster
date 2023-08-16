@@ -7,8 +7,6 @@ using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMasterApplication.M3UFiles.Commands;
-
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
@@ -35,7 +33,7 @@ public class RefreshEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
 {
 
 
-    public RefreshEPGFileRequestHandler(ILogger<ProcessM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+    public RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
         : base(logger, repository, mapper, publisher, sender, memoryCache) { }
 
 

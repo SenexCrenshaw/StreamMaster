@@ -12,7 +12,13 @@ public class EPGFile : AutoUpdateEntity
         FileExtension = FileDefinitions.EPG.FileExtension;
         SMFileType = FileDefinitions.EPG.SMFileType;
     }
+    public DateTime LastWrite()
+    {
+        string fileName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Source);
+        DateTime lastWrite = File.GetLastWriteTime(fileName);
 
+        return lastWrite;
+    }
     public int ChannelCount { get; set; }
     public int EPGRank { get; set; }
     public int ProgrammeCount { get; set; }

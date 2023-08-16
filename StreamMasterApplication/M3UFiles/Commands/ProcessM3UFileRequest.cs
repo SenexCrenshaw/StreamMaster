@@ -7,6 +7,8 @@ using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
+using StreamMasterApplication.ChannelGroups.Commands;
+
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Extensions;
 
@@ -46,6 +48,7 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
         try
         {
             M3UFile m3uFile = await Repository.M3UFile.GetM3UFileByIdAsync(request.Id).ConfigureAwait(false);
+
             if (m3uFile == null)
             {
                 Logger.LogCritical("Could not find M3U file");
@@ -53,14 +56,15 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
             }
             Stopwatch sw = Stopwatch.StartNew();
 
+            List<VideoStream>? streams = await m3uFile.GetM3U().ConfigureAwait(false);
+            if (streams == null)
+            {
+                Logger.LogCritical("Error while processing M3U file, bad format");
+                return null;
+            }
+
             if (m3uFile.LastWrite() >= m3uFile.LastUpdated)
             {
-                List<VideoStream>? streams = await m3uFile.GetM3U().ConfigureAwait(false);
-                if (streams == null)
-                {
-                    Logger.LogCritical("Error while processing M3U file, bad format");
-                    return null;
-                }
 
                 Setting setting = FileUtil.GetSetting();
 
@@ -71,7 +75,7 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
                         List<VideoStream> toIgnore = ListHelper.GetMatchingProperty(streams, "Tvg_name", regex);
 
                         HashSet<VideoStream> matchingObjects = new(toIgnore);
-                        streams.RemoveAll(x => toIgnore.Contains(x));
+                        streams.RemoveAll(toIgnore.Contains);
                     }
                 }
                 sw.Stop();
@@ -188,6 +192,23 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
                 await Repository.SaveAsync().ConfigureAwait(false);
 
                 await AddChannelGroupsFromStreams(streams, cancellationToken).ConfigureAwait(false);
+                List<string> channelGroups = streams.Where(a => a.User_Tvg_group != null).Select(a => a.User_Tvg_group).Distinct().ToList();
+                await Sender.Send(new UpdateChannelGroupCountsRequest(channelGroups), cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                List<string> channelGroups = streams.Where(a => a.User_Tvg_group != null).Select(a => a.User_Tvg_group).Distinct().ToList();
+
+                IEnumerable<int> activeCounts = Repository.ChannelGroup.GetChannelGroupVideoStreamCounts().Select(a => a.Id);
+                List<ChannelGroup> cgs = Repository.ChannelGroup.GetAllChannelGroups()
+                    .Where(a => channelGroups.Contains(a.Name) && !activeCounts.Contains(a.Id)
+                    ).ToList();
+
+                if (cgs.Any())
+                {
+                    await Sender.Send(new UpdateChannelGroupCountsRequest(cgs.Select(a => a.Name).Distinct()), cancellationToken).ConfigureAwait(false);
+                }
+
             }
 
             sw.Stop();
@@ -195,6 +216,7 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
 
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
             await Publisher.Publish(new M3UFileProcessedEvent(ret), cancellationToken).ConfigureAwait(false);
+
 
             return m3uFile;
         }

@@ -24,6 +24,7 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
     private readonly IMapper _mapper;
     private readonly ISender _sender;
 
+
     public VideoStreamRepository(RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : base(repositoryContext)
     {
         _memoryCache = memoryCache;

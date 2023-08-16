@@ -60,7 +60,8 @@ public class PostStartup : BackgroundService
 
         await _taskQueue.ProcessM3UFiles(cancellationToken).ConfigureAwait(false);
 
-        await _taskQueue.UpdateChannelGroupCounts(cancellationToken).ConfigureAwait(false);
+
+        //await _taskQueue.UpdateChannelGroupCounts(cancellationToken).ConfigureAwait(false);
 
         await _taskQueue.BuildIconCaches(cancellationToken).ConfigureAwait(false);
 

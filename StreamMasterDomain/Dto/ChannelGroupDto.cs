@@ -1,13 +1,12 @@
 ﻿using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Mappings;
-using StreamMasterDomain.Repository;
 
 using System.ComponentModel.DataAnnotations;
 
 namespace StreamMasterDomain.Dto;
 
 [RequireAll]
-public class ChannelGroupArg : GetChannelGroupVideoStreamCountResponse
+public class ChannelGroupArg : ChannelGroupStreamCount
 {
     public bool? IsHidden { get; set; } = false;
     public bool? IsReadOnly { get; set; } = false;

@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 using StreamMasterDomain.Common;
+using StreamMasterDomain.Dto;
 using StreamMasterDomain.Repository;
-
-using System.Diagnostics;
 
 namespace StreamMasterInfrastructureEF
 {
@@ -23,6 +21,7 @@ namespace StreamMasterInfrastructureEF
         public DbSet<VideoStreamLink> VideoStreamLinks { get; set; }
         public DbSet<ChannelGroup> ChannelGroups { get; set; }
         public DbSet<VideoStream> VideoStreams { get; set; }
+        public DbSet<ChannelGroupStreamCount> ChannelGroupStreamCounts { get; set; }
 
         public DbSet<StreamGroupChannelGroup> StreamGroupChannelGroups { get; set; }
         public DbSet<StreamGroup> StreamGroups { get; set; }

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.VideoStreams.Events;
+
 using StreamMasterDomain.Cache;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
@@ -31,7 +32,7 @@ public class DeleteM3UFileRequestValidator : AbstractValidator<DeleteM3UFileRequ
 public class DeleteM3UFileHandler : BaseMemoryRequestHandler, IRequestHandler<DeleteM3UFileRequest, int?>
 {
 
-    public DeleteM3UFileHandler(ILogger<ProcessM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+    public DeleteM3UFileHandler(ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
         : base(logger, repository, mapper, publisher, sender, memoryCache) { }
 
     public async Task<int?> Handle(DeleteM3UFileRequest request, CancellationToken cancellationToken = default)

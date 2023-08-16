@@ -33,6 +33,38 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         _logger = logger;
     }
 
+    public IEnumerable<ChannelGroupStreamCount> GetChannelGroupVideoStreamCounts()
+    {
+        return RepositoryContext.ChannelGroupStreamCounts;
+    }
+
+    public ChannelGroupStreamCount? GetChannelGroupVideoStreamCount(int id)
+    {
+        return GetChannelGroupVideoStreamCounts().FirstOrDefault(a => a.Id == id);
+    }
+
+    public async Task AddOrUpdateChannelGroupVideoStreamCount(ChannelGroupStreamCount response)
+    {
+
+        ChannelGroupStreamCount? data = RepositoryContext.ChannelGroupStreamCounts.FirstOrDefault(a => a.Id == response.Id);
+
+        if (data == null)
+        {
+            RepositoryContext.ChannelGroupStreamCounts.Add(response);
+        }
+        else
+        {
+            RepositoryContext.ChannelGroupStreamCounts.Remove(data);
+            data.TotalCount = response.TotalCount;
+            data.ActiveCount = response.ActiveCount;
+            data.HiddenCount = response.HiddenCount;
+
+            RepositoryContext.ChannelGroupStreamCounts.Update(data);
+        }
+        await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+
+
+    }
     public async Task<(ChannelGroupDto? channelGroup, List<VideoStreamDto>? distinctList, List<StreamGroupDto>? streamGroupIds)> UpdateChannelGroup(UpdateChannelGroupRequest request, string url, CancellationToken cancellationToken)
     {
         ChannelGroup? channelGroup = await GetChannelGroupByNameAsync(request.ChannelGroupName).ConfigureAwait(false);
@@ -161,9 +193,9 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
     public async Task<PagedResponse<ChannelGroupDto>> GetChannelGroupsAsync(ChannelGroupParameters channelGroupParameters)
     {
         PagedResponse<ChannelGroupDto> channelGroups = await GetEntitiesAsync<ChannelGroupDto>(channelGroupParameters, _mapper).ConfigureAwait(false);
-        IEnumerable<GetChannelGroupVideoStreamCountResponse> actives = await _sender.Send(new GetChannelGroupsVideoStreamCount()).ConfigureAwait(false);
+        IEnumerable<ChannelGroupStreamCount> actives = await _sender.Send(new GetChannelGroupsVideoStreamCount()).ConfigureAwait(false);
 
-        foreach (GetChannelGroupVideoStreamCountResponse? active in actives)
+        foreach (ChannelGroupStreamCount? active in actives)
         {
             ChannelGroupDto? dto = channelGroups.Data.FirstOrDefault(a => a.Id == active.Id);
             if (dto == null)
@@ -248,4 +280,6 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
     {
         Update(ChannelGroup);
     }
+
+
 }

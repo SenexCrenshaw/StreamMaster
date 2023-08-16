@@ -20,8 +20,6 @@ public static class CacheKeys
     const string ListProgrammesLogos = "ListProgrammesLogos";
     const string ListTVLogos = "ListTVLogos";
 
-    const string ListChannelGroupVideoStreamCounts = "ListChannelGroupVideoStreamCounts";
-
     static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
 
     public static void Add(this IMemoryCache cache, object data)
@@ -46,38 +44,6 @@ public static class CacheKeys
             return;
         }
 
-        //if (data.GetType().GenericTypeArguments.Contains(typeof(Programme)))
-        //{
-        //    cache.Set(ListProgrammes, data, CacheEntryOptions);
-        //    return;
-        //}
-
-        //if (data.GetType().GenericTypeArguments.Contains(typeof(ProgrammeChannel)))
-        //{
-        //    cache.Set(ListProgrammeChannel, data, CacheEntryOptions);
-        //    return;
-        //}
-    }
-    public static bool ChannelGroupVideoStreamCountExists(this IMemoryCache cache, int id)
-    {
-        List<GetChannelGroupVideoStreamCountResponse> datas = Get<GetChannelGroupVideoStreamCountResponse>(ListChannelGroupVideoStreamCounts, cache);
-        return datas.Any(a => a.Id == id);
-    }
-    public static void AddOrUpdateChannelGroupVideoStreamCount(this IMemoryCache cache, GetChannelGroupVideoStreamCountResponse response)
-    {
-
-        List<GetChannelGroupVideoStreamCountResponse> datas = Get<GetChannelGroupVideoStreamCountResponse>(ListChannelGroupVideoStreamCounts, cache);
-        if (!datas.Any(a => a.Id == response.Id))
-        {
-            datas.Add(response);
-        }
-        else
-        {
-            datas.Remove(datas.First(a => a.Id == response.Id));
-            datas.Add(response);
-        }
-        cache.Set(ListChannelGroupVideoStreamCounts, datas, CacheEntryOptions);
-        return;
     }
 
     public static void AddProgrammeLogo(this IMemoryCache cache, IconFileDto icon)
@@ -175,31 +141,6 @@ public static class CacheKeys
     public static List<IconFileDto> Icons(this IMemoryCache cache)
     {
         return Get<IconFileDto>(ListIconFiles, cache);
-    }
-
-    public static GetChannelGroupVideoStreamCountResponse? GetChannelGroupVideoStreamCount(this IMemoryCache cache, int id)
-    {
-        return cache.GetChannelGroupVideoStreamCounts().FirstOrDefault(a => a.Id == id);
-    }
-
-    public static bool RemoveChannelGroupVideoStreamCount(this IMemoryCache cache, int id)
-    {
-        List<GetChannelGroupVideoStreamCountResponse> datas = cache.GetChannelGroupVideoStreamCounts();
-        GetChannelGroupVideoStreamCountResponse? d = datas.FirstOrDefault(a => a.Id == id);
-
-        if (d == null)
-        {
-            return true;
-        }
-        datas.Remove(d);
-        cache.Set(ListChannelGroupVideoStreamCounts, datas, CacheEntryOptions);
-        return true;
-    }
-
-
-    public static List<GetChannelGroupVideoStreamCountResponse> GetChannelGroupVideoStreamCounts(this IMemoryCache cache)
-    {
-        return Get<GetChannelGroupVideoStreamCountResponse>(ListChannelGroupVideoStreamCounts, cache);
     }
 
     private static readonly object _lock = new();

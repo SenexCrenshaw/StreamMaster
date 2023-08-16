@@ -253,6 +253,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         field: 'user_Tvg_ID_DisplayName',
         fieldType: 'epg',
         filter: true,
+        sortable: true,
         style: {
           maxWidth: '16rem',
         } as CSSProperties,

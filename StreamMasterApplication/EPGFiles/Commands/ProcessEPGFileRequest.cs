@@ -9,7 +9,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Hubs;
-using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
@@ -40,7 +39,7 @@ public class ProcessEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
 
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
 
-    public ProcessEPGFileRequestHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<ProcessM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+    public ProcessEPGFileRequestHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<ProcessEPGFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
         : base(logger, repository, mapper, publisher, sender, memoryCache) { _hubContext = hubContext; }
 
     public async Task<EPGFilesDto?> Handle(ProcessEPGFileRequest request, CancellationToken cancellationToken)
@@ -61,7 +60,9 @@ public class ProcessEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
 
             }
 
+            epgFile.LastUpdated = DateTime.Now;
             Repository.EPGFile.UpdateEPGFile(epgFile);
+
             await Repository.SaveAsync().ConfigureAwait(false);
 
             await AddProgrammesFromEPG(epgFile, cancellationToken);

@@ -8,10 +8,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.ChannelGroups.Queries;
-using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.VideoStreams.Queries;
 
-using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
@@ -31,7 +29,7 @@ public class UpdateChannelGroupCountRequestValidator : AbstractValidator<UpdateC
 public class UpdateChannelGroupCountRequestHandler : BaseMemoryRequestHandler, IRequestHandler<UpdateChannelGroupCountRequest>
 {
 
-    public UpdateChannelGroupCountRequestHandler(ILogger<ProcessM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+    public UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCountRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
         : base(logger, repository, mapper, publisher, sender, memoryCache)
     { }
 
@@ -43,7 +41,7 @@ public class UpdateChannelGroupCountRequestHandler : BaseMemoryRequestHandler, I
             return;
         }
 
-        GetChannelGroupVideoStreamCountResponse response = new();
+        ChannelGroupStreamCount response = new();
         IQueryable<VideoStream> allVideoStreamsQuery = Repository.VideoStream.GetAllVideoStreams();
         List<VideoStream> videoStreamsForGroup = allVideoStreamsQuery.Where(vs => vs.User_Tvg_group == cg.Name).ToList();
         // Filter video streams for the current channel group in memory.            
@@ -64,7 +62,8 @@ public class UpdateChannelGroupCountRequestHandler : BaseMemoryRequestHandler, I
         response.ActiveCount = ids.Count - hiddenCount;
         response.HiddenCount = hiddenCount;
         response.Id = cg.Id;
-        MemoryCache.AddOrUpdateChannelGroupVideoStreamCount(response);
+
+        await Repository.ChannelGroup.AddOrUpdateChannelGroupVideoStreamCount(response).ConfigureAwait(false);
 
     }
 }

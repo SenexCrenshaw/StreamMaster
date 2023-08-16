@@ -6,10 +6,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.EPGFiles.Commands;
-using StreamMasterApplication.M3UFiles.Commands;
+using StreamMasterApplication.EPGFiles.Queries;
+using StreamMasterApplication.M3UFiles.Queries;
 using StreamMasterApplication.Settings.Queries;
+
 using StreamMasterDomain.Cache;
-using StreamMasterDomain.Enums;
 using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructure.Services;
@@ -89,68 +90,24 @@ public class TimerService : IHostedService, IDisposable
 
         DateTime now = DateTime.Now;
 
-        List<EPGFile> epgFiles = new();
-        List<M3UFile> m3uFiles = new();
+        IEnumerable<StreamMasterDomain.Dto.EPGFilesDto> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
+        IEnumerable<StreamMasterDomain.Dto.M3UFileDto> m3uFilesToUpdated = await mediator.Send(new GetM3UFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
 
-        IEnumerable<EPGFile> epgFilesRepo = await repository.EPGFile.GetAllEPGFilesAsync();
-        IEnumerable<EPGFile> epgFilesToUpdated = epgFilesRepo.Where(a => a.AutoUpdate && string.IsNullOrEmpty(a.Url));
-        foreach (EPGFile? epgFile in epgFilesToUpdated)
+        if (epgFilesToUpdated.Any())
         {
-            string epgPath = Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source);
-            if (!File.Exists(epgPath))
-            {
-                continue;
-            }
-
-            if (File.GetLastWriteTime(epgPath) <= epgFile.LastDownloaded)
-            {
-                continue;
-            }
-            epgFiles.Add(epgFile);
-        }
-
-        epgFilesRepo = await repository.EPGFile.GetAllEPGFilesAsync();
-        epgFilesToUpdated = epgFilesRepo.Where(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < now);
-        epgFiles.AddRange(epgFilesToUpdated);
-
-        //   epgFiles.AddRange(context.EPGFiles.Where(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < now));
-
-        IEnumerable<M3UFile> m3uFilesRepo = await repository.M3UFile.GetAllM3UFilesAsync();
-        IEnumerable<M3UFile> m3uFilesToUpdated = m3uFilesRepo.Where(a => a.AutoUpdate && string.IsNullOrEmpty(a.Url));
-        foreach (M3UFile? m3uFile in m3uFilesToUpdated)
-        {
-            string m3uPath = Path.Combine(FileDefinitions.M3U.DirectoryLocation, m3uFile.Source);
-            if (!File.Exists(m3uPath))
-            {
-                continue;
-            }
-
-            if (File.GetLastWriteTime(m3uPath) <= m3uFile.LastDownloaded)
-            {
-                continue;
-            }
-            m3uFiles.Add(m3uFile);
-        }
-
-        m3uFilesRepo = await repository.M3UFile.GetAllM3UFilesAsync();
-        m3uFilesToUpdated = m3uFilesRepo.Where(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < now);
-        m3uFiles.AddRange(m3uFilesToUpdated);
-
-        if (epgFiles.Any())
-        {
-            _logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFiles.Count());
-            foreach (EPGFile epgFile in epgFiles)
+            _logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count());
+            foreach (StreamMasterDomain.Dto.EPGFilesDto? epgFile in epgFilesToUpdated)
             {
                 _ = await mediator.Send(new RefreshEPGFileRequest { Id = epgFile.Id }, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        if (m3uFiles.Any())
+        if (m3uFilesToUpdated.Any())
         {
-            _logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFiles.Count());
-            foreach (M3UFile m3uFile in m3uFiles)
+            _logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFilesToUpdated.Count());
+            foreach (StreamMasterDomain.Dto.M3UFileDto? m3uFile in m3uFilesToUpdated)
             {
-                _ = await mediator.Send(new RefreshM3UFileRequest { Id = m3uFile.Id }, cancellationToken).ConfigureAwait(false);
+                //_ = await mediator.Send(new RefreshM3UFileRequest { Id = m3uFile.Id }, cancellationToken).ConfigureAwait(false);
             }
         }
 

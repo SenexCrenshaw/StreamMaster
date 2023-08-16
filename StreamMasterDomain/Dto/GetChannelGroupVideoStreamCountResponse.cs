@@ -1,6 +1,6 @@
 ﻿namespace StreamMasterDomain.Dto;
 
-public class GetChannelGroupVideoStreamCountResponse
+public class ChannelGroupStreamCount
 {
     public int Id { get; set; }
     public int ActiveCount { get; set; }

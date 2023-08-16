@@ -10,24 +10,22 @@ using System.Text.RegularExpressions;
 
 namespace StreamMasterApplication.VideoStreams.Queries;
 
-public record GetVideoStreamsByNamePatternQuery(string pattern) : IRequest<IEnumerable<VideoStream>> { }
+public record GetVideoStreamsByNamePatternQuery(string pattern) : IRequest<IQueryable<VideoStream>> { }
 
-internal class GetVideoStreamsByNamePatternQueryHandler : BaseRequestHandler, IRequestHandler<GetVideoStreamsByNamePatternQuery, IEnumerable<VideoStream>>
+internal class GetVideoStreamsByNamePatternQueryHandler : BaseRequestHandler, IRequestHandler<GetVideoStreamsByNamePatternQuery, IQueryable<VideoStream>>
 {
     public GetVideoStreamsByNamePatternQueryHandler(ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper)
         : base(logger, repository, mapper) { }
 
-    public async Task<IEnumerable<VideoStream>?> Handle(GetVideoStreamsByNamePatternQuery request, CancellationToken cancellationToken)
+    public Task<IQueryable<VideoStream>?> Handle(GetVideoStreamsByNamePatternQuery request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(request.pattern))
         {
-            return null;
+            return Task.FromResult<IQueryable<VideoStream>?>(null);
         }
 
         Regex regex = new(request.pattern, RegexOptions.ECMAScript | RegexOptions.IgnoreCase);
-        var allVideoStreams = Repository.VideoStream.GetAllVideoStreams().ToList();
-        var regexVideoStreams = allVideoStreams.Where(vs => regex.IsMatch(vs.User_Tvg_name));
-        
-        return allVideoStreams.Where(vs => regex.IsMatch(vs.User_Tvg_name));
+        IQueryable<VideoStream> allVideoStreams = Repository.VideoStream.GetAllVideoStreams();
+        return Task.FromResult(allVideoStreams.Where(vs => regex.IsMatch(vs.User_Tvg_name)));
     }
 }

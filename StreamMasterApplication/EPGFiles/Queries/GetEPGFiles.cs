@@ -5,8 +5,6 @@ using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMasterApplication.M3UFiles.Commands;
-
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
@@ -18,7 +16,7 @@ public record GetEPGFiles(EPGFileParameters Parameters) : IRequest<PagedResponse
 
 internal class GetEPGFilesHandler : BaseMemoryRequestHandler, IRequestHandler<GetEPGFiles, PagedResponse<EPGFilesDto>>
 {
-    public GetEPGFilesHandler(ILogger<ProcessM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+    public GetEPGFilesHandler(ILogger<GetEPGFilesHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
         : base(logger, repository, mapper, publisher, sender, memoryCache) { }
 
     public async Task<PagedResponse<EPGFilesDto>> Handle(GetEPGFiles request, CancellationToken cancellationToken = default)
