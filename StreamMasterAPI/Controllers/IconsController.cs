@@ -44,9 +44,9 @@ public class IconsController : ApiControllerBase, IIconController
     }
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<IEnumerable<IconSimpleDto>>> GetIconsSimpleQuery([FromQuery] IconFileParameters iconFileParameters)
+    public async Task<ActionResult<IEnumerable<IconFileDto>>> GetIconsSimpleQuery([FromQuery] IconFileParameters iconFileParameters)
     {
-        IEnumerable<IconSimpleDto> result = await Mediator.Send(new GetIconsSimpleQuery(iconFileParameters)).ConfigureAwait(false);
+        IEnumerable<IconFileDto> result = await Mediator.Send(new GetIconsSimpleQuery(iconFileParameters)).ConfigureAwait(false);
         return Ok(result);
     }
 }

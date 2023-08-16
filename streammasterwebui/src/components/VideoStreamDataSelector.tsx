@@ -32,9 +32,6 @@ import DataSelector2 from "../features/dataSelector2/DataSelector2";
 import { type DataTableFilterEvent } from "primereact/datatable";
 import { Toast } from "primereact/toast";
 
-import { type CheckboxChangeEvent } from "primereact/checkbox";
-import { Checkbox } from "primereact/checkbox";
-
 const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
 
@@ -292,7 +289,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
           tooltipOptions={getTopToolOptions}
           value={showHidden} />
 
-        <Checkbox
+        {/* <Checkbox
           checked={enableEditMode}
 
           onChange={(e: CheckboxChangeEvent) => {
@@ -301,7 +298,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
           tooltip={`Edit Mode ${enableEditMode ? 'Enabled' : 'Disabled'}  `}
           tooltipOptions={getTopToolOptions}
-        />
+        /> */}
 
         <VideoStreamResetLogosDialog values={selectedVideoStreams} />
 
@@ -320,7 +317,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       </div>
     );
 
-  }, [enableEditMode, ids, props.channelGroups, selectedVideoStreams, setEnableEditMode, setShowHidden, showHidden]);
+  }, [ids, props.channelGroups, selectedVideoStreams, setShowHidden, showHidden]);
 
   React.useEffect(() => {
     if (!props.channelGroups) {

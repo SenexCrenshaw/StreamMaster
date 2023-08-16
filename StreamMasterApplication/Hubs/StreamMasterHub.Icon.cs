@@ -31,9 +31,9 @@ public partial class StreamMasterHub : IIconHub
         return data;
     }
 
-    public async Task<IEnumerable<IconSimpleDto>> GetIconsSimpleQuery(IconFileParameters iconFileParameters)
+    public async Task<IEnumerable<IconFileDto>> GetIconsSimpleQuery(IconFileParameters iconFileParameters)
     {
-        IEnumerable<IconSimpleDto> data = await _mediator.Send(new GetIconsSimpleQuery(iconFileParameters)).ConfigureAwait(false);
+        IEnumerable<IconFileDto> data = await _mediator.Send(new GetIconsSimpleQuery(iconFileParameters)).ConfigureAwait(false);
         return data;
     }
 }
