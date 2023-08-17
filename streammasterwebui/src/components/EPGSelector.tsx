@@ -1,18 +1,15 @@
 import * as React from 'react';
 
-import { Toast } from 'primereact/toast';
 import { classNames } from 'primereact/utils';
 import DropDownEditorBodyTemplate from './DropDownEditorBodyTemplate';
-import { type ProgrammeNameDto, type UpdateVideoStreamRequest, type VideoStreamDto } from '../store/iptvApi';
+import { type UpdateVideoStreamRequest } from '../store/iptvApi';
+import { type ProgrammeNameDto, type VideoStreamDto } from '../store/iptvApi';
 import { useProgrammesGetProgrammeNamesQuery, useVideoStreamsUpdateVideoStreamMutation } from '../store/iptvApi';
 
 const EPGSelector = (props: EPGSelectorProps) => {
-  const toast = React.useRef<Toast>(null);
 
   const [programme, setProgramme] = React.useState<string>('');
-  const [channel, setChannel] = React.useState<string>('');
   const [dataDataSource, setDataSource] = React.useState<ProgrammeNameDto[]>([]);
-
   const programmeNamesQuery = useProgrammesGetProgrammeNamesQuery();
 
   const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
@@ -39,7 +36,6 @@ const EPGSelector = (props: EPGSelectorProps) => {
 
     if (props.value === null || props.value === undefined) {
       setProgramme('<Blank>');
-      setChannel('<Blank>');
       return;
     }
 
@@ -53,70 +49,23 @@ const EPGSelector = (props: EPGSelectorProps) => {
     }
 
     setProgramme(test.displayName);
-    setChannel(test.channel);
 
-  }, [channel, dataDataSource, programmeNamesQuery.data, props.value]);
+  }, [dataDataSource, programmeNamesQuery.data, props.value]);
 
   const onEPGChange = React.useCallback(async (displayName: string) => {
 
-    if (programmeNamesQuery.data === undefined || props.data === undefined || props.data.id === '') {
+    if (props.data === undefined || props.data.id === '') {
       return;
     }
 
-    let toChange = '';
-
-    if (displayName !== '<Blank>') {
-      const test = programmeNamesQuery.data.find((a) => a.displayName === displayName);
-      if (test === undefined || test.displayName === undefined || test.channel === undefined) {
-        return;
-      }
-
-      if (props.data.user_Tvg_ID === test.channel) {
-        return;
-      }
-
-      setProgramme(test.displayName);
-      setChannel(test.channel);
-      toChange = test.channel;
-    }
-
-    if (props.onChange) {
-      props.onChange(channel);
-    }
-
-
-    console.debug(channel);
     const data = {} as UpdateVideoStreamRequest;
-    data.tvg_ID = toChange;
+    data.tvg_ID = displayName;
     data.id = props.data.id;
 
-
     await videoStreamsUpdateVideoStreamMutation(data)
-      .then(() => {
-        if (toast.current) {
+      .then(() => { props.onChange?.(displayName) }).catch(() => { }).finally(() => { });
 
-          toast.current.show({
-            detail: `Updated Stream`,
-            life: 3000,
-            severity: 'success',
-            summary: 'Successful',
-          });
-
-        }
-      }).catch(() => {
-        if (toast.current) {
-          toast.current.show({
-            detail: `Update Stream Failed`,
-            life: 3000,
-            severity: 'error',
-            summary: 'Error',
-          });
-        }
-      });
-
-
-
-  }, [channel, programmeNamesQuery.data, props, videoStreamsUpdateVideoStreamMutation]);
+  }, [props, videoStreamsUpdateVideoStreamMutation]);
 
   const className = classNames('iconSelector p-0 m-0 w-full z-5 ', props.className);
 
@@ -127,25 +76,21 @@ const EPGSelector = (props: EPGSelectorProps) => {
         {programme !== '' ? programme : 'Dummy'}
       </div>
     )
-
   }
 
   return (
-    <>
-      <Toast position="bottom-right" ref={toast} />
-      <div className="iconSelector flex w-full justify-content-center align-items-center">
+    <div className="iconSelector flex w-full justify-content-center align-items-center">
 
-        <DropDownEditorBodyTemplate
-          className={className}
-          data={dataDataSource.map((a) => (a.displayName ?? ''))}
-          onChange={async (e) => {
-            await onEPGChange(e);
-          }}
-          value={programme}
-        />
+      <DropDownEditorBodyTemplate
+        className={className}
+        data={dataDataSource.map((a) => (a.displayName ?? ''))}
+        onChange={async (e) => {
+          await onEPGChange(e);
+        }}
+        value={programme}
+      />
 
-      </div>
-    </>
+    </div>
   );
 };
 
@@ -153,16 +98,15 @@ EPGSelector.displayName = 'EPGSelector';
 EPGSelector.defaultProps = {
   className: null,
   enableEditMode: true,
-  onChange: null,
   value: null,
 };
 
 type EPGSelectorProps = {
-  className?: string | null;
-  data?: VideoStreamDto | undefined;
+  className?: string;
+  data?: VideoStreamDto;
   enableEditMode?: boolean;
-  onChange?: ((value: string) => void) | null;
-  value?: string | null;
+  onChange?: ((value: string) => void);
+  value?: string;
 };
 
 export default React.memo(EPGSelector);

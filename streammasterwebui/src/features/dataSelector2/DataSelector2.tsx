@@ -2,15 +2,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import './DataSelector2.css';
 
-import { FilterMatchMode, FilterOperator } from 'primereact/api';
+import { FilterMatchMode } from 'primereact/api';
 import { Button } from 'primereact/button';
-import { Skeleton } from 'primereact/skeleton';
 
-import { type ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { type ColumnSortEvent } from 'primereact/column';
 
 import { Column } from 'primereact/column';
-import { type DataTableFilterEvent } from 'primereact/datatable';
+
 import { type DataTableSortEvent } from 'primereact/datatable';
 import { type DataTableStateEvent } from 'primereact/datatable';
 import { type DataTablePageEvent } from 'primereact/datatable';
@@ -64,10 +62,6 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
   const [expandedRows, setExpandedRows] = React.useState<DataTableExpandedRows>();
 
   const setting = StreamMasterSetting();
-
-  const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery({} as StreamMasterApi.ChannelGroupsGetChannelGroupsApiArg);
-  const m3uFiles = StreamMasterApi.useM3UFilesGetM3UFilesQuery({} as StreamMasterApi.M3UFilesGetM3UFilesApiArg);
-
   const intl = useIntl();
 
   const GetMessage = React.useCallback((id: string): string => {
@@ -99,17 +93,9 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
       return true;
     }
 
-    if (channelGroupsQuery.isLoading || channelGroupsQuery.isFetching) {
-      return true;
-    }
-
     return false;
 
-  }, [channelGroupsQuery.isFetching, channelGroupsQuery.isLoading, globalSourceFilterValue, props.isLoading, rowClick]);
-
-  // const showSkeleton = React.useMemo(() => {
-  //   return isLoading || (props.showSkeleton !== undefined && props.showSkeleton)
-  // }, [isLoading, props.showSkeleton]);
+  }, [globalSourceFilterValue, props.isLoading, rowClick]);
 
   const onFilter = React.useCallback((event: DataTableStateEvent) => {
 
@@ -256,23 +242,6 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
   }, []);
 
-  const m3uFileNameBodyTemplate = React.useCallback((id: number) => {
-    if (!id || id === 0 || !m3uFiles || !m3uFiles.data?.data) {
-      return (
-        <div className="flex align-items-center gap-2" >
-          User Created
-        </div>
-      );
-    }
-
-    const m3uFile = m3uFiles.data.data.find((x) => x.id === id);
-
-    return (
-      <div className="flex align-items-center gap-2" >
-        {m3uFile?.name}
-      </div>
-    );
-  }, [m3uFiles]);
 
   const linkIcon = (url: string) => {
     return (
@@ -331,10 +300,6 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
       ;
     }
 
-    if (fieldType === 'm3uFileName') {
-      const m3UFileId = getRecordString(data, 'm3UFileId');
-      return m3uFileNameBodyTemplate(parseInt(m3UFileId));
-    }
 
     if (fieldType === 'm3ulink') {
       const link = getRecordString(data, 'm3ULink');
@@ -423,7 +388,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
         {toDisplay}
       </span>
     );
-  }, [epgLinkSourceTemplate, epgSourceTemplate, getRecord, getRecordString, imageBodyTemplate, m3uFileNameBodyTemplate, m3uLinkSourceTemplate, streamsBodyTemplate, urlLinkSourceTemplate]);
+  }, [epgLinkSourceTemplate, epgSourceTemplate, getRecord, getRecordString, imageBodyTemplate, m3uLinkSourceTemplate, streamsBodyTemplate, urlLinkSourceTemplate]);
 
   React.useEffect(() => {
     if (props.dataSource !== undefined) {
@@ -886,6 +851,10 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
   const onSort = (event: DataTableSortEvent) => {
 
+    if (event.sortField === 'selected') {
+      return;
+    }
+
     if (event.sortOrder !== undefined) {
       setSortOrder(event.sortOrder);
     }
@@ -947,8 +916,6 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
           sortField={sortField}
           sortMode='single'
           sortOrder={sortOrder}
-          // stateKey={props.id + '-datatable'}
-          // stateStorage="local"
           stripedRows
           style={props.style}
           totalRecords={dataSource?.totalRecords}
@@ -979,9 +946,9 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
             headerStyle={{ padding: '0px', width: '3rem' }}
             hidden={props.selectionMode !== 'multiple' && props.selectionMode !== 'checkbox' && props.selectionMode !== 'multipleNoRowCheckBox'}
             selectionMode="multiple"
-            sortField="selected"
-            sortFunction={sortFunction}
-            sortable={props.groupRowsBy === undefined || props.groupRowsBy === ''}
+          // sortField="selected"
+          // sortFunction={sortFunction}
+          // sortable={props.groupRowsBy === undefined || props.groupRowsBy === ''}
           />
           {props.columns.map((col) => (
             <Column

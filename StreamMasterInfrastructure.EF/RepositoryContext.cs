@@ -32,6 +32,26 @@ namespace StreamMasterInfrastructureEF
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(RepositoryContext).Assembly);
+
+            modelBuilder.Entity<VideoStream>()
+             .HasIndex(e => e.User_Tvg_group)
+             .HasDatabaseName("idx_User_Tvg_group");
+
+            // Composite index on User_Tvg_group and IsHidden
+            modelBuilder.Entity<VideoStream>()
+                .HasIndex(e => new { e.User_Tvg_group, e.IsHidden })
+                .HasDatabaseName("idx_User_Tvg_group_IsHidden");
+
+            modelBuilder.Entity<ChannelGroup>()
+               .HasIndex(e => e.Name)
+               .HasDatabaseName("idx_Name");
+
+            // Composite index on User_Tvg_group and IsHidden
+            modelBuilder.Entity<ChannelGroup>()
+                .HasIndex(e => new { e.Name, e.IsHidden })
+                .HasDatabaseName("idx_Name_IsHidden");
+
+
             base.OnModelCreating(modelBuilder);
         }
 

@@ -36,11 +36,7 @@ public partial class StreamMasterHub : IChannelGroupHub
         return ret;
     }
 
-    public async Task<PagedResponse<VideoStreamDto>> GetVideoStreamsForChannelGroups(VideoStreamParameters videoStreamParameters)
-    {
-        PagedResponse<VideoStreamDto> ret = await _mediator.Send(new GetVideoStreamsForChannelGroups(videoStreamParameters)).ConfigureAwait(false);
-        return ret;
-    }
+
 
     public async Task SetChannelGroupsVisible(SetChannelGroupsVisibleRequest request)
     {

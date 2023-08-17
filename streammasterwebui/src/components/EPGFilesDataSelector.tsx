@@ -6,10 +6,10 @@ import { type CheckboxChangeEvent } from 'primereact/checkbox';
 import { Checkbox } from 'primereact/checkbox';
 import NumberEditorBodyTemplate from './NumberEditorBodyTemplate';
 import StringEditorBodyTemplate from './StringEditorBodyTemplate';
-import { type ColumnMeta } from '../features/dataSelector/DataSelectorTypes';
 import DataSelector2 from '../features/dataSelector2/DataSelector2';
 import { type EpgFilesDto, type EpgFilesGetEpgFilesApiArg, type UpdateEpgFileRequest, type M3UFileDto, useEpgFilesUpdateEpgFileMutation } from '../store/iptvApi';
 import { useEpgFilesGetEpgFilesQuery } from '../store/iptvApi';
+import { type ColumnMeta } from '../features/dataSelector2/DataSelectorTypes2';
 
 const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);

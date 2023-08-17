@@ -14,16 +14,15 @@ public class M3UFile : AutoUpdateEntity
 
     public DateTime LastWrite()
     {
-        var fileName = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source);
-        var lastWrite = File.GetLastWriteTime(fileName);
+        string fileName = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source);
+        DateTime lastWrite = File.GetLastWriteTime(fileName);
 
         return lastWrite;
     }
 
     public async Task<List<VideoStream>?> GetM3U()
     {
-        string body = await FileUtil.GetFileData(Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source)).ConfigureAwait(false);
-
-        return IPTVExtensions.ConvertToVideoStream(body, Id, Name);
+        using Stream dataStream = FileUtil.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source));
+        return IPTVExtensions.ConvertToVideoStream(dataStream, Id, Name);
     }
 }

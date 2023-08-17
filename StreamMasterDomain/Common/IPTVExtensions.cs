@@ -1,17 +1,25 @@
-﻿using MediatR;
-
-using StreamMasterDomain.Repository;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace StreamMasterDomain.Common;
 
 public static partial class IPTVExtensions
 {
-    public static List<VideoStream>? ConvertToVideoStream(string body, int Id, string Name)
+    public static List<VideoStream>? ConvertToVideoStream(Stream dataStream, int Id, string Name)
     {
+        StringBuilder bodyBuilder = new();
+
+        using (StreamReader reader = new(dataStream))
+        {
+            while (!reader.EndOfStream)
+            {
+                bodyBuilder.AppendLine(reader.ReadLine());
+            }
+        }
+
+        string body = bodyBuilder.ToString();
         if (body.Contains("#EXT-X-TARGETDURATION") || body.Contains("#EXT-X-MEDIA-SEQUENCE") ||
             !body.Contains("EXTM3U"))
         {
@@ -25,7 +33,7 @@ public static partial class IPTVExtensions
 
         string lastExtGrp = "";
 
-        var extInfArray = body.Split("#EXTINF", StringSplitOptions.RemoveEmptyEntries);
+        string[] extInfArray = body.Split("#EXTINF", StringSplitOptions.RemoveEmptyEntries);
 
         _ = Parallel.ForEach(extInfArray.Skip(1), (bodyline, state, index) =>
         {
@@ -38,7 +46,7 @@ public static partial class IPTVExtensions
             MatchCollection extGrp = grpRegex().Matches(bodyline); if
             (extGrp.Count > 0) { lastExtGrp = extGrp[0].Groups[1].Value.Trim(); }
 
-            if (string.IsNullOrEmpty(VideoStream.Tvg_group) )
+            if (string.IsNullOrEmpty(VideoStream.Tvg_group))
             {
                 //VideoStream.Tvg_group = lastExtGrp;
                 VideoStream.Tvg_group = "(None)";
@@ -55,11 +63,11 @@ public static partial class IPTVExtensions
             VideoStream.User_Tvg_group = VideoStream.Tvg_group;
             VideoStream.User_Url = VideoStream.Url;
 
-         
+
             streamLists.TryAdd(index, VideoStream);
         });
 
-        var results = streamLists.OrderBy(s => s.Key).Select(s => s.Value).ToList();
+        List<VideoStream> results = streamLists.OrderBy(s => s.Key).Select(s => s.Value).ToList();
         sw.Stop();
         long elaspsed = sw.ElapsedMilliseconds;
 
@@ -125,7 +133,7 @@ public static partial class IPTVExtensions
                             break;
 
                         case "cuid":
-                            VideoStream.Id= parameter[1].Trim();
+                            VideoStream.Id = parameter[1].Trim();
                             break;
 
                         case "tvg-chno":

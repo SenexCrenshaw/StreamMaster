@@ -5,10 +5,10 @@ namespace StreamMasterDomain.Repository
 {
     public interface IChannelGroupRepository
     {
-
+        Task AddOrUpdateChannelGroupVideoStreamCounts(List<ChannelGroupStreamCount> channelGroupStreamCounts);
         ChannelGroupStreamCount? GetChannelGroupVideoStreamCount(int id);
         IEnumerable<ChannelGroupStreamCount> GetChannelGroupVideoStreamCounts();
-        Task AddOrUpdateChannelGroupVideoStreamCount(ChannelGroupStreamCount response);
+        Task AddOrUpdateChannelGroupVideoStreamCount(ChannelGroupStreamCount response, bool ignoreSave = false);
         IQueryable<string> GetAllChannelGroupNames();
         IQueryable<ChannelGroup> GetAllChannelGroups();
 

@@ -1,39 +1,45 @@
-﻿using MediatR;
+﻿using AutoMapper;
+
+using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Repository.EPG;
 
 namespace StreamMasterApplication.Programmes.Queries;
 
-public record GetProgrammeNames : IRequest<IEnumerable<ProgrammeNameDto>>;
+public record GetProgrammeNames : IRequest<List<ProgrammeNameDto>>;
 
-internal class GetProgrammeNamesHandler : IRequestHandler<GetProgrammeNames, IEnumerable<ProgrammeNameDto>>
+internal class GetProgrammeNamesHandler : BaseMemoryRequestHandler, IRequestHandler<GetProgrammeNames, List<ProgrammeNameDto>>
 {
-    private readonly IMemoryCache _memoryCache;
 
-    public GetProgrammeNamesHandler(
+    public GetProgrammeNamesHandler(ILogger<GetProgrammeNamesHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
 
-        IMemoryCache memoryCache
-    )
+    public Task<List<ProgrammeNameDto>> Handle(GetProgrammeNames request, CancellationToken cancellationToken)
     {
-        _memoryCache = memoryCache;
-    }
+        List<ProgrammeNameDto> ret = new();
 
-    public async Task<IEnumerable<ProgrammeNameDto>> Handle(GetProgrammeNames request, CancellationToken cancellationToken)
-    {
-        var programmes = _memoryCache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel) && a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
+        List<Programme> programmes = MemoryCache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel) && a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
         if (programmes.Any())
         {
-            var ret = programmes.GroupBy(a => a.Channel).Select(group => group.First()).Select(a => new ProgrammeNameDto
+            List<string> names = programmes.Select(a => a.Channel).Distinct().Order().ToList();
+            foreach (string? name in names)
             {
-                Channel = a.Channel,
-                ChannelName = a.ChannelName,
-                DisplayName = a.DisplayName
-            });
+                Programme? programme = programmes.FirstOrDefault(a => a.Channel == name);
+                if (programme != null)
+                {
+                    ProgrammeNameDto programmeDto = Mapper.Map<ProgrammeNameDto>(programme);
+                    ret.Add(programmeDto);
+                }
+            }
 
-            return ret.OrderBy(a => a.DisplayName);
+            return Task.FromResult(ret);
         }
-        return new List<ProgrammeNameDto>();
+
+        return Task.FromResult(new List<ProgrammeNameDto>());
     }
 }

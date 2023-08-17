@@ -30,8 +30,7 @@ public class SetVideoStreamSetEPGsFromNameRequestHandler : BaseMemoryRequestHand
     {
         List<VideoStreamDto> results = new();
 
-        IQueryable<VideoStream> videoStreamsRepo = Repository.VideoStream.GetAllVideoStreams().Where(a => request.Ids.Contains(a.Id));
-        IQueryable<VideoStream> videoStreams = videoStreamsRepo.Where(a => request.Ids.Contains(a.Id));
+        IQueryable<VideoStream> videoStreams = Repository.VideoStream.GetAllVideoStreams().Where(a => request.Ids.Contains(a.Id));
 
         foreach (VideoStream? videoStream in videoStreams)
         {

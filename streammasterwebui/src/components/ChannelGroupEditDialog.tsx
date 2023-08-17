@@ -1,12 +1,19 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import React from "react";
 import * as StreamMasterApi from '../store/iptvApi';
 import { Button } from "primereact/button";
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
-import { getTopToolOptions } from "../common/common";
+import { GetMessage, getTopToolOptions } from "../common/common";
 import { InputText } from "primereact/inputtext";
-import DataSelector from "../features/dataSelector/DataSelector";
-import { type ColumnMeta } from "../features/dataSelector/DataSelectorTypes";
+import StringEditorBodyTemplate from "./StringEditorBodyTemplate";
+
+import { DataScroller } from 'primereact/datascroller';
+
+
+import { DataView, DataViewLayoutOptions } from 'primereact/dataview';
+
+
 
 const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
@@ -16,7 +23,7 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
   const [newGroupName, setNewGroupName] = React.useState('');
 
   const [channelGroupsUpdateChannelGroupMutation] = StreamMasterApi.useChannelGroupsUpdateChannelGroupMutation();
-  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsByNamePatternQuery(regex ?? '');
+  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamNamesByNamePatternQuery(regex ?? '');
 
   const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);
@@ -43,16 +50,16 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
       return;
     }
 
-    const tosend = {} as StreamMasterApi.UpdateChannelGroupRequest;
+    const toSend = {} as StreamMasterApi.UpdateChannelGroupRequest;
 
-    tosend.channelGroupName = props.value?.name;
-    tosend.newGroupName = newGroupName;
+    toSend.channelGroupName = props.value?.name;
+    toSend.newGroupName = newGroupName;
 
     if (regex !== undefined && regex !== '') {
-      tosend.regex = regex;
+      toSend.regex = regex;
     }
 
-    channelGroupsUpdateChannelGroupMutation(tosend).then(() => {
+    channelGroupsUpdateChannelGroupMutation(toSend).then(() => {
       setInfoMessage('Channel Group Edit Successfully');
     }).catch((e) => {
       setInfoMessage('Channel Group Edit Error: ' + e.message);
@@ -60,20 +67,20 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
     setNewGroupName('');
   }, [ReturnToParent, channelGroupsUpdateChannelGroupMutation, newGroupName, props.value, regex]);
 
-  const sourceColumns = React.useMemo((): ColumnMeta[] => {
-    return [
-
-      { field: 'user_Tvg_name', header: 'Name' },
-    ]
-  }, []);
-
-
+  const itemTemplate = (data: string) => {
+    return (
+      <div className="flex flex-column flex-row align-items-start">
+        {data}
+      </div>
+    );
+  };
 
   return (
     <>
       <InfoMessageOverLayDialog
         blocked={block}
-        header="Edit Group"
+        closable
+        header={GetMessage("edit group")}
         infoMessage={infoMessage}
         onClose={() => {
           ReturnToParent();
@@ -82,31 +89,28 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
       >
         <div className='m-0 p-0 border-1 border-round surface-border'>
           <div className='m-3'>
-            <h3>Edit Group</h3>
+            <h3>{GetMessage("edit group")}</h3>
             <InputText
               autoFocus
-              className="withpadding p-inputtext-sm w-full"
+              className="withpadding p-inputtext-sm w-full mb-1"
               onChange={(e) => setNewGroupName(e.target.value)}
               placeholder="Group Name"
               value={newGroupName}
             />
-            <InputText
-              className="withpadding p-inputtext-sm w-full mt-2"
-              onChange={(e) => setRegex(e.target.value)}
-              placeholder="Group Regex"
+
+            <StringEditorBodyTemplate
+              includeBorder
+              onChange={(e) => {
+                setRegex(e)
+              }}
+              placeholder={GetMessage("channel group regex")}
               value={regex}
             />
+
             <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
               <Button
-                icon="pi pi-times "
-                label="Cancel"
-                onClick={(() => ReturnToParent())}
-                rounded
-                severity="warning"
-              />
-              <Button
                 icon="pi pi-check"
-                label="Ok"
+                label={GetMessage('ok')}
                 onClick={changeGroupName}
                 rounded
                 severity="success"
@@ -114,16 +118,13 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
             </div>
             <div hidden={regex === undefined || regex === ''}>
               <div className='m3uFilesEditor flex flex-column col-12 flex-shrink-0 '>
-                <DataSelector
-                  columns={sourceColumns}
-                  dataSource={videoStreamsQuery.data}
-                  emptyMessage="No Streams"
-                  globalSearchEnabled={false}
-                  id='StreamingServerStatusPanel'
-                  isLoading={videoStreamsQuery.isLoading}
-                  showHeaders={false}
-                  style={{ height: 'calc(50vh - 40px)' }}
-                />
+                <DataView
+                  header={GetMessage("matches")}
+                  itemTemplate={itemTemplate}
+                  loading={videoStreamsQuery.isLoading || videoStreamsQuery.isFetching}
+                  paginator
+                  rows={25}
+                  value={videoStreamsQuery.data} />
               </div>
             </div>
           </div>

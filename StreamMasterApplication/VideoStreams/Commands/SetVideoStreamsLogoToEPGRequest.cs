@@ -31,7 +31,7 @@ public class SetVideoStreamsLogoToEPGHandler : BaseMemoryRequestHandler, IReques
 
         foreach (VideoStream videoStream in videoStreams)
         {
-            string? channelLogo = MemoryCache.GetEPGChannelByTvgId(videoStream.User_Tvg_ID);
+            string? channelLogo = MemoryCache.GetEPGChannelLogoByTvgId(videoStream.User_Tvg_ID);
 
             if (channelLogo != null)
             {

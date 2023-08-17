@@ -10,7 +10,7 @@ import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 
 import ChannelGroupAddDialog from "./ChannelGroupAddDialog";
-import { type ColumnMeta } from "../features/dataSelector/DataSelectorTypes";
+import { type ColumnMeta } from '../features/dataSelector2/DataSelectorTypes2';
 import ChannelGroupDeleteDialog from "./ChannelGroupDeleteDialog";
 import ChannelGroupVisibleDialog from "./ChannelGroupVisibleDialog";
 import ChannelGroupEditDialog from "./ChannelGroupEditDialog";

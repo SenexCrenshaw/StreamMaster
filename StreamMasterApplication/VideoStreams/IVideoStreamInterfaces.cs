@@ -12,6 +12,7 @@ namespace StreamMasterApplication.VideoStreams;
 
 public interface IVideoStreamController
 {
+
     Task<ActionResult> CreateVideoStream(CreateVideoStreamRequest request);
 
     Task<ActionResult> ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request);
@@ -27,6 +28,8 @@ public interface IVideoStreamController
     Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id);
 
     Task<ActionResult<IEnumerable<VideoStreamDto>>> GetVideoStreamsByNamePattern(GetVideoStreamsByNamePatternQuery request);
+    Task<ActionResult<PagedResponse<VideoStreamDto>>> GetVideoStreamsForChannelGroups([FromQuery] VideoStreamParameters videoStreamParameters);
+    Task<ActionResult<IEnumerable<string>>> GetVideoStreamNamesByNamePattern(GetVideoStreamNamesByNamePatternQuery request);
 
     Task<ActionResult<PagedResponse<VideoStreamDto>>> GetVideoStreams(VideoStreamParameters Parameters);
 
@@ -61,7 +64,9 @@ public interface IVideoStreamHub
 
     Task<PagedResponse<VideoStreamDto>> GetVideoStreams(VideoStreamParameters Parameters);
 
-    Task<IEnumerable<VideoStream>> GetVideoStreamsByNamePattern(GetVideoStreamsByNamePatternQuery request);
+    Task<IEnumerable<string>> GetVideoStreamNamesByNamePattern(GetVideoStreamNamesByNamePatternQuery request);
+
+    Task<IEnumerable<VideoStreamDto>> GetVideoStreamsByNamePattern(GetVideoStreamsByNamePatternQuery request);
 
     Task ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request);
 
@@ -74,6 +79,7 @@ public interface IVideoStreamHub
     Task UpdateVideoStream(UpdateVideoStreamRequest request);
 
     Task UpdateVideoStreams(UpdateVideoStreamsRequest request);
+    Task<PagedResponse<VideoStreamDto>> GetVideoStreamsForChannelGroups(VideoStreamParameters videoStreamParameters);
 }
 
 public interface IVideoStreamScoped

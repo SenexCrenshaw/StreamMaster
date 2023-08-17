@@ -12,6 +12,7 @@ public static class FilterHelper<T> where T : class
 {
     private static readonly ConcurrentDictionary<Type, ParameterExpression> ParameterCache = new();
     private static readonly ConcurrentDictionary<(Type, string), PropertyInfo> PropertyCache = new();
+
     public static IQueryable<T> ApplyFiltersAndSort(IQueryable<T> query, List<DataTableFilterMetaData>? filters, string orderBy)
     {
         if (filters != null)

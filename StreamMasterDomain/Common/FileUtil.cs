@@ -1,5 +1,3 @@
-using StreamMasterDomain.Repository;
-
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
@@ -111,6 +109,19 @@ public sealed class FileUtil
         }
     }
 
+    public static Stream GetFileDataStream(string source)
+    {
+        FileStream fs = File.Open(source, FileMode.Open);
+
+        if (IsFileGzipped(source))
+        {
+            return new GZipStream(fs, CompressionMode.Decompress);
+        }
+
+        return fs;
+    }
+
+
     public static async Task<string> GetFileData(string source)
     {
         try
@@ -122,12 +133,9 @@ public sealed class FileUtil
 
             using FileStream fs = File.Open(source, FileMode.Open);
             using GZipStream gzStream = new(fs, CompressionMode.Decompress);
-            using MemoryStream outputStream = new();
-            gzStream.CopyTo(outputStream);
-            byte[] outputBytes = outputStream.ToArray();
+            using StreamReader reader = new(gzStream, Encoding.Default);
 
-            var body = Encoding.Default.GetString(outputBytes);
-            return body;
+            return await reader.ReadToEndAsync().ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -154,7 +162,7 @@ public sealed class FileUtil
                 basePath = basePath.Remove(0, 1);
             }
 
-            var basename = basePath.Replace(Path.DirectorySeparatorChar, '-');
+            string basename = basePath.Replace(Path.DirectorySeparatorChar, '-');
             string name = $"{basename}-{file.Name}";
 
             TvLogoFile tvLogo = new()
@@ -210,16 +218,14 @@ public sealed class FileUtil
     {
         try
         {
-            using (FileStream fileStream = File.OpenRead(filePath))
-            {
-                byte[] signature = new byte[3];
+            using FileStream fileStream = File.OpenRead(filePath);
+            byte[] signature = new byte[3];
 
-                // Read the first two bytes from the file
-                fileStream.Read(signature, 0, 3);
+            // Read the first two bytes from the file
+            fileStream.Read(signature, 0, 3);
 
-                // Gzip files start with the signature bytes 0x1F 0x8B
-                return signature[0] == 0x1F && signature[1] == 0x8B && signature[2] == 0x08;
-            }
+            // Gzip files start with the signature bytes 0x1F 0x8B
+            return signature[0] == 0x1F && signature[1] == 0x8B && signature[2] == 0x08;
         }
         catch (Exception ex)
         {
@@ -235,7 +241,7 @@ public sealed class FileUtil
         {
             if (File.Exists(filePath))
             {
-                var lines = File.ReadAllLines(filePath);
+                string[] lines = File.ReadAllLines(filePath);
                 if (lines.Length == 1)
                 {
                     url = lines[0];
@@ -243,7 +249,7 @@ public sealed class FileUtil
                     return true;
                 }
 
-                var urlLine = lines.FirstOrDefault(line => line.StartsWith("URL="));
+                string? urlLine = lines.FirstOrDefault(line => line.StartsWith("URL="));
 
                 if (urlLine != null)
                 {

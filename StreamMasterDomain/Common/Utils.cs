@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using StreamMasterDomain.Filtering;
+
+using System.Text;
 using System.Text.Json;
 
 namespace StreamMasterDomain.Common;
@@ -6,6 +8,16 @@ namespace StreamMasterDomain.Common;
 public static class Utils
 {
     private static readonly Random _random = new();
+
+    public static List<DataTableFilterMetaData> GetFiltersFromJSON(string jsonFiltersString)
+    {
+        if (!string.IsNullOrEmpty(jsonFiltersString))
+        {
+            List<DataTableFilterMetaData>? filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(jsonFiltersString);
+            return filters ?? new();
+        }
+        return new();
+    }
 
     public static T? DeepCopy<T>(this T value)
     {

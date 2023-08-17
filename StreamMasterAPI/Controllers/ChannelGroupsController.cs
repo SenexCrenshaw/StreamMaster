@@ -18,8 +18,8 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
     [HttpPost]
     public async Task<ActionResult> CreateChannelGroup(CreateChannelGroupRequest request)
     {
-        ChannelGroupDto? result = await Mediator.Send(request).ConfigureAwait(false);
-        return result != null ? Ok() : BadRequest();
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
     }
 
     [HttpDelete]
@@ -54,13 +54,7 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
         return Ok(res);
     }
 
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<PagedResponse<VideoStreamDto>>> GetVideoStreamsForChannelGroups([FromQuery] VideoStreamParameters videoStreamParameters)
-    {
-        PagedResponse<VideoStreamDto> res = await Mediator.Send(new GetVideoStreamsForChannelGroups(videoStreamParameters)).ConfigureAwait(false);
-        return Ok(res);
-    }
+
 
     [HttpPut]
     [Route("[action]")]

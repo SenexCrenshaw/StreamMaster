@@ -4,7 +4,7 @@ import React from "react";
 import type * as StreamMasterApi from '../store/iptvApi';
 import { AutoMatchIconToStreams } from "../store/signlar_functions";
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
-import { getTopToolOptions } from "../common/common";
+import { GetMessage, getTopToolOptions } from "../common/common";
 import { AutoMatchIcon } from "../common/icons";
 
 const AutoMatchIconToStreamsDialog = (props: AutoMatchIconToStreamsDialogProps) => {
@@ -42,7 +42,7 @@ const AutoMatchIconToStreamsDialog = (props: AutoMatchIconToStreamsDialogProps) 
 
       <InfoMessageOverLayDialog
         blocked={block}
-        header="Auto Set Channel Numbers"
+        header={GetMessage("auto set channel numbers")}
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
         overlayColSize={4}

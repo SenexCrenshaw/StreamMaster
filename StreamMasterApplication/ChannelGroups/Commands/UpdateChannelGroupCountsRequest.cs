@@ -4,6 +4,7 @@ using FluentValidation;
 
 using MediatR;
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
@@ -11,6 +12,7 @@ using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Dto;
 
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
@@ -35,46 +37,38 @@ public class UpdateChannelGroupCountsRequestHandler : BaseMemoryRequestHandler, 
 
     public async Task Handle(UpdateChannelGroupCountsRequest request, CancellationToken cancellationToken)
     {
+        Logger.LogInformation("UpdateChannelGroupCountsRequestHandler.Handle - Start");
         Stopwatch stopwatch = new();
         stopwatch.Start();
 
-        //IEnumerable<M3UFileDto> m3uFilesToUpdated = await Sender.Send(new GetM3UFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
-        //if (!m3uFilesToUpdated.Any())
-        //{
-        //    return;
-        //}
+        //// Fetch only required channel groups.
+        //Func<ChannelGroup, bool> channelGroupPredicate = request.channelGroupNames == null ?
+        //(_ => true) :
+        //(a => request.channelGroupNames.Contains(a.Name));
+        List<ChannelGroup> cgs = Repository.ChannelGroup.GetAllChannelGroups().Where(a => request.channelGroupNames == null || request.channelGroupNames.Contains(a.Name)).ToList();
 
-        // Fetch only required channel groups.
-        Func<ChannelGroup, bool> channelGroupPredicate = request.channelGroupNames == null ?
-        (_ => true) :
-        (a => request.channelGroupNames.Contains(a.Name));
-        List<ChannelGroup> cgs = Repository.ChannelGroup.GetAllChannelGroups().Where(channelGroupPredicate).ToList();
-
-        // Get the IQueryable for all video streams (this doesn't hit the database yet).
-        var allVideoStreamsQuery = Repository.VideoStream.GetAllVideoStreams()
+        // Fetch all video streams once.
+        var allVideoStreams = await Repository.VideoStream.GetAllVideoStreams()
             .Select(vs => new
             {
                 vs.Id,
                 vs.User_Tvg_group,
                 vs.IsHidden
-            });
+            }).ToListAsync().ConfigureAwait(false);
 
-        Dictionary<string, List<string>> videoStreamsForGroups = new();
-        Dictionary<string, int> hiddenCounts = new();
+        ConcurrentDictionary<string, List<string>> videoStreamsForGroups = new();
+        ConcurrentDictionary<string, int> hiddenCounts = new();
 
-        foreach (ChannelGroup cg in cgs)
+        // Parallelizing the data processing.
+        Parallel.ForEach(cgs, cg =>
         {
-            List<string> ids = allVideoStreamsQuery
-                .Where(vs => vs.User_Tvg_group == cg.Name)
-                .Select(vs => vs.Id)
-                .ToList();
-            videoStreamsForGroups[cg.Name] = ids;
+            var relevantStreams = allVideoStreams.Where(vs => vs.User_Tvg_group == cg.Name).ToList();
 
-            int hiddenCount = allVideoStreamsQuery
-                .Where(vs => vs.User_Tvg_group == cg.Name && vs.IsHidden)
-                .Count();
-            hiddenCounts[cg.Name] = hiddenCount;
-        }
+            videoStreamsForGroups[cg.Name] = relevantStreams.Select(vs => vs.Id).ToList();
+            hiddenCounts[cg.Name] = relevantStreams.Count(vs => vs.IsHidden);
+        });
+
+        List<ChannelGroupStreamCount> channelGroupStreamCounts = new();
 
         Task[] tasks = cgs.Select(async cg =>
         {
@@ -85,7 +79,7 @@ public class UpdateChannelGroupCountsRequestHandler : BaseMemoryRequestHandler, 
 
             if (!string.IsNullOrEmpty(cg.RegexMatch))
             {
-                IEnumerable<VideoStream> reg = await Sender.Send(new GetVideoStreamsByNamePatternQuery(cg.RegexMatch), cancellationToken).ConfigureAwait(false);
+                IEnumerable<VideoStreamDto> reg = await Sender.Send(new GetVideoStreamsByNamePatternQuery(cg.RegexMatch), cancellationToken).ConfigureAwait(false);
                 hiddenCount += reg.Count(a => a.IsHidden && !ids.Contains(a.Id));
                 ids.UnionWith(reg.Select(a => a.Id));
             }
@@ -94,13 +88,18 @@ public class UpdateChannelGroupCountsRequestHandler : BaseMemoryRequestHandler, 
             response.ActiveCount = ids.Count - hiddenCount;
             response.HiddenCount = hiddenCount;
             response.Id = cg.Id;
-            await Repository.ChannelGroup.AddOrUpdateChannelGroupVideoStreamCount(response).ConfigureAwait(false);
-        }).ToArray();
+            channelGroupStreamCounts.Add(response);
 
+        }).ToArray();
         await Task.WhenAll(tasks);
+
+        await Repository.ChannelGroup.AddOrUpdateChannelGroupVideoStreamCounts(channelGroupStreamCounts).ConfigureAwait(false);
+
         await Repository.SaveAsync().ConfigureAwait(false);
+
         stopwatch.Stop();
         Logger.LogInformation($"UpdateChannelGroupCountsRequest took {stopwatch.ElapsedMilliseconds} ms");
     }
+
 
 }

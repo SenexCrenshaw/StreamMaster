@@ -9,12 +9,11 @@ using Microsoft.Extensions.Logging;
 using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
 [RequireAll]
-public record CreateChannelGroupRequest(string GroupName, int Rank, string? Regex) : IRequest<ChannelGroupDto?>
+public record CreateChannelGroupRequest(string GroupName, int Rank, string? Regex) : IRequest
 {
 }
 
@@ -27,17 +26,17 @@ public class CreateChannelGroupRequestValidator : AbstractValidator<CreateChanne
     }
 }
 
-public class CreateChannelGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateChannelGroupRequest, ChannelGroupDto?>
+public class CreateChannelGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateChannelGroupRequest>
 {
 
     public CreateChannelGroupRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
         : base(logger, repository, mapper, publisher, sender) { }
 
-    public async Task<ChannelGroupDto?> Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)
+    public async Task Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)
     {
-        if (await Repository.ChannelGroup.GetChannelGroupByNameAsync(request.GroupName).ConfigureAwait(false) == null)
+        if (await Repository.ChannelGroup.GetChannelGroupByNameAsync(request.GroupName).ConfigureAwait(false) != null)
         {
-            return null;
+            return;
         }
 
         ChannelGroup channelGroup = new() { Name = request.GroupName, Rank = request.Rank, IsReadOnly = false };
@@ -49,8 +48,10 @@ public class CreateChannelGroupRequestHandler : BaseMediatorRequestHandler, IReq
         Repository.ChannelGroup.CreateChannelGroup(channelGroup);
         await Repository.SaveAsync().ConfigureAwait(false);
 
-        ChannelGroupDto result = Mapper.Map<ChannelGroupDto>(channelGroup);
-        await Publisher.Publish(new AddChannelGroupEvent(result), cancellationToken).ConfigureAwait(false);
-        return result;
+        await Sender.Send(new UpdateChannelGroupCountRequest(channelGroup.Name), cancellationToken).ConfigureAwait(false);
+
+
+        await Publisher.Publish(new AddChannelGroupEvent(), cancellationToken).ConfigureAwait(false);
+
     }
 }

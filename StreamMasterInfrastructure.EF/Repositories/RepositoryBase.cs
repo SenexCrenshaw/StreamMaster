@@ -9,16 +9,10 @@ using StreamMasterDomain.Repository;
 
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
-using System.Text.Json;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 {
-
-
-
-
-
 
     protected RepositoryContext RepositoryContext { get; set; }
 
@@ -32,8 +26,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         return RepositoryContext.Set<T>().AsNoTracking();
     }
 
-    public async Task<PagedResponse<TDto>> GetEntitiesAsync<TDto>(QueryStringParameters parameters, IMapper mapper)
-where TDto : class
+    public async Task<PagedResponse<TDto>> GetEntitiesAsync<TDto>(QueryStringParameters parameters, IMapper mapper) where TDto : class
     {
         IQueryable<T> entities;
 
@@ -42,7 +35,7 @@ where TDto : class
 
             if (!string.IsNullOrEmpty(parameters.JSONFiltersString))
             {
-                List<DataTableFilterMetaData>? filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(parameters.JSONFiltersString);
+                List<DataTableFilterMetaData> filters = Utils.GetFiltersFromJSON(parameters.JSONFiltersString);
                 entities = FindByCondition(filters, parameters.OrderBy);
             }
             else

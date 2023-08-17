@@ -5,11 +5,12 @@ import { classNames } from "primereact/utils";
 import { type TooltipOptions } from "primereact/tooltip/tooltipoptions";
 import { useDebouncedCallback } from "use-debounce";
 import { useClickOutside } from "primereact/hooks";
+import { BlockUI } from "primereact/blockui";
 
 const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
   const [originalValue, setOriginalValue] = React.useState<string>('');
   const [isFocused, setIsFocused] = React.useState<boolean>(false);
-  const [ignoreSave, setIgnoreSave] = React.useState<boolean>(true);
+
   const overlayRef = React.useRef(null);
   const [inputValue, setInputValue] = React.useState<string>('');
   const className = classNames('iconSelector p-0 m-0 w-full z-5 ', props.className);
@@ -17,34 +18,33 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
   const debounced = useDebouncedCallback(
     React.useCallback((value) => {
 
-      if (!ignoreSave && value !== originalValue) {
+      if (value !== originalValue) {
         setInputValue(value);
-        setIgnoreSave(true);
 
         props.onChange(value);
       }
-    }, [ignoreSave, originalValue, props]),
-    1500,
+    }, [originalValue, props]),
+    250,
     {}
   );
 
   const save = React.useCallback((forceValueSave?: string | undefined) => {
 
     if (forceValueSave === undefined && (
-      ignoreSave || inputValue === undefined || inputValue === originalValue)
+      inputValue === undefined || inputValue === originalValue)
     ) {
       return;
     }
 
     debounced.cancel();
-    setIgnoreSave(true);
+
     if (forceValueSave !== undefined) {
       props.onChange(forceValueSave);
     } else {
       props.onChange(inputValue);
     }
 
-  }, [debounced, ignoreSave, inputValue, originalValue, props]);
+  }, [debounced, inputValue, originalValue, props]);
 
   // Keyboard Enter
   React.useEffect(() => {
@@ -79,43 +79,45 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
     if (props.value !== null && props.value !== undefined) {
       setInputValue(props.value);
       setOriginalValue(props.value);
-      setIgnoreSave(false);
     }
 
   }, [props.value, setInputValue]);
 
   return (
-    <div ref={overlayRef}>
-      <Dropdown
-        className={className}
-        editable
-        filter
-        filterBy='channelName'
-        onChange={
-          (e) => {
-            setInputValue(e.target.value as string);
-            debounced(e.target.value as string);
+    <BlockUI blocked={props.isLoading}>
+      <div ref={overlayRef}>
+        <Dropdown
+          className={className}
+          editable
+          filter
+          filterBy='channelName'
+
+          onChange={
+            (e) => {
+              setInputValue(e.target.value as string);
+              debounced(e.target.value as string);
+            }
           }
-        }
-        onFocus={() => setIsFocused(true)}
-        options={props.data ?? ['']}
-        placeholder="No EPG"
-        style={{
-          ...{
-            backgroundColor: 'var(--mask-bg)',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          },
-        }}
-        tooltip={props.tooltip}
-        tooltipOptions={props.tooltipOptions}
-        value={inputValue}
-        virtualScrollerOptions={{
-          itemSize: 32,
-        }}
-      />
-    </div>
+          onFocus={() => setIsFocused(true)}
+          options={props.data}
+          placeholder="No EPG"
+          style={{
+            ...{
+              backgroundColor: 'var(--mask-bg)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            },
+          }}
+          tooltip={props.tooltip}
+          tooltipOptions={props.tooltipOptions}
+          value={inputValue}
+          virtualScrollerOptions={{
+            itemSize: 32,
+          }}
+        />
+      </div>
+    </BlockUI>
   );
 }
 
@@ -125,12 +127,13 @@ DropDownEditorBodyTemplate.defaultProps = {
 };
 
 type DropDownEditorBodyTemplateProps = {
-  className?: string | null;
-  data: string[] | null;
+  className?: string;
+  data: string[];
+  isLoading?: boolean;
   onChange: (value: string) => void;
-  tooltip?: string | undefined;
-  tooltipOptions?: TooltipOptions | undefined;
-  value: string | undefined;
+  tooltip?: string;
+  tooltipOptions?: TooltipOptions;
+  value: string;
 };
 
 export default React.memo(DropDownEditorBodyTemplate);

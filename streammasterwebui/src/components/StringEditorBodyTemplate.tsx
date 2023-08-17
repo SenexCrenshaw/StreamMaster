@@ -24,11 +24,10 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
       if (!ignoreSave && value !== originalValue) {
         setInputValue(value);
         setIgnoreSave(true);
-        // console.log('Saved', value);
         props.onChange(value);
       }
     }, [ignoreSave, originalValue, props]),
-    1500,
+    props.debounceMs,
     {}
   );
 
@@ -77,17 +76,13 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
 
     setIsFocused(false);
     if (originalValue !== inputValue) {
-      // console.log('useClickOutside saved');
       save();
     }
   });
 
-
   React.useMemo(() => {
 
-    // if (props.value !== undefined && props.value !== originalValue) {
     if (props.value !== undefined) {
-      // console.log('setOriginalValue', props.value);
       setInputValue(props.value);
       setOriginalValue(props.value);
       setIgnoreSave(false);
@@ -97,7 +92,8 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
 
   return (
 
-    <div className='p-0 relative' ref={overlayRef}
+    <div className={`p-0 relative py-1 ${props.includeBorder ? 'border-2 border-round surface-border' : ''}`}
+      ref={overlayRef}
       style={{
         ...{
           backgroundColor: 'var(--mask-bg)',
@@ -107,6 +103,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
         },
       }}
     >
+
       {(isFocused && props.resetValue !== undefined && props.resetValue !== inputValue) &&
         < Button
           className="absolute right-0"
@@ -138,7 +135,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
           }
         }
         onFocus={() => setIsFocused(true)}
-
+        placeholder={props.placeholder}
         tooltip={props.tooltip}
         tooltipOptions={props.tooltipOptions}
         value={inputValue}
@@ -148,10 +145,18 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
   );
 }
 
+StringEditorBodyTemplate.displayName = 'String Editor Body Template';
+StringEditorBodyTemplate.defaultProps = {
+  debounceMs: 1500,
+  includeBorder: true
+}
+
 export type StringEditorBodyTemplateProps = {
+  debounceMs?: number;
+  includeBorder?: boolean;
   onChange: (value: string) => void;
   onClick?: () => void;
-  // onReset?: ((value: string) => void);
+  placeholder?: string;
   resetValue?: string | undefined;
   tooltip?: string | undefined;
   tooltipOptions?: TooltipOptions | undefined;

@@ -84,31 +84,9 @@ public static class CacheKeys
         cache.Remove(ListTVLogos);
     }
 
-    public static string? GetEPGChannelByTvgId(this IMemoryCache cache, string User_Tvg_ID)
-    {
-        IEnumerable<ProgrammeNameDto> programmeNames = cache.ProgrammeNames();
-
-        List<ChannelLogoDto> channelLogos = cache.ChannelLogos();
-
-        ProgrammeNameDto? pn = programmeNames.FirstOrDefault(a => a.DisplayName == User_Tvg_ID);
-        if (pn == null)
-        {
-            return null;
-        }
-
-        ChannelLogoDto? channelLogo = channelLogos.FirstOrDefault(a => a.EPGId == pn.Channel);
-        if (channelLogo != null)
-        {
-            return channelLogo.LogoUrl;
-        }
-        return null;
-    }
-
     public static string? GetEPGNameTvgName(this IMemoryCache cache, string User_Tvg_Name)
     {
         IEnumerable<ProgrammeNameDto> programmeNames = cache.ProgrammeNames();
-
-        List<ChannelLogoDto> channelLogos = cache.ChannelLogos();
 
         ProgrammeNameDto? pn = programmeNames.FirstOrDefault(a => a.DisplayName == User_Tvg_Name);
         if (pn == null)
@@ -121,6 +99,48 @@ public static class CacheKeys
         }
         return User_Tvg_Name;
     }
+
+    public static string? GetEPGChannelLogoByTvgId(this IMemoryCache cache, string User_Tvg_ID)
+    {
+        IEnumerable<ProgrammeNameDto> programmeNames = cache.ProgrammeNames();
+
+        List<ChannelLogoDto> channelLogos = cache.ChannelLogos();
+
+        ProgrammeNameDto? pn = programmeNames.FirstOrDefault(a => a.DisplayName == User_Tvg_ID);
+        if (pn == null)
+        {
+            pn = programmeNames.FirstOrDefault(a => a.Channel == User_Tvg_ID);
+            if (pn == null)
+            {
+                return null;
+            }
+        }
+
+        ChannelLogoDto? channelLogo = channelLogos.FirstOrDefault(a => a.EPGId == pn.Channel);
+        if (channelLogo != null)
+        {
+            return channelLogo.LogoUrl;
+        }
+        return null;
+    }
+
+    public static string? GetEPGChannelByDisplayName(this IMemoryCache cache, string displayName)
+    {
+        IEnumerable<ProgrammeNameDto> programmeNames = cache.ProgrammeNames();
+
+        ProgrammeNameDto? pn = programmeNames.FirstOrDefault(a => a.DisplayName == displayName);
+        if (pn == null)
+        {
+            pn = programmeNames.FirstOrDefault(a => a.ChannelName == displayName);
+            if (pn == null)
+            {
+                return null;
+            }
+        }
+        return pn.Channel;
+    }
+
+
 
     public static List<IconFileDto> GetIcons(this IMemoryCache cache, IMapper mapper)
     {

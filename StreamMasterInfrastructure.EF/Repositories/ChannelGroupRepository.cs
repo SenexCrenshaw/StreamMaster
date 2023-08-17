@@ -43,7 +43,17 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         return GetChannelGroupVideoStreamCounts().FirstOrDefault(a => a.Id == id);
     }
 
-    public async Task AddOrUpdateChannelGroupVideoStreamCount(ChannelGroupStreamCount response)
+    public async Task AddOrUpdateChannelGroupVideoStreamCounts(List<ChannelGroupStreamCount> channelGroupStreamCounts)
+    {
+        foreach (ChannelGroupStreamCount item in channelGroupStreamCounts)
+        {
+            await AddOrUpdateChannelGroupVideoStreamCount(item, true).ConfigureAwait(false);
+        }
+
+        await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+    }
+
+    public async Task AddOrUpdateChannelGroupVideoStreamCount(ChannelGroupStreamCount response, bool ignoreSave = false)
     {
 
         ChannelGroupStreamCount? data = RepositoryContext.ChannelGroupStreamCounts.FirstOrDefault(a => a.Id == response.Id);
@@ -61,8 +71,11 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
 
             RepositoryContext.ChannelGroupStreamCounts.Update(data);
         }
-        await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
 
+        if (!ignoreSave)
+        {
+            await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+        }
 
     }
     public async Task<(ChannelGroupDto? channelGroup, List<VideoStreamDto>? distinctList, List<StreamGroupDto>? streamGroupIds)> UpdateChannelGroup(UpdateChannelGroupRequest request, string url, CancellationToken cancellationToken)
@@ -75,11 +88,11 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         }
 
         List<VideoStreamDto> beforeResults = RepositoryContext.VideoStreams
-            .Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == channelGroup.Name.ToLower())
+            .Where(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroup.Name)
             .AsNoTracking()
             .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider).ToList();
 
-        IEnumerable<VideoStream> beforeRegexStreams = await _sender.Send(new GetVideoStreamsByNamePatternQuery(channelGroup.RegexMatch), cancellationToken).ConfigureAwait(false);
+        IEnumerable<VideoStreamDto> beforeRegexStreams = await _sender.Send(new GetVideoStreamsByNamePatternQuery(channelGroup.RegexMatch), cancellationToken).ConfigureAwait(false);
         if (beforeRegexStreams != null)
         {
             List<VideoStreamDto> mapped = _mapper.Map<List<VideoStreamDto>>(beforeRegexStreams);
@@ -97,7 +110,7 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         {
             channelGroup.IsHidden = (bool)request.IsHidden;
             await RepositoryContext.VideoStreams
-            .Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == channelGroup.Name.ToLower())
+            .Where(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroup.Name)
                 .ExecuteUpdateAsync(s => s.SetProperty(b => b.IsHidden, (bool)request.IsHidden), cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
@@ -107,7 +120,7 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         if (!string.IsNullOrEmpty(request.NewGroupName))
         {
             await RepositoryContext.VideoStreams
-            .Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == channelGroup.Name.ToLower())
+            .Where(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroup.Name)
                .ExecuteUpdateAsync(s => s.SetProperty(b => b.User_Tvg_group, request.NewGroupName), cancellationToken: cancellationToken)
                .ConfigureAwait(false);
 
@@ -132,11 +145,11 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         }
 
         List<VideoStreamDto> afterResults = RepositoryContext.VideoStreams
-           .Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == channelGroup.Name.ToLower())
+           .Where(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroup.Name)
         .AsNoTracking()
            .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider).ToList();
 
-        IEnumerable<VideoStream> afterRegexStreams = await _sender.Send(new GetVideoStreamsByNamePatternQuery(channelGroup.RegexMatch), cancellationToken).ConfigureAwait(false);
+        IEnumerable<VideoStreamDto> afterRegexStreams = await _sender.Send(new GetVideoStreamsByNamePatternQuery(channelGroup.RegexMatch), cancellationToken).ConfigureAwait(false);
         if (afterRegexStreams != null)
         {
             List<VideoStreamDto> mapped = _mapper.Map<List<VideoStreamDto>>(afterRegexStreams);
@@ -193,7 +206,7 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
     public async Task<PagedResponse<ChannelGroupDto>> GetChannelGroupsAsync(ChannelGroupParameters channelGroupParameters)
     {
         PagedResponse<ChannelGroupDto> channelGroups = await GetEntitiesAsync<ChannelGroupDto>(channelGroupParameters, _mapper).ConfigureAwait(false);
-        IEnumerable<ChannelGroupStreamCount> actives = await _sender.Send(new GetChannelGroupsVideoStreamCount()).ConfigureAwait(false);
+        IEnumerable<ChannelGroupStreamCount> actives = await _sender.Send(new GetChannelGroupVideoStreamCounts()).ConfigureAwait(false);
 
         foreach (ChannelGroupStreamCount? active in actives)
         {
@@ -255,7 +268,7 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
 
     public async Task<ChannelGroup?> GetChannelGroupByNameAsync(string name)
     {
-        return await FindByCondition(channelGroup => channelGroup.Name.ToLower().Equals(name.ToLower()))
+        return await FindByCondition(channelGroup => channelGroup.Name.Equals(name))
                          .FirstOrDefaultAsync();
     }
 

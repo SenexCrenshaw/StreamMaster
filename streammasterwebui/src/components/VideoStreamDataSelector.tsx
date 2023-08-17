@@ -4,7 +4,7 @@ import React from "react";
 
 import * as StreamMasterApi from '../store/iptvApi';
 
-import { addOrUpdateValueForField, type DataTableFilterMetaData } from "../common/common";
+import { addOrUpdateValueForField, GetMessage, type DataTableFilterMetaData } from "../common/common";
 import { getTopToolOptions } from "../common/common";
 import { UpdateVideoStream } from "../store/signlar_functions";
 import { useLocalStorage } from "primereact/hooks";
@@ -13,12 +13,11 @@ import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import VideoStreamAddPanel from "./VideoStreamAddDialog";
 import IconSelector from "./IconSelector";
 import ChannelGroupEditor from "./ChannelGroupEditor";
-
+import { type ColumnMeta } from '../features/dataSelector2/DataSelectorTypes2';
 import ChannelNumberEditor from "./ChannelNumberEditor";
 import ChannelNameEditor from "./ChannelNameEditor";
 import EPGSelector from "./EPGSelector";
 import VideoStreamDeleteDialog from "./VideoStreamDeleteDialog";
-import { type ColumnMeta } from "../features/dataSelector/DataSelectorTypes";
 import VideoStreamVisibleDialog from "./VideoStreamVisibleDialog";
 import VideoStreamEditDialog from "./VideoStreamEditDialog";
 import VideoStreamSetIconFromEPGDialog from "./VideoStreamSetLogoFromEPGDialog";
@@ -30,10 +29,8 @@ import VideoStreamSetEPGFromNameDialog from "./VideoStreamSetEPGFromNameDialog";
 import VideoStreamSetEPGsFromNameDialog from "./VideoStreamSetEPGsFromNameDialog";
 import DataSelector2 from "../features/dataSelector2/DataSelector2";
 import { type DataTableFilterEvent } from "primereact/datatable";
-import { Toast } from "primereact/toast";
 
 const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
-  const toast = React.useRef<Toast>(null);
 
   const [enableEditMode, setEnableEditMode] = useLocalStorage(true, props.id + '-enableEditMode');
 
@@ -47,7 +44,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const [pageNumber, setPageNumber] = React.useState<number>(1);
   const [orderBy, setOrderBy] = React.useState<string>('user_tvg_name');
 
-  const videoStreamsQuery = StreamMasterApi.useChannelGroupsGetVideoStreamsForChannelGroupsQuery({ jsonFiltersString: filters, orderBy: orderBy ?? 'name', pageNumber: pageNumber === 0 ? 1 : pageNumber, pageSize: pageSize } as StreamMasterApi.ChannelGroupsGetVideoStreamsForChannelGroupsApiArg);
+  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsForChannelGroupsQuery({ jsonFiltersString: filters, orderBy: orderBy ?? 'name', pageNumber: pageNumber === 0 ? 1 : pageNumber, pageSize: pageSize } as StreamMasterApi.VideoStreamsGetVideoStreamsForChannelGroupsApiArg);
 
   React.useEffect(() => {
     const callback = (event: KeyboardEvent) => {
@@ -131,27 +128,10 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
     await UpdateVideoStream(data)
       .then(() => {
-        if (toast.current) {
-          toast.current.show({
-            detail: `Updated Stream`,
-            life: 3000,
-            severity: 'success',
-            summary: 'Successful',
-          });
-
-        }
-      }).catch((e) => {
-        if (toast.current) {
-          toast.current.show({
-            detail: `Update Stream Failed`,
-            life: 3000,
-            severity: 'error',
-            summary: 'Error ' + e.message,
-          });
-        }
+      }).catch(() => {
       });
 
-  }, [toast]);
+  }, []);
 
   const logoEditorBodyTemplate = React.useCallback((data: StreamMasterApi.VideoStreamDto) => {
     return (
@@ -381,52 +361,48 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   }, [props.channelGroups]);
 
   return (
-    <>
-      <Toast position="bottom-right" ref={toast} />
-      <DataSelector2
-        columns={targetColumns}
-        dataSource={videoStreamsQuery.data}
-        emptyMessage="No Streams"
-        headerRightTemplate={rightHeaderTemplate}
-        id={props.id + 'VideoStreamDataSelector'}
-        isLoading={videoStreamsQuery.isLoading || videoStreamsQuery.isFetching}
-        leftColSize={1}
-        name='Playlist Streams'
-        onFilter={(filterInfo) => {
-          setFilter(filterInfo as DataTableFilterEvent);
-        }}
-        onPage={(pageInfo) => {
-          if (pageInfo.page !== undefined) {
-            setPageNumber(pageInfo.page + 1);
+    <DataSelector2
+      columns={targetColumns}
+      dataSource={videoStreamsQuery.data}
+      emptyMessage="No Streams"
+      headerRightTemplate={rightHeaderTemplate}
+      id={props.id + 'VideoStreamDataSelector'}
+      isLoading={videoStreamsQuery.isLoading || videoStreamsQuery.isFetching}
+      leftColSize={1}
+      name={GetMessage('playlist streams')}
+      onFilter={(filterInfo) => {
+        setFilter(filterInfo as DataTableFilterEvent);
+      }}
+      onPage={(pageInfo) => {
+        if (pageInfo.page !== undefined) {
+          setPageNumber(pageInfo.page + 1);
+        }
+
+        if (pageInfo.rows !== undefined) {
+          setPageSize(pageInfo.rows);
+        }
+      }}
+
+      onSelectionChange={(e) => {
+        setSelectedVideoStreams(e as StreamMasterApi.VideoStreamDto[]);
+        props.onSelectionChange?.(e as StreamMasterApi.VideoStreamDto[]);
+      }}
+      onSort={(sortInfo) => {
+        if (sortInfo.sortField !== null && sortInfo.sortField !== undefined) {
+          if (sortInfo.sortOrder === 1) {
+            setOrderBy(sortInfo.sortField + " asc");
           }
-
-          if (pageInfo.rows !== undefined) {
-            setPageSize(pageInfo.rows);
+          else {
+            setOrderBy(sortInfo.sortField + " desc");
           }
-        }}
+        }
 
-        onSelectionChange={(e) => {
-          setSelectedVideoStreams(e as StreamMasterApi.VideoStreamDto[]);
-          props.onSelectionChange?.(e as StreamMasterApi.VideoStreamDto[]);
-        }}
-        onSort={(sortInfo) => {
-          if (sortInfo.sortField !== null && sortInfo.sortField !== undefined) {
-            if (sortInfo.sortOrder === 1) {
-              setOrderBy(sortInfo.sortField + " asc");
-            }
-            else {
-              setOrderBy(sortInfo.sortField + " desc");
-            }
-          }
-
-        }}
-        rightColSize={4}
-        selectionMode='multiple'
-        showHidden={showHidden}
-        style={{ height: 'calc(100vh - 40px)' }}
-      />
-
-    </>
+      }}
+      rightColSize={4}
+      selectionMode='multiple'
+      showHidden={showHidden}
+      style={{ height: 'calc(100vh - 40px)' }}
+    />
   );
 }
 

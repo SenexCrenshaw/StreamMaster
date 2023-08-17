@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.ChannelGroups.Commands;
 
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Extensions;
 
 using System.Collections.Concurrent;
@@ -83,14 +82,11 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
 
                 sw = Stopwatch.StartNew();
                 List<VideoStream> existing = Repository.VideoStream.GetVideoStreamsByM3UFileId(m3uFile.Id).ToList();
-                //var existing = Context.VideoStreams.Where(a => a.M3UFileId == m3uFile.Id).ToList();
 
                 existingChannels = new ThreadSafeIntList(m3uFile.StartingChannelNumber < 1 ? 1 : m3uFile.StartingChannelNumber);
 
                 List<ChannelGroup> groups = Repository.ChannelGroup.GetAllChannelGroups().ToList();
                 nextchno = m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber;
-
-                // var dupes = streams.Where(a => streams.Count(b => b.Id == a.Id) > 1).OrderBy(a => a.Id).ToList();
                 List<IGrouping<string, VideoStream>> groupedStreams = streams.GroupBy(x => x.Id).ToList();
 
                 List<VideoStream> dupes = groupedStreams
@@ -214,9 +210,7 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
             sw.Stop();
             Logger.LogInformation($"Update of ID: {m3uFile.Id} {m3uFile.Name}, took {sw.Elapsed.TotalSeconds} seconds");
 
-            M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
-            await Publisher.Publish(new M3UFileProcessedEvent(ret), cancellationToken).ConfigureAwait(false);
-
+            await Publisher.Publish(new M3UFileProcessedEvent(), cancellationToken).ConfigureAwait(false);
 
             return m3uFile;
         }
@@ -234,24 +228,28 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
         IQueryable<ChannelGroup> channelGroups = Repository.ChannelGroup.GetAllChannelGroups();
         int rank = channelGroups.Any() ? channelGroups.Max(a => a.Rank) + 1 : 1;
 
+        List<string> newGroupNames = new();
+
         foreach (string? ng in newGroups)
         {
             if (!channelGroups.Any(a => a.Name.ToLower() == ng.ToLower()))
             {
-                ChannelGroup channelGroup = new()
-                {
-                    Name = ng,
-                    Rank = rank++,
-                    IsReadOnly = true,
-                };
-                Repository.ChannelGroup.CreateChannelGroup(channelGroup);
+                //ChannelGroup channelGroup = new()
+                //{
+                //    Name = ng,
+                //    Rank = rank++,
+                //    IsReadOnly = true,
+                //};
+                //newGroupNames.Add(ng);
+                //Repository.ChannelGroup.CreateChannelGroup(channelGroup);
+                await Sender.Send(new CreateChannelGroupRequest(ng, rank++, null), cancellationToken).ConfigureAwait(false);
             }
         }
 
         if (await Repository.SaveAsync().ConfigureAwait(false) > 0)
         {
-            List<ChannelGroupDto> toPublish = Mapper.Map<List<ChannelGroupDto>>(Repository.ChannelGroup.GetAllChannelGroups());
-            await Publisher.Publish(new AddChannelGroupsEvent(items: toPublish), cancellationToken).ConfigureAwait(false);
+            //await Sender.Send(new UpdateChannelGroupCountsRequest(newGroupNames), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new AddChannelGroupsEvent(), cancellationToken).ConfigureAwait(false);
         }
     }
 

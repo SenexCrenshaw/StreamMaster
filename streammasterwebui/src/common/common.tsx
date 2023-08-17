@@ -46,12 +46,55 @@ export function areFilterMetaEqual(a: DataTableFilterMeta, b: DataTableFilterMet
   return true;
 }
 
-export function GetMessage(id: string): string {
+export function toCamelCase(str: string): string {
+  return str
+    .trim()
+    .split(/[\s_-]+/)
+    .map((word, index) =>
+      index === 0
+        ? word.toLowerCase()
+        : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    )
+    .join('');
+}
+
+// export function GetMessagea(id: string): string {
+//   const intl = useIntl();
+//   const message = intl.formatMessage({ id: id });
+
+//   return message;
+// }
+
+export function GetMessage(...args: string[]): string {
   const intl = useIntl();
-  const message = intl.formatMessage({ id: id });
+  if (args === undefined || args.length === 0 || args[0] === '') {
+    return '';
+  }
+
+  // const messageTest = toCamelCase(args.join());
+
+  // var test = intl.formatMessage({ id: messageTest });
+  // if (test !== messageTest) {
+  //   return test;
+  // }
+
+  const ids: string[] = args.flatMap(arg => arg.split(' '));
+
+  const message = ids.map(x => intl.formatMessage({ id: x })).join(' ');
+  if (message === toCamelCase(message)) {
+    return args.join('');
+  }
 
   return message;
 }
+
+
+// export function GetMessage(id: string): string {
+//   const intl = useIntl();
+//   const message = intl.formatMessage({ id: id });
+
+//   return message;
+// }
 
 export type MatchMode = 'between' | 'channelGroups' | 'contains' | 'custom' | 'dateAfter' | 'dateBefore' | 'dateIs' | 'dateIsNot' | 'endsWith' | 'equals' | 'gt' | 'gte' | 'in' | 'lt' | 'lte' | 'notContains' | 'notEquals' | 'startsWith' | undefined;
 

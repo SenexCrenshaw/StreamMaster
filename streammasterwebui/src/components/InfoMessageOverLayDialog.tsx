@@ -1,8 +1,8 @@
-
 import React from "react";
 import { OverlayPanel } from "primereact/overlaypanel";
 import { BlockUI } from "primereact/blockui";
 import { Dialog } from "primereact/dialog";
+import { GetMessage } from "../common/common";
 
 const InfoMessageOverLayDialog = (props: InfoMessageOverLayDialogProps) => {
 
@@ -94,7 +94,7 @@ const InfoMessageOverLayDialog = (props: InfoMessageOverLayDialogProps) => {
       >
         <div className='flex m-0 p-1 border-1 border-round surface-border justify-contents-center'>
           <div className='surface-overlay surface-overlay min-h-full min-w-full'>
-            <h4 className={`text-center ${getSeverity()}`}>{props.infoMessage}</h4>
+            <h4 className={`text-center ${getSeverity()}`}>{GetMessage(props.infoMessage.toLocaleLowerCase())}</h4>
           </div>
         </div>
       </OverlayPanel>
@@ -112,6 +112,7 @@ InfoMessageOverLayDialog.defaultProps = {
 };
 
 type InfoMessageOverLayDialogProps = {
+  // eslint-disable-next-line react/no-unused-prop-types
   blocked?: boolean | undefined;
   children: React.ReactNode;
   closable?: boolean | undefined;

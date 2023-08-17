@@ -5,6 +5,8 @@ namespace StreamMasterDomain.Repository
 {
     public interface IVideoStreamRepository : IRepositoryBase<VideoStream>
     {
+        IQueryable<VideoStream> GetVideoStreamsById(string id);
+        IQueryable<string> GetVideoStreamNames();
         Task<IEnumerable<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken);
 
         Task<bool> DeleteVideoStreamAsync(string videoStreamId, CancellationToken cancellationToken);
@@ -23,11 +25,11 @@ namespace StreamMasterDomain.Repository
 
         IQueryable<VideoStream> GetVideoStreamsByMatchingIds(IEnumerable<string> ids);
 
-        Task<PagedResponse<VideoStreamDto>> GetVideoStreamsChannelGroupName(VideoStreamParameters VideoStreamParameters, string channelGroupName, CancellationToken cancellationToken);
+        Task<PagedResponse<VideoStreamDto>> GetVideoStreamsForChannelGroups(VideoStreamParameters VideoStreamParameters, CancellationToken cancellationToken);
 
         IQueryable<VideoStream> GetAllVideoStreams();
 
-        Task<PagedResponse<VideoStreamDto>> GetVideoStreamsAsync(VideoStreamParameters VideoStreamParameters, CancellationToken cancellationToken);
+        //Task<PagedResponse<VideoStreamDto>> GetVideoStreamsAsync(VideoStreamParameters VideoStreamParameters, CancellationToken cancellationToken);
 
         Task<VideoStream> GetVideoStreamByIdAsync(string Id, CancellationToken cancellationToken = default);
 

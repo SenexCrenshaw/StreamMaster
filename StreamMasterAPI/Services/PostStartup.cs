@@ -48,18 +48,17 @@ public class PostStartup : BackgroundService
 
         //await _taskQueue.ReadDirectoryLogosRequest(cancellationToken).ConfigureAwait(false);
 
-        await _taskQueue.ScanDirectoryForEPGFiles(cancellationToken).ConfigureAwait(false);
-
-        await _taskQueue.ScanDirectoryForM3UFiles(cancellationToken).ConfigureAwait(false);
-
         if (await IconHelper.ReadDirectoryLogos(_memoryCache, cancellationToken).ConfigureAwait(false))
         {
             List<IconFileDto> cacheValue = _mapper.Map<List<IconFileDto>>(_memoryCache.TvLogos());
             _memoryCache.Set(cacheValue);
         }
 
-        await _taskQueue.ProcessM3UFiles(cancellationToken).ConfigureAwait(false);
+        await _taskQueue.ScanDirectoryForEPGFiles(cancellationToken).ConfigureAwait(false);
 
+        await _taskQueue.ScanDirectoryForM3UFiles(cancellationToken).ConfigureAwait(false);
+
+        //await _taskQueue.ProcessM3UFiles(cancellationToken).ConfigureAwait(false);
 
         //await _taskQueue.UpdateChannelGroupCounts(cancellationToken).ConfigureAwait(false);
 

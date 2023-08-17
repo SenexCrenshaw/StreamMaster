@@ -25,7 +25,6 @@ public interface IChannelGroupController
 
     Task<ActionResult> UpdateChannelGroups(UpdateChannelGroupsRequest request);
 
-    Task<ActionResult<PagedResponse<VideoStreamDto>>> GetVideoStreamsForChannelGroups([FromQuery] VideoStreamParameters videoStreamParameters);
 }
 
 public interface IChannelGroupDB
@@ -49,7 +48,7 @@ public interface IChannelGroupHub
 
     Task UpdateChannelGroups(UpdateChannelGroupsRequest request);
 
-    Task<PagedResponse<VideoStreamDto>> GetVideoStreamsForChannelGroups(VideoStreamParameters videoStreamParameters);
+
 }
 
 public interface IChannelGroupScoped

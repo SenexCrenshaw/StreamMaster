@@ -9,6 +9,12 @@ namespace StreamMasterApplication.Hubs;
 
 public partial class StreamMasterHub : IVideoStreamHub
 {
+
+    public async Task<PagedResponse<VideoStreamDto>> GetVideoStreamsForChannelGroups(VideoStreamParameters videoStreamParameters)
+    {
+        PagedResponse<VideoStreamDto> ret = await _mediator.Send(new GetVideoStreamsForChannelGroups(videoStreamParameters)).ConfigureAwait(false);
+        return ret;
+    }
     public async Task CreateVideoStream(CreateVideoStreamRequest request)
     {
         await _mediator.Send(request).ConfigureAwait(false);
@@ -69,7 +75,12 @@ public partial class StreamMasterHub : IVideoStreamHub
         await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<VideoStream>> GetVideoStreamsByNamePattern(GetVideoStreamsByNamePatternQuery request)
+    public async Task<IEnumerable<VideoStreamDto>> GetVideoStreamsByNamePattern(GetVideoStreamsByNamePatternQuery request)
+    {
+        return await _mediator.Send(request).ConfigureAwait(false);
+    }
+
+    public async Task<IEnumerable<string>> GetVideoStreamNamesByNamePattern(GetVideoStreamNamesByNamePatternQuery request)
     {
         return await _mediator.Send(request).ConfigureAwait(false);
     }

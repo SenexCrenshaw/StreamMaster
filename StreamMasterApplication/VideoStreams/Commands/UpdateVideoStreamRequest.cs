@@ -7,6 +7,7 @@ using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
+using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.VideoStreams.Events;
 
@@ -39,9 +40,12 @@ public class UpdateVideoStreamRequestHandler : BaseMemoryRequestHandler, IReques
 
         if (ret is not null)
         {
-            List<string> channelnames = await Sender.Send(new GetChannelGroupNamesFromVideoStream(ret), cancellationToken).ConfigureAwait(false);
-            //await Sender.Send(new UpdateChannelGroupCountRequest(ret.User_Tvg_group), cancellationToken).ConfigureAwait(false);
-            await Publisher.Publish(new UpdateVideoStreamEvent(ret), cancellationToken).ConfigureAwait(false);
+            if (request.IsHidden != null)
+            {
+                List<string> channelnames = await Sender.Send(new GetChannelGroupNamesFromVideoStream(ret), cancellationToken).ConfigureAwait(false);
+                await Sender.Send(new UpdateChannelGroupCountsRequest(channelnames), cancellationToken).ConfigureAwait(false);
+            }
+            await Publisher.Publish(new UpdateVideoStreamEvent(), cancellationToken).ConfigureAwait(false);
         }
 
         return ret;

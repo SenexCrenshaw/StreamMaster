@@ -7,7 +7,7 @@ import { type CheckboxChangeEvent } from 'primereact/checkbox';
 import { Checkbox } from 'primereact/checkbox';
 import NumberEditorBodyTemplate from './NumberEditorBodyTemplate';
 import StringEditorBodyTemplate from './StringEditorBodyTemplate';
-import { type ColumnMeta } from '../features/dataSelector/DataSelectorTypes';
+import { type ColumnMeta } from '../features/dataSelector2/DataSelectorTypes2';
 import { useLocalStorage } from 'primereact/hooks';
 import DataSelector2 from '../features/dataSelector2/DataSelector2';
 

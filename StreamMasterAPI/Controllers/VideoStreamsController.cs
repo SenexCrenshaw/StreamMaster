@@ -3,9 +3,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMasterAPI.Extensions;
-
-using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Commands;
@@ -19,7 +16,6 @@ using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
 using StreamMasterDomain.Pagination;
-using StreamMasterDomain.Repository;
 
 using System.Web;
 
@@ -62,6 +58,14 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         return data == null ? NotFound() : NoContent();
     }
 
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<PagedResponse<VideoStreamDto>>> GetVideoStreamsForChannelGroups([FromQuery] VideoStreamParameters videoStreamParameters)
+    {
+        PagedResponse<VideoStreamDto> res = await Mediator.Send(new GetVideoStreamsForChannelGroups(videoStreamParameters)).ConfigureAwait(false);
+        return Ok(res);
+    }
+
     [HttpPost]
     [Route("[action]")]
     public async Task<ActionResult> FailClient(FailClientRequest request)
@@ -97,7 +101,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [HttpGet]
     public async Task<ActionResult<PagedResponse<VideoStreamDto>>> GetVideoStreams([FromQuery] VideoStreamParameters videoStreamParameters)
     {
-        var res = await Mediator.Send(new GetVideoStreams(videoStreamParameters)).ConfigureAwait(false);
+        PagedResponse<VideoStreamDto> res = await Mediator.Send(new GetVideoStreams(videoStreamParameters)).ConfigureAwait(false);
         return Ok(res);
     }
 
@@ -241,9 +245,18 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [Route("[action]")]
     public async Task<ActionResult<IEnumerable<VideoStreamDto>>> GetVideoStreamsByNamePattern([FromQuery] GetVideoStreamsByNamePatternQuery request)
     {
-        var result = await Mediator.Send(request).ConfigureAwait(false);
+        IEnumerable<VideoStreamDto> result = await Mediator.Send(request).ConfigureAwait(false);
         return Ok(result);
     }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<IEnumerable<string>>> GetVideoStreamNamesByNamePattern([FromQuery] GetVideoStreamNamesByNamePatternQuery request)
+    {
+        IEnumerable<string> result = await Mediator.Send(request).ConfigureAwait(false);
+        return Ok(result);
+    }
+
 
     private class UnregisterClientOnDispose : IDisposable
     {
