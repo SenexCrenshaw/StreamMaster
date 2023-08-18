@@ -55,28 +55,19 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
     }
 
 
-
-    [HttpPut]
-    [Route("[action]")]
-    public async Task<ActionResult> SetChannelGroupsVisible(SetChannelGroupsVisibleRequest request)
-    {
-        _ = await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
-    }
-
     [HttpPut]
     [Route("[action]")]
     public async Task<ActionResult> UpdateChannelGroup(UpdateChannelGroupRequest request)
     {
-        ChannelGroupDto? entity = await Mediator.Send(request).ConfigureAwait(false);
-        return entity == null ? NotFound() : NoContent();
+        await Mediator.Send(request).ConfigureAwait(false);
+        return NoContent();
     }
 
     [HttpPut]
     [Route("[action]")]
     public async Task<ActionResult> UpdateChannelGroups(UpdateChannelGroupsRequest request)
     {
-        _ = await Mediator.Send(request).ConfigureAwait(false);
+        await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
     }
 }

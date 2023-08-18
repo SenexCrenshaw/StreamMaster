@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
 
 using MediatR;
 
@@ -7,8 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.ChannelGroups.Queries;
-using StreamMasterApplication.StreamGroups.Queries;
-using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
@@ -29,7 +26,6 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
     {
         _sender = sender;
         _mapper = mapper;
-
         _logger = logger;
     }
 
@@ -51,6 +47,117 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         }
 
         await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+    }
+
+    public async Task ChannelGroupDeleteFromCounts(List<int> Ids, int toDelete, bool isHidden)
+    {
+        foreach (int id in Ids)
+        {
+            await ChannelGroupDeleteFromCount(id, toDelete, isHidden, true).ConfigureAwait(false);
+        }
+
+        await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+    }
+
+    public Task ChannelGroupDeleteFromCount(int Id, int toDelete, bool isHidden, bool ignoreSave = false)
+    {
+        return UpdateChannelGroupStreamCount(Id, count =>
+        {
+            count.TotalCount -= toDelete;
+            if (isHidden)
+            {
+                count.HiddenCount -= toDelete;
+            }
+            else
+            {
+                count.ActiveCount -= toDelete;
+            }
+        }, ignoreSave);
+    }
+    public async Task ChannelGroupRemoveCount(int Id)
+    {
+        ChannelGroupStreamCount? count = await RepositoryContext.ChannelGroupStreamCounts.FirstOrDefaultAsync(a => a.Id == Id).ConfigureAwait(false);
+        if (count != null)
+        {
+
+            RepositoryContext.ChannelGroupStreamCounts.Remove(count);
+
+            await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+
+        }
+    }
+
+    public async Task ChannelGroupCreateEmptyCount(int Id)
+    {
+        ChannelGroupStreamCount? count = await RepositoryContext.ChannelGroupStreamCounts.FirstOrDefaultAsync(a => a.Id == Id).ConfigureAwait(false);
+        if (count == null)
+        {
+            count = new ChannelGroupStreamCount { Id = Id };
+            RepositoryContext.ChannelGroupStreamCounts.Add(count);
+
+            await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+
+        }
+    }
+    private async Task UpdateChannelGroupStreamCount(int Id, Action<ChannelGroupStreamCount> updateAction, bool ignoreSave = false)
+    {
+        ChannelGroupStreamCount? count = await RepositoryContext.ChannelGroupStreamCounts.FirstOrDefaultAsync(a => a.Id == Id).ConfigureAwait(false);
+        if (count != null)
+        {
+            updateAction(count);
+
+            RepositoryContext.ChannelGroupStreamCounts.Update(count);
+            if (!ignoreSave)
+            {
+                await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+            }
+        }
+    }
+
+    public async Task ChannelGroupsAddToCount(List<int> Ids, int toAdd, bool isHidden)
+    {
+        foreach (int id in Ids)
+        {
+            await ChannelGroupAddToCount(id, toAdd, isHidden, true).ConfigureAwait(false);
+        }
+
+        await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+    }
+
+    public Task ChannelGroupAddToCount(int Id, int toAdd, bool isHidden, bool ignoreSave = false)
+    {
+        return UpdateChannelGroupStreamCount(Id, count =>
+        {
+            count.TotalCount += toAdd;
+            if (isHidden)
+            {
+                count.HiddenCount += toAdd;
+            }
+            else
+            {
+                count.ActiveCount += toAdd;
+            }
+        }, ignoreSave);
+    }
+
+    public async Task ChannelGroupsSetCount(List<int> Ids, int toAdd)
+    {
+        foreach (int id in Ids)
+        {
+            await ChannelGroupSetCount(id, toAdd, true).ConfigureAwait(false);
+        }
+
+        await RepositoryContext.SaveChangesAsync().ConfigureAwait(false);
+    }
+
+
+    public Task ChannelGroupSetCount(int Id, int toAdd, bool ignoreSave = false)
+    {
+        return UpdateChannelGroupStreamCount(Id, count =>
+        {
+            count.HiddenCount -= toAdd;
+            count.ActiveCount += toAdd;
+        }, ignoreSave);
     }
 
     public async Task AddOrUpdateChannelGroupVideoStreamCount(ChannelGroupStreamCount response, bool ignoreSave = false)
@@ -78,120 +185,122 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         }
 
     }
-    public async Task<(ChannelGroupDto? channelGroup, List<VideoStreamDto>? distinctList, List<StreamGroupDto>? streamGroupIds)> UpdateChannelGroup(UpdateChannelGroupRequest request, string url, CancellationToken cancellationToken)
-    {
-        ChannelGroup? channelGroup = await GetChannelGroupByNameAsync(request.ChannelGroupName).ConfigureAwait(false);
+    //public async Task<(ChannelGroupDto? channelGroup, List<VideoStreamDto>? distinctList, List<StreamGroupDto>? streamGroupIds)> UpdateChannelGroup(UpdateChannelGroupRequest request, string url, CancellationToken cancellationToken)
+    //{
+    //    ChannelGroup? channelGroup = await GetChannelGroupByNameAsync(request.ChannelGroupName).ConfigureAwait(false);
 
-        if (channelGroup == null)
-        {
-            return (null, null, null);
-        }
+    //    if (channelGroup == null)
+    //    {
+    //        return (null, null, null);
+    //    }
 
-        List<VideoStreamDto> beforeResults = RepositoryContext.VideoStreams
-            .Where(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroup.Name)
-            .AsNoTracking()
-            .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider).ToList();
+    //    List<VideoStreamDto> beforeResults = RepositoryContext.VideoStreams
+    //        .Where(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroup.Name)
+    //        .AsNoTracking()
+    //        .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider).ToList();
 
-        IEnumerable<VideoStreamDto> beforeRegexStreams = await _sender.Send(new GetVideoStreamsByNamePatternQuery(channelGroup.RegexMatch), cancellationToken).ConfigureAwait(false);
-        if (beforeRegexStreams != null)
-        {
-            List<VideoStreamDto> mapped = _mapper.Map<List<VideoStreamDto>>(beforeRegexStreams);
-            beforeResults.AddRange(mapped);
-        }
+    //    IEnumerable<VideoStreamDto> beforeRegexStreams = await _sender.Send(new GetVideoStreamsByNamePatternQuery(channelGroup.RegexMatch), cancellationToken).ConfigureAwait(false);
+    //    if (beforeRegexStreams != null)
+    //    {
+    //        List<VideoStreamDto> mapped = _mapper.Map<List<VideoStreamDto>>(beforeRegexStreams);
+    //        beforeResults.AddRange(mapped);
+    //    }
 
-        if (request.Rank != null)
-        {
-            channelGroup.Rank = (int)request.Rank;
-        }
+    //    if (request.Rank != null)
+    //    {
+    //        channelGroup.Rank = (int)request.Rank;
+    //    }
 
-        bool isChanged = false;
+    //    bool isChanged = false;
 
-        if (request.IsHidden != null)
-        {
-            channelGroup.IsHidden = (bool)request.IsHidden;
-            await RepositoryContext.VideoStreams
-            .Where(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroup.Name)
-                .ExecuteUpdateAsync(s => s.SetProperty(b => b.IsHidden, (bool)request.IsHidden), cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+    //    if (request.IsHidden != null && (bool)request.IsHidden != channelGroup.IsHidden)
+    //    {
+    //        channelGroup.IsHidden = (bool)request.IsHidden;
 
-            isChanged = true;
-        }
+    //        int results = await RepositoryContext.VideoStreams.
+    //        .Where(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroup.Name)
+    //            .ExecuteUpdateAsync(s => s.SetProperty(b => b.IsHidden, (bool)request.IsHidden), cancellationToken: cancellationToken)
+    //            .ConfigureAwait(false);
+    //        int whichWay = (bool)request.IsHidden ? -1 * results : results;
+    //        await ChannelGroupSetCount(channelGroup.Id, whichWay).ConfigureAwait(false);
+    //        isChanged = true;
+    //    }
 
-        if (!string.IsNullOrEmpty(request.NewGroupName))
-        {
-            await RepositoryContext.VideoStreams
-            .Where(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroup.Name)
-               .ExecuteUpdateAsync(s => s.SetProperty(b => b.User_Tvg_group, request.NewGroupName), cancellationToken: cancellationToken)
-               .ConfigureAwait(false);
+    //    if (!string.IsNullOrEmpty(request.NewGroupName))
+    //    {
+    //        await RepositoryContext.VideoStreams
+    //        .Where(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroup.Name)
+    //           .ExecuteUpdateAsync(s => s.SetProperty(b => b.User_Tvg_group, request.NewGroupName), cancellationToken: cancellationToken)
+    //           .ConfigureAwait(false);
 
-            channelGroup.Name = request.NewGroupName;
-            isChanged = true;
-        }
+    //        channelGroup.Name = request.NewGroupName;
+    //        isChanged = true;
+    //    }
 
-        if (!string.IsNullOrEmpty(request.Regex))
-        {
-            channelGroup.RegexMatch = request.Regex;
-        }
+    //    if (!string.IsNullOrEmpty(request.Regex))
+    //    {
+    //        channelGroup.RegexMatch = request.Regex;
+    //    }
 
-        UpdateChannelGroup(channelGroup);
+    //    UpdateChannelGroup(channelGroup);
 
-        int retint = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    //    int retint = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        ChannelGroupDto cgresult = _mapper.Map<ChannelGroupDto>(channelGroup);
+    //    ChannelGroupDto cgresult = _mapper.Map<ChannelGroupDto>(channelGroup);
 
-        if (!isChanged)
-        {
-            return (cgresult, null, null);
-        }
+    //    if (!isChanged)
+    //    {
+    //        return (cgresult, null, null);
+    //    }
 
-        List<VideoStreamDto> afterResults = RepositoryContext.VideoStreams
-           .Where(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroup.Name)
-        .AsNoTracking()
-           .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider).ToList();
+    //    List<VideoStreamDto> afterResults = RepositoryContext.VideoStreams
+    //       .Where(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroup.Name)
+    //    .AsNoTracking()
+    //       .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider).ToList();
 
-        IEnumerable<VideoStreamDto> afterRegexStreams = await _sender.Send(new GetVideoStreamsByNamePatternQuery(channelGroup.RegexMatch), cancellationToken).ConfigureAwait(false);
-        if (afterRegexStreams != null)
-        {
-            List<VideoStreamDto> mapped = _mapper.Map<List<VideoStreamDto>>(afterRegexStreams);
-            afterResults.AddRange(mapped);
-        }
+    //    IEnumerable<VideoStreamDto> afterRegexStreams = await _sender.Send(new GetVideoStreamsByNamePatternQuery(channelGroup.RegexMatch), cancellationToken).ConfigureAwait(false);
+    //    if (afterRegexStreams != null)
+    //    {
+    //        List<VideoStreamDto> mapped = _mapper.Map<List<VideoStreamDto>>(afterRegexStreams);
+    //        afterResults.AddRange(mapped);
+    //    }
 
-        List<VideoStreamDto> distinctList = beforeResults ?? new List<VideoStreamDto>();
+    //    List<VideoStreamDto> distinctList = beforeResults ?? new List<VideoStreamDto>();
 
-        if (afterResults is not null)
-        {
-            HashSet<string> existingIds = new(distinctList.Select(a => a.Id));
-            IEnumerable<VideoStreamDto> diff = afterResults.Where(a => !existingIds.Contains(a.Id));
-            distinctList = distinctList.Concat(diff).ToList();
-        }
+    //    if (afterResults is not null)
+    //    {
+    //        HashSet<string> existingIds = new(distinctList.Select(a => a.Id));
+    //        IEnumerable<VideoStreamDto> diff = afterResults.Where(a => !existingIds.Contains(a.Id));
+    //        distinctList = distinctList.Concat(diff).ToList();
+    //    }
 
-        List<StreamGroupDto> streamGroups = new();
-        if (distinctList.Any())
-        {
-            IEnumerable<StreamGroupDto> intStreamGroups = await _sender.Send(new GetStreamGroupsByVideoStreamIdsQuery(distinctList.Select(a => a.Id).ToList(), url), cancellationToken).ConfigureAwait(false);
-            if (intStreamGroups != null && intStreamGroups.Any())
-            {
-                foreach (StreamGroupDto streamGroup in intStreamGroups)
-                {
-                    UpdateStreamGroupRequest updateStreamGroupRequest = new(
-                        StreamGroupId: streamGroup.Id,
-                        Name: null,
-                        StreamGroupNumber: null,
-                        VideoStreams: null,
-                        ChannelGroupNames: streamGroup.ChannelGroups.Select(a => a.Name).ToList()
-                        );
+    //    List<StreamGroupDto> streamGroups = new();
+    //    if (distinctList.Any())
+    //    {
+    //        IEnumerable<StreamGroupDto> intStreamGroups = await _sender.Send(new GetStreamGroupsByVideoStreamIdsQuery(distinctList.Select(a => a.Id).ToList(), url), cancellationToken).ConfigureAwait(false);
+    //        if (intStreamGroups != null && intStreamGroups.Any())
+    //        {
+    //            foreach (StreamGroupDto streamGroup in intStreamGroups)
+    //            {
+    //                UpdateStreamGroupRequest updateStreamGroupRequest = new(
+    //                    StreamGroupId: streamGroup.Id,
+    //                    Name: null,
+    //                    StreamGroupNumber: null,
+    //                    VideoStreams: null,
+    //                    ChannelGroupNames: streamGroup.ChannelGroups.Select(a => a.Name).ToList()
+    //                    );
 
-                    StreamGroupDto? res = await _sender.Send(updateStreamGroupRequest, cancellationToken).ConfigureAwait(false);
-                    if (res is not null)
-                    {
-                        streamGroups.Add(res);
-                    }
-                }
-            }
-        }
+    //                StreamGroupDto? res = await _sender.Send(updateStreamGroupRequest, cancellationToken).ConfigureAwait(false);
+    //                if (res is not null)
+    //                {
+    //                    streamGroups.Add(res);
+    //                }
+    //            }
+    //        }
+    //    }
 
-        return (cgresult, distinctList, streamGroups);
-    }
+    //    return (cgresult, distinctList, streamGroups);
+    //}
 
     public IQueryable<ChannelGroup> GetAllChannelGroups()
     {
@@ -254,6 +363,37 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         return results;
     }
 
+    public async Task<List<int>> GetChannelIdsFromVideoStream(VideoStreamDto videoStreamDto)
+    {
+        Stopwatch stopwatch = new();
+        stopwatch.Start();
+        ChannelGroup? channelGroup = await GetChannelGroupByNameAsync(videoStreamDto.User_Tvg_group).ConfigureAwait(false);
+
+        if (channelGroup == null)
+        {
+            return new();
+        }
+
+        List<int> results = new() { channelGroup.Id };
+
+        List<ChannelGroup> channelGroups = RepositoryContext.ChannelGroups.Where(a => a.RegexMatch != null && a.RegexMatch != string.Empty)
+            .AsNoTracking()
+            .ToList();
+
+        foreach (ChannelGroup? cg in channelGroups)
+        {
+            Regex regex = new(cg.RegexMatch, RegexOptions.ECMAScript | RegexOptions.IgnoreCase);
+            if (regex.IsMatch(videoStreamDto.User_Tvg_name))
+            {
+                results.Add(cg.Id);
+            }
+        }
+
+        stopwatch.Stop();
+        _logger.LogInformation($"GetChannelIdsFromVideoStream took {stopwatch.ElapsedMilliseconds} ms");
+        return results;
+    }
+
     public async Task<ChannelGroupDto?> GetChannelGroupAsync(int Id, CancellationToken cancellationToken = default)
     {
         ChannelGroup? res = await FindByCondition(channelGroup => channelGroup.Id == Id).FirstOrDefaultAsync();
@@ -282,6 +422,7 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
     public void CreateChannelGroup(ChannelGroup ChannelGroup)
     {
         Create(ChannelGroup);
+
     }
 
     public void DeleteChannelGroup(ChannelGroup ChannelGroup)

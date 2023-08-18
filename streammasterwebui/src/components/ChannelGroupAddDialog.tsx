@@ -2,10 +2,10 @@ import React from "react";
 import * as StreamMasterApi from '../store/iptvApi';
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
-import { getTopToolOptions } from "../common/common";
+import { GetMessage, getTopToolOptions } from "../common/common";
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
-import DataSelector from "../features/dataSelector/DataSelector";
-import { type ColumnMeta } from "../features/dataSelector/DataSelectorTypes";
+import { DataView } from 'primereact/dataview';
+import StringEditorBodyTemplate from "./StringEditorBodyTemplate";
 
 const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
 
@@ -18,7 +18,7 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
 
   const [channelGroupsCreateChannelGroupMutation] = StreamMasterApi.useChannelGroupsCreateChannelGroupMutation();
 
-  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsByNamePatternQuery(regex ?? '');
+  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamNamesByNamePatternQuery(regex ?? '');
 
   const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);
@@ -68,12 +68,13 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
     };
   }, [addGroup, newGroupName]);
 
-  const sourceColumns = React.useMemo((): ColumnMeta[] => {
-    return [
-
-      { field: 'user_Tvg_name', header: 'Name' },
-    ]
-  }, []);
+  const itemTemplate = (data: string) => {
+    return (
+      <div className="flex flex-column flex-row align-items-start">
+        {data}
+      </div>
+    );
+  };
 
   return (
     <>
@@ -96,12 +97,16 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
               placeholder="Group Name"
               value={newGroupName}
             />
-            <InputText
-              className="withpadding p-inputtext-sm w-full mt-2"
-              onChange={(e) => setRegex(e.target.value)}
-              placeholder="Group Regex"
+            <StringEditorBodyTemplate
+              includeBorder
+              onChange={(e) => {
+                setRegex(e)
+              }}
+              placeholder={GetMessage("channel group regex")}
               value={regex}
             />
+
+
             <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
               <Button
                 icon="pi pi-times "
@@ -120,16 +125,13 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
             </div>
             <div hidden={regex === undefined || regex === ''}>
               <div className='m3uFilesEditor flex flex-column col-12 flex-shrink-0 '>
-                <DataSelector
-                  columns={sourceColumns}
-                  dataSource={videoStreamsQuery.data}
-                  emptyMessage="No Streams"
-                  globalSearchEnabled={false}
-                  id='StreamingServerStatusPanel'
-                  isLoading={videoStreamsQuery.isLoading}
-                  showHeaders={false}
-                  style={{ height: 'calc(50vh - 40px)' }}
-                />
+                <DataView
+                  header={GetMessage("matches")}
+                  itemTemplate={itemTemplate}
+                  loading={videoStreamsQuery.isLoading || videoStreamsQuery.isFetching}
+                  paginator
+                  rows={25}
+                  value={videoStreamsQuery.data} />
               </div>
             </div>
           </div>

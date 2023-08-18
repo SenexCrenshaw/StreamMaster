@@ -25,8 +25,6 @@ public class UpdateStreamGroupRequestValidator : AbstractValidator<UpdateStreamG
     }
 }
 
-
-
 public class UpdateStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateStreamGroupRequest, StreamGroupDto?>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;

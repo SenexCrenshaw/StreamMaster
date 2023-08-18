@@ -15,11 +15,11 @@ namespace StreamMasterDomain.Repository
 
         IQueryable<VideoStream> GetVideoStreamsByM3UFileId(int m3uFileId);
 
-        Task SetGroupNameByGroupName(string channelGroupName, string newGroupName, CancellationToken cancellationToken);
+        Task<int> SetGroupNameByGroupName(string channelGroupName, string newGroupName, CancellationToken cancellationToken);
 
-        Task SetGroupVisibleByGroupName(string channelGroupName, bool isHidden, CancellationToken cancellationToken);
+        Task<int> SetGroupVisibleByGroupName(string channelGroupName, bool isHidden, CancellationToken cancellationToken);
 
-        Task<VideoStreamDto?> UpdateVideoStreamAsync(VideoStreamUpdate request, CancellationToken cancellationToken);
+        Task<bool> UpdateVideoStreamAsync(VideoStreamUpdate request, CancellationToken cancellationToken);
 
         Task<bool> SynchronizeChildRelationships(VideoStream videoStream, List<ChildVideoStreamDto> childVideoStreams, CancellationToken cancellationToken);
 

@@ -237,7 +237,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [Route("[action]")]
     public async Task<ActionResult> UpdateVideoStreams(UpdateVideoStreamsRequest request)
     {
-        _ = await Mediator.Send(request).ConfigureAwait(false);
+        await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
     }
 

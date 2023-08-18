@@ -5,6 +5,7 @@ namespace StreamMasterDomain.Repository
 {
     public interface IStreamGroupRepository
     {
+        Task SetGroupNameByGroupName(string channelGroupName, string newGroupName, CancellationToken cancellationToken);
         Task<List<StreamGroupDto>> GetStreamGroupDtos(string Url, CancellationToken cancellationToken = default);
 
         IQueryable<StreamGroup> GetAllStreamGroupsWithChannelGroups();

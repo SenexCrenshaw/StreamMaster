@@ -324,12 +324,7 @@ public partial class GetStreamGroupEPGHandler : BaseMemoryRequestHandler, IReque
 
     private bool IsNotInProgrammes(IEnumerable<Programme> programmes, VideoStreamDto videoStream)
     {
-        string userTvgId = videoStream.User_Tvg_ID.ToLower();
-        string userTvgIdDisplayName = videoStream.User_Tvg_ID_DisplayName.ToLower();
-
-        return !programmes.Any(p =>
-            string.Equals(p.Channel, userTvgId, StringComparison.InvariantCultureIgnoreCase) ||
-            string.Equals(p.Channel, userTvgIdDisplayName, StringComparison.InvariantCultureIgnoreCase));
+        return !programmes.Any(p => p.Channel == videoStream.User_Tvg_name || p.Channel == videoStream.User_Tvg_ID_DisplayName);
     }
 
     private bool IsVideoStreamADummy(VideoStreamDto videoStream)

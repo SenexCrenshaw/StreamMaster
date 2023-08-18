@@ -16,6 +16,7 @@ namespace StreamMasterApplication.ChannelGroups.Commands;
 
 public record UpdateChannelGroupCountRequest(string channelGroupName) : IRequest
 {
+
 }
 
 public class UpdateChannelGroupCountRequestValidator : AbstractValidator<UpdateChannelGroupCountRequest>

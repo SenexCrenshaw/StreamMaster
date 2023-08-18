@@ -6,7 +6,9 @@ using MediatR;
 
 using Microsoft.Extensions.Logging;
 
+using StreamMasterApplication.ChannelGroups.Events;
 using StreamMasterApplication.M3UFiles.Commands;
+using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Attributes;
 
@@ -48,10 +50,19 @@ public class CreateChannelGroupRequestHandler : BaseMediatorRequestHandler, IReq
         Repository.ChannelGroup.CreateChannelGroup(channelGroup);
         await Repository.SaveAsync().ConfigureAwait(false);
 
-        await Sender.Send(new UpdateChannelGroupCountRequest(channelGroup.Name), cancellationToken).ConfigureAwait(false);
-
+        if (string.IsNullOrEmpty(request.Regex))
+        {
+            await Repository.ChannelGroup.ChannelGroupCreateEmptyCount(channelGroup.Id).ConfigureAwait(false);
+        }
+        else
+        {
+            await Sender.Send(new UpdateChannelGroupCountRequest(channelGroup.Name), cancellationToken).ConfigureAwait(false);
+        }
 
         await Publisher.Publish(new AddChannelGroupEvent(), cancellationToken).ConfigureAwait(false);
-
+        if (!string.IsNullOrEmpty(request.Regex))
+        {
+            await Publisher.Publish(new UpdateVideoStreamEvent(), cancellationToken).ConfigureAwait(false);
+        }
     }
 }

@@ -37,7 +37,6 @@ import {
   type ReSetVideoStreamsLogoRequest,
   type Schedule,
   type SdStatus,
-  type SetChannelGroupsVisibleRequest,
   type SettingDto,
   type SetVideoStreamChannelNumbersRequest,
   type SetVideoStreamSetEpGsFromNameRequest,
@@ -70,10 +69,6 @@ export const GetChannelGroup = async (arg: number): Promise<ChannelGroupDto> => 
   const data = await hubConnection.invoke('GetChannelGroup', arg);
 
   return data;
-};
-
-export const SetChannelGroupsVisible = async (arg: SetChannelGroupsVisibleRequest): Promise<void> => {
-  await hubConnection.invoke('SetChannelGroupsVisible', arg);
 };
 
 export const UpdateChannelGroup = async (arg: UpdateChannelGroupRequest): Promise<void> => {

@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.SignalR;
 
+using StreamMasterApplication.ChannelGroups.Events;
 using StreamMasterApplication.Hubs;
 
 namespace StreamMasterApplication.ChannelGroups.EventHandlers;

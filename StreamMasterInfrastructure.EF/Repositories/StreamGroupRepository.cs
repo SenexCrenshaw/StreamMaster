@@ -42,6 +42,13 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
         }
         return null;
     }
+    public async Task SetGroupNameByGroupName(string channelGroupName, string newGroupName, CancellationToken cancellationToken)
+    {
+        await RepositoryContext.VideoStreams
+              .Where(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroupName)
+              .ExecuteUpdateAsync(s => s.SetProperty(b => b.User_Tvg_group, newGroupName), cancellationToken: cancellationToken)
+              .ConfigureAwait(false);
+    }
 
     public async Task<bool> AddChannelGroupToStreamGroupAsync(int streamGroupId, int channelGroupId, CancellationToken cancellationToken)
     {

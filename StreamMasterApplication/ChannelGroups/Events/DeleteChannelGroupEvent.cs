@@ -1,4 +1,4 @@
-﻿namespace StreamMasterApplication.Common.Events;
+﻿namespace StreamMasterApplication.ChannelGroups.Events;
 
 public class DeleteChannelGroupEvent : BaseEvent
 {

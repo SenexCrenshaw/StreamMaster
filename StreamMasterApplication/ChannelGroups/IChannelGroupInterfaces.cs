@@ -19,8 +19,6 @@ public interface IChannelGroupController
 
     Task<ActionResult<PagedResponse<ChannelGroupDto>>> GetChannelGroups(ChannelGroupParameters Parameters);
 
-    Task<ActionResult> SetChannelGroupsVisible(SetChannelGroupsVisibleRequest request);
-
     Task<ActionResult> UpdateChannelGroup(UpdateChannelGroupRequest request);
 
     Task<ActionResult> UpdateChannelGroups(UpdateChannelGroupsRequest request);
@@ -42,7 +40,6 @@ public interface IChannelGroupHub
 
     Task<PagedResponse<ChannelGroupDto>> GetChannelGroups(ChannelGroupParameters channelGroupParameters);
 
-    Task SetChannelGroupsVisible(SetChannelGroupsVisibleRequest request);
 
     Task UpdateChannelGroup(UpdateChannelGroupRequest request);
 

@@ -55,13 +55,14 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
     await p.then(() => {
 
       setInfoMessage('Channel Group Delete Successful');
-
-
+      props.onDelete?.(true);
     }).catch((error) => {
       setInfoMessage('Channel Group Delete Error: ' + error.message);
+      props.onDelete?.(false);
     });
 
-  }, [ReturnToParent, channelGroupsDeleteChannelGroupMutation, selectedChannelGroups]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedChannelGroups]);
 
   const isDisabled = React.useMemo((): boolean => {
     if (props.iconFilled !== true) {
@@ -134,6 +135,7 @@ ChannelGroupDeleteDialog.defaultProps = {
 
 type ChannelGroupDeleteDialogProps = {
   iconFilled?: boolean | undefined;
+  onDelete?: (result: boolean) => void;
   onHide?: () => void;
   value?: StreamMasterApi.ChannelGroupDto[] | undefined;
 };

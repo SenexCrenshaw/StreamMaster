@@ -1,19 +1,20 @@
 
 import React from "react";
-import * as StreamMasterApi from '../store/iptvApi';
 import { Button } from "primereact/button";
 
 import { getTopToolOptions } from "../common/common";
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
+import { type ChannelGroupDto, type UpdateChannelGroupRequest, type UpdateChannelGroupsRequest } from "../store/iptvApi";
+import { useChannelGroupsUpdateChannelGroupsMutation } from "../store/iptvApi";
 
 const ChannelGroupVisibleDialog = (props: ChannelGroupVisibleDialogProps) => {
 
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
-  const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[]);
+  const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
   const [infoMessage, setInfoMessage] = React.useState('');
 
-  const [channelGroupsSetChannelGroupsVisible] = StreamMasterApi.useChannelGroupsSetChannelGroupsVisibleMutation();
+  const [channelGroupsUpdateChannelGroupsMutation] = useChannelGroupsUpdateChannelGroupsMutation();
 
   const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);
@@ -37,15 +38,17 @@ const ChannelGroupVisibleDialog = (props: ChannelGroupVisibleDialogProps) => {
       return;
     }
 
-    const data = {} as StreamMasterApi.SetChannelGroupsVisibleRequest;
-    data.requests = selectedChannelGroups.map((item) => { return { groupName: item.name, isHidden: !item.isHidden }; });
-    channelGroupsSetChannelGroupsVisible(data).then(() => {
+    const data = {} as UpdateChannelGroupsRequest;
+
+    data.channelGroupRequests = selectedChannelGroups.map((item) => { return { channelGroupName: item.name, isHidden: !item.isHidden } as UpdateChannelGroupRequest; });
+
+    channelGroupsUpdateChannelGroupsMutation(data).then(() => {
       setInfoMessage('Channel Group Set Visibilty Successfully');
     }).catch((e) => {
       setInfoMessage('Channel Group Set Visibilty Error: ' + e.message);
     });
 
-  }, [ReturnToParent, channelGroupsSetChannelGroupsVisible, selectedChannelGroups]);
+  }, [ReturnToParent, channelGroupsUpdateChannelGroupsMutation, selectedChannelGroups]);
 
 
   if (props.skipOverLayer === true) {
@@ -135,7 +138,7 @@ type ChannelGroupVisibleDialogProps = {
   iconFilled?: boolean | undefined;
   onClose?: (() => void);
   skipOverLayer?: boolean | undefined;
-  value?: StreamMasterApi.ChannelGroupDto[] | null;
+  value?: ChannelGroupDto[] | null;
 };
 
 export default React.memo(ChannelGroupVisibleDialog);

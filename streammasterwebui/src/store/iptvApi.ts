@@ -72,17 +72,6 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/channelgroups/getchannelgroupnames` }),
         providesTags: ["ChannelGroups"],
       }),
-      channelGroupsSetChannelGroupsVisible: build.mutation<
-        ChannelGroupsSetChannelGroupsVisibleApiResponse,
-        ChannelGroupsSetChannelGroupsVisibleApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/channelgroups/setchannelgroupsvisible`,
-          method: "PUT",
-          body: queryArg,
-        }),
-        invalidatesTags: ["ChannelGroups"],
-      }),
       channelGroupsUpdateChannelGroup: build.mutation<
         ChannelGroupsUpdateChannelGroupApiResponse,
         ChannelGroupsUpdateChannelGroupApiArg
@@ -969,9 +958,6 @@ export type ChannelGroupsGetChannelGroupApiArg = number;
 export type ChannelGroupsGetChannelGroupNamesApiResponse =
   /** status 200  */ string[];
 export type ChannelGroupsGetChannelGroupNamesApiArg = void;
-export type ChannelGroupsSetChannelGroupsVisibleApiResponse = unknown;
-export type ChannelGroupsSetChannelGroupsVisibleApiArg =
-  SetChannelGroupsVisibleRequest;
 export type ChannelGroupsUpdateChannelGroupApiResponse = unknown;
 export type ChannelGroupsUpdateChannelGroupApiArg = UpdateChannelGroupRequest;
 export type ChannelGroupsUpdateChannelGroupsApiResponse = unknown;
@@ -1286,13 +1272,6 @@ export type PagedResponseOfChannelGroupDto = {
 };
 export type DeleteChannelGroupRequest = {
   groupName: string;
-};
-export type SetChannelGroupsVisibleArg = {
-  groupName?: string;
-  isHidden?: boolean;
-};
-export type SetChannelGroupsVisibleRequest = {
-  requests: SetChannelGroupsVisibleArg[];
 };
 export type UpdateChannelGroupRequest = {
   channelGroupName?: string;
@@ -1984,7 +1963,6 @@ export const {
   useChannelGroupsDeleteChannelGroupMutation,
   useChannelGroupsGetChannelGroupQuery,
   useChannelGroupsGetChannelGroupNamesQuery,
-  useChannelGroupsSetChannelGroupsVisibleMutation,
   useChannelGroupsUpdateChannelGroupMutation,
   useChannelGroupsUpdateChannelGroupsMutation,
   useEpgFilesCreateEpgFileMutation,

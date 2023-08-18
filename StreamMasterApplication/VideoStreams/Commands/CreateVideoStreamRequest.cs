@@ -43,10 +43,10 @@ public class CreateVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequ
 
     public async Task<VideoStreamDto?> Handle(CreateVideoStreamRequest request, CancellationToken cancellationToken)
     {
-        var setting = FileUtil.GetSetting();
+        Setting setting = FileUtil.GetSetting();
 
-        var group = string.IsNullOrEmpty(request.Tvg_group) ? "(None)" : request.Tvg_group;
-        var epgId = string.IsNullOrEmpty(request.Tvg_ID) ? "" : request.Tvg_ID;
+        string group = string.IsNullOrEmpty(request.Tvg_group) ? "(None)" : request.Tvg_group;
+        string epgId = string.IsNullOrEmpty(request.Tvg_ID) ? "" : request.Tvg_ID;
 
         VideoStream videoStream = new()
         {
@@ -81,6 +81,7 @@ public class CreateVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequ
         }
 
         VideoStreamDto ret = Mapper.Map<VideoStreamDto>(videoStream);
+
 
         await Publisher.Publish(new CreateVideoStreamEvent(ret), cancellationToken).ConfigureAwait(false);
         return ret;

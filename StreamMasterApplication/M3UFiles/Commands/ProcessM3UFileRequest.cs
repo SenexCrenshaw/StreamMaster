@@ -8,6 +8,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.ChannelGroups.Commands;
+using StreamMasterApplication.ChannelGroups.Events;
 
 using StreamMasterDomain.Extensions;
 
@@ -232,7 +233,7 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
 
         foreach (string? ng in newGroups)
         {
-            if (!channelGroups.Any(a => a.Name.ToLower() == ng.ToLower()))
+            if (!channelGroups.Any(a => a.Name == ng))
             {
                 //ChannelGroup channelGroup = new()
                 //{

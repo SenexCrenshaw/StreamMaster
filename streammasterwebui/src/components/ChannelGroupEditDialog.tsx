@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import React from "react";
 import * as StreamMasterApi from '../store/iptvApi';
 import { Button } from "primereact/button";
@@ -8,10 +6,8 @@ import { GetMessage, getTopToolOptions } from "../common/common";
 import { InputText } from "primereact/inputtext";
 import StringEditorBodyTemplate from "./StringEditorBodyTemplate";
 
-import { DataScroller } from 'primereact/datascroller';
 
-
-import { DataView, DataViewLayoutOptions } from 'primereact/dataview';
+import { DataView } from 'primereact/dataview';
 
 
 
@@ -45,7 +41,7 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
 
   const changeGroupName = React.useCallback(() => {
     setBlock(true);
-    if (!newGroupName || !props.value) {
+    if ((!regex && !newGroupName) || !props.value) {
       ReturnToParent();
       return;
     }

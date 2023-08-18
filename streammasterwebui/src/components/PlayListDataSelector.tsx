@@ -50,12 +50,23 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
     // console.debug('PlayListDataSelector: onSelectionChange: ' + newName);
   }, []);
 
+  const onSelectionChange = React.useCallback((data: StreamMasterApi.ChannelGroupDto[]) => {
+    setSelectedChannelGroups(data);
+    props.onSelectionChange?.(data);
+  }, [props]);
+
+  const onDelete = React.useCallback((result: boolean) => {
+    if (result === true) {
+      onSelectionChange([] as StreamMasterApi.ChannelGroupDto[]);
+    }
+  }, [onSelectionChange]);
+
   const sourceActionBodyTemplate = React.useCallback((data: StreamMasterApi.ChannelGroupDto) => (
 
     <div className='flex p-0 justify-content-end align-items-center'>
 
       <div hidden={data.isReadOnly === true && props.useReadOnly}>
-        <ChannelGroupDeleteDialog iconFilled={false} value={[data]} />
+        <ChannelGroupDeleteDialog iconFilled={false} onDelete={onDelete} value={[data]} />
       </div>
 
       <ChannelGroupEditDialog onClose={onNameChange} value={data} />
@@ -64,7 +75,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
     </div>
 
-  ), [onNameChange, props.useReadOnly]);
+  ), [onDelete, onNameChange, props.useReadOnly]);
 
   const sourceColumns = React.useMemo((): ColumnMeta[] => {
     return [
@@ -175,8 +186,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       }}
 
       onSelectionChange={(e) => {
-        setSelectedChannelGroups(e as StreamMasterApi.ChannelGroupDto[]);
-        props.onSelectionChange?.(e as StreamMasterApi.ChannelGroupDto[]);
+        onSelectionChange(e as StreamMasterApi.ChannelGroupDto[]);
       }}
 
       onSetSourceFilters={(filterInfo) => setFilter({ filters: filterInfo } as DataTableFilterEvent)}

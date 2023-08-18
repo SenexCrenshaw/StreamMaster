@@ -10,8 +10,6 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
   const [infoMessage, setInfoMessage] = React.useState('');
   const [selectedVideoStreams, setSelectedVideoStreams] = React.useState<StreamMasterApi.VideoStreamDto[]>([] as StreamMasterApi.VideoStreamDto[]);
 
-
-
   const [videoStreamsUpdateVideoStreams] = StreamMasterApi.useVideoStreamsUpdateVideoStreamsMutation();
 
 

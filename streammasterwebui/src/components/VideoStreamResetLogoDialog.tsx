@@ -2,13 +2,12 @@ import React from "react";
 import type * as StreamMasterApi from '../store/iptvApi';
 import * as Hub from '../store/signlar_functions';
 import { Button } from "primereact/button";
-import { Toast } from 'primereact/toast';
+
 import { getTopToolOptions } from "../common/common";
 import { ResetLogoIcon } from "../common/icons";
 
 
 const VideoStreamResetLogoDialog = (props: VideoStreamResetLogoDialogProps) => {
-  const toast = React.useRef<Toast>(null);
 
   const ReturnToParent = React.useCallback(() => {
     props.onClose?.();
@@ -27,46 +26,27 @@ const VideoStreamResetLogoDialog = (props: VideoStreamResetLogoDialogProps) => {
 
     await Hub.UpdateVideoStream(toSend)
       .then(() => {
-        if (toast.current) {
 
-          toast.current.show({
-            detail: `Updated Stream`,
-            life: 3000,
-            severity: 'success',
-            summary: 'Successful',
-          });
-
-        }
       }
-      ).catch((error) => {
-        if (toast.current) {
-          toast.current.show({
-            detail: `Update Stream Failed`,
-            life: 3000,
-            severity: 'error',
-            summary: 'Error ' + error.message,
-          });
-        }
+      ).catch(() => {
+
       });
 
   }, [ReturnToParent, props.value]);
 
   return (
-    <>
-      <Toast position="bottom-right" ref={toast} />
-      <Button
-        disabled={props.value?.tvg_logo === props.value?.user_Tvg_logo}
-        icon={<ResetLogoIcon sx={{ fontSize: 18 }} />}
-        onClick={async () =>
-          await onResetLogo()
-        }
-        rounded
-        size="small"
-        text={props.iconFilled !== true}
-        tooltip="Reset Logo From File"
-        tooltipOptions={getTopToolOptions}
-      />
-    </>
+    <Button
+      disabled={props.value?.tvg_logo === props.value?.user_Tvg_logo}
+      icon={<ResetLogoIcon sx={{ fontSize: 18 }} />}
+      onClick={async () =>
+        await onResetLogo()
+      }
+      rounded
+      size="small"
+      text={props.iconFilled !== true}
+      tooltip="Reset Logo From File"
+      tooltipOptions={getTopToolOptions}
+    />
   );
 }
 

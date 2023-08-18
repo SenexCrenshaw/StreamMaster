@@ -36,13 +36,6 @@ public partial class StreamMasterHub : IChannelGroupHub
         return ret;
     }
 
-
-
-    public async Task SetChannelGroupsVisible(SetChannelGroupsVisibleRequest request)
-    {
-        await _mediator.Send(request).ConfigureAwait(false);
-    }
-
     public async Task UpdateChannelGroup(UpdateChannelGroupRequest request)
     {
         await _mediator.Send(request).ConfigureAwait(false);
