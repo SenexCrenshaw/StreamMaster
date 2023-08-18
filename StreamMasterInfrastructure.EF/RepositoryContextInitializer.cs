@@ -27,6 +27,12 @@ public class RepositoryContextInitializer
             if (_context.Database.IsSqlite())
             {
                 await _context.Database.MigrateAsync().ConfigureAwait(false);
+                if (!_context.StreamGroups.Any(a => a.Name == "ALL"))
+                {
+                    _context.Add(new StreamGroup { Name = "ALL", IsReadOnly = true });
+                    await _context.SaveChangesAsync().ConfigureAwait(false);
+                }
+
                 if (!_context.ChannelGroups.Any(a => a.Name == "(None)"))
                 {
                     _context.Add(new ChannelGroup { Name = "(None)", IsReadOnly = true, Rank = 1 });

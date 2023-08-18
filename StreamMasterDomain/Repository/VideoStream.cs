@@ -37,7 +37,7 @@ public class VideoStream : IMapFrom<VideoStreamDto>, IMapFrom<ChildVideoStreamDt
     public ICollection<StreamGroupVideoStream> StreamGroups { get; set; }
 
     public StreamingProxyTypes StreamProxyType { get; set; } = StreamingProxyTypes.SystemDefault;
-
+    public string M3UFileName { get; set; }
     public int Tvg_chno { get; set; } = 0;
 
     public string Tvg_group { get; set; } = "All";
@@ -115,7 +115,7 @@ public class VideoStream : IMapFrom<VideoStreamDto>, IMapFrom<ChildVideoStreamDt
 
     public override string ToString()
     {
-        var properties = new List<string>
+        List<string> properties = new()
         {
             Id,
             Url,

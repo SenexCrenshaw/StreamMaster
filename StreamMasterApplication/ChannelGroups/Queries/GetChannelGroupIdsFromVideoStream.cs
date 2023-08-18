@@ -20,7 +20,7 @@ internal class GetChannelGroupIdsFromVideoStreamHandler : BaseMediatorRequestHan
     public async Task<List<int>> Handle(GetChannelGroupIdsFromVideoStream request, CancellationToken cancellationToken)
     {
 
-        List<int> ids = await Repository.ChannelGroup.GetChannelIdsFromVideoStream(request.VideoStreamDto).ConfigureAwait(false);
+        List<int> ids = await Repository.ChannelGroup.GetChannelIdsFromVideoStream(request.VideoStreamDto, cancellationToken).ConfigureAwait(false);
         return ids;
     }
 }

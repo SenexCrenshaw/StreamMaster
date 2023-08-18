@@ -60,6 +60,7 @@ public class BaseVideoStreamDto : IMapFrom<VideoStream>
     /// </summary>
     /// <value>The ID of the M3U file.</value>
     public int M3UFileId { get; set; }
+    public string M3UFileName { get; set; }
 
     /// <summary>
     /// Gets or sets the type of streaming proxy to use.

@@ -6,6 +6,7 @@ using MediatR;
 
 using Microsoft.Extensions.Logging;
 
+using StreamMasterApplication.ChannelGroups.Events;
 using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
@@ -31,6 +32,6 @@ public class CreateVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequ
     {
         await Repository.VideoStream.CreateVideoStreamAsync(request, cancellationToken);
         await Publisher.Publish(new CreateVideoStreamEvent(), cancellationToken).ConfigureAwait(false);
-
+        await Publisher.Publish(new UpdateChannelGroupEvent(), cancellationToken).ConfigureAwait(false);
     }
 }

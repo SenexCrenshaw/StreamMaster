@@ -189,24 +189,13 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
                 await Repository.SaveAsync().ConfigureAwait(false);
 
                 await AddChannelGroupsFromStreams(streams, cancellationToken).ConfigureAwait(false);
-                List<string> channelGroups = streams.Where(a => a.User_Tvg_group != null).Select(a => a.User_Tvg_group).Distinct().ToList();
-                await Sender.Send(new UpdateChannelGroupCountsRequest(channelGroups), cancellationToken).ConfigureAwait(false);
-            }
-            else
-            {
-                List<string> channelGroups = streams.Where(a => a.User_Tvg_group != null).Select(a => a.User_Tvg_group).Distinct().ToList();
-
-                IEnumerable<int> activeCounts = Repository.ChannelGroup.GetChannelGroupVideoStreamCounts().Select(a => a.Id);
-                List<ChannelGroup> cgs = Repository.ChannelGroup.GetAllChannelGroups()
-                    .Where(a => channelGroups.Contains(a.Name) && !activeCounts.Contains(a.Id)
-                    ).ToList();
-
-                if (cgs.Any())
-                {
-                    await Sender.Send(new UpdateChannelGroupCountsRequest(cgs.Select(a => a.Name).Distinct()), cancellationToken).ConfigureAwait(false);
-                }
 
             }
+
+            List<string> m3uChannelGroupNames = await Repository.M3UFile.GetChannelGroupNamesFromM3UFile(m3uFile.Id);
+            List<ChannelGroup> channelGroups = await Repository.ChannelGroup.GetChannelGroupsFromNames(m3uChannelGroupNames);
+
+            await Sender.Send(new UpdateChannelGroupCountsRequest(channelGroups.Select(a => a.Id)), cancellationToken).ConfigureAwait(false);
 
             sw.Stop();
             Logger.LogInformation($"Update of ID: {m3uFile.Id} {m3uFile.Name}, took {sw.Elapsed.TotalSeconds} seconds");
@@ -235,15 +224,11 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
         {
             if (!channelGroups.Any(a => a.Name == ng))
             {
-                //ChannelGroup channelGroup = new()
-                //{
-                //    Name = ng,
-                //    Rank = rank++,
-                //    IsReadOnly = true,
-                //};
-                //newGroupNames.Add(ng);
-                //Repository.ChannelGroup.CreateChannelGroup(channelGroup);
+#if HAS_REGEX
                 await Sender.Send(new CreateChannelGroupRequest(ng, rank++, null), cancellationToken).ConfigureAwait(false);
+#else
+                await Sender.Send(new CreateChannelGroupRequest(ng, rank++), cancellationToken).ConfigureAwait(false);
+#endif
             }
         }
 

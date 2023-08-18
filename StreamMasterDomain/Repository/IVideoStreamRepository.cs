@@ -5,6 +5,7 @@ namespace StreamMasterDomain.Repository
 {
     public interface IVideoStreamRepository : IRepositoryBase<VideoStream>
     {
+        IQueryable<VideoStream> GetJustVideoStreams();
         Task<bool> CreateVideoStreamAsync(CreateVideoStreamRequest request, CancellationToken cancellationToken);
         IQueryable<VideoStream> GetVideoStreamsById(string id);
         IQueryable<string> GetVideoStreamNames();
@@ -26,7 +27,7 @@ namespace StreamMasterDomain.Repository
 
         IQueryable<VideoStream> GetVideoStreamsByMatchingIds(IEnumerable<string> ids);
 
-        Task<PagedResponse<VideoStreamDto>> GetVideoStreamsForChannelGroups(VideoStreamParameters VideoStreamParameters, CancellationToken cancellationToken);
+        Task<PagedResponse<VideoStreamDto>> GetVideoStreams(VideoStreamParameters VideoStreamParameters, CancellationToken cancellationToken);
 
         IQueryable<VideoStream> GetAllVideoStreams();
 

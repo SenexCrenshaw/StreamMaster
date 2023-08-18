@@ -26,6 +26,12 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         return RepositoryContext.Set<T>().AsNoTracking();
     }
 
+    public IQueryable<VideoStream> FindAllVideoStream()
+    {
+        return RepositoryContext.Set<VideoStream>().AsNoTracking().Include(vs => vs.ChildVideoStreams)
+            .ThenInclude(vsl => vsl.ChildVideoStream);
+    }
+
     public async Task<PagedResponse<TDto>> GetEntitiesAsync<TDto>(QueryStringParameters parameters, IMapper mapper) where TDto : class
     {
         IQueryable<T> entities;
@@ -36,16 +42,37 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
             if (!string.IsNullOrEmpty(parameters.JSONFiltersString))
             {
                 List<DataTableFilterMetaData> filters = Utils.GetFiltersFromJSON(parameters.JSONFiltersString);
-                entities = FindByCondition(filters, parameters.OrderBy);
+                if (typeof(T) == typeof(VideoStream))
+                {
+                    entities = (IQueryable<T>)FindByConditionVideoStream(filters, parameters.OrderBy);
+                }
+                else
+                {
+                    entities = FindByCondition(filters, parameters.OrderBy);
+                }
+            }
+            else
+            {
+                if (typeof(T) == typeof(VideoStream))
+                {
+                    entities = (IQueryable<T>)FindAllVideoStream();
+                }
+                else
+                {
+                    entities = FindAll();
+                }
+            }
+        }
+        else
+        {
+            if (typeof(T) == typeof(VideoStream))
+            {
+                entities = (IQueryable<T>)FindAllVideoStream();
             }
             else
             {
                 entities = FindAll();
             }
-        }
-        else
-        {
-            entities = FindAll();
         }
 
         IPagedList<T> pagedResult = await entities.ToPagedListAsync(parameters.PageNumber, parameters.PageSize).ConfigureAwait(false);
@@ -82,6 +109,17 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         IQueryable<T> filteredAndSortedQuery = FilterHelper<T>.ApplyFiltersAndSort(query, filters, orderBy);
 
         return filteredAndSortedQuery.AsNoTracking();
+    }
+
+    public IQueryable<VideoStream> FindByConditionVideoStream(List<DataTableFilterMetaData>? filters, string orderBy)
+    {
+        DbSet<VideoStream> query = RepositoryContext.Set<VideoStream>();
+
+        // Apply filters and sorting
+        IQueryable<VideoStream> filteredAndSortedQuery = FilterHelper<VideoStream>.ApplyFiltersAndSort(query, filters, orderBy);
+
+        return filteredAndSortedQuery.AsNoTracking().Include(vs => vs.ChildVideoStreams)
+            .ThenInclude(vsl => vsl.ChildVideoStream);
     }
 
     public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression)

@@ -4,10 +4,10 @@ import { Button } from "primereact/button";
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
 import { GetMessage, getTopToolOptions } from "../common/common";
 import { InputText } from "primereact/inputtext";
-import StringEditorBodyTemplate from "./StringEditorBodyTemplate";
+// import StringEditorBodyTemplate from "./StringEditorBodyTemplate";
 
 
-import { DataView } from 'primereact/dataview';
+// import { DataView } from 'primereact/dataview';
 
 
 
@@ -15,11 +15,11 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
-  const [regex, setRegex] = React.useState<string | undefined>('');
+  // const [regex, setRegex] = React.useState<string | undefined>('');
   const [newGroupName, setNewGroupName] = React.useState('');
 
   const [channelGroupsUpdateChannelGroupMutation] = StreamMasterApi.useChannelGroupsUpdateChannelGroupMutation();
-  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamNamesByNamePatternQuery(regex ?? '');
+  // const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamNamesByNamePatternQuery(regex ?? '');
 
   const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);
@@ -33,15 +33,15 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
 
     if (props.value) {
       setNewGroupName(props.value.name);
-      if (props.value.regexMatch !== null)
-        setRegex(props.value.regexMatch);
+      // if (props.value.regexMatch !== null)
+      //   setRegex(props.value.regexMatch);
     }
 
   }, [props.value]);
 
   const changeGroupName = React.useCallback(() => {
     setBlock(true);
-    if ((!regex && !newGroupName) || !props.value) {
+    if (!newGroupName || !props.value) {
       ReturnToParent();
       return;
     }
@@ -51,9 +51,9 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
     toSend.channelGroupName = props.value?.name;
     toSend.newGroupName = newGroupName;
 
-    if (regex !== undefined && regex !== '') {
-      toSend.regex = regex;
-    }
+    // if (regex !== undefined && regex !== '') {
+    //   toSend.regex = regex;
+    // }
 
     channelGroupsUpdateChannelGroupMutation(toSend).then(() => {
       setInfoMessage('Channel Group Edit Successfully');
@@ -61,15 +61,15 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
       setInfoMessage('Channel Group Edit Error: ' + e.message);
     });
     setNewGroupName('');
-  }, [ReturnToParent, channelGroupsUpdateChannelGroupMutation, newGroupName, props.value, regex]);
+  }, [ReturnToParent, channelGroupsUpdateChannelGroupMutation, newGroupName, props.value]);
 
-  const itemTemplate = (data: string) => {
-    return (
-      <div className="flex flex-column flex-row align-items-start">
-        {data}
-      </div>
-    );
-  };
+  // const itemTemplate = (data: string) => {
+  //   return (
+  //     <div className="flex flex-column flex-row align-items-start">
+  //       {data}
+  //     </div>
+  //   );
+  // };
 
   return (
     <>
@@ -94,14 +94,14 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
               value={newGroupName}
             />
 
-            <StringEditorBodyTemplate
+            {/* <StringEditorBodyTemplate
               includeBorder
               onChange={(e) => {
                 setRegex(e)
               }}
               placeholder={GetMessage("channel group regex")}
               value={regex}
-            />
+            /> */}
 
             <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
               <Button
@@ -112,7 +112,7 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
                 severity="success"
               />
             </div>
-            <div hidden={regex === undefined || regex === ''}>
+            {/* <div hidden={regex === undefined || regex === ''}>
               <div className='m3uFilesEditor flex flex-column col-12 flex-shrink-0 '>
                 <DataView
                   header={GetMessage("matches")}
@@ -122,7 +122,7 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
                   rows={25}
                   value={videoStreamsQuery.data} />
               </div>
-            </div>
+            </div> */}
           </div>
         </div >
       </InfoMessageOverLayDialog>

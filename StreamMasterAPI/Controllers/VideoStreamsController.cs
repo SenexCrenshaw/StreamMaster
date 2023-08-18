@@ -60,14 +60,6 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         return data == null ? NotFound() : NoContent();
     }
 
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<PagedResponse<VideoStreamDto>>> GetVideoStreamsForChannelGroups([FromQuery] VideoStreamParameters videoStreamParameters)
-    {
-        PagedResponse<VideoStreamDto> res = await Mediator.Send(new GetVideoStreamsForChannelGroups(videoStreamParameters)).ConfigureAwait(false);
-        return Ok(res);
-    }
-
     [HttpPost]
     [Route("[action]")]
     public async Task<ActionResult> FailClient(FailClientRequest request)
@@ -241,22 +233,6 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     {
         await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
-    }
-
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<IEnumerable<VideoStreamDto>>> GetVideoStreamsByNamePattern([FromQuery] GetVideoStreamsByNamePatternQuery request)
-    {
-        IEnumerable<VideoStreamDto> result = await Mediator.Send(request).ConfigureAwait(false);
-        return Ok(result);
-    }
-
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<IEnumerable<string>>> GetVideoStreamNamesByNamePattern([FromQuery] GetVideoStreamNamesByNamePatternQuery request)
-    {
-        IEnumerable<string> result = await Mediator.Send(request).ConfigureAwait(false);
-        return Ok(result);
     }
 
 

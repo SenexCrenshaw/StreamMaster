@@ -2,10 +2,10 @@ import React from "react";
 import * as StreamMasterApi from '../store/iptvApi';
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
-import { GetMessage, getTopToolOptions } from "../common/common";
+
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
-import { DataView } from 'primereact/dataview';
-import StringEditorBodyTemplate from "./StringEditorBodyTemplate";
+import { getTopToolOptions } from "../common/common";
+
 
 const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
 
@@ -14,17 +14,17 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
   const [infoMessage, setInfoMessage] = React.useState('');
 
   const [newGroupName, setNewGroupName] = React.useState('');
-  const [regex, setRegex] = React.useState<string>('');
+  // const [regex, setRegex] = React.useState<string>('');
 
   const [channelGroupsCreateChannelGroupMutation] = StreamMasterApi.useChannelGroupsCreateChannelGroupMutation();
 
-  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamNamesByNamePatternQuery(regex ?? '');
+  // const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamNamesByNamePatternQuery(regex ?? '');
 
   const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);
     setInfoMessage('');
     setBlock(false);
-    setRegex('');
+    // setRegex('');
     setNewGroupName('');
     props.onHide?.(newGroupName);
   }, [newGroupName, props]);
@@ -39,9 +39,9 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
     const data = {} as StreamMasterApi.CreateChannelGroupRequest;
     data.groupName = newGroupName;
 
-    if (regex !== undefined && regex !== '') {
-      data.regex = regex;
-    }
+    // if (regex !== undefined && regex !== '') {
+    //   data.regex = regex;
+    // }
 
     channelGroupsCreateChannelGroupMutation(data).then(() => {
       setInfoMessage('Channel Group Added Successfully');
@@ -49,7 +49,7 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
       setInfoMessage('Channel Group Add Error: ' + e.message);
     });
 
-  }, [ReturnToParent, channelGroupsCreateChannelGroupMutation, newGroupName, regex]);
+  }, [ReturnToParent, channelGroupsCreateChannelGroupMutation, newGroupName]);
 
   React.useEffect(() => {
     const callback = (event: KeyboardEvent) => {
@@ -68,13 +68,13 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
     };
   }, [addGroup, newGroupName]);
 
-  const itemTemplate = (data: string) => {
-    return (
-      <div className="flex flex-column flex-row align-items-start">
-        {data}
-      </div>
-    );
-  };
+  // const itemTemplate = (data: string) => {
+  //   return (
+  //     <div className="flex flex-column flex-row align-items-start">
+  //       {data}
+  //     </div>
+  //   );
+  // };
 
   return (
     <>
@@ -97,14 +97,14 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
               placeholder="Group Name"
               value={newGroupName}
             />
-            <StringEditorBodyTemplate
+            {/* <StringEditorBodyTemplate
               includeBorder
               onChange={(e) => {
                 setRegex(e)
               }}
               placeholder={GetMessage("channel group regex")}
               value={regex}
-            />
+            /> */}
 
 
             <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
@@ -123,7 +123,7 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
                 severity="success"
               />
             </div>
-            <div hidden={regex === undefined || regex === ''}>
+            {/* <div hidden={regex === undefined || regex === ''}>
               <div className='m3uFilesEditor flex flex-column col-12 flex-shrink-0 '>
                 <DataView
                   header={GetMessage("matches")}
@@ -133,7 +133,7 @@ const ChannelGroupAddDialog = (props: ChannelGroupAddDialogProps) => {
                   rows={25}
                   value={videoStreamsQuery.data} />
               </div>
-            </div>
+            </div> */}
           </div>
         </div >
       </InfoMessageOverLayDialog >

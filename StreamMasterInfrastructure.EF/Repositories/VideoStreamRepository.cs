@@ -6,15 +6,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterApplication.ChannelGroups.Commands;
-using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.M3UFiles.Queries;
-using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
-using StreamMasterDomain.Filtering;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 
@@ -54,6 +51,7 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
             }
             childVideoStreamDto.MaxStreams = result.MaxStreams;
             childVideoStreamDto.M3UFileId = result.M3UFileId;
+
             return (videoStream.VideoStreamHandler, new List<ChildVideoStreamDto> { childVideoStreamDto });
         }
 
@@ -183,12 +181,16 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         try
         {
             await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await UpdateChannelGroupCountsFromStream(videoStream, cancellationToken).ConfigureAwait(false);
             return true;
         }
         catch (Exception)
         {
             return false;
         }
+
+
+
     }
 
     public async Task<int> SetGroupVisibleByGroupName(string channelGroupName, bool isHidden, CancellationToken cancellationToken)
@@ -253,32 +255,32 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
 
     public async Task<bool> CreateVideoStreamAsync(CreateVideoStreamRequest request, CancellationToken cancellationToken)
     {
-        Setting setting = FileUtil.GetSetting();
-        string group = string.IsNullOrEmpty(request.Tvg_group) ? "(None)" : request.Tvg_group;
-        string epgId = string.IsNullOrEmpty(request.Tvg_ID) ? "" : request.Tvg_ID;
+        //Setting setting = FileUtil.GetSetting();
+        //string group = string.IsNullOrEmpty(request.Tvg_group) ? "(None)" : request.Tvg_group;
+        //string epgId = string.IsNullOrEmpty(request.Tvg_ID) ? "" : request.Tvg_ID;
 
         VideoStream videoStream = new()
         {
             Id = IdConverter.GetID(),
             IsUserCreated = true,
 
-            Tvg_chno = request.Tvg_chno is null ? 0 : (int)request.Tvg_chno,
-            User_Tvg_chno = request.Tvg_chno is null ? 0 : (int)request.Tvg_chno,
+            //Tvg_chno = request.Tvg_chno is null ? 0 : (int)request.Tvg_chno,
+            //User_Tvg_chno = request.Tvg_chno is null ? 0 : (int)request.Tvg_chno,
 
-            Tvg_group = group,
-            User_Tvg_group = group,
+            //Tvg_group = group,
+            //User_Tvg_group = group,
 
-            Tvg_ID = epgId,
-            User_Tvg_ID = epgId,
+            //Tvg_ID = epgId,
+            //User_Tvg_ID = epgId,
 
-            Tvg_logo = request.Tvg_logo is null ? setting.StreamMasterIcon : request.Tvg_logo,
-            User_Tvg_logo = request.Tvg_logo is null ? setting.StreamMasterIcon : request.Tvg_logo,
+            //Tvg_logo = request.Tvg_logo is null ? setting.StreamMasterIcon : request.Tvg_logo,
+            //User_Tvg_logo = request.Tvg_logo is null ? setting.StreamMasterIcon : request.Tvg_logo,
 
-            Tvg_name = request.Tvg_name,
-            User_Tvg_name = request.Tvg_name,
+            //Tvg_name = request.Tvg_name,
+            //User_Tvg_name = request.Tvg_name,
 
-            Url = request.Url ?? string.Empty,
-            User_Url = request.Url ?? string.Empty
+            //Url = request.Url ?? string.Empty,
+            //User_Url = request.Url ?? string.Empty
         };
 
         videoStream = await UpdateVideoStreamValues(videoStream, request, cancellationToken).ConfigureAwait(false);
@@ -291,9 +293,17 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
             await SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
         }
 
-
+        await UpdateChannelGroupCountsFromStream(videoStream, cancellationToken).ConfigureAwait(false);
 
         return true;
+    }
+
+    private async Task UpdateChannelGroupCountsFromStream(VideoStream videoStream, CancellationToken cancellationToken)
+    {
+        //VideoStreamDto dto = _mapper.Map<VideoStreamDto>(videoStream);
+        //List<string> channelGroupNames = await _sender.Send(new GetChannelGroupIdsFromVideoStream(dto), cancellationToken).ConfigureAwait(false);
+        await _sender.Send(new UpdateChannelGroupCountRequest(videoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
+
     }
 
     public async Task<bool> UpdateVideoStreamAsync(UpdateVideoStreamRequest request, CancellationToken cancellationToken)
@@ -314,12 +324,13 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
             await SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
         }
 
+        await UpdateChannelGroupCountsFromStream(videoStream, cancellationToken).ConfigureAwait(false);
+
+
         return true;
     }
-    //private async Task<VideoStream> UpdateVideoStreamValues(VideoStream videoStream, VideoStreamUpdate request, CancellationToken cancellationToken)
-    //{
-    //}
-    private async Task<VideoStream> UpdateVideoStreamValues(VideoStream videoStream, VideoStreamBaseRequest request, CancellationToken cancellationToken)
+
+    private Task<VideoStream> UpdateVideoStreamValues(VideoStream videoStream, VideoStreamBaseRequest request, CancellationToken cancellationToken)
     {
         Setting setting = FileUtil.GetSetting();
 
@@ -373,12 +384,8 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         if (request.IsHidden != null && (videoStream.IsHidden != (bool)request.IsHidden || videoStream.IsUserCreated))
         {
             videoStream.IsHidden = (bool)request.IsHidden;
-            VideoStreamDto dto = _mapper.Map<VideoStreamDto>(videoStream);
-            List<int> channelGroupIds = await _sender.Send(new GetChannelGroupIdsFromVideoStream(dto), cancellationToken).ConfigureAwait(false);
-            await _sender.Send(new ChannelGroupsSetCountRequest(channelGroupIds, videoStream.IsHidden ? -1 : 1), cancellationToken).ConfigureAwait(false);
-
         }
-        return videoStream;
+        return Task.FromResult(videoStream);
     }
 
     private async Task RemoveNonExistingVideoStreamLinksAsync(string parentVideoStreamId, List<ChildVideoStreamDto> existingVideoStreamLinks, CancellationToken cancellationToken)
@@ -416,6 +423,11 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         }
 
         await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public IQueryable<VideoStream> GetJustVideoStreams()
+    {
+        return FindAll();
     }
 
     public IQueryable<VideoStream> GetAllVideoStreams()
@@ -464,44 +476,13 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
                     .Select(m => m.Groups[1].Value)
                     .ToList();
     }
-    public async Task<PagedResponse<VideoStreamDto>> GetVideoStreamsForChannelGroups(VideoStreamParameters VideoStreamParameters, CancellationToken cancellationToken)
+    public async Task<PagedResponse<VideoStreamDto>> GetVideoStreams(VideoStreamParameters VideoStreamParameters, CancellationToken cancellationToken)
     {
 
         PagedResponse<VideoStreamDto> filteredStreams = await GetVideoStreamsAsync(VideoStreamParameters, cancellationToken);
 
-        HashSet<string> ids = new(filteredStreams.Data.Select(a => a.Id));
-
-        List<string> channelGroupNames = filteredStreams.Data.Select(a => a.User_Tvg_group).Distinct().ToList();
-
-        if (!string.IsNullOrEmpty(VideoStreamParameters.JSONFiltersString))
-        {
-            List<DataTableFilterMetaData> filters = Utils.GetFiltersFromJSON(VideoStreamParameters.JSONFiltersString);
-            foreach (DataTableFilterMetaData? filter in filters.Where(a => a.MatchMode == "channelGroups"))
-            {
-                List<string> c = CleanUpFilterValue(filter.Value.ToString());
-                channelGroupNames.AddRange(c);
-            }
-        }
-
-        List<ChannelGroup> channelGroupNamesToCheck = RepositoryContext.ChannelGroups.Where(a => channelGroupNames.Contains(a.Name) && !string.IsNullOrEmpty(a.RegexMatch)).ToList();
-        foreach (ChannelGroup cg in channelGroupNamesToCheck)
-        {
-
-            if (cg != null && !string.IsNullOrEmpty(cg.RegexMatch))
-            {
-                IEnumerable<VideoStreamDto> reg = await _sender.Send(new GetVideoStreamsByNamePatternQuery(cg.RegexMatch), cancellationToken).ConfigureAwait(false);
-                List<VideoStreamDto> additionalStreams = reg.Where(a => !ids.Contains(a.Id)).ToList();
-
-                // Combine the lists
-                if (additionalStreams.Any())
-                {
-                    filteredStreams.Data.AddRange(additionalStreams);
-                    ids.UnionWith(additionalStreams.Select(a => a.Id));
-                }
-            }
-        }
         filteredStreams.Data = filteredStreams.Data.OrderByDescending(a => a.User_Tvg_name).ToList();
-        // Return the ordered list 
+
         return filteredStreams;
     }
 

@@ -19,6 +19,7 @@ public static class CacheKeys
     const string ListProgrammes = "ListProgrammes";
     const string ListProgrammesLogos = "ListProgrammesLogos";
     const string ListTVLogos = "ListTVLogos";
+    const string ListChannelGroupStreamCounts = "ListChannelGroupStreamCounts";
 
     static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
 
@@ -36,6 +37,18 @@ public static class CacheKeys
             return;
         }
 
+        if (data.GetType() == typeof(ChannelGroupStreamCount))
+        {
+            lock (_lock)
+            {
+                List<ChannelGroupStreamCount> datas = cache.ChannelGroupStreamCounts();
+                datas.Add((ChannelGroupStreamCount)data);
+
+                cache.Set(ListChannelGroupStreamCounts, datas, CacheEntryOptions);
+            }
+            return;
+        }
+
         if (data.GetType() == typeof(ChannelLogoDto))
         {
             List<ChannelLogoDto> datas = Get<ChannelLogoDto>(ListChannelLogos, cache);
@@ -45,6 +58,58 @@ public static class CacheKeys
         }
 
     }
+    public static void RemoveChannelGroupStreamCount(this IMemoryCache cache, int channelGroupId)
+    {
+
+        lock (_lock)
+        {
+            List<ChannelGroupStreamCount> datas = cache.ChannelGroupStreamCounts();
+            ChannelGroupStreamCount? data = datas.FirstOrDefault(x => x.Id == channelGroupId);
+            if (data != null)
+            {
+                datas.Remove(data);
+                cache.Set(ListChannelGroupStreamCounts, datas, CacheEntryOptions);
+            }
+        }
+
+
+    }
+    public static void Remove(this IMemoryCache cache, object data)
+    {
+
+        if (data.GetType() == typeof(ChannelGroupStreamCount))
+        {
+            lock (_lock)
+            {
+                List<ChannelGroupStreamCount> datas = cache.ChannelGroupStreamCounts();
+                datas.Remove((ChannelGroupStreamCount)data);
+                cache.Set(ListChannelGroupStreamCounts, datas, CacheEntryOptions);
+            }
+            return;
+        }
+
+    }
+
+    //public static void Update(this IMemoryCache cache, object data, object updateDatadata)
+    //{
+
+    //    if (data.GetType() == typeof(ChannelGroupStreamCount))
+    //    {
+    //        lock (_lock)
+    //        {
+    //            List<ChannelGroupStreamCount> items = cache.ChannelGroupStreamCounts();
+    //            ChannelGroupStreamCount? item = items.FirstOrDefault(x => x.Id == ((ChannelGroupStreamCount)data).Id);
+    //            if (item != null)
+    //            {
+    //                items.Remove(item);
+    //                items.Add((ChannelGroupStreamCount)updateDatadata);
+    //                cache.Set(ListChannelGroupStreamCounts, items, CacheEntryOptions);
+    //            }
+    //        }
+    //        return;
+    //    }
+
+    //}
 
     public static void AddProgrammeLogo(this IMemoryCache cache, IconFileDto icon)
     {
@@ -140,8 +205,6 @@ public static class CacheKeys
         return pn.Channel;
     }
 
-
-
     public static List<IconFileDto> GetIcons(this IMemoryCache cache, IMapper mapper)
     {
         if (!cache.TryGetValue(ListIconFiles, out List<IconFileDto>? cacheValue))
@@ -156,11 +219,43 @@ public static class CacheKeys
 
         return cacheValue ?? new List<IconFileDto>();
     }
-
-
     public static List<IconFileDto> Icons(this IMemoryCache cache)
     {
         return Get<IconFileDto>(ListIconFiles, cache);
+    }
+
+    public static List<ChannelGroupStreamCount> ChannelGroupStreamCounts(this IMemoryCache cache)
+    {
+        return Get<ChannelGroupStreamCount>(ListChannelGroupStreamCounts, cache);
+    }
+
+    public static void AddOrUpdateChannelGroupVideoStreamCounts(this IMemoryCache cache, List<ChannelGroupStreamCount> responses)
+    {
+        foreach (ChannelGroupStreamCount response in responses)
+        {
+            cache.AddOrUpdateChannelGroupVideoStreamCount(response);
+        }
+    }
+
+
+    public static void AddOrUpdateChannelGroupVideoStreamCount(this IMemoryCache cache, ChannelGroupStreamCount response)
+    {
+        List<ChannelGroupStreamCount> datas = cache.ChannelGroupStreamCounts();
+        ChannelGroupStreamCount? data = datas.FirstOrDefault(a => a.Id == response.Id);
+
+        if (data == null)
+        {
+            cache.Add(response);
+        }
+        else
+        {
+            datas.Remove(data);
+            data.ActiveCount = response.ActiveCount;
+            data.TotalCount = response.TotalCount;
+            data.HiddenCount = response.HiddenCount;
+            datas.Add(data);
+            cache.Set(ListChannelGroupStreamCounts, datas, CacheEntryOptions);
+        }
     }
 
     private static readonly object _lock = new();
@@ -211,6 +306,12 @@ public static class CacheKeys
             return ret.OrderBy(a => a.DisplayName);
         }
         return new List<ProgrammeNameDto>();
+    }
+
+    public static ChannelGroupStreamCount? GetChannelGroupVideoStreamCount(this IMemoryCache cache, int channelGroupId)
+    {
+        ChannelGroupStreamCount? ret = cache.ChannelGroupStreamCounts().FirstOrDefault(a => a.Id == channelGroupId);
+        return ret;
     }
 
     public static List<Programme> Programmes(this IMemoryCache cache)

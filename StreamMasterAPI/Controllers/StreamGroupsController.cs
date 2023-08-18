@@ -28,7 +28,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
     private readonly IMapper _mapper;
 
-    public static int GenerateMediaSequence()
+    private static int GenerateMediaSequence()
     {
         DateTime epochStart = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         TimeSpan elapsedTime = DateTime.UtcNow - epochStart;

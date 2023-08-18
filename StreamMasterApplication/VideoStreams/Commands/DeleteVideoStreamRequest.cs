@@ -6,6 +6,7 @@ using MediatR;
 
 using Microsoft.Extensions.Logging;
 
+using StreamMasterApplication.ChannelGroups.Events;
 using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
@@ -35,6 +36,7 @@ public class DeleteVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequ
         if (await Repository.VideoStream.DeleteVideoStreamAsync(request.Id, cancellationToken).ConfigureAwait(false))
         {
             await Publisher.Publish(new DeleteVideoStreamEvent(request.Id), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateChannelGroupEvent(), cancellationToken).ConfigureAwait(false);
             return request.Id;
         }
 

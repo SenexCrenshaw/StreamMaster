@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructureEF
@@ -21,7 +20,7 @@ namespace StreamMasterInfrastructureEF
         public DbSet<VideoStreamLink> VideoStreamLinks { get; set; }
         public DbSet<ChannelGroup> ChannelGroups { get; set; }
         public DbSet<VideoStream> VideoStreams { get; set; }
-        public DbSet<ChannelGroupStreamCount> ChannelGroupStreamCounts { get; set; }
+        //public DbSet<ChannelGroupStreamCount> ChannelGroupStreamCounts { get; set; }
 
         public DbSet<StreamGroupChannelGroup> StreamGroupChannelGroups { get; set; }
         public DbSet<StreamGroup> StreamGroups { get; set; }
@@ -51,6 +50,9 @@ namespace StreamMasterInfrastructureEF
                 .HasIndex(e => new { e.Name, e.IsHidden })
                 .HasDatabaseName("idx_Name_IsHidden");
 
+            modelBuilder.Entity<VideoStream>()
+              .HasIndex(e => e.User_Tvg_name)
+              .HasDatabaseName("IX_VideoStream_User_Tvg_name");
 
             base.OnModelCreating(modelBuilder);
         }

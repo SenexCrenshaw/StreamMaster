@@ -739,23 +739,6 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["VideoStreams"],
       }),
-      videoStreamsGetVideoStreamsForChannelGroups: build.query<
-        VideoStreamsGetVideoStreamsForChannelGroupsApiResponse,
-        VideoStreamsGetVideoStreamsForChannelGroupsApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/videostreams/getvideostreamsforchannelgroups`,
-          params: {
-            Name: queryArg.name,
-            PageNumber: queryArg.pageNumber,
-            PageSize: queryArg.pageSize,
-            OrderBy: queryArg.orderBy,
-            JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString,
-          },
-        }),
-        providesTags: ["VideoStreams"],
-      }),
       videoStreamsFailClient: build.mutation<
         VideoStreamsFailClientApiResponse,
         VideoStreamsFailClientApiArg
@@ -913,26 +896,6 @@ const injectedRtkApi = api
           body: queryArg,
         }),
         invalidatesTags: ["VideoStreams"],
-      }),
-      videoStreamsGetVideoStreamsByNamePattern: build.query<
-        VideoStreamsGetVideoStreamsByNamePatternApiResponse,
-        VideoStreamsGetVideoStreamsByNamePatternApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/videostreams/getvideostreamsbynamepattern`,
-          params: { pattern: queryArg },
-        }),
-        providesTags: ["VideoStreams"],
-      }),
-      videoStreamsGetVideoStreamNamesByNamePattern: build.query<
-        VideoStreamsGetVideoStreamNamesByNamePatternApiResponse,
-        VideoStreamsGetVideoStreamNamesByNamePatternApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/videostreams/getvideostreamnamesbynamepattern`,
-          params: { pattern: queryArg },
-        }),
-        providesTags: ["VideoStreams"],
       }),
     }),
     overrideExisting: false,
@@ -1176,16 +1139,6 @@ export type VideoStreamsChangeVideoStreamChannelApiArg =
   ChangeVideoStreamChannelRequest;
 export type VideoStreamsDeleteVideoStreamApiResponse = unknown;
 export type VideoStreamsDeleteVideoStreamApiArg = DeleteVideoStreamRequest;
-export type VideoStreamsGetVideoStreamsForChannelGroupsApiResponse =
-  /** status 200  */ PagedResponseOfVideoStreamDto;
-export type VideoStreamsGetVideoStreamsForChannelGroupsApiArg = {
-  name?: string;
-  pageNumber?: number;
-  pageSize?: number;
-  orderBy?: string;
-  jsonArgumentString?: string | null;
-  jsonFiltersString?: string | null;
-};
 export type VideoStreamsFailClientApiResponse = unknown;
 export type VideoStreamsFailClientApiArg = FailClientRequest;
 export type VideoStreamsGetAllStatisticsForAllUrlsApiResponse =
@@ -1236,16 +1189,9 @@ export type VideoStreamsUpdateVideoStreamApiResponse = unknown;
 export type VideoStreamsUpdateVideoStreamApiArg = UpdateVideoStreamRequest;
 export type VideoStreamsUpdateVideoStreamsApiResponse = unknown;
 export type VideoStreamsUpdateVideoStreamsApiArg = UpdateVideoStreamsRequest;
-export type VideoStreamsGetVideoStreamsByNamePatternApiResponse =
-  /** status 200  */ VideoStreamDto[];
-export type VideoStreamsGetVideoStreamsByNamePatternApiArg = string;
-export type VideoStreamsGetVideoStreamNamesByNamePatternApiResponse =
-  /** status 200  */ string[];
-export type VideoStreamsGetVideoStreamNamesByNamePatternApiArg = string;
 export type CreateChannelGroupRequest = {
   groupName: string;
   rank: number;
-  regex: string | null;
 };
 export type ChannelGroupStreamCount = {
   id?: number;
@@ -1258,7 +1204,6 @@ export type ChannelGroupArg = ChannelGroupStreamCount & {
   isReadOnly?: boolean | null;
   name: string;
   rank: number;
-  regexMatch?: string | null;
 };
 export type ChannelGroupDto = ChannelGroupArg & object;
 export type PagedResponseOfChannelGroupDto = {
@@ -1278,7 +1223,6 @@ export type UpdateChannelGroupRequest = {
   newGroupName?: string | null;
   isHidden?: boolean | null;
   rank?: number | null;
-  regex?: string | null;
 };
 export type UpdateChannelGroupsRequest = {
   channelGroupRequests: UpdateChannelGroupRequest[];
@@ -1718,7 +1662,6 @@ export type Setting = {
   videoStreamAlwaysUseEPGLogo?: boolean;
 };
 export type SettingDto = Setting & {
-  defaultIconDto?: IconFileDto;
   release?: string;
   version?: string;
 };
@@ -1792,6 +1735,7 @@ export type BaseVideoStreamDto = {
   isReadOnly: boolean;
   isUserCreated: boolean;
   m3UFileId: number;
+  m3UFileName: string;
   streamProxyType: StreamingProxyTypes;
   tvg_chno: number;
   tvg_group: string;
@@ -1862,32 +1806,23 @@ export type UpdateStreamGroupRequest = {
   videoStreams?: VideoStreamIsReadOnly[] | null;
   channelGroupNames?: string[] | null;
 };
-export type CreateVideoStreamRequest = {
-  tvg_name?: string;
+export type VideoStreamBaseRequest = {
+  isHidden?: boolean | null;
   tvg_chno?: number | null;
   tvg_group?: string | null;
   tvg_ID?: string | null;
   tvg_logo?: string | null;
+  tvg_name?: string | null;
   url?: string | null;
-  iptvChannelHandler?: number | null;
-  createChannel?: boolean | null;
   childVideoStreams?: ChildVideoStreamDto[] | null;
 };
+export type CreateVideoStreamRequest = VideoStreamBaseRequest & object;
 export type ChangeVideoStreamChannelRequest = {
   playingVideoStreamId?: string;
   newVideoStreamId?: string;
 };
 export type DeleteVideoStreamRequest = {
   id?: string;
-};
-export type PagedResponseOfVideoStreamDto = {
-  data: VideoStreamDto[];
-  pageNumber: number;
-  pageSize: number;
-  totalItemCount: number;
-  totalPageCount: number;
-  totalRecords: number;
-  first: number;
 };
 export type FailClientRequest = {
   clientId: string;
@@ -1919,6 +1854,15 @@ export type ChannelLogoDto = {
   epgFileId?: number;
   logoUrl?: string;
 };
+export type PagedResponseOfVideoStreamDto = {
+  data: VideoStreamDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalItemCount: number;
+  totalPageCount: number;
+  totalRecords: number;
+  first: number;
+};
 export type ReSetVideoStreamsLogoRequest = {
   ids?: string[];
 };
@@ -1935,25 +1879,11 @@ export type SetVideoStreamSetEpGsFromNameRequest = {
 export type SetVideoStreamsLogoToEpgRequest = {
   ids?: string[];
 };
-export type VideoStreamBaseUpdate = {
+export type UpdateVideoStreamRequest = VideoStreamBaseRequest & {
   id?: string;
-  tvg_chno?: number | null;
-  tvg_group?: string | null;
-  tvg_ID?: string | null;
-  tvg_logo?: string | null;
-  tvg_name?: string | null;
-  url?: string | null;
-};
-export type VideoStreamUpdate = VideoStreamBaseUpdate & {
-  childVideoStreams?: ChildVideoStreamDto[] | null;
-  isActive?: boolean | null;
-  isDeleted?: boolean | null;
-  isHidden?: boolean | null;
-  isReadOnly?: boolean | null;
   isUserCreated?: boolean | null;
   streamProxyType?: StreamingProxyTypes | null;
 };
-export type UpdateVideoStreamRequest = VideoStreamUpdate & object;
 export type UpdateVideoStreamsRequest = {
   videoStreamUpdates?: UpdateVideoStreamRequest[];
 };
@@ -2031,7 +1961,6 @@ export const {
   useVideoStreamsCreateVideoStreamMutation,
   useVideoStreamsChangeVideoStreamChannelMutation,
   useVideoStreamsDeleteVideoStreamMutation,
-  useVideoStreamsGetVideoStreamsForChannelGroupsQuery,
   useVideoStreamsFailClientMutation,
   useVideoStreamsGetAllStatisticsForAllUrlsQuery,
   useVideoStreamsGetChannelLogoDtosQuery,
@@ -2048,6 +1977,4 @@ export const {
   useVideoStreamsSimulateStreamFailureForAllMutation,
   useVideoStreamsUpdateVideoStreamMutation,
   useVideoStreamsUpdateVideoStreamsMutation,
-  useVideoStreamsGetVideoStreamsByNamePatternQuery,
-  useVideoStreamsGetVideoStreamNamesByNamePatternQuery,
 } = injectedRtkApi;

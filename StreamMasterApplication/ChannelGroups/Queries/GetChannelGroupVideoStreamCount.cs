@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
+using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.ChannelGroups.Queries;
@@ -25,6 +26,6 @@ internal class GetChannelGroupVideoStreamCountHandler : BaseMemoryRequestHandler
             return res;
         }
 
-        return Repository.ChannelGroup.GetChannelGroupVideoStreamCount(cg.Id);
+        return MemoryCache.GetChannelGroupVideoStreamCount(cg.Id);
     }
 }

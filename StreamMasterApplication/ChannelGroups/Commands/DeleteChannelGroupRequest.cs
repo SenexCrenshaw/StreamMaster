@@ -4,13 +4,14 @@ using FluentValidation;
 
 using MediatR;
 
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.ChannelGroups.Events;
-using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Attributes;
+using StreamMasterDomain.Cache;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
@@ -27,10 +28,10 @@ public class DeleteChannelGroupRequestValidator : AbstractValidator<DeleteChanne
     }
 }
 
-public class DeleteChannelGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<DeleteChannelGroupRequest, int?>
+public class DeleteChannelGroupRequestHandler : BaseMemoryRequestHandler, IRequestHandler<DeleteChannelGroupRequest, int?>
 {
-    public DeleteChannelGroupRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
+    public DeleteChannelGroupRequestHandler(ILogger<DeleteChannelGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
+        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
 
 
     public async Task<int?> Handle(DeleteChannelGroupRequest request, CancellationToken cancellationToken)
@@ -44,7 +45,7 @@ public class DeleteChannelGroupRequestHandler : BaseMediatorRequestHandler, IReq
 
         Repository.ChannelGroup.DeleteChannelGroup(channelGroup);
         await Repository.SaveAsync().ConfigureAwait(false);
-        await Repository.ChannelGroup.ChannelGroupRemoveCount(channelGroup.Id);
+        MemoryCache.RemoveChannelGroupStreamCount(channelGroup.Id);
         await Publisher.Publish(new DeleteChannelGroupEvent(channelGroup.Id), cancellationToken);
         await Publisher.Publish(new UpdateVideoStreamEvent(), cancellationToken);
 

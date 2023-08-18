@@ -4,10 +4,10 @@ using MediatR;
 
 using Microsoft.Extensions.Logging;
 
-using StreamMasterApplication.M3UFiles.Commands;
-
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
+
+using System.Diagnostics;
 
 namespace StreamMasterApplication.VideoStreams.Queries;
 
@@ -15,12 +15,16 @@ public record GetVideoStreamsForChannelGroups(VideoStreamParameters VideoStreamP
 
 internal class GetVideoStreamsForChannelGroupsHandler : BaseMediatorRequestHandler, IRequestHandler<GetVideoStreamsForChannelGroups, PagedResponse<VideoStreamDto>>
 {
-    public GetVideoStreamsForChannelGroupsHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+    public GetVideoStreamsForChannelGroupsHandler(ILogger<GetVideoStreamsForChannelGroups> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
         : base(logger, repository, mapper, publisher, sender) { }
 
     public async Task<PagedResponse<VideoStreamDto>> Handle(GetVideoStreamsForChannelGroups request, CancellationToken cancellationToken)
     {
-        PagedResponse<VideoStreamDto> ret = await Repository.VideoStream.GetVideoStreamsForChannelGroups(request.VideoStreamParameters, cancellationToken);
+        Stopwatch stopwatch = Stopwatch.StartNew();
+        PagedResponse<VideoStreamDto> ret = await Repository.VideoStream.GetVideoStreams(request.VideoStreamParameters, cancellationToken);
+        stopwatch.Stop();
+        Logger.LogInformation($"ElapsedMilliseconds: {stopwatch.ElapsedMilliseconds} ms got {ret.Data.Count} out of {ret.TotalItemCount}");
+
         return ret;
     }
 }

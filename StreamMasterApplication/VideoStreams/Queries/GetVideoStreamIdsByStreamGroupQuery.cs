@@ -6,8 +6,6 @@ using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.M3UFiles.Commands;
 
-using System.Text.RegularExpressions;
-
 namespace StreamMasterApplication.VideoStreams.Queries;
 
 public record GetVideoStreamIdsByStreamGroupQuery(int streamGroupId) : IRequest<List<string>> { }
@@ -21,6 +19,7 @@ internal class GetVideoStreamIdsByStreamGroupQueryHandler : BaseRequestHandler, 
 
     public async Task<List<string>> Handle(GetVideoStreamIdsByStreamGroupQuery request, CancellationToken cancellationToken)
     {
+
         // Fetch the stream group with associated channel groups
         StreamGroup? streamGroup = Repository.StreamGroup.GetAllStreamGroupsWithChannelGroups()
             .SingleOrDefault(sg => sg.Id == request.streamGroupId);
@@ -28,12 +27,6 @@ internal class GetVideoStreamIdsByStreamGroupQueryHandler : BaseRequestHandler, 
         {
             return new();
         }
-
-        // Compile all regexes
-        List<Regex> regexes = streamGroup.ChannelGroups
-            .Where(a => !string.IsNullOrEmpty(a.ChannelGroup.RegexMatch))
-            .Select(cg => new Regex(cg.ChannelGroup.RegexMatch, RegexOptions.ECMAScript | RegexOptions.IgnoreCase))
-            .ToList();
 
         // Fetch all channel group names
         List<string> channelGroupNames = streamGroup.ChannelGroups.Select(cg => cg.ChannelGroup.Name).ToList();
@@ -44,11 +37,18 @@ internal class GetVideoStreamIdsByStreamGroupQueryHandler : BaseRequestHandler, 
             .Select(vs => vs.Id)
             .ToList();
 
+#if HAS_REGEX
+  // Compile all regexes
+        List<Regex> regexes = streamGroup.ChannelGroups
+            .Where(a => !string.IsNullOrEmpty(a.ChannelGroup.RegexMatch))
+            .Select(cg => new Regex(cg.ChannelGroup.RegexMatch, RegexOptions.ECMAScript | RegexOptions.IgnoreCase))
+            .ToList();
         // If no regexes exist, return an empty list
         if (!regexes.Any() && !matchedIds.Any())
         {
             return new();
         }
+
 
         // Fetch all video streams
         IQueryable<VideoStream> allVideoStreams = Repository.VideoStream.GetAllVideoStreams();
@@ -62,5 +62,8 @@ internal class GetVideoStreamIdsByStreamGroupQueryHandler : BaseRequestHandler, 
         List<string> ret = matchingVideoStreamIds.Concat(matchedIds).Distinct().ToList();
 
         return ret;
+#else 
+        return matchedIds;
+#endif
     }
 }

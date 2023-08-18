@@ -34,7 +34,7 @@ public class M3UFileRepository : RepositoryBase<M3UFile>, IM3UFileRepository
                         .ToListAsync();
     }
 
-    public async Task<M3UFile> GetM3UFileByIdAsync(int Id)
+    public async Task<M3UFile?> GetM3UFileByIdAsync(int Id)
     {
         return await FindByCondition(m3uFile => m3uFile.Id.Equals(Id))
                          .FirstOrDefaultAsync();
@@ -47,7 +47,7 @@ public class M3UFileRepository : RepositoryBase<M3UFile>, IM3UFileRepository
         return m3uFiles.Sum(a => a.MaxStreamCount);
     }
 
-    public async Task<M3UFile> GetM3UFileBySourceAsync(string source)
+    public async Task<M3UFile?> GetM3UFileBySourceAsync(string source)
     {
         return await FindByCondition(m3uFile => m3uFile.Source.ToLower().Equals(source.ToLower()))
                           .FirstOrDefaultAsync();
@@ -59,6 +59,10 @@ public class M3UFileRepository : RepositoryBase<M3UFile>, IM3UFileRepository
 
     }
 
+    public async Task<List<string>> GetChannelGroupNamesFromM3UFile(int m3uFileId)
+    {
+        return await FindByCondition(m3uFile => m3uFile.Id == m3uFileId).Select(a => a.Name).Distinct().ToListAsync();
+    }
     public void UpdateM3UFile(M3UFile m3uFile)
     {
         Update(m3uFile);

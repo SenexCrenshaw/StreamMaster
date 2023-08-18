@@ -965,7 +965,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
               onCellEditComplete={col.handleOnCellEditComplete}
               showAddButton
               showApplyButton
-              showClearButton={col.filterType !== 'isHidden'}
+              showClearButton={props.showClearButton ?? col.filterType !== 'isHidden'}
               showFilterMatchModes
               showFilterMenu
               showFilterMenuOptions
@@ -1104,6 +1104,7 @@ export type DataSelector2Props<T> = {
   /**
    * Whether to show the selector column.
    */
+  showClearButton?: boolean | undefined;
   showHeaders?: boolean | undefined;
   showHidden?: boolean | null | undefined;
   showPagination?: boolean;

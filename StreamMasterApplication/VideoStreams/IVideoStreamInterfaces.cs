@@ -3,7 +3,6 @@
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.VideoStreams.Commands;
-using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
@@ -27,11 +26,7 @@ public interface IVideoStreamController
 
     Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id);
 
-    Task<ActionResult<IEnumerable<VideoStreamDto>>> GetVideoStreamsByNamePattern(GetVideoStreamsByNamePatternQuery request);
-    Task<ActionResult<PagedResponse<VideoStreamDto>>> GetVideoStreamsForChannelGroups([FromQuery] VideoStreamParameters videoStreamParameters);
-    Task<ActionResult<IEnumerable<string>>> GetVideoStreamNamesByNamePattern(GetVideoStreamNamesByNamePatternQuery request);
-
-    Task<ActionResult<PagedResponse<VideoStreamDto>>> GetVideoStreams(VideoStreamParameters Parameters);
+    Task<ActionResult<PagedResponse<VideoStreamDto>>> GetVideoStreams([FromQuery] VideoStreamParameters Parameters);
 
     Task<ActionResult> GetVideoStreamStream(string encodedId, string name, CancellationToken cancellationToken);
 
@@ -64,10 +59,6 @@ public interface IVideoStreamHub
 
     Task<PagedResponse<VideoStreamDto>> GetVideoStreams(VideoStreamParameters Parameters);
 
-    Task<IEnumerable<string>> GetVideoStreamNamesByNamePattern(GetVideoStreamNamesByNamePatternQuery request);
-
-    Task<IEnumerable<VideoStreamDto>> GetVideoStreamsByNamePattern(GetVideoStreamsByNamePatternQuery request);
-
     Task ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request);
 
     Task SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
@@ -79,7 +70,6 @@ public interface IVideoStreamHub
     Task UpdateVideoStream(UpdateVideoStreamRequest request);
 
     Task UpdateVideoStreams(UpdateVideoStreamsRequest request);
-    Task<PagedResponse<VideoStreamDto>> GetVideoStreamsForChannelGroups(VideoStreamParameters videoStreamParameters);
 }
 
 public interface IVideoStreamScoped

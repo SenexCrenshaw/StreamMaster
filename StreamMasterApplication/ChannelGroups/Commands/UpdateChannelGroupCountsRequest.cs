@@ -8,8 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMasterApplication.VideoStreams.Queries;
-
+using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
 
 using System.Collections.Concurrent;
@@ -17,7 +16,7 @@ using System.Diagnostics;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
-public record UpdateChannelGroupCountsRequest(IEnumerable<string>? channelGroupNames = null) : IRequest
+public record UpdateChannelGroupCountsRequest(IEnumerable<int>? channelGroupIds = null) : IRequest
 {
 }
 
@@ -45,7 +44,7 @@ public class UpdateChannelGroupCountsRequestHandler : BaseMemoryRequestHandler, 
         //Func<ChannelGroup, bool> channelGroupPredicate = request.channelGroupNames == null ?
         //(_ => true) :
         //(a => request.channelGroupNames.Contains(a.Name));
-        List<ChannelGroup> cgs = Repository.ChannelGroup.GetAllChannelGroups().Where(a => request.channelGroupNames == null || request.channelGroupNames.Contains(a.Name)).ToList();
+        List<ChannelGroup> cgs = Repository.ChannelGroup.GetAllChannelGroups().Where(a => request.channelGroupIds == null || request.channelGroupIds.Contains(a.Id)).ToList();
 
         // Fetch all video streams once.
         var allVideoStreams = await Repository.VideoStream.GetAllVideoStreams()
@@ -77,13 +76,14 @@ public class UpdateChannelGroupCountsRequestHandler : BaseMemoryRequestHandler, 
             HashSet<string> ids = new(videoStreamsForGroups[cg.Name]);
             int hiddenCount = hiddenCounts[cg.Name];
 
+#if HAS_REGEX
             if (!string.IsNullOrEmpty(cg.RegexMatch))
             {
                 IEnumerable<VideoStreamDto> reg = await Sender.Send(new GetVideoStreamsByNamePatternQuery(cg.RegexMatch), cancellationToken).ConfigureAwait(false);
                 hiddenCount += reg.Count(a => a.IsHidden && !ids.Contains(a.Id));
                 ids.UnionWith(reg.Select(a => a.Id));
             }
-
+#endif
             response.TotalCount = ids.Count;
             response.ActiveCount = ids.Count - hiddenCount;
             response.HiddenCount = hiddenCount;
@@ -93,10 +93,11 @@ public class UpdateChannelGroupCountsRequestHandler : BaseMemoryRequestHandler, 
         }).ToArray();
         await Task.WhenAll(tasks);
 
-        await Repository.ChannelGroup.AddOrUpdateChannelGroupVideoStreamCounts(channelGroupStreamCounts).ConfigureAwait(false);
+        MemoryCache.AddOrUpdateChannelGroupVideoStreamCounts(channelGroupStreamCounts);
 
+#if HAS_REGEX
         await Repository.SaveAsync().ConfigureAwait(false);
-
+#endif
         stopwatch.Stop();
         Logger.LogInformation($"UpdateChannelGroupCountsRequest took {stopwatch.ElapsedMilliseconds} ms");
     }

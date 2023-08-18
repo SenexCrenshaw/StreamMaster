@@ -2,17 +2,20 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StreamMasterInfrastructureEF;
 
 #nullable disable
 
-namespace StreamMasterInfrastructure.Persistence.Migrations
+namespace StreamMasterInfrastructureEF.Migrations.Repository
 {
     [DbContext(typeof(RepositoryContext))]
-    partial class RepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20230818200100_StreamGroup")]
+    partial class StreamGroup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.10");
@@ -290,10 +293,6 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
 
                     b.Property<int>("M3UFileId")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("M3UFileName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
 
                     b.Property<int>("StreamProxyType")
                         .HasColumnType("INTEGER");

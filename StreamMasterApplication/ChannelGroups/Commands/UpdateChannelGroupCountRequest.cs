@@ -8,8 +8,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.ChannelGroups.Queries;
-using StreamMasterApplication.VideoStreams.Queries;
 
+using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
@@ -50,6 +50,7 @@ public class UpdateChannelGroupCountRequestHandler : BaseMemoryRequestHandler, I
 
         int hiddenCount = videoStreamsForGroup.Count(a => a.IsHidden);
 
+#if HAS_REGEX
         // If a regex match pattern is defined for the channel group, fetch additional video streams.
         if (!string.IsNullOrEmpty(cg.RegexMatch))
         {
@@ -57,6 +58,7 @@ public class UpdateChannelGroupCountRequestHandler : BaseMemoryRequestHandler, I
             hiddenCount += reg.Count(a => a.IsHidden && !ids.Contains(a.Id));
             ids.UnionWith(reg.Select(a => a.Id));
         }
+#endif
 
         // Set the response values.
         response.TotalCount = ids.Count;
@@ -64,7 +66,7 @@ public class UpdateChannelGroupCountRequestHandler : BaseMemoryRequestHandler, I
         response.HiddenCount = hiddenCount;
         response.Id = cg.Id;
 
-        await Repository.ChannelGroup.AddOrUpdateChannelGroupVideoStreamCount(response).ConfigureAwait(false);
+        MemoryCache.AddOrUpdateChannelGroupVideoStreamCount(response);
 
     }
 }

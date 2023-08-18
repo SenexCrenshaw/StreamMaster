@@ -11,7 +11,7 @@ import { GroupIcon } from "../common/icons";
 import { Tooltip } from "primereact/tooltip";
 import IconSelector from "./IconSelector";
 import EPGSelector from "./EPGSelector";
-import { type VideoStreamsGetVideoStreamsApiArg, type StreamGroupsGetStreamGroupsApiArg, type VideoStreamDto, type ChildVideoStreamDto, type StreamGroupDto, type UpdateVideoStreamRequest, type UpdateStreamGroupRequest, type VideoStreamIsReadOnly } from "../store/iptvApi";
+import { type VideoStreamsGetVideoStreamsApiArg, type StreamGroupsGetStreamGroupsApiArg, type VideoStreamDto, type ChildVideoStreamDto, type StreamGroupDto, type UpdateVideoStreamRequest, type UpdateStreamGroupRequest, type VideoStreamIsReadOnly, useStreamGroupsUpdateStreamGroupMutation } from "../store/iptvApi";
 import { useVideoStreamsGetVideoStreamsQuery, useStreamGroupsGetStreamGroupsQuery, useVideoStreamsUpdateVideoStreamMutation } from "../store/iptvApi";
 
 const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
@@ -26,7 +26,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   const [isVideoStreamUpdating, setIsVideoStreamUpdating] = React.useState<boolean>(false);
   const [streamGroup, setStreamGroup] = React.useState<StreamGroupDto | undefined>(undefined);
 
-  const [streamGroupsUpdateStreamGroupMutation] = useVideoStreamsUpdateVideoStreamMutation();
+  const [streamGroupsUpdateStreamGroupMutation] = useStreamGroupsUpdateStreamGroupMutation();
 
   React.useEffect(() => {
     if (!props.streamGroup || props.streamGroup === undefined || streamGroupsQuery.data === undefined || streamGroupsQuery.data.data === undefined) {

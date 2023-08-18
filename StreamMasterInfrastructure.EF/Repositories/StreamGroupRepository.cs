@@ -6,7 +6,6 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
-using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Authentication;
@@ -134,6 +133,7 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
             }
             ret.ChildVideoStreams.AddRange(streams);
 
+#if HAS_REGEX
             ChannelGroupDto? cg = await _sender.Send(new GetChannelGroup(channegroup.ChannelGroupId), cancellationToken).ConfigureAwait(false);
 
             if (cg is not null && !string.IsNullOrEmpty(cg.RegexMatch))
@@ -149,6 +149,7 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
                     }
                 }
             }
+#endif
         }
 
         List<StreamGroupVideoStream> relationShips = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == streamGroup.Id).ToList();
@@ -434,24 +435,5 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
 
         return await GetEntitiesAsync<StreamGroupDto>(StreamGroupParameters, _mapper);
 
-        //IQueryable<StreamGroup> StreamGroups = FindAll();
-
-        //IQueryable<StreamGroup> sorderStreamGroups = _StreamGroupSortHelper.ApplySort(StreamGroups, StreamGroupParameters.OrderBy);
-
-        //IPagedList<StreamGroup> list = await sorderStreamGroups.ToPagedListAsync(StreamGroupParameters.PageNumber, StreamGroupParameters.PageSize).ConfigureAwait(false);
-
-        //List<StreamGroupDto> ret = new();
-
-        //foreach (int streamGroupId in list.Select(a => a.Id))
-        //{
-        //    StreamGroupDto? streamGroup = await GetStreamGroupDto(streamGroupId, Url);
-        //    if (streamGroup == null)
-        //        continue;
-        //    ret.Add(streamGroup);
-        //}
-
-        //IPagedList<StreamGroupDto> dtoList = await ret.ToPagedListAsync(StreamGroupParameters.PageNumber, StreamGroupParameters.PageSize).ConfigureAwait(false);
-
-        //return dtoList;
     }
 }

@@ -20,6 +20,6 @@ internal class GetVideoStreamsHandler : BaseRequestHandler, IRequestHandler<GetV
 
     public async Task<PagedResponse<VideoStreamDto>> Handle(GetVideoStreams request, CancellationToken cancellationToken)
     {
-        return await Repository.VideoStream.GetVideoStreamsForChannelGroups(request.Parameters, cancellationToken).ConfigureAwait(false);
+        return await Repository.VideoStream.GetVideoStreams(request.Parameters, cancellationToken).ConfigureAwait(false);
     }
 }

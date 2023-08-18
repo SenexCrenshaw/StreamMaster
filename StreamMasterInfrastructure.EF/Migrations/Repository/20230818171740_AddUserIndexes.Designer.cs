@@ -11,8 +11,8 @@ using StreamMasterInfrastructureEF;
 namespace StreamMasterInfrastructureEF.Migrations.Repository
 {
     [DbContext(typeof(RepositoryContext))]
-    [Migration("20230816214253_Counts")]
-    partial class Counts
+    [Migration("20230818171740_AddUserIndexes")]
+    partial class AddUserIndexes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -81,6 +81,12 @@ namespace StreamMasterInfrastructureEF.Migrations.Repository
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .HasDatabaseName("idx_Name");
+
+                    b.HasIndex("Name", "IsHidden")
+                        .HasDatabaseName("idx_Name_IsHidden");
 
                     b.ToTable("ChannelGroups");
                 });
@@ -358,6 +364,15 @@ namespace StreamMasterInfrastructureEF.Migrations.Repository
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("User_Tvg_group")
+                        .HasDatabaseName("idx_User_Tvg_group");
+
+                    b.HasIndex("User_Tvg_name")
+                        .HasDatabaseName("IX_VideoStream_User_Tvg_name");
+
+                    b.HasIndex("User_Tvg_group", "IsHidden")
+                        .HasDatabaseName("idx_User_Tvg_group_IsHidden");
 
                     b.ToTable("VideoStreams");
                 });

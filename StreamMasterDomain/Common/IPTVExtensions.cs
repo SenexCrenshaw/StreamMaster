@@ -53,7 +53,7 @@ public static partial class IPTVExtensions
             }
 
             VideoStream.M3UFileId = Id;
-
+            VideoStream.M3UFileName = Name;
             VideoStream.IsHidden = false;
 
             VideoStream.User_Tvg_logo = VideoStream.Tvg_logo;

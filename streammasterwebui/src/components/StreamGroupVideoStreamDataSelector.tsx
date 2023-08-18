@@ -29,7 +29,7 @@ import { type DataTableFilterEvent } from "primereact/datatable";
 import { type VideoStreamDto, type VideoStreamsGetVideoStreamsApiArg, type ChannelNumberPair, type UpdateVideoStreamRequest, type ChannelGroupDto } from "../store/iptvApi";
 import { useVideoStreamsGetVideoStreamsQuery } from "../store/iptvApi";
 
-const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
+const StreamGroupVideoStreamDataSelector = (props: StreamGroupVideoStreamDataSelectorProps) => {
 
   const [enableEditMode, setEnableEditMode] = React.useState<boolean>(true);
 
@@ -447,7 +447,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       dataSource={videoStreamsQuery.data}
       emptyMessage="No Streams"
       headerRightTemplate={props.showBrief === true ? rightHeaderBriefTemplate : rightHeaderTemplate}
-      id={props.id + 'VideoStreamDataSelector'}
+      id={props.id + 'StreamGroupVideoStreamDataSelector'}
       isLoading={videoStreamsQuery.isLoading || videoStreamsQuery.isFetching}
       leftColSize={1}
       name={GetMessage('streams')}
@@ -488,12 +488,12 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   );
 }
 
-VideoStreamDataSelector.displayName = 'Stream Editor';
-VideoStreamDataSelector.defaultProps = {
+StreamGroupVideoStreamDataSelector.displayName = 'Stream Editor';
+StreamGroupVideoStreamDataSelector.defaultProps = {
   channelGroups: [] as ChannelGroupDto[],
 };
 
-export type VideoStreamDataSelectorProps = {
+export type StreamGroupVideoStreamDataSelectorProps = {
   channelGroups?: ChannelGroupDto[];
   enableEditMode?: boolean;
   id: string;
@@ -501,4 +501,4 @@ export type VideoStreamDataSelectorProps = {
   showBrief?: boolean;
 };
 
-export default React.memo(VideoStreamDataSelector);
+export default React.memo(StreamGroupVideoStreamDataSelector);

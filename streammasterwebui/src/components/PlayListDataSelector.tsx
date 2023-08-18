@@ -20,9 +20,10 @@ import DataSelector2 from "../features/dataSelector2/DataSelector2";
 import { type DataTableFilterEvent } from "primereact/datatable";
 
 const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
+  const id = props.id + '-PlayListDataSelector';
 
   const [dataSource, setDataSource] = React.useState({} as StreamMasterApi.PagedResponseOfChannelGroupDto);
-  const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-PlayListDataSelector-showHidden');
+  const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, id + '-showHidden');
 
   const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[]);
 
@@ -175,7 +176,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       emptyMessage="No Groups"
       headerRightTemplate={props.hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
       hideControls={props.hideControls}
-      id={props.id + 'DataSelector'}
+      id={id + 'DataSelector'}
       isLoading={channelGroupsQuery.isLoading || channelGroupsQuery.isFetching}
       name={props.name === undefined ? 'Playlist' : props.name}
       onFilter={(filterInfo) => {

@@ -14,6 +14,11 @@
   width: 20vw !important;
 }
 
+.p-filter-column {
+  padding: 0 !important;
+  padding-left: 1rem !important;
+}
+
 .p-button.p-component.p-button-rounded.min-h-3rem.p-button-danger.p-button-icon-only {
   height: 2rem !important;
   padding: 0 !important;

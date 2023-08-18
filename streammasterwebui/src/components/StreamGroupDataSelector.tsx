@@ -1,17 +1,21 @@
 import * as StreamMasterApi from '../store/iptvApi';
 import { type CSSProperties } from "react";
 import React from "react";
-import DataSelector from "../features/dataSelector/DataSelector";
+
 import { Toast } from 'primereact/toast';
-import { type ColumnMeta } from '../features/dataSelector/DataSelectorTypes';
+
 import StreamGroupAddDialog from './StreamGroupAddDialog';
 import StreamGroupEditDialog from './StreamGroupEditDialog';
 import StreamGroupDeleteDialog from './StreamGroupDeleteDialog';
+import DataSelector2 from '../features/dataSelector2/DataSelector2';
+import { type ColumnMeta } from '../features/dataSelector2/DataSelectorTypes2';
 
 
 const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
   const toast = React.useRef<Toast>(null);
+
   const streamGroupsQuery = StreamMasterApi.useStreamGroupsGetStreamGroupsQuery({} as StreamMasterApi.StreamGroupsGetStreamGroupsApiArg);
+
   const [selectedStreamGroup, setSelectedStreamGroup] = React.useState<StreamMasterApi.StreamGroupDto>({} as StreamMasterApi.StreamGroupDto);
 
   React.useMemo(() => {
@@ -103,9 +107,9 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
     <>
       <Toast position="bottom-right" ref={toast} />
 
-      <DataSelector
+      <DataSelector2
         columns={StreamGroupColumns}
-        dataSource={streamGroupsQuery.data?.data}
+        dataSource={streamGroupsQuery.data}
         headerRightTemplate={sourceaddtionalHeaderTemplate()}
         id={props.id + '-ds-source'}
         isLoading={streamGroupsQuery.isLoading}
@@ -114,7 +118,6 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
           onSetStreamGroup(e as StreamMasterApi.StreamGroupDto);
         }
         }
-        sortField='rank'
         style={{ height: 'calc(100vh - 40px)' }}
       />
     </>
