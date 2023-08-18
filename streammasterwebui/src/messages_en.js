@@ -1,5 +1,7 @@
 // messages_en.js
 export default {
+  add: 'Add',
+  added: 'Added',
   adminPassword:"Admin Password",
   adminUserName: "Admin Username",
   all: 'All',

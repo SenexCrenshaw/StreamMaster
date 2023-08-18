@@ -21,6 +21,7 @@ import FilesEditor from './features/filesEditor/FilesEditor';
 import LogViewer from './features/logViewer/LogViewer';
 import SDEditor from './features/sdEditor/SDEditor';
 import TestPanel from './features/testPanel/TestPanel';
+import StreamMasterSetting from './store/signlar/StreamMasterSetting';
 
 // import SDEditor from './features/sdEditor/SDEditor';
 
@@ -29,6 +30,7 @@ const App = () => {
   const messages = locale === 'en' ? messagesEn : messagesEn;
   const [hubConnected, setHubConnected] = React.useState<boolean>(false);
   const systemStatus = StreamMasterApi.useSettingsGetSystemStatusQuery();
+  const setting = StreamMasterSetting();
 
   const systemReady = React.useMemo((): boolean => {
     if (!hubConnected) {
@@ -39,9 +41,13 @@ const App = () => {
       return false;
     }
 
+    if (setting.isLoading || setting.defaultIcon === '') {
+      return false;
+    }
+
     return systemStatus.data.isSystemReady;
 
-  }, [hubConnected, systemStatus.data]);
+  }, [hubConnected, setting, systemStatus.data]);
 
 
   const router = createBrowserRouter(

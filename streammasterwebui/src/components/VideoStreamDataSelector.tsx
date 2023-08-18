@@ -86,6 +86,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         <VideoStreamSetEPGFromNameDialog value={data} />
         <VideoStreamSetIconFromEPGDialog value={data} />
         <VideoStreamVisibleDialog iconFilled={false} skipOverLayer values={[data]} />
+        <VideoStreamDeleteDialog iconFilled={false} value={data} />
         <VideoStreamEditDialog iconFilled={false} value={data} />
       </div>
     );
@@ -292,7 +293,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         <VideoStreamVisibleDialog iconFilled values={selectedVideoStreams} />
 
         <VideoStreamDeleteDialog values={selectedVideoStreams} />
-
+        {JSON.stringify(props.channelGroups?.length ?? -1)}
         <VideoStreamAddPanel group={props.channelGroups !== undefined && props.channelGroups.length > 0 ? props.channelGroups[0].name : undefined} />
 
       </div>

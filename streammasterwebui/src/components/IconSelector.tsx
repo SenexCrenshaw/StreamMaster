@@ -48,34 +48,41 @@ const IconSelector = (props: IconSelectorProps) => {
   }, [filter]);
 
   useEffect(() => {
-    if (filteredIcons.data?.data !== undefined && filteredIcons.data.data.length > 0) {
-      setOldDataSource([...dataSource]);
+    if (filter) {
+      const filteredData = filteredIcons.data?.data;
+      if (filteredData && filteredData.length > 0) {
+        setOldDataSource([...dataSource]);
 
-      const newDataSource = [] as IconFileDto[];
-      filteredIcons.data.data.forEach(function (cn) {
-        const foundIndex = newDataSource.findIndex((x) => x.id === cn.id || x.source === cn.source);
-        if (foundIndex === -1) {
-          newDataSource.push(cn);
-        }
-      });
+        // Create a set of ids/sources for faster lookups
+        const existingIds = new Set(dataSource.map(x => x.id));
+        const existingSources = new Set(dataSource.map(x => x.source));
 
-      setIndex(newDataSource.length);
-      setDataSource(newDataSource);
+        const newItems = filteredData.filter(cn =>
+          cn?.id && (!existingIds.has(cn.id) || !existingSources.has(cn.source))
+        );
+
+        setDataSource([...newItems]);
+        setIndex(newItems.length);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredIcons]);
+
 
   useEffect(() => {
     if (icons.data !== undefined && icons.data.length > 0) {
       if (!areIconFileDtosEqual(icons.data, dataSource)) {
 
-        const newDataSource = [...dataSource];
-        icons.data.forEach(function (cn) {
-          const foundIndex = newDataSource.findIndex((x) => x.id === cn.id || x.source === cn.source);
-          if (foundIndex === -1) {
-            newDataSource.push(cn);
-          }
-        });
+        const existingIds = new Set(dataSource.map(x => x.id));
+        const existingSources = new Set(dataSource.map(x => x.source));
+
+        const newItems = icons.data.filter(cn =>
+          cn?.id && (!existingIds.has(cn.id) || !existingSources.has(cn.source))
+        );
+
+        // Use spread operator to combine arrays
+        const newDataSource = [...dataSource, ...newItems]
+
         setIndex(newDataSource.length);
         setDataSource(newDataSource);
       }
@@ -84,25 +91,29 @@ const IconSelector = (props: IconSelectorProps) => {
   }, [icons.data]);
 
   useEffect(() => {
-    if (props.value !== undefined) {
-      console.debug(props.value)
-      setSelectedIcon(props.value);
-      GetIconFromSource(props.value).then
-        (x => {
-          if (x !== undefined) {
-            const newDataSource = [...dataSource];
-            const foundIndex = newDataSource.findIndex((item) => item.id === x.id);
-            if (foundIndex === -1) {
-              newDataSource.push(x);
-            }
+    const fetchAndSetIcon = async () => {
+      if (!props.value) return; // Check for undefined, null, or empty string
 
-            setIndex(newDataSource.length);
-            setDataSource(newDataSource);
+      setSelectedIcon(props.value);
+      try {
+        const icon = await GetIconFromSource(props.value);
+        if (icon) {
+          const existingIds = new Set(dataSource.map(item => item.id));
+
+          if (!existingIds.has(icon.id)) {
+            setDataSource(prevDataSource => [...prevDataSource, icon]);
+            setIndex(prevIndex => prevIndex + 1);
           }
-        }).catch(e => console.error(e));
-    }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    void fetchAndSetIcon();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.value]);
+
 
 
   const onChange = useCallback((event: DropdownChangeEvent) => {
@@ -125,7 +136,8 @@ const IconSelector = (props: IconSelectorProps) => {
       return (<div />);
     }
 
-    const iconUrl = getIconUrl(selectedIcon, setting.defaultIconUrl, false);
+    const iconUrl = getIconUrl(selectedIcon, setting.defaultIcon, false);
+
     return (
       <div className=' max-h-1rem justify-content-start align-items-center p-0 m-0 pl-2'>
 
@@ -140,7 +152,7 @@ const IconSelector = (props: IconSelectorProps) => {
         />
       </div>
     );
-  }, [props.useDefault, selectedIcon, setting.defaultIconUrl]);
+  }, [props.useDefault, selectedIcon, setting]);
 
   const iconOptionTemplate = useCallback((option: IconFileDto) => {
 
@@ -201,7 +213,6 @@ const IconSelector = (props: IconSelectorProps) => {
   };
 
   const onFilter = (event: DropdownFilterEvent) => {
-    console.debug(event);
     const tosend = [] as DataTableFilterMetaData[];
     addOrUpdateValueForField(tosend, 'name', 'contains', event.filter);
     setFilter(JSON.stringify(tosend));
@@ -241,7 +252,6 @@ const IconSelector = (props: IconSelectorProps) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onLazyLoad: (e: any) => {
             if (e.filter === '' && e.last as number >= index) {
-              console.debug(index, e, (e.last as number + 100));
               let firstRecord = e.first as number < index ? index : e.first as number;
               setFirst(firstRecord);
               setLast((e.last as number + 100));

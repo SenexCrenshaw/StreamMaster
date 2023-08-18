@@ -36,12 +36,12 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
     }
 
     const promises = [];
-
+    const groupNames = [] as string[];
     for (const group of selectedChannelGroups.filter((a) => !a.isReadOnly)) {
 
       const data = {} as StreamMasterApi.DeleteChannelGroupRequest;
       data.groupName = group.name;
-
+      groupNames.push(group.name);
       promises.push(
         channelGroupsDeleteChannelGroupMutation(data)
           .then(() => {
@@ -55,10 +55,10 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
     await p.then(() => {
 
       setInfoMessage('Channel Group Delete Successful');
-      props.onDelete?.(true);
+      props.onDelete?.(groupNames);
     }).catch((error) => {
       setInfoMessage('Channel Group Delete Error: ' + error.message);
-      props.onDelete?.(false);
+      props.onDelete?.(undefined);
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -135,7 +135,7 @@ ChannelGroupDeleteDialog.defaultProps = {
 
 type ChannelGroupDeleteDialogProps = {
   iconFilled?: boolean | undefined;
-  onDelete?: (result: boolean) => void;
+  onDelete?: (results: string[] | undefined) => void;
   onHide?: () => void;
   value?: StreamMasterApi.ChannelGroupDto[] | undefined;
 };

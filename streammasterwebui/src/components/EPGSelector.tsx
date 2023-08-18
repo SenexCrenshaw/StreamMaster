@@ -19,13 +19,13 @@ const EPGSelector = (props: EPGSelectorProps) => {
       return;
     }
 
+    console.debug('EPGSelector', programmeNamesQuery.data.length);
     const newData = [...programmeNamesQuery.data];
     newData.unshift({ displayName: '<Blank>' });
+    console.debug('EPGSelector', newData.length);
+
     setDataSource(newData);
 
-    return () => {
-      setDataSource([]);
-    };
 
   }, [programmeNamesQuery.data]);
 
@@ -55,6 +55,7 @@ const EPGSelector = (props: EPGSelectorProps) => {
   const onEPGChange = React.useCallback(async (displayName: string) => {
 
     if (props.data === undefined || props.data.id === '') {
+      props.onChange?.(displayName);
       return;
     }
 

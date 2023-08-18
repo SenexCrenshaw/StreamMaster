@@ -42,6 +42,7 @@ const VideoStreamAddDialog = (props: VideoStreamAddDialogProps) => {
     <>
       <InfoMessageOverLayDialog
         blocked={block}
+        closable
         header="Add Video Stream"
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
@@ -51,7 +52,6 @@ const VideoStreamAddDialog = (props: VideoStreamAddDialogProps) => {
 
         <VideoStreamPanel
           group={props.group}
-          onClose={() => ReturnToParent()}
           onSave={async (e) => await onSave(e)}
         />
 

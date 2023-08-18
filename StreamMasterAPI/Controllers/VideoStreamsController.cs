@@ -16,6 +16,7 @@ using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
 using StreamMasterDomain.Pagination;
+using StreamMasterDomain.Repository;
 
 using System.Web;
 
@@ -39,7 +40,8 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [Route("[action]")]
     public async Task<ActionResult> CreateVideoStream(CreateVideoStreamRequest request)
     {
-        return Ok(await Mediator.Send(request).ConfigureAwait(false));
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
     }
 
     [HttpPost]

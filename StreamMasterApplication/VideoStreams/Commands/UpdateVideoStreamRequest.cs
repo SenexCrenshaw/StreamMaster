@@ -14,10 +14,6 @@ using System.Diagnostics;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
-public class UpdateVideoStreamRequest : VideoStreamUpdate, IRequest<bool>
-{
-}
-
 public class UpdateVideoStreamRequestValidator : AbstractValidator<UpdateVideoStreamRequest>
 {
     public UpdateVideoStreamRequestValidator()

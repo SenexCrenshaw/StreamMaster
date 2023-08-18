@@ -2,7 +2,7 @@ import { Button } from 'primereact/button';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
 import React from 'react';
-import * as StreamMasterApi from '../store/iptvApi';
+import type * as StreamMasterApi from '../store/iptvApi';
 import StreamMasterSetting from '../store/signlar/StreamMasterSetting';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import IconSelector from './IconSelector';
@@ -36,28 +36,6 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
 
   const [programme, setProgramme] = React.useState<string>('');
 
-  const iconsQuery = StreamMasterApi.useIconsGetIconsQuery({} as StreamMasterApi.IconsGetIconsApiArg);
-
-  // const onSetVideoStreams = (data: StreamMasterApi.VideoStreamDto[] | undefined) => {
-  //   if (data === undefined || data === null) {
-  //     setVideoStreams(undefined);
-  //     return;
-  //   }
-
-  //   if (videoStreams && areVideoStreamsEqual(data, videoStreams)) {
-  //     return;
-  //   }
-
-  //   const newStreams = data.map((x: StreamMasterApi.VideoStreamDto, index) => {
-  //     return { ...x, rank: index } as StreamMasterApi.VideoStreamDto
-  //   });
-
-
-  //   setVideoStreams(newStreams);
-
-  // };
-
-
   React.useEffect(() => {
 
     if (props.group) {
@@ -84,11 +62,6 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
     }
 
     if (props.videoStream.user_Tvg_logo && props.videoStream.user_Tvg_logo !== undefined) {
-      // if (iconsQuery.data) {
-      //   const iconData = iconsQuery.data.find((x: StreamMasterApi.IconFileDto) => x.url === props.videoStream?.user_Tvg_logo);
-      //   if (iconData)
-      //     setIcon(iconData);
-      // }
 
       setIconSource(props.videoStream?.user_Tvg_logo);
     }
@@ -110,7 +83,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
       setChannelGroup(props.videoStream?.user_Tvg_group);
     }
 
-  }, [iconsQuery.data, props.videoStream]);
+  }, [props.videoStream]);
 
   const onIconChange = (newIconSource: string) => {
     if (!newIconSource) {
@@ -156,16 +129,16 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
 
   }, [channelNumber, iconSource, name, props.videoStream, url]);
 
-  const ReturnToParent = () => {
-    setChannelGroup(undefined);
-    setName('');
-    setUrl('');
-    setIconSource('');
-    setChannelNumber(0);
-    setEpgId('');
-    //  setVideoStreams([] as StreamMasterApi.VideoStreamDto[]);
-    props.onClose?.();
-  }
+  // const ReturnToParent = () => {
+  //   setChannelGroup(undefined);
+  //   setName('');
+  //   setUrl('');
+  //   setIconSource('');
+  //   setChannelNumber(0);
+  //   setEpgId('');
+  //   //  setVideoStreams([] as StreamMasterApi.VideoStreamDto[]);
+  //   props.onClose?.();
+  // }
 
   const rightHeaderTemplate = React.useMemo(() => {
     const getToolTip = (value: boolean | null | undefined) => {
@@ -344,13 +317,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
           </div>
 
           <div className="flex col-12 align-items-center justify-content-end gap-1 p-0 mt-2">
-            <Button
-              icon="pi pi-times"
-              label="Close"
-              onClick={() => ReturnToParent()}
-              rounded
-              severity="warning"
-            />
+
             <Button
               disabled={!isSaveEnabled}
               icon="pi pi-check"
@@ -424,7 +391,6 @@ VideoStreamPanel.defaultProps = {
 };
 type VideoStreamPanelProps = {
   group?: string;
-  onClose?: () => void;
   onEdit?: (e: StreamMasterApi.UpdateVideoStreamRequest) => void;
   onSave?: (e: StreamMasterApi.CreateVideoStreamRequest) => void;
   videoStream?: StreamMasterApi.VideoStreamDto | undefined;

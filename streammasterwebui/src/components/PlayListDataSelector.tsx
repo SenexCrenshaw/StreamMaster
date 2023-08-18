@@ -55,11 +55,19 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
     props.onSelectionChange?.(data);
   }, [props]);
 
-  const onDelete = React.useCallback((result: boolean) => {
-    if (result === true) {
-      onSelectionChange([] as StreamMasterApi.ChannelGroupDto[]);
+  const onDelete = React.useCallback((results: string[] | undefined) => {
+    if (results === undefined) {
+      return;
     }
-  }, [onSelectionChange]);
+
+    const newSelectedChannelGroups = selectedChannelGroups.filter(
+      group => !results.includes(group.name)
+    );
+
+    onSelectionChange(newSelectedChannelGroups);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const sourceActionBodyTemplate = React.useCallback((data: StreamMasterApi.ChannelGroupDto) => (
 
@@ -149,14 +157,14 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
               value={showHidden} />
 
             <ChannelGroupVisibleDialog value={selectedChannelGroups} />
-            <ChannelGroupDeleteDialog value={selectedChannelGroups} />
+            <ChannelGroupDeleteDialog onDelete={onDelete} value={selectedChannelGroups} />
           </>
         }
 
         <ChannelGroupAddDialog />
       </div>
     );
-  }, [props.hideControls, showHidden, selectedChannelGroups, setShowHidden]);
+  }, [props.hideControls, showHidden, selectedChannelGroups, onDelete, setShowHidden]);
 
 
   return (

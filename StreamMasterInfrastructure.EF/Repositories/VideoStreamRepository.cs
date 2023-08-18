@@ -74,12 +74,12 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         return (videoStream.VideoStreamHandler, childVideoStreamDtos);
     }
 
-    public void CreateVideoStream(VideoStream VideoStream)
+    private void CreateVideoStream(VideoStream VideoStream)
     {
         Create(VideoStream);
     }
 
-    public void DeleteVideoStream(VideoStream VideoStream)
+    private void DeleteVideoStream(VideoStream VideoStream)
     {
         Delete(VideoStream);
     }
@@ -227,12 +227,12 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
             .SingleOrDefaultAsync(vs => vs.Id == videoStreamId, cancellationToken).ConfigureAwait(false);
     }
 
-    private static bool MergeVideoStream(VideoStream videoStream, VideoStreamUpdate update)
+    private static bool MergeVideoStream(VideoStream videoStream, VideoStreamBaseRequest update)
     {
         bool isChanged = false;
 
-        if (update.IsActive != null && videoStream.IsActive != update.IsActive) { isChanged = true; videoStream.IsActive = (bool)update.IsActive; }
-        if (update.IsDeleted != null && videoStream.IsDeleted != update.IsDeleted) { isChanged = true; videoStream.IsDeleted = (bool)update.IsDeleted; }
+        //if (update.IsActive != null && videoStream.IsActive != update.IsActive) { isChanged = true; videoStream.IsActive = (bool)update.IsActive; }
+        //if (update.IsDeleted != null && videoStream.IsDeleted != update.IsDeleted) { isChanged = true; videoStream.IsDeleted = (bool)update.IsDeleted; }
 
         // Update object properties
         if (update.Tvg_chno != null && videoStream.User_Tvg_chno != update.Tvg_chno) { isChanged = true; videoStream.User_Tvg_chno = (int)update.Tvg_chno; }
@@ -251,20 +251,82 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         return isChanged;
     }
 
-    public async Task<bool> UpdateVideoStreamAsync(VideoStreamUpdate request, CancellationToken cancellationToken)
+    public async Task<bool> CreateVideoStreamAsync(CreateVideoStreamRequest request, CancellationToken cancellationToken)
+    {
+        Setting setting = FileUtil.GetSetting();
+        string group = string.IsNullOrEmpty(request.Tvg_group) ? "(None)" : request.Tvg_group;
+        string epgId = string.IsNullOrEmpty(request.Tvg_ID) ? "" : request.Tvg_ID;
+
+        VideoStream videoStream = new()
+        {
+            Id = IdConverter.GetID(),
+            IsUserCreated = true,
+
+            Tvg_chno = request.Tvg_chno is null ? 0 : (int)request.Tvg_chno,
+            User_Tvg_chno = request.Tvg_chno is null ? 0 : (int)request.Tvg_chno,
+
+            Tvg_group = group,
+            User_Tvg_group = group,
+
+            Tvg_ID = epgId,
+            User_Tvg_ID = epgId,
+
+            Tvg_logo = request.Tvg_logo is null ? setting.StreamMasterIcon : request.Tvg_logo,
+            User_Tvg_logo = request.Tvg_logo is null ? setting.StreamMasterIcon : request.Tvg_logo,
+
+            Tvg_name = request.Tvg_name,
+            User_Tvg_name = request.Tvg_name,
+
+            Url = request.Url ?? string.Empty,
+            User_Url = request.Url ?? string.Empty
+        };
+
+        videoStream = await UpdateVideoStreamValues(videoStream, request, cancellationToken).ConfigureAwait(false);
+        CreateVideoStream(videoStream);
+
+        await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        if (request.ChildVideoStreams != null)
+        {
+            await SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
+        }
+
+
+
+        return true;
+    }
+
+    public async Task<bool> UpdateVideoStreamAsync(UpdateVideoStreamRequest request, CancellationToken cancellationToken)
     {
         VideoStream? videoStream = await GetVideoStreamWithChildrenAsync(request.Id, cancellationToken).ConfigureAwait(false);
-
         if (videoStream == null)
         {
             return false;
         }
+
+        videoStream = await UpdateVideoStreamValues(videoStream, request, cancellationToken).ConfigureAwait(false);
+        UpdateVideoStream(videoStream);
+
+        await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+        if (request.ChildVideoStreams != null)
+        {
+            await SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
+        }
+
+        return true;
+    }
+    //private async Task<VideoStream> UpdateVideoStreamValues(VideoStream videoStream, VideoStreamUpdate request, CancellationToken cancellationToken)
+    //{
+    //}
+    private async Task<VideoStream> UpdateVideoStreamValues(VideoStream videoStream, VideoStreamBaseRequest request, CancellationToken cancellationToken)
+    {
         Setting setting = FileUtil.GetSetting();
 
         MergeVideoStream(videoStream, request);
         bool epglogo = false;
 
-        if (request.Tvg_name != null && videoStream.User_Tvg_name != request.Tvg_name)
+        if (request.Tvg_name != null && (videoStream.User_Tvg_name != request.Tvg_name || videoStream.IsUserCreated))
         {
             videoStream.User_Tvg_name = request.Tvg_name;
             if (setting.EPGAlwaysUseVideoStreamName)
@@ -277,7 +339,7 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
             }
         }
 
-        if (request.Tvg_ID != null && videoStream.User_Tvg_ID != request.Tvg_ID)
+        if (request.Tvg_ID != null && (videoStream.User_Tvg_ID != request.Tvg_ID || videoStream.IsUserCreated))
         {
             string? test = _memoryCache.GetEPGChannelByDisplayName(request.Tvg_ID) ?? "";
             videoStream.User_Tvg_ID = test;
@@ -292,7 +354,7 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
             }
         }
 
-        if (!epglogo && request.Tvg_logo != null && videoStream.User_Tvg_logo != request.Tvg_logo)
+        if (!epglogo && request.Tvg_logo != null && (videoStream.User_Tvg_logo != request.Tvg_logo || videoStream.IsUserCreated))
         {
             if (request.Tvg_logo == "")
             {
@@ -308,7 +370,7 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
             }
         }
 
-        if (request.IsHidden != null && videoStream.IsHidden != (bool)request.IsHidden)
+        if (request.IsHidden != null && (videoStream.IsHidden != (bool)request.IsHidden || videoStream.IsUserCreated))
         {
             videoStream.IsHidden = (bool)request.IsHidden;
             VideoStreamDto dto = _mapper.Map<VideoStreamDto>(videoStream);
@@ -316,43 +378,7 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
             await _sender.Send(new ChannelGroupsSetCountRequest(channelGroupIds, videoStream.IsHidden ? -1 : 1), cancellationToken).ConfigureAwait(false);
 
         }
-
-        UpdateVideoStream(videoStream);
-        await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-
-        if (request.ChildVideoStreams != null)
-        {
-            await SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
-        }
-
-        await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        //VideoStreamDto ret = _mapper.Map<VideoStreamDto>(videoStream);
-
-        //if (videoStream.ChildVideoStreams.Any())
-        //{
-        //    List<string> ids = videoStream.ChildVideoStreams.Select(a => a.ChildVideoStreamId).ToList();
-        //    List<VideoStream> streams = RepositoryContext.VideoStreams.Where(a => ids.Contains(a.Id)).ToList();
-        //    List<ChildVideoStreamDto> dtoStreams = _mapper.Map<List<ChildVideoStreamDto>>(streams);
-
-        //    foreach (VideoStreamLink stream in videoStream.ChildVideoStreams)
-        //    {
-        //        Childbool toUpdate = dtoStreams.SingleOrDefault(a => a.Id == stream.ChildVideoStreamId);
-
-        //        if (toUpdate == null)
-        //        {
-        //            VideoStreamLink? goodCV = videoStream.ChildVideoStreams.SingleOrDefault(a => a.ChildVideoStreamId == stream.ChildVideoStreamId);
-        //            toUpdate = _mapper.Map<ChildVideoStreamDto>(goodCV);
-        //            dtoStreams.Add(toUpdate);
-        //        }
-
-        //        toUpdate.Rank = stream.Rank;
-        //    }
-
-        //    ret.ChildVideoStreams = dtoStreams;
-        //}
-
-        //return ret;
-        return true;
+        return videoStream;
     }
 
     private async Task RemoveNonExistingVideoStreamLinksAsync(string parentVideoStreamId, List<ChildVideoStreamDto> existingVideoStreamLinks, CancellationToken cancellationToken)
@@ -515,7 +541,7 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         return await GetEntitiesAsync<VideoStreamDto>(videoStreamParameters, _mapper);
     }
 
-    public void UpdateVideoStream(VideoStream VideoStream)
+    private void UpdateVideoStream(VideoStream VideoStream)
     {
         Update(VideoStream);
     }

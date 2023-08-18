@@ -3,7 +3,7 @@
 using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
-using StreamMasterDomain.Cache;
+
 using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.Settings.Queries;
@@ -30,16 +30,6 @@ internal class GetSettingsHandler : IRequestHandler<GetSettings, SettingDto>
     {
         Setting setting = FileUtil.GetSetting();
         SettingDto ret = _mapper.Map<SettingDto>(setting);
-
-        List<IconFileDto> icons = _memoryCache.GetIcons(_mapper);
-
-        IconFileDto? defaultIcon = icons.FirstOrDefault(a => a.Source == setting.DefaultIcon);
-        if (defaultIcon != null)
-        {
-            IconFileDto defaultIconDto = _mapper.Map<IconFileDto>(defaultIcon);
-
-            ret.DefaultIconDto = defaultIconDto;
-        }
 
         return ret;
     }

@@ -64,7 +64,6 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
       >
 
         <VideoStreamPanel
-          onClose={() => ReturnToParent()}
           onEdit={async (e) => await onEdit(e)}
           videoStream={videoStream}
         />

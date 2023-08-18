@@ -5,6 +5,7 @@ namespace StreamMasterDomain.Repository
 {
     public interface IVideoStreamRepository : IRepositoryBase<VideoStream>
     {
+        Task<bool> CreateVideoStreamAsync(CreateVideoStreamRequest request, CancellationToken cancellationToken);
         IQueryable<VideoStream> GetVideoStreamsById(string id);
         IQueryable<string> GetVideoStreamNames();
         Task<IEnumerable<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken);
@@ -19,7 +20,7 @@ namespace StreamMasterDomain.Repository
 
         Task<int> SetGroupVisibleByGroupName(string channelGroupName, bool isHidden, CancellationToken cancellationToken);
 
-        Task<bool> UpdateVideoStreamAsync(VideoStreamUpdate request, CancellationToken cancellationToken);
+        Task<bool> UpdateVideoStreamAsync(UpdateVideoStreamRequest request, CancellationToken cancellationToken);
 
         Task<bool> SynchronizeChildRelationships(VideoStream videoStream, List<ChildVideoStreamDto> childVideoStreams, CancellationToken cancellationToken);
 
@@ -29,18 +30,11 @@ namespace StreamMasterDomain.Repository
 
         IQueryable<VideoStream> GetAllVideoStreams();
 
-        //Task<PagedResponse<VideoStreamDto>> GetVideoStreamsAsync(VideoStreamParameters VideoStreamParameters, CancellationToken cancellationToken);
-
         Task<VideoStream> GetVideoStreamByIdAsync(string Id, CancellationToken cancellationToken = default);
 
         Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(string videoStreamId, CancellationToken cancellationToken = default);
 
         Task<VideoStreamDto> GetVideoStreamDtoByIdAsync(string Id, CancellationToken cancellationToken = default);
 
-        void CreateVideoStream(VideoStream VideoStream);
-
-        void UpdateVideoStream(VideoStream VideoStream);
-
-        //void DeleteVideoStream(VideoStream VideoStream);
     }
 }

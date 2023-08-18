@@ -28,7 +28,7 @@ const CloneVideoStream = (props: CloneVideoStreamProps) => {
       visible={props.visible}
     >
       <VideoStreamPanel
-        onClose={() => ReturnToParent()}
+
         onSave={() => { ReturnToParent() }}
         videoStream={props.VideoStream}
 

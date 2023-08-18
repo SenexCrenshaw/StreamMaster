@@ -1,16 +1,16 @@
 
 import React from "react";
 import { getTopToolOptions } from "../common/common";
-import type * as StreamMasterApi from '../store/iptvApi';
 import * as Hub from "../store/signlar_functions";
 
 import { Button } from "primereact/button";
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
+import { type DeleteVideoStreamRequest, type VideoStreamDto } from "../store/iptvApi";
 
 const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
-  const [selectedVideoStreams, setSelectedVideoStreams] = React.useState<StreamMasterApi.VideoStreamDto[]>([] as StreamMasterApi.VideoStreamDto[]);
+  const [selectedVideoStreams, setSelectedVideoStreams] = React.useState<VideoStreamDto[]>([] as VideoStreamDto[]);
   const [block, setBlock] = React.useState<boolean>(false);
 
   const ReturnToParent = () => {
@@ -28,6 +28,14 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
 
   }, [props.values]);
 
+  React.useMemo(() => {
+
+    if (props.value !== null && props.value !== undefined) {
+      setSelectedVideoStreams([props.value]);
+    }
+
+  }, [props.value]);
+
   const deleteVideoStream = async () => {
     setBlock(true);
     if (selectedVideoStreams.length === 0) {
@@ -39,7 +47,7 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
 
     for (const stream of selectedVideoStreams) {
 
-      const data = {} as StreamMasterApi.DeleteVideoStreamRequest;
+      const data = {} as DeleteVideoStreamRequest;
 
       data.id = stream.id;
 
@@ -62,6 +70,23 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
     });
 
   }
+
+  if (props.skipOverLayer === true) {
+    return (
+      <Button
+        disabled={selectedVideoStreams.length === 0 || selectedVideoStreams[0].isUserCreated !== true}
+        icon="pi pi-minus"
+        onClick={async () => await deleteVideoStream()}
+        rounded
+        severity="danger"
+        size="small"
+        text={props.iconFilled !== true}
+        tooltip="Set Visibilty"
+        tooltipOptions={getTopToolOptions}
+      />
+    );
+  }
+
 
   return (
     <>
@@ -103,6 +128,7 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
         rounded
         severity="danger"
         size="small"
+        text={props.iconFilled !== true}
         tooltip="Delete Stream"
         tooltipOptions={getTopToolOptions}
       />
@@ -114,9 +140,11 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
 VideoStreamDeleteDialog.displayName = 'VideoStreamDeleteDialog';
 
 type VideoStreamDeleteDialogProps = {
-  // onChange?: ((value: string[]) => void) | null;
+  iconFilled?: boolean | undefined;
   onClose?: (() => void);
-  values?: StreamMasterApi.VideoStreamDto[] | undefined;
+  skipOverLayer?: boolean | undefined;
+  value?: VideoStreamDto | undefined;
+  values?: VideoStreamDto[] | undefined;
 };
 
 export default React.memo(VideoStreamDeleteDialog);
