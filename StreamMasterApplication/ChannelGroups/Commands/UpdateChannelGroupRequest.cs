@@ -62,13 +62,6 @@ public class UpdateChannelGroupRequestHandler : BaseMediatorRequestHandler, IReq
             channelGroup.Name = request.NewGroupName;
             await Repository.VideoStream.SetGroupNameByGroupName(channelGroup.Name, request.NewGroupName, cancellationToken).ConfigureAwait(false);
         }
-#if HAS_REGEX
-        if (!string.IsNullOrEmpty(request.Regex) && request.Regex != channelGroup.RegexMatch)
-        {
-            checkCounts = true;
-            channelGroup.RegexMatch = request.Regex;
-        }
-#endif
 
         Repository.ChannelGroup.UpdateChannelGroup(channelGroup);
         await Repository.SaveAsync().ConfigureAwait(false);

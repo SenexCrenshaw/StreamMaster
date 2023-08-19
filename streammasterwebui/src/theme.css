@@ -1,3 +1,11 @@
+/* .debug {
+  border: 1px solid red !important;
+}
+
+.debugBlue {
+  border: 1px solid blue !important;
+} */
+
 .p-button.p-button-icon-only.p-button-rounded {
   height: 1.2rem !important;
   padding: 0 !important;
@@ -31,7 +39,7 @@
   width: 2rem !important;
 }
 
-
+/*
 .p-datatable-wrapper>table>tbody>tr>td.justify-content-center.align-items-center.multiselect.multipleNoRowCheckBox.p-selection-column.p-align-center {
   visibility: hidden !important;
   width: 0 !important;
@@ -40,7 +48,7 @@
 #root>div.flex.max-h-screen>div>div>div>div.flex.col-12.mt-1.m-0.p-0>div.col-9.m-0.p-0.pl-1>div>div.grid.grid-nogutter.flex.flex-wrap.justify-content-between.h-full.col-12.p-0>div:nth-child(1)>div>div>div>div.p-datatable-wrapper>table>thead>tr>th.justify-content-center.align-items-center.multiselect.multipleNoRowCheckBox.p-sortable-column.p-resizable-column.p-selection-column.p-align-center>div>span:nth-child(2)>svg {
   visibility: hidden !important;
   width: 0 !important;
-}
+} */
 
 .smallshiftleft {
   margin-left: 0.15rem !important;

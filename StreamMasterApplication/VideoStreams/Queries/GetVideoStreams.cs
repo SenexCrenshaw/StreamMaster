@@ -4,10 +4,10 @@ using MediatR;
 
 using Microsoft.Extensions.Logging;
 
-using StreamMasterApplication.M3UFiles.Commands;
-
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
+
+using System.Diagnostics;
 
 namespace StreamMasterApplication.VideoStreams.Queries;
 
@@ -15,11 +15,17 @@ public record GetVideoStreams(VideoStreamParameters Parameters) : IRequest<Paged
 
 internal class GetVideoStreamsHandler : BaseRequestHandler, IRequestHandler<GetVideoStreams, PagedResponse<VideoStreamDto>>
 {
-    public GetVideoStreamsHandler(ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper)
+    public GetVideoStreamsHandler(ILogger<GetVideoStreamsHandler> logger, IRepositoryWrapper repository, IMapper mapper)
         : base(logger, repository, mapper) { }
 
     public async Task<PagedResponse<VideoStreamDto>> Handle(GetVideoStreams request, CancellationToken cancellationToken)
     {
-        return await Repository.VideoStream.GetVideoStreams(request.Parameters, cancellationToken).ConfigureAwait(false);
+        Stopwatch stopwatch = Stopwatch.StartNew();
+        PagedResponse<VideoStreamDto> res = await Repository.VideoStream.GetVideoStreams(request.Parameters, cancellationToken).ConfigureAwait(false);
+        stopwatch.Stop();
+        Logger.LogInformation($"GetVideoStreamsHandler took {stopwatch.ElapsedMilliseconds} ms");
+        return res;
+
+
     }
 }

@@ -133,23 +133,7 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
             }
             ret.ChildVideoStreams.AddRange(streams);
 
-#if HAS_REGEX
-            ChannelGroupDto? cg = await _sender.Send(new GetChannelGroup(channegroup.ChannelGroupId), cancellationToken).ConfigureAwait(false);
 
-            if (cg is not null && !string.IsNullOrEmpty(cg.RegexMatch))
-            {
-                IEnumerable<VideoStreamDto> regexStreams = await _sender.Send(new GetVideoStreamsByNamePatternQuery(cg.RegexMatch), cancellationToken).ConfigureAwait(false);
-                foreach (VideoStreamDto stream in regexStreams)
-                {
-                    if (!existingIds.Contains(stream.Id))
-                    {
-                        stream.IsReadOnly = true;
-                        ret.ChildVideoStreams.Add(_mapper.Map<VideoStreamDto>(stream));
-                        existingIds.Add(stream.Id);
-                    }
-                }
-            }
-#endif
         }
 
         List<StreamGroupVideoStream> relationShips = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == streamGroup.Id).ToList();

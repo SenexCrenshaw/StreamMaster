@@ -448,7 +448,6 @@ const StreamGroupVideoStreamDataSelector = (props: StreamGroupVideoStreamDataSel
       headerRightTemplate={props.showBrief === true ? rightHeaderBriefTemplate : rightHeaderTemplate}
       id={props.id + 'StreamGroupVideoStreamDataSelector'}
       isLoading={videoStreamsQuery.isLoading || videoStreamsQuery.isFetching}
-      leftColSize={1}
       name={GetMessage('streams')}
       onFilter={(filterInfo) => {
         setFilter(filterInfo as DataTableFilterEvent);
@@ -467,18 +466,7 @@ const StreamGroupVideoStreamDataSelector = (props: StreamGroupVideoStreamDataSel
         props.onSelectionChange?.(e as VideoStreamDto[]);
       }}
 
-      onSort={(sortInfo) => {
-        if (sortInfo.sortField !== null && sortInfo.sortField !== undefined) {
-          if (sortInfo.sortOrder === 1) {
-            setOrderBy(sortInfo.sortField + " asc");
-          }
-          else {
-            setOrderBy(sortInfo.sortField + " desc");
-          }
-        }
-
-      }}
-      rightColSize={4}
+      onSort={setOrderBy}
       selectionMode={props.showBrief === true ? 'single' : 'multiple'}
       showClearButton={false}
       showHidden={showHidden}

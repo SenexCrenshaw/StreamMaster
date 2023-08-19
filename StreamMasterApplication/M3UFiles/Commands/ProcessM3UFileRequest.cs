@@ -224,11 +224,8 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
         {
             if (!channelGroups.Any(a => a.Name == ng))
             {
-#if HAS_REGEX
-                await Sender.Send(new CreateChannelGroupRequest(ng, rank++, null), cancellationToken).ConfigureAwait(false);
-#else
+
                 await Sender.Send(new CreateChannelGroupRequest(ng, rank++), cancellationToken).ConfigureAwait(false);
-#endif
             }
         }
 

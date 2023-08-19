@@ -1,14 +1,9 @@
 
-import { type CSSProperties } from "react";
-import React from "react";
-import * as StreamMasterApi from '../store/iptvApi';
-
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { type DataTableFilterMetaData } from "../common/common";
 import { getTopToolOptions } from "../common/common";
-
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
-
 import ChannelGroupAddDialog from "./ChannelGroupAddDialog";
 import { type ColumnMeta } from '../features/dataSelector2/DataSelectorTypes2';
 import ChannelGroupDeleteDialog from "./ChannelGroupDeleteDialog";
@@ -16,25 +11,30 @@ import ChannelGroupVisibleDialog from "./ChannelGroupVisibleDialog";
 import ChannelGroupEditDialog from "./ChannelGroupEditDialog";
 import { useLocalStorage } from "primereact/hooks";
 import DataSelector2 from "../features/dataSelector2/DataSelector2";
-
 import { type DataTableFilterEvent } from "primereact/datatable";
+import { type PagedResponseOfChannelGroupDto, type ChannelGroupDto, type ChannelGroupsGetChannelGroupsApiArg } from "../store/iptvApi";
+import { useChannelGroupsGetChannelGroupsQuery } from "../store/iptvApi";
 
 const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   const id = props.id + '-PlayListDataSelector';
 
-  const [dataSource, setDataSource] = React.useState({} as StreamMasterApi.PagedResponseOfChannelGroupDto);
+  const [dataSource, setDataSource] = useState({} as PagedResponseOfChannelGroupDto);
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, id + '-showHidden');
 
-  const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[]);
+  const [selectedChannelGroups, setSelectedChannelGroups] = useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
 
-  const [pageSize, setPageSize] = React.useState<number>(25);
-  const [pageNumber, setPageNumber] = React.useState<number>(1);
-  const [filters, setFilters] = React.useState<string>('');
-  const [orderBy, setOrderBy] = React.useState<string>('name');
+  const [pageSize, setPageSize] = useState<number>(25);
+  const [pageNumber, setPageNumber] = useState<number>(1);
+  const [filters, setFilters] = useState<string>('');
+  const [orderBy, setOrderBy] = useState<string>('name asc');
+  const timestampRef = useRef(Date.now()).current;
+  const channelGroupsQuery = useChannelGroupsGetChannelGroupsQuery({ jsonArgumentString: timestampRef.toString(), jsonFiltersString: filters, orderBy: orderBy, pageNumber: pageNumber, pageSize: pageSize } as ChannelGroupsGetChannelGroupsApiArg);
 
-  const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery({ jsonFiltersString: filters, orderBy: orderBy ?? 'name', pageNumber: pageNumber === 0 ? 25 : pageNumber, pageSize: pageSize } as StreamMasterApi.ChannelGroupsGetChannelGroupsApiArg);
+  useEffect(() => {
+    console.log('useEffect', orderBy);
+  }, [orderBy]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (channelGroupsQuery.data === undefined) {
       return;
     }
@@ -47,16 +47,13 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
   }, [channelGroupsQuery.data]);
 
-  const onNameChange = React.useCallback(() => {
-    // console.debug('PlayListDataSelector: onSelectionChange: ' + newName);
-  }, []);
 
-  const onSelectionChange = React.useCallback((data: StreamMasterApi.ChannelGroupDto[]) => {
+  const onSelectionChange = (data: ChannelGroupDto[]) => {
     setSelectedChannelGroups(data);
     props.onSelectionChange?.(data);
-  }, [props]);
+  };
 
-  const onDelete = React.useCallback((results: string[] | undefined) => {
+  const onDelete = useCallback((results: string[] | undefined) => {
     if (results === undefined) {
       return;
     }
@@ -70,7 +67,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const sourceActionBodyTemplate = React.useCallback((data: StreamMasterApi.ChannelGroupDto) => (
+  const sourceActionBodyTemplate = useCallback((data: ChannelGroupDto) => (
 
     <div className='flex p-0 justify-content-end align-items-center'>
 
@@ -78,15 +75,15 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         <ChannelGroupDeleteDialog iconFilled={false} onDelete={onDelete} value={[data]} />
       </div>
 
-      <ChannelGroupEditDialog onClose={onNameChange} value={data} />
+      <ChannelGroupEditDialog value={data} />
 
       <ChannelGroupVisibleDialog iconFilled={false} skipOverLayer value={[data]} />
 
     </div>
 
-  ), [onDelete, onNameChange, props.useReadOnly]);
+  ), [onDelete, props.useReadOnly]);
 
-  const sourceColumns = React.useMemo((): ColumnMeta[] => {
+  const sourceColumns = useMemo((): ColumnMeta[] => {
     return [
       { field: 'name', filter: true, sortable: true },
       {
@@ -107,7 +104,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
     ]
   }, [sourceActionBodyTemplate]);
 
-  const setFilter = React.useCallback((toFilter: DataTableFilterEvent): DataTableFilterMetaData[] => {
+  const setFilter = useCallback((toFilter: DataTableFilterEvent): DataTableFilterMetaData[] => {
 
     if (toFilter === undefined || toFilter.filters === undefined) {
       return [] as DataTableFilterMetaData[];
@@ -130,7 +127,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
     return retData;
   }, []);
 
-  const sourceRightHeaderTemplate = React.useCallback(() => {
+  const sourceRightHeaderTemplate = useCallback(() => {
     const getToolTip = (value: boolean | null | undefined) => {
       if (value === null) {
         return 'Show All';
@@ -194,22 +191,14 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       }}
 
       onSelectionChange={(e) => {
-        onSelectionChange(e as StreamMasterApi.ChannelGroupDto[]);
+        onSelectionChange(e as ChannelGroupDto[]);
       }}
 
-      onSort={(sortInfo) => {
-
-        if (sortInfo.sortField !== null && sortInfo.sortField !== undefined) {
-          if (sortInfo.sortOrder === 1) {
-            setOrderBy(sortInfo.sortField + " asc");
-          }
-          else {
-            setOrderBy(sortInfo.sortField + " desc");
-          }
-        }
-
-      }}
-      rightColSize={5}
+      onSort={(e) => {
+        console.log(e);
+        setOrderBy(e);
+      }
+      }
       selectionMode='multiple'
       showHidden={showHidden}
       style={{
@@ -222,7 +211,6 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
 PlayListDataSelector.displayName = 'Play List Editor';
 PlayListDataSelector.defaultProps = {
-  // enableState: false,
   hideAddRemoveControls: false,
   hideControls: false,
   maxHeight: null,
@@ -231,14 +219,13 @@ PlayListDataSelector.defaultProps = {
 };
 
 export type PlayListDataSelectorProps = {
-  // enableState?: boolean | undefined;
   hideAddRemoveControls?: boolean;
   hideControls?: boolean;
   id: string;
   maxHeight?: number;
   name?: string;
-  onSelectionChange?: (value: StreamMasterApi.ChannelGroupDto | StreamMasterApi.ChannelGroupDto[]) => void;
+  onSelectionChange?: (value: ChannelGroupDto | ChannelGroupDto[]) => void;
   useReadOnly?: boolean;
 };
 
-export default React.memo(PlayListDataSelector);
+export default memo(PlayListDataSelector);

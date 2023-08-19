@@ -303,17 +303,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
           SetSelectedM3UFileChanged(e as StreamMasterApi.M3UFileDto)
         }
 
-        onSort={(sortInfo) => {
-          if (sortInfo.sortField !== null && sortInfo.sortField !== undefined) {
-            if (sortInfo.sortOrder === 1) {
-              setOrderBy(sortInfo.sortField + " asc");
-            }
-            else {
-              setOrderBy(sortInfo.sortField + " desc");
-            }
-          }
-
-        }}
+        onSort={setOrderBy}
         style={{ height: 'calc(50vh - 40px)' }}
       />
     </>

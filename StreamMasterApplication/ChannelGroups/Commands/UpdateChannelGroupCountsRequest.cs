@@ -76,14 +76,6 @@ public class UpdateChannelGroupCountsRequestHandler : BaseMemoryRequestHandler, 
             HashSet<string> ids = new(videoStreamsForGroups[cg.Name]);
             int hiddenCount = hiddenCounts[cg.Name];
 
-#if HAS_REGEX
-            if (!string.IsNullOrEmpty(cg.RegexMatch))
-            {
-                IEnumerable<VideoStreamDto> reg = await Sender.Send(new GetVideoStreamsByNamePatternQuery(cg.RegexMatch), cancellationToken).ConfigureAwait(false);
-                hiddenCount += reg.Count(a => a.IsHidden && !ids.Contains(a.Id));
-                ids.UnionWith(reg.Select(a => a.Id));
-            }
-#endif
             response.TotalCount = ids.Count;
             response.ActiveCount = ids.Count - hiddenCount;
             response.HiddenCount = hiddenCount;
@@ -95,9 +87,6 @@ public class UpdateChannelGroupCountsRequestHandler : BaseMemoryRequestHandler, 
 
         MemoryCache.AddOrUpdateChannelGroupVideoStreamCounts(channelGroupStreamCounts);
 
-#if HAS_REGEX
-        await Repository.SaveAsync().ConfigureAwait(false);
-#endif
         stopwatch.Stop();
         Logger.LogInformation($"UpdateChannelGroupCountsRequest took {stopwatch.ElapsedMilliseconds} ms");
     }

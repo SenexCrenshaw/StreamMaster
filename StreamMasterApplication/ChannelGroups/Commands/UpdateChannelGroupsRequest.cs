@@ -33,11 +33,9 @@ public class UpdateChannelGroupsRequestHandler : BaseMediatorRequestHandler, IRe
 
         foreach (UpdateChannelGroupRequest request in requests.ChannelGroupRequests)
         {
-#if HAS_REGEX
-            await Sender.Send(new UpdateChannelGroupRequest(request.ChannelGroupName, request.NewGroupName, request.IsHidden, request.Rank, request.Regex), cancellationToken).ConfigureAwait(false);
-#else
+
             await Sender.Send(new UpdateChannelGroupRequest(request.ChannelGroupName, request.NewGroupName, request.IsHidden, request.Rank), cancellationToken).ConfigureAwait(false);
-#endif
+
         }
 
         //await Publisher.Publish(new UpdateChannelGroupsEvent(), cancellationToken).ConfigureAwait(false);

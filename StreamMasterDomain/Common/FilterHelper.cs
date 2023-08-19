@@ -81,30 +81,20 @@ public static class FilterHelper<T> where T : class
 
     private static Expression CreateStringMatchExpression(DataTableFilterMetaData filter, Expression propertyAccess, string matchMode)
     {
-        //MethodCallExpression toLowerCall = Expression.Call(propertyAccess, typeof(string).GetMethod("ToLower", System.Type.EmptyTypes));
-        //string methodName = matchMode;  // "Contains", "StartsWith", or "EndsWith"
-
-        //MethodInfo stringMethod = typeof(string).GetMethod(methodName, new[] { typeof(string) });
-        //if (stringMethod == null)
-        //{
-        //    throw new InvalidOperationException($"Method {methodName} not found on string type.");
-        //}
         return Expression.Call(
-                        Expression.Call(propertyAccess, "ToLower", null),   // Convert property value to lowercase
-                        matchMode, null, Expression.Constant(ConvertValue(filter.Value, typeof(string)).ToString().ToLower())  // Convert filter value to lowercase
+                        propertyAccess,
+                        matchMode, null, Expression.Constant(ConvertValue(filter.Value, typeof(string)))  // Convert filter value to lowercase
                     );
-
     }
 
     private static Expression CreateChannelGroupsExpression(DataTableFilterMetaData filter, Expression propertyAccess)
     {
-        MethodCallExpression toLowerCall = Expression.Call(propertyAccess, typeof(string).GetMethod("ToLower", Type.EmptyTypes));
 
         string[] channelGroups = JsonSerializer.Deserialize<string[]>(filter.Value.ToString());
         List<Expression> containsExpressions = new();
         foreach (string group in channelGroups)
         {
-            MethodCallExpression containsCall = Expression.Call(toLowerCall, typeof(string).GetMethod("Contains", new[] { typeof(string) }), Expression.Constant(group.Trim().ToLower()));
+            MethodCallExpression containsCall = Expression.Call(propertyAccess, typeof(string).GetMethod("Contains", new[] { typeof(string) }), Expression.Constant(group.Trim()));
             containsExpressions.Add(containsCall);
         }
 

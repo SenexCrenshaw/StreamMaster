@@ -480,9 +480,6 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
     {
 
         PagedResponse<VideoStreamDto> filteredStreams = await GetVideoStreamsAsync(VideoStreamParameters, cancellationToken);
-
-        filteredStreams.Data = filteredStreams.Data.OrderByDescending(a => a.User_Tvg_name).ToList();
-
         return filteredStreams;
     }
 

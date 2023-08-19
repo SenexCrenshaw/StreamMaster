@@ -38,29 +38,18 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 
         if (!string.IsNullOrEmpty(parameters.JSONFiltersString) || !string.IsNullOrEmpty(parameters.OrderBy))
         {
-
+            List<DataTableFilterMetaData>? filters = null;
             if (!string.IsNullOrEmpty(parameters.JSONFiltersString))
             {
-                List<DataTableFilterMetaData> filters = Utils.GetFiltersFromJSON(parameters.JSONFiltersString);
-                if (typeof(T) == typeof(VideoStream))
-                {
-                    entities = (IQueryable<T>)FindByConditionVideoStream(filters, parameters.OrderBy);
-                }
-                else
-                {
-                    entities = FindByCondition(filters, parameters.OrderBy);
-                }
+                filters = Utils.GetFiltersFromJSON(parameters.JSONFiltersString);
+            }
+            if (typeof(T) == typeof(VideoStream))
+            {
+                entities = (IQueryable<T>)FindByConditionVideoStream(filters, parameters.OrderBy);
             }
             else
             {
-                if (typeof(T) == typeof(VideoStream))
-                {
-                    entities = (IQueryable<T>)FindAllVideoStream();
-                }
-                else
-                {
-                    entities = FindAll();
-                }
+                entities = FindByCondition(filters, parameters.OrderBy);
             }
         }
         else
@@ -74,6 +63,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
                 entities = FindAll();
             }
         }
+
 
         IPagedList<T> pagedResult = await entities.ToPagedListAsync(parameters.PageNumber, parameters.PageSize).ConfigureAwait(false);
 

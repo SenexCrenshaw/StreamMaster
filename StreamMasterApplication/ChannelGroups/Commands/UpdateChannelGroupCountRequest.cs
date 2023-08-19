@@ -50,16 +50,6 @@ public class UpdateChannelGroupCountRequestHandler : BaseMemoryRequestHandler, I
 
         int hiddenCount = videoStreamsForGroup.Count(a => a.IsHidden);
 
-#if HAS_REGEX
-        // If a regex match pattern is defined for the channel group, fetch additional video streams.
-        if (!string.IsNullOrEmpty(cg.RegexMatch))
-        {
-            IEnumerable<VideoStreamDto> reg = await Sender.Send(new GetVideoStreamsByNamePatternQuery(cg.RegexMatch), cancellationToken).ConfigureAwait(false);
-            hiddenCount += reg.Count(a => a.IsHidden && !ids.Contains(a.Id));
-            ids.UnionWith(reg.Select(a => a.Id));
-        }
-#endif
-
         // Set the response values.
         response.TotalCount = ids.Count;
         response.ActiveCount = ids.Count - hiddenCount;

@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unused-prop-types */
 
 import './DataSelector2.css';
 
@@ -19,7 +20,7 @@ import { type DataTableRowData } from 'primereact/datatable';
 import { DataTable } from 'primereact/datatable';
 import { type CSSProperties } from 'react';
 import React from 'react';
-import { ExportComponent, HeaderLeft, MultiSelectCheckbox, areFilterMetaEqual, camel2title, getColumnClass, getTopToolOptions } from '../../common/common';
+import { ExportComponent, HeaderLeft, MultiSelectCheckbox, areFilterMetaEqual, camel2title, getTopToolOptions } from '../../common/common';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
 
 import { Tooltip } from 'primereact/tooltip';
@@ -171,26 +172,6 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
     );
   }, [getRecordString, setting.defaultIcon]);
 
-  // const clearSourceFilter = React.useCallback(() => {
-  //   setSourceFilters({} as DataTableFilterMeta);
-  //   setGlobalSourceFilterValue('');
-  // }, [setGlobalSourceFilterValue, setSourceFilters]);
-
-  // const onGlobalSourceFilterChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const value = e.target.value;
-  //   const filtersToSet = { ...sourceFilters };
-
-  //   filtersToSet.global = {
-  //     matchMode: FilterMatchMode.CONTAINS,
-  //     value: value
-  //   } as DataTableFilterMetaData;
-
-
-  //   setSourceFilters(filtersToSet);
-
-  //   setGlobalSourceFilterValue(value);
-  // }, [setGlobalSourceFilterValue, setSourceFilters, sourceFilters]);
-
   const onValueChanged = React.useCallback((data: DataTableRowDataArray<T[]>) => {
     if (!data) {
       return;
@@ -314,16 +295,16 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
     const isHidden = getRecord(data as T, 'isHidden');
 
-    if (getRecord(data as T, 'regexMatch') === '') {
+    // if (getRecord(data as T, 'regexMatch') === '') {
 
-      const groupName = getRecord(data as T, 'name');
+    //   const groupName = getRecord(data as T, 'name');
 
-      if (groupName !== undefined && groupName !== '') {
-        // if (streamNotHiddenCount(groupName) > 0) {
-        //   return {};
-        // }
-      }
-    }
+    //   if (groupName !== undefined && groupName !== '') {
+    //     // if (streamNotHiddenCount(groupName) > 0) {
+    //     //   return {};
+    //     // }
+    //   }
+    // }
 
     if (isHidden === true) {
       return `bg-red-900`;
@@ -344,7 +325,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
     }
 
     return (
-      <div className="flex flex-row w-full flex-wrap grid align-items-center w-full col-12 h-full p-0 debug">
+      <div className="flex grid flex-row w-full flex-wrap grid align-items-center w-full col-12 h-full p-0 debug">
         <div className="flex col-2 text-orange-500 h-full text-sm align-items-center p-0 debug">
           {props.name}
           <MultiSelectCheckbox
@@ -354,28 +335,11 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
             setRowClick={setRowClick}
           />
         </div>
-        <div className="flex flex-wrap col-10 h-full justify-contents-between align-items-center p-0 m-0 debug">
+        <div className="flex col-10 h-full align-items-center p-0 px-2 m-0 debug">
           <div className="grid mt-2 flex flex-nowrap flex-row justify-content-between align-items-center col-12 px-0">
             <HeaderLeft props={props} />
-            <div className={`flex emptyheader h-full p-0 m-0 justify-content-start align-items-center debugBlue ${props?.headerLeftTemplate ? getColumnClass(props.leftColSize, 8) : 'col-11'}`}>
-              <div className="grid flex-nowrap align-items-center justify-content-between col-12 debug">
-                {/* <div className={`${getColumnClass(props.rightColSize)} flex debug p-0 m-0 justify-content-start align-items-center`}>
-                  <GlobalSearchComponent
-                    clearSourceFilter={clearSourceFilter}
-                    globalSearchName={globalSearchName}
-                    globalSourceFilterValue={globalSourceFilterValue}
-                    onGlobalSourceFilterChange={onGlobalSourceFilterChange}
-                    props={props}
-                  />
-                </div> */}
-                <div className={`flex ${getColumnClass(props.rightColSize, 6)} debug p-0 m-0 justify-content-end align-items-center`}>
-                  {props.enableExport &&
-                    <ExportComponent exportCSV={exportCSV} />
-                  }
-                  {props.headerRightTemplate}
-                </div>
-              </div>
-            </div>
+            {props.headerRightTemplate}
+            {props.enableExport && <ExportComponent exportCSV={exportCSV} />}
           </div>
         </div>
       </div>
@@ -583,19 +547,32 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
   const onSort = (event: DataTableSortEvent) => {
 
-    if (event.sortField === 'selected') {
+    if (event.sortField === 'selected' || event.sortOrder === undefined || event.sortField === undefined) {
       return;
     }
 
-    if (event.sortOrder !== undefined) {
-      setSortOrder(event.sortOrder);
-    }
 
-    if (event.sortField !== undefined) {
-      setSortField(event.sortField);
-    }
+    setSortOrder(event.sortOrder);
+    setSortField(event.sortField);
 
-    props.onSort?.(event);
+
+
+    if (props.onSort !== undefined) {
+
+      if (event.sortField === null) {
+        props.onSort?.('');
+        return;
+      }
+
+      let toSend = event.sortField + " asc";
+
+      if (event.sortOrder === 1) {
+        toSend = event.sortField + " desc";
+      }
+
+      console.log("onSort:", toSend);
+      props.onSort?.(toSend);
+    }
   };
 
 
@@ -697,7 +674,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
               onCellEditComplete={col.handleOnCellEditComplete}
               showAddButton
               showApplyButton
-              showClearButton={props.showClearButton ?? col.filterType !== 'isHidden'}
+              showClearButton // ={props.showClearButton ?? col.filterType !== 'isHidden'}
               showFilterMatchModes
               showFilterMenu
               showFilterMenuOptions
@@ -720,11 +697,9 @@ DataSelector2.defaultProps = {
   enableVirtualScroll: false,
   hideControls: false,
   key: undefined,
-  leftColSize: 4,
   name: '',
   onSelectionChange: undefined,
   reorderable: false,
-  rightColSize: 8,
   selectionMode: 'single',
   showHeaders: true,
   showHidden: null
@@ -784,7 +759,6 @@ export type DataSelector2Props<T = any> = {
    */
   isLoading?: boolean;
   key?: string | undefined;
-  leftColSize?: number;
   /**
    * The name of the component.
    */
@@ -804,7 +778,7 @@ export type DataSelector2Props<T = any> = {
    */
   onSelectionChange?: (value: T | T[]) => void;
 
-  onSort?: (event: DataTableSortEvent) => void;
+  onSort?: (event: string) => void;
   /**
      * A function that is called when the value changes.
      */
@@ -813,7 +787,6 @@ export type DataSelector2Props<T = any> = {
    * Whether rows can be reordered.
    */
   reorderable?: boolean;
-  rightColSize?: number;
   /**
  * The currently selected row(s).
  */

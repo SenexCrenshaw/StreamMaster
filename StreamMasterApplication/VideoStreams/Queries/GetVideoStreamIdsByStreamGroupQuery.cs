@@ -37,33 +37,8 @@ internal class GetVideoStreamIdsByStreamGroupQueryHandler : BaseRequestHandler, 
             .Select(vs => vs.Id)
             .ToList();
 
-#if HAS_REGEX
-  // Compile all regexes
-        List<Regex> regexes = streamGroup.ChannelGroups
-            .Where(a => !string.IsNullOrEmpty(a.ChannelGroup.RegexMatch))
-            .Select(cg => new Regex(cg.ChannelGroup.RegexMatch, RegexOptions.ECMAScript | RegexOptions.IgnoreCase))
-            .ToList();
-        // If no regexes exist, return an empty list
-        if (!regexes.Any() && !matchedIds.Any())
-        {
-            return new();
-        }
 
-
-        // Fetch all video streams
-        IQueryable<VideoStream> allVideoStreams = Repository.VideoStream.GetAllVideoStreams();
-
-        // Filter the video streams by matching names with regexes
-        List<string> matchingVideoStreamIds = allVideoStreams
-            .Where(vs => regexes.Any(regex => regex.IsMatch(vs.User_Tvg_name)))
-            .Select(vs => vs.Id)
-            .ToList();
-
-        List<string> ret = matchingVideoStreamIds.Concat(matchedIds).Distinct().ToList();
-
-        return ret;
-#else 
         return matchedIds;
-#endif
+
     }
 }

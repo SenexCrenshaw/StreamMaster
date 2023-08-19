@@ -20,6 +20,7 @@ internal class GetChannelGroupsQueryHandler : BaseMediatorRequestHandler, IReque
 
     public async Task<PagedResponse<ChannelGroupDto>> Handle(GetChannelGroupsQuery request, CancellationToken cancellationToken)
     {
+
         return await Repository.ChannelGroup.GetChannelGroupsAsync(request.Parameters).ConfigureAwait(false);
     }
 }

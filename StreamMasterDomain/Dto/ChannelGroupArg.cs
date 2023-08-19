@@ -17,7 +17,4 @@ public class ChannelGroupArg : ChannelGroupStreamCount
     [Required]
     public int Rank { get; set; }
 
-#if HAS_REGEX
-    public string? RegexMatch { get; set; } = string.Empty;
-#endif
 }

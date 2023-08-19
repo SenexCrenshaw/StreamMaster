@@ -30,10 +30,10 @@ const IconSelector = (props: IconSelectorProps) => {
   const filteredIcons = useIconsGetIconsQuery({ jsonFiltersString: filter, pageSize: 40 } as IconsGetIconsApiArg);
   const icons = useIconsGetIconsSimpleQueryQuery({ first: first, last: last === 0 ? 1 : last } as IconsGetIconsSimpleQueryApiArg);
 
-  const generateIconUrl = useMemo(
-    () => getIconUrl(selectedIcon, setting.defaultIcon, false),
-    [selectedIcon, setting]
-  );
+  // const generateIconUrl = useMemo(
+  //   () => getIconUrl(selectedIcon, setting.defaultIcon, false),
+  //   [selectedIcon, setting]
+  // );
 
   useEffect(() => {
     if (filter === undefined || filter === '') {
@@ -137,12 +137,14 @@ const IconSelector = (props: IconSelectorProps) => {
       return (<div />);
     }
 
+    const iconUrl = getIconUrl(selectedIcon, setting.defaultIcon, false);
+
     return (
       <div className=' max-h-1rem justify-content-start align-items-center p-0 m-0 pl-2'>
 
         <img
           alt='Icon logo'
-          src={generateIconUrl}
+          src={iconUrl}
           style={{
             maxWidth: '1rem',
             objectFit: 'contain',
@@ -151,9 +153,11 @@ const IconSelector = (props: IconSelectorProps) => {
         />
       </div>
     );
-  }, [generateIconUrl, props.useDefault, selectedIcon]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.useDefault, selectedIcon]);
 
   const iconOptionTemplate = useCallback((option: IconFileDto) => {
+    const iconUrl = getIconUrl(option.source, setting.defaultIcon, false);
 
     return (
       <div
@@ -161,7 +165,7 @@ const IconSelector = (props: IconSelectorProps) => {
         <img
           alt={option.name ?? 'name'}
           className="surface-overlay appearance-none outline-none focus:border-primary"
-          src={generateIconUrl}
+          src={iconUrl}
           style={{
             maxHeight: '78px',
             maxWidth: '4rem',
@@ -172,7 +176,8 @@ const IconSelector = (props: IconSelectorProps) => {
         <div className="white-space-normal w-full col-6">{option.name}</div>
       </div>
     );
-  }, [generateIconUrl]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
 
   const className = classNames('iconSelector align-contents-center p-0 m-0 max-w-full w-full z-5 ', props.className, {

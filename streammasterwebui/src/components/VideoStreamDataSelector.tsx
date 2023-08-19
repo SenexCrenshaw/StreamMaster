@@ -42,9 +42,9 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
   const [pageSize, setPageSize] = React.useState<number>(25);
   const [pageNumber, setPageNumber] = React.useState<number>(1);
-  const [orderBy, setOrderBy] = React.useState<string>('user_tvg_name');
+  const [orderBy, setOrderBy] = React.useState<string>('user_tvg_name asc');
 
-  const videoStreamsQuery = useVideoStreamsGetVideoStreamsQuery({ jsonFiltersString: filters, orderBy: orderBy ?? 'name', pageNumber: pageNumber === 0 ? 1 : pageNumber, pageSize: pageSize } as VideoStreamsGetVideoStreamsApiArg);
+  const videoStreamsQuery = useVideoStreamsGetVideoStreamsQuery({ jsonFiltersString: filters, orderBy: orderBy ?? 'user_tvg_name', pageNumber: pageNumber, pageSize: pageSize } as VideoStreamsGetVideoStreamsApiArg);
 
   React.useEffect(() => {
     if (props.enableEditMode != enableEditMode) {
@@ -53,22 +53,6 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.enableEditMode]);
-  React.useEffect(() => {
-    const callback = (event: KeyboardEvent) => {
-      if ((event.ctrlKey) && event.code === 'KeyE') {
-        event.preventDefault();
-        setEnableEditMode(!enableEditMode);
-      }
-
-    };
-
-    document.addEventListener('keydown', callback);
-    return () => {
-      document.removeEventListener('keydown', callback);
-    };
-  }, [enableEditMode, setEnableEditMode]);
-
-
 
   const targetActionBodyTemplate = React.useCallback((data: VideoStreamDto) => {
     return (
@@ -243,7 +227,6 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     ]
   }, [channelNameEditorBodyTemplate, channelNumberEditorBodyTemplate, channelGroupEditorBodyTemplate]);
 
-
   const getToolTip = (value: boolean | null | undefined) => {
     if (value === null) {
       return 'Show All';
@@ -300,7 +283,8 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       </div>
     );
 
-  }, [setShowHidden, showHidden]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showHidden]);
 
   React.useEffect(() => {
     if (!props.channelGroups) {
@@ -364,7 +348,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       headerRightTemplate={props.showBrief === true ? rightHeaderBriefTemplate : rightHeaderTemplate}
       id={props.id + 'VideoStreamDataSelector'}
       isLoading={videoStreamsQuery.isLoading || videoStreamsQuery.isFetching}
-      leftColSize={1}
+
       name={GetMessage('streams')}
       onFilter={(filterInfo) => {
         setFilter(filterInfo as DataTableFilterEvent);
@@ -383,18 +367,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         props.onSelectionChange?.(e as VideoStreamDto[]);
       }}
 
-      onSort={(sortInfo) => {
-        if (sortInfo.sortField !== null && sortInfo.sortField !== undefined) {
-          if (sortInfo.sortOrder === 1) {
-            setOrderBy(sortInfo.sortField + " asc");
-          }
-          else {
-            setOrderBy(sortInfo.sortField + " desc");
-          }
-        }
-
-      }}
-      rightColSize={4}
+      onSort={setOrderBy}
       selectionMode={props.showBrief === true ? 'single' : 'multiple'}
       showClearButton={false}
       showHidden={showHidden}
