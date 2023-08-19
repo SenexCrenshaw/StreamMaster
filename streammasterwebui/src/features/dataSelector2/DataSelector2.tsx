@@ -1,14 +1,10 @@
-/* eslint-disable react/no-unused-prop-types */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import './DataSelector2.css';
 
 import { FilterMatchMode } from 'primereact/api';
 import { Button } from 'primereact/button';
-
-import { type ColumnSortEvent } from 'primereact/column';
-
 import { Column } from 'primereact/column';
-
+import { type DataTableRowDataArray } from 'primereact/datatable';
 import { type DataTableSortEvent } from 'primereact/datatable';
 import { type DataTableStateEvent } from 'primereact/datatable';
 import { type DataTablePageEvent } from 'primereact/datatable';
@@ -18,74 +14,43 @@ import { type DataTableExpandedRows } from 'primereact/datatable';
 import { type DataTableRowToggleEvent } from 'primereact/datatable';
 import { type DataTableSelectionChangeEvent } from 'primereact/datatable';
 import { type DataTableValue } from 'primereact/datatable';
-import { type DataTableRowDataArray, } from 'primereact/datatable';
-import { type DataTableRowData } from 'primereact/datatable';
 
+import { type DataTableRowData } from 'primereact/datatable';
 import { DataTable } from 'primereact/datatable';
-import * as StreamMasterApi from '../../store/iptvApi';
-import { useLocalStorage } from 'primereact/hooks';
-import { InputText } from 'primereact/inputtext';
 import { type CSSProperties } from 'react';
 import React from 'react';
-import { areFilterMetaEqual, camel2title, getTopToolOptions } from '../../common/common';
+import { ExportComponent, HeaderLeft, MultiSelectCheckbox, areFilterMetaEqual, camel2title, getColumnClass, getTopToolOptions } from '../../common/common';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
-import { Checkbox } from 'primereact/checkbox';
 
 import { Tooltip } from 'primereact/tooltip';
 import { v4 as uuidv4 } from 'uuid';
 
-import { useIntl } from 'react-intl';
-
 import { type ColumnAlign, type ColumnFieldType, type DataSelectorSelectionMode } from './DataSelectorTypes2';
 import { type ColumnMeta } from './DataSelectorTypes2';
+import { useLocalStorage } from 'primereact/hooks';
+
 
 const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) => {
   const tableRef = React.useRef<DataTable<T[]>>(null);
 
   const tooltipClassName = React.useMemo(() => "menuitemds-" + uuidv4(), []);
 
-  const [globalSearchName, setGlobalSearchName] = React.useState<string>('');
-
-  const [globalSourceFilterValue, setGlobalSourceFilterValue] = useLocalStorage('', props.id + '-sourceGlobalFilterValue');
-
   const [pageSize, setPageSize] = useLocalStorage(25, props.id + '-rowsPerPage');
   const [sortOrder, setSortOrder] = useLocalStorage<-1 | 0 | 1 | null>(1, props.id + '-sortOrder');
   const [sortField, setSortField] = useLocalStorage<string>('name', props.id + '-sortField');
-
   const [rowClick, setRowClick] = useLocalStorage<boolean>(false, props.id + '-rowClick');
   const [selections, setSelections] = useLocalStorage<T[]>([] as T[], props.id + '-selections');
   const [sourceFilters, setSourceFilters] = useLocalStorage<DataTableFilterMeta | undefined>(undefined, props.id + '-sourceFilters');
-
-
   const [dataSource, setDataSource] = React.useState<PagedTableDto<T>>();
 
   const [expandedRows, setExpandedRows] = React.useState<DataTableExpandedRows>();
 
   const setting = StreamMasterSetting();
-  const intl = useIntl();
 
-  const GetMessage = React.useCallback((id: string): string => {
-    const message = intl.formatMessage({ id: id });
-
-    return message;
-  }, [intl]);
-
-
-  React.useEffect(() => {
-    if (props.globalSearchName !== null && props.globalSearchName !== undefined) {
-      setGlobalSearchName(props.globalSearchName);
-    } else {
-      setGlobalSearchName(GetMessage('keywordSearch'));
-    }
-
-  }, [GetMessage, props.globalSearchName]);
+  const hasColumns = (columns?: ColumnMeta[]) => columns && columns.length > 0;
 
   const isLoading = React.useMemo(() => {
     if (props.isLoading) {
-      return true;
-    }
-
-    if (globalSourceFilterValue === undefined) {
       return true;
     }
 
@@ -95,7 +60,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
     return false;
 
-  }, [globalSourceFilterValue, props.isLoading, rowClick]);
+  }, [props.isLoading, rowClick]);
 
   const onFilter = React.useCallback((event: DataTableStateEvent) => {
 
@@ -107,17 +72,12 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
     props.onFilter?.(event);
   }, [props, setSourceFilters]);
 
-
-  React.useEffect(() => {
-    if (props.columns === undefined) {
-      return;
+  const generateFilterData = (columns: ColumnMeta[], currentFilters: DataTableFilterMeta) => {
+    if (!columns || !currentFilters) {
+      return {};
     }
 
-    if (sourceFilters === undefined) {
-      return;
-    }
-
-    const filterData = props.columns.reduce<DataTableFilterMeta>((obj, item: ColumnMeta) => {
+    return columns.reduce<DataTableFilterMeta>((obj, item: ColumnMeta) => {
       if (item.field === 'isHidden') {
 
         return {
@@ -130,8 +90,8 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
       }
 
       let value = '';
-      if (Object.keys(sourceFilters).length > 0) {
-        const test = sourceFilters[item.field] as DataTableFilterMetaData;
+      if (Object.keys(currentFilters).length > 0) {
+        const test = currentFilters[item.field] as DataTableFilterMetaData;
         if (test !== undefined) {
           value = test.value;
         }
@@ -145,19 +105,30 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
         },
       } as DataTableFilterMeta;
     }, {});
+  };
 
-    if (!areFilterMetaEqual(filterData, sourceFilters)) {
-      setSourceFilters(filterData);
+  React.useEffect(() => {
+    if (!hasColumns(props.columns)) {
+      return;
     }
 
+    if (sourceFilters === undefined) {
+      return;
+    }
+
+    const newFilters = generateFilterData(props.columns, sourceFilters);
+
+    if (!areFilterMetaEqual(newFilters, sourceFilters)) {
+      setSourceFilters(newFilters);
+    }
 
     const event = {} as DataTableStateEvent;
-    event.filters = filterData;
+
     props.onFilter?.(event);
+    event.filters = newFilters;
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.columns, props.showHidden, sourceFilters]);
-
-
+  }, [props.columns, props.showHidden]);
 
   const getRecord = React.useCallback((data: T, fieldName: string) => {
     type ObjectKey = keyof typeof data;
@@ -200,25 +171,25 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
     );
   }, [getRecordString, setting.defaultIcon]);
 
-  const clearSourceFilter = React.useCallback(() => {
-    setSourceFilters({} as DataTableFilterMeta);
-    setGlobalSourceFilterValue('');
-  }, [setGlobalSourceFilterValue, setSourceFilters]);
+  // const clearSourceFilter = React.useCallback(() => {
+  //   setSourceFilters({} as DataTableFilterMeta);
+  //   setGlobalSourceFilterValue('');
+  // }, [setGlobalSourceFilterValue, setSourceFilters]);
 
-  const onGlobalSourceFilterChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const filtersToSet = { ...sourceFilters };
+  // const onGlobalSourceFilterChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const value = e.target.value;
+  //   const filtersToSet = { ...sourceFilters };
 
-    filtersToSet.global = {
-      matchMode: FilterMatchMode.CONTAINS,
-      value: value
-    } as DataTableFilterMetaData;
+  //   filtersToSet.global = {
+  //     matchMode: FilterMatchMode.CONTAINS,
+  //     value: value
+  //   } as DataTableFilterMetaData;
 
 
-    setSourceFilters(filtersToSet);
+  //   setSourceFilters(filtersToSet);
 
-    setGlobalSourceFilterValue(value);
-  }, [setGlobalSourceFilterValue, setSourceFilters, sourceFilters]);
+  //   setGlobalSourceFilterValue(value);
+  // }, [setGlobalSourceFilterValue, setSourceFilters, sourceFilters]);
 
   const onValueChanged = React.useCallback((data: DataTableRowDataArray<T[]>) => {
     if (!data) {
@@ -251,35 +222,14 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
     );
   };
 
-  const m3uLinkSourceTemplate = React.useCallback((link: string) => {
-    return (
-      <div>
-        <div className="flex justify-content-center align-items-center">
-          {linkIcon(link)}
-        </div>
-      </div >
-    );
-  }, []);
-
-  const epgLinkSourceTemplate = React.useCallback((link: string) => {
-    return (
-      <div>
-        <div className="flex justify-content-center align-items-center">
-          {linkIcon(link)}
-        </div>
+  const linkTemplate = React.useCallback((link: string) => (
+    <div>
+      <div className="flex justify-content-center align-items-center">
+        {linkIcon(link)}
       </div>
-    );
-  }, []);
+    </div>
+  ), []);
 
-  const urlLinkSourceTemplate = React.useCallback((link: string) => {
-    return (
-      <div>
-        <div className="flex justify-content-center align-items-center">
-          {linkIcon(link)}
-        </div>
-      </div>
-    );
-  }, []);
   const epgSourceTemplate = React.useCallback((tvgid: string) => {
     return (
       <div>
@@ -290,105 +240,61 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
     );
   }, []);
 
-  const bodyTemplate = React.useCallback((data: T, fieldName: string, fieldType: ColumnFieldType, camelize: boolean | undefined) => {
-    if (fieldType === 'isHidden') {
-      camelize = true;
-    }
+  const bodyTemplate = React.useCallback((data: T, fieldName: string, fieldType: ColumnFieldType, camelize?: boolean) => {
 
-    if (fieldType === 'blank') {
-      return (<div />);
-      ;
-    }
-
-
-    if (fieldType === 'm3ulink') {
-      const link = getRecordString(data, 'm3ULink');
-      return m3uLinkSourceTemplate(link);
-    }
-
-    if (fieldType === 'epglink') {
-      const link = getRecordString(data, 'xmlLink');
-      return epgLinkSourceTemplate(link);
-    }
-
-    if (fieldType === 'url') {
-      const link = getRecordString(data, 'hdhrLink');
-      return urlLinkSourceTemplate(link);
-    }
-
-    if (fieldType === 'epg') {
-      const tvgid = getRecordString(data, 'user_Tvg_ID');
-      return epgSourceTemplate(tvgid);
-    }
-
-    if (fieldType === 'image') {
-      return imageBodyTemplate(data, fieldName);
-    }
-
-    if (fieldType === 'streams') {
-      const activeCount = getRecord(data, 'activeCount');
-      const totalCount = getRecord(data, 'totalCount');
-      return streamsBodyTemplate(activeCount, totalCount);
-    }
-
-    const record = getRecord(data, fieldName);
-    if (record === undefined) return (<div />);
-
-    if (fieldType === 'isHidden') {
+    // Helper function for 'isHidden' fieldType
+    const renderIsHidden = (record: boolean) => {
       if (record !== true) {
-        return (
-          <i className="pi pi-eye text-green-500" />
-        )
+        return <i className="pi pi-eye text-green-500" />;
       }
 
-      return (
-        <i className="pi pi-eye-slash text-red-500" />
-      )
-    }
+      return <i className="pi pi-eye-slash text-red-500" />;
+    };
 
-    let toDisplay = JSON.stringify(record);
-
-    if (toDisplay.startsWith('"') && toDisplay.endsWith('"')) {
-      toDisplay = toDisplay.substring(1, toDisplay.length - 1);
-    }
-
-    if (fieldType === 'deleted') {
-      const isDeleted = getRecord(data, 'isHidden');
-      if (isDeleted !== true) {
+    // Simplify the rendering logic using a switch statement
+    switch (fieldType) {
+      case 'blank':
+        return <div />;
+      case 'm3ulink':
+        return linkTemplate(getRecordString(data, 'm3ULink'));
+      case 'epglink':
+        return linkTemplate(getRecordString(data, 'xmlLink'));
+      case 'url':
+        return linkTemplate(getRecordString(data, 'hdhrLink'));
+      case 'epg':
+        return epgSourceTemplate(getRecordString(data, 'user_Tvg_ID'));
+      case 'image':
+        return imageBodyTemplate(data, fieldName);
+      case 'streams':
+        const activeCount = getRecord(data, 'activeCount');
+        const totalCount = getRecord(data, 'totalCount');
+        return streamsBodyTemplate(activeCount, totalCount);
+      case 'isHidden':
+        return renderIsHidden(getRecord(data, fieldName));
+      case 'deleted':
+        const toDisplay = getRecord(data, 'isHidden');
         return (
-          <span className="flex bg-green-900 min-w-full min-h-full justify-content-center align-items-center" >
+          <span className={`flex ${toDisplay !== true ? 'bg-green-900' : 'bg-red-900'} min-w-full min-h-full justify-content-center align-items-center`}>
             {toDisplay}
           </span>
-        )
-      }
+        );
+      default:
+        let displayValue = JSON.stringify(getRecord(data, fieldName));
+        if (displayValue.startsWith('"') && displayValue.endsWith('"')) {
+          displayValue = displayValue.substring(1, displayValue.length - 1);
+        }
 
-      return (
-        <span className="flex bg-red-900 min-w-full min-h-full justify-content-center align-items-center" >
-          {toDisplay}
-        </span>
-      )
+        if (camelize) {
+          displayValue = camel2title(displayValue);
+        }
+
+        return (
+          <span style={{ display: 'block', overflow: 'hidden', padding: '0rem !important', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {displayValue}
+          </span>
+        );
     }
-
-    if (camelize === true) {
-      toDisplay = camel2title(toDisplay);
-    }
-
-    return (
-      <span
-        style={{
-          ...{
-            display: 'block',
-            overflow: 'hidden',
-            padding: '0rem !important',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          },
-        }}
-      >
-        {toDisplay}
-      </span>
-    );
-  }, [epgLinkSourceTemplate, epgSourceTemplate, getRecord, getRecordString, imageBodyTemplate, m3uLinkSourceTemplate, streamsBodyTemplate, urlLinkSourceTemplate]);
+  }, [epgSourceTemplate, getRecord, getRecordString, imageBodyTemplate, linkTemplate, streamsBodyTemplate]);
 
   React.useEffect(() => {
     if (props.dataSource !== undefined) {
@@ -397,18 +303,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
   }, [props.dataSource]);
 
-  React.useEffect(() => {
-
-    if (dataSource?.data !== undefined && props.enableVirtualScroll === true && dataSource.data.length > 0) {
-
-      if (tableRef.current?.getVirtualScroller()?.scrollToIndex !== undefined) {
-        tableRef.current.getVirtualScroller().scrollToIndex(10, 'auto');
-      }
-    }
-
-  }, [dataSource, props.enableVirtualScroll]);
-
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onRowReorder = React.useCallback((data: T[]) => {
     // setDataSource(data);
     // props.onSelectionChange?.(data);
@@ -442,155 +337,82 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
     tableRef.current?.exportCSV({ selectionOnly: false });
   };
 
+
   const sourceRenderHeader = React.useMemo(() => {
-    if (!props.headerLeftTemplate && !props.headerRightTemplate && !props.globalSearchEnabled) {
+    if (!props.headerLeftTemplate && !props.headerRightTemplate) {
       return null;
     }
 
     return (
       <div className="flex flex-row w-full flex-wrap grid align-items-center w-full col-12 h-full p-0 debug">
-        <div className="flex col-2 text-orange-500 h-full text-sm align-items-center p-0 debug" >
+        <div className="flex col-2 text-orange-500 h-full text-sm align-items-center p-0 debug">
           {props.name}
-          <div hidden={props.selectionMode !== 'selectable'}>
-            {/* {showSkeleton && <Skeleton height="1rem" width="2rem" />}
-            {showSkeleton !== true && */}
-            <Checkbox
-              checked={rowClick}
-              onChange={(e) => {
-                props?.onMultiSelectClick?.(e.checked ?? false);
-                setRowClick(e.checked ?? false);
-              }
-              }
-              tooltip="Multi Select"
-              tooltipOptions={getTopToolOptions}
-            />
-            {/* } */}
-          </div>
+          <MultiSelectCheckbox
+            onMultiSelectClick={props.onMultiSelectClick}
+            props={props}
+            rowClick={rowClick}
+            setRowClick={setRowClick}
+          />
         </div>
         <div className="flex flex-wrap col-10 h-full justify-contents-between align-items-center p-0 m-0 debug">
           <div className="grid mt-2 flex flex-nowrap flex-row justify-content-between align-items-center col-12 px-0">
-
-            <div className={`flex debug flex-nowrap justify-content-start header p-0 m-0 align-items-center ${props?.headerLeftTemplate !== undefined ? `col-${props.leftColSize !== undefined ? props.leftColSize : 4}` : 'col-1'}`}>
-
-              {props.headerLeftTemplate ?
-                props.headerLeftTemplate
-                : null}
-            </div >
-
-            <div className={`flex emptyheader h-full p-0 m-0 justify-content-start align-items-center debugBlue ${props?.headerLeftTemplate !== undefined ? `col-${12 - (props.leftColSize !== undefined ? props.leftColSize : 4)}` : 'col-11'}`}>
-              <div className="grid flex-nowrap align-items-center justify-content-between col-12 debug" >
-
-
-                <div className={`col-${props.rightColSize !== undefined ? 12 - props.rightColSize : '6'} flex debug p-0 m-0 justify-content-start align-items-center`}>
-
-                  {props.globalSearchEnabled === true &&
-                    <>
-                      <Button
-                        className="p-button-text"
-                        hidden={props.columns === undefined || props.columns.length === 0}
-                        icon="pi pi-filter-slash"
-                        onClick={clearSourceFilter}
-                        rounded
-                        text
-                        tooltip="Clear Filter"
-                        tooltipOptions={getTopToolOptions}
-                        type="button"
-                      />
-                      <InputText
-                        className="withpadding flex w-full"
-                        disabled={props.columns === undefined || props.columns.length === 0}
-                        hidden={props.columns === undefined || props.columns.length === 0}
-                        onChange={((e) => onGlobalSourceFilterChange(e))}
-                        placeholder={globalSearchName}
-                        value={globalSourceFilterValue ?? ''}
-                      />
-                    </>
+            <HeaderLeft props={props} />
+            <div className={`flex emptyheader h-full p-0 m-0 justify-content-start align-items-center debugBlue ${props?.headerLeftTemplate ? getColumnClass(props.leftColSize, 8) : 'col-11'}`}>
+              <div className="grid flex-nowrap align-items-center justify-content-between col-12 debug">
+                {/* <div className={`${getColumnClass(props.rightColSize)} flex debug p-0 m-0 justify-content-start align-items-center`}>
+                  <GlobalSearchComponent
+                    clearSourceFilter={clearSourceFilter}
+                    globalSearchName={globalSearchName}
+                    globalSourceFilterValue={globalSourceFilterValue}
+                    onGlobalSourceFilterChange={onGlobalSourceFilterChange}
+                    props={props}
+                  />
+                </div> */}
+                <div className={`flex ${getColumnClass(props.rightColSize, 6)} debug p-0 m-0 justify-content-end align-items-center`}>
+                  {props.enableExport &&
+                    <ExportComponent exportCSV={exportCSV} />
                   }
-
-                </div>
-
-
-                <div className={`flex col-${props.rightColSize !== undefined ? props.rightColSize : '6'} debug p-0 m-0 justify-content-end align-items-center`} >
-                  {props.enableExport === true &&
-                    <Button
-                      className="p-button-text justify-content-end"
-                      data-pr-tooltip="CSV"
-                      icon="pi pi-file-export"
-                      onClick={() => exportCSV()}
-                      rounded
-                      text
-                      tooltip="Clear Filter"
-                      tooltipOptions={getTopToolOptions}
-                      type="button"
-                    />
-                  }
-
                   {props.headerRightTemplate}
-
                 </div>
-
               </div>
-            </div >
-          </div >
+            </div>
+          </div>
         </div>
       </div>
     );
-  }, [clearSourceFilter, globalSearchName, globalSourceFilterValue, onGlobalSourceFilterChange, props, rowClick, setRowClick]);
+  }, [props, rowClick, setRowClick]);
 
   const onsetSelection = React.useCallback((e: T | T[]): T | T[] | undefined => {
+    let selected: T[] = Array.isArray(e) ? e : [e];
 
     if (props.selectionMode === 'single') {
-      const data = e as T[];
-
-      if (data.length === 0) {
-        setSelections([] as T[]);
-
-        if (props.onSelectionChange) {
-          props.onSelectionChange({} as T)
-        }
-
-        return;
-      }
-
-      setSelections(data);
-      if (props.onSelectionChange) {
-        props.onSelectionChange(data[0])
-        return;
-      }
-
+      selected = selected.slice(0, 1);
     }
 
-    setSelections(e as T[]);
+    setSelections(selected);
+
     if (props.onSelectionChange) {
-      props.onSelectionChange(e as T[]);
+      props.onSelectionChange(props.selectionMode === 'single' ? selected[0] : selected);
     }
 
     return e;
-
   }, [props, setSelections]);
 
 
-  const getSelectionMode = React.useMemo((): 'checkbox' | 'multiple' | 'radiobutton' | 'single' | undefined => {
 
-    if (props.selectionMode === 'selectable') {
-      if (!rowClick) {
-        return 'single';
-      }
-
-      return 'multiple';
+  const getSelectionMode = React.useMemo(() => {
+    switch (props.selectionMode) {
+      case 'selectable':
+        return rowClick ? 'multiple' : 'single';
+      case 'multipleNoCheckBox':
+        return 'multiple';
+      case 'multipleNoRowCheckBox':
+        return 'radiobutton';
+      default:
+        return props.selectionMode;
     }
-
-    if (props.selectionMode === 'multipleNoCheckBox') {
-      return 'multiple';
-    }
-
-    if (props.selectionMode === 'multipleNoRowCheckBox') {
-      return 'radiobutton';
-    }
-
-    return props.selectionMode
-
   }, [props.selectionMode, rowClick]);
+
 
 
   const onSelectionChange = React.useCallback((e: DataTableSelectionChangeEvent<T[]>) => {
@@ -650,47 +472,6 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
     return filter;
   }, [])
 
-  const sortFunction = React.useCallback((event: ColumnSortEvent) => {
-
-    const sortedObjects: T[] = [];
-
-    const idsToMoveToTop = selections.map((obj) => obj.id);
-
-    if (event.order === 1) {
-
-      // First, add any objects whose IDs are in the "idsToMoveToTop" list to the front of the sorted array
-      for (const id of idsToMoveToTop) {
-        const matchingObject = event.data.find((obj: T) => obj.id === id);
-        if (matchingObject) {
-
-          sortedObjects.push(matchingObject);
-        }
-      }
-
-      // Then, add the remaining objects to the sorted array (excluding any that were already added in the previous loop)
-      for (const obj of event.data) {
-        if (!idsToMoveToTop.includes(obj.id)) {
-          sortedObjects.push(obj);
-        }
-      }
-    } else {
-      // Then, add the remaining objects to the sorted array (excluding any that were already added in the previous loop)
-      for (const obj of event.data) {
-        if (!idsToMoveToTop.includes(obj.id)) {
-          sortedObjects.push(obj);
-        }
-      }
-
-      for (const id of idsToMoveToTop) {
-        const matchingObject = event.data.find((obj: T) => obj.id === id);
-        if (matchingObject) {
-          sortedObjects.push(matchingObject);
-        }
-      }
-    }
-
-    return sortedObjects;
-  }, [selections]);
 
   const getStyle = React.useCallback((style: CSSProperties | undefined, fieldType: ColumnFieldType | undefined): CSSProperties | undefined => {
 
@@ -746,21 +527,22 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
 
   const getHeader = React.useCallback((field: string, header: string | undefined, fieldType: ColumnFieldType | undefined): React.ReactNode => {
-    if (fieldType) {
-      if (fieldType === 'blank') { return (<div />); }
-
-      if (fieldType === 'epg') { return 'EPG'; }
-
-      if (fieldType === 'm3ulink') { return 'M3U'; }
-
-      if (fieldType === 'epglink') { return 'XMLTV'; }
-
-      if (fieldType === 'url') { return 'HDHR URL'; }
+    if (!fieldType) {
+      return header ? header : camel2title(field);
     }
 
-    if (fieldType) {
-      if (fieldType === 'streams') {
-
+    switch (fieldType) {
+      case 'blank':
+        return <div />;
+      case 'epg':
+        return 'EPG';
+      case 'm3ulink':
+        return 'M3U';
+      case 'epglink':
+        return 'XMLTV';
+      case 'url':
+        return 'HDHR URL';
+      case 'streams':
         return (
           <>
             <Tooltip target={"." + tooltipClassName} />
@@ -776,62 +558,12 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
               Streams<br />(active/total)
             </div>
           </>
-        )
-
-      }
+        );
+      default:
+        return header ? header : camel2title(field);
     }
-
-
-    if (header === undefined) {
-      return camel2title(field)
-    }
-
-    return header;
-
   }, [tooltipClassName]);
 
-  const items = React.useMemo(() => {
-    return [
-      {
-        id: 1,
-        name: 1,
-      } as DataTableValue,
-      {
-        id: 2,
-        name: 2,
-      } as DataTableValue,
-      {
-        id: 3,
-        name: 3,
-      } as DataTableValue, {
-        id: 4,
-        name: 4,
-      } as DataTableValue,
-      {
-        id: 5,
-        name: 5,
-      } as DataTableValue,
-      {
-        id: 1,
-        name: 1,
-      } as DataTableValue,
-      {
-        id: 2,
-        name: 2,
-      } as DataTableValue,
-      {
-        id: 3,
-        name: 3,
-      } as DataTableValue, {
-        id: 4,
-        name: 4,
-      } as DataTableValue,
-      {
-        id: 5,
-        name: 5,
-      } as DataTableValue
-    ]
-  }, []);
 
   const multiselectHeader = () => {
     return (
@@ -986,19 +718,16 @@ DataSelector2.displayName = 'dataselector22';
 DataSelector2.defaultProps = {
   // enableState: true,
   enableVirtualScroll: false,
-  globalSearchEnabled: false,
   hideControls: false,
   key: undefined,
   leftColSize: 4,
   name: '',
   onSelectionChange: undefined,
-  paginatorMinimumRowsToShow: 20,
   reorderable: false,
   rightColSize: 8,
   selectionMode: 'single',
   showHeaders: true,
-  showHidden: null,
-  showPagination: true
+  showHidden: null
 };
 
 
@@ -1007,7 +736,8 @@ DataSelector2.defaultProps = {
  *
  * @typeparam T The type of data being displayed in the table.
  */
-export type DataSelector2Props<T> = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type DataSelector2Props<T = any> = {
 
   /**
    * The CSS class name for the component.
@@ -1031,14 +761,7 @@ export type DataSelector2Props<T> = {
   // enableState?: boolean | undefined;
   enableVirtualScroll?: boolean | undefined;
   exportFilename?: string;
-  /**
-   * Whether to enable global searching.
-   */
-  globalSearchEnabled?: boolean;
-  /**
-   * The name of the global search.
-   */
-  globalSearchName?: string;
+
   /**
    * The name of the field to group the rows by.
    */
@@ -1062,7 +785,6 @@ export type DataSelector2Props<T> = {
   isLoading?: boolean;
   key?: string | undefined;
   leftColSize?: number;
-  m3uFileId?: number;
   /**
    * The name of the component.
    */
@@ -1081,13 +803,12 @@ export type DataSelector2Props<T> = {
    * A function that is called when a row is selected.
    */
   onSelectionChange?: (value: T | T[]) => void;
-  onSetSourceFilters?: (filter: DataTableFilterMeta) => void;
+
   onSort?: (event: DataTableSortEvent) => void;
   /**
      * A function that is called when the value changes.
      */
   onValueChanged?: (value: T[]) => void;
-  paginatorMinimumRowsToShow?: number;
   /**
    * Whether rows can be reordered.
    */
@@ -1107,7 +828,6 @@ export type DataSelector2Props<T> = {
   showClearButton?: boolean | undefined;
   showHeaders?: boolean | undefined;
   showHidden?: boolean | null | undefined;
-  showPagination?: boolean;
   showSelector?: boolean;
   /**
    * The field to sort the data by.

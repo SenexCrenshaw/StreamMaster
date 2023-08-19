@@ -1,112 +1,98 @@
 import * as React from 'react';
-
 import { classNames } from 'primereact/utils';
 import DropDownEditorBodyTemplate from './DropDownEditorBodyTemplate';
-import { type UpdateVideoStreamRequest } from '../store/iptvApi';
-import { type ProgrammeNameDto, type VideoStreamDto } from '../store/iptvApi';
-import { useProgrammesGetProgrammeNamesQuery, useVideoStreamsUpdateVideoStreamMutation } from '../store/iptvApi';
+import {
+  type UpdateVideoStreamRequest,
+  type ProgrammeNameDto,
+  type VideoStreamDto
+} from '../store/iptvApi';
+import {
+  useProgrammesGetProgrammeNamesQuery,
+  useVideoStreamsUpdateVideoStreamMutation
+} from '../store/iptvApi';
 
-const EPGSelector = (props: EPGSelectorProps) => {
-
+const EPGSelector = ({
+  className = '',
+  data,
+  enableEditMode = true,
+  value,
+  onChange
+}: EPGSelectorProps) => {
   const [programme, setProgramme] = React.useState<string>('');
   const [dataDataSource, setDataSource] = React.useState<ProgrammeNameDto[]>([]);
   const programmeNamesQuery = useProgrammesGetProgrammeNamesQuery();
-
   const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
 
   React.useEffect(() => {
-    if (!programmeNamesQuery.data) {
-      return;
+    if (programmeNamesQuery.data) {
+      const newData = [{ displayName: '<Blank>' }, ...programmeNamesQuery.data];
+      setDataSource(newData);
     }
-
-    console.debug('EPGSelector', programmeNamesQuery.data.length);
-    const newData = [...programmeNamesQuery.data];
-    newData.unshift({ displayName: '<Blank>' });
-    console.debug('EPGSelector', newData.length);
-
-    setDataSource(newData);
-
-
   }, [programmeNamesQuery.data]);
 
   React.useEffect(() => {
-    if (!dataDataSource) {
-      return;
-    }
-
-    if (props.value === null || props.value === undefined) {
+    if (!dataDataSource || value === null || value === undefined) {
       setProgramme('<Blank>');
       return;
     }
 
-    if (programmeNamesQuery.data === undefined) {
+    const foundProgramme = programmeNamesQuery.data?.find((a) => a.channel === value);
+    if (foundProgramme?.displayName) {
+      setProgramme(foundProgramme.displayName);
+    }
+  }, [dataDataSource, programmeNamesQuery.data, value]);
+
+  const onEPGChange = React.useCallback((displayName: string) => {
+    if (!data?.id) {
+      onChange?.(displayName);
       return;
     }
 
-    const test = programmeNamesQuery.data.find((a) => a.channel === props.value);
-    if (test === undefined || test.displayName === undefined || test.channel === undefined) {
-      return;
-    }
+    const requestData: UpdateVideoStreamRequest = {
+      id: data.id,
+      tvg_ID: displayName
+    };
 
-    setProgramme(test.displayName);
+    void videoStreamsUpdateVideoStreamMutation(requestData)
+      .then(() => {
+        onChange?.(displayName);
+      })
+      .catch((error) => {
+        console.error('Error updating video stream:', error);
+      });
 
-  }, [dataDataSource, programmeNamesQuery.data, props.value]);
+  }, [data, onChange, videoStreamsUpdateVideoStreamMutation]);
 
-  const onEPGChange = React.useCallback(async (displayName: string) => {
 
-    if (props.data === undefined || props.data.id === '') {
-      props.onChange?.(displayName);
-      return;
-    }
+  const computedClassName = classNames('iconSelector p-0 m-0 w-full z-5', className);
 
-    const data = {} as UpdateVideoStreamRequest;
-    data.tvg_ID = displayName;
-    data.id = props.data.id;
-
-    await videoStreamsUpdateVideoStreamMutation(data)
-      .then(() => { props.onChange?.(displayName) }).catch(() => { }).finally(() => { });
-
-  }, [props, videoStreamsUpdateVideoStreamMutation]);
-
-  const className = classNames('iconSelector p-0 m-0 w-full z-5 ', props.className);
-
-  if (props.enableEditMode !== true) {
-
+  if (!enableEditMode) {
     return (
       <div className='flex h-full justify-content-center align-items-center p-0 m-0'>
-        {programme !== '' ? programme : 'Dummy'}
+        {programme || 'Dummy'}
       </div>
-    )
+    );
   }
 
   return (
     <div className="iconSelector flex w-full justify-content-center align-items-center">
-
       <DropDownEditorBodyTemplate
-        className={className}
-        data={dataDataSource.map((a) => (a.displayName ?? ''))}
-        onChange={async (e) => {
-          await onEPGChange(e);
-        }}
+        className={computedClassName}
+        data={dataDataSource.map(a => a.displayName ?? '')}
+        onChange={onEPGChange}
         value={programme}
       />
-
     </div>
   );
 };
 
 EPGSelector.displayName = 'EPGSelector';
-EPGSelector.defaultProps = {
-  className: null,
-  enableEditMode: true,
-  value: null,
-};
 
 type EPGSelectorProps = {
   className?: string;
   data?: VideoStreamDto;
   enableEditMode?: boolean;
-  onChange?: ((value: string) => void);
+  onChange?: (value: string) => void;
   value?: string;
 };
 

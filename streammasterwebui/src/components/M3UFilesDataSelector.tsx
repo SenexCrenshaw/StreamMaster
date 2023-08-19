@@ -288,7 +288,6 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
         columns={sourceColumns}
         dataSource={m3UFilesQuery.data}
         emptyMessage="No M3U Files"
-        globalSearchEnabled={false}
         id='m3ufilesdataselector'
         isLoading={m3UFilesQuery.isLoading}
         onPage={(pageInfo) => {

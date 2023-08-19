@@ -425,7 +425,6 @@ const StreamGroupVideoStreamDataSelector = (props: StreamGroupVideoStreamDataSel
 
       const newValue = { ...value } as DataTableFilterMetaData;
       newValue.fieldName = key;
-      newValue.valueType = typeof value.value;
       tosend.push(newValue);
     });
 

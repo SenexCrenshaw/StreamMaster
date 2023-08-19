@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
 
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
@@ -9,6 +10,11 @@ import { type ChildVideoStreamDto } from '../store/iptvApi';
 import { baseHostURL, isDebug } from '../settings';
 import { SMFileTypes } from '../store/streammaster_enums';
 import { type DataTableFilterMeta } from 'primereact/datatable';
+import ExportButton from '../components/export/ExportButton';
+import GlobalSearch from '../components/search/GlobalSearch';
+import { Checkbox } from 'primereact/checkbox';
+import { type DataSelector2Props } from '../features/dataSelector2/DataSelector2';
+
 
 export const getTopToolOptions = { autoHide: true, hideDelay: 100, position: 'top', showDelay: 400 } as TooltipOptions;
 export const getLeftToolOptions = { autoHide: true, hideDelay: 100, position: 'left', showDelay: 400 } as TooltipOptions;
@@ -120,8 +126,7 @@ export function addOrUpdateValueForField(
   data.push({
     fieldName: targetFieldName,
     matchMode: matchMode,
-    value: newValue,
-    valueType: typeof newValue,
+    value: newValue
   });
   // }
 }
@@ -130,7 +135,6 @@ export function areDataTableFilterMetaDataEqual(a: DataTableFilterMetaData, b: D
   // Compare simple string properties
   if (a.fieldName !== b.fieldName) return false;
   if (a.matchMode !== b.matchMode) return false;
-  if (a.valueType !== b.valueType) return false;
 
   // Deep comparison of 'value'. This assumes simple equality check; for objects or arrays, you might need a deeper comparison.
   if (a.value !== b.value) return false;
@@ -190,7 +194,6 @@ export type DataTableFilterMetaData = {
   matchMode: MatchMode;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
-  valueType: string;
 }
 
 export function isChildVideoStreamDto(value: unknown): value is ChildVideoStreamDto {
@@ -340,6 +343,53 @@ export function getIconUrl(iconOriginalSource: string | null | undefined, defaul
 
   return iconOriginalSource;
 }
+
+
+export const MultiSelectCheckbox: React.FC<{ onMultiSelectClick?: (value: boolean) => void, props: DataSelector2Props, rowClick: boolean, setRowClick: (val: boolean) => void }> = ({ onMultiSelectClick, rowClick, setRowClick, props }) => (
+  <div hidden={props.selectionMode !== 'selectable'}>
+    <Checkbox
+      checked={rowClick}
+      onChange={(e) => {
+        onMultiSelectClick?.(e.checked ?? false);
+        setRowClick(e.checked ?? false);
+      }}
+      tooltip="Multi Select"
+      tooltipOptions={getTopToolOptions}
+    />
+  </div>
+);
+export const getColumnClass = (size?: number, secondSize?: number) => {
+  if (size !== undefined) {
+    return `col-${12 - size}`;
+  }
+
+  if (secondSize !== undefined) {
+    return `col-${secondSize}`;
+  }
+
+  return 'col-6';
+}
+
+export const HeaderLeft: React.FC<{ props: any }> = ({ props }) => (
+  <div className={`flex debug flex-nowrap justify-content-start header p-0 m-0 align-items-center ${props?.headerLeftTemplate ? getColumnClass(props.leftColSize, 4) : 'col-1'}`}>
+    {props.headerLeftTemplate}
+  </div>
+);
+
+export const GlobalSearchComponent: React.FC<{ clearSourceFilter: any, globalSearchName: string, globalSourceFilterValue: string, onGlobalSourceFilterChange: any, props: any }> = ({ clearSourceFilter, props, globalSearchName, globalSourceFilterValue, onGlobalSourceFilterChange }) => (
+  props.globalSearchEnabled &&
+  <GlobalSearch
+    clearSourceFilter={clearSourceFilter}
+    columns={props.columns}
+    globalSearchName={globalSearchName}
+    globalSourceFilterValue={globalSourceFilterValue}
+    onGlobalSourceFilterChange={onGlobalSourceFilterChange}
+  />
+);
+
+export const ExportComponent: React.FC<{ exportCSV: any }> = ({ exportCSV }) => (
+  <ExportButton exportCSV={exportCSV} />
+);
 
 export type UserInformation = {
   IsAuthenticated: boolean;

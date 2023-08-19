@@ -122,7 +122,6 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
       const newValue = { ...value } as DataTableFilterMetaData;
       newValue.fieldName = key;
-      newValue.valueType = typeof value.value;
       retData.push(newValue);
     });
 
@@ -198,7 +197,6 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         onSelectionChange(e as StreamMasterApi.ChannelGroupDto[]);
       }}
 
-      onSetSourceFilters={(filterInfo) => setFilter({ filters: filterInfo } as DataTableFilterEvent)}
       onSort={(sortInfo) => {
 
         if (sortInfo.sortField !== null && sortInfo.sortField !== undefined) {

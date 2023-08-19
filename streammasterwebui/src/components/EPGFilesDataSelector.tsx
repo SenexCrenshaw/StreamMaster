@@ -229,7 +229,6 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
         columns={sourceColumns}
         dataSource={epgFilesQuery.data}
         emptyMessage="No EPG Files"
-        globalSearchEnabled={false}
         id='epgfilesdataselector'
         isLoading={epgFilesQuery.isLoading}
         onPage={(pageInfo) => {

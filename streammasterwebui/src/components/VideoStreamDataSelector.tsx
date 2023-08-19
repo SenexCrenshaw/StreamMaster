@@ -3,12 +3,12 @@ import { type CSSProperties } from "react";
 import React from "react";
 import { addOrUpdateValueForField, GetMessage, type DataTableFilterMetaData } from "../common/common";
 import { getTopToolOptions } from "../common/common";
-import { UpdateVideoStream } from "../store/signlar_functions";
+
 import { useLocalStorage } from "primereact/hooks";
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import VideoStreamAddPanel from "./VideoStreamAddDialog";
-import IconSelector from "./IconSelector";
+
 import ChannelGroupEditor from "./ChannelGroupEditor";
 import { type ColumnMeta } from '../features/dataSelector2/DataSelectorTypes2';
 import ChannelNumberEditor from "./ChannelNumberEditor";
@@ -26,8 +26,9 @@ import VideoStreamSetEPGFromNameDialog from "./VideoStreamSetEPGFromNameDialog";
 import VideoStreamSetEPGsFromNameDialog from "./VideoStreamSetEPGsFromNameDialog";
 import DataSelector2 from "../features/dataSelector2/DataSelector2";
 import { type DataTableFilterEvent } from "primereact/datatable";
-import { type VideoStreamDto, type VideoStreamsGetVideoStreamsApiArg, type ChannelNumberPair, type UpdateVideoStreamRequest, type ChannelGroupDto } from "../store/iptvApi";
+import { type VideoStreamDto, type VideoStreamsGetVideoStreamsApiArg, type ChannelNumberPair, type ChannelGroupDto } from "../store/iptvApi";
 import { useVideoStreamsGetVideoStreamsQuery } from "../store/iptvApi";
+import ChannelLogoEditor from "./ChannelLogoEditor";
 
 const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
@@ -82,63 +83,16 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     );
   }, []);
 
-  const onUpdateVideoStream = React.useCallback(async (
-    oldData: VideoStreamDto,
-    newName?: string | null,
-    channelNumber?: number | null,
-    Logo?: string | null,
-    EPGID?: string | null,
-  ) => {
-    if (oldData.id === '') {
-      return;
-    }
-
-    if (!newName && !channelNumber && (Logo === null || Logo === undefined) && (EPGID === null || EPGID === undefined)) {
-      return;
-    }
-
-    const data = {} as UpdateVideoStreamRequest;
-
-    data.id = oldData.id;
-
-    if (newName && newName !== '' && oldData.user_Tvg_name !== newName) {
-      data.tvg_name = newName;
-    }
-
-    if (Logo !== null && oldData.user_Tvg_logo !== Logo) {
-      data.tvg_logo = Logo;
-    }
-
-    if (EPGID !== null && oldData.user_Tvg_ID !== EPGID) {
-      data.tvg_ID = EPGID;
-    }
-
-    if (channelNumber && channelNumber > 0 && oldData.user_Tvg_chno !== channelNumber) {
-      data.tvg_chno = channelNumber;
-    }
-
-    await UpdateVideoStream(data)
-      .then(() => {
-      }).catch(() => {
-      });
-
-  }, []);
 
   const logoEditorBodyTemplate = React.useCallback((data: VideoStreamDto) => {
     return (
-      <IconSelector
-        className="p-inputtext-sm"
-        enableEditMode
-        onChange={
-          async (e: string) => {
-            await onUpdateVideoStream(data, null, null, e);
-          }
-        }
-        value={data.user_Tvg_logo}
+      <ChannelLogoEditor
+        data={data}
+        enableEditMode={enableEditMode}
       />
 
     );
-  }, [onUpdateVideoStream]);
+  }, [enableEditMode]);
 
   const channelNameEditorBodyTemplate = React.useCallback((data: VideoStreamDto) => {
     return (
@@ -289,83 +243,50 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     ]
   }, [channelNameEditorBodyTemplate, channelNumberEditorBodyTemplate, channelGroupEditorBodyTemplate]);
 
-  const rightHeaderTemplate = React.useMemo(() => {
-    const getToolTip = (value: boolean | null | undefined) => {
-      if (value === null) {
-        return 'Show All';
-      }
 
-      if (value === true) {
-        return 'Show Visible';
-      }
-
-      return 'Show Hidden';
+  const getToolTip = (value: boolean | null | undefined) => {
+    if (value === null) {
+      return 'Show All';
     }
 
-    let ids = [] as ChannelNumberPair[];
+    if (value === true) {
+      return 'Show Visible';
+    }
+
+    return 'Show Hidden';
+  };
+
+  const rightHeaderTemplate = React.useMemo(() => {
+    let ids: ChannelNumberPair[] = [];
 
     if (selectedVideoStreams !== undefined && selectedVideoStreams.length > 0) {
-
-
-      ids = selectedVideoStreams.map((a: VideoStreamDto) => {
-        return {
-          channelNumber: a.user_Tvg_chno,
-          id: a.id
-        } as ChannelNumberPair;
-      });;
+      ids = selectedVideoStreams?.map((a: VideoStreamDto) => ({
+        channelNumber: a.user_Tvg_chno,
+        id: a.id
+      })) ?? [];
     }
 
     return (
-      <div className="flex justify-content-end align-items-center w-full gap-1" >
-
+      <div className="flex justify-content-end align-items-center w-full gap-1">
         <TriStateCheckbox
-          onChange={(e: TriStateCheckboxChangeEvent) => { setShowHidden(e.value); }}
+          onChange={(e: TriStateCheckboxChangeEvent) => setShowHidden(e.value)}
           tooltip={getToolTip(showHidden)}
           tooltipOptions={getTopToolOptions}
-          value={showHidden} />
-
-        {/* <Checkbox
-          checked={enableEditMode}
-
-          onChange={(e: CheckboxChangeEvent) => {
-            setEnableEditMode(e.checked ?? false);
-          }}
-
-          tooltip={`Edit Mode ${enableEditMode ? 'Enabled' : 'Disabled'}  `}
-          tooltipOptions={getTopToolOptions}
-        /> */}
-
+          value={showHidden}
+        />
         <VideoStreamResetLogosDialog values={selectedVideoStreams} />
-
         <VideoStreamSetEPGsFromNameDialog values={selectedVideoStreams} />
-
         <VideoStreamSetLogosFromEPGDialog values={selectedVideoStreams} />
-
         <AutoSetChannelNumbers ids={ids} />
-
         <VideoStreamVisibleDialog iconFilled values={selectedVideoStreams} />
-
         <VideoStreamDeleteDialog values={selectedVideoStreams} />
-
-        <VideoStreamAddPanel group={props.channelGroups !== undefined && props.channelGroups.length > 0 ? props.channelGroups[0].name : undefined} />
-
+        <VideoStreamAddPanel group={props.channelGroups?.[0]?.name} />
       </div>
     );
-
   }, [props.channelGroups, selectedVideoStreams, setShowHidden, showHidden]);
 
+
   const rightHeaderBriefTemplate = React.useMemo(() => {
-    const getToolTip = (value: boolean | null | undefined) => {
-      if (value === null) {
-        return 'Show All';
-      }
-
-      if (value === true) {
-        return 'Show Visible';
-      }
-
-      return 'Show Hidden';
-    }
 
     return (
       <div className="flex justify-content-end align-items-center w-full gap-1" >
@@ -386,49 +307,44 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       return;
     }
 
-    const tosend = [] as DataTableFilterMetaData[];
+    const toSend: DataTableFilterMetaData[] = [];
 
     dataFilters.forEach((item) => {
       const newValue = { ...item } as DataTableFilterMetaData;
-      tosend.push(newValue);
-
+      toSend.push(newValue);
     })
 
-    const findIndex = tosend.findIndex((a) => a.matchMode === 'channelGroups');
+    const findIndex = toSend.findIndex((a) => a.matchMode === 'channelGroups');
     if (findIndex !== -1) {
-      tosend.splice(findIndex, 1);
+      toSend.splice(findIndex, 1);
     }
 
     if (props.channelGroups && props.channelGroups.length > 0) {
       const channelNames = JSON.stringify(props.channelGroups.map(a => a.name));
-      addOrUpdateValueForField(tosend, 'user_Tvg_group', 'channelGroups', channelNames);
+      addOrUpdateValueForField(toSend, 'user_Tvg_group', 'channelGroups', channelNames);
     }
 
-    setFilters(JSON.stringify(tosend));
-    setDataFilters(tosend);
+    setFilters(JSON.stringify(toSend));
+    setDataFilters(toSend);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.channelGroups]);
 
   const setFilter = React.useCallback((toFilter: DataTableFilterEvent): DataTableFilterMetaData[] => {
-
     if (toFilter === undefined || toFilter.filters === undefined) {
-      return [] as DataTableFilterMetaData[];
+      return [];
     }
 
-    const tosend = [] as DataTableFilterMetaData[];
+    const tosend: DataTableFilterMetaData[] = [];
     Object.keys(toFilter.filters).forEach((key) => {
       const value = toFilter.filters[key] as DataTableFilterMetaData;
       if (value.value === null || value.value === undefined || value.value === '') {
         return;
       }
 
-      const newValue = { ...value } as DataTableFilterMetaData;
-      newValue.fieldName = key;
-      newValue.valueType = typeof value.value;
+      const newValue: DataTableFilterMetaData = { ...value, fieldName: key };
       tosend.push(newValue);
     });
-
 
     if (props.channelGroups && props.channelGroups.length > 0) {
       const channelNames = JSON.stringify(props.channelGroups.map(a => a.name));
@@ -438,7 +354,6 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     setFilters(JSON.stringify(tosend));
     setDataFilters(tosend);
     return tosend;
-
   }, [props.channelGroups]);
 
   return (
@@ -491,6 +406,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 VideoStreamDataSelector.displayName = 'Stream Editor';
 VideoStreamDataSelector.defaultProps = {
   channelGroups: [] as ChannelGroupDto[],
+  showBrief: false
 };
 
 export type VideoStreamDataSelectorProps = {
