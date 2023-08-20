@@ -69,37 +69,7 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
         await cacheEntryRemoved;
       }
     },
-    programmesGetProgrammeNames: {
-      async onCacheEntryAdded(
-        arg,
-        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
-      ) {
-        try {
-          await cacheDataLoaded;
 
-          const applyResults = (
-            data: StreamMasterApi.ProgrammeNameDto[]
-          ) => {
-            updateCachedData(
-              () => {
-
-                return data;
-              }
-            );
-          };
-
-          hubConnection.on(
-            'ProgrammeNamesUpdate',
-            (data: StreamMasterApi.ProgrammeNameDto[]) => {
-              applyResults(data);
-            }
-          );
-
-        } catch { }
-
-        await cacheEntryRemoved;
-      }
-    },
     settingsGetSetting: {
       async onCacheEntryAdded(
         arg,

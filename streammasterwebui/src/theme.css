@@ -6,6 +6,10 @@
   border: 1px solid blue !important;
 } */
 
+.p-multiselect-label {
+  padding: .2rem !important;
+}
+
 .p-button.p-button-icon-only.p-button-rounded {
   height: 1.2rem !important;
   padding: 0 !important;
@@ -24,7 +28,7 @@
 
 .p-filter-column {
   padding: 0 !important;
-  padding-left: 1rem !important;
+  padding-left: .25rem !important;
 }
 
 .p-button.p-component.p-button-rounded.min-h-3rem.p-button-danger.p-button-icon-only {
@@ -302,4 +306,41 @@ body>div.p-column-filter-overlay.p-component.p-fluid.p-column-filter-overlay-men
 
 .p-fieldset-legend {
   color: #FE7600;
+}
+
+
+.icon-template {
+  max-height: 1rem;
+  justify-content: start;
+  align-items: center;
+  padding-left: 2px;
+}
+
+.icon-template img {
+  max-width: 1rem;
+  object-fit: contain;
+}
+
+.icon-option-template {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  text-align: center;
+}
+
+.icon-option-template img {
+  max-height: 78px;
+  max-width: 4rem;
+  object-fit: contain;
+}
+
+.icon-option-name {
+  white-space: normal;
+  width: 100%;
+}
+
+.default-icon {
+  max-height: 1rem;
+  max-width: 1.5rem;
+  object-fit: contain;
 }

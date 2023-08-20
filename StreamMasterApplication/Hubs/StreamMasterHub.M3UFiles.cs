@@ -5,8 +5,6 @@ using StreamMasterApplication.M3UFiles.Queries;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
-
-
 namespace StreamMasterApplication.Hubs;
 
 public partial class StreamMasterHub : IM3UFileHub
@@ -57,5 +55,11 @@ public partial class StreamMasterHub : IM3UFileHub
         M3UFileDto? data = await _mediator.Send(new GetM3UFileByIdQuery(id)).ConfigureAwait(false);
 
         return data;
+    }
+
+    public async Task<List<string>> GetM3UFileNames()
+    {
+        return await _mediator.Send(new GetM3UFileNamesQuery()).ConfigureAwait(false);
+
     }
 }

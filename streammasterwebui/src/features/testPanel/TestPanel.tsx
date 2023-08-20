@@ -10,6 +10,8 @@ import DataSelector from "../dataSelector/DataSelector";
 import { ColumnMeta } from "../dataSelector/DataSelectorTypes";
 import PlayListDataSelector from "../../components/PlayListDataSelector";
 import VideoStreamDataSelector from "../../components/VideoStreamDataSelector";
+import EPGEditor from "../../components/EPGEditor";
+import EPGSelector from "../../components/selectors/EPGSelector";
 
 const TestPanel = (props: TestPanelProps) => {
   const toast = React.useRef<Toast>(null);
@@ -25,7 +27,9 @@ const TestPanel = (props: TestPanelProps) => {
   }, []);
 
   return (
-    <VideoStreamDataSelector id="testPanel" />
+    <EPGSelector onChange={(e) => {
+      console.log(e);
+    }} />
   );
 }
 

@@ -386,6 +386,13 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["M3UFiles"],
       }),
+      m3UFilesGetM3UFileNames: build.query<
+        M3UFilesGetM3UFileNamesApiResponse,
+        M3UFilesGetM3UFileNamesApiArg
+      >({
+        query: () => ({ url: `/api/m3ufiles/getm3ufilenames` }),
+        providesTags: ["M3UFiles"],
+      }),
       miscBuildIconsCacheFromVideoStreams: build.mutation<
         MiscBuildIconsCacheFromVideoStreamsApiResponse,
         MiscBuildIconsCacheFromVideoStreamsApiArg
@@ -432,11 +439,24 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/programmes/getprogrammechannels` }),
         providesTags: ["Programmes"],
       }),
-      programmesGetProgrammeNames: build.query<
-        ProgrammesGetProgrammeNamesApiResponse,
-        ProgrammesGetProgrammeNamesApiArg
+      programmesGetProgrammeNameSelections: build.query<
+        ProgrammesGetProgrammeNameSelectionsApiResponse,
+        ProgrammesGetProgrammeNameSelectionsApiArg
       >({
-        query: () => ({ url: `/api/programmes/getprogrammenames` }),
+        query: (queryArg) => ({
+          url: `/api/programmes/getprogrammenameselections`,
+          params: {
+            Count: queryArg.count,
+            First: queryArg.first,
+            Last: queryArg.last,
+            Name: queryArg.name,
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString,
+          },
+        }),
         providesTags: ["Programmes"],
       }),
       programmesGetProgrammes: build.query<
@@ -444,6 +464,43 @@ const injectedRtkApi = api
         ProgrammesGetProgrammesApiArg
       >({
         query: () => ({ url: `/api/programmes/getprogrammes` }),
+        providesTags: ["Programmes"],
+      }),
+      programmesGetProgrammeNames: build.query<
+        ProgrammesGetProgrammeNamesApiResponse,
+        ProgrammesGetProgrammeNamesApiArg
+      >({
+        query: () => ({ url: `/api/programmes/getprogrammenames` }),
+        providesTags: ["Programmes"],
+      }),
+      programmesGetProgrammsSimpleQuery: build.query<
+        ProgrammesGetProgrammsSimpleQueryApiResponse,
+        ProgrammesGetProgrammsSimpleQueryApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/programmes/getprogrammssimplequery`,
+          params: {
+            Count: queryArg.count,
+            First: queryArg.first,
+            Last: queryArg.last,
+            Name: queryArg.name,
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString,
+          },
+        }),
+        providesTags: ["Programmes"],
+      }),
+      programmesGetProgrammeFromDisplayName: build.query<
+        ProgrammesGetProgrammeFromDisplayNameApiResponse,
+        ProgrammesGetProgrammeFromDisplayNameApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/programmes/getprogrammefromdisplayname`,
+          params: { Tvg_ID: queryArg },
+        }),
         providesTags: ["Programmes"],
       }),
       schedulesDirectGetCountries: build.query<
@@ -1032,6 +1089,8 @@ export type M3UFilesScanDirectoryForM3UFilesApiResponse = unknown;
 export type M3UFilesScanDirectoryForM3UFilesApiArg = void;
 export type M3UFilesUpdateM3UFileApiResponse = unknown;
 export type M3UFilesUpdateM3UFileApiArg = UpdateM3UFileRequest;
+export type M3UFilesGetM3UFileNamesApiResponse = /** status 200  */ string[];
+export type M3UFilesGetM3UFileNamesApiArg = void;
 export type MiscBuildIconsCacheFromVideoStreamsApiResponse = unknown;
 export type MiscBuildIconsCacheFromVideoStreamsApiArg = void;
 export type MiscReadDirectoryLogosRequestApiResponse = unknown;
@@ -1043,11 +1102,40 @@ export type ProgrammesGetProgrammeApiArg = string;
 export type ProgrammesGetProgrammeChannelsApiResponse =
   /** status 200  */ ProgrammeChannel[];
 export type ProgrammesGetProgrammeChannelsApiArg = void;
-export type ProgrammesGetProgrammeNamesApiResponse =
-  /** status 200  */ ProgrammeNameDto[];
-export type ProgrammesGetProgrammeNamesApiArg = void;
+export type ProgrammesGetProgrammeNameSelectionsApiResponse =
+  /** status 200  */ PagedResponseOfProgrammeNameDto;
+export type ProgrammesGetProgrammeNameSelectionsApiArg = {
+  count?: number;
+  first?: number;
+  last?: number;
+  name?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
 export type ProgrammesGetProgrammesApiResponse = /** status 200  */ Programme[];
 export type ProgrammesGetProgrammesApiArg = void;
+export type ProgrammesGetProgrammeNamesApiResponse =
+  /** status 200  */ string[];
+export type ProgrammesGetProgrammeNamesApiArg = void;
+export type ProgrammesGetProgrammsSimpleQueryApiResponse =
+  /** status 200  */ ProgrammeNameDto[];
+export type ProgrammesGetProgrammsSimpleQueryApiArg = {
+  count?: number;
+  first?: number;
+  last?: number;
+  name?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type ProgrammesGetProgrammeFromDisplayNameApiResponse =
+  /** status 200  */ ProgrammeNameDto;
+export type ProgrammesGetProgrammeFromDisplayNameApiArg = string;
 export type SchedulesDirectGetCountriesApiResponse =
   /** status 200  */ Countries;
 export type SchedulesDirectGetCountriesApiArg = void;
@@ -1436,9 +1524,19 @@ export type ProgrammeChannel = {
   startDateTime?: string;
 };
 export type ProgrammeNameDto = {
-  channel?: string;
-  channelName?: string;
-  displayName?: string;
+  id: string;
+  channel: string;
+  channelName: string;
+  displayName: string;
+};
+export type PagedResponseOfProgrammeNameDto = {
+  data: ProgrammeNameDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalItemCount: number;
+  totalPageCount: number;
+  totalRecords: number;
+  first: number;
 };
 export type NorthAmerica = {
   fullName?: string;
@@ -1921,13 +2019,17 @@ export const {
   useM3UFilesRefreshM3UFileMutation,
   useM3UFilesScanDirectoryForM3UFilesMutation,
   useM3UFilesUpdateM3UFileMutation,
+  useM3UFilesGetM3UFileNamesQuery,
   useMiscBuildIconsCacheFromVideoStreamsMutation,
   useMiscReadDirectoryLogosRequestMutation,
   useMiscBuildProgIconsCacheFromEpGsRequestMutation,
   useProgrammesGetProgrammeQuery,
   useProgrammesGetProgrammeChannelsQuery,
-  useProgrammesGetProgrammeNamesQuery,
+  useProgrammesGetProgrammeNameSelectionsQuery,
   useProgrammesGetProgrammesQuery,
+  useProgrammesGetProgrammeNamesQuery,
+  useProgrammesGetProgrammsSimpleQueryQuery,
+  useProgrammesGetProgrammeFromDisplayNameQuery,
   useSchedulesDirectGetCountriesQuery,
   useSchedulesDirectGetHeadendsQuery,
   useSchedulesDirectGetLineupQuery,

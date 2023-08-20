@@ -1,17 +1,17 @@
 import React from "react";
 
 import { Button } from "primereact/button";
-import { Toast } from 'primereact/toast';
+
 import { getTopToolOptions } from "../common/common";
-import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../store/iptvApi";
-import { useVideoStreamsUpdateVideoStreamMutation, useProgrammesGetProgrammeNamesQuery } from "../store/iptvApi";
+import { type SetVideoStreamSetEpGsFromNameRequest } from "../store/iptvApi";
+import { type VideoStreamDto } from "../store/iptvApi";
+import { useVideoStreamsSetVideoStreamSetEpGsFromNameMutation } from "../store/iptvApi";
 
 
 const VideoStreamSetEPGFromNameDialog = (props: VideoStreamSetEPGFromNameDialogProps) => {
-  const toast = React.useRef<Toast>(null);
-  const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
 
-  const programmeNamesQuery = useProgrammesGetProgrammeNamesQuery();
+  const [vdeoStreamsSetVideoStreamSetEpGsFromNameMutation] = useVideoStreamsSetVideoStreamSetEpGsFromNameMutation();
+
 
   const [canSet, setCanSet] = React.useState<string>('');
 
@@ -20,25 +20,7 @@ const VideoStreamSetEPGFromNameDialog = (props: VideoStreamSetEPGFromNameDialogP
     props.onClose?.();
   }, [props]);
 
-  React.useEffect(() => {
 
-    if (props.value === null || props.value === undefined || props.value.user_Tvg_ID === undefined || props.value.user_Tvg_ID === ''
-      || (programmeNamesQuery === null || programmeNamesQuery === undefined || programmeNamesQuery.data === null || programmeNamesQuery.data === undefined)
-    ) {
-      return;
-    }
-
-    if (programmeNamesQuery.data.find((x) => x.displayName === props.value?.user_Tvg_name)) {
-      setCanSet(props.value?.user_Tvg_name);
-      return;
-    }
-
-    if (programmeNamesQuery.data.find((x) => x.channelName === props.value?.user_Tvg_name)) {
-      setCanSet(props.value?.user_Tvg_name);
-      return;
-    }
-
-  }, [programmeNamesQuery, props.value]);
 
   const onChangeEPG = React.useCallback(async () => {
 
@@ -47,52 +29,34 @@ const VideoStreamSetEPGFromNameDialog = (props: VideoStreamSetEPGFromNameDialogP
       return;
     }
 
-    const toSend = {} as UpdateVideoStreamRequest;
-    toSend.id = props.value?.id;
-    toSend.tvg_ID = canSet;
+    const toSend = {} as SetVideoStreamSetEpGsFromNameRequest;
+    toSend.ids = [props.value?.id];
 
-    await videoStreamsUpdateVideoStreamMutation(toSend)
+
+    await vdeoStreamsSetVideoStreamSetEpGsFromNameMutation(toSend)
       .then(() => {
-        if (toast.current) {
 
-          toast.current.show({
-            detail: `Updated Stream`,
-            life: 3000,
-            severity: 'success',
-            summary: 'Successful',
-          });
-
-        }
       }
       ).catch((error) => {
-        if (toast.current) {
-          toast.current.show({
-            detail: `Update Stream Failed`,
-            life: 3000,
-            severity: 'error',
-            summary: 'Error ' + error.message,
-          });
-        }
+        console.error(error);
       });
+    ReturnToParent();
 
-  }, [ReturnToParent, canSet, props.value, videoStreamsUpdateVideoStreamMutation]);
+  }, [ReturnToParent, canSet, props.value, vdeoStreamsSetVideoStreamSetEpGsFromNameMutation]);
 
   return (
-    <>
-      <Toast position="bottom-right" ref={toast} />
-      <Button
-        disabled={canSet === '' || props.value?.user_Tvg_ID === canSet}
-        icon='pi pi-book'
-        onClick={async () =>
-          await onChangeEPG()
-        }
-        rounded
-        size="small"
-        text={props.iconFilled !== true}
-        tooltip="Match EPG to Name"
-        tooltipOptions={getTopToolOptions}
-      />
-    </>
+    <Button
+      disabled={canSet === '' || props.value?.user_Tvg_ID === canSet}
+      icon='pi pi-book'
+      onClick={async () =>
+        await onChangeEPG()
+      }
+      rounded
+      size="small"
+      text={props.iconFilled !== true}
+      tooltip="Match EPG to Name"
+      tooltipOptions={getTopToolOptions}
+    />
   );
 }
 

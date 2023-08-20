@@ -223,6 +223,10 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
 
   const bodyTemplate = React.useCallback((data: T, fieldName: string, fieldType: ColumnFieldType, camelize?: boolean) => {
 
+    if (fieldName === undefined || fieldName === '') {
+      return <div />;
+    }
+
     // Helper function for 'isHidden' fieldType
     const renderIsHidden = (record: boolean) => {
       if (record !== true) {
@@ -667,6 +671,8 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
               editor={col.editor}
               field={col.field}
               filter={getFilter(col.filter, col.fieldType)}
+              filterElement={col.filterElement}
+              filterMenuStyle={{ width: '14rem' }}
               filterPlaceholder={col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)}
               header={getHeader(col.field, col.header, col.fieldType)}
               hidden={col.isHidden === true || (props.hideControls === true && getHeader(col.field, col.header, col.fieldType) === 'Actions') ? true : undefined}
@@ -676,7 +682,7 @@ const DataSelector2 = <T extends DataTableValue,>(props: DataSelector2Props<T>) 
               showApplyButton
               showClearButton // ={props.showClearButton ?? col.filterType !== 'isHidden'}
               showFilterMatchModes
-              showFilterMenu
+              showFilterMenu={col.filterElement === undefined}
               showFilterMenuOptions
               showFilterOperator
               sortable={props.groupRowsBy === undefined || props.groupRowsBy === '' ? col.sortable : false}

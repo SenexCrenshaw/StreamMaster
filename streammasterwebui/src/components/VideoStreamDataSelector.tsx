@@ -1,4 +1,3 @@
-
 import { type CSSProperties } from "react";
 import React from "react";
 import { addOrUpdateValueForField, GetMessage, type DataTableFilterMetaData } from "../common/common";
@@ -9,11 +8,7 @@ import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import VideoStreamAddPanel from "./VideoStreamAddDialog";
 
-import ChannelGroupEditor from "./ChannelGroupEditor";
 import { type ColumnMeta } from '../features/dataSelector2/DataSelectorTypes2';
-import ChannelNumberEditor from "./ChannelNumberEditor";
-import ChannelNameEditor from "./ChannelNameEditor";
-import EPGSelector from "./EPGSelector";
 import VideoStreamDeleteDialog from "./VideoStreamDeleteDialog";
 import VideoStreamVisibleDialog from "./VideoStreamVisibleDialog";
 import VideoStreamEditDialog from "./VideoStreamEditDialog";
@@ -28,7 +23,8 @@ import DataSelector2 from "../features/dataSelector2/DataSelector2";
 import { type DataTableFilterEvent } from "primereact/datatable";
 import { type VideoStreamDto, type VideoStreamsGetVideoStreamsApiArg, type ChannelNumberPair, type ChannelGroupDto } from "../store/iptvApi";
 import { useVideoStreamsGetVideoStreamsQuery } from "../store/iptvApi";
-import ChannelLogoEditor from "./ChannelLogoEditor";
+
+import { useChannelGroupColumnConfig, useChannelNameColumnConfig, useChannelLogoColumnConfig, useM3UFileNameColumnConfig, useEPGColumnConfig, useChannelNumberColumnConfig } from "./columns/columnConfigHooks";
 
 const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
@@ -45,6 +41,12 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const [orderBy, setOrderBy] = React.useState<string>('user_tvg_name asc');
 
   const videoStreamsQuery = useVideoStreamsGetVideoStreamsQuery({ jsonFiltersString: filters, orderBy: orderBy ?? 'user_tvg_name', pageNumber: pageNumber, pageSize: pageSize } as VideoStreamsGetVideoStreamsApiArg);
+  const channelGroupConfig = useChannelGroupColumnConfig(enableEditMode, props.channelGroups?.map(a => a.name).sort() ?? undefined);
+  const m3uFileNameColumnConfig = useM3UFileNameColumnConfig(enableEditMode);
+  const epgColumnConfig = useEPGColumnConfig(enableEditMode);
+  const channelNumberColumnConfig = useChannelNumberColumnConfig(enableEditMode);
+  const channelNameColumnConfig = useChannelNameColumnConfig(enableEditMode);
+  const channelLogoColumnConfig = useChannelLogoColumnConfig(enableEditMode);
 
   React.useEffect(() => {
     if (props.enableEditMode != enableEditMode) {
@@ -67,106 +69,13 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     );
   }, []);
 
-
-  const logoEditorBodyTemplate = React.useCallback((data: VideoStreamDto) => {
-    return (
-      <ChannelLogoEditor
-        data={data}
-        enableEditMode={enableEditMode}
-      />
-
-    );
-  }, [enableEditMode]);
-
-  const channelNameEditorBodyTemplate = React.useCallback((data: VideoStreamDto) => {
-    return (
-      <ChannelNameEditor
-        data={data}
-        enableEditMode={enableEditMode}
-      />
-    )
-  }, [enableEditMode]);
-
-  const channelNumberEditorBodyTemplate = React.useCallback((data: VideoStreamDto) => {
-    return (
-      <ChannelNumberEditor
-        data={data}
-        enableEditMode={enableEditMode}
-      />
-    )
-  }, [enableEditMode]);
-
-  const epgEditorBodyTemplate = React.useCallback((data: VideoStreamDto) => {
-    return (
-      <EPGSelector
-        data={data}
-        enableEditMode={enableEditMode}
-        value={data.user_Tvg_ID}
-      />
-    );
-  }, [enableEditMode]);
-
-  const channelGroupEditorBodyTemplate = React.useCallback((data: VideoStreamDto) => {
-
-    if (data.user_Tvg_group === undefined) {
-      return <span />
-    }
-
-    if (!enableEditMode) {
-      return <span>{data.user_Tvg_group}</span>
-    }
-
-    return <ChannelGroupEditor data={data} />
-
-  }, [enableEditMode]);
-
   const targetColumns = React.useMemo((): ColumnMeta[] => {
     return [
-      {
-        bodyTemplate: channelNumberEditorBodyTemplate,
-        field: 'user_Tvg_chno',
-        filter: false,
-        header: 'Ch.',
-        sortable: true,
-        style: {
-          maxWidth: '1rem',
-          width: '1rem',
-        } as CSSProperties,
-      },
-      {
-        bodyTemplate: logoEditorBodyTemplate,
-        field: 'user_Tvg_logo',
-        fieldType: 'image',
-        header: "Logo"
-      },
-      {
-        bodyTemplate: channelNameEditorBodyTemplate,
-        field: 'user_Tvg_name',
-        filter: true,
-        header: 'Name',
-        sortable: true,
-      },
-      {
-        align: 'left',
-        bodyTemplate: channelGroupEditorBodyTemplate,
-        field: 'user_Tvg_group',
-        filter: true,
-        header: 'Group',
-        sortable: true,
-        style: {
-          maxWidth: '18rem',
-        } as CSSProperties,
-      },
-      {
-        bodyTemplate: epgEditorBodyTemplate,
-        field: 'user_Tvg_ID_DisplayName',
-        fieldType: 'epg',
-        filter: true,
-        sortable: true,
-        style: {
-          maxWidth: '16rem',
-        } as CSSProperties,
-      },
+      channelNumberColumnConfig,
+      channelLogoColumnConfig,
+      channelNameColumnConfig,
+      channelGroupConfig,
+      epgColumnConfig,
       {
         bodyTemplate: targetActionBodyTemplate, field: 'isHidden', header: 'Actions', isHidden: !enableEditMode, sortable: true,
         style: {
@@ -175,57 +84,17 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         } as CSSProperties,
       },
     ]
-  }, [channelNameEditorBodyTemplate, channelNumberEditorBodyTemplate, enableEditMode, epgEditorBodyTemplate, logoEditorBodyTemplate, channelGroupEditorBodyTemplate, targetActionBodyTemplate]);
+  }, [channelNumberColumnConfig, channelLogoColumnConfig, channelNameColumnConfig, channelGroupConfig, epgColumnConfig, targetActionBodyTemplate, enableEditMode]);
 
   const targetBriefColumns = React.useMemo((): ColumnMeta[] => {
-    return [
-      {
-        bodyTemplate: channelNumberEditorBodyTemplate,
-        field: 'user_Tvg_chno',
-        filter: false,
-        header: 'Ch.',
-        sortable: true,
-        style: {
-          maxWidth: '1rem',
-          width: '1rem',
-        } as CSSProperties,
-      },
 
-      {
-        bodyTemplate: channelNameEditorBodyTemplate,
-        field: 'user_Tvg_name',
-        filter: true,
-        header: 'Name',
-        sortable: true,
-        style: {
-          maxWidth: '18rem',
-          width: '18rem',
-        } as CSSProperties,
-      },
-      {
-        align: 'left',
-        bodyTemplate: channelGroupEditorBodyTemplate,
-        field: 'user_Tvg_group',
-        filter: true,
-        header: 'Group',
-        sortable: true,
-        style: {
-          maxWidth: '8rem',
-          width: '8rem',
-        } as CSSProperties,
-      },
-      {
-        field: 'm3UFileName',
-        filter: true,
-        header: 'File',
-        sortable: true,
-        style: {
-          maxWidth: '8rem',
-          width: '8rem',
-        } as CSSProperties,
-      }
+    return [
+      channelNumberColumnConfig,
+      channelNameColumnConfig,
+      channelGroupConfig,
+      m3uFileNameColumnConfig,
     ]
-  }, [channelNameEditorBodyTemplate, channelNumberEditorBodyTemplate, channelGroupEditorBodyTemplate]);
+  }, [channelNumberColumnConfig, channelNameColumnConfig, channelGroupConfig, m3uFileNameColumnConfig]);
 
   const getToolTip = (value: boolean | null | undefined) => {
     if (value === null) {
@@ -348,7 +217,6 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       headerRightTemplate={props.showBrief === true ? rightHeaderBriefTemplate : rightHeaderTemplate}
       id={props.id + 'VideoStreamDataSelector'}
       isLoading={videoStreamsQuery.isLoading || videoStreamsQuery.isFetching}
-
       name={GetMessage('streams')}
       onFilter={(filterInfo) => {
         setFilter(filterInfo as DataTableFilterEvent);

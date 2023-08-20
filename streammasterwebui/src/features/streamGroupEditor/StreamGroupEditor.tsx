@@ -13,7 +13,7 @@ import StreamGroupVideoStreamDataSelector from '../../components/StreamGroupVide
 import VideoStreamDataSelector from '../../components/VideoStreamDataSelector';
 
 const StreamGroupEditor = () => {
-  const id = 'streamgroupeditor;'
+  const id = 'streamgroupeditor'
   const [selectedStreamGroup, setSelectedStreamGroup] = useLocalStorage<StreamMasterApi.StreamGroupDto | undefined>(undefined, id + '-selectedstreamgroup');
   const [selectedChannelGroups, setSelectedChannelGroups] = useLocalStorage<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[], id + '-selectedChannelGroups');
 

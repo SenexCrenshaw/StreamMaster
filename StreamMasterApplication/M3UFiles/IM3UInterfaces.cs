@@ -11,6 +11,7 @@ namespace StreamMasterApplication.M3UFiles;
 
 public interface IM3UFileController
 {
+    Task<ActionResult<List<string>>> GetM3UFileNames();
     Task<ActionResult> CreateM3UFile(CreateM3UFileRequest request);
 
     Task<ActionResult> CreateM3UFileFromForm([FromForm] CreateM3UFileRequest request);
@@ -38,6 +39,7 @@ public interface IM3UFileDB
 
 public interface IM3UFileHub
 {
+    Task<List<string>> GetM3UFileNames();
     Task CreateM3UFile(CreateM3UFileRequest request);
 
     Task ChangeM3UFileName(ChangeM3UFileNameRequest request);

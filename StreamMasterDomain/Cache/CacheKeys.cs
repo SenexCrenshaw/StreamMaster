@@ -189,7 +189,23 @@ public static class CacheKeys
         return null;
     }
 
-    public static string? GetEPGChannelByDisplayName(this IMemoryCache cache, string displayName)
+    public static ProgrammeNameDto? GetEPGChannelByDisplayName(this IMemoryCache cache, string displayName)
+    {
+        IEnumerable<ProgrammeNameDto> programmeNames = cache.ProgrammeNames();
+
+        ProgrammeNameDto? pn = programmeNames.FirstOrDefault(a => a.DisplayName == displayName);
+        if (pn == null)
+        {
+            pn = programmeNames.FirstOrDefault(a => a.ChannelName == displayName);
+            if (pn == null)
+            {
+                return null;
+            }
+        }
+        return pn;
+    }
+
+    public static string? GetEPGChannelNameByDisplayName(this IMemoryCache cache, string displayName)
     {
         IEnumerable<ProgrammeNameDto> programmeNames = cache.ProgrammeNames();
 

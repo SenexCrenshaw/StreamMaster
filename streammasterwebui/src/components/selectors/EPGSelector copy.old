@@ -1,15 +1,15 @@
 import * as React from 'react';
 import { classNames } from 'primereact/utils';
-import DropDownEditorBodyTemplate from './DropDownEditorBodyTemplate';
+import DropDownEditorBodyTemplate from '../DropDownEditorBodyTemplate';
 import {
   type UpdateVideoStreamRequest,
   type ProgrammeNameDto,
   type VideoStreamDto
-} from '../store/iptvApi';
+} from '../../store/iptvApi';
 import {
-  useProgrammesGetProgrammeNamesQuery,
+  useProgrammesGetProgrammeNameSelectionsQuery,
   useVideoStreamsUpdateVideoStreamMutation
-} from '../store/iptvApi';
+} from '../../store/iptvApi';
 
 const EPGSelector = ({
   className = '',
@@ -20,7 +20,7 @@ const EPGSelector = ({
 }: EPGSelectorProps) => {
   const [programme, setProgramme] = React.useState<string>('');
   const [dataDataSource, setDataSource] = React.useState<ProgrammeNameDto[]>([]);
-  const programmeNamesQuery = useProgrammesGetProgrammeNamesQuery();
+  const programmeNamesQuery = useProgrammesGetProgrammeNameSelectionsQuery();
   const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
 
   React.useEffect(() => {

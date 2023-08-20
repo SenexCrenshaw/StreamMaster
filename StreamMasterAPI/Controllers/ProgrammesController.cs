@@ -4,6 +4,7 @@ using StreamMasterApplication.Programmes;
 using StreamMasterApplication.Programmes.Queries;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Repository.EPG;
 
@@ -26,12 +27,12 @@ public class ProgrammesController : ApiControllerBase, IProgrammeChannelControll
         return Ok(await Mediator.Send(new GetProgrammeChannels()).ConfigureAwait(false));
     }
 
+
     [HttpGet]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProgrammeNameDto>))]
-    public async Task<ActionResult<IEnumerable<ProgrammeNameDto>>> GetProgrammeNames()
+    public async Task<ActionResult<PagedResponse<ProgrammeNameDto>>> GetProgrammeNameSelections([FromQuery] ProgrammeParameters Parameters)
     {
-        return Ok(await Mediator.Send(new GetProgrammeNames()).ConfigureAwait(false));
+        return Ok(await Mediator.Send(new GetProgrammeNameSelections(Parameters)).ConfigureAwait(false));
     }
 
     [HttpGet]
@@ -39,5 +40,26 @@ public class ProgrammesController : ApiControllerBase, IProgrammeChannelControll
     public async Task<ActionResult<IEnumerable<Programme>>> GetProgrammes()
     {
         return Ok(await Mediator.Send(new GetProgrammes()).ConfigureAwait(false));
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<IEnumerable<string>>> GetProgrammeNames()
+    {
+        return Ok(await Mediator.Send(new GetProgrammeNames()).ConfigureAwait(false));
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<ProgrammeNameDto>>> GetProgrammsSimpleQuery([FromQuery] ProgrammeParameters Parameters)
+    {
+        return Ok(await Mediator.Send(new GetProgrammsSimpleQuery(Parameters)).ConfigureAwait(false));
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<ProgrammeNameDto?>> GetProgrammeFromDisplayName(string Tvg_ID)
+    {
+        return Ok(await Mediator.Send(new GetProgrammeFromDisplayName(Tvg_ID)).ConfigureAwait(false));
     }
 }

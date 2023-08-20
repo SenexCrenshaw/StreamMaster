@@ -5,6 +5,7 @@ namespace StreamMasterDomain.Repository
 {
     public interface IM3UFileRepository : IRepositoryBase<M3UFile>
     {
+        IQueryable<string> GetM3UFileNames();
         Task<List<string>> GetChannelGroupNamesFromM3UFile(int m3uFileId);
         Task<IEnumerable<M3UFile>> GetAllM3UFilesAsync();
 

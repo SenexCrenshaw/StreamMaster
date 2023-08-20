@@ -1,15 +1,15 @@
 import React from "react";
 
-import IconSelector from "./selectors/IconSelector";
 import { type VideoStreamDto } from "../store/iptvApi";
 import { type UpdateVideoStreamRequest } from "../store/iptvApi";
 import { useVideoStreamsUpdateVideoStreamMutation } from "../store/iptvApi";
+import EPGSelector from "./selectors/EPGSelector";
 
 
-const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
+const EPGEditor = (props: StreamDataSelectorProps) => {
   const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
 
-  const onUpdateVideoStream = async (Logo: string) => {
+  const onUpdateVideoStream = async (epg: string) => {
     if (props.data.id === '') {
       return;
     }
@@ -18,8 +18,8 @@ const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
 
     data.id = props.data.id;
 
-    if (Logo && Logo !== '' && props.data.user_Tvg_logo !== Logo) {
-      data.tvg_logo = Logo;
+    if (epg && epg !== '' && props.data.user_Tvg_ID !== epg) {
+      data.tvg_ID = epg;
     }
 
     await videoStreamsUpdateVideoStreamMutation(data)
@@ -32,7 +32,7 @@ const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
   };
 
   return (
-    <IconSelector
+    <EPGSelector
       className="p-inputtext-sm"
       enableEditMode={props.enableEditMode}
       onChange={
@@ -45,8 +45,8 @@ const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
   );
 };
 
-ChannelLogoEditor.displayName = 'Logo Editor';
-ChannelLogoEditor.defaultProps = {
+EPGEditor.displayName = 'EPG Editor';
+EPGEditor.defaultProps = {
   enableEditMode: true
 };
 
@@ -55,4 +55,4 @@ export type StreamDataSelectorProps = {
   enableEditMode?: boolean;
 };
 
-export default React.memo(ChannelLogoEditor);
+export default React.memo(EPGEditor);

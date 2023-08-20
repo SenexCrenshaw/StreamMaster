@@ -67,4 +67,9 @@ public class M3UFileRepository : RepositoryBase<M3UFile>, IM3UFileRepository
     {
         Update(m3uFile);
     }
+
+    public IQueryable<string> GetM3UFileNames()
+    {
+        return FindAll().OrderBy(a => a.Name).Select(a => a.Name);
+    }
 }

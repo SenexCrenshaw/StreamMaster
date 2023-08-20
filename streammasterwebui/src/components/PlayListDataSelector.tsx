@@ -4,16 +4,17 @@ import { type DataTableFilterMetaData } from "../common/common";
 import { getTopToolOptions } from "../common/common";
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
-import ChannelGroupAddDialog from "./ChannelGroupAddDialog";
+import ChannelGroupAddDialog from "./channelGroups/ChannelGroupAddDialog";
 import { type ColumnMeta } from '../features/dataSelector2/DataSelectorTypes2';
-import ChannelGroupDeleteDialog from "./ChannelGroupDeleteDialog";
-import ChannelGroupVisibleDialog from "./ChannelGroupVisibleDialog";
-import ChannelGroupEditDialog from "./ChannelGroupEditDialog";
+
 import { useLocalStorage } from "primereact/hooks";
 import DataSelector2 from "../features/dataSelector2/DataSelector2";
 import { type DataTableFilterEvent } from "primereact/datatable";
 import { type PagedResponseOfChannelGroupDto, type ChannelGroupDto, type ChannelGroupsGetChannelGroupsApiArg } from "../store/iptvApi";
 import { useChannelGroupsGetChannelGroupsQuery } from "../store/iptvApi";
+import ChannelGroupDeleteDialog from "./channelGroups/ChannelGroupDeleteDialog";
+import ChannelGroupEditDialog from "./channelGroups/ChannelGroupEditDialog";
+import ChannelGroupVisibleDialog from "./channelGroups/ChannelGroupVisibleDialog";
 
 const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   const id = props.id + '-PlayListDataSelector';

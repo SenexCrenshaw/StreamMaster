@@ -1,53 +1,65 @@
-import React from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { OverlayPanel } from "primereact/overlaypanel";
 import { BlockUI } from "primereact/blockui";
 import { Dialog } from "primereact/dialog";
 
-const InfoMessageOverLayDialog = (props: InfoMessageOverLayDialogProps) => {
+type Severity = 'error' | 'info' | 'success' | 'warn';
 
-  const [showDialog, setShowDialog] = React.useState<boolean>(false);
+type InfoMessageOverLayDialogProps = {
+  blocked?: boolean;
+  children: React.ReactNode;
+  closable?: boolean;
+  header?: string;
+  infoMessage: string;
+  maximizable?: boolean;
+  onClose: () => void;
+  overlayColSize?: number;
+  severity?: Severity | null;
+  show: boolean;
+}
 
-  const op = React.useRef<OverlayPanel>(null);
-  const anchorRef = React.useRef<Dialog>(null);
+const InfoMessageOverLayDialog: React.FC<InfoMessageOverLayDialogProps> = (props) => {
+  const {
+    blocked = false,
+    children,
+    closable = true,
+    header = '',
+    infoMessage,
+    maximizable = true,
+    onClose,
+    overlayColSize = 4,
+    severity,
+    show
+  } = props;
 
-  const returnToParent = React.useCallback(() => {
+  const [showDialog, setShowDialog] = useState<boolean>(show);
+
+  const op = useRef<OverlayPanel | null>(null);
+  const anchorRef = useRef<Dialog | null>(null);
+
+  const hideOverlayAndDialog = useCallback(() => {
     op.current?.hide();
     setShowDialog(false);
-    props.onClose?.();
-  }, [props]);
+    onClose();
+  }, [onClose]);
 
-  React.useEffect(() => {
-    setShowDialog(props.show);
-  }, [props.show]);
+  useEffect(() => {
+    setShowDialog(show);
+  }, [show]);
 
-  React.useEffect(() => {
-    const startTimer = () => {
-      setTimeout(() => {
-        returnToParent();
-      }, 1500);
-    };
+  useEffect(() => {
+    if (!infoMessage) return;
 
-    if (op.current === null) {
-      return;
-    }
+    if (!anchorRef.current?.getElement()) return;
 
-    if (props.infoMessage !== null && props.infoMessage !== undefined && props.infoMessage !== '') {
-      if (anchorRef.current === null || anchorRef.current.getElement() === null) {
-        return;
-      }
+    op.current?.show(null, anchorRef.current.getElement());
 
-      op.current.show(null, anchorRef.current.getElement());
-      startTimer();
-    } else {
-      // op.current.hide();
+    const timer = setTimeout(hideOverlayAndDialog, 1500);
+    return () => clearTimeout(timer);
+  }, [infoMessage, hideOverlayAndDialog]);
 
-    }
-
-  }, [props.infoMessage, returnToParent]);
-
-  const getSeverity = () => {
-
-    switch (props.severity) {
+  const determineSeverityColor = (): string => {
+    switch (severity) {
       case 'info':
         return 'text-primary-500';
       case 'error':
@@ -57,71 +69,48 @@ const InfoMessageOverLayDialog = (props: InfoMessageOverLayDialogProps) => {
       case 'warn':
         return 'text-yellow-500';
       default:
-        {
-          if (props.infoMessage !== undefined && props.infoMessage !== '') {
-            return props.infoMessage.toLocaleLowerCase().includes('error') ||
-              props.infoMessage.toLocaleLowerCase().includes('failed') ? 'text-red-500' : 'text-green-500';
-          }
-
-          return 'text-primary-500';
+        if (infoMessage.toLowerCase().includes('error') ||
+          infoMessage.toLowerCase().includes('failed')) {
+          return 'text-red-500';
         }
+
+        return 'text-green-500';
     }
   };
 
   return (
     <>
       <Dialog
-        className={`col-${props.overlayColSize} p-0`}
-        closable={props.closable}
-        header={props.header}
-        maximizable={props.maximizable}
+        className={`col-${overlayColSize} p-0`}
+        closable={closable}
+        header={header}
+        maximizable={maximizable}
         modal
-        onHide={() => { returnToParent(); }}
+        onHide={hideOverlayAndDialog}
         ref={anchorRef}
         visible={showDialog}
       >
-        <BlockUI blocked={props.blocked}>
-          {props.children}
+        <BlockUI blocked={blocked}>
+          {children}
         </BlockUI>
       </Dialog>
 
       <OverlayPanel
-        className={`col-${props.overlayColSize} p-0`}
+        className={`col-${overlayColSize} p-0`}
         dismissable={false}
         ref={op}
         showCloseIcon={false}
       >
         <div className='flex m-0 p-1 border-1 border-round surface-border justify-contents-center'>
           <div className='surface-overlay surface-overlay min-h-full min-w-full'>
-            <h4 className={`text-center ${getSeverity()}`}>{props.infoMessage}</h4>
+            <h4 className={`text-center ${determineSeverityColor()}`}>{infoMessage}</h4>
           </div>
         </div>
       </OverlayPanel>
-
     </>
   );
-}
+};
 
 InfoMessageOverLayDialog.displayName = 'InfoMessageOverLayDialog';
-InfoMessageOverLayDialog.defaultProps = {
-  blocked: false,
-  header: '',
-  maximizable: true,
-  overlayColSize: 4
-};
-
-type InfoMessageOverLayDialogProps = {
-  // eslint-disable-next-line react/no-unused-prop-types
-  blocked?: boolean | undefined;
-  children: React.ReactNode;
-  closable?: boolean | undefined;
-  header?: string;
-  infoMessage: string;
-  maximizable?: boolean | undefined;
-  onClose: () => void;
-  overlayColSize?: number;
-  severity?: string | null;
-  show: boolean;
-};
 
 export default React.memo(InfoMessageOverLayDialog);

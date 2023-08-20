@@ -1,4 +1,5 @@
 import { type FilterMatchMode } from "primereact/api";
+import { type ColumnFilterElementTemplateOptions } from "primereact/column";
 import { type ColumnEditorOptions, type ColumnEvent } from "primereact/column";
 import { type CSSProperties } from "react";
 
@@ -45,6 +46,7 @@ export type ColumnMeta = {
    * A boolean value that specifies whether to enable filtering for the column.
    */
   filter?: boolean;
+  filterElement?: ((options: ColumnFilterElementTemplateOptions) => React.ReactNode);
   filterField?: string;
   /**
    * The type of matching to use for filtering.

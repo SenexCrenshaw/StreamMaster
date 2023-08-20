@@ -55,47 +55,44 @@ public static class FilterHelper<T> where T : class
         }
 
         Expression propertyAccess = Expression.Property(parameter, property);
-        Expression filterExpression;
 
-        switch (filter.MatchMode)
+        Expression filterExpression = filter.MatchMode switch
         {
-            case "channelGroups":
-                filterExpression = CreateChannelGroupsExpression(filter, propertyAccess);
-                break;
-            case "contains":
-            case "startsWith":
-            case "endsWith":
-                filterExpression = CreateStringMatchExpression(filter, propertyAccess, filter.MatchMode);
-                break;
-            case "equals":
-                filterExpression = Expression.Equal(propertyAccess, Expression.Constant(ConvertValue(filter.Value, property.PropertyType)));
-                break;
-            default:
-                filterExpression = Expression.Equal(propertyAccess, Expression.Constant(ConvertValue(filter.Value, property.PropertyType)));
-                break;
-        }
-
+            //case "channelGroups":
+            //    filterExpression = CreateArrayExpression(filter, propertyAccess, filter.MatchMode);
+            //    break;
+            //case "contains":
+            //case "startsWith":
+            //case "endsWith":
+            //    filterExpression = CreateArrayExpression(filter, propertyAccess, filter.MatchMode);
+            //    break;
+            "equals" => Expression.Equal(propertyAccess, Expression.Constant(ConvertValue(filter.Value, property.PropertyType))),
+            _ => CreateArrayExpression(filter, propertyAccess, filter.MatchMode),
+        };
         Expression<Func<T, bool>> lambda = Expression.Lambda<Func<T, bool>>(filterExpression, parameter);
         return query.Where(lambda);
     }
 
-    private static Expression CreateStringMatchExpression(DataTableFilterMetaData filter, Expression propertyAccess, string matchMode)
+    private static Expression CreateArrayExpression(DataTableFilterMetaData filter, Expression propertyAccess, string matchMode)
     {
-        return Expression.Call(
-                        propertyAccess,
-                        matchMode, null, Expression.Constant(ConvertValue(filter.Value, typeof(string)))  // Convert filter value to lowercase
-                    );
-    }
-
-    private static Expression CreateChannelGroupsExpression(DataTableFilterMetaData filter, Expression propertyAccess)
-    {
-
-        string[] channelGroups = JsonSerializer.Deserialize<string[]>(filter.Value.ToString());
+        string[] values;
+        string stringValue = filter.Value.ToString() ?? string.Empty;
         List<Expression> containsExpressions = new();
-        foreach (string group in channelGroups)
+        if (!stringValue.StartsWith('['))
         {
-            MethodCallExpression containsCall = Expression.Call(propertyAccess, typeof(string).GetMethod("Contains", new[] { typeof(string) }), Expression.Constant(group.Trim()));
+            MethodCallExpression toLowerCall = Expression.Call(propertyAccess, typeof(string).GetMethod("ToLower", Type.EmptyTypes));
+            MethodCallExpression containsCall = Expression.Call(toLowerCall, typeof(string).GetMethod("Contains", new[] { typeof(string) }), Expression.Constant(stringValue.ToLower()));
             containsExpressions.Add(containsCall);
+        }
+        else
+        {
+            values = JsonSerializer.Deserialize<string[]>(stringValue) ?? Array.Empty<string>();
+            foreach (string value in values)
+            {
+                BinaryExpression test = Expression.Equal(propertyAccess, Expression.Constant(value));
+                //MethodCallExpression containsCall = Expression.Call(propertyAccess, matchMode, null, Expression.Constant(value.Trim()));
+                containsExpressions.Add(test);
+            }
         }
 
         Expression filterExpression = containsExpressions[0];

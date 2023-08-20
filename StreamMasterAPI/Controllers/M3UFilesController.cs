@@ -98,4 +98,13 @@ public class M3UFilesController : ApiControllerBase, IM3UFileController
         M3UFile? data = await Mediator.Send(request).ConfigureAwait(false);
         return data == null ? NotFound() : NoContent();
     }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<string>>> GetM3UFileNames()
+    {
+        List<string> res = await Mediator.Send(new GetM3UFileNamesQuery()).ConfigureAwait(false);
+
+        return Ok(res);
+    }
 }

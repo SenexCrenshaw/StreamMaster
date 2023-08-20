@@ -43,25 +43,25 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
             {
                 filters = Utils.GetFiltersFromJSON(parameters.JSONFiltersString);
             }
-            if (typeof(T) == typeof(VideoStream))
-            {
-                entities = (IQueryable<T>)FindByConditionVideoStream(filters, parameters.OrderBy);
-            }
-            else
-            {
-                entities = FindByCondition(filters, parameters.OrderBy);
-            }
+            //if (typeof(T) == typeof(VideoStream))
+            //{
+            //    entities = (IQueryable<T>)FindByConditionVideoStream(filters, parameters.OrderBy);
+            //}
+            //else
+            //{
+            entities = FindByCondition(filters, parameters.OrderBy);
+            //}
         }
         else
         {
-            if (typeof(T) == typeof(VideoStream))
-            {
-                entities = (IQueryable<T>)FindAllVideoStream();
-            }
-            else
-            {
-                entities = FindAll();
-            }
+            //if (typeof(T) == typeof(VideoStream))
+            //{
+            //    entities = (IQueryable<T>)FindAllVideoStream();
+            //}
+            //else
+            //{
+            entities = FindAll();
+            //}
         }
 
 

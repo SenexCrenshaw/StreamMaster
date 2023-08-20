@@ -1,11 +1,11 @@
 
 import React from "react";
 import { Button } from "primereact/button";
+import { type ChannelGroupDto, type UpdateChannelGroupRequest, type UpdateChannelGroupsRequest } from "../../store/iptvApi";
+import { useChannelGroupsUpdateChannelGroupsMutation } from "../../store/iptvApi";
+import { getTopToolOptions } from "../../common/common";
+import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 
-import { getTopToolOptions } from "../common/common";
-import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
-import { type ChannelGroupDto, type UpdateChannelGroupRequest, type UpdateChannelGroupsRequest } from "../store/iptvApi";
-import { useChannelGroupsUpdateChannelGroupsMutation } from "../store/iptvApi";
 
 const ChannelGroupVisibleDialog = (props: ChannelGroupVisibleDialogProps) => {
 

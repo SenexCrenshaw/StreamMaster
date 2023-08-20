@@ -1,25 +1,18 @@
 import React from "react";
-import * as StreamMasterApi from '../store/iptvApi';
 import { Button } from "primereact/button";
-import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
-import { GetMessage, getTopToolOptions } from "../common/common";
 import { InputText } from "primereact/inputtext";
-// import StringEditorBodyTemplate from "./StringEditorBodyTemplate";
-
-
-// import { DataView } from 'primereact/dataview';
-
-
+import { type ChannelGroupDto, type UpdateChannelGroupRequest } from "../../store/iptvApi";
+import { useChannelGroupsUpdateChannelGroupMutation } from "../../store/iptvApi";
+import { GetMessage, getTopToolOptions } from "../../common/common";
+import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 
 const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
-  // const [regex, setRegex] = React.useState<string | undefined>('');
   const [newGroupName, setNewGroupName] = React.useState('');
 
-  const [channelGroupsUpdateChannelGroupMutation] = StreamMasterApi.useChannelGroupsUpdateChannelGroupMutation();
-  // const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamNamesByNamePatternQuery(regex ?? '');
+  const [channelGroupsUpdateChannelGroupMutation] = useChannelGroupsUpdateChannelGroupMutation();
 
   const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);
@@ -46,30 +39,20 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
       return;
     }
 
-    const toSend = {} as StreamMasterApi.UpdateChannelGroupRequest;
+    const toSend = {} as UpdateChannelGroupRequest;
 
     toSend.channelGroupName = props.value?.name;
     toSend.newGroupName = newGroupName;
 
-    // if (regex !== undefined && regex !== '') {
-    //   toSend.regex = regex;
-    // }
-
     channelGroupsUpdateChannelGroupMutation(toSend).then(() => {
       setInfoMessage('Channel Group Edit Successfully');
-    }).catch((e) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    }).catch((e: any) => {
       setInfoMessage('Channel Group Edit Error: ' + e.message);
     });
     setNewGroupName('');
   }, [ReturnToParent, channelGroupsUpdateChannelGroupMutation, newGroupName, props.value]);
 
-  // const itemTemplate = (data: string) => {
-  //   return (
-  //     <div className="flex flex-column flex-row align-items-start">
-  //       {data}
-  //     </div>
-  //   );
-  // };
 
   return (
     <>
@@ -94,15 +77,6 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
               value={newGroupName}
             />
 
-            {/* <StringEditorBodyTemplate
-              includeBorder
-              onChange={(e) => {
-                setRegex(e)
-              }}
-              placeholder={GetMessage("channel group regex")}
-              value={regex}
-            /> */}
-
             <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
               <Button
                 icon="pi pi-check"
@@ -112,17 +86,7 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
                 severity="success"
               />
             </div>
-            {/* <div hidden={regex === undefined || regex === ''}>
-              <div className='m3uFilesEditor flex flex-column col-12 flex-shrink-0 '>
-                <DataView
-                  header={GetMessage("matches")}
-                  itemTemplate={itemTemplate}
-                  loading={videoStreamsQuery.isLoading || videoStreamsQuery.isFetching}
-                  paginator
-                  rows={25}
-                  value={videoStreamsQuery.data} />
-              </div>
-            </div> */}
+
           </div>
         </div >
       </InfoMessageOverLayDialog>
@@ -149,7 +113,7 @@ ChannelGroupEditDialog.defaultProps = {
 
 type ChannelGroupEditDialogProps = {
   onClose?: ((newName: string) => void);
-  value?: StreamMasterApi.ChannelGroupDto | undefined;
+  value?: ChannelGroupDto | undefined;
 };
 
 export default React.memo(ChannelGroupEditDialog);

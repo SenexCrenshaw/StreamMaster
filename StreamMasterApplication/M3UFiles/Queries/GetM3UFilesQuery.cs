@@ -18,7 +18,7 @@ internal class GetM3UFilesQueryHandler : IRequestHandler<GetM3UFilesQuery, Paged
 
     public async Task<PagedResponse<M3UFileDto>> Handle(GetM3UFilesQuery request, CancellationToken cancellationToken = default)
     {
-        PagedResponse<StreamMasterDomain.Dto.M3UFileDto> m3uFiles = await Repository.M3UFile.GetM3UFilesAsync(request.Parameters).ConfigureAwait(false);
+        PagedResponse<M3UFileDto> m3uFiles = await Repository.M3UFile.GetM3UFilesAsync(request.Parameters).ConfigureAwait(false);
         return m3uFiles;
     }
 }

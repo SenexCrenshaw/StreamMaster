@@ -154,6 +154,37 @@ export function areDataTableFilterMetaDatasEqual(arr1: DataTableFilterMetaData[]
   return true;
 }
 
+
+
+export type SimpleQueryApiArg = {
+  count?: number;
+  first?: number;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+  last?: number;
+  name?: string;
+  orderBy?: string;
+  pageNumber?: number;
+  pageSize?: number;
+};
+
+export type GetApiArg = {
+  count?: number;
+  first?: number;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+  last?: number;
+  name?: string;
+  orderBy?: string;
+  pageNumber?: number;
+  pageSize?: number;
+};
+
+
+export type HasId = {
+  id: number | string;
+}
+
 export function compareIconFileDto(a: IconFileDto, b: IconFileDto): number {
   // Compare by id
   if (a.id !== undefined && b.id !== undefined) {

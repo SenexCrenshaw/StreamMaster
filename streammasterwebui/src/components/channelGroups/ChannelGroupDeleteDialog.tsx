@@ -1,17 +1,19 @@
 import React from "react";
-import * as StreamMasterApi from '../store/iptvApi';
 import { Button } from "primereact/button";
-import { getTopToolOptions } from "../common/common";
+import { type ChannelGroupDto, type DeleteChannelGroupRequest } from "../../store/iptvApi";
+import { useChannelGroupsDeleteChannelGroupMutation } from "../../store/iptvApi";
+import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
+import { getTopToolOptions } from "../../common/common";
+import DeleteButton from "../buttons/DeleteButton";
 
-import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
 
 const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
-  const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[]);
+  const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
   const [infoMessage, setInfoMessage] = React.useState('');
 
-  const [channelGroupsDeleteChannelGroupMutation] = StreamMasterApi.useChannelGroupsDeleteChannelGroupMutation();
+  const [channelGroupsDeleteChannelGroupMutation] = useChannelGroupsDeleteChannelGroupMutation();
 
   const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);
@@ -39,7 +41,7 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
     const groupNames = [] as string[];
     for (const group of selectedChannelGroups.filter((a) => !a.isReadOnly)) {
 
-      const data = {} as StreamMasterApi.DeleteChannelGroupRequest;
+      const data = {} as DeleteChannelGroupRequest;
       data.groupName = group.name;
       groupNames.push(group.name);
       promises.push(
@@ -84,6 +86,7 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
 
       <InfoMessageOverLayDialog
         blocked={block}
+        closable
         header={`Delete "${selectedChannelGroups.filter((a) => !a.isReadOnly).length < 2 ? selectedChannelGroups.filter((a) => !a.isReadOnly)[0] ? selectedChannelGroups.filter((a) => !a.isReadOnly)[0].name + '" Group ?' : ' Group ?' : selectedChannelGroups.filter((a) => !a.isReadOnly).length + ' Groups ?'}`}
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
@@ -92,20 +95,7 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
         <div className='m-0 p-0 border-1 border-round surface-border'>
           <div className='m-3'>
             <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
-              <Button
-                icon="pi pi-times "
-                label="Cancel"
-                onClick={(() => ReturnToParent())}
-                rounded
-                severity="warning"
-              />
-              <Button
-                icon="pi pi-check"
-                label="Delete"
-                onClick={async () => await deleteGroup()}
-                rounded
-                severity="success"
-              />
+              <DeleteButton onClick={async () => await deleteGroup()} tooltip="Delete Group" />
             </div>
           </div>
         </div>
@@ -137,7 +127,7 @@ type ChannelGroupDeleteDialogProps = {
   iconFilled?: boolean | undefined;
   onDelete?: (results: string[] | undefined) => void;
   onHide?: () => void;
-  value?: StreamMasterApi.ChannelGroupDto[] | undefined;
+  value?: ChannelGroupDto[] | undefined;
 };
 
 export default React.memo(ChannelGroupDeleteDialog);

@@ -9,10 +9,11 @@ import ChannelNameEditor from "./ChannelNameEditor";
 import { type ColumnMeta } from "../features/dataSelector/DataSelectorTypes";
 import { GroupIcon } from "../common/icons";
 import { Tooltip } from "primereact/tooltip";
-import IconSelector from "./IconSelector";
-import EPGSelector from "./EPGSelector";
+import IconSelector from "./selectors/IconSelector";
+
 import { type VideoStreamsGetVideoStreamsApiArg, type StreamGroupsGetStreamGroupsApiArg, type VideoStreamDto, type ChildVideoStreamDto, type StreamGroupDto, type UpdateVideoStreamRequest, type UpdateStreamGroupRequest, type VideoStreamIsReadOnly, useStreamGroupsUpdateStreamGroupMutation } from "../store/iptvApi";
 import { useVideoStreamsGetVideoStreamsQuery, useStreamGroupsGetStreamGroupsQuery, useVideoStreamsUpdateVideoStreamMutation } from "../store/iptvApi";
+import { useEPGColumnConfig } from "./columns/columnConfigHooks";
 
 const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   const toast = React.useRef<Toast>(null);
@@ -25,7 +26,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   const [targetVideoStreams, setTargetVideoStreams] = React.useState<ChildVideoStreamDto[] | undefined>(undefined);
   const [isVideoStreamUpdating, setIsVideoStreamUpdating] = React.useState<boolean>(false);
   const [streamGroup, setStreamGroup] = React.useState<StreamGroupDto | undefined>(undefined);
-
+  const epgColumnConfig = useEPGColumnConfig(true);
   const [streamGroupsUpdateStreamGroupMutation] = useStreamGroupsUpdateStreamGroupMutation();
 
   React.useEffect(() => {
@@ -129,7 +130,6 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     return (
       <ChannelNumberEditor
         data={data}
-        enableEditMode
       />
     )
   }, []);
@@ -171,15 +171,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     }
   ];
 
-  const epgEditorBodyTemplate = React.useCallback((data: VideoStreamDto) => {
-    return (
-      <EPGSelector
-        data={data}
-        enableEditMode
-        value={data.user_Tvg_ID}
-      />
-    );
-  }, []);
+
 
   const onUpdateVideoStream = React.useCallback(async (data: VideoStreamDto, Logo: string) => {
     if (data.id === '') {
@@ -223,7 +215,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     return (
       <ChannelNameEditor
         data={data}
-        enableEditMode
+
       />
     )
   }, []);
@@ -416,16 +408,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
       field: 'user_Tvg_name',
       header: 'Name',
     },
-    {
-      bodyTemplate: epgEditorBodyTemplate,
-      field: 'user_Tvg_ID_DisplayName',
-      fieldType: 'epg',
-      filter: true,
-
-      style: {
-        maxWidth: '16rem',
-      } as CSSProperties,
-    },
+    epgColumnConfig,
     {
       bodyTemplate: sourceActionBodyTemplate,
       field: 'x',

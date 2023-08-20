@@ -47,21 +47,6 @@ const ChannelNameEditor = (props: ChannelNameEditorProps) => {
     return <span className='sm-inputtext' />
   }
 
-  if (!props.enableEditMode) {
-    return <div
-      className='sm-inputtext smallshiftleft'
-      style={{
-        ...{
-          backgroundColor: 'var(--mask-bg)',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-          width: `${props.width}`
-        },
-      }}
-    >{props.data.user_Tvg_name}</div>
-  }
-
   return (
     <div className="p-inputtext p-0">
       <Toast position="bottom-right" ref={toast} />
@@ -80,13 +65,11 @@ const ChannelNameEditor = (props: ChannelNameEditorProps) => {
 
 ChannelNameEditor.displayName = 'Channel Number Editor';
 ChannelNameEditor.defaultProps = {
-  width: '22rem',
+
 };
 
 export type ChannelNameEditorProps = {
   data: VideoStreamDto;
-  enableEditMode: boolean;
-  width?: string;
 };
 
 export default React.memo(ChannelNameEditor);

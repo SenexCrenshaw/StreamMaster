@@ -352,7 +352,7 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
 
         if (request.Tvg_ID != null && (videoStream.User_Tvg_ID != request.Tvg_ID || videoStream.IsUserCreated))
         {
-            string? test = _memoryCache.GetEPGChannelByDisplayName(request.Tvg_ID) ?? "";
+            string? test = _memoryCache.GetEPGChannelNameByDisplayName(request.Tvg_ID) ?? "";
             videoStream.User_Tvg_ID = test;
             if (setting.VideoStreamAlwaysUseEPGLogo && videoStream.User_Tvg_ID != null)
             {
