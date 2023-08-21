@@ -2,9 +2,9 @@ import { useChannelGroupsGetChannelGroupNamesQuery, useM3UFilesGetM3UFileNamesQu
 import ChannelLogoEditor from "../ChannelLogoEditor";
 import ChannelNameEditor from "../ChannelNameEditor";
 import ChannelNumberEditor from "../ChannelNumberEditor";
-import EPGEditor from "../EPGEditor";
 
 import ChannelGroupEditor from "../channelGroups/ChannelGroupEditor";
+import EPGEditor from "../epg/EPGEditor";
 import createMultiSelectColumnConfigHook from "./createMultiSelectColumnConfigHook";
 
 export const useChannelGroupColumnConfig = createMultiSelectColumnConfigHook({

@@ -3,7 +3,7 @@ import { InputText } from "primereact/inputtext";
 import { type ChangeEvent } from "react";
 import React from "react";
 import { getTopToolOptions } from "../../common/common";
-import { type ColumnMeta } from "../../features/dataSelector2/DataSelectorTypes2";
+import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 
 type GlobalSearchProps = {
   clearSourceFilter: () => void;

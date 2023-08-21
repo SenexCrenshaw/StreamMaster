@@ -1,16 +1,16 @@
-import React from "react";
-import type * as StreamMasterApi from '../../store/iptvApi';
-import VideoStreamDataSelector from '../../components/VideoStreamDataSelector';
-import PlayListDataSelector from '../../components/PlayListDataSelector';
-import { PlayListEditorIcon } from '../../common/icons';
-import { useLocalStorage } from 'primereact/hooks';
+import { useLocalStorage } from "primereact/hooks";
+import { useCallback, memo } from "react";
+import { PlayListEditorIcon } from "../../common/icons";
+import PlayListDataSelector from "../../components/PlayListDataSelector";
+import VideoStreamDataSelector from "../../components/videoStream/VideoStreamDataSelector";
+import { type ChannelGroupDto } from "../../store/iptvApi";
 
 const PlayListEditor = (props: PlayListEditorProps) => {
   const id = props.id ?? "playlisteditor";
 
-  const [selectedChannelGroups, setSelectedChannelGroups] = useLocalStorage<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[], props.id + '-selectedChannelGroups');
+  const [selectedChannelGroups, setSelectedChannelGroups] = useLocalStorage<ChannelGroupDto[]>([] as ChannelGroupDto[], props.id + '-selectedChannelGroups');
 
-  const onsetSelectedChannelGroups = React.useCallback((selectedData: StreamMasterApi.ChannelGroupDto | StreamMasterApi.ChannelGroupDto[]) => {
+  const onsetSelectedChannelGroups = useCallback((selectedData: ChannelGroupDto | ChannelGroupDto[]) => {
     if (Array.isArray(selectedData)) {
       setSelectedChannelGroups(selectedData);
     } else {
@@ -36,7 +36,7 @@ const PlayListEditor = (props: PlayListEditorProps) => {
           <div className='col-4 m-0 p-0 pr-1' >
             <PlayListDataSelector
               id={id}
-              onSelectionChange={(e) => onsetSelectedChannelGroups(e as StreamMasterApi.ChannelGroupDto[])}
+              onSelectionChange={(e) => onsetSelectedChannelGroups(e as ChannelGroupDto[])}
             />
           </div>
           <div className="col-8 m-0 p-0">
@@ -64,4 +64,4 @@ export type PlayListEditorProps = {
   id?: string;
 };
 
-export default React.memo(PlayListEditor);
+export default memo(PlayListEditor);

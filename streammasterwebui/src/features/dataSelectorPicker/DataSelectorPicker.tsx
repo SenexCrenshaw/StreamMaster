@@ -1,11 +1,12 @@
+/* eslint-disable react/no-unused-prop-types */
 
 import { type DataTableValue } from 'primereact/datatable';
 import { type CSSProperties } from 'react';
 import React from 'react';
-import DataSelector from '../dataSelector/DataSelector';
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 import { Button } from 'primereact/button';
 import { getTopToolOptions } from '../../common/common';
+import DataSelector from '../../components/dataSelector/DataSelector';
+import { type ColumnMeta } from '../../components/dataSelector/DataSelectorTypes';
 
 const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPickerProps<T>) => {
 
@@ -135,18 +136,18 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
         <DataSelector
           columns={props.sourceColumns}
           dataSource={sourceDataSource}
-          enableState={props.sourceEnableState}
           headerLeftTemplate={props.sourceHeaderPrefixTemplate}
           headerRightTemplate={props.sourceHeaderTemplate}
           id={`${props.id}-ds-picker-source`}
           isLoading={props.isLoading}
           name={props.sourceName}
-          onSelectionChange={((e) => onSelectionChange(e as T[]))}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          onSelectionChange={((e: any) => onSelectionChange(e as T[]))}
           // onValueChanged={(e) => onSourceOnValueChanged(e as T[])}
-          rightColSize={props.sourceRightColSize}
-          selection={selection}
+          // rightColSize={props.sourceRightColSize}
+          // selection={selection}
           selectionMode='multipleNoRowCheckBox'
-          sortField={props.sourceSortField}
+          // sortField={props.sourceSortField}
           style={props.sourceStyle}
         />
       </div>
@@ -154,20 +155,22 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
         <DataSelector
           columns={props.targetColumns}
           dataSource={targetDataSource}
-          enableState={props.targetEnableState}
+
           headerLeftTemplate={props.targetHeaderPrefixTemplate}
           headerRightTemplate={targetRightHeaderTemplate}
           id={`${props.id}-ds-picker-target`}
           isLoading={props.isLoading}
           name={props.targetName}
-          onSelectionChange={(e) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          onSelectionChange={(e: any) => {
             props?.onTargetSelectionChange?.(e as T[])
           }
           }
-          onValueChanged={(e) => props.onTargetOnValueChanged?.(e as T[])}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          onValueChanged={(e: any) => props.onTargetOnValueChanged?.(e as T[])}
           reorderable={props.targetReorderable}
-          rightColSize={props.targetRightColSize}
-          sortField={props.targetSortField}
+          // rightColSize={props.targetRightColSize}
+          // sortField={props.targetSortField}
           style={props.targetStyle ? props.targetStyle : props.sourceStyle}
         />
       </div>

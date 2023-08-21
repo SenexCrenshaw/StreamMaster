@@ -13,8 +13,7 @@ import { type DataTableFilterMeta } from 'primereact/datatable';
 import ExportButton from '../components/export/ExportButton';
 import GlobalSearch from '../components/search/GlobalSearch';
 import { Checkbox } from 'primereact/checkbox';
-import { type DataSelector2Props } from '../features/dataSelector2/DataSelector2';
-
+import { type DataSelectorProps } from '../components/dataSelector/DataSelector';
 
 export const getTopToolOptions = { autoHide: true, hideDelay: 100, position: 'top', showDelay: 400 } as TooltipOptions;
 export const getLeftToolOptions = { autoHide: true, hideDelay: 100, position: 'left', showDelay: 400 } as TooltipOptions;
@@ -376,7 +375,11 @@ export function getIconUrl(iconOriginalSource: string | null | undefined, defaul
 }
 
 
-export const MultiSelectCheckbox: React.FC<{ onMultiSelectClick?: (value: boolean) => void, props: DataSelector2Props, rowClick: boolean, setRowClick: (val: boolean) => void }> = ({ onMultiSelectClick, rowClick, setRowClick, props }) => (
+export function isEmptyObject(obj: any): obj is {} {
+  return Object.keys(obj).length === 0 && obj.constructor === Object;
+}
+
+export const MultiSelectCheckbox: React.FC<{ onMultiSelectClick?: (value: boolean) => void, props: DataSelectorProps, rowClick: boolean, setRowClick: (val: boolean) => void }> = ({ onMultiSelectClick, rowClick, setRowClick, props }) => (
   <div hidden={props.selectionMode !== 'selectable'}>
     <Checkbox
       checked={rowClick}

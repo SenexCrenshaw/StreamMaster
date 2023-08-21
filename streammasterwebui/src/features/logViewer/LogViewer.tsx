@@ -1,10 +1,11 @@
 
 import React from "react";
 import type * as StreamMasterApi from '../../store/iptvApi';
-import DataSelector from "../dataSelector/DataSelector";
-import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
+
 import { formatJSONDateString } from "../../common/common";
 import * as Hub from "../../store/signlar_functions";
+import DataSelector from "../../components/dataSelector/DataSelector";
+import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
 
 const LogViewer = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -124,13 +125,10 @@ const LogViewer = () => {
         dataSource={dataSource}
         emptyMessage="No Clients Streaming"
         enableExport
-        enableState={false}
         enableVirtualScroll
         exportFilename={`StreamMaster_Logs_${new Date().toISOString()}`}
-        globalSearchEnabled
         id='LogViewer'
         isLoading={dataSource === undefined || dataSource.length === 0}
-        showPagination={false}
         style={{
           height: 'calc(100vh - 100px)',
         }}

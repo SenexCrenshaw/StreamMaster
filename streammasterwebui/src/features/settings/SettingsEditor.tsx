@@ -22,7 +22,7 @@ import { baseHostURL } from '../../settings';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { getHelp } from '../../help_en';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
-import SettingsNameRegexDataSelector from '../../components/SettingsNameRegexDataSelector';
+import SettingsNameRegexDataSelector from '../../components/settings/SettingsNameRegexDataSelector';
 
 export const SettingsEditor = () => {
   const toast = React.useRef<Toast>(null);

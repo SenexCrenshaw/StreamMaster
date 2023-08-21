@@ -70,6 +70,7 @@ const IconSelector: React.FC<Partial<IconSelectorProps>> = ({
       data={data.data ?? []}
       fetch={GetIconFromSource}
       filteredData={filteredIconData.data?.data ?? []}
+      itemSize={72}
       itemTemplate={iconOptionTemplate}
       onChange={handleOnChange}
       onFilter={setFilter}

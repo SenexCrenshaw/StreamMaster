@@ -19,7 +19,7 @@ export type BaseSelectorProps<T extends HasId> = {
   fetch: (arg: string) => Promise<T>;
   filteredData: T[];
   isLoading?: boolean;
-  itemSize?: number[] | number | undefined;
+  itemSize: number[] | number | undefined;
   itemTemplate: (option: T) => JSX.Element;
   onChange: (value: string) => void;
   onFilter: (value: GetApiArg) => void;

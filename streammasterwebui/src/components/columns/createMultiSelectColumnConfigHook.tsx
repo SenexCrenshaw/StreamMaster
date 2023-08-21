@@ -2,8 +2,8 @@ import { type ColumnFilterElementTemplateOptions } from "primereact/column";
 import { type MultiSelectChangeEvent } from "primereact/multiselect";
 import { MultiSelect } from "primereact/multiselect";
 import { type VideoStreamDto } from "../../store/iptvApi";
-import { type ColumnFieldType } from "../../features/dataSelector2/DataSelectorTypes2";
-import { type ColumnMeta } from "../../features/dataSelector2/DataSelectorTypes2";
+import { type ColumnFieldType } from "../dataSelector/DataSelectorTypes";
+import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 
 type QueryHookResult = {
   data?: string[];

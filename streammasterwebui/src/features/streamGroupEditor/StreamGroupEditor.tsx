@@ -1,23 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type * as StreamMasterApi from '../../store/iptvApi';
-import React from 'react';
-import StreamGroupDataSelector from '../../components/StreamGroupDataSelector';
-
-import { StreamGroupEditorIcon } from '../../common/icons';
-import PlayListDataSelectorPicker from '../../components/PlayListDataSelectorPicker';
-
-import { BlockUI } from 'primereact/blockui';
-import { useLocalStorage } from 'primereact/hooks';
-import PlayListDataSelector from '../../components/PlayListDataSelector';
-import StreamGroupVideoStreamDataSelector from '../../components/StreamGroupVideoStreamDataSelector';
-import VideoStreamDataSelector from '../../components/VideoStreamDataSelector';
+import { BlockUI } from "primereact/blockui";
+import { useLocalStorage } from "primereact/hooks";
+import { useCallback, memo } from "react";
+import { StreamGroupEditorIcon } from "../../common/icons";
+import StreamGroupDataSelector from "../../components/streamGroup/StreamGroupDataSelector";
+import VideoStreamDataSelector from "../../components/videoStream/VideoStreamDataSelector";
+import { type StreamGroupDto, type ChannelGroupDto } from "../../store/iptvApi";
 
 const StreamGroupEditor = () => {
   const id = 'streamgroupeditor'
-  const [selectedStreamGroup, setSelectedStreamGroup] = useLocalStorage<StreamMasterApi.StreamGroupDto | undefined>(undefined, id + '-selectedstreamgroup');
-  const [selectedChannelGroups, setSelectedChannelGroups] = useLocalStorage<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[], id + '-selectedChannelGroups');
+  const [selectedStreamGroup, setSelectedStreamGroup] = useLocalStorage<StreamGroupDto | undefined>(undefined, id + '-selectedstreamgroup');
+  const [selectedChannelGroups, setSelectedChannelGroups] = useLocalStorage<ChannelGroupDto[]>([] as ChannelGroupDto[], id + '-selectedChannelGroups');
 
-  const onsetSelectedChannelGroups = React.useCallback((selectedData: StreamMasterApi.ChannelGroupDto | StreamMasterApi.ChannelGroupDto[]) => {
+  const onsetSelectedChannelGroups = useCallback((selectedData: ChannelGroupDto | ChannelGroupDto[]) => {
     if (Array.isArray(selectedData)) {
       setSelectedChannelGroups(selectedData);
     } else {
@@ -42,7 +37,7 @@ const StreamGroupEditor = () => {
             <StreamGroupDataSelector
               id="streamgroupeditor-ds-source"
               onSelectionChange={(e) => {
-                const sg = e as StreamMasterApi.StreamGroupDto;
+                const sg = e as StreamGroupDto;
                 if (sg.id !== undefined) {
                   setSelectedStreamGroup(sg);
                 } else {
@@ -56,7 +51,7 @@ const StreamGroupEditor = () => {
           <div className="col-9 m-0 p-0 pl-1">
             <BlockUI blocked={selectedStreamGroup === undefined || selectedStreamGroup.id === undefined || selectedStreamGroup.id === 0}>
               {/* <PlayListDataSelectorPicker
-                enableState={false}
+
                 id='streamgroupeditor-ds-streams'
                 showHidden={false}
                 streamGroup={selectedStreamGroup}
@@ -71,12 +66,12 @@ const StreamGroupEditor = () => {
                   />
                 </div>
                 <div className='col-6'>
-                  <StreamGroupVideoStreamDataSelector
+                  {/* <StreamGroupVideoStreamDataSelector
                     channelGroups={selectedChannelGroups}
                     enableEditMode={false}
                     id={id}
                     showBrief
-                  />
+                  /> */}
                 </div>
               </div>
             </BlockUI>
@@ -89,5 +84,5 @@ const StreamGroupEditor = () => {
 };
 
 StreamGroupEditor.displayName = 'Stream Group Editor';
-export default React.memo(StreamGroupEditor);
+export default memo(StreamGroupEditor);
 

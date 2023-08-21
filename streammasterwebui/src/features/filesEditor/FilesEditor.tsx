@@ -1,8 +1,7 @@
 
 import React from 'react';
-
-import EPGFilesEditor from '../../components/EPGFilesEditor';
-import M3UFilesEditor from '../../components/M3UFilesEditor';
+import EPGFilesEditor from '../../components/epg/EPGFilesEditor';
+import M3UFilesEditor from '../../components/m3u/M3UFilesEditor';
 
 const FilesEditor = () => {
 

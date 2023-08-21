@@ -6,7 +6,7 @@ import 'vidstack/styles/community-skin/video.css';
 import ReactPlayer from 'react-player';
 
 import { MediaCommunitySkin, MediaOutlet, MediaPlayer } from '@vidstack/react';
-import EPGDisplay from './EPGDisplay';
+import EPGDisplay from './epg/EPGDisplay';
 
 import { useLocalStorage } from "primereact/hooks";
 import {

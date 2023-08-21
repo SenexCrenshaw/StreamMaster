@@ -1,35 +1,36 @@
-import { type CSSProperties } from "react";
-import React from "react";
-import DataSelectorPicker from "../features/dataSelectorPicker/DataSelectorPicker";
-import { Button } from 'primereact/button';
-import { getTopToolOptions } from "../common/common";
-import { Toast } from 'primereact/toast';
-import ChannelNumberEditor from "./ChannelNumberEditor";
-import ChannelNameEditor from "./ChannelNameEditor";
-import { type ColumnMeta } from "../features/dataSelector/DataSelectorTypes";
-import { GroupIcon } from "../common/icons";
-import { Tooltip } from "primereact/tooltip";
-import IconSelector from "./selectors/IconSelector";
 
+import { Button } from "primereact/button";
 import { type VideoStreamsGetVideoStreamsApiArg, type StreamGroupsGetStreamGroupsApiArg, type VideoStreamDto, type ChildVideoStreamDto, type StreamGroupDto, type UpdateVideoStreamRequest, type UpdateStreamGroupRequest, type VideoStreamIsReadOnly, useStreamGroupsUpdateStreamGroupMutation } from "../store/iptvApi";
 import { useVideoStreamsGetVideoStreamsQuery, useStreamGroupsGetStreamGroupsQuery, useVideoStreamsUpdateVideoStreamMutation } from "../store/iptvApi";
 import { useEPGColumnConfig } from "./columns/columnConfigHooks";
+import { Toast } from "primereact/toast";
+import { type CSSProperties, type ReactNode } from "react";
+import { useRef, useState, useEffect, useCallback, memo } from "react";
+
+import { getTopToolOptions } from "../common/common";
+import { GroupIcon } from "../common/icons";
+import DataSelectorPicker from "../features/dataSelectorPicker/DataSelectorPicker";
+import ChannelNameEditor from "./ChannelNameEditor";
+import ChannelNumberEditor from "./ChannelNumberEditor";
+import { type ColumnMeta } from "./dataSelector/DataSelectorTypes";
+import IconSelector from "./selectors/IconSelector";
+import { Tooltip } from "primereact/tooltip";
 
 const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
-  const toast = React.useRef<Toast>(null);
+  const toast = useRef<Toast>(null);
 
   const videoStreamsQuery = useVideoStreamsGetVideoStreamsQuery({} as VideoStreamsGetVideoStreamsApiArg);
   const streamGroupsQuery = useStreamGroupsGetStreamGroupsQuery({} as StreamGroupsGetStreamGroupsApiArg);
   const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
 
-  const [sourceVideoStreams, setSourceVideoStreams] = React.useState<VideoStreamDto[] | undefined>(undefined);
-  const [targetVideoStreams, setTargetVideoStreams] = React.useState<ChildVideoStreamDto[] | undefined>(undefined);
-  const [isVideoStreamUpdating, setIsVideoStreamUpdating] = React.useState<boolean>(false);
-  const [streamGroup, setStreamGroup] = React.useState<StreamGroupDto | undefined>(undefined);
+  const [sourceVideoStreams, setSourceVideoStreams] = useState<VideoStreamDto[] | undefined>(undefined);
+  const [targetVideoStreams, setTargetVideoStreams] = useState<ChildVideoStreamDto[] | undefined>(undefined);
+  const [isVideoStreamUpdating, setIsVideoStreamUpdating] = useState<boolean>(false);
+  const [streamGroup, setStreamGroup] = useState<StreamGroupDto | undefined>(undefined);
   const epgColumnConfig = useEPGColumnConfig(true);
   const [streamGroupsUpdateStreamGroupMutation] = useStreamGroupsUpdateStreamGroupMutation();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!props.streamGroup || props.streamGroup === undefined || streamGroupsQuery.data === undefined || streamGroupsQuery.data.data === undefined) {
       setStreamGroup(undefined);
       return;
@@ -46,7 +47,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
   }, [props.streamGroup, streamGroupsQuery.data])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!videoStreamsQuery.data) {
       return;
     }
@@ -125,7 +126,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.isAdditionalChannels, props.showHidden, props.showTriState, props.videoStream, streamGroup, videoStreamsQuery.data]);
 
-  const channelNumberEditorBodyTemplate = React.useCallback((data: VideoStreamDto) => {
+  const channelNumberEditorBodyTemplate = useCallback((data: VideoStreamDto) => {
 
     return (
       <ChannelNumberEditor
@@ -162,7 +163,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     ,
     {
       field: 'm3UFileId',
-      fieldType: 'm3uFileName', header: 'File',
+      header: 'File',
       sortable: true,
       style: {
         maxWidth: '3rem',
@@ -173,7 +174,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
 
 
-  const onUpdateVideoStream = React.useCallback(async (data: VideoStreamDto, Logo: string) => {
+  const onUpdateVideoStream = useCallback(async (data: VideoStreamDto, Logo: string) => {
     if (data.id === '') {
       return;
     }
@@ -211,7 +212,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
   }, [videoStreamsUpdateVideoStreamMutation]);
 
-  const channelNameEditorBodyTemplate = React.useCallback((data: VideoStreamDto) => {
+  const channelNameEditorBodyTemplate = useCallback((data: VideoStreamDto) => {
     return (
       <ChannelNameEditor
         data={data}
@@ -220,7 +221,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     )
   }, []);
 
-  const logoEditorBodyTemplate = React.useCallback((data: VideoStreamDto) => {
+  const logoEditorBodyTemplate = useCallback((data: VideoStreamDto) => {
     return (
       <IconSelector
         className="p-inputtext-sm"
@@ -236,7 +237,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
   }, [onUpdateVideoStream]);
 
-  const onEdit = React.useCallback(async (data: VideoStreamDto[]) => {
+  const onEdit = useCallback(async (data: VideoStreamDto[]) => {
     if (data === null || data === undefined || !props.videoStream) {
 
       return;
@@ -278,7 +279,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   }, [props.videoStream, videoStreamsUpdateVideoStreamMutation]);
 
 
-  const onSave = React.useCallback(async (data: VideoStreamDto[]) => {
+  const onSave = useCallback(async (data: VideoStreamDto[]) => {
 
     if (props.isAdditionalChannels == true) {
       await onEdit(data);
@@ -325,12 +326,12 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
     setIsVideoStreamUpdating(false);
   }, [isVideoStreamUpdating, onEdit, props.isAdditionalChannels, props.streamGroup, streamGroupsUpdateStreamGroupMutation]);
 
-  const onChange = React.useCallback(async (e: ChildVideoStreamDto[]) => {
+  const onChange = useCallback(async (e: ChildVideoStreamDto[]) => {
 
     await onSave(e);
   }, [onSave]);
 
-  const onRemoveRank = React.useCallback(async (data: VideoStreamDto) => {
+  const onRemoveRank = useCallback(async (data: VideoStreamDto) => {
     if (targetVideoStreams === undefined) {
       return;
     }
@@ -346,7 +347,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
 
   }, [onSave, props, targetVideoStreams]);
 
-  const sourceActionBodyTemplate = React.useCallback((data: VideoStreamDto) => {
+  const sourceActionBodyTemplate = useCallback((data: VideoStreamDto) => {
 
     if (data.isReadOnly === true) {
       return (
@@ -498,9 +499,9 @@ export type PlayListDataSelectorPickerProps = {
   onValueChanged?: (value: ChildVideoStreamDto[]) => void;
   showHidden?: boolean | undefined;
   showTriState?: boolean | null | undefined;
-  sourceHeaderTemplate?: React.ReactNode | undefined;
+  sourceHeaderTemplate?: ReactNode | undefined;
   streamGroup?: StreamGroupDto | undefined;
   videoStream?: VideoStreamDto | undefined;
 };
 
-export default React.memo(PlayListDataSelectorPicker);
+export default memo(PlayListDataSelectorPicker);

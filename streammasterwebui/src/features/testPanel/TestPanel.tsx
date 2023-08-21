@@ -1,36 +1,32 @@
-/* eslint-disable react/no-unused-prop-types */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/consistent-type-imports */
+/* eslint-disable react/no-unused-prop-types */
 
-import React from "react";
-import * as StreamMasterApi from '../../store/iptvApi';
-import * as Hub from '../../store/signlar_functions';
-import { Toast } from 'primereact/toast';
-import DataSelector from "../dataSelector/DataSelector";
-import { ColumnMeta } from "../dataSelector/DataSelectorTypes";
-import PlayListDataSelector from "../../components/PlayListDataSelector";
-import VideoStreamDataSelector from "../../components/VideoStreamDataSelector";
-import EPGEditor from "../../components/EPGEditor";
-import EPGSelector from "../../components/selectors/EPGSelector";
+import { useState, useMemo, memo } from "react";
+import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
+import IconSelector from "../../components/selectors/IconSelector";
+import { type PagedResponseOfChannelGroupDto, type ChannelGroupDto } from "../../store/iptvApi";
+import { useChannelGroupsGetChannelGroupsQuery } from "../../store/iptvApi";
+import VideoStreamDataSelector from "../../components/videoStream/VideoStreamDataSelector";
 
 const TestPanel = (props: TestPanelProps) => {
-  const toast = React.useRef<Toast>(null);
 
-  const [dataSource, setDataSource] = React.useState({} as StreamMasterApi.PagedResponseOfChannelGroupDto);
+  const [dataSource, setDataSource] = useState({} as PagedResponseOfChannelGroupDto);
+  const [selectedChannelGroups, setSelectedChannelGroups] = useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
 
-  const channelGroupsQuery = StreamMasterApi.useChannelGroupsGetChannelGroupsQuery({} as StreamMasterApi.PagedResponseOfChannelGroupDto);
 
-  const sourceColumns = React.useMemo((): ColumnMeta[] => {
+  const sourceColumns = useMemo((): ColumnMeta[] => {
     return [
       { field: 'name', filter: true, sortable: true },
     ]
   }, []);
 
   return (
-    <EPGSelector onChange={(e) => {
-      console.log(e);
-    }} />
+    <VideoStreamDataSelector
+      channelGroups={selectedChannelGroups}
+      id="TestPanel"
+    />
   );
+
 }
 
 TestPanel.displayName = 'TestPanel';
@@ -40,9 +36,9 @@ TestPanel.defaultProps = {
 };
 
 type TestPanelProps = {
-  data?: StreamMasterApi.ChannelGroupDto | undefined;
+  data?: ChannelGroupDto | undefined;
   onChange?: ((value: string) => void) | null;
   value?: string | null;
 };
 
-export default React.memo(TestPanel);
+export default memo(TestPanel);

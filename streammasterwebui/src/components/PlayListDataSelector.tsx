@@ -5,10 +5,10 @@ import { getTopToolOptions } from "../common/common";
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import ChannelGroupAddDialog from "./channelGroups/ChannelGroupAddDialog";
-import { type ColumnMeta } from '../features/dataSelector2/DataSelectorTypes2';
+import { type ColumnMeta } from './dataSelector/DataSelectorTypes';
 
 import { useLocalStorage } from "primereact/hooks";
-import DataSelector2 from "../features/dataSelector2/DataSelector2";
+import DataSelector from "./dataSelector/DataSelector";
 import { type DataTableFilterEvent } from "primereact/datatable";
 import { type PagedResponseOfChannelGroupDto, type ChannelGroupDto, type ChannelGroupsGetChannelGroupsApiArg } from "../store/iptvApi";
 import { useChannelGroupsGetChannelGroupsQuery } from "../store/iptvApi";
@@ -167,7 +167,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
   return (
 
-    <DataSelector2
+    <DataSelector
       columns={sourceColumns}
       dataSource={dataSource}
       emptyMessage="No Groups"
