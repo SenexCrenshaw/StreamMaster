@@ -121,7 +121,7 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
       </InfoMessageOverLayDialog>
 
       <Button
-        disabled={selectedVideoStreams === undefined || selectedVideoStreams.length === 0}
+        disabled={(selectedVideoStreams === undefined || selectedVideoStreams.length === 0) || (!props.value?.isUserCreated)}
         icon="pi pi-minus"
         onClick={() => setShowOverlay(true)}
         rounded

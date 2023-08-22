@@ -26,7 +26,7 @@ internal class GetProgrammeNameSelectionsHandler : BaseMemoryRequestHandler, IRe
 
         List<Programme> programmes = MemoryCache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel) && a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
 
-        List<string> names = programmes.Select(a => a.Channel).Distinct().Order().ToList();
+        IEnumerable<string> names = programmes.Select(a => a.Channel).Distinct();
         foreach (string? name in names)
         {
             Programme? programme = programmes.FirstOrDefault(a => a.Channel == name);
@@ -37,7 +37,7 @@ internal class GetProgrammeNameSelectionsHandler : BaseMemoryRequestHandler, IRe
             }
         }
 
-        IPagedList<ProgrammeNameDto> test = await ret.ToPagedListAsync(request.Parameters.PageNumber, request.Parameters.PageSize).ConfigureAwait(false);
+        IPagedList<ProgrammeNameDto> test = await ret.OrderBy(a => a.DisplayName).ToPagedListAsync(request.Parameters.PageNumber, request.Parameters.PageSize).ConfigureAwait(false);
 
         PagedResponse<ProgrammeNameDto> pagedResponse = test.ToPagedResponse(test.TotalItemCount);
         return pagedResponse;

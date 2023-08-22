@@ -31,6 +31,8 @@ import generateFilterData from './generateFilterData';
 import getEmptyFilter from './getEmptyFilter';
 import getHeader from './getHeader';
 import useDataSelectorState from './useDataSelectorState';
+import getRecord from './getRecord';
+import getRecordString from './getRecordString';
 
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
@@ -98,33 +100,13 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return true;
     }
 
+    if (sortOrder === undefined) {
+      return true;
+    }
+
     return false;
 
-  }, [props.isLoading, rowClick]);
-
-
-  const getRecord = useCallback((data: T, fieldName: string) => {
-    type ObjectKey = keyof typeof data;
-    const record = data[fieldName as ObjectKey];
-    return record;
-  }, []);
-
-  const getRecordString = useCallback((data: T, fieldName: string): string => {
-    type ObjectKey = keyof typeof data;
-    const record = data[fieldName as ObjectKey];
-    let toDisplay = JSON.stringify(record);
-
-    if (!toDisplay || toDisplay === undefined || toDisplay === '') {
-      // console.log("toDisplay is empty for " + fieldName)
-      return '';
-    }
-
-    if (toDisplay.startsWith('"') && toDisplay.endsWith('"')) {
-      toDisplay = toDisplay.substring(1, toDisplay.length - 1);
-    }
-
-    return toDisplay;
-  }, []);
+  }, [props.isLoading, rowClick, sortOrder]);
 
   const onValueChanged = useCallback((data: DataTableRowDataArray<T[]>) => {
     if (!data) {
@@ -168,13 +150,11 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
 
     return {};
-  }, [getRecord]);
-
+  }, []);
 
   const exportCSV = () => {
     tableRef.current?.exportCSV({ selectionOnly: false });
   };
-
 
   const sourceRenderHeader = useMemo(() => {
     if (!props.headerLeftTemplate && !props.headerRightTemplate) {
@@ -208,13 +188,11 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     return e;
   }, [props, setSelections]);
 
-
   const getSelectionMultipleMode = useMemo((): 'checkbox' | 'multiple' | null => {
 
     return 'multiple';
 
   }, []);
-
 
   const onSelectionChange = useCallback((e: DataTableSelectionSingleChangeEvent<T[]>) => {
     if (e.value === null || e.value === undefined) {
@@ -323,7 +301,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
         />
       </span>
     );
-  }, [getRecordString, props]);
+  }, [props]);
 
   const multiselectHeader = () => {
     return (

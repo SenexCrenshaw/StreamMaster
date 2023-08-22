@@ -64,7 +64,7 @@ const EPGSelector: React.FC<Partial<EPGSelectorProps>> = ({
       onFilter={setFilter}
       onPaging={setPaging}
       optionLabel="displayName"
-      optionValue="channel"
+      optionValue="displayName"
       selectName='EPG'
       selectedTemplate={selectedTemplate}
     />
