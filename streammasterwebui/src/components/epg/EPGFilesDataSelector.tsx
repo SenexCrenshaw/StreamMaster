@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { type CheckboxChangeEvent } from "primereact/checkbox";
 import { Checkbox } from "primereact/checkbox";
 import { Toast } from "primereact/toast";
@@ -231,15 +232,7 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
         emptyMessage="No EPG Files"
         id='epgfilesdataselector'
         isLoading={epgFilesQuery.isLoading}
-        onPage={(pageInfo) => {
-          if (pageInfo.page !== undefined) {
-            setPageNumber(pageInfo.page + 1);
-          }
 
-          if (pageInfo.rows !== undefined) {
-            setPageSize(pageInfo.rows);
-          }
-        }}
         onSelectionChange={(e) =>
           SetSelectedEPGFileChanged(e as EpgFilesDto)
         }

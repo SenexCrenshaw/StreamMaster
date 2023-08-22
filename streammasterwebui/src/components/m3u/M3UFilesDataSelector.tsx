@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { type CheckboxChangeEvent } from "primereact/checkbox";
 import { Checkbox } from "primereact/checkbox";
 import { useLocalStorage } from "primereact/hooks";
@@ -292,20 +293,11 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
         emptyMessage="No M3U Files"
         id='m3ufilesdataselector'
         isLoading={m3UFilesQuery.isLoading}
-        onPage={(pageInfo) => {
-          if (pageInfo.page !== undefined) {
-            setPageNumber(pageInfo.page + 1);
-          }
 
-          if (pageInfo.rows !== undefined) {
-            setPageSize(pageInfo.rows);
-          }
-        }}
         onSelectionChange={(e) =>
           SetSelectedM3UFileChanged(e as M3UFileDto)
         }
 
-        onSort={setOrderBy}
         style={{ height: 'calc(50vh - 40px)' }}
       />
     </>

@@ -1,18 +1,17 @@
-/* eslint-disable react/no-unused-prop-types */
-
 import './DataSelector.css';
 
 import { FilterMatchMode } from 'primereact/api';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
+
+import { type DataTableFilterMeta } from 'primereact/datatable';
 import { type DataTableSelectionSingleChangeEvent } from 'primereact/datatable';
 import { type DataTableSelectAllChangeEvent } from 'primereact/datatable';
 import { type DataTableRowDataArray } from 'primereact/datatable';
 import { type DataTableSortEvent } from 'primereact/datatable';
 import { type DataTableStateEvent } from 'primereact/datatable';
 import { type DataTablePageEvent } from 'primereact/datatable';
-import { type DataTableFilterMetaData } from 'primereact/datatable';
-import { type DataTableFilterMeta } from 'primereact/datatable';
+
 import { type DataTableExpandedRows } from 'primereact/datatable';
 import { type DataTableRowToggleEvent } from 'primereact/datatable';
 import { type DataTableValue } from 'primereact/datatable';
@@ -21,8 +20,9 @@ import { type DataTableRowData } from 'primereact/datatable';
 import { DataTable } from 'primereact/datatable';
 import { type ReactNode, type SyntheticEvent } from 'react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import React from 'react';
-import { ExportComponent, HeaderLeft, MultiSelectCheckbox, areFilterMetaEqual, camel2title, getTopToolOptions, isEmptyObject } from '../../common/common';
+
+import { type SMDataTableFilterMetaData } from '../../common/common';
+import { ExportComponent, HeaderLeft, MultiSelectCheckbox, camel2title, getTopToolOptions, isEmptyObject } from '../../common/common';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
 
 import { Tooltip } from 'primereact/tooltip';
@@ -32,27 +32,71 @@ import { type ColumnAlign, type ColumnFieldType, type DataSelectorSelectionMode 
 import { type ColumnMeta } from './DataSelectorTypes';
 import { useLocalStorage } from 'primereact/hooks';
 
+export type LazyTableState = {
+  filterString: string;
+  filters: DataTableFilterMeta;
+  first: number;
+  page: number;
+  rows: number;
+  sortField?: string;
+  sortOrder?: -1 | 0 | 1 | null | undefined;
+  sortString: string;
+}
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
   const tableRef = useRef<DataTable<T[]>>(null);
 
   const tooltipClassName = useMemo(() => "menuitemds-" + uuidv4(), []);
   const [selectAll, setSelectAll] = useState<boolean>(false);
-  const [pageSize, setPageSize] = useLocalStorage(25, props.id + '-rowsPerPage');
-  const [sortOrder, setSortOrder] = useLocalStorage<-1 | 0 | 1 | null>(1, props.id + '-sortOrder');
-  const [sortField, setSortField] = useLocalStorage<string>('name', props.id + '-sortField');
   const [rowClick, setRowClick] = useLocalStorage<boolean>(false, props.id + '-rowClick');
-  const [selections, setSelections] = useLocalStorage<T[]>([] as T[], props.id + '-selections');
-  const [sourceFilters, setSourceFilters] = useLocalStorage<DataTableFilterMeta | undefined>(undefined, props.id + '-sourceFilters');
 
+  // const [selections, setSelections] = useLocalStorage<T[]>([] as T[], props.id + '-selections');
+
+  const [selections, setSelections] = useState<T[]>([] as T[]);
   const [pagedInformation, setPagedInformation] = useState<PagedTableInformation>();
   const [dataSource, setDataSource] = useState<PagedDataDto<T>>();
+
+  const [sortOrder, setSortOrder] = useLocalStorage<-1 | 0 | 1 | null | undefined>(1, props.id + '-tempSortOrder');
+  const [sortField, setSortField] = useLocalStorage<string>('', props.id + '-tempSortField');
+  const [filters, setFilters] = useLocalStorage<DataTableFilterMeta>({}, props.id + '-tempfilters');
+  const [first, setFirst] = useLocalStorage<number>(0, props.id + '-tempsetFirst');
+  const [page, setPage] = useLocalStorage<number>(1, props.id + '-tempsetPage');
+  const [rows, setRows] = useLocalStorage<number>(25, props.id + '-tempsetRows');
+
 
   const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows>();
 
   const setting = StreamMasterSetting();
 
-  const hasColumns = (columns?: ColumnMeta[]) => columns && columns.length > 0;
+  const lazyState = useCallback((overrides?: Partial<LazyTableState>): LazyTableState => {
+    console.log('lazyState', overrides);
+
+
+    const effectiveSortField = overrides?.sortField ?? sortField;
+    const effectiveSortOrder = overrides?.sortOrder ?? sortOrder;
+
+    let sort = '';
+    if (effectiveSortField) {
+      sort = (effectiveSortOrder === -1) ? `${effectiveSortField} desc` : (effectiveSortOrder === 1) ? `${effectiveSortField} asc` : '';
+    }
+
+    const defaultState: LazyTableState = {
+      filters: filters,
+      filterString: JSON.stringify(filters),
+      first: first,
+      page: page,
+      rows: rows,
+      sortField: sortField,
+      sortOrder: sortOrder,
+      sortString: sort
+    };
+
+    return {
+      ...defaultState,
+      ...overrides,
+      filterString: JSON.stringify(overrides?.filters ?? filters)
+    }
+  }, [filters, first, page, rows, sortField, sortOrder]);
 
   function isPagedTableDto(value: PagedTableDto<T> | T[] | undefined): value is PagedTableDto<T> {
     if (!value || Array.isArray(value)) {
@@ -85,27 +129,20 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   }, [props.isLoading, rowClick]);
 
-  const onFilter = useCallback((event: DataTableStateEvent) => {
 
-    setSourceFilters(event.filters);
-    const pageInfo = { ...event };
 
-    pageInfo.page = 0;
-    props.onPage?.(pageInfo);
-    props.onFilter?.(event);
-  }, [props, setSourceFilters]);
-
-  const generateFilterData = (columns: ColumnMeta[], currentFilters: DataTableFilterMeta) => {
-    if (!columns || !currentFilters) {
+  const generateFilterData = (currentFilters: DataTableFilterMeta) => {
+    if (!props.columns || !currentFilters) {
       return {};
     }
 
-    return columns.reduce<DataTableFilterMeta>((obj, item: ColumnMeta) => {
+    return props.columns.reduce<DataTableFilterMeta>((obj, item: ColumnMeta) => {
       if (item.field === 'isHidden') {
 
         return {
           ...obj,
           [item.field]: {
+            fieldName: item.field,
             matchMode: FilterMatchMode.EQUALS,
             value: props.showHidden === null ? null : !props.showHidden
           },
@@ -114,7 +151,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
       let value = '';
       if (Object.keys(currentFilters).length > 0) {
-        const test = currentFilters[item.field] as DataTableFilterMetaData;
+        const test = currentFilters[item.field] as SMDataTableFilterMetaData;
         if (test !== undefined) {
           value = test.value;
         }
@@ -123,35 +160,13 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return {
         ...obj,
         [item.field]: {
+          fieldName: item.field,
           matchMode: item.filterMatchMode ?? FilterMatchMode.CONTAINS,
           value: value
         },
       } as DataTableFilterMeta;
     }, {});
   };
-
-  useEffect(() => {
-    if (!hasColumns(props.columns)) {
-      return;
-    }
-
-    if (sourceFilters === undefined) {
-      return;
-    }
-
-    const newFilters = generateFilterData(props.columns, sourceFilters);
-
-    if (!areFilterMetaEqual(newFilters, sourceFilters)) {
-      setSourceFilters(newFilters);
-    }
-
-    const event = {} as DataTableStateEvent;
-
-    props.onFilter?.(event);
-    event.filters = newFilters;
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.columns, props.showHidden]);
 
   const getRecord = useCallback((data: T, fieldName: string) => {
     type ObjectKey = keyof typeof data;
@@ -304,7 +319,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }, [epgSourceTemplate, getRecord, getRecordString, imageBodyTemplate, linkTemplate, streamsBodyTemplate]);
 
   useEffect(() => {
-    if (!props.dataSource || !props.dataSource === undefined || isEmptyObject(props.dataSource)) {
+    if (!props.dataSource || isEmptyObject(props.dataSource)) {
       return;
     }
 
@@ -327,20 +342,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
 
   const rowClass = useCallback((data: DataTableRowData<T[]>) => {
-
     const isHidden = getRecord(data as T, 'isHidden');
-
-    // if (getRecord(data as T, 'regexMatch') === '') {
-
-    //   const groupName = getRecord(data as T, 'name');
-
-    //   if (groupName !== undefined && groupName !== '') {
-    //     // if (streamNotHiddenCount(groupName) > 0) {
-    //     //   return {};
-    //     // }
-    //   }
-    // }
-
     if (isHidden === true) {
       return `bg-red-900`;
     }
@@ -396,20 +398,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
     return e;
   }, [props, setSelections]);
-
-
-  // const getSelectionSingleMode = useMemo((): 'radiobutton' | 'single' | undefined => {
-  //   // switch (props.selectionMode) {
-  //   //   case 'selectable':
-  //   //     return  'single';
-  //   //   case 'multipleNoCheckBox':
-  //   //     return 'multiple';
-  //   //   case 'multipleNoRowCheckBox':
-  //   //     return 'radiobutton';
-  //   //   default:
-  //   return 'single';;
-
-  // }, []);
 
 
   const getSelectionMultipleMode = useMemo((): 'checkbox' | 'multiple' | null => {
@@ -575,56 +563,60 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     );
   }
 
+  const onFilter = (event: DataTableStateEvent) => {
+    const newFilters = generateFilterData(event.filters);
+    setFilters(newFilters);
+    props.onFilter?.(lazyState({ filters: newFilters }));
+  }
+
 
   const onPage = (event: DataTablePageEvent) => {
+    const {
+      tempPage = 0,
+      tempFirst = 0,
+      tempRows = 25
+    } = event;
 
-    if (event.rows !== undefined) {
-      setPageSize(event.rows);
-    }
+    const adjustedPage = tempPage + 1;
 
-    props.onPage?.(event);
+    setPage(adjustedPage);
+    setFirst(tempFirst);
+    setRows(tempRows);
+
+    props.onFilter?.(lazyState({ first, page: adjustedPage, rows }));
   };
 
   const onSort = (event: DataTableSortEvent) => {
+    // Set the sort order regardless of other conditions.
+    setSortOrder(event.sortOrder);
 
-    if (event.sortField === 'selected' || event.sortOrder === undefined || event.sortField === undefined) {
+    // If the sortField is 'selected' or absent, update the sortField and exit early.
+    if (!event.sortField || event.sortField === 'selected') {
+      setSortField(event.sortField);
       return;
     }
 
+    // Try finding the column by field directly.
+    let matchingColumn = props.columns.find(column => column.field === event.sortField);
 
-    setSortOrder(event.sortOrder);
-    setSortField(event.sortField);
-
-
-
-    if (props.onSort !== undefined) {
-
-      if (event.sortField === null) {
-        props.onSort?.('');
-        return;
-      }
-
-      let toSend = event.sortField + " asc";
-
-      if (event.sortOrder === 1) {
-        toSend = event.sortField + " desc";
-      }
-
-      console.log("onSort:", toSend);
-      props.onSort?.(toSend);
+    // If not found, try finding by header, case-insensitively.
+    if (!matchingColumn) {
+      matchingColumn = props.columns.find(column =>
+        column.header?.toLocaleLowerCase() === event.sortField.toLocaleLowerCase()
+      );
     }
+
+    // Set the sort field based on the matched column, or default to an empty string.
+    const sort = matchingColumn?.field ?? '';
+    setSortField(sort);
+
+    // Call the onFilter prop if it exists.
+    props.onFilter?.(lazyState({ sortField: sort, sortOrder: event.sortOrder }));
   };
 
   const onSelectAllChange = (event: DataTableSelectAllChangeEvent) => {
     const newSelectAll = event.checked;
-
-    if (newSelectAll) {
-      setSelectAll(true);
-
-    } else {
-      setSelectAll(false);
-
-    }
+    setSelectAll(newSelectAll);
   };
 
   return (
@@ -641,7 +633,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           exportFilename={props.exportFilename ?? 'streammaster'}
           filterDelay={500}
           filterDisplay="row"
-          filters={sourceFilters}
+          filters={filters}
           first={pagedInformation ? pagedInformation.first : undefined}
           groupRowsBy={props.groupRowsBy}
           header={sourceRenderHeader}
@@ -662,13 +654,12 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           paginatorClassName='text-xs p-0 m-0 withpadding'
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           ref={tableRef}
-          removableSort
           reorderableRows={props.reorderable}
           resizableColumns
           rowClassName={rowClass}
           rowGroupHeaderTemplate={rowGroupHeaderTemplate}
           rowGroupMode={props.groupRowsBy !== undefined && props.groupRowsBy !== '' ? 'subheader' : undefined}
-          rows={pageSize}
+          rows={rows}
           rowsPerPageOptions={[25, 50, 100, 250]}
           scrollHeight={props.enableVirtualScroll === true ? props.virtualScrollHeight !== undefined ? props.virtualScrollHeight : '400px' : 'flex'}
           scrollable
@@ -680,6 +671,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           sortField={sortField}
           sortMode='single'
           sortOrder={sortOrder}
+          stateKey={`${props.id}-table`}
+          stateStorage="local"
           stripedRows
           style={props.style}
           totalRecords={pagedInformation ? pagedInformation.totalRecords : undefined}
@@ -710,9 +703,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
             headerStyle={{ padding: '0px', width: '3rem' }}
             hidden={props.selectionMode !== 'multiple' && props.selectionMode !== 'checkbox' && props.selectionMode !== 'multipleNoRowCheckBox'}
             selectionMode="multiple"
-          // sortField="selected"
-          // sortFunction={sortFunction}
-          // sortable={props.groupRowsBy === undefined || props.groupRowsBy === ''}
           />
           {props.columns.map((col) => (
             <Column
@@ -731,7 +721,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
               onCellEditComplete={col.handleOnCellEditComplete}
               showAddButton
               showApplyButton
-              showClearButton // ={props.showClearButton ?? col.filterType !== 'isHidden'}
+              showClearButton
               showFilterMatchModes
               showFilterMenu={col.filterElement === undefined}
               showFilterMenuOptions
@@ -750,7 +740,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
 DataSelector.displayName = 'dataselector';
 DataSelector.defaultProps = {
-  // enableState: true,
   enableVirtualScroll: false,
   hideControls: false,
   key: undefined,
@@ -763,109 +752,33 @@ DataSelector.defaultProps = {
 };
 
 
-/**
- * The props for the DataSelector component.
- *
- * @typeparam T The type of data being displayed in the table.
- */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DataSelectorProps<T = any> = {
-
-  /**
-   * The CSS class name for the component.
-   */
   className?: string;
-  /**
-   * An array of ColumnMeta objects that define the columns of the table.
-   */
   columns: ColumnMeta[];
-  /**
-   * An array of objects to display.
-   */
   dataSource: PagedTableDto<T> | T[] | undefined;
-  /**
-   * A React node that is displayed when there is no data to display.
-   */
   emptyMessage?: ReactNode;
-
   enableExport?: boolean;
-  // eslint-disable-next-line react/no-unused-prop-types
-  // enableState?: boolean | undefined;
   enableVirtualScroll?: boolean | undefined;
   exportFilename?: string;
-
-  /**
-   * The name of the field to group the rows by.
-   */
   groupRowsBy?: string;
-  /**
-   * A React node that can be used to display additional content in the left side of the header of the table.
-   */
   headerLeftTemplate?: ReactNode;
-  /**
-   * A React node that can be used to display additional content in the right side of the header of the table.
-   */
   headerRightTemplate?: ReactNode;
   hideControls?: boolean;
-  /**
-   * The unique identifier of the component.
-   */
   id: string;
-  /**
-   * Whether the component is currently loading data.
-   */
   isLoading?: boolean;
   key?: string | undefined;
-  /**
-   * The name of the component.
-   */
   name?: string;
-  onFilter?: (event: DataTableFilterMeta) => void;
-  /**
-   * A function that is called when the multi-select button is clicked.
-   */
+  onFilter?: (event: LazyTableState) => void;
   onMultiSelectClick?: (value: boolean) => void;
-  onPage?: (event: DataTablePageEvent) => void;
-  /**
-   * A function that is called when a row's visibility is changed.
-   */
   onRowVisibleClick?: (value: T) => void;
-  /**
-   * A function that is called when a row is selected.
-   */
   onSelectionChange?: (value: T | T[]) => void;
-
-  onSort?: (event: string) => void;
-  /**
-     * A function that is called when the value changes.
-     */
   onValueChanged?: (value: T[]) => void;
-  /**
-   * Whether rows can be reordered.
-   */
   reorderable?: boolean;
-  /**
- * The currently selected row(s).
- */
-  // selection?: T | T[];
-  /**
-     * The mode for row selection.
-     */
   selectionMode?: DataSelectorSelectionMode;
-  /**
-   * Whether to show the selector column.
-   */
-  showClearButton?: boolean | undefined;
   showHeaders?: boolean | undefined;
   showHidden?: boolean | null | undefined;
   showSelector?: boolean;
-  /**
-   * The field to sort the data by.
-   */
-  // sortField?: string;
-  /**
-   * The inline style of the component.
-   */
   style?: CSSProperties;
   virtualScrollHeight?: string | undefined;
 }

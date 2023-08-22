@@ -9,16 +9,23 @@ import { type VideoStreamDto } from '../store/iptvApi';
 import { type ChildVideoStreamDto } from '../store/iptvApi';
 import { baseHostURL, isDebug } from '../settings';
 import { SMFileTypes } from '../store/streammaster_enums';
-import { type DataTableFilterMeta } from 'primereact/datatable';
+
 import ExportButton from '../components/export/ExportButton';
 import GlobalSearch from '../components/search/GlobalSearch';
 import { Checkbox } from 'primereact/checkbox';
 import { type DataSelectorProps } from '../components/dataSelector/DataSelector';
+import { type DataTableFilterMeta } from 'primereact/datatable';
+import { type DataTableFilterMetaData } from 'primereact/datatable';
+import { type ColumnMeta } from '../components/dataSelector/DataSelectorTypes';
 
 export const getTopToolOptions = { autoHide: true, hideDelay: 100, position: 'top', showDelay: 400 } as TooltipOptions;
 export const getLeftToolOptions = { autoHide: true, hideDelay: 100, position: 'left', showDelay: 400 } as TooltipOptions;
 
 <FormattedMessage defaultMessage="Stream Master" id="app.title" />;
+
+
+// export type MatchMode = 'between' | 'channelGroupsMatch' | 'contains' | 'custom' | 'dateAfter' | 'dateBefore' | 'dateIs' | 'dateIsNot' | 'endsWith' | 'equals' | 'gt' | 'gte' | 'in' | 'lt' | 'lte' | 'notContains' | 'notEquals' | 'startsWith' | undefined;
+export type MatchMode = 'between' | 'contains' | 'custom' | 'dateAfter' | 'dateBefore' | 'dateIs' | 'dateIsNot' | 'endsWith' | 'equals' | 'gt' | 'gte' | 'in' | 'lt' | 'lte' | 'notContains' | 'notEquals' | 'startsWith' | undefined;
 
 export function areFilterMetaEqual(a: DataTableFilterMeta, b: DataTableFilterMeta): boolean {
   const aKeys = Object.keys(a);
@@ -34,8 +41,8 @@ export function areFilterMetaEqual(a: DataTableFilterMeta, b: DataTableFilterMet
       return false; // Key doesn't exist in 'b'
     }
 
-    const aData = a[key] as DataTableFilterMetaData;
-    const bData = b[key] as DataTableFilterMetaData;
+    const aData = a[key] as SMDataTableFilterMetaData;
+    const bData = b[key] as SMDataTableFilterMetaData;
 
     // Compare 'matchMode'
     if (aData.matchMode !== bData.matchMode) {
@@ -101,10 +108,9 @@ export function GetMessage(...args: string[]): string {
 //   return message;
 // }
 
-export type MatchMode = 'between' | 'channelGroups' | 'contains' | 'custom' | 'dateAfter' | 'dateBefore' | 'dateIs' | 'dateIsNot' | 'endsWith' | 'equals' | 'gt' | 'gte' | 'in' | 'lt' | 'lte' | 'notContains' | 'notEquals' | 'startsWith' | undefined;
 
 export function addOrUpdateValueForField(
-  data: DataTableFilterMetaData[],
+  data: SMDataTableFilterMetaData[],
   targetFieldName: string,
   matchMode: MatchMode,
   newValue: string
@@ -124,13 +130,13 @@ export function addOrUpdateValueForField(
   // if (!itemFound) {
   data.push({
     fieldName: targetFieldName,
-    matchMode: matchMode,
+    matchMode: matchMode as MatchMode,
     value: newValue
   });
   // }
 }
 
-export function areDataTableFilterMetaDataEqual(a: DataTableFilterMetaData, b: DataTableFilterMetaData): boolean {
+export function areDataTableFilterMetaDataEqual(a: SMDataTableFilterMetaData, b: SMDataTableFilterMetaData): boolean {
   // Compare simple string properties
   if (a.fieldName !== b.fieldName) return false;
   if (a.matchMode !== b.matchMode) return false;
@@ -141,7 +147,7 @@ export function areDataTableFilterMetaDataEqual(a: DataTableFilterMetaData, b: D
   return true;
 }
 
-export function areDataTableFilterMetaDatasEqual(arr1: DataTableFilterMetaData[], arr2: DataTableFilterMetaData[]): boolean {
+export function areDataTableFilterMetaDatasEqual(arr1: SMDataTableFilterMetaData[], arr2: SMDataTableFilterMetaData[]): boolean {
   if (arr1.length !== arr2.length) return false;
 
   for (let i = 0; i < arr1.length; i++) {
@@ -152,8 +158,6 @@ export function areDataTableFilterMetaDatasEqual(arr1: DataTableFilterMetaData[]
 
   return true;
 }
-
-
 
 export type SimpleQueryApiArg = {
   count?: number;
@@ -219,11 +223,9 @@ export function areIconFileDtosEqual(array1: IconFileDto[], array2: IconFileDto[
   return true;
 }
 
-export type DataTableFilterMetaData = {
+export type SMDataTableFilterMetaData = DataTableFilterMetaData & {
   fieldName: string;
   matchMode: MatchMode;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value: any;
 }
 
 export function isChildVideoStreamDto(value: unknown): value is ChildVideoStreamDto {
@@ -374,10 +376,27 @@ export function getIconUrl(iconOriginalSource: string | null | undefined, defaul
   return iconOriginalSource;
 }
 
+export const hasColumns = (columns?: ColumnMeta[]) => columns && columns.length > 0;
 
-export function isEmptyObject(obj: any): obj is {} {
-  return Object.keys(obj).length === 0 && obj.constructor === Object;
+export function isEmptyObject(value: any): boolean {
+  // Check if value is an empty object
+  if (value && typeof value === "object" && Object.keys(value).length === 0 && value.constructor === Object) {
+    return true;
+  }
+
+  // Check if value is an empty array
+  if (Array.isArray(value) && value.length === 0) {
+    return true;
+  }
+
+  // Check if the first item of the array is empty (including empty object)
+  if (Array.isArray(value) && value.length > 0 && (value[0] === undefined || value[0] === null || value[0] === "" || (typeof value[0] === "object" && Object.keys(value[0]).length === 0))) {
+    return true;
+  }
+
+  return false;
 }
+
 
 export const MultiSelectCheckbox: React.FC<{ onMultiSelectClick?: (value: boolean) => void, props: DataSelectorProps, rowClick: boolean, setRowClick: (val: boolean) => void }> = ({ onMultiSelectClick, rowClick, setRowClick, props }) => (
   <div hidden={props.selectionMode !== 'selectable'}>

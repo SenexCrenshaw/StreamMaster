@@ -59,7 +59,7 @@ const StreamGroupEditor = () => {
               <div className='grid grid-nogutter flex flex-wrap justify-content-between h-full col-12 p-0'>
                 <div className='col-6'>
                   <VideoStreamDataSelector
-                    channelGroups={selectedChannelGroups}
+                    channelGroupNames={selectedChannelGroups.map(a => a.name)}
                     enableEditMode={false}
                     id={id}
                     showBrief

@@ -4,6 +4,7 @@ import { MultiSelect } from "primereact/multiselect";
 import { type VideoStreamDto } from "../../store/iptvApi";
 import { type ColumnFieldType } from "../dataSelector/DataSelectorTypes";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
+import { isEmptyObject } from "../../common/common";
 
 type QueryHookResult = {
   data?: string[];
@@ -35,12 +36,13 @@ const createMultiSelectColumnConfigHook = ({
   useFilter = true,
   queryHook
 }: ColumnConfigInputs) => {
+
   return (enableEditMode = false, values: string[] | undefined = undefined) => {
 
     let names: string[] = values ?? [];
+    const { data, isLoading, isError } = queryHook ? queryHook() : { data: undefined, isError: false, isLoading: false };
 
-    if (!values && queryHook !== undefined) {
-      const { data, isLoading, isError } = queryHook();
+    if (isEmptyObject(values) && queryHook !== undefined) {
 
       if (isLoading || isError) {
         return { field: '' };
@@ -51,8 +53,8 @@ const createMultiSelectColumnConfigHook = ({
       }
     }
 
-    const bodyTemplate = (data: VideoStreamDto) => {
-      const value = data[dataField];
+    const bodyTemplate = (bodyData: VideoStreamDto) => {
+      const value = bodyData[dataField];
 
       if (value === undefined) {
         return <span />;
@@ -63,7 +65,7 @@ const createMultiSelectColumnConfigHook = ({
       }
 
       if (EditorComponent) {
-        return <EditorComponent data={data} />;
+        return <EditorComponent data={bodyData} />;
       }
 
       return <span>{value.toString()}</span>;
@@ -84,7 +86,13 @@ const createMultiSelectColumnConfigHook = ({
           filter
           itemTemplate={itemTemplate}
           maxSelectedLabels={1}
-          onChange={(e: MultiSelectChangeEvent) => options.filterApplyCallback(e.value)}
+          onChange={(e: MultiSelectChangeEvent) => {
+            if (isEmptyObject(e.value)) {
+              options.filterApplyCallback(undefined);
+            } else {
+              options.filterApplyCallback(e.value);
+            }
+          }}
           options={names}
           placeholder="Any"
           value={options.value}
@@ -102,8 +110,10 @@ const createMultiSelectColumnConfigHook = ({
       field: dataField,
       fieldType: fieldType,
       filter: useFilter,
+      filterField: dataField,
       header: headerTitle,
       sortable: true,
+
       style: {
         maxWidth: `${width}rem`,
         width: `${width}rem`,

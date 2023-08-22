@@ -1,15 +1,16 @@
-import { type DataTableFilterEvent } from "primereact/datatable";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useLocalStorage } from "primereact/hooks";
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import { type CSSProperties } from "react";
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
-import { type DataTableFilterMetaData } from "../../common/common";
+import { type SMDataTableFilterMetaData } from "../../common/common";
 import { getTopToolOptions, addOrUpdateValueForField, GetMessage } from "../../common/common";
-import { type VideoStreamDto, type VideoStreamsGetVideoStreamsApiArg, type ChannelNumberPair, type ChannelGroupDto } from "../../store/iptvApi";
+import { type VideoStreamDto, type VideoStreamsGetVideoStreamsApiArg, type ChannelNumberPair } from "../../store/iptvApi";
 import { useVideoStreamsGetVideoStreamsQuery } from "../../store/iptvApi";
 import AutoSetChannelNumbers from "../AutoSetChannelNumbers";
 import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useEPGColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig, useChannelLogoColumnConfig } from "../columns/columnConfigHooks";
+import { type LazyTableState } from "../dataSelector/DataSelector";
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 import VideoStreamDeleteDialog from "./VideoStreamDeleteDialog";
@@ -18,31 +19,45 @@ import VideoStreamResetLogoDialog from "./VideoStreamResetLogoDialog";
 import VideoStreamResetLogosDialog from "./VideoStreamResetLogosDialog";
 import VideoStreamSetEPGFromNameDialog from "./VideoStreamSetEPGFromNameDialog";
 import VideoStreamSetEPGsFromNameDialog from "./VideoStreamSetEPGsFromNameDialog";
-import VideoStreamSetLogosFromEPGDialog from "./VideoStreamSetLogosFromEPGDialog";
+import VideoStreamSetLogoFromEPGDialog from "./VideoStreamSetLogoFromEPGDialog";
 import VideoStreamVisibleDialog from "./VideoStreamVisibleDialog";
 import VideoStreamAddDialog from "./VideoStreamAddDialog";
+import VideoStreamSetLogosFromEPGDialog from "./VideoStreamSetLogosFromEPGDialog";
+
+type VideoStreamDataSelectorProps = {
+  channelGroupNames?: string[];
+  enableEditMode?: boolean;
+  id: string;
+  onSelectionChange?: (value: VideoStreamDto | VideoStreamDto[]) => void;
+  showBrief?: boolean;
+};
 
 const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
   const [enableEditMode, setEnableEditMode] = useState<boolean>(true);
 
-  const [selectedVideoStreams, setSelectedVideoStreams] = useState<VideoStreamDto[]>([] as VideoStreamDto[]);
-  const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
-
-  const [dataFilters, setDataFilters] = useState<DataTableFilterMetaData[]>([] as DataTableFilterMetaData[]);
-  const [filters, setFilters] = useState<string>('');
-
-  const [pageSize, setPageSize] = useState<number>(25);
-  const [pageNumber, setPageNumber] = useState<number>(1);
-  const [orderBy, setOrderBy] = useState<string>('user_tvg_name asc');
-
-  const videoStreamsQuery = useVideoStreamsGetVideoStreamsQuery({ jsonFiltersString: filters, orderBy: orderBy ?? 'user_tvg_name', pageNumber: pageNumber, pageSize: pageSize } as VideoStreamsGetVideoStreamsApiArg);
-  const channelGroupConfig = useChannelGroupColumnConfig(enableEditMode, props.channelGroups?.map(a => a.name).sort() ?? undefined);
   const m3uFileNameColumnConfig = useM3UFileNameColumnConfig(enableEditMode);
   const epgColumnConfig = useEPGColumnConfig(enableEditMode);
   const channelNumberColumnConfig = useChannelNumberColumnConfig(enableEditMode);
   const channelNameColumnConfig = useChannelNameColumnConfig(enableEditMode);
   const channelLogoColumnConfig = useChannelLogoColumnConfig(enableEditMode);
+
+  const [lazyState, setLazyState] = useState<LazyTableState>({
+    filters: {},
+    filterString: '',
+    first: 0,
+    page: 1,
+    rows: 25,
+    sortField: 'user_tvg_name',
+    sortOrder: undefined,
+    sortString: 'user_tvg_name asc',
+  });
+
+  const videoStreamsQuery = useVideoStreamsGetVideoStreamsQuery({ jsonFiltersString: lazyState.filterString, orderBy: lazyState.sortString ?? 'user_tvg_name', pageNumber: lazyState.page, pageSize: lazyState.rows } as VideoStreamsGetVideoStreamsApiArg);
+  const channelGroupConfig = useChannelGroupColumnConfig(enableEditMode, props.channelGroupNames?.sort() ?? []);
+
+  const [selectedVideoStreams, setSelectedVideoStreams] = useState<VideoStreamDto[]>([] as VideoStreamDto[]);
+  const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
 
   useEffect(() => {
     if (props.enableEditMode != enableEditMode) {
@@ -57,7 +72,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       <div className='flex p-0 justify-content-end align-items-center'>
         <VideoStreamResetLogoDialog value={data} />
         <VideoStreamSetEPGFromNameDialog value={data} />
-        <VideoStreamSetLogosFromEPGDialog values={[data]} />
+        <VideoStreamSetLogoFromEPGDialog value={data} />
         <VideoStreamVisibleDialog iconFilled={false} skipOverLayer values={[data]} />
         <VideoStreamDeleteDialog iconFilled={false} value={data} />
         <VideoStreamEditDialog iconFilled={false} value={data} />
@@ -128,10 +143,10 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         <AutoSetChannelNumbers ids={ids} />
         <VideoStreamVisibleDialog iconFilled values={selectedVideoStreams} />
         <VideoStreamDeleteDialog values={selectedVideoStreams} />
-        <VideoStreamAddDialog group={props.channelGroups?.[0]?.name} />
+        <VideoStreamAddDialog group={props.channelGroupNames?.[0]} />
       </div>
     );
-  }, [props.channelGroups, selectedVideoStreams, setShowHidden, showHidden]);
+  }, [props.channelGroupNames, selectedVideoStreams, setShowHidden, showHidden]);
 
 
   const rightHeaderBriefTemplate = useMemo(() => {
@@ -151,59 +166,38 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showHidden]);
 
-  useEffect(() => {
-    if (!props.channelGroups) {
-      return;
-    }
-
-    const toSend: DataTableFilterMetaData[] = [];
-
-    dataFilters.forEach((item) => {
-      const newValue = { ...item } as DataTableFilterMetaData;
-      toSend.push(newValue);
-    })
-
-    const findIndex = toSend.findIndex((a) => a.matchMode === 'channelGroups');
-    if (findIndex !== -1) {
-      toSend.splice(findIndex, 1);
-    }
-
-    if (props.channelGroups && props.channelGroups.length > 0) {
-      const channelNames = JSON.stringify(props.channelGroups.map(a => a.name));
-      addOrUpdateValueForField(toSend, 'user_Tvg_group', 'channelGroups', channelNames);
-    }
-
-    setFilters(JSON.stringify(toSend));
-    setDataFilters(toSend);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.channelGroups]);
-
-  const setFilter = useCallback((toFilter: DataTableFilterEvent): DataTableFilterMetaData[] => {
-    if (toFilter === undefined || toFilter.filters === undefined) {
+  const updateFilter = useCallback((toFilter: LazyTableState): SMDataTableFilterMetaData[] => {
+    // Early return if the filter is undefined or empty.
+    if (!toFilter?.filters) {
       return [];
     }
 
-    const tosend: DataTableFilterMetaData[] = [];
-    Object.keys(toFilter.filters).forEach((key) => {
-      const value = toFilter.filters[key] as DataTableFilterMetaData;
-      if (value.value === null || value.value === undefined || value.value === '') {
-        return;
-      }
+    // Filter and map the filter keys to the desired format.
+    const tosend: SMDataTableFilterMetaData[] = Object.keys(toFilter.filters)
+      .map(key => {
+        const value = toFilter.filters[key] as SMDataTableFilterMetaData;
+        if (!value.value) {
+          return null;
+        }
 
-      const newValue: DataTableFilterMetaData = { ...value, fieldName: key };
-      tosend.push(newValue);
-    });
+        const newValue: SMDataTableFilterMetaData = { ...value, fieldName: key };
+        toFilter.filters[key] = newValue;
+        return newValue;
+      })
+      .filter(Boolean) as SMDataTableFilterMetaData[];
 
-    if (props.channelGroups && props.channelGroups.length > 0) {
-      const channelNames = JSON.stringify(props.channelGroups.map(a => a.name));
-      addOrUpdateValueForField(tosend, 'user_Tvg_group', 'channelGroups', channelNames);
+    if (props.channelGroupNames?.length) {
+      const channelNames = JSON.stringify(props.channelGroupNames);
+      addOrUpdateValueForField(tosend, 'user_Tvg_group', 'equals', channelNames);
     }
 
-    setFilters(JSON.stringify(tosend));
-    setDataFilters(tosend);
+    toFilter.filterString = JSON.stringify(tosend);
+    setLazyState(toFilter);
+
     return tosend;
-  }, [props.channelGroups]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.channelGroupNames]);
+
 
   return (
     <DataSelector
@@ -214,26 +208,17 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       id={props.id + 'VideoStreamDataSelector'}
       isLoading={videoStreamsQuery.isLoading || videoStreamsQuery.isFetching}
       name={GetMessage('streams')}
-      onFilter={(filterInfo) => {
-        setFilter(filterInfo as DataTableFilterEvent);
-      }}
-      onPage={(pageInfo) => {
-        if (pageInfo.page !== undefined) {
-          setPageNumber(pageInfo.page + 1);
-        }
-
-        if (pageInfo.rows !== undefined) {
-          setPageSize(pageInfo.rows);
-        }
+      onFilter={(info) => {
+        console.log('filterInfo', info);
+        updateFilter(info);
       }}
       onSelectionChange={(e) => {
+        console.log('onSelectionChange', e as VideoStreamDto[]);
         setSelectedVideoStreams(e as VideoStreamDto[]);
         props.onSelectionChange?.(e as VideoStreamDto[]);
       }}
 
-      onSort={setOrderBy}
       selectionMode={props.showBrief === true ? 'single' : 'multiple'}
-      showClearButton={false}
       showHidden={showHidden}
       style={{ height: 'calc(100vh - 40px)' }}
     />
@@ -242,16 +227,10 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
 VideoStreamDataSelector.displayName = 'Stream Editor';
 VideoStreamDataSelector.defaultProps = {
-  channelGroups: [] as ChannelGroupDto[],
+  channelGroupNames: [] as string[],
   showBrief: false
 };
 
-export type VideoStreamDataSelectorProps = {
-  channelGroups?: ChannelGroupDto[];
-  enableEditMode?: boolean;
-  id: string;
-  onSelectionChange?: (value: VideoStreamDto | VideoStreamDto[]) => void;
-  showBrief?: boolean;
-};
+
 
 export default memo(VideoStreamDataSelector);

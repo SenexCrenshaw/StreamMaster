@@ -5,7 +5,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { Skeleton } from 'primereact/skeleton';
 import { classNames } from 'primereact/utils';
 import {
-  type HasId, type GetApiArg, type SimpleQueryApiArg, type DataTableFilterMetaData
+  type HasId, type GetApiArg, type SimpleQueryApiArg, type SMDataTableFilterMetaData
 } from "../../common/common";
 import {
   addOrUpdateValueForField
@@ -146,7 +146,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
   };
 
   const onFilter = (event: DropdownFilterEvent) => {
-    const tosend = [] as DataTableFilterMetaData[];
+    const tosend = [] as SMDataTableFilterMetaData[];
     addOrUpdateValueForField(tosend, 'name', 'contains', event.filter);
     setFilter(JSON.stringify(tosend));
     props.onFilter?.({ jsonFiltersString: JSON.stringify(tosend), pageSize: 40 } as GetApiArg);

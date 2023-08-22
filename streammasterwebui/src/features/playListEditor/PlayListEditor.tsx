@@ -8,16 +8,16 @@ import { type ChannelGroupDto } from "../../store/iptvApi";
 const PlayListEditor = (props: PlayListEditorProps) => {
   const id = props.id ?? "playlisteditor";
 
-  const [selectedChannelGroups, setSelectedChannelGroups] = useLocalStorage<ChannelGroupDto[]>([] as ChannelGroupDto[], props.id + '-selectedChannelGroups');
+  const [selectedChannelGroups, setSelectedChannelGroups] = useLocalStorage<string[]>([] as string[], props.id + '-selectedChannelGroups');
 
   const onsetSelectedChannelGroups = useCallback((selectedData: ChannelGroupDto | ChannelGroupDto[]) => {
     if (Array.isArray(selectedData)) {
-      setSelectedChannelGroups(selectedData);
+      setSelectedChannelGroups(selectedData.map(a => a.name));
     } else {
-      setSelectedChannelGroups([selectedData]);
+      setSelectedChannelGroups([selectedData.name]);
     }
 
-    console.debug('onsetSelectedChannelGroups');
+    console.debug('onsetSelectedChannelGroups', selectedData);
   }, [setSelectedChannelGroups]);
 
   if (selectedChannelGroups === undefined) {
@@ -41,7 +41,7 @@ const PlayListEditor = (props: PlayListEditorProps) => {
           </div>
           <div className="col-8 m-0 p-0">
             <VideoStreamDataSelector
-              channelGroups={selectedChannelGroups}
+              channelGroupNames={selectedChannelGroups}
               id={id}
             />
           </div>

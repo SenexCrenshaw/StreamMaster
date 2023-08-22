@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { type DataTableFilterMetaData } from "../common/common";
+import { isEmptyObject, type SMDataTableFilterMetaData } from "../common/common";
 import { getTopToolOptions } from "../common/common";
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
@@ -88,7 +89,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
     return [
       { field: 'name', filter: true, sortable: true },
       {
-        field: 'name', fieldType: 'streams', header: "Streams (active/total)",
+        field: 'streams', fieldType: 'streams', header: "Streams (active/total)",
         style: {
           maxWidth: '6rem',
           width: '6rem',
@@ -105,20 +106,20 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
     ]
   }, [sourceActionBodyTemplate]);
 
-  const setFilter = useCallback((toFilter: DataTableFilterEvent): DataTableFilterMetaData[] => {
+  const setFilter = useCallback((toFilter: DataTableFilterEvent): SMDataTableFilterMetaData[] => {
 
     if (toFilter === undefined || toFilter.filters === undefined) {
-      return [] as DataTableFilterMetaData[];
+      return [] as SMDataTableFilterMetaData[];
     }
 
-    const retData = [] as DataTableFilterMetaData[];
+    const retData = [] as SMDataTableFilterMetaData[];
     Object.keys(toFilter.filters).forEach((key) => {
-      const value = toFilter.filters[key] as DataTableFilterMetaData;
+      const value = toFilter.filters[key] as SMDataTableFilterMetaData;
       if (value.value === null || value.value === undefined || value.value === '') {
         return;
       }
 
-      const newValue = { ...value } as DataTableFilterMetaData;
+      const newValue = { ...value } as SMDataTableFilterMetaData;
       newValue.fieldName = key;
       retData.push(newValue);
     });
@@ -180,26 +181,16 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         setFilter(filterInfo as DataTableFilterEvent);
       }}
 
-      onPage={(pageInfo) => {
-
-        if (pageInfo.page !== undefined) {
-          setPageNumber(pageInfo.page + 1);
-        }
-
-        if (pageInfo.rows !== undefined) {
-          setPageSize(pageInfo.rows);
-        }
-      }}
 
       onSelectionChange={(e) => {
-        onSelectionChange(e as ChannelGroupDto[]);
+        if (!isEmptyObject(e)) {
+          onSelectionChange(e as ChannelGroupDto[]);
+        } else {
+          onSelectionChange([] as ChannelGroupDto[]);
+        }
       }}
 
-      onSort={(e) => {
-        console.log(e);
-        setOrderBy(e);
-      }
-      }
+
       selectionMode='multiple'
       showHidden={showHidden}
       style={{

@@ -34,8 +34,8 @@ export const useChannelNumberColumnConfig = createMultiSelectColumnConfigHook({
   dataField: 'user_Tvg_chno',
   EditorComponent: ChannelNumberEditor,
   headerTitle: 'Ch.',
-  useFilter: true,
-  width: 4
+  useFilter: false,
+  width: 3
 });
 
 export const useChannelNameColumnConfig = createMultiSelectColumnConfigHook({

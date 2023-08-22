@@ -22,7 +22,7 @@ const TestPanel = (props: TestPanelProps) => {
 
   return (
     <VideoStreamDataSelector
-      channelGroups={selectedChannelGroups}
+      channelGroupNames={selectedChannelGroups.map(a => a.name)}
       id="TestPanel"
     />
   );
