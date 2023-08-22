@@ -36,20 +36,7 @@ import getRecordString from './getRecordString';
 
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
-  const {
-    selectAll, setSelectAll,
-    rowClick, setRowClick,
-    selections, setSelections,
-    pagedInformation, setPagedInformation,
-    dataSource, setDataSource,
-    sortOrder, setSortOrder,
-    sortField, setSortField,
-    first, setFirst,
-    page, setPage,
-    rows, setRows,
-    filters, setFilters,
-    expandedRows, setExpandedRows,
-  } = useDataSelectorState<T>(props.id);
+  const { state, setters } = useDataSelectorState<T>(props.id);
 
   const tableRef = useRef<DataTable<T[]>>(null);
 
@@ -64,8 +51,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   const lazyState = useCallback((overrides?: Partial<LazyTableState>): LazyTableState => {
     console.log('lazyState', overrides);
 
-    const effectiveSortField = overrides?.sortField ?? sortField;
-    const effectiveSortOrder = overrides?.sortOrder ?? sortOrder;
+    const effectiveSortField = overrides?.sortField ?? state.sortField;
+    const effectiveSortOrder = overrides?.sortOrder ?? state.sortOrder;
 
     let sort = '';
     if (effectiveSortField) {
@@ -73,22 +60,22 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
 
     const defaultState: LazyTableState = {
-      filters: filters,
-      filterString: JSON.stringify(filters),
-      first: first,
-      page: page,
-      rows: rows,
-      sortField: sortField,
-      sortOrder: sortOrder,
+      filters: state.filters,
+      filterString: JSON.stringify(state.filters),
+      first: state.first,
+      page: state.page,
+      rows: state.rows,
+      sortField: state.sortField,
+      sortOrder: state.sortOrder,
       sortString: sort
     };
 
     return {
       ...defaultState,
       ...overrides,
-      filterString: JSON.stringify(overrides?.filters ?? filters)
+      filterString: JSON.stringify(overrides?.filters ?? state.filters)
     }
-  }, [filters, first, page, rows, sortField, sortOrder]);
+  }, [state.filters, state.first, state.page, state.rows, state.sortField, state.sortOrder]);
 
 
   const isLoading = useMemo(() => {
@@ -96,17 +83,17 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return true;
     }
 
-    if (rowClick === undefined) {
+    if (state.rowClick === undefined) {
       return true;
     }
 
-    if (sortOrder === undefined) {
+    if (state.sortOrder === undefined) {
       return true;
     }
 
     return false;
 
-  }, [props.isLoading, rowClick, sortOrder]);
+  }, [props.isLoading, state.rowClick, state.sortOrder]);
 
   const onValueChanged = useCallback((data: DataTableRowDataArray<T[]>) => {
     if (!data) {
@@ -123,14 +110,14 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
 
     if (Array.isArray(props.dataSource)) {
-      setDataSource({ data: props.dataSource });
-      setPagedInformation(undefined);
+      setters.setDataSource({ data: props.dataSource });
+      setters.setPagedInformation(undefined);
     } else if (isPagedTableDto(props.dataSource)) {
-      setDataSource({ data: (props.dataSource as PagedTableDto<T>).data });
-      setPagedInformation(props.dataSource);
+      setters.setDataSource({ data: (props.dataSource as PagedTableDto<T>).data });
+      setters.setPagedInformation(props.dataSource);
     } else {
-      setDataSource({ data: props.dataSource });
-      setPagedInformation(undefined);
+      setters.setDataSource({ data: props.dataSource });
+      setters.setPagedInformation(undefined);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -167,10 +154,10 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       exportCSV={exportCSV}
       headerName={props.headerName}
       onMultiSelectClick={props.onMultiSelectClick}
-      rowClick={rowClick}
-      setRowClick={setRowClick}
+      rowClick={state.rowClick}
+      setRowClick={setters.setRowClick}
     />);
-  }, [props, rowClick, setRowClick]);
+  }, [props, state.rowClick, setters.setRowClick]);
 
   const onsetSelection = useCallback((e: T | T[]): T | T[] | undefined => {
     let selected: T[] = Array.isArray(e) ? e : [e];
@@ -179,14 +166,14 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       selected = selected.slice(0, 1);
     }
 
-    setSelections(selected);
+    setters.setSelections(selected);
 
     if (props.onSelectionChange) {
       props.onSelectionChange(props.selectionMode === 'single' ? selected[0] : selected);
     }
 
     return e;
-  }, [props, setSelections]);
+  }, [props, setters]);
 
   const getSelectionMultipleMode = useMemo((): 'checkbox' | 'multiple' | null => {
 
@@ -320,19 +307,19 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     switch (event.sortOrder) {
       case -1:
         tempSortOrder = -1;
-        setSortOrder(-1);
+        setters.setSortOrder(-1);
         break;
       case 0:
         tempSortOrder = 0;
-        setSortOrder(0);
+        setters.setSortOrder(0);
         break;
       case 1:
         tempSortOrder = 1;
-        setSortOrder(1);
+        setters.setSortOrder(1);
         break;
       default:
         tempSortOrder = 0;
-        setSortOrder(0);
+        setters.setSortOrder(0);
     }
 
     // Try finding the column by field directly.
@@ -347,7 +334,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
     // Set the sort field based on the matched column, or default to an empty string.
     const sort = matchingColumn?.field ?? '';
-    setSortField(sort);
+    setters.setSortField(sort);
     tempSort = sort;
 
     console.log('onSort', sort, event.sortOrder)
@@ -360,29 +347,29 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     const adjustedPage = (event.page ?? 0) + 1;
 
     tempPage = adjustedPage;
-    setPage(adjustedPage);
+    setters.setPage(adjustedPage);
 
     tempFirst = event.first;
-    setFirst(event.first);
+    setters.setFirst(event.first);
 
     tempRows = event.rows;
-    setRows(event.rows);
+    setters.setRows(event.rows);
 
-    props.onFilter?.(lazyState({ first, page: adjustedPage, rows }));
+    props.onFilter?.(lazyState({ first: state.first, page: adjustedPage, rows: state.rows }));
   };
 
   const onFilter = (event: DataTableStateEvent) => {
 
     const newFilters = generateFilterData(props.columns, event.filters, props.showHidden);
-    setFilters(newFilters);
+    setters.setFilters(newFilters);
 
-    console.log('onFilter', sortField, tempSort, sortOrder, tempSortOrder)
+    console.log('onFilter', state.sortField, tempSort, state.sortOrder, tempSortOrder)
     props.onFilter?.(lazyState({ filters: newFilters, first: tempFirst, page: tempPage, rows: tempRows, sortField: tempSort, sortOrder: tempSortOrder }));
   }
 
   const onSelectAllChange = (event: DataTableSelectAllChangeEvent) => {
     const newSelectAll = event.checked;
-    setSelectAll(newSelectAll);
+    setters.setSelectAll(newSelectAll);
   };
 
   return (
@@ -395,12 +382,12 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           editMode='cell'
           emptyMessage={props.emptyMessage}
           expandableRowGroups={props.groupRowsBy !== undefined && props.groupRowsBy !== ''}
-          expandedRows={expandedRows}
+          expandedRows={state.expandedRows}
           exportFilename={props.exportFilename ?? 'streammaster'}
           filterDelay={500}
           filterDisplay="row"
-          filters={isEmptyObject(filters) ? getEmptyFilter(props.columns, props.showHidden) : filters}
-          first={pagedInformation ? pagedInformation.first : undefined}
+          filters={isEmptyObject(state.filters) ? getEmptyFilter(props.columns, props.showHidden) : state.filters}
+          first={state.pagedInformation ? state.pagedInformation.first : undefined}
           groupRowsBy={props.groupRowsBy}
           header={sourceRenderHeader}
           key={props.key !== undefined && props.key !== '' ? props.key : undefined}
@@ -410,7 +397,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           onFilter={onFilter}
           onPage={onPage}
           onRowReorder={(e) => onRowReorder(e.value)}
-          onRowToggle={(e: DataTableRowToggleEvent) => setExpandedRows(e.data as DataTableExpandedRows)}
+          onRowToggle={(e: DataTableRowToggleEvent) => setters.setExpandedRows(e.data as DataTableExpandedRows)}
           onSelectAllChange={onSelectAllChange}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onSelectionChange={((e: any) => onSelectionChange(e))}
@@ -425,24 +412,24 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           rowClassName={rowClass}
           rowGroupHeaderTemplate={rowGroupHeaderTemplate}
           rowGroupMode={props.groupRowsBy !== undefined && props.groupRowsBy !== '' ? 'subheader' : undefined}
-          rows={rows}
+          rows={state.rows}
           rowsPerPageOptions={[25, 50, 100, 250]}
           scrollHeight={props.enableVirtualScroll === true ? props.virtualScrollHeight !== undefined ? props.virtualScrollHeight : '400px' : 'flex'}
           scrollable
-          selectAll={selectAll}
-          selection={selections}
+          selectAll={state.selectAll}
+          selection={state.selections}
           selectionMode={getSelectionMultipleMode}
           showGridlines
           showHeaders={props.showHeaders}
-          sortField={sortField}
+          sortField={state.sortField}
           sortMode='single'
-          sortOrder={sortOrder}
+          sortOrder={state.sortOrder}
           stateKey={`${props.id}-table`}
           stateStorage="local"
           stripedRows
           style={props.style}
-          totalRecords={pagedInformation ? pagedInformation.totalRecords : undefined}
-          value={dataSource?.data}
+          totalRecords={state.pagedInformation ? state.pagedInformation.totalRecords : undefined}
+          value={state.dataSource?.data}
           virtualScrollerOptions={props.enableVirtualScroll === true ? { itemSize: 16, orientation: 'vertical' } : undefined}
         >
           <Column

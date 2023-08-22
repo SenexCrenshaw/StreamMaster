@@ -23,19 +23,35 @@ const useDataSelectorState = <T extends DataTableValue,>(id: string) => {
   const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows>();
 
   return {
-    dataSource, expandedRows,
-    filters, first,
-    page, pagedInformation,
-    rowClick, rows,
-    selectAll, selections,
-    setDataSource, setExpandedRows,
-    setFilters, setFirst,
-    setPage, setPagedInformation,
-    setRowClick, setRows,
-    setSelectAll, setSelections,
-    setSortField, setSortOrder,
-    sortField, sortOrder,
+    setters: {
+      setDataSource,
+      setExpandedRows,
+      setFilters,
+      setFirst,
+      setPage,
+      setPagedInformation,
+      setRowClick,
+      setRows,
+      setSelectAll,
+      setSelections,
+      setSortField,
+      setSortOrder,
+    },
+    state: {
+      dataSource,
+      expandedRows,
+      filters,
+      first,
+      page,
+      pagedInformation,
+      rowClick,
+      rows,
+      selectAll,
+      selections,
+      sortField,
+      sortOrder
+    }
   };
-}
+};
 
 export default useDataSelectorState;
