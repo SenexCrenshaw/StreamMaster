@@ -37,7 +37,7 @@ const EPGEditor = (props: StreamDataSelectorProps) => {
           await onUpdateVideoStream(e);
         }
       }
-      value={props.data.user_Tvg_logo}
+      value={props.data.user_Tvg_ID}
     />
   );
 };

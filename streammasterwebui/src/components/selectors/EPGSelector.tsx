@@ -1,11 +1,5 @@
-
-import {
-  type ProgrammeNameDto,
-  useProgrammesGetProgrammsSimpleQueryQuery
-} from '../../store/iptvApi';
-import {
-  useProgrammesGetProgrammeNameSelectionsQuery
-} from '../../store/iptvApi';
+import { type ProgrammeNameDto, useProgrammesGetProgrammsSimpleQueryQuery } from '../../store/iptvApi';
+import { useProgrammesGetProgrammeNameSelectionsQuery } from '../../store/iptvApi';
 import BaseSelector, { type BaseSelectorProps } from './BaseSelector';
 import { type GetApiArg, type SimpleQueryApiArg } from '../../common/common';
 import { GetProgrammeFromDisplayName } from '../../store/signlar_functions';
@@ -49,7 +43,6 @@ const EPGSelector: React.FC<Partial<EPGSelectorProps>> = ({
       </div>
     );
   }
-
 
   if (!enableEditMode) {
     return (

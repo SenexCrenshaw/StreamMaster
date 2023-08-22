@@ -110,10 +110,10 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
       <DataSelector
         columns={StreamGroupColumns}
         dataSource={streamGroupsQuery.data}
+        headerName='Stream Groups'
         headerRightTemplate={sourceaddtionalHeaderTemplate()}
         id={props.id + '-ds-source'}
         isLoading={streamGroupsQuery.isLoading}
-        name='Stream Groups'
         onSelectionChange={(e) => {
           onSetStreamGroup(e as StreamGroupDto);
         }

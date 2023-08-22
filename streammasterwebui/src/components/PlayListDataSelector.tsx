@@ -172,11 +172,11 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       columns={sourceColumns}
       dataSource={dataSource}
       emptyMessage="No Groups"
+      headerName={props.name === undefined ? 'Playlist' : props.name}
       headerRightTemplate={props.hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
       hideControls={props.hideControls}
       id={id + 'DataSelector'}
       isLoading={channelGroupsQuery.isLoading || channelGroupsQuery.isFetching}
-      name={props.name === undefined ? 'Playlist' : props.name}
       onFilter={(filterInfo) => {
         setFilter(filterInfo as DataTableFilterEvent);
       }}

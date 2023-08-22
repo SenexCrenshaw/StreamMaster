@@ -376,6 +376,7 @@ export function getIconUrl(iconOriginalSource: string | null | undefined, defaul
   return iconOriginalSource;
 }
 
+export const removeQuotes = (str: string) => str.startsWith('"') && str.endsWith('"') ? str.slice(1, -1) : str;
 export const hasColumns = (columns?: ColumnMeta[]) => columns && columns.length > 0;
 
 export function isEmptyObject(value: any): boolean {
@@ -398,19 +399,38 @@ export function isEmptyObject(value: any): boolean {
 }
 
 
-export const MultiSelectCheckbox: React.FC<{ onMultiSelectClick?: (value: boolean) => void, props: DataSelectorProps, rowClick: boolean, setRowClick: (val: boolean) => void }> = ({ onMultiSelectClick, rowClick, setRowClick, props }) => (
-  <div hidden={props.selectionMode !== 'selectable'}>
-    <Checkbox
-      checked={rowClick}
-      onChange={(e) => {
-        onMultiSelectClick?.(e.checked ?? false);
-        setRowClick(e.checked ?? false);
-      }}
-      tooltip="Multi Select"
-      tooltipOptions={getTopToolOptions}
-    />
-  </div>
-);
+type MultiSelectCheckboxProps = {
+  onMultiSelectClick?: (value: boolean) => void,
+  props: DataSelectorProps,
+  rowClick: boolean,
+  setRowClick: (val: boolean) => void
+};
+
+/**
+ * MultiSelectCheckbox component is responsible for rendering and managing
+ * the multi-select checkbox based on the provided selection mode.
+ *
+ * @param props The properties for the MultiSelectCheckbox component.
+ */
+export const MultiSelectCheckbox: React.FC<MultiSelectCheckboxProps> = (props) => {
+  const { onMultiSelectClick, rowClick, setRowClick, props: dataSelectorProps } = props;
+
+  return (
+    <div hidden={dataSelectorProps.selectionMode !== 'selectable'}>
+      <Checkbox
+        checked={rowClick}
+        onChange={(e) => {
+          onMultiSelectClick?.(e.checked ?? false);
+          setRowClick(e.checked ?? false);
+        }}
+        tooltip="Multi Select"
+        tooltipOptions={getTopToolOptions}
+      />
+    </div>
+  );
+};
+
+
 export const getColumnClass = (size?: number, secondSize?: number) => {
   if (size !== undefined) {
     return `col-${12 - size}`;

@@ -204,10 +204,10 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       columns={props.showBrief === true ? targetBriefColumns : targetColumns}
       dataSource={videoStreamsQuery.data}
       emptyMessage="No Streams"
+      headerName={GetMessage('streams')}
       headerRightTemplate={props.showBrief === true ? rightHeaderBriefTemplate : rightHeaderTemplate}
       id={props.id + 'VideoStreamDataSelector'}
       isLoading={videoStreamsQuery.isLoading || videoStreamsQuery.isFetching}
-      name={GetMessage('streams')}
       onFilter={(info) => {
         console.log('filterInfo', info);
         updateFilter(info);

@@ -1,15 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { type DropdownFilterEvent } from 'primereact/dropdown';
 import { type DropdownChangeEvent } from 'primereact/dropdown';
 import { Dropdown } from 'primereact/dropdown';
 import { Skeleton } from 'primereact/skeleton';
 import { classNames } from 'primereact/utils';
-import {
-  type HasId, type GetApiArg, type SimpleQueryApiArg, type SMDataTableFilterMetaData
-} from "../../common/common";
-import {
-  addOrUpdateValueForField
-} from "../../common/common";
+import { type HasId, type GetApiArg, type SimpleQueryApiArg, type SMDataTableFilterMetaData } from "../../common/common";
+import { addOrUpdateValueForField } from "../../common/common";
 import { type VirtualScrollerTemplateOptions } from 'primereact/virtualscroller';
 
 export type BaseSelectorProps<T extends HasId> = {
@@ -190,9 +186,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
               props.onPaging?.({ first: firstRecord, last: e.last as number + 100 } as SimpleQueryApiArg);
             }
           },
-
           showLoader: false,
-
         }}
 
       />

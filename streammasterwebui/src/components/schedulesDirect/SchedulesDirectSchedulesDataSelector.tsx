@@ -59,10 +59,10 @@ const SchedulesDirectSchedulesDataSelector = (props: SchedulesDirectSchedulesDat
           dataSource={dataSource}
           emptyMessage="No Line Ups"
 
+          headerName="Schedules"
           id='SchedulesDirectSchedulesDataSelector-ds'
           isLoading={isLoading}
           key="callsign"
-          name="Schedules"
           selectionMode='multiple'
           style={{ height: 'calc(50vh - 40px)' }}
         />

@@ -108,9 +108,9 @@ const SchedulesDirectStationPreviewDataSelector = () => {
           dataSource={stationPreviews.data}
           emptyMessage="No Line Ups"
 
+          headerName="Line Up Preview"
           id='SchedulesDirectStationPreviewDataSelector'
           isLoading={stationPreviews.isLoading}
-          name="Line Up Preview"
           onSelectionChange={(e) => {
             onSelectedStationPreviews(e as StationPreview[]);
           }

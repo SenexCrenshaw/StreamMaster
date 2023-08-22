@@ -137,17 +137,15 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
           columns={props.sourceColumns}
           dataSource={sourceDataSource}
           headerLeftTemplate={props.sourceHeaderPrefixTemplate}
+          headerName={props.sourceName}
           headerRightTemplate={props.sourceHeaderTemplate}
           id={`${props.id}-ds-picker-source`}
           isLoading={props.isLoading}
-          name={props.sourceName}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onSelectionChange={((e: any) => onSelectionChange(e as T[]))}
-          // onValueChanged={(e) => onSourceOnValueChanged(e as T[])}
-          // rightColSize={props.sourceRightColSize}
-          // selection={selection}
+
           selectionMode='multipleNoRowCheckBox'
-          // sortField={props.sourceSortField}
+
           style={props.sourceStyle}
         />
       </div>
@@ -157,20 +155,20 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
           dataSource={targetDataSource}
 
           headerLeftTemplate={props.targetHeaderPrefixTemplate}
+          headerName={props.targetName}
           headerRightTemplate={targetRightHeaderTemplate}
           id={`${props.id}-ds-picker-target`}
           isLoading={props.isLoading}
-          name={props.targetName}
+
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onSelectionChange={(e: any) => {
             props?.onTargetSelectionChange?.(e as T[])
           }
-          }
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          }          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onValueChanged={(e: any) => props.onTargetOnValueChanged?.(e as T[])}
+
           reorderable={props.targetReorderable}
-          // rightColSize={props.targetRightColSize}
-          // sortField={props.targetSortField}
+
           style={props.targetStyle ? props.targetStyle : props.sourceStyle}
         />
       </div>
