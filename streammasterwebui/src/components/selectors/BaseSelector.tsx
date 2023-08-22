@@ -107,7 +107,9 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
       }
     };
 
-    void fetchAndSetIcon();
+    if (selectedItem !== props.value) {
+      void fetchAndSetIcon();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.value]);
 
@@ -142,10 +144,10 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
   };
 
   const onFilter = (event: DropdownFilterEvent) => {
-    const tosend = [] as SMDataTableFilterMetaData[];
-    addOrUpdateValueForField(tosend, 'name', 'contains', event.filter);
-    setFilter(JSON.stringify(tosend));
-    props.onFilter?.({ jsonFiltersString: JSON.stringify(tosend), pageSize: 40 } as GetApiArg);
+    const toSend = [] as SMDataTableFilterMetaData[];
+    addOrUpdateValueForField(toSend, 'name', 'contains', event.filter);
+    setFilter(JSON.stringify(toSend));
+    props.onFilter?.({ jsonFiltersString: JSON.stringify(toSend), pageSize: 40 } as GetApiArg);
   }
 
   return (

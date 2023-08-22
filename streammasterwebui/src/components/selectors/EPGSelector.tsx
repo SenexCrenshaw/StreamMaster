@@ -18,8 +18,8 @@ const EPGSelector: React.FC<Partial<EPGSelectorProps>> = ({
   const [paging, setPaging] = useState<SimpleQueryApiArg>({ first: 0, last: 40 });
   const [filter, setFilter] = useState<GetApiArg>({ pageSize: 40 });
 
-  const data = useProgrammesGetProgrammeNameSelectionsQuery(paging);
-  const filteredProgrammeData = useProgrammesGetProgrammsSimpleQueryQuery(filter);
+  const data = useProgrammesGetProgrammsSimpleQueryQuery(paging);
+  const filteredProgrammeData = useProgrammesGetProgrammeNameSelectionsQuery(filter);
 
   const selectedTemplate = (option: ProgrammeNameDto) => {
     return (
@@ -55,9 +55,9 @@ const EPGSelector: React.FC<Partial<EPGSelectorProps>> = ({
   return (
     <BaseSelector
       {...restProps}
-      data={data.data?.data ?? []}
+      data={data.data ?? []}
       fetch={GetProgrammeFromDisplayName}
-      filteredData={filteredProgrammeData.data ?? []}
+      filteredData={filteredProgrammeData.data?.data ?? []}
       itemSize={32}
       itemTemplate={itemTemplate}
       onChange={handleOnChange}
