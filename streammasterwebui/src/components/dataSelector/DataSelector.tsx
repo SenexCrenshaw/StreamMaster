@@ -24,7 +24,7 @@ import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
 import { type ColumnAlign, type ColumnFieldType, type DataSelectorSelectionMode } from './DataSelectorTypes';
 import { type ColumnMeta } from './DataSelectorTypes';
 import TableHeader from './TableHeader';
-import bodyTemplate from './dataSelectorHelpers';
+import bodyTemplate from './bodyTemplate';
 import isPagedTableDto from './isPagedTableDto';
 import generateFilterData from './generateFilterData';
 import getEmptyFilter from './getEmptyFilter';

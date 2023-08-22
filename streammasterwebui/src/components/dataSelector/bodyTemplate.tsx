@@ -3,6 +3,7 @@ import { camel2title, removeQuotes } from "../../common/common";
 import { type ColumnFieldType } from "./DataSelectorTypes";
 
 
+
 function linkIcon(url: string) {
   return (
     <a href={url} rel="noopener noreferrer" target="_blank">
@@ -83,12 +84,13 @@ function streamsBodyTemplate(activeCount: string, totalCount: string) {
 
 }
 
-
 function bodyTemplate(data: object, fieldName: string, fieldType: ColumnFieldType, defaultIcon: string, camelize?: boolean) {
 
   if (fieldName === undefined || fieldName === '') {
     return <div />;
   }
+
+
 
   // Helper function for 'isHidden' fieldType
   const renderIsHidden = (record: boolean) => {
