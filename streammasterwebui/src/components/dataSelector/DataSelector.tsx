@@ -3,7 +3,7 @@ import './DataSelector.css';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 
-import { type DataTableFilterMeta } from 'primereact/datatable';
+
 import { type DataTableSelectionSingleChangeEvent } from 'primereact/datatable';
 import { type DataTableSelectAllChangeEvent } from 'primereact/datatable';
 import { type DataTableRowDataArray } from 'primereact/datatable';
@@ -21,6 +21,7 @@ import { type ReactNode } from 'react';
 import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties } from 'react';
 import { camel2title, getTopToolOptions, isEmptyObject } from '../../common/common';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
+import { type LazyTableState } from './DataSelectorTypes';
 import { type ColumnAlign, type ColumnFieldType, type DataSelectorSelectionMode } from './DataSelectorTypes';
 import { type ColumnMeta } from './DataSelectorTypes';
 import TableHeader from './TableHeader';
@@ -31,16 +32,6 @@ import getEmptyFilter from './getEmptyFilter';
 import getHeader from './getHeader';
 import useDataSelectorState from './useDataSelectorState';
 
-export type LazyTableState = {
-  filterString: string;
-  filters: DataTableFilterMeta;
-  first: number;
-  page: number;
-  rows: number;
-  sortField?: string;
-  sortOrder?: -1 | 0 | 1 | null | undefined;
-  sortString: string;
-}
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
   const {

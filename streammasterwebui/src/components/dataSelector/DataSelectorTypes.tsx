@@ -2,10 +2,23 @@ import { type FilterMatchMode } from "primereact/api";
 import { type ColumnFilterElementTemplateOptions } from "primereact/column";
 import { type ColumnEditorOptions, type ColumnEvent } from "primereact/column";
 import { type CSSProperties } from "react";
+import { type DataTableFilterMeta } from 'primereact/datatable';
 
 export type ColumnFieldType = 'blank' | 'deleted' | 'epg' | 'epglink' | 'image' | 'isHidden' | 'm3ulink' | 'streams' | 'url' | undefined;
 export type ColumnAlign = 'center' | 'left' | 'right' | null | undefined;
 export type DataSelectorSelectionMode = 'checkbox' | 'multiple' | 'multipleNoCheckBox' | 'multipleNoRowCheckBox' | 'selectable' | 'single' | undefined;
+
+
+export type LazyTableState = {
+  filterString: string;
+  filters: DataTableFilterMeta;
+  first: number;
+  page: number;
+  rows: number;
+  sortField?: string;
+  sortOrder?: -1 | 0 | 1 | null | undefined;
+  sortString: string;
+}
 
 
 /**

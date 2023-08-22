@@ -10,8 +10,9 @@ import { type VideoStreamDto, type VideoStreamsGetVideoStreamsApiArg, type Chann
 import { useVideoStreamsGetVideoStreamsQuery } from "../../store/iptvApi";
 import AutoSetChannelNumbers from "../AutoSetChannelNumbers";
 import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useEPGColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig, useChannelLogoColumnConfig } from "../columns/columnConfigHooks";
-import { type LazyTableState } from "../dataSelector/DataSelector";
+
 import DataSelector from "../dataSelector/DataSelector";
+import { type LazyTableState } from "../dataSelector/DataSelectorTypes";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 import VideoStreamDeleteDialog from "./VideoStreamDeleteDialog";
 import VideoStreamEditDialog from "./VideoStreamEditDialog";
