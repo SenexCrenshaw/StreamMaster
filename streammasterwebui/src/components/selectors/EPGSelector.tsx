@@ -1,9 +1,7 @@
 import { type ProgrammeNameDto, useProgrammesGetProgrammsSimpleQueryQuery } from '../../store/iptvApi';
-import { useProgrammesGetProgrammeNameSelectionsQuery } from '../../store/iptvApi';
 import BaseSelector, { type BaseSelectorProps } from './BaseSelector';
-import { type GetApiArg, type SimpleQueryApiArg } from '../../common/common';
 import { GetProgrammeFromDisplayName } from '../../store/signlar_functions';
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 
 type EPGSelectorProps = BaseSelectorProps<ProgrammeNameDto> & {
   enableEditMode?: boolean;
@@ -14,12 +12,6 @@ const EPGSelector: React.FC<Partial<EPGSelectorProps>> = ({
   onChange,
   ...restProps
 }) => {
-
-  const [paging, setPaging] = useState<SimpleQueryApiArg>({ first: 0, last: 40 });
-  const [filter, setFilter] = useState<GetApiArg>({ pageSize: 40 });
-
-  const data = useProgrammesGetProgrammsSimpleQueryQuery(paging);
-  const filteredProgrammeData = useProgrammesGetProgrammeNameSelectionsQuery(filter);
 
   const selectedTemplate = (option: ProgrammeNameDto) => {
     return (
@@ -55,17 +47,14 @@ const EPGSelector: React.FC<Partial<EPGSelectorProps>> = ({
   return (
     <BaseSelector
       {...restProps}
-      data={data.data ?? []}
       editable
-      fetch={GetProgrammeFromDisplayName}
-      filteredData={filteredProgrammeData.data?.data ?? []}
       itemSize={32}
       itemTemplate={itemTemplate}
       onChange={handleOnChange}
-      onFilter={setFilter}
-      onPaging={setPaging}
       optionLabel="displayName"
       optionValue="displayName"
+      queryHook={useProgrammesGetProgrammsSimpleQueryQuery}
+      querySelectedItem={GetProgrammeFromDisplayName}
       selectName='EPG'
       selectedTemplate={selectedTemplate}
     />
@@ -73,6 +62,4 @@ const EPGSelector: React.FC<Partial<EPGSelectorProps>> = ({
 };
 
 EPGSelector.displayName = 'EPGSelector';
-
-
 export default React.memo(EPGSelector);

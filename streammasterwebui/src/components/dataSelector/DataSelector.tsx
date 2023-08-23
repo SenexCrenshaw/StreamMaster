@@ -162,10 +162,15 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   const onsetSelection = useCallback((e: T | T[]): T | T[] | undefined => {
     let selected: T[] = Array.isArray(e) ? e : [e];
 
+    if (state.selections === selected) {
+      return;
+    }
+
     if (props.selectionMode === 'single') {
       selected = selected.slice(0, 1);
     }
 
+    console.log('onsetSelection', selected);
     setters.setSelections(selected);
 
     if (props.onSelectionChange) {
@@ -173,7 +178,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
 
     return e;
-  }, [props, setters]);
+  }, [props, setters, state.selections]);
 
   const getSelectionMultipleMode = useMemo((): 'checkbox' | 'multiple' | null => {
 
@@ -182,7 +187,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }, []);
 
   const onSelectionChange = useCallback((e: DataTableSelectionSingleChangeEvent<T[]>) => {
-    if (e.value === null || e.value === undefined) {
+    if (e.value === null || e.value === undefined || isEmptyObject(e.value)) {
       return;
     }
 

@@ -1,12 +1,10 @@
-import { useIconsGetIconsQuery } from '../../store/iptvApi';
 import { type IconFileDto } from '../../store/iptvApi';
 import { useIconsGetIconsSimpleQueryQuery } from '../../store/iptvApi';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { GetIconFromSource } from '../../store/signlar_functions';
 import BaseSelector, { type BaseSelectorProps } from './BaseSelector';
-import { type GetApiArg } from '../../common/common';
-import { type SimpleQueryApiArg } from '../../common/common';
+
 import { getIconUrl } from '../../common/common';
 
 type IconSelectorProps = BaseSelectorProps<IconFileDto> & {
@@ -22,12 +20,6 @@ const IconSelector: React.FC<Partial<IconSelectorProps>> = ({
 }) => {
 
   const setting = StreamMasterSetting();
-
-  const [paging, setPaging] = useState<SimpleQueryApiArg>({ first: 0, last: 40 });
-  const [filter, setFilter] = useState<GetApiArg>({ pageSize: 40 });
-
-  const filteredIconData = useIconsGetIconsQuery(filter);
-  const data = useIconsGetIconsSimpleQueryQuery(paging);
 
   const selectedTemplate = (option: IconFileDto) => {
     const iconUrl = option?.source ? getIconUrl(option.source, setting.defaultIcon, false) : '';
@@ -67,16 +59,13 @@ const IconSelector: React.FC<Partial<IconSelectorProps>> = ({
   return (
     <BaseSelector
       {...restProps}
-      data={data.data ?? []}
-      fetch={GetIconFromSource}
-      filteredData={filteredIconData.data?.data ?? []}
       itemSize={72}
       itemTemplate={iconOptionTemplate}
       onChange={handleOnChange}
-      onFilter={setFilter}
-      onPaging={setPaging}
       optionLabel="name"
       optionValue="source"
+      queryHook={useIconsGetIconsSimpleQueryQuery}
+      querySelectedItem={GetIconFromSource}
       selectName='Icon'
       selectedTemplate={selectedTemplate}
     />

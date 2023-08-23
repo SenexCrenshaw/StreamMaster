@@ -4,15 +4,9 @@ import { MultiSelect } from "primereact/multiselect";
 import { type VideoStreamDto } from "../../store/iptvApi";
 import { type ColumnFieldType } from "../dataSelector/DataSelectorTypes";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
+import { type QueryHook } from "../../common/common";
 import { isEmptyObject } from "../../common/common";
 
-type QueryHookResult = {
-  data?: string[];
-  isError: boolean;
-  isLoading: boolean;
-};
-
-type QueryHook = () => QueryHookResult;
 
 type DataField = keyof VideoStreamDto;
 type EditorComponent = React.ComponentType<{ data: VideoStreamDto }>;
@@ -39,19 +33,7 @@ const createMultiSelectColumnConfigHook = ({
 
   return (enableEditMode = false, values: string[] | undefined = undefined) => {
 
-    let names: string[] = values ?? [];
-    const { data, isLoading, isError } = queryHook ? queryHook() : { data: undefined, isError: false, isLoading: false };
-
-    if (isEmptyObject(values) && queryHook !== undefined) {
-
-      if (isLoading || isError) {
-        return { field: '' };
-      }
-
-      if (data) {
-        names = data;
-      }
-    }
+    const { data, isLoading, isFetching, isError } = queryHook ? queryHook() : { data: undefined, isError: false, isFetching: false, isLoading: false };
 
     const bodyTemplate = (bodyData: VideoStreamDto) => {
       const value = bodyData[dataField];
@@ -93,15 +75,15 @@ const createMultiSelectColumnConfigHook = ({
               options.filterApplyCallback(e.value);
             }
           }}
-          options={names}
+          options={values && values.length > 0 ? values : data}
           placeholder="Any"
           value={options.value}
         />
       );
-    };
+    }
 
     if (dataField === undefined) {
-      console.log('dataField is undefined');
+      console.error('dataField is undefined');
     }
 
     const columnConfig: ColumnMeta = {
@@ -124,7 +106,12 @@ const createMultiSelectColumnConfigHook = ({
       columnConfig.filterElement = filterTemplate;
     }
 
-    return columnConfig;
+    return {
+      columnConfig,
+      isError,
+      isFetching,
+      isLoading
+    };
   };
 }
 

@@ -183,8 +183,18 @@ export type GetApiArg = {
   pageSize?: number;
 };
 
+type QueryHookResult = {
+  data?: string[];
+  isError: boolean;
+  isFetching: boolean;
+  isLoading: boolean;
+};
+
+export type QueryHook = () => QueryHookResult;
+
 
 export type HasId = {
+  [key: string]: any;
   id: number | string;
 }
 

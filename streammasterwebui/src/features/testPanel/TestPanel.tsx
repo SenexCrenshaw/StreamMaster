@@ -26,20 +26,24 @@ const TestPanel = (props: TestPanelProps) => {
     ]
   }, []);
 
-  return (
-    <IconSelector value='https://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s10240_dark_360w_270h.png' />
-  )
+  // return (
+  //   <EPGEditor data={videoStreamsGetVideoStreamQuery.data ?? {} as VideoStreamDto}  />
+  // );
+
+  // return (
+  //   <IconSelector value='https://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s10240_dark_360w_270h.png' />
+  // )
 
   // return (
   //   <EPGEditor data={videoStreamsGetVideoStreamQuery.data ?? {} as VideoStreamDto} />
   // );
 
-  // return (
-  //   <VideoStreamDataSelector
-  //     channelGroupNames={selectedChannelGroups.map(a => a.name)}
-  //     id="TestPanel"
-  //   />
-  // );
+  return (
+    <VideoStreamDataSelector
+      channelGroupNames={selectedChannelGroups.map(a => a.name)}
+      id="TestPanel"
+    />
+  );
 
 }
 

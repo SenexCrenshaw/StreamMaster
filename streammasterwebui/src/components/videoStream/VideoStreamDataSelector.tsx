@@ -37,11 +37,12 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
   const [enableEditMode, setEnableEditMode] = useState<boolean>(true);
 
-  const m3uFileNameColumnConfig = useM3UFileNameColumnConfig(enableEditMode);
-  const epgColumnConfig = useEPGColumnConfig(enableEditMode);
-  const channelNumberColumnConfig = useChannelNumberColumnConfig(enableEditMode);
-  const channelNameColumnConfig = useChannelNameColumnConfig(enableEditMode);
-  const channelLogoColumnConfig = useChannelLogoColumnConfig(enableEditMode);
+  const { columnConfig: m3uFileNameColumnConfig } = useM3UFileNameColumnConfig(enableEditMode);
+  const { columnConfig: epgColumnConfig, isLoading: epgEditorIsLoading } = useEPGColumnConfig(enableEditMode);
+  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig(enableEditMode);
+  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(enableEditMode);
+  const { columnConfig: channelLogoColumnConfig } = useChannelLogoColumnConfig(enableEditMode);
+  const { columnConfig: channelGroupConfig, isLoading: channelGroupIsLoading } = useChannelGroupColumnConfig(enableEditMode, props.channelGroupNames?.sort() ?? []);
 
   const [lazyState, setLazyState] = useState<LazyTableState>({
     filters: {},
@@ -55,7 +56,6 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   });
 
   const videoStreamsQuery = useVideoStreamsGetVideoStreamsQuery({ jsonFiltersString: lazyState.filterString, orderBy: lazyState.sortString ?? 'user_tvg_name', pageNumber: lazyState.page, pageSize: lazyState.rows } as VideoStreamsGetVideoStreamsApiArg);
-  const channelGroupConfig = useChannelGroupColumnConfig(enableEditMode, props.channelGroupNames?.sort() ?? []);
 
   const [selectedVideoStreams, setSelectedVideoStreams] = useState<VideoStreamDto[]>([] as VideoStreamDto[]);
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
@@ -82,21 +82,23 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   }, []);
 
   const targetColumns = useMemo((): ColumnMeta[] => {
-    return [
+    let columnConfigs = [
       channelNumberColumnConfig,
       channelLogoColumnConfig,
       channelNameColumnConfig,
-      channelGroupConfig,
-      epgColumnConfig,
-      {
-        bodyTemplate: targetActionBodyTemplate, field: 'isHidden', header: 'Actions', isHidden: !enableEditMode, sortable: true,
-        style: {
-          maxWidth: '8rem',
-          width: '8rem',
-        } as CSSProperties,
-      },
-    ]
-  }, [channelNumberColumnConfig, channelLogoColumnConfig, channelNameColumnConfig, channelGroupConfig, epgColumnConfig, targetActionBodyTemplate, enableEditMode]);
+    ];
+
+    if (channelGroupIsLoading !== true) {
+      columnConfigs.push(channelGroupConfig);
+    }
+
+    // if (epgEditorIsLoading !== true) {
+    //   columnConfigs.push(epgColumnConfig);
+    // }
+
+    return columnConfigs;
+
+  }, [channelNumberColumnConfig, channelLogoColumnConfig, channelNameColumnConfig, channelGroupIsLoading, channelGroupConfig]);
 
   const targetBriefColumns = useMemo((): ColumnMeta[] => {
 
@@ -174,7 +176,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     }
 
     // Filter and map the filter keys to the desired format.
-    const tosend: SMDataTableFilterMetaData[] = Object.keys(toFilter.filters)
+    const toSend: SMDataTableFilterMetaData[] = Object.keys(toFilter.filters)
       .map(key => {
         const value = toFilter.filters[key] as SMDataTableFilterMetaData;
         if (!value.value) {
@@ -189,13 +191,13 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
     if (props.channelGroupNames?.length) {
       const channelNames = JSON.stringify(props.channelGroupNames);
-      addOrUpdateValueForField(tosend, 'user_Tvg_group', 'equals', channelNames);
+      addOrUpdateValueForField(toSend, 'user_Tvg_group', 'equals', channelNames);
     }
 
-    toFilter.filterString = JSON.stringify(tosend);
+    toFilter.filterString = JSON.stringify(toSend);
     setLazyState(toFilter);
 
-    return tosend;
+    return toSend;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.channelGroupNames]);
 
@@ -231,7 +233,6 @@ VideoStreamDataSelector.defaultProps = {
   channelGroupNames: [] as string[],
   showBrief: false
 };
-
 
 
 export default memo(VideoStreamDataSelector);

@@ -27,7 +27,7 @@ const PlayListDataSelectorPicker = (props: PlayListDataSelectorPickerProps) => {
   const [targetVideoStreams, setTargetVideoStreams] = useState<ChildVideoStreamDto[] | undefined>(undefined);
   const [isVideoStreamUpdating, setIsVideoStreamUpdating] = useState<boolean>(false);
   const [streamGroup, setStreamGroup] = useState<StreamGroupDto | undefined>(undefined);
-  const epgColumnConfig = useEPGColumnConfig(true);
+  const { columnConfig: epgColumnConfig } = useEPGColumnConfig(true);
   const [streamGroupsUpdateStreamGroupMutation] = useStreamGroupsUpdateStreamGroupMutation();
 
   useEffect(() => {
