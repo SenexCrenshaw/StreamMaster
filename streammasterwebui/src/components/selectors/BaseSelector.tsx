@@ -4,7 +4,7 @@ import { type DropdownChangeEvent } from 'primereact/dropdown';
 import { Dropdown } from 'primereact/dropdown';
 import { Skeleton } from 'primereact/skeleton';
 import { classNames } from 'primereact/utils';
-import { type HasId, type GetApiArg, type SimpleQueryApiArg, type SMDataTableFilterMetaData } from "../../common/common";
+import { type HasId, type GetApiArg, type SimpleQueryApiArg, type SMDataTableFilterMetaData, isEmptyObject } from "../../common/common";
 import { addOrUpdateValueForField } from "../../common/common";
 import { type VirtualScrollerTemplateOptions } from 'primereact/virtualscroller';
 
@@ -12,6 +12,7 @@ export type BaseSelectorProps<T extends HasId> = {
   className?: string | null;
   data: T[];
   disabled?: boolean;
+  editable?: boolean | undefined;
   fetch: (arg: string) => Promise<T>;
   filteredData: T[];
   isLoading?: boolean;
@@ -29,23 +30,11 @@ export type BaseSelectorProps<T extends HasId> = {
 
 const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
   const [selectedItem, setSelectedItem] = useState<string>('');
+  const [selectedValue, setSelectedValue] = useState<T>({} as T);
   const [filter, setFilter] = useState<string>('');
   const [index, setIndex] = useState<number>(0);
-
   const [dataSource, setDataSource] = useState<T[]>([]);
   const [oldDataSource, setOldDataSource] = useState<T[]>([]);
-
-  useEffect(() => {
-    if (filter === undefined || filter === '') {
-      if (oldDataSource.length > 0) {
-        setDataSource([...oldDataSource]);
-        setIndex(oldDataSource.length);
-        setOldDataSource([]);
-      }
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter]);
 
   useEffect(() => {
     if (filter) {
@@ -63,9 +52,15 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
         setDataSource([...newItems]);
         setIndex(newItems.length);
       }
+    } else {
+      if (oldDataSource.length > 0) {
+        setDataSource([...oldDataSource]);
+        setIndex(oldDataSource.length);
+        setOldDataSource([]);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.filteredData]);
+  }, [props.filteredData, filter]);
 
 
   useEffect(() => {
@@ -76,44 +71,51 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
       const newItems = props.data.filter(cn =>
         cn?.id && (!existingIds.has(cn.id))
       );
+      if (newItems.length > 0) {
+        // Use spread operator to combine arrays
+        const newDataSource = [...dataSource, ...newItems];
 
-      // Use spread operator to combine arrays
-      const newDataSource = [...dataSource, ...newItems]
-
-      setIndex(newDataSource.length);
-      setDataSource(newDataSource);
-
+        setIndex(newDataSource.length);
+        setDataSource(newDataSource);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.data]);
 
   useEffect(() => {
-    const fetchAndSetIcon = async () => {
-      if (!props.value) return; // Check for undefined, null, or empty string
-
+    if (!props.value) return;
+    // const fetchAndSetIcon = async () => {
+    if (selectedItem !== props.value) {
+      // Check for undefined, null, or empty string
       setSelectedItem(props.value);
       try {
-        const item = await props.fetch(props.value);
-        if (item) {
-          const existingIds = new Set(dataSource.map(existingItem => existingItem.id));
-
-          if (!existingIds.has(item.id)) {
-            setDataSource(prevDataSource => [...prevDataSource, item]);
-            setIndex(prevIndex => prevIndex + 1);
+        props.fetch(props.value).then((item) => {
+          if (item) {
+            console.log(' item', dataSource.map(existingItem => existingItem.id));
+            setSelectedValue(item);
           }
-        }
+        }).catch((e) => { console.error(e) });
+
       } catch (e) {
         console.error(e);
       }
-    };
 
-    if (selectedItem !== props.value) {
-      void fetchAndSetIcon();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.value]);
 
+  useEffect(() => {
+    if (!isEmptyObject(selectedValue)) {
 
+      const existingIds = new Set(dataSource.map(x => x.id));
+      if (!existingIds.has(selectedValue.id)) {
+        const newDataSource = [...dataSource, selectedValue];
+        setDataSource(newDataSource);
+        setIndex(newDataSource.length);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedValue]);
 
   const onChange = useCallback((event: DropdownChangeEvent) => {
     setSelectedItem(event.value);
@@ -155,6 +157,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
       <Dropdown
         className={className}
         disabled={props.disabled}
+        editable={props.editable}
         filter
         filterBy={props.optionLabel}
         filterInputAutoFocus
@@ -200,6 +203,7 @@ BaseSelector.displayName = 'BaseSelector';
 BaseSelector.defaultProps = {
   className: null,
   disabled: false,
+  editable: false,
   isLoading: false,
 };
 

@@ -3,7 +3,7 @@ import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/
 import { useVideoStreamsUpdateVideoStreamMutation } from "../../store/iptvApi";
 import EPGSelector from "../selectors/EPGSelector";
 
-const EPGEditor = (props: StreamDataSelectorProps) => {
+const EPGEditor = (props: EPGEditorProps) => {
   const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
 
   const onUpdateVideoStream = async (epg: string) => {
@@ -47,7 +47,7 @@ EPGEditor.defaultProps = {
   enableEditMode: true
 };
 
-export type StreamDataSelectorProps = {
+type EPGEditorProps = {
   data: VideoStreamDto;
   enableEditMode?: boolean;
 };

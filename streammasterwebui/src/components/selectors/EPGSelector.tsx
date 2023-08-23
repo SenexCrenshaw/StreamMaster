@@ -56,6 +56,7 @@ const EPGSelector: React.FC<Partial<EPGSelectorProps>> = ({
     <BaseSelector
       {...restProps}
       data={data.data ?? []}
+      editable
       fetch={GetProgrammeFromDisplayName}
       filteredData={filteredProgrammeData.data?.data ?? []}
       itemSize={32}
