@@ -627,6 +627,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
               hidden={col.isHidden === true || (props.hideControls === true && getHeader(col.field, col.header, col.fieldType) === 'Actions') ? true : undefined}
               key={!col.fieldType ? col.field : col.field + col.fieldType}
               onCellEditComplete={col.handleOnCellEditComplete}
+              resizeable={col.resizeable}
               showAddButton
               showApplyButton
               showClearButton

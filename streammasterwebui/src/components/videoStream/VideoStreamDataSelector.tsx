@@ -16,7 +16,6 @@ import VideoStreamDeleteDialog from "./VideoStreamDeleteDialog";
 import VideoStreamEditDialog from "./VideoStreamEditDialog";
 import VideoStreamResetLogoDialog from "./VideoStreamResetLogoDialog";
 import VideoStreamResetLogosDialog from "./VideoStreamResetLogosDialog";
-import VideoStreamSetEPGFromNameDialog from "./VideoStreamSetEPGFromNameDialog";
 import VideoStreamSetLogoFromEPGDialog from "./VideoStreamSetLogoFromEPGDialog";
 import VideoStreamVisibleDialog from "./VideoStreamVisibleDialog";
 import VideoStreamAddDialog from "./VideoStreamAddDialog";
@@ -67,7 +66,6 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     return (
       <div className='flex p-0 justify-content-end align-items-center'>
         <VideoStreamResetLogoDialog value={data} />
-        <VideoStreamSetEPGFromNameDialog value={data} />
         <VideoStreamSetLogoFromEPGDialog value={data} />
         <VideoStreamVisibleDialog iconFilled={false} id={props.id} skipOverLayer values={[data]} />
         <VideoStreamDeleteDialog iconFilled={false} value={data} />
@@ -92,10 +90,10 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
     }
 
     columnConfigs.push({
-      bodyTemplate: targetActionBodyTemplate, field: 'isHidden', header: 'Actions', isHidden: !enableEditMode, sortable: false,
+      bodyTemplate: targetActionBodyTemplate, field: 'isHidden', header: 'Actions', isHidden: !enableEditMode, resizeable: false, sortable: false,
       style: {
-        maxWidth: '10rem',
-        width: '10rem',
+        maxWidth: '7rem',
+        width: '7rem',
       } as CSSProperties,
     });
 
@@ -181,7 +179,6 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       headerRightTemplate={props.showBrief === true ? rightHeaderBriefTemplate : rightHeaderTemplate}
       id={dataKey}
       onSelectionChange={(value, selectAllReturn, retTotalRecords) => {
-        console.log('onSelectionChange', value, selectAll, retTotalRecords);
         setTotalRecords(retTotalRecords);
         setSelectAll(selectAllReturn)
         if (selectAll !== true) {

@@ -78,6 +78,7 @@ export type ColumnMeta = {
    */
   header?: string;
   isHidden?: boolean;
+  resizeable?: boolean | undefined;
   /**
    * A boolean value that specifies whether the column can be sorted.
    */

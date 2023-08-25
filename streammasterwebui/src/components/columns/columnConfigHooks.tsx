@@ -20,7 +20,7 @@ export const useEPGColumnConfig = createMultiSelectColumnConfigHook({
   EditorComponent: EPGEditor,
   headerTitle: 'EPG',
   queryHook: useProgrammesGetProgrammeNamesQuery,
-  width: 8
+  width: 10
 });
 
 export const useM3UFileNameColumnConfig = createMultiSelectColumnConfigHook({
