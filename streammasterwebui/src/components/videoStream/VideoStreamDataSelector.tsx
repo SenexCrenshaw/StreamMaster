@@ -41,7 +41,9 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig(enableEditMode);
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(enableEditMode);
   const { columnConfig: channelLogoColumnConfig } = useChannelLogoColumnConfig(enableEditMode);
-  const { columnConfig: channelGroupConfig, isLoading: channelGroupIsLoading } = useChannelGroupColumnConfig(enableEditMode, props.channelGroupNames?.sort() ?? []);
+
+  // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
+  const { columnConfig: channelGroupConfig, isLoading: channelGroupIsLoading } = useChannelGroupColumnConfig(enableEditMode, [...(props.channelGroupNames ?? [])].sort());
 
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
   const [selectedVideoStreams, setSelectedVideoStreams] = useState<VideoStreamDto[]>([] as VideoStreamDto[]);

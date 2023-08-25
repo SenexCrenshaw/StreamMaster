@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import './DataSelector.css';
 
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 
+import { type DataTableSelectionMultipleChangeEvent } from 'primereact/datatable';
 import { type DataTableFilterMeta } from 'primereact/datatable';
 import { type DataTableSelectionSingleChangeEvent } from 'primereact/datatable';
 import { type DataTableSelectAllChangeEvent } from 'primereact/datatable';
@@ -48,12 +50,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   const tableRef = useRef<DataTable<T[]>>(null);
 
-  let tempSort = '';
-  let tempSortOrder: -1 | 0 | 1 = 1;
-  let tempFirst = 0;
-  let tempPage = 1;
-  let tempRows = 25;
-
   const setting = StreamMasterSetting();
 
   const lazyState = useCallback((overrides?: Partial<LazyTableState>): LazyTableState => {
@@ -66,8 +62,12 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
 
     let filters = state.filters;
-    if (overrides?.jsonFiltersString) {
+    if (overrides?.jsonFiltersString && overrides?.jsonFiltersString !== '[]') {
       filters = JSON.parse(overrides.jsonFiltersString) as DataTableFilterMeta;
+    }
+
+    if (overrides?.filters) {
+      filters = overrides.filters;
     }
 
     const defaultState: LazyTableState = {
@@ -84,8 +84,9 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     return {
       ...defaultState,
       ...overrides,
-      jsonFiltersString: overrides?.jsonFiltersString ? overrides.jsonFiltersString : JSON.stringify(overrides?.filters ?? filters)
+      jsonFiltersString: overrides?.jsonFiltersString ? overrides.jsonFiltersString : JSON.stringify(filters)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.filters, state.first, state.page, state.rows, state.sortField, state.sortOrder]);
 
   const updateFilter = useCallback((toFilter: LazyTableState, additionalFilterProps?: AdditionalFilterProps): SMDataTableFilterMetaData[] => {
@@ -124,45 +125,23 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const updateStateAndFilter = useCallback((overrides?: Partial<LazyTableState>) => {
+  const filterData = useMemo(() => {
 
-    const lazy = lazyState(overrides);
-    updateFilter(lazy);
+    const filter = queryFilter ? queryFilter : { pageSize: 40 };
+    const lazy = lazyState(filter);
+    updateFilter(lazy, state.additionalFilterProps?.values ? state.additionalFilterProps : undefined);
+
     const getApi = {
       jsonFiltersString: lazy.jsonFiltersString,
-      orderBy: lazy.sortString ?? props.defaultSortField,
+      orderBy: lazy.sortString !== '' ? lazy.sortString : props.defaultSortField,
       pageNumber: lazy.page,
       pageSize: lazy.rows
     };
 
-    if (queryFilter !== getApi) {
-      setQueryFilter(getApi)
-    }
+    return getApi;
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lazyState, props.defaultSortField, setQueryFilter, updateFilter]);
-
-
-  const filterData = useMemo(() => {
-
-    const filter = queryFilter ? queryFilter : { pageSize: 40 };
-    if (state.additionalFilterProps?.values) {
-      const lazy = lazyState(filter);
-      updateFilter(lazy, state.additionalFilterProps);
-
-      const getApi = {
-        jsonFiltersString: lazy.jsonFiltersString,
-        orderBy: lazy.sortString ?? props.defaultSortField,
-        pageNumber: lazy.page,
-        pageSize: lazy.rows
-      };
-
-      return getApi;
-    } else {
-      return filter;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryFilter, state.additionalFilterProps]);
+  }, [queryFilter, state.filters, state.additionalFilterProps, state.sortField, state.sortOrder, state.page, state.rows]);
 
 
   const { data, isLoading, isFetching } = props.queryFilter ? props.queryFilter(filterData) : { data: undefined, isFetching: false, isLoading: false };
@@ -296,8 +275,18 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     return 'multiple';
   }, []);
 
-  const onSelectionChange = useCallback((e: DataTableSelectionSingleChangeEvent<T[]>) => {
+  const onSelectionChange = useCallback((e: DataTableSelectionMultipleChangeEvent<T[]> | DataTableSelectionSingleChangeEvent<T[]>) => {
     if (e.value === null || e.value === undefined) {
+      return;
+    }
+
+    if (getSelectionMultipleMode === 'multiple') {
+      if (e.value instanceof Array) {
+        onsetSelection(e.value);
+      } else {
+        onsetSelection([e.value]);
+      }
+
       return;
     }
 
@@ -308,7 +297,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       onsetSelection([e.value]);
     }
 
-  }, [onsetSelection]);
+  }, [getSelectionMultipleMode, onsetSelection]);
 
   const getAlign = useCallback((align: ColumnAlign | null | undefined, fieldType: ColumnFieldType): ColumnAlign => {
 
@@ -424,30 +413,12 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }
 
   const onSort = (event: DataTableStateEvent) => {
-    // If the sortField is 'selected' or absent, update the sortField and exit early.
     if (!event.sortField || event.sortField === 'selected') {
-      // setSortField('');
       return;
     }
 
-    // Set the sort order regardless of other conditions.
-    switch (event.sortOrder) {
-      case -1:
-        tempSortOrder = -1;
-        setters.setSortOrder(-1);
-        break;
-      case 0:
-        tempSortOrder = 0;
-        setters.setSortOrder(0);
-        break;
-      case 1:
-        tempSortOrder = 1;
-        setters.setSortOrder(1);
-        break;
-      default:
-        tempSortOrder = 0;
-        setters.setSortOrder(0);
-    }
+    const sortOrder = [1, 0, -1].includes(event.sortOrder ?? 1) ? event.sortOrder : 0;
+    setters.setSortOrder(sortOrder ?? 1);
 
     // Try finding the column by field directly.
     let matchingColumn = props.columns.find(column => column.field === event.sortField);
@@ -462,53 +433,18 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     // Set the sort field based on the matched column, or default to an empty string.
     const sort = matchingColumn?.field ?? '';
     setters.setSortField(sort);
-    tempSort = sort;
-    const lazy = lazyState({ sortField: sort, sortOrder: event.sortOrder });
-
-    updateFilter(lazy);
-    updateStateAndFilter({
-      first: event.first,
-      page: state.page,
-      rows: event.rows,
-      sortField: tempSort,
-      sortOrder: tempSortOrder
-    });
-
   };
 
   const onPage = (event: DataTablePageEvent) => {
-
     const adjustedPage = (event.page ?? 0) + 1;
-
-    tempPage = adjustedPage;
     setters.setPage(adjustedPage);
-
-    tempFirst = event.first;
     setters.setFirst(event.first);
-
-    tempRows = event.rows;
     setters.setRows(event.rows);
-
-    updateStateAndFilter({
-      first: tempFirst,
-      page: tempPage,
-      rows: tempRows
-    });
-
   };
 
   const onFilter = (event: DataTableStateEvent) => {
-
     const newFilters = generateFilterData(props.columns, event.filters, props.showHidden);
     setters.setFilters(newFilters);
-
-    updateStateAndFilter({
-      filters: newFilters,
-      first: tempFirst,
-      page: tempPage,
-      rows: tempRows
-    });
-
   }
 
   const onSelectAllChange = (event: DataTableSelectAllChangeEvent) => {
@@ -551,15 +487,14 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           onRowReorder={(e) => onRowReorder(e.value)}
           onRowToggle={(e: DataTableRowToggleEvent) => setters.setExpandedRows(e.data as DataTableExpandedRows)}
           onSelectAllChange={onSelectAllChange}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onSelectionChange={((e: any) => onSelectionChange(e))}
+          onSelectionChange={((e) => onSelectionChange(e))}
           onSort={onSort}
           onValueChange={(e) => { onValueChanged(e); }}
           paginator
           paginatorClassName='text-xs p-0 m-0 withpadding'
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           ref={tableRef}
-          // removableSort
+          removableSort={false}
           reorderableRows={props.reorderable}
           resizableColumns
           rowClassName={rowClass}

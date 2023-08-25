@@ -17,7 +17,7 @@ const PlayListEditor = (props: PlayListEditorProps) => {
       setSelectedChannelGroups([selectedData.name]);
     }
 
-    console.debug('onsetSelectedChannelGroups', selectedData);
+    // console.debug('onsetSelectedChannelGroups', selectedData);
   }, [setSelectedChannelGroups]);
 
   if (selectedChannelGroups === undefined) {
