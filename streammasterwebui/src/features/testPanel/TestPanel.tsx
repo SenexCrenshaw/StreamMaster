@@ -7,11 +7,11 @@ import IconSelector from "../../components/selectors/IconSelector";
 import { type VideoStreamDto } from "../../store/iptvApi";
 import { type PagedResponseOfChannelGroupDto, type ChannelGroupDto, useVideoStreamsGetVideoStreamQuery } from "../../store/iptvApi";
 import { useChannelGroupsGetChannelGroupsQuery } from "../../store/iptvApi";
-import VideoStreamDataSelector from "../../components/videoStream/VideoStreamDataSelector";
+import VideoStreamDataSelector from "../../components/dataSelectors/VideoStreamDataSelector";
 import EPGSelector from "../../components/selectors/EPGSelector";
 import EPGEditor from "../../components/epg/EPGEditor";
 import ChannelLogoEditor from "../../components/ChannelLogoEditor";
-import PlayListDataSelector from "../../components/PlayListDataSelector";
+import PlayListDataSelector from "../../components/dataSelectors/PlayListDataSelector";
 import VideoStreamAddDialog from "../../components/videoStream/VideoStreamAddDialog";
 import VideoStreamPanel from "../../components/videoStream/VideoStreamPanel";
 import VideoStreamsDataSelectorPicker from "../../components/videoStream/VideoStreamsDataSelectorPicker";
@@ -38,15 +38,15 @@ const TestPanel = (props: TestPanelProps) => {
   //   <VideoStreamAddDialog />
   // );
 
-  return (
-    <PlayListDataSelector
-      id='testpanel'
-    />
-  );
-
   // return (
-  //   <EPGEditor data={videoStreamsGetVideoStreamQuery.data ?? {} as VideoStreamDto} />
+  //   <PlayListDataSelector
+  //     id='testpanel'
+  //   />
   // );
+
+  return (
+    <EPGEditor data={videoStreamsGetVideoStreamQuery.data ?? {} as VideoStreamDto} />
+  );
 
   // return (
   //   <IconSelector value='https://schedulesdirect-api20141201-logos.s3.dualstack.us-east-1.amazonaws.com/stationLogos/s10240_dark_360w_270h.png' />

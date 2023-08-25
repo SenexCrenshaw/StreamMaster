@@ -1,5 +1,5 @@
 import { memo } from "react";
-import VideoStreamDataSelector from "./VideoStreamDataSelector";
+import VideoStreamDataSelector from "../dataSelectors/VideoStreamDataSelector";
 
 const VideoStreamsDataSelectorPicker = () => {
   return (

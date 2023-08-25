@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import './DataSelector.css';
 
 import { Button } from 'primereact/button';
@@ -18,7 +17,7 @@ import { type DataTableRowData } from 'primereact/datatable';
 import { DataTable } from 'primereact/datatable';
 import { type ReactNode } from 'react';
 import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties } from 'react';
-import { removeValueForField, type AdditionalFilterProps } from '../../common/common';
+import { removeValueForField } from '../../common/common';
 import { areAdditionalFilterPropsEqual, type MatchMode } from '../../common/common';
 import { addOrUpdateValueForField, type SMDataTableFilterMetaData } from '../../common/common';
 import { type GetApiArg } from '../../common/common';
@@ -39,41 +38,30 @@ import getRecord from './getRecord';
 import getRecordString from './getRecordString';
 import { type PagedResponseDto } from '../selectors/BaseSelector';
 import { areArraysEqual } from '@mui/base';
-import { useQueryFilter } from '../../app/slices/useQueryFilter';
 import { useQueryAdditionalFilters } from '../../app/slices/useQueryAdditionalFilters';
 import BanButton from '../buttons/BanButton';
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
   const { state, setters } = useDataSelectorState<T>(props.id);
-  const { queryFilter, setQueryFilter } = useQueryFilter(props.id);
   const { queryAdditionalFilter } = useQueryAdditionalFilters(props.id);
 
   const tableRef = useRef<DataTable<T[]>>(null);
 
   const setting = StreamMasterSetting();
 
-  const lazyState = useCallback((overrides?: Partial<LazyTableState>): LazyTableState => {
-    const effectiveSortField = overrides?.sortField ?? state.sortField;
-    const effectiveSortOrder = overrides?.sortOrder ?? state.sortOrder;
+  const lazyState = (filters: DataTableFilterMeta): LazyTableState => {
+
+    const newFilters = generateFilterData(props.columns, filters, props.showHidden);
 
     let sort = '';
-    if (effectiveSortField) {
-      sort = (effectiveSortOrder === -1) ? `${effectiveSortField} desc` : (effectiveSortOrder === 1) ? `${effectiveSortField} asc` : '';
-    }
-
-    let filters = state.filters;
-    if (overrides?.jsonFiltersString && overrides?.jsonFiltersString !== '[]') {
-      filters = JSON.parse(overrides.jsonFiltersString) as DataTableFilterMeta;
-    }
-
-    if (overrides?.filters) {
-      filters = overrides.filters;
+    if (state.sortField) {
+      sort = (state.sortOrder === -1) ? `${state.sortField} desc` : (state.sortOrder === 1) ? `${state.sortField} asc` : '';
     }
 
     const defaultState: LazyTableState = {
-      filters: filters,
+      filters: newFilters,
       first: state.first,
-      jsonFiltersString: JSON.stringify(filters),
+      jsonFiltersString: '',
       page: state.page,
       rows: state.rows,
       sortField: state.sortField,
@@ -83,65 +71,56 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
     return {
       ...defaultState,
-      ...overrides,
-      jsonFiltersString: overrides?.jsonFiltersString ? overrides.jsonFiltersString : JSON.stringify(filters)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.filters, state.first, state.page, state.rows, state.sortField, state.sortOrder]);
+  };
 
-  const updateFilter = useCallback((toFilter: LazyTableState, additionalFilterProps?: AdditionalFilterProps): SMDataTableFilterMetaData[] => {
-    if (!toFilter?.filters && additionalFilterProps === undefined) {
-      return [];
-    }
-
-    const toSend: SMDataTableFilterMetaData[] = Object.keys(toFilter.filters)
-      .map(key => {
-        const value = toFilter.filters[key] as SMDataTableFilterMetaData;
-        if (!value.value || value.value === '[]') {
-          return null;
-        }
-
-        return value;
-      })
-      .filter(Boolean) as SMDataTableFilterMetaData[];
-
-    const addProps = additionalFilterProps ?? state.additionalFilterProps;
-
-    if (addProps?.values) {
-
-      if (isEmptyObject(addProps.values)) {
-        removeValueForField(toSend, addProps.field)
-      } else {
-        const values = JSON.stringify(addProps.values);
-        addOrUpdateValueForField(toSend, addProps.field, addProps.matchMode as MatchMode, values)
-      }
-    }
-
-
-    toFilter.jsonFiltersString = JSON.stringify(toSend);
-
-    return toSend;
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const filterData = useMemo(() => {
-
-    const filter = queryFilter ? queryFilter : { pageSize: 40 };
-    const lazy = lazyState(filter);
-    updateFilter(lazy, state.additionalFilterProps?.values ? state.additionalFilterProps : undefined);
-
-    const getApi = {
-      jsonFiltersString: lazy.jsonFiltersString,
-      orderBy: lazy.sortString !== '' ? lazy.sortString : props.defaultSortField,
-      pageNumber: lazy.page,
-      pageSize: lazy.rows
+  const filterData = useMemo((): GetApiArg => {
+    // Helper functions
+    const hasValidAdditionalProps = () => {
+      return state.additionalFilterProps?.values;
     };
 
-    return getApi;
+    const generateFilteredData = () => {
+      const toSend: SMDataTableFilterMetaData[] = Object.keys(lazyState(state.filters).filters)
+        .map(key => {
+          const value = lazyState(state.filters).filters[key] as SMDataTableFilterMetaData;
+          return value?.value && value.value !== '[]' ? value : null;
+        })
+        .filter(Boolean) as SMDataTableFilterMetaData[];
+
+      if (hasValidAdditionalProps()) {
+        const addProps = state.additionalFilterProps;
+        if (addProps) {
+          if (isEmptyObject(addProps.values)) {
+            removeValueForField(toSend, addProps.field);
+          } else {
+            const values = JSON.stringify(addProps.values);
+            addOrUpdateValueForField(toSend, addProps.field, addProps.matchMode as MatchMode, values);
+          }
+        }
+      }
+
+      const toFilter = lazyState(state.filters);
+      return {
+        jsonFiltersString: JSON.stringify(toSend),
+        orderBy: toFilter.sortString || props.defaultSortField,
+        pageNumber: toFilter.page,
+        pageSize: toFilter.rows,
+      };
+    };
+
+    // Main Logic
+    if (isEmptyObject(state.filters) && !hasValidAdditionalProps()) {
+      return { pageSize: 40 };
+    }
+
+    const getApi = generateFilteredData();
+    return getApi || { pageSize: 40 };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryFilter, state.filters, state.additionalFilterProps, state.sortField, state.sortOrder, state.page, state.rows]);
+  }, [state.filters, state.additionalFilterProps, state.sortField, state.sortOrder, state.page, state.rows]);
+
 
 
   const { data, isLoading, isFetching } = props.queryFilter ? props.queryFilter(filterData) : { data: undefined, isFetching: false, isLoading: false };

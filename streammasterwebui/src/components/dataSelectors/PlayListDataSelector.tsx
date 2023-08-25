@@ -1,18 +1,18 @@
 import { memo, useCallback, useMemo, useState, type CSSProperties } from "react";
-import { isEmptyObject } from "../common/common";
-import { getTopToolOptions } from "../common/common";
+import { isEmptyObject } from "../../common/common";
+import { getTopToolOptions } from "../../common/common";
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
-import ChannelGroupAddDialog from "./channelGroups/ChannelGroupAddDialog";
-import { type ColumnMeta } from './dataSelector/DataSelectorTypes';
+import ChannelGroupAddDialog from "../channelGroups/ChannelGroupAddDialog";
+import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 
 import { useLocalStorage } from "primereact/hooks";
-import DataSelector from "./dataSelector/DataSelector";
-import { type ChannelGroupDto } from "../store/iptvApi";
-import { useChannelGroupsGetChannelGroupsQuery } from "../store/iptvApi";
-import ChannelGroupDeleteDialog from "./channelGroups/ChannelGroupDeleteDialog";
-import ChannelGroupEditDialog from "./channelGroups/ChannelGroupEditDialog";
-import ChannelGroupVisibleDialog from "./channelGroups/ChannelGroupVisibleDialog";
+import DataSelector from "../dataSelector/DataSelector";
+import { type ChannelGroupDto } from "../../store/iptvApi";
+import { useChannelGroupsGetChannelGroupsQuery } from "../../store/iptvApi";
+import ChannelGroupDeleteDialog from "../channelGroups/ChannelGroupDeleteDialog";
+import ChannelGroupEditDialog from "../channelGroups/ChannelGroupEditDialog";
+import ChannelGroupVisibleDialog from "../channelGroups/ChannelGroupVisibleDialog";
 
 const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   const id = props.id + '-PlayListDataSelector';

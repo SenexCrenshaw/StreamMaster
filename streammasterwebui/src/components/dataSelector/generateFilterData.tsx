@@ -8,7 +8,7 @@ function generateFilterData(columns: ColumnMeta[], currentFilters: DataTableFilt
     return {};
   }
 
-  return columns.reduce<DataTableFilterMeta>((obj, item: ColumnMeta) => {
+  const ret = columns.reduce<DataTableFilterMeta>((obj, item: ColumnMeta) => {
     if (item.field === 'isHidden') {
 
       return {
@@ -38,6 +38,8 @@ function generateFilterData(columns: ColumnMeta[], currentFilters: DataTableFilt
       },
     } as DataTableFilterMeta;
   }, {});
+
+  return ret;
 }
 
 ;

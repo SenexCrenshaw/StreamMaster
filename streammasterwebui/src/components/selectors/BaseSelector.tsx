@@ -2,12 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { type DropdownFilterEvent } from 'primereact/dropdown';
 import { type DropdownChangeEvent } from 'primereact/dropdown';
 import { Dropdown } from 'primereact/dropdown';
-import { Skeleton } from 'primereact/skeleton';
 import { classNames } from 'primereact/utils';
 import { doSetsContainSameIds, type SMDataTableFilterMetaData } from "../../common/common";
 import { type GetApiArg, addOrUpdateValueForField } from "../../common/common";
 import { type HasId, type SimpleQueryApiArg } from "../../common/common";
 import { type VirtualScrollerTemplateOptions } from 'primereact/virtualscroller';
+import { Skeleton } from 'primereact/skeleton';
 
 export type PagedResponseDto<T> = {
   data: T[];
@@ -63,7 +63,6 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
     var existingIds = new Set(dataSource.map(x => x.id));
     const newItems = query.data.filter((cn: T) => cn?.id && (!existingIds.has(cn.id)));
     if (newItems.length > 0) {
-      // console.log('Adding new items', newItems.length)
       setDataSource(dataSource.concat(newItems));
       setIndex(dataSource.length + newItems.length);
     }
@@ -87,11 +86,9 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
     if (!queryFilter.jsonFiltersString && dataSource.length > 0) {
       if (!doSetsContainSameIds(existingIds, existingFiltered)) {
         setFilteredDataSource(dataSource);
-        // console.log('No filter', dataSource.length);
       }
 
       if (filterQuery.data && filterQuery.data.totalItemCount !== totalItems) {
-        // console.log('totalItems', filterQuery.data.totalItemCount)
         setTotalItems(filterQuery.data.totalItemCount);
       }
 
@@ -108,7 +105,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
 
     if (filterQuery.data) {
       if (dataSource.length > 0) {
-        const filteredData = filterQuery.data.data;  // dataSource.filter(cn => cn?.[props.optionLabel]?.toLowerCase().includes(filter));
+        const filteredData = filterQuery.data.data;
 
         const newItems = filteredData.filter((cn: T) => cn?.id && (!existingIds.has(cn.id)));
         if (newItems.length > 0) {
@@ -178,12 +175,12 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
 
 
   const loadingTemplate = (options: VirtualScrollerTemplateOptions) => {
-    const className2 = classNames('flex align-items-center p-2', {
+    const className2 = classNames('flex align-items-center justify-content-center p-2', {
       odd: options.odd
     });
 
     return (
-      <div className={className2} style={{ height: '50px' }}>
+      <div className={className2} style={{ height: `${props.itemSize}px` }}>
         <Skeleton height="1.3rem" width={options.even ? '60%' : '50%'} />
       </div>
     );
@@ -242,7 +239,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
               setSimpleQuery({ first: firstRecord, last: e.last as number + 100 } as SimpleQueryApiArg)
             }
           },
-          showLoader: false,
+          showLoader: true,
         }}
 
       />

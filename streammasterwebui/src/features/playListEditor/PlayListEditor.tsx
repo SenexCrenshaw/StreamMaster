@@ -1,8 +1,8 @@
 import { useLocalStorage } from "primereact/hooks";
 import { useCallback, memo } from "react";
 import { PlayListEditorIcon } from "../../common/icons";
-import PlayListDataSelector from "../../components/PlayListDataSelector";
-import VideoStreamDataSelector from "../../components/videoStream/VideoStreamDataSelector";
+import PlayListDataSelector from "../../components/dataSelectors/PlayListDataSelector";
+import VideoStreamDataSelector from "../../components/dataSelectors/VideoStreamDataSelector";
 import { type ChannelGroupDto } from "../../store/iptvApi";
 
 const PlayListEditor = (props: PlayListEditorProps) => {

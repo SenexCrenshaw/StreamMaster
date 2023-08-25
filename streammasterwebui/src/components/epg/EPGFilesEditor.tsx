@@ -2,7 +2,7 @@
 import '../../styles/EPGFilesEditor.css';
 import { Button } from 'primereact/button';
 import { ConfirmDialog } from 'primereact/confirmdialog';
-import EPGFilesDataSelector from './EPGFilesDataSelector';
+import EPGFilesDataSelector from '../dataSelectors/EPGFilesDataSelector';
 import EPGFileRemoveDialog from './EPGFileRemoveDialog';
 import { Toast } from 'primereact/toast';
 import { useRef, useState, useMemo, useCallback, memo } from 'react';

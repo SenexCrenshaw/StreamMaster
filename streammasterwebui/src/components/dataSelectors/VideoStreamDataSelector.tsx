@@ -9,17 +9,16 @@ import { type VideoStreamDto, type ChannelNumberPair } from "../../store/iptvApi
 import { useVideoStreamsGetVideoStreamsQuery } from "../../store/iptvApi";
 import AutoSetChannelNumbers from "../AutoSetChannelNumbers";
 import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useEPGColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig, useChannelLogoColumnConfig } from "../columns/columnConfigHooks";
-
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
-import VideoStreamDeleteDialog from "./VideoStreamDeleteDialog";
-import VideoStreamEditDialog from "./VideoStreamEditDialog";
-import VideoStreamResetLogoDialog from "./VideoStreamResetLogoDialog";
-import VideoStreamResetLogosDialog from "./VideoStreamResetLogosDialog";
-import VideoStreamSetLogoFromEPGDialog from "./VideoStreamSetLogoFromEPGDialog";
-import VideoStreamVisibleDialog from "./VideoStreamVisibleDialog";
-import VideoStreamAddDialog from "./VideoStreamAddDialog";
-import VideoStreamSetLogosFromEPGDialog from "./VideoStreamSetLogosFromEPGDialog";
+import VideoStreamDeleteDialog from "../videoStream/VideoStreamDeleteDialog";
+import VideoStreamEditDialog from "../videoStream/VideoStreamEditDialog";
+import VideoStreamResetLogoDialog from "../videoStream/VideoStreamResetLogoDialog";
+import VideoStreamResetLogosDialog from "../videoStream/VideoStreamResetLogosDialog";
+import VideoStreamSetLogoFromEPGDialog from "../videoStream/VideoStreamSetLogoFromEPGDialog";
+import VideoStreamVisibleDialog from "../videoStream/VideoStreamVisibleDialog";
+import VideoStreamAddDialog from "../videoStream/VideoStreamAddDialog";
+import VideoStreamSetLogosFromEPGDialog from "../videoStream/VideoStreamSetLogosFromEPGDialog";
 import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
 
 type VideoStreamDataSelectorProps = {
@@ -37,13 +36,13 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const [selectAll, setSelectAll] = useState<boolean>(false);
   const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
   const { columnConfig: m3uFileNameColumnConfig } = useM3UFileNameColumnConfig(enableEditMode);
-  const { columnConfig: epgColumnConfig, isLoading: epgEditorIsLoading } = useEPGColumnConfig(enableEditMode);
+  const { columnConfig: epgColumnConfig } = useEPGColumnConfig(enableEditMode);
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig(enableEditMode);
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(enableEditMode);
   const { columnConfig: channelLogoColumnConfig } = useChannelLogoColumnConfig(enableEditMode);
 
   // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
-  const { columnConfig: channelGroupConfig, isLoading: channelGroupIsLoading } = useChannelGroupColumnConfig(enableEditMode, [...(props.channelGroupNames ?? [])].sort());
+  const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig(enableEditMode, [...(props.channelGroupNames ?? [])].sort());
 
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
   const [selectedVideoStreams, setSelectedVideoStreams] = useState<VideoStreamDto[]>([] as VideoStreamDto[]);
@@ -83,13 +82,13 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       channelNameColumnConfig,
     ];
 
-    if (channelGroupIsLoading !== true) {
-      columnConfigs.push(channelGroupConfig);
-    }
+    // if (channelGroupIsLoading !== true) {
+    columnConfigs.push(channelGroupConfig);
+    // }
 
-    if (epgEditorIsLoading !== true) {
-      columnConfigs.push(epgColumnConfig);
-    }
+    // if (epgEditorIsLoading !== true) {
+    columnConfigs.push(epgColumnConfig);
+    // }
 
     columnConfigs.push({
       bodyTemplate: targetActionBodyTemplate, field: 'isHidden', header: 'Actions', isHidden: !enableEditMode, resizeable: false, sortable: false,
@@ -101,7 +100,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 
     return columnConfigs;
 
-  }, [channelGroupConfig, channelGroupIsLoading, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig, enableEditMode, epgColumnConfig, epgEditorIsLoading, targetActionBodyTemplate]);
+  }, [channelGroupConfig, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig, enableEditMode, epgColumnConfig, targetActionBodyTemplate]);
 
   const targetBriefColumns = useMemo((): ColumnMeta[] => {
 

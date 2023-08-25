@@ -4,7 +4,7 @@ import { useLocalStorage } from "primereact/hooks";
 import { useCallback, memo } from "react";
 import { StreamGroupEditorIcon } from "../../common/icons";
 import StreamGroupDataSelector from "../../components/streamGroup/StreamGroupDataSelector";
-import VideoStreamDataSelector from "../../components/videoStream/VideoStreamDataSelector";
+import VideoStreamDataSelector from "../../components/dataSelectors/VideoStreamDataSelector";
 import { type StreamGroupDto, type ChannelGroupDto } from "../../store/iptvApi";
 
 const StreamGroupEditor = () => {

@@ -48,12 +48,17 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
 
   const onVisiblesClick = useCallback(async () => {
     setBlock(true);
-    if (setSelectedVideoStreams.length === 0 || !queryFilter) {
+    if (selectedVideoStreams.length === 0) {
       ReturnToParent();
       return;
     }
 
     if (props.selectAll === true) {
+      if (!queryFilter) {
+        ReturnToParent();
+        return;
+      }
+
       const toSendAll = {} as VideoStreamsUpdateAllVideoStreamsFromParametersApiArg;
 
       toSendAll.parameters = queryFilter;

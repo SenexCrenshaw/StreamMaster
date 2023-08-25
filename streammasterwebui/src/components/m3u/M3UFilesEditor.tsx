@@ -7,7 +7,7 @@ import { type M3UFileDto, type RefreshM3UFileRequest } from "../../store/iptvApi
 import { RefreshM3UFile } from "../../store/signlar_functions";
 import FileDialog from "../FileDialog";
 import M3UFileRemoveDialog from "./M3UFileRemoveDialog";
-import M3UFilesDataSelector from "./M3UFilesDataSelector";
+import M3UFilesDataSelector from "../dataSelectors/M3UFilesDataSelector";
 
 const M3UFilesEditor = (props: M3UFilesEditorProps) => {
   const toast = useRef<Toast>(null);

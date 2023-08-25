@@ -458,9 +458,12 @@ export function getIconUrl(iconOriginalSource: string | null | undefined, defaul
 export const removeQuotes = (str: string) => str.startsWith('"') && str.endsWith('"') ? str.slice(1, -1) : str;
 export const hasColumns = (columns?: ColumnMeta[]) => columns && columns.length > 0;
 
+
+
+
 export function isEmptyObject(value: any): boolean {
   // Check if value is an empty object
-  if (value && typeof value === "object" && Object.keys(value).length === 0 && value.constructor === Object) {
+  if (value && Object.keys(value).length === 0 && value.constructor === Object) {
     return true;
   }
 
