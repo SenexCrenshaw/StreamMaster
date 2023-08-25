@@ -359,4 +359,20 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
         return url;
     }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<VideoStreamIsReadOnly>>> GetStreamGroupVideoStreamIds([FromQuery] GetStreamGroupVideoStreamIdsRequest request, CancellationToken cancellationToken = default)
+    {
+        List<VideoStreamIsReadOnly> res = await Mediator.Send(request).ConfigureAwait(false);
+        return Ok(res);
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<VideoStreamDto>>> GetStreamGroupVideoStreams(GetStreamGroupVideoStreamsRequest request, CancellationToken cancellationToken = default)
+    {
+        List<VideoStreamDto> res = await Mediator.Send(request).ConfigureAwait(false);
+        return Ok(res);
+    }
 }

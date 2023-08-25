@@ -5,6 +5,9 @@ namespace StreamMasterDomain.Repository
 {
     public interface IStreamGroupRepository : IRepositoryBase<StreamGroup>
     {
+
+        Task<List<VideoStreamDto>> GetStreamGroupVideoStreams(int id, CancellationToken cancellationToken = default);
+        Task<List<VideoStreamIsReadOnly>> GetStreamGroupVideoStreamIds(int id, CancellationToken cancellationToken = default);
         Task SetGroupNameByGroupName(string channelGroupName, string newGroupName, CancellationToken cancellationToken);
         Task<List<StreamGroupDto>> GetStreamGroupDtos(string Url, CancellationToken cancellationToken = default);
 

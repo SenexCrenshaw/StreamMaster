@@ -4,9 +4,9 @@ import { memo, useCallback, useMemo, useRef, useState, type CSSProperties } from
 
 import { Toast } from 'primereact/toast';
 
-import StreamGroupAddDialog from './StreamGroupAddDialog';
-import StreamGroupEditDialog from './StreamGroupEditDialog';
-import StreamGroupDeleteDialog from './StreamGroupDeleteDialog';
+import StreamGroupAddDialog from '../streamGroup/StreamGroupAddDialog';
+import StreamGroupEditDialog from '../streamGroup/StreamGroupEditDialog';
+import StreamGroupDeleteDialog from '../streamGroup/StreamGroupDeleteDialog';
 import { type StreamGroupDto } from "../../store/iptvApi";
 import { useStreamGroupsGetStreamGroupsQuery } from "../../store/iptvApi";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
@@ -110,13 +110,12 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
 
       <DataSelector
         columns={StreamGroupColumns}
-
         headerName='Stream Groups'
         headerRightTemplate={sourceaddtionalHeaderTemplate()}
         id={props.id + '-ds-source'}
-
         onSelectionChange={(e) => {
           onSetStreamGroup(e as StreamGroupDto);
+          props.onSelectionChange?.(e as StreamGroupDto);
         }
         }
         queryFilter={useStreamGroupsGetStreamGroupsQuery}
@@ -131,10 +130,8 @@ StreamGroupDataSelector.defaultProps = {
 };
 
 export type StreamGroupDataSelectorProps = {
-
   id: string;
-
-  onSelectionChange?: (value: StreamGroupDto | StreamGroupDto[]) => void;
+  onSelectionChange?: (value: StreamGroupDto) => void;
 };
 
 export default memo(StreamGroupDataSelector);

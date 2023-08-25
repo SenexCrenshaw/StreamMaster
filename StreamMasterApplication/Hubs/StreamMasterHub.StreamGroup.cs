@@ -52,6 +52,16 @@ public partial class StreamMasterHub : IStreamGroupHub
         return await _mediator.Send(new GetStreamGroups(streamGroupParameters)).ConfigureAwait(false);
     }
 
+    public async Task<List<VideoStreamIsReadOnly>> GetStreamGroupVideoStreamIds(GetStreamGroupVideoStreamIdsRequest request, CancellationToken cancellationToken = default)
+    {
+        return await _mediator.Send(request).ConfigureAwait(false);
+    }
+
+    public async Task<List<VideoStreamDto>> GetStreamGroupVideoStreams(GetStreamGroupVideoStreamsRequest request, CancellationToken cancellationToken = default)
+    {
+        return await _mediator.Send(request).ConfigureAwait(false);
+    }
+
     public async Task SimulateStreamFailure(string streamUrl)
     {
         await _mediator.Send(new SimulateStreamFailureRequest(streamUrl)).ConfigureAwait(false);

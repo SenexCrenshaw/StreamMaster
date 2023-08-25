@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
 
 using MediatR;
 
@@ -95,7 +94,7 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
         return await FindByCondition(StreamGroup => StreamGroup.StreamGroupNumber == streamGroupNumber).FirstOrDefaultAsync();
     }
 
-    private async Task<StreamGroup> GetStreamGroupWithRelatedEntitiesByIdAsync(int streamGroupId, CancellationToken cancellationToken)
+    private async Task<StreamGroup?> GetStreamGroupWithRelatedEntitiesByIdAsync(int streamGroupId, CancellationToken cancellationToken)
     {
         return await RepositoryContext.StreamGroups
             .Include(sg => sg.ChannelGroups)
@@ -103,6 +102,43 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
             .Include(sg => sg.ChildVideoStreams)
                 .ThenInclude(sgvs => sgvs.ChildVideoStream)
             .SingleOrDefaultAsync(sg => sg.Id == streamGroupId, cancellationToken);
+    }
+
+    public async Task<List<VideoStreamIsReadOnly>> GetStreamGroupVideoStreamIds(int id, CancellationToken cancellationToken = default)
+    {
+        if (id == 0)
+        {
+            return new();
+        }
+
+        //StreamGroup? streamGroup = await GetStreamGroupWithRelatedEntitiesByIdAsync(id, cancellationToken);
+
+        //if (streamGroup == null)
+        //{
+        //    return new();
+        //}
+
+        List<VideoStreamIsReadOnly> ret = await RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == id)
+            .AsNoTracking()
+            .Select(a => a.ChildVideoStreamId)
+            .Select(a => new VideoStreamIsReadOnly { VideoStreamId = a, IsReadOnly = false }).ToListAsync();
+
+        List<string> existingIds = ret.Select(a => a.VideoStreamId).ToList();
+
+        List<string> cgNames = await RepositoryContext.StreamGroupChannelGroups.AsNoTracking()
+            .Where(a => a.StreamGroupId == id)
+            .Select(a => a.ChannelGroup.Name)
+            .ToListAsync();
+
+        List<VideoStreamIsReadOnly> streams = await RepositoryContext.VideoStreams
+                .Where(a => !existingIds.Contains(a.Id) && cgNames.Contains(a.User_Tvg_group))
+                .Select(a => a.Id)
+                .AsNoTracking()
+                .Select(a => new VideoStreamIsReadOnly { VideoStreamId = a, IsReadOnly = true }).ToListAsync();
+
+        ret.AddRange(streams);
+
+        return ret;
     }
 
     public async Task<StreamGroupDto?> GetStreamGroupDto(int id, string Url, CancellationToken cancellationToken = default)
@@ -115,42 +151,13 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
             return null;
 
         StreamGroupDto ret = _mapper.Map<StreamGroupDto>(streamGroup);
-
-        List<string> existingIds = streamGroup.ChildVideoStreams.Select(a => a.ChildVideoStreamId).ToList();
-
-        foreach (StreamGroupChannelGroup channegroup in streamGroup.ChannelGroups)
-        {
-            List<VideoStreamDto> streams = RepositoryContext.VideoStreams
-                .Where(a => !existingIds.Contains(a.Id) && a.User_Tvg_group == channegroup.ChannelGroup.Name)
-                .AsNoTracking()
-                .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider)
-                .ToList();
-            foreach (VideoStreamDto? stream in streams)
-            {
-                stream.IsReadOnly = true;
-            }
-            ret.ChildVideoStreams.AddRange(streams);
-
-
-        }
-
-        List<StreamGroupVideoStream> relationShips = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == streamGroup.Id).ToList();
-
-        foreach (VideoStreamDto stream in ret.ChildVideoStreams)
-        {
-            StreamGroupVideoStream? r = relationShips.FirstOrDefault(a => a.ChildVideoStreamId == stream.Id);
-            if (r != null)
-            {
-                stream.IsReadOnly = r.IsReadOnly;
-            }
-        }
         Setting _setting = FileUtil.GetSetting();
         string encodedStreamGroupNumber = ret.StreamGroupNumber.EncodeValue128(_setting.ServerKey);
         ret.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
         ret.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
         ret.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
-
         return ret;
+
     }
 
     public IQueryable<StreamGroup> GetAllStreamGroups()
@@ -417,5 +424,39 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
 
         return await GetEntitiesAsync<StreamGroupDto>(StreamGroupParameters, _mapper);
 
+    }
+
+    public async Task<List<VideoStreamDto>> GetStreamGroupVideoStreams(int id, CancellationToken cancellationToken = default)
+    {
+        if (id == 0)
+        {
+            return new();
+        }
+
+        StreamGroup? streamGroup = await GetStreamGroupWithRelatedEntitiesByIdAsync(id, cancellationToken);
+
+        if (streamGroup == null)
+        {
+            return new();
+        }
+
+        List<VideoStream> cvs = streamGroup.ChildVideoStreams.Select(a => a.ChildVideoStream).ToList();
+        List<VideoStreamDto> ret = _mapper.Map<List<VideoStreamDto>>(cvs);
+
+        List<string> existingIds = ret.Select(a => a.Id).ToList();
+
+        List<string> cgNames = streamGroup.ChannelGroups.Select(a => a.ChannelGroup.Name).ToList();
+
+        List<VideoStreamIsReadOnly> streams = await RepositoryContext.VideoStreams
+                .Where(a => !existingIds.Contains(a.Id) && cgNames.Contains(a.User_Tvg_group))
+                .Select(a => a.Id)
+                .AsNoTracking()
+                .Select(a => new VideoStreamIsReadOnly { VideoStreamId = a, IsReadOnly = true }).ToListAsync();
+
+        List<VideoStreamDto> streamsDto = _mapper.Map<List<VideoStreamDto>>(streams);
+
+        ret.AddRange(streamsDto);
+
+        return ret;
     }
 }

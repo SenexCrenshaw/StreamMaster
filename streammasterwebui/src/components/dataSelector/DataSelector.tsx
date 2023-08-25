@@ -41,6 +41,7 @@ import { areArraysEqual } from '@mui/base';
 import { useQueryAdditionalFilters } from '../../app/slices/useQueryAdditionalFilters';
 import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';
+import { type VideoStreamIsReadOnly } from '../../store/iptvApi';
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
   const { state, setters } = useDataSelectorState<T>(props.id);
@@ -122,8 +123,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.filters, state.additionalFilterProps, state.sortField, state.sortOrder, state.page, state.rows]);
 
-
-
   const { data, isLoading, isFetching } = props.queryFilter ? props.queryFilter(filterData) : { data: undefined, isFetching: false, isLoading: false };
 
   useEffect(() => {
@@ -135,8 +134,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryAdditionalFilter]);
-
-
 
   const onValueChanged = useCallback((changed: DataTableRowDataArray<T[]>) => {
     if (!data) {
@@ -215,6 +212,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, state.selectAll]);
 
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onRowReorder = useCallback((changed: T[]) => {
     setters.setDataSource(changed);
@@ -233,8 +231,15 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return `bg-red-900`;
     }
 
+    if (props.videoStreamIsReadOnlys !== undefined && props.videoStreamIsReadOnlys.length > 0) {
+      const isReadOnly = props.videoStreamIsReadOnlys.find((vs) => vs.videoStreamId === getRecord(changed as T, 'id'));
+      if (isReadOnly !== undefined) {
+        return `bg-gray-900`;
+      }
+    }
+
     return {};
-  }, []);
+  }, [props.videoStreamIsReadOnlys]);
 
   const exportCSV = () => {
     tableRef.current?.exportCSV({ selectionOnly: false });
@@ -624,10 +629,7 @@ type BaseDataSelectorProps<T = any> = {
   id: string;
   isLoading?: boolean;
   key?: string | undefined;
-  // onFilter?: (event: LazyTableState) => void;
   onMultiSelectClick?: (value: boolean) => void;
-  // onSelectAllChange?: (value: boolean) => void;
-  // onQueryFilter?: (value: GetApiArg) => void;
   onRowReorder?: (value: T[]) => void;
   onRowVisibleClick?: (value: T) => void;
   onSelectionChange?: (value: T | T[], selectAll: boolean, totalSelected: number | undefined) => void;
@@ -638,9 +640,9 @@ type BaseDataSelectorProps<T = any> = {
   showHidden?: boolean | null | undefined;
   showSelector?: boolean;
   style?: CSSProperties;
+  videoStreamIsReadOnlys?: VideoStreamIsReadOnly[];
   virtualScrollHeight?: string | undefined;
 }
-
 
 type QueryFilterProps<T> = BaseDataSelectorProps<T> & {
   dataSource?: never;

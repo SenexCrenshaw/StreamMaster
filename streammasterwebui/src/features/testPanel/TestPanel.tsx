@@ -14,7 +14,7 @@ import ChannelLogoEditor from "../../components/ChannelLogoEditor";
 import PlayListDataSelector from "../../components/dataSelectors/PlayListDataSelector";
 import VideoStreamAddDialog from "../../components/videoStream/VideoStreamAddDialog";
 import VideoStreamPanel from "../../components/videoStream/VideoStreamPanel";
-import VideoStreamsDataSelectorPicker from "../../components/videoStream/VideoStreamsDataSelectorPicker";
+
 
 const TestPanel = (props: TestPanelProps) => {
 
@@ -31,7 +31,7 @@ const TestPanel = (props: TestPanelProps) => {
   }, []);
 
   // return (
-  //   <VideoStreamsDataSelectorPicker />
+  //   <StreamGroupDataSelectorPicker  />
   // );
 
   // return (

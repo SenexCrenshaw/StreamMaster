@@ -763,6 +763,26 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["StreamGroups"],
       }),
+      streamGroupsGetStreamGroupVideoStreamIds: build.query<
+        StreamGroupsGetStreamGroupVideoStreamIdsApiResponse,
+        StreamGroupsGetStreamGroupVideoStreamIdsApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroups/getstreamgroupvideostreamids`,
+          params: { streamGroupId: queryArg },
+        }),
+        providesTags: ["StreamGroups"],
+      }),
+      streamGroupsGetStreamGroupVideoStreams: build.query<
+        StreamGroupsGetStreamGroupVideoStreamsApiResponse,
+        StreamGroupsGetStreamGroupVideoStreamsApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroups/getstreamgroupvideostreams`,
+          body: queryArg,
+        }),
+        providesTags: ["StreamGroups"],
+      }),
       videoStreamsCreateVideoStream: build.mutation<
         VideoStreamsCreateVideoStreamApiResponse,
         VideoStreamsCreateVideoStreamApiArg
@@ -1231,6 +1251,13 @@ export type StreamGroupsGetStreamGroupsApiArg = {
 };
 export type StreamGroupsUpdateStreamGroupApiResponse = unknown;
 export type StreamGroupsUpdateStreamGroupApiArg = UpdateStreamGroupRequest;
+export type StreamGroupsGetStreamGroupVideoStreamIdsApiResponse =
+  /** status 200  */ VideoStreamIsReadOnly[];
+export type StreamGroupsGetStreamGroupVideoStreamIdsApiArg = number;
+export type StreamGroupsGetStreamGroupVideoStreamsApiResponse =
+  /** status 200  */ VideoStreamDto[];
+export type StreamGroupsGetStreamGroupVideoStreamsApiArg =
+  GetStreamGroupVideoStreamsRequest;
 export type VideoStreamsCreateVideoStreamApiResponse = unknown;
 export type VideoStreamsCreateVideoStreamApiArg = CreateVideoStreamRequest;
 export type VideoStreamsChangeVideoStreamChannelApiResponse = unknown;
@@ -1876,6 +1903,7 @@ export type StreamGroupDto = {
   channelGroups: ChannelGroupDto[];
   childVideoStreams: VideoStreamDto[];
   hdhrLink: string;
+  isReadOnly: boolean;
   id: number;
   m3ULink: string;
   name: string;
@@ -1918,6 +1946,9 @@ export type UpdateStreamGroupRequest = {
   streamGroupNumber?: number | null;
   videoStreams?: VideoStreamIsReadOnly[] | null;
   channelGroupNames?: string[] | null;
+};
+export type GetStreamGroupVideoStreamsRequest = {
+  streamGroupId?: number;
 };
 export type VideoStreamBaseRequest = {
   isHidden?: boolean | null;
@@ -2089,6 +2120,8 @@ export const {
   useStreamGroupsGetStreamGroupM3UQuery,
   useStreamGroupsGetStreamGroupsQuery,
   useStreamGroupsUpdateStreamGroupMutation,
+  useStreamGroupsGetStreamGroupVideoStreamIdsQuery,
+  useStreamGroupsGetStreamGroupVideoStreamsQuery,
   useVideoStreamsCreateVideoStreamMutation,
   useVideoStreamsChangeVideoStreamChannelMutation,
   useVideoStreamsDeleteVideoStreamMutation,

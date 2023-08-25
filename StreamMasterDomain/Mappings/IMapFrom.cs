@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Repository;
 
 namespace StreamMasterDomain.Mappings;
 
@@ -11,20 +10,20 @@ public interface IMapFrom<T>
     {
         if (typeof(T) == typeof(VideoStream))
         {
-            profile.CreateMap<VideoStream, VideoStreamDto>(MemberList.None)                
+            profile.CreateMap<VideoStream, VideoStreamDto>(MemberList.None)
             .ForMember(dest => dest.ChildVideoStreams, opt => opt.MapFrom(src => src.ChildVideoStreams.Select(cr => cr.ChildVideoStream)));
 
             profile.CreateMap<VideoStream, ChildVideoStreamDto>(MemberList.None);
             return;
         }
 
-        if (typeof(T) == typeof(StreamGroup))
-        {
-            profile.CreateMap<StreamGroup, StreamGroupDto>(MemberList.None)
-            .ForMember(dest => dest.ChannelGroups, opt => opt.MapFrom(src => src.ChannelGroups.Select(cr => cr.ChannelGroup)))
-            .ForMember(dest => dest.ChildVideoStreams, opt => opt.MapFrom(src => src.ChildVideoStreams.Select(cr => cr.ChildVideoStream)));
-            return;
-        }
+        //if (typeof(T) == typeof(StreamGroup))
+        //{
+        //    profile.CreateMap<StreamGroup, StreamGroupDto>(MemberList.None)
+        //    .ForMember(dest => dest.ChannelGroups, opt => opt.MapFrom(src => src.ChannelGroups.Select(cr => cr.ChannelGroup)))
+        //    .ForMember(dest => dest.ChildVideoStreams, opt => opt.MapFrom(src => src.ChildVideoStreams.Select(cr => cr.ChildVideoStream)));
+        //    return;
+        //}
 
         _ = profile.CreateMap(typeof(T), GetType(), MemberList.None);
     }

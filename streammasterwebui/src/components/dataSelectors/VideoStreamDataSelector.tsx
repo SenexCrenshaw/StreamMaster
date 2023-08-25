@@ -26,6 +26,7 @@ type VideoStreamDataSelectorProps = {
   enableEditMode?: boolean;
   id: string;
   onSelectionChange?: (value: VideoStreamDto | VideoStreamDto[]) => void;
+  reorderable?: boolean;
   showBrief?: boolean;
 };
 
@@ -188,7 +189,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         }
       }}
       queryFilter={useVideoStreamsGetVideoStreamsQuery}
-      reorderable
+      reorderable={props.reorderable}
       selectionMode={props.showBrief === true ? 'single' : 'multiple'}
       showHidden={showHidden}
       style={{ height: 'calc(100vh - 40px)' }}
@@ -199,6 +200,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
 VideoStreamDataSelector.displayName = 'Stream Editor';
 VideoStreamDataSelector.defaultProps = {
   channelGroupNames: [] as string[],
+  reorderable: false,
   showBrief: false
 };
 

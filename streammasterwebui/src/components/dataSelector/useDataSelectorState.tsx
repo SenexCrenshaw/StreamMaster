@@ -5,6 +5,7 @@ import { useLocalStorage } from 'primereact/hooks';
 import { useState } from 'react';
 import { type PagedTableInformation } from './DataSelector';
 import { type AdditionalFilterProps } from '../../common/common';
+import { type VideoStreamIsReadOnly } from '../../store/iptvApi';
 
 const useDataSelectorState = <T extends DataTableValue,>(id: string) => {
   const [selectAll, setSelectAll] = useState<boolean>(false);
@@ -17,10 +18,12 @@ const useDataSelectorState = <T extends DataTableValue,>(id: string) => {
   const [sortField, setSortField] = useState<string>('');
   const [first, setFirst] = useState<number>(0);
   const [page, setPage] = useState<number>(1);
+  const [additionalFilterProps, setAdditionalFilterProps] = useState<AdditionalFilterProps | undefined>(undefined);
+
   const [rows, setRows] = useState<number>(25);
   const [filters, setFilters] = useLocalStorage<DataTableFilterMeta>({}, id + '-tempfilters');
   const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows>();
-  const [additionalFilterProps, setAdditionalFilterProps] = useState<AdditionalFilterProps | undefined>(undefined);
+  const [videoStreamIsReadOnlys, setVideoStreamIsReadOnlys] = useState<VideoStreamIsReadOnly[]>([]);
 
   return {
     setters: {
@@ -38,6 +41,7 @@ const useDataSelectorState = <T extends DataTableValue,>(id: string) => {
       setSelections,
       setSortField,
       setSortOrder,
+      setVideoStreamIsReadOnlys
     },
     state: {
       additionalFilterProps,
@@ -54,6 +58,7 @@ const useDataSelectorState = <T extends DataTableValue,>(id: string) => {
       selections,
       sortField,
       sortOrder,
+      videoStreamIsReadOnlys
     }
   };
 };
