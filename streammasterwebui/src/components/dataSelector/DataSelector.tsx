@@ -172,8 +172,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
 
     if (props.dataSource) {
-      if (!state.dataSource?.data || (state.dataSource.data && !areArraysEqual(props.dataSource, state.dataSource.data))) {
-        setters.setDataSource({ data: props.dataSource });
+      if (!state.dataSource || (state.dataSource && !areArraysEqual(props.dataSource, state.dataSource))) {
+        setters.setDataSource(props.dataSource);
         setters.setPagedInformation(undefined);
         if (state.selectAll) {
           onsetSelection(props.dataSource);
@@ -188,8 +188,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
 
     if (Array.isArray(data)) {
-      if (!state.dataSource?.data || (state.dataSource.data && !areArraysEqual(data, state.dataSource.data))) {
-        setters.setDataSource({ data: data });
+      if (!state.dataSource || (state.dataSource && !areArraysEqual(data, state.dataSource))) {
+        setters.setDataSource(data);
         setters.setPagedInformation(undefined);
         if (state.selectAll) {
           setters.setSelections(data);
@@ -200,8 +200,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
 
     if (data && isPagedTableDto<T>(data)) {
-      if (!state.dataSource?.data || (state.dataSource.data && !areArraysEqual(data.data, state.dataSource.data))) {
-        setters.setDataSource({ data: (data as PagedResponseDto<T>).data });
+      if (!state.dataSource || (state.dataSource && !areArraysEqual(data.data, state.dataSource))) {
+        setters.setDataSource((data as PagedResponseDto<T>).data);
         setters.setPagedInformation(data);
         if (state.selectAll && data !== undefined) {
           setters.setSelections((data as PagedResponseDto<T>).data as T[]);
@@ -216,9 +216,14 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onRowReorder = useCallback((changed: T[]) => {
-    // setDataSource(data);
-    // props.onSelectionChange?.(data);
-  }, []);
+    setters.setDataSource(changed);
+    if (state.prevDataSource === undefined) {
+      setters.setPrevDataSource(state.dataSource);
+    }
+
+    props.onRowReorder?.(changed);
+    // props.onSelectionChange?.(changed);
+  }, [props, setters, state.dataSource, state.prevDataSource]);
 
 
   const rowClass = useCallback((changed: DataTableRowData<T[]>) => {
@@ -251,15 +256,19 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }, [props, state.rowClick, setters.setRowClick]);
 
   const getSelectionMultipleMode = useMemo((): 'checkbox' | 'multiple' | null => {
-    return 'multiple';
-  }, []);
+    if (props.selectionMode === 'multiple') {
+      return 'checkbox';
+    }
+
+    return null;
+  }, [props.selectionMode]);
 
   const onSelectionChange = useCallback((e: DataTableSelectionMultipleChangeEvent<T[]> | DataTableSelectionSingleChangeEvent<T[]>) => {
     if (e.value === null || e.value === undefined) {
       return;
     }
 
-    if (getSelectionMultipleMode === 'multiple') {
+    if (props.selectionMode === 'multiple') {
       if (e.value instanceof Array) {
         onsetSelection(e.value);
       } else {
@@ -276,7 +285,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       onsetSelection([e.value]);
     }
 
-  }, [getSelectionMultipleMode, onsetSelection]);
+  }, [onsetSelection, props.selectionMode]);
 
   const getAlign = useCallback((align: ColumnAlign | null | undefined, fieldType: ColumnFieldType): ColumnAlign => {
 
@@ -419,6 +428,9 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     setters.setPage(adjustedPage);
     setters.setFirst(event.first);
     setters.setRows(event.rows);
+    if (state.prevDataSource !== undefined) {
+      setters.setPrevDataSource(undefined);
+    }
   };
 
   const onFilter = (event: DataTableStateEvent) => {
@@ -432,8 +444,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
     // props.onSelectAllChange?.(newSelectAll);
 
-    if (newSelectAll && state.dataSource?.data) {
-      onsetSelection(state.dataSource.data, true);
+    if (newSelectAll && state.dataSource) {
+      onsetSelection(state.dataSource, true);
     } else {
       onsetSelection([]);
     }
@@ -488,15 +500,15 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           selectionMode={getSelectionMultipleMode}
           showGridlines
           showHeaders={props.showHeaders}
-          sortField={state.sortField}
+          sortField={props.reorderable ? 'rank' : state.sortField}
           sortMode='single'
-          sortOrder={state.sortOrder}
+          sortOrder={props.reorderable ? 1 : state.sortOrder}
           stateKey={`${props.id}-table`}
           stateStorage="local"
           stripedRows
           style={props.style}
           totalRecords={state.pagedInformation ? state.pagedInformation.totalRecords : undefined}
-          value={state.dataSource?.data}
+          value={state.dataSource}
           virtualScrollerOptions={props.enableVirtualScroll === true ? { itemSize: 16, orientation: 'vertical' } : undefined}
         >
           {/* <Column
@@ -518,7 +530,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
             align='center'
             alignHeader='center'
             className={`justify-content-center align-items-center multiselect ${props.selectionMode}`}
-            field='getSelectionMode'
             header={multiselectHeader}
             headerStyle={{ padding: '0px', width: '3rem' }}
             hidden={props.selectionMode !== 'multiple' && props.selectionMode !== 'checkbox' && props.selectionMode !== 'multipleNoRowCheckBox'}
@@ -549,7 +560,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
               showFilterMenu={col.filterElement === undefined}
               showFilterMenuOptions
               showFilterOperator
-              sortable={props.groupRowsBy === undefined || props.groupRowsBy === '' ? col.sortable : false}
+              sortable={props.reorderable ? false : col.sortable}
               style={getStyle(col.style, col.fieldType)}
             />
 
@@ -596,6 +607,7 @@ type BaseDataSelectorProps<T = any> = {
   onMultiSelectClick?: (value: boolean) => void;
   // onSelectAllChange?: (value: boolean) => void;
   // onQueryFilter?: (value: GetApiArg) => void;
+  onRowReorder?: (value: T[]) => void;
   onRowVisibleClick?: (value: T) => void;
   onSelectionChange?: (value: T | T[], selectAll: boolean, totalSelected: number | undefined) => void;
   onValueChanged?: (value: T[]) => void;

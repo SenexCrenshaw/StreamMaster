@@ -188,6 +188,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
         }
       }}
       queryFilter={useVideoStreamsGetVideoStreamsQuery}
+      reorderable
       selectionMode={props.showBrief === true ? 'single' : 'multiple'}
       showHidden={showHidden}
       style={{ height: 'calc(100vh - 40px)' }}

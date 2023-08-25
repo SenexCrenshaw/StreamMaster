@@ -3,18 +3,16 @@ import { type DataTableFilterMeta } from 'primereact/datatable';
 import { type DataTableValue } from 'primereact/datatable';
 import { useLocalStorage } from 'primereact/hooks';
 import { useState } from 'react';
-
-import { type PagedDataDto, type PagedTableInformation } from './DataSelector';
+import { type PagedTableInformation } from './DataSelector';
 import { type AdditionalFilterProps } from '../../common/common';
-// import { type GetApiArg } from '../../common/common';
-
 
 const useDataSelectorState = <T extends DataTableValue,>(id: string) => {
   const [selectAll, setSelectAll] = useState<boolean>(false);
   const [rowClick, setRowClick] = useLocalStorage<boolean>(false, id + '-rowClick');
   const [selections, setSelections] = useState<T[]>([] as T[]);
   const [pagedInformation, setPagedInformation] = useState<PagedTableInformation>();
-  const [dataSource, setDataSource] = useState<PagedDataDto<T>>();
+  const [prevDataSource, setPrevDataSource] = useState<T[] | undefined>(undefined);
+  const [dataSource, setDataSource] = useState<T[]>();
   const [sortOrder, setSortOrder] = useState<-1 | 0 | 1>(1);
   const [sortField, setSortField] = useState<string>('');
   const [first, setFirst] = useState<number>(0);
@@ -33,7 +31,7 @@ const useDataSelectorState = <T extends DataTableValue,>(id: string) => {
       setFirst,
       setPage,
       setPagedInformation,
-      // setQueryFilter,
+      setPrevDataSource,
       setRowClick,
       setRows,
       setSelectAll,
@@ -49,7 +47,7 @@ const useDataSelectorState = <T extends DataTableValue,>(id: string) => {
       first,
       page,
       pagedInformation,
-      // queryFilter,
+      prevDataSource,
       rowClick,
       rows,
       selectAll,
