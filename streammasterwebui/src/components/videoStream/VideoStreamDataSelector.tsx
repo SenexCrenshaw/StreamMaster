@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useLocalStorage } from "primereact/hooks";
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import { type CSSProperties } from "react";
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
-import { arraysContainSameStrings, type GetApiArg } from "../../common/common";
+import { arraysContainSameStrings } from "../../common/common";
 import { getTopToolOptions, GetMessage } from "../../common/common";
 import { type VideoStreamDto, type ChannelNumberPair } from "../../store/iptvApi";
 import { useVideoStreamsGetVideoStreamsQuery } from "../../store/iptvApi";
@@ -18,12 +17,10 @@ import VideoStreamEditDialog from "./VideoStreamEditDialog";
 import VideoStreamResetLogoDialog from "./VideoStreamResetLogoDialog";
 import VideoStreamResetLogosDialog from "./VideoStreamResetLogosDialog";
 import VideoStreamSetEPGFromNameDialog from "./VideoStreamSetEPGFromNameDialog";
-import VideoStreamSetEPGsFromNameDialog from "./VideoStreamSetEPGsFromNameDialog";
 import VideoStreamSetLogoFromEPGDialog from "./VideoStreamSetLogoFromEPGDialog";
 import VideoStreamVisibleDialog from "./VideoStreamVisibleDialog";
 import VideoStreamAddDialog from "./VideoStreamAddDialog";
 import VideoStreamSetLogosFromEPGDialog from "./VideoStreamSetLogosFromEPGDialog";
-import { Select } from "@mui/material";
 import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
 
 type VideoStreamDataSelectorProps = {
@@ -48,10 +45,7 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
   const { columnConfig: channelGroupConfig, isLoading: channelGroupIsLoading } = useChannelGroupColumnConfig(enableEditMode, props.channelGroupNames?.sort() ?? []);
 
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
-
-
   const [selectedVideoStreams, setSelectedVideoStreams] = useState<VideoStreamDto[]>([] as VideoStreamDto[]);
-
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
 
   useEffect(() => {
@@ -149,12 +143,12 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
           tooltipOptions={getTopToolOptions}
           value={showHidden}
         />
-        <VideoStreamResetLogosDialog values={selectedVideoStreams} />
-        <VideoStreamSetEPGsFromNameDialog values={selectedVideoStreams} />
-        <VideoStreamSetLogosFromEPGDialog values={selectedVideoStreams} />
-        <AutoSetChannelNumbers ids={ids} />
+        <VideoStreamResetLogosDialog overrideTotalRecords={selectAll ? totalRecords : undefined} values={selectedVideoStreams} />
+        {/* <VideoStreamSetEPGsFromNameDialog overrideTotalRecords={selectAll ? totalRecords : undefined} values={selectedVideoStreams} /> */}
+        <VideoStreamSetLogosFromEPGDialog overrideTotalRecords={selectAll ? totalRecords : undefined} values={selectedVideoStreams} />
+        <AutoSetChannelNumbers ids={ids} overrideTotalRecords={selectAll ? totalRecords : undefined} />
         <VideoStreamVisibleDialog iconFilled id={props.id} overrideTotalRecords={selectAll ? totalRecords : undefined} selectAll={selectAll} values={selectedVideoStreams} />
-        <VideoStreamDeleteDialog values={selectedVideoStreams} />
+        <VideoStreamDeleteDialog overrideTotalRecords={selectAll ? totalRecords : undefined} values={selectedVideoStreams} />
         <VideoStreamAddDialog group={props.channelGroupNames?.[0]} />
       </div>
     );
@@ -186,7 +180,6 @@ const VideoStreamDataSelector = (props: VideoStreamDataSelectorProps) => {
       headerName={GetMessage('streams')}
       headerRightTemplate={props.showBrief === true ? rightHeaderBriefTemplate : rightHeaderTemplate}
       id={dataKey}
-      // onSelectAllChange={setSelectAll}
       onSelectionChange={(value, selectAllReturn, retTotalRecords) => {
         console.log('onSelectionChange', value, selectAll, retTotalRecords);
         setTotalRecords(retTotalRecords);

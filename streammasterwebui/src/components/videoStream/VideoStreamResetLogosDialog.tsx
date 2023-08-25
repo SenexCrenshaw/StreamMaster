@@ -1,5 +1,5 @@
 
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo, useMemo } from "react";
 import { getTopToolOptions } from "../../common/common";
 import { ResetLogoIcon } from "../../common/icons";
 import { type VideoStreamDto, type ReSetVideoStreamsLogoRequest } from "../../store/iptvApi";
@@ -63,6 +63,14 @@ const VideoStreamResetLogosDialog = (props: VideoStreamResetLogosDialogProps) =>
 
   }, [props]);
 
+  const getTotalCount = useMemo(() => {
+    if (props.overrideTotalRecords !== undefined) {
+      return props.overrideTotalRecords;
+    }
+
+    return props.values.length;
+
+  }, [props.overrideTotalRecords, props.values.length]);
 
   return (
     <>
@@ -78,19 +86,16 @@ const VideoStreamResetLogosDialog = (props: VideoStreamResetLogosDialogProps) =>
       >
         <div className="border-1 surface-border flex grid flex-wrap justify-content-center p-0 m-0">
           <div className='flex flex-column mt-2 col-6'>
-            {`Match (${props.values.length}) video stream logo${props.values.length > 1 ? 's' : ''} to ${props.values.length > 1 ? 'their' : 'its'} EPG logo${props.values.length > 1 ? 's' : ''}?'`}
+            {`Match (${getTotalCount}) video stream logo${getTotalCount > 1 ? 's' : ''} to ${getTotalCount > 1 ? 'their' : 'its'} EPG logo${getTotalCount > 1 ? 's' : ''}?'`}
           </div>
-
           <div className="flex col-12 gap-2 mt-4 justify-content-center ">
             <OKButton onClick={async () => await onSetLogoSave()} />
-
           </div>
         </div>
       </InfoMessageOverLayDialog>
 
-
       <Button
-        disabled={props.values === undefined || props.values.length === 0}
+        disabled={getTotalCount === 0}
         icon={<ResetLogoIcon sx={{ fontSize: 18 }} />}
         onClick={() => setShowOverlay(true)}
         rounded
@@ -108,7 +113,7 @@ VideoStreamResetLogosDialog.defaultProps = {
 };
 
 export type VideoStreamResetLogosDialogProps = {
-  // onChange?: ((value: ChannelNumberPair[]) => void) | null;
+  overrideTotalRecords?: number | undefined;
   values: VideoStreamDto[];
 };
 

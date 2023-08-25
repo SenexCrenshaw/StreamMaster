@@ -9,11 +9,9 @@ import { type DataTableSelectAllChangeEvent } from 'primereact/datatable';
 import { type DataTableRowDataArray } from 'primereact/datatable';
 import { type DataTableStateEvent } from 'primereact/datatable';
 import { type DataTablePageEvent } from 'primereact/datatable';
-
 import { type DataTableExpandedRows } from 'primereact/datatable';
 import { type DataTableRowToggleEvent } from 'primereact/datatable';
 import { type DataTableValue } from 'primereact/datatable';
-
 import { type DataTableRowData } from 'primereact/datatable';
 import { DataTable } from 'primereact/datatable';
 import { type ReactNode } from 'react';
@@ -41,6 +39,7 @@ import { type PagedResponseDto } from '../selectors/BaseSelector';
 import { areArraysEqual } from '@mui/base';
 import { useQueryFilter } from '../../app/slices/useQueryFilter';
 import { useQueryAdditionalFilters } from '../../app/slices/useQueryAdditionalFilters';
+import BanButton from '../buttons/BanButton';
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
   const { state, setters } = useDataSelectorState<T>(props.id);
@@ -220,7 +219,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
         setters.setPagedInformation(undefined);
         if (state.selectAll) {
           onsetSelection(props.dataSource);
-          // setters.setSelections(props.dataSource);
         }
       }
 
@@ -294,12 +292,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     />);
   }, [props, state.rowClick, setters.setRowClick]);
 
-
-
   const getSelectionMultipleMode = useMemo((): 'checkbox' | 'multiple' | null => {
-
     return 'multiple';
-
   }, []);
 
   const onSelectionChange = useCallback((e: DataTableSelectionSingleChangeEvent<T[]>) => {
@@ -307,7 +301,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return;
     }
 
-    if (e.value instanceof Array && e.value.length > 0) {
+    if (e.value instanceof Array) {
       const single1 = e.value.slice(e.value.length - 1, e.value.length);
       onsetSelection(single1);
     } else {
@@ -412,7 +406,20 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   const multiselectHeader = () => {
     return (
-      <div className="absolute top-0 left-50 text-xs text-white text-500" />
+      <div className=" text-xs text-white text-500" >
+        <BanButton
+          disabled={state.selections.length === 0}
+          onClick={() => {
+            setters.setSelections([]);
+            setters.setSelectAll(false);
+            if (props.onSelectionChange) {
+              props.onSelectionChange([], false, undefined);
+            }
+          }}
+          tooltip='Clear Selections'
+        />
+
+      </div>
     );
   }
 
@@ -490,7 +497,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   };
 
-
   const onFilter = (event: DataTableStateEvent) => {
 
     const newFilters = generateFilterData(props.columns, event.filters, props.showHidden);
@@ -515,7 +521,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       onsetSelection(state.dataSource.data, true);
     } else {
       onsetSelection([]);
-
     }
   };
 
@@ -554,6 +559,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           paginatorClassName='text-xs p-0 m-0 withpadding'
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           ref={tableRef}
+          // removableSort
           reorderableRows={props.reorderable}
           resizableColumns
           rowClassName={rowClass}
@@ -579,14 +585,14 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           value={state.dataSource?.data}
           virtualScrollerOptions={props.enableVirtualScroll === true ? { itemSize: 16, orientation: 'vertical' } : undefined}
         >
-          <Column
+          {/* <Column
             body={<i className="pi pi-chevron-right" />}
             className='max-w-1rem p-0 justify-content-center align-items-center'
             field='selector'
             header=""
             hidden={!props.showSelector}
             style={{ width: '1rem' }}
-          />
+          /> */}
           <Column
             className='max-w-2rem p-0 justify-content-center align-items-center'
             field='rank'
@@ -602,6 +608,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
             header={multiselectHeader}
             headerStyle={{ padding: '0px', width: '3rem' }}
             hidden={props.selectionMode !== 'multiple' && props.selectionMode !== 'checkbox' && props.selectionMode !== 'multipleNoRowCheckBox'}
+            resizeable={false}
             selectionMode="multiple"
           />
           {props.columns.map((col) => (

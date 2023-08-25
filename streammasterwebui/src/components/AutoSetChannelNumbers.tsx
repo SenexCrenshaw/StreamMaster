@@ -1,14 +1,13 @@
-/* eslint-disable react/no-unused-prop-types */
-import { Button } from "primereact/button";
+
 import { type CheckboxChangeEvent } from "primereact/checkbox";
 import { Checkbox } from "primereact/checkbox";
 import { InputNumber } from "primereact/inputnumber";
-import React from "react";
-// import StreamMasterSetting from "../store/signlar/StreamMasterSetting";
+import React, { useMemo } from "react";
 import type * as StreamMasterApi from '../store/iptvApi';
 import { SetVideoStreamChannelNumbers } from "../store/signlar_functions";
-import { getTopToolOptions } from "../common/common";
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
+import OKButton from "./buttons/OKButton";
+import AutoSetButton from "./buttons/AutoSetButton";
 
 const AutoSetChannelNumbers = (props: AutoSetChannelNumbersProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
@@ -17,7 +16,6 @@ const AutoSetChannelNumbers = (props: AutoSetChannelNumbersProps) => {
 
   const [overwriteNumbers, setOverwriteNumbers] = React.useState<boolean>(true);
   const [startNumber, setStartNumber] = React.useState<number>(1);
-  // const setting = StreamMasterSetting();
 
   const ReturnToParent = () => {
     setShowOverlay(false);
@@ -25,11 +23,6 @@ const AutoSetChannelNumbers = (props: AutoSetChannelNumbersProps) => {
     setBlock(false);
   };
 
-  // React.useMemo(() => {
-  //   if (setting.data.firstFreeNumber) {
-  //     setStartNumber(setting.data.firstFreeNumber);
-  //   }
-  // }, [setting.data.firstFreeNumber]);
 
   const getNextNumber = React.useCallback((sn: number, nums: number[]): number => {
     if (nums.length === 0) return sn;
@@ -116,6 +109,14 @@ const AutoSetChannelNumbers = (props: AutoSetChannelNumbersProps) => {
 
   }, [getNextNumber, overwriteNumbers, props, startNumber]);
 
+  const getTotalCount = useMemo(() => {
+    if (props.overrideTotalRecords !== undefined) {
+      return props.overrideTotalRecords;
+    }
+
+    return props.ids.length;
+
+  }, [props.overrideTotalRecords, props.ids.length]);
 
   return (
     <>
@@ -130,7 +131,7 @@ const AutoSetChannelNumbers = (props: AutoSetChannelNumbersProps) => {
       >
         <div className="border-1 surface-border flex grid flex-wrap justify-content-center p-0 m-0">
           <div className='flex flex-column mt-2 col-6'>
-            {`Auto set (${props.ids.length}) channel numbers ${overwriteNumbers ? 'and overwrite existing numbers ?' : '?'}`}
+            {`Auto set (${getTotalCount}) channel numbers ${overwriteNumbers ? 'and overwrite existing numbers ?' : '?'}`}
             <span className="scalein animation-duration-500 animation-iteration-2 text-bold text-red-500 font-italic mt-2">
               This will auto save
             </span>
@@ -173,35 +174,12 @@ const AutoSetChannelNumbers = (props: AutoSetChannelNumbersProps) => {
             </span>
           </div>
           <div className="flex col-12 gap-2 mt-4 justify-content-center ">
-            <Button
-              icon="pi pi-times "
-              label="Cancel"
-              onClick={() => ReturnToParent()}
-              rounded
-              severity="warning"
-              size="small"
-            />
-            <Button
-              icon="pi pi-check"
-              label="Set & Save"
-              onClick={async () => await onAutoChannelsSave()}
-              rounded
-              severity="success"
-              size="small"
-            />
+            <OKButton onClick={async () => await onAutoChannelsSave()} />
           </div>
         </div>
       </InfoMessageOverLayDialog>
 
-      <Button
-        disabled={props.ids === null || props.ids.length === 0}
-        icon="pi pi-sort-numeric-up-alt"
-        onClick={() => setShowOverlay(true)}
-        rounded
-        size="small"
-        tooltip={`Auto Set (${props.ids.length}) Channels`}
-        tooltipOptions={getTopToolOptions}
-      />
+      <AutoSetButton disabled={getTotalCount === 0} onClick={() => setShowOverlay(true)} tooltip={`Auto Set (${getTotalCount}) Channels`} />
 
     </>
   )
@@ -213,6 +191,7 @@ AutoSetChannelNumbers.defaultProps = {
 
 export type AutoSetChannelNumbersProps = {
   ids: StreamMasterApi.ChannelNumberPair[];
+  overrideTotalRecords?: number | undefined;
 };
 
 export default React.memo(AutoSetChannelNumbers);

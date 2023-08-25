@@ -7,6 +7,8 @@ import { useVideoStreamsUpdateVideoStreamsMutation } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import { Button } from "primereact/button";
 import { useQueryFilter } from "../../app/slices/useQueryFilter";
+import PowerButton from "../buttons/PowerButton";
+import OKButton from "../buttons/OKButton";
 
 const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
@@ -96,7 +98,7 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
   if (props.skipOverLayer === true) {
     return (
       <Button
-        disabled={selectedVideoStreams.length === 0}
+        disabled={getTotalCount === 0}
         icon="pi pi-power-off"
         onClick={async () => await onVisiblesClick()}
         rounded
@@ -113,52 +115,25 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
 
   return (
     <>
-
       <InfoMessageOverLayDialog
         blocked={block}
+        closable
         header={`Toggle visibility for ${getTotalCount < 2 ? getTotalCount + ' Stream ?' : getTotalCount + ' Streams ?'}`}
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
         show={showOverlay}
       >
-
         <div className='m-0 p-0 border-1 border-round surface-border'>
           <div className='m-3'>
             <h3 />
-
             <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
-              <Button
-                icon="pi pi-times "
-                label="Cancel"
-                onClick={(() => ReturnToParent())}
-                rounded
-                severity="warning"
-              />
-              <Button
-                icon="pi pi-check"
-                label="Change"
-                onClick={async () => await onVisiblesClick()}
-                rounded
-                severity="success"
-              />
+              <OKButton onClick={async () => await onVisiblesClick()} />
             </div>
           </div>
         </div>
-
       </InfoMessageOverLayDialog >
-
-      <Button
-        disabled={selectedVideoStreams.length === 0 && props.selectAll !== true}
-        icon="pi pi-power-off"
-        onClick={() => setShowOverlay(true)}
-        rounded
-        severity="info"
-        size="small"
-        text={props.iconFilled !== true}
-        tooltip="Set Visibilty"
-        tooltipOptions={getTopToolOptions}
+      <PowerButton disabled={getTotalCount === 0} iconFilled={props.iconFilled} onClick={() => setShowOverlay(true)}
       />
-
     </>
   );
 }

@@ -1,9 +1,9 @@
-import { Button } from "primereact/button";
-import { useState, useCallback, memo } from "react";
-import { getTopToolOptions } from "../../common/common";
+import { useState, useCallback, memo, useMemo } from "react";
 import { type VideoStreamDto, type SetVideoStreamsLogoToEpgRequest } from "../../store/iptvApi";
 import { SetVideoStreamsLogoToEPG } from "../../store/signlar_functions";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
+import ImageButton from "../buttons/ImageButton";
+import OKButton from "../buttons/OKButton";
 
 const VideoStreamSetLogosFromEPGDialog = (props: VideoStreamSetLogosFromEPGDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
@@ -57,6 +57,14 @@ const VideoStreamSetLogosFromEPGDialog = (props: VideoStreamSetLogosFromEPGDialo
 
   }, [props]);
 
+  const getTotalCount = useMemo(() => {
+    if (props.overrideTotalRecords !== undefined) {
+      return props.overrideTotalRecords;
+    }
+
+    return props.values.length;
+
+  }, [props.overrideTotalRecords, props.values.length]);
 
   return (
     <>
@@ -71,40 +79,15 @@ const VideoStreamSetLogosFromEPGDialog = (props: VideoStreamSetLogosFromEPGDialo
       >
         <div className="border-1 surface-border flex grid flex-wrap justify-content-center p-0 m-0">
           <div className='flex flex-column mt-2 col-6'>
-            {`Match (${props.values.length}) video stream logo${props.values.length > 1 ? 's' : ''} to ${props.values.length > 1 ? 'their' : 'its'} EPG logo${props.values.length > 1 ? 's' : ''}?'`}
+            {`Match (${getTotalCount}) video stream logo${getTotalCount > 1 ? 's' : ''} to ${getTotalCount > 1 ? 'their' : 'its'} EPG logo${getTotalCount > 1 ? 's' : ''}?'`}
           </div>
-
           <div className="flex col-12 gap-2 mt-4 justify-content-center ">
-            <Button
-              icon="pi pi-times "
-              label="Cancel"
-              onClick={() => ReturnToParent()}
-              rounded
-              severity="warning"
-              size="small"
-            />
-            <Button
-              icon="pi pi-check"
-              label="Set & Save"
-              onClick={async () => await onSetLogoSave()}
-              rounded
-              severity="success"
-              size="small"
-            />
+            <OKButton onClick={async () => await onSetLogoSave()} />
           </div>
         </div>
       </InfoMessageOverLayDialog>
 
-
-      <Button
-        disabled={props.values === undefined || props.values.length === 0}
-        icon="pi pi-image"
-        onClick={() => setShowOverlay(true)}
-        rounded
-        size="small"
-        tooltip={`Set Logo from EPG for (${props.values.length}) Streams`}
-        tooltipOptions={getTopToolOptions}
-      />
+      <ImageButton disabled={getTotalCount === 0} onClick={() => setShowOverlay(true)} tooltip={`Set Logo from EPG for (${props.values.length}) Streams`} />
 
     </>
   )
@@ -115,6 +98,7 @@ VideoStreamSetLogosFromEPGDialog.defaultProps = {
 };
 
 export type VideoStreamSetLogosFromEPGDialogProps = {
+  overrideTotalRecords?: number | undefined;
   values: VideoStreamDto[];
 };
 

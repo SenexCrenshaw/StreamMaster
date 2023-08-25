@@ -5,6 +5,8 @@ import { type VideoStreamDto, type DeleteVideoStreamRequest } from "../../store/
 import { DeleteVideoStream } from "../../store/signlar_functions";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import { Button } from "primereact/button";
+import OKButton from "../buttons/OKButton";
+import DeleteButton from "../buttons/DeleteButton";
 
 const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
@@ -45,53 +47,43 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
     const promises = [];
 
     for (const stream of selectedVideoStreams) {
-
       const data = {} as DeleteVideoStreamRequest;
-
       data.id = stream.id;
-
       promises.push(
-        DeleteVideoStream(data)
-          .then(() => {
-
-          }).catch(() => { })
+        DeleteVideoStream(data).then(() => { }).catch(() => { })
       );
     }
 
     const p = Promise.all(promises);
 
     await p.then(() => {
-
       setInfoMessage('Delete Stream Successful');
-
     }).catch((error) => {
       setInfoMessage('Delete Stream Error: ' + error.message);
     });
 
   }
 
+  const getTotalCount = useMemo(() => {
+    if (props.overrideTotalRecords !== undefined) {
+      return props.overrideTotalRecords;
+    }
+
+    return selectedVideoStreams.length;
+
+  }, [props.overrideTotalRecords, selectedVideoStreams]);
+
   if (props.skipOverLayer === true) {
     return (
-      <Button
-        disabled={selectedVideoStreams.length === 0 || selectedVideoStreams[0].isUserCreated !== true}
-        icon="pi pi-minus"
-        onClick={async () => await deleteVideoStream()}
-        rounded
-        severity="danger"
-        size="small"
-        text={props.iconFilled !== true}
-        tooltip="Set Visibilty"
-        tooltipOptions={getTopToolOptions}
-      />
+      <DeleteButton disabled={getTotalCount === 0 || selectedVideoStreams[0].isUserCreated !== true} iconFilled={props.iconFilled} onClick={async () => await deleteVideoStream()} tooltip="Delete Stream" />
     );
   }
-
 
   return (
     <>
       <InfoMessageOverLayDialog
         blocked={block}
-        header={`Delete ${selectedVideoStreams.length < 2 ? selectedVideoStreams.length + ' Stream ?' : selectedVideoStreams.length + ' Streams ?'}`}
+        header={`Delete ${getTotalCount < 2 ? getTotalCount + ' Stream ?' : getTotalCount + ' Streams ?'}`}
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
         overlayColSize={6}
@@ -101,20 +93,7 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
           <div className='m-3'>
             <h3 />
             <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
-              <Button
-                icon="pi pi-times "
-                label="Cancel"
-                onClick={(() => ReturnToParent())}
-                rounded
-                severity="warning"
-              />
-              <Button
-                icon="pi pi-check"
-                label="Delete"
-                onClick={async () => await deleteVideoStream()}
-                rounded
-                severity="success"
-              />
+              <OKButton onClick={async () => await deleteVideoStream()} />
             </div>
           </div>
         </div>
@@ -141,6 +120,7 @@ VideoStreamDeleteDialog.displayName = 'VideoStreamDeleteDialog';
 type VideoStreamDeleteDialogProps = {
   iconFilled?: boolean | undefined;
   onClose?: (() => void);
+  overrideTotalRecords?: number | undefined;
   skipOverLayer?: boolean | undefined;
   value?: VideoStreamDto | undefined;
   values?: VideoStreamDto[] | undefined;

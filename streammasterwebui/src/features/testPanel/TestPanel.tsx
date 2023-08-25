@@ -11,6 +11,7 @@ import VideoStreamDataSelector from "../../components/videoStream/VideoStreamDat
 import EPGSelector from "../../components/selectors/EPGSelector";
 import EPGEditor from "../../components/epg/EPGEditor";
 import ChannelLogoEditor from "../../components/ChannelLogoEditor";
+import PlayListDataSelector from "../../components/PlayListDataSelector";
 
 const TestPanel = (props: TestPanelProps) => {
 
@@ -26,6 +27,11 @@ const TestPanel = (props: TestPanelProps) => {
     ]
   }, []);
 
+  return (
+    <PlayListDataSelector
+      id='testpanel'
+    />
+  );
   // return (
   //   <EPGEditor data={videoStreamsGetVideoStreamQuery.data ?? {} as VideoStreamDto} />
   // );
@@ -38,12 +44,12 @@ const TestPanel = (props: TestPanelProps) => {
   //   <EPGEditor data={videoStreamsGetVideoStreamQuery.data ?? {} as VideoStreamDto} />
   // );
 
-  return (
-    <VideoStreamDataSelector
-      channelGroupNames={selectedChannelGroups.map(a => a.name)}
-      id="TestPanel"
-    />
-  );
+  // return (
+  //   <VideoStreamDataSelector
+  //     channelGroupNames={selectedChannelGroups.map(a => a.name)}
+  //     id="TestPanel"
+  //   />
+  // );
 
 }
 

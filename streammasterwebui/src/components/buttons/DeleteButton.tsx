@@ -1,15 +1,11 @@
+import { type ChildButtonProps } from "./BaseButton";
 import BaseButton from "./BaseButton";
 
-type DeleteButtonProps = {
-  iconFilled?: boolean;
-  onClick: () => void;
-  tooltip?: string;
-}
 
-const DeleteButton: React.FC<DeleteButtonProps> = ({ iconFilled = true, onClick, tooltip = '' }) => {
+const DeleteButton: React.FC<ChildButtonProps> = ({ iconFilled = true, onClick, tooltip = '' }) => {
   return (
     <BaseButton
-      icon="pi pi-check"
+      icon="pi-minus"
       iconFilled={iconFilled}
       label="Delete"
       onClick={onClick}

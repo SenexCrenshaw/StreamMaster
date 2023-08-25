@@ -1,19 +1,14 @@
+import { type ChildButtonProps } from "./BaseButton";
 import BaseButton from "./BaseButton";
 
-type OKButtonProps = {
-  iconFilled?: boolean;
-  onClick: () => void;
-  tooltip?: string;
-}
-
-const OKButton: React.FC<OKButtonProps> = ({ iconFilled = true, onClick, tooltip = '' }) => {
+const OKButton: React.FC<ChildButtonProps> = ({ iconFilled = true, onClick, tooltip = '' }) => {
   return (
     <BaseButton
-      icon="pi pi-check"
+      icon="pi-check"
       iconFilled={iconFilled}
-      label="OK"
+      label={iconFilled !== true ? undefined : 'Ok'}
       onClick={onClick}
-      rounded
+      rounded={iconFilled}
       severity="success"
       tooltip={tooltip}
     />

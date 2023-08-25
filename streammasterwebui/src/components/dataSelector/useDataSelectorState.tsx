@@ -12,7 +12,6 @@ import { type AdditionalFilterProps } from '../../common/common';
 const useDataSelectorState = <T extends DataTableValue,>(id: string) => {
   const [selectAll, setSelectAll] = useState<boolean>(false);
   const [rowClick, setRowClick] = useLocalStorage<boolean>(false, id + '-rowClick');
-  // const [queryFilter, setQueryFilter] = useState<GetApiArg>({ pageSize: 40 });
   const [selections, setSelections] = useState<T[]>([] as T[]);
   const [pagedInformation, setPagedInformation] = useState<PagedTableInformation>();
   const [dataSource, setDataSource] = useState<PagedDataDto<T>>();
