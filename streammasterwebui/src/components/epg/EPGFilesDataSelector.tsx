@@ -20,7 +20,7 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
   const [pageNumber, setPageNumber] = useState<number>(1);
 
   const [epgFilesUpdateEpgFileMutation] = useEpgFilesUpdateEpgFileMutation();
-  const epgFilesQuery = useEpgFilesGetEpgFilesQuery({ pageNumber: pageNumber === 0 ? 1 : pageNumber, pageSize: pageSize } as EpgFilesGetEpgFilesApiArg);
+  // const epgFilesQuery = useEpgFilesGetEpgFilesQuery({ pageNumber: pageNumber === 0 ? 1 : pageNumber, pageSize: pageSize } as EpgFilesGetEpgFilesApiArg);
 
   // useMemo(() => {
   //   if (props.value?.id !== undefined) {
@@ -228,14 +228,15 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
       <Toast position="bottom-right" ref={toast} />
       <DataSelector
         columns={sourceColumns}
-        dataSource={epgFilesQuery.data}
+
         emptyMessage="No EPG Files"
         id='epgfilesdataselector'
-        isLoading={epgFilesQuery.isLoading}
 
         onSelectionChange={(e) =>
           SetSelectedEPGFileChanged(e as EpgFilesDto)
         }
+
+        queryFilter={useEpgFilesGetEpgFilesQuery}
         style={{ height: 'calc(50vh - 40px)' }}
       />
     </>

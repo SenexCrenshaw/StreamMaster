@@ -523,4 +523,28 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
     {
         Update(VideoStream);
     }
+
+    public async Task<bool> UpdateAllVideoStreamsFromParameters(VideoStreamParameters Parameters, UpdateVideoStreamRequest request, CancellationToken cancellationToken)
+    {
+        const int batchSize = 1000;
+
+        List<string> Ids = GetIQueryableForEntity(Parameters).Select(a => a.Id).ToList();
+        //IQueryable<string> visibleIds = GetIQueryableForEntity(Parameters).Where(a=>!a.IsHidden).Select(a => a.Id);
+        //IQueryable<string> hiddenIds = GetIQueryableForEntity(Parameters).Where(a => a.IsHidden).Select(a => a.Id);
+        //IQueryable<VideoStream> before = GetIQueryableForEntity(Parameters);
+        for (int i = 0; i < Ids.Count; i += batchSize)
+        {
+            IEnumerable<string> batch = Ids.Skip(i).Take(batchSize);
+
+            await RepositoryContext.VideoStreams
+                    .Where(a => batch.Contains(a.Id))
+                    .ForEachAsync(s => s.IsHidden = !s.IsHidden, cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+            await RepositoryContext.SaveChangesAsync(cancellationToken);
+        }
+
+        await RepositoryContext.SaveChangesAsync(cancellationToken);
+        //List<VideoStream> after = GetIQueryableForEntity(Parameters).ToList();
+        return true;
+    }
 }

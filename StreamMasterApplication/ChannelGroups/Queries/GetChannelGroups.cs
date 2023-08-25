@@ -21,6 +21,15 @@ internal class GetChannelGroupsQueryHandler : BaseMediatorRequestHandler, IReque
     public async Task<PagedResponse<ChannelGroupDto>> Handle(GetChannelGroupsQuery request, CancellationToken cancellationToken)
     {
 
+        int count = Repository.EPGFile.Count();
+
+        if (request.Parameters.PageSize == 0)
+        {
+            PagedResponse<ChannelGroupDto> emptyResponse = new();
+            emptyResponse.TotalItemCount = count;
+            return emptyResponse;
+        }
+
         return await Repository.ChannelGroup.GetChannelGroupsAsync(request.Parameters).ConfigureAwait(false);
     }
 }

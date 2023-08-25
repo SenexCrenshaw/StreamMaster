@@ -954,6 +954,17 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["VideoStreams"],
       }),
+      videoStreamsUpdateAllVideoStreamsFromParameters: build.mutation<
+        VideoStreamsUpdateAllVideoStreamsFromParametersApiResponse,
+        VideoStreamsUpdateAllVideoStreamsFromParametersApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/updateallvideostreamsfromparameters`,
+          method: "PUT",
+          body: queryArg,
+        }),
+        invalidatesTags: ["VideoStreams"],
+      }),
     }),
     overrideExisting: false,
   });
@@ -1277,6 +1288,10 @@ export type VideoStreamsUpdateVideoStreamApiResponse = unknown;
 export type VideoStreamsUpdateVideoStreamApiArg = UpdateVideoStreamRequest;
 export type VideoStreamsUpdateVideoStreamsApiResponse = unknown;
 export type VideoStreamsUpdateVideoStreamsApiArg = UpdateVideoStreamsRequest;
+export type VideoStreamsUpdateAllVideoStreamsFromParametersApiResponse =
+  unknown;
+export type VideoStreamsUpdateAllVideoStreamsFromParametersApiArg =
+  UpdateAllVideoStreamsFromParametersRequest;
 export type CreateChannelGroupRequest = {
   groupName: string;
   rank: number;
@@ -1985,6 +2000,20 @@ export type UpdateVideoStreamRequest = VideoStreamBaseRequest & {
 export type UpdateVideoStreamsRequest = {
   videoStreamUpdates?: UpdateVideoStreamRequest[];
 };
+export type QueryStringParameters = {
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type VideoStreamParameters = QueryStringParameters & {
+  name?: string;
+};
+export type UpdateAllVideoStreamsFromParametersRequest = {
+  parameters?: VideoStreamParameters;
+  request?: UpdateVideoStreamRequest;
+};
 export const {
   useChannelGroupsCreateChannelGroupMutation,
   useChannelGroupsGetChannelGroupsQuery,
@@ -2079,4 +2108,5 @@ export const {
   useVideoStreamsSimulateStreamFailureForAllMutation,
   useVideoStreamsUpdateVideoStreamMutation,
   useVideoStreamsUpdateVideoStreamsMutation,
+  useVideoStreamsUpdateAllVideoStreamsFromParametersMutation,
 } = injectedRtkApi;

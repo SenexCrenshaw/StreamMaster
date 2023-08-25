@@ -23,10 +23,10 @@ internal class GetProgrammsSimpleQueryHandler : BaseMemoryRequestHandler, IReque
     {
         List<ProgrammeNameDto> ret = new();
 
-        List<Programme> programmes = MemoryCache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel) && a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
+        List<Programme> programmes = MemoryCache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel)).ToList();// && a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
         if (programmes.Any())
         {
-            List<string> names = programmes.Select(a => a.Channel).OrderBy(a => a).Distinct().Skip(request.Parameters.First).ToList();
+            List<string> names = programmes.Select(a => a.Channel).OrderBy(a => a, StringComparer.OrdinalIgnoreCase).Distinct(StringComparer.OrdinalIgnoreCase).Skip(request.Parameters.First).ToList();
             List<string> fnames = names.Take(request.Parameters.Count).ToList();
 
             foreach (string? name in fnames)

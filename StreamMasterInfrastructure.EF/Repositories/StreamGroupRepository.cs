@@ -20,14 +20,12 @@ namespace StreamMasterInfrastructureEF.Repositories;
 public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRepository
 {
     private readonly ISortHelper<StreamGroup> _StreamGroupSortHelper;
-    private readonly IMemoryCache _memoryCache;
     private readonly IMapper _mapper;
     private readonly ISender _sender;
 
     public StreamGroupRepository(RepositoryContext repositoryContext, ISortHelper<StreamGroup> StreamGroupSortHelper, IMapper mapper, IMemoryCache memoryCache, ISender sender) : base(repositoryContext)
     {
         _sender = sender;
-        _memoryCache = memoryCache;
         _mapper = mapper;
         _StreamGroupSortHelper = StreamGroupSortHelper;
     }

@@ -21,6 +21,10 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         RepositoryContext = repositoryContext;
     }
 
+    public int Count()
+    {
+        return RepositoryContext.Set<T>().AsNoTracking().Count();
+    }
     public IQueryable<T> FindAll()
     {
         return RepositoryContext.Set<T>().AsNoTracking();
@@ -32,10 +36,9 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
             .ThenInclude(vsl => vsl.ChildVideoStream);
     }
 
-    public async Task<PagedResponse<TDto>> GetEntitiesAsync<TDto>(QueryStringParameters parameters, IMapper mapper) where TDto : class
+    public IQueryable<T> GetIQueryableForEntity(QueryStringParameters parameters)
     {
         IQueryable<T> entities;
-
         if (!string.IsNullOrEmpty(parameters.JSONFiltersString) || !string.IsNullOrEmpty(parameters.OrderBy))
         {
             List<DataTableFilterMetaData>? filters = null;
@@ -64,6 +67,12 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
             //}
         }
 
+        return entities;
+    }
+
+    public async Task<PagedResponse<TDto>> GetEntitiesAsync<TDto>(QueryStringParameters parameters, IMapper mapper) where TDto : class
+    {
+        IQueryable<T> entities = GetIQueryableForEntity(parameters);
 
         IPagedList<T> pagedResult = await entities.ToPagedListAsync(parameters.PageNumber, parameters.PageSize).ConfigureAwait(false);
 
@@ -98,7 +107,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         // Apply filters and sorting
         IQueryable<T> filteredAndSortedQuery = FilterHelper<T>.ApplyFiltersAndSort(query, filters, orderBy);
 
-        return filteredAndSortedQuery.AsNoTracking();
+        return filteredAndSortedQuery;//.AsNoTracking();
     }
 
     public IQueryable<VideoStream> FindByConditionVideoStream(List<DataTableFilterMetaData>? filters, string orderBy)
@@ -127,6 +136,12 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     {
         RepositoryContext.Set<T>().Update(entity);
     }
+
+    public void UpdateRange(T[] entities)
+    {
+        RepositoryContext.Set<T>().UpdateRange(entities);
+    }
+
 
     public void Delete(T entity)
     {

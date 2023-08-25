@@ -3,11 +3,10 @@ import './DataSelector.css';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 
-
+import { type DataTableFilterMeta } from 'primereact/datatable';
 import { type DataTableSelectionSingleChangeEvent } from 'primereact/datatable';
 import { type DataTableSelectAllChangeEvent } from 'primereact/datatable';
 import { type DataTableRowDataArray } from 'primereact/datatable';
-import { type DataTableSortEvent } from 'primereact/datatable';
 import { type DataTableStateEvent } from 'primereact/datatable';
 import { type DataTablePageEvent } from 'primereact/datatable';
 
@@ -19,6 +18,11 @@ import { type DataTableRowData } from 'primereact/datatable';
 import { DataTable } from 'primereact/datatable';
 import { type ReactNode } from 'react';
 import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties } from 'react';
+import { removeValueForField, type AdditionalFilterProps } from '../../common/common';
+import { areAdditionalFilterPropsEqual, type MatchMode } from '../../common/common';
+import { addOrUpdateValueForField, type SMDataTableFilterMetaData } from '../../common/common';
+import { type GetApiArg } from '../../common/common';
+import { type QueryHook } from '../../common/common';
 import { camel2title, getTopToolOptions, isEmptyObject } from '../../common/common';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
 import { type LazyTableState } from './DataSelectorTypes';
@@ -33,10 +37,15 @@ import getHeader from './getHeader';
 import useDataSelectorState from './useDataSelectorState';
 import getRecord from './getRecord';
 import getRecordString from './getRecordString';
-
+import { type PagedResponseDto } from '../selectors/BaseSelector';
+import { areArraysEqual } from '@mui/base';
+import { useQueryFilter } from '../../app/slices/useQueryFilter';
+import { useQueryAdditionalFilters } from '../../app/slices/useQueryAdditionalFilters';
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
   const { state, setters } = useDataSelectorState<T>(props.id);
+  const { queryFilter, setQueryFilter } = useQueryFilter(props.id);
+  const { queryAdditionalFilter } = useQueryAdditionalFilters(props.id);
 
   const tableRef = useRef<DataTable<T[]>>(null);
 
@@ -49,8 +58,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   const setting = StreamMasterSetting();
 
   const lazyState = useCallback((overrides?: Partial<LazyTableState>): LazyTableState => {
-    console.log('lazyState', overrides);
-
     const effectiveSortField = overrides?.sortField ?? state.sortField;
     const effectiveSortOrder = overrides?.sortOrder ?? state.sortOrder;
 
@@ -59,10 +66,15 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       sort = (effectiveSortOrder === -1) ? `${effectiveSortField} desc` : (effectiveSortOrder === 1) ? `${effectiveSortField} asc` : '';
     }
 
+    let filters = state.filters;
+    if (overrides?.jsonFiltersString) {
+      filters = JSON.parse(overrides.jsonFiltersString) as DataTableFilterMeta;
+    }
+
     const defaultState: LazyTableState = {
-      filters: state.filters,
-      filterString: JSON.stringify(state.filters),
+      filters: filters,
       first: state.first,
+      jsonFiltersString: JSON.stringify(filters),
       page: state.page,
       rows: state.rows,
       sortField: state.sortField,
@@ -73,65 +85,188 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     return {
       ...defaultState,
       ...overrides,
-      filterString: JSON.stringify(overrides?.filters ?? state.filters)
+      jsonFiltersString: overrides?.jsonFiltersString ? overrides.jsonFiltersString : JSON.stringify(overrides?.filters ?? filters)
     }
   }, [state.filters, state.first, state.page, state.rows, state.sortField, state.sortOrder]);
 
-
-  const isLoading = useMemo(() => {
-    if (props.isLoading) {
-      return true;
+  const updateFilter = useCallback((toFilter: LazyTableState, additionalFilterProps?: AdditionalFilterProps): SMDataTableFilterMetaData[] => {
+    if (!toFilter?.filters && additionalFilterProps === undefined) {
+      return [];
     }
 
-    if (state.rowClick === undefined) {
-      return true;
+    const toSend: SMDataTableFilterMetaData[] = Object.keys(toFilter.filters)
+      .map(key => {
+        const value = toFilter.filters[key] as SMDataTableFilterMetaData;
+        if (!value.value || value.value === '[]') {
+          return null;
+        }
+
+        return value;
+      })
+      .filter(Boolean) as SMDataTableFilterMetaData[];
+
+    const addProps = additionalFilterProps ?? state.additionalFilterProps;
+
+    if (addProps?.values) {
+
+      if (isEmptyObject(addProps.values)) {
+        removeValueForField(toSend, addProps.field)
+      } else {
+        const values = JSON.stringify(addProps.values);
+        addOrUpdateValueForField(toSend, addProps.field, addProps.matchMode as MatchMode, values)
+      }
     }
 
-    if (state.sortOrder === undefined) {
-      return true;
+
+    toFilter.jsonFiltersString = JSON.stringify(toSend);
+
+    return toSend;
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const updateStateAndFilter = useCallback((overrides?: Partial<LazyTableState>) => {
+
+    const lazy = lazyState(overrides);
+    updateFilter(lazy);
+    const getApi = {
+      jsonFiltersString: lazy.jsonFiltersString,
+      orderBy: lazy.sortString ?? props.defaultSortField,
+      pageNumber: lazy.page,
+      pageSize: lazy.rows
+    };
+
+    if (queryFilter !== getApi) {
+      setQueryFilter(getApi)
     }
 
-    return false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lazyState, props.defaultSortField, setQueryFilter, updateFilter]);
 
-  }, [props.isLoading, state.rowClick, state.sortOrder]);
 
-  const onValueChanged = useCallback((data: DataTableRowDataArray<T[]>) => {
+  const filterData = useMemo(() => {
+
+    const filter = queryFilter ? queryFilter : { pageSize: 40 };
+    if (state.additionalFilterProps?.values) {
+      const lazy = lazyState(filter);
+      updateFilter(lazy, state.additionalFilterProps);
+
+      const getApi = {
+        jsonFiltersString: lazy.jsonFiltersString,
+        orderBy: lazy.sortString ?? props.defaultSortField,
+        pageNumber: lazy.page,
+        pageSize: lazy.rows
+      };
+
+      return getApi;
+    } else {
+      return filter;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryFilter, state.additionalFilterProps]);
+
+
+  const { data, isLoading, isFetching } = props.queryFilter ? props.queryFilter(filterData) : { data: undefined, isFetching: false, isLoading: false };
+
+  useEffect(() => {
+    if (queryAdditionalFilter?.values) {
+
+      if (!areAdditionalFilterPropsEqual(queryAdditionalFilter, state.additionalFilterProps)) {
+        setters.setAdditionalFilterProps(queryAdditionalFilter);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryAdditionalFilter]);
+
+
+
+  const onValueChanged = useCallback((changed: DataTableRowDataArray<T[]>) => {
     if (!data) {
       return;
     }
 
-    props?.onValueChanged?.(data);
+    props?.onValueChanged?.(changed);
 
-  }, [props]);
+  }, [data, props]);
 
-  useEffect(() => {
-    if (!props.dataSource || isEmptyObject(props.dataSource)) {
+  const onsetSelection = useCallback((e: T | T[], overRideSelectAll?: boolean): T | T[] | undefined => {
+    let selected: T[] = Array.isArray(e) ? e : [e];
+
+    if (state.selections === selected) {
       return;
     }
 
-    if (Array.isArray(props.dataSource)) {
-      setters.setDataSource({ data: props.dataSource });
-      setters.setPagedInformation(undefined);
-    } else if (isPagedTableDto(props.dataSource)) {
-      setters.setDataSource({ data: (props.dataSource as PagedTableDto<T>).data });
-      setters.setPagedInformation(props.dataSource);
-    } else {
-      setters.setDataSource({ data: props.dataSource });
-      setters.setPagedInformation(undefined);
+    if (props.selectionMode === 'single') {
+      selected = selected.slice(0, 1);
+    }
+
+    setters.setSelections(selected);
+    const all = overRideSelectAll ? overRideSelectAll : state.selectAll;
+    if (props.onSelectionChange) {
+      props.onSelectionChange(props.selectionMode === 'single' ? selected[0] : selected, all, all ? state.pagedInformation?.totalRecords ?? undefined : undefined);
+    }
+
+    return e;
+  }, [state.selections, state.selectAll, state.pagedInformation?.totalRecords, props, setters]);
+
+  useEffect(() => {
+    if (!props.dataSource && !data) {
+      return;
+    }
+
+    if (props.dataSource) {
+      if (!state.dataSource?.data || (state.dataSource.data && !areArraysEqual(props.dataSource, state.dataSource.data))) {
+        setters.setDataSource({ data: props.dataSource });
+        setters.setPagedInformation(undefined);
+        if (state.selectAll) {
+          onsetSelection(props.dataSource);
+          // setters.setSelections(props.dataSource);
+        }
+      }
+
+      return;
+    }
+
+    if (!data) {
+      return;
+    }
+
+    if (Array.isArray(data)) {
+      if (!state.dataSource?.data || (state.dataSource.data && !areArraysEqual(data, state.dataSource.data))) {
+        setters.setDataSource({ data: data });
+        setters.setPagedInformation(undefined);
+        if (state.selectAll) {
+          setters.setSelections(data);
+        }
+      }
+
+      return;
+    }
+
+    if (data && isPagedTableDto<T>(data)) {
+      if (!state.dataSource?.data || (state.dataSource.data && !areArraysEqual(data.data, state.dataSource.data))) {
+        setters.setDataSource({ data: (data as PagedResponseDto<T>).data });
+        setters.setPagedInformation(data);
+        if (state.selectAll && data !== undefined) {
+          setters.setSelections((data as PagedResponseDto<T>).data as T[]);
+        }
+      }
+
+      return;
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.dataSource]);
+  }, [data, state.selectAll]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const onRowReorder = useCallback((data: T[]) => {
+  const onRowReorder = useCallback((changed: T[]) => {
     // setDataSource(data);
     // props.onSelectionChange?.(data);
   }, []);
 
 
-  const rowClass = useCallback((data: DataTableRowData<T[]>) => {
-    const isHidden = getRecord(data as T, 'isHidden');
+  const rowClass = useCallback((changed: DataTableRowData<T[]>) => {
+    const isHidden = getRecord(changed as T, 'isHidden');
     if (isHidden === true) {
       return `bg-red-900`;
     }
@@ -159,26 +294,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     />);
   }, [props, state.rowClick, setters.setRowClick]);
 
-  const onsetSelection = useCallback((e: T | T[]): T | T[] | undefined => {
-    let selected: T[] = Array.isArray(e) ? e : [e];
 
-    if (state.selections === selected) {
-      return;
-    }
-
-    if (props.selectionMode === 'single') {
-      selected = selected.slice(0, 1);
-    }
-
-    console.log('onsetSelection', selected);
-    setters.setSelections(selected);
-
-    if (props.onSelectionChange) {
-      props.onSelectionChange(props.selectionMode === 'single' ? selected[0] : selected);
-    }
-
-    return e;
-  }, [props, setters, state.selections]);
 
   const getSelectionMultipleMode = useMemo((): 'checkbox' | 'multiple' | null => {
 
@@ -187,10 +303,9 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }, []);
 
   const onSelectionChange = useCallback((e: DataTableSelectionSingleChangeEvent<T[]>) => {
-    if (e.value === null || e.value === undefined || isEmptyObject(e.value)) {
+    if (e.value === null || e.value === undefined) {
       return;
     }
-
 
     if (e.value instanceof Array && e.value.length > 0) {
       const single1 = e.value.slice(e.value.length - 1, e.value.length);
@@ -271,21 +386,21 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     } as CSSProperties;
   }, []);
 
-  const rowGroupHeaderTemplate = useCallback((data: T) => {
+  const rowGroupHeaderTemplate = useCallback((row: T) => {
     if (!props.groupRowsBy) {
       return (
         <div />
       );
     }
 
-    const record = getRecordString(data, props.groupRowsBy);
+    const record = getRecordString(row, props.groupRowsBy);
     return (
       <span className="vertical-align-middle ml-2 font-bold line-height-3">
         {record}
         <Button
-          className={data.isHidden ? 'p-button-danger' : ''}
-          icon={`pi pi-eye ${data.isHidden ? 'text-red-500' : 'text-green-500'}`}
-          onClick={() => props?.onRowVisibleClick?.(data)}
+          className={row.isHidden ? 'p-button-danger' : ''}
+          icon={`pi pi-eye ${row.isHidden ? 'text-red-500' : 'text-green-500'}`}
+          onClick={() => props?.onRowVisibleClick?.(row)}
           rounded
           text
           tooltip="Set Hidden"
@@ -301,7 +416,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     );
   }
 
-  const onSort = (event: DataTableSortEvent) => {
+  const onSort = (event: DataTableStateEvent) => {
     // If the sortField is 'selected' or absent, update the sortField and exit early.
     if (!event.sortField || event.sortField === 'selected') {
       // setSortField('');
@@ -341,10 +456,17 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     const sort = matchingColumn?.field ?? '';
     setters.setSortField(sort);
     tempSort = sort;
+    const lazy = lazyState({ sortField: sort, sortOrder: event.sortOrder });
 
-    console.log('onSort', sort, event.sortOrder)
-    // Call the onFilter prop if it exists.
-    props.onFilter?.(lazyState({ sortField: sort, sortOrder: event.sortOrder }));
+    updateFilter(lazy);
+    updateStateAndFilter({
+      first: event.first,
+      page: state.page,
+      rows: event.rows,
+      sortField: tempSort,
+      sortOrder: tempSortOrder
+    });
+
   };
 
   const onPage = (event: DataTablePageEvent) => {
@@ -360,21 +482,41 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     tempRows = event.rows;
     setters.setRows(event.rows);
 
-    props.onFilter?.(lazyState({ first: state.first, page: adjustedPage, rows: state.rows }));
+    updateStateAndFilter({
+      first: tempFirst,
+      page: tempPage,
+      rows: tempRows
+    });
+
   };
+
 
   const onFilter = (event: DataTableStateEvent) => {
 
     const newFilters = generateFilterData(props.columns, event.filters, props.showHidden);
     setters.setFilters(newFilters);
 
-    console.log('onFilter', state.sortField, tempSort, state.sortOrder, tempSortOrder)
-    props.onFilter?.(lazyState({ filters: newFilters, first: tempFirst, page: tempPage, rows: tempRows, sortField: tempSort, sortOrder: tempSortOrder }));
+    updateStateAndFilter({
+      filters: newFilters,
+      first: tempFirst,
+      page: tempPage,
+      rows: tempRows
+    });
+
   }
 
   const onSelectAllChange = (event: DataTableSelectAllChangeEvent) => {
     const newSelectAll = event.checked;
     setters.setSelectAll(newSelectAll);
+
+    // props.onSelectAllChange?.(newSelectAll);
+
+    if (newSelectAll && state.dataSource?.data) {
+      onsetSelection(state.dataSource.data, true);
+    } else {
+      onsetSelection([]);
+
+    }
   };
 
   return (
@@ -397,7 +539,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           header={sourceRenderHeader}
           key={props.key !== undefined && props.key !== '' ? props.key : undefined}
           lazy
-          loading={isLoading}
+          loading={isLoading === true || isFetching === true || props.isLoading === true}
           metaKeySelection={false}
           onFilter={onFilter}
           onPage={onPage}
@@ -499,6 +641,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
 DataSelector.displayName = 'dataselector';
 DataSelector.defaultProps = {
+  defaultSortField: 'name',
   enableVirtualScroll: false,
   headerName: '',
   hideControls: false,
@@ -511,10 +654,10 @@ DataSelector.defaultProps = {
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type DataSelectorProps<T = any> = {
+type BaseDataSelectorProps<T = any> = {
   className?: string;
   columns: ColumnMeta[];
-  dataSource: PagedTableDto<T> | T[] | undefined;
+  defaultSortField?: string;
   emptyMessage?: ReactNode;
   enableExport?: boolean;
   enableVirtualScroll?: boolean | undefined;
@@ -527,10 +670,12 @@ export type DataSelectorProps<T = any> = {
   id: string;
   isLoading?: boolean;
   key?: string | undefined;
-  onFilter?: (event: LazyTableState) => void;
+  // onFilter?: (event: LazyTableState) => void;
   onMultiSelectClick?: (value: boolean) => void;
+  // onSelectAllChange?: (value: boolean) => void;
+  // onQueryFilter?: (value: GetApiArg) => void;
   onRowVisibleClick?: (value: T) => void;
-  onSelectionChange?: (value: T | T[]) => void;
+  onSelectionChange?: (value: T | T[], selectAll: boolean, totalSelected: number | undefined) => void;
   onValueChanged?: (value: T[]) => void;
   reorderable?: boolean;
   selectionMode?: DataSelectorSelectionMode;
@@ -540,6 +685,20 @@ export type DataSelectorProps<T = any> = {
   style?: CSSProperties;
   virtualScrollHeight?: string | undefined;
 }
+
+
+type QueryFilterProps<T> = BaseDataSelectorProps<T> & {
+  dataSource?: never;
+  queryFilter: (filters: GetApiArg) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
+};
+
+type DataSourceProps<T> = BaseDataSelectorProps<T> & {
+  dataSource: T[] | undefined;
+  queryFilter?: never;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type DataSelectorProps<T = any> = DataSourceProps<T> | QueryFilterProps<T>;
 
 export type PagedTableInformation = {
   first: number;

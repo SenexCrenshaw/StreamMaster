@@ -20,12 +20,20 @@ internal class GetVideoStreamsHandler : BaseRequestHandler, IRequestHandler<GetV
 
     public async Task<PagedResponse<VideoStreamDto>> Handle(GetVideoStreams request, CancellationToken cancellationToken)
     {
+        int count = Repository.StreamGroup.Count();
+
+        if (request.Parameters.PageSize == 0)
+        {
+            PagedResponse<VideoStreamDto> emptyResponse = new();
+            emptyResponse.TotalItemCount = count;
+            return emptyResponse;
+
+        }
+
         Stopwatch stopwatch = Stopwatch.StartNew();
         PagedResponse<VideoStreamDto> res = await Repository.VideoStream.GetVideoStreams(request.Parameters, cancellationToken).ConfigureAwait(false);
         stopwatch.Stop();
         Logger.LogInformation($"GetVideoStreamsHandler took {stopwatch.ElapsedMilliseconds} ms");
         return res;
-
-
     }
 }

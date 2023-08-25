@@ -29,6 +29,15 @@ internal class GetStreamGroupsHandler : BaseMediatorRequestHandler, IRequestHand
 
     public async Task<PagedResponse<StreamGroupDto>> Handle(GetStreamGroups request, CancellationToken cancellationToken = default)
     {
+        int count = Repository.StreamGroup.Count();
+
+        if (request.Parameters.PageSize == 0)
+        {
+            PagedResponse<StreamGroupDto> emptyResponse = new();
+            emptyResponse.TotalItemCount = count;
+            return emptyResponse;
+
+        }
         string url = _httpContextAccessor.GetUrl();
         return await Repository.StreamGroup.GetStreamGroupDtosPagedAsync(request.Parameters, url).ConfigureAwait(false);
 

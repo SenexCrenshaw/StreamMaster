@@ -84,4 +84,9 @@ public partial class StreamMasterHub : IVideoStreamHub
     {
         return await _mediator.Send(request).ConfigureAwait(false);
     }
+
+    public async Task UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request)
+    {
+        await _mediator.Send(request).ConfigureAwait(false);
+    }
 }

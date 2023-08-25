@@ -27,7 +27,7 @@ const TestPanel = (props: TestPanelProps) => {
   }, []);
 
   // return (
-  //   <EPGEditor data={videoStreamsGetVideoStreamQuery.data ?? {} as VideoStreamDto}  />
+  //   <EPGEditor data={videoStreamsGetVideoStreamQuery.data ?? {} as VideoStreamDto} />
   // );
 
   // return (

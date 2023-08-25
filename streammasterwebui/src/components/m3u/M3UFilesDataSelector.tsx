@@ -23,7 +23,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
   const [selectedM3UFile, setSelectedM3UFile] = useLocalStorage<M3UFileDto>({ id: 0, name: 'All' } as M3UFileDto, 'M3UFilesDataSelector-selectedM3UFile');
   const [orderBy, setOrderBy] = useState<string>('user_tvg_name');
 
-  const m3UFilesQuery = useM3UFilesGetM3UFilesQuery({ orderBy: orderBy, pageNumber: pageNumber === 0 ? 1 : pageNumber, pageSize: pageSize } as M3UFilesGetM3UFilesApiArg);
+  // const m3UFilesQuery = useM3UFilesGetM3UFilesQuery({ orderBy: orderBy, pageNumber: pageNumber === 0 ? 1 : pageNumber, pageSize: pageSize } as M3UFilesGetM3UFilesApiArg);
 
   useMemo(() => {
     if (props.value?.id !== undefined && selectedM3UFile !== undefined && props.value.id !== selectedM3UFile.id) {
@@ -289,15 +289,14 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
 
       <DataSelector
         columns={sourceColumns}
-        dataSource={m3UFilesQuery.data}
+
         emptyMessage="No M3U Files"
         id='m3ufilesdataselector'
-        isLoading={m3UFilesQuery.isLoading}
 
         onSelectionChange={(e) =>
           SetSelectedM3UFileChanged(e as M3UFileDto)
         }
-
+        queryFilter={useM3UFilesGetM3UFilesQuery}
         style={{ height: 'calc(50vh - 40px)' }}
       />
     </>

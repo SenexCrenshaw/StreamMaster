@@ -10,9 +10,9 @@ export type DataSelectorSelectionMode = 'checkbox' | 'multiple' | 'multipleNoChe
 
 
 export type LazyTableState = {
-  filterString: string;
   filters: DataTableFilterMeta;
   first: number;
+  jsonFiltersString: string | null | undefined;
   page: number;
   rows: number;
   sortField?: string;

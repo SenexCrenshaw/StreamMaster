@@ -101,12 +101,52 @@ export function GetMessage(...args: string[]): string {
 }
 
 
-// export function GetMessage(id: string): string {
-//   const intl = useIntl();
-//   const message = intl.formatMessage({ id: id });
 
-//   return message;
-// }
+export type AdditionalFilterProps = {
+  field: string;
+  matchMode: MatchMode;
+  values: string[] | undefined;
+}
+
+export function areAdditionalFilterPropsEqual(a: AdditionalFilterProps | undefined, b: AdditionalFilterProps | undefined): boolean {
+  // If both are undefined, return true
+  if (!a && !b) return true;
+
+  // If only one of them is undefined, return false
+  if (!a || !b) return false;
+
+  // Check if fields are the same
+  if (a.field !== b.field) return false;
+
+  // Check if matchModes are the same
+  if (a.matchMode !== b.matchMode) return false;
+
+  // If values are undefined, treat them as empty arrays for comparison
+  const aValues = a.values ?? [];
+  const bValues = b.values ?? [];
+
+
+  // Check if values array lengths are the same
+  if (aValues.length !== bValues.length) return false;
+
+  // Check if all values are the same
+  for (let i = 0; i < aValues.length; i++) {
+    if (aValues[i] !== bValues[i]) return false;
+  }
+
+  // If all checks passed, the objects are equivalent
+  return true;
+}
+
+export function removeValueForField(
+  data: SMDataTableFilterMetaData[],
+  targetFieldName: string
+): void {
+  const index = data.findIndex(item => item.fieldName === targetFieldName);
+  if (index !== -1) {
+    data.splice(index, 1);
+  }
+}
 
 
 export function addOrUpdateValueForField(
@@ -116,24 +156,23 @@ export function addOrUpdateValueForField(
   newValue: string
 ): void {
 
-  // let itemFound = false;
+  let itemFound = false;
 
-  // data.forEach(item => {
-  //   if (item.fieldName === targetFieldName) {
-  //     item.matchMode = matchMode;
-  //     item.value = newValue;
-  //     item.valueType = typeof newValue;
-  //     itemFound = true;
-  //   }
-  // });
-
-  // if (!itemFound) {
-  data.push({
-    fieldName: targetFieldName,
-    matchMode: matchMode as MatchMode,
-    value: newValue
+  data.forEach(item => {
+    if (item.fieldName === targetFieldName) {
+      item.matchMode = matchMode;
+      item.value = newValue;
+      itemFound = true;
+    }
   });
-  // }
+
+  if (!itemFound) {
+    data.push({
+      fieldName: targetFieldName,
+      matchMode: matchMode as MatchMode,
+      value: newValue
+    });
+  }
 }
 
 export function areDataTableFilterMetaDataEqual(a: SMDataTableFilterMetaData, b: SMDataTableFilterMetaData): boolean {
@@ -183,20 +222,21 @@ export type GetApiArg = {
   pageSize?: number;
 };
 
-type QueryHookResult = {
-  data?: string[];
+type QueryHookResult<T> = {
+  data?: T;
   isError: boolean;
   isFetching: boolean;
   isLoading: boolean;
 };
 
-export type QueryHook = () => QueryHookResult;
+export type QueryHook<T,> = () => QueryHookResult<T>;
 
 
 export type HasId = {
   [key: string]: any;
   id: number | string;
 }
+
 
 export function compareIconFileDto(a: IconFileDto, b: IconFileDto): number {
   // Compare by id
@@ -219,6 +259,25 @@ export function compareIconFileDto(a: IconFileDto, b: IconFileDto): number {
   return 0;
 }
 
+export function arraysContainSameStrings(arr1: string[] | undefined, arr2: string[] | undefined): boolean {
+  if (!arr1 || !arr2) return false;
+
+  // If the arrays are not of the same length, they can't contain the same strings
+  if (arr1.length !== arr2.length) return false;
+
+  // Sort both arrays and compare them
+  // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
+  const sortedArr1 = [...arr1].sort();
+  // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
+  const sortedArr2 = [...arr2].sort();
+
+  for (let i = 0; i < sortedArr1.length; i++) {
+    if (sortedArr1[i] !== sortedArr2[i]) return false;
+  }
+
+  return true;
+}
+
 export function areIconFileDtosEqual(array1: IconFileDto[], array2: IconFileDto[]): boolean {
   if (array1.length !== array2.length) {
     return false;
@@ -237,6 +296,16 @@ export type SMDataTableFilterMetaData = DataTableFilterMetaData & {
   fieldName: string;
   matchMode: MatchMode;
 }
+
+export const doSetsContainSameIds = (set1: Set<number | string>, set2: Set<number | string>): boolean => {
+  if (set1.size !== set2.size) return false;
+  for (let id of set1) {
+    if (!set2.has(id)) return false;
+  }
+
+  return true;
+}
+
 
 export function isChildVideoStreamDto(value: unknown): value is ChildVideoStreamDto {
   // Perform the necessary type checks to determine if 'value' is of type 'ChildVideoStreamDto'

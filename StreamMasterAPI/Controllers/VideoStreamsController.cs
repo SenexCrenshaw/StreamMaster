@@ -235,6 +235,13 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         return Ok();
     }
 
+    [HttpPut]
+    [Route("[action]")]
+    public async Task<ActionResult> UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok(); throw new NotImplementedException();
+    }
 
     private class UnregisterClientOnDispose : IDisposable
     {

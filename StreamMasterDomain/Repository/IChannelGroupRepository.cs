@@ -3,7 +3,7 @@ using StreamMasterDomain.Pagination;
 
 namespace StreamMasterDomain.Repository
 {
-    public interface IChannelGroupRepository
+    public interface IChannelGroupRepository : IRepositoryBase<ChannelGroup>
     {
         //Task ChannelGroupCreateEmptyCount(int Id);
         //Task ChannelGroupRemoveCount(int Id);

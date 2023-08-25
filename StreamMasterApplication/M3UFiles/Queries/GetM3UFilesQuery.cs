@@ -18,6 +18,15 @@ internal class GetM3UFilesQueryHandler : IRequestHandler<GetM3UFilesQuery, Paged
 
     public async Task<PagedResponse<M3UFileDto>> Handle(GetM3UFilesQuery request, CancellationToken cancellationToken = default)
     {
+        int count = Repository.M3UFile.Count();
+
+        if (request.Parameters.PageSize == 0)
+        {
+            PagedResponse<M3UFileDto> emptyResponse = new();
+            emptyResponse.TotalItemCount = count;
+            return emptyResponse;
+        }
+
         PagedResponse<M3UFileDto> m3uFiles = await Repository.M3UFile.GetM3UFilesAsync(request.Parameters).ConfigureAwait(false);
         return m3uFiles;
     }

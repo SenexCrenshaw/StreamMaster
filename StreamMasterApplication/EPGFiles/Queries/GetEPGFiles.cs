@@ -23,6 +23,14 @@ internal class GetEPGFilesHandler : BaseMemoryRequestHandler, IRequestHandler<Ge
     {
         PagedResponse<EPGFilesDto> epgFiles = await Repository.EPGFile.GetEPGFilesAsync(request.Parameters);
 
+        if (request.Parameters.PageSize == 0)
+        {
+            PagedResponse<EPGFilesDto> emptyResponse = new();
+            emptyResponse.TotalItemCount = epgFiles.TotalItemCount;
+            return emptyResponse;
+        }
+
+
         foreach (EPGFilesDto epgFileDto in epgFiles.Data)
         {
             List<Programme> proprammes = MemoryCache.Programmes().Where(a => a.EPGFileId == epgFileDto.Id).ToList();

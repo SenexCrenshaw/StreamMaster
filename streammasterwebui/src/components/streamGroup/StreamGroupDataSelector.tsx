@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { memo, useCallback, useMemo, useRef, useState, type CSSProperties } from "react";
 
@@ -6,7 +7,7 @@ import { Toast } from 'primereact/toast';
 import StreamGroupAddDialog from './StreamGroupAddDialog';
 import StreamGroupEditDialog from './StreamGroupEditDialog';
 import StreamGroupDeleteDialog from './StreamGroupDeleteDialog';
-import { type StreamGroupsGetStreamGroupsApiArg, type StreamGroupDto } from "../../store/iptvApi";
+import { type StreamGroupDto } from "../../store/iptvApi";
 import { useStreamGroupsGetStreamGroupsQuery } from "../../store/iptvApi";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 import DataSelector from "../dataSelector/DataSelector";
@@ -14,22 +15,22 @@ import DataSelector from "../dataSelector/DataSelector";
 const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
   const toast = useRef<Toast>(null);
 
-  const streamGroupsQuery = useStreamGroupsGetStreamGroupsQuery({} as StreamGroupsGetStreamGroupsApiArg);
+  // const streamGroupsQuery = useStreamGroupsGetStreamGroupsQuery({} as StreamGroupsGetStreamGroupsApiArg);
 
   const [selectedStreamGroup, setSelectedStreamGroup] = useState<StreamGroupDto>({} as StreamGroupDto);
 
-  useMemo(() => {
-    if (selectedStreamGroup.id === undefined || !streamGroupsQuery.data || streamGroupsQuery.data.data === undefined) {
-      return;
-    }
+  // useMemo(() => {
+  //   if (selectedStreamGroup.id === undefined || !streamGroupsQuery.data || streamGroupsQuery.data.data === undefined) {
+  //     return;
+  //   }
 
-    if (selectedStreamGroup.id) {
-      const index = streamGroupsQuery.data.data.findIndex((e) => e.id === selectedStreamGroup.id);
-      const newSG = { ...streamGroupsQuery.data.data[index] };
-      setSelectedStreamGroup(newSG);
-    }
+  //   if (selectedStreamGroup.id) {
+  //     const index = streamGroupsQuery.data.data.findIndex((e) => e.id === selectedStreamGroup.id);
+  //     const newSG = { ...streamGroupsQuery.data.data[index] };
+  //     setSelectedStreamGroup(newSG);
+  //   }
 
-  }, [selectedStreamGroup.id, streamGroupsQuery.data]);
+  // }, [selectedStreamGroup.id, streamGroupsQuery.data]);
 
   const StreamGroupColumns = useMemo((): ColumnMeta[] => {
     return [
@@ -59,23 +60,23 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
   }, []);
 
   const onSetStreamGroup = useCallback((data: StreamGroupDto) => {
-    if (!streamGroupsQuery?.data) {
-      setSelectedStreamGroup({} as StreamGroupDto);
-      props.onSelectionChange?.({} as StreamGroupDto);
-      return;
-    }
+    // if (!streamGroupsQuery?.data) {
+    //   setSelectedStreamGroup({} as StreamGroupDto);
+    //   props.onSelectionChange?.({} as StreamGroupDto);
+    //   return;
+    // }
 
-    const sg = streamGroupsQuery.data.data.find((x: StreamGroupDto) => x.id === data.id);
-    if (sg === null || sg === undefined) {
-      setSelectedStreamGroup({} as StreamGroupDto);
-      props.onSelectionChange?.({} as StreamGroupDto);
-      return;
-    }
+    // const sg = streamGroupsQuery.data.data.find((x: StreamGroupDto) => x.id === data.id);
+    // if (sg === null || sg === undefined) {
+    //   setSelectedStreamGroup({} as StreamGroupDto);
+    //   props.onSelectionChange?.({} as StreamGroupDto);
+    //   return;
+    // }
 
-    setSelectedStreamGroup(sg);
-    props.onSelectionChange?.(sg);
+    // setSelectedStreamGroup(sg);
+    // props.onSelectionChange?.(sg);
 
-  }, [props, streamGroupsQuery.data]);
+  }, []);
 
   const sourceaddtionalHeaderTemplate = () => {
     return (
@@ -109,15 +110,16 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
 
       <DataSelector
         columns={StreamGroupColumns}
-        dataSource={streamGroupsQuery.data}
+
         headerName='Stream Groups'
         headerRightTemplate={sourceaddtionalHeaderTemplate()}
         id={props.id + '-ds-source'}
-        isLoading={streamGroupsQuery.isLoading}
+
         onSelectionChange={(e) => {
           onSetStreamGroup(e as StreamGroupDto);
         }
         }
+        queryFilter={useStreamGroupsGetStreamGroupsQuery}
         style={{ height: 'calc(100vh - 40px)' }}
       />
     </>

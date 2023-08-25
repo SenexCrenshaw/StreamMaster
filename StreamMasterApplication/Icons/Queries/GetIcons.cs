@@ -28,6 +28,13 @@ internal class GetIconsHandler : IRequestHandler<GetIcons, PagedResponse<IconFil
 
     public async Task<PagedResponse<IconFileDto>> Handle(GetIcons request, CancellationToken cancellationToken)
     {
+        if (request.iconFileParameters.PageSize == 0)
+        {
+            PagedResponse<IconFileDto> emptyResponse = new();
+            emptyResponse.TotalItemCount = _memoryCache.GetIcons(_mapper).Count;
+            return emptyResponse;
+        }
+
         IQueryable<IconFileDto> icons = _memoryCache.GetIcons(_mapper).AsQueryable();
 
         if (!string.IsNullOrEmpty(request.iconFileParameters.JSONFiltersString) || !string.IsNullOrEmpty(request.iconFileParameters.OrderBy))

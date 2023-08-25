@@ -11,7 +11,7 @@ namespace StreamMasterApplication.VideoStreams;
 
 public interface IVideoStreamController
 {
-
+    Task<ActionResult> UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request);
     Task<ActionResult> CreateVideoStream(CreateVideoStreamRequest request);
 
     Task<ActionResult> ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request);
@@ -47,6 +47,7 @@ public interface IVideoStreamController
 
 public interface IVideoStreamHub
 {
+    Task UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request);
     Task CreateVideoStream(CreateVideoStreamRequest request);
 
     Task ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request);

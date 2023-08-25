@@ -1,4 +1,4 @@
-import { type ProgrammeNameDto, useProgrammesGetProgrammsSimpleQueryQuery } from '../../store/iptvApi';
+import { type ProgrammeNameDto, useProgrammesGetProgrammsSimpleQueryQuery, useProgrammesGetProgrammeNameSelectionsQuery } from '../../store/iptvApi';
 import BaseSelector, { type BaseSelectorProps } from './BaseSelector';
 import { GetProgrammeFromDisplayName } from '../../store/signlar_functions';
 import React, { useCallback } from 'react';
@@ -53,6 +53,7 @@ const EPGSelector: React.FC<Partial<EPGSelectorProps>> = ({
       onChange={handleOnChange}
       optionLabel="displayName"
       optionValue="displayName"
+      queryFilter={useProgrammesGetProgrammeNameSelectionsQuery}
       queryHook={useProgrammesGetProgrammsSimpleQueryQuery}
       querySelectedItem={GetProgrammeFromDisplayName}
       selectName='EPG'

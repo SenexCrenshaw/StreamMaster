@@ -7,9 +7,13 @@ import { combineReducers } from 'redux';
 
 import { enhancedApi } from '../store/signlar/enhancedApi';
 import { enhancedApiLocal } from '../store/signlar/enhancedApiLocal';
+import queryFilterReducer from './slices/queryFilterSlice';
+import queryAdditionalFiltersReducer from './slices/queryAdditionalFiltersSlice';
 
 const rootReducer = combineReducers({
   [enhancedApi.reducerPath]: enhancedApi.reducer,
+  queryAdditionalFilters: queryAdditionalFiltersReducer,
+  queryFilter: queryFilterReducer,
 });
 
 export const store = configureStore({

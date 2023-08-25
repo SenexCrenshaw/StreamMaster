@@ -16,7 +16,7 @@ type ColumnConfigInputs = {
   dataField: DataField,
   fieldType?: ColumnFieldType,
   headerTitle: string,
-  queryHook?: QueryHook,
+  queryHook?: QueryHook<string[]>,
   useFilter?: boolean,
   width?: number
 };

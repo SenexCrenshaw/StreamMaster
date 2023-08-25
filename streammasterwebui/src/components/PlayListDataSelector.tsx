@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { isEmptyObject, type SMDataTableFilterMetaData } from "../common/common";
+import { memo, useCallback, useMemo, useState, type CSSProperties } from "react";
+import { isEmptyObject } from "../common/common";
 import { getTopToolOptions } from "../common/common";
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
@@ -10,8 +8,7 @@ import { type ColumnMeta } from './dataSelector/DataSelectorTypes';
 
 import { useLocalStorage } from "primereact/hooks";
 import DataSelector from "./dataSelector/DataSelector";
-import { type DataTableFilterEvent } from "primereact/datatable";
-import { type PagedResponseOfChannelGroupDto, type ChannelGroupDto, type ChannelGroupsGetChannelGroupsApiArg } from "../store/iptvApi";
+import { type ChannelGroupDto } from "../store/iptvApi";
 import { useChannelGroupsGetChannelGroupsQuery } from "../store/iptvApi";
 import ChannelGroupDeleteDialog from "./channelGroups/ChannelGroupDeleteDialog";
 import ChannelGroupEditDialog from "./channelGroups/ChannelGroupEditDialog";
@@ -20,34 +17,9 @@ import ChannelGroupVisibleDialog from "./channelGroups/ChannelGroupVisibleDialog
 const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   const id = props.id + '-PlayListDataSelector';
 
-  const [dataSource, setDataSource] = useState({} as PagedResponseOfChannelGroupDto);
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, id + '-showHidden');
 
   const [selectedChannelGroups, setSelectedChannelGroups] = useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
-
-  const [pageSize, setPageSize] = useState<number>(25);
-  const [pageNumber, setPageNumber] = useState<number>(1);
-  const [filters, setFilters] = useState<string>('');
-  const [orderBy, setOrderBy] = useState<string>('name asc');
-  const timestampRef = useRef(Date.now()).current;
-  const channelGroupsQuery = useChannelGroupsGetChannelGroupsQuery({ jsonArgumentString: timestampRef.toString(), jsonFiltersString: filters, orderBy: orderBy, pageNumber: pageNumber, pageSize: pageSize } as ChannelGroupsGetChannelGroupsApiArg);
-
-  useEffect(() => {
-    console.log('useEffect', orderBy);
-  }, [orderBy]);
-
-  useEffect(() => {
-    if (channelGroupsQuery.data === undefined) {
-      return;
-    }
-
-    if (!channelGroupsQuery.data?.data) {
-      return;
-    }
-
-    setDataSource(channelGroupsQuery.data);
-
-  }, [channelGroupsQuery.data]);
 
 
   const onSelectionChange = (data: ChannelGroupDto[]) => {
@@ -106,29 +78,6 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
     ]
   }, [sourceActionBodyTemplate]);
 
-  const setFilter = useCallback((toFilter: DataTableFilterEvent): SMDataTableFilterMetaData[] => {
-
-    if (toFilter === undefined || toFilter.filters === undefined) {
-      return [] as SMDataTableFilterMetaData[];
-    }
-
-    const retData = [] as SMDataTableFilterMetaData[];
-    Object.keys(toFilter.filters).forEach((key) => {
-      const value = toFilter.filters[key] as SMDataTableFilterMetaData;
-      if (value.value === null || value.value === undefined || value.value === '') {
-        return;
-      }
-
-      const newValue = { ...value } as SMDataTableFilterMetaData;
-      newValue.fieldName = key;
-      retData.push(newValue);
-    });
-
-
-    setFilters(JSON.stringify(retData));
-    return retData;
-  }, []);
-
   const sourceRightHeaderTemplate = useCallback(() => {
     const getToolTip = (value: boolean | null | undefined) => {
       if (value === null) {
@@ -170,18 +119,11 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
     <DataSelector
       columns={sourceColumns}
-      dataSource={dataSource}
       emptyMessage="No Groups"
       headerName={props.name === undefined ? 'Playlist' : props.name}
       headerRightTemplate={props.hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
       hideControls={props.hideControls}
-      id={id + 'DataSelector'}
-      isLoading={channelGroupsQuery.isLoading || channelGroupsQuery.isFetching}
-      onFilter={(filterInfo) => {
-        setFilter(filterInfo as DataTableFilterEvent);
-      }}
-
-
+      id={id}
       onSelectionChange={(e) => {
         if (!isEmptyObject(e)) {
           onSelectionChange(e as ChannelGroupDto[]);
@@ -189,8 +131,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
           onSelectionChange([] as ChannelGroupDto[]);
         }
       }}
-
-
+      queryFilter={useChannelGroupsGetChannelGroupsQuery}
       selectionMode='multiple'
       showHidden={showHidden}
       style={{

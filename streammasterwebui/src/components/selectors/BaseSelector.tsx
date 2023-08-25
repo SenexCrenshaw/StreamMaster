@@ -1,12 +1,31 @@
-
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { type DropdownFilterEvent } from 'primereact/dropdown';
 import { type DropdownChangeEvent } from 'primereact/dropdown';
 import { Dropdown } from 'primereact/dropdown';
 import { Skeleton } from 'primereact/skeleton';
 import { classNames } from 'primereact/utils';
+import { doSetsContainSameIds, type SMDataTableFilterMetaData } from "../../common/common";
+import { type GetApiArg, addOrUpdateValueForField } from "../../common/common";
 import { type HasId, type SimpleQueryApiArg } from "../../common/common";
 import { type VirtualScrollerTemplateOptions } from 'primereact/virtualscroller';
+
+export type PagedResponseDto<T> = {
+  data: T[];
+  first: number;
+  pageNumber: number;
+  pageSize: number;
+  totalItemCount: number;
+  totalPageCount: number;
+  totalRecords: number;
+};
+
+export type PagedResponseDtoData<T> = {
+  data?: PagedResponseDto<T>;
+};
+
+export type SimpleQueryResponse<T> = {
+  data?: T[];
+};
 
 export type BaseSelectorProps<T extends HasId> = {
   className?: string | null;
@@ -18,8 +37,8 @@ export type BaseSelectorProps<T extends HasId> = {
   onChange: (value: string) => void;
   optionLabel: string;
   optionValue: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  queryHook: (option: SimpleQueryApiArg) => any;
+  queryFilter: (option: GetApiArg) => PagedResponseDtoData<T>;
+  queryHook: (option: SimpleQueryApiArg) => SimpleQueryResponse<T>;
   querySelectedItem: (arg: string) => Promise<T>;
   selectName: string;
   selectedTemplate: (option: T) => JSX.Element;
@@ -28,22 +47,23 @@ export type BaseSelectorProps<T extends HasId> = {
 
 const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
   const [selectedItem, setSelectedItem] = useState<string>('');
-  const [filter, setFilter] = useState<string>('');
   const [index, setIndex] = useState<number>(0);
+  const [totalItems, setTotalItems] = useState<number>(0);
   const [dataSource, setDataSource] = useState<T[]>([]);
   const [filteredDataSource, setFilteredDataSource] = useState<T[]>([]);
 
   const [simpleQuery, setSimpleQuery] = useState<SimpleQueryApiArg>({ first: 0, last: 40 });
   const query = props.queryHook(simpleQuery);
 
-  const existingDataSourceIds = useMemo(() => new Set(dataSource.map(x => x.id)), [dataSource]);
+  const [queryFilter, setQueryFilter] = useState<GetApiArg>({ pageSize: 0 });
+  const filterQuery = props.queryFilter(queryFilter);
 
   useEffect(() => {
     if (!query?.data) return;
-
-    const newItems = query.data.filter((cn: T) => cn?.id && (!existingDataSourceIds.has(cn.id)));
+    var existingIds = new Set(dataSource.map(x => x.id));
+    const newItems = query.data.filter((cn: T) => cn?.id && (!existingIds.has(cn.id)));
     if (newItems.length > 0) {
-      console.log('Adding new items', newItems.length)
+      // console.log('Adding new items', newItems.length)
       setDataSource(dataSource.concat(newItems));
       setIndex(dataSource.length + newItems.length);
     }
@@ -52,11 +72,53 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
   }, [query]);
 
   useEffect(() => {
-    if (filter) {
+    if (!query?.data) return;
+
+    var existingIds = new Set(dataSource.map(x => x.id));
+    var existingFiltered = new Set(filteredDataSource.map(x => x.id));
+
+    var existingIds2 = dataSource.map(x => x.id);
+    if (existingIds.size !== existingIds2.length) {
+      console.log('mismatch existingIds', existingIds)
+      console.log('mismatch existingIds2', existingIds2)
+      console.log('mismatch', existingIds.size, existingIds2.length)
+    }
+
+    if (!queryFilter.jsonFiltersString && dataSource.length > 0) {
+      if (!doSetsContainSameIds(existingIds, existingFiltered)) {
+        setFilteredDataSource(dataSource);
+        // console.log('No filter', dataSource.length);
+      }
+
+      if (filterQuery.data && filterQuery.data.totalItemCount !== totalItems) {
+        // console.log('totalItems', filterQuery.data.totalItemCount)
+        setTotalItems(filterQuery.data.totalItemCount);
+      }
+
+      return;
+    }
+
+    if (totalItems <= dataSource.length) {
+      return;
+    }
+
+    if (!filterQuery.data?.data) {
+      return;
+    }
+
+    if (filterQuery.data) {
       if (dataSource.length > 0) {
-        const filteredData = dataSource.filter(cn => cn?.[props.optionLabel]?.toLowerCase().includes(filter));
+        const filteredData = filterQuery.data.data;  // dataSource.filter(cn => cn?.[props.optionLabel]?.toLowerCase().includes(filter));
+
+        const newItems = filteredData.filter((cn: T) => cn?.id && (!existingIds.has(cn.id)));
+        if (newItems.length > 0) {
+          console.log('filtered Adding new items', newItems.length)
+          setDataSource(dataSource.concat(newItems));
+          setIndex(dataSource.length + newItems.length);
+        }
+
         setFilteredDataSource(filteredData);
-        console.log('filtered', filteredData.length);
+
       }
     } else {
       setFilteredDataSource(dataSource);
@@ -64,7 +126,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataSource, filter]);
+  }, [dataSource, filterQuery]);
 
   useEffect(() => {
     if (!props.value) return;
@@ -72,12 +134,19 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
       return;
     }
 
+    var existingIds = new Set(dataSource.map(x => x.id));
+    var existingIds2 = dataSource.map(x => x.id);
+
+    if (existingIds.keys.length !== existingIds2.length) {
+      console.log('mismatch')
+    }
+
     setSelectedItem(props.value);
     try {
       props.querySelectedItem(props.value).then((item) => {
         if (item) {
-          if (!existingDataSourceIds.has(item.id)) {
-            console.log('Adding new item', item.name);
+          if (!existingIds.has(item.id)) {
+            // console.log('Adding new item', item.name);
             const newDataSource = dataSource.concat(item);
             setDataSource(newDataSource);
             setIndex(newDataSource.length);
@@ -121,7 +190,15 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
   };
 
   const onFilter = (event: DropdownFilterEvent) => {
-    setFilter(event.filter.toLowerCase());
+    if (event.filter === '') {
+      setQueryFilter({ pageSize: 40 } as GetApiArg);
+      return;
+    }
+
+    const toSend = [] as SMDataTableFilterMetaData[];
+    addOrUpdateValueForField(toSend, 'name', 'contains', event.filter);
+    setQueryFilter({ jsonFiltersString: JSON.stringify(toSend), pageSize: 40 } as GetApiArg);
+    // setFilter(event.filter.toLowerCase());
   }
 
   return (

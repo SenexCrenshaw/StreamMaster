@@ -22,9 +22,16 @@ internal class GetProgrammeNameSelectionsHandler : BaseMemoryRequestHandler, IRe
 
     public async Task<PagedResponse<ProgrammeNameDto>> Handle(GetProgrammeNameSelections request, CancellationToken cancellationToken)
     {
+        if (request.Parameters.PageSize == 0)
+        {
+            PagedResponse<ProgrammeNameDto> emptyResponse = new();
+            emptyResponse.TotalItemCount = MemoryCache.Programmes().Count;
+            return emptyResponse;
+        }
+
         List<ProgrammeNameDto> ret = new();
 
-        List<Programme> programmes = MemoryCache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel) && a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
+        List<Programme> programmes = MemoryCache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel)).ToList();// && a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
 
         IEnumerable<string> names = programmes.Select(a => a.Channel).Distinct();
         foreach (string? name in names)

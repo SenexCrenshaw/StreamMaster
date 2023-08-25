@@ -1,4 +1,4 @@
-import { type IconFileDto } from '../../store/iptvApi';
+import { type IconFileDto, useIconsGetIconsQuery } from '../../store/iptvApi';
 import { useIconsGetIconsSimpleQueryQuery } from '../../store/iptvApi';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
 import React, { useCallback } from 'react';
@@ -64,6 +64,7 @@ const IconSelector: React.FC<Partial<IconSelectorProps>> = ({
       onChange={handleOnChange}
       optionLabel="name"
       optionValue="source"
+      queryFilter={useIconsGetIconsQuery}
       queryHook={useIconsGetIconsSimpleQueryQuery}
       querySelectedItem={GetIconFromSource}
       selectName='Icon'

@@ -3,7 +3,7 @@ using StreamMasterDomain.Pagination;
 
 namespace StreamMasterDomain.Repository
 {
-    public interface IStreamGroupRepository
+    public interface IStreamGroupRepository : IRepositoryBase<StreamGroup>
     {
         Task SetGroupNameByGroupName(string channelGroupName, string newGroupName, CancellationToken cancellationToken);
         Task<List<StreamGroupDto>> GetStreamGroupDtos(string Url, CancellationToken cancellationToken = default);
