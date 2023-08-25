@@ -1,10 +1,7 @@
-
 import { useCallback, memo } from "react";
-import { getTopToolOptions } from "../../common/common";
-import { ResetLogoIcon } from "../../common/icons";
 import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
 import { UpdateVideoStream } from "../../store/signlar_functions";
-import { Button } from "primereact/button";
+import ResetButton from "../buttons/ResetButton";
 
 const VideoStreamResetLogoDialog = (props: VideoStreamResetLogoDialogProps) => {
 
@@ -34,18 +31,15 @@ const VideoStreamResetLogoDialog = (props: VideoStreamResetLogoDialogProps) => {
   }, [ReturnToParent, props.value]);
 
   return (
-    <Button
+    <ResetButton
       disabled={props.value?.tvg_logo === props.value?.user_Tvg_logo}
-      icon={<ResetLogoIcon sx={{ fontSize: 18 }} />}
+      iconFilled={props.iconFilled}
       onClick={async () =>
         await onResetLogo()
       }
-      rounded
-      size="small"
-      text={props.iconFilled !== true}
       tooltip="Reset Logo From File"
-      tooltipOptions={getTopToolOptions}
     />
+
   );
 }
 

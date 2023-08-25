@@ -1,11 +1,11 @@
 import { type ChildButtonProps } from "./BaseButton";
 import BaseButton from "./BaseButton";
 
-const BanButton: React.FC<ChildButtonProps> = ({ disabled = false, onClick, tooltip = "" }) => {
+const ResetButton: React.FC<ChildButtonProps> = ({ disabled = false, onClick, tooltip = "" }) => {
   return (
     <BaseButton
       disabled={disabled}
-      icon="pi-ban"
+      icon="pi-history"
       iconFilled={false}
       onClick={onClick}
       tooltip={tooltip}
@@ -13,4 +13,4 @@ const BanButton: React.FC<ChildButtonProps> = ({ disabled = false, onClick, tool
   );
 };
 
-export default BanButton;
+export default ResetButton;

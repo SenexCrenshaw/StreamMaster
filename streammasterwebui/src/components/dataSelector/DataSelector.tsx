@@ -40,6 +40,7 @@ import { type PagedResponseDto } from '../selectors/BaseSelector';
 import { areArraysEqual } from '@mui/base';
 import { useQueryAdditionalFilters } from '../../app/slices/useQueryAdditionalFilters';
 import BanButton from '../buttons/BanButton';
+import ResetButton from '../buttons/ResetButton';
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
   const { state, setters } = useDataSelectorState<T>(props.id);
@@ -400,6 +401,25 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     );
   }
 
+  const rowReorderHeader = () => {
+    return (
+      <div className=" text-xs text-white text-500" >
+        <ResetButton
+          disabled={state.prevDataSource === undefined}
+          onClick={() => {
+            if (state.prevDataSource !== undefined) {
+              setters.setDataSource(state.prevDataSource);
+              setters.setPrevDataSource(undefined);
+            }
+          }}
+          tooltip='Reset Order'
+        />
+
+      </div>
+    );
+  }
+
+
   const onSort = (event: DataTableStateEvent) => {
     if (!event.sortField || event.sortField === 'selected') {
       return;
@@ -522,6 +542,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           <Column
             className='max-w-2rem p-0 justify-content-center align-items-center'
             field='rank'
+            header={rowReorderHeader}
             hidden={!props.reorderable}
             rowReorder
             style={{ width: '2rem' }}
