@@ -1,5 +1,6 @@
 import { emptySplitApi as api } from "./emptyApi";
 export const addTagTypes = [
+  "GetStreamGroupVideoStreams",
   "ChannelGroups",
   "EPGFiles",
   "Files",

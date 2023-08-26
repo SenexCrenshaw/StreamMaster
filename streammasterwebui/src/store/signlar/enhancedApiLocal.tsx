@@ -8,6 +8,7 @@ export type SetVideoStreamVisibleRet = {
 };
 
 export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
+  addTagTypes: ["GetStreamGroupVideoStreams"],
   endpoints: {
     channelGroupsGetChannelGroups: {
       async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
@@ -112,11 +113,40 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
         await cacheEntryRemoved;
       }
     },
+    streamGroupsGetStreamGroupVideoStreamIds: {
+      async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
+        try {
+          await cacheDataLoaded;
+          hubConnection.on(
+            'VideoStreamsRefresh',
+            () => {
+              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["GetStreamGroupVideoStreams"]));
+            }
+          );
+        } catch { }
+
+        await cacheEntryRemoved;
+      },
+      providesTags: ["StreamGroups", "GetStreamGroupVideoStreams"]
+    },
+    streamGroupsGetStreamGroupVideoStreams: {
+      async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
+        try {
+          await cacheDataLoaded;
+          hubConnection.on(
+            'VideoStreamsRefresh',
+            () => {
+              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["GetStreamGroupVideoStreams"]));
+            }
+          );
+        } catch { }
+
+        await cacheEntryRemoved;
+      },
+      providesTags: ["StreamGroups", "GetStreamGroupVideoStreams"]
+    },
     videoStreamsGetAllStatisticsForAllUrls: {
-      async onCacheEntryAdded(
-        arg,
-        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
-      ) {
+      async onCacheEntryAdded(arg, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
