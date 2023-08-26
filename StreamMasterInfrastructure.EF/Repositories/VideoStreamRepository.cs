@@ -381,10 +381,15 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
             }
         }
 
-        if (request.IsHidden != null && (videoStream.IsHidden != (bool)request.IsHidden || videoStream.IsUserCreated))
+        if (request.ToggleVisibility == true)
         {
-            videoStream.IsHidden = (bool)request.IsHidden;
+            videoStream.IsHidden = !videoStream.IsHidden;
         }
+        else if (request.IsHidden != null && (videoStream.IsHidden != request.IsHidden || videoStream.IsUserCreated))
+        {
+            videoStream.IsHidden = request.IsHidden.Value;
+        }
+
         return Task.FromResult(videoStream);
     }
 

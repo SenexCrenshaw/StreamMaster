@@ -11,6 +11,8 @@ namespace StreamMasterApplication.StreamGroups;
 
 public interface IStreamGroupController
 {
+    Task<ActionResult> AddVideoStreamToStreamGroup(AddVideoStreamToStreamGroupRequest request,CancellationToken cancellationToken);
+    Task<ActionResult> RemoveVideoStreamToStreamGroup(RemoveVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken);
     Task<ActionResult> AddStreamGroup(AddStreamGroupRequest request);
 
     Task<ActionResult> DeleteStreamGroup(DeleteStreamGroupRequest request);
@@ -91,6 +93,9 @@ public interface IStreamGroupHub
     public Task SimulateStreamFailure(string streamUrl);
 
     Task UpdateStreamGroup(UpdateStreamGroupRequest request);
+
+    Task AddVideoStreamToStreamGroup(AddVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken);
+    Task RemoveVideoStreamToStreamGroup(RemoveVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken);
 }
 
 public interface IStreamGroupTasks

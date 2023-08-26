@@ -210,7 +210,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, state.selectAll]);
+  }, [data, props.dataSource, state.selectAll]);
 
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -234,7 +234,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     if (props.videoStreamIsReadOnlys !== undefined && props.videoStreamIsReadOnlys.length > 0) {
       const isReadOnly = props.videoStreamIsReadOnlys.find((vs) => vs.videoStreamId === getRecord(changed as T, 'id'));
       if (isReadOnly !== undefined) {
-        return `bg-gray-900`;
+        return `bg-yellow-900`;
       }
     }
 

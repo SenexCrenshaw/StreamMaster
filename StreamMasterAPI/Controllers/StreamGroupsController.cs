@@ -370,9 +370,26 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<List<VideoStreamDto>>> GetStreamGroupVideoStreams(GetStreamGroupVideoStreamsRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<List<VideoStreamDto>>> GetStreamGroupVideoStreams([FromQuery] GetStreamGroupVideoStreamsRequest request, CancellationToken cancellationToken = default)
     {
         List<VideoStreamDto> res = await Mediator.Send(request).ConfigureAwait(false);
         return Ok(res);
+    }
+
+    [HttpPut]
+    [Route("[action]")]
+    public async Task<ActionResult> AddVideoStreamToStreamGroup( AddVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken)
+    {
+        await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
+        return Ok();
+    }
+
+    [HttpPut]
+    [Route("[action]")]
+
+    public async Task<ActionResult> RemoveVideoStreamToStreamGroup( RemoveVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken)
+    {
+        await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
+        return Ok();
     }
 }

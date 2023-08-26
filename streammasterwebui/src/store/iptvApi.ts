@@ -779,9 +779,31 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/streamgroups/getstreamgroupvideostreams`,
-          body: queryArg,
+          params: { streamGroupId: queryArg },
         }),
         providesTags: ["StreamGroups"],
+      }),
+      streamGroupsAddVideoStreamToStreamGroup: build.mutation<
+        StreamGroupsAddVideoStreamToStreamGroupApiResponse,
+        StreamGroupsAddVideoStreamToStreamGroupApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroups/addvideostreamtostreamgroup`,
+          method: "PUT",
+          body: queryArg,
+        }),
+        invalidatesTags: ["StreamGroups"],
+      }),
+      streamGroupsRemoveVideoStreamToStreamGroup: build.mutation<
+        StreamGroupsRemoveVideoStreamToStreamGroupApiResponse,
+        StreamGroupsRemoveVideoStreamToStreamGroupApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroups/removevideostreamtostreamgroup`,
+          method: "PUT",
+          body: queryArg,
+        }),
+        invalidatesTags: ["StreamGroups"],
       }),
       videoStreamsCreateVideoStream: build.mutation<
         VideoStreamsCreateVideoStreamApiResponse,
@@ -1256,8 +1278,13 @@ export type StreamGroupsGetStreamGroupVideoStreamIdsApiResponse =
 export type StreamGroupsGetStreamGroupVideoStreamIdsApiArg = number;
 export type StreamGroupsGetStreamGroupVideoStreamsApiResponse =
   /** status 200  */ VideoStreamDto[];
-export type StreamGroupsGetStreamGroupVideoStreamsApiArg =
-  GetStreamGroupVideoStreamsRequest;
+export type StreamGroupsGetStreamGroupVideoStreamsApiArg = number;
+export type StreamGroupsAddVideoStreamToStreamGroupApiResponse = unknown;
+export type StreamGroupsAddVideoStreamToStreamGroupApiArg =
+  AddVideoStreamToStreamGroupRequest;
+export type StreamGroupsRemoveVideoStreamToStreamGroupApiResponse = unknown;
+export type StreamGroupsRemoveVideoStreamToStreamGroupApiArg =
+  RemoveVideoStreamToStreamGroupRequest;
 export type VideoStreamsCreateVideoStreamApiResponse = unknown;
 export type VideoStreamsCreateVideoStreamApiArg = CreateVideoStreamRequest;
 export type VideoStreamsChangeVideoStreamChannelApiResponse = unknown;
@@ -1947,10 +1974,16 @@ export type UpdateStreamGroupRequest = {
   videoStreams?: VideoStreamIsReadOnly[] | null;
   channelGroupNames?: string[] | null;
 };
-export type GetStreamGroupVideoStreamsRequest = {
-  streamGroupId?: number;
+export type AddVideoStreamToStreamGroupRequest = {
+  streamGroupId: number;
+  videoStreamId: string;
+};
+export type RemoveVideoStreamToStreamGroupRequest = {
+  streamGroupId: number;
+  videoStreamId: string;
 };
 export type VideoStreamBaseRequest = {
+  toggleVisibility?: boolean | null;
   isHidden?: boolean | null;
   tvg_chno?: number | null;
   tvg_group?: string | null;
@@ -2122,6 +2155,8 @@ export const {
   useStreamGroupsUpdateStreamGroupMutation,
   useStreamGroupsGetStreamGroupVideoStreamIdsQuery,
   useStreamGroupsGetStreamGroupVideoStreamsQuery,
+  useStreamGroupsAddVideoStreamToStreamGroupMutation,
+  useStreamGroupsRemoveVideoStreamToStreamGroupMutation,
   useVideoStreamsCreateVideoStreamMutation,
   useVideoStreamsChangeVideoStreamChannelMutation,
   useVideoStreamsDeleteVideoStreamMutation,

@@ -16,6 +16,11 @@ public partial class StreamMasterHub : IStreamGroupHub
         await _mediator.Send(request).ConfigureAwait(false);
     }
 
+    public async Task AddVideoStreamToStreamGroup(AddVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(request).ConfigureAwait(false);
+    }
+
     public async Task DeleteStreamGroup(DeleteStreamGroupRequest request)
     {
         await _mediator.Send(request).ConfigureAwait(false);
@@ -54,12 +59,17 @@ public partial class StreamMasterHub : IStreamGroupHub
 
     public async Task<List<VideoStreamIsReadOnly>> GetStreamGroupVideoStreamIds(GetStreamGroupVideoStreamIdsRequest request, CancellationToken cancellationToken = default)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        return await _mediator.Send(request, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<List<VideoStreamDto>> GetStreamGroupVideoStreams(GetStreamGroupVideoStreamsRequest request, CancellationToken cancellationToken = default)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        return await _mediator.Send(request, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task RemoveVideoStreamToStreamGroup(RemoveVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(request, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task SimulateStreamFailure(string streamUrl)

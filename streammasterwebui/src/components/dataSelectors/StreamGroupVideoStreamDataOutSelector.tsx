@@ -5,7 +5,8 @@ import { TriStateCheckbox } from "primereact/tristatecheckbox";
 
 import { useMemo, memo, useEffect, useState } from "react";
 import { getTopToolOptions, GetMessage } from "../../common/common";
-import { type GetStreamGroupVideoStreamsRequest } from "../../store/iptvApi";
+import { useStreamGroupsRemoveVideoStreamToStreamGroupMutation, type StreamGroupsRemoveVideoStreamToStreamGroupApiArg } from "../../store/iptvApi";
+import { type StreamGroupsGetStreamGroupVideoStreamsApiArg } from "../../store/iptvApi";
 import { useStreamGroupsGetStreamGroupVideoStreamsQuery, type StreamGroupDto } from "../../store/iptvApi";
 import { type VideoStreamDto } from "../../store/iptvApi";
 import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig } from "../columns/columnConfigHooks";
@@ -31,7 +32,9 @@ const StreamGroupVideoStreamDataOutSelector = ({ id, streamGroup }: StreamGroupV
 
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, id + '-showHidden');
 
-  const streamGroupsGetStreamGroupVideoStreamsQuery = useStreamGroupsGetStreamGroupVideoStreamsQuery({ streamGroupId: streamGroup.id } as GetStreamGroupVideoStreamsRequest);
+  const streamGroupsGetStreamGroupVideoStreamsQuery = useStreamGroupsGetStreamGroupVideoStreamsQuery(streamGroup.id as StreamGroupsGetStreamGroupVideoStreamsApiArg);
+
+  const [streamGroupsRemoveVideoStreamToStreamGroupMutation] = useStreamGroupsRemoveVideoStreamToStreamGroupMutation();
 
   useEffect(() => {
     if (streamGroupsGetStreamGroupVideoStreamsQuery.data !== undefined) {
@@ -90,7 +93,27 @@ const StreamGroupVideoStreamDataOutSelector = ({ id, streamGroup }: StreamGroupV
       headerRightTemplate={rightHeaderTemplate}
       id={dataKey}
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      onSelectionChange={(value, selectAllReturn, retTotalRecords) => {
+      onSelectionChange={async (value, selectAllReturn, retTotalRecords) => {
+        if (value === undefined) {
+          return;
+        }
+
+        let stream = {} as VideoStreamDto;
+
+        if (Array.isArray(value)) {
+          stream = value[0];
+        } else {
+          stream = value as VideoStreamDto;
+        }
+
+        console.log(value);
+
+        const toSend = {} as StreamGroupsRemoveVideoStreamToStreamGroupApiArg;
+
+        toSend.streamGroupId = streamGroup.id;
+        toSend.videoStreamId = stream.id;
+
+        await streamGroupsRemoveVideoStreamToStreamGroupMutation(toSend);
       }}
       reorderable
       selectionMode='single'

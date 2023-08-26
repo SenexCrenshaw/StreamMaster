@@ -5,7 +5,8 @@ import { TriStateCheckbox } from "primereact/tristatecheckbox";
 
 import { useMemo, memo, useEffect, useState } from "react";
 import { getTopToolOptions, GetMessage } from "../../common/common";
-import { type VideoStreamIsReadOnly } from "../../store/iptvApi";
+import { type StreamGroupsAddVideoStreamToStreamGroupApiArg } from "../../store/iptvApi";
+import { useStreamGroupsAddVideoStreamToStreamGroupMutation, type VideoStreamIsReadOnly } from "../../store/iptvApi";
 import { useStreamGroupsGetStreamGroupVideoStreamIdsQuery, type StreamGroupDto } from "../../store/iptvApi";
 import { type VideoStreamDto } from "../../store/iptvApi";
 import { useVideoStreamsGetVideoStreamsQuery } from "../../store/iptvApi";
@@ -32,6 +33,8 @@ const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVide
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, id + '-showHidden');
 
   const streamGroupsGetStreamGroupVideoStreamIdsQuery = useStreamGroupsGetStreamGroupVideoStreamIdsQuery(streamGroup.id);
+
+  const [streamGroupsAddVideoStreamToStreamGroupMutation] = useStreamGroupsAddVideoStreamToStreamGroupMutation();
 
   useEffect(() => {
     if (streamGroupsGetStreamGroupVideoStreamIdsQuery.data !== undefined) {
@@ -89,8 +92,27 @@ const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVide
       headerRightTemplate={rightHeaderTemplate}
       id={dataKey}
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      onSelectionChange={(value, selectAllReturn, retTotalRecords) => {
+      onSelectionChange={async (value, selectAllReturn, retTotalRecords) => {
+        if (value === undefined) {
+          return;
+        }
 
+        let stream = {} as VideoStreamDto;
+
+        if (Array.isArray(value)) {
+          stream = value[0];
+        } else {
+          stream = value as VideoStreamDto;
+        }
+
+        console.log(value);
+
+        const toSend = {} as StreamGroupsAddVideoStreamToStreamGroupApiArg;
+
+        toSend.streamGroupId = streamGroup.id;
+        toSend.videoStreamId = stream.id;
+
+        await streamGroupsAddVideoStreamToStreamGroupMutation(toSend);
       }}
       queryFilter={useVideoStreamsGetVideoStreamsQuery}
       selectionMode='single'
