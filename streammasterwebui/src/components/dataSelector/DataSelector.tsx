@@ -7,7 +7,6 @@ import { type DataTableSelectionMultipleChangeEvent } from 'primereact/datatable
 import { type DataTableFilterMeta } from 'primereact/datatable';
 import { type DataTableSelectionSingleChangeEvent } from 'primereact/datatable';
 import { type DataTableSelectAllChangeEvent } from 'primereact/datatable';
-import { type DataTableRowDataArray } from 'primereact/datatable';
 import { type DataTableStateEvent } from 'primereact/datatable';
 import { type DataTablePageEvent } from 'primereact/datatable';
 import { type DataTableExpandedRows } from 'primereact/datatable';
@@ -135,14 +134,14 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryAdditionalFilter]);
 
-  const onValueChanged = useCallback((changed: DataTableRowDataArray<T[]>) => {
-    if (!data) {
-      return;
-    }
+  // const onValueChanged = useCallback((changed: DataTableRowDataArray<T[]>) => {
+  //   if (!data) {
+  //     return;
+  //   }
 
-    props?.onValueChanged?.(changed);
+  //   props?.onValueChanged?.(changed);
 
-  }, [data, props]);
+  // }, [data, props]);
 
   const onsetSelection = useCallback((e: T | T[], overRideSelectAll?: boolean): T | T[] | undefined => {
     let selected: T[] = Array.isArray(e) ? e : [e];
@@ -171,7 +170,12 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
     if (props.dataSource) {
       if (!state.dataSource || (state.dataSource && !areArraysEqual(props.dataSource, state.dataSource))) {
-        setters.setDataSource(props.dataSource);
+        if (!props.reorderable) {
+          setters.setDataSource(props.dataSource);
+        } else {
+          setters.setDataSource([...props.dataSource].sort((a, b) => a.rank - b.rank));
+        }
+
         setters.setPagedInformation(undefined);
         if (state.selectAll) {
           onsetSelection(props.dataSource);
@@ -212,17 +216,15 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, props.dataSource, state.selectAll]);
 
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const onRowReorder = useCallback((changed: T[]) => {
+  const onRowReorder = (changed: T[]) => {
     setters.setDataSource(changed);
     if (state.prevDataSource === undefined) {
-      setters.setPrevDataSource(state.dataSource);
+      setters.setPrevDataSource(changed);
     }
 
     props.onRowReorder?.(changed);
-    // props.onSelectionChange?.(changed);
-  }, [props, setters, state.dataSource, state.prevDataSource]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }
 
 
   const rowClass = useCallback((changed: DataTableRowData<T[]>) => {
@@ -234,7 +236,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     if (props.videoStreamIsReadOnlys !== undefined && props.videoStreamIsReadOnlys.length > 0) {
       const isReadOnly = props.videoStreamIsReadOnlys.find((vs) => vs.videoStreamId === getRecord(changed as T, 'id'));
       if (isReadOnly !== undefined) {
-        return `bg-yellow-900`;
+        return 'videostreamSelected' // `bg-yellow-900`;
       }
     }
 
@@ -424,7 +426,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     );
   }
 
-
   const onSort = (event: DataTableStateEvent) => {
     if (!event.sortField || event.sortField === 'selected') {
       return;
@@ -482,7 +483,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       <div className={`${props.className !== undefined ? props.className : ''} min-h-full w-full surface-overlay`}>
         <DataTable
           cellSelection={false}
-          dataKey='id'
+          dataKey='id' // {props.key !== undefined && props.key !== '' ? props.key : 'id'}
           editMode='cell'
           emptyMessage={props.emptyMessage}
           expandableRowGroups={props.groupRowsBy !== undefined && props.groupRowsBy !== ''}
@@ -491,21 +492,22 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           filterDelay={500}
           filterDisplay="row"
           filters={isEmptyObject(state.filters) ? getEmptyFilter(props.columns, props.showHidden) : state.filters}
-          first={state.pagedInformation ? state.pagedInformation.first : undefined}
-          groupRowsBy={props.groupRowsBy}
+          first={state.pagedInformation ? state.pagedInformation.first : state.first}
           header={sourceRenderHeader}
-          key={props.key !== undefined && props.key !== '' ? props.key : undefined}
+          key='id' // {props.key !== undefined && props.key !== '' ? props.key : 'id'}
           lazy
           loading={isLoading === true || isFetching === true || props.isLoading === true}
           metaKeySelection={false}
           onFilter={onFilter}
           onPage={onPage}
-          onRowReorder={(e) => onRowReorder(e.value)}
+          onRowReorder={(e) => {
+            onRowReorder(e.value)
+          }}
           onRowToggle={(e: DataTableRowToggleEvent) => setters.setExpandedRows(e.data as DataTableExpandedRows)}
           onSelectAllChange={onSelectAllChange}
           onSelectionChange={((e) => onSelectionChange(e))}
           onSort={onSort}
-          onValueChange={(e) => { onValueChanged(e); }}
+          // onValueChange={(e) => { onValueChanged(e); }}
           paginator
           paginatorClassName='text-xs p-0 m-0 withpadding'
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
@@ -527,7 +529,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           showHeaders={props.showHeaders}
           sortField={props.reorderable ? 'rank' : state.sortField}
           sortMode='single'
-          sortOrder={props.reorderable ? 1 : state.sortOrder}
+          sortOrder={props.reorderable ? 0 : state.sortOrder}
           stateKey={`${props.id}-table`}
           stateStorage="local"
           stripedRows
@@ -633,7 +635,7 @@ type BaseDataSelectorProps<T = any> = {
   onRowReorder?: (value: T[]) => void;
   onRowVisibleClick?: (value: T) => void;
   onSelectionChange?: (value: T | T[], selectAll: boolean, totalSelected: number | undefined) => void;
-  onValueChanged?: (value: T[]) => void;
+  // onValueChanged?: (value: T[]) => void;
   reorderable?: boolean;
   selectionMode?: DataSelectorSelectionMode;
   showHeaders?: boolean | undefined;

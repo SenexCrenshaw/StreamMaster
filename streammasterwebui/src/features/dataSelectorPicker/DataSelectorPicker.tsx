@@ -165,7 +165,7 @@ const DataSelectorPicker = <T extends DataTableValue,>(props: DataSelectorPicker
             props?.onTargetSelectionChange?.(e as T[])
           }
           }          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onValueChanged={(e: any) => props.onTargetOnValueChanged?.(e as T[])}
+          // onValueChanged={(e: any) => props.onTargetOnValueChanged?.(e as T[])}
 
           reorderable={props.targetReorderable}
 

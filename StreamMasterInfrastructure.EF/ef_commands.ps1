@@ -14,3 +14,5 @@ dotnet ef migrations add InitialCreate -c LogDbContext -o .\Migrations\Logging\
 dotnet ef database update -c RepositoryContext
 
 dotnet ef database update -c LogDbContext
+
+dotnet tool update --global dotnet-ef

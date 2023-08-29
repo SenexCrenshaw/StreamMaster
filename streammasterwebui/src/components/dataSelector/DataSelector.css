@@ -1,3 +1,7 @@
+.videostreamSelected {
+  background-color: #fe770054 !important;
+}
+
 .dataselector .p-paginator .p-dropdown {
   padding: 0 !important;
   height: 2.2rem !important;

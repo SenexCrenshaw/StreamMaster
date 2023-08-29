@@ -1,10 +1,8 @@
 /* eslint-disable react/no-unused-prop-types */
-import { useLocalStorage } from "primereact/hooks";
-import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
-import { TriStateCheckbox } from "primereact/tristatecheckbox";
-
 import { useMemo, memo, useEffect, useState } from "react";
-import { getTopToolOptions, GetMessage } from "../../common/common";
+import { GetMessage } from "../../common/common";
+import { type UpdateStreamGroupRequest, type VideoStreamIsReadOnly } from "../../store/iptvApi";
+import { type ChildVideoStreamDto, useStreamGroupsUpdateStreamGroupMutation } from "../../store/iptvApi";
 import { useStreamGroupsRemoveVideoStreamToStreamGroupMutation, type StreamGroupsRemoveVideoStreamToStreamGroupApiArg } from "../../store/iptvApi";
 import { type StreamGroupsGetStreamGroupVideoStreamsApiArg } from "../../store/iptvApi";
 import { useStreamGroupsGetStreamGroupVideoStreamsQuery, type StreamGroupDto } from "../../store/iptvApi";
@@ -13,15 +11,15 @@ import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useChannelNumb
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 
-type StreamGroupVideoStreamDataOutSelectorProps = {
+type StreamGroupSelectedVideoStreamDataSelectorProps = {
 
   id: string;
   onSelectionChange?: (value: VideoStreamDto | VideoStreamDto[]) => void;
   streamGroup: StreamGroupDto;
 };
 
-const StreamGroupVideoStreamDataOutSelector = ({ id, streamGroup }: StreamGroupVideoStreamDataOutSelectorProps) => {
-  const dataKey = id + '-StreamGroupVideoStreamDataOutSelector';
+const StreamGroupSelectedVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupSelectedVideoStreamDataSelectorProps) => {
+  const dataKey = id + '-StreamGroupSelectedVideoStreamDataSelector';
 
   const [videoStreams, setVideoStreams] = useState<VideoStreamDto[]>([] as VideoStreamDto[]);
 
@@ -30,11 +28,11 @@ const StreamGroupVideoStreamDataOutSelector = ({ id, streamGroup }: StreamGroupV
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(false);
   const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig(false);
 
-  const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, id + '-showHidden');
-
   const streamGroupsGetStreamGroupVideoStreamsQuery = useStreamGroupsGetStreamGroupVideoStreamsQuery(streamGroup.id as StreamGroupsGetStreamGroupVideoStreamsApiArg);
 
   const [streamGroupsRemoveVideoStreamToStreamGroupMutation] = useStreamGroupsRemoveVideoStreamToStreamGroupMutation();
+  const [streamGroupsUpdateStreamGroupMutation] = useStreamGroupsUpdateStreamGroupMutation();
+
 
   useEffect(() => {
     if (streamGroupsGetStreamGroupVideoStreamsQuery.data !== undefined) {
@@ -54,34 +52,44 @@ const StreamGroupVideoStreamDataOutSelector = ({ id, streamGroup }: StreamGroupV
     ]
   }, [channelNumberColumnConfig, channelNameColumnConfig, channelGroupConfig, m3uFileNameColumnConfig]);
 
-  const getToolTip = (value: boolean | null | undefined) => {
-    if (value === null) {
-      return 'Show All';
-    }
-
-    if (value === true) {
-      return 'Show Visible';
-    }
-
-    return 'Show Hidden';
-  };
-
-  const rightHeaderTemplate = useMemo(() => {
-
+  const rightHeaderTemplate = () => {
     return (
-      <div className="flex justify-content-end align-items-center w-full gap-1" >
-
-        <TriStateCheckbox
-          onChange={(e: TriStateCheckboxChangeEvent) => { setShowHidden(e.value); }}
-          tooltip={getToolTip(showHidden)}
-          tooltipOptions={getTopToolOptions}
-          value={showHidden} />
-
-      </div>
+      <div className="flex justify-content-end align-items-center w-full gap-1" />
     );
+  }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showHidden]);
+  const onRowReorder = async (changed: VideoStreamDto[]) => {
+
+    const newData = changed.map((x: VideoStreamDto, index: number) => {
+      return {
+        ...x,
+        rank: index,
+      }
+    }) as ChildVideoStreamDto[];
+
+    console.group('onRowReorder');
+    newData.forEach((x) => {
+      console.log(x.id, x.rank, x.user_Tvg_name);
+    });
+    console.groupEnd();
+
+    var toSend = {} as UpdateStreamGroupRequest;
+
+
+    toSend.streamGroupId = streamGroup.id;
+
+    toSend.videoStreams = newData.map((stream) => {
+      return { rank: stream.rank, videoStreamId: stream.id } as VideoStreamIsReadOnly;
+    });
+
+    await streamGroupsUpdateStreamGroupMutation(toSend)
+      .then(() => {
+
+      }).catch(() => {
+        console.log('error');
+      });
+
+  }
 
   return (
     <DataSelector
@@ -90,8 +98,10 @@ const StreamGroupVideoStreamDataOutSelector = ({ id, streamGroup }: StreamGroupV
       defaultSortField="user_tvg_name"
       emptyMessage="No Streams"
       headerName={GetMessage('streams')}
-      headerRightTemplate={rightHeaderTemplate}
+      headerRightTemplate={rightHeaderTemplate()}
       id={dataKey}
+      key='rank'
+      onRowReorder={async (e) => await onRowReorder(e as VideoStreamDto[])}
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       onSelectionChange={async (value, selectAllReturn, retTotalRecords) => {
         if (value === undefined) {
@@ -117,14 +127,13 @@ const StreamGroupVideoStreamDataOutSelector = ({ id, streamGroup }: StreamGroupV
       }}
       reorderable
       selectionMode='single'
-      showHidden={showHidden}
       style={{ height: 'calc(100vh - 40px)' }
       }
     />
   );
 }
 
-StreamGroupVideoStreamDataOutSelector.displayName = 'Stream Editor';
+StreamGroupSelectedVideoStreamDataSelector.displayName = 'Stream Editor';
 
 
-export default memo(StreamGroupVideoStreamDataOutSelector);
+export default memo(StreamGroupSelectedVideoStreamDataSelector);

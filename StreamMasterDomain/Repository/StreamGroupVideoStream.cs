@@ -11,6 +11,7 @@ public class StreamGroupVideoStream
     }
 
     public int StreamGroupId { get; set; }
+    public int Rank { get; set; }
 }
 
 public class StreamGroupChannelGroup
@@ -19,4 +20,6 @@ public class StreamGroupChannelGroup
     public int ChannelGroupId { get; set; }
     public StreamGroup StreamGroup { get; set; }
     public int StreamGroupId { get; set; }
+
+   
 }

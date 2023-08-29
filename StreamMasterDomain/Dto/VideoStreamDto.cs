@@ -8,6 +8,8 @@ namespace StreamMasterDomain.Dto;
 [RequireAll]
 public class VideoStreamDto : BaseVideoStreamDto, IMapFrom<VideoStream>
 {
+    public int Rank { get; set; } = 0;
+
     [Ignore]
     public List<ChildVideoStreamDto> ChildVideoStreams { get; set; }
 }

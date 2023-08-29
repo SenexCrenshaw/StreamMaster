@@ -4,6 +4,7 @@
 import { useState, useMemo, memo } from "react";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
 import IconSelector from "../../components/selectors/IconSelector";
+import { type StreamGroupDto } from "../../store/iptvApi";
 import { type VideoStreamDto } from "../../store/iptvApi";
 import { type PagedResponseOfChannelGroupDto, type ChannelGroupDto, useVideoStreamsGetVideoStreamQuery } from "../../store/iptvApi";
 import { useChannelGroupsGetChannelGroupsQuery } from "../../store/iptvApi";
@@ -14,6 +15,7 @@ import ChannelLogoEditor from "../../components/ChannelLogoEditor";
 import PlayListDataSelector from "../../components/dataSelectors/PlayListDataSelector";
 import VideoStreamAddDialog from "../../components/videoStream/VideoStreamAddDialog";
 import VideoStreamPanel from "../../components/videoStream/VideoStreamPanel";
+import StreamGroupSelectedVideoStreamDataSelector from "../../components/dataSelectors/StreamGroupSelectedVideoStreamDataSelector";
 
 
 const TestPanel = (props: TestPanelProps) => {
@@ -23,12 +25,22 @@ const TestPanel = (props: TestPanelProps) => {
   const [dataSource, setDataSource] = useState({} as PagedResponseOfChannelGroupDto);
   const [selectedChannelGroups, setSelectedChannelGroups] = useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
 
+  const selectedStreamGroup = useMemo(((): StreamGroupDto => {
+    return { id: 2 } as StreamGroupDto
+  }), []);
 
   const sourceColumns = useMemo((): ColumnMeta[] => {
     return [
       { field: 'name', filter: true, sortable: true },
     ]
   }, []);
+
+  return (
+    <StreamGroupSelectedVideoStreamDataSelector
+      id='testpanel'
+      streamGroup={selectedStreamGroup}
+    />
+  );
 
   // return (
   //   <StreamGroupDataSelectorPicker  />
@@ -56,12 +68,12 @@ const TestPanel = (props: TestPanelProps) => {
   //   <EPGEditor data={videoStreamsGetVideoStreamQuery.data ?? {} as VideoStreamDto} />
   // );
 
-  return (
-    <VideoStreamDataSelector
-      channelGroupNames={selectedChannelGroups.map(a => a.name)}
-      id="TestPanel"
-    />
-  );
+  // return (
+  //   <VideoStreamDataSelector
+  //     channelGroupNames={selectedChannelGroups.map(a => a.name)}
+  //     id="TestPanel"
+  //   />
+  // );
 
 }
 

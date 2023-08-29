@@ -41,7 +41,7 @@ public class RemoveVideoStreamToStreamGroupRequestHandler : BaseMediatorRequestH
             return;
         }
 
-        await Repository.StreamGroup.RemoveVideoStreamToStreamGroup(request.StreamGroupId, request.VideoStreamId, cancellationToken).ConfigureAwait(false);
+        await Repository.StreamGroup.RemoveVideoStreamFromStreamGroup(request.StreamGroupId, request.VideoStreamId, cancellationToken).ConfigureAwait(false);
         await Publisher.Publish(new StreamGroupUpdateEvent(), cancellationToken).ConfigureAwait(false);
     }
 }

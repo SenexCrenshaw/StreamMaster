@@ -1,7 +1,7 @@
 import { emptySplitApi as api } from "./emptyApi";
 export const addTagTypes = [
-  "GetStreamGroupVideoStreams",
   "ChannelGroups",
+  "GetStreamGroupVideoStreams",
   "EPGFiles",
   "Files",
   "Icons",
@@ -1882,6 +1882,7 @@ export type UpdateSettingRequest = {
   nameRegex?: string[] | null;
 };
 export type VideoStreamIsReadOnly = {
+  rank?: number;
   isReadOnly?: boolean;
   videoStreamId?: string;
 };
@@ -1925,6 +1926,7 @@ export type ChildVideoStreamDto = BaseVideoStreamDto & {
   rank: number;
 };
 export type VideoStreamDto = BaseVideoStreamDto & {
+  rank?: number;
   childVideoStreams?: ChildVideoStreamDto[];
 };
 export type StreamGroupDto = {

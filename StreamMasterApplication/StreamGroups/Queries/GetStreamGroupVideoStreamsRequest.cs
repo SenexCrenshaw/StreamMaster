@@ -10,19 +10,19 @@ using System.Diagnostics;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
-public record GetStreamGroupVideoStreamIdsRequest(int streamGroupId) : IRequest<List<VideoStreamIsReadOnly>>;
+public record GetStreamGroupVideoStreamsRequest(int streamGroupId) : IRequest<List<VideoStreamDto>>;
 
-internal class GetStreamGroupVideoStreamIdsRequestHandler : BaseRequestHandler, IRequestHandler<GetStreamGroupVideoStreamIdsRequest, List<VideoStreamIsReadOnly>>
+internal class GetStreamGroupVideoStreamsRequestHandler : BaseRequestHandler, IRequestHandler<GetStreamGroupVideoStreamsRequest, List<VideoStreamDto>>
 {
-    public GetStreamGroupVideoStreamIdsRequestHandler(ILogger<GetStreamGroupVideoStreamIdsRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper)
+    public GetStreamGroupVideoStreamsRequestHandler(ILogger<GetStreamGroupVideoStreamsRequest> logger, IRepositoryWrapper repository, IMapper mapper)
         : base(logger, repository, mapper) { }
 
-    public async Task<List<VideoStreamIsReadOnly>> Handle(GetStreamGroupVideoStreamIdsRequest request, CancellationToken cancellationToken)
+    public async Task<List<VideoStreamDto>> Handle(GetStreamGroupVideoStreamsRequest request, CancellationToken cancellationToken)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
-        List<VideoStreamIsReadOnly> res = await Repository.StreamGroup.GetStreamGroupVideoStreamIds(request.streamGroupId, cancellationToken).ConfigureAwait(false);
+        List<VideoStreamDto> res = await Repository.StreamGroup.GetStreamGroupVideoStreams(request.streamGroupId, cancellationToken).ConfigureAwait(false);
         stopwatch.Stop();
-        Logger.LogInformation($"GetStreamGroupVideoStreamIdsRequestHandler took {stopwatch.ElapsedMilliseconds} ms");
+        Logger.LogInformation($"GetStreamGroupVideoStreamsRequest took {stopwatch.ElapsedMilliseconds} ms");
         return res;
     }
 }

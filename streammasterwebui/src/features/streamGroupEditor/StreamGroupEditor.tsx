@@ -6,7 +6,7 @@ import { StreamGroupEditorIcon } from "../../common/icons";
 import StreamGroupDataSelector from "../../components/dataSelectors/StreamGroupDataSelector";
 import { type StreamGroupDto, type ChannelGroupDto } from "../../store/iptvApi";
 import StreamGroupVideoStreamDataSelector from "../../components/dataSelectors/StreamGroupVideoStreamDataSelector";
-import StreamGroupVideoStreamDataOutSelector from "../../components/dataSelectors/StreamGroupVideoStreamDataOutSelector";
+import StreamGroupSelectedVideoStreamDataSelector from "../../components/dataSelectors/StreamGroupSelectedVideoStreamDataSelector";
 
 const StreamGroupEditor = () => {
   const id = 'streamgroupeditor'
@@ -43,7 +43,7 @@ const StreamGroupEditor = () => {
                   />
                 </div>
                 <div className='col-6'>
-                  <StreamGroupVideoStreamDataOutSelector
+                  <StreamGroupSelectedVideoStreamDataSelector
                     id={id}
                     streamGroup={selectedStreamGroup}
                   />

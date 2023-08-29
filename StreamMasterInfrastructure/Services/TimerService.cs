@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.EPGFiles.Commands;
 using StreamMasterApplication.EPGFiles.Queries;
+using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.M3UFiles.Queries;
 using StreamMasterApplication.Settings.Queries;
 
@@ -107,7 +108,7 @@ public class TimerService : IHostedService, IDisposable
             _logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFilesToUpdated.Count());
             foreach (StreamMasterDomain.Dto.M3UFileDto? m3uFile in m3uFilesToUpdated)
             {
-                //_ = await mediator.Send(new RefreshM3UFileRequest { Id = m3uFile.Id }, cancellationToken).ConfigureAwait(false);
+                _ = await mediator.Send(new RefreshM3UFileRequest { Id = m3uFile.Id }, cancellationToken).ConfigureAwait(false);
             }
         }
 

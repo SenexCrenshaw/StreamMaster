@@ -8,7 +8,7 @@ export type SetVideoStreamVisibleRet = {
 };
 
 export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
-  addTagTypes: ["GetStreamGroupVideoStreams"],
+  // addTagTypes: ["GetStreamGroupVideoStreams"],
   endpoints: {
     channelGroupsGetChannelGroups: {
       async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
