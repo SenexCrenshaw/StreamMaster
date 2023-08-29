@@ -15,6 +15,7 @@ using StreamMasterDomain.Enums;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace StreamMasterInfrastructureEF.Repositories;
@@ -552,5 +553,24 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         await RepositoryContext.SaveChangesAsync(cancellationToken);
         //List<VideoStream> after = GetIQueryableForEntity(Parameters).ToList();
         return true;
+    }
+
+    public async Task<List<string>> GetVideoStreamVideoStreamIds(string videoStreamId, CancellationToken cancellationToken)
+    {
+        var ids =await  RepositoryContext.VideoStreamLinks.Where(a => a.ParentVideoStreamId == videoStreamId).OrderBy(a=>a.Rank).Select(a => a.ChildVideoStreamId).ToListAsync().ConfigureAwait(false);
+        return ids;
+    }
+
+    public async Task<List<ChildVideoStreamDto>> GetVideoStreamVideoStreams(string videoStreamId, CancellationToken cancellationToken)
+    {
+        (VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)? result = await GetStreamsFromVideoStreamById(videoStreamId);
+
+        if (result.Value.childVideoStreamDtos == null )
+        {
+            return new();
+        }
+
+        return result.Value.childVideoStreamDtos;
+
     }
 }
