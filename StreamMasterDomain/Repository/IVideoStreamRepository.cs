@@ -5,6 +5,8 @@ namespace StreamMasterDomain.Repository
 {
     public interface IVideoStreamRepository : IRepositoryBase<VideoStream>
     {
+        Task AddVideoStreamTodVideoStream(string ParentVideoStreamId, CreateVideoStreamRequest createVideoStreamRequest);
+        Task RemoveVideoStreamFromVideoStream(string ParentVideoStreamId, string ChildVideoStreamId);
         IQueryable<VideoStream> GetJustVideoStreams();
         Task<bool> CreateVideoStreamAsync(CreateVideoStreamRequest request, CancellationToken cancellationToken);
         IQueryable<VideoStream> GetVideoStreamsById(string id);
