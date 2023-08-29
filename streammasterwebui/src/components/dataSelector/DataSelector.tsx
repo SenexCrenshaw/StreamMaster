@@ -272,8 +272,24 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   }, [props.selectionMode]);
 
   const onSelectionChange = useCallback((e: DataTableSelectionMultipleChangeEvent<T[]> | DataTableSelectionSingleChangeEvent<T[]>) => {
+
     if (e.value === null || e.value === undefined) {
       return;
+    }
+
+    let sel = [] as T[];
+
+    if (e.value instanceof Array) {
+      const single1 = e.value.slice(e.value.length - 1, e.value.length);
+      sel = single1;
+    } else {
+      sel = [e.value];
+    }
+
+    if (props.reorderable === true) {
+      if (props.onSelectionChange) {
+        props.onSelectionChange(sel, false, undefined);
+      }
     }
 
     if (props.selectionMode === 'multiple') {
@@ -286,14 +302,9 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return;
     }
 
-    if (e.value instanceof Array) {
-      const single1 = e.value.slice(e.value.length - 1, e.value.length);
-      onsetSelection(single1);
-    } else {
-      onsetSelection([e.value]);
-    }
+    onsetSelection(sel);
 
-  }, [onsetSelection, props.selectionMode]);
+  }, [onsetSelection, props]);
 
   const getAlign = useCallback((align: ColumnAlign | null | undefined, fieldType: ColumnFieldType): ColumnAlign => {
 
@@ -401,6 +412,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
               props.onSelectionChange([], false, undefined);
             }
           }}
+
           tooltip='Clear Selections'
         />
 
