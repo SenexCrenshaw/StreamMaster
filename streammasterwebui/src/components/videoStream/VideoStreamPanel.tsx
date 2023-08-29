@@ -1,26 +1,26 @@
 
 import { Accordion, AccordionTab } from "primereact/accordion";
-import { useLocalStorage } from "primereact/hooks";
+
 import { InputNumber } from "primereact/inputnumber";
 import { InputText } from "primereact/inputtext";
-import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
-import { TriStateCheckbox } from "primereact/tristatecheckbox";
+
 import { useState, useEffect, useMemo, memo } from "react";
-import { getTopToolOptions, getIconUrl } from "../../common/common";
+import { getIconUrl } from "../../common/common";
 import { type VideoStreamDto, type VideoStreamHandlers, type UpdateVideoStreamRequest, type CreateVideoStreamRequest } from "../../store/iptvApi";
 import StreamMasterSetting from "../../store/signlar/StreamMasterSetting";
 import ChannelHandlerSelector from "../ChannelHandlerSelector";
-import PlayListDataSelectorPicker from "../PlayListDataSelectorPicker";
+
 import ChannelGroupSelector from "../channelGroups/ChannelGroupSelector";
 import EPGSelector from "../selectors/EPGSelector";
 import IconSelector from "../selectors/IconSelector";
 import { Button } from "primereact/button";
+import VideoStreamDataSelector from "../dataSelectors/VideoStreamDataSelector";
 
 const VideoStreamPanel = (props: VideoStreamPanelProps) => {
   const settings = StreamMasterSetting();
   const [name, setName] = useState<string>('');
   const [url, setUrl] = useState<string>('');
-  const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(null, 'videostreampanel-showHidden');
+
   const [iconSource, setIconSource] = useState<string>('');
 
   const [videoStreams, setVideoStreams] = useState<VideoStreamDto[] | undefined>(undefined);
@@ -141,30 +141,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
   //   props.onClose?.();
   // }
 
-  const rightHeaderTemplate = useMemo(() => {
-    const getToolTip = (value: boolean | null | undefined) => {
-      if (value === null) {
-        return 'Show All';
-      }
 
-      if (value === true) {
-        return 'Show Visible';
-      }
-
-      return 'Show Hidden';
-    }
-
-    return (
-      <div className="flex justify-content-end align-items-center w-full gap-1" >
-
-        <TriStateCheckbox
-          onChange={(e: TriStateCheckboxChangeEvent) => { setShowHidden(e.value); }}
-          tooltip={getToolTip(showHidden)}
-          tooltipOptions={getTopToolOptions}
-          value={showHidden} />
-      </div>
-    );
-  }, [setShowHidden, showHidden]);
 
 
 
@@ -351,15 +328,18 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
       <AccordionTab header='Additional Streams'>
         <div className='flex col-12 flex-wrap justify-content-start align-items-center p-0 m-0 mt-2 w-full'>
           <div className='flex col-12 p-0 justify-content-start align-items-center w-full'>
-            <PlayListDataSelectorPicker
-
-              id='videostreampanel-ds-streams'
-              isAdditionalChannels
-              maxHeight={400}
-              showTriState={showHidden}
-              sourceHeaderTemplate={rightHeaderTemplate}
-              videoStream={props.videoStream}
-            />
+            <div className='col-6 m-0 p-0 pr-1' >
+              <VideoStreamDataSelector
+                id='videostreampanel'
+                videoStreamId={props.videoStream?.id}
+              />
+            </div>
+            <div className='col-6 m-0 p-0 pr-1' >
+              <VideoStreamDataSelector
+                id='videostreampanel2'
+                videoStreamId={props.videoStream?.id}
+              />
+            </div>
           </div>
         </div>
         <div className='flex col-12 m-0 p-0 justify-content-end align-items-center w-full'>

@@ -263,6 +263,7 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         {
             Id = IdConverter.GetID(),
             IsUserCreated = true,
+            M3UFileName="CUSTOM",
 
             //Tvg_chno = request.Tvg_chno is null ? 0 : (int)request.Tvg_chno,
             //User_Tvg_chno = request.Tvg_chno is null ? 0 : (int)request.Tvg_chno,

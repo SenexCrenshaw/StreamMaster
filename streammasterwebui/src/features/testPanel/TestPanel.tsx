@@ -8,7 +8,7 @@ import { type StreamGroupDto } from "../../store/iptvApi";
 import { type VideoStreamDto } from "../../store/iptvApi";
 import { type PagedResponseOfChannelGroupDto, type ChannelGroupDto, useVideoStreamsGetVideoStreamQuery } from "../../store/iptvApi";
 import { useChannelGroupsGetChannelGroupsQuery } from "../../store/iptvApi";
-import VideoStreamDataSelector from "../../components/dataSelectors/VideoStreamDataSelector";
+import ChannelGroupVideoStreamDataSelector from "../../components/dataSelectors/ChannelGroupVideoStreamDataSelector";
 import EPGSelector from "../../components/selectors/EPGSelector";
 import EPGEditor from "../../components/epg/EPGEditor";
 import ChannelLogoEditor from "../../components/ChannelLogoEditor";

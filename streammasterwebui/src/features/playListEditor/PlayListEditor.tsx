@@ -2,7 +2,7 @@ import { useLocalStorage } from "primereact/hooks";
 import { useCallback, memo } from "react";
 import { PlayListEditorIcon } from "../../common/icons";
 import PlayListDataSelector from "../../components/dataSelectors/PlayListDataSelector";
-import VideoStreamDataSelector from "../../components/dataSelectors/VideoStreamDataSelector";
+import ChannelGroupVideoStreamDataSelector from "../../components/dataSelectors/ChannelGroupVideoStreamDataSelector";
 import { type ChannelGroupDto } from "../../store/iptvApi";
 
 const PlayListEditor = (props: PlayListEditorProps) => {
@@ -40,7 +40,7 @@ const PlayListEditor = (props: PlayListEditorProps) => {
             />
           </div>
           <div className="col-8 m-0 p-0">
-            <VideoStreamDataSelector
+            <ChannelGroupVideoStreamDataSelector
               channelGroupNames={selectedChannelGroups}
               id={id}
             />
