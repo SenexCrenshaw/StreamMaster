@@ -1,10 +1,16 @@
-﻿using StreamMasterDomain.Dto;
+﻿using MediatR;
+
+using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
+
+using System.Threading;
 
 namespace StreamMasterDomain.Repository
 {
     public interface IVideoStreamRepository : IRepositoryBase<VideoStream>
     {
+        Task<List<string>> GetVideoStreamVideoStreamIds(string videoStreamId, CancellationToken cancellationToken);
+        Task<List<ChildVideoStreamDto>> GetVideoStreamVideoStreams(string videoStreamId, CancellationToken cancellationToken);
         IQueryable<VideoStream> GetJustVideoStreams();
         Task<bool> CreateVideoStreamAsync(CreateVideoStreamRequest request, CancellationToken cancellationToken);
         IQueryable<VideoStream> GetVideoStreamsById(string id);

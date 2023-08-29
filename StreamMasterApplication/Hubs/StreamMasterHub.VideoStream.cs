@@ -1,4 +1,7 @@
-﻿using StreamMasterApplication.VideoStreams;
+﻿using MediatR;
+
+using StreamMasterApplication.StreamGroups.Queries;
+using StreamMasterApplication.VideoStreams;
 using StreamMasterApplication.VideoStreams.Commands;
 using StreamMasterApplication.VideoStreams.Queries;
 
@@ -88,5 +91,15 @@ public partial class StreamMasterHub : IVideoStreamHub
     public async Task UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request)
     {
         await _mediator.Send(request).ConfigureAwait(false);
+    }
+
+    public async Task<List<string>> GetVideoStreamVideoStreamIds(GetVideoStreamVideoStreamIdsRequest request)
+    {
+        return await _mediator.Send(request).ConfigureAwait(false);
+    }
+
+    public async Task<List<ChildVideoStreamDto>> GetVideoStreamVideoStreams(GetVideoStreamVideoStreamsRequest request)
+    {
+        return await _mediator.Send(request).ConfigureAwait(false);
     }
 }
