@@ -246,22 +246,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         return Ok(); throw new NotImplementedException();
     }
 
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<List<string>>> GetVideoStreamVideoStreamIds(GetVideoStreamVideoStreamIdsRequest request)
-    {
-        var data = await Mediator.Send(request).ConfigureAwait(false);
-        return Ok(data);
-    }
-
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<List<ChildVideoStreamDto>>> GetVideoStreamVideoStreams(GetVideoStreamVideoStreamsRequest request)
-    {
-        var data = await Mediator.Send(request).ConfigureAwait(false);
-        return Ok(data);
-    }
-
+   
     private class UnregisterClientOnDispose : IDisposable
     {
         private readonly IChannelManager _channelManager;

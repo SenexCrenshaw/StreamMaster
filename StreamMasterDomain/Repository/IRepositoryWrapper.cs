@@ -2,13 +2,13 @@
 {
     public interface IRepositoryWrapper
     {
-        IVideoStreamLinkRepository VideoStreamLinkRepository { get; }
         IEPGFileRepository EPGFile { get; }
         IChannelGroupRepository ChannelGroup { get; }
         IStreamGroupRepository StreamGroup { get; }
         IM3UFileRepository M3UFile { get; }
         IVideoStreamRepository VideoStream { get; }
-
+        IVideoStreamLinkRepository VideoStreamLink { get; }
+        IStreamGroupVideoStreamRepository StreamGroupVideoStream { get; }
         Task<int> SaveAsync();
     }
 }

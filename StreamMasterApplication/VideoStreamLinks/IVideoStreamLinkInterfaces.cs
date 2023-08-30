@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMasterApplication.StreamGroups.Commands;
+using StreamMasterApplication.VideoStreamLinks.Commands;
 using StreamMasterApplication.VideoStreamLinks.Queries;
 
 using StreamMasterDomain.Dto;

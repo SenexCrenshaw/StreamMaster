@@ -20,7 +20,7 @@ internal class GetVideoStreamVideoStreamIdsRequestHandler : BaseRequestHandler, 
     public async Task<List<string>> Handle(GetVideoStreamVideoStreamIdsRequest request, CancellationToken cancellationToken)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
-        var res = await Repository.VideoStream.GetVideoStreamVideoStreamIds(request.videoStreamId, cancellationToken).ConfigureAwait(false);
+        var res = await Repository.VideoStreamLink.GetVideoStreamVideoStreamIds(request.videoStreamId, cancellationToken).ConfigureAwait(false);
         stopwatch.Stop();
         Logger.LogInformation($"GetVideoStreamVideoStreamIdsRequest took {stopwatch.ElapsedMilliseconds} ms");
         return res;

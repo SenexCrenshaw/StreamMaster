@@ -14,7 +14,7 @@ using StreamMasterApplication.VideoStreams.Events;
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Dto;
 
-namespace StreamMasterApplication.StreamGroups.Commands;
+namespace StreamMasterApplication.StreamGroupVideoStreams.Commands;
 
 [RequireAll]
 public record RemoveVideoStreamToStreamGroupRequest(int StreamGroupId, string VideoStreamId) : IRequest { }
@@ -29,10 +29,10 @@ public class RemoveVideoStreamToStreamGroupRequestValidator : AbstractValidator<
     }
 }
 
-public class RemoveVideoStreamToStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<RemoveVideoStreamToStreamGroupRequest >
+public class RemoveVideoStreamToStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<RemoveVideoStreamToStreamGroupRequest>
 {
     public RemoveVideoStreamToStreamGroupRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender)    {    }
+        : base(logger, repository, mapper, publisher, sender) { }
 
     public async Task Handle(RemoveVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken)
     {
@@ -41,7 +41,7 @@ public class RemoveVideoStreamToStreamGroupRequestHandler : BaseMediatorRequestH
             return;
         }
 
-        await Repository.StreamGroup.RemoveVideoStreamFromStreamGroup(request.StreamGroupId, request.VideoStreamId, cancellationToken).ConfigureAwait(false);
-        await Publisher.Publish(new StreamGroupUpdateEvent(), cancellationToken).ConfigureAwait(false);
+        await Repository.StreamGroupVideoStream.RemoveVideoStreamFromStreamGroup(request.StreamGroupId, request.VideoStreamId, cancellationToken).ConfigureAwait(false);
+      
     }
 }

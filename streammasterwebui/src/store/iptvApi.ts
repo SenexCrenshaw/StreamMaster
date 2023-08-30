@@ -1,7 +1,6 @@
 import { emptySplitApi as api } from "./emptyApi";
 export const addTagTypes = [
   "ChannelGroups",
-  "GetStreamGroupVideoStreams",
   "EPGFiles",
   "Files",
   "Icons",
@@ -12,6 +11,8 @@ export const addTagTypes = [
   "SchedulesDirect",
   "Settings",
   "StreamGroups",
+  "StreamGroupVideoStreams",
+  "VideoStreamLinks",
   "VideoStreams",
 ] as const;
 const injectedRtkApi = api
@@ -764,47 +765,89 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["StreamGroups"],
       }),
-      streamGroupsGetStreamGroupVideoStreamIds: build.query<
-        StreamGroupsGetStreamGroupVideoStreamIdsApiResponse,
-        StreamGroupsGetStreamGroupVideoStreamIdsApiArg
+      streamGroupVideoStreamsGetStreamGroupVideoStreamIds: build.query<
+        StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiResponse,
+        StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/streamgroups/getstreamgroupvideostreamids`,
+          url: `/api/streamgroupvideostreams/getstreamgroupvideostreamids`,
           params: { streamGroupId: queryArg },
         }),
-        providesTags: ["StreamGroups"],
+        providesTags: ["StreamGroupVideoStreams"],
       }),
-      streamGroupsGetStreamGroupVideoStreams: build.query<
-        StreamGroupsGetStreamGroupVideoStreamsApiResponse,
-        StreamGroupsGetStreamGroupVideoStreamsApiArg
+      streamGroupVideoStreamsGetStreamGroupVideoStreams: build.query<
+        StreamGroupVideoStreamsGetStreamGroupVideoStreamsApiResponse,
+        StreamGroupVideoStreamsGetStreamGroupVideoStreamsApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/streamgroups/getstreamgroupvideostreams`,
+          url: `/api/streamgroupvideostreams/getstreamgroupvideostreams`,
           params: { streamGroupId: queryArg },
         }),
-        providesTags: ["StreamGroups"],
+        providesTags: ["StreamGroupVideoStreams"],
       }),
-      streamGroupsAddVideoStreamToStreamGroup: build.mutation<
-        StreamGroupsAddVideoStreamToStreamGroupApiResponse,
-        StreamGroupsAddVideoStreamToStreamGroupApiArg
+      streamGroupVideoStreamsAddVideoStreamToStreamGroup: build.mutation<
+        StreamGroupVideoStreamsAddVideoStreamToStreamGroupApiResponse,
+        StreamGroupVideoStreamsAddVideoStreamToStreamGroupApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/streamgroups/addvideostreamtostreamgroup`,
+          url: `/api/streamgroupvideostreams/addvideostreamtostreamgroup`,
+          method: "POST",
+          body: queryArg,
+        }),
+        invalidatesTags: ["StreamGroupVideoStreams"],
+      }),
+      streamGroupVideoStreamsRemoveVideoStreamToStreamGroup: build.mutation<
+        StreamGroupVideoStreamsRemoveVideoStreamToStreamGroupApiResponse,
+        StreamGroupVideoStreamsRemoveVideoStreamToStreamGroupApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroupvideostreams/removevideostreamtostreamgroup`,
+          method: "POST",
+          body: queryArg,
+        }),
+        invalidatesTags: ["StreamGroupVideoStreams"],
+      }),
+      videoStreamLinksAddVideoStreamToVideoStream: build.mutation<
+        VideoStreamLinksAddVideoStreamToVideoStreamApiResponse,
+        VideoStreamLinksAddVideoStreamToVideoStreamApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreamlinks/addvideostreamtovideostream`,
           method: "PUT",
           body: queryArg,
         }),
-        invalidatesTags: ["StreamGroups"],
+        invalidatesTags: ["VideoStreamLinks"],
       }),
-      streamGroupsRemoveVideoStreamToStreamGroup: build.mutation<
-        StreamGroupsRemoveVideoStreamToStreamGroupApiResponse,
-        StreamGroupsRemoveVideoStreamToStreamGroupApiArg
+      videoStreamLinksGetVideoStreamVideoStreamIds: build.query<
+        VideoStreamLinksGetVideoStreamVideoStreamIdsApiResponse,
+        VideoStreamLinksGetVideoStreamVideoStreamIdsApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/streamgroups/removevideostreamtostreamgroup`,
+          url: `/api/videostreamlinks/getvideostreamvideostreamids`,
+          body: queryArg,
+        }),
+        providesTags: ["VideoStreamLinks"],
+      }),
+      videoStreamLinksGetVideoStreamVideoStreams: build.query<
+        VideoStreamLinksGetVideoStreamVideoStreamsApiResponse,
+        VideoStreamLinksGetVideoStreamVideoStreamsApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreamlinks/getvideostreamvideostreams`,
+          body: queryArg,
+        }),
+        providesTags: ["VideoStreamLinks"],
+      }),
+      videoStreamLinksRemoveVideoStreamFromVideoStream: build.mutation<
+        VideoStreamLinksRemoveVideoStreamFromVideoStreamApiResponse,
+        VideoStreamLinksRemoveVideoStreamFromVideoStreamApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreamlinks/removevideostreamfromvideostream`,
           method: "PUT",
           body: queryArg,
         }),
-        invalidatesTags: ["StreamGroups"],
+        invalidatesTags: ["VideoStreamLinks"],
       }),
       videoStreamsCreateVideoStream: build.mutation<
         VideoStreamsCreateVideoStreamApiResponse,
@@ -1274,18 +1317,35 @@ export type StreamGroupsGetStreamGroupsApiArg = {
 };
 export type StreamGroupsUpdateStreamGroupApiResponse = unknown;
 export type StreamGroupsUpdateStreamGroupApiArg = UpdateStreamGroupRequest;
-export type StreamGroupsGetStreamGroupVideoStreamIdsApiResponse =
+export type StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiResponse =
   /** status 200  */ VideoStreamIsReadOnly[];
-export type StreamGroupsGetStreamGroupVideoStreamIdsApiArg = number;
-export type StreamGroupsGetStreamGroupVideoStreamsApiResponse =
+export type StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiArg = number;
+export type StreamGroupVideoStreamsGetStreamGroupVideoStreamsApiResponse =
   /** status 200  */ VideoStreamDto[];
-export type StreamGroupsGetStreamGroupVideoStreamsApiArg = number;
-export type StreamGroupsAddVideoStreamToStreamGroupApiResponse = unknown;
-export type StreamGroupsAddVideoStreamToStreamGroupApiArg =
+export type StreamGroupVideoStreamsGetStreamGroupVideoStreamsApiArg = number;
+export type StreamGroupVideoStreamsAddVideoStreamToStreamGroupApiResponse =
+  unknown;
+export type StreamGroupVideoStreamsAddVideoStreamToStreamGroupApiArg =
   AddVideoStreamToStreamGroupRequest;
-export type StreamGroupsRemoveVideoStreamToStreamGroupApiResponse = unknown;
-export type StreamGroupsRemoveVideoStreamToStreamGroupApiArg =
+export type StreamGroupVideoStreamsRemoveVideoStreamToStreamGroupApiResponse =
+  unknown;
+export type StreamGroupVideoStreamsRemoveVideoStreamToStreamGroupApiArg =
   RemoveVideoStreamToStreamGroupRequest;
+export type VideoStreamLinksAddVideoStreamToVideoStreamApiResponse = unknown;
+export type VideoStreamLinksAddVideoStreamToVideoStreamApiArg =
+  AddVideoStreamToVideoStreamRequest;
+export type VideoStreamLinksGetVideoStreamVideoStreamIdsApiResponse =
+  /** status 200  */ string[];
+export type VideoStreamLinksGetVideoStreamVideoStreamIdsApiArg =
+  GetVideoStreamVideoStreamIdsRequest;
+export type VideoStreamLinksGetVideoStreamVideoStreamsApiResponse =
+  /** status 200  */ ChildVideoStreamDto[];
+export type VideoStreamLinksGetVideoStreamVideoStreamsApiArg =
+  GetVideoStreamVideoStreamsRequest;
+export type VideoStreamLinksRemoveVideoStreamFromVideoStreamApiResponse =
+  unknown;
+export type VideoStreamLinksRemoveVideoStreamFromVideoStreamApiArg =
+  RemoveVideoStreamFromVideoStreamRequest;
 export type VideoStreamsCreateVideoStreamApiResponse = unknown;
 export type VideoStreamsCreateVideoStreamApiArg = CreateVideoStreamRequest;
 export type VideoStreamsChangeVideoStreamChannelApiResponse = unknown;
@@ -1985,6 +2045,21 @@ export type RemoveVideoStreamToStreamGroupRequest = {
   streamGroupId: number;
   videoStreamId: string;
 };
+export type AddVideoStreamToVideoStreamRequest = {
+  parentVideoStreamId: string;
+  childVideoStreamId: string;
+  rank: number | null;
+};
+export type GetVideoStreamVideoStreamIdsRequest = {
+  videoStreamId?: string;
+};
+export type GetVideoStreamVideoStreamsRequest = {
+  videoStreamId?: string;
+};
+export type RemoveVideoStreamFromVideoStreamRequest = {
+  parentVideoStreamId: string;
+  childVideoStreamId: string;
+};
 export type VideoStreamBaseRequest = {
   toggleVisibility?: boolean | null;
   isHidden?: boolean | null;
@@ -2156,10 +2231,14 @@ export const {
   useStreamGroupsGetStreamGroupM3UQuery,
   useStreamGroupsGetStreamGroupsQuery,
   useStreamGroupsUpdateStreamGroupMutation,
-  useStreamGroupsGetStreamGroupVideoStreamIdsQuery,
-  useStreamGroupsGetStreamGroupVideoStreamsQuery,
-  useStreamGroupsAddVideoStreamToStreamGroupMutation,
-  useStreamGroupsRemoveVideoStreamToStreamGroupMutation,
+  useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery,
+  useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery,
+  useStreamGroupVideoStreamsAddVideoStreamToStreamGroupMutation,
+  useStreamGroupVideoStreamsRemoveVideoStreamToStreamGroupMutation,
+  useVideoStreamLinksAddVideoStreamToVideoStreamMutation,
+  useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery,
+  useVideoStreamLinksGetVideoStreamVideoStreamsQuery,
+  useVideoStreamLinksRemoveVideoStreamFromVideoStreamMutation,
   useVideoStreamsCreateVideoStreamMutation,
   useVideoStreamsChangeVideoStreamChannelMutation,
   useVideoStreamsDeleteVideoStreamMutation,

@@ -80,17 +80,17 @@ namespace StreamMasterInfrastructureEF
             }
         }
 
-        private IVideoStreamLinkRepository _videoStreamLinkRepository;
+        private IVideoStreamLinkRepository _videoStreamLink;
 
-        public IVideoStreamLinkRepository VideoStreamLinkRepository
+        public IVideoStreamLinkRepository VideoStreamLink
         {
             get
             {
-                if (_videoStreamLinkRepository == null)
+                if (_videoStreamLink == null)
                 {
-                    _videoStreamLinkRepository = new VideoStreamLinkRepository(_repoContext, _mapper, _memoryCache, _sender);
+                    _videoStreamLink = new VideoStreamLinkRepository(_repoContext, _mapper, _memoryCache, _sender);
                 }
-                return _videoStreamLinkRepository;
+                return _videoStreamLink;
             }
         }
 
@@ -119,6 +119,20 @@ namespace StreamMasterInfrastructureEF
                     _videoStream = new VideoStreamRepository(_repoContext, _mapper, _memoryCache, _sender);
                 }
                 return _videoStream;
+            }
+        }
+
+
+        private IStreamGroupVideoStreamRepository _streamGroupVideoStream;
+        public IStreamGroupVideoStreamRepository StreamGroupVideoStream
+        {
+            get
+            {
+                if (_streamGroupVideoStream == null)
+                {
+                    _streamGroupVideoStream = new StreamGroupVideoStreamRepository(_repoContext,this, _mapper, _sender);
+                }
+                return _streamGroupVideoStream;
             }
         }
 

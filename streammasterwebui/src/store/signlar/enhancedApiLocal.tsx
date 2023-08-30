@@ -113,38 +113,7 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
         await cacheEntryRemoved;
       }
     },
-    streamGroupsGetStreamGroupVideoStreamIds: {
-      async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
-        try {
-          await cacheDataLoaded;
-          hubConnection.on(
-            'VideoStreamsRefresh',
-            () => {
-              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["GetStreamGroupVideoStreams"]));
-            }
-          );
-        } catch { }
 
-        await cacheEntryRemoved;
-      },
-      providesTags: ["StreamGroups", "GetStreamGroupVideoStreams"]
-    },
-    streamGroupsGetStreamGroupVideoStreams: {
-      async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
-        try {
-          await cacheDataLoaded;
-          hubConnection.on(
-            'VideoStreamsRefresh',
-            () => {
-              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["GetStreamGroupVideoStreams"]));
-            }
-          );
-        } catch { }
-
-        await cacheEntryRemoved;
-      },
-      providesTags: ["StreamGroups", "GetStreamGroupVideoStreams"]
-    },
     videoStreamsGetAllStatisticsForAllUrls: {
       async onCacheEntryAdded(arg, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {

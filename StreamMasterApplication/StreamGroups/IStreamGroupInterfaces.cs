@@ -3,7 +3,8 @@
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.StreamGroups.Queries;
-
+using StreamMasterApplication.StreamGroupVideoStreams.Commands;
+using StreamMasterApplication.StreamGroupVideoStreams.Queries;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
@@ -11,9 +12,7 @@ namespace StreamMasterApplication.StreamGroups;
 
 public interface IStreamGroupController
 {
-    Task<ActionResult> AddVideoStreamToStreamGroup(AddVideoStreamToStreamGroupRequest request,CancellationToken cancellationToken);
-    Task<ActionResult> RemoveVideoStreamToStreamGroup(RemoveVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken);
-    Task<ActionResult> AddStreamGroup(AddStreamGroupRequest request);
+   Task<ActionResult> AddStreamGroup(AddStreamGroupRequest request);
 
     Task<ActionResult> DeleteStreamGroup(DeleteStreamGroupRequest request);
 
@@ -29,9 +28,7 @@ public interface IStreamGroupController
 
     Task<ActionResult<PagedResponse<StreamGroupDto>>> GetStreamGroups(StreamGroupParameters parameters);
 
-    Task<ActionResult<List<VideoStreamDto>>> GetStreamGroupVideoStreams(GetStreamGroupVideoStreamsRequest request, CancellationToken cancellationToken = default);
-    Task<ActionResult<List<VideoStreamIsReadOnly>>> GetStreamGroupVideoStreamIds(GetStreamGroupVideoStreamIdsRequest request, CancellationToken cancellationToken = default);
-
+  
     Task<ActionResult> UpdateStreamGroup(UpdateStreamGroupRequest request);
 }
 
@@ -78,9 +75,7 @@ public interface IStreamGroupHub
     Task DeleteStreamGroup(DeleteStreamGroupRequest request);
 
     Task FailClient(FailClientRequest request);
-    Task<List<VideoStreamDto>> GetStreamGroupVideoStreams(GetStreamGroupVideoStreamsRequest request, CancellationToken cancellationToken = default);
-    Task<List<VideoStreamIsReadOnly>> GetStreamGroupVideoStreamIds(GetStreamGroupVideoStreamIdsRequest request, CancellationToken cancellationToken = default);
-    Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls();
+   Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls();
 
     Task<StreamGroupDto?> GetStreamGroup(int StreamGroupNumber);
 
@@ -94,8 +89,7 @@ public interface IStreamGroupHub
 
     Task UpdateStreamGroup(UpdateStreamGroupRequest request);
 
-    Task AddVideoStreamToStreamGroup(AddVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken);
-    Task RemoveVideoStreamToStreamGroup(RemoveVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken);
+ 
 }
 
 public interface IStreamGroupTasks

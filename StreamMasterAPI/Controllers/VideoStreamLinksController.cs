@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
-using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.StreamGroups.Queries;
 using StreamMasterApplication.VideoStreamLinks;
+using StreamMasterApplication.VideoStreamLinks.Commands;
 using StreamMasterApplication.VideoStreamLinks.Queries;
 using StreamMasterApplication.VideoStreams;
 using StreamMasterApplication.VideoStreams.Commands;

@@ -34,6 +34,8 @@
     <ProjectReference Include="..\StreamMasterDomain\StreamMasterDomain.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="StreamGroupVideoStreams\EventHandlers\" />
+    <Folder Include="StreamGroupVideoStreams\Events\" />
     <Folder Include="VideoStreamLinks\EventHandlers\" />
     <Folder Include="VideoStreamLinks\Events\" />
   </ItemGroup>

@@ -10,7 +10,7 @@ using StreamMasterApplication.M3UFiles.Commands;
 
 using StreamMasterDomain.Attributes;
 
-namespace StreamMasterApplication.StreamGroups.Commands;
+namespace StreamMasterApplication.VideoStreamLinks.Commands;
 
 [RequireAll]
 public record RemoveVideoStreamFromVideoStreamRequest(string ParentVideoStreamId, string ChildVideoStreamId) : IRequest { }
@@ -29,7 +29,7 @@ public class RemoveVideoStreamFromVideoStreamRequestHandler : BaseMediatorReques
 
     public async Task Handle(RemoveVideoStreamFromVideoStreamRequest request, CancellationToken cancellationToken)
     {
-        await Repository.VideoStream.RemoveVideoStreamFromVideoStream(request.ParentVideoStreamId, request.ChildVideoStreamId, cancellationToken);
+        await Repository.VideoStreamLink.RemoveVideoStreamFromVideoStream(request.ParentVideoStreamId, request.ChildVideoStreamId, cancellationToken);
         await Publisher.Publish(new StreamGroupUpdateEvent(), cancellationToken).ConfigureAwait(false);
     }
 }

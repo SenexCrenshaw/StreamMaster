@@ -516,8 +516,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
             onRowReorder(e.value)
           }}
           onRowToggle={(e: DataTableRowToggleEvent) => setters.setExpandedRows(e.data as DataTableExpandedRows)}
-          onSelectAllChange={onSelectAllChange}
-          onSelectionChange={((e) => onSelectionChange(e))}
+          onSelectAllChange={props.reorderable ? undefined : onSelectAllChange}
+          onSelectionChange={((e) => props.reorderable ? undefined : onSelectionChange(e))}
           onSort={onSort}
           // onValueChange={(e) => { onValueChanged(e); }}
           paginator
@@ -605,6 +605,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
             />
 
           ))}
+
+
         </DataTable>
       </div>
     </div >

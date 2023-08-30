@@ -5,9 +5,9 @@ import { TriStateCheckbox } from "primereact/tristatecheckbox";
 
 import { useMemo, memo, useEffect, useState } from "react";
 import { getTopToolOptions, GetMessage } from "../../common/common";
-import { type StreamGroupsAddVideoStreamToStreamGroupApiArg } from "../../store/iptvApi";
-import { useStreamGroupsAddVideoStreamToStreamGroupMutation, type VideoStreamIsReadOnly } from "../../store/iptvApi";
-import { useStreamGroupsGetStreamGroupVideoStreamIdsQuery, type StreamGroupDto } from "../../store/iptvApi";
+import { type StreamGroupVideoStreamsAddVideoStreamToStreamGroupApiArg } from "../../store/iptvApi";
+import { useStreamGroupVideoStreamsAddVideoStreamToStreamGroupMutation, type VideoStreamIsReadOnly } from "../../store/iptvApi";
+import { useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery, type StreamGroupDto } from "../../store/iptvApi";
 import { type VideoStreamDto } from "../../store/iptvApi";
 import { useVideoStreamsGetVideoStreamsQuery } from "../../store/iptvApi";
 import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig } from "../columns/columnConfigHooks";
@@ -32,9 +32,9 @@ const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVide
 
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, id + '-showHidden');
 
-  const streamGroupsGetStreamGroupVideoStreamIdsQuery = useStreamGroupsGetStreamGroupVideoStreamIdsQuery(streamGroup.id);
+  const streamGroupsGetStreamGroupVideoStreamIdsQuery = useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery(streamGroup.id);
 
-  const [streamGroupsAddVideoStreamToStreamGroupMutation] = useStreamGroupsAddVideoStreamToStreamGroupMutation();
+  const [streamGroupsAddVideoStreamToStreamGroupMutation] = useStreamGroupVideoStreamsAddVideoStreamToStreamGroupMutation();
 
   useEffect(() => {
     if (streamGroupsGetStreamGroupVideoStreamIdsQuery.data !== undefined) {
@@ -107,7 +107,7 @@ const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVide
 
         console.log(value);
 
-        const toSend = {} as StreamGroupsAddVideoStreamToStreamGroupApiArg;
+        const toSend = {} as StreamGroupVideoStreamsAddVideoStreamToStreamGroupApiArg;
 
         toSend.streamGroupId = streamGroup.id;
         toSend.videoStreamId = stream.id;

@@ -8,7 +8,7 @@ using StreamMasterDomain.Dto;
 
 using System.Diagnostics;
 
-namespace StreamMasterApplication.StreamGroups.Queries;
+namespace StreamMasterApplication.StreamGroupVideoStreams.Queries;
 
 public record GetStreamGroupVideoStreamIdsRequest(int streamGroupId) : IRequest<List<VideoStreamIsReadOnly>>;
 
@@ -20,7 +20,7 @@ internal class GetStreamGroupVideoStreamIdsRequestHandler : BaseRequestHandler, 
     public async Task<List<VideoStreamIsReadOnly>> Handle(GetStreamGroupVideoStreamIdsRequest request, CancellationToken cancellationToken)
     {
         Stopwatch stopwatch = Stopwatch.StartNew();
-        List<VideoStreamIsReadOnly> res = await Repository.StreamGroup.GetStreamGroupVideoStreamIds(request.streamGroupId, cancellationToken).ConfigureAwait(false);
+        List<VideoStreamIsReadOnly> res = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreamIds(request.streamGroupId, cancellationToken).ConfigureAwait(false);
         stopwatch.Stop();
         Logger.LogInformation($"GetStreamGroupVideoStreamIdsRequestHandler took {stopwatch.ElapsedMilliseconds} ms");
         return res;

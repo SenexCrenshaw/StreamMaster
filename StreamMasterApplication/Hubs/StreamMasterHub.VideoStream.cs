@@ -92,13 +92,4 @@ public partial class StreamMasterHub : IVideoStreamHub
         await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<List<string>> GetVideoStreamVideoStreamIds(GetVideoStreamVideoStreamIdsRequest request)
-    {
-        return await _mediator.Send(request).ConfigureAwait(false);
-    }
-
-    public async Task<List<ChildVideoStreamDto>> GetVideoStreamVideoStreams(GetVideoStreamVideoStreamsRequest request)
-    {
-        return await _mediator.Send(request).ConfigureAwait(false);
-    }
 }

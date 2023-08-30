@@ -1,15 +1,16 @@
 /* eslint-disable react/no-unused-prop-types */
+import { useCallback, type CSSProperties } from "react";
 import { useMemo, memo, useEffect, useState } from "react";
 import { GetMessage } from "../../common/common";
 import { type UpdateStreamGroupRequest, type VideoStreamIsReadOnly } from "../../store/iptvApi";
 import { type ChildVideoStreamDto, useStreamGroupsUpdateStreamGroupMutation } from "../../store/iptvApi";
-import { useStreamGroupsRemoveVideoStreamToStreamGroupMutation, type StreamGroupsRemoveVideoStreamToStreamGroupApiArg } from "../../store/iptvApi";
-import { type StreamGroupsGetStreamGroupVideoStreamsApiArg } from "../../store/iptvApi";
-import { useStreamGroupsGetStreamGroupVideoStreamsQuery, type StreamGroupDto } from "../../store/iptvApi";
+import { type StreamGroupVideoStreamsGetStreamGroupVideoStreamsApiArg } from "../../store/iptvApi";
+import { useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery, type StreamGroupDto } from "../../store/iptvApi";
 import { type VideoStreamDto } from "../../store/iptvApi";
 import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig } from "../columns/columnConfigHooks";
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
+import VideoStreamRemoveFromStreamGroupDialog from "../videoStream/VideoStreamRemoveFromStreamGroupDialog";
 
 type StreamGroupSelectedVideoStreamDataSelectorProps = {
 
@@ -28,9 +29,8 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id, streamGroup }: StreamG
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(false);
   const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig(false);
 
-  const streamGroupsGetStreamGroupVideoStreamsQuery = useStreamGroupsGetStreamGroupVideoStreamsQuery(streamGroup.id as StreamGroupsGetStreamGroupVideoStreamsApiArg);
+  const streamGroupsGetStreamGroupVideoStreamsQuery = useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery(streamGroup.id as StreamGroupVideoStreamsGetStreamGroupVideoStreamsApiArg);
 
-  const [streamGroupsRemoveVideoStreamToStreamGroupMutation] = useStreamGroupsRemoveVideoStreamToStreamGroupMutation();
   const [streamGroupsUpdateStreamGroupMutation] = useStreamGroupsUpdateStreamGroupMutation();
 
 
@@ -42,6 +42,14 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id, streamGroup }: StreamG
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [streamGroupsGetStreamGroupVideoStreamsQuery.data]);
 
+  const targetActionBodyTemplate = useCallback((data: VideoStreamDto) => {
+    return (
+      <div className='flex p-0 justify-content-end align-items-center'>
+        <VideoStreamRemoveFromStreamGroupDialog streamGroupId={streamGroup.id} value={data} />
+      </div>
+    );
+  }, [streamGroup.id]);
+
   const targetColumns = useMemo((): ColumnMeta[] => {
 
     return [
@@ -49,8 +57,15 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id, streamGroup }: StreamG
       channelNameColumnConfig,
       channelGroupConfig,
       m3uFileNameColumnConfig,
+      {
+        bodyTemplate: targetActionBodyTemplate, field: 'Remove', header: 'X', resizeable: false, sortable: false,
+        style: {
+          maxWidth: '7rem',
+          width: '7rem',
+        } as CSSProperties,
+      }
     ]
-  }, [channelNumberColumnConfig, channelNameColumnConfig, channelGroupConfig, m3uFileNameColumnConfig]);
+  }, [channelNumberColumnConfig, channelNameColumnConfig, channelGroupConfig, m3uFileNameColumnConfig, targetActionBodyTemplate]);
 
   const rightHeaderTemplate = () => {
     return (
@@ -100,31 +115,9 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id, streamGroup }: StreamG
       headerName={GetMessage('streams')}
       headerRightTemplate={rightHeaderTemplate()}
       id={dataKey}
+      isLoading={streamGroupsGetStreamGroupVideoStreamsQuery.isLoading || streamGroupsGetStreamGroupVideoStreamsQuery.isFetching}
       key='rank'
       onRowReorder={async (e) => await onRowReorder(e as VideoStreamDto[])}
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      onSelectionChange={async (value, selectAllReturn, retTotalRecords) => {
-        if (value === undefined) {
-          return;
-        }
-
-        let stream = {} as VideoStreamDto;
-
-        if (Array.isArray(value)) {
-          stream = value[0];
-        } else {
-          stream = value as VideoStreamDto;
-        }
-
-        console.log(value);
-
-        const toSend = {} as StreamGroupsRemoveVideoStreamToStreamGroupApiArg;
-
-        toSend.streamGroupId = streamGroup.id;
-        toSend.videoStreamId = stream.id;
-
-        await streamGroupsRemoveVideoStreamToStreamGroupMutation(toSend);
-      }}
       reorderable
       selectionMode='single'
       style={{ height: 'calc(100vh - 40px)' }

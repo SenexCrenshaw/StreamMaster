@@ -1,7 +1,7 @@
 ﻿using MediatR;
 
-using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.VideoStreamLinks;
+using StreamMasterApplication.VideoStreamLinks.Commands;
 using StreamMasterApplication.VideoStreamLinks.Queries;
 using StreamMasterApplication.VideoStreams;
 using StreamMasterApplication.VideoStreams.Commands;
