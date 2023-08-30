@@ -9,14 +9,14 @@ namespace StreamMasterDomain.Repository
 {
     public interface IVideoStreamRepository : IRepositoryBase<VideoStream>
     {
-        Task<List<string>> GetVideoStreamVideoStreamIds(string videoStreamId, CancellationToken cancellationToken);
-        Task<List<ChildVideoStreamDto>> GetVideoStreamVideoStreams(string videoStreamId, CancellationToken cancellationToken);
-        Task AddVideoStreamTodVideoStream(string ParentVideoStreamId, CreateVideoStreamRequest createVideoStreamRequest);
-        Task RemoveVideoStreamFromVideoStream(string ParentVideoStreamId, string ChildVideoStreamId);
         IQueryable<VideoStream> GetJustVideoStreams();
+
         Task<bool> CreateVideoStreamAsync(CreateVideoStreamRequest request, CancellationToken cancellationToken);
+
         IQueryable<VideoStream> GetVideoStreamsById(string id);
+
         IQueryable<string> GetVideoStreamNames();
+
         Task<IEnumerable<VideoStream>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken);
 
         Task<bool> DeleteVideoStreamAsync(string videoStreamId, CancellationToken cancellationToken);
@@ -30,6 +30,7 @@ namespace StreamMasterDomain.Repository
         Task<int> SetGroupVisibleByGroupName(string channelGroupName, bool isHidden, CancellationToken cancellationToken);
 
         Task<bool> UpdateAllVideoStreamsFromParameters(VideoStreamParameters Parameters, UpdateVideoStreamRequest request, CancellationToken cancellationToken);
+
         Task<bool> UpdateVideoStreamAsync(UpdateVideoStreamRequest request, CancellationToken cancellationToken);
 
         Task<bool> SynchronizeChildRelationships(VideoStream videoStream, List<ChildVideoStreamDto> childVideoStreams, CancellationToken cancellationToken);
@@ -45,6 +46,5 @@ namespace StreamMasterDomain.Repository
         Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(string videoStreamId, CancellationToken cancellationToken = default);
 
         Task<VideoStreamDto> GetVideoStreamDtoByIdAsync(string Id, CancellationToken cancellationToken = default);
-
     }
 }

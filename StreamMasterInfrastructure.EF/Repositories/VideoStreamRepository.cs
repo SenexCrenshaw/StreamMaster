@@ -16,7 +16,9 @@ using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
@@ -25,7 +27,6 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
     private readonly IMemoryCache _memoryCache;
     private readonly IMapper _mapper;
     private readonly ISender _sender;
-
 
     public VideoStreamRepository(RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : base(repositoryContext)
     {
@@ -189,9 +190,6 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         {
             return false;
         }
-
-
-
     }
 
     public async Task<int> SetGroupVisibleByGroupName(string channelGroupName, bool isHidden, CancellationToken cancellationToken)
@@ -264,7 +262,7 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         {
             Id = IdConverter.GetID(),
             IsUserCreated = true,
-            M3UFileName="CUSTOM",
+            M3UFileName = "CUSTOM",
 
             //Tvg_chno = request.Tvg_chno is null ? 0 : (int)request.Tvg_chno,
             //User_Tvg_chno = request.Tvg_chno is null ? 0 : (int)request.Tvg_chno,
@@ -305,7 +303,6 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         //VideoStreamDto dto = _mapper.Map<VideoStreamDto>(videoStream);
         //List<string> channelGroupNames = await _sender.Send(new GetChannelGroupIdsFromVideoStream(dto), cancellationToken).ConfigureAwait(false);
         await _sender.Send(new UpdateChannelGroupCountRequest(videoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
-
     }
 
     public async Task<bool> UpdateVideoStreamAsync(UpdateVideoStreamRequest request, CancellationToken cancellationToken)
@@ -327,7 +324,6 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         }
 
         await UpdateChannelGroupCountsFromStream(videoStream, cancellationToken).ConfigureAwait(false);
-
 
         return true;
     }
@@ -483,9 +479,9 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
                     .Select(m => m.Groups[1].Value)
                     .ToList();
     }
+
     public async Task<PagedResponse<VideoStreamDto>> GetVideoStreams(VideoStreamParameters VideoStreamParameters, CancellationToken cancellationToken)
     {
-
         PagedResponse<VideoStreamDto> filteredStreams = await GetVideoStreamsAsync(VideoStreamParameters, cancellationToken);
         return filteredStreams;
     }
@@ -555,22 +551,44 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         return true;
     }
 
-    public async Task<List<string>> GetVideoStreamVideoStreamIds(string videoStreamId, CancellationToken cancellationToken)
+    public async Task AddVideoStreamTodVideoStream(string ParentVideoStreamId, string ChildVideoStreamId, int? Rank, CancellationToken cancellationToken)
     {
-        var ids =await  RepositoryContext.VideoStreamLinks.Where(a => a.ParentVideoStreamId == videoStreamId).OrderBy(a=>a.Rank).Select(a => a.ChildVideoStreamId).ToListAsync().ConfigureAwait(false);
-        return ids;
-    }
+        var childVideoStreamIds = await RepositoryContext.VideoStreamLinks.Where(a => a.ParentVideoStreamId == ParentVideoStreamId).OrderBy(a => a.Rank).AsNoTracking().ToListAsync(cancellationToken: cancellationToken);
 
-    public async Task<List<ChildVideoStreamDto>> GetVideoStreamVideoStreams(string videoStreamId, CancellationToken cancellationToken)
-    {
-        (VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)? result = await GetStreamsFromVideoStreamById(videoStreamId);
+        childVideoStreamIds ??= new();
 
-        if (result.Value.childVideoStreamDtos == null )
+        if (childVideoStreamIds.Any(a => a.ChildVideoStreamId == ChildVideoStreamId))
         {
-            return new();
+            return;
         }
 
-        return result.Value.childVideoStreamDtos;
+        var rank = childVideoStreamIds.Count;
+        if (Rank.HasValue && Rank.Value > 0 && Rank.Value < childVideoStreamIds.Count)
+        {
+            rank = Rank.Value;
+        }
 
+        var newL = new VideoStreamLink { ParentVideoStreamId = ParentVideoStreamId, ChildVideoStreamId = ChildVideoStreamId, Rank = rank };
+        await RepositoryContext.VideoStreamLinks.AddAsync(newL, cancellationToken).ConfigureAwait(false);
+        childVideoStreamIds.Insert(rank, newL);
+
+        for (int i = 0; i < childVideoStreamIds.Count; i++)
+        {
+            VideoStreamLink? childVideoStreamId = childVideoStreamIds[i];
+            childVideoStreamId.Rank = i;
+            RepositoryContext.VideoStreamLinks.Update(childVideoStreamId);
+        }
+
+        await RepositoryContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task RemoveVideoStreamFromVideoStream(string ParentVideoStreamId, string ChildVideoStreamId, CancellationToken cancellationToken)
+    {
+        var exists = await RepositoryContext.VideoStreamLinks.FirstOrDefaultAsync(a => a.ParentVideoStreamId == ParentVideoStreamId && a.ChildVideoStreamId == ChildVideoStreamId, cancellationToken: cancellationToken).ConfigureAwait(false);
+        if (exists != null)
+        {
+            RepositoryContext.VideoStreamLinks.Remove(exists);
+            await RepositoryContext.SaveChangesAsync(cancellationToken);
+        }
     }
 }

@@ -13,28 +13,24 @@ using StreamMasterDomain.Attributes;
 namespace StreamMasterApplication.StreamGroups.Commands;
 
 [RequireAll]
-public record AddVideoStreamToVideoStreamRequest(string ParentVideoStreamId, CreateVideoStreamRequest createVideoStreamRequest) : IRequest { }
+public record AddVideoStreamToVideoStreamRequest(string ParentVideoStreamId, string ChildVideoStreamId, int? Rank) : IRequest { }
 
 public class AddVideoStreamToVideoStreamRequestValidator : AbstractValidator<AddVideoStreamToVideoStreamRequest>
 {
     public AddVideoStreamToVideoStreamRequestValidator()
     {
-      
     }
 }
 
-public class AddVideoStreamToVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequestHandler<AddVideoStreamToVideoStreamRequest >
+public class AddVideoStreamToVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequestHandler<AddVideoStreamToVideoStreamRequest>
 {
     public AddVideoStreamToVideoStreamRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender)    {    }
+        : base(logger, repository, mapper, publisher, sender) { }
 
     public async Task Handle(AddVideoStreamToVideoStreamRequest request, CancellationToken cancellationToken)
     {
+        await Repository.VideoStream.AddVideoStreamTodVideoStream(request.ParentVideoStreamId, request.ChildVideoStreamId, request.Rank, cancellationToken).ConfigureAwait(false);
 
-        await Repository.VideoStream.AddVideoStreamTodVideoStream(request.ParentVideoStreamId, request.createVideoStreamRequest).ConfigureAwait(false);
-      
-      
         await Publisher.Publish(new StreamGroupUpdateEvent(), cancellationToken).ConfigureAwait(false);
-        
     }
 }

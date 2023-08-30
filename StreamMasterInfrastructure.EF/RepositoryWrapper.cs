@@ -19,19 +19,19 @@ namespace StreamMasterInfrastructureEF
         private readonly ISortHelper<VideoStream> _videoStreamSortHelper;
         private readonly ISortHelper<ChannelGroup> _channelGroupSortHelper;
         private readonly ISortHelper<StreamGroup> _streamGroupSortHelper;
-        private readonly ISortHelper<EPGFile> _epgFileSortHelper;
         private readonly IMapper _mapper;
         private readonly ISender _sender;
         private readonly IMemoryCache _memoryCache;
         private readonly ILogger<ChannelGroupRepository> _channelGroupRepository;
-        public RepositoryWrapper(ILogger<ChannelGroupRepository> channelGroupRepository, RepositoryContext repositoryContext, ISortHelper<EPGFile> epgGFileSortHelper, ISortHelper<StreamGroup> streamGroupSortHelper, ISortHelper<M3UFile> m3uFileSortHelper, ISortHelper<VideoStream> videoStreamSortHelper, ISortHelper<ChannelGroup> channelGroupSortHelper, IMapper mapper, IMemoryCache memoryCache, ISender sender)
+
+        public RepositoryWrapper(ILogger<ChannelGroupRepository> channelGroupRepository, RepositoryContext repositoryContext, ISortHelper<StreamGroup> streamGroupSortHelper, ISortHelper<M3UFile> m3uFileSortHelper, ISortHelper<VideoStream> videoStreamSortHelper, ISortHelper<ChannelGroup> channelGroupSortHelper, IMapper mapper, IMemoryCache memoryCache, ISender sender)
         {
             _repoContext = repositoryContext;
             _m3uFileSortHelper = m3uFileSortHelper;
             _videoStreamSortHelper = videoStreamSortHelper;
             _channelGroupSortHelper = channelGroupSortHelper;
             _streamGroupSortHelper = streamGroupSortHelper;
-            _epgFileSortHelper = epgGFileSortHelper;
+
             _mapper = mapper;
             _memoryCache = memoryCache;
             _sender = sender;
@@ -77,6 +77,20 @@ namespace StreamMasterInfrastructureEF
                     _m3uFile = new M3UFileRepository(_repoContext, _mapper);
                 }
                 return _m3uFile;
+            }
+        }
+
+        private IVideoStreamLinkRepository _videoStreamLinkRepository;
+
+        public IVideoStreamLinkRepository VideoStreamLinkRepository
+        {
+            get
+            {
+                if (_videoStreamLinkRepository == null)
+                {
+                    _videoStreamLinkRepository = new VideoStreamLinkRepository(_repoContext, _mapper, _memoryCache, _sender);
+                }
+                return _videoStreamLinkRepository;
             }
         }
 

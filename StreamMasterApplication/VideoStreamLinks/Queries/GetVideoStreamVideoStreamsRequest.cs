@@ -8,7 +8,7 @@ using StreamMasterDomain.Dto;
 
 using System.Diagnostics;
 
-namespace StreamMasterApplication.StreamGroups.Queries;
+namespace StreamMasterApplication.VideoStreamLinks.Queries;
 
 public record GetVideoStreamVideoStreamsRequest(string videoStreamId) : IRequest<List<ChildVideoStreamDto>>;
 

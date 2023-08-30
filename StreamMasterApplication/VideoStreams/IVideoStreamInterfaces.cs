@@ -2,7 +2,7 @@
 
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Commands;
-using StreamMasterApplication.StreamGroups.Queries;
+using StreamMasterApplication.VideoStreamLinks.Queries;
 using StreamMasterApplication.VideoStreams.Commands;
 
 using StreamMasterDomain.Dto;
@@ -12,10 +12,8 @@ namespace StreamMasterApplication.VideoStreams;
 
 public interface IVideoStreamController
 {
-    Task<ActionResult<List<string>>> GetVideoStreamVideoStreamIds(GetVideoStreamVideoStreamIdsRequest request);
-    Task<ActionResult<List<ChildVideoStreamDto>>> GetVideoStreamVideoStreams(GetVideoStreamVideoStreamsRequest request);
-
     Task<ActionResult> UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request);
+
     Task<ActionResult> CreateVideoStream(CreateVideoStreamRequest request);
 
     Task<ActionResult> ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request);
@@ -51,9 +49,8 @@ public interface IVideoStreamController
 
 public interface IVideoStreamHub
 {
-    Task<List<string>> GetVideoStreamVideoStreamIds(GetVideoStreamVideoStreamIdsRequest request);
-    Task<List<ChildVideoStreamDto>> GetVideoStreamVideoStreams(GetVideoStreamVideoStreamsRequest request);
     Task UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request);
+
     Task CreateVideoStream(CreateVideoStreamRequest request);
 
     Task ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request);
