@@ -1,5 +1,7 @@
 ﻿using MediatR;
 
+using Microsoft.AspNetCore.Mvc;
+
 using StreamMasterApplication.VideoStreamLinks;
 using StreamMasterApplication.VideoStreamLinks.Commands;
 using StreamMasterApplication.VideoStreamLinks.Queries;
@@ -24,9 +26,9 @@ public partial class StreamMasterHub : IVideoStreamLinkHub
         return await _mediator.Send(request, cancellationToken);
     }
 
-    public async Task<List<ChildVideoStreamDto>> GetVideoStreamVideoStreams(GetVideoStreamVideoStreamsRequest request, CancellationToken cancellationToken)
+    public async Task<PagedResponse<ChildVideoStreamDto>> GetVideoStreamVideoStreams(VideoStreamLinkParameters Parameters, CancellationToken cancellationToken)
     {
-        return await _mediator.Send(request, cancellationToken);
+        return await _mediator.Send(new GetVideoStreamVideoStreamsRequest(Parameters), cancellationToken);
     }
 
     public async Task RemoveVideoStreamFromVideoStream(RemoveVideoStreamFromVideoStreamRequest request, CancellationToken cancellationToken)

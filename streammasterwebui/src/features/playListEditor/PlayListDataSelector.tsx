@@ -3,16 +3,16 @@ import { isEmptyObject } from "../../common/common";
 import { getTopToolOptions } from "../../common/common";
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
-import ChannelGroupAddDialog from "../channelGroups/ChannelGroupAddDialog";
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
-
 import { useLocalStorage } from "primereact/hooks";
-import DataSelector from "../dataSelector/DataSelector";
 import { type ChannelGroupDto } from "../../store/iptvApi";
 import { useChannelGroupsGetChannelGroupsQuery } from "../../store/iptvApi";
-import ChannelGroupDeleteDialog from "../channelGroups/ChannelGroupDeleteDialog";
-import ChannelGroupEditDialog from "../channelGroups/ChannelGroupEditDialog";
-import ChannelGroupVisibleDialog from "../channelGroups/ChannelGroupVisibleDialog";
+import ChannelGroupAddDialog from "../../components/channelGroups/ChannelGroupAddDialog";
+import ChannelGroupDeleteDialog from "../../components/channelGroups/ChannelGroupDeleteDialog";
+import ChannelGroupEditDialog from "../../components/channelGroups/ChannelGroupEditDialog";
+import ChannelGroupVisibleDialog from "../../components/channelGroups/ChannelGroupVisibleDialog";
+import DataSelector from "../../components/dataSelector/DataSelector";
+import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
+
 
 const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   const id = props.id + '-PlayListDataSelector';

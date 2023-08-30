@@ -1,6 +1,6 @@
 
 import { Dialog } from 'primereact/dialog';
-import VideoStreamPanel from './VideoStreamPanel';
+import VideoStreamPanel from '../../features/videoStreamPanel/VideoStreamPanel';
 import { classNames } from 'primereact/utils';
 import { type VideoStreamDto } from '../../store/iptvApi';
 import { memo } from 'react';

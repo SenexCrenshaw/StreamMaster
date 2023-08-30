@@ -1,5 +1,5 @@
 import { Button } from "primereact/button";
-import { getTopToolOptions } from "../../common/common";
+import { getLeftToolOptions, getTopToolOptions } from "../../common/common";
 
 export type ChildButtonProps = {
   disabled?: boolean | undefined;
@@ -13,6 +13,7 @@ export type BaseButtonProps = {
   disabled?: boolean | undefined;
   icon: string;
   iconFilled?: boolean;
+  isLeft?: boolean | undefined;
   label?: string | undefined;
   onClick: () => void;
   rounded?: boolean;
@@ -20,7 +21,7 @@ export type BaseButtonProps = {
   tooltip?: string; // Add other severities as needed
 }
 
-const BaseButton: React.FC<BaseButtonProps> = ({ disabled, icon, iconFilled = true, label, onClick, rounded = true, severity, tooltip = '' }) => {
+const BaseButton: React.FC<BaseButtonProps> = ({ disabled, icon, iconFilled = true, isLeft = false, label, onClick, rounded = true, severity, tooltip = '' }) => {
 
   return (
     <Button
@@ -33,7 +34,7 @@ const BaseButton: React.FC<BaseButtonProps> = ({ disabled, icon, iconFilled = tr
       size="small"
       text={iconFilled !== true}
       tooltip={tooltip}
-      tooltipOptions={getTopToolOptions}
+      tooltipOptions={isLeft ? getLeftToolOptions : getTopToolOptions}
     />
   );
 };

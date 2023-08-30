@@ -105,8 +105,6 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
             .SingleOrDefaultAsync(sg => sg.Id == streamGroupId, cancellationToken);
     }
 
-    
-
     public async Task<StreamGroupDto?> GetStreamGroupDto(int id, string Url, CancellationToken cancellationToken = default)
     {
         if (id == 0) return new StreamGroupDto { Id = 0, Name = "All" };
@@ -190,8 +188,6 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
             return false;
         }
     }
-
-    
 
     public async Task<StreamGroupDto?> UpdateStreamGroupAsync(UpdateStreamGroupRequest request, string Url, CancellationToken cancellationToken)
     {
@@ -403,7 +399,4 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
     {
         return await GetEntitiesAsync<StreamGroupDto>(StreamGroupParameters, _mapper);
     }
-
-   
-   
 }

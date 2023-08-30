@@ -4,9 +4,9 @@ import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import { InputText } from "primereact/inputtext";
 import * as StreamMasterApi from '../../store/iptvApi';
 import { AddStreamGroup } from "../../store/signlar_functions";
-import PlayListDataSelector from "../dataSelectors/PlayListDataSelector";
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { getTopToolOptions } from "../../common/common";
+import PlayListDataSelector from "../../features/playListEditor/PlayListDataSelector";
 
 const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);

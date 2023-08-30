@@ -10,9 +10,10 @@ import { useStreamGroupVideoStreamsAddVideoStreamToStreamGroupMutation, type Vid
 import { useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery, type StreamGroupDto } from "../../store/iptvApi";
 import { type VideoStreamDto } from "../../store/iptvApi";
 import { useVideoStreamsGetVideoStreamsQuery } from "../../store/iptvApi";
-import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig } from "../columns/columnConfigHooks";
-import DataSelector from "../dataSelector/DataSelector";
-import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
+import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig } from "../../components/columns/columnConfigHooks";
+import DataSelector from "../../components/dataSelector/DataSelector";
+import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
+import { useStreamToRemove } from "../../app/slices/useStreamToRemove";
 
 type StreamGroupVideoStreamDataSelectorProps = {
   id: string;
@@ -22,6 +23,8 @@ type StreamGroupVideoStreamDataSelectorProps = {
 
 const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVideoStreamDataSelectorProps) => {
   const dataKey = id + '-StreamGroupVideoStreamDataSelector';
+  const { streamToRemove } = useStreamToRemove(id);
+
 
   const [videoStreams, setVideoStreams] = useState<VideoStreamIsReadOnly[]>([] as VideoStreamIsReadOnly[]);
 
@@ -34,7 +37,7 @@ const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVide
 
   const streamGroupsGetStreamGroupVideoStreamIdsQuery = useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery(streamGroup.id);
 
-  const [streamGroupsAddVideoStreamToStreamGroupMutation] = useStreamGroupVideoStreamsAddVideoStreamToStreamGroupMutation();
+  const [streamGroupVideoStreamsAddVideoStreamToStreamGroupMutation] = useStreamGroupVideoStreamsAddVideoStreamToStreamGroupMutation();
 
   useEffect(() => {
     if (streamGroupsGetStreamGroupVideoStreamIdsQuery.data !== undefined) {
@@ -91,8 +94,8 @@ const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVide
       headerName={GetMessage('streams')}
       headerRightTemplate={rightHeaderTemplate}
       id={dataKey}
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      onSelectionChange={async (value, selectAllReturn, retTotalRecords) => {
+      isLoading={streamGroupsGetStreamGroupVideoStreamIdsQuery.isLoading || streamGroupsGetStreamGroupVideoStreamIdsQuery.isFetching}
+      onSelectionChange={async (value) => {
         if (value === undefined) {
           return;
         }
@@ -105,21 +108,21 @@ const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVide
           stream = value as VideoStreamDto;
         }
 
-        console.log(value);
-
         const toSend = {} as StreamGroupVideoStreamsAddVideoStreamToStreamGroupApiArg;
 
         toSend.streamGroupId = streamGroup.id;
         toSend.videoStreamId = stream.id;
 
-        await streamGroupsAddVideoStreamToStreamGroupMutation(toSend);
+        await streamGroupVideoStreamsAddVideoStreamToStreamGroupMutation(toSend);
       }}
       queryFilter={useVideoStreamsGetVideoStreamsQuery}
       selectionMode='single'
       showHidden={showHidden}
+      streamToRemove={streamToRemove}
       style={{ height: 'calc(100vh - 40px)' }
       }
-      videoStreamIsReadOnlys={videoStreams}
+
+      videoStreamIdsIsReadOnly={(videoStreams || []).map((x) => x.videoStreamId ?? '')}
     />
   );
 }

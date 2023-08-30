@@ -1,9 +1,12 @@
 ﻿using StreamMasterDomain.Filtering;
 
+using System;
 using System.Collections.Concurrent;
+using System.Data.Common;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Text.Json;
 
 namespace StreamMasterDomain.Common;
@@ -15,7 +18,6 @@ public static class FilterHelper<T> where T : class
 
     public static IQueryable<T> ApplyFiltersAndSort(IQueryable<T> query, List<DataTableFilterMetaData>? filters, string orderBy)
     {
-
         if (filters != null)
         {
             // Apply filters
@@ -33,6 +35,7 @@ public static class FilterHelper<T> where T : class
 
         return query;
     }
+
     public static IQueryable<T> ApplyFilter(IQueryable<T> query, DataTableFilterMetaData filter)
     {
         if (!ParameterCache.TryGetValue(typeof(T), out ParameterExpression? parameter))
@@ -91,27 +94,41 @@ public static class FilterHelper<T> where T : class
         }
         List<Expression> containsExpressions = new();
 
-        MethodInfo? methodInfo = GetMethodCaseInsensitive(typeof(string), filter.MatchMode, new[] { typeof(string) });
-        if (methodInfo == null)
-        {
-            throw new InvalidOperationException($"Method {filter.MatchMode} not found on string type.");
-        }
-        MethodCallExpression toLowerCall = Expression.Call(propertyAccess, typeof(string).GetMethod("ToLower", Type.EmptyTypes));
+        MethodInfo? methodInfoString = GetMethodCaseInsensitive(typeof(string), filter.MatchMode, new[] { typeof(string) });
 
         if (stringValue.StartsWith("[\"") && stringValue.EndsWith("\"]"))
         {
             string[] values = JsonSerializer.Deserialize<string[]>(stringValue) ?? Array.Empty<string>();
             foreach (string value in values)
             {
-                MethodCallExpression matchCall = Expression.Call(toLowerCall, methodInfo, Expression.Constant(value.ToLower()));
-                containsExpressions.Add(matchCall);
+                if (propertyAccess.Type == typeof(int))
+                {
+                    var newValue = filter.Value.ToString()[2..^2];
+                    BinaryExpression equalExpression = Expression.Equal(propertyAccess, Expression.Constant(Int32.Parse(newValue)));
+                    containsExpressions.Add(equalExpression);
+                }
+                else
+                {                    
+                    MethodCallExpression toLowerCall = Expression.Call(propertyAccess, typeof(string).GetMethod("ToLower", Type.EmptyTypes));
+                    MethodCallExpression matchCall = Expression.Call(toLowerCall, methodInfoString, Expression.Constant(value.ToLower()));
+                    containsExpressions.Add(matchCall);
+                }
             }
-
         }
         else
         {
-            MethodCallExpression matchCall = Expression.Call(toLowerCall, methodInfo, Expression.Constant(stringValue.ToLower()));
-            containsExpressions.Add(matchCall);
+            if (propertyAccess.Type == typeof(int))
+            {
+                var newValue = filter.Value.ToString()[2..^2];
+                BinaryExpression equalExpression = Expression.Equal(propertyAccess, Expression.Constant(Int32.Parse(newValue)));
+                containsExpressions.Add(equalExpression);
+            }
+            else
+            {                
+                MethodCallExpression toLowerCall = Expression.Call(propertyAccess, typeof(string).GetMethod("ToLower", Type.EmptyTypes));
+                MethodCallExpression matchCall = Expression.Call(toLowerCall, methodInfoString, Expression.Constant(stringValue.ToLower()));
+                containsExpressions.Add(matchCall);
+            }
         }
 
         Expression filterExpression = containsExpressions[0];
@@ -130,7 +147,6 @@ public static class FilterHelper<T> where T : class
         {
             return null;
         }
-
 
         // If targetType is nullable, get the underlying type
         if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Nullable<>))

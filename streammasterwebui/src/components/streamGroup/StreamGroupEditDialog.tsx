@@ -6,7 +6,8 @@ import { getTopToolOptions } from "../../common/common";
 import { type ChannelGroupDto, type StreamGroupDto, type UpdateStreamGroupRequest } from "../../store/iptvApi";
 import { UpdateStreamGroup } from "../../store/signlar_functions";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
-import PlayListDataSelector from "../dataSelectors/PlayListDataSelector";
+import PlayListDataSelector from "../../features/playListEditor/PlayListDataSelector";
+
 
 const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);

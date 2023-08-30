@@ -17,11 +17,11 @@ using StreamMasterDomain.Dto;
 namespace StreamMasterApplication.StreamGroupVideoStreams.Commands;
 
 [RequireAll]
-public record RemoveVideoStreamToStreamGroupRequest(int StreamGroupId, string VideoStreamId) : IRequest { }
+public record RemoveVideoStreamFromStreamGroupRequest(int StreamGroupId, string VideoStreamId) : IRequest { }
 
-public class RemoveVideoStreamToStreamGroupRequestValidator : AbstractValidator<RemoveVideoStreamToStreamGroupRequest>
+public class RemoveVideoStreamFromStreamGroupRequestValidator : AbstractValidator<RemoveVideoStreamFromStreamGroupRequest>
 {
-    public RemoveVideoStreamToStreamGroupRequestValidator()
+    public RemoveVideoStreamFromStreamGroupRequestValidator()
     {
         _ = RuleFor(v => v.StreamGroupId)
            .NotNull()
@@ -29,12 +29,12 @@ public class RemoveVideoStreamToStreamGroupRequestValidator : AbstractValidator<
     }
 }
 
-public class RemoveVideoStreamToStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<RemoveVideoStreamToStreamGroupRequest>
+public class RemoveVideoStreamFromStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<RemoveVideoStreamFromStreamGroupRequest>
 {
-    public RemoveVideoStreamToStreamGroupRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
+    public RemoveVideoStreamFromStreamGroupRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
         : base(logger, repository, mapper, publisher, sender) { }
 
-    public async Task Handle(RemoveVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken)
+    public async Task Handle(RemoveVideoStreamFromStreamGroupRequest request, CancellationToken cancellationToken)
     {
         if (request.StreamGroupId < 1)
         {

@@ -8,14 +8,14 @@ import { type StreamGroupDto } from "../../store/iptvApi";
 import { type VideoStreamDto } from "../../store/iptvApi";
 import { type PagedResponseOfChannelGroupDto, type ChannelGroupDto, useVideoStreamsGetVideoStreamQuery } from "../../store/iptvApi";
 import { useChannelGroupsGetChannelGroupsQuery } from "../../store/iptvApi";
-import ChannelGroupVideoStreamDataSelector from "../../components/dataSelectors/ChannelGroupVideoStreamDataSelector";
+import ChannelGroupVideoStreamDataSelector from "../playListEditor/ChannelGroupVideoStreamDataSelector";
 import EPGSelector from "../../components/selectors/EPGSelector";
 import EPGEditor from "../../components/epg/EPGEditor";
 import ChannelLogoEditor from "../../components/ChannelLogoEditor";
-import PlayListDataSelector from "../../components/dataSelectors/PlayListDataSelector";
+
 import VideoStreamAddDialog from "../../components/videoStream/VideoStreamAddDialog";
-import VideoStreamPanel from "../../components/videoStream/VideoStreamPanel";
-import StreamGroupSelectedVideoStreamDataSelector from "../../components/dataSelectors/StreamGroupSelectedVideoStreamDataSelector";
+import VideoStreamPanel from "../videoStreamPanel/VideoStreamPanel";
+import StreamGroupSelectedVideoStreamDataSelector from "../streamGroupEditor/StreamGroupSelectedVideoStreamDataSelector";
 
 
 const TestPanel = (props: TestPanelProps) => {
@@ -36,11 +36,15 @@ const TestPanel = (props: TestPanelProps) => {
   }, []);
 
   return (
-    <StreamGroupSelectedVideoStreamDataSelector
-      id='testpanel'
-      streamGroup={selectedStreamGroup}
-    />
+    <VideoStreamPanel />
   );
+
+  // return (
+  //   <StreamGroupSelectedVideoStreamDataSelector
+  //     id='testpanel'
+  //     streamGroup={selectedStreamGroup}
+  //   />
+  // );
 
   // return (
   //   <StreamGroupDataSelectorPicker  />

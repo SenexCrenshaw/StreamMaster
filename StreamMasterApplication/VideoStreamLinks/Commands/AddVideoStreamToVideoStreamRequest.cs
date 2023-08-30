@@ -30,7 +30,6 @@ public class AddVideoStreamToVideoStreamRequestHandler : BaseMediatorRequestHand
     public async Task Handle(AddVideoStreamToVideoStreamRequest request, CancellationToken cancellationToken)
     {
         await Repository.VideoStreamLink.AddVideoStreamTodVideoStream(request.ParentVideoStreamId, request.ChildVideoStreamId, request.Rank, cancellationToken).ConfigureAwait(false);
-
-        await Publisher.Publish(new StreamGroupUpdateEvent(), cancellationToken).ConfigureAwait(false);
+        
     }
 }

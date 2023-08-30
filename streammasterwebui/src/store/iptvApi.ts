@@ -781,7 +781,14 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/streamgroupvideostreams/getstreamgroupvideostreams`,
-          params: { streamGroupId: queryArg },
+          params: {
+            Name: queryArg.name,
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString,
+          },
         }),
         providesTags: ["StreamGroupVideoStreams"],
       }),
@@ -796,12 +803,12 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["StreamGroupVideoStreams"],
       }),
-      streamGroupVideoStreamsRemoveVideoStreamToStreamGroup: build.mutation<
-        StreamGroupVideoStreamsRemoveVideoStreamToStreamGroupApiResponse,
-        StreamGroupVideoStreamsRemoveVideoStreamToStreamGroupApiArg
+      streamGroupVideoStreamsRemoveVideoStreamFromStreamGroup: build.mutation<
+        StreamGroupVideoStreamsRemoveVideoStreamFromStreamGroupApiResponse,
+        StreamGroupVideoStreamsRemoveVideoStreamFromStreamGroupApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/streamgroupvideostreams/removevideostreamtostreamgroup`,
+          url: `/api/streamgroupvideostreams/removevideostreamfromstreamgroup`,
           method: "POST",
           body: queryArg,
         }),
@@ -824,7 +831,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/videostreamlinks/getvideostreamvideostreamids`,
-          body: queryArg,
+          params: { videoStreamId: queryArg },
         }),
         providesTags: ["VideoStreamLinks"],
       }),
@@ -834,7 +841,14 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/videostreamlinks/getvideostreamvideostreams`,
-          body: queryArg,
+          params: {
+            Name: queryArg.name,
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString,
+          },
         }),
         providesTags: ["VideoStreamLinks"],
       }),
@@ -1321,27 +1335,39 @@ export type StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiResponse =
   /** status 200  */ VideoStreamIsReadOnly[];
 export type StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiArg = number;
 export type StreamGroupVideoStreamsGetStreamGroupVideoStreamsApiResponse =
-  /** status 200  */ VideoStreamDto[];
-export type StreamGroupVideoStreamsGetStreamGroupVideoStreamsApiArg = number;
+  /** status 200  */ PagedResponseOfVideoStreamDto;
+export type StreamGroupVideoStreamsGetStreamGroupVideoStreamsApiArg = {
+  name?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
 export type StreamGroupVideoStreamsAddVideoStreamToStreamGroupApiResponse =
   unknown;
 export type StreamGroupVideoStreamsAddVideoStreamToStreamGroupApiArg =
   AddVideoStreamToStreamGroupRequest;
-export type StreamGroupVideoStreamsRemoveVideoStreamToStreamGroupApiResponse =
+export type StreamGroupVideoStreamsRemoveVideoStreamFromStreamGroupApiResponse =
   unknown;
-export type StreamGroupVideoStreamsRemoveVideoStreamToStreamGroupApiArg =
-  RemoveVideoStreamToStreamGroupRequest;
+export type StreamGroupVideoStreamsRemoveVideoStreamFromStreamGroupApiArg =
+  RemoveVideoStreamFromStreamGroupRequest;
 export type VideoStreamLinksAddVideoStreamToVideoStreamApiResponse = unknown;
 export type VideoStreamLinksAddVideoStreamToVideoStreamApiArg =
   AddVideoStreamToVideoStreamRequest;
 export type VideoStreamLinksGetVideoStreamVideoStreamIdsApiResponse =
   /** status 200  */ string[];
-export type VideoStreamLinksGetVideoStreamVideoStreamIdsApiArg =
-  GetVideoStreamVideoStreamIdsRequest;
+export type VideoStreamLinksGetVideoStreamVideoStreamIdsApiArg = string;
 export type VideoStreamLinksGetVideoStreamVideoStreamsApiResponse =
-  /** status 200  */ ChildVideoStreamDto[];
-export type VideoStreamLinksGetVideoStreamVideoStreamsApiArg =
-  GetVideoStreamVideoStreamsRequest;
+  /** status 200  */ PagedResponseOfChildVideoStreamDto;
+export type VideoStreamLinksGetVideoStreamVideoStreamsApiArg = {
+  name?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
 export type VideoStreamLinksRemoveVideoStreamFromVideoStreamApiResponse =
   unknown;
 export type VideoStreamLinksRemoveVideoStreamFromVideoStreamApiArg =
@@ -2037,11 +2063,20 @@ export type UpdateStreamGroupRequest = {
   videoStreams?: VideoStreamIsReadOnly[] | null;
   channelGroupNames?: string[] | null;
 };
+export type PagedResponseOfVideoStreamDto = {
+  data: VideoStreamDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalItemCount: number;
+  totalPageCount: number;
+  totalRecords: number;
+  first: number;
+};
 export type AddVideoStreamToStreamGroupRequest = {
   streamGroupId: number;
   videoStreamId: string;
 };
-export type RemoveVideoStreamToStreamGroupRequest = {
+export type RemoveVideoStreamFromStreamGroupRequest = {
   streamGroupId: number;
   videoStreamId: string;
 };
@@ -2050,11 +2085,14 @@ export type AddVideoStreamToVideoStreamRequest = {
   childVideoStreamId: string;
   rank: number | null;
 };
-export type GetVideoStreamVideoStreamIdsRequest = {
-  videoStreamId?: string;
-};
-export type GetVideoStreamVideoStreamsRequest = {
-  videoStreamId?: string;
+export type PagedResponseOfChildVideoStreamDto = {
+  data: ChildVideoStreamDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalItemCount: number;
+  totalPageCount: number;
+  totalRecords: number;
+  first: number;
 };
 export type RemoveVideoStreamFromVideoStreamRequest = {
   parentVideoStreamId: string;
@@ -2108,15 +2146,6 @@ export type ChannelLogoDto = {
   epgId?: string;
   epgFileId?: number;
   logoUrl?: string;
-};
-export type PagedResponseOfVideoStreamDto = {
-  data: VideoStreamDto[];
-  pageNumber: number;
-  pageSize: number;
-  totalItemCount: number;
-  totalPageCount: number;
-  totalRecords: number;
-  first: number;
 };
 export type ReSetVideoStreamsLogoRequest = {
   ids?: string[];
@@ -2234,7 +2263,7 @@ export const {
   useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery,
   useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery,
   useStreamGroupVideoStreamsAddVideoStreamToStreamGroupMutation,
-  useStreamGroupVideoStreamsRemoveVideoStreamToStreamGroupMutation,
+  useStreamGroupVideoStreamsRemoveVideoStreamFromStreamGroupMutation,
   useVideoStreamLinksAddVideoStreamToVideoStreamMutation,
   useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery,
   useVideoStreamLinksGetVideoStreamVideoStreamsQuery,

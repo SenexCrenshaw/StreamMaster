@@ -9,11 +9,13 @@ import { enhancedApi } from '../store/signlar/enhancedApi';
 import { enhancedApiLocal } from '../store/signlar/enhancedApiLocal';
 import queryFilterReducer from './slices/queryFilterSlice';
 import queryAdditionalFiltersReducer from './slices/queryAdditionalFiltersSlice';
+import streamToRemoveSliceReducer from './slices/streamToRemoveSlice';
 
 const rootReducer = combineReducers({
   [enhancedApi.reducerPath]: enhancedApi.reducer,
   queryAdditionalFilters: queryAdditionalFiltersReducer,
   queryFilter: queryFilterReducer,
+  streamToRemove: streamToRemoveSliceReducer,
 });
 
 export const store = configureStore({

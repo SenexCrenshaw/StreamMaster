@@ -20,6 +20,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 
+using static System.Net.Mime.MediaTypeNames;
+
 namespace StreamMasterInfrastructureEF.Repositories;
 
 public class VideoStreamLinkRepository : RepositoryBase<VideoStreamLink>, IVideoStreamLinkRepository
@@ -41,15 +43,46 @@ public class VideoStreamLinkRepository : RepositoryBase<VideoStreamLink>, IVideo
         return ids;
     }
 
-    public async Task<List<ChildVideoStreamDto>> GetVideoStreamVideoStreams(string videoStreamId, CancellationToken cancellationToken)
+    public async Task<PagedResponse<ChildVideoStreamDto>> GetVideoStreamVideoStreams(VideoStreamLinkParameters parameters, CancellationToken cancellationToken)
     {
-        var ids = await GetVideoStreamVideoStreamIds(videoStreamId, cancellationToken).ConfigureAwait(false);
+        parameters.OrderBy = "rank";
 
-        var videoStreams = await RepositoryContext.VideoStreams.Where(a => ids.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        var entities = GetIQueryableForEntity(parameters).Include(a => a.ChildVideoStream);
 
-        var cgs = _mapper.Map<List<ChildVideoStreamDto>>(videoStreams);
+        var pagedResult = await entities.ToPagedListAsync(parameters.PageNumber, parameters.PageSize).ConfigureAwait(false);
 
-        return cgs;
+        // If there are no entities, return an empty response early
+        if (!pagedResult.Any())
+        {
+            return new PagedResponse<ChildVideoStreamDto>
+            {
+                PageNumber = parameters.PageNumber,
+                TotalPageCount = 0,
+                PageSize = parameters.PageSize,
+                TotalItemCount = 0,
+                Data = new List<ChildVideoStreamDto>()
+            };
+        }
+
+        //var ids = links.Select(a => a.ChildVideoStreamId);
+
+        //var videoStreams = await RepositoryContext.VideoStreams.Where(a => ids.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        var cgs = new List<ChildVideoStreamDto>();
+
+        //var links = await FindByCondition(a => a.ParentVideoStreamId == videoStreamId).ToArrayAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        foreach (var link in pagedResult)
+        {
+            ChildVideoStreamDto cg = _mapper.Map<ChildVideoStreamDto>(link.ChildVideoStream);
+            cg.Rank = link.Rank;
+            cgs.Add(cg);
+        }
+
+        StaticPagedList<ChildVideoStreamDto> test = new(cgs, pagedResult.GetMetaData());
+
+        PagedResponse<ChildVideoStreamDto> pagedResponse = test.ToPagedResponse(pagedResult.TotalItemCount);
+
+        return pagedResponse;
     }
 
     public VideoStreamLink GetVideoStreamLink(string ParentVideoStreamId, string ChildVideoStreamId, int? Rank)
@@ -77,6 +110,8 @@ public class VideoStreamLinkRepository : RepositoryBase<VideoStreamLink>, IVideo
 
         var newL = GetVideoStreamLink(ParentVideoStreamId, ChildVideoStreamId, Rank = rank);
         Create(newL);
+        await RepositoryContext.SaveChangesAsync(cancellationToken);
+
         childVideoStreamIds.Insert(rank, newL);
 
         for (int i = 0; i < childVideoStreamIds.Count; i++)
@@ -91,10 +126,10 @@ public class VideoStreamLinkRepository : RepositoryBase<VideoStreamLink>, IVideo
 
     public async Task RemoveVideoStreamFromVideoStream(string ParentVideoStreamId, string ChildVideoStreamId, CancellationToken cancellationToken)
     {
-        var exists = await RepositoryContext.VideoStreamLinks.FirstOrDefaultAsync(a => a.ParentVideoStreamId == ParentVideoStreamId && a.ChildVideoStreamId == ChildVideoStreamId, cancellationToken: cancellationToken).ConfigureAwait(false);
+        var exists = FindByCondition(a => a.ParentVideoStreamId == ParentVideoStreamId && a.ChildVideoStreamId == ChildVideoStreamId).Single();
         if (exists != null)
         {
-            RepositoryContext.VideoStreamLinks.Remove(exists);
+            Delete(exists);            
             await RepositoryContext.SaveChangesAsync(cancellationToken);
         }
     }

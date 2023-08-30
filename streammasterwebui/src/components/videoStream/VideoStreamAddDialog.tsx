@@ -4,7 +4,7 @@ import { getTopToolOptions } from "../../common/common";
 import { type CreateVideoStreamRequest } from "../../store/iptvApi";
 import { CreateVideoStream } from "../../store/signlar_functions";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
-import VideoStreamPanel from "./VideoStreamPanel";
+import VideoStreamPanel from "../../features/videoStreamPanel/VideoStreamPanel";
 
 const VideoStreamAddDialog = (props: VideoStreamAddDialogProps) => {
   const [block, setBlock] = useState<boolean>(false);

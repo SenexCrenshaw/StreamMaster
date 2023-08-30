@@ -6,27 +6,28 @@ using StreamMasterApplication.VideoStreamLinks.Commands;
 using StreamMasterApplication.VideoStreamLinks.Queries;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.StreamGroupVideoStreams;
 
 public interface IStreamGroupVideoStreamController
 {
-    Task<ActionResult<List<VideoStreamDto>>> GetStreamGroupVideoStreams(GetStreamGroupVideoStreamsRequest request, CancellationToken cancellationToken = default);
+    Task<ActionResult<PagedResponse<VideoStreamDto>>> GetStreamGroupVideoStreams(StreamGroupVideoStreamParameters Parameters, CancellationToken cancellationToken = default);
+
     Task<ActionResult<List<VideoStreamIsReadOnly>>> GetStreamGroupVideoStreamIds(GetStreamGroupVideoStreamIdsRequest request, CancellationToken cancellationToken = default);
 
     Task<ActionResult> AddVideoStreamToStreamGroup(AddVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken);
-    Task<ActionResult> RemoveVideoStreamToStreamGroup(RemoveVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken);
 
-
+    Task<ActionResult> RemoveVideoStreamFromStreamGroup(RemoveVideoStreamFromStreamGroupRequest request, CancellationToken cancellationToken);
 }
 
 public interface IStreamGroupVideoStreamHub
 {
-
-    Task RemoveVideoStreamToStreamGroup(RemoveVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken);
+    Task RemoveVideoStreamFromStreamGroup(RemoveVideoStreamFromStreamGroupRequest request, CancellationToken cancellationToken);
 
     Task AddVideoStreamToStreamGroup(AddVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken);
 
-    Task<List<VideoStreamDto>> GetStreamGroupVideoStreams(GetStreamGroupVideoStreamsRequest request, CancellationToken cancellationToken = default);
+    Task<PagedResponse<VideoStreamDto>> GetStreamGroupVideoStreams(StreamGroupVideoStreamParameters Parameters, CancellationToken cancellationToken = default);
+
     Task<List<VideoStreamIsReadOnly>> GetStreamGroupVideoStreamIds(GetStreamGroupVideoStreamIdsRequest request, CancellationToken cancellationToken = default);
 }

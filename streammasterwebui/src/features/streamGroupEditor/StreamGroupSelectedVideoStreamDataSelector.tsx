@@ -1,16 +1,17 @@
 /* eslint-disable react/no-unused-prop-types */
-import { useCallback, type CSSProperties } from "react";
-import { useMemo, memo, useEffect, useState } from "react";
+import { useCallback, type CSSProperties, useEffect } from "react";
+import { useMemo, memo } from "react";
 import { GetMessage } from "../../common/common";
 import { type UpdateStreamGroupRequest, type VideoStreamIsReadOnly } from "../../store/iptvApi";
 import { type ChildVideoStreamDto, useStreamGroupsUpdateStreamGroupMutation } from "../../store/iptvApi";
-import { type StreamGroupVideoStreamsGetStreamGroupVideoStreamsApiArg } from "../../store/iptvApi";
+
 import { useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery, type StreamGroupDto } from "../../store/iptvApi";
 import { type VideoStreamDto } from "../../store/iptvApi";
-import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig } from "../columns/columnConfigHooks";
-import DataSelector from "../dataSelector/DataSelector";
-import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
-import VideoStreamRemoveFromStreamGroupDialog from "../videoStream/VideoStreamRemoveFromStreamGroupDialog";
+import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig } from "../../components/columns/columnConfigHooks";
+import DataSelector from "../../components/dataSelector/DataSelector";
+import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
+import VideoStreamRemoveFromStreamGroupDialog from "./VideoStreamRemoveFromStreamGroupDialog";
+import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
 
 type StreamGroupSelectedVideoStreamDataSelectorProps = {
 
@@ -22,33 +23,40 @@ type StreamGroupSelectedVideoStreamDataSelectorProps = {
 const StreamGroupSelectedVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupSelectedVideoStreamDataSelectorProps) => {
   const dataKey = id + '-StreamGroupSelectedVideoStreamDataSelector';
 
-  const [videoStreams, setVideoStreams] = useState<VideoStreamDto[]>([] as VideoStreamDto[]);
-
   const { columnConfig: m3uFileNameColumnConfig } = useM3UFileNameColumnConfig(false);
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig(false);
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(false);
   const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig(false);
+  const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
 
-  const streamGroupsGetStreamGroupVideoStreamsQuery = useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery(streamGroup.id as StreamGroupVideoStreamsGetStreamGroupVideoStreamsApiArg);
+  useEffect(() => {
+    if (queryAdditionalFilter === undefined && streamGroup !== undefined && streamGroup.id !== undefined && streamGroup.id > 0) {
+      setQueryAdditionalFilter({ field: 'id', matchMode: 'equals', values: [streamGroup.id.toString()] });
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryAdditionalFilter, streamGroup]);
+
+  // const streamGroupsGetStreamGroupVideoStreamsQuery = useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery(streamGroup.id as StreamGroupVideoStreamsGetStreamGroupVideoStreamsApiArg);
 
   const [streamGroupsUpdateStreamGroupMutation] = useStreamGroupsUpdateStreamGroupMutation();
 
 
-  useEffect(() => {
-    if (streamGroupsGetStreamGroupVideoStreamsQuery.data !== undefined) {
-      setVideoStreams(streamGroupsGetStreamGroupVideoStreamsQuery.data);
-    }
+  // useEffect(() => {
+  //   if (streamGroupsGetStreamGroupVideoStreamsQuery.data?.data !== undefined) {
+  //     setVideoStreams(streamGroupsGetStreamGroupVideoStreamsQuery.data.data);
+  //   }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [streamGroupsGetStreamGroupVideoStreamsQuery.data]);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [streamGroupsGetStreamGroupVideoStreamsQuery.data]);
 
   const targetActionBodyTemplate = useCallback((data: VideoStreamDto) => {
     return (
       <div className='flex p-0 justify-content-end align-items-center'>
-        <VideoStreamRemoveFromStreamGroupDialog streamGroupId={streamGroup.id} value={data} />
+        <VideoStreamRemoveFromStreamGroupDialog id={id} streamGroupId={streamGroup.id} value={data} />
       </div>
     );
-  }, [streamGroup.id]);
+  }, [id, streamGroup.id]);
 
   const targetColumns = useMemo((): ColumnMeta[] => {
 
@@ -82,11 +90,6 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id, streamGroup }: StreamG
       }
     }) as ChildVideoStreamDto[];
 
-    console.group('onRowReorder');
-    newData.forEach((x) => {
-      console.log(x.id, x.rank, x.user_Tvg_name);
-    });
-    console.groupEnd();
 
     var toSend = {} as UpdateStreamGroupRequest;
 
@@ -109,15 +112,16 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id, streamGroup }: StreamG
   return (
     <DataSelector
       columns={targetColumns}
-      dataSource={videoStreams}
+      // dataSource={videoStreams}
       defaultSortField="user_tvg_name"
       emptyMessage="No Streams"
       headerName={GetMessage('streams')}
       headerRightTemplate={rightHeaderTemplate()}
       id={dataKey}
-      isLoading={streamGroupsGetStreamGroupVideoStreamsQuery.isLoading || streamGroupsGetStreamGroupVideoStreamsQuery.isFetching}
+      // isLoading={streamGroupsGetStreamGroupVideoStreamsQuery.isLoading || streamGroupsGetStreamGroupVideoStreamsQuery.isFetching}
       key='rank'
       onRowReorder={async (e) => await onRowReorder(e as VideoStreamDto[])}
+      queryFilter={useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery}
       reorderable
       selectionMode='single'
       style={{ height: 'calc(100vh - 40px)' }

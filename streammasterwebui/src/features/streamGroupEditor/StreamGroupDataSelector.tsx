@@ -4,13 +4,13 @@ import { memo, useCallback, useMemo, useRef, useState, type CSSProperties } from
 
 import { Toast } from 'primereact/toast';
 
-import StreamGroupAddDialog from '../streamGroup/StreamGroupAddDialog';
-import StreamGroupEditDialog from '../streamGroup/StreamGroupEditDialog';
-import StreamGroupDeleteDialog from '../streamGroup/StreamGroupDeleteDialog';
+import StreamGroupAddDialog from '../../components/streamGroup/StreamGroupAddDialog';
+import StreamGroupEditDialog from '../../components/streamGroup/StreamGroupEditDialog';
+import StreamGroupDeleteDialog from '../../components/streamGroup/StreamGroupDeleteDialog';
 import { type StreamGroupDto } from "../../store/iptvApi";
 import { useStreamGroupsGetStreamGroupsQuery } from "../../store/iptvApi";
-import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
-import DataSelector from "../dataSelector/DataSelector";
+import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
+import DataSelector from "../../components/dataSelector/DataSelector";
 
 const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
   const toast = useRef<Toast>(null);

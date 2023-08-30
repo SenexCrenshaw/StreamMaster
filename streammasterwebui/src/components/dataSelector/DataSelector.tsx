@@ -40,7 +40,6 @@ import { areArraysEqual } from '@mui/base';
 import { useQueryAdditionalFilters } from '../../app/slices/useQueryAdditionalFilters';
 import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';
-import { type VideoStreamIsReadOnly } from '../../store/iptvApi';
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
   const { state, setters } = useDataSelectorState<T>(props.id);
@@ -49,6 +48,16 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   const tableRef = useRef<DataTable<T[]>>(null);
 
   const setting = StreamMasterSetting();
+
+  useEffect(() => {
+    if (props.streamToRemove) {
+
+      if (state.selections.findIndex(e => e.id === props.streamToRemove) !== -1) {
+        setters.setSelections(state.selections.filter(e => e.id !== props.streamToRemove));
+      }
+
+    }
+  }, [props.streamToRemove, setters, state.selections]);
 
   const lazyState = (filters: DataTableFilterMeta): LazyTableState => {
 
@@ -134,14 +143,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryAdditionalFilter]);
 
-  // const onValueChanged = useCallback((changed: DataTableRowDataArray<T[]>) => {
-  //   if (!data) {
-  //     return;
-  //   }
-
-  //   props?.onValueChanged?.(changed);
-
-  // }, [data, props]);
 
   const onsetSelection = useCallback((e: T | T[], overRideSelectAll?: boolean): T | T[] | undefined => {
     let selected: T[] = Array.isArray(e) ? e : [e];
@@ -163,6 +164,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     return e;
   }, [state.selections, state.selectAll, state.pagedInformation?.totalRecords, props, setters]);
 
+
   useEffect(() => {
     if (!props.dataSource && !data) {
       return;
@@ -170,6 +172,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
     if (props.dataSource) {
       if (!state.dataSource || (state.dataSource && !areArraysEqual(props.dataSource, state.dataSource))) {
+
         if (!props.reorderable) {
           setters.setDataSource(props.dataSource);
         } else {
@@ -204,11 +207,22 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     if (data && isPagedTableDto<T>(data)) {
       if (!state.dataSource || (state.dataSource && !areArraysEqual(data.data, state.dataSource))) {
         setters.setDataSource((data as PagedResponseDto<T>).data);
-        setters.setPagedInformation(data);
         if (state.selectAll && data !== undefined) {
           setters.setSelections((data as PagedResponseDto<T>).data as T[]);
         }
       }
+
+      if (data.pageNumber > 1 && data.totalPageCount == 0) {
+        const newData = { ...data };
+        newData.pageNumber += -1;
+        newData.first = (newData.pageNumber - 1) * newData.pageSize;
+        setters.setPage(newData.pageNumber);
+        setters.setFirst(newData.first);
+        setters.setPagedInformation(newData);
+      } else {
+        setters.setPagedInformation(data);
+      }
+
 
       return;
     }
@@ -233,15 +247,15 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return `bg-red-900`;
     }
 
-    if (props.videoStreamIsReadOnlys !== undefined && props.videoStreamIsReadOnlys.length > 0) {
-      const isReadOnly = props.videoStreamIsReadOnlys.find((vs) => vs.videoStreamId === getRecord(changed as T, 'id'));
+    if (props.videoStreamIdsIsReadOnly !== undefined && props.videoStreamIdsIsReadOnly.length > 0) {
+      const isReadOnly = props.videoStreamIdsIsReadOnly.find((vs) => vs === getRecord(changed as T, 'id'));
       if (isReadOnly !== undefined) {
         return 'videostreamSelected' // `bg-yellow-900`;
       }
     }
 
     return {};
-  }, [props.videoStreamIsReadOnlys]);
+  }, [props.videoStreamIdsIsReadOnly]);
 
   const exportCSV = () => {
     tableRef.current?.exportCSV({ selectionOnly: false });
@@ -655,8 +669,9 @@ type BaseDataSelectorProps<T = any> = {
   showHeaders?: boolean | undefined;
   showHidden?: boolean | null | undefined;
   showSelector?: boolean;
+  streamToRemove?: string;
   style?: CSSProperties;
-  videoStreamIsReadOnlys?: VideoStreamIsReadOnly[];
+  videoStreamIdsIsReadOnly?: string[] | undefined;
   virtualScrollHeight?: string | undefined;
 }
 

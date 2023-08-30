@@ -50,7 +50,7 @@ public class VideoStreamLinksController : ApiControllerBase, IVideoStreamLinkCon
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<List<string>>> GetVideoStreamVideoStreamIds(GetVideoStreamVideoStreamIdsRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult<List<string>>> GetVideoStreamVideoStreamIds([FromQuery] GetVideoStreamVideoStreamIdsRequest request, CancellationToken cancellationToken)
     {
         var data = await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
         return Ok(data);
@@ -58,9 +58,9 @@ public class VideoStreamLinksController : ApiControllerBase, IVideoStreamLinkCon
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<List<ChildVideoStreamDto>>> GetVideoStreamVideoStreams(GetVideoStreamVideoStreamsRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult<PagedResponse<ChildVideoStreamDto>>> GetVideoStreamVideoStreams([FromQuery] VideoStreamLinkParameters Parameters, CancellationToken cancellationToken)
     {
-        var data = await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
+        var data = await Mediator.Send(new GetVideoStreamVideoStreamsRequest(Parameters), cancellationToken).ConfigureAwait(false);
         return Ok(data);
     }
 

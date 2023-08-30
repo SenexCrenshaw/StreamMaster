@@ -8,13 +8,14 @@ import { useState, useEffect, useMemo, memo } from "react";
 import { getIconUrl } from "../../common/common";
 import { type VideoStreamDto, type VideoStreamHandlers, type UpdateVideoStreamRequest, type CreateVideoStreamRequest } from "../../store/iptvApi";
 import StreamMasterSetting from "../../store/signlar/StreamMasterSetting";
-import ChannelHandlerSelector from "../ChannelHandlerSelector";
+import ChannelHandlerSelector from "../../components/ChannelHandlerSelector";
 
-import ChannelGroupSelector from "../channelGroups/ChannelGroupSelector";
-import EPGSelector from "../selectors/EPGSelector";
-import IconSelector from "../selectors/IconSelector";
+import ChannelGroupSelector from "../../components/channelGroups/ChannelGroupSelector";
+import EPGSelector from "../../components/selectors/EPGSelector";
+import IconSelector from "../../components/selectors/IconSelector";
 import { Button } from "primereact/button";
-import VideoStreamDataSelector from "../dataSelectors/VideoStreamDataSelector";
+import VideoStreamDataSelector from "./VideoStreamDataSelector";
+import VideoStreamSelectedVideoStreamDataSelector from "./VideoStreamSelectedVideoStreamDataSelector";
 
 const VideoStreamPanel = (props: VideoStreamPanelProps) => {
   const settings = StreamMasterSetting();
@@ -331,13 +332,13 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
             <div className='col-6 m-0 p-0 pr-1' >
               <VideoStreamDataSelector
                 id='videostreampanel'
-                videoStreamId={props.videoStream?.id}
+                videoStreamId={props.videoStream?.id ?? '00125dc876be8687dd57a1fd3405df44'}
               />
             </div>
             <div className='col-6 m-0 p-0 pr-1' >
-              <VideoStreamDataSelector
-                id='videostreampanel2'
-                videoStreamId={props.videoStream?.id}
+              <VideoStreamSelectedVideoStreamDataSelector
+                id='videostreampanel'
+                videoStreamId={props.videoStream?.id ?? '00125dc876be8687dd57a1fd3405df44'}
               />
             </div>
           </div>

@@ -4,7 +4,7 @@ import { getTopToolOptions } from "../../common/common";
 import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
 import { useVideoStreamsUpdateVideoStreamMutation } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
-import VideoStreamPanel from "./VideoStreamPanel";
+import VideoStreamPanel from "../../features/videoStreamPanel/VideoStreamPanel";
 import { Button } from "primereact/button";
 
 const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
