@@ -12,6 +12,7 @@ import ChannelGroupEditDialog from "../../components/channelGroups/ChannelGroupE
 import ChannelGroupVisibleDialog from "../../components/channelGroups/ChannelGroupVisibleDialog";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
+import { useChannelGroupToRemove } from "../../app/slices/useChannelGroupToRemove";
 
 
 const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
@@ -20,6 +21,8 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, id + '-showHidden');
 
   const [selectedChannelGroups, setSelectedChannelGroups] = useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
+  const { channelGroupToRemove } = useChannelGroupToRemove(id);
+
 
 
   const onSelectionChange = (data: ChannelGroupDto[]) => {
@@ -27,26 +30,26 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
     props.onSelectionChange?.(data);
   };
 
-  const onDelete = useCallback((results: string[] | undefined) => {
-    if (results === undefined) {
-      return;
-    }
+  // const onDelete = useCallback((results: string[] | undefined) => {
+  //   if (results === undefined) {
+  //     return;
+  //   }
 
-    const newSelectedChannelGroups = selectedChannelGroups.filter(
-      group => !results.includes(group.name)
-    );
+  //   const newSelectedChannelGroups = selectedChannelGroups.filter(
+  //     group => !results.includes(group.name)
+  //   );
 
-    onSelectionChange(newSelectedChannelGroups);
+  //   onSelectionChange(newSelectedChannelGroups);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   const sourceActionBodyTemplate = useCallback((data: ChannelGroupDto) => (
 
     <div className='flex p-0 justify-content-end align-items-center'>
 
       <div hidden={data.isReadOnly === true && props.useReadOnly}>
-        <ChannelGroupDeleteDialog iconFilled={false} onDelete={onDelete} value={[data]} />
+        <ChannelGroupDeleteDialog iconFilled={false} id={id} value={[data]} />
       </div>
 
       <ChannelGroupEditDialog value={data} />
@@ -55,7 +58,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
     </div>
 
-  ), [onDelete, props.useReadOnly]);
+  ), [id, props.useReadOnly]);
 
   const sourceColumns = useMemo((): ColumnMeta[] => {
     return [
@@ -105,14 +108,14 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
               value={showHidden} />
 
             <ChannelGroupVisibleDialog value={selectedChannelGroups} />
-            <ChannelGroupDeleteDialog onDelete={onDelete} value={selectedChannelGroups} />
+            <ChannelGroupDeleteDialog id={id} value={selectedChannelGroups} />
           </>
         }
 
         <ChannelGroupAddDialog />
       </div>
     );
-  }, [props.hideControls, showHidden, selectedChannelGroups, onDelete, setShowHidden]);
+  }, [props.hideControls, showHidden, selectedChannelGroups, id, setShowHidden]);
 
 
   return (
@@ -134,6 +137,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       queryFilter={useChannelGroupsGetChannelGroupsQuery}
       selectionMode='multiple'
       showHidden={showHidden}
+      streamToRemove={channelGroupToRemove}
       style={{
         height: props.maxHeight !== null ? props.maxHeight : 'calc(100vh - 40px)',
       }}

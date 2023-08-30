@@ -10,7 +10,7 @@ import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFi
 
 type VideoStreamSelectedVideoStreamDataSelectorProps = {
   id: string;
-  videoStreamId: string;
+  videoStreamId?: string;
 };
 
 const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamSelectedVideoStreamDataSelectorProps) => {
@@ -25,7 +25,7 @@ const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: Video
 
   useEffect(() => {
     if (queryAdditionalFilter === undefined) {
-      setQueryAdditionalFilter({ field: 'parentVideoStreamId', matchMode: 'equals', values: [videoStreamId] });
+      setQueryAdditionalFilter({ field: 'parentVideoStreamId', matchMode: 'equals', values: [videoStreamId ?? 'ERROR'] });
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -34,7 +34,7 @@ const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: Video
   const targetActionBodyTemplate = useCallback((data: ChildVideoStreamDto) => {
     return (
       <div className='flex p-0 justify-content-end align-items-center'>
-        <VideoStreamRemoveFromVideoStreamDialog id={id} value={data} videoStreamId={videoStreamId} />
+        <VideoStreamRemoveFromVideoStreamDialog id={id} value={data} videoStreamId={videoStreamId ?? 'ERROR'} />
       </div>
     );
   }, [id, videoStreamId]);

@@ -2,7 +2,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { type AppDispatch, type RootState } from '../store';
 import { setStreamToRemove as setStreamToRemoveInternal } from './streamToRemoveSlice';
 
-
 export const useStreamToRemove = (typename: string) => {
   const dispatch: AppDispatch = useDispatch();
 

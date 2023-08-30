@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-import { memo, useCallback, useMemo, useRef, useState, type CSSProperties } from "react";
+import { memo, useMemo, useRef, useState, type CSSProperties } from "react";
 
 import { Toast } from 'primereact/toast';
 
@@ -11,26 +9,14 @@ import { type StreamGroupDto } from "../../store/iptvApi";
 import { useStreamGroupsGetStreamGroupsQuery } from "../../store/iptvApi";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
 import DataSelector from "../../components/dataSelector/DataSelector";
+import { useStreamGroupToRemove } from "../../app/slices/useStreamGroupToRemove";
+
 
 const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
   const toast = useRef<Toast>(null);
-
-  // const streamGroupsQuery = useStreamGroupsGetStreamGroupsQuery({} as StreamGroupsGetStreamGroupsApiArg);
+  const { streamGroupToRemove } = useStreamGroupToRemove('StreamGroupDataSelector');
 
   const [selectedStreamGroup, setSelectedStreamGroup] = useState<StreamGroupDto>({} as StreamGroupDto);
-
-  // useMemo(() => {
-  //   if (selectedStreamGroup.id === undefined || !streamGroupsQuery.data || streamGroupsQuery.data.data === undefined) {
-  //     return;
-  //   }
-
-  //   if (selectedStreamGroup.id) {
-  //     const index = streamGroupsQuery.data.data.findIndex((e) => e.id === selectedStreamGroup.id);
-  //     const newSG = { ...streamGroupsQuery.data.data[index] };
-  //     setSelectedStreamGroup(newSG);
-  //   }
-
-  // }, [selectedStreamGroup.id, streamGroupsQuery.data]);
 
   const StreamGroupColumns = useMemo((): ColumnMeta[] => {
     return [
@@ -59,25 +45,6 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
     ];
   }, []);
 
-  const onSetStreamGroup = useCallback((data: StreamGroupDto) => {
-    // if (!streamGroupsQuery?.data) {
-    //   setSelectedStreamGroup({} as StreamGroupDto);
-    //   props.onSelectionChange?.({} as StreamGroupDto);
-    //   return;
-    // }
-
-    // const sg = streamGroupsQuery.data.data.find((x: StreamGroupDto) => x.id === data.id);
-    // if (sg === null || sg === undefined) {
-    //   setSelectedStreamGroup({} as StreamGroupDto);
-    //   props.onSelectionChange?.({} as StreamGroupDto);
-    //   return;
-    // }
-
-    // setSelectedStreamGroup(sg);
-    // props.onSelectionChange?.(sg);
-
-  }, []);
-
   const sourceaddtionalHeaderTemplate = () => {
     return (
       <div className="streamGroupEditor grid w-full flex flex-nowrap justify-content-end align-items-center p-0">
@@ -96,7 +63,7 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
 
             <StreamGroupAddDialog />
 
-            <StreamGroupDeleteDialog value={selectedStreamGroup} />
+            <StreamGroupDeleteDialog id='StreamGroupDataSelector' value={selectedStreamGroup} />
 
           </div >
         </div>
@@ -114,11 +81,11 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
         headerRightTemplate={sourceaddtionalHeaderTemplate()}
         id={props.id + '-ds-source'}
         onSelectionChange={(e) => {
-          onSetStreamGroup(e as StreamGroupDto);
           props.onSelectionChange?.(e as StreamGroupDto);
         }
         }
         queryFilter={useStreamGroupsGetStreamGroupsQuery}
+        streamToRemove={streamGroupToRemove}
         style={{ height: 'calc(100vh - 40px)' }}
       />
     </>

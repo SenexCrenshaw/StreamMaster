@@ -332,13 +332,13 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
             <div className='col-6 m-0 p-0 pr-1' >
               <VideoStreamDataSelector
                 id='videostreampanel'
-                videoStreamId={props.videoStream?.id ?? '00125dc876be8687dd57a1fd3405df44'}
+                videoStreamId={props.videoStream?.id}
               />
             </div>
             <div className='col-6 m-0 p-0 pr-1' >
               <VideoStreamSelectedVideoStreamDataSelector
                 id='videostreampanel'
-                videoStreamId={props.videoStream?.id ?? '00125dc876be8687dd57a1fd3405df44'}
+                videoStreamId={props.videoStream?.id}
               />
             </div>
           </div>

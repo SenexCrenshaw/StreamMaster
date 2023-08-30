@@ -5,6 +5,15 @@ import { useChannelGroupsDeleteChannelGroupMutation } from "../../store/iptvApi"
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import { getTopToolOptions } from "../../common/common";
 import DeleteButton from "../buttons/DeleteButton";
+import { useChannelGroupToRemove } from "../../app/slices/useChannelGroupToRemove";
+
+type ChannelGroupDeleteDialogProps = {
+  iconFilled?: boolean | undefined;
+  id: string;
+  onDelete?: (results: string[] | undefined) => void;
+  onHide?: () => void;
+  value?: ChannelGroupDto[] | undefined;
+};
 
 
 const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
@@ -12,6 +21,9 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
   const [block, setBlock] = React.useState<boolean>(false);
   const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
   const [infoMessage, setInfoMessage] = React.useState('');
+
+  const { setChannelGroupToRemove } = useChannelGroupToRemove(props.id);
+
 
   const [channelGroupsDeleteChannelGroupMutation] = useChannelGroupsDeleteChannelGroupMutation();
 
@@ -39,7 +51,11 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
 
     const promises = [];
     const groupNames = [] as string[];
-    for (const group of selectedChannelGroups.filter((a) => !a.isReadOnly)) {
+    for (const group of selectedChannelGroups.filter((a) => a.id !== undefined && !a.isReadOnly)) {
+
+      if (group.id === undefined) {
+        continue;
+      }
 
       const data = {} as DeleteChannelGroupRequest;
       data.groupName = group.name;
@@ -47,7 +63,9 @@ const ChannelGroupDeleteDialog = (props: ChannelGroupDeleteDialogProps) => {
       promises.push(
         channelGroupsDeleteChannelGroupMutation(data)
           .then(() => {
-
+            if (group.id !== undefined) {
+              setChannelGroupToRemove(group.id);
+            }
           }).catch(() => { })
       );
     }
@@ -121,13 +139,6 @@ ChannelGroupDeleteDialog.displayName = 'ChannelGroupDeleteDialog';
 ChannelGroupDeleteDialog.defaultProps = {
   iconFilled: true,
   value: null,
-};
-
-type ChannelGroupDeleteDialogProps = {
-  iconFilled?: boolean | undefined;
-  onDelete?: (results: string[] | undefined) => void;
-  onHide?: () => void;
-  value?: ChannelGroupDto[] | undefined;
 };
 
 export default React.memo(ChannelGroupDeleteDialog);

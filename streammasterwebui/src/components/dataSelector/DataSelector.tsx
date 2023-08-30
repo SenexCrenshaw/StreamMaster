@@ -53,11 +53,15 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     if (props.streamToRemove) {
 
       if (state.selections.findIndex(e => e.id === props.streamToRemove) !== -1) {
-        setters.setSelections(state.selections.filter(e => e.id !== props.streamToRemove));
+        const test = state.selections.filter(e => e.id !== props.streamToRemove);
+        setters.setSelections(test);
+        if (props.onSelectionChange) {
+          props.onSelectionChange(test, false, undefined);
+        }
       }
 
     }
-  }, [props.streamToRemove, setters, state.selections]);
+  }, [props, props.streamToRemove, setters, state.selections]);
 
   const lazyState = (filters: DataTableFilterMeta): LazyTableState => {
 
@@ -669,7 +673,7 @@ type BaseDataSelectorProps<T = any> = {
   showHeaders?: boolean | undefined;
   showHidden?: boolean | null | undefined;
   showSelector?: boolean;
-  streamToRemove?: string;
+  streamToRemove?: number | string;
   style?: CSSProperties;
   videoStreamIdsIsReadOnly?: string[] | undefined;
   virtualScrollHeight?: string | undefined;

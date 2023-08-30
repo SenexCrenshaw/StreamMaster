@@ -29,6 +29,7 @@ const ChannelGroupAddDialog: React.FC<ChannelGroupAddDialogProps> = ({ onAdd, on
     setBlock(false);
     onHide?.();
     onAdd?.(newGroupName);
+    setNewGroupName('');
   }
 
   const addGroup = () => {

@@ -1,15 +1,28 @@
 import { Button } from "primereact/button";
 import { useState, useCallback, useMemo, memo } from "react";
 import { getTopToolOptions } from "../../common/common";
-import { type StreamGroupDto, type DeleteStreamGroupRequest } from "../../store/iptvApi";
+import { type StreamGroupDto, type DeleteStreamGroupRequest, useStreamGroupsDeleteStreamGroupMutation } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
-import * as Hub from '../../store/signlar_functions';
+import { useStreamGroupToRemove } from "../../app/slices/useStreamGroupToRemove";
+
+
+type StreamGroupDeleteDialogProps = {
+  iconFilled?: boolean | undefined;
+  id: string;
+  onHide?: () => void;
+  value?: StreamGroupDto | undefined;
+};
+
 
 const StreamGroupDeleteDialog = (props: StreamGroupDeleteDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
   const [selectedStreamGroup, setSelectedStreamGroup] = useState<StreamGroupDto>({} as StreamGroupDto);
   const [infoMessage, setInfoMessage] = useState('');
+
+  const { setStreamGroupToRemove } = useStreamGroupToRemove(props.id);
+
+  const [streamGroupsDeleteStreamGroupMutations] = useStreamGroupsDeleteStreamGroupMutation();
 
   const ReturnToParent = useCallback(() => {
     setShowOverlay(false);
@@ -33,30 +46,16 @@ const StreamGroupDeleteDialog = (props: StreamGroupDeleteDialogProps) => {
       return;
     }
 
-    const promises = [];
-
     const data = {} as DeleteStreamGroupRequest;
     data.id = selectedStreamGroup.id;
 
-    promises.push(
-      Hub.DeleteStreamGroup(data)
-        .then(() => {
-
-        }).catch(() => { })
-    );
-
-
-    const p = Promise.all(promises);
-
-    await p.then(() => {
-
-      setInfoMessage('Stream Group No changes made');
-
+    await streamGroupsDeleteStreamGroupMutations(data).then(() => {
+      setStreamGroupToRemove(selectedStreamGroup.id);
     }).catch((error) => {
       setInfoMessage('Stream Group Delete Error: ' + error.message);
     });
 
-  }, [ReturnToParent, selectedStreamGroup]);
+  }, [ReturnToParent, selectedStreamGroup, setStreamGroupToRemove, streamGroupsDeleteStreamGroupMutations]);
 
   return (
     <>
@@ -112,10 +111,5 @@ StreamGroupDeleteDialog.defaultProps = {
   value: null,
 };
 
-type StreamGroupDeleteDialogProps = {
-  iconFilled?: boolean | undefined;
-  onHide?: () => void;
-  value?: StreamGroupDto | undefined;
-};
-
 export default memo(StreamGroupDeleteDialog);
+

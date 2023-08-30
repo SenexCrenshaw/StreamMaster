@@ -10,11 +10,15 @@ import { enhancedApiLocal } from '../store/signlar/enhancedApiLocal';
 import queryFilterReducer from './slices/queryFilterSlice';
 import queryAdditionalFiltersReducer from './slices/queryAdditionalFiltersSlice';
 import streamToRemoveSliceReducer from './slices/streamToRemoveSlice';
+import streamGroupToRemoveSliceReducer from './slices/streamGroupToRemoveSlice';
+import channelGroupToRemoveSliceReducer from './slices/channelGroupToRemoveSlice';
 
 const rootReducer = combineReducers({
   [enhancedApi.reducerPath]: enhancedApi.reducer,
+  channelGroupToRemove:channelGroupToRemoveSliceReducer,
   queryAdditionalFilters: queryAdditionalFiltersReducer,
   queryFilter: queryFilterReducer,
+  streamGroupToRemove:streamGroupToRemoveSliceReducer,
   streamToRemove: streamToRemoveSliceReducer,
 });
 

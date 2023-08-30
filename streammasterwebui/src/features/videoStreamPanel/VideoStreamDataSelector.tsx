@@ -13,7 +13,7 @@ import { useStreamToRemove } from "../../app/slices/useStreamToRemove";
 
 type VideoStreamDataSelectorProps = {
   id: string;
-  videoStreamId: string;
+  videoStreamId?: string;
 };
 
 const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorProps) => {
@@ -26,7 +26,9 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig(false);
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(false);
 
-  const videoStreamLinksGetVideoStreamVideoStreamIdsQuery = useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery(videoStreamId);
+  const videoStreamLinksGetVideoStreamVideoStreamIdsQuery = useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery(videoStreamId ?? '');
+
+
   const [videoStreamLinksAddVideoStreamToVideoStreamMutation] = useVideoStreamLinksAddVideoStreamToVideoStreamMutation();
 
   useEffect(() => {
@@ -67,7 +69,7 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
       id={dataKey}
       isLoading={videoStreamLinksGetVideoStreamVideoStreamIdsQuery.isLoading || videoStreamLinksGetVideoStreamVideoStreamIdsQuery.isFetching}
       onSelectionChange={async (value, selectAllReturn, retTotalRecords) => {
-        if (value === undefined) {
+        if (value === undefined || videoStreamId === undefined) {
           return;
         }
 
