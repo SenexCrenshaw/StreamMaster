@@ -1,8 +1,8 @@
 import { Button } from "primereact/button";
 import { useState, memo } from "react";
 import { getTopToolOptions } from "../../common/common";
-import { type CreateVideoStreamRequest } from "../../store/iptvApi";
-import { CreateVideoStream } from "../../store/signlar_functions";
+import { useVideoStreamsCreateVideoStreamMutation, type CreateVideoStreamRequest } from "../../store/iptvApi";
+
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import VideoStreamPanel from "../../features/videoStreamPanel/VideoStreamPanel";
 
@@ -10,7 +10,7 @@ const VideoStreamAddDialog = (props: VideoStreamAddDialogProps) => {
   const [block, setBlock] = useState<boolean>(false);
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
-
+  const [videoStreamsCreateVideoStreamMutation] = useVideoStreamsCreateVideoStreamMutation();
   const ReturnToParent = () => {
     setShowOverlay(false);
     setInfoMessage('');
@@ -26,7 +26,7 @@ const VideoStreamAddDialog = (props: VideoStreamAddDialogProps) => {
 
     setBlock(true);
 
-    await CreateVideoStream(data)
+    await videoStreamsCreateVideoStreamMutation(data)
       .then(() => {
 
         setInfoMessage('Add Stream Successful');

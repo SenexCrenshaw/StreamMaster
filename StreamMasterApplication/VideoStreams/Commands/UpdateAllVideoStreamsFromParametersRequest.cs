@@ -14,7 +14,7 @@ using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
-public record UpdateAllVideoStreamsFromParametersRequest(VideoStreamParameters Parameters, UpdateVideoStreamRequest request) : IRequest
+public record UpdateAllVideoStreamsFromParametersRequest(VideoStreamParameters Parameters, UpdateVideoStreamRequest request, List<int>? channelGroupIds) : IRequest
 {
 }
 

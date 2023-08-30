@@ -10,6 +10,16 @@ import { useQueryFilter } from "../../app/slices/useQueryFilter";
 import PowerButton from "../buttons/PowerButton";
 import OKButton from "../buttons/OKButton";
 
+type VideoStreamVisibleDialogProps = {
+  iconFilled?: boolean;
+  id: string;
+  onClose?: (() => void);
+  overrideTotalRecords?: number | undefined;
+  selectAll?: boolean;
+  skipOverLayer?: boolean;
+  values?: VideoStreamDto[] | undefined;
+};
+
 const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
@@ -29,8 +39,8 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
 
   useMemo(() => {
 
-    if (props.values !== null && props.values !== undefined) {
-      setSelectedVideoStreams(props.values);
+    if (props.values !== null) {
+      setSelectedVideoStreams(props.values ?? []);
     }
 
   }, [props.values]);
@@ -65,9 +75,9 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
       toSendAll.parameters.pageSize = getTotalCount;
 
       toSendAll.request = {
-        isHidden: true
+        isHidden: true,
+        toggleVisibility: true
       } as UpdateVideoStreamRequest;
-
 
       videoStreamsUpdateAllVideoStreamsFromParametersMutation(toSendAll)
         .then(() => {
@@ -128,6 +138,7 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
         onClose={() => { ReturnToParent(); }}
         show={showOverlay}
       >
+
         <div className='m-0 p-0 border-1 border-round surface-border'>
           <div className='m-3'>
             <h3 />
@@ -136,6 +147,7 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
             </div>
           </div>
         </div>
+
       </InfoMessageOverLayDialog >
       <PowerButton disabled={getTotalCount === 0} iconFilled={props.iconFilled} onClick={() => setShowOverlay(true)}
       />
@@ -149,14 +161,5 @@ VideoStreamVisibleDialog.defaultProps = {
   values: null,
 }
 
-type VideoStreamVisibleDialogProps = {
-  iconFilled?: boolean;
-  id: string;
-  onClose?: (() => void);
-  overrideTotalRecords?: number | undefined;
-  selectAll?: boolean;
-  skipOverLayer?: boolean;
-  values?: VideoStreamDto[] | undefined;
-};
 
 export default memo(VideoStreamVisibleDialog);

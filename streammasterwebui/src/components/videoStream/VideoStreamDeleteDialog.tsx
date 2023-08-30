@@ -86,7 +86,7 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
         header={`Delete ${getTotalCount < 2 ? getTotalCount + ' Stream ?' : getTotalCount + ' Streams ?'}`}
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
-        overlayColSize={6}
+        overlayColSize={3}
         show={showOverlay}
       >
         <div className='m-0 p-0 border-1 border-round surface-border'>

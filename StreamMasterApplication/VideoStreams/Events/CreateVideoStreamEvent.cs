@@ -1,6 +1,8 @@
-﻿namespace StreamMasterApplication.VideoStreams.Events;
+﻿using StreamMasterDomain.Repository;
+
+namespace StreamMasterApplication.VideoStreams.Events;
 
 public class CreateVideoStreamEvent : BaseEvent
 {
-
+   
 }

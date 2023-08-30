@@ -252,7 +252,7 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         return isChanged;
     }
 
-    public async Task<bool> CreateVideoStreamAsync(CreateVideoStreamRequest request, CancellationToken cancellationToken)
+    public async Task<VideoStream?> CreateVideoStreamAsync(CreateVideoStreamRequest request, CancellationToken cancellationToken)
     {
         //Setting setting = FileUtil.GetSetting();
         //string group = string.IsNullOrEmpty(request.Tvg_group) ? "(None)" : request.Tvg_group;
@@ -295,7 +295,7 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
 
         await UpdateChannelGroupCountsFromStream(videoStream, cancellationToken).ConfigureAwait(false);
 
-        return true;
+        return videoStream;
     }
 
     private async Task UpdateChannelGroupCountsFromStream(VideoStream videoStream, CancellationToken cancellationToken)

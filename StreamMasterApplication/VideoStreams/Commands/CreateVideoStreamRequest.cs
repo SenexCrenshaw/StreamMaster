@@ -10,6 +10,8 @@ using StreamMasterApplication.ChannelGroups.Events;
 using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
+using StreamMasterDomain.Repository;
+
 namespace StreamMasterApplication.VideoStreams.Commands;
 
 
@@ -31,7 +33,7 @@ public class CreateVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequ
     public async Task Handle(CreateVideoStreamRequest request, CancellationToken cancellationToken)
     {
         await Repository.VideoStream.CreateVideoStreamAsync(request, cancellationToken);
-        await Publisher.Publish(new CreateVideoStreamEvent(), cancellationToken).ConfigureAwait(false);
-        await Publisher.Publish(new UpdateChannelGroupEvent(), cancellationToken).ConfigureAwait(false);
+       
+       await Publisher.Publish(new CreateVideoStreamEvent(), cancellationToken).ConfigureAwait(false);
     }
 }

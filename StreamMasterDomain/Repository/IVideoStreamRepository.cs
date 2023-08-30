@@ -11,7 +11,7 @@ namespace StreamMasterDomain.Repository
     {
         IQueryable<VideoStream> GetJustVideoStreams();
 
-        Task<bool> CreateVideoStreamAsync(CreateVideoStreamRequest request, CancellationToken cancellationToken);
+        Task<VideoStream?> CreateVideoStreamAsync(CreateVideoStreamRequest request, CancellationToken cancellationToken);
 
         IQueryable<VideoStream> GetVideoStreamsById(string id);
 

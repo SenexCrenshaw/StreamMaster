@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
+using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.Hubs;
 using StreamMasterApplication.VideoStreams.Events;
 
@@ -27,6 +28,6 @@ public class CreateVideoStreamEventHandler : INotificationHandler<CreateVideoStr
 
     public async Task Handle(CreateVideoStreamEvent notification, CancellationToken cancellationToken = default)
     {
-        await _hubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);
+        await _hubContext.Clients.All.ChannelGroupsRefresh().ConfigureAwait(false);
     }
 }
