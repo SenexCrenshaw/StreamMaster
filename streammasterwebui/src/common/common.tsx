@@ -24,6 +24,11 @@ export const getLeftToolOptions = { autoHide: true, hideDelay: 100, position: 'l
 <FormattedMessage defaultMessage="Stream Master" id="app.title" />;
 
 
+export const hasValidAdditionalProps = (additionalFilterProps: AdditionalFilterProps | undefined) => {
+  return additionalFilterProps?.values;
+};
+
+
 // export type MatchMode = 'between' | 'channelGroupsMatch' | 'contains' | 'custom' | 'dateAfter' | 'dateBefore' | 'dateIs' | 'dateIsNot' | 'endsWith' | 'equals' | 'gt' | 'gte' | 'in' | 'lt' | 'lte' | 'notContains' | 'notEquals' | 'startsWith' | undefined;
 export type MatchMode = 'between' | 'contains' | 'custom' | 'dateAfter' | 'dateBefore' | 'dateIs' | 'dateIsNot' | 'endsWith' | 'equals' | 'gt' | 'gte' | 'in' | 'lt' | 'lte' | 'notContains' | 'notEquals' | 'startsWith' | undefined;
 

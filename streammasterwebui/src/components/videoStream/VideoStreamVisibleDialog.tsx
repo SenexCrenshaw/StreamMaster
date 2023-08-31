@@ -1,5 +1,6 @@
 
 import { useState, useCallback, useMemo, memo } from "react";
+
 import { getTopToolOptions } from "../../common/common";
 import { type VideoStreamsUpdateAllVideoStreamsFromParametersApiArg } from "../../store/iptvApi";
 import { type VideoStreamDto, type UpdateVideoStreamsRequest, type UpdateVideoStreamRequest, useVideoStreamsUpdateAllVideoStreamsFromParametersMutation } from "../../store/iptvApi";
@@ -9,6 +10,7 @@ import { Button } from "primereact/button";
 import { useQueryFilter } from "../../app/slices/useQueryFilter";
 import PowerButton from "../buttons/PowerButton";
 import OKButton from "../buttons/OKButton";
+import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
 
 type VideoStreamVisibleDialogProps = {
   iconFilled?: boolean;
@@ -26,6 +28,7 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
   const [infoMessage, setInfoMessage] = useState('');
   const [selectedVideoStreams, setSelectedVideoStreams] = useState<VideoStreamDto[]>([] as VideoStreamDto[]);
   const { queryFilter } = useQueryFilter(props.id);
+  const { queryAdditionalFilter } = useQueryAdditionalFilters(props.id);
 
   const [videoStreamsUpdateVideoStreams] = useVideoStreamsUpdateVideoStreamsMutation();
   const [videoStreamsUpdateAllVideoStreamsFromParametersMutation] = useVideoStreamsUpdateAllVideoStreamsFromParametersMutation();
@@ -64,15 +67,18 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
     }
 
     if (props.selectAll === true) {
-      if (!queryFilter) {
+      if (!queryFilter && !queryAdditionalFilter) {
         ReturnToParent();
         return;
       }
 
+
+
+
       const toSendAll = {} as VideoStreamsUpdateAllVideoStreamsFromParametersApiArg;
 
       toSendAll.parameters = queryFilter;
-      toSendAll.parameters.pageSize = getTotalCount;
+      // toSendAll.parameters.pageSize = getTotalCount;
 
       toSendAll.request = {
         isHidden: true,
@@ -107,7 +113,7 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
         setInfoMessage('Set Stream Visibility Error: ' + error.message);
       });
 
-  }, [ReturnToParent, getTotalCount, props.selectAll, queryFilter, selectedVideoStreams, videoStreamsUpdateAllVideoStreamsFromParametersMutation, videoStreamsUpdateVideoStreams]);
+  }, [ReturnToParent, props.selectAll, queryAdditionalFilter, queryFilter, selectedVideoStreams, videoStreamsUpdateAllVideoStreamsFromParametersMutation, videoStreamsUpdateVideoStreams]);
 
 
   if (props.skipOverLayer === true) {

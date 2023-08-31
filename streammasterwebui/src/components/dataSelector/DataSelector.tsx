@@ -4,7 +4,6 @@ import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 
 import { type DataTableSelectionMultipleChangeEvent } from 'primereact/datatable';
-import { type DataTableFilterMeta } from 'primereact/datatable';
 import { type DataTableSelectionSingleChangeEvent } from 'primereact/datatable';
 import { type DataTableSelectAllChangeEvent } from 'primereact/datatable';
 import { type DataTableStateEvent } from 'primereact/datatable';
@@ -16,14 +15,11 @@ import { type DataTableRowData } from 'primereact/datatable';
 import { DataTable } from 'primereact/datatable';
 import { type ReactNode } from 'react';
 import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties } from 'react';
-import { removeValueForField } from '../../common/common';
-import { areAdditionalFilterPropsEqual, type MatchMode } from '../../common/common';
-import { addOrUpdateValueForField, type SMDataTableFilterMetaData } from '../../common/common';
+import { areAdditionalFilterPropsEqual } from '../../common/common';
 import { type GetApiArg } from '../../common/common';
 import { type QueryHook } from '../../common/common';
 import { camel2title, getTopToolOptions, isEmptyObject } from '../../common/common';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
-import { type LazyTableState } from './DataSelectorTypes';
 import { type ColumnAlign, type ColumnFieldType, type DataSelectorSelectionMode } from './DataSelectorTypes';
 import { type ColumnMeta } from './DataSelectorTypes';
 import TableHeader from './TableHeader';
@@ -40,10 +36,15 @@ import { areArraysEqual } from '@mui/base';
 import { useQueryAdditionalFilters } from '../../app/slices/useQueryAdditionalFilters';
 import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';
+import useLazyTableState from './useLazyTableState';
+import { useQueryFilter } from '../../app/slices/useQueryFilter';
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
   const { state, setters } = useDataSelectorState<T>(props.id);
   const { queryAdditionalFilter } = useQueryAdditionalFilters(props.id);
+  const { queryFilter } = useQueryFilter(props.id);
+
+  useLazyTableState(props.id, props.columns, state.first, state.filters, props.showHidden, state.additionalFilterProps, state.sortField, state.sortOrder, state.page, state.rows, props.defaultSortField);
 
   const tableRef = useRef<DataTable<T[]>>(null);
 
@@ -63,79 +64,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
   }, [props, props.streamToRemove, setters, state.selections]);
 
-  const lazyState = (filters: DataTableFilterMeta): LazyTableState => {
 
-    const newFilters = generateFilterData(props.columns, filters, props.showHidden);
-
-    let sort = '';
-    if (state.sortField) {
-      sort = (state.sortOrder === -1) ? `${state.sortField} desc` : (state.sortOrder === 1) ? `${state.sortField} asc` : '';
-    }
-
-    const defaultState: LazyTableState = {
-      filters: newFilters,
-      first: state.first,
-      jsonFiltersString: '',
-      page: state.page,
-      rows: state.rows,
-      sortField: state.sortField,
-      sortOrder: state.sortOrder,
-      sortString: sort
-    };
-
-    return {
-      ...defaultState,
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  };
-
-  const filterData = useMemo((): GetApiArg => {
-    // Helper functions
-    const hasValidAdditionalProps = () => {
-      return state.additionalFilterProps?.values;
-    };
-
-    const generateFilteredData = () => {
-      const toSend: SMDataTableFilterMetaData[] = Object.keys(lazyState(state.filters).filters)
-        .map(key => {
-          const value = lazyState(state.filters).filters[key] as SMDataTableFilterMetaData;
-          return value?.value && value.value !== '[]' ? value : null;
-        })
-        .filter(Boolean) as SMDataTableFilterMetaData[];
-
-      if (hasValidAdditionalProps()) {
-        const addProps = state.additionalFilterProps;
-        if (addProps) {
-          if (isEmptyObject(addProps.values)) {
-            removeValueForField(toSend, addProps.field);
-          } else {
-            const values = JSON.stringify(addProps.values);
-            addOrUpdateValueForField(toSend, addProps.field, addProps.matchMode as MatchMode, values);
-          }
-        }
-      }
-
-      const toFilter = lazyState(state.filters);
-      return {
-        jsonFiltersString: JSON.stringify(toSend),
-        orderBy: toFilter.sortString || props.defaultSortField,
-        pageNumber: toFilter.page,
-        pageSize: toFilter.rows,
-      };
-    };
-
-    // Main Logic
-    if (isEmptyObject(state.filters) && !hasValidAdditionalProps()) {
-      return { pageSize: 40 };
-    }
-
-    const getApi = generateFilteredData();
-    return getApi || { pageSize: 40 };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.filters, state.additionalFilterProps, state.sortField, state.sortOrder, state.page, state.rows]);
-
-  const { data, isLoading, isFetching } = props.queryFilter ? props.queryFilter(filterData) : { data: undefined, isFetching: false, isLoading: false };
+  const { data, isLoading, isFetching } = props.queryFilter ? props.queryFilter((queryFilter ?? { pageSize: 25 })) : { data: undefined, isFetching: false, isLoading: false };
 
   useEffect(() => {
     if (queryAdditionalFilter?.values) {
