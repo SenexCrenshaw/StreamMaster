@@ -69,12 +69,12 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
       <div className='flex p-0 justify-content-end align-items-center'>
         <VideoStreamResetLogoDialog value={data} />
         <VideoStreamSetLogoFromEPGDialog value={data} />
-        <VideoStreamVisibleDialog iconFilled={false} id={props.id} skipOverLayer values={[data]} />
+        <VideoStreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
         <VideoStreamDeleteDialog iconFilled={false} value={data} />
         <VideoStreamEditDialog iconFilled={false} value={data} />
       </div>
     );
-  }, [props.id]);
+  }, [dataKey]);
 
   const targetColumns = useMemo((): ColumnMeta[] => {
     let columnConfigs = [
@@ -147,12 +147,12 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
         {/* <VideoStreamSetEPGsFromNameDialog overrideTotalRecords={selectAll ? totalRecords : undefined} values={selectedVideoStreams} /> */}
         <VideoStreamSetLogosFromEPGDialog overrideTotalRecords={selectAll ? totalRecords : undefined} values={selectedVideoStreams} />
         <AutoSetChannelNumbers ids={ids} overrideTotalRecords={selectAll ? totalRecords : undefined} />
-        <VideoStreamVisibleDialog iconFilled id={props.id} overrideTotalRecords={selectAll ? totalRecords : undefined} selectAll={selectAll} values={selectedVideoStreams} />
+        <VideoStreamVisibleDialog iconFilled id={dataKey} overrideTotalRecords={selectAll ? totalRecords : undefined} selectAll={selectAll} values={selectedVideoStreams} />
         <VideoStreamDeleteDialog overrideTotalRecords={selectAll ? totalRecords : undefined} values={selectedVideoStreams} />
         <VideoStreamAddDialog group={props.channelGroupNames?.[0]} />
       </div>
     );
-  }, [props.channelGroupNames, props.id, selectAll, selectedVideoStreams, setShowHidden, showHidden, totalRecords]);
+  }, [dataKey, props.channelGroupNames, selectAll, selectedVideoStreams, setShowHidden, showHidden, totalRecords]);
 
 
   const rightHeaderBriefTemplate = useMemo(() => {

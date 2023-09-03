@@ -27,6 +27,7 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
   const [block, setBlock] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [selectedVideoStreams, setSelectedVideoStreams] = useState<VideoStreamDto[]>([] as VideoStreamDto[]);
+
   const { queryFilter } = useQueryFilter(props.id);
   const { queryAdditionalFilter } = useQueryAdditionalFilters(props.id);
 

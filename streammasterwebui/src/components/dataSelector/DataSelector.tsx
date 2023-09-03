@@ -36,7 +36,7 @@ import { areArraysEqual } from '@mui/base';
 import { useQueryAdditionalFilters } from '../../app/slices/useQueryAdditionalFilters';
 import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';
-import useLazyTableState from './useLazyTableState';
+import useSetQueryFilter from './useSetQueryFilter';
 import { useQueryFilter } from '../../app/slices/useQueryFilter';
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
@@ -44,7 +44,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   const { queryAdditionalFilter } = useQueryAdditionalFilters(props.id);
   const { queryFilter } = useQueryFilter(props.id);
 
-  useLazyTableState(props.id, props.columns, state.first, state.filters, props.showHidden, state.additionalFilterProps, state.sortField, state.sortOrder, state.page, state.rows, props.defaultSortField);
+  useSetQueryFilter(props.id, props.columns, state.first, state.filters, props.showHidden, state.additionalFilterProps, state.sortField, state.sortOrder, state.page, state.rows);
 
   const tableRef = useRef<DataTable<T[]>>(null);
 

@@ -42,6 +42,5 @@ function generateFilterData(columns: ColumnMeta[], currentFilters: DataTableFilt
   return ret;
 }
 
-;
 
 export default generateFilterData;
