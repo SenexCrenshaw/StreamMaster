@@ -10,6 +10,10 @@
   padding: .2rem !important;
 }
 
+.p-inputtext.p-component.p-multiselect-filter.p-multiselect-filter {
+  min-height: 1.8rem;
+}
+
 .p-button.p-button-icon-only.p-button-rounded {
   height: 1.2rem !important;
   padding: 0 !important;

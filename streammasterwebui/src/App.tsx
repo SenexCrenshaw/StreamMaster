@@ -20,7 +20,7 @@ import SignalRHub from './app/SignalRHub';
 import FilesEditor from './features/filesEditor/FilesEditor';
 import LogViewer from './features/logViewer/LogViewer';
 import SDEditor from './features/sdEditor/SDEditor';
-import TestPanel from './features/testPanel/TestPanel';
+// import TestPanel from './features/testPanel/TestPanel';
 import StreamMasterSetting from './store/signlar/StreamMasterSetting';
 
 // import SDEditor from './features/sdEditor/SDEditor';
@@ -55,9 +55,9 @@ const App = () => {
       <Route element={<Home />} path="/">
         <Route element={<Navigate to="/editor/playlist" />} index />
 
-        <Route element={
+        {/* <Route element={
           <TestPanel />
-        } path="/testpanel" />
+        } path="/testpanel" /> */}
 
         <Route element={
           <StreamGroupEditor />
