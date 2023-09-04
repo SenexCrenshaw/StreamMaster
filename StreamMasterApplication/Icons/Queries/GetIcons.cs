@@ -42,7 +42,7 @@ internal class GetIconsHandler : IRequestHandler<GetIcons, PagedResponse<IconFil
             if (!string.IsNullOrEmpty(request.iconFileParameters.JSONFiltersString))
             {
                 List<DataTableFilterMetaData>? filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(request.iconFileParameters.JSONFiltersString);
-                icons = FilterHelper<IconFileDto>.ApplyFiltersAndSort(icons, filters, request.iconFileParameters.OrderBy);
+                icons = FilterHelper<IconFileDto>.ApplyFiltersAndSort(icons, filters, "Name asc");
             }
         }
 

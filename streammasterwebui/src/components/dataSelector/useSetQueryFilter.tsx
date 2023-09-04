@@ -17,7 +17,6 @@ const useSetQueryFilter = (
   filters: DataTableFilterMeta,
   page: number,
   rows: number,
-  hiddenField: string,
 ) => {
 
   const { sortInfo } = useSortInfo(id);
@@ -52,14 +51,11 @@ const useSetQueryFilter = (
       })
       .filter(Boolean) as SMDataTableFilterMetaData[];
 
-    if (showHidden !== null && showHidden !== undefined) {
-      console.log('toSend showHidden', hiddenField, !showHidden);
+    if (showHidden === null) {
+      removeValueForField(toSend, 'isHidden');
+    } else if (showHidden !== undefined) {
 
-      toSend.push({
-        fieldName: 'isHidden',
-        matchMode: FilterMatchMode.EQUALS,
-        value: !showHidden
-      });
+      addOrUpdateValueForField(toSend, 'isHidden', FilterMatchMode.EQUALS, !showHidden);
     }
 
     if (hasValidAdditionalProps(queryAdditionalFilter)) {
@@ -85,7 +81,7 @@ const useSetQueryFilter = (
       },
       lazyState: defaultState,
     };
-  }, [columns, filters, sortInfo, first, page, rows, showHidden, queryAdditionalFilter, hiddenField]);
+  }, [columns, filters, sortInfo, first, page, rows, showHidden, queryAdditionalFilter]);
 
   useEffect(() => {
     const newApi = generateGetApi;// hasValidAdditionalProps(additionalFilterProps) ? generateGetApi : { pageSize: 40 };

@@ -60,10 +60,6 @@ const VideoStreamVisibleDialog = ({
 
   const onVisiblesClick = useCallback(async () => {
     setBlock(true);
-    if (selectedVideoStreams.length === 0) {
-      ReturnToParent();
-      return;
-    }
 
     if (getTotalCount !== 1 && selectAll === true) {
       if (!queryFilter) {
@@ -87,6 +83,11 @@ const VideoStreamVisibleDialog = ({
         ).catch((error) => {
           setInfoMessage('Set Stream Visibility Error: ' + error.message);
         });
+      return;
+    }
+
+    if (selectedVideoStreams.length === 0) {
+      ReturnToParent();
       return;
     }
 
