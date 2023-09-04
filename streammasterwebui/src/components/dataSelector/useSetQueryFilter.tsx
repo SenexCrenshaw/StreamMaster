@@ -86,7 +86,7 @@ const useSetQueryFilter = (
   useEffect(() => {
     const newApi = generateGetApi;// hasValidAdditionalProps(additionalFilterProps) ? generateGetApi : { pageSize: 40 };
     if (!areGetApiArgsEqual(newApi, queryFilter)) {
-      console.log('useSetQueryFilter', id, newApi);
+      // console.log('useSetQueryFilter', id, newApi);
       setQueryFilter(newApi);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -680,7 +680,10 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
             }
         }
 
-        await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        if (ret > 0)
+        {
+            await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
         return ret;
     }
 }

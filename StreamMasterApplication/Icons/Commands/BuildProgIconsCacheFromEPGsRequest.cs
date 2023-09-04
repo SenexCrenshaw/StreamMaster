@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using StreamMaster.SchedulesDirectAPI;
 
 using StreamMasterApplication.M3UFiles.Commands;
+
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Repository.EPG;
@@ -32,6 +33,8 @@ public class BuildProgIconsCacheFromEPGsRequestHandler : BaseMemoryRequestHandle
     {
         Setting setting = FileUtil.GetSetting();
 
+        int startId = MemoryCache.GetIcons(Mapper).Count;
+
         IEnumerable<EPGFile> epgFiles = await Repository.EPGFile.GetAllEPGFilesAsync();
         foreach (EPGFile? epg in epgFiles)
         {
@@ -45,15 +48,15 @@ public class BuildProgIconsCacheFromEPGsRequestHandler : BaseMemoryRequestHandle
 
             if (!epgChannels.Any()) { continue; }
 
-            WorkOnEPGChannelIcons(epg.Id, epgChannels, cancellationToken);
+            WorkOnEPGChannelIcons(epg.Id, startId, epgChannels, cancellationToken);
         }
 
-        await WorkOnProgrammeIcons(cancellationToken).ConfigureAwait(false);
+        await WorkOnProgrammeIcons(startId, cancellationToken).ConfigureAwait(false);
 
         return true;
     }
 
-    private void WorkOnEPGChannelIcons(int epgFileId, IEnumerable<TvChannel> channels, CancellationToken cancellationToken)
+    private void WorkOnEPGChannelIcons(int epgFileId, int startId, IEnumerable<TvChannel> channels, CancellationToken cancellationToken)
     {
         foreach (TvChannel? channel in channels)
         {
@@ -72,7 +75,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler : BaseMemoryRequestHandle
             else
             {
                 string name = channel.Displayname != null ? channel.Displayname[0].ToString() : Path.GetFileNameWithoutExtension(source);
-                IconFileDto? iconDto = IconHelper.AddIcon(source, name, epgFileId, Mapper, MemoryCache, FileDefinitions.ChannelIcon, cancellationToken);
+                IconFileDto? iconDto = IconHelper.AddIcon(source, name, epgFileId, startId++, MemoryCache, FileDefinitions.ChannelIcon, cancellationToken);
                 if (iconDto is null)
                 {
                     continue;
@@ -81,7 +84,13 @@ public class BuildProgIconsCacheFromEPGsRequestHandler : BaseMemoryRequestHandle
                 List<ChannelLogoDto> channelLogos = MemoryCache.ChannelLogos();
                 if (!channelLogos.Any(a => a.LogoUrl == source))
                 {
-                    ChannelLogoDto cl = new() { LogoUrl = source, EPGId = channel.Id, EPGFileId = epgFileId };
+                    ChannelLogoDto cl = new()
+                    {
+                        Id = iconDto.Id,
+                        LogoUrl = source,
+                        EPGId = channel.Id,
+                        EPGFileId = epgFileId
+                    };
 
                     MemoryCache.Add(cl);
                 }
@@ -89,7 +98,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler : BaseMemoryRequestHandle
         }
     }
 
-    private async Task WorkOnProgrammeIcons(CancellationToken cancellationToken)
+    private async Task WorkOnProgrammeIcons(int startId, CancellationToken cancellationToken)
     {
         List<StreamGroupDto> sgs = await Repository.StreamGroup.GetStreamGroupDtos("", cancellationToken).ConfigureAwait(false);
         IEnumerable<string> epgids = sgs.SelectMany(x => x.ChildVideoStreams.Select(a => a.User_Tvg_ID)).Distinct();
@@ -127,7 +136,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler : BaseMemoryRequestHandle
                 bool result = await sd.GetImageUrl(source, fileName, cancellationToken).ConfigureAwait(false);
             }
 
-            IconFileDto? iconDto = IconHelper.AddIcon(source, programme.Title.Text, programme.EPGFileId, Mapper, MemoryCache, FileDefinitions.ProgrammeIcon, cancellationToken);
+            IconFileDto? iconDto = IconHelper.AddIcon(source, programme.Title.Text, programme.EPGFileId, startId, MemoryCache, FileDefinitions.ProgrammeIcon, cancellationToken);
             if (iconDto is null)
             {
                 continue;

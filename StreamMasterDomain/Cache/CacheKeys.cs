@@ -309,7 +309,7 @@ public static class CacheKeys
 
     public static IEnumerable<ProgrammeNameDto> ProgrammeNames(this IMemoryCache cache)
     {
-        List<Programme> programmes = cache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel) && a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
+        List<Programme> programmes = cache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel)).ToList();
         if (programmes.Any())
         {
             IEnumerable<ProgrammeNameDto> ret = programmes.GroupBy(a => a.Channel).Select(group => group.First()).Select(a => new ProgrammeNameDto

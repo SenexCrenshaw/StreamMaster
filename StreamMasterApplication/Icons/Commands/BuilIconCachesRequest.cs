@@ -18,7 +18,7 @@ public class BuildIconCachesRequestHandler : IRequestHandler<BuildIconCachesRequ
 
     public async Task Handle(BuildIconCachesRequest request, CancellationToken cancellationToken)
     {
-        var settings = FileUtil.GetSetting();
+        Setting settings = FileUtil.GetSetting();
         if (!settings.CacheIcons)
         {
             return;

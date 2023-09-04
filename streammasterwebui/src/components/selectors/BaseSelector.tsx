@@ -143,7 +143,6 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
       props.querySelectedItem(props.value).then((item) => {
         if (item) {
           if (!existingIds.has(item.id)) {
-            // console.log('Adding new item', item.name);
             const newDataSource = dataSource.concat(item);
             setDataSource(newDataSource);
             setIndex(newDataSource.length);

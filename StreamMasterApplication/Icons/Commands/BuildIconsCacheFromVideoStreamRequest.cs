@@ -58,7 +58,7 @@ public class BuildIconsCacheFromVideoStreamRequestHandler : BaseMemoryRequestHan
             string source = HttpUtility.UrlDecode(stream.Tvg_logo);
 
             IconFileDto icon = IconHelper.GetIcon(source, stream.User_Tvg_name, stream.M3UFileId, FileDefinitions.Icon);
-            toWrite.Add(icon); ;
+            toWrite.Add(icon);
         });
 
         List<IconFileDto> icons = MemoryCache.GetIcons(Mapper);

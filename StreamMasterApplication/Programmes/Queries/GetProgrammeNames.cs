@@ -20,7 +20,7 @@ internal class GetProgrammeNamesHandler : BaseMemoryRequestHandler, IRequestHand
     public Task<List<string>> Handle(GetProgrammeNames request, CancellationToken cancellationToken)
     {
         List<string> programmes = MemoryCache.Programmes()
-            .Where(a => !string.IsNullOrEmpty(a.Channel) && a.StopDateTime > DateTime.Now.AddDays(-1))
+            .Where(a => !string.IsNullOrEmpty(a.Channel))
             .Select(a => a.DisplayName).Distinct().ToList();
 
         return Task.FromResult(programmes);

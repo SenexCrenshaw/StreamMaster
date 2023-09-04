@@ -1,6 +1,7 @@
 ﻿using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
+
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Repository.EPG;
 
@@ -24,14 +25,14 @@ internal class GetProgrammesHandler : IRequestHandler<GetProgrammes, IEnumerable
 
     public async Task<IEnumerable<Programme>> Handle(GetProgrammes request, CancellationToken cancellationToken)
     {
-        IEnumerable<Programme> programmes = _memoryCache.Programmes().Where(a => a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
+        IEnumerable<Programme> programmes = _memoryCache.Programmes().ToList();
         if (programmes == null)
         {
             return new List<Programme>();
         }
 
-        var setting = FileUtil.GetSetting();
-        var icons = _memoryCache.Icons();
+        Setting setting = FileUtil.GetSetting();
+        List<StreamMasterDomain.Dto.IconFileDto> icons = _memoryCache.Icons();
 
         foreach (Programme? prog in programmes.Where(a => a.Icon.Any()))
         {
@@ -39,7 +40,7 @@ internal class GetProgrammesHandler : IRequestHandler<GetProgrammes, IEnumerable
             {
                 if (progIcon != null && !string.IsNullOrEmpty(progIcon.Src))
                 {
-                    var icon = icons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
+                    StreamMasterDomain.Dto.IconFileDto? icon = icons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
                     if (icon == null)
                     {
                         continue;
