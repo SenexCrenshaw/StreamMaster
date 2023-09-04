@@ -1,43 +1,40 @@
 
-import { useState, useCallback, memo } from "react";
+import { useCallback, memo } from "react";
 import { getTopToolOptions } from "../../common/common";
-import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
-import { UpdateVideoStream } from "../../store/signlar_functions";
+import { useVideoStreamsSetVideoStreamsLogoFromEpgMutation, type VideoStreamsSetVideoStreamsLogoFromEpgApiArg } from "../../store/iptvApi";
+import { type VideoStreamDto } from "../../store/iptvApi";
 import { Button } from "primereact/button";
 
 const VideoStreamSetLogoFromEPGDialog = (props: VideoStreamSetLogoFromEPGDialogProps) => {
 
-  const [epgLogoUrl, setEpgLogoUrl] = useState<string | undefined>(undefined);
-
+  const [videoStreamsSetVideoStreamsLogoFromEpgMutation] = useVideoStreamsSetVideoStreamsLogoFromEpgMutation();
   const ReturnToParent = useCallback(() => {
-    setEpgLogoUrl(undefined);
     props.onClose?.();
   }, [props]);
 
 
   const onChangeLogo = useCallback(async () => {
 
-    if (props.value === undefined || props.value.id === undefined || epgLogoUrl === undefined || epgLogoUrl === undefined) {
+    if (props.value === undefined || props.value.id === undefined) {
       ReturnToParent();
       return;
     }
 
-    const toSend = {} as UpdateVideoStreamRequest;
-    toSend.id = props.value?.id;
-    toSend.tvg_logo = epgLogoUrl;
+    const toSend = {} as VideoStreamsSetVideoStreamsLogoFromEpgApiArg;
+    toSend.ids = [props.value.id];
 
-    await UpdateVideoStream(toSend)
+    await videoStreamsSetVideoStreamsLogoFromEpgMutation(toSend)
       .then(() => {
       }
       ).catch((error) => {
         console.log(error);
       });
 
-  }, [ReturnToParent, epgLogoUrl, props.value]);
+  }, [ReturnToParent, props.value, videoStreamsSetVideoStreamsLogoFromEpgMutation]);
 
   return (
     <Button
-      disabled={!epgLogoUrl || props.value?.user_Tvg_logo === epgLogoUrl}
+      disabled={props.value === undefined || props.value.id === undefined}
       icon='pi pi-image'
       onClick={async () =>
         await onChangeLogo()

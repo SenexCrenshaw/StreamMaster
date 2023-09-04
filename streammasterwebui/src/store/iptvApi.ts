@@ -2204,6 +2204,7 @@ export type StreamStatisticsResult = {
   videoStreamName?: string;
 };
 export type ChannelLogoDto = {
+  id?: number;
   epgId?: string;
   epgFileId?: number;
   logoUrl?: string;
@@ -2219,7 +2220,7 @@ export type SetVideoStreamChannelNumbersRequest = {
 };
 export type SetVideoStreamsLogoFromEpgRequest = {
   ids?: string[];
-  orderBy?: string;
+  orderBy?: string | null;
 };
 export type UpdateVideoStreamRequest = VideoStreamBaseRequest & {
   id?: string;

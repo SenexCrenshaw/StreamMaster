@@ -9,7 +9,7 @@ using StreamMasterApplication.VideoStreams.Events;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
-public record SetVideoStreamsLogoFromEPGRequest(List<string> Ids, string OrderBy) : IRequest { }
+public record SetVideoStreamsLogoFromEPGRequest(List<string> Ids, string? OrderBy) : IRequest { }
 
 public class SetVideoStreamsLogoFromEPGRequestHandler : BaseMemoryRequestHandler, IRequestHandler<SetVideoStreamsLogoFromEPGRequest>
 {
@@ -19,7 +19,7 @@ public class SetVideoStreamsLogoFromEPGRequestHandler : BaseMemoryRequestHandler
 
     public async Task Handle(SetVideoStreamsLogoFromEPGRequest request, CancellationToken cancellationToken)
     {
-        var count = await Repository.VideoStream.SetVideoStreamsLogoFromEPGFromIds(request.Ids, request.OrderBy, cancellationToken).ConfigureAwait(false);
+        int count = await Repository.VideoStream.SetVideoStreamsLogoFromEPGFromIds(request.Ids, request.OrderBy, cancellationToken).ConfigureAwait(false);
 
         if (count > 0)
         {

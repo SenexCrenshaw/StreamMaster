@@ -653,8 +653,12 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<int> SetVideoStreamsLogoFromEPGFromIds(List<string> Ids, string OrderBy, CancellationToken cancellationToken)
+    public async Task<int> SetVideoStreamsLogoFromEPGFromIds(List<string> Ids, string? OrderBy, CancellationToken cancellationToken)
     {
+        if (string.IsNullOrEmpty(OrderBy))
+        {
+            OrderBy = "User_Tvg_Name asc";
+        }
         List<VideoStream> videoStreams = await FindByCondition(a => Ids.Contains(a.Id), OrderBy).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
         return await SetVideoStreamsLogoFromEPG(videoStreams, cancellationToken).ConfigureAwait(false);
