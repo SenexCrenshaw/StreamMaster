@@ -126,7 +126,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
   }, [dataSource, filterQuery]);
 
   useEffect(() => {
-    if (!props.value) return;
+    if (props.value === null || props.value === undefined) return;
     if (selectedItem === props.value) {
       return;
     }
@@ -134,26 +134,28 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
     var existingIds = new Set(dataSource.map(x => x.id));
     var existingIds2 = dataSource.map(x => x.id);
 
-    if (existingIds.keys.length !== existingIds2.length) {
+    if (existingIds.size !== existingIds2.length) {
       console.log('mismatch')
     }
 
     setSelectedItem(props.value);
-    try {
-      props.querySelectedItem(props.value).then((item) => {
-        if (item) {
-          if (!existingIds.has(item.id)) {
-            const newDataSource = dataSource.concat(item);
-            setDataSource(newDataSource);
-            setIndex(newDataSource.length);
+
+    if (props.value !== '') {
+      try {
+        props.querySelectedItem(props.value).then((item) => {
+          if (item) {
+            if (!existingIds.has(item.id)) {
+              const newDataSource = dataSource.concat(item);
+              setDataSource(newDataSource);
+              setIndex(newDataSource.length);
+            }
           }
-        }
-      }).catch((e) => { console.error(e) });
+        }).catch((e) => { console.error(e) });
 
-    } catch (e) {
-      console.error(e);
+      } catch (e) {
+        console.error(e);
+      }
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.value]);
 
