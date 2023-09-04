@@ -1002,26 +1002,16 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["VideoStreams"],
       }),
-      videoStreamsSetVideoStreamSetEpGsFromName: build.mutation<
-        VideoStreamsSetVideoStreamSetEpGsFromNameApiResponse,
-        VideoStreamsSetVideoStreamSetEpGsFromNameApiArg
+      videoStreamsSetVideoStreamsLogoFromEpg: build.mutation<
+        VideoStreamsSetVideoStreamsLogoFromEpgApiResponse,
+        VideoStreamsSetVideoStreamsLogoFromEpgApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/videostreams/setvideostreamsetepgsfromname`,
+          url: `/api/videostreams/setvideostreamslogofromepg`,
           method: "PATCH",
           body: queryArg,
         }),
         invalidatesTags: ["VideoStreams"],
-      }),
-      videoStreamsSetVideoStreamsLogoToEpg: build.query<
-        VideoStreamsSetVideoStreamsLogoToEpgApiResponse,
-        VideoStreamsSetVideoStreamsLogoToEpgApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/videostreams/setvideostreamslogotoepg`,
-          body: queryArg,
-        }),
-        providesTags: ["VideoStreams"],
       }),
       videoStreamsSimulateStreamFailure: build.mutation<
         VideoStreamsSimulateStreamFailureApiResponse,
@@ -1093,6 +1083,17 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/videostreams/setvideostreamchannelnumbersfromparameters`,
+          method: "PATCH",
+          body: queryArg,
+        }),
+        invalidatesTags: ["VideoStreams"],
+      }),
+      videoStreamsSetVideoStreamsLogoFromEpgFromParameters: build.mutation<
+        VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiResponse,
+        VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/setvideostreamslogofromepgfromparameters`,
           method: "PATCH",
           body: queryArg,
         }),
@@ -1452,12 +1453,9 @@ export type VideoStreamsReSetVideoStreamsLogoApiArg =
 export type VideoStreamsSetVideoStreamChannelNumbersApiResponse = unknown;
 export type VideoStreamsSetVideoStreamChannelNumbersApiArg =
   SetVideoStreamChannelNumbersRequest;
-export type VideoStreamsSetVideoStreamSetEpGsFromNameApiResponse = unknown;
-export type VideoStreamsSetVideoStreamSetEpGsFromNameApiArg =
-  SetVideoStreamSetEpGsFromNameRequest;
-export type VideoStreamsSetVideoStreamsLogoToEpgApiResponse = unknown;
-export type VideoStreamsSetVideoStreamsLogoToEpgApiArg =
-  SetVideoStreamsLogoToEpgRequest;
+export type VideoStreamsSetVideoStreamsLogoFromEpgApiResponse = unknown;
+export type VideoStreamsSetVideoStreamsLogoFromEpgApiArg =
+  SetVideoStreamsLogoFromEpgRequest;
 export type VideoStreamsSimulateStreamFailureApiResponse = unknown;
 export type VideoStreamsSimulateStreamFailureApiArg = string;
 export type VideoStreamsSimulateStreamFailureForAllApiResponse = unknown;
@@ -1478,6 +1476,10 @@ export type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiResponse =
   unknown;
 export type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg =
   SetVideoStreamChannelNumbersFromParametersRequest;
+export type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiResponse =
+  unknown;
+export type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg =
+  SetVideoStreamsLogoFromEpgFromParametersRequest;
 export type CreateChannelGroupRequest = {
   groupName: string;
   rank: number;
@@ -2215,11 +2217,9 @@ export type SetVideoStreamChannelNumbersRequest = {
   startNumber: number;
   orderBy: string;
 };
-export type SetVideoStreamSetEpGsFromNameRequest = {
+export type SetVideoStreamsLogoFromEpgRequest = {
   ids?: string[];
-};
-export type SetVideoStreamsLogoToEpgRequest = {
-  ids?: string[];
+  orderBy?: string;
 };
 export type UpdateVideoStreamRequest = VideoStreamBaseRequest & {
   id?: string;
@@ -2244,6 +2244,9 @@ export type SetVideoStreamChannelNumbersFromParametersRequest = {
   parameters?: VideoStreamParameters;
   overWriteExisting?: boolean;
   startNumber?: number;
+};
+export type SetVideoStreamsLogoFromEpgFromParametersRequest = {
+  parameters?: VideoStreamParameters;
 };
 export const {
   useChannelGroupsCreateChannelGroupMutation,
@@ -2342,8 +2345,7 @@ export const {
   useVideoStreamsGetVideoStreamStream3Query,
   useVideoStreamsReSetVideoStreamsLogoQuery,
   useVideoStreamsSetVideoStreamChannelNumbersMutation,
-  useVideoStreamsSetVideoStreamSetEpGsFromNameMutation,
-  useVideoStreamsSetVideoStreamsLogoToEpgQuery,
+  useVideoStreamsSetVideoStreamsLogoFromEpgMutation,
   useVideoStreamsSimulateStreamFailureMutation,
   useVideoStreamsSimulateStreamFailureForAllMutation,
   useVideoStreamsUpdateVideoStreamMutation,
@@ -2351,4 +2353,5 @@ export const {
   useVideoStreamsUpdateAllVideoStreamsFromParametersMutation,
   useVideoStreamsDeleteAllVideoStreamsFromParametersMutation,
   useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation,
+  useVideoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation,
 } = injectedRtkApi;

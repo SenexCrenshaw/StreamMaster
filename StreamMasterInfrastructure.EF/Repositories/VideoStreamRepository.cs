@@ -652,4 +652,35 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
 
         await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
+
+    public async Task<int> SetVideoStreamsLogoFromEPGFromIds(List<string> Ids, string OrderBy, CancellationToken cancellationToken)
+    {
+        List<VideoStream> videoStreams = await FindByCondition(a => Ids.Contains(a.Id), OrderBy).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        return await SetVideoStreamsLogoFromEPG(videoStreams, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<int> SetVideoStreamsLogoFromEPGFromParameters(VideoStreamParameters Parameters, CancellationToken cancellationToken)
+    {
+        List<VideoStream> videoStreams = await GetIQueryableForEntity(Parameters).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        return await SetVideoStreamsLogoFromEPG(videoStreams, cancellationToken).ConfigureAwait(false);
+    }
+    private async Task<int> SetVideoStreamsLogoFromEPG(List<VideoStream> videoStreams, CancellationToken cancellationToken)
+    {
+        int ret = 0;
+        foreach (VideoStream videoStream in videoStreams)
+        {
+            string? channelLogo = _memoryCache.GetEPGChannelLogoByTvgId(videoStream.User_Tvg_ID);
+
+            if (channelLogo != null)
+            {
+                videoStream.User_Tvg_logo = channelLogo;
+                Update(videoStream);
+                ret++;
+            }
+        }
+
+        await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        return ret;
+    }
 }

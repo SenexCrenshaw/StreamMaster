@@ -4,6 +4,8 @@ using MediatR;
 
 using Microsoft.Extensions.Logging;
 
+using StreamMasterApplication.VideoStreams.Events;
+
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
@@ -19,7 +21,7 @@ public class SetVideoStreamChannelNumbersFromParametersRequestHandler : BaseMedi
     public async Task Handle(SetVideoStreamChannelNumbersFromParametersRequest request, CancellationToken cancellationToken)
     {
         await Repository.VideoStream.SetVideoStreamChannelNumbersFromParameters(request.Parameters, request.OverWriteExisting, request.StartNumber, cancellationToken).ConfigureAwait(false);
-        await Publisher.Publish(new UpdateVideoStreamRequest(), cancellationToken).ConfigureAwait(false);
+        await Publisher.Publish(new UpdateVideoStreamEvent(), cancellationToken).ConfigureAwait(false);
 
     }
 }

@@ -60,7 +60,7 @@ public partial class StreamMasterHub : IVideoStreamHub
         await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request)
+    public async Task SetVideoStreamsLogoFromEPG(SetVideoStreamsLogoFromEPGRequest request)
     {
         await _mediator.Send(request).ConfigureAwait(false);
     }
@@ -96,6 +96,11 @@ public partial class StreamMasterHub : IVideoStreamHub
     }
 
     public async Task SetVideoStreamChannelNumbersFromParameters(SetVideoStreamChannelNumbersFromParametersRequest request)
+    {
+        await _mediator.Send(request).ConfigureAwait(false);
+    }
+
+    public async Task SetVideoStreamsLogoFromEPGFromParameters(SetVideoStreamsLogoFromEPGFromParametersRequest request)
     {
         await _mediator.Send(request).ConfigureAwait(false);
     }

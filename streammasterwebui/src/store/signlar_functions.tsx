@@ -39,8 +39,6 @@ import {
   type SdStatus,
   type SettingDto,
   type SetVideoStreamChannelNumbersRequest,
-  type SetVideoStreamSetEpGsFromNameRequest,
-  type SetVideoStreamsLogoToEpgRequest,
   type Station,
   type StationPreview,
   type StreamGroupDto,
@@ -358,13 +356,6 @@ export const SetVideoStreamChannelNumbers = async (arg: SetVideoStreamChannelNum
   await hubConnection.invoke('SetVideoStreamChannelNumbers', arg);
 };
 
-export const SetVideoStreamSetEPGsFromName = async (arg: SetVideoStreamSetEpGsFromNameRequest): Promise<void> => {
-  await hubConnection.invoke('SetVideoStreamSetEPGsFromName', arg);
-};
-
-export const SetVideoStreamsLogoToEPG = async (arg: SetVideoStreamsLogoToEpgRequest): Promise<void> => {
-  await hubConnection.invoke('SetVideoStreamsLogoToEPG', arg);
-};
 
 export const UpdateVideoStream = async (arg: UpdateVideoStreamRequest): Promise<void> => {
   await hubConnection.invoke('UpdateVideoStream', arg);

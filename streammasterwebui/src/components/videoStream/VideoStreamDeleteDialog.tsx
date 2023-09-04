@@ -115,10 +115,10 @@ const VideoStreamDeleteDialog = ({
     <>
       <InfoMessageOverLayDialog
         blocked={block}
-        header={`Delete ${getTotalCount < 2 ? ' Stream ?' : ' Streams ?'}`}
+        header='Delete Streams?'
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
-        overlayColSize={3}
+        overlayColSize={2}
         show={showOverlay}
       >
         <div className='m-0 p-0 border-1 border-round surface-border'>

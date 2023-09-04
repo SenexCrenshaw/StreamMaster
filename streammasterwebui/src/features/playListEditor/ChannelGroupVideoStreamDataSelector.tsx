@@ -6,7 +6,7 @@ import { arraysContainSameStrings } from "../../common/common";
 import { getTopToolOptions, GetMessage } from "../../common/common";
 import { type VideoStreamDto } from "../../store/iptvApi";
 import { useVideoStreamsGetVideoStreamsQuery } from "../../store/iptvApi";
-import AutoSetChannelNumbers from "../../components/AutoSetChannelNumbers";
+import AutoSetChannelNumbers from "../../components/videoStream/AutoSetChannelNumbers";
 import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useEPGColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig, useChannelLogoColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
@@ -134,8 +134,7 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
           value={showHidden}
         />
         <VideoStreamResetLogosDialog values={selectedVideoStreams} />
-        {/* <VideoStreamSetEPGsFromNameDialog overrideTotalRecords={selectAll ? totalRecords : undefined} values={selectedVideoStreams} /> */}
-        <VideoStreamSetLogosFromEPGDialog values={selectedVideoStreams} />
+        <VideoStreamSetLogosFromEPGDialog id={dataKey} values={selectedVideoStreams} />
         <AutoSetChannelNumbers id={dataKey} ids={ids} />
         <VideoStreamVisibleDialog iconFilled id={dataKey} values={selectedVideoStreams} />
         <VideoStreamDeleteDialog iconFilled id={dataKey} values={selectedVideoStreams} />

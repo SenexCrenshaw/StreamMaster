@@ -4,6 +4,8 @@ using MediatR;
 
 using Microsoft.Extensions.Logging;
 
+using StreamMasterApplication.VideoStreams.Events;
+
 using StreamMasterDomain.Attributes;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
@@ -22,25 +24,6 @@ public class SetVideoStreamChannelNumbersRequestHandler : BaseMediatorRequestHan
     {
         string orderBy = string.IsNullOrEmpty(request.OrderBy) ? "user_tvg_name desc" : request.OrderBy;
         await Repository.VideoStream.SetVideoStreamChannelNumbersFromIds(request.Ids, request.OverWriteExisting, request.StartNumber, orderBy, cancellationToken).ConfigureAwait(false);
-        await Publisher.Publish(new UpdateVideoStreamRequest(), cancellationToken).ConfigureAwait(false);
-
-        //IQueryable<VideoStream> videoStreams = Repository.VideoStream.GetAllVideoStreams();
-
-        //foreach (ChannelNumberPair cp in request.ChannelNumberPairs)
-        //{
-        //    VideoStream? videoStream = videoStreams.SingleOrDefault(c => c.Id == cp.Id);
-        //    if (videoStream == null)
-        //    {
-        //        cp.Id = String.Empty;
-        //        continue;
-        //    }
-        //    videoStream.User_Tvg_chno = cp.ChannelNumber;
-        //    Repository.VideoStream.Update(videoStream);
-        //}
-        //await Repository.SaveAsync().ConfigureAwait(false);
-
-        //await _hubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);
-
-        //return request.ChannelNumberPairs;
+        await Publisher.Publish(new UpdateVideoStreamEvent(), cancellationToken).ConfigureAwait(false);
     }
 }

@@ -182,17 +182,11 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         return NoContent();
     }
 
+
+
     [HttpPatch]
     [Route("[action]")]
-    public async Task<ActionResult> SetVideoStreamSetEPGsFromName(SetVideoStreamSetEPGsFromNameRequest request)
-    {
-        await Mediator.Send(request).ConfigureAwait(false);
-        return NoContent();
-    }
-
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult> SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request)
+    public async Task<ActionResult> SetVideoStreamsLogoFromEPG(SetVideoStreamsLogoFromEPGRequest request)
     {
         await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
@@ -259,7 +253,13 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         return Ok();
     }
 
-
+    [HttpPatch]
+    [Route("[action]")]
+    public async Task<ActionResult> SetVideoStreamsLogoFromEPGFromParameters(SetVideoStreamsLogoFromEPGFromParametersRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
+    }
 
     private class UnregisterClientOnDispose : IDisposable
     {

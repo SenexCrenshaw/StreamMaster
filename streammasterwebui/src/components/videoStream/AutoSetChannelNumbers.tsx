@@ -2,15 +2,15 @@ import { type CheckboxChangeEvent } from "primereact/checkbox";
 import { Checkbox } from "primereact/checkbox";
 import { InputNumber } from "primereact/inputnumber";
 import React, { useMemo } from "react";
-import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
-import OKButton from "./buttons/OKButton";
-import AutoSetButton from "./buttons/AutoSetButton";
-import { useQueryFilter } from "../app/slices/useQueryFilter";
-import { useSelectAll } from "../app/slices/useSelectAll";
-import { type VideoStreamsSetVideoStreamChannelNumbersApiArg } from "../store/iptvApi";
-import { useVideoStreamsSetVideoStreamChannelNumbersMutation, type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg } from "../store/iptvApi";
-import { useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation } from "../store/iptvApi";
-import { useSortInfo } from "../app/slices/useSortInfo";
+import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
+import OKButton from "../buttons/OKButton";
+import AutoSetButton from "../buttons/AutoSetButton";
+import { useQueryFilter } from "../../app/slices/useQueryFilter";
+import { useSelectAll } from "../../app/slices/useSelectAll";
+import { type VideoStreamsSetVideoStreamChannelNumbersApiArg } from "../../store/iptvApi";
+import { useVideoStreamsSetVideoStreamChannelNumbersMutation, type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg } from "../../store/iptvApi";
+import { useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation } from "../../store/iptvApi";
+import { useSortInfo } from "../../app/slices/useSortInfo";
 
 type AutoSetChannelNumbersProps = {
   id: string;
@@ -173,7 +173,7 @@ const AutoSetChannelNumbers = ({ id, ids }: AutoSetChannelNumbersProps) => {
         </div>
       </InfoMessageOverLayDialog>
 
-      <AutoSetButton disabled={getTotalCount === 0} onClick={() => setShowOverlay(true)} tooltip='Auto Set Channels' />
+      <AutoSetButton disabled={getTotalCount === 0 && !selectAll} onClick={() => setShowOverlay(true)} tooltip='Auto Set Channels' />
 
     </>
   )

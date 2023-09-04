@@ -1,15 +1,34 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useCallback, memo, useMemo } from "react";
-import { type VideoStreamDto, type SetVideoStreamsLogoToEpgRequest } from "../../store/iptvApi";
-import { SetVideoStreamsLogoToEPG } from "../../store/signlar_functions";
+import { type VideoStreamsSetVideoStreamsLogoFromEpgApiArg } from "../../store/iptvApi";
+import { type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg } from "../../store/iptvApi";
+import { useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation, useVideoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation, type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg, useVideoStreamsSetVideoStreamsLogoFromEpgMutation } from "../../store/iptvApi";
+import { type VideoStreamDto } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import ImageButton from "../buttons/ImageButton";
 import OKButton from "../buttons/OKButton";
+import { useQueryFilter } from "../../app/slices/useQueryFilter";
+import { useSelectAll } from "../../app/slices/useSelectAll";
+import { useSortInfo } from "../../app/slices/useSortInfo";
 
-const VideoStreamSetLogosFromEPGDialog = (props: VideoStreamSetLogosFromEPGDialogProps) => {
+
+type VideoStreamSetLogosFromEPGDialogProps = {
+  id: string;
+  values: VideoStreamDto[];
+};
+
+
+const VideoStreamSetLogosFromEPGDialog = ({ id, values }: VideoStreamSetLogosFromEPGDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [block, setBlock] = useState<boolean>(false);
 
+  const [videoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation] = useVideoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation();
+  const [videoStreamsSetVideoStreamsLogoFromEpgMutation] = useVideoStreamsSetVideoStreamsLogoFromEpgMutation();
+
+  const { selectAll } = useSelectAll(id);
+  const { queryFilter } = useQueryFilter(id);
+  const { sortInfo } = useSortInfo(id);
 
   const ReturnToParent = () => {
     setShowOverlay(false);
@@ -19,11 +38,32 @@ const VideoStreamSetLogosFromEPGDialog = (props: VideoStreamSetLogosFromEPGDialo
 
   const onSetLogoSave = useCallback(async () => {
     setBlock(true);
+    if (selectAll === true) {
+      if (!queryFilter) {
+        ReturnToParent();
+        return;
+      }
+
+      const toSendAll = {} as VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg;
+      toSendAll.parameters = queryFilter;
 
 
-    const ids = [...new Set(props.values.map((item: VideoStreamDto) => item.id))] as string[];
+      videoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation(toSendAll)
+        .then(() => {
+          setInfoMessage('Set Streams Successfully');
+        }
+        ).catch((error) => {
+          setInfoMessage('Set Streams Error: ' + error.message);
+        });
+      return;
+    }
 
-    const toSend = {} as SetVideoStreamsLogoToEpgRequest;
+    const ids = [...new Set(values.map((item: VideoStreamDto) => item.id))] as string[];
+
+    const toSend = {} as VideoStreamsSetVideoStreamsLogoFromEpgApiArg;
+    toSend.ids = ids;
+    toSend.orderBy = sortInfo.orderBy;
+
     const max = 500;
 
     let count = 0;
@@ -39,7 +79,7 @@ const VideoStreamSetLogosFromEPGDialog = (props: VideoStreamSetLogosFromEPGDialo
 
       count += max;
       promises.push(
-        SetVideoStreamsLogoToEPG(toSend)
+        videoStreamsSetVideoStreamsLogoFromEpgMutation(toSend)
           .then(() => {
           }).catch(() => { })
       );
@@ -55,16 +95,13 @@ const VideoStreamSetLogosFromEPGDialog = (props: VideoStreamSetLogosFromEPGDialo
     });
 
 
-  }, [props]);
+  }, [queryFilter, selectAll, sortInfo.orderBy, values, videoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation, videoStreamsSetVideoStreamsLogoFromEpgMutation]);
 
   const getTotalCount = useMemo(() => {
-    if (props.overrideTotalRecords !== undefined) {
-      return props.overrideTotalRecords;
-    }
 
-    return props.values.length;
+    return values.length;
 
-  }, [props.overrideTotalRecords, props.values.length]);
+  }, [values]);
 
   return (
     <>
@@ -87,19 +124,12 @@ const VideoStreamSetLogosFromEPGDialog = (props: VideoStreamSetLogosFromEPGDialo
         </div>
       </InfoMessageOverLayDialog>
 
-      <ImageButton disabled={getTotalCount === 0} onClick={() => setShowOverlay(true)} tooltip={`Set Logo from EPG for (${props.values.length}) Streams`} />
+      <ImageButton disabled={getTotalCount === 0 && !selectAll} onClick={() => setShowOverlay(true)} tooltip='Set Logo from EPG Streams' />
 
     </>
   )
 }
 
 VideoStreamSetLogosFromEPGDialog.displayName = 'VideoStreamSetLogosFromEPGDialog';
-VideoStreamSetLogosFromEPGDialog.defaultProps = {
-};
-
-export type VideoStreamSetLogosFromEPGDialogProps = {
-  overrideTotalRecords?: number | undefined;
-  values: VideoStreamDto[];
-};
 
 export default memo(VideoStreamSetLogosFromEPGDialog);

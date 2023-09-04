@@ -132,9 +132,10 @@ const VideoStreamVisibleDialog = ({
       <InfoMessageOverLayDialog
         blocked={block}
         closable
-        header={`Toggle visibility for ${getTotalCount < 2 ? getTotalCount + ' Stream ?' : getTotalCount + ' Streams ?'}`}
+        header='Toggle Visibility?'
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
+        overlayColSize={2}
         show={showOverlay}
       >
 

@@ -34,12 +34,11 @@ public interface IVideoStreamController
 
     Task<ActionResult> ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request);
 
+    Task<ActionResult> SetVideoStreamsLogoFromEPGFromParameters(SetVideoStreamsLogoFromEPGFromParametersRequest request);
     Task<ActionResult> SetVideoStreamChannelNumbersFromParameters(SetVideoStreamChannelNumbersFromParametersRequest request);
     Task<ActionResult> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
 
-    Task<ActionResult> SetVideoStreamSetEPGsFromName(SetVideoStreamSetEPGsFromNameRequest request);
-
-    Task<ActionResult> SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request);
+    Task<ActionResult> SetVideoStreamsLogoFromEPG(SetVideoStreamsLogoFromEPGRequest request);
 
     ActionResult SimulateStreamFailure(string streamUrl);
 
@@ -64,14 +63,12 @@ public interface IVideoStreamHub
     Task<VideoStreamDto?> GetVideoStream(string id);
 
     Task<PagedResponse<VideoStreamDto>> GetVideoStreams(VideoStreamParameters Parameters);
-
+    Task SetVideoStreamsLogoFromEPGFromParameters(SetVideoStreamsLogoFromEPGFromParametersRequest request);
     Task ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request);
     Task SetVideoStreamChannelNumbersFromParameters(SetVideoStreamChannelNumbersFromParametersRequest request);
     Task SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
 
-    Task SetVideoStreamSetEPGsFromName(SetVideoStreamSetEPGsFromNameRequest request);
-
-    Task SetVideoStreamsLogoToEPG(SetVideoStreamsLogoToEPGRequest request);
+    Task SetVideoStreamsLogoFromEPG(SetVideoStreamsLogoFromEPGRequest request);
 
     Task UpdateVideoStream(UpdateVideoStreamRequest request);
 
