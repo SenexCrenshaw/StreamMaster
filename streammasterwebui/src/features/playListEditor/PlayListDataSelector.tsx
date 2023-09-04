@@ -3,7 +3,6 @@ import { isEmptyObject } from "../../common/common";
 import { getTopToolOptions } from "../../common/common";
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
-import { useLocalStorage } from "primereact/hooks";
 import { type ChannelGroupDto } from "../../store/iptvApi";
 import { useChannelGroupsGetChannelGroupsQuery } from "../../store/iptvApi";
 import ChannelGroupAddDialog from "../../components/channelGroups/ChannelGroupAddDialog";
@@ -13,13 +12,12 @@ import ChannelGroupVisibleDialog from "../../components/channelGroups/ChannelGro
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
 import { useChannelGroupToRemove } from "../../app/slices/useChannelGroupToRemove";
+import { useShowHidden } from "../../app/slices/useShowHidden";
 
 
 const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   const dataKey = props.id + '-PlayListDataSelector';
-
-  const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
-
+  const { showHidden, setShowHidden } = useShowHidden(dataKey);
   const [selectedChannelGroups, setSelectedChannelGroups] = useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
   const { channelGroupToRemove } = useChannelGroupToRemove(dataKey);
 

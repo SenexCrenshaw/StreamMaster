@@ -1,12 +1,9 @@
 ﻿using StreamMasterDomain.Filtering;
 
-using System;
 using System.Collections.Concurrent;
-using System.Data.Common;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Metadata;
 using System.Text.Json;
 
 namespace StreamMasterDomain.Common;
@@ -87,7 +84,7 @@ public static class FilterHelper<T> where T : class
 
     private static Expression CreateArrayExpression(DataTableFilterMetaData filter, Expression propertyAccess)
     {
-        string stringValue = filter.Value.ToString() ?? string.Empty;
+        string stringValue = filter.Value?.ToString() ?? string.Empty;
         if (filter.MatchMode == "channelGroupsMatch")
         {
             filter.MatchMode = "equals";
@@ -103,12 +100,12 @@ public static class FilterHelper<T> where T : class
             {
                 if (propertyAccess.Type == typeof(int))
                 {
-                    var newValue = filter.Value.ToString()[2..^2];
+                    string newValue = filter.Value.ToString()[2..^2];
                     BinaryExpression equalExpression = Expression.Equal(propertyAccess, Expression.Constant(Int32.Parse(newValue)));
                     containsExpressions.Add(equalExpression);
                 }
                 else
-                {                    
+                {
                     MethodCallExpression toLowerCall = Expression.Call(propertyAccess, typeof(string).GetMethod("ToLower", Type.EmptyTypes));
                     MethodCallExpression matchCall = Expression.Call(toLowerCall, methodInfoString, Expression.Constant(value.ToLower()));
                     containsExpressions.Add(matchCall);
@@ -119,12 +116,21 @@ public static class FilterHelper<T> where T : class
         {
             if (propertyAccess.Type == typeof(int))
             {
-                var newValue = filter.Value.ToString()[2..^2];
+                string newValue = filter.Value.ToString()[2..^2];
                 BinaryExpression equalExpression = Expression.Equal(propertyAccess, Expression.Constant(Int32.Parse(newValue)));
                 containsExpressions.Add(equalExpression);
             }
+            if (propertyAccess.Type == typeof(bool))
+            {
+                if (filter.Value != null)
+                {
+                    bool newValue = bool.TryParse(filter.Value.ToString(), out bool parsedValue) && parsedValue;
+                    BinaryExpression equalExpression = Expression.Equal(propertyAccess, Expression.Constant(newValue));
+                    containsExpressions.Add(equalExpression);
+                }
+            }
             else
-            {                
+            {
                 MethodCallExpression toLowerCall = Expression.Call(propertyAccess, typeof(string).GetMethod("ToLower", Type.EmptyTypes));
                 MethodCallExpression matchCall = Expression.Call(toLowerCall, methodInfoString, Expression.Constant(stringValue.ToLower()));
                 containsExpressions.Add(matchCall);

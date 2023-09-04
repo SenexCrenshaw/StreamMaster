@@ -43,13 +43,9 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
 
   // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
   const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig(enableEditMode, [...(props.channelGroupNames ?? [])].sort());
-
-
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
   const { showHidden, setShowHidden } = useShowHidden(dataKey);
-
   const [selectedVideoStreams, setSelectedVideoStreams] = useState<VideoStreamDto[]>([] as VideoStreamDto[]);
-  // const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
 
   useEffect(() => {
     if (!arraysContainSameStrings(queryAdditionalFilter?.values, props.channelGroupNames)) {
@@ -85,13 +81,8 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
       channelNameColumnConfig,
     ];
 
-    // if (channelGroupIsLoading !== true) {
     columnConfigs.push(channelGroupConfig);
-    // }
-
-    // if (epgEditorIsLoading !== true) {
     columnConfigs.push(epgColumnConfig);
-    // }
 
     columnConfigs.push({
       bodyTemplate: targetActionBodyTemplate, field: 'isHidden', header: 'Actions', isHidden: !enableEditMode, resizeable: false, sortable: false,
@@ -152,7 +143,6 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
       </div>
     );
   }, [dataKey, props.channelGroupNames, selectedVideoStreams, setShowHidden, showHidden]);
-
 
   const rightHeaderBriefTemplate = useMemo(() => {
 

@@ -67,7 +67,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   const { queryFilter } = useQueryFilter(props.id);
 
-  useSetQueryFilter(props.id, props.columns, state.first, state.filters, state.page, state.rows);
+  useSetQueryFilter(props.id, props.columns, state.first, state.filters, state.page, state.rows, props.hiddenField ?? 'isHidden');
 
   const tableRef = useRef<DataTable<T[]>>(null);
 
@@ -432,7 +432,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   };
 
   const onFilter = (event: DataTableStateEvent) => {
-    const newFilters = generateFilterData(props.columns, event.filters, state.showHidden);
+    const newFilters = generateFilterData(props.columns, event.filters);
     setters.setFilters(newFilters);
   }
 
@@ -602,6 +602,7 @@ type BaseDataSelectorProps<T = any> = {
   headerLeftTemplate?: ReactNode;
   headerName?: string;
   headerRightTemplate?: ReactNode;
+  hiddenField?: string,
   hideControls?: boolean;
   id: string;
   isLoading?: boolean;

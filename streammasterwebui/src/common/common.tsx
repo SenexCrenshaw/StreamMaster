@@ -158,7 +158,7 @@ export function addOrUpdateValueForField(
   data: SMDataTableFilterMetaData[],
   targetFieldName: string,
   matchMode: MatchMode,
-  newValue: string
+  newValue: boolean | string | null | undefined
 ): void {
 
   let itemFound = false;

@@ -8,6 +8,7 @@ import generateFilterData from "./generateFilterData";
 import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
 import { useSortInfo } from "../../app/slices/useSortInfo";
 import { useShowHidden } from "../../app/slices/useShowHidden";
+import { FilterMatchMode } from "primereact/api";
 
 const useSetQueryFilter = (
   id: string,
@@ -16,6 +17,7 @@ const useSetQueryFilter = (
   filters: DataTableFilterMeta,
   page: number,
   rows: number,
+  hiddenField: string,
 ) => {
 
   const { sortInfo } = useSortInfo(id);
@@ -24,13 +26,13 @@ const useSetQueryFilter = (
   const { showHidden } = useShowHidden(id);
 
   const { lazyState, generateGetApi } = useMemo(() => {
-    const newFilters = generateFilterData(columns, filters, showHidden);
+    const newFilters = generateFilterData(columns, filters);
 
-    const sort = sortInfo.sortField
+    const sort = sortInfo ? sortInfo.sortField
       ? sortInfo.sortOrder === -1
         ? `${sortInfo.sortField} desc`
         : `${sortInfo.sortField} asc`
-      : '';
+      : '' : '';
 
     const defaultState: LazyTableState = {
       filters: newFilters,
@@ -49,6 +51,16 @@ const useSetQueryFilter = (
         return value?.value && value.value !== '[]' ? value : null;
       })
       .filter(Boolean) as SMDataTableFilterMetaData[];
+
+    if (showHidden !== null && showHidden !== undefined) {
+      console.log('toSend showHidden', hiddenField, !showHidden);
+
+      toSend.push({
+        fieldName: 'isHidden',
+        matchMode: FilterMatchMode.EQUALS,
+        value: !showHidden
+      });
+    }
 
     if (hasValidAdditionalProps(queryAdditionalFilter)) {
       const addProps = queryAdditionalFilter;
@@ -73,7 +85,7 @@ const useSetQueryFilter = (
       },
       lazyState: defaultState,
     };
-  }, [columns, filters, showHidden, sortInfo.sortField, sortInfo.sortOrder, first, page, rows, queryAdditionalFilter]);
+  }, [columns, filters, sortInfo, first, page, rows, showHidden, queryAdditionalFilter, hiddenField]);
 
   useEffect(() => {
     const newApi = generateGetApi;// hasValidAdditionalProps(additionalFilterProps) ? generateGetApi : { pageSize: 40 };

@@ -3,23 +3,13 @@ import { type DataTableFilterMeta } from "primereact/datatable";
 import { type SMDataTableFilterMetaData } from "../../common/common";
 import { type ColumnMeta } from "./DataSelectorTypes";
 
-function generateFilterData(columns: ColumnMeta[], currentFilters: DataTableFilterMeta, showHidden: boolean | null | undefined): DataTableFilterMeta {
+function generateFilterData(columns: ColumnMeta[], currentFilters: DataTableFilterMeta): DataTableFilterMeta {
   if (!columns || !currentFilters) {
     return {};
   }
 
   const ret = columns.reduce<DataTableFilterMeta>((obj, item: ColumnMeta) => {
-    if (item.field === 'isHidden') {
 
-      return {
-        ...obj,
-        [item.field]: {
-          fieldName: item.field,
-          matchMode: FilterMatchMode.EQUALS,
-          value: !showHidden ? null : !showHidden
-        },
-      } as DataTableFilterMeta;
-    }
 
     let value = '';
     if (Object.keys(currentFilters).length > 0) {
