@@ -19,7 +19,7 @@ public class SetVideoStreamsLogoFromEPGRequestHandler : BaseMemoryRequestHandler
 
     public async Task Handle(SetVideoStreamsLogoFromEPGRequest request, CancellationToken cancellationToken)
     {
-        int count = await Repository.VideoStream.SetVideoStreamsLogoFromEPGFromIds(request.Ids, request.OrderBy, cancellationToken).ConfigureAwait(false);
+        int count = await Repository.VideoStream.SetVideoStreamsLogoFromEPGFromIds(request.Ids, cancellationToken).ConfigureAwait(false);
 
         if (count > 0)
         {

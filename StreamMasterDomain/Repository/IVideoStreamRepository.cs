@@ -22,7 +22,9 @@ namespace StreamMasterDomain.Repository
         IQueryable<VideoStream> GetVideoStreamsByM3UFileId(int m3uFileId);
 
         Task<int> SetGroupNameByGroupName(string channelGroupName, string newGroupName, CancellationToken cancellationToken);
-        Task<int> SetVideoStreamsLogoFromEPGFromIds(List<string> Ids, string? OrderBy, CancellationToken cancellationToken);
+        Task<int> SetVideoStreamsLogoFromEPGFromIds(List<string> Ids, CancellationToken cancellationToken);
+        Task<int> ReSetVideoStreamsLogoFromIds(List<string> Ids, CancellationToken cancellationToken);
+        Task<int> ReSetVideoStreamsLogoFromParameters(VideoStreamParameters Parameters, CancellationToken cancellationToken);
         Task<int> SetGroupVisibleByGroupName(string channelGroupName, bool isHidden, CancellationToken cancellationToken);
 
         Task SetVideoStreamChannelNumbersFromIds(List<string> Ids, bool OverWriteExisting, int StartNumber, string OrderBy, CancellationToken cancellationToken);

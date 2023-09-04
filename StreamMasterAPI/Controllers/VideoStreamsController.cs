@@ -166,7 +166,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         }
     }
 
-    [HttpGet]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request)
     {
@@ -256,6 +256,14 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> SetVideoStreamsLogoFromEPGFromParameters(SetVideoStreamsLogoFromEPGFromParametersRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
+    }
+
+    [HttpPatch]
+    [Route("[action]")]
+    public async Task<ActionResult> ReSetVideoStreamsLogoFromParameters(ReSetVideoStreamsLogoFromParametersRequest request)
     {
         await Mediator.Send(request).ConfigureAwait(false);
         return Ok();

@@ -598,9 +598,6 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
     public async Task SetVideoStreamChannelNumbersFromIds(List<string> Ids, bool OverWriteExisting, int StartNumber, string OrderBy, CancellationToken cancellationToken)
     {
         List<VideoStream> videoStreams = await FindByCondition(a => Ids.Contains(a.Id), OrderBy).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-
-        //videoStreams = videoStreams.OrderBy(OrderBy).ToList();
-
         await SetVideoStreamChannelNumbers(videoStreams, OverWriteExisting, StartNumber, cancellationToken).ConfigureAwait(false);
     }
     public async Task SetVideoStreamChannelNumbersFromParameters(VideoStreamParameters Parameters, bool OverWriteExisting, int StartNumber, CancellationToken cancellationToken)
@@ -653,13 +650,10 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<int> SetVideoStreamsLogoFromEPGFromIds(List<string> Ids, string? OrderBy, CancellationToken cancellationToken)
+    public async Task<int> SetVideoStreamsLogoFromEPGFromIds(List<string> Ids, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(OrderBy))
-        {
-            OrderBy = "User_Tvg_Name asc";
-        }
-        List<VideoStream> videoStreams = await FindByCondition(a => Ids.Contains(a.Id), OrderBy).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        List<VideoStream> videoStreams = await FindByCondition(a => Ids.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
         return await SetVideoStreamsLogoFromEPG(videoStreams, cancellationToken).ConfigureAwait(false);
     }
@@ -690,4 +684,34 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         }
         return ret;
     }
+
+    public async Task<int> ReSetVideoStreamsLogoFromIds(List<string> Ids, CancellationToken cancellationToken)
+    {
+        List<VideoStream> videoStreams = await FindByCondition(a => Ids.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        return await SetVideoStreamsLogo(videoStreams, cancellationToken);
+    }
+    public async Task<int> ReSetVideoStreamsLogoFromParameters(VideoStreamParameters Parameters, CancellationToken cancellationToken)
+    {
+        List<VideoStream> videoStreams = await GetIQueryableForEntity(Parameters).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        return await SetVideoStreamsLogo(videoStreams, cancellationToken);
+    }
+
+    private async Task<int> SetVideoStreamsLogo(List<VideoStream> videoStreams, CancellationToken cancellationToken)
+    {
+        int ret = 0;
+        foreach (VideoStream? videoStream in videoStreams)
+        {
+            videoStream.User_Tvg_logo = videoStream.Tvg_logo;
+            Update(videoStream);
+            ret++;
+        }
+
+        if (ret > 0)
+        {
+            await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+        return ret;
+    }
+
+
 }

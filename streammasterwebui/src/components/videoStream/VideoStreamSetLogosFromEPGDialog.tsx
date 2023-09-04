@@ -28,7 +28,6 @@ const VideoStreamSetLogosFromEPGDialog = ({ id, values }: VideoStreamSetLogosFro
 
   const { selectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
-  const { sortInfo } = useSortInfo(id);
 
   const ReturnToParent = () => {
     setShowOverlay(false);
@@ -62,7 +61,6 @@ const VideoStreamSetLogosFromEPGDialog = ({ id, values }: VideoStreamSetLogosFro
 
     const toSend = {} as VideoStreamsSetVideoStreamsLogoFromEpgApiArg;
     toSend.ids = ids;
-    toSend.orderBy = sortInfo.orderBy;
 
     const max = 500;
 
@@ -95,7 +93,7 @@ const VideoStreamSetLogosFromEPGDialog = ({ id, values }: VideoStreamSetLogosFro
     });
 
 
-  }, [queryFilter, selectAll, sortInfo.orderBy, values, videoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation, videoStreamsSetVideoStreamsLogoFromEpgMutation]);
+  }, [queryFilter, selectAll, values, videoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation, videoStreamsSetVideoStreamsLogoFromEpgMutation]);
 
   const getTotalCount = useMemo(() => {
 
@@ -116,7 +114,7 @@ const VideoStreamSetLogosFromEPGDialog = ({ id, values }: VideoStreamSetLogosFro
       >
         <div className="border-1 surface-border flex grid flex-wrap justify-content-center p-0 m-0">
           <div className='flex flex-column mt-2 col-6'>
-            {`Match (${getTotalCount}) video stream logo${getTotalCount > 1 ? 's' : ''} to ${getTotalCount > 1 ? 'their' : 'its'} EPG logo${getTotalCount > 1 ? 's' : ''}?'`}
+            Match Logos?
           </div>
           <div className="flex col-12 gap-2 mt-4 justify-content-center ">
             <OKButton onClick={async () => await onSetLogoSave()} />

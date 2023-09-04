@@ -2,17 +2,29 @@
 import { useState, useCallback, memo, useMemo } from "react";
 import { getTopToolOptions } from "../../common/common";
 import { ResetLogoIcon } from "../../common/icons";
-import { type VideoStreamDto, type ReSetVideoStreamsLogoRequest } from "../../store/iptvApi";
-import { ReSetVideoStreamsLogo } from "../../store/signlar_functions";
+import { type VideoStreamsReSetVideoStreamsLogoFromParametersApiArg } from "../../store/iptvApi";
+import { type VideoStreamDto, type ReSetVideoStreamsLogoRequest, useVideoStreamsReSetVideoStreamsLogoMutation, useVideoStreamsReSetVideoStreamsLogoFromParametersMutation } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import OKButton from "../buttons/OKButton";
 import { Button } from "primereact/button";
+import { useSelectAll } from "../../app/slices/useSelectAll";
+import { useQueryFilter } from "../../app/slices/useQueryFilter";
 
-const VideoStreamResetLogosDialog = (props: VideoStreamResetLogosDialogProps) => {
+
+type VideoStreamResetLogosDialogProps = {
+  id: string;
+  values: VideoStreamDto[];
+}
+
+const VideoStreamResetLogosDialog = ({ id, values }: VideoStreamResetLogosDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [block, setBlock] = useState<boolean>(false);
+  const { selectAll } = useSelectAll(id);
+  const { queryFilter } = useQueryFilter(id);
 
+  const [videoStreamsReSetVideoStreamsLogoMutation] = useVideoStreamsReSetVideoStreamsLogoMutation();
+  const [videoStreamsReSetVideoStreamsLogoFromParametersMutation] = useVideoStreamsReSetVideoStreamsLogoFromParametersMutation();
 
   const ReturnToParent = () => {
     setShowOverlay(false);
@@ -23,8 +35,27 @@ const VideoStreamResetLogosDialog = (props: VideoStreamResetLogosDialogProps) =>
   const onSetLogoSave = useCallback(async () => {
     setBlock(true);
 
+    if (selectAll === true) {
+      if (!queryFilter) {
+        ReturnToParent();
+        return;
+      }
 
-    const ids = [...new Set(props.values.map((item: VideoStreamDto) => item.id))] as string[];
+      const toSendAll = {} as VideoStreamsReSetVideoStreamsLogoFromParametersApiArg;
+      toSendAll.parameters = queryFilter;
+
+
+      videoStreamsReSetVideoStreamsLogoFromParametersMutation(toSendAll)
+        .then(() => {
+          setInfoMessage('Set Streams Successfully');
+        }
+        ).catch((error) => {
+          setInfoMessage('Set Streams Error: ' + error.message);
+        });
+      return;
+    }
+
+    const ids = [...new Set(values.map((item: VideoStreamDto) => item.id))] as string[];
 
     const toSend = {} as ReSetVideoStreamsLogoRequest;
     const max = 500;
@@ -42,7 +73,7 @@ const VideoStreamResetLogosDialog = (props: VideoStreamResetLogosDialogProps) =>
 
       count += max;
       promises.push(
-        ReSetVideoStreamsLogo(toSend)
+        videoStreamsReSetVideoStreamsLogoMutation(toSend)
           .then(() => {
 
           }).catch(() => { })
@@ -54,23 +85,20 @@ const VideoStreamResetLogosDialog = (props: VideoStreamResetLogosDialogProps) =>
 
     await p.then(() => {
       setInfoMessage('Successful');
-      // props.onChange?.(ret);
+      // onChange?.(ret);
     }).catch((error) => {
       setInfoMessage('Error: ' + error.message);
     });
 
 
 
-  }, [props]);
+  }, [queryFilter, selectAll, values, videoStreamsReSetVideoStreamsLogoFromParametersMutation, videoStreamsReSetVideoStreamsLogoMutation]);
 
   const getTotalCount = useMemo(() => {
-    if (props.overrideTotalRecords !== undefined) {
-      return props.overrideTotalRecords;
-    }
 
-    return props.values.length;
+    return values.length;
 
-  }, [props.overrideTotalRecords, props.values.length]);
+  }, [values.length]);
 
   return (
     <>
@@ -86,7 +114,7 @@ const VideoStreamResetLogosDialog = (props: VideoStreamResetLogosDialogProps) =>
       >
         <div className="border-1 surface-border flex grid flex-wrap justify-content-center p-0 m-0">
           <div className='flex flex-column mt-2 col-6'>
-            {`Match (${getTotalCount}) video stream logo${getTotalCount > 1 ? 's' : ''} to ${getTotalCount > 1 ? 'their' : 'its'} EPG logo${getTotalCount > 1 ? 's' : ''}?'`}
+            Reset logos?
           </div>
           <div className="flex col-12 gap-2 mt-4 justify-content-center ">
             <OKButton onClick={async () => await onSetLogoSave()} />
@@ -95,12 +123,12 @@ const VideoStreamResetLogosDialog = (props: VideoStreamResetLogosDialogProps) =>
       </InfoMessageOverLayDialog>
 
       <Button
-        disabled={getTotalCount === 0}
+        disabled={getTotalCount === 0 && !selectAll}
         icon={<ResetLogoIcon sx={{ fontSize: 18 }} />}
         onClick={() => setShowOverlay(true)}
         rounded
         size="small"
-        tooltip={`Set Logo from EPG for (${props.values.length}) Streams`}
+        tooltip='Set Logo from EPG for Streams'
         tooltipOptions={getTopToolOptions}
       />
 
@@ -109,12 +137,5 @@ const VideoStreamResetLogosDialog = (props: VideoStreamResetLogosDialogProps) =>
 }
 
 VideoStreamResetLogosDialog.displayName = 'Auto Set Channel Numbers';
-VideoStreamResetLogosDialog.defaultProps = {
-};
-
-export type VideoStreamResetLogosDialogProps = {
-  overrideTotalRecords?: number | undefined;
-  values: VideoStreamDto[];
-};
 
 export default memo(VideoStreamResetLogosDialog);

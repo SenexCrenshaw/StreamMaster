@@ -981,15 +981,16 @@ const injectedRtkApi = api
         }),
         providesTags: ["VideoStreams"],
       }),
-      videoStreamsReSetVideoStreamsLogo: build.query<
+      videoStreamsReSetVideoStreamsLogo: build.mutation<
         VideoStreamsReSetVideoStreamsLogoApiResponse,
         VideoStreamsReSetVideoStreamsLogoApiArg
       >({
         query: (queryArg) => ({
           url: `/api/videostreams/resetvideostreamslogo`,
+          method: "PATCH",
           body: queryArg,
         }),
-        providesTags: ["VideoStreams"],
+        invalidatesTags: ["VideoStreams"],
       }),
       videoStreamsSetVideoStreamChannelNumbers: build.mutation<
         VideoStreamsSetVideoStreamChannelNumbersApiResponse,
@@ -1094,6 +1095,17 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/videostreams/setvideostreamslogofromepgfromparameters`,
+          method: "PATCH",
+          body: queryArg,
+        }),
+        invalidatesTags: ["VideoStreams"],
+      }),
+      videoStreamsReSetVideoStreamsLogoFromParameters: build.mutation<
+        VideoStreamsReSetVideoStreamsLogoFromParametersApiResponse,
+        VideoStreamsReSetVideoStreamsLogoFromParametersApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/resetvideostreamslogofromparameters`,
           method: "PATCH",
           body: queryArg,
         }),
@@ -1480,6 +1492,10 @@ export type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiResponse =
   unknown;
 export type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg =
   SetVideoStreamsLogoFromEpgFromParametersRequest;
+export type VideoStreamsReSetVideoStreamsLogoFromParametersApiResponse =
+  unknown;
+export type VideoStreamsReSetVideoStreamsLogoFromParametersApiArg =
+  ReSetVideoStreamsLogoFromParametersRequest;
 export type CreateChannelGroupRequest = {
   groupName: string;
   rank: number;
@@ -2249,6 +2265,9 @@ export type SetVideoStreamChannelNumbersFromParametersRequest = {
 export type SetVideoStreamsLogoFromEpgFromParametersRequest = {
   parameters?: VideoStreamParameters;
 };
+export type ReSetVideoStreamsLogoFromParametersRequest = {
+  parameters?: VideoStreamParameters;
+};
 export const {
   useChannelGroupsCreateChannelGroupMutation,
   useChannelGroupsGetChannelGroupsQuery,
@@ -2344,7 +2363,7 @@ export const {
   useVideoStreamsGetVideoStreamStreamQuery,
   useVideoStreamsGetVideoStreamStream2Query,
   useVideoStreamsGetVideoStreamStream3Query,
-  useVideoStreamsReSetVideoStreamsLogoQuery,
+  useVideoStreamsReSetVideoStreamsLogoMutation,
   useVideoStreamsSetVideoStreamChannelNumbersMutation,
   useVideoStreamsSetVideoStreamsLogoFromEpgMutation,
   useVideoStreamsSimulateStreamFailureMutation,
@@ -2355,4 +2374,5 @@ export const {
   useVideoStreamsDeleteAllVideoStreamsFromParametersMutation,
   useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation,
   useVideoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation,
+  useVideoStreamsReSetVideoStreamsLogoFromParametersMutation,
 } = injectedRtkApi;

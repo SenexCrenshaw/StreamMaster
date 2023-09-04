@@ -9,7 +9,6 @@ namespace StreamMasterApplication.Hubs;
 
 public partial class StreamMasterHub : IVideoStreamHub
 {
-
     public async Task<PagedResponse<VideoStreamDto>> GetVideoStreamsForChannelGroups(VideoStreamParameters videoStreamParameters)
     {
         PagedResponse<VideoStreamDto> ret = await _mediator.Send(new GetVideoStreamsForChannelGroups(videoStreamParameters)).ConfigureAwait(false);
@@ -101,6 +100,11 @@ public partial class StreamMasterHub : IVideoStreamHub
     }
 
     public async Task SetVideoStreamsLogoFromEPGFromParameters(SetVideoStreamsLogoFromEPGFromParametersRequest request)
+    {
+        await _mediator.Send(request).ConfigureAwait(false);
+    }
+
+    public async Task ReSetVideoStreamsLogoFromParameters(ReSetVideoStreamsLogoFromParametersRequest request)
     {
         await _mediator.Send(request).ConfigureAwait(false);
     }

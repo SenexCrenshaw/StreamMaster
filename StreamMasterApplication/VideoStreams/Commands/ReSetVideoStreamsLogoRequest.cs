@@ -7,37 +7,26 @@ using Microsoft.Extensions.Logging;
 using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
-using StreamMasterDomain.Dto;
-
 namespace StreamMasterApplication.VideoStreams.Commands;
 
-public class ReSetVideoStreamsLogoRequest : IRequest<List<VideoStreamDto>>
+public class ReSetVideoStreamsLogoRequest : IRequest
 {
     public List<string> Ids { get; set; } = new List<string>();
 }
 
-public class ReSetVideoStreamsLogoHandler : BaseMediatorRequestHandler, IRequestHandler<ReSetVideoStreamsLogoRequest, List<VideoStreamDto>>
+public class ReSetVideoStreamsLogoHandler : BaseMediatorRequestHandler, IRequestHandler<ReSetVideoStreamsLogoRequest>
 {
 
     public ReSetVideoStreamsLogoHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
         : base(logger, repository, mapper, publisher, sender) { }
 
-    public async Task<List<VideoStreamDto>> Handle(ReSetVideoStreamsLogoRequest request, CancellationToken cancellationToken)
+    public async Task Handle(ReSetVideoStreamsLogoRequest request, CancellationToken cancellationToken)
     {
+        int count = await Repository.VideoStream.ReSetVideoStreamsLogoFromIds(request.Ids, cancellationToken).ConfigureAwait(false);
 
-        IQueryable<VideoStream> videoStreams = Repository.VideoStream.GetAllVideoStreams().Where(a => request.Ids.Contains(a.Id));
-
-        foreach (VideoStream? videoStream in videoStreams)
+        if (count > 0)
         {
-            videoStream.User_Tvg_logo = videoStream.Tvg_logo;
-            Repository.VideoStream.Update(videoStream);
+            await Publisher.Publish(new UpdateVideoStreamsEvent(), cancellationToken).ConfigureAwait(false);
         }
-
-        await Repository.SaveAsync().ConfigureAwait(false);
-
-
-        await Publisher.Publish(new UpdateVideoStreamsEvent(), cancellationToken).ConfigureAwait(false);
-        List<VideoStreamDto> ret = Mapper.Map<List<VideoStreamDto>>(videoStreams);
-        return ret;
     }
 }

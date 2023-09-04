@@ -7,6 +7,7 @@ import OKButton from "../buttons/OKButton";
 import AutoSetButton from "../buttons/AutoSetButton";
 import { useQueryFilter } from "../../app/slices/useQueryFilter";
 import { useSelectAll } from "../../app/slices/useSelectAll";
+import { type VideoStreamDto } from "../../store/iptvApi";
 import { type VideoStreamsSetVideoStreamChannelNumbersApiArg } from "../../store/iptvApi";
 import { useVideoStreamsSetVideoStreamChannelNumbersMutation, type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg } from "../../store/iptvApi";
 import { useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation } from "../../store/iptvApi";
@@ -14,10 +15,10 @@ import { useSortInfo } from "../../app/slices/useSortInfo";
 
 type AutoSetChannelNumbersProps = {
   id: string;
-  ids: string[];
+  values: VideoStreamDto[];
 };
 
-const AutoSetChannelNumbers = ({ id, ids }: AutoSetChannelNumbersProps) => {
+const AutoSetChannelNumbers = ({ id, values }: AutoSetChannelNumbersProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
   const [block, setBlock] = React.useState<boolean>(false);
@@ -37,6 +38,15 @@ const AutoSetChannelNumbers = ({ id, ids }: AutoSetChannelNumbersProps) => {
     setInfoMessage('');
     setBlock(false);
   };
+
+  const ids = useMemo((): string[] => {
+    if (values !== undefined && values.length > 0) {
+      const i = values?.map((a: VideoStreamDto) => a.id) ?? [];
+      return i;
+    }
+
+    return [];
+  }, [values]);
 
   const onAutoChannelsSave = React.useCallback(async () => {
     setBlock(true);

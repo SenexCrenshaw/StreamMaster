@@ -33,7 +33,7 @@ public interface IVideoStreamController
     Task<ActionResult> GetVideoStreamStream(string encodedId, string name, CancellationToken cancellationToken);
 
     Task<ActionResult> ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request);
-
+    Task<ActionResult> ReSetVideoStreamsLogoFromParameters(ReSetVideoStreamsLogoFromParametersRequest request);
     Task<ActionResult> SetVideoStreamsLogoFromEPGFromParameters(SetVideoStreamsLogoFromEPGFromParametersRequest request);
     Task<ActionResult> SetVideoStreamChannelNumbersFromParameters(SetVideoStreamChannelNumbersFromParametersRequest request);
     Task<ActionResult> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
@@ -65,6 +65,7 @@ public interface IVideoStreamHub
     Task<PagedResponse<VideoStreamDto>> GetVideoStreams(VideoStreamParameters Parameters);
     Task SetVideoStreamsLogoFromEPGFromParameters(SetVideoStreamsLogoFromEPGFromParametersRequest request);
     Task ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request);
+    Task ReSetVideoStreamsLogoFromParameters(ReSetVideoStreamsLogoFromParametersRequest request);
     Task SetVideoStreamChannelNumbersFromParameters(SetVideoStreamChannelNumbersFromParametersRequest request);
     Task SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
 

@@ -119,11 +119,6 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
   };
 
   const rightHeaderTemplate = useMemo(() => {
-    let ids: string[] = [];
-
-    if (selectedVideoStreams !== undefined && selectedVideoStreams.length > 0) {
-      ids = selectedVideoStreams?.map((a: VideoStreamDto) => a.id) ?? [];
-    }
 
     return (
       <div className="flex justify-content-end align-items-center w-full gap-1">
@@ -133,9 +128,9 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
           tooltipOptions={getTopToolOptions}
           value={showHidden}
         />
-        <VideoStreamResetLogosDialog values={selectedVideoStreams} />
+        <VideoStreamResetLogosDialog id={dataKey} values={selectedVideoStreams} />
         <VideoStreamSetLogosFromEPGDialog id={dataKey} values={selectedVideoStreams} />
-        <AutoSetChannelNumbers id={dataKey} ids={ids} />
+        <AutoSetChannelNumbers id={dataKey} values={selectedVideoStreams} />
         <VideoStreamVisibleDialog iconFilled id={dataKey} values={selectedVideoStreams} />
         <VideoStreamDeleteDialog iconFilled id={dataKey} values={selectedVideoStreams} />
         <VideoStreamAddDialog group={props.channelGroupNames?.[0]} />
