@@ -106,6 +106,7 @@ public class TimerService : IHostedService, IDisposable
         if (m3uFilesToUpdated.Any())
         {
             _logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFilesToUpdated.Count());
+
             foreach (StreamMasterDomain.Dto.M3UFileDto? m3uFile in m3uFilesToUpdated)
             {
                 _ = await mediator.Send(new RefreshM3UFileRequest { Id = m3uFile.Id }, cancellationToken).ConfigureAwait(false);

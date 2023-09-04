@@ -1,35 +1,36 @@
-
 import { useState, useCallback, useMemo, memo } from "react";
-
-import { getTopToolOptions } from "../../common/common";
 import { type VideoStreamsUpdateAllVideoStreamsFromParametersApiArg } from "../../store/iptvApi";
 import { type VideoStreamDto, type UpdateVideoStreamsRequest, type UpdateVideoStreamRequest, useVideoStreamsUpdateAllVideoStreamsFromParametersMutation } from "../../store/iptvApi";
 import { useVideoStreamsUpdateVideoStreamsMutation } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
-import { Button } from "primereact/button";
 import { useQueryFilter } from "../../app/slices/useQueryFilter";
-import PowerButton from "../buttons/PowerButton";
+import VisibleButton from "../buttons/VisibleButton";
 import OKButton from "../buttons/OKButton";
-import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
+import { useSelectAll } from "../../app/slices/useSelectAll";
 
 type VideoStreamVisibleDialogProps = {
   iconFilled?: boolean;
   id: string;
   onClose?: (() => void);
-  overrideTotalRecords?: number | undefined;
-  selectAll?: boolean;
   skipOverLayer?: boolean;
   values?: VideoStreamDto[] | undefined;
 };
 
-const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
+const VideoStreamVisibleDialog = ({
+  iconFilled,
+  id,
+  onClose,
+  skipOverLayer,
+  values,
+}: VideoStreamVisibleDialogProps) => {
+
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [selectedVideoStreams, setSelectedVideoStreams] = useState<VideoStreamDto[]>([] as VideoStreamDto[]);
 
-  const { queryFilter } = useQueryFilter(props.id);
-  const { queryAdditionalFilter } = useQueryAdditionalFilters(props.id);
+  const { selectAll } = useSelectAll(id);
+  const { queryFilter } = useQueryFilter(id);
 
   const [videoStreamsUpdateVideoStreams] = useVideoStreamsUpdateVideoStreamsMutation();
   const [videoStreamsUpdateAllVideoStreamsFromParametersMutation] = useVideoStreamsUpdateAllVideoStreamsFromParametersMutation();
@@ -38,26 +39,23 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
     setShowOverlay(false);
     setInfoMessage('');
     setBlock(false);
-    props.onClose?.();
-  }, [props]);
+    onClose?.();
+  }, [onClose]);
 
   useMemo(() => {
 
-    if (props.values !== null) {
-      setSelectedVideoStreams(props.values ?? []);
+    if (values !== null) {
+      setSelectedVideoStreams(values ?? []);
     }
 
-  }, [props.values]);
+  }, [values]);
 
 
   const getTotalCount = useMemo(() => {
-    if (props.overrideTotalRecords !== undefined) {
-      return props.overrideTotalRecords;
-    }
 
     return selectedVideoStreams.length;
 
-  }, [props.overrideTotalRecords, selectedVideoStreams.length]);
+  }, [selectedVideoStreams.length]);
 
 
   const onVisiblesClick = useCallback(async () => {
@@ -67,14 +65,11 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
       return;
     }
 
-    if (props.selectAll === true) {
-      if (!queryFilter && !queryAdditionalFilter) {
+    if (getTotalCount !== 1 && selectAll === true) {
+      if (!queryFilter) {
         ReturnToParent();
         return;
       }
-
-
-
 
       const toSendAll = {} as VideoStreamsUpdateAllVideoStreamsFromParametersApiArg;
 
@@ -82,7 +77,6 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
       // toSendAll.parameters.pageSize = getTotalCount;
 
       toSendAll.request = {
-        isHidden: true,
         toggleVisibility: true
       } as UpdateVideoStreamRequest;
 
@@ -101,7 +95,7 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
     toSend.videoStreamUpdates = selectedVideoStreams.map((a) => {
       return {
         id: a.id,
-        isHidden: !a.isHidden
+        toggleVisibility: true
       } as UpdateVideoStreamRequest;
     });
 
@@ -114,22 +108,19 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
         setInfoMessage('Set Stream Visibility Error: ' + error.message);
       });
 
-  }, [ReturnToParent, props.selectAll, queryAdditionalFilter, queryFilter, selectedVideoStreams, videoStreamsUpdateAllVideoStreamsFromParametersMutation, videoStreamsUpdateVideoStreams]);
+  }, [selectedVideoStreams, getTotalCount, selectAll, videoStreamsUpdateVideoStreams, ReturnToParent, queryFilter, videoStreamsUpdateAllVideoStreamsFromParametersMutation]);
 
 
-  if (props.skipOverLayer === true) {
+  if (skipOverLayer === true) {
     return (
-      <Button
+
+      <VisibleButton
         disabled={getTotalCount === 0}
-        icon="pi pi-power-off"
+        iconFilled={false}
         onClick={async () => await onVisiblesClick()}
-        rounded
-        severity="info"
-        size="small"
-        text={props.iconFilled !== true}
-        tooltip="Set Visibilty"
-        tooltipOptions={getTopToolOptions}
+        tooltip='Toggle Visibility'
       />
+
     );
   }
 
@@ -156,17 +147,16 @@ const VideoStreamVisibleDialog = (props: VideoStreamVisibleDialogProps) => {
         </div>
 
       </InfoMessageOverLayDialog >
-      <PowerButton disabled={getTotalCount === 0} iconFilled={props.iconFilled} onClick={() => setShowOverlay(true)}
+      <VisibleButton
+        disabled={getTotalCount === 0 && !selectAll}
+        iconFilled={iconFilled}
+        onClick={() => setShowOverlay(true)}
+        tooltip='Toggle Visibility'
       />
     </>
   );
 }
 
 VideoStreamVisibleDialog.displayName = 'VideoStreamVisibleDialog';
-VideoStreamVisibleDialog.defaultProps = {
-  iconFilled: true,
-  values: null,
-}
-
 
 export default memo(VideoStreamVisibleDialog);

@@ -24,6 +24,14 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
 
     [HttpDelete]
     [Route("[action]")]
+    public async Task<ActionResult> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
+    }
+
+    [HttpDelete]
+    [Route("[action]")]
     public async Task<ActionResult> DeleteChannelGroup(DeleteChannelGroupRequest request)
     {
         int? data = await Mediator.Send(request).ConfigureAwait(false);

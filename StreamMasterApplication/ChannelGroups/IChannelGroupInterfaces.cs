@@ -9,6 +9,7 @@ namespace StreamMasterApplication.ChannelGroups;
 
 public interface IChannelGroupController
 {
+    Task<ActionResult> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request);
     Task<ActionResult<List<string>>> GetChannelGroupNames();
 
     Task<ActionResult> CreateChannelGroup(CreateChannelGroupRequest request);
@@ -31,6 +32,7 @@ public interface IChannelGroupDB
 
 public interface IChannelGroupHub
 {
+    Task DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request);
     Task<List<string>> GetChannelGroupNames();
     Task CreateChannelGroup(CreateChannelGroupRequest request);
 

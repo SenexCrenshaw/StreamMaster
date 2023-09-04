@@ -1,6 +1,6 @@
 ﻿namespace StreamMasterDomain.Common;
 
-public class Setting
+public class Setting : ISetting
 {
     public string AdminPassword { get; set; } = "";
     public string AdminUserName { get; set; } = "";
@@ -37,7 +37,7 @@ public class Setting
 
     public List<string> NameRegex { get; set; } = new();
 
-  
+
     public string SDUserName { get; set; } = "";
     public string ServerKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
     public string SSLCertPassword { get; set; } = "";

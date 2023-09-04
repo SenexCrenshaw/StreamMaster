@@ -4,7 +4,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 
-import { store } from './app/store';
+import { persistor, store } from './app/store';
 
 import 'normalize.css';
 
@@ -24,6 +24,7 @@ import PrimeReact from 'primereact/api';
 import './index.css';
 
 import App from './App';
+import { PersistGate } from 'redux-persist/integration/react';
 
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error('Failed to find the root element');
@@ -34,7 +35,9 @@ PrimeReact.ripple = false;
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <PersistGate loading={null} persistor={persistor}>
+        <App />
+      </PersistGate>
     </Provider>
   </React.StrictMode >
 );

@@ -28,10 +28,7 @@ public class UpdateChannelGroupRequestHandler : BaseMediatorRequestHandler, IReq
 {
 
     public UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender)
-    {
-
-    }
+        : base(logger, repository, mapper, publisher, sender) { }
 
     public async Task Handle(UpdateChannelGroupRequest request, CancellationToken cancellationToken)
     {

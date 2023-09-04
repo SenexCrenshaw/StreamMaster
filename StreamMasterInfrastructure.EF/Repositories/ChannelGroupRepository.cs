@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 
+using EFCore.BulkExtensions;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -89,6 +91,11 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         return res.Select(a => a.Id).ToList();
     }
 
+    public async Task<ChannelGroup?> GetChannelGroupById(int Id)
+    {
+        return await FindByCondition(channelGroup => channelGroup.Id == Id).FirstOrDefaultAsync();
+    }
+
     public async Task<ChannelGroupDto?> GetChannelGroupAsync(int Id, CancellationToken cancellationToken = default)
     {
         ChannelGroup? res = await FindByCondition(channelGroup => channelGroup.Id == Id).FirstOrDefaultAsync();
@@ -139,6 +146,13 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
     {
         Update(ChannelGroup);
     }
-
+    public async Task<List<int>> DeleteAllChannelGroupsFromParameters(ChannelGroupParameters Parameters, CancellationToken cancellationToken)
+    {
+        IQueryable<ChannelGroup> toDelete = GetIQueryableForEntity(Parameters).Where(a => !a.IsReadOnly);
+        List<int> ret = await toDelete.Select(a => a.Id).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        await RepositoryContext.BulkDeleteAsync(toDelete, cancellationToken: cancellationToken).ConfigureAwait(false);
+        //await RepositoryContext.SaveChangesAsync(cancellationToken);
+        return ret;
+    }
 
 }

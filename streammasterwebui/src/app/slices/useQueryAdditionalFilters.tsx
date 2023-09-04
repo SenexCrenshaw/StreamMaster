@@ -5,6 +5,7 @@ import { type AdditionalFilterProps } from '../../common/common';
 
 
 export const useQueryAdditionalFilters = (typename: string) => {
+
   const dispatch: AppDispatch = useDispatch();
 
   const setQueryAdditionalFilter = (newFilter: AdditionalFilterProps) => {

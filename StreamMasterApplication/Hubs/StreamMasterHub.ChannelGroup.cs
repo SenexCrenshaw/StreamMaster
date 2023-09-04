@@ -14,6 +14,11 @@ public partial class StreamMasterHub : IChannelGroupHub
         await _mediator.Send(request).ConfigureAwait(false);
     }
 
+    public async Task DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request)
+    {
+        await _mediator.Send(request).ConfigureAwait(false);
+    }
+
     public async Task DeleteChannelGroup(DeleteChannelGroupRequest request)
     {
         await _mediator.Send(request).ConfigureAwait(false);

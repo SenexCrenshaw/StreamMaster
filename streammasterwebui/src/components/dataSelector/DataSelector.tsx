@@ -15,7 +15,6 @@ import { type DataTableRowData } from 'primereact/datatable';
 import { DataTable } from 'primereact/datatable';
 import { type ReactNode } from 'react';
 import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties } from 'react';
-import { areAdditionalFilterPropsEqual } from '../../common/common';
 import { type GetApiArg } from '../../common/common';
 import { type QueryHook } from '../../common/common';
 import { camel2title, getTopToolOptions, isEmptyObject } from '../../common/common';
@@ -33,7 +32,7 @@ import getRecord from './getRecord';
 import getRecordString from './getRecordString';
 import { type PagedResponseDto } from '../selectors/BaseSelector';
 import { areArraysEqual } from '@mui/base';
-import { useQueryAdditionalFilters } from '../../app/slices/useQueryAdditionalFilters';
+
 import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';
 import useSetQueryFilter from './useSetQueryFilter';
@@ -41,10 +40,34 @@ import { useQueryFilter } from '../../app/slices/useQueryFilter';
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
   const { state, setters } = useDataSelectorState<T>(props.id);
-  const { queryAdditionalFilter } = useQueryAdditionalFilters(props.id);
+
+  useEffect(() => {
+    if (!props.defaultSortField) {
+      return;
+    }
+
+    if (!state.sortField || state.sortField === '') {
+      setters.setSortField(props.defaultSortField);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.defaultSortField, setters]);
+
+  useEffect(() => {
+    if (!props.defaultSortOrder) {
+      return;
+    }
+
+    if (!state.sortOrder) {
+      setters.setSortOrder(props.defaultSortOrder);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.defaultSortField, setters]);
+
   const { queryFilter } = useQueryFilter(props.id);
 
-  useSetQueryFilter(props.id, props.columns, state.first, state.filters, props.showHidden, state.additionalFilterProps, state.sortField, state.sortOrder, state.page, state.rows);
+  useSetQueryFilter(props.id, props.columns, state.first, state.filters, state.page, state.rows);
 
   const tableRef = useRef<DataTable<T[]>>(null);
 
@@ -57,26 +80,15 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
         const test = state.selections.filter(e => e.id !== props.streamToRemove);
         setters.setSelections(test);
         if (props.onSelectionChange) {
-          props.onSelectionChange(test, false, undefined);
+          props.onSelectionChange(test, state.selectAll);
         }
       }
 
     }
-  }, [props, props.streamToRemove, setters, state.selections]);
+  }, [props, props.streamToRemove, setters, state.selectAll, state.selections]);
 
 
   const { data, isLoading, isFetching } = props.queryFilter ? props.queryFilter((queryFilter ?? { pageSize: 25 })) : { data: undefined, isFetching: false, isLoading: false };
-
-  useEffect(() => {
-    if (queryAdditionalFilter?.values) {
-
-      if (!areAdditionalFilterPropsEqual(queryAdditionalFilter, state.additionalFilterProps)) {
-        setters.setAdditionalFilterProps(queryAdditionalFilter);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryAdditionalFilter]);
-
 
   const onsetSelection = useCallback((e: T | T[], overRideSelectAll?: boolean): T | T[] | undefined => {
     let selected: T[] = Array.isArray(e) ? e : [e];
@@ -92,11 +104,11 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     setters.setSelections(selected);
     const all = overRideSelectAll ? overRideSelectAll : state.selectAll;
     if (props.onSelectionChange) {
-      props.onSelectionChange(props.selectionMode === 'single' ? selected[0] : selected, all, all ? state.pagedInformation?.totalRecords ?? undefined : undefined);
+      props.onSelectionChange(props.selectionMode === 'single' ? selected[0] : selected, all);
     }
 
     return e;
-  }, [state.selections, state.selectAll, state.pagedInformation?.totalRecords, props, setters]);
+  }, [state.selections, state.selectAll, props, setters]);
 
 
   useEffect(() => {
@@ -236,7 +248,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
     if (props.reorderable === true) {
       if (props.onSelectionChange) {
-        props.onSelectionChange(sel, false, undefined);
+        props.onSelectionChange(sel, state.selectAll);
       }
     }
 
@@ -252,7 +264,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
     onsetSelection(sel);
 
-  }, [onsetSelection, props]);
+  }, [onsetSelection, props, state.selectAll]);
 
   const getAlign = useCallback((align: ColumnAlign | null | undefined, fieldType: ColumnFieldType): ColumnAlign => {
 
@@ -357,7 +369,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
             setters.setSelections([]);
             setters.setSelectAll(false);
             if (props.onSelectionChange) {
-              props.onSelectionChange([], false, undefined);
+              props.onSelectionChange([], state.selectAll);
             }
           }}
 
@@ -420,7 +432,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   };
 
   const onFilter = (event: DataTableStateEvent) => {
-    const newFilters = generateFilterData(props.columns, event.filters, props.showHidden);
+    const newFilters = generateFilterData(props.columns, event.filters, state.showHidden);
     setters.setFilters(newFilters);
   }
 
@@ -451,7 +463,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           exportFilename={props.exportFilename ?? 'streammaster'}
           filterDelay={500}
           filterDisplay="row"
-          filters={isEmptyObject(state.filters) ? getEmptyFilter(props.columns, props.showHidden) : state.filters}
+          filters={isEmptyObject(state.filters) ? getEmptyFilter(props.columns, state.showHidden) : state.filters}
           first={state.pagedInformation ? state.pagedInformation.first : state.first}
           header={sourceRenderHeader}
           key='id' // {props.key !== undefined && props.key !== '' ? props.key : 'id'}
@@ -565,14 +577,14 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 DataSelector.displayName = 'dataselector';
 DataSelector.defaultProps = {
   defaultSortField: 'name',
+  defaultSortOrder: 1,
   enableVirtualScroll: false,
   headerName: '',
   hideControls: false,
   onSelectionChange: undefined,
   reorderable: false,
   selectionMode: 'single',
-  showHeaders: true,
-  showHidden: null
+  showHeaders: true
 };
 
 
@@ -581,6 +593,7 @@ type BaseDataSelectorProps<T = any> = {
   className?: string;
   columns: ColumnMeta[];
   defaultSortField?: string;
+  defaultSortOrder?: -1 | 0 | 1;
   emptyMessage?: ReactNode;
   enableExport?: boolean;
   enableVirtualScroll?: boolean | undefined;
@@ -596,13 +609,14 @@ type BaseDataSelectorProps<T = any> = {
   onMultiSelectClick?: (value: boolean) => void;
   onRowReorder?: (value: T[]) => void;
   onRowVisibleClick?: (value: T) => void;
-  onSelectionChange?: (value: T | T[], selectAll: boolean, totalSelected: number | undefined) => void;
+  onSelectionChange?: (value: T | T[], selectAll: boolean) => void;
   // onValueChanged?: (value: T[]) => void;
   reorderable?: boolean;
   selectionMode?: DataSelectorSelectionMode;
   showHeaders?: boolean | undefined;
-  showHidden?: boolean | null | undefined;
   showSelector?: boolean;
+  sortField?: string;
+  sortOrder?: number;
   streamToRemove?: number | string;
   style?: CSSProperties;
   videoStreamIdsIsReadOnly?: string[] | undefined;

@@ -1,11 +1,10 @@
-import { useLocalStorage } from "primereact/hooks";
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 import { type CSSProperties } from "react";
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { arraysContainSameStrings } from "../../common/common";
 import { getTopToolOptions, GetMessage } from "../../common/common";
-import { type VideoStreamDto, type ChannelNumberPair } from "../../store/iptvApi";
+import { type VideoStreamDto } from "../../store/iptvApi";
 import { useVideoStreamsGetVideoStreamsQuery } from "../../store/iptvApi";
 import AutoSetChannelNumbers from "../../components/AutoSetChannelNumbers";
 import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useEPGColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig, useChannelLogoColumnConfig } from "../../components/columns/columnConfigHooks";
@@ -20,6 +19,7 @@ import VideoStreamVisibleDialog from "../../components/videoStream/VideoStreamVi
 import VideoStreamAddDialog from "../../components/videoStream/VideoStreamAddDialog";
 import VideoStreamSetLogosFromEPGDialog from "../../components/videoStream/VideoStreamSetLogosFromEPGDialog";
 import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
+import { useShowHidden } from "../../app/slices/useShowHidden";
 
 type ChannelGroupVideoStreamDataSelectorProps = {
   channelGroupNames?: string[];
@@ -34,8 +34,7 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
   const dataKey = props.id + '-ChannelGroupVideoStreamDataSelector';
 
   const [enableEditMode, setEnableEditMode] = useState<boolean>(true);
-  const [selectAll, setSelectAll] = useState<boolean>(false);
-  const [totalRecords, setTotalRecords] = useState<number | undefined>(undefined);
+
   const { columnConfig: m3uFileNameColumnConfig } = useM3UFileNameColumnConfig(enableEditMode);
   const { columnConfig: epgColumnConfig } = useEPGColumnConfig(enableEditMode);
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig(enableEditMode);
@@ -45,9 +44,12 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
   // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
   const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig(enableEditMode, [...(props.channelGroupNames ?? [])].sort());
 
+
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
+  const { showHidden, setShowHidden } = useShowHidden(dataKey);
+
   const [selectedVideoStreams, setSelectedVideoStreams] = useState<VideoStreamDto[]>([] as VideoStreamDto[]);
-  const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
+  // const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
 
   useEffect(() => {
     if (!arraysContainSameStrings(queryAdditionalFilter?.values, props.channelGroupNames)) {
@@ -70,7 +72,7 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
         <VideoStreamResetLogoDialog value={data} />
         <VideoStreamSetLogoFromEPGDialog value={data} />
         <VideoStreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
-        <VideoStreamDeleteDialog iconFilled={false} value={data} />
+        <VideoStreamDeleteDialog iconFilled={false} id={dataKey} values={[data]} />
         <VideoStreamEditDialog iconFilled={false} value={data} />
       </div>
     );
@@ -126,13 +128,10 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
   };
 
   const rightHeaderTemplate = useMemo(() => {
-    let ids: ChannelNumberPair[] = [];
+    let ids: string[] = [];
 
     if (selectedVideoStreams !== undefined && selectedVideoStreams.length > 0) {
-      ids = selectedVideoStreams?.map((a: VideoStreamDto) => ({
-        channelNumber: a.user_Tvg_chno,
-        id: a.id
-      })) ?? [];
+      ids = selectedVideoStreams?.map((a: VideoStreamDto) => a.id) ?? [];
     }
 
     return (
@@ -143,16 +142,16 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
           tooltipOptions={getTopToolOptions}
           value={showHidden}
         />
-        <VideoStreamResetLogosDialog overrideTotalRecords={selectAll ? totalRecords : undefined} values={selectedVideoStreams} />
+        <VideoStreamResetLogosDialog values={selectedVideoStreams} />
         {/* <VideoStreamSetEPGsFromNameDialog overrideTotalRecords={selectAll ? totalRecords : undefined} values={selectedVideoStreams} /> */}
-        <VideoStreamSetLogosFromEPGDialog overrideTotalRecords={selectAll ? totalRecords : undefined} values={selectedVideoStreams} />
-        <AutoSetChannelNumbers ids={ids} overrideTotalRecords={selectAll ? totalRecords : undefined} />
-        <VideoStreamVisibleDialog iconFilled id={dataKey} overrideTotalRecords={selectAll ? totalRecords : undefined} selectAll={selectAll} values={selectedVideoStreams} />
-        <VideoStreamDeleteDialog overrideTotalRecords={selectAll ? totalRecords : undefined} values={selectedVideoStreams} />
+        <VideoStreamSetLogosFromEPGDialog values={selectedVideoStreams} />
+        <AutoSetChannelNumbers id={dataKey} ids={ids} />
+        <VideoStreamVisibleDialog iconFilled id={dataKey} values={selectedVideoStreams} />
+        <VideoStreamDeleteDialog iconFilled id={dataKey} values={selectedVideoStreams} />
         <VideoStreamAddDialog group={props.channelGroupNames?.[0]} />
       </div>
     );
-  }, [dataKey, props.channelGroupNames, selectAll, selectedVideoStreams, setShowHidden, showHidden, totalRecords]);
+  }, [dataKey, props.channelGroupNames, selectedVideoStreams, setShowHidden, showHidden]);
 
 
   const rightHeaderBriefTemplate = useMemo(() => {
@@ -176,13 +175,12 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
     <DataSelector
       columns={props.showBrief === true ? targetBriefColumns : targetColumns}
       defaultSortField="user_tvg_name"
+      defaultSortOrder={1}
       emptyMessage="No Streams"
       headerName={GetMessage('streams')}
       headerRightTemplate={props.showBrief === true ? rightHeaderBriefTemplate : rightHeaderTemplate}
       id={dataKey}
-      onSelectionChange={(value, selectAllReturn, retTotalRecords) => {
-        setTotalRecords(retTotalRecords);
-        setSelectAll(selectAllReturn)
+      onSelectionChange={(value, selectAll) => {
         if (selectAll !== true) {
           setSelectedVideoStreams(value as VideoStreamDto[]);
           props.onSelectionChange?.(value as VideoStreamDto[]);
@@ -191,7 +189,6 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
       queryFilter={useVideoStreamsGetVideoStreamsQuery}
       reorderable={props.reorderable}
       selectionMode={props.showBrief === true ? 'single' : 'multiple'}
-      showHidden={showHidden}
       style={{ height: 'calc(100vh - 40px)' }}
     />
   );

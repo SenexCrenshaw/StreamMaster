@@ -45,7 +45,7 @@ const VideoStreamAddDialog = (props: VideoStreamAddDialogProps) => {
         header="Add Video Stream"
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
-        overlayColSize={8}
+        overlayColSize={6}
         show={showOverlay}
       >
 

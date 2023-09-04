@@ -16,7 +16,7 @@ const queryFilterSlice = createSlice({
   initialState,
   name: 'queryFilter',
   reducers: {
-    setQueryFilter: (state, action: PayloadAction<SetQueryFilterPayload>) => {
+    setQueryFilterInternal: (state, action: PayloadAction<SetQueryFilterPayload>) => {
       const { typename, filter } = action.payload;
       if (filter !== null && filter !== undefined) {
         state[typename] = filter;
@@ -29,5 +29,5 @@ const queryFilterSlice = createSlice({
 });
 
 export const selectQueryFilter = (state: RootState, typename: string) => state.queryFilter[typename];
-export const { setQueryFilter } = queryFilterSlice.actions;
+export const { setQueryFilterInternal } = queryFilterSlice.actions;
 export default queryFilterSlice.reducer;

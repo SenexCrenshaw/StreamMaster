@@ -14,7 +14,7 @@ using StreamMasterDomain.Attributes;
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
 [RequireAll]
-public record CreateChannelGroupRequest(string GroupName, int Rank) : IRequest { }
+public record CreateChannelGroupRequest(string GroupName, int Rank, bool IsReadOnly) : IRequest { }
 
 public class CreateChannelGroupRequestValidator : AbstractValidator<CreateChannelGroupRequest>
 {
@@ -38,7 +38,7 @@ public class CreateChannelGroupRequestHandler : BaseMediatorRequestHandler, IReq
             return;
         }
 
-        ChannelGroup channelGroup = new() { Name = request.GroupName, Rank = request.Rank, IsReadOnly = false };
+        ChannelGroup channelGroup = new() { Name = request.GroupName, Rank = request.Rank, IsReadOnly = request.IsReadOnly };
         Repository.ChannelGroup.CreateChannelGroup(channelGroup);
         await Repository.SaveAsync().ConfigureAwait(false);
 

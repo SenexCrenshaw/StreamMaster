@@ -18,6 +18,7 @@ type VideoStreamDataSelectorProps = {
 
 const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorProps) => {
   const dataKey = id + '-VideoStreamDataSelector';
+
   const { streamToRemove } = useStreamToRemove(id);
 
 
@@ -68,7 +69,7 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
       headerRightTemplate={rightHeaderTemplate}
       id={dataKey}
       isLoading={videoStreamLinksGetVideoStreamVideoStreamIdsQuery.isLoading || videoStreamLinksGetVideoStreamVideoStreamIdsQuery.isFetching}
-      onSelectionChange={async (value, selectAllReturn, retTotalRecords) => {
+      onSelectionChange={async (value, retTotalRecords) => {
         if (value === undefined || videoStreamId === undefined) {
           return;
         }
@@ -90,7 +91,6 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
       }}
       queryFilter={useVideoStreamsGetVideoStreamsQuery}
       selectionMode='single'
-      showHidden={false}
       streamToRemove={streamToRemove}
       style={{ height: 'calc(100vh - 134px)' }}
       videoStreamIdsIsReadOnly={(videoStreamIds || [])}

@@ -5,20 +5,20 @@ namespace StreamMasterDomain.Repository
 {
     public interface IChannelGroupRepository : IRepositoryBase<ChannelGroup>
     {
-        //Task ChannelGroupCreateEmptyCount(int Id);
-        //Task ChannelGroupRemoveCount(int Id);
-
-        Task<List<int>> GetChannelIdsFromVideoStream(VideoStreamDto videoStreamDto, CancellationToken cancellationToken);
+        Task<List<int>> DeleteAllChannelGroupsFromParameters(ChannelGroupParameters Parameters, CancellationToken cancellationToken);
         //Task AddOrUpdateChannelGroupVideoStreamCounts(List<ChannelGroupStreamCount> channelGroupStreamCounts);
         //ChannelGroupStreamCount? GetChannelGroupVideoStreamCount(int id);
         //IEnumerable<ChannelGroupStreamCount> GetChannelGroupVideoStreamCounts();
         //Task AddOrUpdateChannelGroupVideoStreamCount(ChannelGroupStreamCount response, bool ignoreSave = false);
         IQueryable<string> GetAllChannelGroupNames();
+        Task<List<int>> GetChannelIdsFromVideoStream(VideoStreamDto videoStreamDto, CancellationToken cancellationToken);
         IQueryable<ChannelGroup> GetAllChannelGroups();
         Task<List<ChannelGroup>> GetChannelGroupsFromNames(List<string> m3uChannelGroupNames);
         Task<ChannelGroup?> GetChannelGroupByNameAsync(string name);
 
         Task<ChannelGroupDto?> GetChannelGroupAsync(int Id, CancellationToken cancellationToken = default);
+
+        Task<ChannelGroup?> GetChannelGroupById(int Id);
 
         Task<PagedResponse<ChannelGroupDto>> GetChannelGroupsAsync(ChannelGroupParameters channelGroupParameters);
 

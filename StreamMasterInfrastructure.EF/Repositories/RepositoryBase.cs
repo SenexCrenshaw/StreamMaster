@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 
+using EFCore.BulkExtensions;
+
 using Microsoft.EntityFrameworkCore;
 
 using StreamMasterDomain.Common;
@@ -127,6 +129,13 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
             .Where(expression).AsNoTracking();
     }
 
+    public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression, string orderBy)
+    {
+        return RepositoryContext.Set<T>()
+            .Where(expression).OrderBy(orderBy).AsNoTracking();
+    }
+
+
     public void Create(T entity)
     {
         RepositoryContext.Set<T>().Add(entity);
@@ -146,6 +155,11 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     public void Delete(T entity)
     {
         RepositoryContext.Set<T>().Remove(entity);
+    }
+
+    public void BulkInsert(T[] entities)
+    {
+        RepositoryContext.BulkInsert(entities);
     }
 
     public void Create(T[] entities)

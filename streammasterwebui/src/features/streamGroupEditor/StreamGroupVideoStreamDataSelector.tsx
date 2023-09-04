@@ -90,6 +90,7 @@ const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVide
     <DataSelector
       columns={targetColumns}
       defaultSortField="user_tvg_name"
+      defaultSortOrder={1}
       emptyMessage="No Streams"
       headerName={GetMessage('streams')}
       headerRightTemplate={rightHeaderTemplate}
@@ -117,7 +118,6 @@ const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVide
       }}
       queryFilter={useVideoStreamsGetVideoStreamsQuery}
       selectionMode='single'
-      showHidden={showHidden}
       streamToRemove={streamToRemove}
       style={{ height: 'calc(100vh - 40px)' }
       }

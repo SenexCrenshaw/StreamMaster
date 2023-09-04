@@ -9,7 +9,7 @@ namespace StreamMasterInfrastructure.Logging;
 
 public class LogDbContext : DbContext, ILogDB
 {
-    private string DbPath = "";
+    private readonly string DbPath = "";
 
     public LogDbContext(DbContextOptions<LogDbContext> options)
       : base(options)
@@ -31,6 +31,7 @@ public class LogDbContext : DbContext, ILogDB
               $"Data Source={DbPath}",
               o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
               );
+        SQLitePCL.Batteries.Init();
     }
 
     protected override void OnModelCreating(ModelBuilder builder)

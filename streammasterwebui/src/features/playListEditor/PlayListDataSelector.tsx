@@ -16,12 +16,12 @@ import { useChannelGroupToRemove } from "../../app/slices/useChannelGroupToRemov
 
 
 const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
-  const id = props.id + '-PlayListDataSelector';
+  const dataKey = props.id + '-PlayListDataSelector';
 
-  const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, id + '-showHidden');
+  const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, props.id + '-showHidden');
 
   const [selectedChannelGroups, setSelectedChannelGroups] = useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
-  const { channelGroupToRemove } = useChannelGroupToRemove(id);
+  const { channelGroupToRemove } = useChannelGroupToRemove(dataKey);
 
 
 
@@ -49,7 +49,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
     <div className='flex p-0 justify-content-end align-items-center'>
 
       <div hidden={data.isReadOnly === true && props.useReadOnly}>
-        <ChannelGroupDeleteDialog iconFilled={false} id={id} value={[data]} />
+        <ChannelGroupDeleteDialog iconFilled={false} id={dataKey} values={[data]} />
       </div>
 
       <ChannelGroupEditDialog value={data} />
@@ -58,7 +58,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
     </div>
 
-  ), [id, props.useReadOnly]);
+  ), [dataKey, props.useReadOnly]);
 
   const sourceColumns = useMemo((): ColumnMeta[] => {
     return [
@@ -108,14 +108,14 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
               value={showHidden} />
 
             <ChannelGroupVisibleDialog value={selectedChannelGroups} />
-            <ChannelGroupDeleteDialog id={id} value={selectedChannelGroups} />
+            <ChannelGroupDeleteDialog iconFilled id={dataKey} values={selectedChannelGroups} />
           </>
         }
 
         <ChannelGroupAddDialog />
       </div>
     );
-  }, [props.hideControls, showHidden, selectedChannelGroups, id, setShowHidden]);
+  }, [props.hideControls, showHidden, selectedChannelGroups, dataKey, setShowHidden]);
 
 
   return (
@@ -126,7 +126,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       headerName={props.name === undefined ? 'Playlist' : props.name}
       headerRightTemplate={props.hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
       hideControls={props.hideControls}
-      id={id}
+      id={dataKey}
       onSelectionChange={(e) => {
         if (!isEmptyObject(e)) {
           onSelectionChange(e as ChannelGroupDto[]);
@@ -136,7 +136,6 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       }}
       queryFilter={useChannelGroupsGetChannelGroupsQuery}
       selectionMode='multiple'
-      showHidden={showHidden}
       streamToRemove={channelGroupToRemove}
       style={{
         height: props.maxHeight !== null ? props.maxHeight : 'calc(100vh - 40px)',

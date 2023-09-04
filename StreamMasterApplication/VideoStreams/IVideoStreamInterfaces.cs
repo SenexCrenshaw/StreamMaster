@@ -2,7 +2,6 @@
 
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Commands;
-using StreamMasterApplication.VideoStreamLinks.Queries;
 using StreamMasterApplication.VideoStreams.Commands;
 
 using StreamMasterDomain.Dto;
@@ -12,6 +11,7 @@ namespace StreamMasterApplication.VideoStreams;
 
 public interface IVideoStreamController
 {
+    Task<ActionResult> DeleteAllVideoStreamsFromParameters(DeleteAllVideoStreamsFromParametersRequest request);
     Task<ActionResult> UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request);
 
     Task<ActionResult> CreateVideoStream(CreateVideoStreamRequest request);
@@ -34,6 +34,7 @@ public interface IVideoStreamController
 
     Task<ActionResult> ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request);
 
+    Task<ActionResult> SetVideoStreamChannelNumbersFromParameters(SetVideoStreamChannelNumbersFromParametersRequest request);
     Task<ActionResult> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
 
     Task<ActionResult> SetVideoStreamSetEPGsFromName(SetVideoStreamSetEPGsFromNameRequest request);
@@ -49,6 +50,7 @@ public interface IVideoStreamController
 
 public interface IVideoStreamHub
 {
+    Task DeleteAllVideoStreamsFromParameters(DeleteAllVideoStreamsFromParametersRequest request);
     Task UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request);
 
     Task CreateVideoStream(CreateVideoStreamRequest request);
@@ -64,7 +66,7 @@ public interface IVideoStreamHub
     Task<PagedResponse<VideoStreamDto>> GetVideoStreams(VideoStreamParameters Parameters);
 
     Task ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request);
-
+    Task SetVideoStreamChannelNumbersFromParameters(SetVideoStreamChannelNumbersFromParametersRequest request);
     Task SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
 
     Task SetVideoStreamSetEPGsFromName(SetVideoStreamSetEPGsFromNameRequest request);

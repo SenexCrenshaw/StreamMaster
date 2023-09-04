@@ -1,52 +1,76 @@
-
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useMemo, memo } from "react";
-import { getTopToolOptions } from "../../common/common";
-import { type VideoStreamDto, type DeleteVideoStreamRequest } from "../../store/iptvApi";
+import { type VideoStreamsDeleteAllVideoStreamsFromParametersApiArg } from "../../store/iptvApi";
+import { type VideoStreamDto, type DeleteVideoStreamRequest, useVideoStreamsDeleteAllVideoStreamsFromParametersMutation } from "../../store/iptvApi";
 import { DeleteVideoStream } from "../../store/signlar_functions";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
-import { Button } from "primereact/button";
 import OKButton from "../buttons/OKButton";
 import DeleteButton from "../buttons/DeleteButton";
+import { useQueryFilter } from "../../app/slices/useQueryFilter";
+import { useSelectAll } from "../../app/slices/useSelectAll";
 
-const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
+type VideoStreamDeleteDialogProps = {
+  iconFilled?: boolean;
+  id: string;
+  onClose?: (() => void);
+  skipOverLayer?: boolean;
+  values?: VideoStreamDto[] | undefined;
+};
+
+const VideoStreamDeleteDialog = ({
+  iconFilled,
+  id,
+  onClose,
+  skipOverLayer,
+  values,
+}: VideoStreamDeleteDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
-  const [selectedVideoStreams, setSelectedVideoStreams] = useState<VideoStreamDto[]>([] as VideoStreamDto[]);
+
   const [block, setBlock] = useState<boolean>(false);
+
+  const [videoStreamsDeleteAllVideoStreamsFromParametersMutation] = useVideoStreamsDeleteAllVideoStreamsFromParametersMutation();
+
+  const { selectAll } = useSelectAll(id);
+  const { queryFilter } = useQueryFilter(id);
 
   const ReturnToParent = () => {
     setShowOverlay(false);
     setInfoMessage('');
     setBlock(false);
-    props.onClose?.();
+    onClose?.();
   };
-
-  useMemo(() => {
-
-    if (props.values !== null && props.values !== undefined) {
-      setSelectedVideoStreams(props.values);
-    }
-
-  }, [props.values]);
-
-  useMemo(() => {
-
-    if (props.value !== null && props.value !== undefined) {
-      setSelectedVideoStreams([props.value]);
-    }
-
-  }, [props.value]);
 
   const deleteVideoStream = async () => {
     setBlock(true);
-    if (selectedVideoStreams.length === 0) {
+
+    if (selectAll === true) {
+      if (!queryFilter) {
+        ReturnToParent();
+        return;
+      }
+
+      const toSendAll = {} as VideoStreamsDeleteAllVideoStreamsFromParametersApiArg;
+      toSendAll.parameters = queryFilter;
+
+      await videoStreamsDeleteAllVideoStreamsFromParametersMutation(toSendAll)
+        .then(() => {
+          setInfoMessage('Set Stream Visibility Successfully');
+        }
+        ).catch((error) => {
+          setInfoMessage('Set Stream Visibility Error: ' + error.message);
+        });
+      return;
+    }
+
+    if ((!values || values?.length === 0)) {
       ReturnToParent();
       return;
     }
 
     const promises = [];
 
-    for (const stream of selectedVideoStreams) {
+    for (const stream of values) {
       const data = {} as DeleteVideoStreamRequest;
       data.id = stream.id;
       promises.push(
@@ -64,18 +88,26 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
 
   }
 
-  const getTotalCount = useMemo(() => {
-    if (props.overrideTotalRecords !== undefined) {
-      return props.overrideTotalRecords;
+  const isFirstDisabled = useMemo(() => {
+    if (!values || values?.length === 0) {
+      return true;
     }
 
-    return selectedVideoStreams.length;
+    return !values[0].isUserCreated;
 
-  }, [props.overrideTotalRecords, selectedVideoStreams]);
+  }, [values]);
 
-  if (props.skipOverLayer === true) {
+  const getTotalCount = useMemo(() => {
+    let count = values?.length ?? 0;
+
+    return count;
+
+  }, [values?.length]);
+
+
+  if (skipOverLayer || (getTotalCount === 1)) {
     return (
-      <DeleteButton disabled={getTotalCount === 0 || selectedVideoStreams[0].isUserCreated !== true} iconFilled={props.iconFilled} onClick={async () => await deleteVideoStream()} tooltip="Delete Stream" />
+      <DeleteButton disabled={isFirstDisabled} iconFilled={iconFilled} onClick={async () => await deleteVideoStream()} tooltip="Delete User Created Stream" />
     );
   }
 
@@ -83,7 +115,7 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
     <>
       <InfoMessageOverLayDialog
         blocked={block}
-        header={`Delete ${getTotalCount < 2 ? getTotalCount + ' Stream ?' : getTotalCount + ' Streams ?'}`}
+        header={`Delete ${getTotalCount < 2 ? ' Stream ?' : ' Streams ?'}`}
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
         overlayColSize={3}
@@ -99,17 +131,11 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
         </div>
       </InfoMessageOverLayDialog>
 
-      <Button
-        disabled={(selectedVideoStreams === undefined || selectedVideoStreams.length === 0) || (!props.value?.isUserCreated)}
-        icon="pi pi-minus"
+      <DeleteButton
+        disabled={getTotalCount === 0 && !selectAll}
+        iconFilled={iconFilled}
         onClick={() => setShowOverlay(true)}
-        rounded
-        severity="danger"
-        size="small"
-        text={props.iconFilled !== true}
-        tooltip="Delete Stream"
-        tooltipOptions={getTopToolOptions}
-      />
+        tooltip="Delete User Created Streams" />
 
     </>
   );
@@ -117,13 +143,5 @@ const VideoStreamDeleteDialog = (props: VideoStreamDeleteDialogProps) => {
 
 VideoStreamDeleteDialog.displayName = 'VideoStreamDeleteDialog';
 
-type VideoStreamDeleteDialogProps = {
-  iconFilled?: boolean | undefined;
-  onClose?: (() => void);
-  overrideTotalRecords?: number | undefined;
-  skipOverLayer?: boolean | undefined;
-  value?: VideoStreamDto | undefined;
-  values?: VideoStreamDto[] | undefined;
-};
 
 export default memo(VideoStreamDeleteDialog);

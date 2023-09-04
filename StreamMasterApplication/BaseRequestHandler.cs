@@ -12,12 +12,13 @@ public class BaseRequestHandler
     protected readonly ILogger Logger;
     protected readonly IRepositoryWrapper Repository;
     protected readonly IMapper Mapper;
-
+    protected readonly ISetting Settings;
     public BaseRequestHandler(ILogger logger, IRepositoryWrapper repository, IMapper mapper)
     {
         Repository = repository;
         Logger = logger;
         Mapper = mapper;
+        Settings = FileUtil.GetSetting();
     }
 }
 

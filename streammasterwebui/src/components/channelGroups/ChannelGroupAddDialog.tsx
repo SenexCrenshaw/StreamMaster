@@ -42,6 +42,7 @@ const ChannelGroupAddDialog: React.FC<ChannelGroupAddDialogProps> = ({ onAdd, on
 
     const requestData: CreateChannelGroupRequest = {
       groupName: newGroupName,
+      isReadOnly: false,
       rank: 0
     };
 

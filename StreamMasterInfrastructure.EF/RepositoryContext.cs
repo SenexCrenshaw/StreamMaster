@@ -64,6 +64,7 @@ namespace StreamMasterInfrastructureEF
                 $"Data Source={DbPath}",
                 o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
                 );
+            SQLitePCL.Batteries.Init();
         }
     }
 }

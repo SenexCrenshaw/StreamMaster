@@ -1,9 +1,5 @@
-﻿using MediatR;
-
-using StreamMasterDomain.Dto;
+﻿using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
-
-using System.Threading;
 
 namespace StreamMasterDomain.Repository
 {
@@ -29,6 +25,9 @@ namespace StreamMasterDomain.Repository
 
         Task<int> SetGroupVisibleByGroupName(string channelGroupName, bool isHidden, CancellationToken cancellationToken);
 
+        Task SetVideoStreamChannelNumbersFromIds(List<string> Ids, bool OverWriteExisting, int StartNumber, string OrderBy, CancellationToken cancellationToken);
+        Task SetVideoStreamChannelNumbersFromParameters(VideoStreamParameters Parameters, bool OverWriteExisting, int StartNumber, CancellationToken cancellationToken);
+        Task<bool> DeleteAllVideoStreamsFromParameters(VideoStreamParameters Parameters, CancellationToken cancellationToken);
         Task<bool> UpdateAllVideoStreamsFromParameters(VideoStreamParameters Parameters, UpdateVideoStreamRequest request, CancellationToken cancellationToken);
 
         Task<bool> UpdateVideoStreamAsync(UpdateVideoStreamRequest request, CancellationToken cancellationToken);
@@ -41,7 +40,7 @@ namespace StreamMasterDomain.Repository
 
         IQueryable<VideoStream> GetAllVideoStreams();
 
-        Task<VideoStream> GetVideoStreamByIdAsync(string Id, CancellationToken cancellationToken = default);
+        Task<VideoStream?> GetVideoStreamByIdAsync(string Id, CancellationToken cancellationToken = default);
 
         Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(string videoStreamId, CancellationToken cancellationToken = default);
 

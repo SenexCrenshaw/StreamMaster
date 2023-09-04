@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +7,6 @@ using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.StreamGroups.Queries;
-using StreamMasterApplication.VideoStreamLinks.Queries;
 using StreamMasterApplication.VideoStreams;
 using StreamMasterApplication.VideoStreams.Commands;
 using StreamMasterApplication.VideoStreams.Queries;
@@ -243,10 +240,27 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     public async Task<ActionResult> UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request)
     {
         await Mediator.Send(request).ConfigureAwait(false);
-        return Ok(); throw new NotImplementedException();
+        return Ok();
     }
 
-   
+    [HttpDelete]
+    [Route("[action]")]
+    public async Task<ActionResult> DeleteAllVideoStreamsFromParameters(DeleteAllVideoStreamsFromParametersRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
+    }
+
+    [HttpPatch]
+    [Route("[action]")]
+    public async Task<ActionResult> SetVideoStreamChannelNumbersFromParameters(SetVideoStreamChannelNumbersFromParametersRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
+    }
+
+
+
     private class UnregisterClientOnDispose : IDisposable
     {
         private readonly IChannelManager _channelManager;

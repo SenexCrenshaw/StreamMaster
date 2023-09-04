@@ -1,15 +1,23 @@
-
 import { type CheckboxChangeEvent } from "primereact/checkbox";
 import { Checkbox } from "primereact/checkbox";
 import { InputNumber } from "primereact/inputnumber";
 import React, { useMemo } from "react";
-import type * as StreamMasterApi from '../store/iptvApi';
-import { SetVideoStreamChannelNumbers } from "../store/signlar_functions";
 import InfoMessageOverLayDialog from "./InfoMessageOverLayDialog";
 import OKButton from "./buttons/OKButton";
 import AutoSetButton from "./buttons/AutoSetButton";
+import { useQueryFilter } from "../app/slices/useQueryFilter";
+import { useSelectAll } from "../app/slices/useSelectAll";
+import { type VideoStreamsSetVideoStreamChannelNumbersApiArg } from "../store/iptvApi";
+import { useVideoStreamsSetVideoStreamChannelNumbersMutation, type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg } from "../store/iptvApi";
+import { useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation } from "../store/iptvApi";
+import { useSortInfo } from "../app/slices/useSortInfo";
 
-const AutoSetChannelNumbers = (props: AutoSetChannelNumbersProps) => {
+type AutoSetChannelNumbersProps = {
+  id: string;
+  ids: string[];
+};
+
+const AutoSetChannelNumbers = ({ id, ids }: AutoSetChannelNumbersProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
   const [block, setBlock] = React.useState<boolean>(false);
@@ -17,59 +25,50 @@ const AutoSetChannelNumbers = (props: AutoSetChannelNumbersProps) => {
   const [overwriteNumbers, setOverwriteNumbers] = React.useState<boolean>(true);
   const [startNumber, setStartNumber] = React.useState<number>(1);
 
+  const [videoStreamsSetVideoStreamChannelNumbersFromParametersMutation] = useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation();
+  const [videoStreamsSetVideoStreamChannelNumbersMutation] = useVideoStreamsSetVideoStreamChannelNumbersMutation();
+
+  const { selectAll } = useSelectAll(id);
+  const { queryFilter } = useQueryFilter(id);
+  const { sortInfo } = useSortInfo(id);
+
   const ReturnToParent = () => {
     setShowOverlay(false);
     setInfoMessage('');
     setBlock(false);
   };
 
-
-  const getNextNumber = React.useCallback((sn: number, nums: number[]): number => {
-    if (nums.length === 0) return sn;
-
-    const max = Math.max(...nums);
-
-    if (sn === max) return sn + 1;
-
-    while (nums.includes(sn)) {
-      ++sn;
-    }
-
-    return sn;
-  }, []);
-
   const onAutoChannelsSave = React.useCallback(async () => {
     setBlock(true);
-    let sn = overwriteNumbers ? startNumber - 1 : startNumber;
 
-    const nums = [...new Set(props.ids.map((item: StreamMasterApi.ChannelNumberPair) => item.channelNumber))] as number[];
-
-    const newChannels = props.ids.map((cp: StreamMasterApi.ChannelNumberPair) => {
-      if (!overwriteNumbers && cp.channelNumber !== 0) {
-        return {
-          channelNumber: cp.channelNumber,
-          id: cp.id,
-        } as StreamMasterApi.ChannelNumberPair;
+    if (selectAll === true) {
+      if (!queryFilter) {
+        ReturnToParent();
+        return;
       }
 
-      if (!overwriteNumbers) {
-        sn = getNextNumber(sn, nums);
-      }
-      else {
-        sn++;
-      }
+      const toSendAll = {} as VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg;
 
-      nums.push(sn);
+      toSendAll.parameters = queryFilter;
+      toSendAll.overWriteExisting = overwriteNumbers;
+      toSendAll.startNumber = startNumber;
 
-      return {
-        channelNumber: sn,
-        id: cp.id,
-      } as StreamMasterApi.ChannelNumberPair;
+      videoStreamsSetVideoStreamChannelNumbersFromParametersMutation(toSendAll)
+        .then(() => {
+          setInfoMessage('Set Stream Visibility Successfully');
+        }
+        ).catch((error) => {
+          setInfoMessage('Set Stream Visibility Error: ' + error.message);
+        });
+      return;
+    }
 
-    });
+    const data = {} as VideoStreamsSetVideoStreamChannelNumbersApiArg;
+    data.overWriteExisting = overwriteNumbers;
+    data.startNumber = startNumber;
+    data.orderBy = sortInfo.orderBy;
 
-    const data = {} as StreamMasterApi.SetVideoStreamChannelNumbersRequest;
-    data.channelNumberPairs = [];
+    data.ids = [];
 
     const max = 500;
 
@@ -78,19 +77,18 @@ const AutoSetChannelNumbers = (props: AutoSetChannelNumbersProps) => {
 
     const promises = [];
 
-    while (count < newChannels.length) {
-      if (count + max < newChannels.length) {
-        data.channelNumberPairs = newChannels.slice(count, count + max);
+    while (count < ids.length) {
+      if (count + max < ids.length) {
+        data.ids = ids.slice(count, count + max);
       } else {
-        data.channelNumberPairs = newChannels.slice(count, newChannels.length);
+        data.ids = ids.slice(count, ids.length);
       }
 
       count += max;
 
       promises.push(
-        SetVideoStreamChannelNumbers(data)
+        videoStreamsSetVideoStreamChannelNumbersMutation(data)
           .then(() => {
-
           }).catch(() => { })
       );
 
@@ -107,16 +105,12 @@ const AutoSetChannelNumbers = (props: AutoSetChannelNumbersProps) => {
     });
 
 
-  }, [getNextNumber, overwriteNumbers, props, startNumber]);
+  }, [ids, overwriteNumbers, queryFilter, selectAll, sortInfo, startNumber, videoStreamsSetVideoStreamChannelNumbersFromParametersMutation, videoStreamsSetVideoStreamChannelNumbersMutation]);
 
   const getTotalCount = useMemo(() => {
-    if (props.overrideTotalRecords !== undefined) {
-      return props.overrideTotalRecords;
-    }
+    return ids.length;
 
-    return props.ids.length;
-
-  }, [props.overrideTotalRecords, props.ids.length]);
+  }, [ids.length]);
 
   return (
     <>
@@ -131,7 +125,7 @@ const AutoSetChannelNumbers = (props: AutoSetChannelNumbersProps) => {
       >
         <div className="border-1 surface-border flex grid flex-wrap justify-content-center p-0 m-0">
           <div className='flex flex-column mt-2 col-6'>
-            {`Auto set (${getTotalCount}) channel numbers ${overwriteNumbers ? 'and overwrite existing numbers ?' : '?'}`}
+            {`Auto set channel numbers ${overwriteNumbers ? 'and overwrite existing numbers ?' : '?'}`}
             <span className="scalein animation-duration-500 animation-iteration-2 text-bold text-red-500 font-italic mt-2">
               This will auto save
             </span>
@@ -179,19 +173,11 @@ const AutoSetChannelNumbers = (props: AutoSetChannelNumbersProps) => {
         </div>
       </InfoMessageOverLayDialog>
 
-      <AutoSetButton disabled={getTotalCount === 0} onClick={() => setShowOverlay(true)} tooltip={`Auto Set (${getTotalCount}) Channels`} />
+      <AutoSetButton disabled={getTotalCount === 0} onClick={() => setShowOverlay(true)} tooltip='Auto Set Channels' />
 
     </>
   )
 }
 
 AutoSetChannelNumbers.displayName = 'Auto Set Channel Numbers';
-AutoSetChannelNumbers.defaultProps = {
-};
-
-export type AutoSetChannelNumbersProps = {
-  ids: StreamMasterApi.ChannelNumberPair[];
-  overrideTotalRecords?: number | undefined;
-};
-
 export default React.memo(AutoSetChannelNumbers);

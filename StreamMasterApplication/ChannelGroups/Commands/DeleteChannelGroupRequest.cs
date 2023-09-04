@@ -7,16 +7,13 @@ using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMasterApplication.ChannelGroups.Events;
-using StreamMasterApplication.VideoStreams.Events;
-
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Cache;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
 [RequireAll]
-public record DeleteChannelGroupRequest(string GroupName) : IRequest<int?>
+public record DeleteChannelGroupRequest(int channelGroupId) : IRequest<int?>
 {
 }
 
@@ -24,7 +21,7 @@ public class DeleteChannelGroupRequestValidator : AbstractValidator<DeleteChanne
 {
     public DeleteChannelGroupRequestValidator()
     {
-        _ = RuleFor(v => v.GroupName).NotNull().NotEmpty();
+        _ = RuleFor(v => v.channelGroupId).NotNull().GreaterThan(0);
     }
 }
 
@@ -36,7 +33,7 @@ public class DeleteChannelGroupRequestHandler : BaseMemoryRequestHandler, IReque
 
     public async Task<int?> Handle(DeleteChannelGroupRequest request, CancellationToken cancellationToken)
     {
-        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupByNameAsync(request.GroupName).ConfigureAwait(false);
+        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupById(request.channelGroupId).ConfigureAwait(false);
 
         if (channelGroup == null)
         {
@@ -46,8 +43,8 @@ public class DeleteChannelGroupRequestHandler : BaseMemoryRequestHandler, IReque
         Repository.ChannelGroup.DeleteChannelGroup(channelGroup);
         await Repository.SaveAsync().ConfigureAwait(false);
         MemoryCache.RemoveChannelGroupStreamCount(channelGroup.Id);
-        await Publisher.Publish(new DeleteChannelGroupEvent(channelGroup.Id), cancellationToken);
-        await Publisher.Publish(new UpdateVideoStreamEvent(), cancellationToken);
+        //await Publisher.Publish(new DeleteChannelGroupEvent(channelGroup.Id), cancellationToken);
+        //await Publisher.Publish(new UpdateVideoStreamEvent(), cancellationToken);
 
         return channelGroup.Id;
     }

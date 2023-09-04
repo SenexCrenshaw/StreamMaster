@@ -88,7 +88,8 @@ public class UpdateChannelGroupCountsRequestHandler : BaseMemoryRequestHandler, 
         MemoryCache.AddOrUpdateChannelGroupVideoStreamCounts(channelGroupStreamCounts);
 
         stopwatch.Stop();
-        Logger.LogInformation($"UpdateChannelGroupCountsRequest took {stopwatch.ElapsedMilliseconds} ms");
+        string speed = stopwatch.ElapsedMilliseconds.ToString("F3");
+        Logger.LogInformation($"UpdateChannelGroupCountsRequest took {speed} ms");
     }
 
 

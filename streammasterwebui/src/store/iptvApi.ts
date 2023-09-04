@@ -49,6 +49,17 @@ const injectedRtkApi = api
         }),
         providesTags: ["ChannelGroups"],
       }),
+      channelGroupsDeleteAllChannelGroupsFromParameters: build.mutation<
+        ChannelGroupsDeleteAllChannelGroupsFromParametersApiResponse,
+        ChannelGroupsDeleteAllChannelGroupsFromParametersApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/channelgroups/deleteallchannelgroupsfromparameters`,
+          method: "DELETE",
+          body: queryArg,
+        }),
+        invalidatesTags: ["ChannelGroups"],
+      }),
       channelGroupsDeleteChannelGroup: build.mutation<
         ChannelGroupsDeleteChannelGroupApiResponse,
         ChannelGroupsDeleteChannelGroupApiArg
@@ -1065,6 +1076,28 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["VideoStreams"],
       }),
+      videoStreamsDeleteAllVideoStreamsFromParameters: build.mutation<
+        VideoStreamsDeleteAllVideoStreamsFromParametersApiResponse,
+        VideoStreamsDeleteAllVideoStreamsFromParametersApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/deleteallvideostreamsfromparameters`,
+          method: "DELETE",
+          body: queryArg,
+        }),
+        invalidatesTags: ["VideoStreams"],
+      }),
+      videoStreamsSetVideoStreamChannelNumbersFromParameters: build.mutation<
+        VideoStreamsSetVideoStreamChannelNumbersFromParametersApiResponse,
+        VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/setvideostreamchannelnumbersfromparameters`,
+          method: "PATCH",
+          body: queryArg,
+        }),
+        invalidatesTags: ["VideoStreams"],
+      }),
     }),
     overrideExisting: false,
   });
@@ -1081,6 +1114,10 @@ export type ChannelGroupsGetChannelGroupsApiArg = {
   jsonArgumentString?: string | null;
   jsonFiltersString?: string | null;
 };
+export type ChannelGroupsDeleteAllChannelGroupsFromParametersApiResponse =
+  unknown;
+export type ChannelGroupsDeleteAllChannelGroupsFromParametersApiArg =
+  DeleteAllChannelGroupsFromParametersRequest;
 export type ChannelGroupsDeleteChannelGroupApiResponse = unknown;
 export type ChannelGroupsDeleteChannelGroupApiArg = DeleteChannelGroupRequest;
 export type ChannelGroupsGetChannelGroupApiResponse =
@@ -1433,9 +1470,18 @@ export type VideoStreamsUpdateAllVideoStreamsFromParametersApiResponse =
   unknown;
 export type VideoStreamsUpdateAllVideoStreamsFromParametersApiArg =
   UpdateAllVideoStreamsFromParametersRequest;
+export type VideoStreamsDeleteAllVideoStreamsFromParametersApiResponse =
+  unknown;
+export type VideoStreamsDeleteAllVideoStreamsFromParametersApiArg =
+  DeleteAllVideoStreamsFromParametersRequest;
+export type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiResponse =
+  unknown;
+export type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg =
+  SetVideoStreamChannelNumbersFromParametersRequest;
 export type CreateChannelGroupRequest = {
   groupName: string;
   rank: number;
+  isReadOnly: boolean;
 };
 export type ChannelGroupStreamCount = {
   id?: number;
@@ -1459,8 +1505,21 @@ export type PagedResponseOfChannelGroupDto = {
   totalRecords: number;
   first: number;
 };
+export type QueryStringParameters = {
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type ChannelGroupParameters = QueryStringParameters & {
+  name?: string;
+};
+export type DeleteAllChannelGroupsFromParametersRequest = {
+  parameters?: ChannelGroupParameters;
+};
 export type DeleteChannelGroupRequest = {
-  groupName: string;
+  channelGroupId: number;
 };
 export type UpdateChannelGroupRequest = {
   channelGroupName?: string;
@@ -2150,12 +2209,11 @@ export type ChannelLogoDto = {
 export type ReSetVideoStreamsLogoRequest = {
   ids?: string[];
 };
-export type ChannelNumberPair = {
-  channelNumber: number;
-  id: string;
-};
 export type SetVideoStreamChannelNumbersRequest = {
-  channelNumberPairs: ChannelNumberPair[];
+  ids: string[];
+  overWriteExisting: boolean;
+  startNumber: number;
+  orderBy: string;
 };
 export type SetVideoStreamSetEpGsFromNameRequest = {
   ids?: string[];
@@ -2171,23 +2229,26 @@ export type UpdateVideoStreamRequest = VideoStreamBaseRequest & {
 export type UpdateVideoStreamsRequest = {
   videoStreamUpdates?: UpdateVideoStreamRequest[];
 };
-export type QueryStringParameters = {
-  pageNumber?: number;
-  pageSize?: number;
-  orderBy?: string;
-  jsonArgumentString?: string | null;
-  jsonFiltersString?: string | null;
-};
 export type VideoStreamParameters = QueryStringParameters & {
   name?: string;
 };
 export type UpdateAllVideoStreamsFromParametersRequest = {
   parameters?: VideoStreamParameters;
   request?: UpdateVideoStreamRequest;
+  channelGroupIds?: number[] | null;
+};
+export type DeleteAllVideoStreamsFromParametersRequest = {
+  parameters?: VideoStreamParameters;
+};
+export type SetVideoStreamChannelNumbersFromParametersRequest = {
+  parameters?: VideoStreamParameters;
+  overWriteExisting?: boolean;
+  startNumber?: number;
 };
 export const {
   useChannelGroupsCreateChannelGroupMutation,
   useChannelGroupsGetChannelGroupsQuery,
+  useChannelGroupsDeleteAllChannelGroupsFromParametersMutation,
   useChannelGroupsDeleteChannelGroupMutation,
   useChannelGroupsGetChannelGroupQuery,
   useChannelGroupsGetChannelGroupNamesQuery,
@@ -2288,4 +2349,6 @@ export const {
   useVideoStreamsUpdateVideoStreamMutation,
   useVideoStreamsUpdateVideoStreamsMutation,
   useVideoStreamsUpdateAllVideoStreamsFromParametersMutation,
+  useVideoStreamsDeleteAllVideoStreamsFromParametersMutation,
+  useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation,
 } = injectedRtkApi;

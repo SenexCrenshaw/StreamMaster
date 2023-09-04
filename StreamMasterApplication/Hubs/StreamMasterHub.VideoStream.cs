@@ -1,6 +1,4 @@
-﻿using MediatR;
-using StreamMasterApplication.VideoStreamLinks.Queries;
-using StreamMasterApplication.VideoStreams;
+﻿using StreamMasterApplication.VideoStreams;
 using StreamMasterApplication.VideoStreams.Commands;
 using StreamMasterApplication.VideoStreams.Queries;
 
@@ -92,4 +90,13 @@ public partial class StreamMasterHub : IVideoStreamHub
         await _mediator.Send(request).ConfigureAwait(false);
     }
 
+    public async Task DeleteAllVideoStreamsFromParameters(DeleteAllVideoStreamsFromParametersRequest request)
+    {
+        await _mediator.Send(request).ConfigureAwait(false);
+    }
+
+    public async Task SetVideoStreamChannelNumbersFromParameters(SetVideoStreamChannelNumbersFromParametersRequest request)
+    {
+        await _mediator.Send(request).ConfigureAwait(false);
+    }
 }
