@@ -185,6 +185,13 @@
   border-color: var(--blue-500) !important;
 }
 
+.p-dropdown.p-component.p-inputwrapper.BaseSelector {
+  border: 2px solid var(--surface-border) !important;
+  border-radius: 6px;
+  min-height: 1.8rem;
+  max-height: 2rem !important;
+}
+
 .p-dropdown.p-component.p-inputwrapper.p-inputwrapper-filled.flex.w-full {
   border: #FE7600 2px solid !important;
   border-left-color: #0e1315 !important;
