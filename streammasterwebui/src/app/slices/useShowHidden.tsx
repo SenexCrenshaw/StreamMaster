@@ -5,6 +5,7 @@ import { setShowHiddenInternal } from './showHiddenSlice';
 export const useShowHidden = (typename: string) => {
   const dispatch: AppDispatch = useDispatch();
 
+
   const setShowHidden = (hidden: boolean | null | undefined) => {
     dispatch(setShowHiddenInternal({
       hidden: hidden,
@@ -13,6 +14,10 @@ export const useShowHidden = (typename: string) => {
   };
 
   const showHidden = useSelector((rootState: RootState) => rootState.showHidden[typename]);
+
+  if (showHidden === undefined) {
+    setShowHidden(null);
+  }
 
   return { setShowHidden, showHidden };
 };

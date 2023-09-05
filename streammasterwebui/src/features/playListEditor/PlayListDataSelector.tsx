@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useState, type CSSProperties } from "react";
+import { memo, useCallback, useMemo, useState, type CSSProperties, useEffect } from "react";
 import { isEmptyObject } from "../../common/common";
 import { getTopToolOptions } from "../../common/common";
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
@@ -21,26 +21,17 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   const [selectedChannelGroups, setSelectedChannelGroups] = useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
   const { channelGroupToRemove } = useChannelGroupToRemove(dataKey);
 
-
+  useEffect(() => {
+    if (showHidden === undefined) {
+      setShowHidden(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showHidden]);
 
   const onSelectionChange = (data: ChannelGroupDto[]) => {
     setSelectedChannelGroups(data);
     props.onSelectionChange?.(data);
   };
-
-  // const onDelete = useCallback((results: string[] | undefined) => {
-  //   if (results === undefined) {
-  //     return;
-  //   }
-
-  //   const newSelectedChannelGroups = selectedChannelGroups.filter(
-  //     group => !results.includes(group.name)
-  //   );
-
-  //   onSelectionChange(newSelectedChannelGroups);
-
-  //
-  // }, []);
 
   const sourceActionBodyTemplate = useCallback((data: ChannelGroupDto) => (
 

@@ -9,10 +9,12 @@ import { BlockUI } from "primereact/blockui";
 
 const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
   const [originalValue, setOriginalValue] = React.useState<string>('');
+  const [inputValue, setInputValue] = React.useState<string>('');
+
   const [isFocused, setIsFocused] = React.useState<boolean>(false);
 
   const overlayRef = React.useRef(null);
-  const [inputValue, setInputValue] = React.useState<string>('');
+
   const className = classNames('iconSelector p-0 m-0 w-full z-5 ', props.className);
 
   const debounced = useDebouncedCallback(
@@ -90,9 +92,10 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
       <div ref={overlayRef}>
         <Dropdown
           className={className}
-          editable
+          disabled={props.disabled}
+          editable={props.editable}
           filter
-          filterBy='channelName'
+          filterBy={props.filterBy}
 
           onChange={
             (e) => {
@@ -125,12 +128,15 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
 
 DropDownEditorBodyTemplate.displayName = 'DropDownEditorBodyTemplate';
 DropDownEditorBodyTemplate.defaultProps = {
-
+  filterBy: 'channelName'
 };
 
 type DropDownEditorBodyTemplateProps = {
   readonly className?: string;
   readonly data: string[];
+  readonly disabled?: boolean;
+  readonly editable?: boolean | undefined;
+  readonly filterBy?: string;
   readonly isLoading?: boolean;
   readonly onChange: (value: string) => void;
   readonly tooltip?: string;

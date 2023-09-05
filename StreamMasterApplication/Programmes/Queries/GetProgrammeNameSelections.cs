@@ -7,8 +7,11 @@ using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Filtering;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository.EPG;
+
+using System.Text.Json;
 
 namespace StreamMasterApplication.Programmes.Queries;
 
@@ -31,7 +34,20 @@ internal class GetProgrammeNameSelectionsHandler : BaseMemoryRequestHandler, IRe
 
         List<ProgrammeNameDto> ret = new();
 
-        List<Programme> programmes = MemoryCache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel)).ToList();// && a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
+        IQueryable<Programme> programmes = MemoryCache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel)).AsQueryable();// && a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
+        if (!string.IsNullOrEmpty(request.Parameters.JSONFiltersString))
+        {
+            List<DataTableFilterMetaData>? filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(request.Parameters.JSONFiltersString);
+            if (filters != null)
+            {
+                DataTableFilterMetaData? nameFilter = filters.FirstOrDefault(a => a.FieldName == "name");
+                if (nameFilter != null)
+                {
+                    nameFilter.FieldName = "DisplayName";
+                }
+                programmes = FilterHelper<Programme>.ApplyFiltersAndSort(programmes, filters, "DisplayName asc");
+            }
+        }
 
         IEnumerable<string> names = programmes.Select(a => a.Channel).Distinct();
         foreach (string? name in names)

@@ -58,6 +58,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
   const [queryFilter, setQueryFilter] = useState<GetApiArg>({ pageSize: 0 });
   const filterQuery = props.queryFilter(queryFilter);
 
+
   useEffect(() => {
     if (!query?.data) return;
     var existingIds = new Set(dataSource.map(x => x.id));
@@ -95,10 +96,6 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
         setTotalItems(filterQuery.data.totalItemCount);
       }
 
-      return;
-    }
-
-    if (totalItems <= dataSource.length) {
       return;
     }
 
