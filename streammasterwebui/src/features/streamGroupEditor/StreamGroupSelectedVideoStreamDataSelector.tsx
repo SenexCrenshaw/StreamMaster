@@ -5,7 +5,7 @@ import { type UpdateStreamGroupRequest, type VideoStreamIsReadOnly } from "../..
 import { type ChildVideoStreamDto, useStreamGroupsUpdateStreamGroupMutation } from "../../store/iptvApi";
 import { useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery } from "../../store/iptvApi";
 import { type VideoStreamDto } from "../../store/iptvApi";
-import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig } from "../../components/columns/columnConfigHooks";
+import { useChannelNumberColumnConfig, useChannelNameColumnConfig, useEPGColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
 import VideoStreamRemoveFromStreamGroupDialog from "./VideoStreamRemoveFromStreamGroupDialog";
@@ -21,10 +21,11 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
   const { selectedStreamGroup } = useSelectedStreamGroup(id);
   const enableEdit = false;
 
-  const { columnConfig: m3uFileNameColumnConfig } = useM3UFileNameColumnConfig(enableEdit);
-  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig(enableEdit);
+  // const { columnConfig: m3uFileNameColumnConfig } = useM3UFileNameColumnConfig(enableEdit);
+  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig(true);
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(enableEdit);
-  const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig(enableEdit);
+  // const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig(enableEdit);
+  const { columnConfig: epgColumnConfig } = useEPGColumnConfig(true);
   const { setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
 
   useEffect(() => {
@@ -54,18 +55,18 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
     return [
       channelNumberColumnConfig,
       channelNameColumnConfig,
-      channelGroupConfig,
-      // epgColumnConfig,
-      m3uFileNameColumnConfig,
+      // channelGroupConfig,
+      epgColumnConfig,
+      // m3uFileNameColumnConfig,
       {
-        bodyTemplate: targetActionBodyTemplate, field: 'Remove', header: 'X', resizeable: false, sortable: false,
+        bodyTemplate: targetActionBodyTemplate, field: 'Remove', header: '', resizeable: false, sortable: false,
         style: {
-          maxWidth: '7rem',
-          width: '7rem',
+          maxWidth: '4rem',
+          width: '4rem',
         } as CSSProperties,
       }
     ]
-  }, [channelNumberColumnConfig, channelNameColumnConfig, channelGroupConfig, m3uFileNameColumnConfig, targetActionBodyTemplate]);
+  }, [channelNumberColumnConfig, channelNameColumnConfig, epgColumnConfig, targetActionBodyTemplate]);
 
   const rightHeaderTemplate = () => {
     return (

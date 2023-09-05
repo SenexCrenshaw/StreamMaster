@@ -20,7 +20,7 @@ export const useEPGColumnConfig = createMultiSelectColumnConfigHook({
   EditorComponent: EPGEditor,
   headerTitle: 'EPG',
   queryHook: useProgrammesGetProgrammeNamesQuery,
-  width: 10
+  width: 14
 });
 
 export const useM3UFileNameColumnConfig = createMultiSelectColumnConfigHook({
@@ -42,7 +42,7 @@ export const useChannelNameColumnConfig = createMultiSelectColumnConfigHook({
   dataField: 'user_Tvg_name',
   EditorComponent: ChannelNameEditor,
   headerTitle: 'Name',
-  width: 18
+  width: 40
 });
 
 export const useChannelLogoColumnConfig = createMultiSelectColumnConfigHook({
