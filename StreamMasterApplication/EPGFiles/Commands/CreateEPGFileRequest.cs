@@ -124,8 +124,8 @@ public class CreateEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestH
             epgFile.ProgrammeCount = tv.Programme != null ? tv.Programme.Count : 0;
 
             Repository.EPGFile.CreateEPGFile(epgFile);
-            await Repository.SaveAsync().ConfigureAwait(false);
-
+            _ = await Repository.SaveAsync().ConfigureAwait(false);
+            epgFile.WriteJSON();
 
             EPGFilesDto ret = Mapper.Map<EPGFilesDto>(epgFile);
             await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);

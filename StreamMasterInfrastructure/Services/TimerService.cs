@@ -46,7 +46,7 @@ public class TimerService : IHostedService, IDisposable
     {
         //_logger.LogInformation("Timer Service running.");
 
-        _timer = new Timer(async state => await DoWorkAsync(state, cancellationToken), null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
+        _timer = new Timer(async state => await DoWorkAsync(state, cancellationToken), null, TimeSpan.Zero, TimeSpan.FromSeconds(600));
 
         return Task.CompletedTask;
     }
@@ -71,9 +71,6 @@ public class TimerService : IHostedService, IDisposable
             isActive = true;
         }
 
-        using IServiceScope scope = _serviceProvider.CreateScope();
-        IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-
         SystemStatus status = new() { IsSystemReady = _memoryCache.IsSystemReady() };
 
         if (!status.IsSystemReady)
@@ -84,6 +81,10 @@ public class TimerService : IHostedService, IDisposable
             }
             return;
         }
+
+        using IServiceScope scope = _serviceProvider.CreateScope();
+        IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
 
         IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
 

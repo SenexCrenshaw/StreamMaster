@@ -296,16 +296,10 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
     private bool ProcessExistingStream(VideoStream stream, VideoStream dbStream, bool isHidden, string mu3FileName)
     {
         bool changed = false;
-        //if (dbStream.IsHidden != isHidden)
-        //{
-        //    changed = true;
-        //    dbStream.IsHidden = isHidden;
-        //}
-
-        if (dbStream.Tvg_group != stream.Tvg_group)
+        if (dbStream.IsHidden != isHidden)
         {
             changed = true;
-            dbStream.Tvg_group = stream.Tvg_group;
+            dbStream.IsHidden = isHidden;
         }
 
         if (string.IsNullOrEmpty(dbStream.M3UFileName) || dbStream.M3UFileName != mu3FileName)
@@ -320,27 +314,51 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
             if (dbStream.Tvg_chno != localNextChno)
             {
                 changed = true;
+                if (dbStream.Tvg_chno == dbStream.User_Tvg_chno)
+                {
+                    dbStream.User_Tvg_chno = localNextChno;
+                }
                 dbStream.Tvg_chno = localNextChno;
             }
+        }
+
+        if (dbStream.Tvg_group != stream.Tvg_group)
+        {
+            changed = true;
+            if (dbStream.Tvg_group == dbStream.User_Tvg_group)
+            {
+                dbStream.User_Tvg_group = stream.Tvg_group;
+            }
+            dbStream.Tvg_group = stream.Tvg_group;
         }
 
         if (dbStream.Tvg_ID != stream.Tvg_ID)
         {
             changed = true;
+            if (dbStream.Tvg_ID == dbStream.User_Tvg_ID)
+            {
+                dbStream.User_Tvg_ID = stream.Tvg_ID;
+            }
             dbStream.Tvg_ID = stream.Tvg_ID;
         }
 
         if (dbStream.Tvg_logo != stream.Tvg_logo)
         {
             changed = true;
-
+            if (dbStream.Tvg_logo == dbStream.User_Tvg_logo)
+            {
+                dbStream.User_Tvg_logo = stream.Tvg_logo;
+            }
             dbStream.Tvg_logo = stream.Tvg_logo;
         }
 
         if (dbStream.Tvg_name != stream.Tvg_name)
         {
             changed = true;
-
+            if (dbStream.Tvg_name == dbStream.User_Tvg_name)
+            {
+                dbStream.User_Tvg_name = stream.Tvg_name;
+            }
             dbStream.Tvg_name = stream.Tvg_name;
         }
 

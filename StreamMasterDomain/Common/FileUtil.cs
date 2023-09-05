@@ -65,7 +65,7 @@ public sealed class FileUtil
                     stream.Close();
 
                     string filePath = Path.Combine(path, Path.GetFileNameWithoutExtension(fullName) + ".url");
-                    WriteUrlToFile(filePath, url);
+                    _ = WriteUrlToFile(filePath, url);
                 }
                 fileStream.Close();
 
@@ -113,12 +113,7 @@ public sealed class FileUtil
     {
         FileStream fs = File.Open(source, FileMode.Open);
 
-        if (IsFileGzipped(source))
-        {
-            return new GZipStream(fs, CompressionMode.Decompress);
-        }
-
-        return fs;
+        return IsFileGzipped(source) ? new GZipStream(fs, CompressionMode.Decompress) : fs;
     }
 
 
@@ -146,7 +141,7 @@ public sealed class FileUtil
 
     public static async Task<List<TvLogoFile>> GetIconFilesFromDirectory(DirectoryInfo dirInfo, string tvLogosLocation, int startingId, CancellationToken cancellationToken = default)
     {
-        Setting setting = FileUtil.GetSetting();
+        _ = FileUtil.GetSetting();
         List<TvLogoFile> ret = new();
 
         foreach (FileInfo file in dirInfo.GetFiles("*png"))
@@ -222,7 +217,7 @@ public sealed class FileUtil
             byte[] signature = new byte[3];
 
             // Read the first two bytes from the file
-            fileStream.Read(signature, 0, 3);
+            _ = fileStream.Read(signature, 0, 3);
 
             // Gzip files start with the signature bytes 0x1F 0x8B
             return signature[0] == 0x1F && signature[1] == 0x8B && signature[2] == 0x08;
@@ -245,7 +240,7 @@ public sealed class FileUtil
                 if (lines.Length == 1)
                 {
                     url = lines[0];
-                    WriteUrlToFile(filePath, url);
+                    _ = WriteUrlToFile(filePath, url);
                     return true;
                 }
 
@@ -253,7 +248,7 @@ public sealed class FileUtil
 
                 if (urlLine != null)
                 {
-                    url = urlLine.Substring("URL=".Length);
+                    url = urlLine["URL=".Length..];
                     return true;
                 }
                 else
@@ -303,7 +298,9 @@ public sealed class FileUtil
         File.WriteAllText(BuildInfo.SettingFile, jsonString);
     }
 
-    public static bool WriteUrlToFile(string filePath, string url)
+
+
+    private static bool WriteUrlToFile(string filePath, string url)
     {
         try
         {

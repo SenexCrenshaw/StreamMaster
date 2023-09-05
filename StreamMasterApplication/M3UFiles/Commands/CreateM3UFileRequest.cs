@@ -108,7 +108,7 @@ public class CreateM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestH
 
             m3UFile.MaxStreamCount = command.MaxStreamCount;
 
-            var streams = await m3UFile.GetM3U().ConfigureAwait(false);
+            List<VideoStream>? streams = await m3UFile.GetM3U().ConfigureAwait(false);
             if (streams == null || streams.Count == 0)
             {
                 Logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);
@@ -116,6 +116,11 @@ public class CreateM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestH
                 if (File.Exists(fullName))
                 {
                     File.Delete(fullName);
+                }
+                string urlPath = Path.GetFileNameWithoutExtension(fullName) + ".url";
+                if (File.Exists(urlPath))
+                {
+                    File.Delete(urlPath);
                 }
                 return false;
             }
@@ -127,7 +132,9 @@ public class CreateM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestH
 
 
             Repository.M3UFile.CreateM3UFile(m3UFile);
-            await Repository.SaveAsync().ConfigureAwait(false);
+            _ = await Repository.SaveAsync().ConfigureAwait(false);
+
+            m3UFile.WriteJSON();
 
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3UFile);
             await Publisher.Publish(new M3UFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);

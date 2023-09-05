@@ -81,26 +81,26 @@ public class UpdateEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHan
             }
 
             Repository.EPGFile.UpdateEPGFile(epgFile);
-            await Repository.SaveAsync().ConfigureAwait(false);
-
+            _ = await Repository.SaveAsync().ConfigureAwait(false);
+            epgFile.WriteJSON();
             EPGFilesDto ret = Mapper.Map<EPGFilesDto>(epgFile);
 
             if (isNameChanged)
             {
                 List<ChannelLogoDto> programmes = MemoryCache.ChannelLogos();
-                programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
+                _ = programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
                 MemoryCache.Set(programmes);
 
                 List<ChannelLogoDto> channels = MemoryCache.ChannelLogos();
-                channels.RemoveAll(a => a.EPGFileId == epgFile.Id);
+                _ = channels.RemoveAll(a => a.EPGFileId == epgFile.Id);
                 MemoryCache.Set(channels);
 
                 List<ChannelLogoDto> channelLogos = MemoryCache.ChannelLogos();
-                channelLogos.RemoveAll(a => a.EPGFileId == epgFile.Id);
+                _ = channelLogos.RemoveAll(a => a.EPGFileId == epgFile.Id);
                 MemoryCache.Set(channelLogos);
 
                 List<IconFileDto> programmeIcons = MemoryCache.ProgrammeIcons();
-                programmeIcons.RemoveAll(a => a.FileId == epgFile.Id);
+                _ = programmeIcons.RemoveAll(a => a.FileId == epgFile.Id);
                 MemoryCache.SetProgrammeLogos(programmeIcons);
 
                 await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);

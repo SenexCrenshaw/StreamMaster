@@ -1,11 +1,30 @@
 ﻿using StreamMasterDomain.Repository.EPG;
 
+using System.Text.Json;
 using System.Xml.Serialization;
 
 namespace StreamMasterDomain.Repository;
 
 public class EPGFile : AutoUpdateEntity
 {
+    public static EPGFile? ReadJSON(FileInfo fileInfo)
+    {
+        string filePath = Path.Combine(fileInfo.DirectoryName, Path.GetFileNameWithoutExtension(fileInfo.FullName) + ".json");
+
+        if (!File.Exists(filePath))
+        {
+            return null;
+        }
+        string jsonString = File.ReadAllText(filePath);
+        return JsonSerializer.Deserialize<EPGFile>(jsonString);
+    }
+
+    public void WriteJSON()
+    {
+        string txtName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(Source) + ".json");
+        string jsonString = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(txtName, jsonString);
+    }
     public EPGFile()
     {
         //DirectoryLocation = FileDefinitions.EPG.DirectoryLocation;

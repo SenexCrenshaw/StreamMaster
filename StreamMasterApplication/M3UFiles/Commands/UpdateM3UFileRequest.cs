@@ -97,7 +97,9 @@ public class UpdateM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHan
             }
 
             Repository.M3UFile.UpdateM3UFile(m3uFile);
-            await Repository.SaveAsync().ConfigureAwait(false);
+            _ = await Repository.SaveAsync().ConfigureAwait(false);
+            m3uFile.WriteJSON();
+
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
             if (isChanged)
             {

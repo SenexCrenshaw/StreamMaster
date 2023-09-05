@@ -6,8 +6,6 @@ import { classNames } from 'primereact/utils';
 import { doSetsContainSameIds, type SMDataTableFilterMetaData } from "../../common/common";
 import { type GetApiArg, addOrUpdateValueForField } from "../../common/common";
 import { type HasId, type SimpleQueryApiArg } from "../../common/common";
-import { type VirtualScrollerTemplateOptions } from 'primereact/virtualscroller';
-import { Skeleton } from 'primereact/skeleton';
 
 export type PagedResponseDto<T> = {
   data: T[];
@@ -52,7 +50,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
   const [dataSource, setDataSource] = useState<T[]>([]);
   const [filteredDataSource, setFilteredDataSource] = useState<T[]>([]);
 
-  const [simpleQuery, setSimpleQuery] = useState<SimpleQueryApiArg>({ first: 0, last: 40 });
+  const [simpleQuery, setSimpleQuery] = useState<SimpleQueryApiArg>({ first: 0, last: 200 });
   const query = props.queryHook(simpleQuery);
 
   const [queryFilter, setQueryFilter] = useState<GetApiArg>({ pageSize: 0 });
@@ -177,19 +175,6 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
     'p-disabled': props.disabled,
   });
 
-
-  const loadingTemplate = (options: VirtualScrollerTemplateOptions) => {
-    const className2 = classNames('flex align-items-center justify-content-center p-2', {
-      odd: options.odd
-    });
-
-    return (
-      <div className={className2} style={{ height: `${props.itemSize}px` }}>
-        <Skeleton height="1.3rem" width={options.even ? '60%' : '50%'} />
-      </div>
-    );
-  };
-
   const onFilter = (event: DropdownFilterEvent) => {
     if (event.filter === '') {
       setQueryFilter({ pageSize: 40 } as GetApiArg);
@@ -237,8 +222,11 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
           delay: 200,
           itemSize: props.itemSize,
           lazy: true,
-          loadingTemplate: loadingTemplate,
+          loaderDisabled: true,
+          // loadingTemplate: loadingTemplate,
 
+
+          numToleratedItems: 40,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onLazyLoad: (e: any) => {
             if (e.filter === '' && e.last as number >= index) {
@@ -247,7 +235,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
               setSimpleQuery({ first: firstRecord, last: e.last as number + 100 } as SimpleQueryApiArg)
             }
           },
-          showLoader: true,
+          showLoader: true
         }}
 
       />
