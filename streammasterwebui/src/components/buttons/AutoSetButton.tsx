@@ -1,5 +1,3 @@
-;
-
 import { type ChildButtonProps } from "./BaseButton";
 import BaseButton from "./BaseButton";
 
