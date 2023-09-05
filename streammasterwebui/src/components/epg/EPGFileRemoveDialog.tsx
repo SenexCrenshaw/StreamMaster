@@ -20,7 +20,7 @@ const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
   }, []);
 
 
-  const deleteFile = async () => {
+  const deleteFile = () => {
     if (!props.selectedFile) {
       return;
     }
@@ -32,7 +32,7 @@ const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
     tosend.id = props.selectedFile.id;
     tosend.deleteFile = deleteFSFile;
 
-    await DeleteEPGFile(tosend)
+    DeleteEPGFile(tosend)
       .then(() => {
         setInfoMessage('EPG File Removed Successfully');
       }).catch((e) => {
@@ -80,7 +80,7 @@ const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
             )}
           </span>
           <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
-            <DeleteButton iconFilled={false} onClick={async () => deleteFile} tooltip="Delete EPG File" />
+            <DeleteButton label="Delete EPG File" onClick={() => deleteFile()} tooltip="Delete EPG File" />
 
           </div>
         </div>

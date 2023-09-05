@@ -142,7 +142,10 @@ else
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseResponseCompression();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseResponseCompression();
+}
 
 app.MapHealthChecks("/healthz");
 app.MapDefaultControllerRoute();
