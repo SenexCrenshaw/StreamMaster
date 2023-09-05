@@ -1,3 +1,4 @@
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,15 +18,35 @@ public static class ConfigureServices
 
         string DbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster.db");
 
-        services.AddDbContext<RepositoryContext>(options => options.UseSqlite($"Data Source={DbPath}", builder => builder.MigrationsAssembly(typeof(RepositoryContext).Assembly.FullName)));
-        services.AddScoped<RepositoryContextInitializer>();
+        //_ = services.AddDbContext<RepositoryContext>(options => options.UseSqlite($"Data Source={DbPath}", builder => builder.MigrationsAssembly(typeof(RepositoryContext).Assembly.FullName)));
+        _ = services.AddDbContextFactory<RepositoryContext>(options => options.UseSqlite($"Data Source={DbPath}", builder => builder.MigrationsAssembly(typeof(RepositoryContext).Assembly.FullName)));
 
-        services.AddScoped<ISortHelper<M3UFile>, SortHelper<M3UFile>>();
-        services.AddScoped<ISortHelper<VideoStream>, SortHelper<VideoStream>>();
-        services.AddScoped<ISortHelper<ChannelGroup>, SortHelper<ChannelGroup>>();
-        services.AddScoped<ISortHelper<StreamGroup>, SortHelper<StreamGroup>>();
-        services.AddScoped<ISortHelper<EPGFile>, SortHelper<EPGFile>>();
-        services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
+        //_ = services.AddHangfire((serviceProvider, configuration) =>
+        //    configuration.UseEFCoreStorage(
+        //           () => serviceProvider.GetRequiredService<IDbContextFactory<RepositoryContext>>().CreateDbContext(),
+        //        new EFCoreStorageOptions
+        //        {
+        //            CountersAggregationInterval = new TimeSpan(0, 5, 0),
+        //            DistributedLockTimeout = new TimeSpan(0, 10, 0),
+        //            JobExpirationCheckInterval = new TimeSpan(0, 30, 0),
+        //            QueuePollInterval = new TimeSpan(0, 0, 15),
+        //            Schema = string.Empty,
+        //            SlidingInvisibilityTimeout = new TimeSpan(0, 5, 0),
+        //        }));
+
+        //_ = services.AddHangfireServer(options =>
+        //{
+        //    options.WorkerCount = 1;
+        //});
+
+        _ = services.AddScoped<RepositoryContextInitializer>();
+
+        _ = services.AddScoped<ISortHelper<M3UFile>, SortHelper<M3UFile>>();
+        _ = services.AddScoped<ISortHelper<VideoStream>, SortHelper<VideoStream>>();
+        _ = services.AddScoped<ISortHelper<ChannelGroup>, SortHelper<ChannelGroup>>();
+        _ = services.AddScoped<ISortHelper<StreamGroup>, SortHelper<StreamGroup>>();
+        _ = services.AddScoped<ISortHelper<EPGFile>, SortHelper<EPGFile>>();
+        _ = services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
         return services;
     }
 }

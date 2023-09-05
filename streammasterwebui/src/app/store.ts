@@ -6,12 +6,11 @@ import { enhancedApi } from '../store/signlar/enhancedApi';
 import { enhancedApiLocal } from '../store/signlar/enhancedApiLocal';
 import queryFilterReducer from './slices/queryFilterSlice';
 import queryAdditionalFiltersReducer from './slices/queryAdditionalFiltersSlice';
-import streamToRemoveSliceReducer from './slices/streamToRemoveSlice';
-import streamGroupToRemoveSliceReducer from './slices/streamGroupToRemoveSlice';
 import channelGroupToRemoveSliceReducer from './slices/channelGroupToRemoveSlice';
 import selectAllSliceReducer from './slices/selectAllSlice';
 import sortInfoSliceReducer from './slices/sortInfoSlice';
 import showHiddenSliceReducer from './slices/showHiddenSlice';
+import selectedStreamGroupSliceeReducer from './slices/selectedStreamGroupSlice';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
@@ -30,16 +29,20 @@ const showHiddenConfig = {
   storage,
 };
 
+// const selectedStreamGroupConfig = {
+//   key: 'selectedStreamGroup',
+//   storage,
+// };
+
 const rootReducer = combineReducers({
   [enhancedApi.reducerPath]: enhancedApi.reducer,
   channelGroupToRemove:channelGroupToRemoveSliceReducer,
   queryAdditionalFilters: queryAdditionalFiltersReducer,
   queryFilter: queryFilterReducer,
   selectAll:persistReducer(selectAllConfig, selectAllSliceReducer),
+  selectedStreamGroup:  selectedStreamGroupSliceeReducer,
   showHidden: persistReducer(showHiddenConfig, showHiddenSliceReducer),
   sortInfo: persistReducer(sortInfoConfig, sortInfoSliceReducer),
-  streamGroupToRemove:streamGroupToRemoveSliceReducer,
-  streamToRemove: streamToRemoveSliceReducer,
 });
 
 

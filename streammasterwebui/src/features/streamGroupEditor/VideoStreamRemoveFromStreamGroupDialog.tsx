@@ -2,30 +2,29 @@ import { memo } from "react";
 import { type StreamGroupVideoStreamsRemoveVideoStreamFromStreamGroupApiArg } from "../../store/iptvApi";
 import { useStreamGroupVideoStreamsRemoveVideoStreamFromStreamGroupMutation, type VideoStreamDto } from "../../store/iptvApi";
 import XButton from "../../components/buttons/XButton";
-import { useStreamToRemove } from "../../app/slices/useStreamToRemove";
+import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
 
 type VideoStreamRemoveFromStreamGroupDialogProps = {
   readonly id: string;
-  readonly streamGroupId: number;
   readonly value?: VideoStreamDto | undefined;
 };
 
-const VideoStreamRemoveFromStreamGroupDialog = ({ id, streamGroupId, value }: VideoStreamRemoveFromStreamGroupDialogProps) => {
+const VideoStreamRemoveFromStreamGroupDialog = ({ id, value }: VideoStreamRemoveFromStreamGroupDialogProps) => {
   const [streamGroupVideoStreamsRemoveVideoStreamFromStreamGroupMutation] = useStreamGroupVideoStreamsRemoveVideoStreamFromStreamGroupMutation();
-  const { setStreamToRemove } = useStreamToRemove(id);
+  const { selectedStreamGroup } = useSelectedStreamGroup(id);
+
 
   const removeVideoStream = async () => {
-    if (!value) {
+    if (!value || !selectedStreamGroup) {
       return;
     }
 
     const toSend = {} as StreamGroupVideoStreamsRemoveVideoStreamFromStreamGroupApiArg;
 
-    toSend.streamGroupId = streamGroupId;
+    toSend.streamGroupId = selectedStreamGroup.id;
     toSend.videoStreamId = value.id;
 
     await streamGroupVideoStreamsRemoveVideoStreamFromStreamGroupMutation(toSend).then(() => {
-      setStreamToRemove(value.id)
     }).catch((error) => {
       console.error('Remove Stream Error: ' + error.message);
     });

@@ -2,23 +2,19 @@ import { useState, useCallback, useMemo, memo } from "react";
 import { isEmptyObject } from "../../common/common";
 import { type StreamGroupDto, type DeleteStreamGroupRequest, useStreamGroupsDeleteStreamGroupMutation } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
-import { useStreamGroupToRemove } from "../../app/slices/useStreamGroupToRemove";
 import DeleteButton from "../buttons/DeleteButton";
 
 type StreamGroupDeleteDialogProps = {
   readonly iconFilled?: boolean | undefined;
-  readonly id: string;
   readonly onHide?: () => void;
   readonly value?: StreamGroupDto | undefined;
 };
 
-const StreamGroupDeleteDialog = ({ iconFilled, id, onHide, value }: StreamGroupDeleteDialogProps) => {
+const StreamGroupDeleteDialog = ({ iconFilled, onHide, value }: StreamGroupDeleteDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
   const [selectedStreamGroup, setSelectedStreamGroup] = useState<StreamGroupDto>({} as StreamGroupDto);
   const [infoMessage, setInfoMessage] = useState('');
-
-  const { setStreamGroupToRemove } = useStreamGroupToRemove(id);
 
   const [streamGroupsDeleteStreamGroupMutations] = useStreamGroupsDeleteStreamGroupMutation();
 
@@ -51,13 +47,13 @@ const StreamGroupDeleteDialog = ({ iconFilled, id, onHide, value }: StreamGroupD
     data.id = selectedStreamGroup.id;
 
     await streamGroupsDeleteStreamGroupMutations(data).then(() => {
-      setStreamGroupToRemove(selectedStreamGroup.id);
+
       setInfoMessage('Stream Group Deleted Successfully');
     }).catch((error) => {
       setInfoMessage('Stream Group Delete Error: ' + error.message);
     });
 
-  }, [ReturnToParent, selectedStreamGroup, setStreamGroupToRemove, streamGroupsDeleteStreamGroupMutations]);
+  }, [ReturnToParent, selectedStreamGroup, streamGroupsDeleteStreamGroupMutations]);
 
   return (
     <>

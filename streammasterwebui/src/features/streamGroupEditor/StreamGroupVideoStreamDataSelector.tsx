@@ -1,34 +1,32 @@
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
-
 import { useMemo, memo, useEffect, useState } from "react";
 import { getTopToolOptions, GetMessage } from "../../common/common";
 import { type StreamGroupVideoStreamsAddVideoStreamToStreamGroupApiArg } from "../../store/iptvApi";
 import { useStreamGroupVideoStreamsAddVideoStreamToStreamGroupMutation, type VideoStreamIsReadOnly } from "../../store/iptvApi";
-import { useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery, type StreamGroupDto } from "../../store/iptvApi";
-import { type VideoStreamDto } from "../../store/iptvApi";
+import { useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery } from "../../store/iptvApi";
 import { useVideoStreamsGetVideoStreamsQuery } from "../../store/iptvApi";
 import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import { useStreamToRemove } from "../../app/slices/useStreamToRemove";
 import { useShowHidden } from "../../app/slices/useShowHidden";
+import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
+import { type DataTableRowClickEvent } from "primereact/datatable";
 
 type StreamGroupVideoStreamDataSelectorProps = {
   readonly id: string;
-  readonly streamGroup: StreamGroupDto;
 };
 
-const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVideoStreamDataSelectorProps) => {
+const StreamGroupVideoStreamDataSelector = ({ id }: StreamGroupVideoStreamDataSelectorProps) => {
   const dataKey = id + '-StreamGroupVideoStreamDataSelector';
-  const { streamToRemove } = useStreamToRemove(id);
   const [videoStreams, setVideoStreams] = useState<VideoStreamIsReadOnly[]>([] as VideoStreamIsReadOnly[]);
   const { columnConfig: m3uFileNameColumnConfig } = useM3UFileNameColumnConfig(false);
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig(false);
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(false);
   const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig(false);
   const { showHidden, setShowHidden } = useShowHidden(dataKey);
-  const streamGroupsGetStreamGroupVideoStreamIdsQuery = useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery(streamGroup.id);
+  const { selectedStreamGroup } = useSelectedStreamGroup(id);
+  const streamGroupsGetStreamGroupVideoStreamIdsQuery = useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery(selectedStreamGroup?.id ?? 1);
   const [streamGroupVideoStreamsAddVideoStreamToStreamGroupMutation] = useStreamGroupVideoStreamsAddVideoStreamToStreamGroupMutation();
 
   useEffect(() => {
@@ -39,13 +37,31 @@ const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVide
 
   }, [streamGroupsGetStreamGroupVideoStreamIdsQuery.data]);
 
+  const addVideoStream = async (videoId: string) => {
+    if (!videoId || !selectedStreamGroup) {
+      return;
+    }
+
+    const toSend = {} as StreamGroupVideoStreamsAddVideoStreamToStreamGroupApiArg;
+
+    toSend.streamGroupId = selectedStreamGroup.id;
+    toSend.videoStreamId = videoId;
+
+    await streamGroupVideoStreamsAddVideoStreamToStreamGroupMutation(toSend).then(() => {
+    }).catch((error) => {
+      console.error('Add Stream Error: ' + error.message);
+    });
+
+  }
+
+
   const targetColumns = useMemo((): ColumnMeta[] => {
 
     return [
       channelNumberColumnConfig,
       channelNameColumnConfig,
       channelGroupConfig,
-      m3uFileNameColumnConfig,
+      m3uFileNameColumnConfig
     ]
   }, [channelNumberColumnConfig, channelNameColumnConfig, channelGroupConfig, m3uFileNameColumnConfig]);
 
@@ -79,6 +95,11 @@ const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVide
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showHidden]);
 
+  const onRowClick = async (event: DataTableRowClickEvent) => {
+    console.log(event);
+    await addVideoStream(event.data.id);
+  };
+
   return (
     <DataSelector
       columns={targetColumns}
@@ -89,29 +110,9 @@ const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVide
       headerRightTemplate={rightHeaderTemplate}
       id={dataKey}
       isLoading={streamGroupsGetStreamGroupVideoStreamIdsQuery.isLoading || streamGroupsGetStreamGroupVideoStreamIdsQuery.isFetching}
-      onSelectionChange={async (value) => {
-        if (value === undefined) {
-          return;
-        }
-
-        let stream = {} as VideoStreamDto;
-
-        if (Array.isArray(value)) {
-          stream = value[0];
-        } else {
-          stream = value as VideoStreamDto;
-        }
-
-        const toSend = {} as StreamGroupVideoStreamsAddVideoStreamToStreamGroupApiArg;
-
-        toSend.streamGroupId = streamGroup.id;
-        toSend.videoStreamId = stream.id;
-
-        await streamGroupVideoStreamsAddVideoStreamToStreamGroupMutation(toSend);
-      }}
+      onRowClick={async (e) => await onRowClick(e)}
       queryFilter={useVideoStreamsGetVideoStreamsQuery}
       selectionMode='single'
-      streamToRemove={streamToRemove}
       style={{ height: 'calc(100vh - 40px)' }
       }
 

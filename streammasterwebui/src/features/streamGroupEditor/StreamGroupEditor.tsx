@@ -1,15 +1,14 @@
 import { BlockUI } from "primereact/blockui";
-import { useLocalStorage } from "primereact/hooks";
 import { memo } from "react";
 import { StreamGroupEditorIcon } from "../../common/icons";
 import StreamGroupDataSelector from "./StreamGroupDataSelector";
-import { type StreamGroupDto } from "../../store/iptvApi";
 import StreamGroupVideoStreamDataSelector from "./StreamGroupVideoStreamDataSelector";
 import StreamGroupSelectedVideoStreamDataSelector from "./StreamGroupSelectedVideoStreamDataSelector";
+import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
 
 const StreamGroupEditor = () => {
   const id = 'streamgroupeditor'
-  const [selectedStreamGroup, setSelectedStreamGroup] = useLocalStorage<StreamGroupDto>({ id: 0 } as StreamGroupDto, id + '-selectedstreamgroup');
+  const { selectedStreamGroup } = useSelectedStreamGroup(id);
 
   return (
     <div className="streamGroupEditor">
@@ -22,30 +21,17 @@ const StreamGroupEditor = () => {
         <div className="flex col-12 mt-1 m-0 p-0" >
 
           <div className='col-3 m-0 p-0 pr-1' >
-            <StreamGroupDataSelector
-              id="streamgroupeditor-ds-source"
-              onSelectionChange={(sg) => {
-                if (sg !== undefined) {
-                  setSelectedStreamGroup(sg);
-                }
-              }}
-            />
+            <StreamGroupDataSelector id={id} />
           </div>
 
           <div className="col-9 m-0 p-0 pl-1">
             <BlockUI blocked={selectedStreamGroup === undefined || selectedStreamGroup.id === undefined || selectedStreamGroup.isReadOnly}>
               <div className='grid grid-nogutter flex flex-wrap justify-content-between h-full col-12 p-0'>
                 <div className='col-6'>
-                  <StreamGroupVideoStreamDataSelector
-                    id={id}
-                    streamGroup={selectedStreamGroup}
-                  />
+                  <StreamGroupVideoStreamDataSelector id={id} />
                 </div>
                 <div className='col-6'>
-                  <StreamGroupSelectedVideoStreamDataSelector
-                    id={id}
-                    streamGroup={selectedStreamGroup}
-                  />
+                  <StreamGroupSelectedVideoStreamDataSelector id={id} />
                 </div>
               </div>
             </BlockUI>

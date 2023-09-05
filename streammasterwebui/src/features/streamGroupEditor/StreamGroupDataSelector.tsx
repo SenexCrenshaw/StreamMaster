@@ -1,7 +1,5 @@
-import { memo, useMemo, useRef, useState, type CSSProperties } from "react";
-
+import { memo, useMemo, useRef, type CSSProperties } from "react";
 import { Toast } from 'primereact/toast';
-
 import StreamGroupAddDialog from '../../components/streamGroup/StreamGroupAddDialog';
 import StreamGroupEditDialog from '../../components/streamGroup/StreamGroupEditDialog';
 import StreamGroupDeleteDialog from '../../components/streamGroup/StreamGroupDeleteDialog';
@@ -9,14 +7,15 @@ import { type StreamGroupDto } from "../../store/iptvApi";
 import { useStreamGroupsGetStreamGroupsQuery } from "../../store/iptvApi";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
 import DataSelector from "../../components/dataSelector/DataSelector";
-import { useStreamGroupToRemove } from "../../app/slices/useStreamGroupToRemove";
+import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
 
+export type StreamGroupDataSelectorProps = {
+  readonly id: string;
+};
 
-const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
+const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProps) => {
   const toast = useRef<Toast>(null);
-  const { streamGroupToRemove } = useStreamGroupToRemove('StreamGroupDataSelector');
-
-  const [selectedStreamGroup, setSelectedStreamGroup] = useState<StreamGroupDto>({} as StreamGroupDto);
+  const { setSelectedStreamGroup } = useSelectedStreamGroup(id);
 
   const StreamGroupColumns = useMemo((): ColumnMeta[] => {
     return [
@@ -51,18 +50,11 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
         <div className="flex w-full w-full p-0 align-items-center justify-content-end">
           <div className="flex justify-content-end gap-2 align-items-center mr-2">
 
-            <StreamGroupEditDialog
-              onHide={(sg) => {
-                if (sg !== undefined) {
-                  props.onSelectionChange?.(sg);
-                }
-              }}
-              value={selectedStreamGroup}
-            />
+            <StreamGroupEditDialog id={id} />
 
             <StreamGroupAddDialog />
 
-            <StreamGroupDeleteDialog id='StreamGroupDataSelector' value={selectedStreamGroup} />
+            <StreamGroupDeleteDialog />
 
           </div >
         </div>
@@ -78,14 +70,12 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
         columns={StreamGroupColumns}
         headerName='Stream Groups'
         headerRightTemplate={sourceaddtionalHeaderTemplate()}
-        id={props.id + '-ds-source'}
+        id={id + '-ds-source'}
         onSelectionChange={(e) => {
           setSelectedStreamGroup(e as StreamGroupDto);
-          props.onSelectionChange?.(e as StreamGroupDto);
         }
         }
         queryFilter={useStreamGroupsGetStreamGroupsQuery}
-        streamToRemove={streamGroupToRemove}
         style={{ height: 'calc(100vh - 40px)' }}
       />
     </>
@@ -96,9 +86,5 @@ StreamGroupDataSelector.displayName = 'Stream Group Editor';
 StreamGroupDataSelector.defaultProps = {
 };
 
-export type StreamGroupDataSelectorProps = {
-  readonly id: string;
-  readonly onSelectionChange?: (value: StreamGroupDto) => void;
-};
 
 export default memo(StreamGroupDataSelector);

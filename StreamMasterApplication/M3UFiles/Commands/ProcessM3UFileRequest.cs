@@ -134,16 +134,16 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
         //    Repository.VideoStream.BulkUpdate(toUpdate.ToArray());
         //}
 
-        int testcount = await Repository.SaveAsync().ConfigureAwait(false);
-        Logger.LogInformation($"testcount {testcount}");
+        _ = await Repository.SaveAsync().ConfigureAwait(false);
+
         m3uFile.LastUpdated = DateTime.Now;
         if (m3uFile.StationCount != streamCount)
         {
             m3uFile.StationCount = streamCount;
         }
         Repository.M3UFile.UpdateM3UFile(m3uFile);
-        int testcount2 = await Repository.SaveAsync().ConfigureAwait(false);
-        Logger.LogInformation($"testcount2 {testcount2}");
+        _ = await Repository.SaveAsync().ConfigureAwait(false);
+
         Logger.LogInformation($"Processing and updating streams took {sw.Elapsed.TotalSeconds} seconds");
     }
 

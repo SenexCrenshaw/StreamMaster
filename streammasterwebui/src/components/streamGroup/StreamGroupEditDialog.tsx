@@ -6,6 +6,7 @@ import { UpdateStreamGroup } from "../../store/signlar_functions";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import PlayListDataSelector from "../../features/playListEditor/PlayListDataSelector";
 import EditButton from "../buttons/EditButton";
+import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
 
 
 const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
@@ -15,20 +16,22 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
   const [name, setName] = useState<string>('');
   const [selectedChannelGroups, setSelectedChannelGroups] = useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
 
+  const { selectedStreamGroup } = useSelectedStreamGroup(props.id);
+
   useEffect(() => {
-    if (props.value === undefined) {
+    if (selectedStreamGroup === undefined) {
       return;
     }
 
-    if (props.value.name !== undefined) {
-      setName(props.value.name);
+    if (selectedStreamGroup.name !== undefined) {
+      setName(selectedStreamGroup.name);
     }
 
-    if (props.value.channelGroups !== undefined) {
-      setSelectedChannelGroups(props.value.channelGroups);
+    if (selectedStreamGroup.channelGroups !== undefined) {
+      setSelectedChannelGroups(selectedStreamGroup.channelGroups);
     }
 
-  }, [props.value]);
+  }, [selectedStreamGroup]);
 
 
   const ReturnToParent = useCallback((retData?: StreamGroupDto) => {
@@ -53,7 +56,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
 
     setBlock(true);
 
-    if (!isSaveEnabled || !name || name === '' || props.value === undefined || props.value.id === undefined) {
+    if (!isSaveEnabled || !name || name === '' || selectedStreamGroup === undefined || selectedStreamGroup.id === undefined) {
       ReturnToParent();
 
       return;
@@ -67,7 +70,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
 
     data.name = name;
 
-    data.streamGroupId = props.value.id;
+    data.streamGroupId = selectedStreamGroup.id;
 
     if (selectedChannelGroups.length > 0) {
       data.channelGroupNames = selectedChannelGroups.map((x) => x.name);
@@ -83,7 +86,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
       }).catch((e) => {
         setInfoMessage('Stream Group Edit Error: ' + e.message);
       });
-  }, [ReturnToParent, isSaveEnabled, name, props.value, selectedChannelGroups]);
+  }, [ReturnToParent, isSaveEnabled, name, selectedStreamGroup, selectedChannelGroups]);
 
   useEffect(() => {
     const callback = (event: KeyboardEvent) => {
@@ -174,7 +177,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
       </InfoMessageOverLayDialog>
 
       <EditButton
-        disabled={props.value === undefined || props.value.streamGroupNumber === undefined || props.value.streamGroupNumber === 0}
+        disabled={selectedStreamGroup === undefined || selectedStreamGroup.streamGroupNumber === undefined || selectedStreamGroup.streamGroupNumber === 0}
         iconFilled
         label='Edit Stream Group'
         onClick={() => setShowOverlay(true)}
@@ -189,8 +192,8 @@ StreamGroupEditDialog.defaultProps = {
 }
 
 type StreamGroupEditDialogProps = {
+  readonly id: string;
   readonly onHide?: (value: StreamGroupDto | undefined) => void;
-  readonly value: StreamGroupDto | undefined;
 };
 
 export default memo(StreamGroupEditDialog);

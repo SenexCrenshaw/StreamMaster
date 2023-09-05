@@ -11,7 +11,6 @@ import ChannelGroupEditDialog from "../../components/channelGroups/ChannelGroupE
 import ChannelGroupVisibleDialog from "../../components/channelGroups/ChannelGroupVisibleDialog";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import { useChannelGroupToRemove } from "../../app/slices/useChannelGroupToRemove";
 import { useShowHidden } from "../../app/slices/useShowHidden";
 
 
@@ -19,7 +18,6 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   const dataKey = props.id + '-PlayListDataSelector';
   const { showHidden, setShowHidden } = useShowHidden(dataKey);
   const [selectedChannelGroups, setSelectedChannelGroups] = useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
-  const { channelGroupToRemove } = useChannelGroupToRemove(dataKey);
 
   useEffect(() => {
     if (showHidden === undefined) {
@@ -125,7 +123,6 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       }}
       queryFilter={useChannelGroupsGetChannelGroupsQuery}
       selectionMode='multiple'
-      streamToRemove={channelGroupToRemove}
       style={{
         height: props.maxHeight !== null ? props.maxHeight : 'calc(100vh - 40px)',
       }}

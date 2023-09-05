@@ -3,6 +3,7 @@ import './DataSelector.css';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 
+import { type DataTableRowClickEvent } from 'primereact/datatable';
 import { type DataTableSelectionMultipleChangeEvent } from 'primereact/datatable';
 import { type DataTableSelectionSingleChangeEvent } from 'primereact/datatable';
 import { type DataTableSelectAllChangeEvent } from 'primereact/datatable';
@@ -73,23 +74,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   const tableRef = useRef<DataTable<T[]>>(null);
 
   const setting = StreamMasterSetting();
-
-  useEffect(() => {
-    if (props.streamToRemove) {
-
-      if (state.selections.findIndex(e => e.id === props.streamToRemove) !== -1) {
-        const test = state.selections.filter(e => e.id !== props.streamToRemove);
-
-        setters.setSelections(test);
-
-        if (props.onSelectionChange) {
-          props.onSelectionChange(test, state.selectAll);
-        }
-      }
-
-    }
-  }, [props, props.streamToRemove, setters, state.selectAll, state.selections]);
-
 
   const { data, isLoading, isFetching } = props.queryFilter ? props.queryFilter((queryFilter ?? { pageSize: 25 })) : { data: undefined, isFetching: false, isLoading: false };
 
@@ -492,9 +476,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           metaKeySelection={false}
           onFilter={onFilter}
           onPage={onPage}
-          onRowReorder={(e) => {
-            onRowReorder(e.value)
-          }}
+          onRowClick={(e) => props.onRowClick?.(e)}
+          onRowReorder={(e) => { onRowReorder(e.value) }}
           onRowToggle={(e: DataTableRowToggleEvent) => setters.setExpandedRows(e.data as DataTableExpandedRows)}
           onSelectAllChange={props.reorderable ? undefined : onSelectAllChange}
           onSelectionChange={((e) => props.reorderable ? undefined : onSelectionChange(e))}
@@ -628,6 +611,7 @@ type BaseDataSelectorProps<T = any> = {
   isLoading?: boolean;
   key?: string | undefined;
   onMultiSelectClick?: (value: boolean) => void;
+  onRowClick?: (event: DataTableRowClickEvent) => void;
   onRowReorder?: (value: T[]) => void;
   onRowVisibleClick?: (value: T) => void;
   onSelectionChange?: (value: T | T[], selectAll: boolean) => void;
@@ -638,7 +622,6 @@ type BaseDataSelectorProps<T = any> = {
   showSelector?: boolean;
   sortField?: string;
   sortOrder?: number;
-  streamToRemove?: number | string;
   style?: CSSProperties;
   videoStreamIdsIsReadOnly?: string[] | undefined;
   virtualScrollHeight?: string | undefined;

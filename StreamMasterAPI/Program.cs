@@ -1,3 +1,6 @@
+using Hangfire;
+using Hangfire.Dashboard;
+
 using StreamMasterAPI;
 
 using StreamMasterApplication;
@@ -54,7 +57,7 @@ if (!string.IsNullOrEmpty(sslCertPath))
         sslCertPassword = "";
     }
 
-    builder.WebHost.ConfigureKestrel(options =>
+    _ = builder.WebHost.ConfigureKestrel(options =>
     options.ConfigureHttpsDefaults(configureOptions =>
        configureOptions.ServerCertificate = ValidateSslCertificate(Path.Combine(BuildInfo.AppDataFolder, sslCertPath), sslCertPassword)
     ));
@@ -91,18 +94,20 @@ if (app.Environment.IsDevelopment())
 {
     _ = app.UseDeveloperExceptionPage();
     _ = app.UseMigrationsEndPoint();
-    app.UseForwardedHeaders();
+    _ = app.UseForwardedHeaders();
 }
 else
 {
     _ = app.UseExceptionHandler("/Error");
-    app.UseForwardedHeaders();
+    _ = app.UseForwardedHeaders();
     _ = app.UseHsts();
 }
 
 app.UseHttpLogging();
 app.UseMigrationsEndPoint();
 app.UseSession();
+
+//app.UseHangfireDashboard();
 
 using (IServiceScope scope = app.Services.CreateScope())
 {
@@ -132,19 +137,23 @@ app.UseWebSockets();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseCors("DevPolicy");
+    _ = app.UseCors("DevPolicy");
 }
 else
 {
-    app.UseCors();
+    _ = app.UseCors();
 }
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
-    app.UseResponseCompression();
+    //RecurringJob.AddOrUpdate("Hello World", () => Console.WriteLine("hello world"), Cron.Minutely);    
+}
+else
+{
+    _ = app.UseResponseCompression();
 }
 
 app.MapHealthChecks("/healthz");
@@ -172,16 +181,14 @@ app.MapHub<StreamMasterHub>("/streammasterhub").RequireAuthorization("SignalR");
 
 app.Run();
 
+
 static string GetRoutePattern(Endpoint endpoint)
 {
     RouteEndpoint? routeEndpoint = endpoint as RouteEndpoint;
 
-    if (routeEndpoint is not null && routeEndpoint.RoutePattern is not null && routeEndpoint.RoutePattern.RawText is not null)
-    {
-        return routeEndpoint.RoutePattern.RawText;
-    }
-
-    return "<unknown>";
+    return routeEndpoint is not null && routeEndpoint.RoutePattern is not null && routeEndpoint.RoutePattern.RawText is not null
+        ? routeEndpoint.RoutePattern.RawText
+        : "<unknown>";
 }
 
 static X509Certificate2 ValidateSslCertificate(string cert, string password)
@@ -194,7 +201,7 @@ static X509Certificate2 ValidateSslCertificate(string cert, string password)
     }
     catch (CryptographicException ex)
     {
-        if (ex.HResult == 0x2 || ex.HResult == 0x2006D080)
+        if (ex.HResult is 0x2 or 0x2006D080)
         {
             throw new Exception($"The SSL certificate file {cert} does not exist: {ex.Message}");
         }

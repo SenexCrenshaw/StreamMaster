@@ -3,16 +3,11 @@
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.EntityFrameworkCore.Query;
 
-using StreamMasterApplication.VideoStreams.Queries;
-
-using StreamMasterDomain.Authentication;
-using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
-using StreamMasterDomain.Sorting;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
@@ -48,11 +43,11 @@ public class StreamGroupVideoStreamRepository : RepositoryBase<StreamGroup>, ISt
                 return;
             }
 
-            var sgVs = await RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == StreamGroupId).AsNoTracking()
+            List<VideoStreamIsReadOnly> sgVs = await RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == StreamGroupId).AsNoTracking()
                 .Select(a => new VideoStreamIsReadOnly { VideoStreamId = a.ChildVideoStreamId, IsReadOnly = a.IsReadOnly, Rank = a.Rank }).ToListAsync(cancellationToken: cancellationToken);
             sgVs.Add(new VideoStreamIsReadOnly { VideoStreamId = VideoStreamId, IsReadOnly = false, Rank = sgVs.Count });
 
-            await _repository.StreamGroup.Sync(StreamGroupId, "", null, sgVs, cancellationToken);
+            _ = await _repository.StreamGroup.Sync(StreamGroupId, "", null, sgVs, cancellationToken);
         }
         catch (Exception)
         {
@@ -69,7 +64,7 @@ public class StreamGroupVideoStreamRepository : RepositoryBase<StreamGroup>, ISt
         List<VideoStreamIsReadOnly> ret = await RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == id)
             .AsNoTracking()
             .Select(a => a.ChildVideoStreamId)
-            .Select(a => new VideoStreamIsReadOnly { VideoStreamId = a, IsReadOnly = false }).ToListAsync();
+            .Select(a => new VideoStreamIsReadOnly { VideoStreamId = a, IsReadOnly = false }).ToListAsync(cancellationToken: cancellationToken);
 
         List<string> existingIds = ret.Select(a => a.VideoStreamId).ToList();
 
@@ -82,16 +77,16 @@ public class StreamGroupVideoStreamRepository : RepositoryBase<StreamGroup>, ISt
                 .Where(a => !existingIds.Contains(a.Id) && cgNames.Contains(a.User_Tvg_group))
                 .Select(a => a.Id)
                 .AsNoTracking()
-                .Select(a => new VideoStreamIsReadOnly { VideoStreamId = a, IsReadOnly = true }).ToListAsync();
+                .Select(a => new VideoStreamIsReadOnly { VideoStreamId = a, IsReadOnly = true }).ToListAsync(cancellationToken: cancellationToken);
 
         ret.AddRange(streams);
 
-        return ret;
+        return ret.OrderBy(a => a.Rank).ToList();
     }
 
     public async Task<PagedResponse<VideoStreamDto>> GetStreamGroupVideoStreams(StreamGroupVideoStreamParameters Parameters, CancellationToken cancellationToken = default)
     {
-        if (Parameters == null || string.IsNullOrEmpty(Parameters.JSONFiltersString) || Parameters.JSONFiltersString ==@"[]")
+        if (Parameters == null || string.IsNullOrEmpty(Parameters.JSONFiltersString) || Parameters.JSONFiltersString == @"[]")
         {
             return new PagedResponse<VideoStreamDto>
             {
@@ -104,9 +99,10 @@ public class StreamGroupVideoStreamRepository : RepositoryBase<StreamGroup>, ISt
         }
         Parameters.OrderBy = "id";
 
-        var entities = GetIQueryableForEntity(Parameters).Include(sg => sg.ChannelGroups)
-                .ThenInclude(sgcg => sgcg.ChannelGroup)
-            .Include(sg => sg.ChildVideoStreams)
+        IIncludableQueryable<StreamGroup, VideoStream> entities = GetIQueryableForEntity(Parameters)
+                //.Include(sg => sg.ChannelGroups)
+                //.ThenInclude(sgcg => sgcg.ChannelGroup)
+                .Include(sg => sg.ChildVideoStreams)
                 .ThenInclude(sgvs => sgvs.ChildVideoStream);
 
         // If there are no entities, return an empty response early
@@ -122,7 +118,7 @@ public class StreamGroupVideoStreamRepository : RepositoryBase<StreamGroup>, ISt
             };
         }
 
-        var pagedResult = await entities.ToPagedListAsync(Parameters.PageNumber, Parameters.PageSize).ConfigureAwait(false);
+        IPagedList<StreamGroup> pagedResult = await entities.ToPagedListAsync(Parameters.PageNumber, Parameters.PageSize).ConfigureAwait(false);
 
         List<VideoStream> cvs = entities.SelectMany(a => a.ChildVideoStreams).Select(a => a.ChildVideoStream).ToList();
         List<VideoStreamDto> ret = _mapper.Map<List<VideoStreamDto>>(cvs);
@@ -131,7 +127,7 @@ public class StreamGroupVideoStreamRepository : RepositoryBase<StreamGroup>, ISt
 
         List<string> cgNames = entities.SelectMany(a => a.ChannelGroups).Select(a => a.ChannelGroup.Name).ToList();
 
-        var streams = await RepositoryContext.VideoStreams
+        List<string> streams = await RepositoryContext.VideoStreams
                 .Where(a => !existingIds.Contains(a.Id) && cgNames.Contains(a.User_Tvg_group))
                 .Select(a => a.Id)
                 .AsNoTracking().ToListAsync();
@@ -142,15 +138,15 @@ public class StreamGroupVideoStreamRepository : RepositoryBase<StreamGroup>, ISt
             ret.AddRange(streamsDto);
         }
 
-        var sgId = entities.Select(a => a.Id).First();
-        var links = await RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == sgId).ToListAsync(cancellationToken: cancellationToken);
+        int sgId = entities.Select(a => a.Id).First();
+        List<StreamGroupVideoStream> links = await RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == sgId).ToListAsync(cancellationToken: cancellationToken);
 
-        foreach (var stream in ret)
+        foreach (VideoStreamDto stream in ret)
         {
             stream.Rank = links.Single(a => a.ChildVideoStreamId == stream.Id).Rank;
         }
 
-        StaticPagedList<VideoStreamDto> test = new(ret, pagedResult.GetMetaData());
+        StaticPagedList<VideoStreamDto> test = new(ret.OrderBy(a => a.Rank), pagedResult.GetMetaData());
 
         PagedResponse<VideoStreamDto> pagedResponse = test.ToPagedResponse(pagedResult.TotalItemCount);
 
@@ -175,7 +171,7 @@ public class StreamGroupVideoStreamRepository : RepositoryBase<StreamGroup>, ISt
                 return;
             }
 
-            var sgVs = await RepositoryContext.StreamGroupVideoStreams
+            List<VideoStreamIsReadOnly> sgVs = await RepositoryContext.StreamGroupVideoStreams
                  .Where(a => a.StreamGroupId == StreamGroupId && a.ChildVideoStreamId != VideoStreamId).AsNoTracking()
                  .Select(a => new VideoStreamIsReadOnly { VideoStreamId = a.ChildVideoStreamId, IsReadOnly = a.IsReadOnly }).ToListAsync(cancellationToken: cancellationToken);
 
@@ -185,7 +181,7 @@ public class StreamGroupVideoStreamRepository : RepositoryBase<StreamGroup>, ISt
                 s.Rank = i;
             }
 
-            await _repository.StreamGroup.Sync(StreamGroupId, "", null, sgVs, cancellationToken);
+            _ = await _repository.StreamGroup.Sync(StreamGroupId, "", null, sgVs, cancellationToken);
         }
         catch (Exception)
         {

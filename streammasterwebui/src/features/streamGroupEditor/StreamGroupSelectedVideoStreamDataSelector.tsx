@@ -3,38 +3,40 @@ import { useMemo, memo } from "react";
 import { GetMessage } from "../../common/common";
 import { type UpdateStreamGroupRequest, type VideoStreamIsReadOnly } from "../../store/iptvApi";
 import { type ChildVideoStreamDto, useStreamGroupsUpdateStreamGroupMutation } from "../../store/iptvApi";
-
-import { useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery, type StreamGroupDto } from "../../store/iptvApi";
+import { useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery } from "../../store/iptvApi";
 import { type VideoStreamDto } from "../../store/iptvApi";
 import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
 import VideoStreamRemoveFromStreamGroupDialog from "./VideoStreamRemoveFromStreamGroupDialog";
 import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
+import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
 
 type StreamGroupSelectedVideoStreamDataSelectorProps = {
   readonly id: string;
-  readonly streamGroup: StreamGroupDto;
 };
 
-const StreamGroupSelectedVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupSelectedVideoStreamDataSelectorProps) => {
+const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedVideoStreamDataSelectorProps) => {
   const dataKey = id + '-StreamGroupSelectedVideoStreamDataSelector';
+  const { selectedStreamGroup } = useSelectedStreamGroup(id);
   const enableEdit = false;
 
   const { columnConfig: m3uFileNameColumnConfig } = useM3UFileNameColumnConfig(enableEdit);
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig(enableEdit);
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(enableEdit);
   const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig(enableEdit);
-  const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
+  const { setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
 
   useEffect(() => {
-    if (queryAdditionalFilter === undefined && streamGroup !== undefined && streamGroup.id !== undefined && streamGroup.id > 0) {
-      setQueryAdditionalFilter({ field: 'id', matchMode: 'equals', values: [streamGroup.id.toString()] });
+
+    if (selectedStreamGroup !== undefined && selectedStreamGroup !== undefined && selectedStreamGroup.id > 0) {
+      console.log('setting queryAdditionalFilter', { field: 'id', matchMode: 'equals', values: [selectedStreamGroup.id.toString()] });
+      setQueryAdditionalFilter({ field: 'id', matchMode: 'equals', values: [selectedStreamGroup.id.toString()] });
     }
 
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryAdditionalFilter, streamGroup]);
+  }, [selectedStreamGroup]);
 
 
   const [streamGroupsUpdateStreamGroupMutation] = useStreamGroupsUpdateStreamGroupMutation();
@@ -42,10 +44,10 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id, streamGroup }: StreamG
   const targetActionBodyTemplate = useCallback((data: VideoStreamDto) => {
     return (
       <div className='flex p-0 justify-content-end align-items-center'>
-        <VideoStreamRemoveFromStreamGroupDialog id={id} streamGroupId={streamGroup.id} value={data} />
+        <VideoStreamRemoveFromStreamGroupDialog id={id} value={data} />
       </div>
     );
-  }, [id, streamGroup.id]);
+  }, [id]);
 
   const targetColumns = useMemo((): ColumnMeta[] => {
 
@@ -84,7 +86,7 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id, streamGroup }: StreamG
     var toSend = {} as UpdateStreamGroupRequest;
 
 
-    toSend.streamGroupId = streamGroup.id;
+    toSend.streamGroupId = selectedStreamGroup.id;
 
     toSend.videoStreams = newData.map((stream) => {
       return { rank: stream.rank, videoStreamId: stream.id } as VideoStreamIsReadOnly;

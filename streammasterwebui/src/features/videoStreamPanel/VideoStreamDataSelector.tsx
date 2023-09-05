@@ -6,7 +6,6 @@ import { useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery, useVideoStreamsGe
 import { useChannelNumberColumnConfig, useChannelNameColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import { useStreamToRemove } from "../../app/slices/useStreamToRemove";
 
 type VideoStreamDataSelectorProps = {
   readonly id: string;
@@ -15,8 +14,6 @@ type VideoStreamDataSelectorProps = {
 
 const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorProps) => {
   const dataKey = id + '-VideoStreamDataSelector';
-
-  const { streamToRemove } = useStreamToRemove(id);
 
 
   const [videoStreamIds, setVideoStreamIds] = useState<string[]>([] as string[]);
@@ -88,7 +85,6 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
       }}
       queryFilter={useVideoStreamsGetVideoStreamsQuery}
       selectionMode='single'
-      streamToRemove={streamToRemove}
       style={{ height: 'calc(100vh - 134px)' }}
       videoStreamIdsIsReadOnly={(videoStreamIds || [])}
     />

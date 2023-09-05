@@ -35,10 +35,10 @@ const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: Video
   const targetActionBodyTemplate = useCallback((data: ChildVideoStreamDto) => {
     return (
       <div className='flex p-0 justify-content-end align-items-center'>
-        <VideoStreamRemoveFromVideoStreamDialog id={id} value={data} videoStreamId={videoStreamId ?? 'ERROR'} />
+        <VideoStreamRemoveFromVideoStreamDialog value={data} videoStreamId={videoStreamId ?? 'ERROR'} />
       </div>
     );
-  }, [id, videoStreamId]);
+  }, [videoStreamId]);
 
 
   const targetColumns = useMemo((): ColumnMeta[] => {
