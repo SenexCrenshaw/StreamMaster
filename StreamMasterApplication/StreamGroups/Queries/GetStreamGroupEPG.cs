@@ -116,14 +116,17 @@ public partial class GetStreamGroupEPGHandler : BaseMemoryRequestHandler, IReque
 
         if (videoStreams.Any())
         {
-            List<string> epgids = videoStreams.Where(a => !a.IsHidden).SelectMany(r => new string[] { r.User_Tvg_ID.ToLower(), r.User_Tvg_ID_DisplayName.ToLower() }).Distinct().ToList();
+            List<string> epgids = videoStreams
+                .Where(a => !a.IsHidden)
+                .Select(r => r.User_Tvg_ID)
+                .Distinct().ToList();
 
             List<Programme> programmes = MemoryCache.Programmes()
                 .Where(a =>
                 a.Channel != null &&
                 (
-                    epgids.Contains(a.Channel.ToLower()) ||
-                    epgids.Contains(a.DisplayName.ToLower())
+                    epgids.Contains(a.Channel) ||
+                    epgids.Contains(a.DisplayName)
                 )
                 ).ToList();
 
@@ -324,7 +327,7 @@ public partial class GetStreamGroupEPGHandler : BaseMemoryRequestHandler, IReque
 
     private bool IsNotInProgrammes(IEnumerable<Programme> programmes, VideoStreamDto videoStream)
     {
-        return !programmes.Any(p => p.Channel == videoStream.User_Tvg_name || p.Channel == videoStream.User_Tvg_ID_DisplayName);
+        return !programmes.Any(p => p.Channel == videoStream.User_Tvg_ID);
     }
 
     private bool IsVideoStreamADummy(VideoStreamDto videoStream)

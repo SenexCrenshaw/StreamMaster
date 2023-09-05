@@ -295,11 +295,11 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
         RepositoryContext.StreamGroupVideoStreams.RemoveRange(streamGroupVideoStreams);
         await RepositoryContext.SaveChangesAsync(cancellationToken);
 
-        var toAdd = new List<StreamGroupVideoStream>();
+        List<StreamGroupVideoStream> toAdd = new();
         for (int i = 0; i < validVideoStreams.Count; i++)
         {
             VideoStreamIsReadOnly? item = validVideoStreams[i];
-            var stream = RepositoryContext.VideoStreams.FirstOrDefault(a => a.Id == item.VideoStreamId);
+            VideoStream? stream = RepositoryContext.VideoStreams.FirstOrDefault(a => a.Id == item.VideoStreamId);
             if (stream != null)
             {
                 toAdd.Add(new StreamGroupVideoStream
@@ -397,6 +397,17 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
 
     public async Task<PagedResponse<StreamGroupDto>> GetStreamGroupDtosPagedAsync(StreamGroupParameters StreamGroupParameters, string Url)
     {
-        return await GetEntitiesAsync<StreamGroupDto>(StreamGroupParameters, _mapper);
+        Setting _setting = FileUtil.GetSetting();
+        PagedResponse<StreamGroupDto> ret = await GetEntitiesAsync<StreamGroupDto>(StreamGroupParameters, _mapper);
+        foreach (StreamGroupDto sg in ret.Data)
+        {
+            string encodedStreamGroupNumber = sg.StreamGroupNumber.EncodeValue128(_setting.ServerKey);
+            sg.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
+            sg.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
+            sg.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
+        }
+
+
+        return ret;
     }
 }

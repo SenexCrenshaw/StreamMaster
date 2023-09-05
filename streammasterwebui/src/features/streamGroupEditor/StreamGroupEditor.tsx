@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { BlockUI } from "primereact/blockui";
 import { useLocalStorage } from "primereact/hooks";
-import { useCallback, memo } from "react";
+import { memo } from "react";
 import { StreamGroupEditorIcon } from "../../common/icons";
 import StreamGroupDataSelector from "./StreamGroupDataSelector";
-import { type StreamGroupDto, type ChannelGroupDto } from "../../store/iptvApi";
+import { type StreamGroupDto } from "../../store/iptvApi";
 import StreamGroupVideoStreamDataSelector from "./StreamGroupVideoStreamDataSelector";
 import StreamGroupSelectedVideoStreamDataSelector from "./StreamGroupSelectedVideoStreamDataSelector";
 

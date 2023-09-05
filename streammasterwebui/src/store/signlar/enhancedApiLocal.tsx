@@ -10,6 +10,21 @@ export type SetVideoStreamVisibleRet = {
 export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
   // addTagTypes: ["GetStreamGroupVideoStreams"],
   endpoints: {
+    channelGroupsGetChannelGroupNames: {
+      async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
+        try {
+          await cacheDataLoaded;
+          hubConnection.on(
+            'ChannelGroupsRefresh',
+            () => {
+              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["ChannelGroups"]));
+            }
+          );
+        } catch { }
+
+        await cacheEntryRemoved;
+      }
+    },
     channelGroupsGetChannelGroups: {
       async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
         try {
@@ -70,7 +85,36 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
         await cacheEntryRemoved;
       }
     },
+    programmesGetProgrammeNameSelections: {
+      async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
+        try {
+          await cacheDataLoaded;
+          hubConnection.on(
+            'ProgrammesRefresh',
+            () => {
+              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["Programmes"]));
+            }
+          );
+        } catch { }
 
+        await cacheEntryRemoved;
+      }
+    },
+    programmesGetProgrammsSimpleQuery: {
+      async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
+        try {
+          await cacheDataLoaded;
+          hubConnection.on(
+            'ProgrammesRefresh',
+            () => {
+              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["Programmes"]));
+            }
+          );
+        } catch { }
+
+        await cacheEntryRemoved;
+      }
+    },
     settingsGetSetting: {
       async onCacheEntryAdded(
         arg,

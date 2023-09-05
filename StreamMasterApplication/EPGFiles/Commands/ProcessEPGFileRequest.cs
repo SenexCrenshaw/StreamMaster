@@ -69,7 +69,7 @@ public class ProcessEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
 
             EPGFilesDto ret = Mapper.Map<EPGFilesDto>(epgFile);
 
-            await _hubContext.Clients.All.ProgrammeNamesUpdate(MemoryCache.Programmes()).ConfigureAwait(false);
+            await _hubContext.Clients.All.ProgrammesRefresh().ConfigureAwait(false);
 
             await Publisher.Publish(new EPGFileProcessedEvent(ret), cancellationToken).ConfigureAwait(false);
 

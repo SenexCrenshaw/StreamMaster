@@ -19,6 +19,6 @@ public class EPGFileDeletedEventHandler : INotificationHandler<EPGFileDeletedEve
 
     public async Task Handle(EPGFileDeletedEvent notification, CancellationToken cancellationToken)
     {
-        await _hubContext.Clients.All.M3UFilesRefresh().ConfigureAwait(false);
+        await _hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
     }
 }

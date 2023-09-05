@@ -190,7 +190,7 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
         List<ChannelGroup> channelGroups = await Repository.ChannelGroup.GetChannelGroupsFromNames(m3uChannelGroupNames);
 
         await Sender.Send(new UpdateChannelGroupCountsRequest(channelGroups.Select(a => a.Id)), cancellationToken).ConfigureAwait(false);
-        await Publisher.Publish(new M3UFileProcessedEvent(), cancellationToken).ConfigureAwait(false);
+        Publisher.Publish(new M3UFileProcessedEvent(), cancellationToken).ConfigureAwait(false);
     }
 
     private List<VideoStream> RemoveIgnoredStreams(List<VideoStream> streams)

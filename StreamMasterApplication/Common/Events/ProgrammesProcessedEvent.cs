@@ -1,4 +1,5 @@
 ﻿namespace StreamMasterApplication.Common.Events;
-public class M3UFileProcessedEvent : BaseEvent
+
+public class ProgrammesProcessedEvent : BaseEvent
 {
 }
