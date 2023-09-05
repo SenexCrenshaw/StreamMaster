@@ -43,7 +43,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
       <ChannelGroupEditDialog value={data} />
 
-      <ChannelGroupVisibleDialog iconFilled={false} skipOverLayer value={[data]} />
+      <ChannelGroupVisibleDialog skipOverLayer value={[data]} />
 
     </div>
 

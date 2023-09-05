@@ -1,12 +1,11 @@
 import React from "react";
-import { Button } from "primereact/button";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import { InputText } from "primereact/inputtext";
 import * as StreamMasterApi from '../../store/iptvApi';
 import { AddStreamGroup } from "../../store/signlar_functions";
 import { Accordion, AccordionTab } from 'primereact/accordion';
-import { getTopToolOptions } from "../../common/common";
 import PlayListDataSelector from "../../features/playListEditor/PlayListDataSelector";
+import AddButton from "../buttons/AddButton";
 
 const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
@@ -103,9 +102,7 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
 
     AddStreamGroup(data)
       .then(() => {
-
         setInfoMessage('Stream Group Added Successfully');
-
       }).catch((e) => {
         setInfoMessage('Stream Group Add Error: ' + e.message);
       });
@@ -150,7 +147,6 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
         onClose={() => {
           ReturnToParent();
         }}
-        overlayColSize={6}
         show={showOverlay}
       >
 
@@ -188,34 +184,13 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
           </Accordion>
 
           <div className="flex col-12 mt-3 gap-2 justify-content-end">
-            <Button
-              disabled={!isSaveEnabled}
-              icon="pi pi-check"
-              label="Add"
-              onClick={onAdd}
-              rounded
-              severity="success"
-            />
+            <AddButton label='Add Stream Group' onClick={() => setShowOverlay(true)} tooltip='Add Stream Group' />
           </div>
 
         </div>
       </InfoMessageOverLayDialog>
 
-      <Button
-        icon="pi pi-plus"
-        onClick={() => setShowOverlay(true)}
-        rounded
-        severity="success"
-        size="small"
-        style={{
-          ...{
-            maxHeight: "2rem",
-            maxWidth: "2rem"
-          }
-        }}
-        tooltip="Add Stream Group"
-        tooltipOptions={getTopToolOptions}
-      />
+      <AddButton onClick={() => setShowOverlay(true)} tooltip='Add Stream Group' />
 
     </>
   );

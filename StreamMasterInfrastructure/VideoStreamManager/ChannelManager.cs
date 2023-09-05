@@ -68,7 +68,7 @@ public class ChannelManager : IDisposable, IChannelManager
                         continue;
                     }
 
-                    oldInfo.UnRegisterStreamConfiguration(c);
+                    _ = oldInfo.UnRegisterStreamConfiguration(c);
                     _logger.LogDebug($"Unregistered stream configuration for client: {client}");
                 }
             }
@@ -90,7 +90,7 @@ public class ChannelManager : IDisposable, IChannelManager
         GC.SuppressFinalize(this);
     }
 
-    public async Task FailClient(Guid clientId)
+    public void FailClient(Guid clientId)
     {
         _logger.LogDebug($"Starting FailClient with clientId: {clientId}");
 
@@ -225,6 +225,11 @@ public class ChannelManager : IDisposable, IChannelManager
             _logger.LogInformation("Task was cancelled");
             throw;
         }
+    }
+
+    Task IChannelManager.FailClient(Guid clientId)
+    {
+        throw new NotImplementedException();
     }
 
     private int GetGlobalStreamsCount()
@@ -414,7 +419,7 @@ public class ChannelManager : IDisposable, IChannelManager
         if (channelStatus.StreamInformation.VideoStreamingCancellationToken.IsCancellationRequested)
         {
             _logger.LogDebug($"VideoStreamingCancellationToken cancellation requested for channelStatus: {channelStatus}, stopping stream and attempting to handle next video stream");
-            _streamManager.Stop(channelStatus.StreamInformation.StreamUrl);
+            _ = _streamManager.Stop(channelStatus.StreamInformation.StreamUrl);
             bool handled = await HandleNextVideoStream(channelStatus);
             _logger.LogDebug($"Exiting ProcessStreamStatus with {!handled} after stopping streaming and handling next video stream");
             return !handled;
@@ -466,7 +471,9 @@ public class ChannelManager : IDisposable, IChannelManager
 
 
             if (videoStream is null)
+            {
                 return null;
+            }
 
             config.VideoStreamName = videoStream.User_Tvg_name;
             channelStatus = new ChannelStatus(config.VideoStreamId, config.VideoStreamName);
@@ -476,7 +483,7 @@ public class ChannelManager : IDisposable, IChannelManager
                 return null;
             }
 
-            _channelStatuses.TryAdd(config.VideoStreamId, channelStatus);
+            _ = _channelStatuses.TryAdd(config.VideoStreamId, channelStatus);
             _ = ChannelWatcher(channelStatus).ConfigureAwait(false);
         }
         else
@@ -491,7 +498,7 @@ public class ChannelManager : IDisposable, IChannelManager
             return null;
         }
 
-        channelStatus.ClientIds.TryAdd(config.ClientId, config.ClientId);
+        _ = channelStatus.ClientIds.TryAdd(config.ClientId, config.ClientId);
 
         _logger.LogInformation("ChannelManager added channel: {videoStreamId}", config.VideoStreamId);
 
@@ -513,7 +520,7 @@ public class ChannelManager : IDisposable, IChannelManager
     private void SetIsGlobal(ChannelStatus channelStatus)
     {
         channelStatus.IsGlobal = true;
-        _channelStatuses.TryUpdate(channelStatus.VideoStreamId, channelStatus, channelStatus);
+        _ = _channelStatuses.TryUpdate(channelStatus.VideoStreamId, channelStatus, channelStatus);
     }
 
     private void UnRegisterClient(ClientStreamerConfiguration config)
@@ -521,7 +528,7 @@ public class ChannelManager : IDisposable, IChannelManager
         UnRegisterWithChannelManager(config);
     }
 
-    private async Task UnRegisterWithChannelManager(ClientStreamerConfiguration config)
+    private void UnRegisterWithChannelManager(ClientStreamerConfiguration config)
     {
         _logger.LogDebug($"Starting UnRegisterWithChannelManager with config: {config}");
 
@@ -535,7 +542,7 @@ public class ChannelManager : IDisposable, IChannelManager
 
         if (channelStatus.StreamInformation is not null)
         {
-            channelStatus.StreamInformation.UnRegisterStreamConfiguration(config);
+            _ = channelStatus.StreamInformation.UnRegisterStreamConfiguration(config);
 
             if (channelStatus.StreamInformation.ClientCount == 0)
             {
@@ -543,16 +550,16 @@ public class ChannelManager : IDisposable, IChannelManager
 
                 if (channelStatus.StreamInformation is not null)
                 {
-                    _streamManager.Stop(channelStatus.StreamInformation.StreamUrl);
+                    _ = _streamManager.Stop(channelStatus.StreamInformation.StreamUrl);
                 }
 
-                _channelStatuses.TryRemove(config.VideoStreamId, out _);
+                _ = _channelStatuses.TryRemove(config.VideoStreamId, out _);
                 _logger.LogInformation("ChannelManager No more clients, stopping streaming for {videoStreamId}", config.VideoStreamId);
                 _logger.LogDebug($"Exiting UnRegisterWithChannelManager after stopping streaming due to no more clients");
             }
         }
 
-        channelStatus.ClientIds.TryRemove(config.ClientId, out _);
+        _ = channelStatus.ClientIds.TryRemove(config.ClientId, out _);
         _logger.LogDebug($"Finished UnRegisterWithChannelManager with config: {config}");
     }
 }

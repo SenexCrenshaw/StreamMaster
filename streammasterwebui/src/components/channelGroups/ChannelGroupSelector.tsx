@@ -6,7 +6,6 @@ import { getTopToolOptions } from "../../common/common";
 import { ResetLogoIcon } from "../../common/icons";
 import ChannelGroupAddDialog from "./ChannelGroupAddDialog";
 
-
 type SelectItem = {
   label: string;
   value: string;

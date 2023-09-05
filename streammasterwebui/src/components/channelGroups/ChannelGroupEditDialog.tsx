@@ -1,10 +1,10 @@
 import React from "react";
-import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { type ChannelGroupDto, type UpdateChannelGroupRequest } from "../../store/iptvApi";
 import { useChannelGroupsUpdateChannelGroupMutation } from "../../store/iptvApi";
-import { GetMessage, getTopToolOptions } from "../../common/common";
+import { GetMessage } from "../../common/common";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
+import EditButton from "../buttons/EditButton";
 
 const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
@@ -80,30 +80,18 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
               value={newGroupName}
             />
 
-            <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
-              <Button
-                icon="pi pi-check"
-                label={GetMessage('ok')}
-                onClick={changeGroupName}
-                rounded
-                severity="success"
-              />
+            <div className="flex col-12 mt-3 gap-2 justify-content-end">
+              <EditButton label='Edit Group' onClick={() => changeGroupName()} tooltip='Edit Group' />
             </div>
 
           </div>
         </div >
       </InfoMessageOverLayDialog>
 
-      <Button
-        icon="pi pi-pencil"
+      <EditButton
+        iconFilled={false}
         onClick={() => setShowOverlay(true)}
-        rounded
-        size="small"
-        text
-        tooltip="Edit Group"
-        tooltipOptions={getTopToolOptions}
-      />
-
+        tooltip='Edit Group' />
     </>
   );
 }

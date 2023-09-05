@@ -31,9 +31,9 @@ const M3UFileRefreshDialog = (props: M3UFileRefreshDialogProps) => {
 
     m3uFilesRefreshM3UFileMutation(tosend)
       .then(() => {
-        setInfoMessage('M3U File Removed Successfully');
+        setInfoMessage('M3U File Refresh Successfully');
       }).catch((e) => {
-        setInfoMessage('M3U File Removed Error: ' + e.message);
+        setInfoMessage('M3U File Refresh Error: ' + e.message);
       });
 
 

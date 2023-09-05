@@ -1,12 +1,11 @@
 import { Accordion, AccordionTab } from "primereact/accordion";
-import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
-import { getTopToolOptions } from "../../common/common";
 import { type ChannelGroupDto, type StreamGroupDto, type UpdateStreamGroupRequest } from "../../store/iptvApi";
 import { UpdateStreamGroup } from "../../store/signlar_functions";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import PlayListDataSelector from "../../features/playListEditor/PlayListDataSelector";
+import EditButton from "../buttons/EditButton";
 
 
 const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
@@ -168,34 +167,18 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
           </Accordion>
 
           <div className="flex col-12 mt-3 gap-2 justify-content-end">
-            <Button
-              disabled={!isSaveEnabled}
-              icon="pi pi-check"
-              label="Save"
-              onClick={onUpdate}
-              rounded
-              severity="success"
-            />
+            <EditButton label='Edit Stream Group' onClick={() => onUpdate()} tooltip='Edit Stream Group' />
           </div>
 
         </div>
       </InfoMessageOverLayDialog>
-      <Button
+
+      <EditButton
         disabled={props.value === undefined || props.value.streamGroupNumber === undefined || props.value.streamGroupNumber === 0}
-        icon="pi pi-pencil"
+        iconFilled
+        label='Edit Stream Group'
         onClick={() => setShowOverlay(true)}
-        rounded
-        severity="warning"
-        size="small"
-        style={{
-          ...{
-            maxHeight: "2rem",
-            maxWidth: "2rem"
-          }
-        }}
-        tooltip="Edit Stream Group"
-        tooltipOptions={getTopToolOptions}
-      />
+        tooltip='Edit Stream Group' />
 
     </>
   );

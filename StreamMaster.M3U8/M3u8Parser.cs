@@ -7,14 +7,14 @@ public class M3u8Parser
 {
     public async Task<M3u8Playlist?> ParsePlaylistAsync(string playlistUri)
     {
-        var playlist = new M3u8Playlist
+        M3u8Playlist playlist = new()
         {
             Uri = playlistUri,
             Streams = new List<M3u8Stream>()
         };
 
-        var setting = FileUtil.GetSetting();
-        var httpClient = new HttpClient(new HttpClientHandler()
+        Setting setting = FileUtil.GetSetting();
+        HttpClient httpClient = new(new HttpClientHandler()
         {
             AllowAutoRedirect = true,
         });
@@ -34,42 +34,42 @@ public class M3u8Parser
             playlistUri = response.RequestMessage.RequestUri.ToString();
         }
 
-        string contentType = response.Content.Headers.ContentType?.MediaType;
-        if (contentType.ToLower() != "application/vnd.apple.mpegurl" && contentType.ToLower() == "application/x-mpegURL")
+        string? contentType = response.Content.Headers.ContentType?.MediaType;
+        if (contentType.ToLower() is not "application/vnd.apple.mpegurl" and "application/x-mpegURL")
         {
             httpClient.Dispose();
             return null;
         }
 
-        var lines = (await httpClient.GetStringAsync(playlistUri).ConfigureAwait(false)).Split("\n");
+        string[] lines = (await httpClient.GetStringAsync(playlistUri).ConfigureAwait(false)).Split("\n");
 
         for (int i = 0; i < lines.Length; i++)
         {
-            var line = lines[i].Trim();
+            string line = lines[i].Trim();
 
             if (line.StartsWith("#EXT-X-STREAM-INF:"))
             {
-                var attributeString = line.Substring("#EXT-X-STREAM-INF:".Length).Trim();
+                string attributeString = line["#EXT-X-STREAM-INF:".Length..].Trim();
 
-                var attributeMatches = Regex.Matches(attributeString, @"([A-Z\-]+)=(""([^""]+)""|([^"",]+))");
+                MatchCollection attributeMatches = Regex.Matches(attributeString, @"([A-Z\-]+)=(""([^""]+)""|([^"",]+))");
 
-                var attributes = new Dictionary<string, string>();
+                Dictionary<string, string> attributes = new();
 
                 foreach (Match match in attributeMatches.Cast<Match>())
                 {
-                    var attributeName = match.Groups[1].Value;
-                    var attributeValue = match.Groups[3].Success ? match.Groups[3].Value : match.Groups[4].Value;
+                    string attributeName = match.Groups[1].Value;
+                    string attributeValue = match.Groups[3].Success ? match.Groups[3].Value : match.Groups[4].Value;
 
                     attributes[attributeName] = attributeValue;
                 }
 
-                var streamUri = new Uri(new Uri(playlistUri), lines[++i].Trim());
+                Uri streamUri = new(new Uri(playlistUri), lines[++i].Trim());
 
                 _ = int.TryParse(GetValueByKey("AVERAGE-BANDWIDTH"), out int averageBandwidth);
                 _ = int.TryParse(GetValueByKey("BANDWIDTH"), out int bandwidth);
                 _ = int.TryParse(GetValueByKey("FRAME-RATE"), out int frameRate);
 
-                var stream = new M3u8Stream
+                M3u8Stream stream = new()
                 {
                     AverageBandwidth = averageBandwidth,
                     Bandwidth = bandwidth,
@@ -84,26 +84,26 @@ public class M3u8Parser
 
                 playlist.Streams.Add(stream);
 
-                string GetValueByKey(string key)
+                string? GetValueByKey(string key)
                 {
                     return attributes.ContainsKey(key) ? attributes[key] : null;
                 }
             }
             else if (line.StartsWith("#EXT-X-TARGETDURATION:"))
             {
-                playlist.TargetDuration = int.Parse(line.Substring("#EXT-X-TARGETDURATION:".Length).Trim());
+                playlist.TargetDuration = int.Parse(line["#EXT-X-TARGETDURATION:".Length..].Trim());
             }
             else if (line.StartsWith("#EXT-X-VERSION:"))
             {
-                playlist.Version = int.Parse(line.Substring("#EXT-X-VERSION:".Length).Trim());
+                playlist.Version = int.Parse(line["#EXT-X-VERSION:".Length..].Trim());
             }
             else if (line.StartsWith("#EXT-X-MEDIA-SEQUENCE:"))
             {
-                playlist.MediaSequence = int.Parse(line.Substring("#EXT-X-MEDIA-SEQUENCE:".Length).Trim());
+                playlist.MediaSequence = int.Parse(line["#EXT-X-MEDIA-SEQUENCE:".Length..].Trim());
             }
             else if (line.StartsWith("#EXT-X-PLAYLIST-TYPE:"))
             {
-                playlist.PlaylistType = line.Substring("#EXT-X-PLAYLIST-TYPE:".Length).Trim();
+                playlist.PlaylistType = line["#EXT-X-PLAYLIST-TYPE:".Length..].Trim();
             }
             else if (line.StartsWith("#EXT-X-INDEPENDENT-SEGMENTS"))
             {
@@ -111,9 +111,9 @@ public class M3u8Parser
             }
         }
 
-        var baseUri = new Uri(playlistUri);
+        Uri baseUri = new(playlistUri);
 
-        var test = GetM3U8Segment(lines, playlist.MediaSequence, baseUri);
+        List<M3u8Segment> test = GetM3U8Segment(lines, playlist.MediaSequence, baseUri);
 
         if (test.Any())
         {
@@ -128,12 +128,12 @@ public class M3u8Parser
         }
 
         // Now we parse child playlists
-        foreach (var stream in playlist.Streams)
+        foreach (M3u8Stream stream in playlist.Streams)
         {
             stream.Segments = new List<M3u8Segment>();
 
-            var streamUri = new Uri(baseUri, stream.Uri);
-            var streamLines = (await httpClient.GetStringAsync(streamUri).ConfigureAwait(false)).Split("\n");
+            Uri streamUri = new(baseUri, stream.Uri);
+            string[] streamLines = (await httpClient.GetStringAsync(streamUri).ConfigureAwait(false)).Split("\n");
 
             stream.Segments = GetM3U8Segment(streamLines, playlist.MediaSequence, streamUri);
 
@@ -144,17 +144,17 @@ public class M3u8Parser
         return playlist;
     }
 
-    private new List<M3u8Segment> GetM3U8Segment(string[] streamLines, int mediaSequence, Uri streamUri)
+    private List<M3u8Segment> GetM3U8Segment(string[] streamLines, int mediaSequence, Uri streamUri)
     {
-        var segments = new List<M3u8Segment>();
+        List<M3u8Segment> segments = new();
 
-        M3u8Segment segment = null;
+        M3u8Segment? segment = null;
 
-        var isPlayListFile = streamLines.Any(a => a.Contains("#EXT-X-STREAM-INF"));
+        bool isPlayListFile = streamLines.Any(a => a.Contains("#EXT-X-STREAM-INF"));
 
         for (int i = 0; i < streamLines.Length; i++)
         {
-            var line = streamLines[i].Trim();
+            string line = streamLines[i].Trim();
             if (string.IsNullOrEmpty(line))
             {
                 continue;
@@ -163,13 +163,13 @@ public class M3u8Parser
             {
                 segment = new M3u8Segment
                 {
-                    Duration = double.Parse(line.Substring("#EXTINF:".Length, line.IndexOf(",") - "#EXTINF:".Length)),
+                    Duration = double.Parse(line["#EXTINF:".Length..line.IndexOf(",")]),
                     MediaSequence = mediaSequence++,
                 };
             }
             else if (line.StartsWith("#EXT-X-BYTERANGE:"))
             {
-                var byterangeParts = line.Substring("#EXT-X-BYTERANGE:".Length)
+                long[] byterangeParts = line["#EXT-X-BYTERANGE:".Length..]
                                         .Split('@')
                                         .Select(long.Parse)
                                         .ToArray();

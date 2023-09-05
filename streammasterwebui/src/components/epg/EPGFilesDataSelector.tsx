@@ -14,22 +14,10 @@ import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 import EPGFileRemoveDialog from "./EPGFileRemoveDialog";
 import EPGFileRefreshDialog from "./EPGFileRefreshDialog";
 
-const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
+const EPGFilesDataSelector = () => {
   const toast = useRef<Toast>(null);
 
   const [epgFilesUpdateEpgFileMutation] = useEpgFilesUpdateEpgFileMutation();
-
-  const SetSelectedEPGFileChanged = useCallback((data: EpgFilesDto) => {
-    if (!data) {
-      return;
-    }
-
-    if (props.value === undefined || props.value.id === data.id) {
-      return;
-    }
-
-    props.onChange?.(data);
-  }, [props]);
 
   const onEPGUpdateClick = useCallback(async (id: number, auto?: boolean | null, hours?: number | null, name?: string | null, url?: string | null) => {
 
@@ -224,14 +212,8 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
       <Toast position="bottom-right" ref={toast} />
       <DataSelector
         columns={sourceColumns}
-
         emptyMessage="No EPG Files"
         id='epgfilesdataselector'
-
-        onSelectionChange={(e) =>
-          SetSelectedEPGFileChanged(e as EpgFilesDto)
-        }
-
         queryFilter={useEpgFilesGetEpgFilesQuery}
         style={{ height: 'calc(50vh - 40px)' }}
       />
@@ -240,9 +222,5 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
 };
 
 EPGFilesDataSelector.displayName = 'EPGFilesDataSelector';
-type EPGFilesDataSelectorProps = {
-  readonly onChange?: (value: EpgFilesDto) => void;
-  readonly value?: EpgFilesDto | undefined;
-};
 
 export default memo(EPGFilesDataSelector);

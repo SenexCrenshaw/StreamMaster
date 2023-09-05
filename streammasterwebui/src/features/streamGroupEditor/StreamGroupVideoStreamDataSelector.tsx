@@ -1,5 +1,3 @@
-
-import { useLocalStorage } from "primereact/hooks";
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 
@@ -14,6 +12,7 @@ import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useChannelNumb
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
 import { useStreamToRemove } from "../../app/slices/useStreamToRemove";
+import { useShowHidden } from "../../app/slices/useShowHidden";
 
 type StreamGroupVideoStreamDataSelectorProps = {
   readonly id: string;
@@ -23,19 +22,13 @@ type StreamGroupVideoStreamDataSelectorProps = {
 const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVideoStreamDataSelectorProps) => {
   const dataKey = id + '-StreamGroupVideoStreamDataSelector';
   const { streamToRemove } = useStreamToRemove(id);
-
-
   const [videoStreams, setVideoStreams] = useState<VideoStreamIsReadOnly[]>([] as VideoStreamIsReadOnly[]);
-
   const { columnConfig: m3uFileNameColumnConfig } = useM3UFileNameColumnConfig(false);
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig(false);
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(false);
   const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig(false);
-
-  const [showHidden, setShowHidden] = useLocalStorage<boolean | null | undefined>(undefined, id + '-showHidden');
-
+  const { showHidden, setShowHidden } = useShowHidden(dataKey);
   const streamGroupsGetStreamGroupVideoStreamIdsQuery = useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery(streamGroup.id);
-
   const [streamGroupVideoStreamsAddVideoStreamToStreamGroupMutation] = useStreamGroupVideoStreamsAddVideoStreamToStreamGroupMutation();
 
   useEffect(() => {

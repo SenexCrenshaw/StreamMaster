@@ -26,11 +26,11 @@ internal class GetSettingsHandler : IRequestHandler<GetSettings, SettingDto>
         _mapper = mapper;
     }
 
-    public async Task<SettingDto> Handle(GetSettings request, CancellationToken cancellationToken)
+    public Task<SettingDto> Handle(GetSettings request, CancellationToken cancellationToken)
     {
         Setting setting = FileUtil.GetSetting();
         SettingDto ret = _mapper.Map<SettingDto>(setting);
 
-        return ret;
+        return Task.FromResult(ret);
     }
 }

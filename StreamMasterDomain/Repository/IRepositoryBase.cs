@@ -7,6 +7,7 @@ namespace StreamMasterDomain.Repository
     public interface IRepositoryBase<T>
     {
         void BulkInsert(T[] entities);
+        void BulkUpdate(T[] entities);
         IQueryable<T> GetIQueryableForEntity(QueryStringParameters parameters);
         int Count();
         IQueryable<T> FindAll();

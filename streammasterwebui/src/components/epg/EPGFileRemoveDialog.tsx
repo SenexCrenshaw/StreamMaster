@@ -27,12 +27,12 @@ const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
 
     setBlock(true);
 
-    const tosend = {} as DeleteEpgFileRequest;
+    const toSend = {} as DeleteEpgFileRequest;
 
-    tosend.id = props.selectedFile.id;
-    tosend.deleteFile = deleteFSFile;
+    toSend.id = props.selectedFile.id;
+    toSend.deleteFile = deleteFSFile;
 
-    DeleteEPGFile(tosend)
+    DeleteEPGFile(toSend)
       .then(() => {
         setInfoMessage('EPG File Removed Successfully');
       }).catch((e) => {

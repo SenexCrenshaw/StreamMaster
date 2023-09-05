@@ -2,6 +2,7 @@
 
 using MediatR;
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.M3UFiles.Commands;
@@ -32,10 +33,10 @@ internal class GetVideoStreamIdsByStreamGroupQueryHandler : BaseRequestHandler, 
         List<string> channelGroupNames = streamGroup.ChannelGroups.Select(cg => cg.ChannelGroup.Name).ToList();
 
         //// Fetch video stream IDs that match the user group
-        List<string> matchedIds = Repository.VideoStream.GetAllVideoStreams()
+        List<string> matchedIds = await Repository.VideoStream.GetAllVideoStreams()
             .Where(vs => channelGroupNames.Contains(vs.User_Tvg_group))
             .Select(vs => vs.Id)
-            .ToList();
+            .ToListAsync(cancellationToken: cancellationToken);
 
 
         return matchedIds;

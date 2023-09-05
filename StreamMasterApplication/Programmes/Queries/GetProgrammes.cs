@@ -23,12 +23,12 @@ internal class GetProgrammesHandler : IRequestHandler<GetProgrammes, IEnumerable
         _memoryCache = memoryCache;
     }
 
-    public async Task<IEnumerable<Programme>> Handle(GetProgrammes request, CancellationToken cancellationToken)
+    public Task<IEnumerable<Programme>> Handle(GetProgrammes request, CancellationToken cancellationToken)
     {
         IEnumerable<Programme> programmes = _memoryCache.Programmes().ToList();
         if (programmes == null)
         {
-            return new List<Programme>();
+            return Task.FromResult<IEnumerable<Programme>>(new List<Programme>());
         }
 
         Setting setting = FileUtil.GetSetting();
@@ -51,6 +51,6 @@ internal class GetProgrammesHandler : IRequestHandler<GetProgrammes, IEnumerable
             }
         }
 
-        return programmes;
+        return Task.FromResult(programmes);
     }
 }

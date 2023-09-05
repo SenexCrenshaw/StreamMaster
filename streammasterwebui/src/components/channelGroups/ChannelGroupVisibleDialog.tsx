@@ -1,13 +1,18 @@
 
 import React from "react";
-import { Button } from "primereact/button";
 import { type ChannelGroupDto, type UpdateChannelGroupRequest, type UpdateChannelGroupsRequest } from "../../store/iptvApi";
 import { useChannelGroupsUpdateChannelGroupsMutation } from "../../store/iptvApi";
-import { getTopToolOptions } from "../../common/common";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
+import VisibleButton from "../buttons/VisibleButton";
 
 
-const ChannelGroupVisibleDialog = (props: ChannelGroupVisibleDialogProps) => {
+type ChannelGroupVisibleDialogProps = {
+  readonly onClose?: (() => void);
+  readonly skipOverLayer?: boolean | undefined;
+  readonly value?: ChannelGroupDto[] | null;
+};
+
+const ChannelGroupVisibleDialog = ({ onClose, skipOverLayer, value }: ChannelGroupVisibleDialogProps) => {
 
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
@@ -20,16 +25,16 @@ const ChannelGroupVisibleDialog = (props: ChannelGroupVisibleDialogProps) => {
     setShowOverlay(false);
     setInfoMessage('');
     setBlock(false);
-    props.onClose?.();
-  }, [props]);
+    onClose?.();
+  }, [onClose]);
 
   React.useMemo(() => {
 
-    if (props.value !== null && props.value !== undefined) {
-      setSelectedChannelGroups(props.value);
+    if (value !== null && value !== undefined) {
+      setSelectedChannelGroups(value);
     }
 
-  }, [props.value]);
+  }, [value]);
 
   const onVisibleClick = React.useCallback(async () => {
     setBlock(true);
@@ -53,20 +58,16 @@ const ChannelGroupVisibleDialog = (props: ChannelGroupVisibleDialogProps) => {
   }, [ReturnToParent, channelGroupsUpdateChannelGroupsMutation, selectedChannelGroups]);
 
 
-  if (props.skipOverLayer === true) {
+  if (skipOverLayer === true) {
     return (
 
-      <Button
+      <VisibleButton
         disabled={selectedChannelGroups.length === 0}
-        icon="pi pi-power-off"
+        iconFilled={false}
         onClick={async () => await onVisibleClick()}
-        rounded
-        severity="info"
-        size="small"
-        text={props.iconFilled !== true}
         tooltip="Set Visibilty"
-        tooltipOptions={getTopToolOptions}
       />
+
 
     )
   }
@@ -76,6 +77,7 @@ const ChannelGroupVisibleDialog = (props: ChannelGroupVisibleDialogProps) => {
 
       <InfoMessageOverLayDialog
         blocked={block}
+        closable
         header={`Toggle visibility for ${selectedChannelGroups.length < 2 ? selectedChannelGroups.length + ' Group ?' : selectedChannelGroups.length + ' Groups ?'}`}
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
@@ -86,28 +88,29 @@ const ChannelGroupVisibleDialog = (props: ChannelGroupVisibleDialogProps) => {
           <div className='m-3'>
             <h3 />
 
-            <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
-              <Button
-                icon="pi pi-times "
-                label="Cancel"
-                onClick={(() => ReturnToParent())}
-                rounded
-                severity="warning"
-              />
-              <Button
-                icon="pi pi-check"
-                label="Change"
-                onClick={async () => await onVisibleClick()}
-                rounded
-                severity="success"
-              />
+            <div className="flex col-12 mt-3 gap-2 justify-content-end">
+              <VisibleButton label='Set Visibilty' onClick={async () => await onVisibleClick()} tooltip='Set Visibilty' />
+
             </div>
           </div>
         </div>
 
       </InfoMessageOverLayDialog>
 
-      <Button
+      <VisibleButton
+        disabled={selectedChannelGroups.length === 0}
+        onClick={async () => {
+          if (selectedChannelGroups.length > 1) {
+            setShowOverlay(true);
+          } else {
+            await onVisibleClick();
+          }
+        }
+        }
+        tooltip="Set Visibilty"
+      />
+
+      {/* <Button
         disabled={selectedChannelGroups.length === 0}
         icon="pi pi-power-off"
         onClick={async () => {
@@ -121,26 +124,16 @@ const ChannelGroupVisibleDialog = (props: ChannelGroupVisibleDialogProps) => {
         rounded
         severity="info"
         size="small"
-        text={props.iconFilled !== true}
+        text={iconFilled !== true}
         tooltip="Set Visibilty"
         tooltipOptions={getTopToolOptions}
-      />
+      /> */}
 
     </>
   );
 }
 
 ChannelGroupVisibleDialog.displayName = 'ChannelGroupVisibleDialog';
-ChannelGroupVisibleDialog.defaultProps = {
-  iconFilled: true,
-  value: null,
-};
 
-type ChannelGroupVisibleDialogProps = {
-  readonly iconFilled?: boolean | undefined;
-  readonly onClose?: (() => void);
-  readonly skipOverLayer?: boolean | undefined;
-  readonly value?: ChannelGroupDto[] | null;
-};
 
 export default React.memo(ChannelGroupVisibleDialog);

@@ -126,6 +126,7 @@ namespace StreamMasterInfrastructure.Services
 
         private async ValueTask QueueAsync(SMQueCommand command, object entity, CancellationToken cancellationToken = default)
         {
+
             _logger.LogInformation("Added {command} to Queue", command);
             BackgroundTaskQueueConfig bq = new() { Command = command, Entity = entity, CancellationToken = cancellationToken };
             await QueueAsync(bq).ConfigureAwait(false);
@@ -134,16 +135,25 @@ namespace StreamMasterInfrastructure.Services
         private async ValueTask QueueAsync(BackgroundTaskQueueConfig workItem)
         {
             _logger.LogInformation("Added {workItem.command} to Queue", workItem.Command);
+            bool good = false;
             lock (lockObject)
             {
-                taskQueueStatusDtos.AddFirst(new TaskQueueStatusDto
+                if (!taskQueueStatusDtos.Any(a => a.Id == workItem.Id && a.Command == workItem.Command.ToString()))
                 {
-                    Id = workItem.Id,
-                    Command = workItem.Command.ToString(),
-                });
+                    good = true;
+                    taskQueueStatusDtos.AddFirst(new TaskQueueStatusDto
+                    {
+                        Id = workItem.Id,
+                        Command = workItem.Command.ToString(),
+                    });
+
+                }
             }
-            await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(await GetQueueStatus()).ConfigureAwait(false);
-            await _queue.Writer.WriteAsync(workItem).ConfigureAwait(false);
+            if (good)
+            {
+                await _hubContext.Clients.All.TaskQueueStatusDtoesUpdate(await GetQueueStatus()).ConfigureAwait(false);
+                await _queue.Writer.WriteAsync(workItem).ConfigureAwait(false);
+            }
         }
     }
 }

@@ -20,9 +20,9 @@ public class M3UFile : AutoUpdateEntity
         return lastWrite;
     }
 
-    public async Task<List<VideoStream>?> GetM3U()
+    public Task<List<VideoStream>?> GetM3U()
     {
         using Stream dataStream = FileUtil.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source));
-        return IPTVExtensions.ConvertToVideoStream(dataStream, Id, Name);
+        return Task.FromResult(IPTVExtensions.ConvertToVideoStream(dataStream, Id, Name));
     }
 }

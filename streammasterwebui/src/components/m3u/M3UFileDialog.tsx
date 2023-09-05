@@ -1,7 +1,5 @@
 import * as axios from 'axios';
 import { Accordion, AccordionTab } from 'primereact/accordion';
-import { Button } from 'primereact/button';
-
 import {
   FileUpload,
   type FileUploadHeaderTemplateOptions,
@@ -12,7 +10,7 @@ import { InputText } from 'primereact/inputtext';
 import { ProgressBar } from 'primereact/progressbar';
 import React, { useRef, useState } from 'react';
 import { upload } from '../../services/FileUploadService';
-import { getTopToolOptions, isValidUrl } from '../../common/common';
+import { isValidUrl } from '../../common/common';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import { type CreateM3UFileRequest, useM3UFilesCreateM3UFileMutation } from '../../store/iptvApi';
 import { InputNumber } from 'primereact/inputnumber';
@@ -342,20 +340,8 @@ const M3UFileDialog = (props: M3UFileDialogProps) => {
                   <label htmlFor="sourceURL">Source URL (://) </label>
                 </span>
               </div>
-              <div
-                className="absolute right-0 mr-5"
-
-              >
-                <Button
-                  disabled={!isSaveEnabled}
-                  icon="pi pi-plus"
-                  onClick={async () => await doUpload()}
-                  rounded
-                  severity="success"
-                  size="small"
-                  tooltip='Add M3U File'
-                  tooltipOptions={getTopToolOptions}
-                />
+              <div className="absolute right-0 mr-5"              >
+                <AddButton disabled={!isSaveEnabled} label="M3U" onClick={async () => await doUpload()} tooltip="Add M3U File" />
               </div>
             </div>
           </AccordionTab>
@@ -388,7 +374,6 @@ const M3UFileDialog = (props: M3UFileDialogProps) => {
 
       <div hidden={props.showButton === false}>
         <AddButton label='Add M3U File' onClick={() => setShowOverlay(true)} tooltip='Add M3U File' />
-
       </div>
     </>
   );

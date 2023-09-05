@@ -1,8 +1,6 @@
-﻿namespace StreamMasterDomain.EnvironmentInfo;
+﻿using System.Diagnostics;
 
-using System;
-using System.Diagnostics;
-
+namespace StreamMasterDomain.EnvironmentInfo;
 public class OsVersionModel
 {
     public OsVersionModel(string name, string version, string? fullName = null)
@@ -40,7 +38,7 @@ public class OsInfo : IOsInfo
     public static Os Os { get; }
 
     public static bool IsNotWindows => !IsWindows;
-    public static bool IsLinux => Os == Os.Linux || Os == Os.LinuxMusl || Os == Os.Bsd;
+    public static bool IsLinux => Os is Os.Linux or Os.LinuxMusl or Os.Bsd;
     public static bool IsOsx => Os == Os.Osx;
     public static bool IsWindows => Os == Os.Windows;
 
@@ -53,7 +51,7 @@ public class OsInfo : IOsInfo
 
     static OsInfo()
     {
-        var platform = Environment.OSVersion.Platform;
+        PlatformID platform = Environment.OSVersion.Platform;
 
         switch (platform)
         {
@@ -76,7 +74,7 @@ public class OsInfo : IOsInfo
     {
         OsVersionModel? osInfo = null;
 
-        foreach (var osVersionAdapter in versionAdapters.Where(c => c.Enabled))
+        foreach (IOsVersionAdapter? osVersionAdapter in versionAdapters.Where(c => c.Enabled))
         {
             try
             {
@@ -84,7 +82,7 @@ public class OsInfo : IOsInfo
             }
             catch (Exception e)
             {
-                Console.WriteLine("Couldn't get OS Version info");
+                Console.WriteLine("Couldn't get OS Version info: ", e.Message);
             }
 
             if (osInfo != null)
@@ -113,7 +111,7 @@ public class OsInfo : IOsInfo
 
     private static Os GetPosixFlavour()
     {
-        var output = RunAndCapture("uname", "-s");
+        string output = RunAndCapture("uname", "-s");
 
         if (output.StartsWith("Darwin"))
         {
@@ -135,7 +133,7 @@ public class OsInfo : IOsInfo
 
     private static string RunAndCapture(string filename, string args)
     {
-        var processStartInfo = new ProcessStartInfo
+        ProcessStartInfo processStartInfo = new()
         {
             FileName = filename,
             Arguments = args,
@@ -144,18 +142,16 @@ public class OsInfo : IOsInfo
             RedirectStandardOutput = true
         };
 
-        var output = string.Empty;
+        string output = string.Empty;
 
         try
         {
-            using (var p = Process.Start(processStartInfo))
-            {
-                // To avoid deadlocks, always read the output stream first and
-                // then wait.
-                output = p.StandardOutput.ReadToEnd();
+            using Process? p = Process.Start(processStartInfo);
+            // To avoid deadlocks, always read the output stream first and
+            // then wait.
+            output = p.StandardOutput.ReadToEnd();
 
-                p.WaitForExit(1000);
-            }
+            _ = p.WaitForExit(1000);
         }
         catch (Exception)
         {

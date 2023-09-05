@@ -15,9 +15,9 @@ public class ScanDirectoryForIconFilesRequestHandler : IRequestHandler<ScanDirec
 
     }
 
-    public async Task<bool> Handle(ScanDirectoryForIconFilesRequest command, CancellationToken cancellationToken)
+    public Task<bool> Handle(ScanDirectoryForIconFilesRequest command, CancellationToken cancellationToken)
     {
-        return false;
+        return Task.FromResult(false);
         //FileDefinition fd = FileDefinitions.Icon;
 
         //DirectoryInfo iconDirInfo = new(fd.DirectoryLocation);

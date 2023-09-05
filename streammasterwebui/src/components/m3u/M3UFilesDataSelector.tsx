@@ -1,7 +1,6 @@
 
 import { type CheckboxChangeEvent } from "primereact/checkbox";
 import { Checkbox } from "primereact/checkbox";
-import { useLocalStorage } from "primereact/hooks";
 import { Toast } from "primereact/toast";
 import { type CSSProperties } from "react";
 import { useRef, useMemo, useCallback, memo } from "react";
@@ -17,31 +16,8 @@ import M3UFileRemoveDialog from "./M3UFileRemoveDialog";
 import M3UFileRefreshDialog from "./M3UFileRefreshDialog";
 
 
-const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
+const M3UFilesDataSelector = () => {
   const toast = useRef<Toast>(null);
-
-  const [selectedM3UFile, setSelectedM3UFile] = useLocalStorage<M3UFileDto>({ id: 0, name: 'All' } as M3UFileDto, 'M3UFilesDataSelector-selectedM3UFile');
-
-  useMemo(() => {
-    if (props.value?.id !== undefined && selectedM3UFile !== undefined && props.value.id !== selectedM3UFile.id) {
-
-      setSelectedM3UFile(props.value);
-    }
-  }, [props.value, selectedM3UFile, setSelectedM3UFile]);
-
-  const SetSelectedM3UFileChanged = useCallback((data: M3UFileDto) => {
-    if (!data) {
-      return;
-    }
-
-    if (props.value === undefined || props.value.id === data.id) {
-      return;
-    }
-
-    setSelectedM3UFile(data);
-
-    props.onChange?.(data);
-  }, [props, setSelectedM3UFile]);
 
   const onM3UUpdateClick = useCallback(async (id: number, auto?: boolean | null, hours?: number | null, maxStreams?: number | null, name?: string | null, url?: string | null, startingChannelNumber?: number | null) => {
 
@@ -292,13 +268,8 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
 
       <DataSelector
         columns={sourceColumns}
-
         emptyMessage="No M3U Files"
         id='m3ufilesdataselector'
-
-        onSelectionChange={(e) =>
-          SetSelectedM3UFileChanged(e as M3UFileDto)
-        }
         queryFilter={useM3UFilesGetM3UFilesQuery}
         style={{ height: 'calc(50vh - 40px)' }}
       />
@@ -307,9 +278,5 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
 };
 
 M3UFilesDataSelector.displayName = 'M3UFilesDataSelector';
-type M3UFilesDataSelectorProps = {
-  readonly onChange?: (value: M3UFileDto) => void;
-  readonly value?: M3UFileDto | undefined;
-};
 
 export default memo(M3UFilesDataSelector);

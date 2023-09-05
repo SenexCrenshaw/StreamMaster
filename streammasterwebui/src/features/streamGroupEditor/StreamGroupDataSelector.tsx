@@ -54,7 +54,6 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
             <StreamGroupEditDialog
               onHide={(sg) => {
                 if (sg !== undefined) {
-                  setSelectedStreamGroup(sg);
                   props.onSelectionChange?.(sg);
                 }
               }}
@@ -81,6 +80,7 @@ const StreamGroupDataSelector = (props: StreamGroupDataSelectorProps) => {
         headerRightTemplate={sourceaddtionalHeaderTemplate()}
         id={props.id + '-ds-source'}
         onSelectionChange={(e) => {
+          setSelectedStreamGroup(e as StreamGroupDto);
           props.onSelectionChange?.(e as StreamGroupDto);
         }
         }

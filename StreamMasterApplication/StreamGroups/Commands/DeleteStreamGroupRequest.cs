@@ -27,9 +27,6 @@ public class DeleteStreamGroupRequestValidator : AbstractValidator<DeleteStreamG
 
 public class DeleteStreamGroupHandler : BaseMediatorRequestHandler, IRequestHandler<DeleteStreamGroupRequest, int?>
 {
-
-    private readonly IPublisher _publisher;
-
     public DeleteStreamGroupHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
         : base(logger, repository, mapper, publisher, sender) { }
 
@@ -42,7 +39,7 @@ public class DeleteStreamGroupHandler : BaseMediatorRequestHandler, IRequestHand
 
         if (await Repository.StreamGroup.DeleteStreamGroupsync(request.Id, cancellationToken))
         {
-            await _publisher.Publish(new StreamGroupDeleteEvent(), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new StreamGroupDeleteEvent(), cancellationToken).ConfigureAwait(false);
             return request.Id;
         }
 

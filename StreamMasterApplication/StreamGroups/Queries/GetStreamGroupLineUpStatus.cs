@@ -36,19 +36,19 @@ public class GetStreamGroupLineUpStatusHandler : BaseRequestHandler, IRequestHan
     public GetStreamGroupLineUpStatusHandler(ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper)
         : base(logger, repository, mapper) { }
 
-    public async Task<string> Handle(GetStreamGroupLineUpStatus request, CancellationToken cancellationToken)
+    public Task<string> Handle(GetStreamGroupLineUpStatus request, CancellationToken cancellationToken)
     {
         if (request.StreamGroupNumber > 0)
         {
             IQueryable<StreamGroup> streamGroupExists = Repository.StreamGroup.GetAllStreamGroups().Where(x => x.StreamGroupNumber == request.StreamGroupNumber);
             if (!streamGroupExists.Any())
             {
-                return "";
+                return Task.FromResult("");
             }
         }
 
         string jsonString = JsonSerializer.Serialize(new LineupStatus(), new JsonSerializerOptions { WriteIndented = true });
 
-        return jsonString;
+        return Task.FromResult(jsonString);
     }
 }

@@ -159,7 +159,17 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 
     public void BulkInsert(T[] entities)
     {
-        RepositoryContext.BulkInsert(entities);
+
+        RepositoryContext.BulkInsert(entities, options =>
+        {
+            options.PropertiesToIncludeOnUpdate = new List<string> { "" };
+        });
+    }
+
+    public void BulkUpdate(T[] entities)
+    {
+
+        RepositoryContext.BulkUpdate(entities);
     }
 
     public void Create(T[] entities)

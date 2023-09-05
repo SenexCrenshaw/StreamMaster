@@ -13,9 +13,6 @@ const ChannelItem = ({ channel }: ChannelItemProps) => {
     <ChannelBox
       {...position}
     >
-
-      {/* Overwrite styles by add eg. style={{ maxHeight: 52, maxWidth: 52,... }} */}
-      {/* Or stay with default styles */}
       <ChannelLogo
         alt="Logo"
         src={logo}

@@ -1,13 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
-
-import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
-
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
-import { getTopToolOptions } from "../../common/common";
 import { type CreateChannelGroupRequest } from "../../store/iptvApi";
 import { useChannelGroupsCreateChannelGroupMutation } from "../../store/iptvApi";
-import OKButton from "../buttons/OKButton";
+import AddButton from "../buttons/AddButton";
 
 
 // Define the component props
@@ -18,20 +14,24 @@ type ChannelGroupAddDialogProps = {
 
 const ChannelGroupAddDialog: React.FC<ChannelGroupAddDialogProps> = ({ onAdd, onHide }) => {
 
-  const [overlayState, setOverlayState] = useState<{ message: string, visible: boolean }>({ message: '', visible: false });
-  const [block, setBlock] = useState<boolean>(false);
+  const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
+  const [block, setBlock] = React.useState<boolean>(false);
+  const [infoMessage, setInfoMessage] = React.useState('');
   const [newGroupName, setNewGroupName] = useState<string>('');
 
   const [channelGroupsCreateChannelGroupMutation] = useChannelGroupsCreateChannelGroupMutation();
 
-  const ReturnToParent = useCallback(() => {
-    setOverlayState({ message: '', visible: false });
+  const ReturnToParent = React.useCallback(() => {
+    setShowOverlay(false);
+    setInfoMessage('');
     setBlock(false);
     onHide?.();
     onAdd?.(newGroupName);
     setNewGroupName('');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onAdd, onHide]);
+
+
 
   const addGroup = useCallback(() => {
     setBlock(true);
@@ -49,10 +49,14 @@ const ChannelGroupAddDialog: React.FC<ChannelGroupAddDialogProps> = ({ onAdd, on
     };
 
     channelGroupsCreateChannelGroupMutation(requestData)
-      .then(() => setOverlayState({ ...overlayState, message: 'Channel Group Added Successfully' }))
-      .catch((e) => setOverlayState({ ...overlayState, message: 'Channel Group Add Error: ' + e.message }));
+      .then(() => {
+        setInfoMessage('Channel Group Added Successfully');
+      })
+      .catch((e) => {
+        setInfoMessage('Stream Group Add Error: ' + e.message);
+      });
 
-  }, [ReturnToParent, channelGroupsCreateChannelGroupMutation, newGroupName, overlayState]);
+  }, [ReturnToParent, channelGroupsCreateChannelGroupMutation, newGroupName]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -76,9 +80,9 @@ const ChannelGroupAddDialog: React.FC<ChannelGroupAddDialogProps> = ({ onAdd, on
         blocked={block}
         closable
         header='Add Group'
-        infoMessage={overlayState.message}
+        infoMessage={infoMessage}
         onClose={ReturnToParent}
-        show={overlayState.visible}
+        show={showOverlay}
       >
         <div className='m-0 p-0 border-1 border-round surface-border'>
           <div className='m-3'>
@@ -90,22 +94,13 @@ const ChannelGroupAddDialog: React.FC<ChannelGroupAddDialogProps> = ({ onAdd, on
               value={newGroupName}
             />
             <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
-              <OKButton onClick={addGroup} />
+              <AddButton label='Add Group' onClick={addGroup} tooltip='Add Group' />
             </div>
           </div>
         </div>
       </InfoMessageOverLayDialog>
 
-      <Button
-        icon="pi pi-plus"
-        onClick={() => setOverlayState({ ...overlayState, visible: true })}
-        rounded
-        severity="success"
-        size="small"
-        style={{ maxHeight: "2rem", maxWidth: "2rem" }}
-        tooltip="Add Group"
-        tooltipOptions={getTopToolOptions}
-      />
+      <AddButton onClick={() => setShowOverlay(true)} tooltip='Add Group' />
     </>
   );
 };

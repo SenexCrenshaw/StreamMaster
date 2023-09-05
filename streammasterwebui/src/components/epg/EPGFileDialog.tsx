@@ -1,7 +1,5 @@
 import * as axios from 'axios';
 import { Accordion, AccordionTab } from 'primereact/accordion';
-import { Button } from 'primereact/button';
-
 import {
   FileUpload,
   type FileUploadHeaderTemplateOptions,
@@ -12,7 +10,7 @@ import { InputText } from 'primereact/inputtext';
 import { ProgressBar } from 'primereact/progressbar';
 import React, { useRef, useState } from 'react';
 import { upload } from '../../services/FileUploadService';
-import { getTopToolOptions, isValidUrl } from '../../common/common';
+import { isValidUrl } from '../../common/common';
 
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import { useEpgFilesCreateEpgFileMutation } from '../../store/iptvApi';
@@ -318,20 +316,9 @@ const EPGFileDialog = (props: EPGFileDialogProps) => {
                   <label htmlFor="sourceURL">Source URL (://) </label>
                 </span>
               </div>
-              <div
-                className="absolute right-0 mr-5"
+              <div className="absolute right-0 mr-5"              >
+                <AddButton disabled={!isSaveEnabled} label="EPG" onClick={async () => await doUpload()} tooltip="Add EPG File" />
 
-              >
-                <Button
-                  disabled={!isSaveEnabled}
-                  icon="pi pi-plus"
-                  onClick={async () => await doUpload()}
-                  rounded
-                  severity="success"
-                  size="small"
-                  tooltip="Add EPG File"
-                  tooltipOptions={getTopToolOptions}
-                />
               </div>
             </div>
           </AccordionTab>

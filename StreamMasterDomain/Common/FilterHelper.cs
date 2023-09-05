@@ -44,14 +44,9 @@ public static class FilterHelper<T> where T : class
         if (!PropertyCache.TryGetValue(propertyKey, out PropertyInfo? property))
         {
             property = typeof(T).GetProperties().FirstOrDefault(p => string.Equals(p.Name, filter.FieldName, StringComparison.OrdinalIgnoreCase));
-            if (property != null)
-            {
-                PropertyCache[propertyKey] = property;
-            }
-            else
-            {
-                throw new ArgumentException($"Property {filter.FieldName} not found on type {typeof(T).FullName}");
-            }
+            PropertyCache[propertyKey] = property != null
+                ? property
+                : throw new ArgumentException($"Property {filter.FieldName} not found on type {typeof(T).FullName}");
         }
 
         Expression propertyAccess = Expression.Property(parameter, property);
@@ -100,7 +95,7 @@ public static class FilterHelper<T> where T : class
                 if (propertyAccess.Type == typeof(int))
                 {
                     string newValue = filter.Value.ToString()[2..^2];
-                    BinaryExpression equalExpression = Expression.Equal(propertyAccess, Expression.Constant(Int32.Parse(newValue)));
+                    BinaryExpression equalExpression = Expression.Equal(propertyAccess, Expression.Constant(int.Parse(newValue)));
                     containsExpressions.Add(equalExpression);
                 }
                 else
@@ -116,7 +111,7 @@ public static class FilterHelper<T> where T : class
             if (propertyAccess.Type == typeof(int))
             {
                 string newValue = filter.Value.ToString()[2..^2];
-                BinaryExpression equalExpression = Expression.Equal(propertyAccess, Expression.Constant(Int32.Parse(newValue)));
+                BinaryExpression equalExpression = Expression.Equal(propertyAccess, Expression.Constant(int.Parse(newValue)));
                 containsExpressions.Add(equalExpression);
             }
             if (propertyAccess.Type == typeof(bool))
@@ -145,10 +140,10 @@ public static class FilterHelper<T> where T : class
         return filterExpression;
     }
 
-    private static object ConvertValue(object value, Type targetType)
+    private static object? ConvertValue(object value, Type? targetType)
     {
         // Handle null values immediately
-        if (value == null)
+        if (value == null || targetType == null)
         {
             return null;
         }
