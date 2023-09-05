@@ -42,6 +42,7 @@ const AutoSetChannelNumbers = ({ id, values }: AutoSetChannelNumbersProps) => {
   const ids = useMemo((): string[] => {
     if (values !== undefined && values.length > 0) {
       const i = values?.map((a: VideoStreamDto) => a.id) ?? [];
+
       return i;
     }
 
@@ -54,6 +55,7 @@ const AutoSetChannelNumbers = ({ id, values }: AutoSetChannelNumbersProps) => {
     if (selectAll === true) {
       if (!queryFilter) {
         ReturnToParent();
+
         return;
       }
 
@@ -70,10 +72,12 @@ const AutoSetChannelNumbers = ({ id, values }: AutoSetChannelNumbersProps) => {
         ).catch((error) => {
           setInfoMessage('Set Stream Visibility Error: ' + error.message);
         });
+
       return;
     }
 
     const data = {} as VideoStreamsSetVideoStreamChannelNumbersApiArg;
+
     data.overWriteExisting = overwriteNumbers;
     data.startNumber = startNumber;
     data.orderBy = sortInfo.orderBy;

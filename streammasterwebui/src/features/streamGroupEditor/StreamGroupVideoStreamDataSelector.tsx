@@ -1,4 +1,4 @@
-/* eslint-disable react/no-unused-prop-types */
+
 import { useLocalStorage } from "primereact/hooks";
 import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
@@ -44,7 +44,7 @@ const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVide
       setVideoStreams(streamGroupsGetStreamGroupVideoStreamIdsQuery.data);
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [streamGroupsGetStreamGroupVideoStreamIdsQuery.data]);
 
   const targetColumns = useMemo((): ColumnMeta[] => {
@@ -83,7 +83,7 @@ const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVide
       </div>
     );
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [showHidden]);
 
   return (

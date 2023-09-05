@@ -34,8 +34,10 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
 
   const changeGroupName = React.useCallback(() => {
     setBlock(true);
+
     if (!newGroupName || !props.value) {
       ReturnToParent();
+
       return;
     }
 
@@ -46,7 +48,7 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
 
     channelGroupsUpdateChannelGroupMutation(toSend).then(() => {
       setInfoMessage('Channel Group Edit Successfully');
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     }).catch((e: any) => {
       setInfoMessage('Channel Group Edit Error: ' + e.message);
     });

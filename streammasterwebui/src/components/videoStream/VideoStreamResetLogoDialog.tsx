@@ -13,10 +13,12 @@ const VideoStreamResetLogoDialog = (props: VideoStreamResetLogoDialogProps) => {
 
     if (props.value === undefined || props.value.id === undefined) {
       ReturnToParent();
+
       return;
     }
 
     const toSend = {} as UpdateVideoStreamRequest;
+
     toSend.id = props.value?.id;
     toSend.tvg_logo = props.value.tvg_logo;
 

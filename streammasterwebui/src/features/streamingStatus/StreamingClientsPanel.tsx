@@ -17,6 +17,7 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
 
     const kbps = rowData.clientBitsPerSecond / 1000;
     const roundedKbps = Math.ceil(kbps);
+
     return (<div>{roundedKbps.toLocaleString('en-US')}</div >);
   }, []);
 
@@ -36,6 +37,7 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
     }
 
     var toSend = {} as FailClientRequest;
+
     toSend.clientId = rowData.clientId;
 
     await FailClient(toSend)

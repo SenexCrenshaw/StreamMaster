@@ -28,7 +28,7 @@ const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: Video
       setQueryAdditionalFilter({ field: 'parentVideoStreamId', matchMode: 'equals', values: [videoStreamId ?? 'ERROR'] });
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [queryAdditionalFilter]);
 
   const targetActionBodyTemplate = useCallback((data: ChildVideoStreamDto) => {

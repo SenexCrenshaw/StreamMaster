@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { type CheckboxChangeEvent } from "primereact/checkbox";
 import { Checkbox } from "primereact/checkbox";
 import { useLocalStorage } from "primereact/hooks";
@@ -61,6 +61,7 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
     const tosend = {} as UpdateM3UFileRequest;
 
     tosend.id = id;
+
     if (auto !== undefined) {
       tosend.autoUpdate = auto;
     }

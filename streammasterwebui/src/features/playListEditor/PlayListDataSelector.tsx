@@ -39,7 +39,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
 
   //   onSelectionChange(newSelectedChannelGroups);
 
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //
   // }, []);
 
   const sourceActionBodyTemplate = useCallback((data: ChannelGroupDto) => (

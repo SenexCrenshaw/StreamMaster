@@ -102,6 +102,7 @@ export const SettingsEditor = () => {
   const getRecord = React.useCallback((fieldName: string) => {
     type ObjectKey = keyof typeof newData;
     const record = newData[fieldName as ObjectKey];
+
     if (record === undefined || record === null || record === '') {
       return undefined;
     }
@@ -127,6 +128,7 @@ export const SettingsEditor = () => {
   const getInputNumberLine = React.useCallback((field: string, max?: number | null) => {
     const label = GetMessage(field);
     const help = getHelp(field);
+
     return (
       getLine(label + ':',
         <InputNumber
@@ -192,6 +194,7 @@ export const SettingsEditor = () => {
   const getCheckBoxLine = React.useCallback((field: string) => {
     const label = GetMessage(field);
     const help = getHelp(field);
+
     return (
       getLine(label + ':',
         <Checkbox
@@ -234,6 +237,7 @@ export const SettingsEditor = () => {
   const getDropDownLine = React.useCallback((field: string, options: SelectItem[]) => {
     const label = GetMessage(field);
     const help = getHelp(field);
+
     return (
       <>
         {
@@ -389,6 +393,7 @@ export const SettingsEditor = () => {
               label='Swagger'
               onClick={() => {
                 const link = `${baseHostURL}/swagger`;
+
                 window.open(link);
               }
               }

@@ -32,6 +32,7 @@ const ChannelGroupSelector: React.FC<ChannelGroupSelectorProps> = ({ onChange, r
   // Prepare dropdown options from API data
   const options: SelectItem[] = useMemo(() => {
     if (!channelGroupNamesQuery.data) return [];
+
     return channelGroupNamesQuery.data.map((cg) => ({ label: cg, value: cg }));
   }, [channelGroupNamesQuery.data]);
 
@@ -70,6 +71,7 @@ const ChannelGroupSelector: React.FC<ChannelGroupSelectorProps> = ({ onChange, r
 
   const selectedTemplate = useCallback((option: SelectItem) => {
     if (!option) return;
+
     return <div className='flex h-full justify-content-start align-items-center p-0 m-0'>{option.label}</div>;
   }, []);
 

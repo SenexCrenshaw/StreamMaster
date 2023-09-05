@@ -17,10 +17,12 @@ const VideoStreamSetLogoFromEPGDialog = (props: VideoStreamSetLogoFromEPGDialogP
 
     if (props.value === undefined || props.value.id === undefined) {
       ReturnToParent();
+
       return;
     }
 
     const toSend = {} as VideoStreamsSetVideoStreamsLogoFromEpgApiArg;
+
     toSend.ids = [props.value.id];
 
     await videoStreamsSetVideoStreamsLogoFromEpgMutation(toSend)

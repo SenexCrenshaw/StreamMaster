@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import * as React from 'react';
 
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
@@ -84,6 +84,7 @@ export function toCamelCase(str: string): string {
 
 export function GetMessage(...args: string[]): string {
   const intl = useIntl();
+
   if (args === undefined || args.length === 0 || args[0] === '') {
     return '';
   }
@@ -98,6 +99,7 @@ export function GetMessage(...args: string[]): string {
   const ids: string[] = args.flatMap(arg => arg.split(' '));
 
   const message = ids.map(x => intl.formatMessage({ id: x })).join(' ');
+
   if (message === toCamelCase(message)) {
     return args.join('');
   }
@@ -148,6 +150,7 @@ export function removeValueForField(
   targetFieldName: string
 ): void {
   const index = data.findIndex(item => item.fieldName === targetFieldName);
+
   if (index !== -1) {
     data.splice(index, 1);
   }
@@ -275,6 +278,7 @@ export function compareIconFileDto(a: IconFileDto, b: IconFileDto): number {
   // Compare by source
   if (a.source !== undefined && b.source !== undefined) {
     const sourceComparison = a.source.localeCompare(b.source);
+
     if (sourceComparison !== 0) return sourceComparison;
   }
 
@@ -293,9 +297,9 @@ export function arraysContainSameStrings(arr1: string[] | undefined, arr2: strin
   if (arr1.length !== arr2.length) return false;
 
   // Sort both arrays and compare them
-  // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
+
   const sortedArr1 = [...arr1].sort();
-  // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
+
   const sortedArr2 = [...arr2].sort();
 
   for (let i = 0; i < sortedArr1.length; i++) {
@@ -326,6 +330,7 @@ export type SMDataTableFilterMetaData = DataTableFilterMetaData & {
 
 export const doSetsContainSameIds = (set1: Set<number | string>, set2: Set<number | string>): boolean => {
   if (set1.size !== set2.size) return false;
+
   for (let id of set1) {
     if (!set2.has(id)) return false;
   }
@@ -338,6 +343,7 @@ export function isChildVideoStreamDto(value: unknown): value is ChildVideoStream
   // Perform the necessary type checks to determine if 'value' is of type 'ChildVideoStreamDto'
   if (typeof value === 'object' && value !== null) {
     const dto = value as ChildVideoStreamDto;
+
     return (
       typeof dto.rank !== undefined
     );
@@ -349,6 +355,7 @@ export function isChildVideoStreamDto(value: unknown): value is ChildVideoStream
 export const GetMessageDiv = (id: string, upperCase?: boolean | null): React.ReactNode => {
   const intl = useIntl();
   const message = intl.formatMessage({ id: id });
+
   if (upperCase) {
     return <div>{message.toUpperCase()}</div>;
   }
@@ -383,6 +390,7 @@ export function areVideoStreamsEqual(
 export function isValidUrl(string: string): boolean {
   try {
     new URL(string);
+
     return true;
   } catch (err) {
     return false;
@@ -393,6 +401,7 @@ export function isValidUrl(string: string): boolean {
 export async function copyTextToClipboard(text: string) {
   if ('clipboard' in navigator) {
     await navigator.clipboard.writeText(text);
+
     return;
   } else {
     return document.execCommand('copy', true, text);
@@ -449,7 +458,7 @@ export const arraysMatch = (arr1: string[], arr2: string[]): boolean => {
   return true;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export function checkData(data: any): boolean {
   if (data === null || data === undefined || data.data === null || data.data === undefined) {
     return false;

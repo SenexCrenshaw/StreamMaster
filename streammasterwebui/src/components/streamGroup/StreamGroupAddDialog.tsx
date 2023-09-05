@@ -80,8 +80,10 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
   const onAdd = React.useCallback(() => {
 
     setBlock(true);
+
     if (!isSaveEnabled || !name || streamGroupNumber === 0 || name === '') {
       ReturnToParent();
+
       return;
     }
 
@@ -113,6 +115,7 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
     const callback = (event: KeyboardEvent) => {
       if (event.code === 'Enter' || event.code === 'NumpadEnter') {
         event.preventDefault();
+
         if (name !== "") {
           onAdd();
         }
@@ -121,6 +124,7 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
     };
 
     document.addEventListener('keydown', callback);
+
     return () => {
       document.removeEventListener('keydown', callback);
     };

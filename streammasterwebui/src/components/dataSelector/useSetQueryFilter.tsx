@@ -47,6 +47,7 @@ const useSetQueryFilter = (
     const toSend: SMDataTableFilterMetaData[] = Object.keys(defaultState.filters)
       .map(key => {
         const value = defaultState.filters[key] as SMDataTableFilterMetaData;
+
         return value?.value && value.value !== '[]' ? value : null;
       })
       .filter(Boolean) as SMDataTableFilterMetaData[];
@@ -60,11 +61,13 @@ const useSetQueryFilter = (
 
     if (hasValidAdditionalProps(queryAdditionalFilter)) {
       const addProps = queryAdditionalFilter;
+
       if (addProps) {
         if (isEmptyObject(addProps.values)) {
           removeValueForField(toSend, addProps.field);
         } else {
           const values = JSON.stringify(addProps.values);
+
           addOrUpdateValueForField(toSend, addProps.field, addProps.matchMode as MatchMode, values);
         }
       }
@@ -85,11 +88,12 @@ const useSetQueryFilter = (
 
   useEffect(() => {
     const newApi = generateGetApi;// hasValidAdditionalProps(additionalFilterProps) ? generateGetApi : { pageSize: 40 };
+
     if (!areGetApiArgsEqual(newApi, queryFilter)) {
       // console.log('useSetQueryFilter', id, newApi);
       setQueryFilter(newApi);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [queryAdditionalFilter, setQueryFilter, generateGetApi]);
 
   return { lazyState };

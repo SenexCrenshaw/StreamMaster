@@ -18,6 +18,7 @@ function getEmptyFilter(columns: ColumnMeta[], showHidden: boolean | null | unde
     }
 
     let value = '';
+
     return {
       ...obj,
       [item.field]: {
@@ -27,6 +28,7 @@ function getEmptyFilter(columns: ColumnMeta[], showHidden: boolean | null | unde
       },
     } as DataTableFilterMeta;
   }, {});
+
   return filter;
 }
 

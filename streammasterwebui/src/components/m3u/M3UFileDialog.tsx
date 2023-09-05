@@ -150,6 +150,7 @@ const M3UFileDialog = (props: M3UFileDialogProps) => {
 
   const doUpload = async () => {
     setBlock(true);
+
     if (source !== '') {
 
       const createM3UFileRequest = {} as CreateM3UFileRequest;

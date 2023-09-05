@@ -62,12 +62,13 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
     if (!query?.data) return;
     var existingIds = new Set(dataSource.map(x => x.id));
     const newItems = query.data.filter((cn: T) => cn?.id && (!existingIds.has(cn.id)));
+
     if (newItems.length > 0) {
       setDataSource(dataSource.concat(newItems));
       setIndex(dataSource.length + newItems.length);
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [query]);
 
   useEffect(() => {
@@ -77,6 +78,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
     var existingFiltered = new Set(filteredDataSource.map(x => x.id));
 
     var existingIds2 = dataSource.map(x => x.id);
+
     if (existingIds.size !== existingIds2.length) {
       console.log('mismatch existingIds', existingIds)
       console.log('mismatch existingIds2', existingIds2)
@@ -108,6 +110,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
         const filteredData = filterQuery.data.data;
 
         const newItems = filteredData.filter((cn: T) => cn?.id && (!existingIds.has(cn.id)));
+
         if (newItems.length > 0) {
           console.log('filtered Adding new items', newItems.length)
           setDataSource(dataSource.concat(newItems));
@@ -122,11 +125,12 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
       console.log('filter clear', dataSource.length);
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [dataSource, filterQuery]);
 
   useEffect(() => {
     if (props.value === null || props.value === undefined) return;
+
     if (selectedItem === props.value) {
       return;
     }
@@ -146,6 +150,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
           if (item) {
             if (!existingIds.has(item.id)) {
               const newDataSource = dataSource.concat(item);
+
               setDataSource(newDataSource);
               setIndex(newDataSource.length);
             }
@@ -156,7 +161,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
         console.error(e);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [props.value]);
 
   const onChange = useCallback((event: DropdownChangeEvent) => {
@@ -190,10 +195,12 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
   const onFilter = (event: DropdownFilterEvent) => {
     if (event.filter === '') {
       setQueryFilter({ pageSize: 40 } as GetApiArg);
+
       return;
     }
 
     const toSend = [] as SMDataTableFilterMetaData[];
+
     addOrUpdateValueForField(toSend, 'name', 'contains', event.filter);
     setQueryFilter({ jsonFiltersString: JSON.stringify(toSend), pageSize: 40 } as GetApiArg);
     // setFilter(event.filter.toLowerCase());
@@ -233,10 +240,11 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
           itemSize: props.itemSize,
           lazy: true,
           loadingTemplate: loadingTemplate,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
           onLazyLoad: (e: any) => {
             if (e.filter === '' && e.last as number >= index) {
               let firstRecord = e.first as number < index ? index : e.first as number;
+
               setSimpleQuery({ first: firstRecord, last: e.last as number + 100 } as SimpleQueryApiArg)
             }
           },

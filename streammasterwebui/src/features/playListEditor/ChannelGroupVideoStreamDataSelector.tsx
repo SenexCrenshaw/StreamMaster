@@ -41,7 +41,7 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(enableEditMode);
   const { columnConfig: channelLogoColumnConfig } = useChannelLogoColumnConfig(enableEditMode);
 
-  // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
+
   const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig(enableEditMode, [...(props.channelGroupNames ?? [])].sort());
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
   const { showHidden, setShowHidden } = useShowHidden(dataKey);
@@ -59,7 +59,7 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
       setEnableEditMode(props.enableEditMode ?? true);
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [props.enableEditMode]);
 
   const targetActionBodyTemplate = useCallback((data: VideoStreamDto) => {
@@ -152,7 +152,7 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
       </div>
     );
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [showHidden]);
 
   return (

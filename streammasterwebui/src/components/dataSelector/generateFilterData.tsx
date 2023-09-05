@@ -12,8 +12,10 @@ function generateFilterData(columns: ColumnMeta[], currentFilters: DataTableFilt
 
 
     let value = '';
+
     if (Object.keys(currentFilters).length > 0) {
       const test = currentFilters[item.field] as SMDataTableFilterMetaData;
+
       if (test !== undefined) {
         value = test.value;
       }

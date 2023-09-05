@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 
 import { useMemo, memo } from "react";
 import { useSchedulesDirectGetLineupsQuery } from "../../store/iptvApi";

@@ -136,12 +136,14 @@ export const GetIcon = async (arg: number): Promise<IconFileDto> => {
 
 export const GetIconFromSource = async (arg: string): Promise<IconFileDto> => {
   const data = await hubConnection.invoke('GetIconFromSource', arg);
+
   return data;
 };
 
 
 export const GetProgrammeFromDisplayName = async (arg: string): Promise<ProgrammeNameDto> => {
   const data = await hubConnection.invoke('GetProgrammeFromDisplayName', arg);
+
   return data;
 };
 

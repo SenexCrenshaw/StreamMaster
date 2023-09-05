@@ -73,6 +73,7 @@ function blankTemplate() {
 
 function isHiddenTemplate(data: object, fieldName: string) {
   const record = getRecord(data, fieldName);
+
   return record
     ? <i className="pi pi-eye-slash text-blue-500" />
     : <i className="pi pi-eye text-green-500" />;
@@ -80,6 +81,7 @@ function isHiddenTemplate(data: object, fieldName: string) {
 
 function defaultTemplate(data: object, fieldName: string, camelize?: boolean) {
   let displayValue = JSON.stringify(getRecord(data, fieldName));
+
   if (displayValue.startsWith('"') && displayValue.endsWith('"')) {
     displayValue = displayValue.substring(1, displayValue.length - 1);
   }
@@ -106,6 +108,7 @@ function bodyTemplate(data: object, fieldName: string, fieldType: ColumnFieldTyp
     case 'streams':
       const activeCount = getRecord(data, 'activeCount');
       const totalCount = getRecord(data, 'totalCount');
+
       return streamsBodyTemplate(activeCount, totalCount);
     case 'isHidden': return isHiddenTemplate(data, fieldName);
     default: return defaultTemplate(data, fieldName, camelize);

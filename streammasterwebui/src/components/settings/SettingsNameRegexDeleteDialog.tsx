@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
+
 
 import React from "react";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
@@ -23,12 +23,15 @@ const SettingsNameRegexDeleteDialog = (props: SettingsNameRegexDeleteDialogProps
 
   const onSave = React.useCallback(() => {
     setBlock(true);
+
     if (!props.value || props.value === '') {
       ReturnToParent();
+
       return;
     }
 
     const tosend = {} as UpdateSettingRequest;
+
     tosend.nameRegex = props.values.filter((a) => a !== props.value);
 
     Hub.UpdateSetting(tosend).then(() => {

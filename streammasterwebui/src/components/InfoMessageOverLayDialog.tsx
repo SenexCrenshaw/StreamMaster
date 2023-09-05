@@ -55,6 +55,7 @@ const InfoMessageOverLayDialog: React.FC<InfoMessageOverLayDialogProps> = (props
     op.current?.show(null, anchorRef.current.getElement());
 
     const timer = setTimeout(hideOverlayAndDialog, 1500);
+
     return () => clearTimeout(timer);
   }, [infoMessage, hideOverlayAndDialog]);
 

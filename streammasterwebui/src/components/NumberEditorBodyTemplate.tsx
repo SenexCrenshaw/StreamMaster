@@ -41,6 +41,7 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProps) => {
 
     debounced.cancel();
     setIgnoreSave(true);
+
     // console.log('Saved', inputValue);
     if (forceValueSave !== undefined) {
       props.onChange(forceValueSave);
@@ -59,6 +60,7 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProps) => {
     }
 
     setIsFocused(false);
+
     if (originalValue !== inputValue) {
       // console.log('useClickOutside saved');
       save();

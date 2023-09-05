@@ -59,6 +59,7 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
     };
 
     document.addEventListener('keydown', callback);
+
     return () => {
       document.removeEventListener('keydown', callback);
     };
@@ -70,6 +71,7 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
     }
 
     setIsFocused(false);
+
     if (originalValue !== inputValue) {
       save();
     }

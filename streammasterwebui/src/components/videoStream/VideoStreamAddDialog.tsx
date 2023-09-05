@@ -11,6 +11,7 @@ const VideoStreamAddDialog = (props: VideoStreamAddDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [videoStreamsCreateVideoStreamMutation] = useVideoStreamsCreateVideoStreamMutation();
+
   const ReturnToParent = () => {
     setShowOverlay(false);
     setInfoMessage('');

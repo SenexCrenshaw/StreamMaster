@@ -33,8 +33,10 @@ const ChannelGroupVisibleDialog = (props: ChannelGroupVisibleDialogProps) => {
 
   const onVisibleClick = React.useCallback(async () => {
     setBlock(true);
+
     if (selectedChannelGroups.length === 0) {
       ReturnToParent();
+
       return;
     }
 

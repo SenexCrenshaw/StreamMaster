@@ -150,6 +150,7 @@ const EPGFileDialog = (props: EPGFileDialogProps) => {
 
   const doUpload = async () => {
     setBlock(true);
+
     if (source !== '') {
 
       const addEpgFileRequest = {} as CreateEpgFileRequest;

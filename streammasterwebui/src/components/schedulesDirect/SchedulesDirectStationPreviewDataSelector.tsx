@@ -80,6 +80,7 @@ const SchedulesDirectStationPreviewDataSelector = () => {
       onSave(selectedData.map((stationPreview) => stationPreview.stationId).filter((stationId) => stationId !== undefined) as string[]);
     } else {
       setSelectedStationPreviews([selectedData]);
+
       if (selectedData.stationId !== undefined) {
         setSelectedStationPreviewsIds([selectedData.stationId]);
         onSave([selectedData.stationId]);

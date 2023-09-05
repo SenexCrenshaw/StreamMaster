@@ -59,10 +59,12 @@ const ChannelGroupDeleteDialog = ({
     if (selectAll === true) {
       if (!queryFilter) {
         ReturnToParent();
+
         return;
       }
 
       const toSendAll = {} as ChannelGroupsDeleteAllChannelGroupsFromParametersApiArg;
+
       toSendAll.parameters = queryFilter;
 
       await channelGroupsDeleteAllChannelGroupsFromParametersMutation(toSendAll)
@@ -72,21 +74,25 @@ const ChannelGroupDeleteDialog = ({
         ).catch((error) => {
           setInfoMessage('Delete Error: ' + error.message);
         });
+
       return;
     }
 
     if ((!values || values?.length === 0)) {
       ReturnToParent();
+
       return;
     }
 
     if (selectedChannelGroups.length === 0) {
       ReturnToParent();
+
       return;
     }
 
     const promises = [];
     const groupIds = [] as number[];
+
     for (const group of selectedChannelGroups.filter((a) => a.id !== undefined && !a.isReadOnly)) {
 
       if (group.id === undefined) {
@@ -94,6 +100,7 @@ const ChannelGroupDeleteDialog = ({
       }
 
       const data = {} as DeleteChannelGroupRequest;
+
       data.channelGroupId = group.id;
       groupIds.push(group.id);
       promises.push(
@@ -116,7 +123,7 @@ const ChannelGroupDeleteDialog = ({
       onDelete?.(undefined);
     });
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [selectedChannelGroups]);
 
   const isFirstDisabled = useMemo(() => {

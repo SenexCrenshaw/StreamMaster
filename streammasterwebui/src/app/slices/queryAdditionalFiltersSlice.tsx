@@ -18,10 +18,11 @@ const queryAdditionalFiltersSlice = createSlice({
   reducers: {
     setQueryAdditionalFilter: (state, action: PayloadAction<SetQueryAdditionalFilterPayload>) => {
       const { typename, filter } = action.payload;
+
       if (filter !== null && filter !== undefined) {
         state[typename] = filter;
       } else {
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+
         delete state[typename]; // Remove the key if the filter is null or undefined
       }
     }

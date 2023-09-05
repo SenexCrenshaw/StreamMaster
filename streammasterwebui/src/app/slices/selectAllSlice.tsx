@@ -17,6 +17,7 @@ const selectAllSlice = createSlice({
   reducers: {
     setSelectAllInternal: (state, action: PayloadAction<SetSelectAllPayload>) => {
       const { typename, isSelectAll } = action.payload;
+
       state[typename] = isSelectAll;
     }
   }

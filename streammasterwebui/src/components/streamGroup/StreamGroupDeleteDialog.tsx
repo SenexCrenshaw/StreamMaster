@@ -41,12 +41,15 @@ const StreamGroupDeleteDialog = (props: StreamGroupDeleteDialogProps) => {
 
   const deleteStreamGroup = useCallback(async () => {
     setBlock(true);
+
     if (selectedStreamGroup === undefined) {
       ReturnToParent();
+
       return;
     }
 
     const data = {} as DeleteStreamGroupRequest;
+
     data.id = selectedStreamGroup.id;
 
     await streamGroupsDeleteStreamGroupMutations(data).then(() => {

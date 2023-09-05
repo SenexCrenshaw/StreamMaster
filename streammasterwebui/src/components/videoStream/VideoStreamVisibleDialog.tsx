@@ -64,6 +64,7 @@ const VideoStreamVisibleDialog = ({
     if (getTotalCount !== 1 && selectAll === true) {
       if (!queryFilter) {
         ReturnToParent();
+
         return;
       }
 
@@ -83,11 +84,13 @@ const VideoStreamVisibleDialog = ({
         ).catch((error) => {
           setInfoMessage('Set Stream Visibility Error: ' + error.message);
         });
+
       return;
     }
 
     if (selectedVideoStreams.length === 0) {
       ReturnToParent();
+
       return;
     }
 

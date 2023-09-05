@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { useState, useMemo, memo } from "react";
 import { type VideoStreamsDeleteAllVideoStreamsFromParametersApiArg } from "../../store/iptvApi";
 import { type VideoStreamDto, type DeleteVideoStreamRequest, useVideoStreamsDeleteAllVideoStreamsFromParametersMutation } from "../../store/iptvApi";
@@ -47,10 +47,12 @@ const VideoStreamDeleteDialog = ({
     if (selectAll === true) {
       if (!queryFilter) {
         ReturnToParent();
+
         return;
       }
 
       const toSendAll = {} as VideoStreamsDeleteAllVideoStreamsFromParametersApiArg;
+
       toSendAll.parameters = queryFilter;
 
       await videoStreamsDeleteAllVideoStreamsFromParametersMutation(toSendAll)
@@ -60,11 +62,13 @@ const VideoStreamDeleteDialog = ({
         ).catch((error) => {
           setInfoMessage('Set Stream Visibility Error: ' + error.message);
         });
+
       return;
     }
 
     if ((!values || values?.length === 0)) {
       ReturnToParent();
+
       return;
     }
 
@@ -72,6 +76,7 @@ const VideoStreamDeleteDialog = ({
 
     for (const stream of values) {
       const data = {} as DeleteVideoStreamRequest;
+
       data.id = stream.id;
       promises.push(
         DeleteVideoStream(data).then(() => { }).catch(() => { })

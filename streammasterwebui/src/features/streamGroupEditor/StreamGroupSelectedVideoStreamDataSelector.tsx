@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react/no-unused-prop-types */
+
+
 import { useCallback, type CSSProperties, useEffect } from "react";
 import { useMemo, memo } from "react";
 import { GetMessage } from "../../common/common";
@@ -37,7 +37,7 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id, streamGroup }: StreamG
       setQueryAdditionalFilter({ field: 'id', matchMode: 'equals', values: [streamGroup.id.toString()] });
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [queryAdditionalFilter, streamGroup]);
 
 

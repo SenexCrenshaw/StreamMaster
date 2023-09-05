@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
+
 import { type DropdownProps } from 'primereact/dropdown';
 import { Dropdown } from 'primereact/dropdown';
 import * as React from 'react';
@@ -31,7 +31,7 @@ const ChannelHandlerSelector = (props: ChannelHandlerSelectorProps) => {
     );
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const onHandlerChange = React.useCallback(async (channel: any) => {
 
     if (props.onChange) {
@@ -54,7 +54,7 @@ const ChannelHandlerSelector = (props: ChannelHandlerSelectorProps) => {
     return test;
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const selectedTemplate = React.useCallback((option: any, propss: DropdownProps) => {
 
     return (

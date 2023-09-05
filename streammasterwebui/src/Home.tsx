@@ -5,7 +5,7 @@ import React from 'react';
 import { Sidebar, Menu, MenuItem, sidebarClasses } from 'react-pro-sidebar';
 import { useLocalStorage } from 'primereact/hooks';
 import MenuItemSM from './components/MenuItemSM';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 import { FilesEditorIcon, HelpIcon, LogIcon, PlayListEditorIcon, QueueStatisIcon, SDIcon, SettingsEditorIcon, SideBarMenuIcon, StreamGroupEditorIcon, StreamingStatusIcon, VideoIcon } from './common/icons';
 import StreamMasterSetting from './store/signlar/StreamMasterSetting';
 import * as StreamMasterApi from './store/iptvApi';

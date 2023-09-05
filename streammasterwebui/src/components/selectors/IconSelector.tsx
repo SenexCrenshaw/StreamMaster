@@ -35,6 +35,7 @@ const IconSelector: React.FC<Partial<IconSelectorProps>> = ({
 
   const iconOptionTemplate = (option: IconFileDto): JSX.Element => {
     const iconUrl = getIconUrl(option.source ?? '', setting.defaultIcon, false);
+
     if (useDefault !== true && !iconUrl) return <div />;
 
     return (
@@ -51,6 +52,7 @@ const IconSelector: React.FC<Partial<IconSelectorProps>> = ({
 
   if (!enableEditMode) {
     const iconUrl = getIconUrl(restProps.value ?? '', setting.defaultIconUrl, false);
+
     return (
       <img alt='logo' className="default-icon" src={iconUrl} />
     )

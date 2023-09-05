@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { useState, useCallback, memo, useMemo } from "react";
 import { type VideoStreamsSetVideoStreamsLogoFromEpgApiArg } from "../../store/iptvApi";
 import { type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg } from "../../store/iptvApi";
@@ -37,13 +37,16 @@ const VideoStreamSetLogosFromEPGDialog = ({ id, values }: VideoStreamSetLogosFro
 
   const onSetLogoSave = useCallback(async () => {
     setBlock(true);
+
     if (selectAll === true) {
       if (!queryFilter) {
         ReturnToParent();
+
         return;
       }
 
       const toSendAll = {} as VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg;
+
       toSendAll.parameters = queryFilter;
 
 
@@ -54,12 +57,14 @@ const VideoStreamSetLogosFromEPGDialog = ({ id, values }: VideoStreamSetLogosFro
         ).catch((error) => {
           setInfoMessage('Set Streams Error: ' + error.message);
         });
+
       return;
     }
 
     const ids = [...new Set(values.map((item: VideoStreamDto) => item.id))] as string[];
 
     const toSend = {} as VideoStreamsSetVideoStreamsLogoFromEpgApiArg;
+
     toSend.ids = ids;
 
     const max = 500;

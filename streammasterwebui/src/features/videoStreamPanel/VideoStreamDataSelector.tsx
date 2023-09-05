@@ -1,12 +1,9 @@
-/* eslint-disable react/no-unused-prop-types */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import { useMemo, memo, useEffect, useState } from "react";
 import { GetMessage } from "../../common/common";
 import { type ChildVideoStreamDto } from "../../store/iptvApi";
 import { useVideoStreamLinksAddVideoStreamToVideoStreamMutation, type VideoStreamLinksAddVideoStreamToVideoStreamApiArg } from "../../store/iptvApi";
-import { useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery, useVideoStreamsGetVideoStreamStream2Query, useVideoStreamsGetVideoStreamsQuery } from "../../store/iptvApi";
-import { useChannelNumberColumnConfig, useChannelNameColumnConfig, useChannelLogoColumnConfig } from "../../components/columns/columnConfigHooks";
+import { useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery, useVideoStreamsGetVideoStreamsQuery } from "../../store/iptvApi";
+import { useChannelNumberColumnConfig, useChannelNameColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
 import { useStreamToRemove } from "../../app/slices/useStreamToRemove";
@@ -37,7 +34,7 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
       setVideoStreamIds(videoStreamLinksGetVideoStreamVideoStreamIdsQuery.data);
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [videoStreamLinksGetVideoStreamVideoStreamIdsQuery.data]);
 
   const targetColumns = useMemo((): ColumnMeta[] => {
@@ -69,7 +66,7 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
       headerRightTemplate={rightHeaderTemplate}
       id={dataKey}
       isLoading={videoStreamLinksGetVideoStreamVideoStreamIdsQuery.isLoading || videoStreamLinksGetVideoStreamVideoStreamIdsQuery.isFetching}
-      onSelectionChange={async (value, retTotalRecords) => {
+      onSelectionChange={async (value) => {
         if (value === undefined || videoStreamId === undefined) {
           return;
         }

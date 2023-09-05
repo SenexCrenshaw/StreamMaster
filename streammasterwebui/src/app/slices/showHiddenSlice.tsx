@@ -17,6 +17,7 @@ const showHiddenSlice = createSlice({
   reducers: {
     setShowHiddenInternal: (state, action: PayloadAction<SetShowHiddenPayload>) => {
       const { typename, hidden } = action.payload;
+
       state[typename] = hidden;
     }
   }

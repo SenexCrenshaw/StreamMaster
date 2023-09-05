@@ -31,8 +31,10 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
 
   const onEdit = useCallback(async (data: UpdateVideoStreamRequest) => {
     setBlock(true);
+
     if (data === null || data === undefined) {
       ReturnToParent();
+
       return;
     }
 

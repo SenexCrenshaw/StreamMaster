@@ -21,12 +21,14 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
                   const foundIndex = draft.findIndex(
                     (x) => x.id === cn.id
                   );
+
                   if (foundIndex !== -1) {
                     draft[foundIndex] = cn;
                   } else {
                     draft.push(cn);
                   }
                 });
+
                 return draft;
               }
             );
@@ -71,7 +73,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
 
           const deleteResult = (
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
             id: any
           ) => {
             updateCachedData(
@@ -113,12 +115,14 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
                   const foundIndex = draft.findIndex(
                     (x) => x.id === cn.id
                   );
+
                   if (foundIndex !== -1) {
                     draft[foundIndex] = cn;
                   } else {
                     draft.push(cn);
                   }
                 });
+
                 return draft;
               }
             );
@@ -163,7 +167,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
 
           const deleteResult = (
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
             id: any
           ) => {
             updateCachedData(

@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react/no-unused-prop-types */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
+
+
 import React from "react";
 import { Chart } from "primereact/chart";
 import { type StreamStatisticsResult } from "../store/iptvApi";
@@ -58,7 +58,7 @@ const StreamingStatusGraph = (props: StreamingStatusGraphProps) => {
 
   React.useEffect(() => {
     setDataSource([...dataSource, ...props.dataSource].slice(-6));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [props.dataSource]);
 
   const dataSet = React.useMemo((): GraphDataArray[] => {

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 
 import { Toast } from "primereact/toast";
 import { useRef, useState, useEffect, useMemo, memo } from "react";
@@ -30,6 +30,7 @@ const SchedulesDirectSchedulesDataSelector = (props: SchedulesDirectSchedulesDat
         setIsLoading(false);
       }).catch(() => {
         setIsLoading(false);
+
         if (toast.current) {
           toast.current.show({
             detail: `Get Schedules Failed`,

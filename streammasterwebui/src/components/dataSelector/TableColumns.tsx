@@ -151,6 +151,7 @@ export const TableColumns = <T extends DataTableValue,>({ columns, groupRowsBy, 
   const getRecord = useCallback((data: T, fieldName: string) => {
     type ObjectKey = keyof typeof data;
     const record = data[fieldName as ObjectKey];
+
     return record;
   }, []);
 
@@ -245,11 +246,13 @@ export const TableColumns = <T extends DataTableValue,>({ columns, groupRowsBy, 
       case 'streams':
         const activeCount = getRecord(data, 'activeCount');
         const totalCount = getRecord(data, 'totalCount');
+
         return streamsBodyTemplate(activeCount, totalCount);
       case 'isHidden':
         return renderIsHidden(getRecord(data, fieldName));
       case 'deleted':
         const toDisplay = getRecord(data, 'isHidden');
+
         return (
           <span className={`flex ${toDisplay !== true ? 'bg-green-900' : 'bg-red-900'} min-w-full min-h-full justify-content-center align-items-center`}>
             {toDisplay}
@@ -257,6 +260,7 @@ export const TableColumns = <T extends DataTableValue,>({ columns, groupRowsBy, 
         );
       default:
         let displayValue = JSON.stringify(getRecord(data, fieldName));
+
         if (displayValue.startsWith('"') && displayValue.endsWith('"')) {
           displayValue = displayValue.substring(1, displayValue.length - 1);
         }

@@ -53,8 +53,10 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
   const onUpdate = useCallback(() => {
 
     setBlock(true);
+
     if (!isSaveEnabled || !name || name === '' || props.value === undefined || props.value.id === undefined) {
       ReturnToParent();
+
       return;
     }
 
@@ -89,6 +91,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
 
       if (event.code === 'Enter' || event.code === 'NumpadEnter') {
         event.preventDefault();
+
         if (name !== "") {
           onUpdate();
         }
@@ -97,6 +100,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
     };
 
     document.addEventListener('keydown', callback);
+
     return () => {
       document.removeEventListener('keydown', callback);
     };

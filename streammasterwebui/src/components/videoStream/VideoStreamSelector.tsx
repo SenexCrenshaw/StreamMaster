@@ -13,6 +13,7 @@ export const VideoStreamSelector = (props: VideoStreamSelectorProps) => {
   useEffect(() => {
     if (props.value !== undefined && props.value !== selectedVideoStream.user_Tvg_ID) {
       const v = videoStreamsQuery.data?.data.find((a: VideoStreamDto) => a.user_Tvg_name === props.value);
+
       if (v)
         setSelectedVideoStream(v);
     }

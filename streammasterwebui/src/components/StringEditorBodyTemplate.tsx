@@ -41,6 +41,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
 
     debounced.cancel();
     setIgnoreSave(true);
+
     if (forceValueSave !== undefined) {
       props.onChange(forceValueSave);
     } else {
@@ -64,6 +65,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
     };
 
     document.addEventListener('keydown', callback);
+
     return () => {
       document.removeEventListener('keydown', callback);
     };
@@ -75,6 +77,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
     }
 
     setIsFocused(false);
+
     if (originalValue !== inputValue) {
       save();
     }

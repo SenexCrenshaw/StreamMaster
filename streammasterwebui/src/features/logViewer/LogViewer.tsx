@@ -8,7 +8,7 @@ import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
 
 const LogViewer = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const [maxLines, setMaxLines] = React.useState<number | null>(null);
   const [lastLogId, setLastLogId] = React.useState<number>(0);
   const [dataSource, setDataSource] = React.useState<StreamMasterApi.LogEntryDto[]>([] as StreamMasterApi.LogEntryDto[]);

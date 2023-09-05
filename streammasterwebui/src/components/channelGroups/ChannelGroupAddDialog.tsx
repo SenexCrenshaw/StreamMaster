@@ -37,6 +37,7 @@ const ChannelGroupAddDialog: React.FC<ChannelGroupAddDialogProps> = ({ onAdd, on
 
     if (!newGroupName) {
       ReturnToParent();
+
       return;
     }
 
@@ -61,10 +62,11 @@ const ChannelGroupAddDialog: React.FC<ChannelGroupAddDialogProps> = ({ onAdd, on
     };
 
     document.addEventListener('keydown', handleKeyDown);
+
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [newGroupName]);
 
   return (

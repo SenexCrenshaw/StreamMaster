@@ -27,6 +27,7 @@ export const upload = async (
   if (description) formData.append('description', description);
 
   let url = '';
+
   switch (fileType) {
     case 'epg':
       url = '/api/epgfiles/createepgfilefromform/'

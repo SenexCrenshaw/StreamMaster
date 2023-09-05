@@ -38,10 +38,12 @@ const VideoStreamResetLogosDialog = ({ id, values }: VideoStreamResetLogosDialog
     if (selectAll === true) {
       if (!queryFilter) {
         ReturnToParent();
+
         return;
       }
 
       const toSendAll = {} as VideoStreamsReSetVideoStreamsLogoFromParametersApiArg;
+
       toSendAll.parameters = queryFilter;
 
 
@@ -52,6 +54,7 @@ const VideoStreamResetLogosDialog = ({ id, values }: VideoStreamResetLogosDialog
         ).catch((error) => {
           setInfoMessage('Set Streams Error: ' + error.message);
         });
+
       return;
     }
 

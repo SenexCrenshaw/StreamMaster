@@ -8,6 +8,7 @@ type ChannelItemProps = {
 
 const ChannelItem = ({ channel }: ChannelItemProps) => {
   const { position, logo } = channel;
+
   return (
     <ChannelBox
       {...position}

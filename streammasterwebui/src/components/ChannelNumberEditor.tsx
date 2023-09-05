@@ -17,6 +17,7 @@ const ChannelNumberEditor = (props: ChannelNumberEditorProps) => {
     }
 
     const data = {} as UpdateVideoStreamRequest;
+
     data.id = props.data.id;
     data.tvg_chno = channelNumber;
 

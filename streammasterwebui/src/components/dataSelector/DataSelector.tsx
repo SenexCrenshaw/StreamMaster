@@ -50,7 +50,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       setters.setSortField(props.defaultSortField);
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [props.defaultSortField, setters]);
 
   useEffect(() => {
@@ -62,7 +62,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       setters.setSortOrder(props.defaultSortOrder);
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [props.defaultSortField, setters]);
 
   const { queryFilter } = useQueryFilter(props.id);
@@ -78,7 +78,9 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
       if (state.selections.findIndex(e => e.id === props.streamToRemove) !== -1) {
         const test = state.selections.filter(e => e.id !== props.streamToRemove);
+
         setters.setSelections(test);
+
         if (props.onSelectionChange) {
           props.onSelectionChange(test, state.selectAll);
         }
@@ -103,6 +105,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
     setters.setSelections(selected);
     const all = overRideSelectAll ? overRideSelectAll : state.selectAll;
+
     if (props.onSelectionChange) {
       props.onSelectionChange(props.selectionMode === 'single' ? selected[0] : selected, all);
     }
@@ -126,6 +129,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
         }
 
         setters.setPagedInformation(undefined);
+
         if (state.selectAll) {
           onsetSelection(props.dataSource);
         }
@@ -142,6 +146,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       if (!state.dataSource || (state.dataSource && !areArraysEqual(data, state.dataSource))) {
         setters.setDataSource(data);
         setters.setPagedInformation(undefined);
+
         if (state.selectAll) {
           setters.setSelections(data);
         }
@@ -153,6 +158,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     if (data && isPagedTableDto<T>(data)) {
       if (!state.dataSource || (state.dataSource && !areArraysEqual(data.data, state.dataSource))) {
         setters.setDataSource((data as PagedResponseDto<T>).data);
+
         if (state.selectAll && data !== undefined) {
           setters.setSelections((data as PagedResponseDto<T>).data as T[]);
         }
@@ -160,6 +166,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
       if (data.pageNumber > 1 && data.totalPageCount == 0) {
         const newData = { ...data };
+
         newData.pageNumber += -1;
         newData.first = (newData.pageNumber - 1) * newData.pageSize;
         setters.setPage(newData.pageNumber);
@@ -173,28 +180,31 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return;
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [data, props.dataSource, state.selectAll]);
 
   const onRowReorder = (changed: T[]) => {
     setters.setDataSource(changed);
+
     if (state.prevDataSource === undefined) {
       setters.setPrevDataSource(changed);
     }
 
     props.onRowReorder?.(changed);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }
 
 
   const rowClass = useCallback((changed: DataTableRowData<T[]>) => {
     const isHidden = getRecord(changed as T, 'isHidden');
+
     if (isHidden === true) {
       return `bg-red-900`;
     }
 
     if (props.videoStreamIdsIsReadOnly !== undefined && props.videoStreamIdsIsReadOnly.length > 0) {
       const isReadOnly = props.videoStreamIdsIsReadOnly.find((vs) => vs === getRecord(changed as T, 'id'));
+
       if (isReadOnly !== undefined) {
         return 'videostreamSelected' // `bg-yellow-900`;
       }
@@ -241,6 +251,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
     if (e.value instanceof Array) {
       const single1 = e.value.slice(e.value.length - 1, e.value.length);
+
       sel = single1;
     } else {
       sel = [e.value];
@@ -344,6 +355,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
 
     const record = getRecordString(row, props.groupRowsBy);
+
     return (
       <span className="vertical-align-middle ml-2 font-bold line-height-3">
         {record}
@@ -368,6 +380,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           onClick={() => {
             setters.setSelections([]);
             setters.setSelectAll(false);
+
             if (props.onSelectionChange) {
               props.onSelectionChange([], state.selectAll);
             }
@@ -404,6 +417,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
 
     const sortOrder = [1, 0, -1].includes(event.sortOrder ?? 1) ? event.sortOrder : 0;
+
     setters.setSortOrder(sortOrder ?? 1);
 
     // Try finding the column by field directly.
@@ -418,14 +432,17 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
     // Set the sort field based on the matched column, or default to an empty string.
     const sort = matchingColumn?.field ?? '';
+
     setters.setSortField(sort);
   };
 
   const onPage = (event: DataTablePageEvent) => {
     const adjustedPage = (event.page ?? 0) + 1;
+
     setters.setPage(adjustedPage);
     setters.setFirst(event.first);
     setters.setRows(event.rows);
+
     if (state.prevDataSource !== undefined) {
       setters.setPrevDataSource(undefined);
     }
@@ -433,11 +450,13 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   const onFilter = (event: DataTableStateEvent) => {
     const newFilters = generateFilterData(props.columns, event.filters);
+
     setters.setFilters(newFilters);
   }
 
   const onSelectAllChange = (event: DataTableSelectAllChangeEvent) => {
     const newSelectAll = event.checked;
+
     setters.setSelectAll(newSelectAll);
 
     // props.onSelectAllChange?.(newSelectAll);
@@ -588,7 +607,7 @@ DataSelector.defaultProps = {
 };
 
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 type BaseDataSelectorProps<T = any> = {
   className?: string;
   columns: ColumnMeta[];
@@ -633,7 +652,7 @@ type DataSourceProps<T> = BaseDataSelectorProps<T> & {
   queryFilter?: never;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export type DataSelectorProps<T = any> = DataSourceProps<T> | QueryFilterProps<T>;
 
 export type PagedTableInformation = {

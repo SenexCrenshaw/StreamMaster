@@ -23,6 +23,7 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
     }
 
     var toSend = {} as ChangeVideoStreamChannelRequest;
+
     toSend.playingVideoStreamId = playingVideoStreamId;
     toSend.newVideoStreamId = newVideoStreamId;
 
@@ -110,6 +111,7 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
 
     const kbps = rowData.inputBitsPerSecond / 1000;
     const roundedKbps = Math.ceil(kbps);
+
     return (
       <div>
         {roundedKbps.toLocaleString('en-US')}

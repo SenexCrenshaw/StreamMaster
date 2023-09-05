@@ -1,6 +1,4 @@
-/* eslint-disable react/no-unused-prop-types */
-/* eslint-disable react/no-unused-class-component-methods */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { type ColumnProps } from "primereact/column";
 import { Column } from "primereact/column";
 import { camel2title, removeQuotes } from "../../common/common";
@@ -24,7 +22,7 @@ type TableColumnProp = ColumnProps & {
   hideControls?: boolean;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 class TableColumn extends React.Component<TableColumnProp, any> {
   private setting = StreamMasterSetting();
 
@@ -49,6 +47,7 @@ class TableColumn extends React.Component<TableColumnProp, any> {
   private readonly getRecord = (data: object, fieldName: string) => {
     type ObjectKey = keyof typeof data;
     const record = data[fieldName as ObjectKey];
+
     return record;
   };
 

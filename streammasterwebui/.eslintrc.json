@@ -11,13 +11,12 @@
     "jquery": true
   },
   "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaVersion": 6,
-    "sourceType": "module"
-  },
+  // "parserOptions": {
+  //   "ecmaVersion": 6,
+  //   "sourceType": "module"
+  // },
   "plugins": [
-    "canonical",
-    "eslint-plugin-canonical"
+    "canonical"
   ],
   "rules": {
     "canonical/filename-match-exported": 0,
@@ -120,60 +119,60 @@
     //     "endOfLine": "auto"
     //   }
     // ]
-  },
-  "overrides": [
-    {
-      "extends": [
-        "canonical/typescript"
-      ],
-      "files": "*.ts",
-      "rules": {
-        "space-before-function-paren": 0
-      }
-    },
-    {
-      "extends": [
-         "canonical/react",
-        "canonical/typescript",
-        "canonical/typescript-type-checking",
-        "canonical/module",
-        "canonical/prettier"
-      ],
-      "files": "*.tsx",
-      "parserOptions": {
-        "project": [
-          "./tsconfig.json"
-        ] // Specify it only for TypeScript files
-      },
-      "rules": {
-        "space-before-function-paren": 0,
-        "react/jsx-sort-default-props": 0,
-        "react/sort-default-props": 2
-      }
-    },
-    {
-      "extends": [
-        "canonical/vitest"
-      ],
-      "files": "*.test.{ts,tsx}"
-    },
-    {
-      "extends": [
-        "canonical/json"
-      ],
-      "files": "*.json"
-    },
-    {
-      "extends": [
-        "canonical/yaml"
-      ],
-      "files": "*.yaml"
-    },
-    {
-      "extends": [
-        "canonical/graphql"
-      ],
-      "files": "*.graphql"
-    }
-  ]
+  }
+  // "overrides": [
+  //   {
+  //     "extends": [
+  //       "canonical/typescript"
+  //     ],
+  //     "files": "*.ts",
+  //     "rules": {
+  //       "space-before-function-paren": 0
+  //     }
+  //   },
+  //   {
+  //     "extends": [
+  //       "canonical/react",
+  //       "canonical/typescript",
+  //       "canonical/typescript-type-checking",
+  //       "canonical/module",
+  //       "canonical/prettier"
+  //     ],
+  //     "files": "*.tsx",
+  //     "parserOptions": {
+  //       "project": [
+  //         "./tsconfig.json"
+  //       ] // Specify it only for TypeScript files
+  //     },
+  //     "rules": {
+  //       "space-before-function-paren": 0,
+  //       "react/jsx-sort-default-props": 0,
+  //       "react/sort-default-props": 2
+  //     }
+  //   },
+  //   {
+  //     "extends": [
+  //       "canonical/vitest"
+  //     ],
+  //     "files": "*.test.{ts,tsx}"
+  //   },
+  //   {
+  //     "extends": [
+  //       "canonical/json"
+  //     ],
+  //     "files": "*.json"
+  //   },
+  //   {
+  //     "extends": [
+  //       "canonical/yaml"
+  //     ],
+  //     "files": "*.yaml"
+  //   },
+  //   {
+  //     "extends": [
+  //       "canonical/graphql"
+  //     ],
+  //     "files": "*.graphql"
+  //   }
+  // ]
 }

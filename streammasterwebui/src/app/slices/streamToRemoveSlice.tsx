@@ -18,10 +18,11 @@ const streamToRemoveSlice = createSlice({
   reducers: {
     setStreamToRemove: (state, action: PayloadAction<SetStreamToRemoveSlicePayload>) => {
       const { typename, toRemove } = action.payload;
+
       if (toRemove !== null && toRemove !== undefined) {
         state[typename] = toRemove;
       } else {
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+
         delete state[typename]; // Remove the key if the filter is null or undefined
       }
     }

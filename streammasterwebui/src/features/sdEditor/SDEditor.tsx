@@ -1,5 +1,5 @@
-/* eslint-disable react/no-unused-prop-types */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
+
 import { useState, useMemo, useCallback, memo } from "react";
 import { type ChannelGroupDto } from "../../store/iptvApi";
 import { useSchedulesDirectGetStatusQuery, useSchedulesDirectGetLineupsQuery } from "../../store/iptvApi";
@@ -24,6 +24,7 @@ const SDEditor = (props: SDEditorProps) => {
   const onGetHeadends = useCallback(async () => {
 
   }, []);
+
   return (
     <>
       {status}

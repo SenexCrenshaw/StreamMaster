@@ -15,13 +15,17 @@ export function useApp(streamGroupNumber: number) {
 
   const startDate = React.useMemo(() => {
     const sd = new Date();
+
     sd.setMinutes(sd.getMinutes() - 30);
+
     return sd;
   }, []);
 
   const endDate = React.useMemo(() => {
     const sd = new Date();
+
     sd.setHours(sd.getHours() + 2);
+
     return sd;
   }, []);
 
@@ -29,12 +33,15 @@ export function useApp(streamGroupNumber: number) {
     if (epgForGuide.data) {
       setIsLoading(true);
       const chs = epgForGuide.data?.channels as Channel[];
+
       setChannels(chs);
 
       const sd = new Date();
+
       sd.setHours(sd.getHours() - 24);
 
       var ed = new Date();
+
       ed.setHours(ed.getHours() + 48);
 
       const ret = epgForGuide.data?.programs as Program[];

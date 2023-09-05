@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/consistent-type-imports */
+
 
 import React from "react";
 import * as StreamMasterApi from '../../store/iptvApi';
@@ -25,12 +25,15 @@ const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProps) => {
 
   const onSave = React.useCallback(() => {
     setBlock(true);
+
     if (!regex || regex === '') {
       ReturnToParent();
+
       return;
     }
 
     const tosend = {} as StreamMasterApi.UpdateSettingRequest;
+
     tosend.nameRegex = [regex, ...props.values]
 
     Hub.UpdateSetting(tosend).then(() => {

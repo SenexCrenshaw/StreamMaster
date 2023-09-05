@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react/no-unused-prop-types */
+
+
 
 import { useState, useMemo, memo } from "react";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";

@@ -1,6 +1,6 @@
-/* eslint-disable react/no-unused-prop-types */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/consistent-type-imports */
+
+
+
 
 import React, { CSSProperties } from "react";
 
@@ -13,6 +13,7 @@ type RankedString = {
   rank: number;
   value: string;
 }
+
 const SettingsNameRegexDataSelector = (props: SettingsNameRegexDataSelectorProps) => {
 
   const dataSource = React.useMemo((): RankedString[] => {

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { type CheckboxChangeEvent } from "primereact/checkbox";
 import { Checkbox } from "primereact/checkbox";
 import { Toast } from "primereact/toast";
@@ -58,6 +58,7 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
     const tosend = {} as UpdateEpgFileRequest;
 
     tosend.id = id;
+
     if (auto !== undefined) {
       tosend.autoUpdate = auto;
     }
