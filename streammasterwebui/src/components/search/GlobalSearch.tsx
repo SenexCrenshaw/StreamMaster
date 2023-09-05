@@ -6,11 +6,11 @@ import { getTopToolOptions } from "../../common/common";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 
 type GlobalSearchProps = {
-  clearSourceFilter: () => void;
-  columns?: ColumnMeta[];
-  globalSearchName: string;
-  globalSourceFilterValue?: string;
-  onGlobalSourceFilterChange: (e: ChangeEvent<HTMLInputElement>) => void; // Define proper type here
+  readonly clearSourceFilter: () => void;
+  readonly columns?: ColumnMeta[];
+  readonly globalSearchName: string;
+  readonly globalSourceFilterValue?: string;
+  readonly onGlobalSourceFilterChange: (e: ChangeEvent<HTMLInputElement>) => void; // Define proper type here
 }
 
 const GlobalSearch: React.FC<GlobalSearchProps> = ({

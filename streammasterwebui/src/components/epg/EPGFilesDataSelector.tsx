@@ -3,9 +3,9 @@ import { type CheckboxChangeEvent } from "primereact/checkbox";
 import { Checkbox } from "primereact/checkbox";
 import { Toast } from "primereact/toast";
 import { type CSSProperties } from "react";
-import { useRef, useState, useCallback, useMemo, memo } from "react";
+import { useRef, useCallback, useMemo, memo } from "react";
 import { formatJSONDateString, getTopToolOptions } from "../../common/common";
-import { type EpgFilesGetEpgFilesApiArg, type EpgFilesDto, type UpdateEpgFileRequest, type M3UFileDto } from "../../store/iptvApi";
+import { type EpgFilesDto, type UpdateEpgFileRequest, type M3UFileDto } from "../../store/iptvApi";
 import { useEpgFilesUpdateEpgFileMutation, useEpgFilesGetEpgFilesQuery } from "../../store/iptvApi";
 import NumberEditorBodyTemplate from "../NumberEditorBodyTemplate";
 import StringEditorBodyTemplate from "../StringEditorBodyTemplate";
@@ -17,19 +17,7 @@ import EPGFileRefreshDialog from "./EPGFileRefreshDialog";
 const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
   const toast = useRef<Toast>(null);
 
-  // const [selectedEPGFile, setSelectedEPGFile] = useState<EpgFilesDto>({} as EpgFilesDto);
-  const [pageSize, setPageSize] = useState<number>(25);
-  const [pageNumber, setPageNumber] = useState<number>(1);
-
   const [epgFilesUpdateEpgFileMutation] = useEpgFilesUpdateEpgFileMutation();
-  // const epgFilesQuery = useEpgFilesGetEpgFilesQuery({ pageNumber: pageNumber === 0 ? 1 : pageNumber, pageSize: pageSize } as EpgFilesGetEpgFilesApiArg);
-
-  // useMemo(() => {
-  //   if (props.value?.id !== undefined) {
-
-  //     setSelectedEPGFile(props.value);
-  //   }
-  // }, [props.value, setSelectedEPGFile]);
 
   const SetSelectedEPGFileChanged = useCallback((data: EpgFilesDto) => {
     if (!data) {
@@ -39,8 +27,6 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
     if (props.value === undefined || props.value.id === data.id) {
       return;
     }
-
-    // setSelectedEPGFile(data);
 
     props.onChange?.(data);
   }, [props]);
@@ -255,8 +241,8 @@ const EPGFilesDataSelector = (props: EPGFilesDataSelectorProps) => {
 
 EPGFilesDataSelector.displayName = 'EPGFilesDataSelector';
 type EPGFilesDataSelectorProps = {
-  onChange?: (value: EpgFilesDto) => void;
-  value?: EpgFilesDto | undefined;
+  readonly onChange?: (value: EpgFilesDto) => void;
+  readonly value?: EpgFilesDto | undefined;
 };
 
 export default memo(EPGFilesDataSelector);

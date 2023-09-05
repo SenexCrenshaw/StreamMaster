@@ -26,7 +26,7 @@
     "noPropertyAccessFromIndexSignature": false,
     "noImplicitReturns": true,
     "noEmit": true,
-     "types": ["vidstack/globals"],
+    //  "types": ["vidstack/globals"],
     // "types": [
     //   "primefaces"
     // ],

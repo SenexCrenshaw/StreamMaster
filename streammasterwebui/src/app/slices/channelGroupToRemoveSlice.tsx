@@ -23,6 +23,7 @@ const channelGroupToRemoveSlice = createSlice({
         state[typename] = toRemove;
       } else {
 
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete state[typename]; // Remove the key if the filter is null or undefined
       }
     }

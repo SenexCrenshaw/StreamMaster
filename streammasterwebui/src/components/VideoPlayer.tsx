@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import React from "react";
 import * as StreamMasterApi from '../store/iptvApi';
@@ -9,16 +10,16 @@ import { MediaCommunitySkin, MediaOutlet, MediaPlayer } from '@vidstack/react';
 import EPGDisplay from './epg/EPGDisplay';
 
 import { useLocalStorage } from "primereact/hooks";
-import {
-  Player,
-  ControlBar,
-  ReplayControl,
-  ForwardControl,
-  CurrentTimeDisplay,
-  TimeDivider,
-  PlaybackRateMenuButton,
-  VolumeMenuButton
-} from 'video-react';
+// import {
+//   Player,
+//   ControlBar,
+//   ReplayControl,
+//   ForwardControl,
+//   CurrentTimeDisplay,
+//   TimeDivider,
+//   PlaybackRateMenuButton,
+//   VolumeMenuButton
+// } from 'video-react';
 
 const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
   const [hideEPG, setHideEPG] = React.useState(false);
@@ -132,7 +133,7 @@ VideoPlayerDialog.defaultProps = {
 };
 
 type VideoPlayerDialogProps = {
-  onChange?: ((value: string) => void) | null;
+  readonly onChange?: ((value: string) => void) | null;
 };
 
 export default React.memo(VideoPlayerDialog);

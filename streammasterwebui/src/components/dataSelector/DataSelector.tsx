@@ -51,6 +51,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
 
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.defaultSortField, setters]);
 
   useEffect(() => {
@@ -62,7 +63,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       setters.setSortOrder(props.defaultSortOrder);
     }
 
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.defaultSortField, setters]);
 
   const { queryFilter } = useQueryFilter(props.id);
@@ -180,7 +181,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return;
     }
 
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, props.dataSource, state.selectAll]);
 
   const onRowReorder = (changed: T[]) => {
@@ -608,6 +609,7 @@ DataSelector.defaultProps = {
 
 
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type BaseDataSelectorProps<T = any> = {
   className?: string;
   columns: ColumnMeta[];
@@ -653,6 +655,7 @@ type DataSourceProps<T> = BaseDataSelectorProps<T> & {
 };
 
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DataSelectorProps<T = any> = DataSourceProps<T> | QueryFilterProps<T>;
 
 export type PagedTableInformation = {

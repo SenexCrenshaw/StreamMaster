@@ -8,17 +8,15 @@ import { type ChildVideoStreamDto, useStreamGroupsUpdateStreamGroupMutation } fr
 
 import { useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery, type StreamGroupDto } from "../../store/iptvApi";
 import { type VideoStreamDto } from "../../store/iptvApi";
-import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig, useEPGColumnConfig } from "../../components/columns/columnConfigHooks";
+import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
 import VideoStreamRemoveFromStreamGroupDialog from "./VideoStreamRemoveFromStreamGroupDialog";
 import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
 
 type StreamGroupSelectedVideoStreamDataSelectorProps = {
-
-  id: string;
-  onSelectionChange?: (value: VideoStreamDto | VideoStreamDto[]) => void;
-  streamGroup: StreamGroupDto;
+  readonly id: string;
+  readonly streamGroup: StreamGroupDto;
 };
 
 const StreamGroupSelectedVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupSelectedVideoStreamDataSelectorProps) => {
@@ -28,7 +26,6 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id, streamGroup }: StreamG
   const { columnConfig: m3uFileNameColumnConfig } = useM3UFileNameColumnConfig(enableEdit);
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig(enableEdit);
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(enableEdit);
-  const { columnConfig: epgColumnConfig } = useEPGColumnConfig(enableEdit);
   const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig(enableEdit);
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
 
@@ -38,6 +35,7 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id, streamGroup }: StreamG
     }
 
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryAdditionalFilter, streamGroup]);
 
 

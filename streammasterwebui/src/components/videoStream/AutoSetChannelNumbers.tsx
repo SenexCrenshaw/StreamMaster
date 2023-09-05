@@ -14,8 +14,8 @@ import { useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation } fro
 import { useSortInfo } from "../../app/slices/useSortInfo";
 
 type AutoSetChannelNumbersProps = {
-  id: string;
-  values: VideoStreamDto[];
+  readonly id: string;
+  readonly values: VideoStreamDto[];
 };
 
 const AutoSetChannelNumbers = ({ id, values }: AutoSetChannelNumbersProps) => {

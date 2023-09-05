@@ -102,8 +102,8 @@ SchedulesDirectCountrySelector.defaultProps = {
 };
 
 type SchedulesDirectCountrySelectorProps = {
-  onChange: ((value: string) => void);
-  value?: string | null;
+  readonly onChange: ((value: string) => void);
+  readonly value?: string | null;
 };
 
 export default React.memo(SchedulesDirectCountrySelector);

@@ -93,9 +93,9 @@ VideoStreamEditDialog.defaultProps = {
 }
 
 type VideoStreamEditDialogProps = {
-  iconFilled?: boolean | undefined;
-  onClose?: (() => void);
-  value?: VideoStreamDto | undefined;
+  readonly iconFilled?: boolean | undefined;
+  readonly onClose?: (() => void);
+  readonly value?: VideoStreamDto | undefined;
 };
 
 export default memo(VideoStreamEditDialog);

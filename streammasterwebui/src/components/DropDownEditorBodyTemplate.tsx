@@ -129,13 +129,13 @@ DropDownEditorBodyTemplate.defaultProps = {
 };
 
 type DropDownEditorBodyTemplateProps = {
-  className?: string;
-  data: string[];
-  isLoading?: boolean;
-  onChange: (value: string) => void;
-  tooltip?: string;
-  tooltipOptions?: TooltipOptions;
-  value: string;
+  readonly className?: string;
+  readonly data: string[];
+  readonly isLoading?: boolean;
+  readonly onChange: (value: string) => void;
+  readonly tooltip?: string;
+  readonly tooltipOptions?: TooltipOptions;
+  readonly value: string;
 };
 
 export default React.memo(DropDownEditorBodyTemplate);

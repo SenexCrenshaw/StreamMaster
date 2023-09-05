@@ -155,15 +155,15 @@ StringEditorBodyTemplate.defaultProps = {
 }
 
 export type StringEditorBodyTemplateProps = {
-  debounceMs?: number;
-  includeBorder?: boolean;
-  onChange: (value: string) => void;
-  onClick?: () => void;
-  placeholder?: string;
-  resetValue?: string | undefined;
-  tooltip?: string | undefined;
-  tooltipOptions?: TooltipOptions | undefined;
-  value: string | undefined;
+  readonly debounceMs?: number;
+  readonly includeBorder?: boolean;
+  readonly onChange: (value: string) => void;
+  readonly onClick?: () => void;
+  readonly placeholder?: string;
+  readonly resetValue?: string | undefined;
+  readonly tooltip?: string | undefined;
+  readonly tooltipOptions?: TooltipOptions | undefined;
+  readonly value: string | undefined;
 };
 
 export default React.memo(StringEditorBodyTemplate);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
@@ -12,8 +12,8 @@ import OKButton from "../buttons/OKButton";
 
 // Define the component props
 type ChannelGroupAddDialogProps = {
-  onAdd?: (value: string) => void;
-  onHide?: () => void;
+  readonly onAdd?: (value: string) => void;
+  readonly onHide?: () => void;
 }
 
 const ChannelGroupAddDialog: React.FC<ChannelGroupAddDialogProps> = ({ onAdd, onHide }) => {
@@ -24,15 +24,16 @@ const ChannelGroupAddDialog: React.FC<ChannelGroupAddDialogProps> = ({ onAdd, on
 
   const [channelGroupsCreateChannelGroupMutation] = useChannelGroupsCreateChannelGroupMutation();
 
-  const ReturnToParent = () => {
+  const ReturnToParent = useCallback(() => {
     setOverlayState({ message: '', visible: false });
     setBlock(false);
     onHide?.();
     onAdd?.(newGroupName);
     setNewGroupName('');
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onAdd, onHide]);
 
-  const addGroup = () => {
+  const addGroup = useCallback(() => {
     setBlock(true);
 
     if (!newGroupName) {
@@ -51,7 +52,7 @@ const ChannelGroupAddDialog: React.FC<ChannelGroupAddDialogProps> = ({ onAdd, on
       .then(() => setOverlayState({ ...overlayState, message: 'Channel Group Added Successfully' }))
       .catch((e) => setOverlayState({ ...overlayState, message: 'Channel Group Add Error: ' + e.message }));
 
-  }
+  }, [ReturnToParent, channelGroupsCreateChannelGroupMutation, newGroupName, overlayState]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -67,7 +68,7 @@ const ChannelGroupAddDialog: React.FC<ChannelGroupAddDialogProps> = ({ onAdd, on
       document.removeEventListener('keydown', handleKeyDown);
     };
 
-  }, [newGroupName]);
+  }, [addGroup, newGroupName]);
 
   return (
     <>

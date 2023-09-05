@@ -96,7 +96,7 @@ const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
 EPGFileRemoveDialog.displayName = 'EPGFileRemoveDialog';
 
 type EPGFileRemoveDialogProps = {
-  selectedFile?: EpgFilesDto;
+  readonly selectedFile?: EpgFilesDto;
 };
 
 export default memo(EPGFileRemoveDialog);

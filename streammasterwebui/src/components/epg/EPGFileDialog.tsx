@@ -21,9 +21,9 @@ import AddButton from '../buttons/AddButton';
 
 
 type EPGFileDialogProps = {
-  onHide?: (didUpload: boolean) => void,
-  show?: boolean | null,
-  showButton?: boolean | null
+  readonly onHide?: (didUpload: boolean) => void,
+  readonly show?: boolean | null,
+  readonly showButton?: boolean | null
 };
 
 

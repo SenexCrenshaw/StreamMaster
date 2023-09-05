@@ -62,7 +62,7 @@ export type PlayListEditorProps = {
   /**
 * The unique identifier of the component.
 */
-  id?: string;
+  readonly id?: string;
 };
 
 export default memo(PlayListEditor);

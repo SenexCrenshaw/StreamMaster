@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unused-prop-types */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 
 
@@ -88,9 +90,9 @@ TestPanel.defaultProps = {
 };
 
 type TestPanelProps = {
-  data?: ChannelGroupDto | undefined;
-  onChange?: ((value: string) => void) | null;
-  value?: string | null;
+  readonly data?: ChannelGroupDto | undefined;
+  readonly onChange?: ((value: string) => void) | null;
+  readonly value?: string | null;
 };
 
 export default memo(TestPanel);

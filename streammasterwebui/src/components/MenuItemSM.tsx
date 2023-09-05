@@ -53,13 +53,13 @@ const MenuItemSM = (props: MenuItemSMProps) => {
 }
 
 export type MenuItemSMProps = {
-  children?: React.ReactNode;
-  collapsed?: boolean;
-  icon: React.ReactNode;
-  link: string;
-  name: string;
-  newWindow?: boolean;
-  tooltip?: string;
+  readonly children?: React.ReactNode;
+  readonly collapsed?: boolean;
+  readonly icon: React.ReactNode;
+  readonly link: string;
+  readonly name: string;
+  readonly newWindow?: boolean;
+  readonly tooltip?: string;
 }
 
 export default React.memo(MenuItemSM);

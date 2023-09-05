@@ -22,12 +22,12 @@ import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFi
 import { useShowHidden } from "../../app/slices/useShowHidden";
 
 type ChannelGroupVideoStreamDataSelectorProps = {
-  channelGroupNames?: string[];
-  enableEditMode?: boolean;
-  id: string;
-  onSelectionChange?: (value: VideoStreamDto | VideoStreamDto[]) => void;
-  reorderable?: boolean;
-  showBrief?: boolean;
+  readonly channelGroupNames?: string[];
+  readonly enableEditMode?: boolean;
+  readonly id: string;
+  readonly onSelectionChange?: (value: VideoStreamDto | VideoStreamDto[]) => void;
+  readonly reorderable?: boolean;
+  readonly showBrief?: boolean;
 };
 
 const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataSelectorProps) => {
@@ -42,6 +42,7 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
   const { columnConfig: channelLogoColumnConfig } = useChannelLogoColumnConfig(enableEditMode);
 
 
+  // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
   const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig(enableEditMode, [...(props.channelGroupNames ?? [])].sort());
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
   const { showHidden, setShowHidden } = useShowHidden(dataKey);
@@ -60,6 +61,7 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
     }
 
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.enableEditMode]);
 
   const targetActionBodyTemplate = useCallback((data: VideoStreamDto) => {
@@ -152,7 +154,7 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
       </div>
     );
 
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showHidden]);
 
   return (

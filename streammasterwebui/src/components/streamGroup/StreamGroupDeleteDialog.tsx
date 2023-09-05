@@ -7,10 +7,10 @@ import { useStreamGroupToRemove } from "../../app/slices/useStreamGroupToRemove"
 
 
 type StreamGroupDeleteDialogProps = {
-  iconFilled?: boolean | undefined;
-  id: string;
-  onHide?: () => void;
-  value?: StreamGroupDto | undefined;
+  readonly iconFilled?: boolean | undefined;
+  readonly id: string;
+  readonly onHide?: () => void;
+  readonly value?: StreamGroupDto | undefined;
 };
 
 

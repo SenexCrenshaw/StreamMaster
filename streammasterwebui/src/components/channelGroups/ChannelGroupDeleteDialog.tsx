@@ -9,11 +9,11 @@ import { useQueryFilter } from "../../app/slices/useQueryFilter";
 import { useSelectAll } from "../../app/slices/useSelectAll";
 
 type ChannelGroupDeleteDialogProps = {
-  iconFilled?: boolean | undefined;
-  id: string;
-  onDelete?: (results: number[] | undefined) => void;
-  onHide?: () => void;
-  values?: ChannelGroupDto[] | undefined;
+  readonly iconFilled?: boolean | undefined;
+  readonly id: string;
+  readonly onDelete?: (results: number[] | undefined) => void;
+  readonly onHide?: () => void;
+  readonly values?: ChannelGroupDto[] | undefined;
 };
 
 
@@ -124,7 +124,7 @@ const ChannelGroupDeleteDialog = ({
     });
 
 
-  }, [selectedChannelGroups]);
+  }, [ReturnToParent, channelGroupsDeleteAllChannelGroupsFromParametersMutation, channelGroupsDeleteChannelGroupMutation, onDelete, queryFilter, selectAll, selectedChannelGroups, setChannelGroupToRemove, values]);
 
   const isFirstDisabled = useMemo(() => {
     if (!values || values?.length === 0) {

@@ -9,11 +9,11 @@ import OKButton from "../buttons/OKButton";
 import { useSelectAll } from "../../app/slices/useSelectAll";
 
 type VideoStreamVisibleDialogProps = {
-  iconFilled?: boolean;
-  id: string;
-  onClose?: (() => void);
-  skipOverLayer?: boolean;
-  values?: VideoStreamDto[] | undefined;
+  readonly iconFilled?: boolean;
+  readonly id: string;
+  readonly onClose?: (() => void);
+  readonly skipOverLayer?: boolean;
+  readonly values?: VideoStreamDto[] | undefined;
 };
 
 const VideoStreamVisibleDialog = ({

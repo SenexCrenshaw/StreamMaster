@@ -226,7 +226,7 @@ StreamGroupAddDialog.defaultProps = {
 }
 
 type StreamGroupAddDialogProps = {
-  onHide?: () => void;
+  readonly onHide?: () => void;
 };
 
 export default React.memo(StreamGroupAddDialog);

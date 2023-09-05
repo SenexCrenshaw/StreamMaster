@@ -6,16 +6,16 @@ import { Dialog } from "primereact/dialog";
 type Severity = 'error' | 'info' | 'success' | 'warn';
 
 type InfoMessageOverLayDialogProps = {
-  blocked?: boolean;
-  children: React.ReactNode;
-  closable?: boolean;
-  header?: string;
-  infoMessage: string;
-  maximizable?: boolean;
-  onClose: () => void;
-  overlayColSize?: number;
-  severity?: Severity | null;
-  show: boolean;
+  readonly blocked?: boolean;
+  readonly children: React.ReactNode;
+  readonly closable?: boolean;
+  readonly header?: string;
+  readonly infoMessage: string;
+  readonly maximizable?: boolean;
+  readonly onClose: () => void;
+  readonly overlayColSize?: number;
+  readonly severity?: Severity | null;
+  readonly show: boolean;
 }
 
 const InfoMessageOverLayDialog: React.FC<InfoMessageOverLayDialogProps> = (props) => {

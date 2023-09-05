@@ -9,8 +9,8 @@ import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes
 import { useStreamToRemove } from "../../app/slices/useStreamToRemove";
 
 type VideoStreamDataSelectorProps = {
-  id: string;
-  videoStreamId?: string;
+  readonly id: string;
+  readonly videoStreamId?: string;
 };
 
 const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorProps) => {

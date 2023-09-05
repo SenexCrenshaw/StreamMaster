@@ -13,9 +13,9 @@ type SelectItem = {
 };
 
 type ChannelGroupSelectorProps = {
-  onChange: (value: string) => void;
-  resetValue?: string;
-  value?: string;
+  readonly onChange: (value: string) => void;
+  readonly resetValue?: string;
+  readonly value?: string;
 }
 
 const ChannelGroupSelector: React.FC<ChannelGroupSelectorProps> = ({ onChange, resetValue, value }) => {

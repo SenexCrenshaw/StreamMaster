@@ -3,7 +3,7 @@ import { type Channel } from "planby";
 import { ChannelBox, ChannelLogo } from "planby";
 
 type ChannelItemProps = {
-  channel: Channel;
+  readonly channel: Channel;
 }
 
 const ChannelItem = ({ channel }: ChannelItemProps) => {

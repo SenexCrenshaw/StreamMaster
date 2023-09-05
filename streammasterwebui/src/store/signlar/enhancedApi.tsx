@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { hubConnection } from '../../app/signalr';
 import * as StreamMasterApi from '../iptvApi';
 
@@ -72,8 +73,6 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
           );
 
           const deleteResult = (
-
-
             id: any
           ) => {
             updateCachedData(

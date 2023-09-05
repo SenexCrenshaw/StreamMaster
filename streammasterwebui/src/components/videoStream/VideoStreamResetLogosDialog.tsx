@@ -12,8 +12,8 @@ import { useQueryFilter } from "../../app/slices/useQueryFilter";
 
 
 type VideoStreamResetLogosDialogProps = {
-  id: string;
-  values: VideoStreamDto[];
+  readonly id: string;
+  readonly values: VideoStreamDto[];
 }
 
 const VideoStreamResetLogosDialog = ({ id, values }: VideoStreamResetLogosDialogProps) => {

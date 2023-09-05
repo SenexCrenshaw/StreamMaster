@@ -5,9 +5,9 @@ import XButton from "../../components/buttons/XButton";
 import { useStreamToRemove } from "../../app/slices/useStreamToRemove";
 
 type VideoStreamRemoveFromStreamGroupDialogProps = {
-  id: string;
-  streamGroupId: number;
-  value?: VideoStreamDto | undefined;
+  readonly id: string;
+  readonly streamGroupId: number;
+  readonly value?: VideoStreamDto | undefined;
 };
 
 const VideoStreamRemoveFromStreamGroupDialog = ({ id, streamGroupId, value }: VideoStreamRemoveFromStreamGroupDialogProps) => {

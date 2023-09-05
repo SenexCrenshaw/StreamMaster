@@ -1,8 +1,6 @@
 {
   "ignorePatterns": [
-    "iptvApi.ts",
-    "epg.tsx",
-    "channels.tsx"
+    "iptvApi.ts"
   ],
   "env": {
     "browser": true,
@@ -11,10 +9,10 @@
     "jquery": true
   },
   "parser": "@typescript-eslint/parser",
-  // "parserOptions": {
-  //   "ecmaVersion": 6,
-  //   "sourceType": "module"
-  // },
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module"
+  },
   "plugins": [
     "canonical"
   ],
@@ -113,66 +111,60 @@
         "forbid": []
       }
     ]
-    // "eslint-plugin-prettier/prettier": [
-    //   "error",
-    //   {
-    //     "endOfLine": "auto"
-    //   }
-    // ]
-  }
-  // "overrides": [
-  //   {
-  //     "extends": [
-  //       "canonical/typescript"
-  //     ],
-  //     "files": "*.ts",
-  //     "rules": {
-  //       "space-before-function-paren": 0
-  //     }
-  //   },
-  //   {
-  //     "extends": [
-  //       "canonical/react",
-  //       "canonical/typescript",
-  //       "canonical/typescript-type-checking",
-  //       "canonical/module",
-  //       "canonical/prettier"
-  //     ],
-  //     "files": "*.tsx",
-  //     "parserOptions": {
-  //       "project": [
-  //         "./tsconfig.json"
-  //       ] // Specify it only for TypeScript files
-  //     },
-  //     "rules": {
-  //       "space-before-function-paren": 0,
-  //       "react/jsx-sort-default-props": 0,
-  //       "react/sort-default-props": 2
-  //     }
-  //   },
-  //   {
-  //     "extends": [
-  //       "canonical/vitest"
-  //     ],
-  //     "files": "*.test.{ts,tsx}"
-  //   },
-  //   {
-  //     "extends": [
-  //       "canonical/json"
-  //     ],
-  //     "files": "*.json"
-  //   },
-  //   {
-  //     "extends": [
-  //       "canonical/yaml"
-  //     ],
-  //     "files": "*.yaml"
-  //   },
-  //   {
-  //     "extends": [
-  //       "canonical/graphql"
-  //     ],
-  //     "files": "*.graphql"
-  //   }
-  // ]
+  },
+  "overrides": [
+    {
+      "extends": [
+        "canonical/typescript"
+      ],
+      "files": "*.ts",
+      "rules": {
+        "space-before-function-paren": 0
+      }
+    },
+    {
+      "extends": [
+        "canonical/react",
+        "canonical/typescript",
+        "canonical/typescript-type-checking",
+        "canonical/module",
+        "canonical/prettier"
+      ],
+      "files": "*.tsx",
+      "parserOptions": {
+        "project": [
+          "./tsconfig.json"
+        ]
+      },
+      "rules": {
+        "space-before-function-paren": 0,
+        "react/jsx-sort-default-props": 0,
+        "react/sort-default-props": 2
+      }
+    },
+    {
+      "extends": [
+        "canonical/vitest"
+      ],
+      "files": "*.test.{ts,tsx}"
+    },
+    {
+      "extends": [
+        "canonical/json"
+      ],
+      "files": "*.json"
+    },
+    {
+      "extends": [
+        "canonical/yaml"
+      ],
+      "files": "*.yaml"
+    },
+    {
+      "extends": [
+        "canonical/graphql"
+      ],
+      "files": "*.graphql"
+    }
+  ]
 }

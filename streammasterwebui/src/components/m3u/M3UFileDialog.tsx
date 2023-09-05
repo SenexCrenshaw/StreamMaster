@@ -20,9 +20,9 @@ import AddButton from '../buttons/AddButton';
 
 
 type M3UFileDialogProps = {
-  onHide?: (didUpload: boolean) => void,
-  show?: boolean | null,
-  showButton?: boolean | null
+  readonly onHide?: (didUpload: boolean) => void,
+  readonly show?: boolean | null,
+  readonly showButton?: boolean | null
 };
 
 const M3UFileDialog = (props: M3UFileDialogProps) => {

@@ -7,8 +7,6 @@ import StreamingServerStatusPanel from './StreamingServerStatusPanel';
 import { StreamingStatusIcon } from '../../common/icons';
 import { type StreamStatisticsResult } from '../../store/iptvApi';
 import { useVideoStreamsGetAllStatisticsForAllUrlsQuery } from '../../store/iptvApi';
-import StreamingStatusGraph from '../../components/StreamingStatusGraph';
-import { set } from 'video.js/dist/types/tech/middleware';
 
 export const StreamingStatus = () => {
   const getStreamingStatus = useVideoStreamsGetAllStatisticsForAllUrlsQuery();

@@ -1,15 +1,13 @@
-
+/* eslint-disable @typescript-eslint/require-array-sort-compare */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
-
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import { FormattedMessage, useIntl } from 'react-intl';
-
 import { type IconFileDto } from '../store/iptvApi';
 import { type VideoStreamDto } from '../store/iptvApi';
 import { type ChildVideoStreamDto } from '../store/iptvApi';
 import { baseHostURL, isDebug } from '../settings';
 import { SMFileTypes } from '../store/streammaster_enums';
-
 import ExportButton from '../components/export/ExportButton';
 import GlobalSearch from '../components/search/GlobalSearch';
 import { Checkbox } from 'primereact/checkbox';
@@ -518,10 +516,10 @@ export function isEmptyObject(value: any): boolean {
 
 
 type MultiSelectCheckboxProps = {
-  onMultiSelectClick?: (value: boolean) => void,
-  props: DataSelectorProps,
-  rowClick: boolean,
-  setRowClick: (val: boolean) => void
+  readonly onMultiSelectClick?: (value: boolean) => void,
+  readonly props: DataSelectorProps,
+  readonly rowClick: boolean,
+  readonly setRowClick: (val: boolean) => void
 };
 
 /**
@@ -561,13 +559,13 @@ export const getColumnClass = (size?: number, secondSize?: number) => {
   return 'col-6';
 }
 
-export const HeaderLeft: React.FC<{ props: any }> = ({ props }) => (
+export const HeaderLeft: React.FC<{ readonly props: any }> = ({ props }) => (
   <div className={`flex debug flex-nowrap justify-content-start header p-0 m-0 align-items-center ${props?.headerLeftTemplate ? getColumnClass(props.leftColSize, 4) : 'col-1'}`}>
     {props.headerLeftTemplate}
   </div>
 );
 
-export const GlobalSearchComponent: React.FC<{ clearSourceFilter: any, globalSearchName: string, globalSourceFilterValue: string, onGlobalSourceFilterChange: any, props: any }> = ({ clearSourceFilter, props, globalSearchName, globalSourceFilterValue, onGlobalSourceFilterChange }) => (
+export const GlobalSearchComponent: React.FC<{ readonly clearSourceFilter: any, readonly globalSearchName: string, readonly globalSourceFilterValue: string, readonly onGlobalSourceFilterChange: any, readonly props: any }> = ({ clearSourceFilter, props, globalSearchName, globalSourceFilterValue, onGlobalSourceFilterChange }) => (
   props.globalSearchEnabled &&
   <GlobalSearch
     clearSourceFilter={clearSourceFilter}
@@ -578,7 +576,7 @@ export const GlobalSearchComponent: React.FC<{ clearSourceFilter: any, globalSea
   />
 );
 
-export const ExportComponent: React.FC<{ exportCSV: any }> = ({ exportCSV }) => (
+export const ExportComponent: React.FC<{ readonly exportCSV: any }> = ({ exportCSV }) => (
   <ExportButton exportCSV={exportCSV} />
 );
 

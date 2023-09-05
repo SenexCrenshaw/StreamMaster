@@ -10,11 +10,11 @@ import { useQueryFilter } from "../../app/slices/useQueryFilter";
 import { useSelectAll } from "../../app/slices/useSelectAll";
 
 type VideoStreamDeleteDialogProps = {
-  iconFilled?: boolean;
-  id: string;
-  onClose?: (() => void);
-  skipOverLayer?: boolean;
-  values?: VideoStreamDto[] | undefined;
+  readonly iconFilled?: boolean;
+  readonly id: string;
+  readonly onClose?: (() => void);
+  readonly skipOverLayer?: boolean;
+  readonly values?: VideoStreamDto[] | undefined;
 };
 
 const VideoStreamDeleteDialog = ({

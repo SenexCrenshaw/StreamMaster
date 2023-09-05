@@ -372,10 +372,10 @@ VideoStreamPanel.defaultProps = {
 
 };
 type VideoStreamPanelProps = {
-  group?: string;
-  onEdit?: (e: UpdateVideoStreamRequest) => void;
-  onSave?: (e: CreateVideoStreamRequest) => void;
-  videoStream?: VideoStreamDto | undefined;
+  readonly group?: string;
+  readonly onEdit?: (e: UpdateVideoStreamRequest) => void;
+  readonly onSave?: (e: CreateVideoStreamRequest) => void;
+  readonly videoStream?: VideoStreamDto | undefined;
 };
 
 export default memo(VideoStreamPanel);

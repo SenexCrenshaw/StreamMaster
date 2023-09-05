@@ -43,7 +43,7 @@ ChannelGroupEditor.defaultProps = {
 };
 
 export type ChannelGroupEditorProps = {
-  data: VideoStreamDto;
+  readonly data: VideoStreamDto;
 
 };
 

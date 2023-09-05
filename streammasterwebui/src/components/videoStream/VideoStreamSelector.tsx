@@ -74,6 +74,6 @@ VideoStreamSelector.defaultProps = {
 
 };
 type VideoStreamSelectorProps = {
-  onChange: ((value: VideoStreamDto) => void);
-  value: string | undefined;
+  readonly onChange: ((value: VideoStreamDto) => void);
+  readonly value: string | undefined;
 };

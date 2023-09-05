@@ -123,16 +123,16 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProps) => {
 
 
 export type NumberEditorBodyTemplateProps = {
-  onChange: (value: number) => void;
-  onClick?: () => void;
+  readonly onChange: (value: number) => void;
+  readonly onClick?: () => void;
   // onReset?: ((value: string) => void);
-  prefix?: string | undefined;
-  resetValue?: number | undefined;
-  style?: CSSProperties;
-  suffix?: string | undefined;
-  tooltip?: string | undefined;
-  tooltipOptions?: TooltipOptions | undefined;
-  value: number | undefined;
+  readonly prefix?: string | undefined;
+  readonly resetValue?: number | undefined;
+  readonly style?: CSSProperties;
+  readonly suffix?: string | undefined;
+  readonly tooltip?: string | undefined;
+  readonly tooltipOptions?: TooltipOptions | undefined;
+  readonly value: number | undefined;
 };
 
 export default React.memo(NumberEditorBodyTemplate);

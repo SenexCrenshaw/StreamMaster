@@ -206,8 +206,8 @@ StreamGroupEditDialog.defaultProps = {
 }
 
 type StreamGroupEditDialogProps = {
-  onHide?: (value: StreamGroupDto | undefined) => void;
-  value: StreamGroupDto | undefined;
+  readonly onHide?: (value: StreamGroupDto | undefined) => void;
+  readonly value: StreamGroupDto | undefined;
 };
 
 export default memo(StreamGroupEditDialog);

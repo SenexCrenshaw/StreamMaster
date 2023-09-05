@@ -153,13 +153,13 @@ PlayListDataSelector.defaultProps = {
 };
 
 export type PlayListDataSelectorProps = {
-  hideAddRemoveControls?: boolean;
-  hideControls?: boolean;
-  id: string;
-  maxHeight?: number;
-  name?: string;
-  onSelectionChange?: (value: ChannelGroupDto | ChannelGroupDto[]) => void;
-  useReadOnly?: boolean;
+  readonly hideAddRemoveControls?: boolean;
+  readonly hideControls?: boolean;
+  readonly id: string;
+  readonly maxHeight?: number;
+  readonly name?: string;
+  readonly onSelectionChange?: (value: ChannelGroupDto | ChannelGroupDto[]) => void;
+  readonly useReadOnly?: boolean;
 };
 
 export default memo(PlayListDataSelector);

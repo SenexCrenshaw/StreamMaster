@@ -46,11 +46,11 @@ VideoStreamClone.defaultProps = {
   visible: true,
 };
 type VideoStreamCloneProps = {
-  VideoStream: VideoStreamDto | undefined;
-  className?: string | null;
-  disabled?: boolean;
-  onClose: (() => void);
-  visible?: boolean;
+  readonly VideoStream: VideoStreamDto | undefined;
+  readonly className?: string | null;
+  readonly disabled?: boolean;
+  readonly onClose: (() => void);
+  readonly visible?: boolean;
 };
 
 

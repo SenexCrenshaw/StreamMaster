@@ -4,9 +4,9 @@ import { Checkbox } from "primereact/checkbox";
 import { useLocalStorage } from "primereact/hooks";
 import { Toast } from "primereact/toast";
 import { type CSSProperties } from "react";
-import { useRef, useState, useMemo, useCallback, memo } from "react";
+import { useRef, useMemo, useCallback, memo } from "react";
 import { formatJSONDateString, getTopToolOptions } from "../../common/common";
-import { type M3UFileDto, type M3UFilesGetM3UFilesApiArg, type UpdateM3UFileRequest } from "../../store/iptvApi";
+import { type M3UFileDto, type UpdateM3UFileRequest } from "../../store/iptvApi";
 import { useM3UFilesGetM3UFilesQuery } from "../../store/iptvApi";
 import NumberEditorBodyTemplate from "../NumberEditorBodyTemplate";
 import StringEditorBodyTemplate from "../StringEditorBodyTemplate";
@@ -19,13 +19,8 @@ import M3UFileRefreshDialog from "./M3UFileRefreshDialog";
 
 const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
   const toast = useRef<Toast>(null);
-  const [pageSize, setPageSize] = useState<number>(25);
-  const [pageNumber, setPageNumber] = useState<number>(1);
 
   const [selectedM3UFile, setSelectedM3UFile] = useLocalStorage<M3UFileDto>({ id: 0, name: 'All' } as M3UFileDto, 'M3UFilesDataSelector-selectedM3UFile');
-  const [orderBy, setOrderBy] = useState<string>('user_tvg_name');
-
-  // const m3UFilesQuery = useM3UFilesGetM3UFilesQuery({ orderBy: orderBy, pageNumber: pageNumber === 0 ? 1 : pageNumber, pageSize: pageSize } as M3UFilesGetM3UFilesApiArg);
 
   useMemo(() => {
     if (props.value?.id !== undefined && selectedM3UFile !== undefined && props.value.id !== selectedM3UFile.id) {
@@ -313,8 +308,8 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
 
 M3UFilesDataSelector.displayName = 'M3UFilesDataSelector';
 type M3UFilesDataSelectorProps = {
-  onChange?: (value: M3UFileDto) => void;
-  value?: M3UFileDto | undefined;
+  readonly onChange?: (value: M3UFileDto) => void;
+  readonly value?: M3UFileDto | undefined;
 };
 
 export default memo(M3UFilesDataSelector);

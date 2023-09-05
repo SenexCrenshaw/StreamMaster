@@ -94,6 +94,7 @@ const useSetQueryFilter = (
       setQueryFilter(newApi);
     }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryAdditionalFilter, setQueryFilter, generateGetApi]);
 
   return { lazyState };

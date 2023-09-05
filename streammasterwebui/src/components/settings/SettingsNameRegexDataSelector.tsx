@@ -2,13 +2,13 @@
 
 
 
-import React, { CSSProperties } from "react";
+import { type CSSProperties } from "react";
+import React from "react";
 
-import { Button } from "primereact/button";
 import SettingsNameRegexAddDialog from "./SettingsNameRegexAddDialog";
 import SettingsNameRegexDeleteDialog from "./SettingsNameRegexDeleteDialog";
 import DataSelector from "../dataSelector/DataSelector";
-import { ColumnMeta } from "../dataSelector/DataSelectorTypes";
+import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 type RankedString = {
   rank: number;
   value: string;
@@ -81,15 +81,9 @@ const SettingsNameRegexDataSelector = (props: SettingsNameRegexDataSelectorProps
 }
 
 SettingsNameRegexDataSelector.displayName = 'SettingsNameRegexDataSelector';
-SettingsNameRegexDataSelector.defaultProps = {
-  onChange: null,
-  value: null,
-};
 
 type SettingsNameRegexDataSelectorProps = {
-  data: string[] | undefined;
-  onChange?: ((value: string) => void) | null;
-  value?: string | null;
+  readonly data: string[] | undefined;
 };
 
 export default React.memo(SettingsNameRegexDataSelector);

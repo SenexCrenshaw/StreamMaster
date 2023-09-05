@@ -72,9 +72,9 @@ M3UFilesSelector.defaultProps = {
 };
 
 type M3UFilesSelectorProps = {
-  id: string;
-  onChange: ((value: M3UFileDto) => void);
-  value: M3UFileDto;
+  readonly id: string;
+  readonly onChange: ((value: M3UFileDto) => void);
+  readonly value: M3UFileDto;
 };
 
 export default memo(M3UFilesSelector);

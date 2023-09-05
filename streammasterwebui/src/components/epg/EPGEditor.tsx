@@ -48,8 +48,8 @@ EPGEditor.defaultProps = {
 };
 
 type EPGEditorProps = {
-  data: VideoStreamDto;
-  enableEditMode?: boolean;
+  readonly data: VideoStreamDto;
+  readonly enableEditMode?: boolean;
 };
 
 export default memo(EPGEditor);

@@ -76,8 +76,8 @@ VideoStreamAddDialog.defaultProps = {
 
 };
 type VideoStreamAddDialogProps = {
-  group?: string | undefined;
-  onClose?: (() => void);
+  readonly group?: string | undefined;
+  readonly onClose?: (() => void);
 };
 
 export default memo(VideoStreamAddDialog);

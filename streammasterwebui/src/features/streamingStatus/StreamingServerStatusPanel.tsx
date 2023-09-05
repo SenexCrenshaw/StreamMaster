@@ -266,9 +266,9 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
 StreamingServerStatusPanel.displayName = 'Streaming Server Status';
 StreamingServerStatusPanel.defaultProps = {};
 type StreamingServerStatusPanelProps = {
-  className?: string;
-  dataSource: StreamStatisticsResult[];
-  isLoading: boolean;
-  style?: CSSProperties;
+  readonly className?: string;
+  readonly dataSource: StreamStatisticsResult[];
+  readonly isLoading: boolean;
+  readonly style?: CSSProperties;
 }
 export default memo(StreamingServerStatusPanel);

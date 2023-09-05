@@ -28,21 +28,21 @@ export type SimpleQueryResponse<T> = {
 };
 
 export type BaseSelectorProps<T extends HasId> = {
-  className?: string | null;
-  disabled?: boolean;
-  editable?: boolean | undefined;
-  isLoading?: boolean;
-  itemSize: number[] | number | undefined;
-  itemTemplate: (option: T) => JSX.Element;
-  onChange: (value: string) => void;
-  optionLabel: string;
-  optionValue: string;
-  queryFilter: (option: GetApiArg) => PagedResponseDtoData<T>;
-  queryHook: (option: SimpleQueryApiArg) => SimpleQueryResponse<T>;
-  querySelectedItem: (arg: string) => Promise<T>;
-  selectName: string;
-  selectedTemplate: (option: T) => JSX.Element;
-  value?: string;
+  readonly className?: string | null;
+  readonly disabled?: boolean;
+  readonly editable?: boolean | undefined;
+  readonly isLoading?: boolean;
+  readonly itemSize: number[] | number | undefined;
+  readonly itemTemplate: (option: T) => JSX.Element;
+  readonly onChange: (value: string) => void;
+  readonly optionLabel: string;
+  readonly optionValue: string;
+  readonly queryFilter: (option: GetApiArg) => PagedResponseDtoData<T>;
+  readonly queryHook: (option: SimpleQueryApiArg) => SimpleQueryResponse<T>;
+  readonly querySelectedItem: (arg: string) => Promise<T>;
+  readonly selectName: string;
+  readonly selectedTemplate: (option: T) => JSX.Element;
+  readonly value?: string;
 }
 
 const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
@@ -69,6 +69,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
     }
 
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
   useEffect(() => {
@@ -125,7 +126,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
       console.log('filter clear', dataSource.length);
     }
 
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataSource, filterQuery]);
 
   useEffect(() => {
@@ -161,7 +162,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
         console.error(e);
       }
     }
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.value]);
 
   const onChange = useCallback((event: DropdownChangeEvent) => {
@@ -241,6 +242,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
           lazy: true,
           loadingTemplate: loadingTemplate,
 
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onLazyLoad: (e: any) => {
             if (e.filter === '' && e.last as number >= index) {
               let firstRecord = e.first as number < index ? index : e.first as number;

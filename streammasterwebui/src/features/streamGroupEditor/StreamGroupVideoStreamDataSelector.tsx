@@ -16,9 +16,8 @@ import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes
 import { useStreamToRemove } from "../../app/slices/useStreamToRemove";
 
 type StreamGroupVideoStreamDataSelectorProps = {
-  id: string;
-  onSelectionChange?: (value: VideoStreamDto | VideoStreamDto[]) => void;
-  streamGroup: StreamGroupDto;
+  readonly id: string;
+  readonly streamGroup: StreamGroupDto;
 };
 
 const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVideoStreamDataSelectorProps) => {
@@ -84,6 +83,7 @@ const StreamGroupVideoStreamDataSelector = ({ id, streamGroup }: StreamGroupVide
     );
 
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showHidden]);
 
   return (

@@ -76,7 +76,7 @@ const M3UFileRefreshDialog = (props: M3UFileRefreshDialogProps) => {
 M3UFileRefreshDialog.displayName = 'M3UFileRefreshDialog';
 
 type M3UFileRefreshDialogProps = {
-  selectedFile: M3UFileDto;
+  readonly selectedFile: M3UFileDto;
 };
 
 export default memo(M3UFileRefreshDialog);

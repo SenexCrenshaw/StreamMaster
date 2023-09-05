@@ -50,8 +50,8 @@ ChannelNumberEditor.defaultProps = {
 };
 
 export type ChannelNumberEditorProps = {
-  data: VideoStreamDto;
-  style?: CSSProperties;
+  readonly data: VideoStreamDto;
+  readonly style?: CSSProperties;
 };
 
 export default React.memo(ChannelNumberEditor);

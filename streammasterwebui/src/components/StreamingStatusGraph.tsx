@@ -2,7 +2,6 @@
 
 
 import React from "react";
-import { Chart } from "primereact/chart";
 import { type StreamStatisticsResult } from "../store/iptvApi";
 import { LineChart, Line } from 'recharts';
 
@@ -59,6 +58,7 @@ const StreamingStatusGraph = (props: StreamingStatusGraphProps) => {
   React.useEffect(() => {
     setDataSource([...dataSource, ...props.dataSource].slice(-6));
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.dataSource]);
 
   const dataSet = React.useMemo((): GraphDataArray[] => {
@@ -143,10 +143,9 @@ StreamingStatusGraph.defaultProps = {
 };
 
 type StreamingStatusGraphProps = {
-  className?: string;
-  dataSource: StreamStatisticsResult[];
-  isLoading: boolean;
-  style?: React.CSSProperties;
+  readonly className?: string;
+  readonly dataSource: StreamStatisticsResult[];
+  readonly style?: React.CSSProperties;
 };
 
 export default React.memo(StreamingStatusGraph);

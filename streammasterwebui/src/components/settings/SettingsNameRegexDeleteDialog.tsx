@@ -3,7 +3,7 @@
 import React from "react";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import * as Hub from "../../store/signlar_functions";
-import { UpdateSettingRequest } from "../../store/iptvApi";
+import { type UpdateSettingRequest } from "../../store/iptvApi";
 import { Button } from "primereact/button";
 import { getTopToolOptions } from "../../common/common";
 
@@ -99,9 +99,9 @@ SettingsNameRegexDeleteDialog.defaultProps = {
 };
 
 type SettingsNameRegexDeleteDialogProps = {
-  onClose?: (() => void);
-  value: string;
-  values: string[];
+  readonly onClose?: (() => void);
+  readonly value: string;
+  readonly values: string[];
 };
 
 export default React.memo(SettingsNameRegexDeleteDialog);

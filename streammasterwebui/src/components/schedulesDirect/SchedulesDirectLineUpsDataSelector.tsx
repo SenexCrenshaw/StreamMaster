@@ -4,9 +4,8 @@ import { useMemo, memo } from "react";
 import { useSchedulesDirectGetLineupsQuery } from "../../store/iptvApi";
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
-import SchedulesDirectLineUpPreviewDataSelector from "./SchedulesDirectStationPreviewDataSelector";
 
-const SchedulesDirectLineUpsDataSelector = (props: SchedulesDirectLineUpsDataSelectorProps) => {
+const SchedulesDirectLineUpsDataSelector = () => {
 
   const getLineUpsQuery = useSchedulesDirectGetLineupsQuery();
 
@@ -40,9 +39,5 @@ const SchedulesDirectLineUpsDataSelector = (props: SchedulesDirectLineUpsDataSel
 }
 
 SchedulesDirectLineUpsDataSelector.displayName = 'SchedulesDirectLineUpsDataSelector';
-
-type SchedulesDirectLineUpsDataSelectorProps = {
-
-};
 
 export default memo(SchedulesDirectLineUpsDataSelector);

@@ -69,5 +69,5 @@ StreamGroupSelector.defaultProps = {
 
 };
 type StreamGroupSelectorProps = {
-  onChange: ((value: StreamGroupDto) => void);
+  readonly onChange: ((value: StreamGroupDto) => void);
 };

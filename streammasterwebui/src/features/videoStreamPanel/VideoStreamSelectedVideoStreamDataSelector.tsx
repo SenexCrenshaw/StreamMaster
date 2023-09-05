@@ -9,8 +9,8 @@ import VideoStreamRemoveFromVideoStreamDialog from "./VideoStreamRemoveFromVideo
 import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
 
 type VideoStreamSelectedVideoStreamDataSelectorProps = {
-  id: string;
-  videoStreamId?: string;
+  readonly id: string;
+  readonly videoStreamId?: string;
 };
 
 const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamSelectedVideoStreamDataSelectorProps) => {
@@ -29,6 +29,7 @@ const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: Video
     }
 
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryAdditionalFilter]);
 
   const targetActionBodyTemplate = useCallback((data: ChildVideoStreamDto) => {

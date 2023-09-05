@@ -1,7 +1,7 @@
 
 
 import React from "react";
-import * as StreamMasterApi from '../../store/iptvApi';
+import type * as StreamMasterApi from '../../store/iptvApi';
 import * as Hub from '../../store/signlar_functions';
 import { Button } from "primereact/button";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
@@ -109,8 +109,8 @@ SettingsNameRegexAddDialog.defaultProps = {
 };
 
 type SettingsNameRegexAddDialogProps = {
-  onClose?: (() => void);
-  values: string[];
+  readonly onClose?: (() => void);
+  readonly values: string[];
 };
 
 export default React.memo(SettingsNameRegexAddDialog);

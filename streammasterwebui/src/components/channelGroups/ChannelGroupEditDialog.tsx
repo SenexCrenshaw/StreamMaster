@@ -49,6 +49,7 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
     channelGroupsUpdateChannelGroupMutation(toSend).then(() => {
       setInfoMessage('Channel Group Edit Successfully');
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }).catch((e: any) => {
       setInfoMessage('Channel Group Edit Error: ' + e.message);
     });
@@ -114,8 +115,8 @@ ChannelGroupEditDialog.defaultProps = {
 };
 
 type ChannelGroupEditDialogProps = {
-  onClose?: ((newName: string) => void);
-  value?: ChannelGroupDto | undefined;
+  readonly onClose?: ((newName: string) => void);
+  readonly value?: ChannelGroupDto | undefined;
 };
 
 export default React.memo(ChannelGroupEditDialog);

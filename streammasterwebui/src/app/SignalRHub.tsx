@@ -6,7 +6,7 @@ import { hubConnection } from './signalr';
 
 type SignalRHubProps = {
   // onClose?: () => void;
-  onConnected?: (state: boolean) => void;
+  readonly onConnected?: (state: boolean) => void;
   // onReconnected?: () => void;
   // onReconnecting?: () => void;
 }
@@ -19,6 +19,7 @@ export const SignalRHub = (props: SignalRHubProps) => {
     if (hubConnection && hub === null) {
       if (hubConnection.state === HubConnectionState.Connected && !hubConnected) {
         setHubConnected(true);
+        setHub(hubConnection);
         props.onConnected?.(true);
         console.log("App Connected");
 
@@ -28,7 +29,8 @@ export const SignalRHub = (props: SignalRHubProps) => {
         console.log("App Disconnected");
       }
     }
-  }, [hub, hubConnected, props]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hubConnected, props]);
 
   return <div />;
 };

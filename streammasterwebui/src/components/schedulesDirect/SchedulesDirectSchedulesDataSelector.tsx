@@ -3,7 +3,6 @@
 import { Toast } from "primereact/toast";
 import { useRef, useState, useEffect, useMemo, memo } from "react";
 import { type Schedule } from "../../store/iptvApi";
-import { useSettingsGetSettingQuery } from "../../store/iptvApi";
 import { GetSchedules } from "../../store/signlar_functions";
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
@@ -12,9 +11,6 @@ import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 const SchedulesDirectSchedulesDataSelector = (props: SchedulesDirectSchedulesDataSelectorProps) => {
   const toast = useRef<Toast>(null);
 
-  // const [selectedLineUpPreviews, setSelectedLineUpPreviews] = useState<LineUpPreview[]>([] as LineUpPreview[]);
-  // const lineupPreviews = useSchedulesDirectGetLineupPreviewsQuery();
-  const settings = useSettingsGetSettingQuery();
   const [dataSource, setDataSource] = useState<Schedule[]>([] as Schedule[]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -78,6 +74,6 @@ SchedulesDirectSchedulesDataSelector.defaultProps = {
 };
 
 export type SchedulesDirectSchedulesDataSelectorProps = {
-  stationIds: string[];
+  readonly stationIds: string[];
 };
 export default memo(SchedulesDirectSchedulesDataSelector);

@@ -96,7 +96,7 @@ const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProps) => {
 M3UFileRemoveDialog.displayName = 'M3UFileRemoveDialog';
 
 type M3UFileRemoveDialogProps = {
-  selectedFile: M3UFileDto;
+  readonly selectedFile: M3UFileDto;
 };
 
 export default memo(M3UFileRemoveDialog);

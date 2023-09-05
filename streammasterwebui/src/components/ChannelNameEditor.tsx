@@ -70,7 +70,7 @@ ChannelNameEditor.defaultProps = {
 };
 
 export type ChannelNameEditorProps = {
-  data: VideoStreamDto;
+  readonly data: VideoStreamDto;
 };
 
 export default React.memo(ChannelNameEditor);

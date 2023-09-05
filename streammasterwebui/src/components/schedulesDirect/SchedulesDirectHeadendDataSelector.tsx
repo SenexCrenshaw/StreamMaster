@@ -51,9 +51,9 @@ const SchedulesDirectHeadendDataSelector = (props: SchedulesDirectHeadendDataSel
 SchedulesDirectHeadendDataSelector.displayName = 'SchedulesDirectHeadendDataSelector';
 
 type SchedulesDirectHeadendDataSelectorProps = {
-  country: string | null;
+  readonly country: string | null;
   // onChange: ((value: string) => void);
-  postalCode: string | null;
+  readonly postalCode: string | null;
 };
 
 export default memo(SchedulesDirectHeadendDataSelector);

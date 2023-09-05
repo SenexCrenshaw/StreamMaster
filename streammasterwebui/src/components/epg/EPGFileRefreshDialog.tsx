@@ -78,7 +78,7 @@ const EPGFileRefreshDialog = (props: EPGFileRefreshDialogProps) => {
 EPGFileRefreshDialog.displayName = 'EPGFileRefreshDialog';
 
 type EPGFileRefreshDialogProps = {
-  selectedFile: EpgFilesDto;
+  readonly selectedFile: EpgFilesDto;
 };
 
 export default memo(EPGFileRefreshDialog);

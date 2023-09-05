@@ -2,19 +2,17 @@
 import { useState, useCallback, memo, useMemo } from "react";
 import { type VideoStreamsSetVideoStreamsLogoFromEpgApiArg } from "../../store/iptvApi";
 import { type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg } from "../../store/iptvApi";
-import { useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation, useVideoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation, type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg, useVideoStreamsSetVideoStreamsLogoFromEpgMutation } from "../../store/iptvApi";
+import { useVideoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation, useVideoStreamsSetVideoStreamsLogoFromEpgMutation } from "../../store/iptvApi";
 import { type VideoStreamDto } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import ImageButton from "../buttons/ImageButton";
 import OKButton from "../buttons/OKButton";
 import { useQueryFilter } from "../../app/slices/useQueryFilter";
 import { useSelectAll } from "../../app/slices/useSelectAll";
-import { useSortInfo } from "../../app/slices/useSortInfo";
-
 
 type VideoStreamSetLogosFromEPGDialogProps = {
-  id: string;
-  values: VideoStreamDto[];
+  readonly id: string;
+  readonly values: VideoStreamDto[];
 };
 
 

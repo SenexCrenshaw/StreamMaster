@@ -97,8 +97,8 @@ StreamGroupDataSelector.defaultProps = {
 };
 
 export type StreamGroupDataSelectorProps = {
-  id: string;
-  onSelectionChange?: (value: StreamGroupDto) => void;
+  readonly id: string;
+  readonly onSelectionChange?: (value: StreamGroupDto) => void;
 };
 
 export default memo(StreamGroupDataSelector);

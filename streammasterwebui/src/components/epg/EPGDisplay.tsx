@@ -58,11 +58,11 @@ EPGDisplay.defaultProps = {
 };
 
 type EPGDisplayProps = {
-  hidden: boolean;
-  onChange: ((value: StreamGroupDto) => void);
-  onClick: ((videoStreamId: string) => void);
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
+  readonly hidden: boolean;
+  readonly onChange: ((value: StreamGroupDto) => void);
+  readonly onClick: ((videoStreamId: string) => void);
+  readonly onMouseEnter?: () => void;
+  readonly onMouseLeave?: () => void;
 };
 
 export default React.memo(EPGDisplay);

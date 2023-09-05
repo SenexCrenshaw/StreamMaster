@@ -51,8 +51,8 @@ ChannelLogoEditor.defaultProps = {
 };
 
 export type StreamDataSelectorProps = {
-  data: VideoStreamDto;
-  enableEditMode?: boolean;
+  readonly data: VideoStreamDto;
+  readonly enableEditMode?: boolean;
 };
 
 export default React.memo(ChannelLogoEditor);

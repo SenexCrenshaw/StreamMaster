@@ -1,12 +1,9 @@
-
-
-import { type DropdownProps } from 'primereact/dropdown';
 import { Dropdown } from 'primereact/dropdown';
 import * as React from 'react';
-import * as StreamMasterApi from '../store/iptvApi';
+import type * as StreamMasterApi from '../store/iptvApi';
 import { Toast } from 'primereact/toast';
 import { classNames } from 'primereact/utils';
-import { SelectItem } from 'primereact/selectitem';
+import { type SelectItem } from 'primereact/selectitem';
 import { VideoStreamHandlers } from '../store/streammaster_enums';
 
 const ChannelHandlerSelector = (props: ChannelHandlerSelectorProps) => {
@@ -25,13 +22,8 @@ const ChannelHandlerSelector = (props: ChannelHandlerSelectorProps) => {
 
   const className = classNames('iconSelector p-0 m-0 w-full z-5 ', props.className);
 
-  const handlerOptionTemplate = React.useCallback((programmeName: StreamMasterApi.ProgrammeNameDto) => {
-    return (
-      <span className="text-sm" >{programmeName.displayName !== '' ? programmeName.displayName : programmeName.channelName}</span>
-    );
-  }, []);
 
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onHandlerChange = React.useCallback(async (channel: any) => {
 
     if (props.onChange) {
@@ -53,28 +45,6 @@ const ChannelHandlerSelector = (props: ChannelHandlerSelectorProps) => {
 
     return test;
   };
-
-
-  const selectedTemplate = React.useCallback((option: any, propss: DropdownProps) => {
-
-    return (
-      <div className='flex h-full justify-content-start align-items-center p-0 m-0 pl-2'>
-        {channelHandler}
-      </div>
-    );
-
-  }, [channelHandler]);
-
-  if (props.enableEditMode !== true) {
-
-    return (
-      <div className='flex h-full justify-content-center align-items-center p-0 m-0'>
-        {channelHandler}
-      </div>
-    )
-
-  }
-
 
   return (
     <>
@@ -107,16 +77,14 @@ const ChannelHandlerSelector = (props: ChannelHandlerSelectorProps) => {
 ChannelHandlerSelector.displayName = 'ChannelHandlerSelector';
 ChannelHandlerSelector.defaultProps = {
   className: null,
-  enableEditMode: true,
   onChange: null,
   value: null,
 };
 
 type ChannelHandlerSelectorProps = {
-  className?: string | null;
-  enableEditMode?: boolean;
-  onChange?: ((value: StreamMasterApi.VideoStreamHandlers) => void) | null;
-  value?: StreamMasterApi.VideoStreamHandlers | null;
+  readonly className?: string | null;
+  readonly onChange?: ((value: StreamMasterApi.VideoStreamHandlers) => void) | null;
+  readonly value?: StreamMasterApi.VideoStreamHandlers | null;
 };
 
 export default React.memo(ChannelHandlerSelector);

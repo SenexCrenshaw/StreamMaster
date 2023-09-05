@@ -137,10 +137,10 @@ ChannelGroupVisibleDialog.defaultProps = {
 };
 
 type ChannelGroupVisibleDialogProps = {
-  iconFilled?: boolean | undefined;
-  onClose?: (() => void);
-  skipOverLayer?: boolean | undefined;
-  value?: ChannelGroupDto[] | null;
+  readonly iconFilled?: boolean | undefined;
+  readonly onClose?: (() => void);
+  readonly skipOverLayer?: boolean | undefined;
+  readonly value?: ChannelGroupDto[] | null;
 };
 
 export default React.memo(ChannelGroupVisibleDialog);
