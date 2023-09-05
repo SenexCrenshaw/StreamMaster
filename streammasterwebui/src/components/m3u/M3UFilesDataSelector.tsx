@@ -13,6 +13,8 @@ import StringEditorBodyTemplate from "../StringEditorBodyTemplate";
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 import { UpdateM3UFile } from "../../store/signlar_functions";
+import M3UFileRemoveDialog from "./M3UFileRemoveDialog";
+import M3UFileRefreshDialog from "./M3UFileRefreshDialog";
 
 
 const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
@@ -231,25 +233,30 @@ const M3UFilesDataSelector = (props: M3UFilesDataSelectorProps) => {
     }
 
     return (
-      <div className="dataselector p-inputgroup align-items-center">
-        <Checkbox
-          checked={rowData.autoUpdate}
-          onChange={async (e: CheckboxChangeEvent) => {
-            await onM3UUpdateClick(rowData.id, e.checked ?? false);
-          }
-          }
-          tooltip="Enable Auto Update"
-          tooltipOptions={getTopToolOptions}
-        />
+      <div className='flex grid p-0 justify-content-end align-items-center'>
+        <div className='col-6 p-0 justify-content-end align-items-center'>
+          <Checkbox
+            checked={rowData.autoUpdate}
+            onChange={async (e: CheckboxChangeEvent) => {
+              await onM3UUpdateClick(rowData.id, e.checked ?? false);
+            }
+            }
+            tooltip="Enable Auto Update"
+            tooltipOptions={getTopToolOptions}
+          />
 
-        <NumberEditorBodyTemplate
-          onChange={async (e) => {
-            await onM3UUpdateClick(rowData.id, rowData.autoUpdate, e, rowData.maxStreamCount ?? 0);
-          }}
-          suffix=' hours'
-          value={rowData.hoursToUpdate}
-        />
-
+          <NumberEditorBodyTemplate
+            onChange={async (e) => {
+              await onM3UUpdateClick(rowData.id, rowData.autoUpdate, e, rowData.maxStreamCount ?? 0);
+            }}
+            suffix=' hours'
+            value={rowData.hoursToUpdate}
+          />
+        </div>
+        <div className='col-6 p-0 justify-content-end align-items-center'>
+          <M3UFileRefreshDialog selectedFile={rowData} />
+          <M3UFileRemoveDialog selectedFile={rowData} />
+        </div>
       </div>
     );
   }, [onM3UUpdateClick]);

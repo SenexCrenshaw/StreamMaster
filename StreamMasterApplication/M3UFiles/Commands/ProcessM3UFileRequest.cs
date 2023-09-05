@@ -211,18 +211,16 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
 
     private List<VideoStream> RemoveDuplicates(List<VideoStream> streams)
     {
-        List<IGrouping<string, VideoStream>> groupedStreams = streams.GroupBy(x => x.Id).ToList();
 
-        List<VideoStream> dupes = groupedStreams
-            .Where(g => g.Count() > 1)
-            .SelectMany(g => g.Skip(1))
-            .OrderBy(a => a.Id)
-            .ToList();
+        List<string> ids = streams.Select(a => a.Id).Distinct().ToList();
+        List<VideoStream> dupes = Repository.VideoStream.FindByCondition(a => ids.Contains(a.Id)).ToList();
 
         if (dupes.Any())
         {
+            List<string> dupeIds = dupes.Select(a => a.Id).Distinct().ToList();
+
             LogDuplicatesToCSV(dupes);
-            streams = groupedStreams.Select(g => g.First()).ToList();
+            streams = streams.Where(a => !dupeIds.Contains(a.Id)).ToList();
         }
 
         return streams;

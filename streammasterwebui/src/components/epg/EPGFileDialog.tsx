@@ -11,14 +11,23 @@ import {
 import { InputText } from 'primereact/inputtext';
 import { ProgressBar } from 'primereact/progressbar';
 import React, { useRef, useState } from 'react';
-import { upload } from '../services/FileUploadService';
-import { getTopToolOptions, isValidUrl } from '../common/common';
-import { InputNumber } from 'primereact/inputnumber';
-import InfoMessageOverLayDialog from './InfoMessageOverLayDialog';
-import { useEpgFilesCreateEpgFileMutation, type CreateM3UFileRequest, useM3UFilesCreateM3UFileMutation } from '../store/iptvApi';
-import { type CreateEpgFileRequest } from '../store/iptvApi';
+import { upload } from '../../services/FileUploadService';
+import { getTopToolOptions, isValidUrl } from '../../common/common';
 
-const FileDialog = (props: FileDialogProps) => {
+import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
+import { useEpgFilesCreateEpgFileMutation } from '../../store/iptvApi';
+import { type CreateEpgFileRequest } from '../../store/iptvApi';
+import AddButton from '../buttons/AddButton';
+
+
+type EPGFileDialogProps = {
+  onHide?: (didUpload: boolean) => void,
+  show?: boolean | null,
+  showButton?: boolean | null
+};
+
+
+const EPGFileDialog = (props: EPGFileDialogProps) => {
 
   const fileUploadRef = useRef<FileUpload>(null);
 
@@ -28,8 +37,6 @@ const FileDialog = (props: FileDialogProps) => {
   const [progress, setProgress] = useState<number>(0);
   const [source, setSource] = useState<string>('');
   const [uploadedBytes, setUploadedBytes] = useState<number>(0);
-  const [maxStreamCount, setMaxStreamCount] = useState<number>(1);
-  const [startingChannelNumber, setStartingChannelNumber] = useState<number>(1);
 
   const [nameFromFileName, setNameFromFileName] = useState<boolean>(false);
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
@@ -37,7 +44,6 @@ const FileDialog = (props: FileDialogProps) => {
   const [infoMessage, setInfoMessage] = React.useState('');
 
   const [epgFilesCreateEpgFileMutation] = useEpgFilesCreateEpgFileMutation();
-  const [m3uFilesCreateM3UFileMutation] = useM3UFilesCreateM3UFileMutation();
 
   const onTemplateSelect = (e: FileUploadSelectEvent) => {
     setActiveFile(e.files[0]);
@@ -145,66 +151,24 @@ const FileDialog = (props: FileDialogProps) => {
   const doUpload = async () => {
     setBlock(true);
     if (source !== '') {
-      switch (props.fileType) {
-        case 'epg':
-          const addEpgFileRequest = {} as CreateEpgFileRequest;
 
-          addEpgFileRequest.name = name;
-          addEpgFileRequest.description = '';
-          addEpgFileRequest.formFile = null;
-          addEpgFileRequest.urlSource = source;
+      const addEpgFileRequest = {} as CreateEpgFileRequest;
 
-          epgFilesCreateEpgFileMutation(addEpgFileRequest)
-            .then(() => {
+      addEpgFileRequest.name = name;
+      addEpgFileRequest.description = '';
+      addEpgFileRequest.formFile = null;
+      addEpgFileRequest.urlSource = source;
 
-              setInfoMessage(`Uploaded EPG: ${name}${activeFile ? '/' + activeFile.name : ''}`);
+      epgFilesCreateEpgFileMutation(addEpgFileRequest)
+        .then(() => {
 
-            }).catch((e) => {
-              setInfoMessage(`Upload EPG: ${name}${activeFile ? '/' + activeFile.name : ''} Error: ${e.message}`);
-            });
+          setInfoMessage(`Uploaded EPG: ${name}${activeFile ? '/' + activeFile.name : ''}`);
 
-          // ReturnToParent(true);
-          break;
-        case 'm3u':
-          const createM3UFileRequest = {} as CreateM3UFileRequest;
+        }).catch((e) => {
+          setInfoMessage(`Upload EPG: ${name}${activeFile ? '/' + activeFile.name : ''} Error: ${e.message}`);
+        });
 
-          createM3UFileRequest.name = name;
-          createM3UFileRequest.description = '';
-          createM3UFileRequest.maxStreamCount = maxStreamCount;
-          createM3UFileRequest.startingChannelNumber = startingChannelNumber;
-          createM3UFileRequest.formFile = null;
-          createM3UFileRequest.urlSource = source;
-
-          await m3uFilesCreateM3UFileMutation(createM3UFileRequest)
-            .then(() => {
-
-              setInfoMessage(`Uploaded M3U: ${name}${activeFile ? '/' + activeFile.name : ''}`);
-
-            }).catch((e) => {
-              setInfoMessage(`Upload M3U: ${name}${activeFile ? '/' + activeFile.name : ''} Error: ${e.message}`);
-            });
-
-          // ReturnToParent(true);
-          break;
-
-        case 'icon':
-        // const addIconFileRequest = {} as AddIconFileRequest;
-
-        // addIconFileRequest.name = name;
-        // addIconFileRequest.formFile = null;
-        // addIconFileRequest.urlSource = source;
-        // await Hub.AddIconFile(addIconFileRequest)
-        //   .then((returnData) => {
-        //     if (returnData) {
-        //       setInfoMessage(`Uploaded Icon: ${name}${activeFile ? '/' + activeFile.name : ''}`);
-        //     }
-        //   }).catch((e) => {
-        //     setInfoMessage(`Upload Icon: ${name}${activeFile ? '/' + activeFile.name : ''} Error: ${e.message}`);
-        //   });
-
-        // // ReturnToParent(true);
-        // break;
-      }
+      // ReturnToParent(true);
 
     } else {
       try {
@@ -213,7 +177,7 @@ const FileDialog = (props: FileDialogProps) => {
           source,
           name,
           activeFile,
-          props.fileType,
+          'epg',
           (event: axios.AxiosProgressEvent) => {
             setUploadedBytes(event.loaded);
             const total = event.total !== undefined ? event.total : 1;
@@ -222,11 +186,11 @@ const FileDialog = (props: FileDialogProps) => {
             setProgress(prog);
           },
         );
-        setInfoMessage(`Uploaded ${props.fileType.toLocaleUpperCase()}: ${name}${activeFile ? '/' + activeFile.name : ''}`);
+        setInfoMessage(`Uploaded EPG: ${name}${activeFile ? '/' + activeFile.name : ''}`);
         // ReturnToParent(true);
       } catch (error: axios.AxiosError | Error | unknown) {
         if (axios.isAxiosError(error)) {
-          setInfoMessage(`Uploaded ${props.fileType.toLocaleUpperCase()}: ${name}${activeFile ? '/' + activeFile.name : ''} Error: ${error.message}`);
+          setInfoMessage(`Uploaded EPG: ${name}${activeFile ? '/' + activeFile.name : ''} Error: ${error.message}`);
 
           // if (error.response) {
           //   console.log(error.response.data);
@@ -291,7 +255,7 @@ const FileDialog = (props: FileDialogProps) => {
       <InfoMessageOverLayDialog
         blocked={block}
         closable
-        header={`Add ${props.fileType.toLocaleUpperCase()} File`}
+        header="Add EPG File"
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
         overlayColSize={6}
@@ -329,31 +293,6 @@ const FileDialog = (props: FileDialogProps) => {
               <label htmlFor="name">Name</label>
             </span>
           </div>
-
-          <div className="field ml-2" hidden={props.fileType !== 'm3u'}>
-
-            <InputNumber
-              className="withpadding"
-              locale="en-US"
-              onChange={(e) => setMaxStreamCount(e.value as number)}
-              prefix='Max '
-              suffix=' streams'
-              value={maxStreamCount}
-            />
-
-          </div>
-
-          <div className="field ml-2" hidden={props.fileType !== 'm3u'}>
-
-            <InputNumber
-              className="withpadding"
-              locale="en-US"
-              onChange={(e) => setStartingChannelNumber(e.value as number)}
-              prefix='Starting Ch #'
-              value={startingChannelNumber}
-            />
-
-          </div>
         </div>
         <Accordion
           activeIndex={activeIndex}
@@ -389,7 +328,7 @@ const FileDialog = (props: FileDialogProps) => {
                   rounded
                   severity="success"
                   size="small"
-                  tooltip={`Add ${props.fileType.toLocaleUpperCase()} File`}
+                  tooltip="Add EPG File"
                   tooltipOptions={getTopToolOptions}
                 />
               </div>
@@ -423,37 +362,15 @@ const FileDialog = (props: FileDialogProps) => {
       </InfoMessageOverLayDialog>
 
       <div hidden={props.showButton === false}>
-        <Button
-          className='mx-1'
-          icon="pi pi-plus"
-          onClick={() => setShowOverlay(true)}
-          rounded
-          severity="success"
-          size="small"
-          style={{
-            ...{
-              maxHeight: "2rem",
-              maxWidth: "2rem"
-            }
-          }}
-          tooltip={`Add ${props.fileType.toLocaleUpperCase()} File`}
-          tooltipOptions={getTopToolOptions}
-        />
+        <AddButton label='Add EPG File' onClick={() => setShowOverlay(true)} tooltip='Add EPG File' />
       </div>
     </>
   );
 };
 
-FileDialog.displayName = 'FileDialog';
-FileDialog.defaultProps = {
+EPGFileDialog.displayName = 'EPGFileDialog';
+EPGFileDialog.defaultProps = {
   showButton: true,
 };
 
-type FileDialogProps = {
-  fileType: string,
-  onHide?: (didUpload: boolean) => void,
-  show?: boolean | null,
-  showButton?: boolean | null
-};
-
-export default React.memo(FileDialog);
+export default React.memo(EPGFileDialog);

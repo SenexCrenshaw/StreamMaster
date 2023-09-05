@@ -1,11 +1,10 @@
-import { Button } from "primereact/button";
 import { Checkbox } from "primereact/checkbox";
 import { useState, useCallback, memo } from "react";
-import { getTopToolOptions } from "../../common/common";
 import { type M3UFileDto } from "../../store/iptvApi";
 import { type DeleteM3UFileRequest } from "../../store/iptvApi";
 import { DeleteM3UFile } from "../../store/signlar_functions";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
+import DeleteButton from "../buttons/DeleteButton";
 
 const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProps) => {
 
@@ -22,7 +21,7 @@ const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProps) => {
     setBlock(false);
   }, []);
 
-  const deleteFile = () => {
+  const deleteFile = async () => {
 
     if (!props.selectedFile) {
       return;
@@ -34,7 +33,7 @@ const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProps) => {
     tosend.id = props.selectedFile.id;
     tosend.deleteFile = deleteFSFile;
 
-    DeleteM3UFile(tosend)
+    await DeleteM3UFile(tosend)
       .then(() => {
         setInfoMessage('M3U File Removed Successfully');
       }).catch((e) => {
@@ -81,39 +80,14 @@ const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProps) => {
             )}
           </span>
           <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
-            <Button
-              icon="pi pi-times "
-              label="Cancel"
-              onClick={(() => ReturnToParent())}
-              rounded
-              severity="warning"
-            />
-            <Button
-              icon="pi pi-check"
-              label="Delete"
-              onClick={deleteFile}
-              rounded
-              severity="danger"
-            />
+
+            <DeleteButton label="Delete M3U File" onClick={async () => await deleteFile()} />
+
           </div>
         </div>
       </InfoMessageOverLayDialog>
 
-      <Button
-        icon="pi pi-minus"
-        onClick={() => setShowOverlay(true)}
-        rounded
-        severity="danger"
-        size="small"
-        style={{
-          ...{
-            maxHeight: "2rem",
-            maxWidth: "2rem"
-          }
-        }}
-        tooltip="Delete M3U File"
-        tooltipOptions={getTopToolOptions}
-      />
+      <DeleteButton iconFilled={false} onClick={() => setShowOverlay(true)} tooltip="Delete M3U File" />
 
     </>
   );
@@ -122,8 +96,7 @@ const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProps) => {
 M3UFileRemoveDialog.displayName = 'M3UFileRemoveDialog';
 
 type M3UFileRemoveDialogProps = {
-  // onFileDeleted: () => void;
-  selectedFile?: M3UFileDto;
+  selectedFile: M3UFileDto;
 };
 
 export default memo(M3UFileRemoveDialog);

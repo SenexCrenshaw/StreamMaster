@@ -93,17 +93,13 @@ public class RefreshEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
                 Repository.EPGFile.UpdateEPGFile(epgFile);
                 await Repository.SaveAsync().ConfigureAwait(false);
 
-                List<ChannelLogoDto> programmes = MemoryCache.ChannelLogos();
+                List<Programme> programmes = MemoryCache.Programmes();
                 programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
                 MemoryCache.Set(programmes);
 
-                List<ChannelLogoDto> channels = MemoryCache.ChannelLogos();
-                channels.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                MemoryCache.Set(channels);
-
-                List<ChannelLogoDto> channelLogos = MemoryCache.ChannelLogos();
-                channelLogos.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                MemoryCache.Set(channelLogos);
+                List<ProgrammeChannel> programmeChannels = MemoryCache.ProgrammeChannels();
+                programmeChannels.RemoveAll(a => a.EPGFileId == epgFile.Id);
+                MemoryCache.Set(programmeChannels);
 
                 List<IconFileDto> programmeIcons = MemoryCache.ProgrammeIcons();
                 programmeIcons.RemoveAll(a => a.FileId == epgFile.Id);

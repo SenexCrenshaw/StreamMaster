@@ -119,7 +119,7 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         if (parentLinks.Count > 0)
         {
             RepositoryContext.VideoStreamLinks.RemoveRange(parentLinks);
-            deletedCount += parentLinks.Count;
+
         }
 
         // Remove associated VideoStreamLinks where the VideoStream is a child
@@ -130,7 +130,17 @@ public class VideoStreamRepository : RepositoryBase<VideoStream>, IVideoStreamRe
         if (childLinks.Count > 0)
         {
             RepositoryContext.VideoStreamLinks.RemoveRange(childLinks);
-            deletedCount += childLinks.Count;
+
+        }
+
+        List<StreamGroupVideoStream> streamgroupLinks = await RepositoryContext.StreamGroupVideoStreams
+          .Where(vsl => videoStreamIds.Contains(vsl.ChildVideoStreamId))
+          .ToListAsync(cancellationToken)
+          .ConfigureAwait(false);
+        if (streamgroupLinks.Count > 0)
+        {
+            RepositoryContext.StreamGroupVideoStreams.RemoveRange(streamgroupLinks);
+
         }
 
         // Remove the VideoStreams

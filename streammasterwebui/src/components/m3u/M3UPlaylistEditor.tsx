@@ -14,9 +14,7 @@ const M3UPlaylistEditor = () => {
       </div >
       <div className="flex col-12 mt-1 m-0 p-0" >
         {/* <div className='col-5 m-0 p-0 pr-1' > */}
-        <M3UFilesEditor
-          onClick={() => { }}
-        />
+        <M3UFilesEditor />
         {/* </div> */}
 
         {/* <div className="col-7 m-0 p-0">

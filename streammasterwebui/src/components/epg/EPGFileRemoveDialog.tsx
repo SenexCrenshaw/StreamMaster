@@ -1,10 +1,9 @@
-import { Button } from "primereact/button";
 import { Checkbox } from "primereact/checkbox";
 import { useState, useCallback, memo } from "react";
-import { getTopToolOptions } from "../../common/common";
 import { type DeleteEpgFileRequest, type EpgFilesDto } from "../../store/iptvApi";
 import { DeleteEPGFile } from "../../store/signlar_functions";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
+import DeleteButton from "../buttons/DeleteButton";
 
 const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
@@ -48,6 +47,7 @@ const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
     <>
       <InfoMessageOverLayDialog
         blocked={block}
+        closable
         header='Delete EPG File'
         infoMessage={infoMessage}
         onClose={() => {
@@ -80,33 +80,15 @@ const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
             )}
           </span>
           <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
-            <Button
-              icon="pi pi-times "
-              label="Cancel"
-              onClick={(() => ReturnToParent())}
-              rounded
-              severity="warning"
-            />
-            <Button
-              icon="pi pi-check"
-              label="Delete"
-              onClick={deleteFile}
-              rounded
-              severity="danger"
-            />
+            <DeleteButton iconFilled={false} onClick={async () => deleteFile} tooltip="Delete EPG File" />
+
           </div>
         </div>
       </InfoMessageOverLayDialog>
-      <Button
-        disabled={props.selectedFile === undefined || props.selectedFile.name === undefined || props.selectedFile.name === ''}
-        icon="pi pi-minus"
-        onClick={() => setShowOverlay(true)}
-        rounded
-        severity="danger"
-        size="small"
-        tooltip="Delete EPG File"
-        tooltipOptions={getTopToolOptions}
-      />
+
+      <DeleteButton iconFilled={false} onClick={() => setShowOverlay(true)} tooltip="Delete EPG File" />
+
+
     </ >
   );
 }

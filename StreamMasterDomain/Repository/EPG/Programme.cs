@@ -19,6 +19,7 @@ public class Programme
     [XmlAttribute(AttributeName = "channel")]
     public string Channel { get; set; } = string.Empty;
 
+
     [XmlIgnore]
     public string ChannelName { get; set; }
     [XmlIgnore]

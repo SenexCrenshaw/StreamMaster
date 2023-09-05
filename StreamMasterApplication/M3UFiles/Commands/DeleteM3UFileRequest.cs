@@ -83,7 +83,7 @@ public class DeleteM3UFileHandler : BaseMemoryRequestHandler, IRequestHandler<De
 
         IQueryable<string> targetM3UFileIdGroups = videoStreams
             .Where(vs => vs.M3UFileId == m3UFile.Id)
-            .Select(vs => vs.Tvg_group);
+            .Select(vs => vs.Tvg_group).Distinct();
 
         IQueryable<string> otherM3UFileIdGroups = videoStreams
             .Where(vs => vs.M3UFileId != m3UFile.Id)

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Cache;
+using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
@@ -62,19 +63,19 @@ public class DeleteEPGFileHandler : BaseMemoryRequestHandler, IRequestHandler<De
             }
         }
 
-        List<StreamMasterDomain.Dto.ChannelLogoDto> programmes = MemoryCache.ChannelLogos();
+        List<ChannelLogoDto> programmes = MemoryCache.ChannelLogos();
         programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
         MemoryCache.Set(programmes);
 
-        List<StreamMasterDomain.Dto.ChannelLogoDto> channels = MemoryCache.ChannelLogos();
+        List<ChannelLogoDto> channels = MemoryCache.ChannelLogos();
         channels.RemoveAll(a => a.EPGFileId == epgFile.Id);
         MemoryCache.Set(channels);
 
-        List<StreamMasterDomain.Dto.ChannelLogoDto> channelLogos = MemoryCache.ChannelLogos();
+        List<ChannelLogoDto> channelLogos = MemoryCache.ChannelLogos();
         channelLogos.RemoveAll(a => a.EPGFileId == epgFile.Id);
         MemoryCache.Set(channelLogos);
 
-        List<StreamMasterDomain.Dto.IconFileDto> programmeIcons = MemoryCache.ProgrammeIcons();
+        List<IconFileDto> programmeIcons = MemoryCache.ProgrammeIcons();
         programmeIcons.RemoveAll(a => a.FileId == epgFile.Id);
         MemoryCache.SetProgrammeLogos(programmeIcons);
 
