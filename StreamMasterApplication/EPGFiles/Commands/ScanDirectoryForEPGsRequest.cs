@@ -57,6 +57,9 @@ public class ScanDirectoryForEPGFilesRequestHandler : BaseMediatorRequestHandler
             epgFile = CreateOrUpdateEPGFile(epgFileInfo);
             await SaveAndPublishEPGFile(epgFile, cancellationToken);
         }
+
+        EPGFilesDto ret = Mapper.Map<EPGFilesDto>(epgFile);
+        await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
     }
 
     private EPGFile CreateOrUpdateEPGFile(FileInfo epgFileInfo)
@@ -96,7 +99,5 @@ public class ScanDirectoryForEPGFilesRequestHandler : BaseMediatorRequestHandler
             epgFile.WriteJSON();
         }
 
-        EPGFilesDto ret = Mapper.Map<EPGFilesDto>(epgFile);
-        await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
     }
 }
