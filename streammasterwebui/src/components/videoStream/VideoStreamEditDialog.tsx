@@ -1,11 +1,10 @@
 
 import { useState, useEffect, useCallback, memo } from "react";
-import { getTopToolOptions } from "../../common/common";
 import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
 import { useVideoStreamsUpdateVideoStreamMutation } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import VideoStreamPanel from "../../features/videoStreamPanel/VideoStreamPanel";
-import { Button } from "primereact/button";
+import EditButton from "../buttons/EditButton";
 
 const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
@@ -71,18 +70,13 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
 
       </InfoMessageOverLayDialog>
 
-      <Button
-        disabled={!videoStream}
-        icon="pi pi-pencil"
-        onClick={() =>
-          setShowOverlay(true)
-        }
-        rounded
-        size="small"
-        text={props.iconFilled !== true}
-        tooltip="Edit Stream"
-        tooltipOptions={getTopToolOptions}
-      />
+
+      <EditButton
+        iconFilled={false}
+        onClick={() => setShowOverlay(true)}
+        tooltip='Edit Group' />
+
+
     </>
 
   );
@@ -93,7 +87,6 @@ VideoStreamEditDialog.defaultProps = {
 }
 
 type VideoStreamEditDialogProps = {
-  readonly iconFilled?: boolean | undefined;
   readonly onClose?: (() => void);
   readonly value?: VideoStreamDto | undefined;
 };

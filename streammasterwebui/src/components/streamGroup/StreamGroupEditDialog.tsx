@@ -9,6 +9,11 @@ import EditButton from "../buttons/EditButton";
 import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
 
 
+type StreamGroupEditDialogProps = {
+  readonly id: string;
+  readonly onHide?: (value: StreamGroupDto | undefined) => void;
+};
+
 const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
@@ -190,10 +195,5 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
 StreamGroupEditDialog.displayName = 'StreamGroupEditDialog';
 StreamGroupEditDialog.defaultProps = {
 }
-
-type StreamGroupEditDialogProps = {
-  readonly id: string;
-  readonly onHide?: (value: StreamGroupDto | undefined) => void;
-};
 
 export default memo(StreamGroupEditDialog);

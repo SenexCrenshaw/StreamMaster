@@ -1,21 +1,20 @@
-import { useState, useCallback, useMemo, memo } from "react";
-import { isEmptyObject } from "../../common/common";
-import { type StreamGroupDto, type DeleteStreamGroupRequest, useStreamGroupsDeleteStreamGroupMutation } from "../../store/iptvApi";
+import { useState, useCallback, memo } from "react";
+import { type DeleteStreamGroupRequest, useStreamGroupsDeleteStreamGroupMutation } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import DeleteButton from "../buttons/DeleteButton";
+import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
 
 type StreamGroupDeleteDialogProps = {
-  readonly iconFilled?: boolean | undefined;
+  readonly id: string;
   readonly onHide?: () => void;
-  readonly value?: StreamGroupDto | undefined;
 };
 
-const StreamGroupDeleteDialog = ({ iconFilled, onHide, value }: StreamGroupDeleteDialogProps) => {
+const StreamGroupDeleteDialog = ({ id, onHide }: StreamGroupDeleteDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
-  const [selectedStreamGroup, setSelectedStreamGroup] = useState<StreamGroupDto>({} as StreamGroupDto);
   const [infoMessage, setInfoMessage] = useState('');
 
+  const { selectedStreamGroup } = useSelectedStreamGroup(id);
   const [streamGroupsDeleteStreamGroupMutations] = useStreamGroupsDeleteStreamGroupMutation();
 
   const ReturnToParent = useCallback(() => {
@@ -25,13 +24,6 @@ const StreamGroupDeleteDialog = ({ iconFilled, onHide, value }: StreamGroupDelet
     onHide?.();
   }, [onHide]);
 
-  useMemo(() => {
-
-    if (value !== null && value !== undefined && !isEmptyObject(value)) {
-      setSelectedStreamGroup(value);
-    }
-
-  }, [value]);
 
   const deleteStreamGroup = useCallback(async () => {
     setBlock(true);
@@ -61,7 +53,7 @@ const StreamGroupDeleteDialog = ({ iconFilled, onHide, value }: StreamGroupDelet
       <InfoMessageOverLayDialog
         blocked={block}
         closable
-        header={`Delete "${selectedStreamGroup.name}" ?`}
+        header='Delete Stream Group?'
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
         show={showOverlay}
@@ -78,16 +70,13 @@ const StreamGroupDeleteDialog = ({ iconFilled, onHide, value }: StreamGroupDelet
         </div>
       </InfoMessageOverLayDialog>
 
-      <DeleteButton iconFilled={iconFilled} onClick={() => setShowOverlay(true)} tooltip='Delete Stream Group' />
+      <DeleteButton onClick={() => setShowOverlay(true)} tooltip='Delete Stream Group' />
 
     </>
   );
 }
 
 StreamGroupDeleteDialog.displayName = 'StreamGroupDeleteDialog';
-StreamGroupDeleteDialog.defaultProps = {
-  iconFilled: true,
-};
 
 export default memo(StreamGroupDeleteDialog);
 

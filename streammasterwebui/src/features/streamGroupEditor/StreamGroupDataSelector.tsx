@@ -54,7 +54,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProps) => {
 
             <StreamGroupAddDialog />
 
-            <StreamGroupDeleteDialog />
+            <StreamGroupDeleteDialog id={id} />
 
           </div >
         </div>

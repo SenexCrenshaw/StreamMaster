@@ -7,7 +7,7 @@ import { getTopToolOptions, GetMessage } from "../../common/common";
 import { type VideoStreamDto } from "../../store/iptvApi";
 import { useVideoStreamsGetVideoStreamsQuery } from "../../store/iptvApi";
 import AutoSetChannelNumbers from "../../components/videoStream/AutoSetChannelNumbers";
-import { useChannelGroupColumnConfig, useM3UFileNameColumnConfig, useEPGColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig, useChannelLogoColumnConfig } from "../../components/columns/columnConfigHooks";
+import { useChannelGroupColumnConfig, useEPGColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig, useChannelLogoColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
 import VideoStreamDeleteDialog from "../../components/videoStream/VideoStreamDeleteDialog";
@@ -27,7 +27,6 @@ type ChannelGroupVideoStreamDataSelectorProps = {
   readonly id: string;
   readonly onSelectionChange?: (value: VideoStreamDto | VideoStreamDto[]) => void;
   readonly reorderable?: boolean;
-  readonly showBrief?: boolean;
 };
 
 const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataSelectorProps) => {
@@ -35,7 +34,6 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
 
   const [enableEditMode, setEnableEditMode] = useState<boolean>(true);
 
-  const { columnConfig: m3uFileNameColumnConfig } = useM3UFileNameColumnConfig(enableEditMode);
   const { columnConfig: epgColumnConfig } = useEPGColumnConfig(enableEditMode);
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig(enableEditMode);
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(enableEditMode);
@@ -71,7 +69,7 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
         <VideoStreamSetLogoFromEPGDialog value={data} />
         <VideoStreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
         <VideoStreamDeleteDialog iconFilled={false} id={dataKey} values={[data]} />
-        <VideoStreamEditDialog iconFilled={false} value={data} />
+        <VideoStreamEditDialog value={data} />
       </div>
     );
   }, [dataKey]);
@@ -98,15 +96,6 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
 
   }, [channelGroupConfig, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig, enableEditMode, epgColumnConfig, targetActionBodyTemplate]);
 
-  const targetBriefColumns = useMemo((): ColumnMeta[] => {
-
-    return [
-      channelNumberColumnConfig,
-      channelNameColumnConfig,
-      channelGroupConfig,
-      m3uFileNameColumnConfig,
-    ]
-  }, [channelNumberColumnConfig, channelNameColumnConfig, channelGroupConfig, m3uFileNameColumnConfig]);
 
   const getToolTip = (value: boolean | null | undefined) => {
     if (value === null) {
@@ -140,31 +129,14 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
     );
   }, [dataKey, props.channelGroupNames, selectedVideoStreams, setShowHidden, showHidden]);
 
-  const rightHeaderBriefTemplate = useMemo(() => {
-
-    return (
-      <div className="flex justify-content-end align-items-center w-full gap-1" >
-
-        <TriStateCheckbox
-          onChange={(e: TriStateCheckboxChangeEvent) => { setShowHidden(e.value); }}
-          tooltip={getToolTip(showHidden)}
-          tooltipOptions={getTopToolOptions}
-          value={showHidden} />
-
-      </div>
-    );
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showHidden]);
-
   return (
     <DataSelector
-      columns={props.showBrief === true ? targetBriefColumns : targetColumns}
+      columns={targetColumns}
       defaultSortField="user_tvg_name"
       defaultSortOrder={1}
       emptyMessage="No Streams"
       headerName={GetMessage('streams')}
-      headerRightTemplate={props.showBrief === true ? rightHeaderBriefTemplate : rightHeaderTemplate}
+      headerRightTemplate={rightHeaderTemplate}
       id={dataKey}
       onSelectionChange={(value, selectAll) => {
         if (selectAll !== true) {
@@ -174,7 +146,7 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
       }}
       queryFilter={useVideoStreamsGetVideoStreamsQuery}
       reorderable={props.reorderable}
-      selectionMode={props.showBrief === true ? 'single' : 'multiple'}
+      selectionMode='multiple'
       style={{ height: 'calc(100vh - 40px)' }}
     />
   );
@@ -183,8 +155,7 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
 ChannelGroupVideoStreamDataSelector.displayName = 'Stream Editor';
 ChannelGroupVideoStreamDataSelector.defaultProps = {
   channelGroupNames: [] as string[],
-  reorderable: false,
-  showBrief: false
+  reorderable: false
 };
 
 
