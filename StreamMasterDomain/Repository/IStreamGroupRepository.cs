@@ -1,15 +1,14 @@
 ﻿using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
-using System.Threading.Tasks;
-
 namespace StreamMasterDomain.Repository
 {
     public interface IStreamGroupRepository : IRepositoryBase<StreamGroup>
     {
+        Task AddStreamGroupRequestAsync(AddStreamGroupRequest request, CancellationToken cancellationToken);
         Task<StreamGroupDto?> Sync(int streamGroupId, string Url, List<string>? ChannelGroupNames, List<VideoStreamIsReadOnly>? VideoStreams, CancellationToken cancellationToken = default);
         Task<StreamGroup?> GetStreamGroupWithRelatedEntitiesByIdAsync(int streamGroupId, CancellationToken cancellationToken);
-        
+
         Task SetGroupNameByGroupName(string channelGroupName, string newGroupName, CancellationToken cancellationToken);
         Task<List<StreamGroupDto>> GetStreamGroupDtos(string Url, CancellationToken cancellationToken = default);
 

@@ -14,7 +14,7 @@ const StreamGroupDeleteDialog = ({ id, onHide }: StreamGroupDeleteDialogProps) =
   const [block, setBlock] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
 
-  const { selectedStreamGroup } = useSelectedStreamGroup(id);
+  const { selectedStreamGroup, setSelectedStreamGroup } = useSelectedStreamGroup(id);
   const [streamGroupsDeleteStreamGroupMutations] = useStreamGroupsDeleteStreamGroupMutation();
 
   const ReturnToParent = useCallback(() => {
@@ -44,8 +44,8 @@ const StreamGroupDeleteDialog = ({ id, onHide }: StreamGroupDeleteDialogProps) =
     }).catch((error) => {
       setInfoMessage('Stream Group Delete Error: ' + error.message);
     });
-
-  }, [ReturnToParent, selectedStreamGroup, streamGroupsDeleteStreamGroupMutations]);
+    setSelectedStreamGroup(undefined);
+  }, [ReturnToParent, selectedStreamGroup, setSelectedStreamGroup, streamGroupsDeleteStreamGroupMutations]);
 
   return (
     <>
@@ -69,8 +69,7 @@ const StreamGroupDeleteDialog = ({ id, onHide }: StreamGroupDeleteDialogProps) =
           </div>
         </div>
       </InfoMessageOverLayDialog>
-
-      <DeleteButton onClick={() => setShowOverlay(true)} tooltip='Delete Stream Group' />
+      <DeleteButton disabled={selectedStreamGroup === undefined || selectedStreamGroup.streamGroupNumber === undefined || selectedStreamGroup.streamGroupNumber === 0} onClick={() => setShowOverlay(true)} tooltip='Delete Stream Group' />
 
     </>
   );

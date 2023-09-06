@@ -22,6 +22,45 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
     private readonly IMapper _mapper;
     private readonly ISender _sender;
 
+    public async Task AddStreamGroupRequestAsync(AddStreamGroupRequest command, CancellationToken cancellationToken)
+    {
+        int streamGroupNumber = GetAllStreamGroups().Max(a => a.StreamGroupNumber) + 1;
+
+        StreamGroup entity = new()
+        {
+            Name = command.Name,
+            StreamGroupNumber = command.StreamGroupNumber,
+        };
+
+        CreateStreamGroup(entity);
+        _ = await RepositoryContext.SaveChangesAsync(cancellationToken);
+
+        if (command.ChannelGroupNames != null && command.ChannelGroupNames.Any())
+        {
+            IQueryable<ChannelGroup> cgs = RepositoryContext.ChannelGroups.Where(a => command.ChannelGroupNames.Contains(a.Name));
+            if (cgs.Any())
+            {
+                foreach (ChannelGroup? cg in cgs)
+                {
+                    _ = await AddChannelGroupToStreamGroupAsync(entity.Id, cg.Id, cancellationToken);
+                }
+            }
+        }
+
+        //if (command.VideoStreamIds != null && command.VideoStreamIds.Any())
+        //{
+        //    var vss = _context.VideoStreams.Where(a => command.VideoStreamIds.Contains(a.Id)).ToList();
+        //    if (vss.Any())
+        //    {
+        //        for (int index = 0; index < vss.Count; index++)
+        //        {
+        //            VideoStream? vs = vss[index];
+        //            await _context.AddOrUpdatVideoStreamToStreamGroupAsync(entity.Id, vs.Id, false, cancellationToken);
+        //        }
+        //    }
+        //}
+
+    }
     public StreamGroupRepository(RepositoryContext repositoryContext, ISortHelper<StreamGroup> StreamGroupSortHelper, IMapper mapper, IMemoryCache memoryCache, ISender sender) : base(repositoryContext)
     {
         _sender = sender;
@@ -32,16 +71,12 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
     public async Task<StreamGroupDto?> GetStreamGroupDtoByStreamGroupNumber(int streamGroupNumber, string Url, CancellationToken cancellationToken = default)
     {
         StreamGroup? sg = await GetStreamGroupByStreamGroupNumberAsync(streamGroupNumber).ConfigureAwait(false);
-        if (sg is not null)
-        {
-            return await GetStreamGroupDto(sg?.Id ?? 0, Url, cancellationToken).ConfigureAwait(false);
-        }
-        return null;
+        return sg is not null ? await GetStreamGroupDto(sg?.Id ?? 0, Url, cancellationToken).ConfigureAwait(false) : null;
     }
 
     public async Task SetGroupNameByGroupName(string channelGroupName, string newGroupName, CancellationToken cancellationToken)
     {
-        await RepositoryContext.VideoStreams
+        _ = await RepositoryContext.VideoStreams
               .Where(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroupName)
               .ExecuteUpdateAsync(s => s.SetProperty(b => b.User_Tvg_group, newGroupName), cancellationToken: cancellationToken)
               .ConfigureAwait(false);
@@ -67,10 +102,10 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
         };
 
         // Add new entity to DbSet
-        await RepositoryContext.StreamGroupChannelGroups.AddAsync(streamGroupChannelGroup, cancellationToken);
+        _ = await RepositoryContext.StreamGroupChannelGroups.AddAsync(streamGroupChannelGroup, cancellationToken);
 
         // Save changes in database
-        await RepositoryContext.SaveChangesAsync(cancellationToken);
+        _ = await RepositoryContext.SaveChangesAsync(cancellationToken);
 
         // Return true indicating successful addition
         return true;
@@ -107,12 +142,17 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
 
     public async Task<StreamGroupDto?> GetStreamGroupDto(int id, string Url, CancellationToken cancellationToken = default)
     {
-        if (id == 0) return new StreamGroupDto { Id = 0, Name = "All" };
+        if (id == 0)
+        {
+            return new StreamGroupDto { Id = 0, Name = "All" };
+        }
 
         StreamGroup? streamGroup = await GetStreamGroupWithRelatedEntitiesByIdAsync(id, cancellationToken);
 
         if (streamGroup == null)
+        {
             return null;
+        }
 
         StreamGroupDto ret = _mapper.Map<StreamGroupDto>(streamGroup);
         Setting _setting = FileUtil.GetSetting();
@@ -125,7 +165,7 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
 
     public IQueryable<StreamGroup> GetAllStreamGroups()
     {
-        return FindAll().OrderBy(p => p.Id);
+        return FindAll();
     }
 
     public IQueryable<StreamGroup> GetAllStreamGroupsWithChannelGroups()
@@ -142,7 +182,10 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
         {
             StreamGroupDto? streamGroup = await GetStreamGroupDto(streamGroupId, Url, cancellationToken);
             if (streamGroup == null)
+            {
                 continue;
+            }
+
             ret.Add(streamGroup);
         }
 
@@ -180,7 +223,7 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
         // Save changes
         try
         {
-            await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return true;
         }
         catch (Exception)
@@ -215,9 +258,9 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
 
             UpdateStreamGroup(streamGroup);
 
-            await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            await Sync(streamGroup.Id, Url, request.ChannelGroupNames, request.VideoStreams, cancellationToken);
+            _ = await Sync(streamGroup.Id, Url, request.ChannelGroupNames, request.VideoStreams, cancellationToken);
 
             StreamGroupDto? ret = await GetStreamGroupDto(streamGroup.Id, Url, cancellationToken);
             return ret;
@@ -271,7 +314,7 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
             if (streamGroup.ChildVideoStreams.Any(a => channelIds.Contains(a.Id)))
             {
                 List<VideoStreamDto> toRemove = streamGroup.ChildVideoStreams.Where(a => channelIds.Contains(a.Id)).ToList();
-                await RemoveChildVideoStreamsFromStreamGroupAsync(streamGroup.Id, toRemove.Select(a => a.Id).ToList(), cancellationToken).ConfigureAwait(false);
+                _ = await RemoveChildVideoStreamsFromStreamGroupAsync(streamGroup.Id, toRemove.Select(a => a.Id).ToList(), cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -293,7 +336,7 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
         List<string> videoIds = validVideoStreams.Select(a => a.VideoStreamId).ToList();
 
         RepositoryContext.StreamGroupVideoStreams.RemoveRange(streamGroupVideoStreams);
-        await RepositoryContext.SaveChangesAsync(cancellationToken);
+        _ = await RepositoryContext.SaveChangesAsync(cancellationToken);
 
         List<StreamGroupVideoStream> toAdd = new();
         for (int i = 0; i < validVideoStreams.Count; i++)
@@ -316,7 +359,7 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
         await RepositoryContext.StreamGroupVideoStreams.AddRangeAsync(toAdd, cancellationToken);
 
         // Save changes in database
-        await RepositoryContext.SaveChangesAsync(cancellationToken);
+        _ = await RepositoryContext.SaveChangesAsync(cancellationToken);
 
         // Return count of added and removed entries
         return; // (added: videoStreamsToAdd.Count, removed: videoStreamsToRemove.Count);
@@ -339,7 +382,7 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
         RepositoryContext.StreamGroupVideoStreams.RemoveRange(streamGroupVideoStreams);
 
         // Save changes in database
-        await RepositoryContext.SaveChangesAsync(cancellationToken);
+        _ = await RepositoryContext.SaveChangesAsync(cancellationToken);
 
         // Return count of removed entries
         return streamGroupVideoStreams.Count;
@@ -356,10 +399,7 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
             throw new Exception("StreamGroup not found.");
         }
 
-        if (validChannelGroupNames == null)
-        {
-            validChannelGroupNames = streamGroup.ChannelGroups.Select(cg => cg.ChannelGroup.Name).ToList();
-        }
+        validChannelGroupNames ??= streamGroup.ChannelGroups.Select(cg => cg.ChannelGroup.Name).ToList();
 
         // Remove ChannelGroups not in validChannelGroupNames
         List<StreamGroupChannelGroup> channelGroupsToRemove = streamGroup.ChannelGroups
@@ -368,7 +408,7 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
 
         foreach (StreamGroupChannelGroup? channelGroupToRemove in channelGroupsToRemove)
         {
-            streamGroup.ChannelGroups.Remove(channelGroupToRemove);
+            _ = streamGroup.ChannelGroups.Remove(channelGroupToRemove);
         }
 
         // Get list of existing ChannelGroup names to avoid adding duplicates
@@ -387,7 +427,7 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
             }
         }
 
-        await RepositoryContext.SaveChangesAsync(cancellationToken);
+        _ = await RepositoryContext.SaveChangesAsync(cancellationToken);
     }
 
     private void UpdateStreamGroup(StreamGroup StreamGroup)
@@ -410,4 +450,6 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
 
         return ret;
     }
+
+
 }

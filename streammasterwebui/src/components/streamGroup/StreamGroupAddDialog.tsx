@@ -1,11 +1,11 @@
 import React from "react";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import { InputText } from "primereact/inputtext";
-import * as StreamMasterApi from '../../store/iptvApi';
-import { AddStreamGroup } from "../../store/signlar_functions";
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import PlayListDataSelector from "../../features/playListEditor/PlayListDataSelector";
 import AddButton from "../buttons/AddButton";
+import { type ChannelGroupDto, type StreamGroupsGetStreamGroupsApiArg, type AddStreamGroupRequest, useStreamGroupsAddStreamGroupMutation } from "../../store/iptvApi";
+import { useStreamGroupsGetStreamGroupsQuery } from "../../store/iptvApi";
 
 const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
@@ -13,9 +13,10 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
   const [infoMessage, setInfoMessage] = React.useState('');
   const [name, setName] = React.useState<string>('');
   const [streamGroupNumber, setStreamGroupNumber] = React.useState<number>();
-  const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[]);
+  const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
 
-  const streamGroupsQuery = StreamMasterApi.useStreamGroupsGetStreamGroupsQuery({} as StreamMasterApi.StreamGroupsGetStreamGroupsApiArg);
+  const streamGroupsQuery = useStreamGroupsGetStreamGroupsQuery({} as StreamGroupsGetStreamGroupsApiArg);
+  const [streamGroupsAddStreamGroupMutation] = useStreamGroupsAddStreamGroupMutation();
 
   const getNextStreamGroupNumber = React.useCallback((): number => {
     if (!streamGroupsQuery?.data?.data) {
@@ -52,6 +53,7 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
   }, [getNextStreamGroupNumber, streamGroupNumber]);
 
   const ReturnToParent = React.useCallback(() => {
+    setSelectedChannelGroups([] as ChannelGroupDto[]);
     setShowOverlay(false);
     setInfoMessage('');
     setName('');
@@ -91,7 +93,7 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
       return;
     }
 
-    const data = {} as StreamMasterApi.AddStreamGroupRequest;
+    const data = {} as AddStreamGroupRequest;
 
     data.name = name;
     data.streamGroupNumber = streamGroupNumber;
@@ -100,13 +102,13 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
       data.channelGroupNames = selectedChannelGroups.map((x) => x.name);
     }
 
-    AddStreamGroup(data)
+    streamGroupsAddStreamGroupMutation(data)
       .then(() => {
         setInfoMessage('Stream Group Added Successfully');
       }).catch((e) => {
         setInfoMessage('Stream Group Add Error: ' + e.message);
       });
-  }, [ReturnToParent, isSaveEnabled, name, selectedChannelGroups, streamGroupNumber]);
+  }, [ReturnToParent, isSaveEnabled, name, selectedChannelGroups, streamGroupNumber, streamGroupsAddStreamGroupMutation]);
 
   React.useEffect(() => {
     const callback = (event: KeyboardEvent) => {
@@ -127,7 +129,7 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
     };
   }, [onAdd, name]);
 
-  const onsetSelectedChannelGroups = React.useCallback((selectedData: StreamMasterApi.ChannelGroupDto | StreamMasterApi.ChannelGroupDto[]) => {
+  const onsetSelectedChannelGroups = React.useCallback((selectedData: ChannelGroupDto | ChannelGroupDto[]) => {
     if (Array.isArray(selectedData)) {
       setSelectedChannelGroups(selectedData);
     } else {
@@ -174,9 +176,10 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
             <AccordionTab header="Groups">
               <div className='col-12 m-0 p-0 pr-1' >
                 <PlayListDataSelector
+                  hideAddRemoveControls
                   id='streamggroupadddialog'
                   maxHeight={400}
-                  onSelectionChange={(e) => onsetSelectedChannelGroups(e as StreamMasterApi.ChannelGroupDto[])}
+                  onSelectionChange={(e) => onsetSelectedChannelGroups(e as ChannelGroupDto[])}
                 />
               </div>
             </AccordionTab>
@@ -184,7 +187,7 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
           </Accordion>
 
           <div className="flex col-12 mt-3 gap-2 justify-content-end">
-            <AddButton label='Add Stream Group' onClick={() => setShowOverlay(true)} tooltip='Add Stream Group' />
+            <AddButton label='Add Stream Group' onClick={() => onAdd()} tooltip='Add Stream Group' />
           </div>
 
         </div>

@@ -6,13 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using StreamMasterApplication.StreamGroups;
 using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.StreamGroups.Queries;
-using StreamMasterApplication.StreamGroupVideoStreams.Commands;
-using StreamMasterApplication.StreamGroupVideoStreams.Queries;
 
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
+using StreamMasterDomain.Repository;
 
 using System.Text;
 
@@ -43,8 +42,8 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [Route("[action]")]
     public async Task<ActionResult> AddStreamGroup(AddStreamGroupRequest request)
     {
-        StreamGroupDto? entity = await Mediator.Send(request).ConfigureAwait(false);
-        return entity != null ? CreatedAtAction(nameof(GetStreamGroup), new { id = entity.Id }, entity) : Ok();
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
     }
 
     [HttpDelete]
@@ -362,5 +361,5 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         return url;
     }
 
-  
+
 }

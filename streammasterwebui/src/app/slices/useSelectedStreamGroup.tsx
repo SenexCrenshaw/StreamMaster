@@ -6,11 +6,19 @@ import { type StreamGroupDto } from '../../store/iptvApi';
 export const useSelectedStreamGroup = (typename: string) => {
   const dispatch: AppDispatch = useDispatch();
 
-  const setSelectedStreamGroup = (streamGroup: StreamGroupDto) => {
-    dispatch(setSelectedStreamGroupInternal({
-      streamGroup: streamGroup,
-      typename
-    }));
+  const setSelectedStreamGroup = (streamGroup: StreamGroupDto | undefined) => {
+    if (streamGroup === undefined) {
+      dispatch(setSelectedStreamGroupInternal({
+        streamGroup: {} as StreamGroupDto,
+        typename
+      }));
+
+    } else {
+      dispatch(setSelectedStreamGroupInternal({
+        streamGroup: streamGroup,
+        typename
+      }));
+    }
   };
 
   const selectedStreamGroup = useSelector((rootState: RootState) => rootState.selectedStreamGroup[typename]);
