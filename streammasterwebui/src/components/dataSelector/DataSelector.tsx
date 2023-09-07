@@ -3,41 +3,27 @@ import './DataSelector.css';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 
-import { type DataTableRowClickEvent } from 'primereact/datatable';
-import { type DataTableSelectionMultipleChangeEvent } from 'primereact/datatable';
-import { type DataTableSelectionSingleChangeEvent } from 'primereact/datatable';
-import { type DataTableSelectAllChangeEvent } from 'primereact/datatable';
-import { type DataTableStateEvent } from 'primereact/datatable';
-import { type DataTablePageEvent } from 'primereact/datatable';
-import { type DataTableExpandedRows } from 'primereact/datatable';
-import { type DataTableRowToggleEvent } from 'primereact/datatable';
-import { type DataTableValue } from 'primereact/datatable';
-import { type DataTableRowData } from 'primereact/datatable';
-import { DataTable } from 'primereact/datatable';
-import { type ReactNode } from 'react';
-import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties } from 'react';
-import { type GetApiArg } from '../../common/common';
-import { type QueryHook } from '../../common/common';
-import { camel2title, getTopToolOptions, isEmptyObject } from '../../common/common';
+import { areArraysEqual } from '@mui/base';
+import { DataTable, type DataTableExpandedRows, type DataTablePageEvent, type DataTableRowClickEvent, type DataTableRowData, type DataTableRowToggleEvent, type DataTableSelectAllChangeEvent, type DataTableSelectionMultipleChangeEvent, type DataTableSelectionSingleChangeEvent, type DataTableStateEvent, type DataTableValue } from 'primereact/datatable';
+import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
+import { camel2title, getTopToolOptions, isEmptyObject, type GetApiArg, type QueryHook } from '../../common/common';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
-import { type ColumnAlign, type ColumnFieldType, type DataSelectorSelectionMode } from './DataSelectorTypes';
-import { type ColumnMeta } from './DataSelectorTypes';
+import { type PagedResponseDto } from '../selectors/BaseSelector';
+import { type ColumnAlign, type ColumnFieldType, type ColumnMeta, type DataSelectorSelectionMode } from './DataSelectorTypes';
 import TableHeader from './TableHeader';
 import bodyTemplate from './bodyTemplate';
-import isPagedTableDto from './isPagedTableDto';
 import generateFilterData from './generateFilterData';
 import getEmptyFilter from './getEmptyFilter';
 import getHeader from './getHeader';
-import useDataSelectorState from './useDataSelectorState';
 import getRecord from './getRecord';
 import getRecordString from './getRecordString';
-import { type PagedResponseDto } from '../selectors/BaseSelector';
-import { areArraysEqual } from '@mui/base';
+import isPagedTableDto from './isPagedTableDto';
+import useDataSelectorState from './useDataSelectorState';
 
+import { useQueryFilter } from '../../app/slices/useQueryFilter';
 import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';
 import useSetQueryFilter from './useSetQueryFilter';
-import { useQueryFilter } from '../../app/slices/useQueryFilter';
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
   const { state, setters } = useDataSelectorState<T>(props.id);
@@ -324,8 +310,9 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       ...style,
       flexGrow: 0,
       flexShrink: 1,
-      // maxWidth: '10rem',
       overflow: 'hidden',
+      paddingLeft: '0.5rem !important',
+      paddingRight: '0.5rem !important',
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap',
 
@@ -482,7 +469,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           onSelectAllChange={props.reorderable ? undefined : onSelectAllChange}
           onSelectionChange={((e) => props.reorderable ? undefined : onSelectionChange(e))}
           onSort={onSort}
-          // onValueChange={(e) => { onValueChanged(e); }}
           paginator
           paginatorClassName='text-xs p-0 m-0 withpadding'
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
@@ -513,14 +499,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           value={state.dataSource}
           virtualScrollerOptions={props.enableVirtualScroll === true ? { itemSize: 16, orientation: 'vertical' } : undefined}
         >
-          {/* <Column
-            body={<i className="pi pi-chevron-right" />}
-            className='max-w-1rem p-0 justify-content-center align-items-center'
-            field='selector'
-            header=""
-            hidden={!props.showSelector}
-            style={{ width: '1rem' }}
-          /> */}
           <Column
             className='max-w-2rem p-0 justify-content-center align-items-center'
             field='rank'
@@ -589,8 +567,6 @@ DataSelector.defaultProps = {
   selectionMode: 'single',
   showHeaders: true
 };
-
-
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type BaseDataSelectorProps<T = any> = {

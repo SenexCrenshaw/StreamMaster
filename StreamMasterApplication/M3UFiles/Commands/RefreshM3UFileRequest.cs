@@ -1,21 +1,8 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.Extensions.Logging;
-
-using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Dto;
+﻿using FluentValidation;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
 
-[RequireAll]
-public class RefreshM3UFileRequest : IRequest<M3UFile?>
-{
-    public int Id { get; set; }
-}
+public record RefreshM3UFileRequest(int Id) : IRequest<M3UFile?> { }
 
 public class RefreshM3UFileRequestValidator : AbstractValidator<RefreshM3UFileRequest>
 {
@@ -24,17 +11,17 @@ public class RefreshM3UFileRequestValidator : AbstractValidator<RefreshM3UFileRe
         _ = RuleFor(v => v.Id).NotNull().GreaterThanOrEqualTo(0);
     }
 }
-
 public class RefreshM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<RefreshM3UFileRequest, M3UFile?>
 {
-    public RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
+
+    public RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+ : base(logger, repository, mapper, publisher, sender, hubContext) { }
 
     public async Task<M3UFile?> Handle(RefreshM3UFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            var m3uFile = await Repository.M3UFile.GetM3UFileByIdAsync(request.Id).ConfigureAwait(false);
+            M3UFile m3uFile = await Repository.M3UFile.GetM3UFileByIdAsync(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 return null;
@@ -83,7 +70,7 @@ public class RefreshM3UFileRequestHandler : BaseMediatorRequestHandler, IRequest
                 }
 
                 Repository.M3UFile.UpdateM3UFile(m3uFile);
-                await Repository.SaveAsync().ConfigureAwait(false);
+                _ = await Repository.SaveAsync().ConfigureAwait(false);
 
                 M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
                 await Publisher.Publish(new M3UFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);

@@ -1,13 +1,4 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.M3UFiles.Commands;
-
-using StreamMasterDomain.Dto;
-using StreamMasterDomain.Pagination;
+﻿using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.ChannelGroups.Queries;
 
@@ -15,8 +6,8 @@ public record GetChannelGroupsQuery(ChannelGroupParameters Parameters) : IReques
 
 internal class GetChannelGroupsQueryHandler : BaseMediatorRequestHandler, IRequestHandler<GetChannelGroupsQuery, PagedResponse<ChannelGroupDto>>
 {
-    public GetChannelGroupsQueryHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
+    public GetChannelGroupsQueryHandler(ILogger<GetChannelGroupsQuery> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+: base(logger, repository, mapper, publisher, sender, hubContext) { }
 
     public async Task<PagedResponse<ChannelGroupDto>> Handle(GetChannelGroupsQuery request, CancellationToken cancellationToken)
     {
@@ -25,8 +16,10 @@ internal class GetChannelGroupsQueryHandler : BaseMediatorRequestHandler, IReque
 
         if (request.Parameters.PageSize == 0)
         {
-            PagedResponse<ChannelGroupDto> emptyResponse = new();
-            emptyResponse.TotalItemCount = count;
+            PagedResponse<ChannelGroupDto> emptyResponse = new()
+            {
+                TotalItemCount = count
+            };
             return emptyResponse;
         }
 

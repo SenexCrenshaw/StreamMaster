@@ -1,30 +1,12 @@
-﻿using AutoMapper;
+﻿namespace StreamMasterApplication.VideoStreams.Queries;
 
-using MediatR;
+public record GetVideoStreamsForChannelGroups(List<int> ChannelGroupIds) : IRequest<List<VideoStreamDto>>;
 
-using Microsoft.Extensions.Logging;
-
-using StreamMasterDomain.Dto;
-using StreamMasterDomain.Pagination;
-
-using System.Diagnostics;
-
-namespace StreamMasterApplication.VideoStreams.Queries;
-
-public record GetVideoStreamsForChannelGroups(VideoStreamParameters VideoStreamParameters) : IRequest<PagedResponse<VideoStreamDto>>;
-
-internal class GetVideoStreamsForChannelGroupsHandler : BaseMediatorRequestHandler, IRequestHandler<GetVideoStreamsForChannelGroups, PagedResponse<VideoStreamDto>>
+internal class GetVideoStreamsForChannelGroupsHandler(ILogger<GetVideoStreamsForChannelGroups> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, publisher, sender, hubContext), IRequestHandler<GetVideoStreamsForChannelGroups, List<VideoStreamDto>>
 {
-    public GetVideoStreamsForChannelGroupsHandler(ILogger<GetVideoStreamsForChannelGroups> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
-
-    public async Task<PagedResponse<VideoStreamDto>> Handle(GetVideoStreamsForChannelGroups request, CancellationToken cancellationToken)
+    public async Task<List<VideoStreamDto>> Handle(GetVideoStreamsForChannelGroups request, CancellationToken cancellationToken)
     {
-        Stopwatch stopwatch = Stopwatch.StartNew();
-        PagedResponse<VideoStreamDto> ret = await Repository.VideoStream.GetVideoStreams(request.VideoStreamParameters, cancellationToken);
-        stopwatch.Stop();
-        Logger.LogInformation($"ElapsedMilliseconds: {stopwatch.ElapsedMilliseconds} ms got {ret.Data.Count} out of {ret.TotalItemCount}");
-
+        List<VideoStreamDto> ret = await Repository.VideoStream.GetVideoStreamsForChannelGroups(request.ChannelGroupIds, cancellationToken);
         return ret;
     }
 }

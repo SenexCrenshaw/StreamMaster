@@ -40,7 +40,7 @@ public class VideoStreamLinksController : ApiControllerBase, IVideoStreamLinkCon
         _mapper = mapper;
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> AddVideoStreamToVideoStream(AddVideoStreamToVideoStreamRequest request, CancellationToken cancellationToken)
     {
@@ -64,7 +64,7 @@ public class VideoStreamLinksController : ApiControllerBase, IVideoStreamLinkCon
         return Ok(data);
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> RemoveVideoStreamFromVideoStream(RemoveVideoStreamFromVideoStreamRequest request, CancellationToken cancellationToken)
     {

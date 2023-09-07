@@ -94,7 +94,7 @@ public sealed class QueuedHostedService : BackgroundService
                     case SMQueCommand.ProcessEPGFile:
                         if (command.Entity is not null && command.Entity.GetType() == typeof(int))
                         {
-                            _ = await _sender.Send(new ProcessEPGFileRequest { Id = (int)command.Entity }, cancellationToken).ConfigureAwait(false);
+                            _ = await _sender.Send(new ProcessEPGFileRequest((int)command.Entity), cancellationToken).ConfigureAwait(false);
                         }
                         break;
 
@@ -106,7 +106,7 @@ public sealed class QueuedHostedService : BackgroundService
 
                         if (command.Entity is not null && command.Entity.GetType() == typeof(int))
                         {
-                            _ = await _sender.Send(new ProcessM3UFileRequest { Id = (int)command.Entity }, cancellationToken).ConfigureAwait(false);
+                            _ = await _sender.Send(new ProcessM3UFileRequest((int)command.Entity), cancellationToken).ConfigureAwait(false);
                         }
                         break;
 

@@ -1,35 +1,14 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
+﻿using FluentValidation;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 
-using StreamMasterApplication.M3UFiles.Commands;
-
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Repository.EPG;
 
-using System.ComponentModel.DataAnnotations;
 using System.Web;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
-public class CreateEPGFileRequest : IRequest<EPGFilesDto?>
-{
-    public string? Description { get; set; }
-
-    public int EPGRank { get; set; }
-    public IFormFile? FormFile { get; set; }
-
-    [Required]
-    public string Name { get; set; } = string.Empty;
-
-    public string? UrlSource { get; set; }
-}
-
+public record CreateEPGFileRequest(string? Description, int EPGRank, IFormFile? FormFile, string Name, string? UrlSource) : IRequest<EPGFileDto?> { }
 public class CreateEPGFileRequestValidator : AbstractValidator<CreateEPGFileRequest>
 {
     public CreateEPGFileRequestValidator()
@@ -43,13 +22,15 @@ public class CreateEPGFileRequestValidator : AbstractValidator<CreateEPGFileRequ
     }
 }
 
-public class CreateEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateEPGFileRequest, EPGFilesDto?>
+public class CreateEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateEPGFileRequest, EPGFileDto?>
 {
 
-    public CreateEPGFileRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
 
-    public async Task<EPGFilesDto?> Handle(CreateEPGFileRequest command, CancellationToken cancellationToken)
+    public CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+: base(logger, repository, mapper, publisher, sender, hubContext) { }
+
+
+    public async Task<EPGFileDto?> Handle(CreateEPGFileRequest command, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(command.UrlSource) && command.FormFile != null && command.FormFile.Length <= 0)
         {
@@ -127,7 +108,7 @@ public class CreateEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestH
             _ = await Repository.SaveAsync().ConfigureAwait(false);
             epgFile.WriteJSON();
 
-            EPGFilesDto ret = Mapper.Map<EPGFilesDto>(epgFile);
+            EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
             await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
 
             return ret;

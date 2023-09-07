@@ -11,7 +11,7 @@ public partial class BackgroundTaskQueue : IM3UFileTasks
     {
         if (immediate)
         {
-            _ = await _sender.Send(new ProcessM3UFileRequest { Id = Id }, cancellationToken).ConfigureAwait(false);
+            _ = await _sender.Send(new ProcessM3UFileRequest(Id), cancellationToken).ConfigureAwait(false);
         }
         else
         {

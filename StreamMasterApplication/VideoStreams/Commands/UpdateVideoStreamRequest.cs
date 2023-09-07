@@ -1,16 +1,6 @@
-﻿using AutoMapper;
+﻿using FluentValidation;
 
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.ChannelGroups.Events;
 using StreamMasterApplication.VideoStreams.Events;
-
-using System.Diagnostics;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
@@ -22,29 +12,18 @@ public class UpdateVideoStreamRequestValidator : AbstractValidator<UpdateVideoSt
     }
 }
 
-public class UpdateVideoStreamRequestHandler : BaseMemoryRequestHandler, IRequestHandler<UpdateVideoStreamRequest, bool>
+public class UpdateVideoStreamRequestHandler(ILogger<UpdateVideoStreamRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateVideoStreamRequest, VideoStreamDto?>
 {
-
-    public UpdateVideoStreamRequestHandler(ILogger<UpdateVideoStreamRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache)
-    { }
-
-    public async Task<bool> Handle(UpdateVideoStreamRequest request, CancellationToken cancellationToken)
+    public async Task<VideoStreamDto?> Handle(UpdateVideoStreamRequest request, CancellationToken cancellationToken)
     {
-        Stopwatch stopWatch = Stopwatch.StartNew();
 
-        bool ret = await Repository.VideoStream.UpdateVideoStreamAsync(request, cancellationToken).ConfigureAwait(false);
-
-        if (ret)
+        (VideoStreamDto? videoStream, bool updateChannelGroup) = await Repository.VideoStream.UpdateVideoStreamAsync(request, cancellationToken).ConfigureAwait(false);
+        if (videoStream is not null)
         {
-            if (request.IsHidden != null)
-            {
-                await Publisher.Publish(new UpdateChannelGroupEvent(), cancellationToken).ConfigureAwait(false);
-            }
-            await Publisher.Publish(new UpdateVideoStreamEvent(), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateVideoStreamEvent(videoStream, updateChannelGroup), cancellationToken).ConfigureAwait(false);
         }
-        stopWatch.Stop();
-        Logger.LogInformation($"UpdateVideoStreamRequestHandler - ElapsedMilliseconds: {stopWatch.ElapsedMilliseconds}");
-        return ret;
+
+
+        return videoStream;
     }
 }

@@ -1,20 +1,12 @@
-﻿using AutoMapper;
+﻿using FluentValidation;
 
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.ChannelGroups.Commands;
-using StreamMasterApplication.ChannelGroups.Events;
+using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
-public record DeleteAllVideoStreamsFromParametersRequest(VideoStreamParameters Parameters) : IRequest { }
+public record DeleteAllVideoStreamsFromParametersRequest(VideoStreamParameters Parameters) : IRequest<bool> { }
 
 public class DeleteAllVideoStreamsFromParametersRequestValidator : AbstractValidator<DeleteAllVideoStreamsFromParametersRequest>
 {
@@ -24,18 +16,21 @@ public class DeleteAllVideoStreamsFromParametersRequestValidator : AbstractValid
     }
 }
 
-public class DeleteAllVideoStreamsFromParametersRequestHandler : BaseMemoryRequestHandler, IRequestHandler<DeleteAllVideoStreamsFromParametersRequest>
+public class DeleteAllVideoStreamsFromParametersRequestHandler : BaseMemoryRequestHandler, IRequestHandler<DeleteAllVideoStreamsFromParametersRequest, bool>
 {
 
-    public DeleteAllVideoStreamsFromParametersRequestHandler(ILogger<DeleteAllVideoStreamsFromParametersRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
-    public async Task Handle(DeleteAllVideoStreamsFromParametersRequest request, CancellationToken cancellationToken)
+    public DeleteAllVideoStreamsFromParametersRequestHandler(ILogger<DeleteAllVideoStreamsFromParametersRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
+
+    public async Task<bool> Handle(DeleteAllVideoStreamsFromParametersRequest request, CancellationToken cancellationToken)
     {
-        bool ret = await Repository.VideoStream.DeleteAllVideoStreamsFromParameters(request.Parameters, cancellationToken).ConfigureAwait(false);
-        if (ret)
+        IEnumerable<string> ret = await Repository.VideoStream.DeleteAllVideoStreamsFromParameters(request.Parameters, cancellationToken).ConfigureAwait(false);
+        if (ret.Any())
         {
-            await Sender.Send(new UpdateChannelGroupCountsRequest(), cancellationToken).ConfigureAwait(false);
-            await Publisher.Publish(new UpdateChannelGroupEvent(), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new DeleteVideoStreamsEvent(ret), cancellationToken).ConfigureAwait(false);
+            return true;
         }
+
+        return false;
     }
 }

@@ -2,16 +2,19 @@
 
 using EFCore.BulkExtensions;
 
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+
+using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 
-using System.Diagnostics;
 using System.Linq.Dynamic.Core;
 
 namespace StreamMasterInfrastructureEF.Repositories;
@@ -20,12 +23,14 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
 {
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
+    private readonly ISender _sender;
     private readonly ILogger _logger;
-    public ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache) : base(repositoryContext)
+    public ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : base(repositoryContext)
     {
         _memoryCache = memoryCache;
         _mapper = mapper;
         _logger = logger;
+        _sender = sender;
     }
 
     public IQueryable<ChannelGroup> GetAllChannelGroups()
@@ -58,37 +63,45 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         return channelGroups;
     }
 
-    private async Task<List<ChannelGroup>> GetChannelGroupsFromVideoStream(VideoStreamDto videoStreamDto, CancellationToken cancellationToken)
+    private async Task<ChannelGroup?> GetChannelGroupFromVideoStream(string channelGroupName, CancellationToken cancellationToken)
     {
-        Stopwatch stopwatch = new();
-        stopwatch.Start();
-        ChannelGroup? channelGroup = await GetChannelGroupByNameAsync(videoStreamDto.User_Tvg_group).ConfigureAwait(false);
+        return await GetChannelGroupByNameAsync(channelGroupName).ConfigureAwait(false);
+    }
 
-        if (channelGroup == null)
+    public async Task<string?> GetChannelGroupNameFromVideoStream(string videoStreamId, CancellationToken cancellationToken)
+    {
+
+        VideoStream? videoStream = await RepositoryContext.VideoStreams.FirstOrDefaultAsync(a => a.Id == videoStreamId, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        if (videoStream == null)
         {
-            return new();
+            return null;
         }
 
-        stopwatch.Stop();
-        _logger.LogInformation($"GetChannelNamesFromVideoStream took {stopwatch.ElapsedMilliseconds} ms");
-        return new List<ChannelGroup>() { channelGroup };
-
+        return videoStream.User_Tvg_name;
     }
 
-    public async Task<List<string>> GetChannelNamesFromVideoStream(VideoStreamDto videoStreamDto, CancellationToken cancellationToken)
+    public async Task<ChannelGroupDto?> GetChannelGroupFromVideoStreamId(string VideoStreamId, CancellationToken cancellationToken)
     {
+        VideoStream? videoStream = await RepositoryContext.VideoStreams.FirstOrDefaultAsync(a => a.Id == VideoStreamId, cancellationToken: cancellationToken);
 
-        List<ChannelGroup> res = await GetChannelGroupsFromVideoStream(videoStreamDto, cancellationToken).ConfigureAwait(false);
+        if (videoStream == null)
+        {
+            return null;
+        }
 
-        return res.Select(a => a.Name).ToList();
+        ChannelGroup? res = await GetChannelGroupFromVideoStream(videoStream.User_Tvg_group, cancellationToken).ConfigureAwait(false);
 
+        ChannelGroupDto? ret = _mapper.Map<ChannelGroupDto?>(res);
+
+        return ret;
     }
 
-    public async Task<List<int>> GetChannelIdsFromVideoStream(VideoStreamDto videoStreamDto, CancellationToken cancellationToken)
+    public async Task<int?> GetChannelGroupIdFromVideoStream(string channelGroupName, CancellationToken cancellationToken)
     {
-        List<ChannelGroup> res = await GetChannelGroupsFromVideoStream(videoStreamDto, cancellationToken).ConfigureAwait(false);
+        ChannelGroup? res = await GetChannelGroupFromVideoStream(channelGroupName, cancellationToken).ConfigureAwait(false);
 
-        return res.Select(a => a.Id).ToList();
+        return res?.Id;
     }
 
     public async Task<ChannelGroup?> GetChannelGroupById(int Id)
@@ -120,8 +133,8 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
 
     public async Task<ChannelGroup?> GetChannelGroupByNameAsync(string name)
     {
-        return await FindByCondition(channelGroup => channelGroup.Name.Equals(name))
-                         .FirstOrDefaultAsync();
+        return await FindByCondition(channelGroup => channelGroup.Name.Equals(name)).FirstOrDefaultAsync();
+
     }
 
     public async Task<IEnumerable<ChannelGroup>> GetAllChannelGroupsAsync()
@@ -137,22 +150,42 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
 
     }
 
-    public void DeleteChannelGroup(ChannelGroup ChannelGroup)
+    public async Task<(int? ChannelGroupId, IEnumerable<VideoStreamDto> VideoStreams)> DeleteChannelGroup(ChannelGroup ChannelGroup)
     {
+        List<VideoStreamDto> vgs = await _sender.Send(new GetVideoStreamsForChannelGroups([ChannelGroup.Id]));
         Delete(ChannelGroup);
+        await RepositoryContext.SaveChangesAsync();
+        return (ChannelGroup.Id, vgs);
     }
 
     public void UpdateChannelGroup(ChannelGroup ChannelGroup)
     {
         Update(ChannelGroup);
     }
-    public async Task<List<int>> DeleteAllChannelGroupsFromParameters(ChannelGroupParameters Parameters, CancellationToken cancellationToken)
+    public async Task<(IEnumerable<int> ChannelGroupIds, IEnumerable<VideoStreamDto> VideoStreams)> DeleteAllChannelGroupsFromParameters(ChannelGroupParameters Parameters, CancellationToken cancellationToken)
     {
         IQueryable<ChannelGroup> toDelete = GetIQueryableForEntity(Parameters).Where(a => !a.IsReadOnly);
-        List<int> ret = await toDelete.Select(a => a.Id).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        List<int> ret = toDelete.Select(a => a.Id).ToList();
+        List<VideoStreamDto> videoStreams = await _sender.Send(new GetVideoStreamsForChannelGroups(ret), cancellationToken).ConfigureAwait(false);
         await RepositoryContext.BulkDeleteAsync(toDelete, cancellationToken: cancellationToken).ConfigureAwait(false);
-        //await RepositoryContext.SaveChangesAsync(cancellationToken);
-        return ret;
+
+        return (ret, videoStreams);
     }
 
+    public Task<List<ChannelGroupDto>> GetChannelGroupsFromVideoStreamIds(IEnumerable<string> VideoStreamIds, CancellationToken cancellationToken)
+    {
+        IQueryable<VideoStream> videoStreams = RepositoryContext.VideoStreams.Where(a => VideoStreamIds.Contains(a.Id));
+
+        //if (!videoStreams.Any())
+        //{
+        //    return new();
+        //}
+
+        IQueryable<string> channeNames = videoStreams.Select(a => a.User_Tvg_group).Distinct();
+        IQueryable<ChannelGroup> res = FindByCondition(a => channeNames.Contains(a.Name));
+
+        List<ChannelGroupDto> ret = _mapper.Map<List<ChannelGroupDto>>(res);
+
+        return Task.FromResult(ret);
+    }
 }

@@ -1,15 +1,4 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.M3UFiles.Commands;
-
-using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Dto;
+﻿using FluentValidation;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
@@ -24,8 +13,9 @@ public class UpdateChannelGroupsRequestValidator : AbstractValidator<UpdateChann
 
 public class UpdateChannelGroupsRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateChannelGroupsRequest>
 {
-    public UpdateChannelGroupsRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
+
+    public UpdateChannelGroupsRequestHandler(ILogger<UpdateChannelGroupsRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+ : base(logger, repository, mapper, publisher, sender, hubContext) { }
 
     public async Task Handle(UpdateChannelGroupsRequest requests, CancellationToken cancellationToken)
     {

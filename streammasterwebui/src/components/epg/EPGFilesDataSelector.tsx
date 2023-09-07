@@ -5,7 +5,7 @@ import { Toast } from "primereact/toast";
 import { type CSSProperties } from "react";
 import { useRef, useCallback, useMemo, memo } from "react";
 import { formatJSONDateString, getTopToolOptions } from "../../common/common";
-import { type EpgFilesDto, type UpdateEpgFileRequest, type M3UFileDto } from "../../store/iptvApi";
+import { type EpgFileDto, type UpdateEpgFileRequest, type M3UFileDto } from "../../store/iptvApi";
 import { useEpgFilesUpdateEpgFileMutation, useEpgFilesGetEpgFilesQuery } from "../../store/iptvApi";
 import NumberEditorBodyTemplate from "../NumberEditorBodyTemplate";
 import StringEditorBodyTemplate from "../StringEditorBodyTemplate";
@@ -74,7 +74,7 @@ const EPGFilesDataSelector = () => {
 
   }, [epgFilesUpdateEpgFileMutation]);
 
-  const lastDownloadedTemplate = useCallback((rowData: EpgFilesDto) => {
+  const lastDownloadedTemplate = useCallback((rowData: EpgFileDto) => {
     if (rowData.id === 0) {
       return (<div />);
     }
@@ -86,7 +86,7 @@ const EPGFilesDataSelector = () => {
     );
   }, []);
 
-  const nameEditorBodyTemplate = useCallback((rowData: EpgFilesDto) => {
+  const nameEditorBodyTemplate = useCallback((rowData: EpgFileDto) => {
     if (rowData.id === 0) {
       return (
         <div className='p-0 relative'
@@ -115,7 +115,7 @@ const EPGFilesDataSelector = () => {
     )
   }, [onEPGUpdateClick]);
 
-  const programmeCountTemplate = useCallback((rowData: EpgFilesDto) => {
+  const programmeCountTemplate = useCallback((rowData: EpgFileDto) => {
     if (rowData.id === 0) {
       return (<div />);
     }
@@ -125,7 +125,7 @@ const EPGFilesDataSelector = () => {
     );
   }, []);
 
-  const targetActionBodyTemplate = useCallback((rowData: EpgFilesDto) => {
+  const targetActionBodyTemplate = useCallback((rowData: EpgFileDto) => {
     if (rowData.id === 0) {
       return (<div />);
     }

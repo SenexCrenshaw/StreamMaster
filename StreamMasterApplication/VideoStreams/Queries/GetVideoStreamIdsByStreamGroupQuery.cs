@@ -1,29 +1,19 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.M3UFiles.Commands;
 
 namespace StreamMasterApplication.VideoStreams.Queries;
 
-public record GetVideoStreamIdsByStreamGroupQuery(int streamGroupId) : IRequest<List<string>> { }
+public record GetVideoStreamIdsByStreamGroupQuery(int StreamGroupId) : IRequest<List<string>> { }
 
-internal class GetVideoStreamIdsByStreamGroupQueryHandler : BaseRequestHandler, IRequestHandler<GetVideoStreamIdsByStreamGroupQuery, List<string>>
+internal class GetVideoStreamIdsByStreamGroupQueryHandler(ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper) : BaseRequestHandler(logger, repository, mapper), IRequestHandler<GetVideoStreamIdsByStreamGroupQuery, List<string>>
 {
-
-    public GetVideoStreamIdsByStreamGroupQueryHandler(ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper)
-        : base(logger, repository, mapper) { }
-
-
     public async Task<List<string>> Handle(GetVideoStreamIdsByStreamGroupQuery request, CancellationToken cancellationToken)
     {
 
         // Fetch the stream group with associated channel groups
         StreamGroup? streamGroup = Repository.StreamGroup.GetAllStreamGroupsWithChannelGroups()
-            .SingleOrDefault(sg => sg.Id == request.streamGroupId);
+            .SingleOrDefault(sg => sg.Id == request.StreamGroupId);
         if (streamGroup == null)
         {
             return new();

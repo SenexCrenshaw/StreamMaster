@@ -2,13 +2,13 @@
 
 using StreamMasterApplication.ChannelGroups.Commands;
 
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.ChannelGroups;
 
 public interface IChannelGroupController
 {
+    Task<ActionResult<List<ChannelGroupDto>>> GetAllChannelGroups();
     Task<ActionResult> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request);
     Task<ActionResult<List<string>>> GetChannelGroupNames();
 
@@ -32,6 +32,7 @@ public interface IChannelGroupDB
 
 public interface IChannelGroupHub
 {
+    Task<List<ChannelGroupDto>> GetAllChannelGroups();
     Task DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request);
     Task<List<string>> GetChannelGroupNames();
     Task CreateChannelGroup(CreateChannelGroupRequest request);

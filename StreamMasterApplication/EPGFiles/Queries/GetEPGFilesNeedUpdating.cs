@@ -1,22 +1,14 @@
-﻿using AutoMapper;
+﻿namespace StreamMasterApplication.EPGFiles.Queries;
 
-using MediatR;
+public record GetEPGFilesNeedUpdating() : IRequest<IEnumerable<EPGFileDto>>;
 
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterDomain.Dto;
-
-namespace StreamMasterApplication.EPGFiles.Queries;
-
-public record GetEPGFilesNeedUpdating() : IRequest<IEnumerable<EPGFilesDto>>;
-
-internal class GetEPGFilesNeedUpdatingHandler : BaseMemoryRequestHandler, IRequestHandler<GetEPGFilesNeedUpdating, IEnumerable<EPGFilesDto>>
+internal class GetEPGFilesNeedUpdatingHandler : BaseMemoryRequestHandler, IRequestHandler<GetEPGFilesNeedUpdating, IEnumerable<EPGFileDto>>
 {
-    public GetEPGFilesNeedUpdatingHandler(ILogger<GetEPGFilesNeedUpdatingHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
 
-    public async Task<IEnumerable<EPGFilesDto>> Handle(GetEPGFilesNeedUpdating request, CancellationToken cancellationToken = default)
+    public GetEPGFilesNeedUpdatingHandler(ILogger<GetEPGFilesNeedUpdating> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+ : base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
+
+    public async Task<IEnumerable<EPGFileDto>> Handle(GetEPGFilesNeedUpdating request, CancellationToken cancellationToken = default)
     {
         DateTime now = DateTime.Now;
 
@@ -31,7 +23,7 @@ internal class GetEPGFilesNeedUpdatingHandler : BaseMemoryRequestHandler, IReque
                 epgFiles.Add(epgFile);
             }
         }
-        IEnumerable<EPGFilesDto> ret = Mapper.Map<IEnumerable<EPGFilesDto>>(epgFiles);
+        IEnumerable<EPGFileDto> ret = Mapper.Map<IEnumerable<EPGFileDto>>(epgFiles);
         return ret;
     }
 }

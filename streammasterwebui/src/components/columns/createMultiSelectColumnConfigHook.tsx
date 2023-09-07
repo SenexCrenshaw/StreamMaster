@@ -1,11 +1,8 @@
 import { type ColumnFilterElementTemplateOptions } from "primereact/column";
-import { type MultiSelectChangeEvent } from "primereact/multiselect";
-import { MultiSelect } from "primereact/multiselect";
+import { MultiSelect, type MultiSelectChangeEvent } from "primereact/multiselect";
+import { isEmptyObject, type QueryHook } from "../../common/common";
 import { type VideoStreamDto } from "../../store/iptvApi";
-import { type ColumnFieldType } from "../dataSelector/DataSelectorTypes";
-import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
-import { type QueryHook } from "../../common/common";
-import { isEmptyObject } from "../../common/common";
+import { type ColumnFieldType, type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 
 
 type DataField = keyof VideoStreamDto;
@@ -16,6 +13,8 @@ type ColumnConfigInputs = {
   dataField: DataField,
   fieldType?: ColumnFieldType,
   headerTitle: string,
+  maxWidth?: number,
+  minWidth?: number,
   queryHook?: QueryHook<string[]>,
   useFilter?: boolean,
   width?: number
@@ -25,7 +24,9 @@ const createMultiSelectColumnConfigHook = ({
   dataField,
   fieldType,
   headerTitle,
-  width = 2,
+  maxWidth = undefined,
+  minWidth = undefined,
+  width = undefined,
   EditorComponent,
   useFilter = true,
   queryHook
@@ -97,8 +98,9 @@ const createMultiSelectColumnConfigHook = ({
       sortable: true,
 
       style: {
-        maxWidth: `${width}rem`,
-        width: `${width}rem`,
+        maxWidth: maxWidth !== undefined ? `${maxWidth}rem` : (width !== undefined ? `${width}rem` : undefined),
+        minWidth: minWidth !== undefined ? `${minWidth}rem` : (width !== undefined ? `${width}rem` : undefined),
+        width: width !== undefined ? `${width}rem` : (minWidth !== undefined ? `${minWidth}rem` : undefined),
       },
     };
 

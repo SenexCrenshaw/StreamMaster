@@ -1,26 +1,31 @@
-﻿using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-
+﻿using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.ChannelGroups.Events;
-using StreamMasterApplication.Hubs;
+using StreamMasterApplication.ChannelGroups.Queries;
+using StreamMasterApplication.StreamGroupChannelGroups.Queries;
 
 namespace StreamMasterApplication.ChannelGroups.EventHandlers;
 
-public class UpdateChannelGroupEventHandler : INotificationHandler<UpdateChannelGroupEvent>
+public class UpdateChannelGroupEventHandler(ILogger<UpdateChannelGroupEvent> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, publisher, sender, hubContext), INotificationHandler<UpdateChannelGroupEvent>
 {
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
-    private readonly ISender _sender;
-
-    public UpdateChannelGroupEventHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ISender sender)
-    {
-        _hubContext = hubContext;
-        _sender = sender;
-    }
-
     public async Task Handle(UpdateChannelGroupEvent notification, CancellationToken cancellationToken)
     {
-        //await _sender.Send(new UpdateChannelGroupCountRequest(notification.ChannelGroupDto.Name), cancellationToken).ConfigureAwait(false);
-        await _hubContext.Clients.All.ChannelGroupsRefresh().ConfigureAwait(false);
+        if (notification.ChannelGroup == null)
+        {
+            return;
+        }
+
+        await Sender.Send(new UpdateChannelGroupCountRequest(notification.ChannelGroup), cancellationToken).ConfigureAwait(false);
+        IEnumerable<StreamGroupDto> sgs = await Sender.Send(new GetStreamGroupsFromChannelGroupQuery(notification.ChannelGroup.Id), cancellationToken).ConfigureAwait(false);
+        ChannelGroupDto? ret = await Sender.Send(new GetChannelGroup(notification.ChannelGroup.Id), cancellationToken).ConfigureAwait(false);
+
+        if (ret != null)
+        {
+            await HubContext.Clients.All.ChannelGroupsRefresh([ret]).ConfigureAwait(false);
+        }
+
+        if (sgs.Any())
+        {
+            await HubContext.Clients.All.StreamGroupsRefresh(sgs.ToArray()).ConfigureAwait(false);
+        }
     }
 }

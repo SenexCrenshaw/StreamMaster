@@ -1,24 +1,12 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
+﻿using FluentValidation;
 
 using StreamMasterApplication.Icons.Queries;
-using StreamMasterApplication.M3UFiles.Commands;
-using StreamMasterApplication.VideoStreams.Events;
 
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Icons.Commands;
 
-public record AutoMatchIconToStreamsRequest(List<string> Ids) : IRequest<IconFileDto?>
-{
-}
+public record AutoMatchIconToStreamsRequest(List<string> Ids) : IRequest<IconFileDto?> { }
 
 public class AutoMatchIconToStreamsRequestValidator : AbstractValidator<AutoMatchIconToStreamsRequest>
 {
@@ -30,8 +18,9 @@ public class AutoMatchIconToStreamsRequestValidator : AbstractValidator<AutoMatc
 
 public class AutoMatchIconToStreamsRequestHandler : BaseMemoryRequestHandler, IRequestHandler<AutoMatchIconToStreamsRequest, IconFileDto?>
 {
-    public AutoMatchIconToStreamsRequestHandler(ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
+
+    public AutoMatchIconToStreamsRequestHandler(ILogger<AutoMatchIconToStreamsRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
 
     public static double GetWeightedMatch(string sentence1, string sentence2)
     {
@@ -90,11 +79,11 @@ public class AutoMatchIconToStreamsRequestHandler : BaseMemoryRequestHandler, IR
                 break;
             }
         }
-        await Repository.SaveAsync().ConfigureAwait(false);
-        if (videoStreamDtos.Any())
-        {
-            await Publisher.Publish(new UpdateVideoStreamsEvent(), cancellationToken).ConfigureAwait(false);
-        }
+        _ = await Repository.SaveAsync().ConfigureAwait(false);
+        //if (videoStreamDtos.Any())
+        //{
+        //    await Publisher.Publish(new UpdateVideoStreamsEvent(), cancellationToken).ConfigureAwait(false);
+        //}
 
         return null;
     }
@@ -112,7 +101,7 @@ public class AutoMatchIconToStreamsRequestHandler : BaseMemoryRequestHandler, IR
 
     private class WeightedMatch
     {
-        public string Name { get; set; }
+        public required string Name { get; set; }
         public double Weight { get; set; }
     }
 }

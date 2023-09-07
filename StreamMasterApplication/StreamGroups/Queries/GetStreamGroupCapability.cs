@@ -1,17 +1,8 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
+﻿using FluentValidation;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Models;
-using StreamMasterApplication.M3UFiles.Commands;
-
-using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Dto;
 
 using System.Xml.Serialization;
 
@@ -33,23 +24,17 @@ public class GetStreamGroupCapabilityValidator : AbstractValidator<GetStreamGrou
 
 public class GetStreamGroupCapabilityHandler : BaseMediatorRequestHandler, IRequestHandler<GetStreamGroupCapability, string>
 {
-
     private readonly IHttpContextAccessor _httpContextAccessor;
+    public GetStreamGroupCapabilityHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupCapability> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+: base(logger, repository, mapper, publisher, sender, hubContext) { _httpContextAccessor = httpContextAccessor; }
 
-    public GetStreamGroupCapabilityHandler(IHttpContextAccessor httpContextAccessor, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
 
     public async Task<string> Handle(GetStreamGroupCapability request, CancellationToken cancellationToken)
     {
-        string url = GetUrl();
 
         if (request.StreamGroupNumber > 0)
         {
-
-            StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, cancellationToken).ConfigureAwait(false);
             if (streamGroup == null)
             {
                 return "";
@@ -57,7 +42,7 @@ public class GetStreamGroupCapabilityHandler : BaseMediatorRequestHandler, IRequ
         }
         Setting settings = FileUtil.GetSetting();
 
-        Capability capability = new(url, $"{settings.DeviceID}-{request.StreamGroupNumber}");
+        Capability capability = new(GetUrl(), $"{settings.DeviceID}-{request.StreamGroupNumber}");
 
         using Utf8StringWriter textWriter = new();
         XmlSerializer serializer = new(typeof(Capability));

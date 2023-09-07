@@ -3,24 +3,12 @@
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Caching.Memory;
 
-using StreamMasterApplication.ChannelGroups.Commands;
-using StreamMasterApplication.M3UFiles.Queries;
-
-using StreamMasterDomain.Cache;
-using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Enums;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
-
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading;
-
-using static System.Net.Mime.MediaTypeNames;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
@@ -39,17 +27,18 @@ public class VideoStreamLinkRepository : RepositoryBase<VideoStreamLink>, IVideo
 
     public async Task<List<string>> GetVideoStreamVideoStreamIds(string videoStreamId, CancellationToken cancellationToken)
     {
-        var ids = await FindByCondition(a => a.ParentVideoStreamId == videoStreamId).OrderBy(a => a.Rank).Select(a => a.ChildVideoStreamId).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        List<string> ids = await FindByCondition(a => a.ParentVideoStreamId == videoStreamId).OrderBy(a => a.Rank).Select(a => a.ChildVideoStreamId).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         return ids;
     }
+
 
     public async Task<PagedResponse<ChildVideoStreamDto>> GetVideoStreamVideoStreams(VideoStreamLinkParameters parameters, CancellationToken cancellationToken)
     {
         parameters.OrderBy = "rank";
 
-        var entities = GetIQueryableForEntity(parameters).Include(a => a.ChildVideoStream);
+        IIncludableQueryable<VideoStreamLink, VideoStream> entities = GetIQueryableForEntity(parameters).Include(a => a.ChildVideoStream);
 
-        var pagedResult = await entities.ToPagedListAsync(parameters.PageNumber, parameters.PageSize).ConfigureAwait(false);
+        IPagedList<VideoStreamLink> pagedResult = await entities.ToPagedListAsync(parameters.PageNumber, parameters.PageSize).ConfigureAwait(false);
 
         // If there are no entities, return an empty response early
         if (!pagedResult.Any())
@@ -68,10 +57,10 @@ public class VideoStreamLinkRepository : RepositoryBase<VideoStreamLink>, IVideo
 
         //var videoStreams = await RepositoryContext.VideoStreams.Where(a => ids.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
-        var cgs = new List<ChildVideoStreamDto>();
+        List<ChildVideoStreamDto> cgs = new();
 
         //var links = await FindByCondition(a => a.ParentVideoStreamId == videoStreamId).ToArrayAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-        foreach (var link in pagedResult)
+        foreach (VideoStreamLink? link in pagedResult)
         {
             ChildVideoStreamDto cg = _mapper.Map<ChildVideoStreamDto>(link.ChildVideoStream);
             cg.Rank = link.Rank;
@@ -93,7 +82,7 @@ public class VideoStreamLinkRepository : RepositoryBase<VideoStreamLink>, IVideo
 
     public async Task AddVideoStreamTodVideoStream(string ParentVideoStreamId, string ChildVideoStreamId, int? Rank, CancellationToken cancellationToken)
     {
-        var childVideoStreamIds = await FindByCondition(a => a.ParentVideoStreamId == ParentVideoStreamId).OrderBy(a => a.Rank).AsNoTracking().ToListAsync(cancellationToken: cancellationToken);
+        List<VideoStreamLink> childVideoStreamIds = await FindByCondition(a => a.ParentVideoStreamId == ParentVideoStreamId).OrderBy(a => a.Rank).AsNoTracking().ToListAsync(cancellationToken: cancellationToken);
 
         childVideoStreamIds ??= new();
 
@@ -102,13 +91,13 @@ public class VideoStreamLinkRepository : RepositoryBase<VideoStreamLink>, IVideo
             return;
         }
 
-        var rank = childVideoStreamIds.Count;
+        int rank = childVideoStreamIds.Count;
         if (Rank.HasValue && Rank.Value > 0 && Rank.Value < childVideoStreamIds.Count)
         {
             rank = Rank.Value;
         }
 
-        var newL = GetVideoStreamLink(ParentVideoStreamId, ChildVideoStreamId, Rank = rank);
+        VideoStreamLink newL = GetVideoStreamLink(ParentVideoStreamId, ChildVideoStreamId, Rank = rank);
         Create(newL);
         await RepositoryContext.SaveChangesAsync(cancellationToken);
 
@@ -126,10 +115,10 @@ public class VideoStreamLinkRepository : RepositoryBase<VideoStreamLink>, IVideo
 
     public async Task RemoveVideoStreamFromVideoStream(string ParentVideoStreamId, string ChildVideoStreamId, CancellationToken cancellationToken)
     {
-        var exists = FindByCondition(a => a.ParentVideoStreamId == ParentVideoStreamId && a.ChildVideoStreamId == ChildVideoStreamId).Single();
+        VideoStreamLink exists = FindByCondition(a => a.ParentVideoStreamId == ParentVideoStreamId && a.ChildVideoStreamId == ChildVideoStreamId).Single();
         if (exists != null)
         {
-            Delete(exists);            
+            Delete(exists);
             await RepositoryContext.SaveChangesAsync(cancellationToken);
         }
     }

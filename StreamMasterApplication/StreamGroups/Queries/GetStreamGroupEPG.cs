@@ -1,20 +1,11 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
+﻿using AutoMapper.QueryableExtensions;
 
 using FluentValidation;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Extensions;
-using StreamMasterApplication.M3UFiles.Commands;
 
-using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Cache;
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Repository.EPG;
 
 using System.Collections.Concurrent;
@@ -40,19 +31,14 @@ public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
 
 public partial class GetStreamGroupEPGHandler : BaseMemoryRequestHandler, IRequestHandler<GetStreamGroupEPG, string>
 {
-    protected Setting _setting = FileUtil.GetSetting();
-
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     private readonly object Lock = new();
     private int dummyCount = 0;
 
-    public GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
 
+    public GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPG> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { _httpContextAccessor = httpContextAccessor; }
 
     public string GetIconUrl(string iconOriginalSource)
     {
@@ -60,7 +46,7 @@ public partial class GetStreamGroupEPGHandler : BaseMemoryRequestHandler, IReque
 
         if (string.IsNullOrEmpty(iconOriginalSource))
         {
-            iconOriginalSource = $"{url}{_setting.DefaultIcon}";
+            iconOriginalSource = $"{url}{Settings.DefaultIcon}";
             return iconOriginalSource;
         }
 
@@ -79,7 +65,7 @@ public partial class GetStreamGroupEPGHandler : BaseMemoryRequestHandler, IReque
         {
             iconOriginalSource = GetApiUrl(SMFileTypes.TvLogo, originalUrl);
         }
-        else if (_setting.CacheIcons)
+        else if (Settings.CacheIcons)
         {
             iconOriginalSource = GetApiUrl(SMFileTypes.Icon, originalUrl);
         }
@@ -90,10 +76,10 @@ public partial class GetStreamGroupEPGHandler : BaseMemoryRequestHandler, IReque
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
         IEnumerable<VideoStreamDto> videoStreams;
-        string url = _httpContextAccessor.GetUrl();
+
         if (request.StreamGroupNumber > 0)
         {
-            StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, cancellationToken).ConfigureAwait(false);
             if (streamGroup == null)
             {
                 return "";
@@ -105,7 +91,7 @@ public partial class GetStreamGroupEPGHandler : BaseMemoryRequestHandler, IReque
             videoStreams = Repository.VideoStream.GetVideoStreamsHidden()
                 .ProjectTo<VideoStreamDto>(Mapper.ConfigurationProvider);
         }
-
+        string url = _httpContextAccessor.GetUrl();
         ParallelOptions po = new()
         {
             CancellationToken = cancellationToken,
@@ -187,19 +173,20 @@ public partial class GetStreamGroupEPGHandler : BaseMemoryRequestHandler, IReque
                 {
                     if (videoStream.User_Tvg_ID.ToLower() == "dummy")
                     {
-                        Programme prog = new();
-
-                        prog.Channel = videoStream.User_Tvg_name;
-
-                        prog.Title = new TvTitle
+                        Programme prog = new()
                         {
-                            Lang = "en",
-                            Text = videoStream.User_Tvg_name,
-                        };
-                        prog.Desc = new TvDesc
-                        {
-                            Lang = "en",
-                            Text = videoStream.User_Tvg_name,
+                            Channel = videoStream.User_Tvg_name,
+
+                            Title = new TvTitle
+                            {
+                                Lang = "en",
+                                Text = videoStream.User_Tvg_name,
+                            },
+                            Desc = new TvDesc
+                            {
+                                Lang = "en",
+                                Text = videoStream.User_Tvg_name,
+                            }
                         };
                         DateTime now = DateTime.Now;
                         prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{url}/images/transparent.png" });
@@ -337,9 +324,9 @@ public partial class GetStreamGroupEPGHandler : BaseMemoryRequestHandler, IReque
             return true;
         }
 
-        if (!string.IsNullOrEmpty(_setting.DummyRegex))
+        if (!string.IsNullOrEmpty(Settings.DummyRegex))
         {
-            Regex regex = new(_setting.DummyRegex, RegexOptions.ECMAScript | RegexOptions.IgnoreCase);
+            Regex regex = new(Settings.DummyRegex, RegexOptions.ECMAScript | RegexOptions.IgnoreCase);
             bool test = regex.IsMatch(videoStream.User_Tvg_ID);
             return test;
         }

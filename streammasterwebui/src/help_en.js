@@ -16,7 +16,7 @@ const help_en = {
   filesEPG: 'Files / EPG',
   general: 'General',
   globalStreamLimit: 'Global Stream Limit for custom URLs that do not belong to a M3U playlist',
-  keywordSearch: 'Keyword Search',
+  keywordSearch: 'Keyword Search',  
   m3UIgnoreEmptyEPGID:'Ignore Streams with an empty EPG ID or EPG ID of "Dummy"',
   maxConnectRetry:'How many times to retry receiving data from the source stream',
   maxConnectRetryTimeMS: 'Receiving Data Retry Timeout in MS',

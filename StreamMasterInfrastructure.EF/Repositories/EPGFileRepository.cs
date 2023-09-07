@@ -45,9 +45,9 @@ public class EPGFileRepository : RepositoryBase<EPGFile>, IEPGFileRepository
                           .FirstOrDefaultAsync();
     }
 
-    public async Task<PagedResponse<EPGFilesDto>> GetEPGFilesAsync(EPGFileParameters EPGFileParameters)
+    public async Task<PagedResponse<EPGFileDto>> GetEPGFilesAsync(EPGFileParameters EPGFileParameters)
     {
-        return await GetEntitiesAsync<EPGFilesDto>(EPGFileParameters, _mapper);
+        return await GetEntitiesAsync<EPGFileDto>(EPGFileParameters, _mapper);
 
         //IQueryable<EPGFile> EPGFiles = FindAll();
 

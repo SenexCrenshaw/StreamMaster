@@ -92,15 +92,15 @@ public class TimerService : IHostedService, IDisposable
 
         DateTime now = DateTime.Now;
 
-        IEnumerable<StreamMasterDomain.Dto.EPGFilesDto> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
+        IEnumerable<StreamMasterDomain.Dto.EPGFileDto> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
         IEnumerable<StreamMasterDomain.Dto.M3UFileDto> m3uFilesToUpdated = await mediator.Send(new GetM3UFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
 
         if (epgFilesToUpdated.Any())
         {
             _logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count());
-            foreach (StreamMasterDomain.Dto.EPGFilesDto? epgFile in epgFilesToUpdated)
+            foreach (StreamMasterDomain.Dto.EPGFileDto? epgFile in epgFilesToUpdated)
             {
-                _ = await mediator.Send(new RefreshEPGFileRequest { Id = epgFile.Id }, cancellationToken).ConfigureAwait(false);
+                _ = await mediator.Send(new RefreshEPGFileRequest(epgFile.Id), cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -110,7 +110,7 @@ public class TimerService : IHostedService, IDisposable
 
             foreach (StreamMasterDomain.Dto.M3UFileDto? m3uFile in m3uFilesToUpdated)
             {
-                _ = await mediator.Send(new RefreshM3UFileRequest { Id = m3uFile.Id }, cancellationToken).ConfigureAwait(false);
+                _ = await mediator.Send(new RefreshM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
             }
         }
 

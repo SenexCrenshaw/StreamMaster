@@ -1,9 +1,5 @@
-﻿using MediatR;
-
-using StreamMasterDomain.Dto;
+﻿using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
-
-using System.Threading;
 
 namespace StreamMasterDomain.Repository
 {

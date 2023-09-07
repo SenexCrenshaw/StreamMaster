@@ -1,13 +1,4 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.M3UFiles.Commands;
+﻿using FluentValidation;
 
 namespace StreamMasterApplication.StreamGroups.Commands;
 
@@ -28,14 +19,9 @@ public class AddStreamGroupRequestValidator : AbstractValidator<AddStreamGroupRe
 
 public class AddStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<AddStreamGroupRequest>
 {
-    protected Setting _setting = FileUtil.GetSetting();
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    public AddStreamGroupRequestHandler(ILogger<AddStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+: base(logger, repository, mapper, publisher, sender, hubContext) { }
 
-    public AddStreamGroupRequestHandler(IHttpContextAccessor httpContextAccessor, ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
 
     public async Task Handle(AddStreamGroupRequest command, CancellationToken cancellationToken)
     {

@@ -1,16 +1,13 @@
-import { useCallback, type CSSProperties, useEffect } from "react";
-import { useMemo, memo } from "react";
-import { GetMessage } from "../../common/common";
-import { type UpdateStreamGroupRequest, type VideoStreamIsReadOnly } from "../../store/iptvApi";
-import { type ChildVideoStreamDto, useStreamGroupsUpdateStreamGroupMutation } from "../../store/iptvApi";
-import { useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery } from "../../store/iptvApi";
-import { type VideoStreamDto } from "../../store/iptvApi";
-import { useChannelNumberColumnConfig, useChannelNameColumnConfig, useEPGColumnConfig } from "../../components/columns/columnConfigHooks";
-import DataSelector from "../../components/dataSelector/DataSelector";
-import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import VideoStreamRemoveFromStreamGroupDialog from "./VideoStreamRemoveFromStreamGroupDialog";
+import { memo, useCallback, useEffect, useMemo, type CSSProperties } from "react";
 import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
 import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
+import { GetMessage } from "../../common/common";
+import { useChannelNameColumnConfig, useChannelNumberColumnConfig, useEPGColumnConfig } from "../../components/columns/columnConfigHooks";
+import DataSelector from "../../components/dataSelector/DataSelector";
+import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
+import StreamGroupChannelGroupsSelector from "../../components/selectors/StreamGroupChannelGroupsSelector";
+import { useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery, type VideoStreamDto } from "../../store/iptvApi";
+import VideoStreamRemoveFromStreamGroupDialog from "./VideoStreamRemoveFromStreamGroupDialog";
 
 type StreamGroupSelectedVideoStreamDataSelectorProps = {
   readonly id: string;
@@ -21,26 +18,34 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
   const { selectedStreamGroup } = useSelectedStreamGroup(id);
   const enableEdit = false;
 
-  // const { columnConfig: m3uFileNameColumnConfig } = useM3UFileNameColumnConfig(enableEdit);
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig(true);
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(enableEdit);
-  // const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig(enableEdit);
   const { columnConfig: epgColumnConfig } = useEPGColumnConfig(true);
   const { setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
 
   useEffect(() => {
 
     if (selectedStreamGroup !== undefined && selectedStreamGroup !== undefined && selectedStreamGroup.id > 0) {
-      console.log('setting queryAdditionalFilter', { field: 'id', matchMode: 'equals', values: [selectedStreamGroup.id.toString()] });
-      setQueryAdditionalFilter({ field: 'id', matchMode: 'equals', values: [selectedStreamGroup.id.toString()] });
+      setQueryAdditionalFilter({ field: 'streamGroupId', matchMode: 'equals', values: [selectedStreamGroup.id.toString()] });
     }
 
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedStreamGroup]);
 
+  // const sourceaddtionalHeaderTemplate = () => {
+  //   return (
+  //     <div className="streamGroupEditor grid w-full flex flex-nowrap justify-content-end align-items-center p-0">
+  //       <div className="flex w-full w-full p-0 align-items-center justify-content-end">
+  //         <div className="flex justify-content-end gap-2 align-items-center mr-2">
 
-  const [streamGroupsUpdateStreamGroupMutation] = useStreamGroupsUpdateStreamGroupMutation();
+  //           <StreamGroupChannelGroupsSelector streamGroupId={2} />
+
+  //         </div >
+  //       </div>
+  //     </div >
+  //   );
+  // };
 
   const targetActionBodyTemplate = useCallback((data: VideoStreamDto) => {
     return (
@@ -61,8 +66,7 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
       {
         bodyTemplate: targetActionBodyTemplate, field: 'Remove', header: '', resizeable: false, sortable: false,
         style: {
-          maxWidth: '4rem',
-          width: '4rem',
+          maxWidth: '2rem',
         } as CSSProperties,
       }
     ]
@@ -70,37 +74,35 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
 
   const rightHeaderTemplate = () => {
     return (
-      <div className="flex justify-content-end align-items-center w-full gap-1" />
+      <div className="flex justify-content-end align-items-center w-full gap-1" >
+        <StreamGroupChannelGroupsSelector streamGroupId={selectedStreamGroup?.id} />
+      </div>
     );
   }
 
-  const onRowReorder = async (changed: VideoStreamDto[]) => {
+  // const onRowReorder = async (changed: VideoStreamDto[]) => {
 
-    const newData = changed.map((x: VideoStreamDto, index: number) => {
-      return {
-        ...x,
-        rank: index,
-      }
-    }) as ChildVideoStreamDto[];
-
-
-    var toSend = {} as UpdateStreamGroupRequest;
+  //   const newData = changed.map((x: VideoStreamDto, index: number) => {
+  //     return {
+  //       rank: index,
+  //       videoStreamId: x.id,
+  //     }
+  //   }) as VideoStreamIsReadOnly[];
 
 
-    toSend.streamGroupId = selectedStreamGroup.id;
+  //   var toSend = {} as SetVideoStreamRanksRequest;
 
-    toSend.videoStreams = newData.map((stream) => {
-      return { rank: stream.rank, videoStreamId: stream.id } as VideoStreamIsReadOnly;
-    });
+  //   toSend.streamGroupId = selectedStreamGroup.id;
+  //   toSend.videoStreamIDRanks = newData;
 
-    await streamGroupsUpdateStreamGroupMutation(toSend)
-      .then(() => {
+  //   await streamGroupVideoStreamsSetVideoStreamRanksMutation(toSend)
+  //     .then(() => {
 
-      }).catch(() => {
-        console.log('error');
-      });
+  //     }).catch(() => {
+  //       console.log('error');
+  //     });
 
-  }
+  // }
 
   return (
     <DataSelector
@@ -111,9 +113,7 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
       headerRightTemplate={rightHeaderTemplate()}
       id={dataKey}
       key='rank'
-      onRowReorder={async (e) => await onRowReorder(e as VideoStreamDto[])}
       queryFilter={useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery}
-      reorderable
       selectionMode='single'
       style={{ height: 'calc(100vh - 40px)' }
       }

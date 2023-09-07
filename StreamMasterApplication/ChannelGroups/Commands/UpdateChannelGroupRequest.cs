@@ -1,17 +1,6 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.Extensions.Logging;
+﻿using FluentValidation;
 
 using StreamMasterApplication.ChannelGroups.Events;
-using StreamMasterApplication.VideoStreams.Events;
-
-using StreamMasterDomain.Dto;
-
-using System.Diagnostics;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
@@ -24,15 +13,11 @@ public class UpdateChannelGroupRequestValidator : AbstractValidator<UpdateChanne
     }
 }
 
-public class UpdateChannelGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateChannelGroupRequest>
+public class UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, publisher, sender, hubContext), IRequestHandler<UpdateChannelGroupRequest>
 {
-
-    public UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
-
     public async Task Handle(UpdateChannelGroupRequest request, CancellationToken cancellationToken)
     {
-        Stopwatch stopwatch = Stopwatch.StartNew();
+
         ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupByNameAsync(request.ChannelGroupName).ConfigureAwait(false);
         bool checkCounts = false;
         if (channelGroup == null)
@@ -49,30 +34,30 @@ public class UpdateChannelGroupRequestHandler : BaseMediatorRequestHandler, IReq
         {
             channelGroup.IsHidden = (bool)request.IsHidden;
 
-            int results = await Repository.VideoStream.SetGroupVisibleByGroupName(channelGroup.Name, (bool)request.IsHidden, cancellationToken).ConfigureAwait(false);
-            checkCounts = results > 0;
+            List<VideoStreamDto> results = await Repository.VideoStream.SetGroupVisibleByGroupName(channelGroup.Name, (bool)request.IsHidden, cancellationToken).ConfigureAwait(false);
+            checkCounts = results.Any();
 
         }
 
         if (!string.IsNullOrEmpty(request.NewGroupName) && request.NewGroupName != channelGroup.Name)
         {
-            channelGroup.Name = request.NewGroupName;
-            await Repository.VideoStream.SetGroupNameByGroupName(channelGroup.Name, request.NewGroupName, cancellationToken).ConfigureAwait(false);
+            if (await Repository.ChannelGroup.GetChannelGroupByNameAsync(request.NewGroupName).ConfigureAwait(false) == null)
+            {
+                channelGroup.Name = request.NewGroupName;
+                _ = await Repository.VideoStream.SetGroupNameByGroupName(channelGroup.Name, request.NewGroupName, cancellationToken).ConfigureAwait(false);
+            }
         }
 
         Repository.ChannelGroup.UpdateChannelGroup(channelGroup);
-        await Repository.SaveAsync().ConfigureAwait(false);
+        _ = await Repository.SaveAsync().ConfigureAwait(false);
 
-        await Publisher.Publish(new UpdateChannelGroupEvent(), cancellationToken).ConfigureAwait(false);
 
         if (checkCounts)
         {
-            await Sender.Send(new UpdateChannelGroupCountRequest(channelGroup.Name), cancellationToken).ConfigureAwait(false);
-            await Publisher.Publish(new UpdateVideoStreamEvent(), cancellationToken).ConfigureAwait(false);
+            ChannelGroupDto dto = Mapper.Map<ChannelGroupDto>(channelGroup);
+            await Publisher.Publish(new UpdateChannelGroupEvent(dto), cancellationToken).ConfigureAwait(false);
         }
 
-        stopwatch.Stop();
-        Logger.LogInformation($"UpdateChannelGroupRequestHandler took {stopwatch.ElapsedMilliseconds} ms");
 
     }
 }

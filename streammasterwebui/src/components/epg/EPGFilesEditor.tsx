@@ -1,7 +1,7 @@
 import '../../styles/EPGFilesEditor.css';
 import EPGFilesDataSelector from './EPGFilesDataSelector';
 import { memo } from 'react';
-import { type EpgFilesDto } from '../../store/iptvApi';
+import { type EpgFileDto } from '../../store/iptvApi';
 import EPGFileDialog from './EPGFileDialog';
 
 const EPGFilesEditor = () => {
@@ -22,7 +22,7 @@ const EPGFilesEditor = () => {
 
 EPGFilesEditor.displayName = 'EPGFilesEditor';
 export type EPGFilesEditorProps = {
-  onClick?: (e: EpgFilesDto) => void;
-  value?: EpgFilesDto | undefined;
+  onClick?: (e: EpgFileDto) => void;
+  value?: EpgFileDto | undefined;
 };
 export default memo(EPGFilesEditor);

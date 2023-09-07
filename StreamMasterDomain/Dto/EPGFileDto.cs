@@ -5,7 +5,7 @@ using StreamMasterDomain.Repository;
 namespace StreamMasterDomain.Dto;
 
 [RequireAll]
-public class EPGFilesDto : BaseFileDto, IMapFrom<EPGFile>
+public class EPGFileDto : BaseFileDto, IMapFrom<EPGFile>
 {
     public int ChannelCount { get; set; }
 

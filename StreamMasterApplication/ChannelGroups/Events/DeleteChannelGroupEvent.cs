@@ -1,11 +1,7 @@
 ﻿namespace StreamMasterApplication.ChannelGroups.Events;
 
-public class DeleteChannelGroupEvent : BaseEvent
+public class DeleteChannelGroupEvent(int channelGroupId, IEnumerable<VideoStreamDto> videoStreams) : BaseEvent
 {
-    public DeleteChannelGroupEvent(int channelGroupId)
-    {
-        ChannelGroupId = channelGroupId;
-    }
-
-    public int ChannelGroupId { get; }
+    public IEnumerable<VideoStreamDto> VideoStreams { get; } = videoStreams;
+    public int ChannelGroupId { get; } = channelGroupId;
 }

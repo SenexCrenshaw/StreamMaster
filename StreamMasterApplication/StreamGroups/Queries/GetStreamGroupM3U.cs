@@ -1,21 +1,13 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
+﻿using AutoMapper.QueryableExtensions;
 
 using FluentValidation;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Extensions;
 using StreamMasterApplication.Icons.Queries;
-using StreamMasterApplication.M3UFiles.Commands;
 
-using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
 using System.Collections.Concurrent;
@@ -42,11 +34,9 @@ public class GetStreamGroupM3UHandler : BaseMemoryRequestHandler, IRequestHandle
     private readonly IHttpContextAccessor _httpContextAccessor;
 
 
-    public GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
+    public GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupM3U> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { _httpContextAccessor = httpContextAccessor; }
+
 
     public string GetIconUrl(string iconOriginalSource)
     {
@@ -88,7 +78,7 @@ public class GetStreamGroupM3UHandler : BaseMemoryRequestHandler, IRequestHandle
 
         if (command.StreamGroupNumber > 0)
         {
-            StreamGroupDto? sg = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(command.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            StreamGroupDto? sg = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(command.StreamGroupNumber, cancellationToken).ConfigureAwait(false);
             if (sg == null)
             {
                 return "";

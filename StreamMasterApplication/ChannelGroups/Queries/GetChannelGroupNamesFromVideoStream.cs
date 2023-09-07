@@ -1,26 +1,16 @@
-﻿using AutoMapper;
+﻿namespace StreamMasterApplication.ChannelGroups.Queries;
 
-using MediatR;
+public record GetChannelGroupNameFromVideoStream(VideoStreamDto VideoStreamDto) : IRequest<string?>;
 
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.M3UFiles.Commands;
-
-using StreamMasterDomain.Dto;
-
-namespace StreamMasterApplication.ChannelGroups.Queries;
-
-public record GetChannelGroupNamesFromVideoStream(VideoStreamDto VideoStreamDto) : IRequest<List<string>>;
-
-internal class GetChannelGroupNamesFromVideoStreamHandler : BaseMediatorRequestHandler, IRequestHandler<GetChannelGroupNamesFromVideoStream, List<string>>
+internal class GetChannelGroupNameFromVideoStreamHandler : BaseMediatorRequestHandler, IRequestHandler<GetChannelGroupNameFromVideoStream, string?>
 {
-    public GetChannelGroupNamesFromVideoStreamHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
 
-    public async Task<List<string>> Handle(GetChannelGroupNamesFromVideoStream request, CancellationToken cancellationToken)
+    public GetChannelGroupNameFromVideoStreamHandler(ILogger<GetChannelGroupNameFromVideoStream> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+ : base(logger, repository, mapper, publisher, sender, hubContext) { }
+    public async Task<string?> Handle(GetChannelGroupNameFromVideoStream request, CancellationToken cancellationToken)
     {
 
-        List<string> name = await Repository.ChannelGroup.GetChannelNamesFromVideoStream(request.VideoStreamDto, cancellationToken).ConfigureAwait(false);
+        string? name = await Repository.ChannelGroup.GetChannelGroupNameFromVideoStream(request.VideoStreamDto.User_Tvg_group, cancellationToken).ConfigureAwait(false);
         return name;
     }
 }

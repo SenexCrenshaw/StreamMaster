@@ -1,13 +1,4 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterDomain.Cache;
-using StreamMasterDomain.Dto;
-using StreamMasterDomain.Pagination;
+﻿using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository.EPG;
 
 namespace StreamMasterApplication.Programmes.Queries;
@@ -16,8 +7,8 @@ public record GetProgrammsSimpleQuery(ProgrammeParameters Parameters) : IRequest
 internal class GetProgrammsSimpleQueryHandler : BaseMemoryRequestHandler, IRequestHandler<GetProgrammsSimpleQuery, List<ProgrammeNameDto>>
 {
 
-    public GetProgrammsSimpleQueryHandler(ILogger<GetProgrammsSimpleQuery> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
+    public GetProgrammsSimpleQueryHandler(ILogger<GetProgrammsSimpleQuery> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+    : base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
 
     public Task<List<ProgrammeNameDto>> Handle(GetProgrammsSimpleQuery request, CancellationToken cancellationToken)
     {

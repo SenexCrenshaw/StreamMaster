@@ -16,7 +16,7 @@ using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
-public class UpdateEPGFileRequest : BaseFileRequest, IRequest<EPGFilesDto?>
+public class UpdateEPGFileRequest : BaseFileRequest, IRequest<EPGFileDto?>
 {
     public int? EPGRank { get; set; }
 }
@@ -29,14 +29,14 @@ public class UpdateEPGFileRequestValidator : AbstractValidator<UpdateEPGFileRequ
     }
 }
 
-public class UpdateEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<UpdateEPGFileRequest, EPGFilesDto?>
+public class UpdateEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<UpdateEPGFileRequest, EPGFileDto?>
 {
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
 
-    public UpdateEPGFileRequestHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<UpdateEPGFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache) { _hubContext = hubContext; }
+    public UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
 
-    public async Task<EPGFilesDto?> Handle(UpdateEPGFileRequest request, CancellationToken cancellationToken)
+
+    public async Task<EPGFileDto?> Handle(UpdateEPGFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
@@ -83,7 +83,7 @@ public class UpdateEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHan
             Repository.EPGFile.UpdateEPGFile(epgFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
             epgFile.WriteJSON();
-            EPGFilesDto ret = Mapper.Map<EPGFilesDto>(epgFile);
+            EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
 
             if (isNameChanged)
             {
@@ -108,7 +108,7 @@ public class UpdateEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHan
 
             if (isChanged)
             {
-                await _hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
+                await HubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
             }
 
             return ret;

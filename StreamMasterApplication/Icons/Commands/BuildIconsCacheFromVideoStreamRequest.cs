@@ -1,31 +1,17 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.M3UFiles.Commands;
-
-using StreamMasterDomain.Cache;
-using StreamMasterDomain.Dto;
-using StreamMasterDomain.Extensions;
+﻿using StreamMasterDomain.Extensions;
 
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Web;
 
 namespace StreamMasterApplication.Icons.Commands;
 
-public class BuildIconsCacheFromVideoStreamRequest : IRequest<bool>
-{
-}
+public class BuildIconsCacheFromVideoStreamRequest : IRequest<bool> { }
 
 public class BuildIconsCacheFromVideoStreamRequestHandler : BaseMemoryRequestHandler, IRequestHandler<BuildIconsCacheFromVideoStreamRequest, bool>
 {
 
-    public BuildIconsCacheFromVideoStreamRequestHandler(ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
+    public BuildIconsCacheFromVideoStreamRequestHandler(ILogger<BuildIconsCacheFromVideoStreamRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
 
     public Task<bool> Handle(BuildIconsCacheFromVideoStreamRequest command, CancellationToken cancellationToken)
     {
@@ -38,9 +24,6 @@ public class BuildIconsCacheFromVideoStreamRequestHandler : BaseMemoryRequestHan
         // For progress reporting
         int totalCount = streams.Count();
 
-        Stopwatch processSw = new();
-        processSw.Start();
-
         ParallelOptions parallelOptions = new()
         {
             CancellationToken = cancellationToken,
@@ -51,7 +34,7 @@ public class BuildIconsCacheFromVideoStreamRequestHandler : BaseMemoryRequestHan
 
         ConcurrentBag<IconFileDto> toWrite = new();
 
-        Parallel.ForEach(streams, parallelOptions, stream =>
+        _ = Parallel.ForEach(streams, parallelOptions, stream =>
         {
             if (cancellationToken.IsCancellationRequested) { return; }
 

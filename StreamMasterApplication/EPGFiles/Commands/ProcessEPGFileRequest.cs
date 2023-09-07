@@ -1,28 +1,10 @@
-﻿using AutoMapper;
+﻿using FluentValidation;
 
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.Hubs;
-
-using StreamMasterDomain.Cache;
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Repository.EPG;
-
-using System.ComponentModel.DataAnnotations;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
-public class ProcessEPGFileRequest : IRequest<EPGFilesDto?>
-{
-    [Required]
-    public int Id { get; set; }
-}
+public record ProcessEPGFileRequest(int Id) : IRequest<EPGFileDto?> { }
 
 public class ProcessEPGFileRequestValidator : AbstractValidator<ProcessEPGFileRequest>
 {
@@ -33,16 +15,13 @@ public class ProcessEPGFileRequestValidator : AbstractValidator<ProcessEPGFileRe
             .GreaterThanOrEqualTo(0);
     }
 }
-
-public class ProcessEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<ProcessEPGFileRequest, EPGFilesDto?>
+public class ProcessEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<ProcessEPGFileRequest, EPGFileDto?>
 {
 
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
+    public ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
 
-    public ProcessEPGFileRequestHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<ProcessEPGFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache) { _hubContext = hubContext; }
-
-    public async Task<EPGFilesDto?> Handle(ProcessEPGFileRequest request, CancellationToken cancellationToken)
+    public async Task<EPGFileDto?> Handle(ProcessEPGFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
@@ -63,13 +42,13 @@ public class ProcessEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
             epgFile.LastUpdated = DateTime.Now;
             Repository.EPGFile.UpdateEPGFile(epgFile);
 
-            await Repository.SaveAsync().ConfigureAwait(false);
+            _ = await Repository.SaveAsync().ConfigureAwait(false);
 
             await AddProgrammesFromEPG(epgFile, cancellationToken);
 
-            EPGFilesDto ret = Mapper.Map<EPGFilesDto>(epgFile);
+            EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
 
-            await _hubContext.Clients.All.ProgrammesRefresh().ConfigureAwait(false);
+            await HubContext.Clients.All.ProgrammesRefresh().ConfigureAwait(false);
 
             await Publisher.Publish(new EPGFileProcessedEvent(ret), cancellationToken).ConfigureAwait(false);
 

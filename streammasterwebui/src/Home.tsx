@@ -1,14 +1,14 @@
-import './App.css';
-import { Outlet } from 'react-router-dom';
-import React from 'react';
-import { Sidebar, Menu, MenuItem, sidebarClasses } from 'react-pro-sidebar';
 import { useLocalStorage } from 'primereact/hooks';
+import React from 'react';
+import { Menu, MenuItem, Sidebar, sidebarClasses } from 'react-pro-sidebar';
+import { Outlet } from 'react-router-dom';
+import './App.css';
 import MenuItemSM from './components/MenuItemSM';
 
-import { FilesEditorIcon, HelpIcon, LogIcon, PlayListEditorIcon, QueueStatisIcon, SettingsEditorIcon, SideBarMenuIcon, StreamGroupEditorIcon, StreamingStatusIcon } from './common/icons';
-import StreamMasterSetting from './store/signlar/StreamMasterSetting';
-import * as StreamMasterApi from './store/iptvApi';
 import { Tooltip } from 'primereact/tooltip';
+import { FilesEditorIcon, HelpIcon, LogIcon, PlayListEditorIcon, QueueStatisIcon, SettingsEditorIcon, SideBarMenuIcon, StreamGroupEditorIcon, StreamingStatusIcon } from './common/icons';
+import * as StreamMasterApi from './store/iptvApi';
+import StreamMasterSetting from './store/signlar/StreamMasterSetting';
 
 const Home = () => {
   // StreamMasterApi.useIconsGetIconsQuery();
@@ -68,7 +68,7 @@ const Home = () => {
             </MenuItem>
           </div>
 
-          {/* <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/testpanel" name='Test Panel' /> */}
+          <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/testpanel" name='Test Panel' />
 
           <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/editor/playlist" name='Playlist' />
           <MenuItemSM collapsed={collapsed} icon={<StreamGroupEditorIcon />} link="/editor/streamgroup" name='Stream Group' />

@@ -1,26 +1,27 @@
 import './App.css';
 
-import { Navigate, Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
-import * as StreamMasterApi from './store/iptvApi';
 import React from 'react';
+import { Navigate, Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
 import messagesEn from './messages_en';
+import * as StreamMasterApi from './store/iptvApi';
 
-import { ProSidebarProvider } from 'react-pro-sidebar';
 import { useLocalStorage } from 'primereact/hooks';
 import { IntlProvider } from 'react-intl';
+import { ProSidebarProvider } from 'react-pro-sidebar';
 
+import Home from './Home';
+import SignalRHub from './app/SignalRHub';
 import VideoPlayer from './components/VideoPlayer';
+import FilesEditor from './features/filesEditor/FilesEditor';
+import LogViewer from './features/logViewer/LogViewer';
 import PlayListEditor from './features/playListEditor/PlayListEditor';
 import QueueStatus from './features/queueStatus/QueueStatus';
+import SDEditor from './features/sdEditor/SDEditor';
 import SettingsEditor from './features/settings/SettingsEditor';
 import StreamGroupEditor from './features/streamGroupEditor/StreamGroupEditor';
 import StreamingStatus from './features/streamingStatus/StreamingStatus';
-import Home from './Home';
-import SignalRHub from './app/SignalRHub';
-import FilesEditor from './features/filesEditor/FilesEditor';
-import LogViewer from './features/logViewer/LogViewer';
-import SDEditor from './features/sdEditor/SDEditor';
 // import TestPanel from './features/testPanel/TestPanel';
+import TestPanel from './features/testPanel/TestPanel';
 import StreamMasterSetting from './store/signlar/StreamMasterSetting';
 
 // import SDEditor from './features/sdEditor/SDEditor';
@@ -55,9 +56,9 @@ const App = () => {
       <Route element={<Home />} path="/">
         <Route element={<Navigate to="/editor/playlist" />} index />
 
-        {/* <Route element={
+        <Route element={
           <TestPanel />
-        } path="/testpanel" /> */}
+        } path="/testpanel" />
 
         <Route element={
           <StreamGroupEditor />

@@ -1,20 +1,11 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.Extensions.Logging;
+﻿using FluentValidation;
 
 using StreamMasterApplication.ChannelGroups.Events;
-using StreamMasterApplication.M3UFiles.Commands;
-
-using StreamMasterDomain.Attributes;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
 [RequireAll]
-public record CreateChannelGroupRequest(string GroupName, int Rank, bool IsReadOnly) : IRequest { }
+public record CreateChannelGroupRequest(string GroupName, int Rank, bool IsReadOnly) : IRequest<ChannelGroupDto?> { }
 
 public class CreateChannelGroupRequestValidator : AbstractValidator<CreateChannelGroupRequest>
 {
@@ -25,25 +16,21 @@ public class CreateChannelGroupRequestValidator : AbstractValidator<CreateChanne
     }
 }
 
-public class CreateChannelGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateChannelGroupRequest>
+public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, publisher, sender, hubContext), IRequestHandler<CreateChannelGroupRequest, ChannelGroupDto?>
 {
-
-    public CreateChannelGroupRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
-
-    public async Task Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)
+    public async Task<ChannelGroupDto?> Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)
     {
         if (await Repository.ChannelGroup.GetChannelGroupByNameAsync(request.GroupName).ConfigureAwait(false) != null)
         {
-            return;
+            return null;
         }
 
         ChannelGroup channelGroup = new() { Name = request.GroupName, Rank = request.Rank, IsReadOnly = request.IsReadOnly };
         Repository.ChannelGroup.CreateChannelGroup(channelGroup);
-        await Repository.SaveAsync().ConfigureAwait(false);
+        _ = await Repository.SaveAsync().ConfigureAwait(false);
 
-        await Publisher.Publish(new AddChannelGroupEvent(), cancellationToken).ConfigureAwait(false);
-
-
+        ChannelGroupDto channelGroupDto = Mapper.Map<ChannelGroupDto>(channelGroup);
+        await Publisher.Publish(new CreateChannelGroupEvent(channelGroupDto), cancellationToken).ConfigureAwait(false);
+        return channelGroupDto;
     }
 }

@@ -1,19 +1,8 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.M3UFiles.Commands;
+﻿using FluentValidation;
 
 namespace StreamMasterApplication.StreamGroups.Commands;
 
-public class DeleteStreamGroupRequest : IRequest<int?>
-{
-    public int Id { get; set; }
-}
+public record DeleteStreamGroupRequest(int Id) : IRequest<int?> { }
 
 public class DeleteStreamGroupRequestValidator : AbstractValidator<DeleteStreamGroupRequest>
 {
@@ -25,10 +14,12 @@ public class DeleteStreamGroupRequestValidator : AbstractValidator<DeleteStreamG
     }
 }
 
-public class DeleteStreamGroupHandler : BaseMediatorRequestHandler, IRequestHandler<DeleteStreamGroupRequest, int?>
+public class DeleteStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<DeleteStreamGroupRequest, int?>
 {
-    public DeleteStreamGroupHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
+
+    public DeleteStreamGroupRequestHandler(ILogger<DeleteStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+  : base(logger, repository, mapper, publisher, sender, hubContext) { }
+
 
     public async Task<int?> Handle(DeleteStreamGroupRequest request, CancellationToken cancellationToken = default)
     {

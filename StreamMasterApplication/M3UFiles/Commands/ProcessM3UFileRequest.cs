@@ -1,27 +1,16 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
+﻿using FluentValidation;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.ChannelGroups.Commands;
 
 using StreamMasterDomain.Extensions;
 
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
 
-public class ProcessM3UFileRequest : IRequest<M3UFile?>
-{
-    [Required]
-    public int Id { get; set; }
-}
+public record ProcessM3UFileRequest(int Id) : IRequest<M3UFile?> { }
 
 public class ProcessM3UFileRequestValidator : AbstractValidator<ProcessM3UFileRequest>
 {
@@ -33,12 +22,9 @@ public class ProcessM3UFileRequestValidator : AbstractValidator<ProcessM3UFileRe
     }
 }
 
-public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<ProcessM3UFileRequest, M3UFile?>
+public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, publisher, sender, hubContext, memoryCache), IRequestHandler<ProcessM3UFileRequest, M3UFile?>
 {
     private SimpleIntList existingChannels;
-
-    public ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
 
     public async Task<M3UFile?> Handle(ProcessM3UFileRequest request, CancellationToken cancellationToken)
     {
@@ -231,7 +217,7 @@ public class ProcessM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
         List<string> m3uChannelGroupNames = await Repository.M3UFile.GetChannelGroupNamesFromM3UFile(m3uFile.Id);
         List<ChannelGroup> channelGroups = await Repository.ChannelGroup.GetChannelGroupsFromNames(m3uChannelGroupNames);
 
-        await Sender.Send(new UpdateChannelGroupCountsRequest(channelGroups.Select(a => a.Id)), cancellationToken).ConfigureAwait(false);
+        //await Sender.Send(new UpdateChannelGroupCountsRequest(channelGroups.Select(a => a.Id)), cancellationToken).ConfigureAwait(false);
         await Publisher.Publish(new M3UFileProcessedEvent(), cancellationToken).ConfigureAwait(false);
     }
 

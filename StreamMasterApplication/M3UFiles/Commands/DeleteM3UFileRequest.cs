@@ -1,23 +1,10 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
+﻿using FluentValidation;
 
 using StreamMasterApplication.VideoStreams.Events;
 
-using StreamMasterDomain.Cache;
-
 namespace StreamMasterApplication.M3UFiles.Commands;
 
-public class DeleteM3UFileRequest : IRequest<int?>
-{
-    public bool DeleteFile { get; set; }
-    public int Id { get; set; }
-}
+public record DeleteM3UFileRequest(bool DeleteFile, int Id) : IRequest<int?> { }
 
 public class DeleteM3UFileRequestValidator : AbstractValidator<DeleteM3UFileRequest>
 {
@@ -29,11 +16,12 @@ public class DeleteM3UFileRequestValidator : AbstractValidator<DeleteM3UFileRequ
     }
 }
 
-public class DeleteM3UFileHandler : BaseMemoryRequestHandler, IRequestHandler<DeleteM3UFileRequest, int?>
+public class DeleteM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<DeleteM3UFileRequest, int?>
 {
 
-    public DeleteM3UFileHandler(ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
+    public DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
+
 
     public async Task<int?> Handle(DeleteM3UFileRequest request, CancellationToken cancellationToken = default)
     {
@@ -97,17 +85,17 @@ public class DeleteM3UFileHandler : BaseMemoryRequestHandler, IRequestHandler<De
             if (group != null)
             {
                 Repository.ChannelGroup.DeleteChannelGroup(group);
-                await Repository.SaveAsync().ConfigureAwait(false);
+                _ = await Repository.SaveAsync().ConfigureAwait(false);
             }
         }
 
         IEnumerable<VideoStream> streams = await Repository.VideoStream.DeleteVideoStreamsByM3UFiledId(m3UFile.Id, cancellationToken);
 
         List<StreamMasterDomain.Dto.IconFileDto> icons = MemoryCache.Icons();
-        icons.RemoveAll(a => a.FileId == m3UFile.Id);
+        _ = icons.RemoveAll(a => a.FileId == m3UFile.Id);
         MemoryCache.Set(icons);
 
-        await Repository.SaveAsync().ConfigureAwait(false);
+        _ = await Repository.SaveAsync().ConfigureAwait(false);
 
         await Publisher.Publish(new M3UFileDeletedEvent(m3UFile.Id), cancellationToken).ConfigureAwait(false);
 

@@ -1,20 +1,11 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
+﻿using AutoMapper.QueryableExtensions;
 
 using FluentValidation;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Extensions;
-using StreamMasterApplication.M3UFiles.Commands;
 
-using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Cache;
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Repository.EPG;
 
 using System.Collections.Concurrent;
@@ -46,25 +37,20 @@ public class GetStreamGroupEPGForGuideValidator : AbstractValidator<GetStreamGro
 public partial class GetStreamGroupEPGForGuideHandler : BaseMemoryRequestHandler, IRequestHandler<GetStreamGroupEPGForGuide, EPGGuide>
 {
 
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
     private readonly object Lock = new();
     private int dummyCount = 0;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpContextAccessor, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
+    public GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPGForGuide> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+  : base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { _httpContextAccessor = httpContextAccessor; }
 
     public async Task<EPGGuide> Handle(GetStreamGroupEPGForGuide request, CancellationToken cancellationToken)
     {
-        //Stopwatch sw = Stopwatch.StartNew();
-        string url = _httpContextAccessor.GetUrl();
+
         IEnumerable<VideoStreamDto> videoStreams;
         if (request.StreamGroupNumber > 0)
         {
-            StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, cancellationToken).ConfigureAwait(false);
             if (streamGroup == null)
             {
                 return new()
@@ -80,6 +66,8 @@ public partial class GetStreamGroupEPGForGuideHandler : BaseMemoryRequestHandler
             videoStreams = Repository.VideoStream.GetVideoStreamsHidden()
                .ProjectTo<VideoStreamDto>(Mapper.ConfigurationProvider);
         }
+
+        string Url = _httpContextAccessor.GetUrl();
 
         ParallelOptions po = new()
         {
@@ -124,7 +112,7 @@ public partial class GetStreamGroupEPGForGuideHandler : BaseMemoryRequestHandler
                 }
 
                 IconFileDto? icon = icons.SingleOrDefault(a => a.Source == videoStream.User_Tvg_logo);
-                string Logo = icon != null ? url + icon.Source : url + "/" + setting.DefaultIcon;
+                string Logo = icon != null ? Url + icon.Source : Url + "/" + setting.DefaultIcon;
 
                 EPGChannel t;
                 int dummy = 0;
@@ -160,20 +148,22 @@ public partial class GetStreamGroupEPGForGuideHandler : BaseMemoryRequestHandler
                 {
                     if (videoStream.User_Tvg_ID.ToLower() == "dummy")
                     {
-                        Programme prog = new();
-                        prog.Channel = videoStream.User_Tvg_ID + "-" + dummy;
+                        Programme prog = new()
+                        {
+                            Channel = videoStream.User_Tvg_ID + "-" + dummy,
 
-                        prog.Title = new TvTitle
-                        {
-                            Lang = "en",
-                            Text = videoStream.User_Tvg_name,
+                            Title = new TvTitle
+                            {
+                                Lang = "en",
+                                Text = videoStream.User_Tvg_name,
+                            },
+                            Desc = new TvDesc
+                            {
+                                Lang = "en",
+                                Text = videoStream.User_Tvg_name,
+                            }
                         };
-                        prog.Desc = new TvDesc
-                        {
-                            Lang = "en",
-                            Text = videoStream.User_Tvg_name,
-                        };
-                        prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{url}/images/transparent.png" });
+                        prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{Url}/images/transparent.png" });
                         prog.StartDateTime = DateTime.Now.AddHours(-1);
                         prog.StopDateTime = DateTime.Now.AddDays(7);
 
@@ -201,14 +191,14 @@ public partial class GetStreamGroupEPGForGuideHandler : BaseMemoryRequestHandler
                                                 {
                                                     continue;
                                                 }
-                                                string IconSource = $"{url}/api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(programmeIcon.Source)}";
+                                                string IconSource = $"{Url}/api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(programmeIcon.Source)}";
                                                 progIcon.Src = IconSource;
                                             }
                                         }
                                     }
                                     else
                                     {
-                                        p.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{url}/images/transparent.png" });
+                                        p.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{Url}/images/transparent.png" });
                                     }
 
                                     p.Channel = videoStream.User_Tvg_ID;

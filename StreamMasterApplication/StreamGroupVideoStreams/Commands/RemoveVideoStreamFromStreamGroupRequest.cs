@@ -1,18 +1,4 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.Common.Extensions;
-using StreamMasterApplication.M3UFiles.Commands;
-using StreamMasterApplication.VideoStreams.Events;
-
-using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Dto;
+﻿using FluentValidation;
 
 namespace StreamMasterApplication.StreamGroupVideoStreams.Commands;
 
@@ -31,8 +17,10 @@ public class RemoveVideoStreamFromStreamGroupRequestValidator : AbstractValidato
 
 public class RemoveVideoStreamFromStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<RemoveVideoStreamFromStreamGroupRequest>
 {
-    public RemoveVideoStreamFromStreamGroupRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
+
+    public RemoveVideoStreamFromStreamGroupRequestHandler(ILogger<RemoveVideoStreamFromStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+: base(logger, repository, mapper, publisher, sender, hubContext) { }
+
 
     public async Task Handle(RemoveVideoStreamFromStreamGroupRequest request, CancellationToken cancellationToken)
     {
@@ -42,6 +30,6 @@ public class RemoveVideoStreamFromStreamGroupRequestHandler : BaseMediatorReques
         }
 
         await Repository.StreamGroupVideoStream.RemoveVideoStreamFromStreamGroup(request.StreamGroupId, request.VideoStreamId, cancellationToken).ConfigureAwait(false);
-      
+
     }
 }

@@ -1,6 +1,6 @@
 import { Checkbox } from "primereact/checkbox";
 import { useState, useCallback, memo } from "react";
-import { type DeleteEpgFileRequest, type EpgFilesDto } from "../../store/iptvApi";
+import { type DeleteEpgFileRequest, type EpgFileDto } from "../../store/iptvApi";
 import { DeleteEPGFile } from "../../store/signlar_functions";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import DeleteButton from "../buttons/DeleteButton";
@@ -96,7 +96,7 @@ const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
 EPGFileRemoveDialog.displayName = 'EPGFileRemoveDialog';
 
 type EPGFileRemoveDialogProps = {
-  readonly selectedFile?: EpgFilesDto;
+  readonly selectedFile?: EpgFileDto;
 };
 
 export default memo(EPGFileRemoveDialog);

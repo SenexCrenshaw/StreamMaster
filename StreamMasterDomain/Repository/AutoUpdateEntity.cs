@@ -1,5 +1,4 @@
 ﻿namespace StreamMasterDomain.Repository;
-
 public class AutoUpdateEntity : CacheEntity
 {
     public AutoUpdateEntity()

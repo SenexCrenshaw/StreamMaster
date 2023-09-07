@@ -1,26 +1,16 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterDomain.Cache;
-using StreamMasterDomain.Dto;
+﻿using StreamMasterDomain.Dto;
 using StreamMasterDomain.Repository.EPG;
 
 namespace StreamMasterApplication.EPGFiles.Queries;
 
-public record GetEPGFile(int Id) : IRequest<EPGFilesDto?>;
+public record GetEPGFile(int Id) : IRequest<EPGFileDto?>;
 
-internal class GetEPGFileHandler : BaseMemoryRequestHandler, IRequestHandler<GetEPGFile, EPGFilesDto?>
+internal class GetEPGFileHandler : BaseMemoryRequestHandler, IRequestHandler<GetEPGFile, EPGFileDto?>
 {
 
-
-    public GetEPGFileHandler(ILogger<GetEPGFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
-
-    public async Task<EPGFilesDto?> Handle(GetEPGFile request, CancellationToken cancellationToken = default)
+    public GetEPGFileHandler(ILogger<GetEPGFile> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
+    public async Task<EPGFileDto?> Handle(GetEPGFile request, CancellationToken cancellationToken = default)
     {
         EPGFile? epgFile = await Repository.EPGFile.GetEPGFileByIdAsync(request.Id).ConfigureAwait(false);
         if (epgFile == null)
@@ -28,7 +18,7 @@ internal class GetEPGFileHandler : BaseMemoryRequestHandler, IRequestHandler<Get
             return null;
         }
 
-        EPGFilesDto ret = Mapper.Map<EPGFilesDto>(epgFile);
+        EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
 
         List<Programme> proprammes = MemoryCache.Programmes().Where(a => a.EPGFileId == epgFile.Id).ToList();
         if (proprammes.Any())

@@ -3,7 +3,7 @@ import { useState, useCallback, memo } from "react";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import RefreshButton from "../buttons/RefreshButton";
 import OKButton from "../buttons/OKButton";
-import { type EpgFilesDto } from "../../store/iptvApi";
+import { type EpgFileDto } from "../../store/iptvApi";
 import { type EpgFilesRefreshEpgFileApiArg } from "../../store/iptvApi";
 import { useEpgFilesRefreshEpgFileMutation } from "../../store/iptvApi";
 
@@ -78,7 +78,7 @@ const EPGFileRefreshDialog = (props: EPGFileRefreshDialogProps) => {
 EPGFileRefreshDialog.displayName = 'EPGFileRefreshDialog';
 
 type EPGFileRefreshDialogProps = {
-  readonly selectedFile: EpgFilesDto;
+  readonly selectedFile: EpgFileDto;
 };
 
 export default memo(EPGFileRefreshDialog);

@@ -1,33 +1,21 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
+﻿using FluentValidation;
 
 using StreamMaster.SchedulesDirectAPI;
 
-using StreamMasterApplication.M3UFiles.Commands;
-
-using StreamMasterDomain.Cache;
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Repository.EPG;
 
 using System.Web;
 
 namespace StreamMasterApplication.Icons.Commands;
 
-public class BuildProgIconsCacheFromEPGsRequest : IRequest<bool>
-{
-}
+public class BuildProgIconsCacheFromEPGsRequest : IRequest<bool> { }
 
 public class BuildProgIconsCacheFromEPGsRequestHandler : BaseMemoryRequestHandler, IRequestHandler<BuildProgIconsCacheFromEPGsRequest, bool>
 {
 
-    public BuildProgIconsCacheFromEPGsRequestHandler(ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
+    public BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCacheFromEPGsRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
+
 
     public async Task<bool> Handle(BuildProgIconsCacheFromEPGsRequest command, CancellationToken cancellationToken)
     {
@@ -100,7 +88,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler : BaseMemoryRequestHandle
 
     private async Task WorkOnProgrammeIcons(int startId, CancellationToken cancellationToken)
     {
-        List<StreamGroupDto> sgs = await Repository.StreamGroup.GetStreamGroupDtos("", cancellationToken).ConfigureAwait(false);
+        List<StreamGroupDto> sgs = await Repository.StreamGroup.GetStreamGroupDtos(cancellationToken).ConfigureAwait(false);
         IEnumerable<string> epgids = sgs.SelectMany(x => x.ChildVideoStreams.Select(a => a.User_Tvg_ID)).Distinct();
 
         List<Programme> programmes = MemoryCache.Programmes()

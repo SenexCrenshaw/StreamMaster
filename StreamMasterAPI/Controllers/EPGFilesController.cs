@@ -15,7 +15,7 @@ public class EPGFilesController : ApiControllerBase, IEPGFileController
     [Route("[action]")]
     public async Task<ActionResult> CreateEPGFile(CreateEPGFileRequest request)
     {
-        EPGFilesDto? entity = await Mediator.Send(request).ConfigureAwait(false);
+        EPGFileDto? entity = await Mediator.Send(request).ConfigureAwait(false);
         return entity == null ? Ok() : CreatedAtAction(nameof(GetEPGFile), new { id = entity.Id }, entity);
     }
 
@@ -23,7 +23,7 @@ public class EPGFilesController : ApiControllerBase, IEPGFileController
     [Route("[action]")]
     public async Task<ActionResult> CreateEPGFileFromForm([FromForm] CreateEPGFileRequest request)
     {
-        EPGFilesDto? entity = await Mediator.Send(request).ConfigureAwait(false);
+        EPGFileDto? entity = await Mediator.Send(request).ConfigureAwait(false);
         return entity == null ? BadRequest() : CreatedAtAction(nameof(GetEPGFile), new { id = entity.Id }, entity);
     }
 
@@ -37,36 +37,36 @@ public class EPGFilesController : ApiControllerBase, IEPGFileController
 
     [HttpGet]
     [Route("{id}")]
-    public async Task<ActionResult<EPGFilesDto>> GetEPGFile(int id)
+    public async Task<ActionResult<EPGFileDto>> GetEPGFile(int id)
     {
-        EPGFilesDto? data = await Mediator.Send(new GetEPGFile(id)).ConfigureAwait(false);
-        return data != null ? (ActionResult<EPGFilesDto>)data : (ActionResult<EPGFilesDto>)NotFound();
+        EPGFileDto? data = await Mediator.Send(new GetEPGFile(id)).ConfigureAwait(false);
+        return data != null ? (ActionResult<EPGFileDto>)data : (ActionResult<EPGFileDto>)NotFound();
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedResponse<EPGFilesDto>>> GetEPGFiles([FromQuery] EPGFileParameters parameters)
+    public async Task<ActionResult<PagedResponse<EPGFileDto>>> GetEPGFiles([FromQuery] EPGFileParameters parameters)
     {
-        PagedResponse<EPGFilesDto> data = await Mediator.Send(new GetEPGFiles(parameters)).ConfigureAwait(false);
+        PagedResponse<EPGFileDto> data = await Mediator.Send(new GetEPGFiles(parameters)).ConfigureAwait(false);
         return data;
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> ProcessEPGFile(ProcessEPGFileRequest request)
     {
-        EPGFilesDto? entity = await Mediator.Send(request).ConfigureAwait(false);
+        EPGFileDto? entity = await Mediator.Send(request).ConfigureAwait(false);
         return entity == null ? NotFound() : NoContent();
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> RefreshEPGFile(RefreshEPGFileRequest request)
     {
-        EPGFilesDto? entity = await Mediator.Send(request).ConfigureAwait(false);
+        EPGFileDto? entity = await Mediator.Send(request).ConfigureAwait(false);
         return entity == null ? NotFound() : NoContent();
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> ScanDirectoryForEPGFiles()
     {
@@ -75,11 +75,11 @@ public class EPGFilesController : ApiControllerBase, IEPGFileController
         return NoContent();
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> UpdateEPGFile(UpdateEPGFileRequest request)
     {
-        EPGFilesDto? entity = await Mediator.Send(request).ConfigureAwait(false);
+        EPGFileDto? entity = await Mediator.Send(request).ConfigureAwait(false);
         return entity == null ? NotFound() : NoContent();
     }
 }

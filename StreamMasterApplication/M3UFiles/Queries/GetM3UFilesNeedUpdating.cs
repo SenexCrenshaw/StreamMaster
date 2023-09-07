@@ -1,22 +1,12 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.M3UFiles.Commands;
-
-using StreamMasterDomain.Dto;
-
-namespace StreamMasterApplication.M3UFiles.Queries;
+﻿namespace StreamMasterApplication.M3UFiles.Queries;
 
 public record GetM3UFilesNeedUpdating() : IRequest<IEnumerable<M3UFileDto>>;
 
 internal class GetM3UFilesNeedUpdatingHandler : BaseMemoryRequestHandler, IRequestHandler<GetM3UFilesNeedUpdating, IEnumerable<M3UFileDto>>
 {
-    public GetM3UFilesNeedUpdatingHandler(ILogger<ProcessM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
+
+    public GetM3UFilesNeedUpdatingHandler(ILogger<GetM3UFilesNeedUpdating> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
 
     public async Task<IEnumerable<M3UFileDto>> Handle(GetM3UFilesNeedUpdating request, CancellationToken cancellationToken = default)
     {

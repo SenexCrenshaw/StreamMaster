@@ -1,10 +1,9 @@
-import { Accordion, AccordionTab } from "primereact/accordion";
 import { InputText } from "primereact/inputtext";
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
-import { type ChannelGroupDto, type StreamGroupDto, type UpdateStreamGroupRequest } from "../../store/iptvApi";
+import {type StreamGroupDto, type UpdateStreamGroupRequest } from "../../store/iptvApi";
 import { UpdateStreamGroup } from "../../store/signlar_functions";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
-import PlayListDataSelector from "../../features/playListEditor/PlayListDataSelector";
+
 import EditButton from "../buttons/EditButton";
 import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
 
@@ -19,7 +18,6 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
   const [block, setBlock] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [name, setName] = useState<string>('');
-  const [selectedChannelGroups, setSelectedChannelGroups] = useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
 
   const { selectedStreamGroup } = useSelectedStreamGroup(props.id);
 
@@ -32,9 +30,6 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
       setName(selectedStreamGroup.name);
     }
 
-    if (selectedStreamGroup.channelGroups !== undefined) {
-      setSelectedChannelGroups(selectedStreamGroup.channelGroups);
-    }
 
   }, [selectedStreamGroup]);
 
@@ -72,26 +67,16 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
     }
 
     const data = {} as UpdateStreamGroupRequest;
-
     data.name = name;
-
     data.streamGroupId = selectedStreamGroup.id;
-
-    if (selectedChannelGroups.length > 0) {
-      data.channelGroupNames = selectedChannelGroups.map((x) => x.name);
-    } else {
-      data.channelGroupNames = [];
-    }
 
     UpdateStreamGroup(data)
       .then(() => {
-
         setInfoMessage('Stream Group Edit Successfully');
-
       }).catch((e) => {
         setInfoMessage('Stream Group Edit Error: ' + e.message);
       });
-  }, [ReturnToParent, isSaveEnabled, name, selectedStreamGroup, selectedChannelGroups]);
+  }, [ReturnToParent, isSaveEnabled, name, selectedStreamGroup]);
 
   useEffect(() => {
     const callback = (event: KeyboardEvent) => {
@@ -115,14 +100,14 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
 
 
 
-  const onsetSelectedChannelGroups = useCallback((selectedData: ChannelGroupDto | ChannelGroupDto[]) => {
-    if (Array.isArray(selectedData)) {
-      setSelectedChannelGroups(selectedData);
-    } else {
-      setSelectedChannelGroups([selectedData]);
-    }
+  // const onsetSelectedChannelGroups = useCallback((selectedData: ChannelGroupDto | ChannelGroupDto[]) => {
+  //   if (Array.isArray(selectedData)) {
+  //     setSelectedChannelGroups(selectedData);
+  //   } else {
+  //     setSelectedChannelGroups([selectedData]);
+  //   }
 
-  }, []);
+  // }, []);
 
 
   return (
@@ -159,7 +144,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
 
           </div>
 
-          <Accordion className='mt-2'>
+          {/* <Accordion className='mt-2'>
             <AccordionTab header="Groups">
               <div className='col-12 m-0 p-0 pr-1' >
                 <PlayListDataSelector
@@ -172,7 +157,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
                 />
               </div>
             </AccordionTab>
-          </Accordion>
+          </Accordion> */}
 
           <div className="flex col-12 mt-3 gap-2 justify-content-end">
             <EditButton label='Edit Stream Group' onClick={() => onUpdate()} tooltip='Edit Stream Group' />

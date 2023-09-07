@@ -5,7 +5,7 @@ import { type ColumnFieldType } from "./DataSelectorTypes";
 
 function getHeader(field: string, header: string | undefined, fieldType: ColumnFieldType | undefined): ReactNode {
 
-  if (!fieldType) {
+  if (!fieldType === undefined) {
     return header ? header : camel2title(field);
   }
 
@@ -22,13 +22,15 @@ function getHeader(field: string, header: string | undefined, fieldType: ColumnF
       return 'HDHR URL';
     case 'streams':
       return (
-        <div
-
-        >
+        <div        >
           Streams<br />(active/total)
         </div>
       );
     default:
+      if (header === '') {
+        return '';
+      }
+
       return header ? header : camel2title(field);
   }
 }

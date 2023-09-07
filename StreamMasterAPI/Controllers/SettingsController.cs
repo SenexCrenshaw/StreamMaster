@@ -54,7 +54,7 @@ public class SettingsController : ApiControllerBase, ISettingController
         return setting.AdminUserName == logInRequest.UserName && setting.AdminPassword == logInRequest.Password;
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<IActionResult> UpdateSetting(UpdateSettingRequest command)
     {

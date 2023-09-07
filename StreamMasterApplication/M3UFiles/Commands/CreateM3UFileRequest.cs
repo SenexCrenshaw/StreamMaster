@@ -1,34 +1,12 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
+﻿using FluentValidation;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 
-using StreamMasterDomain.Dto;
-
-using System.ComponentModel.DataAnnotations;
 using System.Web;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
 
-public class CreateM3UFileRequest : IRequest<bool>
-{
-    public string? Description { get; set; }
-    public IFormFile? FormFile { get; set; }
-
-    public int MaxStreamCount { get; set; }
-
-    public string? MetaData { get; set; }
-
-    [Required]
-    public string Name { get; set; } = string.Empty;
-
-    public int? StartingChannelNumber { get; set; }
-    public string? UrlSource { get; set; }
-}
+public record CreateM3UFileRequest(string? Description, int MaxStreamCount, int? StartingChannelNumber, IFormFile? FormFile, string Name, string? UrlSource) : IRequest<bool> { }
 
 public class CreateM3UFileRequestValidator : AbstractValidator<CreateM3UFileRequest>
 {
@@ -47,8 +25,8 @@ public class CreateM3UFileRequestValidator : AbstractValidator<CreateM3UFileRequ
 public class CreateM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateM3UFileRequest, bool>
 {
 
-    public CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
+    public CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+    : base(logger, repository, mapper, publisher, sender, hubContext) { }
 
     public async Task<bool> Handle(CreateM3UFileRequest command, CancellationToken cancellationToken)
     {

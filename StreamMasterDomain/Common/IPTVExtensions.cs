@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -27,7 +26,6 @@ public static partial class IPTVExtensions
             return null;
         }
 
-        Stopwatch sw = Stopwatch.StartNew();
 
         ConcurrentDictionary<long, VideoStream> streamLists = new();
 
@@ -68,8 +66,6 @@ public static partial class IPTVExtensions
         });
 
         List<VideoStream> results = streamLists.OrderBy(s => s.Key).Select(s => s.Value).ToList();
-        sw.Stop();
-        long elaspsed = sw.ElapsedMilliseconds;
 
         return results;
     }

@@ -1,12 +1,4 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.VideoStreams.Events;
-
-using StreamMasterDomain.Attributes;
+﻿using StreamMasterApplication.VideoStreams.Events;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
@@ -16,14 +8,15 @@ public record SetVideoStreamChannelNumbersRequest(List<string> Ids, bool OverWri
 public class SetVideoStreamChannelNumbersRequestHandler : BaseMediatorRequestHandler, IRequestHandler<SetVideoStreamChannelNumbersRequest>
 {
 
-    public SetVideoStreamChannelNumbersRequestHandler(ILogger<SetVideoStreamChannelNumbersRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
-
-
+    public SetVideoStreamChannelNumbersRequestHandler(ILogger<SetVideoStreamChannelNumbersRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+    : base(logger, repository, mapper, publisher, sender, hubContext) { }
     public async Task Handle(SetVideoStreamChannelNumbersRequest request, CancellationToken cancellationToken)
     {
         string orderBy = string.IsNullOrEmpty(request.OrderBy) ? "user_tvg_name desc" : request.OrderBy;
-        await Repository.VideoStream.SetVideoStreamChannelNumbersFromIds(request.Ids, request.OverWriteExisting, request.StartNumber, orderBy, cancellationToken).ConfigureAwait(false);
-        await Publisher.Publish(new UpdateVideoStreamEvent(), cancellationToken).ConfigureAwait(false);
+        List<VideoStreamDto> streams = await Repository.VideoStream.SetVideoStreamChannelNumbersFromIds(request.Ids, request.OverWriteExisting, request.StartNumber, orderBy, cancellationToken).ConfigureAwait(false);
+        if (streams.Any())
+        {
+            await Publisher.Publish(new UpdateVideoStreamsEvent(streams), cancellationToken).ConfigureAwait(false);
+        }
     }
 }

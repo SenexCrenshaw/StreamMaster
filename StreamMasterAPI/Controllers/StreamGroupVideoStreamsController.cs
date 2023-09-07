@@ -1,23 +1,13 @@
 ﻿using AutoMapper;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using StreamMasterApplication.StreamGroups;
-using StreamMasterApplication.StreamGroups.Commands;
-using StreamMasterApplication.StreamGroups.Queries;
 using StreamMasterApplication.StreamGroupVideoStreams;
 using StreamMasterApplication.StreamGroupVideoStreams.Commands;
 using StreamMasterApplication.StreamGroupVideoStreams.Queries;
-using StreamMasterApplication.VideoStreamLinks.Commands;
-using StreamMasterApplication.VideoStreamLinks.Queries;
 
-using StreamMasterDomain.Authentication;
-using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
-
-using System.Text;
 
 namespace StreamMasterAPI.Controllers;
 
@@ -45,7 +35,7 @@ public class StreamGroupVideoStreamsController : ApiControllerBase, IStreamGroup
     [Route("[action]")]
     public async Task<ActionResult<PagedResponse<VideoStreamDto>>> GetStreamGroupVideoStreams([FromQuery] StreamGroupVideoStreamParameters Parameters, CancellationToken cancellationToken = default)
     {
-        var res = await Mediator.Send(new GetStreamGroupVideoStreamsRequest(Parameters), cancellationToken).ConfigureAwait(false);
+        PagedResponse<VideoStreamDto> res = await Mediator.Send(new GetStreamGroupVideoStreamsRequest(Parameters), cancellationToken).ConfigureAwait(false);
         return Ok(res);
     }
 
@@ -57,9 +47,17 @@ public class StreamGroupVideoStreamsController : ApiControllerBase, IStreamGroup
         return Ok();
     }
 
-    [HttpPost]
+    [HttpDelete]
     [Route("[action]")]
     public async Task<ActionResult> RemoveVideoStreamFromStreamGroup(RemoveVideoStreamFromStreamGroupRequest request, CancellationToken cancellationToken)
+    {
+        await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
+        return Ok();
+    }
+
+    [HttpPatch]
+    [Route("[action]")]
+    public async Task<ActionResult> SetVideoStreamRanks(SetVideoStreamRanksRequest request, CancellationToken cancellationToken)
     {
         await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
         return Ok();

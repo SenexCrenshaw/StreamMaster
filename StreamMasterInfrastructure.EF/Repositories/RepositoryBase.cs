@@ -32,12 +32,6 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         return RepositoryContext.Set<T>().AsNoTracking();
     }
 
-    public IQueryable<VideoStream> FindAllVideoStream()
-    {
-        return RepositoryContext.Set<VideoStream>().AsNoTracking().Include(vs => vs.ChildVideoStreams)
-            .ThenInclude(vsl => vsl.ChildVideoStream);
-    }
-
     public IQueryable<T> GetIQueryableForEntity(QueryStringParameters parameters)
     {
         IQueryable<T> entities;
@@ -48,25 +42,11 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
             {
                 filters = Utils.GetFiltersFromJSON(parameters.JSONFiltersString);
             }
-            //if (typeof(T) == typeof(VideoStream))
-            //{
-            //    entities = (IQueryable<T>)FindByConditionVideoStream(filters, parameters.OrderBy);
-            //}
-            //else
-            //{
             entities = FindByCondition(filters, parameters.OrderBy);
-            //}
         }
         else
         {
-            //if (typeof(T) == typeof(VideoStream))
-            //{
-            //    entities = (IQueryable<T>)FindAllVideoStream();
-            //}
-            //else
-            //{
             entities = FindAll();
-            //}
         }
 
         return entities;
@@ -112,16 +92,6 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         return filteredAndSortedQuery;//.AsNoTracking();
     }
 
-    public IQueryable<VideoStream> FindByConditionVideoStream(List<DataTableFilterMetaData>? filters, string orderBy)
-    {
-        DbSet<VideoStream> query = RepositoryContext.Set<VideoStream>();
-
-        // Apply filters and sorting
-        IQueryable<VideoStream> filteredAndSortedQuery = FilterHelper<VideoStream>.ApplyFiltersAndSort(query, filters, orderBy);
-
-        return filteredAndSortedQuery.AsNoTracking().Include(vs => vs.ChildVideoStreams)
-            .ThenInclude(vsl => vsl.ChildVideoStream);
-    }
 
     public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression)
     {
@@ -157,6 +127,10 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         RepositoryContext.Set<T>().Remove(entity);
     }
 
+    public void BulkInsert(List<T> entities)
+    {
+        RepositoryContext.BulkInsert(entities);
+    }
     public void BulkInsert(T[] entities)
     {
 
@@ -164,11 +138,14 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         {
             options.PropertiesToIncludeOnUpdate = new List<string> { "" };
         });
+        RepositoryContext.SaveChanges();
     }
-
+    public void BulkDelete(IQueryable<T> query)
+    {
+        RepositoryContext.BulkDelete(query);
+    }
     public void BulkUpdate(T[] entities)
     {
-
         RepositoryContext.BulkUpdate(entities);
     }
 

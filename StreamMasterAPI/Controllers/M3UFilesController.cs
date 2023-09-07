@@ -13,10 +13,6 @@ namespace StreamMasterAPI.Controllers;
 public class M3UFilesController : ApiControllerBase, IM3UFileController
 {
 
-    public M3UFilesController()
-    {
-
-    }
 
     [HttpPost]
     [Route("[action]")]
@@ -34,7 +30,7 @@ public class M3UFilesController : ApiControllerBase, IM3UFileController
         return result ? Ok() : BadRequest();
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> ChangeM3UFileName(ChangeM3UFileNameRequest request)
     {
@@ -67,7 +63,7 @@ public class M3UFilesController : ApiControllerBase, IM3UFileController
         return Ok(m3uFiles);
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> ProcessM3UFile(ProcessM3UFileRequest request)
     {
@@ -75,7 +71,7 @@ public class M3UFilesController : ApiControllerBase, IM3UFileController
         return data == null ? NotFound() : NoContent();
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> RefreshM3UFile(RefreshM3UFileRequest request)
     {
@@ -83,7 +79,7 @@ public class M3UFilesController : ApiControllerBase, IM3UFileController
         return data == null ? NotFound() : NoContent();
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> ScanDirectoryForM3UFiles()
     {
@@ -91,7 +87,7 @@ public class M3UFilesController : ApiControllerBase, IM3UFileController
         return NoContent();
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> UpdateM3UFile(UpdateM3UFileRequest request)
     {

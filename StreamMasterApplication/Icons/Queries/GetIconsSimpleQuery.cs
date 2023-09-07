@@ -1,13 +1,4 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterDomain.Cache;
-using StreamMasterDomain.Dto;
-using StreamMasterDomain.Pagination;
+﻿using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Icons.Queries;
 public record GetIconsSimpleQuery(IconFileParameters iconFileParameters) : IRequest<IEnumerable<IconFileDto>>;
@@ -15,8 +6,9 @@ public record GetIconsSimpleQuery(IconFileParameters iconFileParameters) : IRequ
 internal class GetIconsSimpleQueryHandler : BaseMemoryRequestHandler, IRequestHandler<GetIconsSimpleQuery, IEnumerable<IconFileDto>>
 {
 
-    public GetIconsSimpleQueryHandler(ILogger<GetIconsSimpleQuery> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
+
+    public GetIconsSimpleQueryHandler(ILogger<GetIconsSimpleQuery> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
 
     public Task<IEnumerable<IconFileDto>> Handle(GetIconsSimpleQuery request, CancellationToken cancellationToken)
     {

@@ -1,18 +1,12 @@
-﻿using AutoMapper;
+﻿using FluentValidation;
 
-using FluentValidation;
+using StreamMasterApplication.ChannelGroups.Events;
 
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterDomain.Cache;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
-public record DeleteAllChannelGroupsFromParametersRequest(ChannelGroupParameters Parameters) : IRequest
+public record DeleteAllChannelGroupsFromParametersRequest(ChannelGroupParameters Parameters) : IRequest<bool>
 {
 }
 
@@ -24,23 +18,24 @@ public class DeleteAllChannelGroupsFromParametersRequestValidator : AbstractVali
     }
 }
 
-public class DeleteAllChannelGroupsFromParametersRequestHandler : BaseMemoryRequestHandler, IRequestHandler<DeleteAllChannelGroupsFromParametersRequest>
+public class DeleteAllChannelGroupsFromParametersRequestHandler(ILogger<DeleteAllChannelGroupsFromParametersRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, publisher, sender, hubContext, memoryCache), IRequestHandler<DeleteAllChannelGroupsFromParametersRequest, bool>
 {
-
-    public DeleteAllChannelGroupsFromParametersRequestHandler(ILogger<DeleteAllChannelGroupsFromParametersRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
-    public async Task Handle(DeleteAllChannelGroupsFromParametersRequest request, CancellationToken cancellationToken)
+    public async Task<bool> Handle(DeleteAllChannelGroupsFromParametersRequest request, CancellationToken cancellationToken)
     {
-        List<int> ids = await Repository.ChannelGroup.DeleteAllChannelGroupsFromParameters(request.Parameters, cancellationToken).ConfigureAwait(false);
+        (IEnumerable<int> ChannelGroupIds, IEnumerable<VideoStreamDto> VideoStreams) = await Repository.ChannelGroup.DeleteAllChannelGroupsFromParameters(request.Parameters, cancellationToken).ConfigureAwait(false);
 
-        if (ids.Any())
+        if (ChannelGroupIds.Any())
         {
-            foreach (int id in ids)
+            foreach (int id in ChannelGroupIds)
             {
                 MemoryCache.RemoveChannelGroupStreamCount(id);
             }
-            //await Publisher.Publish(new UpdateChannelGroupEvent(), cancellationToken);
-            //await Publisher.Publish(new UpdateVideoStreamEvent(), cancellationToken);
+
+            await Publisher.Publish(new DeleteChannelGroupsEvent(ChannelGroupIds, VideoStreams), cancellationToken).ConfigureAwait(false);
+            return true;
         }
+
+        return false;
+
     }
 }

@@ -18,7 +18,7 @@ public class MiscController : ApiControllerBase
         _sender = sender;
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> BuildIconsCacheFromVideoStreams()
     {
@@ -26,7 +26,7 @@ public class MiscController : ApiControllerBase
         return NoContent();
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> ReadDirectoryLogosRequest()
     {
@@ -35,7 +35,7 @@ public class MiscController : ApiControllerBase
         return NoContent();
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> BuildProgIconsCacheFromEPGsRequest()
     {

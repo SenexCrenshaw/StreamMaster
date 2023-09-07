@@ -2,9 +2,11 @@
 
 using MediatR;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
+using StreamMasterApplication.StreamGroupChannelGroups.Commands;
 using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Authentication;
@@ -16,62 +18,36 @@ using StreamMasterDomain.Sorting;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
-public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRepository
+public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHelper<StreamGroup> StreamGroupSortHelper, IMapper mapper, IMemoryCache memoryCache, ISender sender, IHttpContextAccessor httpContextAccessor) : RepositoryBase<StreamGroup>(repositoryContext), IStreamGroupRepository
 {
-    private readonly ISortHelper<StreamGroup> _StreamGroupSortHelper;
-    private readonly IMapper _mapper;
-    private readonly ISender _sender;
+    private readonly ISortHelper<StreamGroup> _StreamGroupSortHelper = StreamGroupSortHelper;
+    private readonly IMapper _mapper = mapper;
+    private readonly ISender _sender = sender;
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-    public async Task AddStreamGroupRequestAsync(AddStreamGroupRequest command, CancellationToken cancellationToken)
+    public async Task AddStreamGroupRequestAsync(AddStreamGroupRequest request, CancellationToken cancellationToken)
     {
         int streamGroupNumber = GetAllStreamGroups().Max(a => a.StreamGroupNumber) + 1;
 
-        StreamGroup entity = new()
+        StreamGroup streamGroup = new()
         {
-            Name = command.Name,
-            StreamGroupNumber = command.StreamGroupNumber,
+            Name = request.Name,
+            StreamGroupNumber = request.StreamGroupNumber,
         };
 
-        CreateStreamGroup(entity);
+        CreateStreamGroup(streamGroup);
         _ = await RepositoryContext.SaveChangesAsync(cancellationToken);
 
-        if (command.ChannelGroupNames != null && command.ChannelGroupNames.Any())
+        if (request.ChannelGroupIds != null && request.ChannelGroupIds.Any())
         {
-            IQueryable<ChannelGroup> cgs = RepositoryContext.ChannelGroups.Where(a => command.ChannelGroupNames.Contains(a.Name));
-            if (cgs.Any())
-            {
-                foreach (ChannelGroup? cg in cgs)
-                {
-                    _ = await AddChannelGroupToStreamGroupAsync(entity.Id, cg.Id, cancellationToken);
-                }
-            }
+            await _sender.Send(new SyncStreamGroupChannelGroupsRequest(streamGroupNumber, request.ChannelGroupIds), cancellationToken);
         }
-
-        //if (command.VideoStreamIds != null && command.VideoStreamIds.Any())
-        //{
-        //    var vss = _context.VideoStreams.Where(a => command.VideoStreamIds.Contains(a.Id)).ToList();
-        //    if (vss.Any())
-        //    {
-        //        for (int index = 0; index < vss.Count; index++)
-        //        {
-        //            VideoStream? vs = vss[index];
-        //            await _context.AddOrUpdatVideoStreamToStreamGroupAsync(entity.Id, vs.Id, false, cancellationToken);
-        //        }
-        //    }
-        //}
-
-    }
-    public StreamGroupRepository(RepositoryContext repositoryContext, ISortHelper<StreamGroup> StreamGroupSortHelper, IMapper mapper, IMemoryCache memoryCache, ISender sender) : base(repositoryContext)
-    {
-        _sender = sender;
-        _mapper = mapper;
-        _StreamGroupSortHelper = StreamGroupSortHelper;
     }
 
-    public async Task<StreamGroupDto?> GetStreamGroupDtoByStreamGroupNumber(int streamGroupNumber, string Url, CancellationToken cancellationToken = default)
+    public async Task<StreamGroupDto?> GetStreamGroupDtoByStreamGroupNumber(int streamGroupNumber, CancellationToken cancellationToken = default)
     {
         StreamGroup? sg = await GetStreamGroupByStreamGroupNumberAsync(streamGroupNumber).ConfigureAwait(false);
-        return sg is not null ? await GetStreamGroupDto(sg?.Id ?? 0, Url, cancellationToken).ConfigureAwait(false) : null;
+        return sg is not null ? await GetStreamGroupDto(sg?.Id ?? 0, cancellationToken).ConfigureAwait(false) : null;
     }
 
     public async Task SetGroupNameByGroupName(string channelGroupName, string newGroupName, CancellationToken cancellationToken)
@@ -140,12 +116,13 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
             .SingleOrDefaultAsync(sg => sg.Id == streamGroupId, cancellationToken);
     }
 
-    public async Task<StreamGroupDto?> GetStreamGroupDto(int id, string Url, CancellationToken cancellationToken = default)
+    public async Task<StreamGroupDto?> GetStreamGroupDto(int id, CancellationToken cancellationToken = default)
     {
         if (id == 0)
         {
             return new StreamGroupDto { Id = 0, Name = "All" };
         }
+        string Url = _httpContextAccessor.GetUrl();
 
         StreamGroup? streamGroup = await GetStreamGroupWithRelatedEntitiesByIdAsync(id, cancellationToken);
 
@@ -174,13 +151,13 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
             .ThenInclude(sgcg => sgcg.ChannelGroup).OrderBy(p => p.Name);
     }
 
-    public async Task<List<StreamGroupDto>> GetStreamGroupDtos(string Url, CancellationToken cancellationToken = default)
+    public async Task<List<StreamGroupDto>> GetStreamGroupDtos(CancellationToken cancellationToken = default)
     {
         List<StreamGroupDto> ret = new();
 
         foreach (int streamGroupId in GetAllStreamGroups().Select(a => a.Id))
         {
-            StreamGroupDto? streamGroup = await GetStreamGroupDto(streamGroupId, Url, cancellationToken);
+            StreamGroupDto? streamGroup = await GetStreamGroupDto(streamGroupId, cancellationToken);
             if (streamGroup == null)
             {
                 continue;
@@ -232,10 +209,11 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
         }
     }
 
-    public async Task<StreamGroupDto?> UpdateStreamGroupAsync(UpdateStreamGroupRequest request, string Url, CancellationToken cancellationToken)
+    public async Task<StreamGroupDto?> UpdateStreamGroupAsync(UpdateStreamGroupRequest request, CancellationToken cancellationToken)
     {
         try
         {
+            string Url = _httpContextAccessor.GetUrl();
             StreamGroup? streamGroup = await GetStreamGroupByIdAsync(request.StreamGroupId).ConfigureAwait(false);
 
             if (streamGroup == null)
@@ -248,21 +226,20 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
                 streamGroup.Name = request.Name;
             }
 
-            if (request.StreamGroupNumber != null)
-            {
-                if (!await RepositoryContext.StreamGroups.AnyAsync(a => a.StreamGroupNumber == (int)request.StreamGroupNumber, cancellationToken: cancellationToken).ConfigureAwait(false))
-                {
-                    streamGroup.StreamGroupNumber = (int)request.StreamGroupNumber;
-                }
-            }
+            //if (request.StreamGroupNumber != null)
+            //{
+            //    if (!await RepositoryContext.StreamGroups.AnyAsync(a => a.StreamGroupNumber == (int)request.StreamGroupNumber, cancellationToken: cancellationToken).ConfigureAwait(false))
+            //    {
+            //        streamGroup.StreamGroupNumber = (int)request.StreamGroupNumber;
+            //    }
+            //}
 
             UpdateStreamGroup(streamGroup);
 
             _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            _ = await Sync(streamGroup.Id, Url, request.ChannelGroupNames, request.VideoStreams, cancellationToken);
 
-            StreamGroupDto? ret = await GetStreamGroupDto(streamGroup.Id, Url, cancellationToken);
+            StreamGroupDto? ret = await GetStreamGroupDto(streamGroup.Id, cancellationToken);
             return ret;
         }
         catch (Exception)
@@ -271,27 +248,27 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
         }
     }
 
-    public async Task<StreamGroupDto?> Sync(int streamGroupId, string Url, List<string>? ChannelGroupNames, List<VideoStreamIsReadOnly>? VideoStreams, CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            StreamGroupDto? streamGroupDto = await GetStreamGroupDto(streamGroupId, Url, cancellationToken).ConfigureAwait(false);
+    //public async Task<StreamGroupDto?> Sync(int streamGroupId, List<string>? ChannelGroupNames, List<VideoStreamIsReadOnly>? VideoStreams, CancellationToken cancellationToken = default)
+    //{
+    //    try
+    //    {
+    //        StreamGroupDto? streamGroupDto = await GetStreamGroupDto(streamGroupId, cancellationToken).ConfigureAwait(false);
 
-            if (streamGroupDto == null)
-            {
-                return null;
-            }
+    //        if (streamGroupDto == null)
+    //        {
+    //            return null;
+    //        }
 
-            await SynchronizeStreamGroupChannelsAndVideoStreams(streamGroupDto, ChannelGroupNames, VideoStreams, cancellationToken);
+    //        await SynchronizeStreamGroupChannelsAndVideoStreams(streamGroupDto, ChannelGroupNames, VideoStreams, cancellationToken);
 
-            StreamGroupDto? ret = await GetStreamGroupDto(streamGroupId, Url, cancellationToken).ConfigureAwait(false);
-            return ret;
-        }
-        catch (Exception)
-        {
-            return null;
-        }
-    }
+    //        StreamGroupDto? ret = await GetStreamGroupDto(streamGroupId, cancellationToken).ConfigureAwait(false);
+    //        return ret;
+    //    }
+    //    catch (Exception)
+    //    {
+    //        return null;
+    //    }
+    //}
 
     private async Task SynchronizeStreamGroupChannelsAndVideoStreams(
             StreamGroupDto streamGroup,
@@ -435,8 +412,9 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
         Update(StreamGroup);
     }
 
-    public async Task<PagedResponse<StreamGroupDto>> GetStreamGroupDtosPagedAsync(StreamGroupParameters StreamGroupParameters, string Url)
+    public async Task<PagedResponse<StreamGroupDto>> GetStreamGroupDtosPagedAsync(StreamGroupParameters StreamGroupParameters)
     {
+        string Url = _httpContextAccessor.GetUrl();
         Setting _setting = FileUtil.GetSetting();
         PagedResponse<StreamGroupDto> ret = await GetEntitiesAsync<StreamGroupDto>(StreamGroupParameters, _mapper);
         foreach (StreamGroupDto sg in ret.Data)
@@ -450,6 +428,5 @@ public class StreamGroupRepository : RepositoryBase<StreamGroup>, IStreamGroupRe
 
         return ret;
     }
-
 
 }

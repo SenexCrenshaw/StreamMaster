@@ -1,11 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { type DropdownFilterEvent } from 'primereact/dropdown';
-import { type DropdownChangeEvent } from 'primereact/dropdown';
-import { Dropdown } from 'primereact/dropdown';
+import { Dropdown, type DropdownChangeEvent, type DropdownFilterEvent } from 'primereact/dropdown';
 import { classNames } from 'primereact/utils';
-import { doSetsContainSameIds, type SMDataTableFilterMetaData } from "../../common/common";
-import { type GetApiArg, addOrUpdateValueForField } from "../../common/common";
-import { type HasId, type SimpleQueryApiArg } from "../../common/common";
+import { useCallback, useEffect, useState } from 'react';
+import { addOrUpdateValueForField, doSetsContainSameIds, type GetApiArg, type HasId, type SMDataTableFilterMetaData, type SimpleQueryApiArg } from "../../common/common";
 
 export type PagedResponseDto<T> = {
   data: T[];
@@ -224,8 +220,6 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
           lazy: true,
           loaderDisabled: true,
           // loadingTemplate: loadingTemplate,
-
-
           numToleratedItems: 40,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onLazyLoad: (e: any) => {

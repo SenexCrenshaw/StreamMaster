@@ -1,25 +1,21 @@
-﻿using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-
-using StreamMasterApplication.Hubs;
+﻿using StreamMasterApplication.ChannelGroups.Events;
+using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.VideoStreams.Events;
 
 namespace StreamMasterApplication.VideoStreams.EventHandlers;
 
-public class DeleteVideoStreamEventHandler : INotificationHandler<DeleteVideoStreamEvent>
+public class DeleteVideoStreamEventHandler : BaseMediatorRequestHandler, INotificationHandler<DeleteVideoStreamEvent>
 {
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
+    public DeleteVideoStreamEventHandler(ILogger<DeleteVideoStreamEvent> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+: base(logger, repository, mapper, publisher, sender, hubContext) { }
 
-    public DeleteVideoStreamEventHandler(
-         IHubContext<StreamMasterHub, IStreamMasterHub> hubContext
-        )
+    public async Task Handle(DeleteVideoStreamEvent notification, CancellationToken cancellationToken = default)
     {
-        _hubContext = hubContext;
-    }
-
-    public async Task Handle(DeleteVideoStreamEvent notification, CancellationToken cancellationToken)
-    {
-        await _hubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);
+        ChannelGroupDto? channelGroup = await Sender.Send(new GetChannelGroupFromVideoStreamId(notification.VideoStreamId), cancellationToken).ConfigureAwait(false);
+        if (channelGroup != null)
+        {
+            await Publisher.Publish(new UpdateChannelGroupEvent(channelGroup), cancellationToken).ConfigureAwait(false);
+        }
+        await HubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);
     }
 }

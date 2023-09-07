@@ -1,11 +1,15 @@
 {
+  "prettier.enable": false,
   "explorer.confirmDelete": true,
   "editor.formatOnSave": true,
   // "typescript.updateImportsOnFileMove.enabled": "always",
-  // "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   // "prettier.ignorePath": ".prettierignore",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true,
+    "source.fixAll": true,
+    "source.organizeImports": true,
+    "source.sortMembers": true
     // "source.organizeImports": true
   },
   "[json]": {
@@ -21,17 +25,23 @@
   },
   "[typescriptreact]": {
     // "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "vscode.typescript-language-features",
     "editor.formatOnSave": true
   },
   "eslint.validate": [
+    "css",
+    "html",
     "javascript",
     "javascriptreact",
     "json",
+    "markdown",
     "typescript",
     "typescriptreact",
     "yaml"
   ],
-  "html.customData": ["./node_modules/vidstack/vscode.html-data.json"]
+  "html.customData": [
+    "./node_modules/vidstack/vscode.html-data.json"
+  ]
   // "eslint.trace.server": "verbose",
   // "eslint.debug": "true"
 }

@@ -6,26 +6,41 @@ public static class HttpContextAccessorExtensions
 {
     public static string GetUrl(this IHttpContextAccessor httpContextAccessor)
     {
-        var request = httpContextAccessor.HttpContext.Request;
-        var scheme = request.Scheme;
-        var host = request.Host;
+        return httpContextAccessor.GetUrlWithPath();
+        //HttpRequest request = httpContextAccessor.HttpContext.Request;
+        //string scheme = request.Scheme;
+        //HostString host = request.Host;
 
-        var url = $"{scheme}://{host}";
+        //string url = $"{scheme}://{host}";
 
-        return url;
+        //return url;
     }
 
     public static string GetUrlWithPath(this IHttpContextAccessor httpContextAccessor)
     {
-        var request = httpContextAccessor.HttpContext.Request;
-        var scheme = request.Scheme;
-        var host = request.Host;
+        HttpRequest? request = httpContextAccessor.HttpContext?.Request;
+        if (request == null)
+        {
+            return string.Empty;
+        }
 
-        var path = request.Path;
+        string path = request.Path.ToString()
+            .Replace("/capability", "")
+            .Replace("/device.xml", "")
+            .Replace("/discover.json", "");
 
-        var url = $"{scheme}://{host}{path}";
+        return $"{request.Scheme}://{request.Host}{path}";
+    }
 
-        return url;
+    public static string GetUrlWithPathValue(this IHttpContextAccessor httpContextAccessor)
+    {
+        string? value = httpContextAccessor.HttpContext?.Request.Path.Value;
+        if (value == null)
+        {
+            return string.Empty;
+        }
+
+        return value;
     }
 
 }

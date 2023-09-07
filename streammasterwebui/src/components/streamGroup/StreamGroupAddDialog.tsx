@@ -99,7 +99,7 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
     data.streamGroupNumber = streamGroupNumber;
 
     if (selectedChannelGroups.length > 0) {
-      data.channelGroupNames = selectedChannelGroups.map((x) => x.name);
+      data.channelGroupIds = selectedChannelGroups.map((x) => x.id??0);
     }
 
     streamGroupsAddStreamGroupMutation(data)

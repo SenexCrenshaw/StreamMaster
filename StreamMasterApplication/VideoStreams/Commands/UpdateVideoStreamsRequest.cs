@@ -1,20 +1,9 @@
-﻿using AutoMapper;
+﻿using FluentValidation;
 
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.ChannelGroups.Events;
 using StreamMasterApplication.VideoStreams.Events;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
-public record UpdateVideoStreamsRequest(IEnumerable<UpdateVideoStreamRequest> VideoStreamUpdates) : IRequest
-{
-}
 
 public class UpdateVideoStreamsRequestValidator : AbstractValidator<UpdateVideoStreamsRequest>
 {
@@ -24,40 +13,17 @@ public class UpdateVideoStreamsRequestValidator : AbstractValidator<UpdateVideoS
     }
 }
 
-public class UpdateVideoStreamsRequestHandler : BaseMemoryRequestHandler, IRequestHandler<UpdateVideoStreamsRequest>
+public class UpdateVideoStreamsRequestHandler(ILogger<UpdateVideoStreamsRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateVideoStreamsRequest, List<VideoStreamDto>>
 {
-
-    public UpdateVideoStreamsRequestHandler(ILogger<UpdateVideoStreamsRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
-    public async Task Handle(UpdateVideoStreamsRequest requests, CancellationToken cancellationToken)
+    public async Task<List<VideoStreamDto>> Handle(UpdateVideoStreamsRequest requests, CancellationToken cancellationToken)
     {
-        bool refresh = false;
-        bool refreshChannelGroup = false;
 
-        foreach (UpdateVideoStreamRequest request in requests.VideoStreamUpdates)
+        (List<VideoStreamDto> videoStreams, bool updateChannelGroup) = await Repository.VideoStream.UpdateVideoStreamsAsync(requests.VideoStreamUpdates, cancellationToken);
+        if (videoStreams.Any())
         {
-            bool ret = await Repository.VideoStream.UpdateVideoStreamAsync(request, cancellationToken).ConfigureAwait(false);
-            if (ret)
-            {
-                refresh = true;
-                if (request.IsHidden != null && !refreshChannelGroup)
-                {
-                    refreshChannelGroup = true;
-                }
-            }
-
+            await Publisher.Publish(new UpdateVideoStreamsEvent(videoStreams, updateChannelGroup), cancellationToken).ConfigureAwait(false);
         }
 
-        if (refreshChannelGroup)
-        {
-            await Publisher.Publish(new UpdateChannelGroupEvent(), cancellationToken).ConfigureAwait(false);
-        }
-
-        if (refresh)
-        {
-
-            await Publisher.Publish(new UpdateVideoStreamsEvent(), cancellationToken).ConfigureAwait(false);
-        }
-
+        return videoStreams;
     }
 }

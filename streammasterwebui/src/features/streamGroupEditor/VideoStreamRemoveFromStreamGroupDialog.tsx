@@ -1,8 +1,7 @@
 import { memo } from "react";
-import { type StreamGroupVideoStreamsRemoveVideoStreamFromStreamGroupApiArg } from "../../store/iptvApi";
-import { useStreamGroupVideoStreamsRemoveVideoStreamFromStreamGroupMutation, type VideoStreamDto } from "../../store/iptvApi";
-import XButton from "../../components/buttons/XButton";
 import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
+import XButton from "../../components/buttons/XButton";
+import { useStreamGroupVideoStreamsRemoveVideoStreamFromStreamGroupMutation, type StreamGroupVideoStreamsRemoveVideoStreamFromStreamGroupApiArg, type VideoStreamDto } from "../../store/iptvApi";
 
 type VideoStreamRemoveFromStreamGroupDialogProps = {
   readonly id: string;
@@ -32,7 +31,9 @@ const VideoStreamRemoveFromStreamGroupDialog = ({ id, value }: VideoStreamRemove
   }
 
   return (
-    <XButton onClick={async () => await removeVideoStream()} />
+    <div className='flex'>
+      <XButton onClick={async () => await removeVideoStream()} />
+    </div>
   );
 
 }

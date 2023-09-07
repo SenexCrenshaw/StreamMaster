@@ -2,16 +2,14 @@
 
 using StreamMasterApplication.StreamGroupVideoStreams.Commands;
 using StreamMasterApplication.StreamGroupVideoStreams.Queries;
-using StreamMasterApplication.VideoStreamLinks.Commands;
-using StreamMasterApplication.VideoStreamLinks.Queries;
 
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.StreamGroupVideoStreams;
 
 public interface IStreamGroupVideoStreamController
 {
+    Task<ActionResult> SetVideoStreamRanks(SetVideoStreamRanksRequest request, CancellationToken cancellationToken);
     Task<ActionResult<PagedResponse<VideoStreamDto>>> GetStreamGroupVideoStreams(StreamGroupVideoStreamParameters Parameters, CancellationToken cancellationToken = default);
 
     Task<ActionResult<List<VideoStreamIsReadOnly>>> GetStreamGroupVideoStreamIds(GetStreamGroupVideoStreamIdsRequest request, CancellationToken cancellationToken = default);
@@ -23,6 +21,7 @@ public interface IStreamGroupVideoStreamController
 
 public interface IStreamGroupVideoStreamHub
 {
+    Task SetVideoStreamRanks(SetVideoStreamRanksRequest request, CancellationToken cancellationToken);
     Task RemoveVideoStreamFromStreamGroup(RemoveVideoStreamFromStreamGroupRequest request, CancellationToken cancellationToken);
 
     Task AddVideoStreamToStreamGroup(AddVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken);

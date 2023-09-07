@@ -1,19 +1,4 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.Common.Extensions;
-using StreamMasterApplication.M3UFiles.Commands;
-using StreamMasterApplication.VideoStreams.Events;
-
-using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Dto;
-using StreamMasterDomain.Repository;
+﻿using FluentValidation;
 
 namespace StreamMasterApplication.StreamGroupVideoStreams.Commands;
 
@@ -32,8 +17,9 @@ public class AddVideoStreamToStreamGroupRequestValidator : AbstractValidator<Add
 
 public class AddVideoStreamToStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<AddVideoStreamToStreamGroupRequest>
 {
-    public AddVideoStreamToStreamGroupRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
+
+    public AddVideoStreamToStreamGroupRequestHandler(ILogger<AddVideoStreamToStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+: base(logger, repository, mapper, publisher, sender, hubContext) { }
 
     public async Task Handle(AddVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken)
     {

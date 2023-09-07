@@ -1,37 +1,31 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterDomain.Cache;
-using StreamMasterDomain.Dto;
+﻿using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository.EPG;
 
 namespace StreamMasterApplication.EPGFiles.Queries;
 
-public record GetEPGFiles(EPGFileParameters Parameters) : IRequest<PagedResponse<EPGFilesDto>>;
+public record GetEPGFiles(EPGFileParameters Parameters) : IRequest<PagedResponse<EPGFileDto>>;
 
-internal class GetEPGFilesHandler : BaseMemoryRequestHandler, IRequestHandler<GetEPGFiles, PagedResponse<EPGFilesDto>>
+internal class GetEPGFilesHandler : BaseMemoryRequestHandler, IRequestHandler<GetEPGFiles, PagedResponse<EPGFileDto>>
 {
-    public GetEPGFilesHandler(ILogger<GetEPGFilesHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
+    public GetEPGFilesHandler(ILogger<GetEPGFiles> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
 
-    public async Task<PagedResponse<EPGFilesDto>> Handle(GetEPGFiles request, CancellationToken cancellationToken = default)
+    public async Task<PagedResponse<EPGFileDto>> Handle(GetEPGFiles request, CancellationToken cancellationToken = default)
     {
-        PagedResponse<EPGFilesDto> epgFiles = await Repository.EPGFile.GetEPGFilesAsync(request.Parameters);
+        PagedResponse<EPGFileDto> epgFiles = await Repository.EPGFile.GetEPGFilesAsync(request.Parameters);
 
         if (request.Parameters.PageSize == 0)
         {
-            PagedResponse<EPGFilesDto> emptyResponse = new();
-            emptyResponse.TotalItemCount = epgFiles.TotalItemCount;
+            PagedResponse<EPGFileDto> emptyResponse = new()
+            {
+                TotalItemCount = epgFiles.TotalItemCount
+            };
             return emptyResponse;
         }
 
 
-        foreach (EPGFilesDto epgFileDto in epgFiles.Data)
+        foreach (EPGFileDto epgFileDto in epgFiles.Data)
         {
             List<Programme> proprammes = MemoryCache.Programmes().Where(a => a.EPGFileId == epgFileDto.Id).ToList();
             if (proprammes.Any())

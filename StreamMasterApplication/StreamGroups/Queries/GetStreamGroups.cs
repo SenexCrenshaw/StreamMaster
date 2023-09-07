@@ -1,15 +1,4 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.Common.Extensions;
-using StreamMasterApplication.M3UFiles.Commands;
-
-using StreamMasterDomain.Dto;
-using StreamMasterDomain.Pagination;
+﻿using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
@@ -17,16 +6,9 @@ public record GetStreamGroups(StreamGroupParameters Parameters) : IRequest<Paged
 
 internal class GetStreamGroupsHandler : BaseMediatorRequestHandler, IRequestHandler<GetStreamGroups, PagedResponse<StreamGroupDto>>
 {
-    protected Setting _setting = FileUtil.GetSetting();
 
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public GetStreamGroupsHandler(IHttpContextAccessor httpContextAccessor, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
-
+    public GetStreamGroupsHandler(ILogger<GetStreamGroups> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+: base(logger, repository, mapper, publisher, sender, hubContext) { }
     public async Task<PagedResponse<StreamGroupDto>> Handle(GetStreamGroups request, CancellationToken cancellationToken = default)
     {
         int count = Repository.StreamGroup.Count();
@@ -38,8 +20,8 @@ internal class GetStreamGroupsHandler : BaseMediatorRequestHandler, IRequestHand
             return emptyResponse;
 
         }
-        string url = _httpContextAccessor.GetUrl();
-        return await Repository.StreamGroup.GetStreamGroupDtosPagedAsync(request.Parameters, url).ConfigureAwait(false);
+
+        return await Repository.StreamGroup.GetStreamGroupDtosPagedAsync(request.Parameters).ConfigureAwait(false);
 
     }
 }

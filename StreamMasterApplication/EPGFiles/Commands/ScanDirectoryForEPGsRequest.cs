@@ -1,22 +1,12 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.M3UFiles.Commands;
-
-using StreamMasterDomain.Dto;
-
-namespace StreamMasterApplication.EPGFiles.Commands;
+﻿namespace StreamMasterApplication.EPGFiles.Commands;
 
 public record ScanDirectoryForEPGFilesRequest : IRequest<bool> { }
 
 public class ScanDirectoryForEPGFilesRequestHandler : BaseMediatorRequestHandler, IRequestHandler<ScanDirectoryForEPGFilesRequest, bool>
 {
-    public ScanDirectoryForEPGFilesRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
 
+    public ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGFilesRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+  : base(logger, repository, mapper, publisher, sender, hubContext) { }
     public async Task<bool> Handle(ScanDirectoryForEPGFilesRequest command, CancellationToken cancellationToken)
     {
         IEnumerable<FileInfo> epgFiles = GetEPGFilesFromDirectory();
@@ -58,7 +48,7 @@ public class ScanDirectoryForEPGFilesRequestHandler : BaseMediatorRequestHandler
             await SaveAndPublishEPGFile(epgFile, cancellationToken);
         }
 
-        EPGFilesDto ret = Mapper.Map<EPGFilesDto>(epgFile);
+        EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
         await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
     }
 

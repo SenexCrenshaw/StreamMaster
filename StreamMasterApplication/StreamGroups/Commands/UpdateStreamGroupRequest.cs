@@ -1,17 +1,6 @@
-﻿using AutoMapper;
+﻿using FluentValidation;
 
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.Common.Extensions;
-using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.VideoStreams.Events;
-
-using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.StreamGroups.Commands;
 
@@ -27,13 +16,10 @@ public class UpdateStreamGroupRequestValidator : AbstractValidator<UpdateStreamG
 
 public class UpdateStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateStreamGroupRequest, StreamGroupDto?>
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public UpdateStreamGroupRequestHandler(IHttpContextAccessor httpContextAccessor, ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
+    public UpdateStreamGroupRequestHandler(ILogger<UpdateStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+  : base(logger, repository, mapper, publisher, sender, hubContext) { }
+
 
     public async Task<StreamGroupDto?> Handle(UpdateStreamGroupRequest request, CancellationToken cancellationToken)
     {
@@ -41,14 +27,14 @@ public class UpdateStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequ
         {
             return null;
         }
-        string url = _httpContextAccessor.GetUrl();
-        StreamGroupDto? streamGroup = await Repository.StreamGroup.UpdateStreamGroupAsync(request, url, cancellationToken).ConfigureAwait(false);
+
+        StreamGroupDto? streamGroup = await Repository.StreamGroup.UpdateStreamGroupAsync(request, cancellationToken).ConfigureAwait(false);
         if (streamGroup is not null)
         {
             //var streamGroup = await _context.GetStreamGroupDto(ret.Id, url, cancellationToken).ConfigureAwait(false);
             if (streamGroup is not null && streamGroup.ChildVideoStreams.Any())
             {
-                await Publisher.Publish(new UpdateVideoStreamsEvent(), cancellationToken).ConfigureAwait(false);
+                await Publisher.Publish(new UpdateVideoStreamsEvent(streamGroup.ChildVideoStreams), cancellationToken).ConfigureAwait(false);
             }
             await Publisher.Publish(new StreamGroupUpdateEvent(), cancellationToken).ConfigureAwait(false);
         }

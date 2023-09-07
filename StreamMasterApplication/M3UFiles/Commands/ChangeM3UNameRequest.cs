@@ -1,20 +1,8 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.Extensions.Logging;
-
-using StreamMasterDomain.Dto;
+﻿using FluentValidation;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
 
-public class ChangeM3UFileNameRequest : IRequest<bool>
-{
-    public int Id { get; init; }
-    public string Name { get; set; } = string.Empty;
-}
+public record ChangeM3UFileNameRequest(int Id, string Name) : IRequest<bool> { }
 
 public class ChangeM3UFileNameRequestValidator : AbstractValidator<ChangeM3UFileNameRequest>
 {
@@ -29,8 +17,8 @@ public class ChangeM3UFileNameRequestValidator : AbstractValidator<ChangeM3UFile
 
 public class ChangeM3UFileNameRequestHandler : BaseMediatorRequestHandler, IRequestHandler<ChangeM3UFileNameRequest, bool>
 {
-    public ChangeM3UFileNameRequestHandler(ILogger<ChangeM3UFileNameRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
+    public ChangeM3UFileNameRequestHandler(ILogger<ChangeM3UFileNameRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+  : base(logger, repository, mapper, publisher, sender, hubContext) { }
 
     public async Task<bool> Handle(ChangeM3UFileNameRequest request, CancellationToken cancellationToken)
     {

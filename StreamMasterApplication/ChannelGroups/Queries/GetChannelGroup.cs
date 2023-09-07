@@ -1,25 +1,17 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.M3UFiles.Commands;
-
-using StreamMasterDomain.Dto;
-
-namespace StreamMasterApplication.ChannelGroups.Queries;
+﻿namespace StreamMasterApplication.ChannelGroups.Queries;
 
 public record GetChannelGroup(int Id) : IRequest<ChannelGroupDto?>;
 
 internal class GetChannelGroupHandler : BaseMediatorRequestHandler, IRequestHandler<GetChannelGroup, ChannelGroupDto?>
 {
-    public GetChannelGroupHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
+
+    public GetChannelGroupHandler(ILogger<GetChannelGroup> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+ : base(logger, repository, mapper, publisher, sender, hubContext) { }
+
 
     public async Task<ChannelGroupDto?> Handle(GetChannelGroup request, CancellationToken cancellationToken)
     {
-        var channelGroup = await Repository.ChannelGroup.GetChannelGroupAsync(request.Id);
+        ChannelGroupDto? channelGroup = await Repository.ChannelGroup.GetChannelGroupAsync(request.Id);
 
         return channelGroup;
     }

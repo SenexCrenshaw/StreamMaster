@@ -16,7 +16,7 @@ import {
   type DeleteStreamGroupRequest,
   type DeleteVideoStreamRequest,
   type EpgFilesGetEpgFilesApiArg,
-  type EpgFilesDto,
+  type EpgFileDto,
   type EpgGuide,
   type FailClientRequest,
   type GetLog,
@@ -95,13 +95,13 @@ export const DeleteEPGFile = async (arg: DeleteEpgFileRequest): Promise<void> =>
   await hubConnection.invoke('DeleteEPGFile', arg);
 };
 
-export const GetEPGFile = async (arg: number): Promise<EpgFilesDto> => {
+export const GetEPGFile = async (arg: number): Promise<EpgFileDto> => {
   const data = await hubConnection.invoke('GetEPGFile', arg);
 
   return data;
 };
 
-export const GetEPGFiles = async (arg: EpgFilesGetEpgFilesApiArg): Promise<EpgFilesDto[]> => {
+export const GetEPGFiles = async (arg: EpgFilesGetEpgFilesApiArg): Promise<EpgFileDto[]> => {
   const data = await hubConnection.invoke('GetEPGFiles', arg);
 
   return data;

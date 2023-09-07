@@ -1,17 +1,4 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Caching.Memory;
-
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.Hubs;
-
-using StreamMasterDomain.Dto;
+﻿using FluentValidation;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
 
@@ -31,15 +18,9 @@ public class UpdateM3UFileRequestValidator : AbstractValidator<UpdateM3UFileRequ
 
 public class UpdateM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<UpdateM3UFileRequest, M3UFile?>
 {
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
 
-    public UpdateM3UFileRequestHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache)
-    {
-
-        _hubContext = hubContext;
-    }
-
+    public UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
 
     public async Task<M3UFile?> Handle(UpdateM3UFileRequest command, CancellationToken cancellationToken)
     {
@@ -103,7 +84,7 @@ public class UpdateM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHan
             M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
             if (isChanged)
             {
-                await _hubContext.Clients.All.M3UFilesRefresh().ConfigureAwait(false);
+                await HubContext.Clients.All.M3UFilesRefresh().ConfigureAwait(false);
             }
 
             return m3uFile;

@@ -2,6 +2,7 @@
 
 public class Setting : ISetting
 {
+    public bool LogPerformance { get; set; } = false;
     public string AdminPassword { get; set; } = "";
     public string AdminUserName { get; set; } = "";
     public string ApiKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");

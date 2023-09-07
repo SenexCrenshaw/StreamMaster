@@ -1,13 +1,4 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.Extensions.Logging;
-
-using StreamMasterDomain.Dto;
-using StreamMasterDomain.Pagination;
-
-using System.Diagnostics;
+﻿using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.StreamGroupVideoStreams.Queries;
 
@@ -20,10 +11,6 @@ internal class GetStreamGroupVideoStreamsRequestHandler : BaseRequestHandler, IR
 
     public async Task<PagedResponse<VideoStreamDto>> Handle(GetStreamGroupVideoStreamsRequest request, CancellationToken cancellationToken)
     {
-        Stopwatch stopwatch = Stopwatch.StartNew();
-        var res = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.Parameters, cancellationToken).ConfigureAwait(false);
-        stopwatch.Stop();
-        Logger.LogInformation($"GetStreamGroupVideoStreamsRequest took {stopwatch.ElapsedMilliseconds} ms");
-        return res;
+        return await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.Parameters, cancellationToken).ConfigureAwait(false);
     }
 }

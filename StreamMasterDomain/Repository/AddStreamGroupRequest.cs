@@ -6,11 +6,6 @@ using StreamMasterDomain.Dto;
 namespace StreamMasterDomain.Repository;
 
 [RequireAll]
-public record AddStreamGroupRequest(
-    string Name,
-    int StreamGroupNumber,
-    List<VideoStreamIsReadOnly>? VideoStreams,
-    List<string>? ChannelGroupNames
-    ) : IRequest
+public record AddStreamGroupRequest(string Name, int StreamGroupNumber, List<VideoStreamIsReadOnly>? VideoStreams, List<int>? ChannelGroupIds) : IRequest
 {
 }

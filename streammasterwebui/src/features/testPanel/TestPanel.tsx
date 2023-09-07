@@ -1,23 +1,10 @@
 /* eslint-disable react/no-unused-prop-types */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-
-
-
-import { useState, useMemo, memo } from "react";
+import { memo, useMemo, useState } from "react";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import IconSelector from "../../components/selectors/IconSelector";
-import { type StreamGroupDto } from "../../store/iptvApi";
-import { type VideoStreamDto } from "../../store/iptvApi";
-import { type PagedResponseOfChannelGroupDto, type ChannelGroupDto, useVideoStreamsGetVideoStreamQuery } from "../../store/iptvApi";
-import { useChannelGroupsGetChannelGroupsQuery } from "../../store/iptvApi";
-import ChannelGroupVideoStreamDataSelector from "../playListEditor/ChannelGroupVideoStreamDataSelector";
-import EPGSelector from "../../components/selectors/EPGSelector";
-import EPGEditor from "../../components/epg/EPGEditor";
-import ChannelLogoEditor from "../../components/ChannelLogoEditor";
+import { useVideoStreamsGetVideoStreamQuery, type ChannelGroupDto, type PagedResponseOfChannelGroupDto, type StreamGroupDto } from "../../store/iptvApi";
 
-import VideoStreamAddDialog from "../../components/videoStream/VideoStreamAddDialog";
-import VideoStreamPanel from "../videoStreamPanel/VideoStreamPanel";
-import StreamGroupSelectedVideoStreamDataSelector from "../streamGroupEditor/StreamGroupSelectedVideoStreamDataSelector";
+import StreamGroupChannelGroupsSelector from "../../components/selectors/StreamGroupChannelGroupsSelector";
 
 
 const TestPanel = (props: TestPanelProps) => {
@@ -38,8 +25,12 @@ const TestPanel = (props: TestPanelProps) => {
   }, []);
 
   return (
-    <VideoStreamPanel />
+    <StreamGroupChannelGroupsSelector streamGroupId={2} />
   );
+
+  // return (
+  //   <VideoStreamPanel />
+  // );
 
   // return (
   //   <StreamGroupSelectedVideoStreamDataSelector

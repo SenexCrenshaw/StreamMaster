@@ -7,7 +7,7 @@ namespace StreamMasterDomain.Repository
     {
         Task<IEnumerable<EPGFile>> GetAllEPGFilesAsync();
 
-        Task<PagedResponse<EPGFilesDto>> GetEPGFilesAsync(EPGFileParameters EPGFileParameters);
+        Task<PagedResponse<EPGFileDto>> GetEPGFilesAsync(EPGFileParameters EPGFileParameters);
 
         Task<EPGFile> GetEPGFileByIdAsync(int Id);
 

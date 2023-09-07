@@ -326,6 +326,7 @@ export const SettingsEditor = () => {
               </>
             }
             {getCheckBoxLine('overWriteM3UChannels')}
+            {getCheckBoxLine('logPerformance')}
           </Fieldset>
 
           <Fieldset className="mt-4 pt-10" legend={GetMessage('authentication')}>

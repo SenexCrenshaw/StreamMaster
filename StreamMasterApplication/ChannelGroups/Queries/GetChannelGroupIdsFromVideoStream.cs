@@ -1,26 +1,17 @@
-﻿using AutoMapper;
+﻿namespace StreamMasterApplication.ChannelGroups.Queries;
 
-using MediatR;
+public record GetChannelIdFromVideoStream(VideoStreamDto VideoStreamDto) : IRequest<int?>;
 
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.M3UFiles.Commands;
-
-using StreamMasterDomain.Dto;
-
-namespace StreamMasterApplication.ChannelGroups.Queries;
-
-public record GetChannelGroupIdsFromVideoStream(VideoStreamDto VideoStreamDto) : IRequest<List<int>>;
-
-internal class GetChannelGroupIdsFromVideoStreamHandler : BaseMediatorRequestHandler, IRequestHandler<GetChannelGroupIdsFromVideoStream, List<int>>
+internal class GetChannelIdFromVideoStreamHandler : BaseMediatorRequestHandler, IRequestHandler<GetChannelIdFromVideoStream, int?>
 {
-    public GetChannelGroupIdsFromVideoStreamHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
 
-    public async Task<List<int>> Handle(GetChannelGroupIdsFromVideoStream request, CancellationToken cancellationToken)
+    public GetChannelIdFromVideoStreamHandler(ILogger<GetChannelIdFromVideoStream> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+: base(logger, repository, mapper, publisher, sender, hubContext) { }
+
+
+    public async Task<int?> Handle(GetChannelIdFromVideoStream request, CancellationToken cancellationToken)
     {
-
-        List<int> ids = await Repository.ChannelGroup.GetChannelIdsFromVideoStream(request.VideoStreamDto, cancellationToken).ConfigureAwait(false);
-        return ids;
+        int? id = await Repository.ChannelGroup.GetChannelGroupIdFromVideoStream(request.VideoStreamDto.User_Tvg_group, cancellationToken).ConfigureAwait(false);
+        return id;
     }
 }

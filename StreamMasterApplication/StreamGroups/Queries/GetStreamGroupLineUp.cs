@@ -1,20 +1,12 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
+﻿using AutoMapper.QueryableExtensions;
 
 using FluentValidation;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Extensions;
-using StreamMasterApplication.M3UFiles.Commands;
 
-using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
-using StreamMasterDomain.Dto;
 
 using System.Text.Json;
 using System.Web;
@@ -35,19 +27,14 @@ public class GetStreamGroupLineUpValidator : AbstractValidator<GetStreamGroupLin
 
 public class GetStreamGroupLineUpHandler : BaseMemoryRequestHandler, IRequestHandler<GetStreamGroupLineUp, string>
 {
-    protected Setting _setting = FileUtil.GetSetting();
-
     private readonly IHttpContextAccessor _httpContextAccessor;
+    public GetStreamGroupLineUpHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupLineUp> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+  : base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { _httpContextAccessor = httpContextAccessor; }
 
-    public GetStreamGroupLineUpHandler(IHttpContextAccessor httpContextAccessor, ILogger<DeleteM3UFileHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
 
     public async Task<string> Handle(GetStreamGroupLineUp request, CancellationToken cancellationToken)
     {
-        string requestPath = _httpContextAccessor.HttpContext.Request.Path.Value.ToString();
+        string requestPath = _httpContextAccessor.GetUrlWithPathValue();
         byte[]? iv = requestPath.GetIVFromPath(128);
         if (iv == null)
         {
@@ -60,7 +47,7 @@ public class GetStreamGroupLineUpHandler : BaseMemoryRequestHandler, IRequestHan
         IEnumerable<VideoStreamDto> videoStreams;
         if (request.StreamGroupNumber > 0)
         {
-            StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, cancellationToken).ConfigureAwait(false);
             if (streamGroup == null)
             {
                 return "";
@@ -81,7 +68,7 @@ public class GetStreamGroupLineUpHandler : BaseMemoryRequestHandler, IRequestHan
         foreach (VideoStreamDto videoStream in videoStreams)
         {
 
-            if (_setting.M3UIgnoreEmptyEPGID &&
+            if (Settings.M3UIgnoreEmptyEPGID &&
             (string.IsNullOrEmpty(videoStream.User_Tvg_ID) || videoStream.User_Tvg_ID.ToLower() == "dummy"))
             {
                 continue;
@@ -90,7 +77,7 @@ public class GetStreamGroupLineUpHandler : BaseMemoryRequestHandler, IRequestHan
 
             string videoUrl = videoStream.Url;
 
-            string encodedNumbers = request.StreamGroupNumber.EncodeValues128(videoStream.Id, _setting.ServerKey, iv);
+            string encodedNumbers = request.StreamGroupNumber.EncodeValues128(videoStream.Id, Settings.ServerKey, iv);
 
             string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
             videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";

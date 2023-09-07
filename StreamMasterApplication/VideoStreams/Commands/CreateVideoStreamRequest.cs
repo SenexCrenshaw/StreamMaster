@@ -1,20 +1,8 @@
-﻿using AutoMapper;
+﻿using FluentValidation;
 
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.ChannelGroups.Events;
-using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
-using StreamMasterDomain.Repository;
-
 namespace StreamMasterApplication.VideoStreams.Commands;
-
-
 
 public class CreateVideoStreamRequestValidator : AbstractValidator<CreateVideoStreamRequest>
 {
@@ -24,16 +12,23 @@ public class CreateVideoStreamRequestValidator : AbstractValidator<CreateVideoSt
     }
 }
 
-public class CreateVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateVideoStreamRequest>
+public class CreateVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateVideoStreamRequest, VideoStreamDto?>
 {
 
-    public CreateVideoStreamRequestHandler(ILogger<CreateM3UFileRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender)
-        : base(logger, repository, mapper, publisher, sender) { }
+    public CreateVideoStreamRequestHandler(ILogger<CreateVideoStreamRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+    : base(logger, repository, mapper, publisher, sender, hubContext) { }
 
-    public async Task Handle(CreateVideoStreamRequest request, CancellationToken cancellationToken)
+    public async Task<VideoStreamDto?> Handle(CreateVideoStreamRequest request, CancellationToken cancellationToken)
     {
-        await Repository.VideoStream.CreateVideoStreamAsync(request, cancellationToken);
-       
-       await Publisher.Publish(new CreateVideoStreamEvent(), cancellationToken).ConfigureAwait(false);
+        VideoStream? stream = await Repository.VideoStream.CreateVideoStreamAsync(request, cancellationToken);
+
+        if (stream != null)
+        {
+            VideoStreamDto streamDto = Mapper.Map<VideoStreamDto>(stream);
+            await Publisher.Publish(new CreateVideoStreamEvent(streamDto), cancellationToken).ConfigureAwait(false);
+            return streamDto;
+        }
+
+        return null;
     }
 }

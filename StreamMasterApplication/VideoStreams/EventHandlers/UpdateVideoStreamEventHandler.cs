@@ -1,26 +1,26 @@
-﻿using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.Hubs;
+﻿using StreamMasterApplication.ChannelGroups.Events;
+using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.VideoStreams.Events;
 
 namespace StreamMasterApplication.VideoStreams.EventHandlers;
 
-public class UpdateVideoStreamEventHandler : INotificationHandler<UpdateVideoStreamEvent>
+public class UpdateVideoStreamEventHandler : BaseMediatorRequestHandler, INotificationHandler<UpdateVideoStreamEvent>
 {
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
-    private readonly ILogger<UpdateVideoStreamEventHandler> _logger;
+    public UpdateVideoStreamEventHandler(ILogger<UpdateVideoStreamEvent> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+: base(logger, repository, mapper, publisher, sender, hubContext) { }
 
-    public UpdateVideoStreamEventHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, ILogger<UpdateVideoStreamEventHandler> logger)
-    {
-        _hubContext = hubContext;
-        _logger = logger;
-    }
 
     public async Task Handle(UpdateVideoStreamEvent notification, CancellationToken cancellationToken = default)
     {
-        await _hubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);
+        if (notification.UpdateChannelGroup)
+        {
+            ChannelGroupDto? channelGroup = await Sender.Send(new GetChannelGroupByName(notification.VideoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
+            if (channelGroup != null)
+            {
+                await Publisher.Publish(new UpdateChannelGroupEvent(channelGroup), cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        await HubContext.Clients.All.VideoStreamsRefresh([notification.VideoStream]).ConfigureAwait(false);
     }
 }

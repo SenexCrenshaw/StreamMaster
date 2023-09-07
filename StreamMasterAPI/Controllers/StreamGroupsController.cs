@@ -299,7 +299,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     //    };
     //}
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> UpdateStreamGroup(UpdateStreamGroupRequest request)
     {

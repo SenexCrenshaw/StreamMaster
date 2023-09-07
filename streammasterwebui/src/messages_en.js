@@ -29,6 +29,7 @@ export default {
   group: "Group",
   hidden: 'Hidden',
   keywordSearch: 'Keyword Search',
+  logPerformance: 'Log API Performance',
   m3UFieldChannelId: "Enable M3U Channel ID",
   m3UFieldChannelNumber: "Enable M3U Channel Number",
   m3UFieldCUID: "Enable M3U CUID",

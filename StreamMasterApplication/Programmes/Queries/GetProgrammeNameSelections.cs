@@ -1,13 +1,4 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterDomain.Cache;
-using StreamMasterDomain.Dto;
-using StreamMasterDomain.Filtering;
+﻿using StreamMasterDomain.Filtering;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository.EPG;
 
@@ -20,8 +11,8 @@ public record GetProgrammeNameSelections(ProgrammeParameters Parameters) : IRequ
 internal class GetProgrammeNameSelectionsHandler : BaseMemoryRequestHandler, IRequestHandler<GetProgrammeNameSelections, PagedResponse<ProgrammeNameDto>>
 {
 
-    public GetProgrammeNameSelectionsHandler(ILogger<GetProgrammeNameSelectionsHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IMemoryCache memoryCache)
-        : base(logger, repository, mapper, publisher, sender, memoryCache) { }
+    public GetProgrammeNameSelectionsHandler(ILogger<GetProgrammeNameSelections> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
 
     public async Task<PagedResponse<ProgrammeNameDto>> Handle(GetProgrammeNameSelections request, CancellationToken cancellationToken)
     {

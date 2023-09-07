@@ -56,8 +56,8 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [Route("[action]")]
     public async Task<ActionResult> DeleteVideoStream(DeleteVideoStreamRequest request)
     {
-        string? data = await Mediator.Send(request).ConfigureAwait(false);
-        return data == null ? NotFound() : NoContent();
+        bool data = await Mediator.Send(request).ConfigureAwait(false);
+        return data ? NoContent() : NotFound();
     }
 
     [HttpPost]
@@ -213,7 +213,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         return Ok();
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> UpdateVideoStream(UpdateVideoStreamRequest request)
     {
@@ -221,7 +221,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         return Ok();
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> UpdateVideoStreams(UpdateVideoStreamsRequest request)
     {
@@ -229,7 +229,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         return Ok();
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request)
     {
