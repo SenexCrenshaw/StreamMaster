@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { skipToken } from '@reduxjs/toolkit/query/react';
 import { MultiSelect, type MultiSelectChangeEvent } from "primereact/multiselect";
+import { getColor } from '../../common/common';
 import { useChannelGroupsGetAllChannelGroupsQuery, useStreamGroupChannelGroupGetChannelGroupsFromStreamGroupQuery, useStreamGroupChannelGroupSyncStreamGroupChannelGroupsMutation, type ChannelGroupDto, type StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiArg } from "../../store/iptvApi";
 
 type StreamGroupChannelGroupsInputs = {
@@ -9,14 +9,14 @@ type StreamGroupChannelGroupsInputs = {
 
 const StreamGroupChannelGroupsSelector = ({ streamGroupId }: StreamGroupChannelGroupsInputs) => {
   const { data: selectedData } = useStreamGroupChannelGroupGetChannelGroupsFromStreamGroupQuery(streamGroupId ?? skipToken);
-  const { data: channelGroups } = useChannelGroupsGetAllChannelGroupsQuery();
+  const { data: channelGroups } = useChannelGroupsGetAllChannelGroupsQuery(streamGroupId ?? skipToken);
 
   const [syncStreamGroupChannelGroupsMutation] = useStreamGroupChannelGroupSyncStreamGroupChannelGroupsMutation();
 
   const itemTemplate = (option: ChannelGroupDto) => {
     return (
       <div className="align-items-center gap-2">
-        <span>{option.name}</span>
+        <span><i className="pi pi-circle-fill" style={{ color: getColor(option.id ?? 1) }} />{option.name}</span>
       </div>
     );
   };
@@ -24,7 +24,7 @@ const StreamGroupChannelGroupsSelector = ({ streamGroupId }: StreamGroupChannelG
   return (
     <div className="flex">
       <MultiSelect
-        className="p-column-filter text-xs"
+        className="sm-selector"
         filter
         filterInputAutoFocus
         itemTemplate={itemTemplate}

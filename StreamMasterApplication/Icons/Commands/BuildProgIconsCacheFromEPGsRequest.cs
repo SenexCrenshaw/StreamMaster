@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 
+using Microsoft.EntityFrameworkCore;
+
 using StreamMaster.SchedulesDirectAPI;
 
 using StreamMasterDomain.Repository.EPG;
@@ -88,8 +90,20 @@ public class BuildProgIconsCacheFromEPGsRequestHandler : BaseMemoryRequestHandle
 
     private async Task WorkOnProgrammeIcons(int startId, CancellationToken cancellationToken)
     {
-        List<StreamGroupDto> sgs = await Repository.StreamGroup.GetStreamGroupDtos(cancellationToken).ConfigureAwait(false);
-        IEnumerable<string> epgids = sgs.SelectMany(x => x.ChildVideoStreams.Select(a => a.User_Tvg_ID)).Distinct();
+        List<string> epgids = await Repository.StreamGroup
+        .FindAll()
+        .Include(a => a.ChildVideoStreams)
+        .SelectMany(a => a.ChildVideoStreams)
+        .Select(a => a.ChildVideoStream.User_Tvg_ID)
+        .Distinct()
+        .AsNoTracking() // Only add this if you're using Entity Framework Core and you don't need to track the entities.
+        .ToListAsync(cancellationToken: cancellationToken)
+        .ConfigureAwait(false);
+
+
+        //List<StreamGroupDto> sgs = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreamIds();
+
+        //IEnumerable<string> epgids = sgs.SelectMany(x => x.ChildVideoStreams.Select(a => a.User_Tvg_ID)).Distinct();
 
         List<Programme> programmes = MemoryCache.Programmes()
                .Where(a =>

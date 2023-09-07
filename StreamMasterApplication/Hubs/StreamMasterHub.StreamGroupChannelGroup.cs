@@ -6,7 +6,7 @@ namespace StreamMasterApplication.Hubs;
 
 public partial class StreamMasterHub : IStreamGroupChannelGroupHub
 {
-    public async Task<int> SyncStreamGroupChannelGroups(SyncStreamGroupChannelGroupsRequest request, CancellationToken cancellationToken)
+    public async Task<StreamGroupDto?> SyncStreamGroupChannelGroups(SyncStreamGroupChannelGroupsRequest request, CancellationToken cancellationToken)
     {
         return await _mediator.Send(request, cancellationToken).ConfigureAwait(false);
     }
@@ -16,8 +16,4 @@ public partial class StreamMasterHub : IStreamGroupChannelGroupHub
         return await _mediator.Send(request, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<string>> RemoveStreamGroupChannelGroups(RemoveStreamGroupChannelGroupsRequest request, CancellationToken cancellationToken)
-    {
-        return await _mediator.Send(request, cancellationToken).ConfigureAwait(false);
-    }
 }

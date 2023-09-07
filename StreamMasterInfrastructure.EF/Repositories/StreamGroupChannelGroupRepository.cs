@@ -5,6 +5,7 @@ using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
+using StreamMasterApplication.StreamGroups.Queries;
 using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Dto;
@@ -18,12 +19,12 @@ public class StreamGroupChannelGroupRepository(RepositoryContext repositoryConte
     private readonly ISender _sender = sender;
     private readonly IRepositoryWrapper _repository = repository;
 
-    public async Task<int> SyncStreamGroupChannelGroups(int StreamGroupId, List<int> ChannelGroupIds, CancellationToken cancellationToken = default)
+    public async Task<StreamGroupDto?> SyncStreamGroupChannelGroups(int StreamGroupId, List<int> ChannelGroupIds, CancellationToken cancellationToken = default)
     {
         // Initial checks.
         if (StreamGroupId == 0 || !RepositoryContext.StreamGroups.Any(a => a.Id == StreamGroupId))
         {
-            return 0;
+            return null;
         }
 
         // Get existing channel groups for the stream group.
@@ -39,7 +40,7 @@ public class StreamGroupChannelGroupRepository(RepositoryContext repositoryConte
 
         if (!cgsToAdd.Any() && !cgsToRemove.Any())
         {
-            return 0;
+            return null;
         }
 
         if (cgsToAdd.Any())
@@ -59,7 +60,6 @@ public class StreamGroupChannelGroupRepository(RepositoryContext repositoryConte
             await RepositoryContext.StreamGroupChannelGroups.Where(x => x.StreamGroupId == StreamGroupId && cgsToRemove.Contains(x.ChannelGroupId)).ExecuteDeleteAsync(cancellationToken: cancellationToken);
         }
 
-
         // Get existing video streams for the stream group.
         List<VideoStreamDto> existingVideoStreams = await RepositoryContext.StreamGroupVideoStreams
             .Where(a => a.StreamGroupId == StreamGroupId)
@@ -75,9 +75,9 @@ public class StreamGroupChannelGroupRepository(RepositoryContext repositoryConte
         List<string> vidIds = vids.Select(a => a.Id).ToList();
 
         // Determine video streams to remove and add.
-        List<string> toRemove = existingIds.Intersect(vidIds).ToList();
+        List<string> toRemove = existingIds.Except(vidIds).ToList();
         List<string> toAdd = vidIds.Except(existingIds).ToList();
-
+        List<string> toUpdate = existingIds.Except(toRemove).ToList();
         if (toRemove.Any())
         {
             await _repository.StreamGroupVideoStream.RemoveStreamGroupVideoStreams(StreamGroupId, toRemove, cancellationToken).ConfigureAwait(false);
@@ -87,7 +87,14 @@ public class StreamGroupChannelGroupRepository(RepositoryContext repositoryConte
             await _repository.StreamGroupVideoStream.AddStreamGroupVideoStreams(StreamGroupId, toAdd, true, cancellationToken).ConfigureAwait(false);
         }
 
-        return toRemove.Count + toAdd.Count;
+        if (toUpdate.Any())
+        {
+            await _repository.StreamGroupVideoStream.SetStreamGroupVideoStreamsIsReadOnly(StreamGroupId, toUpdate, true, cancellationToken).ConfigureAwait(false);
+        }
+
+
+        return await _sender.Send(new GetStreamGroup(StreamGroupId), cancellationToken);
+
     }
 
 

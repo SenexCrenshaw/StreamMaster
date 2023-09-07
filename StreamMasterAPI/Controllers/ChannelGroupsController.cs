@@ -36,9 +36,9 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
     }
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<List<ChannelGroupDto>>> GetAllChannelGroups()
+    public async Task<ActionResult<List<ChannelGroupDto>>> GetAllChannelGroups([FromQuery] GetAllChannelGroupsRequest request)
     {
-        List<ChannelGroupDto> res = await Mediator.Send(new GetAllChannelGroupsRequest()).ConfigureAwait(false);
+        List<ChannelGroupDto> res = await Mediator.Send(request).ConfigureAwait(false);
         return Ok(res);
     }
 

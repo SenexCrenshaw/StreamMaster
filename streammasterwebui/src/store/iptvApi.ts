@@ -76,7 +76,10 @@ const injectedRtkApi = api
         ChannelGroupsGetAllChannelGroupsApiResponse,
         ChannelGroupsGetAllChannelGroupsApiArg
       >({
-        query: () => ({ url: `/api/channelgroups/getallchannelgroups` }),
+        query: (queryArg) => ({
+          url: `/api/channelgroups/getallchannelgroups`,
+          params: { StreamGroupId: queryArg },
+        }),
         providesTags: ["ChannelGroups"],
       }),
       channelGroupsGetChannelGroup: build.query<
@@ -1186,7 +1189,7 @@ export type ChannelGroupsDeleteChannelGroupApiResponse = unknown;
 export type ChannelGroupsDeleteChannelGroupApiArg = DeleteChannelGroupRequest;
 export type ChannelGroupsGetAllChannelGroupsApiResponse =
   /** status 200  */ ChannelGroupDto[];
-export type ChannelGroupsGetAllChannelGroupsApiArg = void;
+export type ChannelGroupsGetAllChannelGroupsApiArg = number;
 export type ChannelGroupsGetChannelGroupApiResponse =
   /** status 200  */ ChannelGroupDto;
 export type ChannelGroupsGetChannelGroupApiArg = number;
@@ -1394,7 +1397,7 @@ export type SettingsLogInApiArg = LogInRequest;
 export type SettingsUpdateSettingApiResponse = unknown;
 export type SettingsUpdateSettingApiArg = UpdateSettingRequest;
 export type StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiResponse =
-  /** status 200  */ VideoStreamDto[];
+  /** status 200  */ number;
 export type StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiArg =
   SyncStreamGroupChannelGroupsRequest;
 export type StreamGroupChannelGroupGetChannelGroupsFromStreamGroupApiResponse =
@@ -2112,40 +2115,6 @@ export type UpdateSettingRequest = {
   videoStreamAlwaysUseEPGLogo?: boolean | null;
   nameRegex?: string[] | null;
 };
-export type VideoStreamHandlers = 0 | 1 | 2;
-export type BaseVideoStreamDto = {
-  id: string;
-  isActive: boolean;
-  isDeleted: boolean;
-  isHidden: boolean;
-  isReadOnly: boolean;
-  isUserCreated: boolean;
-  m3UFileId: number;
-  m3UFileName: string;
-  streamProxyType: StreamingProxyTypes;
-  tvg_chno: number;
-  tvg_group: string;
-  tvg_ID: string;
-  tvg_logo: string;
-  tvg_name: string;
-  url: string;
-  user_Tvg_chno: number;
-  user_Tvg_group: string;
-  user_Tvg_ID: string;
-  user_Tvg_ID_DisplayName: string;
-  user_Tvg_logo: string;
-  user_Tvg_name: string;
-  user_Url: string;
-  videoStreamHandler: VideoStreamHandlers;
-};
-export type ChildVideoStreamDto = BaseVideoStreamDto & {
-  maxStreams: number;
-  rank: number;
-};
-export type VideoStreamDto = BaseVideoStreamDto & {
-  rank?: number;
-  childVideoStreams?: ChildVideoStreamDto[];
-};
 export type SyncStreamGroupChannelGroupsRequest = {
   streamGroupId?: number;
   channelGroupIds?: number[];
@@ -2169,10 +2138,9 @@ export type DeleteStreamGroupRequest = {
   id?: number;
 };
 export type StreamGroupDto = {
-  channelGroups: ChannelGroupDto[];
-  childVideoStreams: VideoStreamDto[];
   hdhrLink: string;
   isReadOnly: boolean;
+  streamCount: number;
   id: number;
   m3ULink: string;
   name: string;
@@ -2212,6 +2180,41 @@ export type PagedResponseOfStreamGroupDto = {
 export type UpdateStreamGroupRequest = {
   streamGroupId?: number;
   name?: string | null;
+};
+export type VideoStreamHandlers = 0 | 1 | 2;
+export type BaseVideoStreamDto = {
+  id: string;
+  isActive: boolean;
+  isDeleted: boolean;
+  isHidden: boolean;
+  isReadOnly: boolean;
+  isUserCreated: boolean;
+  m3UFileId: number;
+  m3UFileName: string;
+  streamProxyType: StreamingProxyTypes;
+  tvg_chno: number;
+  tvg_group: string;
+  tvg_ID: string;
+  tvg_logo: string;
+  tvg_name: string;
+  url: string;
+  user_Tvg_chno: number;
+  user_Tvg_group: string;
+  user_Tvg_ID: string;
+  user_Tvg_ID_DisplayName: string;
+  user_Tvg_logo: string;
+  user_Tvg_name: string;
+  user_Url: string;
+  videoStreamHandler: VideoStreamHandlers;
+};
+export type ChildVideoStreamDto = BaseVideoStreamDto & {
+  maxStreams: number;
+  rank: number;
+};
+export type VideoStreamDto = BaseVideoStreamDto & {
+  channelGroupId?: number;
+  rank?: number;
+  childVideoStreams?: ChildVideoStreamDto[];
 };
 export type PagedResponseOfVideoStreamDto = {
   data: VideoStreamDto[];

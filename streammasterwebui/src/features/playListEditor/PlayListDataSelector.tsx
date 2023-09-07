@@ -1,17 +1,14 @@
-import { memo, useCallback, useMemo, useState, type CSSProperties, useEffect } from "react";
-import { isEmptyObject } from "../../common/common";
-import { getTopToolOptions } from "../../common/common";
-import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
-import { TriStateCheckbox } from "primereact/tristatecheckbox";
-import { type ChannelGroupDto } from "../../store/iptvApi";
-import { useChannelGroupsGetChannelGroupsQuery } from "../../store/iptvApi";
+import { TriStateCheckbox, type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
+import { memo, useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useShowHidden } from "../../app/slices/useShowHidden";
+import { getTopToolOptions, isEmptyObject } from "../../common/common";
 import ChannelGroupAddDialog from "../../components/channelGroups/ChannelGroupAddDialog";
 import ChannelGroupDeleteDialog from "../../components/channelGroups/ChannelGroupDeleteDialog";
 import ChannelGroupEditDialog from "../../components/channelGroups/ChannelGroupEditDialog";
 import ChannelGroupVisibleDialog from "../../components/channelGroups/ChannelGroupVisibleDialog";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import { useShowHidden } from "../../app/slices/useShowHidden";
+import { useChannelGroupsGetChannelGroupsQuery, type ChannelGroupDto } from "../../store/iptvApi";
 
 
 const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
@@ -87,6 +84,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         {props.hideControls !== true &&
           <>
             <TriStateCheckbox
+              className='sm-tristatecheckbox'
               onChange={(e: TriStateCheckboxChangeEvent) => {
                 setShowHidden(e.value);
               }}

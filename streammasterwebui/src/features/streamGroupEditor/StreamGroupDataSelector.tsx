@@ -1,13 +1,12 @@
-import { memo, useMemo, useRef, type CSSProperties } from "react";
 import { Toast } from 'primereact/toast';
-import StreamGroupAddDialog from '../../components/streamGroup/StreamGroupAddDialog';
-import StreamGroupEditDialog from '../../components/streamGroup/StreamGroupEditDialog';
-import StreamGroupDeleteDialog from '../../components/streamGroup/StreamGroupDeleteDialog';
-import { type StreamGroupDto } from "../../store/iptvApi";
-import { useStreamGroupsGetStreamGroupsQuery } from "../../store/iptvApi";
-import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import DataSelector from "../../components/dataSelector/DataSelector";
+import { memo, useMemo, useRef, type CSSProperties } from "react";
 import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
+import DataSelector from "../../components/dataSelector/DataSelector";
+import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
+import StreamGroupAddDialog from '../../components/streamGroup/StreamGroupAddDialog';
+import StreamGroupDeleteDialog from '../../components/streamGroup/StreamGroupDeleteDialog';
+import StreamGroupEditDialog from '../../components/streamGroup/StreamGroupEditDialog';
+import { useStreamGroupsGetStreamGroupsQuery, type StreamGroupDto } from "../../store/iptvApi";
 
 export type StreamGroupDataSelectorProps = {
   readonly id: string;
@@ -28,7 +27,14 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProps) => {
           width: '12rem',
         } as CSSProperties,
       },
-
+      {
+        field: 'streamCount',
+        header: '#',
+        style: {
+          maxWidth: '1rem',
+          width: '1rem',
+        } as CSSProperties,
+      },
       {
         field: 'id',
         fieldType: 'url',

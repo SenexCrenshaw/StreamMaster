@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
 
-using StreamMasterApplication.VideoStreams.Events;
-
 namespace StreamMasterApplication.StreamGroups.Commands;
 
 public class UpdateStreamGroupRequestValidator : AbstractValidator<UpdateStreamGroupRequest>
@@ -31,11 +29,6 @@ public class UpdateStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequ
         StreamGroupDto? streamGroup = await Repository.StreamGroup.UpdateStreamGroupAsync(request, cancellationToken).ConfigureAwait(false);
         if (streamGroup is not null)
         {
-            //var streamGroup = await _context.GetStreamGroupDto(ret.Id, url, cancellationToken).ConfigureAwait(false);
-            if (streamGroup is not null && streamGroup.ChildVideoStreams.Any())
-            {
-                await Publisher.Publish(new UpdateVideoStreamsEvent(streamGroup.ChildVideoStreams), cancellationToken).ConfigureAwait(false);
-            }
             await Publisher.Publish(new StreamGroupUpdateEvent(), cancellationToken).ConfigureAwait(false);
         }
 

@@ -6,11 +6,28 @@
   border: 1px solid blue !important;
 } */
 
+:root {
+  --main-border-color: #fe77005d;
+}
+
+.sm-selector {
+  border-color: var(--main-border-color) !important;
+}
+
+.sm-tristatecheckbox .p-checkbox-box {
+  border-color: var(--main-border-color) !important;
+}
+
+.p-multiselect.p-component.p-inputwrapper.p-column-filter {
+  border-color: var(--main-border-color) !important;
+}
+
 .p-multiselect-label {
   padding: .2rem !important;
 }
 
 .p-inputtext.p-component.p-multiselect-filter.p-multiselect-filter {
+  border-color: var(--main-border-color) !important;
   min-height: 1.8rem;
 }
 
@@ -241,6 +258,7 @@
 
 .p-inputtext.p-component.p-column-filter {
   border: 2px solid var(--surface-border) !important;
+  border-color: var(--main-border-color) !important;
   border-radius: 6px;
   padding: .2rem;
 }

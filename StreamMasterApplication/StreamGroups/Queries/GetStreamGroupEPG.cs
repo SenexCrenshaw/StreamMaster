@@ -1,8 +1,7 @@
-﻿using AutoMapper.QueryableExtensions;
-
-using FluentValidation;
+﻿using FluentValidation;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.Common.Extensions;
 
@@ -29,16 +28,12 @@ public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
     }
 }
 
-public partial class GetStreamGroupEPGHandler : BaseMemoryRequestHandler, IRequestHandler<GetStreamGroupEPG, string>
+public partial class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPG> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupEPG, string>
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
     private readonly object Lock = new();
     private int dummyCount = 0;
-
-
-    public GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPG> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { _httpContextAccessor = httpContextAccessor; }
 
     public string GetIconUrl(string iconOriginalSource)
     {
@@ -75,21 +70,25 @@ public partial class GetStreamGroupEPGHandler : BaseMemoryRequestHandler, IReque
 
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
-        IEnumerable<VideoStreamDto> videoStreams;
+        IEnumerable<VideoStream> videoStreams;
 
         if (request.StreamGroupNumber > 0)
         {
-            StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, cancellationToken).ConfigureAwait(false);
+            StreamGroup? streamGroup = await Repository.StreamGroup
+                    .FindAll()
+                    .Include(a => a.ChildVideoStreams)
+                    .FirstOrDefaultAsync(a => a.StreamGroupNumber == request.StreamGroupNumber);
+
+
             if (streamGroup == null)
             {
                 return "";
             }
-            videoStreams = streamGroup.ChildVideoStreams.Where(a => !a.IsHidden);
+            videoStreams = streamGroup.ChildVideoStreams.Select(a => a.ChildVideoStream).Where(a => !a.IsHidden);
         }
         else
         {
-            videoStreams = Repository.VideoStream.GetVideoStreamsHidden()
-                .ProjectTo<VideoStreamDto>(Mapper.ConfigurationProvider);
+            videoStreams = Repository.VideoStream.GetVideoStreamsHidden();
         }
         string url = _httpContextAccessor.GetUrl();
         ParallelOptions po = new()
@@ -312,12 +311,12 @@ public partial class GetStreamGroupEPGHandler : BaseMemoryRequestHandler, IReque
         }
     }
 
-    private bool IsNotInProgrammes(IEnumerable<Programme> programmes, VideoStreamDto videoStream)
+    private bool IsNotInProgrammes(IEnumerable<Programme> programmes, VideoStream videoStream)
     {
         return !programmes.Any(p => p.Channel == videoStream.User_Tvg_ID);
     }
 
-    private bool IsVideoStreamADummy(VideoStreamDto videoStream)
+    private bool IsVideoStreamADummy(VideoStream videoStream)
     {
         if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
         {

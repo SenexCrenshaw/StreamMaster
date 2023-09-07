@@ -29,7 +29,11 @@ public class RemoveVideoStreamFromStreamGroupRequestHandler : BaseMediatorReques
             return;
         }
 
-        await Repository.StreamGroupVideoStream.RemoveVideoStreamFromStreamGroup(request.StreamGroupId, request.VideoStreamId, cancellationToken).ConfigureAwait(false);
+        StreamGroupDto? ret = await Repository.StreamGroupVideoStream.RemoveVideoStreamFromStreamGroup(request.StreamGroupId, request.VideoStreamId, cancellationToken).ConfigureAwait(false);
 
+        if (ret != null)
+        {
+            await HubContext.Clients.All.StreamGroupsRefresh([ret]).ConfigureAwait(false);
+        }
     }
 }

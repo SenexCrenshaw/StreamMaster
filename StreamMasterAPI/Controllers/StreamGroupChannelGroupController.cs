@@ -12,9 +12,9 @@ public class StreamGroupChannelGroupController : ApiControllerBase, IStreamGroup
 {
     [HttpPatch]
     [Route("[action]")]
-    public async Task<ActionResult<int>> SyncStreamGroupChannelGroups(SyncStreamGroupChannelGroupsRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult<StreamGroupDto?>> SyncStreamGroupChannelGroups(SyncStreamGroupChannelGroupsRequest request, CancellationToken cancellationToken)
     {
-        int res = await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
+        StreamGroupDto? res = await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
         return Ok(res);
     }
 
@@ -26,11 +26,4 @@ public class StreamGroupChannelGroupController : ApiControllerBase, IStreamGroup
         return Ok(res);
     }
 
-    [HttpDelete]
-    [Route("[action]")]
-    public async Task<ActionResult<IEnumerable<string>>> RemoveStreamGroupChannelGroups(RemoveStreamGroupChannelGroupsRequest request, CancellationToken cancellationToken)
-    {
-        IEnumerable<string> res = await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
-        return Ok(res);
-    }
 }

@@ -1,7 +1,9 @@
+import { Tooltip } from "primereact/tooltip";
 import { memo, useCallback, useEffect, useMemo, type CSSProperties } from "react";
 import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
 import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
-import { GetMessage } from "../../common/common";
+import { GetMessage, getColor } from "../../common/common";
+import { GroupIcon } from "../../common/icons";
 import { useChannelNameColumnConfig, useChannelNumberColumnConfig, useEPGColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
@@ -28,26 +30,28 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
     if (selectedStreamGroup !== undefined && selectedStreamGroup !== undefined && selectedStreamGroup.id > 0) {
       setQueryAdditionalFilter({ field: 'streamGroupId', matchMode: 'equals', values: [selectedStreamGroup.id.toString()] });
     }
-
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedStreamGroup]);
 
-  // const sourceaddtionalHeaderTemplate = () => {
-  //   return (
-  //     <div className="streamGroupEditor grid w-full flex flex-nowrap justify-content-end align-items-center p-0">
-  //       <div className="flex w-full w-full p-0 align-items-center justify-content-end">
-  //         <div className="flex justify-content-end gap-2 align-items-center mr-2">
-
-  //           <StreamGroupChannelGroupsSelector streamGroupId={2} />
-
-  //         </div >
-  //       </div>
-  //     </div >
-  //   );
-  // };
-
   const targetActionBodyTemplate = useCallback((data: VideoStreamDto) => {
+    if (data.isReadOnly === true) {
+      return (
+        <div className='flex min-w-full min-h-full justify-content-end align-items-center'>
+          <Tooltip target=".GroupIcon-class" />
+          <i
+            className="GroupIcon-class border-white"
+            data-pr-hidedelay={100}
+            data-pr-position="left"
+            data-pr-showdelay={500}
+            data-pr-tooltip={`Group: ${data.user_Tvg_group}`}
+            style={{ color: getColor(data.channelGroupId ?? 1) }}
+          >
+            <GroupIcon />
+          </i>
+        </div >
+      );
+    }
+
     return (
       <div className='flex p-0 justify-content-end align-items-center'>
         <VideoStreamRemoveFromStreamGroupDialog id={id} value={data} />
@@ -60,9 +64,7 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
     return [
       channelNumberColumnConfig,
       channelNameColumnConfig,
-      // channelGroupConfig,
       epgColumnConfig,
-      // m3uFileNameColumnConfig,
       {
         bodyTemplate: targetActionBodyTemplate, field: 'Remove', header: '', resizeable: false, sortable: false,
         style: {

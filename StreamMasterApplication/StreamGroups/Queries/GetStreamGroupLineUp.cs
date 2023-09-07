@@ -1,8 +1,7 @@
-﻿using AutoMapper.QueryableExtensions;
-
-using FluentValidation;
+﻿using FluentValidation;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.Common.Extensions;
 
@@ -44,20 +43,24 @@ public class GetStreamGroupLineUpHandler : BaseMemoryRequestHandler, IRequestHan
         string url = _httpContextAccessor.GetUrl();
         List<LineUp> ret = new();
 
-        IEnumerable<VideoStreamDto> videoStreams;
+        IEnumerable<VideoStream> videoStreams;
         if (request.StreamGroupNumber > 0)
         {
-            StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, cancellationToken).ConfigureAwait(false);
+            StreamGroup? streamGroup = await Repository.StreamGroup
+                    .FindAll()
+                    .Include(a => a.ChildVideoStreams)
+                    .FirstOrDefaultAsync(a => a.StreamGroupNumber == request.StreamGroupNumber, cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+
             if (streamGroup == null)
             {
                 return "";
             }
-            videoStreams = streamGroup.ChildVideoStreams.Where(a => !a.IsHidden);
+            videoStreams = streamGroup.ChildVideoStreams.Select(a => a.ChildVideoStream).Where(a => !a.IsHidden);
         }
         else
         {
-            videoStreams = Repository.VideoStream.GetVideoStreamsHidden()
-                .ProjectTo<VideoStreamDto>(Mapper.ConfigurationProvider);
+            videoStreams = Repository.VideoStream.GetVideoStreamsHidden();
         }
 
         if (!videoStreams.Any())
@@ -65,7 +68,7 @@ public class GetStreamGroupLineUpHandler : BaseMemoryRequestHandler, IRequestHan
             return JsonSerializer.Serialize(ret);
         }
 
-        foreach (VideoStreamDto videoStream in videoStreams)
+        foreach (VideoStream videoStream in videoStreams)
         {
 
             if (Settings.M3UIgnoreEmptyEPGID &&

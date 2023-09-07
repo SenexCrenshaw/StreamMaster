@@ -1,25 +1,21 @@
-import { type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
-import { TriStateCheckbox } from "primereact/tristatecheckbox";
-import { type CSSProperties } from "react";
-import { useState, useEffect, useCallback, useMemo, memo } from "react";
-import { arraysContainSameStrings } from "../../common/common";
-import { getTopToolOptions, GetMessage } from "../../common/common";
-import { type VideoStreamDto } from "../../store/iptvApi";
-import { useVideoStreamsGetVideoStreamsQuery } from "../../store/iptvApi";
-import AutoSetChannelNumbers from "../../components/videoStream/AutoSetChannelNumbers";
-import { useChannelGroupColumnConfig, useEPGColumnConfig, useChannelNumberColumnConfig, useChannelNameColumnConfig, useChannelLogoColumnConfig } from "../../components/columns/columnConfigHooks";
+import { TriStateCheckbox, type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
+import { memo, useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
+import { useShowHidden } from "../../app/slices/useShowHidden";
+import { GetMessage, arraysContainSameStrings, getTopToolOptions } from "../../common/common";
+import { useChannelGroupColumnConfig, useChannelLogoColumnConfig, useChannelNameColumnConfig, useChannelNumberColumnConfig, useEPGColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
+import AutoSetChannelNumbers from "../../components/videoStream/AutoSetChannelNumbers";
+import VideoStreamAddDialog from "../../components/videoStream/VideoStreamAddDialog";
 import VideoStreamDeleteDialog from "../../components/videoStream/VideoStreamDeleteDialog";
 import VideoStreamEditDialog from "../../components/videoStream/VideoStreamEditDialog";
 import VideoStreamResetLogoDialog from "../../components/videoStream/VideoStreamResetLogoDialog";
 import VideoStreamResetLogosDialog from "../../components/videoStream/VideoStreamResetLogosDialog";
 import VideoStreamSetLogoFromEPGDialog from "../../components/videoStream/VideoStreamSetLogoFromEPGDialog";
-import VideoStreamVisibleDialog from "../../components/videoStream/VideoStreamVisibleDialog";
-import VideoStreamAddDialog from "../../components/videoStream/VideoStreamAddDialog";
 import VideoStreamSetLogosFromEPGDialog from "../../components/videoStream/VideoStreamSetLogosFromEPGDialog";
-import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
-import { useShowHidden } from "../../app/slices/useShowHidden";
+import VideoStreamVisibleDialog from "../../components/videoStream/VideoStreamVisibleDialog";
+import { useVideoStreamsGetVideoStreamsQuery, type VideoStreamDto } from "../../store/iptvApi";
 
 type ChannelGroupVideoStreamDataSelectorProps = {
   readonly channelGroupNames?: string[];
@@ -114,6 +110,7 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
     return (
       <div className="flex justify-content-end align-items-center w-full gap-1">
         <TriStateCheckbox
+          className='sm-tristatecheckbox'
           onChange={(e: TriStateCheckboxChangeEvent) => setShowHidden(e.value)}
           tooltip={getToolTip(showHidden)}
           tooltipOptions={getTopToolOptions}

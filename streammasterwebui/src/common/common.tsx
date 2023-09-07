@@ -1,20 +1,17 @@
 /* eslint-disable @typescript-eslint/require-array-sort-compare */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as React from 'react';
+import { Checkbox } from 'primereact/checkbox';
+import { type DataTableFilterMeta, type DataTableFilterMetaData } from 'primereact/datatable';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
+import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { type IconFileDto } from '../store/iptvApi';
-import { type VideoStreamDto } from '../store/iptvApi';
-import { type ChildVideoStreamDto } from '../store/iptvApi';
-import { baseHostURL, isDebug } from '../settings';
-import { SMFileTypes } from '../store/streammaster_enums';
+import { type DataSelectorProps } from '../components/dataSelector/DataSelector';
+import { type ColumnMeta } from '../components/dataSelector/DataSelectorTypes';
 import ExportButton from '../components/export/ExportButton';
 import GlobalSearch from '../components/search/GlobalSearch';
-import { Checkbox } from 'primereact/checkbox';
-import { type DataSelectorProps } from '../components/dataSelector/DataSelector';
-import { type DataTableFilterMeta } from 'primereact/datatable';
-import { type DataTableFilterMetaData } from 'primereact/datatable';
-import { type ColumnMeta } from '../components/dataSelector/DataSelectorTypes';
+import { baseHostURL, isDebug } from '../settings';
+import { type ChildVideoStreamDto, type IconFileDto, type VideoStreamDto } from '../store/iptvApi';
+import { SMFileTypes } from '../store/streammaster_enums';
 
 export const getTopToolOptions = { autoHide: true, hideDelay: 100, position: 'top', showDelay: 400 } as TooltipOptions;
 export const getLeftToolOptions = { autoHide: true, hideDelay: 100, position: 'left', showDelay: 400 } as TooltipOptions;
@@ -25,6 +22,12 @@ export const getLeftToolOptions = { autoHide: true, hideDelay: 100, position: 'l
 export const hasValidAdditionalProps = (additionalFilterProps: AdditionalFilterProps | undefined) => {
   return additionalFilterProps?.values;
 };
+
+export function getColor(index: number): string {
+  const GOLDEN_ANGLE = 137.5; // Approximate value of the golden angle in degrees
+  const hue = (index * GOLDEN_ANGLE) % 360;
+  return `hsl(${hue}, 100%, 70%)`;
+}
 
 
 // export type MatchMode = 'between' | 'channelGroupsMatch' | 'contains' | 'custom' | 'dateAfter' | 'dateBefore' | 'dateIs' | 'dateIsNot' | 'endsWith' | 'equals' | 'gt' | 'gte' | 'in' | 'lt' | 'lte' | 'notContains' | 'notEquals' | 'startsWith' | undefined;

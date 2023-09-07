@@ -20,6 +20,7 @@ import getRecordString from './getRecordString';
 import isPagedTableDto from './isPagedTableDto';
 import useDataSelectorState from './useDataSelectorState';
 
+import { skipToken } from '@reduxjs/toolkit/dist/query/react';
 import { useQueryFilter } from '../../app/slices/useQueryFilter';
 import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';
@@ -61,7 +62,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   const setting = StreamMasterSetting();
 
-  const { data, isLoading, isFetching } = props.queryFilter ? props.queryFilter((queryFilter ?? { pageSize: 25 })) : { data: undefined, isFetching: false, isLoading: false };
+  const { data, isLoading, isFetching } = props.queryFilter ? props.queryFilter((queryFilter ?? skipToken)) : { data: undefined, isFetching: false, isLoading: false };
 
   const onsetSelection = useCallback((e: T | T[], overRideSelectAll?: boolean): T | T[] | undefined => {
     let selected: T[] = Array.isArray(e) ? e : [e];
@@ -605,7 +606,8 @@ type BaseDataSelectorProps<T = any> = {
 
 type QueryFilterProps<T> = BaseDataSelectorProps<T> & {
   dataSource?: never;
-  queryFilter: (filters: GetApiArg) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  queryFilter: (filters: GetApiArg | any) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
 };
 
 type DataSourceProps<T> = BaseDataSelectorProps<T> & {

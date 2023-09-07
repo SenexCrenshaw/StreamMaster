@@ -15,11 +15,14 @@ internal class GetStreamGroupsHandler : BaseMediatorRequestHandler, IRequestHand
 
         if (request.Parameters.PageSize == 0)
         {
-            PagedResponse<StreamGroupDto> emptyResponse = new();
-            emptyResponse.TotalItemCount = count;
+            PagedResponse<StreamGroupDto> emptyResponse = new()
+            {
+                TotalItemCount = count
+            };
             return emptyResponse;
 
         }
+
 
         return await Repository.StreamGroup.GetStreamGroupDtosPagedAsync(request.Parameters).ConfigureAwait(false);
 

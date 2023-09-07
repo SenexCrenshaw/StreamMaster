@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterApplication.ChannelGroups.Commands;
+using StreamMasterApplication.ChannelGroups.Queries;
 
 using StreamMasterDomain.Pagination;
 
@@ -8,7 +9,7 @@ namespace StreamMasterApplication.ChannelGroups;
 
 public interface IChannelGroupController
 {
-    Task<ActionResult<List<ChannelGroupDto>>> GetAllChannelGroups();
+    Task<ActionResult<List<ChannelGroupDto>>> GetAllChannelGroups(GetAllChannelGroupsRequest request);
     Task<ActionResult> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request);
     Task<ActionResult<List<string>>> GetChannelGroupNames();
 
@@ -32,7 +33,7 @@ public interface IChannelGroupDB
 
 public interface IChannelGroupHub
 {
-    Task<List<ChannelGroupDto>> GetAllChannelGroups();
+    Task<List<ChannelGroupDto>> GetAllChannelGroups(GetAllChannelGroupsRequest request);
     Task DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request);
     Task<List<string>> GetChannelGroupNames();
     Task CreateChannelGroup(CreateChannelGroupRequest request);

@@ -15,12 +15,8 @@ public class AddVideoStreamToStreamGroupRequestValidator : AbstractValidator<Add
     }
 }
 
-public class AddVideoStreamToStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<AddVideoStreamToStreamGroupRequest>
+public class AddVideoStreamToStreamGroupRequestHandler(ILogger<AddVideoStreamToStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, publisher, sender, hubContext), IRequestHandler<AddVideoStreamToStreamGroupRequest>
 {
-
-    public AddVideoStreamToStreamGroupRequestHandler(ILogger<AddVideoStreamToStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-: base(logger, repository, mapper, publisher, sender, hubContext) { }
-
     public async Task Handle(AddVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken)
     {
         if (request.StreamGroupId < 1)
@@ -28,7 +24,10 @@ public class AddVideoStreamToStreamGroupRequestHandler : BaseMediatorRequestHand
             return;
         }
 
-        await Repository.StreamGroupVideoStream.AddVideoStreamToStreamGroup(request.StreamGroupId, request.VideoStreamId, cancellationToken).ConfigureAwait(false);
-
+        StreamGroupDto? ret = await Repository.StreamGroupVideoStream.AddVideoStreamToStreamGroup(request.StreamGroupId, request.VideoStreamId, cancellationToken).ConfigureAwait(false);
+        if (ret != null)
+        {
+            await HubContext.Clients.All.StreamGroupsRefresh([ret]).ConfigureAwait(false);
+        }
     }
 }

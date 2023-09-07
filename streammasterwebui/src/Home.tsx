@@ -101,8 +101,6 @@ const Home = () => {
           <Tooltip target=".custom-target-icon" />
           <div
             className='custom-target-icon flex flex-column m-0 p-0 justify-content-center align-items-center text-xs text-center'
-            data-pr-at="right+5 top"
-            data-pr-my="left center-2"
             data-pr-position="right"
             data-pr-tooltip={settings.data.release ?? ''}
           >

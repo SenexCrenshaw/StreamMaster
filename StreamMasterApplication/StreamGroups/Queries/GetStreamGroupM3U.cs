@@ -1,8 +1,7 @@
-﻿using AutoMapper.QueryableExtensions;
-
-using FluentValidation;
+﻿using FluentValidation;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.Common.Extensions;
 using StreamMasterApplication.Icons.Queries;
@@ -71,24 +70,27 @@ public class GetStreamGroupM3UHandler : BaseMemoryRequestHandler, IRequestHandle
         return iconOriginalSource;
     }
 
-    public async Task<string> Handle(GetStreamGroupM3U command, CancellationToken cancellationToken)
+    public async Task<string> Handle(GetStreamGroupM3U request, CancellationToken cancellationToken)
     {
-        IEnumerable<VideoStreamDto> videoStreams;
+        IEnumerable<VideoStream> videoStreams;
         string url = _httpContextAccessor.GetUrl();
 
-        if (command.StreamGroupNumber > 0)
+        if (request.StreamGroupNumber > 0)
         {
-            StreamGroupDto? sg = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(command.StreamGroupNumber, cancellationToken).ConfigureAwait(false);
-            if (sg == null)
+            StreamGroup? streamGroup = await Repository.StreamGroup
+                    .FindAll()
+                    .Include(a => a.ChildVideoStreams)
+                    .FirstOrDefaultAsync(a => a.StreamGroupNumber == request.StreamGroupNumber, cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+            if (streamGroup == null)
             {
                 return "";
             }
-            videoStreams = sg.ChildVideoStreams.Where(a => !a.IsHidden);
+            videoStreams = streamGroup.ChildVideoStreams.Select(a => a.ChildVideoStream).Where(a => !a.IsHidden);
         }
         else
         {
-            videoStreams = Repository.VideoStream.GetVideoStreamsHidden()
-                .ProjectTo<VideoStreamDto>(Mapper.ConfigurationProvider);
+            videoStreams = Repository.VideoStream.GetVideoStreamsHidden();
         }
 
         if (!videoStreams.Any())
@@ -135,7 +137,7 @@ public class GetStreamGroupM3UHandler : BaseMemoryRequestHandler, IRequestHandle
 
             int cid = Convert.ToInt32(longCid);
 
-            if (command.StreamGroupNumber == 0 && videoStream.User_Tvg_chno == 0)
+            if (request.StreamGroupNumber == 0 && videoStream.User_Tvg_chno == 0)
             {
                 videoStream.User_Tvg_chno = cid;
             }
@@ -146,7 +148,7 @@ public class GetStreamGroupM3UHandler : BaseMemoryRequestHandler, IRequestHandle
 
             string videoUrl = videoStream.Url;
 
-            string encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, Settings.ServerKey, iv);
+            string encodedNumbers = request.StreamGroupNumber.EncodeValues128(videoStream.Id, Settings.ServerKey, iv);
 
             string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
             videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";

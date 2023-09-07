@@ -8,6 +8,7 @@ namespace StreamMasterDomain.Dto;
 [RequireAll]
 public class VideoStreamDto : BaseVideoStreamDto, IMapFrom<VideoStream>
 {
+    public int ChannelGroupId { get; set; } = 0;
     public int Rank { get; set; } = 0;
 
     [Ignore]

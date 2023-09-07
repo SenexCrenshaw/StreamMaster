@@ -18,9 +18,7 @@ const MenuItemSM = (props: MenuItemSMProps) => {
         />
         <div
           className={tooltipClassName + " border-white"}
-          data-pr-at="right+5 top"
           data-pr-hidedelay={100}
-          data-pr-my="left center-2"
           data-pr-position="right"
           data-pr-showdelay={500}
           data-pr-tooltip={props.tooltip ?? props.name}

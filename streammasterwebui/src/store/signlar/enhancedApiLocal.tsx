@@ -1,5 +1,6 @@
 
 import { hubConnection } from '../../app/signalr';
+import { isEmptyObject } from '../../common/common';
 import * as StreamMasterApi from '../iptvApi';
 
 export type SetVideoStreamVisibleRet = {
@@ -143,13 +144,39 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
       },
     },
     streamGroupsGetStreamGroups: {
-      async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
+
+          const applyResults = (
+            data: StreamMasterApi.StreamGroupDto[]
+          ) => {
+            updateCachedData((draft: StreamMasterApi.PagedResponseOfStreamGroupDto) => {
+
+              data.forEach(function (cn) {
+                const foundIndex = draft.data.findIndex(
+                  (x) => x.id === cn.id
+                );
+
+                if (foundIndex !== -1) {
+                  draft.data[foundIndex] = cn;
+                }
+              });
+
+              return draft;
+            }
+            );
+          };
+
           hubConnection.on(
             'StreamGroupsRefresh',
-            () => {
-              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["StreamGroups"]));
+            (data: StreamMasterApi.StreamGroupDto[]) => {
+              if (isEmptyObject(data)) {
+                dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["StreamGroups"]));
+              } else {
+                applyResults(data);
+              }
+
             }
           );
         } catch { }

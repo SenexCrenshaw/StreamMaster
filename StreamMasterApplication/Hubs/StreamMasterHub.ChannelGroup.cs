@@ -23,9 +23,9 @@ public partial class StreamMasterHub : IChannelGroupHub
         await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<List<ChannelGroupDto>> GetAllChannelGroups()
+    public async Task<List<ChannelGroupDto>> GetAllChannelGroups(GetAllChannelGroupsRequest request)
     {
-        return await _mediator.Send(new GetAllChannelGroupsRequest()).ConfigureAwait(false);
+        return await _mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task<ChannelGroupDto?> GetChannelGroup(int id)
