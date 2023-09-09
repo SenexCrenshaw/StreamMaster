@@ -28,7 +28,7 @@ public static class SDToken
 
     public static async Task<string?> GetAPIUrl(string commnand, CancellationToken cancellationToken)
     {
-        var isReady = await GetSystemReady(cancellationToken).ConfigureAwait(false);
+        bool isReady = await GetSystemReady(cancellationToken).ConfigureAwait(false);
         if (!isReady)
         {
             return null;
@@ -39,7 +39,7 @@ public static class SDToken
 
     public static async Task<SDStatus?> GetStatus(CancellationToken cancellationToken)
     {
-        var (status, resetToken) = await GetStatusInternal(cancellationToken);
+        (SDStatus status, bool resetToken) = await GetStatusInternal(cancellationToken);
         if (resetToken)
         {
             if (await ResetToken().ConfigureAwait(false) == null)
@@ -54,7 +54,7 @@ public static class SDToken
 
     public static async Task<(SDStatus? sdStatus, bool resetToken)> GetStatusInternal(CancellationToken cancellationToken)
     {
-        var url = await GetAPIUrlInternal("status", cancellationToken);
+        string url = await GetAPIUrlInternal("status", cancellationToken);
 
         using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
         try
@@ -70,7 +70,7 @@ public static class SDToken
             {
                 return (null, false);
             }
-            var result = JsonSerializer.Deserialize<SDStatus>(responseString);
+            SDStatus? result = JsonSerializer.Deserialize<SDStatus>(responseString);
             if (result == null)
             {
                 return (null, false);
@@ -85,7 +85,7 @@ public static class SDToken
 
     public static async Task<bool> GetSystemReady(CancellationToken cancellationToken)
     {
-        var (status, resetToken) = await GetStatusInternal(cancellationToken);
+        (SDStatus status, bool resetToken) = await GetStatusInternal(cancellationToken);
         if (resetToken)
         {
             if (await ResetToken().ConfigureAwait(false) == null)
@@ -109,7 +109,9 @@ public static class SDToken
             token = await RetrieveToken(cancellationToken);
 
             if (string.IsNullOrEmpty(token))
+            {
                 throw new ApplicationException("Unable to get token");
+            }
 
             tokenDateTime = DateTime.Now;
             SaveToken();
@@ -126,8 +128,8 @@ public static class SDToken
 
     private static HttpClient CreateHttpClient()
     {
-        var setting = FileUtil.GetSetting();
-        var client = new HttpClient(new HttpClientHandler()
+        Setting setting = FileUtil.GetSetting();
+        HttpClient client = new(new HttpClientHandler()
         {
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
             AllowAutoRedirect = true,
@@ -141,7 +143,7 @@ public static class SDToken
 
     private static async Task<string> GetAPIUrlInternal(string commnand, CancellationToken cancellationToken)
     {
-        var token = await GetToken(cancellationToken).ConfigureAwait(false);
+        string? token = await GetToken(cancellationToken).ConfigureAwait(false);
 
         if (commnand.Contains("?"))
         {
@@ -152,7 +154,7 @@ public static class SDToken
 
     private static SDStatus GetSDStatusOffline()
     {
-        var ret = new SDStatus();
+        SDStatus ret = new();
         ret.systemStatus.Add(new SDSystemstatus { status = "Offline" });
         return ret;
     }
@@ -166,7 +168,7 @@ public static class SDToken
         }
 
         string jsonString = File.ReadAllText(SD_TOKEN_FILENAME);
-        var result = JsonSerializer.Deserialize<SDTokenFile>(jsonString)!;
+        SDTokenFile? result = JsonSerializer.Deserialize<SDTokenFile>(jsonString)!;
         if (result is null)
         {
             token = null;
@@ -179,7 +181,7 @@ public static class SDToken
 
     private static async Task<string?> RetrieveToken(CancellationToken cancellationToken)
     {
-        var setting = FileUtil.GetSetting();
+        Setting setting = FileUtil.GetSetting();
 
         string? sdHashedPassword;
         if (HashHelper.TestSha1HexHash(setting.SDPassword))
@@ -220,7 +222,8 @@ public static class SDToken
         }
         catch (Exception ex)
         {
-            throw;
+            Console.WriteLine("ERROR: ", ex);
+            return null;
         }
     }
 

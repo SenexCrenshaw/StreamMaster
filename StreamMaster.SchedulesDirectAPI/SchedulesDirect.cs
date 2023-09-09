@@ -53,9 +53,10 @@ public class SchedulesDirect
             }
             return result;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw;
+            Console.WriteLine("ERROR: ", ex);
+            return null;
         }
     }
 
@@ -75,9 +76,10 @@ public class SchedulesDirect
             }
             return result;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw;
+            Console.WriteLine("ERROR: ", ex);
+            return null;
         }
     }
 
@@ -110,9 +112,10 @@ public class SchedulesDirect
             }
             return result;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw;
+            Console.WriteLine("ERROR: ", ex);
+            return null;
         }
     }
 
@@ -149,9 +152,10 @@ public class SchedulesDirect
 
                 res.AddRange(results);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                continue;
+                Console.WriteLine("ERROR: ", ex);
+                return null;
             }
         }
 
@@ -211,9 +215,10 @@ public class SchedulesDirect
             List<SDProgram>? result = JsonSerializer.Deserialize<List<SDProgram>>(responseString);
             return result;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw;
+            Console.WriteLine("ERROR: ", ex);
+            return null;
         }
     }
 
@@ -238,9 +243,10 @@ public class SchedulesDirect
             List<Schedule>? result = JsonSerializer.Deserialize<List<Schedule>>(responseString);
             return result;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw;
+            Console.WriteLine("ERROR: ", ex);
+            return null;
         }
     }
 
@@ -278,7 +284,9 @@ public class SchedulesDirect
         {
             LineUpResult? res = await GetLineup(lineUp.LineupString, cancellationToken).ConfigureAwait(false);
             if (res == null)
+            {
                 continue;
+            }
 
             foreach (Station station in res.Stations)
             {
