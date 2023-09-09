@@ -149,6 +149,7 @@ public sealed class QueuedHostedService : BackgroundService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred executing task work item. {command}", command.Command);
+                await _taskQueue.SetStop(command.Id).ConfigureAwait(false);
             }
         }
         _logger.LogInformation("{nameof(QueuedHostedService)} is stopped.{Environment.NewLine}", nameof(QueuedHostedService), Environment.NewLine);
