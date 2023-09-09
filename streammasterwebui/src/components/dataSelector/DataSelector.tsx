@@ -62,7 +62,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   const setting = StreamMasterSetting();
 
-  const { data, isLoading, isFetching } = props.queryFilter ? props.queryFilter((queryFilter ?? skipToken)) : { data: undefined, isFetching: false, isLoading: false };
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { data, isLoading, isFetching } = props.queryFilter ? props.queryFilter(queryFilter ?? skipToken) : { data: undefined, isFetching: false, isLoading: false };
 
   const onsetSelection = useCallback((e: T | T[], overRideSelectAll?: boolean): T | T[] | undefined => {
     let selected: T[] = Array.isArray(e) ? e : [e];
@@ -178,7 +179,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       const isReadOnly = props.videoStreamIdsIsReadOnly.find((vs) => vs === getRecord(changed as T, 'id'));
 
       if (isReadOnly !== undefined) {
-        return 'videostreamSelected' // `bg-yellow-900`;
+        return 'videostreamSelected'
       }
     }
 
@@ -347,8 +348,9 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   const multiselectHeader = () => {
     return (
-      <div className=" text-xs text-white text-500" >
+      <div className="text-xs text-white text-500" >
         <BanButton
+          className="banbutton"
           disabled={state.selections.length === 0}
           onClick={() => {
             setters.setSelections([]);
@@ -460,7 +462,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           header={sourceRenderHeader}
           key='id' // {props.key !== undefined && props.key !== '' ? props.key : 'id'}
           lazy
-          loading={isLoading === true || isFetching === true || props.isLoading === true}
+          loading={props.isLoading === true || isFetching === true || isLoading === true}
           metaKeySelection={false}
           onFilter={onFilter}
           onPage={onPage}
@@ -528,7 +530,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
               field={col.field}
               filter={getFilter(col.filter, col.fieldType)}
               filterElement={col.filterElement}
-              filterMenuStyle={{ width: '14rem' }}
+              // filterMenuStyle={{ width: '14rem' }}
               filterPlaceholder={col.fieldType === 'epg' ? 'EPG' : col.header ? col.header : camel2title(col.field)}
               header={getHeader(col.field, col.header, col.fieldType)}
               hidden={col.isHidden === true || (props.hideControls === true && getHeader(col.field, col.header, col.fieldType) === 'Actions') ? true : undefined}
@@ -606,8 +608,7 @@ type BaseDataSelectorProps<T = any> = {
 
 type QueryFilterProps<T> = BaseDataSelectorProps<T> & {
   dataSource?: never;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  queryFilter: (filters: GetApiArg | any) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
+  queryFilter: (filters: GetApiArg | typeof skipToken) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
 };
 
 type DataSourceProps<T> = BaseDataSelectorProps<T> & {

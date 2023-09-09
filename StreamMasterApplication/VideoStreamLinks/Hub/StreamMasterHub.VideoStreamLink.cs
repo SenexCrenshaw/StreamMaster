@@ -1,15 +1,7 @@
-﻿using MediatR;
-
-using Microsoft.AspNetCore.Mvc;
-
-using StreamMasterApplication.VideoStreamLinks;
+﻿using StreamMasterApplication.VideoStreamLinks;
 using StreamMasterApplication.VideoStreamLinks.Commands;
 using StreamMasterApplication.VideoStreamLinks.Queries;
-using StreamMasterApplication.VideoStreams;
-using StreamMasterApplication.VideoStreams.Commands;
-using StreamMasterApplication.VideoStreams.Queries;
 
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Hubs;

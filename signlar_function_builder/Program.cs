@@ -3,7 +3,6 @@ using StreamMasterApplication.Hubs;
 using StreamMasterDomain.Attributes;
 
 using System.Reflection;
-using System.Text;
 
 namespace signlar_function_builder;
 
@@ -11,7 +10,7 @@ internal partial class Program
 {
     private static readonly List<EndPoint> EndPoints = new();
 
-    private static readonly List<string> toIgnore = new() {"schedulesDirectGetStations","schedulesDirectGetLineupPreviews","logsGetLogRequest", "videoStreamsGetAllStatisticsForAllUrls", "settingsGetIsSystemReady", "schedulesDirectGetSchedules", "schedulesDirectGetStatus", "schedulesDirectGetCountries", "schedulesDirectGetLineups", "schedulesDirectGetLineup", "schedulesDirectGetHeadends", "OnDisconnectedAsync", "login", "channelGroupsGetChannelGroups", "videoStreamsGetVideoStreams", "streamGroupsGetAllStatisticsForAllUrls", "programmesGetProgrammeNames", "videoStreamsGetVideoStream", "m3UStreamsGetM3UStream", "m3UStreamsGetM3UStreams", "m3UFilesGetM3UFile" };
+    private static readonly List<string> toIgnore = new() { "schedulesDirectGetStations", "schedulesDirectGetLineupPreviews", "logsGetLogRequest", "videoStreamsGetAllStatisticsForAllUrls", "settingsGetIsSystemReady", "schedulesDirectGetSchedules", "schedulesDirectGetStatus", "schedulesDirectGetCountries", "schedulesDirectGetLineups", "schedulesDirectGetLineup", "schedulesDirectGetHeadends", "OnDisconnectedAsync", "login", "channelGroupsGetChannelGroups", "videoStreamsGetVideoStreams", "streamGroupsGetAllStatisticsForAllUrls", "programmesGetProgrammeNames", "videoStreamsGetVideoStream", "m3UStreamsGetM3UStream", "m3UStreamsGetM3UStreams", "m3UFilesGetM3UFile" };
     private static List<string> iptv = new();
 
     public static string GetName(string name)
@@ -60,61 +59,61 @@ internal partial class Program
         }
     }
 
-    private static void BuildEndpoints()
-    {
-        foreach (EndPoint ep in EndPoints.OrderBy(a => a.Getter))
-        {
-            Console.WriteLine($"{ep.NS} / ep.Getter: \"{ep.Getter}\" ep.DTONoArray: \"{ep.DTONoArray}\" {ep.DTOArray} {ep.HubBroadCast}");
-        }
+    //private static void BuildEndpoints()
+    //{
+    //    foreach (EndPoint ep in EndPoints.OrderBy(a => a.Getter))
+    //    {
+    //        Console.WriteLine($"{ep.NS} / ep.Getter: \"{ep.Getter}\" ep.DTONoArray: \"{ep.DTONoArray}\" {ep.DTOArray} {ep.HubBroadCast}");
+    //    }
 
-        string fileName = @"..\..\..\..\StreamMasterwebui\src\store\signlar\enhancedApi.tsx";
-        StringBuilder towrite = new();
-        _ = towrite.AppendLine("import { hubConnection } from '../../app/signalr';\r\n" +
-                    "import * as StreamMasterApi from '../iptvApi';\r\n");
+    //    string fileName = @"..\..\..\..\StreamMasterwebui\src\store\signlar\enhancedApi.tsx";
+    //    StringBuilder towrite = new();
+    //    _ = towrite.AppendLine("import { hubConnection } from '../../app/signalr';\r\n" +
+    //                "import * as StreamMasterApi from '../iptvApi';\r\n");
 
-        _ = towrite.AppendLine("export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({\r\n" +
-                    " endpoints: {");
+    //    _ = towrite.AppendLine("export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({\r\n" +
+    //                " endpoints: {");
 
-        foreach (EndPoint end in EndPoints.Where(a => a.Getter != "").OrderBy(a => a.Getter))
-        {
-            if (toIgnore.Contains(end.Getter))
-            {
-                continue;
-            }
-            if (end.DTONoArray.ToLower().Contains("streamingstatus"))
-            {
-            }
+    //    foreach (EndPoint end in EndPoints.Where(a => a.Getter != "").OrderBy(a => a.Getter))
+    //    {
+    //        if (toIgnore.Contains(end.Getter))
+    //        {
+    //            continue;
+    //        }
+    //        if (end.DTONoArray.ToLower().Contains("streamingstatus"))
+    //        {
+    //        }
 
-            if (end.JustUpdates)
-            {
-            }
+    //        if (end.JustUpdates)
+    //        {
+    //        }
 
-            _ = towrite.AppendLine($"    {end.Getter}: {{\r\n      async onCacheEntryAdded(\r\n        arg,\r\n        {{ updateCachedData, cacheDataLoaded, cacheEntryRemoved }}\r\n      ) {{\r\n        try {{\r\n          await cacheDataLoaded;\r\n");
+    //        _ = towrite.AppendLine($"    {end.Getter}: {{\r\n      async onCacheEntryAdded(\r\n        arg,\r\n        {{ updateCachedData, cacheDataLoaded, cacheEntryRemoved }}\r\n      ) {{\r\n        try {{\r\n          await cacheDataLoaded;\r\n");
 
-            if (!end.IsSingle)
-            {
-                _ = towrite.AppendLine(EndPointOutput.GetUpdates(end));
-            }
+    //        if (!end.IsSingle)
+    //        {
+    //            _ = towrite.AppendLine(EndPointOutput.GetUpdates(end));
+    //        }
 
-            if (!end.JustUpdates)
-            {
-                _ = towrite.AppendLine(EndPointOutput.GetUpdate(end));
-            }
+    //        if (!end.JustUpdates)
+    //        {
+    //            _ = towrite.AppendLine(EndPointOutput.GetUpdate(end));
+    //        }
 
-            if (!end.IsSingle && !end.JustUpdates)
-            {
-                _ = towrite.AppendLine(EndPointOutput.GetDelete(end));
-            }
+    //        if (!end.IsSingle && !end.JustUpdates)
+    //        {
+    //            _ = towrite.AppendLine(EndPointOutput.GetDelete(end));
+    //        }
 
-            _ = towrite.AppendLine("\r\n                } catch {}\r\n\r\n                await cacheEntryRemoved;\r\n            }\r\n        },");
+    //        _ = towrite.AppendLine("\r\n                } catch {}\r\n\r\n                await cacheEntryRemoved;\r\n            }\r\n        },");
 
-            Console.WriteLine(end.HubBroadCast);
-        }
+    //        Console.WriteLine(end.HubBroadCast);
+    //    }
 
-        _ = towrite.Append("    }\r\n});");
+    //    _ = towrite.Append("    }\r\n});");
 
-        File.WriteAllText(fileName, towrite.ToString());
-    }
+    //    File.WriteAllText(fileName, towrite.ToString());
+    //}
 
     private static void BuildEnums()
     {
@@ -352,7 +351,9 @@ internal partial class Program
                                 {
                                     IndexBy? attr = prop.GetCustomAttribute<IndexBy>();
                                     if (attr is not null)
+                                    {
                                         ep.IndexBy = attr.Value;// prop.Name.ToLower();
+                                    }
                                 }
                             }
 
@@ -446,7 +447,7 @@ internal partial class Program
             );
 
         BuildFunctions(myArrayMethodInfo);
-        BuildEndpoints();
+        //BuildEndpoints();
         BuildEnums();
     }
 

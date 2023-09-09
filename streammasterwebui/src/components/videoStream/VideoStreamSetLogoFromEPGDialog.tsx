@@ -1,9 +1,8 @@
 
-import { useCallback, memo } from "react";
-import { getTopToolOptions } from "../../common/common";
-import { useVideoStreamsSetVideoStreamsLogoFromEpgMutation, type VideoStreamsSetVideoStreamsLogoFromEpgApiArg } from "../../store/iptvApi";
-import { type VideoStreamDto } from "../../store/iptvApi";
 import { Button } from "primereact/button";
+import { memo, useCallback } from "react";
+import { getTopToolOptions } from "../../common/common";
+import { useVideoStreamsSetVideoStreamsLogoFromEpgMutation, type VideoStreamDto, type VideoStreamsSetVideoStreamsLogoFromEpgApiArg } from "../../store/iptvApi";
 
 const VideoStreamSetLogoFromEPGDialog = (props: VideoStreamSetLogoFromEPGDialogProps) => {
 
@@ -36,7 +35,7 @@ const VideoStreamSetLogoFromEPGDialog = (props: VideoStreamSetLogoFromEPGDialogP
 
   return (
     <Button
-      disabled={props.value === undefined || props.value.id === undefined}
+      disabled={props.value === undefined || props.value.id === undefined || props.value.isUserCreated === true}
       icon='pi pi-image'
       onClick={async () =>
         await onChangeLogo()

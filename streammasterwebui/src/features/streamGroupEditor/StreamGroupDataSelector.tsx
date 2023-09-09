@@ -1,5 +1,4 @@
-import { Toast } from 'primereact/toast';
-import { memo, useMemo, useRef, type CSSProperties } from "react";
+import { memo, useMemo, type CSSProperties } from "react";
 import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
@@ -13,7 +12,6 @@ export type StreamGroupDataSelectorProps = {
 };
 
 const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProps) => {
-  const toast = useRef<Toast>(null);
   const { setSelectedStreamGroup } = useSelectedStreamGroup(id);
 
   const StreamGroupColumns = useMemo((): ColumnMeta[] => {
@@ -69,22 +67,18 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProps) => {
   };
 
   return (
-    <>
-      <Toast position="bottom-right" ref={toast} />
-
-      <DataSelector
-        columns={StreamGroupColumns}
-        headerName='Stream Groups'
-        headerRightTemplate={sourceaddtionalHeaderTemplate()}
-        id={id + '-ds-source'}
-        onSelectionChange={(e) => {
-          setSelectedStreamGroup(e as StreamGroupDto);
-        }
-        }
-        queryFilter={useStreamGroupsGetStreamGroupsQuery}
-        style={{ height: 'calc(100vh - 40px)' }}
-      />
-    </>
+    <DataSelector
+      columns={StreamGroupColumns}
+      headerName='Stream Groups'
+      headerRightTemplate={sourceaddtionalHeaderTemplate()}
+      id={id + '-ds-source'}
+      onSelectionChange={(e) => {
+        setSelectedStreamGroup(e as StreamGroupDto);
+      }
+      }
+      queryFilter={useStreamGroupsGetStreamGroupsQuery}
+      style={{ height: 'calc(100vh - 40px)' }}
+    />
   );
 }
 

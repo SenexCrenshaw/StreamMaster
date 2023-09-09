@@ -7,5 +7,5 @@ namespace StreamMasterDomain.Dto;
 public class ChannelGroupDto : ChannelGroupArg, IMapFrom<ChannelGroup>
 {
     //[Required]
-    //public int Id { get; set; }
+    public int StreamCount { get; set; }
 }

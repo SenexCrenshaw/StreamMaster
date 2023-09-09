@@ -6,6 +6,4 @@ public class StreamGroupVideoStreamParameters : QueryStringParameters
     {
         OrderBy = "name desc";
     }
-
-    public string Name { get; set; }
 }

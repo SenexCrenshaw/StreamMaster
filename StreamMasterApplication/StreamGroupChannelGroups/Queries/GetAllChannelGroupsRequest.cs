@@ -2,7 +2,7 @@
 
 using Microsoft.EntityFrameworkCore;
 
-namespace StreamMasterApplication.ChannelGroups.Queries;
+namespace StreamMasterApplication.StreamGroupChannelGroups.Queries;
 
 public record GetAllChannelGroupsRequest(int StreamGroupId) : IRequest<List<ChannelGroupDto>>;
 

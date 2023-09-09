@@ -1,6 +1,5 @@
 import { memo } from "react";
-import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
-import { useVideoStreamsUpdateVideoStreamMutation } from "../../store/iptvApi";
+import { useVideoStreamsUpdateVideoStreamMutation, type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
 import EPGSelector from "../selectors/EPGSelector";
 
 const EPGEditor = (props: EPGEditorProps) => {
@@ -29,16 +28,17 @@ const EPGEditor = (props: EPGEditorProps) => {
   };
 
   return (
-    <EPGSelector
-      className="p-inputtext-sm"
-      enableEditMode={props.enableEditMode}
-      onChange={
-        async (e: string) => {
-          await onUpdateVideoStream(e);
+    <div className="flex w-full">
+      <EPGSelector
+        enableEditMode={props.enableEditMode}
+        onChange={
+          async (e: string) => {
+            await onUpdateVideoStream(e);
+          }
         }
-      }
-      value={props.data.user_Tvg_ID}
-    />
+        value={props.data.user_Tvg_ID}
+      />
+    </div>
   );
 };
 

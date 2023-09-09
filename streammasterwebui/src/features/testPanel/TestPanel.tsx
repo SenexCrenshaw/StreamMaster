@@ -3,8 +3,8 @@
 import { memo, useMemo, useState } from "react";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
 import { useVideoStreamsGetVideoStreamQuery, type ChannelGroupDto, type PagedResponseOfChannelGroupDto, type StreamGroupDto } from "../../store/iptvApi";
+import StreamGroupChannelGroupsSelector from "../streamGroupEditor/StreamGroupChannelGroupsSelector";
 
-import StreamGroupChannelGroupsSelector from "../../components/selectors/StreamGroupChannelGroupsSelector";
 
 
 const TestPanel = (props: TestPanelProps) => {
@@ -24,9 +24,13 @@ const TestPanel = (props: TestPanelProps) => {
     ]
   }, []);
 
+  // return (
+  //   <EPGSelector />
+  // )
+
   return (
-    <StreamGroupChannelGroupsSelector streamGroupId={2} />
-  );
+    <StreamGroupChannelGroupsSelector streamGroupId={8} />
+  )
 
   // return (
   //   <VideoStreamPanel />

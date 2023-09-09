@@ -18,17 +18,40 @@ export const getLeftToolOptions = { autoHide: true, hideDelay: 100, position: 'l
 
 <FormattedMessage defaultMessage="Stream Master" id="app.title" />;
 
-
 export const hasValidAdditionalProps = (additionalFilterProps: AdditionalFilterProps | undefined) => {
   return additionalFilterProps?.values;
 };
 
+
 export function getColor(index: number): string {
-  const GOLDEN_ANGLE = 137.5; // Approximate value of the golden angle in degrees
-  const hue = (index * GOLDEN_ANGLE) % 360;
+  const STEP = 50; // This will determine the number of segments in the hue spectrum
+  const segments = Math.floor(360 / STEP);
+
+  // Calculate a hue value that jumps around the spectrum to ensure variation
+  const hue = ((index * STEP) + (Math.floor(index / segments) * STEP)) % 360;
+
   return `hsl(${hue}, 100%, 70%)`;
 }
 
+
+export function getColor2(index: number): string {
+  const PRIME1 = 137;
+  const PRIME2 = 157;
+  const hue = (index * PRIME1) % 360;
+  const saturation = 90 + (index * PRIME2) % 10; // Values between 90% and 100%
+  const lightness = 65 + index % 5; // Values between 65% and 70%
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+}
+
+
+export function getChannelGroupMenuItem(colorIndex: number | undefined, toDisplay: string): React.ReactNode {
+  return <div className='gap-2'>
+    <div>
+      <i className="pi pi-circle-fill pr-2" style={{ color: getColor(colorIndex ?? 1) }} />
+      {toDisplay}
+    </div>
+  </div>;
+}
 
 // export type MatchMode = 'between' | 'channelGroupsMatch' | 'contains' | 'custom' | 'dateAfter' | 'dateBefore' | 'dateIs' | 'dateIsNot' | 'endsWith' | 'equals' | 'gt' | 'gte' | 'in' | 'lt' | 'lte' | 'notContains' | 'notEquals' | 'startsWith' | undefined;
 export type MatchMode = 'between' | 'contains' | 'custom' | 'dateAfter' | 'dateBefore' | 'dateIs' | 'dateIsNot' | 'endsWith' | 'equals' | 'gt' | 'gte' | 'in' | 'lt' | 'lte' | 'notContains' | 'notEquals' | 'startsWith' | undefined;
@@ -108,8 +131,6 @@ export function GetMessage(...args: string[]): string {
   return message;
 }
 
-
-
 export type AdditionalFilterProps = {
   field: string;
   matchMode: MatchMode;
@@ -156,7 +177,6 @@ export function removeValueForField(
     data.splice(index, 1);
   }
 }
-
 
 export function addOrUpdateValueForField(
   data: SMDataTableFilterMetaData[],

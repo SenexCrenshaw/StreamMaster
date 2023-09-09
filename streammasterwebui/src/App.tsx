@@ -1,14 +1,10 @@
 import './App.css';
 
-import React from 'react';
-import { Navigate, Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
-import messagesEn from './messages_en';
-import * as StreamMasterApi from './store/iptvApi';
-
 import { useLocalStorage } from 'primereact/hooks';
+import React from 'react';
 import { IntlProvider } from 'react-intl';
 import { ProSidebarProvider } from 'react-pro-sidebar';
-
+import { Navigate, Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
 import Home from './Home';
 import SignalRHub from './app/SignalRHub';
 import VideoPlayer from './components/VideoPlayer';
@@ -20,17 +16,16 @@ import SDEditor from './features/sdEditor/SDEditor';
 import SettingsEditor from './features/settings/SettingsEditor';
 import StreamGroupEditor from './features/streamGroupEditor/StreamGroupEditor';
 import StreamingStatus from './features/streamingStatus/StreamingStatus';
-// import TestPanel from './features/testPanel/TestPanel';
 import TestPanel from './features/testPanel/TestPanel';
+import messagesEn from './messages_en';
+import { useSettingsGetSystemStatusQuery } from './store/iptvApi';
 import StreamMasterSetting from './store/signlar/StreamMasterSetting';
-
-// import SDEditor from './features/sdEditor/SDEditor';
 
 const App = () => {
   const [locale,] = useLocalStorage('en', 'locale');
   const messages = locale === 'en' ? messagesEn : messagesEn;
   const [hubConnected, setHubConnected] = React.useState<boolean>(false);
-  const systemStatus = StreamMasterApi.useSettingsGetSystemStatusQuery();
+  const systemStatus = useSettingsGetSystemStatusQuery();
   const setting = StreamMasterSetting();
 
   const systemReady = React.useMemo((): boolean => {

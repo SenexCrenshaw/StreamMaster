@@ -9,15 +9,17 @@ function generateFilterData(columns: ColumnMeta[], currentFilters: DataTableFilt
   }
 
   const ret = columns.reduce<DataTableFilterMeta>((obj, item: ColumnMeta) => {
-
-
     let value = '';
+    let matchMode = item.filterMatchMode ?? '';
 
     if (Object.keys(currentFilters).length > 0) {
       const test = currentFilters[item.field] as SMDataTableFilterMetaData;
 
       if (test !== undefined) {
         value = test.value;
+        if (!matchMode && test.matchMode) {
+          matchMode = test.matchMode;
+        }
       }
     }
 
@@ -25,12 +27,11 @@ function generateFilterData(columns: ColumnMeta[], currentFilters: DataTableFilt
       ...obj,
       [item.field]: {
         fieldName: item.field,
-        matchMode: item.filterMatchMode ?? FilterMatchMode.CONTAINS,
+        matchMode: matchMode ?? FilterMatchMode.CONTAINS,
         value: value
       },
     } as DataTableFilterMeta;
   }, {});
-
   return ret;
 }
 

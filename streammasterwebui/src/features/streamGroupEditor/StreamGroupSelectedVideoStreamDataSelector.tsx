@@ -1,14 +1,15 @@
 import { Tooltip } from "primereact/tooltip";
 import { memo, useCallback, useEffect, useMemo, type CSSProperties } from "react";
+import { v4 as uuidv4 } from 'uuid';
 import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
 import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
-import { GetMessage, getColor } from "../../common/common";
+import { GetMessage, getChannelGroupMenuItem, getColor } from "../../common/common";
 import { GroupIcon } from "../../common/icons";
 import { useChannelNameColumnConfig, useChannelNumberColumnConfig, useEPGColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import StreamGroupChannelGroupsSelector from "../../components/selectors/StreamGroupChannelGroupsSelector";
 import { useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery, type VideoStreamDto } from "../../store/iptvApi";
+import StreamGroupChannelGroupsSelector from "./StreamGroupChannelGroupsSelector";
 import VideoStreamRemoveFromStreamGroupDialog from "./VideoStreamRemoveFromStreamGroupDialog";
 
 type StreamGroupSelectedVideoStreamDataSelectorProps = {
@@ -18,11 +19,11 @@ type StreamGroupSelectedVideoStreamDataSelectorProps = {
 const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedVideoStreamDataSelectorProps) => {
   const dataKey = id + '-StreamGroupSelectedVideoStreamDataSelector';
   const { selectedStreamGroup } = useSelectedStreamGroup(id);
-  const enableEdit = false;
+  const enableEdit = true;
 
-  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig(true);
-  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(enableEdit);
-  const { columnConfig: epgColumnConfig } = useEPGColumnConfig(true);
+  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ useFilter: false });
+  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit: enableEdit, useFilter: false });
+  const { columnConfig: epgColumnConfig } = useEPGColumnConfig({ enableEdit: enableEdit, useFilter: false });
   const { setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
 
   useEffect(() => {
@@ -35,19 +36,14 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
 
   const targetActionBodyTemplate = useCallback((data: VideoStreamDto) => {
     if (data.isReadOnly === true) {
+      const tooltipClassName = "grouptooltip-" + uuidv4();
+      // console.log(tooltipClassName)
       return (
         <div className='flex min-w-full min-h-full justify-content-end align-items-center'>
-          <Tooltip target=".GroupIcon-class" />
-          <i
-            className="GroupIcon-class border-white"
-            data-pr-hidedelay={100}
-            data-pr-position="left"
-            data-pr-showdelay={500}
-            data-pr-tooltip={`Group: ${data.user_Tvg_group}`}
-            style={{ color: getColor(data.channelGroupId ?? 1) }}
-          >
-            <GroupIcon />
-          </i>
+          <Tooltip position="left" target={"." + tooltipClassName} >
+            {getChannelGroupMenuItem(data.channelGroupId, data.user_Tvg_group)}
+          </Tooltip>
+          <GroupIcon className={tooltipClassName} style={{ color: getColor(data.channelGroupId ?? 1) }} />
         </div >
       );
     }
@@ -125,5 +121,6 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
 
 StreamGroupSelectedVideoStreamDataSelector.displayName = 'Stream Editor';
 
-
 export default memo(StreamGroupSelectedVideoStreamDataSelector);
+
+

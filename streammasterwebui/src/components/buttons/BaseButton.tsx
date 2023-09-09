@@ -2,6 +2,7 @@ import { Button } from "primereact/button";
 import { getLeftToolOptions, getTopToolOptions } from "../../common/common";
 
 export type ChildButtonProps = {
+  className?: string;
   disabled?: boolean | undefined;
   iconFilled?: boolean;
   label?: string | undefined;
@@ -10,6 +11,7 @@ export type ChildButtonProps = {
 }
 
 export type BaseButtonProps = {
+  className?: string;
   disabled?: boolean | undefined;
   icon: string;
   iconFilled?: boolean;
@@ -21,10 +23,11 @@ export type BaseButtonProps = {
   tooltip?: string; // Add other severities as needed
 }
 
-const BaseButton: React.FC<BaseButtonProps> = ({ disabled, icon, iconFilled = true, isLeft = false, label, onClick, rounded = true, severity, tooltip = '' }) => {
+const BaseButton: React.FC<BaseButtonProps> = ({ className, disabled, icon, iconFilled = true, isLeft = false, label, onClick, rounded = true, severity, tooltip = '' }) => {
 
   return (
     <Button
+      className={className}
       disabled={disabled}
       icon={"pi " + icon}
       label={label}

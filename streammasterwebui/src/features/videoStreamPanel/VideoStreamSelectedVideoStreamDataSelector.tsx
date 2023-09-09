@@ -1,12 +1,11 @@
-import { useEffect, type CSSProperties } from "react";
-import { useMemo, memo, useCallback } from "react";
+import { memo, useCallback, useEffect, useMemo, type CSSProperties } from "react";
+import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
 import { GetMessage } from "../../common/common";
-import { useVideoStreamLinksGetVideoStreamVideoStreamsQuery, useVideoStreamsUpdateVideoStreamMutation, type ChildVideoStreamDto, type VideoStreamsUpdateVideoStreamApiArg } from "../../store/iptvApi";
-import { useChannelNumberColumnConfig, useChannelNameColumnConfig } from "../../components/columns/columnConfigHooks";
+import { useChannelNameColumnConfig, useChannelNumberColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
+import { useVideoStreamLinksGetVideoStreamVideoStreamsQuery, useVideoStreamsUpdateVideoStreamMutation, type ChildVideoStreamDto, type VideoStreamsUpdateVideoStreamApiArg } from "../../store/iptvApi";
 import VideoStreamRemoveFromVideoStreamDialog from "./VideoStreamRemoveFromVideoStreamDialog";
-import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
 
 type VideoStreamSelectedVideoStreamDataSelectorProps = {
   readonly id: string;
@@ -16,16 +15,16 @@ type VideoStreamSelectedVideoStreamDataSelectorProps = {
 const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamSelectedVideoStreamDataSelectorProps) => {
   const dataKey = id + '-VideoStreamSelectedVideoStreamDataSelector';
 
-  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig(false);
-  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(false);
+  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: false });
+  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit: false });
 
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
 
   const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
 
   useEffect(() => {
-    if (queryAdditionalFilter === undefined) {
-      setQueryAdditionalFilter({ field: 'parentVideoStreamId', matchMode: 'equals', values: [videoStreamId ?? 'ERROR'] });
+    if (queryAdditionalFilter === undefined && videoStreamId) {
+      setQueryAdditionalFilter({ field: 'parentVideoStreamId', matchMode: 'equals', values: [videoStreamId] });
     }
 
 
@@ -101,7 +100,7 @@ const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: Video
       queryFilter={useVideoStreamLinksGetVideoStreamVideoStreamsQuery}
       reorderable
       selectionMode='single'
-      style={{ height: 'calc(100vh - 134px)' }
+      style={{ height: 'calc(100vh - 480px)' }
       }
 
     />

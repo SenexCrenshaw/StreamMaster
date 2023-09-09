@@ -8,5 +8,4 @@ public class StreamGroupParameters : QueryStringParameters
         OrderBy = "name desc";
     }
 
-    public string Name { get; set; }
 }

@@ -34,13 +34,7 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
         bool ret = await Mediator.Send(request).ConfigureAwait(false);
         return ret ? NoContent() : NotFound();
     }
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<List<ChannelGroupDto>>> GetAllChannelGroups([FromQuery] GetAllChannelGroupsRequest request)
-    {
-        List<ChannelGroupDto> res = await Mediator.Send(request).ConfigureAwait(false);
-        return Ok(res);
-    }
+
 
     [HttpGet]
     [Route("{id}")]
@@ -53,13 +47,14 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<List<string>>> GetChannelGroupNames()
+    public async Task<ActionResult<IEnumerable<ChannelGroupIdName>>> GetChannelGroupIdNames()
     {
-        List<string> res = await Mediator.Send(new GetChannelGroupNames()).ConfigureAwait(false);
+        IEnumerable<ChannelGroupIdName> res = await Mediator.Send(new GetChannelGroupIdNames()).ConfigureAwait(false);
         return Ok(res);
     }
 
     [HttpGet]
+    [Route("[action]")]
     public async Task<ActionResult<PagedResponse<ChannelGroupDto>>> GetChannelGroups([FromQuery] ChannelGroupParameters Parameters)
     {
         PagedResponse<ChannelGroupDto> res = await Mediator.Send(new GetChannelGroupsQuery(Parameters)).ConfigureAwait(false);
@@ -81,5 +76,13 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
     {
         await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<IEnumerable<string>>> GetChannelGroupNames()
+    {
+        IEnumerable<string> res = await Mediator.Send(new GetChannelGroupNames()).ConfigureAwait(false);
+        return Ok(res);
     }
 }

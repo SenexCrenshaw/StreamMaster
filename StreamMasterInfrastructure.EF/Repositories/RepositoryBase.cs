@@ -12,11 +12,23 @@ using StreamMasterDomain.Repository;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 
+
 namespace StreamMasterInfrastructureEF.Repositories;
 public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 {
-
     protected RepositoryContext RepositoryContext { get; set; }
+
+    internal static PagedResponse<PagedT> CreateEmptyPagedResponse<PagedT>(QueryStringParameters? Parameters) where PagedT : new()
+    {
+        return new PagedResponse<PagedT>
+        {
+            PageNumber = Parameters?.PageNumber ?? 0,
+            TotalPageCount = 0,
+            PageSize = Parameters?.PageSize ?? 0,
+            TotalItemCount = 0,
+            Data = new List<PagedT>()
+        };
+    }
 
     public RepositoryBase(RepositoryContext repositoryContext)
     {
@@ -52,7 +64,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         return entities;
     }
 
-    public async Task<PagedResponse<TDto>> GetEntitiesAsync<TDto>(QueryStringParameters parameters, IMapper mapper) where TDto : class
+    public async Task<PagedResponse<TDto>> GetEntitiesAsync<TDto>(QueryStringParameters parameters, IMapper mapper)
     {
         IQueryable<T> entities = GetIQueryableForEntity(parameters);
 

@@ -1,11 +1,11 @@
-import { TriStateCheckbox, type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { memo, useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
-import { useShowHidden } from "../../app/slices/useShowHidden";
-import { GetMessage, arraysContainSameStrings, getTopToolOptions } from "../../common/common";
+import { GetMessage, arraysContainSameStrings } from "../../common/common";
 import { useChannelGroupColumnConfig, useChannelLogoColumnConfig, useChannelNameColumnConfig, useChannelNumberColumnConfig, useEPGColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
+import { TriSelect } from "../../components/selectors/TriSelect";
 import AutoSetChannelNumbers from "../../components/videoStream/AutoSetChannelNumbers";
 import VideoStreamAddDialog from "../../components/videoStream/VideoStreamAddDialog";
 import VideoStreamDeleteDialog from "../../components/videoStream/VideoStreamDeleteDialog";
@@ -19,7 +19,7 @@ import { useVideoStreamsGetVideoStreamsQuery, type VideoStreamDto } from "../../
 
 type ChannelGroupVideoStreamDataSelectorProps = {
   readonly channelGroupNames?: string[];
-  readonly enableEditMode?: boolean;
+  readonly enableEdit?: boolean;
   readonly id: string;
   readonly onSelectionChange?: (value: VideoStreamDto | VideoStreamDto[]) => void;
   readonly reorderable?: boolean;
@@ -28,18 +28,17 @@ type ChannelGroupVideoStreamDataSelectorProps = {
 const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataSelectorProps) => {
   const dataKey = props.id + '-ChannelGroupVideoStreamDataSelector';
 
-  const [enableEditMode, setEnableEditMode] = useState<boolean>(true);
+  const [enableEdit, setEnableEdit] = useState<boolean>(true);
 
-  const { columnConfig: epgColumnConfig } = useEPGColumnConfig(enableEditMode);
-  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig(enableEditMode);
-  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(enableEditMode);
-  const { columnConfig: channelLogoColumnConfig } = useChannelLogoColumnConfig(enableEditMode);
+  const { columnConfig: epgColumnConfig } = useEPGColumnConfig({ enableEdit: enableEdit });
+  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: enableEdit, useFilter: false });
+  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit: enableEdit });
+  const { columnConfig: channelLogoColumnConfig } = useChannelLogoColumnConfig({ enableEdit: enableEdit });
 
 
   // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
-  const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig(enableEditMode, [...(props.channelGroupNames ?? [])].sort());
+  const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig({ enableEdit: enableEdit, values: [...(props.channelGroupNames ?? [])].sort() });
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
-  const { showHidden, setShowHidden } = useShowHidden(dataKey);
   const [selectedVideoStreams, setSelectedVideoStreams] = useState<VideoStreamDto[]>([] as VideoStreamDto[]);
 
   useEffect(() => {
@@ -50,13 +49,13 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
   }, [props.channelGroupNames, dataKey, queryAdditionalFilter, setQueryAdditionalFilter]);
 
   useEffect(() => {
-    if (props.enableEditMode != enableEditMode) {
-      setEnableEditMode(props.enableEditMode ?? true);
+    if (props.enableEdit != enableEdit) {
+      setEnableEdit(props.enableEdit ?? true);
     }
 
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.enableEditMode]);
+  }, [props.enableEdit]);
 
   const targetActionBodyTemplate = useCallback((data: VideoStreamDto) => {
     return (
@@ -81,7 +80,7 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
     columnConfigs.push(epgColumnConfig);
 
     columnConfigs.push({
-      bodyTemplate: targetActionBodyTemplate, field: 'isHidden', header: 'Actions', isHidden: !enableEditMode, resizeable: false, sortable: false,
+      bodyTemplate: targetActionBodyTemplate, field: 'isHidden', header: 'Actions', isHidden: !enableEdit, resizeable: false, sortable: false,
       style: {
         maxWidth: '7rem',
         width: '7rem',
@@ -90,32 +89,13 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
 
     return columnConfigs;
 
-  }, [channelGroupConfig, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig, enableEditMode, epgColumnConfig, targetActionBodyTemplate]);
-
-
-  const getToolTip = (value: boolean | null | undefined) => {
-    if (value === null) {
-      return 'Show All';
-    }
-
-    if (value === true) {
-      return 'Show Visible';
-    }
-
-    return 'Show Hidden';
-  };
+  }, [channelGroupConfig, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig, enableEdit, epgColumnConfig, targetActionBodyTemplate]);
 
   const rightHeaderTemplate = useMemo(() => {
 
     return (
       <div className="flex justify-content-end align-items-center w-full gap-1">
-        <TriStateCheckbox
-          className='sm-tristatecheckbox'
-          onChange={(e: TriStateCheckboxChangeEvent) => setShowHidden(e.value)}
-          tooltip={getToolTip(showHidden)}
-          tooltipOptions={getTopToolOptions}
-          value={showHidden}
-        />
+        <TriSelect dataKey={dataKey} />
         <VideoStreamResetLogosDialog id={dataKey} values={selectedVideoStreams} />
         <VideoStreamSetLogosFromEPGDialog id={dataKey} values={selectedVideoStreams} />
         <AutoSetChannelNumbers id={dataKey} values={selectedVideoStreams} />
@@ -124,7 +104,7 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
         <VideoStreamAddDialog group={props.channelGroupNames?.[0]} />
       </div>
     );
-  }, [dataKey, props.channelGroupNames, selectedVideoStreams, setShowHidden, showHidden]);
+  }, [dataKey, props.channelGroupNames, selectedVideoStreams]);
 
   return (
     <DataSelector

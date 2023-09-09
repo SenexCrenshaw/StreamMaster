@@ -1,13 +1,13 @@
-import { TriStateCheckbox, type TriStateCheckboxChangeEvent } from "primereact/tristatecheckbox";
 import { memo, useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useShowHidden } from "../../app/slices/useShowHidden";
-import { getTopToolOptions, isEmptyObject } from "../../common/common";
+import { isEmptyObject } from "../../common/common";
 import ChannelGroupAddDialog from "../../components/channelGroups/ChannelGroupAddDialog";
 import ChannelGroupDeleteDialog from "../../components/channelGroups/ChannelGroupDeleteDialog";
 import ChannelGroupEditDialog from "../../components/channelGroups/ChannelGroupEditDialog";
 import ChannelGroupVisibleDialog from "../../components/channelGroups/ChannelGroupVisibleDialog";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
+import { TriSelect } from "../../components/selectors/TriSelect";
 import { useChannelGroupsGetChannelGroupsQuery, type ChannelGroupDto } from "../../store/iptvApi";
 
 
@@ -37,7 +37,6 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       </div>
 
       <ChannelGroupEditDialog value={data} />
-
       <ChannelGroupVisibleDialog skipOverLayer value={[data]} />
 
     </div>
@@ -66,32 +65,13 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   }, [sourceActionBodyTemplate]);
 
   const sourceRightHeaderTemplate = useCallback(() => {
-    const getToolTip = (value: boolean | null | undefined) => {
-      if (value === null) {
-        return 'Show All';
-      }
-
-      if (value === true) {
-        return 'Show Visible';
-      }
-
-      return 'Show Hidden';
-    }
 
     return (
       <div className="flex justify-content-end align-items-center w-full gap-1">
 
         {props.hideControls !== true &&
           <>
-            <TriStateCheckbox
-              className='sm-tristatecheckbox'
-              onChange={(e: TriStateCheckboxChangeEvent) => {
-                setShowHidden(e.value);
-              }}
-              tooltip={getToolTip(showHidden)}
-              tooltipOptions={getTopToolOptions}
-              value={showHidden} />
-
+            <TriSelect dataKey={dataKey} />
             <ChannelGroupVisibleDialog value={selectedChannelGroups} />
             <ChannelGroupDeleteDialog iconFilled id={dataKey} values={selectedChannelGroups} />
           </>
@@ -100,7 +80,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         <ChannelGroupAddDialog />
       </div>
     );
-  }, [props.hideControls, showHidden, selectedChannelGroups, dataKey, setShowHidden]);
+  }, [props.hideControls, selectedChannelGroups, dataKey]);
 
 
   return (

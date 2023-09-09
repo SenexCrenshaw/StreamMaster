@@ -1,7 +1,6 @@
-import { type IconFileDto, useIconsGetIconsQuery } from '../../store/iptvApi';
-import { useIconsGetIconsSimpleQueryQuery } from '../../store/iptvApi';
-import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
 import React, { useCallback } from 'react';
+import { useIconsGetIconsQuery, useIconsGetIconsSimpleQueryQuery, type IconFileDto } from '../../store/iptvApi';
+import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
 import { GetIconFromSource } from '../../store/signlar_functions';
 import BaseSelector, { type BaseSelectorProps } from './BaseSelector';
 
@@ -21,7 +20,9 @@ const IconSelector: React.FC<Partial<IconSelectorProps>> = ({
 
   const setting = StreamMasterSetting();
 
-  const selectedTemplate = (option: IconFileDto) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const selectedTemplate = (option: any) => {
+
     const iconUrl = option?.source ? getIconUrl(option.source, setting.defaultIcon, false) : '';
 
     if (!iconUrl) return <div />;
@@ -61,7 +62,7 @@ const IconSelector: React.FC<Partial<IconSelectorProps>> = ({
   return (
     <BaseSelector
       {...restProps}
-      itemSize={72}
+      itemSize={64}
       itemTemplate={iconOptionTemplate}
       onChange={handleOnChange}
       optionLabel="name"

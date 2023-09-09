@@ -46,7 +46,14 @@ public class ScanDirectoryForM3UFilesRequestHandler : BaseMediatorRequestHandler
         if (m3uFile == null)
         {
             m3uFile = CreateOrUpdateM3UFile(m3uFileInfo);
-            await SaveAndPublishM3UFile(m3uFile, cancellationToken);
+            await SaveM3UFile(m3uFile, cancellationToken);
+        }
+
+        if (m3uFile != null)
+        {
+
+            M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
+            await Publisher.Publish(new M3UFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -71,7 +78,7 @@ public class ScanDirectoryForM3UFilesRequestHandler : BaseMediatorRequestHandler
         return m3uFile;
     }
 
-    private async Task SaveAndPublishM3UFile(M3UFile m3uFile, CancellationToken cancellationToken)
+    private async Task SaveM3UFile(M3UFile m3uFile, CancellationToken cancellationToken)
     {
         Repository.M3UFile.CreateM3UFile(m3uFile);
         _ = await Repository.SaveAsync().ConfigureAwait(false);
@@ -84,7 +91,6 @@ public class ScanDirectoryForM3UFilesRequestHandler : BaseMediatorRequestHandler
             m3uFile.WriteJSON();
         }
 
-        M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
-        await Publisher.Publish(new M3UFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
+
     }
 }

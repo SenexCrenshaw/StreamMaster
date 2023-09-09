@@ -1,8 +1,7 @@
 import React from "react";
 
+import { useVideoStreamsUpdateVideoStreamMutation, type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
 import ChannelGroupSelector from "./ChannelGroupSelector";
-import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
-import { useVideoStreamsUpdateVideoStreamMutation } from "../../store/iptvApi";
 
 const ChannelGroupEditor = (props: ChannelGroupEditorProps) => {
 
@@ -27,7 +26,7 @@ const ChannelGroupEditor = (props: ChannelGroupEditorProps) => {
   }, [props.data, videoStreamsUpdateVideoStreamMutation]);
 
   return (
-    <div className="iconSelector flex w-full justify-content-center align-items-center">
+    <div className="flex w-full">
       <ChannelGroupSelector
         onChange={onUpdateStream}
         resetValue={props.data.tvg_group}

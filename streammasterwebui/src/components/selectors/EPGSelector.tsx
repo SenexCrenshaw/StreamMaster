@@ -1,7 +1,7 @@
-import { type ProgrammeNameDto, useProgrammesGetProgrammsSimpleQueryQuery, useProgrammesGetProgrammeNameSelectionsQuery } from '../../store/iptvApi';
-import BaseSelector, { type BaseSelectorProps } from './BaseSelector';
-import { GetProgrammeFromDisplayName } from '../../store/signlar_functions';
 import React, { useCallback } from 'react';
+import { useProgrammesGetProgrammeNameSelectionsQuery, useProgrammesGetProgrammsSimpleQueryQuery, type ProgrammeNameDto } from '../../store/iptvApi';
+import { GetProgrammeFromDisplayName } from '../../store/signlar_functions';
+import BaseSelector, { type BaseSelectorProps } from './BaseSelector';
 
 type EPGSelectorProps = BaseSelectorProps<ProgrammeNameDto> & {
   enableEditMode?: boolean;

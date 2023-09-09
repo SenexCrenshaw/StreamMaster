@@ -1,7 +1,7 @@
 import { type ColumnFilterElementTemplateOptions } from "primereact/column";
 import { MultiSelect, type MultiSelectChangeEvent } from "primereact/multiselect";
 import { isEmptyObject, type QueryHook } from "../../common/common";
-import { type VideoStreamDto } from "../../store/iptvApi";
+import { type ChannelGroupIdName, type VideoStreamDto } from "../../store/iptvApi";
 import { type ColumnFieldType, type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 
 
@@ -15,7 +15,7 @@ type ColumnConfigInputs = {
   headerTitle: string,
   maxWidth?: number,
   minWidth?: number,
-  queryHook?: QueryHook<string[]>,
+  queryHook?: QueryHook<ChannelGroupIdName[] | string[]>,
   useFilter?: boolean,
   width?: number
 };
@@ -28,11 +28,10 @@ const createMultiSelectColumnConfigHook = ({
   minWidth = undefined,
   width = undefined,
   EditorComponent,
-  useFilter = true,
   queryHook
 }: ColumnConfigInputs) => {
 
-  return (enableEditMode = false, values: string[] | undefined = undefined) => {
+  return ({ enableEdit = false, useFilter = true, values = undefined }: { enableEdit?: boolean; useFilter?: boolean; values?: string[] | undefined; }) => {
 
     const { data, isLoading, isFetching, isError } = queryHook ? queryHook() : { data: undefined, isError: false, isFetching: false, isLoading: false };
 
@@ -43,7 +42,7 @@ const createMultiSelectColumnConfigHook = ({
         return <span />;
       }
 
-      if (!enableEditMode) {
+      if (!enableEdit) {
         return <span>{value.toString()}</span>;
       }
 

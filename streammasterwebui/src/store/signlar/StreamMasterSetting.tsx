@@ -1,19 +1,19 @@
 import React from 'react';
-import * as StreamMasterApi from '../iptvApi';
-import { AuthenticationType } from '../streammaster_enums';
 import { getIconUrl } from '../../common/common';
+import { useSettingsGetSettingQuery, type SettingDto } from '../iptvApi';
+import { AuthenticationType } from '../streammaster_enums';
 
 const StreamMasterSetting = (): StreamMasterSettingResponse => {
-  const settingsQuery = StreamMasterApi.useSettingsGetSettingQuery();
+  const settingsQuery = useSettingsGetSettingQuery();
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
-  const [data, setData] = React.useState<StreamMasterApi.SettingDto>({} as StreamMasterApi.SettingDto);
+  const [data, setData] = React.useState<SettingDto>({} as SettingDto);
   const [streamMasterIcon, setStreamMasterIcon] = React.useState<string>('');
 
   const [cacheIcon, setCacheIcon] = React.useState<boolean>(false);
   const [defaultIcon, setDefaultIcon] = React.useState<string>('');
   const [defaultIconUrl, setDefaultIconUrl] = React.useState<string>('');
   const [defaultIconName, setDefaultIconName] = React.useState<string>('');
-  const [authenticationType, setAuthenticationType] = React.useState<StreamMasterApi.AuthenticationType>(AuthenticationType.None);
+  const [authenticationType, setAuthenticationType] = React.useState<AuthenticationType>(AuthenticationType.None);
 
   React.useEffect(() => {
 
@@ -63,9 +63,9 @@ const StreamMasterSetting = (): StreamMasterSettingResponse => {
 };
 
 export type StreamMasterSettingResponse = {
-  authenticationType: StreamMasterApi.AuthenticationType;
+  authenticationType: AuthenticationType;
   cacheIcon: boolean;
-  data: StreamMasterApi.SettingDto;
+  data: SettingDto;
   defaultIcon: string;
   defaultIconName: string;
   defaultIconUrl: string;

@@ -1,10 +1,12 @@
+/* eslint-disable react/no-unused-prop-types */
 
-import { useDebouncedCallback } from 'use-debounce';
-import { InputText } from "primereact/inputtext";
-import React from "react";
-import { useClickOutside } from 'primereact/hooks';
-import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
+import { BlockUI } from 'primereact/blockui';
 import { Button } from 'primereact/button';
+import { useClickOutside } from 'primereact/hooks';
+import { InputText } from "primereact/inputtext";
+import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
+import React from "react";
+import { useDebouncedCallback } from 'use-debounce';
 import { getTopToolOptions } from '../common/common';
 import { ResetLogoIcon } from '../common/icons';
 
@@ -21,7 +23,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
   const debounced = useDebouncedCallback(
     React.useCallback((value) => {
 
-      if (!ignoreSave && value !== originalValue) {
+      if (!ignoreSave && value !== originalValue && !props.isLoading) {
         setInputValue(value);
         setIgnoreSave(true);
         props.onChange(value);
@@ -33,7 +35,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
 
   const save = React.useCallback((forceValueSave?: string | undefined) => {
 
-    if (forceValueSave === undefined && (
+    if (props.isLoading || forceValueSave === undefined && (
       ignoreSave || inputValue === undefined || inputValue === originalValue)
     ) {
       return;
@@ -85,31 +87,23 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
 
   React.useMemo(() => {
 
-    if (props.value !== undefined) {
+    if (!props.isLoading && props.value !== undefined) {
       setInputValue(props.value);
       setOriginalValue(props.value);
       setIgnoreSave(false);
     }
 
-  }, [props.value, setInputValue]);
+  }, [props.value, props.isLoading, setInputValue]);
 
   return (
 
-    <div className={`p-0 relative py-1 ${props.includeBorder ? 'border-2 border-round surface-border' : ''}`}
-      ref={overlayRef}
-      style={{
-        ...{
-          backgroundColor: 'var(--mask-bg)',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-        },
-      }}
-    >
+    // <div className={`p-0 relative py-1 ${props.includeBorder ? 'border-2 border-round surface-border' : ''}`}
+    <div className='flex h-full' ref={overlayRef}    >
 
       {(isFocused && props.resetValue !== undefined && props.resetValue !== inputValue) &&
         < Button
           className="absolute right-0"
+          disabled={props.isLoading}
           icon={<ResetLogoIcon sx={{ fontSize: 18 }} />}
           onClick={() => {
             setInputValue(props.resetValue !== undefined ? props.resetValue : '');
@@ -124,25 +118,31 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
           tooltipOptions={getTopToolOptions}
         />
       }
-      <InputText
-        className="sm-inputtext p-0 flex justify-content-start w-full text-sm"
-        onChange={
-          (e) => {
-            setInputValue(e.target.value as string);
-            debounced(e.target.value as string);
+      {(originalValue !== inputValue) &&
+        <i className="absolute right-0 pi pi-save pr-2 text-500" />
+      }
+      <BlockUI >
+        <InputText
+          className="p-0 flex justify-content-start w-full h-full"
+          // disabled={props.disabled}
+          onChange={
+            (e) => {
+              setInputValue(e.target.value as string);
+              debounced(e.target.value as string);
+            }
           }
-        }
-        onClick={
-          () => {
-            props.onClick?.();
+          onClick={
+            () => {
+              props.onClick?.();
+            }
           }
-        }
-        onFocus={() => setIsFocused(true)}
-        placeholder={props.placeholder}
-        tooltip={props.tooltip}
-        tooltipOptions={props.tooltipOptions}
-        value={inputValue}
-      />
+          onFocus={() => setIsFocused(true)}
+          placeholder={props.placeholder}
+          tooltip={props.tooltip}
+          tooltipOptions={props.tooltipOptions}
+          value={inputValue}
+        />
+      </BlockUI>
     </div>
 
   );
@@ -157,6 +157,7 @@ StringEditorBodyTemplate.defaultProps = {
 export type StringEditorBodyTemplateProps = {
   readonly debounceMs?: number;
   readonly includeBorder?: boolean;
+  readonly isLoading?: boolean;
   readonly onChange: (value: string) => void;
   readonly onClick?: () => void;
   readonly placeholder?: string;

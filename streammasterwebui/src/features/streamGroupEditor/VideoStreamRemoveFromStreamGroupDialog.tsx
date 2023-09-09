@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
 import XButton from "../../components/buttons/XButton";
-import { useStreamGroupVideoStreamsRemoveVideoStreamFromStreamGroupMutation, type StreamGroupVideoStreamsRemoveVideoStreamFromStreamGroupApiArg, type VideoStreamDto } from "../../store/iptvApi";
+import { useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteMutation, type StreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteApiArg, type VideoStreamDto } from "../../store/iptvApi";
 
 type VideoStreamRemoveFromStreamGroupDialogProps = {
   readonly id: string;
@@ -9,7 +9,7 @@ type VideoStreamRemoveFromStreamGroupDialogProps = {
 };
 
 const VideoStreamRemoveFromStreamGroupDialog = ({ id, value }: VideoStreamRemoveFromStreamGroupDialogProps) => {
-  const [streamGroupVideoStreamsRemoveVideoStreamFromStreamGroupMutation] = useStreamGroupVideoStreamsRemoveVideoStreamFromStreamGroupMutation();
+  const [streamGroupVideoStreamsRemoveVideoStreamFromStreamGroupMutation] = useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteMutation();
   const { selectedStreamGroup } = useSelectedStreamGroup(id);
 
 
@@ -18,7 +18,7 @@ const VideoStreamRemoveFromStreamGroupDialog = ({ id, value }: VideoStreamRemove
       return;
     }
 
-    const toSend = {} as StreamGroupVideoStreamsRemoveVideoStreamFromStreamGroupApiArg;
+    const toSend = {} as StreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteApiArg;
 
     toSend.streamGroupId = selectedStreamGroup.id;
     toSend.videoStreamId = value.id;

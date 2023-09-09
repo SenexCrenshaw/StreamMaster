@@ -39,27 +39,36 @@ public class StreamGroupVideoStreamsController : ApiControllerBase, IStreamGroup
         return Ok(res);
     }
 
-    [HttpPost]
-    [Route("[action]")]
-    public async Task<ActionResult> AddVideoStreamToStreamGroup(AddVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken)
-    {
-        await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
-        return Ok();
-    }
+    //[HttpPost]
+    //[Route("[action]")]
+    //public async Task<IActionResult> AddVideoStreamToStreamGroup(AddVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken)
+    //{
+    //    await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
+    //    return NoContent();
+    //}
 
-    [HttpDelete]
-    [Route("[action]")]
-    public async Task<ActionResult> RemoveVideoStreamFromStreamGroup(RemoveVideoStreamFromStreamGroupRequest request, CancellationToken cancellationToken)
-    {
-        await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
-        return Ok();
-    }
+    //[HttpDelete]
+    //[Route("[action]")]
+    //public async Task<IActionResult> RemoveVideoStreamFromStreamGroup(RemoveVideoStreamFromStreamGroupRequest request, CancellationToken cancellationToken)
+    //{
+    //    await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
+    //    return NoContent();
+    //}
 
     [HttpPatch]
     [Route("[action]")]
-    public async Task<ActionResult> SetVideoStreamRanks(SetVideoStreamRanksRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> SetVideoStreamRanks(SetVideoStreamRanksRequest request, CancellationToken cancellationToken)
     {
         await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
-        return Ok();
+        return NoContent();
+    }
+
+    [HttpPost]
+    [HttpDelete]
+    [Route("[action]")]
+    public async Task<IActionResult> SyncVideoStreamToStreamGroup(SyncVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken)
+    {
+        await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
+        return NoContent();
     }
 }

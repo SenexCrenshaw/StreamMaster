@@ -235,7 +235,8 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
               setSimpleQuery({ first: firstRecord, last: e.last as number + 100 } as SimpleQueryApiArg)
             }
           },
-          showLoader: true
+          showLoader: true,
+          style: { width: '400px' },
         }}
 
       />

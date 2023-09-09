@@ -6,6 +6,4 @@ public class VideoStreamLinkParameters : QueryStringParameters
     {
         OrderBy = "user_tvg_name desc";
     }
-
-    public string Name { get; set; }
 }

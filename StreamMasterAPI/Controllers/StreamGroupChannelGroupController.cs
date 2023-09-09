@@ -26,4 +26,12 @@ public class StreamGroupChannelGroupController : ApiControllerBase, IStreamGroup
         return Ok(res);
     }
 
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<ChannelGroupDto>>> GetAllChannelGroups([FromQuery] GetAllChannelGroupsRequest request)
+    {
+        List<ChannelGroupDto> res = await Mediator.Send(request).ConfigureAwait(false);
+        return Ok(res);
+    }
+
 }

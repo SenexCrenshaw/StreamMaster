@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
 import { InputText } from "primereact/inputtext";
+import React, { useCallback, useEffect, useState } from "react";
+import { useChannelGroupsCreateChannelGroupMutation, type CreateChannelGroupRequest } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
-import { type CreateChannelGroupRequest } from "../../store/iptvApi";
-import { useChannelGroupsCreateChannelGroupMutation } from "../../store/iptvApi";
 import AddButton from "../buttons/AddButton";
 
 
@@ -84,11 +83,11 @@ const ChannelGroupAddDialog: React.FC<ChannelGroupAddDialogProps> = ({ onAdd, on
         onClose={ReturnToParent}
         show={showOverlay}
       >
-        <div className='m-0 p-0 border-1 border-round surface-border'>
+        <div className='m-0 p-0 '>
           <div className='m-3'>
             <InputText
               autoFocus
-              className="withpadding p-inputtext-sm w-full"
+              className="w-full bordered-text-large"
               onChange={(e) => setNewGroupName(e.target.value)}
               placeholder="Group Name"
               value={newGroupName}

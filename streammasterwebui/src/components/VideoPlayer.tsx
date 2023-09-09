@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import React from "react";
-import * as StreamMasterApi from '../store/iptvApi';
-import 'vidstack/styles/defaults.css';
 import 'vidstack/styles/community-skin/video.css';
-import ReactPlayer from 'react-player';
+import 'vidstack/styles/defaults.css';
 
 import { MediaCommunitySkin, MediaOutlet, MediaPlayer } from '@vidstack/react';
 import EPGDisplay from './epg/EPGDisplay';
 
 import { useLocalStorage } from "primereact/hooks";
+import { useStreamGroupsGetStreamGroupEpgForGuideQuery, useVideoStreamsGetVideoStreamsQuery, type EpgProgram, type VideoStreamsGetVideoStreamsApiArg } from "../store/iptvApi";
 // import {
 //   Player,
 //   ControlBar,
@@ -31,15 +30,15 @@ const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
 
   const [streamGroupNumber, setStreamGroupNumber] = React.useState<number>(0);
 
-  const videoStreamsQuery = StreamMasterApi.useVideoStreamsGetVideoStreamsQuery({} as StreamMasterApi.VideoStreamsGetVideoStreamsApiArg);
-  const epgForGuide = StreamMasterApi.useStreamGroupsGetStreamGroupEpgForGuideQuery(streamGroupNumber);
+  const videoStreamsQuery = useVideoStreamsGetVideoStreamsQuery({} as VideoStreamsGetVideoStreamsApiArg);
+  const epgForGuide = useStreamGroupsGetStreamGroupEpgForGuideQuery(streamGroupNumber);
 
-  const getEpg = React.useCallback((channel: string): StreamMasterApi.EpgProgram | undefined => {
+  const getEpg = React.useCallback((channel: string): EpgProgram | undefined => {
     const epg = epgForGuide.data?.programs?.find((p) => p.channelUuid === channel && p.since !== undefined && p.till !== undefined && new Date(p.since) <= new Date() && new Date(p.till) >= new Date());
 
     return epg;
   }, [epgForGuide.data?.programs]);
-
+  console.log("VideoPlayerDialog")
 
   React.useEffect(() => {
     if (videoStreamId !== '') {

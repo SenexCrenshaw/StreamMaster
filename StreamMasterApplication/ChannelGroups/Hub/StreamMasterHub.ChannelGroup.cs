@@ -23,19 +23,21 @@ public partial class StreamMasterHub : IChannelGroupHub
         await _mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<List<ChannelGroupDto>> GetAllChannelGroups(GetAllChannelGroupsRequest request)
-    {
-        return await _mediator.Send(request).ConfigureAwait(false);
-    }
 
     public async Task<ChannelGroupDto?> GetChannelGroup(int id)
     {
         return await _mediator.Send(new GetChannelGroup(id)).ConfigureAwait(false);
     }
 
-    public async Task<List<string>> GetChannelGroupNames()
+    public async Task<IEnumerable<ChannelGroupIdName>> GetChannelGroupIdNames()
     {
-        List<string> ret = await _mediator.Send(new GetChannelGroupNames()).ConfigureAwait(false);
+        IEnumerable<ChannelGroupIdName> ret = await _mediator.Send(new GetChannelGroupIdNames()).ConfigureAwait(false);
+        return ret;
+    }
+
+    public async Task<IEnumerable<string>> GetChannelGroupNames()
+    {
+        IEnumerable<string> ret = await _mediator.Send(new GetChannelGroupNames()).ConfigureAwait(false);
         return ret;
     }
 
@@ -54,4 +56,6 @@ public partial class StreamMasterHub : IChannelGroupHub
     {
         await _mediator.Send(request).ConfigureAwait(false);
     }
+
+
 }

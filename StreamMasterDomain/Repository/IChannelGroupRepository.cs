@@ -14,7 +14,7 @@ namespace StreamMasterDomain.Repository
         //Task AddOrUpdateChannelGroupVideoStreamCount(ChannelGroupStreamCount response, bool ignoreSave = false);
         Task<List<ChannelGroup>> GetChannelGroupsFromNames(List<string> m3uChannelGroupNames);
 
-        IQueryable<string> GetAllChannelGroupNames();
+        IEnumerable<ChannelGroupIdName> GetAllChannelGroupNames();
 
         Task<List<ChannelGroupDto>> GetChannelGroupsFromVideoStreamIds(IEnumerable<string> VideoStreamIds, CancellationToken cancellationToken);
         Task<ChannelGroupDto?> GetChannelGroupFromVideoStreamId(string VideoStreamId, CancellationToken cancellationToken);
@@ -32,6 +32,7 @@ namespace StreamMasterDomain.Repository
         void CreateChannelGroup(ChannelGroup ChannelGroup);
 
         void UpdateChannelGroup(ChannelGroup ChannelGroup);
+        PagedResponse<ChannelGroupDto> CreateEmptyPagedResponse(ChannelGroupParameters parameters);
         //Task<List<string>> GetChannelNamesFromVideoStream(VideoStreamDto videoStreamDto, CancellationToken cancellationToken);
         //Task<(ChannelGroupDto? channelGroup, List<VideoStreamDto>? distinctList, List<StreamGroupDto>? streamGroupIds)> UpdateChannelGroup(UpdateChannelGroupRequest request, string url, CancellationToken cancellationToken);
     }

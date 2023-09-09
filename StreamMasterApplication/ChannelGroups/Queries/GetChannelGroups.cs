@@ -20,7 +20,7 @@ internal class GetChannelGroupsQueryHandler : BaseMediatorRequestHandler, IReque
             {
                 TotalItemCount = count
             };
-            return emptyResponse;
+            return Repository.ChannelGroup.CreateEmptyPagedResponse(request.Parameters);
         }
 
         return await Repository.ChannelGroup.GetChannelGroupsAsync(request.Parameters).ConfigureAwait(false);

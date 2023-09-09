@@ -1,13 +1,9 @@
 import React from "react";
-
-import { Toast } from 'primereact/toast';
+import { useVideoStreamsUpdateVideoStreamMutation, type UpdateVideoStreamRequest, type VideoStreamDto } from "../store/iptvApi";
 import StringEditorBodyTemplate from "./StringEditorBodyTemplate";
-import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../store/iptvApi";
-import { useVideoStreamsUpdateVideoStreamMutation } from "../store/iptvApi";
 
 const ChannelNameEditor = (props: ChannelNameEditorProps) => {
-  const toast = React.useRef<Toast>(null);
-  const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
+  const [videoStreamsUpdateVideoStreamMutation, { isLoading }] = useVideoStreamsUpdateVideoStreamMutation();
 
   const onUpdateM3UStream = React.useCallback(async (name: string,) => {
     if (props.data.id === '' || !name || name === '' || props.data.user_Tvg_name === name) {
@@ -21,25 +17,8 @@ const ChannelNameEditor = (props: ChannelNameEditorProps) => {
 
     await videoStreamsUpdateVideoStreamMutation(data)
       .then(() => {
-        if (toast.current) {
-
-          toast.current.show({
-            detail: `Updated Stream`,
-            life: 3000,
-            severity: 'success',
-            summary: 'Successful',
-          });
-
-        }
-      }).catch((e) => {
-        if (toast.current) {
-          toast.current.show({
-            detail: `Update Stream Failed`,
-            life: 3000,
-            severity: 'error',
-            summary: 'Error ' + e.message,
-          });
-        }
+      }).catch((error) => {
+        console.error(error);
       });
 
   }, [props.data.id, props.data.user_Tvg_name, videoStreamsUpdateVideoStreamMutation]);
@@ -49,18 +28,14 @@ const ChannelNameEditor = (props: ChannelNameEditorProps) => {
   }
 
   return (
-    <div className="p-inputtext p-0">
-      <Toast position="bottom-right" ref={toast} />
-
-      <StringEditorBodyTemplate
-        onChange={async (e) => {
-          await onUpdateM3UStream(e);
-        }}
-        resetValue={props.data.tvg_name}
-        value={props.data.user_Tvg_name}
-      />
-
-    </div>
+    <StringEditorBodyTemplate
+      isLoading={isLoading}
+      onChange={async (e) => {
+        await onUpdateM3UStream(e);
+      }}
+      resetValue={props.data.isUserCreated ? undefined : props.data.tvg_name}
+      value={props.data.user_Tvg_name}
+    />
   )
 }
 

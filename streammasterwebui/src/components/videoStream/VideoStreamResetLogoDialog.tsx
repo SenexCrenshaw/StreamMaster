@@ -1,4 +1,4 @@
-import { useCallback, memo } from "react";
+import { memo, useCallback } from "react";
 import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
 import { UpdateVideoStream } from "../../store/signlar_functions";
 import ResetButton from "../buttons/ResetButton";
@@ -34,12 +34,12 @@ const VideoStreamResetLogoDialog = (props: VideoStreamResetLogoDialogProps) => {
 
   return (
     <ResetButton
-      disabled={props.value?.tvg_logo === props.value?.user_Tvg_logo}
+      disabled={!props.value || props.value.tvg_logo === props.value.user_Tvg_logo}
       iconFilled={props.iconFilled}
       onClick={async () =>
         await onResetLogo()
       }
-      tooltip="Reset Logo From File"
+      tooltip="Reset Logo"
     />
 
   );

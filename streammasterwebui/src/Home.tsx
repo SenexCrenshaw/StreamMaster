@@ -1,25 +1,16 @@
 import { useLocalStorage } from 'primereact/hooks';
+import { Tooltip } from 'primereact/tooltip';
 import React from 'react';
 import { Menu, MenuItem, Sidebar, sidebarClasses } from 'react-pro-sidebar';
 import { Outlet } from 'react-router-dom';
 import './App.css';
-import MenuItemSM from './components/MenuItemSM';
-
-import { Tooltip } from 'primereact/tooltip';
 import { FilesEditorIcon, HelpIcon, LogIcon, PlayListEditorIcon, QueueStatisIcon, SettingsEditorIcon, SideBarMenuIcon, StreamGroupEditorIcon, StreamingStatusIcon } from './common/icons';
-import * as StreamMasterApi from './store/iptvApi';
+import MenuItemSM from './components/MenuItemSM';
+import { useSettingsGetSettingQuery } from './store/iptvApi';
 import StreamMasterSetting from './store/signlar/StreamMasterSetting';
 
 const Home = () => {
-  // StreamMasterApi.useIconsGetIconsQuery();
-  // StreamMasterApi.useChannelGroupsGetChannelGroupsQuery();
-  // StreamMasterApi.useEpgFilesGetEpgFilesQuery();
-  // StreamMasterApi.useM3UFilesGetM3UFilesQuery({ pageNumber: 0, pageSize: 25 } as StreamMasterApi.QueryStringParameters);
-  // StreamMasterApi.useProgrammesGetProgrammeNamesQuery();
-  StreamMasterApi.useSettingsGetSettingQuery();
-  // StreamMasterApi.useSettingsGetSystemStatusQuery();
-  // StreamMasterApi.useStreamGroupsGetStreamGroupsQuery();
-  // StreamMasterApi.useVideoStreamsGetVideoStreamsQuery();
+  useSettingsGetSettingQuery();
 
   const settings = StreamMasterSetting();
   const [collapsed, setCollapsed] = useLocalStorage<boolean>(true, 'app-menu-collapsed');
@@ -68,7 +59,7 @@ const Home = () => {
             </MenuItem>
           </div>
 
-          <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/testpanel" name='Test Panel' />
+          {/* <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/testpanel" name='Test Panel' /> */}
 
           <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/editor/playlist" name='Playlist' />
           <MenuItemSM collapsed={collapsed} icon={<StreamGroupEditorIcon />} link="/editor/streamgroup" name='Stream Group' />

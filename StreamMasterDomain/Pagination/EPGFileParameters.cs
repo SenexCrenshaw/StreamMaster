@@ -7,6 +7,5 @@
             OrderBy = "id desc";
         }
 
-        public string Name { get; set; }
     }
 }

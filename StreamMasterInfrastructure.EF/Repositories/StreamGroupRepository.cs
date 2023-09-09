@@ -136,6 +136,7 @@ public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHel
         ret.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
         ret.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
         ret.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
+        ret.StreamCount = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == ret.Id).Count();
         return ret;
     }
 

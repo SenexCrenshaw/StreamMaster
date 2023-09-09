@@ -1,12 +1,4 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-
-using StreamMasterApplication.General.Queries;
-
-using StreamMasterDomain.Attributes;
+﻿using StreamMasterApplication.General.Queries;
 
 namespace StreamMasterApplication.Hubs;
 
@@ -34,7 +26,7 @@ public partial class StreamMasterHub : Hub<IStreamMasterHub>, ISharedHub
 
     private readonly ISender _mediator = null!;
 
-    private static readonly HashSet<string> _connections = new HashSet<string>();
+    private static readonly HashSet<string> _connections = new();
 
     public static bool IsConnected
     {

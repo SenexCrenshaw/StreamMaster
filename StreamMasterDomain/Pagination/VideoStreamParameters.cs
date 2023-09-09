@@ -7,5 +7,4 @@ public class VideoStreamParameters : QueryStringParameters
         OrderBy = "user_tvg_name desc";
     }
 
-    public string Name { get; set; }
 }

@@ -13,6 +13,7 @@ internal class SyncStreamGroupChannelGroupsRequestHandler(ILogger<SyncStreamGrou
             //await HubContext.Clients.All.VideoStreamsRefresh(ret).ConfigureAwait(false);
             await HubContext.Clients.All.StreamGroupsRefresh([ret]).ConfigureAwait(false);
             await HubContext.Clients.All.StreamGroupVideoStreamsRefresh().ConfigureAwait(false);
+            await HubContext.Clients.All.StreamGroupChannelGroupsRefresh().ConfigureAwait(false);
         }
         return ret;
 

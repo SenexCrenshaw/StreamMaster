@@ -1,12 +1,10 @@
-﻿namespace StreamMasterDomain.Pagination
-{
-    public class M3UFileParameters : QueryStringParameters
-    {
-        public M3UFileParameters()
-        {
-            OrderBy = "id desc";
-        }
+﻿namespace StreamMasterDomain.Pagination;
 
-        public string Name { get; set; }
+public class M3UFileParameters : QueryStringParameters
+{
+    public M3UFileParameters()
+    {
+        OrderBy = "id desc";
+
     }
 }

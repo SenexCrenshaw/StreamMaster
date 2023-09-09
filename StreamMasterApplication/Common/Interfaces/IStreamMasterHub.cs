@@ -13,6 +13,7 @@ public interface IStreamMasterHub : ISharedHub
     Task ProgrammesRefresh();
     Task StreamGroupsRefresh(StreamGroupDto[]? results = null);
     Task StreamGroupVideoStreamsRefresh(StreamGroupVideoStream[]? results = null);
+    Task StreamGroupChannelGroupsRefresh(StreamGroupChannelGroup[]? results = null);
     Task SettingsUpdate(SettingDto setting);
     Task StreamingStatusDtoUpdate(StreamingStatusDto result);
     Task StreamStatisticsResultsUpdate(List<StreamStatisticsResult> result);

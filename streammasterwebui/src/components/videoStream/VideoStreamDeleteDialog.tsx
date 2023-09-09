@@ -1,13 +1,11 @@
 
-import { useState, useMemo, memo } from "react";
-import { type VideoStreamsDeleteAllVideoStreamsFromParametersApiArg } from "../../store/iptvApi";
-import { type VideoStreamDto, type DeleteVideoStreamRequest, useVideoStreamsDeleteAllVideoStreamsFromParametersMutation } from "../../store/iptvApi";
-import { DeleteVideoStream } from "../../store/signlar_functions";
-import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
-import OKButton from "../buttons/OKButton";
-import DeleteButton from "../buttons/DeleteButton";
+import { memo, useMemo, useState } from "react";
 import { useQueryFilter } from "../../app/slices/useQueryFilter";
 import { useSelectAll } from "../../app/slices/useSelectAll";
+import { useVideoStreamsDeleteAllVideoStreamsFromParametersMutation, useVideoStreamsDeleteVideoStreamMutation, type VideoStreamDto, type VideoStreamsDeleteAllVideoStreamsFromParametersApiArg, type VideoStreamsDeleteVideoStreamApiArg } from "../../store/iptvApi";
+import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
+import DeleteButton from "../buttons/DeleteButton";
+import OKButton from "../buttons/OKButton";
 
 type VideoStreamDeleteDialogProps = {
   readonly iconFilled?: boolean;
@@ -30,6 +28,7 @@ const VideoStreamDeleteDialog = ({
   const [block, setBlock] = useState<boolean>(false);
 
   const [videoStreamsDeleteAllVideoStreamsFromParametersMutation] = useVideoStreamsDeleteAllVideoStreamsFromParametersMutation();
+  const [videoStreamsDeleteVideoStreamMutation] = useVideoStreamsDeleteVideoStreamMutation();
 
   const { selectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
@@ -75,11 +74,11 @@ const VideoStreamDeleteDialog = ({
     const promises = [];
 
     for (const stream of values) {
-      const data = {} as DeleteVideoStreamRequest;
+      const data = {} as VideoStreamsDeleteVideoStreamApiArg;
 
       data.id = stream.id;
       promises.push(
-        DeleteVideoStream(data).then(() => { }).catch(() => { })
+        videoStreamsDeleteVideoStreamMutation(data).then(() => { }).catch(() => { })
       );
     }
 
@@ -110,7 +109,7 @@ const VideoStreamDeleteDialog = ({
   }, [values?.length]);
 
 
-  if (skipOverLayer || (getTotalCount === 1)) {
+  if (skipOverLayer) {
     return (
       <DeleteButton disabled={isFirstDisabled} iconFilled={iconFilled} onClick={async () => await deleteVideoStream()} tooltip="Delete User Created Stream" />
     );
@@ -137,7 +136,7 @@ const VideoStreamDeleteDialog = ({
       </InfoMessageOverLayDialog>
 
       <DeleteButton
-        disabled={getTotalCount === 0 && !selectAll}
+        disabled={isFirstDisabled || getTotalCount === 0 && !selectAll}
         iconFilled={iconFilled}
         onClick={() => setShowOverlay(true)}
         tooltip="Delete User Created Streams" />

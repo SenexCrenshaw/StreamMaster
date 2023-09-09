@@ -1,48 +1,46 @@
-import React, { useState, useMemo, useCallback } from "react";
-import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
-import { useChannelGroupsGetChannelGroupNamesQuery } from "../../store/iptvApi";
-import { getTopToolOptions } from "../../common/common";
+import { Dropdown } from "primereact/dropdown";
+import React, { useCallback, useEffect, useState } from "react";
+import { getChannelGroupMenuItem, getTopToolOptions } from "../../common/common";
 import { ResetLogoIcon } from "../../common/icons";
+import { useChannelGroupsGetChannelGroupIdNamesQuery, type ChannelGroupIdName } from "../../store/iptvApi";
 import ChannelGroupAddDialog from "./ChannelGroupAddDialog";
 
-type SelectItem = {
-  label: string;
-  value: string;
-};
-
 type ChannelGroupSelectorProps = {
+  readonly className?: string;
   readonly onChange: (value: string) => void;
   readonly resetValue?: string;
   readonly value?: string;
 }
 
-const ChannelGroupSelector: React.FC<ChannelGroupSelectorProps> = ({ onChange, resetValue, value }) => {
-  const channelGroupNamesQuery = useChannelGroupsGetChannelGroupNamesQuery();
-  const [channelGroup, setChannelGroup] = useState<string | undefined>(value);
+const ChannelGroupSelector: React.FC<ChannelGroupSelectorProps> = ({ className, onChange, resetValue, value }) => {
+  const channelGroupNamesQuery = useChannelGroupsGetChannelGroupIdNamesQuery();
+  const [channelGroup, setChannelGroup] = useState<ChannelGroupIdName | undefined>(undefined);
+
+  const setChannelGroupByName = (channelGroupName: string) => {
+    if (channelGroupName && channelGroupNamesQuery.data) {
+      const foundChannelGroup = channelGroupNamesQuery.data.find((cg) => cg.name === channelGroupName);
+      if (foundChannelGroup) {
+        setChannelGroup(foundChannelGroup);
+      }
+    }
+  }
 
   // Update channel group when prop value changes
-  useMemo(() => {
-    if (value) {
-      setChannelGroup(value);
+  useEffect(() => {
+    if (value && (!channelGroup || channelGroup.name != value)) {
+      setChannelGroupByName(value);
     }
-  }, [value]);
-
-  // Prepare dropdown options from API data
-  const options: SelectItem[] = useMemo(() => {
-    if (!channelGroupNamesQuery.data) return [];
-
-    return channelGroupNamesQuery.data.map((cg) => ({ label: cg, value: cg }));
-  }, [channelGroupNamesQuery.data]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setChannelGroupByName, value]);
 
   const onChannelGroupAddDialogClose = (newGroupName: string) => {
-    setChannelGroup(newGroupName);
     onChange(newGroupName);
   };
 
   const handleResetClick = () => {
-    if (resetValue) {
-      setChannelGroup(resetValue);
+    if (resetValue && channelGroup?.name != resetValue) {
+      setChannelGroupByName(resetValue);
       onChange(resetValue);
     }
   };
@@ -68,34 +66,32 @@ const ChannelGroupSelector: React.FC<ChannelGroupSelectorProps> = ({ onChange, r
     </div>
   );
 
-  const selectedTemplate = useCallback((option: SelectItem) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const selectedTemplate = useCallback((option: any) => {
     if (!option) return;
 
-    return <div className='flex h-full justify-content-start align-items-center p-0 m-0'>{option.label}</div>;
+    return <div className=''>{option.name}</div>;
   }, []);
 
   return (
-    <div className="iconSelector flex w-full justify-content-start align-items-center">
+    <div className="flex w-full">
       <Dropdown
-        className='iconSelector p-0 m-0 w-full'
+        className={`w-full ${className}`}
         filter
         filterInputAutoFocus
+        itemTemplate={(option) => getChannelGroupMenuItem(option.id, option.name)}
         onChange={(e) => onChange(e.value)}
-        options={options}
+        optionLabel="name"
+        options={channelGroupNamesQuery.data}
         panelFooterTemplate={footerTemplate}
         placeholder="No Group"
-        style={{
-          backgroundColor: 'var(--mask-bg)',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-        }}
         value={channelGroup}
         valueTemplate={selectedTemplate}
       />
     </div>
   );
 }
+
 
 ChannelGroupSelector.displayName = 'Channel Group Dropdown';
 

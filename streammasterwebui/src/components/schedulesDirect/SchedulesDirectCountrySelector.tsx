@@ -1,14 +1,14 @@
 
-import React from "react";
-import * as StreamMasterApi from '../../store/iptvApi';
-import { Toast } from 'primereact/toast';
 import { Dropdown } from "primereact/dropdown";
+import { Toast } from 'primereact/toast';
+import React from "react";
+import { useSchedulesDirectGetCountriesQuery } from "../../store/iptvApi";
 
 const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorProps) => {
   const toast = React.useRef<Toast>(null);
   const [country, setCountry] = React.useState<string>('USA');
 
-  const getCountriesQuery = StreamMasterApi.useSchedulesDirectGetCountriesQuery();
+  const getCountriesQuery = useSchedulesDirectGetCountriesQuery();
 
   React.useEffect(() => {
     if (props.value !== undefined && props.value !== null && props.value !== '') {

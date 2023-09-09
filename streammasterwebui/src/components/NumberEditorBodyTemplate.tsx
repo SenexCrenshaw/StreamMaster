@@ -1,13 +1,12 @@
 
+import { Button } from "primereact/button";
+import { useClickOutside } from "primereact/hooks";
 import { InputNumber } from "primereact/inputnumber";
 import { type TooltipOptions } from "primereact/tooltip/tooltipoptions";
-import { type CSSProperties } from "react";
-import React from "react";
+import React, { type CSSProperties } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { getTopToolOptions } from "../common/common";
-import { Button } from "primereact/button";
 import { ResetLogoIcon } from "../common/icons";
-import { useClickOutside } from "primereact/hooks";
 
 const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProps) => {
   const [inputValue, setInputValue] = React.useState<number>(0);
@@ -81,9 +80,7 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProps) => {
 
 
   return (
-    <div className='relative' ref={overlayRef}
-      style={props.style}
-    >
+    <div className='flex h-full' ref={overlayRef} style={props.style}>
       {(isFocused && props.resetValue !== undefined && props.resetValue !== 0 && props.resetValue !== inputValue) &&
         <Button
           className="absolute mt-1 right-0"
@@ -102,7 +99,7 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProps) => {
         />
       }
       <InputNumber
-        className="text-sm w-full"
+        className="w-full h-full"
         locale="en-US"
         onChange={(e) => {
           debounced(e.value as number);

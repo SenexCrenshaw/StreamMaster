@@ -38,9 +38,9 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         return FindAll();
     }
 
-    public IQueryable<string> GetAllChannelGroupNames()
+    public IEnumerable<ChannelGroupIdName> GetAllChannelGroupNames()
     {
-        return FindAll().OrderBy(a => a.Name).Select(a => a.Name);
+        return FindAll().OrderBy(a => a.Name).Select(a => new ChannelGroupIdName { Name = a.Name, Id = a.Id });
     }
 
     public async Task<PagedResponse<ChannelGroupDto>> GetChannelGroupsAsync(ChannelGroupParameters channelGroupParameters)
@@ -187,5 +187,10 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         List<ChannelGroupDto> ret = _mapper.Map<List<ChannelGroupDto>>(res);
 
         return Task.FromResult(ret);
+    }
+
+    public PagedResponse<ChannelGroupDto> CreateEmptyPagedResponse(ChannelGroupParameters parameters)
+    {
+        throw new NotImplementedException();
     }
 }

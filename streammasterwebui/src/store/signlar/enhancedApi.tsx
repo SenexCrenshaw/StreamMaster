@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { hubConnection } from '../../app/signalr';
-import * as StreamMasterApi from '../iptvApi';
+import { iptvApi, type EpgGuide, type SettingDto, type StationPreview, type SystemStatus, type TaskQueueStatusDto } from '../iptvApi';
 
-export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
+export const enhancedApi = iptvApi.enhanceEndpoints({
   endpoints: {
 
     schedulesDirectGetStationPreviews: {
@@ -14,10 +14,10 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const applyResults = (
-            data: StreamMasterApi.StationPreview[]
+            data: StationPreview[]
           ) => {
             updateCachedData(
-              (draft: StreamMasterApi.StationPreview[]) => {
+              (draft: StationPreview[]) => {
                 data.forEach(function (cn) {
                   const foundIndex = draft.findIndex(
                     (x) => x.id === cn.id
@@ -37,18 +37,18 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
 
           hubConnection.on(
             'StationPreviewsUpdate',
-            (data: StreamMasterApi.StationPreview[]) => {
+            (data: StationPreview[]) => {
               applyResults(data);
             }
           );
 
 
           const applyResult = (
-            data: StreamMasterApi.StationPreview
+            data: StationPreview
           ) => {
             updateCachedData(
               (
-                draft: StreamMasterApi.StationPreview[]
+                draft: StationPreview[]
               ) => {
                 const foundIndex = draft.findIndex(
                   (x) => x.id === data.id
@@ -67,7 +67,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
 
           hubConnection.on(
             'StationPreviewUpdate',
-            (data: StreamMasterApi.StationPreview) => {
+            (data: StationPreview) => {
               applyResult(data);
             }
           );
@@ -77,7 +77,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
           ) => {
             updateCachedData(
               (
-                draft: StreamMasterApi.StationPreview[]
+                draft: StationPreview[]
               ) => {
                 return draft.filter((obj) => obj.id !== id);
               }
@@ -106,10 +106,10 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const applyResults = (
-            data: StreamMasterApi.TaskQueueStatusDto[]
+            data: TaskQueueStatusDto[]
           ) => {
             updateCachedData(
-              (draft: StreamMasterApi.TaskQueueStatusDto[]) => {
+              (draft: TaskQueueStatusDto[]) => {
                 data.forEach(function (cn) {
                   const foundIndex = draft.findIndex(
                     (x) => x.id === cn.id
@@ -129,18 +129,18 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
 
           hubConnection.on(
             'TaskQueueStatusDtoesUpdate',
-            (data: StreamMasterApi.TaskQueueStatusDto[]) => {
+            (data: TaskQueueStatusDto[]) => {
               applyResults(data);
             }
           );
 
 
           const applyResult = (
-            data: StreamMasterApi.TaskQueueStatusDto
+            data: TaskQueueStatusDto
           ) => {
             updateCachedData(
               (
-                draft: StreamMasterApi.TaskQueueStatusDto[]
+                draft: TaskQueueStatusDto[]
               ) => {
                 const foundIndex = draft.findIndex(
                   (x) => x.id === data.id
@@ -159,7 +159,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
 
           hubConnection.on(
             'TaskQueueStatusDtoUpdate',
-            (data: StreamMasterApi.TaskQueueStatusDto) => {
+            (data: TaskQueueStatusDto) => {
               applyResult(data);
             }
           );
@@ -171,7 +171,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
           ) => {
             updateCachedData(
               (
-                draft: StreamMasterApi.TaskQueueStatusDto[]
+                draft: TaskQueueStatusDto[]
               ) => {
                 return draft.filter((obj) => obj.id !== id);
               }
@@ -200,7 +200,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const applyResult = (
-            data: StreamMasterApi.SettingDto
+            data: SettingDto
           ) => {
             updateCachedData(
               (
@@ -212,7 +212,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
 
           hubConnection.on(
             'SettingDtoUpdate',
-            (data: StreamMasterApi.SettingDto) => {
+            (data: SettingDto) => {
               applyResult(data);
             }
           );
@@ -232,7 +232,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const applyResult = (
-            data: StreamMasterApi.SystemStatus
+            data: SystemStatus
           ) => {
             updateCachedData(
               (
@@ -244,7 +244,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
 
           hubConnection.on(
             'SystemStatusUpdate',
-            (data: StreamMasterApi.SystemStatus) => {
+            (data: SystemStatus) => {
               applyResult(data);
             }
           );
@@ -264,7 +264,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const applyResult = (
-            data: StreamMasterApi.EpgGuide
+            data: EpgGuide
           ) => {
             updateCachedData(
               (
@@ -276,7 +276,7 @@ export const enhancedApi = StreamMasterApi.iptvApi.enhanceEndpoints({
 
           hubConnection.on(
             'EpgGuideUpdate',
-            (data: StreamMasterApi.EpgGuide) => {
+            (data: EpgGuide) => {
               applyResult(data);
             }
           );

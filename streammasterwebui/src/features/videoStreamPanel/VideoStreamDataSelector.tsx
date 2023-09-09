@@ -1,11 +1,10 @@
-import { useMemo, memo, useEffect, useState } from "react";
+import { skipToken } from "@reduxjs/toolkit/dist/query";
+import { memo, useEffect, useMemo, useState } from "react";
 import { GetMessage } from "../../common/common";
-import { type ChildVideoStreamDto } from "../../store/iptvApi";
-import { useVideoStreamLinksAddVideoStreamToVideoStreamMutation, type VideoStreamLinksAddVideoStreamToVideoStreamApiArg } from "../../store/iptvApi";
-import { useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery, useVideoStreamsGetVideoStreamsQuery } from "../../store/iptvApi";
-import { useChannelNumberColumnConfig, useChannelNameColumnConfig } from "../../components/columns/columnConfigHooks";
+import { useChannelNameColumnConfig, useChannelNumberColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
+import { useVideoStreamLinksAddVideoStreamToVideoStreamMutation, useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery, useVideoStreamsGetVideoStreamsQuery, type ChildVideoStreamDto, type VideoStreamLinksAddVideoStreamToVideoStreamApiArg } from "../../store/iptvApi";
 
 type VideoStreamDataSelectorProps = {
   readonly id: string;
@@ -18,10 +17,10 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
 
   const [videoStreamIds, setVideoStreamIds] = useState<string[]>([] as string[]);
 
-  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig(false);
-  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig(false);
+  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: false });
+  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit: false });
 
-  const videoStreamLinksGetVideoStreamVideoStreamIdsQuery = useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery(videoStreamId ?? '');
+  const videoStreamLinksGetVideoStreamVideoStreamIdsQuery = useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery(videoStreamId ?? skipToken);
 
 
   const [videoStreamLinksAddVideoStreamToVideoStreamMutation] = useVideoStreamLinksAddVideoStreamToVideoStreamMutation();
@@ -52,7 +51,7 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
     );
   }, []);
 
-
+  console.log("videostreamdataselector")
 
   return (
     <DataSelector
@@ -85,7 +84,7 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
       }}
       queryFilter={useVideoStreamsGetVideoStreamsQuery}
       selectionMode='single'
-      style={{ height: 'calc(100vh - 134px)' }}
+      style={{ height: 'calc(100vh - 480px)' }}
       videoStreamIdsIsReadOnly={(videoStreamIds || [])}
     />
   );

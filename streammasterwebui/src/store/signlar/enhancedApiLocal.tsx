@@ -1,24 +1,43 @@
-
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { hubConnection } from '../../app/signalr';
 import { isEmptyObject } from '../../common/common';
-import * as StreamMasterApi from '../iptvApi';
+import { iptvApi, type PagedResponseOfStreamGroupDto, type PagedResponseOfVideoStreamDto, type SettingDto, type StreamGroupDto, type StreamStatisticsResult, type VideoStreamDto } from '../iptvApi';
 
 export type SetVideoStreamVisibleRet = {
   isHidden?: boolean;
   videoStreamId?: string;
 };
 
-export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
-  // addTagTypes: ["GetStreamGroupVideoStreams"],
+
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
+const applyPagedResults = <T extends unknown>(
+  data: T[],
+  draft: T[],
+  idGetter: (item: T) => unknown
+) => {
+  data.forEach((cn) => {
+    const foundIndex = draft.findIndex(
+      (x: T) => idGetter(x) === idGetter(cn)
+    );
+    if (foundIndex !== -1) {
+      draft[foundIndex] = cn;
+    }
+  });
+  return draft;
+};
+
+
+export const enhancedApiLocal = iptvApi.enhanceEndpoints({
   endpoints: {
     channelGroupsGetChannelGroupNames: {
       async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
+          hubConnection.off('ChannelGroupsRefresh');
           hubConnection.on(
             'ChannelGroupsRefresh',
             () => {
-              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["ChannelGroups"]));
+              dispatch(iptvApi.util.invalidateTags(["ChannelGroups"]));
             }
           );
         } catch { }
@@ -30,10 +49,11 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
       async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
+          hubConnection.off('ChannelGroupsRefresh');
           hubConnection.on(
             'ChannelGroupsRefresh',
             () => {
-              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["ChannelGroups"]));
+              dispatch(iptvApi.util.invalidateTags(["ChannelGroups"]));
             }
           );
         } catch { }
@@ -45,10 +65,11 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
       async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
+          hubConnection.off('EPGFilesRefresh');
           hubConnection.on(
             'EPGFilesRefresh',
             () => {
-              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["EPGFiles"]));
+              dispatch(iptvApi.util.invalidateTags(["EPGFiles"]));
             }
           );
         } catch { }
@@ -60,10 +81,11 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
       async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
+          hubConnection.off('IconsRefresh');
           hubConnection.on(
             'IconsRefresh',
             () => {
-              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["Icons"]));
+              dispatch(iptvApi.util.invalidateTags(["Icons"]));
             }
           );
         } catch { }
@@ -75,10 +97,11 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
       async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
+          hubConnection.off('M3UFilesRefresh');
           hubConnection.on(
             'M3UFilesRefresh',
             () => {
-              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["M3UFiles"]));
+              dispatch(iptvApi.util.invalidateTags(["M3UFiles"]));
             }
           );
         } catch { }
@@ -90,10 +113,11 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
       async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
+          hubConnection.off('ProgrammesRefresh');
           hubConnection.on(
             'ProgrammesRefresh',
             () => {
-              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["Programmes"]));
+              dispatch(iptvApi.util.invalidateTags(["Programmes"]));
             }
           );
         } catch { }
@@ -105,10 +129,12 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
       async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
+          hubConnection.off('ProgrammesRefresh');
           hubConnection.on(
             'ProgrammesRefresh',
             () => {
-              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["Programmes"]));
+              dispatch(iptvApi.util.invalidateTags(["Programmes"]));
+              hubConnection.off('ProgrammesRefresh');
             }
           );
         } catch { }
@@ -124,24 +150,44 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
         try {
           await cacheDataLoaded;
 
-          const applyResult = (data: StreamMasterApi.SettingDto) => {
-            updateCachedData((draft: StreamMasterApi.SettingDto) => {
+          const applyResult = (data: SettingDto) => {
+            updateCachedData((draft: SettingDto) => {
               draft = data;
 
               return draft;
             });
           };
 
+          hubConnection.off('SettingsUpdate');
           hubConnection.on(
             'SettingsUpdate',
-            (data: StreamMasterApi.SettingDto) => {
+            (data: SettingDto) => {
               applyResult(data);
             },
           );
+
         } catch { }
 
         await cacheEntryRemoved;
       },
+    },
+    streamGroupChannelGroupGetChannelGroupsFromStreamGroup: {
+      async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
+        try {
+          await cacheDataLoaded;
+
+          hubConnection.off('StreamGroupChannelGroupsRefresh');
+          hubConnection.on(
+            'StreamGroupChannelGroupsRefresh',
+            () => {
+              dispatch(iptvApi.util.invalidateTags(["StreamGroupChannelGroup"]));
+            }
+          );
+
+        } catch { }
+
+        await cacheEntryRemoved;
+      }
     },
     streamGroupsGetStreamGroups: {
       async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -149,10 +195,9 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const applyResults = (
-            data: StreamMasterApi.StreamGroupDto[]
+            data: StreamGroupDto[]
           ) => {
-            updateCachedData((draft: StreamMasterApi.PagedResponseOfStreamGroupDto) => {
-
+            updateCachedData((draft: PagedResponseOfStreamGroupDto) => {
               data.forEach(function (cn) {
                 const foundIndex = draft.data.findIndex(
                   (x) => x.id === cn.id
@@ -168,15 +213,15 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
             );
           };
 
+          hubConnection.off('StreamGroupsRefresh');
           hubConnection.on(
             'StreamGroupsRefresh',
-            (data: StreamMasterApi.StreamGroupDto[]) => {
+            (data: StreamGroupDto[]) => {
               if (isEmptyObject(data)) {
-                dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["StreamGroups"]));
+                dispatch(iptvApi.util.invalidateTags(["StreamGroups"]));
               } else {
                 applyResults(data);
               }
-
             }
           );
         } catch { }
@@ -188,12 +233,15 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
       async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
+
+          hubConnection.off('StreamGroupVideoStreamsRefresh');
           hubConnection.on(
             'StreamGroupVideoStreamsRefresh',
             () => {
-              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["StreamGroupVideoStreams"]));
+              dispatch(iptvApi.util.invalidateTags(["StreamGroupVideoStreams"]));
             }
           );
+
         } catch { }
 
         await cacheEntryRemoved;
@@ -205,7 +253,7 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const applyResults = (
-            data: StreamMasterApi.StreamStatisticsResult[]
+            data: StreamStatisticsResult[]
           ) => {
             updateCachedData(
               () => {
@@ -215,9 +263,10 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
             );
           };
 
+          hubConnection.off('streamstatisticsresultsupdate');
           hubConnection.on(
             'streamstatisticsresultsupdate',
-            (data: StreamMasterApi.StreamStatisticsResult[]) => {
+            (data: StreamStatisticsResult[]) => {
               applyResults(data);
             }
           );
@@ -230,15 +279,40 @@ export const enhancedApiLocal = StreamMasterApi.iptvApi.enhanceEndpoints({
       }
     },
     videoStreamsGetVideoStreams: {
-      async onCacheEntryAdded(api, { dispatch, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
+
+          const applyResults = (
+            data: VideoStreamDto[]
+          ) => {
+            updateCachedData((draft: PagedResponseOfVideoStreamDto) => {
+
+              const updatedDraft = applyPagedResults(
+                data,
+                draft.data,
+                (item: VideoStreamDto) => item.id
+              );
+              draft.data = updatedDraft;
+              return draft;
+
+            });
+          };
+
+          hubConnection.off('VideoStreamsRefresh');
           hubConnection.on(
             'VideoStreamsRefresh',
-            () => {
-              dispatch(StreamMasterApi.iptvApi.util.invalidateTags(["VideoStreams"]));
+            (data: VideoStreamDto[]) => {
+              // dispatch(iptvApi.util.invalidateTags(["VideoStreams"]));
+              // if (isEmptyObject(data)) {
+              //   dispatch(iptvApi.util.invalidateTags(["VideoStreams"]));
+              // } else {
+              //   applyResults(data);
+              // }
+
             }
           );
+
         } catch { }
 
         await cacheEntryRemoved;
