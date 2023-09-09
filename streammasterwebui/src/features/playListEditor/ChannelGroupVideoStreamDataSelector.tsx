@@ -99,7 +99,7 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
         <VideoStreamResetLogosDialog id={dataKey} values={selectedVideoStreams} />
         <VideoStreamSetLogosFromEPGDialog id={dataKey} values={selectedVideoStreams} />
         <AutoSetChannelNumbers id={dataKey} values={selectedVideoStreams} />
-        <VideoStreamVisibleDialog iconFilled id={dataKey} values={selectedVideoStreams} />
+        <VideoStreamVisibleDialog id={dataKey} values={selectedVideoStreams} />
         <VideoStreamDeleteDialog iconFilled id={dataKey} values={selectedVideoStreams} />
         <VideoStreamAddDialog group={props.channelGroupNames?.[0]} />
       </div>

@@ -1,8 +1,7 @@
-import React from "react";
 import { InputText } from "primereact/inputtext";
-import { type ChannelGroupDto, type UpdateChannelGroupRequest } from "../../store/iptvApi";
-import { useChannelGroupsUpdateChannelGroupMutation } from "../../store/iptvApi";
+import React from "react";
 import { GetMessage } from "../../common/common";
+import { useChannelGroupsUpdateChannelGroupMutation, type ChannelGroupDto, type UpdateChannelGroupRequest } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import EditButton from "../buttons/EditButton";
 
@@ -35,7 +34,7 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
   const changeGroupName = React.useCallback(() => {
     setBlock(true);
 
-    if (!newGroupName || !props.value) {
+    if (!newGroupName || !props.value?.id) {
       ReturnToParent();
 
       return;
@@ -43,7 +42,7 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
 
     const toSend = {} as UpdateChannelGroupRequest;
 
-    toSend.channelGroupName = props.value?.name;
+    toSend.channelGroupId = props.value.id;
     toSend.newGroupName = newGroupName;
 
     channelGroupsUpdateChannelGroupMutation(toSend).then(() => {

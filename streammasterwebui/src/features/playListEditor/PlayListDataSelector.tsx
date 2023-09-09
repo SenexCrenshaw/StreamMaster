@@ -37,7 +37,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       </div>
 
       <ChannelGroupEditDialog value={data} />
-      <ChannelGroupVisibleDialog skipOverLayer value={[data]} />
+      <ChannelGroupVisibleDialog id={dataKey} skipOverLayer value={[data]} />
 
     </div>
 
@@ -72,7 +72,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         {props.hideControls !== true &&
           <>
             <TriSelect dataKey={dataKey} />
-            <ChannelGroupVisibleDialog value={selectedChannelGroups} />
+            <ChannelGroupVisibleDialog id={dataKey} value={selectedChannelGroups} />
             <ChannelGroupDeleteDialog iconFilled id={dataKey} values={selectedChannelGroups} />
           </>
         }

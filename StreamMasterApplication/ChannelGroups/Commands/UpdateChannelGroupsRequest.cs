@@ -24,7 +24,7 @@ public class UpdateChannelGroupsRequestHandler : BaseMediatorRequestHandler, IRe
         foreach (UpdateChannelGroupRequest request in requests.ChannelGroupRequests)
         {
 
-            await Sender.Send(new UpdateChannelGroupRequest(request.ChannelGroupName, request.NewGroupName, request.IsHidden, request.Rank), cancellationToken).ConfigureAwait(false);
+            await Sender.Send(new UpdateChannelGroupRequest(request.ChannelGroupId, request.NewGroupName, request.IsHidden, request.Rank, request.ToggleVisibility), cancellationToken).ConfigureAwait(false);
 
         }
 

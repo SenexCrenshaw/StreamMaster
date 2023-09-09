@@ -3,4 +3,4 @@
 namespace StreamMasterDomain.Dto;
 
 
-public record UpdateChannelGroupRequest(string ChannelGroupName, string? NewGroupName, bool? IsHidden, int? Rank) : IRequest { }
+public record UpdateChannelGroupRequest(int ChannelGroupId, string? NewGroupName, bool? IsHidden, int? Rank, bool? ToggleVisibility) : IRequest { }

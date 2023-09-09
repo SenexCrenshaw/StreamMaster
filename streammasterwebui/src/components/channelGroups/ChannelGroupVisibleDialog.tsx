@@ -1,23 +1,26 @@
 
-import React from "react";
-import { type ChannelGroupDto, type UpdateChannelGroupRequest, type UpdateChannelGroupsRequest } from "../../store/iptvApi";
-import { useChannelGroupsUpdateChannelGroupsMutation } from "../../store/iptvApi";
+import React, { useMemo } from "react";
+import { useSelectAll } from "../../app/slices/useSelectAll";
+import { useChannelGroupsUpdateChannelGroupsMutation, type ChannelGroupDto, type UpdateChannelGroupRequest, type UpdateChannelGroupsRequest } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import VisibleButton from "../buttons/VisibleButton";
 
 
 type ChannelGroupVisibleDialogProps = {
+  readonly id: string;
   readonly onClose?: (() => void);
   readonly skipOverLayer?: boolean | undefined;
   readonly value?: ChannelGroupDto[] | null;
 };
 
-const ChannelGroupVisibleDialog = ({ onClose, skipOverLayer, value }: ChannelGroupVisibleDialogProps) => {
+const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer, value }: ChannelGroupVisibleDialogProps) => {
 
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
   const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
   const [infoMessage, setInfoMessage] = React.useState('');
+
+  const { selectAll } = useSelectAll(id);
 
   const [channelGroupsUpdateChannelGroupsMutation] = useChannelGroupsUpdateChannelGroupsMutation();
 
@@ -47,28 +50,36 @@ const ChannelGroupVisibleDialog = ({ onClose, skipOverLayer, value }: ChannelGro
 
     const data = {} as UpdateChannelGroupsRequest;
 
-    data.channelGroupRequests = selectedChannelGroups.map((item) => { return { channelGroupName: item.name, isHidden: !item.isHidden } as UpdateChannelGroupRequest; });
+    data.channelGroupRequests = selectedChannelGroups.map((item) => { return { channelGroupId: item.id, toggleVisibility: true } as UpdateChannelGroupRequest; });
 
     channelGroupsUpdateChannelGroupsMutation(data).then(() => {
-      setInfoMessage('Channel Group Set Visibilty Successfully');
+      setInfoMessage('Channel Group Toggle Visibility Successfully');
     }).catch((e) => {
-      setInfoMessage('Channel Group Set Visibilty Error: ' + e.message);
+      setInfoMessage('Channel Group Toggle Visibility Error: ' + e.message);
     });
 
   }, [ReturnToParent, channelGroupsUpdateChannelGroupsMutation, selectedChannelGroups]);
 
 
+  const getTotalCount = useMemo(() => {
+
+    if (selectAll) {
+      return 100;
+    }
+
+    return selectedChannelGroups?.length ?? 0;
+
+  }, [selectAll, selectedChannelGroups?.length]);
+
+
   if (skipOverLayer === true) {
     return (
-
       <VisibleButton
-        disabled={selectedChannelGroups.length === 0}
+        disabled={getTotalCount === 0}
         iconFilled={false}
         onClick={async () => await onVisibleClick()}
-        tooltip="Set Visibilty"
+        tooltip="Toggle Visibility"
       />
-
-
     )
   }
 
@@ -78,27 +89,20 @@ const ChannelGroupVisibleDialog = ({ onClose, skipOverLayer, value }: ChannelGro
       <InfoMessageOverLayDialog
         blocked={block}
         closable
-        header={`Toggle visibility for ${selectedChannelGroups.length < 2 ? selectedChannelGroups.length + ' Group ?' : selectedChannelGroups.length + ' Groups ?'}`}
+        header='Toggle Visibility?'
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
         show={showOverlay}
       >
 
-        <div className='m-0 p-0 border-1 border-round surface-border'>
-          <div className='m-3'>
-            <h3 />
-
-            <div className="flex col-12 mt-3 gap-2 justify-content-end">
-              <VisibleButton label='Set Visibilty' onClick={async () => await onVisibleClick()} tooltip='Set Visibilty' />
-
-            </div>
-          </div>
+        <div className="flex justify-content-center w-full">
+          <VisibleButton label='Toggle Visibility' onClick={async () => await onVisibleClick()} tooltip='Toggle2 Visibility' />
         </div>
 
       </InfoMessageOverLayDialog>
 
       <VisibleButton
-        disabled={selectedChannelGroups.length === 0}
+        disabled={getTotalCount === 0}
         onClick={async () => {
           if (selectedChannelGroups.length > 1) {
             setShowOverlay(true);
@@ -107,28 +111,8 @@ const ChannelGroupVisibleDialog = ({ onClose, skipOverLayer, value }: ChannelGro
           }
         }
         }
-        tooltip="Set Visibilty"
+        tooltip="Toggle2 Visibility"
       />
-
-      {/* <Button
-        disabled={selectedChannelGroups.length === 0}
-        icon="pi pi-power-off"
-        onClick={async () => {
-          if (selectedChannelGroups.length > 1) {
-            setShowOverlay(true);
-          } else {
-            await onVisibleClick();
-          }
-        }
-        }
-        rounded
-        severity="info"
-        size="small"
-        text={iconFilled !== true}
-        tooltip="Set Visibilty"
-        tooltipOptions={getTopToolOptions}
-      /> */}
-
     </>
   );
 }

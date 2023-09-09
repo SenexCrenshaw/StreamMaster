@@ -26,8 +26,6 @@ namespace StreamMasterDomain.Repository
         Task<List<VideoStreamDto>> SetVideoStreamsLogoFromEPGFromIds(List<string> VideoStreamIds, CancellationToken cancellationToken);
         Task<List<VideoStreamDto>> ReSetVideoStreamsLogoFromIds(List<string> VideoStreamIds, CancellationToken cancellationToken);
         Task<List<VideoStreamDto>> ReSetVideoStreamsLogoFromParameters(VideoStreamParameters Parameters, CancellationToken cancellationToken);
-        Task<List<VideoStreamDto>> SetGroupVisibleByGroupName(string channelGroupName, bool isHidden, CancellationToken cancellationToken);
-
         Task<List<VideoStreamDto>> SetVideoStreamChannelNumbersFromIds(List<string> VideoStreamIds, bool OverWriteExisting, int StartNumber, string OrderBy, CancellationToken cancellationToken);
         Task<List<VideoStreamDto>> SetVideoStreamChannelNumbersFromParameters(VideoStreamParameters Parameters, bool OverWriteExisting, int StartNumber, CancellationToken cancellationToken);
 
@@ -52,5 +50,7 @@ namespace StreamMasterDomain.Repository
         Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(string videoStreamId, CancellationToken cancellationToken = default);
 
         Task<VideoStreamDto?> GetVideoStreamDtoByIdAsync(string VideoStreamId, CancellationToken cancellationToken = default);
+        //Task<List<VideoStreamDto>> SetGroupVisibleByGroupId(int id, bool isHidden, CancellationToken cancellationToken);
+        Task<List<VideoStreamDto>> SetGroupVisibleByGroupName(string channelGroupName, bool isHidden, CancellationToken cancellationToken);
     }
 }

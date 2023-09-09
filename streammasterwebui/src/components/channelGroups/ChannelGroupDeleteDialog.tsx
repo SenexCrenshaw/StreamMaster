@@ -1,12 +1,10 @@
 import React, { useMemo } from "react";
-import { type ChannelGroupsDeleteAllChannelGroupsFromParametersApiArg } from "../../store/iptvApi";
-import { useChannelGroupsDeleteAllChannelGroupsFromParametersMutation, type ChannelGroupDto, type DeleteChannelGroupRequest } from "../../store/iptvApi";
-import { useChannelGroupsDeleteChannelGroupMutation } from "../../store/iptvApi";
-import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
-import DeleteButton from "../buttons/DeleteButton";
 import { useChannelGroupToRemove } from "../../app/slices/useChannelGroupToRemove";
 import { useQueryFilter } from "../../app/slices/useQueryFilter";
 import { useSelectAll } from "../../app/slices/useSelectAll";
+import { useChannelGroupsDeleteAllChannelGroupsFromParametersMutation, useChannelGroupsDeleteChannelGroupMutation, type ChannelGroupDto, type ChannelGroupsDeleteAllChannelGroupsFromParametersApiArg, type DeleteChannelGroupRequest } from "../../store/iptvApi";
+import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
+import DeleteButton from "../buttons/DeleteButton";
 
 type ChannelGroupDeleteDialogProps = {
   readonly iconFilled?: boolean | undefined;
@@ -157,12 +155,8 @@ const ChannelGroupDeleteDialog = ({
         onClose={() => { ReturnToParent(); }}
         show={showOverlay}
       >
-        <div className='m-0 p-0 border-1 border-round surface-border'>
-          <div className='m-3'>
-            <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
-              <DeleteButton disabled={getTotalCount === 0 && !selectAll} label="Delete Groups" onClick={async () => await deleteGroup()} tooltip="Delete User Created Groups" />
-            </div>
-          </div>
+        <div className="flex justify-content-center w-full">
+          <DeleteButton disabled={getTotalCount === 0 && !selectAll} label="Delete Groups" onClick={async () => await deleteGroup()} tooltip="Delete User Created Groups" />
         </div>
       </InfoMessageOverLayDialog>
 

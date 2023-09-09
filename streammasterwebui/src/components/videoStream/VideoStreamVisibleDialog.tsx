@@ -1,12 +1,9 @@
-import { useState, useCallback, useMemo, memo } from "react";
-import { type VideoStreamsUpdateAllVideoStreamsFromParametersApiArg } from "../../store/iptvApi";
-import { type VideoStreamDto, type UpdateVideoStreamsRequest, type UpdateVideoStreamRequest, useVideoStreamsUpdateAllVideoStreamsFromParametersMutation } from "../../store/iptvApi";
-import { useVideoStreamsUpdateVideoStreamsMutation } from "../../store/iptvApi";
-import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
+import { memo, useCallback, useMemo, useState } from "react";
 import { useQueryFilter } from "../../app/slices/useQueryFilter";
-import VisibleButton from "../buttons/VisibleButton";
-import OKButton from "../buttons/OKButton";
 import { useSelectAll } from "../../app/slices/useSelectAll";
+import { useVideoStreamsUpdateAllVideoStreamsFromParametersMutation, useVideoStreamsUpdateVideoStreamsMutation, type UpdateVideoStreamRequest, type UpdateVideoStreamsRequest, type VideoStreamDto, type VideoStreamsUpdateAllVideoStreamsFromParametersApiArg } from "../../store/iptvApi";
+import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
+import VisibleButton from "../buttons/VisibleButton";
 
 type VideoStreamVisibleDialogProps = {
   readonly iconFilled?: boolean;
@@ -17,8 +14,8 @@ type VideoStreamVisibleDialogProps = {
 };
 
 const VideoStreamVisibleDialog = ({
-  iconFilled,
   id,
+  iconFilled,
   onClose,
   skipOverLayer,
   values,
@@ -79,10 +76,10 @@ const VideoStreamVisibleDialog = ({
 
       videoStreamsUpdateAllVideoStreamsFromParametersMutation(toSendAll)
         .then(() => {
-          setInfoMessage('Set Stream Visibility Successfully');
+          setInfoMessage('Toggle Stream Visibility Successfully');
         }
         ).catch((error) => {
-          setInfoMessage('Set Stream Visibility Error: ' + error.message);
+          setInfoMessage('Toggle Stream Visibility Error: ' + error.message);
         });
 
       return;
@@ -121,13 +118,13 @@ const VideoStreamVisibleDialog = ({
       <VisibleButton
         disabled={getTotalCount === 0}
         iconFilled={false}
+        label='Toggle Visibility'
         onClick={async () => await onVisiblesClick()}
         tooltip='Toggle Visibility'
       />
 
     );
   }
-
 
 
   return (
@@ -142,13 +139,8 @@ const VideoStreamVisibleDialog = ({
         show={showOverlay}
       >
 
-        <div className='m-0 p-0 border-1 border-round surface-border'>
-          <div className='m-3'>
-            <h3 />
-            <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
-              <OKButton onClick={async () => await onVisiblesClick()} />
-            </div>
-          </div>
+        <div className="flex justify-content-center w-full">
+          <VisibleButton disabled={getTotalCount === 0 && !selectAll} onClick={async () => await onVisiblesClick()} />
         </div>
 
       </InfoMessageOverLayDialog >

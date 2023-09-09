@@ -96,7 +96,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
 
     public async Task<ChannelGroup?> GetChannelGroupById(int Id)
     {
-        return await FindByCondition(channelGroup => channelGroup.Id == Id).FirstOrDefaultAsync();
+        return await FindByCondition(channelGroup => channelGroup.Id == Id).AsNoTracking().FirstOrDefaultAsync();
     }
 
     public async Task<ChannelGroupDto?> GetChannelGroupAsync(int Id, CancellationToken cancellationToken = default)

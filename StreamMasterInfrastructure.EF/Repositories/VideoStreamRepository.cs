@@ -178,17 +178,23 @@ public class VideoStreamRepository(RepositoryContext repositoryContext, IMapper 
 
     public async Task<List<VideoStreamDto>> SetGroupVisibleByGroupName(string channelGroupName, bool isHidden, CancellationToken cancellationToken)
     {
+
         await RepositoryContext.VideoStreams
             .Where(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroupName)
             .ExecuteUpdateAsync(s => s.SetProperty(b => b.IsHidden, isHidden), cancellationToken: cancellationToken)
             .ConfigureAwait(false);
+
+        //await RepositoryContext.ChannelGroups
+        //  .Where(a => a.Name == channelGroupName)
+        //  .ExecuteUpdateAsync(s => s.SetProperty(b => b.IsHidden, isHidden), cancellationToken: cancellationToken)
+        //  .ConfigureAwait(false);
 
         List<VideoStreamDto> videoStreamsToUpdate = await RepositoryContext.VideoStreams
            .Where(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroupName)
            .AsNoTracking()
            .ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider)
            .ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-
+        _ = await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         return videoStreamsToUpdate;
     }
 

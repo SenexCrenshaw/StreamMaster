@@ -696,15 +696,6 @@ const injectedRtkApi = api
         }),
         providesTags: ["StreamGroups"],
       }),
-      streamGroupsGetStreamGroupByStreamNumber: build.query<
-        StreamGroupsGetStreamGroupByStreamNumberApiResponse,
-        StreamGroupsGetStreamGroupByStreamNumberApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/streamgroups/getstreamgroupbystreamnumber/${queryArg}`,
-        }),
-        providesTags: ["StreamGroups"],
-      }),
       streamGroupsGetStreamGroupCapability: build.query<
         StreamGroupsGetStreamGroupCapabilityApiResponse,
         StreamGroupsGetStreamGroupCapabilityApiArg
@@ -1393,9 +1384,6 @@ export type StreamGroupsDeleteStreamGroupApiArg = DeleteStreamGroupRequest;
 export type StreamGroupsGetStreamGroupApiResponse =
   /** status 200  */ StreamGroupDto;
 export type StreamGroupsGetStreamGroupApiArg = number;
-export type StreamGroupsGetStreamGroupByStreamNumberApiResponse =
-  /** status 200  */ StreamGroupDto;
-export type StreamGroupsGetStreamGroupByStreamNumberApiArg = number;
 export type StreamGroupsGetStreamGroupCapabilityApiResponse = unknown;
 export type StreamGroupsGetStreamGroupCapabilityApiArg = string;
 export type StreamGroupsGetStreamGroupCapability2ApiResponse = unknown;
@@ -1588,10 +1576,11 @@ export type PagedResponseOfChannelGroupDto = {
   first: number;
 };
 export type UpdateChannelGroupRequest = {
-  channelGroupName?: string;
+  channelGroupId?: number;
   newGroupName?: string | null;
   isHidden?: boolean | null;
   rank?: number | null;
+  toggleVisibility?: boolean | null;
 };
 export type UpdateChannelGroupsRequest = {
   channelGroupRequests: UpdateChannelGroupRequest[];
@@ -2105,16 +2094,9 @@ export type SyncStreamGroupChannelGroupsRequest = {
   streamGroupId?: number;
   channelGroupIds?: number[];
 };
-export type VideoStreamIsReadOnly = {
-  rank?: number;
-  isReadOnly?: boolean;
-  videoStreamId?: string;
-};
 export type CreateStreamGroupRequest = {
   name: string;
   streamGroupNumber: number;
-  videoStreams: VideoStreamIsReadOnly[] | null;
-  channelGroupIds: number[] | null;
 };
 export type DeleteStreamGroupRequest = {
   id?: number;
@@ -2152,6 +2134,11 @@ export type PagedResponseOfStreamGroupDto = {
 export type UpdateStreamGroupRequest = {
   streamGroupId?: number;
   name?: string | null;
+};
+export type VideoStreamIsReadOnly = {
+  rank?: number;
+  isReadOnly?: boolean;
+  videoStreamId?: string;
 };
 export type VideoStreamHandlers = 0 | 1 | 2;
 export type BaseVideoStreamDto = {
@@ -2386,7 +2373,6 @@ export const {
   useStreamGroupsCreateStreamGroupMutation,
   useStreamGroupsDeleteStreamGroupMutation,
   useStreamGroupsGetStreamGroupQuery,
-  useStreamGroupsGetStreamGroupByStreamNumberQuery,
   useStreamGroupsGetStreamGroupCapabilityQuery,
   useStreamGroupsGetStreamGroupCapability2Query,
   useStreamGroupsGetStreamGroupCapability3Query,

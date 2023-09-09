@@ -1,6 +1,6 @@
 import { InputText } from "primereact/inputtext";
 import React from "react";
-import { useStreamGroupsCreateStreamGroupMutation, type ChannelGroupDto, type CreateStreamGroupRequest } from "../../store/iptvApi";
+import { useStreamGroupsCreateStreamGroupMutation, type CreateStreamGroupRequest } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import AddButton from "../buttons/AddButton";
 
@@ -9,12 +9,10 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
   const [name, setName] = React.useState<string>('');
-  const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
 
   const [streamGroupsCreateStreamGroupMutation] = useStreamGroupsCreateStreamGroupMutation();
 
   const ReturnToParent = React.useCallback(() => {
-    setSelectedChannelGroups([] as ChannelGroupDto[]);
     setShowOverlay(false);
     setInfoMessage('');
     setName('');
@@ -47,12 +45,7 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
     }
 
     const data = {} as CreateStreamGroupRequest;
-
     data.name = name;
-
-    if (selectedChannelGroups.length > 0) {
-      data.channelGroupIds = selectedChannelGroups.map((x) => x.id ?? 0);
-    }
 
     streamGroupsCreateStreamGroupMutation(data)
       .then(() => {
@@ -60,7 +53,7 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
       }).catch((e) => {
         setInfoMessage('Stream Group Add Error: ' + e.message);
       });
-  }, [ReturnToParent, isSaveEnabled, name, selectedChannelGroups, streamGroupsCreateStreamGroupMutation]);
+  }, [ReturnToParent, isSaveEnabled, name, streamGroupsCreateStreamGroupMutation]);
 
   React.useEffect(() => {
     const callback = (event: KeyboardEvent) => {

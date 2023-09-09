@@ -8,7 +8,7 @@ public class UpdateChannelGroupRequestValidator : AbstractValidator<UpdateChanne
 {
     public UpdateChannelGroupRequestValidator()
     {
-        _ = RuleFor(v => v.ChannelGroupName).NotNull().NotEmpty();
+        _ = RuleFor(v => v.ChannelGroupId).NotNull().GreaterThan(0);
         _ = RuleFor(v => v.Rank).NotNull().GreaterThan(0);
     }
 }
@@ -18,7 +18,7 @@ public class UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequest>
     public async Task Handle(UpdateChannelGroupRequest request, CancellationToken cancellationToken)
     {
 
-        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupByNameAsync(request.ChannelGroupName).ConfigureAwait(false);
+        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupById(request.ChannelGroupId).ConfigureAwait(false);
         bool checkCounts = false;
         if (channelGroup == null)
         {
@@ -30,11 +30,10 @@ public class UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequest>
             channelGroup.Rank = (int)request.Rank;
         }
 
-        if (request.IsHidden != null && channelGroup.IsHidden != (bool)request.IsHidden)
+        if (request.ToggleVisibility == true)
         {
-            channelGroup.IsHidden = (bool)request.IsHidden;
-
-            List<VideoStreamDto> results = await Repository.VideoStream.SetGroupVisibleByGroupName(channelGroup.Name, (bool)request.IsHidden, cancellationToken).ConfigureAwait(false);
+            List<VideoStreamDto> results = await Repository.VideoStream.SetGroupVisibleByGroupName(channelGroup.Name, !channelGroup.IsHidden, cancellationToken).ConfigureAwait(false);
+            channelGroup.IsHidden = !channelGroup.IsHidden;
             checkCounts = results.Any();
 
         }

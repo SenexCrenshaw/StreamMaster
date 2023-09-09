@@ -39,12 +39,13 @@ const StreamGroupDeleteDialog = ({ id, onHide }: StreamGroupDeleteDialogProps) =
     data.id = selectedStreamGroup.id;
 
     await streamGroupsDeleteStreamGroupMutations(data).then(() => {
-
+      setSelectedStreamGroup(undefined);
       setInfoMessage('Stream Group Deleted Successfully');
     }).catch((error) => {
+      setSelectedStreamGroup(undefined);
       setInfoMessage('Stream Group Delete Error: ' + error.message);
     });
-    setSelectedStreamGroup(undefined);
+
   }, [ReturnToParent, selectedStreamGroup, setSelectedStreamGroup, streamGroupsDeleteStreamGroupMutations]);
 
   return (
@@ -58,18 +59,13 @@ const StreamGroupDeleteDialog = ({ id, onHide }: StreamGroupDeleteDialogProps) =
         onClose={() => { ReturnToParent(); }}
         show={showOverlay}
       >
-        <div className='m-0 p-0 border-1 border-round surface-border'>
-          <div className='m-3'>
-            <h3 />
-            <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
 
-              <DeleteButton label='Delete Stream Group' onClick={async () => await deleteStreamGroup()} tooltip='Delete Stream Group' />
-
-            </div>
-          </div>
+        <div className="flex justify-content-center w-full">
+          <DeleteButton label='Delete Stream Group' onClick={async () => await deleteStreamGroup()} tooltip='Delete Stream Group' />
         </div>
+
       </InfoMessageOverLayDialog>
-      <DeleteButton disabled={selectedStreamGroup === undefined || selectedStreamGroup.id === undefined || selectedStreamGroup.id === 0} onClick={() => setShowOverlay(true)} tooltip='Delete Stream Group' />
+      <DeleteButton disabled={selectedStreamGroup === undefined || selectedStreamGroup.id === undefined || selectedStreamGroup.id < 2} onClick={() => setShowOverlay(true)} tooltip='Delete Stream Group' />
 
     </>
   );
