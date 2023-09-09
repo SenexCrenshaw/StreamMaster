@@ -1,10 +1,10 @@
 import { BlockUI } from "primereact/blockui";
 import { memo } from "react";
+import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
 import { StreamGroupEditorIcon } from "../../common/icons";
 import StreamGroupDataSelector from "./StreamGroupDataSelector";
-import StreamGroupVideoStreamDataSelector from "./StreamGroupVideoStreamDataSelector";
 import StreamGroupSelectedVideoStreamDataSelector from "./StreamGroupSelectedVideoStreamDataSelector";
-import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
+import StreamGroupVideoStreamDataSelector from "./StreamGroupVideoStreamDataSelector";
 
 const StreamGroupEditor = () => {
   const id = 'streamgroupeditor'

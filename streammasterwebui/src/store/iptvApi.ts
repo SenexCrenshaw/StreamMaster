@@ -1571,9 +1571,7 @@ export type ChannelGroupArg = ChannelGroupStreamCount & {
   name: string;
   rank: number;
 };
-export type ChannelGroupDto = ChannelGroupArg & {
-  streamCount?: number;
-};
+export type ChannelGroupDto = ChannelGroupArg & object;
 export type ChannelGroupIdName = {
   id?: number;
   name?: string;

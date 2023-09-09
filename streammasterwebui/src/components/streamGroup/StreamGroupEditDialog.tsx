@@ -1,11 +1,12 @@
 import { InputText } from "primereact/inputtext";
-import { useState, useEffect, useCallback, useMemo, memo } from "react";
-import {type StreamGroupDto, type UpdateStreamGroupRequest } from "../../store/iptvApi";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { type StreamGroupDto, type UpdateStreamGroupRequest } from "../../store/iptvApi";
 import { UpdateStreamGroup } from "../../store/signlar_functions";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 
-import EditButton from "../buttons/EditButton";
 import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
+import StreamGroupChannelGroupsSelector from "../../features/streamGroupEditor/StreamGroupChannelGroupsSelector";
+import EditButton from "../buttons/EditButton";
 
 
 type StreamGroupEditDialogProps = {
@@ -99,17 +100,6 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
   }, [onUpdate, name]);
 
 
-
-  // const onsetSelectedChannelGroups = useCallback((selectedData: ChannelGroupDto | ChannelGroupDto[]) => {
-  //   if (Array.isArray(selectedData)) {
-  //     setSelectedChannelGroups(selectedData);
-  //   } else {
-  //     setSelectedChannelGroups([selectedData]);
-  //   }
-
-  // }, []);
-
-
   return (
     <>
 
@@ -124,47 +114,34 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
         overlayColSize={4}
         show={showOverlay}
       >
-
-        <div className="justify-content-between align-items-center ">
-          <div className="flex">
-            <span className="p-float-label col-6">
+        <div className="flex grid justify-content-between align-items-center">
+          <div className="flex col-12">
+            <label className="col-2 " htmlFor="Name">Name: </label>
+            <div className="col-8 ">
               <InputText
                 autoFocus
-                className={name === '' ? 'withpadding p-invalid' : 'withpadding'}
+                className='bordered-text-large'
                 id="Name"
                 onChange={(e) => setName(e.target.value)}
                 type="text"
                 value={name}
               />
-              <label
-                className="text-500"
-                htmlFor="Name"
-              >Name</label>
-            </span>
-
+            </div>
+          </div>
+          <div className="flex col-12 ">
+            <label className="col-2 ">Groups: </label>
+            <div className="col-8 ">
+              <StreamGroupChannelGroupsSelector streamGroupId={selectedStreamGroup?.id ?? undefined} />
+            </div>
           </div>
 
-          {/* <Accordion className='mt-2'>
-            <AccordionTab header="Groups">
-              <div className='col-12 m-0 p-0 pr-1' >
-                <PlayListDataSelector
-                  hideControls
-                  id='streamggroupeditdialog'
-                  maxHeight={400}
-                  name="Groups"
-                  onSelectionChange={(e) => onsetSelectedChannelGroups(e as ChannelGroupDto[])}
-
-                />
-              </div>
-            </AccordionTab>
-          </Accordion> */}
 
           <div className="flex col-12 mt-3 gap-2 justify-content-end">
-            <EditButton label='Edit Stream Group' onClick={() => onUpdate()} tooltip='Edit Stream Group' />
+            <EditButton disabled={!selectedStreamGroup?.name || name === selectedStreamGroup.name} label='Edit Stream Group' onClick={() => onUpdate()} tooltip='Edit Stream Group' />
           </div>
 
         </div>
-      </InfoMessageOverLayDialog>
+      </InfoMessageOverLayDialog >
 
       <EditButton
         disabled={selectedStreamGroup === undefined || selectedStreamGroup.streamGroupNumber === undefined || selectedStreamGroup.streamGroupNumber === 0}
@@ -178,7 +155,5 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
 }
 
 StreamGroupEditDialog.displayName = 'StreamGroupEditDialog';
-StreamGroupEditDialog.defaultProps = {
-}
 
 export default memo(StreamGroupEditDialog);

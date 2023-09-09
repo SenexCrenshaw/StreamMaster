@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
-import { OverlayPanel } from "primereact/overlaypanel";
 import { BlockUI } from "primereact/blockui";
 import { Dialog } from "primereact/dialog";
+import { OverlayPanel } from "primereact/overlaypanel";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 type Severity = 'error' | 'info' | 'success' | 'warn';
 
@@ -92,7 +92,9 @@ const InfoMessageOverLayDialog: React.FC<InfoMessageOverLayDialogProps> = (props
         visible={showDialog}
       >
         <BlockUI blocked={blocked}>
-          {children}
+          <div className='flex m-0 p-1 border-1 border-round surface-border justify-contents-center'>
+            {children}
+          </div>
         </BlockUI>
       </Dialog>
 
