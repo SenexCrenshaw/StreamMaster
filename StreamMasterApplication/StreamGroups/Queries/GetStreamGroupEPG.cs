@@ -72,7 +72,7 @@ public partial class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAc
     {
         IEnumerable<VideoStream> videoStreams;
 
-        if (request.StreamGroupNumber > 0)
+        if (request.StreamGroupNumber > 1)
         {
             StreamGroup? streamGroup = await Repository.StreamGroup
                     .FindAll()
@@ -84,6 +84,7 @@ public partial class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAc
             {
                 return "";
             }
+            List<VideoStream> test = streamGroup.ChildVideoStreams.Select(a => a.ChildVideoStream).ToList();
             videoStreams = streamGroup.ChildVideoStreams.Select(a => a.ChildVideoStream).Where(a => !a.IsHidden);
         }
         else
@@ -108,12 +109,17 @@ public partial class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAc
 
             List<Programme> programmes = MemoryCache.Programmes()
                 .Where(a =>
+                a.StartDateTime > DateTime.Now.AddDays(-1) &&
+                a.StopDateTime < DateTime.Now.AddDays(7) &&
                 a.Channel != null &&
                 (
                     epgids.Contains(a.Channel) ||
                     epgids.Contains(a.DisplayName)
                 )
                 ).ToList();
+
+            Logger.LogInformation($"videoStreams: {videoStreams.Count()}");
+            Logger.LogInformation($"Programmes: {programmes.Count}");
 
             Setting setting = FileUtil.GetSetting();
 

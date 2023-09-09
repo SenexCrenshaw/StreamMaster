@@ -23,15 +23,19 @@ public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCo
         IEnumerable<ChannelGroupBrief> cgs;
         if (request.channelGroups != null)
         {
-            cgs = request.channelGroups.Select(a => new ChannelGroupBrief { Name = a.Name, Id = a.Id });
+            IEnumerable<int> selectIds = request.channelGroups.Select(a => a.Id);
+            cgs = Repository.ChannelGroup.GetAllChannelGroups().Where(a => selectIds.Contains(a.Id)).Select(a => new ChannelGroupBrief { Name = a.Name, Id = a.Id });
         }
         else
         {
             cgs = Repository.ChannelGroup.GetAllChannelGroups().Select(a => new ChannelGroupBrief { Name = a.Name, Id = a.Id });
         }
 
+        //List<string> cgNames = cgs.Select(a => a.Name).Distinct().ToList();
+
         // Fetch all video streams once.
         var allVideoStreams = await Repository.VideoStream.GetAllVideoStreams()
+            //.Where(a => cgNames.Contains(a.User_Tvg_group))
             .Select(vs => new
             {
                 vs.Id,

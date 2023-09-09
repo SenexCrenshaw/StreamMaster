@@ -6,7 +6,7 @@ public static class HttpContextAccessorExtensions
 {
     public static string GetUrl(this IHttpContextAccessor httpContextAccessor)
     {
-        return httpContextAccessor.GetUrlWithPath();
+        return httpContextAccessor.GetUrlWithPath(false);
         //HttpRequest request = httpContextAccessor.HttpContext.Request;
         //string scheme = request.Scheme;
         //HostString host = request.Host;
@@ -16,7 +16,7 @@ public static class HttpContextAccessorExtensions
         //return url;
     }
 
-    public static string GetUrlWithPath(this IHttpContextAccessor httpContextAccessor)
+    public static string GetUrlWithPath(this IHttpContextAccessor httpContextAccessor, bool includePath = true)
     {
         HttpRequest? request = httpContextAccessor.HttpContext?.Request;
         if (request == null)
@@ -29,7 +29,12 @@ public static class HttpContextAccessorExtensions
             .Replace("/device.xml", "")
             .Replace("/discover.json", "");
 
-        return $"{request.Scheme}://{request.Host}{path}";
+        if (includePath)
+        {
+            return $"{request.Scheme}://{request.Host}{path}";
+        }
+
+        return $"{request.Scheme}://{request.Host}";
     }
 
     public static string GetUrlWithPathValue(this IHttpContextAccessor httpContextAccessor)

@@ -26,6 +26,7 @@ namespace StreamMasterDomain.Repository
 
         Task<StreamGroup?> GetStreamGroupByIdAsync(int id);
 
+        PagedResponse<StreamGroupDto> CreateEmptyPagedResponse(StreamGroupParameters Parameters);
         Task<IPagedList<StreamGroup>> GetStreamGroupsAsync(StreamGroupParameters StreamGroupParameters);
 
         Task<PagedResponse<StreamGroupDto>> GetStreamGroupDtosPagedAsync(StreamGroupParameters StreamGroupParameters);

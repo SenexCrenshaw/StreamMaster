@@ -22,33 +22,29 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProps) => {
         header: 'Name',
         sortable: true,
         style: {
-          width: '12rem',
+          minWidth: '10rem',
         } as CSSProperties,
       },
       {
         field: 'streamCount',
         header: '#',
-        style: {
-          maxWidth: '1rem',
-          width: '1rem',
-        } as CSSProperties,
       },
       {
-        field: 'id',
+        field: 'url',
         fieldType: 'url',
       },
       {
-        field: 'id',
+        field: 'epglink',
         fieldType: 'epglink',
       },
       {
-        field: 'id',
+        field: 'm3ulink',
         fieldType: 'm3ulink',
       },
     ];
   }, []);
 
-  const sourceaddtionalHeaderTemplate = () => {
+  const sourceAddtionalHeaderTemplate = () => {
     return (
       <div className="streamGroupEditor grid w-full flex flex-nowrap justify-content-end align-items-center p-0">
         <div className="flex w-full w-full p-0 align-items-center justify-content-end">
@@ -70,7 +66,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProps) => {
     <DataSelector
       columns={StreamGroupColumns}
       headerName='Stream Groups'
-      headerRightTemplate={sourceaddtionalHeaderTemplate()}
+      headerRightTemplate={sourceAddtionalHeaderTemplate()}
       id={id + '-ds-source'}
       onSelectionChange={(e) => {
         setSelectedStreamGroup(e as StreamGroupDto);

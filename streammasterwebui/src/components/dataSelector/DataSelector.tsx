@@ -303,8 +303,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
     if (fieldType === 'image' || fieldType === 'm3ulink' || fieldType === 'epglink' || fieldType === 'url') {
       return {
-        maxWidth: '5rem',
-        width: '5rem',
+        maxWidth: '4rem',
+        width: '4rem',
       } as CSSProperties;
     }
 

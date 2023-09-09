@@ -23,6 +23,7 @@ public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHel
     private readonly IMapper _mapper = mapper;
     private readonly ISender _sender = sender;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+    private readonly IMemoryCache _memoryCache = memoryCache;
 
     public async Task AddStreamGroupRequestAsync(AddStreamGroupRequest request, CancellationToken cancellationToken)
     {
@@ -117,26 +118,33 @@ public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHel
 
     public async Task<StreamGroupDto?> GetStreamGroupDto(int id, CancellationToken cancellationToken = default)
     {
-        if (id == 0)
-        {
-            return new StreamGroupDto { Id = 0, Name = "All" };
-        }
         string Url = _httpContextAccessor.GetUrl();
 
-        StreamGroup? streamGroup = await GetStreamGroupWithRelatedEntitiesByIdAsync(id, cancellationToken);
+        int count = 0;
 
-        if (streamGroup == null)
+        StreamGroupDto? ret;
+        if (id == 1)
         {
-            return null;
+            ret = new StreamGroupDto { Id = 0, Name = "All" };
+            count = RepositoryContext.VideoStreams.Count();
+        }
+        else
+        {
+            StreamGroup? streamGroup = await GetStreamGroupByIdAsync(id).ConfigureAwait(false);
+            if (streamGroup == null)
+            {
+                return null;
+            }
+            count = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == id).Count();
+            ret = _mapper.Map<StreamGroupDto>(streamGroup);
         }
 
-        StreamGroupDto ret = _mapper.Map<StreamGroupDto>(streamGroup);
         Setting _setting = FileUtil.GetSetting();
         string encodedStreamGroupNumber = ret.StreamGroupNumber.EncodeValue128(_setting.ServerKey);
         ret.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
         ret.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
         ret.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
-        ret.StreamCount = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == ret.Id).Count();
+        ret.StreamCount = count;
         return ret;
     }
 
@@ -252,15 +260,29 @@ public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHel
         PagedResponse<StreamGroupDto> ret = await GetEntitiesAsync<StreamGroupDto>(StreamGroupParameters, _mapper);
         foreach (StreamGroupDto sg in ret.Data)
         {
+            int count = 0;
+            if (sg.Id == 1)
+            {
+                count = RepositoryContext.VideoStreams.Count();
+            }
+            else
+            {
+                count = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == sg.Id).Count();
+            }
+            RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == sg.Id).Count();
             string encodedStreamGroupNumber = sg.StreamGroupNumber.EncodeValue128(_setting.ServerKey);
             sg.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
             sg.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
             sg.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
-            sg.StreamCount = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == sg.Id).Count();
+            sg.StreamCount = count;
         }
 
 
         return ret;
     }
 
+    public PagedResponse<StreamGroupDto> CreateEmptyPagedResponse(StreamGroupParameters Parameters)
+    {
+        return CreateEmptyPagedResponse<StreamGroupDto>(Parameters);
+    }
 }

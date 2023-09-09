@@ -191,6 +191,6 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
 
     public PagedResponse<ChannelGroupDto> CreateEmptyPagedResponse(ChannelGroupParameters parameters)
     {
-        throw new NotImplementedException();
+        return CreateEmptyPagedResponse<ChannelGroupDto>(parameters);
     }
 }

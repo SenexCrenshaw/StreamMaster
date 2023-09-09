@@ -11,16 +11,10 @@ internal class GetStreamGroupsHandler : BaseMediatorRequestHandler, IRequestHand
 : base(logger, repository, mapper, publisher, sender, hubContext) { }
     public async Task<PagedResponse<StreamGroupDto>> Handle(GetStreamGroups request, CancellationToken cancellationToken = default)
     {
-        int count = Repository.StreamGroup.Count();
 
         if (request.Parameters.PageSize == 0)
         {
-            PagedResponse<StreamGroupDto> emptyResponse = new()
-            {
-                TotalItemCount = count
-            };
-            return emptyResponse;
-
+            return Repository.StreamGroup.CreateEmptyPagedResponse(request.Parameters);
         }
 
 
