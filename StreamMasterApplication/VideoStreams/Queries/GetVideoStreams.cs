@@ -8,14 +8,10 @@ internal class GetVideoStreamsHandler(ILogger<GetVideoStreamsHandler> logger, IR
 {
     public async Task<PagedResponse<VideoStreamDto>> Handle(GetVideoStreams request, CancellationToken cancellationToken)
     {
-        int count = Repository.StreamGroup.Count();
 
         if (request.Parameters.PageSize == 0)
         {
-            PagedResponse<VideoStreamDto> emptyResponse = new();
-            emptyResponse.TotalItemCount = count;
-            return emptyResponse;
-
+            return Repository.VideoStream.CreateEmptyPagedResponse(request.Parameters);
         }
 
         PagedResponse<VideoStreamDto> res = await Repository.VideoStream.GetVideoStreams(request.Parameters, cancellationToken).ConfigureAwait(false);

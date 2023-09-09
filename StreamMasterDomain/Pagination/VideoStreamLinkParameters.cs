@@ -4,6 +4,6 @@ public class VideoStreamLinkParameters : QueryStringParameters
 {
     public VideoStreamLinkParameters()
     {
-        OrderBy = "user_tvg_name desc";
+        OrderBy = "parentvideosteamid desc";
     }
 }

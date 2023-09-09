@@ -22,13 +22,13 @@ public class EPGGuide
 }
 
 [RequireAll]
-public record GetStreamGroupEPGForGuide(int StreamGroupNumber) : IRequest<EPGGuide>;
+public record GetStreamGroupEPGForGuide(int streamGroupId) : IRequest<EPGGuide>;
 
 public class GetStreamGroupEPGForGuideValidator : AbstractValidator<GetStreamGroupEPGForGuide>
 {
     public GetStreamGroupEPGForGuideValidator()
     {
-        _ = RuleFor(v => v.StreamGroupNumber)
+        _ = RuleFor(v => v.streamGroupId)
             .NotNull().GreaterThanOrEqualTo(0);
     }
 }
@@ -43,12 +43,12 @@ public partial class GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpC
     {
 
         IEnumerable<VideoStream> videoStreams;
-        if (request.StreamGroupNumber > 0)
+        if (request.streamGroupId > 0)
         {
             StreamGroup? streamGroup = await Repository.StreamGroup
                      .FindAll()
                      .Include(a => a.ChildVideoStreams)
-                     .FirstOrDefaultAsync(a => a.StreamGroupNumber == request.StreamGroupNumber);
+                     .FirstOrDefaultAsync(a => a.Id == request.streamGroupId);
 
             if (streamGroup == null)
             {
@@ -62,7 +62,7 @@ public partial class GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpC
         }
         else
         {
-            videoStreams = Repository.VideoStream.GetVideoStreamsHidden();
+            videoStreams = Repository.VideoStream.GetVideoStreamsNotHidden();
         }
 
         string Url = httpContextAccessor.GetUrl();

@@ -8,15 +8,8 @@ using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
-public class M3UFileRepository : RepositoryBase<M3UFile>, IM3UFileRepository
+public class M3UFileRepository(RepositoryContext repositoryContext, IMapper mapper) : RepositoryBase<M3UFile, M3UFileDto>(repositoryContext), IM3UFileRepository
 {
-    private readonly IMapper _mapper;
-
-    public M3UFileRepository(RepositoryContext repositoryContext, IMapper mapper) : base(repositoryContext)
-    {
-        _mapper = mapper;
-    }
-
     public void CreateM3UFile(M3UFile m3uFile)
     {
         Create(m3uFile);
@@ -56,7 +49,7 @@ public class M3UFileRepository : RepositoryBase<M3UFile>, IM3UFileRepository
 
     public async Task<PagedResponse<M3UFileDto>> GetM3UFilesAsync(M3UFileParameters m3uFileParameters)
     {
-        return await GetEntitiesAsync<M3UFileDto>(m3uFileParameters, _mapper);
+        return await GetEntitiesAsync(m3uFileParameters, mapper);
 
     }
 

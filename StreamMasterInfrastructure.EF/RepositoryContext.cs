@@ -55,6 +55,9 @@ namespace StreamMasterInfrastructureEF
               .HasIndex(e => e.User_Tvg_name)
               .HasDatabaseName("IX_VideoStream_User_Tvg_name");
 
+            modelBuilder.Entity<VideoStream>()
+                .HasIndex(p => p.User_Tvg_chno)
+                .HasDatabaseName("IX_VideoStream_User_Tvg_chno");
 
             //modelBuilder.OnHangfireModelCreating();
             base.OnModelCreating(modelBuilder);

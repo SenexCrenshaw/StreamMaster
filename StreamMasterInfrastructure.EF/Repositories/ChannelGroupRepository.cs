@@ -19,19 +19,9 @@ using System.Linq.Dynamic.Core;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
-public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGroupRepository
+public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : RepositoryBase<ChannelGroup, ChannelGroupDto>(repositoryContext), IChannelGroupRepository
 {
-    private readonly IMapper _mapper;
-    private readonly IMemoryCache _memoryCache;
-    private readonly ISender _sender;
-    private readonly ILogger _logger;
-    public ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : base(repositoryContext)
-    {
-        _memoryCache = memoryCache;
-        _mapper = mapper;
-        _logger = logger;
-        _sender = sender;
-    }
+    private readonly ILogger _logger = logger;
 
     public IQueryable<ChannelGroup> GetAllChannelGroups()
     {
@@ -45,8 +35,8 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
 
     public async Task<PagedResponse<ChannelGroupDto>> GetChannelGroupsAsync(ChannelGroupParameters channelGroupParameters)
     {
-        PagedResponse<ChannelGroupDto> channelGroups = await GetEntitiesAsync<ChannelGroupDto>(channelGroupParameters, _mapper).ConfigureAwait(false);
-        IEnumerable<ChannelGroupStreamCount> actives = _memoryCache.ChannelGroupStreamCounts();
+        PagedResponse<ChannelGroupDto> channelGroups = await GetEntitiesAsync(channelGroupParameters, mapper).ConfigureAwait(false);
+        IEnumerable<ChannelGroupStreamCount> actives = memoryCache.ChannelGroupStreamCounts();
 
         foreach (ChannelGroupStreamCount? active in actives)
         {
@@ -92,7 +82,7 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
 
         ChannelGroup? res = await GetChannelGroupFromVideoStream(videoStream.User_Tvg_group, cancellationToken).ConfigureAwait(false);
 
-        ChannelGroupDto? ret = _mapper.Map<ChannelGroupDto?>(res);
+        ChannelGroupDto? ret = mapper.Map<ChannelGroupDto?>(res);
 
         return ret;
     }
@@ -116,7 +106,7 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         {
             return null;
         }
-        ChannelGroupDto dtos = _mapper.Map<ChannelGroupDto>(res);
+        ChannelGroupDto dtos = mapper.Map<ChannelGroupDto>(res);
 
         return dtos;
     }
@@ -152,7 +142,7 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
 
     public async Task<(int? ChannelGroupId, IEnumerable<VideoStreamDto> VideoStreams)> DeleteChannelGroup(ChannelGroup ChannelGroup)
     {
-        List<VideoStreamDto> vgs = await _sender.Send(new GetVideoStreamsForChannelGroups([ChannelGroup.Id]));
+        List<VideoStreamDto> vgs = await sender.Send(new GetVideoStreamsForChannelGroups([ChannelGroup.Id]));
         Delete(ChannelGroup);
         await RepositoryContext.SaveChangesAsync();
         return (ChannelGroup.Id, vgs);
@@ -166,7 +156,7 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
     {
         IQueryable<ChannelGroup> toDelete = GetIQueryableForEntity(Parameters).Where(a => !a.IsReadOnly);
         List<int> ret = toDelete.Select(a => a.Id).ToList();
-        List<VideoStreamDto> videoStreams = await _sender.Send(new GetVideoStreamsForChannelGroups(ret), cancellationToken).ConfigureAwait(false);
+        List<VideoStreamDto> videoStreams = await sender.Send(new GetVideoStreamsForChannelGroups(ret), cancellationToken).ConfigureAwait(false);
         await RepositoryContext.BulkDeleteAsync(toDelete, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         return (ret, videoStreams);
@@ -184,13 +174,13 @@ public class ChannelGroupRepository : RepositoryBase<ChannelGroup>, IChannelGrou
         IQueryable<string> channeNames = videoStreams.Select(a => a.User_Tvg_group).Distinct();
         IQueryable<ChannelGroup> res = FindByCondition(a => channeNames.Contains(a.Name));
 
-        List<ChannelGroupDto> ret = _mapper.Map<List<ChannelGroupDto>>(res);
+        List<ChannelGroupDto> ret = mapper.Map<List<ChannelGroupDto>>(res);
 
         return Task.FromResult(ret);
     }
 
-    public PagedResponse<ChannelGroupDto> CreateEmptyPagedResponse(ChannelGroupParameters parameters)
-    {
-        return CreateEmptyPagedResponse<ChannelGroupDto>(parameters);
-    }
+    //public PagedResponse<ChannelGroupDto> CreateEmptyPagedResponse(ChannelGroupParameters parameters)
+    //{
+    //    return CreateEmptyPagedResponse<ChannelGroupDto>(parameters);
+    //}
 }

@@ -1,7 +1,6 @@
 import { Tooltip } from "primereact/tooltip";
-import { memo, useCallback, useEffect, useMemo, type CSSProperties } from "react";
+import { memo, useCallback, useMemo, type CSSProperties } from "react";
 import { v4 as uuidv4 } from 'uuid';
-import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
 import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
 import { GetMessage, getChannelGroupMenuItem, getColor } from "../../common/common";
 import { GroupIcon } from "../../common/icons";
@@ -24,15 +23,6 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ useFilter: false });
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit: enableEdit, useFilter: false });
   const { columnConfig: epgColumnConfig } = useEPGColumnConfig({ enableEdit: enableEdit, useFilter: false });
-  const { setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
-
-  useEffect(() => {
-
-    if (selectedStreamGroup !== undefined && selectedStreamGroup !== undefined && selectedStreamGroup.id > 0) {
-      setQueryAdditionalFilter({ field: 'streamGroupId', matchMode: 'equals', values: [selectedStreamGroup.id.toString()] });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedStreamGroup]);
 
   const targetActionBodyTemplate = useCallback((data: VideoStreamDto) => {
     if (data.isReadOnly === true) {
@@ -112,6 +102,7 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
       id={dataKey}
       key='rank'
       queryFilter={useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery}
+      selectedStreamGroupId={selectedStreamGroup?.id ?? 0}
       selectionMode='single'
       style={{ height: 'calc(100vh - 40px)' }
       }

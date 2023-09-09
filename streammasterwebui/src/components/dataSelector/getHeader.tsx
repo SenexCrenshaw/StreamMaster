@@ -17,9 +17,9 @@ function getHeader(field: string, header: string | undefined, fieldType: ColumnF
     case 'm3ulink':
       return 'M3U';
     case 'epglink':
-      return 'XMLTV';
+      return 'EPG';
     case 'url':
-      return 'HDHR URL';
+      return 'HDHR';
     case 'streams':
       return (
         <div        >

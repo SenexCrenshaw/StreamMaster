@@ -37,6 +37,12 @@ namespace StreamMasterInfrastructure.Services.Frontend
             return MapResource("Content/" + path);
         }
 
+        [HttpGet("/swagger/{**path:regex(^(?!api/).*)}")]
+        public IActionResult IndexSwagger([FromRoute] string path)
+        {
+            return MapResource("swagger/" + path);
+        }
+
         [EnableCors("AllowGet")]
         [AllowAnonymous]
         [HttpGet("/images/{**path:regex(^(?!api/).*)}")]
@@ -44,6 +50,7 @@ namespace StreamMasterInfrastructure.Services.Frontend
         {
             return MapResource("images/" + path);
         }
+
 
         [AllowAnonymous]
         [HttpGet("login")]
@@ -56,11 +63,11 @@ namespace StreamMasterInfrastructure.Services.Frontend
         {
             path = "/" + (path ?? "");
 
-            var mapper = _requestMappers.SingleOrDefault(m => m.CanHandle(path));
+            IMapHttpRequestsToDisk? mapper = _requestMappers.SingleOrDefault(m => m.CanHandle(path));
 
             if (mapper != null)
             {
-                var result = mapper.GetResponse(path);
+                IActionResult result = mapper.GetResponse(path);
 
                 if (result != null)
                 {

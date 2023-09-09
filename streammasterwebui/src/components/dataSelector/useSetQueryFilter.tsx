@@ -1,14 +1,13 @@
+import { FilterMatchMode } from "primereact/api";
 import { type DataTableFilterMeta } from "primereact/datatable";
-import { useMemo, useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
 import { useQueryFilter } from "../../app/slices/useQueryFilter";
-import { type SMDataTableFilterMetaData, type MatchMode, areGetApiArgsEqual } from "../../common/common";
-import { hasValidAdditionalProps, isEmptyObject, removeValueForField, addOrUpdateValueForField } from "../../common/common";
+import { useShowHidden } from "../../app/slices/useShowHidden";
+import { useSortInfo } from "../../app/slices/useSortInfo";
+import { addOrUpdateValueForField, areGetApiArgsEqual, hasValidAdditionalProps, isEmptyObject, removeValueForField, type MatchMode, type SMDataTableFilterMetaData } from "../../common/common";
 import { type ColumnMeta, type LazyTableState } from "./DataSelectorTypes";
 import generateFilterData from "./generateFilterData";
-import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
-import { useSortInfo } from "../../app/slices/useSortInfo";
-import { useShowHidden } from "../../app/slices/useShowHidden";
-import { FilterMatchMode } from "primereact/api";
 
 const useSetQueryFilter = (
   id: string,
@@ -17,6 +16,7 @@ const useSetQueryFilter = (
   filters: DataTableFilterMeta,
   page: number,
   rows: number,
+  streamGroupId?: number,
 ) => {
 
   const { sortInfo } = useSortInfo(id);
@@ -42,12 +42,12 @@ const useSetQueryFilter = (
       sortField: 'id',
       sortOrder: 1,
       sortString: sort,
+      streamGroupId: streamGroupId,
     };
 
-    const toSend: SMDataTableFilterMetaData[] = Object.keys(defaultState.filters)
-      .map(key => {
+    const toSend: SMDataTableFilterMetaData[] = Object.keys(defaultState.filters).map(
+      key => {
         const value = defaultState.filters[key] as SMDataTableFilterMetaData;
-
         return value?.value && value.value !== '[]' ? value : null;
       })
       .filter(Boolean) as SMDataTableFilterMetaData[];
@@ -74,20 +74,20 @@ const useSetQueryFilter = (
     }
 
     const toFilter = defaultState;
-
     return {
       generateGetApi: {
         jsonFiltersString: JSON.stringify(toSend),
         orderBy: toFilter.sortString,
         pageNumber: toFilter.page,
         pageSize: toFilter.rows,
+        streamGroupId: streamGroupId,
       },
       lazyState: defaultState,
     };
-  }, [columns, filters, sortInfo, first, page, rows, showHidden, queryAdditionalFilter]);
+  }, [columns, filters, sortInfo, first, page, rows, streamGroupId, showHidden, queryAdditionalFilter]);
 
   useEffect(() => {
-    const newApi = generateGetApi;// hasValidAdditionalProps(additionalFilterProps) ? generateGetApi : { pageSize: 40 };
+    const newApi = generateGetApi;
 
     if (!areGetApiArgsEqual(newApi, queryFilter)) {
       // console.log('useSetQueryFilter', id, newApi);
@@ -95,7 +95,7 @@ const useSetQueryFilter = (
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryAdditionalFilter, setQueryFilter, generateGetApi]);
+  }, [queryAdditionalFilter, setQueryFilter, generateGetApi, streamGroupId]);
 
   return { lazyState };
 };

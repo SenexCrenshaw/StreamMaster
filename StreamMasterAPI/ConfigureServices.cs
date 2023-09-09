@@ -16,6 +16,7 @@ using StreamMasterAPI.SchemaHelpers;
 using StreamMasterAPI.Services;
 
 using StreamMasterApplication.Common.Interfaces;
+using StreamMasterApplication.Common.Logging;
 using StreamMasterApplication.Hubs;
 using StreamMasterApplication.Services;
 
@@ -42,6 +43,9 @@ public static class ConfigureServices
             logging.AddDebug();
             logging.AddProvider(new SMLoggerProvider());
         });
+
+        ILoggerFactory loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
+        GlobalLoggerProvider.Configure(loggerFactory);
 
         services.AddMemoryCache();
 
@@ -105,8 +109,7 @@ public static class ConfigureServices
 
         _ = services.AddHttpClient();
 
-        _ = services.AddControllersWithViews();
-
+        services.AddControllersWithViews();
         _ = services.AddRazorPages();
 
         _ = services.Configure<ApiBehaviorOptions>(options =>

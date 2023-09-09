@@ -2,7 +2,7 @@
 
 namespace StreamMasterDomain.Repository;
 
-public interface IStreamGroupChannelGroupRepository : IRepositoryBase<StreamGroupChannelGroup>
+public interface IStreamGroupChannelGroupRepository : IRepositoryBase<StreamGroupChannelGroup, StreamGroupChannelGroup>
 {
     Task<IEnumerable<string>> RemoveStreamGroupChannelGroups(int StreamGroupId, List<int> ChannelGroupIds, CancellationToken cancellationToken = default);
     Task<StreamGroupDto?> SyncStreamGroupChannelGroups(int StreamGroupId, List<int> ChannelGroupIds, CancellationToken cancellationToken = default);

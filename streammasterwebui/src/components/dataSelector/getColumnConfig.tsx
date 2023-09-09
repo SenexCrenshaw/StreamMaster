@@ -1,10 +1,8 @@
-import { type ReactNode, type CSSProperties } from "react";
-import { type ColumnFieldType, type ColumnMeta } from "./DataSelectorTypes";
-import { type ColumnAlign } from "./DataSelectorTypes";
 import { Tooltip } from "primereact/tooltip";
-import React from "react";
-import { camel2title } from "../../common/common";
+import { type CSSProperties, type ReactNode } from "react";
 import { v4 as uuidv4 } from 'uuid';
+import { camel2title } from "../../common/common";
+import { type ColumnAlign, type ColumnFieldType, type ColumnMeta } from "./DataSelectorTypes";
 
 type ColumnConfig = {
   align?: ColumnAlign;
@@ -76,7 +74,7 @@ function getColumnConfig(column: ColumnMeta, groupRowsBy?: string, hideControls?
       case 'epglink':
         return 'XMLTV';
       case 'url':
-        return 'HDHR URL';
+        return 'HDHR';
       case 'streams':
         return (
           <>

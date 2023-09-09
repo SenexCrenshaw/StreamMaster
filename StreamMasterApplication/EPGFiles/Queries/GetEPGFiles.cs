@@ -1,4 +1,5 @@
-﻿using StreamMasterDomain.Dto;
+﻿using StreamMasterApplication.Common.Extensions;
+
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository.EPG;
 
@@ -17,11 +18,7 @@ internal class GetEPGFilesHandler : BaseMemoryRequestHandler, IRequestHandler<Ge
 
         if (request.Parameters.PageSize == 0)
         {
-            PagedResponse<EPGFileDto> emptyResponse = new()
-            {
-                TotalItemCount = epgFiles.TotalItemCount
-            };
-            return emptyResponse;
+            return request.Parameters.CreateEmptyPagedResponse<EPGFileDto>();
         }
 
 

@@ -10,13 +10,13 @@ using System.Text.Json;
 namespace StreamMasterApplication.StreamGroups.Queries;
 
 [RequireAll]
-public record GetStreamGroupDiscover(int StreamGroupNumber) : IRequest<string>;
+public record GetStreamGroupDiscover(int StreamGroupId) : IRequest<string>;
 
 public class GetStreamGroupDiscoverValidator : AbstractValidator<GetStreamGroupDiscover>
 {
     public GetStreamGroupDiscoverValidator()
     {
-        _ = RuleFor(v => v.StreamGroupNumber)
+        _ = RuleFor(v => v.StreamGroupId)
             .NotNull().GreaterThanOrEqualTo(0);
     }
 }
@@ -33,17 +33,17 @@ public class GetStreamGroupDiscoverHandler : BaseMediatorRequestHandler, IReques
     public async Task<string> Handle(GetStreamGroupDiscover request, CancellationToken cancellationToken)
     {
 
-        if (request.StreamGroupNumber > 0)
+        if (request.StreamGroupId > 1)
         {
-            StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, cancellationToken).ConfigureAwait(false);
-            if (streamGroup == null)
+            bool streamGroup = Repository.StreamGroup.FindAll().Any(a => a.Id == request.StreamGroupId);
+            if (!streamGroup)
             {
                 return "";
             }
         }
 
         int maxTuners = await Repository.M3UFile.GetM3UMaxStreamCountAsync();
-        Discover discover = new(_httpContextAccessor.GetUrl(), request.StreamGroupNumber, maxTuners);
+        Discover discover = new(_httpContextAccessor.GetUrl(), request.StreamGroupId, maxTuners);
 
         string jsonString = JsonSerializer.Serialize(discover, new JsonSerializerOptions { WriteIndented = true });
         return jsonString;

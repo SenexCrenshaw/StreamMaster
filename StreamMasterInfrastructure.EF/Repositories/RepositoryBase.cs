@@ -14,25 +14,13 @@ using System.Linq.Expressions;
 
 
 namespace StreamMasterInfrastructureEF.Repositories;
-public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
+public abstract class RepositoryBase<T, TDto>(RepositoryContext repositoryContext) : IRepositoryBase<T, TDto> where T : class where TDto : new()
 {
-    protected RepositoryContext RepositoryContext { get; set; }
+    protected RepositoryContext RepositoryContext { get; set; } = repositoryContext;
 
-    internal static PagedResponse<PagedT> CreateEmptyPagedResponse<PagedT>(QueryStringParameters? Parameters) where PagedT : new()
+    public PagedResponse<TDto> CreateEmptyPagedResponse(QueryStringParameters parameters)
     {
-        return new PagedResponse<PagedT>
-        {
-            PageNumber = Parameters?.PageNumber ?? 0,
-            TotalPageCount = 0,
-            PageSize = Parameters?.PageSize ?? 0,
-            TotalItemCount = 0,
-            Data = new List<PagedT>()
-        };
-    }
-
-    public RepositoryBase(RepositoryContext repositoryContext)
-    {
-        RepositoryContext = repositoryContext;
+        return parameters.CreateEmptyPagedResponse<TDto>(this.Count());
     }
 
     public int Count()
@@ -46,25 +34,20 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 
     public IQueryable<T> GetIQueryableForEntity(QueryStringParameters parameters)
     {
-        IQueryable<T> entities;
         if (!string.IsNullOrEmpty(parameters.JSONFiltersString) || !string.IsNullOrEmpty(parameters.OrderBy))
         {
-            List<DataTableFilterMetaData>? filters = null;
             if (!string.IsNullOrEmpty(parameters.JSONFiltersString))
             {
-                filters = Utils.GetFiltersFromJSON(parameters.JSONFiltersString);
+                List<DataTableFilterMetaData> filters = Utils.GetFiltersFromJSON(parameters.JSONFiltersString);
+                return FindByCondition(filters, parameters.OrderBy);
             }
-            entities = FindByCondition(filters, parameters.OrderBy);
-        }
-        else
-        {
-            entities = FindAll();
         }
 
-        return entities;
+        return FindAll();
+
     }
 
-    public async Task<PagedResponse<TDto>> GetEntitiesAsync<TDto>(QueryStringParameters parameters, IMapper mapper)
+    public async Task<PagedResponse<TDto>> GetEntitiesAsync(QueryStringParameters parameters, IMapper mapper)
     {
         IQueryable<T> entities = GetIQueryableForEntity(parameters);
 
@@ -94,12 +77,21 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         return pagedResponse;
     }
 
-    public IQueryable<T> FindByCondition(List<DataTableFilterMetaData>? filters, string orderBy)
+
+    public IQueryable<T> FindByConditionWithJSONFilter(string JSONFiltersString, string orderBy, IQueryable<T>? entities = null)
     {
-        DbSet<T> query = RepositoryContext.Set<T>();
+        List<DataTableFilterMetaData> filters = Utils.GetFiltersFromJSON(JSONFiltersString);
+        return FindByCondition(filters, orderBy, entities);
+    }
+    public IQueryable<T> FindByCondition(List<DataTableFilterMetaData>? filters, string orderBy, IQueryable<T>? entities = null)
+    {
+        if (entities == null)
+        {
+            entities = RepositoryContext.Set<T>();
+        }
 
         // Apply filters and sorting
-        IQueryable<T> filteredAndSortedQuery = FilterHelper<T>.ApplyFiltersAndSort(query, filters, orderBy);
+        IQueryable<T> filteredAndSortedQuery = FilterHelper<T>.ApplyFiltersAndSort(entities, filters, orderBy);
 
         return filteredAndSortedQuery;//.AsNoTracking();
     }
@@ -165,4 +157,6 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     {
         RepositoryContext.Set<T>().AddRange(entities);
     }
+
+
 }

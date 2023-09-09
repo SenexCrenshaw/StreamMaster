@@ -11,13 +11,13 @@ using static StreamMasterDomain.Common.GetStreamGroupEPGHandler;
 namespace StreamMasterApplication.StreamGroups.Queries;
 
 [RequireAll]
-public record GetStreamGroupCapability(int StreamGroupNumber) : IRequest<string>;
+public record GetStreamGroupCapability(int StreamGroupId) : IRequest<string>;
 
 public class GetStreamGroupCapabilityValidator : AbstractValidator<GetStreamGroupCapability>
 {
     public GetStreamGroupCapabilityValidator()
     {
-        _ = RuleFor(v => v.StreamGroupNumber)
+        _ = RuleFor(v => v.StreamGroupId)
             .NotNull().GreaterThanOrEqualTo(0);
     }
 }
@@ -29,26 +29,26 @@ public class GetStreamGroupCapabilityHandler : BaseMediatorRequestHandler, IRequ
 : base(logger, repository, mapper, publisher, sender, hubContext) { _httpContextAccessor = httpContextAccessor; }
 
 
-    public async Task<string> Handle(GetStreamGroupCapability request, CancellationToken cancellationToken)
+    public Task<string> Handle(GetStreamGroupCapability request, CancellationToken cancellationToken)
     {
 
-        if (request.StreamGroupNumber > 0)
+        if (request.StreamGroupId > 1)
         {
-            StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, cancellationToken).ConfigureAwait(false);
-            if (streamGroup == null)
+            bool streamGroup = Repository.StreamGroup.FindAll().Any(a => a.Id == request.StreamGroupId);
+            if (!streamGroup)
             {
-                return "";
+                return Task.FromResult("");
             }
         }
         Setting settings = FileUtil.GetSetting();
 
-        Capability capability = new(GetUrl(), $"{settings.DeviceID}-{request.StreamGroupNumber}");
+        Capability capability = new(GetUrl(), $"{settings.DeviceID}-{request.StreamGroupId}");
 
         using Utf8StringWriter textWriter = new();
         XmlSerializer serializer = new(typeof(Capability));
         serializer.Serialize(textWriter, capability);
 
-        return textWriter.ToString();
+        return Task.FromResult(textWriter.ToString());
     }
 
     private string GetUrl()

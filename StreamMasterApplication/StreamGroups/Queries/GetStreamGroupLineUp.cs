@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.Common.Extensions;
 
@@ -13,13 +12,13 @@ using System.Web;
 namespace StreamMasterApplication.StreamGroups.Queries;
 
 [RequireAll]
-public record GetStreamGroupLineUp(int StreamGroupNumber) : IRequest<string>;
+public record GetStreamGroupLineUp(int StreamGroupId) : IRequest<string>;
 
 public class GetStreamGroupLineUpValidator : AbstractValidator<GetStreamGroupLineUp>
 {
     public GetStreamGroupLineUpValidator()
     {
-        _ = RuleFor(v => v.StreamGroupNumber)
+        _ = RuleFor(v => v.StreamGroupId)
             .NotNull().GreaterThanOrEqualTo(0);
     }
 }
@@ -43,25 +42,28 @@ public class GetStreamGroupLineUpHandler : BaseMemoryRequestHandler, IRequestHan
         string url = _httpContextAccessor.GetUrl();
         List<LineUp> ret = new();
 
-        IEnumerable<VideoStream> videoStreams;
-        if (request.StreamGroupNumber > 0)
-        {
-            StreamGroup? streamGroup = await Repository.StreamGroup
-                    .FindAll()
-                    .Include(a => a.ChildVideoStreams)
-                    .FirstOrDefaultAsync(a => a.StreamGroupNumber == request.StreamGroupNumber, cancellationToken: cancellationToken)
-                    .ConfigureAwait(false);
+        //IEnumerable<VideoStream> videoStreams;
+        //if (request.StreamGroupId > 1)
+        //{
+        //    StreamGroup? streamGroup = await Repository.StreamGroup
+        //            .FindAll()
+        //            .Include(a => a.ChildVideoStreams)
+        //            .FirstOrDefaultAsync(a => a.StreamGroupNumber == request.StreamGroupNumber, cancellationToken: cancellationToken)
+        //            .ConfigureAwait(false);
 
-            if (streamGroup == null)
-            {
-                return "";
-            }
-            videoStreams = streamGroup.ChildVideoStreams.Select(a => a.ChildVideoStream).Where(a => !a.IsHidden);
-        }
-        else
-        {
-            videoStreams = Repository.VideoStream.GetVideoStreamsHidden();
-        }
+        //    if (streamGroup == null)
+        //    {
+        //        return "";
+        //    }
+        //    videoStreams = streamGroup.ChildVideoStreams.Select(a => a.ChildVideoStream).Where(a => !a.IsHidden);
+        //}
+        //else
+        //{
+        //    videoStreams = Repository.VideoStream.GetVideoStreamsNotHidden();
+        //}
+
+        List<VideoStream> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreamsList(request.StreamGroupId, cancellationToken);
+
 
         if (!videoStreams.Any())
         {
@@ -80,7 +82,7 @@ public class GetStreamGroupLineUpHandler : BaseMemoryRequestHandler, IRequestHan
 
             string videoUrl = videoStream.Url;
 
-            string encodedNumbers = request.StreamGroupNumber.EncodeValues128(videoStream.Id, Settings.ServerKey, iv);
+            string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, Settings.ServerKey, iv);
 
             string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
             videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";

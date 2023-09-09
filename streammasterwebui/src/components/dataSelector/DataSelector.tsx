@@ -56,7 +56,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   const { queryFilter } = useQueryFilter(props.id);
 
-  useSetQueryFilter(props.id, props.columns, state.first, state.filters, state.page, state.rows);
+  useSetQueryFilter(props.id, props.columns, state.first, state.filters, state.page, state.rows, props.selectedStreamGroupId);
 
   const tableRef = useRef<DataTable<T[]>>(null);
 
@@ -301,10 +301,17 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       } as CSSProperties;
     }
 
-    if (fieldType === 'image' || fieldType === 'm3ulink' || fieldType === 'epglink' || fieldType === 'url') {
+    if (fieldType === 'image') {
       return {
-        maxWidth: '4rem',
-        width: '4rem',
+        maxWidth: '5rem',
+        width: '5rem',
+      } as CSSProperties;
+    }
+
+    if (fieldType === 'm3ulink' || fieldType === 'epglink' || fieldType === 'url') {
+      return {
+        maxWidth: '3rem',
+        width: '3rem',
       } as CSSProperties;
     }
 
@@ -596,6 +603,7 @@ type BaseDataSelectorProps<T = any> = {
   onSelectionChange?: (value: T | T[], selectAll: boolean) => void;
   // onValueChanged?: (value: T[]) => void;
   reorderable?: boolean;
+  selectedStreamGroupId?: number;
   selectionMode?: DataSelectorSelectionMode;
   showHeaders?: boolean | undefined;
   showSelector?: boolean;

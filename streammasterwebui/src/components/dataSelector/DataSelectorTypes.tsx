@@ -1,8 +1,7 @@
 import { type FilterMatchMode } from "primereact/api";
-import { type ColumnFilterElementTemplateOptions } from "primereact/column";
-import { type ColumnEditorOptions, type ColumnEvent } from "primereact/column";
-import { type CSSProperties } from "react";
+import { type ColumnEditorOptions, type ColumnEvent, type ColumnFilterElementTemplateOptions } from "primereact/column";
 import { type DataTableFilterMeta } from 'primereact/datatable';
+import { type CSSProperties } from "react";
 
 export type ColumnFieldType = 'blank' | 'deleted' | 'epg' | 'epglink' | 'image' | 'isHidden' | 'm3ulink' | 'streams' | 'url' | undefined;
 export type ColumnAlign = 'center' | 'left' | 'right' | null | undefined;
@@ -18,6 +17,7 @@ export type LazyTableState = {
   sortField?: string;
   sortOrder?: -1 | 0 | 1 | null | undefined;
   sortString: string;
+  streamGroupId?: number;
 }
 
 

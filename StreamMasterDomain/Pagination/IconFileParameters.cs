@@ -6,7 +6,7 @@ namespace StreamMasterDomain.Pagination
     {
         public IconFileParameters()
         {
-            OrderBy = "name";
+            OrderBy = "name desc";
         }
 
         [JsonIgnore]

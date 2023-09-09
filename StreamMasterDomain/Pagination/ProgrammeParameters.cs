@@ -6,7 +6,7 @@ namespace StreamMasterDomain.Pagination
     {
         public ProgrammeParameters()
         {
-            OrderBy = "name";
+            OrderBy = "name desc";
         }
 
         [JsonIgnore]

@@ -2,23 +2,19 @@
 using StreamMasterApplication.StreamGroups;
 using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.StreamGroups.Queries;
-using StreamMasterApplication.StreamGroupVideoStreams.Commands;
-using StreamMasterApplication.StreamGroupVideoStreams.Queries;
 
-using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Hubs;
 
 public partial class StreamMasterHub : IStreamGroupHub
 {
-    public async Task AddStreamGroup(AddStreamGroupRequest request)
+    public async Task CreateStreamGroup(CreateStreamGroupRequest request)
     {
         await _mediator.Send(request).ConfigureAwait(false);
     }
 
-   
+
     public async Task DeleteStreamGroup(DeleteStreamGroupRequest request)
     {
         await _mediator.Send(request).ConfigureAwait(false);
@@ -55,7 +51,7 @@ public partial class StreamMasterHub : IStreamGroupHub
         return await _mediator.Send(new GetStreamGroups(streamGroupParameters)).ConfigureAwait(false);
     }
 
-  
+
     public async Task SimulateStreamFailure(string streamUrl)
     {
         await _mediator.Send(new SimulateStreamFailureRequest(streamUrl)).ConfigureAwait(false);

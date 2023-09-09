@@ -1,8 +1,8 @@
-import { useState, useCallback, memo } from "react";
-import { type DeleteStreamGroupRequest, useStreamGroupsDeleteStreamGroupMutation } from "../../store/iptvApi";
+import { memo, useCallback, useState } from "react";
+import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
+import { useStreamGroupsDeleteStreamGroupMutation, type DeleteStreamGroupRequest } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import DeleteButton from "../buttons/DeleteButton";
-import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
 
 type StreamGroupDeleteDialogProps = {
   readonly id: string;
@@ -69,7 +69,7 @@ const StreamGroupDeleteDialog = ({ id, onHide }: StreamGroupDeleteDialogProps) =
           </div>
         </div>
       </InfoMessageOverLayDialog>
-      <DeleteButton disabled={selectedStreamGroup === undefined || selectedStreamGroup.streamGroupNumber === undefined || selectedStreamGroup.streamGroupNumber === 0} onClick={() => setShowOverlay(true)} tooltip='Delete Stream Group' />
+      <DeleteButton disabled={selectedStreamGroup === undefined || selectedStreamGroup.id === undefined || selectedStreamGroup.id === 0} onClick={() => setShowOverlay(true)} tooltip='Delete Stream Group' />
 
     </>
   );

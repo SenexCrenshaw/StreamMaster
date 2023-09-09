@@ -2,10 +2,8 @@
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterDomain.Repository;
-public interface IStreamGroupVideoStreamRepository : IRepositoryBase<StreamGroupVideoStream>
+public interface IStreamGroupVideoStreamRepository : IRepositoryBase<StreamGroupVideoStream, StreamGroupVideoStream>
 {
-    //Task<StreamGroupDto?> AddVideoStreamToStreamGroup(int StreamGroupId, string VideoStreamId, CancellationToken cancellationToken = default);
-    //Task<StreamGroupDto?> RemoveVideoStreamFromStreamGroup(int StreamGroupId, string VideoStreamId, CancellationToken cancellationToken = default);
     Task<StreamGroupDto?> SyncVideoStreamToStreamGroup(int StreamGroupId, string VideoStreamId, CancellationToken cancellationToken = default);
     Task<PagedResponse<VideoStreamDto>> GetStreamGroupVideoStreams(StreamGroupVideoStreamParameters Parameters, CancellationToken cancellationToken = default);
 
@@ -14,4 +12,5 @@ public interface IStreamGroupVideoStreamRepository : IRepositoryBase<StreamGroup
     Task RemoveStreamGroupVideoStreams(int StreamGroupId, IEnumerable<string> toRemove, CancellationToken cancellationToken);
     Task SetStreamGroupVideoStreamsIsReadOnly(int StreamGroupId, List<string> toUpdate, bool IsReadOnly, CancellationToken cancellationToken);
     Task SetVideoStreamRanks(int StreamGroupId, List<VideoStreamIDRank> videoStreamIDRanks, CancellationToken cancellationToken);
+    Task<List<VideoStream>> GetStreamGroupVideoStreamsList(int StreamGroupId, CancellationToken cancellationToken);
 }

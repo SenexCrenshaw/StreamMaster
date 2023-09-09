@@ -249,6 +249,7 @@ export type GetApiArg = {
   orderBy?: string;
   pageNumber?: number;
   pageSize?: number;
+  streamGroupId?: number;
 };
 
 export function areGetApiArgsEqual(obj1?: GetApiArg, obj2?: GetApiArg): boolean {
@@ -268,7 +269,8 @@ export function areGetApiArgsEqual(obj1?: GetApiArg, obj2?: GetApiArg): boolean 
     (obj1.orderBy === obj2.orderBy || (obj1.orderBy === undefined && obj2.orderBy === undefined)) &&
     (obj1.pageNumber === obj2.pageNumber ||
       (obj1.pageNumber === undefined && obj2.pageNumber === undefined)) &&
-    (obj1.pageSize === obj2.pageSize || (obj1.pageSize === undefined && obj2.pageSize === undefined))
+    (obj1.pageSize === obj2.pageSize || (obj1.pageSize === undefined && obj2.pageSize === undefined)) &&
+    (obj1.streamGroupId === obj2.streamGroupId || (obj1.streamGroupId === undefined && obj2.streamGroupId === undefined))
   );
 }
 

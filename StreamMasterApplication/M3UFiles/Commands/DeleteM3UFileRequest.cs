@@ -84,7 +84,7 @@ public class DeleteM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHan
             ChannelGroup? group = Repository.ChannelGroup.GetAllChannelGroups().Where(tg => tg.Name == gtd).FirstOrDefault();
             if (group != null)
             {
-                Repository.ChannelGroup.DeleteChannelGroup(group);
+                await Repository.ChannelGroup.DeleteChannelGroup(group);
                 _ = await Repository.SaveAsync().ConfigureAwait(false);
             }
         }

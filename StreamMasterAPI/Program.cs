@@ -1,6 +1,3 @@
-using Hangfire;
-using Hangfire.Dashboard;
-
 using StreamMasterAPI;
 
 using StreamMasterApplication;

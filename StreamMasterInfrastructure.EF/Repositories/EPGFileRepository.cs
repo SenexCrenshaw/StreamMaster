@@ -8,14 +8,8 @@ using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
-public class EPGFileRepository : RepositoryBase<EPGFile>, IEPGFileRepository
+public class EPGFileRepository(RepositoryContext repositoryContext, IMapper mapper) : RepositoryBase<EPGFile, EPGFileDto>(repositoryContext), IEPGFileRepository
 {
-    private readonly IMapper _mapper;
-    public EPGFileRepository(RepositoryContext repositoryContext, IMapper mapper) : base(repositoryContext)
-    {
-        _mapper = mapper;
-    }
-
     public void CreateEPGFile(EPGFile EPGFile)
     {
         Create(EPGFile);
@@ -47,7 +41,7 @@ public class EPGFileRepository : RepositoryBase<EPGFile>, IEPGFileRepository
 
     public async Task<PagedResponse<EPGFileDto>> GetEPGFilesAsync(EPGFileParameters EPGFileParameters)
     {
-        return await GetEntitiesAsync<EPGFileDto>(EPGFileParameters, _mapper);
+        return await GetEntitiesAsync(EPGFileParameters, mapper);
 
         //IQueryable<EPGFile> EPGFiles = FindAll();
 

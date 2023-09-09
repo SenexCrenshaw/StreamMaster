@@ -3,7 +3,7 @@ using StreamMasterDomain.Pagination;
 
 namespace StreamMasterDomain.Repository
 {
-    public interface IVideoStreamRepository : IRepositoryBase<VideoStream>
+    public interface IVideoStreamRepository : IRepositoryBase<VideoStream, VideoStreamDto>
     {
         Task<List<VideoStreamDto>> GetVideoStreamsForChannelGroups(List<int> channelGroupIds, CancellationToken cancellationToken);
         IQueryable<VideoStream> GetJustVideoStreams();
@@ -18,7 +18,7 @@ namespace StreamMasterDomain.Repository
 
         Task<VideoStreamDto?> DeleteVideoStreamAsync(string VideoStreamId, CancellationToken cancellationToken);
 
-        IQueryable<VideoStream> GetVideoStreamsHidden();
+        IQueryable<VideoStream> GetVideoStreamsNotHidden();
 
         IQueryable<VideoStream> GetVideoStreamsByM3UFileId(int m3uFileId);
 

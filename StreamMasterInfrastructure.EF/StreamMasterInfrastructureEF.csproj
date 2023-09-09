@@ -23,4 +23,8 @@
     <ProjectReference Include="..\StreamMasterApplication\StreamMasterApplication.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
 </Project>

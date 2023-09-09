@@ -15,7 +15,7 @@ using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
-public class StreamGroupChannelGroupRepository(RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISender sender) : RepositoryBase<StreamGroupChannelGroup>(repositoryContext), IStreamGroupChannelGroupRepository
+public class StreamGroupChannelGroupRepository(RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISender sender) : RepositoryBase<StreamGroupChannelGroup, StreamGroupChannelGroup>(repositoryContext), IStreamGroupChannelGroupRepository
 {
     private readonly IMapper _mapper = mapper;
     private readonly ISender _sender = sender;

@@ -1,4 +1,6 @@
-﻿using StreamMasterDomain.Pagination;
+﻿using StreamMasterApplication.Common.Extensions;
+
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.ChannelGroups.Queries;
 
@@ -10,7 +12,7 @@ internal class GetChannelGroupsQueryHandler(ILogger<GetChannelGroupsQuery> logge
     {
         if (request.Parameters.PageSize == 0)
         {
-            return Repository.ChannelGroup.CreateEmptyPagedResponse(request.Parameters);
+            return request.Parameters.CreateEmptyPagedResponse<ChannelGroupDto>();
         }
 
         return await Repository.ChannelGroup.GetChannelGroupsAsync(request.Parameters).ConfigureAwait(false);

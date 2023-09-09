@@ -1,29 +1,22 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
+﻿using FluentValidation;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.M3UFiles.Commands;
-
-using StreamMasterDomain.Attributes;
 
 using System.Text.Json;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
 [RequireAll]
-public record GetStreamGroupLineUpStatus(int StreamGroupNumber) : IRequest<string>;
+public record GetStreamGroupLineUpStatus(int StreamGroupId) : IRequest<string>;
 
 public class GetStreamGroupLineUpStatusValidator : AbstractValidator<GetStreamGroupLineUpStatus>
 {
     public GetStreamGroupLineUpStatusValidator()
     {
-        _ = RuleFor(v => v.StreamGroupNumber)
+        _ = RuleFor(v => v.StreamGroupId)
             .NotNull().GreaterThanOrEqualTo(0);
     }
 }
@@ -38,9 +31,9 @@ public class GetStreamGroupLineUpStatusHandler : BaseRequestHandler, IRequestHan
 
     public Task<string> Handle(GetStreamGroupLineUpStatus request, CancellationToken cancellationToken)
     {
-        if (request.StreamGroupNumber > 0)
+        if (request.StreamGroupId > 1)
         {
-            IQueryable<StreamGroup> streamGroupExists = Repository.StreamGroup.GetAllStreamGroups().Where(x => x.StreamGroupNumber == request.StreamGroupNumber);
+            IQueryable<StreamGroup> streamGroupExists = Repository.StreamGroup.GetAllStreamGroups().Where(x => x.Id == request.StreamGroupId);
             if (!streamGroupExists.Any())
             {
                 return Task.FromResult("");

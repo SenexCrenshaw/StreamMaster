@@ -1,63 +1,23 @@
-import React from "react";
-import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import { InputText } from "primereact/inputtext";
-import { Accordion, AccordionTab } from 'primereact/accordion';
-import PlayListDataSelector from "../../features/playListEditor/PlayListDataSelector";
+import React from "react";
+import { useStreamGroupsCreateStreamGroupMutation, type ChannelGroupDto, type CreateStreamGroupRequest } from "../../store/iptvApi";
+import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import AddButton from "../buttons/AddButton";
-import { type ChannelGroupDto, type StreamGroupsGetStreamGroupsApiArg, type AddStreamGroupRequest, useStreamGroupsAddStreamGroupMutation } from "../../store/iptvApi";
-import { useStreamGroupsGetStreamGroupsQuery } from "../../store/iptvApi";
 
 const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
   const [name, setName] = React.useState<string>('');
-  const [streamGroupNumber, setStreamGroupNumber] = React.useState<number>();
   const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
 
-  const streamGroupsQuery = useStreamGroupsGetStreamGroupsQuery({} as StreamGroupsGetStreamGroupsApiArg);
-  const [streamGroupsAddStreamGroupMutation] = useStreamGroupsAddStreamGroupMutation();
-
-  const getNextStreamGroupNumber = React.useCallback((): number => {
-    if (!streamGroupsQuery?.data?.data) {
-      return 0;
-    }
-
-    if (streamGroupsQuery.data.data.length === 0) {
-      return 1;
-    }
-
-    const numbers = streamGroupsQuery.data.data.map((x) => x.streamGroupNumber);
-
-    const [min, max] = [1, Math.max(...numbers)];
-
-    if (max < min) {
-      return min;
-    }
-
-    const out = Array.from(Array(max - min), (v, i) => i + min).filter(
-      (i) => !numbers.includes(i),
-    );
-
-    if (out.length > 0) {
-      return out[0];
-    }
-
-    return max + 1;
-  }, [streamGroupsQuery.data]);
-
-  React.useEffect(() => {
-    if (streamGroupNumber === undefined || streamGroupNumber === 0) {
-      setStreamGroupNumber(getNextStreamGroupNumber());
-    }
-  }, [getNextStreamGroupNumber, streamGroupNumber]);
+  const [streamGroupsCreateStreamGroupMutation] = useStreamGroupsCreateStreamGroupMutation();
 
   const ReturnToParent = React.useCallback(() => {
     setSelectedChannelGroups([] as ChannelGroupDto[]);
     setShowOverlay(false);
     setInfoMessage('');
     setName('');
-    setStreamGroupNumber(0);
     setBlock(false);
     props.onHide?.();
   }, [props]);
@@ -69,46 +29,38 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
       return true;
     }
 
-    if (streamGroupNumber !== undefined && streamGroupNumber !== 0) {
-      return true;
-    }
+    // if (streamGroupNumber !== undefined && streamGroupNumber !== 0) {
+    //   return true;
+    // }
 
     return false;
 
-  }, [name, streamGroupNumber]);
+  }, [name]);
 
 
   const onAdd = React.useCallback(() => {
-
     setBlock(true);
 
-    if (!isSaveEnabled || !name || streamGroupNumber === 0 || name === '') {
+    if (!isSaveEnabled) {
       ReturnToParent();
-
       return;
     }
 
-
-    if (!isSaveEnabled || !streamGroupNumber || streamGroupNumber === 0) {
-      return;
-    }
-
-    const data = {} as AddStreamGroupRequest;
+    const data = {} as CreateStreamGroupRequest;
 
     data.name = name;
-    data.streamGroupNumber = streamGroupNumber;
 
     if (selectedChannelGroups.length > 0) {
-      data.channelGroupIds = selectedChannelGroups.map((x) => x.id??0);
+      data.channelGroupIds = selectedChannelGroups.map((x) => x.id ?? 0);
     }
 
-    streamGroupsAddStreamGroupMutation(data)
+    streamGroupsCreateStreamGroupMutation(data)
       .then(() => {
         setInfoMessage('Stream Group Added Successfully');
       }).catch((e) => {
         setInfoMessage('Stream Group Add Error: ' + e.message);
       });
-  }, [ReturnToParent, isSaveEnabled, name, selectedChannelGroups, streamGroupNumber, streamGroupsAddStreamGroupMutation]);
+  }, [ReturnToParent, isSaveEnabled, name, selectedChannelGroups, streamGroupsCreateStreamGroupMutation]);
 
   React.useEffect(() => {
     const callback = (event: KeyboardEvent) => {
@@ -129,14 +81,6 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
     };
   }, [onAdd, name]);
 
-  const onsetSelectedChannelGroups = React.useCallback((selectedData: ChannelGroupDto | ChannelGroupDto[]) => {
-    if (Array.isArray(selectedData)) {
-      setSelectedChannelGroups(selectedData);
-    } else {
-      setSelectedChannelGroups([selectedData]);
-    }
-
-  }, []);
 
   return (
     <>
@@ -152,46 +96,26 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
         show={showOverlay}
       >
 
-        <div className="justify-content-between align-items-center ">
-          <div className="flex">
-            <span className="p-float-label col-6">
+        <div className="flex grid justify-content-between align-items-center">
+          <div className="flex col-12">
+            <label className="col-2 " htmlFor="Name">Name: </label>
+            <div className="col-8 ">
               <InputText
                 autoFocus
-                className={name === '' ? 'withpadding p-invalid' : 'withpadding'}
+                className='bordered-text-large'
                 id="Name"
                 onChange={(e) => setName(e.target.value)}
                 type="text"
                 value={name}
               />
-              <label
-                className="text-500"
-                htmlFor="Name"
-              >Name</label>
-            </span>
-
-
+            </div>
           </div>
-
-          <Accordion className='mt-2'>
-            <AccordionTab header="Groups">
-              <div className='col-12 m-0 p-0 pr-1' >
-                <PlayListDataSelector
-                  hideAddRemoveControls
-                  id='streamggroupadddialog'
-                  maxHeight={400}
-                  onSelectionChange={(e) => onsetSelectedChannelGroups(e as ChannelGroupDto[])}
-                />
-              </div>
-            </AccordionTab>
-
-          </Accordion>
-
           <div className="flex col-12 mt-3 gap-2 justify-content-end">
-            <AddButton label='Add Stream Group' onClick={() => onAdd()} tooltip='Add Stream Group' />
+            <AddButton disabled={isSaveEnabled} label='Add Stream Group' onClick={() => onAdd()} tooltip='Add Stream Group' />
           </div>
 
         </div>
-      </InfoMessageOverLayDialog>
+      </InfoMessageOverLayDialog >
 
       <AddButton onClick={() => setShowOverlay(true)} tooltip='Add Stream Group' />
 

@@ -1,6 +1,5 @@
 import { hubConnection } from "../app/signalr";
 import {
-  type AddStreamGroupRequest,
   type AutoMatchIconToStreamsRequest,
   type ChangeM3UFileNameRequest,
   type ChangeVideoStreamChannelRequest,
@@ -9,14 +8,15 @@ import {
   type CreateChannelGroupRequest,
   type CreateEpgFileRequest,
   type CreateM3UFileRequest,
+  type CreateStreamGroupRequest,
   type CreateVideoStreamRequest,
   type DeleteChannelGroupRequest,
   type DeleteEpgFileRequest,
   type DeleteM3UFileRequest,
   type DeleteStreamGroupRequest,
   type DeleteVideoStreamRequest,
-  type EpgFilesGetEpgFilesApiArg,
   type EpgFileDto,
+  type EpgFilesGetEpgFilesApiArg,
   type EpgGuide,
   type FailClientRequest,
   type GetLog,
@@ -32,13 +32,13 @@ import {
   type ProcessEpgFileRequest,
   type ProcessM3UFileRequest,
   type ProgrammeNameDto,
+  type ReSetVideoStreamsLogoRequest,
   type RefreshEpgFileRequest,
   type RefreshM3UFileRequest,
-  type ReSetVideoStreamsLogoRequest,
   type Schedule,
   type SdStatus,
-  type SettingDto,
   type SetVideoStreamChannelNumbersRequest,
+  type SettingDto,
   type Station,
   type StationPreview,
   type StreamGroupDto,
@@ -288,8 +288,8 @@ export const UpdateSetting = async (arg: UpdateSettingRequest): Promise<void> =>
   await hubConnection.invoke('UpdateSetting', arg);
 };
 
-export const AddStreamGroup = async (arg: AddStreamGroupRequest): Promise<void> => {
-  await hubConnection.invoke('AddStreamGroup', arg);
+export const CreateStreamGroup = async (arg: CreateStreamGroupRequest): Promise<void> => {
+  await hubConnection.invoke('CreateStreamGroup', arg);
 };
 
 export const DeleteStreamGroup = async (arg: DeleteStreamGroupRequest): Promise<void> => {

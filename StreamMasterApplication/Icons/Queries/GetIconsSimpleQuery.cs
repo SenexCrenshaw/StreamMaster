@@ -12,7 +12,7 @@ internal class GetIconsSimpleQueryHandler : BaseMemoryRequestHandler, IRequestHa
 
     public Task<IEnumerable<IconFileDto>> Handle(GetIconsSimpleQuery request, CancellationToken cancellationToken)
     {
-        List<IconFileDto> icons = MemoryCache.GetIcons(Mapper).Skip(request.iconFileParameters.First).ToList();
+        List<IconFileDto> icons = MemoryCache.GetIcons(Mapper).OrderBy(a => a.Name).Skip(request.iconFileParameters.First).ToList();
         List<IconFileDto> ficons = icons.Take(request.iconFileParameters.Count).ToList();
         IEnumerable<IconFileDto> ret = Mapper.Map<IEnumerable<IconFileDto>>(ficons);
 

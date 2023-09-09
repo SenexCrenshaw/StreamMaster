@@ -40,7 +40,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
 
     [HttpPost]
     [Route("[action]")]
-    public async Task<ActionResult> AddStreamGroup(AddStreamGroupRequest request)
+    public async Task<ActionResult> CreateStreamGroup(CreateStreamGroupRequest request)
     {
         await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
@@ -63,16 +63,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         return data != null ? (ActionResult<StreamGroupDto>)data : (ActionResult<StreamGroupDto>)NotFound();
     }
 
-    [Authorize(Policy = "SGLinks")]
-    [HttpGet]
-    [Route("[action]/{StreamGroupNumber}")]
-    public async Task<ActionResult<StreamGroupDto>> GetStreamGroupByStreamNumber(int StreamGroupNumber)
-    {
-        StreamGroupDto? data = await Mediator.Send(new GetStreamGroupByStreamNumber(StreamGroupNumber)).ConfigureAwait(false);
-
-        return data != null ? (ActionResult<StreamGroupDto>)data : (ActionResult<StreamGroupDto>)NotFound();
-    }
-
     [HttpGet]
     [AllowAnonymous]
     [Route("{encodedId}")]
@@ -80,13 +70,13 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [Route("{encodedId}/device.xml")]
     public async Task<IActionResult> GetStreamGroupCapability(string encodedId)
     {
-        int? streamGroupNumber = encodedId.DecodeValue128(_setting.ServerKey);
-        if (streamGroupNumber == null)
+        int? streamGroupId = encodedId.DecodeValue128(_setting.ServerKey);
+        if (streamGroupId == null)
         {
             return new NotFoundResult();
         }
 
-        string xml = await Mediator.Send(new GetStreamGroupCapability((int)streamGroupNumber)).ConfigureAwait(false);
+        string xml = await Mediator.Send(new GetStreamGroupCapability((int)streamGroupId)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = xml,

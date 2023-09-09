@@ -12,26 +12,13 @@ using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
-public class VideoStreamLinkRepository : RepositoryBase<VideoStreamLink>, IVideoStreamLinkRepository
+public class VideoStreamLinkRepository(RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : RepositoryBase<VideoStreamLink, VideoStreamLink>(repositoryContext), IVideoStreamLinkRepository
 {
-    private readonly IMemoryCache _memoryCache;
-    private readonly IMapper _mapper;
-    private readonly ISender _sender;
-
-    public VideoStreamLinkRepository(RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : base(repositoryContext)
-    {
-        _memoryCache = memoryCache;
-        _mapper = mapper;
-        _sender = sender;
-    }
-
     public async Task<List<string>> GetVideoStreamVideoStreamIds(string videoStreamId, CancellationToken cancellationToken)
     {
         List<string> ids = await FindByCondition(a => a.ParentVideoStreamId == videoStreamId).OrderBy(a => a.Rank).Select(a => a.ChildVideoStreamId).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         return ids;
     }
-
-
     public async Task<PagedResponse<ChildVideoStreamDto>> GetVideoStreamVideoStreams(VideoStreamLinkParameters parameters, CancellationToken cancellationToken)
     {
         parameters.OrderBy = "rank";
@@ -62,7 +49,7 @@ public class VideoStreamLinkRepository : RepositoryBase<VideoStreamLink>, IVideo
         //var links = await FindByCondition(a => a.ParentVideoStreamId == videoStreamId).ToArrayAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         foreach (VideoStreamLink? link in pagedResult)
         {
-            ChildVideoStreamDto cg = _mapper.Map<ChildVideoStreamDto>(link.ChildVideoStream);
+            ChildVideoStreamDto cg = mapper.Map<ChildVideoStreamDto>(link.ChildVideoStream);
             cg.Rank = link.Rank;
             cgs.Add(cg);
         }

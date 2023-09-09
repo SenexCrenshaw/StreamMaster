@@ -3,9 +3,9 @@ using StreamMasterDomain.Pagination;
 
 namespace StreamMasterDomain.Repository
 {
-    public interface IStreamGroupRepository : IRepositoryBase<StreamGroup>
+    public interface IStreamGroupRepository : IRepositoryBase<StreamGroup, StreamGroupDto>
     {
-        Task AddStreamGroupRequestAsync(AddStreamGroupRequest request, CancellationToken cancellationToken);
+        Task CreateStreamGroupRequestAsync(CreateStreamGroupRequest request, CancellationToken cancellationToken);
         //Task<StreamGroupDto?> Sync(int streamGroupId, List<string>? ChannelGroupNames, List<VideoStreamIsReadOnly>? VideoStreams, CancellationToken cancellationToken = default);
         Task<StreamGroup?> GetStreamGroupWithRelatedEntitiesByIdAsync(int StreamGroupId, CancellationToken cancellationToken);
 
@@ -18,15 +18,12 @@ namespace StreamMasterDomain.Repository
 
         Task<StreamGroupDto?> UpdateStreamGroupAsync(UpdateStreamGroupRequest request, CancellationToken cancellationToken);
 
-        Task<StreamGroupDto?> GetStreamGroupDtoByStreamGroupNumber(int streamGroupNumber, CancellationToken cancellationToken = default);
-
-        Task<bool> AddChannelGroupToStreamGroupAsync(int streamGroupId, int channelGroupId, CancellationToken cancellationToken);
+        //Task<bool> AddChannelGroupToStreamGroupAsync(int streamGroupId, int channelGroupId, CancellationToken cancellationToken);
 
         IQueryable<StreamGroup> GetAllStreamGroups();
 
         Task<StreamGroup?> GetStreamGroupByIdAsync(int id);
 
-        PagedResponse<StreamGroupDto> CreateEmptyPagedResponse(StreamGroupParameters Parameters);
         Task<IPagedList<StreamGroup>> GetStreamGroupsAsync(StreamGroupParameters StreamGroupParameters);
 
         Task<PagedResponse<StreamGroupDto>> GetStreamGroupDtosPagedAsync(StreamGroupParameters StreamGroupParameters);

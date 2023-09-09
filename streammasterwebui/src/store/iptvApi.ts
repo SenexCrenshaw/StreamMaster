@@ -665,12 +665,12 @@ const injectedRtkApi = api
         }),
         providesTags: ["StreamGroupChannelGroup"],
       }),
-      streamGroupsAddStreamGroup: build.mutation<
-        StreamGroupsAddStreamGroupApiResponse,
-        StreamGroupsAddStreamGroupApiArg
+      streamGroupsCreateStreamGroup: build.mutation<
+        StreamGroupsCreateStreamGroupApiResponse,
+        StreamGroupsCreateStreamGroupApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/streamgroups/addstreamgroup`,
+          url: `/api/streamgroups/createstreamgroup`,
           method: "POST",
           body: queryArg,
         }),
@@ -824,6 +824,7 @@ const injectedRtkApi = api
         query: (queryArg) => ({
           url: `/api/streamgroupvideostreams/getstreamgroupvideostreams`,
           params: {
+            StreamGroupId: queryArg.streamGroupId,
             PageNumber: queryArg.pageNumber,
             PageSize: queryArg.pageSize,
             OrderBy: queryArg.orderBy,
@@ -1385,8 +1386,8 @@ export type StreamGroupChannelGroupGetChannelGroupsFromStreamGroupApiArg =
 export type StreamGroupChannelGroupGetAllChannelGroupsApiResponse =
   /** status 200  */ ChannelGroupDto[];
 export type StreamGroupChannelGroupGetAllChannelGroupsApiArg = number;
-export type StreamGroupsAddStreamGroupApiResponse = unknown;
-export type StreamGroupsAddStreamGroupApiArg = AddStreamGroupRequest;
+export type StreamGroupsCreateStreamGroupApiResponse = unknown;
+export type StreamGroupsCreateStreamGroupApiArg = CreateStreamGroupRequest;
 export type StreamGroupsDeleteStreamGroupApiResponse = unknown;
 export type StreamGroupsDeleteStreamGroupApiArg = DeleteStreamGroupRequest;
 export type StreamGroupsGetStreamGroupApiResponse =
@@ -1431,6 +1432,7 @@ export type StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiArg = number;
 export type StreamGroupVideoStreamsGetStreamGroupVideoStreamsApiResponse =
   /** status 200  */ PagedResponseOfVideoStreamDto;
 export type StreamGroupVideoStreamsGetStreamGroupVideoStreamsApiArg = {
+  streamGroupId?: number;
   pageNumber?: number;
   pageSize?: number;
   orderBy?: string;
@@ -2097,7 +2099,6 @@ export type StreamGroupDto = {
   id: number;
   m3ULink: string;
   name: string;
-  streamGroupNumber: number;
   xmlLink: string;
 };
 export type SyncStreamGroupChannelGroupsRequest = {
@@ -2109,7 +2110,7 @@ export type VideoStreamIsReadOnly = {
   isReadOnly?: boolean;
   videoStreamId?: string;
 };
-export type AddStreamGroupRequest = {
+export type CreateStreamGroupRequest = {
   name: string;
   streamGroupNumber: number;
   videoStreams: VideoStreamIsReadOnly[] | null;
@@ -2382,7 +2383,7 @@ export const {
   useStreamGroupChannelGroupSyncStreamGroupChannelGroupsMutation,
   useStreamGroupChannelGroupGetChannelGroupsFromStreamGroupQuery,
   useStreamGroupChannelGroupGetAllChannelGroupsQuery,
-  useStreamGroupsAddStreamGroupMutation,
+  useStreamGroupsCreateStreamGroupMutation,
   useStreamGroupsDeleteStreamGroupMutation,
   useStreamGroupsGetStreamGroupQuery,
   useStreamGroupsGetStreamGroupByStreamNumberQuery,

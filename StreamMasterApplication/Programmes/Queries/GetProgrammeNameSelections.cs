@@ -8,24 +8,21 @@ namespace StreamMasterApplication.Programmes.Queries;
 
 public record GetProgrammeNameSelections(ProgrammeParameters Parameters) : IRequest<PagedResponse<ProgrammeNameDto>>;
 
-internal class GetProgrammeNameSelectionsHandler : BaseMemoryRequestHandler, IRequestHandler<GetProgrammeNameSelections, PagedResponse<ProgrammeNameDto>>
+internal class GetProgrammeNameSelectionsHandler(ILogger<GetProgrammeNameSelections> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, publisher, sender, hubContext, memoryCache), IRequestHandler<GetProgrammeNameSelections, PagedResponse<ProgrammeNameDto>>
 {
-
-    public GetProgrammeNameSelectionsHandler(ILogger<GetProgrammeNameSelections> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
-
     public async Task<PagedResponse<ProgrammeNameDto>> Handle(GetProgrammeNameSelections request, CancellationToken cancellationToken)
     {
         if (request.Parameters.PageSize == 0)
         {
-            PagedResponse<ProgrammeNameDto> emptyResponse = new();
-            emptyResponse.TotalItemCount = MemoryCache.Programmes().Count;
+            PagedResponse<ProgrammeNameDto> emptyResponse = new()
+            {
+                TotalItemCount = MemoryCache.Programmes().Count
+            };
             return emptyResponse;
         }
 
-        List<ProgrammeNameDto> ret = new();
+        IQueryable<Programme> programmes = MemoryCache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel)).AsQueryable();
 
-        IQueryable<Programme> programmes = MemoryCache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel)).AsQueryable();// && a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
         if (!string.IsNullOrEmpty(request.Parameters.JSONFiltersString))
         {
             List<DataTableFilterMetaData>? filters = JsonSerializer.Deserialize<List<DataTableFilterMetaData>>(request.Parameters.JSONFiltersString);
@@ -40,22 +37,23 @@ internal class GetProgrammeNameSelectionsHandler : BaseMemoryRequestHandler, IRe
             }
         }
 
-        IEnumerable<string> names = programmes.Select(a => a.Channel).Distinct();
-        foreach (string? name in names)
+        // Get distinct channel names directly
+        List<string> distinctChannels = programmes.Select(a => a.Channel).Distinct().ToList();
+
+        // Map to DTO
+        List<ProgrammeNameDto> mappedProgrammes = distinctChannels.Select(channel =>
         {
-            Programme? programme = programmes.FirstOrDefault(a => a.Channel == name);
-            if (programme != null)
-            {
-                ProgrammeNameDto programmeDto = Mapper.Map<ProgrammeNameDto>(programme);
-                ret.Add(programmeDto);
-            }
-        }
+            Programme? programme = programmes.FirstOrDefault(a => a.Channel == channel);
+            return programme != null ? Mapper.Map<ProgrammeNameDto>(programme) : null;
+        }).Where(dto => dto != null).ToList();
 
-        IPagedList<ProgrammeNameDto> test = await ret.OrderBy(a => a.DisplayName).ToPagedListAsync(request.Parameters.PageNumber, request.Parameters.PageSize).ConfigureAwait(false);
+        IPagedList<ProgrammeNameDto> pagedList = await mappedProgrammes.OrderBy(a => a.DisplayName)
+            .ToPagedListAsync(request.Parameters.PageNumber, request.Parameters.PageSize)
+            .ConfigureAwait(false);
 
-        PagedResponse<ProgrammeNameDto> pagedResponse = test.ToPagedResponse(test.TotalItemCount);
+        PagedResponse<ProgrammeNameDto> pagedResponse = pagedList.ToPagedResponse(pagedList.TotalItemCount);
         return pagedResponse;
-
-
     }
+
+
 }

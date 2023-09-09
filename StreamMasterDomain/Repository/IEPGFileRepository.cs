@@ -3,8 +3,9 @@ using StreamMasterDomain.Pagination;
 
 namespace StreamMasterDomain.Repository
 {
-    public interface IEPGFileRepository : IRepositoryBase<EPGFile>
+    public interface IEPGFileRepository : IRepositoryBase<EPGFile, EPGFileDto>
     {
+
         Task<IEnumerable<EPGFile>> GetAllEPGFilesAsync();
 
         Task<PagedResponse<EPGFileDto>> GetEPGFilesAsync(EPGFileParameters EPGFileParameters);

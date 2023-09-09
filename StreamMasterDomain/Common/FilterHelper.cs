@@ -15,6 +15,7 @@ public static class FilterHelper<T> where T : class
 
     public static IQueryable<T> ApplyFiltersAndSort(IQueryable<T> query, List<DataTableFilterMetaData>? filters, string orderBy)
     {
+
         if (filters != null)
         {
             // Apply filters
@@ -44,9 +45,7 @@ public static class FilterHelper<T> where T : class
         if (!PropertyCache.TryGetValue(propertyKey, out PropertyInfo? property))
         {
             property = typeof(T).GetProperties().FirstOrDefault(p => string.Equals(p.Name, filter.FieldName, StringComparison.OrdinalIgnoreCase));
-            PropertyCache[propertyKey] = property != null
-                ? property
-                : throw new ArgumentException($"Property {filter.FieldName} not found on type {typeof(T).FullName}");
+            PropertyCache[propertyKey] = property ?? throw new ArgumentException($"Property {filter.FieldName} not found on type {typeof(T).FullName}");
         }
 
         Expression propertyAccess = Expression.Property(parameter, property);

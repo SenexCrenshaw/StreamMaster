@@ -144,7 +144,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
       </InfoMessageOverLayDialog >
 
       <EditButton
-        disabled={selectedStreamGroup === undefined || selectedStreamGroup.streamGroupNumber === undefined || selectedStreamGroup.streamGroupNumber === 0}
+        disabled={selectedStreamGroup === undefined || selectedStreamGroup.id === undefined || selectedStreamGroup.id === 0}
         iconFilled
         label='Edit Stream Group'
         onClick={() => setShowOverlay(true)}

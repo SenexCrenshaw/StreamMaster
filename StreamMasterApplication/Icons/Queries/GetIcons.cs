@@ -1,12 +1,4 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-
-using StreamMasterDomain.Cache;
-using StreamMasterDomain.Dto;
-using StreamMasterDomain.Filtering;
+﻿using StreamMasterDomain.Filtering;
 using StreamMasterDomain.Pagination;
 
 using System.Text.Json;
@@ -45,7 +37,6 @@ internal class GetIconsHandler : IRequestHandler<GetIcons, PagedResponse<IconFil
                 icons = FilterHelper<IconFileDto>.ApplyFiltersAndSort(icons, filters, "Name asc");
             }
         }
-
 
         IPagedList<IconFileDto> test = await icons.ToPagedListAsync(request.iconFileParameters.PageNumber, request.iconFileParameters.PageSize).ConfigureAwait(false);
 

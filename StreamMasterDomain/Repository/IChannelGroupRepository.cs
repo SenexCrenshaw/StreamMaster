@@ -3,7 +3,7 @@ using StreamMasterDomain.Pagination;
 
 namespace StreamMasterDomain.Repository
 {
-    public interface IChannelGroupRepository : IRepositoryBase<ChannelGroup>
+    public interface IChannelGroupRepository : IRepositoryBase<ChannelGroup, ChannelGroupDto>
     {
         Task<(IEnumerable<int> ChannelGroupIds, IEnumerable<VideoStreamDto> VideoStreams)> DeleteAllChannelGroupsFromParameters(ChannelGroupParameters Parameters, CancellationToken cancellationToken);
         Task<(int? ChannelGroupId, IEnumerable<VideoStreamDto> VideoStreams)> DeleteChannelGroup(ChannelGroup ChannelGroup);
@@ -32,7 +32,7 @@ namespace StreamMasterDomain.Repository
         void CreateChannelGroup(ChannelGroup ChannelGroup);
 
         void UpdateChannelGroup(ChannelGroup ChannelGroup);
-        PagedResponse<ChannelGroupDto> CreateEmptyPagedResponse(ChannelGroupParameters parameters);
+        //PagedResponse<ChannelGroupDto> CreateEmptyPagedResponse(ChannelGroupParameters parameters);
         //Task<List<string>> GetChannelNamesFromVideoStream(VideoStreamDto videoStreamDto, CancellationToken cancellationToken);
         //Task<(ChannelGroupDto? channelGroup, List<VideoStreamDto>? distinctList, List<StreamGroupDto>? streamGroupIds)> UpdateChannelGroup(UpdateChannelGroupRequest request, string url, CancellationToken cancellationToken);
     }

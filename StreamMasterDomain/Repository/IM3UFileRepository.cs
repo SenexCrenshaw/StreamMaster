@@ -3,7 +3,7 @@ using StreamMasterDomain.Pagination;
 
 namespace StreamMasterDomain.Repository
 {
-    public interface IM3UFileRepository : IRepositoryBase<M3UFile>
+    public interface IM3UFileRepository : IRepositoryBase<M3UFile, M3UFileDto>
     {
         IQueryable<string> GetM3UFileNames();
         Task<List<string>> GetChannelGroupNamesFromM3UFile(int m3uFileId);

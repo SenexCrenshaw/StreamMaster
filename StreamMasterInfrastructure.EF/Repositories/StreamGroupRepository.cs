@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
-using StreamMasterApplication.StreamGroupChannelGroups.Commands;
-
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
@@ -15,9 +13,10 @@ using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
 
+
 namespace StreamMasterInfrastructureEF.Repositories;
 
-public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHelper<StreamGroup> StreamGroupSortHelper, IMapper mapper, IMemoryCache memoryCache, ISender sender, IHttpContextAccessor httpContextAccessor) : RepositoryBase<StreamGroup>(repositoryContext), IStreamGroupRepository
+public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHelper<StreamGroup> StreamGroupSortHelper, IMapper mapper, IMemoryCache memoryCache, ISender sender, IHttpContextAccessor httpContextAccessor) : RepositoryBase<StreamGroup, StreamGroupDto>(repositoryContext), IStreamGroupRepository
 {
     private readonly ISortHelper<StreamGroup> _StreamGroupSortHelper = StreamGroupSortHelper;
     private readonly IMapper _mapper = mapper;
@@ -25,30 +24,20 @@ public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHel
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly IMemoryCache _memoryCache = memoryCache;
 
-    public async Task AddStreamGroupRequestAsync(AddStreamGroupRequest request, CancellationToken cancellationToken)
+    public async Task CreateStreamGroupRequestAsync(CreateStreamGroupRequest request, CancellationToken cancellationToken)
     {
-        int streamGroupNumber = GetAllStreamGroups().Max(a => a.StreamGroupNumber) + 1;
+        //int streamGroupNumber = GetAllStreamGroups().Max(a => a.StreamGroupNumber) + 1;
 
         StreamGroup streamGroup = new()
         {
-            Name = request.Name,
-            StreamGroupNumber = request.StreamGroupNumber,
+            Name = request.Name
         };
 
         CreateStreamGroup(streamGroup);
         _ = await RepositoryContext.SaveChangesAsync(cancellationToken);
 
-        if (request.ChannelGroupIds != null && request.ChannelGroupIds.Any())
-        {
-            await _sender.Send(new SyncStreamGroupChannelGroupsRequest(streamGroupNumber, request.ChannelGroupIds), cancellationToken);
-        }
     }
 
-    public async Task<StreamGroupDto?> GetStreamGroupDtoByStreamGroupNumber(int streamGroupNumber, CancellationToken cancellationToken = default)
-    {
-        StreamGroup? sg = await GetStreamGroupByStreamGroupNumberAsync(streamGroupNumber).ConfigureAwait(false);
-        return sg is not null ? await GetStreamGroupDto(sg?.Id ?? 0, cancellationToken).ConfigureAwait(false) : null;
-    }
 
     public async Task SetGroupNameByGroupName(string channelGroupName, string newGroupName, CancellationToken cancellationToken)
     {
@@ -58,34 +47,34 @@ public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHel
               .ConfigureAwait(false);
     }
 
-    public async Task<bool> AddChannelGroupToStreamGroupAsync(int streamGroupId, int channelGroupId, CancellationToken cancellationToken)
-    {
-        // Check if combination already exists
-        bool alreadyExists = await RepositoryContext.StreamGroupChannelGroups
-            .AnyAsync(sgcg => sgcg.StreamGroupId == streamGroupId && sgcg.ChannelGroupId == channelGroupId, cancellationToken);
+    //public async Task<bool> AddChannelGroupToStreamGroupAsync(int streamGroupId, int channelGroupId, CancellationToken cancellationToken)
+    //{
+    //    // Check if combination already exists
+    //    bool alreadyExists = await RepositoryContext.StreamGroupChannelGroups
+    //        .AnyAsync(sgcg => sgcg.StreamGroupId == streamGroupId && sgcg.ChannelGroupId == channelGroupId, cancellationToken);
 
-        // If combination exists, return false
-        if (alreadyExists)
-        {
-            return false;
-        }
+    //    // If combination exists, return false
+    //    if (alreadyExists)
+    //    {
+    //        return false;
+    //    }
 
-        // If not, create new StreamGroupChannelGroup entity
-        StreamGroupChannelGroup streamGroupChannelGroup = new()
-        {
-            StreamGroupId = streamGroupId,
-            ChannelGroupId = channelGroupId
-        };
+    //    // If not, create new StreamGroupChannelGroup entity
+    //    StreamGroupChannelGroup streamGroupChannelGroup = new()
+    //    {
+    //        StreamGroupId = streamGroupId,
+    //        ChannelGroupId = channelGroupId
+    //    };
 
-        // Add new entity to DbSet
-        _ = await RepositoryContext.StreamGroupChannelGroups.AddAsync(streamGroupChannelGroup, cancellationToken);
+    //    // Add new entity to DbSet
+    //    _ = await RepositoryContext.StreamGroupChannelGroups.AddAsync(streamGroupChannelGroup, cancellationToken);
 
-        // Save changes in database
-        _ = await RepositoryContext.SaveChangesAsync(cancellationToken);
+    //    // Save changes in database
+    //    _ = await RepositoryContext.SaveChangesAsync(cancellationToken);
 
-        // Return true indicating successful addition
-        return true;
-    }
+    //    // Return true indicating successful addition
+    //    return true;
+    //}
 
     public async Task<IPagedList<StreamGroup>> GetStreamGroupsAsync(StreamGroupParameters StreamGroupParameters)
     {
@@ -99,11 +88,6 @@ public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHel
     public async Task<StreamGroup?> GetStreamGroupByIdAsync(int id)
     {
         return await FindByCondition(StreamGroup => StreamGroup.Id == id).FirstOrDefaultAsync();
-    }
-
-    public async Task<StreamGroup?> GetStreamGroupByStreamGroupNumberAsync(int streamGroupNumber)
-    {
-        return await FindByCondition(StreamGroup => StreamGroup.StreamGroupNumber == streamGroupNumber).FirstOrDefaultAsync();
     }
 
     public async Task<StreamGroup?> GetStreamGroupWithRelatedEntitiesByIdAsync(int streamGroupId, CancellationToken cancellationToken)
@@ -140,7 +124,7 @@ public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHel
         }
 
         Setting _setting = FileUtil.GetSetting();
-        string encodedStreamGroupNumber = ret.StreamGroupNumber.EncodeValue128(_setting.ServerKey);
+        string encodedStreamGroupNumber = ret.Id.EncodeValue128(_setting.ServerKey);
         ret.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
         ret.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
         ret.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
@@ -257,7 +241,7 @@ public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHel
     {
         string Url = _httpContextAccessor.GetUrl();
         Setting _setting = FileUtil.GetSetting();
-        PagedResponse<StreamGroupDto> ret = await GetEntitiesAsync<StreamGroupDto>(StreamGroupParameters, _mapper);
+        PagedResponse<StreamGroupDto> ret = await GetEntitiesAsync(StreamGroupParameters, _mapper);
         foreach (StreamGroupDto sg in ret.Data)
         {
             int count = 0;
@@ -270,7 +254,7 @@ public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHel
                 count = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == sg.Id).Count();
             }
             RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == sg.Id).Count();
-            string encodedStreamGroupNumber = sg.StreamGroupNumber.EncodeValue128(_setting.ServerKey);
+            string encodedStreamGroupNumber = sg.Id.EncodeValue128(_setting.ServerKey);
             sg.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
             sg.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
             sg.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
@@ -281,8 +265,4 @@ public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHel
         return ret;
     }
 
-    public PagedResponse<StreamGroupDto> CreateEmptyPagedResponse(StreamGroupParameters Parameters)
-    {
-        return CreateEmptyPagedResponse<StreamGroupDto>(Parameters);
-    }
 }

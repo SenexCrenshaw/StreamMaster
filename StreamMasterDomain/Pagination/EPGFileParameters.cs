@@ -4,7 +4,7 @@
     {
         public EPGFileParameters()
         {
-            OrderBy = "id desc";
+            OrderBy = "name desc";
         }
 
     }
