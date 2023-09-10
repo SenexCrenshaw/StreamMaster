@@ -69,7 +69,7 @@ const TextInput = ({ autoFocus = true, isValid = true, label, onChange, onResetC
         }
       </span>
       {doShowCopy() &&
-        <div className='col-1'>
+        <div className='col-1 p-0 m-0'>
           <CopyButton value={input} />
         </div>
       }

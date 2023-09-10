@@ -21,6 +21,14 @@
    --orange-color: #FE7600;
  }
 
+ .copyButtonMessage {
+   right: 40px;
+   padding: 5px;
+   position: absolute;
+   top: 50%;
+   transform: translateY(-50%);
+ }
+
  .p-fieldset-legend-text {
    color: var(--orange-color) !important;
    font-size: var(--common-font-size-large);
