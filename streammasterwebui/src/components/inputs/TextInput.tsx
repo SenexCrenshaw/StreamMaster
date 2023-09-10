@@ -5,6 +5,7 @@ import CopyButton from "../buttons/CopyButton";
 
 type TextInputProps = {
   readonly autoFocus?: boolean;
+  readonly isUrl?: boolean; // new prop
   readonly isValid?: boolean;
   readonly label?: string;
   readonly onChange: (value: string) => void;
@@ -15,17 +16,38 @@ type TextInputProps = {
   readonly value: string;
 }
 // className={`${isValidUrl(source) ? '' : 'p-invalid'}`}
-const TextInput = ({ autoFocus = true, isValid = true, label, onChange, onResetClick, placeHolder, showClear = true, showCopy = false, value }: TextInputProps) => {
+const TextInput = ({ autoFocus = true, isUrl = false, isValid = true, label, onChange, onResetClick, placeHolder, showClear = true, showCopy = false, value }: TextInputProps) => {
   const [input, setInput] = useState<string>('');
   const [originalInput, setOriginalInput] = useState<string | undefined>(undefined);
 
 
-  useEffect(() => {
-    if (originalInput === undefined && value != originalInput) {
-      setOriginalInput(value.replace(/\.[^/.]+$/, ''))
+  const processValue = (val: string) => {
+    // If val is null, empty, or undefined, return it as is
+    if (!val) return val;
+
+    // If it's supposed to be a URL, process accordingly
+    if (isUrl) {
+      try {
+        // Construct the URL and return it with the query parameters
+        const constructedURL = new URL(val);
+        return constructedURL.origin + constructedURL.pathname + constructedURL.search;
+      } catch (error) {
+        // If there's an error constructing the URL (meaning it's not a valid URL), return val as is
+        return val;
+      }
     }
 
-    setInput(value.replace(/\.[^/.]+$/, ''));
+    // If not a URL, remove file extension (previous behavior)
+    return val.replace(/\.[^/.]+$/, '');
+  }
+
+
+  useEffect(() => {
+    if (originalInput === undefined && value !== originalInput) {
+      setOriginalInput(processValue(value));
+    }
+
+    setInput(processValue(value));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
@@ -57,8 +79,8 @@ const TextInput = ({ autoFocus = true, isValid = true, label, onChange, onResetC
           className={`text-large w-full ` + (isValid ? '' : 'p-invalid')}
           id="name"
           onChange={(event) => {
-            setInput(event.target.value.replace(/\.[^/.]+$/, ''))
-            onChange(event.target.value.replace(/\.[^/.]+$/, ''));
+            setInput(processValue(event.target.value))
+            onChange(processValue(event.target.value));
           }
           }
           placeholder={!label ? placeHolder : undefined}

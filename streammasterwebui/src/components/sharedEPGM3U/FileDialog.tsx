@@ -261,17 +261,10 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
                 <div className="flex col-12">
                   <div className="flex col-8 mr-5">
                     <TextInput
+                      isUrl
                       isValid={isValidUrl(source)}
                       label="Source URL (://)"
                       onChange={onSetSource}
-                      onResetClick={() => {
-                        if (activeFile !== null && activeFile !== undefined) {
-                          setNameFromFileName(true);
-                          setName(activeFile.name.replace(/\.[^/.]+$/, ''))
-                        } else {
-                          setName('')
-                        }
-                      }}
                       placeHolder='https://'
                       showClear
                       value={name} />
