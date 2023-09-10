@@ -140,7 +140,10 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         string logo = GetIconUrl(videoStream.User_Tvg_logo);
         videoStream.User_Tvg_logo = logo;
 
-        string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
+        string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
+                .Replace("/", "")
+                .Replace(" ", "_");
+
         string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, Settings.ServerKey, iv);
         string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 

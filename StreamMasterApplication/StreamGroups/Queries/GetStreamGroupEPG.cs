@@ -18,11 +18,11 @@ namespace StreamMasterApplication.StreamGroups.Queries;
 [RequireAll]
 public record GetStreamGroupEPG(int StreamGroupId) : IRequest<string>;
 
-public class EpgData
-{
-    public List<TvChannel> Channels { get; set; } = new List<TvChannel>();
-    public List<Programme> Programmes { get; set; } = new List<Programme>();
-}
+//public class EpgData
+//{
+//    public List<TvChannel> Channels { get; set; } = new List<TvChannel>();
+//    public List<Programme> Programmes { get; set; } = new List<Programme>();
+//}
 
 public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
 {
@@ -89,14 +89,14 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             return "";
         }
 
-        EpgData epgData = PrepareEpgData(videoStreams);
+        Tv epgData = PrepareEpgData(videoStreams);
 
         return SerializeEpgData(epgData);
     }
 
 
     [LogExecutionTimeAspect]
-    private EpgData PrepareEpgData(IEnumerable<VideoStream> videoStreams)
+    private Tv PrepareEpgData(IEnumerable<VideoStream> videoStreams)
     {
         HashSet<string> epgids = new(videoStreams.Where(a => !a.IsHidden).Select(r => r.User_Tvg_ID));
 
@@ -105,7 +105,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         List<Programme> programmes = cachedProgrammes
             .Where(a => a.StartDateTime > DateTime.Now.AddDays(-1) &&
-                        a.StopDateTime < DateTime.Now.AddDays(7) &&
                         a.Channel != null &&
                         (epgids.Contains(a.Channel) || epgids.Contains(a.DisplayName)))
             .ToList();
@@ -130,10 +129,10 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             }
         });
 
-        return new EpgData
+        return new Tv
         {
-            Channels = retChannels.ToList(),
-            Programmes = retProgrammes.ToList()
+            Channel = retChannels.ToList(),
+            Programme = retProgrammes.ToList()
         };
     }
 
@@ -295,13 +294,13 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
 
     [LogExecutionTimeAspect]
-    private static string SerializeEpgData(EpgData epgData)
+    private static string SerializeEpgData(Tv epgData)
     {
         XmlSerializerNamespaces ns = new();
         ns.Add("", "");
 
         using Utf8StringWriter textWriter = new();
-        XmlSerializer serializer = new(typeof(EpgData));
+        XmlSerializer serializer = new(typeof(Tv));
         serializer.Serialize(textWriter, epgData, ns);
         return textWriter.ToString();
     }

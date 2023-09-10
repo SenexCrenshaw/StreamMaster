@@ -28,7 +28,6 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
   const targetActionBodyTemplate = useCallback((data: VideoStreamDto) => {
     if (data.isReadOnly === true) {
       const tooltipClassName = "grouptooltip-" + uuidv4();
-      // console.log(tooltipClassName)
       return (
         <div className='flex min-w-full min-h-full justify-content-end align-items-center'>
           <Tooltip position="left" target={"." + tooltipClassName} >
@@ -68,30 +67,6 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
       </div>
     );
   }
-
-  // const onRowReorder = async (changed: VideoStreamDto[]) => {
-
-  //   const newData = changed.map((x: VideoStreamDto, index: number) => {
-  //     return {
-  //       rank: index,
-  //       videoStreamId: x.id,
-  //     }
-  //   }) as VideoStreamIsReadOnly[];
-
-
-  //   var toSend = {} as SetVideoStreamRanksRequest;
-
-  //   toSend.streamGroupId = selectedStreamGroup.id;
-  //   toSend.videoStreamIDRanks = newData;
-
-  //   await streamGroupVideoStreamsSetVideoStreamRanksMutation(toSend)
-  //     .then(() => {
-
-  //     }).catch(() => {
-  //       console.log('error');
-  //     });
-
-  // }
 
   return (
     <DataSelector
