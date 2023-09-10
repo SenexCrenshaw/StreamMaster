@@ -22,6 +22,8 @@ public class ProcessM3UFileRequestValidator : AbstractValidator<ProcessM3UFileRe
     }
 }
 
+
+[LogExecutionTimeAspect]
 public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, publisher, sender, hubContext, memoryCache), IRequestHandler<ProcessM3UFileRequest, M3UFile?>
 {
     private SimpleIntList existingChannels;

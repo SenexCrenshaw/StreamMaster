@@ -23,6 +23,7 @@ public class GetStreamGroupLineUpValidator : AbstractValidator<GetStreamGroupLin
     }
 }
 
+[LogExecutionTimeAspect]
 public class GetStreamGroupLineUpHandler : BaseMemoryRequestHandler, IRequestHandler<GetStreamGroupLineUp, string>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;

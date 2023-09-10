@@ -21,6 +21,7 @@ public class GetStreamGroupLineUpStatusValidator : AbstractValidator<GetStreamGr
     }
 }
 
+[LogExecutionTimeAspect]
 public class GetStreamGroupLineUpStatusHandler : BaseRequestHandler, IRequestHandler<GetStreamGroupLineUpStatus, string>
 {
 

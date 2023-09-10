@@ -25,13 +25,13 @@ public class LogExecutionTimeAspect : Attribute
         string abbreviatedNamespace = AbbreviateNamespace(method.DeclaringType.FullName);
         string nameToLog = $"{abbreviatedNamespace}.{name}";
 
-        if (nameToLog.ToLower().Contains("quer") || nameToLog.ToLower().Contains("getvideo"))
+        if (nameToLog.ToLower().Contains("getstreamgroups"))
         {
             int a = 1;
 
         }
 
-        if (!ShouldLog(nameToLog, LogPerformance))
+        if (!ShouldLog(method.DeclaringType.FullName, LogPerformance))
         {
             return target(args); // If the name doesn't match any string in the list, execute the method without any logging logic.
         }
@@ -43,9 +43,11 @@ public class LogExecutionTimeAspect : Attribute
 
         object result = target(args);
 
-        if (result is Task task && !retType.IsValueType && retType != typeof(void))
+        if (result is Task task)
         {
-            return task.ContinueWith(t =>
+            // Wait for the task to complete and log the execution time.
+            // Note: We're NOT using await, so we're blocking until the task completes.
+            task.ContinueWith(t =>
             {
                 stopwatch.Stop();
                 if (t.IsFaulted)
@@ -56,7 +58,9 @@ public class LogExecutionTimeAspect : Attribute
                 {
                     logger.LogInformation($"{nameToLog} executed in {stopwatch.ElapsedMilliseconds} ms.");
                 }
-            });
+            }).Wait();  // This ensures the continuation completes before we proceed.
+
+            return result;  // This will return the original Task or Task<T>
         }
 
         stopwatch.Stop();
@@ -76,7 +80,16 @@ public class LogExecutionTimeAspect : Attribute
         {
             if (pattern.EndsWith(".*")) // If the pattern ends with ".*", we match the start of nameToLog
             {
-                if (nameToLog.StartsWith(pattern.TrimEnd('.')))
+                string trimmedPattern = pattern.TrimEnd('.', '*');
+                if (nameToLog.StartsWith(trimmedPattern))
+                {
+                    return true;
+                }
+            }
+            else if (pattern.StartsWith("*."))
+            {
+                string trimmedPattern = pattern.TrimStart('*');
+                if (nameToLog.Contains(trimmedPattern))
                 {
                     return true;
                 }
@@ -90,16 +103,17 @@ public class LogExecutionTimeAspect : Attribute
         return false;
     }
 
+
     private static string AbbreviateNamespace(string fullNamespace)
     {
         string[] parts = fullNamespace.Split('.');
-        if (parts.Length <= 3)
+        if (parts.Length <= 1)
         {
             return fullNamespace; // If there are 3 or fewer parts, just return the original
         }
 
         // Only take the last three parts
-        return string.Join('.', parts.Skip(parts.Length - 3));
+        return string.Join('.', parts.Skip(parts.Length - 1));
     }
 
 

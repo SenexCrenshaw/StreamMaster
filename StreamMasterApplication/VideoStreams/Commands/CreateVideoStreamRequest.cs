@@ -12,6 +12,7 @@ public class CreateVideoStreamRequestValidator : AbstractValidator<CreateVideoSt
     }
 }
 
+[LogExecutionTimeAspect]
 public class CreateVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateVideoStreamRequest, VideoStreamDto?>
 {
 

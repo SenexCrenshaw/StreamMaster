@@ -14,6 +14,7 @@ public class DeleteVideoStreamRequestValidator : AbstractValidator<DeleteVideoSt
     }
 }
 
+[LogExecutionTimeAspect]
 public class DeleteVideoStreamRequestHandler(ILogger<DeleteVideoStreamRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, publisher, sender, hubContext), IRequestHandler<DeleteVideoStreamRequest, bool>
 {
     public async Task<bool> Handle(DeleteVideoStreamRequest request, CancellationToken cancellationToken)

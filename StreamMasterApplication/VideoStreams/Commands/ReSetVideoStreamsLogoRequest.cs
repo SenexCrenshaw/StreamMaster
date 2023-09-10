@@ -4,6 +4,7 @@ namespace StreamMasterApplication.VideoStreams.Commands;
 
 public record ReSetVideoStreamsLogoRequest(List<string> Ids) : IRequest<List<VideoStreamDto>> { }
 
+[LogExecutionTimeAspect]
 public class ReSetVideoStreamsLogoRequestHandler : BaseMediatorRequestHandler, IRequestHandler<ReSetVideoStreamsLogoRequest, List<VideoStreamDto>>
 {
     public ReSetVideoStreamsLogoRequestHandler(ILogger<ReSetVideoStreamsLogoRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)

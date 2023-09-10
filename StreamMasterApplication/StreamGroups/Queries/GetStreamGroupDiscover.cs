@@ -21,6 +21,7 @@ public class GetStreamGroupDiscoverValidator : AbstractValidator<GetStreamGroupD
     }
 }
 
+[LogExecutionTimeAspect]
 public class GetStreamGroupDiscoverHandler : BaseMediatorRequestHandler, IRequestHandler<GetStreamGroupDiscover, string>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;

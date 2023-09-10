@@ -8,6 +8,7 @@ public record GetAllChannelGroupsRequest(int StreamGroupId) : IRequest<List<Chan
 
 
 
+[LogExecutionTimeAspect]
 public class GetAllChannelGroupsRequestHandler(ILogger<GetAllChannelGroupsRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, publisher, sender, hubContext, memoryCache), IRequestHandler<GetAllChannelGroupsRequest, List<ChannelGroupDto>>
 {
     public async Task<List<ChannelGroupDto>> Handle(GetAllChannelGroupsRequest request, CancellationToken cancellationToken)

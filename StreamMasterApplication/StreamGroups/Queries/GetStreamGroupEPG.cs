@@ -2,7 +2,6 @@
 
 using Microsoft.AspNetCore.Http;
 
-using StreamMasterApplication.Common.Attributes;
 using StreamMasterApplication.Common.Extensions;
 
 using StreamMasterDomain.Repository.EPG;
@@ -34,6 +33,7 @@ public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
     }
 }
 
+[LogExecutionTimeAspect]
 public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPG> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupEPG, string>
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
@@ -94,30 +94,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         return SerializeEpgData(epgData);
     }
 
-    //[LogExecutionTimeAspect]
-    //private async Task<IEnumerable<VideoStream>> GetVideoStreams(GetStreamGroupEPG request)
-    //{
-    //    if (request.streamGroupId > 1)
-    //    {
-    //        List<VideoStream> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreamsList(request.StreamGroupId, cancellationToken);
-
-    //        StreamGroup? streamGroup = await Repository.StreamGroup
-    //                .FindAll()
-    //                .Include(a => a.ChildVideoStreams)
-    //                .FirstOrDefaultAsync(a => a.Id == request.streamGroupId);
-
-    //        if (streamGroup != null)
-    //        {
-    //            return streamGroup.ChildVideoStreams.Select(a => a.ChildVideoStream).Where(a => !a.IsHidden);
-    //        }
-    //    }
-    //    else
-    //    {
-    //        return Repository.VideoStream.GetVideoStreamsNotHidden();
-    //    }
-
-    //    return Enumerable.Empty<VideoStream>();
-    //}
 
     [LogExecutionTimeAspect]
     private EpgData PrepareEpgData(IEnumerable<VideoStream> videoStreams)
@@ -177,26 +153,27 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         if (isDummyStream)
         {
             int dummy = GetDummy();
+            videoStream.User_Tvg_ID = "dummy-" + dummy;
             return new TvChannel
             {
-                Id = videoStream.User_Tvg_name ?? "Unknown", // Default to "Unknown" if name is null
+                Id = "dummy-" + dummy,
                 Icon = new TvIcon { Src = logo ?? string.Empty },
                 Displayname = new List<string>
             {
-                videoStream.User_Tvg_name ?? "Unknown",
-                "dummy-" + dummy
+                "dummy-" + dummy,videoStream.User_Tvg_name ?? "Unknown",
             }
             };
+
         }
         else
         {
             return new TvChannel
             {
-                Id = videoStream.User_Tvg_name ?? "Unknown",
+                Id = videoStream.User_Tvg_ID,
                 Icon = new TvIcon { Src = logo ?? string.Empty },
                 Displayname = new List<string>
             {
-                videoStream.User_Tvg_name ?? "Unknown"
+                videoStream.User_Tvg_ID?.ToLower() ?? "Unknown"
             }
             };
         }
@@ -205,21 +182,22 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
     private List<Programme> ProcessProgrammesForVideoStream(VideoStream videoStream, List<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
     {
+
         if (videoStream.User_Tvg_ID == null)
         {
             // Decide what to do if User_Tvg_ID is null. Here, we're returning an empty list.
             return new List<Programme>();
         }
 
-        string userTvgIdLower = videoStream.User_Tvg_ID.ToLower();
+        //string userTvgIdLower = videoStream.User_Tvg_ID.ToLower();
 
-        if (userTvgIdLower == "dummy")
+        if (videoStream.User_Tvg_ID.StartsWith("dummy-"))
         {
             return HandleDummyStream(videoStream);
         }
         else
         {
-            return ProcessNonDummyStreams(videoStream, cachedProgrammes, cachedIcons, userTvgIdLower);
+            return ProcessNonDummyStreams(videoStream, cachedProgrammes, cachedIcons);
         }
     }
 
@@ -255,15 +233,15 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         return programmesForStream;
     }
 
-    private List<Programme> ProcessNonDummyStreams(VideoStream videoStream, List<Programme> cachedProgrammes, List<IconFileDto> cachedIcons, string? userTvgIdLower)
+    private List<Programme> ProcessNonDummyStreams(VideoStream videoStream, List<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
     {
         List<Programme> programmesForStream = new();
 
-        foreach (Programme? prog in cachedProgrammes.Where(p => p.Channel?.ToLower() == userTvgIdLower))
+        foreach (Programme? prog in cachedProgrammes.Where(p => p.Channel?.ToLower() == videoStream.User_Tvg_ID))
         {
             AdjustProgrammeIcons(prog, cachedIcons);
 
-            prog.Channel = videoStream.User_Tvg_name;
+            prog.Channel = videoStream.User_Tvg_ID;
             if (string.IsNullOrEmpty(prog.New))
             {
                 prog.New = null;

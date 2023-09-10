@@ -6,6 +6,7 @@ namespace StreamMasterApplication.VideoStreams.Commands;
 
 public record SetVideoStreamsLogoFromEPGFromParametersRequest(VideoStreamParameters Parameters) : IRequest<List<VideoStreamDto>> { }
 
+[LogExecutionTimeAspect]
 public class SetVideoStreamsLogoFromEPGFromParametersRequestHandler : BaseMediatorRequestHandler, IRequestHandler<SetVideoStreamsLogoFromEPGFromParametersRequest, List<VideoStreamDto>>
 {
 

@@ -12,6 +12,7 @@ public class UpdateStreamGroupRequestValidator : AbstractValidator<UpdateStreamG
     }
 }
 
+[LogExecutionTimeAspect]
 public class UpdateStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateStreamGroupRequest, StreamGroupDto?>
 {
 

@@ -4,6 +4,7 @@ namespace StreamMasterApplication.StreamGroups.Queries;
 
 public record GetStreamGroups(StreamGroupParameters Parameters) : IRequest<PagedResponse<StreamGroupDto>>;
 
+[LogExecutionTimeAspect]
 internal class GetStreamGroupsHandler : BaseMediatorRequestHandler, IRequestHandler<GetStreamGroups, PagedResponse<StreamGroupDto>>
 {
 

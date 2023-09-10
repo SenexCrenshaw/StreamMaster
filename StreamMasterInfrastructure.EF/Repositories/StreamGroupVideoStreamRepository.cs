@@ -4,7 +4,6 @@ using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
-using StreamMasterApplication.Common.Attributes;
 using StreamMasterApplication.StreamGroups.Queries;
 
 using StreamMasterDomain.Dto;
@@ -12,6 +11,7 @@ using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 
 using System.Linq.Dynamic.Core;
+using System.Text.RegularExpressions;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
@@ -53,13 +53,25 @@ public class StreamGroupVideoStreamRepository(RepositoryContext repositoryContex
         }
     }
 
-    [LogExecutionTimeAspect]
     public async Task<PagedResponse<VideoStreamDto>> GetStreamGroupVideoStreams(StreamGroupVideoStreamParameters Parameters, CancellationToken cancellationToken = default)
     {
 
         if (Parameters.StreamGroupId == 0 || Parameters == null)
         {
             return Parameters.CreateEmptyPagedResponse<VideoStreamDto>();
+        }
+
+        if (!string.IsNullOrEmpty(Parameters.JSONFiltersString))
+        {
+            if (Regex.IsMatch(Parameters.JSONFiltersString, "streamgroupid", RegexOptions.IgnoreCase))
+            {
+                Parameters.JSONFiltersString = Regex.Replace(Parameters.JSONFiltersString, "streamgroupid", "user_tvg_name", RegexOptions.IgnoreCase);
+            }
+        }
+
+        if (Regex.IsMatch(Parameters.OrderBy, "streamgroupid", RegexOptions.IgnoreCase))
+        {
+            Parameters.OrderBy = Regex.Replace(Parameters.OrderBy, "streamgroupid", "user_tvg_name", RegexOptions.IgnoreCase);
         }
 
         IQueryable<VideoStream> childQ = RepositoryContext.StreamGroupVideoStreams
@@ -229,6 +241,8 @@ public class StreamGroupVideoStreamRepository(RepositoryContext repositoryContex
        .Where(a => a.StreamGroupId == StreamGroupId)
        .Select(a => a.ChildVideoStream)
        .Where(a => !a.IsHidden);
+
+        string test = childQ.ToQueryString();
 
         return await childQ.ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 

@@ -2,8 +2,6 @@
 
 using Microsoft.EntityFrameworkCore;
 
-using StreamMaster.SchedulesDirectAPI;
-
 using StreamMasterDomain.Repository.EPG;
 
 using System.Web;
@@ -130,18 +128,23 @@ public class BuildProgIconsCacheFromEPGsRequestHandler : BaseMemoryRequestHandle
             string? ext = Path.GetExtension(source);
             string name = string.Join("_", programme.Title.Text.Split(Path.GetInvalidFileNameChars())) + $".{ext}";
             string fileName = $"{FileDefinitions.ProgrammeIcon.DirectoryLocation}{name}";
+            bool result = true;
 
             if (source.ToLower().StartsWith("https://json.schedulesdirect.org/20141201/image/"))
             {
-                SchedulesDirect sd = new();
-                source = source.ToLower().Replace("https://json.schedulesdirect.org/20141201/image/", "");
-                bool result = await sd.GetImageUrl(source, fileName, cancellationToken).ConfigureAwait(false);
+                continue;
+                //SchedulesDirect sd = new();
+                //source = source.ToLower().Replace("https://json.schedulesdirect.org/20141201/image/", "");
+                //result = await sd.GetImageUrl(source, fileName, cancellationToken).ConfigureAwait(false);
             }
 
-            IconFileDto? iconDto = IconHelper.AddIcon(source, programme.Title.Text, programme.EPGFileId, startId, MemoryCache, FileDefinitions.ProgrammeIcon, cancellationToken);
-            if (iconDto is null)
+            if (result)
             {
-                continue;
+                IconFileDto? iconDto = IconHelper.AddIcon(source, programme.Title.Text, programme.EPGFileId, startId, MemoryCache, FileDefinitions.ProgrammeIcon, cancellationToken);
+                if (iconDto is null)
+                {
+                    continue;
+                }
             }
         }
     }

@@ -4,6 +4,7 @@ namespace StreamMasterApplication.VideoStreams.Commands;
 
 public record SetVideoStreamSetEPGsFromNameRequest(List<string> VideoStreamIds) : IRequest<List<VideoStreamDto>> { }
 
+[LogExecutionTimeAspect]
 public class SetVideoStreamSetEPGsFromNameRequestHandler : BaseMemoryRequestHandler, IRequestHandler<SetVideoStreamSetEPGsFromNameRequest, List<VideoStreamDto>>
 {
 

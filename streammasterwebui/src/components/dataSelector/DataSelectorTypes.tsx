@@ -17,7 +17,7 @@ export type LazyTableState = {
   sortField?: string;
   sortOrder?: -1 | 0 | 1 | null | undefined;
   sortString: string;
-  streamGroupId?: number;
+  // streamGroupId?: number;
 }
 
 

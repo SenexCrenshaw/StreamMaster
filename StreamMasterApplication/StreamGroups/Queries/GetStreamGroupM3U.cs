@@ -2,7 +2,6 @@
 
 using Microsoft.AspNetCore.Http;
 
-using StreamMasterApplication.Common.Attributes;
 using StreamMasterApplication.Common.Extensions;
 
 using StreamMasterDomain.Authentication;
@@ -26,6 +25,7 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
     }
 }
 
+[LogExecutionTimeAspect]
 public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupM3U> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupM3U, string>
 {
     public string GetIconUrl(string iconOriginalSource)

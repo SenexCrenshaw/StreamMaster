@@ -16,6 +16,8 @@ public class UpdateM3UFileRequestValidator : AbstractValidator<UpdateM3UFileRequ
     }
 }
 
+
+[LogExecutionTimeAspect]
 public class UpdateM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<UpdateM3UFileRequest, M3UFile?>
 {
 

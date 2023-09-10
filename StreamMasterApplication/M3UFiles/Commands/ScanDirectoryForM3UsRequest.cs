@@ -2,6 +2,8 @@
 
 public record ScanDirectoryForM3UFilesRequest : IRequest<bool> { }
 
+
+[LogExecutionTimeAspect]
 public class ScanDirectoryForM3UFilesRequestHandler : BaseMediatorRequestHandler, IRequestHandler<ScanDirectoryForM3UFilesRequest, bool>
 {
 

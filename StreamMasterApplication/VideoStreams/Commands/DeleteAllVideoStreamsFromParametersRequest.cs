@@ -16,6 +16,7 @@ public class DeleteAllVideoStreamsFromParametersRequestValidator : AbstractValid
     }
 }
 
+[LogExecutionTimeAspect]
 public class DeleteAllVideoStreamsFromParametersRequestHandler : BaseMemoryRequestHandler, IRequestHandler<DeleteAllVideoStreamsFromParametersRequest, bool>
 {
 

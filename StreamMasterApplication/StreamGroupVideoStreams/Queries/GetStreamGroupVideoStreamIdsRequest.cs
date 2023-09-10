@@ -2,6 +2,7 @@
 
 public record GetStreamGroupVideoStreamIdsRequest(int StreamGroupId) : IRequest<List<VideoStreamIsReadOnly>>;
 
+[LogExecutionTimeAspect]
 internal class GetStreamGroupVideoStreamIdsRequestHandler(ILogger<GetStreamGroupVideoStreamIdsRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper) : BaseRequestHandler(logger, repository, mapper), IRequestHandler<GetStreamGroupVideoStreamIdsRequest, List<VideoStreamIsReadOnly>>
 {
     public async Task<List<VideoStreamIsReadOnly>> Handle(GetStreamGroupVideoStreamIdsRequest request, CancellationToken cancellationToken)

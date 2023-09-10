@@ -9,6 +9,7 @@ namespace StreamMasterApplication.ChannelGroups.Commands;
 public record UpdateChannelGroupCountsRequest(IEnumerable<ChannelGroupDto>? channelGroups = null) : IRequest { }
 
 
+[LogExecutionTimeAspect]
 public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCountsRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateChannelGroupCountsRequest>
 {
     private class ChannelGroupBrief

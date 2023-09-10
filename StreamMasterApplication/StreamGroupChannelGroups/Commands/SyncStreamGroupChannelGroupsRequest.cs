@@ -2,6 +2,7 @@
 
 public record SyncStreamGroupChannelGroupsRequest(int StreamGroupId, List<int> ChannelGroupIds) : IRequest<StreamGroupDto?>;
 
+[LogExecutionTimeAspect]
 internal class SyncStreamGroupChannelGroupsRequestHandler(ILogger<SyncStreamGroupChannelGroupsRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, publisher, sender, hubContext), IRequestHandler<SyncStreamGroupChannelGroupsRequest, StreamGroupDto?>
 {
     public async Task<StreamGroupDto?> Handle(SyncStreamGroupChannelGroupsRequest request, CancellationToken cancellationToken = default)

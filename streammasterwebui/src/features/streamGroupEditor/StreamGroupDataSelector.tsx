@@ -51,9 +51,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProps) => {
           <div className="flex justify-content-end gap-2 align-items-center mr-2">
 
             <StreamGroupEditDialog id={id} />
-
             <StreamGroupAddDialog />
-
             <StreamGroupDeleteDialog id={id} />
 
           </div >

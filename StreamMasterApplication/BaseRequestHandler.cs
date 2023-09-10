@@ -1,8 +1,6 @@
-﻿using StreamMasterApplication.Common.Attributes;
+﻿namespace StreamMasterApplication;
 
-namespace StreamMasterApplication;
 
-[LogExecutionTimeAspect]
 public class BaseRequestHandler(ILogger logger, IRepositoryWrapper repository, IMapper mapper)
 {
     protected readonly ILogger Logger = logger;

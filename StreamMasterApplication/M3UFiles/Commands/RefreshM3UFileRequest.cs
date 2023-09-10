@@ -11,6 +11,9 @@ public class RefreshM3UFileRequestValidator : AbstractValidator<RefreshM3UFileRe
         _ = RuleFor(v => v.Id).NotNull().GreaterThanOrEqualTo(0);
     }
 }
+
+
+[LogExecutionTimeAspect]
 public class RefreshM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<RefreshM3UFileRequest, M3UFile?>
 {
 

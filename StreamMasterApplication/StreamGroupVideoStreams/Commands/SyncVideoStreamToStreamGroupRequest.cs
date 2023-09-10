@@ -15,6 +15,7 @@ public class SyncVideoStreamToStreamGroupRequestValidator : AbstractValidator<Sy
     }
 }
 
+[LogExecutionTimeAspect]
 public class SyncVideoStreamToStreamGroupRequestHandler(ILogger<SyncVideoStreamToStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, publisher, sender, hubContext), IRequestHandler<SyncVideoStreamToStreamGroupRequest>
 {
     public async Task Handle(SyncVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken)

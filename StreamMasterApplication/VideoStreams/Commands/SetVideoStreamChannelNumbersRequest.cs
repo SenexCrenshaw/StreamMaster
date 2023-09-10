@@ -5,6 +5,7 @@ namespace StreamMasterApplication.VideoStreams.Commands;
 [RequireAll]
 public record SetVideoStreamChannelNumbersRequest(List<string> Ids, bool OverWriteExisting, int StartNumber, string OrderBy) : IRequest { }
 
+[LogExecutionTimeAspect]
 public class SetVideoStreamChannelNumbersRequestHandler : BaseMediatorRequestHandler, IRequestHandler<SetVideoStreamChannelNumbersRequest>
 {
 

@@ -4,6 +4,7 @@ namespace StreamMasterApplication.VideoStreams.Commands;
 
 public record SetVideoStreamsLogoFromEPGRequest(List<string> Ids, string? OrderBy) : IRequest<List<VideoStreamDto>> { }
 
+[LogExecutionTimeAspect]
 public class SetVideoStreamsLogoFromEPGRequestHandler : BaseMediatorRequestHandler, IRequestHandler<SetVideoStreamsLogoFromEPGRequest, List<VideoStreamDto>>
 {
 

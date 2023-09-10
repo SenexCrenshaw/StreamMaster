@@ -16,6 +16,8 @@ public class CreateChannelGroupRequestValidator : AbstractValidator<CreateChanne
     }
 }
 
+
+[LogExecutionTimeAspect]
 public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, publisher, sender, hubContext), IRequestHandler<CreateChannelGroupRequest, ChannelGroupDto?>
 {
     public async Task<ChannelGroupDto?> Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)

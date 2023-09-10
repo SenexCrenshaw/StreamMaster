@@ -22,6 +22,7 @@ public class CreateM3UFileRequestValidator : AbstractValidator<CreateM3UFileRequ
 }
 
 
+[LogExecutionTimeAspect]
 public class CreateM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateM3UFileRequest, bool>
 {
 

@@ -6,6 +6,7 @@ namespace StreamMasterApplication.VideoStreams.Commands;
 
 public record SetVideoStreamChannelNumbersFromParametersRequest(VideoStreamParameters Parameters, bool OverWriteExisting, int StartNumber) : IRequest { }
 
+[LogExecutionTimeAspect]
 public class SetVideoStreamChannelNumbersFromParametersRequestHandler(ILogger<SetVideoStreamChannelNumbersFromParametersRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, publisher, sender, hubContext), IRequestHandler<SetVideoStreamChannelNumbersFromParametersRequest>
 {
     public async Task Handle(SetVideoStreamChannelNumbersFromParametersRequest request, CancellationToken cancellationToken)

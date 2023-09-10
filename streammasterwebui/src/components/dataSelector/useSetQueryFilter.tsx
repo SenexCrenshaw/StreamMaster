@@ -41,8 +41,7 @@ const useSetQueryFilter = (
       rows: rows,
       sortField: 'id',
       sortOrder: 1,
-      sortString: sort,
-      streamGroupId: streamGroupId,
+      sortString: sort
     };
 
     const toSend: SMDataTableFilterMetaData[] = Object.keys(defaultState.filters).map(

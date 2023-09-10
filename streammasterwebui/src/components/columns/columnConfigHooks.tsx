@@ -26,22 +26,22 @@ export const useChannelGroupColumnConfig = createMultiSelectColumnConfigHook({
   EditorComponent: ChannelGroupEditor,
   headerTitle: 'Group',
   queryHook: useChannelGroupsGetChannelGroupNamesQuery,
-  width: 12
+  width: 10
 });
 
 export const useEPGColumnConfig = createMultiSelectColumnConfigHook({
   dataField: 'user_Tvg_ID',
   EditorComponent: EPGEditor,
   headerTitle: 'EPG',
-  queryHook: useProgrammesGetProgrammeNamesQuery,
-  width: 12
+  maxWidth: 8,
+  queryHook: useProgrammesGetProgrammeNamesQuery
 });
 
 export const useM3UFileNameColumnConfig = createMultiSelectColumnConfigHook({
   dataField: 'm3UFileName',
   headerTitle: 'File',
-  queryHook: useM3UFilesGetM3UFileNamesQuery,
-  width: 8
+  maxWidth: 8,
+  queryHook: useM3UFilesGetM3UFileNamesQuery
 });
 
 export const useChannelLogoColumnConfig = createMultiSelectColumnConfigHook({
