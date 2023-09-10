@@ -18,6 +18,11 @@
   --button-success-bg: #6dc831ee;
   --focus-border-color: var(--blue-500);
   --input-height: 1.4rem;
+  --orange-color: #FE7600;
+}
+
+.videostreamSelected {
+  background-color: #91633254 !important;
 }
 
 .banbutton.p-button-icon-only.p-button-text {
@@ -97,7 +102,7 @@
 
 .p-dropdown {
   background-color: transparent;
-  border-color: transparent !important;
+  border-color: transparent;
   height: var(--input-height);
   font-size: var(--common-font-size) !important;
   overflow: hidden !important;
@@ -105,6 +110,11 @@
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
   transition: border-color 0.3s;
+}
+
+.p-paginator .p-dropdown.p-component.p-inputwrapper.p-inputwrapper-filled {
+  align-items: center;
+  border: 2px solid var(--common-border-color) !important;
 }
 
 .p-inputnumber {

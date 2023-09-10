@@ -1,8 +1,8 @@
-import { InputText } from "primereact/inputtext";
-import React, { useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState, type FC } from "react";
 import { useChannelGroupsCreateChannelGroupMutation, type CreateChannelGroupRequest } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import AddButton from "../buttons/AddButton";
+import TextInput from "../inputs/TextInput";
 
 
 // Define the component props
@@ -11,16 +11,16 @@ type ChannelGroupAddDialogProps = {
   readonly onHide?: () => void;
 }
 
-const ChannelGroupAddDialog: React.FC<ChannelGroupAddDialogProps> = ({ onAdd, onHide }) => {
+const ChannelGroupAddDialog: FC<ChannelGroupAddDialogProps> = ({ onAdd, onHide }) => {
 
-  const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
-  const [block, setBlock] = React.useState<boolean>(false);
-  const [infoMessage, setInfoMessage] = React.useState('');
+  const [showOverlay, setShowOverlay] = useState<boolean>(false);
+  const [block, setBlock] = useState<boolean>(false);
+  const [infoMessage, setInfoMessage] = useState('');
   const [newGroupName, setNewGroupName] = useState<string>('');
 
   const [channelGroupsCreateChannelGroupMutation] = useChannelGroupsCreateChannelGroupMutation();
 
-  const ReturnToParent = React.useCallback(() => {
+  const ReturnToParent = useCallback(() => {
     setShowOverlay(false);
     setInfoMessage('');
     setBlock(false);
@@ -73,6 +73,16 @@ const ChannelGroupAddDialog: React.FC<ChannelGroupAddDialogProps> = ({ onAdd, on
 
   }, [addGroup, newGroupName]);
 
+  const isSaveEnabled = useMemo((): boolean => {
+
+    if (newGroupName && newGroupName !== '') {
+      return true;
+    }
+
+    return false;
+
+  }, [newGroupName]);
+
   return (
     <>
       <InfoMessageOverLayDialog
@@ -83,18 +93,12 @@ const ChannelGroupAddDialog: React.FC<ChannelGroupAddDialogProps> = ({ onAdd, on
         onClose={ReturnToParent}
         show={showOverlay}
       >
-        <div className='m-0 p-0 '>
-          <div className='m-3'>
-            <InputText
-              autoFocus
-              className="w-full bordered-text-large"
-              onChange={(e) => setNewGroupName(e.target.value)}
-              placeholder="Group Name"
-              value={newGroupName}
-            />
-            <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
-              <AddButton label='Add Group' onClick={addGroup} tooltip='Add Group' />
-            </div>
+        <div className="flex grid justify-content-center align-items-center w-full">
+          <div className="flex col-10 mt-1">
+            <TextInput label="Group Name" onChange={setNewGroupName} value={newGroupName} />
+          </div>
+          <div className="flex col-12 justify-content-end">
+            <AddButton disabled={!isSaveEnabled} label='Add Group' onClick={addGroup} tooltip='Add Group' />
           </div>
         </div>
       </InfoMessageOverLayDialog>
@@ -106,4 +110,4 @@ const ChannelGroupAddDialog: React.FC<ChannelGroupAddDialogProps> = ({ onAdd, on
 
 ChannelGroupAddDialog.displayName = 'Play List Editor';
 
-export default React.memo(ChannelGroupAddDialog);
+export default memo(ChannelGroupAddDialog);

@@ -6,9 +6,9 @@ import EPGFilesDataSelector from './EPGFilesDataSelector';
 
 const EPGFilesEditor = () => {
   return (
-    <div className='m3uFilesEditor flex flex-column col-12 flex-shrink-0 '>
+    <div className='m3uFilesEditor flex flex-column col-12'>
       <div className='flex justify-content-between align-items-center mb-1'>
-        <span className='m-0 p-0 gap-1' style={{ color: '#FE7600' }}>EPG Files</span>
+        <span style={{ color: 'var(--orange-color)' }}>EPG Files</span>
         <div className='flex'>
           <EPGFileDialog />
         </div>

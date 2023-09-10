@@ -92,7 +92,7 @@ const InfoMessageOverLayDialog: React.FC<InfoMessageOverLayDialogProps> = (props
         visible={showDialog}
       >
         <BlockUI blocked={blocked}>
-          <div className='flex m-0 p-1 border-1 border-round surface-border justify-contents-center'>
+          <div className='flex p-0 pt-3 pb-1 border-1 border-round surface-border justify-contents-center align-items-center'>
             {children}
           </div>
         </BlockUI>
@@ -104,7 +104,7 @@ const InfoMessageOverLayDialog: React.FC<InfoMessageOverLayDialogProps> = (props
         ref={op}
         showCloseIcon={false}
       >
-        <div className='flex m-0 p-1 border-1 border-round surface-border justify-contents-center'>
+        <div className='flex m-0  p-1 border-1 border-round surface-border justify-contents-center'>
           <div className='surface-overlay surface-overlay min-h-full min-w-full'>
             <h4 className={`text-center ${determineSeverityColor()}`}>{infoMessage}</h4>
           </div>

@@ -15,15 +15,6 @@ import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import AddButton from '../buttons/AddButton';
 import TextInput from '../inputs/TextInput';
 
-export type ChildFileDialogProps = {
-  className?: string;
-  disabled?: boolean | undefined;
-
-  iconFilled?: boolean;
-  label?: string | undefined;
-  onClick: () => void;
-  tooltip?: string;
-}
 
 export type FileDialogProps = {
   readonly fileType: 'epg' | 'm3u';
@@ -252,7 +243,7 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
           <div className="flex col-8">
             <TextInput
               label="Name"
-              onClick={(value) => { setName(value); setNameFromFileName(false); }}
+              onChange={(value) => { setName(value); setNameFromFileName(false); }}
               onResetClick={() => {
                 if (activeFile !== null && activeFile !== undefined) {
                   setNameFromFileName(true);
@@ -272,7 +263,7 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
                     <TextInput
                       isValid={isValidUrl(source)}
                       label="Source URL (://)"
-                      onClick={(value) => { onSetSource(value); }}
+                      onChange={onSetSource}
                       onResetClick={() => {
                         if (activeFile !== null && activeFile !== undefined) {
                           setNameFromFileName(true);

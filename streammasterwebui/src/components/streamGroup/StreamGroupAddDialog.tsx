@@ -1,18 +1,18 @@
-import { InputText } from "primereact/inputtext";
-import React from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useStreamGroupsCreateStreamGroupMutation, type CreateStreamGroupRequest } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import AddButton from "../buttons/AddButton";
+import TextInput from "../inputs/TextInput";
 
 const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
-  const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
-  const [block, setBlock] = React.useState<boolean>(false);
-  const [infoMessage, setInfoMessage] = React.useState('');
-  const [name, setName] = React.useState<string>('');
+  const [showOverlay, setShowOverlay] = useState<boolean>(false);
+  const [block, setBlock] = useState<boolean>(false);
+  const [infoMessage, setInfoMessage] = useState('');
+  const [name, setName] = useState<string>('');
 
   const [streamGroupsCreateStreamGroupMutation] = useStreamGroupsCreateStreamGroupMutation();
 
-  const ReturnToParent = React.useCallback(() => {
+  const ReturnToParent = useCallback(() => {
     setShowOverlay(false);
     setInfoMessage('');
     setName('');
@@ -21,22 +21,18 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
   }, [props]);
 
 
-  const isSaveEnabled = React.useMemo((): boolean => {
+  const isSaveEnabled = useMemo((): boolean => {
 
     if (name && name !== '') {
       return true;
     }
-
-    // if (streamGroupNumber !== undefined && streamGroupNumber !== 0) {
-    //   return true;
-    // }
 
     return false;
 
   }, [name]);
 
 
-  const onAdd = React.useCallback(() => {
+  const onAdd = useCallback(() => {
     setBlock(true);
 
     if (!isSaveEnabled) {
@@ -55,7 +51,7 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
       });
   }, [ReturnToParent, isSaveEnabled, name, streamGroupsCreateStreamGroupMutation]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const callback = (event: KeyboardEvent) => {
       if (event.code === 'Enter' || event.code === 'NumpadEnter') {
         event.preventDefault();
@@ -77,7 +73,6 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
 
   return (
     <>
-
       <InfoMessageOverLayDialog
         blocked={block}
         closable
@@ -89,25 +84,15 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
         show={showOverlay}
       >
 
-        <div className="flex grid justify-content-between align-items-center">
-          <div className="flex col-12">
-            <label className="col-2 " htmlFor="Name">Name: </label>
-            <div className="col-8 ">
-              <InputText
-                autoFocus
-                className='bordered-text-large'
-                id="Name"
-                onChange={(e) => setName(e.target.value)}
-                type="text"
-                value={name}
-              />
-            </div>
+        <div className="flex grid justify-content-center align-items-center w-full">
+          <div className="flex col-10 mt-1">
+            <TextInput label='Name' onChange={setName} value={name} />
           </div>
-          <div className="flex col-12 mt-3 gap-2 justify-content-end">
-            <AddButton disabled={isSaveEnabled} label='Add Stream Group' onClick={() => onAdd()} tooltip='Add Stream Group' />
+          <div className="flex col-12 justify-content-end">
+            <AddButton disabled={!isSaveEnabled} label='Add Stream Group' onClick={() => onAdd()} tooltip='Add Stream Group' />
           </div>
-
         </div>
+
       </InfoMessageOverLayDialog >
 
       <AddButton onClick={() => setShowOverlay(true)} tooltip='Add Stream Group' />
@@ -124,4 +109,4 @@ type StreamGroupAddDialogProps = {
   readonly onHide?: () => void;
 };
 
-export default React.memo(StreamGroupAddDialog);
+export default memo(StreamGroupAddDialog);

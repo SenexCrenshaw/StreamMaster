@@ -1,82 +1,38 @@
-import { useState, useCallback, memo } from "react";
-import { type M3UFilesRefreshM3UFileApiArg } from "../../store/iptvApi";
-import { type M3UFileDto, useM3UFilesRefreshM3UFileMutation } from "../../store/iptvApi";
-import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
-import RefreshButton from "../buttons/RefreshButton";
-import OKButton from "../buttons/OKButton";
+import { memo, useState } from "react";
 
-const M3UFileRefreshDialog = (props: M3UFileRefreshDialogProps) => {
+import { useM3UFilesRefreshM3UFileMutation, type EpgFileDto, type EpgFilesRefreshEpgFileApiArg } from "../../store/iptvApi";
+import FileRefreshDialog from "../sharedEPGM3U/FileRefreshDialog";
 
-  const [showOverlay, setShowOverlay] = useState<boolean>(false);
-  const [block, setBlock] = useState<boolean>(false);
+type M3UFileRefreshDialogProps = {
+  readonly selectedFile: EpgFileDto;
+}
+
+const M3UFileRefreshDialog = ({ selectedFile }: M3UFileRefreshDialogProps) => {
   const [infoMessage, setInfoMessage] = useState('');
   const [m3uFilesRefreshM3UFileMutation] = useM3UFilesRefreshM3UFileMutation();
 
-  const ReturnToParent = useCallback(() => {
-    setShowOverlay(false);
-    setInfoMessage('');
-    setBlock(false);
-  }, []);
-
   const refreshFile = async () => {
-
-    if (!props.selectedFile) {
+    if (!selectedFile?.id) {
       return;
     }
 
-    setBlock(true);
-    const tosend = {} as M3UFilesRefreshM3UFileApiArg;
+    const toSend = {} as EpgFilesRefreshEpgFileApiArg;
+    toSend.id = selectedFile.id;
 
-    tosend.id = props.selectedFile.id;
-
-    m3uFilesRefreshM3UFileMutation(tosend)
+    m3uFilesRefreshM3UFileMutation(toSend)
       .then(() => {
-        setInfoMessage('M3U File Refresh Successfully');
-      }).catch((e) => {
-        setInfoMessage('M3U File Refresh Error: ' + e.message);
+        setInfoMessage('M3U Refresh Successfully');
+      }).catch((error) => {
+        setInfoMessage('M3U Refresh Error: ' + error.message);
       });
-
-
   };
 
-
   return (
-    <>
-
-      <InfoMessageOverLayDialog
-        blocked={block}
-        closable
-        header='Refresh M3U File'
-        infoMessage={infoMessage}
-        onClose={() => {
-          ReturnToParent();
-        }}
-        show={showOverlay}
-      >
-        <div className='m-0 p-0 border-1 border-round surface-border'>
-          <div className='m-3'>
-            <h3 />
-            <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
-              <OKButton label="Refresh M3U File" onClick={async () => await refreshFile()} />
-            </div>
-          </div>
-        </div>
-      </InfoMessageOverLayDialog>
-
-      <RefreshButton
-        onClick={() => setShowOverlay(true)}
-        tooltip="Refresh M3U File"
-      />
-
-
-    </>
+    <FileRefreshDialog fileType="m3u" inputInfoMessage={infoMessage} onRefreshFile={refreshFile} />
   );
 }
 
 M3UFileRefreshDialog.displayName = 'M3UFileRefreshDialog';
 
-type M3UFileRefreshDialogProps = {
-  readonly selectedFile: M3UFileDto;
-};
 
 export default memo(M3UFileRefreshDialog);

@@ -2,13 +2,12 @@
 
 
 
-import { type CSSProperties } from "react";
-import React from "react";
+import React, { type CSSProperties } from "react";
 
-import SettingsNameRegexAddDialog from "./SettingsNameRegexAddDialog";
-import SettingsNameRegexDeleteDialog from "./SettingsNameRegexDeleteDialog";
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
+import SettingsNameRegexAddDialog from "./SettingsNameRegexAddDialog";
+import SettingsNameRegexDeleteDialog from "./SettingsNameRegexDeleteDialog";
 type RankedString = {
   rank: number;
   value: string;
@@ -62,7 +61,7 @@ const SettingsNameRegexDataSelector = (props: SettingsNameRegexDataSelectorProps
   return (
     <div className='m3uFilesEditor flex flex-column col-12 flex-shrink-0 '>
       <div className='flex justify-content-between align-items-center mb-1'>
-        <span className='m-0 p-0 gap-1' style={{ color: '#FE7600' }}>List of blacklist regexe to match on tvg-name. Stops at first match</span>
+        <span className='m-0 p-0 gap-1' style={{ color: 'var(--orange-color)' }}>List of blacklist regexe to match on tvg-name. Stops at first match</span>
         <div className='m-0 p-0 flex gap-1'>
 
           <SettingsNameRegexAddDialog values={dataSource.map((a) => a.value)} />

@@ -8,7 +8,7 @@ const FilesEditor = () => {
   return (
     <>
       <M3UFilesEditor />
-      <div className="my-1" />
+
       <EPGFilesEditor />
     </>
   );

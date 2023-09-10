@@ -49,11 +49,11 @@ const Home = () => {
           <div onClick={() => { onsetCollapsed(!collapsed); }}>
             <MenuItem
               className="menu1"
-              icon={<SideBarMenuIcon sx={{ color: '#FE7600', fontSize: 32 }} />}
+              icon={<SideBarMenuIcon sx={{ color: 'var(--orange-color)', fontSize: 32 }} />}
             >
               <h2
                 style={{
-                  color: '#FE7600',
+                  color: 'var(--orange-color)',
                 }}
               >Stream Master</h2>
             </MenuItem>
