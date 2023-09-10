@@ -183,6 +183,7 @@ export const SettingsEditor = () => {
       getLine(label + ':',
         <span className="w-full">
           <TextInput
+            dontValidate
             onChange={(e) => setNewData({ ...newData, [field]: e })}
             placeHolder={label}
             showCopy

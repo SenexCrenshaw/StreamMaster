@@ -5,7 +5,9 @@ import CopyButton from "../buttons/CopyButton";
 
 type TextInputProps = {
   readonly autoFocus?: boolean;
-  readonly isUrl?: boolean; // new prop
+  // new prop
+  readonly dontValidate?: boolean;
+  readonly isUrl?: boolean;
   readonly isValid?: boolean;
   readonly label?: string;
   readonly onChange: (value: string) => void;
@@ -16,12 +18,13 @@ type TextInputProps = {
   readonly value: string;
 }
 // className={`${isValidUrl(source) ? '' : 'p-invalid'}`}
-const TextInput = ({ autoFocus = true, isUrl = false, isValid = true, label, onChange, onResetClick, placeHolder, showClear = true, showCopy = false, value }: TextInputProps) => {
+const TextInput = ({ autoFocus = true, dontValidate = false, isUrl = false, isValid = true, label, onChange, onResetClick, placeHolder, showClear = true, showCopy = false, value }: TextInputProps) => {
   const [input, setInput] = useState<string>('');
   const [originalInput, setOriginalInput] = useState<string | undefined>(undefined);
 
 
   const processValue = (val: string) => {
+    if (dontValidate && !isUrl) return val;
     // If val is null, empty, or undefined, return it as is
     if (!val) return val;
 
