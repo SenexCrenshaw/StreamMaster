@@ -5,13 +5,11 @@ import BaseButton from "./BaseButton";
 export type CopyButtonProps = {
   readonly disabled?: boolean | undefined;
   readonly notificationDuration?: number;
-  readonly tooltip?: string;
   readonly value: string | undefined;  // New prop for notification duration
 }
 
 const CopyButton: React.FC<CopyButtonProps> = ({
   disabled = false,
-  tooltip = "Copy to Clipboard",
   value,
   notificationDuration = 750
 }) => {
@@ -35,11 +33,8 @@ const CopyButton: React.FC<CopyButtonProps> = ({
         icon="pi-copy"
         iconFilled={false}
         onClick={handleCopy}
-        tooltip={tooltip}
       />
-      {copied &&
-        <span className='copyButtonMessage'>Copied!</span>
-      }
+      {copied && <span className='copyButtonMessage'>Copied!</span>}
     </div>
   );
 };
