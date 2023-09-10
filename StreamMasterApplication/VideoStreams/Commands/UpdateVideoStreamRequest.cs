@@ -22,6 +22,7 @@ public class UpdateVideoStreamRequestHandler(ILogger<UpdateVideoStreamRequest> l
         if (videoStream is not null)
         {
             await Publisher.Publish(new UpdateVideoStreamEvent(videoStream, updateChannelGroup), cancellationToken).ConfigureAwait(false);
+
         }
 
 

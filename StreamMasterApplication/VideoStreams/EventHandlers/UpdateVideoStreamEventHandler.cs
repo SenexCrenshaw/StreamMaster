@@ -22,5 +22,6 @@ public class UpdateVideoStreamEventHandler : BaseMediatorRequestHandler, INotifi
         }
 
         await HubContext.Clients.All.VideoStreamsRefresh([notification.VideoStream]).ConfigureAwait(false);
+        await HubContext.Clients.All.StreamGroupVideoStreamsRefresh().ConfigureAwait(false);
     }
 }
