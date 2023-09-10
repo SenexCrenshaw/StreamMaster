@@ -16,23 +16,23 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        if (!_settings.LogPerformance)
-        {
-            return await next().ConfigureAwait(false);
-        }
+        //if (!_settings.LogPerformance)
+        //{
+        //    return await next().ConfigureAwait(false);
+        //}
 
-        _timer.Start();
+        //_timer.Start();
 
         TResponse? response = await next().ConfigureAwait(false);
 
-        _timer.Stop();
+        //_timer.Stop();
 
-        long elapsedMilliseconds = _timer.ElapsedMilliseconds;
+        //long elapsedMilliseconds = _timer.ElapsedMilliseconds;
 
-        //if (elapsedMilliseconds > 1)
-        //{
-        _logger.LogInformation("LogPerformance: {ElapsedMilliseconds} milliseconds", elapsedMilliseconds);
-        //}
+        ////if (elapsedMilliseconds > 1)
+        ////{
+        //_logger.LogInformation("LogPerformance: {ElapsedMilliseconds} milliseconds", elapsedMilliseconds);
+        ////}
 
         return response;
     }

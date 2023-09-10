@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.SchedulesDirectAPI;
-
+using StreamMaster.SchedulesDirectAPI.Models;
 using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.SchedulesDirectAPI;

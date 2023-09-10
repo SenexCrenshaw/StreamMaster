@@ -7,6 +7,7 @@ global using Microsoft.Extensions.Caching.Memory;
 global using Microsoft.Extensions.Logging;
 
 global using StreamMasterApplication.Common;
+global using StreamMasterApplication.Common.Attributes;
 global using StreamMasterApplication.Common.Events;
 global using StreamMasterApplication.Common.Interfaces;
 global using StreamMasterApplication.Hubs;

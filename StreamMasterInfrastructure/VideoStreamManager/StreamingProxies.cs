@@ -15,15 +15,15 @@ public static class StreamingProxies
 
     public static async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetFFMpegStream(string streamUrl, ILogger logger)
     {
-        Setting setting = FileUtil.GetSetting();
+        Setting settings = FileUtil.GetSetting();
 
-        var ffmpegExec = Path.Combine(BuildInfo.AppDataFolder, setting.FFMPegExecutable);
+        string ffmpegExec = Path.Combine(BuildInfo.AppDataFolder, settings.FFMPegExecutable);
 
         if (!File.Exists(ffmpegExec) && !File.Exists(ffmpegExec + ".exe"))
         {
             if (!IsFFmpegAvailable())
             {
-                ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = $"FFmpeg executable file not found: {setting.FFMPegExecutable}" };
+                ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = $"FFmpeg executable file not found: {settings.FFMPegExecutable}" };
                 return (null, -1, error);
             }
             ffmpegExec = "ffmpeg";
@@ -31,15 +31,20 @@ public static class StreamingProxies
 
         try
         {
+            string options = string.IsNullOrEmpty(settings.FFMpegOptions) ? BuildInfo.FFMPEGDefaultOptions : settings.FFMpegOptions;
+
+            string formattedArgs = options.Replace("{streamUrl}", $"\"{streamUrl}\"");
+            formattedArgs += $" -user_agent \"{settings.ClientUserAgent}\"";
+
             using Process process = new();
             process.StartInfo.FileName = ffmpegExec;
-            process.StartInfo.Arguments = $"-hide_banner -loglevel error -i \"{streamUrl}\" -c copy -f mpegts pipe:1 -user_agent \"{setting.ClientUserAgent}\"";
+            process.StartInfo.Arguments = formattedArgs;
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
 
             _ = process.Start();
-            logger.LogInformation("FFMpeg process started for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+            logger.LogInformation("FFMpeg process started for stream: {StreamUrl}", GetLoggableURL(streamUrl));
 
             return (await Task.FromResult(process.StandardOutput.BaseStream).ConfigureAwait(false), process.Id, null);
         }
@@ -73,16 +78,16 @@ public static class StreamingProxies
 
             string contentType = response.Content.Headers.ContentType.MediaType;
 
-            if (contentType is not null && contentType.Equals("application/vnd.apple.mpegurl", StringComparison.OrdinalIgnoreCase) ||
+            if ((contentType is not null && contentType.Equals("application/vnd.apple.mpegurl", StringComparison.OrdinalIgnoreCase)) ||
                         contentType.Equals("audio/mpegurl", StringComparison.OrdinalIgnoreCase) ||
                        contentType.Equals("application/x-mpegURL", StringComparison.OrdinalIgnoreCase))
             {
-                logger.LogInformation("Stream URL has HLS content, using FFMpeg for streaming: {StreamUrl}", setting.CleanURLs ? "url removed" : sourceUrl);
+                logger.LogInformation("Stream URL has HLS content, using FFMpeg for streaming: {StreamUrl}", GetLoggableURL(sourceUrl));
                 return await GetFFMpegStream(sourceUrl, logger).ConfigureAwait(false);
             }
 
             Stream stream = await response.Content.ReadAsStreamAsync(cancellation);
-            logger.LogInformation("Successfully retrieved stream for: {StreamUrl}", setting.CleanURLs ? "url removed" : sourceUrl);
+            logger.LogInformation("Successfully retrieved stream for: {StreamUrl}", GetLoggableURL(sourceUrl));
             return (stream, -1, null);
         }
         catch (Exception ex)
@@ -95,8 +100,8 @@ public static class StreamingProxies
 
     private static HttpClient CreateHttpClient()
     {
-        var setting = FileUtil.GetSetting();
-        var client = new HttpClient(new HttpClientHandler()
+        Setting setting = FileUtil.GetSetting();
+        HttpClient client = new(new HttpClientHandler()
         {
             AllowAutoRedirect = true,
         });

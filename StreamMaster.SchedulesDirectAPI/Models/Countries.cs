@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace StreamMaster.SchedulesDirectAPI;
+namespace StreamMaster.SchedulesDirectAPI.Models;
 public class Caribbean
 {
     [JsonPropertyName("fullName")]

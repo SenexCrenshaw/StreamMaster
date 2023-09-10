@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { InputText } from "primereact/inputtext";
 import { memo, useEffect, useState } from "react";
+import CopyButton from "../buttons/CopyButton";
 
 type TextInputProps = {
   readonly autoFocus?: boolean;
@@ -10,12 +11,14 @@ type TextInputProps = {
   readonly onResetClick?: () => void;
   readonly placeHolder?: string;
   readonly showClear?: boolean;
+  readonly showCopy?: boolean;
   readonly value: string;
 }
 // className={`${isValidUrl(source) ? '' : 'p-invalid'}`}
-const TextInput = ({ autoFocus = true, isValid = true, label, onChange, onResetClick, placeHolder, showClear = true, value }: TextInputProps) => {
+const TextInput = ({ autoFocus = true, isValid = true, label, onChange, onResetClick, placeHolder, showClear = true, showCopy = false, value }: TextInputProps) => {
   const [input, setInput] = useState<string>('');
   const [originalInput, setOriginalInput] = useState<string | undefined>(undefined);
+
 
   useEffect(() => {
     if (originalInput === undefined && value != originalInput) {
@@ -26,12 +29,20 @@ const TextInput = ({ autoFocus = true, isValid = true, label, onChange, onResetC
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
+  const doShowClear = (): boolean => {
+    return showClear === true && originalInput !== undefined && input !== originalInput;
+  }
+
+  const doShowCopy = (): boolean => {
+    return showCopy === true && input !== undefined && input !== '';
+  }
+
   return (
-    <div className={placeHolder && !label ? 'w-full' : 'w-full mt-3'}>
-      <span className={placeHolder && !label ? 'w-full p-input-icon-right' : 'w-full p-input-icon-right p-float-label'}>
-        {showClear === true && originalInput !== undefined && input !== originalInput &&
+    <div className={placeHolder && !label ? 'flex grid w-full align-items-center' : 'flex grid w-full mt-3 align-items-center'}>
+      <span className={placeHolder && !label ? 'col-11 p-input-icon-right' : 'col-11 p-input-icon-right p-float-label'}>
+        {doShowClear() && originalInput &&
           <i
-            className="pi pi-times-circle z-1"
+            className="pi pi-times-circle"
             hidden={showClear !== true || input === originalInput}
             onClick={() => {
               setInput(originalInput);
@@ -57,6 +68,11 @@ const TextInput = ({ autoFocus = true, isValid = true, label, onChange, onResetC
           <label htmlFor="name">{label}</label>
         }
       </span>
+      {doShowCopy() &&
+        <div className='col-1'>
+          <CopyButton value={input} />
+        </div>
+      }
     </div>
   )
 }

@@ -21,9 +21,20 @@ public class LogExecutionTimeAspect : Attribute
     [Argument(Source.ReturnType)] Type retType,
     [Argument(Source.Triggers)] Attribute[] triggers)
     {
-
+        List<string> LogPerformance = FileUtil.GetSetting().LogPerformance;
         string abbreviatedNamespace = AbbreviateNamespace(method.DeclaringType.FullName);
         string nameToLog = $"{abbreviatedNamespace}.{name}";
+
+        if (nameToLog.ToLower().Contains("quer") || nameToLog.ToLower().Contains("getvideo"))
+        {
+            int a = 1;
+
+        }
+
+        if (!ShouldLog(nameToLog, LogPerformance))
+        {
+            return target(args); // If the name doesn't match any string in the list, execute the method without any logging logic.
+        }
 
         ILogger logger = GlobalLoggerProvider.CreateLogger(nameToLog);
 
@@ -34,25 +45,51 @@ public class LogExecutionTimeAspect : Attribute
 
         if (result is Task task && !retType.IsValueType && retType != typeof(void))
         {
-            task.ContinueWith(t =>
+            return task.ContinueWith(t =>
             {
                 stopwatch.Stop();
-                logger.LogInformation($"executed in {stopwatch.ElapsedMilliseconds} ms.");
-
-                // Note: We're only logging in the continuation. 
-                // We're not trying to modify the result or rethrow exceptions.
-                // Any exception or result from the original task will flow through as-is.
+                if (t.IsFaulted)
+                {
+                    logger.LogError(t.Exception, $"Error executing {nameToLog}.");
+                }
+                else
+                {
+                    logger.LogInformation($"{nameToLog} executed in {stopwatch.ElapsedMilliseconds} ms.");
+                }
             });
-
-            return result;  // Return the original task
         }
 
         stopwatch.Stop();
-        logger.LogInformation($"executed in {stopwatch.ElapsedMilliseconds} ms.");
-
+        logger.LogInformation($"{nameToLog} executed in {stopwatch.ElapsedMilliseconds} ms.");
 
         return result;
     }
+
+    private static bool ShouldLog(string nameToLog, List<string> LogPerformance)
+    {
+        if (LogPerformance.Contains("*"))
+        {
+            return true;
+        }
+
+        foreach (string pattern in LogPerformance)
+        {
+            if (pattern.EndsWith(".*")) // If the pattern ends with ".*", we match the start of nameToLog
+            {
+                if (nameToLog.StartsWith(pattern.TrimEnd('.')))
+                {
+                    return true;
+                }
+            }
+            else if (nameToLog.Contains(pattern))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static string AbbreviateNamespace(string fullNamespace)
     {
         string[] parts = fullNamespace.Split('.');

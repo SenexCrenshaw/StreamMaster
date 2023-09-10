@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -54,6 +55,10 @@ public sealed class FileUtil
                 }
                 using FileStream fileStream = new(fullName, FileMode.Create);
                 using HttpResponseMessage response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationdefault).ConfigureAwait(false);
+                if (response.StatusCode == HttpStatusCode.Forbidden || response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return (false, null);
+                }
 
                 _ = response.EnsureSuccessStatusCode();
 

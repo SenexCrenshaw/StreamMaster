@@ -1,4 +1,6 @@
-﻿using StreamMasterDomain.Common;
+﻿using StreamMaster.SchedulesDirectAPI.Models;
+
+using StreamMasterDomain.Common;
 
 using System.Net;
 using System.Net.Http.Headers;

@@ -1,6 +1,7 @@
 ﻿using MediatR;
 
 using StreamMaster.SchedulesDirectAPI;
+using StreamMaster.SchedulesDirectAPI.Models;
 
 namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 

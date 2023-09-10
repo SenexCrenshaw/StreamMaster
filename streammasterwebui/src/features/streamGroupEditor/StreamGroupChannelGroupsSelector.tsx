@@ -21,7 +21,7 @@ const StreamGroupChannelGroupsSelector = ({ className, streamGroupId }: StreamGr
         disabled={isLoading}
         filter
         filterInputAutoFocus
-        itemTemplate={(option) => getChannelGroupMenuItem(option.id, option.name + '  |  ' + option.totalCount)}
+        itemTemplate={(option) => getChannelGroupMenuItem(option.name, option.name + '  |  ' + option.totalCount)}
         maxSelectedLabels={1}
         onChange={async (e: MultiSelectChangeEvent) => {
           const toSend = {} as StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiArg;

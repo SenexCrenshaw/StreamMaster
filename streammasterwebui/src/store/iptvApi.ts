@@ -1984,7 +1984,7 @@ export type TaskQueueStatusDto = {
 export type AuthenticationType = 0 | 2;
 export type StreamingProxyTypes = 0 | 1 | 2 | 3;
 export type Setting = {
-  logPerformance?: boolean;
+  logPerformance?: string[];
   adminPassword?: string;
   adminUserName?: string;
   apiKey?: string;
@@ -1995,6 +1995,7 @@ export type Setting = {
   defaultIcon?: string;
   deviceID?: string;
   dummyRegex?: string;
+  ffMpegOptions?: string;
   enableSSL?: boolean;
   epgAlwaysUseVideoStreamName?: boolean;
   ffmPegExecutable?: string;
@@ -2032,6 +2033,7 @@ export type Setting = {
 export type SettingDto = Setting & {
   release?: string;
   version?: string;
+  ffmpegDefaultOptions?: string;
 };
 export type SystemStatus = {
   isSystemReady?: boolean;

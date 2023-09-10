@@ -7,6 +7,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI;
+using StreamMaster.SchedulesDirectAPI.Models;
 
 namespace StreamMasterApplication.Programmes.Commands;
 

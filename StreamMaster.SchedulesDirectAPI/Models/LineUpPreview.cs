@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace StreamMaster.SchedulesDirectAPI;
+namespace StreamMaster.SchedulesDirectAPI.Models;
 
 public class LineUpPreview
 {
@@ -13,7 +13,7 @@ public class LineUpPreview
 
     [JsonPropertyName("channel")]
     public string Channel { get; set; }
-    
+
     public string LineUp { get; set; }
 
     [JsonPropertyName("name")]

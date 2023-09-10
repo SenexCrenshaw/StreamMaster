@@ -1,4 +1,6 @@
-﻿namespace StreamMaster.SchedulesDirectAPI;
+﻿using StreamMaster.SchedulesDirectAPI.Models;
+
+namespace StreamMaster.SchedulesDirectAPI;
 
 public static class SDExtensions
 {

@@ -6,26 +6,26 @@ public static class BuildInfo
 {
     static BuildInfo()
     {
-        var assembly = Assembly.GetEntryAssembly();
+        Assembly? assembly = Assembly.GetEntryAssembly();
 
         Version = assembly.GetName().Version;
 
-        var attributes = assembly.GetCustomAttributes(true);
+        object[] attributes = assembly.GetCustomAttributes(true);
 
         Branch = "unknow";
         Release = Version.ToString();
 
-        var informationalVersion = attributes.OfType<AssemblyInformationalVersionAttribute>().FirstOrDefault();
+        AssemblyInformationalVersionAttribute? informationalVersion = attributes.OfType<AssemblyInformationalVersionAttribute>().FirstOrDefault();
         if (informationalVersion is not null)
         {
             string[] parts = informationalVersion.InformationalVersion.ToString().Split('+');
 
             if (parts.Length == 2)
             {
-                var release = parts[1];
+                string release = parts[1];
                 if (release.Contains("."))
                 {
-                    release = release.Substring(0, release.IndexOf("."));
+                    release = release[..release.IndexOf(".")];
                 }
                 Release = $"{parts[0]}-{release}";
             }
@@ -57,25 +57,21 @@ public static class BuildInfo
 
     public static readonly string SettingFile = $"{AppDataFolder}settings.json";
     public static readonly string IconDefault = "images/default.png";
-
+    public static readonly string FFMPEGDefaultOptions = "-hide_banner -loglevel error -i '{streamUrl}' -c copy -f mpegts pipe:1";
     public static DateTime BuildDateTime
     {
         get
         {
-            var fileLocation = Assembly.GetCallingAssembly().Location;
+            string fileLocation = Assembly.GetCallingAssembly().Location;
             return new FileInfo(fileLocation).LastWriteTimeUtc;
         }
     }
 
-    public static bool IsDebug
-    {
-        get
-        {
+    public static bool IsDebug =>
 #if DEBUG
-            return true;
+            true;
 #else
                 return false;
 #endif
-        }
-    }
+
 }

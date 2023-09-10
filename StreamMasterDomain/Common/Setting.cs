@@ -2,7 +2,7 @@
 
 public class Setting : ISetting
 {
-    public bool LogPerformance { get; set; } = false;
+    public List<string> LogPerformance { get; set; } = new List<string> { "*.Queries" };
     public string AdminPassword { get; set; } = "";
     public string AdminUserName { get; set; } = "";
     public string ApiKey { get; set; } = Guid.NewGuid().ToString().Replace("-", "");
@@ -13,6 +13,7 @@ public class Setting : ISetting
     public string DefaultIcon { get; set; } = "images/default.png";
     public string DeviceID { get; set; } = "device1";
     public string DummyRegex { get; set; } = "(no tvg-id)";
+    public string FFMpegOptions { get; set; } = "-hide_banner -loglevel error -i '{streamUrl}' -c copy -f mpegts pipe:1";
     public bool EnableSSL { get; set; } = false;
     public bool EPGAlwaysUseVideoStreamName { get; set; } = false;
     public string FFMPegExecutable { get; set; } = "ffmpeg";

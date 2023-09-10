@@ -2,7 +2,8 @@ import { Tooltip } from "primereact/tooltip";
 import { memo, useCallback, useMemo, type CSSProperties } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
-import { GetMessage, getChannelGroupMenuItem, getColor } from "../../common/common";
+import { getColor } from "../../common/colors";
+import { GetMessage, getChannelGroupMenuItem } from "../../common/common";
 import { GroupIcon } from "../../common/icons";
 import { useChannelNameColumnConfig, useChannelNumberColumnConfig, useEPGColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
@@ -31,9 +32,9 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
       return (
         <div className='flex min-w-full min-h-full justify-content-end align-items-center'>
           <Tooltip position="left" target={"." + tooltipClassName} >
-            {getChannelGroupMenuItem(data.channelGroupId, data.user_Tvg_group)}
+            {getChannelGroupMenuItem(data.user_Tvg_group, data.user_Tvg_group)}
           </Tooltip>
-          <GroupIcon className={tooltipClassName} style={{ color: getColor(data.channelGroupId ?? 1) }} />
+          <GroupIcon className={tooltipClassName} style={{ color: getColor(data.user_Tvg_group) }} />
         </div >
       );
     }

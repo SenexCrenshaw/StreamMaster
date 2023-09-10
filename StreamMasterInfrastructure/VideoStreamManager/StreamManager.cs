@@ -33,14 +33,14 @@ public class StreamManager : IStreamManager
 
     public async Task<IStreamInformation?> GetOrCreateBuffer(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank)
     {
-        var streamUrl = childVideoStreamDto.User_Url;
-        if (_streamInformations.TryGetValue(streamUrl, out var _streamInformation))
+        string streamUrl = childVideoStreamDto.User_Url;
+        if (_streamInformations.TryGetValue(streamUrl, out IStreamInformation? _streamInformation))
         {
-            _logger.LogInformation("Reusing buffer for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+            _logger.LogInformation("Reusing buffer for stream: {StreamUrl}", GetLoggableURL(streamUrl));
             return _streamInformation;
         }
 
-        _logger.LogInformation("Creating and starting buffer for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+        _logger.LogInformation("Creating and starting buffer for stream: {StreamUrl}", GetLoggableURL(streamUrl));
 
         ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, videoStreamId, videoStreamName, rank, _circularBufferLogger);
         CancellationTokenSource cancellationTokenSource = new();
@@ -49,7 +49,7 @@ public class StreamManager : IStreamManager
 
         if (stream == null || error != null)
         {
-            _logger.LogError("Error GetOrCreateBuffer for {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+            _logger.LogError("Error GetOrCreateBuffer for {StreamUrl}", GetLoggableURL(streamUrl));
             return null;
         }
 
@@ -59,14 +59,14 @@ public class StreamManager : IStreamManager
 
         _streamInformations.TryAdd(streamStreamInfo.StreamUrl, streamStreamInfo);
 
-        _logger.LogInformation("Buffer created and streaming started for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+        _logger.LogInformation("Buffer created and streaming started for: {StreamUrl}", GetLoggableURL(streamUrl));
 
         return streamStreamInfo;
     }
 
     public SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl)
     {
-        if (_streamInformations.TryGetValue(streamUrl, out var _streamInformation))
+        if (_streamInformations.TryGetValue(streamUrl, out IStreamInformation? _streamInformation))
         {
             return _streamInformation.RingBuffer.GetSingleStreamStatisticsResult();
         }
@@ -91,7 +91,7 @@ public class StreamManager : IStreamManager
 
     public IStreamInformation? Stop(string streamUrl)
     {
-        if (_streamInformations.TryRemove(streamUrl, out var _streamInformation))
+        if (_streamInformations.TryRemove(streamUrl, out IStreamInformation? _streamInformation))
         {
             _streamInformation.Stop();
             return _streamInformation;
@@ -136,7 +136,7 @@ public class StreamManager : IStreamManager
     private void LogBufferHealth(ICircularRingBuffer buffer)
     {
         // Calculate buffer utilization percentage
-        var bufferUtilization = buffer.GetBufferUtilization();
+        float bufferUtilization = buffer.GetBufferUtilization();
         if (bufferUtilization < 95.0)
         {
             // Log the buffer health information
@@ -148,7 +148,7 @@ public class StreamManager : IStreamManager
     {
         if (stream == null || error != null)
         {
-            _logger.LogError("Error getting proxy stream for {StreamUrl}: {Error?.Message}", setting.CleanURLs ? "url removed" : streamUrl, error?.Message);
+            _logger.LogError("Error getting proxy stream for {StreamUrl}: {Error?.Message}", GetLoggableURL(streamUrl), error?.Message);
         }
     }
 
@@ -156,11 +156,11 @@ public class StreamManager : IStreamManager
     {
         if (token.IsCancellationRequested)
         {
-            _logger.LogInformation("Stream was cancelled for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+            _logger.LogInformation("Stream was cancelled for: {StreamUrl}", GetLoggableURL(streamUrl));
         }
 
         _logger.LogInformation("Stream received 0 bytes for stream: {StreamUrl} Retry {retryCount}/{maxRetries}",
-            setting.CleanURLs ? "url removed" : streamUrl,
+            GetLoggableURL(streamUrl),
             retryCount,
             maxRetries);
 
@@ -169,23 +169,23 @@ public class StreamManager : IStreamManager
 
     private async Task StartVideoStreaming(Stream stream, string streamUrl, ICircularRingBuffer buffer, CancellationTokenSource cancellationToken)
     {
-        var chunkSize = 24 * 1024;
+        int chunkSize = 24 * 1024;
 
-        _logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl}", chunkSize, setting.CleanURLs ? "url removed" : streamUrl);
+        _logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl}", chunkSize, GetLoggableURL(streamUrl));
 
         byte[] bufferChunk = new byte[chunkSize];
 
-        var maxRetries = 3; //setting.MaxConnectRetry > 0 ? setting.MaxConnectRetry : 3;
-        var waitTime = 50;// setting.MaxConnectRetryTimeMS > 0 ? setting.MaxConnectRetryTimeMS : 50;
+        int maxRetries = 3; //setting.MaxConnectRetry > 0 ? setting.MaxConnectRetry : 3;
+        int waitTime = 50;// setting.MaxConnectRetryTimeMS > 0 ? setting.MaxConnectRetryTimeMS : 50;
 
         using (stream)
         {
-            var retryCount = 0;
+            int retryCount = 0;
             while (!cancellationToken.IsCancellationRequested && retryCount < maxRetries)
             {
                 try
                 {
-                    var bytesRead = await TryReadStream(bufferChunk, stream, cancellationToken.Token);
+                    int bytesRead = await TryReadStream(bufferChunk, stream, cancellationToken.Token);
                     if (bytesRead == -1)
                     {
                         break;
@@ -204,19 +204,21 @@ public class StreamManager : IStreamManager
                 }
                 catch (TaskCanceledException ex)
                 {
-                    _logger.LogError(ex, "Stream cancelled for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+                    _logger.LogError(ex, "Stream cancelled for: {StreamUrl}", GetLoggableURL(streamUrl));
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Stream error for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+                    _logger.LogError(ex, "Stream error for: {StreamUrl}", GetLoggableURL(streamUrl));
                     break;
                 }
             }
         }
 
-        _logger.LogInformation("Stream stopped for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+        _logger.LogInformation("Stream stopped for: {StreamUrl}", GetLoggableURL(streamUrl));
         if (!cancellationToken.IsCancellationRequested)
+        {
             cancellationToken.Cancel();
+        }
     }
 
     private async Task<int> TryReadStream(byte[] bufferChunk, Stream stream, CancellationToken cancellationToken)

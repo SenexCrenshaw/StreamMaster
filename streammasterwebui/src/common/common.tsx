@@ -12,6 +12,7 @@ import GlobalSearch from '../components/search/GlobalSearch';
 import { baseHostURL, isDebug } from '../settings';
 import { type ChildVideoStreamDto, type IconFileDto, type VideoStreamDto } from '../store/iptvApi';
 import { SMFileTypes } from '../store/streammaster_enums';
+import { getColor } from './colors';
 
 export const getTopToolOptions = { autoHide: true, hideDelay: 100, position: 'top', showDelay: 400 } as TooltipOptions;
 export const getLeftToolOptions = { autoHide: true, hideDelay: 100, position: 'left', showDelay: 400 } as TooltipOptions;
@@ -23,31 +24,10 @@ export const hasValidAdditionalProps = (additionalFilterProps: AdditionalFilterP
 };
 
 
-export function getColor(index: number): string {
-  const STEP = 50; // This will determine the number of segments in the hue spectrum
-  const segments = Math.floor(360 / STEP);
-
-  // Calculate a hue value that jumps around the spectrum to ensure variation
-  const hue = ((index * STEP) + (Math.floor(index / segments) * STEP)) % 360;
-
-  return `hsl(${hue}, 100%, 70%)`;
-}
-
-
-export function getColor2(index: number): string {
-  const PRIME1 = 137;
-  const PRIME2 = 157;
-  const hue = (index * PRIME1) % 360;
-  const saturation = 90 + (index * PRIME2) % 10; // Values between 90% and 100%
-  const lightness = 65 + index % 5; // Values between 65% and 70%
-  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-}
-
-
-export function getChannelGroupMenuItem(colorIndex: number | undefined, toDisplay: string): React.ReactNode {
+export function getChannelGroupMenuItem(colorIndex: string | undefined, toDisplay: string): React.ReactNode {
   return <div className='gap-2'>
     <div>
-      <i className="pi pi-circle-fill pr-2" style={{ color: getColor(colorIndex ?? 1) }} />
+      <i className="pi pi-circle-fill pr-2" style={{ color: getColor(colorIndex ?? '') }} />
       {toDisplay}
     </div>
   </div>;
@@ -249,7 +229,7 @@ export type GetApiArg = {
   orderBy?: string;
   pageNumber?: number;
   pageSize?: number;
-  streamGroupId?: number;
+  streamGroupId?: number | undefined;
 };
 
 export function areGetApiArgsEqual(obj1?: GetApiArg, obj2?: GetApiArg): boolean {
@@ -421,15 +401,15 @@ export function isValidUrl(string: string): boolean {
 }
 
 
-export async function copyTextToClipboard(text: string) {
-  if ('clipboard' in navigator) {
-    await navigator.clipboard.writeText(text);
+// export async function copyTextToClipboard(text: string) {
+//   if ('clipboard' in navigator) {
+//     await navigator.clipboard.writeText(text);
 
-    return;
-  } else {
-    return document.execCommand('copy', true, text);
-  }
-}
+//     return;
+//   } else {
+//     return document.execCommand('copy', true, text);
+//   }
+// }
 
 export type PropsComparator<C extends React.ComponentType> = (
   prevProps: Readonly<React.ComponentProps<C>>,

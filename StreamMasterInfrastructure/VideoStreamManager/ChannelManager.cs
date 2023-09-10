@@ -159,11 +159,11 @@ public class ChannelManager : IDisposable, IChannelManager
             {
                 _streamInformation.VideoStreamingCancellationToken.Cancel();
             }
-            _logger.LogInformation("Simulating stream failure for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+            _logger.LogInformation("Simulating stream failure for: {StreamUrl}", GetLoggableURL(streamUrl));
         }
         else
         {
-            _logger.LogWarning("Stream not found, cannot simulate stream failure: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+            _logger.LogWarning("Stream not found, cannot simulate stream failure: {StreamUrl}", GetLoggableURL(streamUrl));
         }
     }
 
@@ -273,7 +273,7 @@ public class ChannelManager : IDisposable, IChannelManager
             {
                 if (GetGlobalStreamsCount() >= setting.GlobalStreamLimit)
                 {
-                    _logger.LogInformation("Max Global stream count {GlobalStreamsCount} reached for stream: {StreamUrl}", GetGlobalStreamsCount(), setting.CleanURLs ? "url removed" : newVideoStream.User_Url);
+                    _logger.LogInformation("Max Global stream count {GlobalStreamsCount} reached for stream: {StreamUrl}", GetGlobalStreamsCount(), GetLoggableURL(newVideoStream.User_Url));
                     return null;
                 }
 
@@ -287,7 +287,7 @@ public class ChannelManager : IDisposable, IChannelManager
 
                 if (newVideoStream.Id != channelStatus.VideoStreamId && allStreamsCount >= m3uFile.MaxStreamCount)
                 {
-                    _logger.LogInformation("Max stream count {MaxStreams} reached for stream: {StreamUrl}", newVideoStream.MaxStreams, setting.CleanURLs ? "url removed" : newVideoStream.User_Url);
+                    _logger.LogInformation("Max stream count {MaxStreams} reached for stream: {StreamUrl}", newVideoStream.MaxStreams, GetLoggableURL(newVideoStream.User_Url));
                 }
                 else
                 {
@@ -330,7 +330,7 @@ public class ChannelManager : IDisposable, IChannelManager
             {
                 if (GetGlobalStreamsCount() >= setting.GlobalStreamLimit)
                 {
-                    _logger.LogInformation("Max Global stream count {GlobalStreamsCount} reached for stream: {StreamUrl}", GetGlobalStreamsCount(), setting.CleanURLs ? "url removed" : toReturn.User_Url);
+                    _logger.LogInformation("Max Global stream count {GlobalStreamsCount} reached for stream: {StreamUrl}", GetGlobalStreamsCount(), GetLoggableURL(toReturn.User_Url));
                     continue;
                 }
 
@@ -342,7 +342,7 @@ public class ChannelManager : IDisposable, IChannelManager
                 allStreamsCount = _streamManager.GetStreamsCountForM3UFile(toReturn.M3UFileId);
                 if (allStreamsCount >= m3uFile.MaxStreamCount)
                 {
-                    _logger.LogInformation("Max stream count {MaxStreams} reached for stream: {StreamUrl}", toReturn.MaxStreams, setting.CleanURLs ? "url removed" : toReturn.User_Url);
+                    _logger.LogInformation("Max stream count {MaxStreams} reached for stream: {StreamUrl}", toReturn.MaxStreams, GetLoggableURL(toReturn.User_Url));
                     continue;
                 }
             }
@@ -453,7 +453,7 @@ public class ChannelManager : IDisposable, IChannelManager
 
     private void RegisterClientToNewStream(ClientStreamerConfiguration config, IStreamInformation streamStreamInfo)
     {
-        _logger.LogInformation("Registered client id: {clientId} to videostream url {StreamUrl}", config.ClientId, setting.CleanURLs ? "url removed" : streamStreamInfo.StreamUrl);
+        _logger.LogInformation("Registered client id: {clientId} to videostream url {StreamUrl}", config.ClientId, GetLoggableURL(streamStreamInfo.StreamUrl));
 
         streamStreamInfo.RegisterStreamConfiguration(config);
     }

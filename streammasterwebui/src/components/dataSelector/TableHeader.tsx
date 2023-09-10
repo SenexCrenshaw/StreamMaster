@@ -1,4 +1,5 @@
 import { ExportComponent, HeaderLeft, MultiSelectCheckbox } from "../../common/common";
+import { SMTextColor } from "../SMTextColor";
 import { type DataSelectorProps } from "./DataSelector";
 
 type TableHeaderProps = {
@@ -14,8 +15,8 @@ type TableHeaderProps = {
 const TableHeader: React.FC<TableHeaderProps> = ({ headerName, onMultiSelectClick, rowClick, setRowClick, enableExport, exportCSV, dataSelectorProps }) => {
   return (
     <div className="flex grid flex-row w-full flex-wrap grid align-items-center w-full col-12 h-full p-0 debug">
-      <div className="flex col-2 text-orange-500 h-full text-sm align-items-center p-0 debug">
-        {headerName}
+      <div className="flex col-2 h-full text-sm align-items-center p-0 debug">
+        <SMTextColor text={headerName} />
         <MultiSelectCheckbox
           onMultiSelectClick={onMultiSelectClick}
           props={dataSelectorProps}

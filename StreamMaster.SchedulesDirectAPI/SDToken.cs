@@ -1,4 +1,6 @@
-﻿using StreamMasterDomain.Common;
+﻿using StreamMaster.SchedulesDirectAPI.Models;
+
+using StreamMasterDomain.Common;
 
 using System.Net;
 using System.Net.Http.Headers;
@@ -9,12 +11,13 @@ namespace StreamMaster.SchedulesDirectAPI;
 
 public class SDTokenFile
 {
-    public string Token { get; set; }
+    public string? Token { get; set; }
     public DateTime TokenDateTime { get; set; }
 }
 
 public static class SDToken
 {
+    private static (SDStatus? status, DateTime timestamp)? cacheEntry = null;
     private const string SD_BASE_URL = "https://json.schedulesdirect.org/20141201/";
     private static readonly HttpClient httpClient = CreateHttpClient();
     private static readonly string SD_TOKEN_FILENAME = Path.Combine(BuildInfo.AppDataFolder, "sd_token.json");
@@ -26,27 +29,18 @@ public static class SDToken
         LoadToken();
     }
 
-    public static async Task<string?> GetAPIUrl(string commnand, CancellationToken cancellationToken)
-    {
-        bool isReady = await GetSystemReady(cancellationToken).ConfigureAwait(false);
-        if (!isReady)
-        {
-            return null;
-        }
 
-        return await GetAPIUrlInternal(commnand, cancellationToken);
-    }
 
     public static async Task<SDStatus?> GetStatus(CancellationToken cancellationToken)
     {
-        (SDStatus status, bool resetToken) = await GetStatusInternal(cancellationToken);
+        (SDStatus? status, bool resetToken) = await GetStatusInternal(cancellationToken);
         if (resetToken)
         {
             if (await ResetToken().ConfigureAwait(false) == null)
             {
                 return GetSDStatusOffline();
             }
-            (status, _) = await GetStatusInternal(cancellationToken);
+            return status;
         }
 
         return status;
@@ -54,12 +48,17 @@ public static class SDToken
 
     public static async Task<(SDStatus? sdStatus, bool resetToken)> GetStatusInternal(CancellationToken cancellationToken)
     {
-        string url = await GetAPIUrlInternal("status", cancellationToken);
+        if (cacheEntry.HasValue && (DateTime.UtcNow - cacheEntry.Value.timestamp).TotalMinutes < 10)
+        {
+            return (cacheEntry.Value.status, false);
+        }
+
+        string url = await GetAPIUrl("status", cancellationToken);
 
         using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
         try
         {
-            if (response.StatusCode == HttpStatusCode.Forbidden)
+            if (response.StatusCode == HttpStatusCode.Forbidden || response.StatusCode == HttpStatusCode.NotFound)
             {
                 return (null, true);
             }
@@ -75,6 +74,7 @@ public static class SDToken
             {
                 return (null, false);
             }
+            cacheEntry = (result, DateTime.UtcNow);
             return (result, false);
         }
         catch (Exception ex)
@@ -85,21 +85,13 @@ public static class SDToken
 
     public static async Task<bool> GetSystemReady(CancellationToken cancellationToken)
     {
-        (SDStatus status, bool resetToken) = await GetStatusInternal(cancellationToken);
-        if (resetToken)
+        (SDStatus? status, bool resetToken) = await GetStatusInternal(cancellationToken);
+        if (resetToken && await ResetToken().ConfigureAwait(false) != null)
         {
-            if (await ResetToken().ConfigureAwait(false) == null)
-            {
-                return false;
-            }
             (status, _) = await GetStatusInternal(cancellationToken);
-            if (status.systemStatus[0].status.ToLower() != "online")
-            {
-                return false;
-            }
         }
 
-        return true;
+        return status?.systemStatus[0].status?.ToLower() == "online";
     }
 
     public static async Task<string?> GetToken(CancellationToken cancellationToken = default)
@@ -141,15 +133,19 @@ public static class SDToken
         return client;
     }
 
-    private static async Task<string> GetAPIUrlInternal(string commnand, CancellationToken cancellationToken)
+    public static async Task<string> GetAPIUrl(string command, CancellationToken cancellationToken)
     {
         string? token = await GetToken(cancellationToken).ConfigureAwait(false);
+        return ConstructAPIUrlWithToken(command, token);
+    }
 
-        if (commnand.Contains("?"))
+    private static string ConstructAPIUrlWithToken(string command, string? token)
+    {
+        if (command.Contains("?"))
         {
-            return $"{SD_BASE_URL}{commnand}&token={token}";
+            return $"{SD_BASE_URL}{command}&token={token}";
         }
-        return $"{SD_BASE_URL}{commnand}?token={token}";
+        return $"{SD_BASE_URL}{command}?token={token}";
     }
 
     private static SDStatus GetSDStatusOffline()
