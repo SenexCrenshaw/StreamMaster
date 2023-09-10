@@ -7,7 +7,7 @@ export const upload = async (
   source: string | null,
   description: string | null,
   file: File | undefined,
-  fileType: string,
+  fileType: 'epg' | 'm3u',
   onUploadProgress: (progressEvent: AxiosProgressEvent) => void
 ) => {
   const formData = new FormData();
@@ -35,9 +35,9 @@ export const upload = async (
     case 'm3u':
       url = '/api/m3ufiles/createm3ufilefromform'
       break;
-    case 'icon':
-      url = '/api/icons/createiconfilefromform/'
-      break;
+    // case 'icon':
+    //   url = '/api/icons/createiconfilefromform/'
+    //   break;
   }
 
   return await http.post(url, formData, {

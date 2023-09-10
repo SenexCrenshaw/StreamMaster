@@ -81,7 +81,7 @@
 }
 
 .p-inputtext {
-  border-color: transparent !important;
+  background-color: transparent;
   overflow: hidden !important;
   padding: 0.0rem 0.0rem 0.0rem 0.5rem !important;
   transition: border-color 0.3s;
@@ -89,7 +89,6 @@
 
 .p-inputtext,
 .p-dropdown-item {
-  background-color: transparent;
   font-size: var(--common-font-size) !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
@@ -136,6 +135,12 @@
   border: 2px solid var(--common-border-color) !important;
   border-radius: 0.3rem;
   font-size: var(--common-font-size) !important;
+  height: var(--input-height*1.5);
+  padding: 0.3rem;
+}
+
+.text-large {
+  font-size: var(--common-font-size-large) !important;
   height: var(--input-height*1.5);
   padding: 0.3rem;
 }

@@ -10,7 +10,7 @@ type InfoMessageOverLayDialogProps = {
   readonly children: React.ReactNode;
   readonly closable?: boolean;
   readonly header?: string;
-  readonly infoMessage: string;
+  readonly infoMessage: string | undefined;
   readonly maximizable?: boolean;
   readonly onClose: () => void;
   readonly overlayColSize?: number;
@@ -70,8 +70,8 @@ const InfoMessageOverLayDialog: React.FC<InfoMessageOverLayDialogProps> = (props
       case 'warn':
         return 'text-yellow-500';
       default:
-        if (infoMessage.toLowerCase().includes('error') ||
-          infoMessage.toLowerCase().includes('failed')) {
+        if (infoMessage?.toLowerCase().includes('error') ||
+          infoMessage?.toLowerCase().includes('failed')) {
           return 'text-red-500';
         }
 

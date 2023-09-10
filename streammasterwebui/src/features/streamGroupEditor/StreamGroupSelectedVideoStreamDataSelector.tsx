@@ -20,7 +20,7 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
   const { selectedStreamGroup } = useSelectedStreamGroup(id);
   const enableEdit = true;
 
-  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ useFilter: false });
+  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: enableEdit, useFilter: false });
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit: enableEdit, useFilter: false });
   const { columnConfig: epgColumnConfig } = useEPGColumnConfig({ enableEdit: enableEdit, useFilter: false });
 
