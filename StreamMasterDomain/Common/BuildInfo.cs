@@ -57,7 +57,7 @@ public static class BuildInfo
 
     public static readonly string SettingFile = $"{AppDataFolder}settings.json";
     public static readonly string IconDefault = "images/default.png";
-    public static readonly string FFMPEGDefaultOptions = "-hide_banner -loglevel error -i '{streamUrl}' -c copy -f mpegts pipe:1";
+    public static readonly string FFMPEGDefaultOptions = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1";
     public static DateTime BuildDateTime
     {
         get

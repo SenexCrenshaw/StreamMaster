@@ -44,7 +44,10 @@ public static class StreamingProxies
             process.StartInfo.RedirectStandardOutput = true;
 
             _ = process.Start();
-            logger.LogInformation("FFMpeg process started for stream: {StreamUrl}", GetLoggableURL(streamUrl));
+
+            string tempArgs = options.Replace("{streamUrl}", $"'{GetLoggableURL(streamUrl)}'");
+            tempArgs += $" -user_agent \"{settings.ClientUserAgent}\"";
+            logger.LogInformation("FFMpeg process started for stream: {StreamUrl} with options {tempArgs}", GetLoggableURL(streamUrl), tempArgs);
 
             return (await Task.FromResult(process.StandardOutput.BaseStream).ConfigureAwait(false), process.Id, null);
         }
