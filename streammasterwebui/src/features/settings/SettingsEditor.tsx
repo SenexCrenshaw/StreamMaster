@@ -86,7 +86,7 @@ export const SettingsEditor = () => {
     return (
       <div className='flex col-12 align-content-center'>
         <div className='flex col-2 col-offset-1'>
-          <SMTextColor text={label} />
+          {label}
         </div>
         <div className='flex col-3 m-0 p-0 debug'>
           {value}

@@ -1,18 +1,10 @@
 import { type SyntheticEvent } from "react";
 import { camel2title } from "../../common/common";
+import { LinkButton } from "../buttons/LinkButton";
 import { type ColumnFieldType } from "./DataSelectorTypes";
-import getRecordString from "./getRecordString";
 import getRecord from "./getRecord";
+import getRecordString from "./getRecordString";
 
-function linkTemplate(link: string) {
-  return (
-    <div className="flex justify-content-center align-items-center">
-      <a href={link} rel="noopener noreferrer" target="_blank">
-        <i className="pi pi-bookmark-fill" />
-      </a>
-    </div>
-  );
-}
 
 function epgSourceTemplate(tvgid: string) {
   return (
@@ -56,15 +48,15 @@ function streamsBodyTemplate(activeCount: string, totalCount: string) {
 }
 
 function m3uLinkTemplate(data: object) {
-  return linkTemplate(getRecordString(data, 'm3ULink'));
+  return <LinkButton link={getRecordString(data, 'm3ULink')} />;
 }
 
 function epgLinkTemplate(data: object) {
-  return linkTemplate(getRecordString(data, 'xmlLink'));
+  return <LinkButton link={getRecordString(data, 'xmlLink')} />;
 }
 
 function urlTemplate(data: object) {
-  return linkTemplate(getRecordString(data, 'hdhrLink'));
+  return <LinkButton link={getRecordString(data, 'hdhrLink')} />;
 }
 
 function blankTemplate() {

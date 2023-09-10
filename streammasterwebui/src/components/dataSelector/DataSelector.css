@@ -68,7 +68,7 @@
 
 
 .dataselector .p-datatable {
-  font-size: calc(1 * (0.52vw + 0.52vh)) !important;
+  font-size: var(--common-font-size) !important;
 }
 
 /* .dataselector .p-paginator .p-dropdown .p-dropdown-label {
