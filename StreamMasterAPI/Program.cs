@@ -144,14 +144,14 @@ else
 app.UseAuthentication();
 app.UseAuthorization();
 
-if (app.Environment.IsDevelopment())
-{
-    //RecurringJob.AddOrUpdate("Hello World", () => Console.WriteLine("hello world"), Cron.Minutely);    
-}
-else
-{
-    _ = app.UseResponseCompression();
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    //RecurringJob.AddOrUpdate("Hello World", () => Console.WriteLine("hello world"), Cron.Minutely);    
+//}
+//else
+//{
+//    _ = app.UseResponseCompression();
+//}
 
 app.MapHealthChecks("/healthz");
 app.MapDefaultControllerRoute();
