@@ -152,15 +152,18 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         // Build the TvChannel based on whether it's a dummy or not
         if (isDummyStream)
         {
+
+            string orginalName = videoStream.User_Tvg_name;
             int dummy = GetDummy();
-            videoStream.User_Tvg_ID = "dummy-" + dummy;
+            videoStream.User_Tvg_name = "dummy-" + dummy;
+
             return new TvChannel
             {
-                Id = "dummy-" + dummy,
+                Id = videoStream.User_Tvg_name,
                 Icon = new TvIcon { Src = logo ?? string.Empty },
                 Displayname = new List<string>
             {
-                "dummy-" + dummy,videoStream.User_Tvg_name ?? "Unknown",
+               orginalName,videoStream.User_Tvg_name
             }
             };
 
@@ -169,11 +172,11 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         {
             return new TvChannel
             {
-                Id = videoStream.User_Tvg_ID,
+                Id = videoStream.User_Tvg_name,
                 Icon = new TvIcon { Src = logo ?? string.Empty },
                 Displayname = new List<string>
             {
-                videoStream.User_Tvg_ID?.ToLower() ?? "Unknown"
+               videoStream.User_Tvg_name
             }
             };
         }
@@ -241,7 +244,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         {
             AdjustProgrammeIcons(prog, cachedIcons);
 
-            prog.Channel = videoStream.User_Tvg_ID;
+            prog.Channel = videoStream.User_Tvg_name;
             if (string.IsNullOrEmpty(prog.New))
             {
                 prog.New = null;
