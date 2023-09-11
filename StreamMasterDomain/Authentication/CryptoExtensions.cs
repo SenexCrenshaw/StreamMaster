@@ -215,20 +215,19 @@ public static class CryptoExtension
         return EncodeValues(value1, value2, serverKey, 256);
     }
 
-    public static string? GetAPIKeyFromPath(this string requestPath, int keySize = 128)
+    public static string? GetAPIKeyFromPath(this string requestPath, string serverKey, int keySize = 128)
     {
-        if (requestPath.GetIVFromPath() == null)
+        if (requestPath.GetIVFromPath(serverKey) == null)
         {
             return null;
         }
 
-        Setting setting = FileUtil.GetSetting();
-        return setting.ApiKey;
+        return serverKey;
     }
 
 
 
-    public static byte[]? GetIVFromPath(this string requestPath, int keySize = 128)
+    public static byte[]? GetIVFromPath(this string requestPath, string serverKey, int keySize = 128)
     {
         try
         {
@@ -252,8 +251,8 @@ public static class CryptoExtension
             {
                 crypt = crypt[..crypt.IndexOf("/")];
             }
-            Setting setting = FileUtil.GetSetting();
-            byte[] serverKeyBytes = GenerateKey(setting.ServerKey, keySize);
+
+            byte[] serverKeyBytes = GenerateKey(serverKey, keySize);
             string base64String = crypt
                 .Replace('-', '+')
                 .Replace('_', '/')

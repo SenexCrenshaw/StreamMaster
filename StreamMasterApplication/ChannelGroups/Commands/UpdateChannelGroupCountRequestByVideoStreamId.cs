@@ -16,7 +16,7 @@ public class UpdateChannelGroupCountRequestByVideoStreamIdValidator : AbstractVa
 
 [LogExecutionTimeAspect]
 
-public class UpdateChannelGroupCountRequestByVideoStreamIdHandler(ILogger<UpdateChannelGroupCountRequestByVideoStreamId> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateChannelGroupCountRequestByVideoStreamId>
+public class UpdateChannelGroupCountRequestByVideoStreamIdHandler(ILogger<UpdateChannelGroupCountRequestByVideoStreamId> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateChannelGroupCountRequestByVideoStreamId>
 {
     public async Task Handle(UpdateChannelGroupCountRequestByVideoStreamId request, CancellationToken cancellationToken)
     {

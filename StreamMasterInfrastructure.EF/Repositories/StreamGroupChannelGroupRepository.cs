@@ -15,11 +15,12 @@ using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
-public class StreamGroupChannelGroupRepository(RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISender sender) : RepositoryBase<StreamGroupChannelGroup, StreamGroupChannelGroup>(repositoryContext), IStreamGroupChannelGroupRepository
+public class StreamGroupChannelGroupRepository(RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, ISender sender) : RepositoryBase<StreamGroupChannelGroup, StreamGroupChannelGroup>(repositoryContext), IStreamGroupChannelGroupRepository
 {
     private readonly IMapper _mapper = mapper;
     private readonly ISender _sender = sender;
     private readonly IRepositoryWrapper _repository = repository;
+    private readonly ISettingsService _settingsService = settingsService;
 
     public async Task<StreamGroupDto?> SyncStreamGroupChannelGroups(int StreamGroupId, List<int> ChannelGroupIds, CancellationToken cancellationToken = default)
     {

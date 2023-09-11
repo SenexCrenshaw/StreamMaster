@@ -13,21 +13,12 @@ using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
 
-
 namespace StreamMasterInfrastructureEF.Repositories;
 
-public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHelper<StreamGroup> StreamGroupSortHelper, IMapper mapper, IMemoryCache memoryCache, ISender sender, IHttpContextAccessor httpContextAccessor) : RepositoryBase<StreamGroup, StreamGroupDto>(repositoryContext), IStreamGroupRepository
+public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHelper<StreamGroup> StreamGroupSortHelper, IMapper mapper, IMemoryCache memoryCache, ISender sender, IHttpContextAccessor httpContextAccessor, ISettingsService settingsService) : RepositoryBase<StreamGroup, StreamGroupDto>(repositoryContext), IStreamGroupRepository
 {
-    private readonly ISortHelper<StreamGroup> _StreamGroupSortHelper = StreamGroupSortHelper;
-    private readonly IMapper _mapper = mapper;
-    private readonly ISender _sender = sender;
-    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-    private readonly IMemoryCache _memoryCache = memoryCache;
-
     public async Task CreateStreamGroupRequestAsync(CreateStreamGroupRequest request, CancellationToken cancellationToken)
     {
-        //int streamGroupNumber = GetAllStreamGroups().Max(a => a.StreamGroupNumber) + 1;
-
         StreamGroup streamGroup = new()
         {
             Name = request.Name
@@ -35,9 +26,7 @@ public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHel
 
         CreateStreamGroup(streamGroup);
         _ = await RepositoryContext.SaveChangesAsync(cancellationToken);
-
     }
-
 
     public async Task SetGroupNameByGroupName(string channelGroupName, string newGroupName, CancellationToken cancellationToken)
     {
@@ -80,7 +69,7 @@ public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHel
     {
         IQueryable<StreamGroup> StreamGroups = FindAll();
 
-        IQueryable<StreamGroup> sorderStreamGroups = _StreamGroupSortHelper.ApplySort(StreamGroups, StreamGroupParameters.OrderBy);
+        IQueryable<StreamGroup> sorderStreamGroups = StreamGroupSortHelper.ApplySort(StreamGroups, StreamGroupParameters.OrderBy);
 
         return await sorderStreamGroups.ToPagedListAsync(StreamGroupParameters.PageNumber, StreamGroupParameters.PageSize).ConfigureAwait(false);
     }
@@ -102,8 +91,7 @@ public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHel
 
     public async Task<StreamGroupDto?> GetStreamGroupDto(int id, CancellationToken cancellationToken = default)
     {
-        string Url = _httpContextAccessor.GetUrl();
-
+        string Url = httpContextAccessor.GetUrl();
         int count = 0;
 
         StreamGroupDto? ret;
@@ -120,11 +108,11 @@ public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHel
                 return null;
             }
             count = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == id).Count();
-            ret = _mapper.Map<StreamGroupDto>(streamGroup);
+            ret = mapper.Map<StreamGroupDto>(streamGroup);
         }
 
-        Setting _setting = FileUtil.GetSetting();
-        string encodedStreamGroupNumber = ret.Id.EncodeValue128(_setting.ServerKey);
+        Setting setting = await settingsService.GetSettingsAsync();
+        string encodedStreamGroupNumber = ret.Id.EncodeValue128(setting.ServerKey);
         ret.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
         ret.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
         ret.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
@@ -205,7 +193,7 @@ public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHel
     {
         try
         {
-            string Url = _httpContextAccessor.GetUrl();
+            string Url = httpContextAccessor.GetUrl();
             StreamGroup? streamGroup = await GetStreamGroupByIdAsync(request.StreamGroupId).ConfigureAwait(false);
 
             if (streamGroup == null)
@@ -239,9 +227,9 @@ public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHel
 
     public async Task<PagedResponse<StreamGroupDto>> GetStreamGroupDtosPagedAsync(StreamGroupParameters StreamGroupParameters)
     {
-        string Url = _httpContextAccessor.GetUrl();
-        Setting _setting = FileUtil.GetSetting();
-        PagedResponse<StreamGroupDto> ret = await GetEntitiesAsync(StreamGroupParameters, _mapper);
+        string Url = httpContextAccessor.GetUrl();
+        Setting setting = await settingsService.GetSettingsAsync();
+        PagedResponse<StreamGroupDto> ret = await GetEntitiesAsync(StreamGroupParameters, mapper);
         foreach (StreamGroupDto sg in ret.Data)
         {
             int count = 0;
@@ -254,7 +242,7 @@ public class StreamGroupRepository(RepositoryContext repositoryContext, ISortHel
                 count = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == sg.Id).Count();
             }
             RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == sg.Id).Count();
-            string encodedStreamGroupNumber = sg.Id.EncodeValue128(_setting.ServerKey);
+            string encodedStreamGroupNumber = sg.Id.EncodeValue128(setting.ServerKey);
             sg.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
             sg.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
             sg.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";

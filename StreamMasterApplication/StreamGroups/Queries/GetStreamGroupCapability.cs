@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 
 using StreamMasterApplication.Common.Models;
 
@@ -13,48 +11,33 @@ namespace StreamMasterApplication.StreamGroups.Queries;
 [RequireAll]
 public record GetStreamGroupCapability(int StreamGroupId) : IRequest<string>;
 
-public class GetStreamGroupCapabilityValidator : AbstractValidator<GetStreamGroupCapability>
-{
-    public GetStreamGroupCapabilityValidator()
-    {
-        _ = RuleFor(v => v.StreamGroupId)
-            .NotNull().GreaterThanOrEqualTo(0);
-    }
-}
-
 [LogExecutionTimeAspect]
-public class GetStreamGroupCapabilityHandler : BaseMediatorRequestHandler, IRequestHandler<GetStreamGroupCapability, string>
+public class GetStreamGroupCapabilityHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupCapability> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext), IRequestHandler<GetStreamGroupCapability, string>
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    public GetStreamGroupCapabilityHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupCapability> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-: base(logger, repository, mapper, publisher, sender, hubContext) { _httpContextAccessor = httpContextAccessor; }
-
-
-    public Task<string> Handle(GetStreamGroupCapability request, CancellationToken cancellationToken)
+    public async Task<string> Handle(GetStreamGroupCapability request, CancellationToken cancellationToken)
     {
-
         if (request.StreamGroupId > 1)
         {
             bool streamGroup = Repository.StreamGroup.FindAll().Any(a => a.Id == request.StreamGroupId);
             if (!streamGroup)
             {
-                return Task.FromResult("");
+                return "";
             }
         }
-        Setting settings = FileUtil.GetSetting();
+        Setting setting = await GetSettingsAsync();
 
-        Capability capability = new(GetUrl(), $"{settings.DeviceID}-{request.StreamGroupId}");
+        Capability capability = new(GetUrl(), $"{setting.DeviceID}-{request.StreamGroupId}");
 
         using Utf8StringWriter textWriter = new();
         XmlSerializer serializer = new(typeof(Capability));
         serializer.Serialize(textWriter, capability);
 
-        return Task.FromResult(textWriter.ToString());
+        return textWriter.ToString();
     }
 
     private string GetUrl()
     {
-        HttpRequest request = _httpContextAccessor.HttpContext.Request;
+        HttpRequest request = httpContextAccessor.HttpContext.Request;
         string scheme = request.Scheme;
         HostString host = request.Host;
         PathString path = request.Path;

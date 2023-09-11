@@ -8,8 +8,8 @@ public record GetEPGFile(int Id) : IRequest<EPGFileDto?>;
 internal class GetEPGFileHandler : BaseMemoryRequestHandler, IRequestHandler<GetEPGFile, EPGFileDto?>
 {
 
-    public GetEPGFileHandler(ILogger<GetEPGFile> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
+    public GetEPGFileHandler(ILogger<GetEPGFile> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache) { }
     public async Task<EPGFileDto?> Handle(GetEPGFile request, CancellationToken cancellationToken = default)
     {
         EPGFile? epgFile = await Repository.EPGFile.GetEPGFileByIdAsync(request.Id).ConfigureAwait(false);

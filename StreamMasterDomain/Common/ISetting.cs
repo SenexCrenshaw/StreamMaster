@@ -41,7 +41,6 @@
         string SSLCertPath { get; set; }
         string StreamingClientUserAgent { get; set; }
         StreamingProxyTypes StreamingProxyType { get; set; }
-        string StreamMasterIcon { get; set; }
         string UiFolder { get; set; }
         string UrlBase { get; set; }
         bool VideoStreamAlwaysUseEPGLogo { get; set; }

@@ -21,6 +21,7 @@ using StreamMasterApplication.Hubs;
 using StreamMasterApplication.Services;
 
 using StreamMasterDomain.EnvironmentInfo;
+using StreamMasterDomain.Logging;
 
 using StreamMasterInfrastructure;
 using StreamMasterInfrastructure.Authentication;
@@ -39,15 +40,16 @@ public static class ConfigureServices
     {
         services.AddLogging(logging =>
         {
+            logging.AddFilter("StreamMasterDomain.Logging.CustomLogger", LogLevel.Information);
             logging.AddConsole();
             logging.AddDebug();
             logging.AddProvider(new SMLoggerProvider());
         });
 
+        services.AddTransient(typeof(ILogger<>), typeof(CustomLogger<>));
+
         ILoggerFactory loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
         GlobalLoggerProvider.Configure(loggerFactory);
-
-        services.AddMemoryCache();
 
         services.Configure<ForwardedHeadersOptions>(options =>
         {

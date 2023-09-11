@@ -10,16 +10,11 @@ namespace StreamMasterApplication.Icons.Commands;
 
 public class BuildProgIconsCacheFromEPGsRequest : IRequest<bool> { }
 
-public class BuildProgIconsCacheFromEPGsRequestHandler : BaseMemoryRequestHandler, IRequestHandler<BuildProgIconsCacheFromEPGsRequest, bool>
+public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCacheFromEPGsRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<BuildProgIconsCacheFromEPGsRequest, bool>
 {
-
-    public BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCacheFromEPGsRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
-
-
     public async Task<bool> Handle(BuildProgIconsCacheFromEPGsRequest command, CancellationToken cancellationToken)
     {
-        Setting setting = FileUtil.GetSetting();
+        Setting setting = await GetSettingsAsync();
 
         int startId = MemoryCache.GetIcons(Mapper).Count;
 

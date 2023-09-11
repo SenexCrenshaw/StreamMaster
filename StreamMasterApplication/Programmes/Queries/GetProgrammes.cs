@@ -1,9 +1,4 @@
-﻿using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-
-using StreamMasterDomain.Cache;
-using StreamMasterDomain.Repository.EPG;
+﻿using StreamMasterDomain.Repository.EPG;
 
 using System.Web;
 
@@ -11,28 +6,17 @@ namespace StreamMasterApplication.Programmes.Queries;
 
 public record GetProgrammes : IRequest<IEnumerable<Programme>>;
 
-internal class GetProgrammesHandler : IRequestHandler<GetProgrammes, IEnumerable<Programme>>
+internal class GetProgrammesHandler(IMemoryCache memoryCache) : IRequestHandler<GetProgrammes, IEnumerable<Programme>>
 {
-    private readonly IMemoryCache _memoryCache;
-
-    public GetProgrammesHandler(
-
-       IMemoryCache memoryCache
-    )
-    {
-        _memoryCache = memoryCache;
-    }
-
     public Task<IEnumerable<Programme>> Handle(GetProgrammes request, CancellationToken cancellationToken)
     {
-        IEnumerable<Programme> programmes = _memoryCache.Programmes().ToList();
+        IEnumerable<Programme> programmes = memoryCache.Programmes().ToList();
         if (programmes == null)
         {
             return Task.FromResult<IEnumerable<Programme>>(new List<Programme>());
         }
 
-        Setting setting = FileUtil.GetSetting();
-        List<StreamMasterDomain.Dto.IconFileDto> icons = _memoryCache.Icons();
+        List<IconFileDto> icons = memoryCache.Icons();
 
         foreach (Programme? prog in programmes.Where(a => a.Icon.Any()))
         {
@@ -40,7 +24,7 @@ internal class GetProgrammesHandler : IRequestHandler<GetProgrammes, IEnumerable
             {
                 if (progIcon != null && !string.IsNullOrEmpty(progIcon.Src))
                 {
-                    StreamMasterDomain.Dto.IconFileDto? icon = icons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
+                    IconFileDto? icon = icons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
                     if (icon == null)
                     {
                         continue;

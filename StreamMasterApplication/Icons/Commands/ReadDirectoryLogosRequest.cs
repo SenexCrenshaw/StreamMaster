@@ -1,10 +1,5 @@
 ﻿using FluentValidation;
 
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-using StreamMasterDomain.Cache;
-
 namespace StreamMasterApplication.Icons.Commands;
 
 public record ReadDirectoryLogosRequest : IRequest
@@ -34,7 +29,7 @@ public class ReadDirectoryLogosRequestHandler : IRequestHandler<ReadDirectoryLog
             return;
         }
 
-        Setting setting = FileUtil.GetSetting();
+
         DirectoryInfo dirInfo = new(BuildInfo.TVLogoDataFolder);
 
         List<TvLogoFile> tvLogos = new()
@@ -50,7 +45,7 @@ public class ReadDirectoryLogosRequestHandler : IRequestHandler<ReadDirectoryLog
             new TvLogoFile
             {
                 Id=1,
-                Source = setting.StreamMasterIcon,
+                Source = "images/StreamMaster.png",
                 FileExists = true,
                 Name = "Stream Master"
             }

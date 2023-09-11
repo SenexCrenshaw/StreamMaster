@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Enums;
 using StreamMasterDomain.Repository;
+using StreamMasterDomain.Services;
 
 using StreamMasterInfrastructure.Extensions;
 
@@ -11,41 +12,61 @@ namespace StreamMasterInfrastructure.Authentication;
 
 public interface IAuthenticationService
 {
-    User Login(HttpRequest request, string username, string password);
+    Task<User> Login(HttpRequest request, string username, string password);
 
-    void Logout(HttpContext context);
+    Task Logout(HttpContext context);
 
     void LogUnauthorized(HttpRequest context);
 }
 
 public class AuthenticationService : IAuthenticationService
 {
-    private static string AdminPassword;
-    private static string AdminUserName;
-    private static AuthenticationType AUTH_METHOD;
+    //private static string AdminPassword;
+    //private static string AdminUserName;
+    //private static AuthenticationType AUTH_METHOD;
     private readonly ILogger<AuthenticationService> _logger;
-    protected Setting _setting = FileUtil.GetSetting();
-
-    public AuthenticationService(ILogger<AuthenticationService> logger)
+    private readonly ISettingsService _settingsService;
+    public AuthenticationService(ILogger<AuthenticationService> logger, ISettingsService settingsService)
     {
+        _settingsService = settingsService;
         _logger = logger;
-        AdminPassword = _setting.AdminPassword;
-        AdminUserName = _setting.AdminUserName;
-        var authMethod = AuthenticationType.None;
+        //AdminPassword = _setting.AdminPassword;
+        //AdminUserName = _setting.AdminUserName;
+        //AuthenticationType authMethod = AuthenticationType.None;
+        //if (
+        //    _setting.AuthenticationMethod != AuthenticationType.None &&
+        //    !string.IsNullOrEmpty(AdminPassword) && !string.IsNullOrEmpty(AdminUserName)
+        //    )
+        //{
+        //    authMethod = AuthenticationType.Forms;
+        //}
+
+        //AUTH_METHOD = authMethod;
+    }
+
+    private async Task<AuthenticationType> GetAuthMethod()
+    {
+        Setting setting = await _settingsService.GetSettingsAsync();
+        string AdminPassword = setting.AdminPassword;
+        string AdminUserName = setting.AdminUserName;
+        AuthenticationType authMethod = AuthenticationType.None;
         if (
-            _setting.AuthenticationMethod != AuthenticationType.None &&
-            (!string.IsNullOrEmpty(AdminPassword) && !string.IsNullOrEmpty(AdminUserName))
+            setting.AuthenticationMethod != AuthenticationType.None &&
+            !string.IsNullOrEmpty(AdminPassword) && !string.IsNullOrEmpty(AdminUserName)
             )
         {
             authMethod = AuthenticationType.Forms;
         }
-
-        AUTH_METHOD = authMethod;
+        return authMethod;
     }
-
-    public User Login(HttpRequest request, string username, string password)
+    public async Task<User> Login(HttpRequest request, string username, string password)
     {
-        if (AUTH_METHOD == AuthenticationType.None)
+        Setting setting = await _settingsService.GetSettingsAsync();
+        string AdminPassword = setting.AdminPassword;
+        string AdminUserName = setting.AdminUserName;
+        AuthenticationType authMethod = await GetAuthMethod();
+
+        if (authMethod == AuthenticationType.None)
         {
             return null;
         }
@@ -67,9 +88,10 @@ public class AuthenticationService : IAuthenticationService
         return null;
     }
 
-    public void Logout(HttpContext context)
+    public async Task Logout(HttpContext context)
     {
-        if (AUTH_METHOD == AuthenticationType.None)
+        AuthenticationType authMethod = await GetAuthMethod();
+        if (authMethod == AuthenticationType.None)
         {
             return;
         }

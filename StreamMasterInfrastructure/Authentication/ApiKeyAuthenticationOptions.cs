@@ -5,9 +5,7 @@ using Microsoft.Extensions.Options;
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Enums;
-
-using StreamMasterInfrastructure.Logging;
-using StreamMasterInfrastructure.VideoStreamManager;
+using StreamMasterDomain.Services;
 
 using System.Diagnostics;
 using System.Security.Claims;
@@ -26,64 +24,61 @@ public class ApiKeyAuthenticationOptions : AuthenticationSchemeOptions
 
 public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthenticationOptions>
 {
-    private readonly string _apiKey;
-    private readonly bool needsAuth;
+
     private readonly ILogger<ApiKeyAuthenticationHandler> _logger;
-    protected Setting _setting = FileUtil.GetSetting();
+    private readonly ISettingsService _settingsService;
 
-    public ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options,
-        ILoggerFactory logger,
-
-        UrlEncoder encoder,
-    ISystemClock clock)
+    public ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options, ISettingsService settingsService, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
         : base(options, logger, encoder, clock)
     {
         _logger = logger.CreateLogger<ApiKeyAuthenticationHandler>();
-        _apiKey = _setting.ApiKey;
-        needsAuth = _setting.AuthenticationMethod != AuthenticationType.None;
+        _settingsService = settingsService;
     }
 
-    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+    protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
+        Setting setting = await _settingsService.GetSettingsAsync();
+        bool needsAuth = setting.AuthenticationMethod != AuthenticationType.None;
+
         if (!needsAuth)
         {
-            var claims = new List<Claim>
-                {
+            List<Claim> claims = new()
+            {
                     new Claim("ApiKey", "true")
                 };
 
-            var identity = new ClaimsIdentity(claims, Options.AuthenticationType);
-            var identities = new List<ClaimsIdentity> { identity };
-            var principal = new ClaimsPrincipal(identities);
-            var ticket = new AuthenticationTicket(principal, Options.Scheme);
+            ClaimsIdentity identity = new(claims, Options.AuthenticationType);
+            List<ClaimsIdentity> identities = new() { identity };
+            ClaimsPrincipal principal = new(identities);
+            AuthenticationTicket ticket = new(principal, Options.Scheme);
             _logger.LogDebug("Authentication is off");
-            return Task.FromResult(AuthenticateResult.Success(ticket));
+            return AuthenticateResult.Success(ticket);
         }
 
-        var providedApiKey = ParseApiKey();
+        string? providedApiKey = ParseApiKey(setting.ApiKey, setting.ServerKey);
 
         if (string.IsNullOrWhiteSpace(providedApiKey))
         {
             _logger.LogDebug("No Authentication: providedApiKey is blank");
-            return Task.FromResult(AuthenticateResult.NoResult());
+            return AuthenticateResult.NoResult();
         }
 
-        if (_apiKey == providedApiKey)
+        if (setting.ApiKey == providedApiKey)
         {
-            var claims = new List<Claim>
-                {
+            List<Claim> claims = new()
+            {
                     new Claim("ApiKey", "true")
                 };
 
-            var identity = new ClaimsIdentity(claims, Options.AuthenticationType);
-            var identities = new List<ClaimsIdentity> { identity };
-            var principal = new ClaimsPrincipal(identities);
-            var ticket = new AuthenticationTicket(principal, Options.Scheme);
+            ClaimsIdentity identity = new(claims, Options.AuthenticationType);
+            List<ClaimsIdentity> identities = new() { identity };
+            ClaimsPrincipal principal = new(identities);
+            AuthenticationTicket ticket = new(principal, Options.Scheme);
             _logger.LogDebug("ApiKey Authentication success");
-            return Task.FromResult(AuthenticateResult.Success(ticket));
+            return AuthenticateResult.Success(ticket);
         }
 
-        return Task.FromResult(AuthenticateResult.NoResult());
+        return AuthenticateResult.NoResult();
     }
 
     protected override Task HandleChallengeAsync(AuthenticationProperties properties)
@@ -98,18 +93,18 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
         return Task.CompletedTask;
     }
 
-    private string? ParseApiKey()
+    private string? ParseApiKey(string apiKey, string serverKey)
     {
         if (Request.Path.Value.StartsWith("/swagger") && Debugger.IsAttached)
         {
             _logger.LogDebug("Swagger Authentication success");
-            return _apiKey;
+            return apiKey;
         }
-        var requestPath = Context.Request.Path.Value.ToString();
+        string requestPath = Context.Request.Path.Value.ToString();
 
         if (Options.QueryName == "SGLinks")
         {
-           
+
             _logger.LogDebug("SGLinks Authentication start for {requestPath}", requestPath);
             // Get the request path            
             if (
@@ -122,30 +117,30 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
                 return null;
             }
 
-            var crypt = requestPath.GetAPIKeyFromPath();
+            string crypt = requestPath.GetAPIKeyFromPath(serverKey);
             if (string.IsNullOrEmpty(crypt))
             {
                 _logger.LogDebug("SGLinks: crypt is blank for {requestPath}", requestPath);
             }
-           
+
             return crypt;
         }
         _logger.LogDebug("Authentication start for {requestPath}", requestPath);
         // Try query parameter
-        if (Request.Query.TryGetValue(Options.QueryName, out var value))
+        if (Request.Query.TryGetValue(Options.QueryName, out Microsoft.Extensions.Primitives.StringValues value))
         {
             _logger.LogDebug("Authentication used query parameter {value}", value.FirstOrDefault());
             return value.FirstOrDefault();
         }
 
         // No ApiKey query parameter found try headers
-        if (Request.Headers.TryGetValue(Options.HeaderName, out var headerValue))
+        if (Request.Headers.TryGetValue(Options.HeaderName, out Microsoft.Extensions.Primitives.StringValues headerValue))
         {
-            _logger.LogDebug("Authentication used headers {headerName} : {value}", Options.HeaderName,headerValue.FirstOrDefault());
+            _logger.LogDebug("Authentication used headers {headerName} : {value}", Options.HeaderName, headerValue.FirstOrDefault());
             return headerValue.FirstOrDefault();
         }
 
-        _logger.LogDebug("Authentication used bearer : {value}",  Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", ""));
+        _logger.LogDebug("Authentication used bearer : {value}", Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", ""));
         return Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", "");
     }
 }

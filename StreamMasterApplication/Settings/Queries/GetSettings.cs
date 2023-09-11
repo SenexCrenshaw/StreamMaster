@@ -1,36 +1,14 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-
-using StreamMasterDomain.Dto;
-
-namespace StreamMasterApplication.Settings.Queries;
+﻿namespace StreamMasterApplication.Settings.Queries;
 
 public record GetSettings : IRequest<SettingDto>;
 
-internal class GetSettingsHandler : IRequestHandler<GetSettings, SettingDto>
+internal class GetSettingsHandler(IMapper mapper, ISettingsService settingsService) : IRequestHandler<GetSettings, SettingDto>
 {
-    private readonly IMapper _mapper;
-    private readonly IMemoryCache _memoryCache;
-
-    public GetSettingsHandler(
-        IMemoryCache memoryCache,
-
-        IMapper mapper
-    )
+    public async Task<SettingDto> Handle(GetSettings request, CancellationToken cancellationToken)
     {
-        _memoryCache = memoryCache;
+        Setting setting = await settingsService.GetSettingsAsync();
+        SettingDto ret = mapper.Map<SettingDto>(setting);
 
-        _mapper = mapper;
-    }
-
-    public Task<SettingDto> Handle(GetSettings request, CancellationToken cancellationToken)
-    {
-        Setting setting = FileUtil.GetSetting();
-        SettingDto ret = _mapper.Map<SettingDto>(setting);
-
-        return Task.FromResult(ret);
+        return ret;
     }
 }

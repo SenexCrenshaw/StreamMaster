@@ -17,11 +17,11 @@ public partial class StreamMasterHub : IStreamGroupVideoStreamHub
 
     public async Task SetVideoStreamRanks(SetVideoStreamRanksRequest request, CancellationToken cancellationToken)
     {
-        await _mediator.Send(request, cancellationToken).ConfigureAwait(false);
+        await mediator.Send(request, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task SyncVideoStreamToStreamGroup(SyncVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken)
     {
-        await _mediator.Send(request, cancellationToken).ConfigureAwait(false);
+        await mediator.Send(request, cancellationToken).ConfigureAwait(false);
     }
 }

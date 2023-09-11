@@ -93,7 +93,6 @@ public static class IconHelper
             return false;
         }
 
-        Setting setting = FileUtil.GetSetting();
         DirectoryInfo dirInfo = new(BuildInfo.TVLogoDataFolder);
 
         List<TvLogoFile> tvLogos = new()
@@ -109,7 +108,7 @@ public static class IconHelper
             new TvLogoFile
             {
                 Id=1,
-                Source = setting.StreamMasterIcon,
+                Source = "images/StreamMaster.png",
                 FileExists = true,
                 Name = "Stream Master"
             }

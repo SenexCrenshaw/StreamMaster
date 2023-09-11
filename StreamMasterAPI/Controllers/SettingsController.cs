@@ -10,12 +10,11 @@ using StreamMasterApplication.Settings.Queries;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 
-using static StreamMasterApplication.Settings.Commands.UpdateSettingHandler;
-
 namespace StreamMasterAPI.Controllers;
 
 public class SettingsController : ApiControllerBase, ISettingController
 {
+
     [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<bool>> GetIsSystemReady()
@@ -47,10 +46,9 @@ public class SettingsController : ApiControllerBase, ISettingController
 
     [HttpGet]
     [Route("[action]")]
-    public ActionResult<bool> LogIn(LogInRequest logInRequest)
+    public async Task<ActionResult<bool>> LogIn(LogInRequest logInRequest)
     {
-        var setting = FileUtil.GetSetting();
-
+        Setting setting = await SettingsService.GetSettingsAsync();
         return setting.AdminUserName == logInRequest.UserName && setting.AdminPassword == logInRequest.Password;
     }
 
@@ -58,7 +56,7 @@ public class SettingsController : ApiControllerBase, ISettingController
     [Route("[action]")]
     public async Task<IActionResult> UpdateSetting(UpdateSettingRequest command)
     {
-        UpdateSettingResponse updateSettingResponse = await Mediator.Send(command).ConfigureAwait(false);
+        UpdateSettingRequestHandler.UpdateSettingResponse updateSettingResponse = await Mediator.Send(command).ConfigureAwait(false);
 
         if (updateSettingResponse.NeedsLogOut)
         {

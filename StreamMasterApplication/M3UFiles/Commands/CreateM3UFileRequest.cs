@@ -26,8 +26,8 @@ public class CreateM3UFileRequestValidator : AbstractValidator<CreateM3UFileRequ
 public class CreateM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateM3UFileRequest, bool>
 {
 
-    public CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-    : base(logger, repository, mapper, publisher, sender, hubContext) { }
+    public CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+    : base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
 
     public async Task<bool> Handle(CreateM3UFileRequest command, CancellationToken cancellationToken)
     {
@@ -36,7 +36,7 @@ public class CreateM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestH
             return false;
         }
 
-        //Setting setting = FileUtil.GetSetting();
+        //Setting setting = await _settingsService.GetSettingsAsync();
         try
         {
             FileDefinition fd = FileDefinitions.M3U;

@@ -17,8 +17,8 @@ public class RefreshM3UFileRequestValidator : AbstractValidator<RefreshM3UFileRe
 public class RefreshM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<RefreshM3UFileRequest, M3UFile?>
 {
 
-    public RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
- : base(logger, repository, mapper, publisher, sender, hubContext) { }
+    public RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+ : base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
 
     public async Task<M3UFile?> Handle(RefreshM3UFileRequest request, CancellationToken cancellationToken)
     {

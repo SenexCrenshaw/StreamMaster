@@ -8,7 +8,6 @@ namespace StreamMasterDomain.Common;
 public sealed class FileUtil
 {
     private static bool setupDirectories = false;
-
     public static void CreateDirectory(string fileName)
     {
         string? directory = Path.EndsInDirectorySeparator(fileName) ? fileName : Path.GetDirectoryName(fileName);
@@ -146,7 +145,6 @@ public sealed class FileUtil
 
     public static async Task<List<TvLogoFile>> GetIconFilesFromDirectory(DirectoryInfo dirInfo, string tvLogosLocation, int startingId, CancellationToken cancellationToken = default)
     {
-        _ = FileUtil.GetSetting();
         List<TvLogoFile> ret = new();
 
         foreach (FileInfo file in dirInfo.GetFiles("*png"))

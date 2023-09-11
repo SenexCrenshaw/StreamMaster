@@ -24,42 +24,42 @@ namespace StreamMasterInfrastructure.Services.Frontend
 
         [HttpGet("")]
         [HttpGet("/{**path:regex(^(?!(api|feed)/).*)}")]
-        public IActionResult Index([FromRoute] string path)
+        public async Task<IActionResult> Index([FromRoute] string path)
         {
-            return MapResource(path);
+            return await MapResource(path);
         }
 
         [EnableCors("AllowGet")]
         [AllowAnonymous]
         [HttpGet("/content/{**path:regex(^(?!api/).*)}")]
-        public IActionResult IndexContent([FromRoute] string path)
+        public async Task<IActionResult> IndexContent([FromRoute] string path)
         {
-            return MapResource("Content/" + path);
+            return await MapResource("Content/" + path);
         }
 
         [HttpGet("/swagger/{**path:regex(^(?!api/).*)}")]
-        public IActionResult IndexSwagger([FromRoute] string path)
+        public async Task<IActionResult> IndexSwagger([FromRoute] string path)
         {
-            return MapResource("swagger/" + path);
+            return await MapResource("swagger/" + path);
         }
 
         [EnableCors("AllowGet")]
         [AllowAnonymous]
         [HttpGet("/images/{**path:regex(^(?!api/).*)}")]
-        public IActionResult IndexImages([FromRoute] string path)
+        public async Task<IActionResult> IndexImages([FromRoute] string path)
         {
-            return MapResource("images/" + path);
+            return await MapResource("images/" + path);
         }
 
 
         [AllowAnonymous]
         [HttpGet("login")]
-        public IActionResult LoginPage()
+        public async Task<IActionResult> LoginPage()
         {
-            return MapResource("login");
+            return await MapResource("login");
         }
 
-        private IActionResult MapResource(string path)
+        private async Task<IActionResult> MapResource(string path)
         {
             path = "/" + (path ?? "");
 
@@ -67,7 +67,7 @@ namespace StreamMasterInfrastructure.Services.Frontend
 
             if (mapper != null)
             {
-                IActionResult result = mapper.GetResponse(path);
+                IActionResult result = await mapper.GetResponse(path);
 
                 if (result != null)
                 {

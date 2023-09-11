@@ -6,7 +6,7 @@ namespace StreamMasterApplication.VideoStreams.Queries;
 
 public record GetVideoStreamIdsByStreamGroupQuery(int StreamGroupId) : IRequest<List<string>> { }
 
-internal class GetVideoStreamIdsByStreamGroupQueryHandler(ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper) : BaseRequestHandler(logger, repository, mapper), IRequestHandler<GetVideoStreamIdsByStreamGroupQuery, List<string>>
+internal class GetVideoStreamIdsByStreamGroupQueryHandler(ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService) : BaseRequestHandler(logger, repository, mapper, settingsService), IRequestHandler<GetVideoStreamIdsByStreamGroupQuery, List<string>>
 {
     public async Task<List<string>> Handle(GetVideoStreamIdsByStreamGroupQuery request, CancellationToken cancellationToken)
     {

@@ -31,11 +31,10 @@ const StreamMasterSetting = (): StreamMasterSettingResponse => {
       setAuthenticationType(settingsQuery.data.authenticationMethod);
 
     if (
-      settingsQuery.data.defaultIcon &&
-      settingsQuery.data.streamMasterIcon
+      settingsQuery.data.defaultIcon
     ) {
       // const base = settingsQuery.data.urlBase !== '' ? settingsQuery.data.urlBase : '/';
-      setStreamMasterIcon(settingsQuery.data.streamMasterIcon);
+      setStreamMasterIcon("images/StreamMaster.png");
       setDefaultIcon(settingsQuery.data.defaultIcon);
       setDefaultIconName(settingsQuery.data.defaultIcon);
       setCacheIcon(settingsQuery.data.cacheIcons === true);

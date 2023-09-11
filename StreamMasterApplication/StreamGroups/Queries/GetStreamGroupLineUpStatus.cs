@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 
-using Microsoft.AspNetCore.Http;
-
+using StreamMasterApplication.Common.Logging;
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.M3UFiles.Commands;
 
@@ -22,14 +21,8 @@ public class GetStreamGroupLineUpStatusValidator : AbstractValidator<GetStreamGr
 }
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupLineUpStatusHandler : BaseRequestHandler, IRequestHandler<GetStreamGroupLineUpStatus, string>
+public class GetStreamGroupLineUpStatusHandler(ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService) : BaseRequestHandler(logger, repository, mapper, settingsService), IRequestHandler<GetStreamGroupLineUpStatus, string>
 {
-
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public GetStreamGroupLineUpStatusHandler(ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper)
-        : base(logger, repository, mapper) { }
-
     public Task<string> Handle(GetStreamGroupLineUpStatus request, CancellationToken cancellationToken)
     {
         if (request.StreamGroupId > 1)

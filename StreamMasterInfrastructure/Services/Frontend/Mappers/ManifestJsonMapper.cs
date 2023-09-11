@@ -2,28 +2,21 @@
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.EnvironmentInfo;
+using StreamMasterDomain.Services;
 
 namespace StreamMasterInfrastructure.Services.Frontend.Mappers
 {
-    public class ManifestJsonMapper : StaticResourceMapperBase
+    public class ManifestJsonMapper(IAppFolderInfo appFolderInfo, ILogger<ManifestJsonMapper> logger, ISettingsService settingsService) : StaticResourceMapperBase(logger)
     {
-        private readonly IAppFolderInfo _appFolderInfo;
-
-        public ManifestJsonMapper(IAppFolderInfo appFolderInfo, ILogger<ManifestJsonMapper> logger)
-            : base(logger)
-        {
-            _appFolderInfo = appFolderInfo;
-        }
-
         public override bool CanHandle(string resourceUrl)
         {
             return resourceUrl.Equals("/manifest.json");
         }
 
-        public override string Map(string resourceUrl)
+        public override async Task<string> Map(string resourceUrl)
         {
-            var setting = FileUtil.GetSetting();
-            return Path.Combine(_appFolderInfo.StartUpFolder, setting.UiFolder, "manifest.json");
+            Setting setting = await settingsService.GetSettingsAsync();
+            return Path.Combine(appFolderInfo.StartUpFolder, setting.UiFolder, "manifest.json");
         }
     }
 }

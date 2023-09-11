@@ -5,8 +5,8 @@ public record ProcessM3UFilesRequest : IRequest { }
 public class ProcessM3UFilesRequestHandler : BaseMediatorRequestHandler, IRequestHandler<ProcessM3UFilesRequest>
 {
 
-    public ProcessM3UFilesRequestHandler(ILogger<ProcessM3UFilesRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
- : base(logger, repository, mapper, publisher, sender, hubContext) { }
+    public ProcessM3UFilesRequestHandler(ILogger<ProcessM3UFilesRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+ : base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
 
 
     public async Task Handle(ProcessM3UFilesRequest command, CancellationToken cancellationToken)

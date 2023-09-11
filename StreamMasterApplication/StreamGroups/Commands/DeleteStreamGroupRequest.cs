@@ -17,8 +17,8 @@ public class DeleteStreamGroupRequestValidator : AbstractValidator<DeleteStreamG
 public class DeleteStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<DeleteStreamGroupRequest, int?>
 {
 
-    public DeleteStreamGroupRequestHandler(ILogger<DeleteStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-  : base(logger, repository, mapper, publisher, sender, hubContext) { }
+    public DeleteStreamGroupRequestHandler(ILogger<DeleteStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+  : base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
 
 
     public async Task<int?> Handle(DeleteStreamGroupRequest request, CancellationToken cancellationToken = default)

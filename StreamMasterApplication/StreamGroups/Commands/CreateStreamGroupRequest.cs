@@ -17,7 +17,7 @@ public class CreateStreamGroupRequestValidator : AbstractValidator<CreateStreamG
 }
 
 [LogExecutionTimeAspect]
-public class CreateStreamGroupRequestHandler(ILogger<CreateStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, publisher, sender, hubContext), IRequestHandler<CreateStreamGroupRequest>
+public class CreateStreamGroupRequestHandler(ILogger<CreateStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext), IRequestHandler<CreateStreamGroupRequest>
 {
     public async Task Handle(CreateStreamGroupRequest command, CancellationToken cancellationToken)
     {

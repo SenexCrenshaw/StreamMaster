@@ -16,7 +16,7 @@ public class SetVideoStreamRanksRequestValidator : AbstractValidator<SetVideoStr
 }
 
 [LogExecutionTimeAspect]
-public class SetVideoStreamRanksRequestHandler(ILogger<SetVideoStreamRanksRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, publisher, sender, hubContext), IRequestHandler<SetVideoStreamRanksRequest>
+public class SetVideoStreamRanksRequestHandler(ILogger<SetVideoStreamRanksRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext), IRequestHandler<SetVideoStreamRanksRequest>
 {
     public async Task Handle(SetVideoStreamRanksRequest request, CancellationToken cancellationToken)
     {

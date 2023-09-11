@@ -2,19 +2,12 @@ using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.EnvironmentInfo;
+using StreamMasterDomain.Services;
 
 namespace StreamMasterInfrastructure.Services.Frontend.Mappers
 {
-    public class StaticResourceMapper : StaticResourceMapperBase
+    public class StaticResourceMapper(IAppFolderInfo appFolderInfo, ISettingsService settingsService, ILogger<StaticResourceMapper> logger) : StaticResourceMapperBase(logger)
     {
-        private readonly IAppFolderInfo _appFolderInfo;
-
-        public StaticResourceMapper(IAppFolderInfo appFolderInfo, ILogger<StaticResourceMapper> logger)
-            : base(logger)
-        {
-            _appFolderInfo = appFolderInfo;
-        }
-
         public override bool CanHandle(string resourceUrl)
         {
             resourceUrl = resourceUrl.ToLowerInvariant();
@@ -27,26 +20,27 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
 
             return (resourceUrl.StartsWith("/static/") || resourceUrl.StartsWith("/content/")) &&
                 (
-                   resourceUrl.EndsWith(".js") && !resourceUrl.EndsWith("initialize.js") ||
+                   (resourceUrl.EndsWith(".js") && !resourceUrl.EndsWith("initialize.js")) ||
                    resourceUrl.EndsWith(".map") ||
                    resourceUrl.EndsWith(".woff2") ||
                    resourceUrl.EndsWith(".woff") ||
                    resourceUrl.EndsWith(".ttf") ||
                    resourceUrl.EndsWith(".css") ||
                        resourceUrl.EndsWith(".eot") ||
-                   resourceUrl.EndsWith(".ico") && !resourceUrl.Equals("/favicon.ico") ||
+                   (resourceUrl.EndsWith(".ico") && !resourceUrl.Equals("/favicon.ico")) ||
                    resourceUrl.EndsWith(".swf") ||
                    resourceUrl.EndsWith("oauth.html"
                    )
                    );
         }
 
-        public override string Map(string resourceUrl)
+        public override async Task<string> Map(string resourceUrl)
         {
-            var path = resourceUrl.Replace('/', Path.DirectorySeparatorChar);
+            Setting setting = await settingsService.GetSettingsAsync();
+            string path = resourceUrl.Replace('/', Path.DirectorySeparatorChar);
             path = path.Trim(Path.DirectorySeparatorChar);
-            var setting = FileUtil.GetSetting();
-            return Path.Combine(_appFolderInfo.StartUpFolder, setting.UiFolder, path);
+
+            return Path.Combine(appFolderInfo.StartUpFolder, setting.UiFolder, path);
         }
     }
 }

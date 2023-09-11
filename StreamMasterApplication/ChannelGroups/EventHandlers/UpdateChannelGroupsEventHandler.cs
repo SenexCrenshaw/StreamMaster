@@ -6,7 +6,7 @@ using StreamMasterApplication.StreamGroupChannelGroups.Queries;
 
 namespace StreamMasterApplication.ChannelGroups.EventHandlers;
 
-public class UpdateChannelGroupsEventHandler(ILogger<UpdateChannelGroupsEvent> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, publisher, sender, hubContext), INotificationHandler<UpdateChannelGroupsEvent>
+public class UpdateChannelGroupsEventHandler(ILogger<UpdateChannelGroupsEvent> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext), INotificationHandler<UpdateChannelGroupsEvent>
 {
     public async Task Handle(UpdateChannelGroupsEvent notification, CancellationToken cancellationToken)
     {

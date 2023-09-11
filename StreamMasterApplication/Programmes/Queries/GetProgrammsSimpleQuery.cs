@@ -7,8 +7,8 @@ public record GetProgrammsSimpleQuery(ProgrammeParameters Parameters) : IRequest
 internal class GetProgrammsSimpleQueryHandler : BaseMemoryRequestHandler, IRequestHandler<GetProgrammsSimpleQuery, List<ProgrammeNameDto>>
 {
 
-    public GetProgrammsSimpleQueryHandler(ILogger<GetProgrammsSimpleQuery> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-    : base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
+    public GetProgrammsSimpleQueryHandler(ILogger<GetProgrammsSimpleQuery> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+    : base(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache) { }
 
     public async Task<List<ProgrammeNameDto>> Handle(GetProgrammsSimpleQuery request, CancellationToken cancellationToken)
     {

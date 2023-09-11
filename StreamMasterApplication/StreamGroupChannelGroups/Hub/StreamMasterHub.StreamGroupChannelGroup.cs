@@ -8,12 +8,12 @@ public partial class StreamMasterHub : IStreamGroupChannelGroupHub
 {
     public async Task SyncStreamGroupChannelGroups(SyncStreamGroupChannelGroupsRequest request, CancellationToken cancellationToken)
     {
-        await _mediator.Send(request, cancellationToken).ConfigureAwait(false);
+        await mediator.Send(request, cancellationToken).ConfigureAwait(false);
     }
 
 
     public async Task<List<ChannelGroupDto>> GetAllChannelGroups(GetAllChannelGroupsRequest request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        return await mediator.Send(request).ConfigureAwait(false);
     }
 }

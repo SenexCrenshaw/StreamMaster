@@ -33,7 +33,7 @@ public class GetStreamGroupEPGForGuideValidator : AbstractValidator<GetStreamGro
     }
 }
 
-public partial class GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPGForGuide> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupEPGForGuide, EPGGuide>
+public partial class GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPGForGuide> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupEPGForGuide, EPGGuide>
 {
 
     private readonly object Lock = new();
@@ -98,7 +98,7 @@ public partial class GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpC
             //ret.EndDate = programmes.Max(a => a.StopDateTime);
 
             List<IconFileDto> icons = MemoryCache.Icons();
-            Setting setting = FileUtil.GetSetting();
+            Setting setting = await GetSettingsAsync();
 
             List<IconFileDto> progIcons = icons.Where(a => a.SMFileType == SMFileTypes.ProgrammeIcon).ToList();
 

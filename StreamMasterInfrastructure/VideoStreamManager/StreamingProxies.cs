@@ -11,19 +11,18 @@ namespace StreamMasterInfrastructure.VideoStreamManager;
 
 public static class StreamingProxies
 {
-    private static readonly HttpClient client = CreateHttpClient();
+    //private static readonly HttpClient client = CreateHttpClient();
 
-    public static async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetFFMpegStream(string streamUrl, ILogger logger)
+    public static async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetFFMpegStream(string streamUrl, ILogger logger, Setting setting)
     {
-        Setting settings = FileUtil.GetSetting();
 
-        string ffmpegExec = Path.Combine(BuildInfo.AppDataFolder, settings.FFMPegExecutable);
+        string ffmpegExec = Path.Combine(BuildInfo.AppDataFolder, setting.FFMPegExecutable);
 
         if (!File.Exists(ffmpegExec) && !File.Exists(ffmpegExec + ".exe"))
         {
             if (!IsFFmpegAvailable())
             {
-                ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = $"FFmpeg executable file not found: {settings.FFMPegExecutable}" };
+                ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.FileNotFound, Message = $"FFmpeg executable file not found: {setting.FFMPegExecutable}" };
                 return (null, -1, error);
             }
             ffmpegExec = "ffmpeg";
@@ -31,10 +30,10 @@ public static class StreamingProxies
 
         try
         {
-            string options = string.IsNullOrEmpty(settings.FFMpegOptions) ? BuildInfo.FFMPEGDefaultOptions : settings.FFMpegOptions;
+            string options = string.IsNullOrEmpty(setting.FFMpegOptions) ? BuildInfo.FFMPEGDefaultOptions : setting.FFMpegOptions;
 
             string formattedArgs = options.Replace("{streamUrl}", $"\"{streamUrl}\"");
-            formattedArgs += $" -user_agent \"{settings.ClientUserAgent}\"";
+            formattedArgs += $" -user_agent \"{setting.ClientUserAgent}\"";
 
             using Process process = new();
             process.StartInfo.FileName = ffmpegExec;
@@ -45,9 +44,9 @@ public static class StreamingProxies
 
             _ = process.Start();
 
-            string tempArgs = options.Replace("{streamUrl}", $"'{GetLoggableURL(streamUrl)}'");
-            tempArgs += $" -user_agent \"{settings.ClientUserAgent}\"";
-            logger.LogInformation("FFMpeg process started for stream: {StreamUrl} with options {tempArgs}", GetLoggableURL(streamUrl), tempArgs);
+            string tempArgs = options.Replace("{streamUrl}", $"'{streamUrl}'");
+            tempArgs += $" -user_agent \"{setting.ClientUserAgent}\"";
+            logger.LogInformation("FFMpeg process started for stream: {StreamUrl} with options {tempArgs}", streamUrl, tempArgs);
 
             return (await Task.FromResult(process.StandardOutput.BaseStream).ConfigureAwait(false), process.Id, null);
         }
@@ -65,11 +64,11 @@ public static class StreamingProxies
         }
     }
 
-    public static async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxyStream(string sourceUrl, ILogger logger, CancellationToken cancellation)
+    public static async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxyStream(string sourceUrl, ILogger logger, Setting setting, CancellationToken cancellation)
     {
-        Setting setting = FileUtil.GetSetting();
         try
         {
+            HttpClient client = CreateHttpClient(setting.StreamingClientUserAgent);
             HttpResponseMessage? response = await client.GetWithRedirectAsync(sourceUrl, cancellationToken: cancellation).ConfigureAwait(false);
 
             if (response == null || !response.IsSuccessStatusCode)
@@ -85,12 +84,12 @@ public static class StreamingProxies
                         contentType.Equals("audio/mpegurl", StringComparison.OrdinalIgnoreCase) ||
                        contentType.Equals("application/x-mpegURL", StringComparison.OrdinalIgnoreCase))
             {
-                logger.LogInformation("Stream URL has HLS content, using FFMpeg for streaming: {StreamUrl}", GetLoggableURL(sourceUrl));
-                return await GetFFMpegStream(sourceUrl, logger).ConfigureAwait(false);
+                logger.LogInformation("Stream URL has HLS content, using FFMpeg for streaming: {StreamUrl}", sourceUrl);
+                return await GetFFMpegStream(sourceUrl, logger, setting).ConfigureAwait(false);
             }
 
             Stream stream = await response.Content.ReadAsStreamAsync(cancellation);
-            logger.LogInformation("Successfully retrieved stream for: {StreamUrl}", GetLoggableURL(sourceUrl));
+            logger.LogInformation("Successfully retrieved stream for: {StreamUrl}", sourceUrl);
             return (stream, -1, null);
         }
         catch (Exception ex)
@@ -101,14 +100,13 @@ public static class StreamingProxies
         }
     }
 
-    private static HttpClient CreateHttpClient()
+    private static HttpClient CreateHttpClient(string streamingClientUserAgent)
     {
-        Setting setting = FileUtil.GetSetting();
         HttpClient client = new(new HttpClientHandler()
         {
             AllowAutoRedirect = true,
         });
-        client.DefaultRequestHeaders.UserAgent.ParseAdd(setting.StreamingClientUserAgent);
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(streamingClientUserAgent);
         return client;
     }
 

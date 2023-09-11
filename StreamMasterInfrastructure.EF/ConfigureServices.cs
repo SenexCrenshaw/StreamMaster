@@ -14,7 +14,6 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureEFServices(this IServiceCollection services)
     {
-        Setting setting = FileUtil.GetSetting();
 
         string DbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster.db");
 

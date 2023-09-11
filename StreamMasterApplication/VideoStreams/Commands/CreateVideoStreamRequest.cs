@@ -16,8 +16,8 @@ public class CreateVideoStreamRequestValidator : AbstractValidator<CreateVideoSt
 public class CreateVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateVideoStreamRequest, VideoStreamDto?>
 {
 
-    public CreateVideoStreamRequestHandler(ILogger<CreateVideoStreamRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-    : base(logger, repository, mapper, publisher, sender, hubContext) { }
+    public CreateVideoStreamRequestHandler(ILogger<CreateVideoStreamRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+    : base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
 
     public async Task<VideoStreamDto?> Handle(CreateVideoStreamRequest request, CancellationToken cancellationToken)
     {

@@ -6,8 +6,8 @@ namespace StreamMasterApplication.VideoStreams.EventHandlers;
 
 public class DeleteVideoStreamEventHandler : BaseMediatorRequestHandler, INotificationHandler<DeleteVideoStreamEvent>
 {
-    public DeleteVideoStreamEventHandler(ILogger<DeleteVideoStreamEvent> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-: base(logger, repository, mapper, publisher, sender, hubContext) { }
+    public DeleteVideoStreamEventHandler(ILogger<DeleteVideoStreamEvent> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+: base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
 
     public async Task Handle(DeleteVideoStreamEvent notification, CancellationToken cancellationToken = default)
     {

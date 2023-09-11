@@ -19,8 +19,8 @@ public class AutoMatchIconToStreamsRequestValidator : AbstractValidator<AutoMatc
 public class AutoMatchIconToStreamsRequestHandler : BaseMemoryRequestHandler, IRequestHandler<AutoMatchIconToStreamsRequest, IconFileDto?>
 {
 
-    public AutoMatchIconToStreamsRequestHandler(ILogger<AutoMatchIconToStreamsRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
+    public AutoMatchIconToStreamsRequestHandler(ILogger<AutoMatchIconToStreamsRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache) { }
 
     public static double GetWeightedMatch(string sentence1, string sentence2)
     {

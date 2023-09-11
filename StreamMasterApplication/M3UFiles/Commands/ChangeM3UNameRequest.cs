@@ -17,8 +17,8 @@ public class ChangeM3UFileNameRequestValidator : AbstractValidator<ChangeM3UFile
 
 public class ChangeM3UFileNameRequestHandler : BaseMediatorRequestHandler, IRequestHandler<ChangeM3UFileNameRequest, bool>
 {
-    public ChangeM3UFileNameRequestHandler(ILogger<ChangeM3UFileNameRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-  : base(logger, repository, mapper, publisher, sender, hubContext) { }
+    public ChangeM3UFileNameRequestHandler(ILogger<ChangeM3UFileNameRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+  : base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
 
     public async Task<bool> Handle(ChangeM3UFileNameRequest request, CancellationToken cancellationToken)
     {

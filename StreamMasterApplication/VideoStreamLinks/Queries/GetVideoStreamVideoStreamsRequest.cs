@@ -4,7 +4,7 @@ namespace StreamMasterApplication.VideoStreamLinks.Queries;
 
 public record GetVideoStreamVideoStreamsRequest(VideoStreamLinkParameters Parameters) : IRequest<PagedResponse<ChildVideoStreamDto>>;
 
-internal class GetVideoStreamVideoStreamsRequestHandler(ILogger<GetVideoStreamVideoStreamsRequest> logger, IRepositoryWrapper repository, IMapper mapper) : BaseRequestHandler(logger, repository, mapper), IRequestHandler<GetVideoStreamVideoStreamsRequest, PagedResponse<ChildVideoStreamDto>>
+internal class GetVideoStreamVideoStreamsRequestHandler(ILogger<GetVideoStreamVideoStreamsRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService) : BaseRequestHandler(logger, repository, mapper, settingsService), IRequestHandler<GetVideoStreamVideoStreamsRequest, PagedResponse<ChildVideoStreamDto>>
 {
     public async Task<PagedResponse<ChildVideoStreamDto>> Handle(GetVideoStreamVideoStreamsRequest request, CancellationToken cancellationToken)
     {

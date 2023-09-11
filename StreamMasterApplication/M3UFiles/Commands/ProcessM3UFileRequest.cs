@@ -24,7 +24,7 @@ public class ProcessM3UFileRequestValidator : AbstractValidator<ProcessM3UFileRe
 
 
 [LogExecutionTimeAspect]
-public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, publisher, sender, hubContext, memoryCache), IRequestHandler<ProcessM3UFileRequest, M3UFile?>
+public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<ProcessM3UFileRequest, M3UFile?>
 {
     private SimpleIntList existingChannels;
 
@@ -84,7 +84,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         if (streams != null)
         {
             streamsCount = GetRealStreamCount(streams);
-            streams = RemoveIgnoredStreams(streams);
+            streams = await RemoveIgnoredStreams(streams);
             streams = RemoveDuplicates(streams);
         }
 
@@ -110,7 +110,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         //List<VideoStream> toWrite = new();
         //List<VideoStream> toUpdate = new();
 
-        ProcessStreamsConcurrently(streams, existing, groups, m3uFile);
+        await ProcessStreamsConcurrently(streams, existing, groups, m3uFile);
 
         //if (toWrite.Any())
         //{
@@ -135,7 +135,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         Logger.LogInformation($"Processing and updating streams took {sw.Elapsed.TotalSeconds} seconds");
     }
 
-    private void ProcessStreamsConcurrently(List<VideoStream> streams, List<VideoStream> existing, List<ChannelGroup> groups, M3UFile m3uFile)
+    private async Task ProcessStreamsConcurrently(List<VideoStream> streams, List<VideoStream> existing, List<ChannelGroup> groups, M3UFile m3uFile)
     {
         int totalCount = streams.Count;
         int processedCount = 0;
@@ -151,13 +151,13 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
 
             if (!existingLookup.ContainsKey(stream.Id))
             {
-                ProcessNewStream(stream, group?.IsHidden ?? false, m3uFile.Name);
+                await ProcessNewStream(stream, group?.IsHidden ?? false, m3uFile.Name);
                 toWrite.Add(stream);
             }
             else
             {
                 VideoStream? dbStream = existingLookup[stream.Id];
-                if (ProcessExistingStream(stream, dbStream, group?.IsHidden ?? false, m3uFile.Name))
+                if (await ProcessExistingStream(stream, dbStream, group?.IsHidden ?? false, m3uFile.Name))
                 {
                     toUpdate.Add(dbStream);
                 }
@@ -223,12 +223,12 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         await Publisher.Publish(new M3UFileProcessedEvent(), cancellationToken).ConfigureAwait(false);
     }
 
-    private List<VideoStream> RemoveIgnoredStreams(List<VideoStream> streams)
+    private async Task<List<VideoStream>> RemoveIgnoredStreams(List<VideoStream> streams)
     {
-
-        if (Settings.NameRegex.Any())
+        Setting setting = await GetSettingsAsync();
+        if (setting.NameRegex.Any())
         {
-            foreach (string regex in Settings.NameRegex)
+            foreach (string regex in setting.NameRegex)
             {
                 List<VideoStream> toIgnore = ListHelper.GetMatchingProperty(streams, "Tvg_name", regex);
                 _ = streams.RemoveAll(toIgnore.Contains);
@@ -281,7 +281,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         Logger.LogError($"Found duplicate streams. Details logged to {fileName}");
     }
 
-    private bool ProcessExistingStream(VideoStream stream, VideoStream dbStream, bool isHidden, string mu3FileName)
+    private async Task<bool> ProcessExistingStream(VideoStream stream, VideoStream dbStream, bool isHidden, string mu3FileName)
     {
         bool changed = false;
         if (dbStream.IsHidden != isHidden)
@@ -296,9 +296,11 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
             dbStream.M3UFileName = mu3FileName;
         }
 
-        if (Settings.OverWriteM3UChannels || dbStream.Tvg_chno != stream.Tvg_chno)
+        Setting setting = await GetSettingsAsync();
+
+        if (setting.OverWriteM3UChannels || dbStream.Tvg_chno != stream.Tvg_chno)
         {
-            int localNextChno = Settings.OverWriteM3UChannels ? existingChannels.GetNextInt() : existingChannels.GetNextInt(stream.Tvg_chno);
+            int localNextChno = setting.OverWriteM3UChannels ? existingChannels.GetNextInt() : existingChannels.GetNextInt(stream.Tvg_chno);
             if (dbStream.Tvg_chno != localNextChno)
             {
                 changed = true;
@@ -353,7 +355,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         return changed;
     }
 
-    private bool ProcessExistingUserStream(VideoStream stream, VideoStream dbStream, bool isHidden, string mu3FileName)
+    private async Task<bool> ProcessExistingUserStream(VideoStream stream, VideoStream dbStream, bool isHidden, string mu3FileName)
     {
         bool changed = false;
         //if (dbStream.IsHidden != isHidden)
@@ -374,9 +376,11 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
             dbStream.M3UFileName = mu3FileName;
         }
 
-        if (Settings.OverWriteM3UChannels || dbStream.User_Tvg_chno != stream.Tvg_chno)
+
+        Setting setting = await GetSettingsAsync();
+        if (setting.OverWriteM3UChannels || dbStream.User_Tvg_chno != stream.Tvg_chno)
         {
-            int localNextChno = Settings.OverWriteM3UChannels ? existingChannels.GetNextInt() : existingChannels.GetNextInt(stream.Tvg_chno);
+            int localNextChno = setting.OverWriteM3UChannels ? existingChannels.GetNextInt() : existingChannels.GetNextInt(stream.Tvg_chno);
             if (dbStream.User_Tvg_chno != localNextChno)
             {
                 changed = true;
@@ -408,13 +412,15 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
     }
 
 
-    private void ProcessNewStream(VideoStream stream, bool IsHidden, string mu3FileName)
+    private async Task ProcessNewStream(VideoStream stream, bool IsHidden, string mu3FileName)
     {
         stream.IsHidden = IsHidden;
 
-        if (Settings.OverWriteM3UChannels || stream.User_Tvg_chno == 0 || existingChannels.ContainsInt(stream.Tvg_chno))
+        Setting setting = await GetSettingsAsync();
+
+        if (setting.OverWriteM3UChannels || stream.User_Tvg_chno == 0 || existingChannels.ContainsInt(stream.Tvg_chno))
         {
-            int localNextChno = Settings.OverWriteM3UChannels ? existingChannels.GetNextInt() : existingChannels.GetNextInt(stream.User_Tvg_chno);
+            int localNextChno = setting.OverWriteM3UChannels ? existingChannels.GetNextInt() : existingChannels.GetNextInt(stream.User_Tvg_chno);
 
             stream.User_Tvg_chno = localNextChno;
             stream.Tvg_chno = localNextChno;

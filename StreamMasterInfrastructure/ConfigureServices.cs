@@ -6,10 +6,12 @@ using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.LogApp;
 
 using StreamMasterDomain.Common;
+using StreamMasterDomain.Services;
 
 using StreamMasterInfrastructure.Logging;
 using StreamMasterInfrastructure.Services;
 using StreamMasterInfrastructure.Services.Frontend.Mappers;
+using StreamMasterInfrastructure.Services.Settings;
 using StreamMasterInfrastructure.VideoStreamManager;
 
 using System.Reflection;
@@ -20,6 +22,9 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddMemoryCache();
+        services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<IStreamManager, StreamManager>();
 
         // Dynamically find and register services implementing IMapHttpRequestsToDisk
         Assembly assembly = Assembly.GetExecutingAssembly();
@@ -49,8 +54,6 @@ public static class ConfigureServices
                 Assembly.Load("StreamMasterInfrastructure")
             );
         });
-
-        Setting setting = FileUtil.GetSetting();
 
         string DbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster.db");
         string LogDbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster_Log.db");

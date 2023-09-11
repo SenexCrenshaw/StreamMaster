@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 using StreamMasterApplication.Common.Extensions;
 
+
 using StreamMasterDomain.Repository.EPG;
 
 using System.Collections.Concurrent;
@@ -18,12 +19,6 @@ namespace StreamMasterApplication.StreamGroups.Queries;
 [RequireAll]
 public record GetStreamGroupEPG(int StreamGroupId) : IRequest<string>;
 
-//public class EpgData
-//{
-//    public List<TvChannel> Channels { get; set; } = new List<TvChannel>();
-//    public List<Programme> Programmes { get; set; } = new List<Programme>();
-//}
-
 public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
 {
     public GetStreamGroupEPGValidator()
@@ -32,9 +27,7 @@ public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
             .NotNull().GreaterThanOrEqualTo(0);
     }
 }
-
-
-public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPG> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupEPG, string>
+public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPG> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupEPG, string>
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
@@ -45,13 +38,13 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     {
         MaxDegreeOfParallelism = Environment.ProcessorCount
     };
-    public string GetIconUrl(string iconOriginalSource)
+    public string GetIconUrl(string iconOriginalSource, Setting setting)
     {
         string url = _httpContextAccessor.GetUrl();
 
         if (string.IsNullOrEmpty(iconOriginalSource))
         {
-            iconOriginalSource = $"{url}{Settings.DefaultIcon}";
+            iconOriginalSource = $"{url}{setting.DefaultIcon}";
             return iconOriginalSource;
         }
 
@@ -70,7 +63,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         {
             iconOriginalSource = GetApiUrl(SMFileTypes.TvLogo, originalUrl);
         }
-        else if (Settings.CacheIcons)
+        else if (setting.CacheIcons)
         {
             iconOriginalSource = GetApiUrl(SMFileTypes.Icon, originalUrl);
         }
@@ -89,14 +82,14 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             return "";
         }
 
-        Tv epgData = PrepareEpgData(videoStreams);
+        Tv epgData = await PrepareEpgData(videoStreams);
 
         return SerializeEpgData(epgData);
     }
 
 
     [LogExecutionTimeAspect]
-    private Tv PrepareEpgData(IEnumerable<VideoStream> videoStreams)
+    private async Task<Tv> PrepareEpgData(IEnumerable<VideoStream> videoStreams)
     {
         HashSet<string> epgids = new(videoStreams.Where(a => !a.IsHidden).Select(r => r.User_Tvg_ID));
 
@@ -113,10 +106,10 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         ConcurrentBag<TvChannel> retChannels = new();
         ConcurrentBag<Programme> retProgrammes = new();
-
+        Setting setting = await GetSettingsAsync();
         Parallel.ForEach(videoStreams, parallelOptions, videoStream =>
         {
-            TvChannel? tvChannel = CreateTvChannel(videoStream);
+            TvChannel? tvChannel = CreateTvChannel(videoStream, setting);
             if (tvChannel != null)
             {
                 retChannels.Add(tvChannel);
@@ -136,17 +129,17 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         };
     }
 
-    private TvChannel? CreateTvChannel(VideoStream? videoStream)
+    private TvChannel CreateTvChannel(VideoStream? videoStream, Setting setting)
     {
         if (videoStream == null)
         {
             return null;
         }
 
-        string? logo = GetIconUrl(videoStream.User_Tvg_logo);
+        string? logo = GetIconUrl(videoStream.User_Tvg_logo, setting);
 
         // Check if it's a dummy stream
-        bool isDummyStream = IsVideoStreamADummy(videoStream) || videoStream.User_Tvg_ID?.ToLower() == "dummy";
+        bool isDummyStream = IsVideoStreamADummy(videoStream, setting) || videoStream.User_Tvg_ID?.ToLower() == "dummy";
 
         // Build the TvChannel based on whether it's a dummy or not
         if (isDummyStream)
@@ -334,15 +327,15 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         return !programmes.Any(p => p.Channel == videoStream.User_Tvg_ID);
     }
 
-    private bool IsVideoStreamADummy(VideoStream videoStream)
+    private bool IsVideoStreamADummy(VideoStream videoStream, Setting setting)
     {
         if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
         {
             return true;
         }
 
-        return !string.IsNullOrEmpty(Settings.DummyRegex) &&
-               new Regex(Settings.DummyRegex, RegexOptions.ECMAScript | RegexOptions.IgnoreCase).IsMatch(videoStream.User_Tvg_ID);
+        return !string.IsNullOrEmpty(setting.DummyRegex) &&
+               new Regex(setting.DummyRegex, RegexOptions.ECMAScript | RegexOptions.IgnoreCase).IsMatch(videoStream.User_Tvg_ID);
     }
 
 }

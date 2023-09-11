@@ -4,8 +4,8 @@ namespace StreamMasterApplication.ChannelGroups.EventHandlers;
 
 
 
-public class DeleteChannelGroupsEventHandler(ILogger<DeleteChannelGroupsEvent> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-: BaseMediatorRequestHandler(logger, repository, mapper, publisher, sender, hubContext), INotificationHandler<DeleteChannelGroupsEvent>
+public class DeleteChannelGroupsEventHandler(ILogger<DeleteChannelGroupsEvent> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+: BaseMediatorRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext), INotificationHandler<DeleteChannelGroupsEvent>
 {
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext = hubContext;
 

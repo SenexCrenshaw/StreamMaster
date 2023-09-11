@@ -10,8 +10,8 @@ public class BuildIconsCacheFromVideoStreamRequest : IRequest<bool> { }
 public class BuildIconsCacheFromVideoStreamRequestHandler : BaseMemoryRequestHandler, IRequestHandler<BuildIconsCacheFromVideoStreamRequest, bool>
 {
 
-    public BuildIconsCacheFromVideoStreamRequestHandler(ILogger<BuildIconsCacheFromVideoStreamRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
+    public BuildIconsCacheFromVideoStreamRequestHandler(ILogger<BuildIconsCacheFromVideoStreamRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache) { }
 
     public Task<bool> Handle(BuildIconsCacheFromVideoStreamRequest command, CancellationToken cancellationToken)
     {

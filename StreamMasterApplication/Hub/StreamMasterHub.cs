@@ -20,12 +20,8 @@ public class SignalRMessage
     public ModelAction Action { get; set; }
 }
 
-public partial class StreamMasterHub : Hub<IStreamMasterHub>, ISharedHub
+public partial class StreamMasterHub(ISender mediator, ISettingsService settingsService) : Hub<IStreamMasterHub>, ISharedHub
 {
-    private readonly IMapper _mapper;
-
-    private readonly ISender _mediator = null!;
-
     private static readonly HashSet<string> _connections = new();
 
     public static bool IsConnected
@@ -50,17 +46,11 @@ public partial class StreamMasterHub : Hub<IStreamMasterHub>, ISharedHub
         await base.OnDisconnectedAsync(exception);
     }
 
-    public StreamMasterHub(
-        ISender mediator, IMapper mapper
-        )
-    {
-        _mapper = mapper;
-        _mediator = mediator;
-    }
+
 
     public Task<bool> GetIsSystemReady()
     {
-        return _mediator.Send(new GetIsSystemReadyRequest());
+        return mediator.Send(new GetIsSystemReadyRequest());
     }
 
     public override Task OnConnectedAsync()
@@ -70,7 +60,7 @@ public partial class StreamMasterHub : Hub<IStreamMasterHub>, ISharedHub
             _connections.Add(Context.ConnectionId);
         }
 
-        Clients.Caller.SystemStatusUpdate(_mediator.Send(new GetSystemStatus()).Result);
+        Clients.Caller.SystemStatusUpdate(mediator.Send(new GetSystemStatus()).Result);
 
         return base.OnConnectedAsync();
     }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Enums;
+using StreamMasterDomain.Services;
 
 using StreamMasterInfrastructure.Authentication;
 
@@ -14,49 +15,44 @@ namespace StreamMasterAPI.Controllers
     [ApiExplorerSettings(IgnoreApi = true)]
     [AllowAnonymous]
     [ApiController]
-    public class AuthenticationController : Controller
+    public class AuthenticationController(StreamMasterInfrastructure.Authentication.IAuthenticationService authService, ISettingsService settingsService) : Controller
     {
-        private readonly StreamMasterInfrastructure.Authentication.IAuthenticationService _authService;
 
-        public AuthenticationController(StreamMasterInfrastructure.Authentication.IAuthenticationService authService)
-        {
-            _authService = authService;
-        }
 
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromForm] LoginResource resource, [FromQuery] string? returnUrl = null)
         {
-            var user = _authService.Login(HttpContext.Request, resource.Username, resource.Password);
+            StreamMasterDomain.Repository.User user = await authService.Login(HttpContext.Request, resource.Username, resource.Password);
 
             if (user == null)
             {
                 return Redirect($"~/login?returnUrl={returnUrl}&loginFailed=true");
             }
 
-            var claims = new List<Claim>
+            List<Claim> claims = new()
             {
                 new Claim("user", user.Username),
                 new Claim("identifier", user.Identifier.ToString()),
                 new Claim("AuthType", AuthenticationType.Forms.ToString())
             };
 
-            var authProperties = new AuthenticationProperties
+            AuthenticationProperties authProperties = new()
             {
                 IsPersistent = resource.RememberMe == "on"
             };
 
             await HttpContext.SignInAsync(AuthenticationType.Forms.ToString(), new ClaimsPrincipal(new ClaimsIdentity(claims, "Cookies", "user", "identifier")), authProperties);
 
-            var setting = FileUtil.GetSetting();
+            Setting setting = await settingsService.GetSettingsAsync();
             return Redirect(setting.UrlBase + "/");
         }
 
         [HttpGet("logout")]
         public async Task<IActionResult> Logout()
         {
-            var setting = FileUtil.GetSetting();
-            _authService.Logout(HttpContext);
+            Setting setting = await settingsService.GetSettingsAsync();
+            await authService.Logout(HttpContext);
             await HttpContext.SignOutAsync(AuthenticationType.Forms.ToString());
             return Redirect(setting.UrlBase + "/");
         }

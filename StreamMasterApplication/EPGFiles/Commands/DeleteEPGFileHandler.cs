@@ -19,8 +19,8 @@ public class DeleteEPGFileRequestValidator : AbstractValidator<DeleteEPGFileRequ
 public class DeleteEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<DeleteEPGFileRequest, int?>
 {
 
-    public DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-    : base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
+    public DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+    : base(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache) { }
 
     public async Task<int?> Handle(DeleteEPGFileRequest request, CancellationToken cancellationToken = default)
     {

@@ -1,22 +1,14 @@
 ﻿namespace StreamMasterDomain.Cache;
 
-public class Cache<T> where T : notnull
+public class Cache<T>(Func<T> valueFetcher, TimeSpan refreshInterval) where T : notnull
 {
-    private T? _cachedValue;
+    private T? _cachedValue = default;
     private DateTime _lastFetchedTime;
-    private readonly Func<T> _valueFetcher;
-    private readonly TimeSpan _refreshInterval;
-
-    public Cache(Func<T> valueFetcher, TimeSpan refreshInterval)
-    {
-        _valueFetcher = valueFetcher ?? throw new ArgumentNullException(nameof(valueFetcher));
-        _refreshInterval = refreshInterval;
-        _cachedValue = default;
-    }
+    private readonly Func<T> _valueFetcher = valueFetcher ?? throw new ArgumentNullException(nameof(valueFetcher));
 
     public T GetValue()
     {
-        if (_cachedValue is null || (DateTime.UtcNow - _lastFetchedTime) > _refreshInterval)
+        if (_cachedValue is null || (DateTime.UtcNow - _lastFetchedTime) > refreshInterval)
         {
             _cachedValue = _valueFetcher() ?? throw new InvalidOperationException("Fetched value cannot be null");
             _lastFetchedTime = DateTime.UtcNow;

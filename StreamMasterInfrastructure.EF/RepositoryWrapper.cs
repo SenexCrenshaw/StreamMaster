@@ -25,8 +25,8 @@ namespace StreamMasterInfrastructureEF
         private readonly IMemoryCache _memoryCache;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<ChannelGroupRepository> _channelGroupRepository;
-
-        public RepositoryWrapper(ILogger<ChannelGroupRepository> channelGroupRepository, RepositoryContext repositoryContext, ISortHelper<StreamGroup> streamGroupSortHelper, ISortHelper<M3UFile> m3uFileSortHelper, ISortHelper<VideoStream> videoStreamSortHelper, ISortHelper<ChannelGroup> channelGroupSortHelper, IMapper mapper, IMemoryCache memoryCache, ISender sender, IHttpContextAccessor httpContextAccessor)
+        private readonly ISettingsService _settingsService;
+        public RepositoryWrapper(ILogger<ChannelGroupRepository> channelGroupRepository, RepositoryContext repositoryContext, ISortHelper<StreamGroup> streamGroupSortHelper, ISortHelper<M3UFile> m3uFileSortHelper, ISortHelper<VideoStream> videoStreamSortHelper, ISortHelper<ChannelGroup> channelGroupSortHelper, IMapper mapper, IMemoryCache memoryCache, ISender sender, IHttpContextAccessor httpContextAccessor, ISettingsService settingsService)
         {
             _repoContext = repositoryContext;
             _m3uFileSortHelper = m3uFileSortHelper;
@@ -34,7 +34,7 @@ namespace StreamMasterInfrastructureEF
             _channelGroupSortHelper = channelGroupSortHelper;
             _streamGroupSortHelper = streamGroupSortHelper;
             _httpContextAccessor = httpContextAccessor;
-
+            _settingsService = settingsService;
             _mapper = mapper;
             _memoryCache = memoryCache;
             _sender = sender;
@@ -49,7 +49,7 @@ namespace StreamMasterInfrastructureEF
             {
                 if (_streamGroup == null)
                 {
-                    _streamGroup = new StreamGroupRepository(_repoContext, _streamGroupSortHelper, _mapper, _memoryCache, _sender, _httpContextAccessor);
+                    _streamGroup = new StreamGroupRepository(_repoContext, _streamGroupSortHelper, _mapper, _memoryCache, _sender, _httpContextAccessor, _settingsService);
                 }
                 return _streamGroup;
             }
@@ -119,7 +119,7 @@ namespace StreamMasterInfrastructureEF
             {
                 if (_videoStream == null)
                 {
-                    _videoStream = new VideoStreamRepository(_repoContext, _mapper, _memoryCache, _sender);
+                    _videoStream = new VideoStreamRepository(_repoContext, _mapper, _memoryCache, _sender, _settingsService);
                 }
                 return _videoStream;
             }
@@ -133,7 +133,7 @@ namespace StreamMasterInfrastructureEF
             {
                 if (_streamGroupVideoStream == null)
                 {
-                    _streamGroupVideoStream = new StreamGroupVideoStreamRepository(_repoContext, this, _mapper, _sender);
+                    _streamGroupVideoStream = new StreamGroupVideoStreamRepository(_repoContext, this, _mapper, _settingsService, _sender);
                 }
                 return _streamGroupVideoStream;
             }
@@ -146,7 +146,7 @@ namespace StreamMasterInfrastructureEF
             {
                 if (_streamGroupChannelGroup == null)
                 {
-                    _streamGroupChannelGroup = new StreamGroupChannelGroupRepository(_repoContext, this, _mapper, _sender);
+                    _streamGroupChannelGroup = new StreamGroupChannelGroupRepository(_repoContext, this, _mapper, _settingsService, _sender);
                 }
                 return _streamGroupChannelGroup;
             }

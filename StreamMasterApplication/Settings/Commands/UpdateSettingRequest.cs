@@ -1,19 +1,6 @@
-﻿using AutoMapper;
+﻿using StreamMaster.SchedulesDirectAPI;
 
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Logging;
-
-using StreamMaster.SchedulesDirectAPI;
-
-using StreamMasterApplication.Hubs;
-
-using StreamMasterDomain.Dto;
-
-using static StreamMasterApplication.Settings.Commands.UpdateSettingHandler;
+using static StreamMasterApplication.Settings.Commands.UpdateSettingRequestHandler;
 
 namespace StreamMasterApplication.Settings.Commands;
 
@@ -60,34 +47,21 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public List<string>? NameRegex { get; set; } = new();
 }
 
-public class UpdateSettingValidator : AbstractValidator<UpdateSettingRequest>
+public class UpdateSettingRequestHandler(ILogger<UpdateSettingRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+: BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext), IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
 {
-}
-
-public class UpdateSettingHandler : IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
-{
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
-    private readonly ILogger<UpdateSettingRequest> _logger;
-    private readonly IMapper _mapper;
-
-    public UpdateSettingHandler(ILogger<UpdateSettingRequest> logger, IMapper mapper, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-    {
-        _logger = logger;
-        _mapper = mapper;
-        _hubContext = hubContext;
-    }
 
     public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
     {
-        Setting currentSetting = FileUtil.GetSetting();
+        Setting currentSetting = await GetSettingsAsync();
 
         bool needsLogOut = UpdateSetting(currentSetting, request);
 
-        _logger.LogInformation("UpdateSettingRequest");
+        Logger.LogInformation("UpdateSettingRequest");
         FileUtil.UpdateSetting(currentSetting);
 
-        SettingDto ret = _mapper.Map<SettingDto>(currentSetting);
-        await _hubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
+        SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
+        await HubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
 
         return new UpdateSettingResponse { Settings = ret, NeedsLogOut = needsLogOut };
     }

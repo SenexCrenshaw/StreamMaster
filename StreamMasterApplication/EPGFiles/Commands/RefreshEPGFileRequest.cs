@@ -19,8 +19,8 @@ public class RefreshEPGFileRequestValidator : AbstractValidator<RefreshEPGFileRe
 public class RefreshEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<RefreshEPGFileRequest, EPGFileDto?>
 {
 
-    public RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
+    public RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache) { }
 
     public async Task<EPGFileDto?> Handle(RefreshEPGFileRequest request, CancellationToken cancellationToken)
     {

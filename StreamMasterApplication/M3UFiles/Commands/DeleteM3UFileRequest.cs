@@ -19,8 +19,8 @@ public class DeleteM3UFileRequestValidator : AbstractValidator<DeleteM3UFileRequ
 public class DeleteM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<DeleteM3UFileRequest, int?>
 {
 
-    public DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
+    public DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache) { }
 
 
     public async Task<int?> Handle(DeleteM3UFileRequest request, CancellationToken cancellationToken = default)

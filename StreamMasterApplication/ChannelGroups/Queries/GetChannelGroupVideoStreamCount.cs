@@ -7,8 +7,8 @@ public record GetChannelGroupVideoStreamCount(string channelGropupName) : IReque
 internal class GetChannelGroupVideoStreamCountHandler : BaseMemoryRequestHandler, IRequestHandler<GetChannelGroupVideoStreamCount, ChannelGroupStreamCount?>
 {
 
-    public GetChannelGroupVideoStreamCountHandler(ILogger<GetChannelGroupVideoStreamCount> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
- : base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
+    public GetChannelGroupVideoStreamCountHandler(ILogger<GetChannelGroupVideoStreamCount> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+ : base(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache) { }
 
 
     public async Task<ChannelGroupStreamCount?> Handle(GetChannelGroupVideoStreamCount request, CancellationToken cancellationToken)

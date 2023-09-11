@@ -21,8 +21,8 @@ public class UpdateM3UFileRequestValidator : AbstractValidator<UpdateM3UFileRequ
 public class UpdateM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<UpdateM3UFileRequest, M3UFile?>
 {
 
-    public UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { }
+    public UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache) { }
 
     public async Task<M3UFile?> Handle(UpdateM3UFileRequest command, CancellationToken cancellationToken)
     {

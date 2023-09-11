@@ -10,18 +10,23 @@ namespace StreamMasterDomain.Cache;
 
 public static class CacheKeys
 {
-    const string IsSystemReadyKey = "IsSystemReady";
+    private const string IsSystemReadyKey = "IsSystemReady";
+    private const string ListChannelLogos = "ListChannelLogos";
+    private const string ListIconFiles = "ListIconFiles";
+    private const string ListProgrammeChannel = "ListProgrammeChannel";
+    private const string ListProgrammes = "ListProgrammes";
+    private const string ListProgrammesLogos = "ListProgrammesLogos";
+    private const string ListTVLogos = "ListTVLogos";
+    private const string ListChannelGroupStreamCounts = "ListChannelGroupStreamCounts";
+    private const string SettingKey = "Setting";
 
-    const string ListChannelLogos = "ListChannelLogos";
-    const string ListIconFiles = "ListIconFiles";
-    const string ListProgrammeChannel = "ListProgrammeChannel";
+    private static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
 
-    const string ListProgrammes = "ListProgrammes";
-    const string ListProgrammesLogos = "ListProgrammesLogos";
-    const string ListTVLogos = "ListTVLogos";
-    const string ListChannelGroupStreamCounts = "ListChannelGroupStreamCounts";
-
-    static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
+    public static Setting GetSetting(this IMemoryCache cache)
+    {
+        cache.TryGetValue(SettingKey, out Setting? settings);
+        return settings ?? new Setting();
+    }
 
     public static void Add(this IMemoryCache cache, object data)
     {

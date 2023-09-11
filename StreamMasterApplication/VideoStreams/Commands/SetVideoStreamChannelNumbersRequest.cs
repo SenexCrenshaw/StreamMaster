@@ -9,8 +9,8 @@ public record SetVideoStreamChannelNumbersRequest(List<string> Ids, bool OverWri
 public class SetVideoStreamChannelNumbersRequestHandler : BaseMediatorRequestHandler, IRequestHandler<SetVideoStreamChannelNumbersRequest>
 {
 
-    public SetVideoStreamChannelNumbersRequestHandler(ILogger<SetVideoStreamChannelNumbersRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-    : base(logger, repository, mapper, publisher, sender, hubContext) { }
+    public SetVideoStreamChannelNumbersRequestHandler(ILogger<SetVideoStreamChannelNumbersRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+    : base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
     public async Task Handle(SetVideoStreamChannelNumbersRequest request, CancellationToken cancellationToken)
     {
         string orderBy = string.IsNullOrEmpty(request.OrderBy) ? "user_tvg_name desc" : request.OrderBy;

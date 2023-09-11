@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Http;
 
 using StreamMasterApplication.Common.Extensions;
+using StreamMasterApplication.Common.Logging;
 
 using StreamMasterDomain.Authentication;
 
@@ -27,14 +28,15 @@ public class GetStreamGroupLineUpValidator : AbstractValidator<GetStreamGroupLin
 public class GetStreamGroupLineUpHandler : BaseMemoryRequestHandler, IRequestHandler<GetStreamGroupLineUp, string>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-    public GetStreamGroupLineUpHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupLineUp> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-  : base(logger, repository, mapper, publisher, sender, hubContext, memoryCache) { _httpContextAccessor = httpContextAccessor; }
+    public GetStreamGroupLineUpHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupLineUp> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+  : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { _httpContextAccessor = httpContextAccessor; }
 
 
     public async Task<string> Handle(GetStreamGroupLineUp request, CancellationToken cancellationToken)
     {
+        Setting setting = await GetSettingsAsync();
         string requestPath = _httpContextAccessor.GetUrlWithPathValue();
-        byte[]? iv = requestPath.GetIVFromPath(128);
+        byte[]? iv = requestPath.GetIVFromPath(setting.ServerKey, 128);
         if (iv == null)
         {
             return "";
@@ -74,7 +76,7 @@ public class GetStreamGroupLineUpHandler : BaseMemoryRequestHandler, IRequestHan
         foreach (VideoStream videoStream in videoStreams)
         {
 
-            if (Settings.M3UIgnoreEmptyEPGID &&
+            if (setting.M3UIgnoreEmptyEPGID &&
             (string.IsNullOrEmpty(videoStream.User_Tvg_ID) || videoStream.User_Tvg_ID.ToLower() == "dummy"))
             {
                 continue;
@@ -83,7 +85,7 @@ public class GetStreamGroupLineUpHandler : BaseMemoryRequestHandler, IRequestHan
 
             string videoUrl = videoStream.Url;
 
-            string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, Settings.ServerKey, iv);
+            string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, setting.ServerKey, iv);
 
             string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
             videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";

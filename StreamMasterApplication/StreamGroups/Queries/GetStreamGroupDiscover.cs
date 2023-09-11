@@ -27,8 +27,8 @@ public class GetStreamGroupDiscoverHandler : BaseMediatorRequestHandler, IReques
     private readonly IHttpContextAccessor _httpContextAccessor;
 
 
-    public GetStreamGroupDiscoverHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupDiscover> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-: base(logger, repository, mapper, publisher, sender, hubContext) { _httpContextAccessor = httpContextAccessor; }
+    public GetStreamGroupDiscoverHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupDiscover> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+: base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { _httpContextAccessor = httpContextAccessor; }
 
 
     public async Task<string> Handle(GetStreamGroupDiscover request, CancellationToken cancellationToken)

@@ -11,96 +11,96 @@ public partial class StreamMasterHub : IVideoStreamHub
 {
     public async Task CreateVideoStream(CreateVideoStreamRequest request)
     {
-        await _mediator.Send(request).ConfigureAwait(false);
+        await mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request)
     {
-        await _mediator.Send(request).ConfigureAwait(false);
+        await mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task DeleteVideoStream(DeleteVideoStreamRequest request)
     {
-        _ = await _mediator.Send(request).ConfigureAwait(false);
+        _ = await mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<ChannelLogoDto>> GetChannelLogoDtos()
     {
-        return await _mediator.Send(new GetChannelLogoDtos()).ConfigureAwait(false);
+        return await mediator.Send(new GetChannelLogoDtos()).ConfigureAwait(false);
     }
 
     public async Task<VideoStreamDto?> GetVideoStream(string id)
     {
-        return await _mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
+        return await mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
     }
 
     public async Task<PagedResponse<VideoStreamDto>> GetVideoStreams(VideoStreamParameters Parameters)
     {
-        return await _mediator.Send(new GetVideoStreams(Parameters)).ConfigureAwait(false);
+        return await mediator.Send(new GetVideoStreams(Parameters)).ConfigureAwait(false);
     }
 
     public async Task ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request)
     {
-        await _mediator.Send(request).ConfigureAwait(false);
+        await mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request)
     {
-        await _mediator.Send(request).ConfigureAwait(false);
+        await mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task SetVideoStreamSetEPGsFromName(SetVideoStreamSetEPGsFromNameRequest request)
     {
-        _ = await _mediator.Send(request).ConfigureAwait(false);
+        _ = await mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task SetVideoStreamsLogoFromEPG(SetVideoStreamsLogoFromEPGRequest request)
     {
-        await _mediator.Send(request).ConfigureAwait(false);
+        await mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task UpdateVideoStream(UpdateVideoStreamRequest request)
     {
-        _ = await _mediator.Send(request).ConfigureAwait(false);
+        _ = await mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task UpdateVideoStreams(UpdateVideoStreamsRequest request)
     {
-        await _mediator.Send(request).ConfigureAwait(false);
+        await mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<VideoStreamDto>> GetVideoStreamsByNamePattern(GetVideoStreamsByNamePatternQuery request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        return await mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<string>> GetVideoStreamNamesByNamePattern(GetVideoStreamNamesByNamePatternQuery request)
     {
-        return await _mediator.Send(request).ConfigureAwait(false);
+        return await mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request)
     {
-        await _mediator.Send(request).ConfigureAwait(false);
+        await mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task DeleteAllVideoStreamsFromParameters(DeleteAllVideoStreamsFromParametersRequest request)
     {
-        await _mediator.Send(request).ConfigureAwait(false);
+        await mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task SetVideoStreamChannelNumbersFromParameters(SetVideoStreamChannelNumbersFromParametersRequest request)
     {
-        await _mediator.Send(request).ConfigureAwait(false);
+        await mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task SetVideoStreamsLogoFromEPGFromParameters(SetVideoStreamsLogoFromEPGFromParametersRequest request)
     {
-        await _mediator.Send(request).ConfigureAwait(false);
+        await mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task ReSetVideoStreamsLogoFromParameters(ReSetVideoStreamsLogoFromParametersRequest request)
     {
-        await _mediator.Send(request).ConfigureAwait(false);
+        await mediator.Send(request).ConfigureAwait(false);
     }
 }

@@ -15,7 +15,7 @@ using System.Text.RegularExpressions;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
-public class StreamGroupVideoStreamRepository(RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISender sender) : RepositoryBase<StreamGroupVideoStream, StreamGroupVideoStream>(repositoryContext), IStreamGroupVideoStreamRepository
+public class StreamGroupVideoStreamRepository(RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, ISender sender) : RepositoryBase<StreamGroupVideoStream, StreamGroupVideoStream>(repositoryContext), IStreamGroupVideoStreamRepository
 {
     public async Task AddStreamGroupVideoStreams(int StreamGroupId, List<string> toAdd, bool IsReadOnly, CancellationToken cancellationToken)
     {

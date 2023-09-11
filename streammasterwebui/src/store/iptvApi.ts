@@ -1981,25 +1981,7 @@ export type TaskQueueStatusDto = {
   startTS?: string;
   stopTS?: string;
 };
-export type AuthenticationType = 0 | 2;
-export type StreamingProxyTypes = 0 | 1 | 2 | 3;
-export type Setting = {
-  logPerformance?: string[];
-  adminPassword?: string;
-  adminUserName?: string;
-  apiKey?: string;
-  authenticationMethod?: AuthenticationType;
-  cacheIcons?: boolean;
-  cleanURLs?: boolean;
-  clientUserAgent?: string;
-  defaultIcon?: string;
-  deviceID?: string;
-  dummyRegex?: string;
-  ffMpegOptions?: string;
-  enableSSL?: boolean;
-  epgAlwaysUseVideoStreamName?: boolean;
-  ffmPegExecutable?: string;
-  globalStreamLimit?: number;
+export type M3USettings = {
   m3UFieldChannelId?: boolean;
   m3UFieldChannelNumber?: boolean;
   m3UFieldCUID?: boolean;
@@ -2009,6 +1991,28 @@ export type Setting = {
   m3UFieldTvgLogo?: boolean;
   m3UFieldTvgName?: boolean;
   m3UIgnoreEmptyEPGID?: boolean;
+};
+export type AuthenticationType = 0 | 2;
+export type StreamingProxyTypes = 0 | 1 | 2 | 3;
+export type BaseSettings = M3USettings & {
+  adminPassword?: string;
+  adminUserName?: string;
+  defaultIcon?: string;
+  uiFolder?: string;
+  urlBase?: string;
+  logPerformance?: string[];
+  apiKey?: string;
+  authenticationMethod?: AuthenticationType;
+  cacheIcons?: boolean;
+  cleanURLs?: boolean;
+  clientUserAgent?: string;
+  deviceID?: string;
+  dummyRegex?: string;
+  ffMpegOptions?: string;
+  enableSSL?: boolean;
+  epgAlwaysUseVideoStreamName?: boolean;
+  ffmPegExecutable?: string;
+  globalStreamLimit?: number;
   maxConnectRetry?: number;
   maxConnectRetryTimeMS?: number;
   overWriteM3UChannels?: boolean;
@@ -2020,17 +2024,13 @@ export type Setting = {
   sdStationIds?: string[];
   nameRegex?: string[];
   sdUserName?: string;
-  serverKey?: string;
   sslCertPassword?: string;
   sslCertPath?: string;
   streamingClientUserAgent?: string;
   streamingProxyType?: StreamingProxyTypes;
-  streamMasterIcon?: string;
-  uiFolder?: string;
-  urlBase?: string;
   videoStreamAlwaysUseEPGLogo?: boolean;
 };
-export type SettingDto = Setting & {
+export type SettingDto = BaseSettings & {
   release?: string;
   version?: string;
   ffmpegDefaultOptions?: string;

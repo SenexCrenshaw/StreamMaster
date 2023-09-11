@@ -6,8 +6,8 @@ namespace StreamMasterApplication.VideoStreams.EventHandlers;
 
 public class UpdateVideoStreamEventHandler : BaseMediatorRequestHandler, INotificationHandler<UpdateVideoStreamEvent>
 {
-    public UpdateVideoStreamEventHandler(ILogger<UpdateVideoStreamEvent> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-: base(logger, repository, mapper, publisher, sender, hubContext) { }
+    public UpdateVideoStreamEventHandler(ILogger<UpdateVideoStreamEvent> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+: base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
 
 
     public async Task Handle(UpdateVideoStreamEvent notification, CancellationToken cancellationToken = default)

@@ -2,21 +2,13 @@ using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.EnvironmentInfo;
+using StreamMasterDomain.Services;
 
 namespace StreamMasterInfrastructure.Services.Frontend.Mappers
 {
-    public class IndexHtmlMapper : HtmlMapperBase
+    public class IndexHtmlMapper(IAppFolderInfo appFolderInfo, ISettingsService settingsService,
+                           ILogger<IndexHtmlMapper> logger) : HtmlMapperBase(logger)
     {
-        protected Setting _setting = FileUtil.GetSetting();
-
-        public IndexHtmlMapper(IAppFolderInfo appFolderInfo,
-                               ILogger<IndexHtmlMapper> logger)
-            : base(logger)
-        {
-            HtmlPath = Path.Combine(appFolderInfo.StartUpFolder, _setting.UiFolder, "index.html");
-            UrlBase = _setting.UrlBase;
-        }
-
         public override bool CanHandle(string resourceUrl)
         {
             resourceUrl = resourceUrl.ToLowerInvariant();
@@ -27,8 +19,10 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
                    !resourceUrl.StartsWith("/login");
         }
 
-        public override string Map(string resourceUrl)
+        public override async Task<string> Map(string resourceUrl)
         {
+            Setting setting = await settingsService.GetSettingsAsync();
+            string HtmlPath = Path.Combine(appFolderInfo.StartUpFolder, setting.UiFolder, "index.html");
             return HtmlPath;
         }
     }

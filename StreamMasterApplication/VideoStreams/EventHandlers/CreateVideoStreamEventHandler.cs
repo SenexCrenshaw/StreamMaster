@@ -4,7 +4,7 @@ using StreamMasterApplication.VideoStreams.Events;
 
 namespace StreamMasterApplication.VideoStreams.EventHandlers;
 
-public class CreateVideoStreamEventHandler(ILogger<CreateVideoStreamEvent> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, publisher, sender, hubContext), INotificationHandler<CreateVideoStreamEvent>
+public class CreateVideoStreamEventHandler(ILogger<CreateVideoStreamEvent> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext), INotificationHandler<CreateVideoStreamEvent>
 {
     public async Task Handle(CreateVideoStreamEvent notification, CancellationToken cancellationToken = default)
     {

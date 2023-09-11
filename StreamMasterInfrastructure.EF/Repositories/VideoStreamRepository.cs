@@ -21,7 +21,7 @@ using System.Linq.Dynamic.Core;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
-public class VideoStreamRepository(RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : RepositoryBase<VideoStream, VideoStreamDto>(repositoryContext), IVideoStreamRepository
+public class VideoStreamRepository(RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender, ISettingsService settingsService) : RepositoryBase<VideoStream, VideoStreamDto>(repositoryContext), IVideoStreamRepository
 {
     public async Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(string videoStreamId, CancellationToken cancellationToken = default)
     {
@@ -275,9 +275,9 @@ public class VideoStreamRepository(RepositoryContext repositoryContext, IMapper 
 
 
 
-    private Task<VideoStream> UpdateVideoStreamValues(VideoStream videoStream, VideoStreamBaseRequest request, CancellationToken cancellationToken)
+    private async Task<VideoStream> UpdateVideoStreamValues(VideoStream videoStream, VideoStreamBaseRequest request, CancellationToken cancellationToken)
     {
-        Setting setting = FileUtil.GetSetting();
+        Setting setting = await settingsService.GetSettingsAsync();
 
         _ = MergeVideoStream(videoStream, request);
         bool epglogo = false;
@@ -335,7 +335,7 @@ public class VideoStreamRepository(RepositoryContext repositoryContext, IMapper 
             videoStream.IsHidden = request.IsHidden.Value;
         }
 
-        return Task.FromResult(videoStream);
+        return videoStream;
     }
 
     private async Task RemoveNonExistingVideoStreamLinksAsync(string parentVideoStreamId, List<ChildVideoStreamDto> existingVideoStreamLinks, CancellationToken cancellationToken)

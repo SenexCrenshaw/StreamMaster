@@ -106,7 +106,8 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [Route("stream/{encodedIds}/{name}")]
     public async Task<ActionResult> GetVideoStreamStream(string encodedIds, string name, CancellationToken cancellationToken)
     {
-        (int? StreamGroupNumberNull, string? StreamIdNull) = encodedIds.DecodeTwoValuesAsString128(_setting.ServerKey);
+        Setting setting = await SettingsService.GetSettingsAsync();
+        (int? StreamGroupNumberNull, string? StreamIdNull) = encodedIds.DecodeTwoValuesAsString128(setting.ServerKey);
         if (StreamGroupNumberNull == null || StreamIdNull == null)
         {
             return new NotFoundResult();
@@ -132,9 +133,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
         HttpContext.Session.Remove("ClientId");
 
-        Setting settings = FileUtil.GetSetting();
-
-        if (settings.StreamingProxyType == StreamingProxyTypes.None)
+        if (setting.StreamingProxyType == StreamingProxyTypes.None)
         {
             _logger.LogInformation("GetStreamGroupVideoStream request SG Number {id} ChannelId {channelId} proxy is none, sending redirect", streamGroupNumber, videoStreamId);
 

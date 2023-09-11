@@ -5,8 +5,8 @@ public record GetChannelGroupNameFromVideoStream(VideoStreamDto VideoStreamDto) 
 internal class GetChannelGroupNameFromVideoStreamHandler : BaseMediatorRequestHandler, IRequestHandler<GetChannelGroupNameFromVideoStream, string?>
 {
 
-    public GetChannelGroupNameFromVideoStreamHandler(ILogger<GetChannelGroupNameFromVideoStream> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
- : base(logger, repository, mapper, publisher, sender, hubContext) { }
+    public GetChannelGroupNameFromVideoStreamHandler(ILogger<GetChannelGroupNameFromVideoStream> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+ : base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
     public async Task<string?> Handle(GetChannelGroupNameFromVideoStream request, CancellationToken cancellationToken)
     {
 

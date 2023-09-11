@@ -17,12 +17,12 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
             return resourceUrl.StartsWith("/swagger/");
         }
 
-        public override string Map(string resourceUrl)
+        public override Task<string> Map(string resourceUrl)
         {
             //var path = resourceUrl.Replace("/images/", "");
 
             //var ret = Path.Combine(_appFolderInfo.StartUpFolder, _setting.UiFolder, "images", path);
-            return resourceUrl;
+            return Task.FromResult(resourceUrl);
         }
     }
 }

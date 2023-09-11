@@ -5,8 +5,8 @@ public record GetChannelIdFromVideoStream(VideoStreamDto VideoStreamDto) : IRequ
 internal class GetChannelIdFromVideoStreamHandler : BaseMediatorRequestHandler, IRequestHandler<GetChannelIdFromVideoStream, int?>
 {
 
-    public GetChannelIdFromVideoStreamHandler(ILogger<GetChannelIdFromVideoStream> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-: base(logger, repository, mapper, publisher, sender, hubContext) { }
+    public GetChannelIdFromVideoStreamHandler(ILogger<GetChannelIdFromVideoStream> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+: base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
 
 
     public async Task<int?> Handle(GetChannelIdFromVideoStream request, CancellationToken cancellationToken)

@@ -6,10 +6,10 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
 {
     private readonly ILogger<TRequest> _logger;
     private readonly Stopwatch _timer;
-    private readonly Setting _settings;
-    public PerformanceBehaviour(ILogger<TRequest> logger)
+    private readonly ISettingsService _settingsService;
+    public PerformanceBehaviour(ILogger<TRequest> logger, ISettingsService settingsService)
     {
-        _settings = FileUtil.GetSetting();
+        _settingsService = settingsService;
         _timer = new Stopwatch();
         _logger = logger;
     }

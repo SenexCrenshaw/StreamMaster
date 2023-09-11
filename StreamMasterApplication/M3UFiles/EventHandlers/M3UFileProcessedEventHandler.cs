@@ -6,8 +6,8 @@ public class M3UFileProcessedEventHandler : BaseMediatorRequestHandler, INotific
 {
     private readonly IBackgroundTaskQueue _taskQueue;
 
-    public M3UFileProcessedEventHandler(IBackgroundTaskQueue taskQueue, ILogger<M3UFileProcessedEventHandler> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-        : base(logger, repository, mapper, publisher, sender, hubContext) { _taskQueue = taskQueue; }
+    public M3UFileProcessedEventHandler(IBackgroundTaskQueue taskQueue, ILogger<M3UFileProcessedEventHandler> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+        : base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { _taskQueue = taskQueue; }
 
 
     public async Task Handle(M3UFileProcessedEvent notification, CancellationToken cancellationToken)

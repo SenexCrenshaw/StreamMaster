@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterAPI.Interfaces;
+
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Enums;
@@ -13,23 +14,9 @@ using System.Web;
 
 namespace StreamMasterAPI.Controllers;
 
-public class FilesController : ApiControllerBase, IFileController
+public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mimeTypeProvider) : ApiControllerBase, IFileController
 {
     private static readonly IDictionary<string, string> _contentTypesCache = new Dictionary<string, string>();
-
-    private readonly IMemoryCache _memoryCache;
-    private readonly IContentTypeProvider _mimeTypeProvider;
-    private readonly Setting setting;
-
-    public FilesController(
-        IMemoryCache memoryCache,
-        IContentTypeProvider mimeTypeProvider
-    )
-    {
-        _mimeTypeProvider = mimeTypeProvider;
-        _memoryCache = memoryCache;
-        setting = FileUtil.GetSetting();
-    }
 
     [AllowAnonymous]
     [Route("{filetype}/{source}")]
@@ -61,18 +48,19 @@ public class FilesController : ApiControllerBase, IFileController
 
         if (IPTVFileType == SMFileTypes.TvLogo)
         {
-            TvLogoFile? cache = _memoryCache.TvLogos().FirstOrDefault(a => a.Source == source);
+            TvLogoFile? cache = memoryCache.TvLogos().FirstOrDefault(a => a.Source == source);
             if (cache == null || !cache.FileExists) { return (null, null); }
             returnName = cache.Source;
             fileName = FileDefinitions.TVLogo.DirectoryLocation + returnName;
         }
         else
         {
+            Setting setting = await SettingsService.GetSettingsAsync();
             if (!setting.CacheIcons)
             {
                 return (null, null);
             }
-            List<StreamMasterDomain.Dto.IconFileDto> icons = _memoryCache.Icons();
+            List<StreamMasterDomain.Dto.IconFileDto> icons = memoryCache.Icons();
             StreamMasterDomain.Dto.IconFileDto? icon = icons.FirstOrDefault(a => a.Source == source);
 
             if (icon is null)
@@ -145,7 +133,7 @@ public class FilesController : ApiControllerBase, IFileController
             return cachedContentType;
         }
 
-        if (!_mimeTypeProvider.TryGetContentType(fileName, out string? contentType))
+        if (!mimeTypeProvider.TryGetContentType(fileName, out string? contentType))
         {
             contentType = "application/octet-stream";
         }

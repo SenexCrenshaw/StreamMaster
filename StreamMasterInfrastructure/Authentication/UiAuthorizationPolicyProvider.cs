@@ -1,38 +1,45 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 
-using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Enums;
+using StreamMasterDomain.Services;
 
 namespace StreamMasterInfrastructure.Authentication
 {
     public class UiAuthorizationPolicyProvider : IAuthorizationPolicyProvider
     {
         private const string POLICY_NAME = "UI";
+        private readonly ISettingsService _settingsService;
 
-        public UiAuthorizationPolicyProvider(IOptions<AuthorizationOptions> options)
+        public UiAuthorizationPolicyProvider(IOptions<AuthorizationOptions> options, ISettingsService settingsService)
         {
             FallbackPolicyProvider = new DefaultAuthorizationPolicyProvider(options);
+            _settingsService = settingsService;
         }
 
         public DefaultAuthorizationPolicyProvider FallbackPolicyProvider { get; }
 
-        public Task<AuthorizationPolicy> GetDefaultPolicyAsync() => FallbackPolicyProvider.GetDefaultPolicyAsync();
+        public Task<AuthorizationPolicy> GetDefaultPolicyAsync()
+        {
+            return FallbackPolicyProvider.GetDefaultPolicyAsync();
+        }
 
-        public Task<AuthorizationPolicy> GetFallbackPolicyAsync() => FallbackPolicyProvider.GetFallbackPolicyAsync();
+        public Task<AuthorizationPolicy> GetFallbackPolicyAsync()
+        {
+            return FallbackPolicyProvider.GetFallbackPolicyAsync();
+        }
 
-        public Task<AuthorizationPolicy> GetPolicyAsync(string policyName)
+        public async Task<AuthorizationPolicy> GetPolicyAsync(string policyName)
         {
             if (policyName.Equals(POLICY_NAME, StringComparison.OrdinalIgnoreCase))
             {
-                var setting = FileUtil.GetSetting();
-                var policy = new AuthorizationPolicyBuilder(setting.AuthenticationMethod.ToString())
+                Setting setting = await _settingsService.GetSettingsAsync();
+                AuthorizationPolicyBuilder policy = new AuthorizationPolicyBuilder(setting.AuthenticationMethod.ToString())
                     .RequireAuthenticatedUser();
-                return Task.FromResult(policy.Build());
+                return policy.Build();
             }
 
-            return FallbackPolicyProvider.GetPolicyAsync(policyName);
+            return FallbackPolicyProvider.GetPolicyAsync(policyName).Result;
         }
     }
 }

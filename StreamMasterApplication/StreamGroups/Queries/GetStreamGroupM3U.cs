@@ -26,15 +26,15 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
 }
 
 
-public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupM3U> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupM3U, string>
+public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupM3U> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupM3U, string>
 {
-    public string GetIconUrl(string iconOriginalSource)
+    public string GetIconUrl(string iconOriginalSource, Setting setting)
     {
         string url = httpContextAccessor.GetUrl();
 
         if (string.IsNullOrEmpty(iconOriginalSource))
         {
-            iconOriginalSource = $"{url}{Settings.DefaultIcon}";
+            iconOriginalSource = $"{url}{setting.DefaultIcon}";
             return iconOriginalSource;
         }
 
@@ -53,7 +53,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         {
             iconOriginalSource = GetApiUrl(SMFileTypes.TvLogo, originalUrl);
         }
-        else if (Settings.CacheIcons)
+        else if (setting.CacheIcons)
         {
             iconOriginalSource = GetApiUrl(SMFileTypes.Icon, originalUrl);
         }
@@ -67,10 +67,10 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupM3U request, CancellationToken cancellationToken)
     {
-
+        Setting setting = await GetSettingsAsync();
         string url = httpContextAccessor.GetUrl();
         string requestPath = httpContextAccessor.HttpContext.Request.Path.Value.ToString();
-        byte[]? iv = requestPath.GetIVFromPath(128);
+        byte[]? iv = requestPath.GetIVFromPath(setting.ServerKey, 128);
         if (iv == null)
         {
             return DefaultReturn;
@@ -93,7 +93,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
          return new
          {
              VideoStream = videoStream,
-             M3ULine = BuildM3ULineForVideoStream(videoStream, url, request, index)
+             M3ULine = BuildM3ULineForVideoStream(videoStream, url, request, index, setting)
          };
      }).ToList();
 
@@ -111,16 +111,16 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         return AssembleReturnString(retlist);
     }
 
-    private string BuildM3ULineForVideoStream(VideoStream videoStream, string url, GetStreamGroupM3U request, int cid)
+    private string BuildM3ULineForVideoStream(VideoStream videoStream, string url, GetStreamGroupM3U request, int cid, Setting setting)
     {
-        bool showM3UFieldTvgId = Settings.M3UFieldTvgId;
+        bool showM3UFieldTvgId = setting.M3UFieldTvgId;
 
         bool isUserTvgIdInvalid = string.IsNullOrEmpty(videoStream.User_Tvg_ID)
                       || StringComparer.OrdinalIgnoreCase.Equals(videoStream.User_Tvg_ID, "dummy");
 
-        if (Settings.M3UIgnoreEmptyEPGID && isUserTvgIdInvalid)
+        if (setting.M3UIgnoreEmptyEPGID && isUserTvgIdInvalid)
         {
-            if (Settings.M3UFieldTvgId)
+            if (setting.M3UFieldTvgId)
             {
                 showM3UFieldTvgId = false;
             }
@@ -137,14 +137,14 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
             videoStream.User_Tvg_chno = cid;
         }
 
-        string logo = GetIconUrl(videoStream.User_Tvg_logo);
+        string logo = GetIconUrl(videoStream.User_Tvg_logo, setting);
         videoStream.User_Tvg_logo = logo;
 
         string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
                 .Replace("/", "")
                 .Replace(" ", "_");
 
-        string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, Settings.ServerKey, iv);
+        string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, setting.ServerKey, iv);
         string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
         List<string> fieldList = new()
@@ -152,22 +152,22 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         $"#EXTINF:0 CUID=\"{videoStream.Id}\""
     };
 
-        if (Settings.M3UFieldChannelId)
+        if (setting.M3UFieldChannelId)
         {
             fieldList.Add($"channel-id=\"{videoStream.Id}\"");
         }
 
-        if (Settings.M3UFieldChannelNumber)
+        if (setting.M3UFieldChannelNumber)
         {
             fieldList.Add($"channel-number=\"{videoStream.User_Tvg_chno}\"");
         }
 
-        if (Settings.M3UFieldTvgName)
+        if (setting.M3UFieldTvgName)
         {
             fieldList.Add($"tvg-name=\"{videoStream.User_Tvg_name}\"");
         }
 
-        if (Settings.M3UFieldTvgChno)
+        if (setting.M3UFieldTvgChno)
         {
             fieldList.Add($"tvg-chno=\"{videoStream.User_Tvg_chno}\"");
         }
@@ -177,11 +177,11 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
             fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
         }
 
-        if (Settings.M3UFieldTvgLogo)
+        if (setting.M3UFieldTvgLogo)
         {
             fieldList.Add($"tvg-logo=\"{videoStream.User_Tvg_logo}\"");
         }
-        if (Settings.M3UFieldGroupTitle)
+        if (setting.M3UFieldGroupTitle)
         {
             fieldList.Add($"group-title=\"{videoStream.User_Tvg_group}\"");
         }

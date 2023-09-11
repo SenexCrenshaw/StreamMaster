@@ -1,11 +1,9 @@
 ﻿using AspectInjector.Broker;
 
-using StreamMasterApplication.Common.Logging;
-
 using System.Diagnostics;
 using System.Reflection;
 
-namespace StreamMasterApplication.Common.Attributes;
+namespace StreamMasterApplication.Common.Logging;
 
 
 [Aspect(Scope.Global)]

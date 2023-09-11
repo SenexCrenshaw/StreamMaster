@@ -7,8 +7,8 @@ public record ScanDirectoryForM3UFilesRequest : IRequest<bool> { }
 public class ScanDirectoryForM3UFilesRequestHandler : BaseMediatorRequestHandler, IRequestHandler<ScanDirectoryForM3UFilesRequest, bool>
 {
 
-    public ScanDirectoryForM3UFilesRequestHandler(ILogger<ScanDirectoryForM3UFilesRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
- : base(logger, repository, mapper, publisher, sender, hubContext) { }
+    public ScanDirectoryForM3UFilesRequestHandler(ILogger<ScanDirectoryForM3UFilesRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+ : base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
 
 
     public async Task<bool> Handle(ScanDirectoryForM3UFilesRequest command, CancellationToken cancellationToken)

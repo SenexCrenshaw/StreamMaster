@@ -8,8 +8,8 @@ public record SetVideoStreamsLogoFromEPGRequest(List<string> Ids, string? OrderB
 public class SetVideoStreamsLogoFromEPGRequestHandler : BaseMediatorRequestHandler, IRequestHandler<SetVideoStreamsLogoFromEPGRequest, List<VideoStreamDto>>
 {
 
-    public SetVideoStreamsLogoFromEPGRequestHandler(ILogger<SetVideoStreamsLogoFromEPGRequest> logger, IRepositoryWrapper repository, IMapper mapper, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-: base(logger, repository, mapper, publisher, sender, hubContext) { }
+    public SetVideoStreamsLogoFromEPGRequestHandler(ILogger<SetVideoStreamsLogoFromEPGRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
+: base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
 
     public async Task<List<VideoStreamDto>> Handle(SetVideoStreamsLogoFromEPGRequest request, CancellationToken cancellationToken)
     {
