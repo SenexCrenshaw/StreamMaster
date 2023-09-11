@@ -26,14 +26,6 @@ public class MiscController : ApiControllerBase
         return NoContent();
     }
 
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult> ReadDirectoryLogosRequest()
-    {
-        await _taskQueue.ReadDirectoryLogosRequest().ConfigureAwait(false);
-
-        return NoContent();
-    }
 
     [HttpPatch]
     [Route("[action]")]
