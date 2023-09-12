@@ -419,16 +419,6 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["Misc"],
       }),
-      miscReadDirectoryLogosRequest: build.mutation<
-        MiscReadDirectoryLogosRequestApiResponse,
-        MiscReadDirectoryLogosRequestApiArg
-      >({
-        query: () => ({
-          url: `/api/misc/readdirectorylogosrequest`,
-          method: "PATCH",
-        }),
-        invalidatesTags: ["Misc"],
-      }),
       miscBuildProgIconsCacheFromEpGsRequest: build.mutation<
         MiscBuildProgIconsCacheFromEpGsRequestApiResponse,
         MiscBuildProgIconsCacheFromEpGsRequestApiArg
@@ -1045,26 +1035,6 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["VideoStreams"],
       }),
-      videoStreamsSimulateStreamFailure: build.mutation<
-        VideoStreamsSimulateStreamFailureApiResponse,
-        VideoStreamsSimulateStreamFailureApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/videostreams/simulatestreamfailure/${queryArg}`,
-          method: "POST",
-        }),
-        invalidatesTags: ["VideoStreams"],
-      }),
-      videoStreamsSimulateStreamFailureForAll: build.mutation<
-        VideoStreamsSimulateStreamFailureForAllApiResponse,
-        VideoStreamsSimulateStreamFailureForAllApiArg
-      >({
-        query: () => ({
-          url: `/api/videostreams/simulatestreamfailureforall`,
-          method: "POST",
-        }),
-        invalidatesTags: ["VideoStreams"],
-      }),
       videoStreamsUpdateVideoStream: build.mutation<
         VideoStreamsUpdateVideoStreamApiResponse,
         VideoStreamsUpdateVideoStreamApiArg
@@ -1138,6 +1108,27 @@ const injectedRtkApi = api
         query: (queryArg) => ({
           url: `/api/videostreams/resetvideostreamslogofromparameters`,
           method: "PATCH",
+          body: queryArg,
+        }),
+        invalidatesTags: ["VideoStreams"],
+      }),
+      videoStreamsSimulateStreamFailureForAll: build.mutation<
+        VideoStreamsSimulateStreamFailureForAllApiResponse,
+        VideoStreamsSimulateStreamFailureForAllApiArg
+      >({
+        query: () => ({
+          url: `/api/videostreams/simulatestreamfailureforall`,
+          method: "POST",
+        }),
+        invalidatesTags: ["VideoStreams"],
+      }),
+      videoStreamsSimulateStreamFailure: build.mutation<
+        VideoStreamsSimulateStreamFailureApiResponse,
+        VideoStreamsSimulateStreamFailureApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/simulatestreamfailure`,
+          method: "POST",
           body: queryArg,
         }),
         invalidatesTags: ["VideoStreams"],
@@ -1282,8 +1273,6 @@ export type M3UFilesGetM3UFileNamesApiResponse = /** status 200  */ string[];
 export type M3UFilesGetM3UFileNamesApiArg = void;
 export type MiscBuildIconsCacheFromVideoStreamsApiResponse = unknown;
 export type MiscBuildIconsCacheFromVideoStreamsApiArg = void;
-export type MiscReadDirectoryLogosRequestApiResponse = unknown;
-export type MiscReadDirectoryLogosRequestApiArg = void;
 export type MiscBuildProgIconsCacheFromEpGsRequestApiResponse = unknown;
 export type MiscBuildProgIconsCacheFromEpGsRequestApiArg = void;
 export type ProgrammesGetProgrammeApiResponse = /** status 200  */ Programme[];
@@ -1502,10 +1491,6 @@ export type VideoStreamsSetVideoStreamChannelNumbersApiArg =
 export type VideoStreamsSetVideoStreamsLogoFromEpgApiResponse = unknown;
 export type VideoStreamsSetVideoStreamsLogoFromEpgApiArg =
   SetVideoStreamsLogoFromEpgRequest;
-export type VideoStreamsSimulateStreamFailureApiResponse = unknown;
-export type VideoStreamsSimulateStreamFailureApiArg = string;
-export type VideoStreamsSimulateStreamFailureForAllApiResponse = unknown;
-export type VideoStreamsSimulateStreamFailureForAllApiArg = void;
 export type VideoStreamsUpdateVideoStreamApiResponse = unknown;
 export type VideoStreamsUpdateVideoStreamApiArg = UpdateVideoStreamRequest;
 export type VideoStreamsUpdateVideoStreamsApiResponse = unknown;
@@ -1530,6 +1515,11 @@ export type VideoStreamsReSetVideoStreamsLogoFromParametersApiResponse =
   unknown;
 export type VideoStreamsReSetVideoStreamsLogoFromParametersApiArg =
   ReSetVideoStreamsLogoFromParametersRequest;
+export type VideoStreamsSimulateStreamFailureForAllApiResponse = unknown;
+export type VideoStreamsSimulateStreamFailureForAllApiArg = void;
+export type VideoStreamsSimulateStreamFailureApiResponse = unknown;
+export type VideoStreamsSimulateStreamFailureApiArg =
+  SimulateStreamFailureRequest;
 export type CreateChannelGroupRequest = {
   groupName: string;
   rank: number;
@@ -2307,6 +2297,9 @@ export type SetVideoStreamsLogoFromEpgFromParametersRequest = {
 export type ReSetVideoStreamsLogoFromParametersRequest = {
   parameters?: VideoStreamParameters;
 };
+export type SimulateStreamFailureRequest = {
+  streamUrl: string;
+};
 export const {
   useChannelGroupsCreateChannelGroupMutation,
   useChannelGroupsDeleteAllChannelGroupsFromParametersMutation,
@@ -2345,7 +2338,6 @@ export const {
   useM3UFilesUpdateM3UFileMutation,
   useM3UFilesGetM3UFileNamesQuery,
   useMiscBuildIconsCacheFromVideoStreamsMutation,
-  useMiscReadDirectoryLogosRequestMutation,
   useMiscBuildProgIconsCacheFromEpGsRequestMutation,
   useProgrammesGetProgrammeQuery,
   useProgrammesGetProgrammeChannelsQuery,
@@ -2409,8 +2401,6 @@ export const {
   useVideoStreamsReSetVideoStreamsLogoMutation,
   useVideoStreamsSetVideoStreamChannelNumbersMutation,
   useVideoStreamsSetVideoStreamsLogoFromEpgMutation,
-  useVideoStreamsSimulateStreamFailureMutation,
-  useVideoStreamsSimulateStreamFailureForAllMutation,
   useVideoStreamsUpdateVideoStreamMutation,
   useVideoStreamsUpdateVideoStreamsMutation,
   useVideoStreamsUpdateAllVideoStreamsFromParametersMutation,
@@ -2418,4 +2408,6 @@ export const {
   useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation,
   useVideoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation,
   useVideoStreamsReSetVideoStreamsLogoFromParametersMutation,
+  useVideoStreamsSimulateStreamFailureForAllMutation,
+  useVideoStreamsSimulateStreamFailureMutation,
 } = injectedRtkApi;

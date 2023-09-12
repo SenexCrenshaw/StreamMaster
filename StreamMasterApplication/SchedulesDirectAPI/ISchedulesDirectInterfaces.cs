@@ -2,7 +2,6 @@
 
 using StreamMaster.SchedulesDirectAPI;
 using StreamMaster.SchedulesDirectAPI.Models;
-using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.SchedulesDirectAPI;
 
@@ -18,7 +17,7 @@ public interface ISchedulesDirectController
 
     Task<ActionResult<LineUpsResult?>> GetLineups();
 
-    Task<ActionResult<List<Schedule>?>> GetSchedules();
+    Task<ActionResult<List<Schedule>>> GetSchedules();
 
     Task<ActionResult<List<StationPreview>>> GetStationPreviews();
 
@@ -33,17 +32,17 @@ public interface ISchedulesDirectDB
 
 public interface ISchedulesDirectHub
 {
-    Task<Countries?> GetCountries();
+    Task<Countries> GetCountries();
 
     Task<List<HeadendDto>> GetHeadends(string country, string postalCode);
 
-    Task<LineUpResult?> GetLineup(string lineup);
+    Task<LineUpResult> GetLineup(string lineup);
 
     Task<List<LineUpPreview>> GetLineupPreviews();
 
-    Task<LineUpsResult?> GetLineups();
+    Task<LineUpsResult> GetLineups();
 
-    Task<List<Schedule>?> GetSchedules();
+    Task<List<Schedule>> GetSchedules();
 
     Task<List<StationPreview>> GetStationPreviews();
 

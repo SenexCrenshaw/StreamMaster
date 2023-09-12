@@ -1,15 +1,14 @@
 
+import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
-import { type CSSProperties } from "react";
-import { useRef, useCallback, useMemo, memo } from "react";
-import { getIconUrl, formatJSONDateString, getTopToolOptions } from "../../common/common";
+import { memo, useCallback, useMemo, useRef, type CSSProperties } from "react";
+import { formatJSONDateString, getIconUrl, getTopToolOptions } from "../../common/common";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
 import { VideoStreamSelector } from "../../components/videoStream/VideoStreamSelector";
+import { ChangeVideoStreamChannel, SimulateStreamFailure } from "../../hooks/streammasterSignalrHooks";
 import { type ChangeVideoStreamChannelRequest, type StreamStatisticsResult } from "../../store/iptvApi";
 import StreamMasterSetting from "../../store/signlar/StreamMasterSetting";
-import { ChangeVideoStreamChannel, SimulateStreamFailure } from "../../store/signlar_functions";
-import { Button } from "primereact/button";
 
 export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProps) => {
   const setting = StreamMasterSetting();

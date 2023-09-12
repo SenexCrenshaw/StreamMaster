@@ -18,8 +18,6 @@ using StreamMasterDomain.Enums;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 
-using System.Web;
-
 namespace StreamMasterAPI.Controllers;
 
 public class VideoStreamsController : ApiControllerBase, IVideoStreamController
@@ -191,27 +189,6 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         return Ok();
     }
 
-    [HttpPost]
-    [Route("[action]/{streamUrl}")]
-    public ActionResult SimulateStreamFailure(string streamUrl)
-    {
-        if (string.IsNullOrEmpty(streamUrl))
-        {
-            return BadRequest("streamUrl is required.");
-        }
-
-        _channelManager.SimulateStreamFailure(HttpUtility.UrlDecode(streamUrl));
-        return Ok();
-    }
-
-    [HttpPost]
-    [Route("[action]")]
-    public ActionResult SimulateStreamFailureForAll()
-    {
-        _channelManager.SimulateStreamFailureForAll();
-        return Ok();
-    }
-
     [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> UpdateVideoStream(UpdateVideoStreamRequest request)
@@ -263,6 +240,23 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult> ReSetVideoStreamsLogoFromParameters(ReSetVideoStreamsLogoFromParametersRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
+    }
+
+    [HttpPost]
+    [Route("[action]")]
+    public ActionResult SimulateStreamFailureForAll()
+    {
+        _channelManager.SimulateStreamFailureForAll();
+        return Ok();
+    }
+
+
+    [HttpPost]
+    [Route("[action]")]
+    public async Task<IActionResult> SimulateStreamFailure(SimulateStreamFailureRequest request)
     {
         await Mediator.Send(request).ConfigureAwait(false);
         return Ok();

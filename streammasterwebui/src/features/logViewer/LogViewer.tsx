@@ -3,9 +3,9 @@ import React from "react";
 import type * as StreamMasterApi from '../../store/iptvApi';
 
 import { formatJSONDateString } from "../../common/common";
-import * as Hub from "../../store/signlar_functions";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
+import { GetLogRequest } from "../../hooks/streammasterSignalrHooks";
 
 const LogViewer = () => {
 
@@ -15,7 +15,7 @@ const LogViewer = () => {
   const getLogData = React.useCallback(() => {
     // console.debug('LogViewer: ', lastLogId);
 
-    Hub.GetLogRequest({ lastId: lastLogId, maxLines: 5000 } as StreamMasterApi.GetLog)
+    GetLogRequest({ lastId: lastLogId, maxLines: 5000 } as StreamMasterApi.GetLog)
       .then((returnData) => {
         if (returnData !== null && returnData !== undefined && returnData.length > 0) {
           // console.debug('dataSource: ', dataSource.length);

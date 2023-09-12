@@ -1,6 +1,6 @@
 import { memo, useState } from "react";
+import { DeleteEpgFile } from "../../hooks/streammasterSignalrHooks";
 import { type DeleteEpgFileRequest, type EpgFileDto } from "../../store/iptvApi";
-import { DeleteEPGFile } from "../../store/signlar_functions";
 import FileRemoveDialog from "../sharedEPGM3U/FileRemoveDialog";
 
 const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
@@ -16,7 +16,7 @@ const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
     toSend.id = props.selectedFile.id;
     toSend.deleteFile = true;
 
-    DeleteEPGFile(toSend)
+    DeleteEpgFile(toSend)
       .then(() => {
         setInfoMessage('EPG Removed Successfully');
       }).catch((e) => {

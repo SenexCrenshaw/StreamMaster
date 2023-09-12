@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
+import { GetProgrammeFromDisplayName } from '../../hooks/streammasterSignalrHooks';
 import { useProgrammesGetProgrammeNameSelectionsQuery, useProgrammesGetProgrammsSimpleQueryQuery, type ProgrammeNameDto } from '../../store/iptvApi';
-import { GetProgrammeFromDisplayName } from '../../store/signlar_functions';
 import BaseSelector, { type BaseSelectorProps } from './BaseSelector';
 
 type EPGSelectorProps = BaseSelectorProps<ProgrammeNameDto> & {

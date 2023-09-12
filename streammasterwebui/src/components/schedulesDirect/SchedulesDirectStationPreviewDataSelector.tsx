@@ -1,10 +1,9 @@
 
 import { Toast } from "primereact/toast";
-import { useRef, useState, useEffect, useCallback, useMemo, memo } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { arraysMatch } from "../../common/common";
-import { type StationPreview, type UpdateSettingRequest } from "../../store/iptvApi";
-import { useSchedulesDirectGetStationPreviewsQuery, useSettingsGetSettingQuery } from "../../store/iptvApi";
-import { UpdateSetting } from "../../store/signlar_functions";
+import { UpdateSetting } from "../../hooks/streammasterSignalrHooks";
+import { useSchedulesDirectGetStationPreviewsQuery, useSettingsGetSettingQuery, type StationPreview, type UpdateSettingRequest } from "../../store/iptvApi";
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 import SchedulesDirectSchedulesDataSelector from "./SchedulesDirectSchedulesDataSelector";

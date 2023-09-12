@@ -1,11 +1,11 @@
 
 
-import React from "react";
-import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
-import * as Hub from "../../store/signlar_functions";
-import { type UpdateSettingRequest } from "../../store/iptvApi";
 import { Button } from "primereact/button";
+import React from "react";
 import { getTopToolOptions } from "../../common/common";
+import { UpdateSetting } from "../../hooks/streammasterSignalrHooks";
+import { type UpdateSettingRequest } from "../../store/iptvApi";
+import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 
 const SettingsNameRegexDeleteDialog = (props: SettingsNameRegexDeleteDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
@@ -34,7 +34,7 @@ const SettingsNameRegexDeleteDialog = (props: SettingsNameRegexDeleteDialogProps
 
     tosend.nameRegex = props.values.filter((a) => a !== props.value);
 
-    Hub.UpdateSetting(tosend).then(() => {
+    UpdateSetting(tosend).then(() => {
       setInfoMessage('Add Regex Successfully');
     }).catch((e) => {
       setInfoMessage('Add Regex Error: ' + e.message);

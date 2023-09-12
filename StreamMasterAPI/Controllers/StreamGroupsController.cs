@@ -357,5 +357,4 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         return url;
     }
 
-
 }

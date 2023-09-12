@@ -52,9 +52,9 @@ public partial class StreamMasterHub : IStreamGroupHub
     }
 
 
-    public async Task SimulateStreamFailure(string streamUrl)
+    public async Task SimulateStreamFailure(SimulateStreamFailureRequest request)
     {
-        await mediator.Send(new SimulateStreamFailureRequest(streamUrl)).ConfigureAwait(false);
+        await mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task UpdateStreamGroup(UpdateStreamGroupRequest request)

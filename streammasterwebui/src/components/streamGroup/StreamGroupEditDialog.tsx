@@ -1,11 +1,11 @@
 import { InputText } from "primereact/inputtext";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { type StreamGroupDto, type UpdateStreamGroupRequest } from "../../store/iptvApi";
-import { UpdateStreamGroup } from "../../store/signlar_functions";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 
 import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
 import StreamGroupChannelGroupsSelector from "../../features/streamGroupEditor/StreamGroupChannelGroupsSelector";
+import { UpdateStreamGroup } from "../../hooks/streammasterSignalrHooks";
 import EditButton from "../buttons/EditButton";
 
 

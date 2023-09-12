@@ -1,6 +1,6 @@
 import { memo, useCallback } from "react";
+import { UpdateVideoStream } from "../../hooks/streammasterSignalrHooks";
 import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
-import { UpdateVideoStream } from "../../store/signlar_functions";
 import ResetButton from "../buttons/ResetButton";
 
 const VideoStreamResetLogoDialog = (props: VideoStreamResetLogoDialogProps) => {

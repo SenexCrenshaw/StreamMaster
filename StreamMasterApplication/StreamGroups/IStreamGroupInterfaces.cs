@@ -79,7 +79,7 @@ public interface IStreamGroupHub
 
     Task<PagedResponse<StreamGroupDto>> GetStreamGroups(StreamGroupParameters streamGroupParameters);
 
-    public Task SimulateStreamFailure(string streamUrl);
+
 
     Task UpdateStreamGroup(UpdateStreamGroupRequest request);
 

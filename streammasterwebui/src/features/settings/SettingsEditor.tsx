@@ -20,10 +20,10 @@ import TextInput from '../../components/inputs/TextInput';
 import SettingsNameRegexDataSelector from '../../components/settings/SettingsNameRegexDataSelector';
 import { getDefaultSetting } from '../../default_setting';
 import { getHelp } from '../../help_en';
+import { UpdateSetting } from '../../hooks/streammasterSignalrHooks';
 import { baseHostURL } from '../../settings';
 import { useSettingsGetSettingQuery, type SettingDto } from '../../store/iptvApi';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
-import { UpdateSetting } from '../../store/signlar_functions_local';
 import { AuthenticationType, StreamingProxyTypes } from '../../store/streammaster_enums';
 
 export const SettingsEditor = () => {

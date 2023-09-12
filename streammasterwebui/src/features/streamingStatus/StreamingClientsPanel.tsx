@@ -1,13 +1,12 @@
 
+import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
-import { type CSSProperties } from "react";
-import { useRef, useCallback, useMemo, memo } from "react";
+import { memo, useCallback, useMemo, useRef, type CSSProperties } from "react";
 import { formatJSONDateString, getTopToolOptions } from "../../common/common";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import { type StreamStatisticsResult, type FailClientRequest } from "../../store/iptvApi";
-import { FailClient } from "../../store/signlar_functions";
-import { Button } from "primereact/button";
+import { FailClient } from "../../hooks/streammasterSignalrHooks";
+import { type FailClientRequest, type StreamStatisticsResult } from "../../store/iptvApi";
 
 
 const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {

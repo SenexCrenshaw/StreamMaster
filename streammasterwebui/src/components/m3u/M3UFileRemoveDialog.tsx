@@ -1,6 +1,6 @@
 import { memo, useState } from "react";
+import { DeleteM3UFile } from "../../hooks/streammasterSignalrHooks";
 import { type DeleteM3UFileRequest, type M3UFileDto } from "../../store/iptvApi";
-import { DeleteM3UFile } from "../../store/signlar_functions";
 import FileRemoveDialog from "../sharedEPGM3U/FileRemoveDialog";
 
 type M3UFileRemoveDialogProps = {

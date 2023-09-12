@@ -1,9 +1,8 @@
 ﻿using StreamMaster.SchedulesDirectAPI;
 using StreamMaster.SchedulesDirectAPI.Models;
+
 using StreamMasterApplication.SchedulesDirectAPI;
 using StreamMasterApplication.SchedulesDirectAPI.Queries;
-
-using StreamMasterDomain.Dto;
 
 namespace StreamMasterApplication.Hubs;
 
@@ -34,7 +33,7 @@ public partial class StreamMasterHub : ISchedulesDirectHub
         return await mediator.Send(new GetLineups()).ConfigureAwait(false);
     }
 
-    public async Task<List<Schedule>?> GetSchedules()
+    public async Task<List<Schedule>> GetSchedules()
     {
         return await mediator.Send(new GetSchedules()).ConfigureAwait(false);
     }

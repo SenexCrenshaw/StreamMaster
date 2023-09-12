@@ -4,13 +4,13 @@ using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.VideoStreams.Commands;
 
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.VideoStreams;
 
 public interface IVideoStreamController
 {
+    Task<IActionResult> SimulateStreamFailure(SimulateStreamFailureRequest request);
     Task<ActionResult> DeleteAllVideoStreamsFromParameters(DeleteAllVideoStreamsFromParametersRequest request);
     Task<ActionResult> UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request);
 
@@ -40,8 +40,6 @@ public interface IVideoStreamController
 
     Task<ActionResult> SetVideoStreamsLogoFromEPG(SetVideoStreamsLogoFromEPGRequest request);
 
-    ActionResult SimulateStreamFailure(string streamUrl);
-
     Task<ActionResult> UpdateVideoStream(UpdateVideoStreamRequest request);
 
     Task<ActionResult> UpdateVideoStreams(UpdateVideoStreamsRequest request);
@@ -49,6 +47,7 @@ public interface IVideoStreamController
 
 public interface IVideoStreamHub
 {
+    Task SimulateStreamFailure(SimulateStreamFailureRequest request);
     Task DeleteAllVideoStreamsFromParameters(DeleteAllVideoStreamsFromParametersRequest request);
     Task UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request);
 

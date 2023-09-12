@@ -15,16 +15,17 @@ export const DeleteChannelGroup = async (arg: iptv.DeleteChannelGroupRequest): P
 };
 
 export const GetChannelGroup = async (): Promise<iptv.ChannelGroupDto> => {
-  const data = await hubConnection.invoke('GetChannelGroup',);
+  const data = await hubConnection.invoke('GetChannelGroup', );
   return data;
 };
 
-export const GetChannelGroupIdNames = async (): Promise<void> => {
-  await hubConnection.invoke('GetChannelGroupIdNames',);
+export const GetChannelGroupIdNames = async (): Promise<iptv.ChannelGroupIdName[]> => {
+  const data = await hubConnection.invoke('GetChannelGroupIdNames', );
+  return data;
 };
 
 export const GetChannelGroups = async (): Promise<iptv.PagedResponseOfChannelGroupDto> => {
-  const data = await hubConnection.invoke('GetChannelGroups',);
+  const data = await hubConnection.invoke('GetChannelGroups', );
   return data;
 };
 
@@ -37,7 +38,7 @@ export const UpdateChannelGroups = async (arg: iptv.UpdateChannelGroupsRequest):
 };
 
 export const GetChannelGroupNames = async (): Promise<void> => {
-  await hubConnection.invoke('GetChannelGroupNames',);
+  await hubConnection.invoke('GetChannelGroupNames', );
 };
 
 export const CreateEpgFile = async (arg: iptv.CreateEpgFileRequest): Promise<void> => {
@@ -45,7 +46,7 @@ export const CreateEpgFile = async (arg: iptv.CreateEpgFileRequest): Promise<voi
 };
 
 export const CreateEpgFileFromForm = async (): Promise<void> => {
-  await hubConnection.invoke('CreateEpgFileFromForm',);
+  await hubConnection.invoke('CreateEpgFileFromForm', );
 };
 
 export const DeleteEpgFile = async (arg: iptv.DeleteEpgFileRequest): Promise<void> => {
@@ -53,12 +54,12 @@ export const DeleteEpgFile = async (arg: iptv.DeleteEpgFileRequest): Promise<voi
 };
 
 export const GetEpgFile = async (): Promise<iptv.EpgFileDto> => {
-  const data = await hubConnection.invoke('GetEpgFile',);
+  const data = await hubConnection.invoke('GetEpgFile', );
   return data;
 };
 
 export const GetEpgFiles = async (): Promise<iptv.PagedResponseOfEpgFileDto> => {
-  const data = await hubConnection.invoke('GetEpgFiles',);
+  const data = await hubConnection.invoke('GetEpgFiles', );
   return data;
 };
 
@@ -71,7 +72,7 @@ export const RefreshEpgFile = async (arg: iptv.RefreshEpgFileRequest): Promise<v
 };
 
 export const ScanDirectoryForEpgFiles = async (): Promise<void> => {
-  await hubConnection.invoke('ScanDirectoryForEpgFiles',);
+  await hubConnection.invoke('ScanDirectoryForEpgFiles', );
 };
 
 export const UpdateEpgFile = async (arg: iptv.UpdateEpgFileRequest): Promise<void> => {
@@ -87,26 +88,28 @@ export const AutoMatchIconToStreams = async (arg: iptv.AutoMatchIconToStreamsReq
 };
 
 export const GetIcon = async (): Promise<iptv.IconFileDto> => {
-  const data = await hubConnection.invoke('GetIcon',);
+  const data = await hubConnection.invoke('GetIcon', );
   return data;
 };
 
 export const GetIconFromSource = async (): Promise<iptv.IconFileDto> => {
-  const data = await hubConnection.invoke('GetIconFromSource',);
+  const data = await hubConnection.invoke('GetIconFromSource', );
   return data;
 };
 
 export const GetIcons = async (): Promise<iptv.PagedResponseOfIconFileDto> => {
-  const data = await hubConnection.invoke('GetIcons',);
+  const data = await hubConnection.invoke('GetIcons', );
   return data;
 };
 
-export const GetIconsSimpleQuery = async (): Promise<void> => {
-  await hubConnection.invoke('GetIconsSimpleQuery',);
+export const GetIconsSimpleQuery = async (): Promise<iptv.IconFileDto[]> => {
+  const data = await hubConnection.invoke('GetIconsSimpleQuery', );
+  return data;
 };
 
-export const GetLogRequest = async (arg: iptv.GetLog): Promise<void> => {
-  await hubConnection.invoke('GetLogRequest', arg);
+export const GetLogRequest = async (arg: iptv.GetLog): Promise<iptv.LogEntryDto[]> => {
+  const data = await hubConnection.invoke('GetLogRequest', arg);
+  return data;
 };
 
 export const CreateM3UFile = async (arg: iptv.CreateM3UFileRequest): Promise<void> => {
@@ -114,7 +117,7 @@ export const CreateM3UFile = async (arg: iptv.CreateM3UFileRequest): Promise<voi
 };
 
 export const CreateM3UFileFromForm = async (): Promise<void> => {
-  await hubConnection.invoke('CreateM3UFileFromForm',);
+  await hubConnection.invoke('CreateM3UFileFromForm', );
 };
 
 export const ChangeM3UFileName = async (arg: iptv.ChangeM3UFileNameRequest): Promise<void> => {
@@ -126,12 +129,12 @@ export const DeleteM3UFile = async (arg: iptv.DeleteM3UFileRequest): Promise<voi
 };
 
 export const GetM3UFile = async (): Promise<iptv.M3UFileDto> => {
-  const data = await hubConnection.invoke('GetM3UFile',);
+  const data = await hubConnection.invoke('GetM3UFile', );
   return data;
 };
 
 export const GetM3UFiles = async (): Promise<iptv.PagedResponseOfM3UFileDto> => {
-  const data = await hubConnection.invoke('GetM3UFiles',);
+  const data = await hubConnection.invoke('GetM3UFiles', );
   return data;
 };
 
@@ -144,7 +147,7 @@ export const RefreshM3UFile = async (arg: iptv.RefreshM3UFileRequest): Promise<v
 };
 
 export const ScanDirectoryForM3UFiles = async (): Promise<void> => {
-  await hubConnection.invoke('ScanDirectoryForM3UFiles',);
+  await hubConnection.invoke('ScanDirectoryForM3UFiles', );
 };
 
 export const UpdateM3UFile = async (arg: iptv.UpdateM3UFileRequest): Promise<void> => {
@@ -152,106 +155,112 @@ export const UpdateM3UFile = async (arg: iptv.UpdateM3UFileRequest): Promise<voi
 };
 
 export const GetM3UFileNames = async (): Promise<void> => {
-  await hubConnection.invoke('GetM3UFileNames',);
+  await hubConnection.invoke('GetM3UFileNames', );
 };
 
 export const BuildIconsCacheFromVideoStreams = async (): Promise<void> => {
-  await hubConnection.invoke('BuildIconsCacheFromVideoStreams',);
-};
-
-export const ReadDirectoryLogosRequest = async (): Promise<void> => {
-  await hubConnection.invoke('ReadDirectoryLogosRequest',);
+  await hubConnection.invoke('BuildIconsCacheFromVideoStreams', );
 };
 
 export const BuildProgIconsCacheFromEpgsRequest = async (): Promise<void> => {
-  await hubConnection.invoke('BuildProgIconsCacheFromEpgsRequest',);
+  await hubConnection.invoke('BuildProgIconsCacheFromEpgsRequest', );
 };
 
-export const GetProgramme = async (): Promise<void> => {
-  await hubConnection.invoke('GetProgramme',);
-};
-
-export const GetProgrammeChannels = async (): Promise<void> => {
-  await hubConnection.invoke('GetProgrammeChannels',);
-};
-
-export const GetProgrammeNameSelections = async (): Promise<iptv.PagedResponseOfProgrammeNameDto> => {
-  const data = await hubConnection.invoke('GetProgrammeNameSelections',);
+export const GetProgramme = async (): Promise<iptv.Programme[]> => {
+  const data = await hubConnection.invoke('GetProgramme', );
   return data;
 };
 
-export const GetProgrammes = async (): Promise<void> => {
-  await hubConnection.invoke('GetProgrammes',);
+export const GetProgrammeChannels = async (): Promise<iptv.ProgrammeChannel[]> => {
+  const data = await hubConnection.invoke('GetProgrammeChannels', );
+  return data;
+};
+
+export const GetProgrammeNameSelections = async (): Promise<iptv.PagedResponseOfProgrammeNameDto> => {
+  const data = await hubConnection.invoke('GetProgrammeNameSelections', );
+  return data;
+};
+
+export const GetProgrammes = async (): Promise<iptv.Programme[]> => {
+  const data = await hubConnection.invoke('GetProgrammes', );
+  return data;
 };
 
 export const GetProgrammeNames = async (): Promise<void> => {
-  await hubConnection.invoke('GetProgrammeNames',);
+  await hubConnection.invoke('GetProgrammeNames', );
 };
 
-export const GetProgrammsSimpleQuery = async (): Promise<void> => {
-  await hubConnection.invoke('GetProgrammsSimpleQuery',);
+export const GetProgrammsSimpleQuery = async (): Promise<iptv.ProgrammeNameDto[]> => {
+  const data = await hubConnection.invoke('GetProgrammsSimpleQuery', );
+  return data;
 };
 
 export const GetProgrammeFromDisplayName = async (): Promise<iptv.ProgrammeNameDto> => {
-  const data = await hubConnection.invoke('GetProgrammeFromDisplayName',);
+  const data = await hubConnection.invoke('GetProgrammeFromDisplayName', );
   return data;
 };
 
 export const GetCountries = async (): Promise<iptv.Countries> => {
-  const data = await hubConnection.invoke('GetCountries',);
+  const data = await hubConnection.invoke('GetCountries', );
   return data;
 };
 
-export const GetHeadends = async (): Promise<void> => {
-  await hubConnection.invoke('GetHeadends',);
+export const GetHeadends = async (): Promise<iptv.HeadendDto[]> => {
+  const data = await hubConnection.invoke('GetHeadends', );
+  return data;
 };
 
 export const GetLineup = async (): Promise<iptv.LineUpResult> => {
-  const data = await hubConnection.invoke('GetLineup',);
+  const data = await hubConnection.invoke('GetLineup', );
   return data;
 };
 
-export const GetLineupPreviews = async (): Promise<void> => {
-  await hubConnection.invoke('GetLineupPreviews',);
+export const GetLineupPreviews = async (): Promise<iptv.LineUpPreview[]> => {
+  const data = await hubConnection.invoke('GetLineupPreviews', );
+  return data;
 };
 
 export const GetLineups = async (): Promise<iptv.LineUpsResult> => {
-  const data = await hubConnection.invoke('GetLineups',);
+  const data = await hubConnection.invoke('GetLineups', );
   return data;
 };
 
-export const GetSchedules = async (): Promise<void> => {
-  await hubConnection.invoke('GetSchedules',);
+export const GetSchedules = async (): Promise<iptv.Schedule[]> => {
+  const data = await hubConnection.invoke('GetSchedules', );
+  return data;
 };
 
-export const GetStationPreviews = async (): Promise<void> => {
-  await hubConnection.invoke('GetStationPreviews',);
+export const GetStationPreviews = async (): Promise<iptv.StationPreview[]> => {
+  const data = await hubConnection.invoke('GetStationPreviews', );
+  return data;
 };
 
-export const GetStations = async (): Promise<void> => {
-  await hubConnection.invoke('GetStations',);
+export const GetStations = async (): Promise<iptv.Station[]> => {
+  const data = await hubConnection.invoke('GetStations', );
+  return data;
 };
 
 export const GetStatus = async (): Promise<iptv.SdStatus> => {
-  const data = await hubConnection.invoke('GetStatus',);
+  const data = await hubConnection.invoke('GetStatus', );
   return data;
 };
 
 export const GetIsSystemReady = async (): Promise<void> => {
-  await hubConnection.invoke('GetIsSystemReady',);
+  await hubConnection.invoke('GetIsSystemReady', );
 };
 
-export const GetQueueStatus = async (): Promise<void> => {
-  await hubConnection.invoke('GetQueueStatus',);
+export const GetQueueStatus = async (): Promise<iptv.TaskQueueStatusDto[]> => {
+  const data = await hubConnection.invoke('GetQueueStatus', );
+  return data;
 };
 
 export const GetSetting = async (): Promise<iptv.SettingDto> => {
-  const data = await hubConnection.invoke('GetSetting',);
+  const data = await hubConnection.invoke('GetSetting', );
   return data;
 };
 
 export const GetSystemStatus = async (): Promise<iptv.SystemStatus> => {
-  const data = await hubConnection.invoke('GetSystemStatus',);
+  const data = await hubConnection.invoke('GetSystemStatus', );
   return data;
 };
 
@@ -268,12 +277,14 @@ export const SyncStreamGroupChannelGroups = async (arg: iptv.SyncStreamGroupChan
   return data;
 };
 
-export const GetChannelGroupsFromStreamGroup = async (): Promise<void> => {
-  await hubConnection.invoke('GetChannelGroupsFromStreamGroup',);
+export const GetChannelGroupsFromStreamGroup = async (): Promise<iptv.ChannelGroupDto[]> => {
+  const data = await hubConnection.invoke('GetChannelGroupsFromStreamGroup', );
+  return data;
 };
 
-export const GetAllChannelGroups = async (): Promise<void> => {
-  await hubConnection.invoke('GetAllChannelGroups',);
+export const GetAllChannelGroups = async (): Promise<iptv.ChannelGroupDto[]> => {
+  const data = await hubConnection.invoke('GetAllChannelGroups', );
+  return data;
 };
 
 export const CreateStreamGroup = async (arg: iptv.CreateStreamGroupRequest): Promise<void> => {
@@ -285,49 +296,49 @@ export const DeleteStreamGroup = async (arg: iptv.DeleteStreamGroupRequest): Pro
 };
 
 export const GetStreamGroup = async (): Promise<iptv.StreamGroupDto> => {
-  const data = await hubConnection.invoke('GetStreamGroup',);
+  const data = await hubConnection.invoke('GetStreamGroup', );
   return data;
 };
 
 export const GetStreamGroupCapability = async (): Promise<void> => {
-  await hubConnection.invoke('GetStreamGroupCapability',);
+  await hubConnection.invoke('GetStreamGroupCapability', );
 };
 
 export const GetStreamGroupCapability2 = async (): Promise<void> => {
-  await hubConnection.invoke('GetStreamGroupCapability2',);
+  await hubConnection.invoke('GetStreamGroupCapability2', );
 };
 
 export const GetStreamGroupCapability3 = async (): Promise<void> => {
-  await hubConnection.invoke('GetStreamGroupCapability3',);
+  await hubConnection.invoke('GetStreamGroupCapability3', );
 };
 
 export const GetStreamGroupDiscover = async (): Promise<void> => {
-  await hubConnection.invoke('GetStreamGroupDiscover',);
+  await hubConnection.invoke('GetStreamGroupDiscover', );
 };
 
 export const GetStreamGroupEpg = async (): Promise<void> => {
-  await hubConnection.invoke('GetStreamGroupEpg',);
+  await hubConnection.invoke('GetStreamGroupEpg', );
 };
 
 export const GetStreamGroupEpgForGuide = async (): Promise<iptv.EpgGuide> => {
-  const data = await hubConnection.invoke('GetStreamGroupEpgForGuide',);
+  const data = await hubConnection.invoke('GetStreamGroupEpgForGuide', );
   return data;
 };
 
 export const GetStreamGroupLineUp = async (): Promise<void> => {
-  await hubConnection.invoke('GetStreamGroupLineUp',);
+  await hubConnection.invoke('GetStreamGroupLineUp', );
 };
 
 export const GetStreamGroupLineUpStatus = async (): Promise<void> => {
-  await hubConnection.invoke('GetStreamGroupLineUpStatus',);
+  await hubConnection.invoke('GetStreamGroupLineUpStatus', );
 };
 
 export const GetStreamGroupM3U = async (): Promise<void> => {
-  await hubConnection.invoke('GetStreamGroupM3U',);
+  await hubConnection.invoke('GetStreamGroupM3U', );
 };
 
 export const GetStreamGroups = async (): Promise<iptv.PagedResponseOfStreamGroupDto> => {
-  const data = await hubConnection.invoke('GetStreamGroups',);
+  const data = await hubConnection.invoke('GetStreamGroups', );
   return data;
 };
 
@@ -335,12 +346,13 @@ export const UpdateStreamGroup = async (arg: iptv.UpdateStreamGroupRequest): Pro
   await hubConnection.invoke('UpdateStreamGroup', arg);
 };
 
-export const GetStreamGroupVideoStreamIds = async (): Promise<void> => {
-  await hubConnection.invoke('GetStreamGroupVideoStreamIds',);
+export const GetStreamGroupVideoStreamIds = async (): Promise<iptv.VideoStreamIsReadOnly[]> => {
+  const data = await hubConnection.invoke('GetStreamGroupVideoStreamIds', );
+  return data;
 };
 
 export const GetStreamGroupVideoStreams = async (): Promise<iptv.PagedResponseOfVideoStreamDto> => {
-  const data = await hubConnection.invoke('GetStreamGroupVideoStreams',);
+  const data = await hubConnection.invoke('GetStreamGroupVideoStreams', );
   return data;
 };
 
@@ -361,11 +373,11 @@ export const AddVideoStreamToVideoStream = async (arg: iptv.AddVideoStreamToVide
 };
 
 export const GetVideoStreamVideoStreamIds = async (): Promise<void> => {
-  await hubConnection.invoke('GetVideoStreamVideoStreamIds',);
+  await hubConnection.invoke('GetVideoStreamVideoStreamIds', );
 };
 
 export const GetVideoStreamVideoStreams = async (): Promise<iptv.PagedResponseOfChildVideoStreamDto> => {
-  const data = await hubConnection.invoke('GetVideoStreamVideoStreams',);
+  const data = await hubConnection.invoke('GetVideoStreamVideoStreams', );
   return data;
 };
 
@@ -389,34 +401,36 @@ export const FailClient = async (arg: iptv.FailClientRequest): Promise<void> => 
   await hubConnection.invoke('FailClient', arg);
 };
 
-export const GetAllStatisticsForAllUrls = async (): Promise<void> => {
-  await hubConnection.invoke('GetAllStatisticsForAllUrls',);
+export const GetAllStatisticsForAllUrls = async (): Promise<iptv.StreamStatisticsResult[]> => {
+  const data = await hubConnection.invoke('GetAllStatisticsForAllUrls', );
+  return data;
 };
 
-export const GetChannelLogoDtos = async (): Promise<void> => {
-  await hubConnection.invoke('GetChannelLogoDtos',);
+export const GetChannelLogoDtos = async (): Promise<iptv.ChannelLogoDto[]> => {
+  const data = await hubConnection.invoke('GetChannelLogoDtos', );
+  return data;
 };
 
 export const GetVideoStream = async (): Promise<iptv.VideoStreamDto> => {
-  const data = await hubConnection.invoke('GetVideoStream',);
+  const data = await hubConnection.invoke('GetVideoStream', );
   return data;
 };
 
 export const GetVideoStreams = async (): Promise<iptv.PagedResponseOfVideoStreamDto> => {
-  const data = await hubConnection.invoke('GetVideoStreams',);
+  const data = await hubConnection.invoke('GetVideoStreams', );
   return data;
 };
 
 export const GetVideoStreamStream = async (): Promise<void> => {
-  await hubConnection.invoke('GetVideoStreamStream',);
+  await hubConnection.invoke('GetVideoStreamStream', );
 };
 
 export const GetVideoStreamStream2 = async (): Promise<void> => {
-  await hubConnection.invoke('GetVideoStreamStream2',);
+  await hubConnection.invoke('GetVideoStreamStream2', );
 };
 
 export const GetVideoStreamStream3 = async (): Promise<void> => {
-  await hubConnection.invoke('GetVideoStreamStream3',);
+  await hubConnection.invoke('GetVideoStreamStream3', );
 };
 
 export const ReSetVideoStreamsLogo = async (arg: iptv.ReSetVideoStreamsLogoRequest): Promise<void> => {
@@ -429,14 +443,6 @@ export const SetVideoStreamChannelNumbers = async (arg: iptv.SetVideoStreamChann
 
 export const SetVideoStreamsLogoFromEpg = async (arg: iptv.SetVideoStreamsLogoFromEpgRequest): Promise<void> => {
   await hubConnection.invoke('SetVideoStreamsLogoFromEpg', arg);
-};
-
-export const SimulateStreamFailure = async (): Promise<void> => {
-  await hubConnection.invoke('SimulateStreamFailure',);
-};
-
-export const SimulateStreamFailureForAll = async (): Promise<void> => {
-  await hubConnection.invoke('SimulateStreamFailureForAll',);
 };
 
 export const UpdateVideoStream = async (arg: iptv.UpdateVideoStreamRequest): Promise<void> => {
@@ -465,4 +471,12 @@ export const SetVideoStreamsLogoFromEpgFromParameters = async (arg: iptv.SetVide
 
 export const ReSetVideoStreamsLogoFromParameters = async (arg: iptv.ReSetVideoStreamsLogoFromParametersRequest): Promise<void> => {
   await hubConnection.invoke('ReSetVideoStreamsLogoFromParameters', arg);
+};
+
+export const SimulateStreamFailureForAll = async (): Promise<void> => {
+  await hubConnection.invoke('SimulateStreamFailureForAll', );
+};
+
+export const SimulateStreamFailure = async (arg: iptv.SimulateStreamFailureRequest): Promise<void> => {
+  await hubConnection.invoke('SimulateStreamFailure', arg);
 };

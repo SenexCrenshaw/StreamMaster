@@ -6,6 +6,7 @@ internal class Program
 {
     private const string SwaggerUrl = "http://127.0.0.1:7095/swagger/v1/swagger.json";
     private const string LocalFileName = "swagger.json";
+    private const string OutputFileName = @"..\..\..\..\StreamMasterwebui\src\hooks\streammasterSignalrHooks.tsx";
 
     private static async System.Threading.Tasks.Task Main(string[] args)
     {
@@ -45,39 +46,30 @@ internal class Program
 
                     if (operationId != null)
                     {
-                        string methodName = ConvertToTypeScriptPascalCase(operationId[(operationId.IndexOf('_') + 1)..]);
+                        string functionName = ConvertToTypeScriptPascalCase(operationId[(operationId.IndexOf('_') + 1)..]);
 
-                        string? argType = method.Value.TryGetProperty("requestBody", out JsonElement requestBody) && requestBody.TryGetProperty("content", out JsonElement content) && content.TryGetProperty("application/json", out JsonElement jsonContent) && jsonContent.TryGetProperty("schema", out JsonElement schema) && schema.TryGetProperty("$ref", out JsonElement refElement)
-                            ? "iptv." + ConvertToTypeScriptPascalCase(refElement.GetString().Split("/")[^1])
-                            : null;
-
-                        // If argType is not found in requestBody, look in the parameters section
-                        if (argType == null && method.Value.TryGetProperty("parameters", out JsonElement parameters))
+                        string? argType = GetArgType(method.Value);
+                        if (argType != null)
                         {
-                            foreach (JsonElement parameter in parameters.EnumerateArray())
-                            {
-                                if (parameter.TryGetProperty("schema", out JsonElement parameterSchema) && parameterSchema.TryGetProperty("$ref", out JsonElement parameterRef))
-                                {
-                                    argType = "iptv." + ConvertToTypeScriptPascalCase(parameterRef.GetString().Split("/")[^1]);
-                                    break;
-                                }
-                            }
+                            argType = "iptv." + argType;
                         }
 
-                        string responseType = method.Value.TryGetProperty("responses", out JsonElement responses) && responses.TryGetProperty("200", out JsonElement response200) && response200.TryGetProperty("content", out JsonElement responseContent) && responseContent.TryGetProperty("application/json", out JsonElement jsonResponse) && jsonResponse.TryGetProperty("schema", out JsonElement responseSchema) && responseSchema.TryGetProperty("$ref", out JsonElement responseRef)
-                            ? "iptv." + ConvertToTypeScriptPascalCase(responseRef.GetString().Split("/")[^1])
-                            : "void";
-
-                        tsContent.AppendLine();
-                        tsContent.AppendLine($"export const {methodName} = async {(argType != null ? $"(arg: {argType})" : "()")}: Promise<{responseType}> => {{");
+                        string responseType = GetResponseType(method.Value);
                         if (responseType != "void")
                         {
-                            tsContent.AppendLine($"  const data = await hubConnection.invoke('{methodName}', {(argType != null ? "arg" : "")});");
+                            responseType = "iptv." + responseType;
+                        }
+
+                        tsContent.AppendLine();
+                        tsContent.AppendLine($"export const {functionName} = async {(argType != null ? $"(arg: {argType})" : "()")}: Promise<{responseType}> => {{");
+                        if (responseType != "void")
+                        {
+                            tsContent.AppendLine($"  const data = await hubConnection.invoke('{functionName}', {(argType != null ? "arg" : "")});");
                             tsContent.AppendLine($"  return data;");
                         }
                         else
                         {
-                            tsContent.AppendLine($"  await hubConnection.invoke('{methodName}', {(argType != null ? "arg" : "")});");
+                            tsContent.AppendLine($"  await hubConnection.invoke('{functionName}', {(argType != null ? "arg" : "")});");
                         }
                         tsContent.AppendLine("};");
                     }
@@ -85,8 +77,54 @@ internal class Program
             }
         }
 
-        string fileName = @"..\..\..\..\StreamMasterwebui\src\hooks\streammasterSignalrHooks.tsx";
-        File.WriteAllText(fileName, tsContent.ToString());
+        File.WriteAllText(OutputFileName, tsContent.ToString());
+    }
+
+    public static string GetArgType(JsonElement methodElement)
+    {
+        if (methodElement.TryGetProperty("requestBody", out JsonElement requestBody) &&
+            requestBody.TryGetProperty("content", out JsonElement content) &&
+            content.TryGetProperty("application/json", out JsonElement jsonContent) &&
+            jsonContent.TryGetProperty("schema", out JsonElement schema) &&
+            schema.TryGetProperty("$ref", out JsonElement refElement))
+        {
+            return ConvertToTypeScriptPascalCase(refElement.GetString().Split("/")[^1]);
+        }
+
+        if (methodElement.TryGetProperty("parameters", out JsonElement parameters))
+        {
+            foreach (JsonElement parameter in parameters.EnumerateArray())
+            {
+                if (parameter.TryGetProperty("schema", out JsonElement parameterSchema) && parameterSchema.TryGetProperty("$ref", out JsonElement parameterRef))
+                {
+                    return ConvertToTypeScriptPascalCase(parameterRef.GetString().Split("/")[^1]);
+                }
+            }
+        }
+        return null;
+    }
+
+    public static string GetResponseType(JsonElement methodElement)
+    {
+        if (methodElement.TryGetProperty("responses", out JsonElement responses) &&
+            responses.TryGetProperty("200", out JsonElement response200) &&
+            response200.TryGetProperty("content", out JsonElement responseContent) &&
+            responseContent.TryGetProperty("application/json", out JsonElement jsonResponse) &&
+            jsonResponse.TryGetProperty("schema", out JsonElement responseSchema))
+        {
+            if (responseSchema.TryGetProperty("$ref", out JsonElement responseRef))
+            {
+                return ConvertToTypeScriptPascalCase(responseRef.GetString().Split("/")[^1]);
+            }
+            else if (responseSchema.TryGetProperty("type", out JsonElement typeProperty) &&
+                     typeProperty.GetString() == "array" &&
+                     responseSchema.TryGetProperty("items", out JsonElement items) &&
+                     items.TryGetProperty("$ref", out JsonElement itemsRef))
+            {
+                return ConvertToTypeScriptPascalCase(itemsRef.GetString().Split("/")[^1]) + "[]";
+            }
+        }
+        return "void";
     }
 
     public static string ConvertToTypeScriptPascalCase(string csharpName)
@@ -102,4 +140,13 @@ internal class Program
         return csharpName;
     }
 
+    public static string ConvertToCamelCase(string pascalCaseString)
+    {
+        if (string.IsNullOrEmpty(pascalCaseString))
+        {
+            return pascalCaseString;
+        }
+
+        return char.ToLowerInvariant(pascalCaseString[0]) + pascalCaseString[1..];
+    }
 }

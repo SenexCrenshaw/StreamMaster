@@ -1,9 +1,9 @@
 
 
 import { Toast } from "primereact/toast";
-import { useRef, useState, useEffect, useMemo, memo } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { GetSchedules } from "../../hooks/streammasterSignalrHooks";
 import { type Schedule } from "../../store/iptvApi";
-import { GetSchedules } from "../../store/signlar_functions";
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 

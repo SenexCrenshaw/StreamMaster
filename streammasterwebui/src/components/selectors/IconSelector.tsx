@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
 import { useIconsGetIconsQuery, useIconsGetIconsSimpleQueryQuery, type IconFileDto } from '../../store/iptvApi';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
-import { GetIconFromSource } from '../../store/signlar_functions';
 import BaseSelector, { type BaseSelectorProps } from './BaseSelector';
 
 import { getIconUrl } from '../../common/common';
+import { GetIconFromSource } from '../../hooks/streammasterSignalrHooks';
 
 type IconSelectorProps = BaseSelectorProps<IconFileDto> & {
   enableEditMode?: boolean;

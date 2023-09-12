@@ -1,12 +1,12 @@
 
 
-import React from "react";
-import type * as StreamMasterApi from '../../store/iptvApi';
-import * as Hub from '../../store/signlar_functions';
 import { Button } from "primereact/button";
-import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
-import { getTopToolOptions } from "../../common/common";
 import { InputText } from "primereact/inputtext";
+import React from "react";
+import { getTopToolOptions } from "../../common/common";
+import { UpdateSetting } from "../../hooks/streammasterSignalrHooks";
+import type * as StreamMasterApi from '../../store/iptvApi';
+import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 
 const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
@@ -36,7 +36,7 @@ const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProps) => {
 
     tosend.nameRegex = [regex, ...props.values]
 
-    Hub.UpdateSetting(tosend).then(() => {
+    UpdateSetting(tosend).then(() => {
       setInfoMessage('Add Regex Successfully');
     }).catch((e) => {
       setInfoMessage('Add Regex Error: ' + e.message);
