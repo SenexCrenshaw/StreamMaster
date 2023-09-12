@@ -105,25 +105,20 @@ export const enhancedApi = iptvApi.enhanceEndpoints({
         try {
           await cacheDataLoaded;
 
-          const applyResults = (
-            data: TaskQueueStatusDto[]
-          ) => {
-            updateCachedData(
-              (draft: TaskQueueStatusDto[]) => {
-                data.forEach(function (cn) {
-                  const foundIndex = draft.findIndex(
-                    (x) => x.id === cn.id
-                  );
+          const applyResults = (data: TaskQueueStatusDto[]) => {
+            updateCachedData((draft: TaskQueueStatusDto[]) => {
+              data.forEach(function (cn) {
+                const foundIndex = draft.findIndex(
+                  (x) => x.id === cn.id
+                );
 
-                  if (foundIndex !== -1) {
-                    draft[foundIndex] = cn;
-                  } else {
-                    draft.push(cn);
-                  }
-                });
+                if (foundIndex !== -1) {
+                  draft[foundIndex] = cn;
+                }
+              });
 
-                return draft;
-              }
+              return draft;
+            }
             );
           };
 
@@ -135,25 +130,20 @@ export const enhancedApi = iptvApi.enhanceEndpoints({
           );
 
 
-          const applyResult = (
-            data: TaskQueueStatusDto
-          ) => {
-            updateCachedData(
-              (
-                draft: TaskQueueStatusDto[]
-              ) => {
-                const foundIndex = draft.findIndex(
-                  (x) => x.id === data.id
-                );
+          const applyResult = (data: TaskQueueStatusDto) => {
+            updateCachedData((draft: TaskQueueStatusDto[]) => {
+              const foundIndex = draft.findIndex(
+                (x) => x.id === data.id
+              );
 
-                if (foundIndex === -1) {
-                  draft.push(data);
-                } else {
-                  draft[foundIndex] = data;
-                }
-
-                return draft;
+              if (foundIndex === -1) {
+                draft.push(data);
+              } else {
+                draft[foundIndex] = data;
               }
+
+              return draft;
+            }
             );
           };
 

@@ -5,7 +5,7 @@ import type * as StreamMasterApi from '../../store/iptvApi';
 import { formatJSONDateString } from "../../common/common";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import { GetLogRequest } from "../../hooks/streammasterSignalrHooks";
+import { GetLogRequest } from "../../smAPI/Logs/LogsMutateAPI";
 
 const LogViewer = () => {
 

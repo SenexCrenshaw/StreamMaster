@@ -1,5 +1,5 @@
 import { memo, useCallback } from "react";
-import { UpdateVideoStream } from "../../hooks/streammasterSignalrHooks";
+import { UpdateVideoStream } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
 import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
 import ResetButton from "../buttons/ResetButton";
 

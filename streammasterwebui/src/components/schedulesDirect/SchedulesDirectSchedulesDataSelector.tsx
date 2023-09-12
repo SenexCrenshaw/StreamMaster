@@ -2,7 +2,7 @@
 
 import { Toast } from "primereact/toast";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
-import { GetSchedules } from "../../hooks/streammasterSignalrHooks";
+import { GetSchedules } from "../../smAPI/SchedulesDirect/SchedulesDirectGetAPI";
 import { type Schedule } from "../../store/iptvApi";
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";

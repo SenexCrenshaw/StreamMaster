@@ -6,8 +6,8 @@ import { formatJSONDateString, getIconUrl, getTopToolOptions } from "../../commo
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
 import { VideoStreamSelector } from "../../components/videoStream/VideoStreamSelector";
-import { ChangeVideoStreamChannel, SimulateStreamFailure } from "../../hooks/streammasterSignalrHooks";
-import { type ChangeVideoStreamChannelRequest, type StreamStatisticsResult } from "../../store/iptvApi";
+import { ChangeVideoStreamChannel, SimulateStreamFailure } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
+import { type ChangeVideoStreamChannelRequest, type SimulateStreamFailureRequest, type StreamStatisticsResult } from "../../store/iptvApi";
 import StreamMasterSetting from "../../store/signlar/StreamMasterSetting";
 
 export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProps) => {
@@ -67,7 +67,10 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
       return;
     }
 
-    await SimulateStreamFailure(rowData.streamUrl)
+    var toSend = {} as SimulateStreamFailureRequest;
+    toSend.streamUrl = rowData.streamUrl;
+
+    await SimulateStreamFailure(toSend)
       .then(() => {
         if (toast.current) {
           toast.current.show({

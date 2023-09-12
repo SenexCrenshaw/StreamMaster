@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { GetProgrammeFromDisplayName } from '../../hooks/streammasterSignalrHooks';
+import { GetProgrammeFromDisplayName } from '../../smAPI/Programmes/ProgrammesGetAPI';
 import { useProgrammesGetProgrammeNameSelectionsQuery, useProgrammesGetProgrammsSimpleQueryQuery, type ProgrammeNameDto } from '../../store/iptvApi';
 import BaseSelector, { type BaseSelectorProps } from './BaseSelector';
 

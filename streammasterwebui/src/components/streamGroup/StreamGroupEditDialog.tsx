@@ -5,7 +5,7 @@ import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 
 import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
 import StreamGroupChannelGroupsSelector from "../../features/streamGroupEditor/StreamGroupChannelGroupsSelector";
-import { UpdateStreamGroup } from "../../hooks/streammasterSignalrHooks";
+import { UpdateStreamGroup } from "../../smAPI/StreamGroups/StreamGroupsMutateAPI";
 import EditButton from "../buttons/EditButton";
 
 

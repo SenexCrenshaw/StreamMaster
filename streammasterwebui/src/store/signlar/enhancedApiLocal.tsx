@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { hubConnection } from '../../app/signalr';
 import { isEmptyObject } from '../../common/common';
-import { iptvApi, type PagedResponseOfStreamGroupDto, type PagedResponseOfVideoStreamDto, type SettingDto, type StreamGroupDto, type StreamStatisticsResult, type VideoStreamDto } from '../iptvApi';
+import { iptvApi, type PagedResponseOfStreamGroupDto, type PagedResponseOfVideoStreamDto, type SettingDto, type StreamGroupDto, type StreamStatisticsResult } from '../iptvApi';
 
 export type SetVideoStreamVisibleRet = {
   isHidden?: boolean;
@@ -283,39 +283,31 @@ export const enhancedApiLocal = iptvApi.enhanceEndpoints({
         try {
           await cacheDataLoaded;
 
-          const applyResults = (
-            data: VideoStreamDto[]
-          ) => {
+          const updateCachedDataWithResults = (data: PagedResponseOfVideoStreamDto) => {
             updateCachedData((draft: PagedResponseOfVideoStreamDto) => {
-
-              const updatedDraft = applyPagedResults(
-                data,
-                draft.data,
-                (item: VideoStreamDto) => item.id
-              );
-              draft.data = updatedDraft;
+              data.data.forEach(videoStream => {
+                const index = draft.data.findIndex(existingStream => existingStream.id === videoStream.id);
+                if (index !== -1) {
+                  draft.data[index] = videoStream;
+                }
+              });
               return draft;
-
             });
           };
 
-          hubConnection.off('VideoStreamsRefresh');
-          hubConnection.on(
-            'VideoStreamsRefresh',
-            (data: VideoStreamDto[]) => {
-              // dispatch(iptvApi.util.invalidateTags(["VideoStreams"]));
-              // if (isEmptyObject(data)) {
-              //   dispatch(iptvApi.util.invalidateTags(["VideoStreams"]));
-              // } else {
-              //   applyResults(data);
-              // }
-
+          hubConnection.on('VideoStreamsRefresh', (data: PagedResponseOfVideoStreamDto) => {
+            if (isEmptyObject(data)) {
+              dispatch(iptvApi.util.invalidateTags(["VideoStreams"]));
+            } else {
+              updateCachedDataWithResults(data);
             }
-          );
+          });
 
         } catch { }
 
         await cacheEntryRemoved;
+
+        hubConnection.off('VideoStreamsRefresh');
       }
     },
   }

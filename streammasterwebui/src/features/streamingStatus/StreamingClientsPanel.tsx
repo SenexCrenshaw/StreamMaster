@@ -5,7 +5,8 @@ import { memo, useCallback, useMemo, useRef, type CSSProperties } from "react";
 import { formatJSONDateString, getTopToolOptions } from "../../common/common";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import { FailClient } from "../../hooks/streammasterSignalrHooks";
+
+import { FailClient } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
 import { type FailClientRequest, type StreamStatisticsResult } from "../../store/iptvApi";
 
 

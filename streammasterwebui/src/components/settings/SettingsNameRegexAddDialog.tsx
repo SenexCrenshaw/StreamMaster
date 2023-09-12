@@ -4,7 +4,7 @@ import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import React from "react";
 import { getTopToolOptions } from "../../common/common";
-import { UpdateSetting } from "../../hooks/streammasterSignalrHooks";
+import { UpdateSetting } from "../../smAPI/Settings/SettingsMutateAPI";
 import type * as StreamMasterApi from '../../store/iptvApi';
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 

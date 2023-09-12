@@ -37,7 +37,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SDConsole", "SDConsole\SDCo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamMasterInfrastructureEF", "StreamMasterInfrastructure.EF\StreamMasterInfrastructureEF.csproj", "{50CED38E-3AA3-48F4-9478-452E36DE3395}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HookGenerator", "HookGenerator\HookGenerator.csproj", "{0A8859DF-A5D1-4F14-9766-FDDDC573052E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HookGenerator", "HookGenerator\HookGenerator.csproj", "{0A8859DF-A5D1-4F14-9766-FDDDC573052E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateEndPoints", "CreateEndPoints\CreateEndPoints.csproj", "{6459B6D2-7561-423F-B53C-DD0CC302A942}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -135,6 +137,14 @@ Global
 		{0A8859DF-A5D1-4F14-9766-FDDDC573052E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0A8859DF-A5D1-4F14-9766-FDDDC573052E}.Release|ARM64.ActiveCfg = Release|Any CPU
 		{0A8859DF-A5D1-4F14-9766-FDDDC573052E}.Release|ARM64.Build.0 = Release|Any CPU
+		{6459B6D2-7561-423F-B53C-DD0CC302A942}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6459B6D2-7561-423F-B53C-DD0CC302A942}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6459B6D2-7561-423F-B53C-DD0CC302A942}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{6459B6D2-7561-423F-B53C-DD0CC302A942}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{6459B6D2-7561-423F-B53C-DD0CC302A942}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6459B6D2-7561-423F-B53C-DD0CC302A942}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6459B6D2-7561-423F-B53C-DD0CC302A942}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{6459B6D2-7561-423F-B53C-DD0CC302A942}.Release|ARM64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -151,6 +161,7 @@ Global
 		{617C443A-1A54-4F1F-ACDF-5AA86315CA28} = {C764D36C-BABE-44D9-94B1-43F00965E836}
 		{50CED38E-3AA3-48F4-9478-452E36DE3395} = {A110113B-BD6D-4B5D-B0DB-DD6431463476}
 		{0A8859DF-A5D1-4F14-9766-FDDDC573052E} = {C764D36C-BABE-44D9-94B1-43F00965E836}
+		{6459B6D2-7561-423F-B53C-DD0CC302A942} = {C764D36C-BABE-44D9-94B1-43F00965E836}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A052E296-D42D-4EB4-8967-70DF432D997D}

@@ -1,5 +1,6 @@
 import { memo, useState } from "react";
-import { DeleteEpgFile } from "../../hooks/streammasterSignalrHooks";
+
+import { DeleteEpgFile } from "../../smAPI/EpgFiles/EpgFilesMutateAPI";
 import { type DeleteEpgFileRequest, type EpgFileDto } from "../../store/iptvApi";
 import FileRemoveDialog from "../sharedEPGM3U/FileRemoveDialog";
 

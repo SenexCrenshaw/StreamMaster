@@ -2,14 +2,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { memo, useMemo, useState } from "react";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import { useVideoStreamsGetVideoStreamQuery, type ChannelGroupDto, type PagedResponseOfChannelGroupDto, type StreamGroupDto } from "../../store/iptvApi";
-import StreamGroupChannelGroupsSelector from "../streamGroupEditor/StreamGroupChannelGroupsSelector";
 
+import { type ChannelGroupDto, type PagedResponseOfChannelGroupDto, type StreamGroupDto } from "../../store/iptvApi";
+import VideoStreamPanel from "../videoStreamPanel/VideoStreamPanel";
 
 
 const TestPanel = (props: TestPanelProps) => {
 
-  const videoStreamsGetVideoStreamQuery = useVideoStreamsGetVideoStreamQuery('b2aed15ee9db42e715ae3d9e6b815b6a');
+  // const videoStreamsGetVideoStreamQuery = useVideoStreamsGetVideoStreamQuery('b2aed15ee9db42e715ae3d9e6b815b6a');
 
   const [dataSource, setDataSource] = useState({} as PagedResponseOfChannelGroupDto);
   const [selectedChannelGroups, setSelectedChannelGroups] = useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
@@ -28,13 +28,15 @@ const TestPanel = (props: TestPanelProps) => {
   //   <EPGSelector />
   // )
 
-  return (
-    <StreamGroupChannelGroupsSelector streamGroupId={8} />
-  )
-
   // return (
-  //   <VideoStreamPanel />
+  //   <div>
+  //     {JSON.stringify(data)}
+  //   </div>
   // );
+
+  return (
+    <VideoStreamPanel />
+  );
 
   // return (
   //   <StreamGroupSelectedVideoStreamDataSelector
@@ -44,8 +46,8 @@ const TestPanel = (props: TestPanelProps) => {
   // );
 
   // return (
-  //   <StreamGroupDataSelectorPicker  />
-  // );
+  //   <StreamGroupDataSelectorPicker />
+  // );1
 
   // return (
   //   <VideoStreamAddDialog />

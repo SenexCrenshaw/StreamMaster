@@ -50,5 +50,8 @@ hubConnection.start()
     // }
   });
 
+export function isSignalRConnected() {
+  return hubConnection && hubConnection.state === "Connected";
+}
 
 

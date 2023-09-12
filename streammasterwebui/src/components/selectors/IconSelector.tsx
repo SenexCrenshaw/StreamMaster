@@ -4,7 +4,8 @@ import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
 import BaseSelector, { type BaseSelectorProps } from './BaseSelector';
 
 import { getIconUrl } from '../../common/common';
-import { GetIconFromSource } from '../../hooks/streammasterSignalrHooks';
+import { GetIconFromSource } from '../../smAPI/Icons/IconsGetAPI';
+
 
 type IconSelectorProps = BaseSelectorProps<IconFileDto> & {
   enableEditMode?: boolean;

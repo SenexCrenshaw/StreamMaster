@@ -9,7 +9,7 @@ import StringEditorBodyTemplate from "../StringEditorBodyTemplate";
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 
-import { UpdateM3UFile } from "../../hooks/streammasterSignalrHooks";
+import { UpdateM3UFile } from "../../smAPI/M3UFiles/M3UFilesMutateAPI";
 import M3UFileRefreshDialog from "./M3UFileRefreshDialog";
 import M3UFileRemoveDialog from "./M3UFileRemoveDialog";
 
