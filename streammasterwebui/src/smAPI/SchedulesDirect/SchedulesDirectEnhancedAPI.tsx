@@ -17,6 +17,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
             });
           };
 
+          hubConnection.off('SchedulesDirectRefresh');
           hubConnection.on('SchedulesDirectRefresh', (data: iptv.Countries) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
@@ -30,35 +31,6 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('SchedulesDirectRefresh');
-      }
-    },
-    schedulesDirectGetHeadends: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
-        try {
-          await cacheDataLoaded;
-
-          const updateCachedDataWithResults = (data: iptv.HeadendDto[]) => {
-            updateCachedData((draft: iptv.HeadendDto[]) => {
-              draft=data
-              return draft;
-            });
-          };
-
-          hubConnection.on('SchedulesDirectRefresh', (data: iptv.HeadendDto[]) => {
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          });
-
-        } catch (error) {
-          console.error('Error in onCacheEntryAdded:', error);
-        }
-
-        await cacheEntryRemoved;
-        hubConnection.off('SchedulesDirectRefresh');
       }
     },
     schedulesDirectGetLineup: {
@@ -73,6 +45,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
             });
           };
 
+          hubConnection.off('SchedulesDirectRefresh');
           hubConnection.on('SchedulesDirectRefresh', (data: iptv.LineUpResult) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
@@ -86,7 +59,6 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('SchedulesDirectRefresh');
       }
     },
     schedulesDirectGetLineupPreviews: {
@@ -96,11 +68,18 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.LineUpPreview[]) => {
             updateCachedData((draft: iptv.LineUpPreview[]) => {
-              draft=data
+              data.forEach(item => {
+                const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                if (index !== -1) {
+                  draft[index] = item;
+                }
+              });
+
               return draft;
             });
           };
 
+          hubConnection.off('SchedulesDirectRefresh');
           hubConnection.on('SchedulesDirectRefresh', (data: iptv.LineUpPreview[]) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
@@ -114,7 +93,6 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('SchedulesDirectRefresh');
       }
     },
     schedulesDirectGetLineups: {
@@ -129,6 +107,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
             });
           };
 
+          hubConnection.off('SchedulesDirectRefresh');
           hubConnection.on('SchedulesDirectRefresh', (data: iptv.LineUpsResult) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
@@ -142,35 +121,6 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('SchedulesDirectRefresh');
-      }
-    },
-    schedulesDirectGetSchedules: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
-        try {
-          await cacheDataLoaded;
-
-          const updateCachedDataWithResults = (data: iptv.Schedule[]) => {
-            updateCachedData((draft: iptv.Schedule[]) => {
-              draft=data
-              return draft;
-            });
-          };
-
-          hubConnection.on('SchedulesDirectRefresh', (data: iptv.Schedule[]) => {
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          });
-
-        } catch (error) {
-          console.error('Error in onCacheEntryAdded:', error);
-        }
-
-        await cacheEntryRemoved;
-        hubConnection.off('SchedulesDirectRefresh');
       }
     },
     schedulesDirectGetStationPreviews: {
@@ -180,11 +130,18 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.StationPreview[]) => {
             updateCachedData((draft: iptv.StationPreview[]) => {
-              draft=data
+              data.forEach(item => {
+                const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                if (index !== -1) {
+                  draft[index] = item;
+                }
+              });
+
               return draft;
             });
           };
 
+          hubConnection.off('SchedulesDirectRefresh');
           hubConnection.on('SchedulesDirectRefresh', (data: iptv.StationPreview[]) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
@@ -198,35 +155,6 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('SchedulesDirectRefresh');
-      }
-    },
-    schedulesDirectGetStations: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
-        try {
-          await cacheDataLoaded;
-
-          const updateCachedDataWithResults = (data: iptv.Station[]) => {
-            updateCachedData((draft: iptv.Station[]) => {
-              draft=data
-              return draft;
-            });
-          };
-
-          hubConnection.on('SchedulesDirectRefresh', (data: iptv.Station[]) => {
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          });
-
-        } catch (error) {
-          console.error('Error in onCacheEntryAdded:', error);
-        }
-
-        await cacheEntryRemoved;
-        hubConnection.off('SchedulesDirectRefresh');
       }
     },
     schedulesDirectGetStatus: {
@@ -241,6 +169,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
             });
           };
 
+          hubConnection.off('SchedulesDirectRefresh');
           hubConnection.on('SchedulesDirectRefresh', (data: iptv.SdStatus) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
@@ -254,7 +183,6 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('SchedulesDirectRefresh');
       }
     },
   }

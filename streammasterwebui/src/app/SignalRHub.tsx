@@ -17,6 +17,7 @@ export const SignalRHub = (props: SignalRHubProps) => {
 
   useEffect(() => {
     if (hubConnection && hub === null) {
+      console.log("hubConnection.state", hubConnection.state);
       if (hubConnection.state === HubConnectionState.Connected && !hubConnected) {
         setHubConnected(true);
         setHub(hubConnection);
@@ -25,12 +26,13 @@ export const SignalRHub = (props: SignalRHubProps) => {
 
       } else if (hubConnection.state !== HubConnectionState.Connected && hubConnected) {
         setHubConnected(false);
+        setHub(null);
         props.onConnected?.(false);
         console.log("App Disconnected");
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hubConnected, props]);
+  }, [hub, props]);
 
   return <div />;
 };

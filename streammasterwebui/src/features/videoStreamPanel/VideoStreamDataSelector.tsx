@@ -4,7 +4,7 @@ import { GetMessage } from "../../common/common";
 import { useChannelNameColumnConfig, useChannelNumberColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import { useVideoStreamLinksAddVideoStreamToVideoStreamMutation, useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery, useVideoStreamsGetVideoStreamsQuery, type ChildVideoStreamDto, type VideoStreamLinksAddVideoStreamToVideoStreamApiArg } from "../../store/iptvApi";
+import { useVideoStreamLinksAddVideoStreamToVideoStreamMutation, useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery, useVideoStreamsGetVideoStreamsQuery, type VideoStreamDto, type VideoStreamLinksAddVideoStreamToVideoStreamApiArg } from "../../store/iptvApi";
 
 type VideoStreamDataSelectorProps = {
   readonly id: string;
@@ -67,12 +67,12 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
           return;
         }
 
-        let stream = {} as ChildVideoStreamDto;
+        let stream = {} as VideoStreamDto;
 
         if (Array.isArray(value)) {
-          stream = value[0];
+          stream = value[0] as VideoStreamDto;
         } else {
-          stream = value as ChildVideoStreamDto;
+          stream = value as VideoStreamDto;
         }
 
         const toSend = {} as VideoStreamLinksAddVideoStreamToVideoStreamApiArg;

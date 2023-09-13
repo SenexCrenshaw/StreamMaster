@@ -1,28 +1,29 @@
-
 import React, { useMemo } from "react";
 import { useSelectAll } from "../../app/slices/useSelectAll";
-import { useChannelGroupsUpdateChannelGroupsMutation, type ChannelGroupDto, type UpdateChannelGroupRequest, type UpdateChannelGroupsRequest } from "../../store/iptvApi";
+import { useSelectedChannelGroups } from "../../app/slices/useSelectedChannelGroups";
+import { UpdateChannelGroup, UpdateChannelGroups } from "../../smAPI/ChannelGroups/ChannelGroupsMutateAPI";
+import { type ChannelGroupDto, type UpdateChannelGroupRequest, type UpdateChannelGroupsRequest } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import VisibleButton from "../buttons/VisibleButton";
 
 
 type ChannelGroupVisibleDialogProps = {
+  readonly cgid: string;
   readonly id: string;
   readonly onClose?: (() => void);
   readonly skipOverLayer?: boolean | undefined;
-  readonly value?: ChannelGroupDto[] | null;
+  readonly value?: ChannelGroupDto | undefined;
 };
 
-const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer, value }: ChannelGroupVisibleDialogProps) => {
+const ChannelGroupVisibleDialog = ({ id, cgid, onClose, skipOverLayer = false, value }: ChannelGroupVisibleDialogProps) => {
 
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
-  const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
+
   const [infoMessage, setInfoMessage] = React.useState('');
 
+  const { selectedChannelGroups } = useSelectedChannelGroups(cgid);
   const { selectAll } = useSelectAll(id);
-
-  const [channelGroupsUpdateChannelGroupsMutation] = useChannelGroupsUpdateChannelGroupsMutation();
 
   const ReturnToParent = React.useCallback(() => {
     setShowOverlay(false);
@@ -31,13 +32,6 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer, value }: Channe
     onClose?.();
   }, [onClose]);
 
-  React.useMemo(() => {
-
-    if (value !== null && value !== undefined) {
-      setSelectedChannelGroups(value);
-    }
-
-  }, [value]);
 
   const onVisibleClick = React.useCallback(async () => {
     setBlock(true);
@@ -48,17 +42,26 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer, value }: Channe
       return;
     }
 
-    const data = {} as UpdateChannelGroupsRequest;
+    if (value) {
+      const toSend = {} as UpdateChannelGroupRequest;
+      toSend.channelGroupId = value.id;
+      toSend.toggleVisibility = true;
+      UpdateChannelGroup(toSend).then(() => {
+        setInfoMessage('Channel Group Toggle Visibility Successfully');
+      }).catch((e) => {
+        setInfoMessage('Channel Group Toggle Visibility Error: ' + e.message);
+      });
+    } else if (selectedChannelGroups) {
+      const toSend = {} as UpdateChannelGroupsRequest;
+      toSend.channelGroupRequests = selectedChannelGroups.map((item) => { return { channelGroupId: item.id, toggleVisibility: true } as UpdateChannelGroupRequest; });
+      UpdateChannelGroups(toSend).then(() => {
+        setInfoMessage('Channel Group Toggle Visibility Successfully');
+      }).catch((e) => {
+        setInfoMessage('Channel Group Toggle Visibility Error: ' + e.message);
+      });
+    }
 
-    data.channelGroupRequests = selectedChannelGroups.map((item) => { return { channelGroupId: item.id, toggleVisibility: true } as UpdateChannelGroupRequest; });
-
-    channelGroupsUpdateChannelGroupsMutation(data).then(() => {
-      setInfoMessage('Channel Group Toggle Visibility Successfully');
-    }).catch((e) => {
-      setInfoMessage('Channel Group Toggle Visibility Error: ' + e.message);
-    });
-
-  }, [ReturnToParent, channelGroupsUpdateChannelGroupsMutation, selectedChannelGroups]);
+  }, [ReturnToParent, selectedChannelGroups, value]);
 
 
   const getTotalCount = useMemo(() => {
@@ -111,7 +114,7 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer, value }: Channe
           }
         }
         }
-        tooltip="Toggle2 Visibility"
+        tooltip="Toggle Visibility"
       />
     </>
   );

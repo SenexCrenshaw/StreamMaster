@@ -1,27 +1,29 @@
 
-import { useState, useCallback, memo, useMemo } from "react";
+import { Button } from "primereact/button";
+import { memo, useCallback, useMemo, useState } from "react";
+import { useQueryFilter } from "../../app/slices/useQueryFilter";
+import { useSelectAll } from "../../app/slices/useSelectAll";
+import { useSelectedVideoStreams } from "../../app/slices/useSelectedVideoStreams";
 import { getTopToolOptions } from "../../common/common";
 import { ResetLogoIcon } from "../../common/icons";
-import { type VideoStreamsReSetVideoStreamsLogoFromParametersApiArg } from "../../store/iptvApi";
-import { type VideoStreamDto, type ReSetVideoStreamsLogoRequest, useVideoStreamsReSetVideoStreamsLogoMutation, useVideoStreamsReSetVideoStreamsLogoFromParametersMutation } from "../../store/iptvApi";
+import { useVideoStreamsReSetVideoStreamsLogoFromParametersMutation, useVideoStreamsReSetVideoStreamsLogoMutation, type ReSetVideoStreamsLogoRequest, type VideoStreamDto, type VideoStreamsReSetVideoStreamsLogoFromParametersApiArg } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import OKButton from "../buttons/OKButton";
-import { Button } from "primereact/button";
-import { useSelectAll } from "../../app/slices/useSelectAll";
-import { useQueryFilter } from "../../app/slices/useQueryFilter";
 
 
 type VideoStreamResetLogosDialogProps = {
   readonly id: string;
-  readonly values: VideoStreamDto[];
 }
 
-const VideoStreamResetLogosDialog = ({ id, values }: VideoStreamResetLogosDialogProps) => {
+const VideoStreamResetLogosDialog = ({ id }: VideoStreamResetLogosDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [block, setBlock] = useState<boolean>(false);
   const { selectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
+
+  const { selectedVideoStreams } = useSelectedVideoStreams(id);
+
 
   const [videoStreamsReSetVideoStreamsLogoMutation] = useVideoStreamsReSetVideoStreamsLogoMutation();
   const [videoStreamsReSetVideoStreamsLogoFromParametersMutation] = useVideoStreamsReSetVideoStreamsLogoFromParametersMutation();
@@ -58,7 +60,7 @@ const VideoStreamResetLogosDialog = ({ id, values }: VideoStreamResetLogosDialog
       return;
     }
 
-    const ids = [...new Set(values.map((item: VideoStreamDto) => item.id))] as string[];
+    const ids = [...new Set(selectedVideoStreams.map((item: VideoStreamDto) => item.id))] as string[];
 
     const toSend = {} as ReSetVideoStreamsLogoRequest;
     const max = 500;
@@ -95,13 +97,13 @@ const VideoStreamResetLogosDialog = ({ id, values }: VideoStreamResetLogosDialog
 
 
 
-  }, [queryFilter, selectAll, values, videoStreamsReSetVideoStreamsLogoFromParametersMutation, videoStreamsReSetVideoStreamsLogoMutation]);
+  }, [queryFilter, selectAll, selectedVideoStreams, videoStreamsReSetVideoStreamsLogoFromParametersMutation, videoStreamsReSetVideoStreamsLogoMutation]);
 
   const getTotalCount = useMemo(() => {
 
-    return values.length;
+    return selectedVideoStreams.length;
 
-  }, [values.length]);
+  }, [selectedVideoStreams.length]);
 
   return (
     <>

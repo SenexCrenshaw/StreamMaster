@@ -1,7 +1,8 @@
 
-import { memo, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { useQueryFilter } from "../../app/slices/useQueryFilter";
 import { useSelectAll } from "../../app/slices/useSelectAll";
+import { useSelectedVideoStreams } from "../../app/slices/useSelectedVideoStreams";
 import { useVideoStreamsDeleteAllVideoStreamsFromParametersMutation, useVideoStreamsDeleteVideoStreamMutation, type VideoStreamDto, type VideoStreamsDeleteAllVideoStreamsFromParametersApiArg, type VideoStreamsDeleteVideoStreamApiArg } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import DeleteButton from "../buttons/DeleteButton";
@@ -12,7 +13,7 @@ type VideoStreamDeleteDialogProps = {
   readonly id: string;
   readonly onClose?: (() => void);
   readonly skipOverLayer?: boolean;
-  readonly values?: VideoStreamDto[] | undefined;
+  readonly values?: VideoStreamDto[];
 };
 
 const VideoStreamDeleteDialog = ({
@@ -30,8 +31,25 @@ const VideoStreamDeleteDialog = ({
   const [videoStreamsDeleteAllVideoStreamsFromParametersMutation] = useVideoStreamsDeleteAllVideoStreamsFromParametersMutation();
   const [videoStreamsDeleteVideoStreamMutation] = useVideoStreamsDeleteVideoStreamMutation();
 
+  const [selectVideoStreamsInternal, setSelectVideoStreamsInternal] = useState<VideoStreamDto[] | undefined>(undefined);
+
+
+  const { selectedVideoStreams } = useSelectedVideoStreams(id);
   const { selectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
+
+  useEffect(() => {
+    if (values) {
+      setSelectVideoStreamsInternal(values);
+    }
+  }, [values]);
+
+  useEffect(() => {
+    if (!values) {
+      setSelectVideoStreamsInternal(selectedVideoStreams);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedVideoStreams]);
 
   const ReturnToParent = () => {
     setShowOverlay(false);
@@ -65,7 +83,7 @@ const VideoStreamDeleteDialog = ({
       return;
     }
 
-    if ((!values || values?.length === 0)) {
+    if ((!selectVideoStreamsInternal || selectVideoStreamsInternal?.length === 0)) {
       ReturnToParent();
 
       return;
@@ -73,7 +91,7 @@ const VideoStreamDeleteDialog = ({
 
     const promises = [];
 
-    for (const stream of values) {
+    for (const stream of selectVideoStreamsInternal) {
       const data = {} as VideoStreamsDeleteVideoStreamApiArg;
 
       data.id = stream.id;
@@ -93,20 +111,20 @@ const VideoStreamDeleteDialog = ({
   }
 
   const isFirstDisabled = useMemo(() => {
-    if (!values || values?.length === 0) {
+    if (!selectVideoStreamsInternal || selectVideoStreamsInternal?.length === 0) {
       return true;
     }
 
-    return !values[0].isUserCreated;
+    return !selectVideoStreamsInternal[0].isUserCreated;
 
-  }, [values]);
+  }, [selectVideoStreamsInternal]);
 
   const getTotalCount = useMemo(() => {
-    let count = values?.length ?? 0;
+    let count = selectVideoStreamsInternal?.length ?? 0;
 
     return count;
 
-  }, [values?.length]);
+  }, [selectVideoStreamsInternal?.length]);
 
 
   if (skipOverLayer) {

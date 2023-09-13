@@ -20,7 +20,7 @@ const SchedulesDirectSchedulesDataSelector = (props: SchedulesDirectSchedulesDat
     }
 
     setIsLoading(true);
-    GetSchedules().
+    GetSchedules([]).
       then((data) => {
         setDataSource(data);
         setIsLoading(false);

@@ -1,8 +1,6 @@
 ﻿using StreamMasterApplication.Programmes;
 using StreamMasterApplication.Programmes.Queries;
 
-using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository.EPG;
 
@@ -44,8 +42,10 @@ public partial class StreamMasterHub : IProgrammeChannelHub
         return await mediator.Send(new GetProgrammsSimpleQuery(Parameters)).ConfigureAwait(false);
     }
 
-    public async Task<ProgrammeNameDto?> GetProgrammeFromDisplayName(string Tvg_ID)
+    public async Task<ProgrammeNameDto?> GetProgrammeFromDisplayName(GetProgrammeFromDisplayNameRequest request)
     {
-        return await mediator.Send(new GetProgrammeFromDisplayName(Tvg_ID)).ConfigureAwait(false);
+        return await mediator.Send(request).ConfigureAwait(false);
     }
+
+
 }

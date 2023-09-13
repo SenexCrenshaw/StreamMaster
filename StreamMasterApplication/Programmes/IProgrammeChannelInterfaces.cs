@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMasterDomain.Dto;
+using StreamMasterApplication.Programmes.Queries;
+
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository.EPG;
 
@@ -18,7 +19,7 @@ public interface IProgrammeChannelHub
 
     Task<PagedResponse<ProgrammeNameDto>> GetProgrammeNameSelections(ProgrammeParameters Parameters);
 
-    Task<ProgrammeNameDto?> GetProgrammeFromDisplayName(string Tvg_ID);
+    Task<ProgrammeNameDto?> GetProgrammeFromDisplayName(GetProgrammeFromDisplayNameRequest request);
 
 
     Task<List<ProgrammeNameDto>> GetProgrammsSimpleQuery(ProgrammeParameters Parameters);
@@ -48,5 +49,5 @@ public interface IProgrammeChannelController
 
     Task<ActionResult<IEnumerable<Programme>>> GetProgrammes();
 
-    Task<ActionResult<ProgrammeNameDto?>> GetProgrammeFromDisplayName(string Tvg_ID);
+    Task<ActionResult<ProgrammeNameDto?>> GetProgrammeFromDisplayName(GetProgrammeFromDisplayNameRequest request);
 }

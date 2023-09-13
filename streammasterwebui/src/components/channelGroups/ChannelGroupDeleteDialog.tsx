@@ -2,36 +2,41 @@ import React, { useMemo } from "react";
 import { useChannelGroupToRemove } from "../../app/slices/useChannelGroupToRemove";
 import { useQueryFilter } from "../../app/slices/useQueryFilter";
 import { useSelectAll } from "../../app/slices/useSelectAll";
+import { useSelectedChannelGroups } from "../../app/slices/useSelectedChannelGroups";
 import { useChannelGroupsDeleteAllChannelGroupsFromParametersMutation, useChannelGroupsDeleteChannelGroupMutation, type ChannelGroupDto, type ChannelGroupsDeleteAllChannelGroupsFromParametersApiArg, type DeleteChannelGroupRequest } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import DeleteButton from "../buttons/DeleteButton";
 
 type ChannelGroupDeleteDialogProps = {
+  readonly cgid: string;
   readonly iconFilled?: boolean | undefined;
   readonly id: string;
   readonly onDelete?: (results: number[] | undefined) => void;
   readonly onHide?: () => void;
-  readonly values?: ChannelGroupDto[] | undefined;
+  readonly value?: ChannelGroupDto | undefined;
 };
-
 
 const ChannelGroupDeleteDialog = ({
   iconFilled,
   id,
+  cgid,
   onDelete,
   onHide,
-  values,
+  value,
 }: ChannelGroupDeleteDialogProps) => {
 
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
-  const [selectedChannelGroups, setSelectedChannelGroups] = React.useState<ChannelGroupDto[]>([] as ChannelGroupDto[]);
+
   const [infoMessage, setInfoMessage] = React.useState('');
 
   const { setChannelGroupToRemove } = useChannelGroupToRemove(id);
 
+  const [channelGroupDto, setChannelGroupDto] = React.useState<ChannelGroupDto>();
+
   const { selectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
+  const { selectedChannelGroups } = useSelectedChannelGroups(cgid);
 
   const [channelGroupsDeleteChannelGroupMutation] = useChannelGroupsDeleteChannelGroupMutation();
   const [channelGroupsDeleteAllChannelGroupsFromParametersMutation] = useChannelGroupsDeleteAllChannelGroupsFromParametersMutation();
@@ -44,12 +49,10 @@ const ChannelGroupDeleteDialog = ({
   }, [onHide]);
 
   React.useMemo(() => {
-
-    if (values !== null && values !== undefined) {
-      setSelectedChannelGroups(values);
+    if (value !== null) {
+      setChannelGroupDto(value);
     }
-
-  }, [values]);
+  }, [value]);
 
   const deleteGroup = React.useCallback(async () => {
     setBlock(true);
@@ -76,7 +79,7 @@ const ChannelGroupDeleteDialog = ({
       return;
     }
 
-    if ((!values || values?.length === 0)) {
+    if (!channelGroupDto) {
       ReturnToParent();
 
       return;
@@ -122,19 +125,23 @@ const ChannelGroupDeleteDialog = ({
     });
 
 
-  }, [ReturnToParent, channelGroupsDeleteAllChannelGroupsFromParametersMutation, channelGroupsDeleteChannelGroupMutation, onDelete, queryFilter, selectAll, selectedChannelGroups, setChannelGroupToRemove, values]);
+  }, [ReturnToParent, channelGroupsDeleteAllChannelGroupsFromParametersMutation, channelGroupsDeleteChannelGroupMutation, onDelete, queryFilter, selectAll, selectedChannelGroups, setChannelGroupToRemove, channelGroupDto]);
 
   const isFirstDisabled = useMemo(() => {
-    if (!values || values?.length === 0) {
+    if (channelGroupDto) {
+      return channelGroupDto.isReadOnly;
+    }
+
+    if (!selectedChannelGroups || selectedChannelGroups?.length === 0) {
       return true;
     }
 
-    return values[0].isReadOnly;
+    return selectedChannelGroups[0].isReadOnly;
 
-  }, [values]);
+  }, [channelGroupDto, selectedChannelGroups]);
 
   const getTotalCount = useMemo(() => {
-    let count = values?.length ?? 0;
+    let count = selectedChannelGroups?.length ?? 0;
 
     if (count === 1 && isFirstDisabled) {
       return 0;
@@ -142,7 +149,7 @@ const ChannelGroupDeleteDialog = ({
 
     return count;
 
-  }, [isFirstDisabled, values?.length]);
+  }, [isFirstDisabled, selectedChannelGroups?.length]);
 
   return (
     <>

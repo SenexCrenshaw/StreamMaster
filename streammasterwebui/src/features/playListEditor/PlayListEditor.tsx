@@ -1,25 +1,13 @@
-import { useLocalStorage } from "primereact/hooks";
-import { useCallback, memo } from "react";
+import { memo } from "react";
 import { PlayListEditorIcon } from "../../common/icons";
 
+import { useSelectedChannelGroups } from "../../app/slices/useSelectedChannelGroups";
 import ChannelGroupVideoStreamDataSelector from "./ChannelGroupVideoStreamDataSelector";
-import { type ChannelGroupDto } from "../../store/iptvApi";
 import PlayListDataSelector from "./PlayListDataSelector";
 
-const PlayListEditor = (props: PlayListEditorProps) => {
-  const id = props.id ?? "playlisteditor";
-
-  const [selectedChannelGroups, setSelectedChannelGroups] = useLocalStorage<string[]>([] as string[], props.id + '-selectedChannelGroups');
-
-  const onsetSelectedChannelGroups = useCallback((selectedData: ChannelGroupDto | ChannelGroupDto[]) => {
-    if (Array.isArray(selectedData)) {
-      setSelectedChannelGroups(selectedData.map(a => a.name));
-    } else {
-      setSelectedChannelGroups([selectedData.name]);
-    }
-
-    // console.debug('onsetSelectedChannelGroups', selectedData);
-  }, [setSelectedChannelGroups]);
+const PlayListEditor = () => {
+  const id = "playlisteditor";
+  const { selectedChannelGroups } = useSelectedChannelGroups(id);
 
   if (selectedChannelGroups === undefined) {
     return null;
@@ -35,16 +23,10 @@ const PlayListEditor = (props: PlayListEditorProps) => {
 
         <div className="flex col-12 mt-1 m-0 p-0" >
           <div className='col-4 m-0 p-0 pr-1' >
-            <PlayListDataSelector
-              id={id}
-              onSelectionChange={(e) => onsetSelectedChannelGroups(e as ChannelGroupDto[])}
-            />
+            <PlayListDataSelector id={id} />
           </div>
           <div className="col-8 m-0 p-0">
-            <ChannelGroupVideoStreamDataSelector
-              channelGroupNames={selectedChannelGroups}
-              id={id}
-            />
+            <ChannelGroupVideoStreamDataSelector id={id} />
           </div>
         </div >
       </div >
@@ -54,15 +36,5 @@ const PlayListEditor = (props: PlayListEditorProps) => {
 };
 
 PlayListEditor.displayName = 'Playlist Editor';
-PlayListEditor.defaultProps = {
-  id: 'playlistEditor',
-};
-
-export type PlayListEditorProps = {
-  /**
-* The unique identifier of the component.
-*/
-  readonly id?: string;
-};
 
 export default memo(PlayListEditor);

@@ -1,6 +1,7 @@
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useQueryFilter } from "../../app/slices/useQueryFilter";
 import { useSelectAll } from "../../app/slices/useSelectAll";
+import { useSelectedVideoStreams } from "../../app/slices/useSelectedVideoStreams";
 import { useVideoStreamsUpdateAllVideoStreamsFromParametersMutation, useVideoStreamsUpdateVideoStreamsMutation, type UpdateVideoStreamRequest, type UpdateVideoStreamsRequest, type VideoStreamDto, type VideoStreamsUpdateAllVideoStreamsFromParametersApiArg } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import VisibleButton from "../buttons/VisibleButton";
@@ -10,7 +11,7 @@ type VideoStreamVisibleDialogProps = {
   readonly id: string;
   readonly onClose?: (() => void);
   readonly skipOverLayer?: boolean;
-  readonly values?: VideoStreamDto[] | undefined;
+  readonly values?: VideoStreamDto[];
 };
 
 const VideoStreamVisibleDialog = ({
@@ -24,8 +25,9 @@ const VideoStreamVisibleDialog = ({
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
-  const [selectedVideoStreams, setSelectedVideoStreams] = useState<VideoStreamDto[]>([] as VideoStreamDto[]);
+  const [selectVideoStreamsInternal, setSelectVideoStreamsInternal] = useState<VideoStreamDto[] | undefined>(undefined);
 
+  const { selectedVideoStreams } = useSelectedVideoStreams(id);
   const { selectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
 
@@ -39,23 +41,32 @@ const VideoStreamVisibleDialog = ({
     onClose?.();
   }, [onClose]);
 
-  useMemo(() => {
-
-    if (values !== null) {
-      setSelectedVideoStreams(values ?? []);
+  useEffect(() => {
+    if (values) {
+      setSelectVideoStreamsInternal(values);
     }
-
   }, [values]);
 
+  useEffect(() => {
+    if (!values) {
+      setSelectVideoStreamsInternal(selectedVideoStreams);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedVideoStreams]);
 
   const getTotalCount = useMemo(() => {
 
-    return selectedVideoStreams.length;
+    return selectVideoStreamsInternal?.length ?? 0;
 
-  }, [selectedVideoStreams.length]);
+  }, [selectVideoStreamsInternal]);
 
 
   const onVisiblesClick = useCallback(async () => {
+    if (selectVideoStreamsInternal === undefined) {
+      ReturnToParent();
+      return;
+    }
+
     setBlock(true);
 
     if (getTotalCount !== 1 && selectAll === true) {
@@ -85,7 +96,7 @@ const VideoStreamVisibleDialog = ({
       return;
     }
 
-    if (selectedVideoStreams.length === 0) {
+    if (selectVideoStreamsInternal.length === 0) {
       ReturnToParent();
 
       return;
@@ -93,7 +104,7 @@ const VideoStreamVisibleDialog = ({
 
     const toSend = {} as UpdateVideoStreamsRequest;
 
-    toSend.videoStreamUpdates = selectedVideoStreams.map((a) => {
+    toSend.videoStreamUpdates = selectVideoStreamsInternal.map((a) => {
       return {
         id: a.id,
         toggleVisibility: true
@@ -109,7 +120,7 @@ const VideoStreamVisibleDialog = ({
         setInfoMessage('Set Stream Visibility Error: ' + error.message);
       });
 
-  }, [selectedVideoStreams, getTotalCount, selectAll, videoStreamsUpdateVideoStreams, ReturnToParent, queryFilter, videoStreamsUpdateAllVideoStreamsFromParametersMutation]);
+  }, [selectVideoStreamsInternal, getTotalCount, selectAll, videoStreamsUpdateVideoStreams, ReturnToParent, queryFilter, videoStreamsUpdateAllVideoStreamsFromParametersMutation]);
 
 
   if (skipOverLayer === true) {

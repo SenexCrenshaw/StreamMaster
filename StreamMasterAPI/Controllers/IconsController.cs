@@ -29,9 +29,9 @@ public class IconsController : ApiControllerBase, IIconController
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<IconFileDto>> GetIconFromSource([FromQuery] string source)
+    public async Task<ActionResult<IconFileDto>> GetIconFromSource([FromQuery] GetIconFromSourceRequest request)
     {
-        IconFileDto? data = await Mediator.Send(new GetIconFromSource(source)).ConfigureAwait(false);
+        IconFileDto? data = await Mediator.Send(request).ConfigureAwait(false);
         return data != null ? (ActionResult<IconFileDto>)data : (ActionResult<IconFileDto>)NotFound();
     }
 

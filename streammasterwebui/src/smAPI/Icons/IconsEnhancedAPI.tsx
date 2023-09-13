@@ -17,6 +17,7 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
             });
           };
 
+          hubConnection.off('IconsRefresh');
           hubConnection.on('IconsRefresh', (data: iptv.IconFileDto) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['Icons']));
@@ -30,7 +31,6 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('IconsRefresh');
       }
     },
     iconsGetIconFromSource: {
@@ -45,6 +45,7 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
             });
           };
 
+          hubConnection.off('IconsRefresh');
           hubConnection.on('IconsRefresh', (data: iptv.IconFileDto) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['Icons']));
@@ -58,7 +59,6 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('IconsRefresh');
       }
     },
     iconsGetIcons: {
@@ -66,41 +66,20 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
         try {
           await cacheDataLoaded;
 
-          const updateCachedDataWithResults = (data: iptv.PagedResponseOfIconFileDto) => {
-            updateCachedData((draft: iptv.PagedResponseOfIconFileDto) => {
-              draft=data
-              return draft;
-            });
-          };
-
-          hubConnection.on('IconsRefresh', (data: iptv.PagedResponseOfIconFileDto) => {
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['Icons']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          });
-
-        } catch (error) {
-          console.error('Error in onCacheEntryAdded:', error);
-        }
-
-        await cacheEntryRemoved;
-        hubConnection.off('IconsRefresh');
-      }
-    },
-    iconsGetIconsSimpleQuery: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
-        try {
-          await cacheDataLoaded;
-
           const updateCachedDataWithResults = (data: iptv.IconFileDto[]) => {
-            updateCachedData((draft: iptv.IconFileDto[]) => {
-              draft=data
+            updateCachedData((draft: iptv.PagedResponseOfIconFileDto) => {
+              data.forEach(item => {
+                const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
+                if (index !== -1) {
+                  draft.data[index] = item;
+                }
+              });
+
               return draft;
             });
           };
 
+          hubConnection.off('IconsRefresh');
           hubConnection.on('IconsRefresh', (data: iptv.IconFileDto[]) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['Icons']));
@@ -114,7 +93,40 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('IconsRefresh');
+      }
+    },
+    iconsGetIconsSimpleQuery: {
+      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+        try {
+          await cacheDataLoaded;
+
+          const updateCachedDataWithResults = (data: iptv.IconFileDto[]) => {
+            updateCachedData((draft: iptv.IconFileDto[]) => {
+              data.forEach(item => {
+                const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                if (index !== -1) {
+                  draft[index] = item;
+                }
+              });
+
+              return draft;
+            });
+          };
+
+          hubConnection.off('IconsRefresh');
+          hubConnection.on('IconsRefresh', (data: iptv.IconFileDto[]) => {
+            if (isEmptyObject(data)) {
+              dispatch(iptvApi.util.invalidateTags(['Icons']));
+            } else {
+              updateCachedDataWithResults(data);
+            }
+          });
+
+        } catch (error) {
+          console.error('Error in onCacheEntryAdded:', error);
+        }
+
+        await cacheEntryRemoved;
       }
     },
   }

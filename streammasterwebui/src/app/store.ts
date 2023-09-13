@@ -2,17 +2,30 @@ import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query/react';
 import { combineReducers } from 'redux';
 
-import { enhancedApi } from '../store/signlar/enhancedApi';
-import { enhancedApiLocal } from '../store/signlar/enhancedApiLocal';
-import queryFilterReducer from './slices/queryFilterSlice';
-import queryAdditionalFiltersReducer from './slices/queryAdditionalFiltersSlice';
-import channelGroupToRemoveSliceReducer from './slices/channelGroupToRemoveSlice';
-import selectAllSliceReducer from './slices/selectAllSlice';
-import sortInfoSliceReducer from './slices/sortInfoSlice';
-import showHiddenSliceReducer from './slices/showHiddenSlice';
-import selectedStreamGroupSliceeReducer from './slices/selectedStreamGroupSlice';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+import { enhancedApiChannelGroups } from '../smAPI/ChannelGroups/ChannelGroupsEnhancedAPI';
+import { enhancedApiEpgFiles } from '../smAPI/EpgFiles/EpgFilesEnhancedAPI';
+import { enhancedApiM3UFiles } from '../smAPI/M3UFiles/M3UFilesEnhancedAPI';
+import { enhancedApiProgrammes } from '../smAPI/Programmes/ProgrammesEnhancedAPI';
+import { enhancedApiSchedulesDirect } from '../smAPI/SchedulesDirect/SchedulesDirectEnhancedAPI';
+import { enhancedApiSettings } from '../smAPI/Settings/SettingsEnhancedAPI';
+import { enhancedApiStreamGroupChannelGroup } from '../smAPI/StreamGroupChannelGroup/StreamGroupChannelGroupEnhancedAPI';
+import { enhancedApiStreamGroupVideoStreams } from '../smAPI/StreamGroupVideoStreams/StreamGroupVideoStreamsEnhancedAPI';
+import { enhancedApiStreamGroups } from '../smAPI/StreamGroups/StreamGroupsEnhancedAPI';
+import { enhancedApiVideoStreamLinks } from '../smAPI/VideoStreamLinks/VideoStreamLinksEnhancedAPI';
+import { enhancedApiVideoStreams } from '../smAPI/VideoStreams/VideoStreamsEnhancedAPI';
+import { enhancedApiVideoStreamsLocal } from '../smAPI/VideoStreams/enhancedApiVideoStreamsLocal';
+
+import channelGroupToRemoveSliceReducer from './slices/channelGroupToRemoveSlice';
+import queryAdditionalFiltersReducer from './slices/queryAdditionalFiltersSlice';
+import queryFilterReducer from './slices/queryFilterSlice';
+import selectAllSliceReducer from './slices/selectAllSlice';
+import selectedChannelGroupsSliceReducer from './slices/selectedChannelGroupsSlice';
+import selectedStreamGroupSliceeReducer from './slices/selectedStreamGroupSlice';
+import selectedVideoStreamsSliceReducer from './slices/selectedVideoStreamsSlice';
+import showHiddenSliceReducer from './slices/showHiddenSlice';
+import sortInfoSliceReducer from './slices/sortInfoSlice';
 
 const selectAllConfig = {
   key: 'selectAll',
@@ -29,21 +42,41 @@ const showHiddenConfig = {
   storage,
 };
 
-// const selectedStreamGroupConfig = {
-//   key: 'selectedStreamGroup',
-//   storage,
-// };
+const selectedVideoStreamsConfig = {
+  key: 'selectedVideoStreams',
+  storage,
+};
+
+const selectedChannelGroupsConfig = {
+  key: 'selectedChannelGroups',
+  storage,
+};
+
 
 const rootReducer = combineReducers({
-  [enhancedApi.reducerPath]: enhancedApi.reducer,
+  [enhancedApiChannelGroups.reducerPath]: enhancedApiChannelGroups.reducer,
+  [enhancedApiEpgFiles.reducerPath]: enhancedApiEpgFiles.reducer,
+  [enhancedApiM3UFiles.reducerPath]: enhancedApiM3UFiles.reducer,
+  [enhancedApiProgrammes.reducerPath]: enhancedApiProgrammes.reducer,
+  [enhancedApiSchedulesDirect.reducerPath]: enhancedApiSchedulesDirect.reducer,
+  [enhancedApiSettings.reducerPath]: enhancedApiSettings.reducer,
+  [enhancedApiStreamGroupChannelGroup.reducerPath]: enhancedApiStreamGroupChannelGroup.reducer,
+  [enhancedApiStreamGroupVideoStreams.reducerPath]: enhancedApiStreamGroupVideoStreams.reducer,
+  [enhancedApiStreamGroups.reducerPath]: enhancedApiStreamGroups.reducer,
+  [enhancedApiVideoStreamLinks.reducerPath]: enhancedApiVideoStreamLinks.reducer,
+  [enhancedApiVideoStreams.reducerPath]: enhancedApiVideoStreams.reducer,
+  [enhancedApiVideoStreamsLocal.reducerPath]: enhancedApiVideoStreamsLocal.reducer,
   channelGroupToRemove:channelGroupToRemoveSliceReducer,
   queryAdditionalFilters: queryAdditionalFiltersReducer,
   queryFilter: queryFilterReducer,
-  selectAll:persistReducer(selectAllConfig, selectAllSliceReducer),
+  selectAll: persistReducer(selectAllConfig, selectAllSliceReducer),
+  selectedChannelGroups: persistReducer(selectedChannelGroupsConfig, selectedChannelGroupsSliceReducer),
   selectedStreamGroup:  selectedStreamGroupSliceeReducer,
+  selectedVideoStreams:persistReducer(selectedVideoStreamsConfig, selectedVideoStreamsSliceReducer),
   showHidden: persistReducer(showHiddenConfig, showHiddenSliceReducer),
   sortInfo: persistReducer(sortInfoConfig, sortInfoSliceReducer),
 });
+
 
 
 export const store = configureStore({
@@ -51,7 +84,20 @@ export const store = configureStore({
     getDefaultMiddleware({
       immutableCheck: false,
       serializableCheck: false,
-    }).concat(enhancedApi.middleware, enhancedApiLocal.middleware),
+    }).concat(
+      enhancedApiChannelGroups.middleware,
+      enhancedApiEpgFiles.middleware,
+      enhancedApiM3UFiles.middleware,
+      enhancedApiProgrammes.middleware,
+      enhancedApiSchedulesDirect.middleware,
+      enhancedApiSettings.middleware,
+      enhancedApiStreamGroupChannelGroup.middleware,
+      enhancedApiStreamGroups.middleware,
+      enhancedApiStreamGroupVideoStreams.middleware,
+      enhancedApiVideoStreamLinks.middleware,
+      enhancedApiVideoStreams.middleware,
+      enhancedApiVideoStreamsLocal.middleware,
+    ),
   reducer: rootReducer,
 });
 

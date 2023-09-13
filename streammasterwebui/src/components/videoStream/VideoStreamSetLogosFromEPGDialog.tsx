@@ -1,22 +1,19 @@
 
-import { useState, useCallback, memo, useMemo } from "react";
-import { type VideoStreamsSetVideoStreamsLogoFromEpgApiArg } from "../../store/iptvApi";
-import { type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg } from "../../store/iptvApi";
-import { useVideoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation, useVideoStreamsSetVideoStreamsLogoFromEpgMutation } from "../../store/iptvApi";
-import { type VideoStreamDto } from "../../store/iptvApi";
+import { memo, useCallback, useMemo, useState } from "react";
+import { useQueryFilter } from "../../app/slices/useQueryFilter";
+import { useSelectAll } from "../../app/slices/useSelectAll";
+import { useSelectedVideoStreams } from "../../app/slices/useSelectedVideoStreams";
+import { useVideoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation, useVideoStreamsSetVideoStreamsLogoFromEpgMutation, type VideoStreamDto, type VideoStreamsSetVideoStreamsLogoFromEpgApiArg, type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import ImageButton from "../buttons/ImageButton";
 import OKButton from "../buttons/OKButton";
-import { useQueryFilter } from "../../app/slices/useQueryFilter";
-import { useSelectAll } from "../../app/slices/useSelectAll";
 
 type VideoStreamSetLogosFromEPGDialogProps = {
   readonly id: string;
-  readonly values: VideoStreamDto[];
 };
 
 
-const VideoStreamSetLogosFromEPGDialog = ({ id, values }: VideoStreamSetLogosFromEPGDialogProps) => {
+const VideoStreamSetLogosFromEPGDialog = ({ id }: VideoStreamSetLogosFromEPGDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [block, setBlock] = useState<boolean>(false);
@@ -24,6 +21,7 @@ const VideoStreamSetLogosFromEPGDialog = ({ id, values }: VideoStreamSetLogosFro
   const [videoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation] = useVideoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation();
   const [videoStreamsSetVideoStreamsLogoFromEpgMutation] = useVideoStreamsSetVideoStreamsLogoFromEpgMutation();
 
+  const { selectedVideoStreams } = useSelectedVideoStreams(id);
   const { selectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
 
@@ -59,7 +57,7 @@ const VideoStreamSetLogosFromEPGDialog = ({ id, values }: VideoStreamSetLogosFro
       return;
     }
 
-    const ids = [...new Set(values.map((item: VideoStreamDto) => item.id))] as string[];
+    const ids = [...new Set(selectedVideoStreams.map((item: VideoStreamDto) => item.id))] as string[];
 
     const toSend = {} as VideoStreamsSetVideoStreamsLogoFromEpgApiArg;
 
@@ -96,13 +94,13 @@ const VideoStreamSetLogosFromEPGDialog = ({ id, values }: VideoStreamSetLogosFro
     });
 
 
-  }, [queryFilter, selectAll, values, videoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation, videoStreamsSetVideoStreamsLogoFromEpgMutation]);
+  }, [queryFilter, selectAll, selectedVideoStreams, videoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation, videoStreamsSetVideoStreamsLogoFromEpgMutation]);
 
   const getTotalCount = useMemo(() => {
 
-    return values.length;
+    return selectedVideoStreams.length;
 
-  }, [values]);
+  }, [selectedVideoStreams]);
 
   return (
     <>

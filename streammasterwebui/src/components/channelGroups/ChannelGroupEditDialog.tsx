@@ -1,40 +1,64 @@
-import { InputText } from "primereact/inputtext";
-import React from "react";
+
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { useSelectedChannelGroups } from "../../app/slices/useSelectedChannelGroups";
 import { GetMessage } from "../../common/common";
-import { useChannelGroupsUpdateChannelGroupMutation, type ChannelGroupDto, type UpdateChannelGroupRequest } from "../../store/iptvApi";
+import { UpdateChannelGroup } from "../../smAPI/ChannelGroups/ChannelGroupsMutateAPI";
+import { type ChannelGroupDto, type UpdateChannelGroupRequest } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import EditButton from "../buttons/EditButton";
+import TextInput from "../inputs/TextInput";
 
-const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
-  const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
-  const [block, setBlock] = React.useState<boolean>(false);
-  const [infoMessage, setInfoMessage] = React.useState('');
-  const [newGroupName, setNewGroupName] = React.useState('');
 
-  const [channelGroupsUpdateChannelGroupMutation] = useChannelGroupsUpdateChannelGroupMutation();
+type ChannelGroupEditDialogProps = {
+  readonly cgid: string;
+  readonly onClose?: ((newName: string) => void);
+  readonly value?: ChannelGroupDto | undefined;
+};
 
-  const ReturnToParent = React.useCallback(() => {
+const ChannelGroupEditDialog = ({ cgid, onClose, value }: ChannelGroupEditDialogProps) => {
+  const [showOverlay, setShowOverlay] = useState<boolean>(false);
+  const [block, setBlock] = useState<boolean>(false);
+  const [infoMessage, setInfoMessage] = useState('');
+  const [newGroupName, setNewGroupName] = useState('');
+
+  const [channelGroupDto, setChannelGroupDto] = useState<ChannelGroupDto>();
+  const { selectedChannelGroups } = useSelectedChannelGroups(cgid);
+
+  const ReturnToParent = useCallback(() => {
     setShowOverlay(false);
     setInfoMessage('');
     setBlock(false);
-    props.onClose?.(newGroupName);
-  }, [props, newGroupName]);
+    onClose?.(newGroupName);
+  }, [onClose, newGroupName]);
+
+  useMemo(() => {
+    if (value !== null) {
+      setChannelGroupDto(value);
+    }
+  }, [value]);
 
 
-  React.useEffect(() => {
 
-    if (props.value) {
-      setNewGroupName(props.value.name);
+  useEffect(() => {
+    if (channelGroupDto) {
+      setNewGroupName(channelGroupDto.name);
+      return;
+    }
+
+    if (selectedChannelGroups && selectedChannelGroups.length > 0) {
+      setNewGroupName(selectedChannelGroups[0].name);
       // if (props.value.regexMatch !== null)
       //   setRegex(props.value.regexMatch);
     }
 
-  }, [props.value]);
+  }, [channelGroupDto, selectedChannelGroups]);
 
-  const changeGroupName = React.useCallback(() => {
+  const changeGroupName = useCallback(() => {
     setBlock(true);
 
-    if (!newGroupName || !props.value?.id) {
+    const cg = selectedChannelGroups && selectedChannelGroups.length > 0 ? selectedChannelGroups[0] : null;
+
+    if (!newGroupName || !cg?.id) {
       ReturnToParent();
 
       return;
@@ -42,10 +66,10 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
 
     const toSend = {} as UpdateChannelGroupRequest;
 
-    toSend.channelGroupId = props.value.id;
+    toSend.channelGroupId = cg.id;
     toSend.newGroupName = newGroupName;
 
-    channelGroupsUpdateChannelGroupMutation(toSend).then(() => {
+    UpdateChannelGroup(toSend).then(() => {
       setInfoMessage('Channel Group Edit Successfully');
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -53,7 +77,7 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
       setInfoMessage('Channel Group Edit Error: ' + e.message);
     });
     setNewGroupName('');
-  }, [ReturnToParent, channelGroupsUpdateChannelGroupMutation, newGroupName, props.value]);
+  }, [ReturnToParent, newGroupName, selectedChannelGroups]);
 
 
   return (
@@ -68,21 +92,12 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
         }}
         show={showOverlay}
       >
-        <div className='m-0 p-0 border-1 border-round surface-border'>
-          <div className='m-3'>
-            <h3>{GetMessage("edit group")}</h3>
-            <InputText
-              autoFocus
-              className="withpadding p-inputtext-sm w-full mb-1"
-              onChange={(e) => setNewGroupName(e.target.value)}
-              placeholder="Group Name"
-              value={newGroupName}
-            />
-
-            <div className="flex col-12 mt-3 gap-2 justify-content-end">
-              <EditButton label='Edit Group' onClick={() => changeGroupName()} tooltip='Edit Group' />
-            </div>
-
+        <div className="flex grid justify-content-center w-full">
+          <div className="flex col-12 mt-3 gap-2 justify-content-start">
+            <TextInput onChange={(e) => setNewGroupName(e)} placeHolder="Group Name" value={newGroupName} />
+          </div>
+          <div className="flex col-12 mt-3 gap-2 justify-content-end">
+            <EditButton label='Edit Group' onClick={() => changeGroupName()} tooltip='Edit Group' />
           </div>
         </div >
       </InfoMessageOverLayDialog>
@@ -96,14 +111,5 @@ const ChannelGroupEditDialog = (props: ChannelGroupEditDialogProps) => {
 }
 
 ChannelGroupEditDialog.displayName = 'ChannelGroupEditDialog';
-ChannelGroupEditDialog.defaultProps = {
-  value: null,
 
-};
-
-type ChannelGroupEditDialogProps = {
-  readonly onClose?: ((newName: string) => void);
-  readonly value?: ChannelGroupDto | undefined;
-};
-
-export default React.memo(ChannelGroupEditDialog);
+export default memo(ChannelGroupEditDialog);

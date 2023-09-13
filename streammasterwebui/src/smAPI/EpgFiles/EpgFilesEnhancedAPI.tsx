@@ -17,6 +17,7 @@ export const enhancedApiEpgFiles = iptvApi.enhanceEndpoints({
             });
           };
 
+          hubConnection.off('EPGFilesRefresh');
           hubConnection.on('EPGFilesRefresh', (data: iptv.EpgFileDto) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['EPGFiles']));
@@ -30,7 +31,6 @@ export const enhancedApiEpgFiles = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('EPGFilesRefresh');
       }
     },
     epgFilesGetEpgFiles: {
@@ -38,14 +38,21 @@ export const enhancedApiEpgFiles = iptvApi.enhanceEndpoints({
         try {
           await cacheDataLoaded;
 
-          const updateCachedDataWithResults = (data: iptv.PagedResponseOfEpgFileDto) => {
+          const updateCachedDataWithResults = (data: iptv.EpgFileDto[]) => {
             updateCachedData((draft: iptv.PagedResponseOfEpgFileDto) => {
-              draft=data
+              data.forEach(item => {
+                const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
+                if (index !== -1) {
+                  draft.data[index] = item;
+                }
+              });
+
               return draft;
             });
           };
 
-          hubConnection.on('EPGFilesRefresh', (data: iptv.PagedResponseOfEpgFileDto) => {
+          hubConnection.off('EPGFilesRefresh');
+          hubConnection.on('EPGFilesRefresh', (data: iptv.EpgFileDto[]) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['EPGFiles']));
             } else {
@@ -58,7 +65,6 @@ export const enhancedApiEpgFiles = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('EPGFilesRefresh');
       }
     },
   }

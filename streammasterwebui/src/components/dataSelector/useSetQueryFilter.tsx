@@ -9,7 +9,7 @@ import { addOrUpdateValueForField, areGetApiArgsEqual, hasValidAdditionalProps, 
 import { type ColumnMeta, type LazyTableState } from "./DataSelectorTypes";
 import generateFilterData from "./generateFilterData";
 
-const useSetQueryFilter = (
+export const useSetQueryFilter = (
   id: string,
   columns: ColumnMeta[],
   first: number,
@@ -87,9 +87,7 @@ const useSetQueryFilter = (
 
   useEffect(() => {
     const newApi = generateGetApi;
-
     if (!areGetApiArgsEqual(newApi, queryFilter)) {
-      // console.log('useSetQueryFilter', id, newApi);
       setQueryFilter(newApi);
     }
 
@@ -99,4 +97,3 @@ const useSetQueryFilter = (
   return { lazyState };
 };
 
-export default useSetQueryFilter;

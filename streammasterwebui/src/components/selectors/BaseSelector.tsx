@@ -15,6 +15,10 @@ export type PagedResponseDto<T> = {
   totalRecords: number;
 };
 
+
+export type StringArg = {
+  value: string;
+};
 export type PagedResponseDtoData<T> = {
   data?: PagedResponseDto<T>;
 };
@@ -35,7 +39,7 @@ export type BaseSelectorProps<T extends HasId> = {
   readonly optionValue: string;
   readonly queryFilter: (option: GetApiArg | typeof skipToken) => PagedResponseDtoData<T>;
   readonly queryHook: (option: SimpleQueryApiArg) => SimpleQueryResponse<T>;
-  readonly querySelectedItem: (arg: string) => Promise<T>;
+  readonly querySelectedItem: (arg: StringArg) => Promise<T>;
   readonly selectName: string;
   // eslint-disable-next-line react/no-unused-prop-types
   readonly selectedTemplate: (option: T) => JSX.Element;
@@ -136,7 +140,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
 
     if (props.value !== '') {
       try {
-        props.querySelectedItem(props.value).then((item) => {
+        props.querySelectedItem({ value: props.value } as StringArg).then((item) => {
           if (item) {
 
             if (item && item.source != selectedItem && !existingIds.has(item.id)) {

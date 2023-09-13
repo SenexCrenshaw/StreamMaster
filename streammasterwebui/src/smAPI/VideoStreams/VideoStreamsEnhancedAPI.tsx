@@ -5,34 +5,6 @@ import type * as iptv from '../../store/iptvApi';
 
 export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
   endpoints: {
-    videoStreamsGetAllStatisticsForAllUrls: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
-        try {
-          await cacheDataLoaded;
-
-          const updateCachedDataWithResults = (data: iptv.StreamStatisticsResult[]) => {
-            updateCachedData((draft: iptv.StreamStatisticsResult[]) => {
-              draft=data
-              return draft;
-            });
-          };
-
-          hubConnection.on('VideoStreamsRefresh', (data: iptv.StreamStatisticsResult[]) => {
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          });
-
-        } catch (error) {
-          console.error('Error in onCacheEntryAdded:', error);
-        }
-
-        await cacheEntryRemoved;
-        hubConnection.off('VideoStreamsRefresh');
-      }
-    },
     videoStreamsGetChannelLogoDtos: {
       async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
@@ -40,11 +12,18 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.ChannelLogoDto[]) => {
             updateCachedData((draft: iptv.ChannelLogoDto[]) => {
-              draft=data
+              data.forEach(item => {
+                const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                if (index !== -1) {
+                  draft[index] = item;
+                }
+              });
+
               return draft;
             });
           };
 
+          hubConnection.off('VideoStreamsRefresh');
           hubConnection.on('VideoStreamsRefresh', (data: iptv.ChannelLogoDto[]) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
@@ -58,7 +37,6 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('VideoStreamsRefresh');
       }
     },
     videoStreamsGetVideoStream: {
@@ -73,6 +51,7 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
             });
           };
 
+          hubConnection.off('VideoStreamsRefresh');
           hubConnection.on('VideoStreamsRefresh', (data: iptv.VideoStreamDto) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
@@ -86,7 +65,6 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('VideoStreamsRefresh');
       }
     },
     videoStreamsGetVideoStreams: {
@@ -94,14 +72,21 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
         try {
           await cacheDataLoaded;
 
-          const updateCachedDataWithResults = (data: iptv.PagedResponseOfVideoStreamDto) => {
+          const updateCachedDataWithResults = (data: iptv.VideoStreamDto[]) => {
             updateCachedData((draft: iptv.PagedResponseOfVideoStreamDto) => {
-              draft=data
+              data.forEach(item => {
+                const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
+                if (index !== -1) {
+                  draft.data[index] = item;
+                }
+              });
+
               return draft;
             });
           };
 
-          hubConnection.on('VideoStreamsRefresh', (data: iptv.PagedResponseOfVideoStreamDto) => {
+          hubConnection.off('VideoStreamsRefresh');
+          hubConnection.on('VideoStreamsRefresh', (data: iptv.VideoStreamDto[]) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
             } else {
@@ -114,7 +99,6 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('VideoStreamsRefresh');
       }
     },
   }

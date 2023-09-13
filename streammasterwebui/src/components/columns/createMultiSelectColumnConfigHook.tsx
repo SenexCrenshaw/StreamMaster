@@ -47,6 +47,10 @@ const createMultiSelectColumnConfigHook = ({
       }
 
       if (EditorComponent) {
+        // if (headerTitle === 'Group') {
+        //   console.log('EditorComponent', bodyData)
+        // }
+
         return <EditorComponent data={bodyData} />;
       }
 

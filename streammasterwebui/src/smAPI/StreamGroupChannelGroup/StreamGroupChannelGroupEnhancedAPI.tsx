@@ -12,11 +12,18 @@ export const enhancedApiStreamGroupChannelGroup = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.ChannelGroupDto[]) => {
             updateCachedData((draft: iptv.ChannelGroupDto[]) => {
-              draft=data
+              data.forEach(item => {
+                const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                if (index !== -1) {
+                  draft[index] = item;
+                }
+              });
+
               return draft;
             });
           };
 
+          hubConnection.off('StreamGroupChannelGroupRefresh');
           hubConnection.on('StreamGroupChannelGroupRefresh', (data: iptv.ChannelGroupDto[]) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['StreamGroupChannelGroup']));
@@ -30,7 +37,6 @@ export const enhancedApiStreamGroupChannelGroup = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('StreamGroupChannelGroupRefresh');
       }
     },
     streamGroupChannelGroupGetAllChannelGroups: {
@@ -40,11 +46,18 @@ export const enhancedApiStreamGroupChannelGroup = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.ChannelGroupDto[]) => {
             updateCachedData((draft: iptv.ChannelGroupDto[]) => {
-              draft=data
+              data.forEach(item => {
+                const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                if (index !== -1) {
+                  draft[index] = item;
+                }
+              });
+
               return draft;
             });
           };
 
+          hubConnection.off('StreamGroupChannelGroupRefresh');
           hubConnection.on('StreamGroupChannelGroupRefresh', (data: iptv.ChannelGroupDto[]) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['StreamGroupChannelGroup']));
@@ -58,7 +71,6 @@ export const enhancedApiStreamGroupChannelGroup = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('StreamGroupChannelGroupRefresh');
       }
     },
   }

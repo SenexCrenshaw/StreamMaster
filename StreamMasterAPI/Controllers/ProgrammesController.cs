@@ -58,8 +58,8 @@ public class ProgrammesController : ApiControllerBase, IProgrammeChannelControll
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<ProgrammeNameDto?>> GetProgrammeFromDisplayName(string Tvg_ID)
+    public async Task<ActionResult<ProgrammeNameDto?>> GetProgrammeFromDisplayName(GetProgrammeFromDisplayNameRequest request)
     {
-        return Ok(await Mediator.Send(new GetProgrammeFromDisplayName(Tvg_ID)).ConfigureAwait(false));
+        return Ok(await Mediator.Send(request).ConfigureAwait(false));
     }
 }

@@ -17,6 +17,7 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
             });
           };
 
+          hubConnection.off('StreamGroupsRefresh');
           hubConnection.on('StreamGroupsRefresh', (data: iptv.StreamGroupDto) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['StreamGroups']));
@@ -30,7 +31,6 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('StreamGroupsRefresh');
       }
     },
     streamGroupsGetStreamGroupEpgForGuide: {
@@ -45,6 +45,7 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
             });
           };
 
+          hubConnection.off('StreamGroupsRefresh');
           hubConnection.on('StreamGroupsRefresh', (data: iptv.EpgGuide) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['StreamGroups']));
@@ -58,7 +59,6 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('StreamGroupsRefresh');
       }
     },
     streamGroupsGetStreamGroups: {
@@ -66,14 +66,21 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
         try {
           await cacheDataLoaded;
 
-          const updateCachedDataWithResults = (data: iptv.PagedResponseOfStreamGroupDto) => {
+          const updateCachedDataWithResults = (data: iptv.StreamGroupDto[]) => {
             updateCachedData((draft: iptv.PagedResponseOfStreamGroupDto) => {
-              draft=data
+              data.forEach(item => {
+                const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
+                if (index !== -1) {
+                  draft.data[index] = item;
+                }
+              });
+
               return draft;
             });
           };
 
-          hubConnection.on('StreamGroupsRefresh', (data: iptv.PagedResponseOfStreamGroupDto) => {
+          hubConnection.off('StreamGroupsRefresh');
+          hubConnection.on('StreamGroupsRefresh', (data: iptv.StreamGroupDto[]) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['StreamGroups']));
             } else {
@@ -86,7 +93,6 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('StreamGroupsRefresh');
       }
     },
   }

@@ -20,4 +20,5 @@ public interface IStreamMasterHub : ISharedHub
     Task SystemStatusUpdate(SystemStatus result);
     Task TaskQueueStatusDtoesUpdate(IEnumerable<TaskQueueStatusDto> results);
     Task VideoStreamsRefresh(VideoStreamDto[]? results = null);
+    Task VideoStreamsVisibilityRefresh(IEnumerable<IDIsHidden> results);
 }

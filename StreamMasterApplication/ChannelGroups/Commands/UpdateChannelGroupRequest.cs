@@ -13,7 +13,7 @@ public class UpdateChannelGroupRequestValidator : AbstractValidator<UpdateChanne
     }
 }
 
-public class UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext), IRequestHandler<UpdateChannelGroupRequest>
+public class UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext), IRequestHandler<UpdateChannelGroupRequest>
 {
     public async Task Handle(UpdateChannelGroupRequest request, CancellationToken cancellationToken)
     {
@@ -54,7 +54,7 @@ public class UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequest>
         if (checkCounts)
         {
             ChannelGroupDto dto = Mapper.Map<ChannelGroupDto>(channelGroup);
-            await Publisher.Publish(new UpdateChannelGroupEvent(dto), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateChannelGroupEvent(dto, request.ToggleVisibility ?? false), cancellationToken).ConfigureAwait(false);
         }
 
 

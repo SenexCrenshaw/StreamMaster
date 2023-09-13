@@ -24,7 +24,7 @@ import { skipToken } from '@reduxjs/toolkit/dist/query/react';
 import { useQueryFilter } from '../../app/slices/useQueryFilter';
 import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';
-import useSetQueryFilter from './useSetQueryFilter';
+import { useSetQueryFilter } from './useSetQueryFilter';
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
   const { state, setters } = useDataSelectorState<T>(props.id);
@@ -368,7 +368,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
             }
           }}
 
-          tooltip='Clear Selections'
+          tooltip={`Clear ${state.selections.length} Selections`}
         />
 
       </div>
@@ -614,9 +614,11 @@ type BaseDataSelectorProps<T = any> = {
   virtualScrollHeight?: string | undefined;
 }
 
-type QueryFilterProps<T> = BaseDataSelectorProps<T> & {
+type WithLoading<T> = T & { isLoading?: boolean };
+
+type QueryFilterProps<T> = BaseDataSelectorProps<WithLoading<T>> & {
   dataSource?: never;
-  queryFilter: (filters: GetApiArg | typeof skipToken) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
+  queryFilter: (filters: GetApiArg | typeof skipToken) => ReturnType<QueryHook<Array<WithLoading<T>> | PagedResponseDto<WithLoading<T>>>>;
 };
 
 type DataSourceProps<T> = BaseDataSelectorProps<T> & {

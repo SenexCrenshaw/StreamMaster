@@ -232,25 +232,42 @@ export type GetApiArg = {
   streamGroupId?: number | undefined;
 };
 
+export type IDIsHidden =
+  {
+    id: string,
+    isHidden: boolean
+  }
+
+
+const compareProps = (propName: keyof GetApiArg, obj1: GetApiArg, obj2: GetApiArg) => {
+  const val1 = obj1[propName];
+  const val2 = obj2[propName];
+
+
+  const result = (val1 === val2 || (val1 === undefined && val2 === undefined));
+  // if (!result) {
+  //   console.log(`Mismatch on property: ${propName}. Obj1: ${val1}, Obj2: ${val2}`);
+  // }
+
+  return result;
+};
+
 export function areGetApiArgsEqual(obj1?: GetApiArg, obj2?: GetApiArg): boolean {
   // Handle cases where one or both arguments are undefined
   if (!obj1 && !obj2) return true;
   if (!obj1 || !obj2) return false;
 
   return (
-    (obj1.count === obj2.count || (obj1.count === undefined && obj2.count === undefined)) &&
-    (obj1.first === obj2.first || (obj1.first === undefined && obj2.first === undefined)) &&
-    (obj1.jsonArgumentString === obj2.jsonArgumentString ||
-      (obj1.jsonArgumentString === undefined && obj2.jsonArgumentString === undefined)) &&
-    (obj1.jsonFiltersString === obj2.jsonFiltersString ||
-      (obj1.jsonFiltersString === undefined && obj2.jsonFiltersString === undefined)) &&
-    (obj1.last === obj2.last || (obj1.last === undefined && obj2.last === undefined)) &&
-    (obj1.name === obj2.name || (obj1.name === undefined && obj2.name === undefined)) &&
-    (obj1.orderBy === obj2.orderBy || (obj1.orderBy === undefined && obj2.orderBy === undefined)) &&
-    (obj1.pageNumber === obj2.pageNumber ||
-      (obj1.pageNumber === undefined && obj2.pageNumber === undefined)) &&
-    (obj1.pageSize === obj2.pageSize || (obj1.pageSize === undefined && obj2.pageSize === undefined)) &&
-    (obj1.streamGroupId === obj2.streamGroupId || (obj1.streamGroupId === undefined && obj2.streamGroupId === undefined))
+    compareProps('count', obj1, obj2) &&
+    compareProps('first', obj1, obj2) &&
+    compareProps('jsonArgumentString', obj1, obj2) &&
+    compareProps('jsonFiltersString', obj1, obj2) &&
+    compareProps('last', obj1, obj2) &&
+    compareProps('name', obj1, obj2) &&
+    compareProps('orderBy', obj1, obj2) &&
+    compareProps('pageNumber', obj1, obj2) &&
+    compareProps('pageSize', obj1, obj2) &&
+    compareProps('streamGroupId', obj1, obj2)
   );
 }
 

@@ -5,47 +5,26 @@ import type * as iptv from '../../store/iptvApi';
 
 export const enhancedApiStreamGroupVideoStreams = iptvApi.enhanceEndpoints({
   endpoints: {
-    streamGroupVideoStreamsGetStreamGroupVideoStreamIds: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
-        try {
-          await cacheDataLoaded;
-
-          const updateCachedDataWithResults = (data: iptv.VideoStreamIsReadOnly[]) => {
-            updateCachedData((draft: iptv.VideoStreamIsReadOnly[]) => {
-              draft=data
-              return draft;
-            });
-          };
-
-          hubConnection.on('StreamGroupVideoStreamsRefresh', (data: iptv.VideoStreamIsReadOnly[]) => {
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['StreamGroupVideoStreams']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          });
-
-        } catch (error) {
-          console.error('Error in onCacheEntryAdded:', error);
-        }
-
-        await cacheEntryRemoved;
-        hubConnection.off('StreamGroupVideoStreamsRefresh');
-      }
-    },
     streamGroupVideoStreamsGetStreamGroupVideoStreams: {
       async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
-          const updateCachedDataWithResults = (data: iptv.PagedResponseOfVideoStreamDto) => {
+          const updateCachedDataWithResults = (data: iptv.VideoStreamDto[]) => {
             updateCachedData((draft: iptv.PagedResponseOfVideoStreamDto) => {
-              draft=data
+              data.forEach(item => {
+                const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
+                if (index !== -1) {
+                  draft.data[index] = item;
+                }
+              });
+
               return draft;
             });
           };
 
-          hubConnection.on('StreamGroupVideoStreamsRefresh', (data: iptv.PagedResponseOfVideoStreamDto) => {
+          hubConnection.off('StreamGroupVideoStreamsRefresh');
+          hubConnection.on('StreamGroupVideoStreamsRefresh', (data: iptv.VideoStreamDto[]) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['StreamGroupVideoStreams']));
             } else {
@@ -58,7 +37,6 @@ export const enhancedApiStreamGroupVideoStreams = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('StreamGroupVideoStreamsRefresh');
       }
     },
   }

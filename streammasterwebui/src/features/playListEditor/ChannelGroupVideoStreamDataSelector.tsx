@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { memo, useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
+import { useSelectedChannelGroups } from "../../app/slices/useSelectedChannelGroups";
+import { useSelectedVideoStreams } from "../../app/slices/useSelectedVideoStreams";
 import { GetMessage, arraysContainSameStrings } from "../../common/common";
 import { useChannelGroupColumnConfig, useChannelLogoColumnConfig, useChannelNameColumnConfig, useChannelNumberColumnConfig, useEPGColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
@@ -18,44 +20,45 @@ import VideoStreamVisibleDialog from "../../components/videoStream/VideoStreamVi
 import { useVideoStreamsGetVideoStreamsQuery, type VideoStreamDto } from "../../store/iptvApi";
 
 type ChannelGroupVideoStreamDataSelectorProps = {
-  readonly channelGroupNames?: string[];
   readonly enableEdit?: boolean;
   readonly id: string;
-  readonly onSelectionChange?: (value: VideoStreamDto | VideoStreamDto[]) => void;
   readonly reorderable?: boolean;
 };
 
-const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataSelectorProps) => {
-  const dataKey = props.id + '-ChannelGroupVideoStreamDataSelector';
 
+const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: ChannelGroupVideoStreamDataSelectorProps) => {
+  const dataKey = id + '-ChannelGroupVideoStreamDataSelector';
+  const { selectedChannelGroups } = useSelectedChannelGroups(id);
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
-
   const { columnConfig: epgColumnConfig } = useEPGColumnConfig({ enableEdit: enableEdit });
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: enableEdit, useFilter: false });
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit: enableEdit });
   const { columnConfig: channelLogoColumnConfig } = useChannelLogoColumnConfig({ enableEdit: enableEdit });
 
+  const channelGroupNames = useMemo(() => {
+    return selectedChannelGroups.map((channelGroup) => channelGroup.name);
+  }, [selectedChannelGroups]);
 
   // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
-  const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig({ enableEdit: enableEdit, values: [...(props.channelGroupNames ?? [])].sort() });
+  const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig({ enableEdit: enableEdit, values: [...(channelGroupNames ?? [])].sort() });
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
-  const [selectedVideoStreams, setSelectedVideoStreams] = useState<VideoStreamDto[]>([] as VideoStreamDto[]);
+  const { setSelectedVideoStreams } = useSelectedVideoStreams(dataKey);
 
   useEffect(() => {
-    if (!arraysContainSameStrings(queryAdditionalFilter?.values, props.channelGroupNames)) {
-      setQueryAdditionalFilter({ field: 'user_Tvg_group', matchMode: 'equals', values: props.channelGroupNames });
+    if (!arraysContainSameStrings(queryAdditionalFilter?.values, channelGroupNames)) {
+      setQueryAdditionalFilter({ field: 'user_Tvg_group', matchMode: 'equals', values: channelGroupNames });
     }
 
-  }, [props.channelGroupNames, dataKey, queryAdditionalFilter, setQueryAdditionalFilter]);
+  }, [channelGroupNames, dataKey, queryAdditionalFilter, setQueryAdditionalFilter]);
 
   useEffect(() => {
-    if (props.enableEdit != enableEdit) {
-      setEnableEdit(props.enableEdit ?? true);
+    if (propsEnableEdit != enableEdit) {
+      setEnableEdit(propsEnableEdit ?? true);
     }
 
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.enableEdit]);
+  }, [propsEnableEdit]);
 
   const targetActionBodyTemplate = useCallback((data: VideoStreamDto) => {
     return (
@@ -96,15 +99,15 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
     return (
       <div className="flex justify-content-end align-items-center w-full gap-1">
         <TriSelect dataKey={dataKey} />
-        <VideoStreamResetLogosDialog id={dataKey} values={selectedVideoStreams} />
-        <VideoStreamSetLogosFromEPGDialog id={dataKey} values={selectedVideoStreams} />
-        <AutoSetChannelNumbers id={dataKey} values={selectedVideoStreams} />
-        <VideoStreamVisibleDialog id={dataKey} values={selectedVideoStreams} />
-        <VideoStreamDeleteDialog iconFilled id={dataKey} values={selectedVideoStreams} />
-        <VideoStreamAddDialog group={props.channelGroupNames?.[0]} />
+        <VideoStreamResetLogosDialog id={dataKey} />
+        <VideoStreamSetLogosFromEPGDialog id={dataKey} />
+        <AutoSetChannelNumbers id={dataKey} />
+        <VideoStreamVisibleDialog id={dataKey} />
+        <VideoStreamDeleteDialog iconFilled id={dataKey} />
+        <VideoStreamAddDialog group={channelGroupNames?.[0]} />
       </div>
     );
-  }, [dataKey, props.channelGroupNames, selectedVideoStreams]);
+  }, [dataKey, channelGroupNames]);
 
   return (
     <DataSelector
@@ -118,22 +121,15 @@ const ChannelGroupVideoStreamDataSelector = (props: ChannelGroupVideoStreamDataS
       onSelectionChange={(value, selectAll) => {
         if (selectAll !== true) {
           setSelectedVideoStreams(value as VideoStreamDto[]);
-          props.onSelectionChange?.(value as VideoStreamDto[]);
         }
       }}
       queryFilter={useVideoStreamsGetVideoStreamsQuery}
-      reorderable={props.reorderable}
+      reorderable={reorderable}
       selectionMode='multiple'
       style={{ height: 'calc(100vh - 40px)' }}
     />
   );
 }
-
-ChannelGroupVideoStreamDataSelector.displayName = 'Stream Editor';
-ChannelGroupVideoStreamDataSelector.defaultProps = {
-  channelGroupNames: [] as string[],
-  reorderable: false
-};
 
 
 export default memo(ChannelGroupVideoStreamDataSelector);

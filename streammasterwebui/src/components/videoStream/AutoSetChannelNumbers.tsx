@@ -1,24 +1,20 @@
-import { type CheckboxChangeEvent } from "primereact/checkbox";
-import { Checkbox } from "primereact/checkbox";
+import { Checkbox, type CheckboxChangeEvent } from "primereact/checkbox";
 import { InputNumber } from "primereact/inputnumber";
 import React, { useMemo } from "react";
-import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
-import OKButton from "../buttons/OKButton";
-import AutoSetButton from "../buttons/AutoSetButton";
 import { useQueryFilter } from "../../app/slices/useQueryFilter";
 import { useSelectAll } from "../../app/slices/useSelectAll";
-import { type VideoStreamDto } from "../../store/iptvApi";
-import { type VideoStreamsSetVideoStreamChannelNumbersApiArg } from "../../store/iptvApi";
-import { useVideoStreamsSetVideoStreamChannelNumbersMutation, type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg } from "../../store/iptvApi";
-import { useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation } from "../../store/iptvApi";
+import { useSelectedVideoStreams } from "../../app/slices/useSelectedVideoStreams";
 import { useSortInfo } from "../../app/slices/useSortInfo";
+import { useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation, useVideoStreamsSetVideoStreamChannelNumbersMutation, type VideoStreamDto, type VideoStreamsSetVideoStreamChannelNumbersApiArg, type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg } from "../../store/iptvApi";
+import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
+import AutoSetButton from "../buttons/AutoSetButton";
+import OKButton from "../buttons/OKButton";
 
 type AutoSetChannelNumbersProps = {
   readonly id: string;
-  readonly values: VideoStreamDto[];
 };
 
-const AutoSetChannelNumbers = ({ id, values }: AutoSetChannelNumbersProps) => {
+const AutoSetChannelNumbers = ({ id }: AutoSetChannelNumbersProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
   const [block, setBlock] = React.useState<boolean>(false);
@@ -32,6 +28,7 @@ const AutoSetChannelNumbers = ({ id, values }: AutoSetChannelNumbersProps) => {
   const { selectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
   const { sortInfo } = useSortInfo(id);
+  const { selectedVideoStreams } = useSelectedVideoStreams(id);
 
   const ReturnToParent = () => {
     setShowOverlay(false);
@@ -40,14 +37,14 @@ const AutoSetChannelNumbers = ({ id, values }: AutoSetChannelNumbersProps) => {
   };
 
   const ids = useMemo((): string[] => {
-    if (values !== undefined && values.length > 0) {
-      const i = values?.map((a: VideoStreamDto) => a.id) ?? [];
+    if (selectedVideoStreams !== undefined && selectedVideoStreams.length > 0) {
+      const i = selectedVideoStreams?.map((a: VideoStreamDto) => a.id) ?? [];
 
       return i;
     }
 
     return [];
-  }, [values]);
+  }, [selectedVideoStreams]);
 
   const onAutoChannelsSave = React.useCallback(async () => {
     setBlock(true);

@@ -17,18 +17,18 @@ const ChannelGroupSelector: React.FC<ChannelGroupSelectorProps> = ({ className, 
   const channelGroupNamesQuery = useChannelGroupsGetChannelGroupIdNamesQuery();
   const [channelGroup, setChannelGroup] = useState<ChannelGroupIdName | undefined>(undefined);
 
-  const setChannelGroupByName = (channelGroupName: string) => {
+  const setChannelGroupByName = useCallback((channelGroupName: string) => {
     if (channelGroupName && channelGroupNamesQuery.data) {
       const foundChannelGroup = channelGroupNamesQuery.data.find((cg) => cg.name === channelGroupName);
       if (foundChannelGroup) {
         setChannelGroup(foundChannelGroup);
       }
     }
-  }
+  }, [channelGroupNamesQuery.data]);
 
   // Update channel group when prop value changes
   useEffect(() => {
-    if (value && (!channelGroup || channelGroup.name != value)) {
+    if (value) {
       setChannelGroupByName(value);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

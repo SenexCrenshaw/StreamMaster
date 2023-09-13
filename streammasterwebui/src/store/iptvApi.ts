@@ -240,7 +240,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/icons/geticonfromsource`,
-          params: { source: queryArg },
+          params: { value: queryArg },
         }),
         providesTags: ["Icons"],
       }),
@@ -503,7 +503,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/programmes/getprogrammefromdisplayname`,
-          params: { Tvg_ID: queryArg },
+          body: queryArg,
         }),
         providesTags: ["Programmes"],
       }),
@@ -1311,7 +1311,8 @@ export type ProgrammesGetProgrammsSimpleQueryApiArg = {
 };
 export type ProgrammesGetProgrammeFromDisplayNameApiResponse =
   /** status 200  */ ProgrammeNameDto;
-export type ProgrammesGetProgrammeFromDisplayNameApiArg = string;
+export type ProgrammesGetProgrammeFromDisplayNameApiArg =
+  GetProgrammeFromDisplayNameRequest;
 export type SchedulesDirectGetCountriesApiResponse =
   /** status 200  */ Countries;
 export type SchedulesDirectGetCountriesApiArg = void;
@@ -1796,6 +1797,9 @@ export type PagedResponseOfProgrammeNameDto = {
   totalPageCount: number;
   totalRecords: number;
   first: number;
+};
+export type GetProgrammeFromDisplayNameRequest = {
+  value?: string;
 };
 export type NorthAmerica = {
   fullName?: string;

@@ -1,45 +1,33 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-
 internal class Program
 {
     private const string SwaggerUrl = "http://127.0.0.1:7095/swagger/v1/swagger.json";
     private const string LocalFileName = "swagger.json";
     private const string OutputDir = @"..\..\..\..\StreamMasterwebui\src\smAPI";
-
+    private static readonly Dictionary<string, StringBuilder> tagToGetContentMap = new();
+    private static readonly Dictionary<string, StringBuilder> tagToMutateContentMap = new();
+    private static readonly Dictionary<string, Dictionary<string, string>> getMethodResponseTypes = new();
+    private static readonly Dictionary<string, Dictionary<string, string>> getMethodArgTypes = new();
+    private static readonly Dictionary<string, List<string>> tagToGetMethodsMap = new();
+    private static readonly List<string> blackList = new() { "programmesGetProgramme", "programmesGetProgrammeChannels", "programmesGetProgrammes", "programmesGetProgrammeFromDisplayName", "schedulesDirectGetHeadends", "schedulesDirectGetSchedules", "schedulesDirectGetStations", "videoStreamsGetAllStatisticsForAllUrls", "streamGroupVideoStreamsGetStreamGroupVideoStreamIds" };
     private static async System.Threading.Tasks.Task Main(string[] args)
     {
         string swaggerJson = await DownloadSwaggerJson();
         File.WriteAllText(LocalFileName, swaggerJson);
-
         (Dictionary<string, StringBuilder> getMap, Dictionary<string, StringBuilder> mutateMap) contentMap = ParseSwaggerJson(swaggerJson);
-
         WriteFiles(contentMap);
     }
-
     private static async Task<string> DownloadSwaggerJson()
     {
         using HttpClient httpClient = new();
         return await httpClient.GetStringAsync(SwaggerUrl);
     }
-
-    //private class Response
-    //{
-    //    public Dictionary<string, string> MethodResponseType { get; set; } = new Dictionary<string, string>();
-    //}
     private static (Dictionary<string, StringBuilder> getMap, Dictionary<string, StringBuilder> mutateMap) ParseSwaggerJson(string swaggerJson)
     {
-        // ... Parsing logic ...
-
         using JsonDocument doc = JsonDocument.Parse(swaggerJson);
         JsonElement root = doc.RootElement;
-
-
-        Dictionary<string, StringBuilder> tagToGetContentMap = new();
-        Dictionary<string, StringBuilder> tagToMutateContentMap = new();
-        Dictionary<string, Dictionary<string, string>> getMethodResponseTypes = new();
-        Dictionary<string, List<string>> tagToGetMethodsMap = new();
         if (root.TryGetProperty("paths", out JsonElement paths))
         {
             foreach (JsonProperty path in paths.EnumerateObject())
@@ -55,23 +43,14 @@ internal class Program
                         string tag = tags[0].GetString();
                         string functionName = ConvertToTypeScriptPascalCase(operationId[(operationId.IndexOf('_') + 1)..]);
                         string? argType = GetArgType(method.Value);
-                        if (argType != null)
-                        {
-                            argType = "iptv." + argType;
-                        }
-
                         string responseType = GetResponseType(method.Value);
-                        if (responseType != "void")
-                        {
-                            responseType = "iptv." + responseType;
-                        }
-
                         StringBuilder contentToUse;
-
-
                         if (method.Name.ToLower() == "get")
                         {
-
+                            if (functionName.ToLower().Equals("getvideostreams"))
+                            {
+                                int aa = 1;
+                            }
                             if (!tagToGetContentMap.ContainsKey(tag))
                             {
                                 tagToGetContentMap[tag] = new StringBuilder();
@@ -87,6 +66,12 @@ internal class Program
                                 tagToGetMethodsMap[tag] = new List<string>();
                             }
                             tagToGetMethodsMap[tag].Add(functionName);
+
+                            if (!getMethodArgTypes.ContainsKey(tag))
+                            {
+                                getMethodArgTypes[tag] = new();
+                            }
+                            getMethodArgTypes[tag][functionName] = argType;
 
                             if (!getMethodResponseTypes.ContainsKey(tag))
                             {
@@ -105,7 +90,6 @@ internal class Program
                             }
                             contentToUse = tagToMutateContentMap[tag];
                         }
-
                         contentToUse.AppendLine($"export const {functionName} = async {(argType != null ? $"(arg: {argType})" : "()")}: Promise<{responseType}> => {{");
                         if (responseType != "void")
                         {
@@ -121,36 +105,47 @@ internal class Program
                 }
             }
         }
-
-        // Write content to individual files based on tags and method types
         WriteContentBasedOnTag(tagToGetContentMap, "GetAPI");
         WriteContentBasedOnTag(tagToMutateContentMap, "MutateAPI");
-        Dictionary<string, StringBuilder>? tagToRtkContentMap = BuildEnhanced(tagToGetContentMap, tagToGetMethodsMap, getMethodResponseTypes);
+        Dictionary<string, StringBuilder>? tagToRtkContentMap = BuildEnhanced();
         WriteContentBasedOnTag(tagToRtkContentMap, "EnhancedAPI");
         return (tagToGetContentMap, tagToMutateContentMap);
     }
-
-    private static string GetUpdateFunction(string responseType)
+    private static bool IsPaged(string responseType)
     {
+        return responseType.StartsWith("PagedResponse") || responseType.Contains(".PagedResponse");
+    }
+    private static bool IsArray(string responseType)
+    {
+        return responseType.EndsWith("[]");
+    }
+    private static bool IsPagedOrIsArray(string responseType)
+    {
+        return IsPaged(responseType) || IsArray(responseType);
+    }
+    private static string GetUpdateFunction(string argType, string responseType)
+    {
+
+        List<string> args = getMethodArgTypes.SelectMany(kv => kv.Value.Keys).ToList();
+        List<string> resps = getMethodResponseTypes.SelectMany(kv => kv.Value.Keys).ToList();
         StringBuilder ret = new();
-        string data = responseType.StartsWith("PagedResponse") ? "data.data" : "data";
-        if (responseType.StartsWith("PagedResponse"))
+        string data = IsPaged(responseType) ? "data.data" : "data";
+        string draft = IsPaged(argType) ? "draft.data" : "draft";
+        if (IsPagedOrIsArray(responseType))
         {
             ret.AppendLine($"              {data}.forEach(item => {{");
-            ret.AppendLine($"                const index = {data}.findIndex(existingItem => existingItem.id === item.id);");
+            ret.AppendLine($"                const index = {draft}.findIndex(existingItem => existingItem.id === item.id);");
             ret.AppendLine($"                if (index !== -1) {{");
-            ret.AppendLine($"                  {data}[index] = item;");
+            ret.AppendLine($"                  {draft}[index] = item;");
             ret.AppendLine($"                }}");
             ret.AppendLine($"              }});");
             return ret.ToString();
         }
-
         return "              draft=data";
     }
-    private static Dictionary<string, StringBuilder> BuildEnhanced(Dictionary<string, StringBuilder> tagToGetContentMap, Dictionary<string, List<string>> tagToGetMethodsMap, Dictionary<string, Dictionary<string, string>> getMethodResponseTypes)
+    private static Dictionary<string, StringBuilder> BuildEnhanced()
     {
         Dictionary<string, StringBuilder> tagToRtkContentMap = new();
-
         foreach (string tag in tagToGetMethodsMap.Keys)
         {
             StringBuilder rtkContent = new();
@@ -159,35 +154,46 @@ internal class Program
             rtkContent.AppendLine($"import {{ isEmptyObject }} from '../../common/common';");
             rtkContent.AppendLine($"import {{ iptvApi }} from '../../store/iptvApi';");
             rtkContent.AppendLine($"import type * as iptv from '../../store/iptvApi';");
-
             rtkContent.AppendLine();
             rtkContent.AppendLine($"export const enhancedApi{ConvertToTypeScriptPascalCase(tag)} = iptvApi.enhanceEndpoints({{");
             rtkContent.AppendLine($"  endpoints: {{");
-
             bool anyToWrite = false;
             // For every GET method in this tag
             foreach (string getMethod in tagToGetMethodsMap[tag])
             {
+                string name = ConvertToCamelCase(ConvertToTypeScriptPascalCase(tag + getMethod));
+                if (blackList.Contains(name))
+                {
+                    continue;
+                }
+                if (getMethod.ToLower().Equals("getvideostreams"))
+                {
+                    int aa = 1;
+                }
                 string responseType = getMethodResponseTypes[tag][getMethod];
                 if (responseType == "void")
                 {
                     continue;
                 }
+
+                string arg = getMethodArgTypes[tag][getMethod];
+
                 anyToWrite = true;
-                string updateFunction = GetUpdateFunction(responseType);
-                string name = ConvertToCamelCase(ConvertToTypeScriptPascalCase(tag + getMethod));
+                string updateFunction = GetUpdateFunction(arg, responseType);
+
                 rtkContent.AppendLine($"    {name}: {{");
                 rtkContent.AppendLine($"      async onCacheEntryAdded(api, {{ dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }}) {{");
                 rtkContent.AppendLine($"        try {{");
                 rtkContent.AppendLine($"          await cacheDataLoaded;");
                 rtkContent.AppendLine();
                 rtkContent.AppendLine($"          const updateCachedDataWithResults = (data: {responseType}) => {{");
-                rtkContent.AppendLine($"            updateCachedData((draft: {responseType}) => {{");
+                rtkContent.AppendLine($"            updateCachedData((draft: {arg}) => {{");
                 rtkContent.AppendLine(updateFunction);
                 rtkContent.AppendLine($"              return draft;");
                 rtkContent.AppendLine($"            }});");
                 rtkContent.AppendLine($"          }};");
                 rtkContent.AppendLine();
+                rtkContent.AppendLine($"          hubConnection.off('{tag}Refresh');");
                 rtkContent.AppendLine($"          hubConnection.on('{tag}Refresh', (data: {responseType}) => {{");
                 rtkContent.AppendLine($"            if (isEmptyObject(data)) {{");
                 rtkContent.AppendLine($"              dispatch(iptvApi.util.invalidateTags(['{tag}']));");
@@ -201,7 +207,6 @@ internal class Program
                 rtkContent.AppendLine($"        }}");
                 rtkContent.AppendLine();
                 rtkContent.AppendLine($"        await cacheEntryRemoved;");
-                rtkContent.AppendLine($"        hubConnection.off('{tag}Refresh');");
                 rtkContent.AppendLine($"      }}");
                 rtkContent.AppendLine($"    }},");
             }
@@ -213,7 +218,6 @@ internal class Program
 
                 tagToRtkContentMap[tag] = rtkContent;
             }
-
         }
         return tagToRtkContentMap;
     }
@@ -238,31 +242,57 @@ internal class Program
         }
     }
 
-    public static string GetArgType(JsonElement methodElement)
+    public static string? GetArgType(JsonElement methodElement)
     {
+
         if (methodElement.TryGetProperty("requestBody", out JsonElement requestBody) &&
             requestBody.TryGetProperty("content", out JsonElement content) &&
             content.TryGetProperty("application/json", out JsonElement jsonContent) &&
             jsonContent.TryGetProperty("schema", out JsonElement schema) &&
             schema.TryGetProperty("$ref", out JsonElement refElement))
         {
-            return ConvertToTypeScriptPascalCase(refElement.GetString().Split("/")[^1]);
+            return "iptv." + ConvertToTypeScriptPascalCase(refElement.GetString().Split("/")[^1]);
+        }
+
+        string resp = GetResponseType(methodElement, true);
+        if (resp != "void")
+        {
+            return resp;
         }
 
         if (methodElement.TryGetProperty("parameters", out JsonElement parameters))
         {
             foreach (JsonElement parameter in parameters.EnumerateArray())
             {
-                if (parameter.TryGetProperty("schema", out JsonElement parameterSchema) && parameterSchema.TryGetProperty("$ref", out JsonElement parameterRef))
+                if (parameter.TryGetProperty("schema", out JsonElement parameterSchema))
                 {
-                    return ConvertToTypeScriptPascalCase(parameterRef.GetString().Split("/")[^1]);
+                    if (parameterSchema.TryGetProperty("$ref", out JsonElement parameterRef))
+                    {
+                        return "iptv." + ConvertToTypeScriptPascalCase(parameterRef.GetString().Split("/")[^1]);
+                    }
+
+                    if (parameterSchema.TryGetProperty("type", out JsonElement parameterType))
+                    {
+                        switch (parameterType.GetString().ToLower())
+                        {
+                            case "string":
+                                return "string";
+                            case "integer":
+                                return "number";
+                            default:
+                                break;
+                        }
+
+                        return ConvertToTypeScriptPascalCase(parameterType.GetString());
+                    }
                 }
             }
         }
+
         return null;
     }
 
-    public static string GetResponseType(JsonElement methodElement)
+    public static string GetResponseType(JsonElement methodElement, bool keepPaged = false)
     {
         if (methodElement.TryGetProperty("responses", out JsonElement responses) &&
             responses.TryGetProperty("200", out JsonElement response200) &&
@@ -272,14 +302,20 @@ internal class Program
         {
             if (responseSchema.TryGetProperty("$ref", out JsonElement responseRef))
             {
-                return ConvertToTypeScriptPascalCase(responseRef.GetString().Split("/")[^1]);
+                if (!keepPaged && responseRef.ToString().Contains("/PagedResponseOf"))
+                {
+                    string resp = responseRef.ToString().Split("/")[^1];
+                    resp = resp.Replace("PagedResponseOf", "");
+                    return "iptv." + ConvertToTypeScriptPascalCase(resp) + "[]";
+                }
+                return "iptv." + ConvertToTypeScriptPascalCase(responseRef.GetString().Split("/")[^1]);
             }
             else if (responseSchema.TryGetProperty("type", out JsonElement typeProperty) &&
                      typeProperty.GetString() == "array" &&
                      responseSchema.TryGetProperty("items", out JsonElement items) &&
                      items.TryGetProperty("$ref", out JsonElement itemsRef))
             {
-                return ConvertToTypeScriptPascalCase(itemsRef.GetString().Split("/")[^1]) + "[]";
+                return "iptv." + ConvertToTypeScriptPascalCase(itemsRef.GetString().Split("/")[^1]) + "[]";
             }
         }
         return "void";

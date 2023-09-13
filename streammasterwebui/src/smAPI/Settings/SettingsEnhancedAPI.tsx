@@ -12,11 +12,18 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.TaskQueueStatusDto[]) => {
             updateCachedData((draft: iptv.TaskQueueStatusDto[]) => {
-              draft=data
+              data.forEach(item => {
+                const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                if (index !== -1) {
+                  draft[index] = item;
+                }
+              });
+
               return draft;
             });
           };
 
+          hubConnection.off('SettingsRefresh');
           hubConnection.on('SettingsRefresh', (data: iptv.TaskQueueStatusDto[]) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['Settings']));
@@ -30,7 +37,6 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('SettingsRefresh');
       }
     },
     settingsGetSetting: {
@@ -45,6 +51,7 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
             });
           };
 
+          hubConnection.off('SettingsRefresh');
           hubConnection.on('SettingsRefresh', (data: iptv.SettingDto) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['Settings']));
@@ -58,7 +65,6 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('SettingsRefresh');
       }
     },
     settingsGetSystemStatus: {
@@ -73,6 +79,7 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
             });
           };
 
+          hubConnection.off('SettingsRefresh');
           hubConnection.on('SettingsRefresh', (data: iptv.SystemStatus) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['Settings']));
@@ -86,7 +93,6 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('SettingsRefresh');
       }
     },
   }

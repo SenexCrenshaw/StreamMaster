@@ -2,7 +2,6 @@
 using StreamMasterApplication.Icons.Commands;
 using StreamMasterApplication.Icons.Queries;
 
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Hubs;
@@ -20,10 +19,11 @@ public partial class StreamMasterHub : IIconHub
         return await mediator.Send(new GetIcon(Id)).ConfigureAwait(false);
     }
 
-    public async Task<IconFileDto?> GetIconFromSource(string source)
+    public async Task<IconFileDto?> GetIconFromSource(GetIconFromSourceRequest request)
     {
-        return await mediator.Send(new GetIconFromSource(source)).ConfigureAwait(false);
+        return await mediator.Send(request).ConfigureAwait(false);
     }
+
 
     public async Task<PagedResponse<IconFileDto>> GetIcons(IconFileParameters iconFileParameters)
     {

@@ -10,14 +10,21 @@ export const enhancedApiVideoStreamLinks = iptvApi.enhanceEndpoints({
         try {
           await cacheDataLoaded;
 
-          const updateCachedDataWithResults = (data: iptv.PagedResponseOfChildVideoStreamDto) => {
+          const updateCachedDataWithResults = (data: iptv.ChildVideoStreamDto[]) => {
             updateCachedData((draft: iptv.PagedResponseOfChildVideoStreamDto) => {
-              draft=data
+              data.forEach(item => {
+                const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
+                if (index !== -1) {
+                  draft.data[index] = item;
+                }
+              });
+
               return draft;
             });
           };
 
-          hubConnection.on('VideoStreamLinksRefresh', (data: iptv.PagedResponseOfChildVideoStreamDto) => {
+          hubConnection.off('VideoStreamLinksRefresh');
+          hubConnection.on('VideoStreamLinksRefresh', (data: iptv.ChildVideoStreamDto[]) => {
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['VideoStreamLinks']));
             } else {
@@ -30,7 +37,6 @@ export const enhancedApiVideoStreamLinks = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-        hubConnection.off('VideoStreamLinksRefresh');
       }
     },
   }

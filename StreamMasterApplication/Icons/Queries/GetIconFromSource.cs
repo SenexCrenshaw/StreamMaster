@@ -1,24 +1,15 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-
-using StreamMasterDomain.Cache;
-using StreamMasterDomain.Dto;
-
-using System.Web;
+﻿using System.Web;
 
 namespace StreamMasterApplication.Icons.Queries;
 
-public record GetIconFromSource(string source) : IRequest<IconFileDto?>;
+public record GetIconFromSourceRequest(string value) : IRequest<IconFileDto?>;
 
-internal class GetIconFromSourceHandler : IRequestHandler<GetIconFromSource, IconFileDto?>
+internal class GetIconFromSourceRequestHandler : IRequestHandler<GetIconFromSourceRequest, IconFileDto?>
 {
     private readonly IMapper _mapper;
     private readonly ISender _sender;
     private readonly IMemoryCache _memoryCache;
-    public GetIconFromSourceHandler(
+    public GetIconFromSourceRequestHandler(
         IMemoryCache memoryCache,
             ISender sender,
     IMapper mapper
@@ -29,15 +20,15 @@ internal class GetIconFromSourceHandler : IRequestHandler<GetIconFromSource, Ico
         _mapper = mapper;
     }
 
-    public Task<IconFileDto?> Handle(GetIconFromSource request, CancellationToken cancellationToken)
+    public Task<IconFileDto?> Handle(GetIconFromSourceRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(request.source))
+        if (string.IsNullOrEmpty(request.value))
         {
             return Task.FromResult<IconFileDto?>(null);
         }
 
         List<IconFileDto> icons = _memoryCache.GetIcons(_mapper);
-        string toCheck = HttpUtility.UrlDecode(request.source).ToLower();
+        string toCheck = HttpUtility.UrlDecode(request.value).ToLower();
 
         IconFileDto? icon = icons.FirstOrDefault(a => a.Source.ToLower() == toCheck);
         return Task.FromResult(icon);

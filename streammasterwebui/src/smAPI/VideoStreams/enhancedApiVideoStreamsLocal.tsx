@@ -1,26 +1,28 @@
 import { hubConnection } from '../../app/signalr';
-import { isEmptyObject } from '../../common/common';
-import { iptvApi } from '../../store/iptvApi';
+import { isEmptyObject, type IDIsHidden } from '../../common/common';
 import type * as iptv from '../../store/iptvApi';
+import { iptvApi } from '../../store/iptvApi';
 
-export const enhancedApiM3UFiles = iptvApi.enhanceEndpoints({
+export const enhancedApiVideoStreamsLocal = iptvApi.enhanceEndpoints({
   endpoints: {
-    m3UFilesGetM3UFile: {
+    videoStreamsGetVideoStream: {
       async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
-          const updateCachedDataWithResults = (data: iptv.M3UFileDto) => {
-            updateCachedData((draft: iptv.M3UFileDto) => {
-              draft=data
-              return draft;
+          const updateCachedDataWithResults = (data: IDIsHidden[]) => {
+            updateCachedData((draft: iptv.VideoStreamDto) => {
+              const foundIndex = data.findIndex(existingItem => existingItem.id === draft.id);
+              if (foundIndex !== -1) {
+                draft.isHidden = data[foundIndex].isHidden;
+              }
             });
           };
 
-          hubConnection.off('M3UFilesRefresh');
-          hubConnection.on('M3UFilesRefresh', (data: iptv.M3UFileDto) => {
+          hubConnection.off('VideoStreamsVisibilityRefresh');
+          hubConnection.on('VideoStreamsVisibilityRefresh', (data: IDIsHidden[]) => {
             if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['M3UFiles']));
+              dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
             } else {
               updateCachedDataWithResults(data);
             }
@@ -33,17 +35,17 @@ export const enhancedApiM3UFiles = iptvApi.enhanceEndpoints({
         await cacheEntryRemoved;
       }
     },
-    m3UFilesGetM3UFiles: {
+    videoStreamsGetVideoStreams: {
       async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
-          const updateCachedDataWithResults = (data: iptv.M3UFileDto[]) => {
-            updateCachedData((draft: iptv.PagedResponseOfM3UFileDto) => {
+          const updateCachedDataWithResults = (data: IDIsHidden[]) => {
+            updateCachedData((draft: iptv.PagedResponseOfVideoStreamDto) => {
               data.forEach(item => {
                 const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
                 if (index !== -1) {
-                  draft.data[index] = item;
+                  draft.data[index].isHidden = item.isHidden;
                 }
               });
 
@@ -51,10 +53,10 @@ export const enhancedApiM3UFiles = iptvApi.enhanceEndpoints({
             });
           };
 
-          hubConnection.off('M3UFilesRefresh');
-          hubConnection.on('M3UFilesRefresh', (data: iptv.M3UFileDto[]) => {
+          hubConnection.off('VideoStreamsVisibilityRefresh');
+          hubConnection.on('VideoStreamsVisibilityRefresh', (data: IDIsHidden[]) => {
             if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['M3UFiles']));
+              dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
             } else {
               updateCachedDataWithResults(data);
             }

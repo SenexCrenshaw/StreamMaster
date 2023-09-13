@@ -1,28 +1,38 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { memo } from "react";
+import { UpdateVideoStream } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
 import { useVideoStreamsUpdateVideoStreamMutation, type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
 import EPGSelector from "../selectors/EPGSelector";
 
-const EPGEditor = (props: EPGEditorProps) => {
+type EPGEditorProps = {
+  readonly data: VideoStreamDto;
+  readonly enableEditMode?: boolean;
+  readonly id?: string;
+};
+
+const EPGEditor = ({ data, enableEditMode, id }: EPGEditorProps) => {
   const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
 
   const onUpdateVideoStream = async (epg: string) => {
-    if (props.data.id === '') {
+    if (data.id === '') {
       return;
     }
 
-    const data = {} as UpdateVideoStreamRequest;
+    const toSend = {} as UpdateVideoStreamRequest;
 
-    data.id = props.data.id;
+    toSend.id = data.id;
 
-    if (epg && epg !== '' && props.data.user_Tvg_ID !== epg) {
-      data.tvg_ID = epg;
+    if (epg && epg !== '' && data.user_Tvg_ID !== epg) {
+      toSend.tvg_ID = epg;
     }
 
-    await videoStreamsUpdateVideoStreamMutation(data)
+
+    await UpdateVideoStream(toSend)
       .then(() => {
 
       }).catch((e: unknown) => {
         console.error(e);
+
       });
 
   };
@@ -30,26 +40,19 @@ const EPGEditor = (props: EPGEditorProps) => {
   return (
     <div className="flex w-full">
       <EPGSelector
-        enableEditMode={props.enableEditMode}
+        enableEditMode={enableEditMode}
         onChange={
           async (e: string) => {
             await onUpdateVideoStream(e);
           }
         }
-        value={props.data.user_Tvg_ID}
+        value={data.user_Tvg_ID}
       />
     </div>
   );
 };
 
-EPGEditor.displayName = 'EPG Editor';
-EPGEditor.defaultProps = {
-  enableEditMode: true
-};
 
-type EPGEditorProps = {
-  readonly data: VideoStreamDto;
-  readonly enableEditMode?: boolean;
-};
+
 
 export default memo(EPGEditor);
