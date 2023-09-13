@@ -21,9 +21,6 @@ export const hubConnection = new HubConnectionBuilder()
   })
   .build();
 
-
-
-
 export function isSignalRConnected () {
   return hubConnection && hubConnection.state === 'Connected';
 }
