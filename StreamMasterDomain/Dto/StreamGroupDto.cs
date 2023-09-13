@@ -6,6 +6,7 @@ namespace StreamMasterDomain.Dto;
 [RequireAll]
 public class StreamGroupDto : IMapFrom<StreamGroup>
 {
+    public bool IsLoading { get; set; } = false;
     //public List<ChannelGroupDto> ChannelGroups { get; set; } = new();
     //public List<VideoStreamDto> ChildVideoStreams { get; set; } = new();
     public string HDHRLink { get; set; } = string.Empty;

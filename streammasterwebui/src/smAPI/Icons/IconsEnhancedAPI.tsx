@@ -1,7 +1,7 @@
 import { hubConnection } from '../../app/signalr';
 import { isEmptyObject } from '../../common/common';
-import { iptvApi } from '../../store/iptvApi';
 import type * as iptv from '../../store/iptvApi';
+import { iptvApi } from '../../store/iptvApi';
 
 export const enhancedApiIcons = iptvApi.enhanceEndpoints({
   endpoints: {
@@ -12,7 +12,7 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto) => {
             updateCachedData((draft: iptv.IconFileDto) => {
-              draft=data
+              draft = data
               return draft;
             });
           };
@@ -40,7 +40,7 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto) => {
             updateCachedData((draft: iptv.IconFileDto) => {
-              draft=data
+              draft = data
               return draft;
             });
           };

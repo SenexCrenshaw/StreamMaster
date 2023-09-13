@@ -1,19 +1,18 @@
-import { type PayloadAction } from '@reduxjs/toolkit';
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { type RootState } from '../store';
 
 type SetSortInfoPayload = {
-  sortField?: string;
-  sortOrder?: -1 | 0 | 1;
-  typename: string;
-}
+  sortField?: string,
+  sortOrder?: -1 | 0 | 1,
+  typename: string,
+};
 
-type SortInfoState = Record<string, { orderBy: string, sortField: string, sortOrder: -1 | 0 | 1 }>;
+type SortInfoState = Record<string, { orderBy: string, sortField: string, sortOrder: -1 | 0 | 1, }>;
 
 const defaultSortInfo = {
   orderBy: 'id asc',
   sortField: 'id',
-  sortOrder: 1 as -1 | 0 | 1
+  sortOrder: 1 as -1 | 0 | 1,
 };
 const initialState: SortInfoState = {};
 
@@ -44,8 +43,8 @@ const sortInfoSlice = createSlice({
           : '';
 
       }
-    }
-  }
+    },
+  },
 });
 
 export const sortInfo = (state: RootState, typename: string) => state.sortInfo[typename];

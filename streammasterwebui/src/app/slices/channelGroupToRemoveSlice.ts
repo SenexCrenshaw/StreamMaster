@@ -1,12 +1,11 @@
-import { type PayloadAction } from '@reduxjs/toolkit';
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import { type RootState } from '../store';
 
 type SetChannelGroupToRemoveSlicePayload = {
-  toRemove: number;
-  typename: string;
-}
+  toRemove: number,
+  typename: string,
+};
 
 type QueryFilterState = Record<string, number | undefined>;
 
@@ -26,8 +25,8 @@ const channelGroupToRemoveSlice = createSlice({
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete state[typename]; // Remove the key if the filter is null or undefined
       }
-    }
-  }
+    },
+  },
 });
 
 export const selectStreamToRemove = (state: RootState, typename: number) => state.channelGroupToRemove[typename];

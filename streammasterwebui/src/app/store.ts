@@ -17,6 +17,7 @@ import { enhancedApiVideoStreamLinks } from '../smAPI/VideoStreamLinks/VideoStre
 import { enhancedApiVideoStreams } from '../smAPI/VideoStreams/VideoStreamsEnhancedAPI';
 import { enhancedApiVideoStreamsLocal } from '../smAPI/VideoStreams/enhancedApiVideoStreamsLocal';
 
+import appInfoSliceReducer from './slices/appInfoSlice';
 import channelGroupToRemoveSliceReducer from './slices/channelGroupToRemoveSlice';
 import queryAdditionalFiltersReducer from './slices/queryAdditionalFiltersSlice';
 import queryFilterReducer from './slices/queryFilterSlice';
@@ -66,6 +67,7 @@ const rootReducer = combineReducers({
   [enhancedApiVideoStreamLinks.reducerPath]: enhancedApiVideoStreamLinks.reducer,
   [enhancedApiVideoStreams.reducerPath]: enhancedApiVideoStreams.reducer,
   [enhancedApiVideoStreamsLocal.reducerPath]: enhancedApiVideoStreamsLocal.reducer,
+  appInfo:appInfoSliceReducer,
   channelGroupToRemove:channelGroupToRemoveSliceReducer,
   queryAdditionalFilters: queryAdditionalFiltersReducer,
   queryFilter: queryFilterReducer,

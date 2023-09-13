@@ -1,11 +1,10 @@
-import { type PayloadAction } from '@reduxjs/toolkit';
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { type RootState } from '../store';
 
 type SetSelectAllPayload = {
-  isSelectAll: boolean;
-  typename: string;
-}
+  isSelectAll: boolean,
+  typename: string,
+};
 
 type SelectAllState = Record<string, boolean>;
 
@@ -19,8 +18,8 @@ const selectAllSlice = createSlice({
       const { typename, isSelectAll } = action.payload;
 
       state[typename] = isSelectAll;
-    }
-  }
+    },
+  },
 });
 
 export const selectAll = (state: RootState, typename: string) => state.selectAll[typename];

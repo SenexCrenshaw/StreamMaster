@@ -4,14 +4,7 @@ import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import AddButton from "../buttons/AddButton";
 import TextInput from "../inputs/TextInput";
 
-
-// Define the component props
-type ChannelGroupAddDialogProps = {
-  readonly onAdd?: (value: string) => void;
-  readonly onHide?: () => void;
-}
-
-const ChannelGroupAddDialog: FC<ChannelGroupAddDialogProps> = ({ onAdd, onHide }) => {
+const ChannelGroupAddDialog: FC = () => {
 
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
@@ -24,13 +17,9 @@ const ChannelGroupAddDialog: FC<ChannelGroupAddDialogProps> = ({ onAdd, onHide }
     setShowOverlay(false);
     setInfoMessage('');
     setBlock(false);
-    onHide?.();
-    onAdd?.(newGroupName);
     setNewGroupName('');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onAdd, onHide]);
 
-
+  }, []);
 
   const addGroup = useCallback(() => {
     setBlock(true);

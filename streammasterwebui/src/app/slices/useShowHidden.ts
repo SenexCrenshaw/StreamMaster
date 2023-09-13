@@ -9,7 +9,7 @@ export const useShowHidden = (typename: string) => {
   const setShowHidden = (hidden: boolean | null | undefined) => {
     dispatch(setShowHiddenInternal({
       hidden: hidden,
-      typename
+      typename,
     }));
   };
 

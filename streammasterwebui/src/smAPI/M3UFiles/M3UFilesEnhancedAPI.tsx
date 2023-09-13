@@ -1,7 +1,7 @@
 import { hubConnection } from '../../app/signalr';
 import { isEmptyObject } from '../../common/common';
-import { iptvApi } from '../../store/iptvApi';
 import type * as iptv from '../../store/iptvApi';
+import { iptvApi } from '../../store/iptvApi';
 
 export const enhancedApiM3UFiles = iptvApi.enhanceEndpoints({
   endpoints: {
@@ -12,7 +12,7 @@ export const enhancedApiM3UFiles = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.M3UFileDto) => {
             updateCachedData((draft: iptv.M3UFileDto) => {
-              draft=data
+              draft = data
               return draft;
             });
           };

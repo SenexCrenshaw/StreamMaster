@@ -8,7 +8,7 @@ export const useChannelGroupToRemove = (typename: string) => {
   const setChannelGroupToRemove = (toRemove: number) => {
     dispatch(setChannelGroupToRemoveInternal({
       toRemove: toRemove,
-      typename
+      typename,
     }));
   };
 

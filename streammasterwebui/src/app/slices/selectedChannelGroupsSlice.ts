@@ -4,9 +4,9 @@ import { type ChannelGroupDto } from '../../store/iptvApi';
 import { type RootState } from '../store';
 
 type selectedChannelGroupsSlicePayload = {
-  ChannelGroupDtos: ChannelGroupDto[];
-  typename: string;
-}
+  ChannelGroupDtos: ChannelGroupDto[],
+  typename: string,
+};
 
 type QueryFilterState = Record<string, ChannelGroupDto[]>;
 
@@ -24,8 +24,8 @@ const selectedChannelGroupsSlice = createSlice({
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete state[typename]; // Remove the key if the array is empty
       }
-    }
-  }
+    },
+  },
 });
 
 // Extract the selectedChannelGroups from the state
@@ -37,7 +37,7 @@ const passThrough = (_: any, typename: string) => typename;
 
 export const makeselectedChannelGroups = createSelector(
   [selectVideoStreamsState, passThrough], // array of input selectors
-  (selectedChannelGroups, typename) => selectedChannelGroups[typename] || []// resulting selector
+  (selectedChannelGroups, typename) => selectedChannelGroups[typename] || [], // resulting selector
 );
 
 // export const selectedChannelGroups = (state: RootState, typename: number) => state.selectedChannelGroups[typename];

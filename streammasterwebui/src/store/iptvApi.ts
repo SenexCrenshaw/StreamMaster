@@ -1541,10 +1541,10 @@ export type DeleteChannelGroupRequest = {
   channelGroupId: number;
 };
 export type ChannelGroupStreamCount = {
-  id?: number;
-  activeCount?: number;
-  totalCount?: number;
-  hiddenCount?: number;
+  id: number;
+  activeCount: number;
+  totalCount: number;
+  hiddenCount: number;
 };
 export type ChannelGroupArg = ChannelGroupStreamCount & {
   isHidden?: boolean | null;
@@ -1552,7 +1552,9 @@ export type ChannelGroupArg = ChannelGroupStreamCount & {
   name: string;
   rank: number;
 };
-export type ChannelGroupDto = ChannelGroupArg & object;
+export type ChannelGroupDto = ChannelGroupArg & {
+  isLoading?: boolean;
+};
 export type ChannelGroupIdName = {
   id?: number;
   name?: string;
@@ -2078,6 +2080,7 @@ export type UpdateSettingRequest = {
   nameRegex?: string[] | null;
 };
 export type StreamGroupDto = {
+  isLoading: boolean;
   hdhrLink: string;
   isReadOnly: boolean;
   streamCount: number;
@@ -2167,6 +2170,7 @@ export type ChildVideoStreamDto = BaseVideoStreamDto & {
   rank: number;
 };
 export type VideoStreamDto = BaseVideoStreamDto & {
+  isLoading?: boolean;
   channelGroupId?: number;
   rank?: number;
   childVideoStreams?: ChildVideoStreamDto[];

@@ -8,7 +8,7 @@ export const useSelectAll = (typename: string) => {
   const setSelectAll = (isSelectAll: boolean) => {
     dispatch(setSelectAllInternal({
       isSelectAll: isSelectAll,
-      typename
+      typename,
     }));
   };
 

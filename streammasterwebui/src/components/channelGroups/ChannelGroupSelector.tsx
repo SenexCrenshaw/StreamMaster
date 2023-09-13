@@ -34,9 +34,6 @@ const ChannelGroupSelector: React.FC<ChannelGroupSelectorProps> = ({ className, 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setChannelGroupByName, value]);
 
-  const onChannelGroupAddDialogClose = (newGroupName: string) => {
-    onChange(newGroupName);
-  };
 
   const handleResetClick = () => {
     if (resetValue && channelGroup?.name != resetValue) {
@@ -61,7 +58,7 @@ const ChannelGroupSelector: React.FC<ChannelGroupSelectorProps> = ({ className, 
             tooltipOptions={getTopToolOptions}
           />
         )}
-        <ChannelGroupAddDialog onAdd={onChannelGroupAddDialogClose} />
+        <ChannelGroupAddDialog />
       </div>
     </div>
   );

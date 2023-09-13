@@ -1,11 +1,11 @@
 import { hubConnection } from '../../app/signalr';
 import { isEmptyObject } from '../../common/common';
-import { iptvApi } from '../../store/iptvApi';
 import type * as iptv from '../../store/iptvApi';
+import { iptvApi } from '../../store/iptvApi';
 
 export const enhancedApiStreamGroupChannelGroup = iptvApi.enhanceEndpoints({
   endpoints: {
-    streamGroupChannelGroupGetChannelGroupsFromStreamGroup: {
+    streamGroupChannelGroupGetAllChannelGroups: {
       async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
@@ -39,7 +39,7 @@ export const enhancedApiStreamGroupChannelGroup = iptvApi.enhanceEndpoints({
         await cacheEntryRemoved;
       }
     },
-    streamGroupChannelGroupGetAllChannelGroups: {
+    streamGroupChannelGroupGetChannelGroupsFromStreamGroup: {
       async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;

@@ -1,12 +1,11 @@
-import { type PayloadAction } from '@reduxjs/toolkit';
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { type GetApiArg } from '../../common/common';
 import { type RootState } from '../store';
 
 type SetQueryFilterPayload = {
-  filter: GetApiArg | undefined;
-  typename: string;
-}
+  filter: GetApiArg | undefined,
+  typename: string,
+};
 
 type QueryFilterState = Record<string, GetApiArg | undefined>;
 
@@ -25,8 +24,8 @@ const queryFilterSlice = createSlice({
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete state[typename]; // Remove the key if the filter is null or undefined
       }
-    }
-  }
+    },
+  },
 });
 
 export const selectQueryFilter = (state: RootState, typename: string) => state.queryFilter[typename];

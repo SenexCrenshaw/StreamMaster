@@ -46,6 +46,7 @@ export const enhancedApiVideoStreamsLocal = iptvApi.enhanceEndpoints({
                 const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
                 if (index !== -1) {
                   draft.data[index].isHidden = item.isHidden;
+                  draft.data[index].isLoading = false;
                 }
               });
 

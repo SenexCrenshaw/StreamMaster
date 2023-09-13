@@ -6,7 +6,8 @@ import { IntlProvider } from 'react-intl';
 import { ProSidebarProvider } from 'react-pro-sidebar';
 import { Navigate, Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
 import Home from './Home';
-import SignalRHub from './app/SignalRHub';
+import { useAppInfo } from './app/slices/useAppInfo';
+import { useSignalRConnection } from './app/useSignalRConnection';
 import VideoPlayer from './components/VideoPlayer';
 import FilesEditor from './features/filesEditor/FilesEditor';
 import LogViewer from './features/logViewer/LogViewer';
@@ -22,14 +23,16 @@ import { useSettingsGetSystemStatusQuery } from './store/iptvApi';
 import StreamMasterSetting from './store/signlar/StreamMasterSetting';
 
 const App = () => {
+  useSignalRConnection();
+  const { isHubConnected } = useAppInfo();
+
   const [locale,] = useLocalStorage('en', 'locale');
   const messages = locale === 'en' ? messagesEn : messagesEn;
-  const [hubConnected, setHubConnected] = React.useState<boolean>(false);
   const systemStatus = useSettingsGetSystemStatusQuery();
   const setting = StreamMasterSetting();
 
   const systemReady = React.useMemo((): boolean => {
-    if (!hubConnected) {
+    if (!isHubConnected) {
       return false;
     }
 
@@ -43,7 +46,7 @@ const App = () => {
 
     return systemStatus.data.isSystemReady;
 
-  }, [hubConnected, setting, systemStatus.data]);
+  }, [isHubConnected, setting, systemStatus.data]);
 
 
   const router = createBrowserRouter(
@@ -108,8 +111,6 @@ const App = () => {
     return (
       <div className="flex justify-content-center flex-wrap card-container w-full h-full "  >
 
-        <SignalRHub onConnected={(e) => setHubConnected(e)} />
-
         <div className="flex align-items-center justify-content-center font-bold  m-2"
           style={{
             height: 'calc(100vh - 10px)',
@@ -130,7 +131,6 @@ const App = () => {
 
   return (
     <IntlProvider locale={locale} messages={messages}>
-      <SignalRHub />
       <ProSidebarProvider>
         <RouterProvider router={router} />
       </ProSidebarProvider>

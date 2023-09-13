@@ -10,13 +10,13 @@ export const useSelectedStreamGroup = (typename: string) => {
     if (streamGroup === undefined) {
       dispatch(setSelectedStreamGroupInternal({
         streamGroup: {} as StreamGroupDto,
-        typename
+        typename,
       }));
 
     } else {
       dispatch(setSelectedStreamGroupInternal({
         streamGroup: streamGroup,
-        typename
+        typename,
       }));
     }
   };

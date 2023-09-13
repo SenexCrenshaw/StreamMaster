@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
+import { type AdditionalFilterProps } from '../../common/common';
 import { type AppDispatch, type RootState } from '../store';
 import { setQueryAdditionalFilter as setQueryAdditionalFilterInternal } from './queryAdditionalFiltersSlice';
-import { type AdditionalFilterProps } from '../../common/common';
 
 
 export const useQueryAdditionalFilters = (typename: string) => {
@@ -11,7 +11,7 @@ export const useQueryAdditionalFilters = (typename: string) => {
   const setQueryAdditionalFilter = (newFilter: AdditionalFilterProps) => {
     dispatch(setQueryAdditionalFilterInternal({
       filter: newFilter,
-      typename
+      typename,
     }));
   };
 

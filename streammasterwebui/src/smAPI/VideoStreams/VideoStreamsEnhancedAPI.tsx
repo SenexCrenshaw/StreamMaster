@@ -1,11 +1,12 @@
 import { hubConnection } from '../../app/signalr';
 import { isEmptyObject } from '../../common/common';
-import { iptvApi } from '../../store/iptvApi';
 import type * as iptv from '../../store/iptvApi';
+import { iptvApi } from '../../store/iptvApi';
 
 export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
   endpoints: {
     videoStreamsGetChannelLogoDtos: {
+
       async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
@@ -46,7 +47,7 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.VideoStreamDto) => {
             updateCachedData((draft: iptv.VideoStreamDto) => {
-              draft=data
+              draft = data
               return draft;
             });
           };

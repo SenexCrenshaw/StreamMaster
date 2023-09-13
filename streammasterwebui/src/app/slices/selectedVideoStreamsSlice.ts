@@ -4,9 +4,9 @@ import { type VideoStreamDto } from '../../store/iptvApi';
 import { type RootState } from '../store';
 
 type selectedVideoStreamsSlicePayload = {
-  typename: string;
-  videoStreamDtos: VideoStreamDto[];
-}
+  typename: string,
+  videoStreamDtos: VideoStreamDto[],
+};
 
 type QueryFilterState = Record<string, VideoStreamDto[]>;
 
@@ -25,8 +25,8 @@ const selectedVideoStreamsSlice = createSlice({
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete state[typename]; // Remove the key if the array is empty
       }
-    }
-  }
+    },
+  },
 });
 
 // Extract the selectedVideoStreams from the state
@@ -38,7 +38,7 @@ const passThrough = (_: any, typename: string) => typename;
 
 export const makeSelectedVideoStreams = createSelector(
   [selectVideoStreamsState, passThrough], // array of input selectors
-  (selectedVideoStreams, typename) => selectedVideoStreams[typename] || []// resulting selector
+  (selectedVideoStreams, typename) => selectedVideoStreams[typename] || [], // resulting selector
 );
 
 // export const selectedVideoStreams = (state: RootState, typename: number) => state.selectedVideoStreams[typename];

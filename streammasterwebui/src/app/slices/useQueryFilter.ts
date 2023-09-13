@@ -10,7 +10,7 @@ export const useQueryFilter = (typename: string) => {
   const setQueryFilter = (newFilter: GetApiArg) => {
     dispatch(setQueryFilterInternal({
       filter: newFilter,
-      typename
+      typename,
     }));
   };
 

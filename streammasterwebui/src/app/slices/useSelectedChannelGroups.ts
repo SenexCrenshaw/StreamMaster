@@ -16,7 +16,7 @@ export const useSelectedChannelGroups = (typename: string) => {
 
     dispatch(setselectedChannelGroupsInternal({
       ChannelGroupDtos,
-      typename
+      typename,
     }));
   };
 

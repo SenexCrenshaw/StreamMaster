@@ -1,7 +1,7 @@
 import { hubConnection } from '../../app/signalr';
 import { isEmptyObject } from '../../common/common';
-import { iptvApi } from '../../store/iptvApi';
 import type * as iptv from '../../store/iptvApi';
+import { iptvApi } from '../../store/iptvApi';
 
 export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
   endpoints: {
@@ -12,7 +12,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.Countries) => {
             updateCachedData((draft: iptv.Countries) => {
-              draft=data
+              draft = data
               return draft;
             });
           };
@@ -40,7 +40,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.LineUpResult) => {
             updateCachedData((draft: iptv.LineUpResult) => {
-              draft=data
+              draft = data
               return draft;
             });
           };
@@ -102,7 +102,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.LineUpsResult) => {
             updateCachedData((draft: iptv.LineUpsResult) => {
-              draft=data
+              draft = data
               return draft;
             });
           };
@@ -164,7 +164,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.SdStatus) => {
             updateCachedData((draft: iptv.SdStatus) => {
-              draft=data
+              draft = data
               return draft;
             });
           };

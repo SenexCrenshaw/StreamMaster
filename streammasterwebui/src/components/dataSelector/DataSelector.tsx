@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import './DataSelector.css';
 
 import { Button } from 'primereact/button';
@@ -62,7 +63,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   const setting = StreamMasterSetting();
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const { data, isLoading, isFetching } = props.queryFilter ? props.queryFilter(queryFilter ?? skipToken) : { data: undefined, isFetching: false, isLoading: false };
 
   const onsetSelection = useCallback((e: T | T[], overRideSelectAll?: boolean): T | T[] | undefined => {
@@ -114,6 +115,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     if (!data) {
       return;
     }
+
 
     if (Array.isArray(data)) {
       if (!state.dataSource || (state.dataSource && !areArraysEqual(data, state.dataSource))) {
@@ -169,6 +171,9 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
 
   const rowClass = useCallback((changed: DataTableRowData<T[]>) => {
+
+    // const isLoading2 = getRecord(changed as T, 'isLoading');
+    // console.log('isLoading2', isLoading2);
     const isHidden = getRecord(changed as T, 'isHidden');
 
     if (isHidden === true) {
@@ -614,11 +619,10 @@ type BaseDataSelectorProps<T = any> = {
   virtualScrollHeight?: string | undefined;
 }
 
-type WithLoading<T> = T & { isLoading?: boolean };
 
-type QueryFilterProps<T> = BaseDataSelectorProps<WithLoading<T>> & {
+type QueryFilterProps<T> = BaseDataSelectorProps<T> & {
   dataSource?: never;
-  queryFilter: (filters: GetApiArg | typeof skipToken) => ReturnType<QueryHook<Array<WithLoading<T>> | PagedResponseDto<WithLoading<T>>>>;
+  queryFilter: (filters: GetApiArg | typeof skipToken) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
 };
 
 type DataSourceProps<T> = BaseDataSelectorProps<T> & {

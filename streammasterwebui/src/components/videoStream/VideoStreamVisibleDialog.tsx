@@ -112,6 +112,7 @@ const VideoStreamVisibleDialog = ({
     });
 
 
+
     videoStreamsUpdateVideoStreams(toSend)
       .then(() => {
         setInfoMessage('Set Stream Visibility Successfully');

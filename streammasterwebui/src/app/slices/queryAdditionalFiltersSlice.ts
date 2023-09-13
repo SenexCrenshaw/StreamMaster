@@ -1,12 +1,11 @@
-import { type PayloadAction } from '@reduxjs/toolkit';
-import { createSlice } from '@reduxjs/toolkit';
-import { type RootState } from '../store';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { type AdditionalFilterProps } from '../../common/common';
+import { type RootState } from '../store';
 
 type SetQueryAdditionalFilterPayload = {
-  filter: AdditionalFilterProps | null | undefined;
-  typename: string;
-}
+  filter: AdditionalFilterProps | null | undefined,
+  typename: string,
+};
 
 type QueryAdditionalFiltersState = Record<string, AdditionalFilterProps | undefined>;
 
@@ -25,8 +24,8 @@ const queryAdditionalFiltersSlice = createSlice({
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete state[typename]; // Remove the key if the filter is null or undefined
       }
-    }
-  }
+    },
+  },
 });
 
 export const selectQueryAdditionalFilters = (state: RootState, typename: string) => state.queryAdditionalFilters[typename];

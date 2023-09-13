@@ -6,7 +6,6 @@ import { type ChannelGroupDto, type UpdateChannelGroupRequest, type UpdateChanne
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import VisibleButton from "../buttons/VisibleButton";
 
-
 type ChannelGroupVisibleDialogProps = {
   readonly cgid: string;
   readonly id: string;
@@ -19,9 +18,7 @@ const ChannelGroupVisibleDialog = ({ id, cgid, onClose, skipOverLayer = false, v
 
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
-
   const [infoMessage, setInfoMessage] = React.useState('');
-
   const { selectedChannelGroups } = useSelectedChannelGroups(cgid);
   const { selectAll } = useSelectAll(id);
 
@@ -32,13 +29,11 @@ const ChannelGroupVisibleDialog = ({ id, cgid, onClose, skipOverLayer = false, v
     onClose?.();
   }, [onClose]);
 
-
   const onVisibleClick = React.useCallback(async () => {
     setBlock(true);
 
-    if (selectedChannelGroups.length === 0) {
+    if (!value && selectedChannelGroups.length === 0) {
       ReturnToParent();
-
       return;
     }
 
@@ -77,18 +72,12 @@ const ChannelGroupVisibleDialog = ({ id, cgid, onClose, skipOverLayer = false, v
 
   if (skipOverLayer === true) {
     return (
-      <VisibleButton
-        disabled={getTotalCount === 0}
-        iconFilled={false}
-        onClick={async () => await onVisibleClick()}
-        tooltip="Toggle Visibility"
-      />
+      <VisibleButton iconFilled={false} onClick={async () => await onVisibleClick()} />
     )
   }
 
   return (
     <>
-
       <InfoMessageOverLayDialog
         blocked={block}
         closable
@@ -97,11 +86,9 @@ const ChannelGroupVisibleDialog = ({ id, cgid, onClose, skipOverLayer = false, v
         onClose={() => { ReturnToParent(); }}
         show={showOverlay}
       >
-
         <div className="flex justify-content-center w-full">
-          <VisibleButton label='Toggle Visibility' onClick={async () => await onVisibleClick()} tooltip='Toggle2 Visibility' />
+          <VisibleButton label='Toggle Visibility' onClick={async () => await onVisibleClick()} />
         </div>
-
       </InfoMessageOverLayDialog>
 
       <VisibleButton
@@ -114,7 +101,6 @@ const ChannelGroupVisibleDialog = ({ id, cgid, onClose, skipOverLayer = false, v
           }
         }
         }
-        tooltip="Toggle Visibility"
       />
     </>
   );
