@@ -1,10 +1,10 @@
-﻿using StreamMasterDomain.Pagination;
-using StreamMasterDomain.Repository.EPG;
+﻿using StreamMasterDomain.EPG;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Programmes.Queries;
 public record GetProgrammsSimpleQuery(ProgrammeParameters Parameters) : IRequest<List<ProgrammeNameDto>>;
 
-internal class GetProgrammsSimpleQueryHandler : BaseMemoryRequestHandler, IRequestHandler<GetProgrammsSimpleQuery, List<ProgrammeNameDto>>
+internal class GetProgrammsSimpleQueryHandler : BaseMediatorRequestHandler, IRequestHandler<GetProgrammsSimpleQuery, List<ProgrammeNameDto>>
 {
 
     public GetProgrammsSimpleQueryHandler(ILogger<GetProgrammsSimpleQuery> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)

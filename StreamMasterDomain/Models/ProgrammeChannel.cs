@@ -1,4 +1,4 @@
-﻿namespace StreamMasterDomain.Repository;
+﻿namespace StreamMasterDomain.Models;
 
 public class ProgrammeChannel
 {

@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructureEF;
 
@@ -35,7 +34,7 @@ public class RepositoryContextInitializer
 
                 if (!_context.ChannelGroups.Any(a => a.Name == "(None)"))
                 {
-                    _context.Add(new ChannelGroup { Name = "(None)", IsReadOnly = true, Rank = 1 });
+                    _context.Add(new ChannelGroup { Name = "(None)", IsReadOnly = true });
                     await _context.SaveChangesAsync().ConfigureAwait(false);
                 }
             }

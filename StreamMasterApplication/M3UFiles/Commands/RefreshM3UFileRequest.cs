@@ -1,5 +1,9 @@
 ﻿using FluentValidation;
 
+using Microsoft.EntityFrameworkCore;
+
+using StreamMasterDomain.Models;
+
 namespace StreamMasterApplication.M3UFiles.Commands;
 
 public record RefreshM3UFileRequest(int Id) : IRequest<M3UFile?> { }
@@ -17,14 +21,14 @@ public class RefreshM3UFileRequestValidator : AbstractValidator<RefreshM3UFileRe
 public class RefreshM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<RefreshM3UFileRequest, M3UFile?>
 {
 
-    public RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
- : base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
+    public RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+ : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
     public async Task<M3UFile?> Handle(RefreshM3UFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            M3UFile m3uFile = await Repository.M3UFile.GetM3UFileByIdAsync(request.Id).ConfigureAwait(false);
+            M3UFile? m3uFile = await Repository.M3UFile.GetEPGFileQuery().FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 return null;

@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
 
+using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.VideoStreams.Events;
+using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
@@ -14,15 +16,21 @@ public class UpdateVideoStreamsRequestValidator : AbstractValidator<UpdateVideoS
 }
 
 [LogExecutionTimeAspect]
-public class UpdateVideoStreamsRequestHandler(ILogger<UpdateVideoStreamsRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateVideoStreamsRequest, List<VideoStreamDto>>
+public class UpdateVideoStreamsRequestHandler(ILogger<UpdateVideoStreamsRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateVideoStreamsRequest, List<VideoStreamDto>>
 {
     public async Task<List<VideoStreamDto>> Handle(UpdateVideoStreamsRequest requests, CancellationToken cancellationToken)
     {
 
-        (List<VideoStreamDto> videoStreams, bool updateChannelGroup) = await Repository.VideoStream.UpdateVideoStreamsAsync(requests.VideoStreamUpdates, cancellationToken);
+        (List<VideoStreamDto> videoStreams, List<ChannelGroupDto>? updatedChannelGroups) = await Repository.VideoStream.UpdateVideoStreamsAsync(requests.VideoStreamUpdates, cancellationToken);
         if (videoStreams.Any())
         {
-            await Publisher.Publish(new UpdateVideoStreamsEvent(videoStreams, updateChannelGroup), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateVideoStreamsEvent(videoStreams), cancellationToken).ConfigureAwait(false);
+            if (updatedChannelGroups.Any())
+            {
+
+                await Publisher.Publish(new UpdateChannelGroupCountsRequest(updatedChannelGroups)).ConfigureAwait(false);
+
+            }
         }
 
         return videoStreams;

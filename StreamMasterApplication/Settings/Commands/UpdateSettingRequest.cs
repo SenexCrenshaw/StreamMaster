@@ -1,5 +1,4 @@
 ﻿using StreamMaster.SchedulesDirectAPI;
-
 using static StreamMasterApplication.Settings.Commands.UpdateSettingRequestHandler;
 
 namespace StreamMasterApplication.Settings.Commands;
@@ -47,8 +46,8 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public List<string>? NameRegex { get; set; } = new();
 }
 
-public class UpdateSettingRequestHandler(ILogger<UpdateSettingRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-: BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext), IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
+public class UpdateSettingRequestHandler(ILogger<UpdateSettingRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
 {
 
     public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)

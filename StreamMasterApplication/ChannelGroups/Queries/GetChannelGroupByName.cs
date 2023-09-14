@@ -2,24 +2,11 @@
 
 public record GetChannelGroupByName(string Name) : IRequest<ChannelGroupDto?>;
 
-internal class GetChannelGroupByNameHandler : BaseMediatorRequestHandler, IRequestHandler<GetChannelGroupByName, ChannelGroupDto?>
+internal class GetChannelGroupByNameHandler(ILogger<GetChannelGroupByName> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetChannelGroupByName, ChannelGroupDto?>
 {
-
-    public GetChannelGroupByNameHandler(ILogger<GetChannelGroupByName> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-: base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
-
-
     public async Task<ChannelGroupDto?> Handle(GetChannelGroupByName request, CancellationToken cancellationToken)
     {
-        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupByNameAsync(request.Name).ConfigureAwait(false);
-
-        if (channelGroup == null)
-        {
-            return null;
-        }
-
-        ChannelGroupDto ret = Mapper.Map<ChannelGroupDto>(channelGroup);
-
-        return ret;
+        ChannelGroupDto? channelGroup = await Repository.ChannelGroup.GetChannelGroupByName(request.Name).ConfigureAwait(false);
+        return channelGroup;
     }
 }

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Enums;
-using StreamMasterDomain.Repository;
+using StreamMasterDomain.Models;
 using StreamMasterDomain.Services;
 
 using StreamMasterInfrastructure.Extensions;

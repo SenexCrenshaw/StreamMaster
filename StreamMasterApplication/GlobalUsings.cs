@@ -18,6 +18,7 @@ global using StreamMasterDomain.Cache;
 global using StreamMasterDomain.Common;
 global using StreamMasterDomain.Dto;
 global using StreamMasterDomain.Enums;
+global using StreamMasterDomain.Extensions;
 global using StreamMasterDomain.Logging;
 global using StreamMasterDomain.Repository;
 global using StreamMasterDomain.Services;

@@ -47,6 +47,12 @@ public partial class StreamMasterHub : IChannelGroupHub
         return ret;
     }
 
+    public async Task<List<ChannelGroupDto>> GetChannelGroupsForStream(GetChannelGroupsForStreamGroupRequest request)
+    {
+        List<ChannelGroupDto> ret = await mediator.Send(request).ConfigureAwait(false);
+        return ret;
+    }
+
     public async Task UpdateChannelGroup(UpdateChannelGroupRequest request)
     {
         await mediator.Send(request).ConfigureAwait(false);

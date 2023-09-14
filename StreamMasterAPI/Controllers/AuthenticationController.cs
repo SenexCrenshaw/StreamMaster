@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Enums;
+using StreamMasterDomain.Models;
 using StreamMasterDomain.Services;
 
 using StreamMasterInfrastructure.Authentication;
@@ -23,7 +24,7 @@ namespace StreamMasterAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromForm] LoginResource resource, [FromQuery] string? returnUrl = null)
         {
-            StreamMasterDomain.Repository.User user = await authService.Login(HttpContext.Request, resource.Username, resource.Password);
+            User user = await authService.Login(HttpContext.Request, resource.Username, resource.Password);
 
             if (user == null)
             {

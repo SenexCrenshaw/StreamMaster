@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 
 using StreamMasterApplication.VideoStreams.Events;
-
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
@@ -17,7 +16,7 @@ public class DeleteAllVideoStreamsFromParametersRequestValidator : AbstractValid
 }
 
 [LogExecutionTimeAspect]
-public class DeleteAllVideoStreamsFromParametersRequestHandler : BaseMemoryRequestHandler, IRequestHandler<DeleteAllVideoStreamsFromParametersRequest, bool>
+public class DeleteAllVideoStreamsFromParametersRequestHandler : BaseMediatorRequestHandler, IRequestHandler<DeleteAllVideoStreamsFromParametersRequest, bool>
 {
 
     public DeleteAllVideoStreamsFromParametersRequestHandler(ILogger<DeleteAllVideoStreamsFromParametersRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)

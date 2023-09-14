@@ -16,11 +16,11 @@ public class UpdateChannelGroupCountRequestByVideoStreamIdValidator : AbstractVa
 
 [LogExecutionTimeAspect]
 
-public class UpdateChannelGroupCountRequestByVideoStreamIdHandler(ILogger<UpdateChannelGroupCountRequestByVideoStreamId> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateChannelGroupCountRequestByVideoStreamId>
+public class UpdateChannelGroupCountRequestByVideoStreamIdHandler(ILogger<UpdateChannelGroupCountRequestByVideoStreamId> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateChannelGroupCountRequestByVideoStreamId>
 {
     public async Task Handle(UpdateChannelGroupCountRequestByVideoStreamId request, CancellationToken cancellationToken)
     {
-        VideoStream? videoStream = await Repository.VideoStream.GetVideoStreamByIdAsync(request.videoStreamId, cancellationToken).ConfigureAwait(false);
+        VideoStreamDto? videoStream = await Repository.VideoStream.GetVideoStreamById(request.videoStreamId).ConfigureAwait(false);
         if (videoStream == null)
         {
             return;

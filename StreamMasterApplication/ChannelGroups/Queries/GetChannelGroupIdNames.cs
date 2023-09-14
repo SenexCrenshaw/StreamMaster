@@ -1,12 +1,12 @@
 ﻿namespace StreamMasterApplication.ChannelGroups.Queries;
 
-public record GetChannelGroupIdNames() : IRequest<IEnumerable<ChannelGroupIdName>>;
+public record GetChannelGroupIdNames() : IRequest<List<ChannelGroupIdName>>;
 
-internal class GetChannelGroupIdNamesQueryHandler(ILogger<GetChannelGroupIdNames> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext), IRequestHandler<GetChannelGroupIdNames, IEnumerable<ChannelGroupIdName>>
+internal class GetChannelGroupIdNamesQueryHandler(ILogger<GetChannelGroupIdNames> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetChannelGroupIdNames, List<ChannelGroupIdName>>
 {
-    public Task<IEnumerable<ChannelGroupIdName>> Handle(GetChannelGroupIdNames request, CancellationToken cancellationToken)
+    public async Task<List<ChannelGroupIdName>> Handle(GetChannelGroupIdNames request, CancellationToken cancellationToken)
     {
-        IEnumerable<ChannelGroupIdName> ret = Repository.ChannelGroup.GetAllChannelGroupNames();
-        return Task.FromResult(ret);
+        List<ChannelGroupIdName> ret = await Repository.ChannelGroup.GetChannelGroupNames();
+        return ret;
     }
 }

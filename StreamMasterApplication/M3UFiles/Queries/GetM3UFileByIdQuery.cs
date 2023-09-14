@@ -12,8 +12,7 @@ internal class GetM3UFileByIdQueryHandler : BaseRequestHandler, IRequestHandler<
 
     public async Task<M3UFileDto?> Handle(GetM3UFileByIdQuery request, CancellationToken cancellationToken = default)
     {
-        M3UFile m3uFile = await Repository.M3UFile.GetM3UFileByIdAsync(request.Id);
-        M3UFileDto? ret = Mapper.Map<M3UFileDto?>(m3uFile);
+        M3UFileDto? ret = await Repository.M3UFile.GetM3UFileById(request.Id);
         return ret;
     }
 }

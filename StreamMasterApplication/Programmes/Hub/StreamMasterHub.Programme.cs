@@ -1,8 +1,8 @@
 ﻿using StreamMasterApplication.Programmes;
 using StreamMasterApplication.Programmes.Queries;
-
+using StreamMasterDomain.EPG;
+using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
-using StreamMasterDomain.Repository.EPG;
 
 namespace StreamMasterApplication.Hubs;
 

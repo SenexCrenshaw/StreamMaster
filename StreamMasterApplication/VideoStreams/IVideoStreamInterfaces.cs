@@ -3,7 +3,7 @@
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.VideoStreams.Commands;
-
+using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.VideoStreams;

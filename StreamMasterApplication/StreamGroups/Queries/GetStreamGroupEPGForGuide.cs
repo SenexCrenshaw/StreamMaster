@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.Common.Extensions;
 
-using StreamMasterDomain.Repository.EPG;
+using StreamMasterDomain.EPG;
+using StreamMasterDomain.Models;
 
 using System.Collections.Concurrent;
 using System.Web;
@@ -33,7 +34,7 @@ public class GetStreamGroupEPGForGuideValidator : AbstractValidator<GetStreamGro
     }
 }
 
-public partial class GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPGForGuide> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupEPGForGuide, EPGGuide>
+public partial class GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPGForGuide> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupEPGForGuide, EPGGuide>
 {
 
     private readonly object Lock = new();
@@ -42,11 +43,11 @@ public partial class GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpC
     public async Task<EPGGuide> Handle(GetStreamGroupEPGForGuide request, CancellationToken cancellationToken)
     {
 
-        IEnumerable<VideoStream> videoStreams;
+        IEnumerable<VideoStreamDto> videoStreams;
         if (request.streamGroupId > 0)
         {
             StreamGroup? streamGroup = await Repository.StreamGroup
-                     .FindAll()
+                     .GetStreamGroupQuery()
                      .Include(a => a.ChildVideoStreams)
                      .FirstOrDefaultAsync(a => a.Id == request.streamGroupId);
 
@@ -58,11 +59,11 @@ public partial class GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpC
                     Programs = new()
                 };
             }
-            videoStreams = streamGroup.ChildVideoStreams.Select(a => a.ChildVideoStream).Where(a => !a.IsHidden);
+            videoStreams = mapper.Map<IEnumerable<VideoStreamDto>>(streamGroup.ChildVideoStreams.Select(a => a.ChildVideoStream).Where(a => !a.IsHidden));
         }
         else
         {
-            videoStreams = Repository.VideoStream.GetVideoStreamsNotHidden();
+            videoStreams = await Repository.VideoStream.GetVideoStreamsNotHidden().ConfigureAwait(false);
         }
 
         string Url = httpContextAccessor.GetUrl();
@@ -70,7 +71,7 @@ public partial class GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpC
         ParallelOptions po = new()
         {
             CancellationToken = cancellationToken,
-            MaxDegreeOfParallelism = System.Environment.ProcessorCount
+            MaxDegreeOfParallelism = Environment.ProcessorCount
         };
 
         ConcurrentBag<EPGChannel> retChannels = new();

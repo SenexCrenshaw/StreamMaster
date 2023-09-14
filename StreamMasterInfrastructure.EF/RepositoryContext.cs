@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Repository;
+using StreamMasterDomain.Models;
 
 namespace StreamMasterInfrastructureEF
 {
@@ -73,5 +73,6 @@ namespace StreamMasterInfrastructureEF
                 );
             SQLitePCL.Batteries.Init();
         }
+
     }
 }

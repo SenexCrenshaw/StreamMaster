@@ -1,4 +1,4 @@
-﻿namespace StreamMasterDomain.Repository;
+﻿namespace StreamMasterDomain.Models;
 
 public class StreamGroupChannelGroup
 {
@@ -7,5 +7,5 @@ public class StreamGroupChannelGroup
     public StreamGroup StreamGroup { get; set; }
     public int StreamGroupId { get; set; }
 
-   
+
 }

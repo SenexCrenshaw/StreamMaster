@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-using StreamMasterDomain.Repository;
+using StreamMasterDomain.Models;
 
 namespace StreamMasterInfrastructureEF.Configurations;
 

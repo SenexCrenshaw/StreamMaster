@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace StreamMasterDomain.Repository;
+namespace StreamMasterDomain.Models;
 
 public class M3UFile : AutoUpdateEntity
 {

@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using StreamMasterDomain.Models;
 
 namespace StreamMasterDomain.Common;
 

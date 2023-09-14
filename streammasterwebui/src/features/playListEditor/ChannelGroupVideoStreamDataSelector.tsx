@@ -77,10 +77,12 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
       channelNumberColumnConfig,
       channelLogoColumnConfig,
       channelNameColumnConfig,
+      channelGroupConfig,
+      epgColumnConfig
     ];
 
-    columnConfigs.push(channelGroupConfig);
-    columnConfigs.push(epgColumnConfig);
+    // columnConfigs.push(channelGroupConfig);
+    // columnConfigs.push(epgColumnConfig);
 
     columnConfigs.push({
       bodyTemplate: targetActionBodyTemplate, field: 'isHidden', header: 'Actions', isHidden: !enableEdit, resizeable: false, sortable: false,

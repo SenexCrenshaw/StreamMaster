@@ -26,7 +26,7 @@ public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
 }
 
 
-public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupM3U> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupM3U, string>
+public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupM3U> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupM3U, string>
 {
     public string GetIconUrl(string iconOriginalSource, Setting setting)
     {
@@ -77,7 +77,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         }
         this.iv = iv;
 
-        List<VideoStream> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreamsList(request.StreamGroupId, cancellationToken);
+        List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
 
         if (!videoStreams.Any())
         {
@@ -111,7 +111,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
         return AssembleReturnString(retlist);
     }
 
-    private string BuildM3ULineForVideoStream(VideoStream videoStream, string url, GetStreamGroupM3U request, int cid, Setting setting)
+    private string BuildM3ULineForVideoStream(VideoStreamDto videoStream, string url, GetStreamGroupM3U request, int cid, Setting setting)
     {
         bool showM3UFieldTvgId = setting.M3UFieldTvgId;
 

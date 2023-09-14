@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.StreamGroupVideoStreams.Commands;
 
@@ -16,7 +17,7 @@ public class SetVideoStreamRanksRequestValidator : AbstractValidator<SetVideoStr
 }
 
 [LogExecutionTimeAspect]
-public class SetVideoStreamRanksRequestHandler(ILogger<SetVideoStreamRanksRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext), IRequestHandler<SetVideoStreamRanksRequest>
+public class SetVideoStreamRanksRequestHandler(ILogger<SetVideoStreamRanksRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<SetVideoStreamRanksRequest>
 {
     public async Task Handle(SetVideoStreamRanksRequest request, CancellationToken cancellationToken)
     {

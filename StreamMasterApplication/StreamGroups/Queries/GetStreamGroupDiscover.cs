@@ -27,8 +27,8 @@ public class GetStreamGroupDiscoverHandler : BaseMediatorRequestHandler, IReques
     private readonly IHttpContextAccessor _httpContextAccessor;
 
 
-    public GetStreamGroupDiscoverHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupDiscover> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-: base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { _httpContextAccessor = httpContextAccessor; }
+    public GetStreamGroupDiscoverHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupDiscover> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { _httpContextAccessor = httpContextAccessor; }
 
 
     public async Task<string> Handle(GetStreamGroupDiscover request, CancellationToken cancellationToken)
@@ -36,14 +36,14 @@ public class GetStreamGroupDiscoverHandler : BaseMediatorRequestHandler, IReques
 
         if (request.StreamGroupId > 1)
         {
-            bool streamGroup = Repository.StreamGroup.FindAll().Any(a => a.Id == request.StreamGroupId);
+            bool streamGroup = await Repository.StreamGroup.GetStreamGroupById(request.StreamGroupId).ConfigureAwait(false) != null;
             if (!streamGroup)
             {
                 return "";
             }
         }
 
-        int maxTuners = await Repository.M3UFile.GetM3UMaxStreamCountAsync();
+        int maxTuners = await Repository.M3UFile.GetM3UMaxStreamCount();
         Discover discover = new(_httpContextAccessor.GetUrl(), request.StreamGroupId, maxTuners);
 
         string jsonString = JsonSerializer.Serialize(discover, new JsonSerializerOptions { WriteIndented = true });

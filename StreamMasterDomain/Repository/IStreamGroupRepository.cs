@@ -1,35 +1,23 @@
 ﻿using StreamMasterDomain.Dto;
+using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterDomain.Repository
 {
-    public interface IStreamGroupRepository : IRepositoryBase<StreamGroup, StreamGroupDto>
+    public interface IStreamGroupRepository : IRepositoryBase<StreamGroup>
     {
-        Task CreateStreamGroupRequestAsync(CreateStreamGroupRequest request, CancellationToken cancellationToken);
-        //Task<StreamGroupDto?> Sync(int streamGroupId, List<string>? ChannelGroupNames, List<VideoStreamIsReadOnly>? VideoStreams, CancellationToken cancellationToken = default);
-        Task<StreamGroup?> GetStreamGroupWithRelatedEntitiesByIdAsync(int StreamGroupId, CancellationToken cancellationToken);
+        //Task<StreamGroup?> GetStreamGroupWithRelatedEntitiesById(int StreamGroupId, CancellationToken cancellationToken);
+        Task<List<StreamGroupDto>> GetStreamGroups(CancellationToken cancellationToken);
 
-        Task SetGroupNameByGroupName(string channelGroupName, string newGroupName, CancellationToken cancellationToken);
-        Task<List<StreamGroupDto>> GetStreamGroupDtos(CancellationToken cancellationToken = default);
+        Task<StreamGroupDto?> GetStreamGroupById(int id);
 
-        IQueryable<StreamGroup> GetAllStreamGroupsWithChannelGroups();
-
-        Task<StreamGroupDto?> GetStreamGroupDto(int id, CancellationToken cancellationToken = default);
-
-        Task<StreamGroupDto?> UpdateStreamGroupAsync(UpdateStreamGroupRequest request, CancellationToken cancellationToken);
-
-        //Task<bool> AddChannelGroupToStreamGroupAsync(int streamGroupId, int channelGroupId, CancellationToken cancellationToken);
-
-        IQueryable<StreamGroup> GetAllStreamGroups();
-
-        Task<StreamGroup?> GetStreamGroupByIdAsync(int id);
-
-        Task<IPagedList<StreamGroup>> GetStreamGroupsAsync(StreamGroupParameters StreamGroupParameters);
-
-        Task<PagedResponse<StreamGroupDto>> GetStreamGroupDtosPagedAsync(StreamGroupParameters StreamGroupParameters);
+        Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(StreamGroupParameters Parameters);
 
         void CreateStreamGroup(StreamGroup StreamGroup);
 
-        Task<bool> DeleteStreamGroupsync(int streamGroupId, CancellationToken cancellationToken);
+        StreamGroupDto? UpdateStreamGroup(int StreamGroupId, string newName);
+        Task<int?> DeleteStreamGroup(int streamGroupId);
+
+        IQueryable<StreamGroup> GetStreamGroupQuery();
     }
 }

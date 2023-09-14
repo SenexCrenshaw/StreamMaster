@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 
 using StreamMasterApplication.VideoStreams.Events;
-
+using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
@@ -17,7 +17,7 @@ public class UpdateAllVideoStreamsFromParametersRequestValidator : AbstractValid
 }
 
 [LogExecutionTimeAspect]
-public class UpdateAllVideoStreamsFromParametersRequestHandler(ILogger<UpdateAllVideoStreamsFromParametersRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateAllVideoStreamsFromParametersRequest, List<VideoStreamDto>>
+public class UpdateAllVideoStreamsFromParametersRequestHandler(ILogger<UpdateAllVideoStreamsFromParametersRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateAllVideoStreamsFromParametersRequest, List<VideoStreamDto>>
 {
     public async Task<List<VideoStreamDto>> Handle(UpdateAllVideoStreamsFromParametersRequest request, CancellationToken cancellationToken)
     {

@@ -1,6 +1,6 @@
 ﻿using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Mappings;
-
+using StreamMasterDomain.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace StreamMasterDomain.Dto;

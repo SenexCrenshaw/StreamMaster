@@ -3,7 +3,7 @@
 namespace StreamMasterApplication.Icons.Queries;
 public record GetIconsSimpleQuery(IconFileParameters iconFileParameters) : IRequest<IEnumerable<IconFileDto>>;
 
-internal class GetIconsSimpleQueryHandler : BaseMemoryRequestHandler, IRequestHandler<GetIconsSimpleQuery, IEnumerable<IconFileDto>>
+internal class GetIconsSimpleQueryHandler : BaseMediatorRequestHandler, IRequestHandler<GetIconsSimpleQuery, IEnumerable<IconFileDto>>
 {
 
 

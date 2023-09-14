@@ -3,7 +3,7 @@
 using StreamMasterApplication.LogApp;
 
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Repository;
+using StreamMasterDomain.Models;
 
 namespace StreamMasterInfrastructure.Logging;
 

@@ -1,10 +1,9 @@
 ﻿using StreamMasterDomain.Dto;
 
-namespace StreamMasterDomain.Repository;
+namespace StreamMasterDomain.Models;
 
 public class VideoStreamBaseRequest
 {
-
     public bool? ToggleVisibility { get; set; }
     public bool? IsHidden { get; set; }
     public int? Tvg_chno { get; set; }

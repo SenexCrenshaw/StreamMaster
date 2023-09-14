@@ -1,1 +1,1 @@
-﻿global using static StreamMasterDomain.Logging.LoggingUtils;
+﻿global using StreamMasterDomain.Models;

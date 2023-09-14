@@ -1,9 +1,9 @@
-﻿using StreamMasterDomain.Repository.EPG;
+﻿using StreamMasterDomain.EPG;
 
 using System.Text.Json;
 using System.Xml.Serialization;
 
-namespace StreamMasterDomain.Repository;
+namespace StreamMasterDomain.Models;
 
 public class EPGFile : AutoUpdateEntity
 {
@@ -74,4 +74,6 @@ public class EPGFile : AutoUpdateEntity
         }
         return null;
     }
+
+
 }

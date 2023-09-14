@@ -1,9 +1,10 @@
 ﻿using StreamMasterDomain.Dto;
+using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterDomain.Repository
 {
-    public interface IVideoStreamLinkRepository : IRepositoryBase<VideoStreamLink, VideoStreamLink>
+    public interface IVideoStreamLinkRepository : IRepositoryBase<VideoStreamLink>
     {
         Task<List<string>> GetVideoStreamVideoStreamIds(string videoStreamId, CancellationToken cancellationToken);
 

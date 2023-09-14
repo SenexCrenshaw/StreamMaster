@@ -4,7 +4,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
-
+using StreamMasterDomain.Models;
 using System.Web;
 
 namespace StreamMasterDomain.Common;

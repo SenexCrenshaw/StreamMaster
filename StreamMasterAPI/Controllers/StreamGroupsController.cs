@@ -10,8 +10,8 @@ using StreamMasterApplication.StreamGroups.Queries;
 using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
-using StreamMasterDomain.Repository;
 
 using System.Text;
 

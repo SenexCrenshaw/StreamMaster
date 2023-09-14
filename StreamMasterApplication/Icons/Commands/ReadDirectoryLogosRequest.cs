@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.Icons.Commands;
 

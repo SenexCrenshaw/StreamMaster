@@ -1,7 +1,7 @@
 import { hubConnection } from '../../app/signalr';
 import { isEmptyObject } from '../../common/common';
-import type * as iptv from '../../store/iptvApi';
 import { iptvApi } from '../../store/iptvApi';
+import type * as iptv from '../../store/iptvApi';
 
 export const enhancedApiVideoStreamLinks = iptvApi.enhanceEndpoints({
   endpoints: {

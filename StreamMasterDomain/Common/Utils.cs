@@ -9,7 +9,7 @@ public static class Utils
 {
     private static readonly Random _random = new();
 
-    public static List<DataTableFilterMetaData> GetFiltersFromJSON(string jsonFiltersString)
+    public static List<DataTableFilterMetaData> GetFiltersFromJSON(string? jsonFiltersString)
     {
         if (!string.IsNullOrEmpty(jsonFiltersString))
         {

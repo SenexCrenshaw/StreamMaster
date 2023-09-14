@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace StreamMasterDomain.Repository;
+namespace StreamMasterDomain.Models;
 
 public class LogEntry
 {

@@ -8,18 +8,16 @@ public record GetStreamGroups(StreamGroupParameters Parameters) : IRequest<Paged
 internal class GetStreamGroupsHandler : BaseMediatorRequestHandler, IRequestHandler<GetStreamGroups, PagedResponse<StreamGroupDto>>
 {
 
-    public GetStreamGroupsHandler(ILogger<GetStreamGroups> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-: base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
+    public GetStreamGroupsHandler(ILogger<GetStreamGroups> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
     public async Task<PagedResponse<StreamGroupDto>> Handle(GetStreamGroups request, CancellationToken cancellationToken = default)
     {
-
         if (request.Parameters.PageSize == 0)
         {
-            return Repository.StreamGroup.CreateEmptyPagedResponse(request.Parameters);
+            return request.Parameters.CreateEmptyPagedResponse<StreamGroupDto>();
         }
 
-
-        return await Repository.StreamGroup.GetStreamGroupDtosPagedAsync(request.Parameters).ConfigureAwait(false);
+        return await Repository.StreamGroup.GetPagedStreamGroups(request.Parameters).ConfigureAwait(false);
 
     }
 }

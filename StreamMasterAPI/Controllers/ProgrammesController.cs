@@ -4,9 +4,9 @@ using StreamMasterApplication.Programmes;
 using StreamMasterApplication.Programmes.Queries;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.EPG;
+using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
-using StreamMasterDomain.Repository;
-using StreamMasterDomain.Repository.EPG;
 
 namespace StreamMasterAPI.Controllers;
 

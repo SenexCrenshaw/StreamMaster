@@ -2,15 +2,16 @@
 
 using Microsoft.EntityFrameworkCore;
 
-using StreamMasterDomain.Repository.EPG;
+using StreamMasterDomain.EPG;
 
 using System.Web;
+using System.Xml.Serialization;
 
 namespace StreamMasterApplication.Icons.Commands;
 
 public class BuildProgIconsCacheFromEPGsRequest : IRequest<bool> { }
 
-public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCacheFromEPGsRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<BuildProgIconsCacheFromEPGsRequest, bool>
+public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCacheFromEPGsRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<BuildProgIconsCacheFromEPGsRequest, bool>
 {
     public async Task<bool> Handle(BuildProgIconsCacheFromEPGsRequest command, CancellationToken cancellationToken)
     {
@@ -18,10 +19,10 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
 
         int startId = MemoryCache.GetIcons(Mapper).Count;
 
-        IEnumerable<EPGFile> epgFiles = await Repository.EPGFile.GetAllEPGFilesAsync();
-        foreach (EPGFile? epg in epgFiles)
+        List<EPGFileDto> epgFiles = await Repository.EPGFile.GetEPGFiles();
+        foreach (EPGFileDto epg in epgFiles)
         {
-            Tv? tv = await epg.GetTV();
+            Tv? tv = await GetTV(epg.Source);
             if (tv == null)
             {
                 continue;
@@ -37,6 +38,38 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
         await WorkOnProgrammeIcons(startId, cancellationToken).ConfigureAwait(false);
 
         return true;
+    }
+
+    public async Task<Tv?> GetTV(string Source)
+    {
+        try
+        {
+            string body = await FileUtil.GetFileData(Path.Combine(FileDefinitions.EPG.DirectoryLocation, Source)).ConfigureAwait(false);
+
+            return GetTVFromBody(body);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        return null;
+    }
+
+    public static Tv? GetTVFromBody(string body)
+    {
+        try
+        {
+            using StringReader reader = new(body);
+            XmlSerializer serializer = new(typeof(Tv));
+            object? result = serializer.Deserialize(reader);
+
+            return (Tv?)result;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        return null;
     }
 
     private void WorkOnEPGChannelIcons(int epgFileId, int startId, IEnumerable<TvChannel> channels, CancellationToken cancellationToken)
@@ -84,7 +117,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
     private async Task WorkOnProgrammeIcons(int startId, CancellationToken cancellationToken)
     {
         List<string> epgids = await Repository.StreamGroup
-        .FindAll()
+        .GetStreamGroupQuery()
         .Include(a => a.ChildVideoStreams)
         .SelectMany(a => a.ChildVideoStreams)
         .Select(a => a.ChildVideoStream.User_Tvg_ID)

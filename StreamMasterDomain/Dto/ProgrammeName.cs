@@ -1,6 +1,6 @@
 ﻿using StreamMasterDomain.Attributes;
+using StreamMasterDomain.EPG;
 using StreamMasterDomain.Mappings;
-using StreamMasterDomain.Repository.EPG;
 
 namespace StreamMasterDomain.Dto;
 

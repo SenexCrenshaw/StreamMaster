@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.StreamGroups.Queries;
 
@@ -15,13 +17,13 @@ using System.Text.RegularExpressions;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
-public class StreamGroupVideoStreamRepository(RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, ISender sender) : RepositoryBase<StreamGroupVideoStream, StreamGroupVideoStream>(repositoryContext), IStreamGroupVideoStreamRepository
+public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, ISender sender) : RepositoryBase<StreamGroupVideoStream>(repositoryContext, logger), IStreamGroupVideoStreamRepository
 {
     public async Task AddStreamGroupVideoStreams(int StreamGroupId, List<string> toAdd, bool IsReadOnly, CancellationToken cancellationToken)
     {
         try
         {
-            StreamGroup? streamGroup = await repository.StreamGroup.GetStreamGroupByIdAsync(StreamGroupId).ConfigureAwait(false);
+            StreamGroupDto? streamGroup = await repository.StreamGroup.GetStreamGroupById(StreamGroupId).ConfigureAwait(false);
 
             if (streamGroup == null)
             {
@@ -53,7 +55,7 @@ public class StreamGroupVideoStreamRepository(RepositoryContext repositoryContex
         }
     }
 
-    public async Task<PagedResponse<VideoStreamDto>> GetStreamGroupVideoStreams(StreamGroupVideoStreamParameters Parameters, CancellationToken cancellationToken = default)
+    public async Task<PagedResponse<VideoStreamDto>> GetPagedStreamGroupVideoStreams(StreamGroupVideoStreamParameters Parameters, CancellationToken cancellationToken)
     {
 
         if (Parameters.StreamGroupId == 0 || Parameters == null)
@@ -100,7 +102,7 @@ public class StreamGroupVideoStreamRepository(RepositoryContext repositoryContex
     {
         try
         {
-            StreamGroup? streamGroup = await repository.StreamGroup.GetStreamGroupByIdAsync(StreamGroupId).ConfigureAwait(false);
+            StreamGroupDto? streamGroup = await repository.StreamGroup.GetStreamGroupById(StreamGroupId).ConfigureAwait(false);
 
             if (streamGroup == null)
             {
@@ -139,7 +141,7 @@ public class StreamGroupVideoStreamRepository(RepositoryContext repositoryContex
 
     public async Task RemoveStreamGroupVideoStreams(int StreamGroupId, IEnumerable<string> toRemove, CancellationToken cancellationToken)
     {
-        StreamGroup? streamGroup = await repository.StreamGroup.GetStreamGroupByIdAsync(StreamGroupId).ConfigureAwait(false);
+        StreamGroupDto? streamGroup = await repository.StreamGroup.GetStreamGroupById(StreamGroupId).ConfigureAwait(false);
 
         if (streamGroup == null)
         {
@@ -157,7 +159,7 @@ public class StreamGroupVideoStreamRepository(RepositoryContext repositoryContex
 
     public async Task SetVideoStreamRanks(int StreamGroupId, List<VideoStreamIDRank> videoStreamIDRanks, CancellationToken cancellationToken)
     {
-        StreamGroup? streamGroup = await repository.StreamGroup.GetStreamGroupByIdAsync(StreamGroupId).ConfigureAwait(false);
+        StreamGroupDto? streamGroup = await repository.StreamGroup.GetStreamGroupById(StreamGroupId).ConfigureAwait(false);
 
         if (streamGroup == null)
         {
@@ -200,7 +202,7 @@ public class StreamGroupVideoStreamRepository(RepositoryContext repositoryContex
     public async Task<StreamGroupDto?> SyncVideoStreamToStreamGroup(int StreamGroupId, string VideoStreamId, CancellationToken cancellationToken = default)
     {
         // Fetch the stream group by ID
-        StreamGroup? targetStreamGroup = await repository.StreamGroup.GetStreamGroupByIdAsync(StreamGroupId).ConfigureAwait(false);
+        StreamGroupDto? targetStreamGroup = await repository.StreamGroup.GetStreamGroupById(StreamGroupId).ConfigureAwait(false);
 
         if (targetStreamGroup == null)
         {
@@ -208,8 +210,7 @@ public class StreamGroupVideoStreamRepository(RepositoryContext repositoryContex
         }
 
         // Check if the stream is already associated with the group
-        StreamGroupVideoStream? isStreamAssociated = repository.StreamGroupVideoStream
-            .FindByCondition(stream => stream.StreamGroupId == StreamGroupId && stream.ChildVideoStreamId == VideoStreamId)
+        StreamGroupVideoStream? isStreamAssociated = FindByCondition(stream => stream.StreamGroupId == StreamGroupId && stream.ChildVideoStreamId == VideoStreamId)
             .FirstOrDefault();
 
         if (isStreamAssociated != null)
@@ -229,11 +230,11 @@ public class StreamGroupVideoStreamRepository(RepositoryContext repositoryContex
         return await sender.Send(new GetStreamGroup(StreamGroupId), cancellationToken);
     }
 
-    public async Task<List<VideoStream>> GetStreamGroupVideoStreamsList(int StreamGroupId, CancellationToken cancellationToken)
+    public async Task<List<VideoStreamDto>> GetStreamGroupVideoStreams(int StreamGroupId, CancellationToken cancellationToken)
     {
         if (StreamGroupId < 2)
         {
-            return await repository.VideoStream.GetVideoStreamsNotHidden().ToListAsync(cancellationToken).ConfigureAwait(false);
+            return await repository.VideoStream.GetVideoStreamsNotHidden().ConfigureAwait(false);
         }
 
         IQueryable<VideoStream> childQ = FindAll()
@@ -244,7 +245,7 @@ public class StreamGroupVideoStreamRepository(RepositoryContext repositoryContex
 
         string test = childQ.ToQueryString();
 
-        return await childQ.ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        return await childQ.ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
 
     }

@@ -1,6 +1,9 @@
 ﻿using FluentValidation;
 
-using StreamMasterDomain.Repository.EPG;
+using Microsoft.EntityFrameworkCore;
+
+using StreamMasterDomain.EPG;
+using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
@@ -15,17 +18,19 @@ public class ProcessEPGFileRequestValidator : AbstractValidator<ProcessEPGFileRe
             .GreaterThanOrEqualTo(0);
     }
 }
-public class ProcessEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<ProcessEPGFileRequest, EPGFileDto?>
+public class ProcessEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<ProcessEPGFileRequest, EPGFileDto?>
 {
 
-    public ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache) { }
+    public ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
     public async Task<EPGFileDto?> Handle(ProcessEPGFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            EPGFile? epgFile = await Repository.EPGFile.GetEPGFileByIdAsync(request.Id).ConfigureAwait(false);
+
+            EPGFile? epgFile = await Repository.EPGFile.GetEPGFileQuery().FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
+
             if (epgFile == null)
             {
                 return null;
@@ -105,7 +110,7 @@ public class ProcessEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHa
             return;
         }
 
-        IEnumerable<EPGFile> epgs = await Repository.EPGFile.GetAllEPGFilesAsync();
+        List<EPGFileDto> epgs = await Repository.EPGFile.GetEPGFiles();
         bool needsEpgName = epgs.Count() > 1;
 
         foreach (Programme p in epg.Programme)

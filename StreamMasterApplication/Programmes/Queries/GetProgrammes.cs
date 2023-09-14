@@ -1,5 +1,4 @@
-﻿using StreamMasterDomain.Repository.EPG;
-
+﻿using StreamMasterDomain.EPG;
 using System.Web;
 
 namespace StreamMasterApplication.Programmes.Queries;

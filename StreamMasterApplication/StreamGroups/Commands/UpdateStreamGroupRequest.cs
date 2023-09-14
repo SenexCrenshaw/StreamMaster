@@ -16,21 +16,21 @@ public class UpdateStreamGroupRequestValidator : AbstractValidator<UpdateStreamG
 public class UpdateStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateStreamGroupRequest, StreamGroupDto?>
 {
 
-    public UpdateStreamGroupRequestHandler(ILogger<UpdateStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-  : base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
+    public UpdateStreamGroupRequestHandler(ILogger<UpdateStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+  : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
 
     public async Task<StreamGroupDto?> Handle(UpdateStreamGroupRequest request, CancellationToken cancellationToken)
     {
-        if (request.StreamGroupId < 1)
+        if (request.StreamGroupId < 1 || string.IsNullOrEmpty(request.Name))
         {
             return null;
         }
 
-        StreamGroupDto? streamGroup = await Repository.StreamGroup.UpdateStreamGroupAsync(request, cancellationToken).ConfigureAwait(false);
+        StreamGroupDto? streamGroup = Repository.StreamGroup.UpdateStreamGroup(request.StreamGroupId, request.Name);
         if (streamGroup is not null)
         {
-            await Publisher.Publish(new StreamGroupUpdateEvent(), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new StreamGroupUpdateEvent(streamGroup), cancellationToken).ConfigureAwait(false);
         }
 
         return streamGroup;

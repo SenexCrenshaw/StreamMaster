@@ -1,6 +1,10 @@
 ﻿using FluentValidation;
 
+using Microsoft.EntityFrameworkCore;
+
 using StreamMasterApplication.ChannelGroups.Events;
+
+using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
@@ -13,26 +17,23 @@ public class UpdateChannelGroupRequestValidator : AbstractValidator<UpdateChanne
     }
 }
 
-public class UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext), IRequestHandler<UpdateChannelGroupRequest>
+public class UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateChannelGroupRequest, ChannelGroupDto?>
 {
-    public async Task Handle(UpdateChannelGroupRequest request, CancellationToken cancellationToken)
+    public async Task<ChannelGroupDto?> Handle(UpdateChannelGroupRequest request, CancellationToken cancellationToken)
     {
 
-        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupById(request.ChannelGroupId).ConfigureAwait(false);
+        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupQuery().FirstOrDefaultAsync(a => a.Id == request.ChannelGroupId, cancellationToken: cancellationToken).ConfigureAwait(false);
         bool checkCounts = false;
+        bool nameChanged = false;
+
         if (channelGroup == null)
         {
-            return;
-        }
-
-        if (request.Rank != null && (int)request.Rank != request.Rank)
-        {
-            channelGroup.Rank = (int)request.Rank;
+            return null;
         }
 
         if (request.ToggleVisibility == true)
         {
-            List<VideoStreamDto> results = await Repository.VideoStream.SetGroupVisibleByGroupName(channelGroup.Name, !channelGroup.IsHidden, cancellationToken).ConfigureAwait(false);
+            List<VideoStreamDto> results = await Repository.VideoStream.SetGroupVisibleByGroupName(channelGroup.Name, channelGroup.IsHidden, cancellationToken).ConfigureAwait(false);
             channelGroup.IsHidden = !channelGroup.IsHidden;
             checkCounts = results.Any();
 
@@ -40,10 +41,11 @@ public class UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequest>
 
         if (!string.IsNullOrEmpty(request.NewGroupName) && request.NewGroupName != channelGroup.Name)
         {
-            if (await Repository.ChannelGroup.GetChannelGroupByNameAsync(request.NewGroupName).ConfigureAwait(false) == null)
+            if (await Repository.ChannelGroup.GetChannelGroupByName(request.NewGroupName).ConfigureAwait(false) == null)
             {
+                nameChanged = true;
                 channelGroup.Name = request.NewGroupName;
-                _ = await Repository.VideoStream.SetGroupNameByGroupName(channelGroup.Name, request.NewGroupName, cancellationToken).ConfigureAwait(false);
+                _ = await Repository.VideoStream.SetChannelGroupNameByGroupName(channelGroup.Name, request.NewGroupName, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -51,12 +53,12 @@ public class UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequest>
         _ = await Repository.SaveAsync().ConfigureAwait(false);
 
 
-        if (checkCounts)
+        if (checkCounts || nameChanged)
         {
             ChannelGroupDto dto = Mapper.Map<ChannelGroupDto>(channelGroup);
-            await Publisher.Publish(new UpdateChannelGroupEvent(dto, request.ToggleVisibility ?? false), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateChannelGroupEvent(dto, request.ToggleVisibility ?? false, nameChanged), cancellationToken).ConfigureAwait(false);
         }
 
-
+        return null;
     }
 }

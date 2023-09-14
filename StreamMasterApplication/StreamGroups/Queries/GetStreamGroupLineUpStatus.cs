@@ -1,8 +1,9 @@
 ﻿using FluentValidation;
 
-using StreamMasterApplication.Common.Logging;
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.M3UFiles.Commands;
+
+using StreamMasterDomain.Models;
 
 using System.Text.Json;
 
@@ -27,7 +28,7 @@ public class GetStreamGroupLineUpStatusHandler(ILogger<ChangeM3UFileNameRequestH
     {
         if (request.StreamGroupId > 1)
         {
-            IQueryable<StreamGroup> streamGroupExists = Repository.StreamGroup.GetAllStreamGroups().Where(x => x.Id == request.StreamGroupId);
+            IQueryable<StreamGroup> streamGroupExists = Repository.StreamGroup.GetStreamGroupQuery().Where(x => x.Id == request.StreamGroupId);
             if (!streamGroupExists.Any())
             {
                 return Task.FromResult("");

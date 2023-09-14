@@ -2,7 +2,7 @@
 
 public record GetProgrammeNames : IRequest<List<string>>;
 
-internal class GetProgrammeNamesHandler : BaseMemoryRequestHandler, IRequestHandler<GetProgrammeNames, List<string>>
+internal class GetProgrammeNamesHandler : BaseMediatorRequestHandler, IRequestHandler<GetProgrammeNames, List<string>>
 {
 
     public GetProgrammeNamesHandler(ILogger<GetProgrammeNames> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)

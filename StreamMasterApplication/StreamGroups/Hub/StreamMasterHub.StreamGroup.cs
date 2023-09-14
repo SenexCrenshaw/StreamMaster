@@ -2,7 +2,7 @@
 using StreamMasterApplication.StreamGroups;
 using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.StreamGroups.Queries;
-
+using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Hubs;

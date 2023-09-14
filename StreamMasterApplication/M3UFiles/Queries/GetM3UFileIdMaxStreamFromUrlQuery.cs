@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.M3UFiles.Queries;
 
@@ -15,7 +15,7 @@ internal class GetM3UFileIdMaxStreamFromUrlQueryHandler : IRequestHandler<GetM3U
     public async Task<M3UFileIdMaxStream?> Handle(GetM3UFileIdMaxStreamFromUrlQuery request, CancellationToken cancellationToken = default)
     {
 
-        VideoStream? videoStream = Repository.VideoStream.GetAllVideoStreams().FirstOrDefault(a => a.User_Url == request.Url);
+        VideoStream? videoStream = Repository.VideoStream.GetVideoStreamQuery().FirstOrDefault(a => a.User_Url == request.Url);
 
         if (videoStream == null)
         {
@@ -27,10 +27,9 @@ internal class GetM3UFileIdMaxStreamFromUrlQueryHandler : IRequestHandler<GetM3U
             return new M3UFileIdMaxStream { M3UFileId = videoStream.M3UFileId, MaxStreams = 999 };
         }
 
-        IEnumerable<M3UFile> m3uFiles = await Repository.M3UFile.GetAllM3UFilesAsync();
-        M3UFile m3uFile = m3uFiles.Single(a => a.Id == videoStream.M3UFileId);
+        M3UFileDto? m3uFile = await Repository.M3UFile.GetM3UFileById(videoStream.M3UFileId);
 
-        return new M3UFileIdMaxStream { M3UFileId = videoStream.M3UFileId, MaxStreams = m3uFile.MaxStreamCount };
+        return new M3UFileIdMaxStream { M3UFileId = videoStream.M3UFileId, MaxStreams = m3uFile?.MaxStreamCount ?? 999 };
 
     }
 }

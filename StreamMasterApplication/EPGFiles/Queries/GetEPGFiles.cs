@@ -1,20 +1,18 @@
-﻿using StreamMasterApplication.Common.Extensions;
-
+﻿using StreamMasterDomain.EPG;
 using StreamMasterDomain.Pagination;
-using StreamMasterDomain.Repository.EPG;
 
 namespace StreamMasterApplication.EPGFiles.Queries;
 
 public record GetEPGFiles(EPGFileParameters Parameters) : IRequest<PagedResponse<EPGFileDto>>;
 
-internal class GetEPGFilesHandler : BaseMemoryRequestHandler, IRequestHandler<GetEPGFiles, PagedResponse<EPGFileDto>>
+internal class GetEPGFilesHandler : BaseMediatorRequestHandler, IRequestHandler<GetEPGFiles, PagedResponse<EPGFileDto>>
 {
-    public GetEPGFilesHandler(ILogger<GetEPGFiles> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache) { }
+    public GetEPGFilesHandler(ILogger<GetEPGFiles> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
     public async Task<PagedResponse<EPGFileDto>> Handle(GetEPGFiles request, CancellationToken cancellationToken = default)
     {
-        PagedResponse<EPGFileDto> epgFiles = await Repository.EPGFile.GetEPGFilesAsync(request.Parameters);
+        PagedResponse<EPGFileDto> epgFiles = await Repository.EPGFile.GetPagedEPGFiles(request.Parameters);
 
         if (request.Parameters.PageSize == 0)
         {

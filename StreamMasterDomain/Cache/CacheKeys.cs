@@ -4,7 +4,8 @@ using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Repository.EPG;
+using StreamMasterDomain.EPG;
+using StreamMasterDomain.Models;
 
 namespace StreamMasterDomain.Cache;
 
@@ -69,7 +70,7 @@ public static class CacheKeys
         lock (_lock)
         {
             List<ChannelGroupStreamCount> datas = cache.ChannelGroupStreamCounts();
-            ChannelGroupStreamCount? data = datas.FirstOrDefault(x => x.Id == channelGroupId);
+            ChannelGroupStreamCount? data = datas.FirstOrDefault(x => x.ChannelGroupId == channelGroupId);
             if (data != null)
             {
                 datas.Remove(data);
@@ -262,7 +263,7 @@ public static class CacheKeys
     public static void AddOrUpdateChannelGroupVideoStreamCount(this IMemoryCache cache, ChannelGroupStreamCount response)
     {
         List<ChannelGroupStreamCount> datas = cache.ChannelGroupStreamCounts();
-        ChannelGroupStreamCount? data = datas.FirstOrDefault(a => a.Id == response.Id);
+        ChannelGroupStreamCount? data = datas.FirstOrDefault(a => a.ChannelGroupId == response.ChannelGroupId);
 
         if (data == null)
         {
@@ -331,7 +332,7 @@ public static class CacheKeys
 
     public static ChannelGroupStreamCount? GetChannelGroupVideoStreamCount(this IMemoryCache cache, int channelGroupId)
     {
-        ChannelGroupStreamCount? ret = cache.ChannelGroupStreamCounts().FirstOrDefault(a => a.Id == channelGroupId);
+        ChannelGroupStreamCount? ret = cache.ChannelGroupStreamCounts().FirstOrDefault(a => a.ChannelGroupId == channelGroupId);
         return ret;
     }
 

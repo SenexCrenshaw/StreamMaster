@@ -1,12 +1,16 @@
-﻿namespace StreamMasterApplication.EPGFiles.Commands;
+﻿using Microsoft.EntityFrameworkCore;
+
+using StreamMasterDomain.Models;
+
+namespace StreamMasterApplication.EPGFiles.Commands;
 
 public record ScanDirectoryForEPGFilesRequest : IRequest<bool> { }
 
 public class ScanDirectoryForEPGFilesRequestHandler : BaseMediatorRequestHandler, IRequestHandler<ScanDirectoryForEPGFilesRequest, bool>
 {
 
-    public ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGFilesRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-  : base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
+    public ScanDirectoryForEPGFilesRequestHandler(ILogger<ScanDirectoryForEPGFilesRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+  : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
     public async Task<bool> Handle(ScanDirectoryForEPGFilesRequest command, CancellationToken cancellationToken)
     {
         IEnumerable<FileInfo> epgFiles = GetEPGFilesFromDirectory();
@@ -41,7 +45,7 @@ public class ScanDirectoryForEPGFilesRequestHandler : BaseMediatorRequestHandler
             return;
         }
 
-        EPGFile? epgFile = await Repository.EPGFile.GetEPGFileBySourceAsync(epgFileInfo.Name).ConfigureAwait(false);
+        EPGFile? epgFile = await Repository.EPGFile.GetEPGFileQuery().FirstOrDefaultAsync(a => a.Name == epgFileInfo.Name).ConfigureAwait(false);
         if (epgFile == null)
         {
             epgFile = CreateOrUpdateEPGFile(epgFileInfo);

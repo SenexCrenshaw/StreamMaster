@@ -5,8 +5,8 @@ using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.M3UFiles.Queries;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
-using StreamMasterDomain.Repository;
 
 namespace StreamMasterAPI.Controllers;
 
@@ -34,7 +34,7 @@ public class M3UFilesController : ApiControllerBase, IM3UFileController
     [Route("[action]")]
     public async Task<ActionResult> ChangeM3UFileName(ChangeM3UFileNameRequest request)
     {
-        bool result = await Mediator.Send(request).ConfigureAwait(false);
+        bool result = await Mediator.Send(request).ConfigureAwait(false) != null;
         return result ? Ok() : BadRequest();
     }
 

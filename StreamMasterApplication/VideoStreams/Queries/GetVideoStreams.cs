@@ -11,10 +11,10 @@ internal class GetVideoStreamsHandler(ILogger<GetVideoStreamsHandler> logger, IR
 
         if (request.Parameters.PageSize == 0)
         {
-            return Repository.VideoStream.CreateEmptyPagedResponse(request.Parameters);
+            return request.Parameters.CreateEmptyPagedResponse<VideoStreamDto>();
         }
 
-        PagedResponse<VideoStreamDto> res = await Repository.VideoStream.GetVideoStreams(request.Parameters, cancellationToken).ConfigureAwait(false);
+        PagedResponse<VideoStreamDto> res = await Repository.VideoStream.GetPagedVideoStreams(request.Parameters, cancellationToken).ConfigureAwait(false);
 
         return res;
     }

@@ -1,6 +1,10 @@
 ﻿using FluentValidation;
 
+using Microsoft.EntityFrameworkCore;
+
 using StreamMasterApplication.VideoStreams.Events;
+
+using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
 
@@ -16,21 +20,16 @@ public class DeleteM3UFileRequestValidator : AbstractValidator<DeleteM3UFileRequ
     }
 }
 
-public class DeleteM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<DeleteM3UFileRequest, int?>
+public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<DeleteM3UFileRequest, int?>
 {
-
-    public DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache) { }
-
-
     public async Task<int?> Handle(DeleteM3UFileRequest request, CancellationToken cancellationToken = default)
     {
-        M3UFile? m3UFile = await Repository.M3UFile.GetM3UFileByIdAsync(request.Id).ConfigureAwait(false);
+        M3UFile? m3UFile = await Repository.M3UFile.GetM3UFileQuery().FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
         if (m3UFile == null)
         {
             return null;
         }
-        Repository.M3UFile.DeleteM3UFile(m3UFile);
+        await Repository.M3UFile.DeleteM3UFile(m3UFile.Id);
 
 
         if (request.DeleteFile)
@@ -67,7 +66,7 @@ public class DeleteM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHan
             }
         }
 
-        IQueryable<VideoStream> videoStreams = Repository.VideoStream.GetAllVideoStreams();
+        IQueryable<VideoStream> videoStreams = Repository.VideoStream.GetVideoStreamQuery();
 
         IQueryable<string> targetM3UFileIdGroups = videoStreams
             .Where(vs => vs.M3UFileId == m3UFile.Id)
@@ -81,17 +80,17 @@ public class DeleteM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHan
 
         foreach (string? gtd in groupsToDelete)
         {
-            ChannelGroup? group = Repository.ChannelGroup.GetAllChannelGroups().Where(tg => tg.Name == gtd).FirstOrDefault();
+            ChannelGroup? group = Repository.ChannelGroup.GetChannelGroupQuery().Where(tg => tg.Name == gtd).FirstOrDefault();
             if (group != null)
             {
-                await Repository.ChannelGroup.DeleteChannelGroup(group);
+                await Repository.ChannelGroup.DeleteChannelGroupById(group.Id);
                 _ = await Repository.SaveAsync().ConfigureAwait(false);
             }
         }
 
-        IEnumerable<VideoStream> streams = await Repository.VideoStream.DeleteVideoStreamsByM3UFiledId(m3UFile.Id, cancellationToken);
+        List<VideoStreamDto> streams = await Repository.VideoStream.DeleteVideoStreamsByM3UFiledId(m3UFile.Id, cancellationToken);
 
-        List<StreamMasterDomain.Dto.IconFileDto> icons = MemoryCache.Icons();
+        List<IconFileDto> icons = MemoryCache.Icons();
         _ = icons.RemoveAll(a => a.FileId == m3UFile.Id);
         MemoryCache.Set(icons);
 

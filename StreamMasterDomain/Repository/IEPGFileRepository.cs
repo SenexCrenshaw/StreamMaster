@@ -1,23 +1,24 @@
 ﻿using StreamMasterDomain.Dto;
+using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
 
-namespace StreamMasterDomain.Repository
+namespace StreamMasterDomain.Repository;
+
+public interface IEPGFileRepository : IRepositoryBase<EPGFile>
 {
-    public interface IEPGFileRepository : IRepositoryBase<EPGFile, EPGFileDto>
-    {
+    IQueryable<EPGFile> GetEPGFileQuery();
+    Task<List<EPGFileDto>> GetEPGFilesNeedUpdating();
+    Task<List<EPGFileDto>> GetEPGFiles();
 
-        Task<IEnumerable<EPGFile>> GetAllEPGFilesAsync();
+    Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(EPGFileParameters Parameters);
 
-        Task<PagedResponse<EPGFileDto>> GetEPGFilesAsync(EPGFileParameters EPGFileParameters);
+    Task<EPGFileDto?> GetEPGFileById(int Id);
 
-        Task<EPGFile> GetEPGFileByIdAsync(int Id);
+    Task<EPGFileDto?> GetEPGFileBySource(string source);
 
-        Task<EPGFile> GetEPGFileBySourceAsync(string source);
+    void CreateEPGFile(EPGFile EPGFile);
 
-        void CreateEPGFile(EPGFile EPGFile);
+    void UpdateEPGFile(EPGFile EPGFile);
 
-        void UpdateEPGFile(EPGFile EPGFile);
-
-        void DeleteEPGFile(EPGFile EPGFile);
-    }
+    Task<EPGFileDto?> DeleteEPGFile(int EPGFileId);
 }

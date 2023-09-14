@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterApplication.Programmes.Queries;
-
+using StreamMasterDomain.EPG;
+using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
-using StreamMasterDomain.Repository.EPG;
 
 namespace StreamMasterApplication.Programmes;
 

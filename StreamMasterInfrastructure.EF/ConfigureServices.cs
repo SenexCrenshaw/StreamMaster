@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 using StreamMasterDomain.Common;
+using StreamMasterDomain.Models;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Sorting;
 
@@ -19,6 +20,8 @@ public static class ConfigureServices
 
         //_ = services.AddDbContext<RepositoryContext>(options => options.UseSqlite($"Data Source={DbPath}", builder => builder.MigrationsAssembly(typeof(RepositoryContext).Assembly.FullName)));
         _ = services.AddDbContextFactory<RepositoryContext>(options => options.UseSqlite($"Data Source={DbPath}", builder => builder.MigrationsAssembly(typeof(RepositoryContext).Assembly.FullName)));
+
+
 
         //_ = services.AddHangfire((serviceProvider, configuration) =>
         //    configuration.UseEFCoreStorage(

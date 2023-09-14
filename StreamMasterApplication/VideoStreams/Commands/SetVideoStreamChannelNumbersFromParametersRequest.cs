@@ -1,5 +1,4 @@
 ﻿using StreamMasterApplication.VideoStreams.Events;
-
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
@@ -7,7 +6,7 @@ namespace StreamMasterApplication.VideoStreams.Commands;
 public record SetVideoStreamChannelNumbersFromParametersRequest(VideoStreamParameters Parameters, bool OverWriteExisting, int StartNumber) : IRequest { }
 
 [LogExecutionTimeAspect]
-public class SetVideoStreamChannelNumbersFromParametersRequestHandler(ILogger<SetVideoStreamChannelNumbersFromParametersRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext), IRequestHandler<SetVideoStreamChannelNumbersFromParametersRequest>
+public class SetVideoStreamChannelNumbersFromParametersRequestHandler(ILogger<SetVideoStreamChannelNumbersFromParametersRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<SetVideoStreamChannelNumbersFromParametersRequest>
 {
     public async Task Handle(SetVideoStreamChannelNumbersFromParametersRequest request, CancellationToken cancellationToken)
     {

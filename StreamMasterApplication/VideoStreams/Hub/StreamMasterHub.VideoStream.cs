@@ -3,6 +3,7 @@ using StreamMasterApplication.VideoStreams.Commands;
 using StreamMasterApplication.VideoStreams.Queries;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Hubs;

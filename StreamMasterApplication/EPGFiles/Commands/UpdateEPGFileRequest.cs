@@ -1,18 +1,10 @@
-﻿using AutoMapper;
+﻿using FluentValidation;
 
-using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 
-using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.Hubs;
 using StreamMasterApplication.M3UFiles.Commands;
 
-using StreamMasterDomain.Cache;
-using StreamMasterDomain.Dto;
+using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
@@ -29,18 +21,19 @@ public class UpdateEPGFileRequestValidator : AbstractValidator<UpdateEPGFileRequ
     }
 }
 
-public class UpdateEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<UpdateEPGFileRequest, EPGFileDto?>
+public class UpdateEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateEPGFileRequest, EPGFileDto?>
 {
 
-    public UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache) { }
+    public UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
 
     public async Task<EPGFileDto?> Handle(UpdateEPGFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            EPGFile? epgFile = await Repository.EPGFile.GetEPGFileByIdAsync(request.Id).ConfigureAwait(false);
+            EPGFile? epgFile = await Repository.EPGFile.GetEPGFileQuery().FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
+
             if (epgFile == null)
             {
                 return null;

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.ChannelGroups.Commands;
 
-using StreamMasterDomain.Extensions;
+using StreamMasterDomain.Models;
 
 using System.Diagnostics;
 
@@ -24,7 +24,7 @@ public class ProcessM3UFileRequestValidator : AbstractValidator<ProcessM3UFileRe
 
 
 [LogExecutionTimeAspect]
-public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<ProcessM3UFileRequest, M3UFile?>
+public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<ProcessM3UFileRequest, M3UFile?>
 {
     private SimpleIntList existingChannels;
 
@@ -32,7 +32,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
     {
         try
         {
-            M3UFile? m3uFile = await FetchM3UFile(request.Id).ConfigureAwait(false);
+            M3UFile? m3uFile = await repository.M3UFile.GetM3UFileQuery().FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 Logger.LogCritical("Could not find M3U file");
@@ -69,9 +69,9 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         }
     }
 
-    private async Task<M3UFile?> FetchM3UFile(int id)
+    private async Task<M3UFileDto?> FetchM3UFile(int id)
     {
-        return await Repository.M3UFile.GetM3UFileByIdAsync(id).ConfigureAwait(false);
+        return await Repository.M3UFile.GetM3UFileById(id).ConfigureAwait(false);
     }
 
     private async Task<(List<VideoStream>? streams, int streamCount)> ProcessStreams(M3UFile m3uFile)
@@ -101,13 +101,13 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
     {
         Stopwatch sw = Stopwatch.StartNew();
 
-        List<VideoStream> existing = await Repository.VideoStream.GetVideoStreamsByM3UFileId(m3uFile.Id).ToListAsync();
+        List<VideoStream> existing = await Repository.VideoStream.GetVideoStreamQuery().Where(a => a.M3UFileId == m3uFile.Id).ToListAsync().ConfigureAwait(false);
         existingChannels = new SimpleIntList(m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber - 1);
 
-        List<ChannelGroup> groups = Repository.ChannelGroup.GetAllChannelGroups().ToList();
+        List<ChannelGroupDto> groups = await Repository.ChannelGroup.GetChannelGroups();
         //var nextchno = m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber;
 
-        //List<VideoStream> toWrite = new();
+        //List<VideoStream> toWrite = new()
         //List<VideoStream> toUpdate = new();
 
         await ProcessStreamsConcurrently(streams, existing, groups, m3uFile);
@@ -135,19 +135,19 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         Logger.LogInformation($"Processing and updating streams took {sw.Elapsed.TotalSeconds} seconds");
     }
 
-    private async Task ProcessStreamsConcurrently(List<VideoStream> streams, List<VideoStream> existing, List<ChannelGroup> groups, M3UFile m3uFile)
+    private async Task ProcessStreamsConcurrently(List<VideoStream> streams, List<VideoStream> existing, List<ChannelGroupDto> groups, M3UFile m3uFile)
     {
         int totalCount = streams.Count;
         int processedCount = 0;
         Dictionary<string, VideoStream> existingLookup = existing.ToDictionary(a => a.Id, a => a);
-        Dictionary<string, ChannelGroup> groupLookup = groups.ToDictionary(g => g.Name, g => g);
+        Dictionary<string, ChannelGroupDto> groupLookup = groups.ToDictionary(g => g.Name, g => g);
 
         List<VideoStream> toWrite = new();
         List<VideoStream> toUpdate = new();
 
         foreach (VideoStream stream in streams)
         {
-            _ = groupLookup.TryGetValue(stream.Tvg_group, out ChannelGroup? group);
+            _ = groupLookup.TryGetValue(stream.Tvg_group, out ChannelGroupDto? group);
 
             if (!existingLookup.ContainsKey(stream.Id))
             {
@@ -194,30 +194,29 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         Stopwatch sw = Stopwatch.StartNew();
 
         List<string> newGroups = streams.Where(a => a.User_Tvg_group != null).Select(a => a.User_Tvg_group).Distinct().ToList();
-        List<ChannelGroup> channelGroups = await Repository.ChannelGroup.GetAllChannelGroups().ToListAsync(cancellationToken);
+        List<ChannelGroupDto> channelGroups = await Repository.ChannelGroup.GetChannelGroups();
 
         await CreateNewChannelGroups(newGroups, channelGroups, cancellationToken);
 
         Logger.LogInformation($"Updating channel groups took {sw.Elapsed.TotalSeconds} seconds");
     }
 
-    private async Task CreateNewChannelGroups(List<string> newGroups, List<ChannelGroup> existingGroups, CancellationToken cancellationToken)
+    private async Task CreateNewChannelGroups(List<string> newGroups, List<ChannelGroupDto> existingGroups, CancellationToken cancellationToken)
     {
-        int rank = existingGroups.Any() ? existingGroups.Max(a => a.Rank) + 1 : 1;
 
         foreach (string? group in newGroups)
         {
             if (!existingGroups.Any(a => a.Name == group))
             {
-                await Sender.Send(new CreateChannelGroupRequest(group, rank++, true), cancellationToken).ConfigureAwait(false);
+                await Sender.Send(new CreateChannelGroupRequest(group, true), cancellationToken).ConfigureAwait(false);
             }
         }
     }
 
     private async Task NotifyUpdates(M3UFile m3uFile, CancellationToken cancellationToken)
     {
-        List<string> m3uChannelGroupNames = await Repository.M3UFile.GetChannelGroupNamesFromM3UFile(m3uFile.Id);
-        List<ChannelGroup> channelGroups = await Repository.ChannelGroup.GetChannelGroupsFromNames(m3uChannelGroupNames);
+        //List<string> m3uChannelGroupNames = await Repository.M3UFile.GetChannelGroupNamesFromM3UFile(m3uFile.Id);
+        //List<ChannelGroup> channelGroups = await Repository.ChannelGroup.GetChannelGroupsFromNames(m3uChannelGroupNames);
 
         //await Sender.Send(new UpdateChannelGroupCountsRequest(channelGroups.Select(a => a.Id)), cancellationToken).ConfigureAwait(false);
         await Publisher.Publish(new M3UFileProcessedEvent(), cancellationToken).ConfigureAwait(false);

@@ -2,7 +2,7 @@
 
 namespace StreamMasterApplication.M3UFiles.Commands;
 
-public record ChangeM3UFileNameRequest(int Id, string Name) : IRequest<bool> { }
+public record ChangeM3UFileNameRequest(int Id, string Name) : IRequest<M3UFileDto?> { }
 
 public class ChangeM3UFileNameRequestValidator : AbstractValidator<ChangeM3UFileNameRequest>
 {
@@ -15,28 +15,11 @@ public class ChangeM3UFileNameRequestValidator : AbstractValidator<ChangeM3UFile
     }
 }
 
-public class ChangeM3UFileNameRequestHandler : BaseMediatorRequestHandler, IRequestHandler<ChangeM3UFileNameRequest, bool>
+public class ChangeM3UFileNameRequestHandler(ILogger<ChangeM3UFileNameRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<ChangeM3UFileNameRequest, M3UFileDto?>
 {
-    public ChangeM3UFileNameRequestHandler(ILogger<ChangeM3UFileNameRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-  : base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
-
-    public async Task<bool> Handle(ChangeM3UFileNameRequest request, CancellationToken cancellationToken)
+    public async Task<M3UFileDto?> Handle(ChangeM3UFileNameRequest request, CancellationToken cancellationToken)
     {
-        M3UFile m3UFile = await Repository.M3UFile.GetM3UFileByIdAsync(request.Id).ConfigureAwait(false);
-        if (m3UFile == null)
-        {
-            return false;
-        }
+        return await Repository.M3UFile.ChangeM3UFileName(request.Id, request.Name).ConfigureAwait(false);
 
-        m3UFile.Name = request.Name;
-
-        Repository.M3UFile.UpdateM3UFile(m3UFile);
-        _ = await Repository.SaveAsync().ConfigureAwait(false);
-
-        M3UFileDto ret = Mapper.Map<M3UFileDto>(m3UFile);
-
-        await Publisher.Publish(new M3UFileChangedEvent(ret));
-
-        return true;
     }
 }

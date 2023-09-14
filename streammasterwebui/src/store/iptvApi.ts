@@ -114,6 +114,16 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/channelgroups/getchannelgroupnames` }),
         providesTags: ["ChannelGroups"],
       }),
+      channelGroupsGetChannelGroupsForStream: build.query<
+        ChannelGroupsGetChannelGroupsForStreamApiResponse,
+        ChannelGroupsGetChannelGroupsForStreamApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/channelgroups/getchannelgroupsforstream`,
+          body: queryArg,
+        }),
+        providesTags: ["ChannelGroups"],
+      }),
       epgFilesCreateEpgFile: build.mutation<
         EpgFilesCreateEpgFileApiResponse,
         EpgFilesCreateEpgFileApiArg
@@ -645,16 +655,6 @@ const injectedRtkApi = api
         }),
         providesTags: ["StreamGroupChannelGroup"],
       }),
-      streamGroupChannelGroupGetAllChannelGroups: build.query<
-        StreamGroupChannelGroupGetAllChannelGroupsApiResponse,
-        StreamGroupChannelGroupGetAllChannelGroupsApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/streamgroupchannelgroup/getallchannelgroups`,
-          params: { StreamGroupId: queryArg },
-        }),
-        providesTags: ["StreamGroupChannelGroup"],
-      }),
       streamGroupsCreateStreamGroup: build.mutation<
         StreamGroupsCreateStreamGroupApiResponse,
         StreamGroupsCreateStreamGroupApiArg
@@ -1167,6 +1167,10 @@ export type ChannelGroupsUpdateChannelGroupsApiArg = UpdateChannelGroupsRequest;
 export type ChannelGroupsGetChannelGroupNamesApiResponse =
   /** status 200  */ string[];
 export type ChannelGroupsGetChannelGroupNamesApiArg = void;
+export type ChannelGroupsGetChannelGroupsForStreamApiResponse =
+  /** status 200  */ ChannelGroupDto[];
+export type ChannelGroupsGetChannelGroupsForStreamApiArg =
+  GetChannelGroupsForStreamGroupRequest;
 export type EpgFilesCreateEpgFileApiResponse = unknown;
 export type EpgFilesCreateEpgFileApiArg = CreateEpgFileRequest;
 export type EpgFilesCreateEpgFileFromFormApiResponse = unknown;
@@ -1364,9 +1368,6 @@ export type StreamGroupChannelGroupGetChannelGroupsFromStreamGroupApiResponse =
   /** status 200  */ ChannelGroupDto[];
 export type StreamGroupChannelGroupGetChannelGroupsFromStreamGroupApiArg =
   number;
-export type StreamGroupChannelGroupGetAllChannelGroupsApiResponse =
-  /** status 200  */ ChannelGroupDto[];
-export type StreamGroupChannelGroupGetAllChannelGroupsApiArg = number;
 export type StreamGroupsCreateStreamGroupApiResponse = unknown;
 export type StreamGroupsCreateStreamGroupApiArg = CreateStreamGroupRequest;
 export type StreamGroupsDeleteStreamGroupApiResponse = unknown;
@@ -1523,7 +1524,6 @@ export type VideoStreamsSimulateStreamFailureApiArg =
   SimulateStreamFailureRequest;
 export type CreateChannelGroupRequest = {
   groupName: string;
-  rank: number;
   isReadOnly: boolean;
 };
 export type QueryStringParameters = {
@@ -1541,18 +1541,18 @@ export type DeleteChannelGroupRequest = {
   channelGroupId: number;
 };
 export type ChannelGroupStreamCount = {
-  id: number;
-  activeCount: number;
-  totalCount: number;
-  hiddenCount: number;
+  channelGroupId?: number;
+  activeCount?: number;
+  totalCount?: number;
+  hiddenCount?: number;
 };
 export type ChannelGroupArg = ChannelGroupStreamCount & {
-  isHidden?: boolean | null;
-  isReadOnly?: boolean | null;
+  isHidden?: boolean;
+  isReadOnly?: boolean;
   name: string;
-  rank: number;
 };
 export type ChannelGroupDto = ChannelGroupArg & {
+  id?: number;
   isLoading?: boolean;
 };
 export type ChannelGroupIdName = {
@@ -1578,6 +1578,9 @@ export type UpdateChannelGroupRequest = {
 export type UpdateChannelGroupsRequest = {
   channelGroupRequests: UpdateChannelGroupRequest[];
 };
+export type GetChannelGroupsForStreamGroupRequest = {
+  streamGroupId?: number;
+};
 export type CreateEpgFileRequest = {
   description?: string | null;
   epgRank?: number;
@@ -1590,6 +1593,7 @@ export type DeleteEpgFileRequest = {
   id?: number;
 };
 export type BaseFileDto = {
+  source: string;
   autoUpdate: boolean;
   description: string;
   downloadErrors: number;
@@ -2095,7 +2099,6 @@ export type SyncStreamGroupChannelGroupsRequest = {
 };
 export type CreateStreamGroupRequest = {
   name: string;
-  streamGroupNumber: number;
 };
 export type DeleteStreamGroupRequest = {
   id?: number;
@@ -2279,7 +2282,6 @@ export type SetVideoStreamsLogoFromEpgRequest = {
 };
 export type UpdateVideoStreamRequest = VideoStreamBaseRequest & {
   id?: string;
-  isUserCreated?: boolean | null;
   streamProxyType?: StreamingProxyTypes | null;
 };
 export type UpdateVideoStreamsRequest = {
@@ -2318,6 +2320,7 @@ export const {
   useChannelGroupsUpdateChannelGroupMutation,
   useChannelGroupsUpdateChannelGroupsMutation,
   useChannelGroupsGetChannelGroupNamesQuery,
+  useChannelGroupsGetChannelGroupsForStreamQuery,
   useEpgFilesCreateEpgFileMutation,
   useEpgFilesCreateEpgFileFromFormMutation,
   useEpgFilesDeleteEpgFileMutation,
@@ -2371,7 +2374,6 @@ export const {
   useSettingsUpdateSettingMutation,
   useStreamGroupChannelGroupSyncStreamGroupChannelGroupsMutation,
   useStreamGroupChannelGroupGetChannelGroupsFromStreamGroupQuery,
-  useStreamGroupChannelGroupGetAllChannelGroupsQuery,
   useStreamGroupsCreateStreamGroupMutation,
   useStreamGroupsDeleteStreamGroupMutation,
   useStreamGroupsGetStreamGroupQuery,

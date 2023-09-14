@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Http;
 
 using StreamMasterApplication.Common.Extensions;
 
-
-using StreamMasterDomain.Repository.EPG;
+using StreamMasterDomain.EPG;
+using StreamMasterDomain.Models;
 
 using System.Collections.Concurrent;
 using System.Net;
@@ -27,7 +27,7 @@ public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
             .NotNull().GreaterThanOrEqualTo(0);
     }
 }
-public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPG> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMemoryRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupEPG, string>
+public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPG> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupEPG, string>
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
@@ -74,7 +74,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
-        List<VideoStream> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreamsList(request.StreamGroupId, cancellationToken);
+        List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
 
 
         if (!videoStreams.Any())
@@ -89,7 +89,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
 
     [LogExecutionTimeAspect]
-    private async Task<Tv> PrepareEpgData(IEnumerable<VideoStream> videoStreams)
+    private async Task<Tv> PrepareEpgData(IEnumerable<VideoStreamDto> videoStreams)
     {
         HashSet<string> epgids = new(videoStreams.Where(a => !a.IsHidden).Select(r => r.User_Tvg_ID));
 
@@ -129,7 +129,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         };
     }
 
-    private TvChannel CreateTvChannel(VideoStream? videoStream, Setting setting)
+    private TvChannel CreateTvChannel(VideoStreamDto? videoStream, Setting setting)
     {
         if (videoStream == null)
         {
@@ -175,7 +175,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     }
 
 
-    private List<Programme> ProcessProgrammesForVideoStream(VideoStream videoStream, List<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
+    private List<Programme> ProcessProgrammesForVideoStream(VideoStreamDto videoStream, List<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
     {
 
         if (videoStream.User_Tvg_ID == null)
@@ -197,7 +197,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     }
 
 
-    private List<Programme> HandleDummyStream(VideoStream videoStream)
+    private List<Programme> HandleDummyStream(VideoStreamDto videoStream)
     {
         List<Programme> programmesForStream = new();
 
@@ -228,7 +228,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         return programmesForStream;
     }
 
-    private List<Programme> ProcessNonDummyStreams(VideoStream videoStream, List<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
+    private List<Programme> ProcessNonDummyStreams(VideoStreamDto videoStream, List<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
     {
         List<Programme> programmesForStream = new();
 
@@ -327,7 +327,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         return !programmes.Any(p => p.Channel == videoStream.User_Tvg_ID);
     }
 
-    private bool IsVideoStreamADummy(VideoStream videoStream, Setting setting)
+    private bool IsVideoStreamADummy(VideoStreamDto videoStream, Setting setting)
     {
         if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
         {

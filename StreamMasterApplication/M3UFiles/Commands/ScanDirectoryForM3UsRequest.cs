@@ -1,4 +1,8 @@
-﻿namespace StreamMasterApplication.M3UFiles.Commands;
+﻿using Microsoft.EntityFrameworkCore;
+
+using StreamMasterDomain.Models;
+
+namespace StreamMasterApplication.M3UFiles.Commands;
 
 public record ScanDirectoryForM3UFilesRequest : IRequest<bool> { }
 
@@ -7,8 +11,8 @@ public record ScanDirectoryForM3UFilesRequest : IRequest<bool> { }
 public class ScanDirectoryForM3UFilesRequestHandler : BaseMediatorRequestHandler, IRequestHandler<ScanDirectoryForM3UFilesRequest, bool>
 {
 
-    public ScanDirectoryForM3UFilesRequestHandler(ILogger<ScanDirectoryForM3UFilesRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
- : base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
+    public ScanDirectoryForM3UFilesRequestHandler(ILogger<ScanDirectoryForM3UFilesRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+ : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
 
     public async Task<bool> Handle(ScanDirectoryForM3UFilesRequest command, CancellationToken cancellationToken)
@@ -43,8 +47,7 @@ public class ScanDirectoryForM3UFilesRequestHandler : BaseMediatorRequestHandler
             return;
         }
 
-        M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileBySourceAsync(m3uFileInfo.Name).ConfigureAwait(false);
-
+        M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileQuery().FirstOrDefaultAsync(a => a.Name == m3uFileInfo.Name, cancellationToken: cancellationToken).ConfigureAwait(false);
         if (m3uFile == null)
         {
             m3uFile = CreateOrUpdateM3UFile(m3uFileInfo);

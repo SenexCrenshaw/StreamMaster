@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Xml.Serialization;
 
-namespace StreamMasterDomain.Repository.EPG;
+namespace StreamMasterDomain.EPG;
 
 [XmlRoot(ElementName = "programme")]
 public class Programme

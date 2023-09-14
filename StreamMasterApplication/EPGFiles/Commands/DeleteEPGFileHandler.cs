@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
 
-using StreamMasterDomain.Dto;
-
 namespace StreamMasterApplication.EPGFiles.Commands;
 
 public record DeleteEPGFileRequest(bool DeleteFile, int Id) : IRequest<int?> { }
@@ -16,24 +14,17 @@ public class DeleteEPGFileRequestValidator : AbstractValidator<DeleteEPGFileRequ
     }
 }
 
-public class DeleteEPGFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<DeleteEPGFileRequest, int?>
+public class DeleteEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<DeleteEPGFileRequest, int?>
 {
 
-    public DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-    : base(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache) { }
+    public DeleteEPGFileRequestHandler(ILogger<DeleteEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+    : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
     public async Task<int?> Handle(DeleteEPGFileRequest request, CancellationToken cancellationToken = default)
     {
-        EPGFile? epgFile = await Repository.EPGFile.GetEPGFileByIdAsync(request.Id).ConfigureAwait(false);
-        if (epgFile == null)
-        {
-            return null;
-        }
+        EPGFileDto? epgFile = await Repository.EPGFile.DeleteEPGFile(request.Id);
 
-        Repository.EPGFile.DeleteEPGFile(epgFile);
-
-
-        if (request.DeleteFile)
+        if (request.DeleteFile && epgFile != null)
         {
             string fullName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Name + FileDefinitions.EPG.FileExtension);
             if (File.Exists(fullName))

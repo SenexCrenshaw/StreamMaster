@@ -77,7 +77,7 @@ const ChannelGroupSelector: React.FC<ChannelGroupSelectorProps> = ({ className, 
         filter
         filterInputAutoFocus
         itemTemplate={(option) => getChannelGroupMenuItem(option.id, option.name)}
-        onChange={(e) => onChange(e.value)}
+        onChange={(e) => onChange(e.value.name)}
         optionLabel="name"
         options={channelGroupNamesQuery.data}
         panelFooterTemplate={footerTemplate}

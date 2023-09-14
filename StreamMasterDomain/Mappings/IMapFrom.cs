@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Models;
 
 namespace StreamMasterDomain.Mappings;
 

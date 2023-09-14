@@ -2,7 +2,7 @@
 
 public record GetProgrammeFromDisplayNameRequest(string value) : IRequest<ProgrammeNameDto?>;
 
-internal class GetProgrammeFromDisplayNameHandler : BaseMemoryRequestHandler, IRequestHandler<GetProgrammeFromDisplayNameRequest, ProgrammeNameDto?>
+internal class GetProgrammeFromDisplayNameHandler : BaseMediatorRequestHandler, IRequestHandler<GetProgrammeFromDisplayNameRequest, ProgrammeNameDto?>
 {
     public GetProgrammeFromDisplayNameHandler(ILogger<GetProgrammeFromDisplayNameRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
 : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }

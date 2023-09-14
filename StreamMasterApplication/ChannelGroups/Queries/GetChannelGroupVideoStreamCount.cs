@@ -4,7 +4,7 @@ namespace StreamMasterApplication.ChannelGroups.Queries;
 
 public record GetChannelGroupVideoStreamCount(string channelGropupName) : IRequest<ChannelGroupStreamCount?>;
 
-internal class GetChannelGroupVideoStreamCountHandler : BaseMemoryRequestHandler, IRequestHandler<GetChannelGroupVideoStreamCount, ChannelGroupStreamCount?>
+internal class GetChannelGroupVideoStreamCountHandler : BaseMediatorRequestHandler, IRequestHandler<GetChannelGroupVideoStreamCount, ChannelGroupStreamCount?>
 {
 
     public GetChannelGroupVideoStreamCountHandler(ILogger<GetChannelGroupVideoStreamCount> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)

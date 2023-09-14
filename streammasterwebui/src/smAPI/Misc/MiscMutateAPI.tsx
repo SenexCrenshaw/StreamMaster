@@ -1,4 +1,5 @@
 import { hubConnection } from "../../app/signalr";
+import type * as iptv from "../../store/iptvApi";
 
 export const BuildIconsCacheFromVideoStreams = async (): Promise<void> => {
   await hubConnection.invoke('BuildIconsCacheFromVideoStreams');

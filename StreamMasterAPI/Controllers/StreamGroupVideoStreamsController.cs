@@ -35,7 +35,7 @@ public class StreamGroupVideoStreamsController : ApiControllerBase, IStreamGroup
     [Route("[action]")]
     public async Task<ActionResult<PagedResponse<VideoStreamDto>>> GetStreamGroupVideoStreams([FromQuery] StreamGroupVideoStreamParameters Parameters, CancellationToken cancellationToken = default)
     {
-        PagedResponse<VideoStreamDto> res = await Mediator.Send(new GetStreamGroupVideoStreamsRequest(Parameters), cancellationToken).ConfigureAwait(false);
+        PagedResponse<VideoStreamDto> res = await Mediator.Send(new GetPagedStreamGroupVideoStreamsRequest(Parameters), cancellationToken).ConfigureAwait(false);
         return Ok(res);
     }
 

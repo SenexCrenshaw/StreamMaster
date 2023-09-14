@@ -85,4 +85,12 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
         IEnumerable<string> res = await Mediator.Send(new GetChannelGroupNames()).ConfigureAwait(false);
         return Ok(res);
     }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<ChannelGroupDto>>> GetChannelGroupsForStream(GetChannelGroupsForStreamGroupRequest request)
+    {
+        List<ChannelGroupDto> ret = await Mediator.Send(request).ConfigureAwait(false);
+        return ret;
+    }
 }

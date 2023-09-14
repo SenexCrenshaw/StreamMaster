@@ -2,7 +2,7 @@
 
 public record GetStreamGroup(int Id) : IRequest<StreamGroupDto?>;
 
-internal class GetStreamGroupHandler(ILogger<GetStreamGroup> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext), IRequestHandler<GetStreamGroup, StreamGroupDto?>
+internal class GetStreamGroupHandler(ILogger<GetStreamGroup> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroup, StreamGroupDto?>
 {
     public async Task<StreamGroupDto?> Handle(GetStreamGroup request, CancellationToken cancellationToken = default)
     {
@@ -12,7 +12,7 @@ internal class GetStreamGroupHandler(ILogger<GetStreamGroup> logger, IRepository
         }
 
 
-        StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupDto(request.Id, cancellationToken).ConfigureAwait(false);
+        StreamGroupDto? streamGroup = await Repository.StreamGroup.GetStreamGroupById(request.Id).ConfigureAwait(false);
         return streamGroup;
     }
 }

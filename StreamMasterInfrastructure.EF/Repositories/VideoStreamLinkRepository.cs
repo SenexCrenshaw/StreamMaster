@@ -5,14 +5,16 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
-public class VideoStreamLinkRepository(RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : RepositoryBase<VideoStreamLink, VideoStreamLink>(repositoryContext), IVideoStreamLinkRepository
+public class VideoStreamLinkRepository(ILogger<VideoStreamLinkRepository> logger, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender) : RepositoryBase<VideoStreamLink>(repositoryContext, logger), IVideoStreamLinkRepository
 {
     public async Task<List<string>> GetVideoStreamVideoStreamIds(string videoStreamId, CancellationToken cancellationToken)
     {

@@ -1,5 +1,9 @@
 ﻿using FluentValidation;
 
+using Microsoft.EntityFrameworkCore;
+
+using StreamMasterDomain.Models;
+
 namespace StreamMasterApplication.M3UFiles.Commands;
 
 public class UpdateM3UFileRequest : BaseFileRequest, IRequest<M3UFile?>
@@ -18,18 +22,18 @@ public class UpdateM3UFileRequestValidator : AbstractValidator<UpdateM3UFileRequ
 
 
 [LogExecutionTimeAspect]
-public class UpdateM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHandler<UpdateM3UFileRequest, M3UFile?>
+public class UpdateM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateM3UFileRequest, M3UFile?>
 {
 
-    public UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache) { }
+    public UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
-    public async Task<M3UFile?> Handle(UpdateM3UFileRequest command, CancellationToken cancellationToken)
+    public async Task<M3UFile?> Handle(UpdateM3UFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
 
-            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileByIdAsync(command.Id).ConfigureAwait(false);
+            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileQuery().FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 return null;
@@ -37,46 +41,46 @@ public class UpdateM3UFileRequestHandler : BaseMemoryRequestHandler, IRequestHan
 
             bool isChanged = false;
 
-            if (!string.IsNullOrEmpty(command.Description) && m3uFile.Description != command.Description)
+            if (!string.IsNullOrEmpty(request.Description) && m3uFile.Description != request.Description)
             {
                 isChanged = true;
-                m3uFile.Description = command.Description;
+                m3uFile.Description = request.Description;
             }
 
-            if (!string.IsNullOrEmpty(command.Url) && m3uFile.Url != command.Url)
+            if (!string.IsNullOrEmpty(request.Url) && m3uFile.Url != request.Url)
             {
                 isChanged = true;
-                m3uFile.Url = command.Url;
+                m3uFile.Url = request.Url;
             }
 
-            if (!string.IsNullOrEmpty(command.Name) && m3uFile.Name != command.Name)
+            if (!string.IsNullOrEmpty(request.Name) && m3uFile.Name != request.Name)
             {
                 isChanged = true;
-                m3uFile.Name = command.Name;
+                m3uFile.Name = request.Name;
             }
 
-            if (command.MaxStreamCount != null && m3uFile.MaxStreamCount != command.MaxStreamCount)
+            if (request.MaxStreamCount != null && m3uFile.MaxStreamCount != request.MaxStreamCount)
             {
                 isChanged = true;
-                m3uFile.MaxStreamCount = (int)command.MaxStreamCount;
+                m3uFile.MaxStreamCount = (int)request.MaxStreamCount;
             }
 
-            if (command.AutoUpdate != null && m3uFile.AutoUpdate != command.AutoUpdate)
+            if (request.AutoUpdate != null && m3uFile.AutoUpdate != request.AutoUpdate)
             {
                 isChanged = true;
-                m3uFile.AutoUpdate = (bool)command.AutoUpdate;
+                m3uFile.AutoUpdate = (bool)request.AutoUpdate;
             }
 
-            if (command.StartingChannelNumber != null && m3uFile.StartingChannelNumber != command.StartingChannelNumber)
+            if (request.StartingChannelNumber != null && m3uFile.StartingChannelNumber != request.StartingChannelNumber)
             {
                 isChanged = true;
-                m3uFile.StartingChannelNumber = (int)command.StartingChannelNumber;
+                m3uFile.StartingChannelNumber = (int)request.StartingChannelNumber;
             }
 
-            if (command.HoursToUpdate != null && m3uFile.HoursToUpdate != command.HoursToUpdate)
+            if (request.HoursToUpdate != null && m3uFile.HoursToUpdate != request.HoursToUpdate)
             {
                 isChanged = true;
-                m3uFile.HoursToUpdate = (int)command.HoursToUpdate;
+                m3uFile.HoursToUpdate = (int)request.HoursToUpdate;
             }
 
             Repository.M3UFile.UpdateM3UFile(m3uFile);

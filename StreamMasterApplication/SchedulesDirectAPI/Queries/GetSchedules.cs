@@ -4,8 +4,8 @@ using StreamMaster.SchedulesDirectAPI.Models;
 namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 public record GetSchedules() : IRequest<List<Schedule>>;
 
-public class GetSchedulesHandler(ILogger<GetSchedules> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-: BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext), IRequestHandler<GetSchedules, List<Schedule>>
+public class GetSchedulesHandler(ILogger<GetSchedules> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetSchedules, List<Schedule>>
 {
     public async Task<List<Schedule>> Handle(GetSchedules request, CancellationToken cancellationToken)
     {

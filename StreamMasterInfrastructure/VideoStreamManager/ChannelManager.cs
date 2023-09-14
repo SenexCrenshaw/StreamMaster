@@ -250,14 +250,14 @@ public class ChannelManager : IDisposable, IChannelManager
         // = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
         IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
         IMapper mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
-        M3UFile? m3uFile;
+        M3UFileDto? m3uFile;
         int allStreamsCount = 0;
 
         Setting setting = _memoryCache.GetSetting();
 
         if (!string.IsNullOrEmpty(overrideNextVideoStreamId))
         {
-            VideoStream vs = await repository.VideoStream.GetVideoStreamByIdAsync(overrideNextVideoStreamId);
+            VideoStreamDto? vs = await repository.VideoStream.GetVideoStreamById(overrideNextVideoStreamId);
             if (vs == null)
             {
                 _logger.LogError("GetNextChildVideoStream could not get videoStream for id {VideoStreamId}", overrideNextVideoStreamId);
@@ -273,7 +273,7 @@ public class ChannelManager : IDisposable, IChannelManager
                 return null;
             }
 
-            IEnumerable<M3UFile> m3uFilesRepo = await repository.M3UFile.GetAllM3UFilesAsync();
+            List<M3UFileDto> m3uFilesRepo = await repository.M3UFile.GetM3UFiles();
 
             m3uFile = m3uFilesRepo.FirstOrDefault(a => a.Id == newVideoStream.M3UFileId);
             if (m3uFile == null)
@@ -330,7 +330,7 @@ public class ChannelManager : IDisposable, IChannelManager
         while (channelStatus.Rank < videoStreams.Length)
         {
             ChildVideoStreamDto toReturn = videoStreams[channelStatus.Rank++];
-            IEnumerable<M3UFile> m3uFilesRepo = await repository.M3UFile.GetAllM3UFilesAsync();
+            List<M3UFileDto> m3uFilesRepo = await repository.M3UFile.GetM3UFiles().ConfigureAwait(false);
 
             m3uFile = m3uFilesRepo.FirstOrDefault(a => a.Id == toReturn.M3UFileId);
             if (m3uFile == null)
@@ -508,7 +508,7 @@ public class ChannelManager : IDisposable, IChannelManager
         {
             using IServiceScope scope = _serviceProvider.CreateScope();
             IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-            VideoStream? videoStream = await repository.VideoStream.GetVideoStreamByIdAsync(config.VideoStreamId);
+            VideoStreamDto? videoStream = await repository.VideoStream.GetVideoStreamById(config.VideoStreamId);
 
 
             if (videoStream is null)

@@ -20,3 +20,8 @@ export const GetChannelGroupNames = async (): Promise<void> => {
   await hubConnection.invoke('GetChannelGroupNames');
 };
 
+export const GetChannelGroupsForStream = async (arg: iptv.GetChannelGroupsForStreamGroupRequest): Promise<iptv.ChannelGroupDto[]> => {
+  const data = await hubConnection.invoke('GetChannelGroupsForStream', arg);
+  return data;
+};
+

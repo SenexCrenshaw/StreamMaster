@@ -1,19 +1,18 @@
-﻿using AutoMapper.QueryableExtensions;
+﻿using AutoMapper;
 
 using StreamMasterDomain.Filtering;
 using StreamMasterDomain.Pagination;
 
-namespace StreamMasterApplication.Common.Extensions;
+namespace StreamMasterDomain.Extensions;
 
-public static class CreatePagedExtensions
+public static class PagedExtensions
 {
     public static async Task<PagedResponse<TDto>> GetPagedResponseAsync<T, TDto>(this IQueryable<T> query, int pageNumber, int pageSize, IMapper mapper)
     where TDto : class
     {
-        IQueryable<TDto> childQDto = query.ProjectTo<TDto>(mapper.ConfigurationProvider);
-        IPagedList<TDto> pagedResult = await childQDto.ToPagedListAsync(pageNumber, pageSize).ConfigureAwait(false);
-        int totalCount = pagedResult.TotalItemCount;
-        return pagedResult.ToPagedResponse(totalCount);
+        IPagedList<T> pagedResult = await query.ToPagedListAsync(pageNumber, pageSize).ConfigureAwait(false);
+        IPagedList<TDto> childQDto = mapper.Map<IPagedList<TDto>>(pagedResult);
+        return childQDto.ToPagedResponse(pagedResult.TotalItemCount);
     }
 
     public static async Task<PagedResponse<TDto>> GetPagedResponseWithFilterAsync<T, TDto>(this IQueryable<T> query, string? JSONFiltersString, string? OrderBy, int pageNumber, int pageSize, IMapper mapper) where T : class

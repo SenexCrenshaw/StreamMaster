@@ -1,4 +1,4 @@
-﻿using StreamMasterDomain.Extensions;
+﻿using StreamMasterDomain.Models;
 
 using System.Collections.Concurrent;
 using System.Web;
@@ -7,15 +7,15 @@ namespace StreamMasterApplication.Icons.Commands;
 
 public class BuildIconsCacheFromVideoStreamRequest : IRequest<bool> { }
 
-public class BuildIconsCacheFromVideoStreamRequestHandler : BaseMemoryRequestHandler, IRequestHandler<BuildIconsCacheFromVideoStreamRequest, bool>
+public class BuildIconsCacheFromVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequestHandler<BuildIconsCacheFromVideoStreamRequest, bool>
 {
 
-    public BuildIconsCacheFromVideoStreamRequestHandler(ILogger<BuildIconsCacheFromVideoStreamRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache) { }
+    public BuildIconsCacheFromVideoStreamRequestHandler(ILogger<BuildIconsCacheFromVideoStreamRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
     public Task<bool> Handle(BuildIconsCacheFromVideoStreamRequest command, CancellationToken cancellationToken)
     {
-        IQueryable<VideoStream> streams = Repository.VideoStream.GetAllVideoStreams()
+        IQueryable<VideoStream> streams = Repository.VideoStream.GetVideoStreamQuery()
          .Where(a => a.User_Tvg_logo != null && a.User_Tvg_logo.Contains("://"))
          .AsQueryable();
 

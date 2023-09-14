@@ -2,32 +2,34 @@
 
 using StreamMasterApplication.ChannelGroups.Events;
 
+using StreamMasterDomain.Models;
+
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
 [RequireAll]
-public record CreateChannelGroupRequest(string GroupName, int Rank, bool IsReadOnly) : IRequest<ChannelGroupDto?> { }
+public record CreateChannelGroupRequest(string GroupName, bool IsReadOnly) : IRequest<ChannelGroupDto?> { }
 
 public class CreateChannelGroupRequestValidator : AbstractValidator<CreateChannelGroupRequest>
 {
     public CreateChannelGroupRequestValidator()
     {
         _ = RuleFor(v => v.GroupName).NotNull().NotEmpty();
-        _ = RuleFor(v => v.Rank).NotNull().GreaterThan(0);
+
     }
 }
 
 
 [LogExecutionTimeAspect]
-public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext), IRequestHandler<CreateChannelGroupRequest, ChannelGroupDto?>
+public class CreateChannelGroupRequestHandler(ILogger<CreateChannelGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<CreateChannelGroupRequest, ChannelGroupDto?>
 {
     public async Task<ChannelGroupDto?> Handle(CreateChannelGroupRequest request, CancellationToken cancellationToken)
     {
-        if (await Repository.ChannelGroup.GetChannelGroupByNameAsync(request.GroupName).ConfigureAwait(false) != null)
+        if (await Repository.ChannelGroup.GetChannelGroupByName(request.GroupName).ConfigureAwait(false) != null)
         {
             return null;
         }
 
-        ChannelGroup channelGroup = new() { Name = request.GroupName, Rank = request.Rank, IsReadOnly = request.IsReadOnly };
+        ChannelGroup channelGroup = new() { Name = request.GroupName, IsReadOnly = request.IsReadOnly };
         Repository.ChannelGroup.CreateChannelGroup(channelGroup);
         _ = await Repository.SaveAsync().ConfigureAwait(false);
 

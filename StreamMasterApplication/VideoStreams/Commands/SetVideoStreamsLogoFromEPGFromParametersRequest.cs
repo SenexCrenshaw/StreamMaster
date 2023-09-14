@@ -1,5 +1,4 @@
 ﻿using StreamMasterApplication.VideoStreams.Events;
-
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
@@ -10,8 +9,8 @@ public record SetVideoStreamsLogoFromEPGFromParametersRequest(VideoStreamParamet
 public class SetVideoStreamsLogoFromEPGFromParametersRequestHandler : BaseMediatorRequestHandler, IRequestHandler<SetVideoStreamsLogoFromEPGFromParametersRequest, List<VideoStreamDto>>
 {
 
-    public SetVideoStreamsLogoFromEPGFromParametersRequestHandler(ILogger<SetVideoStreamsLogoFromEPGFromParametersRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-: base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
+    public SetVideoStreamsLogoFromEPGFromParametersRequestHandler(ILogger<SetVideoStreamsLogoFromEPGFromParametersRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
 
     public async Task<List<VideoStreamDto>> Handle(SetVideoStreamsLogoFromEPGFromParametersRequest request, CancellationToken cancellationToken)

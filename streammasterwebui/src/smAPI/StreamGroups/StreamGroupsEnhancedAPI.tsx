@@ -1,7 +1,7 @@
 import { hubConnection } from '../../app/signalr';
 import { isEmptyObject } from '../../common/common';
-import type * as iptv from '../../store/iptvApi';
 import { iptvApi } from '../../store/iptvApi';
+import type * as iptv from '../../store/iptvApi';
 
 export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
   endpoints: {
@@ -12,7 +12,7 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.StreamGroupDto) => {
             updateCachedData((draft: iptv.StreamGroupDto) => {
-              draft = data
+              draft=data
               return draft;
             });
           };
@@ -40,7 +40,7 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.EpgGuide) => {
             updateCachedData((draft: iptv.EpgGuide) => {
-              draft = data
+              draft=data
               return draft;
             });
           };

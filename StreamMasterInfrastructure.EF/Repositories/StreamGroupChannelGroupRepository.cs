@@ -6,6 +6,7 @@ using EFCore.BulkExtensions;
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.StreamGroups.Queries;
 using StreamMasterApplication.VideoStreams.Queries;
@@ -15,13 +16,15 @@ using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
-public class StreamGroupChannelGroupRepository(RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, ISender sender) : RepositoryBase<StreamGroupChannelGroup, StreamGroupChannelGroup>(repositoryContext), IStreamGroupChannelGroupRepository
+public class StreamGroupChannelGroupRepository(ILogger<StreamGroupChannelGroupRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, ISender sender) : RepositoryBase<StreamGroupChannelGroup>(repositoryContext, logger), IStreamGroupChannelGroupRepository
 {
-    private readonly IMapper _mapper = mapper;
-    private readonly ISender _sender = sender;
-    private readonly IRepositoryWrapper _repository = repository;
-    private readonly ISettingsService _settingsService = settingsService;
-
+    /// <summary>
+    /// Synchronizes channel groups for a stream group, adding and removing them as necessary.
+    /// </summary>
+    /// <param name="StreamGroupId">The ID of the stream group.</param>
+    /// <param name="ChannelGroupIds">The list of channel group IDs to sync.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>A StreamGroupDto if the operation is successful, otherwise null.</returns>
     public async Task<StreamGroupDto?> SyncStreamGroupChannelGroups(int StreamGroupId, List<int> ChannelGroupIds, CancellationToken cancellationToken = default)
     {
         // Check if the stream group exists.
@@ -31,7 +34,7 @@ public class StreamGroupChannelGroupRepository(RepositoryContext repositoryConte
         }
 
         // Fetch existing channel groups for the stream group.
-        List<int> existingChannelGroupIds = await FindAll()
+        List<int> existingChannelGroupIds = await RepositoryContext.StreamGroupChannelGroups
             .Where(x => x.StreamGroupId == StreamGroupId)
             .Select(x => x.ChannelGroupId)
             .ToListAsync(cancellationToken)
@@ -49,62 +52,98 @@ public class StreamGroupChannelGroupRepository(RepositoryContext repositoryConte
         await HandleAdditions(StreamGroupId, cgsToAdd, cancellationToken);
         await HandleRemovals(StreamGroupId, cgsToRemove, cancellationToken);
 
-        return await _sender.Send(new GetStreamGroup(StreamGroupId), cancellationToken);
+        return await sender.Send(new GetStreamGroup(StreamGroupId), cancellationToken);
     }
 
-    private async Task HandleAdditions(int StreamGroupId, List<int> cgsToAdd, CancellationToken cancellationToken)
+    /// <summary>
+    /// Handles the addition of channel groups and associated video streams to a stream group.
+    /// </summary>
+    /// <param name="StreamGroupId">The ID of the stream group.</param>
+    /// <param name="cgsToAdd">The list of channel groups to add.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    public async Task HandleAdditions(int StreamGroupId, List<int> cgsToAdd, CancellationToken cancellationToken)
     {
-        if (!cgsToAdd.Any())
+        if (StreamGroupId <= 0 || cgsToAdd == null || !cgsToAdd.Any())
         {
+            // Parameter error checks, return if StreamGroupId is invalid or cgsToAdd is null or empty
             return;
         }
 
-        // Create new stream group channel groups.
-        List<StreamGroupChannelGroup> streamGroupChannelGroups = cgsToAdd.Select(channelGroupId => new StreamGroupChannelGroup
+        try
         {
-            StreamGroupId = StreamGroupId,
-            ChannelGroupId = channelGroupId
-        }).ToList();
-        await RepositoryContext.StreamGroupChannelGroups.AddRangeAsync(streamGroupChannelGroups, cancellationToken).ConfigureAwait(false);
-        await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            // Create new stream group channel groups.
+            List<StreamGroupChannelGroup> streamGroupChannelGroups = cgsToAdd.Select(channelGroupId => new StreamGroupChannelGroup
+            {
+                StreamGroupId = StreamGroupId,
+                ChannelGroupId = channelGroupId
+            }).ToList();
 
-        // Fetch existing video streams for the stream group.
-        List<string> existingVideoStreamIds = await RepositoryContext.StreamGroupVideoStreams
-            .Where(a => a.StreamGroupId == StreamGroupId)
-            .Select(a => a.ChildVideoStreamId)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
+            await RepositoryContext.StreamGroupChannelGroups.AddRangeAsync(streamGroupChannelGroups, cancellationToken).ConfigureAwait(false);
+            await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        // Handle additions...
-        List<VideoStreamDto> toAddVids = await _sender.Send(new GetVideoStreamsForChannelGroups(cgsToAdd), cancellationToken).ConfigureAwait(false);
-        List<string> toAdd = toAddVids.Select(a => a.Id).Except(existingVideoStreamIds).ToList();
-        List<string> toUpdate = toAddVids.Select(a => a.Id).Intersect(existingVideoStreamIds).ToList();
+            // Fetch existing video streams for the stream group.
+            List<string> existingVideoStreamIds = await RepositoryContext.StreamGroupVideoStreams
+                .Where(a => a.StreamGroupId == StreamGroupId)
+                .Select(a => a.ChildVideoStreamId)
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
 
-        if (toAdd.Any())
-        {
-            await _repository.StreamGroupVideoStream.AddStreamGroupVideoStreams(StreamGroupId, toAdd, true, cancellationToken).ConfigureAwait(false);
+            // Handle additions...
+            List<VideoStreamDto> toAddVids = await sender.Send(new GetVideoStreamsForChannelGroups(cgsToAdd), cancellationToken).ConfigureAwait(false);
+            List<string> toAdd = toAddVids.Select(a => a.Id).Except(existingVideoStreamIds).ToList();
+            List<string> toUpdate = toAddVids.Select(a => a.Id).Intersect(existingVideoStreamIds).ToList();
+
+            if (toAdd.Any())
+            {
+                await repository.StreamGroupVideoStream.AddStreamGroupVideoStreams(StreamGroupId, toAdd, true, cancellationToken).ConfigureAwait(false);
+            }
+
+            if (toUpdate.Any())
+            {
+                await repository.StreamGroupVideoStream.SetStreamGroupVideoStreamsIsReadOnly(StreamGroupId, toUpdate, true, cancellationToken).ConfigureAwait(false);
+            }
         }
-
-        if (toUpdate.Any())
+        catch (Exception ex)
         {
-            await _repository.StreamGroupVideoStream.SetStreamGroupVideoStreamsIsReadOnly(StreamGroupId, toUpdate, true, cancellationToken).ConfigureAwait(false);
+            // Log the exception
+            logger.LogError(ex, $"An error occurred while handling additions for stream group with ID {StreamGroupId}.");
+            throw; // Re-throw the exception to the caller
         }
     }
-    private async Task HandleRemovals(int StreamGroupId, List<int> cgsToRemove, CancellationToken cancellationToken)
+
+    /// <summary>
+    /// Handles the removal of channel groups and associated video streams from a stream group.
+    /// </summary>
+    /// <param name="StreamGroupId">The ID of the stream group.</param>
+    /// <param name="cgsToRemove">The list of channel groups to remove.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    public async Task HandleRemovals(int StreamGroupId, List<int> cgsToRemove, CancellationToken cancellationToken)
     {
-        if (!cgsToRemove.Any())
+        if (StreamGroupId <= 0 || cgsToRemove == null || !cgsToRemove.Any())
         {
+            // Parameter error checks, return if StreamGroupId is invalid or cgsToRemove is null or empty
             return;
         }
 
-        // Remove channel groups from stream group.
-        IQueryable<StreamGroupChannelGroup> deleteSGQ = RepositoryContext.StreamGroupChannelGroups.Where(x => x.StreamGroupId == StreamGroupId && cgsToRemove.Contains(x.ChannelGroupId));
-        await RepositoryContext.BulkDeleteAsync(deleteSGQ, cancellationToken: cancellationToken).ConfigureAwait(false);
+        try
+        {
+            // Remove channel groups from the stream group.
+            IQueryable<StreamGroupChannelGroup> deleteSGQ = RepositoryContext.StreamGroupChannelGroups
+                .Where(x => x.StreamGroupId == StreamGroupId && cgsToRemove.Contains(x.ChannelGroupId));
 
-        // Remove video streams from stream group.
-        List<VideoStreamDto> toDelete = await _sender.Send(new GetVideoStreamsForChannelGroups(cgsToRemove), cancellationToken).ConfigureAwait(false);
-        List<string> toRemove = toDelete.Select(a => a.Id).ToList();
-        await _repository.StreamGroupVideoStream.RemoveStreamGroupVideoStreams(StreamGroupId, toRemove, cancellationToken).ConfigureAwait(false);
+            await repositoryContext.BulkDeleteAsync(deleteSGQ, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+            // Remove video streams from the stream group.
+            List<VideoStreamDto> toDelete = await sender.Send(new GetVideoStreamsForChannelGroups(cgsToRemove), cancellationToken).ConfigureAwait(false);
+            List<string> toRemove = toDelete.Select(a => a.Id).ToList();
+            await repository.StreamGroupVideoStream.RemoveStreamGroupVideoStreams(StreamGroupId, toRemove, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            logger.LogError(ex, $"An error occurred while removing channel groups from stream group with ID {StreamGroupId}.");
+            throw; // Re-throw the exception to the caller
+        }
     }
 
 
@@ -113,90 +152,172 @@ public class StreamGroupChannelGroupRepository(RepositoryContext repositoryConte
     /// </summary>
     /// <param name="StreamGroupId">The ID of the stream group.</param>
     /// <param name="ChannelGroupIds">The list of IDs of the channel groups to be removed.</param>
-    /// <param name="cancellationToken"></param>
-    /// <returns>A list of removed video stream IDs.</returns>
-    public async Task<IEnumerable<string>> RemoveStreamGroupChannelGroups(int StreamGroupId, List<int> ChannelGroupIds, CancellationToken cancellationToken = default)
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>A list of removed video stream IDs. If no records are found or if input is invalid, returns an empty list.</returns>
+    public async Task<List<string>> RemoveStreamGroupChannelGroups(int StreamGroupId, List<int> ChannelGroupIds, CancellationToken cancellationToken = default)
     {
         // List to hold the IDs of removed video streams.
         List<string> removedVideoStreamIds = new();
 
         // Initial checks.
-        if (StreamGroupId == 0 || !RepositoryContext.StreamGroups.Any(a => a.Id == StreamGroupId))
+        if (StreamGroupId <= 0 || !RepositoryContext.StreamGroups.Any(a => a.Id == StreamGroupId) || ChannelGroupIds == null || !ChannelGroupIds.Any())
         {
             return removedVideoStreamIds;
         }
 
-        // Get existing channel groups for the stream group.
-        List<int> existingChannelGroupIds = await FindAll()
-            .Where(x => x.StreamGroupId == StreamGroupId)
-            .Select(x => x.ChannelGroupId)
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
-
-        if (!existingChannelGroupIds.Any())
+        try
         {
+            // Get existing channel groups for the stream group.
+            List<int> existingChannelGroupIds = await RepositoryContext.StreamGroupChannelGroups
+                .Where(x => x.StreamGroupId == StreamGroupId)
+                .Select(x => x.ChannelGroupId)
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            if (!existingChannelGroupIds.Any())
+            {
+                return removedVideoStreamIds;
+            }
+
+            // Remove the stream group channel groups.
+            List<StreamGroupChannelGroup> streamGroupChannelGroupsToRemove = await RepositoryContext.StreamGroupChannelGroups
+                .Where(x => x.StreamGroupId == StreamGroupId && existingChannelGroupIds.Contains(x.ChannelGroupId))
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            RepositoryContext.StreamGroupChannelGroups.RemoveRange(streamGroupChannelGroupsToRemove);
+            await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+            // Get the video streams associated with the channel groups to be removed.
+            List<VideoStreamDto> vidsToRemove = await sender.Send(new GetVideoStreamsForChannelGroups(existingChannelGroupIds), cancellationToken).ConfigureAwait(false);
+            List<string> vidIdsToRemove = vidsToRemove.Select(a => a.Id).ToList();
+
+            // Get the video streams from the stream group that need to be removed.
+            List<StreamGroupVideoStream> streamGroupVideoStreamsToRemove = await RepositoryContext.StreamGroupVideoStreams
+                .Where(a => a.StreamGroupId == StreamGroupId && vidIdsToRemove.Contains(a.ChildVideoStreamId))
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            // Add the IDs of the video streams to be removed to the return list.
+            removedVideoStreamIds.AddRange(streamGroupVideoStreamsToRemove.Select(a => a.ChildVideoStreamId));
+
+            // Remove the associated video streams from the stream group.
+            RepositoryContext.StreamGroupVideoStreams.RemoveRange(streamGroupVideoStreamsToRemove);
+            await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
             return removedVideoStreamIds;
         }
-
-        // Remove the stream group channel groups.
-        List<StreamGroupChannelGroup> streamGroupChannelGroupsToRemove = await FindAll()
-            .Where(x => x.StreamGroupId == StreamGroupId && existingChannelGroupIds.Contains(x.ChannelGroupId))
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
-
-        RepositoryContext.StreamGroupChannelGroups.RemoveRange(streamGroupChannelGroupsToRemove);
-        await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-
-        // Get the video streams associated with the channel groups to be removed.
-        List<VideoStreamDto> vidsToRemove = await _sender.Send(new GetVideoStreamsForChannelGroups(existingChannelGroupIds), cancellationToken).ConfigureAwait(false);
-        List<string> vidIdsToRemove = vidsToRemove.Select(a => a.Id).ToList();
-
-        // Get the video streams from the stream group that need to be removed.
-        List<StreamGroupVideoStream> streamGroupVideoStreamsToRemove = await RepositoryContext.StreamGroupVideoStreams
-            .Where(a => a.StreamGroupId == StreamGroupId && vidIdsToRemove.Contains(a.ChildVideoStreamId))
-            .ToListAsync(cancellationToken)
-            .ConfigureAwait(false);
-
-        // Add the IDs of the video streams to be removed to the return list.
-        removedVideoStreamIds.AddRange(streamGroupVideoStreamsToRemove.Select(a => a.ChildVideoStreamId));
-
-        // Remove the associated video streams from the stream group.
-        RepositoryContext.StreamGroupVideoStreams.RemoveRange(streamGroupVideoStreamsToRemove);
-        await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-
-        return removedVideoStreamIds;
+        catch (Exception ex)
+        {
+            // Log the exception
+            logger.LogError(ex, $"An error occurred while removing channel groups from stream group with ID {StreamGroupId}.");
+            throw; // Re-throw the exception to the caller
+        }
     }
 
+    /// <summary>
+    /// Gets a list of stream groups associated with a list of channel group IDs.
+    /// </summary>
+    /// <param name="channelGroupIds">The list of channel group IDs.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>A list of StreamGroupDto objects. If no records are found or if input is null, returns an empty list.</returns>
     public async Task<List<StreamGroupDto>> GetStreamGroupsFromChannelGroups(List<int> channelGroupIds, CancellationToken cancellationToken = default)
     {
-        return await FindAll()
+        if (channelGroupIds == null || !channelGroupIds.Any())
+        {
+            // Return an empty list if the input is null or empty
+            return new List<StreamGroupDto>();
+        }
+
+        try
+        {
+            // Query the database
+            List<StreamGroupDto> streamGroups = await RepositoryContext.StreamGroupChannelGroups
                 .Include(a => a.StreamGroup)
                 .Where(x => channelGroupIds.Contains(x.ChannelGroupId))
                 .Select(x => x.StreamGroup)
-                .ProjectTo<StreamGroupDto>(_mapper.ConfigurationProvider)
+                .ProjectTo<StreamGroupDto>(mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
+
+            return streamGroups;
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            logger.LogError(ex, "An error occurred while getting stream groups from channel groups.");
+            throw; // Re-throw the exception to the caller
+        }
     }
 
+    /// <summary>
+    /// Gets a list of channel groups associated with a specific stream group ID.
+    /// </summary>
+    /// <param name="StreamGroupId">The ID of the stream group.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>A list of ChannelGroupDto objects. If no records are found, returns an empty list.</returns>
+    public async Task<List<ChannelGroupDto>> GetChannelGroupsFromStreamGroup(int StreamGroupId, CancellationToken cancellationToken)
+    {
+        if (StreamGroupId <= 0)
+        {
+            throw new ArgumentException("StreamGroupId must be greater than zero.", nameof(StreamGroupId));
+        }
+
+        try
+        {
+            // Query the database
+            List<ChannelGroupDto> channelGroups = await RepositoryContext.StreamGroupChannelGroups
+                .Include(a => a.ChannelGroup)
+                .Where(x => x.StreamGroupId == StreamGroupId)
+                .Select(x => x.ChannelGroup)
+                .ProjectTo<ChannelGroupDto>(mapper.ConfigurationProvider)
+                .ToListAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
+            return channelGroups;
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            logger.LogError(ex, $"An error occurred while getting channel groups for stream group with ID {StreamGroupId}.");
+            throw; // Re-throw the exception to the caller
+        }
+    }
+
+
+
+    /// <summary>
+    /// Gets a list of stream groups associated with a specific channel group ID.
+    /// </summary>
+    /// <param name="channelGroupId">The ID of the channel group.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>A list of StreamGroupDto objects. If no records are found or if input is invalid, returns an empty list.</returns>
     public async Task<List<StreamGroupDto>> GetStreamGroupsFromChannelGroup(int channelGroupId, CancellationToken cancellationToken = default)
     {
-        return await FindAll()
+        if (channelGroupId <= 0)
+        {
+            // Return an empty list if the input is invalid
+            return new List<StreamGroupDto>();
+        }
+
+        try
+        {
+            // Query the database
+            List<StreamGroupDto> streamGroups = await RepositoryContext.StreamGroupChannelGroups
                 .Include(a => a.StreamGroup)
                 .Where(x => x.ChannelGroupId == channelGroupId)
                 .Select(x => x.StreamGroup)
-                .ProjectTo<StreamGroupDto>(_mapper.ConfigurationProvider)
+                .ProjectTo<StreamGroupDto>(mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
-    }
 
-    public async Task<IEnumerable<ChannelGroupDto>> GetChannelGroupsFromStreamGroup(int StreamGroupId, CancellationToken cancellationToken)
-    {
-        return await FindAll()
-                 .Include(a => a.ChannelGroup)
-                 .Where(x => x.StreamGroupId == StreamGroupId)
-                 .Select(x => x.ChannelGroup)
-                 .ProjectTo<ChannelGroupDto>(_mapper.ConfigurationProvider)
-                 .ToListAsync(cancellationToken: cancellationToken)
-                 .ConfigureAwait(false);
+            return streamGroups;
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            logger.LogError(ex, $"An error occurred while getting stream groups for channel group with ID {channelGroupId}.");
+            throw; // Re-throw the exception to the caller
+        }
     }
 }

@@ -36,7 +36,7 @@ const ChannelGroupDeleteDialog = ({
 
   const { selectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
-  const { selectedChannelGroups } = useSelectedChannelGroups(cgid);
+  const { selectedChannelGroups, setSelectedChannelGroups } = useSelectedChannelGroups(cgid);
 
   const [channelGroupsDeleteChannelGroupMutation] = useChannelGroupsDeleteChannelGroupMutation();
   const [channelGroupsDeleteAllChannelGroupsFromParametersMutation] = useChannelGroupsDeleteAllChannelGroupsFromParametersMutation();
@@ -71,6 +71,7 @@ const ChannelGroupDeleteDialog = ({
       await channelGroupsDeleteAllChannelGroupsFromParametersMutation(toSendAll)
         .then(() => {
           setInfoMessage('Deleted Successfully');
+          setSelectedChannelGroups([]);
         }
         ).catch((error) => {
           setInfoMessage('Delete Error: ' + error.message);
@@ -125,7 +126,7 @@ const ChannelGroupDeleteDialog = ({
     });
 
 
-  }, [ReturnToParent, channelGroupsDeleteAllChannelGroupsFromParametersMutation, channelGroupsDeleteChannelGroupMutation, onDelete, queryFilter, selectAll, selectedChannelGroups, setChannelGroupToRemove, channelGroupDto]);
+  }, [selectAll, channelGroupDto, selectedChannelGroups, queryFilter, channelGroupsDeleteAllChannelGroupsFromParametersMutation, ReturnToParent, setSelectedChannelGroups, channelGroupsDeleteChannelGroupMutation, setChannelGroupToRemove, onDelete]);
 
   const isFirstDisabled = useMemo(() => {
     if (channelGroupDto) {

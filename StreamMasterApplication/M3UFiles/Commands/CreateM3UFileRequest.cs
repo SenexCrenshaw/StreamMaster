@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 
 using Microsoft.AspNetCore.Http;
-
+using StreamMasterDomain.Models;
 using System.Web;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
@@ -26,8 +26,8 @@ public class CreateM3UFileRequestValidator : AbstractValidator<CreateM3UFileRequ
 public class CreateM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateM3UFileRequest, bool>
 {
 
-    public CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-    : base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
+    public CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+    : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
     public async Task<bool> Handle(CreateM3UFileRequest command, CancellationToken cancellationToken)
     {

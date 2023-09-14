@@ -3,7 +3,6 @@
 using Microsoft.AspNetCore.Http;
 
 using StreamMasterApplication.Common.Extensions;
-using StreamMasterApplication.Common.Logging;
 
 using StreamMasterDomain.Authentication;
 
@@ -25,7 +24,7 @@ public class GetStreamGroupLineUpValidator : AbstractValidator<GetStreamGroupLin
 }
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupLineUpHandler : BaseMemoryRequestHandler, IRequestHandler<GetStreamGroupLineUp, string>
+public class GetStreamGroupLineUpHandler : BaseMediatorRequestHandler, IRequestHandler<GetStreamGroupLineUp, string>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     public GetStreamGroupLineUpHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupLineUp> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
@@ -65,7 +64,7 @@ public class GetStreamGroupLineUpHandler : BaseMemoryRequestHandler, IRequestHan
         //    videoStreams = Repository.VideoStream.GetVideoStreamsNotHidden();
         //}
 
-        List<VideoStream> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreamsList(request.StreamGroupId, cancellationToken);
+        List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
 
 
         if (!videoStreams.Any())
@@ -73,7 +72,7 @@ public class GetStreamGroupLineUpHandler : BaseMemoryRequestHandler, IRequestHan
             return JsonSerializer.Serialize(ret);
         }
 
-        foreach (VideoStream videoStream in videoStreams)
+        foreach (VideoStreamDto videoStream in videoStreams)
         {
 
             if (setting.M3UIgnoreEmptyEPGID &&

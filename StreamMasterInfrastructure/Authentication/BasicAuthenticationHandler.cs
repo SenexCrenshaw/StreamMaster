@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
+using StreamMasterDomain.Models;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -47,7 +47,7 @@ namespace StreamMasterInfrastructure.Authentication
             string authUsername = authSplit[0];
             string authPassword = authSplit.Length > 1 ? authSplit[1] : throw new Exception("Unable to get password");
 
-            StreamMasterDomain.Repository.User user = await _authService.Login(Request, authUsername, authPassword);
+            User user = await _authService.Login(Request, authUsername, authPassword);
 
             if (user == null)
             {

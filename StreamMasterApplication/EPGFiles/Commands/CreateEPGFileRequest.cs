@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
 
 using Microsoft.AspNetCore.Http;
-
-using StreamMasterDomain.Repository.EPG;
+using StreamMasterDomain.EPG;
+using StreamMasterDomain.Models;
 
 using System.Web;
 
@@ -26,8 +26,8 @@ public class CreateEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestH
 {
 
 
-    public CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-: base(logger, repository, mapper,settingsService, publisher, sender, hubContext) { }
+    public CreateEPGFileRequestHandler(ILogger<CreateEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
 
     public async Task<EPGFileDto?> Handle(CreateEPGFileRequest command, CancellationToken cancellationToken)
