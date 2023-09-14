@@ -30,9 +30,9 @@ public class ProgrammesController : ApiControllerBase, IProgrammeChannelControll
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<PagedResponse<ProgrammeNameDto>>> GetProgrammeNameSelections([FromQuery] ProgrammeParameters Parameters)
+    public async Task<ActionResult<PagedResponse<ProgrammeNameDto>>> GetPagedProgrammeNameSelections([FromQuery] ProgrammeParameters Parameters)
     {
-        return Ok(await Mediator.Send(new GetProgrammeNameSelections(Parameters)).ConfigureAwait(false));
+        return Ok(await Mediator.Send(new GetPagedProgrammeNameSelections(Parameters)).ConfigureAwait(false));
     }
 
     [HttpGet]

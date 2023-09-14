@@ -2,7 +2,6 @@
 using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.M3UFiles.Queries;
 
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Hubs;
@@ -44,9 +43,9 @@ public partial class StreamMasterHub : IM3UFileHub
         await mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<PagedResponse<M3UFileDto>> GetM3UFiles(M3UFileParameters m3uFileParameters)
+    public async Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(M3UFileParameters m3uFileParameters)
     {
-        PagedResponse<M3UFileDto> data = await mediator.Send(new GetM3UFilesQuery(m3uFileParameters)).ConfigureAwait(false);
+        PagedResponse<M3UFileDto> data = await mediator.Send(new GetPagedM3UFiles(m3uFileParameters)).ConfigureAwait(false);
         return data;
     }
 

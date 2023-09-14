@@ -1,18 +1,15 @@
 
-import { type CheckboxChangeEvent } from "primereact/checkbox";
-import { Checkbox } from "primereact/checkbox";
+import { Checkbox, type CheckboxChangeEvent } from "primereact/checkbox";
 import { Toast } from "primereact/toast";
-import { type CSSProperties } from "react";
-import { useRef, useCallback, useMemo, memo } from "react";
+import { memo, useCallback, useMemo, useRef, type CSSProperties } from "react";
 import { formatJSONDateString, getTopToolOptions } from "../../common/common";
-import { type EpgFileDto, type UpdateEpgFileRequest, type M3UFileDto } from "../../store/iptvApi";
-import { useEpgFilesUpdateEpgFileMutation, useEpgFilesGetEpgFilesQuery } from "../../store/iptvApi";
+import { useEpgFilesGetPagedEpgFilesQuery, useEpgFilesUpdateEpgFileMutation, type EpgFileDto, type M3UFileDto, type UpdateEpgFileRequest } from "../../store/iptvApi";
 import NumberEditorBodyTemplate from "../NumberEditorBodyTemplate";
 import StringEditorBodyTemplate from "../StringEditorBodyTemplate";
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
-import EPGFileRemoveDialog from "./EPGFileRemoveDialog";
 import EPGFileRefreshDialog from "./EPGFileRefreshDialog";
+import EPGFileRemoveDialog from "./EPGFileRemoveDialog";
 
 const EPGFilesDataSelector = () => {
   const toast = useRef<Toast>(null);
@@ -214,7 +211,7 @@ const EPGFilesDataSelector = () => {
         columns={sourceColumns}
         emptyMessage="No EPG Files"
         id='epgfilesdataselector'
-        queryFilter={useEpgFilesGetEpgFilesQuery}
+        queryFilter={useEpgFilesGetPagedEpgFilesQuery}
         style={{ height: 'calc(50vh - 40px)' }}
       />
     </>

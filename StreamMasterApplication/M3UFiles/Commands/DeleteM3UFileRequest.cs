@@ -78,7 +78,7 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
 
         foreach (string? gtd in groupsToDelete)
         {
-            ChannelGroup? group = Repository.ChannelGroup.GetChannelGroupQuery().Where(tg => tg.Name == gtd).FirstOrDefault();
+            ChannelGroup? group = await Repository.ChannelGroup.GetChannelGroupByName(gtd).ConfigureAwait(false);
             if (group != null)
             {
                 await Repository.ChannelGroup.DeleteChannelGroupById(group.Id);

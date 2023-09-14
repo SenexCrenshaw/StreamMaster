@@ -7,7 +7,7 @@ import { useChannelGroupColumnConfig, useChannelNameColumnConfig, useChannelNumb
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
 import { TriSelect } from "../../components/selectors/TriSelect";
-import { useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery, useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostMutation, useVideoStreamsGetVideoStreamsQuery, type StreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostApiArg } from "../../store/iptvApi";
+import { useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery, useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostMutation, useVideoStreamsGetPagedVideoStreamsQuery, type StreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostApiArg } from "../../store/iptvApi";
 
 type StreamGroupVideoStreamDataSelectorProps = {
   readonly id: string;
@@ -84,7 +84,7 @@ const StreamGroupVideoStreamDataSelector = ({ id }: StreamGroupVideoStreamDataSe
       id={dataKey}
       isLoading={streamGroupsGetStreamGroupVideoStreamIdsQuery.isLoading || streamGroupsGetStreamGroupVideoStreamIdsQuery.isFetching}
       onRowClick={async (e) => await onRowClick(e)}
-      queryFilter={useVideoStreamsGetVideoStreamsQuery}
+      queryFilter={useVideoStreamsGetPagedVideoStreamsQuery}
       selectionMode='single'
       style={{ height: 'calc(100vh - 40px)' }
       }

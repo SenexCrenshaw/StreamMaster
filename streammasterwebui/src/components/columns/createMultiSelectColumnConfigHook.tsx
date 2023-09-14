@@ -90,6 +90,7 @@ const createMultiSelectColumnConfigHook = ({
       console.error('dataField is undefined');
     }
 
+
     const columnConfig: ColumnMeta = {
       align: 'left',
       bodyTemplate,

@@ -6,6 +6,7 @@ namespace StreamMasterDomain.Repository
 {
     public interface IStreamGroupRepository : IRepositoryBase<StreamGroup>
     {
+        PagedResponse<StreamGroupDto> CreateEmptyPagedResponse();
         //Task<StreamGroup?> GetStreamGroupWithRelatedEntitiesById(int StreamGroupId, CancellationToken cancellationToken);
         Task<List<StreamGroupDto>> GetStreamGroups(CancellationToken cancellationToken);
 

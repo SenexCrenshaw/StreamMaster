@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
-public record UpdateChannelGroupCountRequest(ChannelGroupDto ChannelGroupDto, bool Publish) : IRequest<bool> { }
+public record UpdateChannelGroupCountRequest(ChannelGroupDto ChannelGroupDto, bool Publish) : IRequest<ChannelGroupDto> { }
 
 public class UpdateChannelGroupCountRequestValidator : AbstractValidator<UpdateChannelGroupCountRequest>
 {
@@ -17,7 +17,7 @@ public class UpdateChannelGroupCountRequestValidator : AbstractValidator<UpdateC
 
 
 [LogExecutionTimeAspect]
-public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCountRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateChannelGroupCountRequest, bool>
+public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCountRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateChannelGroupCountRequest, ChannelGroupDto>
 {
     /// <summary>
     /// Updates the video stream counts (total, active, and hidden) for a given channel group based on the provided request.
@@ -28,13 +28,8 @@ public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCou
     /// <returns>Returns true if at least one count was changed and updated; otherwise returns false.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the provided request or its ChannelGroupDto property is null.</exception>
     /// <exception cref="Exception">Thrown when there's an error processing the request, typically related to database operations.</exception>
-    public async Task<bool> Handle(UpdateChannelGroupCountRequest request, CancellationToken cancellationToken)
+    public async Task<ChannelGroupDto> Handle(UpdateChannelGroupCountRequest request, CancellationToken cancellationToken)
     {
-        if (request?.ChannelGroupDto == null)
-        {
-            Logger.LogWarning("Received a null or invalid UpdateChannelGroupCountRequest.");
-            return false;
-        }
 
         try
         {
@@ -80,7 +75,7 @@ public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCou
                 }
             }
 
-            return changed;
+            return request.ChannelGroupDto;
         }
         catch (Exception ex)
         {

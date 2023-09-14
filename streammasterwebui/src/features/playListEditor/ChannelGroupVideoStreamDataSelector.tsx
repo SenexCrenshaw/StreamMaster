@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { memo, useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
-import { useSelectedChannelGroups } from "../../app/slices/useSelectedChannelGroups";
+import { useSelectedItems } from "../../app/slices/useSelectedItemsSlice";
 import { useSelectedVideoStreams } from "../../app/slices/useSelectedVideoStreams";
 import { GetMessage, arraysContainSameStrings } from "../../common/common";
 import { useChannelGroupColumnConfig, useChannelLogoColumnConfig, useChannelNameColumnConfig, useChannelNumberColumnConfig, useEPGColumnConfig } from "../../components/columns/columnConfigHooks";
@@ -17,7 +17,7 @@ import VideoStreamResetLogosDialog from "../../components/videoStream/VideoStrea
 import VideoStreamSetLogoFromEPGDialog from "../../components/videoStream/VideoStreamSetLogoFromEPGDialog";
 import VideoStreamSetLogosFromEPGDialog from "../../components/videoStream/VideoStreamSetLogosFromEPGDialog";
 import VideoStreamVisibleDialog from "../../components/videoStream/VideoStreamVisibleDialog";
-import { useVideoStreamsGetVideoStreamsQuery, type VideoStreamDto } from "../../store/iptvApi";
+import { useVideoStreamsGetPagedVideoStreamsQuery, type ChannelGroupDto, type VideoStreamDto } from "../../store/iptvApi";
 
 type ChannelGroupVideoStreamDataSelectorProps = {
   readonly enableEdit?: boolean;
@@ -28,7 +28,7 @@ type ChannelGroupVideoStreamDataSelectorProps = {
 
 const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: ChannelGroupVideoStreamDataSelectorProps) => {
   const dataKey = id + '-ChannelGroupVideoStreamDataSelector';
-  const { selectedChannelGroups } = useSelectedChannelGroups(id);
+  const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>(id);
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { columnConfig: epgColumnConfig } = useEPGColumnConfig({ enableEdit: enableEdit });
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: enableEdit, useFilter: false });
@@ -36,8 +36,8 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
   const { columnConfig: channelLogoColumnConfig } = useChannelLogoColumnConfig({ enableEdit: enableEdit });
 
   const channelGroupNames = useMemo(() => {
-    return selectedChannelGroups.map((channelGroup) => channelGroup.name);
-  }, [selectedChannelGroups]);
+    return selectSelectedItems.map((channelGroup) => channelGroup.name);
+  }, [selectSelectedItems]);
 
   // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
   const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig({ enableEdit: enableEdit, values: [...(channelGroupNames ?? [])].sort() });
@@ -125,13 +125,12 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
           setSelectedVideoStreams(value as VideoStreamDto[]);
         }
       }}
-      queryFilter={useVideoStreamsGetVideoStreamsQuery}
+      queryFilter={useVideoStreamsGetPagedVideoStreamsQuery}
       reorderable={reorderable}
       selectionMode='multiple'
       style={{ height: 'calc(100vh - 40px)' }}
     />
   );
 }
-
 
 export default memo(ChannelGroupVideoStreamDataSelector);

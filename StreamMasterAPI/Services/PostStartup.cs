@@ -58,16 +58,18 @@ public class PostStartup : BackgroundService
 
         await _taskQueue.ScanDirectoryForM3UFiles(cancellationToken).ConfigureAwait(false);
 
+        await _taskQueue.UpdateChannelGroupCounts(cancellationToken).ConfigureAwait(false);
+
         //await _taskQueue.ProcessM3UFiles(cancellationToken).ConfigureAwait(false);
 
         await _taskQueue.BuildIconCaches(cancellationToken).ConfigureAwait(false);
+
 
         while (!_taskQueue.IsCurrent())
         {
             await Task.Delay(250, cancellationToken).ConfigureAwait(false);
         }
 
-        await _taskQueue.UpdateChannelGroupCounts(cancellationToken).ConfigureAwait(false);
 
         await _taskQueue.SetIsSystemReady(true, cancellationToken).ConfigureAwait(false);
 

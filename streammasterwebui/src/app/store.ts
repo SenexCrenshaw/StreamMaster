@@ -23,7 +23,8 @@ import queryAdditionalFiltersReducer from './slices/queryAdditionalFiltersSlice'
 import queryFilterReducer from './slices/queryFilterSlice';
 import selectAllSliceReducer from './slices/selectAllSlice';
 import selectedChannelGroupsSliceReducer from './slices/selectedChannelGroupsSlice';
-import selectedStreamGroupSliceeReducer from './slices/selectedStreamGroupSlice';
+import selectedItemsSliceReducer from './slices/selectedItemsSlice';
+import selectedStreamGroupSliceReducer from './slices/selectedStreamGroupSlice';
 import selectedVideoStreamsSliceReducer from './slices/selectedVideoStreamsSlice';
 import showHiddenSliceReducer from './slices/showHiddenSlice';
 import sortInfoSliceReducer from './slices/sortInfoSlice';
@@ -48,8 +49,13 @@ const selectedVideoStreamsConfig = {
   storage,
 };
 
-const selectedChannelGroupsConfig = {
-  key: 'selectedChannelGroups',
+// const selectedChannelGroupsConfig = {
+//   key: 'selectedChannelGroups',
+//   storage,
+// };
+
+const selectedItemsGroupsConfig = {
+  key: 'selectedItems',
   storage,
 };
 
@@ -72,8 +78,9 @@ const rootReducer = combineReducers({
   queryAdditionalFilters: queryAdditionalFiltersReducer,
   queryFilter: queryFilterReducer,
   selectAll: persistReducer(selectAllConfig, selectAllSliceReducer),
-  selectedChannelGroups: persistReducer(selectedChannelGroupsConfig, selectedChannelGroupsSliceReducer),
-  selectedStreamGroup:  selectedStreamGroupSliceeReducer,
+  selectedChannelGroups: persistReducer(selectedItemsGroupsConfig, selectedChannelGroupsSliceReducer),
+  selectedItems: selectedItemsSliceReducer,
+  selectedStreamGroup: selectedStreamGroupSliceReducer,
   selectedVideoStreams:persistReducer(selectedVideoStreamsConfig, selectedVideoStreamsSliceReducer),
   showHidden: persistReducer(showHiddenConfig, showHiddenSliceReducer),
   sortInfo: persistReducer(sortInfoConfig, sortInfoSliceReducer),

@@ -8,7 +8,7 @@ import { GroupIcon } from "../../common/icons";
 import { useChannelNameColumnConfig, useChannelNumberColumnConfig, useEPGColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import { useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery, type VideoStreamDto } from "../../store/iptvApi";
+import { useStreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsQuery, type VideoStreamDto } from "../../store/iptvApi";
 import StreamGroupChannelGroupsSelector from "./StreamGroupChannelGroupsSelector";
 import VideoStreamRemoveFromStreamGroupDialog from "./VideoStreamRemoveFromStreamGroupDialog";
 
@@ -77,7 +77,7 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
       headerRightTemplate={rightHeaderTemplate()}
       id={dataKey}
       key='rank'
-      queryFilter={useStreamGroupVideoStreamsGetStreamGroupVideoStreamsQuery}
+      queryFilter={useStreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsQuery}
       selectedStreamGroupId={selectedStreamGroup?.id ?? 0}
       selectionMode='single'
       style={{ height: 'calc(100vh - 40px)' }

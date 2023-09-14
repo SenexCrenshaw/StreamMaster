@@ -1,22 +1,22 @@
-import { type DataTableExpandedRows } from 'primereact/datatable';
-import { type DataTableFilterMeta } from 'primereact/datatable';
-import { type DataTableValue } from 'primereact/datatable';
+import { type DataTableExpandedRows, type DataTableFilterMeta, type DataTableValue } from 'primereact/datatable';
 import { useLocalStorage } from 'primereact/hooks';
 import { useState } from 'react';
-import { type PagedTableInformation } from './DataSelector';
+import { useSelectAll } from '../../app/slices/useSelectAll';
+import { useSelectedItems } from '../../app/slices/useSelectedItemsSlice';
+import { useShowHidden } from '../../app/slices/useShowHidden';
+import { useSortInfo } from '../../app/slices/useSortInfo';
 import { type AdditionalFilterProps } from '../../common/common';
 import { type VideoStreamIsReadOnly } from '../../store/iptvApi';
-import { useSortInfo } from '../../app/slices/useSortInfo';
-import { useSelectAll } from '../../app/slices/useSelectAll';
-import { useShowHidden } from '../../app/slices/useShowHidden';
+import { type PagedTableInformation } from './DataSelector';
 
 const useDataSelectorState = <T extends DataTableValue,>(id: string) => {
   const { sortInfo, setSortInfo } = useSortInfo(id);
   const { selectAll, setSelectAll } = useSelectAll(id);
+  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<T>(id);
   const { showHidden } = useShowHidden(id);
 
   const [rowClick, setRowClick] = useLocalStorage<boolean>(false, id + '-rowClick');
-  const [selections, setSelections] = useState<T[]>([] as T[]);
+
   const [pagedInformation, setPagedInformation] = useState<PagedTableInformation>();
   const [prevDataSource, setPrevDataSource] = useState<T[] | undefined>(undefined);
   const [dataSource, setDataSource] = useState<T[]>();
@@ -53,7 +53,7 @@ const useDataSelectorState = <T extends DataTableValue,>(id: string) => {
       setRowClick,
       setRows,
       setSelectAll,
-      setSelections,
+      setSelectSelectedItems,
       setSortField,
       setSortOrder,
       setVideoStreamIsReadOnlys
@@ -70,7 +70,7 @@ const useDataSelectorState = <T extends DataTableValue,>(id: string) => {
       rowClick,
       rows,
       selectAll,
-      selections,
+      selectSelectedItems,
       showHidden,
       sortField,
       sortOrder,

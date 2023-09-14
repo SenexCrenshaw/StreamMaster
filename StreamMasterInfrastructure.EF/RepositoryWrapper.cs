@@ -49,7 +49,7 @@ namespace StreamMasterInfrastructureEF
             {
                 if (_channelGroup == null)
                 {
-                    _channelGroup = new ChannelGroupRepository(ChannelGroupRepositoryLogger, repositoryContext, this, mapper, memoryCache, sender);
+                    _channelGroup = new ChannelGroupRepository(ChannelGroupRepositoryLogger, repositoryContext, this, memoryCache, sender);
                 }
                 return _channelGroup;
             }

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { useIconsGetIconsQuery, useIconsGetIconsSimpleQueryQuery, type IconFileDto } from '../../store/iptvApi';
+import { useIconsGetIconsSimpleQueryQuery, useIconsGetPagedIconsQuery, type IconFileDto } from '../../store/iptvApi';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
 import BaseSelector, { type BaseSelectorProps } from './BaseSelector';
 
@@ -68,7 +68,7 @@ const IconSelector: React.FC<Partial<IconSelectorProps>> = ({
       onChange={handleOnChange}
       optionLabel="name"
       optionValue="source"
-      queryFilter={useIconsGetIconsQuery}
+      queryFilter={useIconsGetPagedIconsQuery}
       queryHook={useIconsGetIconsSimpleQueryQuery}
       querySelectedItem={GetIconFromSource}
       selectName='Icon'

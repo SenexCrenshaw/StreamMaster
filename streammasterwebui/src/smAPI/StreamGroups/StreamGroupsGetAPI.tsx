@@ -44,8 +44,8 @@ export const GetStreamGroupM3U = async (arg: string): Promise<void> => {
   await hubConnection.invoke('GetStreamGroupM3U', arg);
 };
 
-export const GetStreamGroups = async (arg: iptv.PagedResponseOfStreamGroupDto): Promise<iptv.StreamGroupDto[]> => {
-  const data = await hubConnection.invoke('GetStreamGroups', arg);
+export const GetPagedStreamGroups = async (arg: iptv.PagedResponseOfStreamGroupDto): Promise<iptv.StreamGroupDto[]> => {
+  const data = await hubConnection.invoke('GetPagedStreamGroups', arg);
   return data;
 };
 

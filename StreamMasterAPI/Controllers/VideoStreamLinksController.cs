@@ -1,28 +1,14 @@
 ﻿using AutoMapper;
 
-using MediatR;
-
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterApplication.Common.Interfaces;
-using StreamMasterApplication.Common.Models;
-using StreamMasterApplication.StreamGroups.Queries;
 using StreamMasterApplication.VideoStreamLinks;
 using StreamMasterApplication.VideoStreamLinks.Commands;
 using StreamMasterApplication.VideoStreamLinks.Queries;
-using StreamMasterApplication.VideoStreams;
-using StreamMasterApplication.VideoStreams.Commands;
-using StreamMasterApplication.VideoStreams.Queries;
 
-using StreamMasterDomain.Authentication;
-using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Enums;
 using StreamMasterDomain.Pagination;
-using StreamMasterDomain.Repository;
-
-using System.Web;
 
 namespace StreamMasterAPI.Controllers;
 
@@ -52,15 +38,15 @@ public class VideoStreamLinksController : ApiControllerBase, IVideoStreamLinkCon
     [Route("[action]")]
     public async Task<ActionResult<List<string>>> GetVideoStreamVideoStreamIds([FromQuery] GetVideoStreamVideoStreamIdsRequest request, CancellationToken cancellationToken)
     {
-        var data = await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
+        List<string> data = await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
         return Ok(data);
     }
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<PagedResponse<ChildVideoStreamDto>>> GetVideoStreamVideoStreams([FromQuery] VideoStreamLinkParameters Parameters, CancellationToken cancellationToken)
+    public async Task<ActionResult<PagedResponse<ChildVideoStreamDto>>> GetPagedVideoStreamVideoStreams([FromQuery] VideoStreamLinkParameters Parameters, CancellationToken cancellationToken)
     {
-        var data = await Mediator.Send(new GetVideoStreamVideoStreamsRequest(Parameters), cancellationToken).ConfigureAwait(false);
+        PagedResponse<ChildVideoStreamDto> data = await Mediator.Send(new GetPagedVideoStreamVideoStreams(Parameters), cancellationToken).ConfigureAwait(false);
         return Ok(data);
     }
 

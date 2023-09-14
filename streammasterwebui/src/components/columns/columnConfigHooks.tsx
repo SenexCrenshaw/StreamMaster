@@ -26,7 +26,7 @@ export const useChannelGroupColumnConfig = createMultiSelectColumnConfigHook({
   EditorComponent: ChannelGroupEditor,
   headerTitle: 'Group',
   queryHook: useChannelGroupsGetChannelGroupNamesQuery,
-  width: 10
+  width: 10,
 });
 
 export const useEPGColumnConfig = createMultiSelectColumnConfigHook({

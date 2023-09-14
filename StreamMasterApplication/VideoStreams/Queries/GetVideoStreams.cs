@@ -2,16 +2,16 @@
 
 namespace StreamMasterApplication.VideoStreams.Queries;
 
-public record GetVideoStreams(VideoStreamParameters Parameters) : IRequest<PagedResponse<VideoStreamDto>>;
+public record GetPagedVideoStreams(VideoStreamParameters Parameters) : IRequest<PagedResponse<VideoStreamDto>>;
 
-internal class GetVideoStreamsHandler(ILogger<GetVideoStreamsHandler> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService) : BaseRequestHandler(logger, repository, mapper, settingsService), IRequestHandler<GetVideoStreams, PagedResponse<VideoStreamDto>>
+internal class GetPagedVideoStreamsHandler(ILogger<GetPagedVideoStreamsHandler> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService) : BaseRequestHandler(logger, repository, mapper, settingsService), IRequestHandler<GetPagedVideoStreams, PagedResponse<VideoStreamDto>>
 {
-    public async Task<PagedResponse<VideoStreamDto>> Handle(GetVideoStreams request, CancellationToken cancellationToken)
+    public async Task<PagedResponse<VideoStreamDto>> Handle(GetPagedVideoStreams request, CancellationToken cancellationToken)
     {
 
         if (request.Parameters.PageSize == 0)
         {
-            return request.Parameters.CreateEmptyPagedResponse<VideoStreamDto>();
+            return Repository.VideoStream.CreateEmptyPagedResponse();
         }
 
         PagedResponse<VideoStreamDto> res = await Repository.VideoStream.GetPagedVideoStreams(request.Parameters, cancellationToken).ConfigureAwait(false);

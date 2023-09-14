@@ -16,6 +16,10 @@ namespace StreamMasterInfrastructureEF.Repositories;
 public class M3UFileRepository(ILogger<M3UFileRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMapper mapper) : RepositoryBase<M3UFile>(repositoryContext, logger), IM3UFileRepository
 {
 
+    public PagedResponse<M3UFileDto> CreateEmptyPagedResponse()
+    {
+        return PagedExtensions.CreateEmptyPagedResponse<M3UFileDto>(Count());
+    }
     /// <inheritdoc/>
     public void CreateM3UFile(M3UFile m3uFile)
     {

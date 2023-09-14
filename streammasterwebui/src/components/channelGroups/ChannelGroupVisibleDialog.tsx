@@ -1,25 +1,24 @@
 import React, { useMemo } from "react";
 import { useSelectAll } from "../../app/slices/useSelectAll";
-import { useSelectedChannelGroups } from "../../app/slices/useSelectedChannelGroups";
+import { useSelectedItems } from "../../app/slices/useSelectedItemsSlice";
 import { UpdateChannelGroup, UpdateChannelGroups } from "../../smAPI/ChannelGroups/ChannelGroupsMutateAPI";
 import { type ChannelGroupDto, type UpdateChannelGroupRequest, type UpdateChannelGroupsRequest } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import VisibleButton from "../buttons/VisibleButton";
 
 type ChannelGroupVisibleDialogProps = {
-  readonly cgid: string;
   readonly id: string;
   readonly onClose?: (() => void);
   readonly skipOverLayer?: boolean | undefined;
   readonly value?: ChannelGroupDto | undefined;
 };
 
-const ChannelGroupVisibleDialog = ({ id, cgid, onClose, skipOverLayer = false, value }: ChannelGroupVisibleDialogProps) => {
+const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }: ChannelGroupVisibleDialogProps) => {
 
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
-  const { selectedChannelGroups } = useSelectedChannelGroups(cgid);
+  const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>(id);
   const { selectAll } = useSelectAll(id);
 
   const ReturnToParent = React.useCallback(() => {
@@ -29,10 +28,11 @@ const ChannelGroupVisibleDialog = ({ id, cgid, onClose, skipOverLayer = false, v
     onClose?.();
   }, [onClose]);
 
+
   const onVisibleClick = React.useCallback(async () => {
     setBlock(true);
 
-    if (!value && selectedChannelGroups.length === 0) {
+    if (!value && selectSelectedItems.length === 0) {
       ReturnToParent();
       return;
     }
@@ -46,9 +46,9 @@ const ChannelGroupVisibleDialog = ({ id, cgid, onClose, skipOverLayer = false, v
       }).catch((e) => {
         setInfoMessage('Channel Group Toggle Visibility Error: ' + e.message);
       });
-    } else if (selectedChannelGroups) {
+    } else if (selectSelectedItems) {
       const toSend = {} as UpdateChannelGroupsRequest;
-      toSend.channelGroupRequests = selectedChannelGroups.map((item) => { return { channelGroupId: item.id, toggleVisibility: true } as UpdateChannelGroupRequest; });
+      toSend.channelGroupRequests = selectSelectedItems.map((item) => { return { channelGroupId: item.id, toggleVisibility: true } as UpdateChannelGroupRequest; });
       UpdateChannelGroups(toSend).then(() => {
         setInfoMessage('Channel Group Toggle Visibility Successfully');
       }).catch((e) => {
@@ -56,7 +56,7 @@ const ChannelGroupVisibleDialog = ({ id, cgid, onClose, skipOverLayer = false, v
       });
     }
 
-  }, [ReturnToParent, selectedChannelGroups, value]);
+  }, [ReturnToParent, selectSelectedItems, value]);
 
 
   const getTotalCount = useMemo(() => {
@@ -65,9 +65,9 @@ const ChannelGroupVisibleDialog = ({ id, cgid, onClose, skipOverLayer = false, v
       return 100;
     }
 
-    return selectedChannelGroups?.length ?? 0;
+    return selectSelectedItems?.length ?? 0;
 
-  }, [selectAll, selectedChannelGroups?.length]);
+  }, [selectAll, selectSelectedItems]);
 
 
   if (skipOverLayer === true) {
@@ -90,11 +90,10 @@ const ChannelGroupVisibleDialog = ({ id, cgid, onClose, skipOverLayer = false, v
           <VisibleButton label='Toggle Visibility' onClick={async () => await onVisibleClick()} />
         </div>
       </InfoMessageOverLayDialog>
-
       <VisibleButton
         disabled={getTotalCount === 0}
         onClick={async () => {
-          if (selectedChannelGroups.length > 1) {
+          if (selectSelectedItems.length > 1) {
             setShowOverlay(true);
           } else {
             await onVisibleClick();

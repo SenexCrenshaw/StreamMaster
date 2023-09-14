@@ -1,4 +1,6 @@
-﻿namespace StreamMasterApplication.ChannelGroups.Queries;
+﻿using StreamMasterDomain.Models;
+
+namespace StreamMasterApplication.ChannelGroups.Queries;
 
 public record GetChannelGroupFromVideoStreamId(string VideoStreamId) : IRequest<ChannelGroupDto?>;
 
@@ -9,7 +11,9 @@ internal class GetChannelGroupFromVideoStreamIdHandler : BaseMediatorRequestHand
  : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
     public async Task<ChannelGroupDto?> Handle(GetChannelGroupFromVideoStreamId request, CancellationToken cancellationToken)
     {
-        ChannelGroupDto? res = await Repository.ChannelGroup.GetChannelGroupFromVideoStreamId(request.VideoStreamId).ConfigureAwait(false);
-        return res;
+        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupFromVideoStreamId(request.VideoStreamId).ConfigureAwait(false);
+        ChannelGroupDto? dto = Mapper.Map<ChannelGroupDto?>(channelGroup);
+        MemoryCache.UpdateChannelGroupWithActives(dto);
+        return dto;
     }
 }

@@ -1,7 +1,7 @@
 ﻿using StreamMasterApplication.Programmes;
 using StreamMasterApplication.Programmes.Queries;
+
 using StreamMasterDomain.EPG;
-using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Hubs;
@@ -21,9 +21,9 @@ public partial class StreamMasterHub : IProgrammeChannelHub
     }
 
 
-    public async Task<PagedResponse<ProgrammeNameDto>> GetProgrammeNameSelections(ProgrammeParameters Parameters)
+    public async Task<PagedResponse<ProgrammeNameDto>> GetPagedProgrammeNameSelections(ProgrammeParameters Parameters)
     {
-        return await mediator.Send(new GetProgrammeNameSelections(Parameters)).ConfigureAwait(false);
+        return await mediator.Send(new GetPagedProgrammeNameSelections(Parameters)).ConfigureAwait(false);
     }
 
     [BuilderIgnore]

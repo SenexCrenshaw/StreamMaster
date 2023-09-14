@@ -1,17 +1,11 @@
 import { memo } from "react";
 import { PlayListEditorIcon } from "../../common/icons";
 
-import { useSelectedChannelGroups } from "../../app/slices/useSelectedChannelGroups";
 import ChannelGroupVideoStreamDataSelector from "./ChannelGroupVideoStreamDataSelector";
 import PlayListDataSelector from "./PlayListDataSelector";
 
 const PlayListEditor = () => {
   const id = "playlisteditor";
-  const { selectedChannelGroups } = useSelectedChannelGroups(id);
-
-  if (selectedChannelGroups === undefined) {
-    return null;
-  }
 
   return (
     <div className="playListEditor">

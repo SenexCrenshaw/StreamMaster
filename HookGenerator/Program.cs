@@ -18,7 +18,7 @@ internal class Program
     private static readonly Dictionary<string, List<string>> tagToGetMethodsMap = new();
 
 
-    private static async System.Threading.Tasks.Task Main(string[] args)
+    private static async Task Main(string[] args)
     {
         string swaggerJson = await DownloadSwaggerJson();
         File.WriteAllText(LocalFileName, swaggerJson);
@@ -46,17 +46,20 @@ internal class Program
 
                     if (operationId != null && method.Value.TryGetProperty("tags", out JsonElement tags))
                     {
-                        string tag = tags[0].GetString();
                         string functionName = ConvertToTypeScriptPascalCase(operationId[(operationId.IndexOf('_') + 1)..]);
+                        if (functionName.Equals("GetPagedChannelGroups"))
+                        {
+                            int aa = 1;
+                        }
+
+                        string tag = tags[0].GetString();
+
                         string? argType = GetArgType(method.Value);
                         string responseType = GetResponseType(method.Value);
                         StringBuilder contentToUse;
                         if (method.Name.ToLower() == "get")
                         {
-                            if (functionName.ToLower().Equals("getvideostreams"))
-                            {
-                                int aa = 1;
-                            }
+
                             if (!tagToGetContentMap.ContainsKey(tag))
                             {
                                 tagToGetContentMap[tag] = new StringBuilder();
@@ -127,7 +130,7 @@ internal class Program
     }
     private static bool IsPaged(string responseType)
     {
-        return responseType.StartsWith("PagedResponse") || responseType.Contains(".PagedResponse");
+        return responseType.StartsWith("PagedResponse") || responseType.Contains(".PagedResponse") || responseType.Contains("GetPaged");
     }
     private static bool IsArray(string responseType)
     {
@@ -175,12 +178,16 @@ internal class Program
             // For every GET method in this tag
             foreach (string getMethod in tagToGetMethodsMap[tag])
             {
-                string name = ConvertToCamelCase(ConvertToTypeScriptPascalCase(tag + getMethod));
+                string cased = ConvertToTypeScriptPascalCase(tag + getMethod);
+                string name = ConvertToCamelCase(cased);
+                string doName = $"do{cased}Update";
+                string arg = $"iptv.{cased}ApiResponse";
+
                 if (blackList.Contains(name))
                 {
                     continue;
                 }
-                if (getMethod.ToLower().Equals("getvideostreams"))
+                if (getMethod.Equals("GetPagedChannelGroups"))
                 {
                     int aa = 1;
                 }
@@ -190,7 +197,7 @@ internal class Program
                     continue;
                 }
 
-                string arg = getMethodArgTypes[tag][getMethod];
+                //arg = getMethodArgTypes[tag][getMethod];
 
                 anyToWrite = true;
                 string updateFunction = GetUpdateFunction(arg, responseType);
@@ -207,20 +214,23 @@ internal class Program
                 rtkContent.AppendLine($"            }});");
                 rtkContent.AppendLine($"          }};");
                 rtkContent.AppendLine();
-                rtkContent.AppendLine($"          hubConnection.off('{tag}Refresh');");
-                rtkContent.AppendLine($"          hubConnection.on('{tag}Refresh', (data: {responseType}) => {{");
+                rtkContent.AppendLine($"          const {doName} = (data: {responseType}) => {{");
+                rtkContent.AppendLine($"            // console.log('{doName}')");
                 rtkContent.AppendLine($"            if (isEmptyObject(data)) {{");
                 rtkContent.AppendLine($"              dispatch(iptvApi.util.invalidateTags(['{tag}']));");
                 rtkContent.AppendLine($"            }} else {{");
                 rtkContent.AppendLine($"              updateCachedDataWithResults(data);");
                 rtkContent.AppendLine($"            }}");
-                rtkContent.AppendLine($"          }});");
+                rtkContent.AppendLine($"          }}");
+                rtkContent.AppendLine();
+                rtkContent.AppendLine($"          hubConnection.on('{tag}Refresh', {doName});");
                 rtkContent.AppendLine();
                 rtkContent.AppendLine($"        }} catch (error) {{");
                 rtkContent.AppendLine($"          console.error('Error in onCacheEntryAdded:', error);");
                 rtkContent.AppendLine($"        }}");
                 rtkContent.AppendLine();
                 rtkContent.AppendLine($"        await cacheEntryRemoved;");
+                //rtkContent.AppendLine($"        hubConnection.off('{tag}Refresh');");
                 rtkContent.AppendLine($"      }}");
                 rtkContent.AppendLine($"    }},");
             }

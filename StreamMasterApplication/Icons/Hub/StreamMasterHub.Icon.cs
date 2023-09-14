@@ -25,9 +25,9 @@ public partial class StreamMasterHub : IIconHub
     }
 
 
-    public async Task<PagedResponse<IconFileDto>> GetIcons(IconFileParameters iconFileParameters)
+    public async Task<PagedResponse<IconFileDto>> GetPagedIcons(IconFileParameters iconFileParameters)
     {
-        PagedResponse<IconFileDto> data = await mediator.Send(new GetIcons(iconFileParameters)).ConfigureAwait(false);
+        PagedResponse<IconFileDto> data = await mediator.Send(new GetPagedIcons(iconFileParameters)).ConfigureAwait(false);
         return data;
     }
 

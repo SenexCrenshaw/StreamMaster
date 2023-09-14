@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import './DataSelector.css';
 
 import { Button } from 'primereact/button';
@@ -63,13 +62,12 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 
   const setting = StreamMasterSetting();
 
-
   const { data, isLoading, isFetching } = props.queryFilter ? props.queryFilter(queryFilter ?? skipToken) : { data: undefined, isFetching: false, isLoading: false };
 
   const onsetSelection = useCallback((e: T | T[], overRideSelectAll?: boolean): T | T[] | undefined => {
     let selected: T[] = Array.isArray(e) ? e : [e];
 
-    if (state.selections === selected) {
+    if (state.selectSelectedItems === selected) {
       return;
     }
 
@@ -77,7 +75,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       selected = selected.slice(0, 1);
     }
 
-    setters.setSelections(selected);
+    setters.setSelectSelectedItems(selected);
     const all = overRideSelectAll ? overRideSelectAll : state.selectAll;
 
     if (props.onSelectionChange) {
@@ -85,7 +83,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
 
     return e;
-  }, [state.selections, state.selectAll, props, setters]);
+  }, [state.selectSelectedItems, state.selectAll, props, setters]);
 
 
   useEffect(() => {
@@ -123,7 +121,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
         setters.setPagedInformation(undefined);
 
         if (state.selectAll) {
-          setters.setSelections(data);
+          setters.setSelectSelectedItems(data);
         }
       }
 
@@ -135,7 +133,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
         setters.setDataSource((data as PagedResponseDto<T>).data);
 
         if (state.selectAll && data !== undefined) {
-          setters.setSelections((data as PagedResponseDto<T>).data as T[]);
+          setters.setSelectSelectedItems((data as PagedResponseDto<T>).data as T[]);
         }
       }
 
@@ -363,17 +361,16 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       <div className="text-xs text-white text-500" >
         <BanButton
           className="banbutton"
-          disabled={state.selections.length === 0}
+          disabled={(state.selectSelectedItems || []).length === 0}
           onClick={() => {
-            setters.setSelections([]);
+            setters.setSelectSelectedItems([]);
             setters.setSelectAll(false);
-
             if (props.onSelectionChange) {
               props.onSelectionChange([], state.selectAll);
             }
           }}
 
-          tooltip={`Clear ${state.selections.length} Selections`}
+          tooltip={`Clear ${(state.selectSelectedItems || []).length} Selections`}
         />
 
       </div>
@@ -445,7 +442,9 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     const newSelectAll = event.checked;
 
     setters.setSelectAll(newSelectAll);
-
+    if (newSelectAll === true) {
+      setters.setSelectSelectedItems([]);
+    }
     // props.onSelectAllChange?.(newSelectAll);
 
     if (newSelectAll && state.dataSource) {
@@ -499,7 +498,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           scrollHeight={props.enableVirtualScroll === true ? props.virtualScrollHeight !== undefined ? props.virtualScrollHeight : '400px' : 'flex'}
           scrollable
           selectAll={state.selectAll}
-          selection={state.selections}
+          selection={state.selectSelectedItems}
           selectionMode={getSelectionMultipleMode}
           showGridlines
           showHeaders={props.showHeaders}

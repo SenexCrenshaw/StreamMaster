@@ -6,7 +6,9 @@ internal class GetChannelGroupByNameHandler(ILogger<GetChannelGroupByName> logge
 {
     public async Task<ChannelGroupDto?> Handle(GetChannelGroupByName request, CancellationToken cancellationToken)
     {
-        ChannelGroupDto? channelGroup = await Repository.ChannelGroup.GetChannelGroupByName(request.Name).ConfigureAwait(false);
-        return channelGroup;
+        StreamMasterDomain.Models.ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupByName(request.Name).ConfigureAwait(false);
+        ChannelGroupDto? dto = Mapper.Map<ChannelGroupDto?>(channelGroup);
+        MemoryCache.UpdateChannelGroupWithActives(dto);
+        return dto;
     }
 }

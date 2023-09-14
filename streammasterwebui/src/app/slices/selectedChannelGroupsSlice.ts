@@ -40,6 +40,5 @@ export const makeselectedChannelGroups = createSelector(
   (selectedChannelGroups, typename) => selectedChannelGroups[typename] || [], // resulting selector
 );
 
-// export const selectedChannelGroups = (state: RootState, typename: number) => state.selectedChannelGroups[typename];
 export const { setselectedChannelGroupsInternal } = selectedChannelGroupsSlice.actions;
 export default selectedChannelGroupsSlice.reducer;

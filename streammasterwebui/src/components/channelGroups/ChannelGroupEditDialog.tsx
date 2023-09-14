@@ -1,6 +1,6 @@
 
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { useSelectedChannelGroups } from "../../app/slices/useSelectedChannelGroups";
+import { useSelectedItems } from "../../app/slices/useSelectedItemsSlice";
 import { GetMessage } from "../../common/common";
 import { UpdateChannelGroup } from "../../smAPI/ChannelGroups/ChannelGroupsMutateAPI";
 import { type ChannelGroupDto, type UpdateChannelGroupRequest } from "../../store/iptvApi";
@@ -10,19 +10,19 @@ import TextInput from "../inputs/TextInput";
 
 
 type ChannelGroupEditDialogProps = {
-  readonly cgid: string;
+  readonly cgId: string;
   readonly onClose?: ((newName: string) => void);
   readonly value?: ChannelGroupDto | undefined;
 };
 
-const ChannelGroupEditDialog = ({ cgid, onClose, value }: ChannelGroupEditDialogProps) => {
+const ChannelGroupEditDialog = ({ cgId, onClose, value }: ChannelGroupEditDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [newGroupName, setNewGroupName] = useState('');
 
   const [channelGroupDto, setChannelGroupDto] = useState<ChannelGroupDto>();
-  const { selectedChannelGroups } = useSelectedChannelGroups(cgid);
+  const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>(cgId);
 
   const ReturnToParent = useCallback(() => {
     setShowOverlay(false);
@@ -45,28 +45,25 @@ const ChannelGroupEditDialog = ({ cgid, onClose, value }: ChannelGroupEditDialog
       return;
     }
 
-    if (selectedChannelGroups && selectedChannelGroups.length > 0) {
-      setNewGroupName(selectedChannelGroups[0].name);
+    if (selectSelectedItems && selectSelectedItems.length > 0) {
+      setNewGroupName(selectSelectedItems[0].name);
       // if (props.value.regexMatch !== null)
       //   setRegex(props.value.regexMatch);
     }
 
-  }, [channelGroupDto, selectedChannelGroups]);
+  }, [channelGroupDto, selectSelectedItems]);
 
   const changeGroupName = useCallback(() => {
-    setBlock(true);
-
-    const cg = selectedChannelGroups && selectedChannelGroups.length > 0 ? selectedChannelGroups[0] : null;
-
-    if (!newGroupName || !cg?.id) {
+    if (!newGroupName || !value) {
       ReturnToParent();
-
       return;
     }
 
+    setBlock(true);
+
     const toSend = {} as UpdateChannelGroupRequest;
 
-    toSend.channelGroupId = cg.id;
+    toSend.channelGroupId = value.id;
     toSend.newGroupName = newGroupName;
 
     UpdateChannelGroup(toSend).then(() => {
@@ -76,8 +73,8 @@ const ChannelGroupEditDialog = ({ cgid, onClose, value }: ChannelGroupEditDialog
     }).catch((e: any) => {
       setInfoMessage('Channel Group Edit Error: ' + e.message);
     });
-    setNewGroupName('');
-  }, [ReturnToParent, newGroupName, selectedChannelGroups]);
+
+  }, [ReturnToParent, newGroupName, value]);
 
 
   return (
@@ -94,15 +91,16 @@ const ChannelGroupEditDialog = ({ cgid, onClose, value }: ChannelGroupEditDialog
       >
         <div className="flex grid justify-content-center w-full">
           <div className="flex col-12 mt-3 gap-2 justify-content-start">
-            <TextInput onChange={(e) => setNewGroupName(e)} placeHolder="Group Name" value={newGroupName} />
+            <TextInput onChange={(e) => setNewGroupName(e)} onEnter={changeGroupName} placeHolder="Group Name" value={newGroupName} />
           </div>
           <div className="flex col-12 mt-3 gap-2 justify-content-end">
-            <EditButton label='Edit Group' onClick={() => changeGroupName()} tooltip='Edit Group' />
+            <EditButton label='Edit Group' onClick={changeGroupName} tooltip='Edit Group' />
           </div>
         </div >
       </InfoMessageOverLayDialog>
 
       <EditButton
+        disabled={!value || value.isReadOnly == true}
         iconFilled={false}
         onClick={() => setShowOverlay(true)}
         tooltip='Edit Group' />

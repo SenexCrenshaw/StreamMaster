@@ -60,7 +60,7 @@ public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepo
 
         if (Parameters.StreamGroupId == 0 || Parameters == null)
         {
-            return Parameters.CreateEmptyPagedResponse<VideoStreamDto>();
+            return repository.VideoStream.CreateEmptyPagedResponse();
         }
 
         if (!string.IsNullOrEmpty(Parameters.JSONFiltersString))

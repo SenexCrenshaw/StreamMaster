@@ -19,6 +19,10 @@ namespace StreamMasterInfrastructureEF.Repositories;
 
 public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, ISortHelper<StreamGroup> StreamGroupSortHelper, IMapper mapper, IMemoryCache memoryCache, ISender sender, IHttpContextAccessor httpContextAccessor, ISettingsService settingsService) : RepositoryBase<StreamGroup>(repositoryContext, logger), IStreamGroupRepository
 {
+    public PagedResponse<StreamGroupDto> CreateEmptyPagedResponse()
+    {
+        return PagedExtensions.CreateEmptyPagedResponse<StreamGroupDto>(Count());
+    }
     public async Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(StreamGroupParameters Parameters)
     {
         IQueryable<StreamGroup> query = GetIQueryableForEntity(Parameters);

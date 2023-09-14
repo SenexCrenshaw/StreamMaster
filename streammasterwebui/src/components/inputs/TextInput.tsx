@@ -1,16 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { useClickOutside } from "primereact/hooks";
 import { InputText } from "primereact/inputtext";
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import CopyButton from "../buttons/CopyButton";
 
 type TextInputProps = {
   readonly autoFocus?: boolean;
-  // new prop
   readonly dontValidate?: boolean;
   readonly isUrl?: boolean;
   readonly isValid?: boolean;
   readonly label?: string;
   readonly onChange: (value: string) => void;
+  readonly onEnter?: () => void;
   readonly onResetClick?: () => void;
   readonly placeHolder?: string;
   readonly showClear?: boolean;
@@ -18,10 +19,41 @@ type TextInputProps = {
   readonly value: string;
 }
 // className={`${isValidUrl(source) ? '' : 'p-invalid'}`}
-const TextInput = ({ autoFocus = true, dontValidate = false, isUrl = false, isValid = true, label, onChange, onResetClick, placeHolder, showClear = true, showCopy = false, value }: TextInputProps) => {
+const TextInput = ({ autoFocus = true, dontValidate = false, isUrl = false, onEnter, isValid = true, label, onChange, onResetClick, placeHolder, showClear = true, showCopy = false, value }: TextInputProps) => {
   const [input, setInput] = useState<string>('');
   const [originalInput, setOriginalInput] = useState<string | undefined>(undefined);
+  const [isFocused, setIsFocused] = useState<boolean>(false);
+  const overlayRef = useRef(null);
 
+  useEffect(() => {
+    const callback = (event: KeyboardEvent) => {
+      if (!isFocused) {
+        return;
+      }
+
+      if (event.code === 'Enter' || event.code === 'NumpadEnter') {
+        if (originalInput !== input) {
+          onEnter?.();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', callback);
+
+    return () => {
+      document.removeEventListener('keydown', callback);
+    };
+  }, [input, isFocused, onChange, onEnter, originalInput]);
+
+
+  useClickOutside(overlayRef, () => {
+    if (!isFocused) {
+      return;
+    }
+
+    setIsFocused(false);
+
+  });
 
   const processValue = (val: string) => {
     if (dontValidate && !isUrl) return val;
@@ -63,7 +95,7 @@ const TextInput = ({ autoFocus = true, dontValidate = false, isUrl = false, isVa
   }
 
   return (
-    <div className={placeHolder && !label ? 'flex grid w-full align-items-center' : 'flex grid w-full mt-3 align-items-center'}>
+    <div className={placeHolder && !label ? 'flex grid w-full align-items-center' : 'flex grid w-full mt-3 align-items-center'} ref={overlayRef}>
       <span className={placeHolder && !label ? 'col-11 p-input-icon-right' : 'col-11 p-input-icon-right p-float-label'}>
         {doShowClear() && originalInput &&
           <i
@@ -86,6 +118,7 @@ const TextInput = ({ autoFocus = true, dontValidate = false, isUrl = false, isVa
             onChange(processValue(event.target.value));
           }
           }
+          onFocus={() => setIsFocused(true)}
           placeholder={!label ? placeHolder : undefined}
           value={input}
         />

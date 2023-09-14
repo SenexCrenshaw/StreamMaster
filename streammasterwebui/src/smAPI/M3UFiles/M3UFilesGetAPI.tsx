@@ -7,8 +7,8 @@ export const GetM3UFile = async (arg: iptv.M3UFileDto): Promise<iptv.M3UFileDto>
   return data;
 };
 
-export const GetM3UFiles = async (arg: iptv.PagedResponseOfM3UFileDto): Promise<iptv.M3UFileDto[]> => {
-  const data = await hubConnection.invoke('GetM3UFiles', arg);
+export const GetPagedM3UFiles = async (arg: iptv.PagedResponseOfM3UFileDto): Promise<iptv.M3UFileDto[]> => {
+  const data = await hubConnection.invoke('GetPagedM3UFiles', arg);
   return data;
 };
 

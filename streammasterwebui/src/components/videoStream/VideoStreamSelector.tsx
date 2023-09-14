@@ -1,14 +1,13 @@
 import { Dropdown } from "primereact/dropdown";
 import { type SelectItem } from "primereact/selectitem";
-import { useRef, useState, useEffect, useMemo } from "react";
-import { type VideoStreamDto, type VideoStreamsGetVideoStreamsApiArg } from "../../store/iptvApi";
-import { useVideoStreamsGetVideoStreamsQuery } from "../../store/iptvApi";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useVideoStreamsGetPagedVideoStreamsQuery, type VideoStreamDto, type VideoStreamsGetPagedVideoStreamsApiArg } from "../../store/iptvApi";
 
 export const VideoStreamSelector = (props: VideoStreamSelectorProps) => {
   const elementRef = useRef(null)
   const [selectedVideoStream, setSelectedVideoStream] = useState<VideoStreamDto>({} as VideoStreamDto);
 
-  const videoStreamsQuery = useVideoStreamsGetVideoStreamsQuery({} as VideoStreamsGetVideoStreamsApiArg);
+  const videoStreamsQuery = useVideoStreamsGetPagedVideoStreamsQuery({} as VideoStreamsGetPagedVideoStreamsApiArg);
 
   useEffect(() => {
     if (props.value !== undefined && props.value !== selectedVideoStream.user_Tvg_ID) {

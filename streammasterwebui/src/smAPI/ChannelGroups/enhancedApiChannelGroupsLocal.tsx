@@ -19,15 +19,17 @@ export const enhancedApiChannelGroupsLocal = iptvApi.enhanceEndpoints({
             });
           };
 
-          // hubConnection.off('ChannelGroupsRefresh');
-          hubConnection.on('UpdateChannelGroupVideoStreamCounts', (data: iptv.ChannelGroupStreamCount) => {
-            console.log('channelGroupsGetChannelGroup ChannelGroupsRefresh')
+          const doUpdates = (data: iptv.ChannelGroupStreamCount) => {
+            console.log('UpdateChannelGroupVideoStreamCounts ChannelGroupsRefresh')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['ChannelGroups']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          // hubConnection.off('UpdateChannelGroupVideoStreamCounts', doUpdates);
+          hubConnection.on('UpdateChannelGroupVideoStreamCounts', doUpdates);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
@@ -36,43 +38,43 @@ export const enhancedApiChannelGroupsLocal = iptvApi.enhanceEndpoints({
         await cacheEntryRemoved;
       }
     },
-    channelGroupsGetChannelGroups: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
-        try {
-          await cacheDataLoaded;
+    // channelGroupsGetChannelGroups: {
+    //   async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+    //     try {
+    //       await cacheDataLoaded;
 
-          const updateCachedDataWithResults = (data: iptv.ChannelGroupStreamCount[]) => {
-            updateCachedData((draft: iptv.PagedResponseOfChannelGroupDto) => {
+    //       const updateCachedDataWithResults = (data: iptv.ChannelGroupStreamCount[]) => {
+    //         updateCachedData((draft: iptv.PagedResponseOfChannelGroupDto) => {
 
-              data.forEach(item => {
-                const index = draft.data.findIndex(existingItem => existingItem.id === item.channelGroupId);
-                if (index !== -1) {
-                  draft.data[index].activeCount = item.activeCount;
-                  draft.data[index].totalCount = item.totalCount;
-                  draft.data[index].hiddenCount = item.hiddenCount;
-                }
-              });
+    //           data.forEach(item => {
+    //             const index = draft.data.findIndex(existingItem => existingItem.id === item.channelGroupId);
+    //             if (index !== -1) {
+    //               draft.data[index].activeCount = item.activeCount;
+    //               draft.data[index].totalCount = item.totalCount;
+    //               draft.data[index].hiddenCount = item.hiddenCount;
+    //             }
+    //           });
 
-              return draft;
-            });
-          };
+    //           return draft;
+    //         });
+    //       };
 
-          // hubConnection.off('ChannelGroupsRefresh');
-          hubConnection.on('UpdateChannelGroupVideoStreamCounts', (data: iptv.ChannelGroupStreamCount[]) => {
-            if (isEmptyObject(data)) {
-              console.log('ChannelGroupsRefresh: invalidateTags ChannelGroups')
-              dispatch(iptvApi.util.invalidateTags(['ChannelGroups']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          });
+    //       // hubConnection.off('ChannelGroupsRefresh');
+    //       hubConnection.on('UpdateChannelGroupVideoStreamCounts', (data: iptv.ChannelGroupStreamCount[]) => {
+    //         if (isEmptyObject(data)) {
+    //           console.log('ChannelGroupsRefresh: invalidateTags ChannelGroups')
+    //           dispatch(iptvApi.util.invalidateTags(['ChannelGroups']));
+    //         } else {
+    //           updateCachedDataWithResults(data);
+    //         }
+    //       });
 
-        } catch (error) {
-          console.error('Error in onCacheEntryAdded:', error);
-        }
+    //     } catch (error) {
+    //       console.error('Error in onCacheEntryAdded:', error);
+    //     }
 
-        await cacheEntryRemoved;
-      }
-    },
+    //     await cacheEntryRemoved;
+    //   }
+    // },
   }
 });

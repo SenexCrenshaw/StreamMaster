@@ -8,22 +8,24 @@ namespace StreamMasterDomain.Repository;
 /// </summary>
 public interface IChannelGroupRepository : IRepositoryBase<ChannelGroup>
 {
+    PagedResponse<ChannelGroupDto> CreateEmptyPagedResponse();
+
     // Queries returning single items
 
     /// <summary>
     /// Retrieves a channel group by its name.
     /// </summary>
-    Task<ChannelGroupDto?> GetChannelGroupByName(string name);
+    Task<ChannelGroup?> GetChannelGroupByName(string name);
 
     /// <summary>
     /// Retrieves a channel group by its ID.
     /// </summary>
-    Task<ChannelGroupDto?> GetChannelGroupById(int Id);
+    Task<ChannelGroup?> GetChannelGroupById(int Id);
 
     /// <summary>
     /// Retrieves a channel group associated with a specific video stream ID.
     /// </summary>
-    Task<ChannelGroupDto?> GetChannelGroupFromVideoStreamId(string VideoStreamId);
+    Task<ChannelGroup?> GetChannelGroupFromVideoStreamId(string VideoStreamId);
 
     /// <summary>
     /// Retrieves a channel group name associated with a specific video stream.
@@ -40,36 +42,37 @@ public interface IChannelGroupRepository : IRepositoryBase<ChannelGroup>
     /// <summary>
     /// Retrieves channel groups based on specific parameters.
     /// </summary>
-    Task<List<ChannelGroupDto>> GetChannelGroupsFromParameters(ChannelGroupParameters Parameters, CancellationToken cancellationToken);
+    Task<List<ChannelGroup>> GetChannelGroupsFromParameters(ChannelGroupParameters Parameters, CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves channel groups associated with specific M3U channel group names.
     /// </summary>
-    Task<List<ChannelGroupDto>> GetChannelGroupsFromNames(List<string> m3uChannelGroupNames);
+    Task<List<ChannelGroup>> GetChannelGroupsFromNames(List<string> m3uChannelGroupNames);
 
     /// <summary>
     /// Retrieves all channel group names.
     /// </summary>
     Task<List<ChannelGroupIdName>> GetChannelGroupNames();
 
-    Task<List<ChannelGroupDto>> GetChannelGroupsForStreamGroup(int streamGroupId, CancellationToken cancellationToken);
+    Task<List<ChannelGroup>> GetChannelGroupsForStreamGroup(int streamGroupId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves all channel groups.
     /// </summary>
-    Task<List<ChannelGroupDto>> GetChannelGroups();
+    Task<List<ChannelGroup>> GetChannelGroups(List<int>? ids = null);
 
-    IQueryable<ChannelGroup> GetChannelGroupQuery();
+
+    //IQueryable<ChannelGroup> GetChannelGroupQuery();
 
     /// <summary>
     /// Retrieves channel groups associated with specific video stream IDs.
     /// </summary>
-    Task<List<ChannelGroupDto>> GetChannelGroupsFromVideoStreamIds(IEnumerable<string> VideoStreamIds, CancellationToken cancellationToken);
+    Task<List<ChannelGroup>> GetChannelGroupsFromVideoStreamIds(IEnumerable<string> VideoStreamIds, CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves paginated channel groups based on specific parameters.
     /// </summary>
-    Task<PagedResponse<ChannelGroupDto>> GetPagedChannelGroups(ChannelGroupParameters Parameters);
+    Task<PagedResponse<ChannelGroup>> GetPagedChannelGroups(ChannelGroupParameters Parameters);
 
     // Commands or actions
 

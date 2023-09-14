@@ -11,20 +11,22 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto) => {
-            updateCachedData((draft: iptv.IconFileDto) => {
+            updateCachedData((draft: iptv.IconsGetIconApiResponse) => {
               draft=data
               return draft;
             });
           };
 
-          hubConnection.off('IconsRefresh');
-          hubConnection.on('IconsRefresh', (data: iptv.IconFileDto) => {
+          const doIconsGetIconUpdate = (data: iptv.IconFileDto) => {
+            // console.log('doIconsGetIconUpdate')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['Icons']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          hubConnection.on('IconsRefresh', doIconsGetIconUpdate);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
@@ -39,20 +41,22 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto) => {
-            updateCachedData((draft: iptv.IconFileDto) => {
+            updateCachedData((draft: iptv.IconsGetIconFromSourceApiResponse) => {
               draft=data
               return draft;
             });
           };
 
-          hubConnection.off('IconsRefresh');
-          hubConnection.on('IconsRefresh', (data: iptv.IconFileDto) => {
+          const doIconsGetIconFromSourceUpdate = (data: iptv.IconFileDto) => {
+            // console.log('doIconsGetIconFromSourceUpdate')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['Icons']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          hubConnection.on('IconsRefresh', doIconsGetIconFromSourceUpdate);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
@@ -61,13 +65,13 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
         await cacheEntryRemoved;
       }
     },
-    iconsGetIcons: {
+    iconsGetPagedIcons: {
       async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto[]) => {
-            updateCachedData((draft: iptv.PagedResponseOfIconFileDto) => {
+            updateCachedData((draft: iptv.IconsGetPagedIconsApiResponse) => {
               data.forEach(item => {
                 const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
                 if (index !== -1) {
@@ -79,14 +83,16 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
             });
           };
 
-          hubConnection.off('IconsRefresh');
-          hubConnection.on('IconsRefresh', (data: iptv.IconFileDto[]) => {
+          const doIconsGetPagedIconsUpdate = (data: iptv.IconFileDto[]) => {
+            // console.log('doIconsGetPagedIconsUpdate')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['Icons']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          hubConnection.on('IconsRefresh', doIconsGetPagedIconsUpdate);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
@@ -101,7 +107,7 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto[]) => {
-            updateCachedData((draft: iptv.IconFileDto[]) => {
+            updateCachedData((draft: iptv.IconsGetIconsSimpleQueryApiResponse) => {
               data.forEach(item => {
                 const index = draft.findIndex(existingItem => existingItem.id === item.id);
                 if (index !== -1) {
@@ -113,14 +119,16 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
             });
           };
 
-          hubConnection.off('IconsRefresh');
-          hubConnection.on('IconsRefresh', (data: iptv.IconFileDto[]) => {
+          const doIconsGetIconsSimpleQueryUpdate = (data: iptv.IconFileDto[]) => {
+            // console.log('doIconsGetIconsSimpleQueryUpdate')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['Icons']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          hubConnection.on('IconsRefresh', doIconsGetIconsSimpleQueryUpdate);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);

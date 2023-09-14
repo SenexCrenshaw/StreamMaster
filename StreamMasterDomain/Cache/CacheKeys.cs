@@ -259,6 +259,30 @@ public static class CacheKeys
         }
     }
 
+    public static void UpdateChannelGroupWithActives(this IMemoryCache cache, ChannelGroupDto channelGroup)
+    {
+
+        ChannelGroupStreamCount? active = cache.ChannelGroupStreamCounts().FirstOrDefault(a => a.ChannelGroupId == channelGroup.Id);
+        if (active == null)
+        {
+            return;
+        }
+
+        channelGroup.ActiveCount = active.ActiveCount;
+        channelGroup.HiddenCount = active.HiddenCount;
+        channelGroup.TotalCount = active.TotalCount;
+    }
+
+    public static List<ChannelGroupDto> UpdateChannelGroupsWithActives(this IMemoryCache cache, List<ChannelGroupDto> channelGroups)
+    {
+
+        for (int i = 0; i < channelGroups.Count; i++)
+        {
+            cache.UpdateChannelGroupWithActives(channelGroups[i]);
+        }
+        return channelGroups;
+    }
+
 
     public static void AddOrUpdateChannelGroupVideoStreamCount(this IMemoryCache cache, ChannelGroupStreamCount response)
     {

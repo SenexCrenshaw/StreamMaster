@@ -4,7 +4,7 @@ import { GetMessage } from "../../common/common";
 import { useChannelNameColumnConfig, useChannelNumberColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import { useVideoStreamLinksGetVideoStreamVideoStreamsQuery, useVideoStreamsUpdateVideoStreamMutation, type ChildVideoStreamDto, type VideoStreamsUpdateVideoStreamApiArg } from "../../store/iptvApi";
+import { useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery, useVideoStreamsUpdateVideoStreamMutation, type ChildVideoStreamDto, type VideoStreamsUpdateVideoStreamApiArg } from "../../store/iptvApi";
 import VideoStreamRemoveFromVideoStreamDialog from "./VideoStreamRemoveFromVideoStreamDialog";
 
 type VideoStreamSelectedVideoStreamDataSelectorProps = {
@@ -97,7 +97,7 @@ const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: Video
       id={dataKey}
       key='rank'
       onRowReorder={async (e) => await onRowReorder(e as ChildVideoStreamDto[])}
-      queryFilter={useVideoStreamLinksGetVideoStreamVideoStreamsQuery}
+      queryFilter={useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery}
       reorderable
       selectionMode='single'
       style={{ height: 'calc(100vh - 480px)' }

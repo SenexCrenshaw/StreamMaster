@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { GetProgrammeFromDisplayName } from '../../smAPI/Programmes/ProgrammesGetAPI';
-import { useProgrammesGetProgrammeNameSelectionsQuery, useProgrammesGetProgrammsSimpleQueryQuery, type ProgrammeNameDto } from '../../store/iptvApi';
+import { useProgrammesGetPagedProgrammeNameSelectionsQuery, useProgrammesGetProgrammsSimpleQueryQuery, type ProgrammeNameDto } from '../../store/iptvApi';
 import BaseSelector, { type BaseSelectorProps } from './BaseSelector';
 
 type EPGSelectorProps = BaseSelectorProps<ProgrammeNameDto> & {
@@ -53,7 +53,7 @@ const EPGSelector: React.FC<Partial<EPGSelectorProps>> = ({
       onChange={handleOnChange}
       optionLabel="displayName"
       optionValue="channel"
-      queryFilter={useProgrammesGetProgrammeNameSelectionsQuery}
+      queryFilter={useProgrammesGetPagedProgrammeNameSelectionsQuery}
       queryHook={useProgrammesGetProgrammsSimpleQueryQuery}
       querySelectedItem={GetProgrammeFromDisplayName}
       selectName='EPG'

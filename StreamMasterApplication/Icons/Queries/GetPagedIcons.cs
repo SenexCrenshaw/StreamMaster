@@ -5,20 +5,20 @@ using System.Text.Json;
 
 namespace StreamMasterApplication.Icons.Queries;
 
-public record GetIcons(IconFileParameters iconFileParameters) : IRequest<PagedResponse<IconFileDto>>;
+public record GetPagedIcons(IconFileParameters iconFileParameters) : IRequest<PagedResponse<IconFileDto>>;
 
-internal class GetIconsHandler : IRequestHandler<GetIcons, PagedResponse<IconFileDto>>
+internal class GetPagedIconsHandler : IRequestHandler<GetPagedIcons, PagedResponse<IconFileDto>>
 {
     private readonly IMapper _mapper;
     private readonly IMemoryCache _memoryCache;
 
-    public GetIconsHandler(IMemoryCache memoryCache, IMapper mapper)
+    public GetPagedIconsHandler(IMemoryCache memoryCache, IMapper mapper)
     {
         _memoryCache = memoryCache;
         _mapper = mapper;
     }
 
-    public async Task<PagedResponse<IconFileDto>> Handle(GetIcons request, CancellationToken cancellationToken)
+    public async Task<PagedResponse<IconFileDto>> Handle(GetPagedIcons request, CancellationToken cancellationToken)
     {
         if (request.iconFileParameters.PageSize == 0)
         {
@@ -40,7 +40,7 @@ internal class GetIconsHandler : IRequestHandler<GetIcons, PagedResponse<IconFil
 
         IPagedList<IconFileDto> test = await icons.ToPagedListAsync(request.iconFileParameters.PageNumber, request.iconFileParameters.PageSize).ConfigureAwait(false);
 
-        PagedResponse<IconFileDto> pagedResponse = test.ToPagedResponse(test.TotalItemCount);
+        PagedResponse<IconFileDto> pagedResponse = test.ToPagedResponse();
         return pagedResponse;
     }
 }

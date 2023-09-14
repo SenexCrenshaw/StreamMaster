@@ -7,8 +7,8 @@ export const GetStreamGroupVideoStreamIds = async (arg: iptv.VideoStreamIsReadOn
   return data;
 };
 
-export const GetStreamGroupVideoStreams = async (arg: iptv.PagedResponseOfVideoStreamDto): Promise<iptv.VideoStreamDto[]> => {
-  const data = await hubConnection.invoke('GetStreamGroupVideoStreams', arg);
+export const GetPagedStreamGroupVideoStreams = async (arg: iptv.PagedResponseOfVideoStreamDto): Promise<iptv.VideoStreamDto[]> => {
+  const data = await hubConnection.invoke('GetPagedStreamGroupVideoStreams', arg);
   return data;
 };
 

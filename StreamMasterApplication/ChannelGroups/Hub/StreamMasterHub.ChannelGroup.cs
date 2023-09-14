@@ -41,13 +41,13 @@ public partial class StreamMasterHub : IChannelGroupHub
         return ret;
     }
 
-    public async Task<PagedResponse<ChannelGroupDto>> GetChannelGroups(ChannelGroupParameters channelGroupParameters)
+    public async Task<PagedResponse<ChannelGroupDto>> GetPagedChannelGroups(ChannelGroupParameters channelGroupParameters)
     {
-        PagedResponse<ChannelGroupDto> ret = await mediator.Send(new GetChannelGroupsQuery(channelGroupParameters)).ConfigureAwait(false);
+        PagedResponse<ChannelGroupDto> ret = await mediator.Send(new GetPagedChannelGroups(channelGroupParameters)).ConfigureAwait(false);
         return ret;
     }
 
-    public async Task<List<ChannelGroupDto>> GetChannelGroupsForStream(GetChannelGroupsForStreamGroupRequest request)
+    public async Task<List<ChannelGroupDto>> GetChannelGroupsForStreamGroup(GetChannelGroupsForStreamGroupRequest request)
     {
         List<ChannelGroupDto> ret = await mediator.Send(request).ConfigureAwait(false);
         return ret;

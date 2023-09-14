@@ -20,6 +20,7 @@ global using StreamMasterDomain.Dto;
 global using StreamMasterDomain.Enums;
 global using StreamMasterDomain.Extensions;
 global using StreamMasterDomain.Logging;
+global using StreamMasterDomain.Models;
 global using StreamMasterDomain.Repository;
 global using StreamMasterDomain.Services;
 

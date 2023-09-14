@@ -56,9 +56,9 @@ public class M3UFilesController : ApiControllerBase, IM3UFileController
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedResponse<M3UFileDto>>> GetM3UFiles([FromQuery] M3UFileParameters Parameters)
+    public async Task<ActionResult<PagedResponse<M3UFileDto>>> GetPagedM3UFiles([FromQuery] M3UFileParameters Parameters)
     {
-        PagedResponse<M3UFileDto> m3uFiles = await Mediator.Send(new GetM3UFilesQuery(Parameters)).ConfigureAwait(false);
+        PagedResponse<M3UFileDto> m3uFiles = await Mediator.Send(new GetPagedM3UFiles(Parameters)).ConfigureAwait(false);
 
         return Ok(m3uFiles);
     }

@@ -26,6 +26,12 @@ namespace StreamMasterInfrastructureEF.Repositories;
 
 public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender, ISettingsService settingsService) : RepositoryBase<VideoStream>(repositoryContext, logger), IVideoStreamRepository
 {
+
+    public PagedResponse<VideoStreamDto> CreateEmptyPagedResponse()
+    {
+        return PagedExtensions.CreateEmptyPagedResponse<VideoStreamDto>(Count());
+    }
+
     /// <summary>
     /// Updates the channel group name associated with specified video streams.
     /// </summary>
@@ -232,6 +238,9 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
             .ExecuteUpdateAsync(s => s.SetProperty(b => b.IsHidden, isHidden), cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
+
+        await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
         //await repositoryContext.ChannelGroups
         //  .Where(a => a.Name == channelGroupName)
         //  .ExecuteUpdateAsync(s => s.SetProperty(b => b.IsHidden, isHidden), cancellationToken: cancellationToken)
@@ -424,7 +433,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
     internal async Task<List<VideoStreamDto>> AutoMatchIconToStreams(IEnumerable<string> VideoStreamIds, CancellationToken cancellationToken)
     {
         IconFileParameters iconFileParameters = new();
-        PagedResponse<IconFileDto> icons = await sender.Send(new GetIcons(iconFileParameters), cancellationToken).ConfigureAwait(false);
+        PagedResponse<IconFileDto> icons = await sender.Send(new GetPagedIcons(iconFileParameters), cancellationToken).ConfigureAwait(false);
 
         IQueryable<VideoStream> streams = FindByCondition(a => VideoStreamIds.Contains(a.Id));
 

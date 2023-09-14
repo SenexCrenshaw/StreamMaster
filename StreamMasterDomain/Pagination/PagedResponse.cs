@@ -21,6 +21,19 @@ public class PagedResponse<T>
 
 public static class PagedListExtensions
 {
+    public static PagedResponse<TDto> ToPagedResponseDto<T, TDto>(this PagedResponse<T> paged, IMapper mapper)
+    {
+        int first = (paged.PageNumber - 1) * paged.PageSize;
+        return new PagedResponse<TDto>
+        {
+            Data = mapper.Map<List<TDto>>(paged.Data),
+            First = first,
+            PageNumber = paged.PageNumber,
+            PageSize = paged.PageSize,
+            TotalPageCount = paged.TotalPageCount,
+            TotalItemCount = paged.TotalItemCount
+        };
+    }
     public static PagedResponse<TDto> ToPagedResponseDto<T, TDto>(this IPagedList<T> pagedList, IMapper mapper)
     {
         int first = (pagedList.PageNumber - 1) * pagedList.PageSize;
@@ -34,7 +47,7 @@ public static class PagedListExtensions
             TotalItemCount = pagedList.TotalItemCount
         };
     }
-    public static PagedResponse<T> ToPagedResponse<T>(this IPagedList<T> pagedList, int totalRecords)
+    public static PagedResponse<T> ToPagedResponse<T>(this IPagedList<T> pagedList)
     {
         int first = (pagedList.PageNumber - 1) * pagedList.PageSize;
         return new PagedResponse<T>

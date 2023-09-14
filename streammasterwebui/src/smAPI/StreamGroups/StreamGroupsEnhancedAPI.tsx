@@ -11,20 +11,22 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.StreamGroupDto) => {
-            updateCachedData((draft: iptv.StreamGroupDto) => {
+            updateCachedData((draft: iptv.StreamGroupsGetStreamGroupApiResponse) => {
               draft=data
               return draft;
             });
           };
 
-          hubConnection.off('StreamGroupsRefresh');
-          hubConnection.on('StreamGroupsRefresh', (data: iptv.StreamGroupDto) => {
+          const doStreamGroupsGetStreamGroupUpdate = (data: iptv.StreamGroupDto) => {
+            // console.log('doStreamGroupsGetStreamGroupUpdate')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['StreamGroups']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          hubConnection.on('StreamGroupsRefresh', doStreamGroupsGetStreamGroupUpdate);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
@@ -39,20 +41,22 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.EpgGuide) => {
-            updateCachedData((draft: iptv.EpgGuide) => {
+            updateCachedData((draft: iptv.StreamGroupsGetStreamGroupEpgForGuideApiResponse) => {
               draft=data
               return draft;
             });
           };
 
-          hubConnection.off('StreamGroupsRefresh');
-          hubConnection.on('StreamGroupsRefresh', (data: iptv.EpgGuide) => {
+          const doStreamGroupsGetStreamGroupEpgForGuideUpdate = (data: iptv.EpgGuide) => {
+            // console.log('doStreamGroupsGetStreamGroupEpgForGuideUpdate')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['StreamGroups']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          hubConnection.on('StreamGroupsRefresh', doStreamGroupsGetStreamGroupEpgForGuideUpdate);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
@@ -61,13 +65,13 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
         await cacheEntryRemoved;
       }
     },
-    streamGroupsGetStreamGroups: {
+    streamGroupsGetPagedStreamGroups: {
       async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.StreamGroupDto[]) => {
-            updateCachedData((draft: iptv.PagedResponseOfStreamGroupDto) => {
+            updateCachedData((draft: iptv.StreamGroupsGetPagedStreamGroupsApiResponse) => {
               data.forEach(item => {
                 const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
                 if (index !== -1) {
@@ -79,14 +83,16 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
             });
           };
 
-          hubConnection.off('StreamGroupsRefresh');
-          hubConnection.on('StreamGroupsRefresh', (data: iptv.StreamGroupDto[]) => {
+          const doStreamGroupsGetPagedStreamGroupsUpdate = (data: iptv.StreamGroupDto[]) => {
+            // console.log('doStreamGroupsGetPagedStreamGroupsUpdate')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['StreamGroups']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          hubConnection.on('StreamGroupsRefresh', doStreamGroupsGetPagedStreamGroupsUpdate);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);

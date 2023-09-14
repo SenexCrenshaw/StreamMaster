@@ -1,4 +1,6 @@
-﻿namespace StreamMasterApplication.ChannelGroups.Queries;
+﻿using StreamMasterDomain.Models;
+
+namespace StreamMasterApplication.ChannelGroups.Queries;
 
 public record GetChannelGroup(int Id) : IRequest<ChannelGroupDto?>;
 
@@ -6,8 +8,14 @@ internal class GetChannelGroupHandler(ILogger<GetChannelGroup> logger, IReposito
 {
     public async Task<ChannelGroupDto?> Handle(GetChannelGroup request, CancellationToken cancellationToken)
     {
-        ChannelGroupDto? channelGroup = await Repository.ChannelGroup.GetChannelGroupById(request.Id);
+        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupById(request.Id);
+        if (channelGroup == null)
+        {
+            return null;
+        }
 
-        return channelGroup;
+        ChannelGroupDto? dto = Mapper.Map<ChannelGroupDto?>(channelGroup);
+        MemoryCache.UpdateChannelGroupWithActives(dto);
+        return dto;
     }
 }

@@ -8,7 +8,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 
@@ -58,7 +57,7 @@ public class VideoStreamLinkRepository(ILogger<VideoStreamLinkRepository> logger
 
         StaticPagedList<ChildVideoStreamDto> test = new(cgs, pagedResult.GetMetaData());
 
-        PagedResponse<ChildVideoStreamDto> pagedResponse = test.ToPagedResponse(pagedResult.TotalItemCount);
+        PagedResponse<ChildVideoStreamDto> pagedResponse = test.ToPagedResponse();
 
         return pagedResponse;
     }

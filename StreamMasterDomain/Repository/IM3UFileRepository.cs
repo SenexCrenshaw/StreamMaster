@@ -5,6 +5,8 @@ using StreamMasterDomain.Pagination;
 namespace StreamMasterDomain.Repository;
 public interface IM3UFileRepository : IRepositoryBase<M3UFile>
 {
+    PagedResponse<M3UFileDto> CreateEmptyPagedResponse();
+
     /// <summary>
     /// Gets a list of M3U file names asynchronously.
     /// </summary>

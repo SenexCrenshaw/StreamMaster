@@ -22,15 +22,5 @@ public class UpdateChannelGroupsRequestHandler(ILogger<UpdateChannelGroupsReques
             results.Add(await Sender.Send(new UpdateChannelGroupRequest(request.ChannelGroupId, request.NewGroupName, request.IsHidden, request.ToggleVisibility), cancellationToken).ConfigureAwait(false));
         }
 
-        //if (results.Any())
-        //{
-        //    await Publisher.Publish(new UpdateChannelGroupsEvent(results), cancellationToken).ConfigureAwait(false);
-        //}
-
-        //if (results.Any())
-        //{
-        //    await Publisher.Publish(new UpdateVideoStreamsEvent(), cancellationToken).ConfigureAwait(false);
-        //}
-
     }
 }

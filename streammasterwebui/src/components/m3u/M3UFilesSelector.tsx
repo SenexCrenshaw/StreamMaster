@@ -1,15 +1,14 @@
 import { Dropdown } from "primereact/dropdown";
 import { useLocalStorage } from "primereact/hooks";
 import { type SelectItem } from "primereact/selectitem";
-import { useMemo, useCallback, memo } from "react";
-import { type M3UFileDto, type M3UFilesGetM3UFilesApiArg } from "../../store/iptvApi";
-import { useM3UFilesGetM3UFilesQuery } from "../../store/iptvApi";
+import { memo, useCallback, useMemo } from "react";
+import { useEpgFilesGetPagedEpgFilesQuery, type M3UFileDto, type M3UFilesGetPagedM3UFilesApiArg } from "../../store/iptvApi";
 
 const M3UFilesSelector = (props: M3UFilesSelectorProps) => {
 
   const [selectedM3UFile, setSelectedM3UFile] = useLocalStorage<M3UFileDto>({ id: 0, name: 'All' } as M3UFileDto, props.id + '-setSelectedM3UFile');
 
-  const m3uFilesQuery = useM3UFilesGetM3UFilesQuery({} as M3UFilesGetM3UFilesApiArg);
+  const m3uFilesQuery = useEpgFilesGetPagedEpgFilesQuery({} as M3UFilesGetPagedM3UFilesApiArg);
 
   useMemo(() => {
     if (props.value && !selectedM3UFile) {

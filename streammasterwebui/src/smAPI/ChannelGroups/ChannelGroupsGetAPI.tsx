@@ -12,8 +12,8 @@ export const GetChannelGroupIdNames = async (arg: iptv.ChannelGroupIdName[]): Pr
   return data;
 };
 
-export const GetChannelGroups = async (arg: iptv.PagedResponseOfChannelGroupDto): Promise<iptv.ChannelGroupDto[]> => {
-  const data = await hubConnection.invoke('GetChannelGroups', arg);
+export const GetPagedChannelGroups = async (arg: iptv.PagedResponseOfChannelGroupDto): Promise<iptv.ChannelGroupDto[]> => {
+  const data = await hubConnection.invoke('GetPagedChannelGroups', arg);
   return data;
 };
 
@@ -21,8 +21,8 @@ export const GetChannelGroupNames = async (): Promise<void> => {
   await hubConnection.invoke('GetChannelGroupNames');
 };
 
-export const GetChannelGroupsForStream = async (arg: iptv.GetChannelGroupsForStreamGroupRequest): Promise<iptv.ChannelGroupDto[]> => {
-  const data = await hubConnection.invoke('GetChannelGroupsForStream', arg);
+export const GetChannelGroupsForStreamGroup = async (arg: iptv.GetChannelGroupsForStreamGroupRequest): Promise<iptv.ChannelGroupDto[]> => {
+  const data = await hubConnection.invoke('GetChannelGroupsForStreamGroup', arg);
   return data;
 };
 

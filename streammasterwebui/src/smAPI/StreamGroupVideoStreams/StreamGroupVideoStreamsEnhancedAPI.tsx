@@ -5,13 +5,13 @@ import type * as iptv from '../../store/iptvApi';
 
 export const enhancedApiStreamGroupVideoStreams = iptvApi.enhanceEndpoints({
   endpoints: {
-    streamGroupVideoStreamsGetStreamGroupVideoStreams: {
+    streamGroupVideoStreamsGetPagedStreamGroupVideoStreams: {
       async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.VideoStreamDto[]) => {
-            updateCachedData((draft: iptv.PagedResponseOfVideoStreamDto) => {
+            updateCachedData((draft: iptv.StreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsApiResponse) => {
               data.forEach(item => {
                 const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
                 if (index !== -1) {
@@ -23,14 +23,16 @@ export const enhancedApiStreamGroupVideoStreams = iptvApi.enhanceEndpoints({
             });
           };
 
-          hubConnection.off('StreamGroupVideoStreamsRefresh');
-          hubConnection.on('StreamGroupVideoStreamsRefresh', (data: iptv.VideoStreamDto[]) => {
+          const doStreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsUpdate = (data: iptv.VideoStreamDto[]) => {
+            // console.log('doStreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsUpdate')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['StreamGroupVideoStreams']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          hubConnection.on('StreamGroupVideoStreamsRefresh', doStreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsUpdate);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);

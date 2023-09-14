@@ -1,7 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, type CSSProperties } from "react";
-import { useSelectedChannelGroups } from "../../app/slices/useSelectedChannelGroups";
 import { useShowHidden } from "../../app/slices/useShowHidden";
-import { isEmptyObject } from "../../common/common";
 import ChannelGroupAddDialog from "../../components/channelGroups/ChannelGroupAddDialog";
 import ChannelGroupDeleteDialog from "../../components/channelGroups/ChannelGroupDeleteDialog";
 import ChannelGroupEditDialog from "../../components/channelGroups/ChannelGroupEditDialog";
@@ -9,7 +7,7 @@ import ChannelGroupVisibleDialog from "../../components/channelGroups/ChannelGro
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
 import { TriSelect } from "../../components/selectors/TriSelect";
-import { useChannelGroupsGetChannelGroupsQuery, type ChannelGroupDto } from "../../store/iptvApi";
+import { useChannelGroupsGetPagedChannelGroupsQuery, type ChannelGroupDto } from "../../store/iptvApi";
 
 export type PlayListDataSelectorProps = {
   readonly hideAddRemoveControls?: boolean;
@@ -20,12 +18,9 @@ export type PlayListDataSelectorProps = {
   readonly useReadOnly?: boolean;
 };
 
-
 const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
   const dataKey = props.id + '-PlayListDataSelector';
   const { showHidden, setShowHidden } = useShowHidden(dataKey);
-
-  const { setSelectedChannelGroups } = useSelectedChannelGroups(props.id);
 
   useEffect(() => {
     if (showHidden === undefined) {
@@ -40,11 +35,11 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
     <div className='flex p-0 justify-content-end align-items-center'>
 
       <div hidden={data.isReadOnly === true && props.useReadOnly}>
-        <ChannelGroupDeleteDialog cgid={props.id} iconFilled={false} id={dataKey} value={data} />
+        <ChannelGroupDeleteDialog cgId={props.id} iconFilled={false} id={dataKey} value={data} />
       </div>
 
-      <ChannelGroupEditDialog cgid={props.id} value={data} />
-      <ChannelGroupVisibleDialog cgid={props.id} id={dataKey} skipOverLayer value={data} />
+      <ChannelGroupEditDialog cgId={props.id} value={data} />
+      <ChannelGroupVisibleDialog id={dataKey} skipOverLayer value={data} />
 
     </div>
 
@@ -79,8 +74,8 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
         {props.hideControls !== true &&
           <>
             <TriSelect dataKey={dataKey} />
-            <ChannelGroupVisibleDialog cgid={props.id} id={dataKey} skipOverLayer={false} />
-            <ChannelGroupDeleteDialog cgid={props.id} iconFilled id={dataKey} />
+            <ChannelGroupVisibleDialog id={dataKey} skipOverLayer={false} />
+            <ChannelGroupDeleteDialog cgId={props.id} iconFilled id={dataKey} />
           </>
         }
 
@@ -98,14 +93,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       headerRightTemplate={props.hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
       hideControls={props.hideControls}
       id={dataKey}
-      onSelectionChange={(e) => {
-        if (!isEmptyObject(e)) {
-          setSelectedChannelGroups(e as ChannelGroupDto[]);
-        } else {
-          setSelectedChannelGroups([]);
-        }
-      }}
-      queryFilter={useChannelGroupsGetChannelGroupsQuery}
+      queryFilter={useChannelGroupsGetPagedChannelGroupsQuery}
       selectionMode='multiple'
       style={{
         height: props.maxHeight !== null ? props.maxHeight : 'calc(100vh - 40px)',

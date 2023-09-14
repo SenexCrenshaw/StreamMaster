@@ -6,6 +6,7 @@ namespace StreamMasterDomain.Repository
 {
     public interface IVideoStreamRepository : IRepositoryBase<VideoStream>
     {
+        PagedResponse<VideoStreamDto> CreateEmptyPagedResponse();
         Task UpdateVideoStreamsChannelGroupNames(IEnumerable<string> videoStreamIds, string newName);
         Task<List<VideoStreamDto>> GetVideoStreamsForChannelGroups(IEnumerable<int> channelGroupIds, CancellationToken cancellationToken);
         Task<List<VideoStreamDto>> GetVideoStreamsForChannelGroup(int channelGroupId, CancellationToken cancellationToken);

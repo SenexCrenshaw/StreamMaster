@@ -2,8 +2,6 @@
 using StreamMasterApplication.VideoStreams.Commands;
 using StreamMasterApplication.VideoStreams.Queries;
 
-using StreamMasterDomain.Dto;
-using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Hubs;
@@ -35,9 +33,9 @@ public partial class StreamMasterHub : IVideoStreamHub
         return await mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
     }
 
-    public async Task<PagedResponse<VideoStreamDto>> GetVideoStreams(VideoStreamParameters Parameters)
+    public async Task<PagedResponse<VideoStreamDto>> GetPagedVideoStreams(VideoStreamParameters Parameters)
     {
-        return await mediator.Send(new GetVideoStreams(Parameters)).ConfigureAwait(false);
+        return await mediator.Send(new GetPagedVideoStreams(Parameters)).ConfigureAwait(false);
     }
 
     public async Task ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request)

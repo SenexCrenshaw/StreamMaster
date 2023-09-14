@@ -3,7 +3,7 @@
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.VideoStreams.Commands;
-using StreamMasterDomain.Models;
+
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.VideoStreams;
@@ -28,7 +28,7 @@ public interface IVideoStreamController
 
     Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id);
 
-    Task<ActionResult<PagedResponse<VideoStreamDto>>> GetVideoStreams([FromQuery] VideoStreamParameters Parameters);
+    Task<ActionResult<PagedResponse<VideoStreamDto>>> GetPagedVideoStreams([FromQuery] VideoStreamParameters Parameters);
 
     Task<ActionResult> GetVideoStreamStream(string encodedId, string name, CancellationToken cancellationToken);
 
@@ -61,7 +61,7 @@ public interface IVideoStreamHub
 
     Task<VideoStreamDto?> GetVideoStream(string id);
 
-    Task<PagedResponse<VideoStreamDto>> GetVideoStreams(VideoStreamParameters Parameters);
+    Task<PagedResponse<VideoStreamDto>> GetPagedVideoStreams(VideoStreamParameters Parameters);
     Task SetVideoStreamsLogoFromEPGFromParameters(SetVideoStreamsLogoFromEPGFromParametersRequest request);
     Task ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request);
     Task ReSetVideoStreamsLogoFromParameters(ReSetVideoStreamsLogoFromParametersRequest request);

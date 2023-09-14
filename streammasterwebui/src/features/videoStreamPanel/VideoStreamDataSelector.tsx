@@ -4,7 +4,7 @@ import { GetMessage } from "../../common/common";
 import { useChannelNameColumnConfig, useChannelNumberColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import { useVideoStreamLinksAddVideoStreamToVideoStreamMutation, useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery, useVideoStreamsGetVideoStreamsQuery, type VideoStreamDto, type VideoStreamLinksAddVideoStreamToVideoStreamApiArg } from "../../store/iptvApi";
+import { useVideoStreamLinksAddVideoStreamToVideoStreamMutation, useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery, useVideoStreamsGetPagedVideoStreamsQuery, type VideoStreamDto, type VideoStreamLinksAddVideoStreamToVideoStreamApiArg } from "../../store/iptvApi";
 
 type VideoStreamDataSelectorProps = {
   readonly id: string;
@@ -82,7 +82,7 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
 
         await videoStreamLinksAddVideoStreamToVideoStreamMutation(toSend);
       }}
-      queryFilter={useVideoStreamsGetVideoStreamsQuery}
+      queryFilter={useVideoStreamsGetPagedVideoStreamsQuery}
       selectionMode='single'
       style={{ height: 'calc(100vh - 480px)' }}
       videoStreamIdsIsReadOnly={(videoStreamIds || [])}

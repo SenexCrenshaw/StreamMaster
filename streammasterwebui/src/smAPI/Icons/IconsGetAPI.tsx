@@ -13,8 +13,8 @@ export const GetIconFromSource = async (arg: StringArg): Promise<iptv.IconFileDt
   return data;
 };
 
-export const GetIcons = async (arg: iptv.PagedResponseOfIconFileDto): Promise<iptv.IconFileDto[]> => {
-  const data = await hubConnection.invoke('GetIcons', arg);
+export const GetPagedIcons = async (arg: iptv.PagedResponseOfIconFileDto): Promise<iptv.IconFileDto[]> => {
+  const data = await hubConnection.invoke('GetPagedIcons', arg);
   return data;
 };
 

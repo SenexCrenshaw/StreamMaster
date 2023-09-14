@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useState, type FC } from "react";
+import { memo, useCallback, useMemo, useState, type FC } from "react";
 import { useChannelGroupsCreateChannelGroupMutation, type CreateChannelGroupRequest } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import AddButton from "../buttons/AddButton";
@@ -45,22 +45,6 @@ const ChannelGroupAddDialog: FC = () => {
 
   }, [ReturnToParent, channelGroupsCreateChannelGroupMutation, newGroupName]);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.code === 'Enter' || event.code === 'NumpadEnter') && newGroupName !== "") {
-        event.preventDefault();
-        addGroup();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-
-  }, [addGroup, newGroupName]);
-
   const isSaveEnabled = useMemo((): boolean => {
 
     if (newGroupName && newGroupName !== '') {
@@ -83,7 +67,7 @@ const ChannelGroupAddDialog: FC = () => {
       >
         <div className="flex grid justify-content-center align-items-center w-full">
           <div className="flex col-10 mt-1">
-            <TextInput label="Group Name" onChange={setNewGroupName} value={newGroupName} />
+            <TextInput label="Group Name" onChange={setNewGroupName} onEnter={addGroup} value={newGroupName} />
           </div>
           <div className="flex col-12 justify-content-end">
             <AddButton disabled={!isSaveEnabled} label='Add Group' onClick={addGroup} tooltip='Add Group' />

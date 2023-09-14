@@ -11,7 +11,7 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.ChannelLogoDto[]) => {
-            updateCachedData((draft: iptv.ChannelLogoDto[]) => {
+            updateCachedData((draft: iptv.VideoStreamsGetChannelLogoDtosApiResponse) => {
               data.forEach(item => {
                 const index = draft.findIndex(existingItem => existingItem.id === item.id);
                 if (index !== -1) {
@@ -23,14 +23,16 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
             });
           };
 
-          hubConnection.off('VideoStreamsRefresh');
-          hubConnection.on('VideoStreamsRefresh', (data: iptv.ChannelLogoDto[]) => {
+          const doVideoStreamsGetChannelLogoDtosUpdate = (data: iptv.ChannelLogoDto[]) => {
+            // console.log('doVideoStreamsGetChannelLogoDtosUpdate')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          hubConnection.on('VideoStreamsRefresh', doVideoStreamsGetChannelLogoDtosUpdate);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
@@ -45,20 +47,22 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.VideoStreamDto) => {
-            updateCachedData((draft: iptv.VideoStreamDto) => {
+            updateCachedData((draft: iptv.VideoStreamsGetVideoStreamApiResponse) => {
               draft=data
               return draft;
             });
           };
 
-          hubConnection.off('VideoStreamsRefresh');
-          hubConnection.on('VideoStreamsRefresh', (data: iptv.VideoStreamDto) => {
+          const doVideoStreamsGetVideoStreamUpdate = (data: iptv.VideoStreamDto) => {
+            // console.log('doVideoStreamsGetVideoStreamUpdate')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          hubConnection.on('VideoStreamsRefresh', doVideoStreamsGetVideoStreamUpdate);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
@@ -67,13 +71,13 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
         await cacheEntryRemoved;
       }
     },
-    videoStreamsGetVideoStreams: {
+    videoStreamsGetPagedVideoStreams: {
       async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.VideoStreamDto[]) => {
-            updateCachedData((draft: iptv.PagedResponseOfVideoStreamDto) => {
+            updateCachedData((draft: iptv.VideoStreamsGetPagedVideoStreamsApiResponse) => {
               data.forEach(item => {
                 const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
                 if (index !== -1) {
@@ -85,14 +89,16 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
             });
           };
 
-          hubConnection.off('VideoStreamsRefresh');
-          hubConnection.on('VideoStreamsRefresh', (data: iptv.VideoStreamDto[]) => {
+          const doVideoStreamsGetPagedVideoStreamsUpdate = (data: iptv.VideoStreamDto[]) => {
+            // console.log('doVideoStreamsGetPagedVideoStreamsUpdate')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          hubConnection.on('VideoStreamsRefresh', doVideoStreamsGetPagedVideoStreamsUpdate);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);

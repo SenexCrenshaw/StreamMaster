@@ -1,9 +1,10 @@
 
 import { Dropdown } from 'primereact/dropdown';
 import { type SelectItem } from 'primereact/selectitem';
-import { useRef, useState, useMemo } from 'react';
-import { type StreamGroupDto, type StreamGroupsGetStreamGroupsApiArg } from '../../store/iptvApi';
-import { useStreamGroupsGetStreamGroupsQuery } from '../../store/iptvApi';
+import { useMemo, useRef, useState } from 'react';
+import {
+  useStreamGroupsGetPagedStreamGroupsQuery, type StreamGroupDto, type StreamGroupsGetPagedStreamGroupsApiArg
+} from '../../store/iptvApi';
 
 export const StreamGroupSelector = (props: StreamGroupSelectorProps) => {
 
@@ -11,7 +12,8 @@ export const StreamGroupSelector = (props: StreamGroupSelectorProps) => {
 
   const [selectedStreamGroup, setSelectedStreamGroup] = useState<StreamGroupDto>({} as StreamGroupDto);
 
-  const streamGroups = useStreamGroupsGetStreamGroupsQuery({} as StreamGroupsGetStreamGroupsApiArg);
+  const streamGroups = useStreamGroupsGetPagedStreamGroupsQuery({} as StreamGroupsGetPagedStreamGroupsApiArg
+  );
 
   const isDisabled = useMemo((): boolean => {
     if (streamGroups.isLoading) {

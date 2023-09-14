@@ -24,16 +24,20 @@ public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCo
 
         try
         {
-            // Get the required channel groups.
-            IQueryable<ChannelGroupBrief> cgsQuery = Repository.ChannelGroup.GetChannelGroupQuery().Select(a => new ChannelGroupBrief { Name = a.Name, Id = a.Id });
+            List<ChannelGroup> cgs;
+
+            //// Get the required channel groups.
+            //IQueryable<ChannelGroup> cgsQuery = Repository.ChannelGroup.GetChannelGroupQuery().Select(a => new ChannelGroupBrief { Name = a.Name, Id = a.Id });
 
             if (request.channelGroups != null && request.channelGroups.Any())
             {
                 List<int> selectIds = request.channelGroups.Select(a => a.Id).ToList();
-                cgsQuery = cgsQuery.Where(a => selectIds.Contains(a.Id));
+                cgs = await Repository.ChannelGroup.GetChannelGroups(selectIds);
             }
-
-            List<ChannelGroupBrief> cgs = await cgsQuery.ToListAsync(cancellationToken).ConfigureAwait(false);
+            else
+            {
+                cgs = await Repository.ChannelGroup.GetChannelGroups();
+            }
 
             if (!cgs.Any())
             {
@@ -56,7 +60,7 @@ public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCo
             Dictionary<string, List<string>> videoStreamsForGroups = new();
             Dictionary<string, int> hiddenCounts = new();
 
-            foreach (ChannelGroupBrief? cg in cgs)
+            foreach (ChannelGroup cg in cgs)
             {
                 if (cg == null)
                 {

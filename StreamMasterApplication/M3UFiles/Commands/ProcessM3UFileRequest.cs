@@ -4,8 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.ChannelGroups.Commands;
 
-using StreamMasterDomain.Models;
-
 using System.Diagnostics;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
@@ -99,7 +97,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         List<VideoStream> existing = await Repository.VideoStream.GetVideoStreamQuery().Where(a => a.M3UFileId == m3uFile.Id).ToListAsync().ConfigureAwait(false);
         existingChannels = new SimpleIntList(m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber - 1);
 
-        List<ChannelGroupDto> groups = await Repository.ChannelGroup.GetChannelGroups();
+        List<ChannelGroup> groups = await Repository.ChannelGroup.GetChannelGroups();
         //var nextchno = m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber;
 
         //List<VideoStream> toWrite = new()
@@ -130,19 +128,19 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
 
     }
 
-    private async Task ProcessStreamsConcurrently(List<VideoStream> streams, List<VideoStream> existing, List<ChannelGroupDto> groups, M3UFile m3uFile)
+    private async Task ProcessStreamsConcurrently(List<VideoStream> streams, List<VideoStream> existing, List<ChannelGroup> groups, M3UFile m3uFile)
     {
         int totalCount = streams.Count;
         int processedCount = 0;
         Dictionary<string, VideoStream> existingLookup = existing.ToDictionary(a => a.Id, a => a);
-        Dictionary<string, ChannelGroupDto> groupLookup = groups.ToDictionary(g => g.Name, g => g);
+        Dictionary<string, ChannelGroup> groupLookup = groups.ToDictionary(g => g.Name, g => g);
 
         List<VideoStream> toWrite = new();
         List<VideoStream> toUpdate = new();
 
         foreach (VideoStream stream in streams)
         {
-            _ = groupLookup.TryGetValue(stream.Tvg_group, out ChannelGroupDto? group);
+            _ = groupLookup.TryGetValue(stream.Tvg_group, out ChannelGroup? group);
 
             if (!existingLookup.ContainsKey(stream.Id))
             {
@@ -198,14 +196,14 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         Stopwatch sw = Stopwatch.StartNew();
 
         List<string> newGroups = streams.Where(a => a.User_Tvg_group != null).Select(a => a.User_Tvg_group).Distinct().ToList();
-        List<ChannelGroupDto> channelGroups = await Repository.ChannelGroup.GetChannelGroups();
+        List<ChannelGroup> channelGroups = await Repository.ChannelGroup.GetChannelGroups();
 
         await CreateNewChannelGroups(newGroups, channelGroups, cancellationToken);
 
         Logger.LogInformation($"Updating channel groups took {sw.Elapsed.TotalSeconds} seconds");
     }
 
-    private async Task CreateNewChannelGroups(List<string> newGroups, List<ChannelGroupDto> existingGroups, CancellationToken cancellationToken)
+    private async Task CreateNewChannelGroups(List<string> newGroups, List<ChannelGroup> existingGroups, CancellationToken cancellationToken)
     {
 
         foreach (string? group in newGroups)

@@ -11,7 +11,7 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.TaskQueueStatusDto[]) => {
-            updateCachedData((draft: iptv.TaskQueueStatusDto[]) => {
+            updateCachedData((draft: iptv.SettingsGetQueueStatusApiResponse) => {
               data.forEach(item => {
                 const index = draft.findIndex(existingItem => existingItem.id === item.id);
                 if (index !== -1) {
@@ -23,14 +23,16 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
             });
           };
 
-          hubConnection.off('SettingsRefresh');
-          hubConnection.on('SettingsRefresh', (data: iptv.TaskQueueStatusDto[]) => {
+          const doSettingsGetQueueStatusUpdate = (data: iptv.TaskQueueStatusDto[]) => {
+            // console.log('doSettingsGetQueueStatusUpdate')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['Settings']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          hubConnection.on('SettingsRefresh', doSettingsGetQueueStatusUpdate);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
@@ -45,20 +47,22 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.SettingDto) => {
-            updateCachedData((draft: iptv.SettingDto) => {
+            updateCachedData((draft: iptv.SettingsGetSettingApiResponse) => {
               draft=data
               return draft;
             });
           };
 
-          hubConnection.off('SettingsRefresh');
-          hubConnection.on('SettingsRefresh', (data: iptv.SettingDto) => {
+          const doSettingsGetSettingUpdate = (data: iptv.SettingDto) => {
+            // console.log('doSettingsGetSettingUpdate')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['Settings']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          hubConnection.on('SettingsRefresh', doSettingsGetSettingUpdate);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
@@ -73,20 +77,22 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.SystemStatus) => {
-            updateCachedData((draft: iptv.SystemStatus) => {
+            updateCachedData((draft: iptv.SettingsGetSystemStatusApiResponse) => {
               draft=data
               return draft;
             });
           };
 
-          hubConnection.off('SettingsRefresh');
-          hubConnection.on('SettingsRefresh', (data: iptv.SystemStatus) => {
+          const doSettingsGetSystemStatusUpdate = (data: iptv.SystemStatus) => {
+            // console.log('doSettingsGetSystemStatusUpdate')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['Settings']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          hubConnection.on('SettingsRefresh', doSettingsGetSystemStatusUpdate);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);

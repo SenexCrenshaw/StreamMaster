@@ -1,10 +1,6 @@
 ﻿using FluentValidation;
 
-using Microsoft.EntityFrameworkCore;
-
 using StreamMasterApplication.ChannelGroups.Events;
-
-using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
@@ -21,7 +17,7 @@ public class UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequest>
     public async Task<ChannelGroupDto?> Handle(UpdateChannelGroupRequest request, CancellationToken cancellationToken)
     {
 
-        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupQuery().FirstOrDefaultAsync(a => a.Id == request.ChannelGroupId, cancellationToken: cancellationToken).ConfigureAwait(false);
+        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupById(request.ChannelGroupId).ConfigureAwait(false);
 
         if (channelGroup == null)
         {
@@ -33,8 +29,9 @@ public class UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequest>
 
         if (request.ToggleVisibility == true)
         {
-            List<VideoStreamDto> results = await Repository.VideoStream.SetGroupVisibleByGroupName(channelGroup.Name, channelGroup.IsHidden, cancellationToken).ConfigureAwait(false);
             channelGroup.IsHidden = !channelGroup.IsHidden;
+            List<VideoStreamDto> results = await Repository.VideoStream.SetGroupVisibleByGroupName(channelGroup.Name, channelGroup.IsHidden, cancellationToken).ConfigureAwait(false);
+
             checkCounts = results.Any();
 
         }
@@ -62,8 +59,10 @@ public class UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequest>
         {
 
             ChannelGroupDto dto = Mapper.Map<ChannelGroupDto>(channelGroup);
-
-            await Sender.Send(new UpdateChannelGroupCountRequest(dto, false), cancellationToken).ConfigureAwait(false);
+            if (checkCounts)
+            {
+                await Sender.Send(new UpdateChannelGroupCountRequest(dto, false), cancellationToken).ConfigureAwait(false);
+            }
 
             await Publisher.Publish(new UpdateChannelGroupEvent(dto, request.ToggleVisibility ?? false, nameChanged), cancellationToken).ConfigureAwait(false);
         }

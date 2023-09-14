@@ -16,7 +16,7 @@ public interface IEPGFileRepository : IRepositoryBase<EPGFile>
     Task<EPGFile?> GetEPGFileBySource(string Source);
 
     void CreateEPGFile(EPGFile EPGFile);
-
+    PagedResponse<EPGFileDto> CreateEmptyPagedResponse();
     void UpdateEPGFile(EPGFile EPGFile);
 
     Task<EPGFileDto?> DeleteEPGFile(int EPGFileId);

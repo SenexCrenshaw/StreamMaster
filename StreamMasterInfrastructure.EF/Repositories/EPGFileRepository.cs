@@ -83,6 +83,10 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryCont
                           .ConfigureAwait(false);
     }
 
+    public PagedResponse<EPGFileDto> CreateEmptyPagedResponse()
+    {
+        return PagedExtensions.CreateEmptyPagedResponse<EPGFileDto>(Count());
+    }
     public async Task<List<EPGFileDto>> GetEPGFilesNeedUpdating()
     {
         List<EPGFileDto> ret = new();

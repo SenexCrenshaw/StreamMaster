@@ -5,13 +5,13 @@ import type * as iptv from '../../store/iptvApi';
 
 export const enhancedApiProgrammes = iptvApi.enhanceEndpoints({
   endpoints: {
-    programmesGetProgrammeNameSelections: {
+    programmesGetPagedProgrammeNameSelections: {
       async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.ProgrammeNameDto[]) => {
-            updateCachedData((draft: iptv.PagedResponseOfProgrammeNameDto) => {
+            updateCachedData((draft: iptv.ProgrammesGetPagedProgrammeNameSelectionsApiResponse) => {
               data.forEach(item => {
                 const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
                 if (index !== -1) {
@@ -23,14 +23,16 @@ export const enhancedApiProgrammes = iptvApi.enhanceEndpoints({
             });
           };
 
-          hubConnection.off('ProgrammesRefresh');
-          hubConnection.on('ProgrammesRefresh', (data: iptv.ProgrammeNameDto[]) => {
+          const doProgrammesGetPagedProgrammeNameSelectionsUpdate = (data: iptv.ProgrammeNameDto[]) => {
+            // console.log('doProgrammesGetPagedProgrammeNameSelectionsUpdate')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['Programmes']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          hubConnection.on('ProgrammesRefresh', doProgrammesGetPagedProgrammeNameSelectionsUpdate);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
@@ -45,7 +47,7 @@ export const enhancedApiProgrammes = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.ProgrammeNameDto[]) => {
-            updateCachedData((draft: iptv.ProgrammeNameDto[]) => {
+            updateCachedData((draft: iptv.ProgrammesGetProgrammsSimpleQueryApiResponse) => {
               data.forEach(item => {
                 const index = draft.findIndex(existingItem => existingItem.id === item.id);
                 if (index !== -1) {
@@ -57,14 +59,16 @@ export const enhancedApiProgrammes = iptvApi.enhanceEndpoints({
             });
           };
 
-          hubConnection.off('ProgrammesRefresh');
-          hubConnection.on('ProgrammesRefresh', (data: iptv.ProgrammeNameDto[]) => {
+          const doProgrammesGetProgrammsSimpleQueryUpdate = (data: iptv.ProgrammeNameDto[]) => {
+            // console.log('doProgrammesGetProgrammsSimpleQueryUpdate')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['Programmes']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          hubConnection.on('ProgrammesRefresh', doProgrammesGetProgrammsSimpleQueryUpdate);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);

@@ -7,8 +7,8 @@ export const GetEpgFile = async (arg: iptv.EpgFileDto): Promise<iptv.EpgFileDto>
   return data;
 };
 
-export const GetEpgFiles = async (arg: iptv.PagedResponseOfEpgFileDto): Promise<iptv.EpgFileDto[]> => {
-  const data = await hubConnection.invoke('GetEpgFiles', arg);
+export const GetPagedEpgFiles = async (arg: iptv.PagedResponseOfEpgFileDto): Promise<iptv.EpgFileDto[]> => {
+  const data = await hubConnection.invoke('GetPagedEpgFiles', arg);
   return data;
 };
 

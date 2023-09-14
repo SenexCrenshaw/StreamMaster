@@ -12,8 +12,8 @@ export const GetProgrammeChannels = async (arg: iptv.ProgrammeChannel[]): Promis
   return data;
 };
 
-export const GetProgrammeNameSelections = async (arg: iptv.PagedResponseOfProgrammeNameDto): Promise<iptv.ProgrammeNameDto[]> => {
-  const data = await hubConnection.invoke('GetProgrammeNameSelections', arg);
+export const GetPagedProgrammeNameSelections = async (arg: iptv.PagedResponseOfProgrammeNameDto): Promise<iptv.ProgrammeNameDto[]> => {
+  const data = await hubConnection.invoke('GetPagedProgrammeNameSelections', arg);
   return data;
 };
 

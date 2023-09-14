@@ -17,8 +17,8 @@ export const GetVideoStream = async (arg: iptv.VideoStreamDto): Promise<iptv.Vid
   return data;
 };
 
-export const GetVideoStreams = async (arg: iptv.PagedResponseOfVideoStreamDto): Promise<iptv.VideoStreamDto[]> => {
-  const data = await hubConnection.invoke('GetVideoStreams', arg);
+export const GetPagedVideoStreams = async (arg: iptv.PagedResponseOfVideoStreamDto): Promise<iptv.VideoStreamDto[]> => {
+  const data = await hubConnection.invoke('GetPagedVideoStreams', arg);
   return data;
 };
 

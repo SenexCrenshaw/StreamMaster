@@ -11,20 +11,22 @@ export const enhancedApiEpgFiles = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.EpgFileDto) => {
-            updateCachedData((draft: iptv.EpgFileDto) => {
+            updateCachedData((draft: iptv.EpgFilesGetEpgFileApiResponse) => {
               draft=data
               return draft;
             });
           };
 
-          hubConnection.off('EPGFilesRefresh');
-          hubConnection.on('EPGFilesRefresh', (data: iptv.EpgFileDto) => {
+          const doEpgFilesGetEpgFileUpdate = (data: iptv.EpgFileDto) => {
+            // console.log('doEpgFilesGetEpgFileUpdate')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['EPGFiles']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          hubConnection.on('EPGFilesRefresh', doEpgFilesGetEpgFileUpdate);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
@@ -33,13 +35,13 @@ export const enhancedApiEpgFiles = iptvApi.enhanceEndpoints({
         await cacheEntryRemoved;
       }
     },
-    epgFilesGetEpgFiles: {
+    epgFilesGetPagedEpgFiles: {
       async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.EpgFileDto[]) => {
-            updateCachedData((draft: iptv.PagedResponseOfEpgFileDto) => {
+            updateCachedData((draft: iptv.EpgFilesGetPagedEpgFilesApiResponse) => {
               data.forEach(item => {
                 const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
                 if (index !== -1) {
@@ -51,14 +53,16 @@ export const enhancedApiEpgFiles = iptvApi.enhanceEndpoints({
             });
           };
 
-          hubConnection.off('EPGFilesRefresh');
-          hubConnection.on('EPGFilesRefresh', (data: iptv.EpgFileDto[]) => {
+          const doEpgFilesGetPagedEpgFilesUpdate = (data: iptv.EpgFileDto[]) => {
+            // console.log('doEpgFilesGetPagedEpgFilesUpdate')
             if (isEmptyObject(data)) {
               dispatch(iptvApi.util.invalidateTags(['EPGFiles']));
             } else {
               updateCachedDataWithResults(data);
             }
-          });
+          }
+
+          hubConnection.on('EPGFilesRefresh', doEpgFilesGetPagedEpgFilesUpdate);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);

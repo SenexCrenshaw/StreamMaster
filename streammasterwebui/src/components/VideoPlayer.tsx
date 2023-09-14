@@ -8,7 +8,7 @@ import { MediaCommunitySkin, MediaOutlet, MediaPlayer } from '@vidstack/react';
 import EPGDisplay from './epg/EPGDisplay';
 
 import { useLocalStorage } from "primereact/hooks";
-import { useStreamGroupsGetStreamGroupEpgForGuideQuery, useVideoStreamsGetVideoStreamsQuery, type EpgProgram, type VideoStreamsGetVideoStreamsApiArg } from "../store/iptvApi";
+import { useStreamGroupsGetStreamGroupEpgForGuideQuery, useVideoStreamsGetPagedVideoStreamsQuery, type EpgProgram, type VideoStreamsGetPagedVideoStreamsApiArg } from "../store/iptvApi";
 // import {
 //   Player,
 //   ControlBar,
@@ -30,7 +30,7 @@ const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
 
   const [streamGroupNumber, setStreamGroupNumber] = React.useState<number>(0);
 
-  const videoStreamsQuery = useVideoStreamsGetVideoStreamsQuery({} as VideoStreamsGetVideoStreamsApiArg);
+  const videoStreamsQuery = useVideoStreamsGetPagedVideoStreamsQuery({} as VideoStreamsGetPagedVideoStreamsApiArg);
   const epgForGuide = useStreamGroupsGetStreamGroupEpgForGuideQuery(streamGroupNumber);
 
   const getEpg = React.useCallback((channel: string): EpgProgram | undefined => {

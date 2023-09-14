@@ -3,7 +3,7 @@
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Commands;
 using StreamMasterApplication.StreamGroups.Queries;
-using StreamMasterDomain.Models;
+
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.StreamGroups;
@@ -22,7 +22,7 @@ public interface IStreamGroupController
 
     Task<IActionResult> GetStreamGroupM3U(string encodedId);
 
-    Task<ActionResult<PagedResponse<StreamGroupDto>>> GetStreamGroups(StreamGroupParameters parameters);
+    Task<ActionResult<PagedResponse<StreamGroupDto>>> GetPagedStreamGroups(StreamGroupParameters parameters);
 
 
     Task<ActionResult> UpdateStreamGroup(UpdateStreamGroupRequest request);
@@ -77,7 +77,7 @@ public interface IStreamGroupHub
 
     Task<EPGGuide> GetStreamGroupEPGForGuide(int StreamGroupNumber);
 
-    Task<PagedResponse<StreamGroupDto>> GetStreamGroups(StreamGroupParameters streamGroupParameters);
+    Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(StreamGroupParameters streamGroupParameters);
 
 
 

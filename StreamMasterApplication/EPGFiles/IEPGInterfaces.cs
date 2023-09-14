@@ -2,7 +2,6 @@
 
 using StreamMasterApplication.EPGFiles.Commands;
 
-using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.EPGFiles;
@@ -17,7 +16,7 @@ public interface IEPGFileController
 
     Task<ActionResult<EPGFileDto>> GetEPGFile(int id);
 
-    Task<ActionResult<PagedResponse<EPGFileDto>>> GetEPGFiles(EPGFileParameters parameters);
+    Task<ActionResult<PagedResponse<EPGFileDto>>> GetPagedEPGFiles(EPGFileParameters parameters);
 
     Task<ActionResult> ProcessEPGFile(ProcessEPGFileRequest request);
 
@@ -40,7 +39,7 @@ public interface IEPGFileHub
 
     Task<EPGFileDto?> GetEPGFile(int id);
 
-    Task<PagedResponse<EPGFileDto>> GetEPGFiles(EPGFileParameters parameters);
+    Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(EPGFileParameters parameters);
 
     Task ProcessEPGFile(ProcessEPGFileRequest request);
 

@@ -36,9 +36,9 @@ public class IconsController : ApiControllerBase, IIconController
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedResponse<IconFileDto>>> GetIcons([FromQuery] IconFileParameters iconFileParameters)
+    public async Task<ActionResult<PagedResponse<IconFileDto>>> GetPagedIcons([FromQuery] IconFileParameters iconFileParameters)
     {
-        PagedResponse<IconFileDto> result = await Mediator.Send(new GetIcons(iconFileParameters)).ConfigureAwait(false);
+        PagedResponse<IconFileDto> result = await Mediator.Send(new GetPagedIcons(iconFileParameters)).ConfigureAwait(false);
 
         return Ok(result);
     }

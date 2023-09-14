@@ -20,9 +20,9 @@ public interface IChannelGroupController
     Task<ActionResult> DeleteChannelGroup(DeleteChannelGroupRequest request);
 
     Task<ActionResult<ChannelGroupDto>> GetChannelGroup(int id);
-    Task<ActionResult<List<ChannelGroupDto>>> GetChannelGroupsForStream(GetChannelGroupsForStreamGroupRequest request);
+    Task<ActionResult<List<ChannelGroupDto>>> GetChannelGroupsForStreamGroup(GetChannelGroupsForStreamGroupRequest request);
 
-    Task<ActionResult<PagedResponse<ChannelGroupDto>>> GetChannelGroups(ChannelGroupParameters Parameters);
+    Task<ActionResult<PagedResponse<ChannelGroupDto>>> GetPagedChannelGroups(ChannelGroupParameters Parameters);
 
     Task<ActionResult> UpdateChannelGroup(UpdateChannelGroupRequest request);
 
@@ -46,9 +46,9 @@ public interface IChannelGroupHub
 
     Task<ChannelGroupDto?> GetChannelGroup(int id);
 
-    Task<PagedResponse<ChannelGroupDto>> GetChannelGroups(ChannelGroupParameters channelGroupParameters);
+    Task<PagedResponse<ChannelGroupDto>> GetPagedChannelGroups(ChannelGroupParameters channelGroupParameters);
 
-    Task<List<ChannelGroupDto>> GetChannelGroupsForStream(GetChannelGroupsForStreamGroupRequest request);
+    Task<List<ChannelGroupDto>> GetChannelGroupsForStreamGroup(GetChannelGroupsForStreamGroupRequest request);
     Task UpdateChannelGroup(UpdateChannelGroupRequest request);
 
     Task UpdateChannelGroups(UpdateChannelGroupsRequest request);

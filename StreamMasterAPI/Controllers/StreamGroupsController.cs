@@ -196,9 +196,9 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedResponse<StreamGroupDto>>> GetStreamGroups([FromQuery] StreamGroupParameters parameters)
+    public async Task<ActionResult<PagedResponse<StreamGroupDto>>> GetPagedStreamGroups([FromQuery] StreamGroupParameters parameters)
     {
-        PagedResponse<StreamGroupDto> res = await Mediator.Send(new GetStreamGroups(parameters)).ConfigureAwait(false);
+        PagedResponse<StreamGroupDto> res = await Mediator.Send(new GetPagedStreamGroups(parameters)).ConfigureAwait(false);
         return Ok(res);
     }
 
