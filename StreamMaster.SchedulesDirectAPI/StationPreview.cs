@@ -4,6 +4,7 @@ namespace StreamMaster.SchedulesDirectAPI;
 
 public class StationPreview
 {
+    public StationPreview() { }
     public StationPreview(Station station)
     {
 

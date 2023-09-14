@@ -8,6 +8,7 @@ namespace StreamMasterDomain.Repository
     {
         Task UpdateVideoStreamsChannelGroupNames(IEnumerable<string> videoStreamIds, string newName);
         Task<List<VideoStreamDto>> GetVideoStreamsForChannelGroups(IEnumerable<int> channelGroupIds, CancellationToken cancellationToken);
+        Task<List<VideoStreamDto>> GetVideoStreamsForChannelGroup(int channelGroupId, CancellationToken cancellationToken);
         Task<VideoStream?> CreateVideoStreamAsync(CreateVideoStreamRequest request, CancellationToken cancellationToken);
 
         Task<VideoStreamDto?> GetVideoStreamById(string Id);
@@ -25,7 +26,7 @@ namespace StreamMasterDomain.Repository
 
         Task<List<VideoStreamDto>> GetVideoStreamsByM3UFileId(int m3uFileId);
 
-        Task<List<VideoStreamDto>> SetChannelGroupNameByGroupName(string channelGroupName, string newGroupName, CancellationToken cancellationToken);
+        Task<List<VideoStreamDto>> SetVideoStreamChannelGroupName(string channelGroupName, string newGroupName, CancellationToken cancellationToken);
         Task<List<VideoStreamDto>> SetVideoStreamsLogoFromEPGFromIds(IEnumerable<string> VideoStreamIds, CancellationToken cancellationToken);
         Task<List<VideoStreamDto>> ReSetVideoStreamsLogoFromIds(IEnumerable<string> VideoStreamIds, CancellationToken cancellationToken);
         Task<List<VideoStreamDto>> ReSetVideoStreamsLogoFromParameters(VideoStreamParameters Parameters, CancellationToken cancellationToken);

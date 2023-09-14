@@ -7,7 +7,7 @@ public class DeleteChannelGroupEventHandler(ILogger<DeleteChannelGroupEvent> log
 {
     public async Task Handle(DeleteChannelGroupEvent notification, CancellationToken cancellationToken)
     {
-        MemoryCache.RemoveChannelGroupStreamCount(notification.ChannelGroupId);
+        await HubContext.Clients.All.ChannelGroupDelete(notification.ChannelGroupId).ConfigureAwait(false);
         if (notification.VideoStreams.Any())
         {
             await HubContext.Clients.All.VideoStreamsRefresh(notification.VideoStreams.ToArray()).ConfigureAwait(false);

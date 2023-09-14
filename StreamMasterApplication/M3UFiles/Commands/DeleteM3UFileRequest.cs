@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
 
-using Microsoft.EntityFrameworkCore;
-
 using StreamMasterApplication.VideoStreams.Events;
 
 using StreamMasterDomain.Models;
@@ -24,7 +22,7 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
 {
     public async Task<int?> Handle(DeleteM3UFileRequest request, CancellationToken cancellationToken = default)
     {
-        M3UFile? m3UFile = await Repository.M3UFile.GetM3UFileQuery().FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
+        M3UFile? m3UFile = await Repository.M3UFile.GetM3UFileById(request.Id).ConfigureAwait(false);
         if (m3UFile == null)
         {
             return null;

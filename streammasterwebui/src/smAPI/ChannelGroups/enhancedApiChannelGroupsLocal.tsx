@@ -45,7 +45,7 @@ export const enhancedApiChannelGroupsLocal = iptvApi.enhanceEndpoints({
             updateCachedData((draft: iptv.PagedResponseOfChannelGroupDto) => {
 
               data.forEach(item => {
-                const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
+                const index = draft.data.findIndex(existingItem => existingItem.id === item.channelGroupId);
                 if (index !== -1) {
                   draft.data[index].activeCount = item.activeCount;
                   draft.data[index].totalCount = item.totalCount;

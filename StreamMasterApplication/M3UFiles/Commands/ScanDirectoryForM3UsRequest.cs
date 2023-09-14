@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-using StreamMasterDomain.Models;
+﻿using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
 
@@ -47,7 +45,7 @@ public class ScanDirectoryForM3UFilesRequestHandler : BaseMediatorRequestHandler
             return;
         }
 
-        M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileQuery().FirstOrDefaultAsync(a => a.Name == m3uFileInfo.Name, cancellationToken: cancellationToken).ConfigureAwait(false);
+        M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileBySource(m3uFileInfo.Name).ConfigureAwait(false);
         if (m3uFile == null)
         {
             m3uFile = CreateOrUpdateM3UFile(m3uFileInfo);

@@ -17,60 +17,76 @@ public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCo
     }
     public async Task Handle(UpdateChannelGroupCountsRequest request, CancellationToken cancellationToken)
     {
-        // Get the required channel groups.
-        IQueryable<ChannelGroupBrief> cgsQuery = Repository.ChannelGroup.GetChannelGroupQuery().Select(a => new ChannelGroupBrief { Name = a.Name, Id = a.Id });
-        if (request.channelGroups != null)
+        if (request == null)
         {
-            List<int> selectIds = request.channelGroups.Select(a => a.Id).ToList();
-            cgsQuery = cgsQuery.Where(a => selectIds.Contains(a.Id));
+            throw new ArgumentNullException(nameof(request));
         }
 
-        List<ChannelGroupBrief> cgs = await cgsQuery.ToListAsync(cancellationToken).ConfigureAwait(false);
-        List<string> cgNames = cgs.Select(a => a.Name).ToList();
+        try
+        {
+            // Get the required channel groups.
+            IQueryable<ChannelGroupBrief> cgsQuery = Repository.ChannelGroup.GetChannelGroupQuery().Select(a => new ChannelGroupBrief { Name = a.Name, Id = a.Id });
 
-        // Fetch relevant video streams.
-        var allVideoStreams = await Repository.VideoStream.GetVideoStreamQuery()
-            .Where(a => cgNames.Contains(a.User_Tvg_group))
-            .Select(vs => new
+            if (request.channelGroups != null && request.channelGroups.Any())
             {
-                vs.Id,
-                vs.User_Tvg_group,
-                vs.IsHidden
-            }).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+                List<int> selectIds = request.channelGroups.Select(a => a.Id).ToList();
+                cgsQuery = cgsQuery.Where(a => selectIds.Contains(a.Id));
+            }
 
-        Dictionary<string, List<string>> videoStreamsForGroups = new();
-        Dictionary<string, int> hiddenCounts = new();
+            List<ChannelGroupBrief> cgs = await cgsQuery.ToListAsync(cancellationToken).ConfigureAwait(false);
 
-        foreach (ChannelGroupBrief? cg in cgs)
-        {
-            var relevantStreams = allVideoStreams.Where(vs => vs.User_Tvg_group == cg.Name).ToList();
+            if (!cgs.Any())
+            {
+                Logger.LogInformation("No channel groups found based on the request.");
+                return;
+            }
 
-            videoStreamsForGroups[cg.Name] = relevantStreams.Select(vs => vs.Id).ToList();
-            hiddenCounts[cg.Name] = relevantStreams.Count(vs => vs.IsHidden);
+            List<string> cgNames = cgs.Select(a => a.Name).ToList();
+
+            // Fetch relevant video streams.
+            var allVideoStreams = await Repository.VideoStream.GetVideoStreamQuery()
+                .Where(a => cgNames.Contains(a.User_Tvg_group))
+                .Select(vs => new
+                {
+                    vs.Id,
+                    vs.User_Tvg_group,
+                    vs.IsHidden
+                }).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+            Dictionary<string, List<string>> videoStreamsForGroups = new();
+            Dictionary<string, int> hiddenCounts = new();
+
+            foreach (ChannelGroupBrief? cg in cgs)
+            {
+                if (cg == null)
+                {
+                    continue;
+                }
+
+                var relevantStreams = allVideoStreams.Where(vs => vs.User_Tvg_group == cg.Name).ToList();
+
+                videoStreamsForGroups[cg.Name] = relevantStreams.Select(vs => vs.Id).ToList();
+                hiddenCounts[cg.Name] = relevantStreams.Count(vs => vs.IsHidden);
+            }
+
+            List<ChannelGroupStreamCount> channelGroupStreamCounts = cgs.Where(cg => cg != null).Select(cg => new ChannelGroupStreamCount
+            {
+                TotalCount = videoStreamsForGroups[cg.Name].Count,
+                ActiveCount = videoStreamsForGroups[cg.Name].Count - hiddenCounts[cg.Name],
+                HiddenCount = hiddenCounts[cg.Name],
+                ChannelGroupId = cg.Id
+            }).ToList();
+
+            if (channelGroupStreamCounts.Any())
+            {
+                MemoryCache.AddOrUpdateChannelGroupVideoStreamCounts(channelGroupStreamCounts);
+                await HubContext.Clients.All.UpdateChannelGroupVideoStreamCounts(channelGroupStreamCounts).ConfigureAwait(false);
+            }
         }
-
-        List<ChannelGroupStreamCount> channelGroupStreamCounts = new();
-
-        foreach (ChannelGroupBrief? cg in cgs)
+        catch (Exception ex)
         {
-            ChannelGroupStreamCount response = new();
-
-            List<string> ids = videoStreamsForGroups[cg.Name];
-            int hiddenCount = hiddenCounts[cg.Name];
-
-            response.TotalCount = ids.Count;
-            response.ActiveCount = ids.Count - hiddenCount;
-            response.HiddenCount = hiddenCount;
-            response.ChannelGroupId = cg.Id;
-
-            channelGroupStreamCounts.Add(response);
-        }
-
-        if (channelGroupStreamCounts.Any())
-        {
-            MemoryCache.AddOrUpdateChannelGroupVideoStreamCounts(channelGroupStreamCounts);
-            await HubContext.Clients.All.UpdateChannelGroupVideoStreamCounts(channelGroupStreamCounts).ConfigureAwait(false);
+            Logger.LogError(ex, "Error while handling UpdateChannelGroupCountsRequest.");
+            throw; // Re-throw the exception if needed or handle accordingly.
         }
     }
-
 }

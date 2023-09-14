@@ -6,15 +6,14 @@ namespace StreamMasterDomain.Repository;
 
 public interface IEPGFileRepository : IRepositoryBase<EPGFile>
 {
-    IQueryable<EPGFile> GetEPGFileQuery();
     Task<List<EPGFileDto>> GetEPGFilesNeedUpdating();
     Task<List<EPGFileDto>> GetEPGFiles();
 
     Task<PagedResponse<EPGFileDto>> GetPagedEPGFiles(EPGFileParameters Parameters);
 
-    Task<EPGFileDto?> GetEPGFileById(int Id);
+    Task<EPGFile?> GetEPGFileById(int Id);
 
-    Task<EPGFileDto?> GetEPGFileBySource(string source);
+    Task<EPGFile?> GetEPGFileBySource(string Source);
 
     void CreateEPGFile(EPGFile EPGFile);
 

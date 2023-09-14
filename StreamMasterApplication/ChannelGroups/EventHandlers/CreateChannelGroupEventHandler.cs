@@ -6,5 +6,6 @@ public class CreateChannelGroupEventHandler(ILogger<CreateChannelGroupEvent> log
 {
     public async Task Handle(CreateChannelGroupEvent notification, CancellationToken cancellationToken)
     {
+        await HubContext.Clients.All.ChannelGroupCreated(notification.ChannelGroup).ConfigureAwait(false);
     }
 }

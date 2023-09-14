@@ -11,11 +11,11 @@ public static class PagedExtensions
     where TDto : class
     {
         IPagedList<T> pagedResult = await query.ToPagedListAsync(pageNumber, pageSize).ConfigureAwait(false);
-        IPagedList<TDto> childQDto = mapper.Map<IPagedList<TDto>>(pagedResult);
-        return childQDto.ToPagedResponse(pagedResult.TotalItemCount);
+        PagedResponse<TDto> childQDto = pagedResult.ToPagedResponseDto<T, TDto>(mapper);
+        return childQDto;
     }
 
-    public static async Task<PagedResponse<TDto>> GetPagedResponseWithFilterAsync<T, TDto>(this IQueryable<T> query, string? JSONFiltersString, string? OrderBy, int pageNumber, int pageSize, IMapper mapper) where T : class
+    public static async Task<PagedResponse<TDto>> GetPagedResponseWithFilterAsync<T, TDto>(this IQueryable<T> query, string? JSONFiltersString, string OrderBy, int pageNumber, int pageSize, IMapper mapper) where T : class
    where TDto : class
     {
         if (!string.IsNullOrEmpty(JSONFiltersString) || !string.IsNullOrEmpty(OrderBy))

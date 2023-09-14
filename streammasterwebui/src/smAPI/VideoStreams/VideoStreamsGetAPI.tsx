@@ -1,6 +1,7 @@
 import { hubConnection } from "../../app/signalr";
 import type * as iptv from "../../store/iptvApi";
 
+
 export const GetAllStatisticsForAllUrls = async (arg: iptv.StreamStatisticsResult[]): Promise<iptv.StreamStatisticsResult[]> => {
   const data = await hubConnection.invoke('GetAllStatisticsForAllUrls', arg);
   return data;

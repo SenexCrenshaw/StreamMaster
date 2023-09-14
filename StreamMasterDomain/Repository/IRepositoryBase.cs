@@ -21,12 +21,13 @@ public interface IRepositoryBase<T> where T : class
     /// </summary>
     /// <param name="entities">Entities to insert.</param>
     void BulkInsert(T[] entities);
-
+    void BulkInsert(List<T> entities);
     /// <summary>
     /// Performs a bulk update operation.
     /// </summary>
     /// <param name="entities">Entities to update.</param>
     void BulkUpdate(T[] entities);
+    void BulkUpdate(List<T> entities);
 
     /// <summary>
     /// Retrieves entities based on the provided query parameters.

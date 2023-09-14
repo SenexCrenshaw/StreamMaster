@@ -510,7 +510,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           stateStorage="local"
           stripedRows
           style={props.style}
-          totalRecords={state.pagedInformation ? state.pagedInformation.totalRecords : undefined}
+          totalRecords={state.pagedInformation ? state.pagedInformation.totalItemCount : undefined}
           value={state.dataSource}
           virtualScrollerOptions={props.enableVirtualScroll === true ? { itemSize: 16, orientation: 'vertical' } : undefined}
         >
@@ -640,7 +640,6 @@ export type PagedTableInformation = {
   pageSize: number;
   totalItemCount: number;
   totalPageCount: number;
-  totalRecords: number;
 };
 
 export type PagedDataDto<T> = {

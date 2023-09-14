@@ -1,7 +1,7 @@
 import { hubConnection } from '../../app/signalr';
 import { isEmptyObject } from '../../common/common';
-import { iptvApi } from '../../store/iptvApi';
 import type * as iptv from '../../store/iptvApi';
+import { iptvApi } from '../../store/iptvApi';
 
 export const enhancedApiChannelGroups = iptvApi.enhanceEndpoints({
   endpoints: {
@@ -12,7 +12,7 @@ export const enhancedApiChannelGroups = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.ChannelGroupDto) => {
             updateCachedData((draft: iptv.ChannelGroupDto) => {
-              draft=data
+              draft = data
               return draft;
             });
           };
@@ -107,7 +107,7 @@ export const enhancedApiChannelGroups = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.ChannelGroupDto[]) => {
-            updateCachedData((draft: iptv.GetChannelGroupsForStreamGroupRequest) => {
+            updateCachedData((draft: iptv.ChannelGroupsGetChannelGroupsForStreamApiResponse) => {
               data.forEach(item => {
                 const index = draft.findIndex(existingItem => existingItem.id === item.id);
                 if (index !== -1) {

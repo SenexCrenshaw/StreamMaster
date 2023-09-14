@@ -3,6 +3,11 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 internal class Program
 {
+    private static readonly List<string> blackList = new() { "programmesGetProgramme", "programmesGetProgrammeChannels", "programmesGetProgrammes", "programmesGetProgrammeFromDisplayName", "schedulesDirectGetHeadends", "schedulesDirectGetSchedules", "schedulesDirectGetStations", "videoStreamsGetAllStatisticsForAllUrls", "streamGroupVideoStreamsGetStreamGroupVideoStreamIds" };
+    private static readonly Dictionary<string, string> overRideArgs = new() { { "GetIconFromSource", "StringArg" } };
+    private static readonly Dictionary<string, string> additionalImports = new() { { "Icons", "import { type StringArg } from \"../../components/selectors/BaseSelector\";" } };
+
+
     private const string SwaggerUrl = "http://127.0.0.1:7095/swagger/v1/swagger.json";
     private const string LocalFileName = "swagger.json";
     private const string OutputDir = @"..\..\..\..\StreamMasterwebui\src\smAPI";
@@ -11,7 +16,8 @@ internal class Program
     private static readonly Dictionary<string, Dictionary<string, string>> getMethodResponseTypes = new();
     private static readonly Dictionary<string, Dictionary<string, string>> getMethodArgTypes = new();
     private static readonly Dictionary<string, List<string>> tagToGetMethodsMap = new();
-    private static readonly List<string> blackList = new() { "programmesGetProgramme", "programmesGetProgrammeChannels", "programmesGetProgrammes", "programmesGetProgrammeFromDisplayName", "schedulesDirectGetHeadends", "schedulesDirectGetSchedules", "schedulesDirectGetStations", "videoStreamsGetAllStatisticsForAllUrls", "streamGroupVideoStreamsGetStreamGroupVideoStreamIds" };
+
+
     private static async System.Threading.Tasks.Task Main(string[] args)
     {
         string swaggerJson = await DownloadSwaggerJson();
@@ -56,8 +62,12 @@ internal class Program
                                 tagToGetContentMap[tag] = new StringBuilder();
                                 // Add imports at the start of each new file's content
                                 tagToGetContentMap[tag].AppendLine("import { hubConnection } from \"../../app/signalr\";");
-                                tagToGetContentMap[tag].AppendLine("import type * as iptv from \"../../store/iptvApi\";\r\n");
-
+                                tagToGetContentMap[tag].AppendLine("import type * as iptv from \"../../store/iptvApi\";");
+                                if (additionalImports.ContainsKey(tag))
+                                {
+                                    tagToGetContentMap[tag].AppendLine(additionalImports[tag]);
+                                }
+                                tagToGetContentMap[tag].AppendLine("\r\n");
                             }
                             contentToUse = tagToGetContentMap[tag];
 
@@ -89,6 +99,10 @@ internal class Program
                                 tagToMutateContentMap[tag].AppendLine("import type * as iptv from \"../../store/iptvApi\";\r\n");
                             }
                             contentToUse = tagToMutateContentMap[tag];
+                        }
+                        if (overRideArgs.ContainsKey(functionName))
+                        {
+                            argType = overRideArgs[functionName];
                         }
                         contentToUse.AppendLine($"export const {functionName} = async {(argType != null ? $"(arg: {argType})" : "()")}: Promise<{responseType}> => {{");
                         if (responseType != "void")

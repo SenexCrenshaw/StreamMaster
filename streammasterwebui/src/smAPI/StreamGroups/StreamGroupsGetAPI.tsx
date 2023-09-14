@@ -1,6 +1,7 @@
 import { hubConnection } from "../../app/signalr";
 import type * as iptv from "../../store/iptvApi";
 
+
 export const GetStreamGroup = async (arg: iptv.StreamGroupDto): Promise<iptv.StreamGroupDto> => {
   const data = await hubConnection.invoke('GetStreamGroup', arg);
   return data;

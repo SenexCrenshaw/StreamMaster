@@ -33,7 +33,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
         {
             List<ChannelGroupDto> channelGroups = await FindAll().ProjectTo<ChannelGroupDto>(mapper.ConfigurationProvider).ToListAsync().ConfigureAwait(false);
 
-            channelGroups = await UpdateChannelGroupsWithActives(channelGroups);
+            channelGroups = UpdateChannelGroupsWithActives(channelGroups);
 
             logger.LogInformation($"Successfully retrieved {channelGroups.Count} channel groups.");
 
@@ -94,20 +94,22 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
             // Convert the IQueryable into a paged DTO response
             PagedResponse<ChannelGroupDto> ret = await query.GetPagedResponseAsync<ChannelGroup, ChannelGroupDto>(Parameters.PageNumber, Parameters.PageSize, mapper);
 
-            // Get channel group stream counts from the memory cache
-            IEnumerable<ChannelGroupStreamCount> actives = memoryCache.ChannelGroupStreamCounts();
+            UpdateChannelGroupsWithActives(ret.Data);
 
-            // Enrich the DTOs with the counts from the memory cache
-            foreach (ChannelGroupStreamCount? active in actives)
-            {
-                ChannelGroupDto? dto = ret.Data.FirstOrDefault(a => a.Id == active.ChannelGroupId);
-                if (dto != null)
-                {
-                    dto.ActiveCount = active.ActiveCount;
-                    dto.HiddenCount = active.HiddenCount;
-                    dto.TotalCount = active.TotalCount;
-                }
-            }
+            //// Get channel group stream counts from the memory cache
+            //IEnumerable<ChannelGroupStreamCount> actives = memoryCache.ChannelGroupStreamCounts();
+
+            //// Enrich the DTOs with the counts from the memory cache
+            //foreach (ChannelGroupStreamCount? active in actives)
+            //{
+            //    ChannelGroupDto? dto = ret.Data.FirstOrDefault(a => a.Id == active.ChannelGroupId);
+            //    if (dto != null)
+            //    {
+            //        dto.ActiveCount = active.ActiveCount;
+            //        dto.HiddenCount = active.HiddenCount;
+            //        dto.TotalCount = active.TotalCount;
+            //    }
+            //}
 
             return ret;
         }
@@ -260,7 +262,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
 
             // Asynchronously retrieving results and mapping to DTOs
             List<ChannelGroupDto> channelGroups = await query.ProjectTo<ChannelGroupDto>(mapper.ConfigurationProvider).ToListAsync();
-            channelGroups = await UpdateChannelGroupsWithActives(channelGroups);
+            channelGroups = UpdateChannelGroupsWithActives(channelGroups);
             return channelGroups;
         }
         catch (Exception ex)
@@ -295,7 +297,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
             ChannelGroup? channelGroup = await FindByCondition(channelGroup => channelGroup.Name.Equals(name)).FirstOrDefaultAsync();
             if (channelGroup == null)
             {
-                logger.LogInformation("No ChannelGroup found with the name {Name}.", name);
+                return null;
             }
 
             ChannelGroupDto? ret = mapper.Map<ChannelGroupDto?>(channelGroup);
@@ -335,7 +337,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
         try
         {
             Create(channelGroup);
-            logger.LogInformation($"Successfully created channel group with ID: {channelGroup.Id}");
+            logger.LogInformation($"Successfully created channel group with name: {channelGroup.Name}");
         }
         catch (Exception ex)
         {
@@ -427,7 +429,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
         IQueryable<ChannelGroup> queryable = GetIQueryableForEntity(Parameters);
 
         List<ChannelGroupDto> result = await queryable.ProjectTo<ChannelGroupDto>(mapper.ConfigurationProvider).ToListAsync(cancellationToken).ConfigureAwait(false);
-        result = await UpdateChannelGroupsWithActives(result);
+        result = UpdateChannelGroupsWithActives(result);
 
         logger.LogInformation($"{result.Count} ChannelGroupDto entries fetched based on provided parameters.");
 
@@ -441,8 +443,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
     /// <param name="Parameters">The filter parameters for determining which ChannelGroups to delete.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A tuple containing a list of deleted ChannelGroup IDs and associated video streams.</returns>
-    public async Task<(List<int> ChannelGroupIds, List<VideoStreamDto> VideoStreams)>
-            DeleteAllChannelGroupsFromParameters(ChannelGroupParameters Parameters, CancellationToken cancellationToken)
+    public async Task<(List<int> ChannelGroupIds, List<VideoStreamDto> VideoStreams)> DeleteAllChannelGroupsFromParameters(ChannelGroupParameters Parameters, CancellationToken cancellationToken)
     {
         logger.LogInformation($"Attempting to fetch and delete ChannelGroups based on provided parameters.");
 
@@ -450,7 +451,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
 
         List<int> channelGroupIds = await toDeleteQuery.Select(a => a.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
 
-        List<VideoStreamDto> videoStreams = await sender.Send(new GetVideoStreamsForChannelGroups(channelGroupIds), cancellationToken).ConfigureAwait(false);
+        List<VideoStreamDto> videoStreams = await repository.VideoStream.GetVideoStreamsForChannelGroups(channelGroupIds, cancellationToken).ConfigureAwait(false);
 
         logger.LogInformation($"Preparing to bulk delete {channelGroupIds.Count} ChannelGroups.");
 
@@ -474,7 +475,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
         IQueryable<string> channeNames = videoStreams.Select(a => a.User_Tvg_group).Distinct();
         List<ChannelGroupDto> ret = await FindByCondition(a => channeNames.Contains(a.Name)).ProjectTo<ChannelGroupDto>(mapper.ConfigurationProvider).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
-        ret = await UpdateChannelGroupsWithActives(ret);
+        ret = UpdateChannelGroupsWithActives(ret);
 
         return ret;
     }
@@ -490,7 +491,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
 
         List<int> selectedIds = await RepositoryContext.StreamGroupChannelGroups.Where(a => a.StreamGroupId == streamGroupId).Select(a => a.ChannelGroupId).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
-        channelGroups = await UpdateChannelGroupsWithActives(channelGroups).ConfigureAwait(false);
+        channelGroups = UpdateChannelGroupsWithActives(channelGroups);
 
         channelGroups = channelGroups
         .OrderBy(a => selectedIds.Contains(a.Id) ? 0 : 1)
@@ -518,7 +519,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
 
         return channelGroup;
     }
-    private async Task<List<ChannelGroupDto>> UpdateChannelGroupsWithActives(List<ChannelGroupDto> channelGroups)
+    private List<ChannelGroupDto> UpdateChannelGroupsWithActives(List<ChannelGroupDto> channelGroups)
     {
 
         foreach (ChannelGroupDto channelGroup in channelGroups)

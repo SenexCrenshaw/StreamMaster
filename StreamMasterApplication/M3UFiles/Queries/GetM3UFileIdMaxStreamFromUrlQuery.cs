@@ -27,7 +27,7 @@ internal class GetM3UFileIdMaxStreamFromUrlQueryHandler : IRequestHandler<GetM3U
             return new M3UFileIdMaxStream { M3UFileId = videoStream.M3UFileId, MaxStreams = 999 };
         }
 
-        M3UFileDto? m3uFile = await Repository.M3UFile.GetM3UFileById(videoStream.M3UFileId);
+        M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileById(videoStream.M3UFileId);
 
         return new M3UFileIdMaxStream { M3UFileId = videoStream.M3UFileId, MaxStreams = m3uFile?.MaxStreamCount ?? 999 };
 

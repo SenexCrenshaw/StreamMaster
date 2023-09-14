@@ -10,8 +10,6 @@ public interface IM3UFileRepository : IRepositoryBase<M3UFile>
     /// </summary>
     Task<List<string>> GetM3UFileNames();
 
-    IQueryable<M3UFile> GetEPGFileQuery();
-
     /// <summary>
     /// Gets a list of all M3U files as M3UFileDto objects asynchronously.
     /// </summary>
@@ -27,15 +25,15 @@ public interface IM3UFileRepository : IRepositoryBase<M3UFile>
     /// Gets an M3U file by its ID asynchronously.
     /// </summary>
     /// <param name="Id">The ID of the M3U file to retrieve.</param>
-    /// <returns>An M3UFileDto object if found, or null if not found.</returns>
-    Task<M3UFileDto?> GetM3UFileById(int Id);
+    /// <returns>An M3UFile object if found, or null if not found.</returns>
+    Task<M3UFile?> GetM3UFileById(int Id);
 
     /// <summary>
     /// Gets an M3U file by its source asynchronously.
     /// </summary>
     /// <param name="source">The source of the M3U file to retrieve.</param>
-    /// <returns>An M3UFileDto object if found, or null if not found.</returns>
-    Task<M3UFileDto?> GetM3UFileBySource(string source);
+    /// <returns>An M3UFile object if found, or null if not found.</returns>
+    Task<M3UFile?> GetM3UFileBySource(string Source);
 
     Task<List<M3UFileDto>> GetM3UFilesNeedUpdating();
 
@@ -50,7 +48,6 @@ public interface IM3UFileRepository : IRepositoryBase<M3UFile>
     /// </summary>
     /// <param name="m3uFile">The M3U file to create.</param>
     void CreateM3UFile(M3UFile m3uFile);
-    IQueryable<M3UFile> GetM3UFileQuery();
     /// <summary>
     /// Updates an existing M3U file.
     /// </summary>

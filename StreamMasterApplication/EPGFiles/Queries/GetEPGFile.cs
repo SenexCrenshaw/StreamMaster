@@ -1,4 +1,5 @@
 ﻿using StreamMasterDomain.EPG;
+using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.EPGFiles.Queries;
 
@@ -11,19 +12,20 @@ internal class GetEPGFileHandler : BaseMediatorRequestHandler, IRequestHandler<G
 : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
     public async Task<EPGFileDto?> Handle(GetEPGFile request, CancellationToken cancellationToken = default)
     {
-        EPGFileDto? epgFile = await Repository.EPGFile.GetEPGFileById(request.Id).ConfigureAwait(false);
+        EPGFile? epgFile = await Repository.EPGFile.GetEPGFileById(request.Id).ConfigureAwait(false);
         if (epgFile == null)
         {
             return null;
         }
+        EPGFileDto epgFileDto = Mapper.Map<EPGFileDto>(epgFile);
 
         List<Programme> proprammes = MemoryCache.Programmes().Where(a => a.EPGFileId == epgFile.Id).ToList();
         if (proprammes.Any())
         {
-            epgFile.EPGStartDate = proprammes.Min(a => a.StartDateTime);
-            epgFile.EPGStopDate = proprammes.Max(a => a.StopDateTime);
+            epgFileDto.EPGStartDate = proprammes.Min(a => a.StartDateTime);
+            epgFileDto.EPGStopDate = proprammes.Max(a => a.StopDateTime);
         }
 
-        return epgFile;
+        return epgFileDto;
     }
 }

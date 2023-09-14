@@ -13,7 +13,6 @@ public class UpdateChannelGroupRequestValidator : AbstractValidator<UpdateChanne
     public UpdateChannelGroupRequestValidator()
     {
         _ = RuleFor(v => v.ChannelGroupId).NotNull().GreaterThan(0);
-        _ = RuleFor(v => v.Rank).NotNull().GreaterThan(0);
     }
 }
 
@@ -23,13 +22,14 @@ public class UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequest>
     {
 
         ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupQuery().FirstOrDefaultAsync(a => a.Id == request.ChannelGroupId, cancellationToken: cancellationToken).ConfigureAwait(false);
-        bool checkCounts = false;
-        bool nameChanged = false;
 
         if (channelGroup == null)
         {
             return null;
         }
+
+        bool checkCounts = false;
+        bool nameChanged = false;
 
         if (request.ToggleVisibility == true)
         {
@@ -45,17 +45,26 @@ public class UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequest>
             {
                 nameChanged = true;
                 channelGroup.Name = request.NewGroupName;
-                _ = await Repository.VideoStream.SetChannelGroupNameByGroupName(channelGroup.Name, request.NewGroupName, cancellationToken).ConfigureAwait(false);
+
             }
         }
 
         Repository.ChannelGroup.UpdateChannelGroup(channelGroup);
         _ = await Repository.SaveAsync().ConfigureAwait(false);
 
+        if (nameChanged && !string.IsNullOrEmpty(request.NewGroupName))
+        {
+            _ = await Repository.VideoStream.SetVideoStreamChannelGroupName(channelGroup.Name, request.NewGroupName, cancellationToken).ConfigureAwait(false);
+            _ = await Repository.SaveAsync().ConfigureAwait(false);
+        }
 
         if (checkCounts || nameChanged)
         {
+
             ChannelGroupDto dto = Mapper.Map<ChannelGroupDto>(channelGroup);
+
+            await Sender.Send(new UpdateChannelGroupCountRequest(dto, false), cancellationToken).ConfigureAwait(false);
+
             await Publisher.Publish(new UpdateChannelGroupEvent(dto, request.ToggleVisibility ?? false, nameChanged), cancellationToken).ConfigureAwait(false);
         }
 

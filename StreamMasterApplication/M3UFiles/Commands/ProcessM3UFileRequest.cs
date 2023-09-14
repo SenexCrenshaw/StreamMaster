@@ -32,7 +32,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
     {
         try
         {
-            M3UFile? m3uFile = await repository.M3UFile.GetM3UFileQuery().FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
+            M3UFile? m3uFile = await repository.M3UFile.GetM3UFileById(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 Logger.LogCritical("Could not find M3U file");
@@ -69,11 +69,6 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         }
     }
 
-    private async Task<M3UFileDto?> FetchM3UFile(int id)
-    {
-        return await Repository.M3UFile.GetM3UFileById(id).ConfigureAwait(false);
-    }
-
     private async Task<(List<VideoStream>? streams, int streamCount)> ProcessStreams(M3UFile m3uFile)
     {
         Stopwatch sw = Stopwatch.StartNew();
@@ -97,9 +92,9 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         return m3uFile.LastWrite() >= m3uFile.LastUpdated;
     }
 
+    [LogExecutionTimeAspect]
     private async Task ProcessAndUpdateStreams(M3UFile m3uFile, List<VideoStream> streams, int streamCount)
     {
-        Stopwatch sw = Stopwatch.StartNew();
 
         List<VideoStream> existing = await Repository.VideoStream.GetVideoStreamQuery().Where(a => a.M3UFileId == m3uFile.Id).ToListAsync().ConfigureAwait(false);
         existingChannels = new SimpleIntList(m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber - 1);
@@ -132,7 +127,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         Repository.M3UFile.UpdateM3UFile(m3uFile);
         _ = await Repository.SaveAsync().ConfigureAwait(false);
 
-        Logger.LogInformation($"Processing and updating streams took {sw.Elapsed.TotalSeconds} seconds");
+
     }
 
     private async Task ProcessStreamsConcurrently(List<VideoStream> streams, List<VideoStream> existing, List<ChannelGroupDto> groups, M3UFile m3uFile)
@@ -169,22 +164,31 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
                 // Logging
                 Logger.LogInformation($"Processed {processedCount}/{totalCount} streams, adding {toWrite.Count}, updating: {toUpdate.Count}");
 
-                Repository.VideoStream.BulkInsert(toWrite.ToArray());
-                toWrite.Clear();
+                if (toWrite.Any())
+                {
+                    Repository.VideoStream.BulkInsert(toWrite);
+                    toWrite.Clear();
+                }
 
-                Repository.VideoStream.BulkUpdate(toUpdate.ToArray());
-                toUpdate.Clear();
+                if (toUpdate.Any())
+                {
+                    Repository.VideoStream.BulkUpdate(toUpdate);
+                    toUpdate.Clear();
+                }
+
             }
         }
 
         // Handle any remaining items after the loop
         if (toWrite.Any())
         {
-            Repository.VideoStream.BulkInsert(toWrite.ToArray());
+            Repository.VideoStream.BulkInsert(toWrite);
+            toWrite.Clear();
         }
         if (toUpdate.Any())
         {
-            Repository.VideoStream.BulkUpdate(toUpdate.ToArray());
+            Repository.VideoStream.BulkUpdate(toUpdate);
+            toUpdate.Clear();
         }
     }
 

@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
 
-using Microsoft.EntityFrameworkCore;
-
 using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
@@ -28,7 +26,7 @@ public class RefreshM3UFileRequestHandler : BaseMediatorRequestHandler, IRequest
     {
         try
         {
-            M3UFile? m3uFile = await Repository.M3UFile.GetEPGFileQuery().FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
+            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileById(request.Id).ConfigureAwait(false);
             if (m3uFile == null)
             {
                 return null;

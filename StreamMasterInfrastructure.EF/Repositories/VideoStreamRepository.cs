@@ -52,7 +52,6 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
             await FindByCondition(a => videoStreamIds.Contains(a.Id))
                    .ExecuteUpdateAsync(s => s.SetProperty(b => b.User_Tvg_group, newName))
                    .ConfigureAwait(false);
-            await repositoryContext.SaveChangesAsync();
             logger.LogInformation($"Successfully updated channel group name for {videoStreamIds.Count()} video streams to '{newName}'.");
         }
         catch (Exception ex)
@@ -125,7 +124,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
         return mapper.Map<VideoStreamDto>(videoStream);
     }
 
-    public async Task<List<VideoStreamDto>> SetChannelGroupNameByGroupName(string channelGroupName, string newGroupName, CancellationToken cancellationToken)
+    public async Task<List<VideoStreamDto>> SetVideoStreamChannelGroupName(string channelGroupName, string newGroupName, CancellationToken cancellationToken)
     {
         await FindByCondition(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroupName)
               .ExecuteUpdateAsync(s => s.SetProperty(b => b.User_Tvg_group, newGroupName), cancellationToken: cancellationToken)
@@ -243,7 +242,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
            .AsNoTracking()
            .ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider)
            .ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-        _ = await repositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
         return videoStreamsToUpdate;
     }
 
@@ -744,6 +743,20 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
             return await videoStreams.AsNoTracking().ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         }
         return new();
+    }
+
+    public async Task<List<VideoStreamDto>> GetVideoStreamsForChannelGroup(int channelGroupId, CancellationToken cancellationToken)
+    {
+        ChannelGroup? channelGroup = await repositoryContext.ChannelGroups.FirstOrDefaultAsync(a => a.Id == channelGroupId, cancellationToken: cancellationToken).ConfigureAwait(false);
+        if (channelGroup == null)
+        {
+            return new();
+        }
+
+        List<VideoStreamDto> ret = await FindByCondition(a => a.User_Tvg_group == channelGroup.Name).AsNoTracking()
+            .ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        return ret;
     }
 
     public async Task<List<VideoStreamDto>> GetVideoStreamsForChannelGroups(IEnumerable<int> channelGroupIds, CancellationToken cancellationToken)

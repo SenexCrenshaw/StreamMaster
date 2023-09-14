@@ -51,11 +51,6 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryCont
         return mapper.Map<EPGFileDto>(epgFile);
     }
 
-    public IQueryable<EPGFile> GetEPGFileQuery()
-    {
-        return FindAll();
-    }
-
     /// <summary>
     /// Retrieves all EPGFiles from the database.
     /// </summary>
@@ -69,27 +64,23 @@ public class EPGFileRepository(ILogger<EPGFileRepository> logger, RepositoryCont
     /// <summary>
     /// Retrieves a specific EPGFile by its ID.
     /// </summary>
-    public async Task<EPGFileDto?> GetEPGFileById(int Id)
+    public async Task<EPGFile?> GetEPGFileById(int Id)
     {
-        EPGFile? ret = await FindByCondition(c => c.Id == Id)
-                          .AsNoTracking()
-                          .FirstOrDefaultAsync()
-                          .ConfigureAwait(false);
-
-        return mapper.Map<EPGFileDto?>(ret);
+        return await FindByCondition(c => c.Id == Id)
+                           .AsNoTracking()
+                           .FirstOrDefaultAsync()
+                           .ConfigureAwait(false);
     }
 
     /// <summary>
     /// Retrieves a specific EPGFile by its source.
     /// </summary>
-    public async Task<EPGFileDto?> GetEPGFileBySource(string source)
+    public async Task<EPGFile?> GetEPGFileBySource(string Source)
     {
-        EPGFile? ret = await FindByCondition(c => c.Source == source)
+        return await FindByCondition(c => c.Source == Source)
                           .AsNoTracking()
                           .FirstOrDefaultAsync()
                           .ConfigureAwait(false);
-
-        return mapper.Map<EPGFileDto?>(ret);
     }
 
     public async Task<List<EPGFileDto>> GetEPGFilesNeedUpdating()

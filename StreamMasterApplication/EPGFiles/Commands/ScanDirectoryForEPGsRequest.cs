@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-using StreamMasterDomain.Models;
+﻿using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
@@ -45,7 +43,7 @@ public class ScanDirectoryForEPGFilesRequestHandler : BaseMediatorRequestHandler
             return;
         }
 
-        EPGFile? epgFile = await Repository.EPGFile.GetEPGFileQuery().FirstOrDefaultAsync(a => a.Name == epgFileInfo.Name).ConfigureAwait(false);
+        EPGFile? epgFile = await Repository.EPGFile.GetEPGFileBySource(epgFileInfo.Name);
         if (epgFile == null)
         {
             epgFile = CreateOrUpdateEPGFile(epgFileInfo);

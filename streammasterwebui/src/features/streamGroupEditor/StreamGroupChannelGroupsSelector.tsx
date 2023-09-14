@@ -1,7 +1,7 @@
 import { skipToken } from '@reduxjs/toolkit/query/react';
 import { MultiSelect, type MultiSelectChangeEvent } from "primereact/multiselect";
 import { getChannelGroupMenuItem } from '../../common/common';
-import { useStreamGroupChannelGroupGetAllChannelGroupsQuery, useStreamGroupChannelGroupGetChannelGroupsFromStreamGroupQuery, useStreamGroupChannelGroupSyncStreamGroupChannelGroupsMutation, type ChannelGroupDto, type StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiArg } from '../../store/iptvApi';
+import { useChannelGroupsGetChannelGroupsForStreamQuery, useStreamGroupChannelGroupGetChannelGroupsFromStreamGroupQuery, useStreamGroupChannelGroupSyncStreamGroupChannelGroupsMutation, type ChannelGroupDto, type StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiArg } from '../../store/iptvApi';
 
 type StreamGroupChannelGroupsInputs = {
   readonly className?: string;
@@ -10,7 +10,7 @@ type StreamGroupChannelGroupsInputs = {
 
 const StreamGroupChannelGroupsSelector = ({ className, streamGroupId }: StreamGroupChannelGroupsInputs) => {
   const { data: selectedData } = useStreamGroupChannelGroupGetChannelGroupsFromStreamGroupQuery(streamGroupId ?? skipToken);
-  const { data: channelGroups } = useStreamGroupChannelGroupGetAllChannelGroupsQuery(streamGroupId ?? skipToken);
+  const { data: channelGroups } = useChannelGroupsGetChannelGroupsForStreamQuery(streamGroupId ? { streamGroupId: streamGroupId } : skipToken);
 
   const [syncStreamGroupChannelGroupsMutation, { isLoading }] = useStreamGroupChannelGroupSyncStreamGroupChannelGroupsMutation();
 

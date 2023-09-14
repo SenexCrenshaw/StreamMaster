@@ -7,6 +7,7 @@ using StreamMasterDomain.Common;
 using StreamMasterDomain.Filtering;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
+
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 
@@ -182,7 +183,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         }
 
         RepositoryContext.BulkInsert(entities);
-        RepositoryContext.SaveChanges();
+
     }
 
     /// <summary>
@@ -205,6 +206,17 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     /// </summary>
     /// <param name="entities">Entities to be updated.</param>
     public void BulkUpdate(T[] entities)
+    {
+        if (entities == null || !entities.Any())
+        {
+            logger.LogWarning("Attempted to perform a bulk update with null or empty entities.");
+            throw new ArgumentNullException(nameof(entities));
+        }
+
+        RepositoryContext.BulkUpdate(entities);
+    }
+
+    public void BulkUpdate(List<T> entities)
     {
         if (entities == null || !entities.Any())
         {

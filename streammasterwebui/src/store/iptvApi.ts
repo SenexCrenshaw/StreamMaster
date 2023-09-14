@@ -1553,7 +1553,6 @@ export type ChannelGroupArg = ChannelGroupStreamCount & {
 };
 export type ChannelGroupDto = ChannelGroupArg & {
   id?: number;
-  isLoading?: boolean;
 };
 export type ChannelGroupIdName = {
   id?: number;
@@ -1563,16 +1562,14 @@ export type PagedResponseOfChannelGroupDto = {
   data: ChannelGroupDto[];
   pageNumber: number;
   pageSize: number;
-  totalItemCount: number;
   totalPageCount: number;
-  totalRecords: number;
+  totalItemCount: number;
   first: number;
 };
 export type UpdateChannelGroupRequest = {
   channelGroupId?: number;
   newGroupName?: string | null;
   isHidden?: boolean | null;
-  rank?: number | null;
   toggleVisibility?: boolean | null;
 };
 export type UpdateChannelGroupsRequest = {
@@ -1615,9 +1612,8 @@ export type PagedResponseOfEpgFileDto = {
   data: EpgFileDto[];
   pageNumber: number;
   pageSize: number;
-  totalItemCount: number;
   totalPageCount: number;
-  totalRecords: number;
+  totalItemCount: number;
   first: number;
 };
 export type ProcessEpgFileRequest = {
@@ -1651,9 +1647,8 @@ export type PagedResponseOfIconFileDto = {
   data: IconFileDto[];
   pageNumber: number;
   pageSize: number;
-  totalItemCount: number;
   totalPageCount: number;
-  totalRecords: number;
+  totalItemCount: number;
   first: number;
 };
 export type LogLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;
@@ -1694,9 +1689,8 @@ export type PagedResponseOfM3UFileDto = {
   data: M3UFileDto[];
   pageNumber: number;
   pageSize: number;
-  totalItemCount: number;
   totalPageCount: number;
-  totalRecords: number;
+  totalItemCount: number;
   first: number;
 };
 export type ProcessM3UFileRequest = {
@@ -1799,9 +1793,8 @@ export type PagedResponseOfProgrammeNameDto = {
   data: ProgrammeNameDto[];
   pageNumber: number;
   pageSize: number;
-  totalItemCount: number;
   totalPageCount: number;
-  totalRecords: number;
+  totalItemCount: number;
   first: number;
 };
 export type GetProgrammeFromDisplayNameRequest = {
@@ -2128,9 +2121,8 @@ export type PagedResponseOfStreamGroupDto = {
   data: StreamGroupDto[];
   pageNumber: number;
   pageSize: number;
-  totalItemCount: number;
   totalPageCount: number;
-  totalRecords: number;
+  totalItemCount: number;
   first: number;
 };
 export type UpdateStreamGroupRequest = {
@@ -2182,9 +2174,8 @@ export type PagedResponseOfVideoStreamDto = {
   data: VideoStreamDto[];
   pageNumber: number;
   pageSize: number;
-  totalItemCount: number;
   totalPageCount: number;
-  totalRecords: number;
+  totalItemCount: number;
   first: number;
 };
 export type VideoStreamIdRank = {
@@ -2208,9 +2199,8 @@ export type PagedResponseOfChildVideoStreamDto = {
   data: ChildVideoStreamDto[];
   pageNumber: number;
   pageSize: number;
-  totalItemCount: number;
   totalPageCount: number;
-  totalRecords: number;
+  totalItemCount: number;
   first: number;
 };
 export type RemoveVideoStreamFromVideoStreamRequest = {

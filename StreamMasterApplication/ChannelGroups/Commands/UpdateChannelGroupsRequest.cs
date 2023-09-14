@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
 
-using StreamMasterApplication.ChannelGroups.Events;
-
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
 [RequireAll]
@@ -21,15 +19,14 @@ public class UpdateChannelGroupsRequestHandler(ILogger<UpdateChannelGroupsReques
 
         foreach (UpdateChannelGroupRequest request in requests.ChannelGroupRequests)
         {
-
-            results.Add(await Sender.Send(new UpdateChannelGroupRequest(request.ChannelGroupId, request.NewGroupName, request.IsHidden, request.Rank, request.ToggleVisibility), cancellationToken).ConfigureAwait(false));
-
+            results.Add(await Sender.Send(new UpdateChannelGroupRequest(request.ChannelGroupId, request.NewGroupName, request.IsHidden, request.ToggleVisibility), cancellationToken).ConfigureAwait(false));
         }
 
-        if (results.Any())
-        {
-            await Publisher.Publish(new UpdateChannelGroupsEvent(results), cancellationToken).ConfigureAwait(false);
-        }
+        //if (results.Any())
+        //{
+        //    await Publisher.Publish(new UpdateChannelGroupsEvent(results), cancellationToken).ConfigureAwait(false);
+        //}
+
         //if (results.Any())
         //{
         //    await Publisher.Publish(new UpdateVideoStreamsEvent(), cancellationToken).ConfigureAwait(false);

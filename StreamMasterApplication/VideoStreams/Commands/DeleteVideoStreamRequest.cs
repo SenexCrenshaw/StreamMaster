@@ -20,6 +20,7 @@ public class DeleteVideoStreamRequestHandler(ILogger<DeleteVideoStreamRequest> l
     public async Task<bool> Handle(DeleteVideoStreamRequest request, CancellationToken cancellationToken)
     {
         VideoStreamDto? stream = await Repository.VideoStream.DeleteVideoStreamById(request.Id, cancellationToken).ConfigureAwait(false);
+        await Repository.SaveAsync().ConfigureAwait(false);
         if (stream != null)
         {
             await Publisher.Publish(new DeleteVideoStreamEvent(stream.Id), cancellationToken).ConfigureAwait(false);

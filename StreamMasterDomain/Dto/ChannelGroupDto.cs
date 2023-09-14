@@ -8,5 +8,4 @@ namespace StreamMasterDomain.Dto;
 public class ChannelGroupDto : ChannelGroupArg, IMapFrom<ChannelGroup>
 {
     public int Id { get; set; }
-    public bool IsLoading { get; set; } = false;
 }

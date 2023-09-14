@@ -30,11 +30,6 @@ public class M3UFileRepository(ILogger<M3UFileRepository> logger, RepositoryCont
     }
 
 
-    public IQueryable<M3UFile> GetEPGFileQuery()
-    {
-        return FindAll();
-    }
-
     /// <inheritdoc/>
     public async Task<M3UFileDto?> DeleteM3UFile(int M3UFileId)
     {
@@ -64,15 +59,36 @@ public class M3UFileRepository(ILogger<M3UFileRepository> logger, RepositoryCont
     }
 
     /// <inheritdoc/>
-    public async Task<M3UFileDto?> GetM3UFileById(int Id)
+    public async Task<M3UFile?> GetM3UFileById(int Id)
     {
         M3UFile? m3uFile = await FindByCondition(c => c.Id == Id)
                             .AsNoTracking()
                             .FirstOrDefaultAsync()
                             .ConfigureAwait(false);
 
-        return m3uFile != null ? mapper.Map<M3UFileDto>(m3uFile) : null;
+        return m3uFile;
     }
+
+    /// <inheritdoc/>
+    public async Task<M3UFile?> GetM3UFileBySource(string Source)
+    {
+        M3UFile? m3uFile = await FindByCondition(c => c.Source == Source)
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync()
+                            .ConfigureAwait(false);
+
+        return m3uFile;
+    }
+
+    //public async Task<M3UFileDto?> GetM3UFileById(int Id)
+    //{
+    //    M3UFile? m3uFile = await FindByCondition(c => c.Id == Id)
+    //                        .AsNoTracking()
+    //                        .FirstOrDefaultAsync()
+    //                        .ConfigureAwait(false);
+
+    //    return m3uFile != null ? mapper.Map<M3UFileDto>(m3uFile) : null;
+    //}
 
     /// <inheritdoc/>
     public async Task<int> GetM3UMaxStreamCount()
@@ -81,16 +97,7 @@ public class M3UFileRepository(ILogger<M3UFileRepository> logger, RepositoryCont
     }
 
 
-    /// <inheritdoc/>
-    public async Task<M3UFileDto?> GetM3UFileBySource(string source)
-    {
-        M3UFile? m3uFile = await FindByCondition(c => c.Source == source)
-                            .AsNoTracking()
-                            .FirstOrDefaultAsync()
-                            .ConfigureAwait(false);
 
-        return m3uFile != null ? mapper.Map<M3UFileDto>(m3uFile) : null;
-    }
 
     /// <inheritdoc/>
     public async Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(M3UFileParameters parameters)

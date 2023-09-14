@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
 
-using Microsoft.EntityFrameworkCore;
-
 using StreamMasterDomain.EPG;
 using StreamMasterDomain.Models;
 
@@ -29,7 +27,7 @@ public class ProcessEPGFileRequestHandler : BaseMediatorRequestHandler, IRequest
         try
         {
 
-            EPGFile? epgFile = await Repository.EPGFile.GetEPGFileQuery().FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
+            EPGFile? epgFile = await Repository.EPGFile.GetEPGFileById(request.Id).ConfigureAwait(false);
 
             if (epgFile == null)
             {

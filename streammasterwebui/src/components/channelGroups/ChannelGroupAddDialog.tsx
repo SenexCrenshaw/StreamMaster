@@ -32,8 +32,7 @@ const ChannelGroupAddDialog: FC = () => {
 
     const requestData: CreateChannelGroupRequest = {
       groupName: newGroupName,
-      isReadOnly: false,
-      rank: 0
+      isReadOnly: false
     };
 
     channelGroupsCreateChannelGroupMutation(requestData)

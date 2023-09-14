@@ -12,8 +12,7 @@ function isPagedTableDto<T>(value: PagedTableDto<T>): value is PagedTableDto<T> 
     typeof value.pageNumber === 'number' &&
     typeof value.pageSize === 'number' &&
     typeof value.totalItemCount === 'number' &&
-    typeof value.totalPageCount === 'number' &&
-    typeof value.totalRecords === 'number'
+    typeof value.totalPageCount === 'number'
   );
 }
 

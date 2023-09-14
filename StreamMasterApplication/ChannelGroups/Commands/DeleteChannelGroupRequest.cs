@@ -21,22 +21,20 @@ public class DeleteChannelGroupRequestHandler(ILogger<DeleteChannelGroupRequest>
 {
     public async Task<bool> Handle(DeleteChannelGroupRequest request, CancellationToken cancellationToken)
     {
-        //ChannelGroupDto? channelGroup = await Repository.ChannelGroup.GetChannelGroupById(request.channelGroupId).ConfigureAwait(false);
-
-        //if (channelGroup == null)
-        //{
-        //    return false;
-        //}
 
         (int? ChannelGroupId, IEnumerable<VideoStreamDto> VideoStreams) = await Repository.ChannelGroup.DeleteChannelGroupById(request.channelGroupId).ConfigureAwait(false); ;
-
-        if (ChannelGroupId == null)
+        _ = await Repository.SaveAsync().ConfigureAwait(false);
+        if (ChannelGroupId != null)
         {
-            return false;
+            MemoryCache.RemoveChannelGroupStreamCount((int)ChannelGroupId);
+            foreach (VideoStreamDto item in VideoStreams)
+            {
+                item.User_Tvg_group = "";
+            }
+            await Publisher.Publish(new DeleteChannelGroupEvent((int)ChannelGroupId, VideoStreams), cancellationToken);
+
+            return true;
         }
-
-
-        await Publisher.Publish(new DeleteChannelGroupEvent((int)ChannelGroupId, VideoStreams), cancellationToken);
 
         return true;
     }

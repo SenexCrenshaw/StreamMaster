@@ -12,7 +12,6 @@ export type PagedResponseDto<T> = {
   pageSize: number;
   totalItemCount: number;
   totalPageCount: number;
-  totalRecords: number;
 };
 
 
