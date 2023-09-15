@@ -1,45 +1,54 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import type * as StreamMasterApi from '../../store/iptvApi';
 
 import { formatJSONDateString } from "../../common/common";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import { GetLogRequest } from "../../smAPI/Logs/LogsMutateAPI";
+import { useLogsGetLogRequestQuery } from "../../store/iptvApi";
 
 const LogViewer = () => {
 
   const [lastLogId, setLastLogId] = React.useState<number>(0);
   const [dataSource, setDataSource] = React.useState<StreamMasterApi.LogEntryDto[]>([] as StreamMasterApi.LogEntryDto[]);
 
-  const getLogData = React.useCallback(() => {
-    // console.debug('LogViewer: ', lastLogId);
+  const { data } = useLogsGetLogRequestQuery({ lastId: lastLogId, maxLines: 5000 } as StreamMasterApi.LogsGetLogRequestApiArg)
 
-    GetLogRequest({ lastId: lastLogId, maxLines: 5000 } as StreamMasterApi.GetLog)
-      .then((returnData) => {
-        if (returnData !== null && returnData !== undefined && returnData.length > 0) {
-          // console.debug('dataSource: ', dataSource.length);
-          // console.debug('returnData: ', returnData.length);
+  useEffect(() => {
+    if (data !== undefined && data !== null && data.length > 0) {
+      setDataSource([...dataSource, ...data].slice(-1000));
+      setLastLogId(data[data.length - 1].id ?? 0);
+    }
+  }, [data, dataSource]);
 
-          setDataSource([...dataSource, ...returnData].slice(-1000));
-          setLastLogId(returnData[returnData.length - 1].id ?? 0);
-          // console.debug('dataSource: ', [...dataSource, ...returnData].slice(-3));
-          // console.debug('lastLogId: ', returnData[returnData.length - 1].id ?? 0, ' dataSource: ', [...dataSource, ...returnData].slice(-1000).length);
-        }
-      }).catch(() => { })
+  // const getLogData = React.useCallback(() => {
+  //   // console.debug('LogViewer: ', lastLogId);
+
+  //   GetLogRequest({ lastId: lastLogId, maxLines: 5000 } as StreamMasterApi.GetLog)
+  //     .then((returnData) => {
+  //       if (returnData !== null && returnData !== undefined && returnData.length > 0) {
+  //         // console.debug('dataSource: ', dataSource.length);
+  //         // console.debug('returnData: ', returnData.length);
+
+  //         setDataSource([...dataSource, ...returnData].slice(-1000));
+  //         setLastLogId(returnData[returnData.length - 1].id ?? 0);
+  //         // console.debug('dataSource: ', [...dataSource, ...returnData].slice(-3));
+  //         // console.debug('lastLogId: ', returnData[returnData.length - 1].id ?? 0, ' dataSource: ', [...dataSource, ...returnData].slice(-1000).length);
+  //       }
+  //     }).catch(() => { })
 
 
-  }, [dataSource, lastLogId]);
+  // }, [dataSource, lastLogId]);
 
-  React.useEffect(() => {
-    const intervalId = setInterval(() => {
-      getLogData();
-    }, 1000);
+  // React.useEffect(() => {
+  //   const intervalId = setInterval(() => {
+  //     // refetch();
+  //   }, 1000);
 
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [getLogData]);
+  //   return () => {
+  //     clearInterval(intervalId);
+  //   };
+  // }, [refetch]);
 
   const timeStampTemplate = React.useCallback((rowData: StreamMasterApi.LogEntry) => {
     return (<div>{formatJSONDateString(rowData.timeStamp ?? '')}</div>);
