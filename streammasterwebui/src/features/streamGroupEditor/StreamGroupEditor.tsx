@@ -25,7 +25,7 @@ const StreamGroupEditor = () => {
           </div>
 
           <div className="col-9 m-0 p-0 pl-1">
-            <BlockUI blocked={selectedStreamGroup === undefined || selectedStreamGroup.id === undefined || selectedStreamGroup.isReadOnly}>
+            <BlockUI blocked={selectedStreamGroup === undefined || selectedStreamGroup.id === undefined || selectedStreamGroup.id <= 1 || selectedStreamGroup.isReadOnly}>
               <div className='grid grid-nogutter flex flex-wrap justify-content-between h-full col-12 p-0'>
                 <div className='col-6'>
                   <StreamGroupVideoStreamDataSelector id={id} />

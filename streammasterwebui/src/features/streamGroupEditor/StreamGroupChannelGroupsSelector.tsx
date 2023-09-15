@@ -9,7 +9,7 @@ type StreamGroupChannelGroupsInputs = {
 };
 
 const StreamGroupChannelGroupsSelector = ({ className, streamGroupId }: StreamGroupChannelGroupsInputs) => {
-  const { data: selectedData } = useStreamGroupChannelGroupGetChannelGroupsFromStreamGroupQuery(streamGroupId ?? skipToken);
+  const { data: selectedData } = useStreamGroupChannelGroupGetChannelGroupsFromStreamGroupQuery(streamGroupId === undefined ? skipToken : streamGroupId > 0 ? streamGroupId : skipToken);
   const { data: channelGroups } = useChannelGroupsGetChannelGroupIdNamesQuery();
 
   const [syncStreamGroupChannelGroupsMutation, { isLoading }] = useStreamGroupChannelGroupSyncStreamGroupChannelGroupsMutation();
