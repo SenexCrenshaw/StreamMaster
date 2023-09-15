@@ -1,4 +1,6 @@
-﻿using StreamMasterDomain.Pagination;
+﻿using StreamMasterApplication.ChannelGroups.Commands;
+
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.ChannelGroups.Queries;
 
@@ -16,6 +18,7 @@ internal class GetPagedChannelGroupsQueryHandler(ILogger<GetPagedChannelGroups> 
         }
         PagedResponse<ChannelGroup> paged = await Repository.ChannelGroup.GetPagedChannelGroups(request.Parameters).ConfigureAwait(false);
         PagedResponse<ChannelGroupDto> dto = paged.ToPagedResponseDto<ChannelGroup, ChannelGroupDto>(Mapper);
+        await Sender.Send(new UpdateChannelGroupCountsRequest(dto.Data), cancellationToken).ConfigureAwait(false);
         dto.Data = MemoryCache.UpdateChannelGroupsWithActives(dto.Data);
         return dto;
 

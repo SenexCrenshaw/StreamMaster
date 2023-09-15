@@ -212,6 +212,7 @@ const EPGFilesDataSelector = () => {
         emptyMessage="No EPG Files"
         id='epgfilesdataselector'
         queryFilter={useEpgFilesGetPagedEpgFilesQuery}
+        selectedItemsKey='selectSelectedEPGFileDtoItems'
         style={{ height: 'calc(50vh - 40px)' }}
       />
     </>

@@ -1,6 +1,6 @@
 
 
-import { useMemo, memo } from "react";
+import { memo, useMemo } from "react";
 import { useSchedulesDirectGetLineupsQuery } from "../../store/iptvApi";
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
@@ -31,6 +31,7 @@ const SchedulesDirectLineUpsDataSelector = () => {
 
         id='StreamingServerStatusPanel'
         isLoading={getLineUpsQuery.isLoading}
+        selectedItemsKey='selectSelectedItems'
         style={{ height: 'calc(50vh - 40px)' }}
       />
       {/* <SchedulesDirectLineUpPreviewDataSelector lineUps={getLineUpsQuery.data?.lineups} /> */}

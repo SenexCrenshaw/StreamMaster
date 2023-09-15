@@ -99,6 +99,7 @@ const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: Video
       onRowReorder={async (e) => await onRowReorder(e as ChildVideoStreamDto[])}
       queryFilter={useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery}
       reorderable
+      selectedItemsKey='selectSelectedVideoStreamPanelVideoStreamDtoItems'
       selectionMode='single'
       style={{ height: 'calc(100vh - 480px)' }
       }

@@ -257,6 +257,7 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
           id='StreamingServerStatusPanel'
           isLoading={props.isLoading}
           key='m3UStreamId'
+          selectedItemsKey='selectSelectedItems'
           style={props.style}
         />
 

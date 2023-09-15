@@ -7,8 +7,8 @@ public record GetProgrammsSimpleQuery(ProgrammeParameters Parameters) : IRequest
 internal class GetProgrammsSimpleQueryHandler : BaseMediatorRequestHandler, IRequestHandler<GetProgrammsSimpleQuery, List<ProgrammeNameDto>>
 {
 
-    public GetProgrammsSimpleQueryHandler(ILogger<GetProgrammsSimpleQuery> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-    : base(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache) { }
+    public GetProgrammsSimpleQueryHandler(ILogger<GetProgrammsSimpleQuery> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+    : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
     public async Task<List<ProgrammeNameDto>> Handle(GetProgrammsSimpleQuery request, CancellationToken cancellationToken)
     {
@@ -23,9 +23,9 @@ internal class GetProgrammsSimpleQueryHandler : BaseMediatorRequestHandler, IReq
         {
             // Get distinct channel names in order and take the required amount
             List<string> distinctChannels = filteredProgrammes
+                .OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase)
                 .Select(a => a.Channel)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(a => a, StringComparer.OrdinalIgnoreCase)
                 .Skip(request.Parameters.First)
                 .Take(request.Parameters.Count)
                 .ToList();

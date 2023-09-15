@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { hubConnection } from '../../app/signalr';
-import { isEmptyObject } from '../../common/common';
-import { iptvApi } from '../../store/iptvApi';
 import type * as iptv from '../../store/iptvApi';
+import { iptvApi } from '../../store/iptvApi';
 
 export const enhancedApiStreamGroupVideoStreams = iptvApi.enhanceEndpoints({
   endpoints: {
@@ -10,26 +10,23 @@ export const enhancedApiStreamGroupVideoStreams = iptvApi.enhanceEndpoints({
         try {
           await cacheDataLoaded;
 
-          const updateCachedDataWithResults = (data: iptv.VideoStreamDto[]) => {
-            updateCachedData((draft: iptv.StreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsApiResponse) => {
-              data.forEach(item => {
-                const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
-                if (index !== -1) {
-                  draft.data[index] = item;
-                }
-              });
+          // const updateCachedDataWithResults = (data: iptv.VideoStreamDto[]) => {
+          //   updateCachedData((draft: iptv.StreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsApiResponse) => {
+          //     data.forEach(item => {
+          //       const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
+          //       if (index !== -1) {
+          //         draft.data[index] = item;
+          //       }
+          //     });
 
-              return draft;
-            });
-          };
+          //     return draft;
+          //   });
+          // };
 
           const doStreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsUpdate = (data: iptv.VideoStreamDto[]) => {
-            // console.log('doStreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsUpdate')
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['StreamGroupVideoStreams']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
+
+            dispatch(iptvApi.util.invalidateTags(['StreamGroupVideoStreams']));
+
           }
 
           hubConnection.on('StreamGroupVideoStreamsRefresh', doStreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsUpdate);

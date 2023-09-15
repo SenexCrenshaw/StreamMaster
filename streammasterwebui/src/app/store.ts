@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, type Action, type ThunkAction } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query/react';
 import { combineReducers } from 'redux';
 
@@ -28,7 +28,6 @@ import selectedStreamGroupSliceReducer from './slices/selectedStreamGroupSlice';
 import selectedVideoStreamsSliceReducer from './slices/selectedVideoStreamsSlice';
 import showHiddenSliceReducer from './slices/showHiddenSlice';
 import sortInfoSliceReducer from './slices/sortInfoSlice';
-
 const selectAllConfig = {
   key: 'selectAll',
   storage,
@@ -59,8 +58,14 @@ const selectedItemsGroupsConfig = {
   storage,
 };
 
+const selectedStreamGroupConfig = {
+  key: 'selectedStreamGroup',
+  storage,
+};
+
 
 const rootReducer = combineReducers({
+  appInfo:appInfoSliceReducer,
   [enhancedApiChannelGroups.reducerPath]: enhancedApiChannelGroups.reducer,
   [enhancedApiEpgFiles.reducerPath]: enhancedApiEpgFiles.reducer,
   [enhancedApiM3UFiles.reducerPath]: enhancedApiM3UFiles.reducer,
@@ -73,14 +78,13 @@ const rootReducer = combineReducers({
   [enhancedApiVideoStreamLinks.reducerPath]: enhancedApiVideoStreamLinks.reducer,
   [enhancedApiVideoStreams.reducerPath]: enhancedApiVideoStreams.reducer,
   [enhancedApiVideoStreamsLocal.reducerPath]: enhancedApiVideoStreamsLocal.reducer,
-  appInfo:appInfoSliceReducer,
   channelGroupToRemove:channelGroupToRemoveSliceReducer,
   queryAdditionalFilters: queryAdditionalFiltersReducer,
   queryFilter: queryFilterReducer,
   selectAll: persistReducer(selectAllConfig, selectAllSliceReducer),
   selectedChannelGroups: persistReducer(selectedItemsGroupsConfig, selectedChannelGroupsSliceReducer),
   selectedItems: selectedItemsSliceReducer,
-  selectedStreamGroup: selectedStreamGroupSliceReducer,
+  selectedStreamGroup: persistReducer(selectedStreamGroupConfig, selectedStreamGroupSliceReducer),
   selectedVideoStreams:persistReducer(selectedVideoStreamsConfig, selectedVideoStreamsSliceReducer),
   showHidden: persistReducer(showHiddenConfig, showHiddenSliceReducer),
   sortInfo: persistReducer(sortInfoConfig, sortInfoSliceReducer),
@@ -117,12 +121,12 @@ export const persistor = persistStore(store);
 
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof rootReducer>;
-// export type AppThunk<ReturnType = void> = ThunkAction<
-//     ReturnType,
-//     RootState,
-//     unknown,
-//     Action<string>
-// >;
+export type AppThunk<ReturnType = void> = ThunkAction<
+ReturnType,
+RootState,
+unknown,
+Action<string>
+>;
 
 setupListeners(store.dispatch);
 

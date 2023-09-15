@@ -35,15 +35,15 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
     <div className='flex p-0 justify-content-end align-items-center'>
 
       <div hidden={data.isReadOnly === true && props.useReadOnly}>
-        <ChannelGroupDeleteDialog cgId={props.id} iconFilled={false} id={dataKey} value={data} />
+        <ChannelGroupDeleteDialog iconFilled={false} id={dataKey} value={data} />
       </div>
 
-      <ChannelGroupEditDialog cgId={props.id} value={data} />
+      <ChannelGroupEditDialog value={data} />
       <ChannelGroupVisibleDialog id={dataKey} skipOverLayer value={data} />
 
     </div>
 
-  ), [dataKey, props.id, props.useReadOnly]);
+  ), [dataKey, props.useReadOnly]);
 
   const sourceColumns = useMemo((): ColumnMeta[] => {
     return [
@@ -75,14 +75,14 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
           <>
             <TriSelect dataKey={dataKey} />
             <ChannelGroupVisibleDialog id={dataKey} skipOverLayer={false} />
-            <ChannelGroupDeleteDialog cgId={props.id} iconFilled id={dataKey} />
+            <ChannelGroupDeleteDialog iconFilled id={dataKey} />
           </>
         }
 
         <ChannelGroupAddDialog />
       </div>
     );
-  }, [props.hideControls, props.id, dataKey]);
+  }, [props.hideControls, dataKey]);
 
   return (
 
@@ -94,6 +94,7 @@ const PlayListDataSelector = (props: PlayListDataSelectorProps) => {
       hideControls={props.hideControls}
       id={dataKey}
       queryFilter={useChannelGroupsGetPagedChannelGroupsQuery}
+      selectedItemsKey='selectSelectedChannelGroupDtoItems'
       selectionMode='multiple'
       style={{
         height: props.maxHeight !== null ? props.maxHeight : 'calc(100vh - 40px)',

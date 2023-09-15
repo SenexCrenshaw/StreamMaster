@@ -128,6 +128,7 @@ const LogViewer = () => {
         exportFilename={`StreamMaster_Logs_${new Date().toISOString()}`}
         id='LogViewer'
         isLoading={dataSource === undefined || dataSource.length === 0}
+        selectedItemsKey='selectSelectedItems'
         style={{
           height: 'calc(100vh - 100px)',
         }}

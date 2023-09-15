@@ -7,7 +7,6 @@ import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import DeleteButton from "../buttons/DeleteButton";
 
 type ChannelGroupDeleteDialogProps = {
-  readonly cgId: string;
   readonly iconFilled?: boolean | undefined;
   readonly id: string;
   readonly onDelete?: (results: number[] | undefined) => void;
@@ -18,7 +17,6 @@ type ChannelGroupDeleteDialogProps = {
 const ChannelGroupDeleteDialog = ({
   iconFilled,
   id,
-  cgId,
   onDelete,
   onHide,
   value,
@@ -32,7 +30,7 @@ const ChannelGroupDeleteDialog = ({
   const { selectAll, setSelectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
 
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<ChannelGroupDto>(cgId);
+  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
 
   const [channelGroupsDeleteChannelGroupMutation] = useChannelGroupsDeleteChannelGroupMutation();
   const [channelGroupsDeleteAllChannelGroupsFromParametersMutation] = useChannelGroupsDeleteAllChannelGroupsFromParametersMutation();
@@ -124,11 +122,6 @@ const ChannelGroupDeleteDialog = ({
       onDelete?.(undefined);
     });
 
-
-    const newdd = selectSelectedItems.filter((a) => !groupIds.includes(a.id ?? 0));
-    console.log(selectSelectedItems.length, newdd.length);
-
-
     setSelectSelectedItems(selectSelectedItems.filter((a) => !groupIds.includes(a.id ?? 0)));
     setSelectAll(false);
 
@@ -148,15 +141,18 @@ const ChannelGroupDeleteDialog = ({
   }, [value, selectSelectedItems]);
 
   const getTotalCount = useMemo(() => {
-    let count = selectSelectedItems?.length ?? 0;
+    if (selectAll || !value?.isReadOnly) {
+      return 1;
+    }
 
+    let count = selectSelectedItems?.length ?? 0;
     if (count === 1 && isFirstDisabled) {
       return 0;
     }
 
     return count;
 
-  }, [isFirstDisabled, selectSelectedItems?.length]);
+  }, [isFirstDisabled, selectAll, selectSelectedItems, value]);
 
   return (
     <>
@@ -169,7 +165,7 @@ const ChannelGroupDeleteDialog = ({
         onClose={() => { ReturnToParent(); }}
         show={showOverlay}
       >
-        <div className="flex justify-content-center w-full">
+        <div className="flex justify-content-center w-full mb-2">
           <DeleteButton disabled={getTotalCount === 0 && !selectAll} label="Delete Groups" onClick={async () => await deleteGroup()} tooltip="Delete User Created Groups" />
         </div>
       </InfoMessageOverLayDialog>

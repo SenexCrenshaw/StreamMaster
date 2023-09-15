@@ -131,7 +131,9 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
 
           id='StreamingServerStatusPanel'
           isLoading={props.isLoading}
+          selectedItemsKey='selectSelectedItems'
           style={props.style}
+
         />
       </div>
     </>

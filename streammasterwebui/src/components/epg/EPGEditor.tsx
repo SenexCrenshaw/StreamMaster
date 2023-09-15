@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { memo } from "react";
 import { UpdateVideoStream } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
-import { useVideoStreamsUpdateVideoStreamMutation, type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
+import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
 import EPGSelector from "../selectors/EPGSelector";
 
 type EPGEditorProps = {
@@ -11,7 +11,6 @@ type EPGEditorProps = {
 };
 
 const EPGEditor = ({ data, enableEditMode, id }: EPGEditorProps) => {
-  const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
 
   const onUpdateVideoStream = async (epg: string) => {
     if (data.id === '') {

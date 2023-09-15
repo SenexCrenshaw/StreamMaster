@@ -1,4 +1,5 @@
-﻿using StreamMasterApplication.ChannelGroups.Events;
+﻿using StreamMasterApplication.ChannelGroups.Commands;
+using StreamMasterApplication.ChannelGroups.Events;
 using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.VideoStreams.Events;
 
@@ -11,6 +12,7 @@ public class CreateVideoStreamEventHandler(ILogger<CreateVideoStreamEvent> logge
         ChannelGroupDto? channelGroup = await Sender.Send(new GetChannelGroupByName(notification.VideoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
         if (channelGroup != null)
         {
+            await Sender.Send(new UpdateChannelGroupCountRequest(channelGroup, true), cancellationToken).ConfigureAwait(false);
             await Publisher.Publish(new UpdateChannelGroupEvent(channelGroup, false, false), cancellationToken).ConfigureAwait(false);
         }
         //await HubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);

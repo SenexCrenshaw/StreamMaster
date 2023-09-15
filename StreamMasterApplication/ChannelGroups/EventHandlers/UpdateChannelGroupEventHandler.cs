@@ -7,6 +7,7 @@ public class UpdateChannelGroupEventHandler(ILogger<UpdateChannelGroupEvent> log
 {
     public async Task Handle(UpdateChannelGroupEvent notification, CancellationToken cancellationToken)
     {
+
         await HubContext.Clients.All.ChannelGroupsRefresh([notification.ChannelGroup]).ConfigureAwait(false);
 
         if (notification.ChannelGroupToggelVisibility || notification.ChannelGroupNameChanged)

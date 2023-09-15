@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-using StreamMasterDomain.Models;
+using StreamMasterApplication.StreamGroups.Events;
 
 namespace StreamMasterApplication.StreamGroups.Commands;
 
@@ -27,6 +27,8 @@ public class CreateStreamGroupRequestHandler(ILogger<CreateStreamGroupRequest> l
         };
 
         Repository.StreamGroup.CreateStreamGroup(streamGroup);
-
+        await Repository.SaveAsync();
+        StreamGroupDto dto = Mapper.Map<StreamGroupDto>(streamGroup);
+        await Publisher.Publish(new StreamGroupCreateEvent(dto), cancellationToken);
     }
 }

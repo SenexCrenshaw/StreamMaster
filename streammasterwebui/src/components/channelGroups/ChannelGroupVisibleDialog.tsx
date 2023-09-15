@@ -18,7 +18,7 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
-  const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>(id);
+  const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
   const { selectAll } = useSelectAll(id);
 
   const ReturnToParent = React.useCallback(() => {
@@ -59,15 +59,34 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
   }, [ReturnToParent, selectSelectedItems, value]);
 
 
+  const isFirstDisabled = useMemo(() => {
+    if (value) {
+      return value.isReadOnly;
+    }
+
+    if (!selectSelectedItems || selectSelectedItems?.length === 0) {
+      return true;
+    }
+
+    return selectSelectedItems[0].isReadOnly;
+
+  }, [value, selectSelectedItems]);
+
+
   const getTotalCount = useMemo(() => {
 
     if (selectAll) {
       return 100;
     }
 
-    return selectSelectedItems?.length ?? 0;
+    let count = selectSelectedItems?.length ?? 0;
+    if (count === 1 && isFirstDisabled) {
+      return 0;
+    }
 
-  }, [selectAll, selectSelectedItems]);
+    return count;
+
+  }, [isFirstDisabled, selectAll, selectSelectedItems]);
 
 
   if (skipOverLayer === true) {
@@ -86,7 +105,7 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
         onClose={() => { ReturnToParent(); }}
         show={showOverlay}
       >
-        <div className="flex justify-content-center w-full">
+        <div className="flex justify-content-center w-full mb-2">
           <VisibleButton label='Toggle Visibility' onClick={async () => await onVisibleClick()} />
         </div>
       </InfoMessageOverLayDialog>

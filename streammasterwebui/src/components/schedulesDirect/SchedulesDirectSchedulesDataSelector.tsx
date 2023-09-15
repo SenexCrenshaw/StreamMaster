@@ -60,6 +60,7 @@ const SchedulesDirectSchedulesDataSelector = (props: SchedulesDirectSchedulesDat
           id='SchedulesDirectSchedulesDataSelector-ds'
           isLoading={isLoading}
           key="callsign"
+          selectedItemsKey='selectSelectedItems'
           selectionMode='multiple'
           style={{ height: 'calc(50vh - 40px)' }}
         />

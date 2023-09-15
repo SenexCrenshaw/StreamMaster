@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 
+using StreamMasterApplication.StreamGroups.Events;
+
 namespace StreamMasterApplication.StreamGroups.Commands;
 
 public record DeleteStreamGroupRequest(int Id) : IRequest<int?> { }
@@ -30,6 +32,8 @@ public class DeleteStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequ
 
         if (await Repository.StreamGroup.DeleteStreamGroup(request.Id) != null)
         {
+            await Repository.SaveAsync();
+            await Publisher.Publish(new StreamGroupDeleteEvent(), cancellationToken);
             return request.Id;
         }
 

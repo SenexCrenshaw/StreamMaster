@@ -28,7 +28,7 @@ type ChannelGroupVideoStreamDataSelectorProps = {
 
 const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: ChannelGroupVideoStreamDataSelectorProps) => {
   const dataKey = id + '-ChannelGroupVideoStreamDataSelector';
-  const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>(id);
+  const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
   const { columnConfig: epgColumnConfig } = useEPGColumnConfig({ enableEdit: enableEdit });
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: enableEdit, useFilter: false });
@@ -127,6 +127,7 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
       }}
       queryFilter={useVideoStreamsGetPagedVideoStreamsQuery}
       reorderable={reorderable}
+      selectedItemsKey='selectSelectedChannelGroupDtoItems'
       selectionMode='multiple'
       style={{ height: 'calc(100vh - 40px)' }}
     />

@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 
+using StreamMasterApplication.StreamGroups.Events;
+
 namespace StreamMasterApplication.StreamGroups.Commands;
 
 public class UpdateStreamGroupRequestValidator : AbstractValidator<UpdateStreamGroupRequest>
@@ -27,9 +29,10 @@ public class UpdateStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequ
             return null;
         }
 
-        StreamGroupDto? streamGroup = Repository.StreamGroup.UpdateStreamGroup(request.StreamGroupId, request.Name);
+        StreamGroupDto? streamGroup = await Repository.StreamGroup.UpdateStreamGroup(request.StreamGroupId, request.Name);
         if (streamGroup is not null)
         {
+
             await Publisher.Publish(new StreamGroupUpdateEvent(streamGroup), cancellationToken).ConfigureAwait(false);
         }
 

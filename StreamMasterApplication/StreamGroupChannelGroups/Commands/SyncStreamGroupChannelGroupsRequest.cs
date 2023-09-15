@@ -3,7 +3,7 @@
 public record SyncStreamGroupChannelGroupsRequest(int StreamGroupId, List<int> ChannelGroupIds) : IRequest<StreamGroupDto?>;
 
 [LogExecutionTimeAspect]
-internal class SyncStreamGroupChannelGroupsRequestHandler(ILogger<SyncStreamGroupChannelGroupsRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<SyncStreamGroupChannelGroupsRequest, StreamGroupDto?>
+internal class SyncStreamGroupChannelGroupsRequestHandler(ILogger<SyncStreamGroupChannelGroupsRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<SyncStreamGroupChannelGroupsRequest, StreamGroupDto?>
 {
     public async Task<StreamGroupDto?> Handle(SyncStreamGroupChannelGroupsRequest request, CancellationToken cancellationToken = default)
     {
@@ -11,7 +11,7 @@ internal class SyncStreamGroupChannelGroupsRequestHandler(ILogger<SyncStreamGrou
 
         if (ret != null)
         {
-            //await HubContext.Clients.All.VideoStreamsRefresh(ret).ConfigureAwait(false);
+
             await HubContext.Clients.All.StreamGroupsRefresh([ret]).ConfigureAwait(false);
             await HubContext.Clients.All.StreamGroupVideoStreamsRefresh().ConfigureAwait(false);
             await HubContext.Clients.All.StreamGroupChannelGroupsRefresh().ConfigureAwait(false);

@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.SignalR;
 
 using StreamMasterApplication.Hubs;
+using StreamMasterApplication.StreamGroups.Events;
 
 namespace StreamMasterApplication.StreamGroups.EventHandlers;
 

@@ -1,7 +1,3 @@
-
-
-
-
 import React, { type CSSProperties } from "react";
 
 import DataSelector from "../dataSelector/DataSelector";
@@ -74,6 +70,7 @@ const SettingsNameRegexDataSelector = (props: SettingsNameRegexDataSelectorProps
         emptyMessage="No Data"
         id="SettingsNameRegexDataSelector"
         reorderable
+        selectedItemsKey='selectSelectedItems'
       />
     </div>
   );

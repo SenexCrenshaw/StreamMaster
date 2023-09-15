@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, memo } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { useSchedulesDirectGetHeadendsQuery } from "../../store/iptvApi";
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
@@ -39,9 +39,9 @@ const SchedulesDirectHeadendDataSelector = (props: SchedulesDirectHeadendDataSel
         columns={sourceColumns}
         dataSource={getHeadendsQuery.data}
         emptyMessage="No Streams"
-
         id='StreamingServerStatusPanel'
         isLoading={getHeadendsQuery.isLoading}
+        selectedItemsKey='selectSelectedItems'
         style={{ height: 'calc(50vh - 40px)' }}
       />
     </div>

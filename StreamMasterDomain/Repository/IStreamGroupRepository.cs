@@ -16,7 +16,7 @@ namespace StreamMasterDomain.Repository
 
         void CreateStreamGroup(StreamGroup StreamGroup);
 
-        StreamGroupDto? UpdateStreamGroup(int StreamGroupId, string newName);
+        Task<StreamGroupDto?> UpdateStreamGroup(int StreamGroupId, string newName);
         Task<int?> DeleteStreamGroup(int streamGroupId);
 
         IQueryable<StreamGroup> GetStreamGroupQuery();

@@ -16,7 +16,7 @@ public class SyncVideoStreamToStreamGroupRequestValidator : AbstractValidator<Sy
 }
 
 [LogExecutionTimeAspect]
-public class SyncVideoStreamToStreamGroupRequestHandler(ILogger<SyncVideoStreamToStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper,settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<SyncVideoStreamToStreamGroupRequest>
+public class SyncVideoStreamToStreamGroupRequestHandler(ILogger<SyncVideoStreamToStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<SyncVideoStreamToStreamGroupRequest>
 {
     public async Task Handle(SyncVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken)
     {
@@ -28,7 +28,8 @@ public class SyncVideoStreamToStreamGroupRequestHandler(ILogger<SyncVideoStreamT
         StreamGroupDto? ret = await Repository.StreamGroupVideoStream.SyncVideoStreamToStreamGroup(request.StreamGroupId, request.VideoStreamId, cancellationToken).ConfigureAwait(false);
         if (ret != null)
         {
-            await HubContext.Clients.All.StreamGroupsRefresh([ret]).ConfigureAwait(false);
+            StreamGroupDto? dto = await repository.StreamGroup.GetStreamGroupById(ret.Id).ConfigureAwait(false);
+            await HubContext.Clients.All.StreamGroupsRefresh([dto]).ConfigureAwait(false);
         }
     }
 }

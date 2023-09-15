@@ -10,19 +10,18 @@ import TextInput from "../inputs/TextInput";
 
 
 type ChannelGroupEditDialogProps = {
-  readonly cgId: string;
   readonly onClose?: ((newName: string) => void);
   readonly value?: ChannelGroupDto | undefined;
 };
 
-const ChannelGroupEditDialog = ({ cgId, onClose, value }: ChannelGroupEditDialogProps) => {
+const ChannelGroupEditDialog = ({ onClose, value }: ChannelGroupEditDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [newGroupName, setNewGroupName] = useState('');
 
   const [channelGroupDto, setChannelGroupDto] = useState<ChannelGroupDto>();
-  const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>(cgId);
+  const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
 
   const ReturnToParent = useCallback(() => {
     setShowOverlay(false);
@@ -54,6 +53,7 @@ const ChannelGroupEditDialog = ({ cgId, onClose, value }: ChannelGroupEditDialog
   }, [channelGroupDto, selectSelectedItems]);
 
   const changeGroupName = useCallback(() => {
+    console.log('changeGroupName')
     if (!newGroupName || !value) {
       ReturnToParent();
       return;
@@ -89,14 +89,14 @@ const ChannelGroupEditDialog = ({ cgId, onClose, value }: ChannelGroupEditDialog
         }}
         show={showOverlay}
       >
-        <div className="flex grid justify-content-center w-full">
-          <div className="flex col-12 mt-3 gap-2 justify-content-start">
-            <TextInput onChange={(e) => setNewGroupName(e)} onEnter={changeGroupName} placeHolder="Group Name" value={newGroupName} />
+        <div className="flex grid justify-content-center align-items-center w-full">
+          <div className="flex col-10 mt-1">
+            <TextInput onChange={setNewGroupName} onEnter={changeGroupName} placeHolder="Group Name" value={newGroupName} />
           </div>
-          <div className="flex col-12 mt-3 gap-2 justify-content-end">
-            <EditButton label='Edit Group' onClick={changeGroupName} tooltip='Edit Group' />
+          <div className="flex col-12 justify-content-end">
+            <EditButton disabled={value?.name === newGroupName} label='Edit Group' onClick={changeGroupName} tooltip='Edit Group' />
           </div>
-        </div >
+        </div>
       </InfoMessageOverLayDialog>
 
       <EditButton

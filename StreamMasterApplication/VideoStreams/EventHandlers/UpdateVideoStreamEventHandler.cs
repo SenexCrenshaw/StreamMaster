@@ -1,4 +1,7 @@
-﻿using StreamMasterApplication.VideoStreams.Events;
+﻿using StreamMasterApplication.ChannelGroups.Commands;
+using StreamMasterApplication.ChannelGroups.Events;
+using StreamMasterApplication.ChannelGroups.Queries;
+using StreamMasterApplication.VideoStreams.Events;
 
 namespace StreamMasterApplication.VideoStreams.EventHandlers;
 
@@ -10,7 +13,7 @@ public class UpdateVideoStreamEventHandler : BaseMediatorRequestHandler, INotifi
 
     public async Task Handle(UpdateVideoStreamEvent notification, CancellationToken cancellationToken = default)
     {
-        //if (notification.UpdateChannelGroup)
+        //if (notification.ToggelVisibility)
         //{
         //    ChannelGroupDto? channelGroup = await Sender.Send(new GetChannelGroupByName(notification.VideoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
         //    if (channelGroup != null)
@@ -18,6 +21,15 @@ public class UpdateVideoStreamEventHandler : BaseMediatorRequestHandler, INotifi
         //        await Publisher.Publish(new UpdateChannelGroupEvent(channelGroup, false, false), cancellationToken).ConfigureAwait(false);
         //    }
         //}
+
+        ChannelGroupDto? channelGroup = await Sender.Send(new GetChannelGroupByName(notification.VideoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
+        if (channelGroup != null)
+        {
+
+            await Sender.Send(new UpdateChannelGroupCountRequest(channelGroup, false), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateChannelGroupEvent(channelGroup, false, false), cancellationToken).ConfigureAwait(false);
+        }
+
 
         await HubContext.Clients.All.VideoStreamsRefresh([notification.VideoStream]).ConfigureAwait(false);
         await HubContext.Clients.All.StreamGroupVideoStreamsRefresh().ConfigureAwait(false);

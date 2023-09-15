@@ -1,4 +1,4 @@
-﻿namespace StreamMasterApplication.Common.Events;
+﻿namespace StreamMasterApplication.StreamGroups.Events;
 
 public class StreamGroupStatusUpdateEvent : BaseEvent
 {

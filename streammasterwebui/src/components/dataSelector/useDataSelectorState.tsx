@@ -9,10 +9,10 @@ import { type AdditionalFilterProps } from '../../common/common';
 import { type VideoStreamIsReadOnly } from '../../store/iptvApi';
 import { type PagedTableInformation } from './DataSelector';
 
-const useDataSelectorState = <T extends DataTableValue,>(id: string) => {
+const useDataSelectorState = <T extends DataTableValue,>(id: string, selectedItemsKey: string) => {
   const { sortInfo, setSortInfo } = useSortInfo(id);
   const { selectAll, setSelectAll } = useSelectAll(id);
-  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<T>(id);
+  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<T>(selectedItemsKey);
   const { showHidden } = useShowHidden(id);
 
   const [rowClick, setRowClick] = useLocalStorage<boolean>(false, id + '-rowClick');

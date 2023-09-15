@@ -71,6 +71,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProps) => {
       }
       }
       queryFilter={useStreamGroupsGetPagedStreamGroupsQuery}
+      selectedItemsKey='selectSelectedStreamGroupDtoItems'
       style={{ height: 'calc(100vh - 40px)' }}
     />
   );

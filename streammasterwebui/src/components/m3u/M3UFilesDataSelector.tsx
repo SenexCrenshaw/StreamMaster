@@ -3,7 +3,7 @@ import { Checkbox, type CheckboxChangeEvent } from "primereact/checkbox";
 import { Toast } from "primereact/toast";
 import { memo, useCallback, useMemo, useRef, type CSSProperties } from "react";
 import { formatJSONDateString, getTopToolOptions } from "../../common/common";
-import { useEpgFilesGetPagedEpgFilesQuery, type M3UFileDto, type UpdateM3UFileRequest } from "../../store/iptvApi";
+import { useM3UFilesGetPagedM3UFilesQuery, type M3UFileDto, type UpdateM3UFileRequest } from "../../store/iptvApi";
 import NumberEditorBodyTemplate from "../NumberEditorBodyTemplate";
 import StringEditorBodyTemplate from "../StringEditorBodyTemplate";
 import DataSelector from "../dataSelector/DataSelector";
@@ -268,7 +268,8 @@ const M3UFilesDataSelector = () => {
         columns={sourceColumns}
         emptyMessage="No M3U Files"
         id='m3ufilesdataselector'
-        queryFilter={useEpgFilesGetPagedEpgFilesQuery}
+        queryFilter={useM3UFilesGetPagedM3UFilesQuery}
+        selectedItemsKey='selectSelectedM3UFileDtoItems'
         style={{ height: 'calc(50vh - 40px)' }}
       />
     </>

@@ -38,10 +38,24 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
         string Url = httpContextAccessor.GetUrl();
         Setting setting = await settingsService.GetSettingsAsync();
 
-        Parallel.ForEach(streamGroupDtos, sg =>
+
+        foreach (StreamGroupDto sg in streamGroupDtos)
         {
             SetStreamGroupLinks(sg, Url, setting);
-        });
+        }
+
+    }
+
+    private async Task SetStreamGroupsLink(StreamGroupDto streamGroupDto)
+    {
+        string Url = httpContextAccessor.GetUrl();
+        Setting setting = await settingsService.GetSettingsAsync();
+
+
+
+        SetStreamGroupLinks(streamGroupDto, Url, setting);
+
+
     }
 
     private void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url, Setting setting)
@@ -53,6 +67,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
         }
         else
         {
+            //var sg = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == streamGroupDto.Id);
             count = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == streamGroupDto.Id).Count();
         }
         RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == streamGroupDto.Id).Count();
@@ -70,49 +85,12 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
                             .FirstOrDefaultAsync()
                             .ConfigureAwait(false);
 
-        return streamGroup != null ? mapper.Map<StreamGroupDto>(streamGroup) : null;
+        StreamGroupDto ret = mapper.Map<StreamGroupDto>(streamGroup);
+
+        await SetStreamGroupsLink(ret);
+        return ret;
     }
 
-    //public async Task<StreamGroup?> GetStreamGroupWithRelatedEntitiesById(int streamGroupId, CancellationToken cancellationToken)
-    //{
-    //    return await RepositoryContext.StreamGroups
-    //        .Include(sg => sg.ChannelGroups)
-    //            .ThenInclude(sgcg => sgcg.ChannelGroup)
-    //        .Include(sg => sg.ChildVideoStreams)
-    //            .ThenInclude(sgvs => sgvs.ChildVideoStream)
-    //        .SingleOrDefault(sg => sg.Id == streamGroupId, cancellationToken);
-    //}
-
-    //public async Task<StreamGroupDto?> GetStreamGroupDto(int id, CancellationToken cancellationToken = default)
-    //{
-    //    string Url = httpContextAccessor.GetUrl();
-    //    int count = 0;
-
-    //    StreamGroupDto? ret;
-    //    if (id == 1)
-    //    {
-    //        ret = new StreamGroupDto { Id = 0, Name = "All" };
-    //        count = RepositoryContext.VideoStreams.Count();
-    //    }
-    //    else
-    //    {
-    //        StreamGroup? streamGroup = await GetStreamGroupById(id).ConfigureAwait(false);
-    //        if (streamGroup == null)
-    //        {
-    //            return null;
-    //        }
-    //        count = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == id).Count();
-    //        ret = mapper.Map<StreamGroupDto>(streamGroup);
-    //    }
-
-    //    Setting setting = await settingsService.GetSettings();
-    //    string encodedStreamGroupNumber = ret.Id.EncodeValue128(setting.ServerKey);
-    //    ret.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
-    //    ret.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
-    //    ret.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
-    //    ret.StreamCount = count;
-    //    return ret;
-    //}
 
     public IQueryable<StreamGroup> GetAllStreamGroups()
     {
@@ -132,6 +110,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
                    .ToListAsync(cancellationToken: cancellationToken)
                    .ConfigureAwait(false);
 
+
         await SetStreamGroupsLinks(ret).ConfigureAwait(false);
         return ret;
 
@@ -142,18 +121,25 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
         Create(StreamGroup);
     }
 
-    public int? DeleteStreamGroup(int streamGroupId)
+    public async Task<int?> DeleteStreamGroup(int streamGroupId)
     {
+        IQueryable<StreamGroupVideoStream> videoStreams = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == streamGroupId);
+        IQueryable<StreamGroupChannelGroup> channelGroups = RepositoryContext.StreamGroupChannelGroups.Where(a => a.StreamGroupId == streamGroupId);
+        RepositoryContext.StreamGroupVideoStreams.RemoveRange(videoStreams);
+        RepositoryContext.StreamGroupChannelGroups.RemoveRange(channelGroups);
+        await RepositoryContext.SaveChangesAsync();
+
         StreamGroup? streamGroup = FindByCondition(c => c.Id == streamGroupId).FirstOrDefault();
         if (streamGroup == null)
         {
             return null;
         }
         Delete(streamGroup);
+        await RepositoryContext.SaveChangesAsync();
         return streamGroup.Id;
     }
 
-    public StreamGroupDto? UpdateStreamGroup(int StreamGroupId, string newName)
+    public async Task<StreamGroupDto?> UpdateStreamGroup(int StreamGroupId, string newName)
     {
         StreamGroup? streamGroup = FindByCondition(c => c.Id == StreamGroupId).FirstOrDefault();
         if (streamGroup == null)
@@ -163,49 +149,20 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
         streamGroup.Name = newName;
         Update(streamGroup);
 
-        return streamGroup != null ? mapper.Map<StreamGroupDto>(streamGroup) : null;
+        StreamGroupDto ret = mapper.Map<StreamGroupDto>(streamGroup);
+
+        await SetStreamGroupsLink(ret);
+
+        return ret;
     }
     public void UpdateStreamGroup(StreamGroup StreamGroup)
     {
         Update(StreamGroup);
     }
 
-    Task<int?> IStreamGroupRepository.DeleteStreamGroup(int streamGroupId)
-    {
-        throw new NotImplementedException();
-    }
-
     public IQueryable<StreamGroup> GetStreamGroupQuery()
     {
         return FindAll();
     }
-
-    //public async Task<PagedResponse<StreamGroupDto>> GetStreamGroupDtosPaged(StreamGroupParameters StreamGroupParameters)
-    //{
-    //    string Url = httpContextAccessor.GetUrl();
-    //    Setting setting = await settingsService.GetSettings();
-    //    PagedResponse<StreamGroupDto> ret = await GetEntities(StreamGroupParameters, mapper);
-    //    foreach (StreamGroupDto sg in ret.Data)
-    //    {
-    //        int count = 0;
-    //        if (sg.Id == 1)
-    //        {
-    //            count = RepositoryContext.VideoStreams.Count();
-    //        }
-    //        else
-    //        {
-    //            count = RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == sg.Id).Count();
-    //        }
-    //        RepositoryContext.StreamGroupVideoStreams.Where(a => a.StreamGroupId == sg.Id).Count();
-    //        string encodedStreamGroupNumber = sg.Id.EncodeValue128(setting.ServerKey);
-    //        sg.M3ULink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/m3u.m3u";
-    //        sg.XMLLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}/epg.xml";
-    //        sg.HDHRLink = $"{Url}/api/streamgroups/{encodedStreamGroupNumber}";
-    //        sg.StreamCount = count;
-    //    }
-
-
-    //    return ret;
-    //}
 
 }

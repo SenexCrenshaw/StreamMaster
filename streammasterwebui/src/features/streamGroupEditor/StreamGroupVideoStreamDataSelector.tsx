@@ -85,6 +85,7 @@ const StreamGroupVideoStreamDataSelector = ({ id }: StreamGroupVideoStreamDataSe
       isLoading={streamGroupsGetStreamGroupVideoStreamIdsQuery.isLoading || streamGroupsGetStreamGroupVideoStreamIdsQuery.isFetching}
       onRowClick={async (e) => await onRowClick(e)}
       queryFilter={useVideoStreamsGetPagedVideoStreamsQuery}
+      selectedItemsKey='selectSelectedStreamGroupDtoItems'
       selectionMode='single'
       style={{ height: 'calc(100vh - 40px)' }
       }

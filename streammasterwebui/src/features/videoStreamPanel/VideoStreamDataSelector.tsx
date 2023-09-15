@@ -83,6 +83,7 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
         await videoStreamLinksAddVideoStreamToVideoStreamMutation(toSend);
       }}
       queryFilter={useVideoStreamsGetPagedVideoStreamsQuery}
+      selectedItemsKey='selectSelectedVideoStreamPanelVideoStreamDtoItems'
       selectionMode='single'
       style={{ height: 'calc(100vh - 480px)' }}
       videoStreamIdsIsReadOnly={(videoStreamIds || [])}

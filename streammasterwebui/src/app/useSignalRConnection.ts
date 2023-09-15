@@ -1,9 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { HubConnectionState } from '@microsoft/signalr';
 import { useEffect, useRef } from 'react';
+import { useDispatch } from 'react-redux';
 import { hubConnection } from './signalr';
 import { useAppInfo } from './slices/useAppInfo';
+import { type AppDispatch } from './store';
 
 export const useSignalRConnection = () => {
+  const dispatch: AppDispatch = useDispatch();
   const { setHubConnected, setHubDisconnected } = useAppInfo();
   const retries = useRef(0); // store the retry count
 
@@ -30,6 +34,11 @@ export const useSignalRConnection = () => {
           setHubConnected(false);  // max retries reached
         }
       });
+
+    // hubConnection.on('ChannelGroupsRefresh', (data: iptv.ChannelGroupDto[]) => {
+    //   console.log('hey handle', data);
+    //   dispatch(handleChannelGroupsRefresh(data));
+    // });
   };
 
   useEffect(() => {

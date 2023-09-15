@@ -230,7 +230,7 @@ internal class Program
                 rtkContent.AppendLine($"        }}");
                 rtkContent.AppendLine();
                 rtkContent.AppendLine($"        await cacheEntryRemoved;");
-                //rtkContent.AppendLine($"        hubConnection.off('{tag}Refresh');");
+                rtkContent.AppendLine($"        hubConnection.off('{tag}Refresh');");
                 rtkContent.AppendLine($"      }}");
                 rtkContent.AppendLine($"    }},");
             }

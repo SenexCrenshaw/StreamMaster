@@ -14,6 +14,7 @@ public class DeleteVideoStreamEventHandler : BaseMediatorRequestHandler, INotifi
         ChannelGroupDto? channelGroup = await Sender.Send(new GetChannelGroupFromVideoStreamId(notification.VideoStreamId), cancellationToken).ConfigureAwait(false);
         if (channelGroup != null)
         {
+            await Sender.Send(new UpdateChannelGroupEvent(channelGroup, true, false), cancellationToken).ConfigureAwait(false);
             await Publisher.Publish(new UpdateChannelGroupEvent(channelGroup, false, false), cancellationToken).ConfigureAwait(false);
         }
         await HubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);

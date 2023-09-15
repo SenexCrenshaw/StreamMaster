@@ -27,7 +27,7 @@ import ResetButton from '../buttons/ResetButton';
 import { useSetQueryFilter } from './useSetQueryFilter';
 
 const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) => {
-  const { state, setters } = useDataSelectorState<T>(props.id);
+  const { state, setters } = useDataSelectorState<T>(props.id, props.selectedItemsKey);
 
   useEffect(() => {
     if (!props.defaultSortField) {
@@ -607,6 +607,7 @@ type BaseDataSelectorProps<T = any> = {
   onSelectionChange?: (value: T | T[], selectAll: boolean) => void;
   // onValueChanged?: (value: T[]) => void;
   reorderable?: boolean;
+  selectedItemsKey: string;
   selectedStreamGroupId?: number;
   selectionMode?: DataSelectorSelectionMode;
   showHeaders?: boolean | undefined;

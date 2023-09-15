@@ -78,6 +78,7 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
       id={dataKey}
       key='rank'
       queryFilter={useStreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsQuery}
+      selectedItemsKey='selectSelectedStreamGroupDtoItems'
       selectedStreamGroupId={selectedStreamGroup?.id ?? 0}
       selectionMode='single'
       style={{ height: 'calc(100vh - 40px)' }

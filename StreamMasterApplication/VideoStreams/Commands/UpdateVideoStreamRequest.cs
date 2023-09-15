@@ -3,8 +3,6 @@
 using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
-using StreamMasterDomain.Models;
-
 namespace StreamMasterApplication.VideoStreams.Commands;
 
 public class UpdateVideoStreamRequestValidator : AbstractValidator<UpdateVideoStreamRequest>
@@ -29,7 +27,7 @@ public class UpdateVideoStreamRequestHandler(ILogger<UpdateVideoStreamRequest> l
             if (updateChannelGroup != null)
             {
 
-                await Publisher.Publish(new UpdateChannelGroupCountRequest(updateChannelGroup, true)).ConfigureAwait(false);
+                await Sender.Send(new UpdateChannelGroupCountRequest(updateChannelGroup, true)).ConfigureAwait(false);
 
             }
         }
