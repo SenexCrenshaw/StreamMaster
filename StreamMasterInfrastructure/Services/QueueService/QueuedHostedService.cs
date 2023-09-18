@@ -99,7 +99,7 @@ public sealed class QueuedHostedService : BackgroundService
                         break;
 
                     case SMQueCommand.UpdateChannelGroupCounts:
-                        await _sender.Send(new UpdateChannelGroupCountsRequest(), cancellationToken).ConfigureAwait(false);
+                        await _sender.Send(new UpdateChannelGroupCountsByIdsRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.ProcessM3UFile:

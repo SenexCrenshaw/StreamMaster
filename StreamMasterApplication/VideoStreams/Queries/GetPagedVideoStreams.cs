@@ -8,7 +8,6 @@ internal class GetPagedVideoStreamsHandler(ILogger<GetPagedVideoStreamsHandler> 
 {
     public async Task<PagedResponse<VideoStreamDto>> Handle(GetPagedVideoStreams request, CancellationToken cancellationToken)
     {
-
         if (request.Parameters.PageSize == 0)
         {
             return Repository.VideoStream.CreateEmptyPagedResponse();
