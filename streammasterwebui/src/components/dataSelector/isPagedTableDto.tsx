@@ -1,18 +1,22 @@
 import { type PagedTableDto } from "./DataSelector";
 
-function isPagedTableDto<T>(value: PagedTableDto<T>): value is PagedTableDto<T> {
-  if (!value || Array.isArray(value)) {
+function isPagedTableDto<T>(value: unknown): value is PagedTableDto<T> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return false;
   }
 
+  // You'll need to assert value as any here, since TS doesn't know if the value is an object or not.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const val = value as any;
+
   return (
-    value &&
-    (value.data === undefined || Array.isArray(value.data)) &&
-    typeof value.first === 'number' &&
-    typeof value.pageNumber === 'number' &&
-    typeof value.pageSize === 'number' &&
-    typeof value.totalItemCount === 'number' &&
-    typeof value.totalPageCount === 'number'
+    val &&
+    (val.data === undefined || Array.isArray(val.data)) &&
+    typeof val.first === 'number' &&
+    typeof val.pageNumber === 'number' &&
+    typeof val.pageSize === 'number' &&
+    typeof val.totalItemCount === 'number' &&
+    typeof val.totalPageCount === 'number'
   );
 }
 

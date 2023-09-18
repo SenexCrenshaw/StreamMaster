@@ -5,7 +5,8 @@ namespace StreamMasterDomain.Models;
 public class VideoStreamBaseRequest
 {
     public bool? ToggleVisibility { get; set; }
-    public bool? IsHidden { get; set; }
+
+    //public bool? IsHidden { get; set; }
     public int? Tvg_chno { get; set; }
 
     public string? Tvg_group { get; set; }
@@ -19,5 +20,4 @@ public class VideoStreamBaseRequest
     public string? Url { get; set; }
 
     public List<ChildVideoStreamDto>? ChildVideoStreams { get; set; }
-
 }

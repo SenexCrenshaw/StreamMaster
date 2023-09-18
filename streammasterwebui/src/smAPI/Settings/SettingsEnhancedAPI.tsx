@@ -1,104 +1,127 @@
-import { hubConnection } from '../../app/signalr';
+import { singletonSettingsListener } from '../../app/createSingletonListener';
 import { isEmptyObject } from '../../common/common';
-import { iptvApi } from '../../store/iptvApi';
+import isPagedTableDto from '../../components/dataSelector/isPagedTableDto';
 import type * as iptv from '../../store/iptvApi';
+import { iptvApi } from '../../store/iptvApi';
 
 export const enhancedApiSettings = iptvApi.enhanceEndpoints({
   endpoints: {
     settingsGetQueueStatus: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.TaskQueueStatusDto[]) => {
-            updateCachedData((draft: iptv.SettingsGetQueueStatusApiResponse) => {
-              data.forEach(item => {
-                const index = draft.findIndex(existingItem => existingItem.id === item.id);
-                if (index !== -1) {
-                  draft[index] = item;
-                }
-              });
+            updateCachedData(() => {
+              console.log('updateCachedData', data);
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Settings' }])) {
+                if (endpointName !== 'settingsGetQueueStatus') continue;
+                dispatch(
+                  iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                    if (isEmptyObject(data)) {
+                      console.log('empty', data);
+                      dispatch(iptvApi.util.invalidateTags(['Settings']));
+                      return;
+                    }
 
-              return draft;
+                    if (isPagedTableDto(data)) {
+                      data.forEach(item => {
+                        const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft[index] = item;
+                        }
+                      });
+
+                      return draft;
+                    }
+
+                    data.forEach(item => {
+                      const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                      if (index !== -1) {
+                        draft[index] = item;
+                      }
+                    });
+
+                    return draft;
+                  })
+                )
+              }
+
+
             });
           };
 
-          const doSettingsGetQueueStatusUpdate = (data: iptv.TaskQueueStatusDto[]) => {
-            // console.log('doSettingsGetQueueStatusUpdate')
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['Settings']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          }
+          singletonSettingsListener.addListener(updateCachedDataWithResults);
 
-          hubConnection.on('SettingsRefresh', doSettingsGetQueueStatusUpdate);
+          await cacheEntryRemoved;
+          singletonSettingsListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
 
-        await cacheEntryRemoved;
       }
     },
     settingsGetSetting: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.SettingDto) => {
-            updateCachedData((draft: iptv.SettingsGetSettingApiResponse) => {
-              draft=data
-              return draft;
+            updateCachedData(() => {
+              console.log('updateCachedData', data);
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Settings' }])) {
+                if (endpointName !== 'settingsGetSetting') continue;
+                dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                  console.log('updateCachedData', data, draft);
+                })
+                );
+              }
+
+
             });
           };
 
-          const doSettingsGetSettingUpdate = (data: iptv.SettingDto) => {
-            // console.log('doSettingsGetSettingUpdate')
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['Settings']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          }
+          singletonSettingsListener.addListener(updateCachedDataWithResults);
 
-          hubConnection.on('SettingsRefresh', doSettingsGetSettingUpdate);
+          await cacheEntryRemoved;
+          singletonSettingsListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
 
-        await cacheEntryRemoved;
       }
     },
     settingsGetSystemStatus: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.SystemStatus) => {
-            updateCachedData((draft: iptv.SettingsGetSystemStatusApiResponse) => {
-              draft=data
-              return draft;
+            updateCachedData(() => {
+              console.log('updateCachedData', data);
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Settings' }])) {
+                if (endpointName !== 'settingsGetSystemStatus') continue;
+                dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                  console.log('updateCachedData', data, draft);
+                })
+                );
+              }
+
+
             });
           };
 
-          const doSettingsGetSystemStatusUpdate = (data: iptv.SystemStatus) => {
-            // console.log('doSettingsGetSystemStatusUpdate')
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['Settings']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          }
+          singletonSettingsListener.addListener(updateCachedDataWithResults);
 
-          hubConnection.on('SettingsRefresh', doSettingsGetSystemStatusUpdate);
+          await cacheEntryRemoved;
+          singletonSettingsListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
 
-        await cacheEntryRemoved;
       }
     },
   }

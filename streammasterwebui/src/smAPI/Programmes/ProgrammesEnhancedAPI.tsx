@@ -1,80 +1,121 @@
-import { hubConnection } from '../../app/signalr';
+import { singletonProgrammesListener } from '../../app/createSingletonListener';
 import { isEmptyObject } from '../../common/common';
+import isPagedTableDto from '../../components/dataSelector/isPagedTableDto';
 import { iptvApi } from '../../store/iptvApi';
 import type * as iptv from '../../store/iptvApi';
 
 export const enhancedApiProgrammes = iptvApi.enhanceEndpoints({
   endpoints: {
     programmesGetPagedProgrammeNameSelections: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.ProgrammeNameDto[]) => {
-            updateCachedData((draft: iptv.ProgrammesGetPagedProgrammeNameSelectionsApiResponse) => {
-              data.forEach(item => {
-                const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
-                if (index !== -1) {
-                  draft.data[index] = item;
-                }
-              });
+            updateCachedData(() => {
+              console.log('updateCachedData', data);
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Programmes' }])) {
+                if (endpointName !== 'programmesGetPagedProgrammeNameSelections') continue;
+                  dispatch(
+                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                      if (isEmptyObject(data)) {
+                        console.log('empty', data);
+                        dispatch(iptvApi.util.invalidateTags(['Programmes']));
+                        return;
+                      }
 
-              return draft;
+                      if (isPagedTableDto(data)) {
+                      data.forEach(item => {
+                        const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft.data[index] = item;
+                        }
+                        });
+
+                        return draft;
+                        }
+
+                      data.forEach(item => {
+                        const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft.data[index] = item;
+                        }
+                        });
+
+                      return draft;
+                     })
+                   )
+                 }
+
+
             });
           };
 
-          const doProgrammesGetPagedProgrammeNameSelectionsUpdate = (data: iptv.ProgrammeNameDto[]) => {
-            // console.log('doProgrammesGetPagedProgrammeNameSelectionsUpdate')
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['Programmes']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          }
+         singletonProgrammesListener.addListener(updateCachedDataWithResults);
 
-          hubConnection.on('ProgrammesRefresh', doProgrammesGetPagedProgrammeNameSelectionsUpdate);
+        await cacheEntryRemoved;
+        singletonProgrammesListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
 
-        await cacheEntryRemoved;
       }
     },
     programmesGetProgrammsSimpleQuery: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.ProgrammeNameDto[]) => {
-            updateCachedData((draft: iptv.ProgrammesGetProgrammsSimpleQueryApiResponse) => {
-              data.forEach(item => {
-                const index = draft.findIndex(existingItem => existingItem.id === item.id);
-                if (index !== -1) {
-                  draft[index] = item;
-                }
-              });
+            updateCachedData(() => {
+              console.log('updateCachedData', data);
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Programmes' }])) {
+                if (endpointName !== 'programmesGetProgrammsSimpleQuery') continue;
+                  dispatch(
+                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                      if (isEmptyObject(data)) {
+                        console.log('empty', data);
+                        dispatch(iptvApi.util.invalidateTags(['Programmes']));
+                        return;
+                      }
 
-              return draft;
+                      if (isPagedTableDto(data)) {
+                      data.forEach(item => {
+                        const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft[index] = item;
+                        }
+                        });
+
+                        return draft;
+                        }
+
+                      data.forEach(item => {
+                        const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft[index] = item;
+                        }
+                        });
+
+                      return draft;
+                     })
+                   )
+                 }
+
+
             });
           };
 
-          const doProgrammesGetProgrammsSimpleQueryUpdate = (data: iptv.ProgrammeNameDto[]) => {
-            // console.log('doProgrammesGetProgrammsSimpleQueryUpdate')
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['Programmes']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          }
+         singletonProgrammesListener.addListener(updateCachedDataWithResults);
 
-          hubConnection.on('ProgrammesRefresh', doProgrammesGetProgrammsSimpleQueryUpdate);
+        await cacheEntryRemoved;
+        singletonProgrammesListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
 
-        await cacheEntryRemoved;
       }
     },
   }

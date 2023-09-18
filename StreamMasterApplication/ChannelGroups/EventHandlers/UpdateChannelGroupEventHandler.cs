@@ -15,15 +15,16 @@ public class UpdateChannelGroupEventHandler(ILogger<UpdateChannelGroupEvent> log
             List<VideoStreamDto> streams = await repository.VideoStream.GetVideoStreamsForChannelGroup(notification.ChannelGroup.Id, cancellationToken).ConfigureAwait(false);
             if (streams.Any())
             {
-                if (!notification.ChannelGroupNameChanged)
-                {
-                    IEnumerable<IDIsHidden> ids = streams.Select(a => new IDIsHidden { Id = a.Id, IsHidden = a.IsHidden });
-                    await HubContext.Clients.All.VideoStreamsVisibilityRefresh(ids).ConfigureAwait(false);
-                }
-                else
-                {
+                //if (!notification.ChannelGroupNameChanged)
+                //{
+                //    IEnumerable<IDIsHidden> ids = streams.Select(a => new IDIsHidden { Id = a.Id, IsHidden = a.IsHidden });
+                    
+                //    await HubContext.Clients.All.VideoStreamsRefresh(ids.ToArray()).ConfigureAwait(false);
+                //}
+                //else
+                //{
                     await HubContext.Clients.All.VideoStreamsRefresh(streams.ToArray()).ConfigureAwait(false);
-                }
+                //}
             }
 
 

@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 
+using MediatR;
+
 using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
@@ -28,7 +30,7 @@ public class UpdateVideoStreamRequestHandler(ILogger<UpdateVideoStreamRequest> l
             {
 
                 await Sender.Send(new UpdateChannelGroupCountRequest(updateChannelGroup, true)).ConfigureAwait(false);
-
+                await HubContext.Clients.All.ChannelGroupsRefresh([updateChannelGroup]).ConfigureAwait(false);
             }
         }
         return videoStream;

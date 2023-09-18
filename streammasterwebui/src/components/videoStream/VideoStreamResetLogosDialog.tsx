@@ -6,7 +6,8 @@ import { useSelectAll } from "../../app/slices/useSelectAll";
 import { useSelectedVideoStreams } from "../../app/slices/useSelectedVideoStreams";
 import { getTopToolOptions } from "../../common/common";
 import { ResetLogoIcon } from "../../common/icons";
-import { useVideoStreamsReSetVideoStreamsLogoFromParametersMutation, useVideoStreamsReSetVideoStreamsLogoMutation, type ReSetVideoStreamsLogoRequest, type VideoStreamDto, type VideoStreamsReSetVideoStreamsLogoFromParametersApiArg } from "../../store/iptvApi";
+import { ReSetVideoStreamsLogo, ReSetVideoStreamsLogoFromParameters } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
+import { type ReSetVideoStreamsLogoRequest, type VideoStreamDto, type VideoStreamsReSetVideoStreamsLogoFromParametersApiArg } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import OKButton from "../buttons/OKButton";
 
@@ -24,9 +25,6 @@ const VideoStreamResetLogosDialog = ({ id }: VideoStreamResetLogosDialogProps) =
 
   const { selectedVideoStreams } = useSelectedVideoStreams(id);
 
-
-  const [videoStreamsReSetVideoStreamsLogoMutation] = useVideoStreamsReSetVideoStreamsLogoMutation();
-  const [videoStreamsReSetVideoStreamsLogoFromParametersMutation] = useVideoStreamsReSetVideoStreamsLogoFromParametersMutation();
 
   const ReturnToParent = () => {
     setShowOverlay(false);
@@ -49,7 +47,7 @@ const VideoStreamResetLogosDialog = ({ id }: VideoStreamResetLogosDialogProps) =
       toSendAll.parameters = queryFilter;
 
 
-      videoStreamsReSetVideoStreamsLogoFromParametersMutation(toSendAll)
+      await ReSetVideoStreamsLogoFromParameters(toSendAll)
         .then(() => {
           setInfoMessage('Set Streams Successfully');
         }
@@ -78,7 +76,7 @@ const VideoStreamResetLogosDialog = ({ id }: VideoStreamResetLogosDialogProps) =
 
       count += max;
       promises.push(
-        videoStreamsReSetVideoStreamsLogoMutation(toSend)
+        ReSetVideoStreamsLogo(toSend)
           .then(() => {
 
           }).catch(() => { })
@@ -97,7 +95,7 @@ const VideoStreamResetLogosDialog = ({ id }: VideoStreamResetLogosDialogProps) =
 
 
 
-  }, [queryFilter, selectAll, selectedVideoStreams, videoStreamsReSetVideoStreamsLogoFromParametersMutation, videoStreamsReSetVideoStreamsLogoMutation]);
+  }, [queryFilter, selectAll, selectedVideoStreams]);
 
   const getTotalCount = useMemo(() => {
 

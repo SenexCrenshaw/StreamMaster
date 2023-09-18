@@ -1,74 +1,96 @@
-import { hubConnection } from '../../app/signalr';
+import { singletonEPGFilesListener } from '../../app/createSingletonListener';
 import { isEmptyObject } from '../../common/common';
-import { iptvApi } from '../../store/iptvApi';
+import isPagedTableDto from '../../components/dataSelector/isPagedTableDto';
 import type * as iptv from '../../store/iptvApi';
+import { iptvApi } from '../../store/iptvApi';
 
 export const enhancedApiEpgFiles = iptvApi.enhanceEndpoints({
   endpoints: {
     epgFilesGetEpgFile: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.EpgFileDto) => {
-            updateCachedData((draft: iptv.EpgFilesGetEpgFileApiResponse) => {
-              draft=data
-              return draft;
+            updateCachedData(() => {
+              console.log('updateCachedData', data);
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'EPGFiles' }])) {
+                if (endpointName !== 'epgFilesGetEpgFile') continue;
+                dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                  console.log('updateCachedData', data, draft);
+                })
+                );
+              }
+
+
             });
           };
 
-          const doEpgFilesGetEpgFileUpdate = (data: iptv.EpgFileDto) => {
-            // console.log('doEpgFilesGetEpgFileUpdate')
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['EPGFiles']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          }
+          singletonEPGFilesListener.addListener(updateCachedDataWithResults);
 
-          hubConnection.on('EPGFilesRefresh', doEpgFilesGetEpgFileUpdate);
+          await cacheEntryRemoved;
+          singletonEPGFilesListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
 
-        await cacheEntryRemoved;
       }
     },
     epgFilesGetPagedEpgFiles: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.EpgFileDto[]) => {
-            updateCachedData((draft: iptv.EpgFilesGetPagedEpgFilesApiResponse) => {
-              data.forEach(item => {
-                const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
-                if (index !== -1) {
-                  draft.data[index] = item;
-                }
-              });
+            updateCachedData(() => {
+              console.log('updateCachedData', data);
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'EPGFiles' }])) {
+                if (endpointName !== 'epgFilesGetPagedEpgFiles') continue;
+                dispatch(
+                  iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                    if (isEmptyObject(data)) {
+                      console.log('empty', data);
+                      dispatch(iptvApi.util.invalidateTags(['EPGFiles']));
+                      return;
+                    }
 
-              return draft;
+                    if (isPagedTableDto(data)) {
+                      data.forEach(item => {
+                        const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft.data[index] = item;
+                        }
+                      });
+
+                      return draft;
+                    }
+
+                    data.forEach(item => {
+                      const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
+                      if (index !== -1) {
+                        draft.data[index] = item;
+                      }
+                    });
+
+                    return draft;
+                  })
+                )
+              }
+
+
             });
           };
 
-          const doEpgFilesGetPagedEpgFilesUpdate = (data: iptv.EpgFileDto[]) => {
-            // console.log('doEpgFilesGetPagedEpgFilesUpdate')
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['EPGFiles']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          }
+          singletonEPGFilesListener.addListener(updateCachedDataWithResults);
 
-          hubConnection.on('EPGFilesRefresh', doEpgFilesGetPagedEpgFilesUpdate);
+          await cacheEntryRemoved;
+          singletonEPGFilesListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
 
-        await cacheEntryRemoved;
       }
     },
   }

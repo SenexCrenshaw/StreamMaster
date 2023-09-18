@@ -76,7 +76,7 @@ const ChannelGroupSelector: React.FC<ChannelGroupSelectorProps> = ({ className, 
         className={`w-full ${className}`}
         filter
         filterInputAutoFocus
-        itemTemplate={(option) => getChannelGroupMenuItem(option.id, option.name)}
+        itemTemplate={(option) => getChannelGroupMenuItem(option.name, option.name + '  |  ' + option.totalCount)}  // getChannelGroupMenuItem(option.id, option.name)}
         onChange={(e) => onChange(e.value.name)}
         optionLabel="name"
         options={channelGroupNamesQuery.data}

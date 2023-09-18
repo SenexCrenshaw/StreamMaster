@@ -1559,6 +1559,7 @@ export type ChannelGroupDto = ChannelGroupArg & {
 };
 export type ChannelGroupIdName = {
   id?: number;
+  totalCount?: number;
   name?: string;
 };
 export type PagedResponseOfChannelGroupDto = {
@@ -2208,7 +2209,6 @@ export type RemoveVideoStreamFromVideoStreamRequest = {
 };
 export type VideoStreamBaseRequest = {
   toggleVisibility?: boolean | null;
-  isHidden?: boolean | null;
   tvg_chno?: number | null;
   tvg_group?: string | null;
   tvg_ID?: string | null;

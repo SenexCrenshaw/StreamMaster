@@ -18,7 +18,6 @@ namespace StreamMasterInfrastructureEF.Repositories;
 
 public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, RepositoryContext repositoryContext, IRepositoryWrapper repository, IMemoryCache memoryCache, ISender sender) : RepositoryBase<ChannelGroup>(repositoryContext, logger), IChannelGroupRepository
 {
-
     /// <summary>
     /// Retrieves all channel groups from the database.
     /// </summary>
@@ -27,12 +26,17 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
     {
         try
         {
+            List<ChannelGroup> channelGroups = new();
+
             IQueryable<ChannelGroup> query = FindAll();
-            if (ids != null)
+            if (ids == null)
             {
-                query.Where(a => ids.Contains(a.Id));
+                channelGroups = await FindAll().ToListAsync().ConfigureAwait(false);
             }
-            List<ChannelGroup> channelGroups = await query.ToListAsync().ConfigureAwait(false);
+            else
+            {
+                channelGroups = await FindByCondition(a => ids.Contains(a.Id)).ToListAsync().ConfigureAwait(false);
+            }
 
             logger.LogInformation($"Successfully retrieved {channelGroups.Count} channel groups.");
 
@@ -45,7 +49,6 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
         }
     }
 
-
     /// <summary>
     /// Asynchronously retrieves a list of all channel group names, ordered by name.
     /// </summary>
@@ -54,12 +57,15 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
     {
         try
         {
-            List<ChannelGroupIdName> channelGroupNames = await FindAll()
+            
+            List<ChannelGroupIdName> channelGroupNames = await RepositoryContext.ChannelGroups
                                         .OrderBy(channelGroup => channelGroup.Name)
-                                        .Select(channelGroup => new ChannelGroupIdName
+                                        .Select( channelGroup => new ChannelGroupIdName
                                         {
                                             Name = channelGroup.Name,
-                                            Id = channelGroup.Id
+                                            Id = channelGroup.Id,
+                                            TotalCount=RepositoryContext.VideoStreams.Count(a=> a.User_Tvg_group==channelGroup.Name)
+                                           
                                         })
                                         .ToListAsync()
                                         .ConfigureAwait(false);
@@ -72,7 +78,6 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
             throw;  // or return a default/fallback value, depending on your application's behavior
         }
     }
-
 
     /// <summary>
     /// Fetches paged ChannelGroup entities based on provided parameters, maps them to their DTO representations,
@@ -89,7 +94,6 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
         {
             // Get IQueryable based on provided parameters
             IQueryable<ChannelGroup> query = GetIQueryableForEntity(Parameters);
-
 
             PagedResponse<ChannelGroup> ret = await query.GetPagedResponseAsync(Parameters.PageNumber, Parameters.PageSize);
 
@@ -117,7 +121,6 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
         }
     }
 
-
     private async Task<ChannelGroup?> GetChannelGroupFromVideoStream(string channelGroupName)
     {
         ChannelGroup? ret = await GetChannelGroupByName(channelGroupName).ConfigureAwait(false);
@@ -127,7 +130,6 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
 
     public async Task<string?> GetChannelGroupNameFromVideoStream(string videoStreamId)
     {
-
         VideoStream? videoStream = await RepositoryContext.VideoStreams.FirstOrDefaultAsync(a => a.Id == videoStreamId).ConfigureAwait(false);
 
         if (videoStream == null)
@@ -169,7 +171,6 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
         return channelGroup;
     }
 
-
     /// <summary>
     /// Retrieves the ID of a ChannelGroup based on its associated VideoStream's name.
     /// </summary>
@@ -195,7 +196,6 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
 
         return channelGroup?.Id;
     }
-
 
     /// <summary>
     /// Retrieves a ChannelGroup DTO based on its identifier.
@@ -223,7 +223,6 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
 
         return channelGroup;
     }
-
 
     //public async Task<ChannelGroup?> GetChannelGroupAsync(int Id, CancellationToken cancellationToken = default)
     //{
@@ -267,8 +266,6 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
         }
     }
 
-
-
     /// <summary>
     /// Retrieves a ChannelGroup entity based on its name and maps it to a ChannelGroup.
     /// </summary>
@@ -294,7 +291,6 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
                 return null;
             }
 
-
             return channelGroup;
         }
         catch (Exception ex)
@@ -303,9 +299,6 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
             throw;
         }
     }
-
-
-
 
     //public async Task<IEnumerable<ChannelGroup>> GetAllChannelGroupsAsync()
     //{
@@ -337,7 +330,6 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
             throw;  // or handle the exception accordingly
         }
     }
-
 
     public async Task<(int? ChannelGroupId, List<VideoStreamDto> VideoStreams)> DeleteChannelGroupById(int ChannelGroupId)
     {
@@ -382,8 +374,6 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
         return (channelGroup.Id, videoStreams);
     }
 
-
-
     /// <summary>
     /// Updates the provided ChannelGroup entity.
     /// </summary>
@@ -427,7 +417,6 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
         return result;
     }
 
-
     /// <summary>
     /// Deletes all ChannelGroups based on the provided parameters and returns the associated video streams.
     /// </summary>
@@ -452,7 +441,6 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
 
         return (channelGroupIds, videoStreams);
     }
-
 
     public async Task<List<ChannelGroup>> GetChannelGroupsFromVideoStreamIds(IEnumerable<string> VideoStreamIds, CancellationToken cancellationToken)
     {

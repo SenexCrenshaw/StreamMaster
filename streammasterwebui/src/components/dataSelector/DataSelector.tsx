@@ -171,7 +171,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
   const rowClass = useCallback((changed: DataTableRowData<T[]>) => {
 
     // const isLoading2 = getRecord(changed as T, 'isLoading');
-    // console.log('isLoading2', isLoading2);
+
     const isHidden = getRecord(changed as T, 'isHidden');
 
     if (isHidden === true) {

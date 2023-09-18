@@ -15,7 +15,6 @@ public class UpdateChannelGroupCountRequestValidator : AbstractValidator<UpdateC
     }
 }
 
-
 [LogExecutionTimeAspect]
 public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCountRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateChannelGroupCountRequest, ChannelGroupDto>
 {
@@ -30,7 +29,6 @@ public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCou
     /// <exception cref="Exception">Thrown when there's an error processing the request, typically related to database operations.</exception>
     public async Task<ChannelGroupDto> Handle(UpdateChannelGroupCountRequest request, CancellationToken cancellationToken)
     {
-
         try
         {
             IQueryable<VideoStream> videoStreamsForGroupQuery = Repository.VideoStream.GetVideoStreamQuery().Where(vs => vs.User_Tvg_group == request.ChannelGroupDto.Name);
@@ -61,17 +59,23 @@ public class UpdateChannelGroupCountRequestHandler(ILogger<UpdateChannelGroupCou
                 changed = true;
             }
 
+            if (request.ChannelGroupDto.IsHidden != (request.ChannelGroupDto.HiddenCount == 0))
+            {
+                request.ChannelGroupDto.HiddenCount = hiddenCount;
+                changed = true;
+            }
+
             if (changed)
             {
-                ChannelGroupStreamCount response = new()
-                {
-                    ChannelGroupId = request.ChannelGroupDto.Id
-                };
+                //ChannelGroupStreamCount response = new()
+                //{
+                //    ChannelGroupId = request.ChannelGroupDto.Id
+                //};
 
-                MemoryCache.AddOrUpdateChannelGroupVideoStreamCount(response);
+                MemoryCache.AddOrUpdateChannelGroupVideoStreamCount(request.ChannelGroupDto);
                 if (request.Publish)
                 {
-                    await HubContext.Clients.All.UpdateChannelGroupVideoStreamCounts([response]).ConfigureAwait(false);
+                    await HubContext.Clients.All.ChannelGroupsRefresh([request.ChannelGroupDto]).ConfigureAwait(false);
                 }
             }
 

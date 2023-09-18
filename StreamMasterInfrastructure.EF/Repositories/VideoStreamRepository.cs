@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
+using NetTopologySuite.Operation.Valid;
+
 using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.Icons.Queries;
 using StreamMasterApplication.M3UFiles.Queries;
@@ -20,13 +22,13 @@ using StreamMasterDomain.Enums;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 
+using System.Collections.Generic;
 using System.Linq.Dynamic.Core;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
 public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender, ISettingsService settingsService) : RepositoryBase<VideoStream>(repositoryContext, logger), IVideoStreamRepository
 {
-
     public PagedResponse<VideoStreamDto> CreateEmptyPagedResponse()
     {
         return PagedExtensions.CreateEmptyPagedResponse<VideoStreamDto>(Count());
@@ -66,7 +68,6 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
             throw;  // Re-throwing the exception so the caller is aware of the failure.
         }
     }
-
 
     public async Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(string videoStreamId, CancellationToken cancellationToken = default)
     {
@@ -233,11 +234,9 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
 
     public async Task<List<VideoStreamDto>> SetGroupVisibleByGroupName(string channelGroupName, bool isHidden, CancellationToken cancellationToken)
     {
-
         await FindByCondition(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroupName)
             .ExecuteUpdateAsync(s => s.SetProperty(b => b.IsHidden, isHidden), cancellationToken: cancellationToken)
             .ConfigureAwait(false);
-
 
         await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
@@ -301,7 +300,6 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
 
     public async Task<VideoStream?> CreateVideoStreamAsync(CreateVideoStreamRequest request, CancellationToken cancellationToken)
     {
-
         VideoStream videoStream = new()
         {
             Id = IdConverter.GetID(),
@@ -321,8 +319,6 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
 
         return videoStream;
     }
-
-
 
     private async Task<VideoStream> UpdateVideoStreamValues(VideoStream videoStream, VideoStreamBaseRequest request, CancellationToken cancellationToken)
     {
@@ -379,10 +375,10 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
         {
             videoStream.IsHidden = !videoStream.IsHidden;
         }
-        else if (request.IsHidden != null && (videoStream.IsHidden != request.IsHidden || videoStream.IsUserCreated))
-        {
-            videoStream.IsHidden = request.IsHidden.Value;
-        }
+        //else if (request.IsHidden != null && (videoStream.IsHidden != request.IsHidden || videoStream.IsUserCreated))
+        //{
+        //    videoStream.IsHidden = request.IsHidden.Value;
+        //}
 
         return videoStream;
     }
@@ -410,6 +406,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
 
         return normalized;
     }
+
     private static double GetWeightedMatch(string sentence1, string sentence2)
     {
         // Convert sentences to lowercase and remove punctuation
@@ -428,7 +425,6 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
 
         return weightedMatch;
     }
-
 
     internal async Task<List<VideoStreamDto>> AutoMatchIconToStreams(IEnumerable<string> VideoStreamIds, CancellationToken cancellationToken)
     {
@@ -506,7 +502,6 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
         return await FindAll().Select(a => a.User_Tvg_name).Distinct().ToListAsync();
     }
 
-
     public async Task<VideoStreamDto?> GetVideoStreamById(string VideoStreamId)
     {
         VideoStream? ret = await FindByCondition(c => c.Id == VideoStreamId)
@@ -558,6 +553,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
     {
         Update(VideoStream);
     }
+
     public async Task<List<string>> DeleteAllVideoStreamsFromParameters(VideoStreamParameters Parameters, CancellationToken cancellationToken)
     {
         IQueryable<VideoStream> toDelete = GetIQueryableForEntity(Parameters).Where(a => a.IsUserCreated);
@@ -568,9 +564,9 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
     {
         const int batchSize = 1000;
 
-        IQueryable<VideoStream> result = GetIQueryableForEntity(Parameters).AsNoTracking();
+        List<VideoStream> result = await GetIQueryableForEntity(Parameters).AsNoTracking().ToListAsync(cancellationToken: cancellationToken);
 
-        List<string> ids = await result.Select(a => a.Id).Order().ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        List<string> ids = result.Select(a => a.Id).OrderBy(a => a).ToList();
         for (int i = 0; i < ids.Count; i += batchSize)
         {
             IEnumerable<string> batch = ids.Skip(i).Take(batchSize);
@@ -584,8 +580,11 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
         }
 
         _ = await repositoryContext.SaveChangesAsync(cancellationToken);
-
-        List<VideoStreamDto> ret = await result.ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false); ;
+        foreach (var r in result)
+        {
+            r.IsHidden = !r.IsHidden;
+        }
+        List<VideoStreamDto> ret = mapper.Map<List<VideoStreamDto>>(result);
         return (ret, ids.Count > 0);
     }
 
@@ -635,6 +634,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
         IQueryable<VideoStream> videoStreams = FindByCondition(a => Ids.Contains(a.Id), OrderBy);
         return await SetVideoStreamChannelNumbers(videoStreams, OverWriteExisting, StartNumber, cancellationToken).ConfigureAwait(false);
     }
+
     public async Task<List<VideoStreamDto>> SetVideoStreamChannelNumbersFromParameters(VideoStreamParameters Parameters, bool OverWriteExisting, int StartNumber, CancellationToken cancellationToken)
     {
         IQueryable<VideoStream> videoStreams = GetIQueryableForEntity(Parameters);
@@ -703,6 +703,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
         IQueryable<VideoStream> videoStreams = GetIQueryableForEntity(Parameters);
         return await SetVideoStreamsLogoFromEPG(videoStreams, cancellationToken).ConfigureAwait(false);
     }
+
     private async Task<List<VideoStreamDto>> SetVideoStreamsLogoFromEPG(IQueryable<VideoStream> videoStreams, CancellationToken cancellationToken)
     {
         int ret = 0;
@@ -731,11 +732,13 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
         IQueryable<VideoStream> videoStreams = FindByCondition(a => Ids.Contains(a.Id));
         return await SetVideoStreamsLogo(videoStreams, cancellationToken);
     }
+
     public async Task<List<VideoStreamDto>> ReSetVideoStreamsLogoFromParameters(VideoStreamParameters Parameters, CancellationToken cancellationToken)
     {
         IQueryable<VideoStream> videoStreams = GetIQueryableForEntity(Parameters);
         return await SetVideoStreamsLogo(videoStreams, cancellationToken);
     }
+
     private async Task<List<VideoStreamDto>> SetVideoStreamsLogo(IQueryable<VideoStream> videoStreams, CancellationToken cancellationToken)
     {
         int ret = 0;
@@ -805,7 +808,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
         {
             return (null, null);
         }
-        bool updateChannelGroup = request.ToggleVisibility == true || request.IsHidden != null || (request.Tvg_group != null && videoStream.User_Tvg_group != request.Tvg_group);
+        bool updateChannelGroup = request.ToggleVisibility == true || (request.Tvg_group != null && videoStream.User_Tvg_group != request.Tvg_group);
         videoStream = await UpdateVideoStreamValues(videoStream, request, cancellationToken).ConfigureAwait(false);
         UpdateVideoStream(videoStream);
 
@@ -819,6 +822,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
         ChannelGroupDto? cg = await sender.Send(new GetChannelGroupByName(dto.User_Tvg_group)).ConfigureAwait(false);
         return (dto, cg);
     }
+
     public async Task<(List<VideoStreamDto> videoStreams, List<ChannelGroupDto> updatedChannelGroups)> UpdateVideoStreamsAsync(IEnumerable<UpdateVideoStreamRequest> VideoStreamUpdates, CancellationToken cancellationToken)
     {
         List<VideoStreamDto> ret = new();

@@ -1,200 +1,245 @@
-import { hubConnection } from '../../app/signalr';
+import { singletonSchedulesDirectListener } from '../../app/createSingletonListener';
 import { isEmptyObject } from '../../common/common';
-import { iptvApi } from '../../store/iptvApi';
+import isPagedTableDto from '../../components/dataSelector/isPagedTableDto';
 import type * as iptv from '../../store/iptvApi';
+import { iptvApi } from '../../store/iptvApi';
 
 export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
   endpoints: {
     schedulesDirectGetCountries: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.Countries) => {
-            updateCachedData((draft: iptv.SchedulesDirectGetCountriesApiResponse) => {
-              draft=data
-              return draft;
+            updateCachedData(() => {
+              console.log('updateCachedData', data);
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'SchedulesDirect' }])) {
+                if (endpointName !== 'schedulesDirectGetCountries') continue;
+                dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                  console.log('updateCachedData', data, draft);
+                })
+                );
+              }
+
+
             });
           };
 
-          const doSchedulesDirectGetCountriesUpdate = (data: iptv.Countries) => {
-            // console.log('doSchedulesDirectGetCountriesUpdate')
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          }
+          singletonSchedulesDirectListener.addListener(updateCachedDataWithResults);
 
-          hubConnection.on('SchedulesDirectRefresh', doSchedulesDirectGetCountriesUpdate);
+          await cacheEntryRemoved;
+          singletonSchedulesDirectListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
 
-        await cacheEntryRemoved;
       }
     },
     schedulesDirectGetLineup: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.LineUpResult) => {
-            updateCachedData((draft: iptv.SchedulesDirectGetLineupApiResponse) => {
-              draft=data
-              return draft;
+            updateCachedData(() => {
+              console.log('updateCachedData', data);
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'SchedulesDirect' }])) {
+                if (endpointName !== 'schedulesDirectGetLineup') continue;
+                dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                  console.log('updateCachedData', data, draft);
+                })
+                );
+              }
+
+
             });
           };
 
-          const doSchedulesDirectGetLineupUpdate = (data: iptv.LineUpResult) => {
-            // console.log('doSchedulesDirectGetLineupUpdate')
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          }
+          singletonSchedulesDirectListener.addListener(updateCachedDataWithResults);
 
-          hubConnection.on('SchedulesDirectRefresh', doSchedulesDirectGetLineupUpdate);
+          await cacheEntryRemoved;
+          singletonSchedulesDirectListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
 
-        await cacheEntryRemoved;
       }
     },
     schedulesDirectGetLineupPreviews: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.LineUpPreview[]) => {
-            updateCachedData((draft: iptv.SchedulesDirectGetLineupPreviewsApiResponse) => {
-              data.forEach(item => {
-                const index = draft.findIndex(existingItem => existingItem.id === item.id);
-                if (index !== -1) {
-                  draft[index] = item;
-                }
-              });
+            updateCachedData(() => {
+              console.log('updateCachedData', data);
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'SchedulesDirect' }])) {
+                if (endpointName !== 'schedulesDirectGetLineupPreviews') continue;
+                dispatch(
+                  iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                    if (isEmptyObject(data)) {
+                      console.log('empty', data);
+                      dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
+                      return;
+                    }
 
-              return draft;
+                    if (isPagedTableDto(data)) {
+                      data.forEach(item => {
+                        const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft[index] = item;
+                        }
+                      });
+
+                      return draft;
+                    }
+
+                    data.forEach(item => {
+                      const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                      if (index !== -1) {
+                        draft[index] = item;
+                      }
+                    });
+
+                    return draft;
+                  })
+                )
+              }
+
+
             });
           };
 
-          const doSchedulesDirectGetLineupPreviewsUpdate = (data: iptv.LineUpPreview[]) => {
-            // console.log('doSchedulesDirectGetLineupPreviewsUpdate')
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          }
+          singletonSchedulesDirectListener.addListener(updateCachedDataWithResults);
 
-          hubConnection.on('SchedulesDirectRefresh', doSchedulesDirectGetLineupPreviewsUpdate);
+          await cacheEntryRemoved;
+          singletonSchedulesDirectListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
 
-        await cacheEntryRemoved;
       }
     },
     schedulesDirectGetLineups: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.LineUpsResult) => {
-            updateCachedData((draft: iptv.SchedulesDirectGetLineupsApiResponse) => {
-              draft=data
-              return draft;
+            updateCachedData(() => {
+              console.log('updateCachedData', data);
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'SchedulesDirect' }])) {
+                if (endpointName !== 'schedulesDirectGetLineups') continue;
+                dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                  console.log('updateCachedData', data, draft);
+                })
+                );
+              }
+
+
             });
           };
 
-          const doSchedulesDirectGetLineupsUpdate = (data: iptv.LineUpsResult) => {
-            // console.log('doSchedulesDirectGetLineupsUpdate')
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          }
+          singletonSchedulesDirectListener.addListener(updateCachedDataWithResults);
 
-          hubConnection.on('SchedulesDirectRefresh', doSchedulesDirectGetLineupsUpdate);
+          await cacheEntryRemoved;
+          singletonSchedulesDirectListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
 
-        await cacheEntryRemoved;
       }
     },
     schedulesDirectGetStationPreviews: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.StationPreview[]) => {
-            updateCachedData((draft: iptv.SchedulesDirectGetStationPreviewsApiResponse) => {
-              data.forEach(item => {
-                const index = draft.findIndex(existingItem => existingItem.id === item.id);
-                if (index !== -1) {
-                  draft[index] = item;
-                }
-              });
+            updateCachedData(() => {
+              console.log('updateCachedData', data);
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'SchedulesDirect' }])) {
+                if (endpointName !== 'schedulesDirectGetStationPreviews') continue;
+                dispatch(
+                  iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                    if (isEmptyObject(data)) {
+                      console.log('empty', data);
+                      dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
+                      return;
+                    }
 
-              return draft;
+                    if (isPagedTableDto(data)) {
+                      data.forEach(item => {
+                        const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft[index] = item;
+                        }
+                      });
+
+                      return draft;
+                    }
+
+                    data.forEach(item => {
+                      const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                      if (index !== -1) {
+                        draft[index] = item;
+                      }
+                    });
+
+                    return draft;
+                  })
+                )
+              }
+
+
             });
           };
 
-          const doSchedulesDirectGetStationPreviewsUpdate = (data: iptv.StationPreview[]) => {
-            // console.log('doSchedulesDirectGetStationPreviewsUpdate')
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          }
+          singletonSchedulesDirectListener.addListener(updateCachedDataWithResults);
 
-          hubConnection.on('SchedulesDirectRefresh', doSchedulesDirectGetStationPreviewsUpdate);
+          await cacheEntryRemoved;
+          singletonSchedulesDirectListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
 
-        await cacheEntryRemoved;
       }
     },
     schedulesDirectGetStatus: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.SdStatus) => {
-            updateCachedData((draft: iptv.SchedulesDirectGetStatusApiResponse) => {
-              draft=data
-              return draft;
+            updateCachedData(() => {
+              console.log('updateCachedData', data);
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'SchedulesDirect' }])) {
+                if (endpointName !== 'schedulesDirectGetStatus') continue;
+                dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                  console.log('updateCachedData', data, draft);
+                })
+                );
+              }
+
+
             });
           };
 
-          const doSchedulesDirectGetStatusUpdate = (data: iptv.SdStatus) => {
-            // console.log('doSchedulesDirectGetStatusUpdate')
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          }
+          singletonSchedulesDirectListener.addListener(updateCachedDataWithResults);
 
-          hubConnection.on('SchedulesDirectRefresh', doSchedulesDirectGetStatusUpdate);
+          await cacheEntryRemoved;
+          singletonSchedulesDirectListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
 
-        await cacheEntryRemoved;
       }
     },
   }

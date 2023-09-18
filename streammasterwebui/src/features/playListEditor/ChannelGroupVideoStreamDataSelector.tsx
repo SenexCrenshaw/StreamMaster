@@ -127,7 +127,7 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
       }}
       queryFilter={useVideoStreamsGetPagedVideoStreamsQuery}
       reorderable={reorderable}
-      selectedItemsKey='selectSelectedChannelGroupDtoItems'
+      selectedItemsKey='selectSelectedVideoStreamDtoItems'
       selectionMode='multiple'
       style={{ height: 'calc(100vh - 40px)' }}
     />

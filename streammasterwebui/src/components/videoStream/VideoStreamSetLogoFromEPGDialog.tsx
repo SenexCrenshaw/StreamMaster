@@ -2,11 +2,11 @@
 import { Button } from "primereact/button";
 import { memo, useCallback } from "react";
 import { getTopToolOptions } from "../../common/common";
-import { useVideoStreamsSetVideoStreamsLogoFromEpgMutation, type VideoStreamDto, type VideoStreamsSetVideoStreamsLogoFromEpgApiArg } from "../../store/iptvApi";
+import { SetVideoStreamsLogoFromEpg } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
+import { type VideoStreamDto, type VideoStreamsSetVideoStreamsLogoFromEpgApiArg } from "../../store/iptvApi";
 
 const VideoStreamSetLogoFromEPGDialog = (props: VideoStreamSetLogoFromEPGDialogProps) => {
 
-  const [videoStreamsSetVideoStreamsLogoFromEpgMutation] = useVideoStreamsSetVideoStreamsLogoFromEpgMutation();
   const ReturnToParent = useCallback(() => {
     props.onClose?.();
   }, [props]);
@@ -24,14 +24,14 @@ const VideoStreamSetLogoFromEPGDialog = (props: VideoStreamSetLogoFromEPGDialogP
 
     toSend.ids = [props.value.id];
 
-    await videoStreamsSetVideoStreamsLogoFromEpgMutation(toSend)
+    await SetVideoStreamsLogoFromEpg(toSend)
       .then(() => {
       }
       ).catch((error) => {
         console.log(error);
       });
 
-  }, [ReturnToParent, props.value, videoStreamsSetVideoStreamsLogoFromEpgMutation]);
+  }, [ReturnToParent, props.value]);
 
   return (
     <Button

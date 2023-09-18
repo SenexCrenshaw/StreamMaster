@@ -1,140 +1,183 @@
-import { hubConnection } from '../../app/signalr';
+import { singletonIconsListener } from '../../app/createSingletonListener';
 import { isEmptyObject } from '../../common/common';
+import isPagedTableDto from '../../components/dataSelector/isPagedTableDto';
 import { iptvApi } from '../../store/iptvApi';
 import type * as iptv from '../../store/iptvApi';
 
 export const enhancedApiIcons = iptvApi.enhanceEndpoints({
   endpoints: {
     iconsGetIcon: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto) => {
-            updateCachedData((draft: iptv.IconsGetIconApiResponse) => {
-              draft=data
-              return draft;
+            updateCachedData(() => {
+              console.log('updateCachedData', data);
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Icons' }])) {
+                if (endpointName !== 'iconsGetIcon') continue;
+                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                    console.log('updateCachedData', data, draft);
+                   })
+                   );
+                 }
+
+
             });
           };
 
-          const doIconsGetIconUpdate = (data: iptv.IconFileDto) => {
-            // console.log('doIconsGetIconUpdate')
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['Icons']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          }
+         singletonIconsListener.addListener(updateCachedDataWithResults);
 
-          hubConnection.on('IconsRefresh', doIconsGetIconUpdate);
+        await cacheEntryRemoved;
+        singletonIconsListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
 
-        await cacheEntryRemoved;
       }
     },
     iconsGetIconFromSource: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto) => {
-            updateCachedData((draft: iptv.IconsGetIconFromSourceApiResponse) => {
-              draft=data
-              return draft;
+            updateCachedData(() => {
+              console.log('updateCachedData', data);
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Icons' }])) {
+                if (endpointName !== 'iconsGetIconFromSource') continue;
+                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                    console.log('updateCachedData', data, draft);
+                   })
+                   );
+                 }
+
+
             });
           };
 
-          const doIconsGetIconFromSourceUpdate = (data: iptv.IconFileDto) => {
-            // console.log('doIconsGetIconFromSourceUpdate')
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['Icons']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          }
+         singletonIconsListener.addListener(updateCachedDataWithResults);
 
-          hubConnection.on('IconsRefresh', doIconsGetIconFromSourceUpdate);
+        await cacheEntryRemoved;
+        singletonIconsListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
 
-        await cacheEntryRemoved;
       }
     },
     iconsGetPagedIcons: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto[]) => {
-            updateCachedData((draft: iptv.IconsGetPagedIconsApiResponse) => {
-              data.forEach(item => {
-                const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
-                if (index !== -1) {
-                  draft.data[index] = item;
-                }
-              });
+            updateCachedData(() => {
+              console.log('updateCachedData', data);
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Icons' }])) {
+                if (endpointName !== 'iconsGetPagedIcons') continue;
+                  dispatch(
+                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                      if (isEmptyObject(data)) {
+                        console.log('empty', data);
+                        dispatch(iptvApi.util.invalidateTags(['Icons']));
+                        return;
+                      }
 
-              return draft;
+                      if (isPagedTableDto(data)) {
+                      data.forEach(item => {
+                        const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft.data[index] = item;
+                        }
+                        });
+
+                        return draft;
+                        }
+
+                      data.forEach(item => {
+                        const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft.data[index] = item;
+                        }
+                        });
+
+                      return draft;
+                     })
+                   )
+                 }
+
+
             });
           };
 
-          const doIconsGetPagedIconsUpdate = (data: iptv.IconFileDto[]) => {
-            // console.log('doIconsGetPagedIconsUpdate')
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['Icons']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          }
+         singletonIconsListener.addListener(updateCachedDataWithResults);
 
-          hubConnection.on('IconsRefresh', doIconsGetPagedIconsUpdate);
+        await cacheEntryRemoved;
+        singletonIconsListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
 
-        await cacheEntryRemoved;
       }
     },
     iconsGetIconsSimpleQuery: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto[]) => {
-            updateCachedData((draft: iptv.IconsGetIconsSimpleQueryApiResponse) => {
-              data.forEach(item => {
-                const index = draft.findIndex(existingItem => existingItem.id === item.id);
-                if (index !== -1) {
-                  draft[index] = item;
-                }
-              });
+            updateCachedData(() => {
+              console.log('updateCachedData', data);
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Icons' }])) {
+                if (endpointName !== 'iconsGetIconsSimpleQuery') continue;
+                  dispatch(
+                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                      if (isEmptyObject(data)) {
+                        console.log('empty', data);
+                        dispatch(iptvApi.util.invalidateTags(['Icons']));
+                        return;
+                      }
 
-              return draft;
+                      if (isPagedTableDto(data)) {
+                      data.forEach(item => {
+                        const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft[index] = item;
+                        }
+                        });
+
+                        return draft;
+                        }
+
+                      data.forEach(item => {
+                        const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft[index] = item;
+                        }
+                        });
+
+                      return draft;
+                     })
+                   )
+                 }
+
+
             });
           };
 
-          const doIconsGetIconsSimpleQueryUpdate = (data: iptv.IconFileDto[]) => {
-            // console.log('doIconsGetIconsSimpleQueryUpdate')
-            if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['Icons']));
-            } else {
-              updateCachedDataWithResults(data);
-            }
-          }
+         singletonIconsListener.addListener(updateCachedDataWithResults);
 
-          hubConnection.on('IconsRefresh', doIconsGetIconsSimpleQueryUpdate);
+        await cacheEntryRemoved;
+        singletonIconsListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
 
-        await cacheEntryRemoved;
       }
     },
   }

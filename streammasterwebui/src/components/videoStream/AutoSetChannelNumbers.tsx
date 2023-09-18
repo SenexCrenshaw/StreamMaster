@@ -5,7 +5,8 @@ import { useQueryFilter } from "../../app/slices/useQueryFilter";
 import { useSelectAll } from "../../app/slices/useSelectAll";
 import { useSelectedVideoStreams } from "../../app/slices/useSelectedVideoStreams";
 import { useSortInfo } from "../../app/slices/useSortInfo";
-import { useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation, useVideoStreamsSetVideoStreamChannelNumbersMutation, type VideoStreamDto, type VideoStreamsSetVideoStreamChannelNumbersApiArg, type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg } from "../../store/iptvApi";
+import { SetVideoStreamChannelNumbers, SetVideoStreamChannelNumbersFromParameters } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
+import { type VideoStreamDto, type VideoStreamsSetVideoStreamChannelNumbersApiArg, type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import AutoSetButton from "../buttons/AutoSetButton";
 import OKButton from "../buttons/OKButton";
@@ -22,8 +23,8 @@ const AutoSetChannelNumbers = ({ id }: AutoSetChannelNumbersProps) => {
   const [overwriteNumbers, setOverwriteNumbers] = React.useState<boolean>(true);
   const [startNumber, setStartNumber] = React.useState<number>(1);
 
-  const [videoStreamsSetVideoStreamChannelNumbersFromParametersMutation] = useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation();
-  const [videoStreamsSetVideoStreamChannelNumbersMutation] = useVideoStreamsSetVideoStreamChannelNumbersMutation();
+  // const [videoStreamsSetVideoStreamChannelNumbersFromParametersMutation] = useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation();
+  // const [videoStreamsSetVideoStreamChannelNumbersMutation] = useVideoStreamsSetVideoStreamChannelNumbersMutation();
 
   const { selectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
@@ -62,7 +63,7 @@ const AutoSetChannelNumbers = ({ id }: AutoSetChannelNumbersProps) => {
       toSendAll.overWriteExisting = overwriteNumbers;
       toSendAll.startNumber = startNumber;
 
-      videoStreamsSetVideoStreamChannelNumbersFromParametersMutation(toSendAll)
+      SetVideoStreamChannelNumbersFromParameters(toSendAll)
         .then(() => {
           setInfoMessage('Set Stream Visibility Successfully');
         }
@@ -98,7 +99,7 @@ const AutoSetChannelNumbers = ({ id }: AutoSetChannelNumbersProps) => {
       count += max;
 
       promises.push(
-        videoStreamsSetVideoStreamChannelNumbersMutation(data)
+        SetVideoStreamChannelNumbers(data)
           .then(() => {
           }).catch(() => { })
       );
@@ -116,7 +117,7 @@ const AutoSetChannelNumbers = ({ id }: AutoSetChannelNumbersProps) => {
     });
 
 
-  }, [ids, overwriteNumbers, queryFilter, selectAll, sortInfo, startNumber, videoStreamsSetVideoStreamChannelNumbersFromParametersMutation, videoStreamsSetVideoStreamChannelNumbersMutation]);
+  }, [ids, overwriteNumbers, queryFilter, selectAll, sortInfo, startNumber]);
 
   const getTotalCount = useMemo(() => {
     return ids.length;

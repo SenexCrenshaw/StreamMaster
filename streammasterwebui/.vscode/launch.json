@@ -1,13 +1,15 @@
 {
   "version": "0.2.0",
   "configurations": [
+
+
     {
-      "name": "Launch Edge",
+      "name": "Launch Edge2",
       "request": "launch",
       "type": "msedge",
       "url": "http://localhost:3000",
       "webRoot": "${workspaceFolder}",
-      "outFiles": ["${fileDirname}/**/*.ts*"]
+      // "outFiles": ["${fileDirname}/**/*.ts*"]
     },
     {
       "type": "vscode-edge-devtools.debug",
@@ -28,19 +30,19 @@
       "request": "launch",
       "type": "node-terminal"
     },
-    // {
-    // "type": "msedge",
-    // // "runtimeArgs": ["--auto-open-devtools-for-tabs"],
-    // "request": "launch",
-    // "name": "Launch Edge",
-    // "url": "http://localhost:3000",
-    //   // "webRoot": "${workspaceFolder}/src",
-    // "sourceMaps": true,
-    // // "sourceMapPathOverrides": {
-    // //   "webpack:///./src/*": "${webRoot}/*"
-    // // },
-    // "preLaunchTask": "Sleepdelay"
+    {
+    "type": "msedge",
+    // "runtimeArgs": ["--auto-open-devtools-for-tabs"],
+    "request": "launch",
+    "name": "Launch Edge",
+    "url": "http://localhost:3000",
+     "webRoot": "${workspaceFolder}",
+    "sourceMaps": true,
+    // "sourceMapPathOverrides": {
+    //   "webpack:///./src/*": "${webRoot}/*"
     // },
+    "preLaunchTask": "Sleepdelay"
+    },
     {
       "name": "Docker Node.js Launch",
       "type": "docker",

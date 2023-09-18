@@ -62,11 +62,10 @@ public static class CacheKeys
             cache.Set(ListChannelLogos, datas, CacheEntryOptions);
             return;
         }
-
     }
+
     public static void RemoveChannelGroupStreamCount(this IMemoryCache cache, int channelGroupId)
     {
-
         lock (_lock)
         {
             List<ChannelGroupStreamCount> datas = cache.ChannelGroupStreamCounts();
@@ -77,12 +76,10 @@ public static class CacheKeys
                 cache.Set(ListChannelGroupStreamCounts, datas, CacheEntryOptions);
             }
         }
-
-
     }
+
     public static void Remove(this IMemoryCache cache, object data)
     {
-
         if (data.GetType() == typeof(ChannelGroupStreamCount))
         {
             lock (_lock)
@@ -93,12 +90,10 @@ public static class CacheKeys
             }
             return;
         }
-
     }
 
     //public static void Update(this IMemoryCache cache, object data, object updateDatadata)
     //{
-
     //    if (data.GetType() == typeof(ChannelGroupStreamCount))
     //    {
     //        lock (_lock)
@@ -241,6 +236,7 @@ public static class CacheKeys
 
         return cacheValue ?? new List<IconFileDto>();
     }
+
     public static List<IconFileDto> Icons(this IMemoryCache cache)
     {
         return Get<IconFileDto>(ListIconFiles, cache);
@@ -251,9 +247,9 @@ public static class CacheKeys
         return Get<ChannelGroupStreamCount>(ListChannelGroupStreamCounts, cache);
     }
 
-    public static void AddOrUpdateChannelGroupVideoStreamCounts(this IMemoryCache cache, List<ChannelGroupStreamCount> responses)
+    public static void AddOrUpdateChannelGroupVideoStreamCounts(this IMemoryCache cache, List<ChannelGroupDto> responses)
     {
-        foreach (ChannelGroupStreamCount response in responses)
+        foreach (ChannelGroupDto response in responses)
         {
             cache.AddOrUpdateChannelGroupVideoStreamCount(response);
         }
@@ -261,7 +257,6 @@ public static class CacheKeys
 
     public static void UpdateChannelGroupWithActives(this IMemoryCache cache, ChannelGroupDto channelGroup)
     {
-
         ChannelGroupStreamCount? active = cache.ChannelGroupStreamCounts().FirstOrDefault(a => a.ChannelGroupId == channelGroup.Id);
         if (active == null)
         {
@@ -275,7 +270,6 @@ public static class CacheKeys
 
     public static List<ChannelGroupDto> UpdateChannelGroupsWithActives(this IMemoryCache cache, List<ChannelGroupDto> channelGroups)
     {
-
         for (int i = 0; i < channelGroups.Count; i++)
         {
             cache.UpdateChannelGroupWithActives(channelGroups[i]);
@@ -283,28 +277,28 @@ public static class CacheKeys
         return channelGroups;
     }
 
-
-    public static void AddOrUpdateChannelGroupVideoStreamCount(this IMemoryCache cache, ChannelGroupStreamCount response)
+    public static void AddOrUpdateChannelGroupVideoStreamCount(this IMemoryCache cache, ChannelGroupDto ChannelGroupDto)
     {
         List<ChannelGroupStreamCount> datas = cache.ChannelGroupStreamCounts();
-        ChannelGroupStreamCount? data = datas.FirstOrDefault(a => a.ChannelGroupId == response.ChannelGroupId);
+        ChannelGroupStreamCount? data = datas.FirstOrDefault(a => a.ChannelGroupId == ChannelGroupDto.Id);
 
         if (data == null)
         {
-            cache.Add(response);
+            cache.Add(ChannelGroupDto);
         }
         else
         {
             datas.Remove(data);
-            data.ActiveCount = response.ActiveCount;
-            data.TotalCount = response.TotalCount;
-            data.HiddenCount = response.HiddenCount;
+            data.ActiveCount = ChannelGroupDto.ActiveCount;
+            data.TotalCount = ChannelGroupDto.TotalCount;
+            data.HiddenCount = ChannelGroupDto.HiddenCount;
             datas.Add(data);
             cache.Set(ListChannelGroupStreamCounts, datas, CacheEntryOptions);
         }
     }
 
     private static readonly object _lock = new();
+
     public static IconFileDto? GetIcon(this IMemoryCache cache, string source, SMFileTypes sMFileTypes)
     {
         lock (_lock)
@@ -312,7 +306,6 @@ public static class CacheKeys
             IconFileDto? testIcon = cache.Icons().FirstOrDefault(a => a.Source == source && a.SMFileType == sMFileTypes);
             return testIcon;
         }
-
     }
 
     public static bool IsSystemReady(this IMemoryCache cache)

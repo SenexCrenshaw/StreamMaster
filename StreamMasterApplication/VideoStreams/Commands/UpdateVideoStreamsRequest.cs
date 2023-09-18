@@ -1,11 +1,13 @@
 ﻿using FluentValidation;
 
+using MediatR;
+
 using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.VideoStreams.Events;
+
 using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
-
 
 public class UpdateVideoStreamsRequestValidator : AbstractValidator<UpdateVideoStreamsRequest>
 {
@@ -20,16 +22,14 @@ public class UpdateVideoStreamsRequestHandler(ILogger<UpdateVideoStreamsRequest>
 {
     public async Task<List<VideoStreamDto>> Handle(UpdateVideoStreamsRequest requests, CancellationToken cancellationToken)
     {
-
         (List<VideoStreamDto> videoStreams, List<ChannelGroupDto>? updatedChannelGroups) = await Repository.VideoStream.UpdateVideoStreamsAsync(requests.VideoStreamUpdates, cancellationToken);
         if (videoStreams.Any())
         {
             await Publisher.Publish(new UpdateVideoStreamsEvent(videoStreams), cancellationToken).ConfigureAwait(false);
             if (updatedChannelGroups.Any())
             {
-
-                await Publisher.Publish(new UpdateChannelGroupCountsRequest(updatedChannelGroups)).ConfigureAwait(false);
-
+                updatedChannelGroups= await Sender.Send(new UpdateChannelGroupCountsRequest(updatedChannelGroups), cancellationToken).ConfigureAwait(false);
+                await HubContext.Clients.All.ChannelGroupsRefresh(updatedChannelGroups.ToArray()).ConfigureAwait(false);
             }
         }
 

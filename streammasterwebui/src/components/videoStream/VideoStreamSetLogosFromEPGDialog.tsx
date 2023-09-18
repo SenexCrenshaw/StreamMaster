@@ -3,7 +3,8 @@ import { memo, useCallback, useMemo, useState } from "react";
 import { useQueryFilter } from "../../app/slices/useQueryFilter";
 import { useSelectAll } from "../../app/slices/useSelectAll";
 import { useSelectedVideoStreams } from "../../app/slices/useSelectedVideoStreams";
-import { useVideoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation, useVideoStreamsSetVideoStreamsLogoFromEpgMutation, type VideoStreamDto, type VideoStreamsSetVideoStreamsLogoFromEpgApiArg, type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg } from "../../store/iptvApi";
+import { SetVideoStreamsLogoFromEpg, SetVideoStreamsLogoFromEpgFromParameters } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
+import { type VideoStreamDto, type VideoStreamsSetVideoStreamsLogoFromEpgApiArg, type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import ImageButton from "../buttons/ImageButton";
 import OKButton from "../buttons/OKButton";
@@ -18,8 +19,6 @@ const VideoStreamSetLogosFromEPGDialog = ({ id }: VideoStreamSetLogosFromEPGDial
   const [infoMessage, setInfoMessage] = useState('');
   const [block, setBlock] = useState<boolean>(false);
 
-  const [videoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation] = useVideoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation();
-  const [videoStreamsSetVideoStreamsLogoFromEpgMutation] = useVideoStreamsSetVideoStreamsLogoFromEpgMutation();
 
   const { selectedVideoStreams } = useSelectedVideoStreams(id);
   const { selectAll } = useSelectAll(id);
@@ -46,7 +45,7 @@ const VideoStreamSetLogosFromEPGDialog = ({ id }: VideoStreamSetLogosFromEPGDial
       toSendAll.parameters = queryFilter;
 
 
-      videoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation(toSendAll)
+      SetVideoStreamsLogoFromEpgFromParameters(toSendAll)
         .then(() => {
           setInfoMessage('Set Streams Successfully');
         }
@@ -78,7 +77,7 @@ const VideoStreamSetLogosFromEPGDialog = ({ id }: VideoStreamSetLogosFromEPGDial
 
       count += max;
       promises.push(
-        videoStreamsSetVideoStreamsLogoFromEpgMutation(toSend)
+        SetVideoStreamsLogoFromEpg(toSend)
           .then(() => {
           }).catch(() => { })
       );
@@ -94,7 +93,7 @@ const VideoStreamSetLogosFromEPGDialog = ({ id }: VideoStreamSetLogosFromEPGDial
     });
 
 
-  }, [queryFilter, selectAll, selectedVideoStreams, videoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation, videoStreamsSetVideoStreamsLogoFromEpgMutation]);
+  }, [queryFilter, selectAll, selectedVideoStreams]);
 
   const getTotalCount = useMemo(() => {
 

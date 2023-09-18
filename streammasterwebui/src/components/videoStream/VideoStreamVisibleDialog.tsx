@@ -2,7 +2,8 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useQueryFilter } from "../../app/slices/useQueryFilter";
 import { useSelectAll } from "../../app/slices/useSelectAll";
 import { useSelectedVideoStreams } from "../../app/slices/useSelectedVideoStreams";
-import { useVideoStreamsUpdateAllVideoStreamsFromParametersMutation, useVideoStreamsUpdateVideoStreamsMutation, type UpdateVideoStreamRequest, type UpdateVideoStreamsRequest, type VideoStreamDto, type VideoStreamsUpdateAllVideoStreamsFromParametersApiArg } from "../../store/iptvApi";
+import { UpdateAllVideoStreamsFromParameters, UpdateVideoStreams } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
+import { type UpdateVideoStreamRequest, type UpdateVideoStreamsRequest, type VideoStreamDto, type VideoStreamsUpdateAllVideoStreamsFromParametersApiArg } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import VisibleButton from "../buttons/VisibleButton";
 
@@ -30,9 +31,6 @@ const VideoStreamVisibleDialog = ({
   const { selectedVideoStreams } = useSelectedVideoStreams(id);
   const { selectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
-
-  const [videoStreamsUpdateVideoStreams] = useVideoStreamsUpdateVideoStreamsMutation();
-  const [videoStreamsUpdateAllVideoStreamsFromParametersMutation] = useVideoStreamsUpdateAllVideoStreamsFromParametersMutation();
 
   const ReturnToParent = useCallback(() => {
     setShowOverlay(false);
@@ -85,7 +83,7 @@ const VideoStreamVisibleDialog = ({
         toggleVisibility: true
       } as UpdateVideoStreamRequest;
 
-      videoStreamsUpdateAllVideoStreamsFromParametersMutation(toSendAll)
+      await UpdateAllVideoStreamsFromParameters(toSendAll)
         .then(() => {
           setInfoMessage('Toggle Stream Visibility Successfully');
         }
@@ -111,9 +109,7 @@ const VideoStreamVisibleDialog = ({
       } as UpdateVideoStreamRequest;
     });
 
-
-
-    videoStreamsUpdateVideoStreams(toSend)
+    await UpdateVideoStreams(toSend)
       .then(() => {
         setInfoMessage('Set Stream Visibility Successfully');
       }
@@ -121,7 +117,7 @@ const VideoStreamVisibleDialog = ({
         setInfoMessage('Set Stream Visibility Error: ' + error.message);
       });
 
-  }, [selectVideoStreamsInternal, getTotalCount, selectAll, videoStreamsUpdateVideoStreams, ReturnToParent, queryFilter, videoStreamsUpdateAllVideoStreamsFromParametersMutation]);
+  }, [selectVideoStreamsInternal, getTotalCount, selectAll, ReturnToParent, queryFilter]);
 
 
   if (skipOverLayer === true) {

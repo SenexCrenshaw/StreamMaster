@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net.Sockets;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 internal class Program
@@ -140,7 +141,7 @@ internal class Program
     {
         return IsPaged(responseType) || IsArray(responseType);
     }
-    private static string GetUpdateFunction(string argType, string responseType)
+    private static string GetUpdateFunction(string endpointName,string argType, string responseType,string tag)
     {
 
         List<string> args = getMethodArgTypes.SelectMany(kv => kv.Value.Keys).ToList();
@@ -150,25 +151,73 @@ internal class Program
         string draft = IsPaged(argType) ? "draft.data" : "draft";
         if (IsPagedOrIsArray(responseType))
         {
-            ret.AppendLine($"              {data}.forEach(item => {{");
-            ret.AppendLine($"                const index = {draft}.findIndex(existingItem => existingItem.id === item.id);");
-            ret.AppendLine($"                if (index !== -1) {{");
-            ret.AppendLine($"                  {draft}[index] = item;");
-            ret.AppendLine($"                }}");
-            ret.AppendLine($"              }});");
+            ret.AppendLine($"            updateCachedData(() => {{");
+            ret.AppendLine($"              console.log('updateCachedData', data);");
+            ret.AppendLine($"              for (const {{ endpointName, originalArgs }} of iptvApi.util.selectInvalidatedBy(getState(), [{{ type: '{tag}' }}])) {{");
+            ret.AppendLine($"                if (endpointName !== '{endpointName}') continue;");
+            ret.AppendLine($"                  dispatch(");
+            ret.AppendLine($"                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{");
+     
+            ret.AppendLine($"                      if (isEmptyObject(data)) {{");
+            ret.AppendLine($"                        console.log('empty', data);");
+            ret.AppendLine($"                        dispatch(iptvApi.util.invalidateTags(['{tag}']));");
+            ret.AppendLine($"                        return;");
+            ret.AppendLine($"                      }}");
+            ret.AppendLine();
+            ret.AppendLine($"                      if (isPagedTableDto(data)) {{");
+            ret.AppendLine($"                      {data}.forEach(item => {{");
+            ret.AppendLine($"                        const index = {draft}.findIndex(existingItem => existingItem.id === item.id);");
+            ret.AppendLine($"                        if (index !== -1) {{");
+            ret.AppendLine($"                          {draft}[index] = item;");
+            ret.AppendLine($"                        }}");            
+            ret.AppendLine($"                        }});");
+            ret.AppendLine();
+            ret.AppendLine($"                        return draft;");
+            ret.AppendLine($"                        }}");
+            ret.AppendLine();
+            ret.AppendLine($"                      {data}.forEach(item => {{");
+            ret.AppendLine($"                        const index = {draft}.findIndex(existingItem => existingItem.id === item.id);");
+            ret.AppendLine($"                        if (index !== -1) {{");
+            ret.AppendLine($"                          {draft}[index] = item;");
+            ret.AppendLine($"                        }}");
+            ret.AppendLine($"                        }});");
+            ret.AppendLine();
+            ret.AppendLine($"                      return draft;");
+            ret.AppendLine($"                     }})");
+            ret.AppendLine($"                   )");
+            ret.AppendLine($"                 }}");
+            //ret.AppendLine($"               }});");
+            //ret.AppendLine($"             }};");
+
+
+            ret.AppendLine();
             return ret.ToString();
         }
-        return "              draft=data";
+        ret.AppendLine($"            updateCachedData(() => {{");
+        ret.AppendLine($"              console.log('updateCachedData', data);");
+        ret.AppendLine($"              for (const {{ endpointName, originalArgs }} of iptvApi.util.selectInvalidatedBy(getState(), [{{ type: '{tag}' }}])) {{");
+        ret.AppendLine($"                if (endpointName !== '{endpointName}') continue;");
+        ret.AppendLine($"                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{");
+        ret.AppendLine($"                    console.log('updateCachedData', data, draft);");
+        ret.AppendLine($"                   }})");
+        ret.AppendLine($"                   );");
+        ret.AppendLine($"                 }}");
+        ret.AppendLine();
+        
+        return ret.ToString();
     }
     private static Dictionary<string, StringBuilder> BuildEnhanced()
     {
         Dictionary<string, StringBuilder> tagToRtkContentMap = new();
         foreach (string tag in tagToGetMethodsMap.Keys)
         {
+            string singleTon = $"singleton{tag}Listener";
+
             StringBuilder rtkContent = new();
 
-            rtkContent.AppendLine($"import {{ hubConnection }} from '../../app/signalr';");
+            rtkContent.AppendLine($"import {{ {singleTon} }} from '../../app/createSingletonListener';");            
             rtkContent.AppendLine($"import {{ isEmptyObject }} from '../../common/common';");
+            rtkContent.AppendLine($"import isPagedTableDto from '../../components/dataSelector/isPagedTableDto';");
             rtkContent.AppendLine($"import {{ iptvApi }} from '../../store/iptvApi';");
             rtkContent.AppendLine($"import type * as iptv from '../../store/iptvApi';");
             rtkContent.AppendLine();
@@ -200,37 +249,30 @@ internal class Program
                 //arg = getMethodArgTypes[tag][getMethod];
 
                 anyToWrite = true;
-                string updateFunction = GetUpdateFunction(arg, responseType);
-
+                string updateFunction = GetUpdateFunction(name,arg, responseType,tag);
+            
                 rtkContent.AppendLine($"    {name}: {{");
-                rtkContent.AppendLine($"      async onCacheEntryAdded(api, {{ dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }}) {{");
+                rtkContent.AppendLine($"      async onCacheEntryAdded(api, {{ dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }}) {{");
                 rtkContent.AppendLine($"        try {{");
                 rtkContent.AppendLine($"          await cacheDataLoaded;");
                 rtkContent.AppendLine();
                 rtkContent.AppendLine($"          const updateCachedDataWithResults = (data: {responseType}) => {{");
-                rtkContent.AppendLine($"            updateCachedData((draft: {arg}) => {{");
+                //rtkContent.AppendLine($"            updateCachedData((draft: {arg}) => {{");
                 rtkContent.AppendLine(updateFunction);
-                rtkContent.AppendLine($"              return draft;");
+                //rtkContent.AppendLine($"              return draft;");
                 rtkContent.AppendLine($"            }});");
                 rtkContent.AppendLine($"          }};");
+                rtkContent.AppendLine();              
+                rtkContent.AppendLine($"         {singleTon}.addListener(updateCachedDataWithResults);");
                 rtkContent.AppendLine();
-                rtkContent.AppendLine($"          const {doName} = (data: {responseType}) => {{");
-                rtkContent.AppendLine($"            // console.log('{doName}')");
-                rtkContent.AppendLine($"            if (isEmptyObject(data)) {{");
-                rtkContent.AppendLine($"              dispatch(iptvApi.util.invalidateTags(['{tag}']));");
-                rtkContent.AppendLine($"            }} else {{");
-                rtkContent.AppendLine($"              updateCachedDataWithResults(data);");
-                rtkContent.AppendLine($"            }}");
-                rtkContent.AppendLine($"          }}");
-                rtkContent.AppendLine();
-                rtkContent.AppendLine($"          hubConnection.on('{tag}Refresh', {doName});");
+                rtkContent.AppendLine($"        await cacheEntryRemoved;");
+                rtkContent.AppendLine($"        {singleTon}.removeListener(updateCachedDataWithResults);");
                 rtkContent.AppendLine();
                 rtkContent.AppendLine($"        }} catch (error) {{");
                 rtkContent.AppendLine($"          console.error('Error in onCacheEntryAdded:', error);");
                 rtkContent.AppendLine($"        }}");
                 rtkContent.AppendLine();
-                rtkContent.AppendLine($"        await cacheEntryRemoved;");
-                rtkContent.AppendLine($"        hubConnection.off('{tag}Refresh');");
+
                 rtkContent.AppendLine($"      }}");
                 rtkContent.AppendLine($"    }},");
             }
