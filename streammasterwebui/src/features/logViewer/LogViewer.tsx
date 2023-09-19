@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { FilterMatchMode } from 'primereact/api';
 import { Column } from 'primereact/column';
-import { DataTable, type DataTableFilterMeta } from 'primereact/datatable';
+import { DataTable } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ExportComponent, formatJSONDateString } from "../../common/common";
 import { GetLog } from '../../smAPI/Logs/LogsGetAPI';
@@ -12,11 +12,10 @@ const LogViewer = () => {
   const [dataSource, setDataSource] = useState<iptv.LogEntryDto[]>([] as iptv.LogEntryDto[]);
   const tableRef = useRef<DataTable<iptv.LogEntryDto[]>>(null);
 
-  const [filters, setFilters] = useState<DataTableFilterMeta>({
+  const filters = ({
     logLevelName: { matchMode: FilterMatchMode.CONTAINS, value: null },
     message: { matchMode: FilterMatchMode.CONTAINS, value: null },
     timeStamp: { matchMode: FilterMatchMode.CONTAINS, value: null },
-
   });
 
   const getLogData = useCallback(() => {
