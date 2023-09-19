@@ -27,6 +27,7 @@ public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
             .NotNull().GreaterThanOrEqualTo(0);
     }
 }
+
 public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPG> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupEPG, string>
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
@@ -38,6 +39,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     {
         MaxDegreeOfParallelism = Environment.ProcessorCount
     };
+
     public string GetIconUrl(string iconOriginalSource, Setting setting)
     {
         string url = _httpContextAccessor.GetUrl();
@@ -76,7 +78,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     {
         List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
 
-
         if (!videoStreams.Any())
         {
             return "";
@@ -86,7 +87,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         return SerializeEpgData(epgData);
     }
-
 
     [LogExecutionTimeAspect]
     private async Task<Tv> PrepareEpgData(IEnumerable<VideoStreamDto> videoStreams)
@@ -144,27 +144,25 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         // Build the TvChannel based on whether it's a dummy or not
         if (isDummyStream)
         {
-
             string orginalName = videoStream.User_Tvg_name;
             int dummy = GetDummy();
             videoStream.User_Tvg_name = "dummy-" + dummy;
 
             return new TvChannel
             {
-                Id = videoStream.User_Tvg_name,
+                Id = videoStream.User_Tvg_ID,
                 Icon = new TvIcon { Src = logo ?? string.Empty },
                 Displayname = new List<string>
             {
                orginalName,videoStream.User_Tvg_name
             }
             };
-
         }
         else
         {
             return new TvChannel
             {
-                Id = videoStream.User_Tvg_name,
+                Id = videoStream.User_Tvg_ID,
                 Icon = new TvIcon { Src = logo ?? string.Empty },
                 Displayname = new List<string>
             {
@@ -174,10 +172,8 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         }
     }
 
-
     private List<Programme> ProcessProgrammesForVideoStream(VideoStreamDto videoStream, List<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
     {
-
         if (videoStream.User_Tvg_ID == null)
         {
             // Decide what to do if User_Tvg_ID is null. Here, we're returning an empty list.
@@ -195,7 +191,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             return ProcessNonDummyStreams(videoStream, cachedProgrammes, cachedIcons);
         }
     }
-
 
     private List<Programme> HandleDummyStream(VideoStreamDto videoStream)
     {
@@ -232,11 +227,11 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     {
         List<Programme> programmesForStream = new();
 
-        foreach (Programme? prog in cachedProgrammes.Where(p => p.Channel?.ToLower() == videoStream.User_Tvg_ID))
+        foreach (Programme? prog in cachedProgrammes.Where(p => p.Channel == videoStream.User_Tvg_ID))
         {
             AdjustProgrammeIcons(prog, cachedIcons);
 
-            prog.Channel = videoStream.User_Tvg_name;
+            prog.Channel = videoStream.User_Tvg_ID;
             if (string.IsNullOrEmpty(prog.New))
             {
                 prog.New = null;
@@ -283,9 +278,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         }
     }
 
-
-
-
     [LogExecutionTimeAspect]
     private static string SerializeEpgData(Tv epgData)
     {
@@ -297,6 +289,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         serializer.Serialize(textWriter, epgData, ns);
         return textWriter.ToString();
     }
+
     [LogExecutionTimeAspect]
     private List<Programme> GetRelevantProgrammes(List<string> epgids)
     {
@@ -309,7 +302,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
                 epgids.Contains(a.DisplayName))
             ).ToList();
     }
-
 
     private string GetApiUrl(SMFileTypes path, string source)
     {
@@ -337,5 +329,4 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         return !string.IsNullOrEmpty(setting.DummyRegex) &&
                new Regex(setting.DummyRegex, RegexOptions.ECMAScript | RegexOptions.IgnoreCase).IsMatch(videoStream.User_Tvg_ID);
     }
-
 }
