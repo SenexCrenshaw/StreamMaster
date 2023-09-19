@@ -27,6 +27,7 @@ public static class HttpContextAccessorExtensions
         string path = request.Path.ToString()
             .Replace("/capability", "")
             .Replace("/device.xml", "")
+              .Replace("/lineup.json", "")
             .Replace("/discover.json", "");
 
         if (includePath)
