@@ -77,7 +77,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
             return null;
         }
 
-        if (!videoStream.ChildVideoStreams.Any())
+        if (videoStream.ChildVideoStreams is null || !videoStream.ChildVideoStreams.Any())
         {
             ChildVideoStreamDto childVideoStreamDto = mapper.Map<ChildVideoStreamDto>(videoStream);
             M3UFileIdMaxStream? result = await sender.Send(new GetM3UFileIdMaxStreamFromUrlQuery(childVideoStreamDto.User_Url), cancellationToken).ConfigureAwait(false);
