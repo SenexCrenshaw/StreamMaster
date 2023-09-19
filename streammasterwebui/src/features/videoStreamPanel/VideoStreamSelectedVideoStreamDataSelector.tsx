@@ -19,16 +19,15 @@ const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: Video
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: false });
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit: false });
 
-  const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
+  const { setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
 
   useEffect(() => {
-    if (queryAdditionalFilter === undefined && videoStreamId) {
+    if (videoStreamId) {
       setQueryAdditionalFilter({ field: 'parentVideoStreamId', matchMode: 'equals', values: [videoStreamId] });
     }
 
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryAdditionalFilter]);
+  }, [videoStreamId]);
 
   const targetActionBodyTemplate = useCallback((data: ChildVideoStreamDto) => {
     return (
@@ -85,7 +84,6 @@ const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: Video
 
   }
 
-
   return (
     <DataSelector
       columns={targetColumns}
@@ -98,7 +96,7 @@ const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: Video
       onRowReorder={async (e) => await onRowReorder(e as ChildVideoStreamDto[])}
       queryFilter={useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery}
       reorderable
-      selectedItemsKey='selectSelectedVideoStreamPanelVideoStreamDtoItems'
+      selectedItemsKey={`selectSelected` + videoStreamId}
       selectionMode='single'
       style={{ height: 'calc(100vh - 480px)' }
       }

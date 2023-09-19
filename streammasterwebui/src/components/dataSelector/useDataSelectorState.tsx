@@ -12,6 +12,7 @@ import { type PagedTableInformation } from './DataSelector';
 const useDataSelectorState = <T extends DataTableValue,>(id: string, selectedItemsKey: string) => {
   const { sortInfo, setSortInfo } = useSortInfo(id);
   const { selectAll, setSelectAll } = useSelectAll(id);
+  // console.log('useDataSelectorState', id, selectedItemsKey)
   const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<T>(selectedItemsKey);
   const { showHidden } = useShowHidden(id);
 

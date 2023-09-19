@@ -30,7 +30,6 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
   const [lastActiveIndex, setLastActiveIndex] = useState<number>(0);
   const [channelGroup, setChannelGroup] = useState<string | undefined>(undefined);
 
-
   useEffect(() => {
 
     if (props.group) {
@@ -85,13 +84,6 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
 
   }, [props.videoStream]);
 
-  // const onEPGChange = (e: string) => {
-  //   if (!e) {
-  //     setEpgId('');
-  //   } else {
-  //     setEpgId(e);
-  //   }
-  // };
 
   const isSaveEnabled = useMemo((): boolean => {
     if (!props.videoStream) {
@@ -189,7 +181,6 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
                 />
               </div>
 
-
               <div className="flex col-12">
                 <InputWrapper
                   columnSize={6}
@@ -256,16 +247,10 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
         <div className='grid flex justify-content-start align-items-center surface-overlay m-0'>
           <div className='flex col-12 p-0 justify-content-start align-items-center w-full '>
             <div className='col-6 m-0 p-0 pr-1' >
-              <VideoStreamDataSelector
-                id='videostreampanel'
-                videoStreamId={props.videoStream?.id}
-              />
+              <VideoStreamDataSelector id='videostreampanel' videoStreamId={props.videoStream?.id} />
             </div>
             <div className='col-6 m-0 p-0 pr-1' >
-              <VideoStreamSelectedVideoStreamDataSelector
-                id='videostreampanel'
-                videoStreamId={props.videoStream?.id}
-              />
+              <VideoStreamSelectedVideoStreamDataSelector id='videostreampanel' videoStreamId={props.videoStream?.id} />
             </div>
           </div>
         </div>

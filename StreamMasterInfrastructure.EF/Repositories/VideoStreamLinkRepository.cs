@@ -20,7 +20,8 @@ public class VideoStreamLinkRepository(ILogger<VideoStreamLinkRepository> logger
         List<string> ids = await FindByCondition(a => a.ParentVideoStreamId == videoStreamId).OrderBy(a => a.Rank).Select(a => a.ChildVideoStreamId).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         return ids;
     }
-    public async Task<PagedResponse<ChildVideoStreamDto>> GetVideoStreamVideoStreams(VideoStreamLinkParameters parameters, CancellationToken cancellationToken)
+
+    public async Task<PagedResponse<VideoStreamDto>> GetVideoStreamVideoStreams(VideoStreamLinkParameters parameters, CancellationToken cancellationToken)
     {
         parameters.OrderBy = "rank";
 
@@ -31,13 +32,13 @@ public class VideoStreamLinkRepository(ILogger<VideoStreamLinkRepository> logger
         // If there are no entities, return an empty response early
         if (!pagedResult.Any())
         {
-            return new PagedResponse<ChildVideoStreamDto>
+            return new PagedResponse<VideoStreamDto>
             {
                 PageNumber = parameters.PageNumber,
                 TotalPageCount = 0,
                 PageSize = parameters.PageSize,
                 TotalItemCount = 0,
-                Data = new List<ChildVideoStreamDto>()
+                Data = new List<VideoStreamDto>()
             };
         }
 
@@ -45,19 +46,19 @@ public class VideoStreamLinkRepository(ILogger<VideoStreamLinkRepository> logger
 
         //var videoStreams = await RepositoryContext.VideoStreams.Where(a => ids.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
-        List<ChildVideoStreamDto> cgs = new();
+        List<VideoStreamDto> cgs = new();
 
         //var links = await FindByCondition(a => a.ParentVideoStreamId == videoStreamId).ToArrayAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         foreach (VideoStreamLink? link in pagedResult)
         {
-            ChildVideoStreamDto cg = mapper.Map<ChildVideoStreamDto>(link.ChildVideoStream);
+            VideoStreamDto cg = mapper.Map<VideoStreamDto>(link.ChildVideoStream);
             cg.Rank = link.Rank;
             cgs.Add(cg);
         }
 
-        StaticPagedList<ChildVideoStreamDto> test = new(cgs, pagedResult.GetMetaData());
+        StaticPagedList<VideoStreamDto> test = new(cgs, pagedResult.GetMetaData());
 
-        PagedResponse<ChildVideoStreamDto> pagedResponse = test.ToPagedResponse();
+        PagedResponse<VideoStreamDto> pagedResponse = test.ToPagedResponse();
 
         return pagedResponse;
     }
@@ -109,5 +110,10 @@ public class VideoStreamLinkRepository(ILogger<VideoStreamLinkRepository> logger
             Delete(exists);
             await RepositoryContext.SaveChangesAsync(cancellationToken);
         }
+    }
+
+    public PagedResponse<VideoStreamDto> CreateEmptyPagedResponse()
+    {
+        return PagedExtensions.CreateEmptyPagedResponse<VideoStreamDto>(Count());
     }
 }

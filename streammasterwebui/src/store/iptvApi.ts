@@ -1436,7 +1436,7 @@ export type VideoStreamLinksGetVideoStreamVideoStreamIdsApiResponse =
   /** status 200  */ string[];
 export type VideoStreamLinksGetVideoStreamVideoStreamIdsApiArg = string;
 export type VideoStreamLinksGetPagedVideoStreamVideoStreamsApiResponse =
-  /** status 200  */ PagedResponseOfChildVideoStreamDto;
+  /** status 200  */ PagedResponseOfVideoStreamDto;
 export type VideoStreamLinksGetPagedVideoStreamVideoStreamsApiArg = {
   pageNumber?: number;
   pageSize?: number;
@@ -2191,14 +2191,6 @@ export type AddVideoStreamToVideoStreamRequest = {
   parentVideoStreamId: string;
   childVideoStreamId: string;
   rank: number | null;
-};
-export type PagedResponseOfChildVideoStreamDto = {
-  data: ChildVideoStreamDto[];
-  pageNumber: number;
-  pageSize: number;
-  totalPageCount: number;
-  totalItemCount: number;
-  first: number;
 };
 export type RemoveVideoStreamFromVideoStreamRequest = {
   parentVideoStreamId: string;

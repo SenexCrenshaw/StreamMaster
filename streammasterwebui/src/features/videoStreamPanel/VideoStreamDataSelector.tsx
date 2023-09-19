@@ -15,12 +15,10 @@ type VideoStreamDataSelectorProps = {
 const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorProps) => {
   const dataKey = id + '-VideoStreamDataSelector';
 
-
   const [videoStreamIds, setVideoStreamIds] = useState<string[]>([] as string[]);
 
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: false });
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit: false });
-
   const videoStreamLinksGetVideoStreamVideoStreamIdsQuery = useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery(videoStreamId ?? skipToken);
 
   useEffect(() => {
@@ -59,17 +57,18 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
       headerRightTemplate={rightHeaderTemplate}
       id={dataKey}
       isLoading={videoStreamLinksGetVideoStreamVideoStreamIdsQuery.isLoading || videoStreamLinksGetVideoStreamVideoStreamIdsQuery.isFetching}
-      onSelectionChange={async (value) => {
-        if (value === undefined || videoStreamId === undefined) {
+      onRowClick={async (e) => {
+        console.log(e.data);
+        if (e.data === undefined || videoStreamId === undefined) {
           return;
         }
 
         let stream = {} as VideoStreamDto;
 
-        if (Array.isArray(value)) {
-          stream = value[0] as VideoStreamDto;
+        if (Array.isArray(e.data)) {
+          stream = e.data[0] as VideoStreamDto;
         } else {
-          stream = value as VideoStreamDto;
+          stream = e.data as VideoStreamDto;
         }
 
         const toSend = {} as VideoStreamLinksAddVideoStreamToVideoStreamApiArg;
@@ -80,9 +79,8 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
         await AddVideoStreamToVideoStream(toSend).then().catch((error) => { console.error('Add Stream Error: ' + error.message); })
 
       }}
-
       queryFilter={useVideoStreamsGetPagedVideoStreamsQuery}
-      selectedItemsKey='selectSelectedVideoStreamPanelVideoStreamDtoItems'
+      selectedItemsKey={`selectSelected` + videoStreamId}
       selectionMode='single'
       style={{ height: 'calc(100vh - 480px)' }}
       videoStreamIdsIsReadOnly={(videoStreamIds || [])}

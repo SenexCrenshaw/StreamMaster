@@ -8,7 +8,7 @@ export const GetVideoStreamVideoStreamIds = async (arg: string): Promise<void> =
   await hubConnection.invoke('GetVideoStreamVideoStreamIds', arg);
 };
 
-export const GetPagedVideoStreamVideoStreams = async (arg: iptv.PagedResponseOfChildVideoStreamDto): Promise<iptv.ChildVideoStreamDto[]> => {
+export const GetPagedVideoStreamVideoStreams = async (arg: iptv.PagedResponseOfVideoStreamDto): Promise<iptv.VideoStreamDto[]> => {
   if (isDebug) console.log('GetPagedVideoStreamVideoStreams');
   const data = await hubConnection.invoke('GetPagedVideoStreamVideoStreams', arg);
   return data;

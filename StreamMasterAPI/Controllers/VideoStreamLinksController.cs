@@ -44,9 +44,9 @@ public class VideoStreamLinksController : ApiControllerBase, IVideoStreamLinkCon
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<PagedResponse<ChildVideoStreamDto>>> GetPagedVideoStreamVideoStreams([FromQuery] VideoStreamLinkParameters Parameters, CancellationToken cancellationToken)
+    public async Task<ActionResult<PagedResponse<VideoStreamDto>>> GetPagedVideoStreamVideoStreams([FromQuery] VideoStreamLinkParameters Parameters, CancellationToken cancellationToken)
     {
-        PagedResponse<ChildVideoStreamDto> data = await Mediator.Send(new GetPagedVideoStreamVideoStreams(Parameters), cancellationToken).ConfigureAwait(false);
+        PagedResponse<VideoStreamDto> data = await Mediator.Send(new GetPagedVideoStreamVideoStreams(Parameters), cancellationToken).ConfigureAwait(false);
         return Ok(data);
     }
 

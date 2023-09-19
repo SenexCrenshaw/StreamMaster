@@ -18,7 +18,7 @@ public partial class StreamMasterHub : IVideoStreamLinkHub
         return await mediator.Send(request, cancellationToken);
     }
 
-    public async Task<PagedResponse<ChildVideoStreamDto>> GetPagedVideoStreamVideoStreams(VideoStreamLinkParameters Parameters, CancellationToken cancellationToken)
+    public async Task<PagedResponse<VideoStreamDto>> GetPagedVideoStreamVideoStreams(VideoStreamLinkParameters Parameters, CancellationToken cancellationToken)
     {
         return await mediator.Send(new GetPagedVideoStreamVideoStreams(Parameters), cancellationToken);
     }
