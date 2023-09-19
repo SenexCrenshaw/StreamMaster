@@ -69,6 +69,11 @@ public class LogExecutionTimeAspect : Attribute
 
     private static bool ShouldLog(string nameToLog, List<string> LogPerformance)
     {
+        if ( nameToLog.Contains("GetStreamGroupLineUpStatusHandler") || nameToLog.Contains("GetStreamGroupDiscoverHandler"))
+        {
+            return false;
+        }
+
         if (LogPerformance.Contains("*"))
         {
             return true;

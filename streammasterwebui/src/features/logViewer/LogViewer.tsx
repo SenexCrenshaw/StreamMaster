@@ -35,6 +35,7 @@ const LogViewer = () => {
 
             // Update the lastLogId to the ID of the last item in the new data
             setLastLogId(uniqueData[uniqueData.length - 1].id);
+
           }
         }
       })
@@ -42,6 +43,13 @@ const LogViewer = () => {
 
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataSource]);
+
+  useEffect(() => {
+    if (dataSource.length !== 0) {
+      // tableRef.current?.getVirtualScroller()?.scrollToIndex(dataSource.length * 34);
+      tableRef.current?.getVirtualScroller()?.scrollTo({ behavior: 'auto', left: 0, top: 400 });
+    }
   }, [dataSource]);
 
   useEffect(() => {
@@ -105,9 +113,9 @@ const LogViewer = () => {
         header={renderHeader}
         id='LogViewer'
         ref={tableRef}
-        scrollHeight='calc(100vh - 28px)'
+        scrollHeight='calc(100vh - 40px)'
         style={{
-          height: 'calc(100vh - 28px)',
+          height: 'calc(100vh - 40px)',
         }}
         value={dataSource}
         virtualScrollerOptions={{ itemSize: 28 }}

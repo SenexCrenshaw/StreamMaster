@@ -71,7 +71,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
 
     public async Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(string videoStreamId, CancellationToken cancellationToken = default)
     {
-        VideoStream? videoStream = await FindByCondition(a => a.Id == videoStreamId).FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        VideoStream? videoStream = await FindByCondition(a => a.Id == videoStreamId).Include(a => a.ChildVideoStreams).FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         if (videoStream == null)
         {
             return null;
@@ -91,7 +91,11 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
             return (videoStream.VideoStreamHandler, new List<ChildVideoStreamDto> { childVideoStreamDto });
         }
 
-        List<VideoStream> childVideoStreams = videoStream.ChildVideoStreams.OrderBy(a => a.Rank).Select(a => a.ChildVideoStream).ToList();
+        List<VideoStream> childVideoStreams = RepositoryContext.VideoStreamLinks
+            .Include(a => a.ChildVideoStream)
+            .Where(a => a.ParentVideoStreamId == videoStream.Id)
+            .Select(a => a.ChildVideoStream).ToList();
+
         List<ChildVideoStreamDto> childVideoStreamDtos = mapper.Map<List<ChildVideoStreamDto>>(childVideoStreams);
 
         foreach (ChildVideoStreamDto childVideoStreamDto in childVideoStreamDtos)
@@ -505,6 +509,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
     public async Task<VideoStreamDto?> GetVideoStreamById(string VideoStreamId)
     {
         VideoStream? ret = await FindByCondition(c => c.Id == VideoStreamId)
+                            .Include(a => a.ChildVideoStreams)
                              .AsNoTracking()
                              .FirstOrDefaultAsync()
                              .ConfigureAwait(false);
