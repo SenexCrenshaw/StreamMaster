@@ -1,9 +1,8 @@
 
-import { useState, useEffect, useCallback, memo } from "react";
-import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
-import { useVideoStreamsUpdateVideoStreamMutation } from "../../store/iptvApi";
-import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
+import { memo, useCallback, useEffect, useState } from "react";
 import VideoStreamPanel from "../../features/videoStreamPanel/VideoStreamPanel";
+import { useVideoStreamsUpdateVideoStreamMutation, type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
+import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import EditButton from "../buttons/EditButton";
 
 const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
@@ -59,7 +58,7 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
         header="Edit Video Stream"
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
-        overlayColSize={8}
+        overlayColSize={6}
         show={showOverlay}
       >
 

@@ -1,7 +1,7 @@
 import { memo } from "react";
-import { type ChildVideoStreamDto, type VideoStreamLinksRemoveVideoStreamFromVideoStreamApiArg } from "../../store/iptvApi";
-import { useVideoStreamLinksRemoveVideoStreamFromVideoStreamMutation } from "../../store/iptvApi";
 import XButton from "../../components/buttons/XButton";
+import { RemoveVideoStreamFromVideoStream } from "../../smAPI/VideoStreamLinks/VideoStreamLinksMutateAPI";
+import { type ChildVideoStreamDto, type VideoStreamLinksRemoveVideoStreamFromVideoStreamApiArg } from "../../store/iptvApi";
 
 type VideoStreamRemoveFromVideoStreamDialogProps = {
   readonly value?: ChildVideoStreamDto | undefined;
@@ -9,8 +9,6 @@ type VideoStreamRemoveFromVideoStreamDialogProps = {
 };
 
 const VideoStreamRemoveFromVideoStreamDialog = ({ value, videoStreamId }: VideoStreamRemoveFromVideoStreamDialogProps) => {
-
-  const [videoStreamLinksRemoveVideoStreamFromVideoStreamMutation] = useVideoStreamLinksRemoveVideoStreamFromVideoStreamMutation();
 
   const removeVideoStream = async () => {
     if (!value) {
@@ -22,7 +20,7 @@ const VideoStreamRemoveFromVideoStreamDialog = ({ value, videoStreamId }: VideoS
     toSend.parentVideoStreamId = videoStreamId;
     toSend.childVideoStreamId = value.id;
 
-    await videoStreamLinksRemoveVideoStreamFromVideoStreamMutation(toSend).then(() => {
+    await RemoveVideoStreamFromVideoStream(toSend).then(() => {
 
     }).catch((error) => {
       console.error('Remove Stream Error: ' + error.message);

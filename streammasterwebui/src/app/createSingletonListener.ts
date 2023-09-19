@@ -38,6 +38,7 @@ export const singletonStreamGroupChannelGroupListener = createSingletonListener(
 export const singletonStreamGroupVideoStreamsListener = createSingletonListener('StreamGroupVideoStreamsRefresh', hubConnection);
 export const singletonStreamGroupsListener = createSingletonListener('StreamGroupsRefresh', hubConnection);
 export const singletonVideoStreamLinksListener = createSingletonListener('VideoStreamLinksRefresh', hubConnection);
+export const singletonVideoStreamLinksRemoveListener = createSingletonListener('VideoStreamLinksRemove', hubConnection);
 export const singletonVideoStreamsListener = createSingletonListener('VideoStreamsRefresh', hubConnection);
 export const singletonIconsListener = createSingletonListener('IconsRefresh', hubConnection);
 export const singletonLogsListener  = createSingletonListener('LogsRefresh', hubConnection);

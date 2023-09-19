@@ -13,16 +13,16 @@ public interface IVideoStreamLinkController
 
     Task<ActionResult<PagedResponse<ChildVideoStreamDto>>> GetPagedVideoStreamVideoStreams([FromQuery] VideoStreamLinkParameters Parameters, CancellationToken cancellationToken);
 
-    Task<ActionResult> AddVideoStreamToVideoStream(AddVideoStreamToVideoStreamRequest request, CancellationToken cancellationToken);
+    Task<ActionResult> AddVideoStreamToVideoStream(AddVideoStreamToVideoStreamRequest request);
 
-    Task<ActionResult> RemoveVideoStreamFromVideoStream(RemoveVideoStreamFromVideoStreamRequest request, CancellationToken cancellationToken);
+    Task<ActionResult> RemoveVideoStreamFromVideoStream(RemoveVideoStreamFromVideoStreamRequest request);
 }
 
 public interface IVideoStreamLinkHub
 {
-    Task RemoveVideoStreamFromVideoStream(RemoveVideoStreamFromVideoStreamRequest request, CancellationToken cancellationToken);
+    Task RemoveVideoStreamFromVideoStream(RemoveVideoStreamFromVideoStreamRequest request);
 
-    Task AddVideoStreamToVideoStream(AddVideoStreamToVideoStreamRequest request, CancellationToken cancellationToken);
+    Task AddVideoStreamToVideoStream(AddVideoStreamToVideoStreamRequest request);
 
     Task<List<string>> GetVideoStreamVideoStreamIds(GetVideoStreamVideoStreamIdsRequest request, CancellationToken cancellationToken);
 

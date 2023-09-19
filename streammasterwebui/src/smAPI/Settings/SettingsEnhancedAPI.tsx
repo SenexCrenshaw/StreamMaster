@@ -1,8 +1,8 @@
 import { singletonSettingsListener } from '../../app/createSingletonListener';
 import { isEmptyObject } from '../../common/common';
 import isPagedTableDto from '../../components/dataSelector/isPagedTableDto';
-import type * as iptv from '../../store/iptvApi';
 import { iptvApi } from '../../store/iptvApi';
+import type * as iptv from '../../store/iptvApi';
 
 export const enhancedApiSettings = iptvApi.enhanceEndpoints({
   endpoints: {
@@ -12,49 +12,49 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.TaskQueueStatusDto[]) => {
+            if (!data || isEmptyObject(data)) {
+              console.log('empty', data);
+              dispatch(iptvApi.util.invalidateTags(['Settings']));
+              return;
+            }
+
             updateCachedData(() => {
-              console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Settings' }])) {
                 if (endpointName !== 'settingsGetQueueStatus') continue;
-                dispatch(
-                  iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    if (isEmptyObject(data)) {
-                      console.log('empty', data);
-                      dispatch(iptvApi.util.invalidateTags(['Settings']));
-                      return;
-                    }
+                  dispatch(
+                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
 
-                    if (isPagedTableDto(data)) {
+                      if (isPagedTableDto(data)) {
                       data.forEach(item => {
                         const index = draft.findIndex(existingItem => existingItem.id === item.id);
                         if (index !== -1) {
                           draft[index] = item;
                         }
-                      });
+                        });
+
+                        return draft;
+                        }
+
+                      data.forEach(item => {
+                        const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft[index] = item;
+                        }
+                        });
 
                       return draft;
-                    }
-
-                    data.forEach(item => {
-                      const index = draft.findIndex(existingItem => existingItem.id === item.id);
-                      if (index !== -1) {
-                        draft[index] = item;
-                      }
-                    });
-
-                    return draft;
-                  })
-                )
-              }
+                     })
+                   )
+                 }
 
 
             });
           };
 
-          singletonSettingsListener.addListener(updateCachedDataWithResults);
+         singletonSettingsListener.addListener(updateCachedDataWithResults);
 
-          await cacheEntryRemoved;
-          singletonSettingsListener.removeListener(updateCachedDataWithResults);
+        await cacheEntryRemoved;
+        singletonSettingsListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
@@ -72,20 +72,20 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
               console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Settings' }])) {
                 if (endpointName !== 'settingsGetSetting') continue;
-                dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                  console.log('updateCachedData', data, draft);
-                })
-                );
-              }
+                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                    console.log('updateCachedData', data, draft);
+                   })
+                   );
+                 }
 
 
             });
           };
 
-          singletonSettingsListener.addListener(updateCachedDataWithResults);
+         singletonSettingsListener.addListener(updateCachedDataWithResults);
 
-          await cacheEntryRemoved;
-          singletonSettingsListener.removeListener(updateCachedDataWithResults);
+        await cacheEntryRemoved;
+        singletonSettingsListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
@@ -103,20 +103,20 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
               console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Settings' }])) {
                 if (endpointName !== 'settingsGetSystemStatus') continue;
-                dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                  console.log('updateCachedData', data, draft);
-                })
-                );
-              }
+                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                    console.log('updateCachedData', data, draft);
+                   })
+                   );
+                 }
 
 
             });
           };
 
-          singletonSettingsListener.addListener(updateCachedDataWithResults);
+         singletonSettingsListener.addListener(updateCachedDataWithResults);
 
-          await cacheEntryRemoved;
-          singletonSettingsListener.removeListener(updateCachedDataWithResults);
+        await cacheEntryRemoved;
+        singletonSettingsListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);

@@ -1,8 +1,8 @@
 import { singletonM3UFilesListener } from '../../app/createSingletonListener';
 import { isEmptyObject } from '../../common/common';
 import isPagedTableDto from '../../components/dataSelector/isPagedTableDto';
-import type * as iptv from '../../store/iptvApi';
 import { iptvApi } from '../../store/iptvApi';
+import type * as iptv from '../../store/iptvApi';
 
 export const enhancedApiM3UFiles = iptvApi.enhanceEndpoints({
   endpoints: {
@@ -16,20 +16,20 @@ export const enhancedApiM3UFiles = iptvApi.enhanceEndpoints({
               console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'M3UFiles' }])) {
                 if (endpointName !== 'm3UFilesGetM3UFile') continue;
-                dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                  console.log('updateCachedData', data, draft);
-                })
-                );
-              }
+                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                    console.log('updateCachedData', data, draft);
+                   })
+                   );
+                 }
 
 
             });
           };
 
-          singletonM3UFilesListener.addListener(updateCachedDataWithResults);
+         singletonM3UFilesListener.addListener(updateCachedDataWithResults);
 
-          await cacheEntryRemoved;
-          singletonM3UFilesListener.removeListener(updateCachedDataWithResults);
+        await cacheEntryRemoved;
+        singletonM3UFilesListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
@@ -43,49 +43,49 @@ export const enhancedApiM3UFiles = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.M3UFileDto[]) => {
+            if (!data || isEmptyObject(data)) {
+              console.log('empty', data);
+              dispatch(iptvApi.util.invalidateTags(['M3UFiles']));
+              return;
+            }
+
             updateCachedData(() => {
-              console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'M3UFiles' }])) {
                 if (endpointName !== 'm3UFilesGetPagedM3UFiles') continue;
-                dispatch(
-                  iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    if (isEmptyObject(data)) {
-                      console.log('empty', data);
-                      dispatch(iptvApi.util.invalidateTags(['M3UFiles']));
-                      return;
-                    }
+                  dispatch(
+                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
 
-                    if (isPagedTableDto(data)) {
+                      if (isPagedTableDto(data)) {
                       data.forEach(item => {
                         const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
                         if (index !== -1) {
                           draft.data[index] = item;
                         }
-                      });
+                        });
+
+                        return draft;
+                        }
+
+                      data.forEach(item => {
+                        const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft.data[index] = item;
+                        }
+                        });
 
                       return draft;
-                    }
-
-                    data.forEach(item => {
-                      const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
-                      if (index !== -1) {
-                        draft.data[index] = item;
-                      }
-                    });
-
-                    return draft;
-                  })
-                )
-              }
+                     })
+                   )
+                 }
 
 
             });
           };
 
-          singletonM3UFilesListener.addListener(updateCachedDataWithResults);
+         singletonM3UFilesListener.addListener(updateCachedDataWithResults);
 
-          await cacheEntryRemoved;
-          singletonM3UFilesListener.removeListener(updateCachedDataWithResults);
+        await cacheEntryRemoved;
+        singletonM3UFilesListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);

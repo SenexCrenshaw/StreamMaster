@@ -12,17 +12,17 @@ export const enhancedApiProgrammes = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.ProgrammeNameDto[]) => {
+            if (!data || isEmptyObject(data)) {
+              console.log('empty', data);
+              dispatch(iptvApi.util.invalidateTags(['Programmes']));
+              return;
+            }
+
             updateCachedData(() => {
-              console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Programmes' }])) {
                 if (endpointName !== 'programmesGetPagedProgrammeNameSelections') continue;
                   dispatch(
                     iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                      if (isEmptyObject(data)) {
-                        console.log('empty', data);
-                        dispatch(iptvApi.util.invalidateTags(['Programmes']));
-                        return;
-                      }
 
                       if (isPagedTableDto(data)) {
                       data.forEach(item => {
@@ -68,17 +68,17 @@ export const enhancedApiProgrammes = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.ProgrammeNameDto[]) => {
+            if (!data || isEmptyObject(data)) {
+              console.log('empty', data);
+              dispatch(iptvApi.util.invalidateTags(['Programmes']));
+              return;
+            }
+
             updateCachedData(() => {
-              console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Programmes' }])) {
                 if (endpointName !== 'programmesGetProgrammsSimpleQuery') continue;
                   dispatch(
                     iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                      if (isEmptyObject(data)) {
-                        console.log('empty', data);
-                        dispatch(iptvApi.util.invalidateTags(['Programmes']));
-                        return;
-                      }
 
                       if (isPagedTableDto(data)) {
                       data.forEach(item => {

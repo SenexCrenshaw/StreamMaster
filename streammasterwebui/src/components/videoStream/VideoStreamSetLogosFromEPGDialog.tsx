@@ -106,19 +106,14 @@ const VideoStreamSetLogosFromEPGDialog = ({ id }: VideoStreamSetLogosFromEPGDial
 
       <InfoMessageOverLayDialog
         blocked={block}
-        header="Match Logos"
+        header="Set Logo From EPG"
         infoMessage={infoMessage}
         onClose={() => { ReturnToParent(); }}
         overlayColSize={4}
         show={showOverlay}
       >
-        <div className="border-1 surface-border flex grid flex-wrap justify-content-center p-0 m-0">
-          <div className='flex flex-column mt-2 col-6'>
-            Match Logos?
-          </div>
-          <div className="flex col-12 gap-2 mt-4 justify-content-center ">
-            <OKButton onClick={async () => await onSetLogoSave()} />
-          </div>
+        <div className="flex justify-content-center w-full align-items-center h-full">
+          <OKButton label="Set Logo From EPG" onClick={async () => await onSetLogoSave()} />
         </div>
       </InfoMessageOverLayDialog>
 

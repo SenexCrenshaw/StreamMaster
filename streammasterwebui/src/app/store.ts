@@ -17,6 +17,8 @@ import { enhancedApiVideoStreamLinks } from '../smAPI/VideoStreamLinks/VideoStre
 import { enhancedApiVideoStreams } from '../smAPI/VideoStreams/VideoStreamsEnhancedAPI';
 import { enhancedApiVideoStreamsLocal } from '../smAPI/VideoStreams/enhancedApiVideoStreamsLocal';
 
+import { enhancedApiVideoStreamLinksLocal } from '../smAPI/VideoStreamLinks/VideoStreamLinksEnhancedAPILocal';
+
 import appInfoSliceReducer from './slices/appInfoSlice';
 import channelGroupToRemoveSliceReducer from './slices/channelGroupToRemoveSlice';
 import queryAdditionalFiltersReducer from './slices/queryAdditionalFiltersSlice';
@@ -78,6 +80,7 @@ const rootReducer = combineReducers({
   [enhancedApiVideoStreamLinks.reducerPath]: enhancedApiVideoStreamLinks.reducer,
   [enhancedApiVideoStreams.reducerPath]: enhancedApiVideoStreams.reducer,
   [enhancedApiVideoStreamsLocal.reducerPath]: enhancedApiVideoStreamsLocal.reducer,
+  [enhancedApiVideoStreamLinksLocal.reducerPath]: enhancedApiVideoStreamLinksLocal.reducer,
   channelGroupToRemove:channelGroupToRemoveSliceReducer,
   queryAdditionalFilters: queryAdditionalFiltersReducer,
   queryFilter: queryFilterReducer,
@@ -110,6 +113,7 @@ export const store = configureStore({
       enhancedApiVideoStreamLinks.middleware,
       enhancedApiVideoStreams.middleware,
       enhancedApiVideoStreamsLocal.middleware,
+      enhancedApiVideoStreamLinksLocal.middleware,
     ),
   reducer: rootReducer,
 });

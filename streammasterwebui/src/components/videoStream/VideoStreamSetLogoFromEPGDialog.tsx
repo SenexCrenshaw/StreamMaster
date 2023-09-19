@@ -43,7 +43,7 @@ const VideoStreamSetLogoFromEPGDialog = (props: VideoStreamSetLogoFromEPGDialogP
       rounded
       size="small"
       text={props.iconFilled !== true}
-      tooltip="Change Logo to EPG"
+      tooltip="Set Logo From EPG"
       tooltipOptions={getTopToolOptions}
     />
   );

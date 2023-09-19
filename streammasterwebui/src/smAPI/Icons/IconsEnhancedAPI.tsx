@@ -74,17 +74,17 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto[]) => {
+            if (!data || isEmptyObject(data)) {
+              console.log('empty', data);
+              dispatch(iptvApi.util.invalidateTags(['Icons']));
+              return;
+            }
+
             updateCachedData(() => {
-              console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Icons' }])) {
                 if (endpointName !== 'iconsGetPagedIcons') continue;
                   dispatch(
                     iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                      if (isEmptyObject(data)) {
-                        console.log('empty', data);
-                        dispatch(iptvApi.util.invalidateTags(['Icons']));
-                        return;
-                      }
 
                       if (isPagedTableDto(data)) {
                       data.forEach(item => {
@@ -130,17 +130,17 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto[]) => {
+            if (!data || isEmptyObject(data)) {
+              console.log('empty', data);
+              dispatch(iptvApi.util.invalidateTags(['Icons']));
+              return;
+            }
+
             updateCachedData(() => {
-              console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Icons' }])) {
                 if (endpointName !== 'iconsGetIconsSimpleQuery') continue;
                   dispatch(
                     iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                      if (isEmptyObject(data)) {
-                        console.log('empty', data);
-                        dispatch(iptvApi.util.invalidateTags(['Icons']));
-                        return;
-                      }
 
                       if (isPagedTableDto(data)) {
                       data.forEach(item => {

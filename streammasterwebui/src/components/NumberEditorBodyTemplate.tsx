@@ -3,55 +3,65 @@ import { Button } from "primereact/button";
 import { useClickOutside } from "primereact/hooks";
 import { InputNumber } from "primereact/inputnumber";
 import { type TooltipOptions } from "primereact/tooltip/tooltipoptions";
-import React, { type CSSProperties } from "react";
+
+import { memo, useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { getTopToolOptions } from "../common/common";
 import { ResetLogoIcon } from "../common/icons";
 
 const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProps) => {
-  const [inputValue, setInputValue] = React.useState<number>(0);
-  const [originalValue, setOriginalValue] = React.useState<number>(0);
-  const [ignoreSave, setIgnoreSave] = React.useState<boolean>(true);
-  const [isFocused, setIsFocused] = React.useState<boolean>(false);
-  const overlayRef = React.useRef(null);
+  const [inputValue, setInputValue] = useState<number>(0);
+  const [originalValue, setOriginalValue] = useState<number>(0);
+  const [isFocused, setIsFocused] = useState<boolean>(false);
+  const overlayRef = useRef(null);
 
 
   const debounced = useDebouncedCallback(
-    React.useCallback((value) => {
-
-      if (!ignoreSave && value !== originalValue) {
+    useCallback((value) => {
+      if (value !== originalValue) {
         setInputValue(value);
-        setIgnoreSave(true);
-        // console.log('Saved', value);
         props.onChange(value);
       }
-    }, [ignoreSave, originalValue, props]),
+    }, [originalValue, props]),
     1500,
     {}
   );
 
-  const save = React.useCallback((forceValueSave?: number | undefined) => {
-    // console.log('save', ignoreSave, inputValue, originalValue)
+  const save = useCallback((forceValueSave?: number | undefined) => {
     if (forceValueSave === undefined && (
-      ignoreSave || inputValue === undefined || inputValue === originalValue)
+      inputValue === undefined || inputValue === originalValue)
     ) {
       return;
     }
 
     debounced.cancel();
-    setIgnoreSave(true);
 
-    // console.log('Saved', inputValue);
     if (forceValueSave !== undefined) {
       props.onChange(forceValueSave);
     } else {
       props.onChange(inputValue);
     }
 
+  }, [debounced, inputValue, originalValue, props]);
 
-  }, [debounced, ignoreSave, inputValue, originalValue, props]);
+  // Keyboard Enter
+  useEffect(() => {
+    const callback = (event: KeyboardEvent) => {
+      if (!isFocused) {
+        return;
+      }
 
+      if (event.code === 'Enter' || event.code === 'NumpadEnter') {
+        save();
+      }
+    };
 
+    document.addEventListener('keydown', callback);
+
+    return () => {
+      document.removeEventListener('keydown', callback);
+    };
+  }, [isFocused, save]);
 
   useClickOutside(overlayRef, () => {
     if (!isFocused) {
@@ -61,33 +71,25 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProps) => {
     setIsFocused(false);
 
     if (originalValue !== inputValue) {
-      // console.log('useClickOutside saved');
       save();
     }
   });
 
-  React.useMemo(() => {
-
-    // if (props.value !== undefined && props.value !== originalValue) {
+  useEffect(() => {
     if (props.value !== undefined) {
-      // console.log('setOriginalValue', props.value);
       setInputValue(props.value);
       setOriginalValue(props.value);
-      setIgnoreSave(false);
     }
-
   }, [props.value, setInputValue]);
 
-
   return (
-    <div className='flex h-full' ref={overlayRef} style={props.style}>
+    <div className='relative h-full' ref={overlayRef} style={props.style}>
       {(isFocused && props.resetValue !== undefined && props.resetValue !== 0 && props.resetValue !== inputValue) &&
         <Button
           className="absolute mt-1 right-0"
           icon={<ResetLogoIcon sx={{ fontSize: 18 }} />}
           onClick={() => {
             setInputValue(props.resetValue !== undefined ? props.resetValue : 0);
-            // props?.onReset?.(props.resetValue !== undefined ? props.resetValue : '');
             save(props.resetValue);
           }
           }
@@ -97,6 +99,9 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProps) => {
           tooltip="Reset ChNo"
           tooltipOptions={getTopToolOptions}
         />
+      }
+      {(originalValue !== inputValue) &&
+        <i className="absolute right-0 pt-1 pi pi-save pr-2 text-500" />
       }
       <InputNumber
         className="w-full h-full"
@@ -132,4 +137,4 @@ export type NumberEditorBodyTemplateProps = {
   readonly value: number | undefined;
 };
 
-export default React.memo(NumberEditorBodyTemplate);
+export default memo(NumberEditorBodyTemplate);

@@ -15,10 +15,17 @@
    --common-font-size-large: medium;
    --button-danger-bg: #c73939;
    --button-info-bg: #5361ff;
+   --editor-bg: transparent;
+   --editor-bg2: #2d33416b;
    --button-success-bg: #6dc831ee;
    --focus-border-color: var(--blue-500);
    --input-height: 1.4rem;
    --orange-color: #FE7600;
+ }
+
+ .p-button.p-button-icon-only.p-button-rounded {
+   width: .08rem !important;
+   height: 1.6rem !important;
  }
 
  .copyButtonMessage {
@@ -66,14 +73,18 @@
  }
 
  .icon-template-large {
-   height: 6rem;
-   justify-content: start;
+   padding: 0rem !important;
+   margin-right: 1rem;
+   width: 8rem;
+   max-height: 8rem;
+   object-fit: contain;
+   justify-content: center;
    align-items: center;
  }
 
  .icon-template-large img {
    max-width: 6rem;
-   max-height: 6rem;
+   max-height: 5rem;
    object-fit: contain;
  }
 
@@ -104,7 +115,7 @@
  }
 
  .p-inputtext {
-   background-color: transparent;
+   background-color: var(--editor-bg);
    overflow: hidden !important;
    padding: 0.0rem 0.0rem 0.0rem 0.5rem !important;
    transition: border-color 0.3s;
@@ -119,7 +130,8 @@
  }
 
  .p-dropdown {
-   background-color: transparent;
+   /* background-color: transparent; */
+   background-color: var(--editor-bg);
    border-color: transparent;
    height: var(--input-height);
    font-size: var(--common-font-size) !important;

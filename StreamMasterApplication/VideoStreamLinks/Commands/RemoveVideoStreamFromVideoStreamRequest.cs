@@ -12,5 +12,6 @@ public class RemoveVideoStreamFromVideoStreamRequestHandler : BaseMediatorReques
     public async Task Handle(RemoveVideoStreamFromVideoStreamRequest request, CancellationToken cancellationToken)
     {
         await Repository.VideoStreamLink.RemoveVideoStreamFromVideoStream(request.ParentVideoStreamId, request.ChildVideoStreamId, cancellationToken);
+        await HubContext.Clients.All.VideoStreamLinksRemove([request.ChildVideoStreamId]);
     }
 }

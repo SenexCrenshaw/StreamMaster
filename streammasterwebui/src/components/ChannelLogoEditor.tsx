@@ -1,13 +1,9 @@
-import React from "react";
-
+import { memo } from "react";
+import { UpdateVideoStream } from "../smAPI/VideoStreams/VideoStreamsMutateAPI";
+import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../store/iptvApi";
 import IconSelector from "./selectors/IconSelector";
-import { type VideoStreamDto } from "../store/iptvApi";
-import { type UpdateVideoStreamRequest } from "../store/iptvApi";
-import { useVideoStreamsUpdateVideoStreamMutation } from "../store/iptvApi";
-
 
 const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
-  const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
 
   const onUpdateVideoStream = async (Logo: string) => {
     if (props.data.id === '') {
@@ -22,7 +18,7 @@ const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
       data.tvg_logo = Logo;
     }
 
-    await videoStreamsUpdateVideoStreamMutation(data)
+    await UpdateVideoStream(data)
       .then(() => {
 
       }).catch((e) => {
@@ -55,4 +51,4 @@ export type StreamDataSelectorProps = {
   readonly enableEditMode?: boolean;
 };
 
-export default React.memo(ChannelLogoEditor);
+export default memo(ChannelLogoEditor);

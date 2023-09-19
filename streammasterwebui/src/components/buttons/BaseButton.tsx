@@ -1,4 +1,5 @@
 import { Button } from "primereact/button";
+import { type SyntheticEvent } from "react";
 import { getLeftToolOptions, getTopToolOptions } from "../../common/common";
 
 
@@ -7,7 +8,7 @@ export type ChildButtonProps = {
   disabled?: boolean | undefined;
   iconFilled?: boolean;
   label?: string | undefined;
-  onClick: () => void;
+  onClick: (e: SyntheticEvent) => void;
   tooltip?: string;
 }
 
@@ -18,7 +19,7 @@ export type BaseButtonProps = {
   iconFilled?: boolean;
   isLeft?: boolean | undefined;
   label?: string | undefined;
-  onClick: () => void;
+  onClick: (e: SyntheticEvent) => void;
   rounded?: boolean;
   severity?: 'danger' | 'help' | 'info' | 'secondary' | 'success' | 'warning' | undefined;
   tooltip?: string; // Add other severities as needed

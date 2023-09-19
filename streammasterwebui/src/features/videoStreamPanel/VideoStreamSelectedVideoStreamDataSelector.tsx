@@ -4,7 +4,8 @@ import { GetMessage } from "../../common/common";
 import { useChannelNameColumnConfig, useChannelNumberColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import { useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery, useVideoStreamsUpdateVideoStreamMutation, type ChildVideoStreamDto, type VideoStreamsUpdateVideoStreamApiArg } from "../../store/iptvApi";
+import { UpdateVideoStream } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
+import { useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery, type ChildVideoStreamDto, type VideoStreamsUpdateVideoStreamApiArg } from "../../store/iptvApi";
 import VideoStreamRemoveFromVideoStreamDialog from "./VideoStreamRemoveFromVideoStreamDialog";
 
 type VideoStreamSelectedVideoStreamDataSelectorProps = {
@@ -19,8 +20,6 @@ const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: Video
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit: false });
 
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
-
-  const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
 
   useEffect(() => {
     if (queryAdditionalFilter === undefined && videoStreamId) {
@@ -77,7 +76,7 @@ const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: Video
     toSend.id = videoStreamId;
     toSend.childVideoStreams = newData;
 
-    await videoStreamsUpdateVideoStreamMutation(toSend)
+    await UpdateVideoStream(toSend)
       .then(() => {
 
       }).catch(() => {

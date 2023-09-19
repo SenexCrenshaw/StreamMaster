@@ -147,8 +147,8 @@ const VideoStreamVisibleDialog = ({
         show={showOverlay}
       >
 
-        <div className="flex justify-content-center w-full">
-          <VisibleButton disabled={getTotalCount === 0 && !selectAll} onClick={async () => await onVisiblesClick()} />
+        <div className="flex justify-content-center w-full align-items-center h-full">
+          <VisibleButton disabled={getTotalCount === 0 && !selectAll} label='Toggle Visibility' onClick={async () => await onVisiblesClick()} />
         </div>
 
       </InfoMessageOverLayDialog >

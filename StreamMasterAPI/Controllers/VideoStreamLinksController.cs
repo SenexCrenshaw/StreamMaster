@@ -28,9 +28,9 @@ public class VideoStreamLinksController : ApiControllerBase, IVideoStreamLinkCon
 
     [HttpPatch]
     [Route("[action]")]
-    public async Task<ActionResult> AddVideoStreamToVideoStream(AddVideoStreamToVideoStreamRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult> AddVideoStreamToVideoStream(AddVideoStreamToVideoStreamRequest request)
     {
-        await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
+        await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
     }
 
@@ -52,9 +52,9 @@ public class VideoStreamLinksController : ApiControllerBase, IVideoStreamLinkCon
 
     [HttpPatch]
     [Route("[action]")]
-    public async Task<ActionResult> RemoveVideoStreamFromVideoStream(RemoveVideoStreamFromVideoStreamRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult> RemoveVideoStreamFromVideoStream(RemoveVideoStreamFromVideoStreamRequest request)
     {
-        await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
+        await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
     }
 }

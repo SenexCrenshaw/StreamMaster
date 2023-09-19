@@ -92,7 +92,7 @@ const InfoMessageOverLayDialog: React.FC<InfoMessageOverLayDialogProps> = (props
         visible={showDialog}
       >
         <BlockUI blocked={blocked}>
-          <div className='flex p-0 pt-3 pb-1 border-1 border-round surface-border justify-contents-center align-items-center'>
+          <div className='flex p-0 pt-3 pb-3 border-1 border-round surface-border justify-contents-center align-items-center'>
             {children}
           </div>
         </BlockUI>

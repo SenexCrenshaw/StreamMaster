@@ -12,17 +12,17 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.StreamGroupDto[]) => {
+            if (!data || isEmptyObject(data)) {
+              console.log('empty', data);
+              dispatch(iptvApi.util.invalidateTags(['StreamGroups']));
+              return;
+            }
+
             updateCachedData(() => {
-              console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'StreamGroups' }])) {
                 if (endpointName !== 'streamGroupsGetPagedStreamGroups') continue;
                 dispatch(
                   iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    if (isEmptyObject(data)) {
-                      console.log('empty', data);
-                      dispatch(iptvApi.util.invalidateTags(['StreamGroups']));
-                      return;
-                    }
 
                     if (isPagedTableDto(data)) {
                       data.forEach(item => {

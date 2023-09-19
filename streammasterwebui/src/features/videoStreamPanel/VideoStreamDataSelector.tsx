@@ -4,7 +4,8 @@ import { GetMessage } from "../../common/common";
 import { useChannelNameColumnConfig, useChannelNumberColumnConfig } from "../../components/columns/columnConfigHooks";
 import DataSelector from "../../components/dataSelector/DataSelector";
 import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import { useVideoStreamLinksAddVideoStreamToVideoStreamMutation, useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery, useVideoStreamsGetPagedVideoStreamsQuery, type VideoStreamDto, type VideoStreamLinksAddVideoStreamToVideoStreamApiArg } from "../../store/iptvApi";
+import { AddVideoStreamToVideoStream } from "../../smAPI/VideoStreamLinks/VideoStreamLinksMutateAPI";
+import { useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery, useVideoStreamsGetPagedVideoStreamsQuery, type VideoStreamDto, type VideoStreamLinksAddVideoStreamToVideoStreamApiArg } from "../../store/iptvApi";
 
 type VideoStreamDataSelectorProps = {
   readonly id: string;
@@ -21,9 +22,6 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit: false });
 
   const videoStreamLinksGetVideoStreamVideoStreamIdsQuery = useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery(videoStreamId ?? skipToken);
-
-
-  const [videoStreamLinksAddVideoStreamToVideoStreamMutation] = useVideoStreamLinksAddVideoStreamToVideoStreamMutation();
 
   useEffect(() => {
     if (videoStreamLinksGetVideoStreamVideoStreamIdsQuery.data !== undefined) {
@@ -51,7 +49,6 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
     );
   }, []);
 
-  console.log("videostreamdataselector")
 
   return (
     <DataSelector
@@ -80,8 +77,10 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
         toSend.parentVideoStreamId = videoStreamId;
         toSend.childVideoStreamId = stream.id;
 
-        await videoStreamLinksAddVideoStreamToVideoStreamMutation(toSend);
+        await AddVideoStreamToVideoStream(toSend).then().catch((error) => { console.error('Add Stream Error: ' + error.message); })
+
       }}
+
       queryFilter={useVideoStreamsGetPagedVideoStreamsQuery}
       selectedItemsKey='selectSelectedVideoStreamPanelVideoStreamDtoItems'
       selectionMode='single'

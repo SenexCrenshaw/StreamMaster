@@ -1,9 +1,9 @@
 import React from "react";
-import { useVideoStreamsUpdateVideoStreamMutation, type UpdateVideoStreamRequest, type VideoStreamDto } from "../store/iptvApi";
+import { UpdateVideoStream } from "../smAPI/VideoStreams/VideoStreamsMutateAPI";
+import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../store/iptvApi";
 import StringEditorBodyTemplate from "./StringEditorBodyTemplate";
 
 const ChannelNameEditor = (props: ChannelNameEditorProps) => {
-  const [videoStreamsUpdateVideoStreamMutation, { isLoading }] = useVideoStreamsUpdateVideoStreamMutation();
 
   const onUpdateM3UStream = React.useCallback(async (name: string,) => {
     if (props.data.id === '' || !name || name === '' || props.data.user_Tvg_name === name) {
@@ -15,13 +15,13 @@ const ChannelNameEditor = (props: ChannelNameEditorProps) => {
     data.id = props.data.id;
     data.tvg_name = name;
 
-    await videoStreamsUpdateVideoStreamMutation(data)
+    await UpdateVideoStream(data)
       .then(() => {
       }).catch((error) => {
         console.error(error);
       });
 
-  }, [props.data.id, props.data.user_Tvg_name, videoStreamsUpdateVideoStreamMutation]);
+  }, [props.data.id, props.data.user_Tvg_name]);
 
   if (props.data.user_Tvg_name === undefined) {
     return <span className='sm-inputtext' />
@@ -29,7 +29,6 @@ const ChannelNameEditor = (props: ChannelNameEditorProps) => {
 
   return (
     <StringEditorBodyTemplate
-      isLoading={isLoading}
       onChange={async (e) => {
         await onUpdateM3UStream(e);
       }}

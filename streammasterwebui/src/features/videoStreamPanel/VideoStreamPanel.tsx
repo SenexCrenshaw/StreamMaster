@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { Accordion, AccordionTab } from "primereact/accordion";
 import { InputNumber } from "primereact/inputnumber";
@@ -153,7 +154,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
                 <InputWrapper columnSize={6} label="Name" renderInput={() => (
                   <InputText
                     autoFocus
-                    className="w-full bordered-text"
+                    className="w-full bordered-text mr-2"
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Name"
                     type="text"
@@ -162,9 +163,21 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
                 )}
                 />
 
-                <InputWrapper columnSize={4} label="Ch. #" renderInput={() => (
+                <InputWrapper
+                  columnSize={4}
+                  label="Logo"
+                  renderInput={() => (
+                    <IconSelector
+                      className='w-full bordered-text mr-2'
+                      onChange={setIconSource}
+                      value={iconSource}
+                    />
+                  )}
+                />
+
+                <InputWrapper columnSize={2} label="Ch. #" renderInput={() => (
                   <InputNumber
-                    className='w-full bordered-text'
+                    className='w-full'
                     id="channelNumber"
                     max={999999}
                     min={0}
@@ -175,39 +188,14 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
                 )}
                 />
               </div>
-              <div className="flex col-12 justify-content-between">
-                <InputWrapper
-                  columnSize={4}
-                  label="Logo"
-                  renderInput={() => (
-                    <IconSelector
-                      className='w-full bordered-text'
-                      onChange={setIconSource}
-                      value={iconSource}
-                    />
-                  )}
-                />
-                <InputWrapper
-                  columnSize={6}
-                  label="Stream URL"
-                  renderInput={() => (
-                    <InputText
-                      className='w-full bordered-text'
-                      onChange={(e) => setUrl(e.target.value)}
-                      placeholder="URL"
-                      type="text"
-                      value={url}
-                    />
-                  )}
-                />
-              </div>
+
 
               <div className="flex col-12">
                 <InputWrapper
                   columnSize={6}
                   label="EPG"
                   renderInput={() => (
-                    <EPGSelector className='w-full bordered-text' onChange={setEpgId} value={epgId} />
+                    <EPGSelector className='w-full bordered-text mr-2' onChange={setEpgId} value={epgId} />
                   )}
                 />
 
@@ -223,40 +211,50 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
                   )}
                 />
               </div>
+
+              <div className="flex col-12 justify-content-between align-items-center">
+
+                <InputWrapper
+                  columnSize={11}
+                  label="Stream URL"
+                  renderInput={() => (
+                    <InputText
+                      className='w-full bordered-text'
+                      onChange={(e) => setUrl(e.target.value)}
+                      placeholder="URL"
+                      type="text"
+                      value={url}
+                    />
+                  )}
+                />
+                <AddButton disabled={!isSaveEnabled} iconFilled label={props.videoStream ? "Edit Stream" : "Add Stream"}
+                  onClick={() =>
+                    props.videoStream ? props.onEdit?.({
+                      id: props.videoStream.id,
+                      tvg_chno: channelNumber,
+                      tvg_group: channelGroup,
+                      tvg_ID: epgId,
+                      tvg_logo: iconSource,
+                      tvg_name: name,
+                      url: url
+                    } as UpdateVideoStreamRequest) : props.onSave?.({
+                      childVideoStreams: videoStreams,
+                      tvg_chno: channelNumber,
+                      tvg_group: channelGroup,
+                      tvg_ID: epgId,
+                      tvg_logo: iconSource,
+                      tvg_name: name,
+                      url: url
+                    } as CreateVideoStreamRequest
+                    )} />
+              </div>
             </div>
           </div>
-
-          <div className="flex col-12  justify-content-end">
-            <AddButton disabled={!isSaveEnabled} label={props.videoStream ? "Edit Stream" : "Add Stream"}
-              onClick={() =>
-                props.videoStream ? props.onEdit?.({
-                  id: props.videoStream.id,
-                  tvg_chno: channelNumber,
-                  tvg_group: channelGroup,
-                  tvg_ID: epgId,
-                  tvg_logo: iconSource,
-                  tvg_name: name,
-                  url: url
-                } as UpdateVideoStreamRequest) : props.onSave?.({
-                  childVideoStreams: videoStreams,
-                  tvg_chno: channelNumber,
-                  tvg_group: channelGroup,
-                  tvg_ID: epgId,
-                  tvg_logo: iconSource,
-                  tvg_name: name,
-                  url: url
-                } as CreateVideoStreamRequest
-                )} />
-
-          </div>
-
-
         </div >
       </AccordionTab>
-
       <AccordionTab disabled={!props.videoStream?.id} header='Additional Streams'>
-        <div className='flex col-12 flex-wrap justify-content-start align-items-center p-0 m-0 mt-2 w-full'>
-          <div className='flex col-12 p-0 justify-content-start align-items-center w-full'>
+        <div className='grid flex justify-content-start align-items-center surface-overlay m-0'>
+          <div className='flex col-12 p-0 justify-content-start align-items-center w-full '>
             <div className='col-6 m-0 p-0 pr-1' >
               <VideoStreamDataSelector
                 id='videostreampanel'
@@ -289,9 +287,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
         </div>
 
       </AccordionTab>
-
     </Accordion>
-
   );
 };
 

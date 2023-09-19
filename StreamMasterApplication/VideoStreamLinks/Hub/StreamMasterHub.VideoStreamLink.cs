@@ -8,9 +8,9 @@ namespace StreamMasterApplication.Hubs;
 
 public partial class StreamMasterHub : IVideoStreamLinkHub
 {
-    public async Task AddVideoStreamToVideoStream(AddVideoStreamToVideoStreamRequest request, CancellationToken cancellationToken)
+    public async Task AddVideoStreamToVideoStream(AddVideoStreamToVideoStreamRequest request)
     {
-        await mediator.Send(request, cancellationToken);
+        await mediator.Send(request);
     }
 
     public async Task<List<string>> GetVideoStreamVideoStreamIds(GetVideoStreamVideoStreamIdsRequest request, CancellationToken cancellationToken)
@@ -23,8 +23,8 @@ public partial class StreamMasterHub : IVideoStreamLinkHub
         return await mediator.Send(new GetPagedVideoStreamVideoStreams(Parameters), cancellationToken);
     }
 
-    public async Task RemoveVideoStreamFromVideoStream(RemoveVideoStreamFromVideoStreamRequest request, CancellationToken cancellationToken)
+    public async Task RemoveVideoStreamFromVideoStream(RemoveVideoStreamFromVideoStreamRequest request)
     {
-        await mediator.Send(request, cancellationToken);
+        await mediator.Send(request);
     }
 }

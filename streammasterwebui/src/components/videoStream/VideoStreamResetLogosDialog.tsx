@@ -115,13 +115,9 @@ const VideoStreamResetLogosDialog = ({ id }: VideoStreamResetLogosDialogProps) =
         overlayColSize={4}
         show={showOverlay}
       >
-        <div className="border-1 surface-border flex grid flex-wrap justify-content-center p-0 m-0">
-          <div className='flex flex-column mt-2 col-6'>
-            Reset logos?
-          </div>
-          <div className="flex col-12 gap-2 mt-4 justify-content-center ">
-            <OKButton onClick={async () => await onSetLogoSave()} />
-          </div>
+        <div className="flex justify-content-center w-full align-items-center h-full">
+          <OKButton label="Reset Logo" onClick={async () => await onSetLogoSave()} />
+
         </div>
       </InfoMessageOverLayDialog>
 

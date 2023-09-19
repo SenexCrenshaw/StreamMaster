@@ -12,17 +12,17 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.ChannelLogoDto[]) => {
+            if (!data || isEmptyObject(data)) {
+              console.log('empty', data);
+              dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
+              return;
+            }
+
             updateCachedData(() => {
-              console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'VideoStreams' }])) {
                 if (endpointName !== 'videoStreamsGetChannelLogoDtos') continue;
                 dispatch(
                   iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    if (isEmptyObject(data)) {
-                      console.log('empty', data);
-                      dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
-                      return;
-                    }
 
                     if (isPagedTableDto(data)) {
                       data.forEach(item => {
@@ -68,16 +68,17 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.VideoStreamDto[]) => {
+            if (!data || isEmptyObject(data)) {
+              console.log('empty', data);
+              dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
+              return;
+            }
+
             updateCachedData(() => {
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'VideoStreams' }])) {
                 if (endpointName !== 'videoStreamsGetPagedVideoStreams') continue;
                 dispatch(
                   iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    if (isEmptyObject(data)) {
-                      console.log('empty', data);
-                      dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
-                      return;
-                    }
 
                     if (isPagedTableDto(data)) {
                       data.forEach(item => {

@@ -7,6 +7,8 @@ namespace StreamMasterApplication.Common.Interfaces;
 
 public interface IStreamMasterHub : ISharedHub
 {
+    Task VideoStreamLinksRemove(string[]? results = null);
+    Task VideoStreamLinksRefresh(string[]? results = null);
     Task BroadcastStartUpData();
     Task ChannelGroupsRefresh(ChannelGroupDto[]? results = null);
     Task EPGFilesRefresh(EPGFileDto[]? results = null);

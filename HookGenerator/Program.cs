@@ -66,6 +66,7 @@ internal class Program
                                 tagToGetContentMap[tag] = new StringBuilder();
                                 // Add imports at the start of each new file's content
                                 tagToGetContentMap[tag].AppendLine("import { hubConnection } from \"../../app/signalr\";");
+                                tagToGetContentMap[tag].AppendLine("import { isDebug } from \"../../settings\";");
                                 tagToGetContentMap[tag].AppendLine("import type * as iptv from \"../../store/iptvApi\";");
                                 if (additionalImports.ContainsKey(tag))
                                 {
@@ -100,6 +101,7 @@ internal class Program
                                 tagToMutateContentMap[tag] = new StringBuilder();
                                 // Add imports at the start of each new file's content
                                 tagToMutateContentMap[tag].AppendLine("import { hubConnection } from \"../../app/signalr\";");
+                                tagToMutateContentMap[tag].AppendLine("import { isDebug } from \"../../settings\";");
                                 tagToMutateContentMap[tag].AppendLine("import type * as iptv from \"../../store/iptvApi\";\r\n");
                             }
                             contentToUse = tagToMutateContentMap[tag];
@@ -109,9 +111,10 @@ internal class Program
                             argType = overRideArgs[functionName];
                         }
                         contentToUse.AppendLine($"export const {functionName} = async {(argType != null ? $"(arg: {argType})" : "()")}: Promise<{responseType}> => {{");
+                        contentToUse.AppendLine($"  if (isDebug) console.log('{functionName}');");
                         if (responseType != "void")
                         {
-                            contentToUse.AppendLine($"  const data = await hubConnection.invoke('{functionName}'{(argType != null ? ", arg" : "")});");
+                            contentToUse.AppendLine($"  const data = await hubConnection.invoke('{functionName}'{(argType != null ? ", arg" : "")});");                           
                             contentToUse.AppendLine($"  return data;");
                         }
                         else
@@ -151,18 +154,18 @@ internal class Program
         string draft = IsPaged(argType) ? "draft.data" : "draft";
         if (IsPagedOrIsArray(responseType))
         {
+            ret.AppendLine($"            if (!data || isEmptyObject(data)) {{");
+            ret.AppendLine($"              console.log('empty', data);");
+            ret.AppendLine($"              dispatch(iptvApi.util.invalidateTags(['{tag}']));");
+            ret.AppendLine($"              return;");
+            ret.AppendLine($"            }}");
+            ret.AppendLine();
             ret.AppendLine($"            updateCachedData(() => {{");
-            ret.AppendLine($"              console.log('updateCachedData', data);");
+            //ret.AppendLine($"              console.log('updateCachedData', data);");
             ret.AppendLine($"              for (const {{ endpointName, originalArgs }} of iptvApi.util.selectInvalidatedBy(getState(), [{{ type: '{tag}' }}])) {{");
             ret.AppendLine($"                if (endpointName !== '{endpointName}') continue;");
             ret.AppendLine($"                  dispatch(");
             ret.AppendLine($"                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{");
-     
-            ret.AppendLine($"                      if (isEmptyObject(data)) {{");
-            ret.AppendLine($"                        console.log('empty', data);");
-            ret.AppendLine($"                        dispatch(iptvApi.util.invalidateTags(['{tag}']));");
-            ret.AppendLine($"                        return;");
-            ret.AppendLine($"                      }}");
             ret.AppendLine();
             ret.AppendLine($"                      if (isPagedTableDto(data)) {{");
             ret.AppendLine($"                      {data}.forEach(item => {{");

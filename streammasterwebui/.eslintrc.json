@@ -39,7 +39,7 @@
       "asc",
       {
         "caseSensitive": false,
-        "natural": true
+        "natural": false
       }
     ],
     "padding-line-between-statements": [
