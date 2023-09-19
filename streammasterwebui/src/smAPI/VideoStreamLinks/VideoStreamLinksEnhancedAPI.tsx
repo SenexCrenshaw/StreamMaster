@@ -18,6 +18,7 @@ export const enhancedApiVideoStreamLinks = iptvApi.enhanceEndpoints({
               return;
             }
 
+
             updateCachedData(() => {
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'VideoStreamLinks' }])) {
                 if (endpointName !== 'videoStreamLinksGetPagedVideoStreamVideoStreams') continue;

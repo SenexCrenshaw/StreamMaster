@@ -106,7 +106,8 @@
     "i18n": "extract-messages -l=en -o src/lang -d en \"src/**/*.ts*\"",
     "lint": "eslint ./src/**/*.ts ./src/**/*.tsx",
     "start": "react-scripts start",
-    "test": "react-scripts test"
+    "test": "react-scripts test",
+    "watch": "tsc --watch --noEmit --project tsconfig.json"
   },
   "version": "0.1.0"
 }

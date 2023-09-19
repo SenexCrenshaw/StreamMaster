@@ -41,7 +41,7 @@
     // "sourceMapPathOverrides": {
     //   "webpack:///./src/*": "${webRoot}/*"
     // },
-    "preLaunchTask": "Sleepdelay"
+    "preLaunchTask": "watcher"
     },
     {
       "name": "Docker Node.js Launch",
