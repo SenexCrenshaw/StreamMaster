@@ -15,10 +15,12 @@ import { enhancedApiStreamGroupVideoStreams } from '../smAPI/StreamGroupVideoStr
 import { enhancedApiStreamGroups } from '../smAPI/StreamGroups/StreamGroupsEnhancedAPI';
 import { enhancedApiVideoStreamLinks } from '../smAPI/VideoStreamLinks/VideoStreamLinksEnhancedAPI';
 import { enhancedApiVideoStreams } from '../smAPI/VideoStreams/VideoStreamsEnhancedAPI';
+
 import { enhancedApiVideoStreamsLocal } from '../smAPI/VideoStreams/enhancedApiVideoStreamsLocal';
 
 import { enhancedApiVideoStreamLinksLocal } from '../smAPI/VideoStreamLinks/VideoStreamLinksEnhancedAPILocal';
 
+import { enhancedApiVideoStreamsGetAllStatisticsLocal } from '../smAPILocal/enhancedApiVideoStreamsGetAllStatisticsLocal';
 import appInfoSliceReducer from './slices/appInfoSlice';
 import channelGroupToRemoveSliceReducer from './slices/channelGroupToRemoveSlice';
 import queryAdditionalFiltersReducer from './slices/queryAdditionalFiltersSlice';
@@ -81,6 +83,7 @@ const rootReducer = combineReducers({
   [enhancedApiVideoStreams.reducerPath]: enhancedApiVideoStreams.reducer,
   [enhancedApiVideoStreamsLocal.reducerPath]: enhancedApiVideoStreamsLocal.reducer,
   [enhancedApiVideoStreamLinksLocal.reducerPath]: enhancedApiVideoStreamLinksLocal.reducer,
+  [enhancedApiVideoStreamsGetAllStatisticsLocal.reducerPath]: enhancedApiVideoStreamsGetAllStatisticsLocal.reducer,
   channelGroupToRemove:channelGroupToRemoveSliceReducer,
   queryAdditionalFilters: queryAdditionalFiltersReducer,
   queryFilter: queryFilterReducer,
@@ -114,6 +117,7 @@ export const store = configureStore({
       enhancedApiVideoStreams.middleware,
       enhancedApiVideoStreamsLocal.middleware,
       enhancedApiVideoStreamLinksLocal.middleware,
+      enhancedApiVideoStreamsGetAllStatisticsLocal.middleware,
     ),
   reducer: rootReducer,
 });

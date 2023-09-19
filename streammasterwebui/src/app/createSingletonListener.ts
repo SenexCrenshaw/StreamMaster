@@ -42,3 +42,4 @@ export const singletonVideoStreamLinksRemoveListener = createSingletonListener('
 export const singletonVideoStreamsListener = createSingletonListener('VideoStreamsRefresh', hubConnection);
 export const singletonIconsListener = createSingletonListener('IconsRefresh', hubConnection);
 export const singletonLogsListener  = createSingletonListener('LogsRefresh', hubConnection);
+export const singletonStatisticListener  = createSingletonListener('streamstatisticsresultsupdate', hubConnection);

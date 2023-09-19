@@ -24,7 +24,7 @@ function imageBodyTemplate(data: object, fieldName: string, defaultIcon: string)
       <img
         alt={record ?? 'Logo'}
         className="max-h-1rem max-w-full p-0"
-        onError={(e: SyntheticEvent<HTMLImageElement, Event>) => (e.currentTarget.src = (e.currentTarget.src = defaultIcon))}
+        onError={(e: SyntheticEvent<HTMLImageElement, Event>) => (e.currentTarget.src = (e.currentTarget.src = +'/' + defaultIcon))}
         src={`${encodeURI(record ?? '')}`}
         style={{
           objectFit: 'contain',
