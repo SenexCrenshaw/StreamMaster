@@ -30,7 +30,7 @@ public class DeleteEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestH
             if (File.Exists(fullName))
             {
                 File.Delete(fullName);
-                string txtName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(epgFile.Source) + ".url");
+                string txtName = Path.Combine(FileDefinitions.EPG.DirectoryLocation, Path.GetFileNameWithoutExtension(epgFile.Source) + ".json");
                 if (File.Exists(txtName))
                 {
                     File.Delete(txtName);
