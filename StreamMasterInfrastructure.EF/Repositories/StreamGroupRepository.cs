@@ -23,6 +23,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
     {
         return PagedExtensions.CreateEmptyPagedResponse<StreamGroupDto>(Count());
     }
+
     public async Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(StreamGroupParameters Parameters)
     {
         IQueryable<StreamGroup> query = GetIQueryableForEntity(Parameters);
@@ -38,12 +39,10 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
         string Url = httpContextAccessor.GetUrl();
         Setting setting = await settingsService.GetSettingsAsync();
 
-
         foreach (StreamGroupDto sg in streamGroupDtos)
         {
             SetStreamGroupLinks(sg, Url, setting);
         }
-
     }
 
     private async Task SetStreamGroupsLink(StreamGroupDto streamGroupDto)
@@ -51,11 +50,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
         string Url = httpContextAccessor.GetUrl();
         Setting setting = await settingsService.GetSettingsAsync();
 
-
-
         SetStreamGroupLinks(streamGroupDto, Url, setting);
-
-
     }
 
     private void SetStreamGroupLinks(StreamGroupDto streamGroupDto, string Url, Setting setting)
@@ -91,7 +86,6 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
         return ret;
     }
 
-
     public IQueryable<StreamGroup> GetAllStreamGroups()
     {
         return FindAll();
@@ -110,10 +104,8 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
                    .ToListAsync(cancellationToken: cancellationToken)
                    .ConfigureAwait(false);
 
-
         await SetStreamGroupsLinks(ret).ConfigureAwait(false);
         return ret;
-
     }
 
     public void CreateStreamGroup(StreamGroup StreamGroup)
@@ -155,6 +147,7 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
 
         return ret;
     }
+
     public void UpdateStreamGroup(StreamGroup StreamGroup)
     {
         Update(StreamGroup);
@@ -164,5 +157,4 @@ public class StreamGroupRepository(ILogger<StreamGroupRepository> logger, Reposi
     {
         return FindAll();
     }
-
 }

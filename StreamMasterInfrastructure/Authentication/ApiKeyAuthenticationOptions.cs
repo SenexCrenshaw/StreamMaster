@@ -24,7 +24,6 @@ public class ApiKeyAuthenticationOptions : AuthenticationSchemeOptions
 
 public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthenticationOptions>
 {
-
     private readonly ILogger<ApiKeyAuthenticationHandler> _logger;
     private readonly ISettingsService _settingsService;
 
@@ -63,7 +62,7 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
             return AuthenticateResult.NoResult();
         }
 
-        if (setting.ApiKey == providedApiKey)
+        if (setting.ApiKey == providedApiKey || setting.ServerKey == providedApiKey)
         {
             List<Claim> claims = new()
             {
@@ -104,9 +103,8 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
 
         if (Options.QueryName == "SGLinks")
         {
-
             _logger.LogDebug("SGLinks Authentication start for {requestPath}", requestPath);
-            // Get the request path            
+            // Get the request path
             if (
                 !requestPath.StartsWith("/api/videostreams/", StringComparison.InvariantCultureIgnoreCase)
                 &&
