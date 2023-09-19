@@ -1,60 +1,65 @@
-
-import React, { useEffect } from "react";
-import type * as StreamMasterApi from '../../store/iptvApi';
-
-import { formatJSONDateString } from "../../common/common";
-import DataSelector from "../../components/dataSelector/DataSelector";
-import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
-import { useLogsGetLogRequestQuery } from "../../store/iptvApi";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { FilterMatchMode } from 'primereact/api';
+import { Column } from 'primereact/column';
+import { DataTable, type DataTableFilterMeta } from 'primereact/datatable';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ExportComponent, formatJSONDateString } from "../../common/common";
+import { GetLog } from '../../smAPI/Logs/LogsGetAPI';
+import type * as iptv from '../../store/iptvApi';
 
 const LogViewer = () => {
+  const [lastLogId, setLastLogId] = useState<number>(0);
+  const [dataSource, setDataSource] = useState<iptv.LogEntryDto[]>([] as iptv.LogEntryDto[]);
+  const tableRef = useRef<DataTable<iptv.LogEntryDto[]>>(null);
 
-  const [lastLogId, setLastLogId] = React.useState<number>(0);
-  const [dataSource, setDataSource] = React.useState<StreamMasterApi.LogEntryDto[]>([] as StreamMasterApi.LogEntryDto[]);
+  const [filters, setFilters] = useState<DataTableFilterMeta>({
+    logLevelName: { matchMode: FilterMatchMode.CONTAINS, value: null },
+    message: { matchMode: FilterMatchMode.CONTAINS, value: null },
+    timeStamp: { matchMode: FilterMatchMode.CONTAINS, value: null },
 
-  const { data } = useLogsGetLogRequestQuery({ lastId: lastLogId, maxLines: 5000 } as StreamMasterApi.LogsGetLogRequestApiArg)
+  });
+
+  const getLogData = useCallback(() => {
+
+    GetLog({ lastId: lastLogId, maxLines: 5000 } as iptv.LogsGetLogApiArg)
+      .then((data: iptv.LogEntryDto[]) => {
+        if (data && data.length > 0) {
+          // Filter out duplicates based on ID
+          const uniqueData = data.filter(item => !dataSource.some(existingItem => existingItem.id === item.id));
+
+          if (uniqueData.length > 0) {
+            // Add only the new unique items to the dataSource
+            setDataSource(prevDataSource => [
+              ...prevDataSource,
+              ...uniqueData,
+            ]);
+
+            // Update the lastLogId to the ID of the last item in the new data
+            setLastLogId(uniqueData[uniqueData.length - 1].id);
+          }
+        }
+      })
+      .catch(() => { });
+
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataSource]);
 
   useEffect(() => {
-    if (data !== undefined && data !== null && data.length > 0) {
-      setDataSource([...dataSource, ...data].slice(-1000));
-      setLastLogId(data[data.length - 1].id ?? 0);
-    }
-  }, [data, dataSource]);
+    const intervalId = setInterval(() => {
+      getLogData();
+    }, 1000);
 
-  // const getLogData = React.useCallback(() => {
-  //   // console.debug('LogViewer: ', lastLogId);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [getLogData]);
 
-  //   GetLogRequest({ lastId: lastLogId, maxLines: 5000 } as StreamMasterApi.GetLog)
-  //     .then((returnData) => {
-  //       if (returnData !== null && returnData !== undefined && returnData.length > 0) {
-  //         // console.debug('dataSource: ', dataSource.length);
-  //         // console.debug('returnData: ', returnData.length);
-
-  //         setDataSource([...dataSource, ...returnData].slice(-1000));
-  //         setLastLogId(returnData[returnData.length - 1].id ?? 0);
-  //         // console.debug('dataSource: ', [...dataSource, ...returnData].slice(-3));
-  //         // console.debug('lastLogId: ', returnData[returnData.length - 1].id ?? 0, ' dataSource: ', [...dataSource, ...returnData].slice(-1000).length);
-  //       }
-  //     }).catch(() => { })
-
-
-  // }, [dataSource, lastLogId]);
-
-  // React.useEffect(() => {
-  //   const intervalId = setInterval(() => {
-  //     // refetch();
-  //   }, 1000);
-
-  //   return () => {
-  //     clearInterval(intervalId);
-  //   };
-  // }, [refetch]);
-
-  const timeStampTemplate = React.useCallback((rowData: StreamMasterApi.LogEntry) => {
+  const timeStampTemplate = useCallback((rowData: iptv.LogEntry) => {
     return (<div>{formatJSONDateString(rowData.timeStamp ?? '')}</div>);
   }, []);
 
-  const levelTemplate = React.useCallback((rowData: StreamMasterApi.LogEntry) => {
+  const levelTemplate = useCallback((rowData: iptv.LogEntry) => {
     switch (rowData.logLevel) {
       case 0:
         return (<div className='text-gray-600'>Trace</div>);
@@ -76,82 +81,95 @@ const LogViewer = () => {
 
   }, []);
 
-  const messageTemplate = React.useCallback((rowData: StreamMasterApi.LogEntry) => {
+  const messageTemplate = useCallback((rowData: iptv.LogEntry) => {
     return (<div>{rowData.message}</div>);
   }, []);
 
-  const sourceColumns = React.useMemo((): ColumnMeta[] => {
-    return [
+  const exportCSV = () => {
+    tableRef.current?.exportCSV({ selectionOnly: false });
+  };
 
-      {
-        bodyTemplate: levelTemplate,
-        field: 'logLevelName',
-
-        header: 'Level',
-        sortable: true,
-        style: {
-          maxWidth: '6rem',
-          width: '6rem',
-        } as React.CSSProperties,
-      },
-
-      {
-        bodyTemplate: timeStampTemplate,
-        field: 'timeStamp',
-
-        header: 'Time',
-        sortable: true,
-        style: {
-          maxWidth: '12rem',
-          width: '12rem'
-        } as React.CSSProperties,
-      },
-
-      // {
-      //   field: 'logLevel',
-      //   fieldType: 'blank'
-      // },
-
-      {
-        bodyTemplate: messageTemplate,
-        field: 'message',
-
-        header: 'Message',
-        sortable: true,
-        style: {
-          maxWidth: '40rem',
-        } as React.CSSProperties,
-      },
-
-    ]
-  }, [levelTemplate, messageTemplate, timeStampTemplate]);
+  const renderHeader = useMemo(() => {
+    return (
+      <div className="flex grid flex-row w-full align-items-center justify-content-end col-12 h-full p-0 debug">
+        <ExportComponent exportCSV={exportCSV} />
+      </div>
+    )
+  }, []);
 
   return (
-    <div className='m3uFilesEditor flex flex-column col-12 flex-shrink-0 ' >
-      <DataSelector
-        columns={sourceColumns}
-        dataSource={dataSource}
-        emptyMessage="No Clients Streaming"
-        enableExport
-        enableVirtualScroll
+    <div className='dataselector flex w-full min-w-full flex-column col-12' >
+      <DataTable
         exportFilename={`StreamMaster_Logs_${new Date().toISOString()}`}
+        filterDisplay='row'
+        filters={filters}
+        header={renderHeader}
         id='LogViewer'
-        isLoading={dataSource === undefined || dataSource.length === 0}
-        selectedItemsKey='selectSelectedItems'
+        ref={tableRef}
+        scrollHeight='calc(100vh - 28px)'
         style={{
-          height: 'calc(100vh - 100px)',
+          height: 'calc(100vh - 28px)',
         }}
-        virtualScrollHeight='calc(100vh - 140px)'
-      />
-    </div>
+        value={dataSource}
+        virtualScrollerOptions={{ itemSize: 28 }}
+      >
+        <Column
+          body={levelTemplate}
+          field='logLevelName'
+          filter
+          header='Level'
+          sortable
+          style={{
+            flexGrow: 0,
+            flexShrink: 1,
+            maxWidth: '8rem',
+            overflow: 'hidden',
+            paddingLeft: '0.5rem !important',
+            paddingRight: '0.5rem !important',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            width: '10rem',
+          }}
+        />
+        <Column
+          body={timeStampTemplate}
+          field='timeStamp'
+          filter
+          header='Time'
+          sortable
+          style={{
+            flexGrow: 0,
+            flexShrink: 1,
+            maxWidth: '12rem',
+            overflow: 'hidden',
+            paddingLeft: '0.5rem !important',
+            paddingRight: '0.5rem !important',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            width: '12rem',
+          }}
+        />
+        <Column
+          body={messageTemplate}
+          field='message'
+          filter
+          header='Message'
+          sortable
+          style={{
+            flexGrow: 0,
+            flexShrink: 1,
+            overflow: 'hidden',
+            paddingLeft: '0.5rem !important',
+            paddingRight: '0.5rem !important',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            width: '40rem',
+          }}
+
+        />
+      </DataTable>
+    </div >
   );
 }
 
-LogViewer.displayName = 'LogViewer';
-LogViewer.defaultProps = {
-  onChange: null,
-  value: null,
-};
-
-
-export default React.memo(LogViewer);
+export default memo(LogViewer);

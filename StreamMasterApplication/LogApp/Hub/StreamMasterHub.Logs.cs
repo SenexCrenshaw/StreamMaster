@@ -7,7 +7,7 @@ namespace StreamMasterApplication.Hubs;
 
 public partial class StreamMasterHub : ILogHub
 {
-    public async Task<IEnumerable<LogEntryDto>> GetLogRequest(GetLog request)
+    public async Task<IEnumerable<LogEntryDto>> GetLog(GetLogRequest request)
     {
         return await mediator.Send(request).ConfigureAwait(false);
     }

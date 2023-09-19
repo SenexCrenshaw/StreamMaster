@@ -1,7 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMasterDomain.Attributes;
+
 namespace StreamMasterDomain.Models;
 
+[RequireAll]
 public class LogEntry
 {
     public int Id { get; set; }

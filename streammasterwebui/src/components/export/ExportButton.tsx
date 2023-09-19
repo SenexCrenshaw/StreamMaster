@@ -10,12 +10,11 @@ const ExportButton: React.FC<ExportButtonProps> = ({ exportCSV }) => {
   return (
     <Button
       className="p-button-text justify-content-end"
-      data-pr-tooltip="CSV"
       icon="pi pi-file-export"
       onClick={() => exportCSV()}
       rounded
       text
-      tooltip="Clear Filter"
+      tooltip="Export CSV"
       tooltipOptions={getTopToolOptions}
       type="button"
     />

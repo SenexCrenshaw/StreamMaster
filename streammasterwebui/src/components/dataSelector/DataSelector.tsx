@@ -193,6 +193,19 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     tableRef.current?.exportCSV({ selectionOnly: false });
   };
 
+  useEffect(() => {
+    if (!props.scrollTo) {
+      return;
+    }
+
+    const scroller = tableRef.current?.getVirtualScroller();
+    console.log('Scroll to', props.scrollTo ?? 0, 'smooth');
+    // scroller?.scrollTo({ behavior: 'auto', left: 0, top: props.scrollTo })
+    // scroller?.scrollInView({ behavior: 'auto', left: 0, top: props.scrollTo })
+    scroller?.scrollToIndex(props.scrollTo ?? 0, 'smooth');
+
+  }, [props.scrollTo]);
+
   const sourceRenderHeader = useMemo(() => {
     if (!props.headerLeftTemplate && !props.headerRightTemplate) {
       return null;
@@ -454,6 +467,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
   };
 
+
+
   return (
 
     <div className='dataselector flex w-full min-w-full  justify-content-start align-items-center' >
@@ -495,7 +510,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           rowGroupMode={props.groupRowsBy !== undefined && props.groupRowsBy !== '' ? 'subheader' : undefined}
           rows={state.rows}
           rowsPerPageOptions={[25, 50, 100, 250]}
-          scrollHeight={props.enableVirtualScroll === true ? props.virtualScrollHeight !== undefined ? props.virtualScrollHeight : '400px' : 'flex'}
+          scrollHeight='flex'
           scrollable
           selectAll={state.selectAll}
           selection={state.selectSelectedItems}
@@ -511,7 +526,20 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           style={props.style}
           totalRecords={state.pagedInformation ? state.pagedInformation.totalItemCount : undefined}
           value={state.dataSource}
-          virtualScrollerOptions={props.enableVirtualScroll === true ? { itemSize: 16, orientation: 'vertical' } : undefined}
+        // virtualScrollerOptions={props.enableVirtualScroll === true ?
+        //   {
+        //     // delay: 200,
+        //     itemSize: 28,
+        //     // lazy: true,
+        //     loaderDisabled: true,
+        //     // loadingTemplate: loadingTemplate,
+        //     numToleratedItems: 25,
+        //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        //     onLazyLoad: (e: any) => {
+        //       props.onLazyLoad?.(e);
+        //     }
+        //   }
+        //   : undefined}
         >
           <Column
             className='max-w-2rem p-0 justify-content-center align-items-center'
@@ -590,7 +618,6 @@ type BaseDataSelectorProps<T = any> = {
   defaultSortOrder?: -1 | 0 | 1;
   emptyMessage?: ReactNode;
   enableExport?: boolean;
-  enableVirtualScroll?: boolean | undefined;
   exportFilename?: string;
   groupRowsBy?: string;
   headerLeftTemplate?: ReactNode;
@@ -600,6 +627,8 @@ type BaseDataSelectorProps<T = any> = {
   id: string;
   isLoading?: boolean;
   key?: string | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // onLazyLoad?: (e: any) => void;
   onMultiSelectClick?: (value: boolean) => void;
   onRowClick?: (event: DataTableRowClickEvent) => void;
   onRowReorder?: (value: T[]) => void;
@@ -607,6 +636,7 @@ type BaseDataSelectorProps<T = any> = {
   onSelectionChange?: (value: T | T[], selectAll: boolean) => void;
   // onValueChanged?: (value: T[]) => void;
   reorderable?: boolean;
+  scrollTo?: number;
   selectedItemsKey: string;
   selectedStreamGroupId?: number;
   selectionMode?: DataSelectorSelectionMode;
@@ -616,7 +646,7 @@ type BaseDataSelectorProps<T = any> = {
   sortOrder?: number;
   style?: CSSProperties;
   videoStreamIdsIsReadOnly?: string[] | undefined;
-  virtualScrollHeight?: string | undefined;
+  // virtualScrollHeight?: string | undefined;
 }
 
 

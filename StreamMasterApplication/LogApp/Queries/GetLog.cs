@@ -10,9 +10,9 @@ using StreamMasterDomain.Dto;
 namespace StreamMasterApplication.LogApp.Queries;
 //public record GetLogRequest(int LastId, int MaxLines) : IRequest<List<LogEntryDto>>;
 
-public record GetLog(int LastId, int MaxLines) : IRequest<List<LogEntryDto>>;
+public record GetLogRequest(int LastId, int MaxLines) : IRequest<List<LogEntryDto>>;
 
-internal class GetLogFileHandler : IRequestHandler<GetLog, List<LogEntryDto>>
+internal class GetLogFileHandler : IRequestHandler<GetLogRequest, List<LogEntryDto>>
 {
     private readonly ILogDB _logContext;
     private readonly IMapper _mapper;
@@ -23,7 +23,7 @@ internal class GetLogFileHandler : IRequestHandler<GetLog, List<LogEntryDto>>
         _mapper = mapper;
     }
 
-    public async Task<List<LogEntryDto>> Handle(GetLog request, CancellationToken cancellationToken = default)
+    public async Task<List<LogEntryDto>> Handle(GetLogRequest request, CancellationToken cancellationToken = default)
     {
 
         int max = request.MaxLines;

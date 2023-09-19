@@ -292,12 +292,9 @@ const injectedRtkApi = api
         }),
         providesTags: ["Icons"],
       }),
-      logsGetLogRequest: build.query<
-        LogsGetLogRequestApiResponse,
-        LogsGetLogRequestApiArg
-      >({
+      logsGetLog: build.query<LogsGetLogApiResponse, LogsGetLogApiArg>({
         query: (queryArg) => ({
-          url: `/api/logs/getlogrequest`,
+          url: `/api/logs/getlog`,
           params: { LastId: queryArg.lastId, MaxLines: queryArg.maxLines },
         }),
         providesTags: ["Logs"],
@@ -1237,8 +1234,8 @@ export type IconsGetIconsSimpleQueryApiArg = {
   jsonArgumentString?: string | null;
   jsonFiltersString?: string | null;
 };
-export type LogsGetLogRequestApiResponse = /** status 200  */ LogEntryDto[];
-export type LogsGetLogRequestApiArg = {
+export type LogsGetLogApiResponse = /** status 200  */ LogEntryDto[];
+export type LogsGetLogApiArg = {
   lastId?: number;
   maxLines?: number;
 };
@@ -1657,11 +1654,11 @@ export type PagedResponseOfIconFileDto = {
 };
 export type LogLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type LogEntry = {
-  id?: number;
-  logLevel?: LogLevel;
-  logLevelName?: string;
-  message?: string;
-  timeStamp?: string;
+  id: number;
+  logLevel: LogLevel;
+  logLevelName: string;
+  message: string;
+  timeStamp: string;
 };
 export type LogEntryDto = LogEntry & object;
 export type CreateM3UFileRequest = {
@@ -2325,7 +2322,7 @@ export const {
   useIconsGetIconFromSourceQuery,
   useIconsGetPagedIconsQuery,
   useIconsGetIconsSimpleQueryQuery,
-  useLogsGetLogRequestQuery,
+  useLogsGetLogQuery,
   useM3UFilesCreateM3UFileMutation,
   useM3UFilesCreateM3UFileFromFormMutation,
   useM3UFilesChangeM3UFileNameMutation,

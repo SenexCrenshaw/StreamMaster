@@ -1,8 +1,8 @@
 import { singletonVideoStreamsListener } from '../../app/createSingletonListener';
 import { isEmptyObject } from '../../common/common';
 import isPagedTableDto from '../../components/dataSelector/isPagedTableDto';
-import type * as iptv from '../../store/iptvApi';
 import { iptvApi } from '../../store/iptvApi';
+import type * as iptv from '../../store/iptvApi';
 
 export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
   endpoints: {
@@ -21,40 +21,71 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
             updateCachedData(() => {
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'VideoStreams' }])) {
                 if (endpointName !== 'videoStreamsGetChannelLogoDtos') continue;
-                dispatch(
-                  iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                  dispatch(
+                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
 
-                    if (isPagedTableDto(data)) {
+                      if (isPagedTableDto(data)) {
                       data.forEach(item => {
                         const index = draft.findIndex(existingItem => existingItem.id === item.id);
                         if (index !== -1) {
                           draft[index] = item;
                         }
-                      });
+                        });
+
+                        return draft;
+                        }
+
+                      data.forEach(item => {
+                        const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft[index] = item;
+                        }
+                        });
 
                       return draft;
-                    }
-
-                    data.forEach(item => {
-                      const index = draft.findIndex(existingItem => existingItem.id === item.id);
-                      if (index !== -1) {
-                        draft[index] = item;
-                      }
-                    });
-
-                    return draft;
-                  })
-                )
-              }
+                     })
+                   )
+                 }
 
 
             });
           };
 
-          singletonVideoStreamsListener.addListener(updateCachedDataWithResults);
+         singletonVideoStreamsListener.addListener(updateCachedDataWithResults);
 
-          await cacheEntryRemoved;
-          singletonVideoStreamsListener.removeListener(updateCachedDataWithResults);
+        await cacheEntryRemoved;
+        singletonVideoStreamsListener.removeListener(updateCachedDataWithResults);
+
+        } catch (error) {
+          console.error('Error in onCacheEntryAdded:', error);
+        }
+
+      }
+    },
+    videoStreamsGetVideoStream: {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+        try {
+          await cacheDataLoaded;
+
+          const updateCachedDataWithResults = (data: iptv.VideoStreamDto) => {
+            updateCachedData(() => {
+              console.log('updateCachedData', data);
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'VideoStreams' }])) {
+                if (endpointName !== 'videoStreamsGetVideoStream') continue;
+                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                    console.log('updateCachedData', data, draft);
+                   })
+                   );
+                 }
+
+
+            });
+          };
+
+         singletonVideoStreamsListener.addListener(updateCachedDataWithResults);
+
+        await cacheEntryRemoved;
+        singletonVideoStreamsListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
@@ -77,71 +108,40 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
             updateCachedData(() => {
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'VideoStreams' }])) {
                 if (endpointName !== 'videoStreamsGetPagedVideoStreams') continue;
-                dispatch(
-                  iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                  dispatch(
+                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
 
-                    if (isPagedTableDto(data)) {
+                      if (isPagedTableDto(data)) {
                       data.forEach(item => {
                         const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
                         if (index !== -1) {
                           draft.data[index] = item;
                         }
-                      });
+                        });
+
+                        return draft;
+                        }
+
+                      data.forEach(item => {
+                        const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft.data[index] = item;
+                        }
+                        });
 
                       return draft;
-                    }
-
-                    data.forEach(item => {
-                      const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
-                      if (index !== -1) {
-                        draft.data[index] = item;
-                      }
-                    });
-
-                    return draft;
-                  })
-                )
-              }
+                     })
+                   )
+                 }
 
 
             });
           };
 
-          singletonVideoStreamsListener.addListener(updateCachedDataWithResults);
+         singletonVideoStreamsListener.addListener(updateCachedDataWithResults);
 
-          await cacheEntryRemoved;
-          singletonVideoStreamsListener.removeListener(updateCachedDataWithResults);
-
-        } catch (error) {
-          console.error('Error in onCacheEntryAdded:', error);
-        }
-
-      }
-    },
-    videoStreamsGetVideoStream: {
-      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
-        try {
-          await cacheDataLoaded;
-
-          const updateCachedDataWithResults = (data: iptv.VideoStreamDto) => {
-            updateCachedData(() => {
-              console.log('updateCachedData', data);
-              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'VideoStreams' }])) {
-                if (endpointName !== 'videoStreamsGetVideoStream') continue;
-                dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                  console.log('updateCachedData', data, draft);
-                })
-                );
-              }
-
-
-            });
-          };
-
-          singletonVideoStreamsListener.addListener(updateCachedDataWithResults);
-
-          await cacheEntryRemoved;
-          singletonVideoStreamsListener.removeListener(updateCachedDataWithResults);
+        await cacheEntryRemoved;
+        singletonVideoStreamsListener.removeListener(updateCachedDataWithResults);
 
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
