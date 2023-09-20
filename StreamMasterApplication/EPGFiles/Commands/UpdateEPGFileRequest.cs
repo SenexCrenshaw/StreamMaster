@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 
 using StreamMasterApplication.M3UFiles.Commands;
+using StreamMasterApplication.StreamGroups.Queries;
 
 using StreamMasterDomain.Models;
 
@@ -21,10 +22,8 @@ public class UpdateEPGFileRequestValidator : AbstractValidator<UpdateEPGFileRequ
 
 public class UpdateEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateEPGFileRequest, EPGFileDto?>
 {
-
     public UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
 : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
-
 
     public async Task<EPGFileDto?> Handle(UpdateEPGFileRequest request, CancellationToken cancellationToken)
     {
@@ -78,13 +77,11 @@ public class UpdateEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestH
 
             if (isNameChanged)
             {
-                List<ChannelLogoDto> programmes = MemoryCache.ChannelLogos();
+                var programmes = MemoryCache.Programmes();
+                var c = programmes.Count;
                 _ = programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
+                var d = programmes.Count;
                 MemoryCache.Set(programmes);
-
-                List<ChannelLogoDto> channels = MemoryCache.ChannelLogos();
-                _ = channels.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                MemoryCache.Set(channels);
 
                 List<ChannelLogoDto> channelLogos = MemoryCache.ChannelLogos();
                 _ = channelLogos.RemoveAll(a => a.EPGFileId == epgFile.Id);

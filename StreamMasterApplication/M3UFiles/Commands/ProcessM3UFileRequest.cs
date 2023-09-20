@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using StreamMasterApplication.ChannelGroups.Commands;
 
 using System.Diagnostics;
+using System.Linq;
+using System.Security.Cryptography;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
 
@@ -121,8 +123,12 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         var toDelete = Repository.VideoStream.FindByCondition(a => a.M3UFileId == m3uFileId && !streamIds.Contains(a.Id));
         if (toDelete.Any())
         {
+            var ids = toDelete.Select(a => a.Id).ToList();
+            await Repository.VideoStreamLink.BulkDeleteAsync(Repository.VideoStreamLink.FindByCondition(a => ids.Contains(a.ChildVideoStreamId) || ids.Contains(a.ParentVideoStreamId)));
+            await Repository.StreamGroupVideoStream.BulkDeleteAsync(Repository.StreamGroupVideoStream.FindByCondition(a => ids.Contains(a.ChildVideoStreamId) ));
             await Repository.VideoStream.BulkDeleteAsync(toDelete);
         }
+
     }
 
     private async Task ProcessStreamsConcurrently(List<VideoStream> streams, List<VideoStream> existing, List<ChannelGroup> groups, M3UFile m3uFile)

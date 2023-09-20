@@ -284,7 +284,7 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
                       onChange={onSetSource}
                       placeHolder='http(s)://'
                       showClear
-                      value={name} />
+                      value={source} />
                   </div>
                   <div className="flex col-3 mt-2 justify-content-end">
                     <AddButton disabled={!isSaveEnabled} label={labelName} onClick={async () => await doUpload()} tooltip="Add File" />

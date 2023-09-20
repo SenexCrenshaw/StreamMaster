@@ -16,17 +16,14 @@ public class ProcessEPGFileRequestValidator : AbstractValidator<ProcessEPGFileRe
             .GreaterThanOrEqualTo(0);
     }
 }
-public class ProcessEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<ProcessEPGFileRequest, EPGFileDto?>
+
+public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<ProcessEPGFileRequest, EPGFileDto?>
 {
-
-    public ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
-
+    [LogExecutionTimeAspect]
     public async Task<EPGFileDto?> Handle(ProcessEPGFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
-
             EPGFile? epgFile = await Repository.EPGFile.GetEPGFileById(request.Id).ConfigureAwait(false);
 
             if (epgFile == null)
@@ -39,7 +36,6 @@ public class ProcessEPGFileRequestHandler : BaseMediatorRequestHandler, IRequest
             {
                 epgFile.ChannelCount = tv.Channel != null ? tv.Channel.Count : 0;
                 epgFile.ProgrammeCount = tv.Programme != null ? tv.Programme.Count : 0;
-
             }
 
             epgFile.LastUpdated = DateTime.Now;
@@ -63,30 +59,33 @@ public class ProcessEPGFileRequestHandler : BaseMediatorRequestHandler, IRequest
         return null;
     }
 
+    [LogExecutionTimeAspect]
     private async Task AddProgrammesFromEPG(EPGFile epgFile, CancellationToken cancellationToken = default)
     {
-        List<Programme> cacheValue = new();
-        if (MemoryCache.ProgrammeIcons().Count == 0)
+        try
         {
-            DateTime start = DateTime.Now.AddDays(-1);
-            DateTime end = DateTime.Now.AddDays(7);
+            List<Programme> cacheValues = MemoryCache.Programmes();
+            //if (MemoryCache.ProgrammeIcons().Count == 0)
+            //{
+            //    DateTime start = DateTime.Now.AddDays(-1);
+            //    DateTime end = DateTime.Now.AddDays(7);
 
-            cacheValue.Add(new Programme
+            //    cacheValue.Add(new Programme
+            //    {
+            //        Channel = "Dummy",
+            //        ChannelName = "Dummy",
+            //        DisplayName = "Dummy",
+            //        Start = start.AddDays(-1).ToString("yyyyMMddHHmmss") + " +0000",
+            //        Stop = end.ToString("yyyyMMddHHmmss") + " +0000"
+            //    });
+            //}
+
+            if (cacheValues.Count == 0)
             {
-                Channel = "Dummy",
-                ChannelName = "Dummy",
-                DisplayName = "Dummy",
-                Start = start.AddDays(-1).ToString("yyyyMMddHHmmss") + " +0000",
-                Stop = end.ToString("yyyyMMddHHmmss") + " +0000"
-            });
-        }
+                DateTime start = DateTime.Now.AddDays(-1);
+                DateTime end = DateTime.Now.AddDays(7);
 
-        if (MemoryCache.ProgrammeChannels().Count == 0)
-        {
-            DateTime start = DateTime.Now.AddDays(-1);
-            DateTime end = DateTime.Now.AddDays(7);
-
-            List<ProgrammeChannel> programmeChannels = new(){
+                List<ProgrammeChannel> programmeChannels = new(){
                 new ProgrammeChannel
                 {
                     Channel = "Dummy",
@@ -96,49 +95,62 @@ public class ProcessEPGFileRequestHandler : BaseMediatorRequestHandler, IRequest
                 }
             };
 
-            MemoryCache.Set(programmeChannels);
-        }
+                MemoryCache.Set(programmeChannels);
+            }
 
-        if (cancellationToken.IsCancellationRequested) { return; }
+            if (cancellationToken.IsCancellationRequested) { return; }
 
-        Tv? epg = await epgFile.GetTV().ConfigureAwait(false);
+            Tv? epg = await epgFile.GetTV().ConfigureAwait(false);
 
-        if (epg is null || epg.Programme is null)
-        {
-            return;
-        }
-
-        List<EPGFileDto> epgs = await Repository.EPGFile.GetEPGFiles();
-        bool needsEpgName = epgs.Count() > 1;
-
-        foreach (Programme p in epg.Programme)
-        {
-            if (cancellationToken.IsCancellationRequested) { break; }
-            string channel_name = p.Channel;
-            p.DisplayName = p.Channel;
-
-            TvChannel? channel = epg.Channel.FirstOrDefault(a => a.Id is not null && a.Id.ToLower() == p.Channel.ToLower());
-
-            if (channel != null && channel.Displayname is not null && channel.Displayname.Any())
+            if (epg is null || epg.Programme is null)
             {
-                if (channel.Displayname.Last() != channel_name)
+                return;
+            }
+
+            //List<EPGFileDto> epgs = await Repository.EPGFile.GetEPGFiles();
+            //bool needsEpgName = epgs.Count > 1;
+
+            // Convert the list of channels to a dictionary for faster lookups, only considering the first occurrence of each ID
+            var channelLookup = epg.Channel
+                .Where(ch => ch.Id != null)
+                .GroupBy(ch => ch.Id)
+                .ToDictionary(group => group.Key, group => group.First());
+
+            foreach (Programme p in epg.Programme)
+            {
+                if (cancellationToken.IsCancellationRequested) break;
+
+                if (channelLookup.TryGetValue(p.Channel, out TvChannel channel))
                 {
-                    channel_name += " - " + channel.Displayname.Last();
-                    p.DisplayName = channel.Displayname.Last();
+                    string channelNameSuffix = channel.Displayname?.LastOrDefault();
+
+                    if (channelNameSuffix != null && channelNameSuffix != p.Channel)
+                    {
+                        p.DisplayName = epgFile.Name + " : " + channelNameSuffix;
+                        p.ChannelName = p.Channel + " - " + channelNameSuffix;
+                    }
+                    else
+                    {
+                        p.DisplayName = epgFile.Name + " : " + p.Channel;
+                        p.ChannelName = p.Channel;
+                    }
                 }
-            }
-            if (needsEpgName)
-            {
-                p.DisplayName = epgFile.Name + " : " + p.DisplayName;
+                else
+                {
+                    p.DisplayName = epgFile.Name + " : " + p.Channel;
+                    p.ChannelName = p.Channel;
+                }
+
+                p.EPGFileId = epgFile.Id;
+                cacheValues.Add(p);
             }
 
-            p.ChannelName = channel_name;
-            p.EPGFileId = epgFile.Id;
-            p.Channel = p.Channel;
-            cacheValue.Add(p);
+            MemoryCache.Set(cacheValues);
         }
-        MemoryCache.Set(cacheValue);
-
+        catch (Exception ex)
+        {
+            logger.LogError(ex.ToString());
+        }
         return;
     }
 }
