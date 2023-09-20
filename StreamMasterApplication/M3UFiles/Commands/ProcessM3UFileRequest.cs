@@ -72,7 +72,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
     {
         Stopwatch sw = Stopwatch.StartNew();
 
-        List<VideoStream>? streams = await m3uFile.GetM3U().ConfigureAwait(false);
+        List<VideoStream>? streams =  m3uFile.GetM3U();
 
         int streamsCount = 0;
         if (streams != null)

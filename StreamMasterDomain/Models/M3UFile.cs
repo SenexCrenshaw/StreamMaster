@@ -29,10 +29,15 @@ public class M3UFile : AutoUpdateEntity
         return lastWrite;
     }
 
-    public Task<List<VideoStream>?> GetM3U()
+    private readonly object Lock = new();
+
+    public List<VideoStream>? GetM3U()
     {
-        using Stream dataStream = FileUtil.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source));
-        return Task.FromResult(IPTVExtensions.ConvertToVideoStream(dataStream, Id, Name));
+        lock (Lock)
+        {
+            using Stream dataStream = FileUtil.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source));
+            return IPTVExtensions.ConvertToVideoStream(dataStream, Id, Name);
+        }
     }
 
     public static M3UFile? ReadJSON(FileInfo fileInfo)
