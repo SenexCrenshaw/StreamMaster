@@ -14,11 +14,9 @@ public class RefreshM3UFileRequestValidator : AbstractValidator<RefreshM3UFileRe
     }
 }
 
-
 [LogExecutionTimeAspect]
 public class RefreshM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<RefreshM3UFileRequest, M3UFile?>
 {
-
     public RefreshM3UFileRequestHandler(ILogger<RefreshM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
  : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
@@ -57,7 +55,7 @@ public class RefreshM3UFileRequestHandler : BaseMediatorRequestHandler, IRequest
                     }
                 }
 
-                List<VideoStream>? streams = await m3uFile.GetM3U().ConfigureAwait(false);
+                List<VideoStream>? streams = m3uFile.GetM3U();
                 if (streams == null)
                 {
                     Logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);

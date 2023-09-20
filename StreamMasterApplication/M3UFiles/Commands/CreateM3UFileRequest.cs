@@ -1,7 +1,9 @@
 ﻿using FluentValidation;
 
 using Microsoft.AspNetCore.Http;
+
 using StreamMasterDomain.Models;
+
 using System.Web;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
@@ -21,12 +23,10 @@ public class CreateM3UFileRequestValidator : AbstractValidator<CreateM3UFileRequ
     }
 }
 
-
 [LogExecutionTimeAspect]
 public class CreateM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateM3UFileRequest, bool>
 {
-
-    public CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+    public CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
     : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
     public async Task<bool> Handle(CreateM3UFileRequest command, CancellationToken cancellationToken)
@@ -87,7 +87,7 @@ public class CreateM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestH
 
             m3UFile.MaxStreamCount = command.MaxStreamCount;
 
-            List<VideoStream>? streams = await m3UFile.GetM3U().ConfigureAwait(false);
+            List<VideoStream>? streams = m3UFile.GetM3U();
             if (streams == null || streams.Count == 0)
             {
                 Logger.LogCritical("Exception M3U {fullName} format is not supported", fullName);
@@ -108,7 +108,6 @@ public class CreateM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestH
             {
                 m3UFile.StationCount = streams.Count;
             }
-
 
             Repository.M3UFile.CreateM3UFile(m3UFile);
             _ = await Repository.SaveAsync().ConfigureAwait(false);
