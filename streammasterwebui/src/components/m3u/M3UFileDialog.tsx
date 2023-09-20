@@ -13,7 +13,7 @@ const M3UFileDialog: React.FC<Partial<FileDialogProps>> = () => {
     addM3UFileRequest.name = name;
     addM3UFileRequest.formFile = null;
     addM3UFileRequest.urlSource = source;
-    addM3UFileRequest.maxStreamCount = maxStreams == 0 ? 1 : maxStreams;
+    addM3UFileRequest.maxStreamCount = maxStreams;
 
     await M3UFilesCreateM3UFileMutation(addM3UFileRequest)
       .then(() => {

@@ -13,6 +13,7 @@ import { upload } from '../../services/FileUploadService';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import AddButton from '../buttons/AddButton';
+import NumberInput from '../inputs/NumberInput';
 import TextInput from '../inputs/TextInput';
 
 
@@ -32,6 +33,7 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
 
   const [activeFile, setActiveFile] = useState<File | undefined>();
   const [name, setName] = useState<string>('');
+  const [maxStreams, setMaxStreams] = useState<number>(1);
   const [progress, setProgress] = useState<number>(0);
   const [source, setSource] = useState<string>('');
   const [uploadedBytes, setUploadedBytes] = useState<number>(0);
@@ -65,7 +67,6 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
     if (!url) {
       return;
     }
-
 
     setSource(url)
   };
@@ -240,20 +241,36 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
         show={showOverlay || show === true}
       >
         <div className="flex grid w-full justify-content-between align-items-center">
-          <div className="flex col-8">
-            <TextInput
-              label="Name"
-              onChange={(value) => { setName(value); setNameFromFileName(false); }}
-              onResetClick={() => {
-                if (activeFile !== null && activeFile !== undefined) {
-                  setNameFromFileName(true);
-                  setName(activeFile.name.replace(/\.[^/.]+$/, ''))
-                } else {
-                  setName('')
-                }
-              }}
-              showClear
-              value={name} />
+          <div className="flex col-12">
+            <div className={`flex col-${fileType === 'm3u' ? '6' : '12'}`}>
+              <TextInput
+                label="Name"
+                onChange={(value) => { setName(value); setNameFromFileName(false); }}
+                onResetClick={() => {
+                  if (activeFile !== null && activeFile !== undefined) {
+                    setNameFromFileName(true);
+                    setName(activeFile.name.replace(/\.[^/.]+$/, ''))
+                  } else {
+                    setName('')
+                  }
+                }}
+                showClear
+                value={name} />
+            </div>
+            {fileType === 'm3u' &&
+              <div className="flex col-6">
+                <NumberInput
+                  label="Max Streams"
+                  onChange={(e) => {
+                    console.log(e);
+                    setMaxStreams(e);
+                  }
+                  }
+                  showClear
+                  value={maxStreams}
+                />
+              </div>
+            }
           </div>
           <div className="flex col-12">
             <Accordion activeIndex={activeIndex} className='w-full' onTabChange={(e) => nextStep(e.index as number)}>
@@ -263,9 +280,9 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
                     <TextInput
                       isUrl
                       isValid={isValidUrl(source)}
-                      label="Source URL (://)"
+                      label="Source URL"
                       onChange={onSetSource}
-                      placeHolder='https://'
+                      placeHolder='http(s)://'
                       showClear
                       value={name} />
                   </div>

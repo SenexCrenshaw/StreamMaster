@@ -1,26 +1,24 @@
 import { useClickOutside } from "primereact/hooks";
-import { InputText } from "primereact/inputtext";
+import { InputNumber } from "primereact/inputnumber";
 import { memo, useEffect, useRef, useState } from "react";
 import CopyButton from "../buttons/CopyButton";
 
-type TextInputProps = {
+type NumberInputProps = {
   readonly autoFocus?: boolean;
-  readonly dontValidate?: boolean;
-  readonly isUrl?: boolean;
   readonly isValid?: boolean;
   readonly label?: string;
-  readonly onChange: (value: string) => void;
+  readonly onChange: (value: number) => void;
   readonly onEnter?: () => void;
   readonly onResetClick?: () => void;
   readonly placeHolder?: string;
   readonly showClear?: boolean;
   readonly showCopy?: boolean;
-  readonly value: string;
+  readonly value: number;
 }
 
-const TextInput = ({ autoFocus = true, dontValidate = false, isUrl = false, onEnter, isValid = true, label, onChange, onResetClick, placeHolder, showClear = true, showCopy = false, value }: TextInputProps) => {
-  const [input, setInput] = useState<string>('');
-  const [originalInput, setOriginalInput] = useState<string | undefined>(undefined);
+const NumberInput = ({ autoFocus = true, onEnter, isValid = true, label, onChange, onResetClick, placeHolder, showClear = true, showCopy = false, value }: NumberInputProps) => {
+  const [input, setInput] = useState<number>(1);
+  const [originalInput, setOriginalInput] = useState<number | undefined>(undefined);
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const overlayRef = useRef(null);
 
@@ -54,43 +52,22 @@ const TextInput = ({ autoFocus = true, dontValidate = false, isUrl = false, onEn
 
   });
 
-  const processValue = (val: string) => {
-    if (dontValidate && !isUrl) return val;
-    // If val is null, empty, or undefined, return it as is
-    if (!val) return val;
-
-    // If it's supposed to be a URL, process accordingly
-    if (isUrl) {
-      try {
-        // Construct the URL and return it with the query parameters
-        const constructedURL = new URL(val);
-        return constructedURL.origin + constructedURL.pathname + constructedURL.search;
-      } catch (error) {
-        // If there's an error constructing the URL (meaning it's not a valid URL), return val as is
-        return val;
-      }
-    }
-
-    // If not a URL, remove file extension (previous behavior)
-    return val.replace(/\.[^/.]+$/, '');
-  }
-
-
   useEffect(() => {
-    if (originalInput === undefined && value !== originalInput) {
-      setOriginalInput(processValue(value));
+    setInput(value);
+    if (value !== originalInput) {
+      setOriginalInput(value);
     }
 
-    setInput(processValue(value));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
+
 
   const doShowClear = (): boolean => {
     return showClear === true && originalInput !== undefined && input !== originalInput;
   }
 
   const doShowCopy = (): boolean => {
-    return showCopy === true && input !== undefined && input !== '';
+    return showCopy === true && input !== undefined && input !== 0;
   }
 
   return (
@@ -108,13 +85,15 @@ const TextInput = ({ autoFocus = true, dontValidate = false, isUrl = false, onEn
           />
         }
 
-        <InputText
+        <InputNumber
           autoFocus={autoFocus}
           className={`text-large w-full ` + (isValid ? '' : 'p-invalid')}
           id="name"
           onChange={(event) => {
-            setInput(processValue(event.target.value))
-            onChange(processValue(event.target.value));
+            if (event.value !== null && event.value !== undefined) {
+              setInput(event.value)
+              onChange(event.value);
+            }
           }
           }
           onFocus={() => setIsFocused(true)}
@@ -127,11 +106,11 @@ const TextInput = ({ autoFocus = true, dontValidate = false, isUrl = false, onEn
       </span>
       {doShowCopy() &&
         <div className='col-1 p-0 m-0'>
-          <CopyButton value={input} />
+          <CopyButton value={input.toString()} />
         </div>
       }
     </div>
   )
 }
 
-export default memo(TextInput);
+export default memo(NumberInput);
