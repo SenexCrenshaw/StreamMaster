@@ -36,7 +36,10 @@ public class M3UFile : AutoUpdateEntity
         lock (Lock)
         {
             using Stream dataStream = FileUtil.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source));
-            return IPTVExtensions.ConvertToVideoStream(dataStream, Id, Name);
+            var ret = IPTVExtensions.ConvertToVideoStream(dataStream, Id, Name);
+            dataStream.Close();
+            dataStream.Dispose();
+            return ret;
         }
     }
 

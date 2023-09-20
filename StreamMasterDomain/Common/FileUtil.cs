@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+
 using StreamMasterDomain.Models;
 
 namespace StreamMasterDomain.Common;
@@ -9,6 +10,7 @@ namespace StreamMasterDomain.Common;
 public sealed class FileUtil
 {
     private static bool setupDirectories = false;
+
     public static void CreateDirectory(string fileName)
     {
         string? directory = Path.EndsInDirectorySeparator(fileName) ? fileName : Path.GetDirectoryName(fileName);
@@ -116,11 +118,13 @@ public sealed class FileUtil
 
     public static Stream GetFileDataStream(string source)
     {
-        FileStream fs = File.Open(source, FileMode.Open);
-
-        return IsFileGzipped(source) ? new GZipStream(fs, CompressionMode.Decompress) : fs;
+        if (!IsFileGzipped(source))
+        {
+            return File.OpenRead(source);
+        }
+        FileStream fs = File.OpenRead(source);
+        return new GZipStream(fs, CompressionMode.Decompress);
     }
-
 
     public static async Task<string> GetFileData(string source)
     {
@@ -131,7 +135,7 @@ public sealed class FileUtil
                 return await File.ReadAllTextAsync(source).ConfigureAwait(false);
             }
 
-            using FileStream fs = File.Open(source, FileMode.Open);
+            using FileStream fs = File.OpenRead(source);
             using GZipStream gzStream = new(fs, CompressionMode.Decompress);
             using StreamReader reader = new(gzStream, Encoding.Default);
 
@@ -301,8 +305,6 @@ public sealed class FileUtil
         string jsonString = JsonSerializer.Serialize(setting, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(BuildInfo.SettingFile, jsonString);
     }
-
-
 
     private static bool WriteUrlToFile(string filePath, string url)
     {
