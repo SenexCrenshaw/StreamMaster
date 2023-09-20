@@ -16,17 +16,22 @@ public interface IRepositoryBase<T> where T : class
     /// <param name="query">The query determining which entities to delete.</param>
     void BulkDelete(IQueryable<T> query);
 
+    Task BulkDeleteAsync(IQueryable<T> query);
+
     /// <summary>
     /// Performs a bulk insert operation.
     /// </summary>
     /// <param name="entities">Entities to insert.</param>
     void BulkInsert(T[] entities);
+
     void BulkInsert(List<T> entities);
+
     /// <summary>
     /// Performs a bulk update operation.
     /// </summary>
     /// <param name="entities">Entities to update.</param>
     void BulkUpdate(T[] entities);
+
     void BulkUpdate(List<T> entities);
 
     /// <summary>
@@ -43,6 +48,13 @@ public interface IRepositoryBase<T> where T : class
     /// <param name="orderBy">The property by which to order the entities.</param>
     /// <returns>An IQueryable of entities.</returns>
     IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression, string orderBy);
+
+    /// <summary>
+    /// Retrieves entities that satisfy the given condition.
+    /// </summary>
+    /// <param name="expression">Condition to be checked.</param>
+    /// <returns>IQueryable of entities that satisfy the condition.</returns>
+    public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression);
 
     /// <summary>
     /// Counts the total number of entities.

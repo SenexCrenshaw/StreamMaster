@@ -12,6 +12,7 @@ using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 
 namespace StreamMasterInfrastructureEF.Repositories;
+
 /// <summary>
 /// Provides base functionalities for repositories.
 /// </summary>
@@ -88,7 +89,7 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     /// </summary>
     /// <param name="expression">Condition to be checked.</param>
     /// <returns>IQueryable of entities that satisfy the condition.</returns>
-    internal IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression)
+    public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression)
     {
         return RepositoryContext.Set<T>().Where(expression).AsNoTracking();
     }
@@ -183,7 +184,6 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         }
 
         RepositoryContext.BulkInsert(entities);
-
     }
 
     /// <summary>
@@ -199,6 +199,21 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
         }
 
         RepositoryContext.BulkDelete(query);
+    }
+
+    /// <summary>
+    /// Deletes a group of entities based on a query.
+    /// </summary>
+    /// <param name="query">The IQueryable to select entities to be deleted.</param>
+    public async Task BulkDeleteAsync(IQueryable<T> query)
+    {
+        if (query == null || !query.Any())
+        {
+            logger.LogWarning("Attempted to perform a bulk delete with a null or empty query.");
+            throw new ArgumentNullException(nameof(query));
+        }
+
+        await RepositoryContext.BulkDeleteAsync(query);
     }
 
     /// <summary>
@@ -275,5 +290,4 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
             throw;
         }
     }
-
 }

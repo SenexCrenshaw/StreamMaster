@@ -19,7 +19,7 @@ import TextInput from '../inputs/TextInput';
 export type FileDialogProps = {
   readonly fileType: 'epg' | 'm3u';
   readonly infoMessage?: string,
-  readonly onCreateFromSource?: (name: string, source: string) => void,
+  readonly onCreateFromSource?: (name: string, source: string, maxStreams: number) => void,
   readonly onHide?: (didUpload: boolean) => void,
   readonly show?: boolean | null,
   readonly showButton?: boolean | null
@@ -156,7 +156,7 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
     setBlock(true);
 
     if (source !== '') {
-      onCreateFromSource?.(name, source);
+      onCreateFromSource?.(name, source, 0);
     } else {
       try {
         await upload(
