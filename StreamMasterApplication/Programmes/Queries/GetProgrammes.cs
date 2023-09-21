@@ -1,37 +1,21 @@
-﻿using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-
-using StreamMasterDomain.Entities.EPG;
-
+﻿using StreamMasterDomain.EPG;
 using System.Web;
 
 namespace StreamMasterApplication.Programmes.Queries;
 
 public record GetProgrammes : IRequest<IEnumerable<Programme>>;
 
-internal class GetProgrammesHandler : IRequestHandler<GetProgrammes, IEnumerable<Programme>>
+internal class GetProgrammesHandler(IMemoryCache memoryCache) : IRequestHandler<GetProgrammes, IEnumerable<Programme>>
 {
-    private readonly IMemoryCache _memoryCache;
-
-    public GetProgrammesHandler(
-
-       IMemoryCache memoryCache
-    )
+    public Task<IEnumerable<Programme>> Handle(GetProgrammes request, CancellationToken cancellationToken)
     {
-        _memoryCache = memoryCache;
-    }
-
-    public async Task<IEnumerable<Programme>> Handle(GetProgrammes request, CancellationToken cancellationToken)
-    {
-        IEnumerable<Programme> programmes = _memoryCache.Programmes().Where(a => a.StopDateTime > DateTime.Now.AddDays(-1)).ToList();
+        IEnumerable<Programme> programmes = memoryCache.Programmes().ToList();
         if (programmes == null)
         {
-            return new List<Programme>();
+            return Task.FromResult<IEnumerable<Programme>>(new List<Programme>());
         }
 
-        var setting = FileUtil.GetSetting();
-        var icons = _memoryCache.Icons();
+        List<IconFileDto> icons = memoryCache.Icons();
 
         foreach (Programme? prog in programmes.Where(a => a.Icon.Any()))
         {
@@ -39,7 +23,7 @@ internal class GetProgrammesHandler : IRequestHandler<GetProgrammes, IEnumerable
             {
                 if (progIcon != null && !string.IsNullOrEmpty(progIcon.Src))
                 {
-                    var icon = icons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
+                    IconFileDto? icon = icons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
                     if (icon == null)
                     {
                         continue;
@@ -50,6 +34,6 @@ internal class GetProgrammesHandler : IRequestHandler<GetProgrammes, IEnumerable
             }
         }
 
-        return programmes;
+        return Task.FromResult(programmes);
     }
 }

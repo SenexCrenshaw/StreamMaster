@@ -1,27 +1,30 @@
+import { useEpg, type Channel, type Program } from "planby";
 import React from "react";
-import { type Channel, type Program } from "planby";
-import { useEpg } from "planby";
-import * as StreamMasterApi from '../../store/iptvApi';
+import { useStreamGroupsGetStreamGroupEpgForGuideQuery } from "../../store/iptvApi";
 
 export function useApp(streamGroupNumber: number) {
   const [channels, setChannels] = React.useState<Channel[]>([]);
   const [epg, setEpg] = React.useState<Program[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
-  const epgForGuide = StreamMasterApi.useStreamGroupsGetStreamGroupEpgForGuideQuery(streamGroupNumber);
+  const epgForGuide = useStreamGroupsGetStreamGroupEpgForGuideQuery(streamGroupNumber);
 
   const channelsData = React.useMemo(() => channels, [channels]);
   const epgData = React.useMemo(() => epg, [epg]);
 
   const startDate = React.useMemo(() => {
     const sd = new Date();
+
     sd.setMinutes(sd.getMinutes() - 30);
+
     return sd;
   }, []);
 
   const endDate = React.useMemo(() => {
     const sd = new Date();
+
     sd.setHours(sd.getHours() + 2);
+
     return sd;
   }, []);
 
@@ -29,12 +32,15 @@ export function useApp(streamGroupNumber: number) {
     if (epgForGuide.data) {
       setIsLoading(true);
       const chs = epgForGuide.data?.channels as Channel[];
+
       setChannels(chs);
 
       const sd = new Date();
+
       sd.setHours(sd.getHours() - 24);
 
       var ed = new Date();
+
       ed.setHours(ed.getHours() + 48);
 
       const ret = epgForGuide.data?.programs as Program[];

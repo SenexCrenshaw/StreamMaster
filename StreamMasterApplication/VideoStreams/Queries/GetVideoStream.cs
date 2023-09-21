@@ -1,25 +1,19 @@
-﻿using MediatR;
-
-using StreamMasterDomain.Dto;
+﻿using StreamMasterApplication.M3UFiles.Commands;
 
 namespace StreamMasterApplication.VideoStreams.Queries;
 
 public record GetVideoStream(string Id) : IRequest<VideoStreamDto?>;
 
-internal class GetVideoStreamHandler : IRequestHandler<GetVideoStream, VideoStreamDto?>
+internal class GetVideoStreamHandler : BaseRequestHandler, IRequestHandler<GetVideoStream, VideoStreamDto?>
 {
-    private readonly IAppDbContext _context;
 
-    public GetVideoStreamHandler(
+    public GetVideoStreamHandler(ILogger<ChangeM3UFileNameRequestHandler> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService)
+        : base(logger, repository, mapper, settingsService) { }
 
-        IAppDbContext context
-    )
-    {
-        _context = context;
-    }
 
     public async Task<VideoStreamDto?> Handle(GetVideoStream request, CancellationToken cancellationToken)
     {
-        return await _context.GetVideoStreamDto(request.Id, cancellationToken).ConfigureAwait(false);
+        return await Repository.VideoStream.GetVideoStreamById(request.Id).ConfigureAwait(false);
+
     }
 }

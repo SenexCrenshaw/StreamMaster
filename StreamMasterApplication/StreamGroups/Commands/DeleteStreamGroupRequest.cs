@@ -1,13 +1,10 @@
 ﻿using FluentValidation;
 
-using MediatR;
+using StreamMasterApplication.StreamGroups.Events;
 
 namespace StreamMasterApplication.StreamGroups.Commands;
 
-public class DeleteStreamGroupRequest : IRequest<int?>
-{
-    public int Id { get; set; }
-}
+public record DeleteStreamGroupRequest(int Id) : IRequest<int?> { }
 
 public class DeleteStreamGroupRequestValidator : AbstractValidator<DeleteStreamGroupRequest>
 {
@@ -19,19 +16,12 @@ public class DeleteStreamGroupRequestValidator : AbstractValidator<DeleteStreamG
     }
 }
 
-public class DeleteStreamGroupHandler : IRequestHandler<DeleteStreamGroupRequest, int?>
+public class DeleteStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<DeleteStreamGroupRequest, int?>
 {
-    private readonly IAppDbContext _context;
-    private readonly IPublisher _publisher;
 
-    public DeleteStreamGroupHandler(
-        IPublisher publisher,
-         IAppDbContext context
-        )
-    {
-        _publisher = publisher;
-        _context = context;
-    }
+    public DeleteStreamGroupRequestHandler(ILogger<DeleteStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+  : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
+
 
     public async Task<int?> Handle(DeleteStreamGroupRequest request, CancellationToken cancellationToken = default)
     {
@@ -40,9 +30,10 @@ public class DeleteStreamGroupHandler : IRequestHandler<DeleteStreamGroupRequest
             return null;
         }
 
-        if (await _context.DeleteStreamGroupsync(request.Id, cancellationToken))
+        if (await Repository.StreamGroup.DeleteStreamGroup(request.Id) != null)
         {
-            await _publisher.Publish(new StreamGroupDeleteEvent(request.Id), cancellationToken).ConfigureAwait(false);
+            await Repository.SaveAsync();
+            await Publisher.Publish(new StreamGroupDeleteEvent(), cancellationToken);
             return request.Id;
         }
 

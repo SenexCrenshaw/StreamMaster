@@ -1,18 +1,10 @@
-﻿using AutoMapper;
+﻿using FluentValidation;
 
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-
-using StreamMasterApplication.Hubs;
-
-using StreamMasterDomain.Dto;
+using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
 
-public class UpdateM3UFileRequest : BaseFileRequest, IRequest<M3UFilesDto?>
+public class UpdateM3UFileRequest : BaseFileRequest, IRequest<M3UFile?>
 {
     public int? MaxStreamCount { get; set; }
     public int? StartingChannelNumber { get; set; }
@@ -26,84 +18,80 @@ public class UpdateM3UFileRequestValidator : AbstractValidator<UpdateM3UFileRequ
     }
 }
 
-public class UpdateM3UFileRequestHandler : IRequestHandler<UpdateM3UFileRequest, M3UFilesDto?>
+
+[LogExecutionTimeAspect]
+public class UpdateM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateM3UFileRequest, M3UFile?>
 {
-    private readonly IAppDbContext _context;
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
-    private readonly IMapper _mapper;
 
-    public UpdateM3UFileRequestHandler(
-     IMapper mapper,
-      IHubContext<StreamMasterHub, IStreamMasterHub> hubContext,
-        IAppDbContext context)
-    {
-        _mapper = mapper;
-        _context = context;
-        _hubContext = hubContext;
-    }
+    public UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
-    public async Task<M3UFilesDto?> Handle(UpdateM3UFileRequest command, CancellationToken cancellationToken)
+    public async Task<M3UFile?> Handle(UpdateM3UFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            M3UFile? m3UFile = await _context.M3UFiles.FindAsync(new object?[] { command.Id, cancellationToken }, cancellationToken: cancellationToken).ConfigureAwait(false);
-            if (m3UFile == null)
+
+            M3UFile? m3uFile = await Repository.M3UFile.GetM3UFileById(request.Id).ConfigureAwait(false);
+            if (m3uFile == null)
             {
                 return null;
             }
 
             bool isChanged = false;
 
-            if (!string.IsNullOrEmpty(command.Description) && m3UFile.Description != command.Description)
+            if (!string.IsNullOrEmpty(request.Description) && m3uFile.Description != request.Description)
             {
                 isChanged = true;
-                m3UFile.Description = command.Description;
+                m3uFile.Description = request.Description;
             }
 
-            if (!string.IsNullOrEmpty(command.Url) && m3UFile.Url != command.Url)
+            if (!string.IsNullOrEmpty(request.Url) && m3uFile.Url != request.Url)
             {
                 isChanged = true;
-                m3UFile.Url = command.Url;
+                m3uFile.Url = request.Url;
             }
 
-            if (!string.IsNullOrEmpty(command.Name) && m3UFile.Name != command.Name)
+            if (!string.IsNullOrEmpty(request.Name) && m3uFile.Name != request.Name)
             {
                 isChanged = true;
-                m3UFile.Name = command.Name;
+                m3uFile.Name = request.Name;
             }
 
-            if (command.MaxStreamCount != null && m3UFile.MaxStreamCount != command.MaxStreamCount)
+            if (request.MaxStreamCount != null && m3uFile.MaxStreamCount != request.MaxStreamCount)
             {
                 isChanged = true;
-                m3UFile.MaxStreamCount = (int)command.MaxStreamCount;
+                m3uFile.MaxStreamCount = (int)request.MaxStreamCount;
             }
 
-            if (command.AutoUpdate != null && m3UFile.AutoUpdate != command.AutoUpdate)
+            if (request.AutoUpdate != null && m3uFile.AutoUpdate != request.AutoUpdate)
             {
                 isChanged = true;
-                m3UFile.AutoUpdate = (bool)command.AutoUpdate;
+                m3uFile.AutoUpdate = (bool)request.AutoUpdate;
             }
 
-            if (command.StartingChannelNumber != null && m3UFile.StartingChannelNumber != command.StartingChannelNumber)
+            if (request.StartingChannelNumber != null && m3uFile.StartingChannelNumber != request.StartingChannelNumber)
             {
                 isChanged = true;
-                m3UFile.StartingChannelNumber = (int)command.StartingChannelNumber;
+                m3uFile.StartingChannelNumber = (int)request.StartingChannelNumber;
             }
 
-            if (command.HoursToUpdate != null && m3UFile.HoursToUpdate != command.HoursToUpdate)
+            if (request.HoursToUpdate != null && m3uFile.HoursToUpdate != request.HoursToUpdate)
             {
                 isChanged = true;
-                m3UFile.HoursToUpdate = (int)command.HoursToUpdate;
+                m3uFile.HoursToUpdate = (int)request.HoursToUpdate;
             }
 
-            _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-            M3UFilesDto ret = _mapper.Map<M3UFilesDto>(m3UFile);
+            Repository.M3UFile.UpdateM3UFile(m3uFile);
+            _ = await Repository.SaveAsync().ConfigureAwait(false);
+            m3uFile.WriteJSON();
+
+            M3UFileDto ret = Mapper.Map<M3UFileDto>(m3uFile);
             if (isChanged)
             {
-                await _hubContext.Clients.All.M3UFilesDtoUpdate(ret).ConfigureAwait(false);
+                await HubContext.Clients.All.M3UFilesRefresh().ConfigureAwait(false);
             }
 
-            return ret;
+            return m3uFile;
         }
         catch (Exception)
         {

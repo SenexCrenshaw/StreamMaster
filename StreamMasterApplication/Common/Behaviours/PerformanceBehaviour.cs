@@ -1,8 +1,4 @@
-﻿using MediatR;
-
-using Microsoft.Extensions.Logging;
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace StreamMasterApplication.Common.Behaviours;
 
@@ -10,33 +6,33 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
 {
     private readonly ILogger<TRequest> _logger;
     private readonly Stopwatch _timer;
-
-    public PerformanceBehaviour(
-        ILogger<TRequest> logger
-)
+    private readonly ISettingsService _settingsService;
+    public PerformanceBehaviour(ILogger<TRequest> logger, ISettingsService settingsService)
     {
+        _settingsService = settingsService;
         _timer = new Stopwatch();
-
         _logger = logger;
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        _timer.Start();
+        //if (!_settings.LogPerformance)
+        //{
+        //    return await next().ConfigureAwait(false);
+        //}
+
+        //_timer.Start();
 
         TResponse? response = await next().ConfigureAwait(false);
 
-        _timer.Stop();
+        //_timer.Stop();
 
-        long elapsedMilliseconds = _timer.ElapsedMilliseconds;
+        //long elapsedMilliseconds = _timer.ElapsedMilliseconds;
 
-        if (elapsedMilliseconds > 500)
-        {
-            string requestName = typeof(TRequest).Name;
-
-            _logger.LogWarning("Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@Request}",
-                requestName, elapsedMilliseconds, request);
-        }
+        ////if (elapsedMilliseconds > 1)
+        ////{
+        //_logger.LogInformation("LogPerformance: {ElapsedMilliseconds} milliseconds", elapsedMilliseconds);
+        ////}
 
         return response;
     }

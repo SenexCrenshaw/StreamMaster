@@ -10,15 +10,13 @@ using StreamMasterApplication.Settings.Queries;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 
-using static StreamMasterApplication.Settings.Commands.UpdateSettingHandler;
-
 namespace StreamMasterAPI.Controllers;
 
 public class SettingsController : ApiControllerBase, ISettingController
 {
+
     [HttpGet]
     [Route("[action]")]
-    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
     public async Task<ActionResult<bool>> GetIsSystemReady()
     {
         return await Mediator.Send(new GetIsSystemReadyRequest()).ConfigureAwait(false);
@@ -26,14 +24,13 @@ public class SettingsController : ApiControllerBase, ISettingController
 
     [HttpGet]
     [Route("[action]")]
-    [ProducesResponseType(typeof(List<TaskQueueStatusDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<TaskQueueStatusDto>>> GetQueueStatus()
     {
         return await Mediator.Send(new GetQueueStatus()).ConfigureAwait(false);
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(SettingDto), StatusCodes.Status200OK)]
+    [Route("[action]")]
     public async Task<ActionResult<SettingDto>> GetSetting()
     {
         return await Mediator.Send(new GetSettings()).ConfigureAwait(false);
@@ -42,7 +39,6 @@ public class SettingsController : ApiControllerBase, ISettingController
     [HttpGet]
     [AllowAnonymous]
     [Route("[action]")]
-    [ProducesResponseType(typeof(SystemStatus), StatusCodes.Status200OK)]
     public async Task<ActionResult<SystemStatus>> GetSystemStatus()
     {
         return await Mediator.Send(new GetSystemStatus()).ConfigureAwait(false);
@@ -50,23 +46,17 @@ public class SettingsController : ApiControllerBase, ISettingController
 
     [HttpGet]
     [Route("[action]")]
-    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-    public ActionResult<bool> LogIn(LogInRequest logInRequest)
+    public async Task<ActionResult<bool>> LogIn(LogInRequest logInRequest)
     {
-        var setting = FileUtil.GetSetting();
-
+        Setting setting = await SettingsService.GetSettingsAsync();
         return setting.AdminUserName == logInRequest.UserName && setting.AdminPassword == logInRequest.Password;
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
-    [ProducesResponseType(typeof(UpdateSettingResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateSetting(UpdateSettingRequest command)
     {
-        UpdateSettingResponse updateSettingResponse = await Mediator.Send(command).ConfigureAwait(false);
+        UpdateSettingRequestHandler.UpdateSettingResponse updateSettingResponse = await Mediator.Send(command).ConfigureAwait(false);
 
         if (updateSettingResponse.NeedsLogOut)
         {

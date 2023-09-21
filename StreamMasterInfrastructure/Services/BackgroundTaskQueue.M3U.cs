@@ -7,15 +7,15 @@ namespace StreamMasterInfrastructure.Services;
 
 public partial class BackgroundTaskQueue : IM3UFileTasks
 {
-    public async ValueTask ProcessM3UFile(int M3UFileId, bool immediate = false, CancellationToken cancellationToken = default)
+    public async ValueTask ProcessM3UFile(int Id, bool immediate = false, CancellationToken cancellationToken = default)
     {
         if (immediate)
         {
-            _ = await _sender.Send(new ProcessM3UFileRequest { M3UFileId = M3UFileId }, cancellationToken).ConfigureAwait(false);
+            _ = await _sender.Send(new ProcessM3UFileRequest(Id), cancellationToken).ConfigureAwait(false);
         }
         else
         {
-            await QueueAsync(SMQueCommand.ProcessM3UFile, M3UFileId, cancellationToken).ConfigureAwait(false);
+            await QueueAsync(SMQueCommand.ProcessM3UFile, Id, cancellationToken).ConfigureAwait(false);
         }
     }
 

@@ -1,35 +1,38 @@
 import './App.css';
 
-import { Navigate, Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
-import * as StreamMasterApi from './store/iptvApi';
-import React from 'react';
-import messagesEn from './messages_en';
-
-import { ProSidebarProvider } from 'react-pro-sidebar';
 import { useLocalStorage } from 'primereact/hooks';
+import React from 'react';
 import { IntlProvider } from 'react-intl';
-
+import { ProSidebarProvider } from 'react-pro-sidebar';
+import { Navigate, Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
+import Home from './Home';
+import { useAppInfo } from './app/slices/useAppInfo';
+import { useSignalRConnection } from './app/useSignalRConnection';
 import VideoPlayer from './components/VideoPlayer';
+import FilesEditor from './features/filesEditor/FilesEditor';
+import LogViewer from './features/logViewer/LogViewer';
 import PlayListEditor from './features/playListEditor/PlayListEditor';
 import QueueStatus from './features/queueStatus/QueueStatus';
+import SDEditor from './features/sdEditor/SDEditor';
 import SettingsEditor from './features/settings/SettingsEditor';
 import StreamGroupEditor from './features/streamGroupEditor/StreamGroupEditor';
 import StreamingStatus from './features/streamingStatus/StreamingStatus';
-import Home from './Home';
-import SignalRHub from './app/SignalRHub';
-import FilesEditor from './features/filesEditor/FilesEditor';
-import LogViewer from './features/logViewer/LogViewer';
-import SDEditor from './features/sdEditor/SDEditor';
-// import SDEditor from './features/sdEditor/SDEditor';
+import TestPanel from './features/testPanel/TestPanel';
+import messagesEn from './messages_en';
+import { useSettingsGetSystemStatusQuery } from './store/iptvApi';
+import StreamMasterSetting from './store/signlar/StreamMasterSetting';
 
 const App = () => {
+  useSignalRConnection();
+  const { isHubConnected } = useAppInfo();
+
   const [locale,] = useLocalStorage('en', 'locale');
   const messages = locale === 'en' ? messagesEn : messagesEn;
-  const [hubConnected, setHubConnected] = React.useState<boolean>(false);
-  const systemStatus = StreamMasterApi.useSettingsGetSystemStatusQuery();
+  const systemStatus = useSettingsGetSystemStatusQuery();
+  const setting = StreamMasterSetting();
 
   const systemReady = React.useMemo((): boolean => {
-    if (!hubConnected) {
+    if (!isHubConnected) {
       return false;
     }
 
@@ -37,15 +40,23 @@ const App = () => {
       return false;
     }
 
+    if (setting.isLoading || setting.defaultIcon === '') {
+      return false;
+    }
+
     return systemStatus.data.isSystemReady;
 
-  }, [hubConnected, systemStatus.data]);
+  }, [isHubConnected, setting, systemStatus.data]);
 
 
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route element={<Home />} path="/">
         <Route element={<Navigate to="/editor/playlist" />} index />
+
+        <Route element={
+          <TestPanel />
+        } path="/testpanel" />
 
         <Route element={
           <StreamGroupEditor />
@@ -93,13 +104,12 @@ const App = () => {
 
     if (window.location.pathname === '/') {
       window.location.href = '/editor/playlist'
+
       return null;
     }
 
     return (
       <div className="flex justify-content-center flex-wrap card-container w-full h-full "  >
-
-        <SignalRHub onConnected={(e) => setHubConnected(e)} />
 
         <div className="flex align-items-center justify-content-center font-bold  m-2"
           style={{
@@ -121,7 +131,6 @@ const App = () => {
 
   return (
     <IntlProvider locale={locale} messages={messages}>
-      <SignalRHub />
       <ProSidebarProvider>
         <RouterProvider router={router} />
       </ProSidebarProvider>

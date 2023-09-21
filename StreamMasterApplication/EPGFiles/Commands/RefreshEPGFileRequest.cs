@@ -1,60 +1,32 @@
-﻿using AutoMapper;
+﻿using FluentValidation;
 
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Dto;
+using StreamMasterDomain.EPG;
+using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
 [RequireAll]
-public class RefreshEPGFileRequest : IRequest<EPGFilesDto?>
-{
-    //public bool ForceDownload { get; set; }
-    public int EPGFileID { get; set; }
-}
+public record RefreshEPGFileRequest(int Id) : IRequest<EPGFileDto?> { }
 
 public class RefreshEPGFileRequestValidator : AbstractValidator<RefreshEPGFileRequest>
 {
     public RefreshEPGFileRequestValidator()
     {
-        _ = RuleFor(v => v.EPGFileID).NotNull().GreaterThanOrEqualTo(0);
+        _ = RuleFor(v => v.Id).NotNull().GreaterThanOrEqualTo(0);
     }
 }
 
-public class RefreshEPGFileRequestHandler : IRequestHandler<RefreshEPGFileRequest, EPGFilesDto?>
+public class RefreshEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<RefreshEPGFileRequest, EPGFileDto?>
 {
-    private readonly IAppDbContext _context;
-    private readonly ILogger<RefreshEPGFileRequest> _logger;
-    private readonly IMapper _mapper;
-    private readonly IMemoryCache _memoryCache;
-    private readonly IPublisher _publisher;
 
-    public RefreshEPGFileRequestHandler(
-        ILogger<RefreshEPGFileRequest> logger,
-        IMapper mapper,
-        IMemoryCache memoryCache,
-        IPublisher publisher,
+    public RefreshEPGFileRequestHandler(ILogger<RefreshEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
-        IAppDbContext context)
-    {
-        _publisher = publisher;
-        _mapper = mapper;
-        _logger = logger;
-        _memoryCache = memoryCache;
-        _context = context;
-    }
-
-    public async Task<EPGFilesDto?> Handle(RefreshEPGFileRequest request, CancellationToken cancellationToken)
+    public async Task<EPGFileDto?> Handle(RefreshEPGFileRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            EPGFile? epgFile = await _context.EPGFiles.FindAsync(new object?[] { request.EPGFileID, cancellationToken }, cancellationToken: cancellationToken).ConfigureAwait(false);
+            EPGFile? epgFile = await Repository.EPGFile.GetEPGFileById(request.Id).ConfigureAwait(false);
             if (epgFile == null)
             {
                 return null;
@@ -67,7 +39,7 @@ public class RefreshEPGFileRequestHandler : IRequestHandler<RefreshEPGFileReques
 
                 if (epgFile.Url != null && epgFile.Url.Contains("://"))
                 {
-                    _logger.LogInformation("Refresh EPG From URL {epgFile.Url}", epgFile.Url);
+                    Logger.LogInformation("Refresh EPG From URL {epgFile.Url}", epgFile.Url);
 
                     epgFile.LastDownloadAttempt = DateTime.Now;
 
@@ -81,14 +53,14 @@ public class RefreshEPGFileRequestHandler : IRequestHandler<RefreshEPGFileReques
                     else
                     {
                         ++epgFile.DownloadErrors;
-                        _logger.LogCritical("Exception EPG From URL {ex}", ex);
+                        Logger.LogCritical("Exception EPG From URL {ex}", ex);
                     }
                 }
 
-                StreamMasterDomain.Entities.EPG.Tv? tv = await epgFile.GetTV().ConfigureAwait(false);
+                Tv? tv = await epgFile.GetTV().ConfigureAwait(false);
                 if (tv == null)
                 {
-                    _logger.LogCritical("Exception EPG {fullName} format is not supported", fullName);
+                    Logger.LogCritical("Exception EPG {fullName} format is not supported", fullName);
                     //Bad EPG
                     if (File.Exists(fullName))
                     {
@@ -101,29 +73,26 @@ public class RefreshEPGFileRequestHandler : IRequestHandler<RefreshEPGFileReques
                 {
                     epgFile.ChannelCount = tv.Channel != null ? tv.Channel.Count : 0;
                     epgFile.ProgrammeCount = tv.Programme != null ? tv.Programme.Count : 0;
+
                 }
+                Repository.EPGFile.UpdateEPGFile(epgFile);
+                _ = await Repository.SaveAsync().ConfigureAwait(false);
 
-                _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                List<Programme> programmes = MemoryCache.Programmes();
+                _ = programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
+                MemoryCache.Set(programmes);
 
-                var programmes = _memoryCache.ChannelLogos();
-                programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                _memoryCache.Set(programmes);
+                List<ProgrammeChannel> programmeChannels = MemoryCache.ProgrammeChannels();
+                _ = programmeChannels.RemoveAll(a => a.EPGFileId == epgFile.Id);
+                MemoryCache.Set(programmeChannels);
 
-                var channels = _memoryCache.ChannelLogos();
-                channels.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                _memoryCache.Set(channels);
-
-                var channelLogos = _memoryCache.ChannelLogos();
-                channelLogos.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                _memoryCache.Set(channelLogos);
-
-                var programmeIcons = _memoryCache.ProgrammeIcons();
-                programmeIcons.RemoveAll(a => a.FileId == epgFile.Id);
-                _memoryCache.SetProgrammeLogos(programmeIcons);
+                List<IconFileDto> programmeIcons = MemoryCache.ProgrammeIcons();
+                _ = programmeIcons.RemoveAll(a => a.FileId == epgFile.Id);
+                MemoryCache.SetProgrammeLogos(programmeIcons);
 
 
-                EPGFilesDto ret = _mapper.Map<EPGFilesDto>(epgFile);
-                await _publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
+                EPGFileDto ret = Mapper.Map<EPGFileDto>(epgFile);
+                await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
                 return ret;
             }
         }

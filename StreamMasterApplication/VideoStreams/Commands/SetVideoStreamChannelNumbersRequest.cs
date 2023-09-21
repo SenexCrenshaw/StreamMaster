@@ -1,54 +1,23 @@
-﻿using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-
-using StreamMasterApplication.Common.Models;
-using StreamMasterApplication.Hubs;
-
-using StreamMasterDomain.Attributes;
+﻿using StreamMasterApplication.VideoStreams.Events;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
 [RequireAll]
-public class SetVideoStreamChannelNumbersRequest : IRequest<IEnumerable<ChannelNumberPair>>
+public record SetVideoStreamChannelNumbersRequest(List<string> Ids, bool OverWriteExisting, int StartNumber, string OrderBy) : IRequest { }
+
+[LogExecutionTimeAspect]
+public class SetVideoStreamChannelNumbersRequestHandler : BaseMediatorRequestHandler, IRequestHandler<SetVideoStreamChannelNumbersRequest>
 {
-    public SetVideoStreamChannelNumbersRequest()
+
+    public SetVideoStreamChannelNumbersRequestHandler(ILogger<SetVideoStreamChannelNumbersRequest> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+    : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
+    public async Task Handle(SetVideoStreamChannelNumbersRequest request, CancellationToken cancellationToken)
     {
-        ChannelNumberPairs = new List<ChannelNumberPair>();
-    }
-
-    public List<ChannelNumberPair> ChannelNumberPairs { get; set; }
-}
-
-public class SetVideoStreamChannelNumbersRequestHandler : IRequestHandler<SetVideoStreamChannelNumbersRequest, IEnumerable<ChannelNumberPair>>
-{
-    private readonly IAppDbContext _context;
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
-
-    public SetVideoStreamChannelNumbersRequestHandler(
-        IHubContext<StreamMasterHub, IStreamMasterHub> hubContext,
-        IAppDbContext Context)
-    {
-        _hubContext = hubContext;
-        _context = Context;
-    }
-
-    public async Task<IEnumerable<ChannelNumberPair>> Handle(SetVideoStreamChannelNumbersRequest request, CancellationToken cancellationToken)
-    {
-        foreach (ChannelNumberPair cp in request.ChannelNumberPairs)
+        string orderBy = string.IsNullOrEmpty(request.OrderBy) ? "user_tvg_name desc" : request.OrderBy;
+        List<VideoStreamDto> streams = await Repository.VideoStream.SetVideoStreamChannelNumbersFromIds(request.Ids, request.OverWriteExisting, request.StartNumber, orderBy, cancellationToken).ConfigureAwait(false);
+        if (streams.Any())
         {
-            var VideoStream = _context.VideoStreams.SingleOrDefault(c => c.Id == cp.Id);
-            if (VideoStream == null)
-            {
-                cp.Id = String.Empty;
-                continue;
-            }
-            VideoStream.User_Tvg_chno = cp.ChannelNumber;
+            await Publisher.Publish(new UpdateVideoStreamsEvent(streams), cancellationToken).ConfigureAwait(false);
         }
-        _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-
-        await _hubContext.Clients.All.VideoStreamUpdateChannelNumbers(request.ChannelNumberPairs).ConfigureAwait(false);
-
-        return request.ChannelNumberPairs;
     }
 }

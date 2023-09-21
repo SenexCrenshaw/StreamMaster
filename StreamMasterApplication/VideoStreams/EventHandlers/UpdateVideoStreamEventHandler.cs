@@ -1,31 +1,31 @@
-﻿using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.Hubs;
+﻿using StreamMasterApplication.ChannelGroups.Commands;
+using StreamMasterApplication.ChannelGroups.Events;
+using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.VideoStreams.Events;
 
 namespace StreamMasterApplication.VideoStreams.EventHandlers;
 
-public class UpdateVideoStreamEventHandler : INotificationHandler<UpdateVideoStreamEvent>
+public class UpdateVideoStreamEventHandler(ILogger<UpdateVideoStreamEvent> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), INotificationHandler<UpdateVideoStreamEvent>
 {
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
-    private readonly ILogger<UpdateVideoStreamEventHandler> _logger;
-
-    public UpdateVideoStreamEventHandler(
-         IHubContext<StreamMasterHub, IStreamMasterHub> hubContext,
-        ILogger<UpdateVideoStreamEventHandler> logger
-        )
-    {
-        _hubContext = hubContext;
-        _logger = logger;
-    }
-
     public async Task Handle(UpdateVideoStreamEvent notification, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Domain Event: {DomainEvent}", notification.GetType().Name);
+        //if (notification.ToggelVisibility)
+        //{
+        //    ChannelGroupDto? channelGroup = await Sender.Send(new GetChannelGroupByName(notification.VideoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
+        //    if (channelGroup != null)
+        //    {
+        //        await Publisher.Publish(new UpdateChannelGroupEvent(channelGroup, false, false), cancellationToken).ConfigureAwait(false);
+        //    }
+        //}
 
-        await _hubContext.Clients.All.VideoStreamDtoUpdate(notification.VideoStreamDto).ConfigureAwait(false);
+        ChannelGroupDto? channelGroup = await Sender.Send(new GetChannelGroupByName(notification.VideoStream.User_Tvg_group), cancellationToken).ConfigureAwait(false);
+        if (channelGroup != null)
+        {
+            await Sender.Send(new UpdateChannelGroupCountRequest(channelGroup, false), cancellationToken).ConfigureAwait(false);
+            await Publisher.Publish(new UpdateChannelGroupEvent(channelGroup, false, false), cancellationToken).ConfigureAwait(false);
+        }
+
+        await HubContext.Clients.All.VideoStreamsRefresh([notification.VideoStream]).ConfigureAwait(false);
+        await HubContext.Clients.All.StreamGroupVideoStreamsRefresh().ConfigureAwait(false);
     }
 }

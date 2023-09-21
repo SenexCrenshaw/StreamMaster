@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.SchedulesDirectAPI;
+using StreamMaster.SchedulesDirectAPI.Models;
 
 using StreamMasterApplication.SchedulesDirectAPI;
 using StreamMasterApplication.SchedulesDirectAPI.Queries;
@@ -48,7 +49,7 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<List<Schedule>?>> GetSchedules()
+    public async Task<ActionResult<List<Schedule>>> GetSchedules()
     {
         return await Mediator.Send(new GetSchedules()).ConfigureAwait(false);
     }

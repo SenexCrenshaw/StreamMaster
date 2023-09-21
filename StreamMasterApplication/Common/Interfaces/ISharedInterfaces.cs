@@ -6,6 +6,7 @@ using StreamMasterApplication.M3UFiles;
 using StreamMasterApplication.Programmes;
 using StreamMasterApplication.SchedulesDirectAPI;
 using StreamMasterApplication.Settings;
+using StreamMasterApplication.StreamGroupChannelGroups;
 using StreamMasterApplication.StreamGroups;
 using StreamMasterApplication.VideoStreams;
 
@@ -21,7 +22,8 @@ public interface ISharedHub :
     IIconHub,
     IStreamGroupHub,
     IProgrammeChannelHub,
-    ISettingHub
+    ISettingHub,
+    IStreamGroupChannelGroupHub
 {
 }
 
@@ -39,15 +41,3 @@ public interface ISharedTasks :
 {
 }
 
-public interface ISharedDB :
-    IChannelGroupDB,
-    IEPGFileDB,
-    IM3UFileDB,
-    IIconDB,
-    IVideoStreamDB,
-    ISchedulesDirectDB,
-    IStreamGroupDB,
-    IProgrammeChannelDB,
-    ISettingDB
-{
-}

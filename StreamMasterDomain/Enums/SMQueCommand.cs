@@ -20,5 +20,6 @@ public enum SMQueCommand
     ScanDirectoryForM3UFiles,
 
     SetIsSystemReady,
+    UpdateChannelGroupCounts,
     UpdateEntitiesFromIPTVChannels,
 }

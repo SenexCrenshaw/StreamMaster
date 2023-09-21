@@ -15,8 +15,9 @@ public class LogDbContextInitialiser
         LogDbContext context
         )
     {
-        _logger = logger;
         _context = context;
+        _logger = logger;
+
     }
 
     public async Task InitialiseAsync()

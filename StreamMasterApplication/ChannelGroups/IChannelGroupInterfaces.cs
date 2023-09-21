@@ -1,55 +1,59 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.ChannelGroups.Commands;
+using StreamMasterApplication.ChannelGroups.Queries;
 
-using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.ChannelGroups;
 
 public interface IChannelGroupController
 {
-    Task<ActionResult> AddChannelGroup(AddChannelGroupRequest request);
+
+    Task<ActionResult> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request);
+    Task<ActionResult<IEnumerable<string>>> GetChannelGroupNames();
+    Task<ActionResult<IEnumerable<ChannelGroupIdName>>> GetChannelGroupIdNames();
+
+
+    Task<ActionResult> CreateChannelGroup(CreateChannelGroupRequest request);
 
     Task<ActionResult> DeleteChannelGroup(DeleteChannelGroupRequest request);
 
     Task<ActionResult<ChannelGroupDto>> GetChannelGroup(int id);
+    Task<ActionResult<List<ChannelGroupDto>>> GetChannelGroupsForStreamGroup(GetChannelGroupsForStreamGroupRequest request);
 
-    Task<ActionResult<IEnumerable<ChannelGroupDto>>> GetChannelGroups();
-
-    Task<ActionResult> SetChannelGroupsVisible(SetChannelGroupsVisibleRequest request);
+    Task<ActionResult<PagedResponse<ChannelGroupDto>>> GetPagedChannelGroups(ChannelGroupParameters Parameters);
 
     Task<ActionResult> UpdateChannelGroup(UpdateChannelGroupRequest request);
 
-    Task<ActionResult> UpdateChannelGroupOrder(UpdateChannelGroupOrderRequest request);
-
     Task<ActionResult> UpdateChannelGroups(UpdateChannelGroupsRequest request);
+
 }
 
 public interface IChannelGroupDB
 {
-    DbSet<ChannelGroup> ChannelGroups { get; set; }
-
-    Task<(ChannelGroupDto? channelGroup, List<VideoStreamDto>? distinctList, List<StreamGroupDto>? streamGroupIds)> UpdateChannelGroup(UpdateChannelGroupRequest request, string url, CancellationToken cancellationToken);
 }
 
 public interface IChannelGroupHub
 {
-    Task AddChannelGroup(AddChannelGroupRequest request);
+
+    Task DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request);
+    Task<IEnumerable<string>> GetChannelGroupNames();
+    Task<IEnumerable<ChannelGroupIdName>> GetChannelGroupIdNames();
+    Task CreateChannelGroup(CreateChannelGroupRequest request);
 
     Task DeleteChannelGroup(DeleteChannelGroupRequest request);
 
     Task<ChannelGroupDto?> GetChannelGroup(int id);
 
-    Task<IEnumerable<ChannelGroupDto>?> GetChannelGroups();
+    Task<PagedResponse<ChannelGroupDto>> GetPagedChannelGroups(ChannelGroupParameters channelGroupParameters);
 
-    Task SetChannelGroupsVisible(SetChannelGroupsVisibleRequest request);
-
+    Task<List<ChannelGroupDto>> GetChannelGroupsForStreamGroup(GetChannelGroupsForStreamGroupRequest request);
     Task UpdateChannelGroup(UpdateChannelGroupRequest request);
 
-    Task UpdateChannelGroupOrder(UpdateChannelGroupOrderRequest request);
-
     Task UpdateChannelGroups(UpdateChannelGroupsRequest request);
+
+
 }
 
 public interface IChannelGroupScoped
@@ -58,4 +62,5 @@ public interface IChannelGroupScoped
 
 public interface IChannelGroupTasks
 {
+    ValueTask UpdateChannelGroupCounts(CancellationToken cancellationToken = default);
 }

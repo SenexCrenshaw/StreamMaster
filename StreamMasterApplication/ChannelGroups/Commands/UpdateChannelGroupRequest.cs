@@ -1,92 +1,72 @@
-﻿using AutoMapper;
+﻿using FluentValidation;
 
-using FluentValidation;
-
-using MediatR;
-
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-
-using StreamMasterApplication.Common.Extensions;
-using StreamMasterApplication.VideoStreams.Events;
-
-using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Dto;
+using StreamMasterApplication.ChannelGroups.Events;
 
 namespace StreamMasterApplication.ChannelGroups.Commands;
-
-[RequireAll]
-public record UpdateChannelGroupRequest(string GroupName, string? NewGroupName, bool? IsHidden, int? Rank, string? Regex) : IRequest<ChannelGroupDto?>
-{
-}
 
 public class UpdateChannelGroupRequestValidator : AbstractValidator<UpdateChannelGroupRequest>
 {
     public UpdateChannelGroupRequestValidator()
     {
-        _ = RuleFor(v => v.GroupName).NotNull().NotEmpty();
-        _ = RuleFor(v => v.Rank).NotNull().GreaterThan(0);
+        _ = RuleFor(v => v.ChannelGroupId).NotNull().GreaterThan(0);
     }
 }
 
-public class UpdateChannelGroupRequestHandler : IRequestHandler<UpdateChannelGroupRequest, ChannelGroupDto?>
+public class UpdateChannelGroupRequestHandler(ILogger<UpdateChannelGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateChannelGroupRequest, ChannelGroupDto?>
 {
-    private readonly IAppDbContext _context;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IMapper _mapper;
-    private readonly IPublisher _publisher;
-
-    public UpdateChannelGroupRequestHandler(
-        IHttpContextAccessor httpContextAccessor,
-
-        IMapper mapper,
-        IPublisher publisher,
-        IAppDbContext context
-    )
-    {
-        _mapper = mapper;
-        _httpContextAccessor = httpContextAccessor;
-        _publisher = publisher;
-        _context = context;
-    }
-
     public async Task<ChannelGroupDto?> Handle(UpdateChannelGroupRequest request, CancellationToken cancellationToken)
     {
-        var originalStreamsIds = await _context.VideoStreams.Where(a => a.User_Tvg_group != null && a.User_Tvg_group.ToLower() == request.GroupName.ToLower()).Select(a => a.Id).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
-        string url = _httpContextAccessor.GetUrl();
-        var (cg, distinctList, streamGroups) = await _context.UpdateChannelGroup(request, url, cancellationToken).ConfigureAwait(false);
+        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupById(request.ChannelGroupId).ConfigureAwait(false);
 
-        if (distinctList != null && distinctList.Any())
+        if (channelGroup == null)
         {
-            await _publisher.Publish(new UpdateVideoStreamsEvent(distinctList), cancellationToken).ConfigureAwait(false);
+            return null;
         }
 
-        if (streamGroups != null && streamGroups.Any())
+        bool checkCounts = false;
+        bool nameChanged = false;
+
+        if (request.ToggleVisibility == true)
         {
-            foreach (var streamGroup in streamGroups.Where(a => a is not null))
+            channelGroup.IsHidden = !channelGroup.IsHidden;
+            List<VideoStreamDto> results = await Repository.VideoStream.SetGroupVisibleByGroupName(channelGroup.Name, channelGroup.IsHidden, cancellationToken).ConfigureAwait(false);
+
+            checkCounts = results.Any();
+
+        }
+
+        if (!string.IsNullOrEmpty(request.NewGroupName) && request.NewGroupName != channelGroup.Name)
+        {
+            if (await Repository.ChannelGroup.GetChannelGroupByName(request.NewGroupName).ConfigureAwait(false) == null)
             {
-                await _publisher.Publish(new StreamGroupUpdateEvent(streamGroup), cancellationToken).ConfigureAwait(false);
-                //var streamGroup = await _context.GetStreamGroupDto(ret.Id, url, cancellationToken).ConfigureAwait(false);
-                //if (streamGroup is not null && streamGroup.ChildVideoStreams.Any())
-                //{
-                //    await _publisher.Publish(new UpdateVideoStreamsEvent(streamGroup.ChildVideoStreams), cancellationToken).ConfigureAwait(false);
-                //}
+                nameChanged = true;
+                channelGroup.Name = request.NewGroupName;
+
             }
         }
 
-        if (originalStreamsIds.Any())
+        Repository.ChannelGroup.UpdateChannelGroup(channelGroup);
+        _ = await Repository.SaveAsync().ConfigureAwait(false);
+
+        if (nameChanged && !string.IsNullOrEmpty(request.NewGroupName))
         {
-            var orginalStreams = await _context.VideoStreams.Where(a => originalStreamsIds.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
-            var originalStreamsDto = _mapper.Map<List<VideoStreamDto>>(orginalStreams);
-            await _publisher.Publish(new UpdateVideoStreamsEvent(originalStreamsDto), cancellationToken).ConfigureAwait(false);
+            _ = await Repository.VideoStream.SetVideoStreamChannelGroupName(channelGroup.Name, request.NewGroupName, cancellationToken).ConfigureAwait(false);
+            _ = await Repository.SaveAsync().ConfigureAwait(false);
         }
 
-        if (cg is not null)
+        if (checkCounts || nameChanged)
         {
-            await _publisher.Publish(new UpdateChannelGroupEvent(cg), cancellationToken).ConfigureAwait(false);
+
+            ChannelGroupDto dto = Mapper.Map<ChannelGroupDto>(channelGroup);
+            if (checkCounts)
+            {
+                await Sender.Send(new UpdateChannelGroupCountRequest(dto, false), cancellationToken).ConfigureAwait(false);
+            }
+
+            await Publisher.Publish(new UpdateChannelGroupEvent(dto, request.ToggleVisibility ?? false, nameChanged), cancellationToken).ConfigureAwait(false);
         }
 
-        return cg;
+        return null;
     }
 }

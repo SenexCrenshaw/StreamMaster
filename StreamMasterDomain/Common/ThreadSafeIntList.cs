@@ -1,45 +1,43 @@
-﻿namespace StreamMasterDomain.Common;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
+namespace StreamMasterDomain.Common;
 
 public class ThreadSafeIntList
 {
-    private readonly ConcurrentBag<int> intList;
+    private readonly ConcurrentDictionary<int, bool> intSet;
     private readonly int startingValue;
+    private int nextAvailableInt;
 
     public ThreadSafeIntList(int startingValue)
     {
-        intList = new ConcurrentBag<int>();
+        intSet = new ConcurrentDictionary<int, bool>();
         this.startingValue = startingValue;
+        nextAvailableInt = startingValue;
     }
 
     public void AddInt(int value)
     {
-        intList.Add(value);
+        _ = intSet.TryAdd(value, true);
     }
 
     public bool ContainsInt(int value)
     {
-        return intList.Contains(value);
+        return intSet.ContainsKey(value);
     }
 
-    public int GetNextInt(int? customStartingValue = null)
+    public int GetNextInt(int? value = null)
     {
-        int startingInt = customStartingValue ?? startingValue;
-        int largestInt = startingInt - 1;
-        int missingInt = startingInt;
+        int desiredValue = value ?? Interlocked.Increment(ref nextAvailableInt);
 
-        foreach (int i in intList)
+        // Ensure desiredValue is not less than startingValue
+        desiredValue = Math.Max(desiredValue, startingValue);
+
+        while (true)
         {
-            if (i > largestInt)
-                largestInt = i;
-
-            if (i == missingInt)
-                missingInt++;
+            if (intSet.TryAdd(desiredValue, true))
+            {
+                return desiredValue;
+            }
+            desiredValue = Interlocked.Increment(ref nextAvailableInt);
         }
-
-        intList.Add(missingInt);
-
-        return missingInt;
     }
 }

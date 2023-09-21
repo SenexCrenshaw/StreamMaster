@@ -1,24 +1,13 @@
-/* eslint-disable react/no-unused-prop-types */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/consistent-type-imports */
-
-import React from "react";
-import * as StreamMasterApi from '../../store/iptvApi';
-import SchedulesDirectCountrySelector from "../../components/SchedulesDirectCountrySelector";
-import StringEditorBodyTemplate from "../../components/StringEditorBodyTemplate";
-import SchedulesDirectHeadendDataSelector from "../../components/SchedulesDirectHeadendDataSelector";
-import SchedulesDirectLineUpsDataSelector from "../../components/SchedulesDirectLineUpsDataSelector";
-import SchedulesDirectLineUpPreviewDataSelector from "../../components/SchedulesDirectStationPreviewDataSelector";
-import SchedulesDirectSchedulesDataSelector from "../../components/SchedulesDirectSchedulesDataSelector";
-
-const SDEditor = (props: SDEditorProps) => {
-  const getStatusQuery = StreamMasterApi.useSchedulesDirectGetStatusQuery();
-  const [country, setCountry] = React.useState<string>('USA');
-  const [postalCode, setPostalCode] = React.useState<string>('19087');
-  const getLineUpsQuery = StreamMasterApi.useSchedulesDirectGetLineupsQuery();
 
 
-  const status = React.useMemo(() => {
+import { useMemo, memo } from "react";
+import { useSchedulesDirectGetStatusQuery } from "../../store/iptvApi";
+import SchedulesDirectSchedulesDataSelector from "../../components/schedulesDirect/SchedulesDirectSchedulesDataSelector";
+
+const SDEditor = () => {
+  const getStatusQuery = useSchedulesDirectGetStatusQuery();
+
+  const status = useMemo(() => {
     if (getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() === 'online') {
       return (<div>Schedules Direct System Status: <span className='text-green-500'>Online</span></div>);
     }
@@ -27,9 +16,7 @@ const SDEditor = (props: SDEditorProps) => {
 
   }, [getStatusQuery.data]);
 
-  const onGetHeadends = React.useCallback(async () => {
 
-  }, []);
   return (
     <>
       {status}
@@ -43,7 +30,7 @@ const SDEditor = (props: SDEditorProps) => {
       />
       <SchedulesDirectHeadendDataSelector country={country} postalCode={postalCode} /> */}
       {/* <SchedulesDirectLineUpsDataSelector /> */}
-      <SchedulesDirectLineUpPreviewDataSelector />
+      <SchedulesDirectSchedulesDataSelector stationIds={[]} />
 
     </>
   );
@@ -55,10 +42,10 @@ SDEditor.defaultProps = {
   value: null,
 };
 
-type SDEditorProps = {
-  data?: StreamMasterApi.ChannelGroupDto | undefined;
-  onChange?: ((value: string) => void) | null;
-  value?: string | null;
-};
+// type SDEditorProps = {
+//   readonly data?: ChannelGroupDto | undefined;
+//   readonly onChange?: ((value: string) => void) | null;
+//   readonly value?: string | null;
+// };
 
-export default React.memo(SDEditor);
+export default memo(SDEditor);

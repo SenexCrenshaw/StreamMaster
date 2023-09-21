@@ -9,13 +9,13 @@ import {
 } from "planby";
 
 type TimelineProps = {
-  dayWidth: number;
-  hourWidth: number;
-  isBaseTimeFormat: boolean;
-  isSidebar: boolean;
-  numberOfHoursInDay: number;
-  offsetStartHoursRange: number;
-  sidebarWidth: number;
+  readonly dayWidth: number;
+  readonly hourWidth: number;
+  readonly isBaseTimeFormat: boolean;
+  readonly isSidebar: boolean;
+  readonly numberOfHoursInDay: number;
+  readonly offsetStartHoursRange: number;
+  readonly sidebarWidth: number;
 }
 
 const Timeline = ({
@@ -34,6 +34,7 @@ const Timeline = ({
 
   const renderDividers = () =>
     dividers.map((_, index) => (
+
       // eslint-disable-next-line react/no-array-index-key
       <TimelineDivider key={index} width={hourWidth} />
     ));

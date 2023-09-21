@@ -10,6 +10,7 @@ const useCopyToClipboard = (): [CopiedValue, CopyFn] => {
     if (!navigator?.clipboard) {
       console.warn('Clipboard not supported, enable SSL maybe?');
       window.open(text);
+
       return false;
     }
 
@@ -17,10 +18,12 @@ const useCopyToClipboard = (): [CopiedValue, CopyFn] => {
     try {
       await navigator.clipboard.writeText(text);
       setCopiedText(text);
+
       return true;
     } catch (error) {
       console.warn('Copy failed', error);
       setCopiedText(null);
+
       return false;
     }
   };

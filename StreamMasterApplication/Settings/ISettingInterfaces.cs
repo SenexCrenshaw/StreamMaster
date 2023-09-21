@@ -3,8 +3,6 @@
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.Settings.Commands;
 
-using StreamMasterDomain.Dto;
-
 namespace StreamMasterApplication.Settings;
 
 public interface ISettingController
@@ -15,7 +13,7 @@ public interface ISettingController
 
     Task<ActionResult<SystemStatus>> GetSystemStatus();
 
-    ActionResult<bool> LogIn(LogInRequest logInRequest);
+    Task<ActionResult<bool>> LogIn(LogInRequest logInRequest);
 
     Task<IActionResult> UpdateSetting(UpdateSettingRequest command);
 }

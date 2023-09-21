@@ -1,28 +1,30 @@
 import { Button } from 'primereact/button';
 
-import React from 'react';
-import { Fieldset } from 'primereact/fieldset';
-import { useSettingsGetSettingQuery, type SettingDto } from '../../store/iptvApi';
-import { UpdateSetting } from '../../store/signlar_functions_local';
-import { SettingsEditorIcon } from '../../common/icons';
-import { Checkbox } from 'primereact/checkbox';
-import { InputText } from 'primereact/inputtext';
-import { type MenuItem } from 'primereact/menuitem';
-import { Dock } from 'primereact/dock';
-import SaveIcon from '@mui/icons-material/Save';
 import HistoryIcon from '@mui/icons-material/History';
-import { Toast } from 'primereact/toast';
+import SaveIcon from '@mui/icons-material/Save';
+import { Checkbox } from 'primereact/checkbox';
+import { Dock } from 'primereact/dock';
 import { Dropdown } from 'primereact/dropdown';
-import { AuthenticationType, StreamingProxyTypes } from '../../store/streammaster_enums';
-import { type SelectItem } from 'primereact/selectitem';
+import { Fieldset } from 'primereact/fieldset';
 import { InputNumber } from 'primereact/inputnumber';
+import { type MenuItem } from 'primereact/menuitem';
 import { Password } from 'primereact/password';
-import { GetMessage, GetMessageDiv, getTopToolOptions } from '../../common/common';
-import { baseHostURL } from '../../settings';
 import { ScrollPanel } from 'primereact/scrollpanel';
+import { type SelectItem } from 'primereact/selectitem';
+import { Toast } from 'primereact/toast';
+import React from 'react';
+import { GetMessage, GetMessageDiv, getTopToolOptions } from '../../common/common';
+import { SettingsEditorIcon } from '../../common/icons';
+import { SMTextColor } from '../../components/SMTextColor';
+import TextInput from '../../components/inputs/TextInput';
+import SettingsNameRegexDataSelector from '../../components/settings/SettingsNameRegexDataSelector';
+import { getDefaultSetting } from '../../default_setting';
 import { getHelp } from '../../help_en';
+import { baseHostURL } from '../../settings';
+import { UpdateSetting } from '../../smAPI/Settings/SettingsMutateAPI';
+import { useSettingsGetSettingQuery, type SettingDto } from '../../store/iptvApi';
 import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
-import SettingsNameRegexDataSelector from '../../components/SettingsNameRegexDataSelector';
+import { AuthenticationType, StreamingProxyTypes } from '../../store/streammaster_enums';
 
 export const SettingsEditor = () => {
   const toast = React.useRef<Toast>(null);
@@ -79,19 +81,23 @@ export const SettingsEditor = () => {
     return true;
   }, [adminPasswordError, adminUserNameError, newData, originalData]);
 
-  const getLine = React.useCallback((label: string, value: React.ReactElement, help?: string | null) => {
+  const getLine = React.useCallback((label: string, value: React.ReactElement, help?: string | null, defaultSetting?: string | null) => {
 
     return (
       <div className='flex col-12 align-content-center'>
         <div className='flex col-2 col-offset-1'>
-          <span>{label}</span>
+          {label}
         </div>
         <div className='flex col-3 m-0 p-0 debug'>
           {value}
         </div>
         {(help !== null && help !== undefined) &&
-          <div className='flex col-3 text-sm align-content-center col-offset-1 debug'>
+          <div className='flex flex-column col-3 text-sm align-content-center col-offset-1 debug'>
             {help}
+            {
+              defaultSetting &&
+              <SMTextColor italicized text={defaultSetting} />
+            }
           </div>
         }
       </div>
@@ -102,6 +108,7 @@ export const SettingsEditor = () => {
   const getRecord = React.useCallback((fieldName: string) => {
     type ObjectKey = keyof typeof newData;
     const record = newData[fieldName as ObjectKey];
+
     if (record === undefined || record === null || record === '') {
       return undefined;
     }
@@ -127,6 +134,8 @@ export const SettingsEditor = () => {
   const getInputNumberLine = React.useCallback((field: string, max?: number | null) => {
     const label = GetMessage(field);
     const help = getHelp(field);
+
+
     return (
       getLine(label + ':',
         <InputNumber
@@ -168,21 +177,21 @@ export const SettingsEditor = () => {
   const getInputTextLine = React.useCallback((field: string, warning?: string | null) => {
     const label = GetMessage(field);
     const help = getHelp(field);
+    const defaultSetting = getDefaultSetting(field);
 
     return (
       getLine(label + ':',
         <span className="w-full">
-          <InputText
-            className="withpadding w-full text-left"
-            id={field}
-            onChange={(e) => setNewData({ ...newData, [field]: e.target.value })}
-            placeholder={label}
-            value={getRecordString(field)}
-          />
+          <TextInput
+            dontValidate
+            onChange={(e) => setNewData({ ...newData, [field]: e })}
+            placeHolder={label}
+            showCopy
+            value={getRecordString(field)} />
           <br />
           {(warning !== null && warning !== undefined) && <span className="text-xs text-orange-500">{warning}</span>}
         </span>
-        , help
+        , help, defaultSetting
       )
     );
 
@@ -192,6 +201,7 @@ export const SettingsEditor = () => {
   const getCheckBoxLine = React.useCallback((field: string) => {
     const label = GetMessage(field);
     const help = getHelp(field);
+
     return (
       getLine(label + ':',
         <Checkbox
@@ -234,6 +244,7 @@ export const SettingsEditor = () => {
   const getDropDownLine = React.useCallback((field: string, options: SelectItem[]) => {
     const label = GetMessage(field);
     const help = getHelp(field);
+
     return (
       <>
         {
@@ -322,6 +333,7 @@ export const SettingsEditor = () => {
               </>
             }
             {getCheckBoxLine('overWriteM3UChannels')}
+            {/* {getCheckBoxLine('logPerformance')} */}
           </Fieldset>
 
           <Fieldset className="mt-4 pt-10" legend={GetMessage('authentication')}>
@@ -359,6 +371,7 @@ export const SettingsEditor = () => {
             {getInputNumberLine('maxConnectRetryTimeMS', 999)} */}
             {getInputTextLine('clientUserAgent')}
             {getInputTextLine('streamingClientUserAgent')}
+            {getInputTextLine('ffMpegOptions')}
           </Fieldset>
 
           <Fieldset className="mt-4 pt-10" legend={GetMessage('filesEPGM3U')} >
@@ -389,6 +402,7 @@ export const SettingsEditor = () => {
               label='Swagger'
               onClick={() => {
                 const link = `${baseHostURL}/swagger`;
+
                 window.open(link);
               }
               }
@@ -403,7 +417,6 @@ export const SettingsEditor = () => {
   );
 };
 
-SettingsEditor.displayName = 'Settings';
 
 
 export default React.memo(SettingsEditor);

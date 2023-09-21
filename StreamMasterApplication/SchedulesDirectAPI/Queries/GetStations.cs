@@ -1,21 +1,18 @@
-﻿using MediatR;
-
-using StreamMaster.SchedulesDirectAPI;
-
-using StreamMasterDomain.Common;
+﻿using StreamMaster.SchedulesDirectAPI;
+using StreamMaster.SchedulesDirectAPI.Models;
 
 namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 
 public record GetStations : IRequest<List<Station>>;
 
-internal class GetStationsHandler : IRequestHandler<GetStations, List<Station>>
+internal class GetStationsHandler(ISettingsService settingsService) : IRequestHandler<GetStations, List<Station>>
 {
     public async Task<List<Station>> Handle(GetStations request, CancellationToken cancellationToken)
     {
-        var ret = new List<Station>();
-        var sd = new SchedulesDirect();
+        Setting setting = await settingsService.GetSettingsAsync();
+        SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDCountry, setting.SDPassword);
 
-        ret = await sd.GetStations(cancellationToken).ConfigureAwait(false);
+        List<Station> ret = await sd.GetStations(cancellationToken).ConfigureAwait(false);
 
 
         return ret;

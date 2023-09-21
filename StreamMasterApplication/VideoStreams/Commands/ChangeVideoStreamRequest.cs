@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
 
-using MediatR;
-
 namespace StreamMasterApplication.VideoStreams.Commands;
 
 public record ChangeVideoStreamChannelRequest(string playingVideoStreamId, string newVideoStreamId) : IRequest
@@ -17,17 +15,10 @@ public class ChangeVideoStreamChannelRequestValidator : AbstractValidator<Change
     }
 }
 
-public class ChangeVideoStreamChannelRequestHandler : IRequestHandler<ChangeVideoStreamChannelRequest>
+public class ChangeVideoStreamChannelRequestHandler(IChannelManager channelManager) : IRequestHandler<ChangeVideoStreamChannelRequest>
 {
-    private readonly IChannelManager _channelManager;
-
-    public ChangeVideoStreamChannelRequestHandler(IChannelManager channelManager)
-    {
-        _channelManager = channelManager;
-    }
-
     public async Task Handle(ChangeVideoStreamChannelRequest request, CancellationToken cancellationToken)
     {
-        await _channelManager.ChangeVideoStreamChannel(request.playingVideoStreamId, request.newVideoStreamId);
+        await channelManager.ChangeVideoStreamChannel(request.playingVideoStreamId, request.newVideoStreamId);
     }
 }

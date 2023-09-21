@@ -1,21 +1,16 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React from "react";
-import type * as StreamMasterApi from '../store/iptvApi';
-import { Toast } from 'primereact/toast';
-import * as Hub from "../store/signlar_functions";
-import IconSelector from "./IconSelector";
-
+import { memo } from "react";
+import { UpdateVideoStream } from "../smAPI/VideoStreams/VideoStreamsMutateAPI";
+import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../store/iptvApi";
+import IconSelector from "./selectors/IconSelector";
 
 const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
-  const toast = React.useRef<Toast>(null);
 
-  const onUpdateVideoStream = React.useCallback(async (Logo: string) => {
+  const onUpdateVideoStream = async (Logo: string) => {
     if (props.data.id === '') {
       return;
     }
 
-
-    const data = {} as StreamMasterApi.UpdateVideoStreamRequest;
+    const data = {} as UpdateVideoStreamRequest;
 
     data.id = props.data.id;
 
@@ -23,46 +18,26 @@ const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
       data.tvg_logo = Logo;
     }
 
-
-    await Hub.UpdateVideoStream(data)
+    await UpdateVideoStream(data)
       .then(() => {
-        if (toast.current) {
 
-          toast.current.show({
-            detail: `Updated Stream`,
-            life: 3000,
-            severity: 'success',
-            summary: 'Successful',
-          });
-
-        }
       }).catch((e) => {
-        if (toast.current) {
-          toast.current.show({
-            detail: `Update Stream Failed`,
-            life: 3000,
-            severity: 'error',
-            summary: 'Error ' + e.message,
-          });
-        }
+        console.error(e);
       });
 
-  }, [props.data.id, props.data.user_Tvg_logo]);
+  };
 
   return (
-    <>
-      <Toast position="bottom-right" ref={toast} />
-      <IconSelector
-        className="p-inputtext-sm"
-        enableEditMode={props.enableEditMode}
-        onChange={
-          async (e: string) => {
-            await onUpdateVideoStream(e);
-          }
+    <IconSelector
+      className="p-inputtext-sm"
+      enableEditMode={props.enableEditMode}
+      onChange={
+        async (e: string) => {
+          await onUpdateVideoStream(e);
         }
-        value={props.data.user_Tvg_logo}
-      />
-    </>
+      }
+      value={props.data.user_Tvg_logo}
+    />
   );
 };
 
@@ -72,8 +47,8 @@ ChannelLogoEditor.defaultProps = {
 };
 
 export type StreamDataSelectorProps = {
-  data: StreamMasterApi.VideoStreamDto;
-  enableEditMode?: boolean;
+  readonly data: VideoStreamDto;
+  readonly enableEditMode?: boolean;
 };
 
-export default React.memo(ChannelLogoEditor);
+export default memo(ChannelLogoEditor);

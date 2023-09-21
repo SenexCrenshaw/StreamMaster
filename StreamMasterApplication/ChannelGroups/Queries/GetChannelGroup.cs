@@ -1,40 +1,21 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.EntityFrameworkCore;
-
-using StreamMasterDomain.Dto;
+﻿using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.ChannelGroups.Queries;
 
 public record GetChannelGroup(int Id) : IRequest<ChannelGroupDto?>;
 
-internal class GetChannelGroupHandler : IRequestHandler<GetChannelGroup, ChannelGroupDto?>
+internal class GetChannelGroupHandler(ILogger<GetChannelGroup> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetChannelGroup, ChannelGroupDto?>
 {
-    private readonly IAppDbContext _context;
-    private readonly IMapper _mapper;
-
-    public GetChannelGroupHandler(
-         IAppDbContext context,
-         IMapper mapper
-    )
-    {
-        _context = context;
-        _mapper = mapper;
-    }
-
     public async Task<ChannelGroupDto?> Handle(GetChannelGroup request, CancellationToken cancellationToken)
     {
-        ChannelGroup? channelGroup = await _context.ChannelGroups.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
-
+        ChannelGroup? channelGroup = await Repository.ChannelGroup.GetChannelGroupById(request.Id);
         if (channelGroup == null)
         {
             return null;
         }
 
-        ChannelGroupDto ret = _mapper.Map<ChannelGroupDto>(channelGroup);
-
-        return ret;
+        ChannelGroupDto? dto = Mapper.Map<ChannelGroupDto?>(channelGroup);
+        MemoryCache.UpdateChannelGroupWithActives(dto);
+        return dto;
     }
 }

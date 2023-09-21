@@ -2,20 +2,12 @@ using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.EnvironmentInfo;
+using StreamMasterDomain.Services;
 
 namespace StreamMasterInfrastructure.Services.Frontend.Mappers
 {
-    public class ImagesMapper : StaticResourceMapperBase
+    public class ImagesMapper(IAppFolderInfo appFolderInfo, ILogger<ImagesMapper> logger, ISettingsService settingsService) : StaticResourceMapperBase(logger)
     {
-        private readonly IAppFolderInfo _appFolderInfo;
-        protected Setting _setting = FileUtil.GetSetting();
-
-        public ImagesMapper(IAppFolderInfo appFolderInfo, ILogger<ImagesMapper> logger)
-            : base(logger)
-        {
-            _appFolderInfo = appFolderInfo;
-        }
-
         public override bool CanHandle(string resourceUrl)
         {
             resourceUrl = resourceUrl.ToLowerInvariant();
@@ -24,11 +16,12 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
                    (resourceUrl.EndsWith(".jpg") || resourceUrl.EndsWith(".png") || resourceUrl.EndsWith(".gif"));
         }
 
-        public override string Map(string resourceUrl)
+        public override async Task<string> Map(string resourceUrl)
         {
-            var path = resourceUrl.Replace("/images/", "");
+            Setting setting = await settingsService.GetSettingsAsync();
+            string path = resourceUrl.Replace("/images/", "");
 
-            var ret = Path.Combine(_appFolderInfo.StartUpFolder, _setting.UiFolder, "images", path);
+            string ret = Path.Combine(appFolderInfo.StartUpFolder, setting.UiFolder, "images", path);
             return ret;
         }
     }

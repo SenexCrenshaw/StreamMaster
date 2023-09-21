@@ -24,6 +24,6 @@ public class M3UFileAddedEventHandler : INotificationHandler<M3UFileAddedEvent>
     public async Task Handle(M3UFileAddedEvent notification, CancellationToken cancellationToken)
     {
         await _taskQueue.ProcessM3UFile(notification.Item.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
-        await _hubContext.Clients.All.M3UFilesDtoUpdate(notification.Item).ConfigureAwait(false);
+        //await _hubContext.Clients.All.M3UFilesRefresh().ConfigureAwait(false);
     }
 }

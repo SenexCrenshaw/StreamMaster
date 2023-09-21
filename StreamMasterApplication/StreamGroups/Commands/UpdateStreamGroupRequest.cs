@@ -1,13 +1,6 @@
 ﻿using FluentValidation;
 
-using MediatR;
-
-using Microsoft.AspNetCore.Http;
-
-using StreamMasterApplication.Common.Extensions;
-using StreamMasterApplication.VideoStreams.Events;
-
-using StreamMasterDomain.Dto;
+using StreamMasterApplication.StreamGroups.Events;
 
 namespace StreamMasterApplication.StreamGroups.Commands;
 
@@ -21,54 +14,26 @@ public class UpdateStreamGroupRequestValidator : AbstractValidator<UpdateStreamG
     }
 }
 
-public class VideoStreamIsReadOnly
+[LogExecutionTimeAspect]
+public class UpdateStreamGroupRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateStreamGroupRequest, StreamGroupDto?>
 {
-    public bool IsReadOnly { get; set; }
-    public string VideoStreamId { get; set; }
-}
 
-public record UpdateStreamGroupRequest(
-    int StreamGroupId,
-    string? Name,
-    int? StreamGroupNumber,
-    List<VideoStreamIsReadOnly>? VideoStreams,
-    List<string>? ChannelGroupNames
-    ) : IRequest<StreamGroupDto?>
-{
-}
+    public UpdateStreamGroupRequestHandler(ILogger<UpdateStreamGroupRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+  : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
-public class UpdateStreamGroupRequestHandler : IRequestHandler<UpdateStreamGroupRequest, StreamGroupDto?>
-{
-    private readonly IAppDbContext _context;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IPublisher _publisher;
-
-    public UpdateStreamGroupRequestHandler(
-         IPublisher publisher,
-         IHttpContextAccessor httpContextAccessor,
-        IAppDbContext context)
-    {
-        _httpContextAccessor = httpContextAccessor;
-        _publisher = publisher;
-        _context = context;
-    }
 
     public async Task<StreamGroupDto?> Handle(UpdateStreamGroupRequest request, CancellationToken cancellationToken)
     {
-        if (request.StreamGroupId < 1)
+        if (request.StreamGroupId < 1 || string.IsNullOrEmpty(request.Name))
         {
             return null;
         }
-        string url = _httpContextAccessor.GetUrl();
-        var streamGroup = await _context.UpdateStreamGroupAsync(request, url, cancellationToken).ConfigureAwait(false);
+
+        StreamGroupDto? streamGroup = await Repository.StreamGroup.UpdateStreamGroup(request.StreamGroupId, request.Name);
         if (streamGroup is not null)
         {
-            //var streamGroup = await _context.GetStreamGroupDto(ret.Id, url, cancellationToken).ConfigureAwait(false);
-            if (streamGroup is not null && streamGroup.ChildVideoStreams.Any())
-            {
-                await _publisher.Publish(new UpdateVideoStreamsEvent(streamGroup.ChildVideoStreams), cancellationToken).ConfigureAwait(false);
-            }
-            await _publisher.Publish(new StreamGroupUpdateEvent(streamGroup), cancellationToken).ConfigureAwait(false);
+
+            await Publisher.Publish(new StreamGroupUpdateEvent(streamGroup), cancellationToken).ConfigureAwait(false);
         }
 
         return streamGroup;

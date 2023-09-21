@@ -1,33 +1,59 @@
-﻿using AutoMapper;
+﻿using StreamMasterDomain.Models;
 
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
+using System.Collections.Concurrent;
+using System.Web;
 
 namespace StreamMasterApplication.Icons.Commands;
 
-public class BuildIconsCacheFromVideoStreamRequest : IRequest<bool>
+public class BuildIconsCacheFromVideoStreamRequest : IRequest<bool> { }
+
+public class BuildIconsCacheFromVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequestHandler<BuildIconsCacheFromVideoStreamRequest, bool>
 {
-}
 
-public class BuildIconsCacheFromVideoStreamRequestHandler : IRequestHandler<BuildIconsCacheFromVideoStreamRequest, bool>
-{
-    private readonly IAppDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IMemoryCache _memoryCache;
+    public BuildIconsCacheFromVideoStreamRequestHandler(ILogger<BuildIconsCacheFromVideoStreamRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
-    public BuildIconsCacheFromVideoStreamRequestHandler(
-           IMemoryCache memoryCache,
-           IMapper mapper,
-         IAppDbContext context)
+    public Task<bool> Handle(BuildIconsCacheFromVideoStreamRequest command, CancellationToken cancellationToken)
     {
-        _mapper = mapper;
-        _memoryCache = memoryCache;
-        _context = context;
-    }
+        IQueryable<VideoStream> streams = Repository.VideoStream.GetVideoStreamQuery()
+         .Where(a => a.User_Tvg_logo != null && a.User_Tvg_logo.Contains("://"))
+         .AsQueryable();
 
-    public async Task<bool> Handle(BuildIconsCacheFromVideoStreamRequest command, CancellationToken cancellationToken)
-    {
-        return await _context.BuildIconsCacheFromVideoStreams(cancellationToken).ConfigureAwait(false);
+        if (!streams.Any()) { return Task.FromResult(false); }
+
+        // For progress reporting
+        int totalCount = streams.Count();
+
+        ParallelOptions parallelOptions = new()
+        {
+            CancellationToken = cancellationToken,
+            MaxDegreeOfParallelism = Environment.ProcessorCount // or any number depending on how much parallelism you want
+        };
+
+        //var streamsList = await streams.ToListAsync();
+
+        ConcurrentBag<IconFileDto> toWrite = new();
+
+        _ = Parallel.ForEach(streams, parallelOptions, stream =>
+        {
+            if (cancellationToken.IsCancellationRequested) { return; }
+
+            string source = HttpUtility.UrlDecode(stream.Tvg_logo);
+
+            IconFileDto icon = IconHelper.GetIcon(source, stream.User_Tvg_name, stream.M3UFileId, FileDefinitions.Icon);
+            toWrite.Add(icon);
+        });
+
+        List<IconFileDto> icons = MemoryCache.GetIcons(Mapper);
+        IEnumerable<IconFileDto> missingIcons = toWrite.Except(icons, new IconFileDtoComparer());
+        missingIcons = missingIcons.Distinct(new IconFileDtoComparer());
+        icons.AddRange(missingIcons);
+        for (int i = 0; i < icons.Count; i++)
+        {
+            icons[i].Id = i;
+        }
+        MemoryCache.Set(icons);
+
+        return Task.FromResult(true);
     }
 }

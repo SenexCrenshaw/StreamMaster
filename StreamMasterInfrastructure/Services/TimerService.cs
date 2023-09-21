@@ -1,19 +1,18 @@
-﻿using AutoMapper;
-
-using MediatR;
+﻿using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.EPGFiles.Commands;
+using StreamMasterApplication.EPGFiles.Queries;
 using StreamMasterApplication.M3UFiles.Commands;
+using StreamMasterApplication.M3UFiles.Queries;
 using StreamMasterApplication.Settings.Queries;
 
-using StreamMasterDomain.Entities;
-using StreamMasterDomain.Enums;
+using StreamMasterDomain.Cache;
+using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructure.Services;
 
@@ -47,7 +46,7 @@ public class TimerService : IHostedService, IDisposable
     {
         //_logger.LogInformation("Timer Service running.");
 
-        _timer = new Timer(async state => await DoWorkAsync(state, cancellationToken), null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
+        _timer = new Timer(async state => await DoWorkAsync(state, cancellationToken), null, TimeSpan.Zero, TimeSpan.FromSeconds(600));
 
         return Task.CompletedTask;
     }
@@ -72,10 +71,7 @@ public class TimerService : IHostedService, IDisposable
             isActive = true;
         }
 
-        using IServiceScope scope = _serviceProvider.CreateScope();
-        IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-
-        SystemStatus status = new SystemStatus { IsSystemReady = _memoryCache.IsSystemReady() };
+        SystemStatus status = new() { IsSystemReady = _memoryCache.IsSystemReady() };
 
         if (!status.IsSystemReady)
         {
@@ -86,65 +82,35 @@ public class TimerService : IHostedService, IDisposable
             return;
         }
 
-        //IMapper mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
-        IAppDbContext context = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
+        using IServiceScope scope = _serviceProvider.CreateScope();
+        IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+
+        IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
 
         //_logger.LogInformation("Timer Service is working.");
 
         DateTime now = DateTime.Now;
 
-        List<EPGFile> epgFiles = new();
-        List<M3UFile> m3uFiles = new();
+        IEnumerable<StreamMasterDomain.Dto.EPGFileDto> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
+        IEnumerable<StreamMasterDomain.Dto.M3UFileDto> m3uFilesToUpdated = await mediator.Send(new GetM3UFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
 
-        IQueryable<EPGFile> epgFilesToUpdated = context.EPGFiles.Where(a => a.AutoUpdate && string.IsNullOrEmpty(a.Url));
-        foreach (EPGFile? epgFile in epgFilesToUpdated)
+        if (epgFilesToUpdated.Any())
         {
-            string epgPath = Path.Combine(FileDefinitions.EPG.DirectoryLocation, epgFile.Source);
-            if (!File.Exists(epgPath))
+            _logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count());
+            foreach (StreamMasterDomain.Dto.EPGFileDto? epgFile in epgFilesToUpdated)
             {
-                continue;
-            }
-
-            if (File.GetLastWriteTime(epgPath) <= epgFile.LastDownloaded)
-            {
-                continue;
-            }
-            epgFiles.Add(epgFile);
-        }
-        epgFiles.AddRange(context.EPGFiles.Where(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < now));
-
-        IQueryable<M3UFile> m3uFilesToUpdated = context.M3UFiles.Where(a => a.AutoUpdate && string.IsNullOrEmpty(a.Url));
-        foreach (M3UFile? m3uFile in m3uFilesToUpdated)
-        {
-            string m3uPath = Path.Combine(FileDefinitions.M3U.DirectoryLocation, m3uFile.Source);
-            if (!File.Exists(m3uPath))
-            {
-                continue;
-            }
-
-            if (File.GetLastWriteTime(m3uPath) <= m3uFile.LastDownloaded)
-            {
-                continue;
-            }
-            m3uFiles.Add(m3uFile);
-        }
-        m3uFiles.AddRange(context.M3UFiles.Where(a => a.AutoUpdate && !string.IsNullOrEmpty(a.Url) && a.HoursToUpdate > 0 && a.LastDownloaded.AddHours(a.HoursToUpdate) < now));
-
-        if (epgFiles.Any())
-        {
-            _logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFiles.Count());
-            foreach (EPGFile epgFile in epgFiles)
-            {
-                _ = await mediator.Send(new RefreshEPGFileRequest { EPGFileID = epgFile.Id }, cancellationToken).ConfigureAwait(false);
+                _ = await mediator.Send(new RefreshEPGFileRequest(epgFile.Id), cancellationToken).ConfigureAwait(false);
             }
         }
 
-        if (m3uFiles.Any())
+        if (m3uFilesToUpdated.Any())
         {
-            _logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFiles.Count());
-            foreach (M3UFile m3uFile in m3uFiles)
+            _logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFilesToUpdated.Count());
+
+            foreach (StreamMasterDomain.Dto.M3UFileDto? m3uFile in m3uFilesToUpdated)
             {
-                _ = await mediator.Send(new RefreshM3UFileRequest { M3UFileID = m3uFile.Id }, cancellationToken).ConfigureAwait(false);
+                _ = await mediator.Send(new RefreshM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
             }
         }
 

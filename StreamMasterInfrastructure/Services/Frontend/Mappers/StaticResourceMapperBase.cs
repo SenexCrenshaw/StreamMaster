@@ -21,13 +21,13 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
 
         public abstract bool CanHandle(string resourceUrl);
 
-        public IActionResult GetResponse(string resourceUrl)
+        public async Task<IActionResult> GetResponse(string resourceUrl)
         {
-            var filePath = Map(resourceUrl);
+            string filePath = await Map(resourceUrl);
 
             if (File.Exists(filePath))
             {
-                if (!_mimeTypeProvider.TryGetContentType(filePath, out var contentType))
+                if (!_mimeTypeProvider.TryGetContentType(filePath, out string contentType))
                 {
                     contentType = "application/octet-stream";
                 }
@@ -43,7 +43,7 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
             return null;
         }
 
-        public abstract string Map(string resourceUrl);
+        public abstract Task<string> Map(string resourceUrl);
 
         protected virtual Stream GetContentStream(string filePath)
         {

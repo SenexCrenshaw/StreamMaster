@@ -2,28 +2,21 @@
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.EnvironmentInfo;
+using StreamMasterDomain.Services;
 
 namespace StreamMasterInfrastructure.Services.Frontend.Mappers
 {
-    public class FaviconMapper : StaticResourceMapperBase
+    public class FaviconMapper(IAppFolderInfo appFolderInfo, ILogger<FaviconMapper> logger, ISettingsService settingsService) : StaticResourceMapperBase(logger)
     {
-        private readonly IAppFolderInfo _appFolderInfo;
-        protected Setting _setting = FileUtil.GetSetting();
-
-        public FaviconMapper(IAppFolderInfo appFolderInfo, ILogger<FaviconMapper> logger)
-            : base(logger)
-        {
-            _appFolderInfo = appFolderInfo;
-        }
-
         public override bool CanHandle(string resourceUrl)
         {
             return resourceUrl.Equals("/favicon.ico");
         }
 
-        public override string Map(string resourceUrl)
+        public override async Task<string> Map(string resourceUrl)
         {
-            return Path.Combine(_appFolderInfo.StartUpFolder, _setting.UiFolder, "favicon.ico");
+            Setting setting = await settingsService.GetSettingsAsync();
+            return Path.Combine(appFolderInfo.StartUpFolder, setting.UiFolder, "favicon.ico");
         }
     }
 }

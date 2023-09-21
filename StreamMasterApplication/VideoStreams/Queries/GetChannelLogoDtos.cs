@@ -1,24 +1,12 @@
-﻿using MediatR;
+﻿namespace StreamMasterApplication.VideoStreams.Queries;
 
-using Microsoft.Extensions.Caching.Memory;
+public record GetChannelLogoDtos : IRequest<List<ChannelLogoDto>>;
 
-using StreamMasterDomain.Dto;
-
-namespace StreamMasterApplication.VideoStreams.Queries;
-
-public record GetChannelLogoDtos : IRequest<IEnumerable<ChannelLogoDto>>;
-
-internal class GetChannelLogoDtosHandler : IRequestHandler<GetChannelLogoDtos, IEnumerable<ChannelLogoDto>>
+[LogExecutionTimeAspect]
+internal class GetChannelLogoDtosHandler(IMemoryCache memoryCache) : IRequestHandler<GetChannelLogoDtos, List<ChannelLogoDto>>
 {
-    private readonly IMemoryCache _memoryCache;
-
-    public GetChannelLogoDtosHandler(IMemoryCache memoryCache)
+    public async Task<List<ChannelLogoDto>> Handle(GetChannelLogoDtos request, CancellationToken cancellationToken)
     {
-        _memoryCache = memoryCache;
-    }
-
-    public async Task<IEnumerable<ChannelLogoDto>> Handle(GetChannelLogoDtos request, CancellationToken cancellationToken)
-    {
-        return await Task.FromResult(_memoryCache.ChannelLogos());
+        return await Task.FromResult(memoryCache.ChannelLogos());
     }
 }

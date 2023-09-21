@@ -1,7 +1,13 @@
-﻿namespace StreamMasterDomain.Dto;
+﻿using StreamMasterDomain.Attributes;
+using StreamMasterDomain.EPG;
+using StreamMasterDomain.Mappings;
 
-public class ProgrammeNameDto
+namespace StreamMasterDomain.Dto;
+
+[RequireAll]
+public class ProgrammeNameDto : IMapFrom<Programme>
 {
+    public string Id => ChannelName;
     public string Channel { get; set; }
     public string ChannelName { get; set; }
     public string DisplayName { get; set; }

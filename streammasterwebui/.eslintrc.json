@@ -1,8 +1,6 @@
 {
   "ignorePatterns": [
-    "iptvApi.ts",
-    "epg.tsx",
-    "channels.tsx"
+    "iptvApi.ts"
   ],
   "env": {
     "browser": true,
@@ -16,8 +14,7 @@
     "sourceType": "module"
   },
   "plugins": [
-    "canonical",
-    "eslint-plugin-canonical"
+    "canonical"
   ],
   "rules": {
     "canonical/filename-match-exported": 0,
@@ -42,7 +39,7 @@
       "asc",
       {
         "caseSensitive": false,
-        "natural": true
+        "natural": false
       }
     ],
     "padding-line-between-statements": [
@@ -114,12 +111,6 @@
         "forbid": []
       }
     ]
-    // "eslint-plugin-prettier/prettier": [
-    //   "error",
-    //   {
-    //     "endOfLine": "auto"
-    //   }
-    // ]
   },
   "overrides": [
     {
@@ -133,7 +124,7 @@
     },
     {
       "extends": [
-         "canonical/react",
+       "canonical/react",
         "canonical/typescript",
         "canonical/typescript-type-checking",
         "canonical/module",
@@ -143,7 +134,7 @@
       "parserOptions": {
         "project": [
           "./tsconfig.json"
-        ] // Specify it only for TypeScript files
+        ]
       },
       "rules": {
         "space-before-function-paren": 0,

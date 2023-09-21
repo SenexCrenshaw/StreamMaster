@@ -1,15 +1,14 @@
-import type * as StreamMasterApi from '../../store/iptvApi';
-import React from 'react';
-import StreamGroupDataSelector from '../../components/StreamGroupDataSelector';
-
-import { StreamGroupEditorIcon } from '../../common/icons';
-import PlayListDataSelectorPicker from '../../components/PlayListDataSelectorPicker';
-
-import { BlockUI } from 'primereact/blockui';
-import { useLocalStorage } from 'primereact/hooks';
+import { BlockUI } from "primereact/blockui";
+import { memo } from "react";
+import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
+import { StreamGroupEditorIcon } from "../../common/icons";
+import StreamGroupDataSelector from "./StreamGroupDataSelector";
+import StreamGroupSelectedVideoStreamDataSelector from "./StreamGroupSelectedVideoStreamDataSelector";
+import StreamGroupVideoStreamDataSelector from "./StreamGroupVideoStreamDataSelector";
 
 const StreamGroupEditor = () => {
-  const [selectedStreamGroup, setSelectedStreamGroup] = useLocalStorage<StreamMasterApi.StreamGroupDto | undefined>(undefined, 'streamgroupeditor-selectedstreamgroup');
+  const id = 'streamgroupeditor'
+  const { selectedStreamGroup } = useSelectedStreamGroup(id);
 
   return (
     <div className="streamGroupEditor">
@@ -22,28 +21,19 @@ const StreamGroupEditor = () => {
         <div className="flex col-12 mt-1 m-0 p-0" >
 
           <div className='col-3 m-0 p-0 pr-1' >
-            <StreamGroupDataSelector
-              id="streamgroupeditor-ds-source"
-              onSelectionChange={(e) => {
-                const sg = e as StreamMasterApi.StreamGroupDto;
-                if (sg.id !== undefined) {
-                  setSelectedStreamGroup(sg);
-                } else {
-                  setSelectedStreamGroup(undefined);
-                }
-
-              }}
-            />
+            <StreamGroupDataSelector id={id} />
           </div>
 
           <div className="col-9 m-0 p-0 pl-1">
-            <BlockUI blocked={selectedStreamGroup === undefined || selectedStreamGroup.id === undefined || selectedStreamGroup.id === 0}>
-              <PlayListDataSelectorPicker
-                enableState={false}
-                id='streamgroupeditor-ds-streams'
-                showHidden={false}
-                streamGroup={selectedStreamGroup}
-              />
+            <BlockUI blocked={selectedStreamGroup === undefined || selectedStreamGroup.id === undefined || selectedStreamGroup.id <= 1 || selectedStreamGroup.isReadOnly}>
+              <div className='grid grid-nogutter flex flex-wrap justify-content-between h-full col-12 p-0'>
+                <div className='col-6'>
+                  <StreamGroupVideoStreamDataSelector id={id} />
+                </div>
+                <div className='col-6'>
+                  <StreamGroupSelectedVideoStreamDataSelector id={id} />
+                </div>
+              </div>
             </BlockUI>
           </div>
 
@@ -54,4 +44,5 @@ const StreamGroupEditor = () => {
 };
 
 StreamGroupEditor.displayName = 'Stream Group Editor';
-export default React.memo(StreamGroupEditor);
+export default memo(StreamGroupEditor);
+

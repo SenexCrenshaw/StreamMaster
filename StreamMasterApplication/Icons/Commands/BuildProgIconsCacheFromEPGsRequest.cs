@@ -1,76 +1,80 @@
-﻿using AutoMapper;
+﻿using FluentValidation;
 
-using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using StreamMaster.SchedulesDirectAPI;
-
-using StreamMasterDomain.Dto;
-using StreamMasterDomain.Entities.EPG;
+using StreamMasterDomain.EPG;
 
 using System.Web;
+using System.Xml.Serialization;
 
 namespace StreamMasterApplication.Icons.Commands;
 
-public class BuildProgIconsCacheFromEPGsRequest : IRequest<bool>
+public class BuildProgIconsCacheFromEPGsRequest : IRequest<bool> { }
+
+public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCacheFromEPGsRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<BuildProgIconsCacheFromEPGsRequest, bool>
 {
-}
-
-public class BuildProgIconsCacheFromEPGsRequestHandler : IRequestHandler<BuildProgIconsCacheFromEPGsRequest, bool>
-{
-    private readonly IAppDbContext _context;
-
-    private readonly ILogger<BuildProgIconsCacheFromEPGsRequestHandler> _logger;
-    private readonly IMapper _mapper;
-    private readonly IMemoryCache _memoryCache;
-    private readonly ISender _sender;
-
-    public BuildProgIconsCacheFromEPGsRequestHandler(
-        ILogger<BuildProgIconsCacheFromEPGsRequestHandler> logger,
-        IMemoryCache memoryCache,
-          IMapper mapper,
-
-         IAppDbContext context, ISender sender)
-    {
-        _memoryCache = memoryCache;
-        _logger = logger;
-        _mapper = mapper;
-        _context = context;
-        _sender = sender;
-    }
-
     public async Task<bool> Handle(BuildProgIconsCacheFromEPGsRequest command, CancellationToken cancellationToken)
     {
-        var setting = FileUtil.GetSetting();
+        Setting setting = await GetSettingsAsync();
 
-        var epgFiles = _context.EPGFiles.ToList();
-        foreach (var epg in epgFiles)
+        int startId = MemoryCache.GetIcons(Mapper).Count;
+
+        List<EPGFileDto> epgFiles = await Repository.EPGFile.GetEPGFiles();
+        foreach (EPGFileDto epg in epgFiles)
         {
-            var tv = await epg.GetTV();
+            Tv? tv = await GetTV(epg.Source);
             if (tv == null)
             {
                 continue;
             }
 
-            var epgChannels = tv.Channel.Where(a => a != null && a.Icon != null && a.Icon.Src != null && a.Icon.Src != "");
+            IEnumerable<TvChannel> epgChannels = tv.Channel.Where(a => a != null && a.Icon != null && a.Icon.Src != null && a.Icon.Src != "");
 
             if (!epgChannels.Any()) { continue; }
 
-            await WorkOnEPGChannelIcons(epg.Id, epgChannels, cancellationToken).ConfigureAwait(false);
+            WorkOnEPGChannelIcons(epg.Id, startId, epgChannels, cancellationToken);
         }
 
-        await WorkOnProgrammeIcons(cancellationToken).ConfigureAwait(false);
+        await WorkOnProgrammeIcons(startId, cancellationToken).ConfigureAwait(false);
 
         return true;
     }
 
-    private async Task WorkOnEPGChannelIcons(int epgFileId, IEnumerable<TvChannel> channels, CancellationToken cancellationToken)
+    public async Task<Tv?> GetTV(string Source)
     {
-        foreach (var channel in channels)
+        try
+        {
+            string body = await FileUtil.GetFileData(Path.Combine(FileDefinitions.EPG.DirectoryLocation, Source)).ConfigureAwait(false);
+
+            return GetTVFromBody(body);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        return null;
+    }
+
+    public static Tv? GetTVFromBody(string body)
+    {
+        try
+        {
+            using StringReader reader = new(body);
+            XmlSerializer serializer = new(typeof(Tv));
+            object? result = serializer.Deserialize(reader);
+
+            return (Tv?)result;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        return null;
+    }
+
+    private void WorkOnEPGChannelIcons(int epgFileId, int startId, IEnumerable<TvChannel> channels, CancellationToken cancellationToken)
+    {
+        foreach (TvChannel? channel in channels)
         {
             if (channel is null || channel.Icon == null || string.IsNullOrEmpty(channel.Icon.Src) || channel.Displayname == null || channel.Displayname[0] == null || channel.Displayname[0] == "")
             {
@@ -78,39 +82,56 @@ public class BuildProgIconsCacheFromEPGsRequestHandler : IRequestHandler<BuildPr
             }
 
             if (cancellationToken.IsCancellationRequested) { return; }
-            var icon = channel.Icon.Src;
+            string icon = channel.Icon.Src;
             string source = HttpUtility.UrlDecode(icon);
 
             if (source.ToLower().StartsWith("https://json.schedulesdirect.org/20141201/image/"))
             {
-                var aaa = 1;
             }
             else
             {
                 string name = channel.Displayname != null ? channel.Displayname[0].ToString() : Path.GetFileNameWithoutExtension(source);
-                var iconDto =  IconHelper.AddIcon(source, name, epgFileId, _mapper, _memoryCache, FileDefinitions.ChannelIcon, cancellationToken);
+                IconFileDto? iconDto = IconHelper.AddIcon(source, name, epgFileId, startId++, MemoryCache, FileDefinitions.ChannelIcon, cancellationToken);
                 if (iconDto is null)
                 {
                     continue;
                 }
 
-                var channelLogos = _memoryCache.ChannelLogos();
+                List<ChannelLogoDto> channelLogos = MemoryCache.ChannelLogos();
                 if (!channelLogos.Any(a => a.LogoUrl == source))
                 {
-                    var cl = new ChannelLogoDto { LogoUrl = source, EPGId = channel.Id, EPGFileId = epgFileId };
+                    ChannelLogoDto cl = new()
+                    {
+                        Id = iconDto.Id,
+                        LogoUrl = source,
+                        EPGId = channel.Id,
+                        EPGFileId = epgFileId
+                    };
 
-                    _memoryCache.Add(cl);
+                    MemoryCache.Add(cl);
                 }
             }
         }
     }
 
-    private async Task WorkOnProgrammeIcons(CancellationToken cancellationToken)
+    private async Task WorkOnProgrammeIcons(int startId, CancellationToken cancellationToken)
     {
-        var sgs = await _context.GetStreamGroupDtos("", cancellationToken).ConfigureAwait(false);
-        var epgids = sgs.SelectMany(x => x.ChildVideoStreams.Select(a => a.User_Tvg_ID)).Distinct();
+        List<string> epgids = await Repository.StreamGroup
+        .GetStreamGroupQuery()
+        .Include(a => a.ChildVideoStreams)
+        .SelectMany(a => a.ChildVideoStreams)
+        .Select(a => a.ChildVideoStream.User_Tvg_ID)
+        .Distinct()
+        .AsNoTracking() // Only add this if you're using Entity Framework Core and you don't need to track the entities.
+        .ToListAsync(cancellationToken: cancellationToken)
+        .ConfigureAwait(false);
 
-        List<Programme> programmes = _memoryCache.Programmes()
+
+        //List<StreamGroupDto> sgs = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreamIds();
+
+        //IEnumerable<string> epgids = sgs.SelectMany(x => x.ChildVideoStreams.Select(a => a.User_Tvg_ID)).Distinct();
+
+        List<Programme> programmes = MemoryCache.Programmes()
                .Where(a =>
                a.Channel != null &&
                (
@@ -122,7 +143,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler : IRequestHandler<BuildPr
 
         if (!programmes.Any()) { return; }
 
-        foreach (var programme in programmes)
+        foreach (Programme? programme in programmes)
         {
             if (cancellationToken.IsCancellationRequested) { return; }
 
@@ -132,21 +153,26 @@ public class BuildProgIconsCacheFromEPGsRequestHandler : IRequestHandler<BuildPr
             }
 
             string source = HttpUtility.UrlDecode(programme.Icon[0].Src);
-            var ext = Path.GetExtension(source);
+            string? ext = Path.GetExtension(source);
             string name = string.Join("_", programme.Title.Text.Split(Path.GetInvalidFileNameChars())) + $".{ext}";
             string fileName = $"{FileDefinitions.ProgrammeIcon.DirectoryLocation}{name}";
+            bool result = true;
 
             if (source.ToLower().StartsWith("https://json.schedulesdirect.org/20141201/image/"))
             {
-                var sd = new SchedulesDirect();
-                source = source.ToLower().Replace("https://json.schedulesdirect.org/20141201/image/", "");
-                var result = await sd.GetImageUrl(source, fileName, cancellationToken).ConfigureAwait(false);
+                continue;
+                //SchedulesDirect sd = new();
+                //source = source.ToLower().Replace("https://json.schedulesdirect.org/20141201/image/", "");
+                //result = await sd.GetImageUrl(source, fileName, cancellationToken).ConfigureAwait(false);
             }
 
-            var iconDto =  IconHelper.AddIcon(source, programme.Title.Text, programme.EPGFileId, _mapper, _memoryCache, FileDefinitions.ProgrammeIcon, cancellationToken);
-            if (iconDto is null)
+            if (result)
             {
-                continue;
+                IconFileDto? iconDto = IconHelper.AddIcon(source, programme.Title.Text, programme.EPGFileId, startId, MemoryCache, FileDefinitions.ProgrammeIcon, cancellationToken);
+                if (iconDto is null)
+                {
+                    continue;
+                }
             }
         }
     }

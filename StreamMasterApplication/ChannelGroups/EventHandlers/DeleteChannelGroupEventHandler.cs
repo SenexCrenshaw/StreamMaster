@@ -1,22 +1,17 @@
-﻿using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-
-using StreamMasterApplication.Hubs;
+﻿using StreamMasterApplication.ChannelGroups.Events;
 
 namespace StreamMasterApplication.ChannelGroups.EventHandlers;
 
-public class DeleteChannelGroupEventHandler : INotificationHandler<DeleteChannelGroupEvent>
+public class DeleteChannelGroupEventHandler(ILogger<DeleteChannelGroupEvent> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), INotificationHandler<DeleteChannelGroupEvent>
 {
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
-
-    public DeleteChannelGroupEventHandler(IHubContext<StreamMasterHub, IStreamMasterHub> hubContext)
-    {
-        _hubContext = hubContext;
-    }
-
     public async Task Handle(DeleteChannelGroupEvent notification, CancellationToken cancellationToken)
     {
-        await _hubContext.Clients.All.ChannelGroupDtoDelete(notification.ChannelGroupId).ConfigureAwait(false);
+        await HubContext.Clients.All.ChannelGroupDelete(notification.ChannelGroupId).ConfigureAwait(false);
+        if (notification.VideoStreams.Any())
+        {
+            await HubContext.Clients.All.VideoStreamsRefresh(notification.VideoStreams.ToArray()).ConfigureAwait(false);
+        }
+
     }
 }

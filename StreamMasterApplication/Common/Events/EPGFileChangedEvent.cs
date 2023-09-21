@@ -4,10 +4,10 @@ namespace StreamMasterApplication.Common.Events;
 
 public class EPGFileChangedEvent : BaseEvent
 {
-    public EPGFileChangedEvent(EPGFilesDto epgFile)
+    public EPGFileChangedEvent(EPGFileDto epgFile)
     {
         EPGFile = epgFile;
     }
 
-    public EPGFilesDto EPGFile { get; }
+    public EPGFileDto EPGFile { get; }
 }

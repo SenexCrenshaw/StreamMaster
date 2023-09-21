@@ -12,13 +12,13 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
 
         private string _generatedContent;
 
-        protected HtmlMapperBase(ILogger logger)
-            : base(logger)
+        protected HtmlMapperBase(ILogger logger) : base(logger)
         {
         }
 
         protected override Stream GetContentStream(string filePath)
         {
+            HtmlPath = filePath;
             var text = GetHtmlText();
 
             var stream = new MemoryStream();

@@ -10,7 +10,10 @@ export const addTagTypes = [
   "Programmes",
   "SchedulesDirect",
   "Settings",
+  "StreamGroupChannelGroup",
   "StreamGroups",
+  "StreamGroupVideoStreams",
+  "VideoStreamLinks",
   "VideoStreams",
 ] as const;
 const injectedRtkApi = api
@@ -19,9 +22,9 @@ const injectedRtkApi = api
   })
   .injectEndpoints({
     endpoints: (build) => ({
-      channelGroupsAddChannelGroup: build.mutation<
-        ChannelGroupsAddChannelGroupApiResponse,
-        ChannelGroupsAddChannelGroupApiArg
+      channelGroupsCreateChannelGroup: build.mutation<
+        ChannelGroupsCreateChannelGroupApiResponse,
+        ChannelGroupsCreateChannelGroupApiArg
       >({
         query: (queryArg) => ({
           url: `/api/channelgroups`,
@@ -30,12 +33,16 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["ChannelGroups"],
       }),
-      channelGroupsGetChannelGroups: build.query<
-        ChannelGroupsGetChannelGroupsApiResponse,
-        ChannelGroupsGetChannelGroupsApiArg
+      channelGroupsDeleteAllChannelGroupsFromParameters: build.mutation<
+        ChannelGroupsDeleteAllChannelGroupsFromParametersApiResponse,
+        ChannelGroupsDeleteAllChannelGroupsFromParametersApiArg
       >({
-        query: () => ({ url: `/api/channelgroups` }),
-        providesTags: ["ChannelGroups"],
+        query: (queryArg) => ({
+          url: `/api/channelgroups/deleteallchannelgroupsfromparameters`,
+          method: "DELETE",
+          body: queryArg,
+        }),
+        invalidatesTags: ["ChannelGroups"],
       }),
       channelGroupsDeleteChannelGroup: build.mutation<
         ChannelGroupsDeleteChannelGroupApiResponse,
@@ -55,16 +62,28 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/channelgroups/${queryArg}` }),
         providesTags: ["ChannelGroups"],
       }),
-      channelGroupsSetChannelGroupsVisible: build.mutation<
-        ChannelGroupsSetChannelGroupsVisibleApiResponse,
-        ChannelGroupsSetChannelGroupsVisibleApiArg
+      channelGroupsGetChannelGroupIdNames: build.query<
+        ChannelGroupsGetChannelGroupIdNamesApiResponse,
+        ChannelGroupsGetChannelGroupIdNamesApiArg
+      >({
+        query: () => ({ url: `/api/channelgroups/getchannelgroupidnames` }),
+        providesTags: ["ChannelGroups"],
+      }),
+      channelGroupsGetPagedChannelGroups: build.query<
+        ChannelGroupsGetPagedChannelGroupsApiResponse,
+        ChannelGroupsGetPagedChannelGroupsApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/channelgroups/setchannelgroupsvisible`,
-          method: "PUT",
-          body: queryArg,
+          url: `/api/channelgroups/getpagedchannelgroups`,
+          params: {
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString,
+          },
         }),
-        invalidatesTags: ["ChannelGroups"],
+        providesTags: ["ChannelGroups"],
       }),
       channelGroupsUpdateChannelGroup: build.mutation<
         ChannelGroupsUpdateChannelGroupApiResponse,
@@ -72,18 +91,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/channelgroups/updatechannelgroup`,
-          method: "PUT",
-          body: queryArg,
-        }),
-        invalidatesTags: ["ChannelGroups"],
-      }),
-      channelGroupsUpdateChannelGroupOrder: build.mutation<
-        ChannelGroupsUpdateChannelGroupOrderApiResponse,
-        ChannelGroupsUpdateChannelGroupOrderApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/channelgroups/updatechannelgrouporder`,
-          method: "PUT",
+          method: "PATCH",
           body: queryArg,
         }),
         invalidatesTags: ["ChannelGroups"],
@@ -94,35 +102,45 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/channelgroups/updatechannelgroups`,
-          method: "PUT",
+          method: "PATCH",
           body: queryArg,
         }),
         invalidatesTags: ["ChannelGroups"],
       }),
-      epgFilesAddEpgFile: build.mutation<
-        EpgFilesAddEpgFileApiResponse,
-        EpgFilesAddEpgFileApiArg
+      channelGroupsGetChannelGroupNames: build.query<
+        ChannelGroupsGetChannelGroupNamesApiResponse,
+        ChannelGroupsGetChannelGroupNamesApiArg
+      >({
+        query: () => ({ url: `/api/channelgroups/getchannelgroupnames` }),
+        providesTags: ["ChannelGroups"],
+      }),
+      channelGroupsGetChannelGroupsForStreamGroup: build.query<
+        ChannelGroupsGetChannelGroupsForStreamGroupApiResponse,
+        ChannelGroupsGetChannelGroupsForStreamGroupApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/epgfiles`,
+          url: `/api/channelgroups/getchannelgroupsforstreamgroup`,
+          body: queryArg,
+        }),
+        providesTags: ["ChannelGroups"],
+      }),
+      epgFilesCreateEpgFile: build.mutation<
+        EpgFilesCreateEpgFileApiResponse,
+        EpgFilesCreateEpgFileApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/epgfiles/createepgfile`,
           method: "POST",
           body: queryArg,
         }),
         invalidatesTags: ["EPGFiles"],
       }),
-      epgFilesGetEpgFiles: build.query<
-        EpgFilesGetEpgFilesApiResponse,
-        EpgFilesGetEpgFilesApiArg
-      >({
-        query: () => ({ url: `/api/epgfiles` }),
-        providesTags: ["EPGFiles"],
-      }),
-      epgFilesAddEpgFileFromForm: build.mutation<
-        EpgFilesAddEpgFileFromFormApiResponse,
-        EpgFilesAddEpgFileFromFormApiArg
+      epgFilesCreateEpgFileFromForm: build.mutation<
+        EpgFilesCreateEpgFileFromFormApiResponse,
+        EpgFilesCreateEpgFileFromFormApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/epgfiles/addepgfilefromform`,
+          url: `/api/epgfiles/createepgfilefromform`,
           method: "POST",
           body: queryArg,
         }),
@@ -146,13 +164,29 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/epgfiles/${queryArg}` }),
         providesTags: ["EPGFiles"],
       }),
+      epgFilesGetPagedEpgFiles: build.query<
+        EpgFilesGetPagedEpgFilesApiResponse,
+        EpgFilesGetPagedEpgFilesApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/epgfiles`,
+          params: {
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString,
+          },
+        }),
+        providesTags: ["EPGFiles"],
+      }),
       epgFilesProcessEpgFile: build.mutation<
         EpgFilesProcessEpgFileApiResponse,
         EpgFilesProcessEpgFileApiArg
       >({
         query: (queryArg) => ({
           url: `/api/epgfiles/processepgfile`,
-          method: "PUT",
+          method: "PATCH",
           body: queryArg,
         }),
         invalidatesTags: ["EPGFiles"],
@@ -163,7 +197,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/epgfiles/refreshepgfile`,
-          method: "PUT",
+          method: "PATCH",
           body: queryArg,
         }),
         invalidatesTags: ["EPGFiles"],
@@ -174,7 +208,7 @@ const injectedRtkApi = api
       >({
         query: () => ({
           url: `/api/epgfiles/scandirectoryforepgfiles`,
-          method: "PUT",
+          method: "PATCH",
         }),
         invalidatesTags: ["EPGFiles"],
       }),
@@ -184,7 +218,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/epgfiles/updateepgfile`,
-          method: "PUT",
+          method: "PATCH",
           body: queryArg,
         }),
         invalidatesTags: ["EPGFiles"],
@@ -210,51 +244,78 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/icons/geticon/${queryArg}` }),
         providesTags: ["Icons"],
       }),
-      iconsGetIcons: build.query<IconsGetIconsApiResponse, IconsGetIconsApiArg>(
-        {
-          query: () => ({ url: `/api/icons/geticons` }),
-          providesTags: ["Icons"],
-        }
-      ),
-      iconsGetUrl: build.query<IconsGetUrlApiResponse, IconsGetUrlApiArg>({
-        query: () => ({ url: `/api/icons` }),
+      iconsGetIconFromSource: build.query<
+        IconsGetIconFromSourceApiResponse,
+        IconsGetIconFromSourceApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/icons/geticonfromsource`,
+          params: { value: queryArg },
+        }),
         providesTags: ["Icons"],
       }),
-      logsGetLogRequest: build.mutation<
-        LogsGetLogRequestApiResponse,
-        LogsGetLogRequestApiArg
+      iconsGetPagedIcons: build.query<
+        IconsGetPagedIconsApiResponse,
+        IconsGetPagedIconsApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/logs/getlogrequest`,
-          method: "POST",
-          body: queryArg,
+          url: `/api/icons`,
+          params: {
+            Count: queryArg.count,
+            First: queryArg.first,
+            Last: queryArg.last,
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString,
+          },
         }),
-        invalidatesTags: ["Logs"],
+        providesTags: ["Icons"],
       }),
-      m3UFilesAddM3UFile: build.mutation<
-        M3UFilesAddM3UFileApiResponse,
-        M3UFilesAddM3UFileApiArg
+      iconsGetIconsSimpleQuery: build.query<
+        IconsGetIconsSimpleQueryApiResponse,
+        IconsGetIconsSimpleQueryApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/m3ufiles`,
+          url: `/api/icons/geticonssimplequery`,
+          params: {
+            Count: queryArg.count,
+            First: queryArg.first,
+            Last: queryArg.last,
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString,
+          },
+        }),
+        providesTags: ["Icons"],
+      }),
+      logsGetLog: build.query<LogsGetLogApiResponse, LogsGetLogApiArg>({
+        query: (queryArg) => ({
+          url: `/api/logs/getlog`,
+          params: { LastId: queryArg.lastId, MaxLines: queryArg.maxLines },
+        }),
+        providesTags: ["Logs"],
+      }),
+      m3UFilesCreateM3UFile: build.mutation<
+        M3UFilesCreateM3UFileApiResponse,
+        M3UFilesCreateM3UFileApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/m3ufiles/createm3ufile`,
           method: "POST",
           body: queryArg,
         }),
         invalidatesTags: ["M3UFiles"],
       }),
-      m3UFilesGetM3UFiles: build.query<
-        M3UFilesGetM3UFilesApiResponse,
-        M3UFilesGetM3UFilesApiArg
-      >({
-        query: () => ({ url: `/api/m3ufiles` }),
-        providesTags: ["M3UFiles"],
-      }),
-      m3UFilesAddM3UFileFromForm: build.mutation<
-        M3UFilesAddM3UFileFromFormApiResponse,
-        M3UFilesAddM3UFileFromFormApiArg
+      m3UFilesCreateM3UFileFromForm: build.mutation<
+        M3UFilesCreateM3UFileFromFormApiResponse,
+        M3UFilesCreateM3UFileFromFormApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/m3ufiles/addm3ufilefromform`,
+          url: `/api/m3ufiles/createm3ufilefromform`,
           method: "POST",
           body: queryArg,
         }),
@@ -266,7 +327,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/m3ufiles/changem3ufilename`,
-          method: "PUT",
+          method: "PATCH",
           body: queryArg,
         }),
         invalidatesTags: ["M3UFiles"],
@@ -289,13 +350,29 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/m3ufiles/${queryArg}` }),
         providesTags: ["M3UFiles"],
       }),
+      m3UFilesGetPagedM3UFiles: build.query<
+        M3UFilesGetPagedM3UFilesApiResponse,
+        M3UFilesGetPagedM3UFilesApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/m3ufiles`,
+          params: {
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString,
+          },
+        }),
+        providesTags: ["M3UFiles"],
+      }),
       m3UFilesProcessM3UFile: build.mutation<
         M3UFilesProcessM3UFileApiResponse,
         M3UFilesProcessM3UFileApiArg
       >({
         query: (queryArg) => ({
           url: `/api/m3ufiles/processm3ufile`,
-          method: "PUT",
+          method: "PATCH",
           body: queryArg,
         }),
         invalidatesTags: ["M3UFiles"],
@@ -306,7 +383,7 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/m3ufiles/refreshm3ufile`,
-          method: "PUT",
+          method: "PATCH",
           body: queryArg,
         }),
         invalidatesTags: ["M3UFiles"],
@@ -317,7 +394,7 @@ const injectedRtkApi = api
       >({
         query: () => ({
           url: `/api/m3ufiles/scandirectoryform3ufiles`,
-          method: "PUT",
+          method: "PATCH",
         }),
         invalidatesTags: ["M3UFiles"],
       }),
@@ -327,10 +404,17 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/m3ufiles/updatem3ufile`,
-          method: "PUT",
+          method: "PATCH",
           body: queryArg,
         }),
         invalidatesTags: ["M3UFiles"],
+      }),
+      m3UFilesGetM3UFileNames: build.query<
+        M3UFilesGetM3UFileNamesApiResponse,
+        M3UFilesGetM3UFileNamesApiArg
+      >({
+        query: () => ({ url: `/api/m3ufiles/getm3ufilenames` }),
+        providesTags: ["M3UFiles"],
       }),
       miscBuildIconsCacheFromVideoStreams: build.mutation<
         MiscBuildIconsCacheFromVideoStreamsApiResponse,
@@ -338,17 +422,7 @@ const injectedRtkApi = api
       >({
         query: () => ({
           url: `/api/misc/buildiconscachefromvideostreams`,
-          method: "PUT",
-        }),
-        invalidatesTags: ["Misc"],
-      }),
-      miscReadDirectoryLogosRequest: build.mutation<
-        MiscReadDirectoryLogosRequestApiResponse,
-        MiscReadDirectoryLogosRequestApiArg
-      >({
-        query: () => ({
-          url: `/api/misc/readdirectorylogosrequest`,
-          method: "PUT",
+          method: "PATCH",
         }),
         invalidatesTags: ["Misc"],
       }),
@@ -358,7 +432,7 @@ const injectedRtkApi = api
       >({
         query: () => ({
           url: `/api/misc/buildprogiconscachefromepgsrequest`,
-          method: "PUT",
+          method: "PATCH",
         }),
         invalidatesTags: ["Misc"],
       }),
@@ -378,11 +452,23 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/programmes/getprogrammechannels` }),
         providesTags: ["Programmes"],
       }),
-      programmesGetProgrammeNames: build.query<
-        ProgrammesGetProgrammeNamesApiResponse,
-        ProgrammesGetProgrammeNamesApiArg
+      programmesGetPagedProgrammeNameSelections: build.query<
+        ProgrammesGetPagedProgrammeNameSelectionsApiResponse,
+        ProgrammesGetPagedProgrammeNameSelectionsApiArg
       >({
-        query: () => ({ url: `/api/programmes/getprogrammenames` }),
+        query: (queryArg) => ({
+          url: `/api/programmes/getpagedprogrammenameselections`,
+          params: {
+            Count: queryArg.count,
+            First: queryArg.first,
+            Last: queryArg.last,
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString,
+          },
+        }),
         providesTags: ["Programmes"],
       }),
       programmesGetProgrammes: build.query<
@@ -390,6 +476,42 @@ const injectedRtkApi = api
         ProgrammesGetProgrammesApiArg
       >({
         query: () => ({ url: `/api/programmes/getprogrammes` }),
+        providesTags: ["Programmes"],
+      }),
+      programmesGetProgrammeNames: build.query<
+        ProgrammesGetProgrammeNamesApiResponse,
+        ProgrammesGetProgrammeNamesApiArg
+      >({
+        query: () => ({ url: `/api/programmes/getprogrammenames` }),
+        providesTags: ["Programmes"],
+      }),
+      programmesGetProgrammsSimpleQuery: build.query<
+        ProgrammesGetProgrammsSimpleQueryApiResponse,
+        ProgrammesGetProgrammsSimpleQueryApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/programmes/getprogrammssimplequery`,
+          params: {
+            Count: queryArg.count,
+            First: queryArg.first,
+            Last: queryArg.last,
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString,
+          },
+        }),
+        providesTags: ["Programmes"],
+      }),
+      programmesGetProgrammeFromDisplayName: build.query<
+        ProgrammesGetProgrammeFromDisplayNameApiResponse,
+        ProgrammesGetProgrammeFromDisplayNameApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/programmes/getprogrammefromdisplayname`,
+          body: queryArg,
+        }),
         providesTags: ["Programmes"],
       }),
       schedulesDirectGetCountries: build.query<
@@ -482,7 +604,7 @@ const injectedRtkApi = api
         SettingsGetSettingApiResponse,
         SettingsGetSettingApiArg
       >({
-        query: () => ({ url: `/api/settings` }),
+        query: () => ({ url: `/api/settings/getsetting` }),
         providesTags: ["Settings"],
       }),
       settingsGetSystemStatus: build.query<
@@ -504,17 +626,38 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/settings/updatesetting`,
-          method: "PUT",
+          method: "PATCH",
           body: queryArg,
         }),
         invalidatesTags: ["Settings"],
       }),
-      streamGroupsAddStreamGroup: build.mutation<
-        StreamGroupsAddStreamGroupApiResponse,
-        StreamGroupsAddStreamGroupApiArg
+      streamGroupChannelGroupSyncStreamGroupChannelGroups: build.mutation<
+        StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiResponse,
+        StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/streamgroups/addstreamgroup`,
+          url: `/api/streamgroupchannelgroup/syncstreamgroupchannelgroups`,
+          method: "PATCH",
+          body: queryArg,
+        }),
+        invalidatesTags: ["StreamGroupChannelGroup"],
+      }),
+      streamGroupChannelGroupGetChannelGroupsFromStreamGroup: build.query<
+        StreamGroupChannelGroupGetChannelGroupsFromStreamGroupApiResponse,
+        StreamGroupChannelGroupGetChannelGroupsFromStreamGroupApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroupchannelgroup/getchannelgroupsfromstreamgroup`,
+          params: { StreamGroupId: queryArg },
+        }),
+        providesTags: ["StreamGroupChannelGroup"],
+      }),
+      streamGroupsCreateStreamGroup: build.mutation<
+        StreamGroupsCreateStreamGroupApiResponse,
+        StreamGroupsCreateStreamGroupApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroups/createstreamgroup`,
           method: "POST",
           body: queryArg,
         }),
@@ -537,15 +680,6 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/streamgroups/getstreamgroup/${queryArg}`,
-        }),
-        providesTags: ["StreamGroups"],
-      }),
-      streamGroupsGetStreamGroupByStreamNumber: build.query<
-        StreamGroupsGetStreamGroupByStreamNumberApiResponse,
-        StreamGroupsGetStreamGroupByStreamNumberApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/streamgroups/getstreamgroupbystreamnumber/${queryArg}`,
         }),
         providesTags: ["StreamGroups"],
       }),
@@ -624,11 +758,20 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/m3u.m3u` }),
         providesTags: ["StreamGroups"],
       }),
-      streamGroupsGetStreamGroups: build.query<
-        StreamGroupsGetStreamGroupsApiResponse,
-        StreamGroupsGetStreamGroupsApiArg
+      streamGroupsGetPagedStreamGroups: build.query<
+        StreamGroupsGetPagedStreamGroupsApiResponse,
+        StreamGroupsGetPagedStreamGroupsApiArg
       >({
-        query: () => ({ url: `/api/streamgroups/getstreamgroups` }),
+        query: (queryArg) => ({
+          url: `/api/streamgroups`,
+          params: {
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString,
+          },
+        }),
         providesTags: ["StreamGroups"],
       }),
       streamGroupsUpdateStreamGroup: build.mutation<
@@ -637,17 +780,125 @@ const injectedRtkApi = api
       >({
         query: (queryArg) => ({
           url: `/api/streamgroups/updatestreamgroup`,
-          method: "PUT",
+          method: "PATCH",
           body: queryArg,
         }),
         invalidatesTags: ["StreamGroups"],
       }),
-      videoStreamsAddVideoStream: build.mutation<
-        VideoStreamsAddVideoStreamApiResponse,
-        VideoStreamsAddVideoStreamApiArg
+      streamGroupVideoStreamsGetStreamGroupVideoStreamIds: build.query<
+        StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiResponse,
+        StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/videostreams/addvideostream`,
+          url: `/api/streamgroupvideostreams/getstreamgroupvideostreamids`,
+          params: { StreamGroupId: queryArg },
+        }),
+        providesTags: ["StreamGroupVideoStreams"],
+      }),
+      streamGroupVideoStreamsGetPagedStreamGroupVideoStreams: build.query<
+        StreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsApiResponse,
+        StreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroupvideostreams/getpagedstreamgroupvideostreams`,
+          params: {
+            StreamGroupId: queryArg.streamGroupId,
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString,
+          },
+        }),
+        providesTags: ["StreamGroupVideoStreams"],
+      }),
+      streamGroupVideoStreamsSetVideoStreamRanks: build.mutation<
+        StreamGroupVideoStreamsSetVideoStreamRanksApiResponse,
+        StreamGroupVideoStreamsSetVideoStreamRanksApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroupvideostreams/setvideostreamranks`,
+          method: "PATCH",
+          body: queryArg,
+        }),
+        invalidatesTags: ["StreamGroupVideoStreams"],
+      }),
+      streamGroupVideoStreamsSyncVideoStreamToStreamGroupPost: build.mutation<
+        StreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostApiResponse,
+        StreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroupvideostreams/syncvideostreamtostreamgroup`,
+          method: "POST",
+          body: queryArg,
+        }),
+        invalidatesTags: ["StreamGroupVideoStreams"],
+      }),
+      streamGroupVideoStreamsSyncVideoStreamToStreamGroupDelete: build.mutation<
+        StreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteApiResponse,
+        StreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/streamgroupvideostreams/syncvideostreamtostreamgroup`,
+          method: "DELETE",
+          body: queryArg,
+        }),
+        invalidatesTags: ["StreamGroupVideoStreams"],
+      }),
+      videoStreamLinksAddVideoStreamToVideoStream: build.mutation<
+        VideoStreamLinksAddVideoStreamToVideoStreamApiResponse,
+        VideoStreamLinksAddVideoStreamToVideoStreamApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreamlinks/addvideostreamtovideostream`,
+          method: "PATCH",
+          body: queryArg,
+        }),
+        invalidatesTags: ["VideoStreamLinks"],
+      }),
+      videoStreamLinksGetVideoStreamVideoStreamIds: build.query<
+        VideoStreamLinksGetVideoStreamVideoStreamIdsApiResponse,
+        VideoStreamLinksGetVideoStreamVideoStreamIdsApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreamlinks/getvideostreamvideostreamids`,
+          params: { videoStreamId: queryArg },
+        }),
+        providesTags: ["VideoStreamLinks"],
+      }),
+      videoStreamLinksGetPagedVideoStreamVideoStreams: build.query<
+        VideoStreamLinksGetPagedVideoStreamVideoStreamsApiResponse,
+        VideoStreamLinksGetPagedVideoStreamVideoStreamsApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreamlinks/getpagedvideostreamvideostreams`,
+          params: {
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString,
+          },
+        }),
+        providesTags: ["VideoStreamLinks"],
+      }),
+      videoStreamLinksRemoveVideoStreamFromVideoStream: build.mutation<
+        VideoStreamLinksRemoveVideoStreamFromVideoStreamApiResponse,
+        VideoStreamLinksRemoveVideoStreamFromVideoStreamApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreamlinks/removevideostreamfromvideostream`,
+          method: "PATCH",
+          body: queryArg,
+        }),
+        invalidatesTags: ["VideoStreamLinks"],
+      }),
+      videoStreamsCreateVideoStream: build.mutation<
+        VideoStreamsCreateVideoStreamApiResponse,
+        VideoStreamsCreateVideoStreamApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/createvideostream`,
           method: "POST",
           body: queryArg,
         }),
@@ -707,11 +958,20 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/videostreams/${queryArg}` }),
         providesTags: ["VideoStreams"],
       }),
-      videoStreamsGetVideoStreams: build.query<
-        VideoStreamsGetVideoStreamsApiResponse,
-        VideoStreamsGetVideoStreamsApiArg
+      videoStreamsGetPagedVideoStreams: build.query<
+        VideoStreamsGetPagedVideoStreamsApiResponse,
+        VideoStreamsGetPagedVideoStreamsApiArg
       >({
-        query: () => ({ url: `/api/videostreams` }),
+        query: (queryArg) => ({
+          url: `/api/videostreams`,
+          params: {
+            PageNumber: queryArg.pageNumber,
+            PageSize: queryArg.pageSize,
+            OrderBy: queryArg.orderBy,
+            JSONArgumentString: queryArg.jsonArgumentString,
+            JSONFiltersString: queryArg.jsonFiltersString,
+          },
+        }),
         providesTags: ["VideoStreams"],
       }),
       videoStreamsGetVideoStreamStream: build.query<
@@ -739,15 +999,16 @@ const injectedRtkApi = api
         }),
         providesTags: ["VideoStreams"],
       }),
-      videoStreamsReSetVideoStreamsLogo: build.query<
+      videoStreamsReSetVideoStreamsLogo: build.mutation<
         VideoStreamsReSetVideoStreamsLogoApiResponse,
         VideoStreamsReSetVideoStreamsLogoApiArg
       >({
         query: (queryArg) => ({
           url: `/api/videostreams/resetvideostreamslogo`,
+          method: "PATCH",
           body: queryArg,
         }),
-        providesTags: ["VideoStreams"],
+        invalidatesTags: ["VideoStreams"],
       }),
       videoStreamsSetVideoStreamChannelNumbers: build.mutation<
         VideoStreamsSetVideoStreamChannelNumbersApiResponse,
@@ -760,34 +1021,91 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["VideoStreams"],
       }),
-      videoStreamsSetVideoStreamSetEpGsFromName: build.mutation<
-        VideoStreamsSetVideoStreamSetEpGsFromNameApiResponse,
-        VideoStreamsSetVideoStreamSetEpGsFromNameApiArg
+      videoStreamsSetVideoStreamsLogoFromEpg: build.mutation<
+        VideoStreamsSetVideoStreamsLogoFromEpgApiResponse,
+        VideoStreamsSetVideoStreamsLogoFromEpgApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/videostreams/setvideostreamsetepgsfromname`,
+          url: `/api/videostreams/setvideostreamslogofromepg`,
           method: "PATCH",
           body: queryArg,
         }),
         invalidatesTags: ["VideoStreams"],
       }),
-      videoStreamsSetVideoStreamsLogoToEpg: build.query<
-        VideoStreamsSetVideoStreamsLogoToEpgApiResponse,
-        VideoStreamsSetVideoStreamsLogoToEpgApiArg
+      videoStreamsUpdateVideoStream: build.mutation<
+        VideoStreamsUpdateVideoStreamApiResponse,
+        VideoStreamsUpdateVideoStreamApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/videostreams/setvideostreamslogotoepg`,
+          url: `/api/videostreams/updatevideostream`,
+          method: "PATCH",
           body: queryArg,
         }),
-        providesTags: ["VideoStreams"],
+        invalidatesTags: ["VideoStreams"],
       }),
-      videoStreamsSimulateStreamFailure: build.mutation<
-        VideoStreamsSimulateStreamFailureApiResponse,
-        VideoStreamsSimulateStreamFailureApiArg
+      videoStreamsUpdateVideoStreams: build.mutation<
+        VideoStreamsUpdateVideoStreamsApiResponse,
+        VideoStreamsUpdateVideoStreamsApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/videostreams/simulatestreamfailure/${queryArg}`,
-          method: "POST",
+          url: `/api/videostreams/updatevideostreams`,
+          method: "PATCH",
+          body: queryArg,
+        }),
+        invalidatesTags: ["VideoStreams"],
+      }),
+      videoStreamsUpdateAllVideoStreamsFromParameters: build.mutation<
+        VideoStreamsUpdateAllVideoStreamsFromParametersApiResponse,
+        VideoStreamsUpdateAllVideoStreamsFromParametersApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/updateallvideostreamsfromparameters`,
+          method: "PATCH",
+          body: queryArg,
+        }),
+        invalidatesTags: ["VideoStreams"],
+      }),
+      videoStreamsDeleteAllVideoStreamsFromParameters: build.mutation<
+        VideoStreamsDeleteAllVideoStreamsFromParametersApiResponse,
+        VideoStreamsDeleteAllVideoStreamsFromParametersApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/deleteallvideostreamsfromparameters`,
+          method: "DELETE",
+          body: queryArg,
+        }),
+        invalidatesTags: ["VideoStreams"],
+      }),
+      videoStreamsSetVideoStreamChannelNumbersFromParameters: build.mutation<
+        VideoStreamsSetVideoStreamChannelNumbersFromParametersApiResponse,
+        VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/setvideostreamchannelnumbersfromparameters`,
+          method: "PATCH",
+          body: queryArg,
+        }),
+        invalidatesTags: ["VideoStreams"],
+      }),
+      videoStreamsSetVideoStreamsLogoFromEpgFromParameters: build.mutation<
+        VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiResponse,
+        VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/setvideostreamslogofromepgfromparameters`,
+          method: "PATCH",
+          body: queryArg,
+        }),
+        invalidatesTags: ["VideoStreams"],
+      }),
+      videoStreamsReSetVideoStreamsLogoFromParameters: build.mutation<
+        VideoStreamsReSetVideoStreamsLogoFromParametersApiResponse,
+        VideoStreamsReSetVideoStreamsLogoFromParametersApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/resetvideostreamslogofromparameters`,
+          method: "PATCH",
+          body: queryArg,
         }),
         invalidatesTags: ["VideoStreams"],
       }),
@@ -801,24 +1119,13 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["VideoStreams"],
       }),
-      videoStreamsUpdateVideoStream: build.mutation<
-        VideoStreamsUpdateVideoStreamApiResponse,
-        VideoStreamsUpdateVideoStreamApiArg
+      videoStreamsSimulateStreamFailure: build.mutation<
+        VideoStreamsSimulateStreamFailureApiResponse,
+        VideoStreamsSimulateStreamFailureApiArg
       >({
         query: (queryArg) => ({
-          url: `/api/videostreams/updatevideostream`,
-          method: "PUT",
-          body: queryArg,
-        }),
-        invalidatesTags: ["VideoStreams"],
-      }),
-      videoStreamsUpdateVideoStreams: build.mutation<
-        VideoStreamsUpdateVideoStreamsApiResponse,
-        VideoStreamsUpdateVideoStreamsApiArg
-      >({
-        query: (queryArg) => ({
-          url: `/api/videostreams/updatevideostreams`,
-          method: "PUT",
+          url: `/api/videostreams/simulatestreamfailure`,
+          method: "POST",
           body: queryArg,
         }),
         invalidatesTags: ["VideoStreams"],
@@ -827,115 +1134,149 @@ const injectedRtkApi = api
     overrideExisting: false,
   });
 export { injectedRtkApi as iptvApi };
-export type ChannelGroupsAddChannelGroupApiResponse = /** status 200  */
-  | undefined
-  | /** status 201  */ ChannelGroupDto;
-export type ChannelGroupsAddChannelGroupApiArg = AddChannelGroupRequest;
-export type ChannelGroupsGetChannelGroupsApiResponse =
-  /** status 200  */ ChannelGroupDto[];
-export type ChannelGroupsGetChannelGroupsApiArg = void;
-export type ChannelGroupsDeleteChannelGroupApiResponse =
-  /** status 200  */ undefined;
+export type ChannelGroupsCreateChannelGroupApiResponse = unknown;
+export type ChannelGroupsCreateChannelGroupApiArg = CreateChannelGroupRequest;
+export type ChannelGroupsDeleteAllChannelGroupsFromParametersApiResponse =
+  unknown;
+export type ChannelGroupsDeleteAllChannelGroupsFromParametersApiArg =
+  DeleteAllChannelGroupsFromParametersRequest;
+export type ChannelGroupsDeleteChannelGroupApiResponse = unknown;
 export type ChannelGroupsDeleteChannelGroupApiArg = DeleteChannelGroupRequest;
 export type ChannelGroupsGetChannelGroupApiResponse =
   /** status 200  */ ChannelGroupDto;
 export type ChannelGroupsGetChannelGroupApiArg = number;
-export type ChannelGroupsSetChannelGroupsVisibleApiResponse =
-  /** status 204  */ undefined;
-export type ChannelGroupsSetChannelGroupsVisibleApiArg =
-  SetChannelGroupsVisibleRequest;
-export type ChannelGroupsUpdateChannelGroupApiResponse =
-  /** status 204  */ undefined;
+export type ChannelGroupsGetChannelGroupIdNamesApiResponse =
+  /** status 200  */ ChannelGroupIdName[];
+export type ChannelGroupsGetChannelGroupIdNamesApiArg = void;
+export type ChannelGroupsGetPagedChannelGroupsApiResponse =
+  /** status 200  */ PagedResponseOfChannelGroupDto;
+export type ChannelGroupsGetPagedChannelGroupsApiArg = {
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type ChannelGroupsUpdateChannelGroupApiResponse = unknown;
 export type ChannelGroupsUpdateChannelGroupApiArg = UpdateChannelGroupRequest;
-export type ChannelGroupsUpdateChannelGroupOrderApiResponse =
-  /** status 204  */ undefined;
-export type ChannelGroupsUpdateChannelGroupOrderApiArg =
-  UpdateChannelGroupOrderRequest;
-export type ChannelGroupsUpdateChannelGroupsApiResponse =
-  /** status 204  */ undefined;
+export type ChannelGroupsUpdateChannelGroupsApiResponse = unknown;
 export type ChannelGroupsUpdateChannelGroupsApiArg = UpdateChannelGroupsRequest;
-export type EpgFilesAddEpgFileApiResponse = unknown;
-export type EpgFilesAddEpgFileApiArg = AddEpgFileRequest;
-export type EpgFilesGetEpgFilesApiResponse = /** status 200  */ EpgFilesDto[];
-export type EpgFilesGetEpgFilesApiArg = void;
-export type EpgFilesAddEpgFileFromFormApiResponse = /** status 200  */
-  | undefined
-  | /** status 201  */ EpgFilesDto;
-export type EpgFilesAddEpgFileFromFormApiArg = {
+export type ChannelGroupsGetChannelGroupNamesApiResponse =
+  /** status 200  */ string[];
+export type ChannelGroupsGetChannelGroupNamesApiArg = void;
+export type ChannelGroupsGetChannelGroupsForStreamGroupApiResponse =
+  /** status 200  */ ChannelGroupDto[];
+export type ChannelGroupsGetChannelGroupsForStreamGroupApiArg =
+  GetChannelGroupsForStreamGroupRequest;
+export type EpgFilesCreateEpgFileApiResponse = unknown;
+export type EpgFilesCreateEpgFileApiArg = CreateEpgFileRequest;
+export type EpgFilesCreateEpgFileFromFormApiResponse = unknown;
+export type EpgFilesCreateEpgFileFromFormApiArg = {
   Description?: string | null;
   EPGRank?: number;
   FormFile?: Blob | null;
   Name?: string;
   UrlSource?: string | null;
 };
-export type EpgFilesDeleteEpgFileApiResponse = /** status 200  */ undefined;
+export type EpgFilesDeleteEpgFileApiResponse = unknown;
 export type EpgFilesDeleteEpgFileApiArg = DeleteEpgFileRequest;
-export type EpgFilesGetEpgFileApiResponse = /** status 200  */ EpgFilesDto;
+export type EpgFilesGetEpgFileApiResponse = /** status 200  */ EpgFileDto;
 export type EpgFilesGetEpgFileApiArg = number;
-export type EpgFilesProcessEpgFileApiResponse = /** status 204  */ undefined;
+export type EpgFilesGetPagedEpgFilesApiResponse =
+  /** status 200  */ PagedResponseOfEpgFileDto;
+export type EpgFilesGetPagedEpgFilesApiArg = {
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type EpgFilesProcessEpgFileApiResponse = unknown;
 export type EpgFilesProcessEpgFileApiArg = ProcessEpgFileRequest;
-export type EpgFilesRefreshEpgFileApiResponse = /** status 204  */ undefined;
+export type EpgFilesRefreshEpgFileApiResponse = unknown;
 export type EpgFilesRefreshEpgFileApiArg = RefreshEpgFileRequest;
-export type EpgFilesScanDirectoryForEpgFilesApiResponse =
-  /** status 204  */ undefined;
+export type EpgFilesScanDirectoryForEpgFilesApiResponse = unknown;
 export type EpgFilesScanDirectoryForEpgFilesApiArg = void;
-export type EpgFilesUpdateEpgFileApiResponse = /** status 204  */ undefined;
+export type EpgFilesUpdateEpgFileApiResponse = unknown;
 export type EpgFilesUpdateEpgFileApiArg = UpdateEpgFileRequest;
 export type FilesGetFileApiResponse = unknown;
 export type FilesGetFileApiArg = {
   source: string;
   filetype: SmFileTypes;
 };
-export type IconsAutoMatchIconToStreamsApiResponse =
-  /** status 200  */ undefined;
+export type IconsAutoMatchIconToStreamsApiResponse = unknown;
 export type IconsAutoMatchIconToStreamsApiArg = AutoMatchIconToStreamsRequest;
 export type IconsGetIconApiResponse = /** status 200  */ IconFileDto;
 export type IconsGetIconApiArg = number;
-export type IconsGetIconsApiResponse = /** status 200  */ IconFileDto[];
-export type IconsGetIconsApiArg = void;
-export type IconsGetUrlApiResponse = /** status 200  */ string;
-export type IconsGetUrlApiArg = void;
-export type LogsGetLogRequestApiResponse = /** status 200  */ LogEntryDto[];
-export type LogsGetLogRequestApiArg = GetLog;
-export type M3UFilesAddM3UFileApiResponse = /** status 200  */
-  | undefined
-  | /** status 201  */ M3UFilesDto;
-export type M3UFilesAddM3UFileApiArg = AddM3UFileRequest;
-export type M3UFilesGetM3UFilesApiResponse = /** status 200  */ M3UFilesDto[];
-export type M3UFilesGetM3UFilesApiArg = void;
-export type M3UFilesAddM3UFileFromFormApiResponse = /** status 200  */
-  | undefined
-  | /** status 201  */ M3UFilesDto;
-export type M3UFilesAddM3UFileFromFormApiArg = {
+export type IconsGetIconFromSourceApiResponse = /** status 200  */ IconFileDto;
+export type IconsGetIconFromSourceApiArg = string;
+export type IconsGetPagedIconsApiResponse =
+  /** status 200  */ PagedResponseOfIconFileDto;
+export type IconsGetPagedIconsApiArg = {
+  count?: number;
+  first?: number;
+  last?: number;
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type IconsGetIconsSimpleQueryApiResponse =
+  /** status 200  */ IconFileDto[];
+export type IconsGetIconsSimpleQueryApiArg = {
+  count?: number;
+  first?: number;
+  last?: number;
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type LogsGetLogApiResponse = /** status 200  */ LogEntryDto[];
+export type LogsGetLogApiArg = {
+  lastId?: number;
+  maxLines?: number;
+};
+export type M3UFilesCreateM3UFileApiResponse = unknown;
+export type M3UFilesCreateM3UFileApiArg = CreateM3UFileRequest;
+export type M3UFilesCreateM3UFileFromFormApiResponse = unknown;
+export type M3UFilesCreateM3UFileFromFormApiArg = {
   Description?: string | null;
-  FormFile?: Blob | null;
   MaxStreamCount?: number;
-  MetaData?: string | null;
-  Name?: string;
   StartingChannelNumber?: number | null;
+  FormFile?: Blob | null;
+  Name?: string;
   UrlSource?: string | null;
 };
-export type M3UFilesChangeM3UFileNameApiResponse = /** status 204  */ undefined;
+export type M3UFilesChangeM3UFileNameApiResponse = unknown;
 export type M3UFilesChangeM3UFileNameApiArg = ChangeM3UFileNameRequest;
-export type M3UFilesDeleteM3UFileApiResponse = /** status 200  */ undefined;
+export type M3UFilesDeleteM3UFileApiResponse = unknown;
 export type M3UFilesDeleteM3UFileApiArg = DeleteM3UFileRequest;
-export type M3UFilesGetM3UFileApiResponse = /** status 200  */ M3UFilesDto;
+export type M3UFilesGetM3UFileApiResponse = /** status 200  */ M3UFileDto;
 export type M3UFilesGetM3UFileApiArg = number;
-export type M3UFilesProcessM3UFileApiResponse = /** status 204  */ undefined;
+export type M3UFilesGetPagedM3UFilesApiResponse =
+  /** status 200  */ PagedResponseOfM3UFileDto;
+export type M3UFilesGetPagedM3UFilesApiArg = {
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type M3UFilesProcessM3UFileApiResponse = unknown;
 export type M3UFilesProcessM3UFileApiArg = ProcessM3UFileRequest;
-export type M3UFilesRefreshM3UFileApiResponse = /** status 204  */ undefined;
+export type M3UFilesRefreshM3UFileApiResponse = unknown;
 export type M3UFilesRefreshM3UFileApiArg = RefreshM3UFileRequest;
-export type M3UFilesScanDirectoryForM3UFilesApiResponse =
-  /** status 204  */ undefined;
+export type M3UFilesScanDirectoryForM3UFilesApiResponse = unknown;
 export type M3UFilesScanDirectoryForM3UFilesApiArg = void;
-export type M3UFilesUpdateM3UFileApiResponse = /** status 204  */ undefined;
+export type M3UFilesUpdateM3UFileApiResponse = unknown;
 export type M3UFilesUpdateM3UFileApiArg = UpdateM3UFileRequest;
-export type MiscBuildIconsCacheFromVideoStreamsApiResponse =
-  /** status 204  */ undefined;
+export type M3UFilesGetM3UFileNamesApiResponse = /** status 200  */ string[];
+export type M3UFilesGetM3UFileNamesApiArg = void;
+export type MiscBuildIconsCacheFromVideoStreamsApiResponse = unknown;
 export type MiscBuildIconsCacheFromVideoStreamsApiArg = void;
-export type MiscReadDirectoryLogosRequestApiResponse =
-  /** status 204  */ undefined;
-export type MiscReadDirectoryLogosRequestApiArg = void;
 export type MiscBuildProgIconsCacheFromEpGsRequestApiResponse = unknown;
 export type MiscBuildProgIconsCacheFromEpGsRequestApiArg = void;
 export type ProgrammesGetProgrammeApiResponse = /** status 200  */ Programme[];
@@ -943,11 +1284,39 @@ export type ProgrammesGetProgrammeApiArg = string;
 export type ProgrammesGetProgrammeChannelsApiResponse =
   /** status 200  */ ProgrammeChannel[];
 export type ProgrammesGetProgrammeChannelsApiArg = void;
-export type ProgrammesGetProgrammeNamesApiResponse =
-  /** status 200  */ ProgrammeNameDto[];
-export type ProgrammesGetProgrammeNamesApiArg = void;
+export type ProgrammesGetPagedProgrammeNameSelectionsApiResponse =
+  /** status 200  */ PagedResponseOfProgrammeNameDto;
+export type ProgrammesGetPagedProgrammeNameSelectionsApiArg = {
+  count?: number;
+  first?: number;
+  last?: number;
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
 export type ProgrammesGetProgrammesApiResponse = /** status 200  */ Programme[];
 export type ProgrammesGetProgrammesApiArg = void;
+export type ProgrammesGetProgrammeNamesApiResponse =
+  /** status 200  */ string[];
+export type ProgrammesGetProgrammeNamesApiArg = void;
+export type ProgrammesGetProgrammsSimpleQueryApiResponse =
+  /** status 200  */ ProgrammeNameDto[];
+export type ProgrammesGetProgrammsSimpleQueryApiArg = {
+  count?: number;
+  first?: number;
+  last?: number;
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type ProgrammesGetProgrammeFromDisplayNameApiResponse =
+  /** status 200  */ ProgrammeNameDto;
+export type ProgrammesGetProgrammeFromDisplayNameApiArg =
+  GetProgrammeFromDisplayNameRequest;
 export type SchedulesDirectGetCountriesApiResponse =
   /** status 200  */ Countries;
 export type SchedulesDirectGetCountriesApiArg = void;
@@ -989,58 +1358,98 @@ export type SettingsGetSystemStatusApiResponse =
 export type SettingsGetSystemStatusApiArg = void;
 export type SettingsLogInApiResponse = /** status 200  */ boolean;
 export type SettingsLogInApiArg = LogInRequest;
-export type SettingsUpdateSettingApiResponse = /** status 200  */
-  | UpdateSettingResponse
-  | /** status 204  */ undefined;
+export type SettingsUpdateSettingApiResponse = unknown;
 export type SettingsUpdateSettingApiArg = UpdateSettingRequest;
-export type StreamGroupsAddStreamGroupApiResponse = /** status 200  */
-  | undefined
-  | /** status 201  */ StreamGroupDto;
-export type StreamGroupsAddStreamGroupApiArg = AddStreamGroupRequest;
-export type StreamGroupsDeleteStreamGroupApiResponse =
-  /** status 200  */ undefined;
+export type StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiResponse =
+  /** status 200  */ StreamGroupDto;
+export type StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiArg =
+  SyncStreamGroupChannelGroupsRequest;
+export type StreamGroupChannelGroupGetChannelGroupsFromStreamGroupApiResponse =
+  /** status 200  */ ChannelGroupDto[];
+export type StreamGroupChannelGroupGetChannelGroupsFromStreamGroupApiArg =
+  number;
+export type StreamGroupsCreateStreamGroupApiResponse = unknown;
+export type StreamGroupsCreateStreamGroupApiArg = CreateStreamGroupRequest;
+export type StreamGroupsDeleteStreamGroupApiResponse = unknown;
 export type StreamGroupsDeleteStreamGroupApiArg = DeleteStreamGroupRequest;
 export type StreamGroupsGetStreamGroupApiResponse =
   /** status 200  */ StreamGroupDto;
 export type StreamGroupsGetStreamGroupApiArg = number;
-export type StreamGroupsGetStreamGroupByStreamNumberApiResponse =
-  /** status 200  */ StreamGroupDto;
-export type StreamGroupsGetStreamGroupByStreamNumberApiArg = number;
-export type StreamGroupsGetStreamGroupCapabilityApiResponse =
-  /** status 200  */ string;
+export type StreamGroupsGetStreamGroupCapabilityApiResponse = unknown;
 export type StreamGroupsGetStreamGroupCapabilityApiArg = string;
-export type StreamGroupsGetStreamGroupCapability2ApiResponse =
-  /** status 200  */ string;
+export type StreamGroupsGetStreamGroupCapability2ApiResponse = unknown;
 export type StreamGroupsGetStreamGroupCapability2ApiArg = string;
-export type StreamGroupsGetStreamGroupCapability3ApiResponse =
-  /** status 200  */ string;
+export type StreamGroupsGetStreamGroupCapability3ApiResponse = unknown;
 export type StreamGroupsGetStreamGroupCapability3ApiArg = string;
-export type StreamGroupsGetStreamGroupDiscoverApiResponse =
-  /** status 200  */ string;
+export type StreamGroupsGetStreamGroupDiscoverApiResponse = unknown;
 export type StreamGroupsGetStreamGroupDiscoverApiArg = string;
-export type StreamGroupsGetStreamGroupEpgApiResponse =
-  /** status 200  */ string;
+export type StreamGroupsGetStreamGroupEpgApiResponse = unknown;
 export type StreamGroupsGetStreamGroupEpgApiArg = string;
 export type StreamGroupsGetStreamGroupEpgForGuideApiResponse =
   /** status 200  */ EpgGuide;
 export type StreamGroupsGetStreamGroupEpgForGuideApiArg = number;
-export type StreamGroupsGetStreamGroupLineUpApiResponse =
-  /** status 200  */ string;
+export type StreamGroupsGetStreamGroupLineUpApiResponse = unknown;
 export type StreamGroupsGetStreamGroupLineUpApiArg = string;
-export type StreamGroupsGetStreamGroupLineUpStatusApiResponse =
-  /** status 200  */ string;
+export type StreamGroupsGetStreamGroupLineUpStatusApiResponse = unknown;
 export type StreamGroupsGetStreamGroupLineUpStatusApiArg = string;
-export type StreamGroupsGetStreamGroupM3UApiResponse =
-  /** status 200  */ string;
+export type StreamGroupsGetStreamGroupM3UApiResponse = unknown;
 export type StreamGroupsGetStreamGroupM3UApiArg = string;
-export type StreamGroupsGetStreamGroupsApiResponse =
-  /** status 200  */ StreamGroupDto[];
-export type StreamGroupsGetStreamGroupsApiArg = void;
-export type StreamGroupsUpdateStreamGroupApiResponse =
-  /** status 204  */ undefined;
+export type StreamGroupsGetPagedStreamGroupsApiResponse =
+  /** status 200  */ PagedResponseOfStreamGroupDto;
+export type StreamGroupsGetPagedStreamGroupsApiArg = {
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type StreamGroupsUpdateStreamGroupApiResponse = unknown;
 export type StreamGroupsUpdateStreamGroupApiArg = UpdateStreamGroupRequest;
-export type VideoStreamsAddVideoStreamApiResponse = unknown;
-export type VideoStreamsAddVideoStreamApiArg = AddVideoStreamRequest;
+export type StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiResponse =
+  /** status 200  */ VideoStreamIsReadOnly[];
+export type StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiArg = number;
+export type StreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsApiResponse =
+  /** status 200  */ PagedResponseOfVideoStreamDto;
+export type StreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsApiArg = {
+  streamGroupId?: number;
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type StreamGroupVideoStreamsSetVideoStreamRanksApiResponse = unknown;
+export type StreamGroupVideoStreamsSetVideoStreamRanksApiArg =
+  SetVideoStreamRanksRequest;
+export type StreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostApiResponse =
+  unknown;
+export type StreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostApiArg =
+  SyncVideoStreamToStreamGroupRequest;
+export type StreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteApiResponse =
+  unknown;
+export type StreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteApiArg =
+  SyncVideoStreamToStreamGroupRequest;
+export type VideoStreamLinksAddVideoStreamToVideoStreamApiResponse = unknown;
+export type VideoStreamLinksAddVideoStreamToVideoStreamApiArg =
+  AddVideoStreamToVideoStreamRequest;
+export type VideoStreamLinksGetVideoStreamVideoStreamIdsApiResponse =
+  /** status 200  */ string[];
+export type VideoStreamLinksGetVideoStreamVideoStreamIdsApiArg = string;
+export type VideoStreamLinksGetPagedVideoStreamVideoStreamsApiResponse =
+  /** status 200  */ PagedResponseOfVideoStreamDto;
+export type VideoStreamLinksGetPagedVideoStreamVideoStreamsApiArg = {
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type VideoStreamLinksRemoveVideoStreamFromVideoStreamApiResponse =
+  unknown;
+export type VideoStreamLinksRemoveVideoStreamFromVideoStreamApiArg =
+  RemoveVideoStreamFromVideoStreamRequest;
+export type VideoStreamsCreateVideoStreamApiResponse = unknown;
+export type VideoStreamsCreateVideoStreamApiArg = CreateVideoStreamRequest;
 export type VideoStreamsChangeVideoStreamChannelApiResponse = unknown;
 export type VideoStreamsChangeVideoStreamChannelApiArg =
   ChangeVideoStreamChannelRequest;
@@ -1057,9 +1466,15 @@ export type VideoStreamsGetChannelLogoDtosApiArg = void;
 export type VideoStreamsGetVideoStreamApiResponse =
   /** status 200  */ VideoStreamDto;
 export type VideoStreamsGetVideoStreamApiArg = string;
-export type VideoStreamsGetVideoStreamsApiResponse =
-  /** status 200  */ VideoStreamDto[];
-export type VideoStreamsGetVideoStreamsApiArg = void;
+export type VideoStreamsGetPagedVideoStreamsApiResponse =
+  /** status 200  */ PagedResponseOfVideoStreamDto;
+export type VideoStreamsGetPagedVideoStreamsApiArg = {
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
 export type VideoStreamsGetVideoStreamStreamApiResponse = unknown;
 export type VideoStreamsGetVideoStreamStreamApiArg = string;
 export type VideoStreamsGetVideoStreamStream2ApiResponse = unknown;
@@ -1075,74 +1490,108 @@ export type VideoStreamsReSetVideoStreamsLogoApiArg =
 export type VideoStreamsSetVideoStreamChannelNumbersApiResponse = unknown;
 export type VideoStreamsSetVideoStreamChannelNumbersApiArg =
   SetVideoStreamChannelNumbersRequest;
-export type VideoStreamsSetVideoStreamSetEpGsFromNameApiResponse = unknown;
-export type VideoStreamsSetVideoStreamSetEpGsFromNameApiArg =
-  SetVideoStreamSetEpGsFromNameRequest;
-export type VideoStreamsSetVideoStreamsLogoToEpgApiResponse = unknown;
-export type VideoStreamsSetVideoStreamsLogoToEpgApiArg =
-  SetVideoStreamsLogoToEpgRequest;
-export type VideoStreamsSimulateStreamFailureApiResponse = unknown;
-export type VideoStreamsSimulateStreamFailureApiArg = string;
-export type VideoStreamsSimulateStreamFailureForAllApiResponse = unknown;
-export type VideoStreamsSimulateStreamFailureForAllApiArg = void;
+export type VideoStreamsSetVideoStreamsLogoFromEpgApiResponse = unknown;
+export type VideoStreamsSetVideoStreamsLogoFromEpgApiArg =
+  SetVideoStreamsLogoFromEpgRequest;
 export type VideoStreamsUpdateVideoStreamApiResponse = unknown;
 export type VideoStreamsUpdateVideoStreamApiArg = UpdateVideoStreamRequest;
 export type VideoStreamsUpdateVideoStreamsApiResponse = unknown;
 export type VideoStreamsUpdateVideoStreamsApiArg = UpdateVideoStreamsRequest;
-export type ChannelGroupArg = {
-  isHidden: boolean | null;
-  isReadOnly: boolean | null;
-  name: string;
-  rank: number;
-  regexMatch: string | null;
-};
-export type ChannelGroupDto = ChannelGroupArg & {
-  id: number;
-};
-export type ProblemDetails = {
-  type?: string | null;
-  title?: string | null;
-  status?: number | null;
-  detail?: string | null;
-  instance?: string | null;
-  [key: string]: any | null;
-};
-export type AddChannelGroupRequest = {
+export type VideoStreamsUpdateAllVideoStreamsFromParametersApiResponse =
+  unknown;
+export type VideoStreamsUpdateAllVideoStreamsFromParametersApiArg =
+  UpdateAllVideoStreamsFromParametersRequest;
+export type VideoStreamsDeleteAllVideoStreamsFromParametersApiResponse =
+  unknown;
+export type VideoStreamsDeleteAllVideoStreamsFromParametersApiArg =
+  DeleteAllVideoStreamsFromParametersRequest;
+export type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiResponse =
+  unknown;
+export type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg =
+  SetVideoStreamChannelNumbersFromParametersRequest;
+export type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiResponse =
+  unknown;
+export type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg =
+  SetVideoStreamsLogoFromEpgFromParametersRequest;
+export type VideoStreamsReSetVideoStreamsLogoFromParametersApiResponse =
+  unknown;
+export type VideoStreamsReSetVideoStreamsLogoFromParametersApiArg =
+  ReSetVideoStreamsLogoFromParametersRequest;
+export type VideoStreamsSimulateStreamFailureForAllApiResponse = unknown;
+export type VideoStreamsSimulateStreamFailureForAllApiArg = void;
+export type VideoStreamsSimulateStreamFailureApiResponse = unknown;
+export type VideoStreamsSimulateStreamFailureApiArg =
+  SimulateStreamFailureRequest;
+export type CreateChannelGroupRequest = {
   groupName: string;
-  rank: number;
-  regex: string | null;
+  isReadOnly: boolean;
+};
+export type QueryStringParameters = {
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  jsonArgumentString?: string | null;
+  jsonFiltersString?: string | null;
+};
+export type ChannelGroupParameters = QueryStringParameters & object;
+export type DeleteAllChannelGroupsFromParametersRequest = {
+  parameters?: ChannelGroupParameters;
 };
 export type DeleteChannelGroupRequest = {
-  groupName: string;
+  channelGroupId: number;
 };
-export type SetChannelGroupsVisibleArg = {
-  groupName?: string;
+export type ChannelGroupStreamCount = {
+  channelGroupId?: number;
+  activeCount?: number;
+  totalCount?: number;
+  hiddenCount?: number;
+};
+export type ChannelGroupArg = ChannelGroupStreamCount & {
   isHidden?: boolean;
+  isReadOnly?: boolean;
+  name: string;
 };
-export type SetChannelGroupsVisibleRequest = {
-  requests: SetChannelGroupsVisibleArg[];
+export type ChannelGroupDto = ChannelGroupArg & {
+  id?: number;
+};
+export type ChannelGroupIdName = {
+  id?: number;
+  totalCount?: number;
+  name?: string;
+};
+export type PagedResponseOfChannelGroupDto = {
+  data: ChannelGroupDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalPageCount: number;
+  totalItemCount: number;
+  first: number;
 };
 export type UpdateChannelGroupRequest = {
-  groupName: string;
-  newGroupName: string | null;
-  isHidden: boolean | null;
-  rank: number | null;
-  regex: string | null;
-};
-export type UpdateChannelGroupOrderRequest = {
-  channelGroups: ChannelGroupArg[] | null;
+  channelGroupId?: number;
+  newGroupName?: string | null;
+  isHidden?: boolean | null;
+  toggleVisibility?: boolean | null;
 };
 export type UpdateChannelGroupsRequest = {
   channelGroupRequests: UpdateChannelGroupRequest[];
 };
-export type AddEpgFileRequest = {
+export type GetChannelGroupsForStreamGroupRequest = {
+  streamGroupId?: number;
+};
+export type CreateEpgFileRequest = {
   description?: string | null;
   epgRank?: number;
   formFile?: Blob | null;
-  name: string;
+  name?: string;
   urlSource?: string | null;
 };
+export type DeleteEpgFileRequest = {
+  deleteFile?: boolean;
+  id?: number;
+};
 export type BaseFileDto = {
+  source: string;
   autoUpdate: boolean;
   description: string;
   downloadErrors: number;
@@ -1154,21 +1603,25 @@ export type BaseFileDto = {
   needsUpdate: boolean;
   url: string;
 };
-export type EpgFilesDto = BaseFileDto & {
+export type EpgFileDto = BaseFileDto & {
   channelCount?: number;
   epgStartDate?: string;
   epgStopDate?: string;
   programmeCount?: number;
 };
-export type DeleteEpgFileRequest = {
-  deleteFile?: boolean;
-  id?: number;
+export type PagedResponseOfEpgFileDto = {
+  data: EpgFileDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalPageCount: number;
+  totalItemCount: number;
+  first: number;
 };
 export type ProcessEpgFileRequest = {
-  epgFileId: number;
+  id?: number;
 };
 export type RefreshEpgFileRequest = {
-  epgFileID: number;
+  id: number;
 };
 export type BaseFileRequest = {
   autoUpdate?: boolean | null;
@@ -1191,31 +1644,29 @@ export type IconFileDto = {
   name: string;
   source: string;
 };
+export type PagedResponseOfIconFileDto = {
+  data: IconFileDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalPageCount: number;
+  totalItemCount: number;
+  first: number;
+};
 export type LogLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type LogEntry = {
-  id?: number;
-  logLevel?: LogLevel;
-  logLevelName?: string;
-  message?: string;
-  timeStamp?: string;
+  id: number;
+  logLevel: LogLevel;
+  logLevelName: string;
+  message: string;
+  timeStamp: string;
 };
 export type LogEntryDto = LogEntry & object;
-export type GetLog = {
-  lastId?: number;
-  maxLines?: number;
-};
-export type M3UFilesDto = BaseFileDto & {
-  startingChannelNumber?: number;
-  maxStreamCount?: number;
-  stationCount?: number;
-};
-export type AddM3UFileRequest = {
+export type CreateM3UFileRequest = {
   description?: string | null;
-  formFile?: Blob | null;
   maxStreamCount?: number;
-  metaData?: string | null;
-  name: string;
   startingChannelNumber?: number | null;
+  formFile?: Blob | null;
+  name?: string;
   urlSource?: string | null;
 };
 export type ChangeM3UFileNameRequest = {
@@ -1226,11 +1677,24 @@ export type DeleteM3UFileRequest = {
   deleteFile?: boolean;
   id?: number;
 };
+export type M3UFileDto = BaseFileDto & {
+  startingChannelNumber?: number;
+  maxStreamCount?: number;
+  stationCount?: number;
+};
+export type PagedResponseOfM3UFileDto = {
+  data: M3UFileDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalPageCount: number;
+  totalItemCount: number;
+  first: number;
+};
 export type ProcessM3UFileRequest = {
-  m3UFileId: number;
+  id?: number;
 };
 export type RefreshM3UFileRequest = {
-  m3UFileID: number;
+  id?: number;
 };
 export type UpdateM3UFileRequest = BaseFileRequest & {
   maxStreamCount?: number | null;
@@ -1317,9 +1781,21 @@ export type ProgrammeChannel = {
   startDateTime?: string;
 };
 export type ProgrammeNameDto = {
-  channel?: string;
-  channelName?: string;
-  displayName?: string;
+  id: string;
+  channel: string;
+  channelName: string;
+  displayName: string;
+};
+export type PagedResponseOfProgrammeNameDto = {
+  data: ProgrammeNameDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalPageCount: number;
+  totalItemCount: number;
+  first: number;
+};
+export type GetProgrammeFromDisplayNameRequest = {
+  value?: string;
 };
 export type NorthAmerica = {
   fullName?: string;
@@ -1386,11 +1862,7 @@ export type Logo = {
   width?: number;
   md5?: string;
 };
-export type StationLogo = {
-  URL?: string;
-  height?: number;
-  width?: number;
-  md5?: string;
+export type StationLogo = Logo & {
   source?: string;
   category?: string;
 };
@@ -1499,23 +1971,7 @@ export type TaskQueueStatusDto = {
   startTS?: string;
   stopTS?: string;
 };
-export type AuthenticationType = 0 | 2;
-export type StreamingProxyTypes = 0 | 1 | 2 | 3;
-export type Setting = {
-  adminPassword?: string;
-  adminUserName?: string;
-  apiKey?: string;
-  authenticationMethod?: AuthenticationType;
-  cacheIcons?: boolean;
-  cleanURLs?: boolean;
-  clientUserAgent?: string;
-  defaultIcon?: string;
-  deviceID?: string;
-  dummyRegex?: string;
-  enableSSL?: boolean;
-  epgAlwaysUseVideoStreamName?: boolean;
-  ffmPegExecutable?: string;
-  globalStreamLimit?: number;
+export type M3USettings = {
   m3UFieldChannelId?: boolean;
   m3UFieldChannelNumber?: boolean;
   m3UFieldCUID?: boolean;
@@ -1525,6 +1981,28 @@ export type Setting = {
   m3UFieldTvgLogo?: boolean;
   m3UFieldTvgName?: boolean;
   m3UIgnoreEmptyEPGID?: boolean;
+};
+export type AuthenticationType = 0 | 2;
+export type StreamingProxyTypes = 0 | 1 | 2 | 3;
+export type BaseSettings = M3USettings & {
+  adminPassword?: string;
+  adminUserName?: string;
+  defaultIcon?: string;
+  uiFolder?: string;
+  urlBase?: string;
+  logPerformance?: string[];
+  apiKey?: string;
+  authenticationMethod?: AuthenticationType;
+  cacheIcons?: boolean;
+  cleanURLs?: boolean;
+  clientUserAgent?: string;
+  deviceID?: string;
+  dummyRegex?: string;
+  ffMpegOptions?: string;
+  enableSSL?: boolean;
+  epgAlwaysUseVideoStreamName?: boolean;
+  ffmPegExecutable?: string;
+  globalStreamLimit?: number;
   maxConnectRetry?: number;
   maxConnectRetryTimeMS?: number;
   overWriteM3UChannels?: boolean;
@@ -1536,20 +2014,16 @@ export type Setting = {
   sdStationIds?: string[];
   nameRegex?: string[];
   sdUserName?: string;
-  serverKey?: string;
   sslCertPassword?: string;
   sslCertPath?: string;
   streamingClientUserAgent?: string;
   streamingProxyType?: StreamingProxyTypes;
-  streamMasterIcon?: string;
-  uiFolder?: string;
-  urlBase?: string;
   videoStreamAlwaysUseEPGLogo?: boolean;
 };
-export type SettingDto = Setting & {
-  defaultIconDto?: IconFileDto;
+export type SettingDto = BaseSettings & {
   release?: string;
   version?: string;
+  ffmpegDefaultOptions?: string;
 };
 export type SystemStatus = {
   isSystemReady?: boolean;
@@ -1557,10 +2031,6 @@ export type SystemStatus = {
 export type LogInRequest = {
   password?: string;
   userName?: string;
-};
-export type UpdateSettingResponse = {
-  needsLogOut?: boolean;
-  settings?: SettingDto;
 };
 export type UpdateSettingRequest = {
   adminPassword?: string | null;
@@ -1603,57 +2073,22 @@ export type UpdateSettingRequest = {
   videoStreamAlwaysUseEPGLogo?: boolean | null;
   nameRegex?: string[] | null;
 };
-export type VideoStreamHandlers = 0 | 1 | 2;
-export type BaseVideoStreamDto = {
-  id: string;
-  isActive: boolean;
-  isDeleted: boolean;
-  isHidden: boolean;
-  isReadOnly: boolean;
-  isUserCreated: boolean;
-  m3UFileId: number;
-  streamProxyType: StreamingProxyTypes;
-  tvg_chno: number;
-  tvg_group: string;
-  tvg_ID: string;
-  tvg_logo: string;
-  tvg_name: string;
-  url: string;
-  user_Tvg_chno: number;
-  user_Tvg_group: string;
-  user_Tvg_ID: string;
-  user_Tvg_ID_DisplayName: string;
-  user_Tvg_logo: string;
-  user_Tvg_name: string;
-  user_Url: string;
-  videoStreamHandler: VideoStreamHandlers;
-};
-export type ChildVideoStreamDto = BaseVideoStreamDto & {
-  maxStreams: number;
-  rank: number;
-};
-export type VideoStreamDto = BaseVideoStreamDto & {
-  childVideoStreams?: ChildVideoStreamDto[];
-};
 export type StreamGroupDto = {
-  channelGroups: ChannelGroupDto[];
-  childVideoStreams: VideoStreamDto[];
+  isLoading: boolean;
   hdhrLink: string;
+  isReadOnly: boolean;
+  streamCount: number;
   id: number;
   m3ULink: string;
   name: string;
-  streamGroupNumber: number;
   xmlLink: string;
 };
-export type VideoStreamIsReadOnly = {
-  isReadOnly?: boolean;
-  videoStreamId?: string;
+export type SyncStreamGroupChannelGroupsRequest = {
+  streamGroupId?: number;
+  channelGroupIds?: number[];
 };
-export type AddStreamGroupRequest = {
+export type CreateStreamGroupRequest = {
   name: string;
-  streamGroupNumber: number;
-  videoStreams: VideoStreamIsReadOnly[] | null;
-  channelGroupNames: string[] | null;
 };
 export type DeleteStreamGroupRequest = {
   id?: number;
@@ -1679,30 +2114,105 @@ export type EpgGuide = {
   programs: EpgProgram[];
   startDate: string;
 };
+export type PagedResponseOfStreamGroupDto = {
+  data: StreamGroupDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalPageCount: number;
+  totalItemCount: number;
+  first: number;
+};
 export type UpdateStreamGroupRequest = {
   streamGroupId?: number;
   name?: string | null;
-  streamGroupNumber?: number | null;
-  videoStreams?: VideoStreamIsReadOnly[] | null;
-  channelGroupNames?: string[] | null;
 };
-export type AddVideoStreamRequest = {
-  tvg_name?: string;
+export type VideoStreamIsReadOnly = {
+  rank?: number;
+  isReadOnly?: boolean;
+  videoStreamId?: string;
+};
+export type VideoStreamHandlers = 0 | 1 | 2;
+export type BaseVideoStreamDto = {
+  id: string;
+  isActive: boolean;
+  isDeleted: boolean;
+  isHidden: boolean;
+  isReadOnly: boolean;
+  isUserCreated: boolean;
+  m3UFileId: number;
+  m3UFileName: string;
+  streamProxyType: StreamingProxyTypes;
+  tvg_chno: number;
+  tvg_group: string;
+  tvg_ID: string;
+  tvg_logo: string;
+  tvg_name: string;
+  url: string;
+  user_Tvg_chno: number;
+  user_Tvg_group: string;
+  user_Tvg_ID: string;
+  user_Tvg_ID_DisplayName: string;
+  user_Tvg_logo: string;
+  user_Tvg_name: string;
+  user_Url: string;
+  videoStreamHandler: VideoStreamHandlers;
+};
+export type ChildVideoStreamDto = BaseVideoStreamDto & {
+  maxStreams: number;
+  rank: number;
+};
+export type VideoStreamDto = BaseVideoStreamDto & {
+  isLoading?: boolean;
+  channelGroupId?: number;
+  rank?: number;
+  childVideoStreams?: ChildVideoStreamDto[];
+};
+export type PagedResponseOfVideoStreamDto = {
+  data: VideoStreamDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalPageCount: number;
+  totalItemCount: number;
+  first: number;
+};
+export type VideoStreamIdRank = {
+  videoStreamId?: string;
+  rank?: number;
+};
+export type SetVideoStreamRanksRequest = {
+  streamGroupId: number;
+  videoStreamIDRanks: VideoStreamIdRank[];
+};
+export type SyncVideoStreamToStreamGroupRequest = {
+  streamGroupId: number;
+  videoStreamId: string;
+};
+export type AddVideoStreamToVideoStreamRequest = {
+  parentVideoStreamId: string;
+  childVideoStreamId: string;
+  rank: number | null;
+};
+export type RemoveVideoStreamFromVideoStreamRequest = {
+  parentVideoStreamId: string;
+  childVideoStreamId: string;
+};
+export type VideoStreamBaseRequest = {
+  toggleVisibility?: boolean | null;
   tvg_chno?: number | null;
   tvg_group?: string | null;
   tvg_ID?: string | null;
   tvg_logo?: string | null;
+  tvg_name?: string | null;
   url?: string | null;
-  iptvChannelHandler?: number | null;
-  createChannel?: boolean | null;
   childVideoStreams?: ChildVideoStreamDto[] | null;
 };
+export type CreateVideoStreamRequest = VideoStreamBaseRequest & object;
 export type ChangeVideoStreamChannelRequest = {
   playingVideoStreamId?: string;
   newVideoStreamId?: string;
 };
 export type DeleteVideoStreamRequest = {
-  videoStreamId?: string;
+  id?: string;
 };
 export type FailClientRequest = {
   clientId: string;
@@ -1730,6 +2240,7 @@ export type StreamStatisticsResult = {
   videoStreamName?: string;
 };
 export type ChannelLogoDto = {
+  id?: number;
   epgId?: string;
   epgFileId?: number;
   logoUrl?: string;
@@ -1737,55 +2248,62 @@ export type ChannelLogoDto = {
 export type ReSetVideoStreamsLogoRequest = {
   ids?: string[];
 };
-export type ChannelNumberPair = {
-  channelNumber: number;
-  id: string;
-};
 export type SetVideoStreamChannelNumbersRequest = {
-  channelNumberPairs: ChannelNumberPair[];
+  ids: string[];
+  overWriteExisting: boolean;
+  startNumber: number;
+  orderBy: string;
 };
-export type SetVideoStreamSetEpGsFromNameRequest = {
+export type SetVideoStreamsLogoFromEpgRequest = {
   ids?: string[];
+  orderBy?: string | null;
 };
-export type SetVideoStreamsLogoToEpgRequest = {
-  ids?: string[];
-};
-export type VideoStreamBaseUpdate = {
+export type UpdateVideoStreamRequest = VideoStreamBaseRequest & {
   id?: string;
-  tvg_chno?: number | null;
-  tvg_group?: string | null;
-  tvg_ID?: string | null;
-  tvg_logo?: string | null;
-  tvg_name?: string | null;
-  url?: string | null;
-};
-export type VideoStreamUpdate = VideoStreamBaseUpdate & {
-  childVideoStreams?: ChildVideoStreamDto[] | null;
-  isActive?: boolean | null;
-  isDeleted?: boolean | null;
-  isHidden?: boolean | null;
-  isReadOnly?: boolean | null;
-  isUserCreated?: boolean | null;
   streamProxyType?: StreamingProxyTypes | null;
 };
-export type UpdateVideoStreamRequest = VideoStreamUpdate & object;
 export type UpdateVideoStreamsRequest = {
   videoStreamUpdates?: UpdateVideoStreamRequest[];
 };
+export type VideoStreamParameters = QueryStringParameters & object;
+export type UpdateAllVideoStreamsFromParametersRequest = {
+  parameters?: VideoStreamParameters;
+  request?: UpdateVideoStreamRequest;
+  channelGroupIds?: number[] | null;
+};
+export type DeleteAllVideoStreamsFromParametersRequest = {
+  parameters?: VideoStreamParameters;
+};
+export type SetVideoStreamChannelNumbersFromParametersRequest = {
+  parameters?: VideoStreamParameters;
+  overWriteExisting?: boolean;
+  startNumber?: number;
+};
+export type SetVideoStreamsLogoFromEpgFromParametersRequest = {
+  parameters?: VideoStreamParameters;
+};
+export type ReSetVideoStreamsLogoFromParametersRequest = {
+  parameters?: VideoStreamParameters;
+};
+export type SimulateStreamFailureRequest = {
+  streamUrl: string;
+};
 export const {
-  useChannelGroupsAddChannelGroupMutation,
-  useChannelGroupsGetChannelGroupsQuery,
+  useChannelGroupsCreateChannelGroupMutation,
+  useChannelGroupsDeleteAllChannelGroupsFromParametersMutation,
   useChannelGroupsDeleteChannelGroupMutation,
   useChannelGroupsGetChannelGroupQuery,
-  useChannelGroupsSetChannelGroupsVisibleMutation,
+  useChannelGroupsGetChannelGroupIdNamesQuery,
+  useChannelGroupsGetPagedChannelGroupsQuery,
   useChannelGroupsUpdateChannelGroupMutation,
-  useChannelGroupsUpdateChannelGroupOrderMutation,
   useChannelGroupsUpdateChannelGroupsMutation,
-  useEpgFilesAddEpgFileMutation,
-  useEpgFilesGetEpgFilesQuery,
-  useEpgFilesAddEpgFileFromFormMutation,
+  useChannelGroupsGetChannelGroupNamesQuery,
+  useChannelGroupsGetChannelGroupsForStreamGroupQuery,
+  useEpgFilesCreateEpgFileMutation,
+  useEpgFilesCreateEpgFileFromFormMutation,
   useEpgFilesDeleteEpgFileMutation,
   useEpgFilesGetEpgFileQuery,
+  useEpgFilesGetPagedEpgFilesQuery,
   useEpgFilesProcessEpgFileMutation,
   useEpgFilesRefreshEpgFileMutation,
   useEpgFilesScanDirectoryForEpgFilesMutation,
@@ -1793,26 +2311,30 @@ export const {
   useFilesGetFileQuery,
   useIconsAutoMatchIconToStreamsMutation,
   useIconsGetIconQuery,
-  useIconsGetIconsQuery,
-  useIconsGetUrlQuery,
-  useLogsGetLogRequestMutation,
-  useM3UFilesAddM3UFileMutation,
-  useM3UFilesGetM3UFilesQuery,
-  useM3UFilesAddM3UFileFromFormMutation,
+  useIconsGetIconFromSourceQuery,
+  useIconsGetPagedIconsQuery,
+  useIconsGetIconsSimpleQueryQuery,
+  useLogsGetLogQuery,
+  useM3UFilesCreateM3UFileMutation,
+  useM3UFilesCreateM3UFileFromFormMutation,
   useM3UFilesChangeM3UFileNameMutation,
   useM3UFilesDeleteM3UFileMutation,
   useM3UFilesGetM3UFileQuery,
+  useM3UFilesGetPagedM3UFilesQuery,
   useM3UFilesProcessM3UFileMutation,
   useM3UFilesRefreshM3UFileMutation,
   useM3UFilesScanDirectoryForM3UFilesMutation,
   useM3UFilesUpdateM3UFileMutation,
+  useM3UFilesGetM3UFileNamesQuery,
   useMiscBuildIconsCacheFromVideoStreamsMutation,
-  useMiscReadDirectoryLogosRequestMutation,
   useMiscBuildProgIconsCacheFromEpGsRequestMutation,
   useProgrammesGetProgrammeQuery,
   useProgrammesGetProgrammeChannelsQuery,
-  useProgrammesGetProgrammeNamesQuery,
+  useProgrammesGetPagedProgrammeNameSelectionsQuery,
   useProgrammesGetProgrammesQuery,
+  useProgrammesGetProgrammeNamesQuery,
+  useProgrammesGetProgrammsSimpleQueryQuery,
+  useProgrammesGetProgrammeFromDisplayNameQuery,
   useSchedulesDirectGetCountriesQuery,
   useSchedulesDirectGetHeadendsQuery,
   useSchedulesDirectGetLineupQuery,
@@ -1828,10 +2350,11 @@ export const {
   useSettingsGetSystemStatusQuery,
   useSettingsLogInQuery,
   useSettingsUpdateSettingMutation,
-  useStreamGroupsAddStreamGroupMutation,
+  useStreamGroupChannelGroupSyncStreamGroupChannelGroupsMutation,
+  useStreamGroupChannelGroupGetChannelGroupsFromStreamGroupQuery,
+  useStreamGroupsCreateStreamGroupMutation,
   useStreamGroupsDeleteStreamGroupMutation,
   useStreamGroupsGetStreamGroupQuery,
-  useStreamGroupsGetStreamGroupByStreamNumberQuery,
   useStreamGroupsGetStreamGroupCapabilityQuery,
   useStreamGroupsGetStreamGroupCapability2Query,
   useStreamGroupsGetStreamGroupCapability3Query,
@@ -1841,25 +2364,38 @@ export const {
   useStreamGroupsGetStreamGroupLineUpQuery,
   useStreamGroupsGetStreamGroupLineUpStatusQuery,
   useStreamGroupsGetStreamGroupM3UQuery,
-  useStreamGroupsGetStreamGroupsQuery,
+  useStreamGroupsGetPagedStreamGroupsQuery,
   useStreamGroupsUpdateStreamGroupMutation,
-  useVideoStreamsAddVideoStreamMutation,
+  useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery,
+  useStreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsQuery,
+  useStreamGroupVideoStreamsSetVideoStreamRanksMutation,
+  useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostMutation,
+  useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteMutation,
+  useVideoStreamLinksAddVideoStreamToVideoStreamMutation,
+  useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery,
+  useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery,
+  useVideoStreamLinksRemoveVideoStreamFromVideoStreamMutation,
+  useVideoStreamsCreateVideoStreamMutation,
   useVideoStreamsChangeVideoStreamChannelMutation,
   useVideoStreamsDeleteVideoStreamMutation,
   useVideoStreamsFailClientMutation,
   useVideoStreamsGetAllStatisticsForAllUrlsQuery,
   useVideoStreamsGetChannelLogoDtosQuery,
   useVideoStreamsGetVideoStreamQuery,
-  useVideoStreamsGetVideoStreamsQuery,
+  useVideoStreamsGetPagedVideoStreamsQuery,
   useVideoStreamsGetVideoStreamStreamQuery,
   useVideoStreamsGetVideoStreamStream2Query,
   useVideoStreamsGetVideoStreamStream3Query,
-  useVideoStreamsReSetVideoStreamsLogoQuery,
+  useVideoStreamsReSetVideoStreamsLogoMutation,
   useVideoStreamsSetVideoStreamChannelNumbersMutation,
-  useVideoStreamsSetVideoStreamSetEpGsFromNameMutation,
-  useVideoStreamsSetVideoStreamsLogoToEpgQuery,
-  useVideoStreamsSimulateStreamFailureMutation,
-  useVideoStreamsSimulateStreamFailureForAllMutation,
+  useVideoStreamsSetVideoStreamsLogoFromEpgMutation,
   useVideoStreamsUpdateVideoStreamMutation,
   useVideoStreamsUpdateVideoStreamsMutation,
+  useVideoStreamsUpdateAllVideoStreamsFromParametersMutation,
+  useVideoStreamsDeleteAllVideoStreamsFromParametersMutation,
+  useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation,
+  useVideoStreamsSetVideoStreamsLogoFromEpgFromParametersMutation,
+  useVideoStreamsReSetVideoStreamsLogoFromParametersMutation,
+  useVideoStreamsSimulateStreamFailureForAllMutation,
+  useVideoStreamsSimulateStreamFailureMutation,
 } = injectedRtkApi;

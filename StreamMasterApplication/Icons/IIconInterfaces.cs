@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterApplication.Icons.Commands;
+using StreamMasterApplication.Icons.Queries;
 
-using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Icons;
 
@@ -11,8 +12,9 @@ public interface IIconController
     Task<ActionResult> AutoMatchIconToStreams(AutoMatchIconToStreamsRequest request);
 
     Task<ActionResult<IconFileDto>> GetIcon(int Id);
-
-    Task<ActionResult<IEnumerable<IconFileDto>>> GetIcons();
+    Task<ActionResult<IconFileDto>> GetIconFromSource(GetIconFromSourceRequest request);
+    Task<ActionResult<PagedResponse<IconFileDto>>> GetPagedIcons(IconFileParameters iconFileParameters);
+    Task<ActionResult<IEnumerable<IconFileDto>>> GetIconsSimpleQuery(IconFileParameters iconFileParameters);
 }
 
 public interface IIconDB
@@ -22,10 +24,10 @@ public interface IIconDB
 public interface IIconHub
 {
     Task AutoMatchIconToStreams(AutoMatchIconToStreamsRequest request);
-
+    Task<IconFileDto?> GetIconFromSource(GetIconFromSourceRequest request);
     Task<IconFileDto?> GetIcon(int Id);
-
-    Task<IEnumerable<IconFileDto>> GetIcons();
+    Task<PagedResponse<IconFileDto>> GetPagedIcons(IconFileParameters iconFileParameters);
+    Task<IEnumerable<IconFileDto>> GetIconsSimpleQuery(IconFileParameters iconFileParameters);
 }
 
 public interface IIconScoped

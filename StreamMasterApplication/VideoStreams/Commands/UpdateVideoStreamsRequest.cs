@@ -1,18 +1,13 @@
-﻿using AutoMapper;
-
-using FluentValidation;
+﻿using FluentValidation;
 
 using MediatR;
 
+using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
-using StreamMasterDomain.Dto;
+using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
-
-public record UpdateVideoStreamsRequest(IEnumerable<UpdateVideoStreamRequest> VideoStreamUpdates) : IRequest<IEnumerable<VideoStreamDto>>
-{
-}
 
 public class UpdateVideoStreamsRequestValidator : AbstractValidator<UpdateVideoStreamsRequest>
 {
@@ -22,44 +17,22 @@ public class UpdateVideoStreamsRequestValidator : AbstractValidator<UpdateVideoS
     }
 }
 
-public class UpdateVideoStreamsRequestHandler : IRequestHandler<UpdateVideoStreamsRequest, IEnumerable<VideoStreamDto>>
+[LogExecutionTimeAspect]
+public class UpdateVideoStreamsRequestHandler(ILogger<UpdateVideoStreamsRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateVideoStreamsRequest, List<VideoStreamDto>>
 {
-    private readonly IAppDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IPublisher _publisher;
-    private readonly ISender _sender;
-
-    public UpdateVideoStreamsRequestHandler(
-        IMapper mapper,
-        ISender sender,
-        IPublisher publisher,
-        IAppDbContext context
-        )
+    public async Task<List<VideoStreamDto>> Handle(UpdateVideoStreamsRequest requests, CancellationToken cancellationToken)
     {
-        _sender = sender;
-        _publisher = publisher;
-        _mapper = mapper;
-        _context = context;
-    }
-
-    public async Task<IEnumerable<VideoStreamDto>> Handle(UpdateVideoStreamsRequest requests, CancellationToken cancellationToken)
-    {
-        List<VideoStreamDto> results = new();
-
-        foreach (var request in requests.VideoStreamUpdates)
+        (List<VideoStreamDto> videoStreams, List<ChannelGroupDto>? updatedChannelGroups) = await Repository.VideoStream.UpdateVideoStreamsAsync(requests.VideoStreamUpdates, cancellationToken);
+        if (videoStreams.Any())
         {
-            var ret = await _context.UpdateVideoStreamAsync(request, cancellationToken).ConfigureAwait(false);
-            if (ret is not null)
+            await Publisher.Publish(new UpdateVideoStreamsEvent(videoStreams), cancellationToken).ConfigureAwait(false);
+            if (updatedChannelGroups.Any())
             {
-                results.Add(ret);
+                updatedChannelGroups= await Sender.Send(new UpdateChannelGroupCountsRequest(updatedChannelGroups), cancellationToken).ConfigureAwait(false);
+                await HubContext.Clients.All.ChannelGroupsRefresh(updatedChannelGroups.ToArray()).ConfigureAwait(false);
             }
         }
 
-        if (results.Any())
-        {
-            await _publisher.Publish(new UpdateVideoStreamsEvent(results), cancellationToken).ConfigureAwait(false);
-        }
-
-        return results;
+        return videoStreams;
     }
 }

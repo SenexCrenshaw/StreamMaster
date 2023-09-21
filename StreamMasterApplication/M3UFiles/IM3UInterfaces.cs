@@ -1,25 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.M3UFiles.Commands;
 
-using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
+
+
 
 namespace StreamMasterApplication.M3UFiles;
 
 public interface IM3UFileController
 {
-    Task<ActionResult> AddM3UFile(AddM3UFileRequest request);
+    Task<ActionResult<List<string>>> GetM3UFileNames();
+    Task<ActionResult> CreateM3UFile(CreateM3UFileRequest request);
 
-    Task<ActionResult> AddM3UFileFromForm([FromForm] AddM3UFileRequest request);
+    Task<ActionResult> CreateM3UFileFromForm([FromForm] CreateM3UFileRequest request);
 
     Task<ActionResult> ChangeM3UFileName(ChangeM3UFileNameRequest request);
 
     Task<ActionResult> DeleteM3UFile(DeleteM3UFileRequest request);
 
-    Task<ActionResult<M3UFilesDto>> GetM3UFile(int id);
+    Task<ActionResult<M3UFileDto>> GetM3UFile(int id);
 
-    Task<ActionResult<IEnumerable<M3UFilesDto>>> GetM3UFiles();
+    Task<ActionResult<PagedResponse<M3UFileDto>>> GetPagedM3UFiles(M3UFileParameters Parameters);
 
     Task<ActionResult> ProcessM3UFile(ProcessM3UFileRequest request);
 
@@ -32,20 +34,20 @@ public interface IM3UFileController
 
 public interface IM3UFileDB
 {
-    DbSet<M3UFile> M3UFiles { get; set; }
 }
 
 public interface IM3UFileHub
 {
-    Task AddM3UFile(AddM3UFileRequest request);
+    Task<List<string>> GetM3UFileNames();
+    Task CreateM3UFile(CreateM3UFileRequest request);
 
     Task ChangeM3UFileName(ChangeM3UFileNameRequest request);
 
     Task DeleteM3UFile(DeleteM3UFileRequest request);
 
-    Task<M3UFilesDto?> GetM3UFile(int id);
+    Task<M3UFileDto?> GetM3UFile(int id);
 
-    Task<IEnumerable<M3UFilesDto>> GetM3UFiles();
+    Task<PagedResponse<M3UFileDto>> GetPagedM3UFiles(M3UFileParameters Parameters);
 
     Task ProcessM3UFile(ProcessM3UFileRequest request);
 
@@ -58,7 +60,7 @@ public interface IM3UFileHub
 
 public interface IM3UFileTasks
 {
-    ValueTask ProcessM3UFile(int M3UFileId, bool immediate = false, CancellationToken cancellationToken = default);
+    ValueTask ProcessM3UFile(int Id, bool immediate = false, CancellationToken cancellationToken = default);
 
     ValueTask ProcessM3UFiles(CancellationToken cancellationToken = default);
 

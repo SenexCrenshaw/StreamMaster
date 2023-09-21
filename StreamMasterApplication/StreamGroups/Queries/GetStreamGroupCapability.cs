@@ -1,12 +1,6 @@
-﻿using FluentValidation;
-
-using MediatR;
-
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 
 using StreamMasterApplication.Common.Models;
-
-using StreamMasterDomain.Attributes;
 
 using System.Xml.Serialization;
 
@@ -15,46 +9,24 @@ using static StreamMasterDomain.Common.GetStreamGroupEPGHandler;
 namespace StreamMasterApplication.StreamGroups.Queries;
 
 [RequireAll]
-public record GetStreamGroupCapability(int StreamGroupNumber) : IRequest<string>;
+public record GetStreamGroupCapability(int StreamGroupId) : IRequest<string>;
 
-public class GetStreamGroupCapabilityValidator : AbstractValidator<GetStreamGroupCapability>
+[LogExecutionTimeAspect]
+public class GetStreamGroupCapabilityHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupCapability> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupCapability, string>
 {
-    public GetStreamGroupCapabilityValidator()
-    {
-        _ = RuleFor(v => v.StreamGroupNumber)
-            .NotNull().GreaterThanOrEqualTo(0);
-    }
-}
-
-public class GetStreamGroupCapabilityHandler : IRequestHandler<GetStreamGroupCapability, string>
-{
-    private readonly IAppDbContext _context;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public GetStreamGroupCapabilityHandler(
-        IHttpContextAccessor httpContextAccessor,
-        IAppDbContext context
-    )
-    {
-        _httpContextAccessor = httpContextAccessor;
-        _context = context;
-    }
-
     public async Task<string> Handle(GetStreamGroupCapability request, CancellationToken cancellationToken)
     {
-        var url = GetUrl();
-
-        if (request.StreamGroupNumber > 0)
+        if (request.StreamGroupId > 1)
         {
-            var streamGroup = await _context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
-            if (streamGroup == null)
+            bool streamGroup = await Repository.StreamGroup.GetStreamGroupById(request.StreamGroupId).ConfigureAwait(false) != null;
+            if (!streamGroup)
             {
                 return "";
             }
         }
-        var settings = FileUtil.GetSetting();
+        Setting setting = await GetSettingsAsync();
 
-        Capability capability = new(url, $"{settings.DeviceID}-{request.StreamGroupNumber}");
+        Capability capability = new(GetUrl(), $"{setting.DeviceID}-{request.StreamGroupId}");
 
         using Utf8StringWriter textWriter = new();
         XmlSerializer serializer = new(typeof(Capability));
@@ -65,13 +37,13 @@ public class GetStreamGroupCapabilityHandler : IRequestHandler<GetStreamGroupCap
 
     private string GetUrl()
     {
-        var request = _httpContextAccessor.HttpContext.Request;
-        var scheme = request.Scheme;
-        var host = request.Host;
-        var path = request.Path;
+        HttpRequest request = httpContextAccessor.HttpContext.Request;
+        string scheme = request.Scheme;
+        HostString host = request.Host;
+        PathString path = request.Path;
         path = path.ToString().Replace("/capability", "");
         path = path.ToString().Replace("/device.xml", "");
-        var url = $"{scheme}://{host}{path}";
+        string url = $"{scheme}://{host}{path}";
 
         return url;
     }

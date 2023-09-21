@@ -3,7 +3,6 @@
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 
-using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 
 using System.Collections.Concurrent;
@@ -24,17 +23,19 @@ public class CircularRingBuffer : ICircularRingBuffer
     private readonly StreamingStatistics _inputStreamStatistics = new("Unknown");
     private readonly ILogger<CircularRingBuffer> _logger;
     private int _oldestDataIndex;
-    private float _preBuffPercent;
+    private readonly float _preBuffPercent;
     private int _writeIndex;
 
-    public CircularRingBuffer(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank, ILogger<CircularRingBuffer> logger)
+    public CircularRingBuffer(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank, int PreloadPercentage, int RingBufferSizeMB, ILogger<CircularRingBuffer> logger)
     {
         _logger = logger;
-        if (setting.PreloadPercentage < 0 || setting.PreloadPercentage > 100)
-            setting.PreloadPercentage = 0;
+        if (PreloadPercentage < 0 || PreloadPercentage > 100)
+        {
+            PreloadPercentage = 0;
+        }
 
-        _bufferSize = setting.RingBufferSizeMB * 1024 * 1000;
-        _preBuffPercent = setting.PreloadPercentage;
+        _bufferSize = RingBufferSizeMB * 1024 * 1000;
+        _preBuffPercent = PreloadPercentage;
 
         StreamInfo = new StreamInfo
         {
@@ -56,7 +57,6 @@ public class CircularRingBuffer : ICircularRingBuffer
     public int BufferSize => _buffer.Length;
     public string VideoStreamId => StreamInfo.VideoStreamId;
     private bool isPreBuffered { get; set; } = false;
-    private Setting setting => FileUtil.GetSetting();
 
     public List<ClientStreamingStatistics> GetAllStatistics()
     {

@@ -1,43 +1,46 @@
 
-import React from 'react';
-import { formatJSONDateString, getTopToolOptions } from '../../common/common';
-import { Toast } from 'primereact/toast';
-import { type FailClientRequest } from '../../store/iptvApi';
-import { type StreamStatisticsResult } from '../../store/iptvApi';
-import DataSelector from '../dataSelector/DataSelector';
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
-import { Button } from 'primereact/button';
-import * as Hub from "../../store/signlar_functions";
+import { Button } from "primereact/button";
+import { Toast } from "primereact/toast";
+import { memo, useCallback, useMemo, useRef, type CSSProperties } from "react";
+import { formatJSONDateString, getTopToolOptions } from "../../common/common";
+import DataSelector from "../../components/dataSelector/DataSelector";
+import { type ColumnMeta } from "../../components/dataSelector/DataSelectorTypes";
+
+import { FailClient } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
+import { type FailClientRequest, type StreamStatisticsResult } from "../../store/iptvApi";
+
 
 const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
-  const toast = React.useRef<Toast>(null);
-  const clientBitsPerSecondTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
+  const toast = useRef<Toast>(null);
+  const clientBitsPerSecondTemplate = useCallback((rowData: StreamStatisticsResult) => {
     if (rowData.clientBitsPerSecond === undefined) return <div />;
 
     const kbps = rowData.clientBitsPerSecond / 1000;
     const roundedKbps = Math.ceil(kbps);
+
     return (<div>{roundedKbps.toLocaleString('en-US')}</div >);
   }, []);
 
 
 
-  const clientStartTimeTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
+  const clientStartTimeTemplate = useCallback((rowData: StreamStatisticsResult) => {
     return (<div>{formatJSONDateString(rowData.clientStartTime ?? '')}</div>);
   }, []);
 
-  const clientElapsedTimeTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
+  const clientElapsedTimeTemplate = useCallback((rowData: StreamStatisticsResult) => {
     return (<div>{rowData.clientElapsedTime?.split('.')[0]}</div >);
   }, []);
 
-  const onFailClient = React.useCallback(async (rowData: StreamStatisticsResult) => {
+  const onFailClient = useCallback(async (rowData: StreamStatisticsResult) => {
     if (!rowData.clientId || rowData.clientId === undefined || rowData.clientId === '') {
       return;
     }
 
     var toSend = {} as FailClientRequest;
+
     toSend.clientId = rowData.clientId;
 
-    await Hub.FailClient(toSend)
+    await FailClient(toSend)
       .then(() => {
         if (toast.current) {
           toast.current.show({
@@ -60,7 +63,7 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
 
   }, []);
 
-  const targetActionBodyTemplate = React.useCallback((rowData: StreamStatisticsResult) => {
+  const targetActionBodyTemplate = useCallback((rowData: StreamStatisticsResult) => {
 
     return (
       <div className="dataselector p-inputgroup align-items-center justify-content-end">
@@ -76,14 +79,14 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
     );
   }, [onFailClient]);
 
-  const sourceColumns = React.useMemo((): ColumnMeta[] => {
+  const sourceColumns = useMemo((): ColumnMeta[] => {
     return [
 
       {
         field: 'clientAgent', header: 'Client/User Agent', style: {
           maxWidth: '14rem',
           width: '14rem',
-        } as React.CSSProperties,
+        } as CSSProperties,
       },
       { field: 'm3UStreamName', header: 'Name' },
 
@@ -91,26 +94,26 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
         align: 'center', bodyTemplate: clientStartTimeTemplate, field: 'clientStartTime', header: 'Client Start', style: {
           maxWidth: '10rem',
           width: '10rem',
-        } as React.CSSProperties,
+        } as CSSProperties,
       },
       {
         align: 'center', bodyTemplate: clientElapsedTimeTemplate, field: 'clientElapsedTime', header: 'Client Elapsed', style: {
           maxWidth: '10rem',
           width: '10rem',
-        } as React.CSSProperties,
+        } as CSSProperties,
       },
       {
         align: 'center', bodyTemplate: clientBitsPerSecondTemplate, field: 'clientBitsPerSecond', header: 'Client kbps', style: {
           maxWidth: '10rem',
           width: '10rem',
-        } as React.CSSProperties,
+        } as CSSProperties,
       },
       {
         align: 'center', bodyTemplate: targetActionBodyTemplate, field: 'Actions',
         style: {
           maxWidth: '8rem',
           width: '8rem',
-        } as React.CSSProperties,
+        } as CSSProperties,
       },
     ]
   }, [clientBitsPerSecondTemplate, clientElapsedTimeTemplate, clientStartTimeTemplate, targetActionBodyTemplate]);
@@ -124,11 +127,13 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
           columns={sourceColumns}
           dataSource={props.dataSource}
           emptyMessage="No Clients Streaming"
-          enableState={false}
-          globalSearchEnabled={false}
+
+
           id='StreamingServerStatusPanel'
           isLoading={props.isLoading}
+          selectedItemsKey='selectSelectedItems'
           style={props.style}
+
         />
       </div>
     </>
@@ -139,9 +144,9 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
 StreamingClientsPanel.displayName = 'Streaming Clients Panel';
 StreamingClientsPanel.defaultProps = {};
 type StreamingClientsPanelProps = {
-  className?: string;
-  dataSource: StreamStatisticsResult[];
-  isLoading: boolean;
-  style?: React.CSSProperties;
+  readonly className?: string;
+  readonly dataSource: StreamStatisticsResult[];
+  readonly isLoading: boolean;
+  readonly style?: CSSProperties;
 }
-export default React.memo(StreamingClientsPanel);
+export default memo(StreamingClientsPanel);

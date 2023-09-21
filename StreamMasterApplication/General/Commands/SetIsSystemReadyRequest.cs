@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterApplication.Hubs;
+using StreamMasterDomain.Cache;
 
 namespace StreamMasterApplication.General.Commands;
 

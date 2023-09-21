@@ -1,48 +1,32 @@
 ﻿using FluentValidation;
 
-using MediatR;
-
 using StreamMasterApplication.VideoStreams.Events;
 
 namespace StreamMasterApplication.VideoStreams.Commands;
 
-public record DeleteVideoStreamRequest(string VideoStreamId) : IRequest<string?>
-{
-}
+public record DeleteVideoStreamRequest(string Id) : IRequest<bool> { }
 
 public class DeleteVideoStreamRequestValidator : AbstractValidator<DeleteVideoStreamRequest>
 {
     public DeleteVideoStreamRequestValidator()
     {
-        _ = RuleFor(v => v.VideoStreamId).NotNull().NotEmpty();
+        _ = RuleFor(v => v.Id).NotNull().NotEmpty();
     }
 }
 
-public class DeleteVideoStreamRequestHandler : IRequestHandler<DeleteVideoStreamRequest, string?>
+[LogExecutionTimeAspect]
+public class DeleteVideoStreamRequestHandler(ILogger<DeleteVideoStreamRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<DeleteVideoStreamRequest, bool>
 {
-    private readonly IAppDbContext _context;
-
-    private readonly IPublisher _publisher;
-
-    public DeleteVideoStreamRequestHandler(
-
-         IPublisher publisher,
-        IAppDbContext context
-        )
+    public async Task<bool> Handle(DeleteVideoStreamRequest request, CancellationToken cancellationToken)
     {
-        _publisher = publisher;
-
-        _context = context;
-    }
-
-    public async Task<string?> Handle(DeleteVideoStreamRequest request, CancellationToken cancellationToken)
-    {
-        if (await _context.DeleteVideoStreamAsync(request.VideoStreamId, cancellationToken))
+        VideoStreamDto? stream = await Repository.VideoStream.DeleteVideoStreamById(request.Id, cancellationToken).ConfigureAwait(false);
+        await Repository.SaveAsync().ConfigureAwait(false);
+        if (stream != null)
         {
-            await _publisher.Publish(new DeleteVideoStreamEvent(request.VideoStreamId), cancellationToken).ConfigureAwait(false);
-            return request.VideoStreamId;
+            await Publisher.Publish(new DeleteVideoStreamEvent(stream.Id), cancellationToken).ConfigureAwait(false);
+            return true;
         }
 
-        return null;
+        return false;
     }
 }

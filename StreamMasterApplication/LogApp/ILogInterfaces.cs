@@ -4,12 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using StreamMasterApplication.LogApp.Queries;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.LogApp;
 
 public interface ILogController
 {
-    Task<ActionResult<IEnumerable<LogEntryDto>>> GetLogRequest(GetLog request);
+    Task<ActionResult<IEnumerable<LogEntryDto>>> GetLog(GetLogRequest request);
 }
 
 public interface ILogDB
@@ -19,7 +20,7 @@ public interface ILogDB
 
 public interface ILogHub
 {
-    Task<IEnumerable<LogEntryDto>> GetLogRequest(GetLog request);
+    Task<IEnumerable<LogEntryDto>> GetLog(GetLogRequest request);
 }
 
 public interface ILogTasks

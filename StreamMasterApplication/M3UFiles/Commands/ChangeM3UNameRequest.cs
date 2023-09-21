@@ -1,18 +1,8 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
-
-using StreamMasterDomain.Dto;
+﻿using FluentValidation;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
 
-public class ChangeM3UFileNameRequest : IRequest<M3UFilesDto?>
-{
-    public int Id { get; init; }
-    public string Name { get; set; } = string.Empty;
-}
+public record ChangeM3UFileNameRequest(int Id, string Name) : IRequest<M3UFileDto?> { }
 
 public class ChangeM3UFileNameRequestValidator : AbstractValidator<ChangeM3UFileNameRequest>
 {
@@ -25,32 +15,11 @@ public class ChangeM3UFileNameRequestValidator : AbstractValidator<ChangeM3UFile
     }
 }
 
-public class ChangeM3UFileNameRequestHandler : IRequestHandler<ChangeM3UFileNameRequest, M3UFilesDto?>
+public class ChangeM3UFileNameRequestHandler(ILogger<ChangeM3UFileNameRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<ChangeM3UFileNameRequest, M3UFileDto?>
 {
-    private readonly IAppDbContext _context;
-    private readonly IMapper _mapper;
-
-    public ChangeM3UFileNameRequestHandler(
-    IMapper mapper,
-        IAppDbContext context)
+    public async Task<M3UFileDto?> Handle(ChangeM3UFileNameRequest request, CancellationToken cancellationToken)
     {
-        _mapper = mapper;
-        _context = context;
-    }
+        return await Repository.M3UFile.ChangeM3UFileName(request.Id, request.Name).ConfigureAwait(false);
 
-    public async Task<M3UFilesDto?> Handle(ChangeM3UFileNameRequest request, CancellationToken cancellationToken)
-    {
-        M3UFile? m3UFile = await _context.M3UFiles.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken).ConfigureAwait(false);
-        if (m3UFile == null)
-        {
-            return null;
-        }
-
-        m3UFile.Name = request.Name;
-        M3UFilesDto ret = _mapper.Map<M3UFilesDto>(m3UFile);
-        m3UFile.AddDomainEvent(new M3UFileChangedEvent(ret));
-        _ = await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-
-        return ret;
     }
 }

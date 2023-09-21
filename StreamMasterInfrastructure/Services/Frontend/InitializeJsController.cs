@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Dto;
+using StreamMasterDomain.Services;
 
 using System.Text;
 
@@ -11,39 +11,28 @@ namespace StreamMasterInfrastructure.Services.Frontend
     [ApiExplorerSettings(IgnoreApi = true)]
     [Authorize(Policy = "UI")]
     [ApiController]
-    public class InitializeJsController : Controller
+    public class InitializeJsController(ISettingsService settingsService) : Controller
     {
-        private static string _apiKey;
-        private static string _urlBase;
-
-        public InitializeJsController()
-        {
-            var setting = FileUtil.GetSetting();
-            _apiKey = setting.ApiKey;
-            _urlBase = setting.UrlBase;
-        }
-
         [HttpGet("/initialize.js")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return Content(GetContent(), "application/javascript");
+            return Content(await GetContent(), "application/javascript");
         }
 
-        private string GetContent()
+        private async Task<string> GetContent()
         {
-            var settingDto = new SettingDto();
-
-            var builder = new StringBuilder();
+            Setting setting = await settingsService.GetSettingsAsync();
+            StringBuilder builder = new();
             builder.AppendLine("window.StreamMaster = {");
-            builder.AppendLine($"  apiKey: '{_apiKey}',");
-            builder.AppendLine($"  apiRoot: '{_urlBase}/api/',");
-            builder.AppendLine($"  baseHostURL: '{_urlBase}',");
+            builder.AppendLine($"  apiKey: '{setting.ApiKey}',");
+            builder.AppendLine($"  apiRoot: '{setting.UrlBase}/api/',");
+            builder.AppendLine($"  baseHostURL: '{setting.UrlBase}',");
             builder.AppendLine($"  isDebug: {BuildInfo.IsDebug.ToString().ToLower()},");
-            builder.AppendLine($"  urlBase: '{_urlBase}',");
+            builder.AppendLine($"  urlBase: '{setting.UrlBase}',");
             builder.AppendLine($"  version: '{BuildInfo.Version.ToString()}',");
             builder.AppendLine("};");
 
-            return builder.ToString(); ;
+            return builder.ToString();
         }
     }
 }

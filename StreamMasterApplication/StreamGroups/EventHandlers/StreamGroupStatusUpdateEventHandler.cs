@@ -1,28 +1,12 @@
-﻿using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-
-using StreamMasterApplication.Hubs;
+﻿using StreamMasterApplication.StreamGroups.Events;
 
 namespace StreamMasterApplication.StreamGroups.EventHandlers;
 
-public class StreamGroupStatusUpdateEventHandler : INotificationHandler<StreamGroupStatusUpdateEvent>
+public class StreamGroupStatusUpdateEventHandler(ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext) : INotificationHandler<StreamGroupStatusUpdateEvent>
 {
-    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hubContext;
-    private readonly ISender _sender;
-
-    public StreamGroupStatusUpdateEventHandler(
-        ISender sender,
-         IHubContext<StreamMasterHub, IStreamMasterHub> hubContext
-        )
-    {
-        _sender = sender;
-        _hubContext = hubContext;
-    }
-
     public void Handle(StreamGroupStatusUpdateEvent notification, CancellationToken cancellationToken)
     {
-        //var status = await _sender.Send(new GetStreamingStatus()).ConfigureAwait(false);
+
         //await _hubContext.Clients.All.StreamingStatusDtoUpdate(status).ConfigureAwait(false);
     }
 

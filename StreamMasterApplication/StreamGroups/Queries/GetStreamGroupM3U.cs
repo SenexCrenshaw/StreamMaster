@@ -1,69 +1,40 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-
-using FluentValidation;
-
-using MediatR;
+﻿using FluentValidation;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.Common.Extensions;
-using StreamMasterApplication.Icons.Queries;
 
-using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
-using StreamMasterDomain.Dto;
 
 using System.Collections.Concurrent;
 using System.Net;
-using System.Text.RegularExpressions;
+using System.Text;
 using System.Web;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
 [RequireAll]
-public record GetStreamGroupM3U(int StreamGroupNumber) : IRequest<string>;
+public record GetStreamGroupM3U(int StreamGroupId) : IRequest<string>;
 
 public class GetStreamGroupM3UValidator : AbstractValidator<GetStreamGroupM3U>
 {
     public GetStreamGroupM3UValidator()
     {
-        _ = RuleFor(v => v.StreamGroupNumber)
+        _ = RuleFor(v => v.StreamGroupId)
             .NotNull().GreaterThanOrEqualTo(0);
     }
 }
 
-public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, string>
+
+public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupM3U> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupM3U, string>
 {
-    private readonly IAppDbContext _context;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IMapper _mapper;
-    private readonly ISender _sender;
-    private readonly Setting _setting;
-
-    public GetStreamGroupM3UHandler(
-        IMapper mapper,
-        IHttpContextAccessor httpContextAccessor,
-        ISender sender,
-        IAppDbContext context
-    )
+    public string GetIconUrl(string iconOriginalSource, Setting setting)
     {
-        _httpContextAccessor = httpContextAccessor;
-        _setting = FileUtil.GetSetting();
-
-        _mapper = mapper;
-        _context = context;
-        _sender = sender;
-    }
-
-    public string GetIconUrl(string iconOriginalSource)
-    {
-        string url = _httpContextAccessor.GetUrl();
+        string url = httpContextAccessor.GetUrl();
 
         if (string.IsNullOrEmpty(iconOriginalSource))
         {
-            iconOriginalSource = $"{url}{_setting.DefaultIcon}";
+            iconOriginalSource = $"{url}{setting.DefaultIcon}";
             return iconOriginalSource;
         }
 
@@ -82,182 +53,165 @@ public class GetStreamGroupM3UHandler : IRequestHandler<GetStreamGroupM3U, strin
         {
             iconOriginalSource = GetApiUrl(SMFileTypes.TvLogo, originalUrl);
         }
-        else if (_setting.CacheIcons)
+        else if (setting.CacheIcons)
         {
             iconOriginalSource = GetApiUrl(SMFileTypes.Icon, originalUrl);
         }
 
         return iconOriginalSource;
     }
+    private byte[] iv;
 
-    public async Task<string> Handle(GetStreamGroupM3U command, CancellationToken cancellationToken)
+    private const string DefaultReturn = "#EXTM3U\r\n";
+
+    [LogExecutionTimeAspect]
+    public async Task<string> Handle(GetStreamGroupM3U request, CancellationToken cancellationToken)
     {
-        List<VideoStreamDto> videoStreams = new();
-        string url = _httpContextAccessor.GetUrl();
+        Setting setting = await GetSettingsAsync();
+        string url = httpContextAccessor.GetUrl();
+        string requestPath = httpContextAccessor.HttpContext.Request.Path.Value.ToString();
+        byte[]? iv = requestPath.GetIVFromPath(setting.ServerKey, 128);
+        if (iv == null)
+        {
+            return DefaultReturn;
+        }
+        this.iv = iv;
 
-        if (command.StreamGroupNumber > 0)
-        {
-            StreamGroupDto? sg = await _context.GetStreamGroupDtoByStreamGroupNumber(command.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
-            if (sg == null)
-            {
-                return "";
-            }
-            videoStreams = sg.ChildVideoStreams.Where(a => !a.IsHidden).ToList();
-        }
-        else
-        {
-            videoStreams = _context.VideoStreams
-                .Where(a => !a.IsHidden)
-                .AsNoTracking()
-                .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider)
-                .ToList();
-        }
+        List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
 
         if (!videoStreams.Any())
         {
-            return "";
+            return DefaultReturn;
         }
 
-        ParallelOptions po = new()
-        {
-            CancellationToken = cancellationToken,
-            MaxDegreeOfParallelism = Environment.ProcessorCount
-        };
+        // Retrieve necessary data in parallel
+        var videoStreamData = videoStreams
+     .AsParallel()
+     .WithDegreeOfParallelism(Environment.ProcessorCount)
+     .Select((videoStream, index) =>
+     {
+         return new
+         {
+             VideoStream = videoStream,
+             M3ULine = BuildM3ULineForVideoStream(videoStream, url, request, index, setting)
+         };
+     }).ToList();
 
         ConcurrentDictionary<int, string> retlist = new();
 
-        var icons = await _sender.Send(new GetIcons(), cancellationToken).ConfigureAwait(false);
-
-        var requestPath = _httpContextAccessor.HttpContext.Request.Path.Value.ToString();
-        var iv = requestPath.GetIVFromPath(128);
-        if (iv == null)
+        // Process the data serially
+        foreach (var data in videoStreamData.OrderBy(a => a.VideoStream.User_Tvg_chno))
         {
-            return "";
+            if (!string.IsNullOrEmpty(data.M3ULine))
+            {
+                retlist.TryAdd(data.VideoStream.User_Tvg_chno, data.M3ULine);
+            }
         }
 
-        _ = Parallel.ForEach(videoStreams.OrderBy(a => a.User_Tvg_chno), po, (videoStream, state, longCid) =>
+        return AssembleReturnString(retlist);
+    }
+
+    private string BuildM3ULineForVideoStream(VideoStreamDto videoStream, string url, GetStreamGroupM3U request, int cid, Setting setting)
+    {
+        bool showM3UFieldTvgId = setting.M3UFieldTvgId;
+
+        bool isUserTvgIdInvalid = string.IsNullOrEmpty(videoStream.User_Tvg_ID)
+                      || StringComparer.OrdinalIgnoreCase.Equals(videoStream.User_Tvg_ID, "dummy");
+
+        if (setting.M3UIgnoreEmptyEPGID && isUserTvgIdInvalid)
         {
-            bool showM3UFieldTvgId = _setting.M3UFieldTvgId;
-
-            bool isUserTvgIdInvalid = string.IsNullOrEmpty(videoStream.User_Tvg_ID)
-                          || StringComparer.OrdinalIgnoreCase.Equals(videoStream.User_Tvg_ID, "dummy");
-
-            if (_setting.M3UIgnoreEmptyEPGID && isUserTvgIdInvalid)
+            if (setting.M3UFieldTvgId)
             {
-                if (_setting.M3UFieldTvgId)
-                {
-                    showM3UFieldTvgId = false;
-                }
-                else
-                {
-                    return;
-                }
+                showM3UFieldTvgId = false;
             }
-
-            int cid = Convert.ToInt32(longCid);
-
-            if (command.StreamGroupNumber == 0 && videoStream.User_Tvg_chno == 0)
+            else
             {
-                videoStream.User_Tvg_chno = cid;
+                return "";
             }
+        }
 
-            var logo = GetIconUrl(videoStream.User_Tvg_logo);
+        //int cid = Convert.ToInt32(longCid);
 
-            videoStream.User_Tvg_logo = logo;
+        if (request.StreamGroupId == 1 && videoStream.User_Tvg_chno == 0)
+        {
+            videoStream.User_Tvg_chno = cid;
+        }
 
-            string videoUrl = videoStream.Url;
+        string logo = GetIconUrl(videoStream.User_Tvg_logo, setting);
+        videoStream.User_Tvg_logo = logo;
 
-            var encodedNumbers = command.StreamGroupNumber.EncodeValues128(videoStream.Id, _setting.ServerKey, iv);
+        string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim()
+                .Replace("/", "")
+                .Replace(" ", "_");
 
-            var encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
-            videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+        string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, setting.ServerKey, iv);
+        string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
-            var fieldList = new List<string>
-            {
-                $"#EXTINF:0 CUID=\"{videoStream.Id}\""
-            };
+        List<string> fieldList = new()
+    {
+        $"#EXTINF:0 CUID=\"{videoStream.Id}\""
+    };
 
-            if (_setting.M3UFieldChannelId)
-            {
-                fieldList.Add($"channel-id=\"{videoStream.Id}\"");
-            }
+        if (setting.M3UFieldChannelId)
+        {
+            fieldList.Add($"channel-id=\"{videoStream.Id}\"");
+        }
 
-            if (_setting.M3UFieldChannelNumber)
-            {
-                fieldList.Add($"channel-number=\"{videoStream.User_Tvg_chno}\"");
-            }
+        if (setting.M3UFieldChannelNumber)
+        {
+            fieldList.Add($"channel-number=\"{videoStream.User_Tvg_chno}\"");
+        }
 
-            if (_setting.M3UFieldTvgName)
-            {
-                fieldList.Add($"tvg-name=\"{videoStream.User_Tvg_name}\"");
-            }
+        if (setting.M3UFieldTvgName)
+        {
+            fieldList.Add($"tvg-name=\"{videoStream.User_Tvg_name}\"");
+        }
 
-            if (_setting.M3UFieldTvgChno)
-            {
-                fieldList.Add($"tvg-chno=\"{videoStream.User_Tvg_chno}\"");
-            }
+        if (setting.M3UFieldTvgChno)
+        {
+            fieldList.Add($"tvg-chno=\"{videoStream.User_Tvg_chno}\"");
+        }
 
-            if (showM3UFieldTvgId)
-            {
-                //if (videoStream.User_Tvg_ID.ToLower() == "dummy")
-                //{
-                //    fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
-                //}
-                //else
-                //{
-                fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
-                //}
-            }
+        if (showM3UFieldTvgId)
+        {
+            fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
+        }
 
-            if (_setting.M3UFieldTvgLogo)
-            {
-                fieldList.Add($"tvg-logo=\"{videoStream.User_Tvg_logo}\"");
-            }
-            if (_setting.M3UFieldGroupTitle)
-            {
-                fieldList.Add($"group-title=\"{videoStream.User_Tvg_group}\"");
-            }
-            var lines = string.Join(" ", fieldList.ToArray());
+        if (setting.M3UFieldTvgLogo)
+        {
+            fieldList.Add($"tvg-logo=\"{videoStream.User_Tvg_logo}\"");
+        }
+        if (setting.M3UFieldGroupTitle)
+        {
+            fieldList.Add($"group-title=\"{videoStream.User_Tvg_group}\"");
+        }
 
-            lines += $",{videoStream.User_Tvg_name}\r\n";
-            lines += $"{videoUrl}\r\n";
+        string lines = string.Join(" ", fieldList.ToArray());
+        lines += $",{videoStream.User_Tvg_name}\r\n";
+        lines += $"{videoUrl}";
 
-            _ = retlist.TryAdd(videoStream.User_Tvg_chno, lines);
-        });
+        return lines;
+    }
 
-        string ret = "#EXTM3U\r\n";
+
+    [LogExecutionTimeAspect]
+    private string AssembleReturnString(ConcurrentDictionary<int, string> retlist)
+    {
+        StringBuilder ret = new("#EXTM3U\r\n");
         foreach (int rl in retlist.Keys.Order())
         {
-            _ = retlist.TryGetValue(rl, out string? str);
-
-            if (str != null)
+            if (retlist.TryGetValue(rl, out string? str) && !string.IsNullOrEmpty(str))
             {
-                ret += str;
+                ret.AppendLine(str);
             }
         }
-        return ret;
+        return ret.ToString();
     }
 
     private string GetApiUrl(SMFileTypes path, string source)
     {
-        string url = _httpContextAccessor.GetUrl();
+        string url = httpContextAccessor.GetUrl();
         return $"{url}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
     }
 
-    private bool IsVideoStreamADummy(VideoStreamDto videoStream)
-    {
-        if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
-        {
-            return true;
-        }
-
-        if (!string.IsNullOrEmpty(_setting.DummyRegex))
-        {
-            Regex regex = new(_setting.DummyRegex, RegexOptions.ECMAScript | RegexOptions.IgnoreCase);
-            var test = regex.IsMatch(videoStream.User_Tvg_ID);
-            return test;
-        }
-
-        return false;
-    }
 }

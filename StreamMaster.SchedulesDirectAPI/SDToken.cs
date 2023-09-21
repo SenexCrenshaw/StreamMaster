@@ -1,4 +1,6 @@
-﻿using StreamMasterDomain.Common;
+﻿using StreamMaster.SchedulesDirectAPI.Models;
+
+using StreamMasterDomain.Common;
 
 using System.Net;
 using System.Net.Http.Headers;
@@ -9,57 +11,58 @@ namespace StreamMaster.SchedulesDirectAPI;
 
 public class SDTokenFile
 {
-    public string Token { get; set; }
+    public string? Token { get; set; }
     public DateTime TokenDateTime { get; set; }
 }
 
-public static class SDToken
+public class SDToken
 {
+    private (SDStatus? status, DateTime timestamp)? cacheEntry = null;
     private const string SD_BASE_URL = "https://json.schedulesdirect.org/20141201/";
-    private static readonly HttpClient httpClient = CreateHttpClient();
-    private static readonly string SD_TOKEN_FILENAME = Path.Combine(BuildInfo.AppDataFolder, "sd_token.json");
-    private static string? token;
-    private static DateTime tokenDateTime;
+    private readonly HttpClient httpClient = CreateHttpClient();
+    private readonly string SD_TOKEN_FILENAME = Path.Combine(BuildInfo.AppDataFolder, "sd_token.json");
+    private string? token;
+    private static string _clientUserAgent = "Mozilla/5.0 (compatible; streammaster/1.0)";
+    private readonly string _sdUserName;
+    private readonly string _sdPassword;
+    private DateTime tokenDateTime;
 
-    static SDToken()
+    public SDToken(string clientUserAgent, string sdUserName, string sdPassword)
     {
+        _sdUserName = sdUserName;
+        _sdPassword = sdPassword;
+        _clientUserAgent = clientUserAgent;
         LoadToken();
     }
 
-    public static async Task<string?> GetAPIUrl(string commnand, CancellationToken cancellationToken)
+    public async Task<SDStatus?> GetStatus(CancellationToken cancellationToken)
     {
-        var isReady = await GetSystemReady(cancellationToken).ConfigureAwait(false);
-        if (!isReady)
-        {
-            return null;
-        }
-
-        return await GetAPIUrlInternal(commnand, cancellationToken);
-    }
-
-    public static async Task<SDStatus?> GetStatus(CancellationToken cancellationToken)
-    {
-        var (status, resetToken) = await GetStatusInternal(cancellationToken);
+        (SDStatus? status, bool resetToken) = await GetStatusInternal(cancellationToken);
         if (resetToken)
         {
             if (await ResetToken().ConfigureAwait(false) == null)
             {
                 return GetSDStatusOffline();
             }
-            (status, _) = await GetStatusInternal(cancellationToken);
+            return status;
         }
 
         return status;
     }
 
-    public static async Task<(SDStatus? sdStatus, bool resetToken)> GetStatusInternal(CancellationToken cancellationToken)
+    public async Task<(SDStatus? sdStatus, bool resetToken)> GetStatusInternal(CancellationToken cancellationToken)
     {
-        var url = await GetAPIUrlInternal("status", cancellationToken);
+        if (cacheEntry.HasValue && (DateTime.UtcNow - cacheEntry.Value.timestamp).TotalMinutes < 10)
+        {
+            return (cacheEntry.Value.status, false);
+        }
+
+        string url = await GetAPIUrl("status", cancellationToken);
 
         using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
         try
         {
-            if (response.StatusCode == HttpStatusCode.Forbidden)
+            if (response.StatusCode == HttpStatusCode.Forbidden || response.StatusCode == HttpStatusCode.NotFound)
             {
                 return (null, true);
             }
@@ -70,11 +73,12 @@ public static class SDToken
             {
                 return (null, false);
             }
-            var result = JsonSerializer.Deserialize<SDStatus>(responseString);
+            SDStatus? result = JsonSerializer.Deserialize<SDStatus>(responseString);
             if (result == null)
             {
                 return (null, false);
             }
+            cacheEntry = (result, DateTime.UtcNow);
             return (result, false);
         }
         catch (Exception ex)
@@ -83,33 +87,27 @@ public static class SDToken
         }
     }
 
-    public static async Task<bool> GetSystemReady(CancellationToken cancellationToken)
+    public async Task<bool> GetSystemReady(CancellationToken cancellationToken)
     {
-        var (status, resetToken) = await GetStatusInternal(cancellationToken);
-        if (resetToken)
+        (SDStatus? status, bool resetToken) = await GetStatusInternal(cancellationToken);
+        if (resetToken && await ResetToken().ConfigureAwait(false) != null)
         {
-            if (await ResetToken().ConfigureAwait(false) == null)
-            {
-                return false;
-            }
             (status, _) = await GetStatusInternal(cancellationToken);
-            if (status.systemStatus[0].status.ToLower() != "online")
-            {
-                return false;
-            }
         }
 
-        return true;
+        return status?.systemStatus[0].status?.ToLower() == "online";
     }
 
-    public static async Task<string?> GetToken(CancellationToken cancellationToken = default)
+    public async Task<string?> GetToken(CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(token) || tokenDateTime.AddHours(23) < DateTime.Now)
         {
             token = await RetrieveToken(cancellationToken);
 
             if (string.IsNullOrEmpty(token))
+            {
                 throw new ApplicationException("Unable to get token");
+            }
 
             tokenDateTime = DateTime.Now;
             SaveToken();
@@ -117,7 +115,7 @@ public static class SDToken
         return token;
     }
 
-    public static async Task<string?> ResetToken(CancellationToken cancellationToken = default)
+    public async Task<string?> ResetToken(CancellationToken cancellationToken = default)
     {
         token = null;
 
@@ -126,38 +124,42 @@ public static class SDToken
 
     private static HttpClient CreateHttpClient()
     {
-        var setting = FileUtil.GetSetting();
-        var client = new HttpClient(new HttpClientHandler()
+
+        HttpClient client = new(new HttpClientHandler()
         {
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
             AllowAutoRedirect = true,
         });
         client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
         client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("deflate"));
-        client.DefaultRequestHeaders.UserAgent.ParseAdd(setting.ClientUserAgent);
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(_clientUserAgent);
 
         return client;
     }
 
-    private static async Task<string> GetAPIUrlInternal(string commnand, CancellationToken cancellationToken)
+    public async Task<string> GetAPIUrl(string command, CancellationToken cancellationToken)
     {
-        var token = await GetToken(cancellationToken).ConfigureAwait(false);
-
-        if (commnand.Contains("?"))
-        {
-            return $"{SD_BASE_URL}{commnand}&token={token}";
-        }
-        return $"{SD_BASE_URL}{commnand}?token={token}";
+        string? token = await GetToken(cancellationToken).ConfigureAwait(false);
+        return ConstructAPIUrlWithToken(command, token);
     }
 
-    private static SDStatus GetSDStatusOffline()
+    private string ConstructAPIUrlWithToken(string command, string? token)
     {
-        var ret = new SDStatus();
+        if (command.Contains("?"))
+        {
+            return $"{SD_BASE_URL}{command}&token={token}";
+        }
+        return $"{SD_BASE_URL}{command}?token={token}";
+    }
+
+    private SDStatus GetSDStatusOffline()
+    {
+        SDStatus ret = new();
         ret.systemStatus.Add(new SDSystemstatus { status = "Offline" });
         return ret;
     }
 
-    private static void LoadToken()
+    private void LoadToken()
     {
         if (!File.Exists(SD_TOKEN_FILENAME))
         {
@@ -166,7 +168,7 @@ public static class SDToken
         }
 
         string jsonString = File.ReadAllText(SD_TOKEN_FILENAME);
-        var result = JsonSerializer.Deserialize<SDTokenFile>(jsonString)!;
+        SDTokenFile? result = JsonSerializer.Deserialize<SDTokenFile>(jsonString)!;
         if (result is null)
         {
             token = null;
@@ -177,18 +179,16 @@ public static class SDToken
         tokenDateTime = result.TokenDateTime;
     }
 
-    private static async Task<string?> RetrieveToken(CancellationToken cancellationToken)
+    private async Task<string?> RetrieveToken(CancellationToken cancellationToken)
     {
-        var setting = FileUtil.GetSetting();
-
         string? sdHashedPassword;
-        if (HashHelper.TestSha1HexHash(setting.SDPassword))
+        if (HashHelper.TestSha1HexHash(_sdPassword))
         {
-            sdHashedPassword = setting.SDPassword;
+            sdHashedPassword = _sdPassword;
         }
         else
         {
-            sdHashedPassword = setting.SDPassword.GetSHA1Hash();
+            sdHashedPassword = _sdPassword.GetSHA1Hash();
         }
 
         if (string.IsNullOrEmpty(sdHashedPassword))
@@ -198,7 +198,7 @@ public static class SDToken
 
         SDGetTokenRequest data = new()
         {
-            username = setting.SDUserName,
+            username = _sdUserName,
             password = sdHashedPassword
         };
 
@@ -220,11 +220,12 @@ public static class SDToken
         }
         catch (Exception ex)
         {
-            throw;
+            Console.WriteLine("ERROR: ", ex);
+            return null;
         }
     }
 
-    private static void SaveToken()
+    private void SaveToken()
     {
         if (token is null)
         {

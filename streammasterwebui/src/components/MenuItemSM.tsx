@@ -18,9 +18,7 @@ const MenuItemSM = (props: MenuItemSMProps) => {
         />
         <div
           className={tooltipClassName + " border-white"}
-          data-pr-at="right+5 top"
           data-pr-hidedelay={100}
-          data-pr-my="left center-2"
           data-pr-position="right"
           data-pr-showdelay={500}
           data-pr-tooltip={props.tooltip ?? props.name}
@@ -53,13 +51,13 @@ const MenuItemSM = (props: MenuItemSMProps) => {
 }
 
 export type MenuItemSMProps = {
-  children?: React.ReactNode;
-  collapsed?: boolean;
-  icon: React.ReactNode;
-  link: string;
-  name: string;
-  newWindow?: boolean;
-  tooltip?: string;
+  readonly children?: React.ReactNode;
+  readonly collapsed?: boolean;
+  readonly icon: React.ReactNode;
+  readonly link: string;
+  readonly name: string;
+  readonly newWindow?: boolean;
+  readonly tooltip?: string;
 }
 
 export default React.memo(MenuItemSM);

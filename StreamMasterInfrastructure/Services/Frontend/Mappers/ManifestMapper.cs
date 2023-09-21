@@ -2,31 +2,24 @@
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.EnvironmentInfo;
+using StreamMasterDomain.Services;
 
 namespace StreamMasterInfrastructure.Services.Frontend.Mappers
 {
-    public class ManifestMapper : StaticResourceMapperBase
+    public class ManifestMapper(IAppFolderInfo appFolderInfo, ISettingsService settingsService, ILogger<ManifestMapper> logger) : StaticResourceMapperBase(logger)
     {
-        private readonly IAppFolderInfo _appFolderInfo;
-        protected Setting _setting = FileUtil.GetSetting();
-
-        public ManifestMapper(IAppFolderInfo appFolderInfo, ILogger<ManifestMapper> logger)
-            : base(logger)
-        {
-            _appFolderInfo = appFolderInfo;
-        }
-
         public override bool CanHandle(string resourceUrl)
         {
             return resourceUrl.StartsWith("/Content/Images/Icons/manifest");
         }
 
-        public override string Map(string resourceUrl)
+        public override async Task<string> Map(string resourceUrl)
         {
-            var path = resourceUrl.Replace('/', Path.DirectorySeparatorChar);
+            Setting setting = await settingsService.GetSettingsAsync();
+            string path = resourceUrl.Replace('/', Path.DirectorySeparatorChar);
             path = path.Trim(Path.DirectorySeparatorChar);
 
-            return Path.ChangeExtension(Path.Combine(_appFolderInfo.StartUpFolder, _setting.UiFolder, path), "json");
+            return Path.ChangeExtension(Path.Combine(appFolderInfo.StartUpFolder, setting.UiFolder, path), "json");
         }
     }
 }

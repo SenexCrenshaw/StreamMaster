@@ -2,9 +2,11 @@
 
 using StreamMasterApplication.Programmes;
 using StreamMasterApplication.Programmes.Queries;
+
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Entities;
-using StreamMasterDomain.Entities.EPG;
+using StreamMasterDomain.EPG;
+using StreamMasterDomain.Models;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterAPI.Controllers;
 
@@ -12,7 +14,6 @@ public class ProgrammesController : ApiControllerBase, IProgrammeChannelControll
 {
     [HttpGet]
     [Route("GetProgramme/{channel}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Programme>))]
     public async Task<ActionResult<IEnumerable<Programme>?>> GetProgramme(string channel)
     {
         IEnumerable<Programme>? data = await Mediator.Send(new GetProgramme(channel)).ConfigureAwait(false);
@@ -21,25 +22,44 @@ public class ProgrammesController : ApiControllerBase, IProgrammeChannelControll
 
     [HttpGet]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProgrammeChannel>))]
     public async Task<ActionResult<IEnumerable<ProgrammeChannel>>> GetProgrammeChannels()
     {
         return Ok(await Mediator.Send(new GetProgrammeChannels()).ConfigureAwait(false));
     }
 
+
     [HttpGet]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProgrammeNameDto>))]
-    public async Task<ActionResult<IEnumerable<ProgrammeNameDto>>> GetProgrammeNames()
+    public async Task<ActionResult<PagedResponse<ProgrammeNameDto>>> GetPagedProgrammeNameSelections([FromQuery] ProgrammeParameters Parameters)
+    {
+        return Ok(await Mediator.Send(new GetPagedProgrammeNameSelections(Parameters)).ConfigureAwait(false));
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<IEnumerable<Programme>>> GetProgrammes()
+    {
+        return Ok(await Mediator.Send(new GetProgrammes()).ConfigureAwait(false));
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<IEnumerable<string>>> GetProgrammeNames()
     {
         return Ok(await Mediator.Send(new GetProgrammeNames()).ConfigureAwait(false));
     }
 
     [HttpGet]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Programme>))]
-    public async Task<ActionResult<IEnumerable<Programme>>> GetProgrammes()
+    public async Task<ActionResult<List<ProgrammeNameDto>>> GetProgrammsSimpleQuery([FromQuery] ProgrammeParameters Parameters)
     {
-        return Ok(await Mediator.Send(new GetProgrammes()).ConfigureAwait(false));
+        return Ok(await Mediator.Send(new GetProgrammsSimpleQuery(Parameters)).ConfigureAwait(false));
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<ProgrammeNameDto?>> GetProgrammeFromDisplayName(GetProgrammeFromDisplayNameRequest request)
+    {
+        return Ok(await Mediator.Send(request).ConfigureAwait(false));
     }
 }

@@ -1,29 +1,18 @@
-﻿using MediatR;
+﻿namespace StreamMasterApplication.Icons.Commands;
 
-namespace StreamMasterApplication.Icons.Commands;
+public record BuildIconCachesRequest : IRequest { }
 
-public class BuildIconCachesRequest : IRequest
-{ }
-
-public class BuildIconCachesRequestHandler : IRequestHandler<BuildIconCachesRequest>
+public class BuildIconCachesRequestHandler(ILogger<BuildIconCachesRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<BuildIconCachesRequest>
 {
-    private readonly ISender _sender;
-
-    public BuildIconCachesRequestHandler(
-        ISender sender
-        )
-    {
-        _sender = sender;
-    }
-
     public async Task Handle(BuildIconCachesRequest request, CancellationToken cancellationToken)
     {
-        var settings = FileUtil.GetSetting();
-        if (!settings.CacheIcons)
+        Setting setting = await GetSettingsAsync();
+        if (!setting.CacheIcons)
         {
             return;
         }
-        _ = await _sender.Send(new BuildIconsCacheFromVideoStreamRequest(), cancellationToken).ConfigureAwait(false);
-        _ = await _sender.Send(new BuildProgIconsCacheFromEPGsRequest(), cancellationToken).ConfigureAwait(false);
+        _ = await Sender.Send(new BuildIconsCacheFromVideoStreamRequest(), cancellationToken).ConfigureAwait(false);
+        _ = await Sender.Send(new BuildProgIconsCacheFromEPGsRequest(), cancellationToken).ConfigureAwait(false);
     }
 }

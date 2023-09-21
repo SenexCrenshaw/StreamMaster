@@ -8,7 +8,7 @@ namespace StreamMasterInfrastructure.VideoStreamManager;
 
 public class StreamInformation : IDisposable, IStreamInformation
 {
-    private ConcurrentDictionary<Guid, ClientStreamerConfiguration> _clientInformations;
+    private readonly ConcurrentDictionary<Guid, ClientStreamerConfiguration> _clientInformations;
 
     public StreamInformation(string streamUrl, ICircularRingBuffer buffer, Task streamingTask, int m3uFileId, int maxStreams, int processId, CancellationTokenSource cancellationTokenSource)
     {
@@ -74,7 +74,7 @@ public class StreamInformation : IDisposable, IStreamInformation
         {
             try
             {
-                var procName = CheckProcessExists(ProcessId);
+                string? procName = CheckProcessExists(ProcessId);
                 if (procName != null)
                 {
                     Process process = Process.GetProcessById(ProcessId);
@@ -113,7 +113,7 @@ public class StreamInformation : IDisposable, IStreamInformation
 
     private void SetClientBufferDelegate(ClientStreamerConfiguration config, Func<ICircularRingBuffer> func)
     {
-        var sc = GetStreamConfiguration(config.ClientId);
+        ClientStreamerConfiguration? sc = GetStreamConfiguration(config.ClientId);
         if (sc is null || sc.ReadBuffer is null)
         {
             return;

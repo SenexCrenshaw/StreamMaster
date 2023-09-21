@@ -1,18 +1,16 @@
-﻿using MediatR;
-
-using StreamMaster.SchedulesDirectAPI;
+﻿using StreamMaster.SchedulesDirectAPI;
 
 namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 
 public record GetStationPreviewsRequest : IRequest<List<StationPreview>>;
 
-internal class GetStationPreviewsRequestHandler : IRequestHandler<GetStationPreviewsRequest, List<StationPreview>>
+internal class GetStationPreviewsRequestHandler(ISettingsService settingsService) : IRequestHandler<GetStationPreviewsRequest, List<StationPreview>>
 {
     public async Task<List<StationPreview>> Handle(GetStationPreviewsRequest request, CancellationToken cancellationToken)
     {
-        var sd = new SchedulesDirect();
-
-        var ret = await sd.GetStationPreviews(cancellationToken).ConfigureAwait(false);
+        Setting setting = await settingsService.GetSettingsAsync();
+        SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDCountry, setting.SDPassword);
+        List<StationPreview> ret = await sd.GetStationPreviews(cancellationToken).ConfigureAwait(false);
 
         return ret;
     }

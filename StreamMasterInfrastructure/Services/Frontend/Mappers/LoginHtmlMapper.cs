@@ -2,29 +2,21 @@ using Microsoft.Extensions.Logging;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.EnvironmentInfo;
+using StreamMasterDomain.Services;
 
 namespace StreamMasterInfrastructure.Services.Frontend.Mappers
 {
-    public class LoginHtmlMapper : HtmlMapperBase
+    public class LoginHtmlMapper(IAppFolderInfo appFolderInfo, ISettingsService settingsService, ILogger<LoginHtmlMapper> logger) : HtmlMapperBase(logger)
     {
-        protected Setting _setting = FileUtil.GetSetting();
-
-        public LoginHtmlMapper(IAppFolderInfo appFolderInfo,
-
-                               ILogger<LoginHtmlMapper> logger)
-            : base(logger)
-        {
-            HtmlPath = Path.Combine(appFolderInfo.StartUpFolder, _setting.UiFolder, "login.html");
-            UrlBase = _setting.UrlBase;
-        }
-
         public override bool CanHandle(string resourceUrl)
         {
             return resourceUrl.StartsWith("/login");
         }
 
-        public override string Map(string resourceUrl)
+        public override async Task<string> Map(string resourceUrl)
         {
+            Setting setting = await settingsService.GetSettingsAsync();
+            HtmlPath = Path.Combine(appFolderInfo.StartUpFolder, setting.UiFolder, "login.html");
             return HtmlPath;
         }
     }

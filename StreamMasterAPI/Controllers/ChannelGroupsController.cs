@@ -5,37 +5,39 @@ using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.ChannelGroups.Queries;
 
 using StreamMasterDomain.Dto;
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterAPI.Controllers;
 
 public class ChannelGroupsController : ApiControllerBase, IChannelGroupController
 {
+
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ChannelGroupDto))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> AddChannelGroup(AddChannelGroupRequest request)
+    public async Task<ActionResult> CreateChannelGroup(CreateChannelGroupRequest request)
     {
-        ChannelGroupDto? entity = await Mediator.Send(request).ConfigureAwait(false);
+        await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
     }
 
     [HttpDelete]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
+    }
+
+    [HttpDelete]
+    [Route("[action]")]
     public async Task<ActionResult> DeleteChannelGroup(DeleteChannelGroupRequest request)
     {
-        int? data = await Mediator.Send(request).ConfigureAwait(false);
-        return data == null ? NotFound() : NoContent();
+        bool ret = await Mediator.Send(request).ConfigureAwait(false);
+        return ret ? NoContent() : NotFound();
     }
+
 
     [HttpGet]
     [Route("{id}")]
-    [ProducesResponseType(typeof(ChannelGroupDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<ChannelGroupDto>> GetChannelGroup(int id)
     {
         ChannelGroupDto? data = await Mediator.Send(new GetChannelGroup(id)).ConfigureAwait(false);
@@ -44,54 +46,51 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ChannelGroupDto>))]
-    public async Task<ActionResult<IEnumerable<ChannelGroupDto>>> GetChannelGroups()
+    [Route("[action]")]
+    public async Task<ActionResult<IEnumerable<ChannelGroupIdName>>> GetChannelGroupIdNames()
     {
-        IEnumerable<ChannelGroupDto> data = await Mediator.Send(new GetChannelGroups()).ConfigureAwait(false);
-        return data.ToList();
+        IEnumerable<ChannelGroupIdName> res = await Mediator.Send(new GetChannelGroupIdNames()).ConfigureAwait(false);
+        return Ok(res);
     }
 
-    [HttpPut]
+    [HttpGet]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> SetChannelGroupsVisible(SetChannelGroupsVisibleRequest request)
+    public async Task<ActionResult<PagedResponse<ChannelGroupDto>>> GetPagedChannelGroups([FromQuery] ChannelGroupParameters Parameters)
     {
-        _ = await Mediator.Send(request).ConfigureAwait(false);
-        return Ok();
+        PagedResponse<ChannelGroupDto> res = await Mediator.Send(new GetPagedChannelGroups(Parameters)).ConfigureAwait(false);
+        return Ok(res);
     }
 
-    [HttpPut]
+
+    [HttpPatch]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> UpdateChannelGroup(UpdateChannelGroupRequest request)
     {
-        ChannelGroupDto? entity = await Mediator.Send(request).ConfigureAwait(false);
-        return entity == null ? NotFound() : NoContent();
+        await Mediator.Send(request).ConfigureAwait(false);
+        return NoContent();
     }
 
-    [HttpPut]
+    [HttpPatch]
     [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> UpdateChannelGroupOrder(UpdateChannelGroupOrderRequest request)
-    {
-        IEnumerable<ChannelGroupDto>? entity = await Mediator.Send(request).ConfigureAwait(false);
-        return entity == null ? NotFound() : NoContent();
-    }
-
-    [HttpPut]
-    [Route("[action]")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> UpdateChannelGroups(UpdateChannelGroupsRequest request)
     {
-        _ = await Mediator.Send(request).ConfigureAwait(false);
+        await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<IEnumerable<string>>> GetChannelGroupNames()
+    {
+        IEnumerable<string> res = await Mediator.Send(new GetChannelGroupNames()).ConfigureAwait(false);
+        return Ok(res);
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<ChannelGroupDto>>> GetChannelGroupsForStreamGroup(GetChannelGroupsForStreamGroupRequest request)
+    {
+        List<ChannelGroupDto> ret = await Mediator.Send(request).ConfigureAwait(false);
+        return ret;
     }
 }

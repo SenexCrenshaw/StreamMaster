@@ -1,67 +1,43 @@
-import { type CSSProperties } from "react";
-import React from "react";
-import NumberEditorBodyTemplate from "./NumberEditorBodyTemplate";
-import type * as StreamMasterApi from '../store/iptvApi';
-import * as Hub from "../store/signlar_functions";
-import { Toast } from 'primereact/toast';
+import { memo, useCallback, type CSSProperties } from "react";
 import { getTopToolOptions } from "../common/common";
 import { isDebug } from "../settings";
+import { UpdateVideoStream } from "../smAPI/VideoStreams/VideoStreamsMutateAPI";
+import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../store/iptvApi";
+import NumberEditorBodyTemplate from "./NumberEditorBodyTemplate";
 
 const ChannelNumberEditor = (props: ChannelNumberEditorProps) => {
-  const toast = React.useRef<Toast>(null);
 
-  const onUpdateVideoStream = React.useCallback(async (channelNumber: number,) => {
+  const onUpdateVideoStream = useCallback(async (channelNumber: number,) => {
     if (props.data.id === '' || props.data.user_Tvg_chno === channelNumber) {
       return;
     }
 
-    const data = {} as StreamMasterApi.UpdateVideoStreamRequest;
+    const data = {} as UpdateVideoStreamRequest;
+
     data.id = props.data.id;
     data.tvg_chno = channelNumber;
 
-    await Hub.UpdateVideoStream(data)
+    await UpdateVideoStream(data)
       .then(() => {
-        if (toast.current) {
 
-          toast.current.show({
-            detail: `Updated Stream`,
-            life: 3000,
-            severity: 'success',
-            summary: 'Successful',
-          });
-
-        }
       }).catch((e) => {
-        if (toast.current) {
-          toast.current.show({
-            detail: `Update Stream Failed`,
-            life: 3000,
-            severity: 'error',
-            summary: 'Error ' + e.message,
-          });
-        }
+        console.log(e);
       });
 
   }, [props.data.id, props.data.user_Tvg_chno]);
 
-  if (!props.enableEditMode) {
-    return <span className='smallshiftleft'>{props.data.user_Tvg_chno}</span>
-  }
 
   return (
-    <>
-      <Toast position="bottom-right" ref={toast} />
-      <NumberEditorBodyTemplate
-        onChange={async (e) => {
-          await onUpdateVideoStream(e);
-        }}
-        resetValue={props.data.tvg_chno}
-        style={props.style}
-        tooltip={isDebug ? 'id: ' + props.data.id : undefined}
-        tooltipOptions={getTopToolOptions}
-        value={props.data.user_Tvg_chno}
-      />
-    </>
+    <NumberEditorBodyTemplate
+      onChange={async (e) => {
+        await onUpdateVideoStream(e);
+      }}
+      resetValue={props.data.tvg_chno}
+      style={props.style}
+      tooltip={isDebug ? 'id: ' + props.data.id : undefined}
+      tooltipOptions={getTopToolOptions}
+      value={props.data.user_Tvg_chno}
+    />
   )
 }
 
@@ -70,11 +46,10 @@ ChannelNumberEditor.defaultProps = {
 };
 
 export type ChannelNumberEditorProps = {
-  data: StreamMasterApi.VideoStreamDto;
-  enableEditMode: boolean;
-  style?: CSSProperties;
+  readonly data: VideoStreamDto;
+  readonly style?: CSSProperties;
 };
 
-export default React.memo(ChannelNumberEditor);
+export default memo(ChannelNumberEditor);
 
 

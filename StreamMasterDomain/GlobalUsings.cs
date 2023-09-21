@@ -1,3 +1,4 @@
 ﻿global using StreamMasterDomain.Common;
-global using StreamMasterDomain.Entities;
+global using StreamMasterDomain.Repository;
 global using StreamMasterDomain.Enums;
+global using X.PagedList;

@@ -1,19 +1,11 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-
-using FluentValidation;
-
-using MediatR;
+﻿using FluentValidation;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterApplication.Common.Extensions;
 
-using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Dto;
-using StreamMasterDomain.Entities.EPG;
+using StreamMasterDomain.EPG;
+using StreamMasterDomain.Models;
 
 using System.Collections.Concurrent;
 using System.Net;
@@ -25,48 +17,36 @@ using static StreamMasterDomain.Common.GetStreamGroupEPGHandler;
 namespace StreamMasterApplication.StreamGroups.Queries;
 
 [RequireAll]
-public record GetStreamGroupEPG(int StreamGroupNumber) : IRequest<string>;
+public record GetStreamGroupEPG(int StreamGroupId) : IRequest<string>;
 
 public class GetStreamGroupEPGValidator : AbstractValidator<GetStreamGroupEPG>
 {
     public GetStreamGroupEPGValidator()
     {
-        _ = RuleFor(v => v.StreamGroupNumber)
+        _ = RuleFor(v => v.StreamGroupId)
             .NotNull().GreaterThanOrEqualTo(0);
     }
 }
 
-public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEPG, string>
+public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPG> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupEPG, string>
 {
-    protected Setting _setting = FileUtil.GetSetting();
-    private readonly IAppDbContext _context;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IMapper _mapper;
-    private readonly IMemoryCache _memoryCache;
-    private readonly ISender _sender;
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+
     private readonly object Lock = new();
     private int dummyCount = 0;
 
-    public GetStreamGroupEPGHandler(
-        IMapper mapper, IMemoryCache memoryCache,
-        ISender sender,
-        IHttpContextAccessor httpContextAccessor,
-        IAppDbContext context)
+    private readonly ParallelOptions parallelOptions = new()
     {
-        _httpContextAccessor = httpContextAccessor;
-        _memoryCache = memoryCache;
-        _mapper = mapper;
-        _context = context;
-        _sender = sender;
-    }
+        MaxDegreeOfParallelism = Environment.ProcessorCount
+    };
 
-    public string GetIconUrl(string iconOriginalSource)
+    public string GetIconUrl(string iconOriginalSource, Setting setting)
     {
         string url = _httpContextAccessor.GetUrl();
 
         if (string.IsNullOrEmpty(iconOriginalSource))
         {
-            iconOriginalSource = $"{url}{_setting.DefaultIcon}";
+            iconOriginalSource = $"{url}{setting.DefaultIcon}";
             return iconOriginalSource;
         }
 
@@ -85,7 +65,7 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
         {
             iconOriginalSource = GetApiUrl(SMFileTypes.TvLogo, originalUrl);
         }
-        else if (_setting.CacheIcons)
+        else if (setting.CacheIcons)
         {
             iconOriginalSource = GetApiUrl(SMFileTypes.Icon, originalUrl);
         }
@@ -93,227 +73,234 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
         return iconOriginalSource;
     }
 
+    [LogExecutionTimeAspect]
     public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
-        List<VideoStreamDto> videoStreams = new();
-        string url = _httpContextAccessor.GetUrl();
-        if (request.StreamGroupNumber > 0)
+        List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
+
+        if (!videoStreams.Any())
         {
-            var streamGroup = await _context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
-            if (streamGroup == null)
-            {
-                return "";
-            }
-            videoStreams = streamGroup.ChildVideoStreams.Where(a => !a.IsHidden).ToList();
-        }
-        else
-        {
-            videoStreams = _context.VideoStreams
-                .Where(a => !a.IsHidden)
-                .AsNoTracking()
-                .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider)
-                .ToList();
+            return "";
         }
 
-        ParallelOptions po = new()
-        {
-            CancellationToken = cancellationToken,
-            MaxDegreeOfParallelism = System.Environment.ProcessorCount
-        };
+        Tv epgData = await PrepareEpgData(videoStreams);
+
+        return SerializeEpgData(epgData);
+    }
+
+    [LogExecutionTimeAspect]
+    private async Task<Tv> PrepareEpgData(IEnumerable<VideoStreamDto> videoStreams)
+    {
+        HashSet<string> epgids = new(videoStreams.Where(a => !a.IsHidden).Select(r => r.User_Tvg_ID));
+
+        List<Programme> cachedProgrammes = MemoryCache.Programmes();
+        List<IconFileDto> cachedIcons = MemoryCache.Icons();
+
+        List<Programme> programmes = cachedProgrammes
+            .Where(a => a.StartDateTime > DateTime.Now.AddDays(-1) &&
+                        a.Channel != null &&
+                        (epgids.Contains(a.Channel) || epgids.Contains(a.DisplayName)))
+            .ToList();
+
+        List<IconFileDto> icons = cachedIcons;
+
         ConcurrentBag<TvChannel> retChannels = new();
         ConcurrentBag<Programme> retProgrammes = new();
-
-        if (videoStreams.Any())
+        Setting setting = await GetSettingsAsync();
+        Parallel.ForEach(videoStreams, parallelOptions, videoStream =>
         {
-            List<string> epgids = videoStreams.Where(a => !a.IsHidden).SelectMany(r => new string[] { r.User_Tvg_ID.ToLower(), r.User_Tvg_ID_DisplayName.ToLower() }).Distinct().ToList();
-
-            List<Programme> programmes = _memoryCache.Programmes()
-                .Where(a =>
-                a.Channel != null &&
-                (
-                    epgids.Contains(a.Channel.ToLower()) ||
-                    epgids.Contains(a.DisplayName.ToLower())
-                )
-                ).ToList();
-
-            var setting = FileUtil.GetSetting();
-
-            var icons = _memoryCache.Icons();
-            var progIcons = _memoryCache.ProgrammeIcons();
-
-            _ = Parallel.ForEach(videoStreams, po, videoStream =>
+            TvChannel? tvChannel = CreateTvChannel(videoStream, setting);
+            if (tvChannel != null)
             {
-                if (videoStream == null)
-                {
-                    return;
-                }
+                retChannels.Add(tvChannel);
+            }
 
-                var logo = GetIconUrl(videoStream.User_Tvg_logo);
+            List<Programme> programmeList = ProcessProgrammesForVideoStream(videoStream, programmes, icons);
+            foreach (Programme programme in programmeList)
+            {
+                retProgrammes.Add(programme);
+            }
+        });
 
-                TvChannel t;
-
-                int dummy = 0;
-
-                if (IsVideoStreamADummy(videoStream) || IsNotInProgrammes(programmes, videoStream))
-                {
-                    videoStream.User_Tvg_ID = "dummy";
-                }
-
-                if (videoStream.User_Tvg_ID.ToLower() == "dummy")
-                {
-                    dummy = GetDummy();
-
-                    t = new TvChannel
-                    {
-                        Id = videoStream.User_Tvg_name,
-                        Icon = new TvIcon { Src = logo },
-                        Displayname = new()
-                        {
-                            videoStream.User_Tvg_name,
-                            "dummy-" + dummy
-                        }
-                    };
-                }
-                else
-                {
-                    t = new TvChannel
-                    {
-                        Id = videoStream.User_Tvg_name,
-                        Icon = new TvIcon { Src = logo },
-                        Displayname = new()
-                        {
-                            videoStream.User_Tvg_name
-                        }
-                    };
-                }
-
-                retChannels.Add(t);
-
-                if (videoStream.User_Tvg_ID != null)
-                {
-                    if (videoStream.User_Tvg_ID.ToLower() == "dummy")
-                    {
-                        var prog = new Programme();
-
-                        prog.Channel = videoStream.User_Tvg_name;
-
-                        prog.Title = new TvTitle
-                        {
-                            Lang = "en",
-                            Text = videoStream.User_Tvg_name,
-                        };
-                        prog.Desc = new TvDesc
-                        {
-                            Lang = "en",
-                            Text = videoStream.User_Tvg_name,
-                        };
-                        DateTime now = DateTime.Now;
-                        prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{url}/images/transparent.png" });
-                        prog.Start = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToString("yyyyMMddHHmmss zzz").Replace(":", ""); ;
-                        now = now.AddDays(7);
-                        prog.Stop = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToString("yyyyMMddHHmmss zzz").Replace(":", ""); ;
-                        prog.New = null;
-                        prog.Previouslyshown = null;
-                        retProgrammes.Add(prog);
-                    }
-                    else
-                    {
-                        if (programmes.Any())
-                        {
-                            IEnumerable<Programme>? progs = programmes.Where(a => a.DisplayName.ToLower() == videoStream.User_Tvg_ID.ToLower() || a.Channel.ToLower() == videoStream.User_Tvg_ID.ToLower()).DeepCopy();
-
-                            if (progs != null)
-                            {
-                                foreach (Programme? p in progs)
-                                {
-                                    if (p.Icon.Any())
-                                    {
-                                        foreach (TvIcon progIcon in p.Icon)
-                                        {
-                                            if (progIcon != null && !string.IsNullOrEmpty(progIcon.Src))
-                                            {
-                                                var programmeIcon = progIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
-
-                                                if (programmeIcon == null)
-                                                {
-                                                    continue;
-                                                }
-                                                // string IconSource = $"{url}/api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(programmeIcon.Source)}";
-                                                string IconSource = GetApiUrl(SMFileTypes.ProgrammeIcon, programmeIcon.Source);
-                                                progIcon.Src = IconSource;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        p.Icon.Add(new TvIcon { Height = "", Width = "", Src = "" });
-                                    }
-
-                                    p.Channel = videoStream.User_Tvg_name;
-
-                                    if (videoStream.User_Tvg_ID.ToLower() == "dummy")
-                                    {
-                                        p.Channel = videoStream.User_Tvg_name;
-
-                                        p.Title = new TvTitle
-                                        {
-                                            Lang = "en",
-                                            Text = videoStream.User_Tvg_name,
-                                        };
-                                        p.Desc = new TvDesc
-                                        {
-                                            Lang = "en",
-                                            Text = videoStream.User_Tvg_name,
-                                        };
-                                    }
-
-                                    if (string.IsNullOrEmpty(p.New))
-                                    {
-                                        p.New = null;
-                                    }
-
-                                    if (string.IsNullOrEmpty(p.Live))
-                                    {
-                                        p.Live = null;
-                                    }
-
-                                    if (string.IsNullOrEmpty(p.Premiere))
-                                    {
-                                        p.Premiere = null;
-                                    }
-
-                                    if (p.Previouslyshown == null || string.IsNullOrEmpty(p.Previouslyshown.Start))
-                                    {
-                                        p.Previouslyshown = null;
-                                    }
-
-                                    if (videoStream.User_Tvg_ID.ToLower() == "dummy")
-                                    {
-                                        continue;
-                                    }
-                                    retProgrammes.Add(p);
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        Tv ret = new()
+        return new Tv
         {
             Channel = retChannels.ToList(),
             Programme = retProgrammes.ToList()
         };
+    }
 
+    private TvChannel CreateTvChannel(VideoStreamDto? videoStream, Setting setting)
+    {
+        if (videoStream == null)
+        {
+            return null;
+        }
+
+        string? logo = GetIconUrl(videoStream.User_Tvg_logo, setting);
+
+        // Check if it's a dummy stream
+        bool isDummyStream = IsVideoStreamADummy(videoStream, setting) || videoStream.User_Tvg_ID?.ToLower() == "dummy";
+
+        // Build the TvChannel based on whether it's a dummy or not
+        if (isDummyStream)
+        {
+            string orginalName = videoStream.User_Tvg_name;
+            int dummy = GetDummy();
+            videoStream.User_Tvg_name = "dummy-" + dummy;
+
+            return new TvChannel
+            {
+                Id = videoStream.User_Tvg_ID,
+                Icon = new TvIcon { Src = logo ?? string.Empty },
+                Displayname = new List<string>
+            {
+               orginalName,videoStream.User_Tvg_name
+            }
+            };
+        }
+        else
+        {
+            return new TvChannel
+            {
+                Id = videoStream.User_Tvg_ID,
+                Icon = new TvIcon { Src = logo ?? string.Empty },
+                Displayname = new List<string>
+            {
+               videoStream.User_Tvg_name
+            }
+            };
+        }
+    }
+
+    private List<Programme> ProcessProgrammesForVideoStream(VideoStreamDto videoStream, List<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
+    {
+        if (videoStream.User_Tvg_ID == null)
+        {
+            // Decide what to do if User_Tvg_ID is null. Here, we're returning an empty list.
+            return new List<Programme>();
+        }
+
+        //string userTvgIdLower = videoStream.User_Tvg_ID.ToLower();
+
+        if (videoStream.User_Tvg_ID.StartsWith("dummy-"))
+        {
+            return HandleDummyStream(videoStream);
+        }
+        else
+        {
+            return ProcessNonDummyStreams(videoStream, cachedProgrammes, cachedIcons);
+        }
+    }
+
+    private List<Programme> HandleDummyStream(VideoStreamDto videoStream)
+    {
+        List<Programme> programmesForStream = new();
+
+        Programme prog = new()
+        {
+            Channel = videoStream.User_Tvg_name,
+            Title = new TvTitle
+            {
+                Lang = "en",
+                Text = videoStream.User_Tvg_name
+            },
+            Desc = new TvDesc
+            {
+                Lang = "en",
+                Text = videoStream.User_Tvg_name
+            }
+        };
+
+        DateTime now = DateTime.Now;
+        prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{_httpContextAccessor.GetUrl()}/images/transparent.png" });
+        prog.Start = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToString("yyyyMMddHHmmss zzz").Replace(":", "");
+        now = now.AddDays(7);
+        prog.Stop = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0).ToString("yyyyMMddHHmmss zzz").Replace(":", "");
+        prog.New = null;
+        prog.Previouslyshown = null;
+
+        programmesForStream.Add(prog);
+        return programmesForStream;
+    }
+
+    private List<Programme> ProcessNonDummyStreams(VideoStreamDto videoStream, List<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
+    {
+        List<Programme> programmesForStream = new();
+
+        foreach (Programme? prog in cachedProgrammes.Where(p => p.Channel == videoStream.User_Tvg_ID))
+        {
+            AdjustProgrammeIcons(prog, cachedIcons);
+
+            prog.Channel = videoStream.User_Tvg_ID;
+            if (string.IsNullOrEmpty(prog.New))
+            {
+                prog.New = null;
+            }
+
+            if (string.IsNullOrEmpty(prog.Live))
+            {
+                prog.Live = null;
+            }
+
+            if (string.IsNullOrEmpty(prog.Premiere))
+            {
+                prog.Premiere = null;
+            }
+
+            if (prog.Previouslyshown == null || string.IsNullOrEmpty(prog.Previouslyshown.Start))
+            {
+                prog.Previouslyshown = null;
+            }
+
+            programmesForStream.Add(prog);
+        }
+
+        return programmesForStream;
+    }
+
+    private void AdjustProgrammeIcons(Programme prog, List<IconFileDto> cachedIcons)
+    {
+        foreach (TvIcon icon in prog.Icon)
+        {
+            if (!string.IsNullOrEmpty(icon.Src))
+            {
+                IconFileDto? programmeIcon = cachedIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == icon.Src);
+                if (programmeIcon != null)
+                {
+                    icon.Src = GetApiUrl(SMFileTypes.ProgrammeIcon, programmeIcon.Source);
+                }
+            }
+        }
+
+        if (!prog.Icon.Any())
+        {
+            prog.Icon.Add(new TvIcon { Height = "", Width = "", Src = "" });
+        }
+    }
+
+    [LogExecutionTimeAspect]
+    private static string SerializeEpgData(Tv epgData)
+    {
         XmlSerializerNamespaces ns = new();
         ns.Add("", "");
 
         using Utf8StringWriter textWriter = new();
         XmlSerializer serializer = new(typeof(Tv));
-        serializer.Serialize(textWriter, ret, ns);
-        textWriter.Close();
+        serializer.Serialize(textWriter, epgData, ns);
         return textWriter.ToString();
+    }
+
+    [LogExecutionTimeAspect]
+    private List<Programme> GetRelevantProgrammes(List<string> epgids)
+    {
+        return MemoryCache.Programmes()
+            .Where(a =>
+                a.StartDateTime > DateTime.Now.AddDays(-1) &&
+                a.StopDateTime < DateTime.Now.AddDays(7) &&
+                a.Channel != null &&
+                (epgids.Contains(a.Channel) ||
+                epgids.Contains(a.DisplayName))
+            ).ToList();
     }
 
     private string GetApiUrl(SMFileTypes path, string source)
@@ -324,37 +311,22 @@ public partial class GetStreamGroupEPGHandler : IRequestHandler<GetStreamGroupEP
 
     private int GetDummy()
     {
-        lock (Lock)
-        {
-            ++dummyCount;
-            return dummyCount;
-        }
+        return Interlocked.Increment(ref dummyCount);
     }
 
-    private bool IsNotInProgrammes(IEnumerable<Programme> programmes, VideoStreamDto videoStream)
+    private bool IsNotInProgrammes(IEnumerable<Programme> programmes, VideoStream videoStream)
     {
-        string userTvgId = videoStream.User_Tvg_ID.ToLower();
-        string userTvgIdDisplayName = videoStream.User_Tvg_ID_DisplayName.ToLower();
-
-        return !programmes.Any(p =>
-            string.Equals(p.Channel, userTvgId, StringComparison.InvariantCultureIgnoreCase) ||
-            string.Equals(p.Channel, userTvgIdDisplayName, StringComparison.InvariantCultureIgnoreCase));
+        return !programmes.Any(p => p.Channel == videoStream.User_Tvg_ID);
     }
 
-    private bool IsVideoStreamADummy(VideoStreamDto videoStream)
+    private bool IsVideoStreamADummy(VideoStreamDto videoStream, Setting setting)
     {
         if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
         {
             return true;
         }
 
-        if (!string.IsNullOrEmpty(_setting.DummyRegex))
-        {
-            Regex regex = new(_setting.DummyRegex, RegexOptions.ECMAScript | RegexOptions.IgnoreCase);
-            var test = regex.IsMatch(videoStream.User_Tvg_ID);
-            return test;
-        }
-
-        return false;
+        return !string.IsNullOrEmpty(setting.DummyRegex) &&
+               new Regex(setting.DummyRegex, RegexOptions.ECMAScript | RegexOptions.IgnoreCase).IsMatch(videoStream.User_Tvg_ID);
     }
 }

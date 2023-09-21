@@ -2,15 +2,10 @@
 
 using MediatR;
 
+using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.VideoStreams.Events;
 
-using StreamMasterDomain.Dto;
-
 namespace StreamMasterApplication.VideoStreams.Commands;
-
-public class UpdateVideoStreamRequest : VideoStreamUpdate, IRequest<VideoStreamDto?>
-{
-}
 
 public class UpdateVideoStreamRequestValidator : AbstractValidator<UpdateVideoStreamRequest>
 {
@@ -20,29 +15,24 @@ public class UpdateVideoStreamRequestValidator : AbstractValidator<UpdateVideoSt
     }
 }
 
-public class UpdateVideoStreamRequestHandler : IRequestHandler<UpdateVideoStreamRequest, VideoStreamDto?>
+[LogExecutionTimeAspect]
+public class UpdateVideoStreamRequestHandler(ILogger<UpdateVideoStreamRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateVideoStreamRequest, VideoStreamDto?>
 {
-    private readonly IAppDbContext _context;
-    private readonly IPublisher _publisher;
-
-    public UpdateVideoStreamRequestHandler(
-        IPublisher publisher,
-        IAppDbContext context
-        )
-    {
-        _publisher = publisher;
-        _context = context;
-    }
-
     public async Task<VideoStreamDto?> Handle(UpdateVideoStreamRequest request, CancellationToken cancellationToken)
     {
-        var ret = await _context.UpdateVideoStreamAsync(request, cancellationToken).ConfigureAwait(false);
 
-        if (ret is not null)
+        (VideoStreamDto? videoStream, ChannelGroupDto? updateChannelGroup) = await Repository.VideoStream.UpdateVideoStreamAsync(request, cancellationToken).ConfigureAwait(false);
+        if (videoStream is not null)
         {
-            await _publisher.Publish(new UpdateVideoStreamEvent(ret), cancellationToken).ConfigureAwait(false);
-        }
+            await Publisher.Publish(new UpdateVideoStreamEvent(videoStream, request.ToggleVisibility ?? false), cancellationToken).ConfigureAwait(false);
 
-        return ret;
+            if (updateChannelGroup != null)
+            {
+
+                await Sender.Send(new UpdateChannelGroupCountRequest(updateChannelGroup, true)).ConfigureAwait(false);
+                await HubContext.Clients.All.ChannelGroupsRefresh([updateChannelGroup]).ConfigureAwait(false);
+            }
+        }
+        return videoStream;
     }
 }

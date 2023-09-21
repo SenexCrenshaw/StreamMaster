@@ -6,11 +6,12 @@ using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.LogApp;
 
 using StreamMasterDomain.Common;
+using StreamMasterDomain.Services;
 
 using StreamMasterInfrastructure.Logging;
-using StreamMasterInfrastructure.Persistence;
 using StreamMasterInfrastructure.Services;
 using StreamMasterInfrastructure.Services.Frontend.Mappers;
+using StreamMasterInfrastructure.Services.Settings;
 using StreamMasterInfrastructure.VideoStreamManager;
 
 using System.Reflection;
@@ -21,12 +22,16 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddMemoryCache();
+        services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<IStreamManager, StreamManager>();
+
         // Dynamically find and register services implementing IMapHttpRequestsToDisk
-        var assembly = Assembly.GetExecutingAssembly();
-        var mapHttpRequestsToDiskImplementations = assembly.GetTypes()
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        IEnumerable<Type> mapHttpRequestsToDiskImplementations = assembly.GetTypes()
             .Where(type => typeof(IMapHttpRequestsToDisk).IsAssignableFrom(type) && !type.IsInterface);
 
-        foreach (var implementation in mapHttpRequestsToDiskImplementations)
+        foreach (Type? implementation in mapHttpRequestsToDiskImplementations)
         {
             if (implementation.Name.EndsWith("Base"))
             {
@@ -50,19 +55,13 @@ public static class ConfigureServices
             );
         });
 
-        Setting setting = FileUtil.GetSetting();
-
         string DbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster.db");
         string LogDbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster_Log.db");
 
         _ = services.AddDbContext<LogDbContext>(options => options.UseSqlite($"Data Source={LogDbPath}", builder => builder.MigrationsAssembly(typeof(LogDbContext).Assembly.FullName)));
         _ = services.AddScoped<LogDbContextInitialiser>();
 
-        _ = services.AddDbContext<AppDbContext>(options => options.UseSqlite($"Data Source={DbPath}", builder => builder.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
-        _ = services.AddScoped<AppDbContextInitialiser>();
-
         _ = services.AddScoped<ILogDB>(provider => provider.GetRequiredService<LogDbContext>());
-        _ = services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
 
         _ = services.AddTransient<IDateTime, DateTimeService>();
 

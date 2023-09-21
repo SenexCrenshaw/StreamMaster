@@ -1,59 +1,26 @@
-﻿using AutoMapper;
+﻿namespace StreamMasterApplication.M3UFiles.Commands;
 
-using FluentValidation;
+public record ProcessM3UFilesRequest : IRequest { }
 
-using MediatR;
-
-using Microsoft.Extensions.Logging;
-
-namespace StreamMasterApplication.M3UFiles.Commands;
-
-public record ProcessM3UFilesRequest : IRequest
+public class ProcessM3UFilesRequestHandler : BaseMediatorRequestHandler, IRequestHandler<ProcessM3UFilesRequest>
 {
-}
 
-public class ProcessM3UFilesRequestValidator : AbstractValidator<ProcessM3UFilesRequest>
-{
-    public ProcessM3UFilesRequestValidator()
-    {
-    }
-}
+    public ProcessM3UFilesRequestHandler(ILogger<ProcessM3UFilesRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+ : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
 
-public class ProcessM3UFilesRequestHandler : IRequestHandler<ProcessM3UFilesRequest>
-{
-    private readonly IAppDbContext _context;
-    private readonly ILogger<ProcessM3UFilesRequestHandler> _logger;
-    private readonly IMapper _mapper;
-    private readonly IPublisher _publisher;
-    private readonly ISender _sender;
-
-    public ProcessM3UFilesRequestHandler(
-        ILogger<ProcessM3UFilesRequestHandler> logger,
-        ISender sender,
-        IMapper mapper,
-          IPublisher publisher,
-        IAppDbContext context
-    )
-    {
-        _sender = sender;
-        _publisher = publisher;
-        _context = context;
-        _mapper = mapper;
-        _logger = logger;
-    }
 
     public async Task Handle(ProcessM3UFilesRequest command, CancellationToken cancellationToken)
     {
         try
         {
-            foreach (M3UFile m3uFile in _context.M3UFiles)
+            foreach (M3UFileDto m3uFile in await Repository.M3UFile.GetM3UFiles().ConfigureAwait(false))
             {
-                _ = await _sender.Send(new ProcessM3UFileRequest { M3UFileId = m3uFile.Id }, cancellationToken).ConfigureAwait(false);
+                _ = await Sender.Send(new ProcessM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, "Error while processing M3U file");
+            Logger.LogCritical(ex, "Error while processing M3U file");
         }
     }
 }

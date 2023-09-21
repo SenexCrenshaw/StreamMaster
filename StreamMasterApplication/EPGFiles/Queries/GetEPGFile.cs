@@ -1,48 +1,31 @@
-﻿using AutoMapper;
-
-using MediatR;
-
-using Microsoft.Extensions.Caching.Memory;
-
-using StreamMasterDomain.Dto;
+﻿using StreamMasterDomain.EPG;
+using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.EPGFiles.Queries;
 
-public record GetEPGFile(int Id) : IRequest<EPGFilesDto?>;
+public record GetEPGFile(int Id) : IRequest<EPGFileDto?>;
 
-internal class GetEPGFileHandler : IRequestHandler<GetEPGFile, EPGFilesDto?>
+internal class GetEPGFileHandler : BaseMediatorRequestHandler, IRequestHandler<GetEPGFile, EPGFileDto?>
 {
-    private readonly IAppDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IMemoryCache _memoryCache;
 
-    public GetEPGFileHandler(
-         IMapper mapper,
-        IMemoryCache memoryCache,
-        IAppDbContext context)
+    public GetEPGFileHandler(ILogger<GetEPGFile> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
+    public async Task<EPGFileDto?> Handle(GetEPGFile request, CancellationToken cancellationToken = default)
     {
-        _memoryCache = memoryCache;
-        _mapper = mapper;
-        _context = context;
-    }
-
-    public async Task<EPGFilesDto?> Handle(GetEPGFile request, CancellationToken cancellationToken = default)
-    {
-        EPGFile? EPGFile = await _context.EPGFiles.FindAsync(new object?[] { request.Id }, cancellationToken: cancellationToken).ConfigureAwait(false);
-        if (EPGFile == null)
+        EPGFile? epgFile = await Repository.EPGFile.GetEPGFileById(request.Id).ConfigureAwait(false);
+        if (epgFile == null)
         {
             return null;
         }
+        EPGFileDto epgFileDto = Mapper.Map<EPGFileDto>(epgFile);
 
-        EPGFilesDto ret = _mapper.Map<EPGFilesDto>(EPGFile);
-
-        List<StreamMasterDomain.Entities.EPG.Programme> proprammes = _memoryCache.Programmes().Where(a => a.EPGFileId == EPGFile.Id).ToList();
+        List<Programme> proprammes = MemoryCache.Programmes().Where(a => a.EPGFileId == epgFile.Id).ToList();
         if (proprammes.Any())
         {
-            ret.EPGStartDate = proprammes.Min(a => a.StartDateTime);
-            ret.EPGStopDate = proprammes.Max(a => a.StopDateTime);
+            epgFileDto.EPGStartDate = proprammes.Min(a => a.StartDateTime);
+            epgFileDto.EPGStopDate = proprammes.Max(a => a.StopDateTime);
         }
 
-        return ret;
+        return epgFileDto;
     }
 }

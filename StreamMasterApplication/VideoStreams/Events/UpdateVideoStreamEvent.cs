@@ -1,13 +1,7 @@
-﻿using StreamMasterDomain.Dto;
+﻿namespace StreamMasterApplication.VideoStreams.Events;
 
-namespace StreamMasterApplication.VideoStreams.Events;
-
-public class UpdateVideoStreamEvent : BaseEvent
+public class UpdateVideoStreamEvent(VideoStreamDto videoStream, bool toggelVisibility) : BaseEvent
 {
-    public UpdateVideoStreamEvent(VideoStreamDto videoStreamsDto)
-    {
-        VideoStreamDto = videoStreamsDto;
-    }
-
-    public VideoStreamDto VideoStreamDto { get; }
+    public bool ToggelVisibility { get; set; } = toggelVisibility;
+    public VideoStreamDto VideoStream { get; } = videoStream;
 }

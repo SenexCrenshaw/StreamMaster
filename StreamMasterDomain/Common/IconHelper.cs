@@ -2,24 +2,23 @@
 
 using Microsoft.Extensions.Caching.Memory;
 
+using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Enums;
-
+using StreamMasterDomain.Models;
 using System.Web;
 
 namespace StreamMasterDomain.Common;
 
 public static class IconHelper
 {
-   
-    private static readonly object _lock = new object();
+
+    private static readonly object _lock = new();
     public static IconFileDto GetIcon(string sourceUrl, string? recommendedName, int fileId, FileDefinition fileDefinition)
     {
         string source = HttpUtility.UrlDecode(sourceUrl);
         string ext = Path.GetExtension(source)?.TrimStart('.') ?? string.Empty;
 
         string name;
-        string fullName;
         if (!string.IsNullOrEmpty(recommendedName))
         {
             name = string.Join("_", recommendedName.Split(Path.GetInvalidFileNameChars())) + $".{ext}";
@@ -30,7 +29,7 @@ public static class IconHelper
             (_, name) = fileDefinition.DirectoryLocation.GetRandomFileName($".{ext}");
         }
 
-        var icon = new IconFileDto
+        IconFileDto icon = new()
         {
             Source = source,
             Extension = ext,
@@ -42,34 +41,34 @@ public static class IconHelper
         return icon;
     }
 
-        /// <summary>
-        /// AddIcon from URL
-        /// </summary>
-        /// <param name="sourceUrl"></param>
-        /// <param name="recommendedName"></param>
-        /// <param name="context"></param>
-        /// <param name="_mapper"></param>
-        /// <param name="setting"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        public static IconFileDto AddIcon(string sourceUrl, string? recommendedName, int fileId, IMapper _mapper, IMemoryCache memoryCache, FileDefinition fileDefinition, CancellationToken cancellationToken, bool ignoreAdd=false)
+    /// <summary>
+    /// AddIcon from URL
+    /// </summary>
+    /// <param name="sourceUrl"></param>
+    /// <param name="recommendedName"></param>
+    /// <param name="context"></param>
+    /// <param name="_mapper"></param>
+    /// <param name="setting"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public static IconFileDto AddIcon(string sourceUrl, string? recommendedName, int fileId, int Id, IMemoryCache memoryCache, FileDefinition fileDefinition, CancellationToken cancellationToken, bool ignoreAdd = false)
     {
         string source = HttpUtility.UrlDecode(sourceUrl);
-       
-            var testIcon = memoryCache.GetIcon(source, fileDefinition.SMFileType);
 
-            //var testIcon = icons.FirstOrDefault(a => a.Source == source && a.SMFileType == fileDefinition.SMFileType);
+        IconFileDto? testIcon = memoryCache.GetIcon(source, fileDefinition.SMFileType);
 
-            if (testIcon != null)
-            {
-                return testIcon;
-            }
+        //var testIcon = icons.FirstOrDefault(a => a.Source == source && a.SMFileType == fileDefinition.SMFileType);
 
-        var icon = GetIcon(sourceUrl, recommendedName, fileId, fileDefinition);
+        if (testIcon != null)
+        {
+            return testIcon;
+        }
+
+        IconFileDto icon = GetIcon(sourceUrl, recommendedName, fileId, fileDefinition);
+        icon.Id = Id;
 
 
-
-        if ( ignoreAdd)
+        if (ignoreAdd)
         {
             return icon;
         }
@@ -88,13 +87,12 @@ public static class IconHelper
 
     public static async Task<bool> ReadDirectoryLogos(IMemoryCache memoryCache, CancellationToken cancellationToken)
     {
-        var fd = FileDefinitions.TVLogo;
+        FileDefinition fd = FileDefinitions.TVLogo;
         if (!Directory.Exists(fd.DirectoryLocation))
         {
             return false;
         }
 
-        Setting setting = FileUtil.GetSetting();
         DirectoryInfo dirInfo = new(BuildInfo.TVLogoDataFolder);
 
         List<TvLogoFile> tvLogos = new()
@@ -110,7 +108,7 @@ public static class IconHelper
             new TvLogoFile
             {
                 Id=1,
-                Source = setting.StreamMasterIcon,
+                Source = "images/StreamMaster.png",
                 FileExists = true,
                 Name = "Stream Master"
             }

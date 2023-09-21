@@ -1,18 +1,10 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-
-using FluentValidation;
-
-using MediatR;
+﻿using FluentValidation;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.Common.Extensions;
 
-using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Authentication;
-using StreamMasterDomain.Dto;
 
 using System.Text.Json;
 using System.Web;
@@ -20,40 +12,30 @@ using System.Web;
 namespace StreamMasterApplication.StreamGroups.Queries;
 
 [RequireAll]
-public record GetStreamGroupLineUp(int StreamGroupNumber) : IRequest<string>;
+public record GetStreamGroupLineUp(int StreamGroupId) : IRequest<string>;
 
 public class GetStreamGroupLineUpValidator : AbstractValidator<GetStreamGroupLineUp>
 {
     public GetStreamGroupLineUpValidator()
     {
-        _ = RuleFor(v => v.StreamGroupNumber)
+        _ = RuleFor(v => v.StreamGroupId)
             .NotNull().GreaterThanOrEqualTo(0);
     }
 }
 
-public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp, string>
+[LogExecutionTimeAspect]
+public class GetStreamGroupLineUpHandler : BaseMediatorRequestHandler, IRequestHandler<GetStreamGroupLineUp, string>
 {
-    protected Setting _setting = FileUtil.GetSetting();
-
-    private readonly IAppDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IMapper _mapper;
+    public GetStreamGroupLineUpHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupLineUp> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+  : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { _httpContextAccessor = httpContextAccessor; }
 
-    public GetStreamGroupLineUpHandler(
-        IAppDbContext context,
-        IMapper mapper,
-        IHttpContextAccessor httpContextAccessor
-        )
-    {
-        _httpContextAccessor = httpContextAccessor;
-        _mapper = mapper;
-        _context = context;
-    }
 
     public async Task<string> Handle(GetStreamGroupLineUp request, CancellationToken cancellationToken)
     {
-        var requestPath = _httpContextAccessor.HttpContext.Request.Path.Value.ToString();
-        var iv = requestPath.GetIVFromPath(128);
+        Setting setting = await GetSettingsAsync();
+        string requestPath = _httpContextAccessor.GetUrlWithPathValue();
+        byte[]? iv = requestPath.GetIVFromPath(setting.ServerKey, 128);
         if (iv == null)
         {
             return "";
@@ -62,45 +44,49 @@ public class GetStreamGroupLineUpHandler : IRequestHandler<GetStreamGroupLineUp,
         string url = _httpContextAccessor.GetUrl();
         List<LineUp> ret = new();
 
-        List<VideoStreamDto> videoStreams = new();
-        if (request.StreamGroupNumber > 0)
-        {
-            var streamGroup = await _context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
-            if (streamGroup == null)
-            {
-                return "";
-            }
-            videoStreams = streamGroup.ChildVideoStreams.Where(a => !a.IsHidden).ToList();
-        }
-        else
-        {
-            videoStreams = _context.VideoStreams
-                .Where(a => !a.IsHidden)
-                .AsNoTracking()
-                .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider)
-                .ToList();
-        }
+        //IEnumerable<VideoStream> videoStreams;
+        //if (request.StreamGroupId > 1)
+        //{
+        //    StreamGroup? streamGroup = await Repository.StreamGroup
+        //            .FindAll()
+        //            .Include(a => a.ChildVideoStreams)
+        //            .FirstOrDefaultAsync(a => a.StreamGroupNumber == request.StreamGroupNumber, cancellationToken: cancellationToken)
+        //            .ConfigureAwait(false);
+
+        //    if (streamGroup == null)
+        //    {
+        //        return "";
+        //    }
+        //    videoStreams = streamGroup.ChildVideoStreams.Select(a => a.ChildVideoStream).Where(a => !a.IsHidden);
+        //}
+        //else
+        //{
+        //    videoStreams = Repository.VideoStream.GetVideoStreamsNotHidden();
+        //}
+
+        List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
+
 
         if (!videoStreams.Any())
         {
             return JsonSerializer.Serialize(ret);
         }
 
-        foreach (var videoStream in videoStreams)
+        foreach (VideoStreamDto videoStream in videoStreams)
         {
-        
-                if (_setting.M3UIgnoreEmptyEPGID &&
-                (string.IsNullOrEmpty(videoStream.User_Tvg_ID) || videoStream.User_Tvg_ID.ToLower() == "dummy"))
-                {
-                    continue;
-                }
-            
+
+            if (setting.M3UIgnoreEmptyEPGID &&
+            (string.IsNullOrEmpty(videoStream.User_Tvg_ID) || videoStream.User_Tvg_ID.ToLower() == "dummy"))
+            {
+                continue;
+            }
+
 
             string videoUrl = videoStream.Url;
 
-            var encodedNumbers = request.StreamGroupNumber.EncodeValues128(videoStream.Id, _setting.ServerKey, iv);
+            string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, setting.ServerKey, iv);
 
-            var encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
+            string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
             videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
             LineUp lu = new()

@@ -3,13 +3,13 @@
 using StreamMasterApplication.LogApp;
 
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Entities;
+using StreamMasterDomain.Models;
 
 namespace StreamMasterInfrastructure.Logging;
 
 public class LogDbContext : DbContext, ILogDB
 {
-    private string DbPath = "";
+    private readonly string DbPath = "";
 
     public LogDbContext(DbContextOptions<LogDbContext> options)
       : base(options)
@@ -26,7 +26,12 @@ public class LogDbContext : DbContext, ILogDB
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlite($"Data Source={DbPath}");
+
+        optionsBuilder.UseSqlite(
+              $"Data Source={DbPath}",
+              o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+              );
+        SQLitePCL.Batteries.Init();
     }
 
     protected override void OnModelCreating(ModelBuilder builder)

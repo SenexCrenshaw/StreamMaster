@@ -1,6 +1,4 @@
-﻿using MediatR;
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterApplication.LogApp;
 using StreamMasterApplication.LogApp.Queries;
@@ -11,8 +9,9 @@ namespace StreamMasterAPI.Controllers;
 
 public class LogsController : ApiControllerBase, ILogController
 {
+    [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<IEnumerable<LogEntryDto>>> GetLogRequest(GetLog request)
+    public async Task<ActionResult<IEnumerable<LogEntryDto>>> GetLog([FromQuery] GetLogRequest request)
     {
         return await Mediator.Send(request).ConfigureAwait(false);
     }

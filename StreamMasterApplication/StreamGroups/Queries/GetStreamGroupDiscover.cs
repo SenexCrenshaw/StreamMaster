@@ -1,78 +1,55 @@
-﻿using AutoMapper;
-
-using FluentValidation;
-
-using MediatR;
+﻿using FluentValidation;
 
 using Microsoft.AspNetCore.Http;
 
+using StreamMasterApplication.Common.Extensions;
 using StreamMasterApplication.Common.Models;
 
-using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Dto;
+using StreamMasterDomain.Authentication;
 
 using System.Text.Json;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
 [RequireAll]
-public record GetStreamGroupDiscover(int StreamGroupNumber) : IRequest<string>;
+public record GetStreamGroupDiscover(int StreamGroupId) : IRequest<string>;
 
 public class GetStreamGroupDiscoverValidator : AbstractValidator<GetStreamGroupDiscover>
 {
     public GetStreamGroupDiscoverValidator()
     {
-        _ = RuleFor(v => v.StreamGroupNumber)
+        _ = RuleFor(v => v.StreamGroupId)
             .NotNull().GreaterThanOrEqualTo(0);
     }
 }
 
-public class GetStreamGroupDiscoverHandler : IRequestHandler<GetStreamGroupDiscover, string>
+[LogExecutionTimeAspect]
+public class GetStreamGroupDiscoverHandler : BaseMediatorRequestHandler, IRequestHandler<GetStreamGroupDiscover, string>
 {
-    private readonly IAppDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IMapper _mapper;
-    private readonly ISender _sender;
 
-    public GetStreamGroupDiscoverHandler(
-           IHttpContextAccessor httpContextAccessor,
-           IAppDbContext context,
-           IMapper mapper
-           )
-    {
-        _mapper = mapper;
-        _context = context;
-        _httpContextAccessor = httpContextAccessor;
-    }
+    public GetStreamGroupDiscoverHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupDiscover> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { _httpContextAccessor = httpContextAccessor; }
 
     public async Task<string> Handle(GetStreamGroupDiscover request, CancellationToken cancellationToken)
     {
-        var url = GetUrl();
-        if (request.StreamGroupNumber > 0)
+        if (request.StreamGroupId > 1)
         {
-            var streamGroup = await _context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
-            if (streamGroup == null)
+            bool streamGroup = await Repository.StreamGroup.GetStreamGroupById(request.StreamGroupId).ConfigureAwait(false) != null;
+            if (!streamGroup)
             {
                 return "";
             }
         }
-        var settings = _mapper.Map<SettingDto>(FileUtil.GetSetting());
-        var maxTuners = _context.M3UFiles.Sum(a => a.MaxStreamCount);
-        Discover discover = new(settings, url, request.StreamGroupNumber, maxTuners);
+
+        var url = _httpContextAccessor.GetUrlWithPath();
+
+        int maxTuners = await Repository.M3UFile.GetM3UMaxStreamCount();
+        Discover discover = new(url, request.StreamGroupId, maxTuners);
 
         string jsonString = JsonSerializer.Serialize(discover, new JsonSerializerOptions { WriteIndented = true });
         return jsonString;
     }
 
-    private string GetUrl()
-    {
-        var request = _httpContextAccessor.HttpContext.Request;
-        var scheme = request.Scheme;
-        var host = request.Host;
-        var path = request.Path;
-        path = path.ToString().Replace("/discover.json", "");
-        var url = $"{scheme}://{host}{path}";
-
-        return url;
-    }
+  
 }

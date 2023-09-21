@@ -30,7 +30,7 @@ public static class RequestExtensions
             return "Unknown";
         }
 
-        var remoteIP = request.HttpContext.Connection.RemoteIpAddress;
+        System.Net.IPAddress? remoteIP = request.HttpContext.Connection.RemoteIpAddress;
 
         if (remoteIP.IsIPv4MappedToIPv6)
         {

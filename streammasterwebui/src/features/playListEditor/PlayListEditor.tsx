@@ -1,29 +1,11 @@
-import React from "react";
-import type * as StreamMasterApi from '../../store/iptvApi';
-import VideoStreamDataSelector from '../../components/VideoStreamDataSelector';
-import PlayListDataSelector from '../../components/PlayListDataSelector';
-import { PlayListEditorIcon } from '../../common/icons';
-import { useLocalStorage } from 'primereact/hooks';
+import { memo } from "react";
+import { PlayListEditorIcon } from "../../common/icons";
 
-const PlayListEditor = (props: PlayListEditorProps) => {
-  const id = props.id ?? "playlisteditor";
+import ChannelGroupVideoStreamDataSelector from "./ChannelGroupVideoStreamDataSelector";
+import PlayListDataSelector from "./PlayListDataSelector";
 
-  const [selectedChannelGroups, setSelectedChannelGroups] = useLocalStorage<StreamMasterApi.ChannelGroupDto[]>([] as StreamMasterApi.ChannelGroupDto[], props.id + '-selectedChannelGroups');
-
-
-  const onsetSelectedChannelGroups = React.useCallback((selectedData: StreamMasterApi.ChannelGroupDto | StreamMasterApi.ChannelGroupDto[]) => {
-    if (Array.isArray(selectedData)) {
-      setSelectedChannelGroups(selectedData);
-    } else {
-      setSelectedChannelGroups([selectedData]);
-    }
-
-    console.debug('onsetSelectedChannelGroups');
-  }, [setSelectedChannelGroups]);
-
-  if (selectedChannelGroups === undefined) {
-    return null;
-  }
+const PlayListEditor = () => {
+  const id = "playlisteditor";
 
   return (
     <div className="playListEditor">
@@ -35,16 +17,10 @@ const PlayListEditor = (props: PlayListEditorProps) => {
 
         <div className="flex col-12 mt-1 m-0 p-0" >
           <div className='col-4 m-0 p-0 pr-1' >
-            <PlayListDataSelector
-              id={id}
-              onSelectionChange={(e) => onsetSelectedChannelGroups(e as StreamMasterApi.ChannelGroupDto[])}
-            />
+            <PlayListDataSelector id={id} />
           </div>
           <div className="col-8 m-0 p-0">
-            <VideoStreamDataSelector
-              groups={selectedChannelGroups}
-              id={id}
-            />
+            <ChannelGroupVideoStreamDataSelector id={id} />
           </div>
         </div >
       </div >
@@ -54,15 +30,5 @@ const PlayListEditor = (props: PlayListEditorProps) => {
 };
 
 PlayListEditor.displayName = 'Playlist Editor';
-PlayListEditor.defaultProps = {
-  id: 'playlistEditor',
-};
 
-export type PlayListEditorProps = {
-  /**
-* The unique identifier of the component.
-*/
-  id?: string;
-};
-
-export default React.memo(PlayListEditor);
+export default memo(PlayListEditor);

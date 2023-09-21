@@ -50,7 +50,7 @@ const ProgramComponent = ({ program, onClick, ...rest }: ProgramComponentProps) 
 
 type ProgramProps = {
 
-  onClick: ((videoStreamId: string) => void);
+  readonly onClick: ((videoStreamId: string) => void);
 
 };
 

@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 
+using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
@@ -11,20 +13,11 @@ using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
-public class StreamManager : IStreamManager
+public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ILogger<StreamManager> logger, IMemoryCache memoryCache) : IStreamManager
 {
-    private readonly ILogger<CircularRingBuffer> _circularBufferLogger;
-    private readonly ILogger<StreamManager> _logger;
-    private readonly ConcurrentDictionary<string, IStreamInformation> _streamInformations;
-
-    public StreamManager(ILoggerFactory loggerFactory)
-    {
-        _logger = loggerFactory.CreateLogger<StreamManager>();
-        _streamInformations = new ConcurrentDictionary<string, IStreamInformation>();
-        _circularBufferLogger = loggerFactory.CreateLogger<CircularRingBuffer>();
-    }
-
-    private Setting setting => FileUtil.GetSetting();
+    //private readonly ILogger<CircularRingBuffer> _circularBufferLogger = loggerFactory.CreateLogger<CircularRingBuffer>();
+    //private readonly ILogger<StreamManager> logger = loggerFactory.CreateLogger<StreamManager>();
+    private readonly ConcurrentDictionary<string, IStreamInformation> _streamInformations = new();
 
     public void Dispose()
     {
@@ -33,40 +26,51 @@ public class StreamManager : IStreamManager
 
     public async Task<IStreamInformation?> GetOrCreateBuffer(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank)
     {
-        var streamUrl = childVideoStreamDto.User_Url;
-        if (_streamInformations.TryGetValue(streamUrl, out var _streamInformation))
+        string streamUrl = childVideoStreamDto.User_Url;
+        if (_streamInformations.TryGetValue(streamUrl, out IStreamInformation? _streamInformation))
         {
-            _logger.LogInformation("Reusing buffer for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+            logger.LogInformation("Reusing buffer for stream: {StreamUrl}", streamUrl);
             return _streamInformation;
         }
 
-        _logger.LogInformation("Creating and starting buffer for stream: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+        logger.LogInformation("Creating and starting buffer for stream: {StreamUrl}", streamUrl);
 
-        ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, videoStreamId, videoStreamName, rank, _circularBufferLogger);
+        Setting setting = memoryCache.GetSetting();
+
+        ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, videoStreamId, videoStreamName, rank, setting.PreloadPercentage, setting.RingBufferSizeMB, circularBufferLogger);
         CancellationTokenSource cancellationTokenSource = new();
 
         (Stream? stream, int processId, ProxyStreamError? error) = await GetProxy(streamUrl, cancellationTokenSource.Token);
 
         if (stream == null || error != null)
         {
-            _logger.LogError("Error GetOrCreateBuffer for {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+            logger.LogError("Error GetOrCreateBuffer for {StreamUrl}", streamUrl);
             return null;
         }
 
-        Task streamingTask = StartVideoStreaming(stream, streamUrl, buffer, cancellationTokenSource);
+        try
+        {
 
-        StreamInformation streamStreamInfo = new(streamUrl, buffer, streamingTask, childVideoStreamDto.M3UFileId, childVideoStreamDto.MaxStreams, processId, cancellationTokenSource);
+            Task streamingTask = StartVideoStreaming(stream, streamUrl, buffer, cancellationTokenSource);
 
-        _streamInformations.TryAdd(streamStreamInfo.StreamUrl, streamStreamInfo);
+            StreamInformation streamStreamInfo = new(streamUrl, buffer, streamingTask, childVideoStreamDto.M3UFileId, childVideoStreamDto.MaxStreams, processId, cancellationTokenSource);
 
-        _logger.LogInformation("Buffer created and streaming started for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+            _streamInformations.TryAdd(streamStreamInfo.StreamUrl, streamStreamInfo);
 
-        return streamStreamInfo;
+            logger.LogInformation("Buffer created and streaming started for: {StreamUrl}", streamUrl);
+
+            return streamStreamInfo;
+        }
+        catch (TaskCanceledException)
+        {
+            throw ;
+        }
+        return null;
     }
 
     public SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl)
     {
-        if (_streamInformations.TryGetValue(streamUrl, out var _streamInformation))
+        if (_streamInformations.TryGetValue(streamUrl, out IStreamInformation? _streamInformation))
         {
             return _streamInformation.RingBuffer.GetSingleStreamStatisticsResult();
         }
@@ -91,7 +95,7 @@ public class StreamManager : IStreamManager
 
     public IStreamInformation? Stop(string streamUrl)
     {
-        if (_streamInformations.TryRemove(streamUrl, out var _streamInformation))
+        if (_streamInformations.TryRemove(streamUrl, out IStreamInformation? _streamInformation))
         {
             _streamInformation.Stop();
             return _streamInformation;
@@ -108,7 +112,7 @@ public class StreamManager : IStreamManager
         }
         catch (TaskCanceledException)
         {
-            _logger.LogInformation("Task was cancelled");
+            logger.LogInformation("Task was cancelled");
             throw;
         }
     }
@@ -119,14 +123,16 @@ public class StreamManager : IStreamManager
         ProxyStreamError? error;
         int processId;
 
+        Setting setting = memoryCache.GetSetting();
+
         if (setting.StreamingProxyType == StreamingProxyTypes.FFMpeg)
         {
-            (stream, processId, error) = await StreamingProxies.GetFFMpegStream(streamUrl, _logger);
+            (stream, processId, error) = await StreamingProxies.GetFFMpegStream(streamUrl, logger, setting);
             LogErrorIfAny(stream, error, streamUrl);
         }
         else
         {
-            (stream, processId, error) = await StreamingProxies.GetProxyStream(streamUrl, _logger, cancellationToken);
+            (stream, processId, error) = await StreamingProxies.GetProxyStream(streamUrl, logger, setting, cancellationToken);
             LogErrorIfAny(stream, error, streamUrl);
         }
 
@@ -136,11 +142,11 @@ public class StreamManager : IStreamManager
     private void LogBufferHealth(ICircularRingBuffer buffer)
     {
         // Calculate buffer utilization percentage
-        var bufferUtilization = buffer.GetBufferUtilization();
+        float bufferUtilization = buffer.GetBufferUtilization();
         if (bufferUtilization < 95.0)
         {
             // Log the buffer health information
-            _logger.LogWarning("Buffer health below 95% - Capacity: {BufferCapacity}, Utilization: {BufferUtilization}%", buffer.BufferSize, bufferUtilization);
+            logger.LogWarning("Buffer health below 95% - Capacity: {BufferCapacity}, Utilization: {BufferUtilization}%", buffer.BufferSize, bufferUtilization);
         }
     }
 
@@ -148,7 +154,7 @@ public class StreamManager : IStreamManager
     {
         if (stream == null || error != null)
         {
-            _logger.LogError("Error getting proxy stream for {StreamUrl}: {Error?.Message}", setting.CleanURLs ? "url removed" : streamUrl, error?.Message);
+            logger.LogError("Error getting proxy stream for {StreamUrl}: {Error?.Message}", streamUrl, error?.Message);
         }
     }
 
@@ -156,11 +162,11 @@ public class StreamManager : IStreamManager
     {
         if (token.IsCancellationRequested)
         {
-            _logger.LogInformation("Stream was cancelled for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+            logger.LogInformation("Stream was cancelled for: {StreamUrl}", streamUrl);
         }
 
-        _logger.LogInformation("Stream received 0 bytes for stream: {StreamUrl} Retry {retryCount}/{maxRetries}",
-            setting.CleanURLs ? "url removed" : streamUrl,
+        logger.LogInformation("Stream received 0 bytes for stream: {StreamUrl} Retry {retryCount}/{maxRetries}",
+            streamUrl,
             retryCount,
             maxRetries);
 
@@ -169,23 +175,23 @@ public class StreamManager : IStreamManager
 
     private async Task StartVideoStreaming(Stream stream, string streamUrl, ICircularRingBuffer buffer, CancellationTokenSource cancellationToken)
     {
-        var chunkSize = 24 * 1024;
+        int chunkSize = 24 * 1024;
 
-        _logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl}", chunkSize, setting.CleanURLs ? "url removed" : streamUrl);
+        logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl}", chunkSize, streamUrl);
 
         byte[] bufferChunk = new byte[chunkSize];
 
-        var maxRetries = 3; //setting.MaxConnectRetry > 0 ? setting.MaxConnectRetry : 3;
-        var waitTime = 50;// setting.MaxConnectRetryTimeMS > 0 ? setting.MaxConnectRetryTimeMS : 50;
+        int maxRetries = 3; //setting.MaxConnectRetry > 0 ? setting.MaxConnectRetry : 3;
+        int waitTime = 50;// setting.MaxConnectRetryTimeMS > 0 ? setting.MaxConnectRetryTimeMS : 50;
 
         using (stream)
         {
-            var retryCount = 0;
+            int retryCount = 0;
             while (!cancellationToken.IsCancellationRequested && retryCount < maxRetries)
             {
                 try
                 {
-                    var bytesRead = await TryReadStream(bufferChunk, stream, cancellationToken.Token);
+                    int bytesRead = await TryReadStream(bufferChunk, stream, cancellationToken.Token);
                     if (bytesRead == -1)
                     {
                         break;
@@ -204,19 +210,21 @@ public class StreamManager : IStreamManager
                 }
                 catch (TaskCanceledException ex)
                 {
-                    _logger.LogError(ex, "Stream cancelled for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+                    logger.LogError(ex, "Stream cancelled for: {StreamUrl}", streamUrl);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Stream error for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+                    logger.LogError(ex, "Stream error for: {StreamUrl}", streamUrl);
                     break;
                 }
             }
         }
 
-        _logger.LogInformation("Stream stopped for: {StreamUrl}", setting.CleanURLs ? "url removed" : streamUrl);
+        logger.LogInformation("Stream stopped for: {StreamUrl}", streamUrl);
         if (!cancellationToken.IsCancellationRequested)
+        {
             cancellationToken.Cancel();
+        }
     }
 
     private async Task<int> TryReadStream(byte[] bufferChunk, Stream stream, CancellationToken cancellationToken)
@@ -225,7 +233,7 @@ public class StreamManager : IStreamManager
         {
             if (!stream.CanRead || cancellationToken.IsCancellationRequested)
             {
-                _logger.LogWarning("Stream is not readable or cancelled");
+                logger.LogWarning("Stream is not readable or cancelled");
                 return -1;
             }
 

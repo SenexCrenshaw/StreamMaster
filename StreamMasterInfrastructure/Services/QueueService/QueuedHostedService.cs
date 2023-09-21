@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+using StreamMasterApplication.ChannelGroups.Commands;
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.EPGFiles.Commands;
 using StreamMasterApplication.General.Commands;
@@ -93,15 +94,19 @@ public sealed class QueuedHostedService : BackgroundService
                     case SMQueCommand.ProcessEPGFile:
                         if (command.Entity is not null && command.Entity.GetType() == typeof(int))
                         {
-                            _ = await _sender.Send(new ProcessEPGFileRequest { EPGFileId = (int)command.Entity }, cancellationToken).ConfigureAwait(false);
+                            _ = await _sender.Send(new ProcessEPGFileRequest((int)command.Entity), cancellationToken).ConfigureAwait(false);
                         }
+                        break;
+
+                    case SMQueCommand.UpdateChannelGroupCounts:
+                        await _sender.Send(new UpdateChannelGroupCountsByIdsRequest(), cancellationToken).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.ProcessM3UFile:
 
                         if (command.Entity is not null && command.Entity.GetType() == typeof(int))
                         {
-                            _ = await _sender.Send(new ProcessM3UFileRequest { M3UFileId = (int)command.Entity }, cancellationToken).ConfigureAwait(false);
+                            _ = await _sender.Send(new ProcessM3UFileRequest((int)command.Entity), cancellationToken).ConfigureAwait(false);
                         }
                         break;
 
@@ -144,6 +149,7 @@ public sealed class QueuedHostedService : BackgroundService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred executing task work item. {command}", command.Command);
+                await _taskQueue.SetStop(command.Id).ConfigureAwait(false);
             }
         }
         _logger.LogInformation("{nameof(QueuedHostedService)} is stopped.{Environment.NewLine}", nameof(QueuedHostedService), Environment.NewLine);

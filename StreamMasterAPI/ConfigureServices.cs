@@ -16,18 +16,21 @@ using StreamMasterAPI.SchemaHelpers;
 using StreamMasterAPI.Services;
 
 using StreamMasterApplication.Common.Interfaces;
+using StreamMasterApplication.Common.Logging;
 using StreamMasterApplication.Hubs;
 using StreamMasterApplication.Services;
 
 using StreamMasterDomain.EnvironmentInfo;
+using StreamMasterDomain.Logging;
 
 using StreamMasterInfrastructure;
 using StreamMasterInfrastructure.Authentication;
 using StreamMasterInfrastructure.Logging;
-using StreamMasterInfrastructure.Persistence;
 using StreamMasterInfrastructure.Services;
 using StreamMasterInfrastructure.Services.Frontend;
 using StreamMasterInfrastructure.Services.QueueService;
+
+using StreamMasterInfrastructureEF;
 
 namespace StreamMasterAPI;
 
@@ -37,12 +40,16 @@ public static class ConfigureServices
     {
         services.AddLogging(logging =>
         {
+            logging.AddFilter("StreamMasterDomain.Logging.CustomLogger", LogLevel.Information);
             logging.AddConsole();
             logging.AddDebug();
             logging.AddProvider(new SMLoggerProvider());
         });
 
-        services.AddMemoryCache();
+        services.AddTransient(typeof(ILogger<>), typeof(CustomLogger<>));
+
+        ILoggerFactory loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
+        GlobalLoggerProvider.Configure(loggerFactory);
 
         services.Configure<ForwardedHeadersOptions>(options =>
         {
@@ -86,6 +93,7 @@ public static class ConfigureServices
         services
             .AddControllers(options =>
             {
+                options.RespectBrowserAcceptHeader = true;
                 options.ReturnHttpNotAcceptable = true;
             })
             .AddApplicationPart(typeof(StaticResourceController).Assembly)
@@ -97,14 +105,13 @@ public static class ConfigureServices
 
         _ = services.AddHttpContextAccessor();
 
-        _ = services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
+        _ = services.AddHealthChecks().AddDbContextCheck<RepositoryContext>();
 
         _ = services.AddFluentValidationAutoValidation();
 
         _ = services.AddHttpClient();
 
-        _ = services.AddControllersWithViews();
-
+        services.AddControllersWithViews();
         _ = services.AddRazorPages();
 
         _ = services.Configure<ApiBehaviorOptions>(options =>
@@ -160,7 +167,7 @@ public static class ConfigureServices
         _ = services.AddSignalR();//.AddMessagePackProtocol();
 
         services.AddDataProtection()
-             .PersistKeysToDbContext<AppDbContext>();
+             .PersistKeysToDbContext<RepositoryContext>();
 
         services.AddSingleton<IAuthorizationPolicyProvider, UiAuthorizationPolicyProvider>();
 

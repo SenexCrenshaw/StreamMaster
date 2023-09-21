@@ -1,8 +1,8 @@
 ﻿using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
-
-using StreamMasterDomain.Entities.EPG;
+using StreamMasterDomain.Cache;
+using StreamMasterDomain.EPG;
 
 using System.Web;
 

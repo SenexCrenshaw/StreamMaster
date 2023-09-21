@@ -1,19 +1,12 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-
-using FluentValidation;
-
-using MediatR;
+﻿using FluentValidation;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterApplication.Common.Extensions;
 
-using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Dto;
-using StreamMasterDomain.Entities.EPG;
+using StreamMasterDomain.EPG;
+using StreamMasterDomain.Models;
 
 using System.Collections.Concurrent;
 using System.Web;
@@ -30,48 +23,34 @@ public class EPGGuide
 }
 
 [RequireAll]
-public record GetStreamGroupEPGForGuide(int StreamGroupNumber) : IRequest<EPGGuide>;
+public record GetStreamGroupEPGForGuide(int streamGroupId) : IRequest<EPGGuide>;
 
 public class GetStreamGroupEPGForGuideValidator : AbstractValidator<GetStreamGroupEPGForGuide>
 {
     public GetStreamGroupEPGForGuideValidator()
     {
-        _ = RuleFor(v => v.StreamGroupNumber)
+        _ = RuleFor(v => v.streamGroupId)
             .NotNull().GreaterThanOrEqualTo(0);
     }
 }
 
-public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStreamGroupEPGForGuide, EPGGuide>
+public partial class GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupEPGForGuide> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupEPGForGuide, EPGGuide>
 {
-    private readonly IAppDbContext _context;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IMapper _mapper;
-    private readonly IMemoryCache _memoryCache;
-    private readonly ISender _sender;
+
     private readonly object Lock = new();
     private int dummyCount = 0;
 
-    public GetStreamGroupEPGForGuideHandler(
-        IMapper mapper, IMemoryCache memoryCache,
-        ISender sender,
-         IHttpContextAccessor httpContextAccessor,
-        IAppDbContext context)
-    {
-        _httpContextAccessor = httpContextAccessor;
-        _memoryCache = memoryCache;
-        _mapper = mapper;
-        _context = context;
-        _sender = sender;
-    }
-
     public async Task<EPGGuide> Handle(GetStreamGroupEPGForGuide request, CancellationToken cancellationToken)
     {
-        //Stopwatch sw = Stopwatch.StartNew();
-        string url = _httpContextAccessor.GetUrl();
-        List<VideoStreamDto> videoStreams = new();
-        if (request.StreamGroupNumber > 0)
+
+        IEnumerable<VideoStreamDto> videoStreams;
+        if (request.streamGroupId > 0)
         {
-            var streamGroup = await _context.GetStreamGroupDtoByStreamGroupNumber(request.StreamGroupNumber, url, cancellationToken).ConfigureAwait(false);
+            StreamGroup? streamGroup = await Repository.StreamGroup
+                     .GetStreamGroupQuery()
+                     .Include(a => a.ChildVideoStreams)
+                     .FirstOrDefaultAsync(a => a.Id == request.streamGroupId);
+
             if (streamGroup == null)
             {
                 return new()
@@ -80,21 +59,19 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
                     Programs = new()
                 };
             }
-            videoStreams = streamGroup.ChildVideoStreams.Where(a => !a.IsHidden).ToList();
+            videoStreams = mapper.Map<IEnumerable<VideoStreamDto>>(streamGroup.ChildVideoStreams.Select(a => a.ChildVideoStream).Where(a => !a.IsHidden));
         }
         else
         {
-            videoStreams = _context.VideoStreams
-                .Where(a => !a.IsHidden)
-                .AsNoTracking()
-                .ProjectTo<VideoStreamDto>(_mapper.ConfigurationProvider)
-                .ToList();
+            videoStreams = await Repository.VideoStream.GetVideoStreamsNotHidden().ConfigureAwait(false);
         }
+
+        string Url = httpContextAccessor.GetUrl();
 
         ParallelOptions po = new()
         {
             CancellationToken = cancellationToken,
-            MaxDegreeOfParallelism = System.Environment.ProcessorCount
+            MaxDegreeOfParallelism = Environment.ProcessorCount
         };
 
         ConcurrentBag<EPGChannel> retChannels = new();
@@ -105,7 +82,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
         {
             List<string> epgids = videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID.ToLower()).Distinct().ToList();
 
-            List<Programme> programmes = _memoryCache.Programmes().Where(a => a.Channel != null && epgids.Contains(a.Channel.ToLower())).ToList();
+            List<Programme> programmes = MemoryCache.Programmes().Where(a => a.Channel != null && epgids.Contains(a.Channel.ToLower())).ToList();
 
             if (programmes.Any())
             {
@@ -121,10 +98,10 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
             //ret.StartDate = programmes.Min(a => a.StartDateTime);
             //ret.EndDate = programmes.Max(a => a.StopDateTime);
 
-            var icons = _memoryCache.Icons();
-            var setting = FileUtil.GetSetting();
+            List<IconFileDto> icons = MemoryCache.Icons();
+            Setting setting = await GetSettingsAsync();
 
-            var progIcons = icons.Where(a => a.SMFileType == SMFileTypes.ProgrammeIcon).ToList();
+            List<IconFileDto> progIcons = icons.Where(a => a.SMFileType == SMFileTypes.ProgrammeIcon).ToList();
 
             _ = Parallel.ForEach(videoStreams, po, videoStream =>
             {
@@ -134,7 +111,7 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
                 }
 
                 IconFileDto? icon = icons.SingleOrDefault(a => a.Source == videoStream.User_Tvg_logo);
-                string Logo = icon != null ? url + icon.Source : url + "/" + setting.DefaultIcon;
+                string Logo = icon != null ? Url + icon.Source : Url + "/" + setting.DefaultIcon;
 
                 EPGChannel t;
                 int dummy = 0;
@@ -170,20 +147,22 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
                 {
                     if (videoStream.User_Tvg_ID.ToLower() == "dummy")
                     {
-                        var prog = new Programme();
-                        prog.Channel = videoStream.User_Tvg_ID + "-" + dummy;
+                        Programme prog = new()
+                        {
+                            Channel = videoStream.User_Tvg_ID + "-" + dummy,
 
-                        prog.Title = new TvTitle
-                        {
-                            Lang = "en",
-                            Text = videoStream.User_Tvg_name,
+                            Title = new TvTitle
+                            {
+                                Lang = "en",
+                                Text = videoStream.User_Tvg_name,
+                            },
+                            Desc = new TvDesc
+                            {
+                                Lang = "en",
+                                Text = videoStream.User_Tvg_name,
+                            }
                         };
-                        prog.Desc = new TvDesc
-                        {
-                            Lang = "en",
-                            Text = videoStream.User_Tvg_name,
-                        };
-                        prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{url}/images/transparent.png" });
+                        prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{Url}/images/transparent.png" });
                         prog.StartDateTime = DateTime.Now.AddHours(-1);
                         prog.StopDateTime = DateTime.Now.AddDays(7);
 
@@ -205,20 +184,20 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
                                         {
                                             if (progIcon != null && !string.IsNullOrEmpty(progIcon.Src))
                                             {
-                                                var programmeIcon = progIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
+                                                IconFileDto? programmeIcon = progIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == progIcon.Src);
 
                                                 if (programmeIcon == null)
                                                 {
                                                     continue;
                                                 }
-                                                string IconSource = $"{url}/api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(programmeIcon.Source)}";
+                                                string IconSource = $"{Url}/api/files/{(int)SMFileTypes.ProgrammeIcon}/{HttpUtility.UrlEncode(programmeIcon.Source)}";
                                                 progIcon.Src = IconSource;
                                             }
                                         }
                                     }
                                     else
                                     {
-                                        p.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{url}/images/transparent.png" });
+                                        p.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{Url}/images/transparent.png" });
                                     }
 
                                     p.Channel = videoStream.User_Tvg_ID;
@@ -240,17 +219,16 @@ public partial class GetStreamGroupEPGForGuideHandler : IRequestHandler<GetStrea
 
     private static EPGProgram GetEPGProgramFromProgramme(Programme programme, string videoStreamId)
     {
-        var largest = 0;
+        int largest = 0;
         TvIcon? Icon = null;
 
-        foreach (var icon in programme.Icon)
+        foreach (TvIcon icon in programme.Icon)
         {
-            int w, h = 0;
 
-            int.TryParse(icon.Width, out w);
-            int.TryParse(icon.Height, out h);
+            int.TryParse(icon.Width, out int w);
+            int.TryParse(icon.Height, out int h);
 
-            var res = w * h;
+            int res = w * h;
 
             if (res > largest)
             {
