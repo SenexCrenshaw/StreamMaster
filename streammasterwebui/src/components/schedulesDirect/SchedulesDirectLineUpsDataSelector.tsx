@@ -1,7 +1,7 @@
 
 
+import { useSchedulesDirectGetLineupsQuery } from '@/lib/iptvApi';
 import { memo, useMemo } from "react";
-import { useSchedulesDirectGetLineupsQuery } from "../../store/iptvApi";
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 

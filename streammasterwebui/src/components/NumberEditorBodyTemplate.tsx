@@ -1,4 +1,6 @@
 
+import { getTopToolOptions } from "@/lib/common/common";
+import { ResetLogoIcon } from "@/lib/common/icons";
 import { Button } from "primereact/button";
 import { useClickOutside } from "primereact/hooks";
 import { InputNumber } from "primereact/inputnumber";
@@ -6,8 +8,6 @@ import { type TooltipOptions } from "primereact/tooltip/tooltipoptions";
 
 import { memo, useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { getTopToolOptions } from "../common/common";
-import { ResetLogoIcon } from "../common/icons";
 
 const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProps) => {
   const [inputValue, setInputValue] = useState<number>(0);

@@ -1,8 +1,8 @@
 
+import { useSchedulesDirectGetCountriesQuery } from '@/lib/iptvApi';
 import { Dropdown } from "primereact/dropdown";
 import { Toast } from 'primereact/toast';
 import React from "react";
-import { useSchedulesDirectGetCountriesQuery } from "../../store/iptvApi";
 
 const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorProps) => {
   const toast = React.useRef<Toast>(null);
@@ -97,9 +97,6 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
 }
 
 SchedulesDirectCountrySelector.displayName = 'SchedulesDirectCountrySelector';
-SchedulesDirectCountrySelector.defaultProps = {
-  value: null,
-};
 
 type SchedulesDirectCountrySelectorProps = {
   readonly onChange: ((value: string) => void);

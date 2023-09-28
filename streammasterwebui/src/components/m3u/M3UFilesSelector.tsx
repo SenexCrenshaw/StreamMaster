@@ -1,8 +1,8 @@
+import { useEpgFilesGetPagedEpgFilesQuery, type M3UFileDto, type M3UFilesGetPagedM3UFilesApiArg } from '@/lib/iptvApi';
 import { Dropdown } from "primereact/dropdown";
 import { useLocalStorage } from "primereact/hooks";
 import { type SelectItem } from "primereact/selectitem";
 import { memo, useCallback, useMemo } from "react";
-import { useEpgFilesGetPagedEpgFilesQuery, type M3UFileDto, type M3UFilesGetPagedM3UFilesApiArg } from "../../store/iptvApi";
 
 const M3UFilesSelector = (props: M3UFilesSelectorProps) => {
 
@@ -67,8 +67,6 @@ const M3UFilesSelector = (props: M3UFilesSelectorProps) => {
 };
 
 M3UFilesSelector.displayName = 'M3UFilesSelector';
-M3UFilesSelector.defaultProps = {
-};
 
 type M3UFilesSelectorProps = {
   readonly id: string;

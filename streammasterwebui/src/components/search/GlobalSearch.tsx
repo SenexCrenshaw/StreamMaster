@@ -1,8 +1,7 @@
+import { getTopToolOptions } from "@/lib/common/common";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
-import { type ChangeEvent } from "react";
-import React from "react";
-import { getTopToolOptions } from "../../common/common";
+import React, { type ChangeEvent } from "react";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 
 type GlobalSearchProps = {

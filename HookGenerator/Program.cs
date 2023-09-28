@@ -1,5 +1,4 @@
-﻿using System.Net.Sockets;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 internal class Program
@@ -11,7 +10,7 @@ internal class Program
 
     private const string SwaggerUrl = "http://127.0.0.1:7095/swagger/v1/swagger.json";
     private const string LocalFileName = "swagger.json";
-    private const string OutputDir = @"..\..\..\..\StreamMasterwebui\src\smAPI";
+    private const string OutputDir = @"..\..\..\..\StreamMasterwebui\lib\smAPI";
     private static readonly Dictionary<string, StringBuilder> tagToGetContentMap = new();
     private static readonly Dictionary<string, StringBuilder> tagToMutateContentMap = new();
     private static readonly Dictionary<string, Dictionary<string, string>> getMethodResponseTypes = new();
@@ -65,9 +64,9 @@ internal class Program
                             {
                                 tagToGetContentMap[tag] = new StringBuilder();
                                 // Add imports at the start of each new file's content
-                                tagToGetContentMap[tag].AppendLine("import { hubConnection } from \"../../app/signalr\";");
-                                tagToGetContentMap[tag].AppendLine("import { isDebug } from \"../../settings\";");
-                                tagToGetContentMap[tag].AppendLine("import type * as iptv from \"../../store/iptvApi\";");
+                                tagToGetContentMap[tag].AppendLine("import { hubConnection } from '@/lib/signalr/signalr';");
+                                tagToGetContentMap[tag].AppendLine("import { isDebug } from '@/lib/settings';");
+                                tagToGetContentMap[tag].AppendLine("import type * as iptv from '@/lib/iptvApi';");
                                 if (additionalImports.ContainsKey(tag))
                                 {
                                     tagToGetContentMap[tag].AppendLine(additionalImports[tag]);
@@ -100,9 +99,9 @@ internal class Program
                             {
                                 tagToMutateContentMap[tag] = new StringBuilder();
                                 // Add imports at the start of each new file's content
-                                tagToMutateContentMap[tag].AppendLine("import { hubConnection } from \"../../app/signalr\";");
-                                tagToMutateContentMap[tag].AppendLine("import { isDebug } from \"../../settings\";");
-                                tagToMutateContentMap[tag].AppendLine("import type * as iptv from \"../../store/iptvApi\";\r\n");
+                                tagToMutateContentMap[tag].AppendLine("import { hubConnection } from '@/lib/signalr/signalr';");
+                                tagToMutateContentMap[tag].AppendLine("import { isDebug } from '@/lib/settings';");
+                                tagToMutateContentMap[tag].AppendLine("import type * as iptv from '@/lib/iptvApi';\r\n");
                             }
                             contentToUse = tagToMutateContentMap[tag];
                         }
@@ -114,7 +113,7 @@ internal class Program
                         contentToUse.AppendLine($"  if (isDebug) console.log('{functionName}');");
                         if (responseType != "void")
                         {
-                            contentToUse.AppendLine($"  const data = await hubConnection.invoke('{functionName}'{(argType != null ? ", arg" : "")});");                           
+                            contentToUse.AppendLine($"  const data = await hubConnection.invoke('{functionName}'{(argType != null ? ", arg" : "")});");
                             contentToUse.AppendLine($"  return data;");
                         }
                         else
@@ -144,7 +143,7 @@ internal class Program
     {
         return IsPaged(responseType) || IsArray(responseType);
     }
-    private static string GetUpdateFunction(string endpointName,string argType, string responseType,string tag)
+    private static string GetUpdateFunction(string endpointName, string argType, string responseType, string tag)
     {
 
         List<string> args = getMethodArgTypes.SelectMany(kv => kv.Value.Keys).ToList();
@@ -172,7 +171,7 @@ internal class Program
             ret.AppendLine($"                        const index = {draft}.findIndex(existingItem => existingItem.id === item.id);");
             ret.AppendLine($"                        if (index !== -1) {{");
             ret.AppendLine($"                          {draft}[index] = item;");
-            ret.AppendLine($"                        }}");            
+            ret.AppendLine($"                        }}");
             ret.AppendLine($"                        }});");
             ret.AppendLine();
             ret.AppendLine($"                        return draft;");
@@ -206,7 +205,7 @@ internal class Program
         ret.AppendLine($"                   );");
         ret.AppendLine($"                 }}");
         ret.AppendLine();
-        
+
         return ret.ToString();
     }
     private static Dictionary<string, StringBuilder> BuildEnhanced()
@@ -218,11 +217,11 @@ internal class Program
 
             StringBuilder rtkContent = new();
 
-            rtkContent.AppendLine($"import {{ {singleTon} }} from '../../app/createSingletonListener';");            
-            rtkContent.AppendLine($"import {{ isEmptyObject }} from '../../common/common';");
-            rtkContent.AppendLine($"import isPagedTableDto from '../../components/dataSelector/isPagedTableDto';");
-            rtkContent.AppendLine($"import {{ iptvApi }} from '../../store/iptvApi';");
-            rtkContent.AppendLine($"import type * as iptv from '../../store/iptvApi';");
+            rtkContent.AppendLine($"import {{ {singleTon} }} from '@/lib/signalr/singletonListeners';");
+            rtkContent.AppendLine($"import {{ isEmptyObject }} from '@/lib/common/common';");
+            rtkContent.AppendLine($"import isPagedTableDto from '@/lib/common/isPagedTableDto';");
+            rtkContent.AppendLine($"import {{ iptvApi }} from '@/lib/iptvApi';");
+            rtkContent.AppendLine($"import type * as iptv from '@/lib/iptvApi';");
             rtkContent.AppendLine();
             rtkContent.AppendLine($"export const enhancedApi{ConvertToTypeScriptPascalCase(tag)} = iptvApi.enhanceEndpoints({{");
             rtkContent.AppendLine($"  endpoints: {{");
@@ -252,8 +251,8 @@ internal class Program
                 //arg = getMethodArgTypes[tag][getMethod];
 
                 anyToWrite = true;
-                string updateFunction = GetUpdateFunction(name,arg, responseType,tag);
-            
+                string updateFunction = GetUpdateFunction(name, arg, responseType, tag);
+
                 rtkContent.AppendLine($"    {name}: {{");
                 rtkContent.AppendLine($"      async onCacheEntryAdded(api, {{ dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }}) {{");
                 rtkContent.AppendLine($"        try {{");
@@ -265,7 +264,7 @@ internal class Program
                 //rtkContent.AppendLine($"              return draft;");
                 rtkContent.AppendLine($"            }});");
                 rtkContent.AppendLine($"          }};");
-                rtkContent.AppendLine();              
+                rtkContent.AppendLine();
                 rtkContent.AppendLine($"         {singleTon}.addListener(updateCachedDataWithResults);");
                 rtkContent.AppendLine();
                 rtkContent.AppendLine($"        await cacheEntryRemoved;");

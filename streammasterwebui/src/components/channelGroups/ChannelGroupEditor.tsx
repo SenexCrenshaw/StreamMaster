@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useVideoStreamsUpdateVideoStreamMutation, type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
+import { useVideoStreamsUpdateVideoStreamMutation, type UpdateVideoStreamRequest, type VideoStreamDto } from '@/lib/iptvApi';
 import ChannelGroupSelector from "./ChannelGroupSelector";
 
 const ChannelGroupEditor = (props: ChannelGroupEditorProps) => {
@@ -37,9 +37,6 @@ const ChannelGroupEditor = (props: ChannelGroupEditorProps) => {
 };
 
 ChannelGroupEditor.displayName = 'Channel Group Dropdown';
-ChannelGroupEditor.defaultProps = {
-
-};
 
 export type ChannelGroupEditorProps = {
   readonly data: VideoStreamDto;

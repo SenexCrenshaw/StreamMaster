@@ -1,14 +1,16 @@
-import '../styles/MenuItemSM.css';
-
+'use client'
+import '@/lib/styles/MenuItemSM.css';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Tooltip } from "primereact/tooltip";
 import React from "react";
 import { MenuItem } from "react-pro-sidebar";
-import { Link, useLocation } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
 
 const MenuItemSM = (props: MenuItemSMProps) => {
   const tooltipClassName = React.useMemo(() => "menuitemsm-" + uuidv4(), []);
-  const location = useLocation();
+
+  const pathname = usePathname()
 
   if (props.collapsed) {
     return (
@@ -24,8 +26,8 @@ const MenuItemSM = (props: MenuItemSMProps) => {
           data-pr-tooltip={props.tooltip ?? props.name}
         >
           <MenuItem
-            active={location.pathname === props.link}
-            component={<Link className="link" target={props.newWindow === null ? "" : props.newWindow ? "_blank" : ""} to={props.link} />}
+            active={pathname === props.link}
+            component={<Link className="link" target={props.newWindow === null ? "" : props.newWindow ? "_blank" : ""} href={props.link} />}
             icon={props.icon}
           >
             {props.children}
@@ -39,8 +41,8 @@ const MenuItemSM = (props: MenuItemSMProps) => {
 
   return (
     <MenuItem
-      active={location.pathname === props.link}
-      component={<Link className="link" target={props.newWindow === null ? "" : props.newWindow ? "_blank" : ""} to={props.link} />}
+      active={pathname === props.link}
+      component={<Link className="link" target={props.newWindow === null ? "" : props.newWindow ? "_blank" : ""} href={props.link} />}
       icon={props.icon}
     >
       {props.children}

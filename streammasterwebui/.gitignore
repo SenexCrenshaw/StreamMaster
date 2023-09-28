@@ -7,6 +7,10 @@
 
 /**/.streammaster
 
+# next.js
+/.next/
+/out/
+
 # Environments
 .env
 .venv

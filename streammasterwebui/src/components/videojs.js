@@ -1,6 +1,5 @@
 import React from 'react';
 import videojs from 'video.js';
-import Hls from "hls.js";
 
 import 'video.js/dist/video-js.css';
 
@@ -33,7 +32,7 @@ export const VideoJS = (props) => {
       player.autoplay(options.autoplay);
       player.src(options.sources);
     }
-  }, [options, videoRef]);
+  }, [onReady, options, videoRef]);
 
   // Dispose the Video.js player when the functional component unmounts
   React.useEffect(() => {

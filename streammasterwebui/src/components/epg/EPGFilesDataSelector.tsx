@@ -1,9 +1,9 @@
 
+import { formatJSONDateString, getTopToolOptions } from "@/lib/common/common";
+import { useEpgFilesGetPagedEpgFilesQuery, useEpgFilesUpdateEpgFileMutation, type EpgFileDto, type M3UFileDto, type UpdateEpgFileRequest } from '@/lib/iptvApi';
 import { Checkbox, type CheckboxChangeEvent } from "primereact/checkbox";
 import { Toast } from "primereact/toast";
 import { memo, useCallback, useMemo, useRef, type CSSProperties } from "react";
-import { formatJSONDateString, getTopToolOptions } from "../../common/common";
-import { useEpgFilesGetPagedEpgFilesQuery, useEpgFilesUpdateEpgFileMutation, type EpgFileDto, type M3UFileDto, type UpdateEpgFileRequest } from "../../store/iptvApi";
 import NumberEditorBodyTemplate from "../NumberEditorBodyTemplate";
 import StringEditorBodyTemplate from "../StringEditorBodyTemplate";
 import DataSelector from "../dataSelector/DataSelector";

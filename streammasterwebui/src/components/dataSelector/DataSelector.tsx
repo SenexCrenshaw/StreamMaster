@@ -1,13 +1,10 @@
 import './DataSelector.css';
 
+import { areArraysEqual } from '@mui/base';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
-
-import { areArraysEqual } from '@mui/base';
 import { DataTable, type DataTableExpandedRows, type DataTablePageEvent, type DataTableRowClickEvent, type DataTableRowData, type DataTableRowToggleEvent, type DataTableSelectAllChangeEvent, type DataTableSelectionMultipleChangeEvent, type DataTableSelectionSingleChangeEvent, type DataTableStateEvent, type DataTableValue } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
-import { camel2title, getTopToolOptions, isEmptyObject, type GetApiArg, type QueryHook } from '../../common/common';
-import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
 import { type PagedResponseDto } from '../selectors/BaseSelector';
 import { type ColumnAlign, type ColumnFieldType, type ColumnMeta, type DataSelectorSelectionMode } from './DataSelectorTypes';
 import TableHeader from './TableHeader';
@@ -20,8 +17,10 @@ import getRecordString from './getRecordString';
 import isPagedTableDto from './isPagedTableDto';
 import useDataSelectorState from './useDataSelectorState';
 
+import StreamMasterSetting from '@/lib/StreamMasterSetting';
+import { GetApiArg, QueryHook, camel2title, getTopToolOptions, isEmptyObject } from '@/lib/common/common';
 import { skipToken } from '@reduxjs/toolkit/dist/query/react';
-import { useQueryFilter } from '../../app/slices/useQueryFilter';
+import { useQueryFilter } from '../../../lib/redux/slices/useQueryFilter';
 import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';
 import { useSetQueryFilter } from './useSetQueryFilter';
@@ -526,20 +525,6 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           style={props.style}
           totalRecords={state.pagedInformation ? state.pagedInformation.totalItemCount : undefined}
           value={state.dataSource}
-        // virtualScrollerOptions={props.enableVirtualScroll === true ?
-        //   {
-        //     // delay: 200,
-        //     itemSize: 28,
-        //     // lazy: true,
-        //     loaderDisabled: true,
-        //     // loadingTemplate: loadingTemplate,
-        //     numToleratedItems: 25,
-        //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        //     onLazyLoad: (e: any) => {
-        //       props.onLazyLoad?.(e);
-        //     }
-        //   }
-        //   : undefined}
         >
           <Column
             className='max-w-2rem p-0 justify-content-center align-items-center'
@@ -598,19 +583,19 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
 };
 
 DataSelector.displayName = 'dataselector';
-DataSelector.defaultProps = {
-  defaultSortField: 'name',
-  defaultSortOrder: 1,
-  enableVirtualScroll: false,
-  headerName: '',
-  hideControls: false,
-  onSelectionChange: undefined,
-  reorderable: false,
-  selectionMode: 'single',
-  showHeaders: true
-};
+// DataSelector.defaultProps = {
+//   defaultSortField: 'name',
+//   defaultSortOrder: 1,
+//   enableVirtualScroll: false,
+//   headerName: '',
+//   hideControls: false,
+//   onSelectionChange: undefined,
+//   reorderable: false,
+//   selectionMode: 'single',
+//   showHeaders: true
+// };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 type BaseDataSelectorProps<T = any> = {
   className?: string;
   columns: ColumnMeta[];
@@ -627,7 +612,7 @@ type BaseDataSelectorProps<T = any> = {
   id: string;
   isLoading?: boolean;
   key?: string | undefined;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   // onLazyLoad?: (e: any) => void;
   onMultiSelectClick?: (value: boolean) => void;
   onRowClick?: (event: DataTableRowClickEvent) => void;
@@ -660,8 +645,6 @@ type DataSourceProps<T> = BaseDataSelectorProps<T> & {
   queryFilter?: never;
 };
 
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DataSelectorProps<T = any> = DataSourceProps<T> | QueryFilterProps<T>;
 
 export type PagedTableInformation = {

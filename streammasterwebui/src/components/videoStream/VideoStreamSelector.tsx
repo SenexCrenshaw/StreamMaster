@@ -1,7 +1,7 @@
+import { useVideoStreamsGetPagedVideoStreamsQuery, type VideoStreamDto, type VideoStreamsGetPagedVideoStreamsApiArg } from '@/lib/iptvApi';
 import { Dropdown } from "primereact/dropdown";
 import { type SelectItem } from "primereact/selectitem";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useVideoStreamsGetPagedVideoStreamsQuery, type VideoStreamDto, type VideoStreamsGetPagedVideoStreamsApiArg } from "../../store/iptvApi";
 
 export const VideoStreamSelector = (props: VideoStreamSelectorProps) => {
   const elementRef = useRef(null)
@@ -69,9 +69,7 @@ export const VideoStreamSelector = (props: VideoStreamSelectorProps) => {
 };
 
 VideoStreamSelector.displayName = 'VideoStreamSelector';
-VideoStreamSelector.defaultProps = {
 
-};
 type VideoStreamSelectorProps = {
   readonly onChange: ((value: VideoStreamDto) => void);
   readonly value: string | undefined;

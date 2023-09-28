@@ -1,9 +1,9 @@
 
+import { useVideoStreamsDeleteAllVideoStreamsFromParametersMutation, useVideoStreamsDeleteVideoStreamMutation, type VideoStreamDto, type VideoStreamsDeleteAllVideoStreamsFromParametersApiArg, type VideoStreamsDeleteVideoStreamApiArg } from '@/lib/iptvApi';
 import { memo, useEffect, useMemo, useState } from "react";
-import { useQueryFilter } from "../../app/slices/useQueryFilter";
-import { useSelectAll } from "../../app/slices/useSelectAll";
-import { useSelectedVideoStreams } from "../../app/slices/useSelectedVideoStreams";
-import { useVideoStreamsDeleteAllVideoStreamsFromParametersMutation, useVideoStreamsDeleteVideoStreamMutation, type VideoStreamDto, type VideoStreamsDeleteAllVideoStreamsFromParametersApiArg, type VideoStreamsDeleteVideoStreamApiArg } from "../../store/iptvApi";
+import { useQueryFilter } from "../../../lib/redux/slices/useQueryFilter";
+import { useSelectAll } from "../../../lib/redux/slices/useSelectAll";
+import { useSelectedVideoStreams } from "../../../lib/redux/slices/useSelectedVideoStreams";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import DeleteButton from "../buttons/DeleteButton";
 import OKButton from "../buttons/OKButton";

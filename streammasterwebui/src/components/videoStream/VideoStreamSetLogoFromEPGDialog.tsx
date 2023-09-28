@@ -1,9 +1,9 @@
 
+import { getTopToolOptions } from "@/lib/common/common";
+import { type VideoStreamDto, type VideoStreamsSetVideoStreamsLogoFromEpgApiArg } from '@/lib/iptvApi';
+import { SetVideoStreamsLogoFromEpg } from "@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI";
 import { Button } from "primereact/button";
 import { memo, useCallback } from "react";
-import { getTopToolOptions } from "../../common/common";
-import { SetVideoStreamsLogoFromEpg } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
-import { type VideoStreamDto, type VideoStreamsSetVideoStreamsLogoFromEpgApiArg } from "../../store/iptvApi";
 
 const VideoStreamSetLogoFromEPGDialog = (props: VideoStreamSetLogoFromEPGDialogProps) => {
 
@@ -50,8 +50,6 @@ const VideoStreamSetLogoFromEPGDialog = (props: VideoStreamSetLogoFromEPGDialogP
 }
 
 VideoStreamSetLogoFromEPGDialog.displayName = 'VideoStreamSetLogoFromEPGDialog';
-VideoStreamSetLogoFromEPGDialog.defaultProps = {
-}
 
 type VideoStreamSetLogoFromEPGDialogProps = {
   readonly iconFilled?: boolean | undefined;

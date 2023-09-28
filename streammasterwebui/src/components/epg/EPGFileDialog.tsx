@@ -1,6 +1,6 @@
 
+import { CreateEpgFileRequest, useEpgFilesCreateEpgFileMutation } from '@/lib/iptvApi';
 import React, { useState } from 'react';
-import { useEpgFilesCreateEpgFileMutation, type CreateEpgFileRequest } from '../../store/iptvApi';
 import FileDialog, { type FileDialogProps } from '../sharedEPGM3U/FileDialog';
 
 

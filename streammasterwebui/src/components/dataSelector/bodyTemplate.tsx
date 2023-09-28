@@ -1,5 +1,6 @@
+import { camel2title } from "@/lib/common/common";
+import Image from 'next/image';
 import { type SyntheticEvent } from "react";
-import { camel2title } from "../../common/common";
 import { LinkButton } from "../buttons/LinkButton";
 import { type ColumnFieldType } from "./DataSelectorTypes";
 import getRecord from "./getRecord";
@@ -21,7 +22,7 @@ function imageBodyTemplate(data: object, fieldName: string, defaultIcon: string)
 
   return (
     <div className="flex flex-nowrap justify-content-center align-items-center p-0">
-      <img
+      <Image
         alt={record ?? 'Logo'}
         className="max-h-1rem max-w-full p-0"
         onError={(e: SyntheticEvent<HTMLImageElement, Event>) => (e.currentTarget.src = (e.currentTarget.src = +'/' + defaultIcon))}

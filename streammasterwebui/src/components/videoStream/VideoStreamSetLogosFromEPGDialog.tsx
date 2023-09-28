@@ -1,10 +1,11 @@
 
+import { type VideoStreamDto, type VideoStreamsSetVideoStreamsLogoFromEpgApiArg, type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg } from '@/lib/iptvApi';
 import { memo, useCallback, useMemo, useState } from "react";
-import { useQueryFilter } from "../../app/slices/useQueryFilter";
-import { useSelectAll } from "../../app/slices/useSelectAll";
-import { useSelectedVideoStreams } from "../../app/slices/useSelectedVideoStreams";
-import { SetVideoStreamsLogoFromEpg, SetVideoStreamsLogoFromEpgFromParameters } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
-import { type VideoStreamDto, type VideoStreamsSetVideoStreamsLogoFromEpgApiArg, type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg } from "../../store/iptvApi";
+import { useQueryFilter } from "../../../lib/redux/slices/useQueryFilter";
+import { useSelectAll } from "../../../lib/redux/slices/useSelectAll";
+import { useSelectedVideoStreams } from "../../../lib/redux/slices/useSelectedVideoStreams";
+
+import { SetVideoStreamsLogoFromEpg, SetVideoStreamsLogoFromEpgFromParameters } from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import ImageButton from "../buttons/ImageButton";
 import OKButton from "../buttons/OKButton";

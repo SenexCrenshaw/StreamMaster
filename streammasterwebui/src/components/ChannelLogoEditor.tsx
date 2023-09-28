@@ -1,6 +1,7 @@
 import { memo } from "react";
-import { UpdateVideoStream } from "../smAPI/VideoStreams/VideoStreamsMutateAPI";
-import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../store/iptvApi";
+
+import { UpdateVideoStreamRequest, VideoStreamDto } from "@/lib/iptvApi";
+import { UpdateVideoStream } from "@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI";
 import IconSelector from "./selectors/IconSelector";
 
 const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
@@ -30,7 +31,7 @@ const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
   return (
     <IconSelector
       className="p-inputtext-sm"
-      enableEditMode={props.enableEditMode}
+      enableEditMode={props.enableEditMode ? props.enableEditMode : props.enableEditMode === undefined ? true : false}
       onChange={
         async (e: string) => {
           await onUpdateVideoStream(e);
@@ -42,9 +43,9 @@ const ChannelLogoEditor = (props: StreamDataSelectorProps) => {
 };
 
 ChannelLogoEditor.displayName = 'Logo Editor';
-ChannelLogoEditor.defaultProps = {
-  enableEditMode: true
-};
+// ChannelLogoEditor.defaultProps = {
+//   enableEditMode: true
+// };
 
 export type StreamDataSelectorProps = {
   readonly data: VideoStreamDto;

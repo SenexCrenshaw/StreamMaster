@@ -1,3 +1,5 @@
+import { getTopToolOptions } from '@/lib/common/common';
+import { ResetLogoIcon } from '@/lib/common/icons';
 import { BlockUI } from 'primereact/blockui';
 import { Button } from 'primereact/button';
 import { useClickOutside } from 'primereact/hooks';
@@ -5,8 +7,6 @@ import { InputText } from "primereact/inputtext";
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import { getTopToolOptions } from '../common/common';
-import { ResetLogoIcon } from '../common/icons';
 
 const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
   const [originalValue, setOriginalValue] = useState<string>('');
@@ -23,7 +23,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
         props.onChange(value);
       }
     }, [originalValue, props]),
-    props.debounceMs,
+    props.debounceMs ? props.debounceMs : 1500,
     {}
   );
 
@@ -137,9 +137,9 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
 }
 
 StringEditorBodyTemplate.displayName = 'String Editor Body Template';
-StringEditorBodyTemplate.defaultProps = {
-  debounceMs: 1500
-}
+// StringEditorBodyTemplate.defaultProps = {
+//   debounceMs: 1500
+// }
 
 export type StringEditorBodyTemplateProps = {
   readonly debounceMs?: number;

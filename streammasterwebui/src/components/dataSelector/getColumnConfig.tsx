@@ -1,7 +1,7 @@
+import { camel2title } from "@/lib/common/common";
 import { Tooltip } from "primereact/tooltip";
 import { type CSSProperties, type ReactNode } from "react";
 import { v4 as uuidv4 } from 'uuid';
-import { camel2title } from "../../common/common";
 import { type ColumnAlign, type ColumnFieldType, type ColumnMeta } from "./DataSelectorTypes";
 
 type ColumnConfig = {

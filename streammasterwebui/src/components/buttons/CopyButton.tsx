@@ -1,5 +1,5 @@
+import useCopyToClipboard from '@/lib/hooks/useCopyToClipboard';
 import React, { useState } from 'react';
-import useCopyToClipboard from "../../hooks/useCopyToClipboard";
 import BaseButton from "./BaseButton";
 
 export type CopyButtonProps = {

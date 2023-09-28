@@ -1,9 +1,9 @@
+import { getChannelGroupMenuItem, getTopToolOptions } from "@/lib/common/common";
+import { ResetLogoIcon } from "@/lib/common/icons";
+import { useChannelGroupsGetChannelGroupIdNamesQuery, type ChannelGroupIdName } from '@/lib/iptvApi';
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
 import React, { useCallback, useEffect, useState } from "react";
-import { getChannelGroupMenuItem, getTopToolOptions } from "../../common/common";
-import { ResetLogoIcon } from "../../common/icons";
-import { useChannelGroupsGetChannelGroupIdNamesQuery, type ChannelGroupIdName } from "../../store/iptvApi";
 import ChannelGroupAddDialog from "./ChannelGroupAddDialog";
 
 type ChannelGroupSelectorProps = {
@@ -63,7 +63,7 @@ const ChannelGroupSelector: React.FC<ChannelGroupSelectorProps> = ({ className, 
     </div>
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const selectedTemplate = useCallback((option: any) => {
     if (!option) return;
 

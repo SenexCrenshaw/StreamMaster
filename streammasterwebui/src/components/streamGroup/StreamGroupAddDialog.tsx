@@ -1,5 +1,5 @@
+import { useStreamGroupsCreateStreamGroupMutation, type CreateStreamGroupRequest } from '@/lib/iptvApi';
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { useStreamGroupsCreateStreamGroupMutation, type CreateStreamGroupRequest } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import AddButton from "../buttons/AddButton";
 import TextInput from "../inputs/TextInput";
@@ -102,8 +102,6 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
 }
 
 StreamGroupAddDialog.displayName = 'StreamGroupAddDialog';
-StreamGroupAddDialog.defaultProps = {
-}
 
 type StreamGroupAddDialogProps = {
   readonly onHide?: () => void;

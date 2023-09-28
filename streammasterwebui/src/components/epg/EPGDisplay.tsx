@@ -1,11 +1,11 @@
-import React from "react";
 import { Epg, Layout } from 'planby';
+import React from "react";
 import ChannelItem from './ChannelItem';
 import ProgramComponent from './ProgramItem';
 import Timeline from './Timeline';
 import { useApp } from "./useApp";
 
-import { type StreamGroupDto } from "../../store/iptvApi";
+import { type StreamGroupDto } from '@/lib/iptvApi';
 import { useLocalStorage } from "primereact/hooks";
 import { StreamGroupSelector } from "../streamGroup/StreamGroupSelector";
 
@@ -54,8 +54,6 @@ const EPGDisplay = (props: EPGDisplayProps) => {
 }
 
 EPGDisplay.displayName = 'EPGDisplay';
-EPGDisplay.defaultProps = {
-};
 
 type EPGDisplayProps = {
   readonly hidden: boolean;

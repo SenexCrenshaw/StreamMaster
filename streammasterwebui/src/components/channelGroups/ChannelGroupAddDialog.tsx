@@ -1,5 +1,5 @@
+import { useChannelGroupsCreateChannelGroupMutation, type CreateChannelGroupRequest } from '@/lib/iptvApi';
 import { memo, useCallback, useMemo, useState, type FC } from "react";
-import { useChannelGroupsCreateChannelGroupMutation, type CreateChannelGroupRequest } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import AddButton from "../buttons/AddButton";
 import TextInput from "../inputs/TextInput";

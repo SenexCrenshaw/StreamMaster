@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 
 import React from "react";
 import 'vidstack/styles/community-skin/video.css';
@@ -7,8 +7,9 @@ import 'vidstack/styles/defaults.css';
 import { MediaCommunitySkin, MediaOutlet, MediaPlayer } from '@vidstack/react';
 import EPGDisplay from './epg/EPGDisplay';
 
+import { EpgProgram, VideoStreamsGetPagedVideoStreamsApiArg, useStreamGroupsGetStreamGroupEpgForGuideQuery, useVideoStreamsGetPagedVideoStreamsQuery } from "@/lib/iptvApi";
 import { useLocalStorage } from "primereact/hooks";
-import { useStreamGroupsGetStreamGroupEpgForGuideQuery, useVideoStreamsGetPagedVideoStreamsQuery, type EpgProgram, type VideoStreamsGetPagedVideoStreamsApiArg } from "../store/iptvApi";
+
 // import {
 //   Player,
 //   ControlBar,
@@ -127,9 +128,6 @@ const VideoPlayerDialog = (props: VideoPlayerDialogProps) => {
 }
 
 VideoPlayerDialog.displayName = 'VideoPlayerDialog';
-VideoPlayerDialog.defaultProps = {
-  onChange: null
-};
 
 type VideoPlayerDialogProps = {
   readonly onChange?: ((value: string) => void) | null;

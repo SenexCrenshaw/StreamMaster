@@ -1,9 +1,9 @@
+import { type UpdateVideoStreamRequest, type UpdateVideoStreamsRequest, type VideoStreamDto, type VideoStreamsUpdateAllVideoStreamsFromParametersApiArg } from '@/lib/iptvApi';
+import { UpdateAllVideoStreamsFromParameters, UpdateVideoStreams } from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { useQueryFilter } from "../../app/slices/useQueryFilter";
-import { useSelectAll } from "../../app/slices/useSelectAll";
-import { useSelectedVideoStreams } from "../../app/slices/useSelectedVideoStreams";
-import { UpdateAllVideoStreamsFromParameters, UpdateVideoStreams } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
-import { type UpdateVideoStreamRequest, type UpdateVideoStreamsRequest, type VideoStreamDto, type VideoStreamsUpdateAllVideoStreamsFromParametersApiArg } from "../../store/iptvApi";
+import { useQueryFilter } from "../../../lib/redux/slices/useQueryFilter";
+import { useSelectAll } from "../../../lib/redux/slices/useSelectAll";
+import { useSelectedVideoStreams } from "../../../lib/redux/slices/useSelectedVideoStreams";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import VisibleButton from "../buttons/VisibleButton";
 

@@ -1,11 +1,11 @@
+/* eslint-disable @next/next/no-img-element */
+'use client'
+import StreamMasterSetting from '@/lib/StreamMasterSetting';
+import { getIconUrl } from '@/lib/common/common';
+import { IconFileDto, useIconsGetIconsSimpleQueryQuery, useIconsGetPagedIconsQuery } from '@/lib/iptvApi';
+import { GetIconFromSource } from '@/lib/smAPI/Icons/IconsGetAPI';
 import React, { useCallback } from 'react';
-import { useIconsGetIconsSimpleQueryQuery, useIconsGetPagedIconsQuery, type IconFileDto } from '../../store/iptvApi';
-import StreamMasterSetting from '../../store/signlar/StreamMasterSetting';
-import BaseSelector, { type BaseSelectorProps } from './BaseSelector';
-
-import { getIconUrl } from '../../common/common';
-import { GetIconFromSource } from '../../smAPI/Icons/IconsGetAPI';
-
+import BaseSelector, { BaseSelectorProps } from './BaseSelector';
 
 type IconSelectorProps = BaseSelectorProps<IconFileDto> & {
   enableEditMode?: boolean;
@@ -21,7 +21,7 @@ const IconSelector: React.FC<Partial<IconSelectorProps>> = ({
 
   const setting = StreamMasterSetting();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const selectedTemplate = (option: any) => {
 
     const iconUrl = option?.source ? getIconUrl(option.source, setting.defaultIcon, false) : '';

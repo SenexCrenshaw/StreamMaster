@@ -1,6 +1,6 @@
+import { UpdateVideoStreamRequest, VideoStreamDto } from "@/lib/iptvApi";
+import { UpdateVideoStream } from "@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI";
 import React from "react";
-import { UpdateVideoStream } from "../smAPI/VideoStreams/VideoStreamsMutateAPI";
-import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../store/iptvApi";
 import StringEditorBodyTemplate from "./StringEditorBodyTemplate";
 
 const ChannelNameEditor = (props: ChannelNameEditorProps) => {
@@ -39,9 +39,7 @@ const ChannelNameEditor = (props: ChannelNameEditorProps) => {
 }
 
 ChannelNameEditor.displayName = 'Channel Number Editor';
-ChannelNameEditor.defaultProps = {
 
-};
 
 export type ChannelNameEditorProps = {
   readonly data: VideoStreamDto;

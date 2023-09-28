@@ -1,10 +1,8 @@
 
+import { StreamGroupDto, StreamGroupsGetPagedStreamGroupsApiArg, useStreamGroupsGetPagedStreamGroupsQuery } from '@/lib/iptvApi';
 import { Dropdown } from 'primereact/dropdown';
 import { type SelectItem } from 'primereact/selectitem';
 import { useMemo, useRef, useState } from 'react';
-import {
-  useStreamGroupsGetPagedStreamGroupsQuery, type StreamGroupDto, type StreamGroupsGetPagedStreamGroupsApiArg
-} from '../../store/iptvApi';
 
 export const StreamGroupSelector = (props: StreamGroupSelectorProps) => {
 
@@ -67,9 +65,7 @@ export const StreamGroupSelector = (props: StreamGroupSelectorProps) => {
 };
 
 StreamGroupSelector.displayName = 'StreamGroupSelector';
-StreamGroupSelector.defaultProps = {
 
-};
 type StreamGroupSelectorProps = {
   readonly onChange: ((value: StreamGroupDto) => void);
 };

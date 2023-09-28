@@ -1,11 +1,11 @@
 import React from "react";
 
-import { Dropdown } from "primereact/dropdown";
-import { classNames } from "primereact/utils";
-import { type TooltipOptions } from "primereact/tooltip/tooltipoptions";
-import { useDebouncedCallback } from "use-debounce";
-import { useClickOutside } from "primereact/hooks";
 import { BlockUI } from "primereact/blockui";
+import { Dropdown } from "primereact/dropdown";
+import { useClickOutside } from "primereact/hooks";
+import { type TooltipOptions } from "primereact/tooltip/tooltipoptions";
+import { classNames } from "primereact/utils";
+import { useDebouncedCallback } from "use-debounce";
 
 const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
   const [originalValue, setOriginalValue] = React.useState<string>('');
@@ -95,7 +95,7 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
           disabled={props.disabled}
           editable={props.editable}
           filter
-          filterBy={props.filterBy}
+          filterBy={props.filterBy ? props.filterBy : 'channelName'}
 
           onChange={
             (e) => {
@@ -127,9 +127,6 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
 }
 
 DropDownEditorBodyTemplate.displayName = 'DropDownEditorBodyTemplate';
-DropDownEditorBodyTemplate.defaultProps = {
-  filterBy: 'channelName'
-};
 
 type DropDownEditorBodyTemplateProps = {
   readonly className?: string;

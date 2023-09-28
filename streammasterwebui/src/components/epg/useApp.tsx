@@ -1,6 +1,6 @@
+import { useStreamGroupsGetStreamGroupEpgForGuideQuery } from '@/lib/iptvApi';
 import { useEpg, type Channel, type Program } from "planby";
 import React from "react";
-import { useStreamGroupsGetStreamGroupEpgForGuideQuery } from "../../store/iptvApi";
 
 export function useApp(streamGroupNumber: number) {
   const [channels, setChannels] = React.useState<Channel[]>([]);

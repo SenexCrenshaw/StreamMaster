@@ -1,9 +1,9 @@
 
 
 
+import { StreamStatisticsResult } from "@/lib/iptvApi";
 import React from "react";
-import { type StreamStatisticsResult } from "../store/iptvApi";
-import { LineChart, Line } from 'recharts';
+import { Line, LineChart } from 'recharts';
 
 const StreamingStatusGraph = (props: StreamingStatusGraphProps) => {
   const [chartOptions, setChartOptions] = React.useState({});
@@ -138,9 +138,7 @@ const StreamingStatusGraph = (props: StreamingStatusGraphProps) => {
 }
 
 StreamingStatusGraph.displayName = 'StreamingStatusGraph';
-StreamingStatusGraph.defaultProps = {
 
-};
 
 type StreamingStatusGraphProps = {
   readonly className?: string;

@@ -1,8 +1,8 @@
+import { getTopToolOptions } from "@/lib/common/common";
+import { type UpdateSettingRequest } from '@/lib/iptvApi';
+import { UpdateSetting } from "@/lib/smAPI/Settings/SettingsMutateAPI";
 import { Button } from "primereact/button";
 import React from "react";
-import { getTopToolOptions } from "../../common/common";
-import { UpdateSetting } from "../../smAPI/Settings/SettingsMutateAPI";
-import { type UpdateSettingRequest } from "../../store/iptvApi";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 
 const SettingsNameRegexDeleteDialog = (props: SettingsNameRegexDeleteDialogProps) => {
@@ -93,8 +93,6 @@ const SettingsNameRegexDeleteDialog = (props: SettingsNameRegexDeleteDialogProps
 }
 
 SettingsNameRegexDeleteDialog.displayName = 'SettingsNameRegexDeleteDialog';
-SettingsNameRegexDeleteDialog.defaultProps = {
-};
 
 type SettingsNameRegexDeleteDialogProps = {
   readonly onClose?: (() => void);

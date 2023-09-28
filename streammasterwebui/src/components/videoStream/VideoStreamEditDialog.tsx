@@ -1,7 +1,8 @@
 
+import { useVideoStreamsUpdateVideoStreamMutation, type UpdateVideoStreamRequest, type VideoStreamDto } from '@/lib/iptvApi';
 import { memo, useCallback, useEffect, useState } from "react";
-import VideoStreamPanel from "../../features/videoStreamPanel/VideoStreamPanel";
-import { useVideoStreamsUpdateVideoStreamMutation, type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
+
+import VideoStreamPanel from '@/features/videoStreamPanel/VideoStreamPanel';
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import EditButton from "../buttons/EditButton";
 
@@ -82,8 +83,7 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
 }
 
 VideoStreamEditDialog.displayName = 'VideoStreamEditDialog';
-VideoStreamEditDialog.defaultProps = {
-}
+
 
 type VideoStreamEditDialogProps = {
   readonly onClose?: (() => void);

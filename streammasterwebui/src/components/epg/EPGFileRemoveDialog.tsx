@@ -1,7 +1,7 @@
 import { memo, useState } from "react";
 
-import { DeleteEpgFile } from "../../smAPI/EpgFiles/EpgFilesMutateAPI";
-import { type DeleteEpgFileRequest, type EpgFileDto } from "../../store/iptvApi";
+import { type DeleteEpgFileRequest, type EpgFileDto } from '@/lib/iptvApi';
+import { DeleteEpgFile } from "@/lib/smAPI/EpgFiles/EpgFilesMutateAPI";
 import FileRemoveDialog from "../sharedEPGM3U/FileRemoveDialog";
 
 const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {

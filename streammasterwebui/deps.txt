@@ -1,0 +1,35 @@
+Unused dependencies
+* @emotion/react
+* @emotion/styled
+* @microsoft/signalr-protocol-msgpack
+* @testing-library/react
+* @testing-library/user-event
+* @types/node
+* chart.js
+* formatjs
+* history
+* import
+* material-react-table
+* postcss-svgo
+* react-copy-to-clipboard
+* react-lazy-load-image-component
+* react-player
+* react-transition-group
+* react-xarrows
+* redux-thunk
+* reselect
+* web-vitals
+Unused devDependencies
+* @babel/plugin-proposal-private-property-in-object
+* @svgr/webpack
+* @types/react-lazy-load-image-component
+* @types/video-react
+* eslint-config-prettier
+* eslint-plugin-jest-dom
+* simplejson
+* ts-node
+Missing dependencies
+* eslint-import-resolver-typescript: .\.eslintrc.json
+* jsonc-eslint-parser: .\.eslintrc.json
+* @mui/base: .\src\components\dataSelector\DataSelector.tsx
+* redux: .\src\app\store.ts

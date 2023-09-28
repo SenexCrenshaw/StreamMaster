@@ -1,6 +1,6 @@
+import { getTopToolOptions } from "@/lib/common/common";
 import { Button } from "primereact/button";
 import { memo } from "react";
-import { getTopToolOptions } from "../../common/common";
 
 type ExportButtonProps = {
   exportCSV: () => void;

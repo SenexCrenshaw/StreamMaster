@@ -1,9 +1,10 @@
 
+import { GetMessage } from "@/lib/common/common";
+import { type ChannelGroupDto, type UpdateChannelGroupRequest } from '@/lib/iptvApi';
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { useSelectedItems } from "../../app/slices/useSelectedItemsSlice";
-import { GetMessage } from "../../common/common";
-import { UpdateChannelGroup } from "../../smAPI/ChannelGroups/ChannelGroupsMutateAPI";
-import { type ChannelGroupDto, type UpdateChannelGroupRequest } from "../../store/iptvApi";
+import { useSelectedItems } from "../../../lib/redux/slices/useSelectedItemsSlice";
+
+import { UpdateChannelGroup } from "@/lib/smAPI/ChannelGroups/ChannelGroupsMutateAPI";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import EditButton from "../buttons/EditButton";
 import TextInput from "../inputs/TextInput";
@@ -69,7 +70,7 @@ const ChannelGroupEditDialog = ({ onClose, value }: ChannelGroupEditDialogProps)
     UpdateChannelGroup(toSend).then(() => {
       setInfoMessage('Channel Group Edit Successfully');
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     }).catch((e: any) => {
       setInfoMessage('Channel Group Edit Error: ' + e.message);
     });

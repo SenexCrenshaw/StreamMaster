@@ -1,8 +1,9 @@
+import { type ChannelGroupDto, type UpdateChannelGroupRequest, type UpdateChannelGroupsRequest } from '@/lib/iptvApi';
 import React, { useMemo } from "react";
-import { useSelectAll } from "../../app/slices/useSelectAll";
-import { useSelectedItems } from "../../app/slices/useSelectedItemsSlice";
-import { UpdateChannelGroup, UpdateChannelGroups } from "../../smAPI/ChannelGroups/ChannelGroupsMutateAPI";
-import { type ChannelGroupDto, type UpdateChannelGroupRequest, type UpdateChannelGroupsRequest } from "../../store/iptvApi";
+import { useSelectAll } from "../../../lib/redux/slices/useSelectAll";
+import { useSelectedItems } from "../../../lib/redux/slices/useSelectedItemsSlice";
+
+import { UpdateChannelGroup, UpdateChannelGroups } from '@/lib/smAPI/ChannelGroups/ChannelGroupsMutateAPI';
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import VisibleButton from "../buttons/VisibleButton";
 

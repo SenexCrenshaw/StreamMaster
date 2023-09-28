@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
+import { addOrUpdateValueForField, doSetsContainSameIds, type GetApiArg, type HasId, type SMDataTableFilterMetaData, type SimpleQueryApiArg } from "@/lib/common/common";
 import { type skipToken } from '@reduxjs/toolkit/dist/query/react';
 import { Dropdown, type DropdownChangeEvent, type DropdownFilterEvent } from 'primereact/dropdown';
 import { classNames } from 'primereact/utils';
 import { useCallback, useEffect, useState } from 'react';
-import { addOrUpdateValueForField, doSetsContainSameIds, type GetApiArg, type HasId, type SMDataTableFilterMetaData, type SimpleQueryApiArg } from "../../common/common";
 
 export type PagedResponseDto<T> = {
   data: T[];
@@ -26,6 +26,13 @@ export type SimpleQueryResponse<T> = {
   data?: T[];
 };
 
+// BaseSelector.defaultProps = {
+//   className: null,
+//   disabled: false,
+//   editable: false,
+//   isLoading: true,
+// };
+
 export type BaseSelectorProps<T extends HasId> = {
   readonly className?: string | null;
   readonly disabled?: boolean;
@@ -44,6 +51,8 @@ export type BaseSelectorProps<T extends HasId> = {
   readonly selectedTemplate: (option: T) => JSX.Element;
   readonly value?: string;
 }
+
+
 
 const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
   const [selectedItem, setSelectedItem] = useState<string>('');
@@ -193,7 +202,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
     // setFilter(event.filter.toLowerCase());
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const selectedTemplate = (option: any) => {
     return (
       <div>
@@ -231,7 +240,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
           loaderDisabled: true,
           // loadingTemplate: loadingTemplate,
           numToleratedItems: 40,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
           onLazyLoad: (e: any) => {
             if (e.filter === '' && e.last as number >= index) {
               let firstRecord = e.first as number < index ? index : e.first as number;
@@ -247,11 +256,5 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
   );
 };
 
-BaseSelector.defaultProps = {
-  className: null,
-  disabled: false,
-  editable: false,
-  isLoading: true,
-};
 
 export default BaseSelector;

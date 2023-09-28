@@ -1,9 +1,10 @@
 
 
+import { type Schedule } from '@/lib/iptvApi';
 import { Toast } from "primereact/toast";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
-import { GetSchedules } from "../../smAPI/SchedulesDirect/SchedulesDirectGetAPI";
-import { type Schedule } from "../../store/iptvApi";
+
+import { GetSchedules } from '@/lib/smAPI/SchedulesDirect/SchedulesDirectGetAPI';
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 
@@ -70,9 +71,7 @@ const SchedulesDirectSchedulesDataSelector = (props: SchedulesDirectSchedulesDat
 }
 
 SchedulesDirectSchedulesDataSelector.displayName = 'SchedulesDirectSchedulesDataSelector';
-SchedulesDirectSchedulesDataSelector.defaultProps = {
 
-};
 
 export type SchedulesDirectSchedulesDataSelectorProps = {
   readonly stationIds: string[];

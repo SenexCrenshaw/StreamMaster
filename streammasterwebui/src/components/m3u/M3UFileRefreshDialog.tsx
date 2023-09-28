@@ -1,6 +1,6 @@
 import { memo, useState } from "react";
 
-import { useM3UFilesRefreshM3UFileMutation, type EpgFileDto, type EpgFilesRefreshEpgFileApiArg } from "../../store/iptvApi";
+import { useM3UFilesRefreshM3UFileMutation, type EpgFileDto, type EpgFilesRefreshEpgFileApiArg } from '@/lib/iptvApi';
 import FileRefreshDialog from "../sharedEPGM3U/FileRefreshDialog";
 
 type M3UFileRefreshDialogProps = {

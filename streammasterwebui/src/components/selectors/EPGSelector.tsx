@@ -1,7 +1,9 @@
+import { GetApiArg, SimpleQueryApiArg } from '@/lib/common/common';
+import { ProgrammeNameDto } from '@/lib/iptvApi';
+import { GetProgrammeFromDisplayName } from '@/lib/smAPI/Programmes/ProgrammesGetAPI';
+import { skipToken } from '@reduxjs/toolkit/dist/query';
 import React, { useCallback } from 'react';
-import { GetProgrammeFromDisplayName } from '../../smAPI/Programmes/ProgrammesGetAPI';
-import { useProgrammesGetPagedProgrammeNameSelectionsQuery, useProgrammesGetProgrammsSimpleQueryQuery, type ProgrammeNameDto } from '../../store/iptvApi';
-import BaseSelector, { type BaseSelectorProps } from './BaseSelector';
+import BaseSelector, { PagedResponseDtoData, SimpleQueryResponse, type BaseSelectorProps } from './BaseSelector';
 
 type EPGSelectorProps = BaseSelectorProps<ProgrammeNameDto> & {
   enableEditMode?: boolean;
@@ -42,6 +44,14 @@ const EPGSelector: React.FC<Partial<EPGSelectorProps>> = ({
         {restProps.value ?? 'Dummy'}
       </div>
     );
+  }
+
+  function useProgrammesGetPagedProgrammeNameSelectionsQuery(option: GetApiArg | typeof skipToken): PagedResponseDtoData<ProgrammeNameDto> {
+    throw new Error('Function not implemented.');
+  }
+
+  function useProgrammesGetProgrammsSimpleQueryQuery(option: SimpleQueryApiArg): SimpleQueryResponse<ProgrammeNameDto> {
+    throw new Error('Function not implemented.');
   }
 
   return (

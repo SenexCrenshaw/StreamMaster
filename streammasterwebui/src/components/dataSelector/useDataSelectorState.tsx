@@ -1,10 +1,10 @@
 import { type DataTableExpandedRows, type DataTableFilterMeta, type DataTableValue } from 'primereact/datatable';
 import { useLocalStorage } from 'primereact/hooks';
 import { useState } from 'react';
-import { useSelectAll } from '../../app/slices/useSelectAll';
-import { useSelectedItems } from '../../app/slices/useSelectedItemsSlice';
-import { useShowHidden } from '../../app/slices/useShowHidden';
-import { useSortInfo } from '../../app/slices/useSortInfo';
+import { useSelectAll } from '../../../lib/redux/slices/useSelectAll';
+import { useSelectedItems } from '../../../lib/redux/slices/useSelectedItemsSlice';
+import { useShowHidden } from '../../../lib/redux/slices/useShowHidden';
+import { useSortInfo } from '../../../lib/redux/slices/useSortInfo';
 import { type AdditionalFilterProps } from '../../common/common';
 import { type VideoStreamIsReadOnly } from '../../store/iptvApi';
 import { type PagedTableInformation } from './DataSelector';

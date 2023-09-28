@@ -1,11 +1,11 @@
+import { addOrUpdateValueForField, areGetApiArgsEqual, hasValidAdditionalProps, isEmptyObject, removeValueForField, type MatchMode, type SMDataTableFilterMetaData } from "@/lib/common/common";
 import { FilterMatchMode } from "primereact/api";
 import { type DataTableFilterMeta } from "primereact/datatable";
 import { useEffect, useMemo } from "react";
-import { useQueryAdditionalFilters } from "../../app/slices/useQueryAdditionalFilters";
-import { useQueryFilter } from "../../app/slices/useQueryFilter";
-import { useShowHidden } from "../../app/slices/useShowHidden";
-import { useSortInfo } from "../../app/slices/useSortInfo";
-import { addOrUpdateValueForField, areGetApiArgsEqual, hasValidAdditionalProps, isEmptyObject, removeValueForField, type MatchMode, type SMDataTableFilterMetaData } from "../../common/common";
+import { useQueryAdditionalFilters } from "../../../lib/redux/slices/useQueryAdditionalFilters";
+import { useQueryFilter } from "../../../lib/redux/slices/useQueryFilter";
+import { useShowHidden } from "../../../lib/redux/slices/useShowHidden";
+import { useSortInfo } from "../../../lib/redux/slices/useSortInfo";
 import { type ColumnMeta, type LazyTableState } from "./DataSelectorTypes";
 import generateFilterData from "./generateFilterData";
 

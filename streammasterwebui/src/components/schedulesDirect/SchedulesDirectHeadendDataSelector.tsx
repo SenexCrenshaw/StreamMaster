@@ -1,5 +1,5 @@
+import { useSchedulesDirectGetHeadendsQuery } from '@/lib/iptvApi';
 import { memo, useEffect, useMemo, useState } from "react";
-import { useSchedulesDirectGetHeadendsQuery } from "../../store/iptvApi";
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 

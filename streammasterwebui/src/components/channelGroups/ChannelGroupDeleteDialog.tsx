@@ -1,8 +1,8 @@
+import { useChannelGroupsDeleteAllChannelGroupsFromParametersMutation, useChannelGroupsDeleteChannelGroupMutation, type ChannelGroupDto, type ChannelGroupsDeleteAllChannelGroupsFromParametersApiArg, type DeleteChannelGroupRequest } from '@/lib/iptvApi';
 import { memo, useCallback, useMemo, useState } from "react";
-import { useQueryFilter } from "../../app/slices/useQueryFilter";
-import { useSelectAll } from "../../app/slices/useSelectAll";
-import { useSelectedItems } from "../../app/slices/useSelectedItemsSlice";
-import { useChannelGroupsDeleteAllChannelGroupsFromParametersMutation, useChannelGroupsDeleteChannelGroupMutation, type ChannelGroupDto, type ChannelGroupsDeleteAllChannelGroupsFromParametersApiArg, type DeleteChannelGroupRequest } from "../../store/iptvApi";
+import { useQueryFilter } from "../../../lib/redux/slices/useQueryFilter";
+import { useSelectAll } from "../../../lib/redux/slices/useSelectAll";
+import { useSelectedItems } from "../../../lib/redux/slices/useSelectedItemsSlice";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import DeleteButton from "../buttons/DeleteButton";
 

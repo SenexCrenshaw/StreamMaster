@@ -1,7 +1,6 @@
+import { getLeftToolOptions, getTopToolOptions } from "@/lib/common/common";
 import { Button } from "primereact/button";
 import { type SyntheticEvent } from "react";
-import { getLeftToolOptions, getTopToolOptions } from "../../common/common";
-
 
 export type ChildButtonProps = {
   className?: string;

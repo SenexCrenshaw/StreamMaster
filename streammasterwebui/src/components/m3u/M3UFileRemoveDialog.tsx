@@ -1,7 +1,7 @@
 import { memo, useState } from "react";
 
-import { DeleteM3UFile } from "../../smAPI/M3UFiles/M3UFilesMutateAPI";
-import { type DeleteM3UFileRequest, type M3UFileDto } from "../../store/iptvApi";
+import { type DeleteM3UFileRequest, type M3UFileDto } from '@/lib/iptvApi';
+import { DeleteM3UFile } from "@/lib/smAPI/M3UFiles/M3UFilesMutateAPI";
 import FileRemoveDialog from "../sharedEPGM3U/FileRemoveDialog";
 
 type M3UFileRemoveDialogProps = {

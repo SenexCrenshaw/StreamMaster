@@ -33,7 +33,7 @@ export type ColumnMeta = {
    * A function that returns a JSX element for the column's body content.
    */
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   bodyTemplate?: (data: any) => JSX.Element;
   /**
    * A boolean value that specifies whether to convert the field name to camel case.

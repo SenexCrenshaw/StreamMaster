@@ -1,12 +1,17 @@
+import { getTopToolOptions } from "@/lib/common/common";
+import { useVideoStreamsCreateVideoStreamMutation, type CreateVideoStreamRequest } from '@/lib/iptvApi';
 import { Button } from "primereact/button";
-import { useState, memo } from "react";
-import { getTopToolOptions } from "../../common/common";
-import { useVideoStreamsCreateVideoStreamMutation, type CreateVideoStreamRequest } from "../../store/iptvApi";
+import { memo, useState } from "react";
 
+import VideoStreamPanel from "@/features/videoStreamPanel/VideoStreamPanel";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
-import VideoStreamPanel from "../../features/videoStreamPanel/VideoStreamPanel";
 
-const VideoStreamAddDialog = (props: VideoStreamAddDialogProps) => {
+type VideoStreamAddDialogProps = {
+  readonly group?: string | undefined;
+  readonly onClose?: (() => void);
+};
+
+const VideoStreamAddDialog = ({ group, onClose }: VideoStreamAddDialogProps) => {
   const [block, setBlock] = useState<boolean>(false);
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
@@ -16,7 +21,7 @@ const VideoStreamAddDialog = (props: VideoStreamAddDialogProps) => {
     setShowOverlay(false);
     setInfoMessage('');
     setBlock(false);
-    props.onClose?.();
+    onClose?.();
   };
 
   const onSave = async (data: CreateVideoStreamRequest) => {
@@ -51,7 +56,7 @@ const VideoStreamAddDialog = (props: VideoStreamAddDialogProps) => {
       >
 
         <VideoStreamPanel
-          group={props.group}
+          group={group}
           onSave={async (e) => await onSave(e)}
         />
 
@@ -72,12 +77,5 @@ const VideoStreamAddDialog = (props: VideoStreamAddDialogProps) => {
 };
 
 VideoStreamAddDialog.displayName = 'VideoStreamAddDialog';
-VideoStreamAddDialog.defaultProps = {
-
-};
-type VideoStreamAddDialogProps = {
-  readonly group?: string | undefined;
-  readonly onClose?: (() => void);
-};
 
 export default memo(VideoStreamAddDialog);

@@ -22,10 +22,6 @@ const M3UFilesEditor = () => {
 
 M3UFilesEditor.displayName = 'M3UFilesEditor';
 
-M3UFilesEditor.defaultProps = {
-
-};
-
 export type M3UFilesEditorProps = {
 
 };

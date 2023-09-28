@@ -1,6 +1,6 @@
+import { type UpdateVideoStreamRequest, type VideoStreamDto } from '@/lib/iptvApi';
+import { UpdateVideoStream } from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import { memo, useCallback } from "react";
-import { UpdateVideoStream } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
-import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
 import ResetButton from "../buttons/ResetButton";
 
 const VideoStreamResetLogoDialog = (props: VideoStreamResetLogoDialogProps) => {
@@ -46,8 +46,6 @@ const VideoStreamResetLogoDialog = (props: VideoStreamResetLogoDialogProps) => {
 }
 
 VideoStreamResetLogoDialog.displayName = 'VideoStreamResetLogoDialog';
-VideoStreamResetLogoDialog.defaultProps = {
-}
 
 type VideoStreamResetLogoDialogProps = {
   readonly iconFilled?: boolean | undefined;

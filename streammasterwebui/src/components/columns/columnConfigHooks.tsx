@@ -1,4 +1,4 @@
-import { useChannelGroupsGetChannelGroupNamesQuery, useM3UFilesGetM3UFileNamesQuery, useProgrammesGetProgrammeNamesQuery } from "../../store/iptvApi";
+import { useChannelGroupsGetChannelGroupNamesQuery, useM3UFilesGetM3UFileNamesQuery, useProgrammesGetProgrammeNamesQuery } from '@/lib/iptvApi';
 import ChannelLogoEditor from "../ChannelLogoEditor";
 import ChannelNameEditor from "../ChannelNameEditor";
 import ChannelNumberEditor from "../ChannelNumberEditor";

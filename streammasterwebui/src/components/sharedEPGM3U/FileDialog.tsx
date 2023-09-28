@@ -7,9 +7,9 @@ import {
 
 import { ProgressBar } from 'primereact/progressbar';
 import React, { useEffect, useRef, useState } from 'react';
-import { isValidUrl } from '../../common/common';
-import { upload } from '../../services/FileUploadService';
 
+import { upload } from '@/lib/FileUploadService';
+import { isValidUrl } from '@/lib/common/common';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import AddButton from '../buttons/AddButton';
@@ -330,8 +330,8 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
 };
 
 FileDialog.displayName = 'FileDialog';
-FileDialog.defaultProps = {
-  showButton: true,
-};
+// FileDialog.defaultProps = {
+//   showButton: true,
+// };
 
 export default React.memo(FileDialog);

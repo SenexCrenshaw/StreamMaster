@@ -1,13 +1,13 @@
 
+import { getTopToolOptions } from "@/lib/common/common";
+import { ResetLogoIcon } from "@/lib/common/icons";
+import { type ReSetVideoStreamsLogoRequest, type VideoStreamDto, type VideoStreamsReSetVideoStreamsLogoFromParametersApiArg } from '@/lib/iptvApi';
+import { ReSetVideoStreamsLogo, ReSetVideoStreamsLogoFromParameters } from "@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI";
 import { Button } from "primereact/button";
 import { memo, useCallback, useMemo, useState } from "react";
-import { useQueryFilter } from "../../app/slices/useQueryFilter";
-import { useSelectAll } from "../../app/slices/useSelectAll";
-import { useSelectedVideoStreams } from "../../app/slices/useSelectedVideoStreams";
-import { getTopToolOptions } from "../../common/common";
-import { ResetLogoIcon } from "../../common/icons";
-import { ReSetVideoStreamsLogo, ReSetVideoStreamsLogoFromParameters } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
-import { type ReSetVideoStreamsLogoRequest, type VideoStreamDto, type VideoStreamsReSetVideoStreamsLogoFromParametersApiArg } from "../../store/iptvApi";
+import { useQueryFilter } from "../../../lib/redux/slices/useQueryFilter";
+import { useSelectAll } from "../../../lib/redux/slices/useSelectAll";
+import { useSelectedVideoStreams } from "../../../lib/redux/slices/useSelectedVideoStreams";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import OKButton from "../buttons/OKButton";
 

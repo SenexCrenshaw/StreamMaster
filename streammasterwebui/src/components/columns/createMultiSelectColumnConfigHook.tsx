@@ -1,7 +1,7 @@
+import { isEmptyObject, type QueryHook } from "@/lib/common/common";
+import { type ChannelGroupIdName, type VideoStreamDto } from '@/lib/iptvApi';
 import { type ColumnFilterElementTemplateOptions } from "primereact/column";
 import { MultiSelect, type MultiSelectChangeEvent } from "primereact/multiselect";
-import { isEmptyObject, type QueryHook } from "../../common/common";
-import { type ChannelGroupIdName, type VideoStreamDto } from "../../store/iptvApi";
 import { type ColumnFieldType, type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 
 

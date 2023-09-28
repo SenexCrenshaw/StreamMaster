@@ -1,5 +1,5 @@
+import { useM3UFilesCreateM3UFileMutation, type CreateM3UFileRequest } from '@/lib/iptvApi';
 import React, { useState } from "react";
-import { useM3UFilesCreateM3UFileMutation, type CreateM3UFileRequest } from "../../store/iptvApi";
 import FileDialog, { type FileDialogProps } from "../sharedEPGM3U/FileDialog";
 
 const M3UFileDialog: React.FC<Partial<FileDialogProps>> = () => {

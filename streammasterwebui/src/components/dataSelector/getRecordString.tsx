@@ -1,4 +1,4 @@
-import { removeQuotes } from "../../common/common";
+import { removeQuotes } from "@/lib/common/common";
 
 function getRecordString(data: object, fieldName: string): string {
   const record = data[fieldName as keyof typeof data];

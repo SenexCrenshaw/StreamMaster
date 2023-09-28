@@ -1,8 +1,9 @@
 import { memo, useCallback, type CSSProperties } from "react";
-import { getTopToolOptions } from "../common/common";
-import { isDebug } from "../settings";
-import { UpdateVideoStream } from "../smAPI/VideoStreams/VideoStreamsMutateAPI";
-import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../store/iptvApi";
+
+import { getTopToolOptions } from "@/lib/common/common";
+import { UpdateVideoStreamRequest, VideoStreamDto } from "@/lib/iptvApi";
+import { isDebug } from "@/lib/settings";
+import { UpdateVideoStream } from "@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI";
 import NumberEditorBodyTemplate from "./NumberEditorBodyTemplate";
 
 const ChannelNumberEditor = (props: ChannelNumberEditorProps) => {
@@ -42,8 +43,6 @@ const ChannelNumberEditor = (props: ChannelNumberEditorProps) => {
 }
 
 ChannelNumberEditor.displayName = 'Channel Number Editor';
-ChannelNumberEditor.defaultProps = {
-};
 
 export type ChannelNumberEditorProps = {
   readonly data: VideoStreamDto;

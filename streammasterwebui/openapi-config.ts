@@ -1,12 +1,12 @@
 import { type ConfigFile } from '@rtk-query/codegen-openapi';
 
 const config: ConfigFile = {
-  apiFile: './src/store/emptyApi.ts',
+  apiFile: './lib/redux/emptyApi.ts',
   apiImport: 'emptySplitApi',
   exportName: 'iptvApi',
   flattenArg: true,
   hooks: true,
-  outputFile: './src/store/iptvApi.ts',
+  outputFile: './lib/iptvApi.ts',
   schemaFile: 'http://127.0.0.1:7095/swagger/v1/swagger.json',
   tag: true,
   // outputFiles: {

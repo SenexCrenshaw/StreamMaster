@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
+import { type UpdateVideoStreamRequest, type VideoStreamDto } from '@/lib/iptvApi';
+import { UpdateVideoStream } from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import { memo } from "react";
-import { UpdateVideoStream } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
-import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
 import EPGSelector from "../selectors/EPGSelector";
 
 type EPGEditorProps = {

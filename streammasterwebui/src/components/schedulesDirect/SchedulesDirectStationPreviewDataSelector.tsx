@@ -1,9 +1,9 @@
 
+import { arraysMatch } from "@/lib/common/common";
+import { useSchedulesDirectGetStationPreviewsQuery, useSettingsGetSettingQuery, type StationPreview, type UpdateSettingRequest } from '@/lib/iptvApi';
+import { UpdateSetting } from "@/lib/smAPI/Settings/SettingsMutateAPI";
 import { Toast } from "primereact/toast";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { arraysMatch } from "../../common/common";
-import { UpdateSetting } from "../../smAPI/Settings/SettingsMutateAPI";
-import { useSchedulesDirectGetStationPreviewsQuery, useSettingsGetSettingQuery, type StationPreview, type UpdateSettingRequest } from "../../store/iptvApi";
 import DataSelector from "../dataSelector/DataSelector";
 import { type ColumnMeta } from "../dataSelector/DataSelectorTypes";
 import SchedulesDirectSchedulesDataSelector from "./SchedulesDirectSchedulesDataSelector";

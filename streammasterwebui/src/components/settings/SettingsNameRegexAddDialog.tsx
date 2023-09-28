@@ -1,11 +1,11 @@
 
 
+import { getTopToolOptions } from "@/lib/common/common";
+import { UpdateSettingRequest } from "@/lib/iptvApi";
+import { UpdateSetting } from "@/lib/smAPI/Settings/SettingsMutateAPI";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import React from "react";
-import { getTopToolOptions } from "../../common/common";
-import { UpdateSetting } from "../../smAPI/Settings/SettingsMutateAPI";
-import type * as StreamMasterApi from '../../store/iptvApi';
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 
 const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProps) => {
@@ -32,7 +32,7 @@ const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProps) => {
       return;
     }
 
-    const tosend = {} as StreamMasterApi.UpdateSettingRequest;
+    const tosend = {} as UpdateSettingRequest;
 
     tosend.nameRegex = [regex, ...props.values]
 
@@ -105,8 +105,6 @@ const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProps) => {
 }
 
 SettingsNameRegexAddDialog.displayName = 'SettingsNameRegexAddDialog';
-SettingsNameRegexAddDialog.defaultProps = {
-};
 
 type SettingsNameRegexAddDialogProps = {
   readonly onClose?: (() => void);

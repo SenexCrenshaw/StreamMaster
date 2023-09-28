@@ -1,6 +1,6 @@
+import { useStreamGroupsDeleteStreamGroupMutation, type DeleteStreamGroupRequest } from '@/lib/iptvApi';
 import { memo, useCallback, useState } from "react";
-import { useSelectedStreamGroup } from "../../app/slices/useSelectedStreamGroup";
-import { useStreamGroupsDeleteStreamGroupMutation, type DeleteStreamGroupRequest } from "../../store/iptvApi";
+import { useSelectedStreamGroup } from "../../../lib/redux/slices/useSelectedStreamGroup";
 import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
 import DeleteButton from "../buttons/DeleteButton";
 

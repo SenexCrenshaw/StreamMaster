@@ -6,7 +6,7 @@ function isPagedTableDto<T>(value: unknown): value is PagedTableDto<T> {
   }
 
   // You'll need to assert value as any here, since TS doesn't know if the value is an object or not.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const val = value as any;
 
   return (

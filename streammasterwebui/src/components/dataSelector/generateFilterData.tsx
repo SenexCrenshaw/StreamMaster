@@ -1,6 +1,6 @@
+import { type SMDataTableFilterMetaData } from "@/lib/common/common";
 import { FilterMatchMode } from "primereact/api";
 import { type DataTableFilterMeta } from "primereact/datatable";
-import { type SMDataTableFilterMetaData } from "../../common/common";
 import { type ColumnMeta } from "./DataSelectorTypes";
 
 function generateFilterData(columns: ColumnMeta[], currentFilters: DataTableFilterMeta): DataTableFilterMeta {

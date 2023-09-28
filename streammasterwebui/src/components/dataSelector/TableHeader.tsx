@@ -1,4 +1,4 @@
-import { ExportComponent, HeaderLeft, MultiSelectCheckbox } from "../../common/common";
+import { ExportComponent, HeaderLeft, MultiSelectCheckbox } from "@/lib/common/common";
 import { SMTextColor } from "../SMTextColor";
 import { type DataSelectorProps } from "./DataSelector";
 

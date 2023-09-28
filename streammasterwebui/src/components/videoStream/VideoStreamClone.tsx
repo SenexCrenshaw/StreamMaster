@@ -1,8 +1,9 @@
 
+import VideoStreamPanel from '@/features/videoStreamPanel/VideoStreamPanel';
+import { VideoStreamDto } from '@/lib/iptvApi';
 import { Dialog } from 'primereact/dialog';
-import VideoStreamPanel from '../../features/videoStreamPanel/VideoStreamPanel';
 import { classNames } from 'primereact/utils';
-import { type VideoStreamDto } from '../../store/iptvApi';
+
 import { memo } from 'react';
 
 const VideoStreamClone = (props: VideoStreamCloneProps) => {
@@ -39,12 +40,12 @@ const VideoStreamClone = (props: VideoStreamCloneProps) => {
 };
 
 VideoStreamClone.displayName = 'Clone Channel';
-VideoStreamClone.defaultProps = {
-  className: null,
-  disabled: false,
+// VideoStreamClone.defaultProps = {
+//   className: null,
+//   disabled: false,
 
-  visible: true,
-};
+//   visible: true,
+// };
 type VideoStreamCloneProps = {
   readonly VideoStream: VideoStreamDto | undefined;
   readonly className?: string | null;
