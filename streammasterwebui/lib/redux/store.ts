@@ -1,5 +1,4 @@
 import { configureStore, type Action, type ThunkAction } from '@reduxjs/toolkit';
-import { setupListeners } from '@reduxjs/toolkit/query/react';
 import { combineReducers } from 'redux';
 
 import { enhancedApiChannelGroups } from '@/lib/smAPI/ChannelGroups/ChannelGroupsEnhancedAPI';
@@ -13,8 +12,6 @@ import { enhancedApiStreamGroupVideoStreams } from '@/lib/smAPI/StreamGroupVideo
 import { enhancedApiStreamGroups } from '@/lib/smAPI/StreamGroups/StreamGroupsEnhancedAPI';
 import { enhancedApiVideoStreamLinks } from '@/lib/smAPI/VideoStreamLinks/VideoStreamLinksEnhancedAPI';
 import { enhancedApiVideoStreams } from '@/lib/smAPI/VideoStreams/VideoStreamsEnhancedAPI';
-import { persistStore } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
 
 import { enhancedApiVideoStreamLinksLocal } from '@/lib/smAPILocal/VideoStreamLinksEnhancedAPILocal';
 
@@ -29,7 +26,14 @@ import selectedVideoStreamsSliceReducer from '@/lib/redux/slices/selectedVideoSt
 import showHiddenSliceReducer from '@/lib/redux/slices/showHiddenSlice';
 import sortInfoSliceReducer from '@/lib/redux/slices/sortInfoSlice';
 import { enhancedApiVideoStreamsGetAllStatisticsLocal } from '@/lib/smAPILocal/enhancedApiVideoStreamsGetAllStatisticsLocal';
+import { useMemo } from 'react';
+import { persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 import appInfoSliceReducer from './slices/appInfoSlice';
+
+
+let store: any;
+
 const selectAllConfig = {
   key: 'selectAll',
   storage,
@@ -65,6 +69,35 @@ const selectedStreamGroupConfig = {
   storage,
 };
 
+const rootReducer = combineReducers({
+  appInfo: appInfoSliceReducer,
+  [enhancedApiChannelGroups.reducerPath]: enhancedApiChannelGroups.reducer,
+  [enhancedApiEpgFiles.reducerPath]: enhancedApiEpgFiles.reducer,
+  [enhancedApiM3UFiles.reducerPath]: enhancedApiM3UFiles.reducer,
+  [enhancedApiProgrammes.reducerPath]: enhancedApiProgrammes.reducer,
+  [enhancedApiSchedulesDirect.reducerPath]: enhancedApiSchedulesDirect.reducer,
+  [enhancedApiSettings.reducerPath]: enhancedApiSettings.reducer,
+  [enhancedApiStreamGroupChannelGroup.reducerPath]: enhancedApiStreamGroupChannelGroup.reducer,
+  [enhancedApiStreamGroupVideoStreams.reducerPath]: enhancedApiStreamGroupVideoStreams.reducer,
+  [enhancedApiStreamGroups.reducerPath]: enhancedApiStreamGroups.reducer,
+  [enhancedApiVideoStreamLinks.reducerPath]: enhancedApiVideoStreamLinks.reducer,
+  [enhancedApiVideoStreams.reducerPath]: enhancedApiVideoStreams.reducer,
+  [enhancedApiVideoStreamLinksLocal.reducerPath]: enhancedApiVideoStreamLinksLocal.reducer,
+  [enhancedApiVideoStreamsGetAllStatisticsLocal.reducerPath]: enhancedApiVideoStreamsGetAllStatisticsLocal.reducer,
+  channelGroupToRemove: channelGroupToRemoveSliceReducer,
+  queryAdditionalFilters: queryAdditionalFiltersReducer,
+  queryFilter: queryFilterReducer,
+  selectAll: persistReducer(selectAllConfig, selectAllSliceReducer),
+  selectedChannelGroups: persistReducer(selectedItemsGroupsConfig, selectedChannelGroupsSliceReducer),
+  selectedItems: selectedItemsSliceReducer,
+  selectedStreamGroup: persistReducer(selectedStreamGroupConfig, selectedStreamGroupSliceReducer),
+  selectedVideoStreams: persistReducer(selectedVideoStreamsConfig, selectedVideoStreamsSliceReducer),
+  showHidden: persistReducer(showHiddenConfig, showHiddenSliceReducer),
+  sortInfo: persistReducer(sortInfoConfig, sortInfoSliceReducer),
+});
+
+export type RootState = ReturnType<typeof rootReducer>;
+
 // const rootReducer = combineReducers({
 //   appInfo:appInfoSliceReducer,
 //   [enhancedApiChannelGroups.reducerPath]: enhancedApiChannelGroups.reducer,
@@ -83,78 +116,70 @@ const selectedStreamGroupConfig = {
 //   channelGroupToRemove:channelGroupToRemoveSliceReducer,
 //   queryAdditionalFilters: queryAdditionalFiltersReducer,
 //   queryFilter: queryFilterReducer,
-//   selectAll: persistReducer(selectAllConfig, selectAllSliceReducer),
-//   selectedChannelGroups: persistReducer(selectedItemsGroupsConfig, selectedChannelGroupsSliceReducer),
+//   selectAll:  selectAllSliceReducer,
+//   selectedChannelGroups: selectedChannelGroupsSliceReducer,
 //   selectedItems: selectedItemsSliceReducer,
-//   selectedStreamGroup: persistReducer(selectedStreamGroupConfig, selectedStreamGroupSliceReducer),
-//   selectedVideoStreams:persistReducer(selectedVideoStreamsConfig, selectedVideoStreamsSliceReducer),
-//   showHidden: persistReducer(showHiddenConfig, showHiddenSliceReducer),
-//   sortInfo: persistReducer(sortInfoConfig, sortInfoSliceReducer),
+//   selectedStreamGroup: selectedStreamGroupSliceReducer,
+//   selectedVideoStreams: selectedVideoStreamsSliceReducer,
+//   showHidden: showHiddenSliceReducer,
+//   sortInfo: sortInfoSliceReducer,
 // });
 
-const rootReducer = combineReducers({
-  appInfo:appInfoSliceReducer,
-  [enhancedApiChannelGroups.reducerPath]: enhancedApiChannelGroups.reducer,
-  [enhancedApiEpgFiles.reducerPath]: enhancedApiEpgFiles.reducer,
-  [enhancedApiM3UFiles.reducerPath]: enhancedApiM3UFiles.reducer,
-  [enhancedApiProgrammes.reducerPath]: enhancedApiProgrammes.reducer,
-  [enhancedApiSchedulesDirect.reducerPath]: enhancedApiSchedulesDirect.reducer,
-  [enhancedApiSettings.reducerPath]: enhancedApiSettings.reducer,
-  [enhancedApiStreamGroupChannelGroup.reducerPath]: enhancedApiStreamGroupChannelGroup.reducer,
-  [enhancedApiStreamGroupVideoStreams.reducerPath]: enhancedApiStreamGroupVideoStreams.reducer,
-  [enhancedApiStreamGroups.reducerPath]: enhancedApiStreamGroups.reducer,
-  [enhancedApiVideoStreamLinks.reducerPath]: enhancedApiVideoStreamLinks.reducer,
-  [enhancedApiVideoStreams.reducerPath]: enhancedApiVideoStreams.reducer,  
-  [enhancedApiVideoStreamLinksLocal.reducerPath]: enhancedApiVideoStreamLinksLocal.reducer,
-  [enhancedApiVideoStreamsGetAllStatisticsLocal.reducerPath]: enhancedApiVideoStreamsGetAllStatisticsLocal.reducer,
-  channelGroupToRemove:channelGroupToRemoveSliceReducer,
-  queryAdditionalFilters: queryAdditionalFiltersReducer,
-  queryFilter: queryFilterReducer,
-  selectAll:  selectAllSliceReducer,
-  selectedChannelGroups: selectedChannelGroupsSliceReducer,
-  selectedItems: selectedItemsSliceReducer,
-  selectedStreamGroup: selectedStreamGroupSliceReducer,
-  selectedVideoStreams: selectedVideoStreamsSliceReducer,
-  showHidden: showHiddenSliceReducer,
-  sortInfo: sortInfoSliceReducer,
-});
 
-export const store = configureStore({
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      immutableCheck: false,
-      serializableCheck: false,
-    }).concat(
-      enhancedApiChannelGroups.middleware,
-      enhancedApiEpgFiles.middleware,
-      enhancedApiM3UFiles.middleware,
-      enhancedApiProgrammes.middleware,
-      enhancedApiSchedulesDirect.middleware,
-      enhancedApiSettings.middleware,
-      enhancedApiStreamGroupChannelGroup.middleware,
-      enhancedApiStreamGroups.middleware,
-      enhancedApiStreamGroupVideoStreams.middleware,
-      enhancedApiVideoStreamLinks.middleware,
-      enhancedApiVideoStreams.middleware,
-      enhancedApiVideoStreamLinksLocal.middleware,      
-      enhancedApiVideoStreamsGetAllStatisticsLocal.middleware,
-    ),
-  reducer: rootReducer,
-});
+function makeStore() {
+  return configureStore({
+    devTools: process.env.NODE_ENV !== "production",
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        immutableCheck: false,
+        serializableCheck: false,
+      }).concat(
+        enhancedApiChannelGroups.middleware,
+        enhancedApiEpgFiles.middleware,
+        enhancedApiM3UFiles.middleware,
+        enhancedApiProgrammes.middleware,
+        enhancedApiSchedulesDirect.middleware,
+        enhancedApiSettings.middleware,
+        enhancedApiStreamGroupChannelGroup.middleware,
+        enhancedApiStreamGroups.middleware,
+        enhancedApiStreamGroupVideoStreams.middleware,
+        enhancedApiVideoStreamLinks.middleware,
+        enhancedApiVideoStreams.middleware,
+        enhancedApiVideoStreamLinksLocal.middleware,
+        enhancedApiVideoStreamsGetAllStatisticsLocal.middleware,
+      ),
+    reducer: rootReducer,
+  })
+};
 
-export const persistor = persistStore(store);
+export const initializeStore = () => {
+  let _store = store ?? makeStore();
+
+  // For SSG and SSR always create a new store
+  if (typeof window === "undefined") return _store;
+
+  // Create the store once in the client
+  if (!store) store = _store;
+
+  return _store;
+};
+
+// export type AppDispatch = typeof store.dispatch;
+// setupListeners(store.dispatch);
 
 
-// instead of defining the reducers in the reducer field of configureStore, combine them here:
-
-export type AppDispatch = typeof store.dispatch;
-export type RootState = ReturnType<typeof rootReducer>;
 export type AppThunk<ReturnType = void> = ThunkAction<
-ReturnType,
-RootState,
-unknown,
-Action<string>
+  ReturnType,
+  RootState,
+  unknown,
+  Action<string>
 >;
 
-setupListeners(store.dispatch);
 
+
+export function useStore() {
+  const store = useMemo(() => initializeStore(), []);
+  return store;
+}
+
+export default makeStore;

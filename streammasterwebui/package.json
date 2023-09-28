@@ -39,6 +39,7 @@
     "@next/eslint-plugin-next": "^13.5.3",
     "@rtk-query/codegen-openapi": "^1.0.0",
     "@types/react": "^18.2.22",
+    "@types/redux-persist": "^4.3.1",
     "@types/uuid": "^9.0.4",
     "@typescript-eslint/parser": "^5.62.0",
     "eslint": "^8.49.0",
