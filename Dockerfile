@@ -32,7 +32,7 @@ WORKDIR /src
 COPY ["streammasterwebui/", "streammasterwebui/"]
 WORKDIR "/src/streammasterwebui"
 RUN npm install
-RUN next build
+RUN npm run build
 RUN cp -r build/* /src/StreamMasterAPI/wwwroot/
 WORKDIR "/src/StreamMasterAPI"
 

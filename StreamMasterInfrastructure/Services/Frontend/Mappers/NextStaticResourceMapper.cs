@@ -6,19 +6,13 @@ using StreamMasterDomain.Services;
 
 namespace StreamMasterInfrastructure.Services.Frontend.Mappers
 {
-    public class StaticResourceMapper(IAppFolderInfo appFolderInfo, ISettingsService settingsService, ILogger<NextStaticResourceMapper> logger) : StaticResourceMapperBase(logger)
+    public class NextStaticResourceMapper(IAppFolderInfo appFolderInfo, ISettingsService settingsService, ILogger<NextStaticResourceMapper> logger) : StaticResourceMapperBase(logger)
     {
         public override bool CanHandle(string resourceUrl)
         {
             resourceUrl = resourceUrl.ToLowerInvariant();
 
-            if (resourceUrl.StartsWith("/content/images/icons/manifest") ||
-                resourceUrl.StartsWith("/content/images/icons/browserconfig"))
-            {
-                return false;
-            }
-
-            return (resourceUrl.StartsWith("/static/") || resourceUrl.StartsWith("/content/")) &&
+            return resourceUrl.StartsWith("/_next/static/") &&
                 (
                    (resourceUrl.EndsWith(".js") && !resourceUrl.EndsWith("initialize.js")) ||
                    resourceUrl.EndsWith(".map") ||
