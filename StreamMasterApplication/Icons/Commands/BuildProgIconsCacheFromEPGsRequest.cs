@@ -11,6 +11,7 @@ namespace StreamMasterApplication.Icons.Commands;
 
 public class BuildProgIconsCacheFromEPGsRequest : IRequest<bool> { }
 
+[LogExecutionTimeAspect]
 public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCacheFromEPGsRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<BuildProgIconsCacheFromEPGsRequest, bool>
 {
     public async Task<bool> Handle(BuildProgIconsCacheFromEPGsRequest command, CancellationToken cancellationToken)
