@@ -1,6 +1,6 @@
 
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { type RootState } from '../../../lib/redux/store';
+import { RootState } from '../store';
 
 type SetSelectedItemsPayload = {
   items: any | undefined,
@@ -25,7 +25,7 @@ const selectedItemsSlice = createSlice({
       if (items !== null && items !== undefined) {
         state[typename] = items;
       } else {
-        
+
         delete state[typename]; // Remove the key if the filter is null or undefined
       }
     },

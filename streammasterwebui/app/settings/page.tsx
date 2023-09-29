@@ -2,6 +2,6 @@
 
 import SettingsEditor from "@/features/settings/SettingsEditor";
 
-export default function SettingsLayout(props: React.PropsWithChildren) {
+export default function SettingsLayout() {
     return (<SettingsEditor />);
 }

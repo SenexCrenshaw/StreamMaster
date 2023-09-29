@@ -1,8 +1,7 @@
-import { hubConnection } from '@/lib/signalr/signalr';
-import { isDebug } from '@/lib/settings';
 import type * as iptv from '@/lib/iptvApi';
-import { type StringArg } from "../../components/selectors/BaseSelector";
-
+import { isDebug } from '@/lib/settings';
+import { hubConnection } from '@/lib/signalr/signalr';
+import { StringArg } from '@/src/components/selectors/BaseSelector';
 
 export const GetIcon = async (arg: iptv.IconFileDto): Promise<iptv.IconFileDto> => {
   if (isDebug) console.log('GetIcon');

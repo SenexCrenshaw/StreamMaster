@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { type AppDispatch, type RootState } from '../../../lib/redux/store';
-import { type StreamGroupDto } from '../../store/iptvApi';
+
+import { StreamGroupDto } from '@/lib/iptvApi';
 import { setSelectedStreamGroupInternal } from './selectedStreamGroupSlice';
 
 export const useSelectedStreamGroup = (typename: string) => {

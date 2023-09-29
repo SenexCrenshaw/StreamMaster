@@ -1,7 +1,7 @@
 import { createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
+import { ChannelGroupDto } from '@/lib/iptvApi';
 import { type RootState } from '../../../lib/redux/store';
-import { type ChannelGroupDto } from '../../store/iptvApi';
 
 type selectedChannelGroupsSlicePayload = {
   ChannelGroupDtos: ChannelGroupDto[],
@@ -21,7 +21,7 @@ const selectedChannelGroupsSlice = createSlice({
       if (ChannelGroupDtos.length > 0) {
         state[typename] = ChannelGroupDtos;
       } else {
-        
+
         delete state[typename]; // Remove the key if the array is empty
       }
     },

@@ -1,7 +1,6 @@
+import { VideoStreamDto } from '@/lib/iptvApi';
 import { createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
-
-import { type RootState } from '../../../lib/redux/store';
-import { type VideoStreamDto } from '../../store/iptvApi';
+import { RootState } from '../store';
 
 type selectedVideoStreamsSlicePayload = {
   typename: string,
@@ -22,7 +21,7 @@ const selectedVideoStreamsSlice = createSlice({
       if (videoStreamDtos.length > 0) {
         state[typename] = videoStreamDtos;
       } else {
-        
+
         delete state[typename]; // Remove the key if the array is empty
       }
     },

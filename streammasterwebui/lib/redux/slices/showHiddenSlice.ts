@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { type RootState } from '../../../lib/redux/store';
+import { RootState } from '../store';
 
 type SetShowHiddenPayload = {
   hidden: boolean | null | undefined,

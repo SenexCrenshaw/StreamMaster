@@ -5,8 +5,9 @@ import { useSelectAll } from '../../../lib/redux/slices/useSelectAll';
 import { useSelectedItems } from '../../../lib/redux/slices/useSelectedItemsSlice';
 import { useShowHidden } from '../../../lib/redux/slices/useShowHidden';
 import { useSortInfo } from '../../../lib/redux/slices/useSortInfo';
-import { type AdditionalFilterProps } from '../../common/common';
-import { type VideoStreamIsReadOnly } from '../../store/iptvApi';
+
+import { AdditionalFilterProps } from '@/lib/common/common';
+import { VideoStreamIsReadOnly } from '@/lib/iptvApi';
 import { type PagedTableInformation } from './DataSelector';
 
 const useDataSelectorState = <T extends DataTableValue,>(id: string, selectedItemsKey: string) => {

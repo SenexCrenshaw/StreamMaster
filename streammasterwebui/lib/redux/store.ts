@@ -164,7 +164,7 @@ export const initializeStore = () => {
   return _store;
 };
 
-// export type AppDispatch = typeof store.dispatch;
+export type AppDispatch = typeof store.dispatch;
 // setupListeners(store.dispatch);
 
 

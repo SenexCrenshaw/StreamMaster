@@ -59,5 +59,5 @@ export const SignalRConnection = (props: React.PropsWithChildren) => {
 
   }, [setHubConnected, setHubDisconnected, startConnection]);
 
-  return props.children;
+  return (<div>{props.children}</div>)
 };

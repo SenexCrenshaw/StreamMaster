@@ -2,6 +2,6 @@
 
 import StreamingStatus from "@/features/streamingStatus/StreamingStatus";
 
-export default function RootLayout(props: React.PropsWithChildren) {
+export default function StreamingStatusLayout() {
     return (<StreamingStatus />);
 }

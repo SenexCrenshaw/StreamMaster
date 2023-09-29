@@ -2,6 +2,6 @@
 
 import QueueStatus from "@/features/queueStatus/QueueStatus";
 
-export default function QueueStatusLayout(props: React.PropsWithChildren) {
+export default function QueueStatusLayout() {
     return (<QueueStatus />);
 }

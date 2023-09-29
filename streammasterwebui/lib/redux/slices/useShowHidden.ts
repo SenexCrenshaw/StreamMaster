@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { type AppDispatch, type RootState } from '../../../lib/redux/store';
+
+import { AppDispatch, RootState } from '../store';
 import { setShowHiddenInternal } from './showHiddenSlice';
 
 export const useShowHidden = (typename: string) => {

@@ -2,6 +2,6 @@
 
 import FilesEditor from "@/features/filesEditor/FilesEditor";
 
-export default function RootLayout(props: React.PropsWithChildren) {
+export default function FilesEditorLayout() {
     return (<FilesEditor />);
 }
