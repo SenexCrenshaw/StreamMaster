@@ -3,12 +3,10 @@ import StreamMasterSetting from "@/lib/StreamMasterSetting";
 import { FilesEditorIcon, HelpIcon, LogIcon, PlayListEditorIcon, QueueStatisIcon, SettingsEditorIcon, SideBarMenuIcon, StreamGroupEditorIcon, StreamingStatusIcon } from "@/lib/common/icons";
 import { useSettingsGetSettingQuery } from "@/lib/iptvApi";
 import MenuItemSM from "@/src/components/MenuItemSM";
-import Image from "next/image";
 import { useLocalStorage } from "primereact/hooks";
 import { Tooltip } from "primereact/tooltip";
 import React from "react";
 import { Menu, MenuItem, Sidebar, sidebarClasses } from "react-pro-sidebar";
-import StreamMasterpng from '../public/images/StreamMasterx32.png';
 
 export const SideBar = (props: React.PropsWithChildren) => {
     useSettingsGetSettingQuery();
@@ -76,9 +74,10 @@ export const SideBar = (props: React.PropsWithChildren) => {
 
                 <div className='absolute bottom-0 left-0 pb-2 flex flex-column m-0 p-0 justify-content-center align-items-center'>
                     <div className='flex col-12 justify-content-center align-items-center'>
-                        <Image
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
                             alt='Stream Master Logo'
-                            src={StreamMasterpng}
+                            src={'/images/StreamMasterx32.png'}
                             style={{
                                 objectFit: 'contain', // cover, contain, none
                             }}
