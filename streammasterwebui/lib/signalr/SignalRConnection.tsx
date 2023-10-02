@@ -11,6 +11,7 @@ export const SignalRConnection = (props: React.PropsWithChildren) => {
   const initialDelay = 1000;  // start with 1 second delay
   const maxDelay = 30000;  // max delay is 30 seconds
 
+  
   const startConnection = useCallback(() => {
     hubConnection.start()
       .then(() => {

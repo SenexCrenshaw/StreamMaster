@@ -6,27 +6,25 @@
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   // "prettier.ignorePath": ".prettierignore",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
-    "source.fixAll": true,
-    "source.organizeImports": true,
-    "source.sortMembers": true
+    // "source.fixAll.eslint": true,
+    // "source.fixAll": true,
+    // "source.organizeImports": true,
+    // "source.sortMembers": true
     // "source.organizeImports": true
   },
   "[json]": {
-    // "editor.defaultFormatter": "esbenp.prettier-vscode"
+     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[javascript]": {
-    // "editor.defaultFormatter": "esbenp.prettier-vscode",
+     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
   },
   "[typescript]": {
-    // "editor.defaultFormatter": "esbenp.prettier-vscode",
+     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "vscode.typescript-language-features"
   },
   "[typescriptreact]": {
-    // "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.defaultFormatter": "vscode.typescript-language-features",
+     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
   },
   "eslint.validate": [
