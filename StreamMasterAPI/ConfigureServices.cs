@@ -66,7 +66,7 @@ public static class ConfigureServices
         {
             options.AddPolicy("DevPolicy",
                 builder =>
-            builder
+                builder
                 .WithOrigins("http://localhost:3000")
                 .AllowAnyMethod()
                 .AllowAnyHeader()
@@ -75,14 +75,17 @@ public static class ConfigureServices
 
             options.AddPolicy(VersionedApiControllerAttribute.API_CORS_POLICY,
                 builder =>
-                builder.AllowAnyOrigin()
+                builder
+                .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader());
 
             options.AddPolicy("AllowGet",
                 builder =>
-                builder.AllowAnyOrigin()
-                .WithMethods("GET", "OPTIONS")
+                builder
+                .AllowAnyOrigin()
+                //.WithMethods("GET", "OPTIONS")
+                .AllowAnyMethod()
                 .AllowAnyHeader());
         });
 

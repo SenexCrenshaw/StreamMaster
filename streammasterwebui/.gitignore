@@ -9,6 +9,7 @@
 
 # next.js
 /.next/
+/build/
 /out/
 
 # Environments

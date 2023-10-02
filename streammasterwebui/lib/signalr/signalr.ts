@@ -2,7 +2,7 @@ import { apiKey, baseHostURL } from '@/lib/settings';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 
 const url = baseHostURL === undefined || baseHostURL === '' ? '/streammasterhub' : baseHostURL + '/streammasterhub';
-
+console.log("SignalR URL: ", url, baseHostURL);
 export const hubConnection = new HubConnectionBuilder()
   .configureLogging(LogLevel.Information)
   // .withHubProtocol(new MessagePackHubProtocol())
@@ -21,7 +21,7 @@ export const hubConnection = new HubConnectionBuilder()
   })
   .build();
 
-export function isSignalRConnected () {
+export function isSignalRConnected() {
   return hubConnection && hubConnection.state === 'Connected';
 }
 

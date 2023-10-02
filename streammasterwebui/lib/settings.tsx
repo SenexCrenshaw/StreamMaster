@@ -5,14 +5,14 @@ let isDebugRef = true;
 let urlBaseRef = "";
 let versionRef = "DEV";
 
-if (typeof window !== 'undefined') {
-    baseHostURLRef = window?.StreamMaster?.baseHostURL ?? baseHostURLRef;
-    apiRootRef = window?.StreamMaster?.apiRoot ?? apiRootRef;
-    apiKeyRef = window?.StreamMaster?.apiKey ?? apiKeyRef;
-    isDebugRef = window?.StreamMaster?.isDebug ?? isDebugRef;
-    urlBaseRef = window?.StreamMaster?.urlBase ?? urlBaseRef;
-    versionRef = window?.StreamMaster?.version ?? versionRef;
-}
+// if (typeof window !== 'undefined') {
+baseHostURLRef = window?.StreamMaster?.baseHostURL;
+apiRootRef = window?.StreamMaster?.apiRoot;
+apiKeyRef = window?.StreamMaster?.apiKey;
+isDebugRef = window?.StreamMaster?.isDebug !== true;
+urlBaseRef = window?.StreamMaster?.urlBase;
+versionRef = window?.StreamMaster?.version;
+// }
 
 export const baseHostURL = baseHostURLRef;
 export const apiRoot = apiRootRef;
