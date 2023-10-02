@@ -5,7 +5,7 @@ let isDebugRef = true;
 let urlBaseRef = "";
 let versionRef = "DEV";
 
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && window && window.StreamMaster) {
     baseHostURLRef = window.StreamMaster.baseHostURL;
     apiRootRef = window.StreamMaster.apiRoot;
     apiKeyRef = window.StreamMaster.apiKey;
