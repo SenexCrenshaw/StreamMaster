@@ -1,11 +1,12 @@
-let baseHostURLRef = 'http://127.0.0.1:7095';
-let apiRootRef = "/api";
-let apiKeyRef = "f835904d5a2343d8ac567c026d6c08b2";
-let isDebugRef = true;
-let urlBaseRef = "";
-let versionRef = "DEV";
+let baseHostURLRef = '';
+let apiRootRef = '';
+let apiKeyRef = '';
+let isDebugRef = false;
+let urlBaseRef = '';
+let versionRef = '';
 
 if (typeof window !== 'undefined' && window && window.StreamMaster) {
+    console.log('Setting baseHostURLRef ',window.StreamMaster.baseHostURL);
     baseHostURLRef = window.StreamMaster.baseHostURL;
     apiRootRef = window.StreamMaster.apiRoot;
     apiKeyRef = window.StreamMaster.apiKey;
