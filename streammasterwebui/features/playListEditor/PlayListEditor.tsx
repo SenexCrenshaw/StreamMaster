@@ -11,7 +11,7 @@ const PlayListEditor = () => {
   return (
     <div className="playListEditor">
       <div className="grid grid-nogutter flex justify-content-between align-items-center">
-        <div className="flex w-full text-left font-bold text-white-500 surface-overlay justify-content-start align-items-center">
+        <div className="flex w-full text-left ml-1 font-bold text-white-500 surface-overlay justify-content-start align-items-center">
           <PlayListEditorIcon className='p-0 mr-1' />
           {PlayListEditor.displayName?.toUpperCase()}
         </div >

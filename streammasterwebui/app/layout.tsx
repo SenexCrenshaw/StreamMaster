@@ -11,6 +11,8 @@ import 'primeicons/primeicons.css'; // icons
 import 'primereact/resources/primereact.css'; // core css
 import 'primereact/resources/themes/viva-dark/theme.css'; // theme
 
+import '@/lib/styles/index.css';
+
 export default function RootLayout(props: React.PropsWithChildren) {
     return (
         <html lang="en">

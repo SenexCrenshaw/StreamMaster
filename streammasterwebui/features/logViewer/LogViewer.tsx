@@ -1,6 +1,7 @@
 
 import { ExportComponent, formatJSONDateString } from '@/lib/common/common';
-import type * as iptv from '@/lib/iptvApi';
+import { LogEntry, LogEntryDto, LogsGetLogApiArg, useLogsGetLogQuery } from '@/lib/iptvApi';
+
 import { GetLog } from '@/lib/smAPI/Logs/LogsGetAPI';
 import { FilterMatchMode } from 'primereact/api';
 import { Column } from 'primereact/column';
@@ -9,8 +10,11 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const LogViewer = () => {
   const [lastLogId, setLastLogId] = useState<number>(0);
-  const [dataSource, setDataSource] = useState<iptv.LogEntryDto[]>([] as iptv.LogEntryDto[]);
-  const tableRef = useRef<DataTable<iptv.LogEntryDto[]>>(null);
+  const [dataSource, setDataSource] = useState<LogEntryDto[]>([] as LogEntryDto[]);
+  const tableRef = useRef<DataTable<LogEntryDto[]>>(null);
+
+  const { isLoading, data } = useLogsGetLogQuery({ lastId: lastLogId, maxLines: 5000 } as LogsGetLogApiArg);
+
 
   const filters = ({
     logLevelName: { matchMode: FilterMatchMode.CONTAINS, value: null },
@@ -20,8 +24,8 @@ const LogViewer = () => {
 
   const getLogData = useCallback(() => {
 
-    GetLog({ lastId: lastLogId, maxLines: 5000 } as iptv.LogsGetLogApiArg)
-      .then((data: iptv.LogEntryDto[]) => {
+    GetLog({ lastId: lastLogId, maxLines: 5000 } as LogsGetLogApiArg)
+      .then((data: LogEntryDto[]) => {
         if (data && data.length > 0) {
           // Filter out duplicates based on ID
           const uniqueData = data.filter(item => !dataSource.some(existingItem => existingItem.id === item.id));
@@ -62,11 +66,11 @@ const LogViewer = () => {
     };
   }, [getLogData]);
 
-  const timeStampTemplate = useCallback((rowData: iptv.LogEntry) => {
+  const timeStampTemplate = useCallback((rowData: LogEntry) => {
     return (<div>{formatJSONDateString(rowData.timeStamp ?? '')}</div>);
   }, []);
 
-  const levelTemplate = useCallback((rowData: iptv.LogEntry) => {
+  const levelTemplate = useCallback((rowData: LogEntry) => {
     switch (rowData.logLevel) {
       case 0:
         return (<div className='text-gray-600'>Trace</div>);
@@ -88,7 +92,7 @@ const LogViewer = () => {
 
   }, []);
 
-  const messageTemplate = useCallback((rowData: iptv.LogEntry) => {
+  const messageTemplate = useCallback((rowData: LogEntry) => {
     return (<div>{rowData.message}</div>);
   }, []);
 
@@ -180,3 +184,5 @@ const LogViewer = () => {
 }
 
 export default memo(LogViewer);
+
+
