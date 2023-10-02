@@ -6,5 +6,10 @@ const rawBaseQuery = fetchBaseQuery({ baseUrl: baseHostURL, headers: { 'x-api-ke
 
 export const emptySplitApi = createApi({
   baseQuery: rawBaseQuery,
+  // extractRehydrationInfo(action, { reducerPath }) {
+  //   if (action.type === "HYDRATE") {
+  //     return action.payload[reducerPath]
+  //   }
+  // },
   endpoints: () => ({}),
 });

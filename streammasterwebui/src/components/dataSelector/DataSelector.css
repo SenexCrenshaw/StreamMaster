@@ -18,6 +18,13 @@
   padding-bottom: 0.2rem !important;
 }
 
+[role="columnheader"] {
+  padding-top: 0.2rem !important;
+  padding-bottom: 0.2rem !important;
+  height: 3.0rem !important;
+  max-height: 3.0rem !important;
+}
+
 /* .dataselector .p-paginator .p-paginator-first,
 .p-paginator .p-paginator-prev,
 .p-paginator .p-paginator-next,

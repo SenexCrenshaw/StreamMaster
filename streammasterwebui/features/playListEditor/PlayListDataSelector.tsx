@@ -13,21 +13,20 @@ export type PlayListDataSelectorProps = {
   readonly hideAddRemoveControls?: boolean;
   readonly hideControls?: boolean;
   readonly id: string;
-  readonly maxHeight?: number;
   readonly name?: string;
   readonly useReadOnly?: boolean;
 };
 
-const PlayListDataSelector = ({ hideAddRemoveControls = false, hideControls = false, id, maxHeight, name = 'Playlist', useReadOnly = true }: PlayListDataSelectorProps) => {
+const PlayListDataSelector = ({ hideAddRemoveControls = false, hideControls = false, id, name = 'Playlist', useReadOnly = true }: PlayListDataSelectorProps) => {
   const dataKey = id + '-PlayListDataSelector';
   const { showHidden, setShowHidden } = useShowHidden(dataKey);
 
   useEffect(() => {
-    if (showHidden === undefined) {
+    if (showHidden === undefined && showHidden !== null) {
       setShowHidden(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showHidden]);
+
+  }, [setShowHidden, showHidden]);
 
 
   const sourceActionBodyTemplate = useCallback((data: ChannelGroupDto) => (
@@ -96,9 +95,7 @@ const PlayListDataSelector = ({ hideAddRemoveControls = false, hideControls = fa
       queryFilter={useChannelGroupsGetPagedChannelGroupsQuery}
       selectedItemsKey='selectSelectedChannelGroupDtoItems'
       selectionMode='multiple'
-      style={{
-        height: maxHeight !== null ? maxHeight : 'calc(100vh - 40px)',
-      }}
+      style={{ height: 'calc(100vh - 40px)' }}
     />
 
   );

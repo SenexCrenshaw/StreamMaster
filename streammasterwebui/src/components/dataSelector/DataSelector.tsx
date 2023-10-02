@@ -33,25 +33,26 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return;
     }
 
-    if (!state.sortField || state.sortField === '') {
+    if (!state.sortField || state.sortField === '' && state.sortField !== props.defaultSortField) {
       setters.setSortField(props.defaultSortField);
     }
 
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.defaultSortField, setters]);
+  }, [props.defaultSortField, setters, state.sortField]);
 
   useEffect(() => {
     if (!props.defaultSortOrder) {
       return;
     }
 
-    if (!state.sortOrder) {
+    function isEqual(value1: -1 | 0 | 1, value2: -1 | 0 | 1): boolean {
+      return value1 === value2;
+    }
+
+    if (!state.sortOrder && !isEqual(state.sortOrder, props.defaultSortOrder)) {
       setters.setSortOrder(props.defaultSortOrder);
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.defaultSortField, setters]);
+  }, [props.defaultSortField, props.defaultSortOrder, setters, state.sortOrder]);
 
   const { queryFilter } = useQueryFilter(props.id);
 
@@ -152,8 +153,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return;
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, props.dataSource, state.selectAll]);
+
+  }, [data, onsetSelection, props.dataSource, props.reorderable, setters, state.dataSource, state.selectAll]);
 
   const onRowReorder = (changed: T[]) => {
     setters.setDataSource(changed);
@@ -466,15 +467,13 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     }
   };
 
-
-
   return (
 
     <div className='dataselector flex w-full min-w-full  justify-content-start align-items-center' >
       <div className={`${props.className !== undefined ? props.className : ''} min-h-full w-full surface-overlay`}>
         <DataTable
           cellSelection={false}
-          dataKey='id' // {props.key !== undefined && props.key !== '' ? props.key : 'id'}
+          dataKey='id'
           editMode='cell'
           emptyMessage={props.emptyMessage}
           expandableRowGroups={props.groupRowsBy !== undefined && props.groupRowsBy !== ''}
@@ -485,7 +484,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
           filters={isEmptyObject(state.filters) ? getEmptyFilter(props.columns, state.showHidden) : state.filters}
           first={state.pagedInformation ? state.pagedInformation.first : state.first}
           header={sourceRenderHeader}
-          key='id' // {props.key !== undefined && props.key !== '' ? props.key : 'id'}
+          key='id'
           lazy
           loading={props.isLoading === true || isFetching === true || isLoading === true}
           metaKeySelection={false}

@@ -99,6 +99,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
+    [HttpHead]
     [Route("stream/{encodedIds}")]
     [Route("stream/{encodedIds}.mp4")]
     [Route("stream/{encodedIds}/{name}")]

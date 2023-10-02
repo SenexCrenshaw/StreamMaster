@@ -19,7 +19,7 @@
       "webRoot": "${workspaceFolder}"
     },
     {
-      "command": "npm start",
+      "command": "next start",
       "name": "Run npm start",
       "request": "launch",
       "type": "node-terminal",

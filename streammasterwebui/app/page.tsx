@@ -1,9 +1,10 @@
-import QueueStatus from "@/features/queueStatus/QueueStatus";
+import { redirect } from 'next/navigation';
 
 export default function IndexPage() {
-    return (<QueueStatus />);
+    redirect("/editor/playlist");
+    return (<div />);
 }
 
 export const metadata = {
-    title: 'Redux Toolkit',
+    title: 'Stream Master',
 }

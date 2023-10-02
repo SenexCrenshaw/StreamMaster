@@ -27,7 +27,7 @@ export const Providers = (props: React.PropsWithChildren) => {
       <react.StrictMode>
         <IntlProvider locale={locale} messages={messages}>
           <Provider store={store}>
-            <PersistGate loading={<p>loading</p>} persistor={persistor} />
+            <PersistGate persistor={persistor} />
             <SignalRConnection>
               <ProSidebarProvider>
                 <SideBar>
