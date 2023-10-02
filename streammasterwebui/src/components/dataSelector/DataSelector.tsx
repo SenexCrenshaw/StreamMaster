@@ -33,7 +33,7 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
       return;
     }
 
-    if (!state.sortField || state.sortField === '' && state.sortField !== props.defaultSortField) {
+    if ((!state.sortField || state.sortField === '') && state.sortField !== props.defaultSortField) {
       setters.setSortField(props.defaultSortField);
     }
 

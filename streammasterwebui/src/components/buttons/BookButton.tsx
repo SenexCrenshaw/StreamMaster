@@ -1,7 +1,4 @@
-;
-
-import { type ChildButtonProps } from "./BaseButton";
-import BaseButton from "./BaseButton";
+import BaseButton, { type ChildButtonProps } from "./BaseButton";
 
 const BookButton: React.FC<ChildButtonProps> = ({ disabled = true, onClick, tooltip = "" }) => {
   return (

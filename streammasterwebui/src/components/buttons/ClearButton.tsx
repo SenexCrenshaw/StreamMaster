@@ -1,5 +1,3 @@
-;
-
 import BaseButton, { type ChildButtonProps } from "./BaseButton";
 
 const ClearButton: React.FC<ChildButtonProps> = ({ disabled = true, onClick, tooltip = "" }) => {

@@ -151,7 +151,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
         props.querySelectedItem({ value: props.value } as StringArg).then((item) => {
           if (item) {
 
-            if (item && item.source != selectedItem && !existingIds.has(item.id)) {
+            if (item && item.source !== selectedItem && !existingIds.has(item.id)) {
               const newDataSource = dataSource.concat(item);
 
               setDataSource(newDataSource);

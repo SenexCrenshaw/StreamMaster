@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 'use client'
 import StreamMasterSetting from '@/lib/StreamMasterSetting';
 import { getIconUrl } from '@/lib/common/common';

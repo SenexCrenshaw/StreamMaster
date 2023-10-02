@@ -36,7 +36,7 @@ const ChannelGroupSelector: React.FC<ChannelGroupSelectorProps> = ({ className, 
 
 
   const handleResetClick = () => {
-    if (resetValue && channelGroup?.name != resetValue) {
+    if (resetValue && channelGroup?.name !== resetValue) {
       setChannelGroupByName(resetValue);
       onChange(resetValue);
     }

@@ -34,6 +34,7 @@
     "vidstack": "^0.6.13"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@babel/preset-react": "^7.22.15",
     "@babel/preset-typescript": "^7.22.15",
     "@formatjs/cli": "^6.2.0",
