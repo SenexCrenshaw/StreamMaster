@@ -74,7 +74,6 @@ export const SideBar = (props: React.PropsWithChildren) => {
 
                 <div className='absolute bottom-0 left-0 pb-2 flex flex-column m-0 p-0 justify-content-center align-items-center'>
                     <div className='flex col-12 justify-content-center align-items-center'>
-                        // eslint-disable-next-line @next/next/no-img-element
                         <img
                             alt='Stream Master Logo'
                             src={'/images/StreamMasterx32.png'}
