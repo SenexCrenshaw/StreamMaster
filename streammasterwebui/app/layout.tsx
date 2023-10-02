@@ -1,9 +1,5 @@
 import { Providers } from "@/lib/providers";
-
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
+import { Albert_Sans, } from 'next/font/google';
 
 import '@/lib/styles/theme.css'; // theme
 import 'primeflex/primeflex.css'; // css utility
@@ -13,9 +9,15 @@ import 'primereact/resources/themes/viva-dark/theme.css'; // theme
 
 import '@/lib/styles/index.css';
 
+const albert_sans = Albert_Sans({
+    subsets: ['latin'],
+    display: 'swap',
+})
+
+
 export default function RootLayout(props: React.PropsWithChildren) {
     return (
-        <html lang="en">
+        <html lang="en" className={albert_sans.className}>
             <body>
                 <Providers>
                     {props.children}

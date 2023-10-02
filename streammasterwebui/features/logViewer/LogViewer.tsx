@@ -2,7 +2,6 @@
 import { ExportComponent, formatJSONDateString } from '@/lib/common/common';
 import { LogEntry, LogEntryDto, LogsGetLogApiArg, useLogsGetLogQuery } from '@/lib/iptvApi';
 
-import { GetLog } from '@/lib/smAPI/Logs/LogsGetAPI';
 import { FilterMatchMode } from 'primereact/api';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
@@ -13,7 +12,7 @@ const LogViewer = () => {
   const [dataSource, setDataSource] = useState<LogEntryDto[]>([] as LogEntryDto[]);
   const tableRef = useRef<DataTable<LogEntryDto[]>>(null);
 
-  const { isLoading, data } = useLogsGetLogQuery({ lastId: lastLogId, maxLines: 5000 } as LogsGetLogApiArg);
+  const { isLoading, data, refetch } = useLogsGetLogQuery({ lastId: lastLogId, maxLines: 5000 } as LogsGetLogApiArg);
 
 
   const filters = ({
@@ -22,32 +21,33 @@ const LogViewer = () => {
     timeStamp: { matchMode: FilterMatchMode.CONTAINS, value: null },
   });
 
+
+  useEffect(() => {
+
+    if (data && data.length > 0) {
+      // Filter out duplicates based on ID
+      const uniqueData = data.filter(item => !dataSource.some(existingItem => existingItem.id === item.id));
+
+      if (uniqueData.length > 0) {
+        // Add only the new unique items to the dataSource
+        setDataSource(prevDataSource => [
+          ...prevDataSource,
+          ...uniqueData,
+        ]);
+
+        // Update the lastLogId to the ID of the last item in the new data
+        setLastLogId(uniqueData[uniqueData.length - 1].id);
+
+      }
+    }
+
+  }, [data, dataSource]);
+
   const getLogData = useCallback(() => {
 
-    GetLog({ lastId: lastLogId, maxLines: 5000 } as LogsGetLogApiArg)
-      .then((data: LogEntryDto[]) => {
-        if (data && data.length > 0) {
-          // Filter out duplicates based on ID
-          const uniqueData = data.filter(item => !dataSource.some(existingItem => existingItem.id === item.id));
+    refetch();
 
-          if (uniqueData.length > 0) {
-            // Add only the new unique items to the dataSource
-            setDataSource(prevDataSource => [
-              ...prevDataSource,
-              ...uniqueData,
-            ]);
-
-            // Update the lastLogId to the ID of the last item in the new data
-            setLastLogId(uniqueData[uniqueData.length - 1].id);
-
-          }
-        }
-      })
-      .catch(() => { });
-
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataSource]);
+  }, [refetch]);
 
   useEffect(() => {
     if (dataSource.length !== 0) {

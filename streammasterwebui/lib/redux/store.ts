@@ -125,7 +125,6 @@ export type RootState = ReturnType<typeof rootReducer>;
 //   sortInfo: sortInfoSliceReducer,
 // });
 
-
 function makeStore() {
   return configureStore({
     devTools: process.env.NODE_ENV !== "production",
