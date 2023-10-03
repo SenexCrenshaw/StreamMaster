@@ -14,11 +14,8 @@ export const SignalRConnection = (props: React.PropsWithChildren) => {
 
   const startConnection = useCallback(() => {
 
-    console.log('baseHostURL', baseHostURL);
-    console.log('apiKey', apiKey);
-
     const url = baseHostURL === undefined || baseHostURL === '' ? '/streammasterhub' : baseHostURL + '/streammasterhub';
-    console.log('Connecting to hub at', url);
+    
     hubConnection.baseUrl = url, {
     accessTokenFactory: () => apiKey,
     headers: { 'X-Api-Key': apiKey },

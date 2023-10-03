@@ -1,10 +1,12 @@
+import { emptySplitApi } from './../redux/emptyApi';
 'use client';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
+import { baseHostURL } from '@/lib/settings'
 
-const url = 'http://127.0.0.1:7095/streammasterhub';
+const url =baseHostURL+'/streammasterhub';
 
 export const hubConnection = new HubConnectionBuilder()
-  .configureLogging(LogLevel.Information)
+  .configureLogging(LogLevel.Error)
   // .withHubProtocol(new MessagePackHubProtocol())
   .withUrl(url)
   .withAutomaticReconnect({

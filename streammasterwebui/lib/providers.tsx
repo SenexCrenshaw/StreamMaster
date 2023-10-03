@@ -11,17 +11,18 @@ import { PersistGate } from 'redux-persist/integration/react';
 import messages_en from './locales/messages_en';
 import { useStore } from './redux/store';
 import { SignalRConnection } from './signalr/SignalRConnection';
+import { baseHostURL } from '@/lib/settings';
 
 export const Providers = (props: React.PropsWithChildren) => {
   const [locale,] = useLocalStorage('en', 'locale');
   const messages = locale === 'en' ? messages_en : messages_en;
   const store = useStore();
-
+  
 useEffect(() => {
     const script = document.createElement('script');
-    script.src = 'http://127.0.0.1:7095/initialize.js';
+    script.src = baseHostURL+'/initialize.js';
     script.onload = () => {
-      console.log('script', window.StreamMaster);
+    
     };
     document.body.appendChild(script);
   }, []);
