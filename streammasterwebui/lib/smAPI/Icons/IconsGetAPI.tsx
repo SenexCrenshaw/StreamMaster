@@ -1,7 +1,10 @@
-import type * as iptv from '@/lib/iptvApi';
-import { isDebug } from '@/lib/settings';
+/* eslint unused-imports/no-unused-imports-ts: off */
+/* eslint @typescript-eslint/no-unused-vars: off */
 import { hubConnection } from '@/lib/signalr/signalr';
-import { StringArg } from '@/src/components/selectors/BaseSelector';
+import { isDebug } from '@/lib/settings';
+import type * as iptv from '@/lib/iptvApi';
+import { type StringArg } from '@/src/components/selectors/BaseSelector';
+
 
 export const GetIcon = async (arg: iptv.IconFileDto): Promise<iptv.IconFileDto> => {
   if (isDebug) console.log('GetIcon');

@@ -3,7 +3,7 @@
   "plugins": ["@typescript-eslint","unused-imports"],
   "rules": {    
     "unused-imports/no-unused-imports-ts": "error",
-  "@next/next/no-img-element": "off",
-  "@typescript-eslint/no-unused-vars": "error"
+    "@next/next/no-img-element": "off",
+    "@typescript-eslint/no-unused-vars": "error"
   }
 }

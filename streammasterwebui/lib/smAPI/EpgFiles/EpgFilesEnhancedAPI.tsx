@@ -1,3 +1,4 @@
+import { isDebug } from '@/lib/settings';
 import { singletonEPGFilesListener } from '@/lib/signalr/singletonListeners';
 import { isEmptyObject } from '@/lib/common/common';
 import isPagedTableDto from '@/lib/common/isPagedTableDto';
@@ -13,11 +14,11 @@ export const enhancedApiEpgFiles = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.EpgFileDto) => {
             updateCachedData(() => {
-              console.log('updateCachedData', data);
+              if (isDebug) console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'EPGFiles' }])) {
                 if (endpointName !== 'epgFilesGetEpgFile') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    console.log('updateCachedData', data, draft);
+                    if (isDebug) console.log('updateCachedData', data, draft);
                    })
                    );
                  }
@@ -44,7 +45,7 @@ export const enhancedApiEpgFiles = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.EpgFileDto[]) => {
             if (!data || isEmptyObject(data)) {
-              console.log('empty', data);
+              if (isDebug) console.log('empty', data);
               dispatch(iptvApi.util.invalidateTags(['EPGFiles']));
               return;
             }

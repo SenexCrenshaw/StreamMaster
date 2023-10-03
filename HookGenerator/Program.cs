@@ -5,7 +5,7 @@ internal class Program
 {
     private static readonly List<string> blackList = new() { "programmesGetProgramme", "programmesGetProgrammeChannels", "programmesGetProgrammes", "programmesGetProgrammeFromDisplayName", "schedulesDirectGetHeadends", "schedulesDirectGetSchedules", "schedulesDirectGetStations", "videoStreamsGetAllStatisticsForAllUrls", "streamGroupVideoStreamsGetStreamGroupVideoStreamIds" };
     private static readonly Dictionary<string, string> overRideArgs = new() { { "GetIconFromSource", "StringArg" } };
-    private static readonly Dictionary<string, string> additionalImports = new() { { "Icons", "import { type StringArg } from \"../../components/selectors/BaseSelector\";" } };
+    private static readonly Dictionary<string, string> additionalImports = new() { { "Icons", "import { type StringArg } from '@/src/components/selectors/BaseSelector';" } };
 
 
     private const string SwaggerUrl = "http://127.0.0.1:7095/swagger/v1/swagger.json";
@@ -64,6 +64,8 @@ internal class Program
                             {
                                 tagToGetContentMap[tag] = new StringBuilder();
                                 // Add imports at the start of each new file's content
+                                tagToGetContentMap[tag].AppendLine("/* eslint unused-imports/no-unused-imports-ts: off */");
+                                tagToGetContentMap[tag].AppendLine("/* eslint @typescript-eslint/no-unused-vars: off */");
                                 tagToGetContentMap[tag].AppendLine("import { hubConnection } from '@/lib/signalr/signalr';");
                                 tagToGetContentMap[tag].AppendLine("import { isDebug } from '@/lib/settings';");
                                 tagToGetContentMap[tag].AppendLine("import type * as iptv from '@/lib/iptvApi';");
@@ -99,6 +101,8 @@ internal class Program
                             {
                                 tagToMutateContentMap[tag] = new StringBuilder();
                                 // Add imports at the start of each new file's content
+                                tagToMutateContentMap[tag].AppendLine("/* eslint unused-imports/no-unused-imports-ts: off */");
+                                tagToMutateContentMap[tag].AppendLine("/* eslint @typescript-eslint/no-unused-vars: off */");
                                 tagToMutateContentMap[tag].AppendLine("import { hubConnection } from '@/lib/signalr/signalr';");
                                 tagToMutateContentMap[tag].AppendLine("import { isDebug } from '@/lib/settings';");
                                 tagToMutateContentMap[tag].AppendLine("import type * as iptv from '@/lib/iptvApi';\r\n");
@@ -154,13 +158,13 @@ internal class Program
         if (IsPagedOrIsArray(responseType))
         {
             ret.AppendLine($"            if (!data || isEmptyObject(data)) {{");
-            ret.AppendLine($"              console.log('empty', data);");
+            ret.AppendLine($"              if (isDebug) console.log('empty', data);");
             ret.AppendLine($"              dispatch(iptvApi.util.invalidateTags(['{tag}']));");
             ret.AppendLine($"              return;");
             ret.AppendLine($"            }}");
             ret.AppendLine();
             ret.AppendLine($"            updateCachedData(() => {{");
-            //ret.AppendLine($"              console.log('updateCachedData', data);");
+            //ret.AppendLine($"              if (isDebug) console.log('updateCachedData', data);");
             ret.AppendLine($"              for (const {{ endpointName, originalArgs }} of iptvApi.util.selectInvalidatedBy(getState(), [{{ type: '{tag}' }}])) {{");
             ret.AppendLine($"                if (endpointName !== '{endpointName}') continue;");
             ret.AppendLine($"                  dispatch(");
@@ -196,11 +200,11 @@ internal class Program
             return ret.ToString();
         }
         ret.AppendLine($"            updateCachedData(() => {{");
-        ret.AppendLine($"              console.log('updateCachedData', data);");
+        ret.AppendLine($"              if (isDebug) console.log('updateCachedData', data);");
         ret.AppendLine($"              for (const {{ endpointName, originalArgs }} of iptvApi.util.selectInvalidatedBy(getState(), [{{ type: '{tag}' }}])) {{");
         ret.AppendLine($"                if (endpointName !== '{endpointName}') continue;");
         ret.AppendLine($"                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{");
-        ret.AppendLine($"                    console.log('updateCachedData', data, draft);");
+        ret.AppendLine($"                    if (isDebug) console.log('updateCachedData', data, draft);");
         ret.AppendLine($"                   }})");
         ret.AppendLine($"                   );");
         ret.AppendLine($"                 }}");
@@ -217,6 +221,7 @@ internal class Program
 
             StringBuilder rtkContent = new();
 
+            rtkContent.AppendLine("import { isDebug } from '@/lib/settings';");
             rtkContent.AppendLine($"import {{ {singleTon} }} from '@/lib/signalr/singletonListeners';");
             rtkContent.AppendLine($"import {{ isEmptyObject }} from '@/lib/common/common';");
             rtkContent.AppendLine($"import isPagedTableDto from '@/lib/common/isPagedTableDto';");

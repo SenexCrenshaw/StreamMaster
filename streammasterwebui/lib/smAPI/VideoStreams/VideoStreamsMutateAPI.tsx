@@ -1,3 +1,5 @@
+/* eslint unused-imports/no-unused-imports-ts: off */
+/* eslint @typescript-eslint/no-unused-vars: off */
 import { hubConnection } from '@/lib/signalr/signalr';
 import { isDebug } from '@/lib/settings';
 import type * as iptv from '@/lib/iptvApi';
@@ -20,6 +22,21 @@ export const DeleteVideoStream = async (arg: iptv.DeleteVideoStreamRequest): Pro
 export const FailClient = async (arg: iptv.FailClientRequest): Promise<void> => {
   if (isDebug) console.log('FailClient');
   await hubConnection.invoke('FailClient', arg);
+};
+
+export const GetVideoStreamStreamHEAD = async (arg: string): Promise<void> => {
+  if (isDebug) console.log('GetVideoStreamStreamHEAD');
+  await hubConnection.invoke('GetVideoStreamStreamHEAD', arg);
+};
+
+export const GetVideoStreamStreamHEAD2 = async (arg: string): Promise<void> => {
+  if (isDebug) console.log('GetVideoStreamStreamHEAD2');
+  await hubConnection.invoke('GetVideoStreamStreamHEAD2', arg);
+};
+
+export const GetVideoStreamStreamHEAD3 = async (arg: string): Promise<void> => {
+  if (isDebug) console.log('GetVideoStreamStreamHEAD3');
+  await hubConnection.invoke('GetVideoStreamStreamHEAD3', arg);
 };
 
 export const ReSetVideoStreamsLogo = async (arg: iptv.ReSetVideoStreamsLogoRequest): Promise<void> => {

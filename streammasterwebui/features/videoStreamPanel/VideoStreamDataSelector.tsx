@@ -58,7 +58,7 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
       id={dataKey}
       isLoading={videoStreamLinksGetVideoStreamVideoStreamIdsQuery.isLoading || videoStreamLinksGetVideoStreamVideoStreamIdsQuery.isFetching}
       onRowClick={async (e) => {
-        console.log(e.data);
+        
         if (e.data === undefined || videoStreamId === undefined) {
           return;
         }

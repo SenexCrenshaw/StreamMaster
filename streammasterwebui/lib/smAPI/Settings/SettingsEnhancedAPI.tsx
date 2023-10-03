@@ -1,3 +1,4 @@
+import { isDebug } from '@/lib/settings';
 import { singletonSettingsListener } from '@/lib/signalr/singletonListeners';
 import { isEmptyObject } from '@/lib/common/common';
 import isPagedTableDto from '@/lib/common/isPagedTableDto';
@@ -13,7 +14,7 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.TaskQueueStatusDto[]) => {
             if (!data || isEmptyObject(data)) {
-              console.log('empty', data);
+              if (isDebug) console.log('empty', data);
               dispatch(iptvApi.util.invalidateTags(['Settings']));
               return;
             }
@@ -69,11 +70,11 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.SettingDto) => {
             updateCachedData(() => {
-              console.log('updateCachedData', data);
+              if (isDebug) console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Settings' }])) {
                 if (endpointName !== 'settingsGetSetting') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    console.log('updateCachedData', data, draft);
+                    if (isDebug) console.log('updateCachedData', data, draft);
                    })
                    );
                  }
@@ -100,11 +101,11 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.SystemStatus) => {
             updateCachedData(() => {
-              console.log('updateCachedData', data);
+              if (isDebug) console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Settings' }])) {
                 if (endpointName !== 'settingsGetSystemStatus') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    console.log('updateCachedData', data, draft);
+                    if (isDebug) console.log('updateCachedData', data, draft);
                    })
                    );
                  }

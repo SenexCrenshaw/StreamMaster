@@ -1,3 +1,4 @@
+import { isDebug } from '@/lib/settings';
 import { singletonM3UFilesListener } from '@/lib/signalr/singletonListeners';
 import { isEmptyObject } from '@/lib/common/common';
 import isPagedTableDto from '@/lib/common/isPagedTableDto';
@@ -13,11 +14,11 @@ export const enhancedApiM3UFiles = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.M3UFileDto) => {
             updateCachedData(() => {
-              console.log('updateCachedData', data);
+              if (isDebug) console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'M3UFiles' }])) {
                 if (endpointName !== 'm3UFilesGetM3UFile') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    console.log('updateCachedData', data, draft);
+                    if (isDebug) console.log('updateCachedData', data, draft);
                    })
                    );
                  }
@@ -44,7 +45,7 @@ export const enhancedApiM3UFiles = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.M3UFileDto[]) => {
             if (!data || isEmptyObject(data)) {
-              console.log('empty', data);
+              if (isDebug) console.log('empty', data);
               dispatch(iptvApi.util.invalidateTags(['M3UFiles']));
               return;
             }

@@ -1,3 +1,4 @@
+import { isDebug } from '@/lib/settings';
 import { singletonChannelGroupsListener } from '@/lib/signalr/singletonListeners';
 import { isEmptyObject } from '@/lib/common/common';
 import isPagedTableDto from '@/lib/common/isPagedTableDto';
@@ -13,11 +14,11 @@ export const enhancedApiChannelGroups = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.ChannelGroupDto) => {
             updateCachedData(() => {
-              console.log('updateCachedData', data);
+              if (isDebug) console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'ChannelGroups' }])) {
                 if (endpointName !== 'channelGroupsGetChannelGroup') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    console.log('updateCachedData', data, draft);
+                    if (isDebug) console.log('updateCachedData', data, draft);
                    })
                    );
                  }
@@ -44,7 +45,7 @@ export const enhancedApiChannelGroups = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.ChannelGroupIdName[]) => {
             if (!data || isEmptyObject(data)) {
-              console.log('empty', data);
+              if (isDebug) console.log('empty', data);
               dispatch(iptvApi.util.invalidateTags(['ChannelGroups']));
               return;
             }
@@ -100,7 +101,7 @@ export const enhancedApiChannelGroups = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.ChannelGroupDto[]) => {
             if (!data || isEmptyObject(data)) {
-              console.log('empty', data);
+              if (isDebug) console.log('empty', data);
               dispatch(iptvApi.util.invalidateTags(['ChannelGroups']));
               return;
             }
@@ -156,7 +157,7 @@ export const enhancedApiChannelGroups = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.ChannelGroupDto[]) => {
             if (!data || isEmptyObject(data)) {
-              console.log('empty', data);
+              if (isDebug) console.log('empty', data);
               dispatch(iptvApi.util.invalidateTags(['ChannelGroups']));
               return;
             }

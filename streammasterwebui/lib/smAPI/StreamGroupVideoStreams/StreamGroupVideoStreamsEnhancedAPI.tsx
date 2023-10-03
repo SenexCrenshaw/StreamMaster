@@ -1,3 +1,4 @@
+import { isDebug } from '@/lib/settings';
 import { singletonStreamGroupVideoStreamsListener } from '@/lib/signalr/singletonListeners';
 import { isEmptyObject } from '@/lib/common/common';
 import isPagedTableDto from '@/lib/common/isPagedTableDto';
@@ -13,7 +14,7 @@ export const enhancedApiStreamGroupVideoStreams = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.VideoStreamDto[]) => {
             if (!data || isEmptyObject(data)) {
-              console.log('empty', data);
+              if (isDebug) console.log('empty', data);
               dispatch(iptvApi.util.invalidateTags(['StreamGroupVideoStreams']));
               return;
             }

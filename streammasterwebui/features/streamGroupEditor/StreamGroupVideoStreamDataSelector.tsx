@@ -60,12 +60,6 @@ const StreamGroupVideoStreamDataSelector = ({ id }: StreamGroupVideoStreamDataSe
   }, [dataKey]);
 
   const onRowClick = async (event: DataTableRowClickEvent) => {
-    // const test = streamGroupsGetStreamGroupVideoStreamIdsQuery.data?.find((x) => x.videoStreamId === event.data.id);
-    // console.log(test?.isReadOnly);
-    // if (test !== undefined) {
-    //   return
-    // }
-
     await SyncVideoStream(event.data.id).then(() => {
     }).catch((error) => {
       console.error('Add Stream Error: ' + error.message);

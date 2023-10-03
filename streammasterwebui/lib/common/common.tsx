@@ -245,9 +245,6 @@ const compareProps = (propName: keyof GetApiArg, obj1: GetApiArg, obj2: GetApiAr
 
 
   const result = (val1 === val2 || (val1 === undefined && val2 === undefined));
-  // if (!result) {
-  //   console.log(`Mismatch on property: ${propName}. Obj1: ${val1}, Obj2: ${val2}`);
-  // }
 
   return result;
 };

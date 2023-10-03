@@ -1,3 +1,4 @@
+import { isDebug } from '@/lib/settings';
 import { singletonStreamGroupsListener } from '@/lib/signalr/singletonListeners';
 import { isEmptyObject } from '@/lib/common/common';
 import isPagedTableDto from '@/lib/common/isPagedTableDto';
@@ -13,11 +14,11 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.StreamGroupDto) => {
             updateCachedData(() => {
-              console.log('updateCachedData', data);
+              if (isDebug) console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'StreamGroups' }])) {
                 if (endpointName !== 'streamGroupsGetStreamGroup') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    console.log('updateCachedData', data, draft);
+                    if (isDebug) console.log('updateCachedData', data, draft);
                    })
                    );
                  }
@@ -44,11 +45,11 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.EpgGuide) => {
             updateCachedData(() => {
-              console.log('updateCachedData', data);
+              if (isDebug) console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'StreamGroups' }])) {
                 if (endpointName !== 'streamGroupsGetStreamGroupEpgForGuide') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    console.log('updateCachedData', data, draft);
+                    if (isDebug) console.log('updateCachedData', data, draft);
                    })
                    );
                  }
@@ -75,7 +76,7 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.StreamGroupDto[]) => {
             if (!data || isEmptyObject(data)) {
-              console.log('empty', data);
+              if (isDebug) console.log('empty', data);
               dispatch(iptvApi.util.invalidateTags(['StreamGroups']));
               return;
             }

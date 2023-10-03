@@ -1,3 +1,5 @@
+/* eslint unused-imports/no-unused-imports-ts: off */
+/* eslint @typescript-eslint/no-unused-vars: off */
 import { hubConnection } from '@/lib/signalr/signalr';
 import { isDebug } from '@/lib/settings';
 import type * as iptv from '@/lib/iptvApi';
@@ -27,18 +29,18 @@ export const GetPagedVideoStreams = async (arg: iptv.PagedResponseOfVideoStreamD
   return data;
 };
 
-export const GetVideoStreamStream = async (arg: string): Promise<void> => {
-  if (isDebug) console.log('GetVideoStreamStream');
-  await hubConnection.invoke('GetVideoStreamStream', arg);
+export const GetVideoStreamStreamGET = async (arg: string): Promise<void> => {
+  if (isDebug) console.log('GetVideoStreamStreamGET');
+  await hubConnection.invoke('GetVideoStreamStreamGET', arg);
 };
 
-export const GetVideoStreamStream2 = async (arg: string): Promise<void> => {
-  if (isDebug) console.log('GetVideoStreamStream2');
-  await hubConnection.invoke('GetVideoStreamStream2', arg);
+export const GetVideoStreamStreamGET2 = async (arg: string): Promise<void> => {
+  if (isDebug) console.log('GetVideoStreamStreamGET2');
+  await hubConnection.invoke('GetVideoStreamStreamGET2', arg);
 };
 
-export const GetVideoStreamStream3 = async (arg: string): Promise<void> => {
-  if (isDebug) console.log('GetVideoStreamStream3');
-  await hubConnection.invoke('GetVideoStreamStream3', arg);
+export const GetVideoStreamStreamGET3 = async (arg: string): Promise<void> => {
+  if (isDebug) console.log('GetVideoStreamStreamGET3');
+  await hubConnection.invoke('GetVideoStreamStreamGET3', arg);
 };
 
