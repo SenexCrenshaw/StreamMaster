@@ -1,7 +1,6 @@
 /* eslint unused-imports/no-unused-imports-ts: off */
 /* eslint @typescript-eslint/no-unused-vars: off */
-import { hubConnection, invokeHubConnection } from '@/lib/signalr/signalr';
-import { isDebug } from '@/lib/settings';
+import { invokeHubConnection } from '@/lib/signalr/signalr';
 import type * as iptv from '@/lib/iptvApi';
 
 export const AddVideoStreamToVideoStream = async (arg: iptv.AddVideoStreamToVideoStreamRequest): Promise<void | null> => {

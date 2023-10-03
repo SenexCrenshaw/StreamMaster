@@ -45,7 +45,7 @@ export type BaseSelectorProps<T extends HasId> = {
   readonly optionValue: string;
   readonly queryFilter: (option: GetApiArg | typeof skipToken) => PagedResponseDtoData<T>;
   readonly queryHook: (option: SimpleQueryApiArg) => SimpleQueryResponse<T>;
-  readonly querySelectedItem: (arg: StringArg) => Promise<T>;
+  readonly querySelectedItem: (arg: StringArg) => Promise<T|null>;
   readonly selectName: string;
   // eslint-disable-next-line react/no-unused-prop-types
   readonly selectedTemplate: (option: T) => JSX.Element;
