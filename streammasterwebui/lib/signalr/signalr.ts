@@ -1,15 +1,12 @@
-import { apiKey, baseHostURL } from '@/lib/settings';
+'use client';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 
-const url = baseHostURL === undefined || baseHostURL === '' ? '/streammasterhub' : baseHostURL + '/streammasterhub';
-console.log("SignalR URL: ", url, baseHostURL);
+const url = 'http://127.0.0.1:7095/streammasterhub';
+
 export const hubConnection = new HubConnectionBuilder()
   .configureLogging(LogLevel.Information)
   // .withHubProtocol(new MessagePackHubProtocol())
-  .withUrl(url, {
-    accessTokenFactory: () => apiKey,
-    headers: { 'X-Api-Key': apiKey },
-  })
+  .withUrl(url)
   .withAutomaticReconnect({
     nextRetryDelayInMilliseconds: retryContext => {
       if (retryContext.elapsedMilliseconds < 60000) {

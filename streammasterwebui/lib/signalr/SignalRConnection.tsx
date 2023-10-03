@@ -2,6 +2,7 @@ import { HubConnectionState } from '@microsoft/signalr';
 import { useCallback, useEffect, useRef } from 'react';
 import { useAppInfo } from '../redux/slices/useAppInfo';
 import { hubConnection } from './signalr';
+import { baseHostURL, apiKey } from '../settings';
 
 export const SignalRConnection = (props: React.PropsWithChildren) => {
   const { setHubConnected, setHubDisconnected } = useAppInfo();
@@ -11,8 +12,18 @@ export const SignalRConnection = (props: React.PropsWithChildren) => {
   const initialDelay = 1000;  // start with 1 second delay
   const maxDelay = 30000;  // max delay is 30 seconds
 
-  
   const startConnection = useCallback(() => {
+
+    console.log('baseHostURL', baseHostURL);
+    console.log('apiKey', apiKey);
+
+    const url = baseHostURL === undefined || baseHostURL === '' ? '/streammasterhub' : baseHostURL + '/streammasterhub';
+    console.log('Connecting to hub at', url);
+    hubConnection.baseUrl = url, {
+    accessTokenFactory: () => apiKey,
+    headers: { 'X-Api-Key': apiKey },
+  }
+
     hubConnection.start()
       .then(() => {
         console.log('Hub Connected');
@@ -36,7 +47,7 @@ export const SignalRConnection = (props: React.PropsWithChildren) => {
     //   console.log('hey handle', data);
     //   dispatch(handleChannelGroupsRefresh(data));
     // });
-  }, [setHubConnected, setHubDisconnected]);
+  }, [ setHubConnected, setHubDisconnected]);
 
   useEffect(() => {
     if (!hubConnection) {
@@ -44,7 +55,7 @@ export const SignalRConnection = (props: React.PropsWithChildren) => {
       return;
     }
 
-    if (hubConnection.state === HubConnectionState.Disconnected) {
+    if (hubConnection.state === HubConnectionState.Disconnected && window.StreamMaster) {
       startConnection();
     }
 
@@ -62,3 +73,4 @@ export const SignalRConnection = (props: React.PropsWithChildren) => {
 
   return (<div>{props.children}</div>)
 };
+

@@ -1,5 +1,5 @@
 
-type StreamMasterApiData = {
+export type StreamMasterApiData = {
   apiKey: string,
   apiRoot: string,
   baseHostURL: string,

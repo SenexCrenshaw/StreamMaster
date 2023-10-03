@@ -2,7 +2,6 @@
 
 import { SMFileTypes } from '@/lib/common/streammaster_enums';
 import { type ChildVideoStreamDto, type IconFileDto, type VideoStreamDto } from '@/lib/iptvApi';
-import { baseHostURL, isDebug } from '@/lib/settings';
 import { type DataSelectorProps } from '@/src/components/dataSelector/DataSelector';
 import { type ColumnMeta } from '@/src/components/dataSelector/DataSelectorTypes';
 import ExportButton from '@/src/components/export/ExportButton';
@@ -13,6 +12,7 @@ import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { getColor } from './colors';
+import { baseHostURL, apiKey, isDebug } from '../settings';
 
 export const getTopToolOptions = { autoHide: true, hideDelay: 100, position: 'top', showDelay: 400 } as TooltipOptions;
 export const getLeftToolOptions = { autoHide: true, hideDelay: 100, position: 'left', showDelay: 400 } as TooltipOptions;
@@ -490,7 +490,8 @@ export function checkData(data: any): boolean {
 
 
 export function getIconUrl(iconOriginalSource: string | null | undefined, defaultIcon: string, cacheIcon: boolean): string {
-  if (!iconOriginalSource || iconOriginalSource === '') {
+
+  if (!iconOriginalSource || iconOriginalSource === '') {     
     iconOriginalSource = `${isDebug ? baseHostURL + '/' : '/'}${defaultIcon}`;
   }
 

@@ -2,7 +2,7 @@
 
 import { SideBar } from '@/app/SideBar';
 import { useLocalStorage } from 'primereact/hooks';
-import react from 'react';
+import react, { useEffect } from 'react';
 import { IntlProvider } from 'react-intl';
 import { ProSidebarProvider } from 'react-pro-sidebar';
 import { Provider } from 'react-redux';
@@ -17,8 +17,15 @@ export const Providers = (props: React.PropsWithChildren) => {
   const messages = locale === 'en' ? messages_en : messages_en;
   const store = useStore();
 
-  // let persistor: Persistor;
-
+useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'http://127.0.0.1:7095/initialize.js';
+    script.onload = () => {
+      console.log('script', window.StreamMaster);
+    };
+    document.body.appendChild(script);
+  }, []);
+  
   if (store) {
     const persistor = persistStore(store, {}, function () {
       persistor.persist();
