@@ -1,3 +1,4 @@
+import { isDebug } from "../settings";
 
 
 export type SingletonListener = {
@@ -11,7 +12,10 @@ export function createSingletonListener<T> (messageName: string, connection: sig
   return {
     addListener: (callback: (data: T) => void) => {
       if (listenerCount === 0) {
-        console.log('Add listener for ' + messageName);
+
+        if (isDebug) {
+          console.log('Add listener for ' + messageName);
+        }
         connection.on(messageName, callback);
       }
 
@@ -20,7 +24,9 @@ export function createSingletonListener<T> (messageName: string, connection: sig
     removeListener: (callback: (data: T) => void) => {
       listenerCount--;
       if (listenerCount === 0) {
-        console.log('Remove listener for ' + messageName);
+        if (isDebug) {
+          console.log('Remove listener for ' + messageName);
+        }
         connection.off(messageName, callback);
       }
     },

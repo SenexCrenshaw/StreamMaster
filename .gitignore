@@ -42,7 +42,7 @@ Generated\ Files/
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
-
+package-lock.json
 # NUnit
 *.VisualState.xml
 TestResult.xml
@@ -355,3 +355,5 @@ StreamMasterAPI/wwwroot/initialize.js
 /StreamMasterAPI/wwwroot
 /StreamMasterAPI/sd_token.json
 /StreamMasterAPI/dupes*
+streammasterwebui/package-lock.json
+streammasterwebui/package-lock.json

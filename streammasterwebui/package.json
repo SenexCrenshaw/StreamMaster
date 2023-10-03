@@ -47,7 +47,6 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-unused-imports": "^3.0.0",
-    "extract-react-intl-messages": "^4.1.1",
     "typescript": "^4.9.5"
   },
   "eslintConfig": {

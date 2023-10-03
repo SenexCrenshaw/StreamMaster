@@ -23,7 +23,9 @@ const SchedulesDirectSchedulesDataSelector = (props: SchedulesDirectSchedulesDat
     setIsLoading(true);
     GetSchedules([]).
       then((data) => {
-        setDataSource(data);
+        if (data) {
+          setDataSource(data);
+        }
         setIsLoading(false);
       }).catch(() => {
         setIsLoading(false);
@@ -70,7 +72,6 @@ const SchedulesDirectSchedulesDataSelector = (props: SchedulesDirectSchedulesDat
   );
 }
 
-SchedulesDirectSchedulesDataSelector.displayName = 'SchedulesDirectSchedulesDataSelector';
 
 
 export type SchedulesDirectSchedulesDataSelectorProps = {
