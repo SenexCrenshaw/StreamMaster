@@ -1,6 +1,5 @@
 import { Providers } from "@/lib/providers";
 import { Albert_Sans, } from 'next/font/google';
-import Script from 'next/script'
 
 import '@/lib/styles/theme.css'; // theme
 import 'primeflex/primeflex.css'; // css utility
@@ -17,7 +16,7 @@ const albert_sans = Albert_Sans({
 
 export default function RootLayout(props: React.PropsWithChildren) {
     return (
-        <html lang="en" className={albert_sans.className}>             
+        <html lang="en" className={albert_sans.className}>
             <body>
                 <Providers>
                     {props.children}

@@ -2,13 +2,10 @@
 
 import { HubConnectionState } from '@microsoft/signalr';
 import { useCallback, useEffect, useRef } from 'react';
-import { useDispatch } from 'react-redux';
 import { useAppInfo } from '../redux/slices/useAppInfo';
-import { AppDispatch } from '../redux/store';
 import { hubConnection } from './signalr';
 
-export const useSignalRConnection = (props: React.PropsWithChildren) => {
-  const dispatch: AppDispatch = useDispatch();
+export const useSignalRConnection = (props: React.PropsWithChildren) => {  
   const { setHubConnected, setHubDisconnected } = useAppInfo();
   const retries = useRef(0); // store the retry count
 

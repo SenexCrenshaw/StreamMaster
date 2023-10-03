@@ -1,4 +1,3 @@
-import { emptySplitApi } from './../redux/emptyApi';
 'use client';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { baseHostURL } from '@/lib/settings'

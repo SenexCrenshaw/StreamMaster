@@ -11,8 +11,8 @@ import { type DataTableFilterMeta, type DataTableFilterMetaData } from 'primerea
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
+import { baseHostURL, isDebug } from '../settings';
 import { getColor } from './colors';
-import { baseHostURL, apiKey, isDebug } from '../settings';
 
 export const getTopToolOptions = { autoHide: true, hideDelay: 100, position: 'top', showDelay: 400 } as TooltipOptions;
 export const getLeftToolOptions = { autoHide: true, hideDelay: 100, position: 'left', showDelay: 400 } as TooltipOptions;

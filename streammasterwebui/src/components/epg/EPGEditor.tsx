@@ -7,10 +7,9 @@ import EPGSelector from "../selectors/EPGSelector";
 type EPGEditorProps = {
   readonly data: VideoStreamDto;
   readonly enableEditMode?: boolean;
-  readonly id?: string;
 };
 
-const EPGEditor = ({ data, enableEditMode, id }: EPGEditorProps) => {
+const EPGEditor = ({ data, enableEditMode}: EPGEditorProps) => {
 
   const onUpdateVideoStream = async (epg: string) => {
     if (data.id === '') {

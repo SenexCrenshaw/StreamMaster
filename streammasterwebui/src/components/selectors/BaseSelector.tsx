@@ -202,15 +202,6 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
     // setFilter(event.filter.toLowerCase());
   }
 
-
-  const selectedTemplate = (option: any) => {
-    return (
-      <div>
-        {option}
-      </div>
-    );
-  };
-
   return (
     <div className="BaseSelector flex align-contents-center w-full min-w-full" >
       <Dropdown

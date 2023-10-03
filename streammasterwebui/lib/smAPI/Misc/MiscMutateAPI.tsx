@@ -1,6 +1,5 @@
-import { hubConnection } from '@/lib/signalr/signalr';
 import { isDebug } from '@/lib/settings';
-import type * as iptv from '@/lib/iptvApi';
+import { hubConnection } from '@/lib/signalr/signalr';
 
 export const BuildIconsCacheFromVideoStreams = async (): Promise<void> => {
   if (isDebug) console.log('BuildIconsCacheFromVideoStreams');
