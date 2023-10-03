@@ -66,7 +66,7 @@ internal class Program
                                 // Add imports at the start of each new file's content
                                 tagToGetContentMap[tag].AppendLine("/* eslint unused-imports/no-unused-imports-ts: off */");
                                 tagToGetContentMap[tag].AppendLine("/* eslint @typescript-eslint/no-unused-vars: off */");
-                                tagToGetContentMap[tag].AppendLine("import { hubConnection } from '@/lib/signalr/signalr';");
+                                tagToGetContentMap[tag].AppendLine("import { hubConnection, invokeHubConnection } from '@/lib/signalr/signalr';");
                                 tagToGetContentMap[tag].AppendLine("import { isDebug } from '@/lib/settings';");
                                 tagToGetContentMap[tag].AppendLine("import type * as iptv from '@/lib/iptvApi';");
                                 if (additionalImports.ContainsKey(tag))
@@ -103,7 +103,7 @@ internal class Program
                                 // Add imports at the start of each new file's content
                                 tagToMutateContentMap[tag].AppendLine("/* eslint unused-imports/no-unused-imports-ts: off */");
                                 tagToMutateContentMap[tag].AppendLine("/* eslint @typescript-eslint/no-unused-vars: off */");
-                                tagToMutateContentMap[tag].AppendLine("import { hubConnection } from '@/lib/signalr/signalr';");
+                                tagToMutateContentMap[tag].AppendLine("import { hubConnection, invokeHubConnection } from '@/lib/signalr/signalr';");
                                 tagToMutateContentMap[tag].AppendLine("import { isDebug } from '@/lib/settings';");
                                 tagToMutateContentMap[tag].AppendLine("import type * as iptv from '@/lib/iptvApi';\r\n");
                             }
@@ -113,17 +113,21 @@ internal class Program
                         {
                             argType = overRideArgs[functionName];
                         }
-                        contentToUse.AppendLine($"export const {functionName} = async {(argType != null ? $"(arg: {argType})" : "()")}: Promise<{responseType}> => {{");
-                        contentToUse.AppendLine($"  if (isDebug) console.log('{functionName}');");
+                        contentToUse.AppendLine($"export const {functionName} = async {(argType != null ? $"(arg: {argType})" : "()")}: Promise<{responseType} | null> => {{");
+                        //contentToUse.AppendLine($"  if (hubConnection.state === 'Connected') {{");
+                        //contentToUse.AppendLine($"    if (isDebug) console.log('{functionName}');");
                         if (responseType != "void")
                         {
-                            contentToUse.AppendLine($"  const data = await hubConnection.invoke('{functionName}'{(argType != null ? ", arg" : "")});");
-                            contentToUse.AppendLine($"  return data;");
+                            contentToUse.AppendLine($"    return await invokeHubConnection<{responseType}> ('{functionName}'{(responseType != "void" ? ", arg" : "")});");
+                            //contentToUse.AppendLine($"    const data = await hubConnection.invoke('{functionName}'{(argType != null ? ", arg" : "")});");
+                            //contentToUse.AppendLine($"    return data;");
                         }
                         else
                         {
-                            contentToUse.AppendLine($"  await hubConnection.invoke('{functionName}'{(argType != null ? ", arg" : "")});");
+                            //contentToUse.AppendLine($"    await hubConnection.invoke('{functionName}'{(argType != null ? ", arg" : "")});");
+                            contentToUse.AppendLine($"    await invokeHubConnection<void> ('{functionName}'{(argType != null ? ", arg" : "")});");
                         }
+                        //contentToUse.AppendLine("  };\r\n");
                         contentToUse.AppendLine("};\r\n");
                     }
                 }

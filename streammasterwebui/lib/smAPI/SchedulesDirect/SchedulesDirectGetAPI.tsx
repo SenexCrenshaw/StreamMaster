@@ -1,61 +1,43 @@
 /* eslint unused-imports/no-unused-imports-ts: off */
 /* eslint @typescript-eslint/no-unused-vars: off */
-import { hubConnection } from '@/lib/signalr/signalr';
+import { hubConnection, invokeHubConnection } from '@/lib/signalr/signalr';
 import { isDebug } from '@/lib/settings';
 import type * as iptv from '@/lib/iptvApi';
 
 
-export const GetCountries = async (arg: iptv.Countries): Promise<iptv.Countries> => {
-  if (isDebug) console.log('GetCountries');
-  const data = await hubConnection.invoke('GetCountries', arg);
-  return data;
+export const GetCountries = async (arg: iptv.Countries): Promise<iptv.Countries | null> => {
+    return await invokeHubConnection<iptv.Countries> ('GetCountries', arg);
 };
 
-export const GetHeadends = async (arg: iptv.HeadendDto[]): Promise<iptv.HeadendDto[]> => {
-  if (isDebug) console.log('GetHeadends');
-  const data = await hubConnection.invoke('GetHeadends', arg);
-  return data;
+export const GetHeadends = async (arg: iptv.HeadendDto[]): Promise<iptv.HeadendDto[] | null> => {
+    return await invokeHubConnection<iptv.HeadendDto[]> ('GetHeadends', arg);
 };
 
-export const GetLineup = async (arg: iptv.LineUpResult): Promise<iptv.LineUpResult> => {
-  if (isDebug) console.log('GetLineup');
-  const data = await hubConnection.invoke('GetLineup', arg);
-  return data;
+export const GetLineup = async (arg: iptv.LineUpResult): Promise<iptv.LineUpResult | null> => {
+    return await invokeHubConnection<iptv.LineUpResult> ('GetLineup', arg);
 };
 
-export const GetLineupPreviews = async (arg: iptv.LineUpPreview[]): Promise<iptv.LineUpPreview[]> => {
-  if (isDebug) console.log('GetLineupPreviews');
-  const data = await hubConnection.invoke('GetLineupPreviews', arg);
-  return data;
+export const GetLineupPreviews = async (arg: iptv.LineUpPreview[]): Promise<iptv.LineUpPreview[] | null> => {
+    return await invokeHubConnection<iptv.LineUpPreview[]> ('GetLineupPreviews', arg);
 };
 
-export const GetLineups = async (arg: iptv.LineUpsResult): Promise<iptv.LineUpsResult> => {
-  if (isDebug) console.log('GetLineups');
-  const data = await hubConnection.invoke('GetLineups', arg);
-  return data;
+export const GetLineups = async (arg: iptv.LineUpsResult): Promise<iptv.LineUpsResult | null> => {
+    return await invokeHubConnection<iptv.LineUpsResult> ('GetLineups', arg);
 };
 
-export const GetSchedules = async (arg: iptv.Schedule[]): Promise<iptv.Schedule[]> => {
-  if (isDebug) console.log('GetSchedules');
-  const data = await hubConnection.invoke('GetSchedules', arg);
-  return data;
+export const GetSchedules = async (arg: iptv.Schedule[]): Promise<iptv.Schedule[] | null> => {
+    return await invokeHubConnection<iptv.Schedule[]> ('GetSchedules', arg);
 };
 
-export const GetStationPreviews = async (arg: iptv.StationPreview[]): Promise<iptv.StationPreview[]> => {
-  if (isDebug) console.log('GetStationPreviews');
-  const data = await hubConnection.invoke('GetStationPreviews', arg);
-  return data;
+export const GetStationPreviews = async (arg: iptv.StationPreview[]): Promise<iptv.StationPreview[] | null> => {
+    return await invokeHubConnection<iptv.StationPreview[]> ('GetStationPreviews', arg);
 };
 
-export const GetStations = async (arg: iptv.Station[]): Promise<iptv.Station[]> => {
-  if (isDebug) console.log('GetStations');
-  const data = await hubConnection.invoke('GetStations', arg);
-  return data;
+export const GetStations = async (arg: iptv.Station[]): Promise<iptv.Station[] | null> => {
+    return await invokeHubConnection<iptv.Station[]> ('GetStations', arg);
 };
 
-export const GetStatus = async (arg: iptv.SdStatus): Promise<iptv.SdStatus> => {
-  if (isDebug) console.log('GetStatus');
-  const data = await hubConnection.invoke('GetStatus', arg);
-  return data;
+export const GetStatus = async (arg: iptv.SdStatus): Promise<iptv.SdStatus | null> => {
+    return await invokeHubConnection<iptv.SdStatus> ('GetStatus', arg);
 };
 

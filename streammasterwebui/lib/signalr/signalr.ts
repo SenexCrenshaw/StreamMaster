@@ -1,6 +1,6 @@
 'use client';
+import { baseHostURL, isDebug } from '@/lib/settings';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
-import { baseHostURL } from '@/lib/settings'
 
 const url =baseHostURL+'/streammasterhub';
 
@@ -22,3 +22,13 @@ export const hubConnection = new HubConnectionBuilder()
 export function isSignalRConnected() {
   return hubConnection && hubConnection.state === 'Connected';
 }
+
+export const invokeHubConnection = async <T>(
+   methodName: string,
+  arg?: any
+): Promise<T | null> => {
+  if (hubConnection.state !== 'Connected') return null;
+  if (isDebug) console.log(methodName);
+  const result = await hubConnection.invoke<T>(methodName, arg);
+  return result;
+};

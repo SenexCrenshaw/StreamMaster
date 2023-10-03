@@ -79,7 +79,8 @@ const DataSelector = <T extends DataTableValue,>(props: DataSelectorProps<T>) =>
     const all = overRideSelectAll ? overRideSelectAll : state.selectAll;
 
     if (props.onSelectionChange) {
-      props.onSelectionChange(props.selectionMode === 'single' ? selected[0] : selected, all);
+      // props.onSelectionChange(props.selectionMode === 'single' ? selected : selected, all);
+      props.onSelectionChange(selected , all);
     }
 
     return e;
@@ -617,7 +618,7 @@ type BaseDataSelectorProps<T = any> = {
   onRowClick?: (event: DataTableRowClickEvent) => void;
   onRowReorder?: (value: T[]) => void;
   onRowVisibleClick?: (value: T) => void;
-  onSelectionChange?: (value: T | T[], selectAll: boolean) => void;
+  onSelectionChange?: (value:  T[], selectAll: boolean) => void;
   // onValueChanged?: (value: T[]) => void;
   reorderable?: boolean;
   scrollTo?: number;

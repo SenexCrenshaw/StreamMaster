@@ -67,7 +67,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProps) => {
       headerRightTemplate={sourceAddtionalHeaderTemplate()}
       id={id + '-ds-source'}
       onSelectionChange={(e) => {
-        setSelectedStreamGroup(e as StreamGroupDto);
+        setSelectedStreamGroup(e[0] as StreamGroupDto);
       }
       }
       queryFilter={useStreamGroupsGetPagedStreamGroupsQuery}

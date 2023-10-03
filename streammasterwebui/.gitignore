@@ -34,6 +34,8 @@ venv-*/
 .idea/**/dataSources.local.xml
 .idea/**/dynamic.xml
 
+.env*.local
+
 # testing
 /coverage
 

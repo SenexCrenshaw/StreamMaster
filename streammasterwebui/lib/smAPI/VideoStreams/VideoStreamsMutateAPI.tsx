@@ -1,101 +1,82 @@
 /* eslint unused-imports/no-unused-imports-ts: off */
 /* eslint @typescript-eslint/no-unused-vars: off */
-import { hubConnection } from '@/lib/signalr/signalr';
+import { hubConnection, invokeHubConnection } from '@/lib/signalr/signalr';
 import { isDebug } from '@/lib/settings';
 import type * as iptv from '@/lib/iptvApi';
 
-export const CreateVideoStream = async (arg: iptv.CreateVideoStreamRequest): Promise<void> => {
-  if (isDebug) console.log('CreateVideoStream');
-  await hubConnection.invoke('CreateVideoStream', arg);
+export const CreateVideoStream = async (arg: iptv.CreateVideoStreamRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('CreateVideoStream', arg);
 };
 
-export const ChangeVideoStreamChannel = async (arg: iptv.ChangeVideoStreamChannelRequest): Promise<void> => {
-  if (isDebug) console.log('ChangeVideoStreamChannel');
-  await hubConnection.invoke('ChangeVideoStreamChannel', arg);
+export const ChangeVideoStreamChannel = async (arg: iptv.ChangeVideoStreamChannelRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('ChangeVideoStreamChannel', arg);
 };
 
-export const DeleteVideoStream = async (arg: iptv.DeleteVideoStreamRequest): Promise<void> => {
-  if (isDebug) console.log('DeleteVideoStream');
-  await hubConnection.invoke('DeleteVideoStream', arg);
+export const DeleteVideoStream = async (arg: iptv.DeleteVideoStreamRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('DeleteVideoStream', arg);
 };
 
-export const FailClient = async (arg: iptv.FailClientRequest): Promise<void> => {
-  if (isDebug) console.log('FailClient');
-  await hubConnection.invoke('FailClient', arg);
+export const FailClient = async (arg: iptv.FailClientRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('FailClient', arg);
 };
 
-export const GetVideoStreamStreamHEAD = async (arg: string): Promise<void> => {
-  if (isDebug) console.log('GetVideoStreamStreamHEAD');
-  await hubConnection.invoke('GetVideoStreamStreamHEAD', arg);
+export const GetVideoStreamStreamHEAD = async (arg: string): Promise<void | null> => {
+    await invokeHubConnection<void> ('GetVideoStreamStreamHEAD', arg);
 };
 
-export const GetVideoStreamStreamHEAD2 = async (arg: string): Promise<void> => {
-  if (isDebug) console.log('GetVideoStreamStreamHEAD2');
-  await hubConnection.invoke('GetVideoStreamStreamHEAD2', arg);
+export const GetVideoStreamStreamHEAD2 = async (arg: string): Promise<void | null> => {
+    await invokeHubConnection<void> ('GetVideoStreamStreamHEAD2', arg);
 };
 
-export const GetVideoStreamStreamHEAD3 = async (arg: string): Promise<void> => {
-  if (isDebug) console.log('GetVideoStreamStreamHEAD3');
-  await hubConnection.invoke('GetVideoStreamStreamHEAD3', arg);
+export const GetVideoStreamStreamHEAD3 = async (arg: string): Promise<void | null> => {
+    await invokeHubConnection<void> ('GetVideoStreamStreamHEAD3', arg);
 };
 
-export const ReSetVideoStreamsLogo = async (arg: iptv.ReSetVideoStreamsLogoRequest): Promise<void> => {
-  if (isDebug) console.log('ReSetVideoStreamsLogo');
-  await hubConnection.invoke('ReSetVideoStreamsLogo', arg);
+export const ReSetVideoStreamsLogo = async (arg: iptv.ReSetVideoStreamsLogoRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('ReSetVideoStreamsLogo', arg);
 };
 
-export const SetVideoStreamChannelNumbers = async (arg: iptv.SetVideoStreamChannelNumbersRequest): Promise<void> => {
-  if (isDebug) console.log('SetVideoStreamChannelNumbers');
-  await hubConnection.invoke('SetVideoStreamChannelNumbers', arg);
+export const SetVideoStreamChannelNumbers = async (arg: iptv.SetVideoStreamChannelNumbersRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('SetVideoStreamChannelNumbers', arg);
 };
 
-export const SetVideoStreamsLogoFromEpg = async (arg: iptv.SetVideoStreamsLogoFromEpgRequest): Promise<void> => {
-  if (isDebug) console.log('SetVideoStreamsLogoFromEpg');
-  await hubConnection.invoke('SetVideoStreamsLogoFromEpg', arg);
+export const SetVideoStreamsLogoFromEpg = async (arg: iptv.SetVideoStreamsLogoFromEpgRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('SetVideoStreamsLogoFromEpg', arg);
 };
 
-export const UpdateVideoStream = async (arg: iptv.UpdateVideoStreamRequest): Promise<void> => {
-  if (isDebug) console.log('UpdateVideoStream');
-  await hubConnection.invoke('UpdateVideoStream', arg);
+export const UpdateVideoStream = async (arg: iptv.UpdateVideoStreamRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('UpdateVideoStream', arg);
 };
 
-export const UpdateVideoStreams = async (arg: iptv.UpdateVideoStreamsRequest): Promise<void> => {
-  if (isDebug) console.log('UpdateVideoStreams');
-  await hubConnection.invoke('UpdateVideoStreams', arg);
+export const UpdateVideoStreams = async (arg: iptv.UpdateVideoStreamsRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('UpdateVideoStreams', arg);
 };
 
-export const UpdateAllVideoStreamsFromParameters = async (arg: iptv.UpdateAllVideoStreamsFromParametersRequest): Promise<void> => {
-  if (isDebug) console.log('UpdateAllVideoStreamsFromParameters');
-  await hubConnection.invoke('UpdateAllVideoStreamsFromParameters', arg);
+export const UpdateAllVideoStreamsFromParameters = async (arg: iptv.UpdateAllVideoStreamsFromParametersRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('UpdateAllVideoStreamsFromParameters', arg);
 };
 
-export const DeleteAllVideoStreamsFromParameters = async (arg: iptv.DeleteAllVideoStreamsFromParametersRequest): Promise<void> => {
-  if (isDebug) console.log('DeleteAllVideoStreamsFromParameters');
-  await hubConnection.invoke('DeleteAllVideoStreamsFromParameters', arg);
+export const DeleteAllVideoStreamsFromParameters = async (arg: iptv.DeleteAllVideoStreamsFromParametersRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('DeleteAllVideoStreamsFromParameters', arg);
 };
 
-export const SetVideoStreamChannelNumbersFromParameters = async (arg: iptv.SetVideoStreamChannelNumbersFromParametersRequest): Promise<void> => {
-  if (isDebug) console.log('SetVideoStreamChannelNumbersFromParameters');
-  await hubConnection.invoke('SetVideoStreamChannelNumbersFromParameters', arg);
+export const SetVideoStreamChannelNumbersFromParameters = async (arg: iptv.SetVideoStreamChannelNumbersFromParametersRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('SetVideoStreamChannelNumbersFromParameters', arg);
 };
 
-export const SetVideoStreamsLogoFromEpgFromParameters = async (arg: iptv.SetVideoStreamsLogoFromEpgFromParametersRequest): Promise<void> => {
-  if (isDebug) console.log('SetVideoStreamsLogoFromEpgFromParameters');
-  await hubConnection.invoke('SetVideoStreamsLogoFromEpgFromParameters', arg);
+export const SetVideoStreamsLogoFromEpgFromParameters = async (arg: iptv.SetVideoStreamsLogoFromEpgFromParametersRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('SetVideoStreamsLogoFromEpgFromParameters', arg);
 };
 
-export const ReSetVideoStreamsLogoFromParameters = async (arg: iptv.ReSetVideoStreamsLogoFromParametersRequest): Promise<void> => {
-  if (isDebug) console.log('ReSetVideoStreamsLogoFromParameters');
-  await hubConnection.invoke('ReSetVideoStreamsLogoFromParameters', arg);
+export const ReSetVideoStreamsLogoFromParameters = async (arg: iptv.ReSetVideoStreamsLogoFromParametersRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('ReSetVideoStreamsLogoFromParameters', arg);
 };
 
-export const SimulateStreamFailureForAll = async (): Promise<void> => {
-  if (isDebug) console.log('SimulateStreamFailureForAll');
-  await hubConnection.invoke('SimulateStreamFailureForAll');
+export const SimulateStreamFailureForAll = async (): Promise<void | null> => {
+    await invokeHubConnection<void> ('SimulateStreamFailureForAll');
 };
 
-export const SimulateStreamFailure = async (arg: iptv.SimulateStreamFailureRequest): Promise<void> => {
-  if (isDebug) console.log('SimulateStreamFailure');
-  await hubConnection.invoke('SimulateStreamFailure', arg);
+export const SimulateStreamFailure = async (arg: iptv.SimulateStreamFailureRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('SimulateStreamFailure', arg);
 };
 

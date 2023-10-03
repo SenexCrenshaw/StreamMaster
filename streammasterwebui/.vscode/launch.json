@@ -5,13 +5,21 @@
       "name": "Next.js: debug server-side",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npm run dev"
+      "command": "npm run dev",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/",
+        "!/node_modules/**"
+      ],
     },
     {
       "name": "Next.js: debug client-side",
       "type": "msedge",
       "request": "launch",
-      "url": "http://localhost:3000"
+      "url": "http://localhost:3000",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/",
+        "!/node_modules/**"
+      ],
     },
     {
       "name": "Next.js: debug full stack",

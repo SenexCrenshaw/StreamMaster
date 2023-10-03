@@ -1,18 +1,15 @@
 /* eslint unused-imports/no-unused-imports-ts: off */
 /* eslint @typescript-eslint/no-unused-vars: off */
-import { hubConnection } from '@/lib/signalr/signalr';
+import { hubConnection, invokeHubConnection } from '@/lib/signalr/signalr';
 import { isDebug } from '@/lib/settings';
 import type * as iptv from '@/lib/iptvApi';
 
 
-export const GetVideoStreamVideoStreamIds = async (arg: string): Promise<void> => {
-  if (isDebug) console.log('GetVideoStreamVideoStreamIds');
-  await hubConnection.invoke('GetVideoStreamVideoStreamIds', arg);
+export const GetVideoStreamVideoStreamIds = async (arg: string): Promise<void | null> => {
+    await invokeHubConnection<void> ('GetVideoStreamVideoStreamIds', arg);
 };
 
-export const GetPagedVideoStreamVideoStreams = async (arg: iptv.PagedResponseOfVideoStreamDto): Promise<iptv.VideoStreamDto[]> => {
-  if (isDebug) console.log('GetPagedVideoStreamVideoStreams');
-  const data = await hubConnection.invoke('GetPagedVideoStreamVideoStreams', arg);
-  return data;
+export const GetPagedVideoStreamVideoStreams = async (arg: iptv.PagedResponseOfVideoStreamDto): Promise<iptv.VideoStreamDto[] | null> => {
+    return await invokeHubConnection<iptv.VideoStreamDto[]> ('GetPagedVideoStreamVideoStreams', arg);
 };
 

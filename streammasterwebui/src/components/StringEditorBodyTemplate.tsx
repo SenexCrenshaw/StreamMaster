@@ -79,7 +79,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
 
   useEffect(() => {
 
-    if (!props.isLoading && props.value !== undefined) {
+    if (!props.isLoading && props.value !== null  &&props.value !== undefined) {
       setInputValue(props.value);
       setOriginalValue(props.value);
     }
@@ -94,10 +94,11 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
           className="absolute right-0"
           disabled={props.isLoading}
           icon={<ResetLogoIcon sx={{ fontSize: 18 }} />}
-          onClick={() => {
-            setInputValue(props.resetValue !== undefined ? props.resetValue : '');
-            save(props.resetValue);
-          }
+          onClick={() => 
+            {
+              setInputValue(props.resetValue !== undefined ? props.resetValue : '');
+              save(props.resetValue);
+            }
           }
           rounded
           severity="warning"
