@@ -82,6 +82,7 @@ const TextInput = ({ autoFocus = true, dontValidate = false, isUrl = false, onEn
     }
 
     setInput(processValue(value));
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 

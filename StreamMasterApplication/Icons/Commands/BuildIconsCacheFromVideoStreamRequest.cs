@@ -1,12 +1,11 @@
-﻿using StreamMasterDomain.Models;
-
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Web;
 
 namespace StreamMasterApplication.Icons.Commands;
 
 public class BuildIconsCacheFromVideoStreamRequest : IRequest<bool> { }
 
+[LogExecutionTimeAspect]
 public class BuildIconsCacheFromVideoStreamRequestHandler : BaseMediatorRequestHandler, IRequestHandler<BuildIconsCacheFromVideoStreamRequest, bool>
 {
 

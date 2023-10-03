@@ -1,104 +1,107 @@
+import { ExportComponent, formatJSONDateString } from '@/lib/common/common'
+import {
+  LogEntry,
+  LogEntryDto,
+  LogsGetLogApiArg,
+  useLogsGetLogQuery,
+} from '@/lib/iptvApi'
 
-import { ExportComponent, formatJSONDateString } from '@/lib/common/common';
-import { LogEntry, LogEntryDto, LogsGetLogApiArg, useLogsGetLogQuery } from '@/lib/iptvApi';
-
-import { FilterMatchMode } from 'primereact/api';
-import { Column } from 'primereact/column';
-import { DataTable } from 'primereact/datatable';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FilterMatchMode } from 'primereact/api'
+import { Column } from 'primereact/column'
+import { DataTable } from 'primereact/datatable'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 const LogViewer = () => {
-  const [lastLogId, setLastLogId] = useState<number>(0);
-  const [dataSource, setDataSource] = useState<LogEntryDto[]>([] as LogEntryDto[]);
-  const tableRef = useRef<DataTable<LogEntryDto[]>>(null);
+  const [lastLogId, setLastLogId] = useState<number>(0)
+  const [dataSource, setDataSource] = useState<LogEntryDto[]>(
+    [] as LogEntryDto[],
+  )
+  const tableRef = useRef<DataTable<LogEntryDto[]>>(null)
 
-  const { isLoading, data, refetch } = useLogsGetLogQuery({ lastId: lastLogId, maxLines: 5000 } as LogsGetLogApiArg);
+  const { data, refetch } = useLogsGetLogQuery({
+    lastId: lastLogId,
+    maxLines: 5000,
+  } as LogsGetLogApiArg)
 
-
-  const filters = ({
+  const filters = {
     logLevelName: { matchMode: FilterMatchMode.CONTAINS, value: null },
     message: { matchMode: FilterMatchMode.CONTAINS, value: null },
     timeStamp: { matchMode: FilterMatchMode.CONTAINS, value: null },
-  });
-
+  }
 
   useEffect(() => {
-
     if (data && data.length > 0) {
       // Filter out duplicates based on ID
-      const uniqueData = data.filter(item => !dataSource.some(existingItem => existingItem.id === item.id));
+      const uniqueData = data.filter(
+        (item) =>
+          !dataSource.some((existingItem) => existingItem.id === item.id),
+      )
 
       if (uniqueData.length > 0) {
         // Add only the new unique items to the dataSource
-        setDataSource(prevDataSource => [
-          ...prevDataSource,
-          ...uniqueData,
-        ]);
+        setDataSource((prevDataSource) => [...prevDataSource, ...uniqueData])
 
         // Update the lastLogId to the ID of the last item in the new data
-        setLastLogId(uniqueData[uniqueData.length - 1].id);
-
+        setLastLogId(uniqueData[uniqueData.length - 1].id)
       }
     }
-
-  }, [data, dataSource]);
+  }, [data, dataSource])
 
   const getLogData = useCallback(() => {
-
-    refetch();
-
-  }, [refetch]);
+    refetch()
+  }, [refetch])
 
   useEffect(() => {
     if (dataSource.length !== 0) {
       // tableRef.current?.getVirtualScroller()?.scrollToIndex(dataSource.length * 34);
-      tableRef.current?.getVirtualScroller()?.scrollTo({ behavior: 'auto', left: 0, top: 400 });
+      tableRef.current
+        ?.getVirtualScroller()
+        ?.scrollTo({ behavior: 'auto', left: 0, top: 400 })
     }
-  }, [dataSource]);
+  }, [dataSource])
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      getLogData();
-    }, 1000);
+      getLogData()
+    }, 1000)
 
     return () => {
-      clearInterval(intervalId);
-    };
-  }, [getLogData]);
+      clearInterval(intervalId)
+    }
+  }, [getLogData])
 
   const timeStampTemplate = useCallback((rowData: LogEntry) => {
-    return (<div>{formatJSONDateString(rowData.timeStamp ?? '')}</div>);
-  }, []);
+    return <div>{formatJSONDateString(rowData.timeStamp ?? '')}</div>
+  }, [])
 
   const levelTemplate = useCallback((rowData: LogEntry) => {
     switch (rowData.logLevel) {
       case 0:
-        return (<div className='text-gray-600'>Trace</div>);
+        return <div className="text-gray-600">Trace</div>
       case 1:
-        return (<div className='text-blue-600'>Debug</div>);
+        return <div className="text-blue-600">Debug</div>
       case 2:
-        return (<div className='text-green-600'>Information</div>);
+        return <div className="text-green-600">Information</div>
       case 3:
-        return (<div className='text-yellow-600'>Warning</div>);
+        return <div className="text-yellow-600">Warning</div>
       case 4:
-        return (<div className='text-red-600'>Error</div>);
+        return <div className="text-red-600">Error</div>
       case 5:
-        return (<div className='text-purple-600'>Critical</div>);
+        return <div className="text-purple-600">Critical</div>
       case 6:
-        return (<div className='text-gray-400'>None</div>);
+        return <div className="text-gray-400">None</div>
       default:
-        return (<div className='text-gray-500'>Unknown</div>);
+        return <div className="text-gray-500">Unknown</div>
     }
-
-  }, []);
+  }, [])
 
   const messageTemplate = useCallback((rowData: LogEntry) => {
-    return (<div>{rowData.message}</div>);
-  }, []);
+    return <div>{rowData.message}</div>
+  }, [])
 
   const exportCSV = () => {
-    tableRef.current?.exportCSV({ selectionOnly: false });
-  };
+    tableRef.current?.exportCSV({ selectionOnly: false })
+  }
 
   const renderHeader = useMemo(() => {
     return (
@@ -106,18 +109,18 @@ const LogViewer = () => {
         <ExportComponent exportCSV={exportCSV} />
       </div>
     )
-  }, []);
+  }, [])
 
   return (
-    <div className='dataselector flex w-full min-w-full flex-column col-12' >
+    <div className="dataselector flex w-full min-w-full flex-column col-12">
       <DataTable
         exportFilename={`StreamMaster_Logs_${new Date().toISOString()}`}
-        filterDisplay='row'
+        filterDisplay="row"
         filters={filters}
         header={renderHeader}
-        id='LogViewer'
+        id="LogViewer"
         ref={tableRef}
-        scrollHeight='calc(100vh - 40px)'
+        scrollHeight="calc(100vh - 40px)"
         style={{
           height: 'calc(100vh - 40px)',
         }}
@@ -126,9 +129,9 @@ const LogViewer = () => {
       >
         <Column
           body={levelTemplate}
-          field='logLevelName'
+          field="logLevelName"
           filter
-          header='Level'
+          header="Level"
           sortable
           style={{
             flexGrow: 0,
@@ -144,9 +147,9 @@ const LogViewer = () => {
         />
         <Column
           body={timeStampTemplate}
-          field='timeStamp'
+          field="timeStamp"
           filter
-          header='Time'
+          header="Time"
           sortable
           style={{
             flexGrow: 0,
@@ -162,9 +165,9 @@ const LogViewer = () => {
         />
         <Column
           body={messageTemplate}
-          field='message'
+          field="message"
           filter
-          header='Message'
+          header="Message"
           sortable
           style={{
             flexGrow: 0,
@@ -176,13 +179,10 @@ const LogViewer = () => {
             whiteSpace: 'nowrap',
             width: '40rem',
           }}
-
         />
       </DataTable>
-    </div >
-  );
+    </div>
+  )
 }
 
-export default memo(LogViewer);
-
-
+export default memo(LogViewer)

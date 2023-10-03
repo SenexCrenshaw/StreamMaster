@@ -31,7 +31,7 @@ const ChannelGroupSelector: React.FC<ChannelGroupSelectorProps> = ({ className, 
     if (value) {
       setChannelGroupByName(value);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [setChannelGroupByName, value]);
 
 
