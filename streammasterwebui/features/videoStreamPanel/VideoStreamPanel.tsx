@@ -11,7 +11,6 @@ import AddButton from '@/src/components/buttons/AddButton'
 import ChannelGroupSelector from '@/src/components/channelGroups/ChannelGroupSelector'
 import EPGSelector from '@/src/components/selectors/EPGSelector'
 import IconSelector from '@/src/components/selectors/IconSelector'
-import Image from 'next/image'
 import { Accordion, AccordionTab } from 'primereact/accordion'
 import { InputNumber } from 'primereact/inputnumber'
 import { InputText } from 'primereact/inputtext'
@@ -136,7 +135,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
           <div className="flex col-12 justify-content-start align-items-center p-0 m-0">
             {/* Image */}
             <div className="flex col-2 justify-content-center align-items-center">
-              <Image
+              <img
                 alt={iconSource ?? 'Logo'}
                 className="icon-template-large"
                 src={getIconUrl(

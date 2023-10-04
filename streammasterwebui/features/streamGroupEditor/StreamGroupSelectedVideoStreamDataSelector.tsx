@@ -13,6 +13,7 @@ import {
 } from '@/src/components/columns/columnConfigHooks'
 import DataSelector from '@/src/components/dataSelector/DataSelector'
 import { ColumnMeta } from '@/src/components/dataSelector/DataSelectorTypes'
+import VideoStreamSetAutoSetEPGDialog from '@/src/components/videoStream/VideoStreamSetAutoSetEPGDialog'
 import { Tooltip } from 'primereact/tooltip'
 import { memo, useCallback, useMemo, type CSSProperties } from 'react'
 import { v4 as uuidv4 } from 'uuid'
@@ -63,6 +64,7 @@ const StreamGroupSelectedVideoStreamDataSelector = ({
 
       return (
         <div className="flex p-0 justify-content-end align-items-center">
+          <VideoStreamSetAutoSetEPGDialog id={id} values={[data]} />
           <VideoStreamRemoveFromStreamGroupDialog id={id} value={data} />
         </div>
       )

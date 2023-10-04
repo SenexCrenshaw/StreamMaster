@@ -1,17 +1,17 @@
-import { type ChildButtonProps } from './BaseButton'
-import BaseButton from './BaseButton'
+import BaseButton, { type ChildButtonProps } from './BaseButton'
 
 const XButton: React.FC<ChildButtonProps> = ({
+  disabled = true,
   onClick,
   tooltip = 'Remove',
+  iconFilled,
 }) => {
   return (
     <BaseButton
+      disabled={disabled}
       icon="pi-times"
-      iconFilled={false}
-      isLeft
+      iconFilled={iconFilled}
       onClick={onClick}
-      rounded
       severity="danger"
       tooltip={tooltip}
     />

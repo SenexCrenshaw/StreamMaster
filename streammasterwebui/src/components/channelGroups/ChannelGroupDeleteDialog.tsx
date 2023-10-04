@@ -10,7 +10,7 @@ import { useQueryFilter } from '../../../lib/redux/slices/useQueryFilter'
 import { useSelectAll } from '../../../lib/redux/slices/useSelectAll'
 import { useSelectedItems } from '../../../lib/redux/slices/useSelectedItemsSlice'
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog'
-import DeleteButton from '../buttons/DeleteButton'
+import XButton from '../buttons/XButton'
 
 type ChannelGroupDeleteDialogProps = {
   readonly iconFilled?: boolean | undefined
@@ -190,7 +190,7 @@ const ChannelGroupDeleteDialog = ({
         show={showOverlay}
       >
         <div className="flex justify-content-center w-full mb-2">
-          <DeleteButton
+          <XButton
             disabled={getTotalCount === 0 && !selectAll}
             label="Delete Groups"
             onClick={async () => await deleteGroup()}
@@ -199,7 +199,7 @@ const ChannelGroupDeleteDialog = ({
         </div>
       </InfoMessageOverLayDialog>
 
-      <DeleteButton
+      <XButton
         disabled={getTotalCount === 0}
         iconFilled={iconFilled}
         onClick={() => setShowOverlay(true)}

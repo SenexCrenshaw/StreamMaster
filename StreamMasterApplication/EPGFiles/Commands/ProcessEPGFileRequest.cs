@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 
 using StreamMasterDomain.EPG;
-using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
@@ -111,14 +110,17 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
             //bool needsEpgName = epgs.Count > 1;
 
             // Convert the list of channels to a dictionary for faster lookups, only considering the first occurrence of each ID
-            var channelLookup = epg.Channel
+            Dictionary<string?, TvChannel> channelLookup = epg.Channel
                 .Where(ch => ch.Id != null)
                 .GroupBy(ch => ch.Id)
                 .ToDictionary(group => group.Key, group => group.First());
 
             foreach (Programme p in epg.Programme)
             {
-                if (cancellationToken.IsCancellationRequested) break;
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
 
                 if (channelLookup.TryGetValue(p.Channel, out TvChannel channel))
                 {
@@ -128,17 +130,20 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
                     {
                         p.DisplayName = epgFile.Name + " : " + channelNameSuffix;
                         p.ChannelName = p.Channel + " - " + channelNameSuffix;
+                        p.Name = channelNameSuffix;
                     }
                     else
                     {
                         p.DisplayName = epgFile.Name + " : " + p.Channel;
                         p.ChannelName = p.Channel;
+                        p.Name = p.Channel;
                     }
                 }
                 else
                 {
                     p.DisplayName = epgFile.Name + " : " + p.Channel;
                     p.ChannelName = p.Channel;
+                    p.Name = p.Channel;
                 }
 
                 p.EPGFileId = epgFile.Id;

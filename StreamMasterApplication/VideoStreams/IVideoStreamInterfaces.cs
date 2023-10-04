@@ -10,6 +10,8 @@ namespace StreamMasterApplication.VideoStreams;
 
 public interface IVideoStreamController
 {
+    Task<IActionResult> AutoSetEPG(AutoSetEPGRequest request);
+    Task<IActionResult> AutoSetEPGFromParameters(AutoSetEPGFromParametersRequest request);
     Task<IActionResult> SimulateStreamFailure(SimulateStreamFailureRequest request);
     Task<ActionResult> DeleteAllVideoStreamsFromParameters(DeleteAllVideoStreamsFromParametersRequest request);
     Task<ActionResult> UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request);
@@ -47,6 +49,8 @@ public interface IVideoStreamController
 
 public interface IVideoStreamHub
 {
+    Task AutoSetEPGFromParameters(AutoSetEPGFromParametersRequest request);
+    Task AutoSetEPG(AutoSetEPGRequest request);
     Task SimulateStreamFailure(SimulateStreamFailureRequest request);
     Task DeleteAllVideoStreamsFromParameters(DeleteAllVideoStreamsFromParametersRequest request);
     Task UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request);

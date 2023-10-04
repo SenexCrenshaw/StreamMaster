@@ -1,7 +1,9 @@
 import BaseButton, { type ChildButtonProps } from './BaseButton'
 
 const BookButton: React.FC<ChildButtonProps> = ({
-  disabled = true,
+  disabled = false,
+  iconFilled = true,
+  label,
   onClick,
   tooltip = '',
 }) => {
@@ -9,6 +11,8 @@ const BookButton: React.FC<ChildButtonProps> = ({
     <BaseButton
       disabled={disabled}
       icon="pi-book"
+      iconFilled={iconFilled}
+      label={label}
       onClick={onClick}
       tooltip={tooltip}
     />

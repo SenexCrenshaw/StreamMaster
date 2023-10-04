@@ -174,7 +174,7 @@ public class GetStreamGroupM3UHandler(IHttpContextAccessor httpContextAccessor, 
 
         if (showM3UFieldTvgId)
         {
-            fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_ID}\"");
+            fieldList.Add($"tvg-id=\"{videoStream.User_Tvg_chno}\"");
         }
 
         if (setting.M3UFieldTvgLogo)

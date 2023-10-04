@@ -618,7 +618,7 @@ const injectedRtkApi = api
         {
           query: (queryArg) => ({ url: `/api/settings/login`, body: queryArg }),
           providesTags: ['Settings'],
-        },
+        }
       ),
       settingsUpdateSetting: build.mutation<
         SettingsUpdateSettingApiResponse,
@@ -1160,6 +1160,28 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['VideoStreams'],
       }),
+      videoStreamsAutoSetEpg: build.mutation<
+        VideoStreamsAutoSetEpgApiResponse,
+        VideoStreamsAutoSetEpgApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/autosetepg`,
+          method: 'PATCH',
+          body: queryArg,
+        }),
+        invalidatesTags: ['VideoStreams'],
+      }),
+      videoStreamsAutoSetEpgFromParameters: build.mutation<
+        VideoStreamsAutoSetEpgFromParametersApiResponse,
+        VideoStreamsAutoSetEpgFromParametersApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/api/videostreams/autosetepgfromparameters`,
+          method: 'PATCH',
+          body: queryArg,
+        }),
+        invalidatesTags: ['VideoStreams'],
+      }),
     }),
     overrideExisting: false,
   })
@@ -1555,6 +1577,11 @@ export type VideoStreamsSimulateStreamFailureForAllApiArg = void
 export type VideoStreamsSimulateStreamFailureApiResponse = unknown
 export type VideoStreamsSimulateStreamFailureApiArg =
   SimulateStreamFailureRequest
+export type VideoStreamsAutoSetEpgApiResponse = unknown
+export type VideoStreamsAutoSetEpgApiArg = AutoSetEpgRequest
+export type VideoStreamsAutoSetEpgFromParametersApiResponse = unknown
+export type VideoStreamsAutoSetEpgFromParametersApiArg =
+  AutoSetEpgFromParametersRequest
 export type CreateChannelGroupRequest = {
   groupName: string
   isReadOnly: boolean
@@ -1805,6 +1832,7 @@ export type Programme = {
   subtitle?: TvSubtitle
   title?: TvTitle
   video?: TvVideo
+  name?: string
 }
 export type ProgrammeChannel = {
   channel?: string
@@ -2322,6 +2350,13 @@ export type ReSetVideoStreamsLogoFromParametersRequest = {
 export type SimulateStreamFailureRequest = {
   streamUrl: string
 }
+export type AutoSetEpgRequest = {
+  ids?: string[]
+}
+export type AutoSetEpgFromParametersRequest = {
+  parameters?: VideoStreamParameters
+  ids?: string[]
+}
 export const {
   useChannelGroupsCreateChannelGroupMutation,
   useChannelGroupsDeleteAllChannelGroupsFromParametersMutation,
@@ -2435,4 +2470,6 @@ export const {
   useVideoStreamsReSetVideoStreamsLogoFromParametersMutation,
   useVideoStreamsSimulateStreamFailureForAllMutation,
   useVideoStreamsSimulateStreamFailureMutation,
+  useVideoStreamsAutoSetEpgMutation,
+  useVideoStreamsAutoSetEpgFromParametersMutation,
 } = injectedRtkApi

@@ -110,4 +110,5 @@ public class Programme
 
     [XmlElement(ElementName = "video")]
     public TvVideo Video { get; set; } = new();
+    public string Name { get; set; }
 }

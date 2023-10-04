@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useState } from 'react'
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog'
-import DeleteButton from '../buttons/DeleteButton'
+import XButton from '../buttons/XButton'
 
 type FileRemoveDialogProps = {
   readonly fileType: 'epg' | 'm3u'
@@ -50,7 +50,7 @@ const FileRemoveDialog = ({
             <span>Are you sure you want to delete? </span>
           </div>
           <div className="flex col-12 justify-content-center">
-            <DeleteButton
+            <XButton
               label={'Delete ' + labelName}
               onClick={onDeleteFile}
               tooltip={'Delete ' + labelName}
@@ -59,7 +59,7 @@ const FileRemoveDialog = ({
         </div>
       </InfoMessageOverLayDialog>
 
-      <DeleteButton
+      <XButton
         iconFilled={false}
         onClick={() => setShowOverlay(true)}
         tooltip={'Delete ' + labelName}

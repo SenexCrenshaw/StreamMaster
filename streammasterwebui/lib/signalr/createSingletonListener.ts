@@ -12,6 +12,7 @@ export function createSingletonListener<T>(
   let listenerCount = 0
 
   return {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     addListener: (callback: (data: T) => void) => {
       if (listenerCount === 0) {
         if (isDev) {

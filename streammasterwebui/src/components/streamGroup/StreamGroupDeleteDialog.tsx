@@ -5,7 +5,7 @@ import {
 import { memo, useCallback, useState } from 'react'
 import { useSelectedStreamGroup } from '../../../lib/redux/slices/useSelectedStreamGroup'
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog'
-import DeleteButton from '../buttons/DeleteButton'
+import XButton from '../buttons/XButton'
 
 type StreamGroupDeleteDialogProps = {
   readonly id: string
@@ -74,14 +74,14 @@ const StreamGroupDeleteDialog = ({
         show={showOverlay}
       >
         <div className="flex justify-content-center w-full">
-          <DeleteButton
+          <XButton
             label="Delete Stream Group"
             onClick={async () => await deleteStreamGroup()}
             tooltip="Delete Stream Group"
           />
         </div>
       </InfoMessageOverLayDialog>
-      <DeleteButton
+      <XButton
         disabled={
           selectedStreamGroup === undefined ||
           selectedStreamGroup.id === undefined ||

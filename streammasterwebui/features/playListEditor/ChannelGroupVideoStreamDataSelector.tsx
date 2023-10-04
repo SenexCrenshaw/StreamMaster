@@ -23,6 +23,7 @@ import VideoStreamDeleteDialog from '@/src/components/videoStream/VideoStreamDel
 import VideoStreamEditDialog from '@/src/components/videoStream/VideoStreamEditDialog'
 import VideoStreamResetLogoDialog from '@/src/components/videoStream/VideoStreamResetLogoDialog'
 import VideoStreamResetLogosDialog from '@/src/components/videoStream/VideoStreamResetLogosDialog'
+import VideoStreamSetAutoSetEPGDialog from '@/src/components/videoStream/VideoStreamSetAutoSetEPGDialog'
 import VideoStreamSetLogoFromEPGDialog from '@/src/components/videoStream/VideoStreamSetLogoFromEPGDialog'
 import VideoStreamSetLogosFromEPGDialog from '@/src/components/videoStream/VideoStreamSetLogosFromEPGDialog'
 import VideoStreamVisibleDialog from '@/src/components/videoStream/VideoStreamVisibleDialog'
@@ -115,6 +116,12 @@ const ChannelGroupVideoStreamDataSelector = ({
             skipOverLayer
             values={[data]}
           />
+          <VideoStreamSetAutoSetEPGDialog
+            iconFilled={false}
+            id={dataKey}
+            skipOverLayer
+            values={[data]}
+          />
           <VideoStreamDeleteDialog
             iconFilled={false}
             id={dataKey}
@@ -171,6 +178,7 @@ const ChannelGroupVideoStreamDataSelector = ({
         <VideoStreamSetLogosFromEPGDialog id={dataKey} />
         <AutoSetChannelNumbers id={dataKey} />
         <VideoStreamVisibleDialog id={dataKey} />
+        <VideoStreamSetAutoSetEPGDialog iconFilled id={dataKey} />
         <VideoStreamDeleteDialog iconFilled id={dataKey} />
         <VideoStreamAddDialog group={channelGroupNames?.[0]} />
       </div>

@@ -42,7 +42,10 @@ const VideoStreamRemoveFromStreamGroupDialog = ({
 
   return (
     <div className="flex">
-      <XButton onClick={async () => await removeVideoStream()} />
+      <XButton
+        iconFilled={false}
+        onClick={async () => await removeVideoStream()}
+      />
     </div>
   )
 }

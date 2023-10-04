@@ -9,8 +9,8 @@ import { memo, useEffect, useMemo, useState } from 'react'
 import { useQueryFilter } from '../../../lib/redux/slices/useQueryFilter'
 import { useSelectAll } from '../../../lib/redux/slices/useSelectAll'
 import { useSelectedVideoStreams } from '../../../lib/redux/slices/useSelectedVideoStreams'
-import DeleteButton from '../buttons/DeleteButton'
 import OKButton from '../buttons/OKButton'
+import XButton from '../buttons/XButton'
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog'
 
 type VideoStreamDeleteDialogProps = {
@@ -144,9 +144,8 @@ const VideoStreamDeleteDialog = ({
 
   if (skipOverLayer) {
     return (
-      <DeleteButton
+      <XButton
         disabled={isFirstDisabled}
-        iconFilled={iconFilled}
         onClick={async () => await deleteVideoStream()}
         tooltip="Delete User Created Stream"
       />
@@ -174,11 +173,11 @@ const VideoStreamDeleteDialog = ({
         </div>
       </InfoMessageOverLayDialog>
 
-      <DeleteButton
+      <XButton
         disabled={(isFirstDisabled || getTotalCount === 0) && !selectAll}
         iconFilled={iconFilled}
         onClick={() => setShowOverlay(true)}
-        tooltip="Delete User Created Streams"
+        tooltip="Delete User Created Stream"
       />
     </>
   )

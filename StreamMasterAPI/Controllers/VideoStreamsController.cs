@@ -263,6 +263,22 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         return Ok();
     }
 
+    [HttpPatch]
+    [Route("[action]")]
+    public async Task<IActionResult> AutoSetEPG(AutoSetEPGRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
+    }
+
+    [HttpPatch]
+    [Route("[action]")]
+    public async Task<IActionResult> AutoSetEPGFromParameters(AutoSetEPGFromParametersRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
+    }
+
     private class UnregisterClientOnDispose : IDisposable
     {
         private readonly IChannelManager _channelManager;

@@ -79,3 +79,11 @@ export const SimulateStreamFailure = async (arg: iptv.SimulateStreamFailureReque
     await invokeHubConnection<void> ('SimulateStreamFailure', arg);
 };
 
+export const AutoSetEpg = async (arg: iptv.AutoSetEpgRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('AutoSetEpg', arg);
+};
+
+export const AutoSetEpgFromParameters = async (arg: iptv.AutoSetEpgFromParametersRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('AutoSetEpgFromParameters', arg);
+};
+

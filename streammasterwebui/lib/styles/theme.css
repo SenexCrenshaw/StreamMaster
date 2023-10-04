@@ -204,34 +204,17 @@
   padding: 0.2rem !important;
 }
 
-.p-button.p-button-danger {
+/* .p-button.p-button-danger {
   background: var(--button-danger-bg);
   border: 1px solid var(--button-danger-bg);
   color: #0e1315;
 }
-
-.p-button.p-button-info {
-  background: var(--button-info-bg);
-  border: 1px solid var(--button-info-bg);
-  color: #ffffff;
-}
-
-.p-button.p-button-success {
-  background: var(--button-success-bg);
-  border: 1px solid var(--button-success-bg);
-  color: #0e1315;
-}
-
-.p-inputgroup-addon {
-  padding: 0.5rem !important;
-}
-
 .p-button.p-button-danger {
   background: var(--button-danger-bg);
   border: var(--common-border-width) solid var(--button-danger-bg);
   color: #0e1315;
-}
-
+} */
+/* 
 .p-button.p-button-info {
   background: var(--button-info-bg);
   border: var(--common-border-width) solid var(--button-info-bg);
@@ -242,7 +225,15 @@
   background: var(--button-success-bg);
   border: var(--common-border-width) solid var(--button-success-bg);
   color: #0e1315;
+} */
+
+
+.p-inputgroup-addon {
+  padding: 0.5rem !important;
 }
+
+
+
 
 .p-inputnumber-buttons-stacked {
   align-items: center !important;
