@@ -1,7 +1,7 @@
 {
-  "extends": [ "next/core-web-vitals","prettier"],   
-  "plugins": ["@typescript-eslint","unused-imports"],
-  "rules": {    
+  "extends": ["next/core-web-vitals", "prettier"],
+  "plugins": ["@typescript-eslint", "unused-imports"],
+  "rules": {
     "unused-imports/no-unused-imports-ts": "error",
     "@next/next/no-img-element": "off",
     "@typescript-eslint/no-unused-vars": "error"

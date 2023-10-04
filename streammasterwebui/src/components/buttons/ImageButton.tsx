@@ -1,7 +1,11 @@
-import { type ChildButtonProps } from "./BaseButton";
-import BaseButton from "./BaseButton";
+import { type ChildButtonProps } from './BaseButton'
+import BaseButton from './BaseButton'
 
-const ImageButton: React.FC<ChildButtonProps> = ({ disabled = true, onClick, tooltip = "" }) => {
+const ImageButton: React.FC<ChildButtonProps> = ({
+  disabled = true,
+  onClick,
+  tooltip = '',
+}) => {
   return (
     <BaseButton
       disabled={disabled}
@@ -9,7 +13,7 @@ const ImageButton: React.FC<ChildButtonProps> = ({ disabled = true, onClick, too
       onClick={onClick}
       tooltip={tooltip}
     />
-  );
-};
+  )
+}
 
-export default ImageButton;
+export default ImageButton

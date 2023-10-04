@@ -10,6 +10,7 @@
     "@types/react-redux": "^7.1.27",
     "@vidstack/react": "^0.6.13",
     "axios": "^1.5.1",
+    "esbuild-runner": "^2.2.2",
     "hls.js": "^1.4.10",
     "next": "latest",
     "normalize.css": "^8.0.1",
@@ -60,7 +61,9 @@
     "dev": "next dev",
     "build": "next build",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "api": "npx @rtk-query/codegen-openapi openapi-config.ts",
+    "prettier": "npx prettier --write ."
   },
   "version": "0.1.0"
 }

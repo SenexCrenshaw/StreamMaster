@@ -1,10 +1,12 @@
 'use client'
 
-import dynamic from "next/dynamic";
+import dynamic from 'next/dynamic'
 
-const FilesEditor = dynamic(() => import("@/features/filesEditor/FilesEditor"), { ssr: false })
-
+const FilesEditor = dynamic(
+  () => import('@/features/filesEditor/FilesEditor'),
+  { ssr: false },
+)
 
 export default function FilesEditorLayout() {
-    return (<FilesEditor />);
+  return <FilesEditor />
 }

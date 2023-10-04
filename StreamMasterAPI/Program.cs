@@ -140,6 +140,7 @@ else
 {
     _ = app.UseCors();
 }
+//_ = app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -174,7 +175,7 @@ app.MapGet("/routes", async context =>
     }
 });
 
-app.MapHub<StreamMasterHub>("/streammasterhub").RequireAuthorization("SignalR");
+app.MapHub<StreamMasterHub>("/streammasterhub");//.RequireAuthorization(AuthenticationType.Forms.ToString());
 
 app.Run();
 

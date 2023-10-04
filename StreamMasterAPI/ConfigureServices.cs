@@ -20,6 +20,7 @@ using StreamMasterApplication.Common.Logging;
 using StreamMasterApplication.Hubs;
 using StreamMasterApplication.Services;
 
+using StreamMasterDomain.Enums;
 using StreamMasterDomain.EnvironmentInfo;
 using StreamMasterDomain.Logging;
 
@@ -162,7 +163,7 @@ public static class ConfigureServices
             });
 
             // Require auth on everything except those marked [AllowAnonymous]
-            options.FallbackPolicy = new AuthorizationPolicyBuilder("API")
+            options.FallbackPolicy = new AuthorizationPolicyBuilder(AuthenticationType.Forms.ToString(), "API")
             .RequireAuthenticatedUser()
             .Build();
         });

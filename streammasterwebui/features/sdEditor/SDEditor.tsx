@@ -1,21 +1,30 @@
-
-
-import { useSchedulesDirectGetStatusQuery } from "@/lib/iptvApi";
-import SchedulesDirectSchedulesDataSelector from "@/src/components/schedulesDirect/SchedulesDirectSchedulesDataSelector";
-import { memo, useMemo } from "react";
+import { useSchedulesDirectGetStatusQuery } from '@/lib/iptvApi'
+import SchedulesDirectSchedulesDataSelector from '@/src/components/schedulesDirect/SchedulesDirectSchedulesDataSelector'
+import { memo, useMemo } from 'react'
 
 const SDEditor = () => {
-  const getStatusQuery = useSchedulesDirectGetStatusQuery();
+  const getStatusQuery = useSchedulesDirectGetStatusQuery()
 
   const status = useMemo(() => {
-    if (getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() === 'online') {
-      return (<div>Schedules Direct System Status: <span className='text-green-500'>Online</span></div>);
+    if (
+      getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() ===
+      'online'
+    ) {
+      return (
+        <div>
+          Schedules Direct System Status:{' '}
+          <span className="text-green-500">Online</span>
+        </div>
+      )
     }
 
-    return (<div>Schedules Direct System Status: <span className='text-red-500'>Offline</span></div>);
-
-  }, [getStatusQuery.data]);
-
+    return (
+      <div>
+        Schedules Direct System Status:{' '}
+        <span className="text-red-500">Offline</span>
+      </div>
+    )
+  }, [getStatusQuery.data])
 
   return (
     <>
@@ -31,12 +40,11 @@ const SDEditor = () => {
       <SchedulesDirectHeadendDataSelector country={country} postalCode={postalCode} /> */}
       {/* <SchedulesDirectLineUpsDataSelector /> */}
       <SchedulesDirectSchedulesDataSelector stationIds={[]} />
-
     </>
-  );
+  )
 }
 
-SDEditor.displayName = 'SDEditor';
+SDEditor.displayName = 'SDEditor'
 
 // type SDEditorProps = {
 //   readonly data?: ChannelGroupDto | undefined;
@@ -44,4 +52,4 @@ SDEditor.displayName = 'SDEditor';
 //   readonly value?: string | null;
 // };
 
-export default memo(SDEditor);
+export default memo(SDEditor)

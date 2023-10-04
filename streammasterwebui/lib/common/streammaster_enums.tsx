@@ -29,4 +29,3 @@ export enum VideoStreamHandlers {
   None = 1,
   Loop = 2,
 }
-

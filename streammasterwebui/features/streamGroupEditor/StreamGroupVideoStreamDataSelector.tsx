@@ -1,45 +1,68 @@
-import { GetMessage } from "@/lib/common/common";
-import { StreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostApiArg, useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery, useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostMutation, useVideoStreamsGetPagedVideoStreamsQuery } from "@/lib/iptvApi";
-import { useSelectedStreamGroup } from "@/lib/redux/slices/useSelectedStreamGroup";
-import { useChannelGroupColumnConfig, useChannelNameColumnConfig, useChannelNumberColumnConfig, useM3UFileNameColumnConfig } from "@/src/components/columns/columnConfigHooks";
-import DataSelector from "@/src/components/dataSelector/DataSelector";
-import { ColumnMeta } from "@/src/components/dataSelector/DataSelectorTypes";
-import { TriSelect } from "@/src/components/selectors/TriSelect";
-import { skipToken } from "@reduxjs/toolkit/dist/query";
-import { type DataTableRowClickEvent } from "primereact/datatable";
-import { memo, useMemo } from "react";
+import { GetMessage } from '@/lib/common/common'
+import {
+  StreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostApiArg,
+  useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery,
+  useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostMutation,
+  useVideoStreamsGetPagedVideoStreamsQuery,
+} from '@/lib/iptvApi'
+import { useSelectedStreamGroup } from '@/lib/redux/slices/useSelectedStreamGroup'
+import {
+  useChannelGroupColumnConfig,
+  useChannelNameColumnConfig,
+  useChannelNumberColumnConfig,
+  useM3UFileNameColumnConfig,
+} from '@/src/components/columns/columnConfigHooks'
+import DataSelector from '@/src/components/dataSelector/DataSelector'
+import { ColumnMeta } from '@/src/components/dataSelector/DataSelectorTypes'
+import { TriSelect } from '@/src/components/selectors/TriSelect'
+import { skipToken } from '@reduxjs/toolkit/dist/query'
+import { type DataTableRowClickEvent } from 'primereact/datatable'
+import { memo, useMemo } from 'react'
 
 type StreamGroupVideoStreamDataSelectorProps = {
-  readonly id: string;
-};
+  readonly id: string
+}
 
-const StreamGroupVideoStreamDataSelector = ({ id }: StreamGroupVideoStreamDataSelectorProps) => {
-  const dataKey = id + '-StreamGroupVideoStreamDataSelector';
+const StreamGroupVideoStreamDataSelector = ({
+  id,
+}: StreamGroupVideoStreamDataSelectorProps) => {
+  const dataKey = id + '-StreamGroupVideoStreamDataSelector'
 
-  const { columnConfig: m3uFileNameColumnConfig } = useM3UFileNameColumnConfig({ enableEdit: false });
-  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: false });
-  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit: false });
-  const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig({ enableEdit: false });
-  const { selectedStreamGroup } = useSelectedStreamGroup(id);
-  const streamGroupsGetStreamGroupVideoStreamIdsQuery = useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery(selectedStreamGroup?.id ?? skipToken);
-  const [streamGroupVideoStreamsSyncVideoStreamToStreamGroupMutation] = useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostMutation();
-
+  const { columnConfig: m3uFileNameColumnConfig } = useM3UFileNameColumnConfig({
+    enableEdit: false,
+  })
+  const { columnConfig: channelNumberColumnConfig } =
+    useChannelNumberColumnConfig({ enableEdit: false })
+  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({
+    enableEdit: false,
+  })
+  const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig({
+    enableEdit: false,
+  })
+  const { selectedStreamGroup } = useSelectedStreamGroup(id)
+  const streamGroupsGetStreamGroupVideoStreamIdsQuery =
+    useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery(
+      selectedStreamGroup?.id ?? skipToken,
+    )
+  const [streamGroupVideoStreamsSyncVideoStreamToStreamGroupMutation] =
+    useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostMutation()
 
   const SyncVideoStream = async (videoId: string) => {
     if (!videoId || !selectedStreamGroup) {
-      return;
+      return
     }
 
-    const toSend = {} as StreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostApiArg;
+    const toSend =
+      {} as StreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostApiArg
 
-    toSend.streamGroupId = selectedStreamGroup.id;
-    toSend.videoStreamId = videoId;
+    toSend.streamGroupId = selectedStreamGroup.id
+    toSend.videoStreamId = videoId
 
     await streamGroupVideoStreamsSyncVideoStreamToStreamGroupMutation(toSend)
-      .then(() => {
-      }).catch((error) => {
-        console.error('Add Stream Error: ' + error.message);
-      });
+      .then(() => {})
+      .catch((error) => {
+        console.error('Add Stream Error: ' + error.message)
+      })
   }
 
   const targetColumns = useMemo((): ColumnMeta[] => {
@@ -47,25 +70,30 @@ const StreamGroupVideoStreamDataSelector = ({ id }: StreamGroupVideoStreamDataSe
       channelNumberColumnConfig,
       channelNameColumnConfig,
       channelGroupConfig,
-      m3uFileNameColumnConfig
+      m3uFileNameColumnConfig,
     ]
-  }, [channelNumberColumnConfig, channelNameColumnConfig, channelGroupConfig, m3uFileNameColumnConfig]);
+  }, [
+    channelNumberColumnConfig,
+    channelNameColumnConfig,
+    channelGroupConfig,
+    m3uFileNameColumnConfig,
+  ])
 
   const rightHeaderTemplate = useMemo(() => {
     return (
-      <div className="flex justify-content-end align-items-center w-full gap-1" >
+      <div className="flex justify-content-end align-items-center w-full gap-1">
         <TriSelect dataKey={dataKey} />
       </div>
-    );
-  }, [dataKey]);
+    )
+  }, [dataKey])
 
   const onRowClick = async (event: DataTableRowClickEvent) => {
-    await SyncVideoStream(event.data.id).then(() => {
-    }).catch((error) => {
-      console.error('Add Stream Error: ' + error.message);
-    });
-  };
-
+    await SyncVideoStream(event.data.id)
+      .then(() => {})
+      .catch((error) => {
+        console.error('Add Stream Error: ' + error.message)
+      })
+  }
 
   return (
     <DataSelector
@@ -76,18 +104,22 @@ const StreamGroupVideoStreamDataSelector = ({ id }: StreamGroupVideoStreamDataSe
       headerName={GetMessage('streams')}
       headerRightTemplate={rightHeaderTemplate}
       id={dataKey}
-      isLoading={streamGroupsGetStreamGroupVideoStreamIdsQuery.isLoading || streamGroupsGetStreamGroupVideoStreamIdsQuery.isFetching}
+      isLoading={
+        streamGroupsGetStreamGroupVideoStreamIdsQuery.isLoading ||
+        streamGroupsGetStreamGroupVideoStreamIdsQuery.isFetching
+      }
       onRowClick={async (e) => await onRowClick(e)}
       queryFilter={useVideoStreamsGetPagedVideoStreamsQuery}
-      selectedItemsKey='selectSelectedStreamGroupDtoItems'
-      selectionMode='single'
-      style={{ height: 'calc(100vh - 40px)' }
-      }
-      videoStreamIdsIsReadOnly={(streamGroupsGetStreamGroupVideoStreamIdsQuery.data ?? []).map((x) => x.videoStreamId ?? '')}
+      selectedItemsKey="selectSelectedStreamGroupDtoItems"
+      selectionMode="single"
+      style={{ height: 'calc(100vh - 40px)' }}
+      videoStreamIdsIsReadOnly={(
+        streamGroupsGetStreamGroupVideoStreamIdsQuery.data ?? []
+      ).map((x) => x.videoStreamId ?? '')}
     />
-  );
+  )
 }
 
-StreamGroupVideoStreamDataSelector.displayName = 'Stream Editor';
+StreamGroupVideoStreamDataSelector.displayName = 'Stream Editor'
 
-export default memo(StreamGroupVideoStreamDataSelector);
+export default memo(StreamGroupVideoStreamDataSelector)

@@ -115,6 +115,7 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
                 return null;
             }
 
+
             string crypt = requestPath.GetAPIKeyFromPath(serverKey);
             if (string.IsNullOrEmpty(crypt))
             {

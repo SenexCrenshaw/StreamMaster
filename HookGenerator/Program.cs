@@ -113,7 +113,7 @@ internal class Program
                         }
                         contentToUse.AppendLine($"export const {functionName} = async {(argType != null ? $"(arg: {argType})" : "()")}: Promise<{responseType} | null> => {{");
                         //contentToUse.AppendLine($"  if (hubConnection.state === 'Connected') {{");
-                        //contentToUse.AppendLine($"    if (isDebug) console.log('{functionName}');");
+                        //contentToUse.AppendLine($"    if (isDev) console.log('{functionName}');");
                         if (responseType != "void")
                         {
                             contentToUse.AppendLine($"    return await invokeHubConnection<{responseType}> ('{functionName}'{(responseType != "void" ? ", arg" : "")});");
@@ -160,13 +160,13 @@ internal class Program
         if (IsPagedOrIsArray(responseType))
         {
             ret.AppendLine($"            if (!data || isEmptyObject(data)) {{");
-            ret.AppendLine($"              if (isDebug) console.log('empty', data);");
+            ret.AppendLine($"              if (isDev) console.log('empty', data);");
             ret.AppendLine($"              dispatch(iptvApi.util.invalidateTags(['{tag}']));");
             ret.AppendLine($"              return;");
             ret.AppendLine($"            }}");
             ret.AppendLine();
             ret.AppendLine($"            updateCachedData(() => {{");
-            //ret.AppendLine($"              if (isDebug) console.log('updateCachedData', data);");
+            //ret.AppendLine($"              if (isDev) console.log('updateCachedData', data);");
             ret.AppendLine($"              for (const {{ endpointName, originalArgs }} of iptvApi.util.selectInvalidatedBy(getState(), [{{ type: '{tag}' }}])) {{");
             ret.AppendLine($"                if (endpointName !== '{endpointName}') continue;");
             ret.AppendLine($"                  dispatch(");
@@ -202,11 +202,11 @@ internal class Program
             return ret.ToString();
         }
         ret.AppendLine($"            updateCachedData(() => {{");
-        ret.AppendLine($"              if (isDebug) console.log('updateCachedData', data);");
+        ret.AppendLine($"              if (isDev) console.log('updateCachedData', data);");
         ret.AppendLine($"              for (const {{ endpointName, originalArgs }} of iptvApi.util.selectInvalidatedBy(getState(), [{{ type: '{tag}' }}])) {{");
         ret.AppendLine($"                if (endpointName !== '{endpointName}') continue;");
         ret.AppendLine($"                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{");
-        ret.AppendLine($"                    if (isDebug) console.log('updateCachedData', data, draft);");
+        ret.AppendLine($"                    if (isDev) console.log('updateCachedData', data, draft);");
         ret.AppendLine($"                   }})");
         ret.AppendLine($"                   );");
         ret.AppendLine($"                 }}");
@@ -223,7 +223,7 @@ internal class Program
 
             StringBuilder rtkContent = new();
 
-            rtkContent.AppendLine("import { isDebug } from '@/lib/settings';");
+            rtkContent.AppendLine("import { isDev } from '@/lib/settings';");
             rtkContent.AppendLine($"import {{ {singleTon} }} from '@/lib/signalr/singletonListeners';");
             rtkContent.AppendLine($"import {{ isEmptyObject }} from '@/lib/common/common';");
             rtkContent.AppendLine($"import isPagedTableDto from '@/lib/common/isPagedTableDto';");

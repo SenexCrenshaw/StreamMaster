@@ -1,6 +1,10 @@
-import BaseButton, { type ChildButtonProps } from "./BaseButton";
+import BaseButton, { type ChildButtonProps } from './BaseButton'
 
-const BookButton: React.FC<ChildButtonProps> = ({ disabled = true, onClick, tooltip = "" }) => {
+const BookButton: React.FC<ChildButtonProps> = ({
+  disabled = true,
+  onClick,
+  tooltip = '',
+}) => {
   return (
     <BaseButton
       disabled={disabled}
@@ -8,7 +12,7 @@ const BookButton: React.FC<ChildButtonProps> = ({ disabled = true, onClick, tool
       onClick={onClick}
       tooltip={tooltip}
     />
-  );
-};
+  )
+}
 
-export default BookButton;
+export default BookButton

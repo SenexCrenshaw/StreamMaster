@@ -1,91 +1,97 @@
-import React from "react";
+import React from 'react'
 
-import { BlockUI } from "primereact/blockui";
-import { Dropdown } from "primereact/dropdown";
-import { useClickOutside } from "primereact/hooks";
-import { type TooltipOptions } from "primereact/tooltip/tooltipoptions";
-import { classNames } from "primereact/utils";
-import { useDebouncedCallback } from "use-debounce";
+import { BlockUI } from 'primereact/blockui'
+import { Dropdown } from 'primereact/dropdown'
+import { useClickOutside } from 'primereact/hooks'
+import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions'
+import { classNames } from 'primereact/utils'
+import { useDebouncedCallback } from 'use-debounce'
 
 const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
-  const [originalValue, setOriginalValue] = React.useState<string>('');
-  const [inputValue, setInputValue] = React.useState<string>('');
+  const [originalValue, setOriginalValue] = React.useState<string>('')
+  const [inputValue, setInputValue] = React.useState<string>('')
 
-  const [isFocused, setIsFocused] = React.useState<boolean>(false);
+  const [isFocused, setIsFocused] = React.useState<boolean>(false)
 
-  const overlayRef = React.useRef(null);
+  const overlayRef = React.useRef(null)
 
-  const className = classNames('iconSelector p-0 m-0 w-full z-5 ', props.className);
+  const className = classNames(
+    'iconSelector p-0 m-0 w-full z-5 ',
+    props.className,
+  )
 
   const debounced = useDebouncedCallback(
-    React.useCallback((value) => {
+    React.useCallback(
+      (value) => {
+        if (value !== originalValue) {
+          setInputValue(value)
 
-      if (value !== originalValue) {
-        setInputValue(value);
-
-        props.onChange(value);
-      }
-    }, [originalValue, props]),
+          props.onChange(value)
+        }
+      },
+      [originalValue, props],
+    ),
     250,
-    {}
-  );
+    {},
+  )
 
-  const save = React.useCallback((forceValueSave?: string | undefined) => {
+  const save = React.useCallback(
+    (forceValueSave?: string | undefined) => {
+      if (
+        forceValueSave === undefined &&
+        (inputValue === undefined || inputValue === originalValue)
+      ) {
+        return
+      }
 
-    if (forceValueSave === undefined && (
-      inputValue === undefined || inputValue === originalValue)
-    ) {
-      return;
-    }
+      debounced.cancel()
 
-    debounced.cancel();
-
-    if (forceValueSave !== undefined) {
-      props.onChange(forceValueSave);
-    } else {
-      props.onChange(inputValue);
-    }
-
-  }, [debounced, inputValue, originalValue, props]);
+      if (forceValueSave !== undefined) {
+        props.onChange(forceValueSave)
+      } else {
+        props.onChange(inputValue)
+      }
+    },
+    [debounced, inputValue, originalValue, props],
+  )
 
   // Keyboard Enter
   React.useEffect(() => {
     const callback = (event: KeyboardEvent) => {
       if (!isFocused) {
-        return;
+        return
       }
 
       if (event.code === 'Enter' || event.code === 'NumpadEnter') {
-        save();
+        save()
       }
-    };
+    }
 
-    document.addEventListener('keydown', callback);
+    document.addEventListener('keydown', callback)
 
     return () => {
-      document.removeEventListener('keydown', callback);
-    };
-  }, [isFocused, save]);
+      document.removeEventListener('keydown', callback)
+    }
+  }, [isFocused, save])
 
   useClickOutside(overlayRef, () => {
     if (!isFocused) {
-      return;
+      return
     }
 
-    setIsFocused(false);
+    setIsFocused(false)
 
     if (originalValue !== inputValue) {
-      save();
+      save()
     }
-  });
+  })
 
   React.useEffect(() => {
     if (props.value !== null && props.value !== undefined) {
-      setInputValue(props.value);
-      setOriginalValue(props.value);
+      setInputValue(props.value)
+      setOriginalValue(props.value)
     }
-
-  }, [props.value, setInputValue]);
+  }, [props.value, setInputValue])
 
   return (
     <BlockUI blocked={props.isLoading}>
@@ -96,13 +102,10 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
           editable={props.editable}
           filter
           filterBy={props.filterBy ? props.filterBy : 'channelName'}
-
-          onChange={
-            (e) => {
-              setInputValue(e.target.value as string);
-              debounced(e.target.value as string);
-            }
-          }
+          onChange={(e) => {
+            setInputValue(e.target.value as string)
+            debounced(e.target.value as string)
+          }}
           onFocus={() => setIsFocused(true)}
           options={props.data}
           placeholder="No EPG"
@@ -123,22 +126,22 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
         />
       </div>
     </BlockUI>
-  );
+  )
 }
 
-DropDownEditorBodyTemplate.displayName = 'DropDownEditorBodyTemplate';
+DropDownEditorBodyTemplate.displayName = 'DropDownEditorBodyTemplate'
 
 type DropDownEditorBodyTemplateProps = {
-  readonly className?: string;
-  readonly data: string[];
-  readonly disabled?: boolean;
-  readonly editable?: boolean | undefined;
-  readonly filterBy?: string;
-  readonly isLoading?: boolean;
-  readonly onChange: (value: string) => void;
-  readonly tooltip?: string;
-  readonly tooltipOptions?: TooltipOptions;
-  readonly value: string;
-};
+  readonly className?: string
+  readonly data: string[]
+  readonly disabled?: boolean
+  readonly editable?: boolean | undefined
+  readonly filterBy?: string
+  readonly isLoading?: boolean
+  readonly onChange: (value: string) => void
+  readonly tooltip?: string
+  readonly tooltipOptions?: TooltipOptions
+  readonly value: string
+}
 
-export default React.memo(DropDownEditorBodyTemplate);
+export default React.memo(DropDownEditorBodyTemplate)

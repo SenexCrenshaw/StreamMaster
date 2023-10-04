@@ -1,18 +1,30 @@
-import { ExportComponent, HeaderLeft, MultiSelectCheckbox } from "@/lib/common/common";
-import { SMTextColor } from "../SMTextColor";
-import { type DataSelectorProps } from "./DataSelector";
+import {
+  ExportComponent,
+  HeaderLeft,
+  MultiSelectCheckbox,
+} from '@/lib/common/common'
+import { SMTextColor } from '../SMTextColor'
+import { type DataSelectorProps } from './DataSelector'
 
 type TableHeaderProps = {
-  dataSelectorProps: DataSelectorProps,
-  enableExport: boolean,
-  exportCSV: () => void,
-  headerName?: string,
-  onMultiSelectClick?: (value: boolean) => void,
-  rowClick: boolean,
+  dataSelectorProps: DataSelectorProps
+  enableExport: boolean
+  exportCSV: () => void
+  headerName?: string
+  onMultiSelectClick?: (value: boolean) => void
+  rowClick: boolean
   setRowClick: (val: boolean) => void
-};
+}
 
-const TableHeader: React.FC<TableHeaderProps> = ({ headerName, onMultiSelectClick, rowClick, setRowClick, enableExport, exportCSV, dataSelectorProps }) => {
+const TableHeader: React.FC<TableHeaderProps> = ({
+  headerName,
+  onMultiSelectClick,
+  rowClick,
+  setRowClick,
+  enableExport,
+  exportCSV,
+  dataSelectorProps,
+}) => {
   return (
     <div className="flex grid flex-row w-full flex-wrap grid align-items-center w-full col-12 h-full p-0 debug">
       <div className="flex col-2 h-full text-sm align-items-center p-0 debug">
@@ -32,7 +44,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({ headerName, onMultiSelectClic
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default TableHeader;
+export default TableHeader

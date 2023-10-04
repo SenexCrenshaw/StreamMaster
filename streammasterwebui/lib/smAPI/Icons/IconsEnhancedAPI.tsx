@@ -1,4 +1,4 @@
-import { isDebug } from '@/lib/settings';
+import { isDev } from '@/lib/settings';
 import { singletonIconsListener } from '@/lib/signalr/singletonListeners';
 import { isEmptyObject } from '@/lib/common/common';
 import isPagedTableDto from '@/lib/common/isPagedTableDto';
@@ -14,11 +14,11 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto) => {
             updateCachedData(() => {
-              if (isDebug) console.log('updateCachedData', data);
+              if (isDev) console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Icons' }])) {
                 if (endpointName !== 'iconsGetIcon') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    if (isDebug) console.log('updateCachedData', data, draft);
+                    if (isDev) console.log('updateCachedData', data, draft);
                    })
                    );
                  }
@@ -45,11 +45,11 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto) => {
             updateCachedData(() => {
-              if (isDebug) console.log('updateCachedData', data);
+              if (isDev) console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Icons' }])) {
                 if (endpointName !== 'iconsGetIconFromSource') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    if (isDebug) console.log('updateCachedData', data, draft);
+                    if (isDev) console.log('updateCachedData', data, draft);
                    })
                    );
                  }
@@ -76,7 +76,7 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDebug) console.log('empty', data);
+              if (isDev) console.log('empty', data);
               dispatch(iptvApi.util.invalidateTags(['Icons']));
               return;
             }
@@ -132,7 +132,7 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDebug) console.log('empty', data);
+              if (isDev) console.log('empty', data);
               dispatch(iptvApi.util.invalidateTags(['Icons']));
               return;
             }

@@ -1,128 +1,132 @@
-import { type StreamGroupDto, type UpdateStreamGroupRequest } from '@/lib/iptvApi';
-import { InputText } from "primereact/inputtext";
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
+import {
+  type StreamGroupDto,
+  type UpdateStreamGroupRequest,
+} from '@/lib/iptvApi'
+import { InputText } from 'primereact/inputtext'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog'
 
-import { useSelectedStreamGroup } from "../../../lib/redux/slices/useSelectedStreamGroup";
+import { useSelectedStreamGroup } from '../../../lib/redux/slices/useSelectedStreamGroup'
 
-import StreamGroupChannelGroupsSelector from '@/features/streamGroupEditor/StreamGroupChannelGroupsSelector';
-import { UpdateStreamGroup } from '@/lib/smAPI/StreamGroups/StreamGroupsMutateAPI';
-import EditButton from "../buttons/EditButton";
-
+import StreamGroupChannelGroupsSelector from '@/features/streamGroupEditor/StreamGroupChannelGroupsSelector'
+import { UpdateStreamGroup } from '@/lib/smAPI/StreamGroups/StreamGroupsMutateAPI'
+import { v4 as uuidv4 } from 'uuid'
+import EditButton from '../buttons/EditButton'
 
 type StreamGroupEditDialogProps = {
-  readonly id: string;
-  readonly onHide?: (value: StreamGroupDto | undefined) => void;
-};
+  readonly id: string
+  readonly onHide?: (value: StreamGroupDto | undefined) => void
+}
 
 const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
-  const [showOverlay, setShowOverlay] = useState<boolean>(false);
-  const [block, setBlock] = useState<boolean>(false);
-  const [infoMessage, setInfoMessage] = useState('');
-  const [name, setName] = useState<string>('');
-
-  const { selectedStreamGroup } = useSelectedStreamGroup(props.id);
+  const [showOverlay, setShowOverlay] = useState<boolean>(false)
+  const [block, setBlock] = useState<boolean>(false)
+  const [infoMessage, setInfoMessage] = useState('')
+  const [name, setName] = useState<string>('')
+  const uuid = uuidv4()
+  const { selectedStreamGroup } = useSelectedStreamGroup(props.id)
 
   useEffect(() => {
     if (selectedStreamGroup === undefined) {
-      return;
+      return
     }
 
     if (selectedStreamGroup.name !== undefined) {
-      setName(selectedStreamGroup.name);
+      setName(selectedStreamGroup.name)
     }
+  }, [selectedStreamGroup])
 
-
-  }, [selectedStreamGroup]);
-
-
-  const ReturnToParent = useCallback((retData?: StreamGroupDto) => {
-    setShowOverlay(false);
-    setInfoMessage('');
-    setBlock(false);
-    props.onHide?.(retData);
-  }, [props]);
+  const ReturnToParent = useCallback(
+    (retData?: StreamGroupDto) => {
+      setShowOverlay(false)
+      setInfoMessage('')
+      setBlock(false)
+      props.onHide?.(retData)
+    },
+    [props],
+  )
 
   const isSaveEnabled = useMemo((): boolean => {
-
     if (name && name !== '') {
-      return true;
+      return true
     }
 
-    return false;
-
-  }, [name]);
-
+    return false
+  }, [name])
 
   const onUpdate = useCallback(() => {
+    setBlock(true)
 
-    setBlock(true);
+    if (
+      !isSaveEnabled ||
+      !name ||
+      name === '' ||
+      selectedStreamGroup === undefined ||
+      selectedStreamGroup.id === undefined
+    ) {
+      ReturnToParent()
 
-    if (!isSaveEnabled || !name || name === '' || selectedStreamGroup === undefined || selectedStreamGroup.id === undefined) {
-      ReturnToParent();
-
-      return;
+      return
     }
 
     if (!isSaveEnabled) {
-      return;
+      return
     }
 
-    const data = {} as UpdateStreamGroupRequest;
-    data.name = name;
-    data.streamGroupId = selectedStreamGroup.id;
+    const data = {} as UpdateStreamGroupRequest
+    data.name = name
+    data.streamGroupId = selectedStreamGroup.id
 
     UpdateStreamGroup(data)
       .then(() => {
-        setInfoMessage('Stream Group Edit Successfully');
-      }).catch((e) => {
-        setInfoMessage('Stream Group Edit Error: ' + e.message);
-      });
-  }, [ReturnToParent, isSaveEnabled, name, selectedStreamGroup]);
+        setInfoMessage('Stream Group Edit Successfully')
+      })
+      .catch((e) => {
+        setInfoMessage('Stream Group Edit Error: ' + e.message)
+      })
+  }, [ReturnToParent, isSaveEnabled, name, selectedStreamGroup])
 
   useEffect(() => {
     const callback = (event: KeyboardEvent) => {
-
       if (event.code === 'Enter' || event.code === 'NumpadEnter') {
-        event.preventDefault();
+        event.preventDefault()
 
-        if (name !== "") {
-          onUpdate();
+        if (name !== '') {
+          onUpdate()
         }
       }
+    }
 
-    };
-
-    document.addEventListener('keydown', callback);
+    document.addEventListener('keydown', callback)
 
     return () => {
-      document.removeEventListener('keydown', callback);
-    };
-  }, [onUpdate, name]);
-
+      document.removeEventListener('keydown', callback)
+    }
+  }, [onUpdate, name])
 
   return (
     <>
-
       <InfoMessageOverLayDialog
         blocked={block}
         closable
-        header='Edit Stream Group'
+        header="Edit Stream Group"
         infoMessage={infoMessage}
         onClose={() => {
-          ReturnToParent();
+          ReturnToParent()
         }}
         overlayColSize={4}
         show={showOverlay}
       >
         <div className="flex grid justify-content-between align-items-center">
           <div className="flex col-12">
-            <label className="col-2 " htmlFor="Name">Name: </label>
+            <label className="col-2 " htmlFor="Name">
+              Name:{' '}
+            </label>
             <div className="col-8 ">
               <InputText
                 autoFocus
-                className='bordered-text-large'
-                id="Name"
+                className="bordered-text-large"
+                id={uuid}
                 onChange={(e) => setName(e.target.value)}
                 type="text"
                 value={name}
@@ -132,29 +136,40 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
           <div className="flex col-12 ">
             <label className="col-2 ">Groups: </label>
             <div className="col-8 ">
-              <StreamGroupChannelGroupsSelector streamGroupId={selectedStreamGroup?.id ?? undefined} />
+              <StreamGroupChannelGroupsSelector
+                streamGroupId={selectedStreamGroup?.id ?? undefined}
+              />
             </div>
           </div>
 
-
           <div className="flex col-12 mt-3 gap-2 justify-content-end">
-            <EditButton disabled={!selectedStreamGroup?.name || name === selectedStreamGroup.name} label='Edit Stream Group' onClick={() => onUpdate()} tooltip='Edit Stream Group' />
+            <EditButton
+              disabled={
+                !selectedStreamGroup?.name || name === selectedStreamGroup.name
+              }
+              label="Edit Stream Group"
+              onClick={() => onUpdate()}
+              tooltip="Edit Stream Group"
+            />
           </div>
-
         </div>
-      </InfoMessageOverLayDialog >
+      </InfoMessageOverLayDialog>
 
       <EditButton
-        disabled={selectedStreamGroup === undefined || selectedStreamGroup.id === undefined || selectedStreamGroup.id < 2}
+        disabled={
+          selectedStreamGroup === undefined ||
+          selectedStreamGroup.id === undefined ||
+          selectedStreamGroup.id < 2
+        }
         iconFilled
-        label='Edit Stream Group'
+        label="Edit Stream Group"
         onClick={() => setShowOverlay(true)}
-        tooltip='Edit Stream Group' />
-
+        tooltip="Edit Stream Group"
+      />
     </>
-  );
+  )
 }
 
-StreamGroupEditDialog.displayName = 'StreamGroupEditDialog';
+StreamGroupEditDialog.displayName = 'StreamGroupEditDialog'
 
-export default memo(StreamGroupEditDialog);
+export default memo(StreamGroupEditDialog)

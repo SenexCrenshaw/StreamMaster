@@ -1,37 +1,39 @@
-
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { RootState } from '../store';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import { RootState } from '../store'
 
 type SetSelectedItemsPayload = {
-  items: any | undefined,
-  typename: string,
-};
+  items: any | undefined
+  typename: string
+}
 
-type QuerySelectedItemsState = Record<string, any | undefined>;
+type QuerySelectedItemsState = Record<string, any | undefined>
 
-const initialState: QuerySelectedItemsState = {};
+const initialState: QuerySelectedItemsState = {}
 
 const selectedItemsSlice = createSlice({
   initialState,
   name: 'selectedItems',
   reducers: {
-    setSelectedItemsInternal: (state, action: PayloadAction<SetSelectedItemsPayload>) => {
-      const { typename, items } = action.payload;
+    setSelectedItemsInternal: (
+      state,
+      action: PayloadAction<SetSelectedItemsPayload>,
+    ) => {
+      const { typename, items } = action.payload
 
       if (!state[typename]) {
-        state[typename] = [];
+        state[typename] = []
       }
 
       if (items !== null && items !== undefined) {
-        state[typename] = items;
+        state[typename] = items
       } else {
-
-        delete state[typename]; // Remove the key if the filter is null or undefined
+        delete state[typename] // Remove the key if the filter is null or undefined
       }
     },
   },
-});
+})
 
-export const selectSelectedItems = (state: RootState, typename: string) => state.selectedItems[typename];
-export const { setSelectedItemsInternal } = selectedItemsSlice.actions;
-export default selectedItemsSlice.reducer;
+export const selectSelectedItems = (state: RootState, typename: string) =>
+  state.selectedItems[typename]
+export const { setSelectedItemsInternal } = selectedItemsSlice.actions
+export default selectedItemsSlice.reducer

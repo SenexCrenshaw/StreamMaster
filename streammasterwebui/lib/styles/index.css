@@ -13,38 +13,37 @@ code {
 } */
 
 code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-        monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
 
 body {
-    background: var(--surface-ground);
-    color: var(--text-color);
-    padding: 0.5rem;
+  background: var(--surface-ground);
+  color: var(--text-color);
+  padding: 0.5rem;
 
-    /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+  /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
         "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
         sans-serif; */
 
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    /* additions here*/
-    height: 100vh;
-
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* additions here*/
+  height: 100vh;
 }
 
 h2 {
-    color: #165a72;
+  color: #165a72;
 }
 
 .menu1 {
-    margin-bottom: 40px;
-    margin-top: 20px;
+  margin-bottom: 40px;
+  margin-top: 20px;
 }
 
 .card {
-    background: var(--surface-card);
-    /* padding: 2rem;
+  background: var(--surface-card);
+  /* padding: 2rem;
     border-radius: 10px; */
-    margin-bottom: 1rem;
+  margin-bottom: 1rem;
 }

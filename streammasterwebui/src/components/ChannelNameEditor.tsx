@@ -1,36 +1,42 @@
-import { UpdateVideoStreamRequest, VideoStreamDto } from "@/lib/iptvApi";
-import { UpdateVideoStream } from "@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI";
-import React from "react";
-import StringEditorBodyTemplate from "./StringEditorBodyTemplate";
+import { UpdateVideoStreamRequest, VideoStreamDto } from '@/lib/iptvApi'
+import { UpdateVideoStream } from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI'
+import React from 'react'
+import StringEditorBodyTemplate from './StringEditorBodyTemplate'
 
 const ChannelNameEditor = (props: ChannelNameEditorProps) => {
+  const onUpdateM3UStream = React.useCallback(
+    async (name: string) => {
+      if (
+        props.data.id === '' ||
+        !name ||
+        name === '' ||
+        props.data.user_Tvg_name === name
+      ) {
+        return
+      }
 
-  const onUpdateM3UStream = React.useCallback(async (name: string,) => {
-    if (props.data.id === '' || !name || name === '' || props.data.user_Tvg_name === name) {
-      return;
-    }
+      const data = {} as UpdateVideoStreamRequest
 
-    const data = {} as UpdateVideoStreamRequest;
+      data.id = props.data.id
+      data.tvg_name = name
 
-    data.id = props.data.id;
-    data.tvg_name = name;
-
-    await UpdateVideoStream(data)
-      .then(() => {
-      }).catch((error) => {
-        console.error(error);
-      });
-
-  }, [props.data.id, props.data.user_Tvg_name]);
+      await UpdateVideoStream(data)
+        .then(() => {})
+        .catch((error) => {
+          console.error(error)
+        })
+    },
+    [props.data.id, props.data.user_Tvg_name],
+  )
 
   if (props.data.user_Tvg_name === undefined) {
-    return <span className='sm-inputtext' />
+    return <span className="sm-inputtext" />
   }
 
   return (
     <StringEditorBodyTemplate
       onChange={async (e) => {
-        await onUpdateM3UStream(e);
+        await onUpdateM3UStream(e)
       }}
       resetValue={props.data.isUserCreated ? undefined : props.data.tvg_name}
       value={props.data.user_Tvg_name}
@@ -38,11 +44,10 @@ const ChannelNameEditor = (props: ChannelNameEditorProps) => {
   )
 }
 
-ChannelNameEditor.displayName = 'Channel Number Editor';
-
+ChannelNameEditor.displayName = 'Channel Number Editor'
 
 export type ChannelNameEditorProps = {
-  readonly data: VideoStreamDto;
-};
+  readonly data: VideoStreamDto
+}
 
-export default React.memo(ChannelNameEditor);
+export default React.memo(ChannelNameEditor)

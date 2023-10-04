@@ -1,50 +1,46 @@
-
-
-import { getTopToolOptions } from "@/lib/common/common";
-import { UpdateSettingRequest } from "@/lib/iptvApi";
-import { UpdateSetting } from "@/lib/smAPI/Settings/SettingsMutateAPI";
-import { Button } from "primereact/button";
-import { InputText } from "primereact/inputtext";
-import React from "react";
-import InfoMessageOverLayDialog from "../InfoMessageOverLayDialog";
+import { getTopToolOptions } from '@/lib/common/common'
+import { UpdateSettingRequest } from '@/lib/iptvApi'
+import { UpdateSetting } from '@/lib/smAPI/Settings/SettingsMutateAPI'
+import { Button } from 'primereact/button'
+import { InputText } from 'primereact/inputtext'
+import React from 'react'
+import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog'
 
 const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProps) => {
-  const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
-  const [block, setBlock] = React.useState<boolean>(false);
-  const [infoMessage, setInfoMessage] = React.useState('');
-  const [regex, setRegex] = React.useState<string | undefined>('');
+  const [showOverlay, setShowOverlay] = React.useState<boolean>(false)
+  const [block, setBlock] = React.useState<boolean>(false)
+  const [infoMessage, setInfoMessage] = React.useState('')
+  const [regex, setRegex] = React.useState<string | undefined>('')
 
   const ReturnToParent = React.useCallback(() => {
-    setShowOverlay(false);
-    setInfoMessage('');
-    setBlock(false);
-    setRegex('');
-    props.onClose?.();
-  }, [props]);
-
+    setShowOverlay(false)
+    setInfoMessage('')
+    setBlock(false)
+    setRegex('')
+    props.onClose?.()
+  }, [props])
 
   const onSave = React.useCallback(() => {
-    setBlock(true);
+    setBlock(true)
 
     if (!regex || regex === '') {
-      ReturnToParent();
+      ReturnToParent()
 
-      return;
+      return
     }
 
-    const tosend = {} as UpdateSettingRequest;
+    const tosend = {} as UpdateSettingRequest
 
     tosend.nameRegex = [regex, ...props.values]
 
-    UpdateSetting(tosend).then(() => {
-      setInfoMessage('Add Regex Successfully');
-    }).catch((e) => {
-      setInfoMessage('Add Regex Error: ' + e.message);
-    });
-
-  }, [ReturnToParent, props.values, regex]);
-
-
+    UpdateSetting(tosend)
+      .then(() => {
+        setInfoMessage('Add Regex Successfully')
+      })
+      .catch((e) => {
+        setInfoMessage('Add Regex Error: ' + e.message)
+      })
+  }, [ReturnToParent, props.values, regex])
 
   return (
     <>
@@ -53,12 +49,12 @@ const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProps) => {
         header="Add Regex"
         infoMessage={infoMessage}
         onClose={() => {
-          ReturnToParent();
+          ReturnToParent()
         }}
         show={showOverlay}
       >
-        <div className='m-0 p-0 border-1 border-round surface-border'>
-          <div className='m-3'>
+        <div className="m-0 p-0 border-1 border-round surface-border">
+          <div className="m-3">
             <InputText
               autoFocus
               className="withpadding p-inputtext-sm w-full"
@@ -71,7 +67,7 @@ const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProps) => {
               <Button
                 icon="pi pi-times"
                 label="Cancel"
-                onClick={(() => ReturnToParent())}
+                onClick={() => ReturnToParent()}
                 rounded
                 severity="warning"
               />
@@ -84,9 +80,8 @@ const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProps) => {
                 severity="success"
               />
             </div>
-
           </div>
-        </div >
+        </div>
       </InfoMessageOverLayDialog>
 
       <Button
@@ -99,16 +94,15 @@ const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProps) => {
         tooltip="Edit Group"
         tooltipOptions={getTopToolOptions}
       />
-
     </>
-  );
+  )
 }
 
-SettingsNameRegexAddDialog.displayName = 'SettingsNameRegexAddDialog';
+SettingsNameRegexAddDialog.displayName = 'SettingsNameRegexAddDialog'
 
 type SettingsNameRegexAddDialogProps = {
-  readonly onClose?: (() => void);
-  readonly values: string[];
-};
+  readonly onClose?: () => void
+  readonly values: string[]
+}
 
-export default React.memo(SettingsNameRegexAddDialog);
+export default React.memo(SettingsNameRegexAddDialog)

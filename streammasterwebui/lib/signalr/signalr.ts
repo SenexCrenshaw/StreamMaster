@@ -1,34 +1,34 @@
-'use client';
-import { baseHostURL, isDebug } from '@/lib/settings';
-import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
+'use client'
+import { baseHostURL, isDev } from '@/lib/settings'
+import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr'
 
-const url =baseHostURL+'/streammasterhub';
+const url = baseHostURL + '/streammasterhub'
 
 export const hubConnection = new HubConnectionBuilder()
   .configureLogging(LogLevel.Error)
   // .withHubProtocol(new MessagePackHubProtocol())
   .withUrl(url)
   .withAutomaticReconnect({
-    nextRetryDelayInMilliseconds: retryContext => {
+    nextRetryDelayInMilliseconds: (retryContext) => {
       if (retryContext.elapsedMilliseconds < 60000) {
-        return 2000;
+        return 2000
       } else {
-        return 2000;
+        return 2000
       }
     },
   })
-  .build();
+  .build()
 
 export function isSignalRConnected() {
-  return hubConnection && hubConnection.state === 'Connected';
+  return hubConnection && hubConnection.state === 'Connected'
 }
 
 export const invokeHubConnection = async <T>(
-   methodName: string,
-  arg?: any
+  methodName: string,
+  arg?: any,
 ): Promise<T | null> => {
-  if (hubConnection.state !== 'Connected') return null;
-  if (isDebug) console.log(methodName);
-  const result = await hubConnection.invoke<T>(methodName, arg);
-  return result;
-};
+  if (hubConnection.state !== 'Connected') return null
+  if (isDev) console.log(methodName)
+  const result = await hubConnection.invoke<T>(methodName, arg)
+  return result
+}

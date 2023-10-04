@@ -1,4 +1,4 @@
-import { isDebug } from '@/lib/settings';
+import { isDev } from '@/lib/settings';
 import { singletonStreamGroupChannelGroupListener } from '@/lib/signalr/singletonListeners';
 import { isEmptyObject } from '@/lib/common/common';
 import isPagedTableDto from '@/lib/common/isPagedTableDto';
@@ -14,7 +14,7 @@ export const enhancedApiStreamGroupChannelGroup = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.ChannelGroupDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDebug) console.log('empty', data);
+              if (isDev) console.log('empty', data);
               dispatch(iptvApi.util.invalidateTags(['StreamGroupChannelGroup']));
               return;
             }

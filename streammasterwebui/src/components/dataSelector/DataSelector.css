@@ -10,7 +10,7 @@
 
 .dataselector .p-button.p-button-icon-only.p-button-rounded {
   height: 1.5rem !important;
-  padding: 0.0rem 0 !important;
+  padding: 0rem 0 !important;
 }
 
 .dataselector .p-filter-column {
@@ -18,11 +18,11 @@
   padding-bottom: 0.2rem !important;
 }
 
-[role="columnheader"] {
+[role='columnheader'] {
   padding-top: 0.2rem !important;
   padding-bottom: 0.2rem !important;
-  height: 3.0rem !important;
-  max-height: 3.0rem !important;
+  height: 3rem !important;
+  max-height: 3rem !important;
 }
 
 /* .dataselector .p-paginator .p-paginator-first,
@@ -38,11 +38,10 @@
   padding: 0.0rem 0 !important;
 } */
 
-
 .dataselector .header {
   /* width: 1.5rem  !important; */
-  padding-top: .5rem !important;
-  padding-bottom: .5rem !important;
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
 }
 
 .dataselector .grid {
@@ -67,12 +66,11 @@
   padding-bottom: 0rem !important;
 }
 
-.dataselector .p-datatable .p-datatable-tbody>tr>td {
+.dataselector .p-datatable .p-datatable-tbody > tr > td {
   padding: 0.1rem 0 !important;
   height: 1.8rem !important;
   max-height: 1.8rem !important;
 }
-
 
 .dataselector .p-datatable {
   font-size: var(--common-font-size) !important;

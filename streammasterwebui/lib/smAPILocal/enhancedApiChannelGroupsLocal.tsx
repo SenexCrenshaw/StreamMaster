@@ -1,42 +1,48 @@
-import type * as iptv from '@/lib/iptvApi';
-import { iptvApi } from '@/lib/iptvApi';
-import { hubConnection } from '@/lib/signalr/signalr';
-import { isEmptyObject } from '../common/common';
+import type * as iptv from '@/lib/iptvApi'
+import { iptvApi } from '@/lib/iptvApi'
+import { hubConnection } from '@/lib/signalr/signalr'
+import { isEmptyObject } from '../common/common'
 
 export const enhancedApiChannelGroupsLocal = iptvApi.enhanceEndpoints({
   endpoints: {
     channelGroupsGetChannelGroup: {
-      async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(
+        api,
+        { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved },
+      ) {
         try {
-          await cacheDataLoaded;
+          await cacheDataLoaded
 
-          const updateCachedDataWithResults = (data: iptv.ChannelGroupStreamCount) => {
+          const updateCachedDataWithResults = (
+            data: iptv.ChannelGroupStreamCount,
+          ) => {
             updateCachedData((draft: iptv.ChannelGroupDto) => {
-              draft.activeCount = data.activeCount;
-              draft.totalCount = data.totalCount;
-              draft.hiddenCount = data.hiddenCount;
-              return draft;
-            });
-          };
+              draft.activeCount = data.activeCount
+              draft.totalCount = data.totalCount
+              draft.hiddenCount = data.hiddenCount
+              return draft
+            })
+          }
 
           const doUpdates = (data: iptv.ChannelGroupStreamCount) => {
-            console.log('UpdateChannelGroupVideoStreamCounts ChannelGroupsRefresh')
+            console.log(
+              'UpdateChannelGroupVideoStreamCounts ChannelGroupsRefresh',
+            )
             if (isEmptyObject(data)) {
-              dispatch(iptvApi.util.invalidateTags(['ChannelGroups']));
+              dispatch(iptvApi.util.invalidateTags(['ChannelGroups']))
             } else {
-              updateCachedDataWithResults(data);
+              updateCachedDataWithResults(data)
             }
           }
 
           // hubConnection.off('UpdateChannelGroupVideoStreamCounts', doUpdates);
-          hubConnection.on('UpdateChannelGroupVideoStreamCounts', doUpdates);
-
+          hubConnection.on('UpdateChannelGroupVideoStreamCounts', doUpdates)
         } catch (error) {
-          console.error('Error in onCacheEntryAdded:', error);
+          console.error('Error in onCacheEntryAdded:', error)
         }
 
-        await cacheEntryRemoved;
-      }
+        await cacheEntryRemoved
+      },
     },
     // channelGroupsGetChannelGroups: {
     //   async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -76,5 +82,5 @@ export const enhancedApiChannelGroupsLocal = iptvApi.enhanceEndpoints({
     //     await cacheEntryRemoved;
     //   }
     // },
-  }
-});
+  },
+})

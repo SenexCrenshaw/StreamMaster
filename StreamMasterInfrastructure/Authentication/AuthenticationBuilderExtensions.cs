@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 
-using StreamMasterDomain.Authentication;
 using StreamMasterDomain.Enums;
 
 namespace StreamMasterInfrastructure.Authentication;
@@ -15,7 +14,11 @@ public static class AuthenticationBuilderExtensions
 
     public static AuthenticationBuilder AddAppAuthentication(this IServiceCollection services)
     {
-        return services.AddAuthentication()
+        return services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = "API";
+            options.DefaultChallengeScheme = "API";
+        })
             .AddNone(AuthenticationType.None.ToString())
             //.AddBasic(AuthenticationType.Basic.ToString())            
             .AddCookie(AuthenticationType.Forms.ToString(), options =>

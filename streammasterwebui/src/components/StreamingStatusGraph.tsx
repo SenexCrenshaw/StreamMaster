@@ -58,6 +58,7 @@ const StreamingStatusGraph = (props: StreamingStatusGraphProps) => {
 
   React.useEffect(() => {
     setDataSource([...dataSource, ...props.dataSource].slice(-6))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.dataSource])
 
   const dataSet = React.useMemo((): GraphDataArray[] => {

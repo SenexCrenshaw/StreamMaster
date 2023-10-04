@@ -1,34 +1,35 @@
-import { isDebug } from "../settings";
-
+import { isDev } from '../settings'
 
 export type SingletonListener = {
-  addListener: (callback: (data:  any ) => void) => void,
-  removeListener: (callback: (data: any) => void) => void,
-};
+  addListener: (callback: (data: any) => void) => void
+  removeListener: (callback: (data: any) => void) => void
+}
 
-export function createSingletonListener<T> (messageName: string, connection: signalR.HubConnection): SingletonListener {
-  let listenerCount = 0;
+export function createSingletonListener<T>(
+  messageName: string,
+  connection: signalR.HubConnection,
+): SingletonListener {
+  let listenerCount = 0
 
   return {
     addListener: (callback: (data: T) => void) => {
       if (listenerCount === 0) {
-
-        if (isDebug) {
-          console.log('Add listener for ' + messageName);
+        if (isDev) {
+          console.log('Add listener for ' + messageName)
         }
-        connection.on(messageName, callback);
+        connection.on(messageName, callback)
       }
 
-      listenerCount++;
+      listenerCount++
     },
     removeListener: (callback: (data: T) => void) => {
-      listenerCount--;
+      listenerCount--
       if (listenerCount === 0) {
-        if (isDebug) {
-          console.log('Remove listener for ' + messageName);
+        if (isDev) {
+          console.log('Remove listener for ' + messageName)
         }
-        connection.off(messageName, callback);
+        connection.off(messageName, callback)
       }
     },
-  };
+  }
 }

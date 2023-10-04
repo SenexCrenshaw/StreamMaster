@@ -1,4 +1,4 @@
-import { isDebug } from '@/lib/settings';
+import { isDev } from '@/lib/settings';
 import { singletonVideoStreamsListener } from '@/lib/signalr/singletonListeners';
 import { isEmptyObject } from '@/lib/common/common';
 import isPagedTableDto from '@/lib/common/isPagedTableDto';
@@ -14,7 +14,7 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.ChannelLogoDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDebug) console.log('empty', data);
+              if (isDev) console.log('empty', data);
               dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
               return;
             }
@@ -70,11 +70,11 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.VideoStreamDto) => {
             updateCachedData(() => {
-              if (isDebug) console.log('updateCachedData', data);
+              if (isDev) console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'VideoStreams' }])) {
                 if (endpointName !== 'videoStreamsGetVideoStream') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    if (isDebug) console.log('updateCachedData', data, draft);
+                    if (isDev) console.log('updateCachedData', data, draft);
                    })
                    );
                  }
@@ -101,7 +101,7 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.VideoStreamDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDebug) console.log('empty', data);
+              if (isDev) console.log('empty', data);
               dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
               return;
             }

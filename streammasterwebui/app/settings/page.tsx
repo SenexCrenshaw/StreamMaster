@@ -1,9 +1,12 @@
 'use client'
 
-import dynamic from "next/dynamic";
+import dynamic from 'next/dynamic'
 
-const SettingsEditor = dynamic(() => import("@/features/settings/SettingsEditor"), { ssr: false })
+const SettingsEditor = dynamic(
+  () => import('@/features/settings/SettingsEditor'),
+  { ssr: false },
+)
 
 export default function SettingsLayout() {
-    return (<SettingsEditor />);
+  return <SettingsEditor />
 }

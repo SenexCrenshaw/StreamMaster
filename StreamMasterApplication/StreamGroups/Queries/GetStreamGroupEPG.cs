@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using StreamMasterApplication.Common.Extensions;
 
 using StreamMasterDomain.EPG;
-using StreamMasterDomain.Models;
 
 using System.Collections.Concurrent;
 using System.Net;
@@ -32,7 +31,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-    private readonly object Lock = new();
     private int dummyCount = 0;
 
     private readonly ParallelOptions parallelOptions = new()

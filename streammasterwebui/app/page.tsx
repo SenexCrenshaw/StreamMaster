@@ -1,10 +1,16 @@
-import { redirect } from 'next/navigation';
+import { isClient } from '@/lib/settings'
+import { redirect } from 'next/navigation'
 
 export default function IndexPage() {
-    redirect("/editor/playlist");
-    return (<div />);
+  if (isClient) {
+    console.log(window.location.pathname)
+  } else {
+    console.log('Server')
+  }
+
+  redirect('/editor/playlist')
 }
 
 export const metadata = {
-    title: 'Stream Master',
+  title: 'Stream Master',
 }

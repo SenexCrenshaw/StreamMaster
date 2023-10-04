@@ -1,15 +1,19 @@
 'use client'
-import StreamMasterSetting from '@/lib/StreamMasterSetting';
-import { getIconUrl } from '@/lib/common/common';
-import { IconFileDto, useIconsGetIconsSimpleQueryQuery, useIconsGetPagedIconsQuery } from '@/lib/iptvApi';
-import { GetIconFromSource } from '@/lib/smAPI/Icons/IconsGetAPI';
-import React, { useCallback } from 'react';
-import BaseSelector, { BaseSelectorProps } from './BaseSelector';
+import StreamMasterSetting from '@/lib/StreamMasterSetting'
+import { getIconUrl } from '@/lib/common/common'
+import {
+  IconFileDto,
+  useIconsGetIconsSimpleQueryQuery,
+  useIconsGetPagedIconsQuery,
+} from '@/lib/iptvApi'
+import { GetIconFromSource } from '@/lib/smAPI/Icons/IconsGetAPI'
+import React, { useCallback } from 'react'
+import BaseSelector, { BaseSelectorProps } from './BaseSelector'
 
 type IconSelectorProps = BaseSelectorProps<IconFileDto> & {
-  enableEditMode?: boolean;
-  useDefault?: boolean;
-};
+  enableEditMode?: boolean
+  useDefault?: boolean
+}
 
 const IconSelector: React.FC<Partial<IconSelectorProps>> = ({
   enableEditMode = true,
@@ -17,46 +21,50 @@ const IconSelector: React.FC<Partial<IconSelectorProps>> = ({
   onChange,
   ...restProps
 }) => {
-
-  const setting = StreamMasterSetting();
-
+  const setting = StreamMasterSetting()
 
   const selectedTemplate = (option: any) => {
+    const iconUrl = option?.source
+      ? getIconUrl(option.source, setting.defaultIcon, false)
+      : ''
 
-    const iconUrl = option?.source ? getIconUrl(option.source, setting.defaultIcon, false) : '';
-
-    if (!iconUrl) return <div />;
+    if (!iconUrl) return <div />
 
     return (
-      <div className='icon-template'>
-        <img alt='Icon logo' src={iconUrl} />
+      <div className="icon-template">
+        <img alt="Icon logo" src={iconUrl} />
       </div>
-    );
-  };
+    )
+  }
 
   const iconOptionTemplate = (option: IconFileDto): JSX.Element => {
-    const iconUrl = getIconUrl(option.source ?? '', setting.defaultIcon, false);
+    const iconUrl = getIconUrl(option.source ?? '', setting.defaultIcon, false)
 
-    if (useDefault !== true && !iconUrl) return <div />;
+    if (useDefault !== true && !iconUrl) return <div />
 
     return (
       <div className="icon-option-template">
         <img alt={option?.name || 'name'} src={iconUrl} />
         <div className="icon-option-name">{option?.name}</div>
       </div>
-    );
+    )
   }
 
-  const handleOnChange = useCallback((event: string) => {
-    if (event && onChange) onChange(event);
-  }, [onChange]);
+  const handleOnChange = useCallback(
+    (event: string) => {
+      if (event && onChange) onChange(event)
+    },
+    [onChange],
+  )
 
   if (!enableEditMode) {
-    const iconUrl = getIconUrl(restProps.value ?? '', setting.defaultIconUrl, false);
-
-    return (
-      <img alt='logo' className="default-icon" src={iconUrl} />
+    const iconUrl = getIconUrl(
+      restProps.value ?? '',
+      setting.defaultIconUrl,
+      false,
     )
+
+    return <img alt="logo" className="default-icon" src={iconUrl} />
   }
 
   return (
@@ -70,12 +78,12 @@ const IconSelector: React.FC<Partial<IconSelectorProps>> = ({
       queryFilter={useIconsGetPagedIconsQuery}
       queryHook={useIconsGetIconsSimpleQueryQuery}
       querySelectedItem={GetIconFromSource}
-      selectName='Icon'
+      selectName="Icon"
       selectedTemplate={selectedTemplate}
     />
-  );
-};
+  )
+}
 
-IconSelector.displayName = 'IconSelector';
+IconSelector.displayName = 'IconSelector'
 
-export default React.memo(IconSelector);
+export default React.memo(IconSelector)
