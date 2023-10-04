@@ -34,9 +34,6 @@ export const upload = async (
     case 'm3u':
       url = '/api/m3ufiles/createm3ufilefromform'
       break
-    // case 'icon':
-    //   url = '/api/icons/createiconfilefromform/'
-    //   break;
   }
 
   return await http.post(url, formData, {

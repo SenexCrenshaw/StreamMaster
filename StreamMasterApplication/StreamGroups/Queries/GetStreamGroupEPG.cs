@@ -148,7 +148,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
             return new TvChannel
             {
-                Id = videoStream.User_Tvg_ID,
+                Id = videoStream.User_Tvg_chno.ToString(),
                 Icon = new TvIcon { Src = logo ?? string.Empty },
                 Displayname = new List<string>
             {
@@ -160,7 +160,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         {
             return new TvChannel
             {
-                Id = videoStream.User_Tvg_ID,
+                Id = videoStream.User_Tvg_chno.ToString(),
                 Icon = new TvIcon { Src = logo ?? string.Empty },
                 Displayname = new List<string>
             {
@@ -196,7 +196,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         Programme prog = new()
         {
-            Channel = videoStream.User_Tvg_name,
+            Channel = videoStream.User_Tvg_chno.ToString(),
             Title = new TvTitle
             {
                 Lang = "en",
@@ -229,7 +229,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         {
             AdjustProgrammeIcons(prog, cachedIcons);
 
-            prog.Channel = videoStream.User_Tvg_ID;
+            prog.Channel = videoStream.User_Tvg_chno.ToString();
             if (string.IsNullOrEmpty(prog.New))
             {
                 prog.New = null;
