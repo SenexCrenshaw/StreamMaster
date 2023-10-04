@@ -1,7 +1,7 @@
 import BaseButton, { type ChildButtonProps } from './BaseButton'
 
 const XButton: React.FC<ChildButtonProps> = ({
-  disabled = true,
+  disabled = false,
   onClick,
   tooltip = 'Remove',
   iconFilled,

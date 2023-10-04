@@ -142,28 +142,28 @@ const EPGFilesDataSelector = () => {
 
       return (
         <div className="flex grid p-0 justify-content-end align-items-center">
-          {/* <div className="col-6 p-0 justify-content-end align-items-center"> */}
-          <Checkbox
-            checked={rowData.autoUpdate}
-            onChange={async (e: CheckboxChangeEvent) => {
-              await onEPGUpdateClick(rowData.id, e.checked ?? false)
-            }}
-            tooltip="Enable Auto Update"
-            tooltipOptions={getTopToolOptions}
-          />
+          <div className="col-6 p-0 justify-content-end align-items-center">
+            <Checkbox
+              checked={rowData.autoUpdate}
+              onChange={async (e: CheckboxChangeEvent) => {
+                await onEPGUpdateClick(rowData.id, e.checked ?? false)
+              }}
+              tooltip="Enable Auto Update"
+              tooltipOptions={getTopToolOptions}
+            />
 
-          <NumberEditorBodyTemplate
-            onChange={async (e) => {
-              await onEPGUpdateClick(rowData.id, null, e)
-            }}
-            suffix=" hours"
-            value={rowData.hoursToUpdate}
-          />
-          {/* </div>
-          <div className="col-6 p-0 justify-content-end align-items-center"> */}
-          <EPGFileRefreshDialog selectedFile={rowData} />
-          <EPGFileRemoveDialog selectedFile={rowData} />
-          {/* </div> */}
+            <NumberEditorBodyTemplate
+              onChange={async (e) => {
+                await onEPGUpdateClick(rowData.id, null, e)
+              }}
+              suffix=" hours"
+              value={rowData.hoursToUpdate}
+            />
+          </div>
+          <div className="col-6 p-0 justify-content-end align-items-center">
+            <EPGFileRefreshDialog selectedFile={rowData} />
+            <EPGFileRemoveDialog selectedFile={rowData} />
+          </div>
         </div>
       )
     },
