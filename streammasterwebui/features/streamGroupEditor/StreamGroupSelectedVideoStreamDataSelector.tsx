@@ -64,7 +64,11 @@ const StreamGroupSelectedVideoStreamDataSelector = ({
 
       return (
         <div className="flex p-0 justify-content-end align-items-center">
-          <VideoStreamSetAutoSetEPGDialog id={id} values={[data]} />
+          <VideoStreamSetAutoSetEPGDialog
+            skipOverLayer
+            id={id}
+            values={[data]}
+          />
           <VideoStreamRemoveFromStreamGroupDialog id={id} value={data} />
         </div>
       )
