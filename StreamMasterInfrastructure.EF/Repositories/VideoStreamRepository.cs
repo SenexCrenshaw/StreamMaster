@@ -900,18 +900,25 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
         return results;
     }
 
-    public static int GetMatchingScore(string userTvgName, string programmeName)
+    public int GetMatchingScore(string userTvgName, string programmeName)
     {
         int score = 0;
+
+        List<string> userTvgNameWords = userTvgName.Split(' ').ToList();
+        List<string> programmeNameWords = programmeName.Split(' ').ToList();
 
         // Direct match
         if (userTvgName.Contains(programmeName))
         {
-            score += 10;
+            score += 20;
         }
 
-        // Base name (before hyphen) match
-        string baseName = programmeName.Split('-')[0];
+        // Word intersection count
+        int intersectionCount = userTvgNameWords.Intersect(programmeNameWords).Count();
+        score += intersectionCount * 30; // Each intersecting word adds 30 to the score
+
+        // Base name (before hyphen or space) match
+        string baseName = programmeName.Split(new[] { '-', ' ' }, StringSplitOptions.RemoveEmptyEntries)[0];
         if (userTvgName.Contains(baseName))
         {
             score += 5;
