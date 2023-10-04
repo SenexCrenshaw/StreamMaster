@@ -94,8 +94,10 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         List<Programme> cachedProgrammes = MemoryCache.Programmes();
         List<IconFileDto> cachedIcons = MemoryCache.Icons();
 
+        List<Programme> hbo = cachedProgrammes.Where(a => a.Name.ToLower().Contains("hbo")).ToList();
+
         List<Programme> programmes = cachedProgrammes
-            .Where(a => a.StartDateTime > DateTime.Now.AddDays(-1) &&
+            .Where(a =>
                         a.Channel != null &&
                         (epgids.Contains(a.Channel) || epgids.Contains(a.DisplayName)))
             .ToList();
