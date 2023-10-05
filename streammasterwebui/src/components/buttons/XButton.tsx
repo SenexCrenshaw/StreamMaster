@@ -1,19 +1,21 @@
-import { type ChildButtonProps } from "./BaseButton";
-import BaseButton from "./BaseButton";
+import BaseButton, { type ChildButtonProps } from './BaseButton'
 
-
-const XButton: React.FC<ChildButtonProps> = ({ onClick, tooltip = 'Remove' }) => {
+const XButton: React.FC<ChildButtonProps> = ({
+  disabled = false,
+  onClick,
+  tooltip = 'Remove',
+  iconFilled,
+}) => {
   return (
     <BaseButton
+      disabled={disabled}
       icon="pi-times"
-      iconFilled={false}
-      isLeft
+      iconFilled={iconFilled}
       onClick={onClick}
-      rounded
       severity="danger"
       tooltip={tooltip}
     />
-  );
-};
+  )
+}
 
-export default XButton;
+export default XButton

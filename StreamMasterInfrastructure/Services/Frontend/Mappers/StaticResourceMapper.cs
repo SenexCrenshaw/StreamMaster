@@ -6,7 +6,7 @@ using StreamMasterDomain.Services;
 
 namespace StreamMasterInfrastructure.Services.Frontend.Mappers
 {
-    public class StaticResourceMapper(IAppFolderInfo appFolderInfo, ISettingsService settingsService, ILogger<StaticResourceMapper> logger) : StaticResourceMapperBase(logger)
+    public class StaticResourceMapper(IAppFolderInfo appFolderInfo, ISettingsService settingsService, ILogger<NextStaticResourceMapper> logger) : StaticResourceMapperBase(logger)
     {
         public override bool CanHandle(string resourceUrl)
         {

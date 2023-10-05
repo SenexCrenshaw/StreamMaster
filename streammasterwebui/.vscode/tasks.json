@@ -2,7 +2,7 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?LinkId=733558
   "version": "2.0.0",
   "tasks": [
-     {
+    {
       "label": "watcher",
       "type": "npm",
       "script": "watch",
@@ -67,9 +67,7 @@
       "label": "tsc",
       "type": "shell",
       "command": ".\\node_modules\\.bin\\tsc",
-      "args": [
-        "--noEmit"
-      ],
+      "args": ["--noEmit"],
       "presentation": {
         "reveal": "never",
         "echo": false,
@@ -91,17 +89,13 @@
     {
       "type": "docker-run",
       "label": "docker-run: release",
-      "dependsOn": [
-        "docker-build"
-      ],
+      "dependsOn": ["docker-build"],
       "platform": "node"
     },
     {
       "type": "docker-run",
       "label": "docker-run: debug",
-      "dependsOn": [
-        "docker-build"
-      ],
+      "dependsOn": ["docker-build"],
       "dockerRun": {
         "env": {
           "DEBUG": "*",

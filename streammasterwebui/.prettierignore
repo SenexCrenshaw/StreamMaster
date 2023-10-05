@@ -1,1 +1,7 @@
-**
+# Build artifacts
+.next/
+.turbo/
+_next/
+__tmp__/
+build/
+node_modules/

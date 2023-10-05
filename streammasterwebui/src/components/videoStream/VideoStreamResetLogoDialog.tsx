@@ -1,58 +1,51 @@
-import { memo, useCallback } from "react";
-import { UpdateVideoStream } from "../../smAPI/VideoStreams/VideoStreamsMutateAPI";
-import { type UpdateVideoStreamRequest, type VideoStreamDto } from "../../store/iptvApi";
-import ResetButton from "../buttons/ResetButton";
+import {
+  type UpdateVideoStreamRequest,
+  type VideoStreamDto,
+} from '@/lib/iptvApi'
+import { UpdateVideoStream } from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI'
+import { memo, useCallback } from 'react'
+import ResetButton from '../buttons/ResetButton'
 
 const VideoStreamResetLogoDialog = (props: VideoStreamResetLogoDialogProps) => {
-
   const ReturnToParent = useCallback(() => {
-    props.onClose?.();
-  }, [props]);
+    props.onClose?.()
+  }, [props])
 
   const onResetLogo = useCallback(async () => {
-
     if (props.value === undefined || props.value.id === undefined) {
-      ReturnToParent();
+      ReturnToParent()
 
-      return;
+      return
     }
 
-    const toSend = {} as UpdateVideoStreamRequest;
+    const toSend = {} as UpdateVideoStreamRequest
 
-    toSend.id = props.value?.id;
-    toSend.tvg_logo = props.value.tvg_logo;
+    toSend.id = props.value?.id
+    toSend.tvg_logo = props.value.tvg_logo
 
     await UpdateVideoStream(toSend)
-      .then(() => {
-
-      }
-      ).catch(() => {
-
-      });
-
-  }, [ReturnToParent, props.value]);
+      .then(() => {})
+      .catch(() => {})
+  }, [ReturnToParent, props.value])
 
   return (
     <ResetButton
-      disabled={!props.value || props.value.tvg_logo === props.value.user_Tvg_logo}
-      iconFilled={props.iconFilled}
-      onClick={async () =>
-        await onResetLogo()
+      disabled={
+        !props.value || props.value.tvg_logo === props.value.user_Tvg_logo
       }
+      iconFilled={props.iconFilled}
+      onClick={async () => await onResetLogo()}
       tooltip="Reset Logo"
     />
-
-  );
+  )
 }
 
-VideoStreamResetLogoDialog.displayName = 'VideoStreamResetLogoDialog';
-VideoStreamResetLogoDialog.defaultProps = {
-}
+VideoStreamResetLogoDialog.displayName = 'VideoStreamResetLogoDialog'
 
 type VideoStreamResetLogoDialogProps = {
-  readonly iconFilled?: boolean | undefined;
-  readonly onClose?: (() => void);
-  readonly value?: VideoStreamDto | undefined;
-};
+  readonly iconFilled?: boolean | undefined
+  readonly onClose?: () => void
+  readonly value?: VideoStreamDto | undefined
+}
 
-export default memo(VideoStreamResetLogoDialog);
+export default memo(VideoStreamResetLogoDialog)

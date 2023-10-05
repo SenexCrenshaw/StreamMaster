@@ -23,6 +23,10 @@ public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mime
     public async Task<IActionResult> GetFile(string source, SMFileTypes filetype, CancellationToken cancellationToken)
     {
         string sourceDecoded = HttpUtility.UrlDecode(source);
+        if (source == "noimage.png")
+        {
+            return Redirect("/images/default.png");
+        }
 
         (byte[]? image, string? fileName) = await GetCacheEntryAsync(sourceDecoded, filetype, cancellationToken).ConfigureAwait(false);
         if (image == null || fileName == null)

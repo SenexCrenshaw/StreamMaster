@@ -1,9 +1,9 @@
-import { Button } from "primereact/button";
-import { memo } from "react";
-import { getTopToolOptions } from "../../common/common";
+import { getTopToolOptions } from '@/lib/common/common'
+import { Button } from 'primereact/button'
+import { memo } from 'react'
 
 type ExportButtonProps = {
-  exportCSV: () => void;
+  exportCSV: () => void
 }
 
 const ExportButton: React.FC<ExportButtonProps> = ({ exportCSV }) => {
@@ -18,7 +18,7 @@ const ExportButton: React.FC<ExportButtonProps> = ({ exportCSV }) => {
       tooltipOptions={getTopToolOptions}
       type="button"
     />
-  );
+  )
 }
 
-export default memo(ExportButton);
+export default memo(ExportButton)

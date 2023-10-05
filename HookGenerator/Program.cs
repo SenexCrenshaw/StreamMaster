@@ -1,17 +1,16 @@
-﻿using System.Net.Sockets;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 internal class Program
 {
     private static readonly List<string> blackList = new() { "programmesGetProgramme", "programmesGetProgrammeChannels", "programmesGetProgrammes", "programmesGetProgrammeFromDisplayName", "schedulesDirectGetHeadends", "schedulesDirectGetSchedules", "schedulesDirectGetStations", "videoStreamsGetAllStatisticsForAllUrls", "streamGroupVideoStreamsGetStreamGroupVideoStreamIds" };
     private static readonly Dictionary<string, string> overRideArgs = new() { { "GetIconFromSource", "StringArg" } };
-    private static readonly Dictionary<string, string> additionalImports = new() { { "Icons", "import { type StringArg } from \"../../components/selectors/BaseSelector\";" } };
+    private static readonly Dictionary<string, string> additionalImports = new() { { "Icons", "import { type StringArg } from '@/src/components/selectors/BaseSelector';" } };
 
 
     private const string SwaggerUrl = "http://127.0.0.1:7095/swagger/v1/swagger.json";
     private const string LocalFileName = "swagger.json";
-    private const string OutputDir = @"..\..\..\..\StreamMasterwebui\src\smAPI";
+    private const string OutputDir = @"..\..\..\..\StreamMasterwebui\lib\smAPI";
     private static readonly Dictionary<string, StringBuilder> tagToGetContentMap = new();
     private static readonly Dictionary<string, StringBuilder> tagToMutateContentMap = new();
     private static readonly Dictionary<string, Dictionary<string, string>> getMethodResponseTypes = new();
@@ -65,9 +64,10 @@ internal class Program
                             {
                                 tagToGetContentMap[tag] = new StringBuilder();
                                 // Add imports at the start of each new file's content
-                                tagToGetContentMap[tag].AppendLine("import { hubConnection } from \"../../app/signalr\";");
-                                tagToGetContentMap[tag].AppendLine("import { isDebug } from \"../../settings\";");
-                                tagToGetContentMap[tag].AppendLine("import type * as iptv from \"../../store/iptvApi\";");
+                                tagToGetContentMap[tag].AppendLine("/* eslint unused-imports/no-unused-imports-ts: off */");
+                                tagToGetContentMap[tag].AppendLine("/* eslint @typescript-eslint/no-unused-vars: off */");
+                                tagToGetContentMap[tag].AppendLine("import { invokeHubConnection } from '@/lib/signalr/signalr';");
+                                tagToGetContentMap[tag].AppendLine("import type * as iptv from '@/lib/iptvApi';");
                                 if (additionalImports.ContainsKey(tag))
                                 {
                                     tagToGetContentMap[tag].AppendLine(additionalImports[tag]);
@@ -100,9 +100,10 @@ internal class Program
                             {
                                 tagToMutateContentMap[tag] = new StringBuilder();
                                 // Add imports at the start of each new file's content
-                                tagToMutateContentMap[tag].AppendLine("import { hubConnection } from \"../../app/signalr\";");
-                                tagToMutateContentMap[tag].AppendLine("import { isDebug } from \"../../settings\";");
-                                tagToMutateContentMap[tag].AppendLine("import type * as iptv from \"../../store/iptvApi\";\r\n");
+                                tagToMutateContentMap[tag].AppendLine("/* eslint unused-imports/no-unused-imports-ts: off */");
+                                tagToMutateContentMap[tag].AppendLine("/* eslint @typescript-eslint/no-unused-vars: off */");
+                                tagToMutateContentMap[tag].AppendLine("import { invokeHubConnection } from '@/lib/signalr/signalr';");
+                                tagToMutateContentMap[tag].AppendLine("import type * as iptv from '@/lib/iptvApi';\r\n");
                             }
                             contentToUse = tagToMutateContentMap[tag];
                         }
@@ -110,17 +111,21 @@ internal class Program
                         {
                             argType = overRideArgs[functionName];
                         }
-                        contentToUse.AppendLine($"export const {functionName} = async {(argType != null ? $"(arg: {argType})" : "()")}: Promise<{responseType}> => {{");
-                        contentToUse.AppendLine($"  if (isDebug) console.log('{functionName}');");
+                        contentToUse.AppendLine($"export const {functionName} = async {(argType != null ? $"(arg: {argType})" : "()")}: Promise<{responseType} | null> => {{");
+                        //contentToUse.AppendLine($"  if (hubConnection.state === 'Connected') {{");
+                        //contentToUse.AppendLine($"    if (isDev) console.log('{functionName}');");
                         if (responseType != "void")
                         {
-                            contentToUse.AppendLine($"  const data = await hubConnection.invoke('{functionName}'{(argType != null ? ", arg" : "")});");                           
-                            contentToUse.AppendLine($"  return data;");
+                            contentToUse.AppendLine($"    return await invokeHubConnection<{responseType}> ('{functionName}'{(responseType != "void" ? ", arg" : "")});");
+                            //contentToUse.AppendLine($"    const data = await hubConnection.invoke('{functionName}'{(argType != null ? ", arg" : "")});");
+                            //contentToUse.AppendLine($"    return data;");
                         }
                         else
                         {
-                            contentToUse.AppendLine($"  await hubConnection.invoke('{functionName}'{(argType != null ? ", arg" : "")});");
+                            //contentToUse.AppendLine($"    await hubConnection.invoke('{functionName}'{(argType != null ? ", arg" : "")});");
+                            contentToUse.AppendLine($"    await invokeHubConnection<void> ('{functionName}'{(argType != null ? ", arg" : "")});");
                         }
+                        //contentToUse.AppendLine("  };\r\n");
                         contentToUse.AppendLine("};\r\n");
                     }
                 }
@@ -144,7 +149,7 @@ internal class Program
     {
         return IsPaged(responseType) || IsArray(responseType);
     }
-    private static string GetUpdateFunction(string endpointName,string argType, string responseType,string tag)
+    private static string GetUpdateFunction(string endpointName, string argType, string responseType, string tag)
     {
 
         List<string> args = getMethodArgTypes.SelectMany(kv => kv.Value.Keys).ToList();
@@ -155,13 +160,13 @@ internal class Program
         if (IsPagedOrIsArray(responseType))
         {
             ret.AppendLine($"            if (!data || isEmptyObject(data)) {{");
-            ret.AppendLine($"              console.log('empty', data);");
+            ret.AppendLine($"              if (isDev) console.log('empty', data);");
             ret.AppendLine($"              dispatch(iptvApi.util.invalidateTags(['{tag}']));");
             ret.AppendLine($"              return;");
             ret.AppendLine($"            }}");
             ret.AppendLine();
             ret.AppendLine($"            updateCachedData(() => {{");
-            //ret.AppendLine($"              console.log('updateCachedData', data);");
+            //ret.AppendLine($"              if (isDev) console.log('updateCachedData', data);");
             ret.AppendLine($"              for (const {{ endpointName, originalArgs }} of iptvApi.util.selectInvalidatedBy(getState(), [{{ type: '{tag}' }}])) {{");
             ret.AppendLine($"                if (endpointName !== '{endpointName}') continue;");
             ret.AppendLine($"                  dispatch(");
@@ -172,7 +177,7 @@ internal class Program
             ret.AppendLine($"                        const index = {draft}.findIndex(existingItem => existingItem.id === item.id);");
             ret.AppendLine($"                        if (index !== -1) {{");
             ret.AppendLine($"                          {draft}[index] = item;");
-            ret.AppendLine($"                        }}");            
+            ret.AppendLine($"                        }}");
             ret.AppendLine($"                        }});");
             ret.AppendLine();
             ret.AppendLine($"                        return draft;");
@@ -197,16 +202,16 @@ internal class Program
             return ret.ToString();
         }
         ret.AppendLine($"            updateCachedData(() => {{");
-        ret.AppendLine($"              console.log('updateCachedData', data);");
+        ret.AppendLine($"              if (isDev) console.log('updateCachedData', data);");
         ret.AppendLine($"              for (const {{ endpointName, originalArgs }} of iptvApi.util.selectInvalidatedBy(getState(), [{{ type: '{tag}' }}])) {{");
         ret.AppendLine($"                if (endpointName !== '{endpointName}') continue;");
         ret.AppendLine($"                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{");
-        ret.AppendLine($"                    console.log('updateCachedData', data, draft);");
+        ret.AppendLine($"                    if (isDev) console.log('updateCachedData', data, draft);");
         ret.AppendLine($"                   }})");
         ret.AppendLine($"                   );");
         ret.AppendLine($"                 }}");
         ret.AppendLine();
-        
+
         return ret.ToString();
     }
     private static Dictionary<string, StringBuilder> BuildEnhanced()
@@ -218,11 +223,12 @@ internal class Program
 
             StringBuilder rtkContent = new();
 
-            rtkContent.AppendLine($"import {{ {singleTon} }} from '../../app/createSingletonListener';");            
-            rtkContent.AppendLine($"import {{ isEmptyObject }} from '../../common/common';");
-            rtkContent.AppendLine($"import isPagedTableDto from '../../components/dataSelector/isPagedTableDto';");
-            rtkContent.AppendLine($"import {{ iptvApi }} from '../../store/iptvApi';");
-            rtkContent.AppendLine($"import type * as iptv from '../../store/iptvApi';");
+            rtkContent.AppendLine("import { isDev } from '@/lib/settings';");
+            rtkContent.AppendLine($"import {{ {singleTon} }} from '@/lib/signalr/singletonListeners';");
+            rtkContent.AppendLine($"import {{ isEmptyObject }} from '@/lib/common/common';");
+            rtkContent.AppendLine($"import isPagedTableDto from '@/lib/common/isPagedTableDto';");
+            rtkContent.AppendLine($"import {{ iptvApi }} from '@/lib/iptvApi';");
+            rtkContent.AppendLine($"import type * as iptv from '@/lib/iptvApi';");
             rtkContent.AppendLine();
             rtkContent.AppendLine($"export const enhancedApi{ConvertToTypeScriptPascalCase(tag)} = iptvApi.enhanceEndpoints({{");
             rtkContent.AppendLine($"  endpoints: {{");
@@ -252,8 +258,8 @@ internal class Program
                 //arg = getMethodArgTypes[tag][getMethod];
 
                 anyToWrite = true;
-                string updateFunction = GetUpdateFunction(name,arg, responseType,tag);
-            
+                string updateFunction = GetUpdateFunction(name, arg, responseType, tag);
+
                 rtkContent.AppendLine($"    {name}: {{");
                 rtkContent.AppendLine($"      async onCacheEntryAdded(api, {{ dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }}) {{");
                 rtkContent.AppendLine($"        try {{");
@@ -265,7 +271,7 @@ internal class Program
                 //rtkContent.AppendLine($"              return draft;");
                 rtkContent.AppendLine($"            }});");
                 rtkContent.AppendLine($"          }};");
-                rtkContent.AppendLine();              
+                rtkContent.AppendLine();
                 rtkContent.AppendLine($"         {singleTon}.addListener(updateCachedDataWithResults);");
                 rtkContent.AppendLine();
                 rtkContent.AppendLine($"        await cacheEntryRemoved;");

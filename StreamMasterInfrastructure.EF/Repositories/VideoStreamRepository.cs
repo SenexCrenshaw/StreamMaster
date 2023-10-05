@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using NetTopologySuite.Operation.Valid;
-
 using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.Icons.Queries;
 using StreamMasterApplication.M3UFiles.Queries;
@@ -19,10 +17,10 @@ using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
+using StreamMasterDomain.EPG;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 
-using System.Collections.Generic;
 using System.Linq.Dynamic.Core;
 
 namespace StreamMasterInfrastructureEF.Repositories;
@@ -585,7 +583,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
         }
 
         _ = await repositoryContext.SaveChangesAsync(cancellationToken);
-        foreach (var r in result)
+        foreach (VideoStream r in result)
         {
             r.IsHidden = !r.IsHidden;
         }
@@ -853,5 +851,91 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
     public IQueryable<VideoStream> GetVideoStreamQuery()
     {
         return FindAll();
+    }
+    private async Task<List<VideoStreamDto>> AutoSetEPGs(IQueryable<VideoStream> videoStreams, CancellationToken cancellationToken)
+    {
+        List<Programme> programmes = memoryCache.Programmes();
+        List<ChannelNamePair> distinctChannelAndNames = programmes
+            .Select(p => new ChannelNamePair { Channel = p.Channel, Name = p.Name })
+            .Distinct()
+            .ToList();
+
+        Setting setting = await settingsService.GetSettingsAsync();
+
+        List<VideoStreamDto> results = new();
+        //List<VideoStream> videoStreams = await FindByCondition(a => ids.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        foreach (VideoStream videoStream in videoStreams)
+        {
+
+            var scoredMatches = distinctChannelAndNames
+                 .Select(p => new
+                 {
+                     ChannelName = p,
+                     Score = GetMatchingScore(videoStream.User_Tvg_name, p.Name)
+                 })
+                 .Where(x => x.Score > 0) // Filter out non-matches
+                 .OrderByDescending(x => x.Score) // Sort by score in descending order
+                 .ToList();
+
+            if (scoredMatches.Any())
+            {
+                videoStream.User_Tvg_ID = scoredMatches[0].ChannelName.Channel;
+                if (setting.VideoStreamAlwaysUseEPGLogo)
+                {
+                    string? logoUrl = memoryCache.GetEPGChannelLogoByTvgId(videoStream.User_Tvg_ID);
+                    if (logoUrl != null)
+                    {
+                        videoStream.User_Tvg_logo = logoUrl;
+                    }
+                }
+                UpdateVideoStream(videoStream);
+                results.Add(mapper.Map<VideoStreamDto>(videoStream));
+            }
+        }
+        if (results.Any())
+        {
+            await repositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        }
+        return results;
+    }
+
+    public int GetMatchingScore(string userTvgName, string programmeName)
+    {
+        int score = 0;
+
+        List<string> userTvgNameWords = userTvgName.Split(' ').ToList();
+        List<string> programmeNameWords = programmeName.Split(' ').ToList();
+
+        // Direct match
+        if (userTvgName.Contains(programmeName))
+        {
+            score += 20;
+        }
+
+        // Word intersection count
+        int intersectionCount = userTvgNameWords.Intersect(programmeNameWords).Count();
+        score += intersectionCount * 30; // Each intersecting word adds 30 to the score
+
+        // Base name (before hyphen or space) match
+        string baseName = programmeName.Split(new[] { '-', ' ' }, StringSplitOptions.RemoveEmptyEntries)[0];
+        if (userTvgName.Contains(baseName))
+        {
+            score += 5;
+        }
+
+        return score;
+    }
+
+    public async Task<List<VideoStreamDto>> AutoSetEPGFromIds(List<string> ids, CancellationToken cancellationToken)
+    {
+        IQueryable<VideoStream> videoStreams = FindByCondition(a => ids.Contains(a.Id));
+        return await AutoSetEPGs(videoStreams, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<List<VideoStreamDto>> AutoSetEPGFromParameters(VideoStreamParameters Parameters, List<string> ids, CancellationToken cancellationToken)
+    {
+        IQueryable<VideoStream> videoStreams = GetIQueryableForEntity(Parameters);
+        return await AutoSetEPGs(videoStreams, cancellationToken).ConfigureAwait(false);
     }
 }

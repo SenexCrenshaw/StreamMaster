@@ -1,6 +1,11 @@
-import BaseButton, { type ChildButtonProps } from "./BaseButton";
+import BaseButton, { type ChildButtonProps } from './BaseButton'
 
-const BanButton: React.FC<ChildButtonProps> = ({ className, disabled = false, onClick, tooltip = "" }) => {
+const BanButton: React.FC<ChildButtonProps> = ({
+  className,
+  disabled = false,
+  onClick,
+  tooltip = '',
+}) => {
   return (
     <BaseButton
       className={className}
@@ -10,7 +15,7 @@ const BanButton: React.FC<ChildButtonProps> = ({ className, disabled = false, on
       onClick={onClick}
       tooltip={tooltip}
     />
-  );
-};
+  )
+}
 
-export default BanButton;
+export default BanButton

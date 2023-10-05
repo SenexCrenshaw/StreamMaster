@@ -1,7 +1,11 @@
-import { type ChildButtonProps } from "./BaseButton";
-import BaseButton from "./BaseButton";
+import { type ChildButtonProps } from './BaseButton'
+import BaseButton from './BaseButton'
 
-const RightArrowButton: React.FC<ChildButtonProps> = ({ disabled = false, onClick, tooltip = 'Add' }) => {
+const RightArrowButton: React.FC<ChildButtonProps> = ({
+  disabled = false,
+  onClick,
+  tooltip = 'Add',
+}) => {
   return (
     <BaseButton
       disabled={disabled}
@@ -11,7 +15,7 @@ const RightArrowButton: React.FC<ChildButtonProps> = ({ disabled = false, onClic
       severity="success"
       tooltip={tooltip}
     />
-  );
-};
+  )
+}
 
-export default RightArrowButton;
+export default RightArrowButton

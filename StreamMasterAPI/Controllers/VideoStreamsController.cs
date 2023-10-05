@@ -99,6 +99,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [Authorize(Policy = "SGLinks")]
     [HttpGet]
+    [HttpHead]
     [Route("stream/{encodedIds}")]
     [Route("stream/{encodedIds}.mp4")]
     [Route("stream/{encodedIds}/{name}")]
@@ -257,6 +258,22 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     [HttpPost]
     [Route("[action]")]
     public async Task<IActionResult> SimulateStreamFailure(SimulateStreamFailureRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
+    }
+
+    [HttpPatch]
+    [Route("[action]")]
+    public async Task<IActionResult> AutoSetEPG(AutoSetEPGRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
+    }
+
+    [HttpPatch]
+    [Route("[action]")]
+    public async Task<IActionResult> AutoSetEPGFromParameters(AutoSetEPGFromParametersRequest request)
     {
         await Mediator.Send(request).ConfigureAwait(false);
         return Ok();

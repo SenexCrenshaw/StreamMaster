@@ -24,8 +24,12 @@ WORKDIR "/src/StreamMasterAPI"
 #RUN if [ "$ENV" = "debug" ] ; then dotnet build "StreamMasterAPI.csproj" -c Debug -o /app/build; else dotnet build "StreamMasterAPI.csproj" -c Release -o /app/build; fi
 RUN dotnet build "StreamMasterAPI.csproj" -c Debug -o /app/build -a $TARGETARCH
 # installs NodeJS and NPM
-RUN apt-get update -yq && apt-get upgrade -yq && apt-get install -yq curl git nano
-RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - && apt-get install -yq nodejs build-essential
+RUN apt-get update -yq && apt-get upgrade -yq && apt-get install -yq ca-certificates curl gnupg git nano
+
+RUN mkdir -p /etc/apt/keyrings
+RUN curl -sL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key |  gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" |  tee /etc/apt/sources.list.d/nodesource.list
+RUN apt-get update && apt-get install -yq nodejs build-essential
 WORKDIR /src
 COPY ["streammasterwebui/", "streammasterwebui/"]
 WORKDIR "/src/streammasterwebui"

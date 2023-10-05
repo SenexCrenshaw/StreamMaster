@@ -1,6 +1,12 @@
-import BaseButton, { type ChildButtonProps } from "./BaseButton";
+import BaseButton, { type ChildButtonProps } from './BaseButton'
 
-const VisibleButton: React.FC<ChildButtonProps> = ({ disabled = false, iconFilled = true, label, onClick, tooltip = "Toggle Visibility" }) => {
+const VisibleButton: React.FC<ChildButtonProps> = ({
+  disabled = false,
+  iconFilled = true,
+  label,
+  onClick,
+  tooltip = 'Toggle Visibility',
+}) => {
   return (
     <BaseButton
       disabled={disabled}
@@ -10,7 +16,7 @@ const VisibleButton: React.FC<ChildButtonProps> = ({ disabled = false, iconFille
       onClick={onClick}
       tooltip={tooltip}
     />
-  );
-};
+  )
+}
 
-export default VisibleButton;
+export default VisibleButton

@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using StreamMasterApplication.Common.Extensions;
 
 using StreamMasterDomain.EPG;
-using StreamMasterDomain.Models;
 
 using System.Collections.Concurrent;
 using System.Net;
@@ -32,7 +31,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-    private readonly object Lock = new();
     private int dummyCount = 0;
 
     private readonly ParallelOptions parallelOptions = new()
@@ -93,8 +91,9 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     {
         HashSet<string> epgids = new(videoStreams.Where(a => !a.IsHidden).Select(r => r.User_Tvg_ID));
 
-        List<Programme> cachedProgrammes = MemoryCache.Programmes();
-        List<IconFileDto> cachedIcons = MemoryCache.Icons();
+        List<Programme> cachedProgrammes = MemoryCache.Programmes().ToList().DeepCopy();
+
+        List<IconFileDto> cachedIcons = MemoryCache.Icons().ToList();
 
         List<Programme> programmes = cachedProgrammes
             .Where(a => a.StartDateTime > DateTime.Now.AddDays(-1) &&
@@ -107,6 +106,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         ConcurrentBag<TvChannel> retChannels = new();
         ConcurrentBag<Programme> retProgrammes = new();
         Setting setting = await GetSettingsAsync();
+
         Parallel.ForEach(videoStreams, parallelOptions, videoStream =>
         {
             TvChannel? tvChannel = CreateTvChannel(videoStream, setting);
@@ -124,8 +124,8 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         return new Tv
         {
-            Channel = retChannels.ToList(),
-            Programme = retProgrammes.ToList()
+            Channel = retChannels.OrderBy(a => int.Parse(a.Id)).ToList(),
+            Programme = retProgrammes.OrderBy(a => int.Parse(a.Channel)).ThenBy(a => a.StartDateTime).ToList()
         };
     }
 
@@ -150,7 +150,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
             return new TvChannel
             {
-                Id = videoStream.User_Tvg_ID,
+                Id = videoStream.User_Tvg_chno.ToString(),
                 Icon = new TvIcon { Src = logo ?? string.Empty },
                 Displayname = new List<string>
             {
@@ -162,7 +162,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         {
             return new TvChannel
             {
-                Id = videoStream.User_Tvg_ID,
+                Id = videoStream.User_Tvg_chno.ToString(),
                 Icon = new TvIcon { Src = logo ?? string.Empty },
                 Displayname = new List<string>
             {
@@ -198,7 +198,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         Programme prog = new()
         {
-            Channel = videoStream.User_Tvg_name,
+            Channel = videoStream.User_Tvg_chno.ToString(),
             Title = new TvTitle
             {
                 Lang = "en",
@@ -231,7 +231,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         {
             AdjustProgrammeIcons(prog, cachedIcons);
 
-            prog.Channel = videoStream.User_Tvg_ID;
+            prog.Channel = videoStream.User_Tvg_chno.ToString();
             if (string.IsNullOrEmpty(prog.New))
             {
                 prog.New = null;

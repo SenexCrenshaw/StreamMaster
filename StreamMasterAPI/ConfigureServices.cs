@@ -20,6 +20,7 @@ using StreamMasterApplication.Common.Logging;
 using StreamMasterApplication.Hubs;
 using StreamMasterApplication.Services;
 
+using StreamMasterDomain.Enums;
 using StreamMasterDomain.EnvironmentInfo;
 using StreamMasterDomain.Logging;
 
@@ -66,7 +67,7 @@ public static class ConfigureServices
         {
             options.AddPolicy("DevPolicy",
                 builder =>
-            builder
+                builder
                 .WithOrigins("http://localhost:3000")
                 .AllowAnyMethod()
                 .AllowAnyHeader()
@@ -75,14 +76,17 @@ public static class ConfigureServices
 
             options.AddPolicy(VersionedApiControllerAttribute.API_CORS_POLICY,
                 builder =>
-                builder.AllowAnyOrigin()
+                builder
+                .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader());
 
             options.AddPolicy("AllowGet",
                 builder =>
-                builder.AllowAnyOrigin()
-                .WithMethods("GET", "OPTIONS")
+                builder
+                .AllowAnyOrigin()
+                //.WithMethods("GET", "OPTIONS")
+                .AllowAnyMethod()
                 .AllowAnyHeader());
         });
 
@@ -159,7 +163,7 @@ public static class ConfigureServices
             });
 
             // Require auth on everything except those marked [AllowAnonymous]
-            options.FallbackPolicy = new AuthorizationPolicyBuilder("API")
+            options.FallbackPolicy = new AuthorizationPolicyBuilder(AuthenticationType.Forms.ToString(), "API")
             .RequireAuthenticatedUser()
             .Build();
         });

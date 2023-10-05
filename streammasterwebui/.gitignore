@@ -4,8 +4,13 @@
 /node_modules
 /.pnp
 .pnp.js
-
+package-lock.json
 /**/.streammaster
+
+# next.js
+/.next/
+/build/
+/out/
 
 # Environments
 .env
@@ -28,6 +33,8 @@ venv-*/
 .idea/**/dataSources.xml
 .idea/**/dataSources.local.xml
 .idea/**/dynamic.xml
+
+.env*.local
 
 # testing
 /coverage

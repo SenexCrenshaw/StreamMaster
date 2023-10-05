@@ -1,31 +1,30 @@
 {
-  "prettier.enable": false,
+  "prettier.enable": true,
   "explorer.confirmDelete": true,
   "editor.formatOnSave": true,
   // "typescript.updateImportsOnFileMove.enabled": "always",
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   // "prettier.ignorePath": ".prettierignore",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
-    "source.fixAll": true,
-    "source.organizeImports": true,
-    "source.sortMembers": true
+    // "source.fixAll.eslint": true,
+    // "source.fixAll": true,
+    // "source.organizeImports": true,
+    // "source.sortMembers": true
     // "source.organizeImports": true
   },
   "[json]": {
-    // "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[javascript]": {
-    // "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
   },
   "[typescript]": {
-    // "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
   },
   "[typescriptreact]": {
-    // "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
   },
   "eslint.validate": [
@@ -39,9 +38,11 @@
     "typescriptreact",
     "yaml"
   ],
-  "html.customData": [
-    "./node_modules/vidstack/vscode.html-data.json"
-  ]
+  "html.customData": ["./node_modules/vidstack/vscode.html-data.json"],
+  "bookmarks.useWorkaroundForFormatters": true,
+  "prettier.jsxSingleQuote": true,
+  "prettier.singleQuote": true,
+  "prettier.singleAttributePerLine": true
   // "eslint.trace.server": "verbose",
   // "eslint.debug": "true"
 }
