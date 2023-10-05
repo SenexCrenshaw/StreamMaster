@@ -192,6 +192,7 @@ public static class CacheKeys
 
     public static ProgrammeNameDto? GetEPGChannelByDisplayName(this IMemoryCache cache, string displayName)
     {
+
         IEnumerable<ProgrammeNameDto> programmeNames = cache.ProgrammeNames();
 
         ProgrammeNameDto? pn = programmeNames.FirstOrDefault(a => a.DisplayName == displayName);
@@ -200,7 +201,7 @@ public static class CacheKeys
             pn = programmeNames.FirstOrDefault(a => a.ChannelName == displayName);
             if (pn == null)
             {
-                return null;
+                return programmeNames.FirstOrDefault(a => a.Channel == displayName); ;
             }
         }
         return pn;
