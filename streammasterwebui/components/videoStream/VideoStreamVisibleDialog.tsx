@@ -4,14 +4,14 @@ import {
   type VideoStreamDto,
   type VideoStreamsUpdateAllVideoStreamsFromParametersApiArg,
 } from '@/lib/iptvApi'
+import { useQueryFilter } from '@/lib/redux/slices/useQueryFilter'
+import { useSelectAll } from '@/lib/redux/slices/useSelectAll'
+import { useSelectedVideoStreams } from '@/lib/redux/slices/useSelectedVideoStreams'
 import {
   UpdateAllVideoStreamsFromParameters,
   UpdateVideoStreams,
 } from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
-import { useQueryFilter } from '../../../lib/redux/slices/useQueryFilter'
-import { useSelectAll } from '../../../lib/redux/slices/useSelectAll'
-import { useSelectedVideoStreams } from '../../../lib/redux/slices/useSelectedVideoStreams'
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog'
 import VisibleButton from '../buttons/VisibleButton'
 

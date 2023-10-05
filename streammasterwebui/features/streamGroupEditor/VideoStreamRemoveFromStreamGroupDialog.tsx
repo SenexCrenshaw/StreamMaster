@@ -1,10 +1,10 @@
+import XButton from '@/components/buttons/XButton'
 import {
   StreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteApiArg,
   VideoStreamDto,
   useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteMutation,
 } from '@/lib/iptvApi'
 import { useSelectedStreamGroup } from '@/lib/redux/slices/useSelectedStreamGroup'
-import XButton from '@/src/components/buttons/XButton'
 import { memo } from 'react'
 
 type VideoStreamRemoveFromStreamGroupDialogProps = {

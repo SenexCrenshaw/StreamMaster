@@ -1,4 +1,5 @@
 'use client'
+import MenuItemSM from '@/components/MenuItemSM'
 import StreamMasterSetting from '@/lib/StreamMasterSetting'
 import {
   FilesEditorIcon,
@@ -12,7 +13,6 @@ import {
   StreamingStatusIcon,
 } from '@/lib/common/icons'
 import { useSettingsGetSettingQuery } from '@/lib/iptvApi'
-import MenuItemSM from '@/src/components/MenuItemSM'
 import { useLocalStorage } from 'primereact/hooks'
 import { Tooltip } from 'primereact/tooltip'
 import React from 'react'

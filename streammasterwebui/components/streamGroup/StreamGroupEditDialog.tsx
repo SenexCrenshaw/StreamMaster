@@ -6,7 +6,7 @@ import { InputText } from 'primereact/inputtext'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog'
 
-import { useSelectedStreamGroup } from '../../../lib/redux/slices/useSelectedStreamGroup'
+import { useSelectedStreamGroup } from '@/lib/redux/slices/useSelectedStreamGroup'
 
 import StreamGroupChannelGroupsSelector from '@/features/streamGroupEditor/StreamGroupChannelGroupsSelector'
 import { UpdateStreamGroup } from '@/lib/smAPI/StreamGroups/StreamGroupsMutateAPI'

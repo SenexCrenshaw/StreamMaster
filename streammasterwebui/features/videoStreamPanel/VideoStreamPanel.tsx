@@ -1,3 +1,8 @@
+import ChannelHandlerSelector from '@/components/ChannelHandlerSelector'
+import AddButton from '@/components/buttons/AddButton'
+import ChannelGroupSelector from '@/components/channelGroups/ChannelGroupSelector'
+import EPGSelector from '@/components/selectors/EPGSelector'
+import IconSelector from '@/components/selectors/IconSelector'
 import StreamMasterSetting from '@/lib/StreamMasterSetting'
 import { getIconUrl } from '@/lib/common/common'
 import {
@@ -6,11 +11,6 @@ import {
   VideoStreamDto,
   VideoStreamHandlers,
 } from '@/lib/iptvApi'
-import ChannelHandlerSelector from '@/src/components/ChannelHandlerSelector'
-import AddButton from '@/src/components/buttons/AddButton'
-import ChannelGroupSelector from '@/src/components/channelGroups/ChannelGroupSelector'
-import EPGSelector from '@/src/components/selectors/EPGSelector'
-import IconSelector from '@/src/components/selectors/IconSelector'
 import { Accordion, AccordionTab } from 'primereact/accordion'
 import { InputNumber } from 'primereact/inputnumber'
 import { InputText } from 'primereact/inputtext'

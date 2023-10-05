@@ -3,6 +3,10 @@ import {
   type VideoStreamsSetVideoStreamChannelNumbersApiArg,
   type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg,
 } from '@/lib/iptvApi'
+import { useQueryFilter } from '@/lib/redux/slices/useQueryFilter'
+import { useSelectAll } from '@/lib/redux/slices/useSelectAll'
+import { useSelectedVideoStreams } from '@/lib/redux/slices/useSelectedVideoStreams'
+import { useSortInfo } from '@/lib/redux/slices/useSortInfo'
 import {
   SetVideoStreamChannelNumbers,
   SetVideoStreamChannelNumbersFromParameters,
@@ -10,10 +14,6 @@ import {
 import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox'
 import { InputNumber } from 'primereact/inputnumber'
 import React, { useMemo } from 'react'
-import { useQueryFilter } from '../../../lib/redux/slices/useQueryFilter'
-import { useSelectAll } from '../../../lib/redux/slices/useSelectAll'
-import { useSelectedVideoStreams } from '../../../lib/redux/slices/useSelectedVideoStreams'
-import { useSortInfo } from '../../../lib/redux/slices/useSortInfo'
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog'
 import AutoSetButton from '../buttons/AutoSetButton'
 import OKButton from '../buttons/OKButton'

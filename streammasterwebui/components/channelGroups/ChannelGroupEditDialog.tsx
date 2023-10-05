@@ -4,8 +4,8 @@ import {
   type UpdateChannelGroupRequest,
 } from '@/lib/iptvApi'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
-import { useSelectedItems } from '../../../lib/redux/slices/useSelectedItemsSlice'
 
+import { useSelectedItems } from '@/lib/redux/slices/useSelectedItemsSlice'
 import { UpdateChannelGroup } from '@/lib/smAPI/ChannelGroups/ChannelGroupsMutateAPI'
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog'
 import EditButton from '../buttons/EditButton'

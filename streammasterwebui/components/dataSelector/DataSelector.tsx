@@ -50,8 +50,8 @@ import {
   getTopToolOptions,
   isEmptyObject,
 } from '@/lib/common/common'
+import { useQueryFilter } from '@/lib/redux/slices/useQueryFilter'
 import { skipToken } from '@reduxjs/toolkit/dist/query/react'
-import { useQueryFilter } from '../../../lib/redux/slices/useQueryFilter'
 import BanButton from '../buttons/BanButton'
 import ResetButton from '../buttons/ResetButton'
 import { useSetQueryFilter } from './useSetQueryFilter'

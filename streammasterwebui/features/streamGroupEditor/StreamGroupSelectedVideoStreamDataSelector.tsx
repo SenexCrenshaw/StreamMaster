@@ -1,3 +1,11 @@
+import {
+  useChannelNameColumnConfig,
+  useChannelNumberColumnConfig,
+  useEPGColumnConfig,
+} from '@/components/columns/columnConfigHooks'
+import DataSelector from '@/components/dataSelector/DataSelector'
+import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes'
+import VideoStreamSetAutoSetEPGDialog from '@/components/videoStream/VideoStreamSetAutoSetEPGDialog'
 import { getColor } from '@/lib/common/colors'
 import { GetMessage, getChannelGroupMenuItem } from '@/lib/common/common'
 import { GroupIcon } from '@/lib/common/icons'
@@ -6,14 +14,6 @@ import {
   useStreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsQuery,
 } from '@/lib/iptvApi'
 import { useSelectedStreamGroup } from '@/lib/redux/slices/useSelectedStreamGroup'
-import {
-  useChannelNameColumnConfig,
-  useChannelNumberColumnConfig,
-  useEPGColumnConfig,
-} from '@/src/components/columns/columnConfigHooks'
-import DataSelector from '@/src/components/dataSelector/DataSelector'
-import { ColumnMeta } from '@/src/components/dataSelector/DataSelectorTypes'
-import VideoStreamSetAutoSetEPGDialog from '@/src/components/videoStream/VideoStreamSetAutoSetEPGDialog'
 import { Tooltip } from 'primereact/tooltip'
 import { memo, useCallback, useMemo, type CSSProperties } from 'react'
 import { v4 as uuidv4 } from 'uuid'

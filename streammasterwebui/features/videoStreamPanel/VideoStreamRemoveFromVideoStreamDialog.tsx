@@ -1,9 +1,9 @@
+import XButton from '@/components/buttons/XButton'
 import {
   ChildVideoStreamDto,
   VideoStreamLinksRemoveVideoStreamFromVideoStreamApiArg,
 } from '@/lib/iptvApi'
 import { RemoveVideoStreamFromVideoStream } from '@/lib/smAPI/VideoStreamLinks/VideoStreamLinksMutateAPI'
-import XButton from '@/src/components/buttons/XButton'
 import { memo } from 'react'
 
 type VideoStreamRemoveFromVideoStreamDialogProps = {
