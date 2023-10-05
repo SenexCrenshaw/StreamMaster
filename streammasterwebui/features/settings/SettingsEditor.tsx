@@ -30,11 +30,10 @@ import { type MenuItem } from 'primereact/menuitem'
 import { Password } from 'primereact/password'
 import { ScrollPanel } from 'primereact/scrollpanel'
 import { type SelectItem } from 'primereact/selectitem'
-import { Toast } from 'primereact/toast'
 import React from 'react'
 
 export const SettingsEditor = () => {
-  const toast = React.useRef<Toast>(null)
+  // const toast = React.useRef<Toast>(null)
   const setting = StreamMasterSetting()
   const [newData, setNewData] = React.useState<SettingDto>({} as SettingDto)
   const [originalData, setOriginalData] = React.useState<SettingDto>(
@@ -302,24 +301,24 @@ export const SettingsEditor = () => {
 
     UpdateSetting(newData)
       .then(() => {
-        if (toast.current) {
-          toast.current.show({
-            detail: `Update Settings Successful`,
-            life: 3000,
-            severity: 'success',
-            summary: 'Successful',
-          })
-        }
+        // if (toast.current) {
+        //   toast.current.show({
+        //     detail: `Update Settings Successful`,
+        //     life: 3000,
+        //     severity: 'success',
+        //     summary: 'Successful',
+        //   })
+        // }
       })
       .catch(() => {
-        if (toast.current) {
-          toast.current.show({
-            detail: `Update Settings Failed`,
-            life: 3000,
-            severity: 'error',
-            summary: 'Error',
-          })
-        }
+        // if (toast.current) {
+        //   toast.current.show({
+        //     detail: `Update Settings Failed`,
+        //     life: 3000,
+        //     severity: 'error',
+        //     summary: 'Error',
+        //   })
+        // }
       })
   }, [isSaveEnabled, newData])
 
@@ -335,12 +334,12 @@ export const SettingsEditor = () => {
     {
       command: () => {
         setNewData({ ...originalData })
-        toast.current?.show({
-          detail: 'Undo',
-          life: 3000,
-          severity: 'info',
-          summary: 'Info',
-        })
+        // toast.current?.show({
+        //   detail: 'Undo',
+        //   life: 3000,
+        //   severity: 'info',
+        //   summary: 'Info',
+        // })
       },
       disabled: !isSaveEnabled,
       icon: <HistoryIcon sx={{ fontSize: 40 }} />,
@@ -351,7 +350,7 @@ export const SettingsEditor = () => {
   return (
     <div className="settingsEditor">
       <ScrollPanel style={{ height: 'calc(100vh - 18px)', width: '100%' }}>
-        <Toast position="bottom-right" ref={toast} />
+        {/* <Toast position="bottom-right" ref={toast} /> */}
         <Dock model={items} position="right" />
         <div className="justify-content-between align-items-center">
           <div className="flex justify-content-start align-items-center w-full text-left font-bold text-white-500 surface-overlay justify-content-start align-items-center">

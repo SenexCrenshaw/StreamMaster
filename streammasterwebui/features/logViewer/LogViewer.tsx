@@ -54,9 +54,20 @@ const LogViewer = () => {
   useEffect(() => {
     if (dataSource.length !== 0) {
       // tableRef.current?.getVirtualScroller()?.scrollToIndex(dataSource.length * 34);
-      tableRef.current
-        ?.getVirtualScroller()
-        ?.scrollTo({ behavior: 'auto', left: 0, top: 400 })
+      if (tableRef.current?.getVirtualScroller()) {
+        // tableRef.current.getVirtualScroller().scrollToIndex(50) // { behavior: 'auto', left: 0, top: 400 })
+
+        console.log(
+          'scroll',
+          dataSource[dataSource.length - 1].id,
+          dataSource.length * 58,
+        )
+
+        const vs = tableRef.current.getVirtualScroller()
+        vs.scrollToIndex(dataSource[dataSource.length - 1].id)
+
+        // vs.scrollTo({ behavior: 'auto', left: 0, top: -40 })
+      }
     }
   }, [dataSource])
 
@@ -120,12 +131,12 @@ const LogViewer = () => {
         header={renderHeader}
         id="LogViewer"
         ref={tableRef}
-        scrollHeight="calc(100vh - 40px)"
+        scrollHeight="calc(100vh - 200px)"
         style={{
-          height: 'calc(100vh - 40px)',
+          height: 'calc(100vh - 200px)',
         }}
         value={dataSource}
-        virtualScrollerOptions={{ itemSize: 28 }}
+        virtualScrollerOptions={{ itemSize: 58 }}
       >
         <Column
           body={levelTemplate}
