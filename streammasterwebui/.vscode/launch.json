@@ -23,6 +23,10 @@
       "type": "node-terminal",
       "request": "launch",
       "command": "npm run dev",
+      "resolveSourceMapLocations": [
+    "${workspaceFolder}/**",
+    "!**/node_modules/**"
+],
       "serverReadyAction": {
         "pattern": "- Local:.+(https?://.+)",
         "uriFormat": "%s",
