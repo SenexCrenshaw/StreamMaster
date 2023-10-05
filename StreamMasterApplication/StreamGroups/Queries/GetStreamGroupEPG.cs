@@ -91,13 +91,12 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     {
         HashSet<string> epgids = new(videoStreams.Where(a => !a.IsHidden).Select(r => r.User_Tvg_ID));
 
-        List<Programme> cachedProgrammes = MemoryCache.Programmes();
-        List<IconFileDto> cachedIcons = MemoryCache.Icons();
+        List<Programme> cachedProgrammes = MemoryCache.Programmes().ToList().DeepCopy();
 
-        List<Programme> hbo = cachedProgrammes.Where(a => a.Name.ToLower().Contains("hbo")).ToList();
+        List<IconFileDto> cachedIcons = MemoryCache.Icons().ToList();
 
         List<Programme> programmes = cachedProgrammes
-            .Where(a =>
+            .Where(a => a.StartDateTime > DateTime.Now.AddDays(-1) &&
                         a.Channel != null &&
                         (epgids.Contains(a.Channel) || epgids.Contains(a.DisplayName)))
             .ToList();
@@ -107,6 +106,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         ConcurrentBag<TvChannel> retChannels = new();
         ConcurrentBag<Programme> retProgrammes = new();
         Setting setting = await GetSettingsAsync();
+
         Parallel.ForEach(videoStreams, parallelOptions, videoStream =>
         {
             TvChannel? tvChannel = CreateTvChannel(videoStream, setting);
@@ -124,8 +124,8 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         return new Tv
         {
-            Channel = retChannels.ToList(),
-            Programme = retProgrammes.ToList()
+            Channel = retChannels.OrderBy(a => int.Parse(a.Id)).ToList(),
+            Programme = retProgrammes.OrderBy(a => int.Parse(a.Channel)).ThenBy(a => a.StartDateTime).ToList()
         };
     }
 

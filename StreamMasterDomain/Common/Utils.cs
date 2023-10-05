@@ -19,11 +19,19 @@ public static class Utils
         return new();
     }
 
-    public static T? DeepCopy<T>(this T value)
+    public static T DeepCopy<T>(this T value)
     {
         string jsonString = JsonSerializer.Serialize(value);
-
-        return JsonSerializer.Deserialize<T>(jsonString);
+        if (jsonString == null)
+        {
+            throw new Exception("JsonSerializer.Serialize returned null");
+        }
+        T? ret = JsonSerializer.Deserialize<T>(jsonString);
+        if (ret == null)
+        {
+            throw new Exception("JsonSerializer.Serialize returned null");
+        }
+        return ret;
     }
 
     public static (string fullName, string name) GetRandomFileName(this string directoryName, string extentsion)
