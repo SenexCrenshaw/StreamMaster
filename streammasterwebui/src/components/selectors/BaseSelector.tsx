@@ -14,6 +14,7 @@ import {
 } from 'primereact/dropdown'
 import { classNames } from 'primereact/utils'
 import { useCallback, useEffect, useState } from 'react'
+import getRecord from '../dataSelector/getRecord'
 
 export type PagedResponseDto<T> = {
   data: T[]
@@ -64,7 +65,8 @@ export type BaseSelectorProps<T extends HasId> = {
 }
 
 const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
-  const [selectedItem, setSelectedItem] = useState<string>('')
+  const [selectedItemName, setSelectedItemName] = useState<string>('')
+  const [selectedItem, setSelectedItem] = useState<T>()
   const [index, setIndex] = useState<number>(0)
   const [totalItems, setTotalItems] = useState<number>(0)
   const [dataSource, setDataSource] = useState<T[]>([])
@@ -102,13 +104,13 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
     var existingIds = new Set(dataSource.map((x) => x.id))
     var existingFiltered = new Set(filteredDataSource.map((x) => x.id))
 
-    var existingIds2 = dataSource.map((x) => x.id)
+    // var existingIds2 = dataSource.map((x) => x.id)
 
-    if (existingIds.size !== existingIds2.length) {
-      console.log('mismatch existingIds', existingIds)
-      console.log('mismatch existingIds2', existingIds2)
-      console.log('mismatch', existingIds.size, existingIds2.length)
-    }
+    // if (existingIds.size !== existingIds2.length) {
+    //   console.log('mismatch existingIds', existingIds)
+    //   console.log('mismatch existingIds2', existingIds2)
+    //   console.log('mismatch', existingIds.size, existingIds2.length)
+    // }
 
     if (
       queryFilter?.jsonFiltersString &&
@@ -131,20 +133,32 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
     }
 
     if (filterQuery.data) {
-      if (dataSource.length > 0) {
-        const filteredData = filterQuery.data.data
+      // if (dataSource.length > 0) {
+      const filteredData = filterQuery.data.data
+      const newItems = filteredData.filter(
+        (cn: T) => cn?.id && !existingIds.has(cn.id),
+      )
+      let ds = dataSource
 
-        const newItems = filteredData.filter(
-          (cn: T) => cn?.id && !existingIds.has(cn.id),
-        )
+      if (newItems.length > 0) {
+        ds = ds.concat(newItems)
+        setDataSource(ds)
+        setIndex(ds.length)
+      }
 
-        if (newItems.length > 0) {
-          setDataSource(dataSource.concat(newItems))
-          setIndex(dataSource.length + newItems.length)
+      if (filteredData.length === 0) {
+        setFilteredDataSource(ds)
+      } else {
+        if (selectedItem) {
+          if (!filteredData.find((x) => x.id === selectedItem?.id)) {
+            const updatedFilteredData = [selectedItem, ...filteredData]
+            setFilteredDataSource(updatedFilteredData)
+            return
+          }
         }
-
         setFilteredDataSource(filteredData)
       }
+      // }
     } else {
       setFilteredDataSource(dataSource)
     }
@@ -155,61 +169,61 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
   useEffect(() => {
     if (props.value === null || props.value === undefined) return
 
-    if (selectedItem === props.value) {
+    if (selectedItemName === props.value) {
       return
     }
 
     var existingIds = new Set(dataSource.map((x) => x.id))
-    var existingIds2 = dataSource.map((x) => x.id)
 
-    if (existingIds.size !== existingIds2.length) {
-      console.log('mismatch')
-    }
-
-    if (props.value !== '') {
-      try {
-        props
-          .querySelectedItem({ value: props.value } as StringArg)
-          .then((item) => {
-            if (item) {
-              if (
-                item &&
-                item.source !== selectedItem &&
-                !existingIds.has(item.id)
-              ) {
-                const newDataSource = dataSource.concat(item)
-
-                setDataSource(newDataSource)
-                setFilteredDataSource(newDataSource)
-                setIndex(newDataSource.length)
-                setSelectedItem(item.source)
-                return
+    if (!existingIds.has(props.value)) {
+      if (props.value !== '') {
+        try {
+          props
+            .querySelectedItem({ value: props.value } as StringArg)
+            .then((item) => {
+              if (item) {
+                existingIds = new Set(dataSource.map((x) => x.id))
+                if (
+                  item &&
+                  item.source !== selectedItemName &&
+                  !existingIds.has(item.id)
+                ) {
+                  const newDataSource = dataSource.concat(item)
+                  setDataSource(newDataSource)
+                  setFilteredDataSource(newDataSource)
+                  setIndex(newDataSource.length)
+                  setSelectedItemName(item.source)
+                  setSelectedItem(item)
+                  return
+                }
               }
-            }
-          })
-          .catch((e) => {
-            console.error(e)
-          })
-      } catch (e) {
-        console.error(e)
+            })
+            .catch((e) => {
+              console.error(e)
+            })
+        } catch (e) {
+          console.error(e)
+        }
       }
-
-      setSelectedItem(props.value)
+      const item = dataSource.find((x) => x.id === props.value)
+      setSelectedItem(item)
+      setSelectedItemName(props.value)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.value])
 
   const onChange = useCallback(
     (event: DropdownChangeEvent) => {
-      if (event.value !== selectedItem) {
+      if (event.value !== selectedItemName) {
+        const name = getRecord(event.value, props.optionValue)
+        setSelectedItemName(name)
         setSelectedItem(event.value)
-
-        if (event.value && props.onChange) {
-          props.onChange(event.value)
+        if (name && props.onChange) {
+          props.onChange(name)
         }
       }
     },
-    [selectedItem, props],
+    [selectedItemName, props],
   )
 
   const className = classNames(
@@ -246,12 +260,12 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
         editable={props.editable}
         filter
         filterBy={props.optionLabel}
-        filterPlaceholder={`Filter ${props.selectName}`}
+        // filterPlaceholder={`Filter ${props.selectName}`}
         itemTemplate={props.itemTemplate}
         onChange={onChange}
         onFilter={onFilter}
         optionLabel={props.optionLabel}
-        optionValue={props.optionValue}
+        // optionValue={props.optionValue}
         options={filteredDataSource}
         placeholder={`Select ${props.selectName}`}
         resetFilterOnHide
