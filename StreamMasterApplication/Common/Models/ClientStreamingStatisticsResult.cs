@@ -2,7 +2,7 @@
 
 public class ClientStreamingStatistics : StreamingStatistics
 {
-    public ClientStreamingStatistics(string ClientAgent) : base(ClientAgent)
+    public ClientStreamingStatistics(string ClientAgent, string ClientIPAddress) : base(ClientAgent, ClientIPAddress)
     {
     }
 

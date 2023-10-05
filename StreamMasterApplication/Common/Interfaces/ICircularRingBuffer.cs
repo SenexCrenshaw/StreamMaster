@@ -32,7 +32,7 @@ namespace StreamMasterApplication.Common.Interfaces
 
         Task<int> ReadChunk(Guid clientId, byte[] buffer, int offset, int count, CancellationToken cancellationToken);
 
-        void RegisterClient(Guid clientId, string clientAgent);
+        void RegisterClient(Guid clientId, string clientAgent, string clientIPAddress);
 
         void ReleaseSemaphore(Guid clientId);
 

@@ -139,7 +139,10 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
             return Redirect(videoStream.User_Url);
         }
 
-        ClientStreamerConfiguration config = new(videoStream.Id, Request.Headers["User-Agent"].ToString(), cancellationToken);
+        string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+
+
+        ClientStreamerConfiguration config = new(videoStream.Id, Request.Headers["User-Agent"].ToString(), ipAddress ?? "unkown", cancellationToken);
 
         // Get the read stream for the client
         Stream? stream = await _channelManager.GetStream(config);

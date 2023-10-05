@@ -2300,6 +2300,7 @@ export type StreamStatisticsResult = {
   streamUrl?: string | null
   videoStreamId?: string
   videoStreamName?: string
+  clientIPAddress?: string
 }
 export type ChannelLogoDto = {
   id?: number

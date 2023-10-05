@@ -35,6 +35,7 @@ public class StreamStatisticsResult
     public string? StreamUrl { get; set; }
     public string VideoStreamId { get; set; }
     public string VideoStreamName { get; set; }
+    public string ClientIPAddress { get; set; }
 }
 
 public class StreamInfo

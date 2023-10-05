@@ -7,7 +7,19 @@ import { Button } from 'primereact/button'
 import { Toast } from 'primereact/toast'
 import { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react'
 
-const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
+type StreamingClientsPanelProps = {
+  readonly className?: string
+  readonly dataSource: StreamStatisticsResult[]
+  readonly isLoading: boolean
+  readonly style?: CSSProperties
+}
+
+const StreamingClientsPanel = ({
+  className,
+  dataSource,
+  isLoading,
+  style,
+}: StreamingClientsPanelProps) => {
   const toast = useRef<Toast>(null)
   const clientBitsPerSecondTemplate = useCallback(
     (rowData: StreamStatisticsResult) => {
@@ -93,6 +105,14 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
   const sourceColumns = useMemo((): ColumnMeta[] => {
     return [
       {
+        field: 'clientIPAddress',
+        header: 'Client/IP Address',
+        style: {
+          maxWidth: '14rem',
+          width: '14rem',
+        } as CSSProperties,
+      },
+      {
         field: 'clientAgent',
         header: 'Client/User Agent',
         style: {
@@ -154,26 +174,18 @@ const StreamingClientsPanel = (props: StreamingClientsPanelProps) => {
       <Toast position="bottom-right" ref={toast} />
       <div className="m3uFilesEditor flex flex-column col-12 flex-shrink-0 ">
         <DataSelector
-          className={props.className}
+          className={className}
           columns={sourceColumns}
-          dataSource={props.dataSource}
+          dataSource={dataSource}
           emptyMessage="No Clients Streaming"
           id="StreamingServerStatusPanel"
-          isLoading={props.isLoading}
+          isLoading={isLoading}
           selectedItemsKey="selectSelectedItems"
-          style={props.style}
+          style={style}
         />
       </div>
     </>
   )
 }
 
-StreamingClientsPanel.displayName = 'Streaming Clients Panel'
-
-type StreamingClientsPanelProps = {
-  readonly className?: string
-  readonly dataSource: StreamStatisticsResult[]
-  readonly isLoading: boolean
-  readonly style?: CSSProperties
-}
 export default memo(StreamingClientsPanel)
