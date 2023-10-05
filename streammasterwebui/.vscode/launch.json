@@ -5,18 +5,13 @@
       "name": "Next.js: debug server-side",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npm run dev",
-
+      "command": "next dev"
     },
     {
       "name": "Next.js: debug client-side",
-      "type": "msedge",
+      "type": "chrome",
       "request": "launch",
-      "url": "http://localhost:3000",
-       "webRoot": "${workspaceFolder}",
-"sourceMapPathOverrides": {
-                "webpack://_N_E/*": "${webRoot}/*"
-            },
+      "url": "http://localhost:3000"
     },
     {
       "name": "Next.js: debug full stack",
@@ -24,9 +19,9 @@
       "request": "launch",
       "command": "npm run dev",
       "resolveSourceMapLocations": [
-    "${workspaceFolder}/**",
-    "!**/node_modules/**"
-],
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ],
       "serverReadyAction": {
         "pattern": "- Local:.+(https?://.+)",
         "uriFormat": "%s",
@@ -60,9 +55,7 @@
       "url": "http://localhost:3000",
       "webRoot": "${workspaceFolder}",
       "sourceMaps": true,
-      "sourceMapPathOverrides": {
-                "webpack://_N_E/*": "${webRoot}/*"
-            },
+
       // "sourceMapPathOverrides": {
       //   "webpack:///./src/*": "${webRoot}/*"
       // },

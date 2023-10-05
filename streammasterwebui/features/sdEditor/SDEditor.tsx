@@ -38,8 +38,8 @@ const SDEditor = () => {
         value={postalCode}
       />
       <SchedulesDirectHeadendDataSelector country={country} postalCode={postalCode} /> */}
-      {/* <SchedulesDirectLineUpsDataSelector /> */}
-      <SchedulesDirectSchedulesDataSelector stationIds={[]} />
+      <SchedulesDirectLineUpsDataSelector id="sdEditor" />
+      <SchedulesDirectSchedulesDataSelector id="sdEditor" stationIds={[]} />
     </>
   )
 }

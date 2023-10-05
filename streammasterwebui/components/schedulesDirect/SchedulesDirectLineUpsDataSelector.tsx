@@ -3,7 +3,12 @@ import { memo, useMemo } from 'react'
 import DataSelector from '../dataSelector/DataSelector'
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes'
 
-const SchedulesDirectLineUpsDataSelector = () => {
+type SchedulesDirectLineUpsDataSelectorProps = {
+  id: string
+}
+const SchedulesDirectLineUpsDataSelector = ({
+  id,
+}: SchedulesDirectLineUpsDataSelectorProps) => {
   const getLineUpsQuery = useSchedulesDirectGetLineupsQuery()
 
   const sourceColumns = useMemo((): ColumnMeta[] => {
@@ -23,17 +28,15 @@ const SchedulesDirectLineUpsDataSelector = () => {
         columns={sourceColumns}
         dataSource={getLineUpsQuery.data?.lineups}
         emptyMessage="No Streams"
-        id="StreamingServerStatusPanel"
+        id={id}
         isLoading={getLineUpsQuery.isLoading}
-        selectedItemsKey="selectSelectedItems"
+        selectionMode="single"
+        selectedItemsKey="sdEditorSelectSelectedItems"
         style={{ height: 'calc(50vh - 40px)' }}
       />
       {/* <SchedulesDirectLineUpPreviewDataSelector lineUps={getLineUpsQuery.data?.lineups} /> */}
     </div>
   )
 }
-
-SchedulesDirectLineUpsDataSelector.displayName =
-  'SchedulesDirectLineUpsDataSelector'
 
 export default memo(SchedulesDirectLineUpsDataSelector)

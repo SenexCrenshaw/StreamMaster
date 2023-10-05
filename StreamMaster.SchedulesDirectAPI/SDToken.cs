@@ -40,7 +40,7 @@ public class SDToken
         (SDStatus? status, bool resetToken) = await GetStatusInternal(cancellationToken);
         if (resetToken)
         {
-            if (await ResetToken().ConfigureAwait(false) == null)
+            if (await ResetToken(cancellationToken).ConfigureAwait(false) == null)
             {
                 return GetSDStatusOffline();
             }
@@ -81,7 +81,7 @@ public class SDToken
             cacheEntry = (result, DateTime.UtcNow);
             return (result, false);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return (null, false);
         }
@@ -90,7 +90,7 @@ public class SDToken
     public async Task<bool> GetSystemReady(CancellationToken cancellationToken)
     {
         (SDStatus? status, bool resetToken) = await GetStatusInternal(cancellationToken);
-        if (resetToken && await ResetToken().ConfigureAwait(false) != null)
+        if (resetToken && await ResetToken(cancellationToken).ConfigureAwait(false) != null)
         {
             (status, _) = await GetStatusInternal(cancellationToken);
         }
@@ -143,16 +143,16 @@ public class SDToken
         return ConstructAPIUrlWithToken(command, token);
     }
 
-    private string ConstructAPIUrlWithToken(string command, string? token)
+    private static string ConstructAPIUrlWithToken(string command, string? token)
     {
-        if (command.Contains("?"))
+        if (command.Contains('?'))
         {
             return $"{SD_BASE_URL}{command}&token={token}";
         }
         return $"{SD_BASE_URL}{command}?token={token}";
     }
 
-    private SDStatus GetSDStatusOffline()
+    private static SDStatus GetSDStatusOffline()
     {
         SDStatus ret = new();
         ret.systemStatus.Add(new SDSystemstatus { status = "Offline" });
@@ -220,7 +220,7 @@ public class SDToken
         }
         catch (Exception ex)
         {
-            Console.WriteLine("ERROR: ", ex);
+            Console.WriteLine($"ERROR: {ex}");
             return null;
         }
     }

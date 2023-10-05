@@ -7,6 +7,7 @@ import {
   LogIcon,
   PlayListEditorIcon,
   QueueStatisIcon,
+  SDIcon,
   SettingsEditorIcon,
   SideBarMenuIcon,
   StreamGroupEditorIcon,
@@ -101,6 +102,13 @@ export const SideBar = (props: React.PropsWithChildren) => {
             icon={<FilesEditorIcon />}
             link="/editor/files"
             name="Files"
+          />
+
+          <MenuItemSM
+            collapsed={collapsed}
+            icon={<SDIcon />}
+            link="/editor/sd"
+            name="SD"
           />
 
           <MenuItemSM

@@ -296,14 +296,16 @@ const DataSelector = <T extends DataTableValue>(
   }, [props, state.rowClick, setters.setRowClick])
 
   const getSelectionMultipleMode = useMemo(():
+    | 'single'
     | 'checkbox'
     | 'multiple'
     | null => {
+    console.log('getSelectionMultipleMode', props.selectionMode)
     if (props.selectionMode === 'multiple') {
       return 'checkbox'
     }
 
-    return null
+    return 'single'
   }, [props.selectionMode])
 
   const onSelectionChange = useCallback(

@@ -5,17 +5,22 @@ import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { GetSchedules } from '@/lib/smAPI/SchedulesDirect/SchedulesDirectGetAPI'
 import DataSelector from '../dataSelector/DataSelector'
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes'
+type SchedulesDirectSchedulesDataSelectorProps = {
+  readonly id: string
+  readonly stationIds: string[]
+}
 
-const SchedulesDirectSchedulesDataSelector = (
-  props: SchedulesDirectSchedulesDataSelectorProps,
-) => {
+const SchedulesDirectSchedulesDataSelector = ({
+  id,
+  stationIds,
+}: SchedulesDirectSchedulesDataSelectorProps) => {
   const toast = useRef<Toast>(null)
 
   const [dataSource, setDataSource] = useState<Schedule[]>([] as Schedule[])
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   useEffect(() => {
-    if (props.stationIds.length === 0) {
+    if (stationIds.length === 0) {
       return
     }
 
@@ -39,7 +44,7 @@ const SchedulesDirectSchedulesDataSelector = (
           })
         }
       })
-  }, [props.stationIds])
+  }, [stationIds])
 
   const sourceColumns = useMemo((): ColumnMeta[] => {
     return [
@@ -57,10 +62,10 @@ const SchedulesDirectSchedulesDataSelector = (
           dataSource={dataSource}
           emptyMessage="No Line Ups"
           headerName="Schedules"
-          id="SchedulesDirectSchedulesDataSelector-ds"
+          id={id}
           isLoading={isLoading}
           key="callsign"
-          selectedItemsKey="selectSelectedItems"
+          selectedItemsKey="sdEditorSelectSelectedItems"
           selectionMode="multiple"
           style={{ height: 'calc(50vh - 40px)' }}
         />
@@ -69,7 +74,4 @@ const SchedulesDirectSchedulesDataSelector = (
   )
 }
 
-export type SchedulesDirectSchedulesDataSelectorProps = {
-  readonly stationIds: string[]
-}
 export default memo(SchedulesDirectSchedulesDataSelector)
