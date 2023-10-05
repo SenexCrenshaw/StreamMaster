@@ -20,7 +20,7 @@ const SchedulesDirectLineUpsDataSelector = ({
       { field: 'isDeleted' },
     ]
   }, [])
-
+  console.log(getLineUpsQuery.data?.lineups)
   return (
     <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border">
       {/* <h3><span className='text-bold'>LineUps | </span><span className='text-bold text-blue-500'>{props.country}</span> - <span className='text-bold text-500'>{props.postalCode}</span></h3> */}

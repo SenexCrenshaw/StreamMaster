@@ -318,6 +318,25 @@ const DataSelector = <T extends DataTableValue>(
         return
       }
 
+      if (props.selectionMode === 'single') {
+        if (e.value instanceof Array) {
+          onsetSelection(e.value[e.value.length - 1])
+        } else {
+          onsetSelection(e.value)
+        }
+        return
+      }
+
+      if (props.selectionMode === 'multiple') {
+        if (e.value instanceof Array) {
+          onsetSelection(e.value)
+        } else {
+          onsetSelection([e.value])
+        }
+
+        return
+      }
+
       let sel = [] as T[]
 
       if (e.value instanceof Array) {
@@ -332,16 +351,6 @@ const DataSelector = <T extends DataTableValue>(
         if (props.onSelectionChange) {
           props.onSelectionChange(sel, state.selectAll)
         }
-      }
-
-      if (props.selectionMode === 'multiple') {
-        if (e.value instanceof Array) {
-          onsetSelection(e.value)
-        } else {
-          onsetSelection([e.value])
-        }
-
-        return
       }
 
       onsetSelection(sel)
@@ -628,9 +637,16 @@ const DataSelector = <T extends DataTableValue>(
             setters.setExpandedRows(e.data as DataTableExpandedRows)
           }
           onSelectAllChange={props.reorderable ? undefined : onSelectAllChange}
-          onSelectionChange={(e) =>
-            props.reorderable ? undefined : onSelectionChange(e)
-          }
+          onSelectionChange={(
+            e:
+              | DataTableSelectionMultipleChangeEvent<T[]>
+              | DataTableSelectionSingleChangeEvent<T[]>,
+          ) => {
+            if (props.reorderable === true) {
+              return
+            }
+            onSelectionChange(e)
+          }}
           onSort={onSort}
           paginator
           paginatorClassName="text-xs p-0 m-0 withpadding"

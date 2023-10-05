@@ -148,13 +148,11 @@ const SchedulesDirectStationPreviewDataSelector = () => {
           onSelectionChange={(e) => {
             onSelectedStationPreviews(e as StationPreview[])
           }}
-          selectedItemsKey="selectSelectedItems"
+          selectedItemsKey="SchedulesDirectSchedulesDataSelector"
           selectionMode="multiple"
           style={{ height: 'calc(50vh - 40px)' }}
         />
-        <SchedulesDirectSchedulesDataSelector
-          stationIds={selectedStationPreviewsIds}
-        />
+        <SchedulesDirectSchedulesDataSelector id="SchedulesDirectStationPreviewDataSelector2" />
       </div>
     </>
   )

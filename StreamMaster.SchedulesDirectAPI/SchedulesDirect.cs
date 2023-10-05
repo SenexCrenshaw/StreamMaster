@@ -161,6 +161,11 @@ public class SchedulesDirect
                 return null;
             }
 
+            foreach (Lineup l in result.Lineups)
+            {
+                l.Id = l.LineupString;
+            }
+
             return result;
         }
         catch (Exception)

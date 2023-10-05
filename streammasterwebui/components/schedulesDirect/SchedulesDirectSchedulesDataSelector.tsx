@@ -1,26 +1,34 @@
-import { type Schedule } from '@/lib/iptvApi'
+import { Lineup, type Schedule } from '@/lib/iptvApi'
 import { Toast } from 'primereact/toast'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useSelectedItems } from '@/lib/redux/slices/useSelectedItemsSlice'
 import { GetSchedules } from '@/lib/smAPI/SchedulesDirect/SchedulesDirectGetAPI'
 import DataSelector from '../dataSelector/DataSelector'
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes'
 type SchedulesDirectSchedulesDataSelectorProps = {
   readonly id: string
-  readonly stationIds: string[]
+  // readonly stationIds: string[]
 }
 
 const SchedulesDirectSchedulesDataSelector = ({
   id,
-  stationIds,
-}: SchedulesDirectSchedulesDataSelectorProps) => {
+} // stationIds,
+: SchedulesDirectSchedulesDataSelectorProps) => {
   const toast = useRef<Toast>(null)
 
   const [dataSource, setDataSource] = useState<Schedule[]>([] as Schedule[])
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const { selectSelectedItems } = useSelectedItems<Lineup>(
+    'sdEditorSelectSelectedItems',
+  )
+
+  // const schedulesDirectGetStationsQuery = useSchedulesDirectGetStationsQuery()
+
+  console.log('SchedulesDirectSchedulesDataSelector', selectSelectedItems)
 
   useEffect(() => {
-    if (stationIds.length === 0) {
+    if (selectSelectedItems.length === 0) {
       return
     }
 
@@ -44,7 +52,7 @@ const SchedulesDirectSchedulesDataSelector = ({
           })
         }
       })
-  }, [stationIds])
+  }, [selectSelectedItems])
 
   const sourceColumns = useMemo((): ColumnMeta[] => {
     return [

@@ -1,4 +1,5 @@
-import SchedulesDirectSchedulesDataSelector from '@/components/schedulesDirect/SchedulesDirectSchedulesDataSelector'
+import SchedulesDirectLineUpsDataSelector from '@/components/schedulesDirect/SchedulesDirectLineUpsDataSelector'
+import SchedulesDirectStationPreviewDataSelector from '@/components/schedulesDirect/SchedulesDirectStationPreviewDataSelector'
 import { useSchedulesDirectGetStatusQuery } from '@/lib/iptvApi'
 import { memo, useMemo } from 'react'
 
@@ -39,17 +40,10 @@ const SDEditor = () => {
       />
       <SchedulesDirectHeadendDataSelector country={country} postalCode={postalCode} /> */}
       <SchedulesDirectLineUpsDataSelector id="sdEditor" />
-      <SchedulesDirectSchedulesDataSelector id="sdEditor" stationIds={[]} />
+      {/* <SchedulesDirectSchedulesDataSelector id="sdEditor" stationIds={[]} /> */}
+      <SchedulesDirectStationPreviewDataSelector />
     </>
   )
 }
-
-SDEditor.displayName = 'SDEditor'
-
-// type SDEditorProps = {
-//   readonly data?: ChannelGroupDto | undefined;
-//   readonly onChange?: ((value: string) => void) | null;
-//   readonly value?: string | null;
-// };
 
 export default memo(SDEditor)
