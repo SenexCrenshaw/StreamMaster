@@ -58,7 +58,7 @@ public class StreamInformation : IDisposable, IStreamInformation
     public void RegisterStreamConfiguration(ClientStreamerConfiguration streamerConfiguration)
     {
         _clientInformations.TryAdd(streamerConfiguration.ClientId, streamerConfiguration);
-        RingBuffer.RegisterClient(streamerConfiguration.ClientId, streamerConfiguration.ClientUserAgent);
+        RingBuffer.RegisterClient(streamerConfiguration.ClientId, streamerConfiguration.ClientUserAgent, streamerConfiguration.ClientIPAddress);
 
         SetClientBufferDelegate(streamerConfiguration, () => RingBuffer);
     }

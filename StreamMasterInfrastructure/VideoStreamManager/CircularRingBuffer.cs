@@ -20,7 +20,7 @@ public class CircularRingBuffer : ICircularRingBuffer
     private readonly ConcurrentDictionary<Guid, int> _clientReadIndexes = new();
     private readonly Dictionary<Guid, SemaphoreSlim> _clientSemaphores = new();
     private readonly Dictionary<Guid, StreamingStatistics> _clientStatistics = new();
-    private readonly StreamingStatistics _inputStreamStatistics = new("Unknown");
+    private readonly StreamingStatistics _inputStreamStatistics = new("Unknown", "Unknown");
     private readonly ILogger<CircularRingBuffer> _logger;
     private int _oldestDataIndex;
     private readonly float _preBuffPercent;
@@ -64,7 +64,7 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         foreach (KeyValuePair<Guid, StreamingStatistics> entry in _clientStatistics)
         {
-            statisticsList.Add(new ClientStreamingStatistics(entry.Value.ClientAgent)
+            statisticsList.Add(new ClientStreamingStatistics(entry.Value.ClientAgent, entry.Value.ClientIPAddress)
             {
                 ClientId = entry.Key,
                 BytesRead = entry.Value.BytesRead,
@@ -106,6 +106,7 @@ public class CircularRingBuffer : ICircularRingBuffer
                 ClientId = stat.ClientId,
                 ClientStartTime = stat.StartTime,
                 ClientAgent = stat.ClientAgent,
+                ClientIPAddress = stat.ClientIPAddress
             });
         }
 
@@ -224,7 +225,7 @@ public class CircularRingBuffer : ICircularRingBuffer
         return count;
     }
 
-    public void RegisterClient(Guid clientId, string clientAgent)
+    public void RegisterClient(Guid clientId, string clientAgent, string clientIPAdress)
     {
         _logger.LogDebug("Starting RegisterClient for clientId: {clientId}", clientId);
 
@@ -232,7 +233,7 @@ public class CircularRingBuffer : ICircularRingBuffer
         {
             _ = _clientReadIndexes.TryAdd(clientId, _oldestDataIndex);
             _ = _clientSemaphores.TryAdd(clientId, new SemaphoreSlim(0, 1));
-            _ = _clientStatistics.TryAdd(clientId, new StreamingStatistics(clientAgent));
+            _ = _clientStatistics.TryAdd(clientId, new StreamingStatistics(clientAgent, clientIPAdress));
         }
 
         _logger.LogDebug("Finished RegisterClient for clientId: {clientId}", clientId);

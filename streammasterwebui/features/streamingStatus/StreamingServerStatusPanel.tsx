@@ -16,7 +16,6 @@ import {
 import DataSelector from '@/src/components/dataSelector/DataSelector'
 import { ColumnMeta } from '@/src/components/dataSelector/DataSelectorTypes'
 import { VideoStreamSelector } from '@/src/components/videoStream/VideoStreamSelector'
-import Image from 'next/image'
 import { Button } from 'primereact/button'
 import { Toast } from 'primereact/toast'
 import { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react'
@@ -127,7 +126,7 @@ export const StreamingServerStatusPanel = (
 
       return (
         <div className="flex align-content-center flex-wrap">
-          <Image
+          <img
             alt={rowData.logo ?? 'logo'}
             className="flex align-items-center justify-content-center max-w-full max-h-2rem h-2rem"
             src={iconUrl}
