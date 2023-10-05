@@ -1,9 +1,9 @@
 import { getTopToolOptions } from '@/lib/common/common'
+import { useShowHidden } from '@/lib/redux/slices/useShowHidden'
 import {
   TriStateCheckbox,
   type TriStateCheckboxChangeEvent,
 } from 'primereact/tristatecheckbox'
-import { useShowHidden } from '../../../lib/redux/slices/useShowHidden'
 
 type TriSelectProps = {
   readonly dataKey: string

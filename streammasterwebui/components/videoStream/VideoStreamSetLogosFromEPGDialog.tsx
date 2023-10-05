@@ -1,36 +1,35 @@
-import { getTopToolOptions } from '@/lib/common/common'
-import { ResetLogoIcon } from '@/lib/common/icons'
 import {
-  type ReSetVideoStreamsLogoRequest,
   type VideoStreamDto,
-  type VideoStreamsReSetVideoStreamsLogoFromParametersApiArg,
+  type VideoStreamsSetVideoStreamsLogoFromEpgApiArg,
+  type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg,
 } from '@/lib/iptvApi'
-import {
-  ReSetVideoStreamsLogo,
-  ReSetVideoStreamsLogoFromParameters,
-} from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI'
-import { Button } from 'primereact/button'
+import { useQueryFilter } from '@/lib/redux/slices/useQueryFilter'
+import { useSelectAll } from '@/lib/redux/slices/useSelectAll'
+import { useSelectedVideoStreams } from '@/lib/redux/slices/useSelectedVideoStreams'
 import { memo, useCallback, useMemo, useState } from 'react'
-import { useQueryFilter } from '../../../lib/redux/slices/useQueryFilter'
-import { useSelectAll } from '../../../lib/redux/slices/useSelectAll'
-import { useSelectedVideoStreams } from '../../../lib/redux/slices/useSelectedVideoStreams'
+
+import {
+  SetVideoStreamsLogoFromEpg,
+  SetVideoStreamsLogoFromEpgFromParameters,
+} from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI'
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog'
+import ImageButton from '../buttons/ImageButton'
 import OKButton from '../buttons/OKButton'
 
-type VideoStreamResetLogosDialogProps = {
+type VideoStreamSetLogosFromEPGDialogProps = {
   readonly id: string
 }
 
-const VideoStreamResetLogosDialog = ({
+const VideoStreamSetLogosFromEPGDialog = ({
   id,
-}: VideoStreamResetLogosDialogProps) => {
+}: VideoStreamSetLogosFromEPGDialogProps) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false)
   const [infoMessage, setInfoMessage] = useState('')
   const [block, setBlock] = useState<boolean>(false)
-  const { selectAll } = useSelectAll(id)
-  const { queryFilter } = useQueryFilter(id)
 
   const { selectedVideoStreams } = useSelectedVideoStreams(id)
+  const { selectAll } = useSelectAll(id)
+  const { queryFilter } = useQueryFilter(id)
 
   const ReturnToParent = () => {
     setShowOverlay(false)
@@ -49,11 +48,11 @@ const VideoStreamResetLogosDialog = ({
       }
 
       const toSendAll =
-        {} as VideoStreamsReSetVideoStreamsLogoFromParametersApiArg
+        {} as VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg
 
       toSendAll.parameters = queryFilter
 
-      await ReSetVideoStreamsLogoFromParameters(toSendAll)
+      SetVideoStreamsLogoFromEpgFromParameters(toSendAll)
         .then(() => {
           setInfoMessage('Set Streams Successfully')
         })
@@ -68,7 +67,10 @@ const VideoStreamResetLogosDialog = ({
       ...new Set(selectedVideoStreams.map((item: VideoStreamDto) => item.id)),
     ] as string[]
 
-    const toSend = {} as ReSetVideoStreamsLogoRequest
+    const toSend = {} as VideoStreamsSetVideoStreamsLogoFromEpgApiArg
+
+    toSend.ids = ids
+
     const max = 500
 
     let count = 0
@@ -84,7 +86,7 @@ const VideoStreamResetLogosDialog = ({
 
       count += max
       promises.push(
-        ReSetVideoStreamsLogo(toSend)
+        SetVideoStreamsLogoFromEpg(toSend)
           .then(() => {})
           .catch(() => {}),
       )
@@ -95,7 +97,6 @@ const VideoStreamResetLogosDialog = ({
     await p
       .then(() => {
         setInfoMessage('Successful')
-        // onChange?.(ret);
       })
       .catch((error) => {
         setInfoMessage('Error: ' + error.message)
@@ -104,14 +105,13 @@ const VideoStreamResetLogosDialog = ({
 
   const getTotalCount = useMemo(() => {
     return selectedVideoStreams.length
-  }, [selectedVideoStreams.length])
+  }, [selectedVideoStreams])
 
   return (
     <>
       <InfoMessageOverLayDialog
         blocked={block}
-        closable
-        header="Reset Logo to original"
+        header="Set Logo From EPG"
         infoMessage={infoMessage}
         onClose={() => {
           ReturnToParent()
@@ -121,25 +121,22 @@ const VideoStreamResetLogosDialog = ({
       >
         <div className="flex justify-content-center w-full align-items-center h-full">
           <OKButton
-            label="Reset Logo"
+            label="Set Logo From EPG"
             onClick={async () => await onSetLogoSave()}
           />
         </div>
       </InfoMessageOverLayDialog>
 
-      <Button
+      <ImageButton
         disabled={getTotalCount === 0 && !selectAll}
-        icon={<ResetLogoIcon sx={{ fontSize: 18 }} />}
         onClick={() => setShowOverlay(true)}
-        rounded
-        size="small"
-        tooltip="Set Logo from EPG for Streams"
-        tooltipOptions={getTopToolOptions}
+        tooltip="Set Logo from EPG Streams"
       />
     </>
   )
 }
 
-VideoStreamResetLogosDialog.displayName = 'Auto Set Channel Numbers'
+VideoStreamSetLogosFromEPGDialog.displayName =
+  'VideoStreamSetLogosFromEPGDialog'
 
-export default memo(VideoStreamResetLogosDialog)
+export default memo(VideoStreamSetLogosFromEPGDialog)

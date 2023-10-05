@@ -1,3 +1,12 @@
+import {
+  useChannelGroupColumnConfig,
+  useChannelNameColumnConfig,
+  useChannelNumberColumnConfig,
+  useM3UFileNameColumnConfig,
+} from '@/components/columns/columnConfigHooks'
+import DataSelector from '@/components/dataSelector/DataSelector'
+import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes'
+import { TriSelect } from '@/components/selectors/TriSelect'
 import { GetMessage } from '@/lib/common/common'
 import {
   StreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostApiArg,
@@ -6,15 +15,6 @@ import {
   useVideoStreamsGetPagedVideoStreamsQuery,
 } from '@/lib/iptvApi'
 import { useSelectedStreamGroup } from '@/lib/redux/slices/useSelectedStreamGroup'
-import {
-  useChannelGroupColumnConfig,
-  useChannelNameColumnConfig,
-  useChannelNumberColumnConfig,
-  useM3UFileNameColumnConfig,
-} from '@/src/components/columns/columnConfigHooks'
-import DataSelector from '@/src/components/dataSelector/DataSelector'
-import { ColumnMeta } from '@/src/components/dataSelector/DataSelectorTypes'
-import { TriSelect } from '@/src/components/selectors/TriSelect'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { type DataTableRowClickEvent } from 'primereact/datatable'
 import { memo, useMemo } from 'react'

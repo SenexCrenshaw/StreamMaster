@@ -1,3 +1,9 @@
+import {
+  useChannelNameColumnConfig,
+  useChannelNumberColumnConfig,
+} from '@/components/columns/columnConfigHooks'
+import DataSelector from '@/components/dataSelector/DataSelector'
+import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes'
 import { GetMessage } from '@/lib/common/common'
 import {
   ChildVideoStreamDto,
@@ -6,12 +12,6 @@ import {
 } from '@/lib/iptvApi'
 import { useQueryAdditionalFilters } from '@/lib/redux/slices/useQueryAdditionalFilters'
 import { UpdateVideoStream } from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI'
-import {
-  useChannelNameColumnConfig,
-  useChannelNumberColumnConfig,
-} from '@/src/components/columns/columnConfigHooks'
-import DataSelector from '@/src/components/dataSelector/DataSelector'
-import { ColumnMeta } from '@/src/components/dataSelector/DataSelectorTypes'
 import {
   memo,
   useCallback,

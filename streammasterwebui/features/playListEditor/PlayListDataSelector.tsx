@@ -1,15 +1,15 @@
+import ChannelGroupAddDialog from '@/components/channelGroups/ChannelGroupAddDialog'
+import ChannelGroupDeleteDialog from '@/components/channelGroups/ChannelGroupDeleteDialog'
+import ChannelGroupEditDialog from '@/components/channelGroups/ChannelGroupEditDialog'
+import ChannelGroupVisibleDialog from '@/components/channelGroups/ChannelGroupVisibleDialog'
+import DataSelector from '@/components/dataSelector/DataSelector'
+import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes'
+import { TriSelect } from '@/components/selectors/TriSelect'
 import {
   ChannelGroupDto,
   useChannelGroupsGetPagedChannelGroupsQuery,
 } from '@/lib/iptvApi'
 import { useShowHidden } from '@/lib/redux/slices/useShowHidden'
-import ChannelGroupAddDialog from '@/src/components/channelGroups/ChannelGroupAddDialog'
-import ChannelGroupDeleteDialog from '@/src/components/channelGroups/ChannelGroupDeleteDialog'
-import ChannelGroupEditDialog from '@/src/components/channelGroups/ChannelGroupEditDialog'
-import ChannelGroupVisibleDialog from '@/src/components/channelGroups/ChannelGroupVisibleDialog'
-import DataSelector from '@/src/components/dataSelector/DataSelector'
-import { ColumnMeta } from '@/src/components/dataSelector/DataSelectorTypes'
-import { TriSelect } from '@/src/components/selectors/TriSelect'
 import {
   memo,
   useCallback,

@@ -1,13 +1,13 @@
+import { type DataSelectorProps } from '@/components/dataSelector/DataSelector'
+import { type ColumnMeta } from '@/components/dataSelector/DataSelectorTypes'
+import ExportButton from '@/components/export/ExportButton'
+import GlobalSearch from '@/components/search/GlobalSearch'
 import { SMFileTypes } from '@/lib/common/streammaster_enums'
 import {
   type ChildVideoStreamDto,
   type IconFileDto,
   type VideoStreamDto,
 } from '@/lib/iptvApi'
-import { type DataSelectorProps } from '@/src/components/dataSelector/DataSelector'
-import { type ColumnMeta } from '@/src/components/dataSelector/DataSelectorTypes'
-import ExportButton from '@/src/components/export/ExportButton'
-import GlobalSearch from '@/src/components/search/GlobalSearch'
 import { Checkbox } from 'primereact/checkbox'
 import {
   type DataTableFilterMeta,

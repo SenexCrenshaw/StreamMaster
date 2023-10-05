@@ -1,5 +1,8 @@
 import { Button } from 'primereact/button'
 
+import { SMTextColor } from '@/components/SMTextColor'
+import TextInput from '@/components/inputs/TextInput'
+import SettingsNameRegexDataSelector from '@/components/settings/SettingsNameRegexDataSelector'
 import StreamMasterSetting from '@/lib/StreamMasterSetting'
 import {
   GetMessage,
@@ -16,9 +19,6 @@ import { getDefaultSetting } from '@/lib/locales/default_setting'
 import { getHelp } from '@/lib/locales/help_en'
 import { baseHostURL } from '@/lib/settings'
 import { UpdateSetting } from '@/lib/smAPI/Settings/SettingsMutateAPI'
-import { SMTextColor } from '@/src/components/SMTextColor'
-import TextInput from '@/src/components/inputs/TextInput'
-import SettingsNameRegexDataSelector from '@/src/components/settings/SettingsNameRegexDataSelector'
 import HistoryIcon from '@mui/icons-material/History'
 import SaveIcon from '@mui/icons-material/Save'
 import { Checkbox } from 'primereact/checkbox'

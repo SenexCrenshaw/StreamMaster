@@ -1,3 +1,23 @@
+import {
+  useChannelGroupColumnConfig,
+  useChannelLogoColumnConfig,
+  useChannelNameColumnConfig,
+  useChannelNumberColumnConfig,
+  useEPGColumnConfig,
+} from '@/components/columns/columnConfigHooks'
+import DataSelector from '@/components/dataSelector/DataSelector'
+import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes'
+import { TriSelect } from '@/components/selectors/TriSelect'
+import AutoSetChannelNumbers from '@/components/videoStream/AutoSetChannelNumbers'
+import VideoStreamAddDialog from '@/components/videoStream/VideoStreamAddDialog'
+import VideoStreamDeleteDialog from '@/components/videoStream/VideoStreamDeleteDialog'
+import VideoStreamEditDialog from '@/components/videoStream/VideoStreamEditDialog'
+import VideoStreamResetLogoDialog from '@/components/videoStream/VideoStreamResetLogoDialog'
+import VideoStreamResetLogosDialog from '@/components/videoStream/VideoStreamResetLogosDialog'
+import VideoStreamSetAutoSetEPGDialog from '@/components/videoStream/VideoStreamSetAutoSetEPGDialog'
+import VideoStreamSetLogoFromEPGDialog from '@/components/videoStream/VideoStreamSetLogoFromEPGDialog'
+import VideoStreamSetLogosFromEPGDialog from '@/components/videoStream/VideoStreamSetLogosFromEPGDialog'
+import VideoStreamVisibleDialog from '@/components/videoStream/VideoStreamVisibleDialog'
 import { arraysContainSameStrings, GetMessage } from '@/lib/common/common'
 import {
   ChannelGroupDto,
@@ -7,26 +27,6 @@ import {
 import { useQueryAdditionalFilters } from '@/lib/redux/slices/useQueryAdditionalFilters'
 import { useSelectedItems } from '@/lib/redux/slices/useSelectedItemsSlice'
 import { useSelectedVideoStreams } from '@/lib/redux/slices/useSelectedVideoStreams'
-import {
-  useChannelGroupColumnConfig,
-  useChannelLogoColumnConfig,
-  useChannelNameColumnConfig,
-  useChannelNumberColumnConfig,
-  useEPGColumnConfig,
-} from '@/src/components/columns/columnConfigHooks'
-import DataSelector from '@/src/components/dataSelector/DataSelector'
-import { ColumnMeta } from '@/src/components/dataSelector/DataSelectorTypes'
-import { TriSelect } from '@/src/components/selectors/TriSelect'
-import AutoSetChannelNumbers from '@/src/components/videoStream/AutoSetChannelNumbers'
-import VideoStreamAddDialog from '@/src/components/videoStream/VideoStreamAddDialog'
-import VideoStreamDeleteDialog from '@/src/components/videoStream/VideoStreamDeleteDialog'
-import VideoStreamEditDialog from '@/src/components/videoStream/VideoStreamEditDialog'
-import VideoStreamResetLogoDialog from '@/src/components/videoStream/VideoStreamResetLogoDialog'
-import VideoStreamResetLogosDialog from '@/src/components/videoStream/VideoStreamResetLogosDialog'
-import VideoStreamSetAutoSetEPGDialog from '@/src/components/videoStream/VideoStreamSetAutoSetEPGDialog'
-import VideoStreamSetLogoFromEPGDialog from '@/src/components/videoStream/VideoStreamSetLogoFromEPGDialog'
-import VideoStreamSetLogosFromEPGDialog from '@/src/components/videoStream/VideoStreamSetLogosFromEPGDialog'
-import VideoStreamVisibleDialog from '@/src/components/videoStream/VideoStreamVisibleDialog'
 import {
   memo,
   useCallback,

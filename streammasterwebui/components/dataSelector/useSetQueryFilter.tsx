@@ -7,13 +7,13 @@ import {
   type MatchMode,
   type SMDataTableFilterMetaData,
 } from '@/lib/common/common'
+import { useQueryAdditionalFilters } from '@/lib/redux/slices/useQueryAdditionalFilters'
+import { useQueryFilter } from '@/lib/redux/slices/useQueryFilter'
+import { useShowHidden } from '@/lib/redux/slices/useShowHidden'
+import { useSortInfo } from '@/lib/redux/slices/useSortInfo'
 import { FilterMatchMode } from 'primereact/api'
 import { type DataTableFilterMeta } from 'primereact/datatable'
 import { useEffect, useMemo } from 'react'
-import { useQueryAdditionalFilters } from '../../../lib/redux/slices/useQueryAdditionalFilters'
-import { useQueryFilter } from '../../../lib/redux/slices/useQueryFilter'
-import { useShowHidden } from '../../../lib/redux/slices/useShowHidden'
-import { useSortInfo } from '../../../lib/redux/slices/useSortInfo'
 import { type ColumnMeta, type LazyTableState } from './DataSelectorTypes'
 import generateFilterData from './generateFilterData'
 

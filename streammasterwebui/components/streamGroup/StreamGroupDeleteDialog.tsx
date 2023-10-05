@@ -2,8 +2,8 @@ import {
   useStreamGroupsDeleteStreamGroupMutation,
   type DeleteStreamGroupRequest,
 } from '@/lib/iptvApi'
+import { useSelectedStreamGroup } from '@/lib/redux/slices/useSelectedStreamGroup'
 import { memo, useCallback, useState } from 'react'
-import { useSelectedStreamGroup } from '../../../lib/redux/slices/useSelectedStreamGroup'
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog'
 import XButton from '../buttons/XButton'
 

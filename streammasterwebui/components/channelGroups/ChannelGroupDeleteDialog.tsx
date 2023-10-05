@@ -6,9 +6,10 @@ import {
   type DeleteChannelGroupRequest,
 } from '@/lib/iptvApi'
 import { memo, useCallback, useMemo, useState } from 'react'
-import { useQueryFilter } from '../../../lib/redux/slices/useQueryFilter'
-import { useSelectAll } from '../../../lib/redux/slices/useSelectAll'
-import { useSelectedItems } from '../../../lib/redux/slices/useSelectedItemsSlice'
+
+import { useQueryFilter } from '@/lib/redux/slices/useQueryFilter'
+import { useSelectAll } from '@/lib/redux/slices/useSelectAll'
+import { useSelectedItems } from '@/lib/redux/slices/useSelectedItemsSlice'
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog'
 import XButton from '../buttons/XButton'
 

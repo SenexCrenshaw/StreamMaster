@@ -1,3 +1,6 @@
+import DataSelector from '@/components/dataSelector/DataSelector'
+import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes'
+import { VideoStreamSelector } from '@/components/videoStream/VideoStreamSelector'
 import StreamMasterSetting from '@/lib/StreamMasterSetting'
 import {
   formatJSONDateString,
@@ -13,9 +16,6 @@ import {
   ChangeVideoStreamChannel,
   SimulateStreamFailure,
 } from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI'
-import DataSelector from '@/src/components/dataSelector/DataSelector'
-import { ColumnMeta } from '@/src/components/dataSelector/DataSelectorTypes'
-import { VideoStreamSelector } from '@/src/components/videoStream/VideoStreamSelector'
 import { Button } from 'primereact/button'
 import { Toast } from 'primereact/toast'
 import { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react'

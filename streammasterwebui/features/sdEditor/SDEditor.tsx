@@ -1,5 +1,5 @@
+import SchedulesDirectSchedulesDataSelector from '@/components/schedulesDirect/SchedulesDirectSchedulesDataSelector'
 import { useSchedulesDirectGetStatusQuery } from '@/lib/iptvApi'
-import SchedulesDirectSchedulesDataSelector from '@/src/components/schedulesDirect/SchedulesDirectSchedulesDataSelector'
 import { memo, useMemo } from 'react'
 
 const SDEditor = () => {

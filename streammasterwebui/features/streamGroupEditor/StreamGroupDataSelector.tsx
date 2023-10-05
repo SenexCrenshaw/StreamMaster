@@ -1,13 +1,13 @@
+import DataSelector from '@/components/dataSelector/DataSelector'
+import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes'
+import StreamGroupAddDialog from '@/components/streamGroup/StreamGroupAddDialog'
+import StreamGroupDeleteDialog from '@/components/streamGroup/StreamGroupDeleteDialog'
+import StreamGroupEditDialog from '@/components/streamGroup/StreamGroupEditDialog'
 import {
   StreamGroupDto,
   useStreamGroupsGetPagedStreamGroupsQuery,
 } from '@/lib/iptvApi'
 import { useSelectedStreamGroup } from '@/lib/redux/slices/useSelectedStreamGroup'
-import DataSelector from '@/src/components/dataSelector/DataSelector'
-import { ColumnMeta } from '@/src/components/dataSelector/DataSelectorTypes'
-import StreamGroupAddDialog from '@/src/components/streamGroup/StreamGroupAddDialog'
-import StreamGroupDeleteDialog from '@/src/components/streamGroup/StreamGroupDeleteDialog'
-import StreamGroupEditDialog from '@/src/components/streamGroup/StreamGroupEditDialog'
 import { memo, useMemo, type CSSProperties } from 'react'
 
 export type StreamGroupDataSelectorProps = {

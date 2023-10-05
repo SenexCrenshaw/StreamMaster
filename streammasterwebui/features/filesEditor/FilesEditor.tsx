@@ -1,6 +1,6 @@
+import EPGFilesEditor from '@/components/epg/EPGFilesEditor'
+import M3UFilesEditor from '@/components/m3u/M3UFilesEditor'
 import { FilesEditorIcon } from '@/lib/common/icons'
-import EPGFilesEditor from '@/src/components/epg/EPGFilesEditor'
-import M3UFilesEditor from '@/src/components/m3u/M3UFilesEditor'
 import React from 'react'
 
 const FilesEditor = () => {
