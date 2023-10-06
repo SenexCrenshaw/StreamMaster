@@ -2,7 +2,7 @@
 /* eslint @typescript-eslint/no-unused-vars: off */
 import { invokeHubConnection } from '@/lib/signalr/signalr';
 import type * as iptv from '@/lib/iptvApi';
-import { type StringArg } from '@/src/components/selectors/BaseSelector';
+import { type StringArg } from '@/components/selectors/BaseSelector';
 
 
 export const GetIcon = async (arg: iptv.IconFileDto): Promise<iptv.IconFileDto | null> => {

@@ -23,12 +23,16 @@ export const GetLineups = async (arg: iptv.LineUpsResult): Promise<iptv.LineUpsR
   return await invokeHubConnection<iptv.LineUpsResult>('GetLineups', arg);
 };
 
-export const GetSchedules = async (): Promise<iptv.Schedule[] | null> => {
-  return await invokeHubConnection<iptv.Schedule[]>('GetSchedules');
+export const GetSDPrograms = async (arg: iptv.SdProgram): Promise<iptv.SdProgram[] | null> => {
+  return await invokeHubConnection<iptv.SdProgram[]>('GetSDPrograms', arg);
 };
 
-export const GetSelectedStationIds = async (): Promise<void | null> => {
-  await invokeHubConnection<void>('GetSelectedStationIds');
+export const GetSchedules = async (arg: iptv.Schedule[]): Promise<iptv.Schedule[] | null> => {
+  return await invokeHubConnection<iptv.Schedule[]>('GetSchedules', arg);
+};
+
+export const GetSelectedStationIds = async (arg: iptv.StationIdLineUp[]): Promise<iptv.StationIdLineUp[] | null> => {
+  return await invokeHubConnection<iptv.StationIdLineUp[]>('GetSelectedStationIds', arg);
 };
 
 export const GetStationPreviews = async (arg: iptv.StationPreview[]): Promise<iptv.StationPreview[] | null> => {
@@ -41,4 +45,8 @@ export const GetStations = async (arg: iptv.Station[]): Promise<iptv.Station[] |
 
 export const GetStatus = async (arg: iptv.SdStatus): Promise<iptv.SdStatus | null> => {
   return await invokeHubConnection<iptv.SdStatus>('GetStatus', arg);
+};
+
+export const GetEpg = async (): Promise<void | null> => {
+  await invokeHubConnection<void>('GetEpg');
 };
