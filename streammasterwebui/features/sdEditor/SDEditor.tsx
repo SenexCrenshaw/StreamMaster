@@ -1,4 +1,3 @@
-import SchedulesDirectLineUpsDataSelector from '@/components/schedulesDirect/SchedulesDirectLineUpsDataSelector'
 import SchedulesDirectStationPreviewDataSelector from '@/components/schedulesDirect/SchedulesDirectStationPreviewDataSelector'
 import { useSchedulesDirectGetStatusQuery } from '@/lib/iptvApi'
 import { memo, useMemo } from 'react'
@@ -39,7 +38,7 @@ const SDEditor = () => {
         value={postalCode}
       />
       <SchedulesDirectHeadendDataSelector country={country} postalCode={postalCode} /> */}
-      <SchedulesDirectLineUpsDataSelector id="sdEditor" />
+      {/* <SchedulesDirectLineUpsDataSelector id="sdEditor" /> */}
       {/* <SchedulesDirectSchedulesDataSelector id="sdEditor" stationIds={[]} /> */}
       <SchedulesDirectStationPreviewDataSelector />
     </>

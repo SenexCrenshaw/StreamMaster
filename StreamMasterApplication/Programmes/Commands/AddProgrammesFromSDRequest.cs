@@ -19,7 +19,7 @@ public class AddProgrammesFromSDRequestHandler(ILogger<AddProgrammesFromSDReques
 
         logger.LogInformation("Getting Token");
 
-        SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDPassword, setting.SDPassword);
+        SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
 
         logger.LogInformation("Getting Status");
         SDStatus? status = await sd.GetStatus(cancellationToken);

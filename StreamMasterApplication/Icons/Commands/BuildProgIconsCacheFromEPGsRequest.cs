@@ -155,7 +155,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
 
             string source = HttpUtility.UrlDecode(programme.Icon[0].Src);
             string? ext = Path.GetExtension(source);
-            string name = string.Join("_", programme.Title.Text.Split(Path.GetInvalidFileNameChars())) + $".{ext}";
+            string name = string.Join("_", programme.Title[0].Text.Split(Path.GetInvalidFileNameChars())) + $".{ext}";
             string fileName = $"{FileDefinitions.ProgrammeIcon.DirectoryLocation}{name}";
             bool result = true;
 
@@ -169,7 +169,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
 
             if (result)
             {
-                IconFileDto? iconDto = IconHelper.AddIcon(source, programme.Title.Text, programme.EPGFileId, startId, MemoryCache, FileDefinitions.ProgrammeIcon, cancellationToken);
+                IconFileDto? iconDto = IconHelper.AddIcon(source, programme.Title[0].Text, programme.EPGFileId, startId, MemoryCache, FileDefinitions.ProgrammeIcon, cancellationToken);
                 if (iconDto is null)
                 {
                     continue;

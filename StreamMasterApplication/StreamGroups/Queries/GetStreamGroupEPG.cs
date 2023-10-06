@@ -199,10 +199,12 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         Programme prog = new()
         {
             Channel = videoStream.User_Tvg_chno.ToString(),
-            Title = new TvTitle
-            {
-                Lang = "en",
-                Text = videoStream.User_Tvg_name
+            Title = new List<TvTitle>{
+                new TvTitle
+                {
+                    Lang = "en",
+                    Text = videoStream.User_Tvg_name
+                }
             },
             Desc = new TvDesc
             {

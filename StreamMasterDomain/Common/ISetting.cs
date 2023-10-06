@@ -1,4 +1,6 @@
-﻿namespace StreamMasterDomain.Common
+﻿using StreamMasterDomain.Dto;
+
+namespace StreamMasterDomain.Common
 {
     public interface ISetting
     {
@@ -34,7 +36,7 @@
         string SDCountry { get; set; }
         string SDPassword { get; set; }
         string SDPostalCode { get; set; }
-        List<string> SDStationIds { get; set; }
+        List<StationIdLineUp> SDStationIds { get; set; }
         string SDUserName { get; set; }
         string ServerKey { get; set; }
         string SSLCertPassword { get; set; }

@@ -8,6 +8,8 @@ using StreamMasterApplication.SchedulesDirectAPI.Queries;
 
 using StreamMasterDomain.Dto;
 
+using System.Text;
+
 namespace StreamMasterAPI.Controllers;
 
 public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectController
@@ -47,11 +49,25 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
         return await Mediator.Send(new GetLineups()).ConfigureAwait(false);
     }
 
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<SDProgram>>> GetSDPrograms()
+    {
+        return await Mediator.Send(new GetSDPrograms()).ConfigureAwait(false);
+    }
+
     [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<List<Schedule>>> GetSchedules()
     {
         return await Mediator.Send(new GetSchedules()).ConfigureAwait(false);
+    }
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<StationIdLineUp>>> GetSelectedStationIds()
+    {
+        return await Mediator.Send(new GetSelectedStationIds()).ConfigureAwait(false);
     }
 
     [HttpGet]
@@ -73,5 +89,17 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
     public async Task<ActionResult<SDStatus>> GetStatus()
     {
         return await Mediator.Send(new GetStatus()).ConfigureAwait(false);
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<IActionResult> GetEpg()
+    {
+        string xml = await Mediator.Send(new GetEpg()).ConfigureAwait(false);
+
+        return new FileContentResult(Encoding.UTF8.GetBytes(xml), "application/xml")
+        {
+            FileDownloadName = "epg-schedules-direct.xml"
+        };
     }
 }

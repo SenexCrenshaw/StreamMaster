@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using StreamMasterApplication.Common.Extensions;
 
 using StreamMasterDomain.EPG;
-using StreamMasterDomain.Models;
 
 using System.Collections.Concurrent;
 using System.Web;
@@ -151,11 +150,14 @@ public partial class GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpC
                         {
                             Channel = videoStream.User_Tvg_ID + "-" + dummy,
 
-                            Title = new TvTitle
+                            Title = new List<TvTitle>{
+                                new TvTitle
                             {
                                 Lang = "en",
                                 Text = videoStream.User_Tvg_name,
-                            },
+                            }
+                            }
+                            ,
                             Desc = new TvDesc
                             {
                                 Lang = "en",
@@ -244,7 +246,7 @@ public partial class GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpC
             Description = programme.Desc.Text ?? "",
             Since = programme.StartDateTime,
             Till = programme.StopDateTime,
-            Title = programme.Title.Text ?? "",
+            Title = programme.Title[0].Text ?? "",
             Image = Icon?.Src ?? "",
             VideoStreamId = videoStreamId,
         };

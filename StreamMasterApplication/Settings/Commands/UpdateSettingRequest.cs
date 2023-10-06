@@ -1,4 +1,5 @@
 ﻿using StreamMaster.SchedulesDirectAPI;
+
 using static StreamMasterApplication.Settings.Commands.UpdateSettingRequestHandler;
 
 namespace StreamMasterApplication.Settings.Commands;
@@ -35,7 +36,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? SDCountry { get; set; }
     public string? SDPassword { get; set; }
     public string? SDPostalCode { get; set; }
-    public List<string>? SDStationIds { get; set; }
+    public List<StationIdLineUp>? SDStationIds { get; set; }
     public string? SDUserName { get; set; }
     public int? SourceBufferPreBufferPercentage { get; set; }
     public string? SSLCertPassword { get; set; }
@@ -61,6 +62,10 @@ public class UpdateSettingRequestHandler(ILogger<UpdateSettingRequest> logger, I
 
         SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
         await HubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
+        if (request.SDStationIds != null)
+        {
+            await HubContext.Clients.All.SchedulesDirectsRefresh().ConfigureAwait(false);
+        }
 
         return new UpdateSettingResponse { Settings = ret, NeedsLogOut = needsLogOut };
     }

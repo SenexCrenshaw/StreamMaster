@@ -38,6 +38,7 @@ const StreamMasterSetting = (): StreamMasterSettingResponse => {
       setDefaultIconName(settingsQuery.data.defaultIcon)
       setCacheIcon(settingsQuery.data.cacheIcons === true)
       setIsDebug(settingsQuery.data.isDebug === true)
+
       const url = getIconUrl(
         settingsQuery.data.defaultIcon,
         settingsQuery.data.defaultIcon,

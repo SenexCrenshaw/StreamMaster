@@ -33,9 +33,19 @@ public partial class StreamMasterHub : ISchedulesDirectHub
         return await mediator.Send(new GetLineups()).ConfigureAwait(false);
     }
 
+    public async Task<List<SDProgram>> GetSDPrograms()
+    {
+        return await mediator.Send(new GetSDPrograms()).ConfigureAwait(false);
+    }
+
     public async Task<List<Schedule>> GetSchedules()
     {
         return await mediator.Send(new GetSchedules()).ConfigureAwait(false);
+    }
+
+    public async Task<List<StationIdLineUp>> GetSelectedStationIds()
+    {
+        return await mediator.Send(new GetSelectedStationIds()).ConfigureAwait(false);
     }
 
     public async Task<List<StationPreview>> GetStationPreviews()
@@ -51,5 +61,10 @@ public partial class StreamMasterHub : ISchedulesDirectHub
     public async Task<SDStatus> GetStatus()
     {
         return await mediator.Send(new GetStatus()).ConfigureAwait(false);
+    }
+
+    public async Task<string> GetEpg()
+    {
+        return await mediator.Send(new GetEpg()).ConfigureAwait(false);
     }
 }

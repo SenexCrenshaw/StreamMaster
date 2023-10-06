@@ -13,20 +13,22 @@ public class SDTokenFile
 {
     public string? Token { get; set; }
     public DateTime TokenDateTime { get; set; }
+    public DateTime LockOutTokenDateTime { get; set; }
 }
 
 public class SDToken
 {
-    private (SDStatus? status, DateTime timestamp)? cacheEntry = null;
+    private static (SDStatus? status, DateTime timestamp)? cacheEntry = null;
     private const string SD_BASE_URL = "https://json.schedulesdirect.org/20141201/";
+    public static readonly int MAX_RETRIES = 1;
     private readonly HttpClient httpClient = CreateHttpClient();
     private readonly string SD_TOKEN_FILENAME = Path.Combine(BuildInfo.AppDataFolder, "sd_token.json");
-    private string? token;
+    private static string? token;
     private static string _clientUserAgent = "Mozilla/5.0 (compatible; streammaster/1.0)";
     private readonly string _sdUserName;
     private readonly string _sdPassword;
-    private DateTime tokenDateTime;
-
+    private static DateTime tokenDateTime;
+    private static DateTime lockOutTokenDateTime;
     public SDToken(string clientUserAgent, string sdUserName, string sdPassword)
     {
         _sdUserName = sdUserName;
@@ -37,63 +39,64 @@ public class SDToken
 
     public async Task<SDStatus?> GetStatus(CancellationToken cancellationToken)
     {
-        (SDStatus? status, bool resetToken) = await GetStatusInternal(cancellationToken);
-        if (resetToken)
-        {
-            if (await ResetToken(cancellationToken).ConfigureAwait(false) == null)
-            {
-                return GetSDStatusOffline();
-            }
-            return status;
-        }
+        SDStatus? status = await GetStatusInternal(cancellationToken);
 
         return status;
     }
 
-    public async Task<(SDStatus? sdStatus, bool resetToken)> GetStatusInternal(CancellationToken cancellationToken)
+    public async Task<SDStatus> GetStatusInternal(CancellationToken cancellationToken)
     {
         if (cacheEntry.HasValue && (DateTime.UtcNow - cacheEntry.Value.timestamp).TotalMinutes < 10)
         {
-            return (cacheEntry.Value.status, false);
+            return cacheEntry.Value.status;
         }
 
-        string url = await GetAPIUrl("status", cancellationToken);
-
-        using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
+        int retry = 0;
         try
         {
-            if (response.StatusCode == HttpStatusCode.Forbidden || response.StatusCode == HttpStatusCode.NotFound)
+            while (retry <= MAX_RETRIES)
             {
-                return (null, true);
-            }
+                string url = await GetAPIUrl("status", cancellationToken);
+                using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
-            _ = response.EnsureSuccessStatusCode();
-            string responseString = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-            if (responseString == null)
-            {
-                return (null, false);
+                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, SDStatus? result) = await SDHandler.ProccessResponse<SDStatus?>(response, cancellationToken).ConfigureAwait(false);
+
+                if (responseCode == SDHttpResponseCode.ACCOUNT_LOCKOUT || responseCode == SDHttpResponseCode.ACCOUNT_DISABLED || responseCode == SDHttpResponseCode.ACCOUNT_EXPIRED)
+                {
+                    lockOutTokenDateTime = DateTime.Now.AddMinutes(15);
+                    SaveToken();
+                    return GetSDStatusOffline();
+                }
+
+                if (responseCode == SDHttpResponseCode.TOKEN_EXPIRED || responseCode == SDHttpResponseCode.INVALID_USER)
+                {
+                    if (await ResetToken(cancellationToken).ConfigureAwait(false) == null)
+                    {
+                        return GetSDStatusOffline();
+                    }
+                    continue;
+                }
+
+                if (result == null)
+                {
+                    return GetSDStatusOffline();
+                }
+
+                cacheEntry = (result, DateTime.UtcNow);
+                return result;
+
             }
-            SDStatus? result = JsonSerializer.Deserialize<SDStatus>(responseString);
-            if (result == null)
-            {
-                return (null, false);
-            }
-            cacheEntry = (result, DateTime.UtcNow);
-            return (result, false);
         }
         catch (Exception)
         {
-            return (null, false);
+            return GetSDStatusOffline();
         }
+        return GetSDStatusOffline();
     }
 
     public async Task<bool> GetSystemReady(CancellationToken cancellationToken)
     {
-        (SDStatus? status, bool resetToken) = await GetStatusInternal(cancellationToken);
-        if (resetToken && await ResetToken(cancellationToken).ConfigureAwait(false) != null)
-        {
-            (status, _) = await GetStatusInternal(cancellationToken);
-        }
+        SDStatus? status = await GetStatusInternal(cancellationToken);
 
         return status?.systemStatus[0].status?.ToLower() == "online";
     }
@@ -102,15 +105,17 @@ public class SDToken
     {
         if (string.IsNullOrEmpty(token) || tokenDateTime.AddHours(23) < DateTime.Now)
         {
+            if (lockOutTokenDateTime >= DateTime.Now)
+            {
+                return null;
+            }
+
             token = await RetrieveToken(cancellationToken);
 
             if (string.IsNullOrEmpty(token))
             {
-                throw new ApplicationException("Unable to get token");
+                return null;
             }
-
-            tokenDateTime = DateTime.Now;
-            SaveToken();
         }
         return token;
     }
@@ -118,8 +123,15 @@ public class SDToken
     public async Task<string?> ResetToken(CancellationToken cancellationToken = default)
     {
         token = null;
-
+        SaveToken();
         return await GetToken(cancellationToken);
+    }
+
+    public void LockOutToken(int minutes = 15)
+    {
+        token = null;
+        lockOutTokenDateTime = DateTime.Now.AddMinutes(minutes);
+        SaveToken();
     }
 
     private static HttpClient CreateHttpClient()
@@ -177,8 +189,8 @@ public class SDToken
 
         token = result.Token;
         tokenDateTime = result.TokenDateTime;
+        lockOutTokenDateTime = result.LockOutTokenDateTime;
     }
-
     private async Task<string?> RetrieveToken(CancellationToken cancellationToken)
     {
         string? sdHashedPassword;
@@ -208,14 +220,23 @@ public class SDToken
         using HttpResponseMessage response = await httpClient.PostAsync($"{SD_BASE_URL}token", content, cancellationToken).ConfigureAwait(false);
         try
         {
-            _ = response.EnsureSuccessStatusCode();
-            string responseString = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-            SDGetToken? result = JsonSerializer.Deserialize<SDGetToken>(responseString);
+            (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, SDGetToken? result) = await SDHandler.ProccessResponse<SDGetToken?>(response, cancellationToken).ConfigureAwait(false);
+
+            if (responseCode == SDHttpResponseCode.ACCOUNT_LOCKOUT || responseCode == SDHttpResponseCode.ACCOUNT_DISABLED || responseCode == SDHttpResponseCode.ACCOUNT_EXPIRED)
+            {
+                lockOutTokenDateTime = DateTime.Now.AddMinutes(15);
+                SaveToken();
+                return null;
+            }
+
             if (result == null || string.IsNullOrEmpty(result.token))
             {
                 return null;
             }
             token = result.token;
+            tokenDateTime = DateTime.Now;
+            lockOutTokenDateTime = DateTime.MinValue;
+            SaveToken();
             return token;
         }
         catch (Exception ex)
@@ -232,7 +253,7 @@ public class SDToken
             return;
         }
 
-        string jsonString = JsonSerializer.Serialize(new SDTokenFile { Token = token, TokenDateTime = tokenDateTime });
+        string jsonString = JsonSerializer.Serialize(new SDTokenFile { Token = token, TokenDateTime = tokenDateTime, LockOutTokenDateTime = lockOutTokenDateTime });
         lock (typeof(SDToken))
         {
             File.WriteAllText(SD_TOKEN_FILENAME, jsonString);

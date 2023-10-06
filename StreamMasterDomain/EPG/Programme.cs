@@ -56,7 +56,7 @@ public class Programme
     public TvPreviouslyshown? Previouslyshown { get; set; }
 
     [XmlElement(ElementName = "rating")]
-    public TvRating Rating { get; set; } = new();
+    public List<TvRating> Rating { get; set; } = new();
 
     [XmlAttribute(AttributeName = "start")]
     public string Start
@@ -106,7 +106,7 @@ public class Programme
     public TvSubtitle Subtitle { get; set; } = new();
 
     [XmlElement(ElementName = "title")]
-    public TvTitle Title { get; set; } = new();
+    public List<TvTitle> Title { get; set; } = new();
 
     [XmlElement(ElementName = "video")]
     public TvVideo Video { get; set; } = new();

@@ -42,7 +42,8 @@
   "bookmarks.useWorkaroundForFormatters": true,
   "prettier.jsxSingleQuote": true,
   "prettier.singleQuote": true,
-  "prettier.singleAttributePerLine": true
+  "prettier.singleAttributePerLine": false,
+  "prettier.printWidth": 120
   // "eslint.trace.server": "verbose",
   // "eslint.debug": "true"
 }

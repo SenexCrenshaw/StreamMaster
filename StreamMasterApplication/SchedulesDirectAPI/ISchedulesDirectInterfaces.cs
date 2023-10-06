@@ -7,8 +7,10 @@ namespace StreamMasterApplication.SchedulesDirectAPI;
 
 public interface ISchedulesDirectController
 {
+    Task<IActionResult> GetEpg();
     Task<ActionResult<Countries?>> GetCountries();
-
+    Task<ActionResult<List<StationIdLineUp>>> GetSelectedStationIds();
+    Task<ActionResult<List<SDProgram>>> GetSDPrograms();
     Task<ActionResult<List<HeadendDto>>> GetHeadends(string country, string postalCode);
 
     Task<ActionResult<LineUpResult?>> GetLineup(string lineup);
@@ -32,8 +34,10 @@ public interface ISchedulesDirectDB
 
 public interface ISchedulesDirectHub
 {
+    Task<string> GetEpg();
+    Task<List<StationIdLineUp>> GetSelectedStationIds();
     Task<Countries> GetCountries();
-
+    Task<List<SDProgram>> GetSDPrograms();
     Task<List<HeadendDto>> GetHeadends(string country, string postalCode);
 
     Task<LineUpResult> GetLineup(string lineup);

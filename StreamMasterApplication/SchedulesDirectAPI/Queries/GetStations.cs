@@ -10,7 +10,7 @@ internal class GetStationsHandler(ISettingsService settingsService) : IRequestHa
     public async Task<List<Station>> Handle(GetStations request, CancellationToken cancellationToken)
     {
         Setting setting = await settingsService.GetSettingsAsync();
-        SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDCountry, setting.SDPassword);
+        SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
 
         List<Station> ret = await sd.GetStations(cancellationToken).ConfigureAwait(false);
 

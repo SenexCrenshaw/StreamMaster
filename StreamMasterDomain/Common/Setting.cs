@@ -1,4 +1,5 @@
 ﻿using StreamMasterDomain.Attributes;
+using StreamMasterDomain.Dto;
 
 namespace StreamMasterDomain.Common;
 
@@ -44,7 +45,7 @@ public class BaseSettings : M3USettings
     public string SDCountry { get; set; } = string.Empty;
     public string SDPassword { get; set; } = "";
     public string SDPostalCode { get; set; } = string.Empty;
-    public List<string> SDStationIds { get; set; } = new();
+    public List<StationIdLineUp> SDStationIds { get; set; } = new();
     public List<string> NameRegex { get; set; } = new();
     public string SDUserName { get; set; } = "";
     public string SSLCertPassword { get; set; } = "";

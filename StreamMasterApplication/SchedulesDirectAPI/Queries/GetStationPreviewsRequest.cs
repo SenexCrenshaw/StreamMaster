@@ -9,7 +9,7 @@ internal class GetStationPreviewsRequestHandler(ISettingsService settingsService
     public async Task<List<StationPreview>> Handle(GetStationPreviewsRequest request, CancellationToken cancellationToken)
     {
         Setting setting = await settingsService.GetSettingsAsync();
-        SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDCountry, setting.SDPassword);
+        SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
         List<StationPreview> ret = await sd.GetStationPreviews(cancellationToken).ConfigureAwait(false);
 
         return ret;
