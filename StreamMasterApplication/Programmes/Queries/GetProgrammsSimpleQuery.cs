@@ -15,9 +15,7 @@ internal class GetProgrammsSimpleQueryHandler : BaseMediatorRequestHandler, IReq
         List<ProgrammeNameDto> ret = new();
 
         // Retrieve and filter Programmes
-        List<Programme> filteredProgrammes = MemoryCache.Programmes()
-            .Where(a => !string.IsNullOrEmpty(a.Channel))
-            .ToList();
+        List<Programme> filteredProgrammes = await Sender.Send(new GetProgrammes(), cancellationToken).ConfigureAwait(false);
 
         if (filteredProgrammes.Any())
         {
@@ -35,8 +33,7 @@ internal class GetProgrammsSimpleQueryHandler : BaseMediatorRequestHandler, IReq
                 Programme? programme = filteredProgrammes.FirstOrDefault(a => a.Channel == channel);
                 if (programme != null)
                 {
-                    ProgrammeNameDto programmeDto;
-                    programmeDto = Mapper.Map<ProgrammeNameDto>(programme);
+                    ProgrammeNameDto programmeDto = Mapper.Map<ProgrammeNameDto>(programme);
                     ret.Add(programmeDto);
                 }
             }

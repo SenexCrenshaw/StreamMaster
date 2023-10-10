@@ -1,7 +1,15 @@
 ﻿namespace StreamMasterDomain.Attributes
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class NoMapAttribute : Attribute
+    public class IndexBy : Attribute
     {
+        private readonly string value;
+
+        public IndexBy(string value)
+        {
+            this.value = value;
+        }
+
+        public virtual string Value => value;
     }
 }

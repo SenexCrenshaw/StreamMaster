@@ -21,7 +21,7 @@ public class GetSDProgramsHandler(ILogger<GetSDPrograms> logger, IRepositoryWrap
 
         List<string> progIds = schedules.SelectMany(a => a.Programs).Select(a => a.ProgramID).Distinct().ToList();
 
-        List<SDProgram>? ret = await sd.GetPrograms(progIds, cancellationToken).ConfigureAwait(false);
+        List<SDProgram>? ret = await sd.GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
 
         return ret ?? new();
     }

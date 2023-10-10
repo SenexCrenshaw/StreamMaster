@@ -2,6 +2,8 @@
 
 using Microsoft.EntityFrameworkCore;
 
+using StreamMasterApplication.Programmes.Queries;
+
 using StreamMasterDomain.EPG;
 
 using System.Web;
@@ -132,8 +134,11 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
 
         //IEnumerable<string> epgids = sgs.SelectMany(x => x.ChildVideoStreams.Select(a => a.User_Tvg_ID)).Distinct();
 
-        List<Programme> programmes = MemoryCache.Programmes()
-               .Where(a =>
+        List<Programme> c = await Sender.Send(new GetProgrammes(), cancellationToken).ConfigureAwait(false);
+        List<Programme> c1 = c.Where(a => string.IsNullOrEmpty(a.Channel)).ToList();
+        List<Programme> d1 = c.Where(a => string.IsNullOrEmpty(a.DisplayName)).ToList();
+
+        List<Programme> programmes = c.Where(a =>
                a.Channel != null &&
                (
                    epgids.Contains(a.Channel.ToLower()) ||

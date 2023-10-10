@@ -2,8 +2,6 @@
 
 using StreamMasterApplication.VideoStreams.Events;
 
-using StreamMasterDomain.Models;
-
 namespace StreamMasterApplication.M3UFiles.Commands;
 
 public record DeleteM3UFileRequest(bool DeleteFile, int Id) : IRequest<int?> { }
@@ -90,7 +88,7 @@ public class DeleteM3UFileRequestHandler(ILogger<DeleteM3UFileRequest> logger, I
 
         List<IconFileDto> icons = MemoryCache.Icons();
         _ = icons.RemoveAll(a => a.FileId == m3UFile.Id);
-        MemoryCache.Set(icons);
+        MemoryCache.SetCache(icons);
 
         _ = await Repository.SaveAsync().ConfigureAwait(false);
 

@@ -2,19 +2,17 @@
 
 public record GetProgrammeNames : IRequest<List<string>>;
 
-internal class GetProgrammeNamesHandler : BaseMediatorRequestHandler, IRequestHandler<GetProgrammeNames, List<string>>
+internal class GetProgrammeNamesHandler(ILogger<GetProgrammeNames> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetProgrammeNames, List<string>>
 {
-
-    public GetProgrammeNamesHandler(ILogger<GetProgrammeNames> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-    : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
-
-    public Task<List<string>> Handle(GetProgrammeNames request, CancellationToken cancellationToken)
+    public async Task<List<string>> Handle(GetProgrammeNames request, CancellationToken cancellationToken)
     {
-        List<string> programmes = MemoryCache.Programmes()
+        IEnumerable<ProgrammeNameDto> programmes = await Sender.Send(new GetProgrammeNamesDto(), cancellationToken).ConfigureAwait(false);
+
+        List<string> ret = programmes
             .Where(a => !string.IsNullOrEmpty(a.Channel))
             .OrderBy(a => a.DisplayName, StringComparer.OrdinalIgnoreCase)
             .Select(a => a.DisplayName).Distinct().ToList();
 
-        return Task.FromResult(programmes);
+        return ret;
     }
 }

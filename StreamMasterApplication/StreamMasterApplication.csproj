@@ -39,6 +39,8 @@
     <Folder Include="Common\Aspects\" />
     <Folder Include="Common\Attributes\" />
     <Folder Include="Common\Repository\" />
+    <Folder Include="EPG\Commands\" />
+    <Folder Include="Programmes\Commands\" />
     <Folder Include="StreamGroupVideoStreams\EventHandlers\" />
     <Folder Include="StreamGroupVideoStreams\Events\" />
     <Folder Include="VideoStreamLinks\EventHandlers\" />

@@ -9,6 +9,7 @@ public record GetEpg : IRequest<string>;
 
 internal class GetEpgHandler(ISettingsService settingsService) : IRequestHandler<GetEpg, string>
 {
+    [LogExecutionTimeAspect]
     public async Task<string> Handle(GetEpg request, CancellationToken cancellationToken)
     {
         Setting setting = await settingsService.GetSettingsAsync();

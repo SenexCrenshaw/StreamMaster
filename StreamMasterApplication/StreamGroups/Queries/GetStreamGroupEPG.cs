@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Http;
 
 using StreamMasterApplication.Common.Extensions;
+using StreamMasterApplication.Programmes.Queries;
 
 using StreamMasterDomain.EPG;
 
@@ -81,25 +82,23 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             return "";
         }
 
-        Tv epgData = await PrepareEpgData(videoStreams);
+        Tv epgData = await PrepareEpgData(videoStreams, cancellationToken);
 
         return SerializeEpgData(epgData);
     }
 
     [LogExecutionTimeAspect]
-    private async Task<Tv> PrepareEpgData(IEnumerable<VideoStreamDto> videoStreams)
+    private async Task<Tv> PrepareEpgData(IEnumerable<VideoStreamDto> videoStreams, CancellationToken cancellationToken)
     {
         HashSet<string> epgids = new(videoStreams.Where(a => !a.IsHidden).Select(r => r.User_Tvg_ID));
 
-        List<Programme> cachedProgrammes = MemoryCache.Programmes().ToList().DeepCopy();
+        List<Programme> cachedProgrammes = await Sender.Send(new GetProgrammes(), cancellationToken).ConfigureAwait(false);
+
+        IEnumerable<Programme> programmes = cachedProgrammes.Where(a => a.StartDateTime > DateTime.Now.AddDays(-1) &&
+                        a.Channel != null &&
+                        (epgids.Contains(a.Channel) || epgids.Contains(a.DisplayName))).DeepCopy();
 
         List<IconFileDto> cachedIcons = MemoryCache.Icons().ToList();
-
-        List<Programme> programmes = cachedProgrammes
-            .Where(a => a.StartDateTime > DateTime.Now.AddDays(-1) &&
-                        a.Channel != null &&
-                        (epgids.Contains(a.Channel) || epgids.Contains(a.DisplayName)))
-            .ToList();
 
         List<IconFileDto> icons = cachedIcons;
 
@@ -172,7 +171,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         }
     }
 
-    private List<Programme> ProcessProgrammesForVideoStream(VideoStreamDto videoStream, List<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
+    private List<Programme> ProcessProgrammesForVideoStream(VideoStreamDto videoStream, IEnumerable<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
     {
         if (videoStream.User_Tvg_ID == null)
         {
@@ -225,7 +224,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         return programmesForStream;
     }
 
-    private List<Programme> ProcessNonDummyStreams(VideoStreamDto videoStream, List<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
+    private List<Programme> ProcessNonDummyStreams(VideoStreamDto videoStream, IEnumerable<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
     {
         List<Programme> programmesForStream = new();
 
@@ -293,9 +292,10 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     }
 
     [LogExecutionTimeAspect]
-    private List<Programme> GetRelevantProgrammes(List<string> epgids)
+    private async Task<List<Programme>> GetRelevantProgrammes(List<string> epgids, CancellationToken cancellationToken)
     {
-        return MemoryCache.Programmes()
+        List<Programme> programmes = await Sender.Send(new GetProgrammes(), cancellationToken).ConfigureAwait(false);
+        return programmes
             .Where(a =>
                 a.StartDateTime > DateTime.Now.AddDays(-1) &&
                 a.StopDateTime < DateTime.Now.AddDays(7) &&

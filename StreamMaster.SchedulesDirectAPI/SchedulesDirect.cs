@@ -5,7 +5,6 @@ using StreamMasterDomain.Dto;
 using StreamMasterDomain.EPG;
 using StreamMasterDomain.Models;
 
-using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
@@ -295,7 +294,7 @@ public class SchedulesDirect
         return result;
     }
 
-    public async Task<List<SDProgram>> GetPrograms(List<string> programIds, CancellationToken cancellationToken)
+    public async Task<List<SDProgram>> GetSDPrograms(List<string> programIds, CancellationToken cancellationToken)
     {
         string jsonString = JsonSerializer.Serialize(programIds);
         StringContent content = new(jsonString, Encoding.UTF8, "application/json");
@@ -394,22 +393,22 @@ public class SchedulesDirect
         return client;
     }
 
-    private (string value, string lang) GetSubTtitle(string? subTitle)
-    {
-        if (string.IsNullOrEmpty(subTitle))
-        {
-            return (string.Empty, string.Empty);
-        }
+    //public (string value, string lang) GetSubTtitle(string? subTitle)
+    //{
+    //    if (string.IsNullOrEmpty(subTitle))
+    //    {
+    //        return (string.Empty, string.Empty);
+    //    }
 
-        string[] parts = subTitle.Split(new char[] { ':' }, 2);
-        if (parts.Length == 1)
-        {
-            return (parts[0], string.Empty);
-        }
-        return (parts[1], parts[0]);
-    }
+    //    string[] parts = subTitle.Split(new char[] { ':' }, 2);
+    //    if (parts.Length == 1)
+    //    {
+    //        return (parts[0], string.Empty);
+    //    }
+    //    return (parts[1], parts[0]);
+    //}
 
-    private static List<TvTitle> GetTitles(List<Title> Titles, string lang)
+    public static List<TvTitle> GetTitles(List<Title> Titles, string lang)
     {
 
         List<TvTitle> ret = Titles.Select(a => new TvTitle
@@ -420,7 +419,7 @@ public class SchedulesDirect
         return ret;
     }
 
-    private static TvSubtitle GetSubTitles(SDProgram sdProgram, string lang)
+    public static TvSubtitle GetSubTitles(SDProgram sdProgram, string lang)
     {
         if (!string.IsNullOrEmpty(sdProgram.EpisodeTitle150))
         {
@@ -455,7 +454,7 @@ public class SchedulesDirect
         };
     }
 
-    private static TvCredits GetCredits(SDProgram sdProgram, string lang)
+    public static TvCredits GetCredits(SDProgram sdProgram, string lang)
     {
         TvCredits ret = new();
         if (sdProgram.Crew == null)
@@ -511,7 +510,7 @@ public class SchedulesDirect
         return ret;
     }
 
-    private static TvDesc GetDescriptions(SDProgram sdProgram, string lang)
+    public static TvDesc GetDescriptions(SDProgram sdProgram, string lang)
     {
 
         string description = "";
@@ -542,7 +541,7 @@ public class SchedulesDirect
         };
     }
 
-    private static List<TvCategory> GetCategory(SDProgram sdProgram, string lang)
+    public static List<TvCategory> GetCategory(SDProgram sdProgram, string lang)
     {
         List<TvCategory> ret = new();
 
@@ -561,7 +560,7 @@ public class SchedulesDirect
         return ret;
     }
 
-    private static List<TvEpisodenum> GetEpisodeNums(SDProgram sdProgram, string lang)
+    public static List<TvEpisodenum> GetEpisodeNums(SDProgram sdProgram, string lang)
     {
         List<TvEpisodenum> ret = new();
         int season = 0;
@@ -630,7 +629,7 @@ public class SchedulesDirect
 
     }
 
-    private static List<TvIcon> GetIcons(Program program, SDProgram sdProgram, Schedule sched, string lang)
+    public static List<TvIcon> GetIcons(Program program, SDProgram sdProgram, Schedule sched, string lang)
     {
         List<TvIcon> ret = new();
         List<string> aspects = new() { "2x3", "4x3", "3x4", "16x9" };
@@ -644,7 +643,7 @@ public class SchedulesDirect
 
     }
 
-    private static List<TvRating> GetRatings(SDProgram sdProgram, string countryCode)
+    public static List<TvRating> GetRatings(SDProgram sdProgram, string countryCode)
     {
         List<TvRating> ret = new();
 
@@ -665,7 +664,7 @@ public class SchedulesDirect
 
     }
 
-    private static TvVideo GetTvVideos(Program sdProgram)
+    public static TvVideo GetTvVideos(Program sdProgram)
     {
         TvVideo ret = new();
 
@@ -678,7 +677,7 @@ public class SchedulesDirect
 
     }
 
-    private static TvAudio GetTvAudios(Program sdProgram)
+    public static TvAudio GetTvAudios(Program sdProgram)
     {
         TvAudio ret = new();
 
@@ -710,7 +709,7 @@ public class SchedulesDirect
         }
 
         List<TvChannel> retChannels = new();
-        ConcurrentBag<Programme> retProgrammes = new();
+        List<Programme> retProgrammes = new();
 
 
         List<Station> stations = await GetStations(cancellationToken).ConfigureAwait(false);
@@ -742,7 +741,7 @@ public class SchedulesDirect
         }
 
         List<string> progIds = schedules.SelectMany(a => a.Programs).Select(a => a.ProgramID).Distinct().ToList();
-        List<SDProgram> programs = await GetPrograms(progIds, cancellationToken).ConfigureAwait(false);
+        List<SDProgram> programs = await GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
 
         foreach (SDProgram sdProg in programs)
         {

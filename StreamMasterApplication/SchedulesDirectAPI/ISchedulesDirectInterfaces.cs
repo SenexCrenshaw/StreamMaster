@@ -30,6 +30,7 @@ public interface ISchedulesDirectController
 
 public interface ISchedulesDirectDB
 {
+
 }
 
 public interface ISchedulesDirectHub

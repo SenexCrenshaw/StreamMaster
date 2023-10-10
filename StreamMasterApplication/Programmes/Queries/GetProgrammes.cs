@@ -1,18 +1,24 @@
-﻿using StreamMasterDomain.EPG;
+﻿using StreamMasterApplication.Services;
+
+using StreamMasterDomain.EPG;
+
 using System.Web;
 
 namespace StreamMasterApplication.Programmes.Queries;
 
-public record GetProgrammes : IRequest<IEnumerable<Programme>>;
+public record GetProgrammes : IRequest<List<Programme>>;
 
-internal class GetProgrammesHandler(IMemoryCache memoryCache) : IRequestHandler<GetProgrammes, IEnumerable<Programme>>
+internal class GetProgrammesHandler(IMemoryCache memoryCache, ISDService sdService) : IRequestHandler<GetProgrammes, List<Programme>>
 {
-    public Task<IEnumerable<Programme>> Handle(GetProgrammes request, CancellationToken cancellationToken)
+    public async Task<List<Programme>> Handle(GetProgrammes request, CancellationToken cancellationToken)
     {
-        IEnumerable<Programme> programmes = memoryCache.Programmes().ToList();
+        List<Programme> cacheValues = memoryCache.Programmess();
+        List<Programme> sdprogrammes = await sdService.GetProgrammes(cancellationToken).ConfigureAwait(false);
+        List<Programme> programmes = cacheValues.Concat(sdprogrammes).OrderBy(a => a.Channel).ToList();
+
         if (programmes == null)
         {
-            return Task.FromResult<IEnumerable<Programme>>(new List<Programme>());
+            return new();
         }
 
         List<IconFileDto> icons = memoryCache.Icons();
@@ -34,6 +40,6 @@ internal class GetProgrammesHandler(IMemoryCache memoryCache) : IRequestHandler<
             }
         }
 
-        return Task.FromResult(programmes);
+        return programmes;
     }
 }

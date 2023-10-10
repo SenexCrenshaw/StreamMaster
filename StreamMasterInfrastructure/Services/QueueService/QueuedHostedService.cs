@@ -10,7 +10,6 @@ using StreamMasterApplication.EPGFiles.Commands;
 using StreamMasterApplication.General.Commands;
 using StreamMasterApplication.Icons.Commands;
 using StreamMasterApplication.M3UFiles.Commands;
-using StreamMasterApplication.Programmes.Commands;
 using StreamMasterApplication.Services;
 
 using StreamMasterDomain.Enums;
@@ -70,10 +69,6 @@ public sealed class QueuedHostedService : BackgroundService
 
                 switch (command.Command)
                 {
-                    case SMQueCommand.AddProgrammesFromSD:
-                        await _sender.Send(new AddProgrammesFromSDRequest(), cancellationToken).ConfigureAwait(false);
-                        break;
-
                     case SMQueCommand.BuildIconCaches:
                         await _sender.Send(new BuildIconCachesRequest(), cancellationToken).ConfigureAwait(false);
                         break;

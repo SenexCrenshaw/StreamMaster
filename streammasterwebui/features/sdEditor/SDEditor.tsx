@@ -1,5 +1,6 @@
 import SchedulesDirectStationPreviewDataSelector from '@/components/schedulesDirect/SchedulesDirectStationPreviewDataSelector';
 import { useSchedulesDirectGetStatusQuery } from '@/lib/iptvApi';
+import { BlockUI } from 'primereact/blockui';
 import { memo, useMemo } from 'react';
 
 const SDEditor = () => {
@@ -24,18 +25,9 @@ const SDEditor = () => {
   return (
     <>
       {status}
-      {/* <SchedulesDirectCountrySelector onChange={(e) => setCountry(e)} value={country} />
-      <StringEditorBodyTemplate
-        onChange={async (e) => {
-          console.debug(e);
-          setPostalCode(e.toString());
-        }}
-        value={postalCode}
-      />
-      <SchedulesDirectHeadendDataSelector country={country} postalCode={postalCode} /> */}
-      {/* <SchedulesDirectLineUpsDataSelector id="sdEditor" /> */}
-      {/* <SchedulesDirectSchedulesDataSelector id="sdEditor" stationIds={[]} /> */}
-      <SchedulesDirectStationPreviewDataSelector />
+      <BlockUI blocked={getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() !== 'online'}>
+        <SchedulesDirectStationPreviewDataSelector />
+      </BlockUI>
     </>
   );
 };

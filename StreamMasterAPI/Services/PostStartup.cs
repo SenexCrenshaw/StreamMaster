@@ -4,6 +4,7 @@ using MediatR;
 
 using Microsoft.Extensions.Caching.Memory;
 
+using StreamMasterApplication.Programmes.Queries;
 using StreamMasterApplication.Services;
 
 using StreamMasterDomain.Cache;
@@ -39,7 +40,7 @@ public class PostStartup : BackgroundService
 
         _logger.LogInformation(
         $"{nameof(PostStartup)} is running.");
-
+        await _sender.Send(new GetProgrammes(), cancellationToken).ConfigureAwait(false);
         //await _hubContext.Clients.All.SystemStatusUpdate(new StreamMasterApplication.Settings.Queries.SystemStatus { IsSystemReady = false }).ConfigureAwait(false);
 
         // await _taskQueue.ScanDirectoryForIconFiles(cancellationToken).ConfigureAwait(false);
@@ -51,7 +52,7 @@ public class PostStartup : BackgroundService
         if (await IconHelper.ReadDirectoryLogos(_memoryCache, cancellationToken).ConfigureAwait(false))
         {
             List<IconFileDto> cacheValue = _mapper.Map<List<IconFileDto>>(_memoryCache.TvLogos());
-            _memoryCache.Set(cacheValue);
+            _memoryCache.SetCache(cacheValue);
         }
 
         await _taskQueue.ScanDirectoryForEPGFiles(cancellationToken).ConfigureAwait(false);

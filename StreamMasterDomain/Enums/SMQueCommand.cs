@@ -2,8 +2,6 @@
 
 public enum SMQueCommand
 {
-    AddProgrammesFromSD,
-
     BuildIconCaches,
     BuildProgIconsCacheFromEPGs,
     BuildIconsCacheFromVideoStreams,

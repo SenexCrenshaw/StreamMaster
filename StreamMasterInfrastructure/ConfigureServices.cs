@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.LogApp;
+using StreamMasterApplication.Services;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Services;
@@ -25,6 +26,7 @@ public static class ConfigureServices
         services.AddMemoryCache();
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<IStreamManager, StreamManager>();
+        services.AddSingleton<ISDService, SDService>();
 
         // Dynamically find and register services implementing IMapHttpRequestsToDisk
         Assembly assembly = Assembly.GetExecutingAssembly();

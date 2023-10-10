@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 using StreamMasterApplication.Common.Extensions;
+using StreamMasterApplication.Programmes.Queries;
 
 using StreamMasterDomain.EPG;
 
@@ -81,7 +82,9 @@ public partial class GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpC
         {
             List<string> epgids = videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID.ToLower()).Distinct().ToList();
 
-            List<Programme> programmes = MemoryCache.Programmes().Where(a => a.Channel != null && epgids.Contains(a.Channel.ToLower())).ToList();
+            List<Programme> c = await Sender.Send(new GetProgrammes(), cancellationToken).ConfigureAwait(false);
+
+            List<Programme> programmes = c.Where(a => a.Channel != null && epgids.Contains(a.Channel.ToLower())).ToList();
 
             if (programmes.Any())
             {

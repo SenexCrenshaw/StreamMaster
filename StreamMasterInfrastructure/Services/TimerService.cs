@@ -16,26 +16,19 @@ using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructure.Services;
 
-public class TimerService : IHostedService, IDisposable
+public class TimerService(
+    IServiceProvider serviceProvider,
+    IMemoryCache memoryCache,
+    ILogger<TimerService> logger
+       ) : IHostedService, IDisposable
 {
-    private readonly ILogger<TimerService> _logger;
-    private readonly IMemoryCache _memoryCache;
-    private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<TimerService> _logger = logger;
+    private readonly IMemoryCache _memoryCache = memoryCache;
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
     private readonly object Lock = new();
 
     private Timer? _timer;
     private bool isActive = false;
-
-    public TimerService(
-        IServiceProvider serviceProvider,
-        IMemoryCache memoryCache,
-        ILogger<TimerService> logger
-       )
-    {
-        _memoryCache = memoryCache;
-        _logger = logger;
-        _serviceProvider = serviceProvider;
-    }
 
     public void Dispose()
     {

@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.Icons.Commands;
 
@@ -55,6 +54,6 @@ public class ReadDirectoryLogosRequestHandler : IRequestHandler<ReadDirectoryLog
         tvLogos.AddRange(await FileUtil.GetIconFilesFromDirectory(dirInfo, BuildInfo.TVLogoDataFolder, tvLogos.Count, cancellationToken).ConfigureAwait(false));
 
         _memoryCache.ClearIcons();
-        _memoryCache.Set(tvLogos);
+        _memoryCache.SetCache(tvLogos);
     }
 }
