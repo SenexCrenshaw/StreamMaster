@@ -82,7 +82,6 @@ const SchedulesDirectStationPreviewDataSelector = () => {
   );
 
   useEffect(() => {
-    console.log('selectSelectedItems', selectSelectedItems);
     const lineUps = selectSelectedItems.map((stationPreview) => {
       return {
         lineUp: stationPreview.lineUp,
@@ -92,9 +91,22 @@ const SchedulesDirectStationPreviewDataSelector = () => {
     onSave(lineUps);
   }, [onSave, selectSelectedItems]);
 
-  const sourceColumns = useMemo((): ColumnMeta[] => {
+  function imageBodyTemplate(data: StationPreview) {
+    if (!data?.logo || data.logo.URL === '') {
+      return <div />;
+    }
+
+    return (
+      <div className="flex flex-nowrap justify-content-center align-items-center p-0">
+        <img alt={data.logo.URL ?? 'Logo'} className="max-h-1rem max-w-full p-0" src={`${encodeURI(data.logo.URL ?? '')}`} />
+      </div>
+    );
+  }
+
+  const columns = useMemo((): ColumnMeta[] => {
     return [
-      { field: 'stationId', filter: true, header: 'Station Id', sortable: true },
+      { field: 'stationId', filter: true, header: 'Station Id', sortable: true, width: '18rem' },
+      { field: 'logo', bodyTemplate: imageBodyTemplate, fieldType: 'image' },
       { field: 'lineUp', header: 'Line Up', sortable: true },
       { field: 'name', filter: true, header: 'Name', sortable: true },
       { field: 'callsign', filter: true, header: 'Call Sign', sortable: true },
@@ -107,7 +119,7 @@ const SchedulesDirectStationPreviewDataSelector = () => {
       <Toast position="bottom-right" ref={toast} />
       <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border">
         <DataSelector
-          columns={sourceColumns}
+          columns={columns}
           dataSource={stationPreviews.data}
           disableSelectAll={true}
           emptyMessage="No Line Ups"

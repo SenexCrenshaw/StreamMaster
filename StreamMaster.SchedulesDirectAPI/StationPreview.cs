@@ -13,8 +13,9 @@ public class StationPreview
         LineUp = station.LineUp;
         Name = station.Name;
         StationId = station.StationID;
+        Logo = station.Logo;
     }
-
+    public Logo Logo { get; set; }
     public string Affiliate { get; set; }
     public string Callsign { get; set; }
     public int Id { get; set; }

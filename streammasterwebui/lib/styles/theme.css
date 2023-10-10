@@ -23,10 +23,17 @@
   --orange-color: #fe7600;
 }
 
-/* .p-button.p-button-icon-only.p-button-rounded {
-   width: .08rem !important;
-   height: 1.6rem !important;
- } */
+.p-inputtext.p-component.p-column-filter.p-column-filter {
+  min-width: 4rem;
+}
+
+
+.p-column-filter-clear-button,
+.headercell,
+.p-column-filter-menu-button {
+  padding: 0rem !important;
+  margin: 0rem !important;
+}
 
 .copyButtonMessage {
   right: 40px;

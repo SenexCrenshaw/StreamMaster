@@ -310,8 +310,8 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/schedulesdirect/getlineups` }),
         providesTags: ['SchedulesDirect'],
       }),
-      schedulesDirectGetPrograms: build.query<SchedulesDirectGetProgramsApiResponse, SchedulesDirectGetProgramsApiArg>({
-        query: () => ({ url: `/api/schedulesdirect/getprograms` }),
+      schedulesDirectGetSdPrograms: build.query<SchedulesDirectGetSdProgramsApiResponse, SchedulesDirectGetSdProgramsApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getsdprograms` }),
         providesTags: ['SchedulesDirect'],
       }),
       schedulesDirectGetSchedules: build.query<SchedulesDirectGetSchedulesApiResponse, SchedulesDirectGetSchedulesApiArg>({
@@ -332,6 +332,10 @@ const injectedRtkApi = api
       }),
       schedulesDirectGetStatus: build.query<SchedulesDirectGetStatusApiResponse, SchedulesDirectGetStatusApiArg>({
         query: () => ({ url: `/api/schedulesdirect/getstatus` }),
+        providesTags: ['SchedulesDirect'],
+      }),
+      schedulesDirectGetEpg: build.query<SchedulesDirectGetEpgApiResponse, SchedulesDirectGetEpgApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getepg` }),
         providesTags: ['SchedulesDirect'],
       }),
       settingsGetIsSystemReady: build.query<SettingsGetIsSystemReadyApiResponse, SettingsGetIsSystemReadyApiArg>({
@@ -843,8 +847,8 @@ export type SchedulesDirectGetLineupPreviewsApiResponse = /** status 200  */ Lin
 export type SchedulesDirectGetLineupPreviewsApiArg = void;
 export type SchedulesDirectGetLineupsApiResponse = /** status 200  */ LineUpsResult;
 export type SchedulesDirectGetLineupsApiArg = void;
-export type SchedulesDirectGetProgramsApiResponse = /** status 200  */ SdProgram[];
-export type SchedulesDirectGetProgramsApiArg = void;
+export type SchedulesDirectGetSdProgramsApiResponse = /** status 200  */ SdProgram[];
+export type SchedulesDirectGetSdProgramsApiArg = void;
 export type SchedulesDirectGetSchedulesApiResponse = /** status 200  */ Schedule[];
 export type SchedulesDirectGetSchedulesApiArg = void;
 export type SchedulesDirectGetSelectedStationIdsApiResponse = /** status 200  */ StationIdLineUp[];
@@ -855,6 +859,8 @@ export type SchedulesDirectGetStationsApiResponse = /** status 200  */ Station[]
 export type SchedulesDirectGetStationsApiArg = void;
 export type SchedulesDirectGetStatusApiResponse = /** status 200  */ SdStatus;
 export type SchedulesDirectGetStatusApiArg = void;
+export type SchedulesDirectGetEpgApiResponse = unknown;
+export type SchedulesDirectGetEpgApiArg = void;
 export type SettingsGetIsSystemReadyApiResponse = /** status 200  */ boolean;
 export type SettingsGetIsSystemReadyApiArg = void;
 export type SettingsGetQueueStatusApiResponse = /** status 200  */ TaskQueueStatusDto[];
@@ -1196,6 +1202,7 @@ export type TvActor = {
 export type TvCredits = {
   actor?: TvActor[] | null;
   director?: string[] | null;
+  presenter?: string[] | null;
   producer?: string[] | null;
   writer?: string[] | null;
 };
@@ -1228,7 +1235,7 @@ export type TvTitle = {
   text?: string | null;
 };
 export type TvVideo = {
-  quality?: string | null;
+  quality?: (string | null)[];
 };
 export type Programme = {
   audio?: TvAudio;
@@ -1246,13 +1253,13 @@ export type Programme = {
   live?: string | null;
   premiere?: string | null;
   previouslyshown?: TvPreviouslyshown | null;
-  rating?: TvRating;
+  rating?: TvRating[];
   start?: string;
   startDateTime?: string;
   stop?: string;
   stopDateTime?: string;
   subtitle?: TvSubtitle;
-  title?: TvTitle;
+  title?: TvTitle[];
   video?: TvVideo;
   name?: string;
 };
@@ -1531,6 +1538,7 @@ export type StationIdLineUp = {
   stationId?: string;
 };
 export type StationPreview = {
+  logo?: Logo;
   affiliate?: string;
   callsign?: string;
   id?: number;
@@ -1944,12 +1952,13 @@ export const {
   useSchedulesDirectGetLineupQuery,
   useSchedulesDirectGetLineupPreviewsQuery,
   useSchedulesDirectGetLineupsQuery,
-  useSchedulesDirectGetProgramsQuery,
+  useSchedulesDirectGetSdProgramsQuery,
   useSchedulesDirectGetSchedulesQuery,
   useSchedulesDirectGetSelectedStationIdsQuery,
   useSchedulesDirectGetStationPreviewsQuery,
   useSchedulesDirectGetStationsQuery,
   useSchedulesDirectGetStatusQuery,
+  useSchedulesDirectGetEpgQuery,
   useSettingsGetIsSystemReadyQuery,
   useSettingsGetQueueStatusQuery,
   useSettingsGetSettingQuery,

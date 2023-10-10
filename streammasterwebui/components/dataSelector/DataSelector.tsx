@@ -77,7 +77,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     ? props.queryFilter(queryFilter ?? skipToken)
     : { data: undefined, isFetching: false, isLoading: false };
 
-  const onsetSelection = useCallback(
+  const onSetSelection = useCallback(
     (e: T | T[], overRideSelectAll?: boolean): T | T[] | undefined => {
       let selected: T[] = Array.isArray(e) ? e : [e];
 
@@ -104,7 +104,6 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
 
   const selectedData = useCallback(
     (data: T[]): T[] => {
-      console.log('selectedData', state.showSelections);
       if (props.showSelections !== true) {
         return data;
       }
@@ -131,29 +130,6 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
   );
 
   useEffect(() => {
-    if (!props.dataSource) {
-      return;
-    }
-
-    if (props.dataSource) {
-      const newData = selectedData(props.dataSource);
-      if (!state.dataSource || (state.dataSource && !areArraysEqual(newData, state.dataSource))) {
-        if (!props.reorderable) {
-          setters.setDataSource(newData);
-        } else {
-          setters.setDataSource([...newData].sort((a, b) => a.rank - b.rank));
-        }
-
-        setters.setPagedInformation(undefined);
-
-        if (state.selectAll) {
-          onsetSelection(newData);
-        }
-      }
-
-      return;
-    }
-
     if (!data) {
       return;
     }
@@ -194,7 +170,31 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
 
       return;
     }
-  }, [data, onsetSelection, props.dataSource, props.reorderable, selectedData, setters, state.dataSource, state.selectAll, state.showSelections]);
+  }, [data, setters, state.dataSource, state.selectAll]);
+
+  useEffect(() => {
+    if (!props.dataSource) {
+      return;
+    }
+
+    const newData = selectedData(props.dataSource);
+
+    if (!state.dataSource || (state.dataSource && !areArraysEqual(newData, state.dataSource))) {
+      if (!props.reorderable) {
+        setters.setDataSource(newData);
+      } else {
+        setters.setDataSource([...newData].sort((a, b) => a.rank - b.rank));
+      }
+
+      setters.setPagedInformation(undefined);
+
+      if (state.selectAll) {
+        onSetSelection(newData);
+      }
+    }
+
+    return;
+  }, [onSetSelection, props.dataSource, props.reorderable, selectedData, setters, state.dataSource, state.selectAll]);
 
   const onRowReorder = (changed: T[]) => {
     setters.setDataSource(changed);
@@ -280,18 +280,18 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
 
       if (props.selectionMode === 'single') {
         if (e.value instanceof Array) {
-          onsetSelection(e.value[e.value.length - 1]);
+          onSetSelection(e.value[e.value.length - 1]);
         } else {
-          onsetSelection(e.value);
+          onSetSelection(e.value);
         }
         return;
       }
 
       if (props.selectionMode === 'multiple') {
         if (e.value instanceof Array) {
-          onsetSelection(e.value);
+          onSetSelection(e.value);
         } else {
-          onsetSelection([e.value]);
+          onSetSelection([e.value]);
         }
 
         return;
@@ -313,9 +313,9 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
         }
       }
 
-      onsetSelection(sel);
+      onSetSelection(sel);
     },
-    [onsetSelection, props, state.selectAll],
+    [onSetSelection, props, state.selectAll],
   );
 
   const getAlign = useCallback((align: ColumnAlign | null | undefined, fieldType: ColumnFieldType): ColumnAlign => {
@@ -358,35 +358,46 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     return filter;
   }, []);
 
-  const getStyle = useCallback((style: CSSProperties | undefined, fieldType: ColumnFieldType | undefined): CSSProperties | undefined => {
-    if (fieldType === 'blank') {
+  const getStyle = useCallback((col: ColumnMeta): CSSProperties | undefined => {
+    if (col.fieldType === 'blank') {
       return {
         maxWidth: '1rem',
         width: '1rem',
       } as CSSProperties;
     }
 
-    if (fieldType === 'image') {
+    if (col.fieldType === 'image') {
       return {
         maxWidth: '5rem',
         width: '5rem',
       } as CSSProperties;
     }
 
-    if (fieldType === 'm3ulink' || fieldType === 'epglink' || fieldType === 'url') {
+    if (col.fieldType === 'm3ulink' || col.fieldType === 'epglink' || col.fieldType === 'url') {
       return {
         maxWidth: '3rem',
         width: '3rem',
       } as CSSProperties;
     }
 
+    if (col.width !== undefined && col.width !== '') {
+      return {
+        ...col.style,
+        flexGrow: 0,
+        flexShrink: 1,
+        maxWidth: col.width,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        width: col.width,
+        whiteSpace: 'nowrap',
+      } as CSSProperties;
+    }
+
     return {
-      ...style,
+      ...col.style,
       flexGrow: 0,
       flexShrink: 1,
       overflow: 'hidden',
-      paddingLeft: '0.5rem !important',
-      paddingRight: '0.5rem !important',
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap',
     } as CSSProperties;
@@ -513,9 +524,9 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     // props.onSelectAllChange?.(newSelectAll);
 
     if (newSelectAll && state.dataSource) {
-      onsetSelection(state.dataSource, true);
+      onSetSelection(state.dataSource, true);
     } else {
-      onsetSelection([]);
+      onSetSelection([]);
     }
   };
 
@@ -611,6 +622,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
             <Column
               align={getAlign(col.align, col.fieldType)}
               alignHeader={getAlignHeader(col.align, col.fieldType)}
+              className={col.className}
               body={(e) => (col.bodyTemplate ? col.bodyTemplate(e) : bodyTemplate(e, col.field, col.fieldType, setting.defaultIcon, col.camelize))}
               editor={col.editor}
               field={col.field}
@@ -633,7 +645,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
               showFilterMenuOptions
               showFilterOperator
               sortable={props.reorderable ? false : col.sortable}
-              style={getStyle(col.style, col.fieldType)}
+              style={getStyle(col)}
             />
           ))}
         </DataTable>
