@@ -1,30 +1,21 @@
-import ChannelGroupAddDialog from '@/components/channelGroups/ChannelGroupAddDialog'
-import ChannelGroupDeleteDialog from '@/components/channelGroups/ChannelGroupDeleteDialog'
-import ChannelGroupEditDialog from '@/components/channelGroups/ChannelGroupEditDialog'
-import ChannelGroupVisibleDialog from '@/components/channelGroups/ChannelGroupVisibleDialog'
-import DataSelector from '@/components/dataSelector/DataSelector'
-import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes'
-import { TriSelect } from '@/components/selectors/TriSelect'
-import {
-  ChannelGroupDto,
-  useChannelGroupsGetPagedChannelGroupsQuery,
-} from '@/lib/iptvApi'
-import { useShowHidden } from '@/lib/redux/slices/useShowHidden'
-import {
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  type CSSProperties,
-} from 'react'
+import ChannelGroupAddDialog from '@/components/channelGroups/ChannelGroupAddDialog';
+import ChannelGroupDeleteDialog from '@/components/channelGroups/ChannelGroupDeleteDialog';
+import ChannelGroupEditDialog from '@/components/channelGroups/ChannelGroupEditDialog';
+import ChannelGroupVisibleDialog from '@/components/channelGroups/ChannelGroupVisibleDialog';
+import DataSelector from '@/components/dataSelector/DataSelector';
+import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes';
+import { TriSelectShowHidden } from '@/components/selectors/TriSelectShowHidden';
+import { ChannelGroupDto, useChannelGroupsGetPagedChannelGroupsQuery } from '@/lib/iptvApi';
+import { useShowHidden } from '@/lib/redux/slices/useShowHidden';
+import { memo, useCallback, useEffect, useMemo, type CSSProperties } from 'react';
 
 export type PlayListDataSelectorProps = {
-  readonly hideAddRemoveControls?: boolean
-  readonly hideControls?: boolean
-  readonly id: string
-  readonly name?: string
-  readonly useReadOnly?: boolean
-}
+  readonly hideAddRemoveControls?: boolean;
+  readonly hideControls?: boolean;
+  readonly id: string;
+  readonly name?: string;
+  readonly useReadOnly?: boolean;
+};
 
 const PlayListDataSelector = ({
   hideAddRemoveControls = false,
@@ -33,24 +24,20 @@ const PlayListDataSelector = ({
   name = 'Playlist',
   useReadOnly = true,
 }: PlayListDataSelectorProps) => {
-  const dataKey = id + '-PlayListDataSelector'
-  const { showHidden, setShowHidden } = useShowHidden(dataKey)
+  const dataKey = id + '-PlayListDataSelector';
+  const { showHidden, setShowHidden } = useShowHidden(dataKey);
 
   useEffect(() => {
     if (showHidden === undefined && showHidden !== null) {
-      setShowHidden(null)
+      setShowHidden(null);
     }
-  }, [setShowHidden, showHidden])
+  }, [setShowHidden, showHidden]);
 
   const sourceActionBodyTemplate = useCallback(
     (data: ChannelGroupDto) => (
       <div className="flex p-0 justify-content-end align-items-center">
         <div hidden={data.isReadOnly === true && useReadOnly}>
-          <ChannelGroupDeleteDialog
-            iconFilled={false}
-            id={dataKey}
-            value={data}
-          />
+          <ChannelGroupDeleteDialog iconFilled={false} id={dataKey} value={data} />
         </div>
 
         <ChannelGroupEditDialog value={data} />
@@ -58,7 +45,7 @@ const PlayListDataSelector = ({
       </div>
     ),
     [dataKey, useReadOnly],
-  )
+  );
 
   const sourceColumns = useMemo((): ColumnMeta[] => {
     return [
@@ -83,15 +70,15 @@ const PlayListDataSelector = ({
           width: '8rem',
         } as CSSProperties,
       },
-    ]
-  }, [sourceActionBodyTemplate])
+    ];
+  }, [sourceActionBodyTemplate]);
 
   const sourceRightHeaderTemplate = useCallback(() => {
     return (
       <div className="flex justify-content-end align-items-center w-full gap-1">
         {hideControls !== true && (
           <>
-            <TriSelect dataKey={dataKey} />
+            <TriSelectShowHidden dataKey={dataKey} />
             <ChannelGroupVisibleDialog id={dataKey} skipOverLayer={false} />
             <ChannelGroupDeleteDialog iconFilled id={dataKey} />
           </>
@@ -99,17 +86,15 @@ const PlayListDataSelector = ({
 
         <ChannelGroupAddDialog />
       </div>
-    )
-  }, [hideControls, dataKey])
+    );
+  }, [hideControls, dataKey]);
 
   return (
     <DataSelector
       columns={sourceColumns}
       emptyMessage="No Channel Groups"
       headerName={name === undefined ? 'Playlist' : name}
-      headerRightTemplate={
-        hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()
-      }
+      headerRightTemplate={hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
       hideControls={hideControls}
       id={dataKey}
       queryFilter={useChannelGroupsGetPagedChannelGroupsQuery}
@@ -117,9 +102,9 @@ const PlayListDataSelector = ({
       selectionMode="multiple"
       style={{ height: 'calc(100vh - 40px)' }}
     />
-  )
-}
+  );
+};
 
-PlayListDataSelector.displayName = 'Play List Editor'
+PlayListDataSelector.displayName = 'Play List Editor';
 
-export default memo(PlayListDataSelector)
+export default memo(PlayListDataSelector);

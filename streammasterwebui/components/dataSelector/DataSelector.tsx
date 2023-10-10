@@ -35,6 +35,7 @@ import { useQueryFilter } from '@/lib/redux/slices/useQueryFilter';
 import { skipToken } from '@reduxjs/toolkit/dist/query/react';
 import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';
+import { TriSelectShowSelection } from '../selectors/TriSelectShowSelection';
 import { useSetQueryFilter } from './useSetQueryFilter';
 
 const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => {
@@ -101,23 +102,52 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     [state.selectSelectedItems, state.selectAll, props, setters],
   );
 
+  const selectedData = useCallback(
+    (data: T[]): T[] => {
+      console.log('selectedData', state.showSelections);
+      if (props.showSelections !== true) {
+        return data;
+      }
+
+      if (state.showSelections === null) {
+        return data;
+      }
+
+      if (state.showSelections === true) {
+        return state.selectSelectedItems;
+      }
+
+      if (!state.selectSelectedItems) {
+        return [] as T[];
+      }
+
+      var ret = data.filter((d) => {
+        return !state.selectSelectedItems?.some((s) => s.id === d.id);
+      });
+
+      return ret;
+    },
+    [props.showSelections, state.selectSelectedItems, state.showSelections],
+  );
+
   useEffect(() => {
-    if (!props.dataSource && !data) {
+    if (!props.dataSource) {
       return;
     }
 
     if (props.dataSource) {
-      if (!state.dataSource || (state.dataSource && !areArraysEqual(props.dataSource, state.dataSource))) {
+      const newData = selectedData(props.dataSource);
+      if (!state.dataSource || (state.dataSource && !areArraysEqual(newData, state.dataSource))) {
         if (!props.reorderable) {
-          setters.setDataSource(props.dataSource);
+          setters.setDataSource(newData);
         } else {
-          setters.setDataSource([...props.dataSource].sort((a, b) => a.rank - b.rank));
+          setters.setDataSource([...newData].sort((a, b) => a.rank - b.rank));
         }
 
         setters.setPagedInformation(undefined);
 
         if (state.selectAll) {
-          onsetSelection(props.dataSource);
+          onsetSelection(newData);
         }
       }
 
@@ -164,7 +194,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
 
       return;
     }
-  }, [data, onsetSelection, props.dataSource, props.reorderable, setters, state.dataSource, state.selectAll]);
+  }, [data, onsetSelection, props.dataSource, props.reorderable, selectedData, setters, state.dataSource, state.selectAll, state.showSelections]);
 
   const onRowReorder = (changed: T[]) => {
     setters.setDataSource(changed);
@@ -389,9 +419,14 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
   );
 
   const multiselectHeader = () => {
+    if (props.showSelections === true) {
+      return <TriSelectShowSelection dataKey={props.id} />;
+    }
+
     if (props.disableSelectAll === true) {
       return <div className="text-xs text-white text-500"></div>;
     }
+
     return (
       <div className="text-xs text-white text-500">
         <BanButton
@@ -563,7 +598,12 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
             className={`justify-content-center align-items-center multiselect ${props.selectionMode}`}
             header={multiselectHeader}
             headerStyle={{ padding: '0px', width: '3rem' }}
-            hidden={props.selectionMode !== 'multiple' && props.selectionMode !== 'checkbox' && props.selectionMode !== 'multipleNoRowCheckBox'}
+            hidden={
+              !props.showSelections &&
+              props.selectionMode !== 'multiple' &&
+              props.selectionMode !== 'checkbox' &&
+              props.selectionMode !== 'multipleNoRowCheckBox'
+            }
             resizeable={false}
             selectionMode="multiple"
           />
@@ -635,6 +675,7 @@ type BaseDataSelectorProps<T = any> = {
   selectedStreamGroupId?: number;
   selectionMode?: DataSelectorSelectionMode;
   showHeaders?: boolean | undefined;
+  showSelections?: boolean;
   showSelector?: boolean;
   sortField?: string;
   sortOrder?: number;

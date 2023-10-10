@@ -12,7 +12,6 @@ import { Toast } from 'primereact/toast';
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
-import SchedulesDirectProgramsDataSelector from './SchedulesDirectProgramsDataSelector';
 const SchedulesDirectStationPreviewDataSelector = () => {
   const toast = useRef<Toast>(null);
 
@@ -41,20 +40,14 @@ const SchedulesDirectStationPreviewDataSelector = () => {
     if (findDifferenceStationIdLineUps(sp, schedulesDirectGetSelectedStationIdsQuery.data).length !== 0) {
       setSelectSelectedItems(sp as StationPreview[]);
     }
-  }, [schedulesDirectGetSelectedStationIdsQuery.data, stationPreviews.data]);
+  }, [schedulesDirectGetSelectedStationIdsQuery.data, schedulesDirectGetSelectedStationIdsQuery.isLoading, setSelectSelectedItems, stationPreviews.data]);
 
   const onSave = useCallback(
     (stationIdLineUps: StationIdLineUp[]) => {
       if (stationIdLineUps === undefined || schedulesDirectGetSelectedStationIdsQuery.data === undefined) {
         return;
       }
-      // console.log(stationIdLineUps);
-
       const test = findDifferenceStationIdLineUps(schedulesDirectGetSelectedStationIdsQuery.data, stationIdLineUps);
-      // console.log('schedulesDirectGetSelectedStationIdsQuery', schedulesDirectGetSelectedStationIdsQuery.data);
-      // console.log('stationIdLineUps', stationIdLineUps);
-      // console.log('test', test);
-
       if (test.length === 0) {
         return;
       }
@@ -101,7 +94,7 @@ const SchedulesDirectStationPreviewDataSelector = () => {
 
   const sourceColumns = useMemo((): ColumnMeta[] => {
     return [
-      { field: 'stationId', filter: true, header: 'Station Id' },
+      { field: 'stationId', filter: true, header: 'Station Id', sortable: true },
       { field: 'lineUp', header: 'Line Up', sortable: true },
       { field: 'name', filter: true, header: 'Name', sortable: true },
       { field: 'callsign', filter: true, header: 'Call Sign', sortable: true },
@@ -126,9 +119,10 @@ const SchedulesDirectStationPreviewDataSelector = () => {
           }}
           selectedItemsKey="SchedulesDirectSchedulesDataSelector"
           selectionMode="multiple"
-          style={{ height: 'calc(50vh - 40px)' }}
+          showSelections
+          style={{ height: 'calc(100vh - 40px)' }}
         />
-        <SchedulesDirectProgramsDataSelector id="SchedulesDirectStationPreviewDataSelector2" />
+        {/* <SchedulesDirectProgramsDataSelector id="SchedulesDirectStationPreviewDataSelector2" /> */}
       </div>
     </>
   );

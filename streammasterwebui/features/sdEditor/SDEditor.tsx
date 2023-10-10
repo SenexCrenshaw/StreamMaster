@@ -1,30 +1,25 @@
-import SchedulesDirectStationPreviewDataSelector from '@/components/schedulesDirect/SchedulesDirectStationPreviewDataSelector'
-import { useSchedulesDirectGetStatusQuery } from '@/lib/iptvApi'
-import { memo, useMemo } from 'react'
+import SchedulesDirectStationPreviewDataSelector from '@/components/schedulesDirect/SchedulesDirectStationPreviewDataSelector';
+import { useSchedulesDirectGetStatusQuery } from '@/lib/iptvApi';
+import { memo, useMemo } from 'react';
 
 const SDEditor = () => {
-  const getStatusQuery = useSchedulesDirectGetStatusQuery()
+  const getStatusQuery = useSchedulesDirectGetStatusQuery();
 
   const status = useMemo(() => {
-    if (
-      getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() ===
-      'online'
-    ) {
+    if (getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() === 'online') {
       return (
         <div>
-          Schedules Direct System Status:{' '}
-          <span className="text-green-500">Online</span>
+          Schedules Direct System Status: <span className="text-green-500">Online</span>
         </div>
-      )
+      );
     }
 
     return (
       <div>
-        Schedules Direct System Status:{' '}
-        <span className="text-red-500">Offline</span>
+        Schedules Direct System Status: <span className="text-red-500">Offline</span>
       </div>
-    )
-  }, [getStatusQuery.data])
+    );
+  }, [getStatusQuery.data]);
 
   return (
     <>
@@ -42,7 +37,7 @@ const SDEditor = () => {
       {/* <SchedulesDirectSchedulesDataSelector id="sdEditor" stationIds={[]} /> */}
       <SchedulesDirectStationPreviewDataSelector />
     </>
-  )
-}
+  );
+};
 
-export default memo(SDEditor)
+export default memo(SDEditor);

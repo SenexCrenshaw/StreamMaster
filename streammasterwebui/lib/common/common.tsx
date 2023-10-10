@@ -1,4 +1,3 @@
-import { type DataSelectorProps } from '@/components/dataSelector/DataSelector';
 import { type ColumnMeta } from '@/components/dataSelector/DataSelectorTypes';
 import ExportButton from '@/components/export/ExportButton';
 import GlobalSearch from '@/components/search/GlobalSearch';
@@ -542,7 +541,6 @@ export function isEmptyObject(value: any): boolean {
 
 type MultiSelectCheckboxProps = {
   readonly onMultiSelectClick?: (value: boolean) => void;
-  readonly props: DataSelectorProps;
   readonly rowClick: boolean;
   readonly setRowClick: (val: boolean) => void;
 };
@@ -554,20 +552,18 @@ type MultiSelectCheckboxProps = {
  * @param props The properties for the MultiSelectCheckbox component.
  */
 export const MultiSelectCheckbox: React.FC<MultiSelectCheckboxProps> = (props) => {
-  const { onMultiSelectClick, rowClick, setRowClick, props: dataSelectorProps } = props;
+  const { onMultiSelectClick, rowClick, setRowClick } = props;
 
   return (
-    <div hidden={dataSelectorProps.selectionMode !== 'selectable'}>
-      <Checkbox
-        checked={rowClick}
-        onChange={(e) => {
-          onMultiSelectClick?.(e.checked ?? false);
-          setRowClick(e.checked ?? false);
-        }}
-        tooltip="Multi Select"
-        tooltipOptions={getTopToolOptions}
-      />
-    </div>
+    <Checkbox
+      checked={rowClick}
+      onChange={(e) => {
+        onMultiSelectClick?.(e.checked ?? false);
+        setRowClick(e.checked ?? false);
+      }}
+      tooltip="Multi Select"
+      tooltipOptions={getTopToolOptions}
+    />
   );
 };
 

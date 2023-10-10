@@ -7,6 +7,7 @@ import { VideoStreamIsReadOnly } from '@/lib/iptvApi';
 import { useSelectAll } from '@/lib/redux/slices/useSelectAll';
 import { useSelectedItems } from '@/lib/redux/slices/useSelectedItemsSlice';
 import { useShowHidden } from '@/lib/redux/slices/useShowHidden';
+import { useShowSelections } from '@/lib/redux/slices/useShowSelections';
 import { useSortInfo } from '@/lib/redux/slices/useSortInfo';
 import { type PagedTableInformation } from './DataSelector';
 
@@ -16,7 +17,7 @@ const useDataSelectorState = <T extends DataTableValue>(id: string, selectedItem
 
   const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<T>(selectedItemsKey);
   const { showHidden } = useShowHidden(id);
-
+  const { showSelections, setShowSelections } = useShowSelections(id);
   const [rowClick, setRowClick] = useLocalStorage<boolean>(false, id + '-rowClick');
 
   const [pagedInformation, setPagedInformation] = useState<PagedTableInformation>();
@@ -56,6 +57,7 @@ const useDataSelectorState = <T extends DataTableValue>(id: string, selectedItem
       setRows,
       setSelectAll,
       setSelectSelectedItems,
+      setShowSelections,
       setSortField,
       setSortOrder,
       setVideoStreamIsReadOnlys,
@@ -74,6 +76,7 @@ const useDataSelectorState = <T extends DataTableValue>(id: string, selectedItem
       selectAll,
       selectSelectedItems,
       showHidden,
+      showSelections,
       sortField,
       sortOrder,
       videoStreamIsReadOnlys,
