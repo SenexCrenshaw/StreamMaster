@@ -1,3 +1,4 @@
+'use client';
 import { ExportComponent, formatJSONDateString } from '../../lib/common/common';
 import { LogIcon } from '../../lib/common/icons';
 import { LogEntry, LogEntryDto } from '../../lib/iptvApi';
