@@ -59,7 +59,8 @@ const LogViewer = () => {
           setLastLogId(uniqueData[uniqueData.length - 1].id);
         }
       })
-      .catch((error) => {
+      // @ts-ignore
+      .catch((error: any) => {
         console.log(error);
       });
   }, [dataSource, lastLogId]);
