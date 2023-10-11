@@ -1,6 +1,7 @@
 import { ExportComponent, formatJSONDateString } from '@/lib/common/common';
 import { LogIcon } from '@/lib/common/icons';
 import { LogEntry, LogEntryDto } from '@/lib/iptvApi';
+// @ts-ignore
 import { GetLog } from '@/lib/smAPI/Logs/LogsGetAPI';
 
 import { FilterMatchMode } from 'primereact/api';
