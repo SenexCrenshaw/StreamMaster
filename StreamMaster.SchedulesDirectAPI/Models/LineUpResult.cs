@@ -51,15 +51,12 @@ public class Station
     [JsonPropertyName("stationLogo")]
     public List<StationLogo> StationLogo { get; set; }
 }
-public class StationId
+public class StationId(string stationID)
+
 
 {
-    public StationId(string stationID)
-    {
-        StationID = stationID;
-    }
     [JsonPropertyName("stationID")]
-    public string StationID { get; set; }
+    public string StationID { get; set; } = stationID;
 }
 
 public class Broadcaster

@@ -1,5 +1,4 @@
-﻿using StreamMasterDomain.EPG;
-using StreamMasterDomain.Pagination;
+﻿using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Programmes.Queries;
 public record GetProgrammsSimpleQuery(ProgrammeParameters Parameters) : IRequest<List<ProgrammeNameDto>>;
@@ -15,7 +14,7 @@ internal class GetProgrammsSimpleQueryHandler : BaseMediatorRequestHandler, IReq
         List<ProgrammeNameDto> ret = new();
 
         // Retrieve and filter Programmes
-        List<Programme> filteredProgrammes = await Sender.Send(new GetProgrammes(), cancellationToken).ConfigureAwait(false);
+        IEnumerable<ProgrammeNameDto> filteredProgrammes = await Sender.Send(new GetProgrammeNamesDto(), cancellationToken).ConfigureAwait(false);
 
         if (filteredProgrammes.Any())
         {
@@ -30,11 +29,11 @@ internal class GetProgrammsSimpleQueryHandler : BaseMediatorRequestHandler, IReq
 
             foreach (string channel in distinctChannels)
             {
-                Programme? programme = filteredProgrammes.FirstOrDefault(a => a.Channel == channel);
+                ProgrammeNameDto? programme = filteredProgrammes.FirstOrDefault(a => a.Channel == channel);
                 if (programme != null)
                 {
-                    ProgrammeNameDto programmeDto = Mapper.Map<ProgrammeNameDto>(programme);
-                    ret.Add(programmeDto);
+                    //ProgrammeNameDto programmeDto = Mapper.Map<ProgrammeNameDto>(programme);
+                    ret.Add(programme);
                 }
             }
 

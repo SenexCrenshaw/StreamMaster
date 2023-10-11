@@ -10,6 +10,7 @@ using StreamMasterApplication.EPGFiles.Commands;
 using StreamMasterApplication.General.Commands;
 using StreamMasterApplication.Icons.Commands;
 using StreamMasterApplication.M3UFiles.Commands;
+using StreamMasterApplication.Programmes.Commands;
 using StreamMasterApplication.Services;
 
 using StreamMasterDomain.Enums;
@@ -91,6 +92,9 @@ public sealed class QueuedHostedService : BackgroundService
                         {
                             _ = await _sender.Send(new ProcessEPGFileRequest((int)command.Entity), cancellationToken).ConfigureAwait(false);
                         }
+                        break;
+                    case SMQueCommand.SetSDProgramme:
+                        await _sender.Send(new SetSDProgramme(), cancellationToken).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.UpdateChannelGroupCounts:

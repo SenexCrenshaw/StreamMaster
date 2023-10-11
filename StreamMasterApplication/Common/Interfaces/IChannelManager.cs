@@ -10,7 +10,7 @@ namespace StreamMasterApplication.Common.Interfaces
 
         Task FailClient(Guid clientId);
 
-        List<StreamStatisticsResult> GetAllStatisticsForAllUrls();
+        Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls();
 
         SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl);
 

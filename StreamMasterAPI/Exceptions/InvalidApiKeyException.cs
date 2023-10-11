@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace StreamMasterAPI.Exceptions
+﻿namespace StreamMasterAPI.Exceptions
 {
     public class InvalidApiKeyException : Exception
     {
@@ -10,6 +8,10 @@ namespace StreamMasterAPI.Exceptions
 
         public InvalidApiKeyException(string message)
             : base(message)
+        {
+        }
+
+        public InvalidApiKeyException(string? message, Exception? innerException) : base(message, innerException)
         {
         }
     }

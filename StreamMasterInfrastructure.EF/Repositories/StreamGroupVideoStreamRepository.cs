@@ -38,12 +38,12 @@ public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepo
                 return;
             }
 
-            List<StreamGroupVideoStream> streamGroupVideoStreams = toRun.Select(videoStreamId => new StreamGroupVideoStream
+            List<StreamGroupVideoStream> streamGroupVideoStreams = toRun.ConvertAll(videoStreamId => new StreamGroupVideoStream
             {
                 StreamGroupId = StreamGroupId,
                 ChildVideoStreamId = videoStreamId,
                 IsReadOnly = IsReadOnly
-            }).ToList();
+            });
 
             BulkInsert(streamGroupVideoStreams);
 
@@ -63,12 +63,9 @@ public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepo
             return repository.VideoStream.CreateEmptyPagedResponse();
         }
 
-        if (!string.IsNullOrEmpty(Parameters.JSONFiltersString))
+        if (!string.IsNullOrEmpty(Parameters.JSONFiltersString) && Regex.IsMatch(Parameters.JSONFiltersString, "streamgroupid", RegexOptions.IgnoreCase))
         {
-            if (Regex.IsMatch(Parameters.JSONFiltersString, "streamgroupid", RegexOptions.IgnoreCase))
-            {
-                Parameters.JSONFiltersString = Regex.Replace(Parameters.JSONFiltersString, "streamgroupid", "user_tvg_name", RegexOptions.IgnoreCase);
-            }
+            Parameters.JSONFiltersString = Regex.Replace(Parameters.JSONFiltersString, "streamgroupid", "user_tvg_name", RegexOptions.IgnoreCase);
         }
 
         if (Regex.IsMatch(Parameters.OrderBy, "streamgroupid", RegexOptions.IgnoreCase))
@@ -83,10 +80,10 @@ public class StreamGroupVideoStreamRepository(ILogger<StreamGroupVideoStreamRepo
 
         PagedResponse<VideoStreamDto> pagedResponse = await childQ.GetPagedResponseWithFilterAsync<VideoStream, VideoStreamDto>(Parameters.JSONFiltersString, Parameters.OrderBy, Parameters.PageNumber, Parameters.PageSize, mapper).ConfigureAwait(false);
 
-        List<string> streamIds = pagedResponse.Data.Select(a => a.Id).ToList();
+        List<string> streamIds = pagedResponse.Data.ConvertAll(a => a.Id);
 
         List<StreamGroupVideoStream> existinglinks = RepositoryContext.StreamGroupVideoStreams
-            .Where(a => a.StreamGroupId == Parameters.StreamGroupId && streamIds.Contains(a.ChildVideoStreamId) && a.IsReadOnly == true).ToList();
+            .Where(a => a.StreamGroupId == Parameters.StreamGroupId && streamIds.Contains(a.ChildVideoStreamId) && a.IsReadOnly).ToList();
 
         foreach (VideoStreamDto item in pagedResponse.Data)
         {

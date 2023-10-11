@@ -39,7 +39,7 @@ public class ProgrammesController : ApiControllerBase, IProgrammeChannelControll
     [Route("[action]")]
     public async Task<ActionResult<IEnumerable<Programme>>> GetProgrammes()
     {
-        return Ok(await Mediator.Send(new GetProgrammes()).ConfigureAwait(false));
+        return Ok(await Mediator.Send(new GetProgrammesRequest()).ConfigureAwait(false));
     }
 
     [HttpGet]

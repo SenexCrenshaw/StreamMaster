@@ -1,7 +1,7 @@
 type messages_enType = {
-  [key: string]: string
-  ffMpegOptions: string
-}
+  [key: string]: string;
+  ffMpegOptions: string;
+};
 const messages_en: messages_enType = {
   add: 'Add',
   added: 'Added',
@@ -27,8 +27,7 @@ const messages_en: messages_enType = {
   ffmPegExecutable: 'FFMPeg Executable',
   ffMpegOptions: 'FFMPeg Options',
   filesEPGM3U: 'Files / EPG / M3U',
-  formsAuthRequiresAdminUserName:
-    'Forms Authentication requires an Admin Username',
+  formsAuthRequiresAdminUserName: 'Forms Authentication requires an Admin Username',
   general: 'General',
   globalStreamLimit: 'Global Stream Limit',
   group: 'Group',
@@ -58,6 +57,8 @@ const messages_en: messages_enType = {
   regex: 'Regex',
   rememberme: 'Remember Me',
   ringBufferSizeMB: 'Buffer Size (MB)',
+  showClientHostNames: 'Show Client Hostnames',
+  sdEnabled: 'Sched Direct Enabled',
   sdPassword: 'Sched Direct Password',
   sdUserName: 'Sched Direct Username',
   set: 'Set',
@@ -80,6 +81,6 @@ const messages_en: messages_enType = {
   user: 'User',
   videoStreamAlwaysUseEPGLogo: 'Always use EPG Logo',
   visible: 'Visible',
-}
+};
 
-export default messages_en
+export default messages_en;

@@ -34,7 +34,7 @@ public interface IProgrammeChannelScoped
 
 public interface IProgrammeChannelTasks
 {
-
+    ValueTask SetSDProgramme(CancellationToken cancellationToken = default);
 }
 
 public interface IProgrammeChannelController

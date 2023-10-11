@@ -29,9 +29,9 @@ import getRecordString from './getRecordString';
 import isPagedTableDto from './isPagedTableDto';
 import useDataSelectorState from './useDataSelectorState';
 
-import StreamMasterSetting from '@/lib/StreamMasterSetting';
 import { GetApiArg, QueryHook, camel2title, getTopToolOptions, isEmptyObject } from '@/lib/common/common';
 import { useQueryFilter } from '@/lib/redux/slices/useQueryFilter';
+import useSettings from '@/lib/useSettings';
 import { skipToken } from '@reduxjs/toolkit/dist/query/react';
 import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';
@@ -71,7 +71,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
 
   const tableRef = useRef<DataTable<T[]>>(null);
 
-  const setting = StreamMasterSetting();
+  const setting = useSettings();
 
   const { data, isLoading, isFetching } = props.queryFilter
     ? props.queryFilter(queryFilter ?? skipToken)
@@ -542,7 +542,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
           expandedRows={state.expandedRows}
           exportFilename={props.exportFilename ?? 'streammaster'}
           filterDelay={500}
-          filterDisplay="row"
+          filterDisplay={props.columns.some((a) => a.filter !== undefined) ? 'row' : undefined}
           filters={isEmptyObject(state.filters) ? getEmptyFilter(props.columns, state.showHidden) : state.filters}
           first={state.pagedInformation ? state.pagedInformation.first : state.first}
           header={sourceRenderHeader}

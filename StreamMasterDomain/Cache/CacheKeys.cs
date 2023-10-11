@@ -338,7 +338,7 @@ public static class CacheKeys
         return ret;
     }
 
-    public static List<Programme> Programmess(this IMemoryCache cache)
+    public static List<Programme> Programmes(this IMemoryCache cache)
     {
         return Get<Programme>(ListProgrammes, cache);
     }

@@ -856,7 +856,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
     }
     private async Task<List<VideoStreamDto>> AutoSetEPGs(IQueryable<VideoStream> videoStreams, CancellationToken cancellationToken)
     {
-        List<Programme> programmes = await sender.Send(new GetProgrammes(), cancellationToken).ConfigureAwait(false);
+        List<Programme> programmes = await sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
         List<ChannelNamePair> distinctChannelAndNames = programmes
             .Select(p => new ChannelNamePair { Channel = p.Channel, Name = p.Name })
             .Distinct()

@@ -1035,12 +1035,12 @@ export type ChannelGroupStreamCount = {
   hiddenCount?: number;
 };
 export type ChannelGroupArg = ChannelGroupStreamCount & {
-  isHidden?: boolean;
-  isReadOnly?: boolean;
+  isHidden: boolean;
+  isReadOnly: boolean;
   name: string;
 };
 export type ChannelGroupDto = ChannelGroupArg & {
-  id?: number;
+  id: number;
 };
 export type ChannelGroupIdName = {
   id?: number;
@@ -1092,10 +1092,10 @@ export type BaseFileDto = {
   url: string;
 };
 export type EpgFileDto = BaseFileDto & {
-  channelCount?: number;
-  epgStartDate?: string;
-  epgStopDate?: string;
-  programmeCount?: number;
+  channelCount: number;
+  epgStartDate: string;
+  epgStopDate: string;
+  programmeCount: number;
 };
 export type PagedResponseOfEpgFileDto = {
   data: EpgFileDto[];
@@ -1166,9 +1166,9 @@ export type DeleteM3UFileRequest = {
   id?: number;
 };
 export type M3UFileDto = BaseFileDto & {
-  startingChannelNumber?: number;
-  maxStreamCount?: number;
-  stationCount?: number;
+  startingChannelNumber: number;
+  maxStreamCount: number;
+  stationCount: number;
 };
 export type PagedResponseOfM3UFileDto = {
   data: M3UFileDto[];
@@ -1575,59 +1575,61 @@ export type TaskQueueStatusDto = {
   stopTS?: string;
 };
 export type M3USettings = {
-  m3UFieldChannelId?: boolean;
-  m3UFieldChannelNumber?: boolean;
-  m3UFieldCUID?: boolean;
-  m3UFieldGroupTitle?: boolean;
-  m3UFieldTvgChno?: boolean;
-  m3UFieldTvgId?: boolean;
-  m3UFieldTvgLogo?: boolean;
-  m3UFieldTvgName?: boolean;
-  m3UIgnoreEmptyEPGID?: boolean;
+  m3UFieldChannelId: boolean;
+  m3UFieldChannelNumber: boolean;
+  m3UFieldCUID: boolean;
+  m3UFieldGroupTitle: boolean;
+  m3UFieldTvgChno: boolean;
+  m3UFieldTvgId: boolean;
+  m3UFieldTvgLogo: boolean;
+  m3UFieldTvgName: boolean;
+  m3UIgnoreEmptyEPGID: boolean;
 };
 export type AuthenticationType = 0 | 2;
 export type StreamingProxyTypes = 0 | 1 | 2 | 3;
 export type BaseSettings = M3USettings & {
-  adminPassword?: string;
-  adminUserName?: string;
-  defaultIcon?: string;
-  uiFolder?: string;
-  urlBase?: string;
-  logPerformance?: string[];
-  apiKey?: string;
-  authenticationMethod?: AuthenticationType;
-  cacheIcons?: boolean;
-  cleanURLs?: boolean;
-  clientUserAgent?: string;
-  deviceID?: string;
-  dummyRegex?: string;
-  ffMpegOptions?: string;
-  enableSSL?: boolean;
-  epgAlwaysUseVideoStreamName?: boolean;
-  ffmPegExecutable?: string;
-  globalStreamLimit?: number;
-  maxConnectRetry?: number;
-  maxConnectRetryTimeMS?: number;
-  overWriteM3UChannels?: boolean;
-  preloadPercentage?: number;
-  ringBufferSizeMB?: number;
-  sdCountry?: string;
-  sdPassword?: string;
-  sdPostalCode?: string;
-  sdStationIds?: StationIdLineUp[];
-  nameRegex?: string[];
-  sdUserName?: string;
-  sslCertPassword?: string;
-  sslCertPath?: string;
-  streamingClientUserAgent?: string;
-  streamingProxyType?: StreamingProxyTypes;
-  videoStreamAlwaysUseEPGLogo?: boolean;
+  adminPassword: string;
+  adminUserName: string;
+  defaultIcon: string;
+  uiFolder: string;
+  urlBase: string;
+  logPerformance: string[];
+  apiKey: string;
+  authenticationMethod: AuthenticationType;
+  cacheIcons: boolean;
+  cleanURLs: boolean;
+  clientUserAgent: string;
+  deviceID: string;
+  dummyRegex: string;
+  ffMpegOptions: string;
+  enableSSL: boolean;
+  epgAlwaysUseVideoStreamName: boolean;
+  ffmPegExecutable: string;
+  globalStreamLimit: number;
+  maxConnectRetry: number;
+  maxConnectRetryTimeMS: number;
+  overWriteM3UChannels: boolean;
+  preloadPercentage: number;
+  ringBufferSizeMB: number;
+  sdEnabled: boolean;
+  sdCountry: string;
+  sdPassword: string;
+  sdPostalCode: string;
+  sdStationIds: StationIdLineUp[];
+  nameRegex: string[];
+  sdUserName: string;
+  sslCertPassword: string;
+  sslCertPath: string;
+  streamingClientUserAgent: string;
+  streamingProxyType: StreamingProxyTypes;
+  videoStreamAlwaysUseEPGLogo: boolean;
+  showClientHostNames: boolean;
 };
 export type SettingDto = BaseSettings & {
-  release?: string;
-  version?: string;
-  ffmpegDefaultOptions?: string;
-  isDebug?: boolean;
+  release: string;
+  version: string;
+  ffmpegDefaultOptions: string;
+  isDebug: boolean;
 };
 export type SystemStatus = {
   isSystemReady?: boolean;
@@ -1637,6 +1639,7 @@ export type LogInRequest = {
   userName?: string;
 };
 export type UpdateSettingRequest = {
+  showClientHostNames?: boolean | null;
   adminPassword?: string | null;
   adminUserName?: string | null;
   apiKey?: string | null;
@@ -1664,6 +1667,7 @@ export type UpdateSettingRequest = {
   overWriteM3UChannels?: boolean | null;
   preloadPercentage?: number | null;
   ringBufferSizeMB?: number | null;
+  sdEnabled?: boolean | null;
   sdCountry?: string | null;
   sdPassword?: string | null;
   sdPostalCode?: string | null;
@@ -1761,15 +1765,13 @@ export type BaseVideoStreamDto = {
   user_Url: string;
   videoStreamHandler: VideoStreamHandlers;
 };
-export type ChildVideoStreamDto = BaseVideoStreamDto & {
-  maxStreams: number;
-  rank: number;
-};
+export type ChildVideoStreamDto = VideoStreamDto & object;
 export type VideoStreamDto = BaseVideoStreamDto & {
-  isLoading?: boolean;
-  channelGroupId?: number;
-  rank?: number;
-  childVideoStreams?: ChildVideoStreamDto[];
+  maxStreams: number;
+  isLoading: boolean;
+  channelGroupId: number;
+  rank: number;
+  childVideoStreams: ChildVideoStreamDto[];
 };
 export type PagedResponseOfVideoStreamDto = {
   data: VideoStreamDto[];

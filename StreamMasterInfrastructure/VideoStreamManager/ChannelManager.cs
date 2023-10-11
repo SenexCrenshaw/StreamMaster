@@ -14,9 +14,11 @@ using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
 using StreamMasterDomain.Repository;
+using StreamMasterDomain.Services;
 
 using System.Collections.Concurrent;
 using System.Data;
+using System.Net;
 
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
@@ -29,9 +31,11 @@ public class ChannelManager : IDisposable, IChannelManager
     private readonly IServiceProvider _serviceProvider;
     private readonly IStreamManager _streamManager;
     private readonly IMemoryCache _memoryCache;
+    private readonly ISettingsService _settingsService;
 
-    public ChannelManager(ILogger<ChannelManager> logger, IStreamManager streamManager, IMemoryCache memoryCache, IServiceProvider serviceProvider, IHubContext<StreamMasterHub, IStreamMasterHub> hub, ILoggerFactory loggerFactory)
+    public ChannelManager(ILogger<ChannelManager> logger, IStreamManager streamManager, ISettingsService settingsService, IMemoryCache memoryCache, IServiceProvider serviceProvider, IHubContext<StreamMasterHub, IStreamMasterHub> hub, ILoggerFactory loggerFactory)
     {
+        _settingsService = settingsService;
         _memoryCache = memoryCache;
         _logger = logger;
         _hub = hub;
@@ -113,7 +117,7 @@ public class ChannelManager : IDisposable, IChannelManager
         _logger.LogDebug($"Exiting FailClient, no matching client found for clientId: {clientId}");
     }
 
-    public List<StreamStatisticsResult> GetAllStatisticsForAllUrls()
+    public async Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls()
     {
         List<StreamStatisticsResult> allStatistics = new();
 
@@ -121,6 +125,17 @@ public class ChannelManager : IDisposable, IChannelManager
         foreach (IStreamInformation? info in infos.Where(a => a.RingBuffer != null))
         {
             allStatistics.AddRange(info.RingBuffer.GetAllStatisticsForAllUrls());
+        }
+
+        Setting settings = await _settingsService.GetSettingsAsync();
+
+        if (settings.ShowClientHostNames)
+        {
+            foreach (StreamStatisticsResult streamStatisticsResult in allStatistics)
+            {
+                IPHostEntry host = await Dns.GetHostEntryAsync(streamStatisticsResult.ClientIPAddress).ConfigureAwait(false);
+                streamStatisticsResult.ClientIPAddress = host.HostName;
+            }
         }
 
         return allStatistics;
@@ -182,7 +197,7 @@ public class ChannelManager : IDisposable, IChannelManager
 
     private void BroadcastMessage(object? state)
     {
-        _ = _hub.Clients.All.StreamStatisticsResultsUpdate(GetAllStatisticsForAllUrls());
+        _ = _hub.Clients.All.StreamStatisticsResultsUpdate(GetAllStatisticsForAllUrls().Result);
     }
 
     private async Task ChannelWatcher(ChannelStatus channelStatus)

@@ -9,7 +9,7 @@ import {
 import { useSelectedItems } from '@/lib/redux/slices/useSelectedItemsSlice';
 import { UpdateSetting } from '@/lib/smAPI/Settings/SettingsMutateAPI';
 import { Toast } from 'primereact/toast';
-import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 const SchedulesDirectStationPreviewDataSelector = () => {
@@ -19,6 +19,7 @@ const SchedulesDirectStationPreviewDataSelector = () => {
 
   const schedulesDirectGetSelectedStationIdsQuery = useSchedulesDirectGetSelectedStationIdsQuery();
   const stationPreviews = useSchedulesDirectGetStationPreviewsQuery();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (
@@ -51,13 +52,15 @@ const SchedulesDirectStationPreviewDataSelector = () => {
       if (test.length === 0) {
         return;
       }
-
+      setIsLoading(true);
+      console.log('loading');
       const newData = {} as UpdateSettingRequest;
 
       newData.sdStationIds = stationIdLineUps;
 
       UpdateSetting(newData)
         .then(() => {
+          setIsLoading(false);
           if (toast.current) {
             toast.current.show({
               detail: `Update Station Ids Successful`,
@@ -68,6 +71,7 @@ const SchedulesDirectStationPreviewDataSelector = () => {
           }
         })
         .catch(() => {
+          setIsLoading(false);
           if (toast.current) {
             toast.current.show({
               detail: `Update Station Ids Failed`,
@@ -77,6 +81,8 @@ const SchedulesDirectStationPreviewDataSelector = () => {
             });
           }
         });
+
+      console.log('done');
     },
     [schedulesDirectGetSelectedStationIdsQuery.data],
   );
@@ -125,7 +131,7 @@ const SchedulesDirectStationPreviewDataSelector = () => {
           emptyMessage="No Line Ups"
           headerName="Line Up Preview"
           id="SchedulesDirectStationPreviewDataSelector"
-          isLoading={stationPreviews.isLoading}
+          isLoading={stationPreviews.isLoading || isLoading}
           onRowClick={(e) => {
             console.log(e);
           }}

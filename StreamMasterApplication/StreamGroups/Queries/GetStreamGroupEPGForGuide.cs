@@ -82,7 +82,7 @@ public partial class GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpC
         {
             List<string> epgids = videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID.ToLower()).Distinct().ToList();
 
-            List<Programme> c = await Sender.Send(new GetProgrammes(), cancellationToken).ConfigureAwait(false);
+            List<Programme> c = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
 
             List<Programme> programmes = c.Where(a => a.Channel != null && epgids.Contains(a.Channel.ToLower())).ToList();
 

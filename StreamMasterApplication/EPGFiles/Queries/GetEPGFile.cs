@@ -20,7 +20,7 @@ internal class GetEPGFileHandler : BaseMediatorRequestHandler, IRequestHandler<G
         }
         EPGFileDto epgFileDto = Mapper.Map<EPGFileDto>(epgFile);
 
-        List<Programme> c = await Sender.Send(new GetProgrammes(), cancellationToken).ConfigureAwait(false);
+        List<Programme> c = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
         List<Programme> proprammes = c.Where(a => a.EPGFileId == epgFile.Id).ToList();
         if (proprammes.Any())
         {

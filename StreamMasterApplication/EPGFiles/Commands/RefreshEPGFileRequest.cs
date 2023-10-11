@@ -79,7 +79,7 @@ public class RefreshEPGFileRequestHandler : BaseMediatorRequestHandler, IRequest
                 Repository.EPGFile.UpdateEPGFile(epgFile);
                 _ = await Repository.SaveAsync().ConfigureAwait(false);
 
-                List<Programme> programmes = await Sender.Send(new GetProgrammes(), cancellationToken).ConfigureAwait(false);
+                List<Programme> programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
                 _ = programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
                 MemoryCache.SetCache(programmes);
 

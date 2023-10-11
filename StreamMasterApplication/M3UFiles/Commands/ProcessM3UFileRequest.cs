@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using StreamMasterApplication.ChannelGroups.Commands;
 
 using System.Diagnostics;
-using System.Linq;
-using System.Security.Cryptography;
 
 namespace StreamMasterApplication.M3UFiles.Commands;
 
@@ -72,7 +70,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
     {
         Stopwatch sw = Stopwatch.StartNew();
 
-        List<VideoStream>? streams =  m3uFile.GetM3U();
+        List<VideoStream>? streams = m3uFile.GetM3U();
 
         int streamsCount = 0;
         if (streams != null)
@@ -99,7 +97,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
         List<VideoStream> existing = await Repository.VideoStream.GetVideoStreamQuery().Where(a => a.M3UFileId == m3uFile.Id).ToListAsync().ConfigureAwait(false);
         existingChannels = new SimpleIntList(m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber - 1);
 
-        var ch = m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber - 1;
+        int ch = m3uFile.StartingChannelNumber < 0 ? 0 : m3uFile.StartingChannelNumber - 1;
 
         List<ChannelGroup> groups = await Repository.ChannelGroup.GetChannelGroups();
 
@@ -118,14 +116,26 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
 
     private async Task RemoveMissing(List<VideoStream> streams, int m3uFileId)
     {
-        var streamIds = streams.Select(a => a.Id).ToList();
+        List<string> streamIds = streams.Select(a => a.Id).ToList();
 
-        var toDelete = Repository.VideoStream.FindByCondition(a => a.M3UFileId == m3uFileId && !streamIds.Contains(a.Id));
+        IQueryable<VideoStream> toDelete = Repository.VideoStream.FindByCondition(a => a.M3UFileId == m3uFileId && !streamIds.Contains(a.Id));
         if (toDelete.Any())
         {
-            var ids = toDelete.Select(a => a.Id).ToList();
-            await Repository.VideoStreamLink.BulkDeleteAsync(Repository.VideoStreamLink.FindByCondition(a => ids.Contains(a.ChildVideoStreamId) || ids.Contains(a.ParentVideoStreamId)));
-            await Repository.StreamGroupVideoStream.BulkDeleteAsync(Repository.StreamGroupVideoStream.FindByCondition(a => ids.Contains(a.ChildVideoStreamId) ));
+            List<string> ids = toDelete.Select(a => a.Id).ToList();
+
+            IQueryable<VideoStreamLink> toVideoStreamLinkDel = Repository.VideoStreamLink.FindByCondition(a => ids.Contains(a.ChildVideoStreamId) || ids.Contains(a.ParentVideoStreamId));
+            if (toVideoStreamLinkDel.Any())
+            {
+                await Repository.VideoStreamLink.BulkDeleteAsync(toVideoStreamLinkDel);
+
+            }
+
+            IQueryable<StreamGroupVideoStream> toStreamGroupVideoStreamDel = Repository.StreamGroupVideoStream.FindByCondition(a => ids.Contains(a.ChildVideoStreamId));
+            if (toStreamGroupVideoStreamDel.Any())
+            {
+                await Repository.StreamGroupVideoStream.BulkDeleteAsync(toStreamGroupVideoStreamDel);
+            }
+
             await Repository.VideoStream.BulkDeleteAsync(toDelete);
         }
 

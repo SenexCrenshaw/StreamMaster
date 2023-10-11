@@ -1,11 +1,14 @@
 ﻿using StreamMaster.SchedulesDirectAPI;
 
+using StreamMasterApplication.Services;
+
 using static StreamMasterApplication.Settings.Commands.UpdateSettingRequestHandler;
 
 namespace StreamMasterApplication.Settings.Commands;
 
 public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
 {
+    public bool? ShowClientHostNames { get; set; }
     public string? AdminPassword { get; set; }
     public string? AdminUserName { get; set; }
     public string? ApiKey { get; set; }
@@ -33,6 +36,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public bool? OverWriteM3UChannels { get; set; }
     public int? PreloadPercentage { get; set; }
     public int? RingBufferSizeMB { get; set; }
+    public bool? SDEnabled { get; set; }
     public string? SDCountry { get; set; }
     public string? SDPassword { get; set; }
     public string? SDPostalCode { get; set; }
@@ -47,7 +51,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public List<string>? NameRegex { get; set; } = new();
 }
 
-public class UpdateSettingRequestHandler(ILogger<UpdateSettingRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger<UpdateSettingRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
 : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
 {
 
@@ -55,7 +59,7 @@ public class UpdateSettingRequestHandler(ILogger<UpdateSettingRequest> logger, I
     {
         Setting currentSetting = await GetSettingsAsync();
 
-        bool needsLogOut = UpdateSetting(currentSetting, request);
+        bool needsLogOut = await UpdateSetting(currentSetting, request, cancellationToken);
 
         Logger.LogInformation("UpdateSettingRequest");
         FileUtil.UpdateSetting(currentSetting);
@@ -76,9 +80,10 @@ public class UpdateSettingRequestHandler(ILogger<UpdateSettingRequest> logger, I
     /// <param name="currentSetting">The current setting.</param>
     /// <param name="request">The update setting request.</param>
     /// <returns>The updated setting as a SettingDto object.</returns>
-    private static bool UpdateSetting(Setting currentSetting, UpdateSettingRequest request)
+    private async Task<bool> UpdateSetting(Setting currentSetting, UpdateSettingRequest request, CancellationToken cancellationToken)
     {
         bool needsLogOut = false;
+        bool needsSetProgrammes = false;
         if (request.CacheIcons != null && request.CacheIcons != currentSetting.CacheIcons)
         {
             currentSetting.CacheIcons = (bool)request.CacheIcons;
@@ -127,6 +132,19 @@ public class UpdateSettingRequestHandler(ILogger<UpdateSettingRequest> logger, I
         if (request.M3UFieldTvgName != null)
         {
             currentSetting.M3UFieldTvgName = (bool)request.M3UFieldTvgName;
+        }
+
+
+        if (request.ShowClientHostNames != null)
+        {
+            currentSetting.ShowClientHostNames = (bool)request.ShowClientHostNames;
+        }
+
+        if (request.SDEnabled != null)
+        {
+            currentSetting.SDEnabled = (bool)request.SDEnabled;
+
+            needsSetProgrammes = request.SDEnabled != null && request.SDEnabled == true;
         }
 
         if (request.DummyRegex != null)
@@ -255,9 +273,16 @@ public class UpdateSettingRequestHandler(ILogger<UpdateSettingRequest> logger, I
             currentSetting.SDUserName = request.SDUserName;
         }
 
+
         if (request.SDStationIds != null)
         {
-            currentSetting.SDStationIds = request.SDStationIds;
+            bool haveSameElements = new HashSet<StationIdLineUp>(currentSetting.SDStationIds).SetEquals(request.SDStationIds);
+            if (!haveSameElements)
+            {
+                currentSetting.SDStationIds = request.SDStationIds;
+                needsSetProgrammes = true;
+            }
+
         }
 
         if (request.NameRegex != null)
@@ -277,12 +302,18 @@ public class UpdateSettingRequestHandler(ILogger<UpdateSettingRequest> logger, I
             currentSetting.AuthenticationMethod = (AuthenticationType)request.AuthenticationMethod;
         }
 
+        if (needsSetProgrammes)
+        {
+            /*await Sender.Send(new SetSDProgramme(), cancellationToken).ConfigureAwait(false);*/
+            await taskQueue.SetSDProgramme(cancellationToken).ConfigureAwait(false);
+        }
+
         return needsLogOut;
     }
 
     public class UpdateSettingResponse
     {
         public bool NeedsLogOut { get; set; }
-        public SettingDto Settings { get; set; }
+        public required SettingDto Settings { get; set; }
     }
 }

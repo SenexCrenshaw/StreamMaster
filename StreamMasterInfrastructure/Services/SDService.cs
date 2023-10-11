@@ -21,19 +21,29 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
     private async Task GetSD()
     {
         Setting setting = await settingsService.GetSettingsAsync();
+        if (!setting.SDEnabled)
+        {
+            return;
+        }
         sd ??= new(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
     }
 
 
     public async Task<List<Programme>> GetProgrammes(CancellationToken cancellationToken)
     {
-        List<Programme> ret = memoryCache.SDProgrammess();
-        if (ret.Any())
-        {
-            return ret;
-        }
-
         Setting setting = await settingsService.GetSettingsAsync();
+        //if (!setting.SDEnabled)
+        //{
+        //    return new();
+        //}
+
+        //List<Programme> ret = memoryCache.SDProgrammess();
+        //if (ret.Any())
+        //{
+        //    return ret;
+        //}
+
+
         List<string> stationsIds = setting.SDStationIds.Select(a => a.StationId).Distinct().ToList();
 
         List<Station> stations = await GetStations(cancellationToken).ConfigureAwait(false);
@@ -83,14 +93,12 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
 
         foreach (SDProgram sdProg in programs)
         {
-            List<Schedule> scheds = schedules.Where(a => a.Programs.Any(a => a.ProgramID == sdProg.ProgramID)).ToList();
-
-            foreach (Schedule sched in scheds)
+            foreach (Schedule sched in schedules.Where(a => a.Programs.Any(a => a.ProgramID == sdProg.ProgramID)).ToList())
             {
-                Station station = stations.Where(a => a.StationID == sched.StationID).First();
+                Station station = stations.First(a => a.StationID == sched.StationID);
                 List<string> names = stations.Where(a => a.StationID == sched.StationID).Select(a => a.Name).Distinct().ToList();
 
-                string channelNameSuffix = names.LastOrDefault();
+                string? channelNameSuffix = names.LastOrDefault();
                 string displayName = "";
                 string channelName = "";
                 string name = "";
@@ -155,34 +163,50 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
             }
             //var s= GetSubTtitle()
         }
-
-        memoryCache.SetSDProgreammesCache(retProgrammes, TimeSpan.FromHours(4));
-
-
-
         return retProgrammes;
     }
 
     public async Task<List<StationPreview>> GetStationPreviews(CancellationToken cancellationToken)
     {
+        Setting setting = await settingsService.GetSettingsAsync();
+        if (!setting.SDEnabled)
+        {
+            return new();
+        }
+
         await GetSD();
         return await sd.GetStationPreviews(cancellationToken);
     }
 
     public async Task<List<Schedule>?> GetSchedules(List<string> stationsIds, CancellationToken cancellationToken)
     {
+        Setting setting = await settingsService.GetSettingsAsync();
+        if (!setting.SDEnabled)
+        {
+            return new();
+        }
         await GetSD();
         return await sd.GetSchedules(stationsIds, cancellationToken);
     }
 
     public async Task<List<SDProgram>> GetSDPrograms(List<string> progIds, CancellationToken cancellationToken)
     {
+        Setting setting = await settingsService.GetSettingsAsync();
+        if (!setting.SDEnabled)
+        {
+            return new();
+        }
         await GetSD();
         return await sd.GetSDPrograms(progIds, cancellationToken);
     }
 
     public async Task<List<Station>> GetStations(CancellationToken cancellationToken)
     {
+        Setting setting = await settingsService.GetSettingsAsync();
+        if (!setting.SDEnabled)
+        {
+            return new();
+        }
         await GetSD();
         return await sd.GetStations(cancellationToken);
     }

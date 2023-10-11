@@ -668,7 +668,7 @@ public class SchedulesDirect
     {
         TvVideo ret = new();
 
-        if (sdProgram.VideoProperties != null && sdProgram.VideoProperties.Any())
+        if (sdProgram.VideoProperties?.Any() == true)
         {
             ret.Quality = sdProgram.VideoProperties.ToList();
         }
@@ -702,9 +702,9 @@ public class SchedulesDirect
 
         List<Schedule>? schedules = await GetSchedules(stationsIds, cancellationToken);
 
-        if (schedules == null || !schedules.Any())
+        if (schedules?.Any() != true)
         {
-            Console.WriteLine($"No schedules");
+            Console.WriteLine("No schedules");
             return FileUtil.SerializeEpgData(new Tv());
         }
 
@@ -745,9 +745,7 @@ public class SchedulesDirect
 
         foreach (SDProgram sdProg in programs)
         {
-            List<Schedule> scheds = schedules.Where(a => a.Programs.Any(a => a.ProgramID == sdProg.ProgramID)).ToList();
-
-            foreach (Schedule sched in scheds)
+            foreach (Schedule sched in schedules.Where(a => a.Programs.Any(a => a.ProgramID == sdProg.ProgramID)).ToList())
             {
                 Station station = stations.Where(a => a.StationID == sched.StationID).First();
 
@@ -802,7 +800,7 @@ public class SchedulesDirect
 
         Tv tv = new()
         {
-            Channel = retChannels.OrderBy(a => int.Parse(a.Id)).ToList(),
+            Channel = retChannels.OrderBy(a => int.Parse(a!.Id)).ToList(),
             Programme = retProgrammes.OrderBy(a => int.Parse(a.Channel)).ThenBy(a => a.StartDateTime).ToList()
         };
 

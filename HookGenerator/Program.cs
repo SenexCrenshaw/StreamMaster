@@ -52,12 +52,12 @@ internal class Program
                             int aa = 1;
                         }
 
-                        string tag = tags[0].GetString();
+                        string? tag = tags[0].GetString();
 
                         string? argType = GetArgType(method.Value);
                         string responseType = GetResponseType(method.Value);
                         StringBuilder contentToUse;
-                        if (method.Name.ToLower() == "get")
+                        if (string.Equals(method.Name, "get", StringComparison.OrdinalIgnoreCase))
                         {
 
                             if (!tagToGetContentMap.ContainsKey(tag))

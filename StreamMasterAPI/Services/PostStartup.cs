@@ -1,10 +1,7 @@
 ﻿using AutoMapper;
 
-using MediatR;
-
 using Microsoft.Extensions.Caching.Memory;
 
-using StreamMasterApplication.Programmes.Queries;
 using StreamMasterApplication.Services;
 
 using StreamMasterDomain.Cache;
@@ -16,19 +13,19 @@ namespace StreamMasterAPI.Services;
 public class PostStartup : BackgroundService
 {
     private readonly ILogger _logger;
-    private readonly ISender _sender;
+
     private readonly IBackgroundTaskQueue _taskQueue;
     private readonly IMemoryCache _memoryCache;
     private readonly IMapper _mapper;
     public PostStartup(
         ILogger<PostStartup> logger,
-        ISender sender,
+
         IMapper mapper,
         IMemoryCache memoryCache,
         IBackgroundTaskQueue taskQueue
         )
     {
-        (_logger, _taskQueue, _sender, _memoryCache, _mapper) = (logger, taskQueue, sender, memoryCache, mapper);
+        (_logger, _taskQueue, _memoryCache, _mapper) = (logger, taskQueue, memoryCache, mapper);
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -38,9 +35,8 @@ public class PostStartup : BackgroundService
             return;
         }
 
-        _logger.LogInformation(
-        $"{nameof(PostStartup)} is running.");
-        await _sender.Send(new GetProgrammes(), cancellationToken).ConfigureAwait(false);
+        _logger.LogInformation($"Stream Master is startting.");
+        await _taskQueue.SetSDProgramme(cancellationToken).ConfigureAwait(false);
         //await _hubContext.Clients.All.SystemStatusUpdate(new StreamMasterApplication.Settings.Queries.SystemStatus { IsSystemReady = false }).ConfigureAwait(false);
 
         // await _taskQueue.ScanDirectoryForIconFiles(cancellationToken).ConfigureAwait(false);
@@ -48,6 +44,8 @@ public class PostStartup : BackgroundService
         //_sender.Send(new StreamMasterApplication.Settings.Queries.SystemStatus { IsSystemReady = false }, cancellationToken);
 
         //await _taskQueue.ReadDirectoryLogosRequest(cancellationToken).ConfigureAwait(false);
+
+
 
         if (await IconHelper.ReadDirectoryLogos(_memoryCache, cancellationToken).ConfigureAwait(false))
         {
@@ -58,6 +56,7 @@ public class PostStartup : BackgroundService
         await _taskQueue.ScanDirectoryForEPGFiles(cancellationToken).ConfigureAwait(false);
 
         await _taskQueue.ScanDirectoryForM3UFiles(cancellationToken).ConfigureAwait(false);
+
 
         await _taskQueue.UpdateChannelGroupCounts(cancellationToken).ConfigureAwait(false);
 

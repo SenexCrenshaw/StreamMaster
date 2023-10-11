@@ -8,19 +8,29 @@ internal class GetProgrammeNamesDtoHandler(ILogger<GetProgrammeNamesDto> logger,
 {
     public async Task<IEnumerable<ProgrammeNameDto>> Handle(GetProgrammeNamesDto request, CancellationToken cancellationToken)
     {
-        List<Programme> programmes = await Sender.Send(new GetProgrammes(), cancellationToken).ConfigureAwait(false);
+        List<Programme> programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
 
         if (programmes.Any())
         {
-            IEnumerable<ProgrammeNameDto> ret = programmes.GroupBy(a => a.Channel).Select(group => group.First()).Select(a => new ProgrammeNameDto
+            IEnumerable<ProgrammeNameDto> progs = programmes.GroupBy(a => a.Channel).Select(group => group.First()).Select(a => new ProgrammeNameDto
             {
                 Channel = a.Channel,
                 ChannelName = a.ChannelName,
                 DisplayName = a.DisplayName
             });
 
-            return ret.OrderBy(a => a.DisplayName);
+            List<ProgrammeNameDto> ret = progs.OrderBy(a => a.DisplayName).ToList();
+
+            ret.Insert(0, new ProgrammeNameDto
+            {
+                Channel = "Dummy",
+                ChannelName = "Dummy",
+                DisplayName = "Dummy"
+            });
+
+            return ret;
         }
+
         return new List<ProgrammeNameDto>();
     }
 }

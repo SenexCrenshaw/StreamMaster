@@ -46,6 +46,26 @@ public class Programme
     [XmlElement(ElementName = "new")]
     public string? New { get; set; }
 
+    public bool ShouldSerializeLive()
+    {
+        return !string.IsNullOrEmpty(Live);
+    }
+
+    public bool ShouldSerializeNew()
+    {
+        return !string.IsNullOrEmpty(New);
+    }
+
+    public bool ShouldSerializePremiere()
+    {
+        return !string.IsNullOrEmpty(Premiere);
+    }
+
+    public bool ShouldSerializePreviouslyshown()
+    {
+        return Previouslyshown != null;
+    }
+
     [XmlElement(ElementName = "live")]
     public string? Live { get; set; }
 

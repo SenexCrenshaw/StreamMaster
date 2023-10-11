@@ -1,10 +1,12 @@
 import SchedulesDirectStationPreviewDataSelector from '@/components/schedulesDirect/SchedulesDirectStationPreviewDataSelector';
 import { useSchedulesDirectGetStatusQuery } from '@/lib/iptvApi';
+import useSettings from '@/lib/useSettings';
 import { BlockUI } from 'primereact/blockui';
 import { memo, useMemo } from 'react';
 
 const SDEditor = () => {
   const getStatusQuery = useSchedulesDirectGetStatusQuery();
+  const settings = useSettings();
 
   const status = useMemo(() => {
     if (getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() === 'online') {
@@ -25,7 +27,7 @@ const SDEditor = () => {
   return (
     <>
       {status}
-      <BlockUI blocked={getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() !== 'online'}>
+      <BlockUI blocked={getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() !== 'online' || settings.data?.sdEnabled !== true}>
         <SchedulesDirectStationPreviewDataSelector />
       </BlockUI>
     </>

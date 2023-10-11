@@ -134,7 +134,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
 
         //IEnumerable<string> epgids = sgs.SelectMany(x => x.ChildVideoStreams.Select(a => a.User_Tvg_ID)).Distinct();
 
-        List<Programme> c = await Sender.Send(new GetProgrammes(), cancellationToken).ConfigureAwait(false);
+        List<Programme> c = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
         List<Programme> c1 = c.Where(a => string.IsNullOrEmpty(a.Channel)).ToList();
         List<Programme> d1 = c.Where(a => string.IsNullOrEmpty(a.DisplayName)).ToList();
 

@@ -65,7 +65,7 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
     {
         try
         {
-            List<Programme> cacheValues = await Sender.Send(new GetProgrammes(), cancellationToken).ConfigureAwait(false);// MemoryCache.Programmes();
+            List<Programme> cacheValues = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);// MemoryCache.Programmes();
             //if (MemoryCache.ProgrammeIcons().Count == 0)
             //{
             //    DateTime start = DateTime.Now.AddDays(-1);

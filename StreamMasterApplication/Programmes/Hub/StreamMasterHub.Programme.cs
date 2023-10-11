@@ -29,7 +29,7 @@ public partial class StreamMasterHub : IProgrammeChannelHub
     [BuilderIgnore]
     public async Task<IEnumerable<Programme>> GetProgrammes()
     {
-        return await mediator.Send(new GetProgrammes()).ConfigureAwait(false);
+        return await mediator.Send(new GetProgrammesRequest()).ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<string>> GetProgrammeNames()

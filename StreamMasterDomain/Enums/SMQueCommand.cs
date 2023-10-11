@@ -11,13 +11,13 @@ public enum SMQueCommand
     ProcessM3UFile,
     ProcessM3UFiles,
 
-    RebuildProgrammeChannelNames,
-
     ScanDirectoryForEPGFiles,
     ScanDirectoryForIconFiles,
     ScanDirectoryForM3UFiles,
 
+    SetSDProgramme,
     SetIsSystemReady,
+
     UpdateChannelGroupCounts,
     UpdateEntitiesFromIPTVChannels,
 }
