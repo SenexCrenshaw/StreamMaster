@@ -47,7 +47,7 @@ const LogViewer = () => {
     // refetch()
     console.log('getLogData', lastLogId, dataSource.length);
     GetLog({ lastId: lastLogId, maxLines: 5000 })
-      .then((data) => {
+      .then((data: LogEntryDto[] | null) => {
         if (!data) return;
         const uniqueData = data.filter((item) => !dataSource.some((existingItem) => existingItem.id === item.id));
 
