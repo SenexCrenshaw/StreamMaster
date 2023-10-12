@@ -5,9 +5,10 @@ ARG BUILDPLATFORM
 WORKDIR /app
 EXPOSE 7095
 ENV ASPNETCORE_URLS=http://+:7095
-RUN apt-get update -yq && apt-get upgrade -yq && apt-get install -yq ffmpeg
-# RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
-# USER appuser
+RUN apt-get update -yq \
+    && apt-get upgrade -yq \
+    && apt-get install -yq ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 ARG TARGETPLATFORM
@@ -19,35 +20,34 @@ COPY ["StreamMasterApplication/StreamMasterApplication.csproj", "StreamMasterApp
 COPY ["StreamMasterDomain/StreamMasterDomain.csproj", "StreamMasterDomain/"]
 COPY ["StreamMasterInfrastructure/StreamMasterInfrastructure.csproj", "StreamMasterInfrastructure/"]
 RUN dotnet restore "StreamMasterAPI/StreamMasterAPI.csproj" -a $TARGETARCH
+
 COPY . .
+
 WORKDIR "/src/StreamMasterAPI"
-#RUN if [ "$ENV" = "debug" ] ; then dotnet build "StreamMasterAPI.csproj" -c Debug -o /app/build; else dotnet build "StreamMasterAPI.csproj" -c Release -o /app/build; fi
 RUN dotnet build "StreamMasterAPI.csproj" -c Debug -o /app/build -a $TARGETARCH
-# installs NodeJS and NPM
-RUN apt-get update -yq && apt-get upgrade -yq && apt-get install -yq ca-certificates curl gnupg git nano
-
 RUN mkdir -p /etc/apt/keyrings
-RUN curl -sL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key |  gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
-RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" |  tee /etc/apt/sources.list.d/nodesource.list
-RUN apt-get update && apt-get install -yq nodejs build-essential
-WORKDIR /src
-COPY ["streammasterwebui/", "streammasterwebui/"]
-WORKDIR "/src/streammasterwebui"
-RUN npm install
-RUN npm run build
-RUN cp -r build/* /src/StreamMasterAPI/wwwroot/
-WORKDIR "/src/StreamMasterAPI"
+RUN apt-get update -yq \
+    && apt-get upgrade -yq \
+    && apt-get install -yq ca-certificates curl gnupg git nano \
+    && curl -sL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+    && apt-get update && apt-get install -yq nodejs build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
+WORKDIR /src/streammasterwebui
+COPY ["streammasterwebui/", "."]
+RUN npm install \
+    && npm run build \
+    && cp -r build/* /src/StreamMasterAPI/wwwroot/
+    
+WORKDIR "/src/StreamMasterAPI"
 FROM build AS publish
-# RUN if [ "$ENV" = "debug" ] ; then dotnet publish "StreamMasterAPI.csproj" -c Debug -o /app/publish /p:UseAppHost=false; else dotnet publish "StreamMasterAPI.csproj" -c Release -o /app/publish /p:UseAppHost=false ; fi
 ARG TARGETPLATFORM
 ARG TARGETARCH
 ARG BUILDPLATFORM
 RUN dotnet publish --no-restore "StreamMasterAPI.csproj" -c Debug -o /app/publish /p:UseAppHost=false -a $TARGETARCH
 
-
-FROM  base AS final
-#FROM base AS final
+FROM base AS final
 ARG TARGETPLATFORM
 ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
 ARG TARGETARCH
@@ -58,11 +58,7 @@ LABEL org.opencontainers.image.url="https://hub.docker.com/r/SenexCrenshaw/strea
       org.opencontainers.image.title="Stream Master" \
       org.opencontainers.image.description="Dockerized Stream Master by SenexCrenshaw" \
       org.opencontainers.image.authors="SenexCrenshaw"
-WORKDIR /app
-# USER root
 
-# USER appuser
-ARG REACT_API_URL
 ENV REACT_API_URL=$REACT_API_URL
 ENV STREAMMASTER_BASEHOSTURL=http://localhost:7095/
 COPY --from=publish /app/publish .

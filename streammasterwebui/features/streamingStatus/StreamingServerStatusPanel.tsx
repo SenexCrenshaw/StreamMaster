@@ -2,16 +2,28 @@ import DataSelector from '@/components/dataSelector/DataSelector';
 import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes';
 import { VideoStreamSelector } from '@/components/videoStream/VideoStreamSelector';
 import { formatJSONDateString, getIconUrl, getTopToolOptions } from '@/lib/common/common';
-import { ChangeVideoStreamChannelRequest, SimulateStreamFailureRequest, StreamStatisticsResult } from '@/lib/iptvApi';
+import {
+  ChangeVideoStreamChannelRequest,
+  SimulateStreamFailureRequest,
+  StreamStatisticsResult,
+  useVideoStreamsGetAllStatisticsForAllUrlsQuery,
+} from '@/lib/iptvApi';
 import { ChangeVideoStreamChannel, SimulateStreamFailure } from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import useSettings from '@/lib/useSettings';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react';
 
-export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProps) => {
+type StreamingServerStatusPanelProps = {
+  readonly className?: string;
+  readonly style?: CSSProperties;
+};
+
+export const StreamingServerStatusPanel = ({ className, style }: StreamingServerStatusPanelProps) => {
   const setting = useSettings();
   const toast = useRef<Toast>(null);
+
+  const getStreamingStatus = useVideoStreamsGetAllStatisticsForAllUrlsQuery();
 
   const onChangeVideoStreamChannel = useCallback(async (playingVideoStreamId: string, newVideoStreamId: string) => {
     if (playingVideoStreamId === undefined || playingVideoStreamId === '' || newVideoStreamId === undefined || newVideoStreamId === '') {
@@ -122,26 +134,29 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
   }, []);
 
   const dataSource = useMemo((): StreamStatisticsResult[] => {
-    if (props.dataSource === undefined || props.dataSource.length === 0 || props.dataSource === null) {
+    if (getStreamingStatus.data === undefined || getStreamingStatus.data.length === 0 || getStreamingStatus.data === null) {
       return [];
     }
 
     let data = [] as StreamStatisticsResult[];
 
-    props.dataSource.forEach((item) => {
+    getStreamingStatus.data.forEach((item) => {
       if (data.findIndex((x) => x.m3UStreamId === item.m3UStreamId) === -1) {
         data.push(item);
       }
     });
 
     return data;
-  }, [props.dataSource]);
+  }, [getStreamingStatus.data]);
 
   const streamCount = useCallback(
     (rowData: StreamStatisticsResult) => {
-      return <div>{props.dataSource.filter((x) => x.m3UStreamId === rowData.m3UStreamId).length}</div>;
+      if (getStreamingStatus.data === undefined || getStreamingStatus.data === null) {
+        return <div>0</div>;
+      }
+      return <div>{getStreamingStatus.data.filter((x) => x.m3UStreamId === rowData.m3UStreamId).length}</div>;
     },
-    [props.dataSource],
+    [getStreamingStatus.data],
   );
 
   const targetActionBodyTemplate = useCallback(
@@ -260,15 +275,15 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
       <Toast position="bottom-right" ref={toast} />
       <div className="m3uFilesEditor flex flex-column col-12 flex-shrink-0 ">
         <DataSelector
-          className={props.className}
+          className={className}
           columns={sourceColumns}
           dataSource={dataSource}
           emptyMessage="No Streams"
           id="StreamingServerStatusPanel"
-          isLoading={props.isLoading}
+          isLoading={getStreamingStatus.isLoading}
           key="m3UStreamId"
           selectedItemsKey="selectSelectedItems"
-          style={props.style}
+          style={style}
         />
       </div>
     </>
@@ -277,10 +292,4 @@ export const StreamingServerStatusPanel = (props: StreamingServerStatusPanelProp
 
 StreamingServerStatusPanel.displayName = 'Streaming Server Status';
 
-type StreamingServerStatusPanelProps = {
-  readonly className?: string;
-  readonly dataSource: StreamStatisticsResult[];
-  readonly isLoading: boolean;
-  readonly style?: CSSProperties;
-};
 export default memo(StreamingServerStatusPanel);

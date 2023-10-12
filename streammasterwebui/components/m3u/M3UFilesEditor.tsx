@@ -1,6 +1,6 @@
-import { memo } from 'react'
-import M3UFileDialog from './M3UFileDialog'
-import M3UFilesDataSelector from './M3UFilesDataSelector'
+import { memo } from 'react';
+import M3UFileDialog from './M3UFileDialog';
+import M3UFilesDataSelector from './M3UFilesDataSelector';
 
 const M3UFilesEditor = () => {
   return (
@@ -14,11 +14,11 @@ const M3UFilesEditor = () => {
 
       <M3UFilesDataSelector />
     </div>
-  )
-}
+  );
+};
 
-M3UFilesEditor.displayName = 'M3UFilesEditor'
+M3UFilesEditor.displayName = 'M3UFilesEditor';
 
-export type M3UFilesEditorProps = {}
+export type M3UFilesEditorProps = {};
 
-export default memo(M3UFilesEditor)
+export default memo(M3UFilesEditor);

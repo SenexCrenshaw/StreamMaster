@@ -84,7 +84,7 @@ export const SideBar = (props: React.PropsWithChildren) => {
           <MenuItemSM collapsed={collapsed} icon={<QueueStatisIcon />} link="/queuestatus" name="Queue" />
           <MenuItemSM collapsed={collapsed} icon={<SettingsEditorIcon />} link="/settings" name="Settings" />
 
-          <MenuItemSM collapsed={collapsed} icon={<LogIcon />} link="/logviewer" name="Log" />
+          <MenuItemSM collapsed={collapsed} icon={<LogIcon />} link="/viewer/logviewer" name="Log" />
           <MenuItemSM collapsed={collapsed} icon={<HelpIcon />} link="https://github.com/SenexCrenshaw/StreamMaster/wiki" name="Wiki" newWindow />
         </Menu>
 

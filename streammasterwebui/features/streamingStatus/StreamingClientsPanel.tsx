@@ -1,64 +1,46 @@
-import DataSelector from '@/components/dataSelector/DataSelector'
-import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes'
-import { formatJSONDateString, getTopToolOptions } from '@/lib/common/common'
-import { FailClientRequest, StreamStatisticsResult } from '@/lib/iptvApi'
-import { FailClient } from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI'
-import { Button } from 'primereact/button'
-import { Toast } from 'primereact/toast'
-import { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react'
+import DataSelector from '@/components/dataSelector/DataSelector';
+import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes';
+import { formatJSONDateString, getTopToolOptions } from '@/lib/common/common';
+import { FailClientRequest, StreamStatisticsResult, useVideoStreamsGetAllStatisticsForAllUrlsQuery } from '@/lib/iptvApi';
+import { FailClient } from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
+import { Button } from 'primereact/button';
+import { Toast } from 'primereact/toast';
+import { memo, useRef, type CSSProperties } from 'react';
 
 type StreamingClientsPanelProps = {
-  readonly className?: string
-  readonly dataSource: StreamStatisticsResult[]
-  readonly isLoading: boolean
-  readonly style?: CSSProperties
-}
+  readonly className?: string;
+  readonly style?: CSSProperties;
+};
 
-const StreamingClientsPanel = ({
-  className,
-  dataSource,
-  isLoading,
-  style,
-}: StreamingClientsPanelProps) => {
-  const toast = useRef<Toast>(null)
-  const clientBitsPerSecondTemplate = useCallback(
-    (rowData: StreamStatisticsResult) => {
-      if (rowData.clientBitsPerSecond === undefined) return <div />
+const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProps) => {
+  const toast = useRef<Toast>(null);
 
-      const kbps = rowData.clientBitsPerSecond / 1000
-      const roundedKbps = Math.ceil(kbps)
+  const getStreamingStatus = useVideoStreamsGetAllStatisticsForAllUrlsQuery();
+  const clientBitsPerSecondTemplate = (rowData: StreamStatisticsResult) => {
+    if (rowData.clientBitsPerSecond === undefined) return <div />;
 
-      return <div>{roundedKbps.toLocaleString('en-US')}</div>
-    },
-    [],
-  )
+    const kbps = rowData.clientBitsPerSecond / 1000;
+    const roundedKbps = Math.ceil(kbps);
 
-  const clientStartTimeTemplate = useCallback(
-    (rowData: StreamStatisticsResult) => {
-      return <div>{formatJSONDateString(rowData.clientStartTime ?? '')}</div>
-    },
-    [],
-  )
+    return <div>{roundedKbps.toLocaleString('en-US')}</div>;
+  };
 
-  const clientElapsedTimeTemplate = useCallback(
-    (rowData: StreamStatisticsResult) => {
-      return <div>{rowData.clientElapsedTime?.split('.')[0]}</div>
-    },
-    [],
-  )
+  const clientStartTimeTemplate = (rowData: StreamStatisticsResult) => {
+    return <div>{formatJSONDateString(rowData.clientStartTime ?? '')}</div>;
+  };
 
-  const onFailClient = useCallback(async (rowData: StreamStatisticsResult) => {
-    if (
-      !rowData.clientId ||
-      rowData.clientId === undefined ||
-      rowData.clientId === ''
-    ) {
-      return
+  const clientElapsedTimeTemplate = (rowData: StreamStatisticsResult) => {
+    return <div>{rowData.clientElapsedTime?.split('.')[0]}</div>;
+  };
+
+  const onFailClient = async (rowData: StreamStatisticsResult) => {
+    if (!rowData.clientId || rowData.clientId === undefined || rowData.clientId === '') {
+      return;
     }
 
-    var toSend = {} as FailClientRequest
+    var toSend = {} as FailClientRequest;
 
-    toSend.clientId = rowData.clientId
+    toSend.clientId = rowData.clientId;
 
     await FailClient(toSend)
       .then(() => {
@@ -68,7 +50,7 @@ const StreamingClientsPanel = ({
             life: 3000,
             severity: 'success',
             summary: 'Successful',
-          })
+          });
         }
       })
       .catch(() => {
@@ -78,31 +60,28 @@ const StreamingClientsPanel = ({
             life: 3000,
             severity: 'error',
             summary: 'Error',
-          })
+          });
         }
-      })
-  }, [])
+      });
+  };
 
-  const targetActionBodyTemplate = useCallback(
-    (rowData: StreamStatisticsResult) => {
-      return (
-        <div className="dataselector p-inputgroup align-items-center justify-content-end">
-          <Button
-            className="p-button-danger"
-            icon="pi pi-times"
-            onClick={async () => await onFailClient(rowData)}
-            rounded
-            text
-            tooltip="Fail Client"
-            tooltipOptions={getTopToolOptions}
-          />
-        </div>
-      )
-    },
-    [onFailClient],
-  )
+  const targetActionBodyTemplate = (rowData: StreamStatisticsResult) => {
+    return (
+      <div className="dataselector p-inputgroup align-items-center justify-content-end">
+        <Button
+          className="p-button-danger"
+          icon="pi pi-times"
+          onClick={async () => await onFailClient(rowData)}
+          rounded
+          text
+          tooltip="Fail Client"
+          tooltipOptions={getTopToolOptions}
+        />
+      </div>
+    );
+  };
 
-  const sourceColumns = useMemo((): ColumnMeta[] => {
+  const columns = (): ColumnMeta[] => {
     return [
       {
         field: 'clientIPAddress',
@@ -161,13 +140,8 @@ const StreamingClientsPanel = ({
           width: '8rem',
         } as CSSProperties,
       },
-    ]
-  }, [
-    clientBitsPerSecondTemplate,
-    clientElapsedTimeTemplate,
-    clientStartTimeTemplate,
-    targetActionBodyTemplate,
-  ])
+    ];
+  };
 
   return (
     <>
@@ -175,17 +149,17 @@ const StreamingClientsPanel = ({
       <div className="m3uFilesEditor flex flex-column col-12 flex-shrink-0 ">
         <DataSelector
           className={className}
-          columns={sourceColumns}
-          dataSource={dataSource}
+          columns={columns()}
+          dataSource={getStreamingStatus.data}
           emptyMessage="No Clients Streaming"
           id="StreamingServerStatusPanel"
-          isLoading={isLoading}
+          isLoading={getStreamingStatus.isLoading}
           selectedItemsKey="selectSelectedItems"
           style={style}
         />
       </div>
     </>
-  )
-}
+  );
+};
 
-export default memo(StreamingClientsPanel)
+export default memo(StreamingClientsPanel);

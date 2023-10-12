@@ -10,6 +10,7 @@ using StreamMasterDomain.Common;
 using StreamMasterDomain.Services;
 
 using StreamMasterInfrastructure.Logging;
+using StreamMasterInfrastructure.Middleware;
 using StreamMasterInfrastructure.Services;
 using StreamMasterInfrastructure.Services.Frontend.Mappers;
 using StreamMasterInfrastructure.Services.Settings;
@@ -27,6 +28,7 @@ public static class ConfigureServices
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<IStreamManager, StreamManager>();
         services.AddSingleton<ISDService, SDService>();
+        services.AddSingleton<ICacheableSpecification, CacheableSpecification>();
 
         // Dynamically find and register services implementing IMapHttpRequestsToDisk
         Assembly assembly = Assembly.GetExecutingAssembly();

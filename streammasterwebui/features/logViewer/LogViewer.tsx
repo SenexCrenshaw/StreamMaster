@@ -1,9 +1,12 @@
 'use client';
-import { ExportComponent, formatJSONDateString } from '../../lib/common/common';
-import { LogIcon } from '../../lib/common/icons';
-import { LogEntry, LogEntryDto } from '../../lib/iptvApi';
-// @ts-ignore
-import { GetLog } from '@/lib/smAPI/Logs/LogsGetAPI';
+
+import StandardHeader from '@components/StandardHeader';
+import DownArrowButton from '@components/buttons/DownArrowButton';
+import { ExportComponent, formatJSONDateString } from '@lib/common/common';
+import { LogIcon } from '@lib/common/icons';
+import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
+import { LogEntry, LogEntryDto } from '@lib/iptvApi';
+import { GetLog } from '@lib/smAPI/Logs/LogsGetAPI';
 
 import { FilterMatchMode } from 'primereact/api';
 import { Column } from 'primereact/column';
@@ -11,14 +14,12 @@ import { DataTable } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const LogViewer = () => {
+  const itemSize: number = 30;
   const [lastLogId, setLastLogId] = useState<number>(0);
   const [dataSource, setDataSource] = useState<LogEntryDto[]>([] as LogEntryDto[]);
   const tableRef = useRef<DataTable<LogEntryDto[]>>(null);
-
-  // const { data, refetch } = useLogsGetLogQuery({
-  //   lastId: lastLogId,
-  //   maxLines: 5000,
-  // } as LogsGetLogApiArg)
+  const [follow, setFollow] = useState<boolean>(true);
+  const [lastScrollIndex, setLastScrollIndex] = useState<number>(0);
 
   const filters = {
     logLevelName: { matchMode: FilterMatchMode.CONTAINS, value: null },
@@ -26,58 +27,55 @@ const LogViewer = () => {
     timeStamp: { matchMode: FilterMatchMode.CONTAINS, value: null },
   };
 
-  // useEffect(() => {
-  //   if (data && data.length > 0) {
-  //     // Filter out duplicates based on ID
-  //     const uniqueData = data.filter(
-  //       (item) =>
-  //         !dataSource.some((existingItem) => existingItem.id === item.id),
-  //     )
+  const { type, direction, state } = useScrollAndKeyEvents();
 
-  //     if (uniqueData.length > 0) {
-  //       // Add only the new unique items to the dataSource
-  //       setDataSource((prevDataSource) => [...prevDataSource, ...uniqueData])
+  useEffect(() => {
+    if (!follow) {
+      if (direction === 'down' && state === 'blocked') {
+        setFollow(true);
+      }
+      return;
+    }
 
-  //       // Update the lastLogId to the ID of the last item in the new data
-  //       setLastLogId(uniqueData[uniqueData.length - 1].id)
-  //     }
-  //   }
-  // }, [data, dataSource])
+    if (state === 'moved') {
+      setFollow(false);
+    }
+
+    console.log('direction2', type, direction, state);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [type, direction, state]);
+
+  const tryScroll = useCallback(
+    (scollTo: number) => {
+      if (follow && scollTo !== lastScrollIndex && tableRef.current?.getVirtualScroller()) {
+        const vs = tableRef.current.getVirtualScroller();
+        console.log('scroll', scollTo, lastScrollIndex);
+        vs.scrollToIndex(scollTo * itemSize);
+      }
+      setLastScrollIndex(scollTo);
+    },
+    [follow, lastScrollIndex],
+  );
 
   const getLogData = useCallback(() => {
-    // refetch()
-    console.log('getLogData', lastLogId, dataSource.length);
+    console.log('getLogData', lastLogId, dataSource.length, lastScrollIndex);
+
     GetLog({ lastId: lastLogId, maxLines: 5000 })
       .then((data: LogEntryDto[] | null) => {
         if (!data) return;
         const uniqueData = data.filter((item) => !dataSource.some((existingItem) => existingItem.id === item.id));
 
         if (uniqueData.length > 0) {
-          // Add only the new unique items to the dataSource
           setDataSource((prevDataSource) => [...prevDataSource, ...uniqueData]);
-
-          // Update the lastLogId to the ID of the last item in the new data
           setLastLogId(uniqueData[uniqueData.length - 1].id);
+        } else {
+          tryScroll(dataSource.length - 1);
         }
       })
-      // @ts-ignore
-      .catch((error: any) => {
+      .catch((error) => {
         console.log(error);
       });
-  }, [dataSource, lastLogId]);
-
-  useEffect(() => {
-    if (dataSource.length !== 0) {
-      if (tableRef.current?.getVirtualScroller()) {
-        // console.log('scroll', dataSource[dataSource.length - 1].id, dataSource.length * 58);
-
-        const vs = tableRef.current.getVirtualScroller();
-        vs.scrollToIndex(dataSource.length * 34);
-        //  vs.scrollToIndex(dataSource.length * 58);
-        //    vs.scrollTo({ behavior: 'auto', left: 0, top: -40 })
-      }
-    }
-  }, [dataSource]);
+  }, [lastLogId, dataSource, lastScrollIndex, tryScroll]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -126,90 +124,96 @@ const LogViewer = () => {
     return (
       <div className="flex grid flex-row w-full align-items-center justify-content-end col-12 h-full p-0 debug">
         <ExportComponent exportCSV={exportCSV} />
+        <DownArrowButton
+          onClick={() => {
+            setFollow(true);
+            tryScroll(dataSource.length);
+          }}
+          tooltip="Follow"
+        />
       </div>
     );
-  }, []);
+  }, [dataSource.length, tryScroll]);
 
   return (
-    <div className="playListEditor">
-      <div className="grid grid-nogutter flex justify-content-between align-items-center">
-        <div className="flex w-full text-left ml-1 font-bold text-white-500 surface-overlay justify-content-start align-items-center">
-          <LogIcon className="p-0 mr-1" />
-          LOGS
-        </div>
-
-        <div className="dataselector flex w-full min-w-full flex-column col-12">
-          <DataTable
-            exportFilename={`StreamMaster_Logs_${new Date().toISOString()}`}
-            filterDisplay="row"
-            filters={filters}
-            header={renderHeader}
-            id="LogViewer"
-            ref={tableRef}
-            scrollHeight="calc(100vh - 200px)"
-            style={{
-              height: 'calc(100vh - 200px)',
-            }}
-            value={dataSource}
-            virtualScrollerOptions={{ itemSize: 58 }}
-          >
-            <Column
-              body={levelTemplate}
-              field="logLevelName"
-              filter
-              header="Level"
-              sortable
-              style={{
-                flexGrow: 0,
-                flexShrink: 1,
-                maxWidth: '8rem',
-                overflow: 'hidden',
-                paddingLeft: '0.5rem !important',
-                paddingRight: '0.5rem !important',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                width: '10rem',
-              }}
-            />
-            <Column
-              body={timeStampTemplate}
-              field="timeStamp"
-              filter
-              header="Time"
-              sortable
-              style={{
-                flexGrow: 0,
-                flexShrink: 1,
-                maxWidth: '12rem',
-                overflow: 'hidden',
-                paddingLeft: '0.5rem !important',
-                paddingRight: '0.5rem !important',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                width: '12rem',
-              }}
-            />
-            <Column
-              body={messageTemplate}
-              field="message"
-              filter
-              header="Message"
-              sortable
-              style={{
-                flexGrow: 0,
-                flexShrink: 1,
-                overflow: 'hidden',
-                paddingLeft: '0.5rem !important',
-                paddingRight: '0.5rem !important',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                width: '40rem',
-              }}
-            />
-          </DataTable>
-        </div>
-      </div>
-    </div>
+    <StandardHeader className="dataselector" displayName={follow ? 'LOGS - FOLLOWING' : 'LOGS'} icon={<LogIcon />}>
+      <DataTable
+        className="w-full text-sm"
+        exportFilename={`StreamMaster_Logs_${new Date().toISOString()}`}
+        filterDisplay="row"
+        filters={filters}
+        header={renderHeader}
+        id="LogViewer"
+        onScroll={(e) => {
+          console.log('ssss', e);
+          setFollow(false);
+        }}
+        ref={tableRef}
+        scrollable
+        scrollHeight="calc(100vh - 100px)"
+        style={{
+          height: 'calc(100vh - 200px)',
+        }}
+        value={dataSource}
+        virtualScrollerOptions={{
+          itemSize: itemSize,
+        }}
+      >
+        <Column
+          body={levelTemplate}
+          field="logLevelName"
+          filter
+          header="Level"
+          sortable
+          style={{
+            flexGrow: 0,
+            flexShrink: 1,
+            maxWidth: '8rem',
+            overflow: 'hidden',
+            paddingLeft: '0.5rem !important',
+            paddingRight: '0.5rem !important',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            width: '10rem',
+          }}
+        />
+        <Column
+          body={timeStampTemplate}
+          field="timeStamp"
+          filter
+          header="Time"
+          sortable
+          style={{
+            flexGrow: 0,
+            flexShrink: 1,
+            maxWidth: '12rem',
+            overflow: 'hidden',
+            paddingLeft: '0.5rem !important',
+            paddingRight: '0.5rem !important',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            width: '12rem',
+          }}
+        />
+        <Column
+          body={messageTemplate}
+          field="message"
+          filter
+          header="Message"
+          sortable
+          style={{
+            flexGrow: 0,
+            flexShrink: 1,
+            overflow: 'hidden',
+            paddingLeft: '0.5rem !important',
+            paddingRight: '0.5rem !important',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            width: '40rem',
+          }}
+        />
+      </DataTable>
+    </StandardHeader>
   );
 };
 

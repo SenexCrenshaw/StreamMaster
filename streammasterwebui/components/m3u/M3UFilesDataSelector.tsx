@@ -315,7 +315,7 @@ const M3UFilesDataSelector = () => {
         id="m3ufilesdataselector"
         queryFilter={useM3UFilesGetPagedM3UFilesQuery}
         selectedItemsKey="selectSelectedM3UFileDtoItems"
-        style={{ height: 'calc(50vh - 40px)' }}
+        style={{ height: 'calc(50vh - 120px)' }}
       />
     </>
   );

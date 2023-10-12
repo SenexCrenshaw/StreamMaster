@@ -1,5 +1,3 @@
-import './DataSelector.css';
-
 import { areArraysEqual } from '@mui/base';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';

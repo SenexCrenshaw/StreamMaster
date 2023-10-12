@@ -1,9 +1,10 @@
 import { Button } from 'primereact/button';
 
 import { SMTextColor } from '@/components/SMTextColor';
+import StandardHeader from '@/components/StandardHeader';
 import TextInput from '@/components/inputs/TextInput';
 import SettingsNameRegexDataSelector from '@/components/settings/SettingsNameRegexDataSelector';
-import { GetMessage, GetMessageDiv, getTopToolOptions } from '@/lib/common/common';
+import { GetMessage, getTopToolOptions } from '@/lib/common/common';
 import { SettingsEditorIcon } from '@/lib/common/icons';
 import { AuthenticationType, StreamingProxyTypes } from '@/lib/common/streammaster_enums';
 import { SettingDto, useSettingsGetSettingQuery } from '@/lib/iptvApi';
@@ -257,26 +258,8 @@ export const SettingsEditor = () => {
     }
 
     UpdateSetting(newData)
-      .then(() => {
-        // if (toast.current) {
-        //   toast.current.show({
-        //     detail: `Update Settings Successful`,
-        //     life: 3000,
-        //     severity: 'success',
-        //     summary: 'Successful',
-        //   })
-        // }
-      })
-      .catch(() => {
-        // if (toast.current) {
-        //   toast.current.show({
-        //     detail: `Update Settings Failed`,
-        //     life: 3000,
-        //     severity: 'error',
-        //     summary: 'Error',
-        //   })
-        // }
-      });
+      .then(() => {})
+      .catch(() => {});
   }, [isSaveEnabled, newData]);
 
   const items: MenuItem[] = [
@@ -291,12 +274,6 @@ export const SettingsEditor = () => {
     {
       command: () => {
         setNewData({ ...originalData });
-        // toast.current?.show({
-        //   detail: 'Undo',
-        //   life: 3000,
-        //   severity: 'info',
-        //   summary: 'Info',
-        // })
       },
       disabled: !isSaveEnabled,
       icon: <HistoryIcon sx={{ fontSize: 40 }} />,
@@ -305,105 +282,97 @@ export const SettingsEditor = () => {
   ];
 
   return (
-    <div className="settingsEditor">
-      <ScrollPanel style={{ height: 'calc(100vh - 18px)', width: '100%' }}>
-        {/* <Toast position="bottom-right" ref={toast} /> */}
+    <StandardHeader displayName={GetMessage('settings')} icon={<SettingsEditorIcon />}>
+      <ScrollPanel style={{ height: 'calc(100vh - 58px)', width: '100%' }}>
         <Dock model={items} position="right" />
-        <div className="justify-content-between align-items-center">
-          <div className="flex justify-content-start align-items-center w-full text-left font-bold text-white-500 surface-overlay justify-content-start align-items-center">
-            <SettingsEditorIcon className="p-0 mr-1" />
-            {GetMessageDiv('settings', true)}
-          </div>
+        <Fieldset className="mt-4 pt-10" legend={GetMessage('general')}>
+          {getInputTextLine('deviceID')}
+          {getCheckBoxLine('cleanURLs')}
+          {getInputTextLine('ffmPegExecutable')}
+          {getCheckBoxLine('enableSSL')}
+          {newData.enableSSL === true && (
+            <>
+              {getInputTextLine('sslCertPath', GetMessage('changesServiceRestart'))}
+              {getPasswordLine('sslCertPassword', GetMessage('changesServiceRestart'))}
+            </>
+          )}
+          {getCheckBoxLine('overWriteM3UChannels')}
+          {/* {getCheckBoxLine('logPerformance')} */}
+        </Fieldset>
 
-          <Fieldset className="mt-4 pt-10" legend={GetMessage('general')}>
-            {getInputTextLine('deviceID')}
-            {getCheckBoxLine('cleanURLs')}
-            {getInputTextLine('ffmPegExecutable')}
-            {getCheckBoxLine('enableSSL')}
-            {newData.enableSSL === true && (
-              <>
-                {getInputTextLine('sslCertPath', GetMessage('changesServiceRestart'))}
-                {getPasswordLine('sslCertPassword', GetMessage('changesServiceRestart'))}
-              </>
-            )}
-            {getCheckBoxLine('overWriteM3UChannels')}
-            {/* {getCheckBoxLine('logPerformance')} */}
-          </Fieldset>
-
-          <Fieldset className="mt-4 pt-10" legend={GetMessage('authentication')}>
-            {getInputTextLine('apiKey')}
-            {getDropDownLine('authenticationMethod', getAuthTypeOptions())}
-            {getInputTextLine('adminUserName', adminUserNameError)}
-            {getPasswordLine('adminPassword', adminPasswordError)}
-            <div className="flex col-12">
-              <div className="flex col-2 col-offset-1">
-                <span>{GetMessage('signout')}</span>
-              </div>
-              <div className="flex col-3 m-0 p-0 debug">
-                <Button
-                  disabled={!setting.authenticationType || (setting.authenticationType as number) === 0}
-                  icon="pi pi-check"
-                  label={GetMessage('signout')}
-                  onClick={() => (window.location.href = '/logout')}
-                  rounded
-                  severity="success"
-                  size="small"
-                />
-              </div>
+        <Fieldset className="mt-4 pt-10" legend={GetMessage('authentication')}>
+          {getInputTextLine('apiKey')}
+          {getDropDownLine('authenticationMethod', getAuthTypeOptions())}
+          {getInputTextLine('adminUserName', adminUserNameError)}
+          {getPasswordLine('adminPassword', adminPasswordError)}
+          <div className="flex col-12">
+            <div className="flex col-2 col-offset-1">
+              <span>{GetMessage('signout')}</span>
             </div>
-          </Fieldset>
+            <div className="flex col-3 m-0 p-0 debug">
+              <Button
+                disabled={!setting.authenticationType || (setting.authenticationType as number) === 0}
+                icon="pi pi-check"
+                label={GetMessage('signout')}
+                onClick={() => (window.location.href = '/logout')}
+                rounded
+                severity="success"
+                size="small"
+              />
+            </div>
+          </div>
+        </Fieldset>
 
-          <Fieldset className="mt-4 pt-10" legend={GetMessage('streaming')}>
-            {getDropDownLine('streamingProxyType', getHandlersOptions())}
-            {getInputNumberLine('globalStreamLimit')}
-            {getInputNumberLine('ringBufferSizeMB')}
-            {getInputNumberLine('preloadPercentage', 999)}
-            {/* {getInputNumberLine('maxConnectRetry', 999)}
+        <Fieldset className="mt-4 pt-10" legend={GetMessage('streaming')}>
+          {getDropDownLine('streamingProxyType', getHandlersOptions())}
+          {getInputNumberLine('globalStreamLimit')}
+          {getInputNumberLine('ringBufferSizeMB')}
+          {getInputNumberLine('preloadPercentage', 999)}
+          {/* {getInputNumberLine('maxConnectRetry', 999)}
             {getInputNumberLine('maxConnectRetryTimeMS', 999)} */}
-            {getInputTextLine('clientUserAgent')}
-            {getInputTextLine('streamingClientUserAgent')}
-            {getInputTextLine('ffMpegOptions')}
-            {getCheckBoxLine('showClientHostNames')}
-          </Fieldset>
+          {getInputTextLine('clientUserAgent')}
+          {getInputTextLine('streamingClientUserAgent')}
+          {getInputTextLine('ffMpegOptions')}
+          {getCheckBoxLine('showClientHostNames')}
+        </Fieldset>
 
-          <Fieldset className="mt-4 pt-10" legend={GetMessage('filesEPGM3U')}>
-            {getCheckBoxLine('cacheIcons')}
-            {getCheckBoxLine('videoStreamAlwaysUseEPGLogo')}
-            {getInputTextLine('dummyRegex')}
-            {getCheckBoxLine('sdEnabled')}
-            {getInputTextLine('sdUserName')}
-            {getPasswordLine('sdPassword')}
-            <Fieldset className="mt-4 pt-10" collapsed legend={GetMessage('nameregexSettings')} toggleable>
-              <SettingsNameRegexDataSelector data={settingsQuery.data?.nameRegex} />
-            </Fieldset>
-            <Fieldset className="mt-4 pt-10" collapsed legend={GetMessage('m3uSettings')} toggleable>
-              {getCheckBoxLine('m3UIgnoreEmptyEPGID')}
-              {getCheckBoxLine('m3UFieldCUID')}
-              {getCheckBoxLine('m3UFieldChannelId')}
-              {getCheckBoxLine('m3UFieldChannelNumber')}
-              {getCheckBoxLine('m3UFieldTvgName')}
-              {getCheckBoxLine('m3UFieldTvgChno')}
-              {getCheckBoxLine('m3UFieldTvgId')}
-              {getCheckBoxLine('m3UFieldTvgLogo')}
-              {getCheckBoxLine('m3UFieldGroupTitle')}
-            </Fieldset>
+        <Fieldset className="mt-4 pt-10" legend={GetMessage('filesEPGM3U')}>
+          {getCheckBoxLine('cacheIcons')}
+          {getCheckBoxLine('videoStreamAlwaysUseEPGLogo')}
+          {getInputTextLine('dummyRegex')}
+          {getCheckBoxLine('sdEnabled')}
+          {getInputTextLine('sdUserName')}
+          {getPasswordLine('sdPassword')}
+          <Fieldset className="mt-4 pt-10" collapsed legend={GetMessage('nameregexSettings')} toggleable>
+            <SettingsNameRegexDataSelector data={settingsQuery.data?.nameRegex} />
           </Fieldset>
+          <Fieldset className="mt-4 pt-10" collapsed legend={GetMessage('m3uSettings')} toggleable>
+            {getCheckBoxLine('m3UIgnoreEmptyEPGID')}
+            {getCheckBoxLine('m3UFieldCUID')}
+            {getCheckBoxLine('m3UFieldChannelId')}
+            {getCheckBoxLine('m3UFieldChannelNumber')}
+            {getCheckBoxLine('m3UFieldTvgName')}
+            {getCheckBoxLine('m3UFieldTvgChno')}
+            {getCheckBoxLine('m3UFieldTvgId')}
+            {getCheckBoxLine('m3UFieldTvgLogo')}
+            {getCheckBoxLine('m3UFieldGroupTitle')}
+          </Fieldset>
+        </Fieldset>
 
-          <Fieldset className="mt-4 pt-10" legend={GetMessage('development')}>
-            <Button
-              icon="pi pi-bookmark-fill"
-              label="Swagger"
-              onClick={() => {
-                const link = `${baseHostURL}/swagger`;
-                window.open(link);
-              }}
-              tooltip="Swagger Link"
-              tooltipOptions={getTopToolOptions}
-            />
-          </Fieldset>
-        </div>
+        <Fieldset className="mt-4 pt-10" legend={GetMessage('development')}>
+          <Button
+            icon="pi pi-bookmark-fill"
+            label="Swagger"
+            onClick={() => {
+              const link = `${baseHostURL}/swagger`;
+              window.open(link);
+            }}
+            tooltip="Swagger Link"
+            tooltipOptions={getTopToolOptions}
+          />
+        </Fieldset>
       </ScrollPanel>
-    </div>
+    </StandardHeader>
   );
 };
 

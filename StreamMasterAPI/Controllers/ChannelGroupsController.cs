@@ -7,8 +7,11 @@ using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
 
+using StreamMasterInfrastructure;
+
 namespace StreamMasterAPI.Controllers;
 
+[V1ApiController("api/[controller]")]
 public class ChannelGroupsController : ApiControllerBase, IChannelGroupController
 {
 
@@ -19,16 +22,14 @@ public class ChannelGroupsController : ApiControllerBase, IChannelGroupControlle
         return Ok();
     }
 
-    [HttpDelete]
-    [Route("[action]")]
+    [HttpDelete("[action]")]    
     public async Task<ActionResult> DeleteAllChannelGroupsFromParameters(DeleteAllChannelGroupsFromParametersRequest request)
     {
         await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
     }
 
-    [HttpDelete]
-    [Route("[action]")]
+    [HttpDelete("[action]")]    
     public async Task<ActionResult> DeleteChannelGroup(DeleteChannelGroupRequest request)
     {
         bool ret = await Mediator.Send(request).ConfigureAwait(false);
