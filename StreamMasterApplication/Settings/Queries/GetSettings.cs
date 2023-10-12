@@ -7,8 +7,6 @@ internal class GetSettingsHandler(IMapper mapper, ISettingsService settingsServi
     public async Task<SettingDto> Handle(GetSettings request, CancellationToken cancellationToken)
     {
         Setting setting = await settingsService.GetSettingsAsync();
-        SettingDto ret = mapper.Map<SettingDto>(setting);
-
-        return ret;
+        return mapper.Map<SettingDto>(setting);
     }
 }

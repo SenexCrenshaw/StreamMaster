@@ -68,7 +68,7 @@
     "type:check": "tsc",
     "lint:fix": "next lint --fix --ignore-path .gitignore .",
     "start": "next start",
-    "api": "npx @rtk-query/codegen-openapi openapi-config.ts",
+    "buildapi": "npx @rtk-query/codegen-openapi openapi-config.ts",
     "prettier": "npx prettier --write ."
   },
   "version": "0.1.0"

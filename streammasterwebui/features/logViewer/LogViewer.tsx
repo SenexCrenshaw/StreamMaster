@@ -6,6 +6,7 @@ import { ExportComponent, formatJSONDateString } from '@lib/common/common';
 import { LogIcon } from '@lib/common/icons';
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { LogEntry, LogEntryDto } from '@lib/iptvApi';
+// @ts-ignore
 import { GetLog } from '@lib/smAPI/Logs/LogsGetAPI';
 
 import { FilterMatchMode } from 'primereact/api';
@@ -41,7 +42,6 @@ const LogViewer = () => {
       setFollow(false);
     }
 
-    console.log('direction2', type, direction, state);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, direction, state]);
 
@@ -72,7 +72,8 @@ const LogViewer = () => {
           tryScroll(dataSource.length - 1);
         }
       })
-      .catch((error) => {
+      // @ts-ignore
+      .catch((error: any) => {
         console.log(error);
       });
   }, [lastLogId, dataSource, lastScrollIndex, tryScroll]);
