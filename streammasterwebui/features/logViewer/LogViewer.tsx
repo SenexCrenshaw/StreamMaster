@@ -1,13 +1,12 @@
 'use client';
 
+import { invokeHubConnection } from '@/lib/signalr/signalr';
 import StandardHeader from '@components/StandardHeader';
 import DownArrowButton from '@components/buttons/DownArrowButton';
 import { ExportComponent, formatJSONDateString } from '@lib/common/common';
 import { LogIcon } from '@lib/common/icons';
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
-import { LogEntry, LogEntryDto } from '@lib/iptvApi';
-// @ts-ignore
-import { GetLog } from '@lib/smAPI/Logs/LogsGetAPI';
+import { LogEntry, LogEntryDto, LogsGetLogApiArg } from '@lib/iptvApi';
 
 import { FilterMatchMode } from 'primereact/api';
 import { Column } from 'primereact/column';
@@ -15,6 +14,10 @@ import { DataTable } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const LogViewer = () => {
+  const GetLog = async (arg: LogsGetLogApiArg): Promise<LogEntryDto[] | null> => {
+    return await invokeHubConnection<LogEntryDto[]>('GetLog', arg);
+  };
+
   const itemSize: number = 30;
   const [lastLogId, setLastLogId] = useState<number>(0);
   const [dataSource, setDataSource] = useState<LogEntryDto[]>([] as LogEntryDto[]);
@@ -72,8 +75,7 @@ const LogViewer = () => {
           tryScroll(dataSource.length - 1);
         }
       })
-      // @ts-ignore
-      .catch((error: any) => {
+      .catch((error) => {
         console.log(error);
       });
   }, [lastLogId, dataSource, lastScrollIndex, tryScroll]);
