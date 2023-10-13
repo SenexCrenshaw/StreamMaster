@@ -1752,6 +1752,7 @@ export type BaseVideoStreamDto = {
   streamProxyType: StreamingProxyTypes;
   tvg_chno: number;
   tvg_group: string;
+  timeShift: string;
   tvg_ID: string;
   tvg_logo: string;
   tvg_name: string;
@@ -1806,6 +1807,7 @@ export type VideoStreamBaseRequest = {
   toggleVisibility?: boolean | null;
   tvg_chno?: number | null;
   tvg_group?: string | null;
+  timeShift?: string | null;
   tvg_ID?: string | null;
   tvg_logo?: string | null;
   tvg_name?: string | null;

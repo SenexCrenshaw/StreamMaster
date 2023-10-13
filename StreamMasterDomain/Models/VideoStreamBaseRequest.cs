@@ -10,7 +10,7 @@ public class VideoStreamBaseRequest
     public int? Tvg_chno { get; set; }
 
     public string? Tvg_group { get; set; }
-
+    public string? TimeShift { get; set; }
     public string? Tvg_ID { get; set; }
 
     public string? Tvg_logo { get; set; }

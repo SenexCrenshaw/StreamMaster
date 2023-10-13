@@ -214,6 +214,12 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         prog.New = null;
         prog.Previouslyshown = null;
 
+        if (!string.IsNullOrEmpty(videoStream.TimeShift) && videoStream.TimeShift != "0000")
+        {
+            prog.Start = ReplaceTimezoneOffset(prog.Start, videoStream.TimeShift);
+            prog.Stop = ReplaceTimezoneOffset(prog.Stop, videoStream.TimeShift);
+        }
+
         programmesForStream.Add(prog);
         return programmesForStream;
     }
@@ -248,10 +254,28 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
                 prog.Previouslyshown = null;
             }
 
+            if (!string.IsNullOrEmpty(videoStream.TimeShift) && videoStream.TimeShift != "0000")
+            {
+                prog.Start = ReplaceTimezoneOffset(prog.Start, videoStream.TimeShift);
+                prog.Stop = ReplaceTimezoneOffset(prog.Stop, videoStream.TimeShift);
+            }
+
             programmesForStream.Add(prog);
         }
 
         return programmesForStream;
+    }
+
+    private static string ReplaceTimezoneOffset(string input, string newOffset)
+    {
+        // The new offset should be exactly 4 digits
+        if (newOffset.Length != 4 || !Regex.IsMatch(newOffset, @"^\d{4}$"))
+        {
+            throw new ArgumentException("The new offset should be exactly 4 digits", nameof(newOffset));
+        }
+
+        // Use regex to replace the offset after the '+'
+        return Regex.Replace(input, @"\+\d{4}", $"+{newOffset}");
     }
 
     private void AdjustProgrammeIcons(Programme prog, List<IconFileDto> cachedIcons)

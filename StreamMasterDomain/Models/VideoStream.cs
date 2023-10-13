@@ -40,6 +40,8 @@ public class VideoStream : IMapFrom<VideoStreamDto>, IMapFrom<ChildVideoStreamDt
     public string M3UFileName { get; set; }
     public int Tvg_chno { get; set; } = 0;
 
+    public string TimeShift { get; set; } = "0000";
+
     public string Tvg_group { get; set; } = "All";
 
     public string Tvg_ID { get; set; } = string.Empty;

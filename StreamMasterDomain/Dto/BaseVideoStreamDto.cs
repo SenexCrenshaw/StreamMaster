@@ -78,7 +78,7 @@ public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
     /// </summary>
     /// <value>The EPG group for the video stream.</value>
     public string Tvg_group { get; set; } = "All";
-
+    public string TimeShift { get; set; } = "0000";
     /// <summary>
     /// Gets or sets the EPG ID for the video stream.
     /// </summary>
