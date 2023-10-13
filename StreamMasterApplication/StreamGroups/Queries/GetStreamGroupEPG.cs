@@ -140,9 +140,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         // Build the TvChannel based on whether it's a dummy or not
         if (isDummyStream)
         {
-            string orginalName = videoStream.User_Tvg_name;
-            int dummy = GetDummy();
-            videoStream.User_Tvg_name = "dummy-" + dummy;
 
             return new TvChannel
             {
@@ -150,7 +147,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
                 Icon = new TvIcon { Src = logo ?? string.Empty },
                 Displayname = new List<string>
             {
-               orginalName,videoStream.User_Tvg_name
+              videoStream.User_Tvg_name
             }
             };
         }
@@ -225,8 +222,9 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     {
         List<Programme> programmesForStream = new();
 
-        foreach (Programme? prog in cachedProgrammes.Where(p => p.Channel == videoStream.User_Tvg_ID))
+        foreach (Programme? aprog in cachedProgrammes.Where(p => p.Channel == videoStream.User_Tvg_ID))
         {
+            Programme prog = aprog.DeepCopy();
             AdjustProgrammeIcons(prog, cachedIcons);
 
             prog.Channel = videoStream.User_Tvg_chno.ToString();
@@ -258,21 +256,25 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
     private void AdjustProgrammeIcons(Programme prog, List<IconFileDto> cachedIcons)
     {
-        foreach (TvIcon icon in prog.Icon)
-        {
-            if (!string.IsNullOrEmpty(icon.Src))
-            {
-                IconFileDto? programmeIcon = cachedIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == icon.Src);
-                if (programmeIcon != null)
-                {
-                    icon.Src = GetApiUrl(SMFileTypes.ProgrammeIcon, programmeIcon.Source);
-                }
-            }
-        }
 
         if (!prog.Icon.Any())
         {
             prog.Icon.Add(new TvIcon { Height = "", Width = "", Src = "" });
+        }
+        else
+        {
+            foreach (TvIcon icon in prog.Icon.DeepCopy())
+            {
+
+                if (!string.IsNullOrEmpty(icon.Src))
+                {
+                    IconFileDto? programmeIcon = cachedIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == icon.Src);
+                    if (programmeIcon != null)
+                    {
+                        icon.Src = GetApiUrl(SMFileTypes.ProgrammeIcon, programmeIcon.Source);
+                    }
+                }
+            }
         }
     }
 
