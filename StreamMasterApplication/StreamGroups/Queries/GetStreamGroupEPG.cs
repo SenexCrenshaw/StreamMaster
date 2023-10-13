@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Http;
 
 using StreamMasterApplication.Common.Extensions;
+using StreamMasterApplication.Programmes.Queries;
 
 using StreamMasterDomain.EPG;
 
@@ -31,7 +32,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-    private int dummyCount = 0;
+    private int dummyCount;
 
     private readonly ParallelOptions parallelOptions = new()
     {
@@ -81,27 +82,23 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             return "";
         }
 
-        Tv epgData = await PrepareEpgData(videoStreams);
+        Tv epgData = await PrepareEpgData(videoStreams, cancellationToken);
 
         return SerializeEpgData(epgData);
     }
 
     [LogExecutionTimeAspect]
-    private async Task<Tv> PrepareEpgData(IEnumerable<VideoStreamDto> videoStreams)
+    private async Task<Tv> PrepareEpgData(IEnumerable<VideoStreamDto> videoStreams, CancellationToken cancellationToken)
     {
         HashSet<string> epgids = new(videoStreams.Where(a => !a.IsHidden).Select(r => r.User_Tvg_ID));
 
-        List<Programme> cachedProgrammes = MemoryCache.Programmes().ToList().DeepCopy();
+        List<Programme> cachedProgrammes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
 
-        List<IconFileDto> cachedIcons = MemoryCache.Icons().ToList();
-
-        List<Programme> programmes = cachedProgrammes
-            .Where(a => a.StartDateTime > DateTime.Now.AddDays(-1) &&
+        IEnumerable<Programme> programmes = cachedProgrammes.Where(a => a.StartDateTime > DateTime.Now.AddDays(-1) &&
                         a.Channel != null &&
-                        (epgids.Contains(a.Channel) || epgids.Contains(a.DisplayName)))
-            .ToList();
+                        (epgids.Contains(a.Channel) || epgids.Contains(a.DisplayName))).DeepCopy();
 
-        List<IconFileDto> icons = cachedIcons;
+        List<IconFileDto> icons = MemoryCache.Icons().ToList();
 
         ConcurrentBag<TvChannel> retChannels = new();
         ConcurrentBag<Programme> retProgrammes = new();
@@ -115,8 +112,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
                 retChannels.Add(tvChannel);
             }
 
-            List<Programme> programmeList = ProcessProgrammesForVideoStream(videoStream, programmes, icons);
-            foreach (Programme programme in programmeList)
+            foreach (Programme programme in ProcessProgrammesForVideoStream(videoStream, programmes, icons, setting))
             {
                 retProgrammes.Add(programme);
             }
@@ -129,7 +125,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         };
     }
 
-    private TvChannel CreateTvChannel(VideoStreamDto? videoStream, Setting setting)
+    private TvChannel? CreateTvChannel(VideoStreamDto? videoStream, Setting setting)
     {
         if (videoStream == null)
         {
@@ -139,7 +135,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         string? logo = GetIconUrl(videoStream.User_Tvg_logo, setting);
 
         // Check if it's a dummy stream
-        bool isDummyStream = IsVideoStreamADummy(videoStream, setting) || videoStream.User_Tvg_ID?.ToLower() == "dummy";
+        bool isDummyStream = IsVideoStreamADummy(videoStream, setting);
 
         // Build the TvChannel based on whether it's a dummy or not
         if (isDummyStream)
@@ -172,7 +168,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         }
     }
 
-    private List<Programme> ProcessProgrammesForVideoStream(VideoStreamDto videoStream, List<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
+    private List<Programme> ProcessProgrammesForVideoStream(VideoStreamDto videoStream, IEnumerable<Programme> cachedProgrammes, List<IconFileDto> cachedIcons, Setting setting)
     {
         if (videoStream.User_Tvg_ID == null)
         {
@@ -181,14 +177,14 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         }
 
         //string userTvgIdLower = videoStream.User_Tvg_ID.ToLower();
-
-        if (videoStream.User_Tvg_ID.StartsWith("dummy-"))
+        bool isDummyStream = IsVideoStreamADummy(videoStream, setting);
+        if (isDummyStream)
         {
             return HandleDummyStream(videoStream);
         }
         else
         {
-            return ProcessNonDummyStreams(videoStream, cachedProgrammes, cachedIcons);
+            return ProcessNonDummyStream(videoStream, cachedProgrammes, cachedIcons);
         }
     }
 
@@ -199,10 +195,12 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         Programme prog = new()
         {
             Channel = videoStream.User_Tvg_chno.ToString(),
-            Title = new TvTitle
-            {
-                Lang = "en",
-                Text = videoStream.User_Tvg_name
+            Title = new List<TvTitle>{
+                new TvTitle
+                {
+                    Lang = "en",
+                    Text = videoStream.User_Tvg_name
+                }
             },
             Desc = new TvDesc
             {
@@ -223,7 +221,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         return programmesForStream;
     }
 
-    private List<Programme> ProcessNonDummyStreams(VideoStreamDto videoStream, List<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
+    private List<Programme> ProcessNonDummyStream(VideoStreamDto videoStream, IEnumerable<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
     {
         List<Programme> programmesForStream = new();
 
@@ -291,9 +289,10 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     }
 
     [LogExecutionTimeAspect]
-    private List<Programme> GetRelevantProgrammes(List<string> epgids)
+    private async Task<List<Programme>> GetRelevantProgrammes(List<string> epgids, CancellationToken cancellationToken)
     {
-        return MemoryCache.Programmes()
+        List<Programme> programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+        return programmes
             .Where(a =>
                 a.StartDateTime > DateTime.Now.AddDays(-1) &&
                 a.StopDateTime < DateTime.Now.AddDays(7) &&
@@ -319,8 +318,13 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         return !programmes.Any(p => p.Channel == videoStream.User_Tvg_ID);
     }
 
-    private bool IsVideoStreamADummy(VideoStreamDto videoStream, Setting setting)
+    private static bool IsVideoStreamADummy(VideoStreamDto videoStream, Setting setting)
     {
+        if (videoStream.User_Tvg_ID?.ToLower() == "dummy")
+        {
+            return true;
+        }
+
         if (string.IsNullOrEmpty(videoStream.User_Tvg_ID))
         {
             return true;

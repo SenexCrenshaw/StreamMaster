@@ -23,7 +23,7 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
 
         //_timer.Start();
 
-        TResponse? response = await next().ConfigureAwait(false);
+
 
         //_timer.Stop();
 
@@ -34,6 +34,6 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
         //_logger.LogInformation("LogPerformance: {ElapsedMilliseconds} milliseconds", elapsedMilliseconds);
         ////}
 
-        return response;
+        return await next().ConfigureAwait(false);
     }
 }

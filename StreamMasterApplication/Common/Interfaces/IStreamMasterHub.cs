@@ -1,8 +1,6 @@
 ﻿using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.StreamGroups.Queries;
 
-using StreamMasterDomain.Models;
-
 namespace StreamMasterApplication.Common.Interfaces;
 
 public interface IStreamMasterHub : ISharedHub
@@ -15,6 +13,7 @@ public interface IStreamMasterHub : ISharedHub
     Task M3UFilesRefresh(M3UFileDto[]? results = null);
     Task IconsRefresh();
     Task ProgrammesRefresh();
+    Task SchedulesDirectsRefresh();
     Task StreamGroupsRefresh(StreamGroupDto[]? results = null);
     Task StreamGroupVideoStreamsRefresh(StreamGroupVideoStream[]? results = null);
     Task StreamGroupChannelGroupsRefresh(StreamGroupChannelGroup[]? results = null);

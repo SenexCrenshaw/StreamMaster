@@ -14,14 +14,18 @@ internal class GetPagedProgrammeNameSelectionsHandler(ILogger<GetPagedProgrammeN
     {
         if (request.Parameters.PageSize == 0)
         {
+            IEnumerable<Programme> programmes2 = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+
             PagedResponse<ProgrammeNameDto> emptyResponse = new()
             {
-                TotalItemCount = MemoryCache.Programmes().Count
+                TotalItemCount = programmes2.Count()
             };
             return emptyResponse;
         }
 
-        IQueryable<Programme> programmes = MemoryCache.Programmes().Where(a => !string.IsNullOrEmpty(a.Channel)).AsQueryable();
+        IEnumerable<Programme> c = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+
+        IQueryable<Programme> programmes = c.Where(a => !string.IsNullOrEmpty(a.Channel)).AsQueryable();
 
         if (!string.IsNullOrEmpty(request.Parameters.JSONFiltersString))
         {

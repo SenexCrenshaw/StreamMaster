@@ -46,6 +46,26 @@ public class Programme
     [XmlElement(ElementName = "new")]
     public string? New { get; set; }
 
+    public bool ShouldSerializeLive()
+    {
+        return !string.IsNullOrEmpty(Live);
+    }
+
+    public bool ShouldSerializeNew()
+    {
+        return !string.IsNullOrEmpty(New);
+    }
+
+    public bool ShouldSerializePremiere()
+    {
+        return !string.IsNullOrEmpty(Premiere);
+    }
+
+    public bool ShouldSerializePreviouslyshown()
+    {
+        return Previouslyshown != null;
+    }
+
     [XmlElement(ElementName = "live")]
     public string? Live { get; set; }
 
@@ -56,7 +76,7 @@ public class Programme
     public TvPreviouslyshown? Previouslyshown { get; set; }
 
     [XmlElement(ElementName = "rating")]
-    public TvRating Rating { get; set; } = new();
+    public List<TvRating> Rating { get; set; } = new();
 
     [XmlAttribute(AttributeName = "start")]
     public string Start
@@ -106,7 +126,7 @@ public class Programme
     public TvSubtitle Subtitle { get; set; } = new();
 
     [XmlElement(ElementName = "title")]
-    public TvTitle Title { get; set; } = new();
+    public List<TvTitle> Title { get; set; } = new();
 
     [XmlElement(ElementName = "video")]
     public TvVideo Video { get; set; } = new();

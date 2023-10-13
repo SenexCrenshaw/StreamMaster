@@ -10,7 +10,7 @@ internal class GetLineupPreviewsHandler(ISettingsService settingsService) : IReq
     public async Task<List<LineUpPreview>> Handle(GetLineupPreviews request, CancellationToken cancellationToken)
     {
         Setting setting = await settingsService.GetSettingsAsync();
-        SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDCountry, setting.SDPassword);
+        SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
 
         List<LineUpPreview> ret = await sd.GetLineUpPreviews(cancellationToken).ConfigureAwait(false);
 

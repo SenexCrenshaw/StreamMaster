@@ -11,7 +11,7 @@
     <Version>$(VersionPrefix)</Version>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <Company>StreamMaster</Company>
-    <Copyright>Copyright 2022-$([System.DateTime]::Now.ToString('yyyy')) streammaster (MIT license)</Copyright>
+    <Copyright>Copyright 2023-$([System.DateTime]::Now.ToString('yyyy')) streammaster (MIT license)</Copyright>
     <NeutralLanguage>en</NeutralLanguage>
     <Title>Stream Master</Title>
     <LangVersion>preview</LangVersion>

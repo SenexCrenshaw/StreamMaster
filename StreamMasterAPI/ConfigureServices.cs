@@ -39,6 +39,7 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddWebUIServices(this IServiceCollection services)
     {
+
         services.AddLogging(logging =>
         {
             logging.AddFilter("StreamMasterDomain.Logging.CustomLogger", LogLevel.Information);
@@ -108,8 +109,6 @@ public static class ConfigureServices
         _ = services.AddScoped<IAuthenticationService, AuthenticationService>();
 
         _ = services.AddHttpContextAccessor();
-
-        _ = services.AddHealthChecks().AddDbContextCheck<RepositoryContext>();
 
         _ = services.AddFluentValidationAutoValidation();
 

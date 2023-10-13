@@ -10,7 +10,7 @@ internal class GetLineupHandler(ISettingsService settingsService) : IRequestHand
     public async Task<LineUpResult?> Handle(GetLineup request, CancellationToken cancellationToken)
     {
         Setting setting = await settingsService.GetSettingsAsync();
-        SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDCountry, setting.SDPassword);
+        SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
         SDStatus? status = await sd.GetStatus(cancellationToken).ConfigureAwait(false);
         if (status == null || !status.systemStatus.Any())
         {

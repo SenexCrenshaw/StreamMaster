@@ -70,10 +70,6 @@ public sealed class QueuedHostedService : BackgroundService
 
                 switch (command.Command)
                 {
-                    case SMQueCommand.AddProgrammesFromSD:
-                        await _sender.Send(new AddProgrammesFromSDRequest(), cancellationToken).ConfigureAwait(false);
-                        break;
-
                     case SMQueCommand.BuildIconCaches:
                         await _sender.Send(new BuildIconCachesRequest(), cancellationToken).ConfigureAwait(false);
                         break;
@@ -96,6 +92,9 @@ public sealed class QueuedHostedService : BackgroundService
                         {
                             _ = await _sender.Send(new ProcessEPGFileRequest((int)command.Entity), cancellationToken).ConfigureAwait(false);
                         }
+                        break;
+                    case SMQueCommand.SetSDProgramme:
+                        await _sender.Send(new SetSDProgramme(), cancellationToken).ConfigureAwait(false);
                         break;
 
                     case SMQueCommand.UpdateChannelGroupCounts:

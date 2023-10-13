@@ -10,8 +10,10 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.ChannelGroups.Queries;
+using StreamMasterApplication.EPG.Queries;
 using StreamMasterApplication.Icons.Queries;
 using StreamMasterApplication.M3UFiles.Queries;
+using StreamMasterApplication.Programmes.Queries;
 
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
@@ -334,7 +336,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
             videoStream.User_Tvg_name = request.Tvg_name;
             if (setting.EPGAlwaysUseVideoStreamName)
             {
-                string? test = memoryCache.GetEPGNameTvgName(videoStream.User_Tvg_name);
+                string? test = await sender.Send(new GetEPGChannelLogoByTvgId(videoStream.User_Tvg_ID), cancellationToken).ConfigureAwait(false);
                 if (test is not null)
                 {
                     videoStream.User_Tvg_ID = test;
@@ -348,7 +350,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
             videoStream.User_Tvg_ID = request.Tvg_ID;
             if (setting.VideoStreamAlwaysUseEPGLogo && videoStream.User_Tvg_ID != null)
             {
-                string? logoUrl = memoryCache.GetEPGChannelLogoByTvgId(videoStream.User_Tvg_ID);
+                string? logoUrl = await sender.Send(new GetEPGChannelLogoByTvgId(videoStream.User_Tvg_ID), cancellationToken).ConfigureAwait(false);
                 if (logoUrl != null)
                 {
                     videoStream.User_Tvg_logo = logoUrl;
@@ -712,7 +714,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
         int ret = 0;
         foreach (VideoStream videoStream in videoStreams)
         {
-            string? channelLogo = memoryCache.GetEPGChannelLogoByTvgId(videoStream.User_Tvg_ID);
+            string? channelLogo = await sender.Send(new GetEPGChannelLogoByTvgId(videoStream.User_Tvg_ID), cancellationToken).ConfigureAwait(false);
 
             if (channelLogo != null)
             {
@@ -791,7 +793,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
 
         foreach (VideoStream? videoStream in videoStreams)
         {
-            string? test = memoryCache.GetEPGNameTvgName(videoStream.User_Tvg_name);
+            string? test = await sender.Send(new GetEPGNameTvgName(videoStream.User_Tvg_name), cancellationToken).ConfigureAwait(false);
             if (test is not null && test != videoStream.User_Tvg_ID)
             {
                 videoStream.User_Tvg_ID = test;
@@ -854,7 +856,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
     }
     private async Task<List<VideoStreamDto>> AutoSetEPGs(IQueryable<VideoStream> videoStreams, CancellationToken cancellationToken)
     {
-        List<Programme> programmes = memoryCache.Programmes();
+        List<Programme> programmes = await sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
         List<ChannelNamePair> distinctChannelAndNames = programmes
             .Select(p => new ChannelNamePair { Channel = p.Channel, Name = p.Name })
             .Distinct()
@@ -883,7 +885,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
                 videoStream.User_Tvg_ID = scoredMatches[0].ChannelName.Channel;
                 if (setting.VideoStreamAlwaysUseEPGLogo)
                 {
-                    string? logoUrl = memoryCache.GetEPGChannelLogoByTvgId(videoStream.User_Tvg_ID);
+                    string? logoUrl = await sender.Send(new GetEPGChannelLogoByTvgId(videoStream.User_Tvg_ID), cancellationToken).ConfigureAwait(false);
                     if (logoUrl != null)
                     {
                         videoStream.User_Tvg_logo = logoUrl;

@@ -1,97 +1,84 @@
-import DataSelector from '@/components/dataSelector/DataSelector'
-import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes'
-import { VideoStreamSelector } from '@/components/videoStream/VideoStreamSelector'
-import StreamMasterSetting from '@/lib/StreamMasterSetting'
-import {
-  formatJSONDateString,
-  getIconUrl,
-  getTopToolOptions,
-} from '@/lib/common/common'
+import DataSelector from '@/components/dataSelector/DataSelector';
+import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes';
+import { VideoStreamSelector } from '@/components/videoStream/VideoStreamSelector';
+import { formatJSONDateString, getIconUrl, getTopToolOptions } from '@/lib/common/common';
 import {
   ChangeVideoStreamChannelRequest,
   SimulateStreamFailureRequest,
   StreamStatisticsResult,
-} from '@/lib/iptvApi'
-import {
-  ChangeVideoStreamChannel,
-  SimulateStreamFailure,
-} from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI'
-import { Button } from 'primereact/button'
-import { Toast } from 'primereact/toast'
-import { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react'
+  useVideoStreamsGetAllStatisticsForAllUrlsQuery,
+} from '@/lib/iptvApi';
+import { ChangeVideoStreamChannel, SimulateStreamFailure } from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
+import useSettings from '@/lib/useSettings';
+import { Button } from 'primereact/button';
+import { Toast } from 'primereact/toast';
+import { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react';
 
-export const StreamingServerStatusPanel = (
-  props: StreamingServerStatusPanelProps,
-) => {
-  const setting = StreamMasterSetting()
-  const toast = useRef<Toast>(null)
+type StreamingServerStatusPanelProps = {
+  readonly className?: string;
+  readonly style?: CSSProperties;
+};
 
-  const onChangeVideoStreamChannel = useCallback(
-    async (playingVideoStreamId: string, newVideoStreamId: string) => {
-      if (
-        playingVideoStreamId === undefined ||
-        playingVideoStreamId === '' ||
-        newVideoStreamId === undefined ||
-        newVideoStreamId === ''
-      ) {
-        return
-      }
+export const StreamingServerStatusPanel = ({ className, style }: StreamingServerStatusPanelProps) => {
+  const setting = useSettings();
+  const toast = useRef<Toast>(null);
 
-      var toSend = {} as ChangeVideoStreamChannelRequest
+  const getStreamingStatus = useVideoStreamsGetAllStatisticsForAllUrlsQuery();
 
-      toSend.playingVideoStreamId = playingVideoStreamId
-      toSend.newVideoStreamId = newVideoStreamId
+  const onChangeVideoStreamChannel = useCallback(async (playingVideoStreamId: string, newVideoStreamId: string) => {
+    if (playingVideoStreamId === undefined || playingVideoStreamId === '' || newVideoStreamId === undefined || newVideoStreamId === '') {
+      return;
+    }
 
-      await ChangeVideoStreamChannel(toSend)
-        .then(() => {
-          if (toast.current) {
-            toast.current.show({
-              detail: `Changed Client Channel`,
-              life: 3000,
-              severity: 'success',
-              summary: 'Successful',
-            })
-          }
-        })
-        .catch(() => {
-          if (toast.current) {
-            toast.current.show({
-              detail: `Failed Client Channel`,
-              life: 3000,
-              severity: 'error',
-              summary: 'Error',
-            })
-          }
-        })
-    },
-    [],
-  )
+    var toSend = {} as ChangeVideoStreamChannelRequest;
+
+    toSend.playingVideoStreamId = playingVideoStreamId;
+    toSend.newVideoStreamId = newVideoStreamId;
+
+    await ChangeVideoStreamChannel(toSend)
+      .then(() => {
+        if (toast.current) {
+          toast.current.show({
+            detail: `Changed Client Channel`,
+            life: 3000,
+            severity: 'success',
+            summary: 'Successful',
+          });
+        }
+      })
+      .catch(() => {
+        if (toast.current) {
+          toast.current.show({
+            detail: `Failed Client Channel`,
+            life: 3000,
+            severity: 'error',
+            summary: 'Error',
+          });
+        }
+      });
+  }, []);
 
   const videoStreamTemplate = useCallback(
     (rowData: StreamStatisticsResult) => {
       return (
         <VideoStreamSelector
           onChange={async (e) => {
-            await onChangeVideoStreamChannel(rowData.videoStreamId ?? '', e.id)
+            await onChangeVideoStreamChannel(rowData.videoStreamId ?? '', e.id);
           }}
           value={rowData.m3UStreamName}
         />
-      )
+      );
     },
     [onChangeVideoStreamChannel],
-  )
+  );
 
   const onFailStream = useCallback(async (rowData: StreamStatisticsResult) => {
-    if (
-      !rowData.streamUrl ||
-      rowData.streamUrl === undefined ||
-      rowData.streamUrl === ''
-    ) {
-      return
+    if (!rowData.streamUrl || rowData.streamUrl === undefined || rowData.streamUrl === '') {
+      return;
     }
 
-    var toSend = {} as SimulateStreamFailureRequest
-    toSend.streamUrl = rowData.streamUrl
+    var toSend = {} as SimulateStreamFailureRequest;
+    toSend.streamUrl = rowData.streamUrl;
 
     await SimulateStreamFailure(toSend)
       .then(() => {
@@ -101,7 +88,7 @@ export const StreamingServerStatusPanel = (
             life: 3000,
             severity: 'success',
             summary: 'Successful',
-          })
+          });
         }
       })
       .catch(() => {
@@ -111,92 +98,66 @@ export const StreamingServerStatusPanel = (
             life: 3000,
             severity: 'error',
             summary: 'Error',
-          })
+          });
         }
-      })
-  }, [])
+      });
+  }, []);
 
   const imageBodyTemplate = useCallback(
     (rowData: StreamStatisticsResult) => {
-      const iconUrl = getIconUrl(
-        rowData.logo,
-        setting.defaultIcon,
-        setting.cacheIcon,
-      )
+      const iconUrl = getIconUrl(rowData.logo, setting.defaultIcon, setting.cacheIcon);
 
       return (
         <div className="flex align-content-center flex-wrap">
-          <img
-            alt={rowData.logo ?? 'logo'}
-            className="flex align-items-center justify-content-center max-w-full max-h-2rem h-2rem"
-            src={iconUrl}
-          />
+          <img alt={rowData.logo ?? 'logo'} className="flex align-items-center justify-content-center max-w-full max-h-2rem h-2rem" src={iconUrl} />
         </div>
-      )
+      );
     },
     [setting],
-  )
+  );
 
-  const inputBitsPerSecondTemplate = useCallback(
-    (rowData: StreamStatisticsResult) => {
-      if (rowData.inputBitsPerSecond === undefined) return <div>0</div>
+  const inputBitsPerSecondTemplate = useCallback((rowData: StreamStatisticsResult) => {
+    if (rowData.inputBitsPerSecond === undefined) return <div>0</div>;
 
-      const kbps = rowData.inputBitsPerSecond / 1000
-      const roundedKbps = Math.ceil(kbps)
+    const kbps = rowData.inputBitsPerSecond / 1000;
+    const roundedKbps = Math.ceil(kbps);
 
-      return <div>{roundedKbps.toLocaleString('en-US')}</div>
-    },
-    [],
-  )
+    return <div>{roundedKbps.toLocaleString('en-US')}</div>;
+  }, []);
 
-  const inputElapsedTimeTemplate = useCallback(
-    (rowData: StreamStatisticsResult) => {
-      return <div>{rowData.inputElapsedTime?.split('.')[0]}</div>
-    },
-    [],
-  )
+  const inputElapsedTimeTemplate = useCallback((rowData: StreamStatisticsResult) => {
+    return <div>{rowData.inputElapsedTime?.split('.')[0]}</div>;
+  }, []);
 
-  const inputStartTimeTemplate = useCallback(
-    (rowData: StreamStatisticsResult) => {
-      return <div>{formatJSONDateString(rowData.inputStartTime ?? '')}</div>
-    },
-    [],
-  )
+  const inputStartTimeTemplate = useCallback((rowData: StreamStatisticsResult) => {
+    return <div>{formatJSONDateString(rowData.inputStartTime ?? '')}</div>;
+  }, []);
 
   const dataSource = useMemo((): StreamStatisticsResult[] => {
-    if (
-      props.dataSource === undefined ||
-      props.dataSource.length === 0 ||
-      props.dataSource === null
-    ) {
-      return []
+    if (getStreamingStatus.data === undefined || getStreamingStatus.data.length === 0 || getStreamingStatus.data === null) {
+      return [];
     }
 
-    let data = [] as StreamStatisticsResult[]
+    let data = [] as StreamStatisticsResult[];
 
-    props.dataSource.forEach((item) => {
+    getStreamingStatus.data.forEach((item) => {
       if (data.findIndex((x) => x.m3UStreamId === item.m3UStreamId) === -1) {
-        data.push(item)
+        data.push(item);
       }
-    })
+    });
 
-    return data
-  }, [props.dataSource])
+    return data;
+  }, [getStreamingStatus.data]);
 
   const streamCount = useCallback(
     (rowData: StreamStatisticsResult) => {
-      return (
-        <div>
-          {
-            props.dataSource.filter(
-              (x) => x.m3UStreamId === rowData.m3UStreamId,
-            ).length
-          }
-        </div>
-      )
+      if (getStreamingStatus.data === undefined || getStreamingStatus.data === null) {
+        return <div>0</div>;
+      }
+      return <div>{getStreamingStatus.data.filter((x) => x.m3UStreamId === rowData.m3UStreamId).length}</div>;
     },
-    [props.dataSource],
-  )
+    [getStreamingStatus.data],
+  );
 
   const targetActionBodyTemplate = useCallback(
     (rowData: StreamStatisticsResult) => {
@@ -212,10 +173,10 @@ export const StreamingServerStatusPanel = (
             tooltipOptions={getTopToolOptions}
           />
         </div>
-      )
+      );
     },
     [onFailStream],
-  )
+  );
 
   const sourceColumns = useMemo((): ColumnMeta[] => {
     return [
@@ -298,7 +259,7 @@ export const StreamingServerStatusPanel = (
           width: '8rem',
         } as CSSProperties,
       },
-    ]
+    ];
   }, [
     imageBodyTemplate,
     inputBitsPerSecondTemplate,
@@ -307,34 +268,28 @@ export const StreamingServerStatusPanel = (
     streamCount,
     targetActionBodyTemplate,
     videoStreamTemplate,
-  ])
+  ]);
 
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
       <div className="m3uFilesEditor flex flex-column col-12 flex-shrink-0 ">
         <DataSelector
-          className={props.className}
+          className={className}
           columns={sourceColumns}
           dataSource={dataSource}
           emptyMessage="No Streams"
           id="StreamingServerStatusPanel"
-          isLoading={props.isLoading}
+          isLoading={getStreamingStatus.isLoading}
           key="m3UStreamId"
           selectedItemsKey="selectSelectedItems"
-          style={props.style}
+          style={style}
         />
       </div>
     </>
-  )
-}
+  );
+};
 
-StreamingServerStatusPanel.displayName = 'Streaming Server Status'
+StreamingServerStatusPanel.displayName = 'Streaming Server Status';
 
-type StreamingServerStatusPanelProps = {
-  readonly className?: string
-  readonly dataSource: StreamStatisticsResult[]
-  readonly isLoading: boolean
-  readonly style?: CSSProperties
-}
-export default memo(StreamingServerStatusPanel)
+export default memo(StreamingServerStatusPanel);

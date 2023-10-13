@@ -1,166 +1,151 @@
-import { arraysMatch } from '@/lib/common/common'
+import { findDifferenceStationIdLineUps } from '@/lib/common/common';
 import {
+  StationIdLineUp,
+  UpdateSettingRequest,
+  useSchedulesDirectGetSelectedStationIdsQuery,
   useSchedulesDirectGetStationPreviewsQuery,
-  useSettingsGetSettingQuery,
   type StationPreview,
-  type UpdateSettingRequest,
-} from '@/lib/iptvApi'
-import { UpdateSetting } from '@/lib/smAPI/Settings/SettingsMutateAPI'
-import { Toast } from 'primereact/toast'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import DataSelector from '../dataSelector/DataSelector'
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes'
-import SchedulesDirectSchedulesDataSelector from './SchedulesDirectSchedulesDataSelector'
-
+} from '@/lib/iptvApi';
+import { useSelectedItems } from '@/lib/redux/slices/useSelectedItemsSlice';
+import { UpdateSetting } from '@/lib/smAPI/Settings/SettingsMutateAPI';
+import { Toast } from 'primereact/toast';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import DataSelector from '../dataSelector/DataSelector';
+import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 const SchedulesDirectStationPreviewDataSelector = () => {
-  const toast = useRef<Toast>(null)
+  const toast = useRef<Toast>(null);
 
-  const [selectedStationPreviews, setSelectedStationPreviews] = useState<
-    StationPreview[]
-  >([] as StationPreview[])
-  const [selectedStationPreviewsIds, setSelectedStationPreviewsIds] = useState<
-    string[]
-  >([] as string[])
-  const stationPreviews = useSchedulesDirectGetStationPreviewsQuery()
-  const settings = useSettingsGetSettingQuery()
+  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<StationPreview>('SchedulesDirectSchedulesDataSelector');
+
+  const schedulesDirectGetSelectedStationIdsQuery = useSchedulesDirectGetSelectedStationIdsQuery();
+  const stationPreviews = useSchedulesDirectGetStationPreviewsQuery();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (
-      selectedStationPreviews.length > 0 ||
-      settings.isLoading ||
-      !settings.data
+      schedulesDirectGetSelectedStationIdsQuery.isLoading ||
+      schedulesDirectGetSelectedStationIdsQuery.data === undefined ||
+      stationPreviews.data === undefined
     ) {
-      return
+      return;
     }
 
-    if (
-      selectedStationPreviews.length > 0 ||
-      !settings.data.sdStationIds ||
-      settings.data.sdStationIds.length === 0
-    ) {
-      return
-    }
-
-    const newStationPreviews = settings.data.sdStationIds
-      .map((stationId) => {
+    const sp = schedulesDirectGetSelectedStationIdsQuery.data
+      .map((stationIdLineUp) => {
         return stationPreviews.data?.find(
-          (stationPreview) => stationPreview.stationId === stationId,
-        )
+          (stationPreview) => stationPreview.stationId === stationIdLineUp.stationId && stationPreview.lineUp === stationIdLineUp.lineUp,
+        );
       })
-      .filter(
-        (stationPreview) => stationPreview !== undefined,
-      ) as StationPreview[]
+      .filter((station) => station !== undefined) as StationPreview[];
 
-    setSelectedStationPreviews(newStationPreviews)
-    setSelectedStationPreviewsIds(
-      newStationPreviews
-        .map((stationPreview) => stationPreview.stationId)
-        .filter((id) => id !== undefined) as string[],
-    )
-  }, [stationPreviews.data, selectedStationPreviews.length, settings])
+    if (findDifferenceStationIdLineUps(sp, schedulesDirectGetSelectedStationIdsQuery.data).length !== 0) {
+      setSelectSelectedItems(sp as StationPreview[]);
+    }
+  }, [schedulesDirectGetSelectedStationIdsQuery.data, schedulesDirectGetSelectedStationIdsQuery.isLoading, setSelectSelectedItems, stationPreviews.data]);
 
   const onSave = useCallback(
-    (stationIds: string[]) => {
-      const previousStationIds = selectedStationPreviews
-        .map((stationPreview) => stationPreview.stationId)
-        .filter((stationId) => stationId !== undefined) as string[]
-
-      if (arraysMatch(stationIds, previousStationIds)) {
-        return
+    (stationIdLineUps: StationIdLineUp[]) => {
+      if (stationIdLineUps === undefined || schedulesDirectGetSelectedStationIdsQuery.data === undefined) {
+        return;
       }
+      const test = findDifferenceStationIdLineUps(schedulesDirectGetSelectedStationIdsQuery.data, stationIdLineUps);
+      if (test.length === 0) {
+        return;
+      }
+      setIsLoading(true);
+      console.log('loading');
+      const newData = {} as UpdateSettingRequest;
 
-      const newData = {} as UpdateSettingRequest
-
-      newData.sdStationIds = stationIds
+      newData.sdStationIds = stationIdLineUps;
 
       UpdateSetting(newData)
         .then(() => {
+          setIsLoading(false);
           if (toast.current) {
             toast.current.show({
               detail: `Update Station Ids Successful`,
               life: 3000,
               severity: 'success',
               summary: 'Successful',
-            })
+            });
           }
         })
         .catch(() => {
+          setIsLoading(false);
           if (toast.current) {
             toast.current.show({
               detail: `Update Station Ids Failed`,
               life: 3000,
               severity: 'error',
               summary: 'Error',
-            })
+            });
           }
-        })
+        });
+
+      console.log('done');
     },
-    [selectedStationPreviews],
-  )
+    [schedulesDirectGetSelectedStationIdsQuery.data],
+  );
 
-  const onSelectedStationPreviews = useCallback(
-    (selectedData: StationPreview | StationPreview[]) => {
-      if (Array.isArray(selectedData)) {
-        setSelectedStationPreviews(selectedData)
-        setSelectedStationPreviewsIds(
-          selectedData
-            .map((stationPreview) => stationPreview.stationId)
-            .filter((id) => id !== undefined) as string[],
-        )
-        onSave(
-          selectedData
-            .map((stationPreview) => stationPreview.stationId)
-            .filter((stationId) => stationId !== undefined) as string[],
-        )
-      } else {
-        setSelectedStationPreviews([selectedData])
+  useEffect(() => {
+    const lineUps = selectSelectedItems.map((stationPreview) => {
+      return {
+        lineUp: stationPreview.lineUp,
+        stationId: stationPreview.stationId,
+      };
+    });
+    onSave(lineUps);
+  }, [onSave, selectSelectedItems]);
 
-        if (selectedData.stationId !== undefined) {
-          setSelectedStationPreviewsIds([selectedData.stationId])
-          onSave([selectedData.stationId])
-        }
-      }
-    },
-    [onSave],
-  )
+  function imageBodyTemplate(data: StationPreview) {
+    if (!data?.logo || data.logo.URL === '') {
+      return <div />;
+    }
 
-  const sourceColumns = useMemo((): ColumnMeta[] => {
+    return (
+      <div className="flex flex-nowrap justify-content-center align-items-center p-0">
+        <img alt={data.logo.URL ?? 'Logo'} className="max-h-1rem max-w-full p-0" src={`${encodeURI(data.logo.URL ?? '')}`} />
+      </div>
+    );
+  }
+
+  const columns = useMemo((): ColumnMeta[] => {
     return [
-      { field: 'stationId', header: 'Station Id' },
+      { field: 'stationId', filter: true, header: 'Station Id', sortable: true, width: '18rem' },
+      { field: 'logo', bodyTemplate: imageBodyTemplate, fieldType: 'image' },
       { field: 'lineUp', header: 'Line Up', sortable: true },
-      { field: 'name', header: 'Name', sortable: true },
-      { field: 'callsign', header: 'Call Sign', sortable: true },
-      { field: 'affiliate', header: 'Affiliate' },
-    ]
-  }, [])
+      { field: 'name', filter: true, header: 'Name', sortable: true },
+      { field: 'callsign', filter: true, header: 'Call Sign', sortable: true },
+      { field: 'affiliate', filter: true, header: 'Affiliate', sortable: true },
+    ];
+  }, []);
 
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
       <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border">
         <DataSelector
-          columns={sourceColumns}
+          columns={columns}
           dataSource={stationPreviews.data}
+          disableSelectAll={true}
           emptyMessage="No Line Ups"
           headerName="Line Up Preview"
           id="SchedulesDirectStationPreviewDataSelector"
-          isLoading={stationPreviews.isLoading}
-          onSelectionChange={(e) => {
-            onSelectedStationPreviews(e as StationPreview[])
+          isLoading={stationPreviews.isLoading || isLoading}
+          onRowClick={(e) => {
+            console.log(e);
           }}
-          selectedItemsKey="selectSelectedItems"
+          selectedItemsKey="SchedulesDirectSchedulesDataSelector"
           selectionMode="multiple"
-          style={{ height: 'calc(50vh - 40px)' }}
+          showSelections
+          style={{ height: 'calc(100vh - 40px)' }}
         />
-        <SchedulesDirectSchedulesDataSelector
-          stationIds={selectedStationPreviewsIds}
-        />
+        {/* <SchedulesDirectProgramsDataSelector id="SchedulesDirectStationPreviewDataSelector2" /> */}
       </div>
     </>
-  )
-}
+  );
+};
 
-SchedulesDirectStationPreviewDataSelector.displayName =
-  'SchedulesDirectStationPreviewDataSelector'
+SchedulesDirectStationPreviewDataSelector.displayName = 'SchedulesDirectStationPreviewDataSelector';
 
-export default memo(SchedulesDirectStationPreviewDataSelector)
+export default memo(SchedulesDirectStationPreviewDataSelector);

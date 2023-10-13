@@ -26,6 +26,7 @@ public class AppFolderInfo : IAppFolderInfo
 
         CacheFolder = $"{BuildInfo.AppDataFolder}Cache{Path.DirectorySeparatorChar}";
 
+        SDCacheFolder = $"{CacheFolder}SD{Path.DirectorySeparatorChar}";
         PlayListFolder = $"{BuildInfo.AppDataFolder}PlayLists{Path.DirectorySeparatorChar}";
         PlayListEPGFolder = $"{PlayListFolder}EPG{Path.DirectorySeparatorChar}";
         PlayListM3UFolder = $"{PlayListFolder}M3U{Path.DirectorySeparatorChar}";
@@ -48,7 +49,7 @@ public class AppFolderInfo : IAppFolderInfo
     public string PlayListEPGFolder { get; private set; }
     public string PlayListFolder { get; private set; }
     public string PlayListM3UFolder { get; private set; }
-
+    public string SDCacheFolder { get; private set; }
     public string ProgrammeIconDataFolder { get; private set; }
 
     public string SettingFile { get; private set; }
@@ -77,5 +78,6 @@ public class AppFolderInfo : IAppFolderInfo
         CreateDir(PlayListEPGFolder);
         CreateDir(PlayListM3UFolder);
         CreateDir(ProgrammeIconDataFolder);
+        CreateDir(SDCacheFolder);
     }
 }

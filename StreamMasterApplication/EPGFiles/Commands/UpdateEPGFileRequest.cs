@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
 
 using StreamMasterApplication.M3UFiles.Commands;
-using StreamMasterApplication.StreamGroups.Queries;
+using StreamMasterApplication.Programmes.Queries;
 
-using StreamMasterDomain.Models;
+using StreamMasterDomain.EPG;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
@@ -20,11 +20,8 @@ public class UpdateEPGFileRequestValidator : AbstractValidator<UpdateEPGFileRequ
     }
 }
 
-public class UpdateEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateEPGFileRequest, EPGFileDto?>
+public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateEPGFileRequest, EPGFileDto?>
 {
-    public UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
-
     public async Task<EPGFileDto?> Handle(UpdateEPGFileRequest request, CancellationToken cancellationToken)
     {
         try
@@ -77,15 +74,15 @@ public class UpdateEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestH
 
             if (isNameChanged)
             {
-                var programmes = MemoryCache.Programmes();
-                var c = programmes.Count;
+                List<Programme> programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+                int c = programmes.Count;
                 _ = programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                var d = programmes.Count;
-                MemoryCache.Set(programmes);
+                int d = programmes.Count;
+                MemoryCache.SetCache(programmes);
 
                 List<ChannelLogoDto> channelLogos = MemoryCache.ChannelLogos();
                 _ = channelLogos.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                MemoryCache.Set(channelLogos);
+                MemoryCache.SetCache(channelLogos);
 
                 List<IconFileDto> programmeIcons = MemoryCache.ProgrammeIcons();
                 _ = programmeIcons.RemoveAll(a => a.FileId == epgFile.Id);

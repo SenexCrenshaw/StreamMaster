@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 
+using StreamMasterApplication.Programmes.Queries;
+
 using StreamMasterDomain.EPG;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
@@ -63,7 +65,7 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
     {
         try
         {
-            List<Programme> cacheValues = MemoryCache.Programmes();
+            List<Programme> cacheValues = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);// MemoryCache.Programmes();
             //if (MemoryCache.ProgrammeIcons().Count == 0)
             //{
             //    DateTime start = DateTime.Now.AddDays(-1);
@@ -94,7 +96,7 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
                 }
             };
 
-                MemoryCache.Set(programmeChannels);
+                MemoryCache.SetCache(programmeChannels);
             }
 
             if (cancellationToken.IsCancellationRequested) { return; }
@@ -150,7 +152,7 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
                 cacheValues.Add(p);
             }
 
-            MemoryCache.Set(cacheValues);
+            MemoryCache.SetCache(cacheValues);
         }
         catch (Exception ex)
         {

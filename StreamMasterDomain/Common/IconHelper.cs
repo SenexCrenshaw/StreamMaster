@@ -5,6 +5,7 @@ using Microsoft.Extensions.Caching.Memory;
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Models;
+
 using System.Web;
 
 namespace StreamMasterDomain.Common;
@@ -117,7 +118,7 @@ public static class IconHelper
         tvLogos.AddRange(await FileUtil.GetIconFilesFromDirectory(dirInfo, fd.DirectoryLocation, tvLogos.Count, cancellationToken).ConfigureAwait(false));
 
         memoryCache.ClearIcons();
-        memoryCache.Set(tvLogos);
+        memoryCache.SetCache(tvLogos);
         return true;
     }
 }

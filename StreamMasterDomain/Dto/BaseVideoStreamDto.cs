@@ -1,12 +1,11 @@
 ﻿using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Mappings;
-using StreamMasterDomain.Models;
+
 using System.ComponentModel.DataAnnotations;
 
 namespace StreamMasterDomain.Dto;
 
 [RequireAll]
-public class BaseVideoStreamDto : IMapFrom<VideoStream>
+public class BaseVideoStreamDto /*: IMapFrom<VideoStream>*/
 {
     ///// <summary>
     ///// Gets or sets the CUID (Content Unique Identifier) of the M3U stream.

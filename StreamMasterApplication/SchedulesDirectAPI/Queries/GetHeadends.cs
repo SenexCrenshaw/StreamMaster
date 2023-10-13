@@ -10,7 +10,7 @@ internal class GetHeadendsHandler(ISettingsService settingsService) : IRequestHa
     {
         List<HeadendDto> ret = new();
         Setting setting = await settingsService.GetSettingsAsync();
-        SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDCountry, setting.SDPassword);
+        SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
         StreamMaster.SchedulesDirectAPI.Models.SDStatus? status = await sd.GetStatus(cancellationToken).ConfigureAwait(false);
         if (status == null || !status.systemStatus.Any())
         {

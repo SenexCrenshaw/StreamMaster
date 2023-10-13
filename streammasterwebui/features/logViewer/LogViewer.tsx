@@ -1,142 +1,166 @@
-import { ExportComponent, formatJSONDateString } from '@/lib/common/common'
-import {
-  LogEntry,
-  LogEntryDto,
-  LogsGetLogApiArg,
-  useLogsGetLogQuery,
-} from '@/lib/iptvApi'
+'use client';
 
-import { FilterMatchMode } from 'primereact/api'
-import { Column } from 'primereact/column'
-import { DataTable } from 'primereact/datatable'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { invokeHubConnection } from '@/lib/signalr/signalr';
+import StandardHeader from '@components/StandardHeader';
+import DownArrowButton from '@components/buttons/DownArrowButton';
+import { ExportComponent, formatJSONDateString } from '@lib/common/common';
+import { LogIcon } from '@lib/common/icons';
+import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
+import { LogEntry, LogEntryDto, LogsGetLogApiArg } from '@lib/iptvApi';
+
+import { FilterMatchMode } from 'primereact/api';
+import { Column } from 'primereact/column';
+import { DataTable } from 'primereact/datatable';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const LogViewer = () => {
-  const [lastLogId, setLastLogId] = useState<number>(0)
-  const [dataSource, setDataSource] = useState<LogEntryDto[]>(
-    [] as LogEntryDto[],
-  )
-  const tableRef = useRef<DataTable<LogEntryDto[]>>(null)
+  const GetLog = async (arg: LogsGetLogApiArg): Promise<LogEntryDto[] | null> => {
+    return await invokeHubConnection<LogEntryDto[]>('GetLog', arg);
+  };
 
-  const { data, refetch } = useLogsGetLogQuery({
-    lastId: lastLogId,
-    maxLines: 5000,
-  } as LogsGetLogApiArg)
+  const itemSize: number = 30;
+  const [lastLogId, setLastLogId] = useState<number>(0);
+  const [dataSource, setDataSource] = useState<LogEntryDto[]>([] as LogEntryDto[]);
+  const tableRef = useRef<DataTable<LogEntryDto[]>>(null);
+  const [follow, setFollow] = useState<boolean>(true);
+  const [lastScrollIndex, setLastScrollIndex] = useState<number>(0);
 
   const filters = {
     logLevelName: { matchMode: FilterMatchMode.CONTAINS, value: null },
     message: { matchMode: FilterMatchMode.CONTAINS, value: null },
     timeStamp: { matchMode: FilterMatchMode.CONTAINS, value: null },
-  }
+  };
+
+  const { type, direction, state } = useScrollAndKeyEvents();
 
   useEffect(() => {
-    if (data && data.length > 0) {
-      // Filter out duplicates based on ID
-      const uniqueData = data.filter(
-        (item) =>
-          !dataSource.some((existingItem) => existingItem.id === item.id),
-      )
-
-      if (uniqueData.length > 0) {
-        // Add only the new unique items to the dataSource
-        setDataSource((prevDataSource) => [...prevDataSource, ...uniqueData])
-
-        // Update the lastLogId to the ID of the last item in the new data
-        setLastLogId(uniqueData[uniqueData.length - 1].id)
+    if (!follow) {
+      if (direction === 'down' && state === 'blocked') {
+        setFollow(true);
       }
+      return;
     }
-  }, [data, dataSource])
+
+    if (state === 'moved') {
+      setFollow(false);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [type, direction, state]);
+
+  const tryScroll = useCallback(
+    (scollTo: number) => {
+      if (follow && scollTo !== lastScrollIndex && tableRef.current?.getVirtualScroller()) {
+        const vs = tableRef.current.getVirtualScroller();
+        console.log('scroll', scollTo, lastScrollIndex);
+        vs.scrollToIndex(scollTo * itemSize);
+      }
+      setLastScrollIndex(scollTo);
+    },
+    [follow, lastScrollIndex],
+  );
 
   const getLogData = useCallback(() => {
-    refetch()
-  }, [refetch])
+    console.log('getLogData', lastLogId, dataSource.length, lastScrollIndex);
 
-  useEffect(() => {
-    if (dataSource.length !== 0) {
-      // tableRef.current?.getVirtualScroller()?.scrollToIndex(dataSource.length * 34);
-      if (tableRef.current?.getVirtualScroller()) {
-        // tableRef.current.getVirtualScroller().scrollToIndex(50) // { behavior: 'auto', left: 0, top: 400 })
+    GetLog({ lastId: lastLogId, maxLines: 5000 })
+      .then((data: LogEntryDto[] | null) => {
+        if (!data) return;
+        const uniqueData = data.filter((item) => !dataSource.some((existingItem) => existingItem.id === item.id));
 
-        console.log(
-          'scroll',
-          dataSource[dataSource.length - 1].id,
-          dataSource.length * 58,
-        )
-
-        const vs = tableRef.current.getVirtualScroller()
-        vs.scrollToIndex(dataSource[dataSource.length - 1].id)
-
-        // vs.scrollTo({ behavior: 'auto', left: 0, top: -40 })
-      }
-    }
-  }, [dataSource])
+        if (uniqueData.length > 0) {
+          setDataSource((prevDataSource) => [...prevDataSource, ...uniqueData]);
+          setLastLogId(uniqueData[uniqueData.length - 1].id);
+        } else {
+          tryScroll(dataSource.length - 1);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, [lastLogId, dataSource, lastScrollIndex, tryScroll]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      getLogData()
-    }, 1000)
+      getLogData();
+    }, 1000);
 
     return () => {
-      clearInterval(intervalId)
-    }
-  }, [getLogData])
+      clearInterval(intervalId);
+    };
+  }, [getLogData]);
 
   const timeStampTemplate = useCallback((rowData: LogEntry) => {
-    return <div>{formatJSONDateString(rowData.timeStamp ?? '')}</div>
-  }, [])
+    return <div>{formatJSONDateString(rowData.timeStamp ?? '')}</div>;
+  }, []);
 
   const levelTemplate = useCallback((rowData: LogEntry) => {
     switch (rowData.logLevel) {
       case 0:
-        return <div className="text-gray-600">Trace</div>
+        return <div className="text-gray-600">Trace</div>;
       case 1:
-        return <div className="text-blue-600">Debug</div>
+        return <div className="text-blue-600">Debug</div>;
       case 2:
-        return <div className="text-green-600">Information</div>
+        return <div className="text-green-600">Information</div>;
       case 3:
-        return <div className="text-yellow-600">Warning</div>
+        return <div className="text-yellow-600">Warning</div>;
       case 4:
-        return <div className="text-red-600">Error</div>
+        return <div className="text-red-600">Error</div>;
       case 5:
-        return <div className="text-purple-600">Critical</div>
+        return <div className="text-purple-600">Critical</div>;
       case 6:
-        return <div className="text-gray-400">None</div>
+        return <div className="text-gray-400">None</div>;
       default:
-        return <div className="text-gray-500">Unknown</div>
+        return <div className="text-gray-500">Unknown</div>;
     }
-  }, [])
+  }, []);
 
   const messageTemplate = useCallback((rowData: LogEntry) => {
-    return <div>{rowData.message}</div>
-  }, [])
+    return <div>{rowData.message}</div>;
+  }, []);
 
   const exportCSV = () => {
-    tableRef.current?.exportCSV({ selectionOnly: false })
-  }
+    tableRef.current?.exportCSV({ selectionOnly: false });
+  };
 
   const renderHeader = useMemo(() => {
     return (
       <div className="flex grid flex-row w-full align-items-center justify-content-end col-12 h-full p-0 debug">
         <ExportComponent exportCSV={exportCSV} />
+        <DownArrowButton
+          onClick={() => {
+            setFollow(true);
+            tryScroll(dataSource.length);
+          }}
+          tooltip="Follow"
+        />
       </div>
-    )
-  }, [])
+    );
+  }, [dataSource.length, tryScroll]);
 
   return (
-    <div className="dataselector flex w-full min-w-full flex-column col-12">
+    <StandardHeader className="dataselector" displayName={follow ? 'LOGS - FOLLOWING' : 'LOGS'} icon={<LogIcon />}>
       <DataTable
+        className="w-full text-sm"
         exportFilename={`StreamMaster_Logs_${new Date().toISOString()}`}
         filterDisplay="row"
         filters={filters}
         header={renderHeader}
         id="LogViewer"
+        onScroll={(e) => {
+          console.log('ssss', e);
+          setFollow(false);
+        }}
         ref={tableRef}
-        scrollHeight="calc(100vh - 200px)"
+        scrollable
+        scrollHeight="calc(100vh - 100px)"
         style={{
           height: 'calc(100vh - 200px)',
         }}
         value={dataSource}
-        virtualScrollerOptions={{ itemSize: 58 }}
+        virtualScrollerOptions={{
+          itemSize: itemSize,
+        }}
       >
         <Column
           body={levelTemplate}
@@ -192,8 +216,8 @@ const LogViewer = () => {
           }}
         />
       </DataTable>
-    </div>
-  )
-}
+    </StandardHeader>
+  );
+};
 
-export default memo(LogViewer)
+export default memo(LogViewer);

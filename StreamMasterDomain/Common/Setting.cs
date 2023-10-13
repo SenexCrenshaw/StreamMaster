@@ -1,7 +1,8 @@
 ﻿using StreamMasterDomain.Attributes;
+using StreamMasterDomain.Dto;
 
 namespace StreamMasterDomain.Common;
-
+[RequireAll]
 public class M3USettings
 {
     public bool M3UFieldChannelId { get; set; } = true;
@@ -41,10 +42,11 @@ public class BaseSettings : M3USettings
     public bool OverWriteM3UChannels { get; set; } = false;
     public int PreloadPercentage { get; set; } = 25;
     public int RingBufferSizeMB { get; set; } = 4;
+    public bool SDEnabled { get; set; } = false;
     public string SDCountry { get; set; } = string.Empty;
     public string SDPassword { get; set; } = "";
     public string SDPostalCode { get; set; } = string.Empty;
-    public List<string> SDStationIds { get; set; } = new();
+    public List<StationIdLineUp> SDStationIds { get; set; } = new();
     public List<string> NameRegex { get; set; } = new();
     public string SDUserName { get; set; } = "";
     public string SSLCertPassword { get; set; } = "";
@@ -52,6 +54,8 @@ public class BaseSettings : M3USettings
     public string StreamingClientUserAgent { get; set; } = "Mozilla/5.0 (compatible; streammaster/1.0)";
     public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.StreamMaster;
     public bool VideoStreamAlwaysUseEPGLogo { get; set; } = false;
+
+    public bool ShowClientHostNames { get; set; } = false;
 }
 
 

@@ -1,60 +1,48 @@
-import { formatJSONDateString, getTopToolOptions } from '@/lib/common/common'
-import {
-  useEpgFilesGetPagedEpgFilesQuery,
-  useEpgFilesUpdateEpgFileMutation,
-  type EpgFileDto,
-  type M3UFileDto,
-  type UpdateEpgFileRequest,
-} from '@/lib/iptvApi'
-import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox'
-import { Toast } from 'primereact/toast'
-import { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react'
-import NumberEditorBodyTemplate from '../NumberEditorBodyTemplate'
-import StringEditorBodyTemplate from '../StringEditorBodyTemplate'
-import DataSelector from '../dataSelector/DataSelector'
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes'
-import EPGFileRefreshDialog from './EPGFileRefreshDialog'
-import EPGFileRemoveDialog from './EPGFileRemoveDialog'
+import { formatJSONDateString, getTopToolOptions } from '@/lib/common/common';
+import { useEpgFilesGetPagedEpgFilesQuery, useEpgFilesUpdateEpgFileMutation, type EpgFileDto, type M3UFileDto, type UpdateEpgFileRequest } from '@/lib/iptvApi';
+import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
+import { Toast } from 'primereact/toast';
+import { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react';
+import NumberEditorBodyTemplate from '../NumberEditorBodyTemplate';
+import StringEditorBodyTemplate from '../StringEditorBodyTemplate';
+import DataSelector from '../dataSelector/DataSelector';
+import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
+import EPGFileRefreshDialog from './EPGFileRefreshDialog';
+import EPGFileRemoveDialog from './EPGFileRemoveDialog';
 
 const EPGFilesDataSelector = () => {
-  const toast = useRef<Toast>(null)
+  const toast = useRef<Toast>(null);
 
-  const [epgFilesUpdateEpgFileMutation] = useEpgFilesUpdateEpgFileMutation()
+  const [epgFilesUpdateEpgFileMutation] = useEpgFilesUpdateEpgFileMutation();
 
   const onEPGUpdateClick = useCallback(
-    async (
-      id: number,
-      auto?: boolean | null,
-      hours?: number | null,
-      name?: string | null,
-      url?: string | null,
-    ) => {
+    async (id: number, auto?: boolean | null, hours?: number | null, name?: string | null, url?: string | null) => {
       if (id < 1) {
-        return
+        return;
       }
 
       if (auto === undefined && !url && !hours && !name) {
-        return
+        return;
       }
 
-      const tosend = {} as UpdateEpgFileRequest
+      const tosend = {} as UpdateEpgFileRequest;
 
-      tosend.id = id
+      tosend.id = id;
 
       if (auto !== undefined) {
-        tosend.autoUpdate = auto
+        tosend.autoUpdate = auto;
       }
 
       if (hours) {
-        tosend.hoursToUpdate = hours
+        tosend.hoursToUpdate = hours;
       }
 
       if (name) {
-        tosend.name = name
+        tosend.name = name;
       }
 
       if (url !== undefined) {
-        tosend.url = url
+        tosend.url = url;
       }
 
       await epgFilesUpdateEpgFileMutation(tosend)
@@ -65,7 +53,7 @@ const EPGFilesDataSelector = () => {
               life: 3000,
               severity: 'success',
               summary: 'Successful',
-            })
+            });
           }
         })
         .catch((e) => {
@@ -75,24 +63,20 @@ const EPGFilesDataSelector = () => {
               life: 3000,
               severity: 'error',
               summary: 'Error ' + e.message,
-            })
+            });
           }
-        })
+        });
     },
     [epgFilesUpdateEpgFileMutation],
-  )
+  );
 
   const lastDownloadedTemplate = useCallback((rowData: EpgFileDto) => {
     if (rowData.id === 0) {
-      return <div />
+      return <div />;
     }
 
-    return (
-      <div className="flex justify-content-center ">
-        {formatJSONDateString(rowData.lastDownloaded ?? '')}
-      </div>
-    )
-  }, [])
+    return <div className="flex justify-content-center ">{formatJSONDateString(rowData.lastDownloaded ?? '')}</div>;
+  }, []);
 
   const nameEditorBodyTemplate = useCallback(
     (rowData: EpgFileDto) => {
@@ -111,33 +95,33 @@ const EPGFilesDataSelector = () => {
           >
             {rowData.name}
           </div>
-        )
+        );
       }
 
       return (
         <StringEditorBodyTemplate
           onChange={async (e) => {
-            await onEPGUpdateClick(rowData.id, null, null, e)
+            await onEPGUpdateClick(rowData.id, null, null, e);
           }}
           value={rowData.name}
         />
-      )
+      );
     },
     [onEPGUpdateClick],
-  )
+  );
 
   const programmeCountTemplate = useCallback((rowData: EpgFileDto) => {
     if (rowData.id === 0) {
-      return <div />
+      return <div />;
     }
 
-    return <div>{rowData.programmeCount}</div>
-  }, [])
+    return <div>{rowData.programmeCount}</div>;
+  }, []);
 
   const targetActionBodyTemplate = useCallback(
     (rowData: EpgFileDto) => {
       if (rowData.id === 0) {
-        return <div />
+        return <div />;
       }
 
       return (
@@ -146,7 +130,7 @@ const EPGFilesDataSelector = () => {
             <Checkbox
               checked={rowData.autoUpdate}
               onChange={async (e: CheckboxChangeEvent) => {
-                await onEPGUpdateClick(rowData.id, e.checked ?? false)
+                await onEPGUpdateClick(rowData.id, e.checked ?? false);
               }}
               tooltip="Enable Auto Update"
               tooltipOptions={getTopToolOptions}
@@ -154,7 +138,7 @@ const EPGFilesDataSelector = () => {
 
             <NumberEditorBodyTemplate
               onChange={async (e) => {
-                await onEPGUpdateClick(rowData.id, null, e)
+                await onEPGUpdateClick(rowData.id, null, e);
               }}
               suffix=" hours"
               value={rowData.hoursToUpdate}
@@ -165,10 +149,10 @@ const EPGFilesDataSelector = () => {
             <EPGFileRemoveDialog selectedFile={rowData} />
           </div>
         </div>
-      )
+      );
     },
     [onEPGUpdateClick],
-  )
+  );
 
   const urlEditorBodyTemplate = useCallback(
     (rowData: M3UFileDto) => {
@@ -187,21 +171,21 @@ const EPGFilesDataSelector = () => {
           >
             {rowData.url}
           </div>
-        )
+        );
       }
 
       return (
         <StringEditorBodyTemplate
           onChange={async (e) => {
-            await onEPGUpdateClick(rowData.id, null, null, null, e)
+            await onEPGUpdateClick(rowData.id, null, null, null, e);
           }}
           tooltip={rowData.url}
           value={rowData.url}
         />
-      )
+      );
     },
     [onEPGUpdateClick],
-  )
+  );
 
   const sourceColumns = useMemo((): ColumnMeta[] => {
     return [
@@ -234,14 +218,8 @@ const EPGFilesDataSelector = () => {
           width: '8rem',
         } as CSSProperties,
       },
-    ]
-  }, [
-    lastDownloadedTemplate,
-    nameEditorBodyTemplate,
-    programmeCountTemplate,
-    targetActionBodyTemplate,
-    urlEditorBodyTemplate,
-  ])
+    ];
+  }, [lastDownloadedTemplate, nameEditorBodyTemplate, programmeCountTemplate, targetActionBodyTemplate, urlEditorBodyTemplate]);
 
   return (
     <>
@@ -252,12 +230,12 @@ const EPGFilesDataSelector = () => {
         id="epgfilesdataselector"
         queryFilter={useEpgFilesGetPagedEpgFilesQuery}
         selectedItemsKey="selectSelectedEPGFileDtoItems"
-        style={{ height: 'calc(50vh - 40px)' }}
+        style={{ height: 'calc(50vh - 120px)' }}
       />
     </>
-  )
-}
+  );
+};
 
-EPGFilesDataSelector.displayName = 'EPGFilesDataSelector'
+EPGFilesDataSelector.displayName = 'EPGFilesDataSelector';
 
-export default memo(EPGFilesDataSelector)
+export default memo(EPGFilesDataSelector);

@@ -10,7 +10,7 @@ public class GetSchedulesHandler(ILogger<GetSchedules> logger, IRepositoryWrappe
     public async Task<List<Schedule>> Handle(GetSchedules request, CancellationToken cancellationToken)
     {
         Setting setting = await GetSettingsAsync();
-        SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDCountry, setting.SDPassword);
+        SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
         bool status = await sd.GetSystemReady(cancellationToken).ConfigureAwait(false);
         if (!status)
         {
@@ -24,7 +24,7 @@ public class GetSchedulesHandler(ILogger<GetSchedules> logger, IRepositoryWrappe
             return new();
         }
 
-        List<Schedule>? ret = await sd.GetSchedules(setting.SDStationIds, cancellationToken).ConfigureAwait(false);
+        List<Schedule>? ret = await sd.GetSchedules(setting.SDStationIds.Select(a => a.StationId).ToList(), cancellationToken).ConfigureAwait(false);
 
         return ret ?? new();
     }

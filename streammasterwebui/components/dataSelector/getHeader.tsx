@@ -1,28 +1,24 @@
-import { type ReactNode } from 'react'
+import { type ReactNode } from 'react';
 
-import { camel2title } from '@/lib/common/common'
-import { type ColumnFieldType } from './DataSelectorTypes'
+import { camel2title } from '@/lib/common/common';
+import { type ColumnFieldType } from './DataSelectorTypes';
 
-function getHeader(
-  field: string,
-  header: string | undefined,
-  fieldType: ColumnFieldType | undefined,
-): ReactNode {
+function getHeader(field: string, header: string | undefined, fieldType: ColumnFieldType | undefined): ReactNode {
   if (!fieldType === undefined) {
-    return header ? header : camel2title(field)
+    return header ? header : camel2title(field);
   }
 
   switch (fieldType) {
     case 'blank':
-      return <div />
+      return <div />;
     case 'epg':
-      return 'EPG'
+      return 'EPG';
     case 'm3ulink':
-      return 'M3U'
+      return 'M3U';
     case 'epglink':
-      return 'EPG'
+      return 'EPG';
     case 'url':
-      return 'HDHR'
+      return 'HDHR';
     case 'streams':
       return (
         <div>
@@ -30,14 +26,14 @@ function getHeader(
           <br />
           (active/total)
         </div>
-      )
+      );
     default:
       if (header === '') {
-        return ''
+        return '';
       }
 
-      return header ? header : camel2title(field)
+      return header ? header : camel2title(field);
   }
 }
 
-export default getHeader
+export default getHeader;

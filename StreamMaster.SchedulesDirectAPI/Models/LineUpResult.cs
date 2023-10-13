@@ -51,15 +51,12 @@ public class Station
     [JsonPropertyName("stationLogo")]
     public List<StationLogo> StationLogo { get; set; }
 }
-public class StationId
+public class StationId(string stationID)
+
 
 {
-    public StationId(string stationID)
-    {
-        StationID = stationID;
-    }
     [JsonPropertyName("stationID")]
-    public string StationID { get; set; }
+    public string StationID { get; set; } = stationID;
 }
 
 public class Broadcaster
@@ -138,42 +135,6 @@ public class ScheduleMetadata
 
     [JsonPropertyName("startDate")]
     public string StartDate { get; set; }
-}
-
-public class Program
-{
-    [JsonPropertyName("programID")]
-    public string ProgramID { get; set; }
-
-    [JsonPropertyName("airDateTime")]
-    public DateTime AirDateTime { get; set; }
-
-    [JsonPropertyName("duration")]
-    public int Duration { get; set; }
-
-    [JsonPropertyName("md5")]
-    public string Md5 { get; set; }
-
-    [JsonPropertyName("audioProperties")]
-    public List<string> AudioProperties { get; set; }
-
-    [JsonPropertyName("videoProperties")]
-    public List<string> VideoProperties { get; set; }
-
-    [JsonPropertyName("new")]
-    public bool? New { get; set; }
-
-    [JsonPropertyName("liveTapeDelay")]
-    public string LiveTapeDelay { get; set; }
-
-    [JsonPropertyName("educational")]
-    public bool? Educational { get; set; }
-
-    [JsonPropertyName("isPremiereOrFinale")]
-    public string IsPremiereOrFinale { get; set; }
-
-    [JsonPropertyName("premiere")]
-    public bool? Premiere { get; set; }
 }
 
 public class Schedule

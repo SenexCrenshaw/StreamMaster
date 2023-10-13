@@ -7,6 +7,7 @@ using StreamMasterDomain.Common;
 
 using StreamMasterInfrastructure;
 using StreamMasterInfrastructure.Logging;
+using StreamMasterInfrastructure.Middleware;
 
 using StreamMasterInfrastructureEF;
 
@@ -123,7 +124,6 @@ using (IServiceScope scope = app.Services.CreateScope())
     }
 }
 
-app.UseHealthChecks("/health");
 
 app.UseDefaultFiles();
 
@@ -144,7 +144,7 @@ else
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseMiddleware<CacheHeaderMiddleware>();
 //if (app.Environment.IsDevelopment())
 //{
 //    //RecurringJob.AddOrUpdate("Hello World", () => Console.WriteLine("hello world"), Cron.Minutely);    
@@ -154,7 +154,6 @@ app.UseAuthorization();
 //    _ = app.UseResponseCompression();
 //}
 
-app.MapHealthChecks("/healthz");
 app.MapDefaultControllerRoute();
 
 app.Map("/swagger", context =>

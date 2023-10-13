@@ -1,4 +1,6 @@
-﻿using StreamMasterDomain.EPG;
+﻿using StreamMasterApplication.Programmes.Queries;
+
+using StreamMasterDomain.EPG;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.EPGFiles.Queries;
@@ -22,7 +24,8 @@ internal class GetPagedEPGFilesHandler : BaseMediatorRequestHandler, IRequestHan
 
         foreach (EPGFileDto epgFileDto in epgFiles.Data)
         {
-            List<Programme> proprammes = MemoryCache.Programmes().Where(a => a.EPGFileId == epgFileDto.Id).ToList();
+            List<Programme> c = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+            List<Programme> proprammes = c.Where(a => a.EPGFileId == epgFileDto.Id).ToList();
             if (proprammes.Any())
             {
                 epgFileDto.EPGStartDate = proprammes.Min(a => a.StartDateTime);

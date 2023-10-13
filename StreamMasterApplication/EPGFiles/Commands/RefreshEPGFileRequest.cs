@@ -1,7 +1,8 @@
 ﻿using FluentValidation;
 
+using StreamMasterApplication.Programmes.Queries;
+
 using StreamMasterDomain.EPG;
-using StreamMasterDomain.Models;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 
@@ -78,13 +79,13 @@ public class RefreshEPGFileRequestHandler : BaseMediatorRequestHandler, IRequest
                 Repository.EPGFile.UpdateEPGFile(epgFile);
                 _ = await Repository.SaveAsync().ConfigureAwait(false);
 
-                List<Programme> programmes = MemoryCache.Programmes();
+                List<Programme> programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
                 _ = programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                MemoryCache.Set(programmes);
+                MemoryCache.SetCache(programmes);
 
                 List<ProgrammeChannel> programmeChannels = MemoryCache.ProgrammeChannels();
                 _ = programmeChannels.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                MemoryCache.Set(programmeChannels);
+                MemoryCache.SetCache(programmeChannels);
 
                 List<IconFileDto> programmeIcons = MemoryCache.ProgrammeIcons();
                 _ = programmeIcons.RemoveAll(a => a.FileId == epgFile.Id);

@@ -1,27 +1,31 @@
-import { useClickOutside } from 'primereact/hooks'
-import { InputNumber } from 'primereact/inputnumber'
-import { memo, useEffect, useRef, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
-import CopyButton from '../buttons/CopyButton'
+import { useClickOutside } from 'primereact/hooks';
+import { InputNumber } from 'primereact/inputnumber';
+import { memo, useEffect, useRef, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import CopyButton from '../buttons/CopyButton';
 
 type NumberInputProps = {
-  readonly autoFocus?: boolean
-  readonly isValid?: boolean
-  readonly label?: string
-  readonly onChange: (value: number) => void
-  readonly onEnter?: () => void
-  readonly onResetClick?: () => void
-  readonly placeHolder?: string
-  readonly showClear?: boolean
-  readonly showCopy?: boolean
-  readonly value: number
-}
+  readonly autoFocus?: boolean;
+  readonly isValid?: boolean;
+  readonly label?: string;
+  readonly min?: number;
+  readonly max?: number;
+  readonly onChange: (value: number) => void;
+  readonly onEnter?: () => void;
+  readonly onResetClick?: () => void;
+  readonly placeHolder?: string;
+  readonly showClear?: boolean;
+  readonly showCopy?: boolean;
+  readonly value: number;
+};
 
 const NumberInput = ({
   autoFocus = true,
   onEnter,
   isValid = true,
   label,
+  min,
+  max,
   onChange,
   onResetClick,
   placeHolder,
@@ -29,89 +33,70 @@ const NumberInput = ({
   showCopy = false,
   value,
 }: NumberInputProps) => {
-  const [input, setInput] = useState<number>(1)
-  const [originalInput, setOriginalInput] = useState<number | undefined>(
-    undefined,
-  )
-  const [isFocused, setIsFocused] = useState<boolean>(false)
-  const overlayRef = useRef(null)
-  const uuid = uuidv4()
+  const [input, setInput] = useState<number>(1);
+  const [originalInput, setOriginalInput] = useState<number | undefined>(undefined);
+  const [isFocused, setIsFocused] = useState<boolean>(false);
+  const overlayRef = useRef(null);
+  const uuid = uuidv4();
 
   useEffect(() => {
     const callback = (event: KeyboardEvent) => {
       if (!isFocused) {
-        return
+        return;
       }
 
       if (event.code === 'Enter' || event.code === 'NumpadEnter') {
         if (originalInput !== input) {
-          onEnter?.()
+          onEnter?.();
         }
       }
-    }
+    };
 
-    document.addEventListener('keydown', callback)
+    document.addEventListener('keydown', callback);
 
     return () => {
-      document.removeEventListener('keydown', callback)
-    }
-  }, [input, isFocused, onChange, onEnter, originalInput])
+      document.removeEventListener('keydown', callback);
+    };
+  }, [input, isFocused, onChange, onEnter, originalInput]);
 
   useClickOutside(overlayRef, () => {
     if (!isFocused) {
-      return
+      return;
     }
 
-    setIsFocused(false)
-  })
+    setIsFocused(false);
+  });
 
   useEffect(() => {
-    setInput(value)
+    setInput(value);
     if (value !== originalInput) {
-      setOriginalInput(value)
+      setOriginalInput(value);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value])
+  }, [value]);
 
   const doShowClear = (): boolean => {
-    return (
-      showClear === true &&
-      originalInput !== undefined &&
-      input !== originalInput
-    )
-  }
+    return showClear === true && originalInput !== undefined && input !== originalInput;
+  };
 
   const doShowCopy = (): boolean => {
-    return showCopy === true && input !== undefined && input !== 0
-  }
+    return showCopy === true && input !== undefined && input !== 0;
+  };
 
   return (
-    <div
-      className={
-        placeHolder && !label
-          ? 'flex grid w-full align-items-center'
-          : 'flex grid w-full mt-3 align-items-center'
-      }
-      ref={overlayRef}
-    >
-      <span
-        className={
-          placeHolder && !label
-            ? 'col-11 p-input-icon-right'
-            : 'col-11 p-input-icon-right p-float-label'
-        }
-      >
+    <div className={placeHolder && !label ? 'flex grid w-full align-items-center' : 'flex grid w-full mt-3 align-items-center'} ref={overlayRef}>
+      <span className={placeHolder && !label ? 'col-11 p-input-icon-right' : 'col-11 p-input-icon-right p-float-label'}>
         {doShowClear() && originalInput && (
           <i
             className="pi pi-times-circle"
             hidden={showClear !== true || input === originalInput}
             onClick={() => {
-              setInput(originalInput)
+              setInput(originalInput);
               if (onResetClick) {
-                onResetClick()
+                onResetClick();
               }
-              onChange(originalInput)
+              onChange(originalInput);
             }}
           />
         )}
@@ -120,10 +105,12 @@ const NumberInput = ({
           autoFocus={autoFocus}
           className={`text-large w-full ` + (isValid ? '' : 'p-invalid')}
           id={uuid}
+          min={min}
+          max={max}
           onChange={(event) => {
             if (event.value !== null && event.value !== undefined) {
-              setInput(event.value)
-              onChange(event.value)
+              setInput(event.value);
+              onChange(event.value);
             }
           }}
           onFocus={() => setIsFocused(true)}
@@ -138,7 +125,7 @@ const NumberInput = ({
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default memo(NumberInput)
+export default memo(NumberInput);

@@ -3,9 +3,9 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 internal class Program
 {
-    private static readonly List<string> blackList = new() { "programmesGetProgramme", "programmesGetProgrammeChannels", "programmesGetProgrammes", "programmesGetProgrammeFromDisplayName", "schedulesDirectGetHeadends", "schedulesDirectGetSchedules", "schedulesDirectGetStations", "videoStreamsGetAllStatisticsForAllUrls", "streamGroupVideoStreamsGetStreamGroupVideoStreamIds" };
-    private static readonly Dictionary<string, string> overRideArgs = new() { { "GetIconFromSource", "StringArg" } };
-    private static readonly Dictionary<string, string> additionalImports = new() { { "Icons", "import { type StringArg } from '@/src/components/selectors/BaseSelector';" } };
+    private static readonly List<string> blackList = new() { "schedulesDirectGetSelectedStationIds", "schedulesDirectGetSDPrograms", "programmesGetProgramme", "programmesGetProgrammeChannels", "programmesGetProgrammes", "programmesGetProgrammeFromDisplayName", "schedulesDirectGetHeadends", "schedulesDirectGetSchedules", "schedulesDirectGetStations", "videoStreamsGetAllStatisticsForAllUrls", "streamGroupVideoStreamsGetStreamGroupVideoStreamIds" };
+    private static readonly Dictionary<string, string> overRideArgs = new() { { "GetSDPrograms", "SdProgram" }, { "GetIconFromSource", "StringArg" } };
+    private static readonly Dictionary<string, string> additionalImports = new() { { "Icons", "import { type StringArg } from '@/components/selectors/BaseSelector';" } };
 
 
     private const string SwaggerUrl = "http://127.0.0.1:7095/swagger/v1/swagger.json";
@@ -52,12 +52,12 @@ internal class Program
                             int aa = 1;
                         }
 
-                        string tag = tags[0].GetString();
+                        string? tag = tags[0].GetString();
 
                         string? argType = GetArgType(method.Value);
                         string responseType = GetResponseType(method.Value);
                         StringBuilder contentToUse;
-                        if (method.Name.ToLower() == "get")
+                        if (string.Equals(method.Name, "get", StringComparison.OrdinalIgnoreCase))
                         {
 
                             if (!tagToGetContentMap.ContainsKey(tag))

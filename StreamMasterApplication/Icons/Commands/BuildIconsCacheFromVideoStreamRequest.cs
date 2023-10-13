@@ -51,7 +51,7 @@ public class BuildIconsCacheFromVideoStreamRequestHandler : BaseMediatorRequestH
         {
             icons[i].Id = i;
         }
-        MemoryCache.Set(icons);
+        MemoryCache.SetCache(icons);
 
         return Task.FromResult(true);
     }

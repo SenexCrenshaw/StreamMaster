@@ -1,18 +1,10 @@
 ﻿using System.Collections.Concurrent;
 namespace StreamMasterDomain.Common;
 
-public class ThreadSafeIntList
+public class ThreadSafeIntList(int startingValue)
 {
-    private readonly ConcurrentDictionary<int, bool> intSet;
-    private readonly int startingValue;
-    private int nextAvailableInt;
-
-    public ThreadSafeIntList(int startingValue)
-    {
-        intSet = new ConcurrentDictionary<int, bool>();
-        this.startingValue = startingValue;
-        nextAvailableInt = startingValue;
-    }
+    private readonly ConcurrentDictionary<int, bool> intSet = new();
+    private int nextAvailableInt = startingValue;
 
     public void AddInt(int value)
     {

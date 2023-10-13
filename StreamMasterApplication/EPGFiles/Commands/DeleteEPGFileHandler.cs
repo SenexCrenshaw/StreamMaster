@@ -44,15 +44,15 @@ public class DeleteEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestH
 
         List<ChannelLogoDto> programmes = MemoryCache.ChannelLogos();
         _ = programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
-        MemoryCache.Set(programmes);
+        MemoryCache.SetCache(programmes);
 
         List<ChannelLogoDto> channels = MemoryCache.ChannelLogos();
         _ = channels.RemoveAll(a => a.EPGFileId == epgFile.Id);
-        MemoryCache.Set(channels);
+        MemoryCache.SetCache(channels);
 
         List<ChannelLogoDto> channelLogos = MemoryCache.ChannelLogos();
         _ = channelLogos.RemoveAll(a => a.EPGFileId == epgFile.Id);
-        MemoryCache.Set(channelLogos);
+        MemoryCache.SetCache(channelLogos);
 
         List<IconFileDto> programmeIcons = MemoryCache.ProgrammeIcons();
         _ = programmeIcons.RemoveAll(a => a.FileId == epgFile.Id);

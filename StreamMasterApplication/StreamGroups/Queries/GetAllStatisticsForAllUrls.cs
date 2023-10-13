@@ -1,22 +1,16 @@
-﻿using MediatR;
-
-using StreamMasterApplication.Common.Models;
+﻿using StreamMasterApplication.Common.Models;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
 public record GetAllStatisticsForAllUrls() : IRequest<List<StreamStatisticsResult>>;
 
-internal class GetAllStatisticsForAllUrlsHandler : IRequestHandler<GetAllStatisticsForAllUrls, List<StreamStatisticsResult>>
+internal class GetAllStatisticsForAllUrlsHandler(IChannelManager channelManager, ISettingsService settingsService) : IRequestHandler<GetAllStatisticsForAllUrls, List<StreamStatisticsResult>>
 {
-    private readonly IChannelManager _channelManager;
-
-    public GetAllStatisticsForAllUrlsHandler(IChannelManager channelManager)
+    public async Task<List<StreamStatisticsResult>> Handle(GetAllStatisticsForAllUrls request, CancellationToken cancellationToken)
     {
-        _channelManager = channelManager;
-    }
 
-    public Task<List<StreamStatisticsResult>> Handle(GetAllStatisticsForAllUrls request, CancellationToken cancellationToken)
-    {
-        return Task.FromResult(_channelManager.GetAllStatisticsForAllUrls());
+        List<StreamStatisticsResult> ret = await channelManager.GetAllStatisticsForAllUrls();
+
+        return ret;
     }
 }

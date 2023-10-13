@@ -1,22 +1,18 @@
-import { formatJSONDateString, getTopToolOptions } from '@/lib/common/common'
-import {
-  useM3UFilesGetPagedM3UFilesQuery,
-  type M3UFileDto,
-  type UpdateM3UFileRequest,
-} from '@/lib/iptvApi'
-import { UpdateM3UFile } from '@/lib/smAPI/M3UFiles/M3UFilesMutateAPI'
-import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox'
-import { Toast } from 'primereact/toast'
-import { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react'
-import NumberEditorBodyTemplate from '../NumberEditorBodyTemplate'
-import StringEditorBodyTemplate from '../StringEditorBodyTemplate'
-import DataSelector from '../dataSelector/DataSelector'
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes'
-import M3UFileRefreshDialog from './M3UFileRefreshDialog'
-import M3UFileRemoveDialog from './M3UFileRemoveDialog'
+import { formatJSONDateString, getTopToolOptions } from '@/lib/common/common';
+import { useM3UFilesGetPagedM3UFilesQuery, type M3UFileDto, type UpdateM3UFileRequest } from '@/lib/iptvApi';
+import { UpdateM3UFile } from '@/lib/smAPI/M3UFiles/M3UFilesMutateAPI';
+import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
+import { Toast } from 'primereact/toast';
+import { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react';
+import NumberEditorBodyTemplate from '../NumberEditorBodyTemplate';
+import StringEditorBodyTemplate from '../StringEditorBodyTemplate';
+import DataSelector from '../dataSelector/DataSelector';
+import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
+import M3UFileRefreshDialog from './M3UFileRefreshDialog';
+import M3UFileRemoveDialog from './M3UFileRemoveDialog';
 
 const M3UFilesDataSelector = () => {
-  const toast = useRef<Toast>(null)
+  const toast = useRef<Toast>(null);
 
   const onM3UUpdateClick = useCallback(
     async (
@@ -29,46 +25,39 @@ const M3UFilesDataSelector = () => {
       startingChannelNumber?: number | null,
     ) => {
       if (id < 1) {
-        return
+        return;
       }
 
-      if (
-        auto === undefined &&
-        !hours &&
-        !maxStreams &&
-        !name &&
-        !url &&
-        !startingChannelNumber
-      ) {
-        return
+      if (auto === undefined && !hours && !maxStreams && !name && !url && !startingChannelNumber) {
+        return;
       }
 
-      const tosend = {} as UpdateM3UFileRequest
+      const tosend = {} as UpdateM3UFileRequest;
 
-      tosend.id = id
+      tosend.id = id;
 
       if (auto !== undefined) {
-        tosend.autoUpdate = auto
+        tosend.autoUpdate = auto;
       }
 
       if (hours) {
-        tosend.hoursToUpdate = hours
+        tosend.hoursToUpdate = hours;
       }
 
       if (name) {
-        tosend.name = name
+        tosend.name = name;
       }
 
       if (maxStreams) {
-        tosend.maxStreamCount = maxStreams
+        tosend.maxStreamCount = maxStreams;
       }
 
       if (url) {
-        tosend.url = url
+        tosend.url = url;
       }
 
       if (startingChannelNumber) {
-        tosend.startingChannelNumber = startingChannelNumber
+        tosend.startingChannelNumber = startingChannelNumber;
       }
 
       await UpdateM3UFile(tosend)
@@ -79,7 +68,7 @@ const M3UFilesDataSelector = () => {
               life: 3000,
               severity: 'success',
               summary: 'Successful',
-            })
+            });
           }
         })
         .catch((e) => {
@@ -89,24 +78,20 @@ const M3UFilesDataSelector = () => {
               life: 3000,
               severity: 'error',
               summary: 'Error ' + e.message,
-            })
+            });
           }
-        })
+        });
     },
     [toast],
-  )
+  );
 
   const lastDownloadedTemplate = useCallback((rowData: M3UFileDto) => {
     if (rowData.id === 0) {
-      return <div />
+      return <div />;
     }
 
-    return (
-      <div className="flex justify-content-center ">
-        {formatJSONDateString(rowData.lastDownloaded ?? '')}
-      </div>
-    )
-  }, [])
+    return <div className="flex justify-content-center ">{formatJSONDateString(rowData.lastDownloaded ?? '')}</div>;
+  }, []);
 
   const nameEditorBodyTemplate = useCallback(
     (rowData: M3UFileDto) => {
@@ -125,20 +110,20 @@ const M3UFilesDataSelector = () => {
           >
             {rowData.name}
           </div>
-        )
+        );
       }
 
       return (
         <StringEditorBodyTemplate
           onChange={async (e) => {
-            await onM3UUpdateClick(rowData.id, null, null, null, e)
+            await onM3UUpdateClick(rowData.id, null, null, null, e);
           }}
           value={rowData.name}
         />
-      )
+      );
     },
     [onM3UUpdateClick],
-  )
+  );
 
   const urlEditorBodyTemplate = useCallback(
     (rowData: M3UFileDto) => {
@@ -157,76 +142,76 @@ const M3UFilesDataSelector = () => {
           >
             {rowData.url}
           </div>
-        )
+        );
       }
 
       return (
         <StringEditorBodyTemplate
           onChange={async (e) => {
-            await onM3UUpdateClick(rowData.id, null, null, null, null, e)
+            await onM3UUpdateClick(rowData.id, null, null, null, null, e);
           }}
           tooltip={rowData.url}
           value={rowData.url}
         />
-      )
+      );
     },
     [onM3UUpdateClick],
-  )
+  );
 
   const maxStreamCountTemplate = useCallback(
     (rowData: M3UFileDto) => {
       if (rowData.id === 0) {
-        return <div />
+        return <div />;
       }
 
       return (
         <NumberEditorBodyTemplate
           onChange={async (e) => {
-            await onM3UUpdateClick(rowData.id, null, null, e)
+            await onM3UUpdateClick(rowData.id, null, null, e);
           }}
           // prefix='Max '
           // suffix=' streams'
 
           value={rowData.maxStreamCount}
         />
-      )
+      );
     },
     [onM3UUpdateClick],
-  )
+  );
 
   const startingChannelNumberTemplate = useCallback(
     (rowData: M3UFileDto) => {
       if (rowData.id === 0) {
-        return <div />
+        return <div />;
       }
 
       return (
         <NumberEditorBodyTemplate
           onChange={async (e) => {
-            await onM3UUpdateClick(rowData.id, null, null, null, null, null, e)
+            await onM3UUpdateClick(rowData.id, null, null, null, null, null, e);
           }}
           // prefix='Starting Channel Number '
           // suffix=' streams'
 
           value={rowData.startingChannelNumber}
         />
-      )
+      );
     },
     [onM3UUpdateClick],
-  )
+  );
 
   const stationCountTemplate = useCallback((rowData: M3UFileDto) => {
     if (rowData.id === 0) {
-      return <div />
+      return <div />;
     }
 
-    return <div>{rowData.stationCount}</div>
-  }, [])
+    return <div>{rowData.stationCount}</div>;
+  }, []);
 
   const targetActionBodyTemplate = useCallback(
     (rowData: M3UFileDto) => {
       if (rowData.id === 0) {
-        return <div />
+        return <div />;
       }
 
       return (
@@ -235,7 +220,7 @@ const M3UFilesDataSelector = () => {
             <Checkbox
               checked={rowData.autoUpdate}
               onChange={async (e: CheckboxChangeEvent) => {
-                await onM3UUpdateClick(rowData.id, e.checked ?? false)
+                await onM3UUpdateClick(rowData.id, e.checked ?? false);
               }}
               tooltip="Enable Auto Update"
               tooltipOptions={getTopToolOptions}
@@ -243,12 +228,7 @@ const M3UFilesDataSelector = () => {
 
             <NumberEditorBodyTemplate
               onChange={async (e) => {
-                await onM3UUpdateClick(
-                  rowData.id,
-                  rowData.autoUpdate,
-                  e,
-                  rowData.maxStreamCount ?? 0,
-                )
+                await onM3UUpdateClick(rowData.id, rowData.autoUpdate, e, rowData.maxStreamCount ?? 0);
               }}
               suffix=" hours"
               value={rowData.hoursToUpdate}
@@ -259,17 +239,16 @@ const M3UFilesDataSelector = () => {
             <M3UFileRemoveDialog selectedFile={rowData} />
           </div>
         </div>
-      )
+      );
     },
     [onM3UUpdateClick],
-  )
+  );
 
-  const sourceColumns = useMemo((): ColumnMeta[] => {
+  const columns = useMemo((): ColumnMeta[] => {
     return [
       {
         bodyTemplate: nameEditorBodyTemplate,
         field: 'name',
-        filter: true,
         header: 'Name',
         sortable: true,
       },
@@ -315,7 +294,7 @@ const M3UFilesDataSelector = () => {
           width: '8rem',
         } as CSSProperties,
       },
-    ]
+    ];
   }, [
     lastDownloadedTemplate,
     maxStreamCountTemplate,
@@ -324,24 +303,22 @@ const M3UFilesDataSelector = () => {
     stationCountTemplate,
     targetActionBodyTemplate,
     urlEditorBodyTemplate,
-  ])
+  ]);
 
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
 
       <DataSelector
-        columns={sourceColumns}
+        columns={columns}
         emptyMessage="No M3U Files"
         id="m3ufilesdataselector"
         queryFilter={useM3UFilesGetPagedM3UFilesQuery}
         selectedItemsKey="selectSelectedM3UFileDtoItems"
-        style={{ height: 'calc(50vh - 40px)' }}
+        style={{ height: 'calc(50vh - 120px)' }}
       />
     </>
-  )
-}
+  );
+};
 
-M3UFilesDataSelector.displayName = 'M3UFilesDataSelector'
-
-export default memo(M3UFilesDataSelector)
+export default memo(M3UFilesDataSelector);

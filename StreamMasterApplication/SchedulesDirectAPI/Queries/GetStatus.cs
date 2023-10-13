@@ -11,7 +11,7 @@ internal class GetStatusHandler(ISettingsService settingsService) : IRequestHand
     public async Task<SDStatus> Handle(GetStatus request, CancellationToken cancellationToken)
     {
         Setting setting = await settingsService.GetSettingsAsync();
-        SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDCountry, setting.SDPassword);
+        SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
         SDStatus? status = await sd.GetStatus(cancellationToken).ConfigureAwait(false);
         return status ?? new SDStatus();
     }

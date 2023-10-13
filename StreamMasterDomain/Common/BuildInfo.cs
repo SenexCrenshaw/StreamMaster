@@ -48,7 +48,7 @@ public static class BuildInfo
 
     public static readonly string ChannelIconDataFolder = $"{CacheFolder}ChannelIcons{Path.DirectorySeparatorChar}";
     public static readonly string ProgrammeIconDataFolder = $"{CacheFolder}ProgrammeIcons{Path.DirectorySeparatorChar}";
-
+    public static readonly string SDCacheFolder = $"{CacheFolder}SD{Path.DirectorySeparatorChar}";
     public static readonly string PlayListEPGFolder = $"{PlayListFolder}EPG{Path.DirectorySeparatorChar}";
     public static readonly string PlayListM3UFolder = $"{PlayListFolder}M3U{Path.DirectorySeparatorChar}";
 

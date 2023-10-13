@@ -6,4 +6,8 @@ public static class StringExtensions
     {
         return string.IsNullOrWhiteSpace(text);
     }
+    public static bool ContainsIgnoreCase(this string text, string contains)
+    {
+        return text.IndexOf(contains, StringComparison.InvariantCultureIgnoreCase) > -1;
+    }
 }
