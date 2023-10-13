@@ -1,4 +1,5 @@
 import VideoStreamSetTimeShiftDialog from '@/components/videoStream/VideoStreamSetTimeShiftDialog';
+import VideoStreamSetTimeShiftsDialog from '@/components/videoStream/VideoStreamSetTimeShiftsDialog';
 import {
   useChannelGroupColumnConfig,
   useChannelLogoColumnConfig,
@@ -120,6 +121,7 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
     return (
       <div className="flex justify-content-end align-items-center w-full gap-1">
         <TriSelectShowHidden dataKey={dataKey} />
+        <VideoStreamSetTimeShiftsDialog id={dataKey} />
         <VideoStreamResetLogosDialog id={dataKey} />
         <VideoStreamSetLogosFromEPGDialog id={dataKey} />
         <AutoSetChannelNumbers id={dataKey} />

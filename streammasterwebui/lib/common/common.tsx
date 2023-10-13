@@ -11,6 +11,25 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { baseHostURL, isDev } from '../settings';
 import { getColor } from './colors';
 
+export function formatToFourDigits(num: number): string {
+  // Convert number to string
+  let str = num.toString();
+
+  // Ensure the number is 1 or 2 digits
+  if (str.length > 2) {
+    throw new Error('Input number should be 1 or 2 digits.');
+  }
+
+  // Adjust the number to be in the center of four digits
+  if (str.length === 1) {
+    str = '0' + str + '00';
+  } else if (str.length === 2) {
+    str += '00';
+  }
+
+  return str;
+}
+
 export const getTopToolOptions = {
   autoHide: true,
   hideDelay: 100,

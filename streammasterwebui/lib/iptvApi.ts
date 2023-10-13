@@ -665,6 +665,17 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/videostreams/autosetepgfromparameters`, method: 'PATCH', body: queryArg }),
         invalidatesTags: ['VideoStreams'],
       }),
+      videoStreamsSetVideoStreamTimeShifts: build.mutation<VideoStreamsSetVideoStreamTimeShiftsApiResponse, VideoStreamsSetVideoStreamTimeShiftsApiArg>({
+        query: (queryArg) => ({ url: `/api/videostreams/setvideostreamtimeshifts`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['VideoStreams'],
+      }),
+      videoStreamsSetVideoStreamTimeShiftFromParameters: build.mutation<
+        VideoStreamsSetVideoStreamTimeShiftFromParametersApiResponse,
+        VideoStreamsSetVideoStreamTimeShiftFromParametersApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/videostreams/setvideostreamtimeshiftfromparameters`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['VideoStreams'],
+      }),
     }),
     overrideExisting: false,
   });
@@ -1010,6 +1021,10 @@ export type VideoStreamsAutoSetEpgApiResponse = unknown;
 export type VideoStreamsAutoSetEpgApiArg = AutoSetEpgRequest;
 export type VideoStreamsAutoSetEpgFromParametersApiResponse = unknown;
 export type VideoStreamsAutoSetEpgFromParametersApiArg = AutoSetEpgFromParametersRequest;
+export type VideoStreamsSetVideoStreamTimeShiftsApiResponse = unknown;
+export type VideoStreamsSetVideoStreamTimeShiftsApiArg = SetVideoStreamTimeShiftsRequest;
+export type VideoStreamsSetVideoStreamTimeShiftFromParametersApiResponse = unknown;
+export type VideoStreamsSetVideoStreamTimeShiftFromParametersApiArg = SetVideoStreamTimeShiftFromParametersRequest;
 export type CreateChannelGroupRequest = {
   groupName: string;
   isReadOnly: boolean;
@@ -1904,6 +1919,14 @@ export type AutoSetEpgFromParametersRequest = {
   parameters?: VideoStreamParameters;
   ids?: string[];
 };
+export type SetVideoStreamTimeShiftsRequest = {
+  ids: string[];
+  timeShift: string;
+};
+export type SetVideoStreamTimeShiftFromParametersRequest = {
+  parameters?: VideoStreamParameters;
+  timeShift?: string;
+};
 export const {
   useChannelGroupsCreateChannelGroupMutation,
   useChannelGroupsDeleteAllChannelGroupsFromParametersMutation,
@@ -2022,4 +2045,6 @@ export const {
   useVideoStreamsSimulateStreamFailureMutation,
   useVideoStreamsAutoSetEpgMutation,
   useVideoStreamsAutoSetEpgFromParametersMutation,
+  useVideoStreamsSetVideoStreamTimeShiftsMutation,
+  useVideoStreamsSetVideoStreamTimeShiftFromParametersMutation,
 } = injectedRtkApi;

@@ -66,5 +66,7 @@ namespace StreamMasterDomain.Repository
         Task<List<VideoStreamDto>> SetGroupVisibleByGroupName(string channelGroupName, bool isHidden, CancellationToken cancellationToken);
         Task<List<VideoStreamDto>> AutoSetEPGFromIds(List<string> ids, CancellationToken cancellationToken);
         Task<List<VideoStreamDto>> AutoSetEPGFromParameters(VideoStreamParameters parameters, List<string> ids, CancellationToken cancellationToken);
+        Task<List<VideoStreamDto>> SetVideoStreamTimeShiftsFromIds(List<string> ids, string timeShift, CancellationToken cancellationToken);
+        Task<List<VideoStreamDto>> SetVideoStreamTimeShiftFromParameters(VideoStreamParameters parameters, string timeShift, CancellationToken cancellationToken);
     }
 }

@@ -112,4 +112,14 @@ public partial class StreamMasterHub : IVideoStreamHub
     {
         await mediator.Send(request).ConfigureAwait(false);
     }
+
+    public async Task SetVideoStreamTimeShifts(SetVideoStreamTimeShiftsRequest request)
+    {
+        await mediator.Send(request).ConfigureAwait(false);
+    }
+
+    public async Task SetVideoStreamTimeShiftFromParameters(SetVideoStreamTimeShiftFromParametersRequest request)
+    {
+        await mediator.Send(request).ConfigureAwait(false);
+    }
 }

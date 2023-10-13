@@ -36,11 +36,17 @@ public interface IVideoStreamController
 
     Task<ActionResult> ReSetVideoStreamsLogo(ReSetVideoStreamsLogoRequest request);
     Task<ActionResult> ReSetVideoStreamsLogoFromParameters(ReSetVideoStreamsLogoFromParametersRequest request);
+
+    Task<ActionResult> SetVideoStreamsLogoFromEPG(SetVideoStreamsLogoFromEPGRequest request);
     Task<ActionResult> SetVideoStreamsLogoFromEPGFromParameters(SetVideoStreamsLogoFromEPGFromParametersRequest request);
+
+    Task<ActionResult> SetVideoStreamTimeShifts(SetVideoStreamTimeShiftsRequest request);
+    Task<ActionResult> SetVideoStreamTimeShiftFromParameters(SetVideoStreamTimeShiftFromParametersRequest request);
+
     Task<ActionResult> SetVideoStreamChannelNumbersFromParameters(SetVideoStreamChannelNumbersFromParametersRequest request);
     Task<ActionResult> SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
 
-    Task<ActionResult> SetVideoStreamsLogoFromEPG(SetVideoStreamsLogoFromEPGRequest request);
+
 
     Task<ActionResult> UpdateVideoStream(UpdateVideoStreamRequest request);
 
@@ -71,6 +77,9 @@ public interface IVideoStreamHub
     Task ReSetVideoStreamsLogoFromParameters(ReSetVideoStreamsLogoFromParametersRequest request);
     Task SetVideoStreamChannelNumbersFromParameters(SetVideoStreamChannelNumbersFromParametersRequest request);
     Task SetVideoStreamChannelNumbers(SetVideoStreamChannelNumbersRequest request);
+
+    Task SetVideoStreamTimeShifts(SetVideoStreamTimeShiftsRequest request);
+    Task SetVideoStreamTimeShiftFromParameters(SetVideoStreamTimeShiftFromParametersRequest request);
 
     Task SetVideoStreamsLogoFromEPG(SetVideoStreamsLogoFromEPGRequest request);
 
