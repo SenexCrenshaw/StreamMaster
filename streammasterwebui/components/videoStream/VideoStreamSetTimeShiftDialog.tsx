@@ -1,3 +1,4 @@
+import { formatToFourDigits } from '@/lib/common/common';
 import { type UpdateVideoStreamRequest, type VideoStreamDto } from '@/lib/iptvApi';
 import { UpdateVideoStream } from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import { memo, useEffect, useState } from 'react';
@@ -44,7 +45,7 @@ const VideoStreamSetTimeShiftDialog = ({ iconFilled, onClose, value }: VideoStre
     const toSend = {} as UpdateVideoStreamRequest;
 
     toSend.id = value.id;
-    toSend.timeShift = '0' + timshift + '00';
+    toSend.timeShift = formatToFourDigits(timshift);
 
     await UpdateVideoStream(toSend)
       .then(() => {})

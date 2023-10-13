@@ -281,6 +281,20 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
     }
+    [HttpPatch]
+    [Route("[action]")]
+    public async Task<ActionResult> SetVideoStreamTimeShifts(SetVideoStreamTimeShiftsRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
+    }
+    [HttpPatch]
+    [Route("[action]")]
+    public async Task<ActionResult> SetVideoStreamTimeShiftFromParameters(SetVideoStreamTimeShiftFromParametersRequest request)
+    {
+        await Mediator.Send(request).ConfigureAwait(false);
+        return Ok();
+    }
 
     private class UnregisterClientOnDispose : IDisposable
     {

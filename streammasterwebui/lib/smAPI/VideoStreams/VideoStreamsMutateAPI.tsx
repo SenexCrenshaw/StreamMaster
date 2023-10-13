@@ -87,3 +87,11 @@ export const AutoSetEpgFromParameters = async (arg: iptv.AutoSetEpgFromParameter
     await invokeHubConnection<void> ('AutoSetEpgFromParameters', arg);
 };
 
+export const SetVideoStreamTimeShifts = async (arg: iptv.SetVideoStreamTimeShiftsRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('SetVideoStreamTimeShifts', arg);
+};
+
+export const SetVideoStreamTimeShiftFromParameters = async (arg: iptv.SetVideoStreamTimeShiftFromParametersRequest): Promise<void | null> => {
+    await invokeHubConnection<void> ('SetVideoStreamTimeShiftFromParameters', arg);
+};
+

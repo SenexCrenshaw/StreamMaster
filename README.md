@@ -4,6 +4,7 @@
 </p>
 
 ---
+
 StreamMaster, the premier video proxy streaming platform.
 
 [![Sponsor this project](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink)](https://www.patreon.com/user?u=52683080)
@@ -11,7 +12,7 @@ StreamMaster, the premier video proxy streaming platform.
 Please go to the wiki for further details and installation instructions.
 [Stream Master Wiki](https://github.com/SenexCrenshaw/StreamMaster/wiki)
 
-## Features ##
+## Features
 
 - **Import any number of M3U and EPG files:** With StreamMaster, you can easily import any number of M3U and EPG files by URL or file with auto refresh, giving you access to a vast array of streaming content.
 
@@ -30,6 +31,5 @@ Please go to the wiki for further details and installation instructions.
 - **Multiple clients for the same backend connection:** StreamMaster will not start a new backend stream if it is already proxing the same one. Multiple clients can watch the same channel with just one backend active stream.
 
 - **And much more!** With new features and updates being added all the time, StreamMaster is constantly evolving to meet the needs of today's streamers and content creators.
-
 
 Docker Repo: [Stream Master Docker IO](https://hub.docker.com/repository/docker/senexcrenshaw/streammaster/general)

@@ -23,10 +23,6 @@ export const GetLineups = async (arg: iptv.LineUpsResult): Promise<iptv.LineUpsR
   return await invokeHubConnection<iptv.LineUpsResult>('GetLineups', arg);
 };
 
-export const GetSDPrograms = async (arg: iptv.SdProgram): Promise<iptv.SdProgram[] | null> => {
-  return await invokeHubConnection<iptv.SdProgram[]>('GetSDPrograms', arg);
-};
-
 export const GetSchedules = async (arg: iptv.Schedule[]): Promise<iptv.Schedule[] | null> => {
   return await invokeHubConnection<iptv.Schedule[]>('GetSchedules', arg);
 };
