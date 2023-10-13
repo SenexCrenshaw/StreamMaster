@@ -1,44 +1,27 @@
-import {
-  useChannelNameColumnConfig,
-  useChannelNumberColumnConfig,
-} from '@/components/columns/columnConfigHooks'
-import DataSelector from '@/components/dataSelector/DataSelector'
-import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes'
-import { GetMessage } from '@/lib/common/common'
-import {
-  ChildVideoStreamDto,
-  VideoStreamsUpdateVideoStreamApiArg,
-  useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery,
-} from '@/lib/iptvApi'
-import { useQueryAdditionalFilters } from '@/lib/redux/slices/useQueryAdditionalFilters'
-import { UpdateVideoStream } from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI'
-import {
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  type CSSProperties,
-} from 'react'
-import VideoStreamRemoveFromVideoStreamDialog from './VideoStreamRemoveFromVideoStreamDialog'
+import { useChannelNameColumnConfig, useChannelNumberColumnConfig } from '@/components/columns/columnConfigHooks';
+import DataSelector from '@/components/dataSelector/DataSelector';
+import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes';
+import { GetMessage } from '@/lib/common/common';
+import { ChildVideoStreamDto, VideoStreamsUpdateVideoStreamApiArg, useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery } from '@/lib/iptvApi';
+import { useQueryAdditionalFilters } from '@/lib/redux/slices/useQueryAdditionalFilters';
+import { UpdateVideoStream } from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
+import { memo, useCallback, useEffect, useMemo, type CSSProperties } from 'react';
+import VideoStreamRemoveFromVideoStreamDialog from './VideoStreamRemoveFromVideoStreamDialog';
 
 type VideoStreamSelectedVideoStreamDataSelectorProps = {
-  readonly id: string
-  readonly videoStreamId?: string
-}
+  readonly id: string;
+  readonly videoStreamId?: string;
+};
 
-const VideoStreamSelectedVideoStreamDataSelector = ({
-  id,
-  videoStreamId,
-}: VideoStreamSelectedVideoStreamDataSelectorProps) => {
-  const dataKey = id + '-VideoStreamSelectedVideoStreamDataSelector'
+const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamSelectedVideoStreamDataSelectorProps) => {
+  const dataKey = id + '-VideoStreamSelectedVideoStreamDataSelector';
 
-  const { columnConfig: channelNumberColumnConfig } =
-    useChannelNumberColumnConfig({ enableEdit: false })
+  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: false });
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({
     enableEdit: false,
-  })
+  });
 
-  const { setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey)
+  const { setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
 
   useEffect(() => {
     if (videoStreamId) {
@@ -46,25 +29,22 @@ const VideoStreamSelectedVideoStreamDataSelector = ({
         field: 'parentVideoStreamId',
         matchMode: 'equals',
         values: [videoStreamId],
-      })
+      });
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [videoStreamId])
+  }, [videoStreamId]);
 
   const targetActionBodyTemplate = useCallback(
     (data: ChildVideoStreamDto) => {
       return (
         <div className="flex p-0 justify-content-end align-items-center">
-          <VideoStreamRemoveFromVideoStreamDialog
-            value={data}
-            videoStreamId={videoStreamId ?? 'ERROR'}
-          />
+          <VideoStreamRemoveFromVideoStreamDialog value={data} videoStreamId={videoStreamId ?? 'ERROR'} />
         </div>
-      )
+      );
     },
     [videoStreamId],
-  )
+  );
 
   const targetColumns = useMemo((): ColumnMeta[] => {
     return [
@@ -81,38 +61,32 @@ const VideoStreamSelectedVideoStreamDataSelector = ({
           width: '2rem',
         } as CSSProperties,
       },
-    ]
-  }, [
-    channelNumberColumnConfig,
-    channelNameColumnConfig,
-    targetActionBodyTemplate,
-  ])
+    ];
+  }, [channelNumberColumnConfig, channelNameColumnConfig, targetActionBodyTemplate]);
 
   const rightHeaderTemplate = () => {
-    return (
-      <div className="flex justify-content-end align-items-center w-full gap-1" />
-    )
-  }
+    return <div className="flex justify-content-end align-items-center w-full gap-1" />;
+  };
 
   const onRowReorder = async (changed: ChildVideoStreamDto[]) => {
     const newData = changed.map((x: ChildVideoStreamDto, index: number) => {
       return {
         ...x,
         rank: index,
-      }
-    }) as ChildVideoStreamDto[]
+      };
+    }) as ChildVideoStreamDto[];
 
-    var toSend = {} as VideoStreamsUpdateVideoStreamApiArg
+    var toSend = {} as VideoStreamsUpdateVideoStreamApiArg;
 
-    toSend.id = videoStreamId
-    toSend.childVideoStreams = newData
+    toSend.id = videoStreamId;
+    toSend.childVideoStreams = newData;
 
     await UpdateVideoStream(toSend)
       .then(() => {})
       .catch(() => {
-        console.log('error')
-      })
-  }
+        console.log('error');
+      });
+  };
 
   return (
     <DataSelector
@@ -130,9 +104,9 @@ const VideoStreamSelectedVideoStreamDataSelector = ({
       selectionMode="single"
       style={{ height: 'calc(100vh - 480px)' }}
     />
-  )
-}
+  );
+};
 
-VideoStreamSelectedVideoStreamDataSelector.displayName = 'Stream Editor'
+VideoStreamSelectedVideoStreamDataSelector.displayName = 'Stream Editor';
 
-export default memo(VideoStreamSelectedVideoStreamDataSelector)
+export default memo(VideoStreamSelectedVideoStreamDataSelector);

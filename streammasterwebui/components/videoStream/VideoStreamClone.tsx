@@ -1,42 +1,42 @@
-import VideoStreamPanel from '@/features/videoStreamPanel/VideoStreamPanel'
-import { VideoStreamDto } from '@/lib/iptvApi'
-import { Dialog } from 'primereact/dialog'
-import { classNames } from 'primereact/utils'
+import VideoStreamPanel from '@/features/videoStreamPanel/VideoStreamPanel';
+import { VideoStreamDto } from '@/lib/iptvApi';
+import { Dialog } from 'primereact/dialog';
+import { classNames } from 'primereact/utils';
 
-import { memo } from 'react'
+import { memo } from 'react';
 
 const VideoStreamClone = (props: VideoStreamCloneProps) => {
-  const disabled = props.disabled
+  const disabled = props.disabled;
 
   const className = classNames('text-base text-color', props.className, {
     'p-disabled': disabled,
-  })
+  });
 
   const ReturnToParent = () => {
-    props.onClose()
-  }
+    props.onClose();
+  };
 
   return (
     <Dialog
       className={className}
       header="Clone Channel"
       onHide={() => {
-        ReturnToParent()
+        ReturnToParent();
       }}
       style={{ width: '50vw' }}
       visible={props.visible}
     >
       <VideoStreamPanel
         onSave={() => {
-          ReturnToParent()
+          ReturnToParent();
         }}
         videoStream={props.VideoStream}
       />
     </Dialog>
-  )
-}
+  );
+};
 
-VideoStreamClone.displayName = 'Clone Channel'
+VideoStreamClone.displayName = 'Clone Channel';
 // VideoStreamClone.defaultProps = {
 //   className: null,
 //   disabled: false,
@@ -44,11 +44,11 @@ VideoStreamClone.displayName = 'Clone Channel'
 //   visible: true,
 // };
 type VideoStreamCloneProps = {
-  readonly VideoStream: VideoStreamDto | undefined
-  readonly className?: string | null
-  readonly disabled?: boolean
-  readonly onClose: () => void
-  readonly visible?: boolean
-}
+  readonly VideoStream: VideoStreamDto | undefined;
+  readonly className?: string | null;
+  readonly disabled?: boolean;
+  readonly onClose: () => void;
+  readonly visible?: boolean;
+};
 
-export default memo(VideoStreamClone)
+export default memo(VideoStreamClone);

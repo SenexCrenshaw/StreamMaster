@@ -1,13 +1,7 @@
-import { type ChildButtonProps } from './BaseButton'
-import BaseButton from './BaseButton'
+import { type ChildButtonProps } from './BaseButton';
+import BaseButton from './BaseButton';
 
-const EditButton: React.FC<ChildButtonProps> = ({
-  disabled = false,
-  iconFilled,
-  label,
-  onClick,
-  tooltip = 'Edit',
-}) => {
+const EditButton: React.FC<ChildButtonProps> = ({ disabled = false, iconFilled, label, onClick, tooltip = 'Edit' }) => {
   return (
     <BaseButton
       disabled={disabled}
@@ -18,7 +12,7 @@ const EditButton: React.FC<ChildButtonProps> = ({
       severity="warning"
       tooltip={tooltip}
     />
-  )
-}
+  );
+};
 
-export default EditButton
+export default EditButton;

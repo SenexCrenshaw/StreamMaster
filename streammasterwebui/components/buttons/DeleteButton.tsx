@@ -1,12 +1,6 @@
-import BaseButton, { type ChildButtonProps } from './BaseButton'
+import BaseButton, { type ChildButtonProps } from './BaseButton';
 
-const DeleteButton: React.FC<ChildButtonProps> = ({
-  disabled = false,
-  iconFilled,
-  label,
-  onClick,
-  tooltip = 'Delete Stream',
-}) => {
+const DeleteButton: React.FC<ChildButtonProps> = ({ disabled = false, iconFilled, label, onClick, tooltip = 'Delete Stream' }) => {
   return (
     <BaseButton
       disabled={disabled}
@@ -17,7 +11,7 @@ const DeleteButton: React.FC<ChildButtonProps> = ({
       severity="danger"
       tooltip={tooltip}
     />
-  )
-}
+  );
+};
 
-export default DeleteButton
+export default DeleteButton;

@@ -1,12 +1,6 @@
-'use client'
-
-import dynamic from 'next/dynamic'
-
-const PlayListEditor = dynamic(
-  () => import('@/features/playListEditor/PlayListEditor'),
-  { ssr: false },
-)
+'use client';
+import PlayListEditor from '@/features/playListEditor/PlayListEditor';
 
 export default function PlayListEditorLayout() {
-  return <PlayListEditor />
+  return <PlayListEditor />;
 }

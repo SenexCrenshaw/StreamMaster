@@ -1,12 +1,6 @@
-'use client'
-
-import dynamic from 'next/dynamic'
-
-const StreamGroupEditor = dynamic(
-  () => import('@/features/streamGroupEditor/StreamGroupEditor'),
-  { ssr: false },
-)
+'use client';
+import StreamGroupEditor from '@/features/streamGroupEditor/StreamGroupEditor';
 
 export default function StreamGroupEditorLayout() {
-  return <StreamGroupEditor />
+  return <StreamGroupEditor />;
 }

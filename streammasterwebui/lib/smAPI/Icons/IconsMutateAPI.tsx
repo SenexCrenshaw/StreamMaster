@@ -4,6 +4,5 @@ import { invokeHubConnection } from '@/lib/signalr/signalr';
 import type * as iptv from '@/lib/iptvApi';
 
 export const AutoMatchIconToStreams = async (arg: iptv.AutoMatchIconToStreamsRequest): Promise<void | null> => {
-    await invokeHubConnection<void> ('AutoMatchIconToStreams', arg);
+  await invokeHubConnection<void>('AutoMatchIconToStreams', arg);
 };
-

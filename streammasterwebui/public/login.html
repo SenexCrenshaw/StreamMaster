@@ -13,36 +13,12 @@
 
     <meta name="description" content="Stream Master" />
 
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="/images/StreamMasterx32.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="32x32"
-      href="/images/StreamMasterx32.png"
-    />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/StreamMasterx32.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/StreamMasterx32.png" />
 
-    <link
-      rel="manifest"
-      sizes="180x180"
-      href="/manifest.json"
-      crossorigin="use-credentials"
-    />
-    <link
-      rel="mask-icon"
-      sizes="180x180"
-      href="/images/StreamMasterx32.png"
-      color="#00ccff"
-    />
-    <link
-      rel="shortcut icon"
-      type="image/ico"
-      href="/favicon.ico"
-      data-no-hash
-    />
+    <link rel="manifest" sizes="180x180" href="/manifest.json" crossorigin="use-credentials" />
+    <link rel="mask-icon" sizes="180x180" href="/images/StreamMasterx32.png" color="#00ccff" />
+    <link rel="shortcut icon" type="image/ico" href="/favicon.ico" data-no-hash />
     <meta name="msapplication-config" content="/browserconfig.xml" />
 
     <link rel="stylesheet" type="text/css" href="/Content/styles.css" />
@@ -54,8 +30,7 @@
       body {
         background-color: #f5f7fa;
         color: #656565;
-        font-family: 'Roboto', 'open sans', 'Helvetica Neue', Helvetica, Arial,
-          sans-serif;
+        font-family: 'Roboto', 'open sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       }
 
       .center {
@@ -205,13 +180,7 @@
           <div class="panel-body">
             <div class="sign-in">SIGN IN TO CONTINUE</div>
 
-            <form
-              role="form"
-              data-parsley-validate=""
-              novalidate=""
-              class="mb-lg"
-              method="POST"
-            >
+            <form role="form" data-parsley-validate="" novalidate="" class="mb-lg" method="POST">
               <div class="form-group">
                 <input
                   type="email"
@@ -228,25 +197,11 @@
               </div>
 
               <div class="form-group">
-                <input
-                  type="password"
-                  name="password"
-                  class="form-input"
-                  placeholder="Password"
-                  required
-                />
+                <input type="password" name="password" class="form-input" placeholder="Password" required />
               </div>
-              <button
-                type="submit"
-                class="button"
-                style="background-color: #6dc831ee; color: white"
-              >
-                Login
-              </button>
+              <button type="submit" class="button" style="background-color: #6dc831ee; color: white">Login</button>
 
-              <div id="login-failed" class="login-failed hidden">
-                Incorrect Username or Password
-              </div>
+              <div id="login-failed" class="login-failed hidden">Incorrect Username or Password</div>
             </form>
           </div>
         </div>
@@ -262,16 +217,16 @@
   </body>
 
   <script type="text/javascript">
-    var yearSpan = document.getElementById('year')
-    yearSpan.innerHTML = new Date().getFullYear()
+    var yearSpan = document.getElementById('year');
+    yearSpan.innerHTML = new Date().getFullYear();
 
-    var copyDiv = document.getElementById('copy')
-    copyDiv.classList.remove('hidden')
+    var copyDiv = document.getElementById('copy');
+    copyDiv.classList.remove('hidden');
 
     if (window.location.search.indexOf('loginFailed=true') > -1) {
-      var loginFailedDiv = document.getElementById('login-failed')
+      var loginFailedDiv = document.getElementById('login-failed');
 
-      loginFailedDiv.classList.remove('hidden')
+      loginFailedDiv.classList.remove('hidden');
     }
   </script>
 </html>

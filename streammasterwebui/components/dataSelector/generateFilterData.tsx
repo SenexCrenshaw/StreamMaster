@@ -1,27 +1,24 @@
-import { type SMDataTableFilterMetaData } from '@/lib/common/common'
-import { FilterMatchMode } from 'primereact/api'
-import { type DataTableFilterMeta } from 'primereact/datatable'
-import { type ColumnMeta } from './DataSelectorTypes'
+import { type SMDataTableFilterMetaData } from '@/lib/common/common';
+import { FilterMatchMode } from 'primereact/api';
+import { type DataTableFilterMeta } from 'primereact/datatable';
+import { type ColumnMeta } from './DataSelectorTypes';
 
-function generateFilterData(
-  columns: ColumnMeta[],
-  currentFilters: DataTableFilterMeta,
-): DataTableFilterMeta {
+function generateFilterData(columns: ColumnMeta[], currentFilters: DataTableFilterMeta): DataTableFilterMeta {
   if (!columns || !currentFilters) {
-    return {}
+    return {};
   }
 
   const ret = columns.reduce<DataTableFilterMeta>((obj, item: ColumnMeta) => {
-    let value = ''
-    let matchMode = item.filterMatchMode ?? ''
+    let value = '';
+    let matchMode = item.filterMatchMode ?? '';
 
     if (Object.keys(currentFilters).length > 0) {
-      const test = currentFilters[item.field] as SMDataTableFilterMetaData
+      const test = currentFilters[item.field] as SMDataTableFilterMetaData;
 
       if (test !== undefined) {
-        value = test.value
+        value = test.value;
         if (!matchMode && test.matchMode) {
-          matchMode = test.matchMode
+          matchMode = test.matchMode;
         }
       }
     }
@@ -33,9 +30,9 @@ function generateFilterData(
         matchMode: matchMode ?? FilterMatchMode.CONTAINS,
         value: value,
       },
-    } as DataTableFilterMeta
-  }, {})
-  return ret
+    } as DataTableFilterMeta;
+  }, {});
+  return ret;
 }
 
-export default generateFilterData
+export default generateFilterData;

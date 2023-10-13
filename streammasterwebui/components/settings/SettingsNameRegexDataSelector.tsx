@@ -1,41 +1,36 @@
-import React, { type CSSProperties } from 'react'
+import React, { type CSSProperties } from 'react';
 
-import DataSelector from '../dataSelector/DataSelector'
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes'
-import SettingsNameRegexAddDialog from './SettingsNameRegexAddDialog'
-import SettingsNameRegexDeleteDialog from './SettingsNameRegexDeleteDialog'
+import DataSelector from '../dataSelector/DataSelector';
+import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
+import SettingsNameRegexAddDialog from './SettingsNameRegexAddDialog';
+import SettingsNameRegexDeleteDialog from './SettingsNameRegexDeleteDialog';
 type RankedString = {
-  rank: number
-  value: string
-}
+  rank: number;
+  value: string;
+};
 
-const SettingsNameRegexDataSelector = (
-  props: SettingsNameRegexDataSelectorProps,
-) => {
+const SettingsNameRegexDataSelector = (props: SettingsNameRegexDataSelectorProps) => {
   const dataSource = React.useMemo((): RankedString[] => {
     if (!props.data) {
-      return []
+      return [];
     }
 
     return props.data.map((value, index) => {
       return {
         rank: index,
         value: value,
-      }
-    })
-  }, [props.data])
+      };
+    });
+  }, [props.data]);
 
   const sourceActionBodyTemplate = React.useCallback(
     (data: RankedString) => (
       <div className="flex p-0 justify-content-end align-items-center">
-        <SettingsNameRegexDeleteDialog
-          value={data.value}
-          values={dataSource.map((a) => a.value)}
-        />
+        <SettingsNameRegexDeleteDialog value={data.value} values={dataSource.map((a) => a.value)} />
       </div>
     ),
     [dataSource],
-  )
+  );
 
   const sourceColumns = React.useMemo((): ColumnMeta[] => {
     return [
@@ -59,16 +54,13 @@ const SettingsNameRegexDataSelector = (
           width: '8rem',
         } as CSSProperties,
       },
-    ]
-  }, [sourceActionBodyTemplate])
+    ];
+  }, [sourceActionBodyTemplate]);
 
   return (
     <div className="m3uFilesEditor flex flex-column col-12 flex-shrink-0 ">
       <div className="flex justify-content-between align-items-center mb-1">
-        <span
-          className="m-0 p-0 gap-1"
-          style={{ color: 'var(--orange-color)' }}
-        >
+        <span className="m-0 p-0 gap-1" style={{ color: 'var(--orange-color)' }}>
           List of blacklist regexe to match on tvg-name. Stops at first match
         </span>
         <div className="m-0 p-0 flex gap-1">
@@ -85,13 +77,13 @@ const SettingsNameRegexDataSelector = (
         selectedItemsKey="selectSelectedItems"
       />
     </div>
-  )
-}
+  );
+};
 
-SettingsNameRegexDataSelector.displayName = 'SettingsNameRegexDataSelector'
+SettingsNameRegexDataSelector.displayName = 'SettingsNameRegexDataSelector';
 
 type SettingsNameRegexDataSelectorProps = {
-  readonly data: string[] | undefined
-}
+  readonly data: string[] | undefined;
+};
 
-export default React.memo(SettingsNameRegexDataSelector)
+export default React.memo(SettingsNameRegexDataSelector);

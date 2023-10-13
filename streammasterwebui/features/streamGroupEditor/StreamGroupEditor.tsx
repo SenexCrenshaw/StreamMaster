@@ -1,3 +1,4 @@
+'use client';
 import { BlockUI } from 'primereact/blockui';
 import { memo } from 'react';
 

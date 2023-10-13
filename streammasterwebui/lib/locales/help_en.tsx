@@ -1,7 +1,7 @@
 type help_enType = {
-  [key: string]: string
-  ffMpegOptions: string
-}
+  [key: string]: string;
+  ffMpegOptions: string;
+};
 
 const help_en: help_enType = {
   adminPassword: 'Admin Password',
@@ -12,29 +12,22 @@ const help_en: help_enType = {
   backup: 'Backup',
   cacheIcons: 'Cache Icons to the local disk to speed things up',
   cleanURLs: 'Remove URLs from being logged',
-  clientUserAgent:
-    'Client User Agent used for downloads, epg/m3u/icons/schedules direct',
+  clientUserAgent: 'Client User Agent used for downloads, epg/m3u/icons/schedules direct',
   development: 'Development',
   deviceID: 'HDHR Device ID and capability ID',
   dummyRegex: 'EPG will be set to dummy if this matches the channel EPG',
-  ffmPegExecutable:
-    'FFMPeg Executable. The name "ffmpeg(.exe)" will be searched in the OS path as well',
-  ffMpegOptions:
-    "FFMPeg Options: '{streamUrl}' will be replaced with the stream URL.",
+  ffmPegExecutable: 'FFMPeg Executable. The name "ffmpeg(.exe)" will be searched in the OS path as well',
+  ffMpegOptions: "FFMPeg Options: '{streamUrl}' will be replaced with the stream URL.",
   filesEPG: 'Files / EPG',
   general: 'General',
-  globalStreamLimit:
-    'Global Stream Limit for custom URLs that do not belong to a M3U playlist',
+  globalStreamLimit: 'Global Stream Limit for custom URLs that do not belong to a M3U playlist',
   keywordSearch: 'Keyword Search',
-  m3UIgnoreEmptyEPGID:
-    'Ignore Streams with an empty EPG ID or EPG ID of "Dummy"',
-  maxConnectRetry:
-    'How many times to retry receiving data from the source stream',
+  m3UIgnoreEmptyEPGID: 'Ignore Streams with an empty EPG ID or EPG ID of "Dummy"',
+  maxConnectRetry: 'How many times to retry receiving data from the source stream',
   maxConnectRetryTimeMS: 'Receiving Data Retry Timeout in MS',
   overWriteM3UChannels: 'Overwrite M3U Channels Numbers even if they are set',
   password: 'Password',
-  preloadPercentage:
-    'How much of the buffer (in percentage) to preload before starting playback. 0 Disables preloading',
+  preloadPercentage: 'How much of the buffer (in percentage) to preload before starting playback. 0 Disables preloading',
   rememberme: 'Remember Me',
   ringBufferSizeMB: 'Buffer Size (MB)',
   sdPassword: 'Sched Direct Password',
@@ -54,10 +47,10 @@ const help_en: help_enType = {
   user: 'User',
   videoStreamAlwaysUseEPGLogo:
     'Always use EPG Logo for Video Stream. If the EPG is changed to one containing a logo then the video stream logo will be set to that',
-}
+};
 
 export const getHelp = (key: string) => {
-  return help_en[key]
-}
+  return help_en[key];
+};
 
-export default help_en
+export default help_en;

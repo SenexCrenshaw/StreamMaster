@@ -1,3 +1,4 @@
+'use client';
 import { formatJSONDateString, getTopToolOptions } from '@/lib/common/common';
 import { useM3UFilesGetPagedM3UFilesQuery, type M3UFileDto, type UpdateM3UFileRequest } from '@/lib/iptvApi';
 import { UpdateM3UFile } from '@/lib/smAPI/M3UFiles/M3UFilesMutateAPI';

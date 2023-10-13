@@ -1,7 +1,7 @@
-import { M3UPlaylistEditorIcon } from '@/lib/common/icons'
-import { type VideoStreamDto } from '@/lib/iptvApi'
-import { memo } from 'react'
-import M3UFilesEditor from './M3UFilesEditor'
+import { M3UPlaylistEditorIcon } from '@/lib/common/icons';
+import { type VideoStreamDto } from '@/lib/iptvApi';
+import { memo } from 'react';
+import M3UFilesEditor from './M3UFilesEditor';
 
 const M3UPlaylistEditor = () => {
   // const [m3uFileDto, setM3uFileDto] = useState<M3UFileDto>({} as M3UFileDto);
@@ -25,13 +25,13 @@ const M3UPlaylistEditor = () => {
         </div> */}
       </div>
     </div>
-  )
-}
+  );
+};
 
-M3UPlaylistEditor.displayName = 'M3UPlaylistEditor'
+M3UPlaylistEditor.displayName = 'M3UPlaylistEditor';
 
 export type M3UPlaylistEditorProps = {
-  data: VideoStreamDto
-}
+  data: VideoStreamDto;
+};
 
-export default memo(M3UPlaylistEditor)
+export default memo(M3UPlaylistEditor);

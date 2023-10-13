@@ -3,12 +3,10 @@
 import { invokeHubConnection } from '@/lib/signalr/signalr';
 import type * as iptv from '@/lib/iptvApi';
 
-
 export const GetVideoStreamVideoStreamIds = async (arg: string): Promise<void | null> => {
-    await invokeHubConnection<void> ('GetVideoStreamVideoStreamIds', arg);
+  await invokeHubConnection<void>('GetVideoStreamVideoStreamIds', arg);
 };
 
 export const GetPagedVideoStreamVideoStreams = async (arg: iptv.PagedResponseOfVideoStreamDto): Promise<iptv.VideoStreamDto[] | null> => {
-    return await invokeHubConnection<iptv.VideoStreamDto[]> ('GetPagedVideoStreamVideoStreams', arg);
+  return await invokeHubConnection<iptv.VideoStreamDto[]>('GetPagedVideoStreamVideoStreams', arg);
 };
-

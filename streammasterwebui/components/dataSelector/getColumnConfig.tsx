@@ -1,98 +1,77 @@
-import { camel2title } from '@/lib/common/common'
-import { Tooltip } from 'primereact/tooltip'
-import { type CSSProperties, type ReactNode } from 'react'
-import { v4 as uuidv4 } from 'uuid'
-import {
-  type ColumnAlign,
-  type ColumnFieldType,
-  type ColumnMeta,
-} from './DataSelectorTypes'
+import { camel2title } from '@/lib/common/common';
+import { Tooltip } from 'primereact/tooltip';
+import { type CSSProperties, type ReactNode } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { type ColumnAlign, type ColumnFieldType, type ColumnMeta } from './DataSelectorTypes';
 
 type ColumnConfig = {
-  align?: ColumnAlign
-  alignHeader?: ColumnAlign
-  filter?: boolean
-  header?: ReactNode
-  hidden?: boolean
-  style?: CSSProperties
-}
+  align?: ColumnAlign;
+  alignHeader?: ColumnAlign;
+  filter?: boolean;
+  header?: ReactNode;
+  hidden?: boolean;
+  style?: CSSProperties;
+};
 
-function getColumnConfig(
-  column: ColumnMeta,
-  groupRowsBy?: string,
-  hideControls?: boolean,
-): ColumnConfig {
-  const tooltipClassName = () => 'menuitemds-' + uuidv4()
+function getColumnConfig(column: ColumnMeta, groupRowsBy?: string, hideControls?: boolean): ColumnConfig {
+  const tooltipClassName = () => 'menuitemds-' + uuidv4();
 
-  const getAlign = (
-    align: ColumnAlign | null | undefined,
-    fieldType: ColumnFieldType,
-  ): ColumnAlign => {
+  const getAlign = (align: ColumnAlign | null | undefined, fieldType: ColumnFieldType): ColumnAlign => {
     if (fieldType === 'image') {
-      return 'center'
+      return 'center';
     }
 
     if (fieldType === 'isHidden') {
-      return 'center'
+      return 'center';
     }
 
     if (align === undefined || align === null) {
-      return 'left'
+      return 'left';
     }
 
-    return align
-  }
+    return align;
+  };
 
-  const getAlignHeader = (
-    align: ColumnAlign | undefined,
-    fieldType: ColumnFieldType,
-  ): ColumnAlign => {
+  const getAlignHeader = (align: ColumnAlign | undefined, fieldType: ColumnFieldType): ColumnAlign => {
     if (fieldType === 'image') {
-      return 'center'
+      return 'center';
     }
 
     if (fieldType === 'isHidden') {
-      return 'center'
+      return 'center';
     }
 
     if (!align) {
-      return 'center'
+      return 'center';
     }
 
-    return align
-  }
+    return align;
+  };
 
-  const getFilter = (
-    filter: boolean | undefined,
-    fieldType: ColumnFieldType,
-  ): boolean | undefined => {
+  const getFilter = (filter: boolean | undefined, fieldType: ColumnFieldType): boolean | undefined => {
     if (fieldType === 'image') {
-      return false
+      return false;
     }
 
-    return filter
-  }
+    return filter;
+  };
 
-  const getHeader = (
-    field: string,
-    header: string | undefined,
-    fieldType: ColumnFieldType | undefined,
-  ): ReactNode => {
+  const getHeader = (field: string, header: string | undefined, fieldType: ColumnFieldType | undefined): ReactNode => {
     if (!fieldType) {
-      return header ? header : camel2title(field)
+      return header ? header : camel2title(field);
     }
 
     switch (fieldType) {
       case 'blank':
-        return <div />
+        return <div />;
       case 'epg':
-        return 'EPG'
+        return 'EPG';
       case 'm3ulink':
-        return 'M3U'
+        return 'M3U';
       case 'epglink':
-        return 'XMLTV'
+        return 'XMLTV';
       case 'url':
-        return 'HDHR'
+        return 'HDHR';
       case 'streams':
         return (
           <>
@@ -111,33 +90,25 @@ function getColumnConfig(
               (active/total)
             </div>
           </>
-        )
+        );
       default:
-        return header ? header : camel2title(field)
+        return header ? header : camel2title(field);
     }
-  }
+  };
 
-  const getStyle = (
-    style: CSSProperties | undefined,
-    fieldType: ColumnFieldType | undefined,
-  ): CSSProperties | undefined => {
+  const getStyle = (style: CSSProperties | undefined, fieldType: ColumnFieldType | undefined): CSSProperties | undefined => {
     if (fieldType === 'blank') {
       return {
         maxWidth: '1rem',
         width: '1rem',
-      } as CSSProperties
+      } as CSSProperties;
     }
 
-    if (
-      fieldType === 'image' ||
-      fieldType === 'm3ulink' ||
-      fieldType === 'epglink' ||
-      fieldType === 'url'
-    ) {
+    if (fieldType === 'image' || fieldType === 'm3ulink' || fieldType === 'epglink' || fieldType === 'url') {
       return {
         maxWidth: '5rem',
         width: '5rem',
-      } as CSSProperties
+      } as CSSProperties;
     }
 
     return {
@@ -148,22 +119,17 @@ function getColumnConfig(
       overflow: 'hidden',
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap',
-    } as CSSProperties
-  }
+    } as CSSProperties;
+  };
 
   return {
     align: getAlign(column.align, column.fieldType),
     alignHeader: getAlignHeader(column.align, column.fieldType),
     filter: getFilter(column.filter, column.fieldType),
     header: getHeader(column.field, column.header, column.fieldType),
-    hidden:
-      column.isHidden === true ||
-      (hideControls === true &&
-        getHeader(column.field, column.header, column.fieldType) === 'Actions')
-        ? true
-        : undefined,
+    hidden: column.isHidden === true || (hideControls === true && getHeader(column.field, column.header, column.fieldType) === 'Actions') ? true : undefined,
     style: getStyle(column.style, column.fieldType),
-  }
+  };
 }
 
-export default getColumnConfig
+export default getColumnConfig;

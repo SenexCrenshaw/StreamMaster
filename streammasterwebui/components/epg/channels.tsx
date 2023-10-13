@@ -935,4 +935,4 @@ export const channels = [
     uuid: '2c0ea47e-22a9-46cb-8986-290d5502b748',
     year: 2002,
   },
-]
+];

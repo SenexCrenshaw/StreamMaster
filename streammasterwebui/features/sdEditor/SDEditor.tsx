@@ -1,3 +1,4 @@
+'use client';
 import SchedulesDirectStationPreviewDataSelector from '@/components/schedulesDirect/SchedulesDirectStationPreviewDataSelector';
 import { useSchedulesDirectGetStatusQuery } from '@/lib/iptvApi';
 import useSettings from '@/lib/useSettings';

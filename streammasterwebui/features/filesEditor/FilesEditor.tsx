@@ -1,3 +1,4 @@
+'use client';
 import StandardHeader from '@/components/StandardHeader';
 import EPGFilesEditor from '@/components/epg/EPGFilesEditor';
 import M3UFilesEditor from '@/components/m3u/M3UFilesEditor';

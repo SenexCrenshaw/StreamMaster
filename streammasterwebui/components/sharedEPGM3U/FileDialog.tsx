@@ -1,3 +1,4 @@
+'use client';
 import * as axios from 'axios';
 import { FileUpload, type FileUploadHeaderTemplateOptions, type FileUploadSelectEvent } from 'primereact/fileupload';
 

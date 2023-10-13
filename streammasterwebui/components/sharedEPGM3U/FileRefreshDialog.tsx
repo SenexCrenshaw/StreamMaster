@@ -1,35 +1,31 @@
-import { memo, useCallback, useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react';
 
-import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog'
-import OKButton from '../buttons/OKButton'
-import RefreshButton from '../buttons/RefreshButton'
+import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
+import OKButton from '../buttons/OKButton';
+import RefreshButton from '../buttons/RefreshButton';
 
 type FileRefreshDialogProps = {
-  readonly fileType: 'epg' | 'm3u'
-  readonly inputInfoMessage?: string
-  readonly onRefreshFile: () => void
-}
+  readonly fileType: 'epg' | 'm3u';
+  readonly inputInfoMessage?: string;
+  readonly onRefreshFile: () => void;
+};
 
-const FileRefreshDialog = ({
-  fileType,
-  inputInfoMessage,
-  onRefreshFile,
-}: FileRefreshDialogProps) => {
-  const labelName = fileType.toUpperCase()
+const FileRefreshDialog = ({ fileType, inputInfoMessage, onRefreshFile }: FileRefreshDialogProps) => {
+  const labelName = fileType.toUpperCase();
 
-  const [showOverlay, setShowOverlay] = useState<boolean>(false)
-  const [block, setBlock] = useState<boolean>(false)
-  const [infoMessage, setInfoMessage] = useState<string | undefined>(undefined)
+  const [showOverlay, setShowOverlay] = useState<boolean>(false);
+  const [block, setBlock] = useState<boolean>(false);
+  const [infoMessage, setInfoMessage] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    setInfoMessage(inputInfoMessage)
-  }, [inputInfoMessage])
+    setInfoMessage(inputInfoMessage);
+  }, [inputInfoMessage]);
 
   const ReturnToParent = useCallback(() => {
-    setShowOverlay(false)
-    setInfoMessage('')
-    setBlock(false)
-  }, [])
+    setShowOverlay(false);
+    setInfoMessage('');
+    setBlock(false);
+  }, []);
 
   return (
     <>
@@ -39,7 +35,7 @@ const FileRefreshDialog = ({
         header={'Refresh ' + labelName}
         infoMessage={infoMessage}
         onClose={() => {
-          ReturnToParent()
+          ReturnToParent();
         }}
         show={showOverlay}
       >
@@ -47,19 +43,16 @@ const FileRefreshDialog = ({
           <OKButton
             label={'Refresh ' + labelName}
             onClick={() => {
-              setBlock(true)
-              onRefreshFile()
+              setBlock(true);
+              onRefreshFile();
             }}
           />
         </div>
       </InfoMessageOverLayDialog>
 
-      <RefreshButton
-        onClick={() => setShowOverlay(true)}
-        tooltip={'Refresh ' + labelName}
-      />
+      <RefreshButton onClick={() => setShowOverlay(true)} tooltip={'Refresh ' + labelName} />
     </>
-  )
-}
+  );
+};
 
-export default memo(FileRefreshDialog)
+export default memo(FileRefreshDialog);

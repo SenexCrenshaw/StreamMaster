@@ -6,16 +6,16 @@ import {
   removeValueForField,
   type MatchMode,
   type SMDataTableFilterMetaData,
-} from '@/lib/common/common'
-import { useQueryAdditionalFilters } from '@/lib/redux/slices/useQueryAdditionalFilters'
-import { useQueryFilter } from '@/lib/redux/slices/useQueryFilter'
-import { useShowHidden } from '@/lib/redux/slices/useShowHidden'
-import { useSortInfo } from '@/lib/redux/slices/useSortInfo'
-import { FilterMatchMode } from 'primereact/api'
-import { type DataTableFilterMeta } from 'primereact/datatable'
-import { useEffect, useMemo } from 'react'
-import { type ColumnMeta, type LazyTableState } from './DataSelectorTypes'
-import generateFilterData from './generateFilterData'
+} from '@/lib/common/common';
+import { useQueryAdditionalFilters } from '@/lib/redux/slices/useQueryAdditionalFilters';
+import { useQueryFilter } from '@/lib/redux/slices/useQueryFilter';
+import { useShowHidden } from '@/lib/redux/slices/useShowHidden';
+import { useSortInfo } from '@/lib/redux/slices/useSortInfo';
+import { FilterMatchMode } from 'primereact/api';
+import { type DataTableFilterMeta } from 'primereact/datatable';
+import { useEffect, useMemo } from 'react';
+import { type ColumnMeta, type LazyTableState } from './DataSelectorTypes';
+import generateFilterData from './generateFilterData';
 
 export const useSetQueryFilter = (
   id: string,
@@ -26,21 +26,15 @@ export const useSetQueryFilter = (
   rows: number,
   streamGroupId?: number,
 ) => {
-  const { sortInfo } = useSortInfo(id)
-  const { queryAdditionalFilter } = useQueryAdditionalFilters(id)
-  const { queryFilter, setQueryFilter } = useQueryFilter(id)
-  const { showHidden } = useShowHidden(id)
+  const { sortInfo } = useSortInfo(id);
+  const { queryAdditionalFilter } = useQueryAdditionalFilters(id);
+  const { queryFilter, setQueryFilter } = useQueryFilter(id);
+  const { showHidden } = useShowHidden(id);
 
   const { lazyState, generateGetApi } = useMemo(() => {
-    const newFilters = generateFilterData(columns, filters)
+    const newFilters = generateFilterData(columns, filters);
 
-    const sort = sortInfo
-      ? sortInfo.sortField
-        ? sortInfo.sortOrder === -1
-          ? `${sortInfo.sortField} desc`
-          : `${sortInfo.sortField} asc`
-        : ''
-      : ''
+    const sort = sortInfo ? (sortInfo.sortField ? (sortInfo.sortOrder === -1 ? `${sortInfo.sortField} desc` : `${sortInfo.sortField} asc`) : '') : '';
 
     const defaultState: LazyTableState = {
       filters: newFilters,
@@ -51,48 +45,36 @@ export const useSetQueryFilter = (
       sortField: 'id',
       sortOrder: 1,
       sortString: sort,
-    }
+    };
 
-    const toSend: SMDataTableFilterMetaData[] = Object.keys(
-      defaultState.filters,
-    )
+    const toSend: SMDataTableFilterMetaData[] = Object.keys(defaultState.filters)
       .map((key) => {
-        const value = defaultState.filters[key] as SMDataTableFilterMetaData
-        return value?.value && value.value !== '[]' ? value : null
+        const value = defaultState.filters[key] as SMDataTableFilterMetaData;
+        return value?.value && value.value !== '[]' ? value : null;
       })
-      .filter(Boolean) as SMDataTableFilterMetaData[]
+      .filter(Boolean) as SMDataTableFilterMetaData[];
 
     if (showHidden === null) {
-      removeValueForField(toSend, 'isHidden')
+      removeValueForField(toSend, 'isHidden');
     } else if (showHidden !== undefined) {
-      addOrUpdateValueForField(
-        toSend,
-        'isHidden',
-        FilterMatchMode.EQUALS,
-        !showHidden,
-      )
+      addOrUpdateValueForField(toSend, 'isHidden', FilterMatchMode.EQUALS, !showHidden);
     }
 
     if (hasValidAdditionalProps(queryAdditionalFilter)) {
-      const addProps = queryAdditionalFilter
+      const addProps = queryAdditionalFilter;
 
       if (addProps) {
         if (isEmptyObject(addProps.values)) {
-          removeValueForField(toSend, addProps.field)
+          removeValueForField(toSend, addProps.field);
         } else {
-          const values = JSON.stringify(addProps.values)
+          const values = JSON.stringify(addProps.values);
 
-          addOrUpdateValueForField(
-            toSend,
-            addProps.field,
-            addProps.matchMode as MatchMode,
-            values,
-          )
+          addOrUpdateValueForField(toSend, addProps.field, addProps.matchMode as MatchMode, values);
         }
       }
     }
 
-    const toFilter = defaultState
+    const toFilter = defaultState;
     return {
       generateGetApi: {
         jsonFiltersString: JSON.stringify(toSend),
@@ -102,27 +84,17 @@ export const useSetQueryFilter = (
         streamGroupId: streamGroupId,
       },
       lazyState: defaultState,
-    }
-  }, [
-    columns,
-    filters,
-    sortInfo,
-    first,
-    page,
-    rows,
-    streamGroupId,
-    showHidden,
-    queryAdditionalFilter,
-  ])
+    };
+  }, [columns, filters, sortInfo, first, page, rows, streamGroupId, showHidden, queryAdditionalFilter]);
 
   useEffect(() => {
-    const newApi = generateGetApi
+    const newApi = generateGetApi;
     if (!areGetApiArgsEqual(newApi, queryFilter)) {
-      setQueryFilter(newApi)
+      setQueryFilter(newApi);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryAdditionalFilter, setQueryFilter, generateGetApi, streamGroupId])
+  }, [queryAdditionalFilter, setQueryFilter, generateGetApi, streamGroupId]);
 
-  return { lazyState }
-}
+  return { lazyState };
+};

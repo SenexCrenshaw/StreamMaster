@@ -4,14 +4,13 @@ import { invokeHubConnection } from '@/lib/signalr/signalr';
 import type * as iptv from '@/lib/iptvApi';
 
 export const SetVideoStreamRanks = async (arg: iptv.SetVideoStreamRanksRequest): Promise<void | null> => {
-    await invokeHubConnection<void> ('SetVideoStreamRanks', arg);
+  await invokeHubConnection<void>('SetVideoStreamRanks', arg);
 };
 
 export const SyncVideoStreamToStreamGroupPOST = async (arg: iptv.SyncVideoStreamToStreamGroupRequest): Promise<void | null> => {
-    await invokeHubConnection<void> ('SyncVideoStreamToStreamGroupPOST', arg);
+  await invokeHubConnection<void>('SyncVideoStreamToStreamGroupPOST', arg);
 };
 
 export const SyncVideoStreamToStreamGroupDELETE = async (arg: iptv.SyncVideoStreamToStreamGroupRequest): Promise<void | null> => {
-    await invokeHubConnection<void> ('SyncVideoStreamToStreamGroupDELETE', arg);
+  await invokeHubConnection<void>('SyncVideoStreamToStreamGroupDELETE', arg);
 };
-

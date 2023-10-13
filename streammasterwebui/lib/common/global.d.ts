@@ -1,15 +1,15 @@
 export type StreamMasterApiData = {
-  apiKey: string
-  apiRoot: string
-  baseHostURL: string
-  isDebug: boolean
-  urlBase: string
-  version: string
-}
+  apiKey: string;
+  apiRoot: string;
+  baseHostURL: string;
+  isDebug: boolean;
+  urlBase: string;
+  version: string;
+};
 
 declare global {
   interface Window {
-    StreamMaster: StreamMasterApiData
+    StreamMaster: StreamMasterApiData;
   }
 }
-export {}
+export {};

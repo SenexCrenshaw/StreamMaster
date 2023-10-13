@@ -4,6 +4,5 @@ import { invokeHubConnection } from '@/lib/signalr/signalr';
 import type * as iptv from '@/lib/iptvApi';
 
 export const UpdateSetting = async (arg: iptv.UpdateSettingRequest): Promise<void | null> => {
-    await invokeHubConnection<void> ('UpdateSetting', arg);
+  await invokeHubConnection<void>('UpdateSetting', arg);
 };
-

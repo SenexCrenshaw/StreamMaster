@@ -27,17 +27,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
   },
-  "eslint.validate": [
-    "css",
-    "html",
-    "javascript",
-    "javascriptreact",
-    "json",
-    "markdown",
-    "typescript",
-    "typescriptreact",
-    "yaml"
-  ],
+  "eslint.validate": ["css", "html", "javascript", "javascriptreact", "json", "markdown", "typescript", "typescriptreact", "yaml"],
   "html.customData": ["./node_modules/vidstack/vscode.html-data.json"],
   "bookmarks.useWorkaroundForFormatters": true,
   "prettier.jsxSingleQuote": true,

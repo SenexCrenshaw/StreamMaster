@@ -4,6 +4,5 @@ import { invokeHubConnection } from '@/lib/signalr/signalr';
 import type * as iptv from '@/lib/iptvApi';
 
 export const SyncStreamGroupChannelGroups = async (arg: iptv.SyncStreamGroupChannelGroupsRequest): Promise<iptv.StreamGroupDto | null> => {
-    return await invokeHubConnection<iptv.StreamGroupDto> ('SyncStreamGroupChannelGroups', arg);
+  return await invokeHubConnection<iptv.StreamGroupDto>('SyncStreamGroupChannelGroups', arg);
 };
-

@@ -1,21 +1,18 @@
-import DataSelector from '@/components/dataSelector/DataSelector'
-import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes'
-import StreamGroupAddDialog from '@/components/streamGroup/StreamGroupAddDialog'
-import StreamGroupDeleteDialog from '@/components/streamGroup/StreamGroupDeleteDialog'
-import StreamGroupEditDialog from '@/components/streamGroup/StreamGroupEditDialog'
-import {
-  StreamGroupDto,
-  useStreamGroupsGetPagedStreamGroupsQuery,
-} from '@/lib/iptvApi'
-import { useSelectedStreamGroup } from '@/lib/redux/slices/useSelectedStreamGroup'
-import { memo, useMemo, type CSSProperties } from 'react'
+import DataSelector from '@/components/dataSelector/DataSelector';
+import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes';
+import StreamGroupAddDialog from '@/components/streamGroup/StreamGroupAddDialog';
+import StreamGroupDeleteDialog from '@/components/streamGroup/StreamGroupDeleteDialog';
+import StreamGroupEditDialog from '@/components/streamGroup/StreamGroupEditDialog';
+import { StreamGroupDto, useStreamGroupsGetPagedStreamGroupsQuery } from '@/lib/iptvApi';
+import { useSelectedStreamGroup } from '@/lib/redux/slices/useSelectedStreamGroup';
+import { memo, useMemo, type CSSProperties } from 'react';
 
 export type StreamGroupDataSelectorProps = {
-  readonly id: string
-}
+  readonly id: string;
+};
 
 const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProps) => {
-  const { setSelectedStreamGroup } = useSelectedStreamGroup(id)
+  const { setSelectedStreamGroup } = useSelectedStreamGroup(id);
 
   const StreamGroupColumns = useMemo((): ColumnMeta[] => {
     return [
@@ -44,8 +41,8 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProps) => {
         field: 'm3ulink',
         fieldType: 'm3ulink',
       },
-    ]
-  }, [])
+    ];
+  }, []);
 
   const sourceAddtionalHeaderTemplate = () => {
     return (
@@ -58,8 +55,8 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProps) => {
           </div>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <DataSelector
@@ -68,15 +65,15 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProps) => {
       headerRightTemplate={sourceAddtionalHeaderTemplate()}
       id={id + '-ds-source'}
       onSelectionChange={(e) => {
-        setSelectedStreamGroup(e[0] as StreamGroupDto)
+        setSelectedStreamGroup(e[0] as StreamGroupDto);
       }}
       queryFilter={useStreamGroupsGetPagedStreamGroupsQuery}
       selectedItemsKey="selectSelectedStreamGroupDtoItems"
       style={{ height: 'calc(100vh - 40px)' }}
     />
-  )
-}
+  );
+};
 
-StreamGroupDataSelector.displayName = 'Stream Group Editor'
+StreamGroupDataSelector.displayName = 'Stream Group Editor';
 
-export default memo(StreamGroupDataSelector)
+export default memo(StreamGroupDataSelector);

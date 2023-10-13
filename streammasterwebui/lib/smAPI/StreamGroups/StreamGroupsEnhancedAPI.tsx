@@ -17,26 +17,23 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
               if (isDev) console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'StreamGroups' }])) {
                 if (endpointName !== 'streamGroupsGetStreamGroup') continue;
-                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                dispatch(
+                  iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
                     if (isDev) console.log('updateCachedData', data, draft);
-                   })
-                   );
-                 }
-
-
+                  }),
+                );
+              }
             });
           };
 
-         singletonStreamGroupsListener.addListener(updateCachedDataWithResults);
+          singletonStreamGroupsListener.addListener(updateCachedDataWithResults);
 
-        await cacheEntryRemoved;
-        singletonStreamGroupsListener.removeListener(updateCachedDataWithResults);
-
+          await cacheEntryRemoved;
+          singletonStreamGroupsListener.removeListener(updateCachedDataWithResults);
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
-
-      }
+      },
     },
     streamGroupsGetStreamGroupEpgForGuide: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -48,26 +45,23 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
               if (isDev) console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'StreamGroups' }])) {
                 if (endpointName !== 'streamGroupsGetStreamGroupEpgForGuide') continue;
-                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                dispatch(
+                  iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
                     if (isDev) console.log('updateCachedData', data, draft);
-                   })
-                   );
-                 }
-
-
+                  }),
+                );
+              }
             });
           };
 
-         singletonStreamGroupsListener.addListener(updateCachedDataWithResults);
+          singletonStreamGroupsListener.addListener(updateCachedDataWithResults);
 
-        await cacheEntryRemoved;
-        singletonStreamGroupsListener.removeListener(updateCachedDataWithResults);
-
+          await cacheEntryRemoved;
+          singletonStreamGroupsListener.removeListener(updateCachedDataWithResults);
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
-
-      }
+      },
     },
     streamGroupsGetPagedStreamGroups: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -84,46 +78,41 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
             updateCachedData(() => {
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'StreamGroups' }])) {
                 if (endpointName !== 'streamGroupsGetPagedStreamGroups') continue;
-                  dispatch(
-                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-
-                      if (isPagedTableDto(data)) {
-                      data.forEach(item => {
-                        const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
+                dispatch(
+                  iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                    if (isPagedTableDto(data)) {
+                      data.forEach((item) => {
+                        const index = draft.data.findIndex((existingItem) => existingItem.id === item.id);
                         if (index !== -1) {
                           draft.data[index] = item;
                         }
-                        });
-
-                        return draft;
-                        }
-
-                      data.forEach(item => {
-                        const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
-                        if (index !== -1) {
-                          draft.data[index] = item;
-                        }
-                        });
+                      });
 
                       return draft;
-                     })
-                   )
-                 }
+                    }
 
+                    data.forEach((item) => {
+                      const index = draft.data.findIndex((existingItem) => existingItem.id === item.id);
+                      if (index !== -1) {
+                        draft.data[index] = item;
+                      }
+                    });
 
+                    return draft;
+                  }),
+                );
+              }
             });
           };
 
-         singletonStreamGroupsListener.addListener(updateCachedDataWithResults);
+          singletonStreamGroupsListener.addListener(updateCachedDataWithResults);
 
-        await cacheEntryRemoved;
-        singletonStreamGroupsListener.removeListener(updateCachedDataWithResults);
-
+          await cacheEntryRemoved;
+          singletonStreamGroupsListener.removeListener(updateCachedDataWithResults);
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
-
-      }
+      },
     },
-  }
+  },
 });

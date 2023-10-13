@@ -104,7 +104,21 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         ConcurrentBag<Programme> retProgrammes = new();
         Setting setting = await GetSettingsAsync();
 
-        Parallel.ForEach(videoStreams, parallelOptions, videoStream =>
+        //Parallel.ForEach(videoStreams, parallelOptions, videoStream =>
+        //{
+        //    TvChannel? tvChannel = CreateTvChannel(videoStream, setting);
+        //    if (tvChannel != null)
+        //    {
+        //        retChannels.Add(tvChannel);
+        //    }
+
+        //    foreach (Programme programme in ProcessProgrammesForVideoStream(videoStream, programmes, icons, setting))
+        //    {
+        //        retProgrammes.Add(programme);
+        //    }
+        //});
+
+        foreach (VideoStreamDto videoStream in videoStreams)
         {
             TvChannel? tvChannel = CreateTvChannel(videoStream, setting);
             if (tvChannel != null)
@@ -116,7 +130,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             {
                 retProgrammes.Add(programme);
             }
-        });
+        }
 
         return new Tv
         {
@@ -140,9 +154,9 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         // Build the TvChannel based on whether it's a dummy or not
         if (isDummyStream)
         {
-            string orginalName = videoStream.User_Tvg_name;
-            int dummy = GetDummy();
-            videoStream.User_Tvg_name = "dummy-" + dummy;
+            //string orginalName = videoStream.User_Tvg_name;
+            //int dummy = GetDummy();
+            //videoStream.User_Tvg_name = "dummy-" + dummy;
 
             return new TvChannel
             {
@@ -150,7 +164,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
                 Icon = new TvIcon { Src = logo ?? string.Empty },
                 Displayname = new List<string>
             {
-               orginalName,videoStream.User_Tvg_name
+                videoStream.User_Tvg_name
             }
             };
         }
@@ -225,8 +239,9 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     {
         List<Programme> programmesForStream = new();
 
-        foreach (Programme? prog in cachedProgrammes.Where(p => p.Channel == videoStream.User_Tvg_ID))
+        foreach (Programme? aprog in cachedProgrammes.Where(p => p.Channel == videoStream.User_Tvg_ID))
         {
+            Programme prog = aprog.DeepCopy();
             AdjustProgrammeIcons(prog, cachedIcons);
 
             prog.Channel = videoStream.User_Tvg_chno.ToString();
@@ -258,7 +273,8 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
     private void AdjustProgrammeIcons(Programme prog, List<IconFileDto> cachedIcons)
     {
-        foreach (TvIcon icon in prog.Icon)
+        List<TvIcon> icons = prog.Icon.DeepCopy();
+        foreach (TvIcon icon in icons)
         {
             if (!string.IsNullOrEmpty(icon.Src))
             {
@@ -270,9 +286,9 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             }
         }
 
-        if (!prog.Icon.Any())
+        if (!icons.Any())
         {
-            prog.Icon.Add(new TvIcon { Height = "", Width = "", Src = "" });
+            icons.Add(new TvIcon { Height = "", Width = "", Src = "" });
         }
     }
 

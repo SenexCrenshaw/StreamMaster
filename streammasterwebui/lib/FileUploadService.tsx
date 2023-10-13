@@ -1,5 +1,5 @@
-import { type AxiosProgressEvent } from 'axios'
-import http from './axios'
+import { type AxiosProgressEvent } from 'axios';
+import http from './axios';
 
 export const upload = async (
   name: string | null,
@@ -9,31 +9,31 @@ export const upload = async (
   fileType: 'epg' | 'm3u',
   onUploadProgress: (progressEvent: AxiosProgressEvent) => void,
 ) => {
-  const formData = new FormData()
+  const formData = new FormData();
 
   if (file) {
-    formData.append('FormFile', file)
+    formData.append('FormFile', file);
   }
 
-  if (name) formData.append('name', name)
+  if (name) formData.append('name', name);
 
   if (source) {
-    formData.append('fileSource', source)
+    formData.append('fileSource', source);
   } else {
-    if (file) formData.append('fileSource', file.name)
+    if (file) formData.append('fileSource', file.name);
   }
 
-  if (description) formData.append('description', description)
+  if (description) formData.append('description', description);
 
-  let url = ''
+  let url = '';
 
   switch (fileType) {
     case 'epg':
-      url = '/api/epgfiles/createepgfilefromform/'
-      break
+      url = '/api/epgfiles/createepgfilefromform/';
+      break;
     case 'm3u':
-      url = '/api/m3ufiles/createm3ufilefromform'
-      break
+      url = '/api/m3ufiles/createm3ufilefromform';
+      break;
   }
 
   return await http.post(url, formData, {
@@ -41,5 +41,5 @@ export const upload = async (
       'Content-Type': 'multipart/form-data',
     },
     onUploadProgress,
-  })
-}
+  });
+};

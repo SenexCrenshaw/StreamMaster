@@ -1,3 +1,4 @@
+'use client';
 import { useM3UFilesCreateM3UFileMutation, type CreateM3UFileRequest } from '@/lib/iptvApi';
 import React, { useState } from 'react';
 import FileDialog, { type FileDialogProps } from '../sharedEPGM3U/FileDialog';
