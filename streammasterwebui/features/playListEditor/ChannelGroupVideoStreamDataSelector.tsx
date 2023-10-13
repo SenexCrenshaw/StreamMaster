@@ -1,29 +1,30 @@
+import VideoStreamSetTimeShiftDialog from '@/components/videoStream/VideoStreamSetTimeShiftDialog';
 import {
   useChannelGroupColumnConfig,
   useChannelLogoColumnConfig,
   useChannelNameColumnConfig,
   useChannelNumberColumnConfig,
   useEPGColumnConfig,
-} from '@/components/columns/columnConfigHooks';
-import DataSelector from '@/components/dataSelector/DataSelector';
-import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes';
-import { TriSelectShowHidden } from '@/components/selectors/TriSelectShowHidden';
+} from '@components/columns/columnConfigHooks';
+import DataSelector from '@components/dataSelector/DataSelector';
+import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
+import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
 
-import AutoSetChannelNumbers from '@/components/videoStream/AutoSetChannelNumbers';
-import VideoStreamAddDialog from '@/components/videoStream/VideoStreamAddDialog';
-import VideoStreamDeleteDialog from '@/components/videoStream/VideoStreamDeleteDialog';
-import VideoStreamEditDialog from '@/components/videoStream/VideoStreamEditDialog';
-import VideoStreamResetLogoDialog from '@/components/videoStream/VideoStreamResetLogoDialog';
-import VideoStreamResetLogosDialog from '@/components/videoStream/VideoStreamResetLogosDialog';
-import VideoStreamSetAutoSetEPGDialog from '@/components/videoStream/VideoStreamSetAutoSetEPGDialog';
-import VideoStreamSetLogoFromEPGDialog from '@/components/videoStream/VideoStreamSetLogoFromEPGDialog';
-import VideoStreamSetLogosFromEPGDialog from '@/components/videoStream/VideoStreamSetLogosFromEPGDialog';
-import VideoStreamVisibleDialog from '@/components/videoStream/VideoStreamVisibleDialog';
-import { GetMessage, arraysContainSameStrings } from '@/lib/common/common';
-import { ChannelGroupDto, VideoStreamDto, useVideoStreamsGetPagedVideoStreamsQuery } from '@/lib/iptvApi';
-import { useQueryAdditionalFilters } from '@/lib/redux/slices/useQueryAdditionalFilters';
-import { useSelectedItems } from '@/lib/redux/slices/useSelectedItemsSlice';
-import { useSelectedVideoStreams } from '@/lib/redux/slices/useSelectedVideoStreams';
+import AutoSetChannelNumbers from '@components/videoStream/AutoSetChannelNumbers';
+import VideoStreamAddDialog from '@components/videoStream/VideoStreamAddDialog';
+import VideoStreamDeleteDialog from '@components/videoStream/VideoStreamDeleteDialog';
+import VideoStreamEditDialog from '@components/videoStream/VideoStreamEditDialog';
+import VideoStreamResetLogoDialog from '@components/videoStream/VideoStreamResetLogoDialog';
+import VideoStreamResetLogosDialog from '@components/videoStream/VideoStreamResetLogosDialog';
+import VideoStreamSetAutoSetEPGDialog from '@components/videoStream/VideoStreamSetAutoSetEPGDialog';
+import VideoStreamSetLogoFromEPGDialog from '@components/videoStream/VideoStreamSetLogoFromEPGDialog';
+import VideoStreamSetLogosFromEPGDialog from '@components/videoStream/VideoStreamSetLogosFromEPGDialog';
+import VideoStreamVisibleDialog from '@components/videoStream/VideoStreamVisibleDialog';
+import { GetMessage, arraysContainSameStrings } from '@lib/common/common';
+import { ChannelGroupDto, VideoStreamDto, useVideoStreamsGetPagedVideoStreamsQuery } from '@lib/iptvApi';
+import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
+import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
 import { memo, useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
 
 type ChannelGroupVideoStreamDataSelectorProps = {
@@ -80,6 +81,7 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
     (data: VideoStreamDto) => {
       return (
         <div className="flex p-0 justify-content-end align-items-center">
+          <VideoStreamSetTimeShiftDialog iconFilled={false} value={data} />
           <VideoStreamResetLogoDialog value={data} />
           <VideoStreamSetLogoFromEPGDialog value={data} />
           <VideoStreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />

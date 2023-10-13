@@ -295,6 +295,10 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.Property<int>("StreamProxyType")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("TimeShift")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Tvg_ID")
                         .IsRequired()
                         .HasColumnType("TEXT");

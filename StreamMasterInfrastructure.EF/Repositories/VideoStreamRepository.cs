@@ -344,6 +344,11 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
             }
         }
 
+        if (request.TimeShift != null && videoStream.TimeShift != request.Tvg_name)
+        {
+            videoStream.TimeShift = request.TimeShift;
+        }
+
         if (request.Tvg_ID != null && (videoStream.User_Tvg_ID != request.Tvg_ID || videoStream.IsUserCreated))
         {
             //string? test = _memoryCache.GetEPGChannelNameByDisplayName(request.Tvg_ID);
