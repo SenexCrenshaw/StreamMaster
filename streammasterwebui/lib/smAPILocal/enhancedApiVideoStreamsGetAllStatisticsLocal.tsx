@@ -1,35 +1,27 @@
-import { iptvApi, type StreamStatisticsResult } from '@/lib/iptvApi'
-import { singletonStatisticListener } from '../signalr/singletonListeners'
+import { iptvApi, type StreamStatisticsResult } from '@lib/iptvApi';
+import { singletonStatisticListener } from '../signalr/singletonListeners';
 
-export const enhancedApiVideoStreamsGetAllStatisticsLocal =
-  iptvApi.enhanceEndpoints({
-    endpoints: {
-      videoStreamsGetAllStatisticsForAllUrls: {
-        async onCacheEntryAdded(
-          arg,
-          { updateCachedData, cacheDataLoaded, cacheEntryRemoved },
-        ) {
-          try {
-            await cacheDataLoaded
+export const enhancedApiVideoStreamsGetAllStatisticsLocal = iptvApi.enhanceEndpoints({
+  endpoints: {
+    videoStreamsGetAllStatisticsForAllUrls: {
+      async onCacheEntryAdded(arg, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+        try {
+          await cacheDataLoaded;
 
-            const updateCachedDataWithResults = (
-              data: StreamStatisticsResult[],
-            ) => {
-              updateCachedData(() => {
-                return data
-              })
-            }
+          const updateCachedDataWithResults = (data: StreamStatisticsResult[]) => {
+            updateCachedData(() => {
+              return data;
+            });
+          };
 
-            singletonStatisticListener.addListener(updateCachedDataWithResults)
+          singletonStatisticListener.addListener(updateCachedDataWithResults);
 
-            await cacheEntryRemoved
-            singletonStatisticListener.removeListener(
-              updateCachedDataWithResults,
-            )
-          } catch (error) {
-            console.error('Error in onCacheEntryAdded:', error)
-          }
-        },
+          await cacheEntryRemoved;
+          singletonStatisticListener.removeListener(updateCachedDataWithResults);
+        } catch (error) {
+          console.error('Error in onCacheEntryAdded:', error);
+        }
       },
     },
-  })
+  },
+});

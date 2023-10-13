@@ -1,9 +1,9 @@
-import useCopyToClipboard from '@/lib/hooks/useCopyToClipboard'
-import { useState } from 'react'
+import useCopyToClipboard from '@lib/hooks/useCopyToClipboard';
+import { useState } from 'react';
 
 export const LinkButton = ({ link }: { readonly link: string }) => {
-  const [, copyToClipboard] = useCopyToClipboard()
-  const [copied, setCopied] = useState(false)
+  const [, copyToClipboard] = useCopyToClipboard();
+  const [copied, setCopied] = useState(false);
 
   return (
     <div style={{ position: 'relative' }}>
@@ -11,12 +11,12 @@ export const LinkButton = ({ link }: { readonly link: string }) => {
         <a
           href={link}
           onClick={(e) => {
-            e.preventDefault() // Prevent default behavior (navigation)
+            e.preventDefault(); // Prevent default behavior (navigation)
 
             void copyToClipboard(link).then((ifCopied) => {
-              setCopied(ifCopied)
-              setTimeout(() => setCopied(false), 750)
-            })
+              setCopied(ifCopied);
+              setTimeout(() => setCopied(false), 750);
+            });
           }}
           rel="noopener noreferrer"
           target="_blank"
@@ -27,5 +27,5 @@ export const LinkButton = ({ link }: { readonly link: string }) => {
         </a>
       </div>
     </div>
-  )
-}
+  );
+};

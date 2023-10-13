@@ -1,4 +1,4 @@
-import { useSchedulesDirectGetSchedulesQuery } from '@/lib/iptvApi';
+import { useSchedulesDirectGetSchedulesQuery } from '@lib/iptvApi';
 import { Toast } from 'primereact/toast';
 import { memo, useMemo, useRef } from 'react';
 

@@ -1,18 +1,16 @@
-import { getTopToolOptions } from '@/lib/common/common'
-import { Button } from 'primereact/button'
-import { InputText } from 'primereact/inputtext'
-import React, { type ChangeEvent } from 'react'
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes'
+import { getTopToolOptions } from '@lib/common/common';
+import { Button } from 'primereact/button';
+import { InputText } from 'primereact/inputtext';
+import React, { type ChangeEvent } from 'react';
+import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 
 type GlobalSearchProps = {
-  readonly clearSourceFilter: () => void
-  readonly columns?: ColumnMeta[]
-  readonly globalSearchName: string
-  readonly globalSourceFilterValue?: string
-  readonly onGlobalSourceFilterChange: (
-    e: ChangeEvent<HTMLInputElement>,
-  ) => void // Define proper type here
-}
+  readonly clearSourceFilter: () => void;
+  readonly columns?: ColumnMeta[];
+  readonly globalSearchName: string;
+  readonly globalSourceFilterValue?: string;
+  readonly onGlobalSourceFilterChange: (e: ChangeEvent<HTMLInputElement>) => void; // Define proper type here
+};
 
 const GlobalSearch: React.FC<GlobalSearchProps> = ({
   columns = [],
@@ -21,7 +19,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
   globalSearchName,
   globalSourceFilterValue,
 }) => {
-  const isColumnsEmpty = !columns.length
+  const isColumnsEmpty = !columns.length;
 
   return (
     <>
@@ -45,7 +43,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({
         value={globalSourceFilterValue ?? ''}
       />
     </>
-  )
-}
+  );
+};
 
-export default React.memo(GlobalSearch)
+export default React.memo(GlobalSearch);

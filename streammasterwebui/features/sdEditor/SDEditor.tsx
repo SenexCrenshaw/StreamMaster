@@ -1,6 +1,6 @@
-import SchedulesDirectStationPreviewDataSelector from '@/components/schedulesDirect/SchedulesDirectStationPreviewDataSelector';
-import { useSchedulesDirectGetStatusQuery } from '@/lib/iptvApi';
-import useSettings from '@/lib/useSettings';
+import SchedulesDirectStationPreviewDataSelector from '@components/schedulesDirect/SchedulesDirectStationPreviewDataSelector';
+import { useSchedulesDirectGetStatusQuery } from '@lib/iptvApi';
+import useSettings from '@lib/useSettings';
 import { BlockUI } from 'primereact/blockui';
 import { memo, useMemo } from 'react';
 

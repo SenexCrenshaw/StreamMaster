@@ -1,4 +1,4 @@
-import { Providers } from '@/lib/providers';
+import { Providers } from '@lib/providers';
 import '@lib/styles/dataSelector.css';
 import '@lib/styles/index.css';
 import '@lib/styles/theme.css'; // theme

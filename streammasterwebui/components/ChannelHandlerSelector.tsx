@@ -1,36 +1,38 @@
-import { VideoStreamHandlers } from '@/lib/common/streammaster_enums'
-import { Dropdown } from 'primereact/dropdown'
-import { type SelectItem } from 'primereact/selectitem'
-import { Toast } from 'primereact/toast'
-import { classNames } from 'primereact/utils'
-import * as React from 'react'
+import { VideoStreamHandlers } from '@lib/common/streammaster_enums';
+import { Dropdown } from 'primereact/dropdown';
+import { type SelectItem } from 'primereact/selectitem';
+import { Toast } from 'primereact/toast';
+import { classNames } from 'primereact/utils';
+import * as React from 'react';
 
-const ChannelHandlerSelector = (props: ChannelHandlerSelectorProps) => {
-  const toast = React.useRef<Toast>(null)
-  const [channelHandler, setChannelHandler] =
-    React.useState<VideoStreamHandlers>(0)
+type ChannelHandlerSelectorProps = {
+  readonly className?: string | null;
+  readonly onChange?: ((value: VideoStreamHandlers) => void) | null;
+  readonly value?: VideoStreamHandlers | null;
+};
+
+const ChannelHandlerSelector = ({ className: propClassName, onChange, value }: ChannelHandlerSelectorProps) => {
+  const toast = React.useRef<Toast>(null);
+  const [channelHandler, setChannelHandler] = React.useState<VideoStreamHandlers>(0);
 
   React.useMemo(() => {
-    if (props.value && props.value !== undefined) {
-      setChannelHandler(props.value)
+    if (value && value !== undefined) {
+      setChannelHandler(value);
     } else {
-      setChannelHandler(0)
+      setChannelHandler(0);
     }
-  }, [props.value])
+  }, [value]);
 
-  const className = classNames(
-    'iconSelector p-0 m-0 w-full z-5 ',
-    props.className,
-  )
+  const className = classNames('iconSelector p-0 m-0 w-full z-5 ', propClassName);
 
   const onHandlerChange = React.useCallback(
     async (channel: any) => {
-      if (props.onChange) {
-        props.onChange(channel)
+      if (onChange) {
+        onChange(channel);
       }
     },
-    [props],
-  )
+    [onChange],
+  );
 
   const getHandlersOptions = (): SelectItem[] => {
     const test = Object.entries(VideoStreamHandlers)
@@ -39,11 +41,11 @@ const ChannelHandlerSelector = (props: ChannelHandlerSelectorProps) => {
         return {
           label: word,
           value: number,
-        } as SelectItem
-      })
+        } as SelectItem;
+      });
 
-    return test
-  }
+    return test;
+  };
 
   return (
     <>
@@ -52,7 +54,7 @@ const ChannelHandlerSelector = (props: ChannelHandlerSelectorProps) => {
         <Dropdown
           className={className}
           onChange={async (e) => {
-            await onHandlerChange(e.value)
+            await onHandlerChange(e.value);
           }}
           options={getHandlersOptions()}
           placeholder="Handler"
@@ -71,20 +73,9 @@ const ChannelHandlerSelector = (props: ChannelHandlerSelectorProps) => {
         />
       </div>
     </>
-  )
-}
+  );
+};
 
-ChannelHandlerSelector.displayName = 'ChannelHandlerSelector'
-// ChannelHandlerSelector.defaultProps = {
-//   className: null,
-//   onChange: null,
-//   value: null,
-// };
+ChannelHandlerSelector.displayName = 'ChannelHandlerSelector';
 
-type ChannelHandlerSelectorProps = {
-  readonly className?: string | null
-  readonly onChange?: ((value: VideoStreamHandlers) => void) | null
-  readonly value?: VideoStreamHandlers | null
-}
-
-export default React.memo(ChannelHandlerSelector)
+export default React.memo(ChannelHandlerSelector);

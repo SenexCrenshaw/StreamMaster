@@ -1,33 +1,33 @@
 import { configureStore, type Action, type ThunkAction } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
 
-import { enhancedApiChannelGroups } from '@/lib/smAPI/ChannelGroups/ChannelGroupsEnhancedAPI';
-import { enhancedApiEpgFiles } from '@/lib/smAPI/EpgFiles/EpgFilesEnhancedAPI';
-import { enhancedApiM3UFiles } from '@/lib/smAPI/M3UFiles/M3UFilesEnhancedAPI';
-import { enhancedApiProgrammes } from '@/lib/smAPI/Programmes/ProgrammesEnhancedAPI';
-import { enhancedApiSchedulesDirect } from '@/lib/smAPI/SchedulesDirect/SchedulesDirectEnhancedAPI';
-import { enhancedApiSettings } from '@/lib/smAPI/Settings/SettingsEnhancedAPI';
-import { enhancedApiStreamGroupChannelGroup } from '@/lib/smAPI/StreamGroupChannelGroup/StreamGroupChannelGroupEnhancedAPI';
-import { enhancedApiStreamGroupVideoStreams } from '@/lib/smAPI/StreamGroupVideoStreams/StreamGroupVideoStreamsEnhancedAPI';
-import { enhancedApiStreamGroups } from '@/lib/smAPI/StreamGroups/StreamGroupsEnhancedAPI';
-import { enhancedApiVideoStreamLinks } from '@/lib/smAPI/VideoStreamLinks/VideoStreamLinksEnhancedAPI';
-import { enhancedApiVideoStreams } from '@/lib/smAPI/VideoStreams/VideoStreamsEnhancedAPI';
+import { enhancedApiChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsEnhancedAPI';
+import { enhancedApiEpgFiles } from '@lib/smAPI/EpgFiles/EpgFilesEnhancedAPI';
+import { enhancedApiM3UFiles } from '@lib/smAPI/M3UFiles/M3UFilesEnhancedAPI';
+import { enhancedApiProgrammes } from '@lib/smAPI/Programmes/ProgrammesEnhancedAPI';
+import { enhancedApiSchedulesDirect } from '@lib/smAPI/SchedulesDirect/SchedulesDirectEnhancedAPI';
+import { enhancedApiSettings } from '@lib/smAPI/Settings/SettingsEnhancedAPI';
+import { enhancedApiStreamGroupChannelGroup } from '@lib/smAPI/StreamGroupChannelGroup/StreamGroupChannelGroupEnhancedAPI';
+import { enhancedApiStreamGroupVideoStreams } from '@lib/smAPI/StreamGroupVideoStreams/StreamGroupVideoStreamsEnhancedAPI';
+import { enhancedApiStreamGroups } from '@lib/smAPI/StreamGroups/StreamGroupsEnhancedAPI';
+import { enhancedApiVideoStreamLinks } from '@lib/smAPI/VideoStreamLinks/VideoStreamLinksEnhancedAPI';
+import { enhancedApiVideoStreams } from '@lib/smAPI/VideoStreams/VideoStreamsEnhancedAPI';
 
-import { enhancedApiVideoStreamLinksLocal } from '@/lib/smAPILocal/VideoStreamLinksEnhancedAPILocal';
+import { enhancedApiVideoStreamLinksLocal } from '@lib/smAPILocal/VideoStreamLinksEnhancedAPILocal';
 
-import channelGroupToRemoveSliceReducer from '@/lib/redux/slices/channelGroupToRemoveSlice';
-import queryAdditionalFiltersReducer from '@/lib/redux/slices/queryAdditionalFiltersSlice';
-import queryFilterReducer from '@/lib/redux/slices/queryFilterSlice';
-import selectAllSliceReducer from '@/lib/redux/slices/selectAllSlice';
-import selectedChannelGroupsSliceReducer from '@/lib/redux/slices/selectedChannelGroupsSlice';
-import selectedItemsSliceReducer from '@/lib/redux/slices/selectedItemsSlice';
-import selectedStreamGroupSliceReducer from '@/lib/redux/slices/selectedStreamGroupSlice';
-import selectedVideoStreamsSliceReducer from '@/lib/redux/slices/selectedVideoStreamsSlice';
-import showHiddenSliceReducer from '@/lib/redux/slices/showHiddenSlice';
-import showSelectionsSliceReducer from '@/lib/redux/slices/showSelectionsSlice';
-import sortInfoSliceReducer from '@/lib/redux/slices/sortInfoSlice';
+import channelGroupToRemoveSliceReducer from '@lib/redux/slices/channelGroupToRemoveSlice';
+import queryAdditionalFiltersReducer from '@lib/redux/slices/queryAdditionalFiltersSlice';
+import queryFilterReducer from '@lib/redux/slices/queryFilterSlice';
+import selectAllSliceReducer from '@lib/redux/slices/selectAllSlice';
+import selectedChannelGroupsSliceReducer from '@lib/redux/slices/selectedChannelGroupsSlice';
+import selectedItemsSliceReducer from '@lib/redux/slices/selectedItemsSlice';
+import selectedStreamGroupSliceReducer from '@lib/redux/slices/selectedStreamGroupSlice';
+import selectedVideoStreamsSliceReducer from '@lib/redux/slices/selectedVideoStreamsSlice';
+import showHiddenSliceReducer from '@lib/redux/slices/showHiddenSlice';
+import showSelectionsSliceReducer from '@lib/redux/slices/showSelectionsSlice';
+import sortInfoSliceReducer from '@lib/redux/slices/sortInfoSlice';
 
-import { enhancedApiVideoStreamsGetAllStatisticsLocal } from '@/lib/smAPILocal/enhancedApiVideoStreamsGetAllStatisticsLocal';
+import { enhancedApiVideoStreamsGetAllStatisticsLocal } from '@lib/smAPILocal/enhancedApiVideoStreamsGetAllStatisticsLocal';
 import { useMemo } from 'react';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';

@@ -1,33 +1,32 @@
 /* eslint unused-imports/no-unused-imports-ts: off */
 /* eslint @typescript-eslint/no-unused-vars: off */
-import { invokeHubConnection } from '@/lib/signalr/signalr';
-import type * as iptv from '@/lib/iptvApi';
+import type * as iptv from '@lib/iptvApi';
+import { invokeHubConnection } from '@lib/signalr/signalr';
 
 export const CreateEpgFile = async (arg: iptv.CreateEpgFileRequest): Promise<void | null> => {
-    await invokeHubConnection<void> ('CreateEpgFile', arg);
+  await invokeHubConnection<void>('CreateEpgFile', arg);
 };
 
 export const CreateEpgFileFromForm = async (): Promise<void | null> => {
-    await invokeHubConnection<void> ('CreateEpgFileFromForm');
+  await invokeHubConnection<void>('CreateEpgFileFromForm');
 };
 
 export const DeleteEpgFile = async (arg: iptv.DeleteEpgFileRequest): Promise<void | null> => {
-    await invokeHubConnection<void> ('DeleteEpgFile', arg);
+  await invokeHubConnection<void>('DeleteEpgFile', arg);
 };
 
 export const ProcessEpgFile = async (arg: iptv.ProcessEpgFileRequest): Promise<void | null> => {
-    await invokeHubConnection<void> ('ProcessEpgFile', arg);
+  await invokeHubConnection<void>('ProcessEpgFile', arg);
 };
 
 export const RefreshEpgFile = async (arg: iptv.RefreshEpgFileRequest): Promise<void | null> => {
-    await invokeHubConnection<void> ('RefreshEpgFile', arg);
+  await invokeHubConnection<void>('RefreshEpgFile', arg);
 };
 
 export const ScanDirectoryForEpgFiles = async (): Promise<void | null> => {
-    await invokeHubConnection<void> ('ScanDirectoryForEpgFiles');
+  await invokeHubConnection<void>('ScanDirectoryForEpgFiles');
 };
 
 export const UpdateEpgFile = async (arg: iptv.UpdateEpgFileRequest): Promise<void | null> => {
-    await invokeHubConnection<void> ('UpdateEpgFile', arg);
+  await invokeHubConnection<void>('UpdateEpgFile', arg);
 };
-

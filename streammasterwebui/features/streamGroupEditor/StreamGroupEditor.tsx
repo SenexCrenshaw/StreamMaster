@@ -1,9 +1,9 @@
 import { BlockUI } from 'primereact/blockui';
 import { memo } from 'react';
 
-import StandardHeader from '@/components/StandardHeader';
-import { StreamGroupEditorIcon } from '@/lib/common/icons';
-import { useSelectedStreamGroup } from '@/lib/redux/slices/useSelectedStreamGroup';
+import StandardHeader from '@components/StandardHeader';
+import { StreamGroupEditorIcon } from '@lib/common/icons';
+import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 import StreamGroupDataSelector from './StreamGroupDataSelector';
 import StreamGroupSelectedVideoStreamDataSelector from './StreamGroupSelectedVideoStreamDataSelector';
 import StreamGroupVideoStreamDataSelector from './StreamGroupVideoStreamDataSelector';

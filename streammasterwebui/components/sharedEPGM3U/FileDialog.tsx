@@ -4,18 +4,26 @@ import { FileUpload, type FileUploadHeaderTemplateOptions, type FileUploadSelect
 import { ProgressBar } from 'primereact/progressbar';
 import React, { useEffect, useRef, useState } from 'react';
 
-import { upload } from '@/lib/FileUploadService';
-import { isValidUrl } from '@/lib/common/common';
+import { M3UFileStreamUrlPrefix } from '@/lib/common/streammaster_enums';
+import { upload } from '@lib/FileUploadService';
+import { isValidUrl } from '@lib/common/common';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import AddButton from '../buttons/AddButton';
 import NumberInput from '../inputs/NumberInput';
 import TextInput from '../inputs/TextInput';
+import StreamURLPrefixSelector from '../m3u/StreamURLPrefixSelector';
 
 export type FileDialogProps = {
   readonly fileType: 'epg' | 'm3u';
   readonly infoMessage?: string;
-  readonly onCreateFromSource?: (name: string, source: string, maxStreams: number, startingChannelNumber: number) => void;
+  readonly onCreateFromSource?: (
+    name: string,
+    source: string,
+    maxStreams: number,
+    startingChannelNumber: number,
+    streamURLPrefix: M3UFileStreamUrlPrefix,
+  ) => void;
   readonly onHide?: (didUpload: boolean) => void;
   readonly show?: boolean | null;
   readonly showButton?: boolean | null;
@@ -25,7 +33,7 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
   const labelName = fileType.toUpperCase();
 
   const fileUploadRef = useRef<FileUpload>(null);
-
+  const [streamURLPrefix, setStreamURLPrefix] = React.useState<M3UFileStreamUrlPrefix>(0);
   const [activeFile, setActiveFile] = useState<File | undefined>();
   const [name, setName] = useState<string>('');
   const [maxStreams, setMaxStreams] = useState<number>(1);
@@ -132,9 +140,13 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
   };
 
   const ReturnToParent = (didUpload?: boolean) => {
+    if (fileUploadRef.current) {
+      fileUploadRef.current.clear();
+    }
     setShowOverlay(false);
     setBlock(false);
-
+    setInfoMessage(undefined);
+    setStreamURLPrefix(0);
     setProgress(0);
     setUploadedBytes(0);
     setName('');
@@ -146,63 +158,56 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
   };
 
   const doUpload = async () => {
+    if (block) {
+      ReturnToParent();
+    }
+
     setBlock(true);
 
     if (source !== '') {
-      onCreateFromSource?.(name, source, maxStreams, startingChannelNumber);
+      onCreateFromSource?.(name, source, maxStreams, startingChannelNumber, streamURLPrefix);
     } else {
-      try {
-        await upload(name, source, name, activeFile, fileType, (event: axios.AxiosProgressEvent) => {
+      await upload({
+        name: name,
+        source: source,
+        description: name,
+        streamURLPrefix: streamURLPrefix,
+        file: activeFile,
+        fileType: fileType,
+        onUploadProgress: (event: axios.AxiosProgressEvent) => {
           setUploadedBytes(event.loaded);
           const total = event.total !== undefined ? event.total : 1;
           const prog = Math.round((100 * event.loaded) / total);
-
           setProgress(prog);
+        },
+      })
+        .then(() => {
+          setInfoMessage(`Uploaded ${labelName}`);
+        })
+        .catch((error: axios.AxiosError | Error | unknown) => {
+          if (axios.isAxiosError(error)) {
+            setInfoMessage(`Error Uploading ${labelName}: ${error.message}`);
+          }
         });
-        setInfoMessage(`Uploaded ${labelName}`);
-        // ReturnToParent(true);
-      } catch (error: axios.AxiosError | Error | unknown) {
-        if (axios.isAxiosError(error)) {
-          setInfoMessage(`Error Uploading ${labelName}: ${error.message}`);
-
-          // if (error.response) {
-          //   console.log(error.response.data);
-          //   console.log(error.response.status);
-          //   console.log(error.response.headers);
-          // } else if (error.request) {
-          //   console.log(error.request);
-          // } else {
-          //   console.log('Error', error.message);
-          // }
-
-          setUploadedBytes(0);
-          setProgress(0);
-        } else if (error instanceof Error) {
-        }
-      }
-
-      setUploadedBytes(0);
-      setProgress(0);
-      setBlock(false);
     }
   };
 
   const chooseOptions = {
     className: 'p-button-rounded p-button-info',
     icon: 'pi pi-fw pi-plus',
-    iconOnly: true,
+    label: 'Add File',
   };
 
   const uploadOptions = {
     className: 'p-button-rounded p-button-success',
     icon: 'pi pi-fw pi-upload',
-    iconOnly: true,
+    label: 'Upload',
   };
 
   const cancelOptions = {
     className: 'p-button-rounded p-button-danger',
     icon: 'pi pi-fw pi-times',
-    iconOnly: true,
+    label: 'Remove File',
   };
 
   const isSaveEnabled = React.useMemo((): boolean => {
@@ -223,12 +228,12 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
         onClose={() => {
           ReturnToParent();
         }}
-        overlayColSize={4}
+        overlayColSize={6}
         show={showOverlay || show === true}
       >
         <div className="flex grid w-full justify-content-between align-items-center">
           <div className="flex col-12">
-            <div className={`flex col-${fileType === 'm3u' ? '6' : '12'}`}>
+            <div className={`flex col-${fileType === 'm3u' ? '4' : '12'}`}>
               <TextInput
                 label="Name"
                 onChange={(value) => {
@@ -248,8 +253,8 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
               />
             </div>
             {fileType === 'm3u' && (
-              <div className="flex col-6">
-                <div className="flex col-6">
+              <div className="flex col-8">
+                <div className="flex col-4">
                   <NumberInput
                     label="Max Streams"
                     onChange={(e) => {
@@ -259,7 +264,7 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
                     value={maxStreams}
                   />
                 </div>
-                <div className="flex col-6">
+                <div className="flex col-3">
                   <NumberInput
                     label="Starting Channel #"
                     onChange={(e) => {
@@ -267,6 +272,14 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
                     }}
                     showClear
                     value={maxStreams}
+                  />
+                </div>
+                <div className="flex col-5">
+                  <StreamURLPrefixSelector
+                    onChange={async (e) => {
+                      setStreamURLPrefix(e);
+                    }}
+                    value={streamURLPrefix}
                   />
                 </div>
               </div>
@@ -280,16 +293,16 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
                     <TextInput isUrl isValid={isValidUrl(source)} label="Source URL" onChange={onSetSource} placeHolder="http(s)://" showClear value={source} />
                   </div>
                   <div className="flex col-3 mt-2 justify-content-end">
-                    <AddButton disabled={!isSaveEnabled} label={labelName} onClick={async () => await doUpload()} tooltip="Add File" />
+                    <AddButton disabled={!isSaveEnabled} label={`Add ${labelName} File`} onClick={async () => await doUpload()} tooltip="Add File" />
                   </div>
                 </div>
               </AccordionTab>
               <AccordionTab header="Add By File">
-                <div className="flex col-12 justify-content-between align-items-center">
+                <div className="flex col-12 w-full justify-content-center align-items-center">
                   <FileUpload
                     // itemTemplate={itemTemplate}
                     // onUpload={onTemplateUpload}
-                    accept="xml"
+                    //accept="xml"
                     cancelOptions={cancelOptions}
                     chooseOptions={chooseOptions}
                     className="w-full"
@@ -302,6 +315,7 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
                     onRemove={() => setActiveFile(undefined)}
                     onSelect={onTemplateSelect}
                     ref={fileUploadRef}
+                    style={{ width: '100vw' }}
                     uploadHandler={doUpload}
                     uploadOptions={uploadOptions}
                   />

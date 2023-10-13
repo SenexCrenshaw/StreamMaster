@@ -5,7 +5,7 @@ import {
   type HasId,
   type SMDataTableFilterMetaData,
   type SimpleQueryApiArg,
-} from '@/lib/common/common';
+} from '@lib/common/common';
 import { skipToken } from '@reduxjs/toolkit/dist/query/react';
 import { Dropdown, type DropdownChangeEvent, type DropdownFilterEvent } from 'primereact/dropdown';
 import { classNames } from 'primereact/utils';

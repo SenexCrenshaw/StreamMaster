@@ -20,7 +20,7 @@ public class M3UFile : AutoUpdateEntity
     public int MaxStreamCount { get; set; }
     public int StartingChannelNumber { get; set; }
     public int StationCount { get; set; }
-
+    public M3UFileStreamURLPrefix StreamURLPrefix { get; set; }
     public DateTime LastWrite()
     {
         string fileName = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source);
@@ -36,7 +36,7 @@ public class M3UFile : AutoUpdateEntity
         lock (Lock)
         {
             using Stream dataStream = FileUtil.GetFileDataStream(Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source));
-            var ret = IPTVExtensions.ConvertToVideoStream(dataStream, Id, Name);
+            List<VideoStream>? ret = IPTVExtensions.ConvertToVideoStream(dataStream, Id, Name);
             dataStream.Close();
             dataStream.Dispose();
             return ret;

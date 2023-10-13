@@ -1,5 +1,5 @@
 'use client';
-import MenuItemSM from '@/components/MenuItemSM';
+import MenuItemSM from '@components/MenuItemSM';
 import {
   FilesEditorIcon,
   HelpIcon,
@@ -10,9 +10,9 @@ import {
   SideBarMenuIcon,
   StreamGroupEditorIcon,
   StreamingStatusIcon,
-} from '@/lib/common/icons';
-import { useSettingsGetSettingQuery } from '@/lib/iptvApi';
-import useSettings from '@/lib/useSettings';
+} from '@lib/common/icons';
+import { useSettingsGetSettingQuery } from '@lib/iptvApi';
+import useSettings from '@lib/useSettings';
 import { useLocalStorage } from 'primereact/hooks';
 import { Tooltip } from 'primereact/tooltip';
 import React from 'react';

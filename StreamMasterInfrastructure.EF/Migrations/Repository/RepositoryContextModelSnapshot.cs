@@ -200,6 +200,9 @@ namespace StreamMasterInfrastructure.Persistence.Migrations
                     b.Property<int>("StationCount")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("StreamURLPrefix")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Url")
                         .HasColumnType("TEXT");
 

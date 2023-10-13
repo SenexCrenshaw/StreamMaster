@@ -20,7 +20,13 @@
   --button-success-bg: #6dc831ee;
   --focus-border-color: var(--blue-500);
   --input-height: 1.4rem;
+  --dropdown-input-height: 2.0rem;
   --orange-color: #fe7600;
+}
+
+.p-dropdown-label.p-inputtext {
+  border: 2px solid var(--common-border-color) !important;
+  height: var(--dropdown-input-height);
 }
 
 .p-inputtext.p-component.p-column-filter.p-column-filter {

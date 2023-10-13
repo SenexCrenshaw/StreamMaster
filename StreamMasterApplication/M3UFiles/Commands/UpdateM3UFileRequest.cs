@@ -1,31 +1,16 @@
-﻿using FluentValidation;
-
-using StreamMasterDomain.Models;
-
-namespace StreamMasterApplication.M3UFiles.Commands;
+﻿namespace StreamMasterApplication.M3UFiles.Commands;
 
 public class UpdateM3UFileRequest : BaseFileRequest, IRequest<M3UFile?>
 {
+    public int? StreamURLPrefixInt { get; set; }
     public int? MaxStreamCount { get; set; }
     public int? StartingChannelNumber { get; set; }
 }
 
-public class UpdateM3UFileRequestValidator : AbstractValidator<UpdateM3UFileRequest>
-{
-    public UpdateM3UFileRequestValidator()
-    {
-        _ = RuleFor(v => v.Id).NotNull().GreaterThanOrEqualTo(0);
-    }
-}
-
 
 [LogExecutionTimeAspect]
-public class UpdateM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<UpdateM3UFileRequest, M3UFile?>
+public class UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateM3UFileRequest, M3UFile?>
 {
-
-    public UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
-
     public async Task<M3UFile?> Handle(UpdateM3UFileRequest request, CancellationToken cancellationToken)
     {
         try
@@ -43,6 +28,12 @@ public class UpdateM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestH
             {
                 isChanged = true;
                 m3uFile.Description = request.Description;
+            }
+
+            if (request.StreamURLPrefixInt != null && m3uFile.StreamURLPrefix != (M3UFileStreamURLPrefix)request.StreamURLPrefixInt)
+            {
+                isChanged = true;
+                m3uFile.StreamURLPrefix = (M3UFileStreamURLPrefix)request.StreamURLPrefixInt;
             }
 
             if (!string.IsNullOrEmpty(request.Url) && m3uFile.Url != request.Url)

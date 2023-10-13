@@ -1,5 +1,3 @@
-import VideoStreamSetTimeShiftDialog from '@/components/videoStream/VideoStreamSetTimeShiftDialog';
-import VideoStreamSetTimeShiftsDialog from '@/components/videoStream/VideoStreamSetTimeShiftsDialog';
 import {
   useChannelGroupColumnConfig,
   useChannelLogoColumnConfig,
@@ -10,6 +8,8 @@ import {
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
+import VideoStreamSetTimeShiftDialog from '@components/videoStream/VideoStreamSetTimeShiftDialog';
+import VideoStreamSetTimeShiftsDialog from '@components/videoStream/VideoStreamSetTimeShiftsDialog';
 
 import AutoSetChannelNumbers from '@components/videoStream/AutoSetChannelNumbers';
 import VideoStreamAddDialog from '@components/videoStream/VideoStreamAddDialog';

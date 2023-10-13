@@ -1,4 +1,4 @@
-import { getLeftToolOptions, getTopToolOptions } from '@/lib/common/common';
+import { getLeftToolOptions, getTopToolOptions } from '@lib/common/common';
 import { Button } from 'primereact/button';
 import { type SyntheticEvent } from 'react';
 

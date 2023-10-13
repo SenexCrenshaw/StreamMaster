@@ -784,6 +784,7 @@ export type M3UFilesCreateM3UFileFromFormApiArg = {
   FormFile?: Blob | null;
   Name?: string;
   UrlSource?: string | null;
+  StreamURLPrefixInt?: number | null;
 };
 export type M3UFilesChangeM3UFileNameApiResponse = unknown;
 export type M3UFilesChangeM3UFileNameApiArg = ChangeM3UFileNameRequest;
@@ -1171,6 +1172,7 @@ export type CreateM3UFileRequest = {
   formFile?: Blob | null;
   name?: string;
   urlSource?: string | null;
+  streamURLPrefixInt?: number | null;
 };
 export type ChangeM3UFileNameRequest = {
   id?: number;
@@ -1180,9 +1182,11 @@ export type DeleteM3UFileRequest = {
   deleteFile?: boolean;
   id?: number;
 };
+export type M3UFileStreamUrlPrefix = 0 | 1 | 2;
 export type M3UFileDto = BaseFileDto & {
   startingChannelNumber: number;
   maxStreamCount: number;
+  streamURLPrefix: M3UFileStreamUrlPrefix;
   stationCount: number;
 };
 export type PagedResponseOfM3UFileDto = {
@@ -1200,6 +1204,7 @@ export type RefreshM3UFileRequest = {
   id?: number;
 };
 export type UpdateM3UFileRequest = BaseFileRequest & {
+  streamURLPrefixInt?: number | null;
   maxStreamCount?: number | null;
   startingChannelNumber?: number | null;
 };

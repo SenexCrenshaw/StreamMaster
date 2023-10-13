@@ -27,9 +27,9 @@ import getRecordString from './getRecordString';
 import isPagedTableDto from './isPagedTableDto';
 import useDataSelectorState from './useDataSelectorState';
 
-import { GetApiArg, QueryHook, camel2title, getTopToolOptions, isEmptyObject } from '@/lib/common/common';
-import { useQueryFilter } from '@/lib/redux/slices/useQueryFilter';
-import useSettings from '@/lib/useSettings';
+import { GetApiArg, QueryHook, camel2title, getTopToolOptions, isEmptyObject } from '@lib/common/common';
+import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
+import useSettings from '@lib/useSettings';
 import { skipToken } from '@reduxjs/toolkit/dist/query/react';
 import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';

@@ -4,152 +4,129 @@ import {
   type VideoStreamDto,
   type VideoStreamsDeleteAllVideoStreamsFromParametersApiArg,
   type VideoStreamsDeleteVideoStreamApiArg,
-} from '@/lib/iptvApi'
-import { useQueryFilter } from '@/lib/redux/slices/useQueryFilter'
-import { useSelectAll } from '@/lib/redux/slices/useSelectAll'
-import { useSelectedVideoStreams } from '@/lib/redux/slices/useSelectedVideoStreams'
-import { memo, useEffect, useMemo, useState } from 'react'
-import OKButton from '../buttons/OKButton'
-import XButton from '../buttons/XButton'
-import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog'
+} from '@lib/iptvApi';
+import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
+import { useSelectAll } from '@lib/redux/slices/useSelectAll';
+import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
+import { memo, useEffect, useMemo, useState } from 'react';
+import OKButton from '../buttons/OKButton';
+import XButton from '../buttons/XButton';
+import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 
 type VideoStreamDeleteDialogProps = {
-  readonly iconFilled?: boolean
-  readonly id: string
-  readonly onClose?: () => void
-  readonly skipOverLayer?: boolean
-  readonly values?: VideoStreamDto[]
-}
+  readonly iconFilled?: boolean;
+  readonly id: string;
+  readonly onClose?: () => void;
+  readonly skipOverLayer?: boolean;
+  readonly values?: VideoStreamDto[];
+};
 
-const VideoStreamDeleteDialog = ({
-  iconFilled,
-  id,
-  onClose,
-  skipOverLayer,
-  values,
-}: VideoStreamDeleteDialogProps) => {
-  const [showOverlay, setShowOverlay] = useState<boolean>(false)
-  const [infoMessage, setInfoMessage] = useState('')
+const VideoStreamDeleteDialog = ({ iconFilled, id, onClose, skipOverLayer, values }: VideoStreamDeleteDialogProps) => {
+  const [showOverlay, setShowOverlay] = useState<boolean>(false);
+  const [infoMessage, setInfoMessage] = useState('');
 
-  const [block, setBlock] = useState<boolean>(false)
+  const [block, setBlock] = useState<boolean>(false);
 
-  const [videoStreamsDeleteAllVideoStreamsFromParametersMutation] =
-    useVideoStreamsDeleteAllVideoStreamsFromParametersMutation()
-  const [videoStreamsDeleteVideoStreamMutation] =
-    useVideoStreamsDeleteVideoStreamMutation()
+  const [videoStreamsDeleteAllVideoStreamsFromParametersMutation] = useVideoStreamsDeleteAllVideoStreamsFromParametersMutation();
+  const [videoStreamsDeleteVideoStreamMutation] = useVideoStreamsDeleteVideoStreamMutation();
 
-  const [selectVideoStreamsInternal, setSelectVideoStreamsInternal] = useState<
-    VideoStreamDto[] | undefined
-  >(undefined)
+  const [selectVideoStreamsInternal, setSelectVideoStreamsInternal] = useState<VideoStreamDto[] | undefined>(undefined);
 
-  const { selectedVideoStreams } = useSelectedVideoStreams(id)
-  const { selectAll } = useSelectAll(id)
-  const { queryFilter } = useQueryFilter(id)
+  const { selectedVideoStreams } = useSelectedVideoStreams(id);
+  const { selectAll } = useSelectAll(id);
+  const { queryFilter } = useQueryFilter(id);
 
   useEffect(() => {
     if (values) {
-      setSelectVideoStreamsInternal(values)
+      setSelectVideoStreamsInternal(values);
     }
-  }, [values])
+  }, [values]);
 
   useEffect(() => {
     if (!values) {
-      setSelectVideoStreamsInternal(selectedVideoStreams)
+      setSelectVideoStreamsInternal(selectedVideoStreams);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedVideoStreams])
+  }, [selectedVideoStreams]);
 
   const ReturnToParent = () => {
-    setShowOverlay(false)
-    setInfoMessage('')
-    setBlock(false)
-    onClose?.()
-  }
+    setShowOverlay(false);
+    setInfoMessage('');
+    setBlock(false);
+    onClose?.();
+  };
 
   const deleteVideoStream = async () => {
-    setBlock(true)
+    setBlock(true);
 
     if (selectAll === true) {
       if (!queryFilter) {
-        ReturnToParent()
+        ReturnToParent();
 
-        return
+        return;
       }
 
-      const toSendAll =
-        {} as VideoStreamsDeleteAllVideoStreamsFromParametersApiArg
+      const toSendAll = {} as VideoStreamsDeleteAllVideoStreamsFromParametersApiArg;
 
-      toSendAll.parameters = queryFilter
+      toSendAll.parameters = queryFilter;
 
       await videoStreamsDeleteAllVideoStreamsFromParametersMutation(toSendAll)
         .then(() => {
-          setInfoMessage('Set Stream Visibility Successfully')
+          setInfoMessage('Set Stream Visibility Successfully');
         })
         .catch((error) => {
-          setInfoMessage('Set Stream Visibility Error: ' + error.message)
-        })
+          setInfoMessage('Set Stream Visibility Error: ' + error.message);
+        });
 
-      return
+      return;
     }
 
-    if (
-      !selectVideoStreamsInternal ||
-      selectVideoStreamsInternal?.length === 0
-    ) {
-      ReturnToParent()
+    if (!selectVideoStreamsInternal || selectVideoStreamsInternal?.length === 0) {
+      ReturnToParent();
 
-      return
+      return;
     }
 
-    const promises = []
+    const promises = [];
 
     for (const stream of selectVideoStreamsInternal) {
-      const data = {} as VideoStreamsDeleteVideoStreamApiArg
+      const data = {} as VideoStreamsDeleteVideoStreamApiArg;
 
-      data.id = stream.id
+      data.id = stream.id;
       promises.push(
         videoStreamsDeleteVideoStreamMutation(data)
           .then(() => {})
           .catch(() => {}),
-      )
+      );
     }
 
-    const p = Promise.all(promises)
+    const p = Promise.all(promises);
 
     await p
       .then(() => {
-        setInfoMessage('Delete Stream Successful')
+        setInfoMessage('Delete Stream Successful');
       })
       .catch((error) => {
-        setInfoMessage('Delete Stream Error: ' + error.message)
-      })
-  }
+        setInfoMessage('Delete Stream Error: ' + error.message);
+      });
+  };
 
   const isFirstDisabled = useMemo(() => {
-    if (
-      !selectVideoStreamsInternal ||
-      selectVideoStreamsInternal?.length === 0
-    ) {
-      return true
+    if (!selectVideoStreamsInternal || selectVideoStreamsInternal?.length === 0) {
+      return true;
     }
 
-    return !selectVideoStreamsInternal[0].isUserCreated
-  }, [selectVideoStreamsInternal])
+    return !selectVideoStreamsInternal[0].isUserCreated;
+  }, [selectVideoStreamsInternal]);
 
   const getTotalCount = useMemo(() => {
-    let count = selectVideoStreamsInternal?.length ?? 0
+    let count = selectVideoStreamsInternal?.length ?? 0;
 
-    return count
-  }, [selectVideoStreamsInternal?.length])
+    return count;
+  }, [selectVideoStreamsInternal?.length]);
 
   if (skipOverLayer) {
-    return (
-      <XButton
-        disabled={isFirstDisabled}
-        onClick={async () => await deleteVideoStream()}
-        tooltip="Delete User Created Stream"
-      />
-    )
+    return <XButton disabled={isFirstDisabled} onClick={async () => await deleteVideoStream()} tooltip="Delete User Created Stream" />;
   }
 
   return (
@@ -159,7 +136,7 @@ const VideoStreamDeleteDialog = ({
         header="Delete Streams?"
         infoMessage={infoMessage}
         onClose={() => {
-          ReturnToParent()
+          ReturnToParent();
         }}
         overlayColSize={2}
         show={showOverlay}
@@ -180,9 +157,9 @@ const VideoStreamDeleteDialog = ({
         tooltip="Delete User Created Stream"
       />
     </>
-  )
-}
+  );
+};
 
-VideoStreamDeleteDialog.displayName = 'VideoStreamDeleteDialog'
+VideoStreamDeleteDialog.displayName = 'VideoStreamDeleteDialog';
 
-export default memo(VideoStreamDeleteDialog)
+export default memo(VideoStreamDeleteDialog);

@@ -1,8 +1,8 @@
 'use client';
 import { memo } from 'react';
 
-import StandardHeader from '@/components/StandardHeader';
-import { PlayListEditorIcon } from '@/lib/common/icons';
+import StandardHeader from '@components/StandardHeader';
+import { PlayListEditorIcon } from '@lib/common/icons';
 import ChannelGroupVideoStreamDataSelector from './ChannelGroupVideoStreamDataSelector';
 import PlayListDataSelector from './PlayListDataSelector';
 

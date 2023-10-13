@@ -1,13 +1,13 @@
-import { findDifferenceStationIdLineUps } from '@/lib/common/common';
+import { findDifferenceStationIdLineUps } from '@lib/common/common';
 import {
   StationIdLineUp,
   UpdateSettingRequest,
   useSchedulesDirectGetSelectedStationIdsQuery,
   useSchedulesDirectGetStationPreviewsQuery,
   type StationPreview,
-} from '@/lib/iptvApi';
-import { useSelectedItems } from '@/lib/redux/slices/useSelectedItemsSlice';
-import { UpdateSetting } from '@/lib/smAPI/Settings/SettingsMutateAPI';
+} from '@lib/iptvApi';
+import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
+import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
 import { Toast } from 'primereact/toast';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import DataSelector from '../dataSelector/DataSelector';

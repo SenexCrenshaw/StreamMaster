@@ -1,9 +1,9 @@
-import { isDev } from '@/lib/settings';
-import { singletonIconsListener } from '@/lib/signalr/singletonListeners';
-import { isEmptyObject } from '@/lib/common/common';
-import isPagedTableDto from '@/lib/common/isPagedTableDto';
-import { iptvApi } from '@/lib/iptvApi';
-import type * as iptv from '@/lib/iptvApi';
+import { isEmptyObject } from '@lib/common/common';
+import isPagedTableDto from '@lib/common/isPagedTableDto';
+import type * as iptv from '@lib/iptvApi';
+import { iptvApi } from '@lib/iptvApi';
+import { isDev } from '@lib/settings';
+import { singletonIconsListener } from '@lib/signalr/singletonListeners';
 
 export const enhancedApiIcons = iptvApi.enhanceEndpoints({
   endpoints: {
@@ -17,26 +17,23 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
               if (isDev) console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Icons' }])) {
                 if (endpointName !== 'iconsGetIcon') continue;
-                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                dispatch(
+                  iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
                     if (isDev) console.log('updateCachedData', data, draft);
-                   })
-                   );
-                 }
-
-
+                  }),
+                );
+              }
             });
           };
 
-         singletonIconsListener.addListener(updateCachedDataWithResults);
+          singletonIconsListener.addListener(updateCachedDataWithResults);
 
-        await cacheEntryRemoved;
-        singletonIconsListener.removeListener(updateCachedDataWithResults);
-
+          await cacheEntryRemoved;
+          singletonIconsListener.removeListener(updateCachedDataWithResults);
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
-
-      }
+      },
     },
     iconsGetIconFromSource: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -48,26 +45,23 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
               if (isDev) console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Icons' }])) {
                 if (endpointName !== 'iconsGetIconFromSource') continue;
-                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                dispatch(
+                  iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
                     if (isDev) console.log('updateCachedData', data, draft);
-                   })
-                   );
-                 }
-
-
+                  }),
+                );
+              }
             });
           };
 
-         singletonIconsListener.addListener(updateCachedDataWithResults);
+          singletonIconsListener.addListener(updateCachedDataWithResults);
 
-        await cacheEntryRemoved;
-        singletonIconsListener.removeListener(updateCachedDataWithResults);
-
+          await cacheEntryRemoved;
+          singletonIconsListener.removeListener(updateCachedDataWithResults);
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
-
-      }
+      },
     },
     iconsGetPagedIcons: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -84,46 +78,41 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
             updateCachedData(() => {
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Icons' }])) {
                 if (endpointName !== 'iconsGetPagedIcons') continue;
-                  dispatch(
-                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-
-                      if (isPagedTableDto(data)) {
-                      data.forEach(item => {
-                        const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
+                dispatch(
+                  iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                    if (isPagedTableDto(data)) {
+                      data.forEach((item) => {
+                        const index = draft.data.findIndex((existingItem) => existingItem.id === item.id);
                         if (index !== -1) {
                           draft.data[index] = item;
                         }
-                        });
-
-                        return draft;
-                        }
-
-                      data.forEach(item => {
-                        const index = draft.data.findIndex(existingItem => existingItem.id === item.id);
-                        if (index !== -1) {
-                          draft.data[index] = item;
-                        }
-                        });
+                      });
 
                       return draft;
-                     })
-                   )
-                 }
+                    }
 
+                    data.forEach((item) => {
+                      const index = draft.data.findIndex((existingItem) => existingItem.id === item.id);
+                      if (index !== -1) {
+                        draft.data[index] = item;
+                      }
+                    });
 
+                    return draft;
+                  }),
+                );
+              }
             });
           };
 
-         singletonIconsListener.addListener(updateCachedDataWithResults);
+          singletonIconsListener.addListener(updateCachedDataWithResults);
 
-        await cacheEntryRemoved;
-        singletonIconsListener.removeListener(updateCachedDataWithResults);
-
+          await cacheEntryRemoved;
+          singletonIconsListener.removeListener(updateCachedDataWithResults);
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
-
-      }
+      },
     },
     iconsGetIconsSimpleQuery: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -140,46 +129,41 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
             updateCachedData(() => {
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Icons' }])) {
                 if (endpointName !== 'iconsGetIconsSimpleQuery') continue;
-                  dispatch(
-                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-
-                      if (isPagedTableDto(data)) {
-                      data.forEach(item => {
-                        const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                dispatch(
+                  iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                    if (isPagedTableDto(data)) {
+                      data.forEach((item) => {
+                        const index = draft.findIndex((existingItem) => existingItem.id === item.id);
                         if (index !== -1) {
                           draft[index] = item;
                         }
-                        });
-
-                        return draft;
-                        }
-
-                      data.forEach(item => {
-                        const index = draft.findIndex(existingItem => existingItem.id === item.id);
-                        if (index !== -1) {
-                          draft[index] = item;
-                        }
-                        });
+                      });
 
                       return draft;
-                     })
-                   )
-                 }
+                    }
 
+                    data.forEach((item) => {
+                      const index = draft.findIndex((existingItem) => existingItem.id === item.id);
+                      if (index !== -1) {
+                        draft[index] = item;
+                      }
+                    });
 
+                    return draft;
+                  }),
+                );
+              }
             });
           };
 
-         singletonIconsListener.addListener(updateCachedDataWithResults);
+          singletonIconsListener.addListener(updateCachedDataWithResults);
 
-        await cacheEntryRemoved;
-        singletonIconsListener.removeListener(updateCachedDataWithResults);
-
+          await cacheEntryRemoved;
+          singletonIconsListener.removeListener(updateCachedDataWithResults);
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
-
-      }
+      },
     },
-  }
+  },
 });

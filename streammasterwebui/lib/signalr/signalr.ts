@@ -1,5 +1,5 @@
 'use client';
-import { baseHostURL, isDev } from '@/lib/settings';
+import { baseHostURL, isDev } from '@lib/settings';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 
 const url = baseHostURL + '/streammasterhub';

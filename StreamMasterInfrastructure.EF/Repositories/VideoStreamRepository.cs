@@ -87,7 +87,6 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
             }
             childVideoStreamDto.MaxStreams = result.MaxStreams;
             childVideoStreamDto.M3UFileId = result.M3UFileId;
-
             return (videoStream.VideoStreamHandler, new List<ChildVideoStreamDto> { childVideoStreamDto });
         }
 

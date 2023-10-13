@@ -29,3 +29,9 @@ export enum VideoStreamHandlers {
   None = 1,
   Loop = 2,
 }
+
+export enum M3UFileStreamUrlPrefix {
+  SystemDefault = 0,
+  TS = 1,
+  M3U8 = 2,
+}

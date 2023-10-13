@@ -1,5 +1,5 @@
-import { formatJSONDateString, getTopToolOptions } from '@/lib/common/common';
-import { useEpgFilesGetPagedEpgFilesQuery, useEpgFilesUpdateEpgFileMutation, type EpgFileDto, type M3UFileDto, type UpdateEpgFileRequest } from '@/lib/iptvApi';
+import { formatJSONDateString, getTopToolOptions } from '@lib/common/common';
+import { useEpgFilesGetPagedEpgFilesQuery, useEpgFilesUpdateEpgFileMutation, type EpgFileDto, type M3UFileDto, type UpdateEpgFileRequest } from '@lib/iptvApi';
 import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
 import { Toast } from 'primereact/toast';
 import { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react';
