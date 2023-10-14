@@ -77,12 +77,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
       }
 
       var existingIds = new Set(data.map((x) => x.id));
-      // console.group('dothing');
-      // console.log('props.value', props.value);
-      // console.log('data', data);
-      // console.log('existingIds', existingIds);
-      // console.log('has', existingIds.has(props.value));
-      // console.groupEnd();
+
       if (!existingIds.has(props.value)) {
         if (props.value !== '') {
           try {
@@ -178,7 +173,6 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
 
     if (newItems.length > 0) {
       const d = dataSource.concat(newItems);
-      // console.log('query.data', d);
       setDataSource(d);
       dothing(d);
       setIndex(d.length);
