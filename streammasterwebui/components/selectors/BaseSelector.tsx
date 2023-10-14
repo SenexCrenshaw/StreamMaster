@@ -112,7 +112,9 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
       }
       const item = data.find((x) => x.id === props.value);
       // console.log('has', item);
-      setSelectedItem(item);
+      if (item) {
+        setSelectedItem(item);
+      }
       setSelectedItemName(props.value);
     },
     [props, query.data, selectedItemName],
@@ -121,14 +123,6 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
   useEffect(() => {
     var existingIds = new Set(dataSource.map((x) => x.id));
     var existingFiltered = new Set(filteredDataSource.map((x) => x.id));
-
-    // var existingIds2 = dataSource.map((x) => x.id)
-
-    // if (existingIds.size !== existingIds2.length) {
-    //   console.log('mismatch existingIds', existingIds)
-    //   console.log('mismatch existingIds2', existingIds2)
-    //   console.log('mismatch', existingIds.size, existingIds2.length)
-    // }
 
     if (queryFilter?.jsonFiltersString && !queryFilter.jsonFiltersString && dataSource.length > 0) {
       if (!doSetsContainSameIds(existingIds, existingFiltered)) {
@@ -176,49 +170,6 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
     }
   }, [dataSource, filterQuery, filteredDataSource, queryFilter, selectedItem, totalItems]);
 
-  // useEffect(() => {
-  //   if (query.data === undefined || query.data.length === 0 || props.value === null || props.value === undefined) return;
-
-  //   if (selectedItemName === props.value) {
-  //     return;
-  //   }
-
-  //   var existingIds = new Set(dataSource.map((x) => x.id));
-  //   console.log('querySelectedItem', props.value, dataSource, existingIds);
-
-  //   if (!existingIds.has(props.value)) {
-  //     if (props.value !== '') {
-  //       try {
-  //         props
-  //           .querySelectedItem({ value: props.value } as StringArg)
-  //           .then((item) => {
-  //             if (item) {
-  //               existingIds = new Set(dataSource.map((x) => x.id));
-  //               if (item && item.source !== selectedItemName && !existingIds.has(item.id)) {
-  //                 const newDataSource = dataSource.concat(item);
-  //                 setDataSource(newDataSource);
-  //                 setFilteredDataSource(newDataSource);
-  //                 setIndex(newDataSource.length);
-  //                 setSelectedItemName(item.source);
-  //                 setSelectedItem(item);
-  //                 return;
-  //               }
-  //             }
-  //           })
-  //           .catch((e) => {
-  //             console.error(e);
-  //           });
-  //       } catch (e) {
-  //         console.error(e);
-  //       }
-  //     }
-  //     const item = dataSource.find((x) => x.id === props.value);
-  //     setSelectedItem(item);
-  //     setSelectedItemName(props.value);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [props.value, query.data, dataSource]);
-
   useEffect(() => {
     if (!query?.data) return;
 
@@ -256,8 +207,6 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
 
   const onFilter = (event: DropdownFilterEvent) => {
     if (event.filter === '') {
-      // setQueryFilter(undefined);
-
       return;
     }
 
@@ -268,7 +217,6 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
       jsonFiltersString: JSON.stringify(toSend),
       pageSize: 40,
     } as GetApiArg);
-    // setFilter(event.filter.toLowerCase());
   };
 
   return (
@@ -279,14 +227,14 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
         editable={props.editable}
         filter
         filterBy={props.optionLabel}
-        // filterPlaceholder={`Filter ${props.selectName}`}
+        filterPlaceholder={`Filter ${selectedItemName}`}
         itemTemplate={props.itemTemplate}
         onChange={onChange}
         onFilter={onFilter}
         optionLabel={props.optionLabel}
         // optionValue={props.optionValue}
         options={filteredDataSource}
-        placeholder={`Select ${props.selectName}`}
+        placeholder={selectedItemName}
         resetFilterOnHide
         scrollHeight="40vh"
         showFilterClear

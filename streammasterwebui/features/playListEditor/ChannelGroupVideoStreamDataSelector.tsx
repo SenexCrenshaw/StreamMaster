@@ -95,7 +95,7 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
     [dataKey],
   );
 
-  const targetColumns = useMemo((): ColumnMeta[] => {
+  const columns = useMemo((): ColumnMeta[] => {
     let columnConfigs = [channelNumberColumnConfig, channelLogoColumnConfig, channelNameColumnConfig, channelGroupConfig, epgColumnConfig];
 
     // columnConfigs.push(channelGroupConfig);
@@ -135,7 +135,7 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
 
   return (
     <DataSelector
-      columns={targetColumns}
+      columns={columns}
       defaultSortField="user_tvg_name"
       defaultSortOrder={1}
       emptyMessage="No Streams"
