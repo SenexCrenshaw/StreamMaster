@@ -2,8 +2,6 @@
 
 using Microsoft.EntityFrameworkCore;
 
-using StreamMasterDomain.Dto;
-
 namespace StreamMasterApplication.ChannelGroups.Commands;
 
 public record UpdateChannelGroupCountsRequest(List<ChannelGroupDto>? ChannelGroups) : IRequest<List<ChannelGroupDto>> { }
@@ -26,10 +24,10 @@ public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCo
 
         try
         {
-           
-            var dtos = mapper.Map<List<ChannelGroupDto>>(request.ChannelGroups);
 
-            List<string> cgNames = dtos.Select(a => a.Name).ToList();
+            List<ChannelGroupDto> dtos = mapper.Map<List<ChannelGroupDto>>(request.ChannelGroups);
+
+            List<string> cgNames = dtos.ConvertAll(a => a.Name);
 
             // Fetch relevant video streams.
             var allVideoStreams = await Repository.VideoStream.GetVideoStreamQuery()
@@ -43,9 +41,9 @@ public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCo
 
             Dictionary<string, List<string>> videoStreamsForGroups = new();
             Dictionary<string, int> hiddenCounts = new();
-            var c = dtos.FirstOrDefault(a => a.Id == 29);
+            ChannelGroupDto? c = dtos.Find(a => a.Id == 29);
 
-            foreach (var cg in dtos)
+            foreach (ChannelGroupDto cg in dtos)
             {
                 if (cg == null)
                 {
@@ -60,7 +58,7 @@ public class UpdateChannelGroupCountsRequestHandler(ILogger<UpdateChannelGroupCo
 
             if (dtos.Any())
             {
-                foreach (var cg in dtos)
+                foreach (ChannelGroupDto cg in dtos)
                 {
                     cg.TotalCount = videoStreamsForGroups[cg.Name].Count;
                     cg.ActiveCount = videoStreamsForGroups[cg.Name].Count - hiddenCounts[cg.Name];

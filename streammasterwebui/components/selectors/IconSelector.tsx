@@ -15,7 +15,7 @@ const IconSelector: React.FC<Partial<IconSelectorProps>> = ({ enableEditMode = t
   const setting = useSettings();
 
   const selectedTemplate = (option: any) => {
-    const iconUrl = option?.source ? getIconUrl(option.source, setting.defaultIcon, false) : '';
+    const iconUrl = option?.source ? getIconUrl(restProps.value, setting.defaultIcon, false) : '';
 
     if (!iconUrl) return <div />;
 

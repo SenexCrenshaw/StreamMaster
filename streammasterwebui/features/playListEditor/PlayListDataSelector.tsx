@@ -7,7 +7,7 @@ import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
 import { ChannelGroupDto, useChannelGroupsGetPagedChannelGroupsQuery } from '@lib/iptvApi';
 import { useShowHidden } from '@lib/redux/slices/useShowHidden';
-import { memo, useCallback, useEffect, useMemo, type CSSProperties } from 'react';
+import { memo, useCallback, useEffect, useMemo } from 'react';
 
 export type PlayListDataSelectorProps = {
   readonly hideAddRemoveControls?: boolean;
@@ -26,6 +26,8 @@ const PlayListDataSelector = ({
 }: PlayListDataSelectorProps) => {
   const dataKey = id + '-PlayListDataSelector';
   const { showHidden, setShowHidden } = useShowHidden(dataKey);
+
+  // const dispatch: AppDispatch = useDispatch();
 
   useEffect(() => {
     if (showHidden === undefined && showHidden !== null) {
@@ -47,17 +49,14 @@ const PlayListDataSelector = ({
     [dataKey, useReadOnly],
   );
 
-  const sourceColumns = useMemo((): ColumnMeta[] => {
+  const columns = useMemo((): ColumnMeta[] => {
     return [
       { field: 'name', filter: true, sortable: true },
       {
         field: 'streams',
         fieldType: 'streams',
         header: 'Streams (active/total)',
-        style: {
-          maxWidth: '6rem',
-          width: '6rem',
-        } as CSSProperties,
+        width: '6rem',
       },
       {
         align: 'right',
@@ -65,10 +64,7 @@ const PlayListDataSelector = ({
         field: 'isHidden',
         fieldType: 'isHidden',
         header: 'Actions',
-        style: {
-          maxWidth: '8rem',
-          width: '8rem',
-        } as CSSProperties,
+        width: '8rem',
       },
     ];
   }, [sourceActionBodyTemplate]);
@@ -91,12 +87,16 @@ const PlayListDataSelector = ({
 
   return (
     <DataSelector
-      columns={sourceColumns}
+      columns={columns}
       emptyMessage="No Channel Groups"
       headerName={name === undefined ? 'Playlist' : name}
       headerRightTemplate={hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
       hideControls={hideControls}
       id={dataKey}
+      // onSelectionChange={(value, selectAll) => {
+      //   console.log('onSelectionChange', value, selectAll);
+      //   dispatch(iptvApi.util.invalidateTags(['ChannelGroups']));
+      // }}
       queryFilter={useChannelGroupsGetPagedChannelGroupsQuery}
       selectedItemsKey="selectSelectedChannelGroupDtoItems"
       selectionMode="multiple"

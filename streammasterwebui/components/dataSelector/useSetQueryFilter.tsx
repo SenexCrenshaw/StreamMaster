@@ -57,7 +57,7 @@ export const useSetQueryFilter = (
     if (showHidden === null) {
       removeValueForField(toSend, 'isHidden');
     } else if (showHidden !== undefined) {
-      addOrUpdateValueForField(toSend, 'isHidden', FilterMatchMode.EQUALS, showHidden);
+      addOrUpdateValueForField(toSend, 'isHidden', FilterMatchMode.EQUALS, !showHidden);
     }
 
     if (hasValidAdditionalProps(queryAdditionalFilter)) {

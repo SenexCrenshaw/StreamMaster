@@ -29,7 +29,7 @@ const VideoStreamSetLogoFromEPGDialog = (props: VideoStreamSetLogoFromEPGDialogP
 
   return (
     <Button
-      disabled={props.value === undefined || props.value.id === undefined || props.value.isUserCreated === true}
+      disabled={props.value === undefined || props.value.id === undefined}
       icon="pi pi-image"
       onClick={async () => await onChangeLogo()}
       rounded

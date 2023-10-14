@@ -26,7 +26,7 @@ import { ChannelGroupDto, VideoStreamDto, useVideoStreamsGetPagedVideoStreamsQue
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
-import { memo, useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 type ChannelGroupVideoStreamDataSelectorProps = {
   readonly enableEdit?: boolean;
@@ -38,16 +38,11 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
   const dataKey = id + '-ChannelGroupVideoStreamDataSelector';
   const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
-  const { columnConfig: epgColumnConfig } = useEPGColumnConfig({
-    enableEdit: enableEdit,
-  });
+
+  const { columnConfig: epgColumnConfig } = useEPGColumnConfig({ enableEdit: enableEdit });
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: enableEdit, useFilter: false });
-  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({
-    enableEdit: enableEdit,
-  });
-  const { columnConfig: channelLogoColumnConfig } = useChannelLogoColumnConfig({
-    enableEdit: enableEdit,
-  });
+  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit: enableEdit });
+  const { columnConfig: channelLogoColumnConfig } = useChannelLogoColumnConfig({ enableEdit: enableEdit });
 
   const channelGroupNames = useMemo(() => {
     return selectSelectedItems.map((channelGroup) => channelGroup.name);
@@ -108,10 +103,7 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
       isHidden: !enableEdit,
       resizeable: false,
       sortable: false,
-      style: {
-        maxWidth: '7rem',
-        width: '7rem',
-      } as CSSProperties,
+      width: '9rem',
     });
 
     return columnConfigs;
