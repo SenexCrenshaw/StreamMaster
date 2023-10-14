@@ -3,7 +3,7 @@ import { M3UFileStreamUrlPrefix, useM3UFilesGetPagedM3UFilesQuery, type M3UFileD
 import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesMutateAPI';
 import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
 import { Toast } from 'primereact/toast';
-import { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react';
+import { memo, useCallback, useMemo, useRef } from 'react';
 import NumberEditorBodyTemplate from '../NumberEditorBodyTemplate';
 import StringEditorBodyTemplate from '../StringEditorBodyTemplate';
 import DataSelector from '../dataSelector/DataSelector';
@@ -97,22 +97,25 @@ const M3UFilesDataSelector = () => {
     [toast],
   );
 
-  const StreamURLPrefixEditorBodyTemplate = useCallback((rowData: M3UFileDto) => {
-    if (rowData.id === 0) {
-      return <div />;
-    }
+  const StreamURLPrefixEditorBodyTemplate = useCallback(
+    (rowData: M3UFileDto) => {
+      if (rowData.id === 0) {
+        return <div />;
+      }
 
-    return (
-      <div className="flex justify-content-center ">
-        <StreamURLPrefixSelector
-          onChange={async (e) => {
-            await onM3UUpdateClick({ id: rowData.id, streamURLPrefix: e });
-          }}
-          value={rowData.streamURLPrefix}
-        />
-      </div>
-    );
-  }, []);
+      return (
+        <div className="flex justify-content-center ">
+          <StreamURLPrefixSelector
+            onChange={async (e) => {
+              await onM3UUpdateClick({ id: rowData.id, streamURLPrefix: e });
+            }}
+            value={rowData.streamURLPrefix}
+          />
+        </div>
+      );
+    },
+    [onM3UUpdateClick],
+  );
 
   const lastDownloadedTemplate = useCallback((rowData: M3UFileDto) => {
     if (rowData.id === 0) {
@@ -239,25 +242,27 @@ const M3UFilesDataSelector = () => {
 
       return (
         <div className="flex grid p-0 justify-content-end align-items-center">
-          <div className="col-6 p-0 justify-content-end align-items-center">
-            <Checkbox
-              checked={rowData.autoUpdate}
-              onChange={async (e: CheckboxChangeEvent) => {
-                await onM3UUpdateClick({ id: rowData.id, auto: e.checked ?? false });
-              }}
-              tooltip="Enable Auto Update"
-              tooltipOptions={getTopToolOptions}
-            />
+          <div className="col-8 flex p-0 justify-content-between align-items-center">
+            <div className="col-8 flex p-0 justify-content-between align-items-center">
+              <Checkbox
+                checked={rowData.autoUpdate}
+                onChange={async (e: CheckboxChangeEvent) => {
+                  await onM3UUpdateClick({ id: rowData.id, auto: e.checked ?? false });
+                }}
+                tooltip="Enable Auto Update"
+                tooltipOptions={getTopToolOptions}
+              />
 
-            <NumberEditorBodyTemplate
-              onChange={async (e) => {
-                await onM3UUpdateClick({ id: rowData.id, auto: rowData.autoUpdate, hours: e, maxStreams: rowData.maxStreamCount ?? 0 });
-              }}
-              suffix=" hours"
-              value={rowData.hoursToUpdate}
-            />
+              <NumberEditorBodyTemplate
+                onChange={async (e) => {
+                  await onM3UUpdateClick({ id: rowData.id, auto: rowData.autoUpdate, hours: e, maxStreams: rowData.maxStreamCount ?? 0 });
+                }}
+                suffix=" hours"
+                value={rowData.hoursToUpdate}
+              />
+            </div>
           </div>
-          <div className="col-6 p-0 justify-content-end align-items-center">
+          <div className="col-4 p-0 justify-content-end align-items-center">
             <M3UFileRefreshDialog selectedFile={rowData} />
             <M3UFileRemoveDialog selectedFile={rowData} />
           </div>
@@ -274,53 +279,48 @@ const M3UFilesDataSelector = () => {
         field: 'name',
         header: 'Name',
         sortable: true,
+        width: '18rem',
       },
       {
         bodyTemplate: StreamURLPrefixEditorBodyTemplate,
         field: 'streamURLPrefix',
-        header: 'streamURLPrefix',
+        header: 'Output Type',
+        width: '14rem',
       },
       {
         bodyTemplate: lastDownloadedTemplate,
         field: 'lastDownloaded',
         header: 'Downloaded',
         sortable: true,
+        width: '12rem',
       },
       {
         bodyTemplate: startingChannelNumberTemplate,
         field: 'startingChannelNumber',
-        header: 'Start Ch #',
+        header: 'Start Ch#',
         sortable: true,
-        style: {
-          maxWidth: '8rem',
-          width: '8rem',
-        } as CSSProperties,
+        width: '6rem',
       },
       {
         bodyTemplate: maxStreamCountTemplate,
         field: 'maxStreamCount',
         header: 'Max Streams',
         sortable: true,
-        style: {
-          maxWidth: '8rem',
-          width: '8rem',
-        } as CSSProperties,
+        width: '8rem',
       },
       {
         bodyTemplate: stationCountTemplate,
         field: 'stationCount',
         header: 'Streams',
         sortable: true,
+        width: '6rem',
       },
       { bodyTemplate: urlEditorBodyTemplate, field: 'url', sortable: true },
       {
         align: 'center',
         bodyTemplate: targetActionBodyTemplate,
         field: 'autoUpdate',
-        style: {
-          maxWidth: '8rem',
-          width: '8rem',
-        } as CSSProperties,
+        width: '10rem',
       },
     ];
   }, [
