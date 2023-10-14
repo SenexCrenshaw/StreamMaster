@@ -19,6 +19,7 @@ using StreamMasterDomain.Services;
 using System.Collections.Concurrent;
 using System.Data;
 using System.Net;
+using System.Net.Sockets;
 
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
@@ -133,8 +134,19 @@ public class ChannelManager : IDisposable, IChannelManager
         {
             foreach (StreamStatisticsResult streamStatisticsResult in allStatistics)
             {
-                IPHostEntry host = await Dns.GetHostEntryAsync(streamStatisticsResult.ClientIPAddress).ConfigureAwait(false);
-                streamStatisticsResult.ClientIPAddress = host.HostName;
+                try
+                {
+                    IPHostEntry host = await Dns.GetHostEntryAsync(streamStatisticsResult.ClientIPAddress).ConfigureAwait(false);
+                    streamStatisticsResult.ClientIPAddress = host.HostName;
+                }
+                catch (SocketException)
+                {
+
+                }
+                catch (ArgumentException)
+                {
+
+                }
             }
         }
 
