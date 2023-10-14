@@ -20,7 +20,7 @@ public class M3UFile : AutoUpdateEntity
     public int MaxStreamCount { get; set; }
     public int StartingChannelNumber { get; set; }
     public int StationCount { get; set; }
-    public M3UFileStreamURLPrefix StreamURLPrefix { get; set; }
+    //public M3UFileStreamURLPrefix StreamURLPrefix { get; set; }
     public DateTime LastWrite()
     {
         string fileName = Path.Combine(FileDefinitions.M3U.DirectoryLocation, Source);

@@ -2,7 +2,7 @@
 
 public class UpdateM3UFileRequest : BaseFileRequest, IRequest<M3UFile?>
 {
-    public int? StreamURLPrefixInt { get; set; }
+    //public int? StreamURLPrefixInt { get; set; }
     public int? MaxStreamCount { get; set; }
     public int? StartingChannelNumber { get; set; }
 }
@@ -30,11 +30,11 @@ public class UpdateM3UFileRequestHandler(ILogger<UpdateM3UFileRequest> logger, I
                 m3uFile.Description = request.Description;
             }
 
-            if (request.StreamURLPrefixInt != null && m3uFile.StreamURLPrefix != (M3UFileStreamURLPrefix)request.StreamURLPrefixInt)
-            {
-                isChanged = true;
-                m3uFile.StreamURLPrefix = (M3UFileStreamURLPrefix)request.StreamURLPrefixInt;
-            }
+            //if (request.StreamURLPrefixInt != null && m3uFile.StreamURLPrefix != (M3UFileStreamURLPrefix)request.StreamURLPrefixInt)
+            //{
+            //    isChanged = true;
+            //    m3uFile.StreamURLPrefix = (M3UFileStreamURLPrefix)request.StreamURLPrefixInt;
+            //}
 
             if (!string.IsNullOrEmpty(request.Url) && m3uFile.Url != request.Url)
             {

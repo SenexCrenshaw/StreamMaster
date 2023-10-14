@@ -368,10 +368,10 @@ public class ChannelManager : IDisposable, IChannelManager
                     continue;
                 }
 
-                if (m3uFile.StreamURLPrefix != M3UFileStreamURLPrefix.SystemDefault)
-                {
-                    toReturn.User_Url = ChangeExtensionBasedOnEnum(toReturn.User_Url, m3uFile.StreamURLPrefix);
-                }
+                //if (m3uFile.StreamURLPrefix != M3UFileStreamURLPrefix.SystemDefault)
+                //{
+                //    toReturn.User_Url = ChangeExtensionBasedOnEnum(toReturn.User_Url, m3uFile.StreamURLPrefix);
+                //}
             }
 
             _logger.LogDebug($"Exiting GetNextChildVideoStream with toReturn: {toReturn}");
@@ -382,29 +382,29 @@ public class ChannelManager : IDisposable, IChannelManager
         return null;
     }
 
-    public static string ChangeExtensionBasedOnEnum(string originalUrl, M3UFileStreamURLPrefix prefix)
-    {
-        Uri uri = new(originalUrl);
-        string filename = Path.GetFileName(uri.LocalPath);
-        string newFilename = "";
+    //public static string ChangeExtensionBasedOnEnum(string originalUrl, M3UFileStreamURLPrefix prefix)
+    //{
+    //    Uri uri = new(originalUrl);
+    //    string filename = Path.GetFileName(uri.LocalPath);
+    //    string newFilename = "";
 
-        switch (prefix)
-        {
-            case M3UFileStreamURLPrefix.SystemDefault:
-                newFilename = filename;
-                break;
+    //    switch (prefix)
+    //    {
+    //        case M3UFileStreamURLPrefix.SystemDefault:
+    //            newFilename = filename;
+    //            break;
 
-            case M3UFileStreamURLPrefix.TS:
-                newFilename = System.IO.Path.ChangeExtension(filename, ".ts");
-                break;
+    //        case M3UFileStreamURLPrefix.TS:
+    //            newFilename = System.IO.Path.ChangeExtension(filename, ".ts");
+    //            break;
 
-            case M3UFileStreamURLPrefix.M3U8:
-                newFilename = System.IO.Path.ChangeExtension(filename, ".m3u8");
-                break;
-        }
+    //        case M3UFileStreamURLPrefix.M3U8:
+    //            newFilename = System.IO.Path.ChangeExtension(filename, ".m3u8");
+    //            break;
+    //    }
 
-        return originalUrl.Replace(filename, newFilename);
-    }
+    //    return originalUrl.Replace(filename, newFilename);
+    //}
 
     private async Task<bool> HandleNextVideoStream(ChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
     {
