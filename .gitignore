@@ -357,3 +357,4 @@ StreamMasterAPI/wwwroot/initialize.js
 /StreamMasterAPI/dupes*
 streammasterwebui/package-lock.json
 streammasterwebui/package-lock.json
+streammasterwebui/deps.txt
