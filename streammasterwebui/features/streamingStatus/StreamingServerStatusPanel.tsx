@@ -278,6 +278,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
           className={className}
           columns={sourceColumns}
           dataSource={dataSource}
+          defaultSortField="m3UStreamName"
           emptyMessage="No Streams"
           id="StreamingServerStatusPanel"
           isLoading={getStreamingStatus.isLoading}

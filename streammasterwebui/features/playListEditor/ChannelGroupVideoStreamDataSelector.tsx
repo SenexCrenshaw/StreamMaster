@@ -1,10 +1,8 @@
-import {
-  useChannelGroupColumnConfig,
-  useChannelLogoColumnConfig,
-  useChannelNameColumnConfig,
-  useChannelNumberColumnConfig,
-  useEPGColumnConfig,
-} from '@components/columns/columnConfigHooks';
+import { useChannelGroupColumnConfig } from '@/components/columns/useChannelGroupColumnConfig';
+import { useChannelLogoColumnConfig } from '@/components/columns/useChannelLogoColumnConfig';
+import { useChannelNameColumnConfig } from '@/components/columns/useChannelNameColumnConfig';
+import { useChannelNumberColumnConfig } from '@/components/columns/useChannelNumberColumnConfig';
+import { useEPGColumnConfig } from '@/components/columns/useEPGColumnConfig';
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
@@ -128,7 +126,7 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
   return (
     <DataSelector
       columns={columns}
-      defaultSortField="user_tvg_name"
+      defaultSortField="user_Tvg_name"
       defaultSortOrder={1}
       emptyMessage="No Streams"
       headerName={GetMessage('streams')}

@@ -127,6 +127,7 @@ const SchedulesDirectStationPreviewDataSelector = () => {
         <DataSelector
           columns={columns}
           dataSource={stationPreviews.data}
+          defaultSortField="name"
           disableSelectAll={true}
           emptyMessage="No Line Ups"
           headerName="Line Up Preview"

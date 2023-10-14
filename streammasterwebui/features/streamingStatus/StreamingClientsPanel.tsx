@@ -150,6 +150,7 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProps)
         <DataSelector
           className={className}
           columns={columns()}
+          defaultSortField="clientStartTime"
           dataSource={getStreamingStatus.data}
           emptyMessage="No Clients Streaming"
           id="StreamingServerStatusPanel"

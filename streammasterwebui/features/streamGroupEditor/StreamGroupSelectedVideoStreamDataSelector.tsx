@@ -1,4 +1,7 @@
-import { useChannelNameColumnConfig, useChannelNumberColumnConfig, useEPGColumnConfig } from '@components/columns/columnConfigHooks';
+import { useChannelNameColumnConfig } from '@/components/columns/useChannelNameColumnConfig';
+import { useChannelNumberColumnConfig } from '@/components/columns/useChannelNumberColumnConfig';
+import { useEPGColumnConfig } from '@/components/columns/useEPGColumnConfig';
+import AutoSetChannelNumbers from '@/components/videoStream/AutoSetChannelNumbers';
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import VideoStreamSetAutoSetEPGDialog from '@components/videoStream/VideoStreamSetAutoSetEPGDialog';
@@ -8,7 +11,7 @@ import { GroupIcon } from '@lib/common/icons';
 import { VideoStreamDto, useStreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsQuery } from '@lib/iptvApi';
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 import { Tooltip } from 'primereact/tooltip';
-import { memo, useCallback, useMemo, type CSSProperties } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import StreamGroupChannelGroupsSelector from './StreamGroupChannelGroupsSelector';
 import VideoStreamRemoveFromStreamGroupDialog from './VideoStreamRemoveFromStreamGroupDialog';
@@ -20,19 +23,14 @@ type StreamGroupSelectedVideoStreamDataSelectorProps = {
 const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedVideoStreamDataSelectorProps) => {
   const dataKey = id + '-StreamGroupSelectedVideoStreamDataSelector';
   const { selectedStreamGroup } = useSelectedStreamGroup(id);
+
   const enableEdit = true;
 
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: enableEdit, useFilter: false });
-  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({
-    enableEdit: enableEdit,
-    useFilter: false,
-  });
-  const { columnConfig: epgColumnConfig } = useEPGColumnConfig({
-    enableEdit: enableEdit,
-    useFilter: false,
-  });
+  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit: enableEdit, useFilter: false });
+  const { columnConfig: epgColumnConfig } = useEPGColumnConfig({ enableEdit: enableEdit, useFilter: false });
 
-  const targetActionBodyTemplate = useCallback(
+  const actionBodyTemplate = useCallback(
     (data: VideoStreamDto) => {
       if (data.isReadOnly === true) {
         const tooltipClassName = 'grouptooltip-' + uuidv4();
@@ -56,36 +54,35 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
     [id],
   );
 
-  const targetColumns = useMemo((): ColumnMeta[] => {
+  const columns = useMemo((): ColumnMeta[] => {
     return [
       channelNumberColumnConfig,
       channelNameColumnConfig,
       epgColumnConfig,
       {
-        bodyTemplate: targetActionBodyTemplate,
+        bodyTemplate: actionBodyTemplate,
         field: 'Remove',
         header: '',
         resizeable: false,
         sortable: false,
-        style: {
-          maxWidth: '2rem',
-        } as CSSProperties,
+        width: '3rem',
       },
     ];
-  }, [channelNumberColumnConfig, channelNameColumnConfig, epgColumnConfig, targetActionBodyTemplate]);
+  }, [channelNumberColumnConfig, channelNameColumnConfig, epgColumnConfig, actionBodyTemplate]);
 
   const rightHeaderTemplate = () => {
     return (
       <div className="flex justify-content-end align-items-center w-full gap-1">
         <StreamGroupChannelGroupsSelector streamGroupId={selectedStreamGroup?.id} />
+        <AutoSetChannelNumbers streamGroupId={selectedStreamGroup?.id} id={dataKey} />
       </div>
     );
   };
 
   return (
     <DataSelector
-      columns={targetColumns}
-      defaultSortField="user_tvg_name"
+      columns={columns}
+      defaultSortField="user_Tvg_name"
       emptyMessage="No Streams"
       headerName={GetMessage('streams')}
       headerRightTemplate={rightHeaderTemplate()}
@@ -95,7 +92,7 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
       selectedItemsKey="selectSelectedStreamGroupDtoItems"
       selectedStreamGroupId={selectedStreamGroup?.id ?? 0}
       selectionMode="single"
-      style={{ height: 'calc(100vh - 40px)' }}
+      style={{ height: 'calc(100vh - 60px)' }}
     />
   );
 };

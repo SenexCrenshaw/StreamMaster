@@ -228,6 +228,7 @@ const EPGFilesDataSelector = () => {
       <Toast position="bottom-right" ref={toast} />
       <DataSelector
         columns={columns}
+        defaultSortField="name"
         emptyMessage="No EPG Files"
         id="epgfilesdataselector"
         queryFilter={useEpgFilesGetPagedEpgFilesQuery}

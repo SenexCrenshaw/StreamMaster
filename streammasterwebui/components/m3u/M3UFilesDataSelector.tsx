@@ -337,6 +337,7 @@ const M3UFilesDataSelector = () => {
 
       <DataSelector
         columns={columns}
+        defaultSortField="name"
         emptyMessage="No M3U Files"
         id="m3ufilesdataselector"
         queryFilter={useM3UFilesGetPagedM3UFilesQuery}

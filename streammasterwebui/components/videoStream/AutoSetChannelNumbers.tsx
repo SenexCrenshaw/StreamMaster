@@ -1,4 +1,6 @@
+import { SetStreamGroupVideoStreamChannelNumbers } from '@/lib/smAPI/StreamGroupVideoStreams/StreamGroupVideoStreamsMutateAPI';
 import {
+  StreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersApiArg,
   type VideoStreamDto,
   type VideoStreamsSetVideoStreamChannelNumbersApiArg,
   type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg,
@@ -17,18 +19,16 @@ import OKButton from '../buttons/OKButton';
 
 type AutoSetChannelNumbersProps = {
   readonly id: string;
+  readonly streamGroupId?: number;
 };
 
-const AutoSetChannelNumbers = ({ id }: AutoSetChannelNumbersProps) => {
+const AutoSetChannelNumbers = ({ id, streamGroupId }: AutoSetChannelNumbersProps) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
   const [block, setBlock] = React.useState<boolean>(false);
 
   const [overwriteNumbers, setOverwriteNumbers] = React.useState<boolean>(true);
   const [startNumber, setStartNumber] = React.useState<number>(1);
-
-  // const [videoStreamsSetVideoStreamChannelNumbersFromParametersMutation] = useVideoStreamsSetVideoStreamChannelNumbersFromParametersMutation();
-  // const [videoStreamsSetVideoStreamChannelNumbersMutation] = useVideoStreamsSetVideoStreamChannelNumbersMutation();
 
   const { selectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
@@ -54,6 +54,23 @@ const AutoSetChannelNumbers = ({ id }: AutoSetChannelNumbersProps) => {
   const onAutoChannelsSave = React.useCallback(async () => {
     setBlock(true);
 
+    if (streamGroupId !== undefined) {
+      const toSendAll = {} as StreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersApiArg;
+      toSendAll.streamGroupId = streamGroupId;
+      toSendAll.startingNumber = startNumber;
+      toSendAll.orderBy = sortInfo.orderBy;
+
+      SetStreamGroupVideoStreamChannelNumbers(toSendAll)
+        .then(() => {
+          setInfoMessage('Auto Set Channels Successfully');
+        })
+        .catch((error) => {
+          setInfoMessage('Auto Set Channels Error: ' + error.message);
+        });
+
+      return;
+    }
+
     if (selectAll === true) {
       if (!queryFilter) {
         ReturnToParent();
@@ -69,10 +86,10 @@ const AutoSetChannelNumbers = ({ id }: AutoSetChannelNumbersProps) => {
 
       SetVideoStreamChannelNumbersFromParameters(toSendAll)
         .then(() => {
-          setInfoMessage('Set Stream Visibility Successfully');
+          setInfoMessage('Auto Set Channels Successful');
         })
         .catch((error) => {
-          setInfoMessage('Set Stream Visibility Error: ' + error.message);
+          setInfoMessage('Auto Set Channels Error: ' + error.message);
         });
 
       return;
@@ -117,7 +134,7 @@ const AutoSetChannelNumbers = ({ id }: AutoSetChannelNumbersProps) => {
       .catch((error) => {
         setInfoMessage('Auto Set Channels Error: ' + error.message);
       });
-  }, [ids, overwriteNumbers, queryFilter, selectAll, sortInfo, startNumber]);
+  }, [ids, overwriteNumbers, queryFilter, selectAll, sortInfo, startNumber, streamGroupId]);
 
   const getTotalCount = useMemo(() => {
     return ids.length;
@@ -140,14 +157,17 @@ const AutoSetChannelNumbers = ({ id }: AutoSetChannelNumbersProps) => {
             {`Auto set channel numbers ${overwriteNumbers ? 'and overwrite existing numbers ?' : '?'}`}
             <span className="scalein animation-duration-500 animation-iteration-2 text-bold text-red-500 font-italic mt-2">This will auto save</span>
           </div>
+
           <div className=" flex mt-2 col-6 align-items-center justify-content-start p-0 m-0">
             <span>
-              <div className="flex col-12 justify-content-center align-items-center p-0 m-0  w-full ">
-                <div className="flex col-2 justify-content-center align-items-center p-0 m-0">
-                  <Checkbox checked={overwriteNumbers} id="overwriteNumbers" onChange={(e: CheckboxChangeEvent) => setOverwriteNumbers(e.checked ?? false)} />
+              {streamGroupId === undefined && (
+                <div className="flex col-12 justify-content-center align-items-center p-0 m-0  w-full ">
+                  <div className="flex col-2 justify-content-center align-items-center p-0 m-0">
+                    <Checkbox checked={overwriteNumbers} id="overwriteNumbers" onChange={(e: CheckboxChangeEvent) => setOverwriteNumbers(e.checked ?? false)} />
+                  </div>
+                  <span className="flex col-10 text-xs">Overwrite Existing</span>
                 </div>
-                <span className="flex col-10 text-xs">Overwrite Existing</span>
-              </div>
+              )}
               <div className="flex col-12 justify-content-center align-items-center p-0 m-0">
                 <div className="flex col-6 justify-content-end align-items-center p-0 m-0">
                   <span className="text-xs pl-4">Ch. #</span>
@@ -173,7 +193,11 @@ const AutoSetChannelNumbers = ({ id }: AutoSetChannelNumbersProps) => {
         </div>
       </InfoMessageOverLayDialog>
 
-      <AutoSetButton disabled={getTotalCount === 0 && !selectAll} onClick={() => setShowOverlay(true)} tooltip="Auto Set Channels" />
+      <AutoSetButton
+        disabled={(streamGroupId !== undefined && streamGroupId === 0) || (streamGroupId === undefined && getTotalCount === 0 && !selectAll)}
+        onClick={() => setShowOverlay(true)}
+        tooltip="Auto Set Channels"
+      />
     </>
   );
 };

@@ -27,4 +27,9 @@ public partial class StreamMasterHub : IStreamGroupVideoStreamHub
     {
         await mediator.Send(request, cancellationToken).ConfigureAwait(false);
     }
+
+    public async Task SetStreamGroupVideoStreamChannelNumbers(SetStreamGroupVideoStreamChannelNumbersRequest request)
+    {
+        await mediator.Send(request).ConfigureAwait(false);
+    }
 }

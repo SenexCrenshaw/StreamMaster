@@ -63,6 +63,7 @@ const SchedulesDirectSchedulesDataSelector = ({ id }: SchedulesDirectSchedulesDa
       <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border">
         <DataSelector
           columns={sourceColumns}
+          defaultSortField="stationID"
           dataSource={schedulesDirectGetSchedulesQuery.data}
           emptyMessage="No Line Ups"
           headerName="Schedules"

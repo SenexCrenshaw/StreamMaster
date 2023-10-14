@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 using StreamMasterApplication.StreamGroupVideoStreams;
 using StreamMasterApplication.StreamGroupVideoStreams.Commands;
@@ -11,18 +9,8 @@ using StreamMasterDomain.Pagination;
 
 namespace StreamMasterAPI.Controllers;
 
-public class StreamGroupVideoStreamsController : ApiControllerBase, IStreamGroupVideoStreamController
+public class StreamGroupVideoStreamsController() : ApiControllerBase, IStreamGroupVideoStreamController
 {
-    private readonly ILogger<StreamGroupVideoStreamsController> _logger;
-
-    public StreamGroupVideoStreamsController(ILogger<StreamGroupVideoStreamsController> logger, IMapper mapper)
-    {
-        _logger = logger;
-        _mapper = mapper;
-    }
-
-    private readonly IMapper _mapper;
-
     [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<List<VideoStreamIsReadOnly>>> GetStreamGroupVideoStreamIds([FromQuery] GetStreamGroupVideoStreamIdsRequest request, CancellationToken cancellationToken = default)
@@ -67,6 +55,14 @@ public class StreamGroupVideoStreamsController : ApiControllerBase, IStreamGroup
     [HttpDelete]
     [Route("[action]")]
     public async Task<IActionResult> SyncVideoStreamToStreamGroup(SyncVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken)
+    {
+        await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
+        return NoContent();
+    }
+
+    [HttpPatch]
+    [Route("[action]")]
+    public async Task<IActionResult> SetStreamGroupVideoStreamChannelNumbers(SetStreamGroupVideoStreamChannelNumbersRequest request, CancellationToken cancellationToken)
     {
         await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
         return NoContent();

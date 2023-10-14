@@ -547,7 +547,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
           key="id"
           lazy={props.dataSource === undefined ? true : false}
           loading={props.isLoading === true || isFetching === true || isLoading === true}
-          metaKeySelection={false}
+          // metaKeySelection={false}
           onFilter={onFilter}
           onPage={onPage}
           onRowClick={(e) => props.onRowClick?.(e)}
@@ -657,7 +657,7 @@ DataSelector.displayName = 'dataselector';
 type BaseDataSelectorProps<T = any> = {
   className?: string;
   columns: ColumnMeta[];
-  defaultSortField?: string;
+  defaultSortField: string;
   defaultSortOrder?: -1 | 0 | 1;
   emptyMessage?: ReactNode;
   enableExport?: boolean;
