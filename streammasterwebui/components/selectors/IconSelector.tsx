@@ -1,8 +1,8 @@
 'use client';
-import { getIconUrl } from '@/lib/common/common';
-import { IconFileDto, useIconsGetIconsSimpleQueryQuery, useIconsGetPagedIconsQuery } from '@/lib/iptvApi';
-import { GetIconFromSource } from '@/lib/smAPI/Icons/IconsGetAPI';
-import useSettings from '@/lib/useSettings';
+import { getIconUrl } from '@lib/common/common';
+import { IconFileDto, useIconsGetIconsSimpleQueryQuery, useIconsGetPagedIconsQuery } from '@lib/iptvApi';
+import { GetIconFromSource } from '@lib/smAPI/Icons/IconsGetAPI';
+import useSettings from '@lib/useSettings';
 import React, { useCallback } from 'react';
 import BaseSelector, { BaseSelectorProps } from './BaseSelector';
 

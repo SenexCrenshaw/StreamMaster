@@ -1,22 +1,18 @@
-import { StreamStatisticsResult } from '@/lib/iptvApi'
-import React from 'react'
-import { Line, LineChart } from 'recharts'
+import { StreamStatisticsResult } from '@lib/iptvApi';
+import React from 'react';
+import { Line, LineChart } from 'recharts';
 
 const StreamingStatusGraph = (props: StreamingStatusGraphProps) => {
-  const [chartOptions, setChartOptions] = React.useState({})
-  const documentStyle = getComputedStyle(document.documentElement)
-  const [dataSource, setDataSource] = React.useState<StreamStatisticsResult[]>(
-    [] as StreamStatisticsResult[],
-  )
+  const [chartOptions, setChartOptions] = React.useState({});
+  const documentStyle = getComputedStyle(document.documentElement);
+  const [dataSource, setDataSource] = React.useState<StreamStatisticsResult[]>([] as StreamStatisticsResult[]);
   // const [dataSet, setDataSet] = React.useState<GraphData>({} as GraphData);
 
   React.useEffect(() => {
     if (chartOptions === undefined || chartOptions === null) {
-      const textColor = documentStyle.getPropertyValue('--text-color')
-      const textColorSecondary = documentStyle.getPropertyValue(
-        '--text-color-secondary',
-      )
-      const surfaceBorder = documentStyle.getPropertyValue('--surface-border')
+      const textColor = documentStyle.getPropertyValue('--text-color');
+      const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
+      const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
 
       const options = {
         aspectRatio: 0.6,
@@ -50,41 +46,38 @@ const StreamingStatusGraph = (props: StreamingStatusGraphProps) => {
         },
         scaleSteps: 5,
         scaleStepWidth: 10,
-      }
+      };
 
-      setChartOptions(options)
+      setChartOptions(options);
     }
-  }, [chartOptions, documentStyle])
+  }, [chartOptions, documentStyle]);
 
   React.useEffect(() => {
-    setDataSource([...dataSource, ...props.dataSource].slice(-6))
+    setDataSource([...dataSource, ...props.dataSource].slice(-6));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.dataSource])
+  }, [props.dataSource]);
 
   const dataSet = React.useMemo((): GraphDataArray[] => {
-    const toReturn = [] as GraphDataArray[]
+    const toReturn = [] as GraphDataArray[];
 
     dataSource.forEach((item) => {
       if (item.m3UStreamName === undefined || item.m3UStreamName === '') {
-        return
+        return;
       }
 
-      const newDataSet = {} as GraphDataArray
+      const newDataSet = {} as GraphDataArray;
 
-      if (
-        Object.keys(newDataSet).length === 0 ||
-        !newDataSet[item.m3UStreamName]
-      ) {
+      if (Object.keys(newDataSet).length === 0 || !newDataSet[item.m3UStreamName]) {
         newDataSet[item.m3UStreamName] = {
           data: [item.inputBitsPerSecond ?? 0],
           name: item.m3UStreamName,
-        }
+        };
       } else {
-        newDataSet[item.m3UStreamName].data.push(item.inputBitsPerSecond ?? 0)
-        newDataSet[item.m3UStreamName].name = item.m3UStreamName
+        newDataSet[item.m3UStreamName].data.push(item.inputBitsPerSecond ?? 0);
+        newDataSet[item.m3UStreamName].name = item.m3UStreamName;
       }
 
-      toReturn.push(newDataSet)
+      toReturn.push(newDataSet);
       //   if (newDataSet.graphData.length === 0 || newDataSet.graphData.findIndex((x: GraphData) => x.name === item.m3UStreamName) === -1) {
       //     newDataSet.datasets.push({
       //       borderColor: documentStyle.getPropertyValue('--blue-500'),
@@ -116,51 +109,46 @@ const StreamingStatusGraph = (props: StreamingStatusGraphProps) => {
 
       //   newDataSet.datasets = newDataSet.datasets.slice(-30);
       //   newDataSet.labels = newDataSet.labels.slice(-30);
-    })
+    });
 
-    return toReturn
-  }, [dataSource])
+    return toReturn;
+  }, [dataSource]);
 
   const getXValue = (data: GraphDataArray, name: string) => {
-    if (data[name] === undefined || data[name] === null) return 0
+    if (data[name] === undefined || data[name] === null) return 0;
 
     // console.debug(data[name].data);
-    return data[name].data
-  }
+    return data[name].data;
+  };
 
   return (
     <div className={`flex ` + props.className} style={props.style}>
       {/* <Chart data={props.isLoading === true ? undefined : dataSet} options={chartOptions} type="line" /> */}
       <LineChart data={dataSet} height={400} width={400}>
-        <Line
-          dataKey={(e) => getXValue(e, 'Brown Bunnies')}
-          label="Brown Bunnies"
-          stroke="#8884d8"
-          type="monotone"
-        />
+        <Line dataKey={(e) => getXValue(e, 'Brown Bunnies')} label="Brown Bunnies" stroke="#8884d8" type="monotone" />
       </LineChart>
     </div>
-  )
-}
+  );
+};
 
-StreamingStatusGraph.displayName = 'StreamingStatusGraph'
+StreamingStatusGraph.displayName = 'StreamingStatusGraph';
 
 type StreamingStatusGraphProps = {
-  readonly className?: string
-  readonly dataSource: StreamStatisticsResult[]
-  readonly style?: React.CSSProperties
-}
+  readonly className?: string;
+  readonly dataSource: StreamStatisticsResult[];
+  readonly style?: React.CSSProperties;
+};
 
-export default React.memo(StreamingStatusGraph)
+export default React.memo(StreamingStatusGraph);
 
 type GraphDataArray = {
-  [key: string]: GraphData
-}
+  [key: string]: GraphData;
+};
 
 type GraphData = {
-  data: number[]
-  name: string
-}
+  data: number[];
+  name: string;
+};
 
 // export type GraphData = {
 //   datasets: Array<{

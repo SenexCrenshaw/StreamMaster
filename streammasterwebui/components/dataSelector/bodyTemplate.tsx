@@ -1,4 +1,4 @@
-import { camel2title } from '@/lib/common/common';
+import { camel2title } from '@lib/common/common';
 import { type SyntheticEvent } from 'react';
 import { LinkButton } from '../buttons/LinkButton';
 import { type ColumnFieldType } from './DataSelectorTypes';

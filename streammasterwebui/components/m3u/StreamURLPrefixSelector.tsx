@@ -1,29 +1,29 @@
-import { VideoStreamHandlers } from '@lib/common/streammaster_enums';
+import { M3UFileStreamUrlPrefix } from '@/lib/common/streammaster_enums';
 import { Dropdown } from 'primereact/dropdown';
 import { type SelectItem } from 'primereact/selectitem';
 import { Toast } from 'primereact/toast';
 import { classNames } from 'primereact/utils';
 import * as React from 'react';
 
-type ChannelHandlerSelectorProps = {
+type StreamURLPrefixSelectorProps = {
   readonly className?: string | null;
-  readonly onChange?: ((value: VideoStreamHandlers) => void) | null;
-  readonly value?: VideoStreamHandlers | null;
+  readonly onChange?: ((value: M3UFileStreamUrlPrefix) => void) | null;
+  readonly value: M3UFileStreamUrlPrefix | null;
 };
 
-const ChannelHandlerSelector = ({ className: propClassName, onChange, value }: ChannelHandlerSelectorProps) => {
+const StreamURLPrefixSelector = ({ className: propClassName, onChange, value }: StreamURLPrefixSelectorProps) => {
   const toast = React.useRef<Toast>(null);
-  const [channelHandler, setChannelHandler] = React.useState<VideoStreamHandlers>(0);
+  const [streamURLPrefix, setStreamURLPrefix] = React.useState<M3UFileStreamUrlPrefix>(0);
 
   React.useMemo(() => {
     if (value && value !== undefined) {
-      setChannelHandler(value);
+      setStreamURLPrefix(value);
     } else {
-      setChannelHandler(0);
+      setStreamURLPrefix(0);
     }
   }, [value]);
 
-  const className = classNames('iconSelector p-0 m-0 w-full z-5 ', propClassName);
+  const className = classNames('p-0 m-0 w-full z-5 ', propClassName);
 
   const onHandlerChange = React.useCallback(
     async (channel: any) => {
@@ -34,12 +34,23 @@ const ChannelHandlerSelector = ({ className: propClassName, onChange, value }: C
     [onChange],
   );
 
+  const getWord = (word: string): string => {
+    if (word === 'SystemDefault') {
+      word = 'Default';
+    } else if (word === 'TS') {
+      word = 'MPEG-TS(.ts)';
+    } else if (word === 'M3U8') {
+      word = 'HLS(.m3u8)';
+    }
+    return word;
+  };
+
   const getHandlersOptions = (): SelectItem[] => {
-    const test = Object.entries(VideoStreamHandlers)
-      .splice(0, Object.keys(VideoStreamHandlers).length / 2)
+    const test = Object.entries(M3UFileStreamUrlPrefix)
+      .splice(0, Object.keys(M3UFileStreamUrlPrefix).length / 2)
       .map(([number, word]) => {
         return {
-          label: word,
+          label: getWord(word as string),
           value: number,
         } as SelectItem;
       });
@@ -50,7 +61,7 @@ const ChannelHandlerSelector = ({ className: propClassName, onChange, value }: C
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
-      <div className="iconSelector flex w-full justify-content-center align-items-center">
+      <div className="flex w-full justify-content-center align-items-center">
         <Dropdown
           className={className}
           onChange={async (e) => {
@@ -66,7 +77,7 @@ const ChannelHandlerSelector = ({ className: propClassName, onChange, value }: C
               whiteSpace: 'nowrap',
             },
           }}
-          value={channelHandler.toString()}
+          value={streamURLPrefix.toString()}
           virtualScrollerOptions={{
             itemSize: 32,
           }}
@@ -76,6 +87,6 @@ const ChannelHandlerSelector = ({ className: propClassName, onChange, value }: C
   );
 };
 
-ChannelHandlerSelector.displayName = 'ChannelHandlerSelector';
+StreamURLPrefixSelector.displayName = 'StreamURLPrefixSelector';
 
-export default React.memo(ChannelHandlerSelector);
+export default React.memo(StreamURLPrefixSelector);

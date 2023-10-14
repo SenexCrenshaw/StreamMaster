@@ -1,9 +1,9 @@
-import { formatToFourDigits } from '@/lib/common/common';
-import { VideoStreamDto, VideoStreamsSetVideoStreamTimeShiftFromParametersApiArg, VideoStreamsSetVideoStreamTimeShiftsApiArg } from '@/lib/iptvApi';
-import { useQueryFilter } from '@/lib/redux/slices/useQueryFilter';
-import { useSelectAll } from '@/lib/redux/slices/useSelectAll';
-import { useSelectedVideoStreams } from '@/lib/redux/slices/useSelectedVideoStreams';
-import { SetVideoStreamTimeShiftFromParameters, SetVideoStreamTimeShifts } from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
+import { formatToFourDigits } from '@lib/common/common';
+import { VideoStreamDto, VideoStreamsSetVideoStreamTimeShiftFromParametersApiArg, VideoStreamsSetVideoStreamTimeShiftsApiArg } from '@lib/iptvApi';
+import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
+import { useSelectAll } from '@lib/redux/slices/useSelectAll';
+import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
+import { SetVideoStreamTimeShiftFromParameters, SetVideoStreamTimeShifts } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import { memo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import ClockButton from '../buttons/ClockButton';
@@ -112,7 +112,7 @@ const VideoStreamSetTimeShiftsDialog = ({ id }: VideoStreamSetTimeShiftsDialogPr
       >
         <div className="flex justify-content-center w-full align-items-center h-full">
           <NumberInput
-            label="Max Streams"
+            label="Time Shift"
             onChange={(e) => {
               setTimshift(e);
             }}

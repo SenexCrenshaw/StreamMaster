@@ -1,58 +1,55 @@
-import { useStreamGroupsGetStreamGroupEpgForGuideQuery } from '@/lib/iptvApi'
-import { useEpg, type Channel, type Program } from 'planby'
-import React from 'react'
+import { useStreamGroupsGetStreamGroupEpgForGuideQuery } from '@lib/iptvApi';
+import { useEpg, type Channel, type Program } from 'planby';
+import React from 'react';
 
 export function useApp(streamGroupNumber: number) {
-  const [channels, setChannels] = React.useState<Channel[]>([])
-  const [epg, setEpg] = React.useState<Program[]>([])
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [channels, setChannels] = React.useState<Channel[]>([]);
+  const [epg, setEpg] = React.useState<Program[]>([]);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
-  const epgForGuide =
-    useStreamGroupsGetStreamGroupEpgForGuideQuery(streamGroupNumber)
+  const epgForGuide = useStreamGroupsGetStreamGroupEpgForGuideQuery(streamGroupNumber);
 
-  const channelsData = React.useMemo(() => channels, [channels])
-  const epgData = React.useMemo(() => epg, [epg])
+  const channelsData = React.useMemo(() => channels, [channels]);
+  const epgData = React.useMemo(() => epg, [epg]);
 
   const startDate = React.useMemo(() => {
-    const sd = new Date()
+    const sd = new Date();
 
-    sd.setMinutes(sd.getMinutes() - 30)
+    sd.setMinutes(sd.getMinutes() - 30);
 
-    return sd
-  }, [])
+    return sd;
+  }, []);
 
   const endDate = React.useMemo(() => {
-    const sd = new Date()
+    const sd = new Date();
 
-    sd.setHours(sd.getHours() + 2)
+    sd.setHours(sd.getHours() + 2);
 
-    return sd
-  }, [])
+    return sd;
+  }, []);
 
   React.useEffect(() => {
     if (epgForGuide.data) {
-      setIsLoading(true)
-      const chs = epgForGuide.data?.channels as Channel[]
+      setIsLoading(true);
+      const chs = epgForGuide.data?.channels as Channel[];
 
-      setChannels(chs)
+      setChannels(chs);
 
-      const sd = new Date()
+      const sd = new Date();
 
-      sd.setHours(sd.getHours() - 24)
+      sd.setHours(sd.getHours() - 24);
 
-      var ed = new Date()
+      var ed = new Date();
 
-      ed.setHours(ed.getHours() + 48)
+      ed.setHours(ed.getHours() + 48);
 
-      const ret = epgForGuide.data?.programs as Program[]
-      const test = ret.filter(
-        (p) => new Date(p.since) >= sd && new Date(p.since) <= ed,
-      )
+      const ret = epgForGuide.data?.programs as Program[];
+      const test = ret.filter((p) => new Date(p.since) >= sd && new Date(p.since) <= ed);
 
-      setEpg(test)
-      setIsLoading(false)
+      setEpg(test);
+      setIsLoading(false);
     }
-  }, [epgForGuide.data])
+  }, [epgForGuide.data]);
 
   const { getEpgProps, getLayoutProps } = useEpg({
     channels: channelsData,
@@ -66,7 +63,7 @@ export function useApp(streamGroupNumber: number) {
     itemHeight: 80,
     sidebarWidth: 80,
     startDate: startDate,
-  })
+  });
 
-  return { getEpgProps, getLayoutProps, isLoading }
+  return { getEpgProps, getLayoutProps, isLoading };
 }

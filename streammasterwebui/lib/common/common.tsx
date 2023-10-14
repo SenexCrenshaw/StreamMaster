@@ -1,8 +1,8 @@
-import { type ColumnMeta } from '@/components/dataSelector/DataSelectorTypes';
-import ExportButton from '@/components/export/ExportButton';
-import GlobalSearch from '@/components/search/GlobalSearch';
-import { SMFileTypes } from '@/lib/common/streammaster_enums';
-import { StationIdLineUp, type ChildVideoStreamDto, type IconFileDto, type VideoStreamDto } from '@/lib/iptvApi';
+import { type ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
+import ExportButton from '@components/export/ExportButton';
+import GlobalSearch from '@components/search/GlobalSearch';
+import { SMFileTypes } from '@lib/common/streammaster_enums';
+import { StationIdLineUp, type ChildVideoStreamDto, type IconFileDto, type VideoStreamDto } from '@lib/iptvApi';
 import { Checkbox } from 'primereact/checkbox';
 import { type DataTableFilterMeta, type DataTableFilterMetaData } from 'primereact/datatable';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';

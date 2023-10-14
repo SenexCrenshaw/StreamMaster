@@ -1,8 +1,8 @@
-import { formatJSONDateString, getTopToolOptions } from '@/lib/common/common';
-import { useEpgFilesGetPagedEpgFilesQuery, useEpgFilesUpdateEpgFileMutation, type EpgFileDto, type M3UFileDto, type UpdateEpgFileRequest } from '@/lib/iptvApi';
+import { formatJSONDateString, getTopToolOptions } from '@lib/common/common';
+import { useEpgFilesGetPagedEpgFilesQuery, useEpgFilesUpdateEpgFileMutation, type EpgFileDto, type M3UFileDto, type UpdateEpgFileRequest } from '@lib/iptvApi';
 import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
 import { Toast } from 'primereact/toast';
-import { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react';
+import { memo, useCallback, useMemo, useRef } from 'react';
 import NumberEditorBodyTemplate from '../NumberEditorBodyTemplate';
 import StringEditorBodyTemplate from '../StringEditorBodyTemplate';
 import DataSelector from '../dataSelector/DataSelector';
@@ -126,25 +126,27 @@ const EPGFilesDataSelector = () => {
 
       return (
         <div className="flex grid p-0 justify-content-end align-items-center">
-          <div className="col-6 p-0 justify-content-end align-items-center">
-            <Checkbox
-              checked={rowData.autoUpdate}
-              onChange={async (e: CheckboxChangeEvent) => {
-                await onEPGUpdateClick(rowData.id, e.checked ?? false);
-              }}
-              tooltip="Enable Auto Update"
-              tooltipOptions={getTopToolOptions}
-            />
+          <div className="col-8 flex p-0 justify-content-between align-items-center">
+            <div className="col-8 flex p-0 justify-content-between align-items-center">
+              <Checkbox
+                checked={rowData.autoUpdate}
+                onChange={async (e: CheckboxChangeEvent) => {
+                  await onEPGUpdateClick(rowData.id, e.checked ?? false);
+                }}
+                tooltip="Enable Auto Update"
+                tooltipOptions={getTopToolOptions}
+              />
 
-            <NumberEditorBodyTemplate
-              onChange={async (e) => {
-                await onEPGUpdateClick(rowData.id, null, e);
-              }}
-              suffix=" hours"
-              value={rowData.hoursToUpdate}
-            />
+              <NumberEditorBodyTemplate
+                onChange={async (e) => {
+                  await onEPGUpdateClick(rowData.id, null, e);
+                }}
+                suffix=" hours"
+                value={rowData.hoursToUpdate}
+              />
+            </div>
           </div>
-          <div className="col-6 p-0 justify-content-end align-items-center">
+          <div className="col-4 p-0 justify-content-end align-items-center">
             <EPGFileRefreshDialog selectedFile={rowData} />
             <EPGFileRemoveDialog selectedFile={rowData} />
           </div>
@@ -187,7 +189,7 @@ const EPGFilesDataSelector = () => {
     [onEPGUpdateClick],
   );
 
-  const sourceColumns = useMemo((): ColumnMeta[] => {
+  const columns = useMemo((): ColumnMeta[] => {
     return [
       {
         bodyTemplate: nameEditorBodyTemplate,
@@ -195,28 +197,28 @@ const EPGFilesDataSelector = () => {
         filter: true,
         header: 'Name',
         sortable: true,
+        width: '32rem',
       },
       {
         bodyTemplate: lastDownloadedTemplate,
         field: 'lastDownloaded',
         header: 'Downloaded',
         sortable: true,
+        width: '12rem',
       },
       {
         bodyTemplate: programmeCountTemplate,
         field: 'programmeCount',
         header: 'Programmes',
         sortable: true,
+        width: '20rem',
       },
       { bodyTemplate: urlEditorBodyTemplate, field: 'url', sortable: true },
       {
         align: 'center',
         bodyTemplate: targetActionBodyTemplate,
         field: 'autoUpdate',
-        style: {
-          maxWidth: '8rem',
-          width: '8rem',
-        } as CSSProperties,
+        width: '10rem',
       },
     ];
   }, [lastDownloadedTemplate, nameEditorBodyTemplate, programmeCountTemplate, targetActionBodyTemplate, urlEditorBodyTemplate]);
@@ -225,7 +227,7 @@ const EPGFilesDataSelector = () => {
     <>
       <Toast position="bottom-right" ref={toast} />
       <DataSelector
-        columns={sourceColumns}
+        columns={columns}
         emptyMessage="No EPG Files"
         id="epgfilesdataselector"
         queryFilter={useEpgFilesGetPagedEpgFilesQuery}

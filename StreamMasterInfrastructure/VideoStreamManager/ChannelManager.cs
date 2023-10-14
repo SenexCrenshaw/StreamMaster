@@ -290,7 +290,7 @@ public class ChannelManager : IDisposable, IChannelManager
 
             List<M3UFileDto> m3uFilesRepo = await repository.M3UFile.GetM3UFiles();
 
-            m3uFile = m3uFilesRepo.FirstOrDefault(a => a.Id == newVideoStream.M3UFileId);
+            m3uFile = m3uFilesRepo.Find(a => a.Id == newVideoStream.M3UFileId);
             if (m3uFile == null)
             {
                 if (GetGlobalStreamsCount() >= setting.GlobalStreamLimit)
@@ -323,7 +323,7 @@ public class ChannelManager : IDisposable, IChannelManager
         if (result == null)
         {
             _logger.LogError("GetNextChildVideoStream could not get videoStream for id {VideoStreamId}", channelStatus.VideoStreamId);
-            _logger.LogDebug($"Exiting GetNextChildVideoStream with null due to result being null");
+            _logger.LogDebug("Exiting GetNextChildVideoStream with null due to result being null");
             return null;
         }
 
@@ -331,7 +331,7 @@ public class ChannelManager : IDisposable, IChannelManager
         if (!videoStreams.Any())
         {
             _logger.LogError("GetNextChildVideoStream could not get child videoStreams for id {VideoStreamId}", channelStatus.VideoStreamId);
-            _logger.LogDebug($"Exiting GetNextChildVideoStream with null due to no child videoStreams found");
+            _logger.LogDebug("Exiting GetNextChildVideoStream with null due to no child videoStreams found");
             return null;
         }
 
@@ -347,7 +347,7 @@ public class ChannelManager : IDisposable, IChannelManager
             ChildVideoStreamDto toReturn = videoStreams[channelStatus.Rank++];
             List<M3UFileDto> m3uFilesRepo = await repository.M3UFile.GetM3UFiles().ConfigureAwait(false);
 
-            m3uFile = m3uFilesRepo.FirstOrDefault(a => a.Id == toReturn.M3UFileId);
+            m3uFile = m3uFilesRepo.Find(a => a.Id == toReturn.M3UFileId);
             if (m3uFile == null)
             {
                 if (GetGlobalStreamsCount() >= setting.GlobalStreamLimit)
@@ -367,6 +367,11 @@ public class ChannelManager : IDisposable, IChannelManager
                     _logger.LogInformation("Max stream count {MaxStreams} reached for stream: {StreamUrl}", toReturn.MaxStreams, toReturn.User_Url);
                     continue;
                 }
+
+                //if (m3uFile.StreamURLPrefix != M3UFileStreamURLPrefix.SystemDefault)
+                //{
+                //    toReturn.User_Url = ChangeExtensionBasedOnEnum(toReturn.User_Url, m3uFile.StreamURLPrefix);
+                //}
             }
 
             _logger.LogDebug($"Exiting GetNextChildVideoStream with toReturn: {toReturn}");
@@ -376,6 +381,30 @@ public class ChannelManager : IDisposable, IChannelManager
         _logger.LogDebug($"Exiting GetNextChildVideoStream with null due to no suitable videoStream found");
         return null;
     }
+
+    //public static string ChangeExtensionBasedOnEnum(string originalUrl, M3UFileStreamURLPrefix prefix)
+    //{
+    //    Uri uri = new(originalUrl);
+    //    string filename = Path.GetFileName(uri.LocalPath);
+    //    string newFilename = "";
+
+    //    switch (prefix)
+    //    {
+    //        case M3UFileStreamURLPrefix.SystemDefault:
+    //            newFilename = filename;
+    //            break;
+
+    //        case M3UFileStreamURLPrefix.TS:
+    //            newFilename = System.IO.Path.ChangeExtension(filename, ".ts");
+    //            break;
+
+    //        case M3UFileStreamURLPrefix.M3U8:
+    //            newFilename = System.IO.Path.ChangeExtension(filename, ".m3u8");
+    //            break;
+    //    }
+
+    //    return originalUrl.Replace(filename, newFilename);
+    //}
 
     private async Task<bool> HandleNextVideoStream(ChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
     {

@@ -1,6 +1,6 @@
-import { formatToFourDigits } from '@/lib/common/common';
-import { type UpdateVideoStreamRequest, type VideoStreamDto } from '@/lib/iptvApi';
-import { UpdateVideoStream } from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
+import { formatToFourDigits } from '@lib/common/common';
+import { type UpdateVideoStreamRequest, type VideoStreamDto } from '@lib/iptvApi';
+import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import { memo, useEffect, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import ClockButton from '../buttons/ClockButton';
@@ -66,7 +66,7 @@ const VideoStreamSetTimeShiftDialog = ({ iconFilled, onClose, value }: VideoStre
       >
         <div className="flex justify-content-center w-full align-items-center h-full">
           <NumberInput
-            label="Max Streams"
+            label="Time Shift"
             onChange={(e) => {
               setTimshift(e);
             }}

@@ -1,51 +1,44 @@
-import { getTopToolOptions } from '@/lib/common/common'
-import {
-  useVideoStreamsCreateVideoStreamMutation,
-  type CreateVideoStreamRequest,
-} from '@/lib/iptvApi'
-import { Button } from 'primereact/button'
-import { memo, useState } from 'react'
+import { getTopToolOptions } from '@lib/common/common';
+import { useVideoStreamsCreateVideoStreamMutation, type CreateVideoStreamRequest } from '@lib/iptvApi';
+import { Button } from 'primereact/button';
+import { memo, useState } from 'react';
 
-import VideoStreamPanel from '@/features/videoStreamPanel/VideoStreamPanel'
-import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog'
+import VideoStreamPanel from '@components/videoStreamPanel/VideoStreamPanel';
+import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 
 type VideoStreamAddDialogProps = {
-  readonly group?: string | undefined
-  readonly onClose?: () => void
-}
+  readonly group?: string | undefined;
+  readonly onClose?: () => void;
+};
 
-const VideoStreamAddDialog = ({
-  group,
-  onClose,
-}: VideoStreamAddDialogProps) => {
-  const [block, setBlock] = useState<boolean>(false)
-  const [showOverlay, setShowOverlay] = useState<boolean>(false)
-  const [infoMessage, setInfoMessage] = useState('')
-  const [videoStreamsCreateVideoStreamMutation] =
-    useVideoStreamsCreateVideoStreamMutation()
+const VideoStreamAddDialog = ({ group, onClose }: VideoStreamAddDialogProps) => {
+  const [block, setBlock] = useState<boolean>(false);
+  const [showOverlay, setShowOverlay] = useState<boolean>(false);
+  const [infoMessage, setInfoMessage] = useState('');
+  const [videoStreamsCreateVideoStreamMutation] = useVideoStreamsCreateVideoStreamMutation();
 
   const ReturnToParent = () => {
-    setShowOverlay(false)
-    setInfoMessage('')
-    setBlock(false)
-    onClose?.()
-  }
+    setShowOverlay(false);
+    setInfoMessage('');
+    setBlock(false);
+    onClose?.();
+  };
 
   const onSave = async (data: CreateVideoStreamRequest) => {
     if (data === null || data === undefined) {
-      return
+      return;
     }
 
-    setBlock(true)
+    setBlock(true);
 
     await videoStreamsCreateVideoStreamMutation(data)
       .then(() => {
-        setInfoMessage('Add Stream Successful')
+        setInfoMessage('Add Stream Successful');
       })
       .catch((error) => {
-        setInfoMessage('Add Stream Error: ' + error.message)
-      })
-  }
+        setInfoMessage('Add Stream Error: ' + error.message);
+      });
+  };
 
   return (
     <>
@@ -55,7 +48,7 @@ const VideoStreamAddDialog = ({
         header="Add Video Stream"
         infoMessage={infoMessage}
         onClose={() => {
-          ReturnToParent()
+          ReturnToParent();
         }}
         overlayColSize={6}
         show={showOverlay}
@@ -73,9 +66,9 @@ const VideoStreamAddDialog = ({
         tooltipOptions={getTopToolOptions}
       />
     </>
-  )
-}
+  );
+};
 
-VideoStreamAddDialog.displayName = 'VideoStreamAddDialog'
+VideoStreamAddDialog.displayName = 'VideoStreamAddDialog';
 
-export default memo(VideoStreamAddDialog)
+export default memo(VideoStreamAddDialog);

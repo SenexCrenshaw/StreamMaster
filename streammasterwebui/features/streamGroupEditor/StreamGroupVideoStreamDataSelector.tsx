@@ -3,18 +3,18 @@ import {
   useChannelNameColumnConfig,
   useChannelNumberColumnConfig,
   useM3UFileNameColumnConfig,
-} from '@/components/columns/columnConfigHooks';
-import DataSelector from '@/components/dataSelector/DataSelector';
-import { ColumnMeta } from '@/components/dataSelector/DataSelectorTypes';
-import { TriSelectShowHidden } from '@/components/selectors/TriSelectShowHidden';
-import { GetMessage } from '@/lib/common/common';
+} from '@components/columns/columnConfigHooks';
+import DataSelector from '@components/dataSelector/DataSelector';
+import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
+import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
+import { GetMessage } from '@lib/common/common';
 import {
   StreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostApiArg,
   useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery,
   useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostMutation,
   useVideoStreamsGetPagedVideoStreamsQuery,
-} from '@/lib/iptvApi';
-import { useSelectedStreamGroup } from '@/lib/redux/slices/useSelectedStreamGroup';
+} from '@lib/iptvApi';
+import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 import { skipToken } from '@reduxjs/toolkit/dist/query';
 import { type DataTableRowClickEvent } from 'primereact/datatable';
 import { memo, useMemo } from 'react';

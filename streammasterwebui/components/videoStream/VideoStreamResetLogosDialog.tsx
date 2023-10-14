@@ -1,110 +1,98 @@
-import { getTopToolOptions } from '@/lib/common/common'
-import { ResetLogoIcon } from '@/lib/common/icons'
-import {
-  type ReSetVideoStreamsLogoRequest,
-  type VideoStreamDto,
-  type VideoStreamsReSetVideoStreamsLogoFromParametersApiArg,
-} from '@/lib/iptvApi'
-import { useQueryFilter } from '@/lib/redux/slices/useQueryFilter'
-import { useSelectAll } from '@/lib/redux/slices/useSelectAll'
-import { useSelectedVideoStreams } from '@/lib/redux/slices/useSelectedVideoStreams'
-import {
-  ReSetVideoStreamsLogo,
-  ReSetVideoStreamsLogoFromParameters,
-} from '@/lib/smAPI/VideoStreams/VideoStreamsMutateAPI'
-import { Button } from 'primereact/button'
-import { memo, useCallback, useMemo, useState } from 'react'
-import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog'
-import OKButton from '../buttons/OKButton'
+import { getTopToolOptions } from '@lib/common/common';
+import { ResetLogoIcon } from '@lib/common/icons';
+import { type ReSetVideoStreamsLogoRequest, type VideoStreamDto, type VideoStreamsReSetVideoStreamsLogoFromParametersApiArg } from '@lib/iptvApi';
+import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
+import { useSelectAll } from '@lib/redux/slices/useSelectAll';
+import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
+import { ReSetVideoStreamsLogo, ReSetVideoStreamsLogoFromParameters } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
+import { Button } from 'primereact/button';
+import { memo, useCallback, useMemo, useState } from 'react';
+import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
+import OKButton from '../buttons/OKButton';
 
 type VideoStreamResetLogosDialogProps = {
-  readonly id: string
-}
+  readonly id: string;
+};
 
-const VideoStreamResetLogosDialog = ({
-  id,
-}: VideoStreamResetLogosDialogProps) => {
-  const [showOverlay, setShowOverlay] = useState<boolean>(false)
-  const [infoMessage, setInfoMessage] = useState('')
-  const [block, setBlock] = useState<boolean>(false)
-  const { selectAll } = useSelectAll(id)
-  const { queryFilter } = useQueryFilter(id)
+const VideoStreamResetLogosDialog = ({ id }: VideoStreamResetLogosDialogProps) => {
+  const [showOverlay, setShowOverlay] = useState<boolean>(false);
+  const [infoMessage, setInfoMessage] = useState('');
+  const [block, setBlock] = useState<boolean>(false);
+  const { selectAll } = useSelectAll(id);
+  const { queryFilter } = useQueryFilter(id);
 
-  const { selectedVideoStreams } = useSelectedVideoStreams(id)
+  const { selectedVideoStreams } = useSelectedVideoStreams(id);
 
   const ReturnToParent = () => {
-    setShowOverlay(false)
-    setInfoMessage('')
-    setBlock(false)
-  }
+    setShowOverlay(false);
+    setInfoMessage('');
+    setBlock(false);
+  };
 
   const onSetLogoSave = useCallback(async () => {
-    setBlock(true)
+    setBlock(true);
 
     if (selectAll === true) {
       if (!queryFilter) {
-        ReturnToParent()
+        ReturnToParent();
 
-        return
+        return;
       }
 
-      const toSendAll =
-        {} as VideoStreamsReSetVideoStreamsLogoFromParametersApiArg
+      const toSendAll = {} as VideoStreamsReSetVideoStreamsLogoFromParametersApiArg;
 
-      toSendAll.parameters = queryFilter
+      toSendAll.parameters = queryFilter;
 
       await ReSetVideoStreamsLogoFromParameters(toSendAll)
         .then(() => {
-          setInfoMessage('Set Streams Successfully')
+          setInfoMessage('Set Streams Successfully');
         })
         .catch((error) => {
-          setInfoMessage('Set Streams Error: ' + error.message)
-        })
+          setInfoMessage('Set Streams Error: ' + error.message);
+        });
 
-      return
+      return;
     }
 
-    const ids = [
-      ...new Set(selectedVideoStreams.map((item: VideoStreamDto) => item.id)),
-    ] as string[]
+    const ids = [...new Set(selectedVideoStreams.map((item: VideoStreamDto) => item.id))] as string[];
 
-    const toSend = {} as ReSetVideoStreamsLogoRequest
-    const max = 500
+    const toSend = {} as ReSetVideoStreamsLogoRequest;
+    const max = 500;
 
-    let count = 0
+    let count = 0;
 
-    const promises = []
+    const promises = [];
 
     while (count < ids.length) {
       if (count + max < ids.length) {
-        toSend.ids = ids.slice(count, count + max)
+        toSend.ids = ids.slice(count, count + max);
       } else {
-        toSend.ids = ids.slice(count, ids.length)
+        toSend.ids = ids.slice(count, ids.length);
       }
 
-      count += max
+      count += max;
       promises.push(
         ReSetVideoStreamsLogo(toSend)
           .then(() => {})
           .catch(() => {}),
-      )
+      );
     }
 
-    const p = Promise.all(promises)
+    const p = Promise.all(promises);
 
     await p
       .then(() => {
-        setInfoMessage('Successful')
+        setInfoMessage('Successful');
         // onChange?.(ret);
       })
       .catch((error) => {
-        setInfoMessage('Error: ' + error.message)
-      })
-  }, [queryFilter, selectAll, selectedVideoStreams])
+        setInfoMessage('Error: ' + error.message);
+      });
+  }, [queryFilter, selectAll, selectedVideoStreams]);
 
   const getTotalCount = useMemo(() => {
-    return selectedVideoStreams.length
-  }, [selectedVideoStreams.length])
+    return selectedVideoStreams.length;
+  }, [selectedVideoStreams.length]);
 
   return (
     <>
@@ -114,16 +102,13 @@ const VideoStreamResetLogosDialog = ({
         header="Reset Logo to original"
         infoMessage={infoMessage}
         onClose={() => {
-          ReturnToParent()
+          ReturnToParent();
         }}
         overlayColSize={4}
         show={showOverlay}
       >
         <div className="flex justify-content-center w-full align-items-center h-full">
-          <OKButton
-            label="Reset Logo"
-            onClick={async () => await onSetLogoSave()}
-          />
+          <OKButton label="Reset Logo" onClick={async () => await onSetLogoSave()} />
         </div>
       </InfoMessageOverLayDialog>
 
@@ -137,9 +122,9 @@ const VideoStreamResetLogosDialog = ({
         tooltipOptions={getTopToolOptions}
       />
     </>
-  )
-}
+  );
+};
 
-VideoStreamResetLogosDialog.displayName = 'Auto Set Channel Numbers'
+VideoStreamResetLogosDialog.displayName = 'Auto Set Channel Numbers';
 
-export default memo(VideoStreamResetLogosDialog)
+export default memo(VideoStreamResetLogosDialog);

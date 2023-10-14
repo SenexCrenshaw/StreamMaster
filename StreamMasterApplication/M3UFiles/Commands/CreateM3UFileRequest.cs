@@ -1,8 +1,4 @@
-﻿using FluentValidation;
-
-using Microsoft.AspNetCore.Http;
-
-using StreamMasterDomain.Models;
+﻿using Microsoft.AspNetCore.Http;
 
 using System.Web;
 
@@ -10,25 +6,9 @@ namespace StreamMasterApplication.M3UFiles.Commands;
 
 public record CreateM3UFileRequest(string? Description, int MaxStreamCount, int? StartingChannelNumber, IFormFile? FormFile, string Name, string? UrlSource) : IRequest<bool> { }
 
-public class CreateM3UFileRequestValidator : AbstractValidator<CreateM3UFileRequest>
-{
-    public CreateM3UFileRequestValidator()
-    {
-        _ = RuleFor(v => v.Name)
-            .MaximumLength(32)
-            .NotEmpty();
-
-        _ = RuleFor(v => v.UrlSource).NotEmpty().When(v => v.FormFile == null);
-        _ = RuleFor(v => v.FormFile).NotNull().When(v => string.IsNullOrEmpty(v.UrlSource));
-    }
-}
-
 [LogExecutionTimeAspect]
-public class CreateM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestHandler<CreateM3UFileRequest, bool>
+public class CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<CreateM3UFileRequest, bool>
 {
-    public CreateM3UFileRequestHandler(ILogger<CreateM3UFileRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-    : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { }
-
     public async Task<bool> Handle(CreateM3UFileRequest command, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(command.UrlSource) && command.FormFile != null && command.FormFile.Length <= 0)
@@ -48,6 +28,7 @@ public class CreateM3UFileRequestHandler : BaseMediatorRequestHandler, IRequestH
                 Name = command.Name,
                 Source = command.Name + fd.FileExtension,
                 StartingChannelNumber = command.StartingChannelNumber == null ? 1 : (int)command.StartingChannelNumber,
+                //StreamURLPrefix = command.StreamURLPrefixInt == null ? M3UFileStreamURLPrefix.SystemDefault : (M3UFileStreamURLPrefix)command.StreamURLPrefixInt
             };
 
             if (command.FormFile != null)

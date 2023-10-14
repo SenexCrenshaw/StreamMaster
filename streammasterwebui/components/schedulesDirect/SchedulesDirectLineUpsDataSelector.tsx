@@ -1,26 +1,18 @@
-import { useSchedulesDirectGetLineupsQuery } from '@/lib/iptvApi'
-import { memo, useMemo } from 'react'
-import DataSelector from '../dataSelector/DataSelector'
-import { type ColumnMeta } from '../dataSelector/DataSelectorTypes'
+import { useSchedulesDirectGetLineupsQuery } from '@lib/iptvApi';
+import { memo, useMemo } from 'react';
+import DataSelector from '../dataSelector/DataSelector';
+import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 
 type SchedulesDirectLineUpsDataSelectorProps = {
-  id: string
-}
-const SchedulesDirectLineUpsDataSelector = ({
-  id,
-}: SchedulesDirectLineUpsDataSelectorProps) => {
-  const getLineUpsQuery = useSchedulesDirectGetLineupsQuery()
+  id: string;
+};
+const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSelectorProps) => {
+  const getLineUpsQuery = useSchedulesDirectGetLineupsQuery();
 
   const sourceColumns = useMemo((): ColumnMeta[] => {
-    return [
-      { field: 'lineup' },
-      { field: 'location' },
-      { field: 'name' },
-      { field: 'transport' },
-      { field: 'isDeleted' },
-    ]
-  }, [])
-  console.log(getLineUpsQuery.data?.lineups)
+    return [{ field: 'lineup' }, { field: 'location' }, { field: 'name' }, { field: 'transport' }, { field: 'isDeleted' }];
+  }, []);
+  console.log(getLineUpsQuery.data?.lineups);
   return (
     <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border">
       {/* <h3><span className='text-bold'>LineUps | </span><span className='text-bold text-blue-500'>{props.country}</span> - <span className='text-bold text-500'>{props.postalCode}</span></h3> */}
@@ -36,7 +28,7 @@ const SchedulesDirectLineUpsDataSelector = ({
       />
       {/* <SchedulesDirectLineUpPreviewDataSelector lineUps={getLineUpsQuery.data?.lineups} /> */}
     </div>
-  )
-}
+  );
+};
 
-export default memo(SchedulesDirectLineUpsDataSelector)
+export default memo(SchedulesDirectLineUpsDataSelector);

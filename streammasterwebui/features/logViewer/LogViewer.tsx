@@ -1,12 +1,12 @@
 'use client';
 
-import { invokeHubConnection } from '@/lib/signalr/signalr';
 import StandardHeader from '@components/StandardHeader';
 import DownArrowButton from '@components/buttons/DownArrowButton';
 import { ExportComponent, formatJSONDateString } from '@lib/common/common';
 import { LogIcon } from '@lib/common/icons';
 import useScrollAndKeyEvents from '@lib/hooks/useScrollAndKeyEvents';
 import { LogEntry, LogEntryDto, LogsGetLogApiArg } from '@lib/iptvApi';
+import { invokeHubConnection } from '@lib/signalr/signalr';
 
 import { FilterMatchMode } from 'primereact/api';
 import { Column } from 'primereact/column';

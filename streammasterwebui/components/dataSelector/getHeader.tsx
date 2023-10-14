@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 
-import { camel2title } from '@/lib/common/common';
+import { camel2title } from '@lib/common/common';
 import { type ColumnFieldType } from './DataSelectorTypes';
 
 function getHeader(field: string, header: string | undefined, fieldType: ColumnFieldType | undefined): ReactNode {
