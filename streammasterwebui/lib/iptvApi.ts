@@ -486,6 +486,13 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/streamgroupvideostreams/syncvideostreamtostreamgroup`, method: 'DELETE', body: queryArg }),
         invalidatesTags: ['StreamGroupVideoStreams'],
       }),
+      streamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbers: build.mutation<
+        StreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersApiResponse,
+        StreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/streamgroupvideostreams/setstreamgroupvideostreamchannelnumbers`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['StreamGroupVideoStreams'],
+      }),
       videoStreamLinksAddVideoStreamToVideoStream: build.mutation<
         VideoStreamLinksAddVideoStreamToVideoStreamApiResponse,
         VideoStreamLinksAddVideoStreamToVideoStreamApiArg
@@ -939,6 +946,8 @@ export type StreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostApiResponse =
 export type StreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostApiArg = SyncVideoStreamToStreamGroupRequest;
 export type StreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteApiResponse = unknown;
 export type StreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteApiArg = SyncVideoStreamToStreamGroupRequest;
+export type StreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersApiResponse = unknown;
+export type StreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersApiArg = SetStreamGroupVideoStreamChannelNumbersRequest;
 export type VideoStreamLinksAddVideoStreamToVideoStreamApiResponse = unknown;
 export type VideoStreamLinksAddVideoStreamToVideoStreamApiArg = AddVideoStreamToVideoStreamRequest;
 export type VideoStreamLinksGetVideoStreamVideoStreamIdsApiResponse = /** status 200  */ string[];
@@ -1809,6 +1818,11 @@ export type SyncVideoStreamToStreamGroupRequest = {
   streamGroupId: number;
   videoStreamId: string;
 };
+export type SetStreamGroupVideoStreamChannelNumbersRequest = {
+  streamGroupId?: number;
+  startingNumber?: number;
+  orderBy?: string;
+};
 export type AddVideoStreamToVideoStreamRequest = {
   parentVideoStreamId: string;
   childVideoStreamId: string;
@@ -2013,6 +2027,7 @@ export const {
   useStreamGroupVideoStreamsSetVideoStreamRanksMutation,
   useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostMutation,
   useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteMutation,
+  useStreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersMutation,
   useVideoStreamLinksAddVideoStreamToVideoStreamMutation,
   useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery,
   useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery,

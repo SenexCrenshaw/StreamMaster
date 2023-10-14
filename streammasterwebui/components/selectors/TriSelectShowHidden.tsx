@@ -20,7 +20,7 @@ export const TriSelectShowHidden = ({ dataKey }: TriSelectProps) => {
 
     return 'Show Hidden';
   }, [showHidden]);
-  console.log('showHidden', dataKey, showHidden);
+
   return (
     <TriStateCheckbox
       className="sm-tristatecheckbox"

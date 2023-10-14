@@ -9,6 +9,7 @@ namespace StreamMasterApplication.StreamGroupVideoStreams;
 
 public interface IStreamGroupVideoStreamController
 {
+    Task<IActionResult> SetStreamGroupVideoStreamChannelNumbers(SetStreamGroupVideoStreamChannelNumbersRequest request, CancellationToken cancellationToken);
     Task<IActionResult> SetVideoStreamRanks(SetVideoStreamRanksRequest request, CancellationToken cancellationToken);
     Task<ActionResult<PagedResponse<VideoStreamDto>>> GetPagedStreamGroupVideoStreams(StreamGroupVideoStreamParameters Parameters, CancellationToken cancellationToken = default);
 
@@ -22,11 +23,9 @@ public interface IStreamGroupVideoStreamController
 
 public interface IStreamGroupVideoStreamHub
 {
+    Task SetStreamGroupVideoStreamChannelNumbers(SetStreamGroupVideoStreamChannelNumbersRequest request);
     Task SetVideoStreamRanks(SetVideoStreamRanksRequest request, CancellationToken cancellationToken);
     Task SyncVideoStreamToStreamGroup(SyncVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken);
-    //Task RemoveVideoStreamFromStreamGroup(RemoveVideoStreamFromStreamGroupRequest request, CancellationToken cancellationToken);
-
-    //Task AddVideoStreamToStreamGroup(AddVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken);
 
     Task<PagedResponse<VideoStreamDto>> GetPagedStreamGroupVideoStreams(StreamGroupVideoStreamParameters Parameters, CancellationToken cancellationToken = default);
 

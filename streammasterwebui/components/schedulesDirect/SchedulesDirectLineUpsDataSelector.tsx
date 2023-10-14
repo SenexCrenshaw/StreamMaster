@@ -18,6 +18,7 @@ const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSe
       {/* <h3><span className='text-bold'>LineUps | </span><span className='text-bold text-blue-500'>{props.country}</span> - <span className='text-bold text-500'>{props.postalCode}</span></h3> */}
       <DataSelector
         columns={sourceColumns}
+        defaultSortField="name"
         dataSource={getLineUpsQuery.data?.lineups}
         emptyMessage="No Streams"
         id={id}

@@ -279,10 +279,18 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 
         try
         {
-            return RepositoryContext.Set<T>()
-                    .Where(expression)
-                    .OrderBy(orderBy)  // Assuming you have an extension method or library that supports this.
-                    .AsNoTracking();
+            IQueryable<T> test = RepositoryContext.Set<T>().Where(expression).AsNoTracking();
+            if (!orderBy.Contains(','))
+            {
+                return test.OrderBy(orderBy);
+            }
+            string[] orderByParts = orderBy.Trim().Split(',');
+            foreach (string orderByPart in orderByParts)
+            {
+                test = test.OrderBy(orderByPart);
+            }
+
+            return test;
         }
         catch (Exception ex)
         {

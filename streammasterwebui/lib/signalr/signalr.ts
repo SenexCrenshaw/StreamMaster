@@ -24,7 +24,7 @@ export function isSignalRConnected() {
 }
 
 const blacklistedMethods: string[] = ['GetLog', 'GetIconFromSource'];
-const whitelistedMethods: string[] = ['GetProgrammeFromDisplayNameNone'];
+const whitelistedMethods: string[] = ['SetStreamGroupVideoStreamChannelNumbers'];
 
 export const invokeHubConnection = async <T>(methodName: string, arg?: any): Promise<T | null> => {
   if (hubConnection.state !== 'Connected') return null;

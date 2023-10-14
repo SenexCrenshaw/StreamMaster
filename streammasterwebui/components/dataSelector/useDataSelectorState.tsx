@@ -33,10 +33,12 @@ const useDataSelectorState = <T extends DataTableValue>(id: string, selectedItem
   const [videoStreamIsReadOnlys, setVideoStreamIsReadOnlys] = useState<VideoStreamIsReadOnly[]>([]);
 
   const setSortField = (value: string) => {
+    // console.log('setSortField', id, value);
     setSortInfo({ sortField: value });
   };
 
   const setSortOrder = (value: -1 | 0 | 1) => {
+    // console.log('sortOrder', id, value);
     setSortInfo({ sortOrder: value });
   };
 

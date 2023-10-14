@@ -1,4 +1,4 @@
-import { type ConfigFile } from '@rtk-query/codegen-openapi'
+import { type ConfigFile } from '@rtk-query/codegen-openapi';
 
 const config: ConfigFile = {
   apiFile: './lib/redux/emptyApi.ts',
@@ -23,6 +23,6 @@ const config: ConfigFile = {
   //     filterEndpoints: [/files/i],
   //   },
   // },
-}
+};
 
-export default config
+export default config;

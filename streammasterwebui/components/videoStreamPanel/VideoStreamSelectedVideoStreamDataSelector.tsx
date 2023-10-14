@@ -1,4 +1,3 @@
-import { useChannelNameColumnConfig, useChannelNumberColumnConfig } from '@components/columns/columnConfigHooks';
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { GetMessage } from '@lib/common/common';
@@ -6,6 +5,8 @@ import { ChildVideoStreamDto, VideoStreamsUpdateVideoStreamApiArg, useVideoStrea
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import { memo, useCallback, useEffect, useMemo, type CSSProperties } from 'react';
+import { useChannelNameColumnConfig } from '../columns/useChannelNameColumnConfig';
+import { useChannelNumberColumnConfig } from '../columns/useChannelNumberColumnConfig';
 import VideoStreamRemoveFromVideoStreamDialog from './VideoStreamRemoveFromVideoStreamDialog';
 
 type VideoStreamSelectedVideoStreamDataSelectorProps = {
@@ -91,7 +92,7 @@ const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: Video
   return (
     <DataSelector
       columns={targetColumns}
-      defaultSortField="user_tvg_name"
+      defaultSortField="user_Tvg_name"
       emptyMessage="No Streams"
       headerName={GetMessage('streams')}
       headerRightTemplate={rightHeaderTemplate()}

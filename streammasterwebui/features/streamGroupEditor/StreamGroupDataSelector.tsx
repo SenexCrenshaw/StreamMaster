@@ -61,6 +61,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProps) => {
   return (
     <DataSelector
       columns={StreamGroupColumns}
+      defaultSortField="name"
       headerName="Stream Groups"
       headerRightTemplate={sourceAddtionalHeaderTemplate()}
       id={id + '-ds-source'}
@@ -69,7 +70,7 @@ const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProps) => {
       }}
       queryFilter={useStreamGroupsGetPagedStreamGroupsQuery}
       selectedItemsKey="selectSelectedStreamGroupDtoItems"
-      style={{ height: 'calc(100vh - 40px)' }}
+      style={{ height: 'calc(100vh - 60px)' }}
     />
   );
 };

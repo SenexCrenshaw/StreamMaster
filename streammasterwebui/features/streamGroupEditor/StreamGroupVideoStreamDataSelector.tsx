@@ -1,9 +1,7 @@
-import {
-  useChannelGroupColumnConfig,
-  useChannelNameColumnConfig,
-  useChannelNumberColumnConfig,
-  useM3UFileNameColumnConfig,
-} from '@components/columns/columnConfigHooks';
+import { useChannelGroupColumnConfig } from '@/components/columns/useChannelGroupColumnConfig';
+import { useChannelNameColumnConfig } from '@/components/columns/useChannelNameColumnConfig';
+import { useChannelNumberColumnConfig } from '@/components/columns/useChannelNumberColumnConfig';
+import { useM3UFileNameColumnConfig } from '@/components/columns/useM3UFileNameColumnConfig';
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
@@ -80,7 +78,7 @@ const StreamGroupVideoStreamDataSelector = ({ id }: StreamGroupVideoStreamDataSe
   return (
     <DataSelector
       columns={targetColumns}
-      defaultSortField="user_tvg_name"
+      defaultSortField="user_Tvg_name"
       defaultSortOrder={1}
       emptyMessage="No Streams"
       headerName={GetMessage('streams')}
@@ -91,7 +89,7 @@ const StreamGroupVideoStreamDataSelector = ({ id }: StreamGroupVideoStreamDataSe
       queryFilter={useVideoStreamsGetPagedVideoStreamsQuery}
       selectedItemsKey="selectSelectedStreamGroupDtoItems"
       selectionMode="single"
-      style={{ height: 'calc(100vh - 40px)' }}
+      style={{ height: 'calc(100vh - 60px)' }}
       videoStreamIdsIsReadOnly={(streamGroupsGetStreamGroupVideoStreamIdsQuery.data ?? []).map((x) => x.videoStreamId ?? '')}
     />
   );

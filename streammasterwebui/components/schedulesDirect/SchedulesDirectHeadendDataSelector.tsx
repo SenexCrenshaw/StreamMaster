@@ -36,6 +36,7 @@ const SchedulesDirectHeadendDataSelector = (props: SchedulesDirectHeadendDataSel
       </h3>
       <DataSelector
         columns={sourceColumns}
+        defaultSortField="name"
         dataSource={getHeadendsQuery.data}
         emptyMessage="No Streams"
         id="StreamingServerStatusPanel"

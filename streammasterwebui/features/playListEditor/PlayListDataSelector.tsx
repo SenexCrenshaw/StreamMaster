@@ -88,6 +88,7 @@ const PlayListDataSelector = ({
   return (
     <DataSelector
       columns={columns}
+      defaultSortField="name"
       emptyMessage="No Channel Groups"
       headerName={name === undefined ? 'Playlist' : name}
       headerRightTemplate={hideAddRemoveControls === true ? null : sourceRightHeaderTemplate()}
