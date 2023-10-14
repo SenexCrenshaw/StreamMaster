@@ -1,5 +1,5 @@
 import { formatJSONDateString, getTopToolOptions } from '@lib/common/common';
-import { M3UFileStreamUrlPrefix, useM3UFilesGetPagedM3UFilesQuery, type M3UFileDto, type UpdateM3UFileRequest } from '@lib/iptvApi';
+import { useM3UFilesGetPagedM3UFilesQuery, type M3UFileDto, type UpdateM3UFileRequest } from '@lib/iptvApi';
 import { UpdateM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesMutateAPI';
 import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
 import { Toast } from 'primereact/toast';
@@ -10,7 +10,6 @@ import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 import M3UFileRefreshDialog from './M3UFileRefreshDialog';
 import M3UFileRemoveDialog from './M3UFileRemoveDialog';
-import StreamURLPrefixSelector from './StreamURLPrefixSelector';
 
 type M3UUpdateProps = {
   id: number;
@@ -20,7 +19,6 @@ type M3UUpdateProps = {
   name?: string | null;
   url?: string | null;
   startingChannelNumber?: number | null;
-  streamURLPrefix?: M3UFileStreamUrlPrefix | null;
 };
 
 const M3UFilesDataSelector = () => {
@@ -39,7 +37,7 @@ const M3UFilesDataSelector = () => {
         return;
       }
 
-      const { auto, hours, maxStreams, name, url, startingChannelNumber, streamURLPrefix } = restProps;
+      const { auto, hours, maxStreams, name, url, startingChannelNumber } = restProps;
 
       const tosend = {} as UpdateM3UFileRequest;
       tosend.id = id;
@@ -64,9 +62,9 @@ const M3UFilesDataSelector = () => {
         tosend.url = url;
       }
 
-      if (streamURLPrefix !== null) {
-        tosend.streamURLPrefixInt = parseInt(streamURLPrefix?.toString() ?? '0');
-      }
+      // if (streamURLPrefix !== null) {
+      //   tosend.streamURLPrefixInt = parseInt(streamURLPrefix?.toString() ?? '0');
+      // }
 
       if (startingChannelNumber) {
         tosend.startingChannelNumber = startingChannelNumber;
@@ -97,25 +95,25 @@ const M3UFilesDataSelector = () => {
     [toast],
   );
 
-  const StreamURLPrefixEditorBodyTemplate = useCallback(
-    (rowData: M3UFileDto) => {
-      if (rowData.id === 0) {
-        return <div />;
-      }
+  // const StreamURLPrefixEditorBodyTemplate = useCallback(
+  //   (rowData: M3UFileDto) => {
+  //     if (rowData.id === 0) {
+  //       return <div />;
+  //     }
 
-      return (
-        <div className="flex justify-content-center ">
-          <StreamURLPrefixSelector
-            onChange={async (e) => {
-              await onM3UUpdateClick({ id: rowData.id, streamURLPrefix: e });
-            }}
-            value={rowData.streamURLPrefix}
-          />
-        </div>
-      );
-    },
-    [onM3UUpdateClick],
-  );
+  //     return (
+  //       <div className="flex justify-content-center ">
+  //         <StreamURLPrefixSelector
+  //           onChange={async (e) => {
+  //             await onM3UUpdateClick({ id: rowData.id, streamURLPrefix: e });
+  //           }}
+  //           value={rowData.streamURLPrefix}
+  //         />
+  //       </div>
+  //     );
+  //   },
+  //   [onM3UUpdateClick],
+  // );
 
   const lastDownloadedTemplate = useCallback((rowData: M3UFileDto) => {
     if (rowData.id === 0) {
@@ -279,14 +277,14 @@ const M3UFilesDataSelector = () => {
         field: 'name',
         header: 'Name',
         sortable: true,
-        width: '18rem',
+        width: '32rem',
       },
-      {
-        bodyTemplate: StreamURLPrefixEditorBodyTemplate,
-        field: 'streamURLPrefix',
-        header: 'Output Type',
-        width: '14rem',
-      },
+      // {
+      //   bodyTemplate: StreamURLPrefixEditorBodyTemplate,
+      //   field: 'streamURLPrefix',
+      //   header: 'Output Type',
+      //   width: '14rem',
+      // },
       {
         bodyTemplate: lastDownloadedTemplate,
         field: 'lastDownloaded',
@@ -324,7 +322,6 @@ const M3UFilesDataSelector = () => {
       },
     ];
   }, [
-    StreamURLPrefixEditorBodyTemplate,
     lastDownloadedTemplate,
     maxStreamCountTemplate,
     nameEditorBodyTemplate,
