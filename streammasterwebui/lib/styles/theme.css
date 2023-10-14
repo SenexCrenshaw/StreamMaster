@@ -24,10 +24,10 @@
   --orange-color: #fe7600;
 }
 
-.p-dropdown-label.p-inputtext {
+/* .p-dropdown-label.p-inputtext {
   border: 2px solid var(--common-border-color) !important;
-  height: var(--dropdown-input-height);
-}
+  height: var(--input-height);
+} */
 
 .p-inputtext.p-component.p-column-filter.p-column-filter {
   min-width: 4rem;
