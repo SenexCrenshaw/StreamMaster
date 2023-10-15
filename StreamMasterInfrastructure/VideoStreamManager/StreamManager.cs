@@ -13,94 +13,86 @@ using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
-public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ILogger<StreamManager> logger, IMemoryCache memoryCache) : IStreamManager
+public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ILogger<StreamController> streamControllerLogger, IClientStreamerManager clientManager, ILogger<StreamManager> logger, IMemoryCache memoryCache) : IStreamManager
 {
-    //private readonly ILogger<CircularRingBuffer> _circularBufferLogger = loggerFactory.CreateLogger<CircularRingBuffer>();
-    //private readonly ILogger<StreamManager> logger = loggerFactory.CreateLogger<StreamManager>();
-    private readonly ConcurrentDictionary<string, IStreamInformation> _streamInformations = new();
+    private readonly ConcurrentDictionary<string, IStreamController> _streamControllers = new();
 
     public void Dispose()
     {
-        _streamInformations.Clear();
+        _streamControllers.Clear();
     }
 
-    public async Task<IStreamInformation?> GetOrCreateBuffer(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank)
+
+    public async Task<IStreamController?> GetOrCreateStreamController(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank)
     {
         string streamUrl = childVideoStreamDto.User_Url;
-        if (_streamInformations.TryGetValue(streamUrl, out IStreamInformation? _streamInformation))
+
+        if (!_streamControllers.TryGetValue(streamUrl, out IStreamController? streamController))
         {
-            logger.LogInformation("Reusing buffer for stream: {StreamUrl}", streamUrl);
-            return _streamInformation;
-        }
+            logger.LogInformation("Creating and starting buffer for stream: {StreamUrl}", streamUrl);
 
-        logger.LogInformation("Creating and starting buffer for stream: {StreamUrl}", streamUrl);
+            Setting setting = memoryCache.GetSetting();
 
-        Setting setting = memoryCache.GetSetting();
+            ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, videoStreamId, videoStreamName, rank, setting.PreloadPercentage, setting.RingBufferSizeMB, circularBufferLogger);
+            CancellationTokenSource cancellationTokenSource = new();
 
-        ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, videoStreamId, videoStreamName, rank, setting.PreloadPercentage, setting.RingBufferSizeMB, circularBufferLogger);
-        CancellationTokenSource cancellationTokenSource = new();
+            (Stream? stream, int processId, ProxyStreamError? error) = await GetProxy(streamUrl, cancellationTokenSource.Token);
 
-        (Stream? stream, int processId, ProxyStreamError? error) = await GetProxy(streamUrl, cancellationTokenSource.Token);
-
-        if (stream == null || error != null)
-        {
-            logger.LogError("Error GetOrCreateBuffer for {StreamUrl}", streamUrl);
-            return null;
-        }
-
-        try
-        {
+            if (stream == null || error != null)
+            {
+                logger.LogError("Error GetOrCreateBuffer for {StreamUrl}", streamUrl);
+                return null;
+            }
 
             Task streamingTask = StartVideoStreaming(stream, streamUrl, buffer, cancellationTokenSource);
 
-            StreamInformation streamStreamInfo = new(streamUrl, buffer, streamingTask, childVideoStreamDto.M3UFileId, childVideoStreamDto.MaxStreams, processId, cancellationTokenSource);
-
-            _streamInformations.TryAdd(streamStreamInfo.StreamUrl, streamStreamInfo);
+            streamController = new StreamController(streamUrl, streamControllerLogger, clientManager, buffer, streamingTask, childVideoStreamDto.M3UFileId, childVideoStreamDto.MaxStreams, processId, cancellationTokenSource);
+            _streamControllers.TryAdd(streamUrl, streamController);
 
             logger.LogInformation("Buffer created and streaming started for: {StreamUrl}", streamUrl);
-
-            return streamStreamInfo;
         }
-        catch (TaskCanceledException)
+        else
         {
-            throw ;
+            logger.LogInformation("Reusing buffer for stream: {StreamUrl}", streamUrl);
         }
-        return null;
+
+        return streamController;
     }
+
+
 
     public SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl)
     {
-        if (_streamInformations.TryGetValue(streamUrl, out IStreamInformation? _streamInformation))
+        if (_streamControllers.TryGetValue(streamUrl, out IStreamController? _streamInformation))
         {
             return _streamInformation.RingBuffer.GetSingleStreamStatisticsResult();
         }
         return new SingleStreamStatisticsResult();
     }
 
-    public IStreamInformation? GetStreamInformationFromStreamUrl(string streamUrl)
+    public IStreamController? GetStreamInformationFromStreamUrl(string streamUrl)
     {
-        return _streamInformations.Values.FirstOrDefault(x => x.StreamUrl == streamUrl);
+        return _streamControllers.Values.FirstOrDefault(x => x.StreamUrl == streamUrl);
     }
 
-    public ICollection<IStreamInformation> GetStreamInformations()
+    public ICollection<IStreamController> GetStreamInformations()
     {
-        return _streamInformations.Values;
+        return _streamControllers.Values;
     }
 
     public int GetStreamsCountForM3UFile(int m3uFileId)
     {
-        return _streamInformations
-            .Count(x => x.Value.M3UFileId == m3uFileId);
+        return _streamControllers.Count(x => x.Value.M3UFileId == m3uFileId);
     }
 
-    public IStreamInformation? Stop(string streamUrl)
+    public IStreamController? Stop(string streamUrl)
     {
-        if (_streamInformations.TryRemove(streamUrl, out IStreamInformation? _streamInformation))
+        if (_streamControllers.TryRemove(streamUrl, out IStreamController? streamInformation))
         {
-            _streamInformation.Stop();
-            return _streamInformation;
+            streamInformation.Stop();
+            return streamInformation;
         }
-
+        logger.LogWarning("Failed to remove stream information for {StreamUrl}", streamUrl);
         return null;
     }
 
