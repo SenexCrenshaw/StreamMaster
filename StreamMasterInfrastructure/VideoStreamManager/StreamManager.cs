@@ -13,9 +13,9 @@ using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
-public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ILogger<ClientStreamerManager> clientStreamerManagerLogger, ILogger<StreamManager> logger, IMemoryCache memoryCache) : IStreamManager
+public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, IClientStreamerManager clientStreamerManager, ILogger<StreamManager> logger, IMemoryCache memoryCache) : IStreamManager
 {
-    private readonly IClientStreamerManager clientManager = new ClientStreamerManager(clientStreamerManagerLogger);
+
     private readonly ConcurrentDictionary<string, IStreamController> _streamControllers = new();
 
     public void Dispose()
@@ -47,7 +47,7 @@ public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ILo
 
             Task streamingTask = StartVideoStreaming(stream, streamUrl, buffer, cancellationTokenSource);
 
-            streamController = new StreamController(streamUrl, clientManager, buffer, streamingTask, childVideoStreamDto.M3UFileId, childVideoStreamDto.MaxStreams, processId, cancellationTokenSource);
+            streamController = new StreamController(streamUrl, clientStreamerManager, buffer, streamingTask, childVideoStreamDto.M3UFileId, childVideoStreamDto.MaxStreams, processId, cancellationTokenSource);
             _streamControllers.TryAdd(streamUrl, streamController);
 
             logger.LogInformation("Buffer created and streaming started for: {StreamUrl}", streamUrl);
