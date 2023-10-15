@@ -20,37 +20,57 @@ public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ICl
 
     public void Dispose()
     {
+        // Dispose of each stream controller
+        foreach (IStreamController streamController in _streamControllers.Values)
+        {
+            streamController.Dispose();
+        }
 
+        // Clear the dictionary
         _streamControllers.Clear();
     }
+    private async Task<IStreamController> CreateNewStreamController(string streamUrl, ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank)
+    {
+        Setting setting = memoryCache.GetSetting();
+
+        ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, videoStreamId, videoStreamName, rank, setting.PreloadPercentage, setting.RingBufferSizeMB, circularBufferLogger);
+        CancellationTokenSource cancellationTokenSource = new();
+
+        (Stream? stream, int processId, ProxyStreamError? error) = await GetProxy(streamUrl, cancellationTokenSource.Token);
+
+        if (stream == null || error != null)
+        {
+            logger.LogError("Error in CreateNewStreamController for {StreamUrl}", streamUrl);
+            throw new InvalidOperationException($"Unable to create StreamController for {streamUrl} due to proxy error.");
+        }
+
+        Task streamingTask = StartVideoStreaming(stream, streamUrl, buffer, cancellationTokenSource);
+
+        StreamController streamController = new(streamUrl, clientStreamerManager, buffer, streamingTask, childVideoStreamDto.M3UFileId, childVideoStreamDto.MaxStreams, processId, cancellationTokenSource);
+
+        logger.LogInformation("Created new StreamController for: {StreamUrl}", streamUrl);
+
+        return streamController;
+    }
+
 
     public async Task<IStreamController?> GetOrCreateStreamController(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank)
     {
         string streamUrl = childVideoStreamDto.User_Url;
 
-        if (!_streamControllers.TryGetValue(streamUrl, out IStreamController? streamController))
+
+        if (!_streamControllers.TryGetValue(streamUrl, out IStreamController streamController))
         {
-            logger.LogInformation("Creating and starting buffer for stream: {StreamUrl}", streamUrl);
+            // If the stream controller doesn't exist, create a new one
+            IStreamController newStreamController = await CreateNewStreamController(streamUrl, childVideoStreamDto, videoStreamId, videoStreamName, rank);
 
-            Setting setting = memoryCache.GetSetting();
+            // Add or get existing StreamController
+            streamController = _streamControllers.AddOrUpdate(streamUrl, newStreamController, (key, existing) => existing);
 
-            ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, videoStreamId, videoStreamName, rank, setting.PreloadPercentage, setting.RingBufferSizeMB, circularBufferLogger);
-            CancellationTokenSource cancellationTokenSource = new();
-
-            (Stream? stream, int processId, ProxyStreamError? error) = await GetProxy(streamUrl, cancellationTokenSource.Token);
-
-            if (stream == null || error != null)
+            if (streamController.StreamUrl == streamUrl)
             {
-                logger.LogError("Error GetOrCreateBuffer for {StreamUrl}", streamUrl);
-                return null;
+                logger.LogInformation("Created buffer for stream: {StreamUrl}", streamUrl);
             }
-
-            Task streamingTask = StartVideoStreaming(stream, streamUrl, buffer, cancellationTokenSource);
-
-            streamController = new StreamController(streamUrl, clientStreamerManager, buffer, streamingTask, childVideoStreamDto.M3UFileId, childVideoStreamDto.MaxStreams, processId, cancellationTokenSource);
-            _streamControllers.TryAdd(streamUrl, streamController);
-
-            logger.LogInformation("Buffer created and streaming started for: {StreamUrl}", streamUrl);
         }
         else
         {
