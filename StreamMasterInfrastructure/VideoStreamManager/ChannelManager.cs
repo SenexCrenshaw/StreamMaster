@@ -273,11 +273,6 @@ public class ChannelManager : IDisposable, IChannelManager
         IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
         IMapper mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
-        M3UFileDto? m3uFile;
-        int allStreamsCount = 0;
-
-        Setting setting = _memoryCache.GetSetting();
-
         if (!string.IsNullOrEmpty(overrideNextVideoStreamId))
         {
             ChildVideoStreamDto? handled = await HandleOverrideStream(overrideNextVideoStreamId, repository, channelStatus, mapper);
@@ -480,7 +475,7 @@ public class ChannelManager : IDisposable, IChannelManager
 
     private void RegisterOldClientsToStream(IChannelStatus channelStatus, ICollection<ClientStreamerConfiguration>? oldConfigs)
     {
-        if (oldConfigs is not null)
+        if (oldConfigs is not null && channelStatus.StreamHandler is not null)
         {
             RegisterClientsToNewStream(oldConfigs, channelStatus.StreamHandler);
         }
