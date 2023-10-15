@@ -21,12 +21,12 @@ public class CircularRingBuffer : ICircularRingBuffer
     private readonly Dictionary<Guid, SemaphoreSlim> _clientSemaphores = new();
     private readonly Dictionary<Guid, StreamingStatistics> _clientStatistics = new();
     private readonly StreamingStatistics _inputStreamStatistics = new("Unknown", "Unknown");
-    private readonly ILogger<CircularRingBuffer> _logger;
+    private readonly ILogger<ICircularRingBuffer> _logger;
     private int _oldestDataIndex;
     private readonly float _preBuffPercent;
     private int _writeIndex;
 
-    public CircularRingBuffer(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank, int PreloadPercentage, int RingBufferSizeMB, ILogger<CircularRingBuffer> logger)
+    public CircularRingBuffer(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank, int PreloadPercentage, int RingBufferSizeMB, ILogger<ICircularRingBuffer> logger)
     {
         _logger = logger;
         if (PreloadPercentage < 0 || PreloadPercentage > 100)

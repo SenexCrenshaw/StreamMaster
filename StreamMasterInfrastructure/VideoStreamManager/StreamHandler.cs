@@ -27,50 +27,52 @@ namespace StreamMasterInfrastructure.VideoStreamManager;
 /// <param name="cancellationTokenSource">The cancellation token source for the streaming task.</param>
 /// </summary>
 
-public class StreamController : IDisposable, IStreamController
+public class StreamHandler : IDisposable, IStreamHandler
 {
-    public IClientStreamerManager _clientManager { get; set; }
+    private readonly IClientStreamerManager _clientStreamerManager;
 
-    public StreamController() { }
-    private readonly ILogger<StreamController> _logger;
-    private readonly IMemoryCache _memoryCache;
-    public StreamController(
+    private readonly ILogger<IStreamHandler> _logger;
+    private StreamHandler(
         string streamUrl,
-        ChildVideoStreamDto childVideoStreamDto,
-        string videoStreamId,
-        string videoStreamName,
-        int rank,
-        ILogger<StreamController> logger,
-        IMemoryCache memoryCache,
-        ILogger<CircularRingBuffer> circularBufferLogger,
-        IClientStreamerManager clientStreamerManager)
+        ILogger<IStreamHandler> logger,
+        IClientStreamerManager clientStreamerManager,
+        int processId,
+        ICircularRingBuffer buffer,
+        CancellationTokenSource cancellationTokenSource)
     {
         _logger = logger;
-        _clientManager = clientStreamerManager;
-        _memoryCache = memoryCache;
-        Setting setting = memoryCache.GetSetting();
-        ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, videoStreamId, videoStreamName, rank, setting.PreloadPercentage, setting.RingBufferSizeMB, circularBufferLogger);
-        CancellationTokenSource cancellationTokenSource = new();
+        _clientStreamerManager = clientStreamerManager;
 
-        // Assuming GetProxy is available in this class or you can move it here
-        (Stream? stream, int processId, ProxyStreamError? error) = GetProxy(streamUrl, cancellationTokenSource.Token).Result;  // Blocking wait with .Result
-
-        if (stream == null || error != null)
-        {
-            logger.LogError("Error in StreamController constructor for {StreamUrl}", streamUrl);
-            throw new InvalidOperationException($"Unable to create StreamController for {streamUrl} due to proxy error.");
-        }
-
-        ProcessId = processId;
         StreamUrl = streamUrl;
-        RingBuffer = buffer;
         VideoStreamingCancellationToken = cancellationTokenSource;
-
-
-        StartVideoStreaming(stream, buffer, cancellationTokenSource);
+        RingBuffer = buffer;
+        ProcessId = processId;
     }
 
-    private void LogErrorIfAny(Stream? stream, ProxyStreamError? error, string streamUrl)
+    public static async Task<IStreamHandler> CreateAsync(
+    string streamUrl,
+    ChildVideoStreamDto childVideoStreamDto,
+    string videoStreamId,
+    string videoStreamName,
+    int rank,
+    ILogger<IStreamHandler> logger,
+    IMemoryCache memoryCache,
+    ILogger<ICircularRingBuffer> circularBufferLogger,
+    IClientStreamerManager clientStreamerManager)
+    {
+        CancellationTokenSource cancellationTokenSource = new();
+        Setting setting = memoryCache.GetSetting();
+        ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, videoStreamId, videoStreamName, rank, setting.PreloadPercentage, setting.RingBufferSizeMB, circularBufferLogger);
+
+        (Stream? stream, int processId, ProxyStreamError? error) = await GetProxy(streamUrl, logger, setting, cancellationTokenSource.Token);
+
+        StreamHandler controller = new(streamUrl, logger, clientStreamerManager, processId, buffer, cancellationTokenSource);
+
+        controller.StartVideoStreaming(stream, buffer, cancellationTokenSource);
+        return controller;
+    }
+
+    private static void LogErrorIfAny(ILogger _logger, Stream? stream, ProxyStreamError? error, string streamUrl)
     {
         if (stream == null || error != null)
         {
@@ -79,23 +81,22 @@ public class StreamController : IDisposable, IStreamController
     }
 
 
-    private async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl, CancellationToken cancellationToken)
+    private static async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl, ILogger<IStreamHandler> logger, Setting setting, CancellationToken cancellationToken)
     {
         Stream? stream;
         ProxyStreamError? error;
         int processId;
 
-        Setting setting = _memoryCache.GetSetting();
 
         if (setting.StreamingProxyType == StreamingProxyTypes.FFMpeg)
         {
-            (stream, processId, error) = await StreamingProxies.GetFFMpegStream(streamUrl, _logger, setting);
-            LogErrorIfAny(stream, error, streamUrl);
+            (stream, processId, error) = await StreamingProxies.GetFFMpegStream(streamUrl, logger, setting);
+            LogErrorIfAny(logger, stream, error, streamUrl);
         }
         else
         {
-            (stream, processId, error) = await StreamingProxies.GetProxyStream(streamUrl, _logger, setting, cancellationToken);
-            LogErrorIfAny(stream, error, streamUrl);
+            (stream, processId, error) = await StreamingProxies.GetProxyStream(streamUrl, logger, setting, cancellationToken);
+            LogErrorIfAny(logger, stream, error, streamUrl);
         }
 
         return (stream, processId, error);
@@ -226,7 +227,7 @@ public class StreamController : IDisposable, IStreamController
     /// </summary>
     public event EventHandler<StreamControllerStoppedEventArgs>? StreamControllerStopped;
 
-    public int ClientCount => _clientManager.ClientCount;
+    public int ClientCount => _clientStreamerManager.ClientCount;
     public bool FailoverInProgress { get; set; }
 
     public int M3UFileId { get; set; }
@@ -251,19 +252,19 @@ public class StreamController : IDisposable, IStreamController
 
     public ClientStreamerConfiguration? GetClientStreamerConfiguration(Guid ClientId)
     {
-        return _clientManager.GetClientConfiguration(ClientId);
+        return _clientStreamerManager.GetClientConfiguration(ClientId);
     }
 
     public List<ClientStreamerConfiguration> GetClientStreamerConfigurations()
     {
-        return _clientManager.GetAllClientConfigurations().ToList();
+        return _clientStreamerManager.GetAllClientConfigurations().ToList();
     }
 
     public void RegisterClientStreamer(ClientStreamerConfiguration streamerConfiguration)
     {
         try
         {
-            _clientManager.RegisterClientConfiguration(streamerConfiguration);
+            _clientStreamerManager.RegisterClientConfiguration(streamerConfiguration);
 
             RingBuffer.RegisterClient(streamerConfiguration.ClientId, streamerConfiguration.ClientUserAgent, streamerConfiguration.ClientIPAddress);
             SetClientBufferDelegate(streamerConfiguration, () => RingBuffer);
@@ -316,7 +317,7 @@ public class StreamController : IDisposable, IStreamController
         try
         {
             RingBuffer.UnregisterClient(streamerConfiguration.ClientId);
-            bool result = _clientManager.UnregisterClientConfiguration(streamerConfiguration.ClientId);
+            bool result = _clientStreamerManager.UnregisterClientConfiguration(streamerConfiguration.ClientId);
 
             // Raise event
             ClientUnregistered?.Invoke(this, new ClientUnregisteredEventArgs(streamerConfiguration.ClientId));

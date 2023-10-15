@@ -6,15 +6,15 @@ public interface IStreamManager
 {
     void Dispose();
 
-    Task<IStreamController?> GetOrCreateStreamController(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank);
+    Task<IStreamHandler?> GetOrCreateStreamController(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank);
 
     SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl);
 
-    IStreamController? GetStreamInformationFromStreamUrl(string streamUrl);
+    IStreamHandler? GetStreamInformationFromStreamUrl(string streamUrl);
 
-    ICollection<IStreamController> GetStreamInformations();
+    ICollection<IStreamHandler> GetStreamInformations();
 
     int GetStreamsCountForM3UFile(int m3uFileId);
 
-    IStreamController? Stop(string streamUrl);
+    IStreamHandler? Stop(string streamUrl);
 }

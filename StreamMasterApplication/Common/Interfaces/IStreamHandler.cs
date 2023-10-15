@@ -2,8 +2,10 @@
 
 namespace StreamMasterApplication.Common.Interfaces;
 
-public interface IStreamController
+public interface IStreamHandler
 {
+
+
     int ClientCount { get; }
     bool FailoverInProgress { get; set; }
     int M3UFileId { get; set; }
@@ -11,7 +13,6 @@ public interface IStreamController
     int MaxStreams { get; set; }
     int ProcessId { get; set; }
     ICircularRingBuffer RingBuffer { get; }
-    Task StreamingTask { get; set; }
     string StreamUrl { get; set; }
     CancellationTokenSource VideoStreamingCancellationToken { get; set; }
 

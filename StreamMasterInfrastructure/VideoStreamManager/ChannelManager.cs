@@ -55,7 +55,7 @@ public class ChannelManager : IDisposable, IChannelManager
         {
             _logger.LogDebug("Channel status found for playingVideoStreamId: {playingVideoStreamId}", playingVideoStreamId);
 
-            IStreamController? oldInfo = channelStatus.StreamController;
+            IStreamHandler? oldInfo = channelStatus.StreamController;
 
             if (!await HandleNextVideoStream(channelStatus, newVideoStreamId))
             {
@@ -121,8 +121,8 @@ public class ChannelManager : IDisposable, IChannelManager
     {
         List<StreamStatisticsResult> allStatistics = new();
 
-        ICollection<IStreamController> infos = _streamManager.GetStreamInformations();
-        foreach (IStreamController? info in infos.Where(a => a.RingBuffer != null))
+        ICollection<IStreamHandler> infos = _streamManager.GetStreamInformations();
+        foreach (IStreamHandler? info in infos.Where(a => a.RingBuffer != null))
         {
             allStatistics.AddRange(info.RingBuffer.GetAllStatisticsForAllUrls());
         }
@@ -174,13 +174,13 @@ public class ChannelManager : IDisposable, IChannelManager
             return false;
         }
 
-        IStreamController _streamInformation = channelStatus.StreamController;
-        return _streamInformation.ClientCount == 0 || _streamInformation.VideoStreamingCancellationToken.IsCancellationRequested || _streamInformation.StreamingTask.IsFaulted || _streamInformation.StreamingTask.IsCanceled;
+        IStreamHandler _streamInformation = channelStatus.StreamController;
+        return _streamInformation.ClientCount == 0 || _streamInformation.VideoStreamingCancellationToken.IsCancellationRequested;
     }
 
     public void SimulateStreamFailure(string streamUrl)
     {
-        IStreamController? _streamInformation = _streamManager.GetStreamInformationFromStreamUrl(streamUrl);
+        IStreamHandler? _streamInformation = _streamManager.GetStreamInformationFromStreamUrl(streamUrl);
 
         if (_streamInformation is not null)
         {
@@ -200,7 +200,7 @@ public class ChannelManager : IDisposable, IChannelManager
 
     public void SimulateStreamFailureForAll()
     {
-        foreach (IStreamController s in _streamManager.GetStreamInformations())
+        foreach (IStreamHandler s in _streamManager.GetStreamInformations())
         {
             s.VideoStreamingCancellationToken.Cancel();
         }
@@ -539,7 +539,7 @@ public class ChannelManager : IDisposable, IChannelManager
         return (Stream)config.ReadBuffer;
     }
 
-    private void RegisterClientsToNewStream(ICollection<ClientStreamerConfiguration> configs, IStreamController streamStreamInfo)
+    private void RegisterClientsToNewStream(ICollection<ClientStreamerConfiguration> configs, IStreamHandler streamStreamInfo)
     {
         foreach (ClientStreamerConfiguration config in configs)
         {
@@ -547,7 +547,7 @@ public class ChannelManager : IDisposable, IChannelManager
         }
     }
 
-    private void RegisterClientToNewStream(ClientStreamerConfiguration config, IStreamController streamStreamInfo)
+    private void RegisterClientToNewStream(ClientStreamerConfiguration config, IStreamHandler streamStreamInfo)
     {
         _logger.LogInformation("Registered client id: {clientId} to videostream url {StreamUrl}", config.ClientId, streamStreamInfo.StreamUrl);
 
