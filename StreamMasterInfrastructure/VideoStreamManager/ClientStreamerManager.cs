@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
-internal class ClientStreamerManager : IClientStreamerManager
+public class ClientStreamerManager : IClientStreamerManager
 {
     private readonly ConcurrentDictionary<Guid, ClientStreamerConfiguration> _clientConfigurations = new();
 

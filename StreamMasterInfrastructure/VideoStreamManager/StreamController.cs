@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
-using StreamMasterApplication.Common.Interfaces;
+﻿using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 
 using StreamMasterDomain.Events;
@@ -22,7 +20,7 @@ namespace StreamMasterInfrastructure.VideoStreamManager;
 /// <param name="cancellationTokenSource">The cancellation token source for the streaming task.</param>
 /// </summary>
 
-public class StreamController(string streamUrl, ILogger<StreamController> logger, IClientStreamerManager clientManager, ICircularRingBuffer buffer, Task streamingTask, int m3uFileId, int maxStreams, int processId, CancellationTokenSource cancellationTokenSource) : IDisposable, IStreamController
+public class StreamController(string streamUrl, IClientStreamerManager clientManager, ICircularRingBuffer buffer, Task streamingTask, int m3uFileId, int maxStreams, int processId, CancellationTokenSource cancellationTokenSource) : IDisposable, IStreamController
 {
     /// <summary>
     /// Raised when an error occurs during stream operations.
@@ -85,7 +83,7 @@ public class StreamController(string streamUrl, ILogger<StreamController> logger
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error registering stream configuration for client {ClientId}.", streamerConfiguration.ClientId);
+            // logger.LogError(ex, "Error registering stream configuration for client {ClientId}.", streamerConfiguration.ClientId);
             StreamFailed?.Invoke(this, new StreamFailedEventArgs($"Failed to register client {streamerConfiguration.ClientId}."));
         }
 
@@ -117,7 +115,7 @@ public class StreamController(string streamUrl, ILogger<StreamController> logger
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error killing process {ProcessId}.", ProcessId);
+                // logger.LogError(ex, "Error killing process {ProcessId}.", ProcessId);
             }
         }
         OnStreamControllerStopped();
@@ -132,15 +130,11 @@ public class StreamController(string streamUrl, ILogger<StreamController> logger
 
             // Raise event
             ClientUnregistered?.Invoke(this, new ClientUnregisteredEventArgs(streamerConfiguration.ClientId));
-            if (ClientCount <= 0)
-            {
-                Stop();
-            }
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error unregistering stream configuration for client {ClientId}.", streamerConfiguration.ClientId);
+            // logger.LogError(ex, "Error unregistering stream configuration for client {ClientId}.", streamerConfiguration.ClientId);
             return false;
         }
     }
@@ -150,12 +144,12 @@ public class StreamController(string streamUrl, ILogger<StreamController> logger
         try
         {
             Process process = Process.GetProcessById(processId);
-            logger.LogInformation($"Process with ID {processId} exists. Name: {process.ProcessName}");
+            // logger.LogInformation($"Process with ID {processId} exists. Name: {process.ProcessName}");
             return process.ProcessName;
         }
         catch (ArgumentException)
         {
-            logger.LogWarning($"Process with ID {processId} does not exist.");
+            // logger.LogWarning($"Process with ID {processId} does not exist.");
             return null;
         }
     }

@@ -13,7 +13,7 @@ using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
-public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ILogger<StreamController> streamControllerLogger, IClientStreamerManager clientManager, ILogger<StreamManager> logger, IMemoryCache memoryCache) : IStreamManager
+public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, IClientStreamerManager clientManager, ILogger<StreamManager> logger, IMemoryCache memoryCache) : IStreamManager
 {
     private readonly ConcurrentDictionary<string, IStreamController> _streamControllers = new();
 
@@ -21,7 +21,6 @@ public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ILo
     {
         _streamControllers.Clear();
     }
-
 
     public async Task<IStreamController?> GetOrCreateStreamController(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank)
     {
@@ -46,7 +45,7 @@ public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ILo
 
             Task streamingTask = StartVideoStreaming(stream, streamUrl, buffer, cancellationTokenSource);
 
-            streamController = new StreamController(streamUrl, streamControllerLogger, clientManager, buffer, streamingTask, childVideoStreamDto.M3UFileId, childVideoStreamDto.MaxStreams, processId, cancellationTokenSource);
+            streamController = new StreamController(streamUrl, clientManager, buffer, streamingTask, childVideoStreamDto.M3UFileId, childVideoStreamDto.MaxStreams, processId, cancellationTokenSource);
             _streamControllers.TryAdd(streamUrl, streamController);
 
             logger.LogInformation("Buffer created and streaming started for: {StreamUrl}", streamUrl);
@@ -58,7 +57,6 @@ public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ILo
 
         return streamController;
     }
-
 
 
     public SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl)
@@ -84,7 +82,6 @@ public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ILo
     {
         return _streamControllers.Count(x => x.Value.M3UFileId == m3uFileId);
     }
-
     public IStreamController? Stop(string streamUrl)
     {
         if (_streamControllers.TryRemove(streamUrl, out IStreamController? streamInformation))
@@ -95,7 +92,6 @@ public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ILo
         logger.LogWarning("Failed to remove stream information for {StreamUrl}", streamUrl);
         return null;
     }
-
     private async Task DelayWithCancellation(int milliseconds, CancellationToken cancellationToken)
     {
         try
@@ -108,7 +104,6 @@ public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ILo
             throw;
         }
     }
-
     private async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl, CancellationToken cancellationToken)
     {
         Stream? stream;
