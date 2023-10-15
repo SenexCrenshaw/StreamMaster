@@ -2,6 +2,7 @@
 {
     public interface IChannelStatus
     {
+        void SetIsGlobal();
         void RemoveClientId(Guid clientId);
         void AddToClientIds(Guid clientId);
         List<Guid> GetChannelClientIds { get; }

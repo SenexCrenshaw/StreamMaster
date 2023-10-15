@@ -49,9 +49,9 @@ public class ChannelService : IChannelService
         return _channelStatuses.Count(a => a.Value.IsGlobal);
     }
 
-    public void SetIsGlobal(IChannelStatus channelStatus)
-    {
-        channelStatus.IsGlobal = true;
-        _channelStatuses.TryUpdate(channelStatus.VideoStreamId, channelStatus, channelStatus);
-    }
+    //public void SetIsGlobal(IChannelStatus channelStatus)
+    //{
+    //    channelStatus.IsGlobal = true;
+    //    _channelStatuses.TryUpdate(channelStatus.VideoStreamId, channelStatus, channelStatus);
+    //}
 }

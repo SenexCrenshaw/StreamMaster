@@ -18,6 +18,10 @@ public class ChannelStatus(string videoStreamId, string videoStreamName) : IChan
 
     List<Guid> IChannelStatus.GetChannelClientIds => ClientIds.Values.ToList();
 
+    public void SetIsGlobal()
+    {
+        IsGlobal = true;
+    }
     public void AddToClientIds(Guid clientId)
     {
         ClientIds.TryAdd(clientId, clientId);

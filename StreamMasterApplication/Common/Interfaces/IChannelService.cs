@@ -2,7 +2,7 @@
 {
     public interface IChannelService
     {
-        void SetIsGlobal(IChannelStatus channelStatus);
+
         List<IStreamHandler> GetStreamHandlers();
         IChannelStatus? GetChannelStatus(string videoStreamId);
         int GetGlobalStreamsCount();
