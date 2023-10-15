@@ -20,8 +20,25 @@ namespace StreamMasterInfrastructure.VideoStreamManager;
 /// <param name="cancellationTokenSource">The cancellation token source for the streaming task.</param>
 /// </summary>
 
-public class StreamController(string streamUrl, IClientStreamerManager clientManager, ICircularRingBuffer buffer, Task streamingTask, int m3uFileId, int maxStreams, int processId, CancellationTokenSource cancellationTokenSource) : IDisposable, IStreamController
+public class StreamController : IDisposable, IStreamController
 {
+    public StreamController() { }
+
+    public StreamController(string streamUrl, IClientStreamerManager clientManager, ICircularRingBuffer buffer, Task streamingTask, int m3uFileId, int maxStreams, int processId, CancellationTokenSource cancellationTokenSource)
+    {
+        StreamUrl = streamUrl;
+        VideoStreamingCancellationToken = cancellationTokenSource;
+        StreamingTask = streamingTask;
+        RingBuffer = buffer;
+        M3UFileId = m3uFileId;
+        MaxStreams = maxStreams;
+        ProcessId = processId;
+        M3UStream = false;
+        _clientManager = clientManager;
+    }
+
+    public IClientStreamerManager _clientManager { get; set; }
+
     /// <summary>
     /// Raised when an error occurs during stream operations.
     /// </summary>
@@ -42,16 +59,22 @@ public class StreamController(string streamUrl, IClientStreamerManager clientMan
     /// </summary>
     public event EventHandler<StreamControllerStoppedEventArgs>? StreamControllerStopped;
 
-    public int ClientCount => clientManager.ClientCount;
+    public int ClientCount => _clientManager.ClientCount;
     public bool FailoverInProgress { get; set; }
-    public int M3UFileId { get; set; } = m3uFileId;
+
+    public int M3UFileId { get; set; }
+
     public bool M3UStream { get; set; }
-    public int MaxStreams { get; set; } = maxStreams;
-    public int ProcessId { get; set; } = processId;
-    public ICircularRingBuffer RingBuffer { get; } = buffer;
-    public Task StreamingTask { get; set; } = streamingTask;
-    public string StreamUrl { get; set; } = streamUrl;
-    public CancellationTokenSource VideoStreamingCancellationToken { get; set; } = cancellationTokenSource;
+
+    public int MaxStreams { get; set; }
+
+    public int ProcessId { get; set; } = -1;
+
+    public ICircularRingBuffer RingBuffer { get; private set; }
+
+    public Task StreamingTask { get; set; }
+    public string StreamUrl { get; set; }
+    public CancellationTokenSource VideoStreamingCancellationToken { get; set; }
 
     public void Dispose()
     {
@@ -61,19 +84,19 @@ public class StreamController(string streamUrl, IClientStreamerManager clientMan
 
     public ClientStreamerConfiguration? GetClientStreamerConfiguration(Guid ClientId)
     {
-        return clientManager.GetClientConfiguration(ClientId);
+        return _clientManager.GetClientConfiguration(ClientId);
     }
 
     public List<ClientStreamerConfiguration> GetClientStreamerConfigurations()
     {
-        return clientManager.GetAllClientConfigurations().ToList();
+        return _clientManager.GetAllClientConfigurations().ToList();
     }
 
     public void RegisterClientStreamer(ClientStreamerConfiguration streamerConfiguration)
     {
         try
         {
-            clientManager.RegisterClientConfiguration(streamerConfiguration);
+            _clientManager.RegisterClientConfiguration(streamerConfiguration);
 
             RingBuffer.RegisterClient(streamerConfiguration.ClientId, streamerConfiguration.ClientUserAgent, streamerConfiguration.ClientIPAddress);
             SetClientBufferDelegate(streamerConfiguration, () => RingBuffer);
@@ -126,7 +149,7 @@ public class StreamController(string streamUrl, IClientStreamerManager clientMan
         try
         {
             RingBuffer.UnregisterClient(streamerConfiguration.ClientId);
-            bool result = clientManager.UnregisterClientConfiguration(streamerConfiguration.ClientId);
+            bool result = _clientManager.UnregisterClientConfiguration(streamerConfiguration.ClientId);
 
             // Raise event
             ClientUnregistered?.Invoke(this, new ClientUnregisteredEventArgs(streamerConfiguration.ClientId));
