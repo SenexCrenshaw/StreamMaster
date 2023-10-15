@@ -26,7 +26,7 @@ public static class ConfigureServices
     {
         services.AddMemoryCache();
         services.AddSingleton<ISettingsService, SettingsService>();
-        services.AddSingleton<IClientStreamerManager, ClientStreamerManager>();
+        //services.AddSingleton<IClientStreamerManager, ClientStreamerManager>();
         services.AddSingleton<IStreamManager, StreamManager>();
         services.AddSingleton<ISDService, SDService>();
         services.AddSingleton<ICacheableSpecification, CacheableSpecification>();

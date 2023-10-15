@@ -13,12 +13,14 @@ using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
-public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, IClientStreamerManager clientManager, ILogger<StreamManager> logger, IMemoryCache memoryCache) : IStreamManager
+public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ILogger<ClientStreamerManager> clientStreamerManagerLogger, ILogger<StreamManager> logger, IMemoryCache memoryCache) : IStreamManager
 {
+    private readonly IClientStreamerManager clientManager = new ClientStreamerManager(clientStreamerManagerLogger);
     private readonly ConcurrentDictionary<string, IStreamController> _streamControllers = new();
 
     public void Dispose()
     {
+
         _streamControllers.Clear();
     }
 

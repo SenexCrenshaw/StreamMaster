@@ -1,11 +1,13 @@
-﻿using StreamMasterApplication.Common.Interfaces;
+﻿using Microsoft.Extensions.Logging;
+
+using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 
 using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
-public class ClientStreamerManager : IClientStreamerManager
+public class ClientStreamerManager(ILogger<ClientStreamerManager> logger) : IClientStreamerManager
 {
     private readonly ConcurrentDictionary<Guid, ClientStreamerConfiguration> _clientConfigurations = new();
 
@@ -15,6 +17,7 @@ public class ClientStreamerManager : IClientStreamerManager
     {
         if (config == null)
         {
+            logger.LogError("ClientStreamerConfiguration cannot be null");
             throw new ArgumentNullException(nameof(config));
         }
 
