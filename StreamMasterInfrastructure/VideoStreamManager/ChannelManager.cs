@@ -25,7 +25,6 @@ namespace StreamMasterInfrastructure.VideoStreamManager;
 public class ChannelManager : IDisposable, IChannelManager
 {
     private readonly Timer _broadcastTimer;
-    //private readonly ConcurrentDictionary<string, ChannelStatus> _channelStatuses;
     private readonly IHubContext<StreamMasterHub, IStreamMasterHub> _hub;
     private readonly ILogger<ChannelManager> _logger;
     private readonly IServiceProvider _serviceProvider;
@@ -45,7 +44,6 @@ public class ChannelManager : IDisposable, IChannelManager
         _channelService = channelService;
 
     }
-
     public async Task ChangeVideoStreamChannel(string playingVideoStreamId, string newVideoStreamId)
     {
         _logger.LogDebug("Starting ChangeVideoStreamChannel with playingVideoStreamId: {playingVideoStreamId} and newVideoStreamId: {newVideoStreamId}", playingVideoStreamId, newVideoStreamId);
@@ -90,20 +88,18 @@ public class ChannelManager : IDisposable, IChannelManager
 
         return;
     }
-
     public void Dispose()
     {
         _broadcastTimer?.Dispose();
         GC.SuppressFinalize(this);
     }
-
     public void FailClient(Guid clientId)
     {
-        _logger.LogDebug("Starting FailClient with clientId: {clientId}");
+        _logger.LogDebug("Starting FailClient with clientId: {clientId}", clientId);
 
-        foreach (ChannelStatus? channelStatus in _channelService.GetStreamHandlers())
+        foreach (IStreamHandler streamHandler in _channelService.GetStreamHandlers())
         {
-            ClientStreamerConfiguration? c = channelStatus.StreamHandler.GetClientStreamerConfiguration(clientId);
+            ClientStreamerConfiguration? c = streamHandler.GetClientStreamerConfiguration(clientId);
 
             if (c != null)
             {
@@ -558,7 +554,7 @@ public class ChannelManager : IDisposable, IChannelManager
     {
         _logger.LogDebug("Starting RegisterWithChannelManager with config: {config}", config.ClientId);
 
-        IChannelStatus channelStatus;
+        IChannelStatus? channelStatus;
         if (!_channelService.HasChannel(config.VideoStreamId))
         {
             using IServiceScope scope = _serviceProvider.CreateScope();
@@ -588,12 +584,17 @@ public class ChannelManager : IDisposable, IChannelManager
             }
 
             _channelService.RegisterChannel(config.VideoStreamId, config.VideoStreamName);
-            //_ = _channelStatuses.TryAdd(config.VideoStreamId, channelStatus);
             _ = ChannelWatcher(channelStatus).ConfigureAwait(false);
         }
         else
         {
             channelStatus = _channelService.GetChannelStatus(config.VideoStreamId);
+        }
+
+        if (channelStatus is null)
+        {
+            _logger.LogDebug("Exiting RegisterWithChannelManager with null due to channelStatus being null");
+            return null;
         }
 
         if (channelStatus.StreamHandler is null)
@@ -604,7 +605,6 @@ public class ChannelManager : IDisposable, IChannelManager
         }
 
         channelStatus.AddToClientIds(config.ClientId);
-        //_ = channelStatus.ClientIds.TryAdd(config.ClientId, config.ClientId);
 
         _logger.LogInformation("ChannelManager added channel: {videoStreamId}", config.VideoStreamId);
 
@@ -612,11 +612,7 @@ public class ChannelManager : IDisposable, IChannelManager
 
         channelStatus.StreamHandler.RegisterClientStreamer(config);
 
-        if (channelStatus is null)
-        {
-            _logger.LogDebug("Exiting RegisterWithChannelManager with null due to channelStatus being null");
-            return null;
-        }
+
 
         _logger.LogDebug("Finished RegisterWithChannelManager with config: {config}", config.ClientId);
 

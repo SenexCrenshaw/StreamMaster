@@ -7,12 +7,6 @@ public class ChannelService : IChannelService
 {
     private readonly ConcurrentDictionary<string, IChannelStatus> _channelStatuses = new();
 
-    // Inject other dependencies if required
-    public ChannelService()
-    {
-        // Initialization code
-    }
-
     public IChannelStatus RegisterChannel(string videoStreamId, string videoStreamName)
     {
         if (!_channelStatuses.TryGetValue(videoStreamId, out IChannelStatus? channelStatus))
@@ -41,7 +35,8 @@ public class ChannelService : IChannelService
         {
             return new List<IStreamHandler>();
         }
-        return _channelStatuses.Values.Where(a => a.StreamHandler != null).Select(a => a.StreamHandler).ToList();
+
+        return _channelStatuses.Values.Where(a => a?.StreamHandler != null).Select(a => a.StreamHandler).ToList();
     }
 
     public bool HasChannel(string videoStreamId)
@@ -60,4 +55,3 @@ public class ChannelService : IChannelService
         _channelStatuses.TryUpdate(channelStatus.VideoStreamId, channelStatus, channelStatus);
     }
 }
-
