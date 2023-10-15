@@ -78,5 +78,4 @@ public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ICl
         logger.LogWarning("Failed to remove stream information for {StreamUrl}", streamUrl);
         return null;
     }
-
 }
