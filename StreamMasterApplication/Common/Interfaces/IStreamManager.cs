@@ -1,14 +1,9 @@
-﻿using StreamMasterApplication.Common.Models;
-
-namespace StreamMasterApplication.Common.Interfaces;
+﻿namespace StreamMasterApplication.Common.Interfaces;
 
 public interface IStreamManager
 {
     void Dispose();
-
     Task<IStreamHandler?> GetOrCreateStreamController(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank);
-
-    SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl);
 
     IStreamHandler? GetStreamInformationFromStreamUrl(string streamUrl);
 

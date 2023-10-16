@@ -12,8 +12,6 @@ namespace StreamMasterApplication.Common.Interfaces
 
         Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls();
 
-        SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl);
-
         Task<Stream?> GetStream(ClientStreamerConfiguration config);
 
         void RemoveClient(ClientStreamerConfiguration config);

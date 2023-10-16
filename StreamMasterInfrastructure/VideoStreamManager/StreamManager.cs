@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Interfaces;
-using StreamMasterApplication.Common.Models;
 
 using StreamMasterDomain.Dto;
 
@@ -12,9 +11,7 @@ namespace StreamMasterInfrastructure.VideoStreamManager;
 
 public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IClientStreamerManager clientStreamerManager, ILogger<StreamHandler> streamControllerlogger, ILogger<StreamManager> logger, IMemoryCache memoryCache) : IStreamManager
 {
-
     private readonly ConcurrentDictionary<string, IStreamHandler> _streamControllers = new();
-
 
     public void Dispose()
     {
@@ -32,9 +29,13 @@ public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ISt
     {
         string streamUrl = childVideoStreamDto.User_Url;
 
-        if (!_streamControllers.TryGetValue(streamUrl, out IStreamHandler streamController))
+        if (!_streamControllers.TryGetValue(streamUrl, out IStreamHandler? streamController))
         {
             streamController = await StreamHandler.CreateAsync(streamUrl, childVideoStreamDto, videoStreamId, videoStreamName, rank, streamControllerlogger, memoryCache, circularBufferLogger, clientStreamerManager, statisticsManager, inputStatisticsManager);
+            if (streamController == null)
+            {
+                return null;
+            }
             _streamControllers.TryAdd(streamUrl, streamController);
         }
         else
@@ -45,14 +46,14 @@ public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ISt
         return streamController;
     }
 
-    public SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl)
-    {
-        if (_streamControllers.TryGetValue(streamUrl, out IStreamHandler? _streamInformation))
-        {
-            return _streamInformation.RingBuffer.GetSingleStreamStatisticsResult();
-        }
-        return new SingleStreamStatisticsResult();
-    }
+    //public SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl)
+    //{
+    //    if (_streamControllers.TryGetValue(streamUrl, out IStreamHandler? _streamInformation))
+    //    {
+    //        return _streamInformation.RingBuffer.GetSingleStreamStatisticsResult();
+    //    }
+    //    return new SingleStreamStatisticsResult();
+    //}
 
     public IStreamHandler? GetStreamInformationFromStreamUrl(string streamUrl)
     {

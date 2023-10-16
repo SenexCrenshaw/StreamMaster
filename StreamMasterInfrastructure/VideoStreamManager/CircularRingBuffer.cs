@@ -23,8 +23,6 @@ public class CircularRingBuffer : ICircularRingBuffer
     private readonly int _bufferSize;
     private readonly ConcurrentDictionary<Guid, int> _clientReadIndexes = new();
     private readonly Dictionary<Guid, SemaphoreSlim> _clientSemaphores = new();
-    //private Dictionary<Guid, StreamingStatistics> _clientStatistics = new();
-    //private readonly StreamingStatistics _inputStreamStatistics = new("Unknown", "Unknown");
     private readonly ILogger<ICircularRingBuffer> _logger;
     private int _oldestDataIndex;
     private readonly float _preBuffPercent;
@@ -68,32 +66,13 @@ public class CircularRingBuffer : ICircularRingBuffer
     public string VideoStreamId => StreamInfo.VideoStreamId;
     private bool InternalIsPreBuffered { get; set; } = false;
 
-    public List<ClientStreamingStatistics> GetAllStatistics()
-    {
-        return _statisticsManager.GetAllClientStatistics();
-        //List<ClientStreamingStatistics> statisticsList = new();
-
-        //foreach (KeyValuePair<Guid, StreamingStatistics> entry in _clientStatistics)
-        //{
-        //    statisticsList.Add(new ClientStreamingStatistics(entry.Value.ClientAgent, entry.Value.ClientIPAddress)
-        //    {
-        //        ClientId = entry.Key,
-        //        BytesRead = entry.Value.BytesRead,
-        //        BytesWritten = entry.Value.BytesWritten,
-        //        StartTime = entry.Value.StartTime,
-        //    });
-        //}
-
-        //return statisticsList;
-    }
-
     public List<StreamStatisticsResult> GetAllStatisticsForAllUrls()
     {
         List<StreamStatisticsResult> allStatistics = new();
 
         IInputStreamingStatistics input = GetInputStreamStatistics();
 
-        foreach (ClientStreamingStatistics stat in GetAllStatistics())
+        foreach (ClientStreamingStatistics stat in _statisticsManager.GetAllClientStatistics())
         {
             allStatistics.Add(new StreamStatisticsResult
             {
@@ -149,16 +128,6 @@ public class CircularRingBuffer : ICircularRingBuffer
     {
         return _clientReadIndexes[clientId];
     }
-
-    public SingleStreamStatisticsResult GetSingleStreamStatisticsResult()
-    {
-        return new SingleStreamStatisticsResult
-        {
-            StreamUrl = StreamInfo.StreamUrl,
-            ClientStatistics = GetAllStatistics()
-        };
-    }
-
     public bool IsPreBuffered()
     {
         _logger.LogDebug("Starting IsPreBuffered");
@@ -193,10 +162,6 @@ public class CircularRingBuffer : ICircularRingBuffer
         _clientReadIndexes[clientId] = (readIndex + 1) % _buffer.Length;
 
         _statisticsManager.IncrementBytesRead(clientId);
-        //if (_clientStatistics.TryGetValue(clientId, out StreamingStatistics? clientStats))
-        //{
-        //    clientStats.IncrementBytesRead();
-        //}
 
         _logger.LogDebug("Finished Read for clientId: {clientId}", clientId);
         return data;
@@ -222,13 +187,7 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         _clientReadIndexes[clientId] = readIndex;
 
-
         _statisticsManager.AddBytesRead(clientId, count);
-        //// Update client statistics
-        //if (_clientStatistics.TryGetValue(clientId, out StreamingStatistics? clientStats))
-        //{
-        //    clientStats.AddBytesRead(count);
-        //}
         _logger.LogDebug("Finished ReadChunk for clientId: {clientId}", clientId);
 
         return count;
@@ -244,27 +203,37 @@ public class CircularRingBuffer : ICircularRingBuffer
             cancellationToken.ThrowIfCancellationRequested();
         }
 
-        int readIndex = _clientReadIndexes[clientId];
-        int count = target.Length;
-
-        // Using Memory<T> in the synchronous portion of the method
-        for (int i = 0; i < count && !cancellationToken.IsCancellationRequested; i++)
+        if (!_clientReadIndexes.TryGetValue(clientId, out int readIndex))
         {
-            target.Span[i] = _buffer.Span[readIndex];
-            readIndex = (readIndex + 1) % _buffer.Length;
+            // Handle this case: either log an error or throw an exception
+            return 0; // or throw new Exception($"Client {clientId} not found");
+        }
+
+        int bytesToRead = Math.Min(target.Length, GetAvailableBytes(clientId));
+        int bytesRead = 0;
+        while (bytesToRead > 0)
+        {
+            // Calculate how much we can read before we have to wrap
+            int canRead = Math.Min(bytesToRead, _buffer.Length - readIndex);
+
+            // Create a slice from the readIndex to the end of what we can read
+            Memory<byte> slice = _buffer.Slice(readIndex, canRead);
+
+            // Copy to the target buffer
+            slice.CopyTo(target.Slice(bytesRead, canRead));
+
+            // Update readIndex and bytesToRead
+            readIndex = (readIndex + canRead) % _buffer.Length;
+            bytesRead += canRead;
+            bytesToRead -= canRead;
         }
 
         _clientReadIndexes[clientId] = readIndex;
 
-        _statisticsManager.AddBytesRead(clientId, count);
-        //// Update client statistics
-        //if (_clientStatistics.TryGetValue(clientId, out StreamingStatistics? clientStats))
-        //{
-        //    clientStats.AddBytesRead(count);
-        //}
+        _statisticsManager.AddBytesRead(clientId, target.Length);
         _logger.LogDebug("Finished ReadChunkMemory for clientId: {clientId}", clientId);
 
-        return count;
+        return target.Length;
     }
 
     public void RegisterClient(Guid clientId, string clientAgent, string clientIPAddress)

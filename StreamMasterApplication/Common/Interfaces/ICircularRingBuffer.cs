@@ -10,8 +10,6 @@ public interface ICircularRingBuffer
 
     public string VideoStreamId { get; }
 
-    List<ClientStreamingStatistics> GetAllStatistics();
-
     List<StreamStatisticsResult> GetAllStatisticsForAllUrls();
 
     int GetAvailableBytes(Guid clientId);
@@ -20,8 +18,6 @@ public interface ICircularRingBuffer
 
     int GetReadIndex(Guid clientId);
 
-    SingleStreamStatisticsResult GetSingleStreamStatisticsResult();
-
     bool IsPreBuffered();
     Task<byte> Read(Guid clientId, CancellationToken cancellationToken);
 
@@ -29,8 +25,6 @@ public interface ICircularRingBuffer
     Task<int> ReadChunk(Guid clientId, byte[] buffer, int offset, int count, CancellationToken cancellationToken);
 
     void RegisterClient(Guid clientId, string clientAgent, string clientIPAddress);
-
-    //void ReleaseSemaphore(Guid clientId);
 
     void UnregisterClient(Guid clientId);
 

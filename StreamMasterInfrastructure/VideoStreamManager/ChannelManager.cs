@@ -33,7 +33,7 @@ public class ChannelManager : IDisposable, IChannelManager
     private readonly ISettingsService _settingsService;
     private readonly IChannelService _channelService;
 
-    public ChannelManager(ILogger<ChannelManager> logger, IChannelService channelService, IStreamManager streamManager, ISettingsService settingsService, IMemoryCache memoryCache, IServiceProvider serviceProvider, IHubContext<StreamMasterHub, IStreamMasterHub> hub, ILoggerFactory loggerFactory)
+    public ChannelManager(ILogger<ChannelManager> logger, IChannelService channelService, IStreamManager streamManager, ISettingsService settingsService, IMemoryCache memoryCache, IServiceProvider serviceProvider, IHubContext<StreamMasterHub, IStreamMasterHub> hub)
     {
         _settingsService = settingsService;
         _memoryCache = memoryCache;
@@ -43,7 +43,6 @@ public class ChannelManager : IDisposable, IChannelManager
         _broadcastTimer = new Timer(BroadcastMessage, null, 1000, 1000);
         _serviceProvider = serviceProvider;
         _channelService = channelService;
-
     }
     public async Task ChangeVideoStreamChannel(string playingVideoStreamId, string newVideoStreamId)
     {
@@ -137,21 +136,14 @@ public class ChannelManager : IDisposable, IChannelManager
                 }
                 catch (SocketException)
                 {
-
                 }
                 catch (ArgumentException)
                 {
-
                 }
             }
         }
 
         return allStatistics;
-    }
-
-    public SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl)
-    {
-        return _streamManager.GetSingleStreamStatisticsResult(streamUrl);
     }
 
     public async Task<Stream?> GetStream(ClientStreamerConfiguration config)
@@ -164,7 +156,7 @@ public class ChannelManager : IDisposable, IChannelManager
         UnRegisterClient(config);
     }
 
-    public bool ShouldHandleFailover(ChannelStatus channelStatus)
+    public static bool ShouldHandleFailover(ChannelStatus channelStatus)
     {
         if (channelStatus.StreamHandler is null)
         {
@@ -181,12 +173,10 @@ public class ChannelManager : IDisposable, IChannelManager
 
         if (_streamInformation is not null)
         {
-            if (_streamInformation.VideoStreamingCancellationToken is not null && !_streamInformation.VideoStreamingCancellationToken.IsCancellationRequested)
+            if (_streamInformation.VideoStreamingCancellationToken?.IsCancellationRequested == false)
             {
                 _streamInformation.VideoStreamingCancellationToken.Cancel();
             }
-
-
             _logger.LogInformation("Simulating stream failure for: {StreamUrl}", streamUrl);
         }
         else
@@ -341,11 +331,6 @@ public class ChannelManager : IDisposable, IChannelManager
                     _logger.LogInformation("Max stream count {MaxStreams} reached for stream: {StreamUrl}", toReturn.MaxStreams, toReturn.User_Url);
                     continue;
                 }
-
-                //if (m3uFile.StreamURLPrefix != M3UFileStreamURLPrefix.SystemDefault)
-                //{
-                //    toReturn.User_Url = ChangeExtensionBasedOnEnum(toReturn.User_Url, m3uFile.StreamURLPrefix);
-                //}
             }
             _logger.LogDebug("Exiting GetNextChildVideoStream with toReturn: {toReturn}", toReturn);
             return toReturn;
@@ -354,7 +339,6 @@ public class ChannelManager : IDisposable, IChannelManager
         _logger.LogDebug("Exiting GetNextChildVideoStream with null due to no suitable videoStream found");
         return null;
     }
-
 
     private async Task<ChildVideoStreamDto?> HandleOverrideStream(string overrideNextVideoStreamId, IRepositoryWrapper repository, IChannelStatus channelStatus, IMapper mapper)
     {
@@ -662,7 +646,6 @@ public class ChannelManager : IDisposable, IChannelManager
             }
 
             channelStatus.RemoveClientId(config.ClientId);
-
         }
         _logger.LogDebug("Finished UnRegisterWithChannelManager with config: {config}", config.ClientId);
     }

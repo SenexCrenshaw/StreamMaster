@@ -26,7 +26,6 @@ namespace StreamMasterInfrastructure.VideoStreamManager;
 /// <param name="processId">The process identifier associated with the stream.</param>
 /// <param name="cancellationTokenSource">The cancellation token source for the streaming task.</param>
 /// </summary>
-
 public class StreamHandler : IDisposable, IStreamHandler
 {
     private readonly IClientStreamerManager _clientStreamerManager;
@@ -36,7 +35,6 @@ public class StreamHandler : IDisposable, IStreamHandler
         string streamUrl,
         ILogger<IStreamHandler> logger,
         IClientStreamerManager clientStreamerManager,
-
         int processId,
         ICircularRingBuffer buffer,
         CancellationTokenSource cancellationTokenSource)
@@ -50,7 +48,7 @@ public class StreamHandler : IDisposable, IStreamHandler
         ProcessId = processId;
     }
 
-    public static async Task<IStreamHandler> CreateAsync(
+    public static async Task<IStreamHandler?> CreateAsync(
     string streamUrl,
     ChildVideoStreamDto childVideoStreamDto,
     string videoStreamId,
@@ -68,10 +66,14 @@ public class StreamHandler : IDisposable, IStreamHandler
         ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, statisticsManager, inputStatisticsManager, videoStreamId, videoStreamName, rank, setting.PreloadPercentage, setting.RingBufferSizeMB, circularBufferLogger);
 
         (Stream? stream, int processId, ProxyStreamError? error) = await GetProxy(streamUrl, logger, setting, cancellationTokenSource.Token);
+        if (stream == null || error != null)
+        {
+            return null;
+        }
 
         StreamHandler controller = new(streamUrl, logger, clientStreamerManager, processId, buffer, cancellationTokenSource);
 
-        controller.StartVideoStreaming(stream, buffer, cancellationTokenSource);
+        _ = controller.StartVideoStreamingAsync(stream, buffer);
         return controller;
     }
 
@@ -83,13 +85,11 @@ public class StreamHandler : IDisposable, IStreamHandler
         }
     }
 
-
     private static async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl, ILogger<IStreamHandler> logger, Setting setting, CancellationToken cancellationToken)
     {
         Stream? stream;
         ProxyStreamError? error;
         int processId;
-
 
         if (setting.StreamingProxyType == StreamingProxyTypes.FFMpeg)
         {
@@ -133,27 +133,25 @@ public class StreamHandler : IDisposable, IStreamHandler
         await DelayWithCancellation(waitTime, token);
     }
 
-    private async Task StartVideoStreaming(Stream stream, ICircularRingBuffer circularRingbuffer, CancellationTokenSource cancellationToken)
+    private async Task StartVideoStreamingAsync(Stream stream, ICircularRingBuffer circularRingbuffer)
     {
-        int chunkSize = 24 * 1024;
+        const int chunkSize = 24 * 1024;
 
         _logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl}", chunkSize, StreamUrl);
 
         Memory<byte> bufferMemory = new byte[chunkSize];
 
-        //byte[] bufferChunk = new byte[chunkSize];
-
-        int maxRetries = 3; //setting.MaxConnectRetry > 0 ? setting.MaxConnectRetry : 3;
-        int waitTime = 50;// setting.MaxConnectRetryTimeMS > 0 ? setting.MaxConnectRetryTimeMS : 50;
+        const int maxRetries = 3; //setting.MaxConnectRetry > 0 ? setting.MaxConnectRetry : 3;
+        const int waitTime = 50;// setting.MaxConnectRetryTimeMS > 0 ? setting.MaxConnectRetryTimeMS : 50;
 
         using (stream)
         {
             int retryCount = 0;
-            while (!cancellationToken.IsCancellationRequested && retryCount < maxRetries)
+            while (!VideoStreamingCancellationToken.IsCancellationRequested && retryCount < maxRetries)
             {
                 try
                 {
-                    int bytesRead = await TryReadStream(bufferMemory, stream, cancellationToken.Token);
+                    int bytesRead = await TryReadStream(bufferMemory, stream, VideoStreamingCancellationToken.Token);
                     if (bytesRead == -1)
                     {
                         break;
@@ -161,14 +159,12 @@ public class StreamHandler : IDisposable, IStreamHandler
                     if (bytesRead == 0)
                     {
                         retryCount++;
-                        await LogRetryAndDelay(retryCount, maxRetries, waitTime, cancellationToken.Token);
+                        await LogRetryAndDelay(retryCount, maxRetries, waitTime, VideoStreamingCancellationToken.Token);
                     }
                     else
                     {
                         circularRingbuffer.WriteChunk(bufferMemory[..bytesRead]);
-                        //circularRingbuffer.WriteChunk(bufferChunk, bytesRead);
                         retryCount = 0;
-                        //LogBufferHealth(circularRingbuffer);
                     }
                 }
                 catch (TaskCanceledException ex)
@@ -184,9 +180,9 @@ public class StreamHandler : IDisposable, IStreamHandler
         }
 
         _logger.LogInformation("Stream stopped for: {StreamUrl}", StreamUrl);
-        if (!cancellationToken.IsCancellationRequested)
+        if (!VideoStreamingCancellationToken.IsCancellationRequested)
         {
-            cancellationToken.Cancel();
+            VideoStreamingCancellationToken.Cancel();
         }
     }
 
@@ -211,7 +207,6 @@ public class StreamHandler : IDisposable, IStreamHandler
             throw;
         }
     }
-
 
     /// <summary>
     /// Raised when an error occurs during stream operations.
@@ -245,8 +240,6 @@ public class StreamHandler : IDisposable, IStreamHandler
     public int ProcessId { get; set; } = -1;
 
     public ICircularRingBuffer RingBuffer { get; }
-
-    public Task StreamingTask { get; set; }
     public string StreamUrl { get; set; }
     public CancellationTokenSource VideoStreamingCancellationToken { get; set; }
 
@@ -283,14 +276,12 @@ public class StreamHandler : IDisposable, IStreamHandler
             _logger.LogError(ex, "Error registering stream configuration for client {ClientId}.", streamerConfiguration.ClientId);
             StreamFailed?.Invoke(this, new StreamFailedEventArgs($"Failed to register client {streamerConfiguration.ClientId}."));
         }
-
     }
 
     protected virtual void OnStreamControllerStopped()
     {
         StreamControllerStopped?.Invoke(this, new());
     }
-
 
     public void Stop()
     {
