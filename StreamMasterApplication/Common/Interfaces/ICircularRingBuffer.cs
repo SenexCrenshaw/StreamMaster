@@ -30,11 +30,12 @@ namespace StreamMasterApplication.Common.Interfaces
 
         Task<byte> Read(Guid clientId, CancellationToken cancellationToken);
 
+        Task<int> ReadChunkMemory(Guid clientId, Memory<byte> target, CancellationToken cancellationToken);
         Task<int> ReadChunk(Guid clientId, byte[] buffer, int offset, int count, CancellationToken cancellationToken);
 
         void RegisterClient(Guid clientId, string clientAgent, string clientIPAddress);
 
-        void ReleaseSemaphore(Guid clientId);
+        //void ReleaseSemaphore(Guid clientId);
 
         void UnregisterClient(Guid clientId);
 
@@ -44,6 +45,7 @@ namespace StreamMasterApplication.Common.Interfaces
 
         void Write(byte data);
 
+        int WriteChunk(Memory<byte> data);
         int WriteChunk(byte[] data, int count);
     }
 }

@@ -15,11 +15,11 @@ using System.Diagnostics;
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
 /// <summary>
-/// Manages the streaming of a single video stream, including client registrations and buffer handling.
+/// Manages the streaming of a single video stream, including client registrations and circularRingbuffer handling.
 /// <param name="streamUrl">The URL of the video stream.</param>
 /// <param name="logger">The logger instance for logging purposes.</param>
 /// <param name="clientManager">The client manager to handle client-specific operations.</param>
-/// <param name="buffer">The circular ring buffer for the video stream.</param>
+/// <param name="buffer">The circular ring circularRingbuffer for the video stream.</param>
 /// <param name="streamingTask">The task that represents the streaming operation.</param>
 /// <param name="m3uFileId">The M3U file identifier.</param>
 /// <param name="maxStreams">The maximum number of concurrent streams allowed.</param>
@@ -130,13 +130,15 @@ public class StreamHandler : IDisposable, IStreamHandler
         await DelayWithCancellation(waitTime, token);
     }
 
-    private async Task StartVideoStreaming(Stream stream, ICircularRingBuffer buffer, CancellationTokenSource cancellationToken)
+    private async Task StartVideoStreaming(Stream stream, ICircularRingBuffer circularRingbuffer, CancellationTokenSource cancellationToken)
     {
         int chunkSize = 24 * 1024;
 
         _logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl}", chunkSize, StreamUrl);
 
-        byte[] bufferChunk = new byte[chunkSize];
+        Memory<byte> bufferMemory = new byte[chunkSize];
+
+        //byte[] bufferChunk = new byte[chunkSize];
 
         int maxRetries = 3; //setting.MaxConnectRetry > 0 ? setting.MaxConnectRetry : 3;
         int waitTime = 50;// setting.MaxConnectRetryTimeMS > 0 ? setting.MaxConnectRetryTimeMS : 50;
@@ -148,7 +150,7 @@ public class StreamHandler : IDisposable, IStreamHandler
             {
                 try
                 {
-                    int bytesRead = await TryReadStream(bufferChunk, stream, cancellationToken.Token);
+                    int bytesRead = await TryReadStream(bufferMemory, stream, cancellationToken.Token);
                     if (bytesRead == -1)
                     {
                         break;
@@ -160,9 +162,10 @@ public class StreamHandler : IDisposable, IStreamHandler
                     }
                     else
                     {
-                        buffer.WriteChunk(bufferChunk, bytesRead);
+                        circularRingbuffer.WriteChunk(bufferMemory[..bytesRead]);
+                        //circularRingbuffer.WriteChunk(bufferChunk, bytesRead);
                         retryCount = 0;
-                        //LogBufferHealth(buffer);
+                        //LogBufferHealth(circularRingbuffer);
                     }
                 }
                 catch (TaskCanceledException ex)
@@ -184,7 +187,7 @@ public class StreamHandler : IDisposable, IStreamHandler
         }
     }
 
-    private async Task<int> TryReadStream(byte[] bufferChunk, Stream stream, CancellationToken cancellationToken)
+    private async Task<int> TryReadStream(Memory<byte> bufferChunk, Stream stream, CancellationToken cancellationToken)
     {
         try
         {

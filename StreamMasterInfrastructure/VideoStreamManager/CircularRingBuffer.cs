@@ -14,6 +14,7 @@ namespace StreamMasterInfrastructure.VideoStreamManager;
 /// </summary>
 public class CircularRingBuffer : ICircularRingBuffer
 {
+    private readonly object _semaphoreLock = new();
     public readonly StreamInfo StreamInfo;
     private readonly Memory<byte> _buffer;
     private readonly int _bufferSize;
@@ -155,11 +156,11 @@ public class CircularRingBuffer : ICircularRingBuffer
 
     public bool IsPreBuffered()
     {
-        _logger.LogDebug($"Starting IsPreBuffered");
+        _logger.LogDebug("Starting IsPreBuffered");
 
         if (isPreBuffered)
         {
-            _logger.LogDebug($"Finished IsPreBuffered with true (already pre-buffered)");
+            _logger.LogDebug("Finished IsPreBuffered with true (already pre-buffered)");
             return true;
         }
 
@@ -168,13 +169,13 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         isPreBuffered = percentBuffered >= _preBuffPercent;
 
-        _logger.LogDebug($"Finished IsPreBuffered with {isPreBuffered}");
+        _logger.LogDebug("Finished IsPreBuffered with {isPreBuffered}", isPreBuffered);
         return isPreBuffered;
     }
 
     public async Task<byte> Read(Guid clientId, CancellationToken cancellationToken)
     {
-        _logger.LogDebug($"Starting Read for clientId: {clientId}");
+        _logger.LogDebug("Starting Read for clientId: {clientId}", clientId);
 
         while (!IsPreBuffered())
         {
@@ -191,13 +192,13 @@ public class CircularRingBuffer : ICircularRingBuffer
             clientStats.IncrementBytesRead();
         }
 
-        _logger.LogDebug($"Finished Read for clientId: {clientId}");
+        _logger.LogDebug("Finished Read for clientId: {clientId}", clientId);
         return data;
     }
 
     public async Task<int> ReadChunk(Guid clientId, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
-        _logger.LogDebug($"Starting ReadChunk for clientId: {clientId}");
+        _logger.LogDebug("Starting ReadChunk for clientId: {clientId}", clientId);
 
         while (!IsPreBuffered())
         {
@@ -225,6 +226,38 @@ public class CircularRingBuffer : ICircularRingBuffer
         return count;
     }
 
+    public async Task<int> ReadChunkMemory(Guid clientId, Memory<byte> target, CancellationToken cancellationToken)
+    {
+        _logger.LogDebug("Starting ReadChunkMemory for clientId: {clientId}", clientId);
+
+        while (!IsPreBuffered())
+        {
+            await Task.Delay(100, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+        }
+
+        int readIndex = _clientReadIndexes[clientId];
+        int count = target.Length;
+
+        // Using Memory<T> in the synchronous portion of the method
+        for (int i = 0; i < count && !cancellationToken.IsCancellationRequested; i++)
+        {
+            target.Span[i] = _buffer.Span[readIndex];
+            readIndex = (readIndex + 1) % _buffer.Length;
+        }
+
+        _clientReadIndexes[clientId] = readIndex;
+
+        // Update client statistics
+        if (_clientStatistics.TryGetValue(clientId, out StreamingStatistics? clientStats))
+        {
+            clientStats.AddBytesRead(count);
+        }
+        _logger.LogDebug("Finished ReadChunkMemory for clientId: {clientId}", clientId);
+
+        return count;
+    }
+
     public void RegisterClient(Guid clientId, string clientAgent, string clientIPAdress)
     {
         _logger.LogDebug("Starting RegisterClient for clientId: {clientId}", clientId);
@@ -239,10 +272,20 @@ public class CircularRingBuffer : ICircularRingBuffer
         _logger.LogDebug("Finished RegisterClient for clientId: {clientId}", clientId);
     }
 
-    public void ReleaseSemaphore(Guid clientId)
+    private void ReleaseSemaphores()
     {
-        SemaphoreSlim semaphore = _clientSemaphores[clientId];
-        _ = semaphore.Release();
+        lock (_semaphoreLock)
+        {
+            foreach (KeyValuePair<Guid, SemaphoreSlim> kvp in _clientSemaphores)
+            {
+                SemaphoreSlim semaphore = kvp.Value;
+
+                if (semaphore.CurrentCount == 0)
+                {
+                    semaphore.Release();
+                }
+            }
+        }
     }
 
     public void UnregisterClient(Guid clientId)
@@ -285,7 +328,7 @@ public class CircularRingBuffer : ICircularRingBuffer
 
     public void Write(byte data)
     {
-        _logger.LogDebug($"Starting Write with data: {data}");
+        _logger.LogDebug("Starting Write with data: {data}", data);
 
         int nextWriteIndex = (_writeIndex + 1) % _buffer.Length;
 
@@ -301,27 +344,58 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         try
         {
-            foreach (KeyValuePair<Guid, SemaphoreSlim> kvp in _clientSemaphores)
-            {
-                SemaphoreSlim semaphore = kvp.Value;
+            ReleaseSemaphores();
 
-                if (semaphore.CurrentCount == 0)
-                {
-                    semaphore.Release();
-                }
-            }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while releasing semaphores during Write.");
         }
 
-        _logger.LogDebug($"Write completed with data: {data}");
+        _logger.LogDebug("Write completed with data: {data}", data);
     }
+
+    public int WriteChunk(Memory<byte> data)
+    {
+        _logger.LogDebug("Starting WriteChunk with count: {count}", data.Length);
+
+        int bytesWritten = 0;
+        Span<byte> dataSpan = data.Span;
+
+        for (int i = 0; i < data.Length; i++)
+        {
+            int nextWriteIndex = (_writeIndex + 1) % _buffer.Length;
+
+            if (nextWriteIndex == _oldestDataIndex)
+            {
+                _oldestDataIndex = (_oldestDataIndex + 1) % _buffer.Length;
+            }
+
+            _buffer.Span[_writeIndex] = dataSpan[i];
+            _writeIndex = nextWriteIndex;
+            bytesWritten++;
+        }
+
+        _inputStreamStatistics.AddBytesWritten(bytesWritten);
+
+        try
+        {
+            ReleaseSemaphores();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while releasing semaphores during WriteChunk.");
+        }
+
+        _logger.LogDebug($"WriteChunk completed with count: {data.Length}");
+
+        return bytesWritten;
+    }
+
 
     public int WriteChunk(byte[] data, int count)
     {
-        _logger.LogDebug($"Starting WriteChunk with count: {count}");
+        _logger.LogDebug("Starting WriteChunk with count: {count}", count);
 
         int bytesWritten = 0;
 
@@ -343,22 +417,14 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         try
         {
-            foreach (KeyValuePair<Guid, SemaphoreSlim> kvp in _clientSemaphores)
-            {
-                SemaphoreSlim semaphore = kvp.Value;
-
-                if (semaphore.CurrentCount == 0)
-                {
-                    semaphore.Release();
-                }
-            }
+            ReleaseSemaphores();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while releasing semaphores during WriteChunk.");
         }
 
-        _logger.LogDebug($"WriteChunk completed with count: {count}");
+        _logger.LogDebug("WriteChunk completed with count: {count}", count);
 
         return bytesWritten;
     }

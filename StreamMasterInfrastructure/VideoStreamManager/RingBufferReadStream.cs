@@ -42,6 +42,35 @@ public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, Clie
         return bytesRead;
     }
 
+    public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+    {
+        int bytesRead = 0;
+        int availableBytes;
+
+        while (bytesRead < buffer.Length)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            _cancellationSource.ThrowIfCancellationRequested();
+            _cancellationTokenSource.Token.ThrowIfCancellationRequested();
+
+            availableBytes = Buffer.GetAvailableBytes(_clientId);
+
+            if (availableBytes == 0)
+            {
+                await Buffer.WaitSemaphoreAsync(_clientId, cancellationToken);
+                availableBytes = Buffer.GetAvailableBytes(_clientId);
+            }
+
+            int bytesToRead = Math.Min(buffer.Length - bytesRead, availableBytes);
+            if (bytesToRead > 0)
+            {
+                bytesRead += await Buffer.ReadChunkMemory(_clientId, buffer.Slice(bytesRead, bytesToRead), cancellationToken);
+            }
+        }
+
+        return bytesRead;
+    }
+
 
     public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
@@ -56,16 +85,19 @@ public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, Clie
 
             availableBytes = Buffer.GetAvailableBytes(_clientId);
 
-            if (availableBytes > 0)
+            if (availableBytes == 0)
             {
-                int bytesToRead = Math.Min(count - bytesRead, availableBytes);
+                await Buffer.WaitSemaphoreAsync(_clientId, cancellationToken);
+                availableBytes = Buffer.GetAvailableBytes(_clientId);
+            }
+
+            int bytesToRead = Math.Min(count - bytesRead, availableBytes);
+            if (bytesToRead > 0)
+            {
                 bytesRead += await Buffer.ReadChunk(_clientId, buffer, offset, bytesToRead, cancellationToken);
                 offset = (offset + bytesToRead) % buffer.Length;
             }
-            else
-            {
-                await Buffer.WaitSemaphoreAsync(_clientId, cancellationToken);
-            }
+
         }
 
         return bytesRead;
