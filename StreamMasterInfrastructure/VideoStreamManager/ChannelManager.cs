@@ -186,7 +186,7 @@ public class ChannelManager(ILogger<ChannelManager> logger, IBroadcastService br
         IStreamHandler? streamHandler = streamManager.GetStreamHandler(channelStatus.VideoStreamId);
         if (streamHandler is null)
         {
-            logger.LogDebug("ChannelStatus StreamInformation is null for channelStatus: {channelStatus}, attempting to handle next video stream", channelStatus);
+            logger.LogDebug("ChannelStatus StreamInformation is null for channelStatus: {channelStatus}, attempting to switch to next video stream", channelStatus);
             bool handled;
             try
             {
@@ -198,7 +198,7 @@ public class ChannelManager(ILogger<ChannelManager> logger, IBroadcastService br
                 throw;
             }
 
-            logger.LogDebug("Exiting ProcessStreamStatus with {handled} after handling next video stream", !handled);
+            logger.LogDebug("Exiting ProcessStreamStatus with {handled} after switching to next video stream", !handled);
             return !handled;
         }
 
@@ -241,74 +241,157 @@ public class ChannelManager(ILogger<ChannelManager> logger, IBroadcastService br
     {
         logger.LogDebug("Starting RegisterWithChannelManager with config: {config}", config.ClientId);
 
-        IChannelStatus? channelStatus;
         IStreamHandler? streamHandler = streamManager.GetStreamHandler(config.VideoStreamId);
+        IChannelStatus? channelStatus;
 
         if (!channelService.HasChannel(config.VideoStreamId))
         {
-            using IServiceScope scope = serviceProvider.CreateScope();
-            IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-            VideoStreamDto? videoStream = await repository.VideoStream.GetVideoStreamById(config.VideoStreamId);
-
-            if (videoStream is null)
-            {
-                return null;
-            }
-
-            config.VideoStreamName = videoStream.User_Tvg_name;
-
-            channelStatus = channelService.RegisterChannel(config.VideoStreamId, config.VideoStreamName);
-
-            if (streamHandler is null)
-            {
-                if (!await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus).ConfigureAwait(false) || streamHandler is null)
-                {
-                    channelService.UnregisterChannel(config.VideoStreamId);
-                    return null;
-                }
-                streamHandler = streamManager.GetStreamHandler(config.VideoStreamId);
-                if (streamHandler is null)
-                {
-                    logger.LogError("Failed to get streamHandler for videostream with id {id}", config.VideoStreamId);
-                    channelService.UnregisterChannel(config.VideoStreamId);
-                    return null;
-                }
-            }
-
-            _ = ChannelWatcher(channelStatus).ConfigureAwait(false);
+            channelStatus = await RegisterNewChannel(config, streamHandler);
         }
         else
         {
-            channelStatus = channelService.GetChannelStatus(config.VideoStreamId);
+            channelStatus = HandleExistingChannel(config, streamHandler);
         }
 
-
-        if (channelStatus is null)
+        if (channelStatus == null || streamHandler == null)
         {
-            logger.LogError("Exiting RegisterWithChannelManager with null due to channelStatus being null");
+            logger.LogError("Failed to register with channel manager.");
             channelService.UnregisterChannel(config.VideoStreamId);
             return null;
         }
 
-        if (streamHandler is null)
-        {
-            logger.LogError("Failed to get streamHandler for videostream with id {id}", config.VideoStreamId);
-            channelService.UnregisterChannel(config.VideoStreamId);
-            return null;
-        }
-
-        channelStatus.AddToClientIds(config.ClientId);
-
-        logger.LogInformation("ChannelManager added channel: {videoStreamId}", config.VideoStreamId);
-
-        config.ReadBuffer = new RingBufferReadStream(() => streamHandler.RingBuffer, config);
-
-        streamHandler.RegisterClientStreamer(config);
+        CompleteClientRegistration(channelStatus, streamHandler, config);
 
         logger.LogDebug("Finished RegisterWithChannelManager with config: {config}", config.ClientId);
-
         return channelStatus;
     }
+
+    private async Task<IChannelStatus?> RegisterNewChannel(ClientStreamerConfiguration config, IStreamHandler? streamHandler)
+    {
+        using IServiceScope scope = serviceProvider.CreateScope();
+        IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+        VideoStreamDto? videoStream = await repository.VideoStream.GetVideoStreamById(config.VideoStreamId);
+
+        if (videoStream == null)
+        {
+            return null;
+        }
+
+        config.VideoStreamName = videoStream.User_Tvg_name;
+        IChannelStatus channelStatus = channelService.RegisterChannel(config.VideoStreamId, config.VideoStreamName);
+
+        if (streamHandler == null)
+        {
+            if (!await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus).ConfigureAwait(false))
+            {
+                return null;
+            }
+            streamHandler = streamManager.GetStreamHandler(config.VideoStreamId);
+        }
+
+        if (streamHandler == null)
+        {
+            logger.LogError("Failed to get streamHandler for videostream with id {id}", config.VideoStreamId);
+            return null;
+        }
+
+        _ = ChannelWatcher(channelStatus).ConfigureAwait(false);
+        return channelStatus;
+    }
+
+    private IChannelStatus? HandleExistingChannel(ClientStreamerConfiguration config, IStreamHandler? streamHandler)
+    {
+        IChannelStatus? channelStatus = channelService.GetChannelStatus(config.VideoStreamId);
+        if (streamHandler == null)
+        {
+            logger.LogError("Failed to get streamHandler for videostream with id {id}", config.VideoStreamId);
+            return null;
+        }
+        return channelStatus;
+    }
+
+    private void CompleteClientRegistration(IChannelStatus channelStatus, IStreamHandler streamHandler, ClientStreamerConfiguration config)
+    {
+        channelStatus.AddToClientIds(config.ClientId);
+        logger.LogInformation("ChannelManager added channel: {videoStreamId}", config.VideoStreamId);
+        config.ReadBuffer = new RingBufferReadStream(() => streamHandler.RingBuffer, config);
+        streamHandler.RegisterClientStreamer(config);
+    }
+
+
+
+    //private async Task<IChannelStatus?> RegisterWithChannelManager(ClientStreamerConfiguration config)
+    //{
+    //    logger.LogDebug("Starting RegisterWithChannelManager with config: {config}", config.ClientId);
+
+    //    IChannelStatus? channelStatus;
+    //    IStreamHandler? streamHandler = streamManager.GetStreamHandler(config.VideoStreamId);
+
+    //    if (!channelService.HasChannel(config.VideoStreamId))
+    //    {
+    //        using IServiceScope scope = serviceProvider.CreateScope();
+    //        IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
+    //        VideoStreamDto? videoStream = await repository.VideoStream.GetVideoStreamById(config.VideoStreamId);
+
+    //        if (videoStream is null)
+    //        {
+    //            return null;
+    //        }
+
+    //        config.VideoStreamName = videoStream.User_Tvg_name;
+
+    //        channelStatus = channelService.RegisterChannel(config.VideoStreamId, config.VideoStreamName);
+
+    //        if (streamHandler is null)
+    //        {
+    //            if (!await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus).ConfigureAwait(false) || streamHandler is null)
+    //            {
+    //                channelService.UnregisterChannel(config.VideoStreamId);
+    //                return null;
+    //            }
+    //            streamHandler = streamManager.GetStreamHandler(config.VideoStreamId);
+    //            if (streamHandler is null)
+    //            {
+    //                logger.LogError("Failed to get streamHandler for videostream with id {id}", config.VideoStreamId);
+    //                channelService.UnregisterChannel(config.VideoStreamId);
+    //                return null;
+    //            }
+    //        }
+
+    //        _ = ChannelWatcher(channelStatus).ConfigureAwait(false);
+    //    }
+    //    else
+    //    {
+    //        channelStatus = channelService.GetChannelStatus(config.VideoStreamId);
+    //    }
+
+
+    //    if (channelStatus is null)
+    //    {
+    //        logger.LogError("Exiting RegisterWithChannelManager with null due to channelStatus being null");
+    //        channelService.UnregisterChannel(config.VideoStreamId);
+    //        return null;
+    //    }
+
+    //    if (streamHandler is null)
+    //    {
+    //        logger.LogError("Failed to get streamHandler for videostream with id {id}", config.VideoStreamId);
+    //        channelService.UnregisterChannel(config.VideoStreamId);
+    //        return null;
+    //    }
+
+    //    channelStatus.AddToClientIds(config.ClientId);
+
+    //    logger.LogInformation("ChannelManager added channel: {videoStreamId}", config.VideoStreamId);
+
+    //    config.ReadBuffer = new RingBufferReadStream(() => streamHandler.RingBuffer, config);
+
+    //    streamHandler.RegisterClientStreamer(config);
+
+    //    logger.LogDebug("Finished RegisterWithChannelManager with config: {config}", config.ClientId);
+
+    //    return channelStatus;
+    //}
 
     private void UnRegisterWithChannelManager(ClientStreamerConfiguration config)
     {
