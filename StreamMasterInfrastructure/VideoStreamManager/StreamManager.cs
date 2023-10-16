@@ -10,7 +10,7 @@ using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
-public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, IClientStreamerManager clientStreamerManager, ILogger<StreamHandler> streamControllerlogger, ILogger<StreamManager> logger, IMemoryCache memoryCache) : IStreamManager
+public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IClientStreamerManager clientStreamerManager, ILogger<StreamHandler> streamControllerlogger, ILogger<StreamManager> logger, IMemoryCache memoryCache) : IStreamManager
 {
 
     private readonly ConcurrentDictionary<string, IStreamHandler> _streamControllers = new();
@@ -34,7 +34,7 @@ public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ICl
 
         if (!_streamControllers.TryGetValue(streamUrl, out IStreamHandler streamController))
         {
-            streamController = await StreamHandler.CreateAsync(streamUrl, childVideoStreamDto, videoStreamId, videoStreamName, rank, streamControllerlogger, memoryCache, circularBufferLogger, clientStreamerManager);
+            streamController = await StreamHandler.CreateAsync(streamUrl, childVideoStreamDto, videoStreamId, videoStreamName, rank, streamControllerlogger, memoryCache, circularBufferLogger, clientStreamerManager, statisticsManager, inputStatisticsManager);
             _streamControllers.TryAdd(streamUrl, streamController);
         }
         else

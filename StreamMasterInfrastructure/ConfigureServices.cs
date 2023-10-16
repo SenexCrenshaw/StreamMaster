@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using StreamMasterApplication.Common.Interfaces;
@@ -22,12 +21,14 @@ namespace StreamMasterInfrastructure;
 
 public static class ConfigureServices
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
         services.AddMemoryCache();
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<IStreamFactory, DefaultStreamFactory>();
         services.AddSingleton<IChannelService, ChannelService>();
+        services.AddSingleton<IStatisticsManager, StatisticsManager>();
+        services.AddSingleton<IInputStatisticsManager, InputStatisticsManager>();
         services.AddSingleton<IClientStreamerManager, ClientStreamerManager>();
         services.AddSingleton<IStreamManager, StreamManager>();
         services.AddSingleton<ISDService, SDService>();

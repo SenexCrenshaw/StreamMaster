@@ -14,21 +14,28 @@ namespace StreamMasterInfrastructure.VideoStreamManager;
 /// </summary>
 public class CircularRingBuffer : ICircularRingBuffer
 {
+    private readonly IStatisticsManager _statisticsManager;
+    private readonly IInputStatisticsManager _inputStatisticsManager;
+    private readonly IInputStreamingStatistics _inputStreamStatistics;
     private readonly object _semaphoreLock = new();
     public readonly StreamInfo StreamInfo;
     private readonly Memory<byte> _buffer;
     private readonly int _bufferSize;
     private readonly ConcurrentDictionary<Guid, int> _clientReadIndexes = new();
     private readonly Dictionary<Guid, SemaphoreSlim> _clientSemaphores = new();
-    private readonly Dictionary<Guid, StreamingStatistics> _clientStatistics = new();
-    private readonly StreamingStatistics _inputStreamStatistics = new("Unknown", "Unknown");
+    //private Dictionary<Guid, StreamingStatistics> _clientStatistics = new();
+    //private readonly StreamingStatistics _inputStreamStatistics = new("Unknown", "Unknown");
     private readonly ILogger<ICircularRingBuffer> _logger;
     private int _oldestDataIndex;
     private readonly float _preBuffPercent;
     private int _writeIndex;
 
-    public CircularRingBuffer(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank, int PreloadPercentage, int RingBufferSizeMB, ILogger<ICircularRingBuffer> logger)
+    public CircularRingBuffer(ChildVideoStreamDto childVideoStreamDto, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, string videoStreamId, string videoStreamName, int rank, int PreloadPercentage, int RingBufferSizeMB, ILogger<ICircularRingBuffer> logger)
     {
+        _statisticsManager = statisticsManager ?? throw new ArgumentNullException(nameof(statisticsManager));
+        _inputStatisticsManager = inputStatisticsManager ?? throw new ArgumentNullException(nameof(inputStatisticsManager));
+        _inputStreamStatistics = _inputStatisticsManager.RegisterReader(childVideoStreamDto.Id);
+
         _logger = logger;
         if (PreloadPercentage < 0 || PreloadPercentage > 100)
         {
@@ -42,11 +49,13 @@ public class CircularRingBuffer : ICircularRingBuffer
         {
             VideoStreamId = videoStreamId,
             VideoStreamName = videoStreamName,
+
             M3UStreamId = childVideoStreamDto.Id,
             M3UStreamName = childVideoStreamDto.User_Tvg_name,
             Logo = childVideoStreamDto.User_Tvg_logo,
             StreamProxyType = childVideoStreamDto.StreamProxyType,
             StreamUrl = childVideoStreamDto.User_Url,
+
             Rank = rank
         };
 
@@ -61,27 +70,28 @@ public class CircularRingBuffer : ICircularRingBuffer
 
     public List<ClientStreamingStatistics> GetAllStatistics()
     {
-        List<ClientStreamingStatistics> statisticsList = new();
+        return _statisticsManager.GetAllClientStatistics();
+        //List<ClientStreamingStatistics> statisticsList = new();
 
-        foreach (KeyValuePair<Guid, StreamingStatistics> entry in _clientStatistics)
-        {
-            statisticsList.Add(new ClientStreamingStatistics(entry.Value.ClientAgent, entry.Value.ClientIPAddress)
-            {
-                ClientId = entry.Key,
-                BytesRead = entry.Value.BytesRead,
-                BytesWritten = entry.Value.BytesWritten,
-                StartTime = entry.Value.StartTime,
-            });
-        }
+        //foreach (KeyValuePair<Guid, StreamingStatistics> entry in _clientStatistics)
+        //{
+        //    statisticsList.Add(new ClientStreamingStatistics(entry.Value.ClientAgent, entry.Value.ClientIPAddress)
+        //    {
+        //        ClientId = entry.Key,
+        //        BytesRead = entry.Value.BytesRead,
+        //        BytesWritten = entry.Value.BytesWritten,
+        //        StartTime = entry.Value.StartTime,
+        //    });
+        //}
 
-        return statisticsList;
+        //return statisticsList;
     }
 
     public List<StreamStatisticsResult> GetAllStatisticsForAllUrls()
     {
         List<StreamStatisticsResult> allStatistics = new();
 
-        StreamingStatistics input = GetInputStreamStatistics();
+        IInputStreamingStatistics input = GetInputStreamStatistics();
 
         foreach (ClientStreamingStatistics stat in GetAllStatistics())
         {
@@ -94,6 +104,7 @@ public class CircularRingBuffer : ICircularRingBuffer
                 M3UStreamProxyType = StreamInfo.StreamProxyType,
                 Logo = StreamInfo.Logo,
                 Rank = StreamInfo.Rank,
+
                 InputBytesRead = input.BytesRead,
                 InputBytesWritten = input.BytesWritten,
                 InputBitsPerSecond = input.BitsPerSecond,
@@ -101,9 +112,8 @@ public class CircularRingBuffer : ICircularRingBuffer
 
                 StreamUrl = StreamInfo.StreamUrl,
 
-                ClientBitsPerSecond = stat.BitsPerSecond,
+                ClientBitsPerSecond = stat.ReadBitsPerSecond,
                 ClientBytesRead = stat.BytesRead,
-                ClientBytesWritten = stat.BytesWritten,
                 ClientId = stat.ClientId,
                 ClientStartTime = stat.StartTime,
                 ClientAgent = stat.ClientAgent,
@@ -130,12 +140,7 @@ public class CircularRingBuffer : ICircularRingBuffer
         return _clientReadIndexes.Keys;
     }
 
-    public StreamingStatistics? GetClientStatistics(Guid clientId)
-    {
-        return _clientStatistics.TryGetValue(clientId, out StreamingStatistics? clientStats) ? clientStats : null;
-    }
-
-    public StreamingStatistics GetInputStreamStatistics()
+    private IInputStreamingStatistics GetInputStreamStatistics()
     {
         return _inputStreamStatistics;
     }
@@ -187,10 +192,11 @@ public class CircularRingBuffer : ICircularRingBuffer
         byte data = _buffer.Span[readIndex];
         _clientReadIndexes[clientId] = (readIndex + 1) % _buffer.Length;
 
-        if (_clientStatistics.TryGetValue(clientId, out StreamingStatistics? clientStats))
-        {
-            clientStats.IncrementBytesRead();
-        }
+        _statisticsManager.IncrementBytesRead(clientId);
+        //if (_clientStatistics.TryGetValue(clientId, out StreamingStatistics? clientStats))
+        //{
+        //    clientStats.IncrementBytesRead();
+        //}
 
         _logger.LogDebug("Finished Read for clientId: {clientId}", clientId);
         return data;
@@ -216,11 +222,13 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         _clientReadIndexes[clientId] = readIndex;
 
-        // Update client statistics
-        if (_clientStatistics.TryGetValue(clientId, out StreamingStatistics? clientStats))
-        {
-            clientStats.AddBytesRead(count);
-        }
+
+        _statisticsManager.AddBytesRead(clientId, count);
+        //// Update client statistics
+        //if (_clientStatistics.TryGetValue(clientId, out StreamingStatistics? clientStats))
+        //{
+        //    clientStats.AddBytesRead(count);
+        //}
         _logger.LogDebug("Finished ReadChunk for clientId: {clientId}", clientId);
 
         return count;
@@ -248,17 +256,18 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         _clientReadIndexes[clientId] = readIndex;
 
-        // Update client statistics
-        if (_clientStatistics.TryGetValue(clientId, out StreamingStatistics? clientStats))
-        {
-            clientStats.AddBytesRead(count);
-        }
+        _statisticsManager.AddBytesRead(clientId, count);
+        //// Update client statistics
+        //if (_clientStatistics.TryGetValue(clientId, out StreamingStatistics? clientStats))
+        //{
+        //    clientStats.AddBytesRead(count);
+        //}
         _logger.LogDebug("Finished ReadChunkMemory for clientId: {clientId}", clientId);
 
         return count;
     }
 
-    public void RegisterClient(Guid clientId, string clientAgent, string clientIPAdress)
+    public void RegisterClient(Guid clientId, string clientAgent, string clientIPAddress)
     {
         _logger.LogDebug("Starting RegisterClient for clientId: {clientId}", clientId);
 
@@ -266,7 +275,8 @@ public class CircularRingBuffer : ICircularRingBuffer
         {
             _ = _clientReadIndexes.TryAdd(clientId, _oldestDataIndex);
             _ = _clientSemaphores.TryAdd(clientId, new SemaphoreSlim(0, 1));
-            _ = _clientStatistics.TryAdd(clientId, new StreamingStatistics(clientAgent, clientIPAdress));
+            //_ = _clientStatistics.TryAdd(clientId, new StreamingStatistics(clientAgent, clientIPAdress));
+            _statisticsManager.RegisterClient(clientId, clientAgent, clientIPAddress);
         }
 
         _logger.LogDebug("Finished RegisterClient for clientId: {clientId}", clientId);
@@ -294,7 +304,7 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         _ = _clientReadIndexes.TryRemove(clientId, out _);
         _ = _clientSemaphores.Remove(clientId);
-        _ = _clientStatistics.Remove(clientId, out _);
+        _statisticsManager.UnregisterClient(clientId);
 
         _logger.LogDebug("Finished UnregisterClient for clientId: {clientId}", clientId);
     }

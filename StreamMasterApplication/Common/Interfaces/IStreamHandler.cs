@@ -4,8 +4,6 @@ namespace StreamMasterApplication.Common.Interfaces;
 
 public interface IStreamHandler
 {
-
-
     int ClientCount { get; }
     bool FailoverInProgress { get; set; }
     int M3UFileId { get; set; }

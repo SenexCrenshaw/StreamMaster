@@ -36,6 +36,7 @@ public class StreamHandler : IDisposable, IStreamHandler
         string streamUrl,
         ILogger<IStreamHandler> logger,
         IClientStreamerManager clientStreamerManager,
+
         int processId,
         ICircularRingBuffer buffer,
         CancellationTokenSource cancellationTokenSource)
@@ -58,11 +59,13 @@ public class StreamHandler : IDisposable, IStreamHandler
     ILogger<IStreamHandler> logger,
     IMemoryCache memoryCache,
     ILogger<ICircularRingBuffer> circularBufferLogger,
-    IClientStreamerManager clientStreamerManager)
+    IClientStreamerManager clientStreamerManager,
+     IStatisticsManager statisticsManager,
+        IInputStatisticsManager inputStatisticsManager)
     {
         CancellationTokenSource cancellationTokenSource = new();
         Setting setting = memoryCache.GetSetting();
-        ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, videoStreamId, videoStreamName, rank, setting.PreloadPercentage, setting.RingBufferSizeMB, circularBufferLogger);
+        ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, statisticsManager, inputStatisticsManager, videoStreamId, videoStreamName, rank, setting.PreloadPercentage, setting.RingBufferSizeMB, circularBufferLogger);
 
         (Stream? stream, int processId, ProxyStreamError? error) = await GetProxy(streamUrl, logger, setting, cancellationTokenSource.Token);
 
