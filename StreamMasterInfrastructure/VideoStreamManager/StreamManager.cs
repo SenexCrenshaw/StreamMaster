@@ -38,7 +38,7 @@ public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory,
             return null;
         }
 
-        StreamHandler streamHandler = new(childVideoStreamDto, processId, streamHandlerlogger, ringBuffer, cancellationTokenSource);
+        StreamHandler streamHandler = new(childVideoStreamDto.User_Url, processId, streamHandlerlogger, ringBuffer, cancellationTokenSource);
 
         _ = streamHandler.StartVideoStreamingAsync(stream, ringBuffer);
 
