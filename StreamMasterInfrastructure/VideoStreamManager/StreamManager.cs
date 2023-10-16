@@ -9,7 +9,7 @@ using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
-public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory, IClientStreamerManager clientStreamerManager, ILogger<StreamHandler> streamHandlerlogger, ILogger<StreamManager> logger, IMemoryCache memoryCache) : IStreamManager
+public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory, IProxyFactory proxyFactory, IClientStreamerManager clientStreamerManager, ILogger<StreamHandler> streamHandlerlogger, ILogger<StreamManager> logger, IMemoryCache memoryCache) : IStreamManager
 {
     private readonly ConcurrentDictionary<string, IStreamHandler> _streamControllers = new();
 
@@ -29,7 +29,7 @@ public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory,
     {
         if (!_streamControllers.TryGetValue(childVideoStreamDto.User_Url, out IStreamHandler? streamController))
         {
-            streamController = await StreamHandler.CreateAsync(streamHandlerlogger, childVideoStreamDto, rank, memoryCache, circularRingBufferFactory, clientStreamerManager);
+            streamController = await StreamHandler.CreateAsync(streamHandlerlogger, childVideoStreamDto, proxyFactory, rank, circularRingBufferFactory, clientStreamerManager);
             if (streamController == null)
             {
                 return null;

@@ -112,7 +112,8 @@ public static class ConfigureServices
 
         _ = services.AddFluentValidationAutoValidation();
 
-        _ = services.AddHttpClient();
+
+        services.AddHttpClient();
 
         services.AddControllersWithViews();
         _ = services.AddRazorPages();

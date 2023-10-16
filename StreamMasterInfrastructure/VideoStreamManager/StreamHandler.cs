@@ -1,13 +1,10 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 
-using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Enums;
 using StreamMasterDomain.Events;
 
 using System.Diagnostics;
@@ -48,8 +45,8 @@ public class StreamHandler : IDisposable, IStreamHandler
     public static async Task<IStreamHandler?> CreateAsync(
         ILogger<IStreamHandler> logger,
         ChildVideoStreamDto childVideoStreamDto,
+        IProxyFactory proxyFactory,
         int rank,
-        IMemoryCache memoryCache,
         ICircularRingBufferFactory circularRingBufferFactory,
         IClientStreamerManager clientStreamerManager
     )
@@ -58,7 +55,7 @@ public class StreamHandler : IDisposable, IStreamHandler
 
         ICircularRingBuffer ringBuffer = circularRingBufferFactory.CreateCircularRingBuffer(childVideoStreamDto, rank);
 
-        (Stream? stream, int processId, ProxyStreamError? error) = await GetProxy(childVideoStreamDto.User_Url, logger, memoryCache, cancellationTokenSource.Token);
+        (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(childVideoStreamDto.User_Url);
         if (stream == null || error != null)
         {
             return null;
@@ -68,36 +65,6 @@ public class StreamHandler : IDisposable, IStreamHandler
 
         _ = controller.StartVideoStreamingAsync(stream, ringBuffer);
         return controller;
-    }
-
-    private static void LogErrorIfAny(ILogger _logger, Stream? stream, ProxyStreamError? error, string streamUrl)
-    {
-        if (stream == null || error != null)
-        {
-            _logger.LogError("Error getting proxy stream for {StreamUrl}: {Error?.Message}", streamUrl, error?.Message);
-        }
-    }
-
-    private static async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl, ILogger<IStreamHandler> logger, IMemoryCache memoryCache, CancellationToken cancellationToken)
-    {
-        Setting setting = memoryCache.GetSetting();
-
-        Stream? stream;
-        ProxyStreamError? error;
-        int processId;
-
-        if (setting.StreamingProxyType == StreamingProxyTypes.FFMpeg)
-        {
-            (stream, processId, error) = await StreamingProxies.GetFFMpegStream(streamUrl, logger, setting);
-            LogErrorIfAny(logger, stream, error, streamUrl);
-        }
-        else
-        {
-            (stream, processId, error) = await StreamingProxies.GetProxyStream(streamUrl, logger, setting, cancellationToken);
-            LogErrorIfAny(logger, stream, error, streamUrl);
-        }
-
-        return (stream, processId, error);
     }
 
     private async Task DelayWithCancellation(int milliseconds, CancellationToken cancellationToken)
