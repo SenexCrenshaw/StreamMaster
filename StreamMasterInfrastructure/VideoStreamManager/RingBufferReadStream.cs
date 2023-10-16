@@ -3,21 +3,12 @@ using StreamMasterApplication.Common.Models;
 
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
-public class RingBufferReadStream : Stream, IRingBufferReadStream
+public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ClientStreamerConfiguration config) : Stream, IRingBufferReadStream
 {
-    private Func<ICircularRingBuffer> _bufferDelegate;
-    private CancellationToken _cancellationSource;
-    private CancellationTokenSource _cancellationTokenSource;
-    private Guid _clientId;
-
-    public RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ClientStreamerConfiguration config)
-    {
-        config.BufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(config.BufferDelegate));
-        _bufferDelegate = config.BufferDelegate ?? throw new ArgumentNullException(nameof(config.BufferDelegate));
-        _clientId = config.ClientId;
-        _cancellationSource = config.CancellationToken;
-        _cancellationTokenSource = config.CancellationTokenSource;
-    }
+    private Func<ICircularRingBuffer> _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
+    private CancellationToken _cancellationSource = config.ClientHTTPRequestCancellationToken;
+    private CancellationTokenSource _cancellationTokenSource = config.ClientCancellationTokenSource;
+    private Guid _clientId = config.ClientId;
 
     public ICircularRingBuffer Buffer => _bufferDelegate();
 
@@ -26,7 +17,6 @@ public class RingBufferReadStream : Stream, IRingBufferReadStream
     public override bool CanSeek => false;
 
     public override bool CanWrite => false;
-
     public override long Length => throw new NotSupportedException();
 
     public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
@@ -51,6 +41,7 @@ public class RingBufferReadStream : Stream, IRingBufferReadStream
 
         return bytesRead;
     }
+
 
     public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
@@ -89,8 +80,8 @@ public class RingBufferReadStream : Stream, IRingBufferReadStream
     {
         _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
         _clientId = config.ClientId;
-        _cancellationSource = config.CancellationToken;
-        _cancellationTokenSource = config.CancellationTokenSource;
+        _cancellationSource = config.ClientHTTPRequestCancellationToken;
+        _cancellationTokenSource = config.ClientCancellationTokenSource;
     }
 
     public override void SetLength(long value)

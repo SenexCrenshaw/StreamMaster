@@ -27,22 +27,6 @@ public class StreamGroupVideoStreamsController() : ApiControllerBase, IStreamGro
         return Ok(res);
     }
 
-    //[HttpPost]
-    //[Route("[action]")]
-    //public async Task<IActionResult> AddVideoStreamToStreamGroup(AddVideoStreamToStreamGroupRequest request, CancellationToken cancellationToken)
-    //{
-    //    await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
-    //    return NoContent();
-    //}
-
-    //[HttpDelete]
-    //[Route("[action]")]
-    //public async Task<IActionResult> RemoveVideoStreamFromStreamGroup(RemoveVideoStreamFromStreamGroupRequest request, CancellationToken cancellationToken)
-    //{
-    //    await Mediator.Send(request, cancellationToken).ConfigureAwait(false);
-    //    return NoContent();
-    //}
-
     [HttpPatch]
     [Route("[action]")]
     public async Task<IActionResult> SetVideoStreamRanks(SetVideoStreamRanksRequest request, CancellationToken cancellationToken)

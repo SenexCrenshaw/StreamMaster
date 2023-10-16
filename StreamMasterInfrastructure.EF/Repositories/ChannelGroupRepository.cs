@@ -224,18 +224,6 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
         return channelGroup;
     }
 
-    //public async Task<ChannelGroup?> GetChannelGroupAsync(int Id, CancellationToken cancellationToken = default)
-    //{
-    //    ChannelGroup? res = await FindByCondition(channelGroup => channelGroup.Id == Id).FirstOrDefaultAsync();
-    //    if (res == null)
-    //    {
-    //        return null;
-    //    }
-    //    ChannelGroup dtos = mapper.Map<ChannelGroup>(res);
-
-    //    return dtos;
-    //}
-
     /// <summary>
     /// Retrieves a list of ChannelGroup objects based on a list of channel group names.
     /// </summary>

@@ -104,8 +104,8 @@ public class ChannelManager : IDisposable, IChannelManager
 
             if (c != null)
             {
+                c.ClientMasterToken.Cancel();
                 _logger.LogWarning("Failing client: {clientId}", clientId);
-                c.CancellationTokenSource.Cancel();
                 _logger.LogDebug("Cancelled CancellationTokenSource for client: {clientId}", clientId);
                 _logger.LogDebug("Exiting FailClient after failing client: {clientId}", clientId);
                 break;
