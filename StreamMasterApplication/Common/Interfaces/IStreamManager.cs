@@ -3,8 +3,7 @@
 public interface IStreamManager
 {
     void Dispose();
-    Task<IStreamHandler?> GetOrCreateStreamController(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank);
-
+    Task<IStreamHandler?> GetOrCreateStreamController(ChildVideoStreamDto childVideoStreamDto, int rank);
     IStreamHandler? GetStreamInformationFromStreamUrl(string streamUrl);
 
     ICollection<IStreamHandler> GetStreamInformations();

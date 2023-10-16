@@ -32,48 +32,41 @@ public class StreamHandler : IDisposable, IStreamHandler
 
     private readonly ILogger<IStreamHandler> _logger;
     private StreamHandler(
-        string streamUrl,
         ILogger<IStreamHandler> logger,
         IClientStreamerManager clientStreamerManager,
         int processId,
-        ICircularRingBuffer buffer,
+        ICircularRingBuffer ringBuffer,
         CancellationTokenSource cancellationTokenSource)
     {
         _logger = logger;
         _clientStreamerManager = clientStreamerManager;
-
-        StreamUrl = streamUrl;
         VideoStreamingCancellationToken = cancellationTokenSource;
-        RingBuffer = buffer;
+        RingBuffer = ringBuffer;
         ProcessId = processId;
     }
 
     public static async Task<IStreamHandler?> CreateAsync(
-    string streamUrl,
-    ChildVideoStreamDto childVideoStreamDto,
-    string videoStreamId,
-    string videoStreamName,
-    int rank,
-    ILogger<IStreamHandler> logger,
-    IMemoryCache memoryCache,
-    ILogger<ICircularRingBuffer> circularBufferLogger,
-    IClientStreamerManager clientStreamerManager,
-     IStatisticsManager statisticsManager,
-        IInputStatisticsManager inputStatisticsManager)
+        ILogger<IStreamHandler> logger,
+        ChildVideoStreamDto childVideoStreamDto,
+        int rank,
+        IMemoryCache memoryCache,
+        ICircularRingBufferFactory circularRingBufferFactory,
+        IClientStreamerManager clientStreamerManager
+    )
     {
         CancellationTokenSource cancellationTokenSource = new();
-        Setting setting = memoryCache.GetSetting();
-        ICircularRingBuffer buffer = new CircularRingBuffer(childVideoStreamDto, statisticsManager, inputStatisticsManager, videoStreamId, videoStreamName, rank, setting.PreloadPercentage, setting.RingBufferSizeMB, circularBufferLogger);
 
-        (Stream? stream, int processId, ProxyStreamError? error) = await GetProxy(streamUrl, logger, setting, cancellationTokenSource.Token);
+        ICircularRingBuffer ringBuffer = circularRingBufferFactory.CreateCircularRingBuffer(childVideoStreamDto, rank);
+
+        (Stream? stream, int processId, ProxyStreamError? error) = await GetProxy(childVideoStreamDto.User_Url, logger, memoryCache, cancellationTokenSource.Token);
         if (stream == null || error != null)
         {
             return null;
         }
 
-        StreamHandler controller = new(streamUrl, logger, clientStreamerManager, processId, buffer, cancellationTokenSource);
+        StreamHandler controller = new(logger, clientStreamerManager, processId, ringBuffer, cancellationTokenSource);
 
-        _ = controller.StartVideoStreamingAsync(stream, buffer);
+        _ = controller.StartVideoStreamingAsync(stream, ringBuffer);
         return controller;
     }
 
@@ -85,8 +78,10 @@ public class StreamHandler : IDisposable, IStreamHandler
         }
     }
 
-    private static async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl, ILogger<IStreamHandler> logger, Setting setting, CancellationToken cancellationToken)
+    private static async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl, ILogger<IStreamHandler> logger, IMemoryCache memoryCache, CancellationToken cancellationToken)
     {
+        Setting setting = memoryCache.GetSetting();
+
         Stream? stream;
         ProxyStreamError? error;
         int processId;

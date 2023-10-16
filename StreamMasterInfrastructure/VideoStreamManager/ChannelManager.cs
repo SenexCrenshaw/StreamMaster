@@ -447,7 +447,7 @@ public class ChannelManager : IDisposable, IChannelManager
     {
         try
         {
-            channelStatus.StreamHandler = await _streamManager.GetOrCreateStreamController(childVideoStreamDto, channelStatus.VideoStreamId, channelStatus.VideoStreamName, channelStatus.Rank);
+            channelStatus.StreamHandler = await _streamManager.GetOrCreateStreamController(childVideoStreamDto, channelStatus.Rank);
             return channelStatus.StreamHandler != null;
         }
         catch (TaskCanceledException)

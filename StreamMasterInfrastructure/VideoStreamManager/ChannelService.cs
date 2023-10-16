@@ -48,5 +48,4 @@ public class ChannelService : IChannelService
     {
         return _channelStatuses.Count(a => a.Value.IsGlobal);
     }
-
 }

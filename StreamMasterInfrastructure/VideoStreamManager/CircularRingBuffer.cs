@@ -1,8 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 
+using StreamMasterDomain.Cache;
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 
 using System.Collections.Concurrent;
@@ -28,28 +31,27 @@ public class CircularRingBuffer : ICircularRingBuffer
     private readonly float _preBuffPercent;
     private int _writeIndex;
 
-    public CircularRingBuffer(ChildVideoStreamDto childVideoStreamDto, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, string videoStreamId, string videoStreamName, int rank, int PreloadPercentage, int RingBufferSizeMB, ILogger<ICircularRingBuffer> logger)
+    public CircularRingBuffer(ChildVideoStreamDto childVideoStreamDto, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILogger<ICircularRingBuffer> logger)
     {
+        Setting setting = memoryCache.GetSetting();
+
         _statisticsManager = statisticsManager ?? throw new ArgumentNullException(nameof(statisticsManager));
         _inputStatisticsManager = inputStatisticsManager ?? throw new ArgumentNullException(nameof(inputStatisticsManager));
         _inputStreamStatistics = _inputStatisticsManager.RegisterReader(childVideoStreamDto.Id);
 
         _logger = logger;
-        if (PreloadPercentage < 0 || PreloadPercentage > 100)
+        if (setting.PreloadPercentage < 0 || setting.PreloadPercentage > 100)
         {
-            PreloadPercentage = 0;
+            setting.PreloadPercentage = 0;
         }
 
-        _bufferSize = RingBufferSizeMB * 1024 * 1000;
-        _preBuffPercent = PreloadPercentage;
+        _bufferSize = setting.RingBufferSizeMB * 1024 * 1000;
+        _preBuffPercent = setting.PreloadPercentage;
 
         StreamInfo = new StreamInfo
         {
-            VideoStreamId = videoStreamId,
-            VideoStreamName = videoStreamName,
-
-            M3UStreamId = childVideoStreamDto.Id,
-            M3UStreamName = childVideoStreamDto.User_Tvg_name,
+            VideoStreamId = childVideoStreamDto.Id,
+            VideoStreamName = childVideoStreamDto.User_Tvg_name,
             Logo = childVideoStreamDto.User_Tvg_logo,
             StreamProxyType = childVideoStreamDto.StreamProxyType,
             StreamUrl = childVideoStreamDto.User_Url,
@@ -78,8 +80,6 @@ public class CircularRingBuffer : ICircularRingBuffer
             {
                 VideoStreamId = StreamInfo.VideoStreamId,
                 VideoStreamName = StreamInfo.VideoStreamName,
-                M3UStreamId = StreamInfo.M3UStreamId,
-                M3UStreamName = StreamInfo.M3UStreamName,
                 M3UStreamProxyType = StreamInfo.StreamProxyType,
                 Logo = StreamInfo.Logo,
                 Rank = StreamInfo.Rank,

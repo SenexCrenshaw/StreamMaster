@@ -9,7 +9,7 @@ using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
-public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IClientStreamerManager clientStreamerManager, ILogger<StreamHandler> streamControllerlogger, ILogger<StreamManager> logger, IMemoryCache memoryCache) : IStreamManager
+public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory, IClientStreamerManager clientStreamerManager, ILogger<StreamHandler> streamHandlerlogger, ILogger<StreamManager> logger, IMemoryCache memoryCache) : IStreamManager
 {
     private readonly ConcurrentDictionary<string, IStreamHandler> _streamControllers = new();
 
@@ -25,35 +25,24 @@ public class StreamManager(ILogger<CircularRingBuffer> circularBufferLogger, ISt
         _streamControllers.Clear();
     }
 
-    public async Task<IStreamHandler?> GetOrCreateStreamController(ChildVideoStreamDto childVideoStreamDto, string videoStreamId, string videoStreamName, int rank)
+    public async Task<IStreamHandler?> GetOrCreateStreamController(ChildVideoStreamDto childVideoStreamDto, int rank)
     {
-        string streamUrl = childVideoStreamDto.User_Url;
-
-        if (!_streamControllers.TryGetValue(streamUrl, out IStreamHandler? streamController))
+        if (!_streamControllers.TryGetValue(childVideoStreamDto.User_Url, out IStreamHandler? streamController))
         {
-            streamController = await StreamHandler.CreateAsync(streamUrl, childVideoStreamDto, videoStreamId, videoStreamName, rank, streamControllerlogger, memoryCache, circularBufferLogger, clientStreamerManager, statisticsManager, inputStatisticsManager);
+            streamController = await StreamHandler.CreateAsync(streamHandlerlogger, childVideoStreamDto, rank, memoryCache, circularRingBufferFactory, clientStreamerManager);
             if (streamController == null)
             {
                 return null;
             }
-            _streamControllers.TryAdd(streamUrl, streamController);
+            _streamControllers.TryAdd(childVideoStreamDto.User_Url, streamController);
         }
         else
         {
-            logger.LogInformation("Reusing buffer for stream: {StreamUrl}", streamUrl);
+            logger.LogInformation("Reusing buffer for stream: {StreamUrl}", childVideoStreamDto.User_Url);
         }
 
         return streamController;
     }
-
-    //public SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl)
-    //{
-    //    if (_streamControllers.TryGetValue(streamUrl, out IStreamHandler? _streamInformation))
-    //    {
-    //        return _streamInformation.RingBuffer.GetSingleStreamStatisticsResult();
-    //    }
-    //    return new SingleStreamStatisticsResult();
-    //}
 
     public IStreamHandler? GetStreamInformationFromStreamUrl(string streamUrl)
     {
