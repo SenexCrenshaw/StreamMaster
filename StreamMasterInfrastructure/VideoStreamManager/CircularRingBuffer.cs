@@ -57,7 +57,7 @@ public class CircularRingBuffer : ICircularRingBuffer
 
     public int BufferSize => _buffer.Length;
     public string VideoStreamId => StreamInfo.VideoStreamId;
-    private bool isPreBuffered { get; set; } = false;
+    private bool InternalIsPreBuffered { get; set; } = false;
 
     public List<ClientStreamingStatistics> GetAllStatistics()
     {
@@ -158,7 +158,7 @@ public class CircularRingBuffer : ICircularRingBuffer
     {
         _logger.LogDebug("Starting IsPreBuffered");
 
-        if (isPreBuffered)
+        if (InternalIsPreBuffered)
         {
             _logger.LogDebug("Finished IsPreBuffered with true (already pre-buffered)");
             return true;
@@ -167,10 +167,10 @@ public class CircularRingBuffer : ICircularRingBuffer
         int dataInBuffer = (_writeIndex - _oldestDataIndex + _buffer.Length) % _buffer.Length;
         float percentBuffered = (float)dataInBuffer / _buffer.Length * 100;
 
-        isPreBuffered = percentBuffered >= _preBuffPercent;
+        InternalIsPreBuffered = percentBuffered >= _preBuffPercent;
 
-        _logger.LogDebug("Finished IsPreBuffered with {isPreBuffered}", isPreBuffered);
-        return isPreBuffered;
+        _logger.LogDebug("Finished IsPreBuffered with {isPreBuffered}", InternalIsPreBuffered);
+        return InternalIsPreBuffered;
     }
 
     public async Task<byte> Read(Guid clientId, CancellationToken cancellationToken)
@@ -345,7 +345,6 @@ public class CircularRingBuffer : ICircularRingBuffer
         try
         {
             ReleaseSemaphores();
-
         }
         catch (Exception ex)
         {
@@ -387,11 +386,10 @@ public class CircularRingBuffer : ICircularRingBuffer
             _logger.LogError(ex, "An error occurred while releasing semaphores during WriteChunk.");
         }
 
-        _logger.LogDebug($"WriteChunk completed with count: {data.Length}");
+        _logger.LogDebug("WriteChunk completed with count: {data.Length}", data.Length);
 
         return bytesWritten;
     }
-
 
     public int WriteChunk(byte[] data, int count)
     {
