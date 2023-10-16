@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Interfaces;
 
@@ -10,7 +9,7 @@ using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
-public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory, IProxyFactory proxyFactory, ILogger<StreamHandler> streamHandlerlogger, ILogger<StreamManager> logger, IMemoryCache memoryCache) : IStreamManager
+public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory, IProxyFactory proxyFactory, ILogger<StreamHandler> streamHandlerlogger, ILogger<StreamManager> logger) : IStreamManager
 {
     private readonly ConcurrentDictionary<string, IStreamHandler> _streamHandlers = new();
 
@@ -26,13 +25,13 @@ public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory,
         _streamHandlers.Clear();
     }
 
-    private async Task<StreamHandler?> CreateStreamHandler(ChildVideoStreamDto childVideoStreamDto, int rank)
+    private async Task<StreamHandler?> CreateStreamHandler(ChildVideoStreamDto childVideoStreamDto, int rank, CancellationToken cancellation)
     {
         CancellationTokenSource cancellationTokenSource = new();
 
         ICircularRingBuffer ringBuffer = circularRingBufferFactory.CreateCircularRingBuffer(childVideoStreamDto, rank);
 
-        (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(childVideoStreamDto.User_Url);
+        (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(childVideoStreamDto.User_Url, cancellation);
         if (stream == null || error != null || processId == 0)
         {
             return null;
@@ -45,20 +44,30 @@ public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory,
         return streamHandler;
     }
 
-    public async Task<IStreamHandler?> GetOrCreateStreamHandler(ChildVideoStreamDto childVideoStreamDto, int rank)
+    public IStreamHandler? GetStreamHandler(string videoStreamId)
     {
-        if (!_streamHandlers.TryGetValue(childVideoStreamDto.User_Url, out IStreamHandler? streamHandler))
+        if (!_streamHandlers.TryGetValue(videoStreamId, out IStreamHandler? streamHandler))
         {
-            streamHandler = await CreateStreamHandler(childVideoStreamDto, rank);
+            return null;
+        }
+
+        return streamHandler;
+    }
+
+    public async Task<IStreamHandler?> GetOrCreateStreamHandler(ChildVideoStreamDto childVideoStreamDto, int rank, CancellationToken cancellation = default)
+    {
+        if (!_streamHandlers.TryGetValue(childVideoStreamDto.Id, out IStreamHandler? streamHandler))
+        {
+            streamHandler = await CreateStreamHandler(childVideoStreamDto, rank, cancellation);
             if (streamHandler == null)
             {
                 return null;
             }
-            _streamHandlers.TryAdd(childVideoStreamDto.User_Url, streamHandler);
+            _streamHandlers.TryAdd(childVideoStreamDto.Id, streamHandler);
         }
         else
         {
-            logger.LogInformation("Reusing buffer for stream: {StreamUrl}", childVideoStreamDto.User_Url);
+            logger.LogInformation("Reusing buffer for stream: {Id}", childVideoStreamDto.Id);
         }
 
         return streamHandler;
@@ -78,14 +87,25 @@ public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory,
     {
         return _streamHandlers.Count(x => x.Value.M3UFileId == m3uFileId);
     }
-    public IStreamHandler? Stop(string streamUrl)
+
+    public List<IStreamHandler> GetStreamHandlers()
     {
-        if (_streamHandlers.TryRemove(streamUrl, out IStreamHandler? streamInformation))
+        if (_streamHandlers.Values == null)
+        {
+            return new List<IStreamHandler>();
+        }
+
+        return _streamHandlers.Values.ToList();
+    }
+
+    public IStreamHandler? Stop(string videoStreamId)
+    {
+        if (_streamHandlers.TryRemove(videoStreamId, out IStreamHandler? streamInformation))
         {
             streamInformation.Stop();
             return streamInformation;
         }
-        logger.LogWarning("Failed to remove stream information for {StreamUrl}", streamUrl);
+        logger.LogWarning("Failed to remove stream information for {videoStreamId}", videoStreamId);
         return null;
     }
 }

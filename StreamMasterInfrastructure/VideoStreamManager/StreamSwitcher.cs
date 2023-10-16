@@ -22,8 +22,9 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IServiceProvider ser
     {
         try
         {
-            channelStatus.StreamHandler = await streamManager.GetOrCreateStreamHandler(childVideoStreamDto, channelStatus.Rank);
-            return channelStatus.StreamHandler != null;
+            IStreamHandler? handler = await streamManager.GetOrCreateStreamHandler(childVideoStreamDto, channelStatus.Rank);
+
+            return handler != null;
         }
         catch (TaskCanceledException)
         {
@@ -53,7 +54,12 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IServiceProvider ser
             return false;
         }
 
-        ICollection<ClientStreamerConfiguration>? oldConfigs = channelStatus.StreamHandler?.GetClientStreamerConfigurations();
+        ICollection<ClientStreamerConfiguration>? oldConfigs = null;
+        IStreamHandler? streamHandler = streamManager.GetStreamHandler(channelStatus.VideoStreamId);
+        if (streamHandler is not null)
+        {
+            oldConfigs = streamHandler.GetClientStreamerConfigurations();
+        }
 
         if (!await UpdateStreamHandler(channelStatus, childVideoStreamDto))
         {
@@ -62,9 +68,9 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IServiceProvider ser
             return false;
         }
 
-        if (oldConfigs is not null && channelStatus.StreamHandler is not null)
+        if (oldConfigs is not null && streamHandler is not null)
         {
-            RegisterClientsToNewStream(oldConfigs, channelStatus.StreamHandler);
+            RegisterClientsToNewStream(oldConfigs, streamHandler);
         }
 
         channelStatus.FailoverInProgress = false;
@@ -95,16 +101,16 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IServiceProvider ser
         VideoStreamDto? vs = await repository.VideoStream.GetVideoStreamById(overrideNextVideoStreamId);
         if (vs == null)
         {
-            logger.LogError("GetNextChildVideoStream could not get videoStream for id {VideoStreamId}", overrideNextVideoStreamId);
-            logger.LogDebug("Exiting GetNextChildVideoStream with null due to newVideoStream being null");
+            logger.LogError("HandleOverrideStream could not get videoStream for id {VideoStreamId}", overrideNextVideoStreamId);
+            logger.LogDebug("Exiting HandleOverrideStream with null due to newVideoStream being null");
             return null;
         }
 
         ChildVideoStreamDto newVideoStream = mapper.Map<ChildVideoStreamDto>(vs);
         if (newVideoStream == null)
         {
-            logger.LogError("GetNextChildVideoStream could not get videoStream for id {VideoStreamId}", overrideNextVideoStreamId);
-            logger.LogDebug("Exiting GetNextChildVideoStream with null due to newVideoStream being null");
+            logger.LogError("HandleOverrideStream could not get videoStream for id {VideoStreamId}", overrideNextVideoStreamId);
+            logger.LogDebug("Exiting HandleOverrideStream with null due to newVideoStream being null");
             return null;
         }
 
@@ -133,7 +139,7 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IServiceProvider ser
             }
             else
             {
-                logger.LogDebug("Exiting GetNextChildVideoStream with newVideoStream: {newVideoStream}", newVideoStream);
+                logger.LogDebug("Exiting HandleOverrideStream with newVideoStream: {newVideoStream}", newVideoStream);
                 return newVideoStream;
             }
         }
@@ -143,19 +149,19 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IServiceProvider ser
     private async Task<ChildVideoStreamDto?> FetchNextChildVideoStream(IChannelStatus channelStatus, IRepositoryWrapper repository)
     {
         Setting setting = memoryCache.GetSetting();
-        (VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)? result = await repository.VideoStream.GetStreamsFromVideoStreamById(channelStatus.VideoStreamId);
+        (VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)? result = await repository.VideoStream.GetStreamsFromVideoStreamById(channelStatus.ParentVideoStreamId);
         if (result == null)
         {
-            logger.LogError("GetNextChildVideoStream could not get videoStream for id {VideoStreamId}", channelStatus.VideoStreamId);
-            logger.LogDebug("Exiting GetNextChildVideoStream with null due to result being null");
+            logger.LogError("FetchNextChildVideoStream could not get videoStreams for id {ParentVideoStreamId}", channelStatus.ParentVideoStreamId);
+            logger.LogDebug("Exiting FetchNextChildVideoStream with null due to result being null");
             return null;
         }
 
         ChildVideoStreamDto[] videoStreams = result.Value.childVideoStreamDtos.OrderBy(a => a.Rank).ToArray();
         if (!videoStreams.Any())
         {
-            logger.LogError("GetNextChildVideoStream could not get child videoStreams for id {VideoStreamId}", channelStatus.VideoStreamId);
-            logger.LogDebug("Exiting GetNextChildVideoStream with null due to no child videoStreams found");
+            //logger.LogError("FetchNextChildVideoStream could not get child videoStreams for id {ParentVideoStreamId}", channelStatus.ParentVideoStreamId);
+            //logger.LogDebug("Exiting FetchNextChildVideoStream with null due to no child videoStreams found");
             return null;
         }
 
@@ -192,17 +198,19 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IServiceProvider ser
                     continue;
                 }
             }
-            logger.LogDebug("Exiting GetNextChildVideoStream with toReturn: {toReturn}", toReturn);
+            logger.LogDebug("Exiting FetchNextChildVideoStream with toReturn: {toReturn}", toReturn);
+            channelStatus.VideoStreamId = toReturn.Id;
+            channelStatus.VideoStreamName = toReturn.User_Tvg_name;
             return toReturn;
         }
 
-        logger.LogDebug("Exiting GetNextChildVideoStream with null due to no suitable videoStream found");
+        logger.LogDebug("Exiting FetchNextChildVideoStream with null due to no suitable videoStream found");
         return null;
     }
 
     private async Task<ChildVideoStreamDto?> RetrieveNextChildVideoStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
     {
-        logger.LogDebug("Starting GetNextChildVideoStream with channelStatus: {VideoStreamName} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus.VideoStreamName, overrideNextVideoStreamId);
+        logger.LogDebug("Starting RetrieveNextChildVideoStream with channelStatus: {VideoStreamName} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus.VideoStreamName, overrideNextVideoStreamId);
 
         using IServiceScope scope = serviceProvider.CreateScope();
         IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
@@ -221,7 +229,7 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IServiceProvider ser
         {
             return result;
         }
-        logger.LogDebug("Exiting GetNextChildVideoStream with null due to no suitable videoStream found");
+        logger.LogDebug("Exiting RetrieveNextChildVideoStream with null due to no suitable videoStream found");
         return null;
     }
 }

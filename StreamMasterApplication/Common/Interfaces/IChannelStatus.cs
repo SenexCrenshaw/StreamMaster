@@ -10,7 +10,8 @@
         bool FailoverInProgress { get; set; }
         bool IsGlobal { get; set; }
         int Rank { get; set; }
-        IStreamHandler? StreamHandler { get; set; }
+
+        string ParentVideoStreamId { get; set; }
         string VideoStreamId { get; set; }
         string VideoStreamName { get; set; }
     }

@@ -2,6 +2,6 @@
 {
     public interface IProxyFactory
     {
-        Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl);
+        Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl, CancellationToken cancellationToken);
     }
 }

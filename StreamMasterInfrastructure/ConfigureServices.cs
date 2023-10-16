@@ -32,7 +32,6 @@ public static class ConfigureServices
         services.AddSingleton<IChannelService, ChannelService>();
         services.AddSingleton<IProxyFactory, ProxyFactory>();
         services.AddSingleton<IStreamStatisticService, StreamStatisticService>();
-        services.AddSingleton<ICurrentCancellationTokenService, CurrentCancellationTokenService>();
 
         services.AddSingleton<ICircularRingBufferFactory, CircularRingBufferFactory>();
         services.AddSingleton<IStatisticsManager, StatisticsManager>();

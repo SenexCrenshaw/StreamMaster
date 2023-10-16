@@ -13,9 +13,9 @@ using System.Runtime.InteropServices;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Factories;
 
-public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpClientFactory, ISettingsService settingsService, ICurrentCancellationTokenService currentCancellationTokenService) : IProxyFactory
+public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpClientFactory, ISettingsService settingsService) : IProxyFactory
 {
-    public async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl)
+    public async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl, CancellationToken cancellationToken)
     {
         Setting setting = await settingsService.GetSettingsAsync();
 
@@ -30,7 +30,7 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
         }
         else
         {
-            (stream, processId, error) = await GetProxyStream(streamUrl);
+            (stream, processId, error) = await GetProxyStream(streamUrl, cancellationToken);
             LogErrorIfAny(logger, stream, error, streamUrl);
         }
 
@@ -97,16 +97,15 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
         }
     }
 
-    private async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxyStream(string sourceUrl)
+    private async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxyStream(string sourceUrl, CancellationToken cancellationToken)
     {
         try
         {
-            CancellationToken token = currentCancellationTokenService.CancellationToken;
             Setting settings = await settingsService.GetSettingsAsync().ConfigureAwait(false);
             HttpClient client = CreateHttpClient(settings.StreamingClientUserAgent);
-            HttpResponseMessage? response = await client.GetWithRedirectAsync(sourceUrl, cancellationToken: token).ConfigureAwait(false);
+            HttpResponseMessage? response = await client.GetWithRedirectAsync(sourceUrl, cancellationToken: cancellationToken).ConfigureAwait(false);
 
-            if (response == null || !response.IsSuccessStatusCode)
+            if (response?.IsSuccessStatusCode != true)
             {
                 ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = "Could not retrieve stream url" };
                 logger.LogError(error.Message);
@@ -115,9 +114,9 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
 
             string? contentType = response.Content.Headers?.ContentType?.MediaType;
 
-            if (!string.IsNullOrEmpty(contentType) &&
+            if ((!string.IsNullOrEmpty(contentType) &&
 
-                    contentType.Equals("application/vnd.apple.mpegurl", StringComparison.OrdinalIgnoreCase) ||
+                    contentType.Equals("application/vnd.apple.mpegurl", StringComparison.OrdinalIgnoreCase)) ||
                     contentType.Equals("audio/mpegurl", StringComparison.OrdinalIgnoreCase) ||
                     contentType.Equals("application/x-mpegURL", StringComparison.OrdinalIgnoreCase)
                 )
@@ -126,7 +125,7 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
                 return await GetFFMpegStream(sourceUrl).ConfigureAwait(false);
             }
 
-            Stream stream = await response.Content.ReadAsStreamAsync(token);
+            Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
             logger.LogInformation("Successfully retrieved stream for: {StreamUrl}", sourceUrl);
             return (stream, -1, null);
         }

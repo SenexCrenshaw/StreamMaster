@@ -14,7 +14,7 @@ public class ClientStreamerConfiguration
         VideoStreamId = videoStreamId;
         VideoStreamName = string.Empty;
         ClientCancellationTokenSource = new();
-        ClientMasterToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ClientCancellationTokenSource.Token);
+        ClientMasterToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ClientHTTPRequestCancellationToken, ClientCancellationTokenSource.Token);
     }
 
     //Buffering
@@ -32,6 +32,5 @@ public class ClientStreamerConfiguration
 
     //Current Streaming info
     public string VideoStreamId { get; set; }
-
     public string VideoStreamName { get; set; }
 }

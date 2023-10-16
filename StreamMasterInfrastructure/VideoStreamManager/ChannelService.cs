@@ -29,16 +29,6 @@ public class ChannelService : IChannelService
         return channelStatus;
     }
 
-    public List<IStreamHandler> GetStreamHandlers()
-    {
-        if (_channelStatuses.Values == null)
-        {
-            return new List<IStreamHandler>();
-        }
-
-        return _channelStatuses.Values.Where(a => a?.StreamHandler != null).Select(a => a.StreamHandler).ToList();
-    }
-
     public bool HasChannel(string videoStreamId)
     {
         return _channelStatuses.ContainsKey(videoStreamId);
@@ -48,4 +38,6 @@ public class ChannelService : IChannelService
     {
         return _channelStatuses.Count(a => a.Value.IsGlobal);
     }
+
+
 }
