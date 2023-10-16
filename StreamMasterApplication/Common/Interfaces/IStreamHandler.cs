@@ -4,6 +4,7 @@ namespace StreamMasterApplication.Common.Interfaces;
 
 public interface IStreamHandler
 {
+    Task StartVideoStreamingAsync(Stream stream, ICircularRingBuffer circularRingbuffer);
     int ClientCount { get; }
     bool FailoverInProgress { get; set; }
     int M3UFileId { get; set; }

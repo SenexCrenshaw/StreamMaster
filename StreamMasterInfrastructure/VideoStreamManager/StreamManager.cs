@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Interfaces;
 
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 
 using System.Collections.Concurrent;
@@ -11,56 +12,75 @@ namespace StreamMasterInfrastructure.VideoStreamManager;
 
 public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory, IProxyFactory proxyFactory, IClientStreamerManager clientStreamerManager, ILogger<StreamHandler> streamHandlerlogger, ILogger<StreamManager> logger, IMemoryCache memoryCache) : IStreamManager
 {
-    private readonly ConcurrentDictionary<string, IStreamHandler> _streamControllers = new();
+    private readonly ConcurrentDictionary<string, IStreamHandler> _streamHandlers = new();
 
     public void Dispose()
     {
         // Dispose of each stream controller
-        foreach (IStreamHandler streamController in _streamControllers.Values)
+        foreach (IStreamHandler streamController in _streamHandlers.Values)
         {
             streamController.Dispose();
         }
 
         // Clear the dictionary
-        _streamControllers.Clear();
+        _streamHandlers.Clear();
+    }
+
+    private async Task<StreamHandler?> CreateStreamHandler(ChildVideoStreamDto childVideoStreamDto, int rank)
+    {
+        CancellationTokenSource cancellationTokenSource = new();
+
+        ICircularRingBuffer ringBuffer = circularRingBufferFactory.CreateCircularRingBuffer(childVideoStreamDto, rank);
+
+        (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(childVideoStreamDto.User_Url);
+        if (stream == null || error != null || processId == 0)
+        {
+            return null;
+        }
+
+        StreamHandler streamHandler = new(childVideoStreamDto, processId, streamHandlerlogger, clientStreamerManager, ringBuffer, cancellationTokenSource);
+
+        _ = streamHandler.StartVideoStreamingAsync(stream, ringBuffer);
+
+        return streamHandler;
     }
 
     public async Task<IStreamHandler?> GetOrCreateStreamController(ChildVideoStreamDto childVideoStreamDto, int rank)
     {
-        if (!_streamControllers.TryGetValue(childVideoStreamDto.User_Url, out IStreamHandler? streamController))
+        if (!_streamHandlers.TryGetValue(childVideoStreamDto.User_Url, out IStreamHandler? streamHandler))
         {
-            streamController = await StreamHandler.CreateAsync(streamHandlerlogger, childVideoStreamDto, proxyFactory, rank, circularRingBufferFactory, clientStreamerManager);
-            if (streamController == null)
+            streamHandler = await CreateStreamHandler(childVideoStreamDto, rank);
+            if (streamHandler == null)
             {
                 return null;
             }
-            _streamControllers.TryAdd(childVideoStreamDto.User_Url, streamController);
+            _streamHandlers.TryAdd(childVideoStreamDto.User_Url, streamHandler);
         }
         else
         {
             logger.LogInformation("Reusing buffer for stream: {StreamUrl}", childVideoStreamDto.User_Url);
         }
 
-        return streamController;
+        return streamHandler;
     }
 
     public IStreamHandler? GetStreamInformationFromStreamUrl(string streamUrl)
     {
-        return _streamControllers.Values.FirstOrDefault(x => x.StreamUrl == streamUrl);
+        return _streamHandlers.Values.FirstOrDefault(x => x.StreamUrl == streamUrl);
     }
 
     public ICollection<IStreamHandler> GetStreamInformations()
     {
-        return _streamControllers.Values;
+        return _streamHandlers.Values;
     }
 
     public int GetStreamsCountForM3UFile(int m3uFileId)
     {
-        return _streamControllers.Count(x => x.Value.M3UFileId == m3uFileId);
+        return _streamHandlers.Count(x => x.Value.M3UFileId == m3uFileId);
     }
     public IStreamHandler? Stop(string streamUrl)
     {
-        if (_streamControllers.TryRemove(streamUrl, out IStreamHandler? streamInformation))
+        if (_streamHandlers.TryRemove(streamUrl, out IStreamHandler? streamInformation))
         {
             streamInformation.Stop();
             return streamInformation;
