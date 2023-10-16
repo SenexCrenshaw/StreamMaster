@@ -2,15 +2,11 @@
 
 namespace StreamMasterApplication.Common.Interfaces
 {
-    public interface IChannelManager
+    public interface IChannelManager : IDisposable
     {
         Task ChangeVideoStreamChannel(string playingVideoStreamId, string newVideoStreamId);
 
-        void Dispose();
-
         void FailClient(Guid clientId);
-
-        Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls();
 
         Task<Stream?> GetStream(ClientStreamerConfiguration config);
 

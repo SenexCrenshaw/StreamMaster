@@ -175,7 +175,11 @@ public static class ConfigureServices
 
         services.AddSingleton<IAuthorizationPolicyProvider, UiAuthorizationPolicyProvider>();
 
+
         services.AddAppAuthentication();
+
+
+
         return services;
     }
 }

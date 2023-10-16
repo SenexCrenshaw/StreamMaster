@@ -21,8 +21,8 @@ public class ClientStreamerConfiguration
     public IRingBufferReadStream? ReadBuffer { get; set; }
 
     //Tokens
-    public CancellationToken ClientHTTPRequestCancellationToken { get; set; }
-    public CancellationTokenSource ClientCancellationTokenSource { get; set; }
+    private CancellationToken ClientHTTPRequestCancellationToken { get; }
+    private CancellationTokenSource ClientCancellationTokenSource { get; }
     public CancellationTokenSource ClientMasterToken;
 
     //Client Information

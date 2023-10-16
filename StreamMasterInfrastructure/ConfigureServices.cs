@@ -29,6 +29,7 @@ public static class ConfigureServices
         services.AddSingleton<IStreamSwitcher, StreamSwitcher>();
         services.AddSingleton<IChannelService, ChannelService>();
         services.AddSingleton<IProxyFactory, ProxyFactory>();
+        services.AddSingleton<IStreamStatisticService, StreamStatisticService>();
         services.AddSingleton<ICurrentCancellationTokenService, CurrentCancellationTokenService>();
 
         services.AddSingleton<ICircularRingBufferFactory, CircularRingBufferFactory>();
@@ -78,6 +79,7 @@ public static class ConfigureServices
         _ = services.AddTransient<IDateTime, DateTimeService>();
 
         _ = services.AddSingleton<IChannelManager, ChannelManager>();
+        services.AddSingleton<IBroadcastService, BroadcastService>();
 
         _ = services.AddHostedService<TimerService>();
 

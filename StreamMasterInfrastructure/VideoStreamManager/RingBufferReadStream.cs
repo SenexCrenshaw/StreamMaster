@@ -6,9 +6,8 @@ namespace StreamMasterInfrastructure.VideoStreamManager;
 public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ClientStreamerConfiguration config) : Stream, IRingBufferReadStream
 {
     private Func<ICircularRingBuffer> _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
-    private CancellationToken _cancellationSource = config.ClientHTTPRequestCancellationToken;
-    private CancellationTokenSource _cancellationTokenSource = config.ClientCancellationTokenSource;
-    private Guid _clientId = config.ClientId;
+    private CancellationTokenSource _clientMasterToken = config.ClientMasterToken;
+    private readonly Guid _clientId = config.ClientId;
 
     public ICircularRingBuffer Buffer => _bufferDelegate();
 
@@ -26,7 +25,7 @@ public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, Clie
 
     public override int Read(byte[] buffer, int offset, int count)
     {
-        if (_cancellationTokenSource.IsCancellationRequested)
+        if (_clientMasterToken.IsCancellationRequested)
         {
             return 0;
         }
@@ -47,12 +46,8 @@ public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, Clie
         int bytesRead = 0;
         int availableBytes;
 
-        while (bytesRead < buffer.Length)
+        while (!cancellationToken.IsCancellationRequested && !_clientMasterToken.Token.IsCancellationRequested && bytesRead < buffer.Length)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            _cancellationSource.ThrowIfCancellationRequested();
-            _cancellationTokenSource.Token.ThrowIfCancellationRequested();
-
             availableBytes = Buffer.GetAvailableBytes(_clientId);
 
             if (availableBytes == 0)
@@ -77,12 +72,8 @@ public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, Clie
         int bytesRead = 0;
         int availableBytes;
 
-        while (bytesRead < count)
+        while (!cancellationToken.IsCancellationRequested && !_clientMasterToken.Token.IsCancellationRequested && bytesRead < count)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            _cancellationSource.ThrowIfCancellationRequested();
-            _cancellationTokenSource.Token.ThrowIfCancellationRequested();
-
             availableBytes = Buffer.GetAvailableBytes(_clientId);
 
             if (availableBytes == 0)
@@ -111,9 +102,7 @@ public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, Clie
     public void SetBufferDelegate(Func<ICircularRingBuffer> bufferDelegate, ClientStreamerConfiguration config)
     {
         _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
-        _clientId = config.ClientId;
-        _cancellationSource = config.ClientHTTPRequestCancellationToken;
-        _cancellationTokenSource = config.ClientCancellationTokenSource;
+        _clientMasterToken = config.ClientMasterToken;
     }
 
     public override void SetLength(long value)
