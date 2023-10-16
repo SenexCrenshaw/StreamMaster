@@ -7,13 +7,16 @@ using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
-public class ClientStreamerManager(ILogger<ClientStreamerManager> logger) : IClientStreamerManager
+public class ClientStreamerManager2(ILogger<ClientStreamerManager2> logger) : IClientStreamerManager2
 {
-    private readonly ConcurrentDictionary<Guid, ClientStreamerConfiguration> _clientConfigurations = new();
+    private readonly ConcurrentDictionary<string, ConcurrentDictionary<Guid, ClientStreamerConfiguration>> _clientConfigurations = new();
 
-    public int ClientCount => _clientConfigurations.Count;
-
-    public void RegisterClientConfiguration(ClientStreamerConfiguration config)
+    public int GetClientCount(string StreamURL)
+    {
+        IEnumerable<ClientStreamerConfiguration> configs = GetAllClientStreamerConfigurations(StreamURL);
+        return configs.Count();
+    }
+    public void RegisterClientConfiguration(string StreamURL, ClientStreamerConfiguration config)
     {
         if (config == null)
         {
@@ -21,22 +24,60 @@ public class ClientStreamerManager(ILogger<ClientStreamerManager> logger) : ICli
             throw new ArgumentNullException(nameof(config));
         }
 
-        _clientConfigurations.TryAdd(config.ClientId, config);
+        AddClientConfiguration(StreamURL, config);
     }
 
-    public bool UnregisterClientConfiguration(Guid clientId)
+    private void AddClientConfiguration(string clientType, ClientStreamerConfiguration configuration)
     {
-        return _clientConfigurations.TryRemove(clientId, out _);
+        ConcurrentDictionary<Guid, ClientStreamerConfiguration> innerDict = _clientConfigurations.GetOrAdd(clientType, new ConcurrentDictionary<Guid, ClientStreamerConfiguration>());
+        innerDict.AddOrUpdate(configuration.ClientId, configuration, (_, _) => configuration);
     }
 
-    public ClientStreamerConfiguration? GetClientConfiguration(Guid clientId)
+    private bool RemoveClientConfiguration(string clientType, Guid clientId)
     {
-        _clientConfigurations.TryGetValue(clientId, out ClientStreamerConfiguration? config);
-        return config;
+        // Check if the outer dictionary contains the key
+        if (_clientConfigurations.TryGetValue(clientType, out ConcurrentDictionary<Guid, ClientStreamerConfiguration>? innerDict))
+        {
+            // Try to remove the entry from the inner dictionary
+            return innerDict.TryRemove(clientId, out _);
+        }
+        return false;
     }
 
-    public IEnumerable<ClientStreamerConfiguration> GetAllClientConfigurations()
+    public bool UnregisterClientConfiguration(string StreamURL, Guid clientId)
     {
-        return _clientConfigurations.Values;
+        if (!_clientConfigurations.ContainsKey(StreamURL))
+        {
+            return true;
+        }
+        return RemoveClientConfiguration(StreamURL, clientId);
+    }
+
+    public ClientStreamerConfiguration? GetClientStreamerConfiguration(string streamUrl, Guid clientId)
+    {
+        // Check if the outer dictionary contains the key for the StreamURL
+        if (_clientConfigurations.TryGetValue(streamUrl, out ConcurrentDictionary<Guid, ClientStreamerConfiguration>? innerDict))
+        {
+            // Try to get the value from the inner dictionary using clientId
+            if (innerDict.TryGetValue(clientId, out ClientStreamerConfiguration? clientConfig))
+            {
+                return clientConfig;
+            }
+        }
+
+        // If we reach here, either the StreamURL was not in the outer dictionary,
+        // or the clientId was not in the inner dictionary.
+        return null;
+    }
+
+    public IEnumerable<ClientStreamerConfiguration> GetAllClientStreamerConfigurations(string streamUrl)
+    {
+        // Check if the outer dictionary contains the key for the StreamURL
+        if (_clientConfigurations.TryGetValue(streamUrl, out ConcurrentDictionary<Guid, ClientStreamerConfiguration>? innerDict))
+        {
+            return innerDict.Values;
+        }
+
+        return Enumerable.Empty<ClientStreamerConfiguration>();
     }
 }

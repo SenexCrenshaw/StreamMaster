@@ -64,18 +64,18 @@ public class ChannelManager : IDisposable, IChannelManager
 
             if (oldInfo is not null && channelStatus.StreamHandler is not null)
             {
-                foreach (Guid client in channelStatus.GetChannelClientIds)
+                foreach (Guid clientID in channelStatus.GetChannelClientIds)
                 {
-                    ClientStreamerConfiguration? c = channelStatus.StreamHandler.GetClientStreamerConfiguration(client);
+                    ClientStreamerConfiguration? c = channelStatus.StreamHandler.GetClientStreamerConfiguration(clientID);
 
                     if (c == null)
                     {
-                        _logger.LogDebug("Stream configuration is null for client: {client}, skipping unregistration", client);
+                        _logger.LogDebug("Stream configuration is null for client: {clientID}, skipping unregistration", clientID);
                         continue;
                     }
 
                     _ = oldInfo.UnRegisterClientStreamer(c);
-                    _logger.LogDebug("Unregistered stream configuration for client: {client}", client);
+                    _logger.LogDebug("Unregistered stream configuration for client: {clientID}", clientID);
                 }
             }
             _logger.LogWarning("Channel changed for {videoStreamId} switching video stream id to {newVideoStreamId}", playingVideoStreamId, newVideoStreamId);
@@ -88,11 +88,13 @@ public class ChannelManager : IDisposable, IChannelManager
 
         return;
     }
+
     public void Dispose()
     {
         _broadcastTimer?.Dispose();
         GC.SuppressFinalize(this);
     }
+
     public void FailClient(Guid clientId)
     {
         _logger.LogDebug("Starting FailClient with clientId: {clientId}", clientId);
@@ -447,7 +449,7 @@ public class ChannelManager : IDisposable, IChannelManager
     {
         try
         {
-            channelStatus.StreamHandler = await _streamManager.GetOrCreateStreamController(childVideoStreamDto, channelStatus.Rank);
+            channelStatus.StreamHandler = await _streamManager.GetOrCreateStreamHandler(childVideoStreamDto, channelStatus.Rank);
             return channelStatus.StreamHandler != null;
         }
         catch (TaskCanceledException)

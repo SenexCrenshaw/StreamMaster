@@ -2,12 +2,11 @@
 
 namespace StreamMasterApplication.Common.Interfaces;
 
-public interface IClientStreamerManager
+public interface IClientStreamerManager2
 {
-    int ClientCount { get; }
-
-    IEnumerable<ClientStreamerConfiguration> GetAllClientConfigurations();
-    ClientStreamerConfiguration? GetClientConfiguration(Guid clientId);
-    void RegisterClientConfiguration(ClientStreamerConfiguration config);
-    bool UnregisterClientConfiguration(Guid clientId);
+    int GetClientCount(string StreamURL);
+    IEnumerable<ClientStreamerConfiguration> GetAllClientStreamerConfigurations(string StreamURL);
+    ClientStreamerConfiguration? GetClientStreamerConfiguration(string StreamURL, Guid clientId);
+    void RegisterClientConfiguration(string StreamURL, ClientStreamerConfiguration config);
+    bool UnregisterClientConfiguration(string StreamURL, Guid clientId);
 }

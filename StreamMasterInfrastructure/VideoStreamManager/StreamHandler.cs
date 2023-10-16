@@ -6,31 +6,22 @@ using StreamMasterApplication.Common.Models;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Events;
 
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
 /// <summary>
 /// Manages the streaming of a single video stream, including client registrations and circularRingbuffer handling.
-/// <param name="streamUrl">The URL of the video stream.</param>
-/// <param name="logger">The logger instance for logging purposes.</param>
-/// <param name="clientManager">The client manager to handle client-specific operations.</param>
-/// <param name="buffer">The circular ring circularRingbuffer for the video stream.</param>
-/// <param name="streamingTask">The task that represents the streaming operation.</param>
-/// <param name="m3uFileId">The M3U file identifier.</param>
-/// <param name="maxStreams">The maximum number of concurrent streams allowed.</param>
-/// <param name="processId">The process identifier associated with the stream.</param>
-/// <param name="cancellationTokenSource">The cancellation token source for the streaming task.</param>
 /// </summary>
-public class StreamHandler : IDisposable, IStreamHandler
+public class StreamHandler : IStreamHandler
 {
-    private readonly IClientStreamerManager _clientStreamerManager;
+    private readonly ConcurrentDictionary<Guid, ClientStreamerConfiguration> _clientStreamerConfigurations = new();
     private readonly ChildVideoStreamDto _childVideoStreamDto;
     private readonly ILogger<IStreamHandler> _logger;
-    public StreamHandler(ChildVideoStreamDto childVideoStreamDto, int processId, ILogger<IStreamHandler> logger, IClientStreamerManager clientStreamerManager, ICircularRingBuffer ringBuffer, CancellationTokenSource cancellationTokenSource)
+    public StreamHandler(ChildVideoStreamDto childVideoStreamDto, int processId, ILogger<IStreamHandler> logger, ICircularRingBuffer ringBuffer, CancellationTokenSource cancellationTokenSource)
     {
         _logger = logger;
-        _clientStreamerManager = clientStreamerManager;
         VideoStreamingCancellationToken = cancellationTokenSource;
         RingBuffer = ringBuffer;
         ProcessId = processId;
@@ -38,7 +29,7 @@ public class StreamHandler : IDisposable, IStreamHandler
         _childVideoStreamDto = childVideoStreamDto;
     }
 
-    public int ClientCount => _clientStreamerManager.ClientCount;
+
     public bool FailoverInProgress { get; set; }
     public int M3UFileId { get; set; }
     public int MaxStreams { get; set; }
@@ -172,6 +163,7 @@ public class StreamHandler : IDisposable, IStreamHandler
 
     public CancellationTokenSource VideoStreamingCancellationToken { get; set; }
 
+    public int ClientCount => _clientStreamerConfigurations.Count;
 
     public void Dispose()
     {
@@ -179,23 +171,17 @@ public class StreamHandler : IDisposable, IStreamHandler
         GC.SuppressFinalize(this);
     }
 
-    public ClientStreamerConfiguration? GetClientStreamerConfiguration(Guid ClientId)
+    private void RegisterClient(ClientStreamerConfiguration streamerConfiguration)
     {
-        return _clientStreamerManager.GetClientConfiguration(ClientId);
-    }
-
-    public List<ClientStreamerConfiguration> GetClientStreamerConfigurations()
-    {
-        return _clientStreamerManager.GetAllClientConfigurations().ToList();
+        _clientStreamerConfigurations.TryAdd(streamerConfiguration.ClientId, streamerConfiguration);
+        RingBuffer.RegisterClient(streamerConfiguration.ClientId, streamerConfiguration.ClientUserAgent, streamerConfiguration.ClientIPAddress);
     }
 
     public void RegisterClientStreamer(ClientStreamerConfiguration streamerConfiguration)
     {
         try
         {
-            _clientStreamerManager.RegisterClientConfiguration(streamerConfiguration);
-
-            RingBuffer.RegisterClient(streamerConfiguration.ClientId, streamerConfiguration.ClientUserAgent, streamerConfiguration.ClientIPAddress);
+            RegisterClient(streamerConfiguration);
             SetClientBufferDelegate(streamerConfiguration, () => RingBuffer);
 
             // Raise event
@@ -239,13 +225,17 @@ public class StreamHandler : IDisposable, IStreamHandler
         OnStreamControllerStopped();
     }
 
+    private bool UnRegisterClient(ClientStreamerConfiguration streamerConfiguration)
+    {
+        bool result = _clientStreamerConfigurations.TryRemove(streamerConfiguration.ClientId, out _);
+        RingBuffer.UnregisterClient(streamerConfiguration.ClientId);
+        return result;
+    }
     public bool UnRegisterClientStreamer(ClientStreamerConfiguration streamerConfiguration)
     {
         try
         {
-            RingBuffer.UnregisterClient(streamerConfiguration.ClientId);
-            bool result = _clientStreamerManager.UnregisterClientConfiguration(streamerConfiguration.ClientId);
-
+            bool result = UnRegisterClient(streamerConfiguration);
             // Raise event
             ClientUnregistered?.Invoke(this, new ClientUnregisteredEventArgs(streamerConfiguration.ClientId));
             return result;
@@ -272,6 +262,16 @@ public class StreamHandler : IDisposable, IStreamHandler
         }
     }
 
+    public ClientStreamerConfiguration? GetClientStreamerConfiguration(Guid clientID)
+    {
+        if (_clientStreamerConfigurations.TryGetValue(clientID, out ClientStreamerConfiguration? clientConfig))
+        {
+            return clientConfig;
+        }
+        throw new Exception($"Client configuration for {clientID} not found");
+
+    }
+
     private void SetClientBufferDelegate(ClientStreamerConfiguration config, Func<ICircularRingBuffer> func)
     {
         ClientStreamerConfiguration? sc = GetClientStreamerConfiguration(config.ClientId);
@@ -281,5 +281,10 @@ public class StreamHandler : IDisposable, IStreamHandler
         }
 
         sc.ReadBuffer.SetBufferDelegate(func, sc);
+    }
+
+    public ICollection<ClientStreamerConfiguration>? GetClientStreamerConfigurations()
+    {
+        return _clientStreamerConfigurations.Values;
     }
 }

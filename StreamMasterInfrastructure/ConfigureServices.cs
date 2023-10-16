@@ -33,7 +33,6 @@ public static class ConfigureServices
         services.AddSingleton<ICircularRingBufferFactory, CircularRingBufferFactory>();
         services.AddSingleton<IStatisticsManager, StatisticsManager>();
         services.AddSingleton<IInputStatisticsManager, InputStatisticsManager>();
-        services.AddSingleton<IClientStreamerManager, ClientStreamerManager>();
         services.AddSingleton<IStreamManager, StreamManager>();
         services.AddSingleton<ISDService, SDService>();
         services.AddSingleton<ICacheableSpecification, CacheableSpecification>();
