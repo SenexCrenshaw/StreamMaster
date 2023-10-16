@@ -11,7 +11,7 @@ using StreamMasterInfrastructure.Common;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace StreamMasterInfrastructure.VideoStreamManager;
+namespace StreamMasterInfrastructure.VideoStreamManager.Factories;
 
 public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpClientFactory, ISettingsService settingsService, ICurrentCancellationTokenService currentCancellationTokenService) : IProxyFactory
 {
@@ -115,9 +115,9 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
 
             string? contentType = response.Content.Headers?.ContentType?.MediaType;
 
-            if ((!string.IsNullOrEmpty(contentType) &&
+            if (!string.IsNullOrEmpty(contentType) &&
 
-                    contentType.Equals("application/vnd.apple.mpegurl", StringComparison.OrdinalIgnoreCase)) ||
+                    contentType.Equals("application/vnd.apple.mpegurl", StringComparison.OrdinalIgnoreCase) ||
                     contentType.Equals("audio/mpegurl", StringComparison.OrdinalIgnoreCase) ||
                     contentType.Equals("application/x-mpegURL", StringComparison.OrdinalIgnoreCase)
                 )

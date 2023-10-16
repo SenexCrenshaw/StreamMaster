@@ -1,6 +1,6 @@
 ﻿using StreamMasterApplication.Common.Interfaces;
 
-namespace StreamMasterInfrastructure.VideoStreamManager;
+namespace StreamMasterInfrastructure.VideoStreamManager.Factories;
 
 public class DefaultStreamFactory : IStreamFactory
 {

@@ -8,6 +8,8 @@ using StreamMasterDomain.Dto;
 using StreamMasterDomain.Extensions;
 using StreamMasterDomain.Repository;
 
+using StreamMasterInfrastructure.VideoStreamManager.Buffers;
+
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
 public class ChannelManager(ILogger<ChannelManager> logger, IStreamSwitcher streamSwitcher, IChannelService channelService, IStreamManager streamManager, IServiceProvider serviceProvider) : IChannelManager

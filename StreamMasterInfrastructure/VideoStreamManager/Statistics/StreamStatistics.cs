@@ -7,7 +7,7 @@ using StreamMasterDomain.Services;
 using System.Net;
 using System.Net.Sockets;
 
-namespace StreamMasterInfrastructure.VideoStreamManager;
+namespace StreamMasterInfrastructure.VideoStreamManager.Statistics;
 
 public class StreamStatisticService(IStreamManager streamManager, ISettingsService settingsService) : IStreamStatisticService
 {

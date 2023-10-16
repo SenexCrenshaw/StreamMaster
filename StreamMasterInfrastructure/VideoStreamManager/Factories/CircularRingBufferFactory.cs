@@ -5,9 +5,11 @@ using StreamMasterApplication.Common.Interfaces;
 
 using StreamMasterDomain.Dto;
 
+using StreamMasterInfrastructure.VideoStreamManager.Buffers;
+
 using System.Collections.Concurrent;
 
-namespace StreamMasterInfrastructure.VideoStreamManager;
+namespace StreamMasterInfrastructure.VideoStreamManager.Factories;
 
 public class CircularRingBufferFactory(IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, ILogger<ICircularRingBuffer> circularRingBufferLogger) : ICircularRingBufferFactory
 {

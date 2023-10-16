@@ -5,7 +5,7 @@ using StreamMasterApplication.Common.Models;
 
 using System.Collections.Concurrent;
 
-namespace StreamMasterInfrastructure.VideoStreamManager;
+namespace StreamMasterInfrastructure.VideoStreamManager.Statistics;
 
 public class InputStatisticsManager(ILogger<InputStatisticsManager> logger) : IInputStatisticsManager
 {

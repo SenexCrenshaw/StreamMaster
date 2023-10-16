@@ -14,6 +14,8 @@ using StreamMasterInfrastructure.Services;
 using StreamMasterInfrastructure.Services.Frontend.Mappers;
 using StreamMasterInfrastructure.Services.Settings;
 using StreamMasterInfrastructure.VideoStreamManager;
+using StreamMasterInfrastructure.VideoStreamManager.Factories;
+using StreamMasterInfrastructure.VideoStreamManager.Statistics;
 
 using System.Reflection;
 

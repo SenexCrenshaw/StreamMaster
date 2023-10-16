@@ -10,7 +10,7 @@ using StreamMasterDomain.Dto;
 
 using System.Collections.Concurrent;
 
-namespace StreamMasterInfrastructure.VideoStreamManager;
+namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
 
 /// <summary>
 /// Represents a circular ring buffer for streaming data.
