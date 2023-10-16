@@ -1,7 +1,4 @@
-﻿using AutoMapper;
-
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -9,10 +6,9 @@ using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 using StreamMasterApplication.Hubs;
 
-using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.Enums;
+using StreamMasterDomain.Extensions;
 using StreamMasterDomain.Repository;
 using StreamMasterDomain.Services;
 
@@ -29,20 +25,20 @@ public class ChannelManager : IDisposable, IChannelManager
     private readonly ILogger<ChannelManager> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly IStreamManager _streamManager;
-    private readonly IMemoryCache _memoryCache;
     private readonly ISettingsService _settingsService;
     private readonly IChannelService _channelService;
+    private readonly IStreamSwitcher _streamSwitcher;
 
-    public ChannelManager(ILogger<ChannelManager> logger, IChannelService channelService, IStreamManager streamManager, ISettingsService settingsService, IMemoryCache memoryCache, IServiceProvider serviceProvider, IHubContext<StreamMasterHub, IStreamMasterHub> hub)
+    public ChannelManager(ILogger<ChannelManager> logger, IStreamSwitcher streamSwitcher, IChannelService channelService, IStreamManager streamManager, ISettingsService settingsService, IServiceProvider serviceProvider, IHubContext<StreamMasterHub, IStreamMasterHub> hub)
     {
         _settingsService = settingsService;
-        _memoryCache = memoryCache;
         _logger = logger;
         _hub = hub;
         _streamManager = streamManager;
         _broadcastTimer = new Timer(BroadcastMessage, null, 1000, 1000);
         _serviceProvider = serviceProvider;
         _channelService = channelService;
+        _streamSwitcher = streamSwitcher;
     }
     public async Task ChangeVideoStreamChannel(string playingVideoStreamId, string newVideoStreamId)
     {
@@ -56,7 +52,7 @@ public class ChannelManager : IDisposable, IChannelManager
 
             IStreamHandler? oldInfo = channelStatus.StreamHandler;
 
-            if (!await SwitchToNextVideoStream(channelStatus, newVideoStreamId))
+            if (!await _streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus, newVideoStreamId))
             {
                 _logger.LogWarning("Exiting ChangeVideoStreamChannel. Could not change channel to {newVideoStreamId}", newVideoStreamId);
                 return;
@@ -155,7 +151,7 @@ public class ChannelManager : IDisposable, IChannelManager
 
     public void RemoveClient(ClientStreamerConfiguration config)
     {
-        UnRegisterClient(config);
+        UnRegisterWithChannelManager(config);
     }
 
     public static bool ShouldHandleFailover(ChannelStatus channelStatus)
@@ -217,7 +213,7 @@ public class ChannelManager : IDisposable, IChannelManager
                     break;
                 }
 
-                await DelayWithCancellation(50, channelStatus.ChannelWatcherToken.Token);
+                await channelStatus.ChannelWatcherToken.Token.ApplyDelay(50);
             }
         }
         catch (TaskCanceledException)
@@ -234,238 +230,6 @@ public class ChannelManager : IDisposable, IChannelManager
         _logger.LogDebug("Exiting ChannelWatcher for channel: {VideoStreamId}", channelStatus.VideoStreamId);
     }
 
-    private async Task DelayWithCancellation(int milliseconds, CancellationToken cancellationToken)
-    {
-        try
-        {
-            await Task.Delay(milliseconds, cancellationToken);
-        }
-        catch (TaskCanceledException)
-        {
-            _logger.LogInformation("Task was cancelled");
-            throw;
-        }
-    }
-
-    Task IChannelManager.FailClient(Guid clientId)
-    {
-        throw new NotImplementedException();
-    }
-
-    private int GetGlobalStreamsCount()
-    {
-        return _channelService.GetGlobalStreamsCount();
-    }
-
-    private async Task<ChildVideoStreamDto?> RetrieveNextChildVideoStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
-    {
-        _logger.LogDebug("Starting GetNextChildVideoStream with channelStatus: {VideoStreamName} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus.VideoStreamName, overrideNextVideoStreamId);
-
-        using IServiceScope scope = _serviceProvider.CreateScope();
-        IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
-        IMapper mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
-
-        if (!string.IsNullOrEmpty(overrideNextVideoStreamId))
-        {
-            ChildVideoStreamDto? handled = await HandleOverrideStream(overrideNextVideoStreamId, repository, channelStatus, mapper);
-            if (handled != null || (handled == null && !string.IsNullOrEmpty(overrideNextVideoStreamId)))
-            {
-                return handled;
-            }
-        }
-        ChildVideoStreamDto? result = await FetchNextChildVideoStream(channelStatus, repository);
-        if (result != null)
-        {
-            return result;
-        }
-        _logger.LogDebug("Exiting GetNextChildVideoStream with null due to no suitable videoStream found");
-        return null;
-    }
-
-    private async Task<ChildVideoStreamDto?> FetchNextChildVideoStream(IChannelStatus channelStatus, IRepositoryWrapper repository)
-    {
-        Setting setting = _memoryCache.GetSetting();
-        (VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)? result = await repository.VideoStream.GetStreamsFromVideoStreamById(channelStatus.VideoStreamId);
-        if (result == null)
-        {
-            _logger.LogError("GetNextChildVideoStream could not get videoStream for id {VideoStreamId}", channelStatus.VideoStreamId);
-            _logger.LogDebug("Exiting GetNextChildVideoStream with null due to result being null");
-            return null;
-        }
-
-        ChildVideoStreamDto[] videoStreams = result.Value.childVideoStreamDtos.OrderBy(a => a.Rank).ToArray();
-        if (!videoStreams.Any())
-        {
-            _logger.LogError("GetNextChildVideoStream could not get child videoStreams for id {VideoStreamId}", channelStatus.VideoStreamId);
-            _logger.LogDebug("Exiting GetNextChildVideoStream with null due to no child videoStreams found");
-            return null;
-        }
-
-        VideoStreamHandlers videoHandler = result.Value.videoStreamHandler == VideoStreamHandlers.SystemDefault ? VideoStreamHandlers.Loop : result.Value.videoStreamHandler;
-
-        if (channelStatus.Rank >= videoStreams.Length)
-        {
-            channelStatus.Rank = 0;
-        }
-
-        while (channelStatus.Rank < videoStreams.Length)
-        {
-            ChildVideoStreamDto toReturn = videoStreams[channelStatus.Rank++];
-            List<M3UFileDto> m3uFilesRepo = await repository.M3UFile.GetM3UFiles().ConfigureAwait(false);
-
-            M3UFileDto? m3uFile = m3uFilesRepo.Find(a => a.Id == toReturn.M3UFileId);
-            if (m3uFile == null)
-            {
-                if (GetGlobalStreamsCount() >= setting.GlobalStreamLimit)
-                {
-                    _logger.LogInformation("Max Global stream count {GlobalStreamsCount} reached for stream: {StreamUrl}", GetGlobalStreamsCount(), toReturn.User_Url);
-                    continue;
-                }
-
-                channelStatus.SetIsGlobal();
-                _logger.LogInformation("Global stream count {GlobalStreamsCount}", GetGlobalStreamsCount());
-            }
-            else
-            {
-                int allStreamsCount = _streamManager.GetStreamsCountForM3UFile(toReturn.M3UFileId);
-                if (allStreamsCount >= m3uFile.MaxStreamCount)
-                {
-                    _logger.LogInformation("Max stream count {MaxStreams} reached for stream: {StreamUrl}", toReturn.MaxStreams, toReturn.User_Url);
-                    continue;
-                }
-            }
-            _logger.LogDebug("Exiting GetNextChildVideoStream with toReturn: {toReturn}", toReturn);
-            return toReturn;
-        }
-
-        _logger.LogDebug("Exiting GetNextChildVideoStream with null due to no suitable videoStream found");
-        return null;
-    }
-
-    private async Task<ChildVideoStreamDto?> HandleOverrideStream(string overrideNextVideoStreamId, IRepositoryWrapper repository, IChannelStatus channelStatus, IMapper mapper)
-    {
-        Setting setting = _memoryCache.GetSetting();
-
-        VideoStreamDto? vs = await repository.VideoStream.GetVideoStreamById(overrideNextVideoStreamId);
-        if (vs == null)
-        {
-            _logger.LogError("GetNextChildVideoStream could not get videoStream for id {VideoStreamId}", overrideNextVideoStreamId);
-            _logger.LogDebug("Exiting GetNextChildVideoStream with null due to newVideoStream being null");
-            return null;
-        }
-
-        ChildVideoStreamDto newVideoStream = mapper.Map<ChildVideoStreamDto>(vs);
-        if (newVideoStream == null)
-        {
-            _logger.LogError("GetNextChildVideoStream could not get videoStream for id {VideoStreamId}", overrideNextVideoStreamId);
-            _logger.LogDebug("Exiting GetNextChildVideoStream with null due to newVideoStream being null");
-            return null;
-        }
-
-        List<M3UFileDto> m3uFilesRepo = await repository.M3UFile.GetM3UFiles();
-
-        M3UFileDto? m3uFile = m3uFilesRepo.Find(a => a.Id == newVideoStream.M3UFileId);
-        if (m3uFile == null)
-        {
-            if (GetGlobalStreamsCount() >= setting.GlobalStreamLimit)
-            {
-                _logger.LogInformation("Max Global stream count {GlobalStreamsCount} reached for stream: {StreamUrl}", GetGlobalStreamsCount(), newVideoStream.User_Url);
-                return null;
-            }
-
-            channelStatus.SetIsGlobal();
-            _logger.LogInformation("Global stream count {GlobalStreamsCount}", GetGlobalStreamsCount());
-            return newVideoStream;
-        }
-        else
-        {
-            int allStreamsCount = _streamManager.GetStreamsCountForM3UFile(newVideoStream.M3UFileId);
-
-            if (newVideoStream.Id != channelStatus.VideoStreamId && allStreamsCount >= m3uFile.MaxStreamCount)
-            {
-                _logger.LogInformation("Max stream count {MaxStreams} reached for stream: {StreamUrl}", newVideoStream.MaxStreams, newVideoStream.User_Url);
-            }
-            else
-            {
-                _logger.LogDebug("Exiting GetNextChildVideoStream with newVideoStream: {newVideoStream}", newVideoStream);
-                return newVideoStream;
-            }
-        }
-        return null;
-    }
-
-    private async Task<bool> SwitchToNextVideoStream(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
-    {
-        _logger.LogDebug("Starting SwitchToNextVideoStream with channelStatus: {channelStatus} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus, overrideNextVideoStreamId);
-
-        channelStatus.FailoverInProgress = true;
-
-        if (!await ApplyDelay(channelStatus.ChannelWatcherToken.Token))
-        {
-            channelStatus.FailoverInProgress = false;
-            return false;
-        }
-
-        ChildVideoStreamDto? childVideoStreamDto = await RetrieveNextChildVideoStream(channelStatus, overrideNextVideoStreamId);
-        if (childVideoStreamDto is null)
-        {
-            _logger.LogDebug("Exiting SwitchToNextVideoStream with false due to childVideoStreamDto being null");
-            channelStatus.FailoverInProgress = false;
-            return false;
-        }
-
-        ICollection<ClientStreamerConfiguration>? oldConfigs = channelStatus.StreamHandler?.GetClientStreamerConfigurations();
-
-        if (!await UpdateStreamHandler(channelStatus, childVideoStreamDto))
-        {
-            _logger.LogDebug("Exiting SwitchToNextVideoStream with false due to channelStatus.StreamInformation being null");
-            channelStatus.FailoverInProgress = false;
-            return false;
-        }
-
-        RegisterOldClientsToStream(channelStatus, oldConfigs);
-
-        channelStatus.FailoverInProgress = false;
-        _logger.LogDebug("Finished SwitchToNextVideoStream");
-
-        return true;
-    }
-
-    private async Task<bool> ApplyDelay(CancellationToken token, int delayDuration = 200)
-    {
-        try
-        {
-            await DelayWithCancellation(delayDuration, token);
-            return true;
-        }
-        catch (TaskCanceledException)
-        {
-            _logger.LogInformation("Task was cancelled");
-            throw;
-        }
-    }
-
-    private async Task<bool> UpdateStreamHandler(IChannelStatus channelStatus, ChildVideoStreamDto childVideoStreamDto)
-    {
-        try
-        {
-            channelStatus.StreamHandler = await _streamManager.GetOrCreateStreamHandler(childVideoStreamDto, channelStatus.Rank);
-            return channelStatus.StreamHandler != null;
-        }
-        catch (TaskCanceledException)
-        {
-            _logger.LogInformation("Task was cancelled");
-            throw;
-        }
-    }
-
-    private void RegisterOldClientsToStream(IChannelStatus channelStatus, ICollection<ClientStreamerConfiguration>? oldConfigs)
-    {
-        if (oldConfigs is not null && channelStatus.StreamHandler is not null)
-        {
-            RegisterClientsToNewStream(oldConfigs, channelStatus.StreamHandler);
-        }
-    }
 
     private async Task<bool> ProcessStreamStatus(IChannelStatus channelStatus)
     {
@@ -482,7 +246,7 @@ public class ChannelManager : IDisposable, IChannelManager
             bool handled;
             try
             {
-                handled = await SwitchToNextVideoStream(channelStatus);
+                handled = await _streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus);
             }
             catch (TaskCanceledException)
             {
@@ -500,7 +264,7 @@ public class ChannelManager : IDisposable, IChannelManager
             _ = _streamManager.Stop(channelStatus.StreamHandler.StreamUrl);
             try
             {
-                bool handled = await SwitchToNextVideoStream(channelStatus);
+                bool handled = await _streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus);
                 _logger.LogDebug("Exiting ProcessStreamStatus with {handled} after stopping streaming and handling next video stream", !handled);
                 return !handled;
             }
@@ -529,21 +293,6 @@ public class ChannelManager : IDisposable, IChannelManager
         return (Stream)config.ReadBuffer;
     }
 
-    private void RegisterClientsToNewStream(ICollection<ClientStreamerConfiguration> configs, IStreamHandler streamStreamInfo)
-    {
-        foreach (ClientStreamerConfiguration config in configs)
-        {
-            RegisterClientToNewStream(config, streamStreamInfo);
-        }
-    }
-
-    private void RegisterClientToNewStream(ClientStreamerConfiguration config, IStreamHandler streamStreamInfo)
-    {
-        _logger.LogInformation("Registered client id: {clientId} to videostream url {StreamUrl}", config.ClientId, streamStreamInfo.StreamUrl);
-
-        streamStreamInfo.RegisterClientStreamer(config);
-    }
-
     private async Task<IChannelStatus?> RegisterWithChannelManager(ClientStreamerConfiguration config)
     {
         _logger.LogDebug("Starting RegisterWithChannelManager with config: {config}", config.ClientId);
@@ -565,7 +314,7 @@ public class ChannelManager : IDisposable, IChannelManager
 
             try
             {
-                if (!await SwitchToNextVideoStream(channelStatus).ConfigureAwait(false) || channelStatus.StreamHandler is null)
+                if (!await _streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus).ConfigureAwait(false) || channelStatus.StreamHandler is null)
                 {
                     return null;
                 }
@@ -608,11 +357,6 @@ public class ChannelManager : IDisposable, IChannelManager
         _logger.LogDebug("Finished RegisterWithChannelManager with config: {config}", config.ClientId);
 
         return channelStatus;
-    }
-
-    private void UnRegisterClient(ClientStreamerConfiguration config)
-    {
-        UnRegisterWithChannelManager(config);
     }
 
     private void UnRegisterWithChannelManager(ClientStreamerConfiguration config)

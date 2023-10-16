@@ -22,7 +22,7 @@ public interface IVideoStreamController
 
     Task<ActionResult> DeleteVideoStream(DeleteVideoStreamRequest request);
 
-    Task<ActionResult> FailClient(FailClientRequest request);
+    IActionResult FailClient(FailClientRequest request);
 
     Task<ActionResult<List<StreamStatisticsResult>>> GetAllStatisticsForAllUrls();
 

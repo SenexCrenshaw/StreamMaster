@@ -60,9 +60,9 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpPost]
     [Route("[action]")]
-    public async Task<ActionResult> FailClient(FailClientRequest request)
+    public IActionResult FailClient(FailClientRequest request)
     {
-        await _channelManager.FailClient(request.clientId);
+        _channelManager.FailClient(request.clientId);
         return Ok();
     }
 

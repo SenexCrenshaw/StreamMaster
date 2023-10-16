@@ -26,6 +26,7 @@ public static class ConfigureServices
         services.AddMemoryCache();
         services.AddSingleton<ISettingsService, SettingsService>();
         services.AddSingleton<IStreamFactory, DefaultStreamFactory>();
+        services.AddSingleton<IStreamSwitcher, StreamSwitcher>();
         services.AddSingleton<IChannelService, ChannelService>();
         services.AddSingleton<IProxyFactory, ProxyFactory>();
         services.AddSingleton<ICurrentCancellationTokenService, CurrentCancellationTokenService>();

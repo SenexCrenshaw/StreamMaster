@@ -8,7 +8,7 @@ namespace StreamMasterApplication.Common.Interfaces
 
         void Dispose();
 
-        Task FailClient(Guid clientId);
+        void FailClient(Guid clientId);
 
         Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls();
 
