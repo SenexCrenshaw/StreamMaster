@@ -68,7 +68,6 @@ public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory,
             return streamHandler;
         }
 
-
         logger.LogInformation("Reusing buffer for stream: {Id}", childVideoStreamDto.Id);
         return streamHandler;
     }
