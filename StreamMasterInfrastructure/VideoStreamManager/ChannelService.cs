@@ -29,6 +29,11 @@ public class ChannelService : IChannelService
         return channelStatus;
     }
 
+    public List<IChannelStatus> GetChannelStatuses()
+    {
+        return _channelStatuses.Values.ToList();
+    }
+
     public bool HasChannel(string videoStreamId)
     {
         return _channelStatuses.ContainsKey(videoStreamId);

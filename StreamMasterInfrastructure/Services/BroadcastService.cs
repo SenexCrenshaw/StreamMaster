@@ -30,15 +30,25 @@ public class BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub
         _broadcastTimer?.Dispose();
     }
 
+    private bool sentEmpty = false;
     private void BroadcastMessage(object? state)
     {
         try
         {
-            LogDebug();
+            //LogDebug();
             List<StreamStatisticsResult> statisticsResults = streamStatisticService.GetAllStatisticsForAllUrls().Result;
             if (statisticsResults.Any())
             {
                 hub.Clients.All.StreamStatisticsResultsUpdate(statisticsResults).ConfigureAwait(false);
+                sentEmpty = false;
+            }
+            else
+            {
+                if (!sentEmpty)
+                {
+                    hub.Clients.All.StreamStatisticsResultsUpdate(statisticsResults);
+                }
+                sentEmpty = true;
             }
         }
         catch (Exception ex)

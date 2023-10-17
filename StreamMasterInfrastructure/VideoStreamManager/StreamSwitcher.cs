@@ -33,13 +33,14 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IServiceProvider ser
         }
     }
 
+
     public async Task<bool> SwitchToNextVideoStreamAsync(IChannelStatus channelStatus, string? overrideNextVideoStreamId = null)
     {
         logger.LogDebug("Starting SwitchToNextVideoStream with channelStatus: {channelStatus} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus, overrideNextVideoStreamId);
 
         channelStatus.FailoverInProgress = true;
 
-        if (!await channelStatus.ChannelWatcherToken.Token.ApplyDelay())
+        if (!await TokenExtensions.ApplyDelay())
         {
             logger.LogInformation("Task was cancelled");
             channelStatus.FailoverInProgress = false;

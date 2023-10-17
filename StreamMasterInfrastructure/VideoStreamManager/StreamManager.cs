@@ -58,18 +58,18 @@ public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory,
     {
         if (!_streamHandlers.TryGetValue(childVideoStreamDto.Id, out IStreamHandler? streamHandler))
         {
+            logger.LogInformation("Creating new buffer for stream: {Id}", childVideoStreamDto.Id);
             streamHandler = await CreateStreamHandler(childVideoStreamDto, rank, cancellation);
             if (streamHandler == null)
             {
                 return null;
             }
             _streamHandlers.TryAdd(childVideoStreamDto.Id, streamHandler);
-        }
-        else
-        {
-            logger.LogInformation("Reusing buffer for stream: {Id}", childVideoStreamDto.Id);
+            return streamHandler;
         }
 
+
+        logger.LogInformation("Reusing buffer for stream: {Id}", childVideoStreamDto.Id);
         return streamHandler;
     }
 
@@ -102,6 +102,7 @@ public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory,
     {
         if (_streamHandlers.TryRemove(videoStreamId, out IStreamHandler? streamInformation))
         {
+            logger.LogWarning("Stopping stream {videoStreamId}", videoStreamId);
             streamInformation.Stop();
             return streamInformation;
         }

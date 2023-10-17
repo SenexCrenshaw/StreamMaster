@@ -238,13 +238,12 @@ public class CircularRingBuffer : ICircularRingBuffer
 
     public void RegisterClient(Guid clientId, string clientAgent, string clientIPAddress)
     {
-        _logger.LogDebug("Starting RegisterClient for clientId: {clientId}", clientId);
+        _logger.LogDebug("Starting RegisterClient for clientId: {clientId} {_oldestDataIndex}", clientId, _oldestDataIndex);
 
         if (!_clientReadIndexes.ContainsKey(clientId))
         {
             _ = _clientReadIndexes.TryAdd(clientId, _oldestDataIndex);
             _ = _clientSemaphores.TryAdd(clientId, new SemaphoreSlim(0, 1));
-            //_ = _clientStatistics.TryAdd(clientId, new StreamingStatistics(clientAgent, clientIPAdress));
             _statisticsManager.RegisterClient(clientId, clientAgent, clientIPAddress);
         }
 

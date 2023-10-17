@@ -18,4 +18,20 @@ public static class TokenExtensions
             throw;
         }
     }
+    public static async Task<bool> ApplyDelay(int milliseconds = 200)
+    {
+        try
+        {
+            await Task.Delay(milliseconds);
+            return true;
+        }
+        catch (TaskCanceledException)
+        {
+            return false;
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
 }

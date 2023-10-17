@@ -10,7 +10,7 @@ namespace StreamMasterApplication.Common.Interfaces
 
         Task<Stream?> GetStream(ClientStreamerConfiguration config);
 
-        void RemoveClient(ClientStreamerConfiguration config);
+        Task RemoveClient(ClientStreamerConfiguration config);
 
         void SimulateStreamFailure(string streamUrl);
 

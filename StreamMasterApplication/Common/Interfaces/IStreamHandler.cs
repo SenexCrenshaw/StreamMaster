@@ -5,6 +5,11 @@ namespace StreamMasterApplication.Common.Interfaces;
 public interface IStreamHandler : IDisposable
 {
     /// <summary>
+    /// true if there is an existing client registered; otherwise, false.
+    /// </summary>
+    bool HasClient(Guid clientId);
+
+    /// <summary>
     /// Gets the ring buffer used for storing video chunks.
     /// </summary>
     ICircularRingBuffer RingBuffer { get; }

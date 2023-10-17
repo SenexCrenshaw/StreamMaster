@@ -219,6 +219,7 @@ public class StreamHandler(string streamURL, int processId, ILogger<IStreamHandl
     {
         try
         {
+            logger.LogInformation("UnRegisterClientStreamer for client {ClientId}.", streamerConfiguration.ClientId);
             bool result = UnRegisterClient(streamerConfiguration);
             // Raise event
             ClientUnregistered?.Invoke(this, new ClientUnregisteredEventArgs(streamerConfiguration.ClientId));
@@ -252,7 +253,8 @@ public class StreamHandler(string streamURL, int processId, ILogger<IStreamHandl
         {
             return clientConfig;
         }
-        throw new Exception($"Client configuration for {clientID} not found");
+        logger.LogDebug("Client configuration for {clientID} not found", clientID);
+        return null;
     }
 
     private void SetClientBufferDelegate(ClientStreamerConfiguration config, Func<ICircularRingBuffer> func)
@@ -269,5 +271,10 @@ public class StreamHandler(string streamURL, int processId, ILogger<IStreamHandl
     public ICollection<ClientStreamerConfiguration>? GetClientStreamerConfigurations()
     {
         return _clientStreamerConfigurations.Values;
+    }
+
+    public bool HasClient(Guid clientId)
+    {
+        return GetClientStreamerConfiguration(clientId) != null;
     }
 }

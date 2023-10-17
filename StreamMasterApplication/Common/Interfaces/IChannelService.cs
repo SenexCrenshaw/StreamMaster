@@ -2,6 +2,7 @@
 {
     public interface IChannelService
     {
+        List<IChannelStatus> GetChannelStatuses();
         IChannelStatus? GetChannelStatus(string videoStreamId);
         int GetGlobalStreamsCount();
         bool HasChannel(string videoStreamId);
