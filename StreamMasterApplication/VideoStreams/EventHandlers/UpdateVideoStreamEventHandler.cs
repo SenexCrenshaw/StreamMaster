@@ -25,6 +25,8 @@ public class UpdateVideoStreamEventHandler(ILogger<UpdateVideoStreamEvent> logge
             await Publisher.Publish(new UpdateChannelGroupEvent(channelGroup, false, false), cancellationToken).ConfigureAwait(false);
         }
 
+        await HubContext.Clients.All.VideoStreamLinksRefresh([notification.VideoStream.Id]);
+
         await HubContext.Clients.All.VideoStreamsRefresh([notification.VideoStream]).ConfigureAwait(false);
         await HubContext.Clients.All.StreamGroupVideoStreamsRefresh().ConfigureAwait(false);
     }
