@@ -33,7 +33,7 @@ public class StatisticsManager(ILogger<StatisticsManager> logger) : IStatisticsM
         }
         else
         {
-            _logger.LogWarning("Client {clientId} not found when trying to add bytes read.", clientId);
+            //_logger.LogWarning("Client {clientId} not found when trying to add bytes read.", clientId);
         }
     }
     public List<ClientStreamingStatistics> GetAllClientStatistics()

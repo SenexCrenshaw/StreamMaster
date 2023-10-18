@@ -15,7 +15,7 @@ public class ClientUnregisteredEventArgs(Guid clientId) : EventArgs
     public Guid ClientId { get; } = clientId;
 }
 
-public class StreamControllerStoppedEventArgs() : EventArgs
+public class StreamHandlerStoppedEventArgs() : EventArgs
 {
 }
 

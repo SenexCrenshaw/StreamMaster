@@ -13,7 +13,7 @@ namespace StreamMasterInfrastructure.VideoStreamManager;
 /// <summary>
 /// Manages the streaming of a single video stream, including client registrations and circularRingbuffer handling.
 /// </summary>
-public class StreamHandler(string streamURL, int processId, ILogger<IStreamHandler> logger, ICircularRingBuffer ringBuffer, CancellationTokenSource cancellationTokenSource) : IStreamHandler
+public class StreamHandler(string streamURL, string videoStreamId, int processId, ILogger<IStreamHandler> logger, ICircularRingBuffer ringBuffer, CancellationTokenSource cancellationTokenSource) : IStreamHandler
 {
     private readonly ConcurrentDictionary<Guid, ClientStreamerConfiguration> _clientStreamerConfigurations = new();
 
@@ -21,7 +21,8 @@ public class StreamHandler(string streamURL, int processId, ILogger<IStreamHandl
     public int M3UFileId { get; set; }
     public int ProcessId { get; set; } = processId;
     public ICircularRingBuffer RingBuffer { get; } = ringBuffer;
-    public string StreamUrl { get; set; } = streamURL;
+    public string StreamUrl { get; } = streamURL;
+    public string VideoStreamId { get; } = videoStreamId;
     private async Task DelayWithCancellation(int milliseconds)
     {
         try
@@ -143,7 +144,7 @@ public class StreamHandler(string streamURL, int processId, ILogger<IStreamHandl
     /// <summary>
     /// Raised when a stream stops.
     /// </summary>
-    public event EventHandler<StreamControllerStoppedEventArgs>? StreamControllerStopped;
+    public event EventHandler<StreamHandlerStoppedEventArgs>? StreamControllerStopped;
 
     public CancellationTokenSource VideoStreamingCancellationToken { get; set; } = cancellationTokenSource;
 
@@ -212,17 +213,18 @@ public class StreamHandler(string streamURL, int processId, ILogger<IStreamHandl
     private bool UnRegisterClient(ClientStreamerConfiguration streamerConfiguration)
     {
         bool result = _clientStreamerConfigurations.TryRemove(streamerConfiguration.ClientId, out _);
-        RingBuffer.UnregisterClient(streamerConfiguration.ClientId);
+        RingBuffer.UnRegisterClient(streamerConfiguration.ClientId);
         return result;
     }
     public bool UnRegisterClientStreamer(ClientStreamerConfiguration streamerConfiguration)
     {
         try
         {
-            logger.LogInformation("UnRegisterClientStreamer for client {ClientId}.", streamerConfiguration.ClientId);
+            logger.LogInformation("UnRegisterClientStreamer for client {ClientId} {VideoStreamName}.", streamerConfiguration.ClientId, streamerConfiguration.VideoStreamName);
             bool result = UnRegisterClient(streamerConfiguration);
             // Raise event
             ClientUnregistered?.Invoke(this, new ClientUnregisteredEventArgs(streamerConfiguration.ClientId));
+
             return result;
         }
         catch (Exception ex)

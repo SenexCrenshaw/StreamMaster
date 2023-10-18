@@ -5,13 +5,14 @@
 /// </summary>
 public class ClientStreamerConfiguration
 {
-    public ClientStreamerConfiguration(string videoStreamId, string clientUserAgent, string clientIPAddress, CancellationToken cancellationToken)
+    public ClientStreamerConfiguration(string channelVideoStreamId, string clientUserAgent, string clientIPAddress, CancellationToken cancellationToken)
     {
         ClientHTTPRequestCancellationToken = cancellationToken;
         ClientIPAddress = clientIPAddress;
         ClientId = Guid.NewGuid();
         ClientUserAgent = clientUserAgent;
-        VideoStreamId = videoStreamId;
+        ChannelVideoStreamId = channelVideoStreamId;
+        VideoStreamId = string.Empty;
         VideoStreamName = string.Empty;
         ClientCancellationTokenSource = new();
         ClientMasterToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ClientHTTPRequestCancellationToken, ClientCancellationTokenSource.Token);
@@ -31,6 +32,7 @@ public class ClientStreamerConfiguration
     public string ClientUserAgent { get; set; }
 
     //Current Streaming info
+    public string ChannelVideoStreamId { get; set; }
     public string VideoStreamId { get; set; }
     public string VideoStreamName { get; set; }
 }

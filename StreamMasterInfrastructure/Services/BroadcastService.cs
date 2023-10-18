@@ -7,16 +7,16 @@ using StreamMasterApplication.Hubs;
 
 namespace StreamMasterInfrastructure.Services;
 
-public class BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub, IChannelService channelService, IStreamManager streamManager, IStreamStatisticService streamStatisticService, ILogger<BroadcastService> logger) : IBroadcastService, IDisposable
+public class BroadcastService(IHubContext<StreamMasterHub, IStreamMasterHub> hub, IStreamManager streamManager, IStreamStatisticService streamStatisticService, ILogger<BroadcastService> logger) : IBroadcastService, IDisposable
 {
     private Timer? _broadcastTimer;
 
     public void LogDebug()
     {
         logger.LogInformation("ChannelManager LogDebug");
-        logger.LogInformation("GetGlobalStreamsCount: {GetGlobalStreamsCount}", channelService.GetGlobalStreamsCount());
+        //logger.LogInformation("GetGlobalStreamsCount: {GetGlobalStreamsCount}", channelService.GetGlobalStreamsCount());
         logger.LogInformation("GetStreamHandlers: {GetStreamHandlers}", streamManager.GetStreamHandlers().Count);
-        logger.LogInformation("GetStreamInformations: {GetStreamInformations}", streamManager.GetStreamInformations().Count);
+        logger.LogInformation("GetStreamHandlers: {GetStreamHandlers}", streamManager.GetStreamHandlers().Count);
     }
 
 

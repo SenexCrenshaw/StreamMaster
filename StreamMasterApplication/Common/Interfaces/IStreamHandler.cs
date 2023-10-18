@@ -20,7 +20,8 @@ public interface IStreamHandler : IDisposable
     /// <summary>
     /// Gets or sets the URL of the stream.
     /// </summary>
-    string StreamUrl { get; set; }
+    string StreamUrl { get; }
+    string VideoStreamId { get; }
     /// <summary>
     /// Gets or sets the cancellation token source for video streaming.
     /// </summary>

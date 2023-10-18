@@ -1,16 +1,19 @@
-﻿using StreamMasterApplication.Common.Interfaces;
+﻿using Microsoft.Extensions.Logging;
+
+using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.Common.Models;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
 
-public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ClientStreamerConfiguration config) : Stream, IRingBufferReadStream
+public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ILogger<RingBufferReadStream> logger, ClientStreamerConfiguration config) : Stream, IRingBufferReadStream
 {
+
     private Func<ICircularRingBuffer> _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
     private CancellationTokenSource _clientMasterToken = config.ClientMasterToken;
-    private readonly Guid _clientId = config.ClientId;
+    private Guid _clientId { get; set; } = config.ClientId;
 
     public ICircularRingBuffer Buffer => _bufferDelegate();
-
+    public Guid Id { get; } = Guid.NewGuid();
     public override bool CanRead => true;
 
     public override bool CanSeek => false;
@@ -41,13 +44,23 @@ public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, Clie
         return bytesRead;
     }
 
+    private readonly DateTime _lastLogTime = new();
     public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
     {
         int bytesRead = 0;
         int availableBytes;
+        //DateTime currentTime = DateTime.UtcNow;
+
 
         while (!cancellationToken.IsCancellationRequested && !_clientMasterToken.Token.IsCancellationRequested && bytesRead < buffer.Length)
         {
+            //currentTime = DateTime.UtcNow;
+            //if ((currentTime - _lastLogTime).TotalSeconds >= 2)
+            //{
+            //    logger.LogInformation("Read     {RingBufferId} {VideoStreamId} clientId: {clientId} {Id} ", Buffer.Id, config.VideoStreamId, _clientId, Id);
+
+            //    _lastLogTime = currentTime;
+            //}
             availableBytes = Buffer.GetAvailableBytes(_clientId);
 
             if (availableBytes == 0)
@@ -101,7 +114,9 @@ public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, Clie
 
     public void SetBufferDelegate(Func<ICircularRingBuffer> bufferDelegate, ClientStreamerConfiguration config)
     {
+        _clientId = config.ClientId;
         _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
+        logger.LogInformation("Setting buffer delegate for  {Buffer.Id} {ClientId} {VideoStreamId}", Buffer.Id, config.ClientId, config.VideoStreamId);
         _clientMasterToken = config.ClientMasterToken;
     }
 

@@ -90,22 +90,38 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
             return (videoStream.VideoStreamHandler, new List<ChildVideoStreamDto> { childVideoStreamDto });
         }
 
+        //List<VideoStreamLink> links = await RepositoryContext.VideoStreamLinks.Where(a => a.ParentVideoStreamId == videoStream.Id).ToListAsync(cancellationToken: cancellationToken);
         List<VideoStream> childVideoStreams = RepositoryContext.VideoStreamLinks
-            .Include(a => a.ChildVideoStream)
-            .Where(a => a.ParentVideoStreamId == videoStream.Id)
-            .Select(a => a.ChildVideoStream).ToList();
+        .Include(a => a.ChildVideoStream)
+        .Where(a => a.ParentVideoStreamId == videoStream.Id)
+        .Select(a => a.ChildVideoStream).ToList();
 
         List<ChildVideoStreamDto> childVideoStreamDtos = mapper.Map<List<ChildVideoStreamDto>>(childVideoStreams);
 
+        Dictionary<string, M3UFileIdMaxStream?> m3uCache = new();
+
         foreach (ChildVideoStreamDto childVideoStreamDto in childVideoStreamDtos)
         {
+            if (m3uCache.TryGetValue(childVideoStreamDto.User_Url, out M3UFileIdMaxStream? cachedResult) && cachedResult != null)
+            {
+                childVideoStreamDto.M3UFileId = cachedResult.M3UFileId;
+                childVideoStreamDto.MaxStreams = cachedResult.MaxStreams;
+                continue;
+            }
+
             M3UFileIdMaxStream? result = await sender.Send(new GetM3UFileIdMaxStreamFromUrlQuery(childVideoStreamDto.User_Url), cancellationToken).ConfigureAwait(false);
             if (result == null)
             {
                 return null;
             }
+            VideoStreamLink? link = videoStream.ChildVideoStreams.FirstOrDefault(a => a.ChildVideoStreamId == childVideoStreamDto.Id);
+            if (link is not null)
+            {
+                childVideoStreamDto.Rank = link.Rank;
+            }
             childVideoStreamDto.M3UFileId = result.M3UFileId;
             childVideoStreamDto.MaxStreams = result.MaxStreams;
+            m3uCache[childVideoStreamDto.User_Url] = result;
         }
 
         return (videoStream.VideoStreamHandler, childVideoStreamDtos);

@@ -2,7 +2,7 @@
 
 namespace StreamMasterApplication.Common.Interfaces
 {
-    public interface IRingBufferReadStream
+    public interface IRingBufferReadStream : IDisposable
     {
         ICircularRingBuffer Buffer { get; }
         bool CanRead { get; }
@@ -10,7 +10,7 @@ namespace StreamMasterApplication.Common.Interfaces
         bool CanWrite { get; }
         long Length { get; }
         long Position { get; set; }
-
+        Guid Id { get; }
         void Flush();
 
         int Read(byte[] buffer, int offset, int count);

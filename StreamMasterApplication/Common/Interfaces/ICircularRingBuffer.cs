@@ -7,7 +7,10 @@ public interface ICircularRingBuffer
     int BufferSize { get; }
 
     float GetBufferUtilization();
-
+    /// <summary>
+    /// Gets the  ID.
+    /// </summary>
+    Guid Id { get; }
     public string VideoStreamId { get; }
 
     List<StreamStatisticsResult> GetAllStatisticsForAllUrls();
@@ -26,7 +29,7 @@ public interface ICircularRingBuffer
 
     void RegisterClient(Guid clientId, string clientAgent, string clientIPAddress);
 
-    void UnregisterClient(Guid clientId);
+    void UnRegisterClient(Guid clientId);
 
     void UpdateReadIndex(Guid clientId, int newIndex);
 

@@ -1,4 +1,5 @@
 ﻿using StreamMasterApplication.Common.Interfaces;
+using StreamMasterApplication.Common.Models;
 
 using System.Collections.Concurrent;
 
@@ -7,25 +8,25 @@ public class ChannelService : IChannelService
 {
     private readonly ConcurrentDictionary<string, IChannelStatus> _channelStatuses = new();
 
-    public IChannelStatus RegisterChannel(string videoStreamId, string videoStreamName)
+    public IChannelStatus RegisterChannel(string channelVideoStreamId, string videoStreamName)
     {
-        if (!_channelStatuses.TryGetValue(videoStreamId, out IChannelStatus? channelStatus))
+        if (!_channelStatuses.TryGetValue(channelVideoStreamId, out IChannelStatus? channelStatus))
         {
-            channelStatus = new ChannelStatus(videoStreamId, videoStreamName);
-            _channelStatuses.TryAdd(videoStreamId, channelStatus);
+            channelStatus = new ChannelStatus(channelVideoStreamId, videoStreamName);
+            _channelStatuses.TryAdd(channelVideoStreamId, channelStatus);
         }
 
         return channelStatus;
     }
 
-    public void UnregisterChannel(string videoStreamId)
+    public void UnregisterChannel(string channelVideoStreamId)
     {
-        _channelStatuses.TryRemove(videoStreamId, out _);
+        _channelStatuses.TryRemove(channelVideoStreamId, out _);
     }
 
-    public IChannelStatus? GetChannelStatus(string videoStreamId)
+    public IChannelStatus? GetChannelStatus(string channelVideoStreamId)
     {
-        _channelStatuses.TryGetValue(videoStreamId, out IChannelStatus? channelStatus);
+        _channelStatuses.TryGetValue(channelVideoStreamId, out IChannelStatus? channelStatus);
         return channelStatus;
     }
 
@@ -34,9 +35,9 @@ public class ChannelService : IChannelService
         return _channelStatuses.Values.ToList();
     }
 
-    public bool HasChannel(string videoStreamId)
+    public bool HasChannel(string channelVideoStreamId)
     {
-        return _channelStatuses.ContainsKey(videoStreamId);
+        return _channelStatuses.ContainsKey(channelVideoStreamId);
     }
 
     public int GetGlobalStreamsCount()
@@ -44,5 +45,25 @@ public class ChannelService : IChannelService
         return _channelStatuses.Count(a => a.Value.IsGlobal);
     }
 
+    public ClientStreamerConfiguration? GetClientStreamerConfiguration(Guid clientId)
+    {
+        List<ClientStreamerConfiguration> test = _channelStatuses.Values.SelectMany(a => a.GetChannelClientClientStreamerConfigurations.Where(a => a.ClientId == clientId)).ToList();
+        if (test.Any())
+        {
+            return test.First();
+        }
+        return null;
+    }
 
+    public List<ClientStreamerConfiguration> GetClientStreamerConfigurations()
+    {
+        List<ClientStreamerConfiguration> test = _channelStatuses.Values.SelectMany(a => a.GetChannelClientClientStreamerConfigurations).ToList();
+        return test;
+    }
+
+    public List<ClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds)
+    {
+        List<ClientStreamerConfiguration> test = _channelStatuses.Values.SelectMany(a => a.GetChannelClientClientStreamerConfigurations.Where(a => clientIds.Contains(a.ClientId))).ToList();
+        return test;
+    }
 }

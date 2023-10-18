@@ -6,6 +6,14 @@
 public interface IStreamManager
 {
     /// <summary>
+    /// Registers a client streamer with the given configuration.
+    /// </summary>
+    /// <param name="streamerConfiguration">The configuration for the client streamer.</param>
+
+    //void RegisterClientStreamer(string StreamUrl, ClientStreamerConfiguration streamerConfiguration);
+    //bool UnRegisterClientStreamer(string StreamUrl, ClientStreamerConfiguration streamerConfiguration);
+    void MoveClientStreamer(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler);
+    /// <summary>
     /// Disposes of the resources used by the StreamManager.
     /// </summary>
     void Dispose();
@@ -24,7 +32,7 @@ public interface IStreamManager
     /// </summary>
     /// <param name="streamUrl">The URL of the stream.</param>
     /// <returns>An IStreamHandler if the stream exists; otherwise, returns null.</returns>
-    IStreamHandler? GetStreamInformationFromStreamUrl(string streamUrl);
+    IStreamHandler? GetStreamHandlerFromStreamUrl(string streamUrl);
 
     /// <summary>
     /// Retrieves a stream handler based on a given video stream ID.
@@ -33,11 +41,11 @@ public interface IStreamManager
     /// <returns>An IStreamHandler if the stream exists; otherwise, returns null.</returns>
     IStreamHandler? GetStreamHandler(string videoStreamId);
 
-    /// <summary>
-    /// Retrieves the information for all streams.
-    /// </summary>
-    /// <returns>A collection of IStreamHandler objects.</returns>
-    ICollection<IStreamHandler> GetStreamInformations();
+    ///// <summary>
+    ///// Retrieves the information for all streams.
+    ///// </summary>
+    ///// <returns>A collection of IStreamHandler objects.</returns>
+    //ICollection<IStreamHandler> GetStreamHandlers();
 
     /// <summary>
     /// Retrieves all stream handlers.
@@ -59,4 +67,3 @@ public interface IStreamManager
     /// <returns>An IStreamHandler representing the stopped stream; otherwise, returns null.</returns>
     IStreamHandler? Stop(string videoStreamId);
 }
-

@@ -85,14 +85,14 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
         catch (IOException ex)
         {
             ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.IoError, Message = ex.Message };
-            logger.LogError(ex, error.Message);
+            logger.LogError(ex, "GetFFMpegStream Error: ", error.Message);
 
             return (null, -1, error);
         }
         catch (Exception ex)
         {
             ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.UnknownError, Message = ex.Message };
-            logger.LogError(ex, error.Message);
+            logger.LogError(ex, "GetFFMpegStream Error: ", error.Message);
             return (null, -1, error);
         }
     }
@@ -108,7 +108,7 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
             if (response?.IsSuccessStatusCode != true)
             {
                 ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = "Could not retrieve stream url" };
-                logger.LogError(error.Message);
+                logger.LogError("GetProxyStream Error: ", error.Message);
                 return (null, -1, error);
             }
 
@@ -132,7 +132,7 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
         catch (Exception ex)
         {
             ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = ex.Message };
-            logger.LogError(error.Message);
+            logger.LogError(ex, "GetProxyStream Error: ", error.Message);
             return (null, -1, error);
         }
     }

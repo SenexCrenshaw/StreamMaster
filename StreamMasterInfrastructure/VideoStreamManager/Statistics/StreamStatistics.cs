@@ -16,7 +16,7 @@ public class StreamStatisticService(IStreamManager streamManager, ISettingsServi
     {
         List<StreamStatisticsResult> allStatistics = new();
 
-        ICollection<IStreamHandler> infos = streamManager.GetStreamInformations();
+        List<IStreamHandler> infos = streamManager.GetStreamHandlers();
         foreach (IStreamHandler? info in infos.Where(a => a.RingBuffer != null))
         {
             allStatistics.AddRange(info.RingBuffer.GetAllStatisticsForAllUrls());

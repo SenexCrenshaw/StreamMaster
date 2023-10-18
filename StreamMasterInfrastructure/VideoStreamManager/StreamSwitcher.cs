@@ -16,7 +16,7 @@ using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructure.VideoStreamManager;
 
-public class StreamSwitcher(ILogger<StreamSwitcher> logger, IServiceProvider serviceProvider, IMemoryCache memoryCache, IStreamManager streamManager, IChannelService channelService) : IStreamSwitcher
+public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService channelService, IServiceProvider serviceProvider, IMemoryCache memoryCache, IStreamManager streamManager) : IStreamSwitcher
 {
     private async Task<bool> UpdateStreamHandler(IChannelStatus channelStatus, ChildVideoStreamDto childVideoStreamDto)
     {
@@ -45,6 +45,7 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IServiceProvider ser
             channelStatus.FailoverInProgress = false;
             return false;
         }
+        IStreamHandler? oldStreamHandler = streamManager.GetStreamHandler(channelStatus.VideoStreamId);
 
         ChildVideoStreamDto? childVideoStreamDto = await RetrieveNextChildVideoStream(channelStatus, overrideNextVideoStreamId);
         if (childVideoStreamDto is null)
@@ -55,10 +56,12 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IServiceProvider ser
         }
 
         ICollection<ClientStreamerConfiguration>? oldConfigs = null;
-        IStreamHandler? streamHandler = streamManager.GetStreamHandler(channelStatus.VideoStreamId);
-        if (streamHandler is not null)
+        List<string> baids = new();
+        if (oldStreamHandler is not null)
         {
-            oldConfigs = streamHandler.GetClientStreamerConfigurations();
+            //oldConfigs = channelService.GetClientStreamerConfigurationFromIds(oldStreamHandler.GetClientIds());
+            oldConfigs = oldStreamHandler.GetClientStreamerConfigurations();
+            baids = oldConfigs.Select(a => a.VideoStreamId).ToList();
         }
 
         if (!await UpdateStreamHandler(channelStatus, childVideoStreamDto))
@@ -68,9 +71,15 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IServiceProvider ser
             return false;
         }
 
-        if (oldConfigs is not null && streamHandler is not null)
+        IStreamHandler? newStreamHandler = streamManager.GetStreamHandler(childVideoStreamDto.Id);
+        //ICollection<ClientStreamerConfiguration>? configs = newStreamHandler.GetClientStreamerConfigurations();
+        //List<string> aids = configs.Select(a => a.VideoStreamId).ToList();
+
+        if (oldConfigs is not null && oldStreamHandler is not null && newStreamHandler is not null)
         {
-            RegisterClientsToNewStream(oldConfigs, streamHandler);
+
+            streamManager.MoveClientStreamer(oldStreamHandler, newStreamHandler);
+
         }
 
         channelStatus.FailoverInProgress = false;
@@ -81,17 +90,7 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IServiceProvider ser
 
     private int GetGlobalStreamsCount()
     {
-        return channelService.GetGlobalStreamsCount();
-    }
-
-    private void RegisterClientsToNewStream(ICollection<ClientStreamerConfiguration> configs, IStreamHandler streamHandler)
-    {
-        foreach (ClientStreamerConfiguration config in configs)
-        {
-            logger.LogInformation("Registered client id: {clientId} to videostream url {StreamUrl}", config.ClientId, streamHandler.StreamUrl);
-
-            streamHandler.RegisterClientStreamer(config);
-        }
+        return 0; // channelService.GetGlobalStreamsCount();
     }
 
     private async Task<ChildVideoStreamDto?> HandleOverrideStream(string overrideNextVideoStreamId, IRepositoryWrapper repository, IChannelStatus channelStatus, IMapper mapper)
