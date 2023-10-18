@@ -1,9 +1,9 @@
-import { permanentRedirect } from 'next/navigation'
+import { redirect } from 'next/navigation';
 
 export default function IndexPage() {
-  permanentRedirect('/editor/playlist')
+  redirect('/editor/playlist');
 }
 
 export const metadata = {
   title: 'Stream Master',
-}
+};
