@@ -8,7 +8,6 @@ namespace StreamMasterApplication.Common.Interfaces;
 public interface IChannelService
 {
     List<ClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds);
-    List<ClientStreamerConfiguration> GetClientStreamerConfigurations();
     ClientStreamerConfiguration? GetClientStreamerConfiguration(Guid clientId);
     //void UpdateChannelStatusVideoStreamId(string videoStreamId);
     /// <summary>

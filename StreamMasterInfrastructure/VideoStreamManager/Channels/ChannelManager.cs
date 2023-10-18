@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Interfaces;
-using StreamMasterApplication.Common.Models;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
@@ -10,15 +9,19 @@ using StreamMasterDomain.Extensions;
 using StreamMasterDomain.Repository;
 
 using StreamMasterInfrastructure.VideoStreamManager.Buffers;
+using StreamMasterInfrastructure.VideoStreamManager.Clients;
 
-namespace StreamMasterInfrastructure.VideoStreamManager;
+namespace StreamMasterInfrastructure.VideoStreamManager.Channels;
 
 public class ChannelManager(
     ILogger<ChannelManager> logger,
     ILogger<RingBufferReadStream> ringBufferReadStreamLogger,
     IBroadcastService broadcastService,
     IStreamSwitcher streamSwitcher,
-    IChannelService channelService, IStreamManager streamManager, IServiceProvider serviceProvider) : IChannelManager
+    IChannelService channelService,
+    IStreamManager streamManager,
+    IServiceProvider serviceProvider
+    ) : IChannelManager
 {
     private readonly SemaphoreSlim _registerSemaphore = new(1, 1);
     private readonly SemaphoreSlim _unregisterSemaphore = new(1, 1);

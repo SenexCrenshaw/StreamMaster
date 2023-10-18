@@ -1,19 +1,25 @@
-﻿namespace StreamMasterApplication.Common.Models;
+﻿using StreamMasterApplication.Common.Interfaces;
+
+namespace StreamMasterInfrastructure.VideoStreamManager.Clients;
 
 /// <summary>
 /// Defines the configuration options for a video streamer.
 /// </summary>
-public class ClientStreamerConfiguration
+public class ClientStreamerConfiguration : IClientStreamerConfiguration
 {
-    public ClientStreamerConfiguration(string channelVideoStreamId, string clientUserAgent, string clientIPAddress, CancellationToken cancellationToken)
+    public ClientStreamerConfiguration(
+        string channelVideoStreamId,
+        string clientUserAgent,
+        string clientIPAddress,
+        CancellationToken cancellationToken)
     {
         ClientHTTPRequestCancellationToken = cancellationToken;
         ClientIPAddress = clientIPAddress;
         ClientId = Guid.NewGuid();
         ClientUserAgent = clientUserAgent;
         ChannelVideoStreamId = channelVideoStreamId;
-        VideoStreamId = string.Empty;
-        VideoStreamName = string.Empty;
+        //VideoStreamId = string.Empty;
+        //VideoStreamName = string.Empty;
         ClientCancellationTokenSource = new();
         ClientMasterToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ClientHTTPRequestCancellationToken, ClientCancellationTokenSource.Token);
     }
@@ -33,6 +39,6 @@ public class ClientStreamerConfiguration
 
     //Current Streaming info
     public string ChannelVideoStreamId { get; set; }
-    public string VideoStreamId { get; set; }
-    public string VideoStreamName { get; set; }
+    //public string VideoStreamId { get; set; }
+    //public string VideoStreamName { get; set; }
 }

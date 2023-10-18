@@ -13,10 +13,11 @@ using StreamMasterInfrastructure.Middleware;
 using StreamMasterInfrastructure.Services;
 using StreamMasterInfrastructure.Services.Frontend.Mappers;
 using StreamMasterInfrastructure.Services.Settings;
-using StreamMasterInfrastructure.VideoStreamManager;
+using StreamMasterInfrastructure.VideoStreamManager.Channels;
+using StreamMasterInfrastructure.VideoStreamManager.Clients;
 using StreamMasterInfrastructure.VideoStreamManager.Factories;
 using StreamMasterInfrastructure.VideoStreamManager.Statistics;
-
+using StreamMasterInfrastructure.VideoStreamManager.Streams;
 using System.Reflection;
 
 namespace StreamMasterInfrastructure;
@@ -31,6 +32,7 @@ public static class ConfigureServices
         services.AddSingleton<IStreamSwitcher, StreamSwitcher>();
         services.AddSingleton<IChannelService, ChannelService>();
         services.AddSingleton<IProxyFactory, ProxyFactory>();
+        services.AddSingleton<IClientManager, ClientStreamerManager>();
         services.AddSingleton<IStreamStatisticService, StreamStatisticService>();
 
         services.AddSingleton<ICircularRingBufferFactory, CircularRingBufferFactory>();

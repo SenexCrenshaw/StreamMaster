@@ -1,21 +1,29 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Interfaces;
-using StreamMasterApplication.Common.Models;
 
 using StreamMasterDomain.Events;
+
+using StreamMasterInfrastructure.VideoStreamManager.Clients;
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
-namespace StreamMasterInfrastructure.VideoStreamManager;
+namespace StreamMasterInfrastructure.VideoStreamManager.Streams;
 
 /// <summary>
 /// Manages the streaming of a single video stream, including client registrations and circularRingbuffer handling.
 /// </summary>
-public class StreamHandler(string streamURL, string videoStreamId, int processId, ILogger<IStreamHandler> logger, ICircularRingBuffer ringBuffer, CancellationTokenSource cancellationTokenSource) : IStreamHandler
+public class StreamHandler(
+    string streamURL,
+    string videoStreamId,
+    int processId,
+    ILogger<IStreamHandler> logger,
+    ICircularRingBuffer ringBuffer,
+    CancellationTokenSource cancellationTokenSource
+    ) : IStreamHandler
 {
-    private readonly ConcurrentDictionary<Guid, ClientStreamerConfiguration> _clientStreamerConfigurations = new();
+    //private readonly ConcurrentDictionary<Guid, ClientStreamerConfiguration> _clientStreamerConfigurations = new();
 
     public bool FailoverInProgress { get; set; }
     public int M3UFileId { get; set; }

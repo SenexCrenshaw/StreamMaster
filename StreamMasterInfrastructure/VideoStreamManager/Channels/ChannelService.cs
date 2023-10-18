@@ -1,10 +1,11 @@
 ﻿using StreamMasterApplication.Common.Interfaces;
-using StreamMasterApplication.Common.Models;
+
+using StreamMasterInfrastructure.VideoStreamManager.Clients;
 
 using System.Collections.Concurrent;
 
-namespace StreamMasterInfrastructure.VideoStreamManager;
-public class ChannelService : IChannelService
+namespace StreamMasterInfrastructure.VideoStreamManager.Channels;
+public class ChannelService(IClientManager clientManager) : IChannelService
 {
     private readonly ConcurrentDictionary<string, IChannelStatus> _channelStatuses = new();
 
@@ -47,23 +48,13 @@ public class ChannelService : IChannelService
 
     public ClientStreamerConfiguration? GetClientStreamerConfiguration(Guid clientId)
     {
-        List<ClientStreamerConfiguration> test = _channelStatuses.Values.SelectMany(a => a.GetChannelClientClientStreamerConfigurations.Where(a => a.ClientId == clientId)).ToList();
-        if (test.Any())
-        {
-            return test.First();
-        }
-        return null;
-    }
-
-    public List<ClientStreamerConfiguration> GetClientStreamerConfigurations()
-    {
-        List<ClientStreamerConfiguration> test = _channelStatuses.Values.SelectMany(a => a.GetChannelClientClientStreamerConfigurations).ToList();
+        var test = clientManager.GetClientStreamerConfiguration(clientId);
         return test;
     }
 
     public List<ClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds)
     {
-        List<ClientStreamerConfiguration> test = _channelStatuses.Values.SelectMany(a => a.GetChannelClientClientStreamerConfigurations.Where(a => clientIds.Contains(a.ClientId))).ToList();
+        List<ClientStreamerConfiguration> test = clientManager.GetClientStreamerConfigurationFromIds(clientIds);
         return test;
     }
 }

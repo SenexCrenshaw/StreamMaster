@@ -18,6 +18,8 @@ using StreamMasterDomain.Enums;
 using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
 
+using StreamMasterInfrastructure.VideoStreamManager.Clients;
+
 namespace StreamMasterAPI.Controllers;
 
 public class VideoStreamsController : ApiControllerBase, IVideoStreamController

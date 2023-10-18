@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Interfaces;
-using StreamMasterApplication.Common.Models;
 
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
@@ -14,7 +13,9 @@ using StreamMasterDomain.Enums;
 using StreamMasterDomain.Extensions;
 using StreamMasterDomain.Repository;
 
-namespace StreamMasterInfrastructure.VideoStreamManager;
+using StreamMasterInfrastructure.VideoStreamManager.Clients;
+
+namespace StreamMasterInfrastructure.VideoStreamManager.Streams;
 
 public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService channelService, IServiceProvider serviceProvider, IMemoryCache memoryCache, IStreamManager streamManager) : IStreamSwitcher
 {
@@ -218,7 +219,7 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
         if (!string.IsNullOrEmpty(overrideNextVideoStreamId))
         {
             ChildVideoStreamDto? handled = await HandleOverrideStream(overrideNextVideoStreamId, repository, channelStatus, mapper);
-            if (handled != null || (handled == null && !string.IsNullOrEmpty(overrideNextVideoStreamId)))
+            if (handled != null || handled == null && !string.IsNullOrEmpty(overrideNextVideoStreamId))
             {
                 return handled;
             }

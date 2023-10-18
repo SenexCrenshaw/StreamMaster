@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Interfaces;
-using StreamMasterApplication.Common.Models;
+
+using StreamMasterInfrastructure.VideoStreamManager.Clients;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
 

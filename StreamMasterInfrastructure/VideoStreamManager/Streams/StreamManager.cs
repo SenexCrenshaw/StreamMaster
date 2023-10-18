@@ -1,16 +1,16 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Interfaces;
-using StreamMasterApplication.Common.Models;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 
 using StreamMasterInfrastructure.VideoStreamManager.Buffers;
+using StreamMasterInfrastructure.VideoStreamManager.Clients;
 
 using System.Collections.Concurrent;
 
-namespace StreamMasterInfrastructure.VideoStreamManager;
+namespace StreamMasterInfrastructure.VideoStreamManager.Streams;
 
 public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory, IChannelService channelService, ILogger<RingBufferReadStream> ringBufferReadStreamLogger, IProxyFactory proxyFactory, ILogger<StreamHandler> streamHandlerlogger, ILogger<StreamManager> logger) : IStreamManager
 {
