@@ -2,13 +2,10 @@
 
 using StreamMasterApplication.Common.Interfaces;
 
-using StreamMasterInfrastructure.VideoStreamManager.Clients;
-
 namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
 
-public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ILogger<RingBufferReadStream> logger, ClientStreamerConfiguration config) : Stream, IRingBufferReadStream
+public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ILogger<RingBufferReadStream> logger, IClientStreamerConfiguration config) : Stream, IRingBufferReadStream
 {
-
     private Func<ICircularRingBuffer> _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
     private CancellationTokenSource _clientMasterToken = config.ClientMasterToken;
     private Guid _clientId { get; set; } = config.ClientId;
@@ -46,12 +43,12 @@ public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ILog
     }
 
     private readonly DateTime _lastLogTime = new();
+
     public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
     {
         int bytesRead = 0;
         int availableBytes;
         //DateTime currentTime = DateTime.UtcNow;
-
 
         while (!cancellationToken.IsCancellationRequested && !_clientMasterToken.Token.IsCancellationRequested && bytesRead < buffer.Length)
         {
@@ -80,7 +77,6 @@ public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ILog
         return bytesRead;
     }
 
-
     public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
         int bytesRead = 0;
@@ -102,7 +98,6 @@ public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ILog
                 bytesRead += await Buffer.ReadChunk(_clientId, buffer, offset, bytesToRead, cancellationToken);
                 offset = (offset + bytesToRead) % buffer.Length;
             }
-
         }
 
         return bytesRead;
@@ -113,11 +108,11 @@ public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ILog
         throw new NotSupportedException();
     }
 
-    public void SetBufferDelegate(Func<ICircularRingBuffer> bufferDelegate, ClientStreamerConfiguration config)
+    public void SetBufferDelegate(Func<ICircularRingBuffer> bufferDelegate, IClientStreamerConfiguration config)
     {
         _clientId = config.ClientId;
         _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
-        logger.LogInformation("Setting buffer delegate for  {Buffer.Id} {ClientId} {VideoStreamId}", Buffer.Id, config.ClientId, config.VideoStreamId);
+        logger.LogInformation("Setting buffer delegate for  {Buffer.Id} {ClientId} {VideoStreamId}", Buffer.Id, config.ClientId, config.ChannelVideoStreamId);
         _clientMasterToken = config.ClientMasterToken;
     }
 

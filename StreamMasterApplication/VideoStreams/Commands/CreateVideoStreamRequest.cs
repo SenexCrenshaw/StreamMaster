@@ -2,8 +2,6 @@
 
 using StreamMasterApplication.VideoStreams.Events;
 
-using StreamMasterDomain.Models;
-
 namespace StreamMasterApplication.VideoStreams.Commands;
 
 public class CreateVideoStreamRequestValidator : AbstractValidator<CreateVideoStreamRequest>

@@ -1,6 +1,4 @@
-﻿using StreamMasterApplication.Common.Models;
-
-namespace StreamMasterApplication.Common.Interfaces;
+﻿namespace StreamMasterApplication.Common.Interfaces;
 
 /// <summary>
 /// Provides methods and properties to manage the status and configuration of a channel.
@@ -33,9 +31,9 @@ public interface IChannelStatus
     /// </summary>
     //List<ClientStreamerConfiguration> GetChannelClientClientStreamerConfigurations { get; }
 
-    /// <summary>
-    /// Gets the current number of registered clients in the channel.
-    /// </summary>
+    ///// <summary>
+    ///// Gets the current number of registered clients in the channel.
+    ///// </summary>
     //int ClientCount { get; }
 
     /// <summary>

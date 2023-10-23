@@ -13,11 +13,9 @@ using StreamMasterDomain.Enums;
 using StreamMasterDomain.Extensions;
 using StreamMasterDomain.Repository;
 
-using StreamMasterInfrastructure.VideoStreamManager.Clients;
-
 namespace StreamMasterInfrastructure.VideoStreamManager.Streams;
 
-public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService channelService, IServiceProvider serviceProvider, IMemoryCache memoryCache, IStreamManager streamManager) : IStreamSwitcher
+public class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStreamerManager clientStreamerManager, IServiceProvider serviceProvider, IMemoryCache memoryCache, IStreamManager streamManager) : IStreamSwitcher
 {
     private async Task<bool> UpdateStreamHandler(IChannelStatus channelStatus, ChildVideoStreamDto childVideoStreamDto)
     {
@@ -56,15 +54,6 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
             return false;
         }
 
-        ICollection<ClientStreamerConfiguration>? oldConfigs = null;
-        List<string> baids = new();
-        if (oldStreamHandler is not null)
-        {
-            //oldConfigs = channelService.GetClientStreamerConfigurationFromIds(oldStreamHandler.GetClientIds());
-            oldConfigs = oldStreamHandler.GetClientStreamerConfigurations();
-            baids = oldConfigs.Select(a => a.VideoStreamId).ToList();
-        }
-
         if (!await UpdateStreamHandler(channelStatus, childVideoStreamDto))
         {
             logger.LogDebug("Exiting SwitchToNextVideoStream with false due to channelStatus.StreamInformation being null");
@@ -73,14 +62,10 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
         }
 
         IStreamHandler? newStreamHandler = streamManager.GetStreamHandler(childVideoStreamDto.Id);
-        //ICollection<ClientStreamerConfiguration>? configs = newStreamHandler.GetClientStreamerConfigurations();
-        //List<string> aids = configs.Select(a => a.VideoStreamId).ToList();
 
-        if (oldConfigs is not null && oldStreamHandler is not null && newStreamHandler is not null)
+        if (oldStreamHandler is not null && newStreamHandler is not null)
         {
-
-            streamManager.MoveClientStreamer(oldStreamHandler, newStreamHandler);
-
+            clientStreamerManager.MoveClientStreamers(oldStreamHandler, newStreamHandler);
         }
 
         channelStatus.FailoverInProgress = false;
@@ -219,7 +204,7 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
         if (!string.IsNullOrEmpty(overrideNextVideoStreamId))
         {
             ChildVideoStreamDto? handled = await HandleOverrideStream(overrideNextVideoStreamId, repository, channelStatus, mapper);
-            if (handled != null || handled == null && !string.IsNullOrEmpty(overrideNextVideoStreamId))
+            if (handled != null || (handled == null && !string.IsNullOrEmpty(overrideNextVideoStreamId)))
             {
                 return handled;
             }

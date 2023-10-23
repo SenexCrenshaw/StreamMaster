@@ -1,14 +1,14 @@
-﻿using StreamMasterApplication.Common.Models;
-
-namespace StreamMasterApplication.Common.Interfaces;
+﻿namespace StreamMasterApplication.Common.Interfaces;
 
 /// <summary>
 /// Provides methods for managing and querying channels.
 /// </summary>
 public interface IChannelService
 {
-    List<ClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds);
-    ClientStreamerConfiguration? GetClientStreamerConfiguration(Guid clientId);
+    List<IClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds);
+
+    IClientStreamerConfiguration? GetClientStreamerConfiguration(Guid clientId);
+
     //void UpdateChannelStatusVideoStreamId(string videoStreamId);
     /// <summary>
     /// Retrieves the statuses for all channels.

@@ -16,6 +16,4 @@ public class ChannelStatus(string videoStreamId, string videoStreamName) : IChan
     {
         IsGlobal = true;
     }
-
-
 }

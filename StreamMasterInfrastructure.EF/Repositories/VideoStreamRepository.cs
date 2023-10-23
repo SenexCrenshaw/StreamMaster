@@ -613,36 +613,36 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
         return (ret, ids.Count > 0);
     }
 
-    public async Task AddVideoStreamTodVideoStream(string ParentVideoStreamId, string ChildVideoStreamId, int? Rank, CancellationToken cancellationToken)
-    {
-        List<VideoStreamLink> childVideoStreamIds = await RepositoryContext.VideoStreamLinks.Where(a => a.ParentVideoStreamId == ParentVideoStreamId).OrderBy(a => a.Rank).AsNoTracking().ToListAsync(cancellationToken: cancellationToken);
+    //public async Task AddVideoStreamToVideoStream(string ParentVideoStreamId, string ChildVideoStreamId, int? Rank, CancellationToken cancellationToken)
+    //{
+    //    List<VideoStreamLink> childVideoStreamIds = await RepositoryContext.VideoStreamLinks.Where(a => a.ParentVideoStreamId == ParentVideoStreamId).OrderBy(a => a.Rank).AsNoTracking().ToListAsync(cancellationToken: cancellationToken);
 
-        childVideoStreamIds ??= new();
+    //    childVideoStreamIds ??= new();
 
-        if (childVideoStreamIds.Any(a => a.ChildVideoStreamId == ChildVideoStreamId))
-        {
-            return;
-        }
+    //    if (childVideoStreamIds.Any(a => a.ChildVideoStreamId == ChildVideoStreamId))
+    //    {
+    //        return;
+    //    }
 
-        int rank = childVideoStreamIds.Count;
-        if (Rank.HasValue && Rank.Value > 0 && Rank.Value < childVideoStreamIds.Count)
-        {
-            rank = Rank.Value;
-        }
+    //    int rank = childVideoStreamIds.Count;
+    //    if (Rank.HasValue && Rank.Value > 0 && Rank.Value < childVideoStreamIds.Count)
+    //    {
+    //        rank = Rank.Value;
+    //    }
 
-        VideoStreamLink newL = new() { ParentVideoStreamId = ParentVideoStreamId, ChildVideoStreamId = ChildVideoStreamId, Rank = rank };
-        _ = await RepositoryContext.VideoStreamLinks.AddAsync(newL, cancellationToken).ConfigureAwait(false);
-        childVideoStreamIds.Insert(rank, newL);
+    //    VideoStreamLink newL = new() { ParentVideoStreamId = ParentVideoStreamId, ChildVideoStreamId = ChildVideoStreamId, Rank = rank };
+    //    _ = await RepositoryContext.VideoStreamLinks.AddAsync(newL, cancellationToken).ConfigureAwait(false);
+    //    childVideoStreamIds.Insert(rank, newL);
 
-        for (int i = 0; i < childVideoStreamIds.Count; i++)
-        {
-            VideoStreamLink? childVideoStreamId = childVideoStreamIds[i];
-            childVideoStreamId.Rank = i;
-            _ = RepositoryContext.VideoStreamLinks.Update(childVideoStreamId);
-        }
+    //    for (int i = 0; i < childVideoStreamIds.Count; i++)
+    //    {
+    //        VideoStreamLink? childVideoStreamId = childVideoStreamIds[i];
+    //        childVideoStreamId.Rank = i;
+    //        _ = RepositoryContext.VideoStreamLinks.Update(childVideoStreamId);
+    //    }
 
-        _ = await RepositoryContext.SaveChangesAsync(cancellationToken);
-    }
+    //    _ = await RepositoryContext.SaveChangesAsync(cancellationToken);
+    //}
 
     public async Task RemoveVideoStreamFromVideoStream(string ParentVideoStreamId, string ChildVideoStreamId, CancellationToken cancellationToken)
     {
@@ -842,7 +842,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
             _ = await SynchronizeChildRelationships(videoStream, request.ChildVideoStreams, cancellationToken).ConfigureAwait(false);
         }
         VideoStreamDto? dto = mapper.Map<VideoStreamDto?>(videoStream);
-        ChannelGroupDto? cg = await sender.Send(new GetChannelGroupByName(dto.User_Tvg_group)).ConfigureAwait(false);
+        ChannelGroupDto? cg = await sender.Send(new GetChannelGroupByName(dto.User_Tvg_group), cancellationToken).ConfigureAwait(false);
         return (dto, cg);
     }
 
@@ -872,6 +872,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
     {
         return FindAll();
     }
+
     private async Task<List<VideoStreamDto>> AutoSetEPGs(IQueryable<VideoStream> videoStreams, CancellationToken cancellationToken)
     {
         List<Programme> programmes = await sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
@@ -887,7 +888,6 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
 
         foreach (VideoStream videoStream in videoStreams)
         {
-
             var scoredMatches = distinctChannelAndNames
                  .Select(p => new
                  {

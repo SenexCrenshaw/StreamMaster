@@ -32,7 +32,7 @@ public static class ConfigureServices
         services.AddSingleton<IStreamSwitcher, StreamSwitcher>();
         services.AddSingleton<IChannelService, ChannelService>();
         services.AddSingleton<IProxyFactory, ProxyFactory>();
-        services.AddSingleton<IClientManager, ClientStreamerManager>();
+        services.AddSingleton<IClientStreamerManager, ClientStreamerManager>();
         services.AddSingleton<IStreamStatisticService, StreamStatisticService>();
 
         services.AddSingleton<ICircularRingBufferFactory, CircularRingBufferFactory>();

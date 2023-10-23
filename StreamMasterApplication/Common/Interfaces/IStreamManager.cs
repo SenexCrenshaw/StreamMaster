@@ -12,7 +12,7 @@ public interface IStreamManager
 
     //void RegisterClientStreamer(string StreamUrl, ClientStreamerConfiguration streamerConfiguration);
     //bool UnRegisterClientStreamer(string StreamUrl, ClientStreamerConfiguration streamerConfiguration);
-    void MoveClientStreamer(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler);
+    //void MoveClientStreamer(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler);
     /// <summary>
     /// Disposes of the resources used by the StreamManager.
     /// </summary>
@@ -37,9 +37,11 @@ public interface IStreamManager
     /// <summary>
     /// Retrieves a stream handler based on a given video stream ID.
     /// </summary>
-    /// <param name="videoStreamId">The ID of the video stream.</param>
+    /// <param name="VideoStreamId">The ID of the video stream.</param>
     /// <returns>An IStreamHandler if the stream exists; otherwise, returns null.</returns>
-    IStreamHandler? GetStreamHandler(string videoStreamId);
+    IStreamHandler? GetStreamHandler(string VideoStreamId);
+
+    IStreamHandler? GetStreamHandlerByClientId(Guid ClientId);
 
     ///// <summary>
     ///// Retrieves the information for all streams.
@@ -61,9 +63,9 @@ public interface IStreamManager
     int GetStreamsCountForM3UFile(int m3uFileId);
 
     /// <summary>
-    /// Stops a stream based on a given video stream ID.
+    /// UnRegister a handler and stops a stream based on a given video stream ID.
     /// </summary>
     /// <param name="videoStreamId">The ID of the video stream to stop.</param>
-    /// <returns>An IStreamHandler representing the stopped stream; otherwise, returns null.</returns>
-    IStreamHandler? Stop(string videoStreamId);
+    /// <returns>Returns true if the stopped stream, false if VideoStreamId not found.</returns>
+    bool StopAndUnRegisterHandler(string VideoStreamId);
 }

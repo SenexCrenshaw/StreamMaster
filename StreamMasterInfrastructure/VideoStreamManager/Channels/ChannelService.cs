@@ -1,11 +1,10 @@
 ﻿using StreamMasterApplication.Common.Interfaces;
 
-using StreamMasterInfrastructure.VideoStreamManager.Clients;
-
 using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Channels;
-public class ChannelService(IClientManager clientManager) : IChannelService
+
+public class ChannelService(IClientStreamerManager clientManager) : IChannelService
 {
     private readonly ConcurrentDictionary<string, IChannelStatus> _channelStatuses = new();
 
@@ -46,15 +45,15 @@ public class ChannelService(IClientManager clientManager) : IChannelService
         return _channelStatuses.Count(a => a.Value.IsGlobal);
     }
 
-    public ClientStreamerConfiguration? GetClientStreamerConfiguration(Guid clientId)
+    public IClientStreamerConfiguration? GetClientStreamerConfiguration(Guid clientId)
     {
         var test = clientManager.GetClientStreamerConfiguration(clientId);
         return test;
     }
 
-    public List<ClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds)
+    public List<IClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds)
     {
-        List<ClientStreamerConfiguration> test = clientManager.GetClientStreamerConfigurationFromIds(clientIds);
+        List<IClientStreamerConfiguration> test = clientManager.GetClientStreamerConfigurationFromIds(clientIds);
         return test;
     }
 }

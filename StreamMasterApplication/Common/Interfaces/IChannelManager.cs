@@ -1,6 +1,4 @@
-﻿using StreamMasterApplication.Common.Models;
-
-namespace StreamMasterApplication.Common.Interfaces;
+﻿namespace StreamMasterApplication.Common.Interfaces;
 
 /// <summary>
 /// Provides methods for managing video streams and clients in a channel.
@@ -27,14 +25,14 @@ public interface IChannelManager : IDisposable
     /// </summary>
     /// <param name="config">The configuration settings for the client streamer.</param>
     /// <returns>A Task returning the stream. Returns null if the stream could not be obtained.</returns>
-    Task<Stream?> GetStream(ClientStreamerConfiguration config);
+    Task<Stream?> GetStream(IClientStreamerConfiguration config);
 
     /// <summary>
     /// Asynchronously removes a client based on the given client streamer configuration.
     /// </summary>
     /// <param name="config">The configuration settings for the client to be removed.</param>
     /// <returns>A Task representing the asynchronous operation.</returns>
-    Task RemoveClient(ClientStreamerConfiguration config);
+    Task RemoveClient(IClientStreamerConfiguration config);
 
     /// <summary>
     /// Simulates a stream failure for testing purposes.

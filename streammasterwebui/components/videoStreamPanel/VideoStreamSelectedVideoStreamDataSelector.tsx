@@ -1,20 +1,30 @@
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { GetMessage } from '@lib/common/common';
-import { ChildVideoStreamDto, VideoStreamsUpdateVideoStreamApiArg, useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery } from '@lib/iptvApi';
+import { VideoStreamDto, VideoStreamsUpdateVideoStreamApiArg, useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery } from '@lib/iptvApi';
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import { memo, useCallback, useEffect, useMemo, type CSSProperties } from 'react';
 import { useChannelNameColumnConfig } from '../columns/useChannelNameColumnConfig';
 import { useChannelNumberColumnConfig } from '../columns/useChannelNumberColumnConfig';
 import VideoStreamRemoveFromVideoStreamDialog from './VideoStreamRemoveFromVideoStreamDialog';
+import XButton from '../buttons/XButton';
 
 type VideoStreamSelectedVideoStreamDataSelectorProps = {
   readonly id: string;
   readonly videoStreamId?: string;
+  readonly dataSource?: VideoStreamDto[];
+  onRemove?: (e: VideoStreamDto) => void;
+  OnRowReorder?: (e: VideoStreamDto[]) => void;
 };
 
-const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamSelectedVideoStreamDataSelectorProps) => {
+const VideoStreamSelectedVideoStreamDataSelector = ({
+  id,
+  dataSource,
+  onRemove,
+  OnRowReorder,
+  videoStreamId,
+}: VideoStreamSelectedVideoStreamDataSelectorProps) => {
   const dataKey = id + '-VideoStreamSelectedVideoStreamDataSelector';
 
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: false });
@@ -37,14 +47,25 @@ const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: Video
   }, [videoStreamId]);
 
   const targetActionBodyTemplate = useCallback(
-    (data: ChildVideoStreamDto) => {
+    (data: VideoStreamDto) => {
+      if (videoStreamId === undefined)
+        return (
+          <div className="flex p-0 justify-content-end align-items-center">
+            <XButton
+              onClick={() => {
+                onRemove && onRemove(data as VideoStreamDto);
+              }}
+            />
+          </div>
+        );
+
       return (
         <div className="flex p-0 justify-content-end align-items-center">
           <VideoStreamRemoveFromVideoStreamDialog value={data} videoStreamId={videoStreamId ?? 'ERROR'} />
         </div>
       );
     },
-    [videoStreamId],
+    [onRemove, videoStreamId]
   );
 
   const targetColumns = useMemo((): ColumnMeta[] => {
@@ -69,13 +90,17 @@ const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: Video
     return <div className="flex justify-content-end align-items-center w-full gap-1" />;
   };
 
-  const onRowReorder = async (changed: ChildVideoStreamDto[]) => {
-    const newData = changed.map((x: ChildVideoStreamDto, index: number) => {
+  const intOnRowReorder = async (changed: VideoStreamDto[]) => {
+    const newData = changed.map((x: VideoStreamDto, index: number) => {
       return {
         ...x,
         rank: index,
       };
-    }) as ChildVideoStreamDto[];
+    }) as VideoStreamDto[];
+
+    if (OnRowReorder) {
+      OnRowReorder(newData);
+    }
 
     var toSend = {} as VideoStreamsUpdateVideoStreamApiArg;
 
@@ -92,14 +117,15 @@ const VideoStreamSelectedVideoStreamDataSelector = ({ id, videoStreamId }: Video
   return (
     <DataSelector
       columns={targetColumns}
+      dataSource={dataSource}
       defaultSortField="user_Tvg_name"
       emptyMessage="No Streams"
       headerName={GetMessage('streams')}
       headerRightTemplate={rightHeaderTemplate()}
       id={dataKey}
       key="rank"
-      onRowReorder={async (e) => await onRowReorder(e as ChildVideoStreamDto[])}
-      queryFilter={useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery}
+      onRowReorder={async (e) => await intOnRowReorder(e as VideoStreamDto[])}
+      queryFilter={dataSource !== undefined ? undefined : useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery}
       reorderable
       selectedItemsKey={`selectSelected` + videoStreamId}
       selectionMode="single"

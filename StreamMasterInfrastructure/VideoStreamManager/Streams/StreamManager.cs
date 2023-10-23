@@ -5,14 +5,17 @@ using StreamMasterApplication.Common.Interfaces;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 
-using StreamMasterInfrastructure.VideoStreamManager.Buffers;
-using StreamMasterInfrastructure.VideoStreamManager.Clients;
-
 using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Streams;
 
-public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory, IChannelService channelService, ILogger<RingBufferReadStream> ringBufferReadStreamLogger, IProxyFactory proxyFactory, ILogger<StreamHandler> streamHandlerlogger, ILogger<StreamManager> logger) : IStreamManager
+public class StreamManager(
+    ICircularRingBufferFactory circularRingBufferFactory,
+    IProxyFactory proxyFactory,
+    IClientStreamerManager clientStreamerManager,
+    ILogger<StreamHandler> streamHandlerlogger,
+    ILogger<StreamManager> logger
+    ) : IStreamManager
 {
     private readonly ConcurrentDictionary<string, IStreamHandler> _streamHandlers = new();
 
@@ -40,7 +43,7 @@ public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory,
             return null;
         }
 
-        StreamHandler streamHandler = new(childVideoStreamDto.User_Url, childVideoStreamDto.Id, processId, streamHandlerlogger, ringBuffer, cancellationTokenSource);
+        StreamHandler streamHandler = new(childVideoStreamDto.User_Url, childVideoStreamDto.Id, processId, streamHandlerlogger, ringBuffer, clientStreamerManager, cancellationTokenSource);
 
         _ = streamHandler.StartVideoStreamingAsync(stream, ringBuffer);
 
@@ -69,7 +72,6 @@ public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory,
             }
             _streamHandlers.TryAdd(childVideoStreamDto.Id, streamHandler);
             return streamHandler;
-
         }
 
         logger.LogInformation("Reusing buffer for stream: {Id}", childVideoStreamDto.Id);
@@ -96,36 +98,30 @@ public class StreamManager(ICircularRingBufferFactory circularRingBufferFactory,
         return _streamHandlers.Values.ToList();
     }
 
-    public IStreamHandler? Stop(string videoStreamId)
+    public void MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler)
     {
-        if (_streamHandlers.TryRemove(videoStreamId, out IStreamHandler? streamHandler))
-        {
-            logger.LogWarning("Stopping stream {videoStreamId}", videoStreamId);
-            streamHandler.Stop();
-            return streamHandler;
-        }
-        logger.LogWarning("Failed to remove stream information for {videoStreamId}", videoStreamId);
-        return null;
+        clientStreamerManager.MoveClientStreamers(oldStreamHandler, newStreamHandler);
+        //if (oldStreamHandler.ClientCount == 0)
+        //{
+        StopAndUnRegisterHandler(oldStreamHandler.VideoStreamId);
+        //}
     }
 
-    public void MoveClientStreamer(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler)// string OldStreamUrl, string NewStreamUrl, ClientStreamerConfiguration config)
+    public IStreamHandler? GetStreamHandlerByClientId(Guid ClientId)
     {
+        return _streamHandlers.Values.FirstOrDefault(x => x.HasClient(ClientId));
+    }
 
-        ICollection<ClientStreamerConfiguration>? oldConfigs = oldStreamHandler.GetClientStreamerConfigurations();
-
-        if (oldConfigs != null)
+    public bool StopAndUnRegisterHandler(string VideoStreamId)
+    {
+        if (_streamHandlers.TryRemove(VideoStreamId, out IStreamHandler? streamHandler))
         {
-            foreach (ClientStreamerConfiguration oldConfig in oldConfigs)
-            {
-
-                oldStreamHandler.UnRegisterClientStreamer(oldConfig);
-                newStreamHandler.RegisterClientStreamer(oldConfig);
-            }
-
-            if (oldStreamHandler.ClientCount == 0)
-            {
-                Stop(oldStreamHandler.VideoStreamId);
-            }
+            logger.LogWarning("Stopping stream of {VideoStreamId}", VideoStreamId);
+            streamHandler.Stop();
+            return true;
         }
+
+        logger.LogWarning("Failed to remove stream information for {VideoStreamId}", VideoStreamId);
+        return false;
     }
 }

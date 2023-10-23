@@ -29,16 +29,19 @@ public class ClientStreamerConfiguration : IClientStreamerConfiguration
 
     //Tokens
     private CancellationToken ClientHTTPRequestCancellationToken { get; }
+
     private CancellationTokenSource ClientCancellationTokenSource { get; }
-    public CancellationTokenSource ClientMasterToken;
+    public CancellationTokenSource ClientMasterToken { get; set; }
 
     //Client Information
     public string ClientIPAddress { get; set; }
+
     public Guid ClientId { get; set; }
     public string ClientUserAgent { get; set; }
 
     //Current Streaming info
     public string ChannelVideoStreamId { get; set; }
+
     //public string VideoStreamId { get; set; }
     //public string VideoStreamName { get; set; }
 }

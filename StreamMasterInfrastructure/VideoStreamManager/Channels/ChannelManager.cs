@@ -9,7 +9,6 @@ using StreamMasterDomain.Extensions;
 using StreamMasterDomain.Repository;
 
 using StreamMasterInfrastructure.VideoStreamManager.Buffers;
-using StreamMasterInfrastructure.VideoStreamManager.Clients;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Channels;
 
@@ -20,15 +19,16 @@ public class ChannelManager(
     IStreamSwitcher streamSwitcher,
     IChannelService channelService,
     IStreamManager streamManager,
+    IClientStreamerManager clientStreamerManager,
     IServiceProvider serviceProvider
     ) : IChannelManager
 {
     private readonly SemaphoreSlim _registerSemaphore = new(1, 1);
     private readonly SemaphoreSlim _unregisterSemaphore = new(1, 1);
 
-
     private static readonly CancellationTokenSource ChannelWatcherToken = new();
     private static bool ChannelWatcherStarted = false;
+
     public async Task ChangeVideoStreamChannel(string playingVideoStreamId, string newVideoStreamId)
     {
         logger.LogDebug("Starting ChangeVideoStreamChannel with playingVideoStreamId: {playingVideoStreamId} and newVideoStreamId: {newVideoStreamId}", playingVideoStreamId, newVideoStreamId);
@@ -51,7 +51,7 @@ public class ChannelManager(
 
             if (oldStreamHandler is not null && newStreamHandler is not null)
             {
-                foreach (ClientStreamerConfiguration clientStreamerConfiguration in channelStatus.GetChannelClientClientStreamerConfigurations)
+                foreach (IClientStreamerConfiguration clientStreamerConfiguration in clientStreamerManager.GetClientStreamerConfigurations)
                 {
                     oldStreamHandler.UnRegisterClientStreamer(clientStreamerConfiguration);
                     logger.LogDebug("Unregistered stream configuration for client: {ClientId}", clientStreamerConfiguration.ClientId);
@@ -67,38 +67,25 @@ public class ChannelManager(
 
         return;
     }
+
     public void Dispose()
     {
         broadcastService.StopBroadcasting();
         GC.SuppressFinalize(this);
     }
+
     public void FailClient(Guid clientId)
     {
-        //logger.LogDebug("Starting FailClient with clientId: {clientId}", clientId);
-
-        foreach (IStreamHandler streamHandler in streamManager.GetStreamHandlers())
-        {
-            ClientStreamerConfiguration? c = channelService.GetClientStreamerConfiguration(clientId);
-
-            if (c != null)
-            {
-                c.ClientMasterToken.Cancel();
-                logger.LogWarning("Failing client: {clientId}", clientId);
-                logger.LogDebug("Cancelled CancellationTokenSource for client: {clientId}", clientId);
-                logger.LogDebug("Exiting FailClient after failing client: {clientId}", clientId);
-                break;
-            }
-        }
-        logger.LogDebug("Exiting FailClient, no matching client found for clientId: {clientId}", clientId);
+        clientStreamerManager.FailClient(clientId);
     }
 
-    public async Task<Stream?> GetStream(ClientStreamerConfiguration config)
+    public async Task<Stream?> GetStream(IClientStreamerConfiguration config)
     {
         broadcastService.StartBroadcasting();
         return await RegisterClient(config);
     }
 
-    public async Task RemoveClient(ClientStreamerConfiguration config)
+    public async Task RemoveClient(IClientStreamerConfiguration config)
     {
         await UnRegisterWithChannelManager(config);
     }
@@ -141,7 +128,6 @@ public class ChannelManager(
         }
     }
 
-    //private async Task ChannelWatcher(IChannelStatus channelStatus)
     private async Task ChannelWatcher()
     {
         ChannelWatcherStarted = true;
@@ -157,7 +143,8 @@ public class ChannelManager(
                 }
                 foreach (IChannelStatus channelStatus in channelService.GetChannelStatuses())
                 {
-                    if (channelStatus.ClientCount == 0)
+                    var clientCount = clientStreamerManager.ClientCount(channelStatus.VideoStreamId);
+                    if (clientCount == 0)
                     {
                         continue;
                     }
@@ -192,9 +179,11 @@ public class ChannelManager(
 
     private async Task<bool> CheckClients(IChannelStatus channelStatus)
     {
-        if (channelStatus.GetChannelClientClientStreamerConfigurations.Any())
+        var a = clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(channelStatus.ParentVideoStreamId);
+
+        if (a.Any())
         {
-            foreach (ClientStreamerConfiguration client in channelStatus.GetChannelClientClientStreamerConfigurations)
+            foreach (IClientStreamerConfiguration client in clientStreamerManager.GetClientStreamerConfigurations)
             {
                 if (client.ClientMasterToken.IsCancellationRequested)
                 {
@@ -204,13 +193,12 @@ public class ChannelManager(
             }
         }
 
-        if (!channelStatus.GetChannelClientClientStreamerConfigurations.Any())
+        a = clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(channelStatus.ParentVideoStreamId);
+        if (!a.Any())
         {
             logger.LogInformation("No clients for channel: {videoStreamId}", channelStatus.VideoStreamId);
             logger.LogDebug("Exiting CheckClients for channel: {VideoStreamId}", channelStatus.VideoStreamId);
-            streamManager.Stop(channelStatus.VideoStreamId);
-
-            //channelService.UnregisterChannel(channelStatus.VideoStreamId);
+            streamManager.StopAndUnRegisterHandler(channelStatus.VideoStreamId);
 
             return false;
         }
@@ -259,9 +247,8 @@ public class ChannelManager(
         return false;
     }
 
-    private async Task<Stream?> RegisterClient(ClientStreamerConfiguration config)
+    private async Task<Stream?> RegisterClient(IClientStreamerConfiguration config)
     {
-
         IChannelStatus? channelStatus = await RegisterWithChannelManager(config);
         if (channelStatus is null || config.ReadBuffer is null)
         {
@@ -273,13 +260,13 @@ public class ChannelManager(
         return (Stream)config.ReadBuffer;
     }
 
-    private async Task<IChannelStatus?> RegisterWithChannelManager(ClientStreamerConfiguration config)
+    private async Task<IChannelStatus?> RegisterWithChannelManager(IClientStreamerConfiguration config)
     {
         await _registerSemaphore.WaitAsync();
         try
         {
             IChannelStatus? channelStatus = null;
-            IStreamHandler? streamHandler = streamManager.GetStreamHandler(config.VideoStreamId);
+            IStreamHandler? streamHandler = streamManager.GetStreamHandler(config.ChannelVideoStreamId);
 
             if (!channelService.HasChannel(config.ChannelVideoStreamId))
             {
@@ -294,9 +281,10 @@ public class ChannelManager(
                 return null;
             }
 
+            clientStreamerManager.RegisterClient(config);
 
-            channelStatus.RegisterClient(config);
-            config.ReadBuffer = new RingBufferReadStream(() => streamHandler.RingBuffer, ringBufferReadStreamLogger, config);
+            var readBuffer = new RingBufferReadStream(() => streamHandler.RingBuffer, ringBufferReadStreamLogger, config);
+            clientStreamerManager.SetClientBufferDelegate(config.ClientId, () => streamHandler.RingBuffer);
 
             streamHandler.RegisterClientStreamer(config);
 
@@ -314,7 +302,7 @@ public class ChannelManager(
         }
     }
 
-    private async Task<IChannelStatus?> RegisterNewChannel(ClientStreamerConfiguration config, IStreamHandler? streamHandler)
+    private async Task<IChannelStatus?> RegisterNewChannel(IClientStreamerConfiguration config, IStreamHandler? streamHandler)
     {
         using IServiceScope scope = serviceProvider.CreateScope();
         IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
@@ -325,13 +313,11 @@ public class ChannelManager(
             return null;
         }
 
-        //config.VideoStreamId = videoStream.Id;
-        config.VideoStreamName = videoStream.User_Tvg_name;
-        IChannelStatus? channelStatus = channelService.RegisterChannel(config.ChannelVideoStreamId, config.VideoStreamName);
+        IChannelStatus? channelStatus = channelService.RegisterChannel(config.ChannelVideoStreamId, config.ChannelVideoStreamId);
 
         if (streamHandler == null)
         {
-            logger.LogInformation("No existing stream handler for {VideoStreamId}, creating", config.VideoStreamId);
+            logger.LogInformation("No existing stream handler for {ChannelVideoStreamId}, creating", config.ChannelVideoStreamId);
             if (!await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus).ConfigureAwait(false))
             {
                 return null;
@@ -343,19 +329,19 @@ public class ChannelManager(
         }
         else
         {
-            logger.LogInformation("Reuse existing stream handler for {VideoStreamId}", config.VideoStreamId);
+            logger.LogInformation("Reuse existing stream handler for {ChannelVideoStreamId}", config.ChannelVideoStreamId);
         }
 
         if (streamHandler == null)
         {
-            logger.LogError("RegisterNewChannel: Failed to get streamHandler for videostream with id {id}", config.VideoStreamId);
+            logger.LogError("RegisterNewChannel: Failed to get streamHandler for ChannelVideoStreamId with id {id}", config.ChannelVideoStreamId);
             return null;
         }
 
         return channelStatus;
     }
 
-    private IChannelStatus? HandleExistingChannel(ClientStreamerConfiguration config, IStreamHandler? streamHandler)
+    private IChannelStatus? HandleExistingChannel(IClientStreamerConfiguration config, IStreamHandler? streamHandler)
     {
         IChannelStatus? channelStatus = channelService.GetChannelStatus(config.ChannelVideoStreamId);
         if (streamHandler == null)
@@ -366,7 +352,7 @@ public class ChannelManager(
         return channelStatus;
     }
 
-    private async Task UnRegisterWithChannelManager(ClientStreamerConfiguration config)
+    private async Task UnRegisterWithChannelManager(IClientStreamerConfiguration config)
     {
         await _unregisterSemaphore.WaitAsync();
         try
@@ -376,27 +362,23 @@ public class ChannelManager(
                 logger.LogDebug("Exiting UnRegisterWithChannelManager due to VideoStreamId not found in _channelStatuses");
                 return;
             }
-            IChannelStatus? channelStatus = channelService.GetChannelStatus(config.ChannelVideoStreamId);
 
-            channelStatus?.UnRegisterClient(config.ClientId);
+            clientStreamerManager.UnRegisterClient(config.ClientId);
 
-
-            IStreamHandler? StreamHandler = streamManager.GetStreamHandler(channelStatus.VideoStreamId);
-
-            if (StreamHandler?.HasClient(config.ClientId) == true)
+            IStreamHandler? StreamHandler = streamManager.GetStreamHandlerByClientId(config.ClientId);
+            if (StreamHandler == null)
             {
-                _ = StreamHandler.UnRegisterClientStreamer(config);
-
-                if (StreamHandler.ClientCount == 0)
-                {
-                    logger.LogInformation("ChannelManager No more clients, stopping streaming for {videoStreamId}", config.VideoStreamId);
-                    _ = streamManager.Stop(config.VideoStreamId);
-                }
+                logger.LogError("UnRegisterWithChannelManager cannot find handler for {ClientId}", config.ClientId);
+                return;
             }
 
-            channelStatus = channelService.GetChannelStatus(config.ChannelVideoStreamId);
-            if (channelStatus?.ClientCount == 0)
+            _ = StreamHandler.UnRegisterClientStreamer(config);
+
+            if (StreamHandler.ClientCount == 0)
             {
+                logger.LogInformation("ChannelManager No more clients, stopping streaming for {videoStreamId}", StreamHandler.VideoStreamId);
+                _ = streamManager.StopAndUnRegisterHandler(StreamHandler.VideoStreamId);
+
                 channelService.UnregisterChannel(config.ChannelVideoStreamId);
             }
 
