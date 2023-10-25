@@ -179,7 +179,7 @@ public class ChannelManager(
 
     private async Task<bool> CheckClients(IChannelStatus channelStatus)
     {
-        var a = clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(channelStatus.ParentVideoStreamId);
+        var a = clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(channelStatus.ChannelVideoStreamId);
 
         if (a.Any())
         {
@@ -193,7 +193,7 @@ public class ChannelManager(
             }
         }
 
-        a = clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(channelStatus.ParentVideoStreamId);
+        a = clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(channelStatus.ChannelVideoStreamId);
         if (!a.Any())
         {
             logger.LogInformation("No clients for channel: {videoStreamId}", channelStatus.VideoStreamId);
@@ -228,7 +228,7 @@ public class ChannelManager(
 
         if (streamHandler.VideoStreamingCancellationToken.IsCancellationRequested)
         {
-            logger.LogDebug("Video Streaming cancellation requested for channelStatus: {channelStatus}, stopping stream and attempting to handle next video stream", channelStatus.ParentVideoStreamId);
+            logger.LogDebug("Video Streaming cancellation requested for channelStatus: {channelStatus}, stopping stream and attempting to handle next video stream", channelStatus.ChannelVideoStreamId);
             //string oldId = channelStatus.VideoStreamId;
             try
             {

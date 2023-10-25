@@ -134,10 +134,10 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStreamerManag
     private async Task<ChildVideoStreamDto?> FetchNextChildVideoStream(IChannelStatus channelStatus, IRepositoryWrapper repository)
     {
         Setting setting = memoryCache.GetSetting();
-        (VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)? result = await repository.VideoStream.GetStreamsFromVideoStreamById(channelStatus.ParentVideoStreamId);
+        (VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)? result = await repository.VideoStream.GetStreamsFromVideoStreamById(channelStatus.ChannelVideoStreamId);
         if (result == null)
         {
-            logger.LogError("FetchNextChildVideoStream could not get videoStreams for id {ParentVideoStreamId}", channelStatus.ParentVideoStreamId);
+            logger.LogError("FetchNextChildVideoStream could not get videoStreams for id {ParentVideoStreamId}", channelStatus.ChannelVideoStreamId);
             logger.LogDebug("Exiting FetchNextChildVideoStream with null due to result being null");
             return null;
         }
@@ -145,7 +145,7 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStreamerManag
         ChildVideoStreamDto[] videoStreams = result.Value.childVideoStreamDtos.OrderBy(a => a.Rank).ToArray();
         if (!videoStreams.Any())
         {
-            //logger.LogError("FetchNextChildVideoStream could not get child videoStreams for id {ParentVideoStreamId}", channelStatus.ParentVideoStreamId);
+            //logger.LogError("FetchNextChildVideoStream could not get child videoStreams for id {ChannelVideoStreamId}", channelStatus.ChannelVideoStreamId);
             //logger.LogDebug("Exiting FetchNextChildVideoStream with null due to no child videoStreams found");
             return null;
         }

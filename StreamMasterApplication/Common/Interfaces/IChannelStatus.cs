@@ -54,7 +54,7 @@ public interface IChannelStatus
     /// <summary>
     /// Gets or sets the ID of the parent video stream, if applicable.
     /// </summary>
-    string ParentVideoStreamId { get; set; }
+    string ChannelVideoStreamId { get; set; }
 
     /// <summary>
     /// Gets or sets the ID of the video stream associated with this channel.
