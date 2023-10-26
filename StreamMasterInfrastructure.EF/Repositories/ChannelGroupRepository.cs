@@ -146,7 +146,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
     /// <param name="VideoStreamId">The ID of the VideoStream.</param>
     /// <param name="cancellationToken">Token to support task cancellation.</param>
     /// <returns>A ChannelGroup associated with the VideoStream, or null if not found.</returns>
-    /// <exception cref="ArgumentException">Thrown when the provided VideoStreamId is null or empty.</exception>
+    /// <exception cref="ArgumentException">Thrown when the provided CurrentVideoStreamId is null or empty.</exception>
     public async Task<ChannelGroup?> GetChannelGroupFromVideoStreamId(string videoStreamId)
     {
         if (string.IsNullOrEmpty(videoStreamId))

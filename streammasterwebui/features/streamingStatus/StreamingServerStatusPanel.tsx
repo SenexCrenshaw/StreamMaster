@@ -65,11 +65,11 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
           onChange={async (e) => {
             await onChangeVideoStreamChannel(rowData.videoStreamId ?? '', e.id);
           }}
-          value={rowData.m3UStreamName}
+          value={rowData.videoStreamName}
         />
       );
     },
-    [onChangeVideoStreamChannel],
+    [onChangeVideoStreamChannel]
   );
 
   const onFailStream = useCallback(async (rowData: StreamStatisticsResult) => {
@@ -113,7 +113,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
         </div>
       );
     },
-    [setting],
+    [setting]
   );
 
   const inputBitsPerSecondTemplate = useCallback((rowData: StreamStatisticsResult) => {
@@ -141,7 +141,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
     let data = [] as StreamStatisticsResult[];
 
     getStreamingStatus.data.forEach((item) => {
-      if (data.findIndex((x) => x.m3UStreamId === item.m3UStreamId) === -1) {
+      if (data.findIndex((x) => x.videoStreamId === item.videoStreamId) === -1) {
         data.push(item);
       }
     });
@@ -154,9 +154,9 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
       if (getStreamingStatus.data === undefined || getStreamingStatus.data === null) {
         return <div>0</div>;
       }
-      return <div>{getStreamingStatus.data.filter((x) => x.m3UStreamId === rowData.m3UStreamId).length}</div>;
+      return <div>{getStreamingStatus.data.filter((x) => x.videoStreamId === rowData.videoStreamId).length}</div>;
     },
-    [getStreamingStatus.data],
+    [getStreamingStatus.data]
   );
 
   const targetActionBodyTemplate = useCallback(
@@ -175,7 +175,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
         </div>
       );
     },
-    [onFailStream],
+    [onFailStream]
   );
 
   const sourceColumns = useMemo((): ColumnMeta[] => {
@@ -183,10 +183,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
       {
         bodyTemplate: imageBodyTemplate,
         field: 'icon',
-        style: {
-          maxWidth: '4rem',
-          width: '4rem',
-        } as CSSProperties,
+        width: '4rem',
       },
 
       { field: 'videoStreamName', header: 'Name' },
@@ -195,19 +192,13 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
         bodyTemplate: videoStreamTemplate,
         field: 'videoStreamTemplate',
         header: 'Video Stream',
-        style: {
-          maxWidth: '18rem',
-          width: '18rem',
-        } as CSSProperties,
+        width: '18rem',
       },
       {
         align: 'center',
         field: 'rank',
         header: 'Rank',
-        style: {
-          maxWidth: '4rem',
-          width: '4rem',
-        } as CSSProperties,
+        width: '4rem',
       },
 
       {
@@ -215,49 +206,34 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
         bodyTemplate: streamCount,
         field: 'Count',
         header: 'Count',
-        style: {
-          maxWidth: '4rem',
-          width: '4rem',
-        } as CSSProperties,
+        width: '4rem',
       },
       {
         align: 'center',
         bodyTemplate: inputBitsPerSecondTemplate,
         field: 'inputBitsPerSecond',
         header: 'Input kbps',
-        style: {
-          maxWidth: '10rem',
-          width: '10rem',
-        } as CSSProperties,
+        width: '10rem',
       },
       {
         align: 'center',
         bodyTemplate: inputElapsedTimeTemplate,
         field: 'inputElapsedTime',
         header: 'Input Elapsed',
-        style: {
-          maxWidth: '10rem',
-          width: '10rem',
-        } as CSSProperties,
+        width: '10rem',
       },
       {
         align: 'center',
         bodyTemplate: inputStartTimeTemplate,
         field: 'inputStartTime',
         header: 'Input Start',
-        style: {
-          maxWidth: '10rem',
-          width: '10rem',
-        } as CSSProperties,
+        width: '10rem',
       },
       {
         align: 'center',
         bodyTemplate: targetActionBodyTemplate,
         field: 'Actions',
-        style: {
-          maxWidth: '8rem',
-          width: '8rem',
-        } as CSSProperties,
+        width: '8rem',
       },
     ];
   }, [
@@ -278,7 +254,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
           className={className}
           columns={sourceColumns}
           dataSource={dataSource}
-          defaultSortField="m3UStreamName"
+          defaultSortField="videoStreamName"
           emptyMessage="No Streams"
           id="StreamingServerStatusPanel"
           isLoading={getStreamingStatus.isLoading}

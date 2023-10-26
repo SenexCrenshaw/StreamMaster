@@ -8,8 +8,8 @@ public class ChannelStatus(string videoStreamId, string videoStreamName) : IChan
     public bool FailoverInProgress { get; set; }
     public int Rank { get; set; }
     public string ChannelVideoStreamId { get; set; } = videoStreamId;
-    public string VideoStreamId { get; set; } = videoStreamId;
-    public string VideoStreamName { get; set; } = videoStreamName;
+    public string CurrentVideoStreamId { get; set; } = videoStreamId;
+    public string CurrentVideoStreamName { get; set; } = videoStreamName;
     public string VideoStreamURL { get; set; } = videoStreamName;
 
     public void SetIsGlobal()

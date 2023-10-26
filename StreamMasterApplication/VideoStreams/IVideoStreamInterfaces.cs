@@ -30,6 +30,8 @@ public interface IVideoStreamController
 
     Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id);
 
+    Task<ActionResult<List<IdName>>> GetVideoStreamNames();
+
     Task<ActionResult<PagedResponse<VideoStreamDto>>> GetPagedVideoStreams([FromQuery] VideoStreamParameters Parameters);
 
     Task<ActionResult> GetVideoStreamStream(string encodedId, string name, CancellationToken cancellationToken);
@@ -60,7 +62,7 @@ public interface IVideoStreamHub
     Task SimulateStreamFailure(SimulateStreamFailureRequest request);
     Task DeleteAllVideoStreamsFromParameters(DeleteAllVideoStreamsFromParametersRequest request);
     Task UpdateAllVideoStreamsFromParameters(UpdateAllVideoStreamsFromParametersRequest request);
-
+    Task<List<IdName>> GetVideoStreamNames();
     Task CreateVideoStream(CreateVideoStreamRequest request);
 
     Task ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request);

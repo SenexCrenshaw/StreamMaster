@@ -2,6 +2,7 @@
 
 public class StreamStatisticsResult
 {
+    public string Id { get; set; }
     public string ClientAgent { get; set; }
     public double ClientBitsPerSecond { get; set; }
     public long ClientBytesRead { get; set; }
@@ -33,15 +34,15 @@ public class StreamInfo
 {
     public string? Logo { get; set; }
 
-    /// <summary>
-    /// Gets or sets the identifier for the M3U stream.
-    /// </summary>
-    public string M3UStreamId { get; set; }
+    ///// <summary>
+    ///// Gets or sets the identifier for the M3U stream.
+    ///// </summary>
+    //public string M3UStreamId { get; set; }
 
-    /// <summary>
-    /// Gets or sets the name of the M3U stream.
-    /// </summary>
-    public string M3UStreamName { get; set; } = string.Empty;
+    ///// <summary>
+    ///// Gets or sets the name of the M3U stream.
+    ///// </summary>
+    //public string M3UStreamName { get; set; } = string.Empty;
 
     public int Rank { get; set; }
 

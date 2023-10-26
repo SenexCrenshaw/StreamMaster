@@ -31,13 +31,13 @@ public class CircularRingBuffer : ICircularRingBuffer
     private readonly float _preBuffPercent;
     private int _writeIndex;
 
-    public CircularRingBuffer(ChildVideoStreamDto childVideoStreamDto, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILogger<ICircularRingBuffer> logger)
+    public CircularRingBuffer(VideoStreamDto videoStreamDto, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILogger<ICircularRingBuffer> logger)
     {
         Setting setting = memoryCache.GetSetting();
 
         _statisticsManager = statisticsManager ?? throw new ArgumentNullException(nameof(statisticsManager));
         _inputStatisticsManager = inputStatisticsManager ?? throw new ArgumentNullException(nameof(inputStatisticsManager));
-        _inputStreamStatistics = _inputStatisticsManager.RegisterReader(childVideoStreamDto.Id);
+        _inputStreamStatistics = _inputStatisticsManager.RegisterReader(videoStreamDto.Id);
 
         _logger = logger;
         if (setting.PreloadPercentage < 0 || setting.PreloadPercentage > 100)
@@ -50,11 +50,11 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         StreamInfo = new StreamInfo
         {
-            VideoStreamId = childVideoStreamDto.Id,
-            VideoStreamName = childVideoStreamDto.User_Tvg_name,
-            Logo = childVideoStreamDto.User_Tvg_logo,
-            StreamProxyType = childVideoStreamDto.StreamProxyType,
-            StreamUrl = childVideoStreamDto.User_Url,
+            VideoStreamId = videoStreamDto.Id,
+            VideoStreamName = videoStreamDto.User_Tvg_name,
+            Logo = videoStreamDto.User_Tvg_logo,
+            StreamProxyType = videoStreamDto.StreamProxyType,
+            StreamUrl = videoStreamDto.User_Url,
 
             Rank = rank
         };
@@ -62,7 +62,7 @@ public class CircularRingBuffer : ICircularRingBuffer
         _buffer = new byte[_bufferSize];
         _writeIndex = 0;
         _oldestDataIndex = 0;
-        logger.LogInformation("New Circular Buffer {Id} for stream {videoStreamId}", Id, childVideoStreamDto.Id);
+        logger.LogInformation("New Circular Buffer {Id} for stream {videoStreamId}", Id, videoStreamDto.Id);
     }
 
     public Guid Id { get; } = Guid.NewGuid();
@@ -76,10 +76,11 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         IInputStreamingStatistics input = GetInputStreamStatistics();
 
-        foreach (ClientStreamingStatistics stat in _statisticsManager.GetAllClientStatistics())
+        foreach (ClientStreamingStatistics stat in _statisticsManager.GetAllClientStatisticsByClientIds(_clientReadIndexes.Keys))
         {
             allStatistics.Add(new StreamStatisticsResult
             {
+                Id = Id.ToString(),
                 VideoStreamId = StreamInfo.VideoStreamId,
                 VideoStreamName = StreamInfo.VideoStreamName,
                 M3UStreamProxyType = StreamInfo.StreamProxyType,
@@ -112,10 +113,10 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         //if (!_lastLogTime.ContainsKey(clientId) || (currentTime - _lastLogTime[clientId]).TotalSeconds >= 2)
         //{
-        //    _logger.LogInformation("GetAvailableBytes for {Id} {VideoStreamId} clientId: {clientId}", Id, VideoStreamId, clientId);
+        //    _logger.LogInformation("GetAvailableBytes for {Id} {CurrentVideoStreamId} clientId: {clientId}", Id, CurrentVideoStreamId, clientId);
         //    foreach (KeyValuePair<Guid, int> kvp in _clientReadIndexes)
         //    {
-        //        _logger.LogInformation("GetAvailableBytes for {Id} {VideoStreamId} clientId: {clientId} kvp: {kvp}", Id, VideoStreamId, clientId, kvp);
+        //        _logger.LogInformation("GetAvailableBytes for {Id} {CurrentVideoStreamId} clientId: {clientId} kvp: {kvp}", Id, CurrentVideoStreamId, clientId, kvp);
         //    }
         //    _lastLogTime[clientId] = currentTime;
         //}
@@ -260,9 +261,7 @@ public class CircularRingBuffer : ICircularRingBuffer
             _ = _clientSemaphores.TryAdd(clientId, new SemaphoreSlim(0, 1));
             _statisticsManager.RegisterClient(clientId, clientAgent, clientIPAddress);
         }
-        _logger.LogInformation("RegisterClient for clientId: {clientId} {VideoStreamName} {_oldestDataIndex}", clientId, StreamInfo.VideoStreamName, _oldestDataIndex);
-
-
+        _logger.LogInformation("RegisterClient for Circular.Id: {Id} ClientId: {ClientId} {VideoStreamName} {_oldestDataIndex}", Id, clientId, StreamInfo.VideoStreamName, _oldestDataIndex);
     }
 
     private void ReleaseSemaphores()

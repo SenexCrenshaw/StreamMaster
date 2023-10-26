@@ -30,6 +30,13 @@ public class ChannelService(IClientStreamerManager clientManager) : IChannelServ
         return channelStatus;
     }
 
+    public List<IChannelStatus> GetChannelStatusesFromVideoStreamId(string VideoStreamId)
+    {
+        List<IChannelStatus> test = _channelStatuses.Values.Where(a => a.ChannelVideoStreamId == VideoStreamId || a.CurrentVideoStreamId == VideoStreamId).ToList();
+
+        return test;
+    }
+
     public List<IChannelStatus> GetChannelStatuses()
     {
         return _channelStatuses.Values.ToList();
@@ -45,9 +52,10 @@ public class ChannelService(IClientStreamerManager clientManager) : IChannelServ
         return _channelStatuses.Count(a => a.Value.IsGlobal);
     }
 
-    public IClientStreamerConfiguration? GetClientStreamerConfiguration(Guid clientId)
+    public async Task<IClientStreamerConfiguration?> GetClientStreamerConfiguration(Guid clientId, CancellationToken cancellationToken = default)
     {
-        var test = clientManager.GetClientStreamerConfiguration(clientId);
+        cancellationToken.ThrowIfCancellationRequested();
+        IClientStreamerConfiguration? test = await clientManager.GetClientStreamerConfiguration(clientId, cancellationToken);
         return test;
     }
 

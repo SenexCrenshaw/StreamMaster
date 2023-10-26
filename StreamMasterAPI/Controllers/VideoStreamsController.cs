@@ -92,6 +92,15 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         return data;
     }
 
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<IdName>>> GetVideoStreamNames()
+    {
+        List<IdName> res = await Mediator.Send(new GetVideoStreamNamesRequest()).ConfigureAwait(false);
+        return Ok(res);
+    }
+
     [HttpGet]
     public async Task<ActionResult<PagedResponse<VideoStreamDto>>> GetPagedVideoStreams([FromQuery] VideoStreamParameters videoStreamParameters)
     {
@@ -296,6 +305,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
     }
+
 
     private class UnregisterClientOnDispose : IDisposable
     {

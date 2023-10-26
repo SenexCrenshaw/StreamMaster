@@ -53,6 +53,24 @@ public class StatisticsManager(ILogger<StatisticsManager> logger) : IStatisticsM
         return statisticsList;
     }
 
+    public List<ClientStreamingStatistics> GetAllClientStatisticsByClientIds(ICollection<Guid> ClientIds)
+    {
+        List<ClientStreamingStatistics> statisticsList = new();
+
+        foreach (KeyValuePair<Guid, StreamingStatistics> entry in _clientStatistics.Where(a => ClientIds.Contains(a.Key)))
+        {
+
+            statisticsList.Add(new ClientStreamingStatistics(entry.Value.ClientAgent, entry.Value.ClientIPAddress)
+            {
+                ClientId = entry.Key,
+                BytesRead = entry.Value.BytesRead,
+                StartTime = entry.Value.StartTime,
+            });
+        }
+
+        return statisticsList;
+    }
+
     public void IncrementBytesRead(Guid clientId)
     {
         if (_clientStatistics.TryGetValue(clientId, out StreamingStatistics? clientStats))

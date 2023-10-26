@@ -164,16 +164,25 @@ public class StreamHandler(
         GC.SuppressFinalize(this);
     }
 
-    public void RegisterClientStreamer(IClientStreamerConfiguration streamerConfiguration)
+    public async Task RegisterClientStreamer(Guid ClientId, CancellationToken cancellationToken = default)
     {
+        IClientStreamerConfiguration? streamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(ClientId, cancellationToken);
+        if (streamerConfiguration == null)
+        {
+            logger.LogError("Error registering stream configuration for client {ClientId}, streamerConfiguration null.", ClientId);
+            StreamFailed?.Invoke(this, new StreamFailedEventArgs($"Failed to register client {ClientId}."));
+            return;
+        }
         try
         {
+
             clientStreamerIds.TryAdd(streamerConfiguration.ClientId, streamerConfiguration.ClientId);
             RingBuffer.RegisterClient(streamerConfiguration.ClientId, streamerConfiguration.ClientUserAgent, streamerConfiguration.ClientIPAddress);
-            SetClientBufferDelegate(streamerConfiguration, () => RingBuffer);
+            await clientStreamerManager.SetClientBufferDelegate(streamerConfiguration.ClientId, RingBuffer, cancellationToken);
 
             // Raise event
             ClientRegistered?.Invoke(this, new ClientRegisteredEventArgs(streamerConfiguration.ClientId));
+            logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId}", streamerConfiguration.ClientId, videoStreamId);
         }
         catch (Exception ex)
         {
@@ -213,21 +222,22 @@ public class StreamHandler(
         OnStreamControllerStopped();
     }
 
-    public bool UnRegisterClientStreamer(IClientStreamerConfiguration streamerConfiguration)
+    public bool UnRegisterClientStreamer(Guid ClientId)
     {
+
         try
         {
-            logger.LogInformation("UnRegisterClientStreamer for client {ClientId} {ChannelVideoStreamId}.", streamerConfiguration.ClientId, streamerConfiguration.ChannelVideoStreamId);
-            bool result = clientStreamerIds.TryRemove(streamerConfiguration.ClientId, out _);
-            RingBuffer.UnRegisterClient(streamerConfiguration.ClientId);
+            logger.LogInformation("UnRegisterClientStreamer ClientId: {ClientId}", ClientId);
+            bool result = clientStreamerIds.TryRemove(ClientId, out _);
+            RingBuffer.UnRegisterClient(ClientId);
             // Raise event
-            ClientUnregistered?.Invoke(this, new ClientUnregisteredEventArgs(streamerConfiguration.ClientId));
+            ClientUnregistered?.Invoke(this, new ClientUnregisteredEventArgs(ClientId));
 
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error unregistering stream configuration for client {ClientId}.", streamerConfiguration.ClientId);
+            logger.LogError(ex, "Error unregistering stream configuration for client {ClientId}.", ClientId);
             return false;
         }
     }
@@ -247,22 +257,6 @@ public class StreamHandler(
         }
     }
 
-    public IClientStreamerConfiguration? GetClientStreamerConfiguration(Guid clientID)
-    {
-        IClientStreamerConfiguration? clientConfig = clientStreamerManager.GetClientStreamerConfiguration(videoStreamId, clientID);
-        return clientConfig;
-    }
-
-    private void SetClientBufferDelegate(IClientStreamerConfiguration config, Func<ICircularRingBuffer> func)
-    {
-        IClientStreamerConfiguration? sc = GetClientStreamerConfiguration(config.ClientId);
-        if (sc is null || sc.ReadBuffer is null)
-        {
-            return;
-        }
-
-        sc.ReadBuffer.SetBufferDelegate(func, sc);
-    }
 
     public ICollection<IClientStreamerConfiguration>? GetClientStreamerConfigurations()
     {

@@ -18,6 +18,7 @@ using StreamMasterInfrastructure.VideoStreamManager.Clients;
 using StreamMasterInfrastructure.VideoStreamManager.Factories;
 using StreamMasterInfrastructure.VideoStreamManager.Statistics;
 using StreamMasterInfrastructure.VideoStreamManager.Streams;
+
 using System.Reflection;
 
 namespace StreamMasterInfrastructure;
@@ -28,7 +29,6 @@ public static class ConfigureServices
     {
         services.AddMemoryCache();
         services.AddSingleton<ISettingsService, SettingsService>();
-        services.AddSingleton<IStreamFactory, DefaultStreamFactory>();
         services.AddSingleton<IStreamSwitcher, StreamSwitcher>();
         services.AddSingleton<IChannelService, ChannelService>();
         services.AddSingleton<IProxyFactory, ProxyFactory>();

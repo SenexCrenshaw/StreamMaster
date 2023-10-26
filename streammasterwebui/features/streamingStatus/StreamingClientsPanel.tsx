@@ -99,7 +99,7 @@ const StreamingClientsPanel = ({ className, style }: StreamingClientsPanelProps)
           width: '14rem',
         } as CSSProperties,
       },
-      { field: 'm3UStreamName', header: 'Name' },
+      { field: 'videoStreamName', header: 'Name' },
 
       {
         align: 'center',

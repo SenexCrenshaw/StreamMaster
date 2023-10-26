@@ -12,31 +12,6 @@ public interface IChannelStatus
     void SetIsGlobal();
 
     /// <summary>
-    /// Unregisters a client from the channel based on the client's unique identifier.
-    /// </summary>
-    /// <param name="clientId">The unique identifier of the client to be unregistered.</param>
-    /// <exception cref="KeyNotFoundException">Thrown when the client with the provided clientId does not exist.</exception>
-    //void UnRegisterClient(Guid clientId);
-
-    /// <summary>
-    /// Registers a new client with the given configuration.
-    /// </summary>
-    /// <param name="clientStreamerConfiguration">The configuration settings for the client streamer.</param>
-    /// <exception cref="ArgumentNullException">Thrown when clientStreamerConfiguration is null.</exception>
-    /// <exception cref="ArgumentException">Thrown when a client with the same ID already exists.</exception>
-    //void RegisterClient(Guid clientId);
-
-    /// <summary>
-    /// Gets the list of client streamer configurations in the channel.
-    /// </summary>
-    //List<ClientStreamerConfiguration> GetChannelClientClientStreamerConfigurations { get; }
-
-    ///// <summary>
-    ///// Gets the current number of registered clients in the channel.
-    ///// </summary>
-    //int ClientCount { get; }
-
-    /// <summary>
     /// Indicates whether a failover operation is currently in progress.
     /// </summary>
     bool FailoverInProgress { get; set; }
@@ -59,10 +34,10 @@ public interface IChannelStatus
     /// <summary>
     /// Gets or sets the ID of the video stream associated with this channel.
     /// </summary>
-    string VideoStreamId { get; set; }
+    string CurrentVideoStreamId { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the video stream associated with this channel.
     /// </summary>
-    string VideoStreamName { get; set; }
+    string CurrentVideoStreamName { get; set; }
 }

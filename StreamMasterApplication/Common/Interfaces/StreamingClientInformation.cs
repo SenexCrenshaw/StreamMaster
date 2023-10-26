@@ -1,11 +1,9 @@
-﻿using StreamMasterDomain.Dto;
-
-namespace StreamMasterApplication.Common.Interfaces;
+﻿namespace StreamMasterApplication.Common.Interfaces;
 
 public class M3UStreamHealth
 {
     public DateTime LastError { get; set; }
-    public int M3UStreamId { get; set; }
+    //public int M3UStreamId { get; set; }
     public int TotalErros { get; set; }
 }
 

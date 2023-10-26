@@ -5,14 +5,7 @@
 /// </summary>
 public interface IStreamManager
 {
-    /// <summary>
-    /// Registers a client streamer with the given configuration.
-    /// </summary>
-    /// <param name="streamerConfiguration">The configuration for the client streamer.</param>
 
-    //void RegisterClientStreamer(string StreamUrl, ClientStreamerConfiguration streamerConfiguration);
-    //bool UnRegisterClientStreamer(string StreamUrl, ClientStreamerConfiguration streamerConfiguration);
-    //void MoveClientStreamer(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler);
     /// <summary>
     /// Disposes of the resources used by the StreamManager.
     /// </summary>
@@ -25,7 +18,7 @@ public interface IStreamManager
     /// <param name="rank">The rank of the stream.</param>
     /// <param name="cancellation">Optional cancellation token to cancel the operation.</param>
     /// <returns>A Task returning an IStreamHandler if successful; otherwise, returns null.</returns>
-    Task<IStreamHandler?> GetOrCreateStreamHandler(ChildVideoStreamDto childVideoStreamDto, int rank, CancellationToken cancellation = default);
+    Task<IStreamHandler?> GetOrCreateStreamHandler(VideoStreamDto childVideoStreamDto, int rank, CancellationToken cancellation = default);
 
     /// <summary>
     /// Retrieves the stream information based on a given stream URL.
@@ -48,7 +41,7 @@ public interface IStreamManager
     ///// </summary>
     ///// <returns>A collection of IStreamHandler objects.</returns>
     //ICollection<IStreamHandler> GetStreamHandlers();
-
+    void MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler);
     /// <summary>
     /// Retrieves all stream handlers.
     /// </summary>
@@ -66,6 +59,6 @@ public interface IStreamManager
     /// UnRegister a handler and stops a stream based on a given video stream ID.
     /// </summary>
     /// <param name="videoStreamId">The ID of the video stream to stop.</param>
-    /// <returns>Returns true if the stopped stream, false if VideoStreamId not found.</returns>
+    /// <returns>Returns true if the stopped stream, false if CurrentVideoStreamId not found.</returns>
     bool StopAndUnRegisterHandler(string VideoStreamId);
 }

@@ -26,22 +26,22 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
         if (setting.StreamingProxyType == StreamingProxyTypes.FFMpeg)
         {
             (stream, processId, error) = await GetFFMpegStream(streamUrl);
-            LogErrorIfAny(logger, stream, error, streamUrl);
+            LogErrorIfAny(stream, error, streamUrl);
         }
         else
         {
             (stream, processId, error) = await GetProxyStream(streamUrl, cancellationToken);
-            LogErrorIfAny(logger, stream, error, streamUrl);
+            LogErrorIfAny(stream, error, streamUrl);
         }
 
         return (stream, processId, error);
     }
 
-    private static void LogErrorIfAny(ILogger _logger, Stream? stream, ProxyStreamError? error, string streamUrl)
+    private void LogErrorIfAny(Stream? stream, ProxyStreamError? error, string streamUrl)
     {
         if (stream == null || error != null)
         {
-            _logger.LogError("Error getting proxy stream for {StreamUrl}: {ErrorMessage}", streamUrl, error?.Message);
+            logger.LogError("Error getting proxy stream for {StreamUrl}: {ErrorMessage}", streamUrl, error?.Message);
         }
     }
 
@@ -63,6 +63,24 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
 
         try
         {
+            return await CreateFFMpegStream(ffmpegExec, streamUrl).ConfigureAwait(false);
+        }
+        catch (IOException ex)
+        {
+            return HandleFFMpegStreamException<IOException>(ProxyStreamErrorCode.IoError, ex);
+        }
+        catch (Exception ex)
+        {
+            return HandleFFMpegStreamException<Exception>(ProxyStreamErrorCode.UnknownError, ex);
+        }
+    }
+
+    private async Task<(Stream? stream, int processId, ProxyStreamError? error)> CreateFFMpegStream(string ffmpegExec, string streamUrl)
+    {
+        try
+        {
+            Setting settings = await settingsService.GetSettingsAsync().ConfigureAwait(false);
+
             string options = string.IsNullOrEmpty(settings.FFMpegOptions) ? BuildInfo.FFMPEGDefaultOptions : settings.FFMpegOptions;
 
             string formattedArgs = options.Replace("{streamUrl}", $"\"{streamUrl}\"");
@@ -75,26 +93,33 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
 
-            _ = process.Start();
+            bool processStarted = process.Start();
+            if (!processStarted)
+            {
+                // Log and return an error if the process couldn't be started
+                ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.ProcessStartFailed, Message = "Failed to start FFmpeg process" };
+                logger.LogError("CreateFFMpegStream Error: {ErrorMessage}", error.Message);
+                return (null, -1, error);
+            }
 
-            string tempArgs = options.Replace("{streamUrl}", $"'{streamUrl}'");
-            tempArgs += $" -user_agent \"{settings.StreamingClientUserAgent}\"";
-
+            // Return the standard output stream of the process
             return (await Task.FromResult(process.StandardOutput.BaseStream).ConfigureAwait(false), process.Id, null);
-        }
-        catch (IOException ex)
-        {
-            ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.IoError, Message = ex.Message };
-            logger.LogError(ex, "GetFFMpegStream Error: ", error.Message);
-
-            return (null, -1, error);
         }
         catch (Exception ex)
         {
+            // Log and return any exceptions that occur
             ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.UnknownError, Message = ex.Message };
-            logger.LogError(ex, "GetFFMpegStream Error: ", error.Message);
+            logger.LogError(ex, "CreateFFMpegStream Error: {ErrorMessage}", error.Message);
             return (null, -1, error);
         }
+    }
+
+
+    private (Stream? stream, int processId, ProxyStreamError? error) HandleFFMpegStreamException<T>(ProxyStreamErrorCode errorCode, T exception) where T : Exception
+    {
+        ProxyStreamError error = new() { ErrorCode = errorCode, Message = exception.Message };
+        logger.LogError(exception, "GetFFMpegStream Error: ", error.Message);
+        return (null, -1, error);
     }
 
     private async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxyStream(string sourceUrl, CancellationToken cancellationToken)

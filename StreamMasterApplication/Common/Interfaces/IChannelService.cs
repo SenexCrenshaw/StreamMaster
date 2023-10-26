@@ -7,7 +7,8 @@ public interface IChannelService
 {
     List<IClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds);
 
-    IClientStreamerConfiguration? GetClientStreamerConfiguration(Guid clientId);
+    List<IChannelStatus> GetChannelStatusesFromVideoStreamId(string VideoStreamId);
+    Task<IClientStreamerConfiguration?> GetClientStreamerConfiguration(Guid clientId, CancellationToken cancellationToken = default);
 
     //void UpdateChannelStatusVideoStreamId(string videoStreamId);
     /// <summary>
