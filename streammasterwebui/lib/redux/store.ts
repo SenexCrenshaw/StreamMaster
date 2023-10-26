@@ -1,4 +1,4 @@
-import { configureStore, type Action, type ThunkAction } from '@reduxjs/toolkit';
+import { Store, configureStore, type Action, type ThunkAction } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
 
 import { enhancedApiChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsEnhancedAPI';
@@ -127,7 +127,7 @@ export type RootState = ReturnType<typeof rootReducer>;
 //   sortInfo: sortInfoSliceReducer,
 // });
 
-function makeStore() {
+function makeStore(): Store<RootState> {
   return configureStore({
     devTools: process.env.NODE_ENV !== 'production',
     middleware: (getDefaultMiddleware) =>
@@ -147,13 +147,13 @@ function makeStore() {
         enhancedApiVideoStreamLinks.middleware,
         enhancedApiVideoStreams.middleware,
         enhancedApiVideoStreamLinksLocal.middleware,
-        enhancedApiVideoStreamsGetAllStatisticsLocal.middleware,
+        enhancedApiVideoStreamsGetAllStatisticsLocal.middleware
       ),
     reducer: rootReducer,
   });
 }
 
-export const initializeStore = () => {
+export const initializeStore = (): Store<RootState> => {
   let _store = store ?? makeStore();
 
   // For SSG and SSR always create a new store
@@ -170,7 +170,7 @@ export type AppDispatch = typeof store.dispatch;
 
 export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, Action<string>>;
 
-export function useStore() {
+export function useStore(): Store<RootState> {
   const store = useMemo(() => initializeStore(), []);
   return store;
 }
