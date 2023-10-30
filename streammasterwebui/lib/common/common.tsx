@@ -1,52 +1,57 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { type ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import ExportButton from '@components/export/ExportButton';
 import GlobalSearch from '@components/search/GlobalSearch';
 import { SMFileTypes } from '@lib/common/streammaster_enums';
 import { StationIdLineUp, type ChildVideoStreamDto, type IconFileDto, type VideoStreamDto } from '@lib/iptvApi';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { Checkbox } from 'primereact/checkbox';
 import { type DataTableFilterMeta, type DataTableFilterMetaData } from 'primereact/datatable';
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import * as React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { baseHostURL, isDev } from '../settings';
+import { baseHostURL, isDev as isDevelopment } from '../settings';
 import { getColor } from './colors';
 
-export function formatToFourDigits(num: number): string {
+export function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
+  return (error as FetchBaseQueryError).data !== undefined;
+}
+
+export function formatToFourDigits(number_: number): string {
   // Convert number to string
-  let str = num.toString();
+  let string_ = number_.toString();
 
   // Ensure the number is 1 or 2 digits
-  if (str.length > 2) {
+  if (string_.length > 2) {
     throw new Error('Input number should be 1 or 2 digits.');
   }
 
   // Adjust the number to be in the center of four digits
-  if (str.length === 1) {
-    str = '0' + str + '00';
-  } else if (str.length === 2) {
-    str += '00';
+  if (string_.length === 1) {
+    string_ = `0${string_}00`;
+  } else if (string_.length === 2) {
+    string_ += '00';
   }
 
-  return str;
+  return string_;
 }
 
 export const getTopToolOptions = {
   autoHide: true,
   hideDelay: 100,
   position: 'top',
-  showDelay: 400,
+  showDelay: 400
 } as TooltipOptions;
 export const getLeftToolOptions = {
   autoHide: true,
   hideDelay: 100,
   position: 'left',
-  showDelay: 400,
+  showDelay: 400
 } as TooltipOptions;
 <FormattedMessage defaultMessage="Stream Master" id="app.title" />;
 
-export const hasValidAdditionalProps = (additionalFilterProps: AdditionalFilterProps | undefined) => {
-  return additionalFilterProps?.values;
-};
+export const hasValidAdditionalProps = (additionalFilterProperties: AdditionalFilterProperties | undefined) => additionalFilterProperties?.values;
 
 export function getChannelGroupMenuItem(colorIndex: string | undefined, toDisplay: string): React.ReactNode {
   return (
@@ -111,8 +116,8 @@ export function areFilterMetaEqual(a: DataTableFilterMeta, b: DataTableFilterMet
   return true;
 }
 
-export function toCamelCase(str: string): string {
-  return str
+export function toCamelCase(string_: string): string {
+  return string_
     .trim()
     .split(/[\s_-]+/)
     .map((word, index) => (index === 0 ? word.toLowerCase() : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()))
@@ -126,10 +131,10 @@ export function toCamelCase(str: string): string {
 //   return message;
 // }
 
-export function GetMessage(...args: string[]): string {
+export function GetMessage(...arguments_: string[]): string {
   const intl = useIntl();
 
-  if (args === undefined || args.length === 0 || args[0] === '') {
+  if (arguments_ === undefined || arguments_.length === 0 || arguments_[0] === '') {
     return '';
   }
 
@@ -140,24 +145,24 @@ export function GetMessage(...args: string[]): string {
   //   return test;
   // }
 
-  const ids: string[] = args.flatMap((arg) => arg.split(' '));
+  const ids: string[] = arguments_.flatMap((argument) => argument.split(' '));
 
   const message = ids.map((x) => intl.formatMessage({ id: x })).join(' ');
 
   if (message === toCamelCase(message)) {
-    return args.join('');
+    return arguments_.join('');
   }
 
   return message;
 }
 
-export type AdditionalFilterProps = {
+export interface AdditionalFilterProperties {
   field: string;
   matchMode: MatchMode;
   values: string[] | undefined;
-};
+}
 
-export function areAdditionalFilterPropsEqual(a: AdditionalFilterProps | undefined, b: AdditionalFilterProps | undefined): boolean {
+export function areAdditionalFilterPropsEqual(a: AdditionalFilterProperties | undefined, b: AdditionalFilterProperties | undefined): boolean {
   // If both are undefined, return true
   if (!a && !b) return true;
 
@@ -178,8 +183,8 @@ export function areAdditionalFilterPropsEqual(a: AdditionalFilterProps | undefin
   if (aValues.length !== bValues.length) return false;
 
   // Check if all values are the same
-  for (let i = 0; i < aValues.length; i++) {
-    if (aValues[i] !== bValues[i]) return false;
+  for (const [index, aValue] of aValues.entries()) {
+    if (aValue !== bValues[index]) return false;
   }
 
   // If all checks passed, the objects are equivalent
@@ -198,23 +203,23 @@ export function addOrUpdateValueForField(
   data: SMDataTableFilterMetaData[],
   targetFieldName: string,
   matchMode: MatchMode,
-  newValue: boolean | string | null | undefined,
+  newValue: boolean | string | null | undefined
 ): void {
   let itemFound = false;
 
-  data.forEach((item) => {
+  for (const item of data) {
     if (item.fieldName === targetFieldName) {
       item.matchMode = matchMode;
       item.value = newValue;
       itemFound = true;
     }
-  });
+  }
 
   if (!itemFound) {
     data.push({
       fieldName: targetFieldName,
       matchMode: matchMode as MatchMode,
-      value: newValue,
+      value: newValue
     });
   }
 }
@@ -230,11 +235,11 @@ export function areDataTableFilterMetaDataEqual(a: SMDataTableFilterMetaData, b:
   return true;
 }
 
-export function areDataTableFilterMetaDatasEqual(arr1: SMDataTableFilterMetaData[], arr2: SMDataTableFilterMetaData[]): boolean {
-  if (arr1.length !== arr2.length) return false;
+export function areDataTableFilterMetaDatasEqual(array1: SMDataTableFilterMetaData[], array2: SMDataTableFilterMetaData[]): boolean {
+  if (array1.length !== array2.length) return false;
 
-  for (let i = 0; i < arr1.length; i++) {
-    if (!areDataTableFilterMetaDataEqual(arr1[i], arr2[i])) {
+  for (const [index, element] of array1.entries()) {
+    if (!areDataTableFilterMetaDataEqual(element, array2[index])) {
       return false;
     }
   }
@@ -242,7 +247,7 @@ export function areDataTableFilterMetaDatasEqual(arr1: SMDataTableFilterMetaData
   return true;
 }
 
-export type SimpleQueryApiArg = {
+export interface SimpleQueryApiArgument {
   count?: number;
   first?: number;
   jsonArgumentString?: string | null;
@@ -252,9 +257,9 @@ export type SimpleQueryApiArg = {
   orderBy?: string;
   pageNumber?: number;
   pageSize?: number;
-};
+}
 
-export type GetApiArg = {
+export interface GetApiArgument {
   count?: number;
   first?: number;
   jsonArgumentString?: string | null;
@@ -265,54 +270,56 @@ export type GetApiArg = {
   pageNumber?: number;
   pageSize?: number;
   streamGroupId?: number | undefined;
-};
+}
 
-export type IDIsHidden = {
+export interface IDIsHidden {
   id: string;
   isHidden: boolean;
-};
+}
 
-const compareProps = (propName: keyof GetApiArg, obj1: GetApiArg, obj2: GetApiArg) => {
-  const val1 = obj1[propName];
-  const val2 = obj2[propName];
+const compareProperties = (propertyName: keyof GetApiArgument, object1: GetApiArgument, object2: GetApiArgument) => {
+  const value1 = object1[propertyName];
+  const value2 = object2[propertyName];
 
-  const result = val1 === val2 || (val1 === undefined && val2 === undefined);
+  const result = value1 === value2 || (value1 === undefined && value2 === undefined);
 
   return result;
 };
 
-export function areGetApiArgsEqual(obj1?: GetApiArg, obj2?: GetApiArg): boolean {
+export function areGetApiArgsEqual(object1?: GetApiArgument, object2?: GetApiArgument): boolean {
   // Handle cases where one or both arguments are undefined
-  if (!obj1 && !obj2) return true;
-  if (!obj1 || !obj2) return false;
+  if (!object1 && !object2) return true;
+  if (!object1 || !object2) return false;
 
   return (
-    compareProps('count', obj1, obj2) &&
-    compareProps('first', obj1, obj2) &&
-    compareProps('jsonArgumentString', obj1, obj2) &&
-    compareProps('jsonFiltersString', obj1, obj2) &&
-    compareProps('last', obj1, obj2) &&
-    compareProps('name', obj1, obj2) &&
-    compareProps('orderBy', obj1, obj2) &&
-    compareProps('pageNumber', obj1, obj2) &&
-    compareProps('pageSize', obj1, obj2) &&
-    compareProps('streamGroupId', obj1, obj2)
+    compareProperties('count', object1, object2) &&
+    compareProperties('first', object1, object2) &&
+    compareProperties('jsonArgumentString', object1, object2) &&
+    compareProperties('jsonFiltersString', object1, object2) &&
+    compareProperties('last', object1, object2) &&
+    compareProperties('name', object1, object2) &&
+    compareProperties('orderBy', object1, object2) &&
+    compareProperties('pageNumber', object1, object2) &&
+    compareProperties('pageSize', object1, object2) &&
+    compareProperties('streamGroupId', object1, object2)
   );
 }
 
-type QueryHookResult<T> = {
+interface QueryHookResult<T> {
   data?: T;
   isError: boolean;
   isFetching: boolean;
   isLoading: boolean;
-};
+}
 
-export type QueryHook<T> = () => QueryHookResult<T>;
+export interface QueryHook<T> {
+  (): QueryHookResult<T>;
+}
 
-export type HasId = {
+export interface HasId {
   [key: string]: any;
   id: number | string;
-};
+}
 
 export function compareIconFileDto(a: IconFileDto, b: IconFileDto): number {
   // Compare by id
@@ -336,20 +343,20 @@ export function compareIconFileDto(a: IconFileDto, b: IconFileDto): number {
   return 0;
 }
 
-export function arraysContainSameStrings(arr1: string[] | undefined, arr2: string[] | undefined): boolean {
-  if (!arr1 || !arr2) return false;
+export function arraysContainSameStrings(array1: string[] | undefined, array2: string[] | undefined): boolean {
+  if (!array1 || !array2) return false;
 
   // If the arrays are not of the same length, they can't contain the same strings
-  if (arr1.length !== arr2.length) return false;
+  if (array1.length !== array2.length) return false;
 
   // Sort both arrays and compare them
 
-  const sortedArr1 = [...arr1].sort();
+  const sortedArray1 = [...array1].sort();
 
-  const sortedArr2 = [...arr2].sort();
+  const sortedArray2 = [...array2].sort();
 
-  for (let i = 0; i < sortedArr1.length; i++) {
-    if (sortedArr1[i] !== sortedArr2[i]) return false;
+  for (const [index, element] of sortedArray1.entries()) {
+    if (element !== sortedArray2[index]) return false;
   }
 
   return true;
@@ -360,8 +367,8 @@ export function areIconFileDtosEqual(array1: IconFileDto[], array2: IconFileDto[
     return false;
   }
 
-  for (let i = 0; i < array1.length; i++) {
-    if (compareIconFileDto(array1[i], array2[i]) !== 0) {
+  for (const [index, element] of array1.entries()) {
+    if (compareIconFileDto(element, array2[index]) !== 0) {
       return false;
     }
   }
@@ -377,7 +384,7 @@ export type SMDataTableFilterMetaData = DataTableFilterMetaData & {
 export const doSetsContainSameIds = (set1: Set<number | string>, set2: Set<number | string>): boolean => {
   if (set1.size !== set2.size) return false;
 
-  for (let id of set1) {
+  for (const id of set1) {
     if (!set2.has(id)) return false;
   }
 
@@ -397,7 +404,7 @@ export function isChildVideoStreamDto(value: unknown): value is ChildVideoStream
 
 export const GetMessageDiv = (id: string, upperCase?: boolean | null): React.ReactNode => {
   const intl = useIntl();
-  const message = intl.formatMessage({ id: id });
+  const message = intl.formatMessage({ id });
 
   if (upperCase) {
     return <div>{message.toUpperCase()}</div>;
@@ -411,15 +418,17 @@ export function areVideoStreamsEqual(streams1: ChildVideoStreamDto[] | VideoStre
     return false;
   }
 
-  for (let i = 0; i < streams1.length; i++) {
-    if (streams1[i].id !== streams2[i].id) {
+  for (const [index, element] of streams1.entries()) {
+    if (element.id !== streams2[index].id) {
       return false;
     }
 
-    if (isChildVideoStreamDto(streams1[i]) && isChildVideoStreamDto(streams2[i])) {
-      if ((streams1[i] as ChildVideoStreamDto).rank !== (streams2[i] as ChildVideoStreamDto).rank) {
-        return false;
-      }
+    if (
+      isChildVideoStreamDto(element) &&
+      isChildVideoStreamDto(streams2[index]) &&
+      (element as ChildVideoStreamDto).rank !== (streams2[index] as ChildVideoStreamDto).rank
+    ) {
+      return false;
     }
   }
 
@@ -431,7 +440,7 @@ export function isValidUrl(string: string): boolean {
     new URL(string);
 
     return true;
-  } catch (err) {
+  } catch {
     return false;
   }
 }
@@ -446,34 +455,33 @@ export function isValidUrl(string: string): boolean {
 //   }
 // }
 
-export type PropsComparator<C extends React.ComponentType> = (
-  prevProps: Readonly<React.ComponentProps<C>>,
-  nextProps: Readonly<React.ComponentProps<C>>,
-) => boolean;
+export interface PropertiesComparator<C extends React.ComponentType> {
+  (previousProperties: Readonly<React.ComponentProps<C>>, nextProperties: Readonly<React.ComponentProps<C>>): boolean;
+}
 
 export const camel2title = (camelCase: string): string =>
   camelCase
-    .replace(/([A-Z])/g, (match) => ` ${match}`)
+    .replaceAll(/([A-Z])/g, (match) => ` ${match}`)
     .replace(/^./, (match) => match.toUpperCase())
     .trim();
 
 export function formatJSONDateString(jsonDate: string | undefined): string {
   if (!jsonDate) return '';
   const date = new Date(jsonDate);
-  const ret = date.toLocaleDateString('en-US', {
+  const returnValue = date.toLocaleDateString('en-US', {
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
     month: '2-digit',
     second: '2-digit',
-    year: 'numeric',
+    year: 'numeric'
   });
 
-  return ret;
+  return returnValue;
 }
 
 function getApiUrl(path: SMFileTypes, originalUrl: string): string {
-  return `${isDev ? baseHostURL : ''}/api/files/${path}/${encodeURIComponent(originalUrl)}`;
+  return `${isDevelopment ? baseHostURL : ''}/api/files/${path}/${encodeURIComponent(originalUrl)}`;
 }
 
 export function findDifferenceStationIdLineUps(firstArray: StationIdLineUp[], secondArray: StationIdLineUp[]): StationIdLineUp[] {
@@ -482,18 +490,18 @@ export function findDifferenceStationIdLineUps(firstArray: StationIdLineUp[], se
 
   return [...missingFromFirst, ...missingFromSecond];
 }
-export const arraysMatch = (arr1: string[], arr2: string[]): boolean => {
-  if (arr1.length !== arr2.length) {
+export const arraysMatch = (array1: string[], array2: string[]): boolean => {
+  if (array1.length !== array2.length) {
     return false;
   }
 
   // Sort both arrays using localeCompare for proper string comparison
-  const sortedArr1 = arr1.slice().sort((a, b) => a.localeCompare(b));
-  const sortedArr2 = arr2.slice().sort((a, b) => a.localeCompare(b));
+  const sortedArray1 = [...array1].sort((a, b) => a.localeCompare(b));
+  const sortedArray2 = [...array2].sort((a, b) => a.localeCompare(b));
 
   // Compare the sorted arrays element by element
-  for (let i = 0; i < sortedArr1.length; i++) {
-    if (sortedArr1[i] !== sortedArr2[i]) {
+  for (const [index, element] of sortedArray1.entries()) {
+    if (element !== sortedArray2[index]) {
       return false;
     }
   }
@@ -501,28 +509,19 @@ export const arraysMatch = (arr1: string[], arr2: string[]): boolean => {
   return true;
 };
 
-export function checkData(data: any): boolean {
-  if (data === null || data === undefined || data.data === null || data.data === undefined) {
-    return false;
-    1;
-  }
-
-  return true;
-}
-
 export function getIconUrl(iconOriginalSource: string | null | undefined, defaultIcon: string, cacheIcon: boolean): string {
   if (!iconOriginalSource || iconOriginalSource === '') {
-    iconOriginalSource = `${isDev ? baseHostURL + '/' : '/'}${defaultIcon}`;
+    iconOriginalSource = `${isDevelopment ? `${baseHostURL}/` : '/'}${defaultIcon}`;
   }
 
-  let originalUrl = iconOriginalSource;
+  const originalUrl = iconOriginalSource;
 
   if (iconOriginalSource.startsWith('/')) {
-    iconOriginalSource = iconOriginalSource.substring(1);
+    iconOriginalSource = iconOriginalSource.slice(1);
   }
 
   if (iconOriginalSource.startsWith('images/')) {
-    iconOriginalSource = `${isDev ? baseHostURL + '/' : ''}${iconOriginalSource}`;
+    iconOriginalSource = `${isDevelopment ? `${baseHostURL}/` : ''}${iconOriginalSource}`;
   } else if (!iconOriginalSource.startsWith('http')) {
     iconOriginalSource = getApiUrl(SMFileTypes.TvLogo, originalUrl);
   } else if (cacheIcon) {
@@ -532,7 +531,7 @@ export function getIconUrl(iconOriginalSource: string | null | undefined, defaul
   return iconOriginalSource;
 }
 
-export const removeQuotes = (str: string) => (str.startsWith('"') && str.endsWith('"') ? str.slice(1, -1) : str);
+export const removeQuotes = (string_: string) => (string_.startsWith('"') && string_.endsWith('"') ? string_.slice(1, -1) : string_);
 export const hasColumns = (columns?: ColumnMeta[]) => columns && columns.length > 0;
 
 export function isEmptyObject(value: any): boolean {
@@ -558,11 +557,11 @@ export function isEmptyObject(value: any): boolean {
   return false;
 }
 
-type MultiSelectCheckboxProps = {
+interface MultiSelectCheckboxProperties {
   readonly onMultiSelectClick?: (value: boolean) => void;
   readonly rowClick: boolean;
-  readonly setRowClick: (val: boolean) => void;
-};
+  readonly setRowClick: (value: boolean) => void;
+}
 
 /**
  * MultiSelectCheckbox component is responsible for rendering and managing
@@ -570,7 +569,7 @@ type MultiSelectCheckboxProps = {
  *
  * @param props The properties for the MultiSelectCheckbox component.
  */
-export const MultiSelectCheckbox: React.FC<MultiSelectCheckboxProps> = (props) => {
+export const MultiSelectCheckbox: React.FC<MultiSelectCheckboxProperties> = (props) => {
   const { onMultiSelectClick, rowClick, setRowClick } = props;
 
   return (
@@ -615,9 +614,11 @@ export const GlobalSearchComponent: React.FC<{
   readonly onGlobalSourceFilterChange: any;
   readonly props: any;
 }> = ({ clearSourceFilter, props, globalSearchName, globalSourceFilterValue, onGlobalSourceFilterChange }) =>
+  // eslint-disable-next-line react/prop-types
   props.globalSearchEnabled && (
     <GlobalSearch
       clearSourceFilter={clearSourceFilter}
+      // eslint-disable-next-line react/prop-types
       columns={props.columns}
       globalSearchName={globalSearchName}
       globalSourceFilterValue={globalSourceFilterValue}
@@ -627,7 +628,7 @@ export const GlobalSearchComponent: React.FC<{
 
 export const ExportComponent: React.FC<{ readonly exportCSV: any }> = ({ exportCSV }) => <ExportButton exportCSV={exportCSV} />;
 
-export type UserInformation = {
+export interface UserInformation {
   IsAuthenticated: boolean;
   TokenAge: Date;
-};
+}

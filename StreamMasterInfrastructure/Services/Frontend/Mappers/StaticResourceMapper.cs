@@ -18,7 +18,7 @@ namespace StreamMasterInfrastructure.Services.Frontend.Mappers
                 return false;
             }
 
-            return (resourceUrl.StartsWith("/static/") || resourceUrl.StartsWith("/content/")) &&
+            return (resourceUrl.StartsWith("/static/") || resourceUrl.StartsWith("/content/") || resourceUrl.StartsWith("/assets/")) &&
                 (
                    (resourceUrl.EndsWith(".js") && !resourceUrl.EndsWith("initialize.js")) ||
                    resourceUrl.EndsWith(".map") ||

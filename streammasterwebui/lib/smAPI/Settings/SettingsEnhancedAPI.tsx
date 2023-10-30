@@ -21,47 +21,41 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
 
             updateCachedData(() => {
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Settings' }])) {
-                if (endpointName !== 'settingsGetQueueStatus') continue;
+                if (endpointName === 'settingsGetQueueStatus') {
                   dispatch(
                     iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-
                       if (isPagedTableDto(data)) {
-                      data.forEach(item => {
-                        const index = draft.findIndex(existingItem => existingItem.id === item.id);
-                        if (index !== -1) {
-                          draft[index] = item;
+                        for (const item of data) {
+                          const index = draft.findIndex((existingItem) => existingItem.id === item.id);
+                          if (index !== -1) {
+                            draft[index] = item;
+                          }
                         }
-                        });
-
                         return draft;
-                        }
-
-                      data.forEach(item => {
-                        const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                      }
+                      for (const item of data) {
+                        const index = draft.findIndex((existingItem) => existingItem.id === item.id);
                         if (index !== -1) {
                           draft[index] = item;
                         }
-                        });
-
+                      }
                       return draft;
-                     })
-                   )
-                 }
-
-
+                    })
+                  );
+                }
+              }
             });
           };
 
-         singletonSettingsListener.addListener(updateCachedDataWithResults);
+          singletonSettingsListener.addListener(updateCachedDataWithResults);
 
-        await cacheEntryRemoved;
-        singletonSettingsListener.removeListener(updateCachedDataWithResults);
-
+          await cacheEntryRemoved;
+          singletonSettingsListener.removeListener(updateCachedDataWithResults);
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
-
       }
+    // eslint-disable-next-line comma-dangle
     },
     settingsGetSetting: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -70,29 +64,28 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.SettingDto) => {
             updateCachedData(() => {
-              if (isDev) console.log('updateCachedData', data);
-              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Settings' }])) {
-                if (endpointName !== 'settingsGetSetting') continue;
+              {
+                if (isDev) console.log('updateCachedData', data);
+                for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Settings' }])) {
+                  if (endpointName !== 'settingsGetSetting') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    if (isDev) console.log('updateCachedData', data, draft);
-                   })
-                   );
-                 }
-
-
+                    {
+                      if (isDev) console.log('updateCachedData', data, draft);
+                    }
+                  }));
+                } }
             });
           };
 
-         singletonSettingsListener.addListener(updateCachedDataWithResults);
+          singletonSettingsListener.addListener(updateCachedDataWithResults);
 
-        await cacheEntryRemoved;
-        singletonSettingsListener.removeListener(updateCachedDataWithResults);
-
+          await cacheEntryRemoved;
+          singletonSettingsListener.removeListener(updateCachedDataWithResults);
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
-
       }
+    // eslint-disable-next-line comma-dangle
     },
     settingsGetSystemStatus: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -101,29 +94,28 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.SystemStatus) => {
             updateCachedData(() => {
-              if (isDev) console.log('updateCachedData', data);
-              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Settings' }])) {
-                if (endpointName !== 'settingsGetSystemStatus') continue;
+              {
+                if (isDev) console.log('updateCachedData', data);
+                for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Settings' }])) {
+                  if (endpointName !== 'settingsGetSystemStatus') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    if (isDev) console.log('updateCachedData', data, draft);
-                   })
-                   );
-                 }
-
-
+                    {
+                      if (isDev) console.log('updateCachedData', data, draft);
+                    }
+                  }));
+                } }
             });
           };
 
-         singletonSettingsListener.addListener(updateCachedDataWithResults);
+          singletonSettingsListener.addListener(updateCachedDataWithResults);
 
-        await cacheEntryRemoved;
-        singletonSettingsListener.removeListener(updateCachedDataWithResults);
-
+          await cacheEntryRemoved;
+          singletonSettingsListener.removeListener(updateCachedDataWithResults);
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
-
       }
+    // eslint-disable-next-line comma-dangle
     },
   }
 });

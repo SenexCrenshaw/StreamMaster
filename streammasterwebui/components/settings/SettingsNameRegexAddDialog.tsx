@@ -6,7 +6,7 @@ import { InputText } from 'primereact/inputtext';
 import React from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 
-const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProps) => {
+const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProperties) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
@@ -37,8 +37,8 @@ const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProps) => {
       .then(() => {
         setInfoMessage('Add Regex Successfully');
       })
-      .catch((e) => {
-        setInfoMessage('Add Regex Error: ' + e.message);
+      .catch((error) => {
+        setInfoMessage(`Add Regex Error: ${error.message}`);
       });
   }, [ReturnToParent, props.values, regex]);
 
@@ -81,9 +81,9 @@ const SettingsNameRegexAddDialog = (props: SettingsNameRegexAddDialogProps) => {
 
 SettingsNameRegexAddDialog.displayName = 'SettingsNameRegexAddDialog';
 
-type SettingsNameRegexAddDialogProps = {
+interface SettingsNameRegexAddDialogProperties {
   readonly onClose?: () => void;
   readonly values: string[];
-};
+}
 
 export default React.memo(SettingsNameRegexAddDialog);

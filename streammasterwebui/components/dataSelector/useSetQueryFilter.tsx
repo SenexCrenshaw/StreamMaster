@@ -5,7 +5,7 @@ import {
   isEmptyObject,
   removeValueForField,
   type MatchMode,
-  type SMDataTableFilterMetaData,
+  type SMDataTableFilterMetaData
 } from '@lib/common/common';
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
@@ -24,7 +24,7 @@ export const useSetQueryFilter = (
   filters: DataTableFilterMeta,
   page: number,
   rows: number,
-  streamGroupId?: number,
+  streamGroupId?: number
 ) => {
   const { sortInfo } = useSortInfo(id);
   const { queryAdditionalFilter } = useQueryAdditionalFilters(id);
@@ -38,13 +38,13 @@ export const useSetQueryFilter = (
 
     const defaultState: LazyTableState = {
       filters: newFilters,
-      first: first,
+      first,
       jsonFiltersString: '',
-      page: page,
-      rows: rows,
+      page,
+      rows,
       sortField: 'id',
       sortOrder: 1,
-      sortString: sort,
+      sortString: sort
     };
 
     const toSend: SMDataTableFilterMetaData[] = Object.keys(defaultState.filters)
@@ -61,15 +61,15 @@ export const useSetQueryFilter = (
     }
 
     if (hasValidAdditionalProps(queryAdditionalFilter)) {
-      const addProps = queryAdditionalFilter;
+      const addProperties = queryAdditionalFilter;
 
-      if (addProps) {
-        if (isEmptyObject(addProps.values)) {
-          removeValueForField(toSend, addProps.field);
+      if (addProperties) {
+        if (isEmptyObject(addProperties.values)) {
+          removeValueForField(toSend, addProperties.field);
         } else {
-          const values = JSON.stringify(addProps.values);
+          const values = JSON.stringify(addProperties.values);
 
-          addOrUpdateValueForField(toSend, addProps.field, addProps.matchMode as MatchMode, values);
+          addOrUpdateValueForField(toSend, addProperties.field, addProperties.matchMode as MatchMode, values);
         }
       }
     }
@@ -81,9 +81,9 @@ export const useSetQueryFilter = (
         orderBy: toFilter.sortString,
         pageNumber: toFilter.page,
         pageSize: toFilter.rows,
-        streamGroupId: streamGroupId,
+        streamGroupId
       },
-      lazyState: defaultState,
+      lazyState: defaultState
     };
   }, [columns, filters, sortInfo, first, page, rows, streamGroupId, showHidden, queryAdditionalFilter]);
 

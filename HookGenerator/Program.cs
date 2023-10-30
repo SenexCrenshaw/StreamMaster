@@ -66,13 +66,13 @@ internal class Program
                                 // Add imports at the start of each new file's content
                                 tagToGetContentMap[tag].AppendLine("/* eslint unused-imports/no-unused-imports-ts: off */");
                                 tagToGetContentMap[tag].AppendLine("/* eslint @typescript-eslint/no-unused-vars: off */");
-                                tagToGetContentMap[tag].AppendLine("import { invokeHubConnection } from '@/lib/signalr/signalr';");
                                 tagToGetContentMap[tag].AppendLine("import type * as iptv from '@/lib/iptvApi';");
+                                tagToGetContentMap[tag].AppendLine("import { invokeHubConnection } from '@/lib/signalr/signalr';");
                                 if (additionalImports.ContainsKey(tag))
                                 {
                                     tagToGetContentMap[tag].AppendLine(additionalImports[tag]);
                                 }
-                                tagToGetContentMap[tag].AppendLine("\r\n");
+                                tagToGetContentMap[tag].AppendLine("");
                             }
                             contentToUse = tagToGetContentMap[tag];
 
@@ -102,8 +102,9 @@ internal class Program
                                 // Add imports at the start of each new file's content
                                 tagToMutateContentMap[tag].AppendLine("/* eslint unused-imports/no-unused-imports-ts: off */");
                                 tagToMutateContentMap[tag].AppendLine("/* eslint @typescript-eslint/no-unused-vars: off */");
+                                tagToMutateContentMap[tag].AppendLine("import type * as iptv from '@/lib/iptvApi';");
                                 tagToMutateContentMap[tag].AppendLine("import { invokeHubConnection } from '@/lib/signalr/signalr';");
-                                tagToMutateContentMap[tag].AppendLine("import type * as iptv from '@/lib/iptvApi';\r\n");
+                                tagToMutateContentMap[tag].AppendLine("");
                             }
                             contentToUse = tagToMutateContentMap[tag];
                         }
@@ -111,22 +112,19 @@ internal class Program
                         {
                             argType = overRideArgs[functionName];
                         }
-                        contentToUse.AppendLine($"export const {functionName} = async {(argType != null ? $"(arg: {argType})" : "()")}: Promise<{responseType} | null> => {{");
-                        //contentToUse.AppendLine($"  if (hubConnection.state === 'Connected') {{");
-                        //contentToUse.AppendLine($"    if (isDev) console.log('{functionName}');");
+
                         if (responseType != "void")
                         {
-                            contentToUse.AppendLine($"    return await invokeHubConnection<{responseType}> ('{functionName}'{(responseType != "void" ? ", arg" : "")});");
-                            //contentToUse.AppendLine($"    const data = await hubConnection.invoke('{functionName}'{(argType != null ? ", arg" : "")});");
-                            //contentToUse.AppendLine($"    return data;");
+                            contentToUse.AppendLine($"export const {functionName} = async {(argType != null ? $"(argument: {argType})" : "()")}: Promise<{responseType} | null> =>");
+                            contentToUse.AppendLine($"  invokeHubConnection<{responseType}>('{functionName}'{(responseType != "void" ? ", argument" : "")});");
                         }
                         else
                         {
-                            //contentToUse.AppendLine($"    await hubConnection.invoke('{functionName}'{(argType != null ? ", arg" : "")});");
-                            contentToUse.AppendLine($"    await invokeHubConnection<void> ('{functionName}'{(argType != null ? ", arg" : "")});");
+                            contentToUse.AppendLine($"export const {functionName} = async {(argType != null ? $"(argument: {argType})" : "()")}: Promise<{responseType} | null> => {{");
+                            contentToUse.AppendLine($"  await invokeHubConnection<void>('{functionName}'{(argType != null ? ", argument" : "")});");
+                            contentToUse.AppendLine("};");
                         }
-                        //contentToUse.AppendLine("  };\r\n");
-                        contentToUse.AppendLine("};\r\n");
+
                     }
                 }
             }
@@ -159,42 +157,37 @@ internal class Program
         string draft = IsPaged(argType) ? "draft.data" : "draft";
         if (IsPagedOrIsArray(responseType))
         {
-            ret.AppendLine("            if (!data || isEmptyObject(data)) {{");
+            ret.AppendLine("            if (!data || isEmptyObject(data)) {");
             ret.AppendLine($"              if (isDev) console.log('{tag} Full Refresh');");
             ret.AppendLine($"              dispatch(iptvApi.util.invalidateTags(['{tag}']));");
             ret.AppendLine("              return;");
-            ret.AppendLine("            }}");
+            ret.AppendLine("            }");
             ret.AppendLine();
-            ret.AppendLine("            updateCachedData(() => {{");
-            ret.AppendLine("              for (const {{ endpointName, originalArgs }} of iptvApi.util.selectInvalidatedBy(getState(), [{{ type: '{tag}' }}])) {{");
-            ret.AppendLine($"                if (endpointName !== '{endpointName}') continue;");
+            ret.AppendLine("            updateCachedData(() => {");
+            ret.AppendLine($"              for (const {{ endpointName, originalArgs }} of iptvApi.util.selectInvalidatedBy(getState(), [{{ type: '{tag}' }}])) {{");
+            ret.AppendLine($"                if (endpointName === '{endpointName}') {{");
             ret.AppendLine("                  dispatch(");
-            ret.AppendLine("                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{");
-            ret.AppendLine();
-            ret.AppendLine("                      if (isPagedTableDto(data)) {{");
-            ret.AppendLine($"                      {data}.forEach(item => {{");
-            ret.AppendLine($"                        const index = {draft}.findIndex(existingItem => existingItem.id === item.id);");
-            ret.AppendLine("                        if (index !== -1) {{");
-            ret.AppendLine($"                          {draft}[index] = item;");
-            ret.AppendLine("                        }}");
-            ret.AppendLine("                        }});");
-            ret.AppendLine();
+            ret.AppendLine("                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {");
+            ret.AppendLine($"                      if (isPagedTableDto({data})) {{");
+            ret.AppendLine($"                        for (const item of {data}) {{");
+            ret.AppendLine($"                          const index = {draft}.findIndex((existingItem) => existingItem.id === item.id);");
+            ret.AppendLine("                          if (index !== -1) {");
+            ret.AppendLine($"                            {draft}[index] = item;");
+            ret.AppendLine("                          }");
+            ret.AppendLine("                        }");
             ret.AppendLine("                        return draft;");
-            ret.AppendLine("                        }}");
-            ret.AppendLine();
-            ret.AppendLine($"                      {data}.forEach(item => {{");
-            ret.AppendLine($"                        const index = {draft}.findIndex(existingItem => existingItem.id === item.id);");
-            ret.AppendLine("                        if (index !== -1) {{");
+            ret.AppendLine("                      }");
+            ret.AppendLine($"                      for (const item of {data}) {{");
+            ret.AppendLine($"                        const index = {draft}.findIndex((existingItem) => existingItem.id === item.id);");
+            ret.AppendLine("                        if (index !== -1) {");
             ret.AppendLine($"                          {draft}[index] = item;");
-            ret.AppendLine("                        }}");
-            ret.AppendLine("                        }});");
-            ret.AppendLine();
+            ret.AppendLine("                        }");
+            ret.AppendLine("                      }");
             ret.AppendLine("                      return draft;");
-            ret.AppendLine("                     }})");
-            ret.AppendLine("                   )");
-            ret.AppendLine("                 }}");
-
-            ret.AppendLine();
+            ret.AppendLine("                    })");
+            ret.AppendLine("                  );");
+            ret.AppendLine("                }");
+            ret.AppendLine("              }");
             return ret.ToString();
         }
         ret.AppendLine("            updateCachedData(() => {{");
@@ -206,7 +199,6 @@ internal class Program
         ret.AppendLine("                   }})");
         ret.AppendLine("                   );");
         ret.AppendLine("                 }}");
-        ret.AppendLine();
 
         return ret.ToString();
     }
@@ -221,13 +213,13 @@ internal class Program
 
             rtkContent.AppendLine("import { isDev } from '@/lib/settings';");
             rtkContent.AppendLine($"import {{ {singleTon} }} from '@/lib/signalr/singletonListeners';");
-            rtkContent.AppendLine("import {{ isEmptyObject }} from '@/lib/common/common';");
+            rtkContent.AppendLine("import { isEmptyObject } from '@/lib/common/common';");
             rtkContent.AppendLine("import isPagedTableDto from '@/lib/common/isPagedTableDto';");
-            rtkContent.AppendLine("import {{ iptvApi }} from '@/lib/iptvApi';");
+            rtkContent.AppendLine("import { iptvApi } from '@/lib/iptvApi';");
             rtkContent.AppendLine("import type * as iptv from '@/lib/iptvApi';");
             rtkContent.AppendLine();
             rtkContent.AppendLine($"export const enhancedApi{ConvertToTypeScriptPascalCase(tag)} = iptvApi.enhanceEndpoints({{");
-            rtkContent.AppendLine("  endpoints: {{");
+            rtkContent.AppendLine("  endpoints: {");
             bool anyToWrite = false;
             // For every GET method in this tag
             foreach (string getMethod in tagToGetMethodsMap[tag])
@@ -257,29 +249,25 @@ internal class Program
                 string updateFunction = GetUpdateFunction(name, arg, responseType, tag);
 
                 rtkContent.AppendLine($"    {name}: {{");
-                rtkContent.AppendLine($"      async onCacheEntryAdded(api, {{ dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }}) {{");
-                rtkContent.AppendLine($"        try {{");
-                rtkContent.AppendLine($"          await cacheDataLoaded;");
+                rtkContent.AppendLine("      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {");
+                rtkContent.AppendLine("        try {");
+                rtkContent.AppendLine("          await cacheDataLoaded;");
                 rtkContent.AppendLine();
                 rtkContent.AppendLine($"          const updateCachedDataWithResults = (data: {responseType}) => {{");
-                //rtkContent.AppendLine($"            updateCachedData((draft: {arg}) => {{");
-                rtkContent.AppendLine(updateFunction);
-                //rtkContent.AppendLine($"              return draft;");
-                rtkContent.AppendLine($"            }});");
-                rtkContent.AppendLine($"          }};");
+                rtkContent.Append(updateFunction);
+                rtkContent.AppendLine("            });");
+                rtkContent.AppendLine("          };");
                 rtkContent.AppendLine();
-                rtkContent.AppendLine($"         {singleTon}.addListener(updateCachedDataWithResults);");
+                rtkContent.AppendLine($"          {singleTon}.addListener(updateCachedDataWithResults);");
                 rtkContent.AppendLine();
-                rtkContent.AppendLine($"        await cacheEntryRemoved;");
-                rtkContent.AppendLine($"        {singleTon}.removeListener(updateCachedDataWithResults);");
-                rtkContent.AppendLine();
-                rtkContent.AppendLine($"        }} catch (error) {{");
-                rtkContent.AppendLine($"          console.error('Error in onCacheEntryAdded:', error);");
-                rtkContent.AppendLine($"        }}");
-                rtkContent.AppendLine();
-
-                rtkContent.AppendLine($"      }}");
-                rtkContent.AppendLine($"    }},");
+                rtkContent.AppendLine("          await cacheEntryRemoved;");
+                rtkContent.AppendLine($"          {singleTon}.removeListener(updateCachedDataWithResults);");
+                rtkContent.AppendLine("        } catch (error) {");
+                rtkContent.AppendLine("          console.error('Error in onCacheEntryAdded:', error);");
+                rtkContent.AppendLine("        }");
+                rtkContent.AppendLine("      }");
+                rtkContent.AppendLine("    // eslint-disable-next-line comma-dangle");
+                rtkContent.AppendLine("    },");
             }
 
             if (anyToWrite)

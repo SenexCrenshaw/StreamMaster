@@ -5,13 +5,13 @@ import { Toast } from 'primereact/toast';
 import { classNames } from 'primereact/utils';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 
-type ChannelHandlerSelectorProps = {
+interface ChannelHandlerSelectorProperties {
   readonly className?: string | null;
   readonly onChange?: ((value: VideoStreamHandlers) => void) | null;
   readonly value?: VideoStreamHandlers | null;
-};
+}
 
-const ChannelHandlerSelector = ({ className: propClassName, onChange, value }: ChannelHandlerSelectorProps) => {
+const ChannelHandlerSelector = ({ className: propertyClassName, onChange, value }: ChannelHandlerSelectorProperties) => {
   const toast = useRef<Toast>(null);
   const [channelHandler, setChannelHandler] = useState<VideoStreamHandlers>(0);
 
@@ -23,7 +23,7 @@ const ChannelHandlerSelector = ({ className: propClassName, onChange, value }: C
     }
   }, [value]);
 
-  const className = classNames('iconSelector p-0 m-0 w-full z-5 ', propClassName);
+  const className = classNames('iconSelector p-0 m-0 w-full z-5 ', propertyClassName);
 
   const onHandlerChange = useCallback(
     async (channel: any) => {
@@ -37,12 +37,10 @@ const ChannelHandlerSelector = ({ className: propClassName, onChange, value }: C
   const getHandlersOptions = (): SelectItem[] => {
     const test = Object.entries(VideoStreamHandlers)
       .splice(0, Object.keys(VideoStreamHandlers).length / 2)
-      .map(([number, word]) => {
-        return {
-          label: word,
-          value: number,
-        } as SelectItem;
-      });
+      .map(([number, word]) => ({
+        label: word,
+        value: number
+      } as SelectItem));
 
     return test;
   };
@@ -59,16 +57,16 @@ const ChannelHandlerSelector = ({ className: propClassName, onChange, value }: C
           options={getHandlersOptions()}
           placeholder="Handler"
           style={{
-            ...{
-              backgroundColor: 'var(--mask-bg)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            },
+
+            backgroundColor: 'var(--mask-bg)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+
           }}
           value={channelHandler.toString()}
           virtualScrollerOptions={{
-            itemSize: 32,
+            itemSize: 32
           }}
         />
       </div>

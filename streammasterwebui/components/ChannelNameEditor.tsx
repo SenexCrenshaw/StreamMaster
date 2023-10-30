@@ -3,7 +3,7 @@ import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI
 import React from 'react';
 import StringEditorBodyTemplate from './StringEditorBodyTemplate';
 
-const ChannelNameEditor = (props: ChannelNameEditorProps) => {
+const ChannelNameEditor = (props: ChannelNameEditorProperties) => {
   const onUpdateM3UStream = React.useCallback(
     async (name: string) => {
       if (props.data.id === '' || !name || name === '' || props.data.user_Tvg_name === name) {
@@ -21,7 +21,7 @@ const ChannelNameEditor = (props: ChannelNameEditorProps) => {
           console.error(error);
         });
     },
-    [props.data.id, props.data.user_Tvg_name],
+    [props.data.id, props.data.user_Tvg_name]
   );
 
   if (props.data.user_Tvg_name === undefined) {
@@ -41,8 +41,8 @@ const ChannelNameEditor = (props: ChannelNameEditorProps) => {
 
 ChannelNameEditor.displayName = 'Channel Number Editor';
 
-export type ChannelNameEditorProps = {
+export interface ChannelNameEditorProperties {
   readonly data: VideoStreamDto;
-};
+}
 
 export default React.memo(ChannelNameEditor);

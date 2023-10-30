@@ -4,19 +4,19 @@ import {
   StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiArg,
   useChannelGroupsGetChannelGroupIdNamesQuery,
   useStreamGroupChannelGroupGetChannelGroupsFromStreamGroupQuery,
-  useStreamGroupChannelGroupSyncStreamGroupChannelGroupsMutation,
+  useStreamGroupChannelGroupSyncStreamGroupChannelGroupsMutation
 } from '@lib/iptvApi';
 import { skipToken } from '@reduxjs/toolkit/query/react';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
 
-type StreamGroupChannelGroupsInputs = {
+interface StreamGroupChannelGroupsInputs {
   readonly className?: string;
   readonly streamGroupId: number | undefined;
-};
+}
 
 const StreamGroupChannelGroupsSelector = ({ className, streamGroupId }: StreamGroupChannelGroupsInputs) => {
   const { data: selectedData } = useStreamGroupChannelGroupGetChannelGroupsFromStreamGroupQuery(
-    streamGroupId === undefined ? skipToken : streamGroupId > 0 ? streamGroupId : skipToken,
+    streamGroupId === undefined ? skipToken : (streamGroupId > 0 ? streamGroupId : skipToken)
   );
   const { data: channelGroups } = useChannelGroupsGetChannelGroupIdNamesQuery();
 
@@ -29,7 +29,7 @@ const StreamGroupChannelGroupsSelector = ({ className, streamGroupId }: StreamGr
         disabled={isLoading}
         filter
         filterInputAutoFocus
-        itemTemplate={(option) => getChannelGroupMenuItem(option.name, option.name + '  |  ' + option.totalCount)}
+        itemTemplate={(option) => getChannelGroupMenuItem(option.name, `${option.name}  |  ${option.totalCount}`)}
         maxSelectedLabels={1}
         onChange={async (e: MultiSelectChangeEvent) => {
           const toSend = {} as StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiArg;

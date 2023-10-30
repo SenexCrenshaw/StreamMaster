@@ -6,7 +6,7 @@
       "@/*": ["./*"],
       "@features/*": ["./features/*"],
       "@components/*": ["./components/*"],
-      "@lib/*": ["./lib/*"],
+      "@lib/*": ["./lib/*"]
     },
     "target": "ESNext",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],

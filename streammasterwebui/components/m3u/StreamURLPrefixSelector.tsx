@@ -5,13 +5,13 @@ import { Toast } from 'primereact/toast';
 import { classNames } from 'primereact/utils';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 
-type StreamURLPrefixSelectorProps = {
+interface StreamURLPrefixSelectorProperties {
   readonly className?: string | null;
   readonly onChange?: ((value: M3UFileStreamUrlPrefix) => void) | null;
   readonly value: M3UFileStreamUrlPrefix | null;
-};
+}
 
-const StreamURLPrefixSelector = ({ className: propClassName, onChange, value }: StreamURLPrefixSelectorProps) => {
+const StreamURLPrefixSelector = ({ className: propertyClassName, onChange, value }: StreamURLPrefixSelectorProperties) => {
   const toast = useRef<Toast>(null);
   const [streamURLPrefix, setStreamURLPrefix] = useState<M3UFileStreamUrlPrefix>(0);
 
@@ -23,7 +23,7 @@ const StreamURLPrefixSelector = ({ className: propClassName, onChange, value }: 
     }
   }, [value]);
 
-  const className = classNames('p-0 m-0 w-full z-5 ', propClassName);
+  const className = classNames('p-0 m-0 w-full z-5 ', propertyClassName);
 
   const onHandlerChange = useCallback(
     async (channel: any) => {
@@ -35,12 +35,23 @@ const StreamURLPrefixSelector = ({ className: propClassName, onChange, value }: 
   );
 
   const getWord = (word: string): string => {
-    if (word === 'SystemDefault') {
-      word = 'Default';
-    } else if (word === 'TS') {
-      word = 'MPEG-TS(.ts)';
-    } else if (word === 'M3U8') {
-      word = 'HLS(.m3u8)';
+    switch (word) {
+      case 'SystemDefault': {
+        word = 'Default';
+
+        break;
+      }
+      case 'TS': {
+        word = 'MPEG-TS(.ts)';
+
+        break;
+      }
+      case 'M3U8': {
+        word = 'HLS(.m3u8)';
+
+        break;
+      }
+    // No default
     }
     return word;
   };
@@ -48,12 +59,10 @@ const StreamURLPrefixSelector = ({ className: propClassName, onChange, value }: 
   const getHandlersOptions = (): SelectItem[] => {
     const test = Object.entries(M3UFileStreamUrlPrefix)
       .splice(0, Object.keys(M3UFileStreamUrlPrefix).length / 2)
-      .map(([number, word]) => {
-        return {
-          label: getWord(word as string),
-          value: number,
-        } as SelectItem;
-      });
+      .map(([number, word]) => ({
+        label: getWord(word as string),
+        value: number
+      } as SelectItem));
 
     return test;
   };
@@ -70,16 +79,16 @@ const StreamURLPrefixSelector = ({ className: propClassName, onChange, value }: 
           options={getHandlersOptions()}
           placeholder="Handler"
           style={{
-            ...{
-              backgroundColor: 'var(--mask-bg)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            },
+
+            backgroundColor: 'var(--mask-bg)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+
           }}
           value={streamURLPrefix.toString()}
           virtualScrollerOptions={{
-            itemSize: 32,
+            itemSize: 32
           }}
         />
       </div>

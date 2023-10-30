@@ -5,10 +5,10 @@ import { Toast } from 'primereact/toast';
 import { memo, useCallback, useMemo, useRef } from 'react';
 import NumberEditorBodyTemplate from '../NumberEditorBodyTemplate';
 import StringEditorBodyTemplate from '../StringEditorBodyTemplate';
-import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 import EPGFileRefreshDialog from './EPGFileRefreshDialog';
 import EPGFileRemoveDialog from './EPGFileRemoveDialog';
+const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
 const EPGFilesDataSelector = () => {
   const toast = useRef<Toast>(null);
@@ -49,25 +49,25 @@ const EPGFilesDataSelector = () => {
         .then(() => {
           if (toast.current) {
             toast.current.show({
-              detail: `EPG File Update Successful`,
+              detail: 'EPG File Update Successful',
               life: 3000,
               severity: 'success',
-              summary: 'Successful',
+              summary: 'Successful'
             });
           }
         })
-        .catch((e) => {
+        .catch((error) => {
           if (toast.current) {
             toast.current.show({
-              detail: `EPG File Update Failed`,
+              detail: 'EPG File Update Failed',
               life: 3000,
               severity: 'error',
-              summary: 'Error ' + e.message,
+              summary: `Error ${error.message}`
             });
           }
         });
     },
-    [epgFilesUpdateEpgFileMutation],
+    [epgFilesUpdateEpgFileMutation]
   );
 
   const lastDownloadedTemplate = useCallback((rowData: EpgFileDto) => {
@@ -85,12 +85,10 @@ const EPGFilesDataSelector = () => {
           <div
             className="p-0 relative"
             style={{
-              ...{
-                backgroundColor: 'var(--mask-bg)',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              },
+              backgroundColor: 'var(--mask-bg)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
             }}
           >
             {rowData.name}
@@ -107,7 +105,7 @@ const EPGFilesDataSelector = () => {
         />
       );
     },
-    [onEPGUpdateClick],
+    [onEPGUpdateClick]
   );
 
   const programmeCountTemplate = useCallback((rowData: EpgFileDto) => {
@@ -153,7 +151,7 @@ const EPGFilesDataSelector = () => {
         </div>
       );
     },
-    [onEPGUpdateClick],
+    [onEPGUpdateClick]
   );
 
   const urlEditorBodyTemplate = useCallback(
@@ -163,12 +161,10 @@ const EPGFilesDataSelector = () => {
           <div
             className="p-0 relative"
             style={{
-              ...{
-                backgroundColor: 'var(--mask-bg)',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              },
+              backgroundColor: 'var(--mask-bg)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
             }}
           >
             {rowData.url}
@@ -186,42 +182,43 @@ const EPGFilesDataSelector = () => {
         />
       );
     },
-    [onEPGUpdateClick],
+    [onEPGUpdateClick]
   );
 
-  const columns = useMemo((): ColumnMeta[] => {
-    return [
+  const columns = useMemo(
+    (): ColumnMeta[] => [
       {
         bodyTemplate: nameEditorBodyTemplate,
         field: 'name',
         filter: true,
         header: 'Name',
         sortable: true,
-        width: '32rem',
+        width: '32rem'
       },
       {
         bodyTemplate: lastDownloadedTemplate,
         field: 'lastDownloaded',
         header: 'Downloaded',
         sortable: true,
-        width: '12rem',
+        width: '12rem'
       },
       {
         bodyTemplate: programmeCountTemplate,
         field: 'programmeCount',
         header: 'Programmes',
         sortable: true,
-        width: '20rem',
+        width: '20rem'
       },
       { bodyTemplate: urlEditorBodyTemplate, field: 'url', sortable: true },
       {
         align: 'center',
         bodyTemplate: targetActionBodyTemplate,
         field: 'autoUpdate',
-        width: '10rem',
-      },
-    ];
-  }, [lastDownloadedTemplate, nameEditorBodyTemplate, programmeCountTemplate, targetActionBodyTemplate, urlEditorBodyTemplate]);
+        width: '10rem'
+      }
+    ],
+    [lastDownloadedTemplate, nameEditorBodyTemplate, programmeCountTemplate, targetActionBodyTemplate, urlEditorBodyTemplate]
+  );
 
   return (
     <>

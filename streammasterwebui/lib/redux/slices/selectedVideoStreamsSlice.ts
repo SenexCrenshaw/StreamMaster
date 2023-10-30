@@ -2,10 +2,10 @@ import { VideoStreamDto } from '@lib/iptvApi';
 import { createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 
-type selectedVideoStreamsSlicePayload = {
+interface selectedVideoStreamsSlicePayload {
   typename: string;
   videoStreamDtos: VideoStreamDto[];
-};
+}
 
 type QueryFilterState = Record<string, VideoStreamDto[]>;
 
@@ -23,8 +23,8 @@ const selectedVideoStreamsSlice = createSlice({
       } else {
         delete state[typename]; // Remove the key if the array is empty
       }
-    },
-  },
+    }
+  }
 });
 
 // Extract the selectedVideoStreams from the state
@@ -36,7 +36,7 @@ const passThrough = (_: any, typename: string) => typename;
 
 export const makeSelectedVideoStreams = createSelector(
   [selectVideoStreamsState, passThrough], // array of input selectors
-  (selectedVideoStreams, typename) => selectedVideoStreams[typename] || [], // resulting selector
+  (selectedVideoStreams, typename) => selectedVideoStreams[typename] || [] // resulting selector
 );
 
 // export const selectedVideoStreams = (state: RootState, typename: number) => state.selectedVideoStreams[typename];

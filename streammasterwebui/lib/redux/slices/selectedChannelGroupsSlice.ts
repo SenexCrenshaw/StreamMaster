@@ -1,12 +1,12 @@
 import { createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import { ChannelGroupDto } from '@lib/iptvApi';
-import { type RootState } from '../../../lib/redux/store';
+import { type RootState } from '../store';
 
-type selectedChannelGroupsSlicePayload = {
+interface selectedChannelGroupsSlicePayload {
   ChannelGroupDtos: ChannelGroupDto[];
   typename: string;
-};
+}
 
 type QueryFilterState = Record<string, ChannelGroupDto[]>;
 
@@ -23,8 +23,8 @@ const selectedChannelGroupsSlice = createSlice({
       } else {
         delete state[typename]; // Remove the key if the array is empty
       }
-    },
-  },
+    }
+  }
 });
 
 // Extract the selectedChannelGroups from the state
@@ -36,7 +36,7 @@ const passThrough = (_: any, typename: string) => typename;
 
 export const makeselectedChannelGroups = createSelector(
   [selectVideoStreamsState, passThrough], // array of input selectors
-  (selectedChannelGroups, typename) => selectedChannelGroups[typename] || [], // resulting selector
+  (selectedChannelGroups, typename) => selectedChannelGroups[typename] || [] // resulting selector
 );
 
 export const { setselectedChannelGroupsInternal } = selectedChannelGroupsSlice.actions;

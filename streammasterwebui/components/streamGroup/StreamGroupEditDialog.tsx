@@ -1,21 +1,21 @@
 import { type StreamGroupDto, type UpdateStreamGroupRequest } from '@lib/iptvApi';
 import { InputText } from 'primereact/inputtext';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 
 import StreamGroupChannelGroupsSelector from '@/features/streamGroupEditor/StreamGroupChannelGroupsSelector';
 import { UpdateStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsMutateAPI';
 import { v4 as uuidv4 } from 'uuid';
+import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import EditButton from '../buttons/EditButton';
 
-type StreamGroupEditDialogProps = {
+interface StreamGroupEditDialogProperties {
   readonly id: string;
   readonly onHide?: (value: StreamGroupDto | undefined) => void;
-};
+}
 
-const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
+const StreamGroupEditDialog = (props: StreamGroupEditDialogProperties) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
@@ -34,13 +34,13 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
   }, [selectedStreamGroup]);
 
   const ReturnToParent = useCallback(
-    (retData?: StreamGroupDto) => {
+    (returnValueData?: StreamGroupDto) => {
       setShowOverlay(false);
       setInfoMessage('');
       setBlock(false);
-      props.onHide?.(retData);
+      props.onHide?.(returnValueData);
     },
-    [props],
+    [props]
   );
 
   const isSaveEnabled = useMemo((): boolean => {
@@ -72,8 +72,8 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
       .then(() => {
         setInfoMessage('Stream Group Edit Successfully');
       })
-      .catch((e) => {
-        setInfoMessage('Stream Group Edit Error: ' + e.message);
+      .catch((error) => {
+        setInfoMessage(`Stream Group Edit Error: ${error.message}`);
       });
   }, [ReturnToParent, isSaveEnabled, name, selectedStreamGroup]);
 
@@ -111,7 +111,8 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProps) => {
         <div className="flex grid justify-content-between align-items-center">
           <div className="flex col-12">
             <label className="col-2 " htmlFor="Name">
-              Name:{' '}
+              Name:
+              {' '}
             </label>
             <div className="col-8 ">
               <InputText autoFocus className="bordered-text-large" id={uuid} onChange={(e) => setName(e.target.value)} type="text" value={name} />

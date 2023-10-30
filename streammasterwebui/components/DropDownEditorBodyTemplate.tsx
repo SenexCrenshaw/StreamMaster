@@ -1,19 +1,25 @@
 import React from 'react';
 
 import { BlockUI } from 'primereact/blockui';
+
 import { Dropdown } from 'primereact/dropdown';
+
 import { useClickOutside } from 'primereact/hooks';
+
 import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
+
 import { classNames } from 'primereact/utils';
+
 import { useDebouncedCallback } from 'use-debounce';
 
-const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
+const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProperties) => {
   const [originalValue, setOriginalValue] = React.useState<string>('');
+
   const [inputValue, setInputValue] = React.useState<string>('');
 
   const [isFocused, setIsFocused] = React.useState<boolean>(false);
 
-  const overlayRef = React.useRef(null);
+  const overlayReference = React.useRef(null);
 
   const className = classNames('iconSelector p-0 m-0 w-full z-5 ', props.className);
 
@@ -26,10 +32,13 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
           props.onChange(value);
         }
       },
-      [originalValue, props],
+
+      [originalValue, props]
     ),
+
     250,
-    {},
+
+    {}
   );
 
   const save = React.useCallback(
@@ -40,16 +49,18 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
 
       debounced.cancel();
 
-      if (forceValueSave !== undefined) {
-        props.onChange(forceValueSave);
-      } else {
+      if (forceValueSave === undefined) {
         props.onChange(inputValue);
+      } else {
+        props.onChange(forceValueSave);
       }
     },
-    [debounced, inputValue, originalValue, props],
+
+    [debounced, inputValue, originalValue, props]
   );
 
   // Keyboard Enter
+
   React.useEffect(() => {
     const callback = (event: KeyboardEvent) => {
       if (!isFocused) {
@@ -68,7 +79,7 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
     };
   }, [isFocused, save]);
 
-  useClickOutside(overlayRef, () => {
+  useClickOutside(overlayReference, () => {
     if (!isFocused) {
       return;
     }
@@ -83,13 +94,14 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
   React.useEffect(() => {
     if (props.value !== null && props.value !== undefined) {
       setInputValue(props.value);
+
       setOriginalValue(props.value);
     }
   }, [props.value, setInputValue]);
 
   return (
     <BlockUI blocked={props.isLoading}>
-      <div ref={overlayRef}>
+      <div ref={overlayReference}>
         <Dropdown
           className={className}
           disabled={props.disabled}
@@ -98,24 +110,26 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
           filterBy={props.filterBy ? props.filterBy : 'channelName'}
           onChange={(e) => {
             setInputValue(e.target.value as string);
+
             debounced(e.target.value as string);
           }}
           onFocus={() => setIsFocused(true)}
           options={props.data}
           placeholder="No EPG"
           style={{
-            ...{
-              backgroundColor: 'var(--mask-bg)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            },
+            backgroundColor: 'var(--mask-bg)',
+
+            overflow: 'hidden',
+
+            textOverflow: 'ellipsis',
+
+            whiteSpace: 'nowrap'
           }}
           tooltip={props.tooltip}
           tooltipOptions={props.tooltipOptions}
           value={inputValue}
           virtualScrollerOptions={{
-            itemSize: 32,
+            itemSize: 32
           }}
         />
       </div>
@@ -125,17 +139,26 @@ const DropDownEditorBodyTemplate = (props: DropDownEditorBodyTemplateProps) => {
 
 DropDownEditorBodyTemplate.displayName = 'DropDownEditorBodyTemplate';
 
-type DropDownEditorBodyTemplateProps = {
+interface DropDownEditorBodyTemplateProperties {
   readonly className?: string;
+
   readonly data: string[];
+
   readonly disabled?: boolean;
+
   readonly editable?: boolean | undefined;
+
   readonly filterBy?: string;
+
   readonly isLoading?: boolean;
+
   readonly onChange: (value: string) => void;
+
   readonly tooltip?: string;
+
   readonly tooltipOptions?: TooltipOptions;
+
   readonly value: string;
-};
+}
 
 export default React.memo(DropDownEditorBodyTemplate);

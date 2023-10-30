@@ -1,17 +1,18 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
-type SetSortInfoPayload = {
+
+interface SetSortInfoPayload {
   sortField?: string;
   sortOrder?: -1 | 0 | 1;
   typename: string;
-};
+}
 
 type SortInfoState = Record<string, { orderBy: string; sortField: string; sortOrder: -1 | 0 | 1 }>;
 
 const defaultSortInfo = {
   orderBy: 'id asc',
   sortField: 'id',
-  sortOrder: 1 as -1 | 0 | 1,
+  sortOrder: 1 as -1 | 0 | 1
 };
 const initialState: SortInfoState = {};
 
@@ -39,14 +40,12 @@ function updateOrderBy(existingOrderBy: string, orderBy: string): string {
       return entry;
     });
     return updatedOrderByArray.join(', ');
-  } else {
-    // If the field doesn't exist, add it to the existingOrderBy string
-    if (existingOrderBy) {
-      return `${existingOrderBy}, ${orderBy}`;
-    } else {
-      return orderBy;
-    }
   }
+  // If the field doesn't exist, add it to the existingOrderBy string
+  if (existingOrderBy) {
+    return `${existingOrderBy}, ${orderBy}`;
+  }
+  return orderBy;
 }
 
 const sortInfoSlice = createSlice({
@@ -70,17 +69,17 @@ const sortInfoSlice = createSlice({
 
       if (state[typename].sortField && state[typename].sortOrder) {
         const newValue = state[typename].sortField
-          ? state[typename].sortOrder === -1
+          ? (state[typename].sortOrder === -1
             ? `${state[typename].sortField} desc`
-            : `${state[typename].sortField} asc`
+            : `${state[typename].sortField} asc`)
           : '';
 
         // const res = updateOrderBy(state[typename].orderBy, newValue);
         // console.log('res', res);
         state[typename].orderBy = newValue;
       }
-    },
-  },
+    }
+  }
 });
 
 export const sortInfo = (state: RootState, typename: string) => state.sortInfo[typename];

@@ -2,17 +2,17 @@ import RightArrowButton from '@components/buttons/RightArrowButton';
 import {
   StreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostApiArg,
   VideoStreamDto,
-  useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostMutation,
+  useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostMutation
 } from '@lib/iptvApi';
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 import { memo } from 'react';
 
-type VideoStreamAddToStreamGroupDialogProps = {
+interface VideoStreamAddToStreamGroupDialogProperties {
   readonly id: string;
   readonly value?: VideoStreamDto | undefined;
-};
+}
 
-const VideoStreamAddToStreamGroupDialog = ({ id, value }: VideoStreamAddToStreamGroupDialogProps) => {
+const VideoStreamAddToStreamGroupDialog = ({ id, value }: VideoStreamAddToStreamGroupDialogProperties) => {
   const [streamGroupVideoStreamsAddVideoStreamToStreamGroupMutation] = useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostMutation();
   const { selectedStreamGroup } = useSelectedStreamGroup(id);
 
@@ -29,7 +29,7 @@ const VideoStreamAddToStreamGroupDialog = ({ id, value }: VideoStreamAddToStream
     await streamGroupVideoStreamsAddVideoStreamToStreamGroupMutation(toSend)
       .then(() => {})
       .catch((error) => {
-        console.error('Add Stream Error: ' + error.message);
+        console.error(`Add Stream Error: ${error.message}`);
       });
   };
 

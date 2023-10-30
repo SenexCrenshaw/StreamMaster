@@ -9,11 +9,11 @@ import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import ClockButton from '../buttons/ClockButton';
 import NumberInput from '../inputs/NumberInput';
 
-type VideoStreamSetTimeShiftsDialogProps = {
+interface VideoStreamSetTimeShiftsDialogProperties {
   readonly id: string;
-};
+}
 
-const VideoStreamSetTimeShiftsDialog = ({ id }: VideoStreamSetTimeShiftsDialogProps) => {
+const VideoStreamSetTimeShiftsDialog = ({ id }: VideoStreamSetTimeShiftsDialogProperties) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [block, setBlock] = useState<boolean>(false);
@@ -50,7 +50,7 @@ const VideoStreamSetTimeShiftsDialog = ({ id }: VideoStreamSetTimeShiftsDialogPr
           setInfoMessage('Set Streams Successfully');
         })
         .catch((error) => {
-          setInfoMessage('Set Streams Error: ' + error.message);
+          setInfoMessage(`Set Streams Error: ${error.message}`);
         });
 
       return;
@@ -69,17 +69,13 @@ const VideoStreamSetTimeShiftsDialog = ({ id }: VideoStreamSetTimeShiftsDialogPr
     const promises = [];
 
     while (count < ids.length) {
-      if (count + max < ids.length) {
-        toSend.ids = ids.slice(count, count + max);
-      } else {
-        toSend.ids = ids.slice(count, ids.length);
-      }
+      toSend.ids = count + max < ids.length ? ids.slice(count, count + max) : ids.slice(count, ids.length);
 
       count += max;
       promises.push(
         SetVideoStreamTimeShifts(toSend)
           .then(() => {})
-          .catch(() => {}),
+          .catch(() => {})
       );
     }
 
@@ -90,13 +86,11 @@ const VideoStreamSetTimeShiftsDialog = ({ id }: VideoStreamSetTimeShiftsDialogPr
         setInfoMessage('Successful');
       })
       .catch((error) => {
-        setInfoMessage('Error: ' + error.message);
+        setInfoMessage(`Error: ${error.message}`);
       });
   };
 
-  const getTotalCount = () => {
-    return selectedVideoStreams.length;
-  };
+  const getTotalCount = () => selectedVideoStreams.length;
 
   return (
     <>

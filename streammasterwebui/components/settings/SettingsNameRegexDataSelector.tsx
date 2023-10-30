@@ -1,26 +1,25 @@
 import React, { type CSSProperties } from 'react';
-
-import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 import SettingsNameRegexAddDialog from './SettingsNameRegexAddDialog';
 import SettingsNameRegexDeleteDialog from './SettingsNameRegexDeleteDialog';
-type RankedString = {
+
+const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+
+interface RankedString {
   rank: number;
   value: string;
-};
+}
 
-const SettingsNameRegexDataSelector = (props: SettingsNameRegexDataSelectorProps) => {
+const SettingsNameRegexDataSelector = (props: SettingsNameRegexDataSelectorProperties) => {
   const dataSource = React.useMemo((): RankedString[] => {
     if (!props.data) {
       return [];
     }
 
-    return props.data.map((value, index) => {
-      return {
-        rank: index,
-        value: value,
-      };
-    });
+    return props.data.map((value, index) => ({
+      rank: index,
+      value
+    }));
   }, [props.data]);
 
   const sourceActionBodyTemplate = React.useCallback(
@@ -29,18 +28,18 @@ const SettingsNameRegexDataSelector = (props: SettingsNameRegexDataSelectorProps
         <SettingsNameRegexDeleteDialog value={data.value} values={dataSource.map((a) => a.value)} />
       </div>
     ),
-    [dataSource],
+    [dataSource]
   );
 
-  const sourceColumns = React.useMemo((): ColumnMeta[] => {
-    return [
+  const sourceColumns = React.useMemo(
+    (): ColumnMeta[] => [
       {
         field: 'rank',
         header: 'Rank',
         style: {
           maxWidth: '8rem',
-          width: '8rem',
-        } as React.CSSProperties,
+          width: '8rem'
+        } as React.CSSProperties
       },
       { field: 'value', header: 'Value' },
       {
@@ -51,11 +50,12 @@ const SettingsNameRegexDataSelector = (props: SettingsNameRegexDataSelectorProps
         header: 'Actions',
         style: {
           maxWidth: '8rem',
-          width: '8rem',
-        } as CSSProperties,
-      },
-    ];
-  }, [sourceActionBodyTemplate]);
+          width: '8rem'
+        } as CSSProperties
+      }
+    ],
+    [sourceActionBodyTemplate]
+  );
 
   return (
     <div className="m3uFilesEditor flex flex-column col-12 flex-shrink-0 ">
@@ -83,8 +83,8 @@ const SettingsNameRegexDataSelector = (props: SettingsNameRegexDataSelectorProps
 
 SettingsNameRegexDataSelector.displayName = 'SettingsNameRegexDataSelector';
 
-type SettingsNameRegexDataSelectorProps = {
+interface SettingsNameRegexDataSelectorProperties {
   readonly data: string[] | undefined;
-};
+}
 
 export default React.memo(SettingsNameRegexDataSelector);

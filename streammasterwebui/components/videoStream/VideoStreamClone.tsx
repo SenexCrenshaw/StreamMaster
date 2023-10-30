@@ -5,11 +5,11 @@ import { classNames } from 'primereact/utils';
 
 import { memo } from 'react';
 
-const VideoStreamClone = (props: VideoStreamCloneProps) => {
-  const disabled = props.disabled;
+const VideoStreamClone = (props: VideoStreamCloneProperties) => {
+  const { disabled } = props;
 
   const className = classNames('text-base text-color', props.className, {
-    'p-disabled': disabled,
+    'p-disabled': disabled
   });
 
   const ReturnToParent = () => {
@@ -43,12 +43,12 @@ VideoStreamClone.displayName = 'Clone Channel';
 
 //   visible: true,
 // };
-type VideoStreamCloneProps = {
+interface VideoStreamCloneProperties {
   readonly VideoStream: VideoStreamDto | undefined;
   readonly className?: string | null;
   readonly disabled?: boolean;
   readonly onClose: () => void;
   readonly visible?: boolean;
-};
+}
 
 export default memo(VideoStreamClone);

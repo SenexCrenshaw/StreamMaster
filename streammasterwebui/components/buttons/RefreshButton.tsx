@@ -1,20 +1,18 @@
-import { type ChildButtonProps } from './BaseButton'
-import BaseButton from './BaseButton'
+import { type ChildButtonProps as ChildButtonProperties } from './BaseButton';
+import BaseButton from './BaseButton';
 
-const RefreshButton: React.FC<ChildButtonProps> = ({
+const RefreshButton: React.FC<ChildButtonProperties> = ({
   disabled = false,
   onClick,
-  tooltip = '',
-}) => {
-  return (
-    <BaseButton
-      disabled={disabled}
-      icon="pi-sync"
-      iconFilled={false}
-      onClick={onClick}
-      tooltip={tooltip}
-    />
-  )
-}
+  tooltip = ''
+}) => (
+  <BaseButton
+    disabled={disabled}
+    icon="pi-sync"
+    iconFilled={false}
+    onClick={onClick}
+    tooltip={tooltip}
+  />
+);
 
-export default RefreshButton
+export default RefreshButton;

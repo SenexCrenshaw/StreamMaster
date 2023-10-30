@@ -1,9 +1,7 @@
-import BaseButton, { type ChildButtonProps } from './BaseButton';
+import BaseButton, { type ChildButtonProps as ChildButtonProperties } from './BaseButton';
 
-const DownArrowButton: React.FC<ChildButtonProps> = ({ className, disabled = false, onClick, tooltip = 'Add Additional Channels' }) => {
-  return (
-    <BaseButton className={className} disabled={disabled} icon="pi-chevron-down" iconFilled={false} onClick={onClick} severity="success" tooltip={tooltip} />
-  );
-};
+const DownArrowButton: React.FC<ChildButtonProperties> = ({ className, disabled = false, onClick, tooltip = 'Add Additional Channels' }) => (
+  <BaseButton className={className} disabled={disabled} icon="pi-chevron-down" iconFilled={false} onClick={onClick} severity="success" tooltip={tooltip} />
+);
 
 export default DownArrowButton;

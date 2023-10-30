@@ -1,14 +1,14 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import { RootState } from '../store'
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { RootState } from '../store';
 
-type SetShowHiddenPayload = {
+interface SetShowHiddenPayload {
   hidden: boolean | null | undefined
   typename: string
 }
 
 type ShowHiddenState = Record<string, boolean | null | undefined>
 
-const initialState: ShowHiddenState = {}
+const initialState: ShowHiddenState = {};
 
 const showHiddenSlice = createSlice({
   initialState,
@@ -16,16 +16,15 @@ const showHiddenSlice = createSlice({
   reducers: {
     setShowHiddenInternal: (
       state,
-      action: PayloadAction<SetShowHiddenPayload>,
+      action: PayloadAction<SetShowHiddenPayload>
     ) => {
-      const { typename, hidden } = action.payload
+      const { typename, hidden } = action.payload;
 
-      state[typename] = hidden
-    },
-  },
-})
+      state[typename] = hidden;
+    }
+  }
+});
 
-export const showHidden = (state: RootState, typename: string) =>
-  state.showHidden[typename]
-export const { setShowHiddenInternal } = showHiddenSlice.actions
-export default showHiddenSlice.reducer
+export const showHidden = (state: RootState, typename: string) => state.showHidden[typename];
+export const { setShowHiddenInternal } = showHiddenSlice.actions;
+export default showHiddenSlice.reducer;

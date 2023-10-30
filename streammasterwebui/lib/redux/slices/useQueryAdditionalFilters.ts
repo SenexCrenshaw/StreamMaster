@@ -1,23 +1,23 @@
-import { useDispatch, useSelector } from 'react-redux'
-import { type AppDispatch, type RootState } from '../../../lib/redux/store'
-import { type AdditionalFilterProps } from '../../common/common'
-import { setQueryAdditionalFilter as setQueryAdditionalFilterInternal } from './queryAdditionalFiltersSlice'
+import { useDispatch, useSelector } from 'react-redux';
+import { type AppDispatch, type RootState } from '../store';
+import { type AdditionalFilterProps as AdditionalFilterProperties } from '../../common/common';
+import { setQueryAdditionalFilter as setQueryAdditionalFilterInternal } from './queryAdditionalFiltersSlice';
 
 export const useQueryAdditionalFilters = (typename: string) => {
-  const dispatch: AppDispatch = useDispatch()
+  const dispatch: AppDispatch = useDispatch();
 
-  const setQueryAdditionalFilter = (newFilter: AdditionalFilterProps) => {
+  const setQueryAdditionalFilter = (newFilter: AdditionalFilterProperties) => {
     dispatch(
       setQueryAdditionalFilterInternal({
         filter: newFilter,
-        typename,
-      }),
-    )
-  }
+        typename
+      })
+    );
+  };
 
   const queryAdditionalFilter = useSelector(
-    (rootState: RootState) => rootState.queryAdditionalFilters[typename],
-  )
+    (rootState: RootState) => rootState.queryAdditionalFilters[typename]
+  );
 
-  return { queryAdditionalFilter, setQueryAdditionalFilter }
-}
+  return { queryAdditionalFilter, setQueryAdditionalFilter };
+};

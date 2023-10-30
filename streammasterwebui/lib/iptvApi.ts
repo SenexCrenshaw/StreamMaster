@@ -14,36 +14,36 @@ export const addTagTypes = [
   'StreamGroups',
   'StreamGroupVideoStreams',
   'VideoStreamLinks',
-  'VideoStreams',
+  'VideoStreams'
 ] as const;
 const injectedRtkApi = api
   .enhanceEndpoints({
-    addTagTypes,
+    addTagTypes
   })
   .injectEndpoints({
     endpoints: (build) => ({
       channelGroupsCreateChannelGroup: build.mutation<ChannelGroupsCreateChannelGroupApiResponse, ChannelGroupsCreateChannelGroupApiArg>({
         query: (queryArg) => ({ url: `/api/channelgroups`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['ChannelGroups'],
+        invalidatesTags: ['ChannelGroups']
       }),
       channelGroupsDeleteAllChannelGroupsFromParameters: build.mutation<
         ChannelGroupsDeleteAllChannelGroupsFromParametersApiResponse,
         ChannelGroupsDeleteAllChannelGroupsFromParametersApiArg
       >({
         query: (queryArg) => ({ url: `/api/channelgroups/deleteallchannelgroupsfromparameters`, method: 'DELETE', body: queryArg }),
-        invalidatesTags: ['ChannelGroups'],
+        invalidatesTags: ['ChannelGroups']
       }),
       channelGroupsDeleteChannelGroup: build.mutation<ChannelGroupsDeleteChannelGroupApiResponse, ChannelGroupsDeleteChannelGroupApiArg>({
         query: (queryArg) => ({ url: `/api/channelgroups/deletechannelgroup`, method: 'DELETE', body: queryArg }),
-        invalidatesTags: ['ChannelGroups'],
+        invalidatesTags: ['ChannelGroups']
       }),
       channelGroupsGetChannelGroup: build.query<ChannelGroupsGetChannelGroupApiResponse, ChannelGroupsGetChannelGroupApiArg>({
         query: (queryArg) => ({ url: `/api/channelgroups/${queryArg}` }),
-        providesTags: ['ChannelGroups'],
+        providesTags: ['ChannelGroups']
       }),
       channelGroupsGetChannelGroupIdNames: build.query<ChannelGroupsGetChannelGroupIdNamesApiResponse, ChannelGroupsGetChannelGroupIdNamesApiArg>({
         query: () => ({ url: `/api/channelgroups/getchannelgroupidnames` }),
-        providesTags: ['ChannelGroups'],
+        providesTags: ['ChannelGroups']
       }),
       channelGroupsGetPagedChannelGroups: build.query<ChannelGroupsGetPagedChannelGroupsApiResponse, ChannelGroupsGetPagedChannelGroupsApiArg>({
         query: (queryArg) => ({
@@ -53,45 +53,45 @@ const injectedRtkApi = api
             PageSize: queryArg.pageSize,
             OrderBy: queryArg.orderBy,
             JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString,
-          },
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
         }),
-        providesTags: ['ChannelGroups'],
+        providesTags: ['ChannelGroups']
       }),
       channelGroupsUpdateChannelGroup: build.mutation<ChannelGroupsUpdateChannelGroupApiResponse, ChannelGroupsUpdateChannelGroupApiArg>({
         query: (queryArg) => ({ url: `/api/channelgroups/updatechannelgroup`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['ChannelGroups'],
+        invalidatesTags: ['ChannelGroups']
       }),
       channelGroupsUpdateChannelGroups: build.mutation<ChannelGroupsUpdateChannelGroupsApiResponse, ChannelGroupsUpdateChannelGroupsApiArg>({
         query: (queryArg) => ({ url: `/api/channelgroups/updatechannelgroups`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['ChannelGroups'],
+        invalidatesTags: ['ChannelGroups']
       }),
       channelGroupsGetChannelGroupNames: build.query<ChannelGroupsGetChannelGroupNamesApiResponse, ChannelGroupsGetChannelGroupNamesApiArg>({
         query: () => ({ url: `/api/channelgroups/getchannelgroupnames` }),
-        providesTags: ['ChannelGroups'],
+        providesTags: ['ChannelGroups']
       }),
       channelGroupsGetChannelGroupsForStreamGroup: build.query<
         ChannelGroupsGetChannelGroupsForStreamGroupApiResponse,
         ChannelGroupsGetChannelGroupsForStreamGroupApiArg
       >({
         query: (queryArg) => ({ url: `/api/channelgroups/getchannelgroupsforstreamgroup`, body: queryArg }),
-        providesTags: ['ChannelGroups'],
+        providesTags: ['ChannelGroups']
       }),
       epgFilesCreateEpgFile: build.mutation<EpgFilesCreateEpgFileApiResponse, EpgFilesCreateEpgFileApiArg>({
         query: (queryArg) => ({ url: `/api/epgfiles/createepgfile`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['EPGFiles'],
+        invalidatesTags: ['EPGFiles']
       }),
       epgFilesCreateEpgFileFromForm: build.mutation<EpgFilesCreateEpgFileFromFormApiResponse, EpgFilesCreateEpgFileFromFormApiArg>({
         query: (queryArg) => ({ url: `/api/epgfiles/createepgfilefromform`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['EPGFiles'],
+        invalidatesTags: ['EPGFiles']
       }),
       epgFilesDeleteEpgFile: build.mutation<EpgFilesDeleteEpgFileApiResponse, EpgFilesDeleteEpgFileApiArg>({
         query: (queryArg) => ({ url: `/api/epgfiles/deleteepgfile`, method: 'DELETE', body: queryArg }),
-        invalidatesTags: ['EPGFiles'],
+        invalidatesTags: ['EPGFiles']
       }),
       epgFilesGetEpgFile: build.query<EpgFilesGetEpgFileApiResponse, EpgFilesGetEpgFileApiArg>({
         query: (queryArg) => ({ url: `/api/epgfiles/${queryArg}` }),
-        providesTags: ['EPGFiles'],
+        providesTags: ['EPGFiles']
       }),
       epgFilesGetPagedEpgFiles: build.query<EpgFilesGetPagedEpgFilesApiResponse, EpgFilesGetPagedEpgFilesApiArg>({
         query: (queryArg) => ({
@@ -101,42 +101,42 @@ const injectedRtkApi = api
             PageSize: queryArg.pageSize,
             OrderBy: queryArg.orderBy,
             JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString,
-          },
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
         }),
-        providesTags: ['EPGFiles'],
+        providesTags: ['EPGFiles']
       }),
       epgFilesProcessEpgFile: build.mutation<EpgFilesProcessEpgFileApiResponse, EpgFilesProcessEpgFileApiArg>({
         query: (queryArg) => ({ url: `/api/epgfiles/processepgfile`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['EPGFiles'],
+        invalidatesTags: ['EPGFiles']
       }),
       epgFilesRefreshEpgFile: build.mutation<EpgFilesRefreshEpgFileApiResponse, EpgFilesRefreshEpgFileApiArg>({
         query: (queryArg) => ({ url: `/api/epgfiles/refreshepgfile`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['EPGFiles'],
+        invalidatesTags: ['EPGFiles']
       }),
       epgFilesScanDirectoryForEpgFiles: build.mutation<EpgFilesScanDirectoryForEpgFilesApiResponse, EpgFilesScanDirectoryForEpgFilesApiArg>({
         query: () => ({ url: `/api/epgfiles/scandirectoryforepgfiles`, method: 'PATCH' }),
-        invalidatesTags: ['EPGFiles'],
+        invalidatesTags: ['EPGFiles']
       }),
       epgFilesUpdateEpgFile: build.mutation<EpgFilesUpdateEpgFileApiResponse, EpgFilesUpdateEpgFileApiArg>({
         query: (queryArg) => ({ url: `/api/epgfiles/updateepgfile`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['EPGFiles'],
+        invalidatesTags: ['EPGFiles']
       }),
       filesGetFile: build.query<FilesGetFileApiResponse, FilesGetFileApiArg>({
         query: (queryArg) => ({ url: `/api/files/${queryArg.filetype}/${queryArg.source}` }),
-        providesTags: ['Files'],
+        providesTags: ['Files']
       }),
       iconsAutoMatchIconToStreams: build.mutation<IconsAutoMatchIconToStreamsApiResponse, IconsAutoMatchIconToStreamsApiArg>({
         query: (queryArg) => ({ url: `/api/icons/automatchicontostreams`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['Icons'],
+        invalidatesTags: ['Icons']
       }),
       iconsGetIcon: build.query<IconsGetIconApiResponse, IconsGetIconApiArg>({
         query: (queryArg) => ({ url: `/api/icons/geticon/${queryArg}` }),
-        providesTags: ['Icons'],
+        providesTags: ['Icons']
       }),
       iconsGetIconFromSource: build.query<IconsGetIconFromSourceApiResponse, IconsGetIconFromSourceApiArg>({
         query: (queryArg) => ({ url: `/api/icons/geticonfromsource`, params: { value: queryArg } }),
-        providesTags: ['Icons'],
+        providesTags: ['Icons']
       }),
       iconsGetPagedIcons: build.query<IconsGetPagedIconsApiResponse, IconsGetPagedIconsApiArg>({
         query: (queryArg) => ({
@@ -149,10 +149,10 @@ const injectedRtkApi = api
             PageSize: queryArg.pageSize,
             OrderBy: queryArg.orderBy,
             JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString,
-          },
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
         }),
-        providesTags: ['Icons'],
+        providesTags: ['Icons']
       }),
       iconsGetIconsSimpleQuery: build.query<IconsGetIconsSimpleQueryApiResponse, IconsGetIconsSimpleQueryApiArg>({
         query: (queryArg) => ({
@@ -165,34 +165,34 @@ const injectedRtkApi = api
             PageSize: queryArg.pageSize,
             OrderBy: queryArg.orderBy,
             JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString,
-          },
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
         }),
-        providesTags: ['Icons'],
+        providesTags: ['Icons']
       }),
       logsGetLog: build.query<LogsGetLogApiResponse, LogsGetLogApiArg>({
         query: (queryArg) => ({ url: `/api/logs/getlog`, params: { LastId: queryArg.lastId, MaxLines: queryArg.maxLines } }),
-        providesTags: ['Logs'],
+        providesTags: ['Logs']
       }),
       m3UFilesCreateM3UFile: build.mutation<M3UFilesCreateM3UFileApiResponse, M3UFilesCreateM3UFileApiArg>({
         query: (queryArg) => ({ url: `/api/m3ufiles/createm3ufile`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['M3UFiles'],
+        invalidatesTags: ['M3UFiles']
       }),
       m3UFilesCreateM3UFileFromForm: build.mutation<M3UFilesCreateM3UFileFromFormApiResponse, M3UFilesCreateM3UFileFromFormApiArg>({
         query: (queryArg) => ({ url: `/api/m3ufiles/createm3ufilefromform`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['M3UFiles'],
+        invalidatesTags: ['M3UFiles']
       }),
       m3UFilesChangeM3UFileName: build.mutation<M3UFilesChangeM3UFileNameApiResponse, M3UFilesChangeM3UFileNameApiArg>({
         query: (queryArg) => ({ url: `/api/m3ufiles/changem3ufilename`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['M3UFiles'],
+        invalidatesTags: ['M3UFiles']
       }),
       m3UFilesDeleteM3UFile: build.mutation<M3UFilesDeleteM3UFileApiResponse, M3UFilesDeleteM3UFileApiArg>({
         query: (queryArg) => ({ url: `/api/m3ufiles/deletem3ufile`, method: 'DELETE', body: queryArg }),
-        invalidatesTags: ['M3UFiles'],
+        invalidatesTags: ['M3UFiles']
       }),
       m3UFilesGetM3UFile: build.query<M3UFilesGetM3UFileApiResponse, M3UFilesGetM3UFileApiArg>({
         query: (queryArg) => ({ url: `/api/m3ufiles/${queryArg}` }),
-        providesTags: ['M3UFiles'],
+        providesTags: ['M3UFiles']
       }),
       m3UFilesGetPagedM3UFiles: build.query<M3UFilesGetPagedM3UFilesApiResponse, M3UFilesGetPagedM3UFilesApiArg>({
         query: (queryArg) => ({
@@ -202,46 +202,46 @@ const injectedRtkApi = api
             PageSize: queryArg.pageSize,
             OrderBy: queryArg.orderBy,
             JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString,
-          },
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
         }),
-        providesTags: ['M3UFiles'],
+        providesTags: ['M3UFiles']
       }),
       m3UFilesProcessM3UFile: build.mutation<M3UFilesProcessM3UFileApiResponse, M3UFilesProcessM3UFileApiArg>({
         query: (queryArg) => ({ url: `/api/m3ufiles/processm3ufile`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['M3UFiles'],
+        invalidatesTags: ['M3UFiles']
       }),
       m3UFilesRefreshM3UFile: build.mutation<M3UFilesRefreshM3UFileApiResponse, M3UFilesRefreshM3UFileApiArg>({
         query: (queryArg) => ({ url: `/api/m3ufiles/refreshm3ufile`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['M3UFiles'],
+        invalidatesTags: ['M3UFiles']
       }),
       m3UFilesScanDirectoryForM3UFiles: build.mutation<M3UFilesScanDirectoryForM3UFilesApiResponse, M3UFilesScanDirectoryForM3UFilesApiArg>({
         query: () => ({ url: `/api/m3ufiles/scandirectoryform3ufiles`, method: 'PATCH' }),
-        invalidatesTags: ['M3UFiles'],
+        invalidatesTags: ['M3UFiles']
       }),
       m3UFilesUpdateM3UFile: build.mutation<M3UFilesUpdateM3UFileApiResponse, M3UFilesUpdateM3UFileApiArg>({
         query: (queryArg) => ({ url: `/api/m3ufiles/updatem3ufile`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['M3UFiles'],
+        invalidatesTags: ['M3UFiles']
       }),
       m3UFilesGetM3UFileNames: build.query<M3UFilesGetM3UFileNamesApiResponse, M3UFilesGetM3UFileNamesApiArg>({
         query: () => ({ url: `/api/m3ufiles/getm3ufilenames` }),
-        providesTags: ['M3UFiles'],
+        providesTags: ['M3UFiles']
       }),
       miscBuildIconsCacheFromVideoStreams: build.mutation<MiscBuildIconsCacheFromVideoStreamsApiResponse, MiscBuildIconsCacheFromVideoStreamsApiArg>({
         query: () => ({ url: `/api/misc/buildiconscachefromvideostreams`, method: 'PATCH' }),
-        invalidatesTags: ['Misc'],
+        invalidatesTags: ['Misc']
       }),
       miscBuildProgIconsCacheFromEpGsRequest: build.mutation<MiscBuildProgIconsCacheFromEpGsRequestApiResponse, MiscBuildProgIconsCacheFromEpGsRequestApiArg>({
         query: () => ({ url: `/api/misc/buildprogiconscachefromepgsrequest`, method: 'PATCH' }),
-        invalidatesTags: ['Misc'],
+        invalidatesTags: ['Misc']
       }),
       programmesGetProgramme: build.query<ProgrammesGetProgrammeApiResponse, ProgrammesGetProgrammeApiArg>({
         query: (queryArg) => ({ url: `/api/programmes/getprogramme/${queryArg}` }),
-        providesTags: ['Programmes'],
+        providesTags: ['Programmes']
       }),
       programmesGetProgrammeChannels: build.query<ProgrammesGetProgrammeChannelsApiResponse, ProgrammesGetProgrammeChannelsApiArg>({
         query: () => ({ url: `/api/programmes/getprogrammechannels` }),
-        providesTags: ['Programmes'],
+        providesTags: ['Programmes']
       }),
       programmesGetPagedProgrammeNameSelections: build.query<
         ProgrammesGetPagedProgrammeNameSelectionsApiResponse,
@@ -257,18 +257,18 @@ const injectedRtkApi = api
             PageSize: queryArg.pageSize,
             OrderBy: queryArg.orderBy,
             JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString,
-          },
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
         }),
-        providesTags: ['Programmes'],
+        providesTags: ['Programmes']
       }),
       programmesGetProgrammes: build.query<ProgrammesGetProgrammesApiResponse, ProgrammesGetProgrammesApiArg>({
         query: () => ({ url: `/api/programmes/getprogrammes` }),
-        providesTags: ['Programmes'],
+        providesTags: ['Programmes']
       }),
       programmesGetProgrammeNames: build.query<ProgrammesGetProgrammeNamesApiResponse, ProgrammesGetProgrammeNamesApiArg>({
         query: () => ({ url: `/api/programmes/getprogrammenames` }),
-        providesTags: ['Programmes'],
+        providesTags: ['Programmes']
       }),
       programmesGetProgrammsSimpleQuery: build.query<ProgrammesGetProgrammsSimpleQueryApiResponse, ProgrammesGetProgrammsSimpleQueryApiArg>({
         query: (queryArg) => ({
@@ -281,148 +281,148 @@ const injectedRtkApi = api
             PageSize: queryArg.pageSize,
             OrderBy: queryArg.orderBy,
             JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString,
-          },
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
         }),
-        providesTags: ['Programmes'],
+        providesTags: ['Programmes']
       }),
       programmesGetProgrammeFromDisplayName: build.query<ProgrammesGetProgrammeFromDisplayNameApiResponse, ProgrammesGetProgrammeFromDisplayNameApiArg>({
         query: (queryArg) => ({ url: `/api/programmes/getprogrammefromdisplayname`, body: queryArg }),
-        providesTags: ['Programmes'],
+        providesTags: ['Programmes']
       }),
       schedulesDirectGetCountries: build.query<SchedulesDirectGetCountriesApiResponse, SchedulesDirectGetCountriesApiArg>({
         query: () => ({ url: `/api/schedulesdirect/getcountries` }),
-        providesTags: ['SchedulesDirect'],
+        providesTags: ['SchedulesDirect']
       }),
       schedulesDirectGetHeadends: build.query<SchedulesDirectGetHeadendsApiResponse, SchedulesDirectGetHeadendsApiArg>({
         query: (queryArg) => ({ url: `/api/schedulesdirect/getheadends`, params: { country: queryArg.country, postalCode: queryArg.postalCode } }),
-        providesTags: ['SchedulesDirect'],
+        providesTags: ['SchedulesDirect']
       }),
       schedulesDirectGetLineup: build.query<SchedulesDirectGetLineupApiResponse, SchedulesDirectGetLineupApiArg>({
         query: (queryArg) => ({ url: `/api/schedulesdirect/getlineup`, params: { lineup: queryArg } }),
-        providesTags: ['SchedulesDirect'],
+        providesTags: ['SchedulesDirect']
       }),
       schedulesDirectGetLineupPreviews: build.query<SchedulesDirectGetLineupPreviewsApiResponse, SchedulesDirectGetLineupPreviewsApiArg>({
         query: () => ({ url: `/api/schedulesdirect/getlineuppreviews` }),
-        providesTags: ['SchedulesDirect'],
+        providesTags: ['SchedulesDirect']
       }),
       schedulesDirectGetLineups: build.query<SchedulesDirectGetLineupsApiResponse, SchedulesDirectGetLineupsApiArg>({
         query: () => ({ url: `/api/schedulesdirect/getlineups` }),
-        providesTags: ['SchedulesDirect'],
+        providesTags: ['SchedulesDirect']
       }),
       schedulesDirectGetSdPrograms: build.query<SchedulesDirectGetSdProgramsApiResponse, SchedulesDirectGetSdProgramsApiArg>({
         query: () => ({ url: `/api/schedulesdirect/getsdprograms` }),
-        providesTags: ['SchedulesDirect'],
+        providesTags: ['SchedulesDirect']
       }),
       schedulesDirectGetSchedules: build.query<SchedulesDirectGetSchedulesApiResponse, SchedulesDirectGetSchedulesApiArg>({
         query: () => ({ url: `/api/schedulesdirect/getschedules` }),
-        providesTags: ['SchedulesDirect'],
+        providesTags: ['SchedulesDirect']
       }),
       schedulesDirectGetSelectedStationIds: build.query<SchedulesDirectGetSelectedStationIdsApiResponse, SchedulesDirectGetSelectedStationIdsApiArg>({
         query: () => ({ url: `/api/schedulesdirect/getselectedstationids` }),
-        providesTags: ['SchedulesDirect'],
+        providesTags: ['SchedulesDirect']
       }),
       schedulesDirectGetStationPreviews: build.query<SchedulesDirectGetStationPreviewsApiResponse, SchedulesDirectGetStationPreviewsApiArg>({
         query: () => ({ url: `/api/schedulesdirect/getstationpreviews` }),
-        providesTags: ['SchedulesDirect'],
+        providesTags: ['SchedulesDirect']
       }),
       schedulesDirectGetStations: build.query<SchedulesDirectGetStationsApiResponse, SchedulesDirectGetStationsApiArg>({
         query: () => ({ url: `/api/schedulesdirect/getstations` }),
-        providesTags: ['SchedulesDirect'],
+        providesTags: ['SchedulesDirect']
       }),
       schedulesDirectGetStatus: build.query<SchedulesDirectGetStatusApiResponse, SchedulesDirectGetStatusApiArg>({
         query: () => ({ url: `/api/schedulesdirect/getstatus` }),
-        providesTags: ['SchedulesDirect'],
+        providesTags: ['SchedulesDirect']
       }),
       schedulesDirectGetEpg: build.query<SchedulesDirectGetEpgApiResponse, SchedulesDirectGetEpgApiArg>({
         query: () => ({ url: `/api/schedulesdirect/getepg` }),
-        providesTags: ['SchedulesDirect'],
+        providesTags: ['SchedulesDirect']
       }),
       settingsGetIsSystemReady: build.query<SettingsGetIsSystemReadyApiResponse, SettingsGetIsSystemReadyApiArg>({
         query: () => ({ url: `/api/settings/getissystemready` }),
-        providesTags: ['Settings'],
+        providesTags: ['Settings']
       }),
       settingsGetQueueStatus: build.query<SettingsGetQueueStatusApiResponse, SettingsGetQueueStatusApiArg>({
         query: () => ({ url: `/api/settings/getqueuestatus` }),
-        providesTags: ['Settings'],
+        providesTags: ['Settings']
       }),
       settingsGetSetting: build.query<SettingsGetSettingApiResponse, SettingsGetSettingApiArg>({
         query: () => ({ url: `/api/settings/getsetting` }),
-        providesTags: ['Settings'],
+        providesTags: ['Settings']
       }),
       settingsGetSystemStatus: build.query<SettingsGetSystemStatusApiResponse, SettingsGetSystemStatusApiArg>({
         query: () => ({ url: `/api/settings/getsystemstatus` }),
-        providesTags: ['Settings'],
+        providesTags: ['Settings']
       }),
       settingsLogIn: build.query<SettingsLogInApiResponse, SettingsLogInApiArg>({
         query: (queryArg) => ({ url: `/api/settings/login`, body: queryArg }),
-        providesTags: ['Settings'],
+        providesTags: ['Settings']
       }),
       settingsUpdateSetting: build.mutation<SettingsUpdateSettingApiResponse, SettingsUpdateSettingApiArg>({
         query: (queryArg) => ({ url: `/api/settings/updatesetting`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['Settings'],
+        invalidatesTags: ['Settings']
       }),
       streamGroupChannelGroupSyncStreamGroupChannelGroups: build.mutation<
         StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiResponse,
         StreamGroupChannelGroupSyncStreamGroupChannelGroupsApiArg
       >({
         query: (queryArg) => ({ url: `/api/streamgroupchannelgroup/syncstreamgroupchannelgroups`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['StreamGroupChannelGroup'],
+        invalidatesTags: ['StreamGroupChannelGroup']
       }),
       streamGroupChannelGroupGetChannelGroupsFromStreamGroup: build.query<
         StreamGroupChannelGroupGetChannelGroupsFromStreamGroupApiResponse,
         StreamGroupChannelGroupGetChannelGroupsFromStreamGroupApiArg
       >({
         query: (queryArg) => ({ url: `/api/streamgroupchannelgroup/getchannelgroupsfromstreamgroup`, params: { StreamGroupId: queryArg } }),
-        providesTags: ['StreamGroupChannelGroup'],
+        providesTags: ['StreamGroupChannelGroup']
       }),
       streamGroupsCreateStreamGroup: build.mutation<StreamGroupsCreateStreamGroupApiResponse, StreamGroupsCreateStreamGroupApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/createstreamgroup`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['StreamGroups'],
+        invalidatesTags: ['StreamGroups']
       }),
       streamGroupsDeleteStreamGroup: build.mutation<StreamGroupsDeleteStreamGroupApiResponse, StreamGroupsDeleteStreamGroupApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/deletestreamgroup`, method: 'DELETE', body: queryArg }),
-        invalidatesTags: ['StreamGroups'],
+        invalidatesTags: ['StreamGroups']
       }),
       streamGroupsGetStreamGroup: build.query<StreamGroupsGetStreamGroupApiResponse, StreamGroupsGetStreamGroupApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/getstreamgroup/${queryArg}` }),
-        providesTags: ['StreamGroups'],
+        providesTags: ['StreamGroups']
       }),
       streamGroupsGetStreamGroupCapability: build.query<StreamGroupsGetStreamGroupCapabilityApiResponse, StreamGroupsGetStreamGroupCapabilityApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}` }),
-        providesTags: ['StreamGroups'],
+        providesTags: ['StreamGroups']
       }),
       streamGroupsGetStreamGroupCapability2: build.query<StreamGroupsGetStreamGroupCapability2ApiResponse, StreamGroupsGetStreamGroupCapability2ApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/capability` }),
-        providesTags: ['StreamGroups'],
+        providesTags: ['StreamGroups']
       }),
       streamGroupsGetStreamGroupCapability3: build.query<StreamGroupsGetStreamGroupCapability3ApiResponse, StreamGroupsGetStreamGroupCapability3ApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/device.xml` }),
-        providesTags: ['StreamGroups'],
+        providesTags: ['StreamGroups']
       }),
       streamGroupsGetStreamGroupDiscover: build.query<StreamGroupsGetStreamGroupDiscoverApiResponse, StreamGroupsGetStreamGroupDiscoverApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/discover.json` }),
-        providesTags: ['StreamGroups'],
+        providesTags: ['StreamGroups']
       }),
       streamGroupsGetStreamGroupEpg: build.query<StreamGroupsGetStreamGroupEpgApiResponse, StreamGroupsGetStreamGroupEpgApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/epg.xml` }),
-        providesTags: ['StreamGroups'],
+        providesTags: ['StreamGroups']
       }),
       streamGroupsGetStreamGroupEpgForGuide: build.query<StreamGroupsGetStreamGroupEpgForGuideApiResponse, StreamGroupsGetStreamGroupEpgForGuideApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/epgguide.json` }),
-        providesTags: ['StreamGroups'],
+        providesTags: ['StreamGroups']
       }),
       streamGroupsGetStreamGroupLineUp: build.query<StreamGroupsGetStreamGroupLineUpApiResponse, StreamGroupsGetStreamGroupLineUpApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/lineup.json` }),
-        providesTags: ['StreamGroups'],
+        providesTags: ['StreamGroups']
       }),
       streamGroupsGetStreamGroupLineUpStatus: build.query<StreamGroupsGetStreamGroupLineUpStatusApiResponse, StreamGroupsGetStreamGroupLineUpStatusApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/lineup_status.json` }),
-        providesTags: ['StreamGroups'],
+        providesTags: ['StreamGroups']
       }),
       streamGroupsGetStreamGroupM3U: build.query<StreamGroupsGetStreamGroupM3UApiResponse, StreamGroupsGetStreamGroupM3UApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/m3u.m3u` }),
-        providesTags: ['StreamGroups'],
+        providesTags: ['StreamGroups']
       }),
       streamGroupsGetPagedStreamGroups: build.query<StreamGroupsGetPagedStreamGroupsApiResponse, StreamGroupsGetPagedStreamGroupsApiArg>({
         query: (queryArg) => ({
@@ -432,21 +432,21 @@ const injectedRtkApi = api
             PageSize: queryArg.pageSize,
             OrderBy: queryArg.orderBy,
             JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString,
-          },
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
         }),
-        providesTags: ['StreamGroups'],
+        providesTags: ['StreamGroups']
       }),
       streamGroupsUpdateStreamGroup: build.mutation<StreamGroupsUpdateStreamGroupApiResponse, StreamGroupsUpdateStreamGroupApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/updatestreamgroup`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['StreamGroups'],
+        invalidatesTags: ['StreamGroups']
       }),
       streamGroupVideoStreamsGetStreamGroupVideoStreamIds: build.query<
         StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiResponse,
         StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiArg
       >({
         query: (queryArg) => ({ url: `/api/streamgroupvideostreams/getstreamgroupvideostreamids`, params: { StreamGroupId: queryArg } }),
-        providesTags: ['StreamGroupVideoStreams'],
+        providesTags: ['StreamGroupVideoStreams']
       }),
       streamGroupVideoStreamsGetPagedStreamGroupVideoStreams: build.query<
         StreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsApiResponse,
@@ -460,52 +460,52 @@ const injectedRtkApi = api
             PageSize: queryArg.pageSize,
             OrderBy: queryArg.orderBy,
             JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString,
-          },
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
         }),
-        providesTags: ['StreamGroupVideoStreams'],
+        providesTags: ['StreamGroupVideoStreams']
       }),
       streamGroupVideoStreamsSetVideoStreamRanks: build.mutation<
         StreamGroupVideoStreamsSetVideoStreamRanksApiResponse,
         StreamGroupVideoStreamsSetVideoStreamRanksApiArg
       >({
         query: (queryArg) => ({ url: `/api/streamgroupvideostreams/setvideostreamranks`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['StreamGroupVideoStreams'],
+        invalidatesTags: ['StreamGroupVideoStreams']
       }),
       streamGroupVideoStreamsSyncVideoStreamToStreamGroupPost: build.mutation<
         StreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostApiResponse,
         StreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostApiArg
       >({
         query: (queryArg) => ({ url: `/api/streamgroupvideostreams/syncvideostreamtostreamgroup`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['StreamGroupVideoStreams'],
+        invalidatesTags: ['StreamGroupVideoStreams']
       }),
       streamGroupVideoStreamsSyncVideoStreamToStreamGroupDelete: build.mutation<
         StreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteApiResponse,
         StreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteApiArg
       >({
         query: (queryArg) => ({ url: `/api/streamgroupvideostreams/syncvideostreamtostreamgroup`, method: 'DELETE', body: queryArg }),
-        invalidatesTags: ['StreamGroupVideoStreams'],
+        invalidatesTags: ['StreamGroupVideoStreams']
       }),
       streamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbers: build.mutation<
         StreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersApiResponse,
         StreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersApiArg
       >({
         query: (queryArg) => ({ url: `/api/streamgroupvideostreams/setstreamgroupvideostreamchannelnumbers`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['StreamGroupVideoStreams'],
+        invalidatesTags: ['StreamGroupVideoStreams']
       }),
       videoStreamLinksAddVideoStreamToVideoStream: build.mutation<
         VideoStreamLinksAddVideoStreamToVideoStreamApiResponse,
         VideoStreamLinksAddVideoStreamToVideoStreamApiArg
       >({
         query: (queryArg) => ({ url: `/api/videostreamlinks/addvideostreamtovideostream`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['VideoStreamLinks'],
+        invalidatesTags: ['VideoStreamLinks']
       }),
       videoStreamLinksGetVideoStreamVideoStreamIds: build.query<
         VideoStreamLinksGetVideoStreamVideoStreamIdsApiResponse,
         VideoStreamLinksGetVideoStreamVideoStreamIdsApiArg
       >({
         query: (queryArg) => ({ url: `/api/videostreamlinks/getvideostreamvideostreamids`, params: { videoStreamId: queryArg } }),
-        providesTags: ['VideoStreamLinks'],
+        providesTags: ['VideoStreamLinks']
       }),
       videoStreamLinksGetPagedVideoStreamVideoStreams: build.query<
         VideoStreamLinksGetPagedVideoStreamVideoStreamsApiResponse,
@@ -518,49 +518,49 @@ const injectedRtkApi = api
             PageSize: queryArg.pageSize,
             OrderBy: queryArg.orderBy,
             JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString,
-          },
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
         }),
-        providesTags: ['VideoStreamLinks'],
+        providesTags: ['VideoStreamLinks']
       }),
       videoStreamLinksRemoveVideoStreamFromVideoStream: build.mutation<
         VideoStreamLinksRemoveVideoStreamFromVideoStreamApiResponse,
         VideoStreamLinksRemoveVideoStreamFromVideoStreamApiArg
       >({
         query: (queryArg) => ({ url: `/api/videostreamlinks/removevideostreamfromvideostream`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['VideoStreamLinks'],
+        invalidatesTags: ['VideoStreamLinks']
       }),
       videoStreamsCreateVideoStream: build.mutation<VideoStreamsCreateVideoStreamApiResponse, VideoStreamsCreateVideoStreamApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/createvideostream`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsChangeVideoStreamChannel: build.mutation<VideoStreamsChangeVideoStreamChannelApiResponse, VideoStreamsChangeVideoStreamChannelApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/changevideostreamchannel`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsDeleteVideoStream: build.mutation<VideoStreamsDeleteVideoStreamApiResponse, VideoStreamsDeleteVideoStreamApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/deletevideostream`, method: 'DELETE', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsFailClient: build.mutation<VideoStreamsFailClientApiResponse, VideoStreamsFailClientApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/failclient`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsGetAllStatisticsForAllUrls: build.query<VideoStreamsGetAllStatisticsForAllUrlsApiResponse, VideoStreamsGetAllStatisticsForAllUrlsApiArg>({
         query: () => ({ url: `/api/videostreams/getallstatisticsforallurls` }),
-        providesTags: ['VideoStreams'],
+        providesTags: ['VideoStreams']
       }),
       videoStreamsGetChannelLogoDtos: build.query<VideoStreamsGetChannelLogoDtosApiResponse, VideoStreamsGetChannelLogoDtosApiArg>({
         query: () => ({ url: `/api/videostreams/getchannellogodtos` }),
-        providesTags: ['VideoStreams'],
+        providesTags: ['VideoStreams']
       }),
       videoStreamsGetVideoStream: build.query<VideoStreamsGetVideoStreamApiResponse, VideoStreamsGetVideoStreamApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/${queryArg}` }),
-        providesTags: ['VideoStreams'],
+        providesTags: ['VideoStreams']
       }),
       videoStreamsGetVideoStreamNames: build.query<VideoStreamsGetVideoStreamNamesApiResponse, VideoStreamsGetVideoStreamNamesApiArg>({
         query: () => ({ url: `/api/videostreams/getvideostreamnames` }),
-        providesTags: ['VideoStreams'],
+        providesTags: ['VideoStreams']
       }),
       videoStreamsGetPagedVideoStreams: build.query<VideoStreamsGetPagedVideoStreamsApiResponse, VideoStreamsGetPagedVideoStreamsApiArg>({
         query: (queryArg) => ({
@@ -570,125 +570,125 @@ const injectedRtkApi = api
             PageSize: queryArg.pageSize,
             OrderBy: queryArg.orderBy,
             JSONArgumentString: queryArg.jsonArgumentString,
-            JSONFiltersString: queryArg.jsonFiltersString,
-          },
+            JSONFiltersString: queryArg.jsonFiltersString
+          }
         }),
-        providesTags: ['VideoStreams'],
+        providesTags: ['VideoStreams']
       }),
       videoStreamsGetVideoStreamStreamGet: build.query<VideoStreamsGetVideoStreamStreamGetApiResponse, VideoStreamsGetVideoStreamStreamGetApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/stream/${queryArg}` }),
-        providesTags: ['VideoStreams'],
+        providesTags: ['VideoStreams']
       }),
       videoStreamsGetVideoStreamStreamHead: build.mutation<VideoStreamsGetVideoStreamStreamHeadApiResponse, VideoStreamsGetVideoStreamStreamHeadApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/stream/${queryArg}`, method: 'HEAD' }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsGetVideoStreamStreamGet2: build.query<VideoStreamsGetVideoStreamStreamGet2ApiResponse, VideoStreamsGetVideoStreamStreamGet2ApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/stream/${queryArg}.mp4` }),
-        providesTags: ['VideoStreams'],
+        providesTags: ['VideoStreams']
       }),
       videoStreamsGetVideoStreamStreamHead2: build.mutation<VideoStreamsGetVideoStreamStreamHead2ApiResponse, VideoStreamsGetVideoStreamStreamHead2ApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/stream/${queryArg}.mp4`, method: 'HEAD' }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsGetVideoStreamStreamGet3: build.query<VideoStreamsGetVideoStreamStreamGet3ApiResponse, VideoStreamsGetVideoStreamStreamGet3ApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/stream/${queryArg.encodedIds}/${queryArg.name}` }),
-        providesTags: ['VideoStreams'],
+        providesTags: ['VideoStreams']
       }),
       videoStreamsGetVideoStreamStreamHead3: build.mutation<VideoStreamsGetVideoStreamStreamHead3ApiResponse, VideoStreamsGetVideoStreamStreamHead3ApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/stream/${queryArg.encodedIds}/${queryArg.name}`, method: 'HEAD' }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsReSetVideoStreamsLogo: build.mutation<VideoStreamsReSetVideoStreamsLogoApiResponse, VideoStreamsReSetVideoStreamsLogoApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/resetvideostreamslogo`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsSetVideoStreamChannelNumbers: build.mutation<
         VideoStreamsSetVideoStreamChannelNumbersApiResponse,
         VideoStreamsSetVideoStreamChannelNumbersApiArg
       >({
         query: (queryArg) => ({ url: `/api/videostreams/setvideostreamchannelnumbers`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsSetVideoStreamsLogoFromEpg: build.mutation<VideoStreamsSetVideoStreamsLogoFromEpgApiResponse, VideoStreamsSetVideoStreamsLogoFromEpgApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/setvideostreamslogofromepg`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsUpdateVideoStream: build.mutation<VideoStreamsUpdateVideoStreamApiResponse, VideoStreamsUpdateVideoStreamApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/updatevideostream`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsUpdateVideoStreams: build.mutation<VideoStreamsUpdateVideoStreamsApiResponse, VideoStreamsUpdateVideoStreamsApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/updatevideostreams`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsUpdateAllVideoStreamsFromParameters: build.mutation<
         VideoStreamsUpdateAllVideoStreamsFromParametersApiResponse,
         VideoStreamsUpdateAllVideoStreamsFromParametersApiArg
       >({
         query: (queryArg) => ({ url: `/api/videostreams/updateallvideostreamsfromparameters`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsDeleteAllVideoStreamsFromParameters: build.mutation<
         VideoStreamsDeleteAllVideoStreamsFromParametersApiResponse,
         VideoStreamsDeleteAllVideoStreamsFromParametersApiArg
       >({
         query: (queryArg) => ({ url: `/api/videostreams/deleteallvideostreamsfromparameters`, method: 'DELETE', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsSetVideoStreamChannelNumbersFromParameters: build.mutation<
         VideoStreamsSetVideoStreamChannelNumbersFromParametersApiResponse,
         VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg
       >({
         query: (queryArg) => ({ url: `/api/videostreams/setvideostreamchannelnumbersfromparameters`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsSetVideoStreamsLogoFromEpgFromParameters: build.mutation<
         VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiResponse,
         VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg
       >({
         query: (queryArg) => ({ url: `/api/videostreams/setvideostreamslogofromepgfromparameters`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsReSetVideoStreamsLogoFromParameters: build.mutation<
         VideoStreamsReSetVideoStreamsLogoFromParametersApiResponse,
         VideoStreamsReSetVideoStreamsLogoFromParametersApiArg
       >({
         query: (queryArg) => ({ url: `/api/videostreams/resetvideostreamslogofromparameters`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsSimulateStreamFailureForAll: build.mutation<
         VideoStreamsSimulateStreamFailureForAllApiResponse,
         VideoStreamsSimulateStreamFailureForAllApiArg
       >({
         query: () => ({ url: `/api/videostreams/simulatestreamfailureforall`, method: 'POST' }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsSimulateStreamFailure: build.mutation<VideoStreamsSimulateStreamFailureApiResponse, VideoStreamsSimulateStreamFailureApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/simulatestreamfailure`, method: 'POST', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsAutoSetEpg: build.mutation<VideoStreamsAutoSetEpgApiResponse, VideoStreamsAutoSetEpgApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/autosetepg`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsAutoSetEpgFromParameters: build.mutation<VideoStreamsAutoSetEpgFromParametersApiResponse, VideoStreamsAutoSetEpgFromParametersApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/autosetepgfromparameters`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsSetVideoStreamTimeShifts: build.mutation<VideoStreamsSetVideoStreamTimeShiftsApiResponse, VideoStreamsSetVideoStreamTimeShiftsApiArg>({
         query: (queryArg) => ({ url: `/api/videostreams/setvideostreamtimeshifts`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
+        invalidatesTags: ['VideoStreams']
       }),
       videoStreamsSetVideoStreamTimeShiftFromParameters: build.mutation<
         VideoStreamsSetVideoStreamTimeShiftFromParametersApiResponse,
         VideoStreamsSetVideoStreamTimeShiftFromParametersApiArg
       >({
         query: (queryArg) => ({ url: `/api/videostreams/setvideostreamtimeshiftfromparameters`, method: 'PATCH', body: queryArg }),
-        invalidatesTags: ['VideoStreams'],
-      }),
+        invalidatesTags: ['VideoStreams']
+      })
     }),
-    overrideExisting: false,
+    overrideExisting: false
   });
 export { injectedRtkApi as iptvApi };
 export type ChannelGroupsCreateChannelGroupApiResponse = unknown;
@@ -2071,5 +2071,5 @@ export const {
   useVideoStreamsAutoSetEpgMutation,
   useVideoStreamsAutoSetEpgFromParametersMutation,
   useVideoStreamsSetVideoStreamTimeShiftsMutation,
-  useVideoStreamsSetVideoStreamTimeShiftFromParametersMutation,
+  useVideoStreamsSetVideoStreamTimeShiftFromParametersMutation
 } = injectedRtkApi;

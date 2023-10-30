@@ -10,12 +10,10 @@ export const enhancedApiVideoStreamLinksLocal = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = () => {
             dispatch(iptvApi.util.invalidateTags(['VideoStreamLinks']));
-            return;
           };
 
           const removeCachedDataWithResults = () => {
             dispatch(iptvApi.util.invalidateTags(['VideoStreamLinks']));
-            return;
           };
 
           singletonVideoStreamLinksListener.addListener(updateCachedDataWithResults);
@@ -26,7 +24,7 @@ export const enhancedApiVideoStreamLinksLocal = iptvApi.enhanceEndpoints({
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
-      },
-    },
-  },
+      }
+    }
+  }
 });

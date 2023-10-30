@@ -1,21 +1,21 @@
+import { ResetLogoIcon } from '@lib/common/Icons';
 import { getChannelGroupMenuItem, getTopToolOptions } from '@lib/common/common';
-import { ResetLogoIcon } from '@lib/common/icons';
 import { useChannelGroupsGetChannelGroupIdNamesQuery, type ChannelGroupIdName } from '@lib/iptvApi';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import React, { useCallback, useEffect, useState } from 'react';
 import ChannelGroupAddDialog from './ChannelGroupAddDialog';
 
-type ChannelGroupSelectorProps = {
+interface ChannelGroupSelectorProperties {
   readonly className?: string;
   readonly onChange: (value: string) => void;
   readonly resetValue?: string;
   readonly value?: string;
-};
+}
 
-const ChannelGroupSelector: React.FC<ChannelGroupSelectorProps> = ({ className, onChange, resetValue, value }) => {
+const ChannelGroupSelector: React.FC<ChannelGroupSelectorProperties> = ({ className, onChange, resetValue, value }) => {
   const channelGroupNamesQuery = useChannelGroupsGetChannelGroupIdNamesQuery();
-  const [channelGroup, setChannelGroup] = useState<ChannelGroupIdName | undefined>(undefined);
+  const [channelGroup, setChannelGroup] = useState<ChannelGroupIdName | undefined>();
 
   const setChannelGroupByName = useCallback(
     (channelGroupName: string) => {
@@ -26,7 +26,7 @@ const ChannelGroupSelector: React.FC<ChannelGroupSelectorProps> = ({ className, 
         }
       }
     },
-    [channelGroupNamesQuery.data],
+    [channelGroupNamesQuery.data]
   );
 
   // Update channel group when prop value changes
@@ -75,7 +75,7 @@ const ChannelGroupSelector: React.FC<ChannelGroupSelectorProps> = ({ className, 
         className={`w-full ${className}`}
         filter
         filterInputAutoFocus
-        itemTemplate={(option) => getChannelGroupMenuItem(option.name, option.name + '  |  ' + option.totalCount)} // getChannelGroupMenuItem(option.id, option.name)}
+        itemTemplate={(option) => getChannelGroupMenuItem(option.name, `${option.name}  |  ${option.totalCount}`)} // getChannelGroupMenuItem(option.id, option.name)}
         onChange={(e) => onChange(e.value.name)}
         optionLabel="name"
         options={channelGroupNamesQuery.data}

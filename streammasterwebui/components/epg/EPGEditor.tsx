@@ -3,12 +3,12 @@ import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI
 import { memo } from 'react';
 import EPGSelector from '../selectors/EPGSelector';
 
-type EPGEditorProps = {
+interface EPGEditorProperties {
   readonly data: VideoStreamDto;
   readonly enableEditMode?: boolean;
-};
+}
 
-const EPGEditor = ({ data, enableEditMode }: EPGEditorProps) => {
+const EPGEditor = ({ data, enableEditMode }: EPGEditorProperties) => {
   const onUpdateVideoStream = async (epg: string) => {
     if (data.id === '') {
       return;
@@ -24,8 +24,8 @@ const EPGEditor = ({ data, enableEditMode }: EPGEditorProps) => {
 
     await UpdateVideoStream(toSend)
       .then(() => {})
-      .catch((e: unknown) => {
-        console.error(e);
+      .catch((error: unknown) => {
+        console.error(error);
       });
   };
 

@@ -3,46 +3,28 @@
 import type * as iptv from '@/lib/iptvApi';
 import { invokeHubConnection } from '@/lib/signalr/signalr';
 
-export const GetCountries = async (arg: iptv.Countries): Promise<iptv.Countries | null> => {
-  return await invokeHubConnection<iptv.Countries>('GetCountries', arg);
-};
-
-export const GetHeadends = async (arg: iptv.HeadendDto[]): Promise<iptv.HeadendDto[] | null> => {
-  return await invokeHubConnection<iptv.HeadendDto[]>('GetHeadends', arg);
-};
-
-export const GetLineup = async (arg: iptv.LineUpResult): Promise<iptv.LineUpResult | null> => {
-  return await invokeHubConnection<iptv.LineUpResult>('GetLineup', arg);
-};
-
-export const GetLineupPreviews = async (arg: iptv.LineUpPreview[]): Promise<iptv.LineUpPreview[] | null> => {
-  return await invokeHubConnection<iptv.LineUpPreview[]>('GetLineupPreviews', arg);
-};
-
-export const GetLineups = async (arg: iptv.LineUpsResult): Promise<iptv.LineUpsResult | null> => {
-  return await invokeHubConnection<iptv.LineUpsResult>('GetLineups', arg);
-};
-
-export const GetSchedules = async (arg: iptv.Schedule[]): Promise<iptv.Schedule[] | null> => {
-  return await invokeHubConnection<iptv.Schedule[]>('GetSchedules', arg);
-};
-
-export const GetSelectedStationIds = async (arg: iptv.StationIdLineUp[]): Promise<iptv.StationIdLineUp[] | null> => {
-  return await invokeHubConnection<iptv.StationIdLineUp[]>('GetSelectedStationIds', arg);
-};
-
-export const GetStationPreviews = async (arg: iptv.StationPreview[]): Promise<iptv.StationPreview[] | null> => {
-  return await invokeHubConnection<iptv.StationPreview[]>('GetStationPreviews', arg);
-};
-
-export const GetStations = async (arg: iptv.Station[]): Promise<iptv.Station[] | null> => {
-  return await invokeHubConnection<iptv.Station[]>('GetStations', arg);
-};
-
-export const GetStatus = async (arg: iptv.SdStatus): Promise<iptv.SdStatus | null> => {
-  return await invokeHubConnection<iptv.SdStatus>('GetStatus', arg);
-};
-
+export const GetCountries = async (argument: iptv.Countries): Promise<iptv.Countries | null> =>
+  invokeHubConnection<iptv.Countries>('GetCountries', argument);
+export const GetHeadends = async (argument: iptv.HeadendDto[]): Promise<iptv.HeadendDto[] | null> =>
+  invokeHubConnection<iptv.HeadendDto[]>('GetHeadends', argument);
+export const GetLineup = async (argument: iptv.LineUpResult): Promise<iptv.LineUpResult | null> =>
+  invokeHubConnection<iptv.LineUpResult>('GetLineup', argument);
+export const GetLineupPreviews = async (argument: iptv.LineUpPreview[]): Promise<iptv.LineUpPreview[] | null> =>
+  invokeHubConnection<iptv.LineUpPreview[]>('GetLineupPreviews', argument);
+export const GetLineups = async (argument: iptv.LineUpsResult): Promise<iptv.LineUpsResult | null> =>
+  invokeHubConnection<iptv.LineUpsResult>('GetLineups', argument);
+export const GetSDPrograms = async (argument: SdProgram): Promise<iptv.SDProgram[] | null> =>
+  invokeHubConnection<iptv.SDProgram[]>('GetSDPrograms', argument);
+export const GetSchedules = async (argument: iptv.Schedule[]): Promise<iptv.Schedule[] | null> =>
+  invokeHubConnection<iptv.Schedule[]>('GetSchedules', argument);
+export const GetSelectedStationIds = async (argument: iptv.StationIdLineUp[]): Promise<iptv.StationIdLineUp[] | null> =>
+  invokeHubConnection<iptv.StationIdLineUp[]>('GetSelectedStationIds', argument);
+export const GetStationPreviews = async (argument: iptv.StationPreview[]): Promise<iptv.StationPreview[] | null> =>
+  invokeHubConnection<iptv.StationPreview[]>('GetStationPreviews', argument);
+export const GetStations = async (argument: iptv.Station[]): Promise<iptv.Station[] | null> =>
+  invokeHubConnection<iptv.Station[]>('GetStations', argument);
+export const GetStatus = async (argument: iptv.SdStatus): Promise<iptv.SdStatus | null> =>
+  invokeHubConnection<iptv.SdStatus>('GetStatus', argument);
 export const GetEpg = async (): Promise<void | null> => {
   await invokeHubConnection<void>('GetEpg');
 };

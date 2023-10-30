@@ -1,63 +1,63 @@
-import { createSingletonListener } from './createSingletonListener'
-import { hubConnection } from './signalr'
+import { createSingletonListener } from './createSingletonListener';
+import { hubConnection } from './signalr';
 
 export const singletonChannelGroupsListener = createSingletonListener(
   'ChannelGroupsRefresh',
-  hubConnection,
-)
+  hubConnection
+);
 export const singletonEPGFilesListener = createSingletonListener(
   'EPGFilesRefresh',
-  hubConnection,
-)
+  hubConnection
+);
 export const singletonM3UFilesListener = createSingletonListener(
   'M3UFilesRefresh',
-  hubConnection,
-)
+  hubConnection
+);
 export const singletonProgrammesListener = createSingletonListener(
   'ProgrammesRefresh',
-  hubConnection,
-)
+  hubConnection
+);
 export const singletonSchedulesDirectListener = createSingletonListener(
   'SchedulesDirectsRefresh',
-  hubConnection,
-)
+  hubConnection
+);
 export const singletonSettingsListener = createSingletonListener(
   'SettingsRefresh',
-  hubConnection,
-)
+  hubConnection
+);
 export const singletonStreamGroupChannelGroupListener = createSingletonListener(
   'StreamGroupChannelGroupsRefresh',
-  hubConnection,
-)
+  hubConnection
+);
 export const singletonStreamGroupVideoStreamsListener = createSingletonListener(
   'StreamGroupVideoStreamsRefresh',
-  hubConnection,
-)
+  hubConnection
+);
 export const singletonStreamGroupsListener = createSingletonListener(
   'StreamGroupsRefresh',
-  hubConnection,
-)
+  hubConnection
+);
 export const singletonVideoStreamLinksListener = createSingletonListener(
   'VideoStreamLinksRefresh',
-  hubConnection,
-)
+  hubConnection
+);
 export const singletonVideoStreamLinksRemoveListener = createSingletonListener(
   'VideoStreamLinksRemove',
-  hubConnection,
-)
+  hubConnection
+);
 export const singletonVideoStreamsListener = createSingletonListener(
   'VideoStreamsRefresh',
-  hubConnection,
-)
+  hubConnection
+);
 export const singletonIconsListener = createSingletonListener(
   'IconsRefresh',
-  hubConnection,
-)
+  hubConnection
+);
 export const singletonLogsListener = createSingletonListener(
   'LogsRefresh',
-  hubConnection,
-)
+  hubConnection
+);
 export const singletonStatisticListener = createSingletonListener(
   'streamstatisticsresultsupdate',
-  hubConnection,
-)
+  hubConnection
+);

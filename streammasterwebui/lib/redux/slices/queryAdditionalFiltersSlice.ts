@@ -1,18 +1,18 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import { type RootState } from '../../../lib/redux/store'
-import { type AdditionalFilterProps } from '../../common/common'
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { type RootState } from '../store';
+import { type AdditionalFilterProps as AdditionalFilterProperties } from '../../common/common';
 
-type SetQueryAdditionalFilterPayload = {
-  filter: AdditionalFilterProps | null | undefined
+interface SetQueryAdditionalFilterPayload {
+  filter: AdditionalFilterProperties | null | undefined
   typename: string
 }
 
 type QueryAdditionalFiltersState = Record<
   string,
-  AdditionalFilterProps | undefined
+  AdditionalFilterProperties | undefined
 >
 
-const initialState: QueryAdditionalFiltersState = {}
+const initialState: QueryAdditionalFiltersState = {};
 
 const queryAdditionalFiltersSlice = createSlice({
   initialState,
@@ -20,22 +20,22 @@ const queryAdditionalFiltersSlice = createSlice({
   reducers: {
     setQueryAdditionalFilter: (
       state,
-      action: PayloadAction<SetQueryAdditionalFilterPayload>,
+      action: PayloadAction<SetQueryAdditionalFilterPayload>
     ) => {
-      const { typename, filter } = action.payload
+      const { typename, filter } = action.payload;
 
       if (filter !== null && filter !== undefined) {
-        state[typename] = filter
+        state[typename] = filter;
       } else {
-        delete state[typename] // Remove the key if the filter is null or undefined
+        delete state[typename]; // Remove the key if the filter is null or undefined
       }
-    },
-  },
-})
+    }
+  }
+});
 
 export const selectQueryAdditionalFilters = (
   state: RootState,
-  typename: string,
-) => state.queryAdditionalFilters[typename]
-export const { setQueryAdditionalFilter } = queryAdditionalFiltersSlice.actions
-export default queryAdditionalFiltersSlice.reducer
+  typename: string
+) => state.queryAdditionalFilters[typename];
+export const { setQueryAdditionalFilter } = queryAdditionalFiltersSlice.actions;
+export default queryAdditionalFiltersSlice.reducer;

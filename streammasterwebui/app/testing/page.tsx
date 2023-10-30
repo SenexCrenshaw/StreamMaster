@@ -1,9 +1,4 @@
-'use client';
-
-import dynamic from 'next/dynamic';
-const StreamGroupSelectedVideoStreamDataSelector = dynamic(() => import('@/features/streamGroupEditor/StreamGroupSelectedVideoStreamDataSelector'), {
-  ssr: false,
-});
+import StreamGroupSelectedVideoStreamDataSelector from '@/features/streamGroupEditor/StreamGroupSelectedVideoStreamDataSelector';
 
 export default function StreamGroupSelectedVideoStreamDataSelectorLayout() {
   const id = 'streamgroupeditor';

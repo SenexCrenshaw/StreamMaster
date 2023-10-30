@@ -1,8 +1,4 @@
-'use client';
-
-import dynamic from 'next/dynamic';
-
-const QueueStatus = dynamic(() => import('@/features/queueStatus/QueueStatus'), { ssr: false });
+import QueueStatus from '@/features/queueStatus/QueueStatus';
 
 export default function QueueStatusLayout() {
   return <QueueStatus />;

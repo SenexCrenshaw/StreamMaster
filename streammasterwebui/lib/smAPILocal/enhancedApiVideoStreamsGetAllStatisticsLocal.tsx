@@ -4,14 +4,12 @@ import { singletonStatisticListener } from '../signalr/singletonListeners';
 export const enhancedApiVideoStreamsGetAllStatisticsLocal = iptvApi.enhanceEndpoints({
   endpoints: {
     videoStreamsGetAllStatisticsForAllUrls: {
-      async onCacheEntryAdded(arg, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+      async onCacheEntryAdded(argument, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: StreamStatisticsResult[]) => {
-            updateCachedData(() => {
-              return data;
-            });
+            updateCachedData(() => data);
           };
 
           singletonStatisticListener.addListener(updateCachedDataWithResults);
@@ -21,7 +19,7 @@ export const enhancedApiVideoStreamsGetAllStatisticsLocal = iptvApi.enhanceEndpo
         } catch (error) {
           console.error('Error in onCacheEntryAdded:', error);
         }
-      },
-    },
-  },
+      }
+    }
+  }
 });

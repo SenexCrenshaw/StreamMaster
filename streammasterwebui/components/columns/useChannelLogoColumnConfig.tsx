@@ -2,9 +2,9 @@ import ChannelLogoEditor from '../ChannelLogoEditor';
 import createMultiSelectColumnConfigHook from './createMultiSelectColumnConfigHook';
 
 export const useChannelLogoColumnConfig = createMultiSelectColumnConfigHook({
-  dataField: 'user_Tvg_logo',
   EditorComponent: ChannelLogoEditor,
+  dataField: 'user_Tvg_logo',
   fieldType: 'image',
   headerTitle: 'Logo',
-  useFilter: false,
+  useFilter: false
 });

@@ -1,5 +1,5 @@
 import { getTopToolOptions } from '@lib/common/common';
-import { ResetLogoIcon } from '@lib/common/icons';
+import { ResetLogoIcon } from '@lib/common/Icons';
 import { BlockUI } from 'primereact/blockui';
 import { Button } from 'primereact/button';
 import { useClickOutside } from 'primereact/hooks';
@@ -8,10 +8,10 @@ import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
-const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
+const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => {
   const [originalValue, setOriginalValue] = useState<string>('');
   const [isFocused, setIsFocused] = useState<boolean>(false);
-  const overlayRef = useRef<HTMLDivElement | null>(null);
+  const overlayReference = useRef<HTMLDivElement | null>(null);
 
   const [inputValue, setInputValue] = useState<string>('');
 
@@ -23,10 +23,10 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
           props.onChange(value);
         }
       },
-      [originalValue, props],
+      [originalValue, props]
     ),
     props.debounceMs ? props.debounceMs : 1500,
-    {},
+    {}
   );
 
   const save = useCallback(
@@ -36,13 +36,13 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
       }
 
       debounced.cancel();
-      if (forceValueSave !== undefined) {
-        props.onChange(forceValueSave);
-      } else {
+      if (forceValueSave === undefined) {
         props.onChange(inputValue);
+      } else {
+        props.onChange(forceValueSave);
       }
     },
-    [debounced, inputValue, originalValue, props],
+    [debounced, inputValue, originalValue, props]
   );
 
   // Keyboard Enter
@@ -64,7 +64,7 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
     };
   }, [isFocused, save]);
 
-  useClickOutside(overlayRef, () => {
+  useClickOutside(overlayReference, () => {
     if (!isFocused) {
       return;
     }
@@ -84,14 +84,14 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProps) => {
   }, [props.value, props.isLoading, setInputValue]);
 
   return (
-    <div className="relative h-full" ref={overlayRef}>
+    <div className="relative h-full" ref={overlayReference}>
       {isFocused && props.resetValue !== undefined && props.resetValue !== inputValue && (
         <Button
           className="absolute right-0"
           disabled={props.isLoading}
           icon={<ResetLogoIcon sx={{ fontSize: 18 }} />}
           onClick={() => {
-            setInputValue(props.resetValue !== undefined ? props.resetValue : '');
+            setInputValue(props.resetValue === undefined ? '' : props.resetValue);
             save(props.resetValue);
           }}
           rounded
@@ -129,7 +129,7 @@ StringEditorBodyTemplate.displayName = 'String Editor Body Template';
 //   debounceMs: 1500
 // }
 
-export type StringEditorBodyTemplateProps = {
+export interface StringEditorBodyTemplateProperties {
   readonly debounceMs?: number;
   readonly isLoading?: boolean;
   readonly onChange: (value: string) => void;
@@ -139,6 +139,6 @@ export type StringEditorBodyTemplateProps = {
   readonly tooltip?: string | undefined;
   readonly tooltipOptions?: TooltipOptions | undefined;
   readonly value: string | undefined;
-};
+}
 
 export default memo(StringEditorBodyTemplate);

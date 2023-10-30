@@ -1,36 +1,36 @@
-import { FilterMatchMode } from 'primereact/api'
-import { type DataTableFilterMeta } from 'primereact/datatable'
-import { type ColumnMeta } from './DataSelectorTypes'
+import { FilterMatchMode } from 'primereact/api';
+import { type DataTableFilterMeta } from 'primereact/datatable';
+import { type ColumnMeta } from './DataSelectorTypes';
 
 function getEmptyFilter(
   columns: ColumnMeta[],
-  showHidden: boolean | null | undefined,
+  showHidden: boolean | null | undefined
 ): DataTableFilterMeta {
-  var filter = columns.reduce<DataTableFilterMeta>((obj, item: ColumnMeta) => {
+  const filter = columns.reduce<DataTableFilterMeta>((object, item: ColumnMeta) => {
     if (item.field === 'isHidden') {
       return {
-        ...obj,
+        ...object,
         [item.field]: {
           fieldName: item.field,
           matchMode: FilterMatchMode.EQUALS,
-          value: showHidden === null ? null : !showHidden,
-        },
-      } as DataTableFilterMeta
+          value: showHidden === null ? null : !showHidden
+        }
+      } as DataTableFilterMeta;
     }
 
-    let value = ''
+    const value = '';
 
     return {
-      ...obj,
+      ...object,
       [item.field]: {
         fieldName: item.field,
         matchMode: item.filterMatchMode ?? FilterMatchMode.CONTAINS,
-        value: value,
-      },
-    } as DataTableFilterMeta
-  }, {})
+        value
+      }
+    } as DataTableFilterMeta;
+  }, {});
 
-  return filter
+  return filter;
 }
 
-export default getEmptyFilter
+export default getEmptyFilter;

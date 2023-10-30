@@ -1,4 +1,4 @@
-import { Store, configureStore, type Action, type ThunkAction } from '@reduxjs/toolkit';
+import { configureStore, type Action, type ThunkAction } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
 
 import { enhancedApiChannelGroups } from '@lib/smAPI/ChannelGroups/ChannelGroupsEnhancedAPI';
@@ -28,46 +28,43 @@ import showSelectionsSliceReducer from '@lib/redux/slices/showSelectionsSlice';
 import sortInfoSliceReducer from '@lib/redux/slices/sortInfoSlice';
 
 import { enhancedApiVideoStreamsGetAllStatisticsLocal } from '@lib/smAPILocal/enhancedApiVideoStreamsGetAllStatisticsLocal';
-import { useMemo } from 'react';
-import { persistReducer } from 'redux-persist';
+import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import appInfoSliceReducer from './slices/appInfoSlice';
 
-let store: any;
-
 const selectAllConfig = {
   key: 'selectAll',
-  storage,
+  storage
 };
 
 const sortInfoConfig = {
   key: 'sortInfo',
-  storage,
+  storage
 };
 
 const showHiddenConfig = {
   key: 'showHidden',
-  storage,
+  storage
 };
 
 const selectedVideoStreamsConfig = {
   key: 'selectedVideoStreams',
-  storage,
+  storage
 };
 
 const showSelectionsConfig = {
   key: 'showSelections',
-  storage,
+  storage
 };
 
 const selectedItemsGroupsConfig = {
   key: 'selectedItems',
-  storage,
+  storage
 };
 
 const selectedStreamGroupConfig = {
   key: 'selectedStreamGroup',
-  storage,
+  storage
 };
 
 const rootReducer = combineReducers({
@@ -95,7 +92,7 @@ const rootReducer = combineReducers({
   selectedVideoStreams: persistReducer(selectedVideoStreamsConfig, selectedVideoStreamsSliceReducer),
   showHidden: persistReducer(showHiddenConfig, showHiddenSliceReducer),
   showSelections: persistReducer(showSelectionsConfig, showSelectionsSliceReducer),
-  sortInfo: persistReducer(sortInfoConfig, sortInfoSliceReducer),
+  sortInfo: persistReducer(sortInfoConfig, sortInfoSliceReducer)
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
@@ -127,52 +124,52 @@ export type RootState = ReturnType<typeof rootReducer>;
 //   sortInfo: sortInfoSliceReducer,
 // });
 
-function makeStore(): Store<RootState> {
-  return configureStore({
-    devTools: process.env.NODE_ENV !== 'production',
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({
-        immutableCheck: false,
-        serializableCheck: false,
-      }).concat(
-        enhancedApiChannelGroups.middleware,
-        enhancedApiEpgFiles.middleware,
-        enhancedApiM3UFiles.middleware,
-        enhancedApiProgrammes.middleware,
-        enhancedApiSchedulesDirect.middleware,
-        enhancedApiSettings.middleware,
-        enhancedApiStreamGroupChannelGroup.middleware,
-        enhancedApiStreamGroups.middleware,
-        enhancedApiStreamGroupVideoStreams.middleware,
-        enhancedApiVideoStreamLinks.middleware,
-        enhancedApiVideoStreams.middleware,
-        enhancedApiVideoStreamLinksLocal.middleware,
-        enhancedApiVideoStreamsGetAllStatisticsLocal.middleware
-      ),
-    reducer: rootReducer,
-  });
-}
+const store = configureStore({
+  devTools: process.env.NODE_ENV !== 'production',
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      immutableCheck: false,
+      serializableCheck: false
+    }).concat(
+      enhancedApiChannelGroups.middleware,
+      enhancedApiEpgFiles.middleware,
+      enhancedApiM3UFiles.middleware,
+      enhancedApiProgrammes.middleware,
+      enhancedApiSchedulesDirect.middleware,
+      enhancedApiSettings.middleware,
+      enhancedApiStreamGroupChannelGroup.middleware,
+      enhancedApiStreamGroups.middleware,
+      enhancedApiStreamGroupVideoStreams.middleware,
+      enhancedApiVideoStreamLinks.middleware,
+      enhancedApiVideoStreams.middleware,
+      enhancedApiVideoStreamLinksLocal.middleware,
+      enhancedApiVideoStreamsGetAllStatisticsLocal.middleware
+    ),
+  reducer: rootReducer
+});
 
-export const initializeStore = (): Store<RootState> => {
-  let _store = store ?? makeStore();
+// export const initializeStore = (): Store<RootState> => {
+//   let _store = store ?? makeStore();
 
-  // For SSG and SSR always create a new store
-  if (typeof window === 'undefined') return _store;
+//   // For SSG and SSR always create a new store
+//   if (typeof window === 'undefined') return _store;
 
-  // Create the store once in the client
-  if (!store) store = _store;
+//   // Create the store once in the client
+//   if (!store) store = _store;
 
-  return _store;
-};
+//   return _store;
+// };
 
 export type AppDispatch = typeof store.dispatch;
 // setupListeners(store.dispatch);
 
 export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, Action<string>>;
 
-export function useStore(): Store<RootState> {
-  const store = useMemo(() => initializeStore(), []);
-  return store;
-}
+// export function useStore(): Store<RootState> {
+//   const store = useMemo(() => initializeStore(), []);
+//   return store;
+// }
 
-export default makeStore;
+export const persistor = persistStore(store);
+
+export default store;

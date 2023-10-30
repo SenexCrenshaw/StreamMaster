@@ -3,7 +3,7 @@ import {
   StreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersApiArg,
   type VideoStreamDto,
   type VideoStreamsSetVideoStreamChannelNumbersApiArg,
-  type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg,
+  type VideoStreamsSetVideoStreamChannelNumbersFromParametersApiArg
 } from '@lib/iptvApi';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
@@ -17,12 +17,12 @@ import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import AutoSetButton from '../buttons/AutoSetButton';
 import OKButton from '../buttons/OKButton';
 
-type AutoSetChannelNumbersProps = {
+interface AutoSetChannelNumbersProperties {
   readonly id: string;
   readonly streamGroupId?: number;
-};
+}
 
-const AutoSetChannelNumbers = ({ id, streamGroupId }: AutoSetChannelNumbersProps) => {
+const AutoSetChannelNumbers = ({ id, streamGroupId }: AutoSetChannelNumbersProperties) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
   const [block, setBlock] = React.useState<boolean>(false);
@@ -43,9 +43,9 @@ const AutoSetChannelNumbers = ({ id, streamGroupId }: AutoSetChannelNumbersProps
 
   const ids = useMemo((): string[] => {
     if (selectedVideoStreams !== undefined && selectedVideoStreams.length > 0) {
-      const i = selectedVideoStreams?.map((a: VideoStreamDto) => a.id) ?? [];
+      const index = selectedVideoStreams?.map((a: VideoStreamDto) => a.id) ?? [];
 
-      return i;
+      return index;
     }
 
     return [];
@@ -65,7 +65,7 @@ const AutoSetChannelNumbers = ({ id, streamGroupId }: AutoSetChannelNumbersProps
           setInfoMessage('Auto Set Channels Successfully');
         })
         .catch((error) => {
-          setInfoMessage('Auto Set Channels Error: ' + error.message);
+          setInfoMessage(`Auto Set Channels Error: ${error.message}`);
         });
 
       return;
@@ -89,7 +89,7 @@ const AutoSetChannelNumbers = ({ id, streamGroupId }: AutoSetChannelNumbersProps
           setInfoMessage('Auto Set Channels Successful');
         })
         .catch((error) => {
-          setInfoMessage('Auto Set Channels Error: ' + error.message);
+          setInfoMessage(`Auto Set Channels Error: ${error.message}`);
         });
 
       return;
@@ -110,18 +110,14 @@ const AutoSetChannelNumbers = ({ id, streamGroupId }: AutoSetChannelNumbersProps
     const promises = [];
 
     while (count < ids.length) {
-      if (count + max < ids.length) {
-        data.ids = ids.slice(count, count + max);
-      } else {
-        data.ids = ids.slice(count, ids.length);
-      }
+      data.ids = count + max < ids.length ? ids.slice(count, count + max) : ids.slice(count, ids.length);
 
       count += max;
 
       promises.push(
         SetVideoStreamChannelNumbers(data)
           .then(() => {})
-          .catch(() => {}),
+          .catch(() => {})
       );
     }
 
@@ -132,13 +128,11 @@ const AutoSetChannelNumbers = ({ id, streamGroupId }: AutoSetChannelNumbersProps
         setInfoMessage('Auto Set Channels Successful');
       })
       .catch((error) => {
-        setInfoMessage('Auto Set Channels Error: ' + error.message);
+        setInfoMessage(`Auto Set Channels Error: ${error.message}`);
       });
   }, [ids, overwriteNumbers, queryFilter, selectAll, sortInfo, startNumber, streamGroupId]);
 
-  const getTotalCount = useMemo(() => {
-    return ids.length;
-  }, [ids.length]);
+  const getTotalCount = useMemo(() => ids.length, [ids.length]);
 
   return (
     <>
@@ -176,7 +170,7 @@ const AutoSetChannelNumbers = ({ id, streamGroupId }: AutoSetChannelNumbersProps
                   <InputNumber
                     className="withpadding"
                     id="startNumber"
-                    max={999999}
+                    max={999_999}
                     min={0}
                     onChange={(e) => e.value && setStartNumber(e.value)}
                     showButtons

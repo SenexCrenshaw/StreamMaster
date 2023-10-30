@@ -1,8 +1,8 @@
 import { CreateEpgFileRequest, useEpgFilesCreateEpgFileMutation } from '@lib/iptvApi';
 import React, { useState } from 'react';
-import FileDialog, { type FileDialogProps } from '../sharedEPGM3U/FileDialog';
+import FileDialog, { type FileDialogProps as FileDialogProperties } from '../sharedEPGM3U/FileDialog';
 
-const EPGFileDialog: React.FC<Partial<FileDialogProps>> = () => {
+const EPGFileDialog: React.FC<Partial<FileDialogProperties>> = () => {
   const [infoMessage, setInfoMessage] = useState('');
 
   const [epgFilesCreateEpgFileMutation] = useEpgFilesCreateEpgFileMutation();
@@ -18,8 +18,8 @@ const EPGFileDialog: React.FC<Partial<FileDialogProps>> = () => {
       .then(() => {
         setInfoMessage('Uploaded EPG');
       })
-      .catch((e) => {
-        setInfoMessage(`Error Uploading EPG: ${e.message}`);
+      .catch((error) => {
+        setInfoMessage(`Error Uploading EPG: ${error.message}`);
       });
   };
 

@@ -1,4 +1,4 @@
-type help_enType = {
+interface help_enType {
   [key: string]: string
   ffMpegOptions: string
 }
@@ -17,10 +17,10 @@ const help_en: help_enType = {
   development: 'Development',
   deviceID: 'HDHR Device ID and capability ID',
   dummyRegex: 'EPG will be set to dummy if this matches the channel EPG',
-  ffmPegExecutable:
-    'FFMPeg Executable. The name "ffmpeg(.exe)" will be searched in the OS path as well',
   ffMpegOptions:
     "FFMPeg Options: '{streamUrl}' will be replaced with the stream URL.",
+  ffmPegExecutable:
+    'FFMPeg Executable. The name "ffmpeg(.exe)" will be searched in the OS path as well',
   filesEPG: 'Files / EPG',
   general: 'General',
   globalStreamLimit:
@@ -40,9 +40,9 @@ const help_en: help_enType = {
   sdPassword: 'Sched Direct Password',
   sdUserName: 'Sched Direct Username',
   settings: 'Settings',
-  signin: 'Sign In',
   signInSuccessful: 'Sign In Successful',
   signInUnSuccessful: 'Sign In Unsuccessful',
+  signin: 'Sign In',
   signout: 'Sign Out',
   sslCertPassword: 'SSL Certificate Password',
   sslCertPath: 'SSL Certificate Path',
@@ -53,11 +53,9 @@ const help_en: help_enType = {
   useDummyEPGForBlanks: 'Use Dummy EPG for streams with missing EPG',
   user: 'User',
   videoStreamAlwaysUseEPGLogo:
-    'Always use EPG Logo for Video Stream. If the EPG is changed to one containing a logo then the video stream logo will be set to that',
-}
+    'Always use EPG Logo for Video Stream. If the EPG is changed to one containing a logo then the video stream logo will be set to that'
+};
 
-export const getHelp = (key: string) => {
-  return help_en[key]
-}
+export const getHelp = (key: string) => help_en[key];
 
-export default help_en
+export default help_en;

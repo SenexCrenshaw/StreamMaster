@@ -1,10 +1,10 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 
-type SetShowSelectionsPayload = {
+interface SetShowSelectionsPayload {
   selections: boolean | null | undefined;
   typename: string;
-};
+}
 
 type ShowSelectionsState = Record<string, boolean | null | undefined>;
 
@@ -17,8 +17,8 @@ const showSelectionsSlice = createSlice({
     setShowSelectionsInternal: (state, action: PayloadAction<SetShowSelectionsPayload>) => {
       const { typename, selections } = action.payload;
       state[typename] = selections;
-    },
-  },
+    }
+  }
 });
 
 export const showSelections = (state: RootState, typename: string) => state.showSelections[typename];

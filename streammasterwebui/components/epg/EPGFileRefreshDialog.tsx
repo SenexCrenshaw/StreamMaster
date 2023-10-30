@@ -3,11 +3,11 @@ import { memo, useState } from 'react';
 import { useEpgFilesRefreshEpgFileMutation, type EpgFileDto, type EpgFilesRefreshEpgFileApiArg } from '@lib/iptvApi';
 import FileRefreshDialog from '../sharedEPGM3U/FileRefreshDialog';
 
-type EPGFileRefreshDialogProps = {
+interface EPGFileRefreshDialogProperties {
   readonly selectedFile: EpgFileDto;
-};
+}
 
-const EPGFileRefreshDialog = ({ selectedFile }: EPGFileRefreshDialogProps) => {
+const EPGFileRefreshDialog = ({ selectedFile }: EPGFileRefreshDialogProperties) => {
   const [infoMessage, setInfoMessage] = useState('');
   const [epgFilesRefreshEpgFileMutation] = useEpgFilesRefreshEpgFileMutation();
 
@@ -23,8 +23,8 @@ const EPGFileRefreshDialog = ({ selectedFile }: EPGFileRefreshDialogProps) => {
       .then(() => {
         setInfoMessage('EPG Refresh Successfully');
       })
-      .catch((e) => {
-        setInfoMessage('EPG Refresh Error: ' + e.message);
+      .catch((error) => {
+        setInfoMessage(`EPG Refresh Error: ${error.message}`);
       });
   };
 

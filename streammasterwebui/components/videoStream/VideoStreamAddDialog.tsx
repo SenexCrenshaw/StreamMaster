@@ -6,12 +6,12 @@ import { memo, useState } from 'react';
 import VideoStreamPanel from '@components/videoStreamPanel/VideoStreamPanel';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 
-type VideoStreamAddDialogProps = {
+interface VideoStreamAddDialogProperties {
   readonly group?: string | undefined;
   readonly onClose?: () => void;
-};
+}
 
-const VideoStreamAddDialog = ({ group, onClose }: VideoStreamAddDialogProps) => {
+const VideoStreamAddDialog = ({ group, onClose }: VideoStreamAddDialogProperties) => {
   const [block, setBlock] = useState<boolean>(false);
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
@@ -36,7 +36,7 @@ const VideoStreamAddDialog = ({ group, onClose }: VideoStreamAddDialogProps) => 
         setInfoMessage('Add Stream Successful');
       })
       .catch((error) => {
-        setInfoMessage('Add Stream Error: ' + error.message);
+        setInfoMessage(`Add Stream Error: ${error.message}`);
       });
   };
 

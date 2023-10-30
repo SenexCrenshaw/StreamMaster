@@ -3,17 +3,17 @@ import React from 'react';
 import { useVideoStreamsUpdateVideoStreamMutation, type UpdateVideoStreamRequest, type VideoStreamDto } from '@lib/iptvApi';
 import ChannelGroupSelector from './ChannelGroupSelector';
 
-const ChannelGroupEditor = (props: ChannelGroupEditorProps) => {
+const ChannelGroupEditor = (props: ChannelGroupEditorProperties) => {
   const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
   const onUpdateStream = React.useCallback(
     async (groupName: string) => {
       if (
-        props.data === undefined ||
-        props.data.id === undefined ||
-        props.data.id === '' ||
-        !groupName ||
-        groupName === '' ||
-        props.data.user_Tvg_group === groupName
+        props.data === undefined
+        || props.data.id === undefined
+        || props.data.id === ''
+        || !groupName
+        || groupName === ''
+        || props.data.user_Tvg_group === groupName
       ) {
         return;
       }
@@ -25,11 +25,11 @@ const ChannelGroupEditor = (props: ChannelGroupEditorProps) => {
 
       await videoStreamsUpdateVideoStreamMutation(data)
         .then(() => {})
-        .catch((e) => {
-          console.error(e);
+        .catch((error) => {
+          console.error(error);
         });
     },
-    [props.data, videoStreamsUpdateVideoStreamMutation],
+    [props.data, videoStreamsUpdateVideoStreamMutation]
   );
 
   return (
@@ -41,8 +41,8 @@ const ChannelGroupEditor = (props: ChannelGroupEditorProps) => {
 
 ChannelGroupEditor.displayName = 'Channel Group Dropdown';
 
-export type ChannelGroupEditorProps = {
+export interface ChannelGroupEditorProperties {
   readonly data: VideoStreamDto;
-};
+}
 
 export default React.memo(ChannelGroupEditor);

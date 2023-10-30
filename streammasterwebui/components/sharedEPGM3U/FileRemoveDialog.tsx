@@ -1,8 +1,8 @@
-import { memo, useCallback, useEffect, useState } from 'react'
-import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog'
-import XButton from '../buttons/XButton'
+import { memo, useCallback, useEffect, useState } from 'react';
+import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
+import XButton from '../buttons/XButton';
 
-type FileRemoveDialogProps = {
+interface FileRemoveDialogProperties {
   readonly fileType: 'epg' | 'm3u'
   readonly infoMessage?: string
   readonly onDeleteFile: () => void
@@ -11,23 +11,23 @@ type FileRemoveDialogProps = {
 const FileRemoveDialog = ({
   fileType,
   infoMessage: inputInfoMessage,
-  onDeleteFile,
-}: FileRemoveDialogProps) => {
-  const labelName = fileType.toUpperCase()
+  onDeleteFile
+}: FileRemoveDialogProperties) => {
+  const labelName = fileType.toUpperCase();
 
-  const [showOverlay, setShowOverlay] = useState<boolean>(false)
-  const [block, setBlock] = useState<boolean>(false)
-  const [infoMessage, setInfoMessage] = useState<string | undefined>(undefined)
+  const [showOverlay, setShowOverlay] = useState<boolean>(false);
+  const [block, setBlock] = useState<boolean>(false);
+  const [infoMessage, setInfoMessage] = useState<string | undefined>();
 
   useEffect(() => {
-    setInfoMessage(inputInfoMessage)
-  }, [inputInfoMessage])
+    setInfoMessage(inputInfoMessage);
+  }, [inputInfoMessage]);
 
   const ReturnToParent = useCallback(() => {
-    setShowOverlay(false)
-    setInfoMessage('')
-    setBlock(false)
-  }, [])
+    setShowOverlay(false);
+    setInfoMessage('');
+    setBlock(false);
+  }, []);
 
   return (
     <>
@@ -37,7 +37,7 @@ const FileRemoveDialog = ({
         header="Delete EPG File"
         infoMessage={infoMessage}
         onClose={() => {
-          ReturnToParent()
+          ReturnToParent();
         }}
         show={showOverlay}
       >
@@ -51,9 +51,9 @@ const FileRemoveDialog = ({
           </div>
           <div className="flex col-12 justify-content-center">
             <XButton
-              label={'Delete ' + labelName}
+              label={`Delete ${labelName}`}
               onClick={onDeleteFile}
-              tooltip={'Delete ' + labelName}
+              tooltip={`Delete ${labelName}`}
             />
           </div>
         </div>
@@ -62,10 +62,10 @@ const FileRemoveDialog = ({
       <XButton
         iconFilled={false}
         onClick={() => setShowOverlay(true)}
-        tooltip={'Delete ' + labelName}
+        tooltip={`Delete ${labelName}`}
       />
     </>
-  )
-}
+  );
+};
 
-export default memo(FileRemoveDialog)
+export default memo(FileRemoveDialog);

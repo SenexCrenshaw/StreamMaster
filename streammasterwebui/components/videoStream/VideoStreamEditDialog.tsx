@@ -5,14 +5,14 @@ import VideoStreamPanel from '@components/videoStreamPanel/VideoStreamPanel';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import EditButton from '../buttons/EditButton';
 
-const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
+const VideoStreamEditDialog = (props: VideoStreamEditDialogProperties) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
 
   const [videoStreamsUpdateVideoStreamMutation] = useVideoStreamsUpdateVideoStreamMutation();
 
-  const [videoStream, setVideoStream] = useState<VideoStreamDto | undefined>(undefined);
+  const [videoStream, setVideoStream] = useState<VideoStreamDto | undefined>();
 
   useEffect(() => {
     setVideoStream(props.value);
@@ -41,10 +41,10 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
           setInfoMessage('Set Stream Edited Successfully');
         })
         .catch((error) => {
-          setInfoMessage('Set Stream Edited Error: ' + error.message);
+          setInfoMessage(`Set Stream Edited Error: ${error.message}`);
         });
     },
-    [ReturnToParent, videoStreamsUpdateVideoStreamMutation],
+    [ReturnToParent, videoStreamsUpdateVideoStreamMutation]
   );
 
   return (
@@ -70,9 +70,9 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProps) => {
 
 VideoStreamEditDialog.displayName = 'VideoStreamEditDialog';
 
-type VideoStreamEditDialogProps = {
+interface VideoStreamEditDialogProperties {
   readonly onClose?: () => void;
   readonly value?: VideoStreamDto | undefined;
-};
+}
 
 export default memo(VideoStreamEditDialog);

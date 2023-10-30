@@ -1,7 +1,7 @@
 import {
   type VideoStreamDto,
   type VideoStreamsSetVideoStreamsLogoFromEpgApiArg,
-  type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg,
+  type VideoStreamsSetVideoStreamsLogoFromEpgFromParametersApiArg
 } from '@lib/iptvApi';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
@@ -13,11 +13,11 @@ import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import ImageButton from '../buttons/ImageButton';
 import OKButton from '../buttons/OKButton';
 
-type VideoStreamSetLogosFromEPGDialogProps = {
+interface VideoStreamSetLogosFromEPGDialogProperties {
   readonly id: string;
-};
+}
 
-const VideoStreamSetLogosFromEPGDialog = ({ id }: VideoStreamSetLogosFromEPGDialogProps) => {
+const VideoStreamSetLogosFromEPGDialog = ({ id }: VideoStreamSetLogosFromEPGDialogProperties) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [block, setBlock] = useState<boolean>(false);
@@ -51,7 +51,7 @@ const VideoStreamSetLogosFromEPGDialog = ({ id }: VideoStreamSetLogosFromEPGDial
           setInfoMessage('Set Streams Successfully');
         })
         .catch((error) => {
-          setInfoMessage('Set Streams Error: ' + error.message);
+          setInfoMessage(`Set Streams Error: ${error.message}`);
         });
 
       return;
@@ -70,17 +70,13 @@ const VideoStreamSetLogosFromEPGDialog = ({ id }: VideoStreamSetLogosFromEPGDial
     const promises = [];
 
     while (count < ids.length) {
-      if (count + max < ids.length) {
-        toSend.ids = ids.slice(count, count + max);
-      } else {
-        toSend.ids = ids.slice(count, ids.length);
-      }
+      toSend.ids = count + max < ids.length ? ids.slice(count, count + max) : ids.slice(count, ids.length);
 
       count += max;
       promises.push(
         SetVideoStreamsLogoFromEpg(toSend)
           .then(() => {})
-          .catch(() => {}),
+          .catch(() => {})
       );
     }
 
@@ -91,13 +87,11 @@ const VideoStreamSetLogosFromEPGDialog = ({ id }: VideoStreamSetLogosFromEPGDial
         setInfoMessage('Successful');
       })
       .catch((error) => {
-        setInfoMessage('Error: ' + error.message);
+        setInfoMessage(`Error: ${error.message}`);
       });
   }, [queryFilter, selectAll, selectedVideoStreams]);
 
-  const getTotalCount = useMemo(() => {
-    return selectedVideoStreams.length;
-  }, [selectedVideoStreams]);
+  const getTotalCount = useMemo(() => selectedVideoStreams.length, [selectedVideoStreams]);
 
   return (
     <>

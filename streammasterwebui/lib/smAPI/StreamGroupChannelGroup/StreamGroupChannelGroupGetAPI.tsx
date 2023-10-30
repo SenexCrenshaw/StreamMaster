@@ -1,10 +1,7 @@
 /* eslint unused-imports/no-unused-imports-ts: off */
 /* eslint @typescript-eslint/no-unused-vars: off */
-import { invokeHubConnection } from '@/lib/signalr/signalr';
 import type * as iptv from '@/lib/iptvApi';
+import { invokeHubConnection } from '@/lib/signalr/signalr';
 
-
-export const GetChannelGroupsFromStreamGroup = async (arg: iptv.ChannelGroupDto[]): Promise<iptv.ChannelGroupDto[] | null> => {
-    return await invokeHubConnection<iptv.ChannelGroupDto[]> ('GetChannelGroupsFromStreamGroup', arg);
-};
-
+export const GetChannelGroupsFromStreamGroup = async (argument: iptv.ChannelGroupDto[]): Promise<iptv.ChannelGroupDto[] | null> =>
+  invokeHubConnection<iptv.ChannelGroupDto[]>('GetChannelGroupsFromStreamGroup', argument);

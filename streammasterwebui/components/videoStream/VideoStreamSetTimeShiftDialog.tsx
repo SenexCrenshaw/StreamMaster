@@ -6,13 +6,13 @@ import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import ClockButton from '../buttons/ClockButton';
 import NumberInput from '../inputs/NumberInput';
 
-type VideoStreamSetTimeShiftDialogProps = {
+interface VideoStreamSetTimeShiftDialogProperties {
   readonly iconFilled?: boolean | undefined;
   readonly onClose?: () => void;
   readonly value?: VideoStreamDto | undefined;
-};
+}
 
-const VideoStreamSetTimeShiftDialog = ({ iconFilled, onClose, value }: VideoStreamSetTimeShiftDialogProps) => {
+const VideoStreamSetTimeShiftDialog = ({ iconFilled, onClose, value }: VideoStreamSetTimeShiftDialogProperties) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [block, setBlock] = useState<boolean>(false);
@@ -31,7 +31,7 @@ const VideoStreamSetTimeShiftDialog = ({ iconFilled, onClose, value }: VideoStre
     setInfoMessage('');
     setBlock(false);
     if (onClose) {
-      onClose;
+      onClose();
     }
   };
 

@@ -1,18 +1,16 @@
-import BaseButton, { type ChildButtonProps } from './BaseButton'
+import BaseButton, { type ChildButtonProps as ChildButtonProperties } from './BaseButton';
 
-const ClearButton: React.FC<ChildButtonProps> = ({
+const ClearButton: React.FC<ChildButtonProperties> = ({
   disabled = true,
   onClick,
-  tooltip = '',
-}) => {
-  return (
-    <BaseButton
-      disabled={disabled}
-      icon="pi-book"
-      onClick={onClick}
-      tooltip={tooltip}
-    />
-  )
-}
+  tooltip = ''
+}) => (
+  <BaseButton
+    disabled={disabled}
+    icon="pi-book"
+    onClick={onClick}
+    tooltip={tooltip}
+  />
+);
 
-export default ClearButton
+export default ClearButton;

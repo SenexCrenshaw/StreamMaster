@@ -1,24 +1,24 @@
-import { useDispatch, useSelector } from 'react-redux'
-import { type AppDispatch, type RootState } from '../../../lib/redux/store'
+import { useDispatch, useSelector } from 'react-redux';
+import { type AppDispatch, type RootState } from '../store';
 import {
   setHubDisconnected as setDisconnectedInternal,
-  setHubConnected as setHubConnectedInternal,
-} from './appInfoSlice'
+  setHubConnected as setHubConnectedInternal
+} from './appInfoSlice';
 
 export const useAppInfo = () => {
-  const dispatch: AppDispatch = useDispatch()
+  const dispatch: AppDispatch = useDispatch();
 
   const setHubDisconnected = (isDisconnectedValue: boolean) => {
-    dispatch(setDisconnectedInternal(isDisconnectedValue))
-  }
+    dispatch(setDisconnectedInternal(isDisconnectedValue));
+  };
 
   const setHubConnected = (isHubConnectedValue: boolean) => {
-    dispatch(setHubConnectedInternal(isHubConnectedValue))
-  }
+    dispatch(setHubConnectedInternal(isHubConnectedValue));
+  };
 
   const isHubConnected = useSelector(
-    (rootState: RootState) => rootState.appInfo.isHubConnected,
-  )
+    (rootState: RootState) => rootState.appInfo.isHubConnected
+  );
 
-  return { isHubConnected, setHubConnected, setHubDisconnected }
-}
+  return { isHubConnected, setHubConnected, setHubDisconnected };
+};

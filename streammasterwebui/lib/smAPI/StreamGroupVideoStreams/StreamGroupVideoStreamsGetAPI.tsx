@@ -1,14 +1,9 @@
 /* eslint unused-imports/no-unused-imports-ts: off */
 /* eslint @typescript-eslint/no-unused-vars: off */
-import { invokeHubConnection } from '@/lib/signalr/signalr';
 import type * as iptv from '@/lib/iptvApi';
+import { invokeHubConnection } from '@/lib/signalr/signalr';
 
-
-export const GetStreamGroupVideoStreamIds = async (arg: iptv.VideoStreamIsReadOnly[]): Promise<iptv.VideoStreamIsReadOnly[] | null> => {
-    return await invokeHubConnection<iptv.VideoStreamIsReadOnly[]> ('GetStreamGroupVideoStreamIds', arg);
-};
-
-export const GetPagedStreamGroupVideoStreams = async (arg: iptv.PagedResponseOfVideoStreamDto): Promise<iptv.VideoStreamDto[] | null> => {
-    return await invokeHubConnection<iptv.VideoStreamDto[]> ('GetPagedStreamGroupVideoStreams', arg);
-};
-
+export const GetStreamGroupVideoStreamIds = async (argument: iptv.VideoStreamIsReadOnly[]): Promise<iptv.VideoStreamIsReadOnly[] | null> =>
+  invokeHubConnection<iptv.VideoStreamIsReadOnly[]>('GetStreamGroupVideoStreamIds', argument);
+export const GetPagedStreamGroupVideoStreams = async (argument: iptv.PagedResponseOfVideoStreamDto): Promise<iptv.VideoStreamDto[] | null> =>
+  invokeHubConnection<iptv.VideoStreamDto[]>('GetPagedStreamGroupVideoStreams', argument);

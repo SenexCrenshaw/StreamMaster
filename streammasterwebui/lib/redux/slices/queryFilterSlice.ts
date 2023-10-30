@@ -1,15 +1,15 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import { type RootState } from '../../../lib/redux/store'
-import { type GetApiArg } from '../../common/common'
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { type RootState } from '../store';
+import { type GetApiArg as GetApiArgument } from '../../common/common';
 
-type SetQueryFilterPayload = {
-  filter: GetApiArg | undefined
+interface SetQueryFilterPayload {
+  filter: GetApiArgument | undefined
   typename: string
 }
 
-type QueryFilterState = Record<string, GetApiArg | undefined>
+type QueryFilterState = Record<string, GetApiArgument | undefined>
 
-const initialState: QueryFilterState = {}
+const initialState: QueryFilterState = {};
 
 const queryFilterSlice = createSlice({
   initialState,
@@ -17,20 +17,19 @@ const queryFilterSlice = createSlice({
   reducers: {
     setQueryFilterInternal: (
       state,
-      action: PayloadAction<SetQueryFilterPayload>,
+      action: PayloadAction<SetQueryFilterPayload>
     ) => {
-      const { typename, filter } = action.payload
+      const { typename, filter } = action.payload;
 
       if (filter !== null && filter !== undefined) {
-        state[typename] = filter
+        state[typename] = filter;
       } else {
-        delete state[typename] // Remove the key if the filter is null or undefined
+        delete state[typename]; // Remove the key if the filter is null or undefined
       }
-    },
-  },
-})
+    }
+  }
+});
 
-export const selectQueryFilter = (state: RootState, typename: string) =>
-  state.queryFilter[typename]
-export const { setQueryFilterInternal } = queryFilterSlice.actions
-export default queryFilterSlice.reducer
+export const selectQueryFilter = (state: RootState, typename: string) => state.queryFilter[typename];
+export const { setQueryFilterInternal } = queryFilterSlice.actions;
+export default queryFilterSlice.reducer;

@@ -1,14 +1,14 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import { type RootState } from '../../../lib/redux/store'
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { type RootState } from '../store';
 
-type SetSelectAllPayload = {
+interface SetSelectAllPayload {
   isSelectAll: boolean
   typename: string
 }
 
 type SelectAllState = Record<string, boolean>
 
-const initialState: SelectAllState = {}
+const initialState: SelectAllState = {};
 
 const selectAllSlice = createSlice({
   initialState,
@@ -16,16 +16,15 @@ const selectAllSlice = createSlice({
   reducers: {
     setSelectAllInternal: (
       state,
-      action: PayloadAction<SetSelectAllPayload>,
+      action: PayloadAction<SetSelectAllPayload>
     ) => {
-      const { typename, isSelectAll } = action.payload
+      const { typename, isSelectAll } = action.payload;
 
-      state[typename] = isSelectAll
-    },
-  },
-})
+      state[typename] = isSelectAll;
+    }
+  }
+});
 
-export const selectAll = (state: RootState, typename: string) =>
-  state.selectAll[typename]
-export const { setSelectAllInternal } = selectAllSlice.actions
-export default selectAllSlice.reducer
+export const selectAll = (state: RootState, typename: string) => state.selectAll[typename];
+export const { setSelectAllInternal } = selectAllSlice.actions;
+export default selectAllSlice.reducer;

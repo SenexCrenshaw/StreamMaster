@@ -1,21 +1,20 @@
-'use client';
 import { getIconUrl } from '@lib/common/common';
 import { IconFileDto, useIconsGetIconsSimpleQueryQuery, useIconsGetPagedIconsQuery } from '@lib/iptvApi';
 import { GetIconFromSource } from '@lib/smAPI/Icons/IconsGetAPI';
 import useSettings from '@lib/useSettings';
 import React, { useCallback } from 'react';
-import BaseSelector, { BaseSelectorProps } from './BaseSelector';
+import BaseSelector, { BaseSelectorProps as BaseSelectorProperties } from './BaseSelector';
 
-type IconSelectorProps = BaseSelectorProps<IconFileDto> & {
+type IconSelectorProperties = BaseSelectorProperties<IconFileDto> & {
   enableEditMode?: boolean;
   useDefault?: boolean;
 };
 
-const IconSelector: React.FC<Partial<IconSelectorProps>> = ({ enableEditMode = true, useDefault, onChange, ...restProps }) => {
+const IconSelector: React.FC<Partial<IconSelectorProperties>> = ({ enableEditMode = true, useDefault, onChange, ...restProperties }) => {
   const setting = useSettings();
 
   const selectedTemplate = (option: any) => {
-    const iconUrl = option?.source ? getIconUrl(restProps.value, setting.defaultIcon, false) : '';
+    const iconUrl = option?.source ? getIconUrl(restProperties.value, setting.defaultIcon, false) : '';
 
     if (!iconUrl) return <div />;
 
@@ -43,18 +42,18 @@ const IconSelector: React.FC<Partial<IconSelectorProps>> = ({ enableEditMode = t
     (event: string) => {
       if (event && onChange) onChange(event);
     },
-    [onChange],
+    [onChange]
   );
 
   if (!enableEditMode) {
-    const iconUrl = getIconUrl(restProps.value ?? '', setting.defaultIconUrl, false);
+    const iconUrl = getIconUrl(restProperties.value ?? '', setting.defaultIconUrl, false);
 
     return <img alt="logo" className="default-icon" src={iconUrl} />;
   }
 
   return (
     <BaseSelector
-      {...restProps}
+      {...restProperties}
       itemSize={64}
       itemTemplate={iconOptionTemplate}
       onChange={handleOnChange}

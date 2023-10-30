@@ -13,8 +13,8 @@ export const useSelectedVideoStreams = (typename: string) => {
     dispatch(
       setSelectedVideoStreamsInternal({
         typename,
-        videoStreamDtos,
-      }),
+        videoStreamDtos
+      })
     );
   };
 

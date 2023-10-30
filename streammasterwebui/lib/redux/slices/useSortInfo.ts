@@ -1,10 +1,10 @@
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux';
 
-import { AppDispatch, RootState } from '../store'
-import { setSortInfoInternal } from './sortInfoSlice'
+import { AppDispatch, RootState } from '../store';
+import { setSortInfoInternal } from './sortInfoSlice';
 
 export const useSortInfo = (typename: string) => {
-  const dispatch: AppDispatch = useDispatch()
+  const dispatch: AppDispatch = useDispatch();
 
   const setSortInfo = (isSortInfo: {
     sortField?: string
@@ -14,14 +14,14 @@ export const useSortInfo = (typename: string) => {
       setSortInfoInternal({
         sortField: isSortInfo.sortField,
         sortOrder: isSortInfo.sortOrder,
-        typename,
-      }),
-    )
-  }
+        typename
+      })
+    );
+  };
 
   const sortInfo = useSelector(
-    (rootState: RootState) => rootState.sortInfo[typename],
-  )
+    (rootState: RootState) => rootState.sortInfo[typename]
+  );
 
-  return { setSortInfo, sortInfo }
-}
+  return { setSortInfo, sortInfo };
+};

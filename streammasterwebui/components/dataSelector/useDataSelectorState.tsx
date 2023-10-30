@@ -18,14 +18,14 @@ const useDataSelectorState = <T extends DataTableValue>(id: string, selectedItem
   const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<T>(selectedItemsKey);
   const { showHidden } = useShowHidden(id);
   const { showSelections, setShowSelections } = useShowSelections(id);
-  const [rowClick, setRowClick] = useLocalStorage<boolean>(false, id + '-rowClick');
+  const [rowClick, setRowClick] = useLocalStorage<boolean>(false, `${id}-rowClick`);
 
   const [pagedInformation, setPagedInformation] = useState<PagedTableInformation>();
-  const [prevDataSource, setPrevDataSource] = useState<T[] | undefined>(undefined);
+  const [previousDataSource, setPreviousDataSource] = useState<T[] | undefined>();
   const [dataSource, setDataSource] = useState<T[]>();
   const [first, setFirst] = useState<number>(0);
   const [page, setPage] = useState<number>(1);
-  const [additionalFilterProps, setAdditionalFilterProps] = useState<AdditionalFilterProps | undefined>(undefined);
+  const [additionalFilterProperties, setAdditionalFilterProperties] = useState<AdditionalFilterProps | undefined>();
 
   const [rows, setRows] = useState<number>(25);
   const [filters, setFilters] = useState<DataTableFilterMeta>({});
@@ -47,14 +47,14 @@ const useDataSelectorState = <T extends DataTableValue>(id: string, selectedItem
 
   return {
     setters: {
-      setAdditionalFilterProps,
+      setAdditionalFilterProps: setAdditionalFilterProperties,
       setDataSource,
       setExpandedRows,
       setFilters,
       setFirst,
       setPage,
       setPagedInformation,
-      setPrevDataSource,
+      setPrevDataSource: setPreviousDataSource,
       setRowClick,
       setRows,
       setSelectAll,
@@ -62,17 +62,17 @@ const useDataSelectorState = <T extends DataTableValue>(id: string, selectedItem
       setShowSelections,
       setSortField,
       setSortOrder,
-      setVideoStreamIsReadOnlys,
+      setVideoStreamIsReadOnlys
     },
     state: {
-      additionalFilterProps,
+      additionalFilterProps: additionalFilterProperties,
       dataSource,
       expandedRows,
       filters,
       first,
       page,
       pagedInformation,
-      prevDataSource,
+      prevDataSource: previousDataSource,
       rowClick,
       rows,
       selectAll,
@@ -81,8 +81,8 @@ const useDataSelectorState = <T extends DataTableValue>(id: string, selectedItem
       showSelections,
       sortField,
       sortOrder,
-      videoStreamIsReadOnlys,
-    },
+      videoStreamIsReadOnlys
+    }
   };
 };
 

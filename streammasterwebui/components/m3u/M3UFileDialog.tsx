@@ -1,8 +1,8 @@
 import { useM3UFilesCreateM3UFileMutation, type CreateM3UFileRequest } from '@lib/iptvApi';
 import React, { useState } from 'react';
-import FileDialog, { type FileDialogProps } from '../sharedEPGM3U/FileDialog';
+import FileDialog, { type FileDialogProps as FileDialogProperties } from '../sharedEPGM3U/FileDialog';
 
-const M3UFileDialog: React.FC<Partial<FileDialogProps>> = () => {
+const M3UFileDialog: React.FC<Partial<FileDialogProperties>> = () => {
   const [infoMessage, setInfoMessage] = useState('');
 
   const [M3UFilesCreateM3UFileMutation] = useM3UFilesCreateM3UFileMutation();
@@ -21,8 +21,8 @@ const M3UFileDialog: React.FC<Partial<FileDialogProps>> = () => {
       .then(() => {
         setInfoMessage('Uploaded M3U');
       })
-      .catch((e) => {
-        setInfoMessage(`Error Uploading M3U: ${e.message}`);
+      .catch((error) => {
+        setInfoMessage(`Error Uploading M3U: ${error.message}`);
       });
   };
 

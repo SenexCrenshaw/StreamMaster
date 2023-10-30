@@ -8,7 +8,7 @@ const config: ConfigFile = {
   hooks: true,
   outputFile: './lib/iptvApi.ts',
   schemaFile: 'http://127.0.0.1:7095/swagger/v1/swagger.json',
-  tag: true,
+  tag: true
   // outputFiles: {
   //   './src/store/channel.ts': {
   //     filterEndpoints: [/channel/i],

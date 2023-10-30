@@ -4,14 +4,15 @@ import {
   UpdateSettingRequest,
   useSchedulesDirectGetSelectedStationIdsQuery,
   useSchedulesDirectGetStationPreviewsQuery,
-  type StationPreview,
+  type StationPreview
 } from '@lib/iptvApi';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
 import { Toast } from 'primereact/toast';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
+const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+
 const SchedulesDirectStationPreviewDataSelector = () => {
   const toast = useRef<Toast>(null);
 
@@ -31,14 +32,14 @@ const SchedulesDirectStationPreviewDataSelector = () => {
     }
 
     const sp = schedulesDirectGetSelectedStationIdsQuery.data
-      .map((stationIdLineUp) => {
-        return stationPreviews.data?.find(
-          (stationPreview) => stationPreview.stationId === stationIdLineUp.stationId && stationPreview.lineUp === stationIdLineUp.lineUp,
-        );
-      })
+      .map((stationIdLineUp) =>
+        stationPreviews.data?.find(
+          (stationPreview) => stationPreview.stationId === stationIdLineUp.stationId && stationPreview.lineUp === stationIdLineUp.lineUp
+        )
+      )
       .filter((station) => station !== undefined) as StationPreview[];
 
-    if (findDifferenceStationIdLineUps(sp, schedulesDirectGetSelectedStationIdsQuery.data).length !== 0) {
+    if (findDifferenceStationIdLineUps(sp, schedulesDirectGetSelectedStationIdsQuery.data).length > 0) {
       setSelectSelectedItems(sp as StationPreview[]);
     }
   }, [schedulesDirectGetSelectedStationIdsQuery.data, schedulesDirectGetSelectedStationIdsQuery.isLoading, setSelectSelectedItems, stationPreviews.data]);
@@ -63,10 +64,10 @@ const SchedulesDirectStationPreviewDataSelector = () => {
           setIsLoading(false);
           if (toast.current) {
             toast.current.show({
-              detail: `Update Station Ids Successful`,
+              detail: 'Update Station Ids Successful',
               life: 3000,
               severity: 'success',
-              summary: 'Successful',
+              summary: 'Successful'
             });
           }
         })
@@ -74,26 +75,24 @@ const SchedulesDirectStationPreviewDataSelector = () => {
           setIsLoading(false);
           if (toast.current) {
             toast.current.show({
-              detail: `Update Station Ids Failed`,
+              detail: 'Update Station Ids Failed',
               life: 3000,
               severity: 'error',
-              summary: 'Error',
+              summary: 'Error'
             });
           }
         });
 
       console.log('done');
     },
-    [schedulesDirectGetSelectedStationIdsQuery.data],
+    [schedulesDirectGetSelectedStationIdsQuery.data]
   );
 
   useEffect(() => {
-    const lineUps = selectSelectedItems.map((stationPreview) => {
-      return {
-        lineUp: stationPreview.lineUp,
-        stationId: stationPreview.stationId,
-      };
-    });
+    const lineUps = selectSelectedItems.map((stationPreview) => ({
+      lineUp: stationPreview.lineUp,
+      stationId: stationPreview.stationId
+    }));
     onSave(lineUps);
   }, [onSave, selectSelectedItems]);
 
@@ -109,16 +108,17 @@ const SchedulesDirectStationPreviewDataSelector = () => {
     );
   }
 
-  const columns = useMemo((): ColumnMeta[] => {
-    return [
+  const columns = useMemo(
+    (): ColumnMeta[] => [
       { field: 'stationId', filter: true, header: 'Station Id', sortable: true, width: '18rem' },
-      { field: 'logo', bodyTemplate: imageBodyTemplate, fieldType: 'image' },
+      { bodyTemplate: imageBodyTemplate, field: 'logo', fieldType: 'image' },
       { field: 'lineUp', header: 'Line Up', sortable: true },
       { field: 'name', filter: true, header: 'Name', sortable: true },
       { field: 'callsign', filter: true, header: 'Call Sign', sortable: true },
-      { field: 'affiliate', filter: true, header: 'Affiliate', sortable: true },
-    ];
-  }, []);
+      { field: 'affiliate', filter: true, header: 'Affiliate', sortable: true }
+    ],
+    []
+  );
 
   return (
     <>
@@ -128,7 +128,7 @@ const SchedulesDirectStationPreviewDataSelector = () => {
           columns={columns}
           dataSource={stationPreviews.data}
           defaultSortField="name"
-          disableSelectAll={true}
+          disableSelectAll
           emptyMessage="No Line Ups"
           headerName="Line Up Preview"
           id="SchedulesDirectStationPreviewDataSelector"

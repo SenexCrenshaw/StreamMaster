@@ -3,8 +3,8 @@ import { Dropdown } from 'primereact/dropdown';
 import { type SelectItem } from 'primereact/selectitem';
 import { useMemo, useRef, useState } from 'react';
 
-export const StreamGroupSelector = (props: StreamGroupSelectorProps) => {
-  const elementRef = useRef(null);
+export const StreamGroupSelector = (props: StreamGroupSelectorProperties) => {
+  const elementReference = useRef(null);
 
   const [selectedStreamGroup, setSelectedStreamGroup] = useState<StreamGroupDto>({} as StreamGroupDto);
 
@@ -26,24 +26,23 @@ export const StreamGroupSelector = (props: StreamGroupSelectorProps) => {
   };
 
   const getOptions = useMemo((): SelectItem[] => {
-    if (!streamGroups.data)
+    if (!streamGroups.data) {
       return [
         {
           label: 'Loading...',
-          value: {} as StreamGroupDto,
-        } as SelectItem,
+          value: {} as StreamGroupDto
+        } as SelectItem
       ];
+    }
 
-    const ret = streamGroups.data?.data?.map((a) => {
-      return { label: a.name, value: a } as SelectItem;
-    });
+    const returnValue = streamGroups.data?.data?.map((a) => ({ label: a.name, value: a } as SelectItem));
 
-    ret.unshift({
+    returnValue.unshift({
       label: 'All',
-      value: {} as StreamGroupDto,
+      value: {} as StreamGroupDto
     } as SelectItem);
 
-    return ret;
+    return returnValue;
   }, [streamGroups.data]);
 
   return (
@@ -54,7 +53,7 @@ export const StreamGroupSelector = (props: StreamGroupSelectorProps) => {
         onChange={(e) => onDropdownChange(e.value)}
         options={getOptions}
         placeholder="Stream Group"
-        ref={elementRef}
+        ref={elementReference}
         value={selectedStreamGroup}
       />
     </div>
@@ -63,6 +62,6 @@ export const StreamGroupSelector = (props: StreamGroupSelectorProps) => {
 
 StreamGroupSelector.displayName = 'StreamGroupSelector';
 
-type StreamGroupSelectorProps = {
+interface StreamGroupSelectorProperties {
   readonly onChange: (value: StreamGroupDto) => void;
-};
+}

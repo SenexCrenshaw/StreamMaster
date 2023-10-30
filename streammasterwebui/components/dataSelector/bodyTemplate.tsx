@@ -24,7 +24,7 @@ function imageBodyTemplate(data: object, fieldName: string, defaultIcon: string)
         onError={(e: SyntheticEvent<HTMLImageElement, Event>) => (e.currentTarget.src = e.currentTarget.src = +'/' + defaultIcon)}
         src={`${encodeURI(record ?? '')}`}
         style={{
-          objectFit: 'contain',
+          objectFit: 'contain'
         }}
       />
     </div>
@@ -38,7 +38,9 @@ function streamsBodyTemplate(activeCount: string, totalCount: string) {
 
   return (
     <div className="flex align-items-center gap-2">
-      {activeCount}/{totalCount}
+      {activeCount}
+      /
+      {totalCount}
     </div>
   );
 }
@@ -87,7 +89,7 @@ function defaultTemplate(data: object, fieldName: string, camelize?: boolean) {
         overflow: 'hidden',
         padding: '0rem !important',
         textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
+        whiteSpace: 'nowrap'
       }}
     >
       {displayValue}
@@ -97,27 +99,36 @@ function defaultTemplate(data: object, fieldName: string, camelize?: boolean) {
 
 function bodyTemplate(data: object, fieldName: string, fieldType: ColumnFieldType, defaultIcon: string, camelize?: boolean) {
   switch (fieldType) {
-    case 'blank':
+    case 'blank': {
       return blankTemplate();
-    case 'm3ulink':
+    }
+    case 'm3ulink': {
       return m3uLinkTemplate(data);
-    case 'epglink':
+    }
+    case 'epglink': {
       return epgLinkTemplate(data);
-    case 'url':
+    }
+    case 'url': {
       return urlTemplate(data);
-    case 'epg':
+    }
+    case 'epg': {
       return epgSourceTemplate(getRecordString(data, 'user_Tvg_ID'));
-    case 'image':
+    }
+    case 'image': {
       return imageBodyTemplate(data, fieldName, defaultIcon);
-    case 'streams':
+    }
+    case 'streams': {
       const activeCount = getRecord(data, 'activeCount');
       const totalCount = getRecord(data, 'totalCount');
 
       return streamsBodyTemplate(activeCount, totalCount);
-    case 'isHidden':
+    }
+    case 'isHidden': {
       return isHiddenTemplate(data, fieldName);
-    default:
+    }
+    default: {
       return defaultTemplate(data, fieldName, camelize);
+    }
   }
 }
 

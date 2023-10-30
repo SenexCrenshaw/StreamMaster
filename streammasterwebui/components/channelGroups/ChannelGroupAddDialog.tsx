@@ -1,3 +1,4 @@
+import { isFetchBaseQueryError } from '@/lib/common/common';
 import { useChannelGroupsCreateChannelGroupMutation, type CreateChannelGroupRequest } from '@lib/iptvApi';
 import { memo, useCallback, useMemo, useState, type FC } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
@@ -30,15 +31,17 @@ const ChannelGroupAddDialog: FC = () => {
 
     const requestData: CreateChannelGroupRequest = {
       groupName: newGroupName,
-      isReadOnly: false,
+      isReadOnly: false
     };
 
     channelGroupsCreateChannelGroupMutation(requestData)
       .then(() => {
         setInfoMessage('Channel Group Added Successfully');
       })
-      .catch((e) => {
-        setInfoMessage('Stream Group Add Error: ' + e.message);
+      .catch((error: unknown) => {
+        if (isFetchBaseQueryError(error)) {
+          setInfoMessage(`Delete Error: ${error.status}`);
+        }
       });
   }, [ReturnToParent, channelGroupsCreateChannelGroupMutation, newGroupName]);
 

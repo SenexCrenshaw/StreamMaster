@@ -3,7 +3,7 @@ import {
   useVideoStreamsDeleteVideoStreamMutation,
   type VideoStreamDto,
   type VideoStreamsDeleteAllVideoStreamsFromParametersApiArg,
-  type VideoStreamsDeleteVideoStreamApiArg,
+  type VideoStreamsDeleteVideoStreamApiArg
 } from '@lib/iptvApi';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
@@ -13,15 +13,15 @@ import OKButton from '../buttons/OKButton';
 import XButton from '../buttons/XButton';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 
-type VideoStreamDeleteDialogProps = {
+interface VideoStreamDeleteDialogProperties {
   readonly iconFilled?: boolean;
   readonly id: string;
   readonly onClose?: () => void;
   readonly skipOverLayer?: boolean;
   readonly values?: VideoStreamDto[];
-};
+}
 
-const VideoStreamDeleteDialog = ({ iconFilled, id, onClose, skipOverLayer, values }: VideoStreamDeleteDialogProps) => {
+const VideoStreamDeleteDialog = ({ iconFilled, id, onClose, skipOverLayer, values }: VideoStreamDeleteDialogProperties) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
 
@@ -30,7 +30,7 @@ const VideoStreamDeleteDialog = ({ iconFilled, id, onClose, skipOverLayer, value
   const [videoStreamsDeleteAllVideoStreamsFromParametersMutation] = useVideoStreamsDeleteAllVideoStreamsFromParametersMutation();
   const [videoStreamsDeleteVideoStreamMutation] = useVideoStreamsDeleteVideoStreamMutation();
 
-  const [selectVideoStreamsInternal, setSelectVideoStreamsInternal] = useState<VideoStreamDto[] | undefined>(undefined);
+  const [selectVideoStreamsInternal, setSelectVideoStreamsInternal] = useState<VideoStreamDto[] | undefined>();
 
   const { selectedVideoStreams } = useSelectedVideoStreams(id);
   const { selectAll } = useSelectAll(id);
@@ -75,7 +75,7 @@ const VideoStreamDeleteDialog = ({ iconFilled, id, onClose, skipOverLayer, value
           setInfoMessage('Set Stream Visibility Successfully');
         })
         .catch((error) => {
-          setInfoMessage('Set Stream Visibility Error: ' + error.message);
+          setInfoMessage(`Set Stream Visibility Error: ${error.message}`);
         });
 
       return;
@@ -96,7 +96,7 @@ const VideoStreamDeleteDialog = ({ iconFilled, id, onClose, skipOverLayer, value
       promises.push(
         videoStreamsDeleteVideoStreamMutation(data)
           .then(() => {})
-          .catch(() => {}),
+          .catch(() => {})
       );
     }
 
@@ -107,7 +107,7 @@ const VideoStreamDeleteDialog = ({ iconFilled, id, onClose, skipOverLayer, value
         setInfoMessage('Delete Stream Successful');
       })
       .catch((error) => {
-        setInfoMessage('Delete Stream Error: ' + error.message);
+        setInfoMessage(`Delete Stream Error: ${error.message}`);
       });
   };
 
@@ -120,7 +120,7 @@ const VideoStreamDeleteDialog = ({ iconFilled, id, onClose, skipOverLayer, value
   }, [selectVideoStreamsInternal]);
 
   const getTotalCount = useMemo(() => {
-    let count = selectVideoStreamsInternal?.length ?? 0;
+    const count = selectVideoStreamsInternal?.length ?? 0;
 
     return count;
   }, [selectVideoStreamsInternal?.length]);

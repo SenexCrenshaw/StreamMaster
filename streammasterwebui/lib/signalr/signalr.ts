@@ -1,8 +1,7 @@
-'use client';
 import { baseHostURL, isDev } from '@lib/settings';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 
-const url = baseHostURL + '/streammasterhub';
+const url = `${baseHostURL}/streammasterhub`;
 
 export const hubConnection = new HubConnectionBuilder()
   .configureLogging(LogLevel.Error)
@@ -10,12 +9,11 @@ export const hubConnection = new HubConnectionBuilder()
   .withUrl(url)
   .withAutomaticReconnect({
     nextRetryDelayInMilliseconds: (retryContext) => {
-      if (retryContext.elapsedMilliseconds < 60000) {
-        return 2000;
-      } else {
+      if (retryContext.elapsedMilliseconds < 60_000) {
         return 2000;
       }
-    },
+      return 2000;
+    }
   })
   .build();
 
@@ -26,19 +24,18 @@ export function isSignalRConnected() {
 const blacklistedMethods: string[] = ['GetLog', 'GetIconFromSource'];
 const whitelistedMethods: string[] = ['SetStreamGroupVideoStreamChannelNumbers'];
 
-export const invokeHubConnection = async <T>(methodName: string, arg?: any): Promise<T | null> => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const invokeHubConnection = async <T>(methodName: string, argument?: any): Promise<T | null> => {
   if (hubConnection.state !== 'Connected') return null;
 
-  if (isDev) {
-    if (!blacklistedMethods.includes(methodName)) {
-      console.groupCollapsed(`%c${methodName}`, 'color: green; font-weight: bold;');
-      if (whitelistedMethods.includes(methodName)) {
-        console.info('Arguments:', arg);
-      }
-      console.groupEnd();
+  if (isDev && !blacklistedMethods.includes(methodName)) {
+    console.groupCollapsed(`%c${methodName}`, 'color: green; font-weight: bold;');
+    if (whitelistedMethods.includes(methodName)) {
+      console.info('Arguments:', argument);
     }
+    console.groupEnd();
   }
 
-  const result = await hubConnection.invoke<T>(methodName, arg);
+  const result = await hubConnection.invoke<T>(methodName, argument);
   return result;
 };

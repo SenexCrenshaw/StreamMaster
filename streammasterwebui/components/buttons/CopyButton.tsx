@@ -2,13 +2,13 @@ import useCopyToClipboard from '@lib/hooks/useCopyToClipboard';
 import React, { useState } from 'react';
 import BaseButton from './BaseButton';
 
-export type CopyButtonProps = {
+export interface CopyButtonProperties {
   readonly disabled?: boolean | undefined;
   readonly notificationDuration?: number;
   readonly value: string | undefined; // New prop for notification duration
-};
+}
 
-const CopyButton: React.FC<CopyButtonProps> = ({ disabled = false, value, notificationDuration = 750 }) => {
+const CopyButton: React.FC<CopyButtonProperties> = ({ disabled = false, value, notificationDuration = 750 }) => {
   const [copied, setCopied] = useState(false);
   const [, copyToClipboard] = useCopyToClipboard();
 

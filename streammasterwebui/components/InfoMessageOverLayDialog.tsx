@@ -1,11 +1,11 @@
-import { BlockUI } from 'primereact/blockui'
-import { Dialog } from 'primereact/dialog'
-import { OverlayPanel } from 'primereact/overlaypanel'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { BlockUI } from 'primereact/blockui';
+import { Dialog } from 'primereact/dialog';
+import { OverlayPanel } from 'primereact/overlaypanel';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 type Severity = 'error' | 'info' | 'success' | 'warn'
 
-type InfoMessageOverLayDialogProps = {
+interface InfoMessageOverLayDialogProperties {
   readonly blocked?: boolean
   readonly children: React.ReactNode
   readonly closable?: boolean
@@ -18,8 +18,8 @@ type InfoMessageOverLayDialogProps = {
   readonly show: boolean
 }
 
-const InfoMessageOverLayDialog: React.FC<InfoMessageOverLayDialogProps> = (
-  props,
+const InfoMessageOverLayDialog: React.FC<InfoMessageOverLayDialogProperties> = (
+  props
 ) => {
   const {
     blocked = false,
@@ -31,57 +31,62 @@ const InfoMessageOverLayDialog: React.FC<InfoMessageOverLayDialogProps> = (
     onClose,
     overlayColSize = 4,
     severity,
-    show,
-  } = props
+    show
+  } = props;
 
-  const [showDialog, setShowDialog] = useState<boolean>(show)
+  const [showDialog, setShowDialog] = useState<boolean>(show);
 
-  const op = useRef<OverlayPanel | null>(null)
-  const anchorRef = useRef<Dialog | null>(null)
+  const op = useRef<OverlayPanel | null>(null);
+  const anchorReference = useRef<Dialog | null>(null);
 
   const hideOverlayAndDialog = useCallback(() => {
-    op.current?.hide()
-    setShowDialog(false)
-    onClose()
-  }, [onClose])
+    op.current?.hide();
+    setShowDialog(false);
+    onClose();
+  }, [onClose]);
 
   useEffect(() => {
-    setShowDialog(show)
-  }, [show])
+    setShowDialog(show);
+  }, [show]);
 
   useEffect(() => {
-    if (!infoMessage) return
+    if (!infoMessage) return;
 
-    if (!anchorRef.current?.getElement()) return
+    if (!anchorReference.current?.getElement()) return;
 
-    op.current?.show(null, anchorRef.current.getElement())
+    op.current?.show(null, anchorReference.current.getElement());
 
-    const timer = setTimeout(hideOverlayAndDialog, 1500)
+    const timer = setTimeout(hideOverlayAndDialog, 1500);
 
-    return () => clearTimeout(timer)
-  }, [infoMessage, hideOverlayAndDialog])
+    return () => clearTimeout(timer);
+  }, [infoMessage, hideOverlayAndDialog]);
 
   const determineSeverityColor = (): string => {
     switch (severity) {
-      case 'info':
-        return 'text-primary-500'
-      case 'error':
-        return 'text-red-500'
-      case 'success':
-        return 'text-green-500'
-      case 'warn':
-        return 'text-yellow-500'
-      default:
+      case 'info': {
+        return 'text-primary-500';
+      }
+      case 'error': {
+        return 'text-red-500';
+      }
+      case 'success': {
+        return 'text-green-500';
+      }
+      case 'warn': {
+        return 'text-yellow-500';
+      }
+      default: {
         if (
-          infoMessage?.toLowerCase().includes('error') ||
-          infoMessage?.toLowerCase().includes('failed')
+          infoMessage?.toLowerCase().includes('error')
+          || infoMessage?.toLowerCase().includes('failed')
         ) {
-          return 'text-red-500'
+          return 'text-red-500';
         }
 
-        return 'text-green-500'
+        return 'text-green-500';
+      }
     }
-  }
+  };
 
   return (
     <>
@@ -92,7 +97,7 @@ const InfoMessageOverLayDialog: React.FC<InfoMessageOverLayDialogProps> = (
         maximizable={maximizable}
         modal
         onHide={hideOverlayAndDialog}
-        ref={anchorRef}
+        ref={anchorReference}
         visible={showDialog}
       >
         <BlockUI blocked={blocked}>
@@ -117,9 +122,9 @@ const InfoMessageOverLayDialog: React.FC<InfoMessageOverLayDialogProps> = (
         </div>
       </OverlayPanel>
     </>
-  )
-}
+  );
+};
 
-InfoMessageOverLayDialog.displayName = 'InfoMessageOverLayDialog'
+InfoMessageOverLayDialog.displayName = 'InfoMessageOverLayDialog';
 
-export default React.memo(InfoMessageOverLayDialog)
+export default React.memo(InfoMessageOverLayDialog);

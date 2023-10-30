@@ -3,9 +3,9 @@ import EPGEditor from '../epg/EPGEditor';
 import createMultiSelectColumnConfigHook from './createMultiSelectColumnConfigHook';
 
 export const useEPGColumnConfig = createMultiSelectColumnConfigHook({
-  dataField: 'user_Tvg_ID',
   EditorComponent: EPGEditor,
+  dataField: 'user_Tvg_ID',
   headerTitle: 'EPG',
-  width: 12,
   queryHook: useProgrammesGetProgrammeNamesQuery,
+  width: 12
 });

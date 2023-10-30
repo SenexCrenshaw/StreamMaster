@@ -1,4 +1,4 @@
-export type StreamMasterApiData = {
+export interface StreamMasterApiData {
   apiKey: string
   apiRoot: string
   baseHostURL: string
@@ -12,4 +12,4 @@ declare global {
     StreamMaster: StreamMasterApiData
   }
 }
-export {}
+export {};

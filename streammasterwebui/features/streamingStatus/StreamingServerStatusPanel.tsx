@@ -1,4 +1,3 @@
-import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { VideoStreamSelector } from '@components/videoStream/VideoStreamSelector';
 import { formatJSONDateString, getIconUrl, getTopToolOptions } from '@lib/common/common';
@@ -6,20 +5,22 @@ import {
   ChangeVideoStreamChannelRequest,
   SimulateStreamFailureRequest,
   StreamStatisticsResult,
-  useVideoStreamsGetAllStatisticsForAllUrlsQuery,
+  useVideoStreamsGetAllStatisticsForAllUrlsQuery
 } from '@lib/iptvApi';
 import { ChangeVideoStreamChannel, SimulateStreamFailure } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import useSettings from '@lib/useSettings';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react';
+import React, { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react';
 
-type StreamingServerStatusPanelProps = {
+const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+
+interface StreamingServerStatusPanelProperties {
   readonly className?: string;
   readonly style?: CSSProperties;
-};
+}
 
-export const StreamingServerStatusPanel = ({ className, style }: StreamingServerStatusPanelProps) => {
+export const StreamingServerStatusPanel = ({ className, style }: StreamingServerStatusPanelProperties) => {
   const setting = useSettings();
   const toast = useRef<Toast>(null);
 
@@ -30,7 +31,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
       return;
     }
 
-    var toSend = {} as ChangeVideoStreamChannelRequest;
+    const toSend = {} as ChangeVideoStreamChannelRequest;
 
     toSend.playingVideoStreamId = playingVideoStreamId;
     toSend.newVideoStreamId = newVideoStreamId;
@@ -39,36 +40,34 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
       .then(() => {
         if (toast.current) {
           toast.current.show({
-            detail: `Changed Client Channel`,
+            detail: 'Changed Client Channel',
             life: 3000,
             severity: 'success',
-            summary: 'Successful',
+            summary: 'Successful'
           });
         }
       })
       .catch(() => {
         if (toast.current) {
           toast.current.show({
-            detail: `Failed Client Channel`,
+            detail: 'Failed Client Channel',
             life: 3000,
             severity: 'error',
-            summary: 'Error',
+            summary: 'Error'
           });
         }
       });
   }, []);
 
   const videoStreamTemplate = useCallback(
-    (rowData: StreamStatisticsResult) => {
-      return (
-        <VideoStreamSelector
-          onChange={async (e) => {
-            await onChangeVideoStreamChannel(rowData.videoStreamId ?? '', e.id);
-          }}
-          value={rowData.videoStreamName}
-        />
-      );
-    },
+    (rowData: StreamStatisticsResult) => (
+      <VideoStreamSelector
+        onChange={async (e) => {
+          await onChangeVideoStreamChannel(rowData.videoStreamId ?? '', e.id);
+        }}
+        value={rowData.videoStreamName}
+      />
+    ),
     [onChangeVideoStreamChannel]
   );
 
@@ -77,27 +76,27 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
       return;
     }
 
-    var toSend = {} as SimulateStreamFailureRequest;
+    const toSend = {} as SimulateStreamFailureRequest;
     toSend.streamUrl = rowData.streamUrl;
 
     await SimulateStreamFailure(toSend)
       .then(() => {
         if (toast.current) {
           toast.current.show({
-            detail: `Next Stream`,
+            detail: 'Next Stream',
             life: 3000,
             severity: 'success',
-            summary: 'Successful',
+            summary: 'Successful'
           });
         }
       })
       .catch(() => {
         if (toast.current) {
           toast.current.show({
-            detail: `Next Stream Failed`,
+            detail: 'Next Stream Failed',
             life: 3000,
             severity: 'error',
-            summary: 'Error',
+            summary: 'Error'
           });
         }
       });
@@ -125,26 +124,22 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
     return <div>{roundedKbps.toLocaleString('en-US')}</div>;
   }, []);
 
-  const inputElapsedTimeTemplate = useCallback((rowData: StreamStatisticsResult) => {
-    return <div>{rowData.inputElapsedTime?.split('.')[0]}</div>;
-  }, []);
+  const inputElapsedTimeTemplate = useCallback((rowData: StreamStatisticsResult) => <div>{rowData.inputElapsedTime?.split('.')[0]}</div>, []);
 
-  const inputStartTimeTemplate = useCallback((rowData: StreamStatisticsResult) => {
-    return <div>{formatJSONDateString(rowData.inputStartTime ?? '')}</div>;
-  }, []);
+  const inputStartTimeTemplate = useCallback((rowData: StreamStatisticsResult) => <div>{formatJSONDateString(rowData.inputStartTime ?? '')}</div>, []);
 
   const dataSource = useMemo((): StreamStatisticsResult[] => {
     if (getStreamingStatus.data === undefined || getStreamingStatus.data.length === 0 || getStreamingStatus.data === null) {
       return [];
     }
 
-    let data = [] as StreamStatisticsResult[];
+    const data = [] as StreamStatisticsResult[];
 
-    getStreamingStatus.data.forEach((item) => {
+    for (const item of getStreamingStatus.data) {
       if (data.findIndex((x) => x.videoStreamId === item.videoStreamId) === -1) {
         data.push(item);
       }
-    });
+    }
 
     return data;
   }, [getStreamingStatus.data]);
@@ -160,90 +155,86 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
   );
 
   const targetActionBodyTemplate = useCallback(
-    (rowData: StreamStatisticsResult) => {
-      return (
-        <div className="dataselector p-inputgroup align-items-center justify-content-end">
-          <Button
+    (rowData: StreamStatisticsResult) => (
+      <div className="dataselector p-inputgroup align-items-center justify-content-end">
+        <Button
             // className="p-button-danger"
-            icon="pi pi-angle-right"
-            onClick={async () => await onFailStream(rowData)}
-            rounded
-            text
-            tooltip="Next Stream"
-            tooltipOptions={getTopToolOptions}
-          />
-        </div>
-      );
-    },
+          icon="pi pi-angle-right"
+          onClick={async () => await onFailStream(rowData)}
+          rounded
+          text
+          tooltip="Next Stream"
+          tooltipOptions={getTopToolOptions}
+        />
+      </div>
+    ),
     [onFailStream]
   );
 
-  const sourceColumns = useMemo((): ColumnMeta[] => {
-    return [
-      {
-        bodyTemplate: imageBodyTemplate,
-        field: 'icon',
-        width: '4rem',
-      },
+  const sourceColumns = useMemo((): ColumnMeta[] => [
+    {
+      bodyTemplate: imageBodyTemplate,
+      field: 'icon',
+      width: '4rem'
+    },
 
-      { field: 'videoStreamName', header: 'Name' },
-      {
-        align: 'center',
-        bodyTemplate: videoStreamTemplate,
-        field: 'videoStreamTemplate',
-        header: 'Video Stream',
-        width: '18rem',
-      },
-      {
-        align: 'center',
-        field: 'rank',
-        header: 'Rank',
-        width: '4rem',
-      },
+    { field: 'videoStreamName', header: 'Name' },
+    {
+      align: 'center',
+      bodyTemplate: videoStreamTemplate,
+      field: 'videoStreamTemplate',
+      header: 'Video Stream',
+      width: '18rem'
+    },
+    {
+      align: 'center',
+      field: 'rank',
+      header: 'Rank',
+      width: '4rem'
+    },
 
-      {
-        align: 'center',
-        bodyTemplate: streamCount,
-        field: 'Count',
-        header: 'Count',
-        width: '4rem',
-      },
-      {
-        align: 'center',
-        bodyTemplate: inputBitsPerSecondTemplate,
-        field: 'inputBitsPerSecond',
-        header: 'Input kbps',
-        width: '10rem',
-      },
-      {
-        align: 'center',
-        bodyTemplate: inputElapsedTimeTemplate,
-        field: 'inputElapsedTime',
-        header: 'Input Elapsed',
-        width: '10rem',
-      },
-      {
-        align: 'center',
-        bodyTemplate: inputStartTimeTemplate,
-        field: 'inputStartTime',
-        header: 'Input Start',
-        width: '10rem',
-      },
-      {
-        align: 'center',
-        bodyTemplate: targetActionBodyTemplate,
-        field: 'Actions',
-        width: '8rem',
-      },
-    ];
-  }, [
+    {
+      align: 'center',
+      bodyTemplate: streamCount,
+      field: 'Count',
+      header: 'Count',
+      width: '4rem'
+    },
+    {
+      align: 'center',
+      bodyTemplate: inputBitsPerSecondTemplate,
+      field: 'inputBitsPerSecond',
+      header: 'Input kbps',
+      width: '10rem'
+    },
+    {
+      align: 'center',
+      bodyTemplate: inputElapsedTimeTemplate,
+      field: 'inputElapsedTime',
+      header: 'Input Elapsed',
+      width: '10rem'
+    },
+    {
+      align: 'center',
+      bodyTemplate: inputStartTimeTemplate,
+      field: 'inputStartTime',
+      header: 'Input Start',
+      width: '10rem'
+    },
+    {
+      align: 'center',
+      bodyTemplate: targetActionBodyTemplate,
+      field: 'Actions',
+      width: '8rem'
+    }
+  ], [
     imageBodyTemplate,
     inputBitsPerSecondTemplate,
     inputElapsedTimeTemplate,
     inputStartTimeTemplate,
     streamCount,
     targetActionBodyTemplate,
-    videoStreamTemplate,
+    videoStreamTemplate
   ]);
 
   return (

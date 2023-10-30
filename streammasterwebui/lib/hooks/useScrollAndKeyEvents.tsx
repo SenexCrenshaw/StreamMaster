@@ -11,7 +11,7 @@ interface UseScrollAndKeyEventsResult {
 }
 
 function useScrollAndKeyEvents(): UseScrollAndKeyEventsResult {
-  const [eventData, setEventData] = useState<UseScrollAndKeyEventsResult>({ type: null, direction: null });
+  const [eventData, setEventData] = useState<UseScrollAndKeyEventsResult>({ direction: null, type: null });
 
   const determineScrollState = (direction: Direction) => {
     const atTop = window.scrollY <= 0;
@@ -19,11 +19,10 @@ function useScrollAndKeyEvents(): UseScrollAndKeyEventsResult {
 
     if (direction === 'up' && atTop) {
       return 'blocked';
-    } else if (direction === 'down' && atBottom) {
+    } if (direction === 'down' && atBottom) {
       return 'blocked';
-    } else {
-      return 'moved';
     }
+    return 'moved';
   };
 
   useEffect(() => {
@@ -31,12 +30,12 @@ function useScrollAndKeyEvents(): UseScrollAndKeyEventsResult {
       if (e.keyCode === 38) {
         // Up arrow key code
         const state = determineScrollState('up');
-        setEventData({ type: 'keyUp', direction: 'up', state });
+        setEventData({ direction: 'up', state, type: 'keyUp' });
       } else if (e.keyCode === 40) {
         // Down arrow key code
         console.log('down');
         const state = determineScrollState('down');
-        setEventData({ type: 'keyDown', direction: 'down', state });
+        setEventData({ direction: 'down', state, type: 'keyDown' });
       }
     };
 
@@ -44,13 +43,13 @@ function useScrollAndKeyEvents(): UseScrollAndKeyEventsResult {
       // Use `any` to handle both WheelEvent and MouseWheelEvent
       const direction = e.deltaY > 0 ? 'down' : 'up';
       const state = determineScrollState(direction);
-      setEventData({ type: 'mouseWheel', direction, state });
+      setEventData({ direction, state, type: 'mouseWheel' });
     };
 
     const handleWheelEvent = (e: WheelEvent) => {
       const direction = e.deltaY > 0 ? 'down' : 'up';
       const state = determineScrollState(direction);
-      setEventData({ type: 'wheel', direction, state }); // Updated the type to 'wheel'
+      setEventData({ direction, state, type: 'wheel' }); // Updated the type to 'wheel'
     };
 
     // const handleMouseWheelEvent = (e: WheelEvent) => {

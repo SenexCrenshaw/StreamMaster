@@ -5,7 +5,7 @@ import { Button } from 'primereact/button';
 import React from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 
-const SettingsNameRegexDeleteDialog = (props: SettingsNameRegexDeleteDialogProps) => {
+const SettingsNameRegexDeleteDialog = (props: SettingsNameRegexDeleteDialogProperties) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
@@ -35,8 +35,8 @@ const SettingsNameRegexDeleteDialog = (props: SettingsNameRegexDeleteDialogProps
       .then(() => {
         setInfoMessage('Add Regex Successfully');
       })
-      .catch((e) => {
-        setInfoMessage('Add Regex Error: ' + e.message);
+      .catch((error) => {
+        setInfoMessage(`Add Regex Error: ${error.message}`);
       });
   }, [ReturnToParent, props.value, props.values]);
 
@@ -77,10 +77,10 @@ const SettingsNameRegexDeleteDialog = (props: SettingsNameRegexDeleteDialogProps
 
 SettingsNameRegexDeleteDialog.displayName = 'SettingsNameRegexDeleteDialog';
 
-type SettingsNameRegexDeleteDialogProps = {
+interface SettingsNameRegexDeleteDialogProperties {
   readonly onClose?: () => void;
   readonly value: string;
   readonly values: string[];
-};
+}
 
 export default React.memo(SettingsNameRegexDeleteDialog);

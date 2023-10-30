@@ -3,12 +3,12 @@ import { ChildVideoStreamDto, VideoStreamLinksRemoveVideoStreamFromVideoStreamAp
 import { RemoveVideoStreamFromVideoStream } from '@lib/smAPI/VideoStreamLinks/VideoStreamLinksMutateAPI';
 import { memo } from 'react';
 
-type VideoStreamRemoveFromVideoStreamDialogProps = {
+interface VideoStreamRemoveFromVideoStreamDialogProperties {
   readonly value?: ChildVideoStreamDto | undefined;
   readonly videoStreamId: string;
-};
+}
 
-const VideoStreamRemoveFromVideoStreamDialog = ({ value, videoStreamId }: VideoStreamRemoveFromVideoStreamDialogProps) => {
+const VideoStreamRemoveFromVideoStreamDialog = ({ value, videoStreamId }: VideoStreamRemoveFromVideoStreamDialogProperties) => {
   const removeVideoStream = async () => {
     if (!value) {
       return;
@@ -22,7 +22,7 @@ const VideoStreamRemoveFromVideoStreamDialog = ({ value, videoStreamId }: VideoS
     await RemoveVideoStreamFromVideoStream(toSend)
       .then(() => {})
       .catch((error) => {
-        console.error('Remove Stream Error: ' + error.message);
+        console.error(`Remove Stream Error: ${error.message}`);
       });
   };
 

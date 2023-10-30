@@ -8,7 +8,7 @@ function generateFilterData(columns: ColumnMeta[], currentFilters: DataTableFilt
     return {};
   }
 
-  const ret = columns.reduce<DataTableFilterMeta>((obj, item: ColumnMeta) => {
+  const returnValue = columns.reduce<DataTableFilterMeta>((object, item: ColumnMeta) => {
     let value = '';
     let matchMode = item.filterMatchMode ?? '';
 
@@ -24,15 +24,15 @@ function generateFilterData(columns: ColumnMeta[], currentFilters: DataTableFilt
     }
 
     return {
-      ...obj,
+      ...object,
       [item.field]: {
         fieldName: item.field,
         matchMode: matchMode ?? FilterMatchMode.CONTAINS,
-        value: value,
-      },
+        value
+      }
     } as DataTableFilterMeta;
   }, {});
-  return ret;
+  return returnValue;
 }
 
 export default generateFilterData;
