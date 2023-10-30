@@ -45,7 +45,7 @@ export const enhancedApiEpgFiles = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.EpgFileDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDev) console.log('empty', data);
+              if (isDev) console.log('EPGFiles Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['EPGFiles']));
               return;
             }

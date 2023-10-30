@@ -14,7 +14,7 @@ export const enhancedApiStreamGroupVideoStreams = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.VideoStreamDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDev) console.log('empty', data);
+              if (isDev) console.log('StreamGroupVideoStreams Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['StreamGroupVideoStreams']));
               return;
             }

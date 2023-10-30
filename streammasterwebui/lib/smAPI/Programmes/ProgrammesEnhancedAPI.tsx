@@ -14,7 +14,7 @@ export const enhancedApiProgrammes = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.ProgrammeNameDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDev) console.log('empty', data);
+              if (isDev) console.log('Programmes Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['Programmes']));
               return;
             }
@@ -70,7 +70,7 @@ export const enhancedApiProgrammes = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.ProgrammeNameDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDev) console.log('empty', data);
+              if (isDev) console.log('Programmes Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['Programmes']));
               return;
             }

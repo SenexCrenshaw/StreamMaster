@@ -14,7 +14,7 @@ export const enhancedApiVideoStreamLinks = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.VideoStreamDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDev) console.log('empty', data);
+              if (isDev) console.log('VideoStreamLinks Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['VideoStreamLinks']));
               return;
             }

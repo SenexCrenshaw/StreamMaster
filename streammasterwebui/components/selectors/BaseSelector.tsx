@@ -106,14 +106,29 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
         }
       }
       const item = data.find((x) => x.id === props.value);
-      // console.log('has', item);
+
       if (item) {
         setSelectedItem(item);
       }
       setSelectedItemName(props.value);
     },
-    [props, query.data, selectedItemName],
+    [props, query.data, selectedItemName]
   );
+
+  useEffect(() => {
+    if (filteredDataSource && filteredDataSource.length > 0) {
+      const item = filteredDataSource.find((x) => x.id === props.value);
+      if (!item || selectedItem?.id === props.value) {
+        return;
+      }
+
+      setSelectedItemName(item.source);
+      setSelectedItem(item);
+
+      return;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.value]);
 
   useEffect(() => {
     var existingIds = new Set(dataSource.map((x) => x.id));
@@ -191,7 +206,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProps<T>) => {
         }
       }
     },
-    [selectedItemName, props],
+    [selectedItemName, props]
   );
 
   const className = classNames('BaseSelector align-contents-center p-0 m-0 max-w-full w-full', props.className, {

@@ -76,7 +76,7 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.StreamGroupDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDev) console.log('empty', data);
+              if (isDev) console.log('StreamGroups Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['StreamGroups']));
               return;
             }

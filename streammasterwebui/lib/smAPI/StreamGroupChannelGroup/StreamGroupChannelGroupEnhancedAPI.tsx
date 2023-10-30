@@ -14,7 +14,7 @@ export const enhancedApiStreamGroupChannelGroup = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.ChannelGroupDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDev) console.log('empty', data);
+              if (isDev) console.log('StreamGroupChannelGroup Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['StreamGroupChannelGroup']));
               return;
             }
