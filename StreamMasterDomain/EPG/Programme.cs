@@ -21,9 +21,9 @@ public class Programme
 
 
     [XmlIgnore]
-    public string ChannelName { get; set; }
+    public string ChannelName { get; set; } = string.Empty;
     [XmlIgnore]
-    public string DisplayName { get; set; }
+    public string DisplayName { get; set; } = string.Empty;
 
     [XmlElement(ElementName = "credits")]
     public TvCredits Credits { get; set; } = new();

@@ -14,7 +14,7 @@ export const enhancedApiSettings = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.TaskQueueStatusDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDev) console.log('empty', data);
+              if (isDev) console.log('Settings Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['Settings']));
               return;
             }

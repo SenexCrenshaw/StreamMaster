@@ -1,9 +1,4 @@
-﻿using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-
-using StreamMasterApplication.Hubs;
-using StreamMasterApplication.Services;
+﻿using StreamMasterApplication.Services;
 
 namespace StreamMasterApplication.EPGFiles.EventHandlers;
 
@@ -25,5 +20,6 @@ public class EPGFileProcessedEventHandler : INotificationHandler<EPGFileProcesse
     {
         await _taskQueue.BuildProgIconsCacheFromEPGs(cancellationToken).ConfigureAwait(false);
         await _hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
+        await _hubContext.Clients.All.ChannelGroupsRefresh().ConfigureAwait(false);
     }
 }

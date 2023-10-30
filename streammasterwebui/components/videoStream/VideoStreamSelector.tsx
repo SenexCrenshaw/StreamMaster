@@ -1,21 +1,21 @@
-import { useVideoStreamsGetPagedVideoStreamsQuery, type VideoStreamDto, type VideoStreamsGetPagedVideoStreamsApiArg } from '@lib/iptvApi';
+import { IdName, useVideoStreamsGetVideoStreamNamesQuery, type VideoStreamDto } from '@lib/iptvApi';
 import { Dropdown } from 'primereact/dropdown';
 import { type SelectItem } from 'primereact/selectitem';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 export const VideoStreamSelector = (props: VideoStreamSelectorProps) => {
   const elementRef = useRef(null);
-  const [selectedVideoStream, setSelectedVideoStream] = useState<VideoStreamDto>({} as VideoStreamDto);
+  const [selectedVideoStreamIdName, setSelectedVideoStreamIdName] = useState<IdName | undefined>(undefined);
 
-  const videoStreamsQuery = useVideoStreamsGetPagedVideoStreamsQuery({} as VideoStreamsGetPagedVideoStreamsApiArg);
+  const videoStreamsQuery = useVideoStreamsGetVideoStreamNamesQuery();
 
   useEffect(() => {
-    if (props.value !== undefined && props.value !== selectedVideoStream.user_Tvg_ID) {
-      const v = videoStreamsQuery.data?.data.find((a: VideoStreamDto) => a.user_Tvg_name === props.value);
+    if (props.value !== undefined && videoStreamsQuery.data && props.value !== selectedVideoStreamIdName?.name) {
+      const v = videoStreamsQuery.data.find((idName: IdName) => idName.name === props.value);
 
-      if (v) setSelectedVideoStream(v);
+      if (v) setSelectedVideoStreamIdName(v);
     }
-  }, [props.value, selectedVideoStream, videoStreamsQuery.data]);
+  }, [props.value, selectedVideoStreamIdName?.name, videoStreamsQuery.data]);
 
   const isDisabled = useMemo((): boolean => {
     if (videoStreamsQuery.isLoading) {
@@ -25,10 +25,10 @@ export const VideoStreamSelector = (props: VideoStreamSelectorProps) => {
     return false;
   }, [videoStreamsQuery.isLoading]);
 
-  const onDropdownChange = (sg: VideoStreamDto) => {
+  const onDropdownChange = (sg: IdName) => {
     if (!sg) return;
 
-    setSelectedVideoStream(sg);
+    setSelectedVideoStreamIdName(sg);
     props?.onChange?.(sg);
   };
 
@@ -41,11 +41,10 @@ export const VideoStreamSelector = (props: VideoStreamSelectorProps) => {
         } as SelectItem,
       ];
 
-    const ret = videoStreamsQuery.data?.data
-      ?.filter((a) => !a.isHidden)
-      .sort((a, b) => a.user_Tvg_name.localeCompare(b.user_Tvg_name))
+    const ret = [...videoStreamsQuery.data]
+      .sort((a, b) => a.name.localeCompare(b.name))
       .map((a) => {
-        return { label: a.user_Tvg_name, value: a } as SelectItem;
+        return { label: a.name, value: a } as SelectItem;
       });
 
     return ret;
@@ -54,6 +53,7 @@ export const VideoStreamSelector = (props: VideoStreamSelectorProps) => {
   return (
     <div className="flex w-full justify-items-center border=1">
       <Dropdown
+        filterInputAutoFocus
         className="VideoStreamselector w-full"
         disabled={isDisabled}
         filter
@@ -61,7 +61,7 @@ export const VideoStreamSelector = (props: VideoStreamSelectorProps) => {
         options={getOptions}
         placeholder="Video Streams"
         ref={elementRef}
-        value={selectedVideoStream}
+        value={selectedVideoStreamIdName}
       />
     </div>
   );
@@ -70,6 +70,6 @@ export const VideoStreamSelector = (props: VideoStreamSelectorProps) => {
 VideoStreamSelector.displayName = 'VideoStreamSelector';
 
 type VideoStreamSelectorProps = {
-  readonly onChange: (value: VideoStreamDto) => void;
+  readonly onChange: (value: IdName) => void;
   readonly value: string | undefined;
 };

@@ -64,7 +64,7 @@ if (!string.IsNullOrEmpty(sslCertPath))
 // Add services to the container.
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureEFServices();
-builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddInfrastructureServices();
 builder.Services.AddWebUIServices();
 
 builder.Services.Configure<RouteOptions>(options =>

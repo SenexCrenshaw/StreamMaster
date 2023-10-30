@@ -16,9 +16,10 @@ import { useChannelNumberColumnConfig } from '../columns/useChannelNumberColumnC
 type VideoStreamDataSelectorProps = {
   readonly id: string;
   readonly videoStreamId?: string;
+  onRowClick?: (e: VideoStreamDto) => void;
 };
 
-const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorProps) => {
+const VideoStreamDataSelector = ({ id, onRowClick, videoStreamId }: VideoStreamDataSelectorProps) => {
   const dataKey = id + '-VideoStreamDataSelector';
 
   const [videoStreamIds, setVideoStreamIds] = useState<string[]>([] as string[]);
@@ -55,7 +56,12 @@ const VideoStreamDataSelector = ({ id, videoStreamId }: VideoStreamDataSelectorP
       id={dataKey}
       isLoading={videoStreamLinksGetVideoStreamVideoStreamIdsQuery.isLoading || videoStreamLinksGetVideoStreamVideoStreamIdsQuery.isFetching}
       onRowClick={async (e) => {
-        if (e.data === undefined || videoStreamId === undefined) {
+        if (e.data === undefined) {
+          return;
+        }
+
+        if (videoStreamId === undefined) {
+          onRowClick && onRowClick(e.data as VideoStreamDto);
           return;
         }
 

@@ -206,7 +206,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     //[Route("{streamGroupNumber}/stream/{streamId}.m3u8")]
     //[ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     //[ProducesResponseType(StatusCodes.Status404NotFound)]
-    //public IActionResult GetStreamM3U8(int streamGroupNumber, int streamId, CancellationToken cancellationToken)
+    //public IActionResult GetStreamM3U8(int streamGroupNumber, int streamId, ClientHTTPRequestCancellationToken cancellationToken)
     //{
     //    var settings = FileUtil.GetSetting();
 
@@ -248,7 +248,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     //[Route("{StreamGroupNumber}/stream/{StreamId}/{clientId}.m3u8")]
     //[ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     //[ProducesResponseType(StatusCodes.Status404NotFound)]
-    //public IActionResult GetStreamM3U8WithClientId(int StreamGroupNumber, int StreamId, string clientId, CancellationToken cancellationToken)
+    //public IActionResult GetStreamM3U8WithClientId(int StreamGroupNumber, int StreamId, string clientId, ClientHTTPRequestCancellationToken cancellationToken)
     //{
     //    var settings = FileUtil.GetSetting();
 

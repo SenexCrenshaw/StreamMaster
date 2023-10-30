@@ -23,12 +23,6 @@ public partial class BackgroundTaskQueue : IM3UFileTasks
     {
         await QueueAsync(SMQueCommand.ProcessM3UFiles, cancellationToken).ConfigureAwait(false);
     }
-
-    //public async ValueTask RefreshM3UFile(int M3UFileId, CancellationToken cancellationToken = default)
-    //{
-    //    await QueueAsync(SMQueCommand.RefreshM3UFile, M3UFileId, cancellationToken).ConfigureAwait(false);
-    //}
-
     public async ValueTask ScanDirectoryForM3UFiles(CancellationToken cancellationToken = default)
     {
         await QueueAsync(SMQueCommand.ScanDirectoryForM3UFiles, cancellationToken).ConfigureAwait(false);

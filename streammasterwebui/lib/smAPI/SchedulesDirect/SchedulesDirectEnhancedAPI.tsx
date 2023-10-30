@@ -76,7 +76,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.LineUpPreview[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDev) console.log('empty', data);
+              if (isDev) console.log('SchedulesDirect Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
               return;
             }
@@ -163,7 +163,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.StationPreview[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDev) console.log('empty', data);
+              if (isDev) console.log('SchedulesDirect Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
               return;
             }

@@ -1,49 +1,42 @@
 ﻿using StreamMasterApplication.Common.Models;
 
-namespace StreamMasterApplication.Common.Interfaces
+namespace StreamMasterApplication.Common.Interfaces;
+
+public interface ICircularRingBuffer
 {
-    public interface ICircularRingBuffer
-    {
-        int BufferSize { get; }
+    int BufferSize { get; }
 
-        float GetBufferUtilization();
+    float GetBufferUtilization();
+    /// <summary>
+    /// Gets the  ID.
+    /// </summary>
+    Guid Id { get; }
+    public string VideoStreamId { get; }
 
-        public string VideoStreamId { get; }
+    List<StreamStatisticsResult> GetAllStatisticsForAllUrls();
 
-        List<ClientStreamingStatistics> GetAllStatistics();
+    int GetAvailableBytes(Guid clientId);
 
-        List<StreamStatisticsResult> GetAllStatisticsForAllUrls();
+    ICollection<Guid> GetClientIds();
 
-        int GetAvailableBytes(Guid clientId);
+    int GetReadIndex(Guid clientId);
 
-        ICollection<Guid> GetClientIds();
+    bool IsPreBuffered();
+    Task<byte> Read(Guid clientId, CancellationToken cancellationToken);
 
-        StreamingStatistics? GetClientStatistics(Guid clientId);
+    Task<int> ReadChunkMemory(Guid clientId, Memory<byte> target, CancellationToken cancellationToken);
+    Task<int> ReadChunk(Guid clientId, byte[] buffer, int offset, int count, CancellationToken cancellationToken);
 
-        StreamingStatistics GetInputStreamStatistics();
+    void RegisterClient(Guid clientId, string clientAgent, string clientIPAddress);
 
-        int GetReadIndex(Guid clientId);
+    void UnRegisterClient(Guid clientId);
 
-        SingleStreamStatisticsResult GetSingleStreamStatisticsResult();
+    void UpdateReadIndex(Guid clientId, int newIndex);
 
-        bool IsPreBuffered();
+    Task WaitSemaphoreAsync(Guid clientId, CancellationToken cancellationToken);
 
-        Task<byte> Read(Guid clientId, CancellationToken cancellationToken);
+    void Write(byte data);
 
-        Task<int> ReadChunk(Guid clientId, byte[] buffer, int offset, int count, CancellationToken cancellationToken);
-
-        void RegisterClient(Guid clientId, string clientAgent, string clientIPAddress);
-
-        void ReleaseSemaphore(Guid clientId);
-
-        void UnregisterClient(Guid clientId);
-
-        void UpdateReadIndex(Guid clientId, int newIndex);
-
-        Task WaitSemaphoreAsync(Guid clientId, CancellationToken cancellationToken);
-
-        void Write(byte data);
-
-        int WriteChunk(byte[] data, int count);
-    }
+    int WriteChunk(Memory<byte> data);
+    int WriteChunk(byte[] data, int count);
 }

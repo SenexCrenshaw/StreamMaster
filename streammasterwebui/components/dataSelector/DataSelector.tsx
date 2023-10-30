@@ -97,7 +97,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
 
       return e;
     },
-    [state.selectSelectedItems, state.selectAll, props, setters],
+    [state.selectSelectedItems, state.selectAll, props, setters]
   );
 
   const selectedData = useCallback(
@@ -124,7 +124,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
 
       return ret;
     },
-    [props.showSelections, state.selectSelectedItems, state.showSelections],
+    [props.showSelections, state.selectSelectedItems, state.showSelections]
   );
 
   useEffect(() => {
@@ -224,7 +224,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
 
       return {};
     },
-    [props.videoStreamIdsIsReadOnly],
+    [props.videoStreamIdsIsReadOnly]
   );
 
   const exportCSV = () => {
@@ -261,6 +261,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     );
   }, [props, state.rowClick, setters.setRowClick]);
 
+  // @ts-ignore
   const getSelectionMultipleMode = useMemo((): any => {
     //'single' | 'checkbox' | 'multiple' | null => {
     if (props.selectionMode === 'multiple') {
@@ -313,7 +314,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
 
       onSetSelection(sel);
     },
-    [onSetSelection, props, state.selectAll],
+    [onSetSelection, props, state.selectAll]
   );
 
   const getAlign = useCallback((align: ColumnAlign | null | undefined, fieldType: ColumnFieldType): ColumnAlign => {
@@ -424,7 +425,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
         </span>
       );
     },
-    [props],
+    [props]
   );
 
   const multiselectHeader = () => {
@@ -695,13 +696,13 @@ type BaseDataSelectorProps<T = any> = {
 };
 
 type QueryFilterProps<T> = BaseDataSelectorProps<T> & {
-  dataSource?: never;
+  dataSource?: T[] | undefined;
   queryFilter: (filters: GetApiArg | typeof skipToken) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
 };
 
 type DataSourceProps<T> = BaseDataSelectorProps<T> & {
   dataSource: T[] | undefined;
-  queryFilter?: never;
+  queryFilter?: (filters: GetApiArg | typeof skipToken) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
 };
 
 export type DataSelectorProps<T = any> = DataSourceProps<T> | QueryFilterProps<T>;

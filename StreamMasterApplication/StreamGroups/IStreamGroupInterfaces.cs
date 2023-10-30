@@ -29,40 +29,7 @@ public interface IStreamGroupController
 }
 
 public interface IStreamGroupDB
-{
-    //DbSet<StreamGroup> StreamGroups { get; set; }
-
-    //Task<bool> AddChannelGroupToStreamGroupAsync(int streamGroupId, int channelGroupId, CancellationToken cancellationToken);
-
-    //Task AddOrUpdatVideoStreamToStreamGroupAsync(int streamgroupId, string childId, bool isReadOnly, CancellationToken cancellationToken);
-
-    //Task<bool> DeleteStreamGroupsync(int streamGroupId, CancellationToken cancellationToken);
-
-    ////Task<List<StreamGroup>> GetAllStreamGroupsWithRelatedEntitiesAsync(CancellationToken cancellationToken);
-
-    //Task<StreamGroupDto?> GetStreamGroupDto(int streamGroupId, string Url, CancellationToken cancellationToken = default);
-
-    //Task<StreamGroupDto?> GetStreamGroupDtoByStreamGroupNumber(int streamGroupNumber, string Url, CancellationToken cancellationToken = default);
-
-    ////Task<List<StreamGroup>> GetAllStreamGroupsWithRelatedEntitiesAsync(CancellationToken cancellationToken);
-    //Task<List<StreamGroupDto>> GetStreamGroupDtos(string Url, CancellationToken cancellationToken = default);
-
-    //Task<List<StreamGroupDto>> GetStreamGroupsByVideoStreamIdsAsync(List<string> videoStreamIds, string url, CancellationToken cancellationToken);
-
-    //Task<List<VideoStream>> GetVideoStreamsByNamePatternAsync(string pattern, CancellationToken cancellationToken);
-
-    ////Task<StreamGroup> GetStreamGroupWithRelatedEntitiesByIdAsync(int streamGroupId, CancellationToken cancellationToken);
-
-    ////Task<StreamGroupDto> GetStreamGroupWithRelatedEntitiesByStreamGroupNumberAsync(int streamGroupNumber, CancellationToken cancellationToken);
-
-    //Task<bool> RemoveChildVideoStreamFromStreamGroupAsync(int streamGroupId, string videoStreamId, CancellationToken cancellationToken);
-
-    //Task<int> RemoveChildVideoStreamsFromStreamGroupAsync(int streamGroupId, List<string> videoStreamIds, CancellationToken cancellationToken);
-
-    //Task<(int added, int removed)> SynchronizeChildVideoStreamsInStreamGroupAsync(int streamGroupId, List<VideoStreamIsReadOnly> validVideoStreams, CancellationToken cancellationToken);
-
-    //Task<StreamGroupDto?> UpdateStreamGroupAsync(UpdateStreamGroupRequest request, string Url, CancellationToken cancellationToken);
-}
+{}
 
 public interface IStreamGroupHub
 {
@@ -79,10 +46,7 @@ public interface IStreamGroupHub
 
     Task<PagedResponse<StreamGroupDto>> GetPagedStreamGroups(StreamGroupParameters streamGroupParameters);
 
-
-
     Task UpdateStreamGroup(UpdateStreamGroupRequest request);
-
 
 }
 

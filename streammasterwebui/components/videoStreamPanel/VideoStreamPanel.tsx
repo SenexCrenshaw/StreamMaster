@@ -14,7 +14,14 @@ import InputWrapper from './InputWrapper';
 import VideoStreamDataSelector from './VideoStreamDataSelector';
 import VideoStreamSelectedVideoStreamDataSelector from './VideoStreamSelectedVideoStreamDataSelector';
 
-const VideoStreamPanel = (props: VideoStreamPanelProps) => {
+type VideoStreamPanelProps = {
+  readonly group?: string;
+  readonly onEdit?: (e: UpdateVideoStreamRequest) => void;
+  readonly onSave?: (e: CreateVideoStreamRequest) => void;
+  readonly videoStream?: VideoStreamDto | undefined;
+};
+
+const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPanelProps) => {
   const settings = useSettings();
   const [name, setName] = useState<string>('');
   const [url, setUrl] = useState<string>('');
@@ -28,11 +35,13 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
   const [lastActiveIndex, setLastActiveIndex] = useState<number>(0);
   const [channelGroup, setChannelGroup] = useState<string | undefined>(undefined);
 
+  const [dataSource, setDataSource] = useState<VideoStreamDto[] | undefined>(undefined);
+
   useEffect(() => {
-    if (props.group) {
-      setChannelGroup(props.group);
+    if (group) {
+      setChannelGroup(group);
     }
-  }, [props.group]);
+  }, [group]);
 
   useEffect(() => {
     const {
@@ -44,7 +53,7 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
       user_Tvg_ID: userTvgId,
       videoStreamHandler,
       user_Tvg_group: userTvgGroup,
-    } = props.videoStream ?? {};
+    } = videoStream ?? {};
 
     if (childVideoStreams) {
       setVideoStreams(childVideoStreams);
@@ -77,31 +86,31 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
     if (userTvgGroup) {
       setChannelGroup(userTvgGroup);
     }
-  }, [props.videoStream]);
+  }, [videoStream]);
 
   const isSaveEnabled = useMemo((): boolean => {
-    if (!props.videoStream) {
+    if (!videoStream) {
       return name !== '';
     }
 
-    if (props.videoStream.user_Tvg_name !== name) {
+    if (videoStream.user_Tvg_name !== name) {
       return true;
     }
 
-    if (props.videoStream.user_Tvg_chno !== channelNumber) {
+    if (videoStream.user_Tvg_chno !== channelNumber) {
       return true;
     }
 
-    if (props.videoStream.user_Tvg_logo !== iconSource) {
+    if (videoStream.user_Tvg_logo !== iconSource) {
       return true;
     }
 
-    if (props.videoStream.user_Url !== url) {
+    if (videoStream.user_Url !== url) {
       return true;
     }
 
     return false;
-  }, [channelNumber, iconSource, name, props.videoStream, url]);
+  }, [channelNumber, iconSource, name, videoStream, url]);
 
   const onsetActiveIndex = (index: number) => {
     if (index === null) {
@@ -193,11 +202,11 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
                 <AddButton
                   disabled={!isSaveEnabled}
                   iconFilled
-                  label={props.videoStream ? 'Edit Stream' : 'Add Stream'}
-                  onClick={() =>
-                    props.videoStream
-                      ? props.onEdit?.({
-                          id: props.videoStream.id,
+                  label={videoStream ? 'Edit Stream' : 'Add Stream'}
+                  onClick={() => {
+                    videoStream
+                      ? onEdit?.({
+                          id: videoStream.id,
                           tvg_chno: channelNumber,
                           tvg_group: channelGroup,
                           tvg_ID: epgId,
@@ -205,30 +214,64 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
                           tvg_name: name,
                           url: url,
                         } as UpdateVideoStreamRequest)
-                      : props.onSave?.({
-                          childVideoStreams: videoStreams,
+                      : onSave?.({
+                          childVideoStreams: videoStream === undefined ? dataSource : videoStreams,
                           tvg_chno: channelNumber,
                           tvg_group: channelGroup,
                           tvg_ID: epgId,
                           tvg_logo: iconSource,
                           tvg_name: name,
                           url: url,
-                        } as CreateVideoStreamRequest)
-                  }
+                        } as CreateVideoStreamRequest);
+
+                    setDataSource(undefined);
+                  }}
                 />
               </div>
             </div>
           </div>
         </div>
       </AccordionTab>
-      <AccordionTab disabled={!props.videoStream?.id} header="Additional Streams">
+      <AccordionTab header="Additional Streams">
         <div className="grid flex justify-content-start align-items-center surface-overlay m-0">
           <div className="flex col-12 p-0 justify-content-start align-items-center w-full ">
             <div className="col-6 m-0 p-0 pr-1">
-              <VideoStreamDataSelector id="videostreampanel" videoStreamId={props.videoStream?.id} />
+              <VideoStreamDataSelector
+                id="videostreampanel"
+                onRowClick={(e) => {
+                  if (videoStream?.id !== undefined || e === undefined || (dataSource !== undefined && dataSource?.findIndex((x) => x.id === e.id) !== -1)) {
+                    return;
+                  }
+
+                  let ds = [...(dataSource ?? [])];
+
+                  ds.push(e);
+                  setDataSource(ds);
+                  // console.log(e);
+                }}
+                videoStreamId={videoStream?.id}
+              />
             </div>
             <div className="col-6 m-0 p-0 pr-1">
-              <VideoStreamSelectedVideoStreamDataSelector id="videostreampanel" videoStreamId={props.videoStream?.id} />
+              <VideoStreamSelectedVideoStreamDataSelector
+                dataSource={dataSource}
+                id="videostreampanel"
+                onRemove={(e) => {
+                  if (videoStream?.id !== undefined || e === undefined) {
+                    return;
+                  }
+
+                  if (dataSource?.findIndex((x) => x.id === e.id) !== -1) {
+                    let ds = [...(dataSource ?? [])];
+                    ds = ds.filter((x) => x.id !== e.id);
+                    setDataSource(ds);
+                  }
+                }}
+                OnRowReorder={(e) => {
+                  setDataSource(e);
+                }}
+                videoStreamId={videoStream?.id}
+              />
             </div>
           </div>
         </div>
@@ -246,12 +289,5 @@ const VideoStreamPanel = (props: VideoStreamPanelProps) => {
 };
 
 VideoStreamPanel.displayName = 'Channel Panel';
-
-type VideoStreamPanelProps = {
-  readonly group?: string;
-  readonly onEdit?: (e: UpdateVideoStreamRequest) => void;
-  readonly onSave?: (e: CreateVideoStreamRequest) => void;
-  readonly videoStream?: VideoStreamDto | undefined;
-};
 
 export default memo(VideoStreamPanel);

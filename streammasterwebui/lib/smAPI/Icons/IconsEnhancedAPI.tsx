@@ -76,7 +76,7 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDev) console.log('empty', data);
+              if (isDev) console.log('Icons Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['Icons']));
               return;
             }
@@ -132,7 +132,7 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.IconFileDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDev) console.log('empty', data);
+              if (isDev) console.log('Icons Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['Icons']));
               return;
             }

@@ -2,14 +2,14 @@ import { useEpgFilesGetPagedEpgFilesQuery, type M3UFileDto, type M3UFilesGetPage
 import { Dropdown } from 'primereact/dropdown';
 import { useLocalStorage } from 'primereact/hooks';
 import { type SelectItem } from 'primereact/selectitem';
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useEffect, useMemo } from 'react';
 
 const M3UFilesSelector = (props: M3UFilesSelectorProps) => {
   const [selectedM3UFile, setSelectedM3UFile] = useLocalStorage<M3UFileDto>({ id: 0, name: 'All' } as M3UFileDto, props.id + '-setSelectedM3UFile');
 
   const m3uFilesQuery = useEpgFilesGetPagedEpgFilesQuery({} as M3UFilesGetPagedM3UFilesApiArg);
 
-  useMemo(() => {
+  useEffect(() => {
     if (props.value && !selectedM3UFile) {
       setSelectedM3UFile(props.value);
     }

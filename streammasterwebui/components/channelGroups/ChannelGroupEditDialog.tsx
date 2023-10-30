@@ -1,6 +1,6 @@
 import { GetMessage } from '@lib/common/common';
 import { type ChannelGroupDto, type UpdateChannelGroupRequest } from '@lib/iptvApi';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { UpdateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsMutateAPI';
@@ -29,7 +29,7 @@ const ChannelGroupEditDialog = ({ onClose, value }: ChannelGroupEditDialogProps)
     onClose?.(newGroupName);
   }, [onClose, newGroupName]);
 
-  useMemo(() => {
+  useEffect(() => {
     if (value !== null) {
       setChannelGroupDto(value);
     }

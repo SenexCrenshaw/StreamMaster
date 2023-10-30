@@ -122,4 +122,9 @@ public partial class StreamMasterHub : IVideoStreamHub
     {
         await mediator.Send(request).ConfigureAwait(false);
     }
+
+    public async Task<List<IdName>> GetVideoStreamNames()
+    {
+        return await mediator.Send(new GetVideoStreamNamesRequest()).ConfigureAwait(false);
+    }
 }

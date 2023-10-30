@@ -45,7 +45,7 @@ export const enhancedApiChannelGroups = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.ChannelGroupIdName[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDev) console.log('empty', data);
+              if (isDev) console.log('ChannelGroups Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['ChannelGroups']));
               return;
             }
@@ -101,7 +101,7 @@ export const enhancedApiChannelGroups = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.ChannelGroupDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDev) console.log('empty', data);
+              if (isDev) console.log('ChannelGroups Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['ChannelGroups']));
               return;
             }
@@ -157,7 +157,7 @@ export const enhancedApiChannelGroups = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.ChannelGroupDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDev) console.log('empty', data);
+              if (isDev) console.log('ChannelGroups Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['ChannelGroups']));
               return;
             }

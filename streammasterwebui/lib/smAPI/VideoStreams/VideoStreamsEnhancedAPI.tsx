@@ -14,7 +14,7 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.ChannelLogoDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDev) console.log('empty', data);
+              if (isDev) console.log('VideoStreams Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
               return;
             }
@@ -94,6 +94,62 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
 
       }
     },
+    videoStreamsGetVideoStreamNames: {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+        try {
+          await cacheDataLoaded;
+
+          const updateCachedDataWithResults = (data: iptv.IdName[]) => {
+            if (!data || isEmptyObject(data)) {
+              if (isDev) console.log('VideoStreams Full Refresh');
+              dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
+              return;
+            }
+
+            updateCachedData(() => {
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'VideoStreams' }])) {
+                if (endpointName !== 'videoStreamsGetVideoStreamNames') continue;
+                  dispatch(
+                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+
+                      if (isPagedTableDto(data)) {
+                      data.forEach(item => {
+                        const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft[index] = item;
+                        }
+                        });
+
+                        return draft;
+                        }
+
+                      data.forEach(item => {
+                        const index = draft.findIndex(existingItem => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft[index] = item;
+                        }
+                        });
+
+                      return draft;
+                     })
+                   )
+                 }
+
+
+            });
+          };
+
+         singletonVideoStreamsListener.addListener(updateCachedDataWithResults);
+
+        await cacheEntryRemoved;
+        singletonVideoStreamsListener.removeListener(updateCachedDataWithResults);
+
+        } catch (error) {
+          console.error('Error in onCacheEntryAdded:', error);
+        }
+
+      }
+    },
     videoStreamsGetPagedVideoStreams: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
@@ -101,7 +157,7 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.VideoStreamDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDev) console.log('empty', data);
+              if (isDev) console.log('VideoStreams Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
               return;
             }

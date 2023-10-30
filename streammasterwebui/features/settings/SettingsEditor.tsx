@@ -24,36 +24,36 @@ import { type MenuItem } from 'primereact/menuitem';
 import { Password } from 'primereact/password';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { type SelectItem } from 'primereact/selectitem';
-import React from 'react';
+import { ReactElement, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 export const SettingsEditor = () => {
-  // const toast = React.useRef<Toast>(null)
+  // const toast = useRef<Toast>(null)
   const setting = useSettings();
-  const [newData, setNewData] = React.useState<SettingDto>({} as SettingDto);
-  const [originalData, setOriginalData] = React.useState<SettingDto>({} as SettingDto);
+  const [newData, setNewData] = useState<SettingDto>({} as SettingDto);
+  const [originalData, setOriginalData] = useState<SettingDto>({} as SettingDto);
 
   const settingsQuery = useSettingsGetSettingQuery();
 
-  React.useMemo(() => {
+  useEffect(() => {
     if (settingsQuery.isLoading || !settingsQuery.data) return;
 
     setNewData({ ...settingsQuery.data });
     setOriginalData({ ...settingsQuery.data });
   }, [settingsQuery]);
 
-  const adminUserNameError = React.useMemo((): string | undefined => {
+  const adminUserNameError = useMemo((): string | undefined => {
     if (newData.authenticationMethod === AuthenticationType.Forms && newData.adminUserName === '') return GetMessage('formsAuthRequiresAdminUserName');
 
     return undefined;
   }, [newData.adminUserName, newData.authenticationMethod]);
 
-  const adminPasswordError = React.useMemo((): string | undefined => {
+  const adminPasswordError = useMemo((): string | undefined => {
     if (newData.authenticationMethod === AuthenticationType.Forms && newData.adminPassword === '') return GetMessage('formsAuthRequiresAdminPassword');
 
     return undefined;
   }, [newData.adminPassword, newData.authenticationMethod]);
 
-  const isSaveEnabled = React.useMemo((): boolean => {
+  const isSaveEnabled = useMemo((): boolean => {
     if (JSON.stringify(newData) === JSON.stringify(originalData)) return false;
 
     if (adminUserNameError !== undefined || adminPasswordError !== undefined) {
@@ -67,7 +67,7 @@ export const SettingsEditor = () => {
     return true;
   }, [adminPasswordError, adminUserNameError, newData, originalData]);
 
-  const getLine = React.useCallback((label: string, value: React.ReactElement, help?: string | null, defaultSetting?: string | null) => {
+  const getLine = useCallback((label: string, value: ReactElement, help?: string | null, defaultSetting?: string | null) => {
     return (
       <div className="flex col-12 align-content-center">
         <div className="flex col-2 col-offset-1">{label}</div>
@@ -82,7 +82,7 @@ export const SettingsEditor = () => {
     );
   }, []);
 
-  const getRecord = React.useCallback(
+  const getRecord = useCallback(
     (fieldName: string) => {
       type ObjectKey = keyof typeof newData;
       const record = newData[fieldName as ObjectKey];
@@ -93,10 +93,10 @@ export const SettingsEditor = () => {
 
       return record;
     },
-    [newData],
+    [newData]
   );
 
-  const getRecordString = React.useCallback(
+  const getRecordString = useCallback(
     (fieldName: string): string => {
       const record = getRecord(fieldName);
       let toDisplay = JSON.stringify(record);
@@ -111,10 +111,10 @@ export const SettingsEditor = () => {
 
       return toDisplay;
     },
-    [getRecord],
+    [getRecord]
   );
 
-  const getInputNumberLine = React.useCallback(
+  const getInputNumberLine = useCallback(
     (field: string, max?: number | null) => {
       const label = GetMessage(field);
       const help = getHelp(field);
@@ -131,13 +131,13 @@ export const SettingsEditor = () => {
           size={3}
           value={getRecord(field) as number}
         />,
-        help,
+        help
       );
     },
-    [getLine, getRecord, newData],
+    [getLine, getRecord, newData]
   );
 
-  const getPasswordLine = React.useCallback(
+  const getPasswordLine = useCallback(
     (field: string, warning?: string | null) => {
       const label = GetMessage(field);
       const help = getHelp(field);
@@ -156,13 +156,13 @@ export const SettingsEditor = () => {
           <br />
           {warning !== null && warning !== undefined && <span className="text-xs text-orange-500">{warning}</span>}
         </span>,
-        help,
+        help
       );
     },
-    [getLine, getRecordString, newData],
+    [getLine, getRecordString, newData]
   );
 
-  const getInputTextLine = React.useCallback(
+  const getInputTextLine = useCallback(
     (field: string, warning?: string | null) => {
       const label = GetMessage(field);
       const help = getHelp(field);
@@ -176,13 +176,13 @@ export const SettingsEditor = () => {
           {warning !== null && warning !== undefined && <span className="text-xs text-orange-500">{warning}</span>}
         </span>,
         help,
-        defaultSetting,
+        defaultSetting
       );
     },
-    [getLine, getRecordString, newData],
+    [getLine, getRecordString, newData]
   );
 
-  const getCheckBoxLine = React.useCallback(
+  const getCheckBoxLine = useCallback(
     (field: string) => {
       const label = GetMessage(field);
       const help = getHelp(field);
@@ -196,10 +196,10 @@ export const SettingsEditor = () => {
           placeholder={label}
           value={getRecord(field) as boolean}
         />,
-        help,
+        help
       );
     },
-    [getLine, getRecord, newData],
+    [getLine, getRecord, newData]
   );
 
   const getHandlersOptions = (): SelectItem[] => {
@@ -228,7 +228,7 @@ export const SettingsEditor = () => {
     return test;
   };
 
-  const getDropDownLine = React.useCallback(
+  const getDropDownLine = useCallback(
     (field: string, options: SelectItem[]) => {
       const label = GetMessage(field);
       const help = getHelp(field);
@@ -244,15 +244,15 @@ export const SettingsEditor = () => {
               placeholder={label}
               value={getRecordString(field)}
             />,
-            help,
+            help
           )}
         </>
       );
     },
-    [getLine, getRecordString, newData],
+    [getLine, getRecordString, newData]
   );
 
-  const onSave = React.useCallback(() => {
+  const onSave = useCallback(() => {
     if (!isSaveEnabled) {
       return;
     }
@@ -376,4 +376,4 @@ export const SettingsEditor = () => {
   );
 };
 
-export default React.memo(SettingsEditor);
+export default memo(SettingsEditor);

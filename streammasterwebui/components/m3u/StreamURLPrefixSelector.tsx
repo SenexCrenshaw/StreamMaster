@@ -3,7 +3,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { type SelectItem } from 'primereact/selectitem';
 import { Toast } from 'primereact/toast';
 import { classNames } from 'primereact/utils';
-import * as React from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 type StreamURLPrefixSelectorProps = {
   readonly className?: string | null;
@@ -12,10 +12,10 @@ type StreamURLPrefixSelectorProps = {
 };
 
 const StreamURLPrefixSelector = ({ className: propClassName, onChange, value }: StreamURLPrefixSelectorProps) => {
-  const toast = React.useRef<Toast>(null);
-  const [streamURLPrefix, setStreamURLPrefix] = React.useState<M3UFileStreamUrlPrefix>(0);
+  const toast = useRef<Toast>(null);
+  const [streamURLPrefix, setStreamURLPrefix] = useState<M3UFileStreamUrlPrefix>(0);
 
-  React.useMemo(() => {
+  useEffect(() => {
     if (value && value !== undefined) {
       setStreamURLPrefix(value);
     } else {
@@ -25,13 +25,13 @@ const StreamURLPrefixSelector = ({ className: propClassName, onChange, value }: 
 
   const className = classNames('p-0 m-0 w-full z-5 ', propClassName);
 
-  const onHandlerChange = React.useCallback(
+  const onHandlerChange = useCallback(
     async (channel: any) => {
       if (onChange) {
         onChange(channel);
       }
     },
-    [onChange],
+    [onChange]
   );
 
   const getWord = (word: string): string => {
@@ -89,4 +89,4 @@ const StreamURLPrefixSelector = ({ className: propClassName, onChange, value }: 
 
 StreamURLPrefixSelector.displayName = 'StreamURLPrefixSelector';
 
-export default React.memo(StreamURLPrefixSelector);
+export default memo(StreamURLPrefixSelector);

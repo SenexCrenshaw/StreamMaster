@@ -3,7 +3,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { type SelectItem } from 'primereact/selectitem';
 import { Toast } from 'primereact/toast';
 import { classNames } from 'primereact/utils';
-import * as React from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 type ChannelHandlerSelectorProps = {
   readonly className?: string | null;
@@ -12,10 +12,10 @@ type ChannelHandlerSelectorProps = {
 };
 
 const ChannelHandlerSelector = ({ className: propClassName, onChange, value }: ChannelHandlerSelectorProps) => {
-  const toast = React.useRef<Toast>(null);
-  const [channelHandler, setChannelHandler] = React.useState<VideoStreamHandlers>(0);
+  const toast = useRef<Toast>(null);
+  const [channelHandler, setChannelHandler] = useState<VideoStreamHandlers>(0);
 
-  React.useMemo(() => {
+  useEffect(() => {
     if (value && value !== undefined) {
       setChannelHandler(value);
     } else {
@@ -25,13 +25,13 @@ const ChannelHandlerSelector = ({ className: propClassName, onChange, value }: C
 
   const className = classNames('iconSelector p-0 m-0 w-full z-5 ', propClassName);
 
-  const onHandlerChange = React.useCallback(
+  const onHandlerChange = useCallback(
     async (channel: any) => {
       if (onChange) {
         onChange(channel);
       }
     },
-    [onChange],
+    [onChange]
   );
 
   const getHandlersOptions = (): SelectItem[] => {
@@ -78,4 +78,4 @@ const ChannelHandlerSelector = ({ className: propClassName, onChange, value }: C
 
 ChannelHandlerSelector.displayName = 'ChannelHandlerSelector';
 
-export default React.memo(ChannelHandlerSelector);
+export default memo(ChannelHandlerSelector);

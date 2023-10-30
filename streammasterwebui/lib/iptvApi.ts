@@ -558,6 +558,10 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/videostreams/${queryArg}` }),
         providesTags: ['VideoStreams'],
       }),
+      videoStreamsGetVideoStreamNames: build.query<VideoStreamsGetVideoStreamNamesApiResponse, VideoStreamsGetVideoStreamNamesApiArg>({
+        query: () => ({ url: `/api/videostreams/getvideostreamnames` }),
+        providesTags: ['VideoStreams'],
+      }),
       videoStreamsGetPagedVideoStreams: build.query<VideoStreamsGetPagedVideoStreamsApiResponse, VideoStreamsGetPagedVideoStreamsApiArg>({
         query: (queryArg) => ({
           url: `/api/videostreams`,
@@ -976,6 +980,8 @@ export type VideoStreamsGetChannelLogoDtosApiResponse = /** status 200  */ Chann
 export type VideoStreamsGetChannelLogoDtosApiArg = void;
 export type VideoStreamsGetVideoStreamApiResponse = /** status 200  */ VideoStreamDto;
 export type VideoStreamsGetVideoStreamApiArg = string;
+export type VideoStreamsGetVideoStreamNamesApiResponse = /** status 200  */ IdName[];
+export type VideoStreamsGetVideoStreamNamesApiArg = void;
 export type VideoStreamsGetPagedVideoStreamsApiResponse = /** status 200  */ PagedResponseOfVideoStreamDto;
 export type VideoStreamsGetPagedVideoStreamsApiArg = {
   pageNumber?: number;
@@ -1855,6 +1861,7 @@ export type FailClientRequest = {
   clientId: string;
 };
 export type StreamStatisticsResult = {
+  id?: string;
   clientAgent?: string;
   clientBitsPerSecond?: number;
   clientBytesRead?: number;
@@ -1868,8 +1875,6 @@ export type StreamStatisticsResult = {
   inputElapsedTime?: string;
   inputStartTime?: string;
   logo?: string | null;
-  m3UStreamId?: string;
-  m3UStreamName?: string;
   m3UStreamProxyType?: StreamingProxyTypes;
   rank?: number;
   streamUrl?: string | null;
@@ -1882,6 +1887,10 @@ export type ChannelLogoDto = {
   epgId?: string;
   epgFileId?: number;
   logoUrl?: string;
+};
+export type IdName = {
+  id: string;
+  name: string;
 };
 export type ReSetVideoStreamsLogoRequest = {
   ids?: string[];
@@ -2039,6 +2048,7 @@ export const {
   useVideoStreamsGetAllStatisticsForAllUrlsQuery,
   useVideoStreamsGetChannelLogoDtosQuery,
   useVideoStreamsGetVideoStreamQuery,
+  useVideoStreamsGetVideoStreamNamesQuery,
   useVideoStreamsGetPagedVideoStreamsQuery,
   useVideoStreamsGetVideoStreamStreamGetQuery,
   useVideoStreamsGetVideoStreamStreamHeadMutation,

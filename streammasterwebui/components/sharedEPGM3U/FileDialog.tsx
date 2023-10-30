@@ -12,7 +12,7 @@ import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import AddButton from '../buttons/AddButton';
 import NumberInput from '../inputs/NumberInput';
 import TextInput from '../inputs/TextInput';
-import StreamURLPrefixSelector from '../m3u/StreamURLPrefixSelector';
+// import StreamURLPrefixSelector from '../m3u/StreamURLPrefixSelector';
 
 export type FileDialogProps = {
   readonly fileType: 'epg' | 'm3u';
@@ -22,7 +22,7 @@ export type FileDialogProps = {
     source: string,
     maxStreams: number,
     startingChannelNumber: number,
-    streamURLPrefix: M3UFileStreamUrlPrefix,
+    streamURLPrefix: M3UFileStreamUrlPrefix
   ) => void;
   readonly onHide?: (didUpload: boolean) => void;
   readonly show?: boolean | null;
@@ -233,7 +233,7 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
       >
         <div className="flex grid w-full justify-content-between align-items-center">
           <div className="flex col-12">
-            <div className={`flex col-${fileType === 'm3u' ? '4' : '12'}`}>
+            <div className={`flex col-${fileType === 'm3u' ? '8' : '12'}`}>
               <TextInput
                 label="Name"
                 onChange={(value) => {
@@ -253,8 +253,8 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
               />
             </div>
             {fileType === 'm3u' && (
-              <div className="flex col-8">
-                <div className="flex col-4">
+              <div className="flex col-4">
+                <div className="flex col-6">
                   <NumberInput
                     label="Max Streams"
                     onChange={(e) => {
@@ -264,24 +264,24 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
                     value={maxStreams}
                   />
                 </div>
-                <div className="flex col-3">
+                <div className="flex col-6">
                   <NumberInput
                     label="Starting Channel #"
                     onChange={(e) => {
                       setStartingChannelNumber(e);
                     }}
                     showClear
-                    value={maxStreams}
+                    value={startingChannelNumber}
                   />
                 </div>
-                <div className="flex col-5">
+                {/* <div className="flex col-5">
                   <StreamURLPrefixSelector
                     onChange={async (e) => {
                       setStreamURLPrefix(e);
                     }}
                     value={streamURLPrefix}
                   />
-                </div>
+                </div> */}
               </div>
             )}
           </div>

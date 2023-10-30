@@ -159,57 +159,53 @@ internal class Program
         string draft = IsPaged(argType) ? "draft.data" : "draft";
         if (IsPagedOrIsArray(responseType))
         {
-            ret.AppendLine($"            if (!data || isEmptyObject(data)) {{");
-            ret.AppendLine($"              if (isDev) console.log('empty', data);");
+            ret.AppendLine("            if (!data || isEmptyObject(data)) {{");
+            ret.AppendLine($"              if (isDev) console.log('{tag} Full Refresh');");
             ret.AppendLine($"              dispatch(iptvApi.util.invalidateTags(['{tag}']));");
-            ret.AppendLine($"              return;");
-            ret.AppendLine($"            }}");
+            ret.AppendLine("              return;");
+            ret.AppendLine("            }}");
             ret.AppendLine();
-            ret.AppendLine($"            updateCachedData(() => {{");
-            //ret.AppendLine($"              if (isDev) console.log('updateCachedData', data);");
-            ret.AppendLine($"              for (const {{ endpointName, originalArgs }} of iptvApi.util.selectInvalidatedBy(getState(), [{{ type: '{tag}' }}])) {{");
+            ret.AppendLine("            updateCachedData(() => {{");
+            ret.AppendLine("              for (const {{ endpointName, originalArgs }} of iptvApi.util.selectInvalidatedBy(getState(), [{{ type: '{tag}' }}])) {{");
             ret.AppendLine($"                if (endpointName !== '{endpointName}') continue;");
-            ret.AppendLine($"                  dispatch(");
-            ret.AppendLine($"                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{");
+            ret.AppendLine("                  dispatch(");
+            ret.AppendLine("                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{");
             ret.AppendLine();
-            ret.AppendLine($"                      if (isPagedTableDto(data)) {{");
+            ret.AppendLine("                      if (isPagedTableDto(data)) {{");
             ret.AppendLine($"                      {data}.forEach(item => {{");
             ret.AppendLine($"                        const index = {draft}.findIndex(existingItem => existingItem.id === item.id);");
-            ret.AppendLine($"                        if (index !== -1) {{");
+            ret.AppendLine("                        if (index !== -1) {{");
             ret.AppendLine($"                          {draft}[index] = item;");
-            ret.AppendLine($"                        }}");
-            ret.AppendLine($"                        }});");
+            ret.AppendLine("                        }}");
+            ret.AppendLine("                        }});");
             ret.AppendLine();
-            ret.AppendLine($"                        return draft;");
-            ret.AppendLine($"                        }}");
+            ret.AppendLine("                        return draft;");
+            ret.AppendLine("                        }}");
             ret.AppendLine();
             ret.AppendLine($"                      {data}.forEach(item => {{");
             ret.AppendLine($"                        const index = {draft}.findIndex(existingItem => existingItem.id === item.id);");
-            ret.AppendLine($"                        if (index !== -1) {{");
+            ret.AppendLine("                        if (index !== -1) {{");
             ret.AppendLine($"                          {draft}[index] = item;");
-            ret.AppendLine($"                        }}");
-            ret.AppendLine($"                        }});");
+            ret.AppendLine("                        }}");
+            ret.AppendLine("                        }});");
             ret.AppendLine();
-            ret.AppendLine($"                      return draft;");
-            ret.AppendLine($"                     }})");
-            ret.AppendLine($"                   )");
-            ret.AppendLine($"                 }}");
-            //ret.AppendLine($"               }});");
-            //ret.AppendLine($"             }};");
-
+            ret.AppendLine("                      return draft;");
+            ret.AppendLine("                     }})");
+            ret.AppendLine("                   )");
+            ret.AppendLine("                 }}");
 
             ret.AppendLine();
             return ret.ToString();
         }
-        ret.AppendLine($"            updateCachedData(() => {{");
-        ret.AppendLine($"              if (isDev) console.log('updateCachedData', data);");
+        ret.AppendLine("            updateCachedData(() => {{");
+        ret.AppendLine("              if (isDev) console.log('updateCachedData', data);");
         ret.AppendLine($"              for (const {{ endpointName, originalArgs }} of iptvApi.util.selectInvalidatedBy(getState(), [{{ type: '{tag}' }}])) {{");
         ret.AppendLine($"                if (endpointName !== '{endpointName}') continue;");
-        ret.AppendLine($"                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{");
-        ret.AppendLine($"                    if (isDev) console.log('updateCachedData', data, draft);");
-        ret.AppendLine($"                   }})");
-        ret.AppendLine($"                   );");
-        ret.AppendLine($"                 }}");
+        ret.AppendLine("                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{");
+        ret.AppendLine("                    if (isDev) console.log('updateCachedData', data, draft);");
+        ret.AppendLine("                   }})");
+        ret.AppendLine("                   );");
+        ret.AppendLine("                 }}");
         ret.AppendLine();
 
         return ret.ToString();
@@ -225,13 +221,13 @@ internal class Program
 
             rtkContent.AppendLine("import { isDev } from '@/lib/settings';");
             rtkContent.AppendLine($"import {{ {singleTon} }} from '@/lib/signalr/singletonListeners';");
-            rtkContent.AppendLine($"import {{ isEmptyObject }} from '@/lib/common/common';");
-            rtkContent.AppendLine($"import isPagedTableDto from '@/lib/common/isPagedTableDto';");
-            rtkContent.AppendLine($"import {{ iptvApi }} from '@/lib/iptvApi';");
-            rtkContent.AppendLine($"import type * as iptv from '@/lib/iptvApi';");
+            rtkContent.AppendLine("import {{ isEmptyObject }} from '@/lib/common/common';");
+            rtkContent.AppendLine("import isPagedTableDto from '@/lib/common/isPagedTableDto';");
+            rtkContent.AppendLine("import {{ iptvApi }} from '@/lib/iptvApi';");
+            rtkContent.AppendLine("import type * as iptv from '@/lib/iptvApi';");
             rtkContent.AppendLine();
             rtkContent.AppendLine($"export const enhancedApi{ConvertToTypeScriptPascalCase(tag)} = iptvApi.enhanceEndpoints({{");
-            rtkContent.AppendLine($"  endpoints: {{");
+            rtkContent.AppendLine("  endpoints: {{");
             bool anyToWrite = false;
             // For every GET method in this tag
             foreach (string getMethod in tagToGetMethodsMap[tag])

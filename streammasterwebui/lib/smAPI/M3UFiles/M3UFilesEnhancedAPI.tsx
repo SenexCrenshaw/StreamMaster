@@ -45,7 +45,7 @@ export const enhancedApiM3UFiles = iptvApi.enhanceEndpoints({
 
           const updateCachedDataWithResults = (data: iptv.M3UFileDto[]) => {
             if (!data || isEmptyObject(data)) {
-              if (isDev) console.log('empty', data);
+              if (isDev) console.log('M3UFiles Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['M3UFiles']));
               return;
             }

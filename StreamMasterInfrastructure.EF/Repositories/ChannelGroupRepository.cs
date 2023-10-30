@@ -146,7 +146,7 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
     /// <param name="VideoStreamId">The ID of the VideoStream.</param>
     /// <param name="cancellationToken">Token to support task cancellation.</param>
     /// <returns>A ChannelGroup associated with the VideoStream, or null if not found.</returns>
-    /// <exception cref="ArgumentException">Thrown when the provided VideoStreamId is null or empty.</exception>
+    /// <exception cref="ArgumentException">Thrown when the provided CurrentVideoStreamId is null or empty.</exception>
     public async Task<ChannelGroup?> GetChannelGroupFromVideoStreamId(string videoStreamId)
     {
         if (string.IsNullOrEmpty(videoStreamId))
@@ -223,18 +223,6 @@ public class ChannelGroupRepository(ILogger<ChannelGroupRepository> logger, Repo
 
         return channelGroup;
     }
-
-    //public async Task<ChannelGroup?> GetChannelGroupAsync(int Id, CancellationToken cancellationToken = default)
-    //{
-    //    ChannelGroup? res = await FindByCondition(channelGroup => channelGroup.Id == Id).FirstOrDefaultAsync();
-    //    if (res == null)
-    //    {
-    //        return null;
-    //    }
-    //    ChannelGroup dtos = mapper.Map<ChannelGroup>(res);
-
-    //    return dtos;
-    //}
 
     /// <summary>
     /// Retrieves a list of ChannelGroup objects based on a list of channel group names.

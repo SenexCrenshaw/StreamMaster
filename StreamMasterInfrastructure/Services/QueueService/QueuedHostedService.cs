@@ -59,9 +59,6 @@ public sealed class QueuedHostedService : BackgroundService
             try
             {
                 _logger.LogInformation("Starting {command}", command.Command);
-
-                // using CancellationTokenSource linkedCts =
-                // CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, command.CancellationToken);
                 using IServiceScope scope = _serviceProvider.CreateScope();
 
                 ISender _sender = scope.ServiceProvider.GetRequiredService<ISender>();

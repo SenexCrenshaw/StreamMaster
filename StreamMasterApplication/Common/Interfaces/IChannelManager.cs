@@ -1,25 +1,47 @@
-﻿using StreamMasterApplication.Common.Models;
+﻿namespace StreamMasterApplication.Common.Interfaces;
 
-namespace StreamMasterApplication.Common.Interfaces
+/// <summary>
+/// Provides methods for managing video streams and clients in a channel.
+/// This interface also implements IDisposable to free resources.
+/// </summary>
+public interface IChannelManager : IDisposable
 {
-    public interface IChannelManager
-    {
-        Task ChangeVideoStreamChannel(string playingVideoStreamId, string newVideoStreamId);
+    /// <summary>
+    /// Asynchronously changes the video stream of a channel.
+    /// </summary>
+    /// <param name="playingVideoStreamId">The ID of the currently playing video stream.</param>
+    /// <param name="newVideoStreamId">The ID of the new video stream to switch to.</param>
+    /// <returns>A Task representing the asynchronous operation.</returns>
+    Task ChangeVideoStreamChannel(string playingVideoStreamId, string newVideoStreamId);
 
-        void Dispose();
+    /// <summary>
+    /// Fails a client by its unique identifier.
+    /// </summary>
+    /// <param name="clientId">The unique identifier of the client to fail.</param>
+    void FailClient(Guid clientId);
 
-        Task FailClient(Guid clientId);
+    /// <summary>
+    /// Asynchronously gets a stream based on the given client streamer configuration.
+    /// </summary>
+    /// <param name="config">The configuration settings for the client streamer.</param>
+    /// <returns>A Task returning the stream. Returns null if the stream could not be obtained.</returns>
+    Task<Stream?> GetStream(IClientStreamerConfiguration config);
 
-        Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls();
+    /// <summary>
+    /// Asynchronously removes a client based on the given client streamer configuration.
+    /// </summary>
+    /// <param name="config">The configuration settings for the client to be removed.</param>
+    /// <returns>A Task representing the asynchronous operation.</returns>
+    Task RemoveClient(IClientStreamerConfiguration config);
 
-        SingleStreamStatisticsResult GetSingleStreamStatisticsResult(string streamUrl);
+    /// <summary>
+    /// Simulates a stream failure for testing purposes.
+    /// </summary>
+    /// <param name="streamUrl">The URL of the stream to fail.</param>
+    void SimulateStreamFailure(string streamUrl);
 
-        Task<Stream?> GetStream(ClientStreamerConfiguration config);
-
-        void RemoveClient(ClientStreamerConfiguration config);
-
-        void SimulateStreamFailure(string streamUrl);
-
-        void SimulateStreamFailureForAll();
-    }
+    /// <summary>
+    /// Simulates a stream failure for all streams for testing purposes.
+    /// </summary>
+    void SimulateStreamFailureForAll();
 }

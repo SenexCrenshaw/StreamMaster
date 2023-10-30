@@ -18,6 +18,8 @@ using StreamMasterDomain.Enums;
 using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
 
+using StreamMasterInfrastructure.VideoStreamManager.Clients;
+
 namespace StreamMasterAPI.Controllers;
 
 public class VideoStreamsController : ApiControllerBase, IVideoStreamController
@@ -60,9 +62,9 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
 
     [HttpPost]
     [Route("[action]")]
-    public async Task<ActionResult> FailClient(FailClientRequest request)
+    public IActionResult FailClient(FailClientRequest request)
     {
-        await _channelManager.FailClient(request.clientId);
+        _channelManager.FailClient(request.clientId);
         return Ok();
     }
 
@@ -88,6 +90,15 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
     {
         VideoStreamDto? data = await Mediator.Send(new GetVideoStream(id)).ConfigureAwait(false);
         return data;
+    }
+
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<IdName>>> GetVideoStreamNames()
+    {
+        List<IdName> res = await Mediator.Send(new GetVideoStreamNamesRequest()).ConfigureAwait(false);
+        return Ok(res);
     }
 
     [HttpGet]
@@ -140,7 +151,6 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         }
 
         string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-
 
         ClientStreamerConfiguration config = new(videoStream.Id, Request.Headers["User-Agent"].ToString(), ipAddress ?? "unkown", cancellationToken);
 
@@ -295,6 +305,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         await Mediator.Send(request).ConfigureAwait(false);
         return Ok();
     }
+
 
     private class UnregisterClientOnDispose : IDisposable
     {

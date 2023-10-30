@@ -1,10 +1,4 @@
-﻿using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-
-using StreamMasterApplication.Hubs;
-
-namespace StreamMasterApplication.EPGFiles.EventHandlers;
+﻿namespace StreamMasterApplication.EPGFiles.EventHandlers;
 
 public class EPGFileDeletedEventHandler : INotificationHandler<EPGFileDeletedEvent>
 {
@@ -20,5 +14,6 @@ public class EPGFileDeletedEventHandler : INotificationHandler<EPGFileDeletedEve
     public async Task Handle(EPGFileDeletedEvent notification, CancellationToken cancellationToken)
     {
         await _hubContext.Clients.All.EPGFilesRefresh().ConfigureAwait(false);
+        await _hubContext.Clients.All.ChannelGroupsRefresh().ConfigureAwait(false);
     }
 }
