@@ -7,12 +7,13 @@ import {
   useVideoStreamsGetPagedVideoStreamsQuery
 } from '@lib/iptvApi';
 import { AddVideoStreamToVideoStream } from '@lib/smAPI/VideoStreamLinks/VideoStreamLinksMutateAPI';
+
+import VideoStreamAddDialog from '@components/videoStream/VideoStreamAddDialog';
 import { skipToken } from '@reduxjs/toolkit/dist/query';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { useChannelNameColumnConfig } from '../columns/useChannelNameColumnConfig';
 import { useChannelNumberColumnConfig } from '../columns/useChannelNumberColumnConfig';
 import DataSelector from '../dataSelector/DataSelector';
-//const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
 interface VideoStreamDataSelectorProperties {
   readonly id: string;
@@ -43,7 +44,13 @@ const VideoStreamDataSelector = ({ id, onRowClick, videoStreamId }: VideoStreamD
     return columnConfigs;
   }, [channelNameColumnConfig, channelNumberColumnConfig]);
 
-  const rightHeaderTemplate = useMemo(() => <div className="flex justify-content-end align-items-center w-full gap-1" />, []);
+  const rightHeaderTemplate = useMemo(() => {
+    return (
+      <div className="flex justify-content-end align-items-center w-full gap-1">
+        <VideoStreamAddDialog group="" />
+      </div>
+    );
+  }, []);
 
   return (
     <DataSelector
