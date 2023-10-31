@@ -239,7 +239,8 @@ public class ChannelManager(
 
             if (channelStatus == null)
             {
-                logger.LogError("Failed to register with channel manager. {ClientID} {ChannelVideoStreamId}", config.ClientId, config.ChannelVideoStreamId);
+                logger.LogError("Failed to register with channel manager.");
+                channelService.UnregisterChannel(config.ChannelVideoStreamId);
                 return null;
             }
 
@@ -247,7 +248,8 @@ public class ChannelManager(
 
             if (streamHandler == null)
             {
-                logger.LogError("Failed to register with channel manager. {ClientID} {ChannelVideoStreamId}", config.ClientId, config.ChannelVideoStreamId);
+                logger.LogError("Failed to register with channel manager.");
+                channelService.UnregisterChannel(config.ChannelVideoStreamId);
                 return null;
             }
 
