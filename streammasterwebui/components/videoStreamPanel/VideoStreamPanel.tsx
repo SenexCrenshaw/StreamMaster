@@ -220,7 +220,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
                           url
                         } as CreateVideoStreamRequest);
 
-                    setDataSource();
+                    setDataSource(undefined);
                   }}
                 />
               </div>

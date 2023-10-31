@@ -1,6 +1,6 @@
 import { CreateEpgFileRequest, useEpgFilesCreateEpgFileMutation } from '@lib/iptvApi';
 import React, { useState } from 'react';
-import FileDialog, { type FileDialogProps as FileDialogProperties } from '../sharedEPGM3U/FileDialog';
+import FileDialog, { type FileDialogProperties } from '../sharedEPGM3U/FileDialog';
 
 const EPGFileDialog: React.FC<Partial<FileDialogProperties>> = () => {
   const [infoMessage, setInfoMessage] = useState('');

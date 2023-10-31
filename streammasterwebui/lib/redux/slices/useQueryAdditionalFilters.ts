@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
+import { type AdditionalFilterProperties } from '../../common/common';
 import { type AppDispatch, type RootState } from '../store';
-import { type AdditionalFilterProps as AdditionalFilterProperties } from '../../common/common';
 import { setQueryAdditionalFilter as setQueryAdditionalFilterInternal } from './queryAdditionalFiltersSlice';
 
 export const useQueryAdditionalFilters = (typename: string) => {

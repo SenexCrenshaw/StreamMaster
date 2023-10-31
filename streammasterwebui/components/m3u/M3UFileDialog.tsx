@@ -1,6 +1,6 @@
 import { useM3UFilesCreateM3UFileMutation, type CreateM3UFileRequest } from '@lib/iptvApi';
 import React, { useState } from 'react';
-import FileDialog, { type FileDialogProps as FileDialogProperties } from '../sharedEPGM3U/FileDialog';
+import FileDialog, { type FileDialogProperties } from '../sharedEPGM3U/FileDialog';
 
 const M3UFileDialog: React.FC<Partial<FileDialogProperties>> = () => {
   const [infoMessage, setInfoMessage] = useState('');

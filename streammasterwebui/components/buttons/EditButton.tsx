@@ -1,5 +1,4 @@
-import { type ChildButtonProps as ChildButtonProperties } from './BaseButton';
-import BaseButton from './BaseButton';
+import BaseButton, { type ChildButtonProperties } from './BaseButton';
 
 const EditButton: React.FC<ChildButtonProperties> = ({ disabled = false, iconFilled, label, onClick, tooltip = 'Edit' }) => (
   <BaseButton

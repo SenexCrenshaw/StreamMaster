@@ -3,7 +3,7 @@ import { IconFileDto, useIconsGetIconsSimpleQueryQuery, useIconsGetPagedIconsQue
 import { GetIconFromSource } from '@lib/smAPI/Icons/IconsGetAPI';
 import useSettings from '@lib/useSettings';
 import React, { useCallback } from 'react';
-import BaseSelector, { BaseSelectorProps as BaseSelectorProperties } from './BaseSelector';
+import BaseSelector, { BaseSelectorProperties } from './BaseSelector';
 
 type IconSelectorProperties = BaseSelectorProperties<IconFileDto> & {
   enableEditMode?: boolean;

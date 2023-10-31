@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
+import { type GetApiArgument } from '../../common/common';
 import { type AppDispatch, type RootState } from '../store';
-import { type GetApiArg as GetApiArgument } from '../../common/common';
 import { setQueryFilterInternal } from './queryFilterSlice';
 
 export const useQueryFilter = (typename: string) => {

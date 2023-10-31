@@ -12,7 +12,6 @@ export const GetLineupPreviews = async (argument: iptv.LineUpPreview[]): Promise
   invokeHubConnection<iptv.LineUpPreview[]>('GetLineupPreviews', argument);
 export const GetLineups = async (argument: iptv.LineUpsResult): Promise<iptv.LineUpsResult | null> =>
   invokeHubConnection<iptv.LineUpsResult>('GetLineups', argument);
-export const GetSDPrograms = async (argument: SdProgram): Promise<iptv.SDProgram[] | null> => invokeHubConnection<iptv.SDProgram[]>('GetSDPrograms', argument);
 export const GetSchedules = async (argument: iptv.Schedule[]): Promise<iptv.Schedule[] | null> =>
   invokeHubConnection<iptv.Schedule[]>('GetSchedules', argument);
 export const GetSelectedStationIds = async (argument: iptv.StationIdLineUp[]): Promise<iptv.StationIdLineUp[] | null> =>

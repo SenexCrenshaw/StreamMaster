@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { type AdditionalFilterProperties } from '../../common/common';
 import { type RootState } from '../store';
-import { type AdditionalFilterProps as AdditionalFilterProperties } from '../../common/common';
 
 interface SetQueryAdditionalFilterPayload {
   filter: AdditionalFilterProperties | null | undefined;

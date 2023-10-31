@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { type GetApiArgument } from '../../common/common';
 import { type RootState } from '../store';
-import { type GetApiArg as GetApiArgument } from '../../common/common';
 
 interface SetQueryFilterPayload {
   filter: GetApiArgument | undefined;

@@ -2,7 +2,7 @@ import { type DataTableExpandedRows, type DataTableFilterMeta, type DataTableVal
 import { useLocalStorage } from 'primereact/hooks';
 import { useState } from 'react';
 
-import { AdditionalFilterProps } from '@lib/common/common';
+import { AdditionalFilterProperties } from '@lib/common/common';
 import { VideoStreamIsReadOnly } from '@lib/iptvApi';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
@@ -25,7 +25,7 @@ const useDataSelectorState = <T extends DataTableValue>(id: string, selectedItem
   const [dataSource, setDataSource] = useState<T[]>();
   const [first, setFirst] = useState<number>(0);
   const [page, setPage] = useState<number>(1);
-  const [additionalFilterProperties, setAdditionalFilterProperties] = useState<AdditionalFilterProps | undefined>();
+  const [additionalFilterProperties, setAdditionalFilterProperties] = useState<AdditionalFilterProperties | undefined>();
 
   const [rows, setRows] = useState<number>(25);
   const [filters, setFilters] = useState<DataTableFilterMeta>({});

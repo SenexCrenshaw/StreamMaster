@@ -1,10 +1,10 @@
 import {
   addOrUpdateValueForField,
   doSetsContainSameIds,
-  type GetApiArg,
+  type GetApiArgument,
   type HasId,
   type SMDataTableFilterMetaData,
-  type SimpleQueryApiArg
+  type SimpleQueryApiArgument
 } from '@lib/common/common';
 import { skipToken } from '@reduxjs/toolkit/dist/query/react';
 import { Dropdown, type DropdownChangeEvent, type DropdownFilterEvent } from 'primereact/dropdown';
@@ -42,8 +42,8 @@ export interface BaseSelectorProperties<T extends HasId> {
   readonly onChange: (value: string) => void;
   readonly optionLabel: string;
   readonly optionValue: string;
-  readonly queryFilter: (option: GetApiArg | typeof skipToken) => PagedResponseDtoData<T>;
-  readonly queryHook: (option: SimpleQueryApiArg) => SimpleQueryResponse<T>;
+  readonly queryFilter: (option: GetApiArgument | typeof skipToken) => PagedResponseDtoData<T>;
+  readonly queryHook: (option: SimpleQueryApiArgument) => SimpleQueryResponse<T>;
   readonly querySelectedItem: (argument: StringArgument) => Promise<T | null>;
   readonly selectName: string;
   readonly selectedTemplate: (option: T) => JSX.Element;
@@ -58,13 +58,13 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
   const [dataSource, setDataSource] = useState<T[]>([]);
   const [filteredDataSource, setFilteredDataSource] = useState<T[]>([]);
 
-  const [simpleQuery, setSimpleQuery] = useState<SimpleQueryApiArg>({
+  const [simpleQuery, setSimpleQuery] = useState<SimpleQueryApiArgument>({
     first: 0,
     last: 200
   });
   const query = props.queryHook(simpleQuery);
 
-  const [queryFilter, setQueryFilter] = useState<GetApiArg | undefined>();
+  const [queryFilter, setQueryFilter] = useState<GetApiArgument | undefined>();
 
   const filterQuery = props.queryFilter(queryFilter ?? skipToken);
 
@@ -218,7 +218,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
     setQueryFilter({
       jsonFiltersString: JSON.stringify(toSend),
       pageSize: 40
-    } as GetApiArg);
+    } as GetApiArgument);
   };
 
   return (
@@ -256,7 +256,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
               setSimpleQuery({
                 first: firstRecord,
                 last: (e.last as number) + 100
-              } as SimpleQueryApiArg);
+              } as SimpleQueryApiArgument);
             }
           },
           showLoader: true,

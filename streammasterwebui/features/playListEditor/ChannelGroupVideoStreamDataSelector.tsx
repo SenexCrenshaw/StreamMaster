@@ -64,7 +64,7 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
   }, [channelGroupNames, dataKey, queryAdditionalFilter, setQueryAdditionalFilter]);
 
   useEffect(() => {
-    if (propsEnableEdit! == enableEdit) {
+    if (propsEnableEdit !== enableEdit) {
       setEnableEdit(propsEnableEdit ?? true);
     }
 

@@ -1,4 +1,4 @@
-import BaseButton, { type ChildButtonProps as ChildButtonProperties } from './BaseButton';
+import BaseButton, { type ChildButtonProperties } from './BaseButton';
 
 const DeleteButton: React.FC<ChildButtonProperties> = ({ disabled = false, iconFilled, label, onClick, tooltip = 'Delete Stream' }) => (
   <BaseButton

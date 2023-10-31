@@ -62,7 +62,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
 
   const onTemplateClear = () => {
     setProgress(0);
-    setActiveFile();
+    setActiveFile(undefined);
     setNameFromFileName(false);
   };
 
@@ -143,7 +143,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
     }
     setShowOverlay(false);
     setBlock(false);
-    setInfoMessage();
+    setInfoMessage(undefined);
     setStreamURLPrefix(0);
     setProgress(0);
     setUploadedBytes(0);
@@ -310,7 +310,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
                     maxFileSize={300_000_000}
                     onClear={onTemplateClear}
                     onError={onTemplateClear}
-                    onRemove={() => setActiveFile()}
+                    onRemove={() => setActiveFile(undefined)}
                     onSelect={onTemplateSelect}
                     ref={fileUploadReference}
                     style={{ width: '100vw' }}

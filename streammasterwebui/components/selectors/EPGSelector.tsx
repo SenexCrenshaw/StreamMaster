@@ -1,7 +1,7 @@
 import { ProgrammeNameDto, useProgrammesGetPagedProgrammeNameSelectionsQuery, useProgrammesGetProgrammsSimpleQueryQuery } from '@lib/iptvApi';
 import { GetProgrammeFromDisplayName } from '@lib/smAPI/Programmes/ProgrammesGetAPI';
 import React, { useCallback } from 'react';
-import BaseSelector, { type BaseSelectorProps as BaseSelectorProperties } from './BaseSelector';
+import BaseSelector, { type BaseSelectorProperties } from './BaseSelector';
 
 type EPGSelectorProperties = BaseSelectorProperties<ProgrammeNameDto> & {
   enableEditMode?: boolean;

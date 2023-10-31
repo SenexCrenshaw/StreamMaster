@@ -39,11 +39,11 @@ const StreamGroupDeleteDialog = ({ id, onHide }: StreamGroupDeleteDialogProperti
 
     await streamGroupsDeleteStreamGroupMutations(data)
       .then(() => {
-        setSelectedStreamGroup();
+        setSelectedStreamGroup(undefined);
         setInfoMessage('Stream Group Deleted Successfully');
       })
       .catch((error) => {
-        setSelectedStreamGroup();
+        setSelectedStreamGroup(undefined);
         setInfoMessage(`Stream Group Delete Error: ${error.message}`);
       });
   }, [ReturnToParent, selectedStreamGroup, setSelectedStreamGroup, streamGroupsDeleteStreamGroupMutations]);
