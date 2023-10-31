@@ -7,8 +7,8 @@ export default defineConfig({
   clearScreen: true,
   appType: 'spa',
   build: {
-    emptyOutDir: true,
-    outDir: '../StreamMasterAPI/bin/Debug/net7.0/wwwroot/'
+    emptyOutDir: true
+    // outDir: '../StreamMasterAPI/bin/Debug/net7.0/wwwroot/'
     //   rollupOptions: {
     //     output: {
     //       manualChunks: (id): 'vendor_aws' | 'vendor_mui' | 'vendor' | 'smAPI' | 'smLib' | 'smComponents/' | 'smFeatures/' | undefined => {

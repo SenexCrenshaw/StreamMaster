@@ -38,7 +38,7 @@ WORKDIR /src/streammasterwebui
 COPY ["streammasterwebui/", "."]
 RUN npm install \
     && npm run build \
-    && cp -r build/* /src/StreamMasterAPI/wwwroot/
+    && cp -r dist/* /src/StreamMasterAPI/wwwroot/
     
 WORKDIR "/src/StreamMasterAPI"
 FROM build AS publish
