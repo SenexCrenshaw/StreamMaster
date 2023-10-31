@@ -1,3 +1,4 @@
+import StandardHeader from '@/components/StandardHeader';
 import { formatJSONDateString } from '@lib/common/common';
 import { QueueStatisIcon } from '@lib/common/Icons';
 import { TaskQueueStatusDto, useSettingsGetQueueStatusQuery } from '@lib/iptvApi';
@@ -5,7 +6,7 @@ import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import React from 'react';
 
-const StandardHeader = React.lazy(() => import('@components/StandardHeader'));
+// const StandardHeader = React.lazy(() => import('@components/StandardHeader'));
 
 const QueueStatus = () => {
   const status = useSettingsGetQueueStatusQuery();

@@ -1,5 +1,6 @@
 import { Button } from 'primereact/button';
 
+import StandardHeader from '@/components/StandardHeader';
 import { SMTextColor } from '@components/SMTextColor';
 import TextInput from '@components/inputs/TextInput';
 import SettingsNameRegexDataSelector from '@components/settings/SettingsNameRegexDataSelector';
@@ -23,9 +24,9 @@ import { type MenuItem } from 'primereact/menuitem';
 import { Password } from 'primereact/password';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import { type SelectItem } from 'primereact/selectitem';
-import React, { ReactElement, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactElement, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
-const StandardHeader = React.lazy(() => import('@components/StandardHeader'));
+// const StandardHeader = React.lazy(() => import('@components/StandardHeader'));
 
 export const SettingsEditor = () => {
   // const toast = useRef<Toast>(null)
@@ -208,10 +209,11 @@ export const SettingsEditor = () => {
     const test = Object.entries(StreamingProxyTypes)
       .splice(0, Object.keys(StreamingProxyTypes).length / 2)
       .map(
-        ([number, word]) => ({
-          label: word,
-          value: number
-        } as SelectItem)
+        ([number, word]) =>
+          ({
+            label: word,
+            value: number
+          } as SelectItem)
       );
 
     return test;
@@ -221,10 +223,11 @@ export const SettingsEditor = () => {
     const test = Object.entries(AuthenticationType)
       .splice(0, Object.keys(AuthenticationType).length / 2)
       .map(
-        ([number, word]) => ({
-          label: word,
-          value: number
-        } as SelectItem)
+        ([number, word]) =>
+          ({
+            label: word,
+            value: number
+          } as SelectItem)
       );
 
     return test;

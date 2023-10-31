@@ -1,12 +1,13 @@
+import DataSelector from '@/components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import StreamGroupAddDialog from '@components/streamGroup/StreamGroupAddDialog';
 import StreamGroupDeleteDialog from '@components/streamGroup/StreamGroupDeleteDialog';
 import StreamGroupEditDialog from '@components/streamGroup/StreamGroupEditDialog';
 import { StreamGroupDto, useStreamGroupsGetPagedStreamGroupsQuery } from '@lib/iptvApi';
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
-import React, { memo, useMemo, type CSSProperties } from 'react';
+import { memo, useMemo, type CSSProperties } from 'react';
 
-const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
 export interface StreamGroupDataSelectorProperties {
   readonly id: string;
@@ -15,33 +16,36 @@ export interface StreamGroupDataSelectorProperties {
 const StreamGroupDataSelector = ({ id }: StreamGroupDataSelectorProperties) => {
   const { setSelectedStreamGroup } = useSelectedStreamGroup(id);
 
-  const StreamGroupColumns = useMemo((): ColumnMeta[] => [
-    {
-      field: 'name',
-      filter: true,
-      header: 'Name',
-      sortable: true,
-      style: {
-        minWidth: '10rem'
-      } as CSSProperties
-    },
-    {
-      field: 'streamCount',
-      header: '#'
-    },
-    {
-      field: 'url',
-      fieldType: 'url'
-    },
-    {
-      field: 'epglink',
-      fieldType: 'epglink'
-    },
-    {
-      field: 'm3ulink',
-      fieldType: 'm3ulink'
-    }
-  ], []);
+  const StreamGroupColumns = useMemo(
+    (): ColumnMeta[] => [
+      {
+        field: 'name',
+        filter: true,
+        header: 'Name',
+        sortable: true,
+        style: {
+          minWidth: '10rem'
+        } as CSSProperties
+      },
+      {
+        field: 'streamCount',
+        header: '#'
+      },
+      {
+        field: 'url',
+        fieldType: 'url'
+      },
+      {
+        field: 'epglink',
+        fieldType: 'epglink'
+      },
+      {
+        field: 'm3ulink',
+        fieldType: 'm3ulink'
+      }
+    ],
+    []
+  );
 
   const sourceAddtionalHeaderTemplate = () => (
     <div className="streamGroupEditor grid w-full flex flex-nowrap justify-content-end align-items-center p-0">

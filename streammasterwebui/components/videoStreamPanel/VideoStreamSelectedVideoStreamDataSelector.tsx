@@ -3,13 +3,13 @@ import { GetMessage } from '@lib/common/common';
 import { VideoStreamDto, VideoStreamsUpdateVideoStreamApiArg, useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery } from '@lib/iptvApi';
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
-import React, { memo, useCallback, useEffect, useMemo, type CSSProperties } from 'react';
+import { memo, useCallback, useEffect, useMemo, type CSSProperties } from 'react';
 import XButton from '../buttons/XButton';
 import { useChannelNameColumnConfig } from '../columns/useChannelNameColumnConfig';
 import { useChannelNumberColumnConfig } from '../columns/useChannelNumberColumnConfig';
+import DataSelector from '../dataSelector/DataSelector';
 import VideoStreamRemoveFromVideoStreamDialog from './VideoStreamRemoveFromVideoStreamDialog';
-
-const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+//const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
 interface VideoStreamSelectedVideoStreamDataSelectorProperties {
   readonly id: string;
@@ -70,21 +70,24 @@ const VideoStreamSelectedVideoStreamDataSelector = ({
     [onRemove, videoStreamId]
   );
 
-  const targetColumns = useMemo((): ColumnMeta[] => [
-    channelNumberColumnConfig,
-    channelNameColumnConfig,
-    {
-      bodyTemplate: targetActionBodyTemplate,
-      field: 'Remove',
-      header: 'X',
-      resizeable: false,
-      sortable: false,
-      style: {
-        maxWidth: '2rem',
-        width: '2rem'
-      } as CSSProperties
-    }
-  ], [channelNumberColumnConfig, channelNameColumnConfig, targetActionBodyTemplate]);
+  const targetColumns = useMemo(
+    (): ColumnMeta[] => [
+      channelNumberColumnConfig,
+      channelNameColumnConfig,
+      {
+        bodyTemplate: targetActionBodyTemplate,
+        field: 'Remove',
+        header: 'X',
+        resizeable: false,
+        sortable: false,
+        style: {
+          maxWidth: '2rem',
+          width: '2rem'
+        } as CSSProperties
+      }
+    ],
+    [channelNumberColumnConfig, channelNameColumnConfig, targetActionBodyTemplate]
+  );
 
   const rightHeaderTemplate = () => <div className="flex justify-content-end align-items-center w-full gap-1" />;
 

@@ -8,11 +8,11 @@ import {
 } from '@lib/iptvApi';
 import { AddVideoStreamToVideoStream } from '@lib/smAPI/VideoStreamLinks/VideoStreamLinksMutateAPI';
 import { skipToken } from '@reduxjs/toolkit/dist/query';
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { useChannelNameColumnConfig } from '../columns/useChannelNameColumnConfig';
 import { useChannelNumberColumnConfig } from '../columns/useChannelNumberColumnConfig';
-
-const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+import DataSelector from '../dataSelector/DataSelector';
+//const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
 interface VideoStreamDataSelectorProperties {
   readonly id: string;
@@ -66,7 +66,7 @@ const VideoStreamDataSelector = ({ id, onRowClick, videoStreamId }: VideoStreamD
 
         let stream = {} as VideoStreamDto;
 
-        stream = Array.isArray(e.data) ? e.data[0] as VideoStreamDto : e.data as VideoStreamDto;
+        stream = Array.isArray(e.data) ? (e.data[0] as VideoStreamDto) : (e.data as VideoStreamDto);
 
         const toSend = {} as VideoStreamLinksAddVideoStreamToVideoStreamApiArg;
 

@@ -5,10 +5,11 @@ import { Toast } from 'primereact/toast';
 import { memo, useCallback, useMemo, useRef } from 'react';
 import NumberEditorBodyTemplate from '../NumberEditorBodyTemplate';
 import StringEditorBodyTemplate from '../StringEditorBodyTemplate';
+import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 import EPGFileRefreshDialog from './EPGFileRefreshDialog';
 import EPGFileRemoveDialog from './EPGFileRemoveDialog';
-const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
 const EPGFilesDataSelector = () => {
   const toast = useRef<Toast>(null);

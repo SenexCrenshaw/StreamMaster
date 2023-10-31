@@ -1,3 +1,4 @@
+import DataSelector from '@/components/dataSelector/DataSelector';
 import ChannelGroupAddDialog from '@components/channelGroups/ChannelGroupAddDialog';
 import ChannelGroupDeleteDialog from '@components/channelGroups/ChannelGroupDeleteDialog';
 import ChannelGroupEditDialog from '@components/channelGroups/ChannelGroupEditDialog';
@@ -6,9 +7,9 @@ import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
 import { ChannelGroupDto, useChannelGroupsGetPagedChannelGroupsQuery } from '@lib/iptvApi';
 import { useShowHidden } from '@lib/redux/slices/useShowHidden';
-import React, { memo, useCallback, useEffect, useMemo } from 'react';
+import { memo, useCallback, useEffect, useMemo } from 'react';
 
-const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
 export interface PlayListDataSelectorProperties {
   readonly hideAddRemoveControls?: boolean;

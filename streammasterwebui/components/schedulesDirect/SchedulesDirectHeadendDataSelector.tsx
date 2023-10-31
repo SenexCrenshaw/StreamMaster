@@ -1,8 +1,8 @@
 import { useSchedulesDirectGetHeadendsQuery } from '@lib/iptvApi';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
-const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
-
+// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+import DataSelector from '../dataSelector/DataSelector';
 const SchedulesDirectHeadendDataSelector = (props: SchedulesDirectHeadendDataSelectorProperties) => {
   const [country, setCountry] = useState<string>('USA');
   const [postalCode, setPostalCode] = useState<string>('19082');

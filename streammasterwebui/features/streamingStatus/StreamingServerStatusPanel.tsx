@@ -1,3 +1,4 @@
+import DataSelector from '@/components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { VideoStreamSelector } from '@components/videoStream/VideoStreamSelector';
 import { formatJSONDateString, getIconUrl, getTopToolOptions } from '@lib/common/common';
@@ -11,9 +12,9 @@ import { ChangeVideoStreamChannel, SimulateStreamFailure } from '@lib/smAPI/Vide
 import useSettings from '@lib/useSettings';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import React, { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react';
+import { memo, useCallback, useMemo, useRef, type CSSProperties } from 'react';
 
-const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
 interface StreamingServerStatusPanelProperties {
   readonly className?: string;
@@ -158,7 +159,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
     (rowData: StreamStatisticsResult) => (
       <div className="dataselector p-inputgroup align-items-center justify-content-end">
         <Button
-            // className="p-button-danger"
+          // className="p-button-danger"
           icon="pi pi-angle-right"
           onClick={async () => await onFailStream(rowData)}
           rounded
@@ -171,71 +172,74 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
     [onFailStream]
   );
 
-  const sourceColumns = useMemo((): ColumnMeta[] => [
-    {
-      bodyTemplate: imageBodyTemplate,
-      field: 'icon',
-      width: '4rem'
-    },
+  const sourceColumns = useMemo(
+    (): ColumnMeta[] => [
+      {
+        bodyTemplate: imageBodyTemplate,
+        field: 'icon',
+        width: '4rem'
+      },
 
-    { field: 'videoStreamName', header: 'Name' },
-    {
-      align: 'center',
-      bodyTemplate: videoStreamTemplate,
-      field: 'videoStreamTemplate',
-      header: 'Video Stream',
-      width: '18rem'
-    },
-    {
-      align: 'center',
-      field: 'rank',
-      header: 'Rank',
-      width: '4rem'
-    },
+      { field: 'videoStreamName', header: 'Name' },
+      {
+        align: 'center',
+        bodyTemplate: videoStreamTemplate,
+        field: 'videoStreamTemplate',
+        header: 'Video Stream',
+        width: '18rem'
+      },
+      {
+        align: 'center',
+        field: 'rank',
+        header: 'Rank',
+        width: '4rem'
+      },
 
-    {
-      align: 'center',
-      bodyTemplate: streamCount,
-      field: 'Count',
-      header: 'Count',
-      width: '4rem'
-    },
-    {
-      align: 'center',
-      bodyTemplate: inputBitsPerSecondTemplate,
-      field: 'inputBitsPerSecond',
-      header: 'Input kbps',
-      width: '10rem'
-    },
-    {
-      align: 'center',
-      bodyTemplate: inputElapsedTimeTemplate,
-      field: 'inputElapsedTime',
-      header: 'Input Elapsed',
-      width: '10rem'
-    },
-    {
-      align: 'center',
-      bodyTemplate: inputStartTimeTemplate,
-      field: 'inputStartTime',
-      header: 'Input Start',
-      width: '10rem'
-    },
-    {
-      align: 'center',
-      bodyTemplate: targetActionBodyTemplate,
-      field: 'Actions',
-      width: '8rem'
-    }
-  ], [
-    imageBodyTemplate,
-    inputBitsPerSecondTemplate,
-    inputElapsedTimeTemplate,
-    inputStartTimeTemplate,
-    streamCount,
-    targetActionBodyTemplate,
-    videoStreamTemplate
-  ]);
+      {
+        align: 'center',
+        bodyTemplate: streamCount,
+        field: 'Count',
+        header: 'Count',
+        width: '4rem'
+      },
+      {
+        align: 'center',
+        bodyTemplate: inputBitsPerSecondTemplate,
+        field: 'inputBitsPerSecond',
+        header: 'Input kbps',
+        width: '10rem'
+      },
+      {
+        align: 'center',
+        bodyTemplate: inputElapsedTimeTemplate,
+        field: 'inputElapsedTime',
+        header: 'Input Elapsed',
+        width: '10rem'
+      },
+      {
+        align: 'center',
+        bodyTemplate: inputStartTimeTemplate,
+        field: 'inputStartTime',
+        header: 'Input Start',
+        width: '10rem'
+      },
+      {
+        align: 'center',
+        bodyTemplate: targetActionBodyTemplate,
+        field: 'Actions',
+        width: '8rem'
+      }
+    ],
+    [
+      imageBodyTemplate,
+      inputBitsPerSecondTemplate,
+      inputElapsedTimeTemplate,
+      inputStartTimeTemplate,
+      streamCount,
+      targetActionBodyTemplate,
+      videoStreamTemplate
+    ]
+  );
 
   return (
     <>

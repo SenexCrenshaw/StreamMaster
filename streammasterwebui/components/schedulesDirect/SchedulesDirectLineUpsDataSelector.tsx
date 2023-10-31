@@ -1,8 +1,8 @@
 import { useSchedulesDirectGetLineupsQuery } from '@lib/iptvApi';
 import { memo, useMemo } from 'react';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
-const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
-
+//const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+import DataSelector from '../dataSelector/DataSelector';
 interface SchedulesDirectLineUpsDataSelectorProperties {
   id: string;
 }

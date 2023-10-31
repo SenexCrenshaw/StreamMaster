@@ -1,6 +1,7 @@
 import { useChannelNameColumnConfig } from '@/components/columns/useChannelNameColumnConfig';
 import { useChannelNumberColumnConfig } from '@/components/columns/useChannelNumberColumnConfig';
 import { useEPGColumnConfig } from '@/components/columns/useEPGColumnConfig';
+import DataSelector from '@/components/dataSelector/DataSelector';
 import AutoSetChannelNumbers from '@/components/videoStream/AutoSetChannelNumbers';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import VideoStreamSetAutoSetEPGDialog from '@components/videoStream/VideoStreamSetAutoSetEPGDialog';
@@ -10,12 +11,12 @@ import { GetMessage, getChannelGroupMenuItem } from '@lib/common/common';
 import { VideoStreamDto, useStreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsQuery } from '@lib/iptvApi';
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 import { Tooltip } from 'primereact/tooltip';
-import React, { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import StreamGroupChannelGroupsSelector from './StreamGroupChannelGroupsSelector';
 import VideoStreamRemoveFromStreamGroupDialog from './VideoStreamRemoveFromStreamGroupDialog';
 
-const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
 interface StreamGroupSelectedVideoStreamDataSelectorProperties {
   readonly id: string;

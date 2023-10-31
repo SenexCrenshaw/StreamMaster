@@ -1,9 +1,10 @@
+import StandardHeader from '@/components/StandardHeader';
 import { StreamingStatusIcon } from '@lib/common/Icons';
 import React from 'react';
 import StreamingClientsPanel from './StreamingClientsPanel';
 import StreamingServerStatusPanel from './StreamingServerStatusPanel';
 
-const StandardHeader = React.lazy(() => import('@components/StandardHeader'));
+// const StandardHeader = React.lazy(() => import('@components/StandardHeader'));
 
 export const StreamingStatus = (): JSX.Element => (
   <StandardHeader className="flex-column" displayName="Streaming Status" icon={<StreamingStatusIcon />}>

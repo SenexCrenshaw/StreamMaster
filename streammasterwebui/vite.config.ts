@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   clearScreen: true,
-  // appType: 'spa',
+  appType: 'spa',
   build: {
     emptyOutDir: true,
     outDir: '../StreamMasterAPI/bin/Debug/net7.0/wwwroot/'

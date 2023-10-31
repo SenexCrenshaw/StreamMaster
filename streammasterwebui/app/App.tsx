@@ -59,7 +59,7 @@ const App = (): JSX.Element => {
 
         <Route element={<SettingsEditor />} path="/settings" />
 
-        <Route element={<LogViewer />} path="/log" />
+        <Route element={<LogViewer />} path="/viewer/logviewer" />
       </Route>
     )
   );

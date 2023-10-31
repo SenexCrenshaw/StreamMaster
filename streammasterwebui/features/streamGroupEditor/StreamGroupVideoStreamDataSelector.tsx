@@ -2,6 +2,7 @@ import { useChannelGroupColumnConfig } from '@/components/columns/useChannelGrou
 import { useChannelNameColumnConfig } from '@/components/columns/useChannelNameColumnConfig';
 import { useChannelNumberColumnConfig } from '@/components/columns/useChannelNumberColumnConfig';
 import { useM3UFileNameColumnConfig } from '@/components/columns/useM3UFileNameColumnConfig';
+import DataSelector from '@/components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
 import { GetMessage } from '@lib/common/common';
@@ -14,9 +15,9 @@ import {
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 import { skipToken } from '@reduxjs/toolkit/dist/query';
 import { type DataTableRowClickEvent } from 'primereact/datatable';
-import React, { memo, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 
-const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
 interface StreamGroupVideoStreamDataSelectorProperties {
   readonly id: string;
@@ -56,13 +57,19 @@ const StreamGroupVideoStreamDataSelector = ({ id }: StreamGroupVideoStreamDataSe
       });
   };
 
-  const targetColumns = useMemo((): ColumnMeta[] => [channelNumberColumnConfig, channelNameColumnConfig, channelGroupConfig, m3uFileNameColumnConfig], [channelNumberColumnConfig, channelNameColumnConfig, channelGroupConfig, m3uFileNameColumnConfig]);
+  const targetColumns = useMemo(
+    (): ColumnMeta[] => [channelNumberColumnConfig, channelNameColumnConfig, channelGroupConfig, m3uFileNameColumnConfig],
+    [channelNumberColumnConfig, channelNameColumnConfig, channelGroupConfig, m3uFileNameColumnConfig]
+  );
 
-  const rightHeaderTemplate = useMemo(() => (
-    <div className="flex justify-content-end align-items-center w-full gap-1">
-      <TriSelectShowHidden dataKey={dataKey} />
-    </div>
-  ), [dataKey]);
+  const rightHeaderTemplate = useMemo(
+    () => (
+      <div className="flex justify-content-end align-items-center w-full gap-1">
+        <TriSelectShowHidden dataKey={dataKey} />
+      </div>
+    ),
+    [dataKey]
+  );
 
   const onRowClick = async (event: DataTableRowClickEvent) => {
     await SyncVideoStream(event.data.id)

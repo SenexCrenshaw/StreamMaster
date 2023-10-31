@@ -1,3 +1,4 @@
+import StandardHeader from '@/components/StandardHeader';
 import DownArrowButton from '@components/buttons/DownArrowButton';
 import { LogIcon } from '@lib/common/Icons';
 import { ExportComponent, formatJSONDateString } from '@lib/common/common';
@@ -8,8 +9,8 @@ import { invokeHubConnection } from '@lib/signalr/signalr';
 import { FilterMatchMode } from 'primereact/api';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-const StandardHeader = React.lazy(() => import('@components/StandardHeader'));
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+//const StandardHeader = React.lazy(() => import('@components/StandardHeader'));
 
 const LogViewer = () => {
   const GetLog = async (arg: LogsGetLogApiArg): Promise<LogEntryDto[] | null> => {

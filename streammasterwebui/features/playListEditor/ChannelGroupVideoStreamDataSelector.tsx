@@ -8,6 +8,7 @@ import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
 import VideoStreamSetTimeShiftDialog from '@components/videoStream/VideoStreamSetTimeShiftDialog';
 import VideoStreamSetTimeShiftsDialog from '@components/videoStream/VideoStreamSetTimeShiftsDialog';
 
+import DataSelector from '@/components/dataSelector/DataSelector';
 import AutoSetChannelNumbers from '@components/videoStream/AutoSetChannelNumbers';
 import VideoStreamAddDialog from '@components/videoStream/VideoStreamAddDialog';
 import VideoStreamDeleteDialog from '@components/videoStream/VideoStreamDeleteDialog';
@@ -23,9 +24,9 @@ import { ChannelGroupDto, VideoStreamDto, useVideoStreamsGetPagedVideoStreamsQue
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
-const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
 interface ChannelGroupVideoStreamDataSelectorProperties {
   readonly enableEdit?: boolean;

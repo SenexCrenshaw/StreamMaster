@@ -10,8 +10,9 @@ import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
 import { Toast } from 'primereact/toast';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
-const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+//const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
 const SchedulesDirectStationPreviewDataSelector = () => {
   const toast = useRef<Toast>(null);

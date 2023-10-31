@@ -1,12 +1,13 @@
+import DataSelector from '@/components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { formatJSONDateString, getTopToolOptions } from '@lib/common/common';
 import { FailClientRequest, StreamStatisticsResult, useVideoStreamsGetAllStatisticsForAllUrlsQuery } from '@lib/iptvApi';
 import { FailClient } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import React, { memo, useRef, type CSSProperties } from 'react';
+import { memo, useRef, type CSSProperties } from 'react';
 
-const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
 interface StreamingClientsPanelProperties {
   readonly className?: string;

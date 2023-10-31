@@ -1,10 +1,11 @@
+import SchedulesDirectStationPreviewDataSelector from '@/components/schedulesDirect/SchedulesDirectStationPreviewDataSelector';
 import { useSchedulesDirectGetStatusQuery } from '@lib/iptvApi';
 
 import useSettings from '@lib/useSettings';
 import { BlockUI } from 'primereact/blockui';
-import React, { memo, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 
-const SchedulesDirectStationPreviewDataSelector = React.lazy(() => import('@components/schedulesDirect/SchedulesDirectStationPreviewDataSelector'));
+// const SchedulesDirectStationPreviewDataSelector = React.lazy(() => import('@components/schedulesDirect/SchedulesDirectStationPreviewDataSelector'));
 
 const SDEditor = () => {
   const getStatusQuery = useSchedulesDirectGetStatusQuery();
@@ -14,18 +15,14 @@ const SDEditor = () => {
     if (getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() === 'online') {
       return (
         <div>
-          Schedules Direct System Status:
-          {' '}
-          <span className="text-green-500">Online</span>
+          Schedules Direct System Status: <span className="text-green-500">Online</span>
         </div>
       );
     }
 
     return (
       <div>
-        Schedules Direct System Status:
-        {' '}
-        <span className="text-red-500">Offline</span>
+        Schedules Direct System Status: <span className="text-red-500">Offline</span>
       </div>
     );
   }, [getStatusQuery.data]);
