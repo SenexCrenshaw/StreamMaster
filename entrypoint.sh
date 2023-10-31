@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Default values for PUID and PGID
+PUID=${PUID:-1000}
+PGID=${PGID:-1000}
+
 user_name="nonRootUser"
 group_name="nonRootGroup"
 
@@ -22,8 +26,8 @@ fi
 
 # Change ownership of the /app directory
 if [ "$PUID" -ne 0 ] || [ "$PGID" -ne 0 ]; then
-    echo "Changing ownership of /app to ${PUID:-0}:${PGID:-0}"
-    chown -R ${PUID:-0}:${PGID:-0} /app
+    echo "Changing ownership of /app to ${PUID}:${PGID}"
+    chown -R ${PUID}:${PGID} /app
 fi
 
 # Execute the main application as the specified user
