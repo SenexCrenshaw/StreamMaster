@@ -1,4 +1,4 @@
-import DataSelector from '@/components/dataSelector/DataSelector';
+import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import StreamGroupAddDialog from '@components/streamGroup/StreamGroupAddDialog';
 import StreamGroupDeleteDialog from '@components/streamGroup/StreamGroupDeleteDialog';

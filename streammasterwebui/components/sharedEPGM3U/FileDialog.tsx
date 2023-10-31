@@ -4,9 +4,9 @@ import { FileUpload, type FileUploadHeaderTemplateOptions, type FileUploadSelect
 import { ProgressBar } from 'primereact/progressbar';
 import React, { useEffect, useRef, useState } from 'react';
 
-import { M3UFileStreamUrlPrefix } from '@/lib/common/streammaster_enums';
 import { upload } from '@lib/FileUploadService';
 import { isValidUrl } from '@lib/common/common';
+import { M3UFileStreamUrlPrefix } from '@lib/common/streammaster_enums';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import AddButton from '../buttons/AddButton';
@@ -87,10 +87,7 @@ const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inp
 
     return (
       <span>
-        {formatedUpload}
-        {' '}
-        /
-        <b>{formatedValue}</b>
+        {formatedUpload} /<b>{formatedValue}</b>
       </span>
     );
   }, [activeFile?.size, uploadedBytes]);

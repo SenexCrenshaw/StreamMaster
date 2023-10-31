@@ -1,4 +1,4 @@
-import StreamGroupSelectedVideoStreamDataSelector from '@/features/streamGroupEditor/StreamGroupSelectedVideoStreamDataSelector';
+import StreamGroupSelectedVideoStreamDataSelector from '@features/streamGroupEditor/StreamGroupSelectedVideoStreamDataSelector';
 
 export default function StreamGroupSelectedVideoStreamDataSelectorLayout() {
   const id = 'streamgroupeditor';

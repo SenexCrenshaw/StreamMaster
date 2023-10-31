@@ -1,4 +1,4 @@
-import StandardHeader from '@/components/StandardHeader';
+import StandardHeader from '@components/StandardHeader';
 import DownArrowButton from '@components/buttons/DownArrowButton';
 import { LogIcon } from '@lib/common/Icons';
 import { ExportComponent, formatJSONDateString } from '@lib/common/common';

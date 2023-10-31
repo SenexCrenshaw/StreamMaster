@@ -1,8 +1,8 @@
-import DataSelector from '@/components/dataSelector/DataSelector';
 import ChannelGroupAddDialog from '@components/channelGroups/ChannelGroupAddDialog';
 import ChannelGroupDeleteDialog from '@components/channelGroups/ChannelGroupDeleteDialog';
 import ChannelGroupEditDialog from '@components/channelGroups/ChannelGroupEditDialog';
 import ChannelGroupVisibleDialog from '@components/channelGroups/ChannelGroupVisibleDialog';
+import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
 import { ChannelGroupDto, useChannelGroupsGetPagedChannelGroupsQuery } from '@lib/iptvApi';

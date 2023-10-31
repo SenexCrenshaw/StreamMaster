@@ -1,4 +1,4 @@
-import DataSelector from '@/components/dataSelector/DataSelector';
+import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { VideoStreamSelector } from '@components/videoStream/VideoStreamSelector';
 import { formatJSONDateString, getIconUrl, getTopToolOptions } from '@lib/common/common';

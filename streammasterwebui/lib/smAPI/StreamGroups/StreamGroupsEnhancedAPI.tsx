@@ -1,9 +1,9 @@
-import { isDev } from '@/lib/settings';
-import { singletonStreamGroupsListener } from '@/lib/signalr/singletonListeners';
-import { isEmptyObject } from '@/lib/common/common';
-import isPagedTableDto from '@/lib/common/isPagedTableDto';
-import { iptvApi } from '@/lib/iptvApi';
-import type * as iptv from '@/lib/iptvApi';
+import { isEmptyObject } from '@lib/common/common';
+import isPagedTableDto from '@lib/common/isPagedTableDto';
+import type * as iptv from '@lib/iptvApi';
+import { iptvApi } from '@lib/iptvApi';
+import { isDev } from '@lib/settings';
+import { singletonStreamGroupsListener } from '@lib/signalr/singletonListeners';
 
 export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
   endpoints: {
@@ -55,7 +55,7 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-    // eslint-disable-next-line comma-dangle
+      // eslint-disable-next-line comma-dangle
     },
     streamGroupsGetStreamGroup: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -68,12 +68,15 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
                 if (isDev) console.log('updateCachedData', data);
                 for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'StreamGroups' }])) {
                   if (endpointName !== 'streamGroupsGetStreamGroup') continue;
-                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    {
-                      if (isDev) console.log('updateCachedData', data, draft);
-                    }
-                  }));
-                } }
+                  dispatch(
+                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                      {
+                        if (isDev) console.log('updateCachedData', data, draft);
+                      }
+                    })
+                  );
+                }
+              }
             });
           };
 
@@ -85,7 +88,7 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-    // eslint-disable-next-line comma-dangle
+      // eslint-disable-next-line comma-dangle
     },
     streamGroupsGetStreamGroupEpgForGuide: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -98,12 +101,15 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
                 if (isDev) console.log('updateCachedData', data);
                 for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'StreamGroups' }])) {
                   if (endpointName !== 'streamGroupsGetStreamGroupEpgForGuide') continue;
-                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
-                    {
-                      if (isDev) console.log('updateCachedData', data, draft);
-                    }
-                  }));
-                } }
+                  dispatch(
+                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                      {
+                        if (isDev) console.log('updateCachedData', data, draft);
+                      }
+                    })
+                  );
+                }
+              }
             });
           };
 
@@ -115,7 +121,7 @@ export const enhancedApiStreamGroups = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-    // eslint-disable-next-line comma-dangle
-    },
+      // eslint-disable-next-line comma-dangle
+    }
   }
 });

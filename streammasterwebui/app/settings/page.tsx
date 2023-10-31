@@ -1,4 +1,4 @@
-import SettingsEditor from '@/features/settings/SettingsEditor';
+import SettingsEditor from '@features/settings/SettingsEditor';
 
 export default function SettingsLayout() {
   return <SettingsEditor />;

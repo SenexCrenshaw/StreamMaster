@@ -1,8 +1,8 @@
-import { useChannelGroupColumnConfig } from '@/components/columns/useChannelGroupColumnConfig';
-import { useChannelNameColumnConfig } from '@/components/columns/useChannelNameColumnConfig';
-import { useChannelNumberColumnConfig } from '@/components/columns/useChannelNumberColumnConfig';
-import { useM3UFileNameColumnConfig } from '@/components/columns/useM3UFileNameColumnConfig';
-import DataSelector from '@/components/dataSelector/DataSelector';
+import { useChannelGroupColumnConfig } from '@components/columns/useChannelGroupColumnConfig';
+import { useChannelNameColumnConfig } from '@components/columns/useChannelNameColumnConfig';
+import { useChannelNumberColumnConfig } from '@components/columns/useChannelNumberColumnConfig';
+import { useM3UFileNameColumnConfig } from '@components/columns/useM3UFileNameColumnConfig';
+import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
 import { GetMessage } from '@lib/common/common';

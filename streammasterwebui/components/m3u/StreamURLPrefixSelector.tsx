@@ -1,4 +1,4 @@
-import { M3UFileStreamUrlPrefix } from '@/lib/common/streammaster_enums';
+import { M3UFileStreamUrlPrefix } from '@lib/common/streammaster_enums';
 import { Dropdown } from 'primereact/dropdown';
 import { type SelectItem } from 'primereact/selectitem';
 import { Toast } from 'primereact/toast';
@@ -51,7 +51,7 @@ const StreamURLPrefixSelector = ({ className: propertyClassName, onChange, value
 
         break;
       }
-    // No default
+      // No default
     }
     return word;
   };
@@ -59,10 +59,13 @@ const StreamURLPrefixSelector = ({ className: propertyClassName, onChange, value
   const getHandlersOptions = (): SelectItem[] => {
     const test = Object.entries(M3UFileStreamUrlPrefix)
       .splice(0, Object.keys(M3UFileStreamUrlPrefix).length / 2)
-      .map(([number, word]) => ({
-        label: getWord(word as string),
-        value: number
-      } as SelectItem));
+      .map(
+        ([number, word]) =>
+          ({
+            label: getWord(word as string),
+            value: number
+          } as SelectItem)
+      );
 
     return test;
   };
@@ -79,12 +82,10 @@ const StreamURLPrefixSelector = ({ className: propertyClassName, onChange, value
           options={getHandlersOptions()}
           placeholder="Handler"
           style={{
-
             backgroundColor: 'var(--mask-bg)',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap'
-
           }}
           value={streamURLPrefix.toString()}
           virtualScrollerOptions={{

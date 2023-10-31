@@ -1,9 +1,9 @@
-import { useChannelNameColumnConfig } from '@/components/columns/useChannelNameColumnConfig';
-import { useChannelNumberColumnConfig } from '@/components/columns/useChannelNumberColumnConfig';
-import { useEPGColumnConfig } from '@/components/columns/useEPGColumnConfig';
-import DataSelector from '@/components/dataSelector/DataSelector';
-import AutoSetChannelNumbers from '@/components/videoStream/AutoSetChannelNumbers';
+import { useChannelNameColumnConfig } from '@components/columns/useChannelNameColumnConfig';
+import { useChannelNumberColumnConfig } from '@components/columns/useChannelNumberColumnConfig';
+import { useEPGColumnConfig } from '@components/columns/useEPGColumnConfig';
+import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
+import AutoSetChannelNumbers from '@components/videoStream/AutoSetChannelNumbers';
 import VideoStreamSetAutoSetEPGDialog from '@components/videoStream/VideoStreamSetAutoSetEPGDialog';
 import { GroupIcon } from '@lib/common/Icons';
 import { getColor } from '@lib/common/colors';

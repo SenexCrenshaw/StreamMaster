@@ -1,7 +1,7 @@
 /* eslint unused-imports/no-unused-imports-ts: off */
 /* eslint @typescript-eslint/no-unused-vars: off */
-import type * as iptv from '@/lib/iptvApi';
-import { invokeHubConnection } from '@/lib/signalr/signalr';
+import type * as iptv from '@lib/iptvApi';
+import { invokeHubConnection } from '@lib/signalr/signalr';
 
 export const GetProgramme = async (argument: iptv.Programme[]): Promise<iptv.Programme[] | null> =>
   invokeHubConnection<iptv.Programme[]>('GetProgramme', argument);

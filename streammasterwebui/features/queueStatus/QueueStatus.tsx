@@ -1,6 +1,6 @@
-import StandardHeader from '@/components/StandardHeader';
-import { formatJSONDateString } from '@lib/common/common';
+import StandardHeader from '@components/StandardHeader';
 import { QueueStatisIcon } from '@lib/common/Icons';
+import { formatJSONDateString } from '@lib/common/common';
 import { TaskQueueStatusDto, useSettingsGetQueueStatusQuery } from '@lib/iptvApi';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';

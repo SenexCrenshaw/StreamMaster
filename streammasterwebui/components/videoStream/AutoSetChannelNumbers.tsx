@@ -1,4 +1,3 @@
-import { SetStreamGroupVideoStreamChannelNumbers } from '@/lib/smAPI/StreamGroupVideoStreams/StreamGroupVideoStreamsMutateAPI';
 import {
   StreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersApiArg,
   type VideoStreamDto,
@@ -9,6 +8,7 @@ import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
 import { useSortInfo } from '@lib/redux/slices/useSortInfo';
+import { SetStreamGroupVideoStreamChannelNumbers } from '@lib/smAPI/StreamGroupVideoStreams/StreamGroupVideoStreamsMutateAPI';
 import { SetVideoStreamChannelNumbers, SetVideoStreamChannelNumbersFromParameters } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import { Checkbox, type CheckboxChangeEvent } from 'primereact/checkbox';
 import { InputNumber } from 'primereact/inputnumber';

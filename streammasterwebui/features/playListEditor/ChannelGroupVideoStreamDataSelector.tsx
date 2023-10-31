@@ -1,14 +1,14 @@
-import { useChannelGroupColumnConfig } from '@/components/columns/useChannelGroupColumnConfig';
-import { useChannelLogoColumnConfig } from '@/components/columns/useChannelLogoColumnConfig';
-import { useChannelNameColumnConfig } from '@/components/columns/useChannelNameColumnConfig';
-import { useChannelNumberColumnConfig } from '@/components/columns/useChannelNumberColumnConfig';
-import { useEPGColumnConfig } from '@/components/columns/useEPGColumnConfig';
+import { useChannelGroupColumnConfig } from '@components/columns/useChannelGroupColumnConfig';
+import { useChannelLogoColumnConfig } from '@components/columns/useChannelLogoColumnConfig';
+import { useChannelNameColumnConfig } from '@components/columns/useChannelNameColumnConfig';
+import { useChannelNumberColumnConfig } from '@components/columns/useChannelNumberColumnConfig';
+import { useEPGColumnConfig } from '@components/columns/useEPGColumnConfig';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
 import VideoStreamSetTimeShiftDialog from '@components/videoStream/VideoStreamSetTimeShiftDialog';
 import VideoStreamSetTimeShiftsDialog from '@components/videoStream/VideoStreamSetTimeShiftsDialog';
 
-import DataSelector from '@/components/dataSelector/DataSelector';
+import DataSelector from '@components/dataSelector/DataSelector';
 import AutoSetChannelNumbers from '@components/videoStream/AutoSetChannelNumbers';
 import VideoStreamAddDialog from '@components/videoStream/VideoStreamAddDialog';
 import VideoStreamDeleteDialog from '@components/videoStream/VideoStreamDeleteDialog';

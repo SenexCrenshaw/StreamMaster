@@ -4,7 +4,7 @@ import '@lib/styles/dataSelector.css';
 import '@lib/styles/index.css';
 import '@lib/styles/theme.css'; // theme
 
-import store, { persistor } from '@/lib/redux/store';
+import store, { persistor } from '@lib/redux/store';
 import 'primeflex/primeflex.css'; // css utility
 import 'primeicons/primeicons.css'; // icons
 import 'primereact/resources/primereact.css'; // core css

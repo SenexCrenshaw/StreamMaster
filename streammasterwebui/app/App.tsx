@@ -5,16 +5,16 @@ import '@lib/styles/dataSelector.css';
 import '@lib/styles/index.css';
 import '@lib/styles/theme.css'; // theme
 
-import FilesEditor from '@/features/filesEditor/FilesEditor';
-import LogViewer from '@/features/logViewer/LogViewer';
-import PlayListEditor from '@/features/playListEditor/PlayListEditor';
-import QueueStatus from '@/features/queueStatus/QueueStatus';
-import SDEditor from '@/features/sdEditor/SDEditor';
-import SettingsEditor from '@/features/settings/SettingsEditor';
-import StreamGroupEditor from '@/features/streamGroupEditor/StreamGroupEditor';
-import StreamingStatus from '@/features/streamingStatus/StreamingStatus';
-import MessagesEn from '@/lib/locales/MessagesEn';
-import { SignalRConnection } from '@/lib/signalr/SignalRConnection';
+import FilesEditor from '@features/filesEditor/FilesEditor';
+import LogViewer from '@features/logViewer/LogViewer';
+import PlayListEditor from '@features/playListEditor/PlayListEditor';
+import QueueStatus from '@features/queueStatus/QueueStatus';
+import SDEditor from '@features/sdEditor/SDEditor';
+import SettingsEditor from '@features/settings/SettingsEditor';
+import StreamGroupEditor from '@features/streamGroupEditor/StreamGroupEditor';
+import StreamingStatus from '@features/streamingStatus/StreamingStatus';
+import MessagesEn from '@lib/locales/MessagesEn';
+import { SignalRConnection } from '@lib/signalr/SignalRConnection';
 import 'primeflex/primeflex.css'; // css utility
 import 'primeicons/primeicons.css'; // icons
 import 'primereact/resources/primereact.css'; // core css

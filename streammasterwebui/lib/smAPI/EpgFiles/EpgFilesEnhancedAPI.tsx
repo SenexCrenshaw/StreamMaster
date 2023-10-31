@@ -1,9 +1,9 @@
-import { isEmptyObject } from '@/lib/common/common';
-import isPagedTableDto from '@/lib/common/isPagedTableDto';
-import type * as iptv from '@/lib/iptvApi';
-import { iptvApi } from '@/lib/iptvApi';
-import { isDev } from '@/lib/settings';
-import { singletonEPGFilesListener } from '@/lib/signalr/singletonListeners';
+import { isEmptyObject } from '@lib/common/common';
+import isPagedTableDto from '@lib/common/isPagedTableDto';
+import type * as iptv from '@lib/iptvApi';
+import { iptvApi } from '@lib/iptvApi';
+import { isDev } from '@lib/settings';
+import { singletonEPGFilesListener } from '@lib/signalr/singletonListeners';
 
 export const enhancedApiEpgFiles = iptvApi.enhanceEndpoints({
   endpoints: {

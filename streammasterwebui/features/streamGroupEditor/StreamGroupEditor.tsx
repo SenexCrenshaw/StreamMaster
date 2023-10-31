@@ -1,11 +1,11 @@
-import { StreamGroupEditorIcon } from '@/lib/common/Icons';
+import StandardHeader from '@components/StandardHeader';
+import { StreamGroupEditorIcon } from '@lib/common/Icons';
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 import { BlockUI } from 'primereact/blockui';
 import { memo } from 'react';
 import StreamGroupDataSelector from './StreamGroupDataSelector';
 import StreamGroupSelectedVideoStreamDataSelector from './StreamGroupSelectedVideoStreamDataSelector';
 import StreamGroupVideoStreamDataSelector from './StreamGroupVideoStreamDataSelector';
-import StandardHeader from '@/components/StandardHeader';
 
 // const StandardHeader = React.lazy(() => import('@components/StandardHeader'));
 

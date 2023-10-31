@@ -1,7 +1,7 @@
 import { Button } from 'primereact/button';
 
-import StandardHeader from '@/components/StandardHeader';
 import { SMTextColor } from '@components/SMTextColor';
+import StandardHeader from '@components/StandardHeader';
 import TextInput from '@components/inputs/TextInput';
 import SettingsNameRegexDataSelector from '@components/settings/SettingsNameRegexDataSelector';
 import { SettingsEditorIcon } from '@lib/common/Icons';

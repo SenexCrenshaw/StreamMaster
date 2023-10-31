@@ -1,4 +1,4 @@
-import MenuItemSM from '@/components/MenuItemSM';
+import MenuItemSM from '@components/MenuItemSM';
 import {
   FilesEditorIcon,
   HelpIcon,
@@ -9,8 +9,8 @@ import {
   SideBarMenuIcon,
   StreamGroupEditorIcon,
   StreamingStatusIcon
-} from '@/lib/common/Icons';
-import useSettings from '@/lib/useSettings';
+} from '@lib/common/Icons';
+import useSettings from '@lib/useSettings';
 import { useLocalStorage } from 'primereact/hooks';
 import { Tooltip } from 'primereact/tooltip';
 import { useCallback } from 'react';

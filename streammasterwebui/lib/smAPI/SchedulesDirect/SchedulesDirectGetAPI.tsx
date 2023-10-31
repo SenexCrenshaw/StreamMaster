@@ -1,10 +1,9 @@
 /* eslint unused-imports/no-unused-imports-ts: off */
 /* eslint @typescript-eslint/no-unused-vars: off */
-import type * as iptv from '@/lib/iptvApi';
-import { invokeHubConnection } from '@/lib/signalr/signalr';
+import type * as iptv from '@lib/iptvApi';
+import { invokeHubConnection } from '@lib/signalr/signalr';
 
-export const GetCountries = async (argument: iptv.Countries): Promise<iptv.Countries | null> =>
-  invokeHubConnection<iptv.Countries>('GetCountries', argument);
+export const GetCountries = async (argument: iptv.Countries): Promise<iptv.Countries | null> => invokeHubConnection<iptv.Countries>('GetCountries', argument);
 export const GetHeadends = async (argument: iptv.HeadendDto[]): Promise<iptv.HeadendDto[] | null> =>
   invokeHubConnection<iptv.HeadendDto[]>('GetHeadends', argument);
 export const GetLineup = async (argument: iptv.LineUpResult): Promise<iptv.LineUpResult | null> =>
@@ -13,18 +12,15 @@ export const GetLineupPreviews = async (argument: iptv.LineUpPreview[]): Promise
   invokeHubConnection<iptv.LineUpPreview[]>('GetLineupPreviews', argument);
 export const GetLineups = async (argument: iptv.LineUpsResult): Promise<iptv.LineUpsResult | null> =>
   invokeHubConnection<iptv.LineUpsResult>('GetLineups', argument);
-export const GetSDPrograms = async (argument: SdProgram): Promise<iptv.SDProgram[] | null> =>
-  invokeHubConnection<iptv.SDProgram[]>('GetSDPrograms', argument);
+export const GetSDPrograms = async (argument: SdProgram): Promise<iptv.SDProgram[] | null> => invokeHubConnection<iptv.SDProgram[]>('GetSDPrograms', argument);
 export const GetSchedules = async (argument: iptv.Schedule[]): Promise<iptv.Schedule[] | null> =>
   invokeHubConnection<iptv.Schedule[]>('GetSchedules', argument);
 export const GetSelectedStationIds = async (argument: iptv.StationIdLineUp[]): Promise<iptv.StationIdLineUp[] | null> =>
   invokeHubConnection<iptv.StationIdLineUp[]>('GetSelectedStationIds', argument);
 export const GetStationPreviews = async (argument: iptv.StationPreview[]): Promise<iptv.StationPreview[] | null> =>
   invokeHubConnection<iptv.StationPreview[]>('GetStationPreviews', argument);
-export const GetStations = async (argument: iptv.Station[]): Promise<iptv.Station[] | null> =>
-  invokeHubConnection<iptv.Station[]>('GetStations', argument);
-export const GetStatus = async (argument: iptv.SdStatus): Promise<iptv.SdStatus | null> =>
-  invokeHubConnection<iptv.SdStatus>('GetStatus', argument);
+export const GetStations = async (argument: iptv.Station[]): Promise<iptv.Station[] | null> => invokeHubConnection<iptv.Station[]>('GetStations', argument);
+export const GetStatus = async (argument: iptv.SdStatus): Promise<iptv.SdStatus | null> => invokeHubConnection<iptv.SdStatus>('GetStatus', argument);
 export const GetEpg = async (): Promise<void | null> => {
   await invokeHubConnection<void>('GetEpg');
 };

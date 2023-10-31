@@ -4,7 +4,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 
-import StreamGroupChannelGroupsSelector from '@/features/streamGroupEditor/StreamGroupChannelGroupsSelector';
+import StreamGroupChannelGroupsSelector from '@features/streamGroupEditor/StreamGroupChannelGroupsSelector';
 import { UpdateStreamGroup } from '@lib/smAPI/StreamGroups/StreamGroupsMutateAPI';
 import { v4 as uuidv4 } from 'uuid';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
@@ -111,8 +111,7 @@ const StreamGroupEditDialog = (props: StreamGroupEditDialogProperties) => {
         <div className="flex grid justify-content-between align-items-center">
           <div className="flex col-12">
             <label className="col-2 " htmlFor="Name">
-              Name:
-              {' '}
+              Name:{' '}
             </label>
             <div className="col-8 ">
               <InputText autoFocus className="bordered-text-large" id={uuid} onChange={(e) => setName(e.target.value)} type="text" value={name} />
