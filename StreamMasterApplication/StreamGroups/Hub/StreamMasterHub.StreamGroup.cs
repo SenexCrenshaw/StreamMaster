@@ -61,4 +61,10 @@ public partial class StreamMasterHub : IStreamGroupHub
     {
         await mediator.Send(request).ConfigureAwait(false);
     }
+
+    public async Task<string?> GetStreamGroupVideoStreamUrl(string VideoStreamId)
+    {
+        string? res = await mediator.Send(new GetStreamGroupVideoStreamUrl(VideoStreamId)).ConfigureAwait(false);
+        return res;
+    }
 }

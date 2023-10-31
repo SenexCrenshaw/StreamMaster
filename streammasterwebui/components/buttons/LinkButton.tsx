@@ -23,7 +23,7 @@ export const LinkButton = ({ link }: { readonly link: string }) => {
           title="Copy link to clipboard"
         >
           {/* Conditionally render the icon based on the copied state */}
-          <i className={copied ? 'pi pi-copy' : 'pi pi-bookmark-fill'} />
+          <i className={copied ? 'pi pi-copy' : 'pi pi-bookmark'} />
         </a>
       </div>
     </div>

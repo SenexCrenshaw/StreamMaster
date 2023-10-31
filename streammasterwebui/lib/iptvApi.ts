@@ -441,6 +441,13 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/streamgroups/updatestreamgroup`, method: 'PATCH', body: queryArg }),
         invalidatesTags: ['StreamGroups']
       }),
+      streamGroupsGetStreamGroupVideoStreamUrl: build.query<
+        StreamGroupsGetStreamGroupVideoStreamUrlApiResponse,
+        StreamGroupsGetStreamGroupVideoStreamUrlApiArg
+      >({
+        query: (queryArg) => ({ url: `/api/streamgroups/getstreamgroupvideostreamurl`, params: { VideoStreamId: queryArg } }),
+        providesTags: ['StreamGroups']
+      }),
       streamGroupVideoStreamsGetStreamGroupVideoStreamIds: build.query<
         StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiResponse,
         StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiArg
@@ -933,6 +940,8 @@ export type StreamGroupsGetPagedStreamGroupsApiArg = {
 };
 export type StreamGroupsUpdateStreamGroupApiResponse = unknown;
 export type StreamGroupsUpdateStreamGroupApiArg = UpdateStreamGroupRequest;
+export type StreamGroupsGetStreamGroupVideoStreamUrlApiResponse = /** status 200  */ string;
+export type StreamGroupsGetStreamGroupVideoStreamUrlApiArg = string;
 export type StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiResponse = /** status 200  */ VideoStreamIsReadOnly[];
 export type StreamGroupVideoStreamsGetStreamGroupVideoStreamIdsApiArg = number;
 export type StreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsApiResponse = /** status 200  */ PagedResponseOfVideoStreamDto;
@@ -2031,6 +2040,7 @@ export const {
   useStreamGroupsGetStreamGroupM3UQuery,
   useStreamGroupsGetPagedStreamGroupsQuery,
   useStreamGroupsUpdateStreamGroupMutation,
+  useStreamGroupsGetStreamGroupVideoStreamUrlQuery,
   useStreamGroupVideoStreamsGetStreamGroupVideoStreamIdsQuery,
   useStreamGroupVideoStreamsGetPagedStreamGroupVideoStreamsQuery,
   useStreamGroupVideoStreamsSetVideoStreamRanksMutation,

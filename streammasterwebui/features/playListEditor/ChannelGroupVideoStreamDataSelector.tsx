@@ -11,6 +11,7 @@ import VideoStreamSetTimeShiftsDialog from '@components/videoStream/VideoStreamS
 import DataSelector from '@components/dataSelector/DataSelector';
 import AutoSetChannelNumbers from '@components/videoStream/AutoSetChannelNumbers';
 import VideoStreamAddDialog from '@components/videoStream/VideoStreamAddDialog';
+import VideoStreamCopyLinkDialog from '@components/videoStream/VideoStreamCopyLinkDialog';
 import VideoStreamDeleteDialog from '@components/videoStream/VideoStreamDeleteDialog';
 import VideoStreamEditDialog from '@components/videoStream/VideoStreamEditDialog';
 import VideoStreamResetLogoDialog from '@components/videoStream/VideoStreamResetLogoDialog';
@@ -74,6 +75,7 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
   const targetActionBodyTemplate = useCallback(
     (data: VideoStreamDto) => (
       <div className="flex p-0 justify-content-end align-items-center">
+        <VideoStreamCopyLinkDialog value={data} />
         <VideoStreamSetTimeShiftDialog iconFilled={false} value={data} />
         <VideoStreamResetLogoDialog value={data} />
         <VideoStreamSetLogoFromEPGDialog value={data} />
