@@ -22,6 +22,10 @@ public class SettingsService(IMemoryCache cache) : ISettingsService
             {
                 if (!cache.TryGetValue("Setting", out settings))
                 {
+                    if (!File.Exists(_settingsFilePath))
+                    {
+                        await UpdateSettingsAsync(new());
+                    }
                     using (FileStream fs = File.OpenRead(_settingsFilePath))
                     {
                         settings = await JsonSerializer.DeserializeAsync<Setting>(fs);
