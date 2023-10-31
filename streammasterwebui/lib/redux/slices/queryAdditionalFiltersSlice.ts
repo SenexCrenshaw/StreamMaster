@@ -3,14 +3,11 @@ import { type RootState } from '../store';
 import { type AdditionalFilterProps as AdditionalFilterProperties } from '../../common/common';
 
 interface SetQueryAdditionalFilterPayload {
-  filter: AdditionalFilterProperties | null | undefined
-  typename: string
+  filter: AdditionalFilterProperties | null | undefined;
+  typename: string;
 }
 
-type QueryAdditionalFiltersState = Record<
-  string,
-  AdditionalFilterProperties | undefined
->
+type QueryAdditionalFiltersState = Record<string, AdditionalFilterProperties | undefined>;
 
 const initialState: QueryAdditionalFiltersState = {};
 
@@ -18,10 +15,7 @@ const queryAdditionalFiltersSlice = createSlice({
   initialState,
   name: 'queryAdditionalFilters',
   reducers: {
-    setQueryAdditionalFilter: (
-      state,
-      action: PayloadAction<SetQueryAdditionalFilterPayload>
-    ) => {
+    setQueryAdditionalFilter: (state, action: PayloadAction<SetQueryAdditionalFilterPayload>) => {
       const { typename, filter } = action.payload;
 
       if (filter !== null && filter !== undefined) {
@@ -33,9 +27,6 @@ const queryAdditionalFiltersSlice = createSlice({
   }
 });
 
-export const selectQueryAdditionalFilters = (
-  state: RootState,
-  typename: string
-) => state.queryAdditionalFilters[typename];
+export const selectQueryAdditionalFilters = (state: RootState, typename: string) => state.queryAdditionalFilters[typename];
 export const { setQueryAdditionalFilter } = queryAdditionalFiltersSlice.actions;
 export default queryAdditionalFiltersSlice.reducer;

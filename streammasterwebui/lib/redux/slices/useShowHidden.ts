@@ -15,9 +15,7 @@ export const useShowHidden = (typename: string) => {
     );
   };
 
-  const showHidden = useSelector(
-    (rootState: RootState) => rootState.showHidden[typename]
-  );
+  const showHidden = useSelector((rootState: RootState) => rootState.showHidden[typename]);
 
   if (showHidden === undefined) {
     setShowHidden(null);

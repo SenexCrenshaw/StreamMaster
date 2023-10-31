@@ -95,10 +95,13 @@ const VideoStreamVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, valu
 
     const toSend = {} as UpdateVideoStreamsRequest;
 
-    toSend.videoStreamUpdates = selectVideoStreamsInternal.map((a) => ({
-      id: a.id,
-      toggleVisibility: true
-    } as UpdateVideoStreamRequest));
+    toSend.videoStreamUpdates = selectVideoStreamsInternal.map(
+      (a) =>
+        ({
+          id: a.id,
+          toggleVisibility: true
+        } as UpdateVideoStreamRequest)
+    );
 
     await UpdateVideoStreams(toSend)
       .then(() => {

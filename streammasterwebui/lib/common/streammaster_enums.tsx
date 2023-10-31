@@ -1,7 +1,7 @@
 export enum AuthenticationType {
   None = 0,
   // = 1,
-  Forms = 2,
+  Forms = 2
 }
 
 export enum SMFileTypes {
@@ -14,24 +14,24 @@ export enum SMFileTypes {
   Image = 6,
   TvLogo = 7,
   ProgrammeIcon = 8,
-  ChannelIcon = 9,
+  ChannelIcon = 9
 }
 
 export enum StreamingProxyTypes {
   SystemDefault = 0,
   None = 1,
   StreamMaster = 2,
-  FFMpeg = 3,
+  FFMpeg = 3
 }
 
 export enum VideoStreamHandlers {
   SystemDefault = 0,
   None = 1,
-  Loop = 2,
+  Loop = 2
 }
 
 export enum M3UFileStreamUrlPrefix {
   SystemDefault = 0,
   TS = 1,
-  M3U8 = 2,
+  M3U8 = 2
 }

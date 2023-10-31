@@ -37,10 +37,13 @@ const ChannelHandlerSelector = ({ className: propertyClassName, onChange, value 
   const getHandlersOptions = (): SelectItem[] => {
     const test = Object.entries(VideoStreamHandlers)
       .splice(0, Object.keys(VideoStreamHandlers).length / 2)
-      .map(([number, word]) => ({
-        label: word,
-        value: number
-      } as SelectItem));
+      .map(
+        ([number, word]) =>
+          ({
+            label: word,
+            value: number
+          } as SelectItem)
+      );
 
     return test;
   };
@@ -57,12 +60,10 @@ const ChannelHandlerSelector = ({ className: propertyClassName, onChange, value 
           options={getHandlersOptions()}
           placeholder="Handler"
           style={{
-
             backgroundColor: 'var(--mask-bg)',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap'
-
           }}
           value={channelHandler.toString()}
           virtualScrollerOptions={{

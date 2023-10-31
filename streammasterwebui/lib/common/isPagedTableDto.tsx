@@ -1,32 +1,30 @@
 export interface PagedTableInformation {
-  first: number
-  pageNumber: number
-  pageSize: number
-  totalItemCount: number
-  totalPageCount: number
+  first: number;
+  pageNumber: number;
+  pageSize: number;
+  totalItemCount: number;
+  totalPageCount: number;
 }
 
 export interface PagedDataDto<T> {
-  data?: T[]
+  data?: T[];
 }
 
-export type PagedTableDto<T> = PagedDataDto<T> & PagedTableInformation & {}
+export type PagedTableDto<T> = PagedDataDto<T> & PagedTableInformation & {};
 
-function isPagedTableDto<T>(
-  value: PagedTableDto<T> | T[]
-): value is PagedTableDto<T> {
+function isPagedTableDto<T>(value: PagedTableDto<T> | T[]): value is PagedTableDto<T> {
   if (!value || Array.isArray(value)) {
     return false;
   }
 
   return (
-    value
-    && (value.data === undefined || Array.isArray(value.data))
-    && typeof value.first === 'number'
-    && typeof value.pageNumber === 'number'
-    && typeof value.pageSize === 'number'
-    && typeof value.totalItemCount === 'number'
-    && typeof value.totalPageCount === 'number'
+    value &&
+    (value.data === undefined || Array.isArray(value.data)) &&
+    typeof value.first === 'number' &&
+    typeof value.pageNumber === 'number' &&
+    typeof value.pageSize === 'number' &&
+    typeof value.totalItemCount === 'number' &&
+    typeof value.totalPageCount === 'number'
   );
 }
 

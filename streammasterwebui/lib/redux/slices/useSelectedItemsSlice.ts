@@ -26,9 +26,7 @@ export const useSelectedItems = <T>(typename: string) => {
     );
   };
 
-  const rawSelectedItems = useSelector(
-    (rootState: RootState) => rootState.selectedItems[typename]
-  );
+  const rawSelectedItems = useSelector((rootState: RootState) => rootState.selectedItems[typename]);
   const selectSelectedItems = castToArrayOfType<T>(rawSelectedItems);
   return { selectSelectedItems, setSelectSelectedItems };
 };

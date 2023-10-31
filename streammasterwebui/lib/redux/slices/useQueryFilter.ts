@@ -15,9 +15,7 @@ export const useQueryFilter = (typename: string) => {
     );
   };
 
-  const queryFilter = useSelector(
-    (rootState: RootState) => rootState.queryFilter[typename]
-  );
+  const queryFilter = useSelector((rootState: RootState) => rootState.queryFilter[typename]);
 
   return { queryFilter, setQueryFilter };
 };

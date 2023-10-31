@@ -202,23 +202,23 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
                   onClick={() => {
                     videoStream
                       ? onEdit?.({
-                        id: videoStream.id,
-                        tvg_ID: epgId,
-                        tvg_chno: channelNumber,
-                        tvg_group: channelGroup,
-                        tvg_logo: iconSource,
-                        tvg_name: name,
-                        url
-                      } as UpdateVideoStreamRequest)
+                          id: videoStream.id,
+                          tvg_ID: epgId,
+                          tvg_chno: channelNumber,
+                          tvg_group: channelGroup,
+                          tvg_logo: iconSource,
+                          tvg_name: name,
+                          url
+                        } as UpdateVideoStreamRequest)
                       : onSave?.({
-                        childVideoStreams: videoStream === undefined ? dataSource : videoStreams,
-                        tvg_ID: epgId,
-                        tvg_chno: channelNumber,
-                        tvg_group: channelGroup,
-                        tvg_logo: iconSource,
-                        tvg_name: name,
-                        url
-                      } as CreateVideoStreamRequest);
+                          childVideoStreams: videoStream === undefined ? dataSource : videoStreams,
+                          tvg_ID: epgId,
+                          tvg_chno: channelNumber,
+                          tvg_group: channelGroup,
+                          tvg_logo: iconSource,
+                          tvg_name: name,
+                          url
+                        } as CreateVideoStreamRequest);
 
                     setDataSource();
                   }}

@@ -14,9 +14,7 @@ export const useChannelGroupToRemove = (typename: string) => {
     );
   };
 
-  const channelGroupToRemove = useSelector(
-    (rootState: RootState) => rootState.channelGroupToRemove[typename]
-  );
+  const channelGroupToRemove = useSelector((rootState: RootState) => rootState.channelGroupToRemove[typename]);
 
   return { channelGroupToRemove, setChannelGroupToRemove };
 };

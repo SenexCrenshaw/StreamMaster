@@ -42,9 +42,7 @@ export const VideoStreamSelector = (props: VideoStreamSelectorProperties) => {
       ];
     }
 
-    const returnValue = [...videoStreamsQuery.data]
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map((a) => ({ label: a.name, value: a } as SelectItem));
+    const returnValue = [...videoStreamsQuery.data].sort((a, b) => a.name.localeCompare(b.name)).map((a) => ({ label: a.name, value: a } as SelectItem));
 
     return returnValue;
   }, [videoStreamsQuery.data]);

@@ -66,7 +66,7 @@
   padding-bottom: 0rem !important;
 }
 
-.dataselector .p-datatable .p-datatable-tbody>tr>td {
+.dataselector .p-datatable .p-datatable-tbody > tr > td {
   padding: 0.1rem 0 !important;
   height: 1.8rem !important;
   max-height: 1.8rem !important;

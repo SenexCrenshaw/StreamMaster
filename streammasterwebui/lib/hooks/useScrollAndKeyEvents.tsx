@@ -19,7 +19,8 @@ function useScrollAndKeyEvents(): UseScrollAndKeyEventsResult {
 
     if (direction === 'up' && atTop) {
       return 'blocked';
-    } if (direction === 'down' && atBottom) {
+    }
+    if (direction === 'down' && atBottom) {
       return 'blocked';
     }
     return 'moved';

@@ -6,10 +6,7 @@ import { setSortInfoInternal } from './sortInfoSlice';
 export const useSortInfo = (typename: string) => {
   const dispatch: AppDispatch = useDispatch();
 
-  const setSortInfo = (isSortInfo: {
-    sortField?: string
-    sortOrder?: -1 | 0 | 1
-  }) => {
+  const setSortInfo = (isSortInfo: { sortField?: string; sortOrder?: -1 | 0 | 1 }) => {
     dispatch(
       setSortInfoInternal({
         sortField: isSortInfo.sortField,
@@ -19,9 +16,7 @@ export const useSortInfo = (typename: string) => {
     );
   };
 
-  const sortInfo = useSelector(
-    (rootState: RootState) => rootState.sortInfo[typename]
-  );
+  const sortInfo = useSelector((rootState: RootState) => rootState.sortInfo[typename]);
 
   return { setSortInfo, sortInfo };
 };

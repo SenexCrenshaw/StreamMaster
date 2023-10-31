@@ -5,16 +5,12 @@ import OKButton from '../buttons/OKButton';
 import RefreshButton from '../buttons/RefreshButton';
 
 interface FileRefreshDialogProperties {
-  readonly fileType: 'epg' | 'm3u'
-  readonly inputInfoMessage?: string
-  readonly onRefreshFile: () => void
+  readonly fileType: 'epg' | 'm3u';
+  readonly inputInfoMessage?: string;
+  readonly onRefreshFile: () => void;
 }
 
-const FileRefreshDialog = ({
-  fileType,
-  inputInfoMessage,
-  onRefreshFile
-}: FileRefreshDialogProperties) => {
+const FileRefreshDialog = ({ fileType, inputInfoMessage, onRefreshFile }: FileRefreshDialogProperties) => {
   const labelName = fileType.toUpperCase();
 
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
@@ -54,10 +50,7 @@ const FileRefreshDialog = ({
         </div>
       </InfoMessageOverLayDialog>
 
-      <RefreshButton
-        onClick={() => setShowOverlay(true)}
-        tooltip={`Refresh ${labelName}`}
-      />
+      <RefreshButton onClick={() => setShowOverlay(true)} tooltip={`Refresh ${labelName}`} />
     </>
   );
 };

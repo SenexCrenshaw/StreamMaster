@@ -3,11 +3,11 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { type RootState } from '../store';
 
 interface SetChannelGroupToRemoveSlicePayload {
-  toRemove: number
-  typename: string
+  toRemove: number;
+  typename: string;
 }
 
-type QueryFilterState = Record<string, number | undefined>
+type QueryFilterState = Record<string, number | undefined>;
 
 const initialState: QueryFilterState = {};
 
@@ -15,10 +15,7 @@ const channelGroupToRemoveSlice = createSlice({
   initialState,
   name: 'channelGroupToRemove',
   reducers: {
-    setChannelGroupToRemove: (
-      state,
-      action: PayloadAction<SetChannelGroupToRemoveSlicePayload>
-    ) => {
+    setChannelGroupToRemove: (state, action: PayloadAction<SetChannelGroupToRemoveSlicePayload>) => {
       const { typename, toRemove } = action.payload;
 
       if (toRemove !== null && toRemove !== undefined) {

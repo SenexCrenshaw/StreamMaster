@@ -5,18 +5,18 @@ import { v4 as uuidv4 } from 'uuid';
 import CopyButton from '../buttons/CopyButton';
 
 interface TextInputProperties {
-  readonly autoFocus?: boolean
-  readonly dontValidate?: boolean
-  readonly isUrl?: boolean
-  readonly isValid?: boolean
-  readonly label?: string
-  readonly onChange: (value: string) => void
-  readonly onEnter?: () => void
-  readonly onResetClick?: () => void
-  readonly placeHolder?: string
-  readonly showClear?: boolean
-  readonly showCopy?: boolean
-  readonly value: string
+  readonly autoFocus?: boolean;
+  readonly dontValidate?: boolean;
+  readonly isUrl?: boolean;
+  readonly isValid?: boolean;
+  readonly label?: string;
+  readonly onChange: (value: string) => void;
+  readonly onEnter?: () => void;
+  readonly onResetClick?: () => void;
+  readonly placeHolder?: string;
+  readonly showClear?: boolean;
+  readonly showCopy?: boolean;
+  readonly value: string;
 }
 
 const TextInput = ({
@@ -75,11 +75,7 @@ const TextInput = ({
       try {
         // Construct the URL and return it with the query parameters
         const constructedURL = new URL(value_);
-        return (
-          constructedURL.origin
-          + constructedURL.pathname
-          + constructedURL.search
-        );
+        return constructedURL.origin + constructedURL.pathname + constructedURL.search;
       } catch {
         // If there's an error constructing the URL (meaning it's not a valid URL), return val as is
         return value_;
@@ -100,30 +96,13 @@ const TextInput = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
-  const doShowClear = (): boolean => (
-    showClear === true
-      && originalInput !== undefined
-      && input !== originalInput
-  );
+  const doShowClear = (): boolean => showClear === true && originalInput !== undefined && input !== originalInput;
 
   const doShowCopy = (): boolean => showCopy === true && input !== undefined && input !== '';
 
   return (
-    <div
-      className={
-        placeHolder && !label
-          ? 'flex grid w-full align-items-center'
-          : 'flex grid w-full mt-3 align-items-center'
-      }
-      ref={overlayReference}
-    >
-      <span
-        className={
-          placeHolder && !label
-            ? 'col-11 p-input-icon-right'
-            : 'col-11 p-input-icon-right p-float-label'
-        }
-      >
+    <div className={placeHolder && !label ? 'flex grid w-full align-items-center' : 'flex grid w-full mt-3 align-items-center'} ref={overlayReference}>
+      <span className={placeHolder && !label ? 'col-11 p-input-icon-right' : 'col-11 p-input-icon-right p-float-label'}>
         {doShowClear() && originalInput && (
           <i
             className="pi pi-times-circle"

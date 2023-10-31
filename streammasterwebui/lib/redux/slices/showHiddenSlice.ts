@@ -2,11 +2,11 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 
 interface SetShowHiddenPayload {
-  hidden: boolean | null | undefined
-  typename: string
+  hidden: boolean | null | undefined;
+  typename: string;
 }
 
-type ShowHiddenState = Record<string, boolean | null | undefined>
+type ShowHiddenState = Record<string, boolean | null | undefined>;
 
 const initialState: ShowHiddenState = {};
 
@@ -14,10 +14,7 @@ const showHiddenSlice = createSlice({
   initialState,
   name: 'showHidden',
   reducers: {
-    setShowHiddenInternal: (
-      state,
-      action: PayloadAction<SetShowHiddenPayload>
-    ) => {
+    setShowHiddenInternal: (state, action: PayloadAction<SetShowHiddenPayload>) => {
       const { typename, hidden } = action.payload;
 
       state[typename] = hidden;

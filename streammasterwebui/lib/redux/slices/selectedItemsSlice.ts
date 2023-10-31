@@ -2,11 +2,11 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 
 interface SetSelectedItemsPayload {
-  items: any | undefined
-  typename: string
+  items: any | undefined;
+  typename: string;
 }
 
-type QuerySelectedItemsState = Record<string, any | undefined>
+type QuerySelectedItemsState = Record<string, any | undefined>;
 
 const initialState: QuerySelectedItemsState = {};
 
@@ -14,10 +14,7 @@ const selectedItemsSlice = createSlice({
   initialState,
   name: 'selectedItems',
   reducers: {
-    setSelectedItemsInternal: (
-      state,
-      action: PayloadAction<SetSelectedItemsPayload>
-    ) => {
+    setSelectedItemsInternal: (state, action: PayloadAction<SetSelectedItemsPayload>) => {
       const { typename, items } = action.payload;
 
       if (!state[typename]) {

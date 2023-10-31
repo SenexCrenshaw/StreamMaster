@@ -8,12 +8,12 @@ const ChannelGroupEditor = (props: ChannelGroupEditorProperties) => {
   const onUpdateStream = React.useCallback(
     async (groupName: string) => {
       if (
-        props.data === undefined
-        || props.data.id === undefined
-        || props.data.id === ''
-        || !groupName
-        || groupName === ''
-        || props.data.user_Tvg_group === groupName
+        props.data === undefined ||
+        props.data.id === undefined ||
+        props.data.id === '' ||
+        !groupName ||
+        groupName === '' ||
+        props.data.user_Tvg_group === groupName
       ) {
         return;
       }

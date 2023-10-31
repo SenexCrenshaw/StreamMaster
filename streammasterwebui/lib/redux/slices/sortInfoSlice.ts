@@ -69,9 +69,9 @@ const sortInfoSlice = createSlice({
 
       if (state[typename].sortField && state[typename].sortOrder) {
         const newValue = state[typename].sortField
-          ? (state[typename].sortOrder === -1
+          ? state[typename].sortOrder === -1
             ? `${state[typename].sortField} desc`
-            : `${state[typename].sortField} asc`)
+            : `${state[typename].sortField} asc`
           : '';
 
         // const res = updateOrderBy(state[typename].orderBy, newValue);

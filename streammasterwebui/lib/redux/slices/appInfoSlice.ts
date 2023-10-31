@@ -2,9 +2,9 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { type RootState } from '../store';
 
 interface AppInfoPayload {
-  appName?: string
-  isHubConnected: boolean
-  isHubDisconnected: boolean
+  appName?: string;
+  isHubConnected: boolean;
+  isHubDisconnected: boolean;
 }
 
 const initialState: AppInfoPayload = {

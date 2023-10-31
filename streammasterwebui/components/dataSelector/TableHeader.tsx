@@ -12,7 +12,15 @@ interface TableHeaderProperties {
   setRowClick: (value: boolean) => void;
 }
 
-const TableHeader: React.FC<TableHeaderProperties> = ({ headerName, onMultiSelectClick, rowClick, setRowClick, enableExport, exportCSV, dataSelectorProps }) => (
+const TableHeader: React.FC<TableHeaderProperties> = ({
+  headerName,
+  onMultiSelectClick,
+  rowClick,
+  setRowClick,
+  enableExport,
+  exportCSV,
+  dataSelectorProps
+}) => (
   <div className="flex grid flex-row w-full flex-wrap grid align-items-center w-full col-12 h-full p-0 debug">
     <div className="flex col-2 h-full text-sm align-items-center p-0 debug">
       <SMTextColor text={headerName} />

@@ -1,12 +1,6 @@
 import BaseButton, { type ChildButtonProps as ChildButtonProperties } from './BaseButton';
 
-const DeleteButton: React.FC<ChildButtonProperties> = ({
-  disabled = false,
-  iconFilled,
-  label,
-  onClick,
-  tooltip = 'Delete Stream'
-}) => (
+const DeleteButton: React.FC<ChildButtonProperties> = ({ disabled = false, iconFilled, label, onClick, tooltip = 'Delete Stream' }) => (
   <BaseButton
     disabled={disabled}
     icon="pi-minus"

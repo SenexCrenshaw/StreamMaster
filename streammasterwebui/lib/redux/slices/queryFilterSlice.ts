@@ -3,11 +3,11 @@ import { type RootState } from '../store';
 import { type GetApiArg as GetApiArgument } from '../../common/common';
 
 interface SetQueryFilterPayload {
-  filter: GetApiArgument | undefined
-  typename: string
+  filter: GetApiArgument | undefined;
+  typename: string;
 }
 
-type QueryFilterState = Record<string, GetApiArgument | undefined>
+type QueryFilterState = Record<string, GetApiArgument | undefined>;
 
 const initialState: QueryFilterState = {};
 
@@ -15,10 +15,7 @@ const queryFilterSlice = createSlice({
   initialState,
   name: 'queryFilter',
   reducers: {
-    setQueryFilterInternal: (
-      state,
-      action: PayloadAction<SetQueryFilterPayload>
-    ) => {
+    setQueryFilterInternal: (state, action: PayloadAction<SetQueryFilterPayload>) => {
       const { typename, filter } = action.payload;
 
       if (filter !== null && filter !== undefined) {

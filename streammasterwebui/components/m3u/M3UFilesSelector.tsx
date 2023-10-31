@@ -40,12 +40,10 @@ const M3UFilesSelector = (props: M3UFilesSelectorProperties) => {
         options={options}
         placeholder="Play List"
         style={{
-
           backgroundColor: 'var(--mask-bg)',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap'
-
         }}
         value={selectedM3UFile}
         valueTemplate={selectedTemplate}

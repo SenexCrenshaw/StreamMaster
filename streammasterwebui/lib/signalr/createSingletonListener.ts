@@ -1,14 +1,11 @@
 import { isDev as isDevelopment } from '../settings';
 
 export interface SingletonListener {
-  addListener: (callback: (data: any) => void) => void
-  removeListener: (callback: (data: any) => void) => void
+  addListener: (callback: (data: any) => void) => void;
+  removeListener: (callback: (data: any) => void) => void;
 }
 
-export function createSingletonListener<T>(
-  messageName: string,
-  connection: signalR.HubConnection
-): SingletonListener {
+export function createSingletonListener<T>(messageName: string, connection: signalR.HubConnection): SingletonListener {
   let listenerCount = 0;
 
   return {

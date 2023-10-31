@@ -30,7 +30,10 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
 
     if (getCountriesQuery.data.Europe) {
       countries.push(
-        ...getCountriesQuery.data.Europe.filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '').map((c) => ({ label: c.fullName, value: c.shortName }))
+        ...getCountriesQuery.data.Europe.filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '').map((c) => ({
+          label: c.fullName,
+          value: c.shortName
+        }))
       );
     }
 
@@ -44,13 +47,19 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
 
     if (getCountriesQuery.data.Caribbean) {
       countries.push(
-        ...getCountriesQuery.data.Caribbean.filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '').map((c) => ({ label: c.fullName, value: c.shortName }))
+        ...getCountriesQuery.data.Caribbean.filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '').map((c) => ({
+          label: c.fullName,
+          value: c.shortName
+        }))
       );
     }
 
     if (getCountriesQuery.data.Oceania) {
       countries.push(
-        ...getCountriesQuery.data.Oceania.filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '').map((c) => ({ label: `${c.shortName}-${c.fullName}`, value: c.shortName }))
+        ...getCountriesQuery.data.Oceania.filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '').map((c) => ({
+          label: `${c.shortName}-${c.fullName}`,
+          value: c.shortName
+        }))
       );
     }
 
@@ -72,12 +81,10 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
           options={options}
           placeholder="Country"
           style={{
-
             backgroundColor: 'var(--mask-bg)',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap'
-
           }}
           value={country}
         />

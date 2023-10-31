@@ -16,7 +16,7 @@ interface StreamGroupChannelGroupsInputs {
 
 const StreamGroupChannelGroupsSelector = ({ className, streamGroupId }: StreamGroupChannelGroupsInputs) => {
   const { data: selectedData } = useStreamGroupChannelGroupGetChannelGroupsFromStreamGroupQuery(
-    streamGroupId === undefined ? skipToken : (streamGroupId > 0 ? streamGroupId : skipToken)
+    streamGroupId === undefined ? skipToken : streamGroupId > 0 ? streamGroupId : skipToken
   );
   const { data: channelGroups } = useChannelGroupsGetChannelGroupIdNamesQuery();
 

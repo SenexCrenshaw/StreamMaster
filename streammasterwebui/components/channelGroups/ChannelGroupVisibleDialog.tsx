@@ -50,10 +50,13 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
         });
     } else if (selectSelectedItems) {
       const toSend = {} as UpdateChannelGroupsRequest;
-      toSend.channelGroupRequests = selectSelectedItems.map((item) => ({
-        channelGroupId: item.id,
-        toggleVisibility: true
-      } as UpdateChannelGroupRequest));
+      toSend.channelGroupRequests = selectSelectedItems.map(
+        (item) =>
+          ({
+            channelGroupId: item.id,
+            toggleVisibility: true
+          } as UpdateChannelGroupRequest)
+      );
       UpdateChannelGroups(toSend)
         .then(() => {
           setInfoMessage('Channel Group Toggle Visibility Successfully');

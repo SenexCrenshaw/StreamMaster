@@ -3,7 +3,7 @@
     "browser": true,
     "es2022": true
   },
-  "extends": [ "react-app","prettier"],
+  "extends": ["react-app", "prettier"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {

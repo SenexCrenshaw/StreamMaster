@@ -14,9 +14,7 @@ export const useSelectAll = (typename: string) => {
     );
   };
 
-  const selectAll = useSelector(
-    (rootState: RootState) => rootState.selectAll[typename]
-  );
+  const selectAll = useSelector((rootState: RootState) => rootState.selectAll[typename]);
 
   return { selectAll, setSelectAll };
 };

@@ -38,9 +38,7 @@ function streamsBodyTemplate(activeCount: string, totalCount: string) {
 
   return (
     <div className="flex align-items-center gap-2">
-      {activeCount}
-      /
-      {totalCount}
+      {activeCount}/{totalCount}
     </div>
   );
 }

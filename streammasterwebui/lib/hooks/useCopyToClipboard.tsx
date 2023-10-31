@@ -1,7 +1,9 @@
 import { useState } from 'react';
 
-type CopiedValue = string | null
-interface CopyFunction { (text: string): Promise<boolean>; } // Return success
+type CopiedValue = string | null;
+interface CopyFunction {
+  (text: string): Promise<boolean>;
+} // Return success
 
 const useCopyToClipboard = (): [CopiedValue, CopyFunction] => {
   const [copiedText, setCopiedText] = useState<CopiedValue>(null);

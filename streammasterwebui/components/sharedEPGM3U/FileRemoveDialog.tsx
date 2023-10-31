@@ -3,16 +3,12 @@ import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import XButton from '../buttons/XButton';
 
 interface FileRemoveDialogProperties {
-  readonly fileType: 'epg' | 'm3u'
-  readonly infoMessage?: string
-  readonly onDeleteFile: () => void
+  readonly fileType: 'epg' | 'm3u';
+  readonly infoMessage?: string;
+  readonly onDeleteFile: () => void;
 }
 
-const FileRemoveDialog = ({
-  fileType,
-  infoMessage: inputInfoMessage,
-  onDeleteFile
-}: FileRemoveDialogProperties) => {
+const FileRemoveDialog = ({ fileType, infoMessage: inputInfoMessage, onDeleteFile }: FileRemoveDialogProperties) => {
   const labelName = fileType.toUpperCase();
 
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
@@ -43,27 +39,16 @@ const FileRemoveDialog = ({
       >
         <div className="flex grid w-full">
           <div className="flex col-12 justify-content-center align-items-center">
-            <i
-              className="pi pi-exclamation-triangle mr-3"
-              style={{ fontSize: '2rem' }}
-            />
+            <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
             <span>Are you sure you want to delete? </span>
           </div>
           <div className="flex col-12 justify-content-center">
-            <XButton
-              label={`Delete ${labelName}`}
-              onClick={onDeleteFile}
-              tooltip={`Delete ${labelName}`}
-            />
+            <XButton label={`Delete ${labelName}`} onClick={onDeleteFile} tooltip={`Delete ${labelName}`} />
           </div>
         </div>
       </InfoMessageOverLayDialog>
 
-      <XButton
-        iconFilled={false}
-        onClick={() => setShowOverlay(true)}
-        tooltip={`Delete ${labelName}`}
-      />
+      <XButton iconFilled={false} onClick={() => setShowOverlay(true)} tooltip={`Delete ${labelName}`} />
     </>
   );
 };
