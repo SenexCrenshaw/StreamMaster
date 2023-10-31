@@ -235,7 +235,7 @@ public class ChannelManager(
         {
             IChannelStatus? channelStatus = channelService.GetChannelStatus(config.ChannelVideoStreamId);
 
-            channelStatus ??= await RegisterNewChannel(config, null);
+            channelStatus ??= await EnsureChannelRegistration(config);
 
             if (channelStatus == null)
             {
@@ -269,7 +269,7 @@ public class ChannelManager(
         }
     }
 
-    private async Task<IChannelStatus?> RegisterNewChannel(IClientStreamerConfiguration config, IStreamHandler? streamHandler)
+    private async Task<IChannelStatus?> EnsureChannelRegistration(IClientStreamerConfiguration config)
     {
         using IServiceScope scope = serviceProvider.CreateScope();
         IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
@@ -292,24 +292,17 @@ public class ChannelManager(
                 return null;
             }
 
-            logger.LogInformation("No existing channel for {ChannelVideoStreamId}, creating", config.ChannelVideoStreamId);
+            logger.LogInformation("No existing channel for {ClientId} {ChannelVideoStreamId}", config.ClientId, config.ChannelVideoStreamId);
             if (!await streamSwitcher.SwitchToNextVideoStreamAsync(config.ChannelVideoStreamId).ConfigureAwait(false))
             {
                 logger.LogError("Cannot create new channel {ClientId} {ChannelVideoStreamId}", config.ClientId, config.ChannelVideoStreamId);
                 channelService.UnregisterChannel(config.ChannelVideoStreamId);
                 return null;
             }
-            streamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStreamId);
         }
         else
         {
-            logger.LogInformation("Reuse existing stream handler for {ChannelVideoStreamId}", config.ChannelVideoStreamId);
-        }
-
-        if (streamHandler == null)
-        {
-            logger.LogError("Failed to get streamHandler for ChannelVideoStreamId with id {id}", config.ChannelVideoStreamId);
-            return null;
+            logger.LogInformation("Reuse existing stream handler for {ClientId} {ChannelVideoStreamId}", config.ClientId, config.ChannelVideoStreamId);
         }
 
         return channelStatus;

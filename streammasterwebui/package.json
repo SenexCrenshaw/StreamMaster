@@ -61,7 +61,7 @@
     "dev": "vite --host --port 3000 -l info",
     "build": "vite build",
     "preview": "vite preview",
-    "builddev": "npm run build && cp -r build/* ..StreamMasterAPI\\bin\\Debug\\net7.0\\wwwroot -force",
+    "builddev": "npm run build && cp -r dist/* ..StreamMasterAPI\\bin\\Debug\\net7.0\\wwwroot -force",
     "build:check": "npm run foramt && npm run format:check && npm run type:check && npm run security:check",
     "security:check": "npm audit --production --audit-level high",
     "format": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
