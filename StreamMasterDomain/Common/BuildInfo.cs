@@ -37,7 +37,8 @@ public static class BuildInfo
     public static Version Version { get; }
     public static string Branch { get; }
     public static string Release { get; }
-    public static string AppDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{AppName.ToLower()}{Path.DirectorySeparatorChar}";
+    //public static string AppDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{AppName.ToLower()}{Path.DirectorySeparatorChar}";
+    public static string AppDataFolder = "/config/";
     public static readonly string DataFolder = $"{AppDataFolder}";
     public static readonly string CacheFolder = $"{AppDataFolder}Cache{Path.DirectorySeparatorChar}";
     public static readonly string PlayListFolder = $"{AppDataFolder}PlayLists{Path.DirectorySeparatorChar}";

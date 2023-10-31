@@ -7,7 +7,7 @@ EXPOSE 7095
 ENV ASPNETCORE_URLS=http://+:7095
 RUN apt-get update -yq \
     && apt-get upgrade -yq \
-    && apt-get install -yq ffmpeg \
+    && apt-get install -yq ffmpeg gosu\
     && rm -rf /var/lib/apt/lists/*
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:7.0 AS build
@@ -61,5 +61,12 @@ LABEL org.opencontainers.image.url="https://hub.docker.com/r/SenexCrenshaw/strea
 
 ENV REACT_API_URL=$REACT_API_URL
 ENV STREAMMASTER_BASEHOSTURL=http://localhost:7095/
+ENV PUID=0
+ENV PGID=0
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "StreamMasterAPI.dll"]
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+RUN mkdir /config
+
+ENTRYPOINT ["/entrypoint.sh", "dotnet", "StreamMasterAPI.dll"]

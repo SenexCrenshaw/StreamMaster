@@ -22,8 +22,6 @@ public class AppFolderInfo : IAppFolderInfo
 
     public AppFolderInfo()
     {
-        BuildInfo.AppDataFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}{Path.DirectorySeparatorChar}.{BuildInfo.AppName.ToLower()}{Path.DirectorySeparatorChar}";
-
         CacheFolder = $"{BuildInfo.AppDataFolder}Cache{Path.DirectorySeparatorChar}";
 
         SDCacheFolder = $"{CacheFolder}SD{Path.DirectorySeparatorChar}";
