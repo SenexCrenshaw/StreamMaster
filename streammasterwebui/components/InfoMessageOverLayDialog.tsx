@@ -40,7 +40,6 @@ const InfoMessageOverLayDialog: React.FC<InfoMessageOverLayDialogProperties> = (
     if (!infoMessage) return;
 
     if (!anchorReference.current?.getElement()) return;
-
     op.current?.show(null, anchorReference.current.getElement());
 
     const timer = setTimeout(hideOverlayAndDialog, 1500);
@@ -84,13 +83,13 @@ const InfoMessageOverLayDialog: React.FC<InfoMessageOverLayDialogProperties> = (
         ref={anchorReference}
         visible={showDialog}
       >
-        <BlockUI blocked={blocked}>
-          <div className="flex p-0 pt-3 pb-3 border-1 border-round surface-border justify-contents-center align-items-center">{children}</div>
+        <BlockUI className="h-full" blocked={blocked}>
+          <div className="flex p-0 h-full pt-3 pb-3 border-1 border-round surface-border justify-contents-center align-items-center">{children}</div>
         </BlockUI>
       </Dialog>
 
-      <OverlayPanel className={`col-${overlayColSize} p-0`} dismissable={false} ref={op} showCloseIcon={false}>
-        <div className="flex m-0  p-1 border-1 border-round surface-border justify-contents-center">
+      <OverlayPanel className={`col-${overlayColSize} p-0 h-full`} dismissable={false} ref={op} showCloseIcon={false}>
+        <div className="flex m-0  p-1 border-1 border-round surface-border h-full justify-contents-center">
           <div className="surface-overlay surface-overlay min-h-full min-w-full">
             <h4 className={`text-center ${determineSeverityColor()}`}>{infoMessage}</h4>
           </div>

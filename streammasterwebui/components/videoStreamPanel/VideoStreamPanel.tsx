@@ -122,8 +122,8 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
   };
 
   return (
-    <Accordion activeIndex={activeIndex} onTabChange={(e) => onsetActiveIndex(e.index as number)}>
-      <AccordionTab header="General">
+    <Accordion activeIndex={activeIndex} className="w-full h-full" onTabChange={(e) => onsetActiveIndex(e.index as number)}>
+      <AccordionTab className="w-full h-full" header="General">
         <div className="grid flex justify-content-start align-items-center surface-overlay m-0">
           <div className="flex col-12 justify-content-start align-items-center p-0 m-0">
             {/* Image */}
@@ -131,7 +131,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
               <img alt={iconSource ?? 'Logo'} className="icon-template-large" src={getIconUrl(iconSource, settings.defaultIcon, settings.cacheIcon)} />
             </div>
 
-            <div className="flex flex-wrap col-10  left_border justify-content-between">
+            <div className="flex flex-wrap col-10 left_border justify-content-between">
               <div className="flex col-12 justify-content-between">
                 <InputWrapper
                   columnSize={6}
@@ -228,9 +228,9 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
           </div>
         </div>
       </AccordionTab>
-      <AccordionTab header="Additional Streams">
+      <AccordionTab className="w-full h-full" header="Additional Streams">
         <div className="grid flex justify-content-start align-items-center surface-overlay m-0">
-          <div className="flex col-12 p-0 justify-content-start align-items-center w-full ">
+          <div className="flex col-12 p-0 justify-content-start align-items-center">
             <div className="col-6 m-0 p-0 pr-1">
               <VideoStreamDataSelector
                 id="videostreampanel"
