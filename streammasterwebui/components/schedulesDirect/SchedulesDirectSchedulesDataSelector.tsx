@@ -1,15 +1,15 @@
 import { useSchedulesDirectGetSchedulesQuery } from '@lib/iptvApi';
 import { Toast } from 'primereact/toast';
 import { memo, useMemo, useRef } from 'react';
-
 import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
+//const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
-type SchedulesDirectSchedulesDataSelectorProps = {
+interface SchedulesDirectSchedulesDataSelectorProperties {
   readonly id: string;
-};
+}
 
-const SchedulesDirectSchedulesDataSelector = ({ id }: SchedulesDirectSchedulesDataSelectorProps) => {
+const SchedulesDirectSchedulesDataSelector = ({ id }: SchedulesDirectSchedulesDataSelectorProperties) => {
   const toast = useRef<Toast>(null);
 
   // const [dataSource, setDataSource] = useState<Schedule[]>([] as Schedule[]);
@@ -50,12 +50,13 @@ const SchedulesDirectSchedulesDataSelector = ({ id }: SchedulesDirectSchedulesDa
   //     });
   // }, [selectSelectedItems]);
 
-  const sourceColumns = useMemo((): ColumnMeta[] => {
-    return [
+  const sourceColumns = useMemo(
+    (): ColumnMeta[] => [
       { field: 'stationID', header: 'Station Id' },
-      { field: 'metadata.startDate', header: 'metadata Id' },
-    ];
-  }, []);
+      { field: 'metadata.startDate', header: 'metadata Id' }
+    ],
+    []
+  );
 
   return (
     <>

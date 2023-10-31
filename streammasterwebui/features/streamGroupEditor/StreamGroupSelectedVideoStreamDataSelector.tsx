@@ -1,9 +1,9 @@
-import { useChannelNameColumnConfig } from '@/components/columns/useChannelNameColumnConfig';
-import { useChannelNumberColumnConfig } from '@/components/columns/useChannelNumberColumnConfig';
-import { useEPGColumnConfig } from '@/components/columns/useEPGColumnConfig';
-import AutoSetChannelNumbers from '@/components/videoStream/AutoSetChannelNumbers';
+import { useChannelNameColumnConfig } from '@components/columns/useChannelNameColumnConfig';
+import { useChannelNumberColumnConfig } from '@components/columns/useChannelNumberColumnConfig';
+import { useEPGColumnConfig } from '@components/columns/useEPGColumnConfig';
 import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
+import AutoSetChannelNumbers from '@components/videoStream/AutoSetChannelNumbers';
 import VideoStreamSetAutoSetEPGDialog from '@components/videoStream/VideoStreamSetAutoSetEPGDialog';
 import { getColor } from '@lib/common/colors';
 import { GetMessage, getChannelGroupMenuItem } from '@lib/common/common';
@@ -16,27 +16,29 @@ import { v4 as uuidv4 } from 'uuid';
 import StreamGroupChannelGroupsSelector from './StreamGroupChannelGroupsSelector';
 import VideoStreamRemoveFromStreamGroupDialog from './VideoStreamRemoveFromStreamGroupDialog';
 
-type StreamGroupSelectedVideoStreamDataSelectorProps = {
-  readonly id: string;
-};
+// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
-const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedVideoStreamDataSelectorProps) => {
-  const dataKey = id + '-StreamGroupSelectedVideoStreamDataSelector';
+interface StreamGroupSelectedVideoStreamDataSelectorProperties {
+  readonly id: string;
+}
+
+const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedVideoStreamDataSelectorProperties) => {
+  const dataKey = `${id}-StreamGroupSelectedVideoStreamDataSelector`;
   const { selectedStreamGroup } = useSelectedStreamGroup(id);
 
   const enableEdit = true;
 
-  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: enableEdit, useFilter: false });
-  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit: enableEdit, useFilter: false });
-  const { columnConfig: epgColumnConfig } = useEPGColumnConfig({ enableEdit: enableEdit, useFilter: false });
+  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit, useFilter: false });
+  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit, useFilter: false });
+  const { columnConfig: epgColumnConfig } = useEPGColumnConfig({ enableEdit, useFilter: false });
 
   const actionBodyTemplate = useCallback(
     (data: VideoStreamDto) => {
       if (data.isReadOnly === true) {
-        const tooltipClassName = 'grouptooltip-' + uuidv4();
+        const tooltipClassName = `grouptooltip-${uuidv4()}`;
         return (
           <div className="flex min-w-full min-h-full justify-content-end align-items-center">
-            <Tooltip position="left" target={'.' + tooltipClassName}>
+            <Tooltip position="left" target={`.${tooltipClassName}`}>
               {getChannelGroupMenuItem(data.user_Tvg_group, data.user_Tvg_group)}
             </Tooltip>
             <GroupIcon className={tooltipClassName} style={{ color: getColor(data.user_Tvg_group) }} />
@@ -51,11 +53,11 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
         </div>
       );
     },
-    [id],
+    [id]
   );
 
-  const columns = useMemo((): ColumnMeta[] => {
-    return [
+  const columns = useMemo(
+    (): ColumnMeta[] => [
       channelNumberColumnConfig,
       channelNameColumnConfig,
       epgColumnConfig,
@@ -65,19 +67,18 @@ const StreamGroupSelectedVideoStreamDataSelector = ({ id }: StreamGroupSelectedV
         header: '',
         resizeable: false,
         sortable: false,
-        width: '3rem',
-      },
-    ];
-  }, [channelNumberColumnConfig, channelNameColumnConfig, epgColumnConfig, actionBodyTemplate]);
+        width: '3rem'
+      }
+    ],
+    [channelNumberColumnConfig, channelNameColumnConfig, epgColumnConfig, actionBodyTemplate]
+  );
 
-  const rightHeaderTemplate = () => {
-    return (
-      <div className="flex justify-content-end align-items-center w-full gap-1">
-        <StreamGroupChannelGroupsSelector streamGroupId={selectedStreamGroup?.id} />
-        <AutoSetChannelNumbers streamGroupId={selectedStreamGroup?.id} id={dataKey} />
-      </div>
-    );
-  };
+  const rightHeaderTemplate = () => (
+    <div className="flex justify-content-end align-items-center w-full gap-1">
+      <StreamGroupChannelGroupsSelector streamGroupId={selectedStreamGroup?.id} />
+      <AutoSetChannelNumbers streamGroupId={selectedStreamGroup?.id} id={dataKey} />
+    </div>
+  );
 
   return (
     <DataSelector

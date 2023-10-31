@@ -1,23 +1,23 @@
-import { type PagedTableDto } from './DataSelector'
+import { type PagedTableDto } from './DataSelector';
 
 function isPagedTableDto<T>(value: unknown): value is PagedTableDto<T> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    return false
+    return false;
   }
 
   // You'll need to assert value as any here, since TS doesn't know if the value is an object or not.
 
-  const val = value as any
+  const value_ = value as any;
 
   return (
-    val &&
-    (val.data === undefined || Array.isArray(val.data)) &&
-    typeof val.first === 'number' &&
-    typeof val.pageNumber === 'number' &&
-    typeof val.pageSize === 'number' &&
-    typeof val.totalItemCount === 'number' &&
-    typeof val.totalPageCount === 'number'
-  )
+    value_ &&
+    (value_.data === undefined || Array.isArray(value_.data)) &&
+    typeof value_.first === 'number' &&
+    typeof value_.pageNumber === 'number' &&
+    typeof value_.pageSize === 'number' &&
+    typeof value_.totalItemCount === 'number' &&
+    typeof value_.totalPageCount === 'number'
+  );
 }
 
-export default isPagedTableDto
+export default isPagedTableDto;

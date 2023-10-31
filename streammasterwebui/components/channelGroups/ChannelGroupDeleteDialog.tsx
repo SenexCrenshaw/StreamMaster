@@ -3,25 +3,26 @@ import {
   useChannelGroupsDeleteChannelGroupMutation,
   type ChannelGroupDto,
   type ChannelGroupsDeleteAllChannelGroupsFromParametersApiArg,
-  type DeleteChannelGroupRequest,
+  type DeleteChannelGroupRequest
 } from '@lib/iptvApi';
 import { memo, useCallback, useMemo, useState } from 'react';
 
+import { isFetchBaseQueryError } from '@lib/common/common';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import XButton from '../buttons/XButton';
 
-type ChannelGroupDeleteDialogProps = {
+interface ChannelGroupDeleteDialogProperties {
   readonly iconFilled?: boolean | undefined;
   readonly id: string;
   readonly onDelete?: (results: number[] | undefined) => void;
   readonly onHide?: () => void;
   readonly value?: ChannelGroupDto | undefined;
-};
+}
 
-const ChannelGroupDeleteDialog = ({ iconFilled, id, onDelete, onHide, value }: ChannelGroupDeleteDialogProps) => {
+const ChannelGroupDeleteDialog = ({ iconFilled, id, onDelete, onHide, value }: ChannelGroupDeleteDialogProperties) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
 
@@ -55,7 +56,9 @@ const ChannelGroupDeleteDialog = ({ iconFilled, id, onDelete, onHide, value }: C
           setInfoMessage('Deleted Successfully');
         })
         .catch((error) => {
-          setInfoMessage('Delete Error: ' + error.message);
+          if (isFetchBaseQueryError(error)) {
+            setInfoMessage(`Delete Error: ${error.status}`);
+          }
         });
 
       return;
@@ -79,7 +82,7 @@ const ChannelGroupDeleteDialog = ({ iconFilled, id, onDelete, onHide, value }: C
           setSelectAll(false);
         })
         .catch((error) => {
-          setInfoMessage('Delete Error: ' + error.message);
+          setInfoMessage(`Delete Error: ${error.message}`);
           setSelectSelectedItems([]);
           setSelectAll(false);
         });
@@ -97,7 +100,7 @@ const ChannelGroupDeleteDialog = ({ iconFilled, id, onDelete, onHide, value }: C
     const groupIds = [] as number[];
 
     for (const group of selectSelectedItems.filter((a) => a.id !== undefined && !a.isReadOnly)) {
-      if (group.id === undefined || group.id == null) {
+      if (group.id === undefined || group.id === undefined) {
         continue;
       }
 
@@ -108,7 +111,7 @@ const ChannelGroupDeleteDialog = ({ iconFilled, id, onDelete, onHide, value }: C
       promises.push(
         channelGroupsDeleteChannelGroupMutation(data)
           .then(() => {})
-          .catch(() => {}),
+          .catch(() => {})
       );
     }
 
@@ -120,7 +123,7 @@ const ChannelGroupDeleteDialog = ({ iconFilled, id, onDelete, onHide, value }: C
         onDelete?.(groupIds);
       })
       .catch((error) => {
-        setInfoMessage('Channel Group Delete Error: ' + error.message);
+        setInfoMessage(`Channel Group Delete Error: ${error.message}`);
         onDelete?.(undefined);
       });
 
@@ -136,7 +139,7 @@ const ChannelGroupDeleteDialog = ({ iconFilled, id, onDelete, onHide, value }: C
     channelGroupsDeleteAllChannelGroupsFromParametersMutation,
     ReturnToParent,
     setSelectSelectedItems,
-    onDelete,
+    onDelete
   ]);
 
   const isFirstDisabled = useMemo(() => {
@@ -156,7 +159,7 @@ const ChannelGroupDeleteDialog = ({ iconFilled, id, onDelete, onHide, value }: C
       return 1;
     }
 
-    let count = selectSelectedItems?.length ?? 0;
+    const count = selectSelectedItems?.length ?? 0;
     if (count === 1 && isFirstDisabled) {
       return 0;
     }

@@ -1,35 +1,36 @@
-import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { GetMessage } from '@lib/common/common';
 import { VideoStreamDto, VideoStreamsUpdateVideoStreamApiArg, useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery } from '@lib/iptvApi';
 import { useQueryAdditionalFilters } from '@lib/redux/slices/useQueryAdditionalFilters';
 import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import { memo, useCallback, useEffect, useMemo, type CSSProperties } from 'react';
+import XButton from '../buttons/XButton';
 import { useChannelNameColumnConfig } from '../columns/useChannelNameColumnConfig';
 import { useChannelNumberColumnConfig } from '../columns/useChannelNumberColumnConfig';
+import DataSelector from '../dataSelector/DataSelector';
 import VideoStreamRemoveFromVideoStreamDialog from './VideoStreamRemoveFromVideoStreamDialog';
-import XButton from '../buttons/XButton';
+//const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
-type VideoStreamSelectedVideoStreamDataSelectorProps = {
+interface VideoStreamSelectedVideoStreamDataSelectorProperties {
   readonly id: string;
   readonly videoStreamId?: string;
   readonly dataSource?: VideoStreamDto[];
   onRemove?: (e: VideoStreamDto) => void;
   OnRowReorder?: (e: VideoStreamDto[]) => void;
-};
+}
 
 const VideoStreamSelectedVideoStreamDataSelector = ({
   id,
   dataSource,
   onRemove,
   OnRowReorder,
-  videoStreamId,
-}: VideoStreamSelectedVideoStreamDataSelectorProps) => {
-  const dataKey = id + '-VideoStreamSelectedVideoStreamDataSelector';
+  videoStreamId
+}: VideoStreamSelectedVideoStreamDataSelectorProperties) => {
+  const dataKey = `${id}-VideoStreamSelectedVideoStreamDataSelector`;
 
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: false });
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({
-    enableEdit: false,
+    enableEdit: false
   });
 
   const { setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
@@ -39,7 +40,7 @@ const VideoStreamSelectedVideoStreamDataSelector = ({
       setQueryAdditionalFilter({
         field: 'parentVideoStreamId',
         matchMode: 'equals',
-        values: [videoStreamId],
+        values: [videoStreamId]
       });
     }
 
@@ -48,7 +49,7 @@ const VideoStreamSelectedVideoStreamDataSelector = ({
 
   const targetActionBodyTemplate = useCallback(
     (data: VideoStreamDto) => {
-      if (videoStreamId === undefined)
+      if (videoStreamId === undefined) {
         return (
           <div className="flex p-0 justify-content-end align-items-center">
             <XButton
@@ -58,6 +59,7 @@ const VideoStreamSelectedVideoStreamDataSelector = ({
             />
           </div>
         );
+      }
 
       return (
         <div className="flex p-0 justify-content-end align-items-center">
@@ -68,8 +70,8 @@ const VideoStreamSelectedVideoStreamDataSelector = ({
     [onRemove, videoStreamId]
   );
 
-  const targetColumns = useMemo((): ColumnMeta[] => {
-    return [
+  const targetColumns = useMemo(
+    (): ColumnMeta[] => [
       channelNumberColumnConfig,
       channelNameColumnConfig,
       {
@@ -80,29 +82,26 @@ const VideoStreamSelectedVideoStreamDataSelector = ({
         sortable: false,
         style: {
           maxWidth: '2rem',
-          width: '2rem',
-        } as CSSProperties,
-      },
-    ];
-  }, [channelNumberColumnConfig, channelNameColumnConfig, targetActionBodyTemplate]);
+          width: '2rem'
+        } as CSSProperties
+      }
+    ],
+    [channelNumberColumnConfig, channelNameColumnConfig, targetActionBodyTemplate]
+  );
 
-  const rightHeaderTemplate = () => {
-    return <div className="flex justify-content-end align-items-center w-full gap-1" />;
-  };
+  const rightHeaderTemplate = () => <div className="flex justify-content-end align-items-center w-full gap-1" />;
 
   const intOnRowReorder = async (changed: VideoStreamDto[]) => {
-    const newData = changed.map((x: VideoStreamDto, index: number) => {
-      return {
-        ...x,
-        rank: index,
-      };
-    }) as VideoStreamDto[];
+    const newData = changed.map((x: VideoStreamDto, index: number) => ({
+      ...x,
+      rank: index
+    })) as VideoStreamDto[];
 
     if (OnRowReorder) {
       OnRowReorder(newData);
     }
 
-    var toSend = {} as VideoStreamsUpdateVideoStreamApiArg;
+    const toSend = {} as VideoStreamsUpdateVideoStreamApiArg;
 
     toSend.id = videoStreamId;
     toSend.childVideoStreams = newData;
@@ -125,9 +124,9 @@ const VideoStreamSelectedVideoStreamDataSelector = ({
       id={dataKey}
       key="rank"
       onRowReorder={async (e) => await intOnRowReorder(e as VideoStreamDto[])}
-      queryFilter={dataSource !== undefined ? undefined : useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery}
+      queryFilter={dataSource === undefined ? useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery : undefined}
       reorderable
-      selectedItemsKey={`selectSelected` + videoStreamId}
+      selectedItemsKey={`selectSelected${videoStreamId}`}
       selectionMode="single"
       style={{ height: 'calc(100vh - 480px)' }}
     />

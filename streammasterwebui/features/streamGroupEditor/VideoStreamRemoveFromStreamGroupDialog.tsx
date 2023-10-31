@@ -2,17 +2,17 @@ import XButton from '@components/buttons/XButton';
 import {
   StreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteApiArg,
   VideoStreamDto,
-  useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteMutation,
+  useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteMutation
 } from '@lib/iptvApi';
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 import { memo } from 'react';
 
-type VideoStreamRemoveFromStreamGroupDialogProps = {
+interface VideoStreamRemoveFromStreamGroupDialogProperties {
   readonly id: string;
   readonly value?: VideoStreamDto | undefined;
-};
+}
 
-const VideoStreamRemoveFromStreamGroupDialog = ({ id, value }: VideoStreamRemoveFromStreamGroupDialogProps) => {
+const VideoStreamRemoveFromStreamGroupDialog = ({ id, value }: VideoStreamRemoveFromStreamGroupDialogProperties) => {
   const [streamGroupVideoStreamsRemoveVideoStreamFromStreamGroupMutation] = useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteMutation();
   const { selectedStreamGroup } = useSelectedStreamGroup(id);
 
@@ -29,7 +29,7 @@ const VideoStreamRemoveFromStreamGroupDialog = ({ id, value }: VideoStreamRemove
     await streamGroupVideoStreamsRemoveVideoStreamFromStreamGroupMutation(toSend)
       .then(() => {})
       .catch((error) => {
-        console.error('Remove Stream Error: ' + error.message);
+        console.error(`Remove Stream Error: ${error.message}`);
       });
   };
 

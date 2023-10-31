@@ -8,11 +8,11 @@ import { type TooltipOptions } from 'primereact/tooltip/tooltipoptions';
 import { memo, useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
-const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProps) => {
+const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProperties) => {
   const [inputValue, setInputValue] = useState<number>(0);
   const [originalValue, setOriginalValue] = useState<number>(0);
   const [isFocused, setIsFocused] = useState<boolean>(false);
-  const overlayRef = useRef(null);
+  const overlayReference = useRef(null);
 
   const debounced = useDebouncedCallback(
     useCallback(
@@ -22,10 +22,10 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProps) => {
           props.onChange(value);
         }
       },
-      [originalValue, props],
+      [originalValue, props]
     ),
     1500,
-    {},
+    {}
   );
 
   const save = useCallback(
@@ -36,13 +36,13 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProps) => {
 
       debounced.cancel();
 
-      if (forceValueSave !== undefined) {
-        props.onChange(forceValueSave);
-      } else {
+      if (forceValueSave === undefined) {
         props.onChange(inputValue);
+      } else {
+        props.onChange(forceValueSave);
       }
     },
-    [debounced, inputValue, originalValue, props],
+    [debounced, inputValue, originalValue, props]
   );
 
   // Keyboard Enter
@@ -64,7 +64,7 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProps) => {
     };
   }, [isFocused, save]);
 
-  useClickOutside(overlayRef, () => {
+  useClickOutside(overlayReference, () => {
     if (!isFocused) {
       return;
     }
@@ -84,13 +84,13 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProps) => {
   }, [props.value, setInputValue]);
 
   return (
-    <div className="relative h-full" ref={overlayRef} style={props.style}>
+    <div className="relative h-full" ref={overlayReference} style={props.style}>
       {isFocused && props.resetValue !== undefined && props.resetValue !== 0 && props.resetValue !== inputValue && (
         <Button
           className="absolute mt-1 right-0"
           icon={<ResetLogoIcon sx={{ fontSize: 18 }} />}
           onClick={() => {
-            setInputValue(props.resetValue !== undefined ? props.resetValue : 0);
+            setInputValue(props.resetValue === undefined ? 0 : props.resetValue);
             save(props.resetValue);
           }}
           rounded
@@ -122,7 +122,7 @@ const NumberEditorBodyTemplate = (props: NumberEditorBodyTemplateProps) => {
   );
 };
 
-export type NumberEditorBodyTemplateProps = {
+export interface NumberEditorBodyTemplateProperties {
   readonly onChange: (value: number) => void;
   readonly onClick?: () => void;
   // onReset?: ((value: string) => void);
@@ -133,6 +133,6 @@ export type NumberEditorBodyTemplateProps = {
   readonly tooltip?: string | undefined;
   readonly tooltipOptions?: TooltipOptions | undefined;
   readonly value: number | undefined;
-};
+}
 
 export default memo(NumberEditorBodyTemplate);

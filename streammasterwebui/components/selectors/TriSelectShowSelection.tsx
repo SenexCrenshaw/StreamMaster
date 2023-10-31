@@ -2,11 +2,11 @@ import { getTopToolOptions } from '@lib/common/common';
 import { useShowSelections } from '@lib/redux/slices/useShowSelections';
 import { TriStateCheckbox, type TriStateCheckboxChangeEvent } from 'primereact/tristatecheckbox';
 
-type TriSelectShowProps = {
+interface TriSelectShowProperties {
   readonly dataKey: string;
-};
+}
 
-export const TriSelectShowSelection = ({ dataKey }: TriSelectShowProps) => {
+export const TriSelectShowSelection = ({ dataKey }: TriSelectShowProperties) => {
   const { showSelections, setShowSelections } = useShowSelections(dataKey);
 
   const getToolTip = (value: boolean | null | undefined): string => {

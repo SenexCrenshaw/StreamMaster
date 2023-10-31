@@ -2,29 +2,26 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Next.js: debug server-side",
+      "name": "Vite: debug server-side",
       "type": "node-terminal",
       "request": "launch",
-      "command": "next dev"
+      "command": "npm run dev"
     },
     {
-      "name": "Next.js: debug client-side",
+      "name": "Vite: debug client-side",
       "type": "chrome",
       "request": "launch",
       "url": "http://localhost:3000"
     },
     {
-      "name": "Next.js: debug full stack",
+      "name": "Vite: debug full stack",
       "type": "node-terminal",
       "request": "launch",
       "command": "npm run dev",
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
-      ],
+      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
       "serverReadyAction": {
-        "pattern": "- Local:.+(https?://.+)",
-        "uriFormat": "%s",
+        "pattern": "Local:.+(http://.+)",
+        "uriFormat": "http://%s",
         "action": "debugWithEdge"
       }
     },

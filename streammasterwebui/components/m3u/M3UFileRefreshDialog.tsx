@@ -3,11 +3,11 @@ import { memo, useState } from 'react';
 import { M3UFileDto, RefreshM3UFileRequest, useM3UFilesRefreshM3UFileMutation } from '@lib/iptvApi';
 import FileRefreshDialog from '../sharedEPGM3U/FileRefreshDialog';
 
-type M3UFileRefreshDialogProps = {
+interface M3UFileRefreshDialogProperties {
   readonly selectedFile: M3UFileDto;
-};
+}
 
-const M3UFileRefreshDialog = ({ selectedFile }: M3UFileRefreshDialogProps) => {
+const M3UFileRefreshDialog = ({ selectedFile }: M3UFileRefreshDialogProperties) => {
   const [infoMessage, setInfoMessage] = useState('');
   const [m3uFilesRefreshM3UFileMutation] = useM3UFilesRefreshM3UFileMutation();
 
@@ -24,7 +24,7 @@ const M3UFileRefreshDialog = ({ selectedFile }: M3UFileRefreshDialogProps) => {
         setInfoMessage('M3U Refresh Successfully');
       })
       .catch((error) => {
-        setInfoMessage('M3U Refresh Error: ' + error.message);
+        setInfoMessage(`M3U Refresh Error: ${error.message}`);
       });
   };
 

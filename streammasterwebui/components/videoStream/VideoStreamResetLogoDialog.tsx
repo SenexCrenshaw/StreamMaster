@@ -3,7 +3,7 @@ import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI
 import { memo, useCallback } from 'react';
 import ResetButton from '../buttons/ResetButton';
 
-const VideoStreamResetLogoDialog = (props: VideoStreamResetLogoDialogProps) => {
+const VideoStreamResetLogoDialog = (props: VideoStreamResetLogoDialogProperties) => {
   const ReturnToParent = useCallback(() => {
     props.onClose?.();
   }, [props]);
@@ -37,10 +37,10 @@ const VideoStreamResetLogoDialog = (props: VideoStreamResetLogoDialogProps) => {
 
 VideoStreamResetLogoDialog.displayName = 'VideoStreamResetLogoDialog';
 
-type VideoStreamResetLogoDialogProps = {
+interface VideoStreamResetLogoDialogProperties {
   readonly iconFilled?: boolean | undefined;
   readonly onClose?: () => void;
   readonly value?: VideoStreamDto | undefined;
-};
+}
 
 export default memo(VideoStreamResetLogoDialog);

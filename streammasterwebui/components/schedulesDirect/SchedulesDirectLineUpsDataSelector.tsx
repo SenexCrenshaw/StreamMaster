@@ -1,17 +1,18 @@
 import { useSchedulesDirectGetLineupsQuery } from '@lib/iptvApi';
 import { memo, useMemo } from 'react';
-import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
-
-type SchedulesDirectLineUpsDataSelectorProps = {
+//const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+import DataSelector from '../dataSelector/DataSelector';
+interface SchedulesDirectLineUpsDataSelectorProperties {
   id: string;
-};
-const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSelectorProps) => {
+}
+const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSelectorProperties) => {
   const getLineUpsQuery = useSchedulesDirectGetLineupsQuery();
 
-  const sourceColumns = useMemo((): ColumnMeta[] => {
-    return [{ field: 'lineup' }, { field: 'location' }, { field: 'name' }, { field: 'transport' }, { field: 'isDeleted' }];
-  }, []);
+  const sourceColumns = useMemo(
+    (): ColumnMeta[] => [{ field: 'lineup' }, { field: 'location' }, { field: 'name' }, { field: 'transport' }, { field: 'isDeleted' }],
+    []
+  );
   console.log(getLineUpsQuery.data?.lineups);
   return (
     <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border">

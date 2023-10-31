@@ -20,7 +20,7 @@
   --button-success-bg: #6dc831ee;
   --focus-border-color: var(--blue-500);
   --input-height: 1.4rem;
-  --dropdown-input-height: 2.0rem;
+  --dropdown-input-height: 2rem;
   --orange-color: #fe7600;
 }
 
@@ -239,13 +239,9 @@
   color: #0e1315;
 } */
 
-
 .p-inputgroup-addon {
   padding: 0.5rem !important;
 }
-
-
-
 
 .p-inputnumber-buttons-stacked {
   align-items: center !important;

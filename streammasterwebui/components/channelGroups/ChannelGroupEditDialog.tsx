@@ -1,4 +1,4 @@
-import { GetMessage } from '@lib/common/common';
+import { GetMessage, isFetchBaseQueryError } from '@lib/common/common';
 import { type ChannelGroupDto, type UpdateChannelGroupRequest } from '@lib/iptvApi';
 import { memo, useCallback, useEffect, useState } from 'react';
 
@@ -8,12 +8,12 @@ import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import EditButton from '../buttons/EditButton';
 import TextInput from '../inputs/TextInput';
 
-type ChannelGroupEditDialogProps = {
+interface ChannelGroupEditDialogProperties {
   readonly onClose?: (newName: string) => void;
   readonly value?: ChannelGroupDto | undefined;
-};
+}
 
-const ChannelGroupEditDialog = ({ onClose, value }: ChannelGroupEditDialogProps) => {
+const ChannelGroupEditDialog = ({ onClose, value }: ChannelGroupEditDialogProperties) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
@@ -49,7 +49,6 @@ const ChannelGroupEditDialog = ({ onClose, value }: ChannelGroupEditDialogProps)
   }, [channelGroupDto, selectSelectedItems]);
 
   const changeGroupName = useCallback(() => {
-    console.log('changeGroupName');
     if (!newGroupName || !value) {
       ReturnToParent();
       return;
@@ -66,8 +65,10 @@ const ChannelGroupEditDialog = ({ onClose, value }: ChannelGroupEditDialogProps)
       .then(() => {
         setInfoMessage('Channel Group Edit Successfully');
       })
-      .catch((e: any) => {
-        setInfoMessage('Channel Group Edit Error: ' + e.message);
+      .catch((error) => {
+        if (isFetchBaseQueryError(error)) {
+          setInfoMessage(`Delete Error: ${error.status}`);
+        }
       });
   }, [ReturnToParent, newGroupName, value]);
 
@@ -93,7 +94,7 @@ const ChannelGroupEditDialog = ({ onClose, value }: ChannelGroupEditDialogProps)
         </div>
       </InfoMessageOverLayDialog>
 
-      <EditButton disabled={!value || value.isReadOnly == true} iconFilled={false} onClick={() => setShowOverlay(true)} tooltip="Edit Group" />
+      <EditButton disabled={!value || value.isReadOnly === true} iconFilled={false} onClick={() => setShowOverlay(true)} tooltip="Edit Group" />
     </>
   );
 };

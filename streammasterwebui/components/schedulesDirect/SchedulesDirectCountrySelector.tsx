@@ -3,7 +3,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { Toast } from 'primereact/toast';
 import React from 'react';
 
-const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorProps) => {
+const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorProperties) => {
   const toast = React.useRef<Toast>(null);
   const [country, setCountry] = React.useState<string>('USA');
 
@@ -24,17 +24,16 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
       countries.push(
         ...getCountriesQuery.data['North America']
           .filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '')
-          .map((c) => {
-            return { label: c.fullName, value: c.shortName };
-          }),
+          .map((c) => ({ label: c.fullName, value: c.shortName }))
       );
     }
 
     if (getCountriesQuery.data.Europe) {
       countries.push(
-        ...getCountriesQuery.data.Europe.filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '').map((c) => {
-          return { label: c.fullName, value: c.shortName };
-        }),
+        ...getCountriesQuery.data.Europe.filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '').map((c) => ({
+          label: c.fullName,
+          value: c.shortName
+        }))
       );
     }
 
@@ -42,25 +41,25 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
       countries.push(
         ...getCountriesQuery.data['Latin America']
           .filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '')
-          .map((c) => {
-            return { label: c.fullName, value: c.shortName };
-          }),
+          .map((c) => ({ label: c.fullName, value: c.shortName }))
       );
     }
 
     if (getCountriesQuery.data.Caribbean) {
       countries.push(
-        ...getCountriesQuery.data.Caribbean.filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '').map((c) => {
-          return { label: c.fullName, value: c.shortName };
-        }),
+        ...getCountriesQuery.data.Caribbean.filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '').map((c) => ({
+          label: c.fullName,
+          value: c.shortName
+        }))
       );
     }
 
     if (getCountriesQuery.data.Oceania) {
       countries.push(
-        ...getCountriesQuery.data.Oceania.filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '').map((c) => {
-          return { label: c.shortName + '-' + c.fullName, value: c.shortName };
-        }),
+        ...getCountriesQuery.data.Oceania.filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '').map((c) => ({
+          label: `${c.shortName}-${c.fullName}`,
+          value: c.shortName
+        }))
       );
     }
 
@@ -82,12 +81,10 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
           options={options}
           placeholder="Country"
           style={{
-            ...{
-              backgroundColor: 'var(--mask-bg)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            },
+            backgroundColor: 'var(--mask-bg)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
           }}
           value={country}
         />
@@ -98,9 +95,9 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
 
 SchedulesDirectCountrySelector.displayName = 'SchedulesDirectCountrySelector';
 
-type SchedulesDirectCountrySelectorProps = {
+interface SchedulesDirectCountrySelectorProperties {
   readonly onChange: (value: string) => void;
   readonly value?: string | null;
-};
+}
 
 export default React.memo(SchedulesDirectCountrySelector);

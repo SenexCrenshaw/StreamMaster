@@ -1,5 +1,3 @@
-'use client';
-
 import StandardHeader from '@components/StandardHeader';
 import DownArrowButton from '@components/buttons/DownArrowButton';
 import { ExportComponent, formatJSONDateString } from '@lib/common/common';
@@ -12,6 +10,7 @@ import { FilterMatchMode } from 'primereact/api';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+//const StandardHeader = React.lazy(() => import('@components/StandardHeader'));
 
 const LogViewer = () => {
   const GetLog = async (arg: LogsGetLogApiArg): Promise<LogEntryDto[] | null> => {
@@ -28,7 +27,7 @@ const LogViewer = () => {
   const filters = {
     logLevelName: { matchMode: FilterMatchMode.CONTAINS, value: null },
     message: { matchMode: FilterMatchMode.CONTAINS, value: null },
-    timeStamp: { matchMode: FilterMatchMode.CONTAINS, value: null },
+    timeStamp: { matchMode: FilterMatchMode.CONTAINS, value: null }
   };
 
   const { type, direction, state } = useScrollAndKeyEvents();
@@ -57,7 +56,7 @@ const LogViewer = () => {
       }
       setLastScrollIndex(scollTo);
     },
-    [follow, lastScrollIndex],
+    [follow, lastScrollIndex]
   );
 
   const getLogData = useCallback(() => {
@@ -155,11 +154,11 @@ const LogViewer = () => {
         scrollable
         scrollHeight="calc(100vh - 100px)"
         style={{
-          height: 'calc(100vh - 200px)',
+          height: 'calc(100vh - 200px)'
         }}
         value={dataSource}
         virtualScrollerOptions={{
-          itemSize: itemSize,
+          itemSize: itemSize
         }}
       >
         <Column
@@ -177,7 +176,7 @@ const LogViewer = () => {
             paddingRight: '0.5rem !important',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
-            width: '10rem',
+            width: '10rem'
           }}
         />
         <Column
@@ -195,7 +194,7 @@ const LogViewer = () => {
             paddingRight: '0.5rem !important',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
-            width: '12rem',
+            width: '12rem'
           }}
         />
         <Column
@@ -212,7 +211,7 @@ const LogViewer = () => {
             paddingRight: '0.5rem !important',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
-            width: '40rem',
+            width: '40rem'
           }}
         />
       </DataTable>

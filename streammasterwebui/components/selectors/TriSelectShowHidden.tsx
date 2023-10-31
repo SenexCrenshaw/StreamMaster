@@ -3,10 +3,10 @@ import { useShowHidden } from '@lib/redux/slices/useShowHidden';
 import { TriStateCheckbox, type TriStateCheckboxChangeEvent } from 'primereact/tristatecheckbox';
 import { useMemo } from 'react';
 
-type TriSelectProps = {
+interface TriSelectProperties {
   readonly dataKey: string;
-};
-export const TriSelectShowHidden = ({ dataKey }: TriSelectProps) => {
+}
+export const TriSelectShowHidden = ({ dataKey }: TriSelectProperties) => {
   const { showHidden, setShowHidden } = useShowHidden(dataKey);
 
   const getToolTip = useMemo((): string => {

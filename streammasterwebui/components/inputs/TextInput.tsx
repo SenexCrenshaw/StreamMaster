@@ -1,22 +1,22 @@
-import { useClickOutside } from 'primereact/hooks'
-import { InputText } from 'primereact/inputtext'
-import { memo, useEffect, useRef, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
-import CopyButton from '../buttons/CopyButton'
+import { useClickOutside } from 'primereact/hooks';
+import { InputText } from 'primereact/inputtext';
+import { memo, useEffect, useRef, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import CopyButton from '../buttons/CopyButton';
 
-type TextInputProps = {
-  readonly autoFocus?: boolean
-  readonly dontValidate?: boolean
-  readonly isUrl?: boolean
-  readonly isValid?: boolean
-  readonly label?: string
-  readonly onChange: (value: string) => void
-  readonly onEnter?: () => void
-  readonly onResetClick?: () => void
-  readonly placeHolder?: string
-  readonly showClear?: boolean
-  readonly showCopy?: boolean
-  readonly value: string
+interface TextInputProperties {
+  readonly autoFocus?: boolean;
+  readonly dontValidate?: boolean;
+  readonly isUrl?: boolean;
+  readonly isValid?: boolean;
+  readonly label?: string;
+  readonly onChange: (value: string) => void;
+  readonly onEnter?: () => void;
+  readonly onResetClick?: () => void;
+  readonly placeHolder?: string;
+  readonly showClear?: boolean;
+  readonly showCopy?: boolean;
+  readonly value: string;
 }
 
 const TextInput = ({
@@ -31,128 +31,99 @@ const TextInput = ({
   placeHolder,
   showClear = true,
   showCopy = false,
-  value,
-}: TextInputProps) => {
-  const [input, setInput] = useState<string>('')
-  const [originalInput, setOriginalInput] = useState<string | undefined>(
-    undefined,
-  )
-  const uuid = uuidv4()
-  const [isFocused, setIsFocused] = useState<boolean>(false)
-  const overlayRef = useRef(null)
+  value
+}: TextInputProperties) => {
+  const [input, setInput] = useState<string>('');
+  const [originalInput, setOriginalInput] = useState<string | undefined>();
+  const uuid = uuidv4();
+  const [isFocused, setIsFocused] = useState<boolean>(false);
+  const overlayReference = useRef(null);
 
   useEffect(() => {
     const callback = (event: KeyboardEvent) => {
       if (!isFocused) {
-        return
+        return;
       }
 
-      if (event.code === 'Enter' || event.code === 'NumpadEnter') {
-        if (originalInput !== input) {
-          onEnter?.()
-        }
+      if ((event.code === 'Enter' || event.code === 'NumpadEnter') && originalInput !== input) {
+        onEnter?.();
       }
-    }
+    };
 
-    document.addEventListener('keydown', callback)
+    document.addEventListener('keydown', callback);
 
     return () => {
-      document.removeEventListener('keydown', callback)
-    }
-  }, [input, isFocused, onChange, onEnter, originalInput])
+      document.removeEventListener('keydown', callback);
+    };
+  }, [input, isFocused, onChange, onEnter, originalInput]);
 
-  useClickOutside(overlayRef, () => {
+  useClickOutside(overlayReference, () => {
     if (!isFocused) {
-      return
+      return;
     }
 
-    setIsFocused(false)
-  })
+    setIsFocused(false);
+  });
 
-  const processValue = (val: string) => {
-    if (dontValidate && !isUrl) return val
+  const processValue = (value_: string) => {
+    if (dontValidate && !isUrl) return value_;
     // If val is null, empty, or undefined, return it as is
-    if (!val) return val
+    if (!value_) return value_;
 
     // If it's supposed to be a URL, process accordingly
     if (isUrl) {
       try {
         // Construct the URL and return it with the query parameters
-        const constructedURL = new URL(val)
-        return (
-          constructedURL.origin +
-          constructedURL.pathname +
-          constructedURL.search
-        )
-      } catch (error) {
+        const constructedURL = new URL(value_);
+        return constructedURL.origin + constructedURL.pathname + constructedURL.search;
+      } catch {
         // If there's an error constructing the URL (meaning it's not a valid URL), return val as is
-        return val
+        return value_;
       }
     }
 
     // If not a URL, remove file extension (previous behavior)
-    return val.replace(/\.[^/.]+$/, '')
-  }
+    return value_.replace(/\.[^./]+$/, '');
+  };
 
   useEffect(() => {
     if (originalInput === undefined && value !== originalInput) {
-      setOriginalInput(processValue(value))
+      setOriginalInput(processValue(value));
     }
 
-    setInput(processValue(value))
+    setInput(processValue(value));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value])
+  }, [value]);
 
-  const doShowClear = (): boolean => {
-    return (
-      showClear === true &&
-      originalInput !== undefined &&
-      input !== originalInput
-    )
-  }
+  const doShowClear = (): boolean => showClear === true && originalInput !== undefined && input !== originalInput;
 
-  const doShowCopy = (): boolean => {
-    return showCopy === true && input !== undefined && input !== ''
-  }
+  const doShowCopy = (): boolean => showCopy === true && input !== undefined && input !== '';
 
   return (
-    <div
-      className={
-        placeHolder && !label
-          ? 'flex grid w-full align-items-center'
-          : 'flex grid w-full mt-3 align-items-center'
-      }
-      ref={overlayRef}
-    >
-      <span
-        className={
-          placeHolder && !label
-            ? 'col-11 p-input-icon-right'
-            : 'col-11 p-input-icon-right p-float-label'
-        }
-      >
+    <div className={placeHolder && !label ? 'flex grid w-full align-items-center' : 'flex grid w-full mt-3 align-items-center'} ref={overlayReference}>
+      <span className={placeHolder && !label ? 'col-11 p-input-icon-right' : 'col-11 p-input-icon-right p-float-label'}>
         {doShowClear() && originalInput && (
           <i
             className="pi pi-times-circle"
             hidden={showClear !== true || input === originalInput}
             onClick={() => {
-              setInput(originalInput)
+              setInput(originalInput);
               if (onResetClick) {
-                onResetClick()
+                onResetClick();
               }
-              onChange(originalInput)
+              onChange(originalInput);
             }}
           />
         )}
 
         <InputText
           autoFocus={autoFocus}
-          className={`text-large w-full ` + (isValid ? '' : 'p-invalid')}
+          className={`text-large w-full ${isValid ? '' : 'p-invalid'}`}
           id={uuid}
           onChange={(event) => {
-            setInput(processValue(event.target.value))
-            onChange(processValue(event.target.value))
+            setInput(processValue(event.target.value));
+            onChange(processValue(event.target.value));
           }}
           onFocus={() => setIsFocused(true)}
           placeholder={placeHolder}
@@ -166,7 +137,7 @@ const TextInput = ({
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default memo(TextInput)
+export default memo(TextInput);

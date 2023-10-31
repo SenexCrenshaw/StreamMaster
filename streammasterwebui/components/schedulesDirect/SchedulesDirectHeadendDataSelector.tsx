@@ -1,15 +1,15 @@
 import { useSchedulesDirectGetHeadendsQuery } from '@lib/iptvApi';
 import { memo, useEffect, useMemo, useState } from 'react';
-import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
-
-const SchedulesDirectHeadendDataSelector = (props: SchedulesDirectHeadendDataSelectorProps) => {
+// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+import DataSelector from '../dataSelector/DataSelector';
+const SchedulesDirectHeadendDataSelector = (props: SchedulesDirectHeadendDataSelectorProperties) => {
   const [country, setCountry] = useState<string>('USA');
   const [postalCode, setPostalCode] = useState<string>('19082');
 
   const getHeadendsQuery = useSchedulesDirectGetHeadendsQuery({
-    country: country,
-    postalCode: postalCode,
+    country,
+    postalCode
   });
 
   useEffect(() => {
@@ -24,15 +24,16 @@ const SchedulesDirectHeadendDataSelector = (props: SchedulesDirectHeadendDataSel
     }
   }, [props.postalCode]);
 
-  const sourceColumns = useMemo((): ColumnMeta[] => {
-    return [{ field: 'headend' }, { field: 'lineup' }, { field: 'location' }, { field: 'name' }, { field: 'transport' }];
-  }, []);
+  const sourceColumns = useMemo(
+    (): ColumnMeta[] => [{ field: 'headend' }, { field: 'lineup' }, { field: 'location' }, { field: 'name' }, { field: 'transport' }],
+    []
+  );
 
   return (
     <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border">
       <h3>
         <span className="text-bold">TV Headends | </span>
-        <span className="text-bold text-blue-500">{props.country}</span> - <span className="text-bold text-500">{props.postalCode}</span>
+        <span className="text-bold text-blue-500">{props.country}</span> -<span className="text-bold text-500">{props.postalCode}</span>
       </h3>
       <DataSelector
         columns={sourceColumns}
@@ -50,10 +51,10 @@ const SchedulesDirectHeadendDataSelector = (props: SchedulesDirectHeadendDataSel
 
 SchedulesDirectHeadendDataSelector.displayName = 'SchedulesDirectHeadendDataSelector';
 
-type SchedulesDirectHeadendDataSelectorProps = {
+interface SchedulesDirectHeadendDataSelectorProperties {
   readonly country: string | null;
   // onChange: ((value: string) => void);
   readonly postalCode: string | null;
-};
+}
 
 export default memo(SchedulesDirectHeadendDataSelector);

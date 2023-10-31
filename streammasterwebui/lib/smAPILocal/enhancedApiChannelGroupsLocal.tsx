@@ -35,8 +35,8 @@ export const enhancedApiChannelGroupsLocal = iptvApi.enhanceEndpoints({
         }
 
         await cacheEntryRemoved;
-      },
-    },
+      }
+    }
     // channelGroupsGetChannelGroups: {
     //   async onCacheEntryAdded(api, { dispatch, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
     //     try {
@@ -75,5 +75,5 @@ export const enhancedApiChannelGroupsLocal = iptvApi.enhanceEndpoints({
     //     await cacheEntryRemoved;
     //   }
     // },
-  },
+  }
 });

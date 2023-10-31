@@ -1,12 +1,7 @@
-'use client'
+import FilesEditor from '@features/filesEditor/FilesEditor';
 
-import dynamic from 'next/dynamic'
-
-const FilesEditor = dynamic(
-  () => import('@/features/filesEditor/FilesEditor'),
-  { ssr: false },
-)
+// const FilesEditor = React.lazy(() => import('@features/filesEditor/FilesEditor'));
 
 export default function FilesEditorLayout() {
-  return <FilesEditor />
+  return <FilesEditor />;
 }

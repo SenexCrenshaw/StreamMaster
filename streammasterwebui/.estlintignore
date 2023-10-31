@@ -3,4 +3,6 @@ node_modules
 **/.next/**
 **/_next/**
 **/.vscode/**
-**/build/**
+**/dist/**
+vite.config.ts
+iptvApi.ts

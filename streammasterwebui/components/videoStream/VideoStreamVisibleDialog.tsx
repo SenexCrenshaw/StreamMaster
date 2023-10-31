@@ -2,7 +2,7 @@ import {
   type UpdateVideoStreamRequest,
   type UpdateVideoStreamsRequest,
   type VideoStreamDto,
-  type VideoStreamsUpdateAllVideoStreamsFromParametersApiArg,
+  type VideoStreamsUpdateAllVideoStreamsFromParametersApiArg
 } from '@lib/iptvApi';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';
@@ -12,19 +12,19 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import VisibleButton from '../buttons/VisibleButton';
 
-type VideoStreamVisibleDialogProps = {
+interface VideoStreamVisibleDialogProperties {
   readonly iconFilled?: boolean;
   readonly id: string;
   readonly onClose?: () => void;
   readonly skipOverLayer?: boolean;
   readonly values?: VideoStreamDto[];
-};
+}
 
-const VideoStreamVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, values }: VideoStreamVisibleDialogProps) => {
+const VideoStreamVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, values }: VideoStreamVisibleDialogProperties) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
-  const [selectVideoStreamsInternal, setSelectVideoStreamsInternal] = useState<VideoStreamDto[] | undefined>(undefined);
+  const [selectVideoStreamsInternal, setSelectVideoStreamsInternal] = useState<VideoStreamDto[] | undefined>();
 
   const { selectedVideoStreams } = useSelectedVideoStreams(id);
   const { selectAll } = useSelectAll(id);
@@ -50,9 +50,7 @@ const VideoStreamVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, valu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedVideoStreams]);
 
-  const getTotalCount = useMemo(() => {
-    return selectVideoStreamsInternal?.length ?? 0;
-  }, [selectVideoStreamsInternal]);
+  const getTotalCount = useMemo(() => selectVideoStreamsInternal?.length ?? 0, [selectVideoStreamsInternal]);
 
   const onVisiblesClick = useCallback(async () => {
     if (selectVideoStreamsInternal === undefined) {
@@ -75,7 +73,7 @@ const VideoStreamVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, valu
       // toSendAll.parameters.pageSize = getTotalCount;
 
       toSendAll.request = {
-        toggleVisibility: true,
+        toggleVisibility: true
       } as UpdateVideoStreamRequest;
 
       await UpdateAllVideoStreamsFromParameters(toSendAll)
@@ -83,7 +81,7 @@ const VideoStreamVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, valu
           setInfoMessage('Toggle Stream Visibility Successfully');
         })
         .catch((error) => {
-          setInfoMessage('Toggle Stream Visibility Error: ' + error.message);
+          setInfoMessage(`Toggle Stream Visibility Error: ${error.message}`);
         });
 
       return;
@@ -97,19 +95,20 @@ const VideoStreamVisibleDialog = ({ id, iconFilled, onClose, skipOverLayer, valu
 
     const toSend = {} as UpdateVideoStreamsRequest;
 
-    toSend.videoStreamUpdates = selectVideoStreamsInternal.map((a) => {
-      return {
-        id: a.id,
-        toggleVisibility: true,
-      } as UpdateVideoStreamRequest;
-    });
+    toSend.videoStreamUpdates = selectVideoStreamsInternal.map(
+      (a) =>
+        ({
+          id: a.id,
+          toggleVisibility: true
+        } as UpdateVideoStreamRequest)
+    );
 
     await UpdateVideoStreams(toSend)
       .then(() => {
         setInfoMessage('Set Stream Visibility Successfully');
       })
       .catch((error) => {
-        setInfoMessage('Set Stream Visibility Error: ' + error.message);
+        setInfoMessage(`Set Stream Visibility Error: ${error.message}`);
       });
   }, [selectVideoStreamsInternal, getTotalCount, selectAll, ReturnToParent, queryFilter]);
 

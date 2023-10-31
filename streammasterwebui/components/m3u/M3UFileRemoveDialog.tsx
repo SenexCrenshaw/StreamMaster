@@ -4,11 +4,11 @@ import { type DeleteM3UFileRequest, type M3UFileDto } from '@lib/iptvApi';
 import { DeleteM3UFile } from '@lib/smAPI/M3UFiles/M3UFilesMutateAPI';
 import FileRemoveDialog from '../sharedEPGM3U/FileRemoveDialog';
 
-type M3UFileRemoveDialogProps = {
+interface M3UFileRemoveDialogProperties {
   readonly selectedFile?: M3UFileDto;
-};
+}
 
-const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProps) => {
+const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProperties) => {
   const [infoMessage, setInfoMessage] = useState('');
 
   const deleteFile = () => {
@@ -25,8 +25,8 @@ const M3UFileRemoveDialog = (props: M3UFileRemoveDialogProps) => {
       .then(() => {
         setInfoMessage('M3U Removed Successfully');
       })
-      .catch((e) => {
-        setInfoMessage('M3U Removed Error: ' + e.message);
+      .catch((error) => {
+        setInfoMessage(`M3U Removed Error: ${error.message}`);
       });
   };
 

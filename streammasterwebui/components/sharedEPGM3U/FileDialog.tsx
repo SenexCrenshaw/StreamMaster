@@ -4,9 +4,9 @@ import { FileUpload, type FileUploadHeaderTemplateOptions, type FileUploadSelect
 import { ProgressBar } from 'primereact/progressbar';
 import React, { useEffect, useRef, useState } from 'react';
 
-import { M3UFileStreamUrlPrefix } from '@/lib/common/streammaster_enums';
 import { upload } from '@lib/FileUploadService';
 import { isValidUrl } from '@lib/common/common';
+import { M3UFileStreamUrlPrefix } from '@lib/common/streammaster_enums';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import AddButton from '../buttons/AddButton';
@@ -14,7 +14,7 @@ import NumberInput from '../inputs/NumberInput';
 import TextInput from '../inputs/TextInput';
 // import StreamURLPrefixSelector from '../m3u/StreamURLPrefixSelector';
 
-export type FileDialogProps = {
+export interface FileDialogProperties {
   readonly fileType: 'epg' | 'm3u';
   readonly infoMessage?: string;
   readonly onCreateFromSource?: (
@@ -27,12 +27,12 @@ export type FileDialogProps = {
   readonly onHide?: (didUpload: boolean) => void;
   readonly show?: boolean | null;
   readonly showButton?: boolean | null;
-};
+}
 
-const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInfoMessage, onCreateFromSource, onHide, show, showButton }) => {
+const FileDialog: React.FC<FileDialogProperties> = ({ fileType, infoMessage: inputInfoMessage, onCreateFromSource, onHide, show, showButton }) => {
   const labelName = fileType.toUpperCase();
 
-  const fileUploadRef = useRef<FileUpload>(null);
+  const fileUploadReference = useRef<FileUpload>(null);
   const [streamURLPrefix, setStreamURLPrefix] = React.useState<M3UFileStreamUrlPrefix>(0);
   const [activeFile, setActiveFile] = useState<File | undefined>();
   const [name, setName] = useState<string>('');
@@ -41,7 +41,7 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
   const [progress, setProgress] = useState<number>(0);
   const [source, setSource] = useState<string>('');
   const [uploadedBytes, setUploadedBytes] = useState<number>(0);
-  const [infoMessage, setInfoMessage] = useState<string | undefined>(undefined);
+  const [infoMessage, setInfoMessage] = useState<string | undefined>();
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [nameFromFileName, setNameFromFileName] = useState<boolean>(false);
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
@@ -56,7 +56,7 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
 
     if (name === '' || nameFromFileName) {
       setNameFromFileName(true);
-      setName(e.files[0].name.replace(/\.[^/.]+$/, ''));
+      setName(e.files[0].name.replace(/\.[^./]+$/, ''));
     }
   };
 
@@ -81,13 +81,13 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
   };
 
   const valueTemplate = React.useMemo(() => {
-    const formatedValue = fileUploadRef?.current ? fileUploadRef.current.formatSize(activeFile?.size ?? 0) : '0 B';
+    const formatedValue = fileUploadReference?.current ? fileUploadReference.current.formatSize(activeFile?.size ?? 0) : '0 B';
 
-    const formatedUpload = fileUploadRef?.current ? fileUploadRef.current.formatSize(uploadedBytes) : '0 B';
+    const formatedUpload = fileUploadReference?.current ? fileUploadReference.current.formatSize(uploadedBytes) : '0 B';
 
     return (
       <span>
-        {formatedUpload} / <b>{formatedValue}</b>
+        {formatedUpload} /<b>{formatedValue}</b>
       </span>
     );
   }, [activeFile?.size, uploadedBytes]);
@@ -120,28 +120,26 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
     );
   };
 
-  const emptyTemplate = () => {
-    return (
-      <div className="flex align-items-center justify-content-center">
-        <i
-          className="pi pi-file mt-3 p-5"
-          style={{
-            backgroundColor: 'var(--surface-b)',
-            borderRadius: '50%',
-            color: 'var(--surface-d)',
-            fontSize: '5em',
-          }}
-        />
-        <span className="my-5" style={{ color: 'var(--text-color-secondary)', fontSize: '1.2em' }}>
-          {`Drag and Drop ${labelName} Here`}
-        </span>
-      </div>
-    );
-  };
+  const emptyTemplate = () => (
+    <div className="flex align-items-center justify-content-center">
+      <i
+        className="pi pi-file mt-3 p-5"
+        style={{
+          backgroundColor: 'var(--surface-b)',
+          borderRadius: '50%',
+          color: 'var(--surface-d)',
+          fontSize: '5em'
+        }}
+      />
+      <span className="my-5" style={{ color: 'var(--text-color-secondary)', fontSize: '1.2em' }}>
+        {`Drag and Drop ${labelName} Here`}
+      </span>
+    </div>
+  );
 
   const ReturnToParent = (didUpload?: boolean) => {
-    if (fileUploadRef.current) {
-      fileUploadRef.current.clear();
+    if (fileUploadReference.current) {
+      fileUploadReference.current.clear();
     }
     setShowOverlay(false);
     setBlock(false);
@@ -164,22 +162,20 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
 
     setBlock(true);
 
-    if (source !== '') {
-      onCreateFromSource?.(name, source, maxStreams, startingChannelNumber, streamURLPrefix);
-    } else {
+    if (source === '') {
       await upload({
-        name: name,
-        source: source,
         description: name,
-        streamURLPrefix: streamURLPrefix,
         file: activeFile,
-        fileType: fileType,
+        fileType,
+        name,
         onUploadProgress: (event: axios.AxiosProgressEvent) => {
           setUploadedBytes(event.loaded);
-          const total = event.total !== undefined ? event.total : 1;
+          const total = event.total === undefined ? 1 : event.total;
           const prog = Math.round((100 * event.loaded) / total);
           setProgress(prog);
         },
+        source,
+        streamURLPrefix
       })
         .then(() => {
           setInfoMessage(`Uploaded ${labelName}`);
@@ -189,25 +185,27 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
             setInfoMessage(`Error Uploading ${labelName}: ${error.message}`);
           }
         });
+    } else {
+      onCreateFromSource?.(name, source, maxStreams, startingChannelNumber, streamURLPrefix);
     }
   };
 
   const chooseOptions = {
     className: 'p-button-rounded p-button-info',
     icon: 'pi pi-fw pi-plus',
-    label: 'Add File',
+    label: 'Add File'
   };
 
   const uploadOptions = {
     className: 'p-button-rounded p-button-success',
     icon: 'pi pi-fw pi-upload',
-    label: 'Upload',
+    label: 'Upload'
   };
 
   const cancelOptions = {
     className: 'p-button-rounded p-button-danger',
     icon: 'pi pi-fw pi-times',
-    label: 'Remove File',
+    label: 'Remove File'
   };
 
   const isSaveEnabled = React.useMemo((): boolean => {
@@ -243,7 +241,7 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
                 onResetClick={() => {
                   if (activeFile !== null && activeFile !== undefined) {
                     setNameFromFileName(true);
-                    setName(activeFile.name.replace(/\.[^/.]+$/, ''));
+                    setName(activeFile.name.replace(/\.[^./]+$/, ''));
                   } else {
                     setName('');
                   }
@@ -302,19 +300,19 @@ const FileDialog: React.FC<FileDialogProps> = ({ fileType, infoMessage: inputInf
                   <FileUpload
                     // itemTemplate={itemTemplate}
                     // onUpload={onTemplateUpload}
-                    //accept="xml"
+                    // accept="xml"
                     cancelOptions={cancelOptions}
                     chooseOptions={chooseOptions}
                     className="w-full"
                     customUpload
                     emptyTemplate={emptyTemplate}
                     headerTemplate={headerTemplate}
-                    maxFileSize={300000000}
+                    maxFileSize={300_000_000}
                     onClear={onTemplateClear}
                     onError={onTemplateClear}
                     onRemove={() => setActiveFile(undefined)}
                     onSelect={onTemplateSelect}
-                    ref={fileUploadRef}
+                    ref={fileUploadReference}
                     style={{ width: '100vw' }}
                     uploadHandler={doUpload}
                     uploadOptions={uploadOptions}

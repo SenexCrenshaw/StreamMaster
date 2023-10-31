@@ -4,8 +4,8 @@ import { useLocalStorage } from 'primereact/hooks';
 import { type SelectItem } from 'primereact/selectitem';
 import { memo, useCallback, useEffect, useMemo } from 'react';
 
-const M3UFilesSelector = (props: M3UFilesSelectorProps) => {
-  const [selectedM3UFile, setSelectedM3UFile] = useLocalStorage<M3UFileDto>({ id: 0, name: 'All' } as M3UFileDto, props.id + '-setSelectedM3UFile');
+const M3UFilesSelector = (props: M3UFilesSelectorProperties) => {
+  const [selectedM3UFile, setSelectedM3UFile] = useLocalStorage<M3UFileDto>({ id: 0, name: 'All' } as M3UFileDto, `${props.id}-setSelectedM3UFile`);
 
   const m3uFilesQuery = useEpgFilesGetPagedEpgFilesQuery({} as M3UFilesGetPagedM3UFilesApiArg);
 
@@ -18,9 +18,7 @@ const M3UFilesSelector = (props: M3UFilesSelectorProps) => {
   const options = useMemo(() => {
     if (!m3uFilesQuery.data?.data) return [];
 
-    return m3uFilesQuery.data.data.map((cg) => {
-      return { label: cg.name, value: cg };
-    });
+    return m3uFilesQuery.data.data.map((cg) => ({ label: cg.name, value: cg }));
   }, [m3uFilesQuery.data]);
 
   const selectedTemplate = useCallback((option: SelectItem) => {
@@ -42,12 +40,10 @@ const M3UFilesSelector = (props: M3UFilesSelectorProps) => {
         options={options}
         placeholder="Play List"
         style={{
-          ...{
-            backgroundColor: 'var(--mask-bg)',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          },
+          backgroundColor: 'var(--mask-bg)',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap'
         }}
         value={selectedM3UFile}
         valueTemplate={selectedTemplate}
@@ -58,10 +54,10 @@ const M3UFilesSelector = (props: M3UFilesSelectorProps) => {
 
 M3UFilesSelector.displayName = 'M3UFilesSelector';
 
-type M3UFilesSelectorProps = {
+interface M3UFilesSelectorProperties {
   readonly id: string;
   readonly onChange: (value: M3UFileDto) => void;
   readonly value: M3UFileDto;
-};
+}
 
 export default memo(M3UFilesSelector);

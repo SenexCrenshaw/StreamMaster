@@ -1,4 +1,8 @@
+import { GetApiArgument, QueryHook, camel2title, getTopToolOptions, isEmptyObject } from '@lib/common/common';
+import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
+import useSettings from '@lib/useSettings';
 import { areArraysEqual } from '@mui/base';
+import { skipToken } from '@reduxjs/toolkit/dist/query/react';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import {
@@ -12,7 +16,7 @@ import {
   type DataTableSelectionMultipleChangeEvent,
   type DataTableSelectionSingleChangeEvent,
   type DataTableStateEvent,
-  type DataTableValue,
+  type DataTableValue
 } from 'primereact/datatable';
 import { memo, useCallback, useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
 import { type PagedResponseDto } from '../selectors/BaseSelector';
@@ -27,10 +31,6 @@ import getRecordString from './getRecordString';
 import isPagedTableDto from './isPagedTableDto';
 import useDataSelectorState from './useDataSelectorState';
 
-import { GetApiArg, QueryHook, camel2title, getTopToolOptions, isEmptyObject } from '@lib/common/common';
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
-import useSettings from '@lib/useSettings';
-import { skipToken } from '@reduxjs/toolkit/dist/query/react';
 import BanButton from '../buttons/BanButton';
 import ResetButton from '../buttons/ResetButton';
 import { TriSelectShowSelection } from '../selectors/TriSelectShowSelection';
@@ -67,7 +67,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
 
   useSetQueryFilter(props.id, props.columns, state.first, state.filters, state.page, state.rows, props.selectedStreamGroupId);
 
-  const tableRef = useRef<DataTable<T[]>>(null);
+  const tableReference = useRef<DataTable<T[]>>(null);
 
   const setting = useSettings();
 
@@ -88,7 +88,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
       }
 
       setters.setSelectSelectedItems(selected);
-      const all = overRideSelectAll ? overRideSelectAll : state.selectAll;
+      const all = overRideSelectAll || state.selectAll;
 
       if (props.onSelectionChange) {
         // props.onSelectionChange(props.selectionMode === 'single' ? selected : selected, all);
@@ -101,13 +101,13 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
   );
 
   const selectedData = useCallback(
-    (data: T[]): T[] => {
+    (inputData: T[]): T[] => {
       if (props.showSelections !== true) {
-        return data;
+        return inputData;
       }
 
       if (state.showSelections === null) {
-        return data;
+        return inputData;
       }
 
       if (state.showSelections === true) {
@@ -118,11 +118,9 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
         return [] as T[];
       }
 
-      var ret = data.filter((d) => {
-        return !state.selectSelectedItems?.some((s) => s.id === d.id);
-      });
+      const returnValue = inputData.filter((d) => !state.selectSelectedItems?.some((s) => s.id === d.id));
 
-      return ret;
+      return returnValue;
     },
     [props.showSelections, state.selectSelectedItems, state.showSelections]
   );
@@ -154,7 +152,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
         }
       }
 
-      if (data.pageNumber > 1 && data.totalPageCount == 0) {
+      if (data.pageNumber > 1 && data.totalPageCount === 0) {
         const newData = { ...data };
 
         newData.pageNumber += -1;
@@ -165,8 +163,6 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
       } else {
         setters.setPagedInformation(data);
       }
-
-      return;
     }
   }, [data, setters, state.dataSource, state.selectAll]);
 
@@ -178,10 +174,10 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     const newData = selectedData(props.dataSource);
 
     if (!state.dataSource || (state.dataSource && !areArraysEqual(newData, state.dataSource))) {
-      if (!props.reorderable) {
-        setters.setDataSource(newData);
-      } else {
+      if (props.reorderable) {
         setters.setDataSource([...newData].sort((a, b) => a.rank - b.rank));
+      } else {
+        setters.setDataSource(newData);
       }
 
       setters.setPagedInformation(undefined);
@@ -190,8 +186,6 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
         onSetSelection(newData);
       }
     }
-
-    return;
   }, [onSetSelection, props.dataSource, props.reorderable, selectedData, setters, state.dataSource, state.selectAll]);
 
   const onRowReorder = (changed: T[]) => {
@@ -211,7 +205,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
       const isHidden = getRecord(changed as T, 'isHidden');
 
       if (isHidden === true) {
-        return `bg-red-900`;
+        return 'bg-red-900';
       }
 
       if (props.videoStreamIdsIsReadOnly !== undefined && props.videoStreamIdsIsReadOnly.length > 0) {
@@ -228,7 +222,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
   );
 
   const exportCSV = () => {
-    tableRef.current?.exportCSV({ selectionOnly: false });
+    tableReference.current?.exportCSV({ selectionOnly: false });
   };
 
   useEffect(() => {
@@ -236,7 +230,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
       return;
     }
 
-    const scroller = tableRef.current?.getVirtualScroller();
+    const scroller = tableReference.current?.getVirtualScroller();
     console.log('Scroll to', props.scrollTo ?? 0, 'smooth');
     // scroller?.scrollTo({ behavior: 'auto', left: 0, top: props.scrollTo })
     // scroller?.scrollInView({ behavior: 'auto', left: 0, top: props.scrollTo })
@@ -261,9 +255,9 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     );
   }, [props, state.rowClick, setters.setRowClick]);
 
-  // @ts-ignore
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getSelectionMultipleMode = useMemo((): any => {
-    //'single' | 'checkbox' | 'multiple' | null => {
+    // 'single' | 'checkbox' | 'multiple' | null => {
     if (props.selectionMode === 'multiple') {
       return 'checkbox';
     }
@@ -278,8 +272,8 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
       }
 
       if (props.selectionMode === 'single') {
-        if (e.value instanceof Array) {
-          onSetSelection(e.value[e.value.length - 1]);
+        if (e.value !== undefined && Array.isArray(e.value)) {
+          onSetSelection(e.value[1]);
         } else {
           onSetSelection(e.value);
         }
@@ -287,7 +281,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
       }
 
       if (props.selectionMode === 'multiple') {
-        if (e.value instanceof Array) {
+        if (Array.isArray(e.value)) {
           onSetSelection(e.value);
         } else {
           onSetSelection([e.value]);
@@ -298,18 +292,16 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
 
       let sel = [] as T[];
 
-      if (e.value instanceof Array) {
-        const single1 = e.value.slice(e.value.length - 1, e.value.length);
+      if (Array.isArray(e.value)) {
+        const single1 = e.value.slice(-1, e.value.length);
 
         sel = single1;
       } else {
         sel = [e.value];
       }
 
-      if (props.reorderable === true) {
-        if (props.onSelectionChange) {
-          props.onSelectionChange(sel, state.selectAll);
-        }
+      if (props.reorderable === true && props.onSelectionChange) {
+        props.onSelectionChange(sel, state.selectAll);
       }
 
       onSetSelection(sel);
@@ -361,21 +353,21 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     if (col.fieldType === 'blank') {
       return {
         maxWidth: '1rem',
-        width: '1rem',
+        width: '1rem'
       } as CSSProperties;
     }
 
     if (col.fieldType === 'image') {
       return {
         maxWidth: '5rem',
-        width: '5rem',
+        width: '5rem'
       } as CSSProperties;
     }
 
     if (col.fieldType === 'm3ulink' || col.fieldType === 'epglink' || col.fieldType === 'url') {
       return {
         maxWidth: '3rem',
-        width: '3rem',
+        width: '3rem'
       } as CSSProperties;
     }
 
@@ -387,8 +379,8 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
         maxWidth: col.width,
         overflow: 'hidden',
         textOverflow: 'ellipsis',
-        width: col.width,
         whiteSpace: 'nowrap',
+        width: col.width
       } as CSSProperties;
     }
 
@@ -398,7 +390,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
       flexShrink: 1,
       overflow: 'hidden',
       textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
+      whiteSpace: 'nowrap'
     } as CSSProperties;
   }, []);
 
@@ -434,7 +426,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     }
 
     if (props.disableSelectAll === true) {
-      return <div className="text-xs text-white text-500"></div>;
+      return <div className="text-xs text-white text-500" />;
     }
 
     return (
@@ -455,22 +447,20 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     );
   };
 
-  const rowReorderHeader = () => {
-    return (
-      <div className=" text-xs text-white text-500">
-        <ResetButton
-          disabled={state.prevDataSource === undefined}
-          onClick={() => {
-            if (state.prevDataSource !== undefined) {
-              setters.setDataSource(state.prevDataSource);
-              setters.setPrevDataSource(undefined);
-            }
-          }}
-          tooltip="Reset Order"
-        />
-      </div>
-    );
-  };
+  const rowReorderHeader = () => (
+    <div className=" text-xs text-white text-500">
+      <ResetButton
+        disabled={state.prevDataSource === undefined}
+        onClick={() => {
+          if (state.prevDataSource !== undefined) {
+            setters.setDataSource(state.prevDataSource);
+            setters.setPrevDataSource(undefined);
+          }
+        }}
+        tooltip="Reset Order"
+      />
+    </div>
+  );
 
   const onSort = (event: DataTableStateEvent) => {
     if (!event.sortField || event.sortField === 'selected') {
@@ -531,7 +521,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
 
   return (
     <div className="dataselector flex w-full min-w-full  justify-content-start align-items-center">
-      <div className={`${props.className !== undefined ? props.className : ''} min-h-full w-full surface-overlay`}>
+      <div className={`${props.className === undefined ? '' : props.className} min-h-full w-full surface-overlay`}>
         <DataTable
           cellSelection={false}
           dataKey="id"
@@ -546,7 +536,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
           first={state.pagedInformation ? state.pagedInformation.first : state.first}
           header={sourceRenderHeader}
           key="id"
-          lazy={props.dataSource === undefined ? true : false}
+          lazy={props.dataSource === undefined}
           loading={props.isLoading === true || isFetching === true || isLoading === true}
           // metaKeySelection={false}
           onFilter={onFilter}
@@ -567,7 +557,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
           paginator
           paginatorClassName="text-xs p-0 m-0 withpadding"
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
-          ref={tableRef}
+          ref={tableReference}
           removableSort={false}
           reorderableRows={props.reorderable}
           resizableColumns
@@ -633,7 +623,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
               hidden={
                 col.isHidden === true || (props.hideControls === true && getHeader(col.field, col.header, col.fieldType) === 'Actions') ? true : undefined
               }
-              key={!col.fieldType ? col.field : col.field + col.fieldType}
+              key={col.fieldType ? col.field + col.fieldType : col.field}
               onCellEditComplete={col.handleOnCellEditComplete}
               resizeable={col.resizeable}
               showAddButton
@@ -655,7 +645,8 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
 
 DataSelector.displayName = 'dataselector';
 
-type BaseDataSelectorProps<T = any> = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface BaseDataSelectorProperties<T = any> {
   className?: string;
   columns: ColumnMeta[];
   defaultSortField: string;
@@ -693,32 +684,34 @@ type BaseDataSelectorProps<T = any> = {
   style?: CSSProperties;
   videoStreamIdsIsReadOnly?: string[] | undefined;
   // virtualScrollHeight?: string | undefined;
-};
+}
 
-type QueryFilterProps<T> = BaseDataSelectorProps<T> & {
+type QueryFilterProperties<T> = BaseDataSelectorProperties<T> & {
   dataSource?: T[] | undefined;
-  queryFilter: (filters: GetApiArg | typeof skipToken) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
+  queryFilter: (filters: GetApiArgument | typeof skipToken) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
 };
 
-type DataSourceProps<T> = BaseDataSelectorProps<T> & {
+type DataSourceProperties<T> = BaseDataSelectorProperties<T> & {
   dataSource: T[] | undefined;
-  queryFilter?: (filters: GetApiArg | typeof skipToken) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
+  queryFilter?: (filters: GetApiArgument | typeof skipToken) => ReturnType<QueryHook<PagedResponseDto<T> | T[]>>;
 };
 
-export type DataSelectorProps<T = any> = DataSourceProps<T> | QueryFilterProps<T>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type DataSelectorProps<T = any> = DataSourceProperties<T> | QueryFilterProperties<T>;
 
-export type PagedTableInformation = {
+export interface PagedTableInformation {
   first: number;
   pageNumber: number;
   pageSize: number;
   totalItemCount: number;
   totalPageCount: number;
-};
+}
 
-export type PagedDataDto<T> = {
+export interface PagedDataDto<T> {
   data?: T[];
-};
+}
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export type PagedTableDto<T> = PagedDataDto<T> & PagedTableInformation & {};
 
 export default memo(DataSelector);

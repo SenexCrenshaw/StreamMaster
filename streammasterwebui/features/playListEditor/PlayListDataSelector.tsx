@@ -9,22 +9,24 @@ import { ChannelGroupDto, useChannelGroupsGetPagedChannelGroupsQuery } from '@li
 import { useShowHidden } from '@lib/redux/slices/useShowHidden';
 import { memo, useCallback, useEffect, useMemo } from 'react';
 
-export type PlayListDataSelectorProps = {
+// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+
+export interface PlayListDataSelectorProperties {
   readonly hideAddRemoveControls?: boolean;
   readonly hideControls?: boolean;
   readonly id: string;
   readonly name?: string;
   readonly useReadOnly?: boolean;
-};
+}
 
 const PlayListDataSelector = ({
   hideAddRemoveControls = false,
   hideControls = false,
   id,
   name = 'Playlist',
-  useReadOnly = true,
-}: PlayListDataSelectorProps) => {
-  const dataKey = id + '-PlayListDataSelector';
+  useReadOnly = true
+}: PlayListDataSelectorProperties) => {
+  const dataKey = `${id}-PlayListDataSelector`;
   const { showHidden, setShowHidden } = useShowHidden(dataKey);
 
   // const dispatch: AppDispatch = useDispatch();
@@ -46,17 +48,17 @@ const PlayListDataSelector = ({
         <ChannelGroupVisibleDialog id={dataKey} skipOverLayer value={data} />
       </div>
     ),
-    [dataKey, useReadOnly],
+    [dataKey, useReadOnly]
   );
 
-  const columns = useMemo((): ColumnMeta[] => {
-    return [
+  const columns = useMemo(
+    (): ColumnMeta[] => [
       { field: 'name', filter: true, sortable: true },
       {
         field: 'streams',
         fieldType: 'streams',
         header: 'Streams (active/total)',
-        width: '6rem',
+        width: '6rem'
       },
       {
         align: 'right',
@@ -64,13 +66,14 @@ const PlayListDataSelector = ({
         field: 'isHidden',
         fieldType: 'isHidden',
         header: 'Actions',
-        width: '8rem',
-      },
-    ];
-  }, [sourceActionBodyTemplate]);
+        width: '8rem'
+      }
+    ],
+    [sourceActionBodyTemplate]
+  );
 
-  const sourceRightHeaderTemplate = useCallback(() => {
-    return (
+  const sourceRightHeaderTemplate = useCallback(
+    () => (
       <div className="flex justify-content-end align-items-center w-full gap-1">
         {hideControls !== true && (
           <>
@@ -82,8 +85,9 @@ const PlayListDataSelector = ({
 
         <ChannelGroupAddDialog />
       </div>
-    );
-  }, [hideControls, dataKey]);
+    ),
+    [hideControls, dataKey]
+  );
 
   return (
     <DataSelector

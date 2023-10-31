@@ -1,10 +1,13 @@
-'use client';
-import { memo } from 'react';
-
 import StandardHeader from '@components/StandardHeader';
 import { PlayListEditorIcon } from '@lib/common/icons';
+import { memo } from 'react';
 import ChannelGroupVideoStreamDataSelector from './ChannelGroupVideoStreamDataSelector';
 import PlayListDataSelector from './PlayListDataSelector';
+
+// const StandardHeader = React.lazy(() => import('@components/StandardHeader'));
+
+// const ChannelGroupVideoStreamDataSelector = React.lazy(() => import('./ChannelGroupVideoStreamDataSelector'));
+// const PlayListDataSelector = React.lazy(() => import('./PlayListDataSelector'));
 
 const PlayListEditor = () => {
   const id = 'playlisteditor';

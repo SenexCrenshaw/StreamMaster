@@ -5,21 +5,26 @@ import { type ColumnFieldType } from './DataSelectorTypes';
 
 function getHeader(field: string, header: string | undefined, fieldType: ColumnFieldType | undefined): ReactNode {
   if (!fieldType === undefined) {
-    return header ? header : camel2title(field);
+    return header || camel2title(field);
   }
 
   switch (fieldType) {
-    case 'blank':
+    case 'blank': {
       return <div />;
-    case 'epg':
+    }
+    case 'epg': {
       return 'EPG';
-    case 'm3ulink':
+    }
+    case 'm3ulink': {
       return 'M3U';
-    case 'epglink':
+    }
+    case 'epglink': {
       return 'EPG';
-    case 'url':
+    }
+    case 'url': {
       return 'HDHR';
-    case 'streams':
+    }
+    case 'streams': {
       return (
         <div>
           Streams
@@ -27,12 +32,14 @@ function getHeader(field: string, header: string | undefined, fieldType: ColumnF
           (active/total)
         </div>
       );
-    default:
+    }
+    default: {
       if (header === '') {
         return '';
       }
 
-      return header ? header : camel2title(field);
+      return header || camel2title(field);
+    }
   }
 }
 

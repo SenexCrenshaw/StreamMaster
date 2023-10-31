@@ -4,12 +4,12 @@ import { UpdateVideoStreamRequest, VideoStreamDto } from '@lib/iptvApi';
 import { UpdateVideoStream } from '@lib/smAPI/VideoStreams/VideoStreamsMutateAPI';
 import IconSelector from './selectors/IconSelector';
 
-export type StreamDataSelectorProps = {
+export interface StreamDataSelectorProperties {
   readonly data: VideoStreamDto;
   readonly enableEditMode?: boolean;
-};
+}
 
-const ChannelLogoEditor = ({ data, enableEditMode }: StreamDataSelectorProps) => {
+const ChannelLogoEditor = ({ data, enableEditMode }: StreamDataSelectorProperties) => {
   const onUpdateVideoStream = async (Logo: string) => {
     if (data.id === '') {
       return;
@@ -17,7 +17,7 @@ const ChannelLogoEditor = ({ data, enableEditMode }: StreamDataSelectorProps) =>
 
     const request: UpdateVideoStreamRequest = {};
 
-    request.id = request.id;
+    request.id = data.id;
 
     if (Logo && Logo !== '' && data.user_Tvg_logo !== Logo) {
       request.tvg_logo = Logo;
@@ -25,15 +25,15 @@ const ChannelLogoEditor = ({ data, enableEditMode }: StreamDataSelectorProps) =>
 
     await UpdateVideoStream(request)
       .then(() => {})
-      .catch((e) => {
-        console.error(e);
+      .catch((error) => {
+        console.error(error);
       });
   };
 
   return (
     <IconSelector
       className="p-inputtext-sm"
-      enableEditMode={enableEditMode ? enableEditMode : enableEditMode === undefined ? true : false}
+      enableEditMode={enableEditMode || enableEditMode === undefined}
       onChange={async (e: string) => {
         await onUpdateVideoStream(e);
       }}

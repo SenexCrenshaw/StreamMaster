@@ -1,14 +1,14 @@
-import { useChannelGroupColumnConfig } from '@/components/columns/useChannelGroupColumnConfig';
-import { useChannelLogoColumnConfig } from '@/components/columns/useChannelLogoColumnConfig';
-import { useChannelNameColumnConfig } from '@/components/columns/useChannelNameColumnConfig';
-import { useChannelNumberColumnConfig } from '@/components/columns/useChannelNumberColumnConfig';
-import { useEPGColumnConfig } from '@/components/columns/useEPGColumnConfig';
-import DataSelector from '@components/dataSelector/DataSelector';
+import { useChannelGroupColumnConfig } from '@components/columns/useChannelGroupColumnConfig';
+import { useChannelLogoColumnConfig } from '@components/columns/useChannelLogoColumnConfig';
+import { useChannelNameColumnConfig } from '@components/columns/useChannelNameColumnConfig';
+import { useChannelNumberColumnConfig } from '@components/columns/useChannelNumberColumnConfig';
+import { useEPGColumnConfig } from '@components/columns/useEPGColumnConfig';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
 import VideoStreamSetTimeShiftDialog from '@components/videoStream/VideoStreamSetTimeShiftDialog';
 import VideoStreamSetTimeShiftsDialog from '@components/videoStream/VideoStreamSetTimeShiftsDialog';
 
+import DataSelector from '@components/dataSelector/DataSelector';
 import AutoSetChannelNumbers from '@components/videoStream/AutoSetChannelNumbers';
 import VideoStreamAddDialog from '@components/videoStream/VideoStreamAddDialog';
 import VideoStreamDeleteDialog from '@components/videoStream/VideoStreamDeleteDialog';
@@ -26,29 +26,29 @@ import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
-type ChannelGroupVideoStreamDataSelectorProps = {
+// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+
+interface ChannelGroupVideoStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
   readonly id: string;
   readonly reorderable?: boolean;
-};
+}
 
-const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: ChannelGroupVideoStreamDataSelectorProps) => {
-  const dataKey = id + '-ChannelGroupVideoStreamDataSelector';
+const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, reorderable }: ChannelGroupVideoStreamDataSelectorProperties) => {
+  const dataKey = `${id}-ChannelGroupVideoStreamDataSelector`;
   const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
 
-  const { columnConfig: epgColumnConfig } = useEPGColumnConfig({ enableEdit: enableEdit });
-  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: enableEdit, useFilter: false });
-  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit: enableEdit });
-  const { columnConfig: channelLogoColumnConfig } = useChannelLogoColumnConfig({ enableEdit: enableEdit });
+  const { columnConfig: epgColumnConfig } = useEPGColumnConfig({ enableEdit });
+  const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit, useFilter: false });
+  const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit });
+  const { columnConfig: channelLogoColumnConfig } = useChannelLogoColumnConfig({ enableEdit });
 
-  const channelGroupNames = useMemo(() => {
-    return selectSelectedItems.map((channelGroup) => channelGroup.name);
-  }, [selectSelectedItems]);
+  const channelGroupNames = useMemo(() => selectSelectedItems.map((channelGroup) => channelGroup.name), [selectSelectedItems]);
 
   const { columnConfig: channelGroupConfig } = useChannelGroupColumnConfig({
-    enableEdit: enableEdit,
-    values: [...(channelGroupNames ?? [])].sort(),
+    enableEdit,
+    values: [...(channelGroupNames ?? [])].sort()
   });
   const { queryAdditionalFilter, setQueryAdditionalFilter } = useQueryAdditionalFilters(dataKey);
   const { setSelectedVideoStreams } = useSelectedVideoStreams(dataKey);
@@ -58,13 +58,13 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
       setQueryAdditionalFilter({
         field: 'user_Tvg_group',
         matchMode: 'equals',
-        values: channelGroupNames,
+        values: channelGroupNames
       });
     }
   }, [channelGroupNames, dataKey, queryAdditionalFilter, setQueryAdditionalFilter]);
 
   useEffect(() => {
-    if (propsEnableEdit != enableEdit) {
+    if (propsEnableEdit !== enableEdit) {
       setEnableEdit(propsEnableEdit ?? true);
     }
 
@@ -72,24 +72,22 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
   }, [propsEnableEdit]);
 
   const targetActionBodyTemplate = useCallback(
-    (data: VideoStreamDto) => {
-      return (
-        <div className="flex p-0 justify-content-end align-items-center">
-          <VideoStreamSetTimeShiftDialog iconFilled={false} value={data} />
-          <VideoStreamResetLogoDialog value={data} />
-          <VideoStreamSetLogoFromEPGDialog value={data} />
-          <VideoStreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
-          <VideoStreamSetAutoSetEPGDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
-          <VideoStreamDeleteDialog iconFilled={false} id={dataKey} values={[data]} />
-          <VideoStreamEditDialog value={data} />
-        </div>
-      );
-    },
-    [dataKey],
+    (data: VideoStreamDto) => (
+      <div className="flex p-0 justify-content-end align-items-center">
+        <VideoStreamSetTimeShiftDialog iconFilled={false} value={data} />
+        <VideoStreamResetLogoDialog value={data} />
+        <VideoStreamSetLogoFromEPGDialog value={data} />
+        <VideoStreamVisibleDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
+        <VideoStreamSetAutoSetEPGDialog iconFilled={false} id={dataKey} skipOverLayer values={[data]} />
+        <VideoStreamDeleteDialog iconFilled={false} id={dataKey} values={[data]} />
+        <VideoStreamEditDialog value={data} />
+      </div>
+    ),
+    [dataKey]
   );
 
   const columns = useMemo((): ColumnMeta[] => {
-    let columnConfigs = [channelNumberColumnConfig, channelLogoColumnConfig, channelNameColumnConfig, channelGroupConfig, epgColumnConfig];
+    const columnConfigs = [channelNumberColumnConfig, channelLogoColumnConfig, channelNameColumnConfig, channelGroupConfig, epgColumnConfig];
 
     // columnConfigs.push(channelGroupConfig);
     // columnConfigs.push(epgColumnConfig);
@@ -101,14 +99,14 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
       isHidden: !enableEdit,
       resizeable: false,
       sortable: false,
-      width: '9rem',
+      width: '9rem'
     });
 
     return columnConfigs;
   }, [channelGroupConfig, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig, enableEdit, epgColumnConfig, targetActionBodyTemplate]);
 
-  const rightHeaderTemplate = useMemo(() => {
-    return (
+  const rightHeaderTemplate = useMemo(
+    () => (
       <div className="flex justify-content-end align-items-center w-full gap-1">
         <TriSelectShowHidden dataKey={dataKey} />
         <VideoStreamSetTimeShiftsDialog id={dataKey} />
@@ -120,8 +118,9 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
         <VideoStreamDeleteDialog iconFilled id={dataKey} />
         <VideoStreamAddDialog group={channelGroupNames?.[0]} />
       </div>
-    );
-  }, [dataKey, channelGroupNames]);
+    ),
+    [dataKey, channelGroupNames]
+  );
 
   return (
     <DataSelector

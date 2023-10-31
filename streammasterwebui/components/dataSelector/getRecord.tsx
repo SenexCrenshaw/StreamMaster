@@ -3,7 +3,7 @@ export function getRecord(data: any, fieldName: string): any {
   let currentData = data;
 
   for (const key of keys) {
-    if (currentData == null || typeof currentData !== 'object') {
+    if (currentData === undefined || typeof currentData !== 'object') {
       return undefined;
     }
     currentData = currentData[key];

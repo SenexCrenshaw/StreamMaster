@@ -4,22 +4,22 @@ import { InputText } from 'primereact/inputtext';
 import React, { type ChangeEvent } from 'react';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 
-type GlobalSearchProps = {
+interface GlobalSearchProperties {
   readonly clearSourceFilter: () => void;
   readonly columns?: ColumnMeta[];
   readonly globalSearchName: string;
   readonly globalSourceFilterValue?: string;
   readonly onGlobalSourceFilterChange: (e: ChangeEvent<HTMLInputElement>) => void; // Define proper type here
-};
+}
 
-const GlobalSearch: React.FC<GlobalSearchProps> = ({
+const GlobalSearch: React.FC<GlobalSearchProperties> = ({
   columns = [],
   clearSourceFilter,
   onGlobalSourceFilterChange,
   globalSearchName,
-  globalSourceFilterValue,
+  globalSourceFilterValue
 }) => {
-  const isColumnsEmpty = !columns.length;
+  const isColumnsEmpty = columns.length === 0;
 
   return (
     <>

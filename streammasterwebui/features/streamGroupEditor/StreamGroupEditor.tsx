@@ -1,14 +1,19 @@
-import { BlockUI } from 'primereact/blockui';
-import { memo } from 'react';
-
 import StandardHeader from '@components/StandardHeader';
 import { StreamGroupEditorIcon } from '@lib/common/icons';
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
+import { BlockUI } from 'primereact/blockui';
+import { memo } from 'react';
 import StreamGroupDataSelector from './StreamGroupDataSelector';
 import StreamGroupSelectedVideoStreamDataSelector from './StreamGroupSelectedVideoStreamDataSelector';
 import StreamGroupVideoStreamDataSelector from './StreamGroupVideoStreamDataSelector';
 
-const StreamGroupEditor = () => {
+// const StandardHeader = React.lazy(() => import('@components/StandardHeader'));
+
+// const StreamGroupDataSelector = React.lazy(() => import('./StreamGroupDataSelector'));
+// const StreamGroupSelectedVideoStreamDataSelector = React.lazy(() => import('./StreamGroupSelectedVideoStreamDataSelector'));
+// const StreamGroupVideoStreamDataSelector = React.lazy(() => import('./StreamGroupVideoStreamDataSelector'));
+
+const StreamGroupEditor = (): JSX.Element => {
   const id = 'streamgroupeditor';
   const { selectedStreamGroup } = useSelectedStreamGroup(id);
 

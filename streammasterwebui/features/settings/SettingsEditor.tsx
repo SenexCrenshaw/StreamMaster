@@ -26,6 +26,8 @@ import { ScrollPanel } from 'primereact/scrollpanel';
 import { type SelectItem } from 'primereact/selectitem';
 import { ReactElement, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
+// const StandardHeader = React.lazy(() => import('@components/StandardHeader'));
+
 export const SettingsEditor = () => {
   // const toast = useRef<Toast>(null)
   const setting = useSettings();
@@ -67,8 +69,8 @@ export const SettingsEditor = () => {
     return true;
   }, [adminPasswordError, adminUserNameError, newData, originalData]);
 
-  const getLine = useCallback((label: string, value: ReactElement, help?: string | null, defaultSetting?: string | null) => {
-    return (
+  const getLine = useCallback(
+    (label: string, value: ReactElement, help?: string | null, defaultSetting?: string | null) => (
       <div className="flex col-12 align-content-center">
         <div className="flex col-2 col-offset-1">{label}</div>
         <div className="flex col-3 m-0 p-0 debug">{value}</div>
@@ -79,8 +81,9 @@ export const SettingsEditor = () => {
           </div>
         )}
       </div>
-    );
-  }, []);
+    ),
+    []
+  );
 
   const getRecord = useCallback(
     (fieldName: string) => {
@@ -88,7 +91,7 @@ export const SettingsEditor = () => {
       const record = newData[fieldName as ObjectKey];
 
       if (record === undefined || record === null || record === '') {
-        return undefined;
+        return;
       }
 
       return record;
@@ -120,7 +123,7 @@ export const SettingsEditor = () => {
       const help = getHelp(field);
 
       return getLine(
-        label + ':',
+        `${label}:`,
         <InputNumber
           className="withpadding w-full text-left"
           max={max === null ? 64 : max}
@@ -143,7 +146,7 @@ export const SettingsEditor = () => {
       const help = getHelp(field);
 
       return getLine(
-        label + ':',
+        `${label}:`,
         <span className="w-full">
           <Password
             className="password withpadding w-full text-left"
@@ -169,7 +172,7 @@ export const SettingsEditor = () => {
       const defaultSetting = getDefaultSetting(field);
 
       return getLine(
-        label + ':',
+        `${label}:`,
         <span className="w-full">
           <TextInput dontValidate onChange={(e) => setNewData({ ...newData, [field]: e })} placeHolder={label} showCopy value={getRecordString(field)} />
           <br />
@@ -188,7 +191,7 @@ export const SettingsEditor = () => {
       const help = getHelp(field);
 
       return getLine(
-        label + ':',
+        `${label}:`,
         <Checkbox
           checked={getRecord(field) as boolean}
           className="w-full text-left"
@@ -205,12 +208,13 @@ export const SettingsEditor = () => {
   const getHandlersOptions = (): SelectItem[] => {
     const test = Object.entries(StreamingProxyTypes)
       .splice(0, Object.keys(StreamingProxyTypes).length / 2)
-      .map(([number, word]) => {
-        return {
-          label: word,
-          value: number,
-        } as SelectItem;
-      });
+      .map(
+        ([number, word]) =>
+          ({
+            label: word,
+            value: number
+          } as SelectItem)
+      );
 
     return test;
   };
@@ -218,12 +222,13 @@ export const SettingsEditor = () => {
   const getAuthTypeOptions = (): SelectItem[] => {
     const test = Object.entries(AuthenticationType)
       .splice(0, Object.keys(AuthenticationType).length / 2)
-      .map(([number, word]) => {
-        return {
-          label: word,
-          value: number,
-        } as SelectItem;
-      });
+      .map(
+        ([number, word]) =>
+          ({
+            label: word,
+            value: number
+          } as SelectItem)
+      );
 
     return test;
   };
@@ -236,10 +241,10 @@ export const SettingsEditor = () => {
       return (
         <>
           {getLine(
-            label + ':',
+            `${label}:`,
             <Dropdown
               className="withpadding w-full text-left"
-              onChange={(e) => setNewData({ ...newData, [field]: parseInt(e.target.value) })}
+              onChange={(e) => setNewData({ ...newData, [field]: Number.parseInt(e.target.value) })}
               options={options}
               placeholder={label}
               value={getRecordString(field)}
@@ -269,7 +274,7 @@ export const SettingsEditor = () => {
       },
       disabled: !isSaveEnabled,
       icon: <SaveIcon sx={{ fontSize: 40 }} />,
-      label: 'Save',
+      label: 'Save'
     },
     {
       command: () => {
@@ -277,8 +282,8 @@ export const SettingsEditor = () => {
       },
       disabled: !isSaveEnabled,
       icon: <HistoryIcon sx={{ fontSize: 40 }} />,
-      label: 'Undo',
-    },
+      label: 'Undo'
+    }
   ];
 
   return (

@@ -1,8 +1,4 @@
-'use client';
-
-import dynamic from 'next/dynamic';
-
-const LogViewer = dynamic(() => import('@/features/logViewer/LogViewer'), { ssr: false });
+import LogViewer from '@features/logViewer/LogViewer';
 
 export default function LogViewerLayout() {
   return <LogViewer />;

@@ -7,7 +7,7 @@ export type ColumnFieldType = 'blank' | 'deleted' | 'epg' | 'epglink' | 'image' 
 export type ColumnAlign = 'center' | 'left' | 'right' | null | undefined;
 export type DataSelectorSelectionMode = 'checkbox' | 'multiple' | 'multipleNoCheckBox' | 'multipleNoRowCheckBox' | 'selectable' | 'single' | undefined;
 
-export type LazyTableState = {
+export interface LazyTableState {
   filters: DataTableFilterMeta;
   first: number;
   jsonFiltersString: string | null | undefined;
@@ -17,12 +17,12 @@ export type LazyTableState = {
   sortOrder?: -1 | 0 | 1 | null | undefined;
   sortString: string;
   // streamGroupId?: number;
-};
+}
 
 /**
  * The metadata for a column in the table.
  */
-export type ColumnMeta = {
+export interface ColumnMeta {
   /**
    * The type of alignment for the content of the column.
    */
@@ -86,4 +86,4 @@ export type ColumnMeta = {
    */
   style?: CSSProperties;
   width?: string;
-};
+}

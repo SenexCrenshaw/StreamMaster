@@ -1,32 +1,33 @@
-import DataSelector from '@components/dataSelector/DataSelector';
 import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { GetMessage } from '@lib/common/common';
 import {
   VideoStreamDto,
   VideoStreamLinksAddVideoStreamToVideoStreamApiArg,
   useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery,
-  useVideoStreamsGetPagedVideoStreamsQuery,
+  useVideoStreamsGetPagedVideoStreamsQuery
 } from '@lib/iptvApi';
 import { AddVideoStreamToVideoStream } from '@lib/smAPI/VideoStreamLinks/VideoStreamLinksMutateAPI';
 import { skipToken } from '@reduxjs/toolkit/dist/query';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { useChannelNameColumnConfig } from '../columns/useChannelNameColumnConfig';
 import { useChannelNumberColumnConfig } from '../columns/useChannelNumberColumnConfig';
+import DataSelector from '../dataSelector/DataSelector';
+//const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
-type VideoStreamDataSelectorProps = {
+interface VideoStreamDataSelectorProperties {
   readonly id: string;
   readonly videoStreamId?: string;
   onRowClick?: (e: VideoStreamDto) => void;
-};
+}
 
-const VideoStreamDataSelector = ({ id, onRowClick, videoStreamId }: VideoStreamDataSelectorProps) => {
-  const dataKey = id + '-VideoStreamDataSelector';
+const VideoStreamDataSelector = ({ id, onRowClick, videoStreamId }: VideoStreamDataSelectorProperties) => {
+  const dataKey = `${id}-VideoStreamDataSelector`;
 
   const [videoStreamIds, setVideoStreamIds] = useState<string[]>([] as string[]);
 
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit: false });
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({
-    enableEdit: false,
+    enableEdit: false
   });
   const videoStreamLinksGetVideoStreamVideoStreamIdsQuery = useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery(videoStreamId ?? skipToken);
 
@@ -37,14 +38,12 @@ const VideoStreamDataSelector = ({ id, onRowClick, videoStreamId }: VideoStreamD
   }, [videoStreamLinksGetVideoStreamVideoStreamIdsQuery.data]);
 
   const targetColumns = useMemo((): ColumnMeta[] => {
-    let columnConfigs = [channelNumberColumnConfig, channelNameColumnConfig];
+    const columnConfigs = [channelNumberColumnConfig, channelNameColumnConfig];
 
     return columnConfigs;
   }, [channelNameColumnConfig, channelNumberColumnConfig]);
 
-  const rightHeaderTemplate = useMemo(() => {
-    return <div className="flex justify-content-end align-items-center w-full gap-1" />;
-  }, []);
+  const rightHeaderTemplate = useMemo(() => <div className="flex justify-content-end align-items-center w-full gap-1" />, []);
 
   return (
     <DataSelector
@@ -67,11 +66,7 @@ const VideoStreamDataSelector = ({ id, onRowClick, videoStreamId }: VideoStreamD
 
         let stream = {} as VideoStreamDto;
 
-        if (Array.isArray(e.data)) {
-          stream = e.data[0] as VideoStreamDto;
-        } else {
-          stream = e.data as VideoStreamDto;
-        }
+        stream = Array.isArray(e.data) ? (e.data[0] as VideoStreamDto) : (e.data as VideoStreamDto);
 
         const toSend = {} as VideoStreamLinksAddVideoStreamToVideoStreamApiArg;
 
@@ -81,11 +76,11 @@ const VideoStreamDataSelector = ({ id, onRowClick, videoStreamId }: VideoStreamD
         await AddVideoStreamToVideoStream(toSend)
           .then()
           .catch((error) => {
-            console.error('Add Stream Error: ' + error.message);
+            console.error(`Add Stream Error: ${error.message}`);
           });
       }}
       queryFilter={useVideoStreamsGetPagedVideoStreamsQuery}
-      selectedItemsKey={`selectSelected` + videoStreamId}
+      selectedItemsKey={`selectSelected${videoStreamId}`}
       selectionMode="single"
       style={{ height: 'calc(100vh - 480px)' }}
       videoStreamIdsIsReadOnly={videoStreamIds || []}

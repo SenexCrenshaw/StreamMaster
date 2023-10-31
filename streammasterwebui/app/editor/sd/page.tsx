@@ -1,11 +1,5 @@
-'use client'
-
-import dynamic from 'next/dynamic'
-
-const SDEditor = dynamic(() => import('@/features/sdEditor/SDEditor'), {
-  ssr: false,
-})
+import SDEditor from '@features/sdEditor/SDEditor';
 
 export default function SDEditorLayout() {
-  return <SDEditor />
+  return <SDEditor />;
 }

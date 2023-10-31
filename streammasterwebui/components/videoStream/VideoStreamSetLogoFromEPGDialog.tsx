@@ -4,7 +4,7 @@ import { SetVideoStreamsLogoFromEpg } from '@lib/smAPI/VideoStreams/VideoStreams
 import { Button } from 'primereact/button';
 import { memo, useCallback } from 'react';
 
-const VideoStreamSetLogoFromEPGDialog = (props: VideoStreamSetLogoFromEPGDialogProps) => {
+const VideoStreamSetLogoFromEPGDialog = (props: VideoStreamSetLogoFromEPGDialogProperties) => {
   const ReturnToParent = useCallback(() => {
     props.onClose?.();
   }, [props]);
@@ -43,10 +43,10 @@ const VideoStreamSetLogoFromEPGDialog = (props: VideoStreamSetLogoFromEPGDialogP
 
 VideoStreamSetLogoFromEPGDialog.displayName = 'VideoStreamSetLogoFromEPGDialog';
 
-type VideoStreamSetLogoFromEPGDialogProps = {
+interface VideoStreamSetLogoFromEPGDialogProperties {
   readonly iconFilled?: boolean | undefined;
   readonly onClose?: () => void;
   readonly value?: VideoStreamDto | undefined;
-};
+}
 
 export default memo(VideoStreamSetLogoFromEPGDialog);

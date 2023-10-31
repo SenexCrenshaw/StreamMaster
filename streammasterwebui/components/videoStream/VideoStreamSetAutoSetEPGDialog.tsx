@@ -7,22 +7,22 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import BookButton from '../buttons/BookButton';
 
-type VideoStreamSetAutoSetEPGDialogProps = {
+interface VideoStreamSetAutoSetEPGDialogProperties {
   readonly id: string;
   readonly iconFilled?: boolean | undefined;
   readonly onClose?: () => void;
   readonly skipOverLayer?: boolean;
   readonly values?: VideoStreamDto[];
-};
+}
 
-const VideoStreamSetAutoSetEPGDialog = ({ id, iconFilled = false, onClose, skipOverLayer, values }: VideoStreamSetAutoSetEPGDialogProps) => {
+const VideoStreamSetAutoSetEPGDialog = ({ id, iconFilled = false, onClose, skipOverLayer, values }: VideoStreamSetAutoSetEPGDialogProperties) => {
   const { selectedVideoStreams } = useSelectedVideoStreams(id);
   const { selectAll } = useSelectAll(id);
   const { queryFilter } = useQueryFilter(id);
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
-  const [selectVideoStreamsInternal, setSelectVideoStreamsInternal] = useState<VideoStreamDto[] | undefined>(undefined);
+  const [selectVideoStreamsInternal, setSelectVideoStreamsInternal] = useState<VideoStreamDto[] | undefined>();
 
   useEffect(() => {
     if (values) {
@@ -44,9 +44,7 @@ const VideoStreamSetAutoSetEPGDialog = ({ id, iconFilled = false, onClose, skipO
     onClose?.();
   }, [onClose]);
 
-  const getTotalCount = useMemo(() => {
-    return selectVideoStreamsInternal?.length ?? 0;
-  }, [selectVideoStreamsInternal]);
+  const getTotalCount = useMemo(() => selectVideoStreamsInternal?.length ?? 0, [selectVideoStreamsInternal]);
 
   const onAutoSetEpg = useCallback(async () => {
     if (selectVideoStreamsInternal === undefined) {
@@ -72,7 +70,7 @@ const VideoStreamSetAutoSetEPGDialog = ({ id, iconFilled = false, onClose, skipO
           setInfoMessage('Auto Set EPG Ran');
         })
         .catch((error) => {
-          setInfoMessage('Auto Set EPG Error: ' + error.message);
+          setInfoMessage(`Auto Set EPG Error: ${error.message}`);
         });
 
       return;
@@ -93,7 +91,7 @@ const VideoStreamSetAutoSetEPGDialog = ({ id, iconFilled = false, onClose, skipO
         setInfoMessage('Auto Set EPG Ran');
       })
       .catch((error) => {
-        setInfoMessage('Auto Set EPG Error: ' + error.message);
+        setInfoMessage(`Auto Set EPG Error: ${error.message}`);
       });
   }, [ReturnToParent, getTotalCount, queryFilter, selectAll, selectVideoStreamsInternal]);
 

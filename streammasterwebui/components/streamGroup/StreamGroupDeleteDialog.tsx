@@ -4,12 +4,12 @@ import { memo, useCallback, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import XButton from '../buttons/XButton';
 
-type StreamGroupDeleteDialogProps = {
+interface StreamGroupDeleteDialogProperties {
   readonly id: string;
   readonly onHide?: () => void;
-};
+}
 
-const StreamGroupDeleteDialog = ({ id, onHide }: StreamGroupDeleteDialogProps) => {
+const StreamGroupDeleteDialog = ({ id, onHide }: StreamGroupDeleteDialogProperties) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
@@ -44,7 +44,7 @@ const StreamGroupDeleteDialog = ({ id, onHide }: StreamGroupDeleteDialogProps) =
       })
       .catch((error) => {
         setSelectedStreamGroup(undefined);
-        setInfoMessage('Stream Group Delete Error: ' + error.message);
+        setInfoMessage(`Stream Group Delete Error: ${error.message}`);
       });
   }, [ReturnToParent, selectedStreamGroup, setSelectedStreamGroup, streamGroupsDeleteStreamGroupMutations]);
 

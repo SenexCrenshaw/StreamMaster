@@ -1,4 +1,3 @@
-'use client';
 import StandardHeader from '@components/StandardHeader';
 import { formatJSONDateString } from '@lib/common/common';
 import { QueueStatisIcon } from '@lib/common/icons';
@@ -6,6 +5,8 @@ import { TaskQueueStatusDto, useSettingsGetQueueStatusQuery } from '@lib/iptvApi
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import React from 'react';
+
+// const StandardHeader = React.lazy(() => import('@components/StandardHeader'));
 
 const QueueStatus = () => {
   const status = useSettingsGetQueueStatusQuery();
@@ -18,28 +19,22 @@ const QueueStatus = () => {
     return formatJSONDateString(rowData.startTS ?? '');
   };
 
-  const queuedDateTimeTemplate = (rowData: TaskQueueStatusDto) => {
-    return formatJSONDateString(rowData.queueTS ?? '');
-  };
+  const queuedDateTimeTemplate = (rowData: TaskQueueStatusDto) => formatJSONDateString(rowData.queueTS ?? '');
 
   const stopDateTimeTemplate = (rowData: TaskQueueStatusDto) => {
-    if (rowData.startTS && rowData.stopTS) {
-      if (rowData.startTS < rowData.stopTS) {
-        return formatJSONDateString(rowData.stopTS ?? '');
-      }
+    if (rowData.startTS && rowData.stopTS && rowData.startTS < rowData.stopTS) {
+      return formatJSONDateString(rowData.stopTS ?? '');
     }
 
     return '';
   };
 
   const elaspsedTemplate = (rowData: TaskQueueStatusDto) => {
-    if (rowData.startTS && rowData.stopTS) {
-      if (rowData.startTS <= rowData.stopTS) {
-        const diff = new Date(rowData.stopTS).getTime() - new Date(rowData.startTS).getTime();
-        const seconds = diff / 1000;
+    if (rowData.startTS && rowData.stopTS && rowData.startTS <= rowData.stopTS) {
+      const diff = new Date(rowData.stopTS).getTime() - new Date(rowData.startTS).getTime();
+      const seconds = diff / 1000;
 
-        return seconds.toString();
-      }
+      return seconds.toString();
     }
 
     return '';
@@ -79,7 +74,7 @@ const QueueStatus = () => {
           key="isRunning"
           style={{
             maxWidth: '10rem',
-            width: '10rem',
+            width: '10rem'
           }}
         />
 
@@ -92,7 +87,7 @@ const QueueStatus = () => {
           key="queueTS"
           style={{
             maxWidth: '16rem',
-            width: '16rem',
+            width: '16rem'
           }}
         />
 
@@ -103,7 +98,7 @@ const QueueStatus = () => {
           key="startTS"
           style={{
             maxWidth: '16rem',
-            width: '16rem',
+            width: '16rem'
           }}
         />
         <Column
@@ -113,7 +108,7 @@ const QueueStatus = () => {
           key="stopTS"
           style={{
             maxWidth: '16rem',
-            width: '16rem',
+            width: '16rem'
           }}
         />
 
@@ -122,7 +117,7 @@ const QueueStatus = () => {
           header="Elapsed Seconds"
           style={{
             maxWidth: '10rem',
-            width: '10rem',
+            width: '10rem'
           }}
         />
       </DataTable>

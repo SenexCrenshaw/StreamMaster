@@ -2,10 +2,10 @@ import { StreamGroupDto } from '@lib/iptvApi';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 
-type SetSelectedStreamGroupSlicePayload = {
+interface SetSelectedStreamGroupSlicePayload {
   streamGroup: StreamGroupDto;
   typename: string;
-};
+}
 
 type QueryFilterState = Record<string, StreamGroupDto>;
 
@@ -23,8 +23,8 @@ const selectedStreamGroupSlice = createSlice({
       } else {
         delete state[typename]; // Remove the key if the filter is null or undefined
       }
-    },
-  },
+    }
+  }
 });
 
 export const selectedStreamGroup = (state: RootState, typename: number) => state.selectedStreamGroup[typename];

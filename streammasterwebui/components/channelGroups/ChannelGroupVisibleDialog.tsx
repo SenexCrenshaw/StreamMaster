@@ -8,14 +8,14 @@ import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import VisibleButton from '../buttons/VisibleButton';
 
-type ChannelGroupVisibleDialogProps = {
+interface ChannelGroupVisibleDialogProperties {
   readonly id: string;
   readonly onClose?: () => void;
   readonly skipOverLayer?: boolean | undefined;
   readonly value?: ChannelGroupDto | undefined;
-};
+}
 
-const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }: ChannelGroupVisibleDialogProps) => {
+const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }: ChannelGroupVisibleDialogProperties) => {
   const [showOverlay, setShowOverlay] = React.useState<boolean>(false);
   const [block, setBlock] = React.useState<boolean>(false);
   const [infoMessage, setInfoMessage] = React.useState('');
@@ -45,23 +45,24 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
         .then(() => {
           setInfoMessage('Channel Group Toggle Visibility Successfully');
         })
-        .catch((e) => {
-          setInfoMessage('Channel Group Toggle Visibility Error: ' + e.message);
+        .catch((error) => {
+          setInfoMessage(`Channel Group Toggle Visibility Error: ${error.message}`);
         });
     } else if (selectSelectedItems) {
       const toSend = {} as UpdateChannelGroupsRequest;
-      toSend.channelGroupRequests = selectSelectedItems.map((item) => {
-        return {
-          channelGroupId: item.id,
-          toggleVisibility: true,
-        } as UpdateChannelGroupRequest;
-      });
+      toSend.channelGroupRequests = selectSelectedItems.map(
+        (item) =>
+          ({
+            channelGroupId: item.id,
+            toggleVisibility: true
+          } as UpdateChannelGroupRequest)
+      );
       UpdateChannelGroups(toSend)
         .then(() => {
           setInfoMessage('Channel Group Toggle Visibility Successfully');
         })
-        .catch((e) => {
-          setInfoMessage('Channel Group Toggle Visibility Error: ' + e.message);
+        .catch((error) => {
+          setInfoMessage(`Channel Group Toggle Visibility Error: ${error.message}`);
         });
     }
   }, [ReturnToParent, selectSelectedItems, value]);
@@ -83,7 +84,7 @@ const ChannelGroupVisibleDialog = ({ id, onClose, skipOverLayer = false, value }
       return 100;
     }
 
-    let count = selectSelectedItems?.length ?? 0;
+    const count = selectSelectedItems?.length ?? 0;
     if (count === 1 && isFirstDisabled) {
       return 0;
     }

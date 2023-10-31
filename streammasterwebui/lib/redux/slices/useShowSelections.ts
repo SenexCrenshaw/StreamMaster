@@ -8,9 +8,9 @@ export const useShowSelections = (typename: string) => {
   const setShowSelections = (selections: boolean | null | undefined) => {
     dispatch(
       setShowSelectionsInternal({
-        selections: selections,
-        typename,
-      }),
+        selections,
+        typename
+      })
     );
   };
 

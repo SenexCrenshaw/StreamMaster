@@ -1,9 +1,32 @@
 {
-  "extends": ["next/core-web-vitals", "prettier"],
-  "plugins": ["@typescript-eslint", "unused-imports"],
+  "env": {
+    "browser": true,
+    "es2022": true
+  },
+  "extends": ["react-app", "prettier"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 12,
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "plugins": ["unused-imports"],
   "rules": {
+    "no-lone-blocks": "off",
     "unused-imports/no-unused-imports-ts": "error",
     "@next/next/no-img-element": "off",
     "@typescript-eslint/no-unused-vars": "error"
+  },
+
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    },
+    "react": {
+      "version": "18"
+    }
   }
 }

@@ -2,6 +2,8 @@
   "prettier.enable": true,
   "explorer.confirmDelete": true,
   "editor.formatOnSave": true,
+  "editor.fontFamily": "'Victor Mono', Consolas, 'Courier New', monospace",
+  "editor.fontLigatures": true,
   // "typescript.updateImportsOnFileMove.enabled": "always",
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   // "prettier.ignorePath": ".prettierignore",
@@ -11,6 +13,21 @@
     // "source.organizeImports": true,
     // "source.sortMembers": true
     // "source.organizeImports": true
+  },
+
+  "emmet.excludeLanguages": [],
+  "emmet.includeLanguages": {
+    "markdown": "html",
+    "javascript": "javascriptreact",
+    "typescript": "typescriptreact"
+  },
+  "emmet.showSuggestionsAsSnippets": true,
+  "emmet.triggerExpansionOnTab": true,
+  "files.exclude": {
+    "**/*.js.map": {
+      "when": "$(basename)"
+    },
+    "**/node_modules": true
   },
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -27,23 +44,43 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
   },
-  "eslint.validate": [
-    "css",
-    "html",
-    "javascript",
-    "javascriptreact",
-    "json",
-    "markdown",
-    "typescript",
-    "typescriptreact",
-    "yaml"
-  ],
+  "eslint.validate": ["css", "html", "javascript", "javascriptreact", "json", "markdown", "typescript", "typescriptreact", "yaml"],
   "html.customData": ["./node_modules/vidstack/vscode.html-data.json"],
   "bookmarks.useWorkaroundForFormatters": true,
+  "bookmarks.saveBookmarksInProject": true,
+  "bookmarks.navigateThroughAllFiles": true,
   "prettier.jsxSingleQuote": true,
   "prettier.singleQuote": true,
   "prettier.singleAttributePerLine": false,
-  "prettier.printWidth": 120
-  // "eslint.trace.server": "verbose",
-  // "eslint.debug": "true"
+  "prettier.printWidth": 120,
+  "fileNestingUpdater.autoUpdate": true,
+  "fileNestingUpdater.autoUpdateInterval": 720,
+  "fileNestingUpdater.promptOnAutoUpdate": true,
+  "fileNestingUpdater.upstreamRepo": "antfu/vscode-file-nesting-config",
+  "fileNestingUpdater.upstreamBranch": "main",
+  "filesize.showGzipInStatusBar": true,
+  "gremlins.showInProblemPane": true,
+  "workbench.iconTheme": "material-icon-theme",
+  "powermode.combo.location": "off",
+  "powermode.enabled": true,
+  "powermode.explosions.duration": 300,
+  "powermode.explosions.size": 5,
+  "powermode.shake.enabled": false,
+  "template-string-converter.autoRemoveTemplateString": true,
+  "template-string-converter.addBracketsToProps": true,
+  "html.autoClosingTags": true,
+  "javascript.autoClosingTags": true,
+  "javascript.suggest.completeFunctionCalls": true,
+  "typescript.suggest.completeFunctionCalls": true,
+  "javascript.inlayHints.functionLikeReturnTypes.enabled": true,
+  "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
+  "javascript.inlayHints.parameterNames.enabled": "all",
+  "typescript.inlayHints.parameterNames.enabled": "all",
+  "javascript.suggest.autoImports": true,
+  "search.exclude": {
+    "**/coverage": true,
+    "**/node_modules": true
+  },
+  "typescript.autoClosingTags": true,
+  "typescript.suggest.autoImports": true
 }

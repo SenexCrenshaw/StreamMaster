@@ -1,26 +1,16 @@
 /* eslint unused-imports/no-unused-imports-ts: off */
 /* eslint @typescript-eslint/no-unused-vars: off */
-import { invokeHubConnection } from '@/lib/signalr/signalr';
-import type * as iptv from '@/lib/iptvApi';
+import type * as iptv from '@lib/iptvApi';
+import { invokeHubConnection } from '@lib/signalr/signalr';
 
-
-export const GetChannelGroup = async (arg: iptv.ChannelGroupDto): Promise<iptv.ChannelGroupDto | null> => {
-    return await invokeHubConnection<iptv.ChannelGroupDto> ('GetChannelGroup', arg);
-};
-
-export const GetChannelGroupIdNames = async (arg: iptv.ChannelGroupIdName[]): Promise<iptv.ChannelGroupIdName[] | null> => {
-    return await invokeHubConnection<iptv.ChannelGroupIdName[]> ('GetChannelGroupIdNames', arg);
-};
-
-export const GetPagedChannelGroups = async (arg: iptv.PagedResponseOfChannelGroupDto): Promise<iptv.ChannelGroupDto[] | null> => {
-    return await invokeHubConnection<iptv.ChannelGroupDto[]> ('GetPagedChannelGroups', arg);
-};
-
+export const GetChannelGroup = async (argument: iptv.ChannelGroupDto): Promise<iptv.ChannelGroupDto | null> =>
+  invokeHubConnection<iptv.ChannelGroupDto>('GetChannelGroup', argument);
+export const GetChannelGroupIdNames = async (argument: iptv.ChannelGroupIdName[]): Promise<iptv.ChannelGroupIdName[] | null> =>
+  invokeHubConnection<iptv.ChannelGroupIdName[]>('GetChannelGroupIdNames', argument);
+export const GetPagedChannelGroups = async (argument: iptv.PagedResponseOfChannelGroupDto): Promise<iptv.ChannelGroupDto[] | null> =>
+  invokeHubConnection<iptv.ChannelGroupDto[]>('GetPagedChannelGroups', argument);
 export const GetChannelGroupNames = async (): Promise<void | null> => {
-    await invokeHubConnection<void> ('GetChannelGroupNames');
+  await invokeHubConnection<void>('GetChannelGroupNames');
 };
-
-export const GetChannelGroupsForStreamGroup = async (arg: iptv.GetChannelGroupsForStreamGroupRequest): Promise<iptv.ChannelGroupDto[] | null> => {
-    return await invokeHubConnection<iptv.ChannelGroupDto[]> ('GetChannelGroupsForStreamGroup', arg);
-};
-
+export const GetChannelGroupsForStreamGroup = async (argument: iptv.GetChannelGroupsForStreamGroupRequest): Promise<iptv.ChannelGroupDto[] | null> =>
+  invokeHubConnection<iptv.ChannelGroupDto[]>('GetChannelGroupsForStreamGroup', argument);

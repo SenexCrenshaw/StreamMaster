@@ -4,7 +4,7 @@ import { memo, useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import CopyButton from '../buttons/CopyButton';
 
-type NumberInputProps = {
+interface NumberInputProperties {
   readonly autoFocus?: boolean;
   readonly isValid?: boolean;
   readonly label?: string;
@@ -17,7 +17,7 @@ type NumberInputProps = {
   readonly showClear?: boolean;
   readonly showCopy?: boolean;
   readonly value: number;
-};
+}
 
 const NumberInput = ({
   autoFocus = true,
@@ -31,12 +31,12 @@ const NumberInput = ({
   placeHolder,
   showClear = true,
   showCopy = false,
-  value,
-}: NumberInputProps) => {
+  value
+}: NumberInputProperties) => {
   const [input, setInput] = useState<number>(1);
-  const [originalInput, setOriginalInput] = useState<number | undefined>(undefined);
+  const [originalInput, setOriginalInput] = useState<number | undefined>();
   const [isFocused, setIsFocused] = useState<boolean>(false);
-  const overlayRef = useRef(null);
+  const overlayReference = useRef(null);
   const uuid = uuidv4();
 
   useEffect(() => {
@@ -45,10 +45,8 @@ const NumberInput = ({
         return;
       }
 
-      if (event.code === 'Enter' || event.code === 'NumpadEnter') {
-        if (originalInput !== input) {
-          onEnter?.();
-        }
+      if ((event.code === 'Enter' || event.code === 'NumpadEnter') && originalInput !== input) {
+        onEnter?.();
       }
     };
 
@@ -59,7 +57,7 @@ const NumberInput = ({
     };
   }, [input, isFocused, onChange, onEnter, originalInput]);
 
-  useClickOutside(overlayRef, () => {
+  useClickOutside(overlayReference, () => {
     if (!isFocused) {
       return;
     }
@@ -76,16 +74,12 @@ const NumberInput = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
-  const doShowClear = (): boolean => {
-    return showClear === true && originalInput !== undefined && input !== originalInput;
-  };
+  const doShowClear = (): boolean => showClear === true && originalInput !== undefined && input !== originalInput;
 
-  const doShowCopy = (): boolean => {
-    return showCopy === true && input !== undefined && input !== 0;
-  };
+  const doShowCopy = (): boolean => showCopy === true && input !== undefined && input !== 0;
 
   return (
-    <div className={placeHolder && !label ? 'flex grid w-full align-items-center' : 'flex grid w-full mt-3 align-items-center'} ref={overlayRef}>
+    <div className={placeHolder && !label ? 'flex grid w-full align-items-center' : 'flex grid w-full mt-3 align-items-center'} ref={overlayReference}>
       <span className={placeHolder && !label ? 'col-11 p-input-icon-right' : 'col-11 p-input-icon-right p-float-label'}>
         {doShowClear() && originalInput && (
           <i
@@ -103,7 +97,7 @@ const NumberInput = ({
 
         <InputNumber
           autoFocus={autoFocus}
-          className={`text-large w-full ` + (isValid ? '' : 'p-invalid')}
+          className={`text-large w-full ${isValid ? '' : 'p-invalid'}`}
           id={uuid}
           min={min}
           max={max}

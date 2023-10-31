@@ -3,9 +3,9 @@ import { Dropdown } from 'primereact/dropdown';
 import { type SelectItem } from 'primereact/selectitem';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-export const VideoStreamSelector = (props: VideoStreamSelectorProps) => {
-  const elementRef = useRef(null);
-  const [selectedVideoStreamIdName, setSelectedVideoStreamIdName] = useState<IdName | undefined>(undefined);
+export const VideoStreamSelector = (props: VideoStreamSelectorProperties) => {
+  const elementReference = useRef(null);
+  const [selectedVideoStreamIdName, setSelectedVideoStreamIdName] = useState<IdName | undefined>();
 
   const videoStreamsQuery = useVideoStreamsGetVideoStreamNamesQuery();
 
@@ -33,21 +33,18 @@ export const VideoStreamSelector = (props: VideoStreamSelectorProps) => {
   };
 
   const getOptions = useMemo((): SelectItem[] => {
-    if (!videoStreamsQuery.data)
+    if (!videoStreamsQuery.data) {
       return [
         {
           label: 'Loading...',
-          value: {} as VideoStreamDto,
-        } as SelectItem,
+          value: {} as VideoStreamDto
+        } as SelectItem
       ];
+    }
 
-    const ret = [...videoStreamsQuery.data]
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map((a) => {
-        return { label: a.name, value: a } as SelectItem;
-      });
+    const returnValue = [...videoStreamsQuery.data].sort((a, b) => a.name.localeCompare(b.name)).map((a) => ({ label: a.name, value: a } as SelectItem));
 
-    return ret;
+    return returnValue;
   }, [videoStreamsQuery.data]);
 
   return (
@@ -60,7 +57,7 @@ export const VideoStreamSelector = (props: VideoStreamSelectorProps) => {
         onChange={(e) => onDropdownChange(e.value)}
         options={getOptions}
         placeholder="Video Streams"
-        ref={elementRef}
+        ref={elementReference}
         value={selectedVideoStreamIdName}
       />
     </div>
@@ -69,7 +66,7 @@ export const VideoStreamSelector = (props: VideoStreamSelectorProps) => {
 
 VideoStreamSelector.displayName = 'VideoStreamSelector';
 
-type VideoStreamSelectorProps = {
+interface VideoStreamSelectorProperties {
   readonly onChange: (value: IdName) => void;
   readonly value: string | undefined;
-};
+}

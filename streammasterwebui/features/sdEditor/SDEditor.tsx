@@ -1,8 +1,11 @@
 import SchedulesDirectStationPreviewDataSelector from '@components/schedulesDirect/SchedulesDirectStationPreviewDataSelector';
 import { useSchedulesDirectGetStatusQuery } from '@lib/iptvApi';
+
 import useSettings from '@lib/useSettings';
 import { BlockUI } from 'primereact/blockui';
 import { memo, useMemo } from 'react';
+
+// const SchedulesDirectStationPreviewDataSelector = React.lazy(() => import('@components/schedulesDirect/SchedulesDirectStationPreviewDataSelector'));
 
 const SDEditor = () => {
   const getStatusQuery = useSchedulesDirectGetStatusQuery();

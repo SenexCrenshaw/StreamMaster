@@ -358,4 +358,6 @@ StreamMasterAPI/wwwroot/initialize.js
 streammasterwebui/package-lock.json
 streammasterwebui/package-lock.json
 streammasterwebui/deps.txt
-streammasterwebui/dist/
+build
+coverage
+dist

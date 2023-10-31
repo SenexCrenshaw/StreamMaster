@@ -10,11 +10,11 @@ import { memo, useCallback, useMemo, useState } from 'react';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import OKButton from '../buttons/OKButton';
 
-type VideoStreamResetLogosDialogProps = {
+interface VideoStreamResetLogosDialogProperties {
   readonly id: string;
-};
+}
 
-const VideoStreamResetLogosDialog = ({ id }: VideoStreamResetLogosDialogProps) => {
+const VideoStreamResetLogosDialog = ({ id }: VideoStreamResetLogosDialogProperties) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [block, setBlock] = useState<boolean>(false);
@@ -48,7 +48,7 @@ const VideoStreamResetLogosDialog = ({ id }: VideoStreamResetLogosDialogProps) =
           setInfoMessage('Set Streams Successfully');
         })
         .catch((error) => {
-          setInfoMessage('Set Streams Error: ' + error.message);
+          setInfoMessage(`Set Streams Error: ${error.message}`);
         });
 
       return;
@@ -64,17 +64,13 @@ const VideoStreamResetLogosDialog = ({ id }: VideoStreamResetLogosDialogProps) =
     const promises = [];
 
     while (count < ids.length) {
-      if (count + max < ids.length) {
-        toSend.ids = ids.slice(count, count + max);
-      } else {
-        toSend.ids = ids.slice(count, ids.length);
-      }
+      toSend.ids = count + max < ids.length ? ids.slice(count, count + max) : ids.slice(count, ids.length);
 
       count += max;
       promises.push(
         ReSetVideoStreamsLogo(toSend)
           .then(() => {})
-          .catch(() => {}),
+          .catch(() => {})
       );
     }
 
@@ -86,13 +82,11 @@ const VideoStreamResetLogosDialog = ({ id }: VideoStreamResetLogosDialogProps) =
         // onChange?.(ret);
       })
       .catch((error) => {
-        setInfoMessage('Error: ' + error.message);
+        setInfoMessage(`Error: ${error.message}`);
       });
   }, [queryFilter, selectAll, selectedVideoStreams]);
 
-  const getTotalCount = useMemo(() => {
-    return selectedVideoStreams.length;
-  }, [selectedVideoStreams.length]);
+  const getTotalCount = useMemo(() => selectedVideoStreams.length, [selectedVideoStreams.length]);
 
   return (
     <>

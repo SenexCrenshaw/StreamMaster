@@ -1,19 +1,7 @@
-import { type ChildButtonProps } from './BaseButton'
-import BaseButton from './BaseButton'
+import BaseButton, { type ChildButtonProperties } from './BaseButton';
 
-const AutoSetButton: React.FC<ChildButtonProps> = ({
-  disabled = true,
-  onClick,
-  tooltip = 'Auto Set',
-}) => {
-  return (
-    <BaseButton
-      disabled={disabled}
-      icon="pi-sort-numeric-up-alt"
-      onClick={onClick}
-      tooltip={tooltip}
-    />
-  )
-}
+const AutoSetButton: React.FC<ChildButtonProperties> = ({ disabled = true, onClick, tooltip = 'Auto Set' }) => (
+  <BaseButton disabled={disabled} icon="pi-sort-numeric-up-alt" onClick={onClick} tooltip={tooltip} />
+);
 
-export default AutoSetButton
+export default AutoSetButton;

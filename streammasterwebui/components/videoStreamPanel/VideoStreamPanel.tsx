@@ -14,28 +14,28 @@ import InputWrapper from './InputWrapper';
 import VideoStreamDataSelector from './VideoStreamDataSelector';
 import VideoStreamSelectedVideoStreamDataSelector from './VideoStreamSelectedVideoStreamDataSelector';
 
-type VideoStreamPanelProps = {
+interface VideoStreamPanelProperties {
   readonly group?: string;
   readonly onEdit?: (e: UpdateVideoStreamRequest) => void;
   readonly onSave?: (e: CreateVideoStreamRequest) => void;
   readonly videoStream?: VideoStreamDto | undefined;
-};
+}
 
-const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPanelProps) => {
+const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPanelProperties) => {
   const settings = useSettings();
   const [name, setName] = useState<string>('');
   const [url, setUrl] = useState<string>('');
 
   const [iconSource, setIconSource] = useState<string>('');
-  const [videoStreams, setVideoStreams] = useState<VideoStreamDto[] | undefined>(undefined);
+  const [videoStreams, setVideoStreams] = useState<VideoStreamDto[] | undefined>();
   const [channelNumber, setChannelNumber] = useState<number>(0);
   const [channelHandler, setChannelHandler] = useState<VideoStreamHandlers>(0);
   const [epgId, setEpgId] = useState<string>('');
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [lastActiveIndex, setLastActiveIndex] = useState<number>(0);
-  const [channelGroup, setChannelGroup] = useState<string | undefined>(undefined);
+  const [channelGroup, setChannelGroup] = useState<string | undefined>();
 
-  const [dataSource, setDataSource] = useState<VideoStreamDto[] | undefined>(undefined);
+  const [dataSource, setDataSource] = useState<VideoStreamDto[] | undefined>();
 
   useEffect(() => {
     if (group) {
@@ -52,7 +52,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
       user_Tvg_chno: userTvgChno,
       user_Tvg_ID: userTvgId,
       videoStreamHandler,
-      user_Tvg_group: userTvgGroup,
+      user_Tvg_group: userTvgGroup
     } = videoStream ?? {};
 
     if (childVideoStreams) {
@@ -114,11 +114,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
 
   const onsetActiveIndex = (index: number) => {
     if (index === null) {
-      if (lastActiveIndex === 0) {
-        index = 1;
-      } else {
-        index = 0;
-      }
+      index = lastActiveIndex === 0 ? 1 : 0;
     }
 
     setLastActiveIndex(index);
@@ -165,7 +161,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
                     <InputNumber
                       className="w-full"
                       id="channelNumber"
-                      max={999999}
+                      max={999_999}
                       min={0}
                       onChange={(e) => {
                         setChannelNumber(e.value ?? 0);
@@ -207,21 +203,21 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
                     videoStream
                       ? onEdit?.({
                           id: videoStream.id,
+                          tvg_ID: epgId,
                           tvg_chno: channelNumber,
                           tvg_group: channelGroup,
-                          tvg_ID: epgId,
                           tvg_logo: iconSource,
                           tvg_name: name,
-                          url: url,
+                          url
                         } as UpdateVideoStreamRequest)
                       : onSave?.({
                           childVideoStreams: videoStream === undefined ? dataSource : videoStreams,
+                          tvg_ID: epgId,
                           tvg_chno: channelNumber,
                           tvg_group: channelGroup,
-                          tvg_ID: epgId,
                           tvg_logo: iconSource,
                           tvg_name: name,
-                          url: url,
+                          url
                         } as CreateVideoStreamRequest);
 
                     setDataSource(undefined);
@@ -243,7 +239,7 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
                     return;
                   }
 
-                  let ds = [...(dataSource ?? [])];
+                  const ds = [...(dataSource ?? [])];
 
                   ds.push(e);
                   setDataSource(ds);

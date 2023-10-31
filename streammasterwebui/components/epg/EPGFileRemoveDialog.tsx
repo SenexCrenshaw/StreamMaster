@@ -4,7 +4,7 @@ import { type DeleteEpgFileRequest, type EpgFileDto } from '@lib/iptvApi';
 import { DeleteEpgFile } from '@lib/smAPI/EpgFiles/EpgFilesMutateAPI';
 import FileRemoveDialog from '../sharedEPGM3U/FileRemoveDialog';
 
-const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
+const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProperties) => {
   const [infoMessage, setInfoMessage] = useState('');
 
   const deleteFile = () => {
@@ -21,8 +21,8 @@ const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
       .then(() => {
         setInfoMessage('EPG Removed Successfully');
       })
-      .catch((e) => {
-        setInfoMessage('EPG Removed Error: ' + e.message);
+      .catch((error) => {
+        setInfoMessage(`EPG Removed Error: ${error.message}`);
       });
   };
 
@@ -31,8 +31,8 @@ const EPGFileRemoveDialog = (props: EPGFileRemoveDialogProps) => {
 
 EPGFileRemoveDialog.displayName = 'EPGFileRemoveDialog';
 
-type EPGFileRemoveDialogProps = {
+interface EPGFileRemoveDialogProperties {
   readonly selectedFile?: EpgFileDto;
-};
+}
 
 export default memo(EPGFileRemoveDialog);

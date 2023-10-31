@@ -1,8 +1,4 @@
-'use client';
-
-import dynamic from 'next/dynamic';
-
-const StreamingStatus = dynamic(() => import('@/features/streamingStatus/StreamingStatus'), { ssr: false });
+import StreamingStatus from '@features/streamingStatus/StreamingStatus';
 
 export default function StreamingStatusLayout() {
   return <StreamingStatus />;

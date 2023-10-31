@@ -1,45 +1,24 @@
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
-import AutorenewSharpIcon from '@mui/icons-material/AutorenewSharp'
-import FilesIcon from '@mui/icons-material/FolderCopy'
-import FormatListBulletedSharpIcon from '@mui/icons-material/FormatListBulletedSharp'
-import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined'
-import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined'
-import MenuIcon from '@mui/icons-material/Menu'
-import PlaylistAddSharpIcon from '@mui/icons-material/PlaylistAddSharp'
-import RotateLeftIcon from '@mui/icons-material/RotateLeft'
-import SettingsInputAntennaIcon from '@mui/icons-material/SettingsInputAntenna'
-import SettingsSharpIcon from '@mui/icons-material/SettingsSharp'
-import ShowChartSharpIcon from '@mui/icons-material/ShowChartSharp'
 // import WorkspacesIcon from '@mui/icons-material/Workspaces';
-import AddPhotoAlternateOutlinedIcon from '@mui/icons-material/AddPhotoAlternateOutlined'
-import AddToQueueIcon from '@mui/icons-material/AddToQueue'
-import { default as cancelIcon } from '@mui/icons-material/Cancel'
-import GroupsIcon from '@mui/icons-material/Groups'
-import LibraryBooksIcon from '@mui/icons-material/LibraryBooks'
-import OndemandVideoIcon from '@mui/icons-material/OndemandVideo'
-import SendTimeExtensionIcon from '@mui/icons-material/SendTimeExtension'
 
-export const IconFromEPGIcon = AddPhotoAlternateOutlinedIcon
-export const LogIcon = AddToQueueIcon
-export const SDIcon = SendTimeExtensionIcon
-export const PlayListIcon = LibraryBooksIcon
-export const VideoIcon = OndemandVideoIcon
-export const GroupIcon = GroupsIcon
-export const HelpIcon = HelpOutlineOutlinedIcon
-export const AutoMatchIcon = AutoAwesomeIcon
-export const CancelIcon = cancelIcon
-export const M3UPlaylistEditorIcon = PlaylistAddSharpIcon
-export const ResetLogoIcon = RotateLeftIcon
+export const EPGFilecon = <div> </div>;
 
-export const EPGFilecon = <div> </div>
-export const M3UFilecon = InsertDriveFileOutlinedIcon
+export { default as AutoMatchIcon } from '@mui/icons-material/AutoAwesome';
+export { default as QueueStatisIcon } from '@mui/icons-material/AutorenewSharp';
+export { default as FilesEditorIcon } from '@mui/icons-material/FolderCopy';
+export { default as ChannelEditorIcon } from '@mui/icons-material/FormatListBulletedSharp';
+export { default as HelpIcon } from '@mui/icons-material/HelpOutlineOutlined';
+export { default as M3UFilecon } from '@mui/icons-material/InsertDriveFileOutlined';
+export { default as SideBarMenuIcon } from '@mui/icons-material/Menu';
+export { default as ResetLogoIcon } from '@mui/icons-material/RotateLeft';
+export { default as StreamGroupEditorIcon } from '@mui/icons-material/SettingsInputAntenna';
+export { default as SettingsEditorIcon } from '@mui/icons-material/SettingsSharp';
+export { default as StreamingStatusIcon } from '@mui/icons-material/ShowChartSharp';
 
-export const SideBarMenuIcon = MenuIcon
-export const FilesEditorIcon = FilesIcon
-export const ChannelEditorIcon = FormatListBulletedSharpIcon
-export const StreamingStatusIcon = ShowChartSharpIcon
-export const QueueStatisIcon = AutorenewSharpIcon
-export const SettingsEditorIcon = SettingsSharpIcon
-
-export const PlayListEditorIcon = PlaylistAddSharpIcon
-export const StreamGroupEditorIcon = SettingsInputAntennaIcon
+export { default as IconFromEPGIcon } from '@mui/icons-material/AddPhotoAlternateOutlined';
+export { default as LogIcon } from '@mui/icons-material/AddToQueue';
+export { default as CancelIcon } from '@mui/icons-material/Cancel';
+export { default as GroupIcon } from '@mui/icons-material/Groups';
+export { default as PlayListIcon } from '@mui/icons-material/LibraryBooks';
+export { default as VideoIcon } from '@mui/icons-material/OndemandVideo';
+export { default as SDIcon } from '@mui/icons-material/SendTimeExtension';
+export { default as M3UPlaylistEditorIcon, default as PlayListEditorIcon } from '@mui/icons-material/PlaylistAddSharp';

@@ -50,11 +50,11 @@ const useSettings = (): StreamMasterSettingResponse => {
     defaultIconUrl,
     isDebug,
     isLoading,
-    streamMasterIcon,
+    streamMasterIcon
   };
 };
 
-export type StreamMasterSettingResponse = {
+export interface StreamMasterSettingResponse {
   authenticationType: AuthenticationType;
   cacheIcon: boolean;
   data: SettingDto;
@@ -64,6 +64,6 @@ export type StreamMasterSettingResponse = {
   isDebug: boolean;
   isLoading: boolean;
   streamMasterIcon: string;
-};
+}
 
 export default useSettings;

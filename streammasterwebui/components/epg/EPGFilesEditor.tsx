@@ -4,23 +4,21 @@ import { memo } from 'react';
 import EPGFileDialog from './EPGFileDialog';
 import EPGFilesDataSelector from './EPGFilesDataSelector';
 
-const EPGFilesEditor = () => {
-  return (
-    <div className="m3uFilesEditor flex flex-column col-12">
-      <div className="flex justify-content-between align-items-center mb-1">
-        <span style={{ color: 'var(--orange-color)' }}>EPG Files</span>
-        <div className="flex">
-          <EPGFileDialog />
-        </div>
+const EPGFilesEditor = () => (
+  <div className="m3uFilesEditor flex flex-column col-12">
+    <div className="flex justify-content-between align-items-center mb-1">
+      <span style={{ color: 'var(--orange-color)' }}>EPG Files</span>
+      <div className="flex">
+        <EPGFileDialog />
       </div>
-      <EPGFilesDataSelector />
     </div>
-  );
-};
+    <EPGFilesDataSelector />
+  </div>
+);
 
 EPGFilesEditor.displayName = 'EPGFilesEditor';
-export type EPGFilesEditorProps = {
+export interface EPGFilesEditorProperties {
   onClick?: (e: EpgFileDto) => void;
   value?: EpgFileDto | undefined;
-};
+}
 export default memo(EPGFilesEditor);

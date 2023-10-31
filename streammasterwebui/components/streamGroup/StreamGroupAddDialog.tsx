@@ -4,7 +4,7 @@ import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
 import AddButton from '../buttons/AddButton';
 import TextInput from '../inputs/TextInput';
 
-const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
+const StreamGroupAddDialog = (props: StreamGroupAddDialogProperties) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
@@ -43,8 +43,8 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
       .then(() => {
         setInfoMessage('Stream Group Added Successfully');
       })
-      .catch((e) => {
-        setInfoMessage('Stream Group Add Error: ' + e.message);
+      .catch((error) => {
+        setInfoMessage(`Stream Group Add Error: ${error.message}`);
       });
   }, [ReturnToParent, isSaveEnabled, name, streamGroupsCreateStreamGroupMutation]);
 
@@ -95,8 +95,8 @@ const StreamGroupAddDialog = (props: StreamGroupAddDialogProps) => {
 
 StreamGroupAddDialog.displayName = 'StreamGroupAddDialog';
 
-type StreamGroupAddDialogProps = {
+interface StreamGroupAddDialogProperties {
   readonly onHide?: () => void;
-};
+}
 
 export default memo(StreamGroupAddDialog);
