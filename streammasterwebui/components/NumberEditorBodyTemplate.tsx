@@ -1,5 +1,5 @@
-import { ResetLogoIcon } from '@lib/common/Icons';
 import { getTopToolOptions } from '@lib/common/common';
+import { ResetLogoIcon } from '@lib/common/icons';
 import { Button } from 'primereact/button';
 import { useClickOutside } from 'primereact/hooks';
 import { InputNumber } from 'primereact/inputnumber';

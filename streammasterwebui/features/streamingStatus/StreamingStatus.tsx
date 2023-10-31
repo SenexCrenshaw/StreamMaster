@@ -1,5 +1,5 @@
 import StandardHeader from '@components/StandardHeader';
-import { StreamingStatusIcon } from '@lib/common/Icons';
+import { StreamingStatusIcon } from '@lib/common/icons';
 import React from 'react';
 import StreamingClientsPanel from './StreamingClientsPanel';
 import StreamingServerStatusPanel from './StreamingServerStatusPanel';

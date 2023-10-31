@@ -1,5 +1,5 @@
-import { ResetLogoIcon } from '@lib/common/Icons';
 import { getTopToolOptions } from '@lib/common/common';
+import { ResetLogoIcon } from '@lib/common/icons';
 import { type ReSetVideoStreamsLogoRequest, type VideoStreamDto, type VideoStreamsReSetVideoStreamsLogoFromParametersApiArg } from '@lib/iptvApi';
 import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectAll } from '@lib/redux/slices/useSelectAll';

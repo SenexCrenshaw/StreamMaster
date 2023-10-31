@@ -9,7 +9,7 @@ import {
   SideBarMenuIcon,
   StreamGroupEditorIcon,
   StreamingStatusIcon
-} from '@lib/common/Icons';
+} from '@lib/common/icons';
 import useSettings from '@lib/useSettings';
 import { useLocalStorage } from 'primereact/hooks';
 import { Tooltip } from 'primereact/tooltip';

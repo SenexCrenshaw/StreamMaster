@@ -1,5 +1,5 @@
-import { ResetLogoIcon } from '@lib/common/Icons';
 import { getChannelGroupMenuItem, getTopToolOptions } from '@lib/common/common';
+import { ResetLogoIcon } from '@lib/common/icons';
 import { useChannelGroupsGetChannelGroupIdNamesQuery, type ChannelGroupIdName } from '@lib/iptvApi';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';

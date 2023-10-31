@@ -1,5 +1,5 @@
 import StandardHeader from '@components/StandardHeader';
-import { PlayListEditorIcon } from '@lib/common/Icons';
+import { PlayListEditorIcon } from '@lib/common/icons';
 import { memo } from 'react';
 import ChannelGroupVideoStreamDataSelector from './ChannelGroupVideoStreamDataSelector';
 import PlayListDataSelector from './PlayListDataSelector';
