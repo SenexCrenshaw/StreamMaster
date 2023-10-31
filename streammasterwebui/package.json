@@ -47,7 +47,6 @@
     "eslint-plugin-tailwindcss": "^3.13.0",
     "eslint-plugin-unicorn": "^49.0.0",
     "eslint-plugin-unused-imports": "^3.0.0",
-    "husky": "^8.0.3",
     "typescript": "^5.2.2"
   },
   "eslintConfig": {
