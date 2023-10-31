@@ -233,28 +233,21 @@ public class ChannelManager(
         await _registerSemaphore.WaitAsync();
         try
         {
-            IChannelStatus? channelStatus = null;
-            IStreamHandler? streamHandler = null;
+            IChannelStatus? channelStatus = channelService.GetChannelStatus(config.ChannelVideoStreamId);
 
-            if (!channelService.HasChannel(config.ChannelVideoStreamId))
-            {
-                channelStatus = await RegisterNewChannel(config, null);
-
-            }
+            channelStatus ??= await RegisterNewChannel(config, null);
 
             if (channelStatus == null)
             {
                 logger.LogError("Failed to register with channel manager. {ClientID} {ChannelVideoStreamId}", config.ClientId, config.ChannelVideoStreamId);
-                channelService.UnregisterChannel(config.ChannelVideoStreamId);
                 return null;
             }
 
-            streamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStreamId);
+            IStreamHandler? streamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStreamId);
 
             if (streamHandler == null)
             {
                 logger.LogError("Failed to register with channel manager. {ClientID} {ChannelVideoStreamId}", config.ClientId, config.ChannelVideoStreamId);
-                channelService.UnregisterChannel(config.ChannelVideoStreamId);
                 return null;
             }
 
@@ -287,20 +280,23 @@ public class ChannelManager(
             return null;
         }
 
-        IChannelStatus? channelStatus = channelService.RegisterChannel(config.ChannelVideoStreamId, config.ChannelVideoStreamId);
+        IChannelStatus? channelStatus = channelService.GetChannelStatus(config.ChannelVideoStreamId);
 
-        if (streamHandler == null)
+        if (channelStatus == null)
         {
-            logger.LogInformation("No existing stream handler for {ChannelVideoStreamId}, creating", config.ChannelVideoStreamId);
-            if (!await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId).ConfigureAwait(false))
+            channelStatus = channelService.RegisterChannel(config.ChannelVideoStreamId, config.ChannelVideoStreamId);
+            if (channelStatus == null)
             {
+                logger.LogError("Could not register new channel for {ClientId} {ChannelVideoStreamId}", config.ClientId, config.ChannelVideoStreamId);
+                channelService.UnregisterChannel(config.ChannelVideoStreamId);
                 return null;
             }
 
-            channelStatus = channelService.GetChannelStatus(config.ChannelVideoStreamId);
-            if (channelStatus == null)
+            logger.LogInformation("No existing channel for {ChannelVideoStreamId}, creating", config.ChannelVideoStreamId);
+            if (!await streamSwitcher.SwitchToNextVideoStreamAsync(config.ChannelVideoStreamId).ConfigureAwait(false))
             {
-                logger.LogError("UnRegisterWithChannelManager cannot find channelStatus for ClientId {ClientId}", config.ClientId);
+                logger.LogError("Cannot create new channel {ClientId} {ChannelVideoStreamId}", config.ClientId, config.ChannelVideoStreamId);
+                channelService.UnregisterChannel(config.ChannelVideoStreamId);
                 return null;
             }
             streamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStreamId);
@@ -312,7 +308,7 @@ public class ChannelManager(
 
         if (streamHandler == null)
         {
-            logger.LogError("RegisterNewChannel: Failed to get streamHandler for ChannelVideoStreamId with id {id}", config.ChannelVideoStreamId);
+            logger.LogError("Failed to get streamHandler for ChannelVideoStreamId with id {id}", config.ChannelVideoStreamId);
             return null;
         }
 
