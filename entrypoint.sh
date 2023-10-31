@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 # Default values for PUID and PGID
 PUID=${PUID:-1000}
 PGID=${PGID:-1000}
