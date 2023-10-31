@@ -357,4 +357,11 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         return url;
     }
 
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<string?>> GetStreamGroupVideoStreamUrl(string VideoStreamId)
+    {
+        string? res = await Mediator.Send(new GetStreamGroupVideoStreamUrl(VideoStreamId)).ConfigureAwait(false);
+        return Ok(res);
+    }
 }
