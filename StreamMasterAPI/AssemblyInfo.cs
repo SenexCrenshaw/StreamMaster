@@ -10,4 +10,4 @@ using System.Reflection;
 
 [assembly: AssemblyFileVersion("0.2.18.0")]
 [assembly: AssemblyVersion("0.2.18.0")]
-[assembly: AssemblyInformationalVersion("0.2.18-SenexCrenshaw-issue129.1+55.Branch.SenexCrenshaw-issue129.Sha.965ee0e7c93ef933e792a46708e02915a7389260")]
+[assembly: AssemblyInformationalVersion("0.2.18+53.Branch.main.Sha.9851c3924460257171d721e6fa0360cddf3ea9d4")]
