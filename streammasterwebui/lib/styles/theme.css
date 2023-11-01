@@ -133,6 +133,10 @@
   transition: border-color 0.3s;
 }
 
+.p-inputtext.p-component.p-filled.p-password-input.p-password-input {
+  min-width: 100% !important;
+}
+
 .p-inputtext,
 .p-dropdown-item {
   font-size: var(--common-font-size) !important;
