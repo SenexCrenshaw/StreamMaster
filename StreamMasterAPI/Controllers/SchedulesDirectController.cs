@@ -18,35 +18,35 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
     [Route("[action]")]
     public async Task<ActionResult<Countries?>> GetCountries()
     {
-        return Ok(await Mediator.Send(new GetCountries()).ConfigureAwait(false));
+        return await Mediator.Send(new GetCountries()).ConfigureAwait(false);
     }
 
     [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<List<HeadendDto>>> GetHeadends(string country, string postalCode)
     {
-        return Ok(await Mediator.Send(new GetHeadends(country, postalCode)).ConfigureAwait(false));
+        return await Mediator.Send(new GetHeadends(country, postalCode)).ConfigureAwait(false);
     }
 
     [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<LineUpResult?>> GetLineup(string lineup)
     {
-        return Ok(await Mediator.Send(new GetLineup(lineup)).ConfigureAwait(false));
+        return await Mediator.Send(new GetLineup(lineup)).ConfigureAwait(false);
     }
 
     [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<List<LineUpPreview>>> GetLineupPreviews()
     {
-        return Ok(await Mediator.Send(new GetLineupPreviews()).ConfigureAwait(false));
+        return await Mediator.Send(new GetLineupPreviews()).ConfigureAwait(false);
     }
 
     [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<LineUpsResult?>> GetLineups()
     {
-        return Ok(await Mediator.Send(new GetLineups()).ConfigureAwait(false));
+        return await Mediator.Send(new GetLineups()).ConfigureAwait(false);
     }
 
 
@@ -54,41 +54,41 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
     [Route("[action]")]
     public async Task<ActionResult<List<SDProgram>>> GetSDPrograms()
     {
-        return Ok(await Mediator.Send(new GetSDPrograms()).ConfigureAwait(false));
+        return await Mediator.Send(new GetSDPrograms()).ConfigureAwait(false);
     }
 
     [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<List<Schedule>>> GetSchedules()
     {
-        return Ok(await Mediator.Send(new GetSchedules()).ConfigureAwait(false));
+        return await Mediator.Send(new GetSchedules()).ConfigureAwait(false);
     }
     [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<List<StationIdLineUp>>> GetSelectedStationIds()
     {
-        return Ok(await Mediator.Send(new GetSelectedStationIds()).ConfigureAwait(false));
+        return await Mediator.Send(new GetSelectedStationIds()).ConfigureAwait(false);
     }
 
     [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<List<StationPreview>>> GetStationPreviews()
     {
-        return Ok(await Mediator.Send(new GetStationPreviewsRequest()).ConfigureAwait(false));
+        return await Mediator.Send(new GetStationPreviewsRequest()).ConfigureAwait(false);
     }
 
     [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<List<Station>>> GetStations()
     {
-        return Ok(await Mediator.Send(new GetStations()).ConfigureAwait(false));
+        return await Mediator.Send(new GetStations()).ConfigureAwait(false);
     }
 
     [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<SDStatus>> GetStatus()
     {
-        return Ok(await Mediator.Send(new GetStatus()).ConfigureAwait(false));
+        return await Mediator.Send(new GetStatus()).ConfigureAwait(false);
     }
 
     [HttpGet]

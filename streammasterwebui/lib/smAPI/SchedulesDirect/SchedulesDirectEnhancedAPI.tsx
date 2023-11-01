@@ -12,7 +12,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
         try {
           await cacheDataLoaded;
 
-          const updateCachedDataWithResults = (data: iptv.ICountries) => {
+          const updateCachedDataWithResults = (data: iptv.Countries) => {
             updateCachedData(() => {{
               if (isDev) console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'SchedulesDirect' }])) {
@@ -40,7 +40,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
         try {
           await cacheDataLoaded;
 
-          const updateCachedDataWithResults = (data: iptv.ILineUpResult) => {
+          const updateCachedDataWithResults = (data: iptv.LineUpResult) => {
             updateCachedData(() => {{
               if (isDev) console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'SchedulesDirect' }])) {
@@ -68,7 +68,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
         try {
           await cacheDataLoaded;
 
-          const updateCachedDataWithResults = (data: iptv.ILineUpPreview[]) => {
+          const updateCachedDataWithResults = (data: iptv.LineUpPreview[]) => {
             if (!data || isEmptyObject(data)) {
               if (isDev) console.log('SchedulesDirect Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
@@ -118,7 +118,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
         try {
           await cacheDataLoaded;
 
-          const updateCachedDataWithResults = (data: iptv.ILineUpsResult) => {
+          const updateCachedDataWithResults = (data: iptv.LineUpsResult) => {
             updateCachedData(() => {{
               if (isDev) console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'SchedulesDirect' }])) {
@@ -146,7 +146,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
         try {
           await cacheDataLoaded;
 
-          const updateCachedDataWithResults = (data: iptv.IStationPreview[]) => {
+          const updateCachedDataWithResults = (data: iptv.StationPreview[]) => {
             if (!data || isEmptyObject(data)) {
               if (isDev) console.log('SchedulesDirect Full Refresh');
               dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
@@ -196,7 +196,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
         try {
           await cacheDataLoaded;
 
-          const updateCachedDataWithResults = (data: iptv.ISdStatus) => {
+          const updateCachedDataWithResults = (data: iptv.SdStatus) => {
             updateCachedData(() => {{
               if (isDev) console.log('updateCachedData', data);
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'SchedulesDirect' }])) {

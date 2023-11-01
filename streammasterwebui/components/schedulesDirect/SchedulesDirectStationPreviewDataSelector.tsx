@@ -142,7 +142,6 @@ const SchedulesDirectStationPreviewDataSelector = () => {
           showSelections
           style={{ height: 'calc(100vh - 40px)' }}
         />
-        {/* <SchedulesDirectProgramsDataSelector id="SchedulesDirectStationPreviewDataSelector2" /> */}
       </div>
     </>
   );
