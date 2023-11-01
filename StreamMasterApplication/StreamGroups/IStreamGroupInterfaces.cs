@@ -10,6 +10,7 @@ namespace StreamMasterApplication.StreamGroups;
 
 public interface IStreamGroupController
 {
+    Task<ActionResult<string?>> GetStreamGroupVideoStreamUrl(string VideoStreamId);
     Task<ActionResult> CreateStreamGroup(CreateStreamGroupRequest request);
 
     Task<ActionResult> DeleteStreamGroup(DeleteStreamGroupRequest request);
@@ -29,10 +30,11 @@ public interface IStreamGroupController
 }
 
 public interface IStreamGroupDB
-{}
+{ }
 
 public interface IStreamGroupHub
 {
+    Task<string?> GetStreamGroupVideoStreamUrl(string VideoStreamId);
     Task CreateStreamGroup(CreateStreamGroupRequest request);
 
     Task DeleteStreamGroup(DeleteStreamGroupRequest request);
