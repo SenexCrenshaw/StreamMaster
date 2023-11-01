@@ -1,9 +1,7 @@
 ﻿using FluentValidation;
-
+using StreamMaster.SchedulesDirectAPI.Domain.EPG;
 using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.Programmes.Queries;
-
-using StreamMasterDomain.EPG;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 

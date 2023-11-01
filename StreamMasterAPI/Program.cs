@@ -1,3 +1,5 @@
+using StreamMaster.SchedulesDirectAPI.Services;
+
 using StreamMasterAPI;
 
 using StreamMasterApplication;
@@ -62,6 +64,7 @@ if (!string.IsNullOrEmpty(sslCertPath))
 }
 
 // Add services to the container.
+builder.Services.AddSchedulesDirectAPIServices();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureEFServices();
 builder.Services.AddInfrastructureServices();

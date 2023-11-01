@@ -8,7 +8,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-
+using StreamMaster.SchedulesDirectAPI.Domain.EPG;
 using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.EPG.Queries;
 using StreamMasterApplication.Icons.Queries;
@@ -19,7 +19,6 @@ using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Enums;
-using StreamMasterDomain.EPG;
 using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 

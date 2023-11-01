@@ -3,9 +3,9 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 internal class Program
 {
-    private static readonly List<string> blackList = new() { "schedulesDirectGetSelectedStationIds", "schedulesDirectGetSDPrograms", "programmesGetProgramme", "programmesGetProgrammeChannels", "programmesGetProgrammes", "programmesGetProgrammeFromDisplayName", "schedulesDirectGetHeadends", "schedulesDirectGetSchedules", "schedulesDirectGetStations", "videoStreamsGetAllStatisticsForAllUrls", "streamGroupVideoStreamsGetStreamGroupVideoStreamIds" };
-    private static readonly Dictionary<string, string> overRideArgs = new() { { "GetSDPrograms", "SdProgram" }, { "GetIconFromSource", "StringArg" } };
-    private static readonly Dictionary<string, string> additionalImports = new() { { "Icons", "import { type StringArg } from '@/components/selectors/BaseSelector';" } };
+    private static readonly List<string> blackList = new() { "schedulesDirectGetSDPrograms", "programmesGetProgramme", "programmesGetProgrammeChannels", "programmesGetProgrammes", "programmesGetProgrammeFromDisplayName", "schedulesDirectGetHeadends", "schedulesDirectGetSchedules", "schedulesDirectGetStations", "videoStreamsGetAllStatisticsForAllUrls", "streamGroupVideoStreamsGetStreamGroupVideoStreamIds" };
+    private static readonly Dictionary<string, string> overRideArgs = new() { { "GetSDPrograms", "iptv.SdProgram" }, { "GetIconFromSource", "StringArg" } };
+    private static readonly Dictionary<string, string> additionalImports = new() { { "Icons", "import { type StringArg } from '@components/selectors/BaseSelector';" } };
 
 
     private const string SwaggerUrl = "http://127.0.0.1:7095/swagger/v1/swagger.json";
@@ -66,8 +66,8 @@ internal class Program
                                 // Add imports at the start of each new file's content
                                 tagToGetContentMap[tag].AppendLine("/* eslint unused-imports/no-unused-imports-ts: off */");
                                 tagToGetContentMap[tag].AppendLine("/* eslint @typescript-eslint/no-unused-vars: off */");
-                                tagToGetContentMap[tag].AppendLine("import type * as iptv from '@/lib/iptvApi';");
-                                tagToGetContentMap[tag].AppendLine("import { invokeHubConnection } from '@/lib/signalr/signalr';");
+                                tagToGetContentMap[tag].AppendLine("import type * as iptv from '@lib/iptvApi';");
+                                tagToGetContentMap[tag].AppendLine("import { invokeHubConnection } from '@lib/signalr/signalr';");
                                 if (additionalImports.ContainsKey(tag))
                                 {
                                     tagToGetContentMap[tag].AppendLine(additionalImports[tag]);
@@ -102,8 +102,8 @@ internal class Program
                                 // Add imports at the start of each new file's content
                                 tagToMutateContentMap[tag].AppendLine("/* eslint unused-imports/no-unused-imports-ts: off */");
                                 tagToMutateContentMap[tag].AppendLine("/* eslint @typescript-eslint/no-unused-vars: off */");
-                                tagToMutateContentMap[tag].AppendLine("import type * as iptv from '@/lib/iptvApi';");
-                                tagToMutateContentMap[tag].AppendLine("import { invokeHubConnection } from '@/lib/signalr/signalr';");
+                                tagToMutateContentMap[tag].AppendLine("import type * as iptv from '@lib/iptvApi';");
+                                tagToMutateContentMap[tag].AppendLine("import { invokeHubConnection } from '@lib/signalr/signalr';");
                                 tagToMutateContentMap[tag].AppendLine("");
                             }
                             contentToUse = tagToMutateContentMap[tag];
@@ -211,12 +211,12 @@ internal class Program
 
             StringBuilder rtkContent = new();
 
-            rtkContent.AppendLine("import { isDev } from '@/lib/settings';");
-            rtkContent.AppendLine($"import {{ {singleTon} }} from '@/lib/signalr/singletonListeners';");
-            rtkContent.AppendLine("import { isEmptyObject } from '@/lib/common/common';");
-            rtkContent.AppendLine("import isPagedTableDto from '@/lib/common/isPagedTableDto';");
-            rtkContent.AppendLine("import { iptvApi } from '@/lib/iptvApi';");
-            rtkContent.AppendLine("import type * as iptv from '@/lib/iptvApi';");
+            rtkContent.AppendLine("import { isDev } from '@lib/settings';");
+            rtkContent.AppendLine($"import {{ {singleTon} }} from '@lib/signalr/singletonListeners';");
+            rtkContent.AppendLine("import { isEmptyObject } from '@lib/common/common';");
+            rtkContent.AppendLine("import isPagedTableDto from '@lib/common/isPagedTableDto';");
+            rtkContent.AppendLine("import { iptvApi } from '@lib/iptvApi';");
+            rtkContent.AppendLine("import type * as iptv from '@lib/iptvApi';");
             rtkContent.AppendLine();
             rtkContent.AppendLine($"export const enhancedApi{ConvertToTypeScriptPascalCase(tag)} = iptvApi.enhanceEndpoints({{");
             rtkContent.AppendLine("  endpoints: {");

@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace StreamMasterDomain.EPG;
+namespace StreamMaster.SchedulesDirectAPI.Domain.EPG;
 
 [XmlRoot(ElementName = "credits")]
 public class TvCredits

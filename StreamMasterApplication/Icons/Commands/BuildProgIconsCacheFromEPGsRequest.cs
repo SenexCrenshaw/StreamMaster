@@ -2,9 +2,9 @@
 
 using Microsoft.EntityFrameworkCore;
 
-using StreamMasterApplication.Programmes.Queries;
+using StreamMaster.SchedulesDirectAPI.Domain.EPG;
 
-using StreamMasterDomain.EPG;
+using StreamMasterApplication.Programmes.Queries;
 
 using System.Web;
 using System.Xml.Serialization;

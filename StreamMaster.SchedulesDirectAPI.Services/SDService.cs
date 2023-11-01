@@ -1,20 +1,20 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.SchedulesDirectAPI.Domain.EPG;
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
 
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.EPG;
 using StreamMasterDomain.Services;
 
 namespace StreamMaster.SchedulesDirectAPI.Services;
 
 public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISettingsService settingsService) : ISDService
 {
-    private SchedulesDirect sd = null!;
+    private SchedulesDirect sd;
 
     private async Task<bool> EnsureSDAsync(CancellationToken cancellationToken = default)
     {
@@ -37,24 +37,17 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
     public async Task<List<Programme>> GetProgrammes(CancellationToken cancellationToken)
     {
         Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
-        //if (!setting.SDEnabled)
-        //{
-        //    return new();
-        //}
-
-        //List<Programme> ret = memoryCache.SDProgrammess();
-        //if (ret.Any())
-        //{
-        //    return ret;
-        //}
 
 
         List<string> stationsIds = setting.SDStationIds.Select(a => a.StationId).Distinct().ToList();
 
         List<Station> stations = await GetStations(cancellationToken).ConfigureAwait(false);
 
-        foreach (string? stationId in stationsIds)
+        foreach (StationIdLineUp SDStationId in setting.SDStationIds)
         {
+            string stationId = SDStationId.StationId;
+            string lineUp = SDStationId.LineUp;
+
             List<string> names = stations.Where(a => a.StationID == stationId).Select(a => a.Name).Distinct().ToList();
             List<StationLogo> logos = stations.Where(a => a.StationID == stationId && a.StationLogo != null).SelectMany(a => a.StationLogo).Distinct().ToList();
             List<ChannelLogoDto> channelLogos = memoryCache.ChannelLogos();
@@ -74,7 +67,7 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
                     {
                         Id = nextId++,
                         LogoUrl = logo.URL,
-                        EPGId = "SD-" + stationId,
+                        EPGId = "SD-" + lineUp + stationId,
                         EPGFileId = 0
                     };
 

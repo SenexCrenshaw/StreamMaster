@@ -58,7 +58,7 @@
   "name": "streammaster",
   "private": true,
   "scripts": {
-    "dev": "vite --host --port 3000 --open",
+    "dev": "vite --host --port 3000",
     "build": "vite build",
     "preview": "vite preview",
     "builddev": "npm run build && cp -r dist/* ..\\StreamMasterAPI\\bin\\Debug\\net7.0\\wwwroot -force",

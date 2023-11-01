@@ -89,13 +89,14 @@ const SchedulesDirectStationPreviewDataSelector = () => {
     [schedulesDirectGetSelectedStationIdsQuery.data]
   );
 
-  useEffect(() => {
-    const lineUps = selectSelectedItems.map((stationPreview) => ({
-      lineUp: stationPreview.lineUp,
-      stationId: stationPreview.stationId
-    }));
-    onSave(lineUps);
-  }, [onSave, selectSelectedItems]);
+  // useEffect(() => {
+  //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  //   const lineUps = selectSelectedItems.map((stationPreview) => ({
+  //     lineUp: stationPreview.lineUp,
+  //     stationId: stationPreview.stationId
+  //   }));
+  //   // onSave(lineUps);
+  // }, [onSave, selectSelectedItems]);
 
   function imageBodyTemplate(data: StationPreview) {
     if (!data?.logo || data.logo.URL === '') {
@@ -134,8 +135,9 @@ const SchedulesDirectStationPreviewDataSelector = () => {
           headerName="Line Up Preview"
           id="SchedulesDirectStationPreviewDataSelector"
           isLoading={stationPreviews.isLoading || isLoading}
-          onRowClick={(e) => {
-            console.log(e);
+          onSelectionChange={(e) => {
+            onSave(e);
+            //console.log('e', e);
           }}
           selectedItemsKey="SchedulesDirectSchedulesDataSelector"
           selectionMode="multiple"

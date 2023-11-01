@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace StreamMasterDomain.EPG;
+namespace StreamMaster.SchedulesDirectAPI.Domain.EPG;
 
 [XmlRoot(ElementName = "episode-num")]
 public class TvEpisodenum

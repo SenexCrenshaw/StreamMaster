@@ -1,7 +1,7 @@
 /* eslint unused-imports/no-unused-imports-ts: off */
 /* eslint @typescript-eslint/no-unused-vars: off */
-import type * as iptv from '@/lib/iptvApi';
-import { invokeHubConnection } from '@/lib/signalr/signalr';
+import type * as iptv from '@lib/iptvApi';
+import { invokeHubConnection } from '@lib/signalr/signalr';
 
 export const GetCountries = async (argument: iptv.Countries): Promise<iptv.Countries | null> =>
   invokeHubConnection<iptv.Countries>('GetCountries', argument);
@@ -13,7 +13,7 @@ export const GetLineupPreviews = async (argument: iptv.LineUpPreview[]): Promise
   invokeHubConnection<iptv.LineUpPreview[]>('GetLineupPreviews', argument);
 export const GetLineups = async (argument: iptv.LineUpsResult): Promise<iptv.LineUpsResult | null> =>
   invokeHubConnection<iptv.LineUpsResult>('GetLineups', argument);
-export const GetSDPrograms = async (argument: SdProgram): Promise<iptv.SDProgram[] | null> =>
+export const GetSDPrograms = async (argument: iptv.SdProgram): Promise<iptv.SDProgram[] | null> =>
   invokeHubConnection<iptv.SDProgram[]>('GetSDPrograms', argument);
 export const GetSchedules = async (argument: iptv.Schedule[]): Promise<iptv.Schedule[] | null> =>
   invokeHubConnection<iptv.Schedule[]>('GetSchedules', argument);

@@ -3,10 +3,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
+using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+
 using StreamMasterApplication.Common.Extensions;
 using StreamMasterApplication.Programmes.Queries;
-
-using StreamMasterDomain.EPG;
 
 using System.Collections.Concurrent;
 using System.Web;

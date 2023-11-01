@@ -1,5 +1,5 @@
-﻿using StreamMasterDomain.Attributes;
-using StreamMasterDomain.EPG;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Mappings;
 
 namespace StreamMasterDomain.Dto;

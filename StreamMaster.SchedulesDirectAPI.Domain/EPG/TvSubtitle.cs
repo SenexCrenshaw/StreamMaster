@@ -1,9 +1,9 @@
 ﻿using System.Xml.Serialization;
 
-namespace StreamMasterDomain.EPG;
+namespace StreamMaster.SchedulesDirectAPI.Domain.EPG;
 
-[XmlRoot(ElementName = "desc")]
-public class TvDesc
+[XmlRoot(ElementName = "sub-title")]
+public class TvSubtitle
 {
     [XmlAttribute(AttributeName = "lang")]
     public string? Lang { get; set; }

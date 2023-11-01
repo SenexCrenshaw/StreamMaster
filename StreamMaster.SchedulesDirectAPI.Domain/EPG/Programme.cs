@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Xml.Serialization;
 
-namespace StreamMasterDomain.EPG;
+namespace StreamMaster.SchedulesDirectAPI.Domain.EPG;
 
 [XmlRoot(ElementName = "programme")]
 public class Programme

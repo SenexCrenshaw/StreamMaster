@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
 
-using StreamMasterApplication.Programmes.Queries;
+using StreamMaster.SchedulesDirectAPI.Domain.EPG;
 
-using StreamMasterDomain.EPG;
+using StreamMasterApplication.Programmes.Queries;
 
 namespace StreamMasterApplication.EPGFiles.Commands;
 

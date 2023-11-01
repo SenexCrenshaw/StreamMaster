@@ -1,5 +1,6 @@
-﻿using StreamMasterDomain.Common;
-using StreamMasterDomain.EPG;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Models;
 
 using System.Net;
@@ -15,8 +16,6 @@ public class SchedulesDirect : ISchedulesDirect
     private static HttpClient _httpClient = null!;
     private readonly SDToken sdToken = null!;
     private readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
-
-
     public SchedulesDirect(string clientUserAgent, string sdUserName, string sdPassword)
     {
         _httpClient = CreateHttpClient(clientUserAgent);
@@ -790,9 +789,6 @@ public class SchedulesDirect : ISchedulesDirect
                     retProgrammes.Add(programme);
                 }
             }
-            //var s= GetSubTtitle()
-
-
 
         }
 

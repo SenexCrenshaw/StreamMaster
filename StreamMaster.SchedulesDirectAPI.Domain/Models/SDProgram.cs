@@ -14,7 +14,7 @@ public class SDProgram : ISDProgram
     public List<Title> Titles { get; set; }
 
     [JsonPropertyName("descriptions")]
-    public IDescriptions Descriptions { get; set; }
+    public Descriptions Descriptions { get; set; }
 
     [JsonPropertyName("originalAirDate")]
     public string OriginalAirDate { get; set; }
@@ -56,10 +56,10 @@ public class SDProgram : ISDProgram
     public bool? HasEpisodeArtwork { get; set; }
 
     [JsonPropertyName("keyWords")]
-    public IKeyWords KeyWords { get; set; }
+    public KeyWords KeyWords { get; set; }
 
     [JsonPropertyName("eventDetails")]
-    public IEventDetails EventDetails { get; set; }
+    public EventDetails EventDetails { get; set; }
 
     [JsonPropertyName("hasSeasonArtwork")]
     public bool? HasSeasonArtwork { get; set; }
@@ -71,7 +71,7 @@ public class SDProgram : ISDProgram
     public List<string> ContentAdvisory { get; set; }
 
     [JsonPropertyName("movie")]
-    public IMovie Movie { get; set; }
+    public Movie Movie { get; set; }
 
     [JsonPropertyName("awards")]
     public List<Award> Awards { get; set; }

@@ -40,6 +40,7 @@
     <Folder Include="Common\Attributes\" />
     <Folder Include="Common\Repository\" />
     <Folder Include="EPG\Commands\" />
+    <Folder Include="SchedulesDirectAPI\NewFolder\" />
     <Folder Include="StreamGroupVideoStreams\EventHandlers\" />
     <Folder Include="StreamGroupVideoStreams\Events\" />
     <Folder Include="VideoStreamLinks\EventHandlers\" />

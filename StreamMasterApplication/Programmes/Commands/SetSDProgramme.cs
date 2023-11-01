@@ -1,6 +1,5 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
-
-using StreamMasterDomain.EPG;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
 
 namespace StreamMasterApplication.Programmes.Commands;
 

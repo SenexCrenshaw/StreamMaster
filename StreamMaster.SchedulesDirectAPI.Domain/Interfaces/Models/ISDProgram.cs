@@ -8,11 +8,11 @@
         List<string> ContentAdvisory { get; set; }
         List<ContentRating> ContentRating { get; set; }
         List<Crew> Crew { get; set; }
-        IDescriptions Descriptions { get; set; }
+        Descriptions Descriptions { get; set; }
         int? Duration { get; set; }
         string EntityType { get; set; }
         string EpisodeTitle150 { get; set; }
-        IEventDetails EventDetails { get; set; }
+        EventDetails EventDetails { get; set; }
         List<string> Genres { get; set; }
         bool? HasEpisodeArtwork { get; set; }
         bool? HasImageArtwork { get; set; }
@@ -20,10 +20,10 @@
         bool? HasSeasonArtwork { get; set; }
         bool? HasSeriesArtwork { get; set; }
         string Holiday { get; set; }
-        IKeyWords KeyWords { get; set; }
+        KeyWords KeyWords { get; set; }
         string Md5 { get; set; }
         List<ProgramMetadata> Metadata { get; set; }
-        IMovie Movie { get; set; }
+        Movie Movie { get; set; }
         string OfficialURL { get; set; }
         string OriginalAirDate { get; set; }
         string ProgramID { get; set; }

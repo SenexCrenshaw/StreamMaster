@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace StreamMasterDomain.EPG;
+namespace StreamMaster.SchedulesDirectAPI.Domain.EPG;
 
 [XmlRoot(ElementName = "actor")]
 public class TvActor
