@@ -1,7 +1,8 @@
-﻿using System.Collections.Concurrent;
+﻿using StreamMasterDomain.Models;
+
+using System.Collections.Concurrent;
 using System.Text;
 using System.Text.RegularExpressions;
-using StreamMasterDomain.Models;
 
 namespace StreamMasterDomain.Common;
 
@@ -170,7 +171,7 @@ public static partial class IPTVExtensions
                             break;
 
                         default:
-                            Console.WriteLine($"VideoStream: no match for {parameter[0]}");
+                            Console.WriteLine($"Parsing VideoStream: no match for parameter {parameter[0]} with setting {parameter[1].Trim()}");
                             break;
                     }
 
