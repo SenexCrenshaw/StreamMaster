@@ -24,6 +24,8 @@ fi
 if [ "$PUID" -ne 0 ] || [ "$PGID" -ne 0 ]; then
     echo "Changing ownership of /app to ${PUID:-0}:${PGID:-0}"
     chown -R ${PUID:-0}:${PGID:-0} /app
+    echo "Changing ownership of /config to ${PUID:-0}:${PGID:-0}"
+    chown -R ${PUID:-0}:${PGID:-0} /config
 fi
 
 # Execute the main application as the specified user
