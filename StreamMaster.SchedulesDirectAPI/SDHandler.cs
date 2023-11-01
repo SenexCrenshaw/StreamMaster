@@ -1,13 +1,11 @@
-﻿using StreamMaster.SchedulesDirectAPI.Models;
-
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirectAPI;
 
-internal static class SDHandler
+public static class SDHandler
 {
-    public static async Task<(HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? data)> ProccessResponse<T>(HttpResponseMessage response, CancellationToken cancellationToken)
+    public static async Task<(HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? data)> ProcessResponse<T>(HttpResponseMessage response, CancellationToken cancellationToken)
     {
         string responseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
         SDHttpResponseCode responseCode = SDHttpResponseCode.UNKNOWN_ERROR;

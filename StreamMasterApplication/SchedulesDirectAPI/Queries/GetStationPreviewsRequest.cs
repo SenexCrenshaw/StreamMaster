@@ -1,6 +1,5 @@
-﻿using StreamMaster.SchedulesDirectAPI;
-
-using StreamMasterApplication.Services;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
+using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 

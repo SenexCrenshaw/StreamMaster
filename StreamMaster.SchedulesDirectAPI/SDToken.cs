@@ -1,6 +1,4 @@
-﻿using StreamMaster.SchedulesDirectAPI.Models;
-
-using StreamMasterDomain.Common;
+﻿using StreamMasterDomain.Common;
 
 using System.Net;
 using System.Net.Http.Headers;
@@ -29,22 +27,34 @@ public class SDToken
     private readonly string _sdPassword;
     private static DateTime tokenDateTime;
     private static DateTime lockOutTokenDateTime;
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SDToken"/> class.
+    /// </summary>
+    /// <param name="clientUserAgent">The user agent for the client.</param>
+    /// <param name="sdUserName">The username for the SD service.</param>
+    /// <param name="sdPassword">The password for the SD service.</param>
+    /// <remarks>
+    /// This constructor initializes the SDToken object and calls the LoadToken method to populate the token.
+    /// </remarks>
     public SDToken(string clientUserAgent, string sdUserName, string sdPassword)
     {
-        _sdUserName = sdUserName;
-        _sdPassword = sdPassword;
-        _clientUserAgent = clientUserAgent;
+        _sdUserName = sdUserName ?? throw new ArgumentNullException(nameof(sdUserName));
+        _sdPassword = sdPassword ?? throw new ArgumentNullException(nameof(sdPassword));
+        _clientUserAgent = clientUserAgent ?? throw new ArgumentNullException(nameof(clientUserAgent));
         LoadToken();
     }
 
-    public async Task<SDStatus?> GetStatus(CancellationToken cancellationToken)
+    public async Task<SDStatus> GetStatus(CancellationToken cancellationToken)
     {
-        SDStatus? status = await GetStatusInternal(cancellationToken);
-
+        SDStatus status = await GetStatusInternal(cancellationToken);
+        if (status == null)
+        {
+            return GetSDStatusOffline();
+        }
         return status;
     }
 
-    public async Task<SDStatus> GetStatusInternal(CancellationToken cancellationToken)
+    private async Task<SDStatus> GetStatusInternal(CancellationToken cancellationToken)
     {
         if (cacheEntry.HasValue && (DateTime.UtcNow - cacheEntry.Value.timestamp).TotalMinutes < 10)
         {
@@ -59,7 +69,7 @@ public class SDToken
                 string url = await GetAPIUrl("status", cancellationToken);
                 using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
-                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, SDStatus? result) = await SDHandler.ProccessResponse<SDStatus?>(response, cancellationToken).ConfigureAwait(false);
+                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, SDStatus? result) = await SDHandler.ProcessResponse<SDStatus?>(response, cancellationToken).ConfigureAwait(false);
 
                 if (responseCode == SDHttpResponseCode.ACCOUNT_LOCKOUT || responseCode == SDHttpResponseCode.ACCOUNT_DISABLED || responseCode == SDHttpResponseCode.ACCOUNT_EXPIRED)
                 {
@@ -96,7 +106,7 @@ public class SDToken
 
     public async Task<bool> GetSystemReady(CancellationToken cancellationToken)
     {
-        SDStatus? status = await GetStatusInternal(cancellationToken);
+        ISDStatus? status = await GetStatusInternal(cancellationToken);
 
         return status?.systemStatus[0].status?.ToLower() == "online";
     }
@@ -167,7 +177,7 @@ public class SDToken
     private static SDStatus GetSDStatusOffline()
     {
         SDStatus ret = new();
-        ret.systemStatus.Add(new SDSystemstatus { status = "Offline" });
+        ret.systemStatus.Add(new SDSystemStatus { status = "Offline" });
         return ret;
     }
 
@@ -220,7 +230,7 @@ public class SDToken
         using HttpResponseMessage response = await httpClient.PostAsync($"{SD_BASE_URL}token", content, cancellationToken).ConfigureAwait(false);
         try
         {
-            (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, SDGetToken? result) = await SDHandler.ProccessResponse<SDGetToken?>(response, cancellationToken).ConfigureAwait(false);
+            (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, SDGetToken? result) = await SDHandler.ProcessResponse<SDGetToken?>(response, cancellationToken).ConfigureAwait(false);
 
             if (responseCode == SDHttpResponseCode.ACCOUNT_LOCKOUT || responseCode == SDHttpResponseCode.ACCOUNT_DISABLED || responseCode == SDHttpResponseCode.ACCOUNT_EXPIRED)
             {

@@ -1,5 +1,4 @@
 ﻿using StreamMaster.SchedulesDirectAPI;
-using StreamMaster.SchedulesDirectAPI.Models;
 
 using StreamMasterDomain.EPG;
 
@@ -15,14 +14,14 @@ internal class GetEpgHandler(ISettingsService settingsService) : IRequestHandler
         Setting setting = await settingsService.GetSettingsAsync();
 
         SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
-        SDStatus? status = await sd.GetStatus(cancellationToken).ConfigureAwait(false);
+        StreamMaster.SchedulesDirectAPI.Domain.Models.SDStatus status = await sd.GetStatus(cancellationToken).ConfigureAwait(false);
         if (status == null || !status.systemStatus.Any())
         {
             Console.WriteLine("Status is null");
             return FileUtil.SerializeEpgData(new Tv());
         }
 
-        SDSystemstatus systemStatus = status.systemStatus[0];
+        StreamMaster.SchedulesDirectAPI.Domain.Models.SDSystemStatus systemStatus = status.systemStatus[0];
         if (systemStatus.status == "Offline")
         {
             Console.WriteLine($"Status is {systemStatus.status}");

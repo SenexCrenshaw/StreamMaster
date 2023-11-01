@@ -1,7 +1,4 @@
-﻿using StreamMaster.SchedulesDirectAPI.Models;
-
-using StreamMasterDomain.Common;
-using StreamMasterDomain.Dto;
+﻿using StreamMasterDomain.Common;
 using StreamMasterDomain.EPG;
 using StreamMasterDomain.Models;
 
@@ -13,11 +10,12 @@ using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirectAPI;
 
-public class SchedulesDirect
+public class SchedulesDirect : ISchedulesDirect
 {
-    private static HttpClient _httpClient;
+    private static HttpClient _httpClient = null!;
     private readonly SDToken sdToken = null!;
     private readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
+
 
     public SchedulesDirect(string clientUserAgent, string sdUserName, string sdPassword)
     {
@@ -83,14 +81,14 @@ public class SchedulesDirect
     public async Task<List<LineUpPreview>> GetLineUpPreviews(CancellationToken cancellationToken)
     {
         List<LineUpPreview> res = new();
-        LineUpsResult? lineups = await GetLineups(cancellationToken);
+        ILineUpsResult? lineups = await GetLineups(cancellationToken);
 
         if (lineups is null)
         {
             return res;
         }
 
-        foreach (Lineup lineup in lineups.Lineups)
+        foreach (ILineup lineup in lineups.Lineups)
         {
             List<LineUpPreview>? results = await GetData<List<LineUpPreview>>($"lineups/preview/{lineup.LineupString}", cancellationToken).ConfigureAwait(false);
 
@@ -101,7 +99,7 @@ public class SchedulesDirect
 
             for (int index = 0; index < results.Count; index++)
             {
-                LineUpPreview? lineUpPreview = results[index];
+                ILineUpPreview lineUpPreview = results[index];
                 lineUpPreview.LineUp = lineup.LineupString;
                 lineUpPreview.Id = index;
             }
@@ -158,7 +156,7 @@ public class SchedulesDirect
                 string? url = await sdToken.GetAPIUrl(command, cancellationToken);
                 using HttpResponseMessage response = await _httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
-                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? result) = await SDHandler.ProccessResponse<T?>(response, cancellationToken).ConfigureAwait(false);
+                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? result) = await SDHandler.ProcessResponse<T?>(response, cancellationToken).ConfigureAwait(false);
 
                 if (responseCode == SDHttpResponseCode.ACCOUNT_LOCKOUT || responseCode == SDHttpResponseCode.ACCOUNT_DISABLED || responseCode == SDHttpResponseCode.ACCOUNT_EXPIRED)
                 {
@@ -233,7 +231,7 @@ public class SchedulesDirect
                 string? url = await sdToken.GetAPIUrl(command, cancellationToken);
                 using HttpResponseMessage response = await _httpClient.PostAsync(url, stringContent, cancellationToken).ConfigureAwait(false);
 
-                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? result) = await SDHandler.ProccessResponse<T?>(response, cancellationToken).ConfigureAwait(false);
+                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? result) = await SDHandler.ProcessResponse<T?>(response, cancellationToken).ConfigureAwait(false);
 
                 if (responseCode == SDHttpResponseCode.ACCOUNT_LOCKOUT || responseCode == SDHttpResponseCode.ACCOUNT_DISABLED || responseCode == SDHttpResponseCode.ACCOUNT_EXPIRED)
                 {
@@ -301,7 +299,7 @@ public class SchedulesDirect
 
         List<SDProgram>? result = await PostData<List<SDProgram>>("programs", content, cancellationToken).ConfigureAwait(false);
 
-        return result ?? new();
+        return result ?? new List<SDProgram>();
 
     }
 
@@ -331,7 +329,7 @@ public class SchedulesDirect
         List<StationPreview> ret = new();
         for (int index = 0; index < stations.Count; index++)
         {
-            Station? station = stations[index];
+            IStation station = stations[index];
             StationPreview sp = new(station)
             {
                 Id = index
@@ -345,7 +343,7 @@ public class SchedulesDirect
     {
         List<Station> ret = new();
 
-        LineUpsResult? lineUps = await GetLineups(cancellationToken).ConfigureAwait(false);
+        ILineUpsResult? lineUps = await GetLineups(cancellationToken).ConfigureAwait(false);
         if (lineUps == null || lineUps.Lineups == null)
         {
             return ret;
@@ -353,13 +351,13 @@ public class SchedulesDirect
 
         foreach (Lineup lineUp in lineUps.Lineups)
         {
-            LineUpResult? res = await GetLineup(lineUp.LineupString, cancellationToken).ConfigureAwait(false);
+            ILineUpResult? res = await GetLineup(lineUp.LineupString, cancellationToken).ConfigureAwait(false);
             if (res == null)
             {
                 continue;
             }
 
-            foreach (Station station in res.Stations)
+            foreach (IStation station in res.Stations)
             {
                 station.LineUp = lineUp.LineupString;
             }
@@ -369,7 +367,7 @@ public class SchedulesDirect
         return ret;
     }
 
-    public async Task<SDStatus?> GetStatus(CancellationToken cancellationToken)
+    public async Task<SDStatus> GetStatus(CancellationToken cancellationToken)
     {
         return await sdToken.GetStatus(cancellationToken);
     }
@@ -419,7 +417,7 @@ public class SchedulesDirect
         return ret;
     }
 
-    public static TvSubtitle GetSubTitles(SDProgram sdProgram, string lang)
+    public static TvSubtitle GetSubTitles(ISDProgram sdProgram, string lang)
     {
         if (!string.IsNullOrEmpty(sdProgram.EpisodeTitle150))
         {
@@ -433,7 +431,7 @@ public class SchedulesDirect
         string description = "";
         if (sdProgram.Descriptions?.Description100 is not null)
         {
-            Description100? test = sdProgram.Descriptions.Description100.FirstOrDefault(a => a.DescriptionLanguage == lang && a.Description != "");
+            IDescription100? test = sdProgram.Descriptions.Description100.FirstOrDefault(a => a.DescriptionLanguage == lang && a.Description != "");
             if (test == null)
             {
                 if (!string.IsNullOrEmpty(sdProgram.Descriptions.Description100[0].Description))
@@ -454,7 +452,7 @@ public class SchedulesDirect
         };
     }
 
-    public static TvCredits GetCredits(SDProgram sdProgram, string lang)
+    public static TvCredits GetCredits(ISDProgram sdProgram, string lang)
     {
         TvCredits ret = new();
         if (sdProgram.Crew == null)
@@ -495,7 +493,7 @@ public class SchedulesDirect
 
         if (sdProgram.Cast is not null)
         {
-            foreach (Cast? cast in sdProgram.Cast.OrderBy(a => a.BillingOrder))
+            foreach (ICast? cast in sdProgram.Cast.OrderBy(a => a.BillingOrder))
             {
                 ret.Actor ??= new();
                 ret.Actor.Add(new TvActor
@@ -510,7 +508,7 @@ public class SchedulesDirect
         return ret;
     }
 
-    public static TvDesc GetDescriptions(SDProgram sdProgram, string lang)
+    public static TvDesc GetDescriptions(ISDProgram sdProgram, string lang)
     {
 
         string description = "";
@@ -518,7 +516,7 @@ public class SchedulesDirect
         {
             if (sdProgram.Descriptions.Description1000 is not null && sdProgram.Descriptions.Description1000.Any())
             {
-                Description1000? test = sdProgram.Descriptions.Description1000.FirstOrDefault(a => a.DescriptionLanguage == lang && a.Description != "");
+                IDescription1000? test = sdProgram.Descriptions.Description1000.FirstOrDefault(a => a.DescriptionLanguage == lang && a.Description != "");
                 if (test == null)
                 {
                     if (!string.IsNullOrEmpty(sdProgram.Descriptions.Description1000[0].Description))
@@ -541,7 +539,7 @@ public class SchedulesDirect
         };
     }
 
-    public static List<TvCategory> GetCategory(SDProgram sdProgram, string lang)
+    public static List<TvCategory> GetCategory(ISDProgram sdProgram, string lang)
     {
         List<TvCategory> ret = new();
 
@@ -560,7 +558,7 @@ public class SchedulesDirect
         return ret;
     }
 
-    public static List<TvEpisodenum> GetEpisodeNums(SDProgram sdProgram, string lang)
+    public static List<TvEpisodenum> GetEpisodeNums(ISDProgram sdProgram, string lang)
     {
         List<TvEpisodenum> ret = new();
         int season = 0;
@@ -629,7 +627,7 @@ public class SchedulesDirect
 
     }
 
-    public static List<TvIcon> GetIcons(Program program, SDProgram sdProgram, Schedule sched, string lang)
+    public static List<TvIcon> GetIcons(IProgram program, ISDProgram sdProgram, ISchedule sched, string lang)
     {
         List<TvIcon> ret = new();
         List<string> aspects = new() { "2x3", "4x3", "3x4", "16x9" };
@@ -643,13 +641,13 @@ public class SchedulesDirect
 
     }
 
-    public static List<TvRating> GetRatings(SDProgram sdProgram, string countryCode)
+    public static List<TvRating> GetRatings(ISDProgram sdProgram, string countryCode)
     {
         List<TvRating> ret = new();
 
-        if (sdProgram.ContentRating != null && sdProgram.ContentRating.Any())
+        if (sdProgram.ContentRating?.Any() == true)
         {
-            foreach (ContentRating cr in sdProgram.ContentRating)
+            foreach (IContentRating cr in sdProgram.ContentRating)
             {
                 ret.Add(new TvRating
                 {
@@ -719,8 +717,8 @@ public class SchedulesDirect
 
             List<string> names = stations.Where(a => a.StationID == stationId).Select(a => a.Name).Distinct().ToList();
             List<List<StationLogo>> logos = stations.Where(a => a.StationID == stationId).Select(a => a.StationLogo).Distinct().ToList();
-            Logo? logo = stations.Where(a => a.StationID == stationId).Select(a => a.Logo).FirstOrDefault();
-            Station station = stations.Where(a => a.StationID == stationId).First();
+            ILogo? logo = stations.Where(a => a.StationID == stationId).Select(a => a.Logo).FirstOrDefault();
+            IStation station = stations.Where(a => a.StationID == stationId).First();
 
             TvChannel channel = new()
             {
@@ -747,7 +745,7 @@ public class SchedulesDirect
         {
             foreach (Schedule sched in schedules.Where(a => a.Programs.Any(a => a.ProgramID == sdProg.ProgramID)).ToList())
             {
-                Station station = stations.Where(a => a.StationID == sched.StationID).First();
+                IStation station = stations.Where(a => a.StationID == sched.StationID).First();
 
                 foreach (Program p in sched.Programs)
                 {

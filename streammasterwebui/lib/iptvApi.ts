@@ -863,30 +863,30 @@ export type ProgrammesGetProgrammsSimpleQueryApiArg = {
 };
 export type ProgrammesGetProgrammeFromDisplayNameApiResponse = /** status 200  */ ProgrammeNameDto;
 export type ProgrammesGetProgrammeFromDisplayNameApiArg = GetProgrammeFromDisplayNameRequest;
-export type SchedulesDirectGetCountriesApiResponse = /** status 200  */ Countries;
+export type SchedulesDirectGetCountriesApiResponse = /** status 200  */ ICountries;
 export type SchedulesDirectGetCountriesApiArg = void;
 export type SchedulesDirectGetHeadendsApiResponse = /** status 200  */ HeadendDto[];
 export type SchedulesDirectGetHeadendsApiArg = {
   country?: string;
   postalCode?: string;
 };
-export type SchedulesDirectGetLineupApiResponse = /** status 200  */ LineUpResult;
+export type SchedulesDirectGetLineupApiResponse = /** status 200  */ ILineUpResult;
 export type SchedulesDirectGetLineupApiArg = string;
-export type SchedulesDirectGetLineupPreviewsApiResponse = /** status 200  */ LineUpPreview[];
+export type SchedulesDirectGetLineupPreviewsApiResponse = /** status 200  */ ILineUpPreview[];
 export type SchedulesDirectGetLineupPreviewsApiArg = void;
-export type SchedulesDirectGetLineupsApiResponse = /** status 200  */ LineUpsResult;
+export type SchedulesDirectGetLineupsApiResponse = /** status 200  */ ILineUpsResult;
 export type SchedulesDirectGetLineupsApiArg = void;
-export type SchedulesDirectGetSdProgramsApiResponse = /** status 200  */ SdProgram[];
+export type SchedulesDirectGetSdProgramsApiResponse = /** status 200  */ IsdProgram[];
 export type SchedulesDirectGetSdProgramsApiArg = void;
-export type SchedulesDirectGetSchedulesApiResponse = /** status 200  */ Schedule[];
+export type SchedulesDirectGetSchedulesApiResponse = /** status 200  */ ISchedule[];
 export type SchedulesDirectGetSchedulesApiArg = void;
-export type SchedulesDirectGetSelectedStationIdsApiResponse = /** status 200  */ StationIdLineUp[];
+export type SchedulesDirectGetSelectedStationIdsApiResponse = /** status 200  */ IStationIdLineUp[];
 export type SchedulesDirectGetSelectedStationIdsApiArg = void;
-export type SchedulesDirectGetStationPreviewsApiResponse = /** status 200  */ StationPreview[];
+export type SchedulesDirectGetStationPreviewsApiResponse = /** status 200  */ IStationPreview[];
 export type SchedulesDirectGetStationPreviewsApiArg = void;
-export type SchedulesDirectGetStationsApiResponse = /** status 200  */ Station[];
+export type SchedulesDirectGetStationsApiResponse = /** status 200  */ IStation[];
 export type SchedulesDirectGetStationsApiArg = void;
-export type SchedulesDirectGetStatusApiResponse = /** status 200  */ SdStatus;
+export type SchedulesDirectGetStatusApiResponse = /** status 200  */ IsdStatus;
 export type SchedulesDirectGetStatusApiArg = void;
 export type SchedulesDirectGetEpgApiResponse = unknown;
 export type SchedulesDirectGetEpgApiArg = void;
@@ -1326,45 +1326,45 @@ export type PagedResponseOfProgrammeNameDto = {
 export type GetProgrammeFromDisplayNameRequest = {
   value?: string;
 };
-export type NorthAmerica = {
+export type ICaribbean = {
   fullName?: string;
-  shortName?: string;
-  postalCodeExample?: string;
-  postalCode?: string;
-};
-export type Europe = {
-  fullName?: string;
-  shortName?: string;
-  postalCodeExample?: string;
-  postalCode?: string;
-  onePostalCode?: boolean | null;
-};
-export type LatinAmerica = {
-  fullName?: string;
-  shortName?: string;
-  postalCodeExample?: string;
-  postalCode?: string;
-  onePostalCode?: boolean | null;
-};
-export type Caribbean = {
-  fullName?: string;
-  shortName?: string;
-  postalCodeExample?: string;
-  postalCode?: string;
   onePostalCode?: boolean;
-};
-export type Oceanium = {
-  fullName?: string;
-  shortName?: string;
-  postalCodeExample?: string;
   postalCode?: string;
+  postalCodeExample?: string;
+  shortName?: string;
 };
-export type Countries = {
-  'North America'?: NorthAmerica[];
-  Europe?: Europe[];
-  'Latin America'?: LatinAmerica[];
-  Caribbean?: Caribbean[];
-  Oceania?: Oceanium[];
+export type IEurope = {
+  fullName?: string;
+  onePostalCode?: boolean | null;
+  postalCode?: string;
+  postalCodeExample?: string;
+  shortName?: string;
+};
+export type ILatinAmerica = {
+  fullName?: string;
+  onePostalCode?: boolean | null;
+  postalCode?: string;
+  postalCodeExample?: string;
+  shortName?: string;
+};
+export type INorthAmerica = {
+  fullName?: string;
+  postalCode?: string;
+  postalCodeExample?: string;
+  shortName?: string;
+};
+export type IOceanium = {
+  fullName?: string;
+  postalCode?: string;
+  postalCodeExample?: string;
+  shortName?: string;
+};
+export type ICountries = {
+  caribbean?: ICaribbean[];
+  europe?: IEurope[];
+  latinAmerica?: ILatinAmerica[];
+  northAmerica?: INorthAmerica[];
+  oceania?: IOceanium[];
 };
 export type HeadendDto = {
   headend?: string;
@@ -1373,237 +1373,237 @@ export type HeadendDto = {
   name?: string;
   transport?: string;
 };
-export type Map = {
-  stationID?: string;
-  uhfVhf?: number;
+export type IMap = {
   atscMajor?: number;
   atscMinor?: number;
+  stationID?: string;
+  uhfVhf?: number;
 };
-export type Broadcaster = {
+export type IMetadata = {
+  lineup?: string;
+  modified?: string;
+  transport?: string;
+};
+export type IBroadcaster = {
   city?: string;
-  state?: string;
-  postalcode?: string;
   country?: string;
+  postalcode?: string;
+  state?: string;
 };
-export type Logo = {
-  URL?: string;
+export type ILogo = {
   height?: number;
-  width?: number;
   md5?: string;
+  url?: string;
+  width?: number;
 };
-export type StationLogo = Logo & {
-  source?: string;
+export type IStationLogo = {
   category?: string;
+  source?: string;
 };
-export type Station = {
+export type IStation = {
   affiliate?: string;
-  broadcaster?: Broadcaster;
+  broadcaster?: IBroadcaster;
   broadcastLanguage?: string[];
   callsign?: string;
   descriptionLanguage?: string[];
   isCommercialFree?: boolean | null;
   lineUp?: string;
-  logo?: Logo;
+  logo?: ILogo;
   name?: string;
   stationID?: string;
-  stationLogo?: StationLogo[];
+  stationLogo?: IStationLogo[];
 };
-export type Metadata = {
-  lineup?: string;
-  modified?: string;
-  transport?: string;
+export type ILineUpResult = {
+  map?: IMap[];
+  metadata?: IMetadata;
+  stations?: IStation[];
 };
-export type LineUpResult = {
-  map?: Map[];
-  stations?: Station[];
-  metadata?: Metadata;
-};
-export type LineUpPreview = {
-  id?: number;
+export type ILineUpPreview = {
   affiliate?: string;
   callsign?: string;
   channel?: string;
+  id?: number;
   lineUp?: string;
   name?: string;
 };
-export type Lineup = {
+export type ILineup = {
   id?: string;
-  lineup?: string;
+  isDeleted?: boolean;
+  lineupString?: string;
+  location?: string;
   name?: string;
   transport?: string;
-  location?: string;
   uri?: string;
-  isDeleted?: boolean;
 };
-export type LineUpsResult = {
+export type ILineUpsResult = {
   code?: number;
-  serverID?: string;
   datetime?: string;
-  lineups?: Lineup[];
+  lineups?: ILineup[];
+  serverID?: string;
 };
-export type Title = {
-  title120?: string;
+export type IAward = {
+  awardName?: string;
+  category?: string;
+  name?: string;
+  personId?: string;
+  recipient?: string;
+  won?: boolean | null;
+  year?: string;
 };
-export type Description100 = {
-  descriptionLanguage?: string;
+export type ICast = {
+  billingOrder?: string;
+  characterName?: string;
+  name?: string;
+  nameId?: string;
+  personId?: string;
+  role?: string;
+};
+export type IContentRating = {
+  body?: string;
+  code?: string;
+  contentAdvisory?: string[];
+  country?: string;
+};
+export type ICrew = {
+  billingOrder?: string;
+  name?: string;
+  nameId?: string;
+  personId?: string;
+  role?: string;
+};
+export type IDescription100 = {
   description?: string;
-};
-export type Description1000 = {
   descriptionLanguage?: string;
+};
+export type IDescription1000 = {
   description?: string;
+  descriptionLanguage?: string;
 };
-export type Descriptions = {
-  description100?: Description100[];
-  description1000?: Description1000[];
+export type IDescriptions = {
+  description100?: IDescription100[];
+  description1000?: IDescription1000[];
 };
-export type Gracenote = {
-  season?: number;
+export type ITeam = {
+  isHome?: boolean | null;
+  name?: string;
+};
+export type IEventDetails = {
+  gameDate?: string;
+  teams?: ITeam[];
+  venue100?: string;
+};
+export type IKeyWords = {
+  general?: string[];
+};
+export type IGracenote = {
   episode?: number;
+  season?: number;
   totalEpisodes?: number | null;
   totalSeasons?: number | null;
 };
-export type ProgramMetadata = {
-  Gracenote?: Gracenote;
+export type IProgramMetadata = {
+  gracenote?: IGracenote;
 };
-export type ContentRating = {
-  body?: string;
-  code?: string;
-  country?: string;
-  contentAdvisory?: string[];
-};
-export type Cast = {
-  billingOrder?: string;
-  role?: string;
-  nameId?: string;
-  personId?: string;
-  name?: string;
-  characterName?: string;
-};
-export type Crew = {
-  billingOrder?: string;
-  role?: string;
-  nameId?: string;
-  personId?: string;
-  name?: string;
-};
-export type KeyWords = {
-  General?: string[];
-};
-export type Team = {
-  name?: string;
-  isHome?: boolean | null;
-};
-export type EventDetails = {
-  venue100?: string;
-  teams?: Team[];
-  gameDate?: string;
-};
-export type QualityRating = {
-  ratingsBody?: string;
-  rating?: string;
-  minRating?: string;
-  maxRating?: string;
+export type IQualityRating = {
   increment?: string;
+  maxRating?: string;
+  minRating?: string;
+  rating?: string;
+  ratingsBody?: string;
 };
-export type Movie = {
-  year?: string;
+export type IMovie = {
   duration?: number;
-  qualityRating?: QualityRating[];
-};
-export type Award = {
-  name?: string;
-  awardName?: string;
+  qualityRating?: IQualityRating[];
   year?: string;
-  category?: string;
-  recipient?: string;
-  personId?: string;
-  won?: boolean | null;
 };
-export type SdProgram = {
-  resourceID?: string;
-  programID?: string;
-  titles?: Title[];
-  descriptions?: Descriptions;
-  originalAirDate?: string;
-  genres?: string[];
-  episodeTitle150?: string;
-  metadata?: ProgramMetadata[];
-  contentRating?: ContentRating[];
-  cast?: Cast[];
-  crew?: Crew[];
-  entityType?: string;
-  showType?: string;
-  md5?: string;
-  hasImageArtwork?: boolean | null;
-  hasSeriesArtwork?: boolean | null;
-  hasEpisodeArtwork?: boolean | null;
-  keyWords?: KeyWords;
-  eventDetails?: EventDetails;
-  hasSeasonArtwork?: boolean | null;
-  officialURL?: string;
-  contentAdvisory?: string[];
-  movie?: Movie;
-  awards?: Award[];
-  hasMovieArtwork?: boolean | null;
-  holiday?: string;
-  duration?: number | null;
+export type ITitle = {
+  title120?: string;
+};
+export type IsdProgram = {
   audience?: string;
-};
-export type Program = {
+  awards?: IAward[];
+  cast?: ICast[];
+  contentAdvisory?: string[];
+  contentRating?: IContentRating[];
+  crew?: ICrew[];
+  descriptions?: IDescriptions;
+  duration?: number | null;
+  entityType?: string;
+  episodeTitle150?: string;
+  eventDetails?: IEventDetails;
+  genres?: string[];
+  hasEpisodeArtwork?: boolean | null;
+  hasImageArtwork?: boolean | null;
+  hasMovieArtwork?: boolean | null;
+  hasSeasonArtwork?: boolean | null;
+  hasSeriesArtwork?: boolean | null;
+  holiday?: string;
+  keyWords?: IKeyWords;
+  md5?: string;
+  metadata?: IProgramMetadata[];
+  movie?: IMovie;
+  officialURL?: string;
+  originalAirDate?: string;
   programID?: string;
-  airDateTime?: string;
-  duration?: number;
-  md5?: string;
-  audioProperties?: string[];
-  videoProperties?: string[];
-  new?: boolean | null;
-  liveTapeDelay?: string;
-  educational?: boolean | null;
-  isPremiereOrFinale?: string;
-  premiere?: boolean | null;
+  resourceID?: string;
+  showType?: string;
+  titles?: ITitle[];
 };
-export type ScheduleMetadata = {
-  modified?: string;
+export type IScheduleMetadata = {
   md5?: string;
+  modified?: string;
   startDate?: string;
 };
-export type Schedule = {
-  stationID?: string;
-  programs?: Program[];
-  metadata?: ScheduleMetadata;
+export type IProgram = {
+  airDateTime?: string;
+  audioProperties?: string[];
+  duration?: number;
+  educational?: boolean | null;
+  isPremiereOrFinale?: string;
+  liveTapeDelay?: string;
+  md5?: string;
+  new?: boolean | null;
+  premiere?: boolean | null;
+  programID?: string;
+  videoProperties?: string[];
 };
-export type StationIdLineUp = {
+export type ISchedule = {
+  metadata?: IScheduleMetadata;
+  programs?: IProgram[];
+  stationID?: string;
+};
+export type IStationIdLineUp = {
   lineUp?: string;
   stationId?: string;
 };
-export type StationPreview = {
-  logo?: Logo;
+export type IStationPreview = {
   affiliate?: string;
   callsign?: string;
   id?: number;
   lineUp?: string;
+  logo?: ILogo;
   name?: string;
   stationId?: string;
 };
-export type Account = {
+export type IAccount = {
   expires?: string;
   maxLineups?: number;
   messages?: any[];
 };
-export type SdSystemstatus = {
+export type IsdSystemstatus = {
   date?: string;
   message?: string;
   status?: string;
 };
-export type SdStatus = {
-  account?: Account;
+export type IsdStatus = {
+  account?: IAccount;
   code?: number;
   datetime?: string;
   lastDataUpdate?: string;
-  lineups?: Lineup[];
+  lineups?: ILineup[];
   notifications?: any[];
   serverID?: string;
-  systemStatus?: SdSystemstatus[];
+  systemStatus?: IsdSystemstatus[];
 };
 export type TaskQueueStatusDto = {
   command?: string;
@@ -1654,7 +1654,7 @@ export type BaseSettings = M3USettings & {
   sdCountry: string;
   sdPassword: string;
   sdPostalCode: string;
-  sdStationIds: StationIdLineUp[];
+  sdStationIds: IStationIdLineUp[];
   nameRegex: string[];
   sdUserName: string;
   sslCertPassword: string;
@@ -1710,7 +1710,7 @@ export type UpdateSettingRequest = {
   sdCountry?: string | null;
   sdPassword?: string | null;
   sdPostalCode?: string | null;
-  sdStationIds?: StationIdLineUp[] | null;
+  sdStationIds?: IStationIdLineUp[] | null;
   sdUserName?: string | null;
   sourceBufferPreBufferPercentage?: number | null;
   sslCertPassword?: string | null;

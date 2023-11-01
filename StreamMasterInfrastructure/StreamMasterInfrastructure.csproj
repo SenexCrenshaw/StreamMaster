@@ -30,10 +30,12 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\StreamMaster.M3U8\StreamMaster.M3U8.csproj" />
+    <ProjectReference Include="..\StreamMaster.SchedulesDirectAPI.Services\StreamMaster.SchedulesDirectAPI.Services.csproj" />
     <ProjectReference Include="..\StreamMasterApplication\StreamMasterApplication.csproj" />
     <ProjectReference Include="..\StreamMasterInfrastructure.EF\StreamMasterInfrastructureEF.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Services\SD\" />
     <Folder Include="Statistics\" />
   </ItemGroup>
 </Project>

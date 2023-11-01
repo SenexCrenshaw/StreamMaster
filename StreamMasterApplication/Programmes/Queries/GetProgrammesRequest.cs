@@ -1,4 +1,4 @@
-﻿using StreamMasterApplication.Services;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
 
 using StreamMasterDomain.EPG;
 
@@ -18,7 +18,7 @@ public class GetProgrammesRequestHandler(ILogger<GetProgrammesRequest> logger, I
         Setting setting = await GetSettingsAsync();
         if (setting.SDEnabled)
         {
-            List<Programme> sdprogrammes = await sdService.GetProgrammes(cancellationToken).ConfigureAwait(false);
+            List<Programme> sdprogrammes = new(); // await sdService.GetProgrammes(cancellationToken).ConfigureAwait(false);
             programmes = programmes.Concat(sdprogrammes).OrderBy(a => a.Channel).ToList();
         }
 

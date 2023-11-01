@@ -1,9 +1,9 @@
-import { isEmptyObject } from '@lib/common/common';
-import isPagedTableDto from '@lib/common/isPagedTableDto';
-import type * as iptv from '@lib/iptvApi';
-import { iptvApi } from '@lib/iptvApi';
-import { isDev } from '@lib/settings';
-import { singletonStreamGroupChannelGroupListener } from '@lib/signalr/singletonListeners';
+import { isDev } from '@/lib/settings';
+import { singletonStreamGroupChannelGroupListener } from '@/lib/signalr/singletonListeners';
+import { isEmptyObject } from '@/lib/common/common';
+import isPagedTableDto from '@/lib/common/isPagedTableDto';
+import { iptvApi } from '@/lib/iptvApi';
+import type * as iptv from '@/lib/iptvApi';
 
 export const enhancedApiStreamGroupChannelGroup = iptvApi.enhanceEndpoints({
   endpoints: {
@@ -55,7 +55,7 @@ export const enhancedApiStreamGroupChannelGroup = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-      // eslint-disable-next-line comma-dangle
-    }
+    // eslint-disable-next-line comma-dangle
+    },
   }
 });

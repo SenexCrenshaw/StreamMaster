@@ -1,5 +1,5 @@
 ﻿using StreamMaster.SchedulesDirectAPI;
-using StreamMaster.SchedulesDirectAPI.Models;
+using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 public record GetSchedules() : IRequest<List<Schedule>>;

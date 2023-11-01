@@ -1,13 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.SchedulesDirectAPI;
-using StreamMaster.SchedulesDirectAPI.Models;
+using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 namespace StreamMasterApplication.SchedulesDirectAPI;
 
 public interface ISchedulesDirectController
 {
-    Task<IActionResult> GetEpg();
+    Task<ActionResult> GetEpg();
     Task<ActionResult<Countries?>> GetCountries();
     Task<ActionResult<List<StationIdLineUp>>> GetSelectedStationIds();
     Task<ActionResult<List<SDProgram>>> GetSDPrograms();

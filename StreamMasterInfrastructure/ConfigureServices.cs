@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
+using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
+using StreamMaster.SchedulesDirectAPI.Services;
+
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.LogApp;
-using StreamMasterApplication.Services;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Services;

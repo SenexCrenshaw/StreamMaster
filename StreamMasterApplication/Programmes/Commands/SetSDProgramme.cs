@@ -1,4 +1,4 @@
-﻿using StreamMasterApplication.Services;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
 
 using StreamMasterDomain.EPG;
 
@@ -17,7 +17,7 @@ public class SetSDProgrammeHandler(ISDService sDService, ILogger<SetSDProgramme>
             return;
         }
 
-        List<Programme> res = await sDService.GetProgrammes(cancellationToken).ConfigureAwait(false);
+        List<Programme> res = new();// await sDService.GetProgrammes(cancellationToken).ConfigureAwait(false);
         MemoryCache.SetSDProgreammesCache(res, TimeSpan.FromHours(4));
     }
 }

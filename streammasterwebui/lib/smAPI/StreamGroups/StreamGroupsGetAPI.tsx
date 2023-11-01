@@ -1,7 +1,7 @@
 /* eslint unused-imports/no-unused-imports-ts: off */
 /* eslint @typescript-eslint/no-unused-vars: off */
-import type * as iptv from '@lib/iptvApi';
-import { invokeHubConnection } from '@lib/signalr/signalr';
+import type * as iptv from '@/lib/iptvApi';
+import { invokeHubConnection } from '@/lib/signalr/signalr';
 
 export const GetStreamGroup = async (argument: iptv.StreamGroupDto): Promise<iptv.StreamGroupDto | null> =>
   invokeHubConnection<iptv.StreamGroupDto>('GetStreamGroup', argument);
@@ -33,3 +33,6 @@ export const GetStreamGroupM3U = async (argument: string): Promise<void | null> 
 };
 export const GetPagedStreamGroups = async (argument: iptv.PagedResponseOfStreamGroupDto): Promise<iptv.StreamGroupDto[] | null> =>
   invokeHubConnection<iptv.StreamGroupDto[]>('GetPagedStreamGroups', argument);
+export const GetStreamGroupVideoStreamUrl = async (argument: string): Promise<void | null> => {
+  await invokeHubConnection<void>('GetStreamGroupVideoStreamUrl', argument);
+};

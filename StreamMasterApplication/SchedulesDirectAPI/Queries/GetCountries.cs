@@ -1,5 +1,5 @@
 ﻿using StreamMaster.SchedulesDirectAPI;
-using StreamMaster.SchedulesDirectAPI.Models;
+using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 
@@ -11,14 +11,14 @@ internal class GetCountriesHandler(ISettingsService settingsService) : IRequestH
     {
         Setting setting = await settingsService.GetSettingsAsync();
         SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
-        SDStatus? status = await sd.GetStatus(cancellationToken).ConfigureAwait(false);
+        SDStatus status = await sd.GetStatus(cancellationToken).ConfigureAwait(false);
         if (status == null || !status.systemStatus.Any())
         {
             Console.WriteLine("Status is null");
             return null;
         }
 
-        SDSystemstatus systemStatus = status.systemStatus[0];
+        SDSystemStatus systemStatus = status.systemStatus[0];
         if (systemStatus.status == "Offline")
         {
             Console.WriteLine($"Status is {systemStatus.status}");

@@ -1,5 +1,5 @@
 ﻿using StreamMaster.SchedulesDirectAPI;
-using StreamMaster.SchedulesDirectAPI.Models;
+using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 public record GetSDPrograms() : IRequest<List<SDProgram>>;
@@ -21,7 +21,7 @@ public class GetSDProgramsHandler(ILogger<GetSDPrograms> logger, IRepositoryWrap
 
         List<string> progIds = schedules.SelectMany(a => a.Programs).Select(a => a.ProgramID).Distinct().ToList();
 
-        List<SDProgram>? ret = await sd.GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
+        List<SDProgram> ret = await sd.GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
 
         return ret ?? new();
     }

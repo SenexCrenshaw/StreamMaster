@@ -1,5 +1,6 @@
-﻿using StreamMasterDomain.Attributes;
-using StreamMasterDomain.Dto;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.Models;
+
+using StreamMasterDomain.Attributes;
 
 namespace StreamMasterDomain.Common;
 [RequireAll]

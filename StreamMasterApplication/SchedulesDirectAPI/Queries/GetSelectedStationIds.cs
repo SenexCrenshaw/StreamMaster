@@ -1,4 +1,6 @@
-﻿namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.Models;
+
+namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 
 public record GetSelectedStationIds() : IRequest<List<StationIdLineUp>>;
 
