@@ -34,6 +34,7 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
 
     public async Task<bool> SwitchToNextVideoStreamAsync(string ChannelVideoStreamId, string? overrideNextVideoStreamId = null)
     {
+        logger.LogDebug("Start SwitchToNextVideoStream {ChannelVideoStreamId}", ChannelVideoStreamId);
         IChannelStatus? channelStatus = channelService.GetChannelStatus(ChannelVideoStreamId);
         if (channelStatus is null)
         {

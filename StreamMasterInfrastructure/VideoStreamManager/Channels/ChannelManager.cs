@@ -135,12 +135,14 @@ public class ChannelManager(
                     if (quit)
                     {
                         logger.LogDebug("Exiting ChannelWatcher loop due to quit condition for channel: {VideoStreamId}", channelStatus.CurrentVideoStreamId);
+                        ChannelWatcherToken.Cancel();
                         break;
                     }
                 }
                 if (channelService.GetChannelStatuses().Count == 0)
                 {
                     logger.LogInformation("Exiting ChannelWatcher loop due to no channels");
+                    ChannelWatcherToken.Cancel();
                     break;
                 }
                 await ChannelWatcherToken.Token.ApplyDelay(50);

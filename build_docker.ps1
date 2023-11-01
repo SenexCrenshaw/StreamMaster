@@ -1,12 +1,12 @@
 param (
     [switch]$PrintOnly,
-    [switch]$Test
+    [switch]$BuildTest
 )
 
 $gitVersion = "dotnet-gitversion"
-&$gitVersion /updateAssemblyInfo
+&$gitVersion /updateAssemblyInfo | Out-Null
 
-$json = &$gitVersion /output json
+$json = &$gitVersion /output json | Out-String
 $obj = $json | ConvertFrom-Json 
 $semVer = $obj.SemVer
 $buildMetaDataPadded = $obj.BuildMetaDataPadded
@@ -19,7 +19,7 @@ $env:DOCKER_BUILDKIT = 1
 $env:COMPOSE_DOCKER_CLI_BUILD = 1
 
 # Multiple tags
-$tags = if ($Test) {
+$tags = if ($BuildTest) {
     "docker.io/senexcrenshaw/streammaster:$branchName-$semVer-$buildMetaDataPadded"
 } else {
     "docker.io/senexcrenshaw/streammaster:latest",
@@ -35,12 +35,27 @@ if ($PrintOnly) {
     exit
 }
 
-# Measure the time taken for the build and push operation
-$overallTime = Measure-Command {
-    docker buildx build --platform linux/amd64,linux/arm64 -f ./Dockerfile . --push $(foreach ($tag in $tags) { "--tag=$tag" }) 2>&1 | Tee-Object -Variable dockerOutput
+# Capture the start time
+$startTime = Get-Date
+
+# Initialize line counter
+$lineCounter = 0
+
+# Prefix for the dots
+Write-Host -NoNewline "Building Image "
+
+# Run the build and push operation, displaying a dot for every 10 lines of output
+docker buildx build --platform linux/amd64,linux/arm64 -f ./Dockerfile . --push $(foreach ($tag in $tags) { "--tag=$tag" }) 2>&1 | ForEach-Object { 
+    $lineCounter++
+    if ($lineCounter % 10 -eq 0) {
+        Write-Host -NoNewline "."
+    }
 }
 
-# Output the captured Docker output
-$dockerOutput
+# Capture the end time
+$endTime = Get-Date
 
-Write-Output "Overall time taken: $($overallTime.TotalSeconds) seconds"
+# Calculate the total time taken
+$overallTime = $endTime - $startTime
+
+Write-Output "`nOverall time taken: $($overallTime.TotalSeconds) seconds"
