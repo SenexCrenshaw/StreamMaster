@@ -6,3 +6,4 @@ node_modules
 **/dist/**
 vite.config.ts
 iptvApi.ts
+package.json

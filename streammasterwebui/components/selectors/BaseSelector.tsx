@@ -243,7 +243,6 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
         value={selectedItem}
         valueTemplate={props.selectedTemplate}
         virtualScrollerOptions={{
-          delay: 200,
           itemSize: props.itemSize,
           lazy: true,
           loaderDisabled: true,
