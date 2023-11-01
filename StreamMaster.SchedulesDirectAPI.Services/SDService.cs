@@ -48,8 +48,8 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
             string stationId = SDStationId.StationId;
             string lineUp = SDStationId.LineUp;
 
-            List<string> names = stations.Where(a => a.StationID == stationId).Select(a => a.Name).Distinct().ToList();
-            List<StationLogo> logos = stations.Where(a => a.StationID == stationId && a.StationLogo != null).SelectMany(a => a.StationLogo).Distinct().ToList();
+            List<string> names = stations.Where(a => a.StationId == stationId).Select(a => a.Name).Distinct().ToList();
+            List<StationLogo> logos = stations.Where(a => a.StationId == stationId && a.StationLogo != null).SelectMany(a => a.StationLogo).Distinct().ToList();
             List<ChannelLogoDto> channelLogos = memoryCache.ChannelLogos();
 
 
@@ -85,7 +85,10 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
             return new();
         }
 
-        List<string> progIds = schedules.SelectMany(a => a.Programs).Select(a => a.ProgramID).Distinct().ToList();
+        DateTime test1 = schedules.SelectMany(a => a.Programs).Min(a => a.AirDateTime);
+        DateTime test2 = schedules.SelectMany(a => a.Programs).Max(a => a.AirDateTime);
+
+        List<string> progIds = schedules.SelectMany(a => a.Programs).Where(a => a.AirDateTime <= DateTime.Now.AddDays(3)).Select(a => a.ProgramID).Distinct().ToList();
         List<SDProgram> programs = await sd.GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
         List<Programme> retProgrammes = new();
 
@@ -93,8 +96,8 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
         {
             foreach (Schedule sched in schedules.Where(a => a.Programs.Any(a => a.ProgramID == sdProg.ProgramID)).ToList())
             {
-                IStation station = stations.First(a => a.StationID == sched.StationID);
-                List<string> names = stations.Where(a => a.StationID == sched.StationID).Select(a => a.Name).Distinct().ToList();
+                IStation station = stations.First(a => a.StationId == sched.StationID);
+                List<string> names = stations.Where(a => a.StationId == sched.StationID).Select(a => a.Name).Distinct().ToList();
 
                 string? channelNameSuffix = names.LastOrDefault();
                 string displayName = "";

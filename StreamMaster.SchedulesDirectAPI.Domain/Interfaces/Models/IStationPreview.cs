@@ -4,7 +4,7 @@
     {
         string Affiliate { get; set; }
         string Callsign { get; set; }
-        int Id { get; set; }
+        string Id => LineUp + "|" + StationId;
         string LineUp { get; set; }
         Logo Logo { get; set; }
         string Name { get; set; }

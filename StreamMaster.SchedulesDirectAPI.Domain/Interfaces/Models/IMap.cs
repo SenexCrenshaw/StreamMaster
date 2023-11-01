@@ -4,7 +4,7 @@
     {
         int AtscMajor { get; set; }
         int AtscMinor { get; set; }
-        string StationID { get; set; }
+        string StationId { get; set; }
         int UhfVhf { get; set; }
     }
 }

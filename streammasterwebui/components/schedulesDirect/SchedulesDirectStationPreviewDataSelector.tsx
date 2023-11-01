@@ -12,7 +12,6 @@ import { Toast } from 'primereact/toast';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
-//const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
 const SchedulesDirectStationPreviewDataSelector = () => {
   const toast = useRef<Toast>(null);
@@ -40,10 +39,16 @@ const SchedulesDirectStationPreviewDataSelector = () => {
       )
       .filter((station) => station !== undefined) as StationPreview[];
 
-    if (findDifferenceStationIdLineUps(sp, schedulesDirectGetSelectedStationIdsQuery.data).length > 0) {
+    if (findDifferenceStationIdLineUps(sp, selectSelectedItems).length > 0) {
       setSelectSelectedItems(sp as StationPreview[]);
     }
-  }, [schedulesDirectGetSelectedStationIdsQuery.data, schedulesDirectGetSelectedStationIdsQuery.isLoading, setSelectSelectedItems, stationPreviews.data]);
+  }, [
+    schedulesDirectGetSelectedStationIdsQuery.data,
+    schedulesDirectGetSelectedStationIdsQuery.isLoading,
+    selectSelectedItems,
+    setSelectSelectedItems,
+    stationPreviews.data
+  ]);
 
   const onSave = useCallback(
     (stationIdLineUps: StationIdLineUp[]) => {
@@ -88,15 +93,6 @@ const SchedulesDirectStationPreviewDataSelector = () => {
     },
     [schedulesDirectGetSelectedStationIdsQuery.data]
   );
-
-  // useEffect(() => {
-  //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  //   const lineUps = selectSelectedItems.map((stationPreview) => ({
-  //     lineUp: stationPreview.lineUp,
-  //     stationId: stationPreview.stationId
-  //   }));
-  //   // onSave(lineUps);
-  // }, [onSave, selectSelectedItems]);
 
   function imageBodyTemplate(data: StationPreview) {
     if (!data?.logo || data.logo.URL === '') {

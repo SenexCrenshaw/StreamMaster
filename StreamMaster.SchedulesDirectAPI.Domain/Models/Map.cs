@@ -1,13 +1,11 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.Interfaces.Models;
-
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 public class Map : IMap
 {
     [JsonPropertyName("stationID")]
-    public string StationID { get; set; }
+    public string StationId { get; set; }
 
     [JsonPropertyName("uhfVhf")]
     public int UhfVhf { get; set; }

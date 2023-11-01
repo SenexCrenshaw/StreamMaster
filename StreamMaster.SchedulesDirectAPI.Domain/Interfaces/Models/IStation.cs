@@ -10,8 +10,9 @@
         bool? IsCommercialFree { get; set; }
         string LineUp { get; set; }
         Logo Logo { get; set; }
+        string Id => LineUp + "|" + StationId;
         string Name { get; set; }
-        string StationID { get; set; }
+        string StationId { get; set; }
         List<StationLogo> StationLogo { get; set; }
     }
 }

@@ -31,8 +31,7 @@ public class Station : IStation
     public string Name { get; set; }
 
     [JsonPropertyName("stationID")]
-    public string StationID { get; set; }
-
+    public string StationId { get; set; }
     [JsonPropertyName("stationLogo")]
     public List<StationLogo> StationLogo { get; set; }
 }

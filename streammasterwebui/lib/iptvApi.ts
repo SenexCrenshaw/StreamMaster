@@ -1452,7 +1452,7 @@ export type Description1000 = {
   descriptionLanguage?: string;
   description?: string;
 };
-export type IDescriptions = {
+export type Descriptions = {
   description100?: Description100[];
   description1000?: Description1000[];
 };
@@ -1486,17 +1486,17 @@ export type Crew = {
   personId?: string;
   name?: string;
 };
-export type IKeyWords = {
-  general?: string[];
+export type KeyWords = {
+  General?: string[];
 };
 export type Team = {
   name?: string;
   isHome?: boolean | null;
 };
-export type IEventDetails = {
-  gameDate?: string;
-  teams?: Team[];
+export type EventDetails = {
   venue100?: string;
+  teams?: Team[];
+  gameDate?: string;
 };
 export type QualityRating = {
   ratingsBody?: string;
@@ -1505,10 +1505,10 @@ export type QualityRating = {
   maxRating?: string;
   increment?: string;
 };
-export type IMovie = {
+export type Movie = {
+  year?: string;
   duration?: number;
   qualityRating?: QualityRating[];
-  year?: string;
 };
 export type Award = {
   name?: string;
@@ -1523,7 +1523,7 @@ export type SdProgram = {
   resourceID?: string;
   programID?: string;
   titles?: Title[];
-  descriptions?: IDescriptions;
+  descriptions?: Descriptions;
   originalAirDate?: string;
   genres?: string[];
   episodeTitle150?: string;
@@ -1537,12 +1537,12 @@ export type SdProgram = {
   hasImageArtwork?: boolean | null;
   hasSeriesArtwork?: boolean | null;
   hasEpisodeArtwork?: boolean | null;
-  keyWords?: IKeyWords;
-  eventDetails?: IEventDetails;
+  keyWords?: KeyWords;
+  eventDetails?: EventDetails;
   hasSeasonArtwork?: boolean | null;
   officialURL?: string;
   contentAdvisory?: string[];
-  movie?: IMovie;
+  movie?: Movie;
   awards?: Award[];
   hasMovieArtwork?: boolean | null;
   holiday?: string;
@@ -1575,12 +1575,13 @@ export type Schedule = {
 export type StationIdLineUp = {
   lineUp?: string;
   stationId?: string;
+  id?: string;
 };
 export type StationPreview = {
   logo?: Logo;
   affiliate?: string;
   callsign?: string;
-  id?: number;
+  id?: string;
   lineUp?: string;
   name?: string;
   stationId?: string;

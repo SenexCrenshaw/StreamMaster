@@ -65,6 +65,12 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
         Logger.LogInformation("UpdateSettingRequest");
         FileUtil.UpdateSetting(currentSetting);
 
+        MemoryCacheEntryOptions cacheEntryOptions = new()
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
+        };
+        memoryCache.Set("Setting", currentSetting, cacheEntryOptions);
+
         SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
         await HubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
         if (request.SDStationIds != null)

@@ -26,7 +26,7 @@ public static class SDExtensions
         Console.WriteLine($"Lineup:\n---------\n");
         foreach (Map map in result.Map)
         {
-            Console.WriteLine($"\t\tID: {map.StationID}\n\t\tUhfVhf: {map.UhfVhf}\n\t\tAtscMajor: {map.AtscMajor}\n\t\tAtscMinor: {map.AtscMinor}\n");
+            Console.WriteLine($"\t\tID: {map.StationId}\n\t\tUhfVhf: {map.UhfVhf}\n\t\tAtscMajor: {map.AtscMajor}\n\t\tAtscMinor: {map.AtscMinor}\n");
         }
         Console.WriteLine($"\nStations:\n---------\n");
         foreach (Station station in result.Stations)
@@ -36,7 +36,7 @@ public static class SDExtensions
             }
             else
             {
-                Console.WriteLine($"\t\tID: {station.StationID}\n\t\tName: {station.Name}\n\t\tCallsign: {station.Callsign}\n\t\tAffiliate: {station.Affiliate}\n\t\tBroadcastLanguage: {string.Join(",", station.BroadcastLanguage)}\n\t\tDescriptionLanguage: {string.Join(",", station.DescriptionLanguage)}\n\t\t\t\tStationLogo:");
+                Console.WriteLine($"\t\tID: {station.StationId}\n\t\tName: {station.Name}\n\t\tCallsign: {station.Callsign}\n\t\tAffiliate: {station.Affiliate}\n\t\tBroadcastLanguage: {string.Join(",", station.BroadcastLanguage)}\n\t\tDescriptionLanguage: {string.Join(",", station.DescriptionLanguage)}\n\t\t\t\tStationLogo:");
             }
 
             if (station.StationLogo != null)

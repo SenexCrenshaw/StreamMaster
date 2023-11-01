@@ -329,10 +329,8 @@ public class SchedulesDirect : ISchedulesDirect
         for (int index = 0; index < stations.Count; index++)
         {
             IStation station = stations[index];
-            StationPreview sp = new(station)
-            {
-                Id = index
-            };
+            StationPreview sp = new(station);
+
             ret.Add(sp);
         }
         return ret;
@@ -714,10 +712,10 @@ public class SchedulesDirect : ISchedulesDirect
         foreach (string? stationId in stationsIds)
         {
 
-            List<string> names = stations.Where(a => a.StationID == stationId).Select(a => a.Name).Distinct().ToList();
-            List<List<StationLogo>> logos = stations.Where(a => a.StationID == stationId).Select(a => a.StationLogo).Distinct().ToList();
-            ILogo? logo = stations.Where(a => a.StationID == stationId).Select(a => a.Logo).FirstOrDefault();
-            IStation station = stations.Where(a => a.StationID == stationId).First();
+            List<string> names = stations.Where(a => a.StationId == stationId).Select(a => a.Name).Distinct().ToList();
+            List<List<StationLogo>> logos = stations.Where(a => a.StationId == stationId).Select(a => a.StationLogo).Distinct().ToList();
+            ILogo? logo = stations.Where(a => a.StationId == stationId).Select(a => a.Logo).FirstOrDefault();
+            IStation station = stations.Where(a => a.StationId == stationId).First();
 
             TvChannel channel = new()
             {
@@ -744,7 +742,7 @@ public class SchedulesDirect : ISchedulesDirect
         {
             foreach (Schedule sched in schedules.Where(a => a.Programs.Any(a => a.ProgramID == sdProg.ProgramID)).ToList())
             {
-                IStation station = stations.Where(a => a.StationID == sched.StationID).First();
+                IStation station = stations.Where(a => a.StationId == sched.StationID).First();
 
                 foreach (Program p in sched.Programs)
                 {
