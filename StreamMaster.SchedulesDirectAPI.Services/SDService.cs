@@ -67,7 +67,7 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
                     {
                         Id = nextId++,
                         LogoUrl = logo.URL,
-                        EPGId = "SD-" + lineUp + stationId,
+                        EPGId = "SD|" + lineUp + "|" + stationId,
                         EPGFileId = 0
                     };
 
@@ -103,13 +103,13 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
 
                 if (channelNameSuffix != null && channelNameSuffix != sched.StationID)
                 {
-                    displayName = "SD : " + channelNameSuffix;
-                    channelName = sched.StationID + " - " + channelNameSuffix;
+                    displayName = station.LineUp + "-" + channelNameSuffix;
+                    channelName = station.LineUp + "-" + sched.StationID + " - " + channelNameSuffix;
                     name = channelNameSuffix;
                 }
                 else
                 {
-                    displayName = "SD : " + sched.StationID;
+                    displayName = station.LineUp + "-" + sched.StationID;
                     channelName = sched.StationID;
                     name = sched.StationID;
                 }
@@ -128,7 +128,7 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
                     {
                         Start = startt.ToString("yyyyMMddHHmmss") + " +0000",
                         Stop = endt.ToString("yyyyMMddHHmmss") + " +0000",
-                        Channel = "SD-" + sched.StationID,
+                        Channel = "SD|" + station.LineUp + "|" + sched.StationID,
                         ChannelName = channelName,
                         Name = name,
                         DisplayName = displayName,
