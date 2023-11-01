@@ -58,10 +58,10 @@
   "name": "streammaster",
   "private": true,
   "scripts": {
-    "dev": "vite --host --port 3000 -l info",
+    "dev": "vite --host --port 3000 --open",
     "build": "vite build",
     "preview": "vite preview",
-    "builddev": "npm run build && cp -r dist/* ..StreamMasterAPI\\bin\\Debug\\net7.0\\wwwroot -force",
+    "builddev": "npm run build && cp -r dist/* ..\\StreamMasterAPI\\bin\\Debug\\net7.0\\wwwroot -force",
     "build:check": "npm run prettier:check && npm run lint && npm run type:check && npm run security:check",
     "security:check": "npm audit --omit=dev --audit-level high",
     "lint": "eslint --ignore-path .estlintignore . --ext .js,.jsx,.ts,.tsx",
