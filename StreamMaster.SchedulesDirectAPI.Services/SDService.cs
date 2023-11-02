@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterApplication.Common.Logging;
 
@@ -55,8 +56,8 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
             return;
         }
 
-        List<SDProgram> programs = await sd.Sync(setting.SDStationIds, cancellationToken);
-        memoryCache.SetSDProgreammesCache(programs);
+        await sd.Sync(setting.SDStationIds, cancellationToken);
+
     }
 
     [LogExecutionTimeAspect]
@@ -141,17 +142,17 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
                         ChannelName = channelName,
                         Name = channelNameSuffix,
                         DisplayName = displayName,
-                        Title = SchedulesDirect.GetTitles(sdProg.Titles, lang),
-                        Subtitle = SchedulesDirect.GetSubTitles(sdProg, lang),
-                        Desc = SchedulesDirect.GetDescriptions(sdProg, lang),
-                        Credits = SchedulesDirect.GetCredits(sdProg, lang),
-                        Category = SchedulesDirect.GetCategory(sdProg, lang),
+                        Title = SDHelpers.GetTitles(sdProg.Titles, lang),
+                        Subtitle = SDHelpers.GetSubTitles(sdProg, lang),
+                        Desc = SDHelpers.GetDescriptions(sdProg, lang),
+                        Credits = SDHelpers.GetCredits(sdProg, lang),
+                        Category = SDHelpers.GetCategory(sdProg, lang),
                         Language = lang,
-                        Episodenum = SchedulesDirect.GetEpisodeNums(sdProg, lang),
-                        Icon = SchedulesDirect.GetIcons(p, sdProg, sched, lang),
-                        Rating = SchedulesDirect.GetRatings(sdProg, lang, maxRatings),
-                        Video = SchedulesDirect.GetTvVideos(p),
-                        Audio = SchedulesDirect.GetTvAudios(p),
+                        Episodenum = SDHelpers.GetEpisodeNums(sdProg, lang),
+                        Icon = SDHelpers.GetIcons(p, sdProg, sched, lang),
+                        Rating = SDHelpers.GetRatings(sdProg, lang, maxRatings),
+                        Video = SDHelpers.GetTvVideos(p),
+                        Audio = SDHelpers.GetTvAudios(p),
                     };
 
                     programmes.Add(programme);

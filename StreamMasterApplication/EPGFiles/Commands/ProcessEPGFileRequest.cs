@@ -80,11 +80,11 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
             //        Stop = end.ToString("yyyyMMddHHmmss") + " +0000"
             //    });
             //}
-
+            Setting setting = await GetSettingsAsync().ConfigureAwait(false);
             if (cacheValues.Count == 0)
             {
                 DateTime start = DateTime.Now.AddDays(-1);
-                DateTime end = DateTime.Now.AddDays(7);
+                DateTime end = DateTime.Now.AddDays(setting.SDEPGDays);
 
                 List<ProgrammeChannel> programmeChannels = new(){
                 new ProgrammeChannel

@@ -97,7 +97,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         List<string> channels = cachedProgrammes.ConvertAll(a => a.Channel).Distinct().Order().ToList();
         IEnumerable<Programme> programmes = cachedProgrammes.Where(a =>
         a.StartDateTime > DateTime.Now.AddDays(-1) &&
-        a.StartDateTime <= DateTime.Now.AddDays(setting.SDEPGDays + 10) &&
+        a.StartDateTime <= DateTime.Now.AddDays(setting.SDEPGDays) &&
                         a.Channel != null &&
                         (epgids.Contains(a.Channel) || epgids.Contains(a.DisplayName))).DeepCopy();
 
@@ -314,19 +314,19 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         return textWriter.ToString();
     }
 
-    [LogExecutionTimeAspect]
-    private async Task<List<Programme>> GetRelevantProgrammes(List<string> epgids, CancellationToken cancellationToken)
-    {
-        List<Programme> programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
-        return programmes
-            .Where(a =>
-                a.StartDateTime > DateTime.Now.AddDays(-1) &&
-                a.StopDateTime < DateTime.Now.AddDays(7) &&
-                a.Channel != null &&
-                (epgids.Contains(a.Channel) ||
-                epgids.Contains(a.DisplayName))
-            ).ToList();
-    }
+    //[LogExecutionTimeAspect]
+    //private async Task<List<Programme>> GetRelevantProgrammes(List<string> epgids, CancellationToken cancellationToken)
+    //{
+    //    List<Programme> programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+    //    return programmes
+    //        .Where(a =>
+    //            a.StartDateTime > DateTime.Now.AddDays(-1) &&
+    //            a.StopDateTime < DateTime.Now.AddDays(7) &&
+    //            a.Channel != null &&
+    //            (epgids.Contains(a.Channel) ||
+    //            epgids.Contains(a.DisplayName))
+    //        ).ToList();
+    //}
 
     private string GetApiUrl(SMFileTypes path, string source)
     {
