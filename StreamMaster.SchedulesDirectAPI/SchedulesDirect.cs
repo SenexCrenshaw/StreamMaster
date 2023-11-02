@@ -1,7 +1,10 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+﻿using Microsoft.Extensions.Logging;
+
+using StreamMaster.SchedulesDirectAPI.Domain.EPG;
 
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Models;
+using StreamMasterDomain.Services;
 
 using System.Net;
 using System.Net.Http.Headers;
@@ -11,24 +14,47 @@ using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirectAPI;
 
-public class SchedulesDirect : ISchedulesDirect
+public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService settingsService) : ISchedulesDirect
 {
-    private static HttpClient _httpClient = null!;
-    private readonly SDToken sdToken = null!;
+    public static readonly int MAX_RETRIES = 2;
+    private HttpClient _httpClient = null!;
+    private SDToken _sdToken = null!;
     private readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
     private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
+    private readonly ILogger _logger = logger;
 
-    public SchedulesDirect(string clientUserAgent, string sdUserName, string sdPassword)
+    private SDToken SdToken
     {
-        _httpClient = CreateHttpClient(clientUserAgent);
-        sdToken = new SDToken(clientUserAgent, sdUserName, sdPassword);
+        get
+        {
+            if (_sdToken == null)
+            {
+                Setting setting = settingsService.GetSettingsAsync().Result;
+                _sdToken = new SDToken(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
+            }
+            return _sdToken;
+        }
     }
+
+    private HttpClient httpClient
+    {
+        get
+        {
+            if (_httpClient == null)
+            {
+                Setting setting = settingsService.GetSettingsAsync().Result;
+                _httpClient = CreateHttpClient(setting.ClientUserAgent);
+            }
+            return _httpClient;
+        }
+    }
+
 
     public async Task<Countries?> GetCountries(CancellationToken cancellationToken)
     {
         Countries? result = await GetData<Countries>("available/countries", cancellationToken).ConfigureAwait(false);
 
-        return result ?? null;
+        return result;
     }
 
     public async Task<List<Headend>?> GetHeadends(string country, string postalCode, CancellationToken cancellationToken = default)
@@ -40,16 +66,23 @@ public class SchedulesDirect : ISchedulesDirect
 
     public async Task<bool> GetImageUrl(string source, string fileName, CancellationToken cancellationToken)
     {
-        string? url = await sdToken.GetAPIUrl($"image/{source}", cancellationToken);
+        string? url = await SdToken.GetAPIUrl($"image/{source}", cancellationToken);
         if (url == null)
         {
+            _logger.LogWarning("Image URL for source {Source} not found.", source);
             return false;
         }
 
         (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(url, fileName, cancellationToken).ConfigureAwait(false);
 
+        if (!success && ex != null)
+        {
+            _logger.LogError(ex, "Failed to download image from {Url} to {FileName}.", url, fileName);
+        }
+
         return success;
     }
+
 
     public async Task<List<SDProgram>> Sync(List<StationIdLineUp> StationIdLineUps, CancellationToken cancellationToken)
     {
@@ -68,10 +101,7 @@ public class SchedulesDirect : ISchedulesDirect
 
     public async Task<LineUpResult?> GetLineup(string lineUp, CancellationToken cancellationToken)
     {
-
-        LineUpResult? result = await GetData<LineUpResult>($"lineups/{lineUp}", cancellationToken).ConfigureAwait(false);
-
-        return result ?? null;
+        return await GetData<LineUpResult>($"lineups/{lineUp}", cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<List<LineUpPreview>> GetLineUpPreviews(CancellationToken cancellationToken)
@@ -177,22 +207,22 @@ public class SchedulesDirect : ISchedulesDirect
         int retry = 0;
         try
         {
-            while (retry <= SDToken.MAX_RETRIES)
+            while (retry <= MAX_RETRIES)
             {
-                string? url = await sdToken.GetAPIUrl(command, cancellationToken);
-                using HttpResponseMessage response = await _httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
+                string? url = await SdToken.GetAPIUrl(command, cancellationToken);
+                using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
                 (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? result) = await SDHandler.ProcessResponse<T?>(response, cancellationToken).ConfigureAwait(false);
 
                 if (responseCode == SDHttpResponseCode.ACCOUNT_LOCKOUT || responseCode == SDHttpResponseCode.ACCOUNT_DISABLED || responseCode == SDHttpResponseCode.ACCOUNT_EXPIRED)
                 {
-                    sdToken.LockOutToken();
+                    SdToken.LockOutToken();
                     return default;
                 }
 
                 if (responseCode == SDHttpResponseCode.TOKEN_EXPIRED || responseCode == SDHttpResponseCode.INVALID_USER)
                 {
-                    if (await sdToken.ResetToken(cancellationToken).ConfigureAwait(false) == null)
+                    if (await SdToken.ResetToken(cancellationToken).ConfigureAwait(false) == null)
                     {
                         return default;
                     }
@@ -232,7 +262,6 @@ public class SchedulesDirect : ISchedulesDirect
         return BitConverter.ToString(hashBytes).Replace("-", "").ToLower(); // Convert byte array to hex string
     }
 
-
     private async Task<T?> PostData<T>(string command, object toPost, CancellationToken cancellationToken, bool ignoreCache = false)
     {
         string jsonString = JsonSerializer.Serialize(toPost);
@@ -258,22 +287,22 @@ public class SchedulesDirect : ISchedulesDirect
         int retry = 0;
         try
         {
-            while (retry <= SDToken.MAX_RETRIES)
+            while (retry <= MAX_RETRIES)
             {
-                string? url = await sdToken.GetAPIUrl(command, cancellationToken);
-                using HttpResponseMessage response = await _httpClient.PostAsync(url, content, cancellationToken).ConfigureAwait(false);
+                string? url = await SdToken.GetAPIUrl(command, cancellationToken);
+                using HttpResponseMessage response = await httpClient.PostAsync(url, content, cancellationToken).ConfigureAwait(false);
 
                 (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? result) = await SDHandler.ProcessResponse<T?>(response, cancellationToken).ConfigureAwait(false);
 
                 if (responseCode == SDHttpResponseCode.ACCOUNT_LOCKOUT || responseCode == SDHttpResponseCode.ACCOUNT_DISABLED || responseCode == SDHttpResponseCode.ACCOUNT_EXPIRED)
                 {
-                    sdToken.LockOutToken();
+                    SdToken.LockOutToken();
                     return default;
                 }
 
                 if (responseCode == SDHttpResponseCode.TOKEN_EXPIRED || responseCode == SDHttpResponseCode.INVALID_USER)
                 {
-                    if (await sdToken.ResetToken(cancellationToken).ConfigureAwait(false) == null)
+                    if (await SdToken.ResetToken(cancellationToken).ConfigureAwait(false) == null)
                     {
                         return default;
                     }
@@ -317,19 +346,6 @@ public class SchedulesDirect : ISchedulesDirect
 
         return status.lineups.Where(a => !a.IsDeleted).ToList();
 
-        //LineUpsResult? result = await GetData<LineUpsResult>("lineups", cancellationToken).ConfigureAwait(false);
-
-        //if (result == null)
-        //{
-        //    return null;
-        //}
-
-        //foreach (Lineup l in result.Lineups)
-        //{
-        //    l.Id = l.LineupString;
-        //}
-
-        //return result;
     }
 
     public async Task<List<SDProgram>> GetSDPrograms(List<string> programIds, CancellationToken cancellationToken)
@@ -437,8 +453,6 @@ public class SchedulesDirect : ISchedulesDirect
         }
     }
 
-
-
     public async Task<List<Schedule>> GetSchedules(List<string> stationIds, CancellationToken cancellationToken)
     {
         List<string> distinctStationIds = stationIds.Distinct().ToList();
@@ -481,7 +495,6 @@ public class SchedulesDirect : ISchedulesDirect
         return results;
     }
 
-
     public async Task<List<StationPreview>> GetStationPreviews(CancellationToken cancellationToken)
     {
         List<Station>? stations = await GetStations(cancellationToken).ConfigureAwait(false);
@@ -499,92 +512,6 @@ public class SchedulesDirect : ISchedulesDirect
         }
         return ret;
     }
-
-    //private async Task<bool> NeedUpdate(string id, DateTime date, CancellationToken cancellationToken = default)
-    //{
-    //    string cachePath = Path.Combine(BuildInfo.SDCacheFolder, "update_status.json");
-
-    //    if (!File.Exists(cachePath))
-    //    {
-    //        return true; // If the cache file doesn't exist, an update is needed.
-    //    }
-
-    //    string cachedContent;
-    //    try
-    //    {
-    //        cachedContent = await File.ReadAllTextAsync(cachePath, cancellationToken).ConfigureAwait(false);
-    //    }
-    //    catch (OperationCanceledException)
-    //    {
-    //        throw; // Propagate the cancellation exception.
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        return true; // If there's an error reading the file, assume an update is needed.
-    //    }
-
-    //    List<IdLastUpdated>? updates;
-    //    try
-    //    {
-    //        updates = JsonSerializer.Deserialize<List<IdLastUpdated>>(cachedContent);
-    //    }
-    //    catch (JsonException ex)
-    //    {
-    //        return true; // If deserialization fails, assume an update is needed.
-    //    }
-
-    //    // If updates list is null or the ID is not found with a date greater than or equal to the provided date, an update is needed.
-    //    return updates?.Any(a => a.Id == id && a.LastUpdated >= date) == false;
-    //}
-    //private async Task SetUpdateAsync(string id, DateTime date, CancellationToken cancellationToken = default)
-    //{
-    //    string cachePath = Path.Combine(BuildInfo.SDCacheFolder, "update_status.json");
-    //    List<IdLastUpdated> updates;
-
-    //    // Read the existing updates or initialize a new list if the file doesn't exist.
-    //    if (File.Exists(cachePath))
-    //    {
-    //        string cachedContent;
-    //        try
-    //        {
-    //            cachedContent = await File.ReadAllTextAsync(cachePath, cancellationToken).ConfigureAwait(false);
-    //            updates = JsonSerializer.Deserialize<List<IdLastUpdated>>(cachedContent) ?? new List<IdLastUpdated>();
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            throw; // Re-throw the exception to handle it further up the call stack.
-    //        }
-    //    }
-    //    else
-    //    {
-    //        updates = new List<IdLastUpdated>();
-    //    }
-
-    //    // Update the list with the new date, adding or updating the entry for the given ID.
-    //    IdLastUpdated? update = updates.FirstOrDefault(u => u.Id == id);
-    //    if (update != null)
-    //    {
-    //        update.LastUpdated = date;
-    //    }
-    //    else
-    //    {
-    //        updates.Add(new IdLastUpdated { Id = id, LastUpdated = date });
-    //    }
-
-    //    // Serialize the updated list back to JSON.
-    //    string updatedContent = JsonSerializer.Serialize(updates);
-
-    //    // Write the updated JSON back to the cache file.
-    //    try
-    //    {
-    //        await File.WriteAllTextAsync(cachePath, updatedContent, cancellationToken).ConfigureAwait(false);
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        throw; // Re-throw the exception to handle it further up the call stack.
-    //    }
-    //}
-
 
     public async Task<List<Station>> GetStations(CancellationToken cancellationToken)
     {
@@ -623,7 +550,6 @@ public class SchedulesDirect : ISchedulesDirect
                 }
             }
 
-
         }
 
         return ret;
@@ -646,11 +572,11 @@ public class SchedulesDirect : ISchedulesDirect
     public static List<TvTitle> GetTitles(List<Title> Titles, string lang)
     {
 
-        List<TvTitle> ret = Titles.Select(a => new TvTitle
+        List<TvTitle> ret = Titles.ConvertAll(a => new TvTitle
         {
             Lang = lang,
             Text = a.Title120
-        }).ToList();
+        });
         return ret;
     }
 
@@ -935,9 +861,11 @@ public class SchedulesDirect : ISchedulesDirect
 
     }
 
-    public async Task<string> GetEpg(List<StationIdLineUp> stationIdLineUps, int maxRatings, CancellationToken cancellationToken)
+    public async Task<string> GetEpg(CancellationToken cancellationToken)
     {
-        List<string> stationsIds = stationIdLineUps.Select(a => a.StationId).Distinct().ToList();
+        Setting setting = await settingsService.GetSettingsAsync();
+        List<StationIdLineUp> stationIdLineUps = setting.SDStationIds;
+        List<string> stationsIds = stationIdLineUps.ConvertAll(a => a.StationId).Distinct().ToList();
 
         await Sync(stationIdLineUps, cancellationToken);
 
@@ -1012,7 +940,7 @@ public class SchedulesDirect : ISchedulesDirect
                         Language = lang,
                         Episodenum = GetEpisodeNums(sdProg, lang),
                         Icon = GetIcons(p, sdProg, sched, lang),
-                        Rating = GetRatings(sdProg, lang, maxRatings),
+                        Rating = GetRatings(sdProg, lang, setting.SDMaxRatings),
                         Video = GetTvVideos(p),
                         Audio = GetTvAudios(p),
 

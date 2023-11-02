@@ -2,8 +2,9 @@
 
 public interface ISchedulesDirect
 {
+    Task<List<SDProgram>> Sync(List<StationIdLineUp> StationIdLineUps, CancellationToken cancellationToken);
     Task<Countries?> GetCountries(CancellationToken cancellationToken);
-    Task<string> GetEpg(List<StationIdLineUp> stationIdLineUps, int maxRatings, CancellationToken cancellationToken);
+    Task<string> GetEpg(CancellationToken cancellationToken);
     Task<List<Headend>?> GetHeadends(string country, string postalCode, CancellationToken cancellationToken = default);
     Task<bool> GetImageUrl(string source, string fileName, CancellationToken cancellationToken);
     Task<LineUpResult?> GetLineup(string lineUp, CancellationToken cancellationToken);

@@ -18,7 +18,7 @@ public class SDToken
 {
     private static (SDStatus? status, DateTime timestamp)? cacheEntry = null;
     private const string SD_BASE_URL = "https://json.schedulesdirect.org/20141201/";
-    public static readonly int MAX_RETRIES = 1;
+
     private readonly HttpClient httpClient = CreateHttpClient();
     private readonly string SD_TOKEN_FILENAME = Path.Combine(BuildInfo.AppDataFolder, "sd_token.json");
     private static string? token;
