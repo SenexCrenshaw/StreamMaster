@@ -85,8 +85,8 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
             return new();
         }
 
-        DateTime test1 = schedules.SelectMany(a => a.Programs).Min(a => a.AirDateTime);
-        DateTime test2 = schedules.SelectMany(a => a.Programs).Max(a => a.AirDateTime);
+        //DateTime test1 = schedules.SelectMany(a => a.Programs).Min(a => a.AirDateTime);
+        //DateTime test2 = schedules.SelectMany(a => a.Programs).Max(a => a.AirDateTime);
 
         List<string> progIds = schedules.SelectMany(a => a.Programs).Where(a => a.AirDateTime <= DateTime.Now.AddDays(3)).Select(a => a.ProgramID).Distinct().ToList();
         List<SDProgram> programs = await sd.GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);

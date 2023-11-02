@@ -58,15 +58,15 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         if (iconOriginalSource.StartsWith("images/"))
         {
-            iconOriginalSource = $"{url}/{iconOriginalSource}";
+            return $"{url}/{iconOriginalSource}";
         }
         else if (!iconOriginalSource.StartsWith("http"))
         {
-            iconOriginalSource = GetApiUrl(SMFileTypes.TvLogo, originalUrl);
+            return GetApiUrl(SMFileTypes.TvLogo, originalUrl);
         }
         else if (setting.CacheIcons)
         {
-            iconOriginalSource = GetApiUrl(SMFileTypes.Icon, originalUrl);
+            return GetApiUrl(SMFileTypes.Icon, originalUrl);
         }
 
         return iconOriginalSource;
@@ -140,7 +140,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         // Build the TvChannel based on whether it's a dummy or not
         if (isDummyStream)
         {
-
             return new TvChannel
             {
                 Id = videoStream.User_Tvg_chno.ToString(),
@@ -280,7 +279,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
     private void AdjustProgrammeIcons(Programme prog, List<IconFileDto> cachedIcons)
     {
-
         if (!prog.Icon.Any())
         {
             prog.Icon.Add(new TvIcon { Height = "", Width = "", Src = "" });
@@ -289,10 +287,9 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         {
             foreach (TvIcon icon in prog.Icon.DeepCopy())
             {
-
                 if (!string.IsNullOrEmpty(icon.Src))
                 {
-                    IconFileDto? programmeIcon = cachedIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == icon.Src);
+                    IconFileDto? programmeIcon = cachedIcons.Find(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == icon.Src);
                     if (programmeIcon != null)
                     {
                         icon.Src = GetApiUrl(SMFileTypes.ProgrammeIcon, programmeIcon.Source);
