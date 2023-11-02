@@ -155,7 +155,6 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         return status;
     }
 
-
     private async Task<SDStatus> GetStatusInternal(CancellationToken cancellationToken)
     {
         SDStatus? result = await GetData<SDStatus>("status", cancellationToken).ConfigureAwait(false);
@@ -522,8 +521,6 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
 
         return ret;
     }
-
-
 
     public async Task<string> GetEpg(CancellationToken cancellationToken)
     {
