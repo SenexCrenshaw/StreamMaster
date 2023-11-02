@@ -51,12 +51,11 @@ public class SchedulesDirect : ISchedulesDirect
         return success;
     }
 
-    public async Task Sync(List<StationIdLineUp> StationIdLineUps, CancellationToken cancellationToken)
+    public async Task<List<SDProgram>> Sync(List<StationIdLineUp> StationIdLineUps, CancellationToken cancellationToken)
     {
-
         if (!await GetSystemReady(cancellationToken))
         {
-            return;
+            return new();
         }
         SDStatus status = await GetStatus(cancellationToken);
 
@@ -64,6 +63,7 @@ public class SchedulesDirect : ISchedulesDirect
         List<Schedule>? schedules = await GetSchedules(StationIdLineUps.ConvertAll(a => a.StationId), cancellationToken).ConfigureAwait(false);
         List<string> progIds = schedules.SelectMany(a => a.Programs).Where(a => a.AirDateTime <= DateTime.Now.AddDays(1)).Select(a => a.ProgramID).Distinct().ToList();
         List<SDProgram> programs = await GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
+        return programs;
     }
 
     public async Task<LineUpResult?> GetLineup(string lineUp, CancellationToken cancellationToken)
@@ -155,54 +155,6 @@ public class SchedulesDirect : ISchedulesDirect
     {
         SDStatus? result = await GetData<SDStatus>("status", cancellationToken).ConfigureAwait(false);
         return result ?? GetSDStatusOffline();
-
-        ////if (cacheEntry.HasValue && (DateTime.UtcNow - cacheEntry.Value.timestamp).TotalMinutes < 10 && cacheEntry.Value.status != null)
-        ////{
-        ////    return cacheEntry.Value.status;
-        ////}
-
-        //int retry = 0;
-        //try
-        //{
-        //    while (retry <= MAX_RETRIES)
-        //    {
-        //        string url = await GetAPIUrl("status", cancellationToken);
-        //        using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
-
-        //        (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, SDStatus? result) = await SDHandler.ProcessResponse<SDStatus?>(response, cancellationToken).ConfigureAwait(false);
-
-        //        if (responseCode == SDHttpResponseCode.ACCOUNT_LOCKOUT || responseCode == SDHttpResponseCode.ACCOUNT_DISABLED || responseCode == SDHttpResponseCode.ACCOUNT_EXPIRED)
-        //        {
-        //            lockOutTokenDateTime = DateTime.Now.AddMinutes(15);
-        //            SaveToken();
-        //            return GetSDStatusOffline();
-        //        }
-
-        //        if (responseCode == SDHttpResponseCode.TOKEN_EXPIRED || responseCode == SDHttpResponseCode.INVALID_USER)
-        //        {
-        //            if (await ResetToken(cancellationToken).ConfigureAwait(false) == null)
-        //            {
-        //                return GetSDStatusOffline();
-        //            }
-        //            ++retry;
-        //            continue;
-        //        }
-
-        //        if (result == null)
-        //        {
-        //            return GetSDStatusOffline();
-        //        }
-
-        //        cacheEntry = (result, DateTime.UtcNow);
-        //        return result;
-
-        //    }
-        //}
-        //catch (Exception)
-        //{
-        //    return GetSDStatusOffline();
-        //}
-        //return GetSDStatusOffline();
     }
 
     private async Task<T?> GetData<T>(string command, CancellationToken cancellationToken)
@@ -654,11 +606,23 @@ public class SchedulesDirect : ISchedulesDirect
             }
 
 
-            foreach (IStation station in res.Stations)
+            foreach (Station station in res.Stations)
             {
                 station.LineUp = lineUp.LineupString;
             }
-            ret.AddRange(res.Stations);
+
+            HashSet<string> existingIds = new(ret.Select(station => station.StationId));
+
+            foreach (Station station in res.Stations)
+            {
+                station.LineUp = lineUp.LineupString;
+                if (!existingIds.Contains(station.StationId))
+                {
+                    ret.Add(station);
+                    existingIds.Add(station.StationId);
+                }
+            }
+
 
         }
 

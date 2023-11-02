@@ -15,7 +15,7 @@ public enum SMQueCommand
     ScanDirectoryForIconFiles,
     ScanDirectoryForM3UFiles,
 
-    SetSDProgramme,
+    SDSync,
     SetIsSystemReady,
 
     UpdateChannelGroupCounts,

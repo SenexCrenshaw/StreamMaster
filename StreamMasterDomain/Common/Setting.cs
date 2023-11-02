@@ -19,6 +19,7 @@ public class M3USettings
 
 public class SDSettings : M3USettings
 {
+    public bool SDUseLineUpInName { get; set; }
     public int SDEPGDays { get; set; } = 1;
     public int SDMaxRatings { get; set; } = 2;
     public bool SDEnabled { get; set; }

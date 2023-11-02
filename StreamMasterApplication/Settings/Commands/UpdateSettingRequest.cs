@@ -312,7 +312,9 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
         if (needsSetProgrammes)
         {
             /*await Sender.Send(new SetSDProgramme(), cancellationToken).ConfigureAwait(false);*/
-            await taskQueue.SetSDProgramme(cancellationToken).ConfigureAwait(false);
+            //memoryCache.ClearSDProgrammes();
+            await taskQueue.SDSync(cancellationToken).ConfigureAwait(false);
+
         }
 
         return needsLogOut;

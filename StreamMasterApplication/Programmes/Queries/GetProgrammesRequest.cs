@@ -17,7 +17,7 @@ public class GetProgrammesRequestHandler(ILogger<GetProgrammesRequest> logger, I
         Setting setting = await GetSettingsAsync();
         if (setting.SDEnabled)
         {
-            List<Programme> sdprogrammes = await sdService.GetProgrammes(setting.SDEPGDays, setting.SDMaxRatings, cancellationToken).ConfigureAwait(false);
+            List<Programme> sdprogrammes = await sdService.GetProgrammes(setting.SDEPGDays, setting.SDMaxRatings, setting.SDUseLineUpInName, cancellationToken).ConfigureAwait(false);
             programmes = programmes.Concat(sdprogrammes).OrderBy(a => a.Channel).ToList();
         }
 

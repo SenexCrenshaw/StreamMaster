@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+
 using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+
 using StreamMasterApplication.Programmes.Queries;
 
 using StreamMasterDomain.Pagination;
@@ -33,7 +35,7 @@ public interface IProgrammeChannelScoped
 
 public interface IProgrammeChannelTasks
 {
-    ValueTask SetSDProgramme(CancellationToken cancellationToken = default);
+    ValueTask SDSync(CancellationToken cancellationToken = default);
 }
 
 public interface IProgrammeChannelController
