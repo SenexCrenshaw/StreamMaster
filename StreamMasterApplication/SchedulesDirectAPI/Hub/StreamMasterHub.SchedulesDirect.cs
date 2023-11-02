@@ -28,7 +28,7 @@ public partial class StreamMasterHub : ISchedulesDirectHub
         return await mediator.Send(new GetLineupPreviews()).ConfigureAwait(false);
     }
 
-    public async Task<LineUpsResult?> GetLineups()
+    public async Task<List<Lineup>> GetLineups()
     {
         return await mediator.Send(new GetLineups()).ConfigureAwait(false);
     }

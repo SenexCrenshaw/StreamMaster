@@ -10,11 +10,11 @@ internal class GetEpgHandler(ISettingsService settingsService) : IRequestHandler
     [LogExecutionTimeAspect]
     public async Task<string> Handle(GetEpg request, CancellationToken cancellationToken)
     {
-        Setting setting = await settingsService.GetSettingsAsync();
+        Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
 
         SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
         StreamMaster.SchedulesDirectAPI.Domain.Models.SDStatus status = await sd.GetStatus(cancellationToken).ConfigureAwait(false);
-        if (status == null || !status.systemStatus.Any())
+        if (status?.systemStatus.Any() != true)
         {
             Console.WriteLine("Status is null");
             return FileUtil.SerializeEpgData(new Tv());
@@ -27,7 +27,7 @@ internal class GetEpgHandler(ISettingsService settingsService) : IRequestHandler
             return FileUtil.SerializeEpgData(new Tv());
         }
 
-        string ret = await sd.GetEpg(setting.SDStationIds, cancellationToken).ConfigureAwait(false);
+        string ret = await sd.GetEpg(setting.SDStationIds, setting.SDMaxRatings, cancellationToken).ConfigureAwait(false);
 
         return ret;
     }

@@ -93,8 +93,11 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         HashSet<string> epgids = new(videoStreams.Where(a => !a.IsHidden).Select(r => r.User_Tvg_ID));
 
         List<Programme> cachedProgrammes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
-
-        IEnumerable<Programme> programmes = cachedProgrammes.Where(a => a.StartDateTime > DateTime.Now.AddDays(-1) &&
+        Setting setting = await GetSettingsAsync();
+        List<string> channels = cachedProgrammes.ConvertAll(a => a.Channel).Distinct().Order().ToList();
+        IEnumerable<Programme> programmes = cachedProgrammes.Where(a =>
+        a.StartDateTime > DateTime.Now.AddDays(-1) &&
+        a.StartDateTime <= DateTime.Now.AddDays(setting.SDEPGDays + 10) &&
                         a.Channel != null &&
                         (epgids.Contains(a.Channel) || epgids.Contains(a.DisplayName))).DeepCopy();
 
@@ -102,7 +105,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         ConcurrentBag<TvChannel> retChannels = new();
         ConcurrentBag<Programme> retProgrammes = new();
-        Setting setting = await GetSettingsAsync();
+
 
         Parallel.ForEach(videoStreams, parallelOptions, videoStream =>
         {

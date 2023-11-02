@@ -16,6 +16,8 @@ public class SchedulesDirect : ISchedulesDirect
     private static HttpClient _httpClient = null!;
     private readonly SDToken sdToken = null!;
     private readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
+    private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
+
     public SchedulesDirect(string clientUserAgent, string sdUserName, string sdPassword)
     {
         _httpClient = CreateHttpClient(clientUserAgent);
@@ -26,28 +28,14 @@ public class SchedulesDirect : ISchedulesDirect
     {
         Countries? result = await GetData<Countries>("available/countries", cancellationToken).ConfigureAwait(false);
 
-        if (result == null)
-        {
-            return null;
-
-        }
-        return result;
-
+        return result ?? null;
     }
 
     public async Task<List<Headend>?> GetHeadends(string country, string postalCode, CancellationToken cancellationToken = default)
     {
-        //string? url = await sdToken.GetAPIUrl($"headends?country={country}&postalcode={postalCode}", cancellationToken);
-
         List<Headend>? result = await GetData<List<Headend>>($"headends?country={country}&postalcode={postalCode}", cancellationToken).ConfigureAwait(false);
 
-        if (result == null)
-        {
-            return null;
-
-        }
-        return result;
-
+        return result ?? null;
     }
 
     public async Task<bool> GetImageUrl(string source, string fileName, CancellationToken cancellationToken)
@@ -63,31 +51,40 @@ public class SchedulesDirect : ISchedulesDirect
         return success;
     }
 
+    public async Task Sync(List<StationIdLineUp> StationIdLineUps, CancellationToken cancellationToken)
+    {
+
+        if (!await GetSystemReady(cancellationToken))
+        {
+            return;
+        }
+        SDStatus status = await GetStatus(cancellationToken);
+
+        List<Station> stations = await GetStations(cancellationToken).ConfigureAwait(false);
+        List<Schedule>? schedules = await GetSchedules(StationIdLineUps.ConvertAll(a => a.StationId), cancellationToken).ConfigureAwait(false);
+        List<string> progIds = schedules.SelectMany(a => a.Programs).Where(a => a.AirDateTime <= DateTime.Now.AddDays(1)).Select(a => a.ProgramID).Distinct().ToList();
+        List<SDProgram> programs = await GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
+    }
+
     public async Task<LineUpResult?> GetLineup(string lineUp, CancellationToken cancellationToken)
     {
 
         LineUpResult? result = await GetData<LineUpResult>($"lineups/{lineUp}", cancellationToken).ConfigureAwait(false);
 
-        if (result == null)
-        {
-            return null;
-
-        }
-        return result;
-
+        return result ?? null;
     }
 
     public async Task<List<LineUpPreview>> GetLineUpPreviews(CancellationToken cancellationToken)
     {
         List<LineUpPreview> res = new();
-        ILineUpsResult? lineups = await GetLineups(cancellationToken);
+        List<Lineup>? lineups = await GetLineups(cancellationToken);
 
         if (lineups is null)
         {
             return res;
         }
 
-        foreach (ILineup lineup in lineups.Lineups)
+        foreach (ILineup lineup in lineups)
         {
             List<LineUpPreview>? results = await GetData<List<LineUpPreview>>($"lineups/preview/{lineup.LineupString}", cancellationToken).ConfigureAwait(false);
 
@@ -129,11 +126,89 @@ public class SchedulesDirect : ISchedulesDirect
         return sanitized.ToString();
     }
 
+    public async Task<bool> GetSystemReady(CancellationToken cancellationToken)
+    {
+        SDStatus status = await GetStatusInternal(cancellationToken);
+
+        return status?.systemStatus[0].status?.ToLower() == "online";
+    }
+
+
+    public async Task<SDStatus> GetStatus(CancellationToken cancellationToken)
+    {
+        SDStatus status = await GetStatusInternal(cancellationToken);
+        if (status == null)
+        {
+            return GetSDStatusOffline();
+        }
+        return status;
+    }
+
+    private static SDStatus GetSDStatusOffline()
+    {
+        SDStatus ret = new();
+        ret.systemStatus.Add(new SDSystemStatus { status = "Offline" });
+        return ret;
+    }
+
+    private async Task<SDStatus> GetStatusInternal(CancellationToken cancellationToken)
+    {
+        SDStatus? result = await GetData<SDStatus>("status", cancellationToken).ConfigureAwait(false);
+        return result ?? GetSDStatusOffline();
+
+        ////if (cacheEntry.HasValue && (DateTime.UtcNow - cacheEntry.Value.timestamp).TotalMinutes < 10 && cacheEntry.Value.status != null)
+        ////{
+        ////    return cacheEntry.Value.status;
+        ////}
+
+        //int retry = 0;
+        //try
+        //{
+        //    while (retry <= MAX_RETRIES)
+        //    {
+        //        string url = await GetAPIUrl("status", cancellationToken);
+        //        using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
+
+        //        (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, SDStatus? result) = await SDHandler.ProcessResponse<SDStatus?>(response, cancellationToken).ConfigureAwait(false);
+
+        //        if (responseCode == SDHttpResponseCode.ACCOUNT_LOCKOUT || responseCode == SDHttpResponseCode.ACCOUNT_DISABLED || responseCode == SDHttpResponseCode.ACCOUNT_EXPIRED)
+        //        {
+        //            lockOutTokenDateTime = DateTime.Now.AddMinutes(15);
+        //            SaveToken();
+        //            return GetSDStatusOffline();
+        //        }
+
+        //        if (responseCode == SDHttpResponseCode.TOKEN_EXPIRED || responseCode == SDHttpResponseCode.INVALID_USER)
+        //        {
+        //            if (await ResetToken(cancellationToken).ConfigureAwait(false) == null)
+        //            {
+        //                return GetSDStatusOffline();
+        //            }
+        //            ++retry;
+        //            continue;
+        //        }
+
+        //        if (result == null)
+        //        {
+        //            return GetSDStatusOffline();
+        //        }
+
+        //        cacheEntry = (result, DateTime.UtcNow);
+        //        return result;
+
+        //    }
+        //}
+        //catch (Exception)
+        //{
+        //    return GetSDStatusOffline();
+        //}
+        //return GetSDStatusOffline();
+    }
 
     private async Task<T?> GetData<T>(string command, CancellationToken cancellationToken)
     {
         string cacheKey = GenerateCacheKey(command);
-        string cachePath = Path.Combine(BuildInfo.CacheFolder, "SD", cacheKey);
+        string cachePath = Path.Combine(BuildInfo.SDCacheFolder, cacheKey);
 
         // Check if cache exists and is valid
         if (File.Exists(cachePath) && DateTime.UtcNow - File.GetLastWriteTimeUtc(cachePath) <= CacheDuration)
@@ -169,6 +244,7 @@ public class SchedulesDirect : ISchedulesDirect
                     {
                         return default;
                     }
+                    ++retry;
                     continue;
                 }
 
@@ -203,11 +279,16 @@ public class SchedulesDirect : ISchedulesDirect
         byte[] hashBytes = sha256.ComputeHash(contentBytes); // Compute SHA-256 hash
         return BitConverter.ToString(hashBytes).Replace("-", "").ToLower(); // Convert byte array to hex string
     }
-    private async Task<T?> PostData<T>(string command, StringContent stringContent, CancellationToken cancellationToken, bool ignoreCache = false)
+
+
+    private async Task<T?> PostData<T>(string command, object toPost, CancellationToken cancellationToken, bool ignoreCache = false)
     {
-        string contentHash = GenerateHashFromStringContent(stringContent);
+        string jsonString = JsonSerializer.Serialize(toPost);
+
+        StringContent content = new(jsonString, Encoding.UTF8, "application/json");
+        string contentHash = GenerateHashFromStringContent(content);
         string cacheKey = GenerateCacheKey($"{command}_{contentHash}");
-        string cachePath = Path.Combine(BuildInfo.CacheFolder, "SD", cacheKey);
+        string cachePath = Path.Combine(BuildInfo.SDCacheFolder, cacheKey);
 
 
         // Check if cache exists and is valid
@@ -228,7 +309,7 @@ public class SchedulesDirect : ISchedulesDirect
             while (retry <= SDToken.MAX_RETRIES)
             {
                 string? url = await sdToken.GetAPIUrl(command, cancellationToken);
-                using HttpResponseMessage response = await _httpClient.PostAsync(url, stringContent, cancellationToken).ConfigureAwait(false);
+                using HttpResponseMessage response = await _httpClient.PostAsync(url, content, cancellationToken).ConfigureAwait(false);
 
                 (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? result) = await SDHandler.ProcessResponse<T?>(response, cancellationToken).ConfigureAwait(false);
 
@@ -274,49 +355,180 @@ public class SchedulesDirect : ISchedulesDirect
         return default;
     }
 
-    public async Task<LineUpsResult?> GetLineups(CancellationToken cancellationToken)
+    public async Task<List<Lineup>> GetLineups(CancellationToken cancellationToken)
     {
-        LineUpsResult? result = await GetData<LineUpsResult>("lineups", cancellationToken).ConfigureAwait(false);
-
-        if (result == null)
+        SDStatus status = await GetStatus(cancellationToken);
+        if (status.lineups == null || !status.lineups.Any())
         {
-            return null;
+            return new();
         }
 
-        foreach (Lineup l in result.Lineups)
-        {
-            l.Id = l.LineupString;
-        }
+        return status.lineups.Where(a => !a.IsDeleted).ToList();
 
-        return result;
+        //LineUpsResult? result = await GetData<LineUpsResult>("lineups", cancellationToken).ConfigureAwait(false);
+
+        //if (result == null)
+        //{
+        //    return null;
+        //}
+
+        //foreach (Lineup l in result.Lineups)
+        //{
+        //    l.Id = l.LineupString;
+        //}
+
+        //return result;
     }
 
     public async Task<List<SDProgram>> GetSDPrograms(List<string> programIds, CancellationToken cancellationToken)
     {
-        string jsonString = JsonSerializer.Serialize(programIds);
-        StringContent content = new(jsonString, Encoding.UTF8, "application/json");
+        List<string> distinctProgramIds = programIds.Distinct().ToList();
+        List<SDProgram> results = new();
+        List<string> programIdsToFetch = new();
 
-        List<SDProgram>? result = await PostData<List<SDProgram>>("programs", content, cancellationToken).ConfigureAwait(false);
-
-        return result ?? new List<SDProgram>();
-
-    }
-
-    public async Task<List<Schedule>?> GetSchedules(List<string> stationIds, CancellationToken cancellationToken)
-    {
-        List<StationId> StationIds = new();
-        foreach (string stationId in stationIds)
+        foreach (string? programId in distinctProgramIds)
         {
-            StationIds.Add(new StationId(stationId));
+            SDProgram? cachedSchedule = await GetValidCachedDataAsync<SDProgram>("Program_" + programId, cancellationToken).ConfigureAwait(false);
+            if (cachedSchedule != null)
+            {
+                results.Add(cachedSchedule);
+            }
+            else
+            {
+                programIdsToFetch.Add(programId);
+            }
         }
 
-        string jsonString = JsonSerializer.Serialize(StationIds);
-        StringContent content = new(jsonString, Encoding.UTF8, "application/json");
+        if (programIdsToFetch.Any())
+        {
+            List<SDProgram>? fetchedResults = await PostData<List<SDProgram>>("programs", programIdsToFetch, cancellationToken, true).ConfigureAwait(false);
+            if (fetchedResults == null)
+            {
 
-        List<Schedule>? result = await PostData<List<Schedule>>("schedules", content, cancellationToken).ConfigureAwait(false);
-        return result;
+                return new List<SDProgram>();
+            }
+
+            HashSet<string> processedProgramIds = new();
+
+            foreach (SDProgram program in fetchedResults)
+            {
+                // Check if we've already processed this ProgramID
+                if (!processedProgramIds.Contains(program.ProgramID))
+                {
+                    // Write to cache if it's a new ProgramID
+                    await WriteToCacheAsync("Program_" + program.ProgramID, program, cancellationToken).ConfigureAwait(false);
+                    results.Add(program);
+                    // Mark this ProgramID as processed
+                    processedProgramIds.Add(program.ProgramID);
+                }
+                else
+                {
+                    int aaa = 1;
+                }
+
+            }
+        }
+
+        return results;
 
     }
+
+    private async Task WriteToCacheAsync<T>(string name, T data, CancellationToken cancellationToken = default)
+    {
+        await _cacheSemaphore.WaitAsync(cancellationToken);
+        try
+        {
+            string cacheKey = GenerateCacheKey(name);
+            string cachePath = Path.Combine(BuildInfo.SDCacheFolder, cacheKey);
+            SDCacheEntry<T> cacheEntry = new()
+            {
+                Data = data,
+                Command = name,
+                Content = "",
+                Timestamp = DateTime.UtcNow
+            };
+
+            string contentToCache = JsonSerializer.Serialize(cacheEntry);
+            await File.WriteAllTextAsync(cachePath, contentToCache, cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            _cacheSemaphore.Release();
+        }
+    }
+
+    private async Task<T?> GetValidCachedDataAsync<T>(string name, CancellationToken cancellationToken = default)
+    {
+        await _cacheSemaphore.WaitAsync(cancellationToken);
+        try
+        {
+            string cacheKey = GenerateCacheKey(name);
+            string cachePath = Path.Combine(BuildInfo.SDCacheFolder, cacheKey);
+            if (!File.Exists(cachePath))
+            {
+                return default;
+            }
+
+            string cachedContent = await File.ReadAllTextAsync(cachePath, cancellationToken).ConfigureAwait(false);
+            SDCacheEntry<T>? cacheEntry = JsonSerializer.Deserialize<SDCacheEntry<T>>(cachedContent);
+
+            if (cacheEntry != null && DateTime.Now - cacheEntry.Timestamp <= CacheDuration)
+            {
+                return cacheEntry.Data;
+            }
+
+            return default;
+        }
+        finally
+        {
+            _cacheSemaphore.Release();
+        }
+    }
+
+
+
+    public async Task<List<Schedule>> GetSchedules(List<string> stationIds, CancellationToken cancellationToken)
+    {
+        List<string> distinctStationIds = stationIds.Distinct().ToList();
+        List<Schedule> results = new();
+        List<StationId> stationIdsToFetch = new();
+
+        foreach (string? stationId in distinctStationIds)
+        {
+            List<Schedule>? cachedSchedule = await GetValidCachedDataAsync<List<Schedule>>("StationId_" + stationId, cancellationToken).ConfigureAwait(false);
+            if (cachedSchedule != null)
+            {
+                results.AddRange(cachedSchedule);
+            }
+            else
+            {
+                stationIdsToFetch.Add(new StationId(stationId));
+            }
+        }
+
+        if (stationIdsToFetch.Any())
+        {
+            List<Schedule>? fetchedResults = await PostData<List<Schedule>>("schedules", stationIdsToFetch, cancellationToken, true).ConfigureAwait(false);
+            if (fetchedResults == null)
+            {
+
+                return new List<Schedule>();
+            }
+
+            foreach (IGrouping<string, Schedule> group in fetchedResults.GroupBy(s => s.StationID))
+            {
+                string stationId = group.Key;
+                List<Schedule> schedulesForStation = group.ToList();
+                await WriteToCacheAsync("StationId_" + stationId, schedulesForStation, cancellationToken).ConfigureAwait(false);
+
+                // Add the schedules to the results list
+                results.AddRange(schedulesForStation);
+            }
+        }
+
+        return results;
+    }
+
 
     public async Task<List<StationPreview>> GetStationPreviews(CancellationToken cancellationToken)
     {
@@ -336,43 +548,132 @@ public class SchedulesDirect : ISchedulesDirect
         return ret;
     }
 
+    //private async Task<bool> NeedUpdate(string id, DateTime date, CancellationToken cancellationToken = default)
+    //{
+    //    string cachePath = Path.Combine(BuildInfo.SDCacheFolder, "update_status.json");
+
+    //    if (!File.Exists(cachePath))
+    //    {
+    //        return true; // If the cache file doesn't exist, an update is needed.
+    //    }
+
+    //    string cachedContent;
+    //    try
+    //    {
+    //        cachedContent = await File.ReadAllTextAsync(cachePath, cancellationToken).ConfigureAwait(false);
+    //    }
+    //    catch (OperationCanceledException)
+    //    {
+    //        throw; // Propagate the cancellation exception.
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        return true; // If there's an error reading the file, assume an update is needed.
+    //    }
+
+    //    List<IdLastUpdated>? updates;
+    //    try
+    //    {
+    //        updates = JsonSerializer.Deserialize<List<IdLastUpdated>>(cachedContent);
+    //    }
+    //    catch (JsonException ex)
+    //    {
+    //        return true; // If deserialization fails, assume an update is needed.
+    //    }
+
+    //    // If updates list is null or the ID is not found with a date greater than or equal to the provided date, an update is needed.
+    //    return updates?.Any(a => a.Id == id && a.LastUpdated >= date) == false;
+    //}
+    //private async Task SetUpdateAsync(string id, DateTime date, CancellationToken cancellationToken = default)
+    //{
+    //    string cachePath = Path.Combine(BuildInfo.SDCacheFolder, "update_status.json");
+    //    List<IdLastUpdated> updates;
+
+    //    // Read the existing updates or initialize a new list if the file doesn't exist.
+    //    if (File.Exists(cachePath))
+    //    {
+    //        string cachedContent;
+    //        try
+    //        {
+    //            cachedContent = await File.ReadAllTextAsync(cachePath, cancellationToken).ConfigureAwait(false);
+    //            updates = JsonSerializer.Deserialize<List<IdLastUpdated>>(cachedContent) ?? new List<IdLastUpdated>();
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            throw; // Re-throw the exception to handle it further up the call stack.
+    //        }
+    //    }
+    //    else
+    //    {
+    //        updates = new List<IdLastUpdated>();
+    //    }
+
+    //    // Update the list with the new date, adding or updating the entry for the given ID.
+    //    IdLastUpdated? update = updates.FirstOrDefault(u => u.Id == id);
+    //    if (update != null)
+    //    {
+    //        update.LastUpdated = date;
+    //    }
+    //    else
+    //    {
+    //        updates.Add(new IdLastUpdated { Id = id, LastUpdated = date });
+    //    }
+
+    //    // Serialize the updated list back to JSON.
+    //    string updatedContent = JsonSerializer.Serialize(updates);
+
+    //    // Write the updated JSON back to the cache file.
+    //    try
+    //    {
+    //        await File.WriteAllTextAsync(cachePath, updatedContent, cancellationToken).ConfigureAwait(false);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        throw; // Re-throw the exception to handle it further up the call stack.
+    //    }
+    //}
+
+
     public async Task<List<Station>> GetStations(CancellationToken cancellationToken)
     {
         List<Station> ret = new();
 
-        ILineUpsResult? lineUps = await GetLineups(cancellationToken).ConfigureAwait(false);
-        if (lineUps == null || lineUps.Lineups == null)
+        List<Lineup> lineUps = await GetLineups(cancellationToken).ConfigureAwait(false);
+        if (lineUps?.Any() != true)
         {
             return ret;
         }
 
-        foreach (Lineup lineUp in lineUps.Lineups)
+        foreach (Lineup lineUp in lineUps)
         {
+
             ILineUpResult? res = await GetLineup(lineUp.LineupString, cancellationToken).ConfigureAwait(false);
             if (res == null)
             {
                 continue;
             }
 
+
             foreach (IStation station in res.Stations)
             {
                 station.LineUp = lineUp.LineupString;
             }
             ret.AddRange(res.Stations);
+
         }
 
         return ret;
     }
 
-    public async Task<SDStatus> GetStatus(CancellationToken cancellationToken)
-    {
-        return await sdToken.GetStatus(cancellationToken);
-    }
+    //public async Task<SDStatus> GetStatus(CancellationToken cancellationToken)
+    //{
+    //    return await sdToken.GetStatus(cancellationToken);
+    //}
 
-    public async Task<bool> GetSystemReady(CancellationToken cancellationToken)
-    {
-        return await sdToken.GetSystemReady(cancellationToken);
-    }
+    //public async Task<bool> GetSystemReady(CancellationToken cancellationToken)
+    //{
+    //    return await sdToken.GetSystemReady(cancellationToken);
+    //}
 
     private static HttpClient CreateHttpClient(string clientUserAgent)
     {
@@ -638,26 +939,31 @@ public class SchedulesDirect : ISchedulesDirect
 
     }
 
-    public static List<TvRating> GetRatings(ISDProgram sdProgram, string countryCode)
+    public static List<TvRating> GetRatings(ISDProgram sdProgram, string countryCode, int maxRatings)
     {
-        List<TvRating> ret = new();
+        List<TvRating> ratings = new();
 
-        if (sdProgram.ContentRating?.Any() == true)
+
+        if (sdProgram?.ContentRating == null)
         {
-            foreach (IContentRating cr in sdProgram.ContentRating)
-            {
-                ret.Add(new TvRating
-                {
-                    System = cr.Body,
-                    Value = cr.Code
-                }
-                );
-            }
+
+            return ratings;
         }
 
-        return ret;
+        maxRatings = maxRatings > 0 ? Math.Min(maxRatings, sdProgram.ContentRating.Count) : sdProgram.ContentRating.Count;
 
+        foreach (ContentRating? cr in sdProgram.ContentRating.Take(maxRatings))
+        {
+            ratings.Add(new TvRating
+            {
+                System = cr.Body,
+                Value = cr.Code
+            });
+        }
+
+        return ratings;
     }
+
 
     public static TvVideo GetTvVideos(Program sdProgram)
     {
@@ -690,10 +996,11 @@ public class SchedulesDirect : ISchedulesDirect
 
     }
 
-    public async Task<string> GetEpg(List<StationIdLineUp> stationIdLineUps, CancellationToken cancellationToken)
+    public async Task<string> GetEpg(List<StationIdLineUp> stationIdLineUps, int maxRatings, CancellationToken cancellationToken)
     {
-
         List<string> stationsIds = stationIdLineUps.Select(a => a.StationId).Distinct().ToList();
+
+        await Sync(stationIdLineUps, cancellationToken);
 
         List<Schedule>? schedules = await GetSchedules(stationsIds, cancellationToken);
 
@@ -706,16 +1013,14 @@ public class SchedulesDirect : ISchedulesDirect
         List<TvChannel> retChannels = new();
         List<Programme> retProgrammes = new();
 
-
         List<Station> stations = await GetStations(cancellationToken).ConfigureAwait(false);
 
         foreach (string? stationId in stationsIds)
         {
-
             List<string> names = stations.Where(a => a.StationId == stationId).Select(a => a.Name).Distinct().ToList();
             List<List<StationLogo>> logos = stations.Where(a => a.StationId == stationId).Select(a => a.StationLogo).Distinct().ToList();
             ILogo? logo = stations.Where(a => a.StationId == stationId).Select(a => a.Logo).FirstOrDefault();
-            IStation station = stations.Where(a => a.StationId == stationId).First();
+            IStation station = stations.First(a => a.StationId == stationId);
 
             TvChannel channel = new()
             {
@@ -742,7 +1047,7 @@ public class SchedulesDirect : ISchedulesDirect
         {
             foreach (Schedule sched in schedules.Where(a => a.Programs.Any(a => a.ProgramID == sdProg.ProgramID)).ToList())
             {
-                IStation station = stations.Where(a => a.StationId == sched.StationID).First();
+                IStation station = stations.First(a => a.StationId == sched.StationID);
 
                 foreach (Program p in sched.Programs)
                 {
@@ -768,7 +1073,7 @@ public class SchedulesDirect : ISchedulesDirect
                         Language = lang,
                         Episodenum = GetEpisodeNums(sdProg, lang),
                         Icon = GetIcons(p, sdProg, sched, lang),
-                        Rating = GetRatings(sdProg, lang),
+                        Rating = GetRatings(sdProg, lang, maxRatings),
                         Video = GetTvVideos(p),
                         Audio = GetTvAudios(p),
 

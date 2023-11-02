@@ -30,26 +30,33 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
         }
 
         sd = new(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
+        if (sd is not null)
+        {
+
+            await sd.Sync(setting.SDStationIds, cancellationToken);
+        }
+
         return sd != null;
     }
 
 
-    public async Task<List<Programme>> GetProgrammes(CancellationToken cancellationToken)
+    public async Task<List<Programme>> GetProgrammes(int maxDays, int maxRatings, CancellationToken cancellationToken)
     {
         Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
 
-
-        List<string> stationsIds = setting.SDStationIds.Select(a => a.StationId).Distinct().ToList();
+        //List<string> stationsIds = new();// setting.SDStationIds.Select(a => a.StationId).Distinct().ToList();
+        HashSet<string> stationsIds = new();
 
         List<Station> stations = await GetStations(cancellationToken).ConfigureAwait(false);
 
         foreach (StationIdLineUp SDStationId in setting.SDStationIds)
         {
+            stationsIds.Add(SDStationId.StationId);
             string stationId = SDStationId.StationId;
             string lineUp = SDStationId.LineUp;
 
-            List<string> names = stations.Where(a => a.StationId == stationId).Select(a => a.Name).Distinct().ToList();
-            List<StationLogo> logos = stations.Where(a => a.StationId == stationId && a.StationLogo != null).SelectMany(a => a.StationLogo).Distinct().ToList();
+            List<string> names = stations.Where(a => a.StationId == stationId && a.LineUp == lineUp).Select(a => a.Name).Distinct().ToList();
+            List<StationLogo> logos = stations.Where(a => a.StationId == stationId && a.StationLogo != null && a.LineUp == lineUp).SelectMany(a => a.StationLogo).Distinct().ToList();
             List<ChannelLogoDto> channelLogos = memoryCache.ChannelLogos();
 
 
@@ -67,7 +74,8 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
                     {
                         Id = nextId++,
                         LogoUrl = logo.URL,
-                        EPGId = "SD|" + lineUp + "|" + stationId,
+                        //EPGId = "SD|" + lineUp + "|" + stationId,
+                        EPGId = "SD|" + stationId,
                         EPGFileId = 0
                     };
 
@@ -78,89 +86,93 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
         }
 
 
-        List<Schedule>? schedules = await GetSchedules(stationsIds, cancellationToken);
+        List<Schedule>? schedules = await GetSchedules(stationsIds.ToList(), cancellationToken);
 
         if (schedules?.Any() != true)
         {
             return new();
         }
 
-        //DateTime test1 = schedules.SelectMany(a => a.Programs).Min(a => a.AirDateTime);
-        //DateTime test2 = schedules.SelectMany(a => a.Programs).Max(a => a.AirDateTime);
-
-        List<string> progIds = schedules.SelectMany(a => a.Programs).Where(a => a.AirDateTime <= DateTime.Now.AddDays(3)).Select(a => a.ProgramID).Distinct().ToList();
-        List<SDProgram> programs = await sd.GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
         List<Programme> retProgrammes = new();
-
-        foreach (SDProgram sdProg in programs)
+        foreach (Schedule sched in schedules)
         {
-            foreach (Schedule sched in schedules.Where(a => a.Programs.Any(a => a.ProgramID == sdProg.ProgramID)).ToList())
+            IStation station = stations.First(a => a.StationId == sched.StationID);
+            List<string> names = stations.Where(a => a.StationId == sched.StationID).Select(a => a.Name).Distinct().ToList();
+            string? channelNameSuffix = names.LastOrDefault();
+            string displayName = "";
+            string channelName = "";
+            string name = "";
+
+            if (channelNameSuffix != null && channelNameSuffix != sched.StationID)
             {
-                IStation station = stations.First(a => a.StationId == sched.StationID);
-                List<string> names = stations.Where(a => a.StationId == sched.StationID).Select(a => a.Name).Distinct().ToList();
+                displayName = station.LineUp + "-" + channelNameSuffix;
+                channelName = station.LineUp + "-" + sched.StationID + " - " + channelNameSuffix;
+                name = channelNameSuffix;
+            }
+            else
+            {
+                displayName = station.LineUp + "-" + sched.StationID;
+                channelName = sched.StationID;
+                name = sched.StationID;
+            }
 
-                string? channelNameSuffix = names.LastOrDefault();
-                string displayName = "";
-                string channelName = "";
-                string name = "";
+            List<string> progIds = sched.Programs.Where(a => a.AirDateTime <= DateTime.Now.AddDays(maxDays)).Select(a => a.ProgramID).Distinct().ToList();
 
-                if (channelNameSuffix != null && channelNameSuffix != sched.StationID)
+            List<SDProgram> programs = await sd.GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
+
+
+            foreach (Program p in sched.Programs)
+            {
+                //foreach (SDProgram sdProg in programs)
+                SDProgram? sdProg = programs.FirstOrDefault(a => a.ProgramID == p.ProgramID);
+                if (sdProg == null)
                 {
-                    displayName = station.LineUp + "-" + channelNameSuffix;
-                    channelName = station.LineUp + "-" + sched.StationID + " - " + channelNameSuffix;
-                    name = channelNameSuffix;
+                    continue;
                 }
-                else
+
+                DateTime startt = p.AirDateTime;
+                DateTime endt = startt.AddSeconds(p.Duration);
+                string lang = "en";
+                if (station.BroadcastLanguage.Any())
                 {
-                    displayName = station.LineUp + "-" + sched.StationID;
-                    channelName = sched.StationID;
-                    name = sched.StationID;
+                    lang = station.BroadcastLanguage[0];
                 }
 
-                foreach (Program p in sched.Programs)
+                Programme programme = new()
                 {
-                    DateTime startt = p.AirDateTime;
-                    DateTime endt = startt.AddSeconds(p.Duration);
-                    string lang = "en";
-                    if (station.BroadcastLanguage.Any())
-                    {
-                        lang = station.BroadcastLanguage[0];
-                    }
+                    Start = startt.ToString("yyyyMMddHHmmss") + " +0000",
+                    Stop = endt.ToString("yyyyMMddHHmmss") + " +0000",
+                    //Channel = "SD|" + station.LineUp + "|" + sched.StationID,
+                    Channel = "SD|" + sched.StationID,
+                    ChannelName = channelName,
+                    Name = name,
+                    DisplayName = displayName,
+                    Title = SchedulesDirect.GetTitles(sdProg.Titles, lang),
+                    Subtitle = SchedulesDirect.GetSubTitles(sdProg, lang),
+                    Desc = SchedulesDirect.GetDescriptions(sdProg, lang),
+                    Credits = SchedulesDirect.GetCredits(sdProg, lang),
+                    Category = SchedulesDirect.GetCategory(sdProg, lang),
+                    Language = lang,
+                    Episodenum = SchedulesDirect.GetEpisodeNums(sdProg, lang),
+                    Icon = SchedulesDirect.GetIcons(p, sdProg, sched, lang),
+                    Rating = SchedulesDirect.GetRatings(sdProg, lang, maxRatings),
+                    Video = SchedulesDirect.GetTvVideos(p),
+                    Audio = SchedulesDirect.GetTvAudios(p),
 
-                    Programme programme = new()
-                    {
-                        Start = startt.ToString("yyyyMMddHHmmss") + " +0000",
-                        Stop = endt.ToString("yyyyMMddHHmmss") + " +0000",
-                        Channel = "SD|" + station.LineUp + "|" + sched.StationID,
-                        ChannelName = channelName,
-                        Name = name,
-                        DisplayName = displayName,
-                        Title = SchedulesDirect.GetTitles(sdProg.Titles, lang),
-                        Subtitle = SchedulesDirect.GetSubTitles(sdProg, lang),
-                        Desc = SchedulesDirect.GetDescriptions(sdProg, lang),
-                        Credits = SchedulesDirect.GetCredits(sdProg, lang),
-                        Category = SchedulesDirect.GetCategory(sdProg, lang),
-                        Language = lang,
-                        Episodenum = SchedulesDirect.GetEpisodeNums(sdProg, lang),
-                        Icon = SchedulesDirect.GetIcons(p, sdProg, sched, lang),
-                        Rating = SchedulesDirect.GetRatings(sdProg, lang),
-                        Video = SchedulesDirect.GetTvVideos(p),
-                        Audio = SchedulesDirect.GetTvAudios(p),
+                };
 
-                    };
-
-                    if (p.New is not null)
-                    {
-                        programme.New = ((bool)p.New).ToString();
-                    }
-
-                    if (!string.IsNullOrEmpty(p.LiveTapeDelay) && p.LiveTapeDelay.Equals("Live"))
-                    {
-                        programme.Live = "";
-                    }
-
-                    retProgrammes.Add(programme);
+                if (p.New is not null)
+                {
+                    programme.New = ((bool)p.New).ToString();
                 }
+
+                if (!string.IsNullOrEmpty(p.LiveTapeDelay) && p.LiveTapeDelay.Equals("Live"))
+                {
+                    programme.Live = "";
+                }
+
+                retProgrammes.Add(programme);
+
             }
             //var s= GetSubTtitle()
         }

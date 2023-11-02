@@ -26,7 +26,7 @@ public static class SDHandler
             }
 
             T? result = JsonSerializer.Deserialize<T>(responseContent);
-            return (response.StatusCode, responseCode, responseContent, result);
+            return (response.StatusCode, SDHttpResponseCode.OK, responseContent, result);
 
 
         }

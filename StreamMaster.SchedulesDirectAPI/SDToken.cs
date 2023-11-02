@@ -44,72 +44,6 @@ public class SDToken
         LoadToken();
     }
 
-    public async Task<SDStatus> GetStatus(CancellationToken cancellationToken)
-    {
-        SDStatus status = await GetStatusInternal(cancellationToken);
-        if (status == null)
-        {
-            return GetSDStatusOffline();
-        }
-        return status;
-    }
-
-    private async Task<SDStatus> GetStatusInternal(CancellationToken cancellationToken)
-    {
-        if (cacheEntry.HasValue && (DateTime.UtcNow - cacheEntry.Value.timestamp).TotalMinutes < 10)
-        {
-            return cacheEntry.Value.status;
-        }
-
-        int retry = 0;
-        try
-        {
-            while (retry <= MAX_RETRIES)
-            {
-                string url = await GetAPIUrl("status", cancellationToken);
-                using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
-
-                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, SDStatus? result) = await SDHandler.ProcessResponse<SDStatus?>(response, cancellationToken).ConfigureAwait(false);
-
-                if (responseCode == SDHttpResponseCode.ACCOUNT_LOCKOUT || responseCode == SDHttpResponseCode.ACCOUNT_DISABLED || responseCode == SDHttpResponseCode.ACCOUNT_EXPIRED)
-                {
-                    lockOutTokenDateTime = DateTime.Now.AddMinutes(15);
-                    SaveToken();
-                    return GetSDStatusOffline();
-                }
-
-                if (responseCode == SDHttpResponseCode.TOKEN_EXPIRED || responseCode == SDHttpResponseCode.INVALID_USER)
-                {
-                    if (await ResetToken(cancellationToken).ConfigureAwait(false) == null)
-                    {
-                        return GetSDStatusOffline();
-                    }
-                    continue;
-                }
-
-                if (result == null)
-                {
-                    return GetSDStatusOffline();
-                }
-
-                cacheEntry = (result, DateTime.UtcNow);
-                return result;
-
-            }
-        }
-        catch (Exception)
-        {
-            return GetSDStatusOffline();
-        }
-        return GetSDStatusOffline();
-    }
-
-    public async Task<bool> GetSystemReady(CancellationToken cancellationToken)
-    {
-        ISDStatus? status = await GetStatusInternal(cancellationToken);
-
-        return status?.systemStatus[0].status?.ToLower() == "online";
-    }
 
     public async Task<string?> GetToken(CancellationToken cancellationToken = default)
     {
@@ -174,12 +108,7 @@ public class SDToken
         return $"{SD_BASE_URL}{command}?token={token}";
     }
 
-    private static SDStatus GetSDStatusOffline()
-    {
-        SDStatus ret = new();
-        ret.systemStatus.Add(new SDSystemStatus { status = "Offline" });
-        return ret;
-    }
+
 
     private void LoadToken()
     {

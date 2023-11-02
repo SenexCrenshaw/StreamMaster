@@ -44,7 +44,7 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<LineUpsResult?>> GetLineups()
+    public async Task<ActionResult<List<Lineup>>> GetLineups()
     {
         return await Mediator.Send(new GetLineups()).ConfigureAwait(false);
     }

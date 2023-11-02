@@ -16,7 +16,7 @@ public interface ISchedulesDirectController
 
     Task<ActionResult<List<LineUpPreview>>> GetLineupPreviews();
 
-    Task<ActionResult<LineUpsResult?>> GetLineups();
+    Task<ActionResult<List<Lineup>>> GetLineups();
 
     Task<ActionResult<List<Schedule>>> GetSchedules();
 
@@ -44,7 +44,7 @@ public interface ISchedulesDirectHub
 
     Task<List<LineUpPreview>> GetLineupPreviews();
 
-    Task<LineUpsResult> GetLineups();
+    Task<List<Lineup>> GetLineups();
 
     Task<List<Schedule>> GetSchedules();
 
