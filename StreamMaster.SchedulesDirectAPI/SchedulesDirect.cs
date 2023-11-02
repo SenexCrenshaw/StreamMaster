@@ -629,16 +629,6 @@ public class SchedulesDirect : ISchedulesDirect
         return ret;
     }
 
-    //public async Task<SDStatus> GetStatus(CancellationToken cancellationToken)
-    //{
-    //    return await sdToken.GetStatus(cancellationToken);
-    //}
-
-    //public async Task<bool> GetSystemReady(CancellationToken cancellationToken)
-    //{
-    //    return await sdToken.GetSystemReady(cancellationToken);
-    //}
-
     private static HttpClient CreateHttpClient(string clientUserAgent)
     {
         HttpClient client = new(new HttpClientHandler()
@@ -652,21 +642,6 @@ public class SchedulesDirect : ISchedulesDirect
 
         return client;
     }
-
-    //public (string value, string lang) GetSubTtitle(string? subTitle)
-    //{
-    //    if (string.IsNullOrEmpty(subTitle))
-    //    {
-    //        return (string.Empty, string.Empty);
-    //    }
-
-    //    string[] parts = subTitle.Split(new char[] { ':' }, 2);
-    //    if (parts.Length == 1)
-    //    {
-    //        return (parts[0], string.Empty);
-    //    }
-    //    return (parts[1], parts[0]);
-    //}
 
     public static List<TvTitle> GetTitles(List<Title> Titles, string lang)
     {

@@ -18,11 +18,8 @@ $env:COMPOSE_DOCKER_CLI_BUILD = 1
 
 # Multiple tags
 $tags = if ($BuildTest) {
-    Write-Output "Setting version to $branchName-$semVer-$buildMetaDataPadded"
-
     "docker.io/senexcrenshaw/streammaster:$branchName-$semVer-$buildMetaDataPadded"
 } else {
-     Write-Output "Setting version to latest $semVer-$buildMetaDataPadded"
     "docker.io/senexcrenshaw/streammaster:latest",
     "docker.io/senexcrenshaw/streammaster:$semVer",
     "docker.io/senexcrenshaw/streammaster:$semVer-$buildMetaDataPadded"
