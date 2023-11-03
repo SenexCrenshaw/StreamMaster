@@ -1,6 +1,6 @@
 ﻿namespace StreamMaster.SchedulesDirectAPI;
 
-public class SDGetToken
+internal class SDGetToken
 {
     public int code { get; set; }
     public DateTime datetime { get; set; }

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Cache;
@@ -15,27 +16,27 @@ using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirectAPI;
 
-public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService settingsService, IMemoryCache memoryCache) : ISchedulesDirect
+public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService settingsService,ISDToken SdToken, IMemoryCache memoryCache) : ISchedulesDirect
 {
     public static readonly int MAX_RETRIES = 2;
     private HttpClient _httpClient = null!;
-    private SDToken _sdToken = null!;
+    private ISDToken _sdToken = null!;
     private readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
     private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
     private readonly ILogger _logger = logger;
 
-    private SDToken SdToken
-    {
-        get
-        {
-            if (_sdToken == null)
-            {
-                Setting setting = settingsService.GetSettingsAsync().Result;
-                _sdToken = new SDToken(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
-            }
-            return _sdToken;
-        }
-    }
+    //private ISDToken SdToken
+    //{
+    //    get
+    //    {
+    //        if (_sdToken == null)
+    //        {
+    //            Setting setting = settingsService.GetSettingsAsync().Result;
+    //            _sdToken = new SDToken(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
+    //        }
+    //        return _sdToken;
+    //    }
+    //}
 
     private HttpClient httpClient
     {
@@ -230,27 +231,11 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
     }
 
 
-    private async Task<T?> PostData<T>(string command, object toPost, CancellationToken cancellationToken, bool ignoreCache = false)
+    private async Task<T?> PostData<T>(string command, object toPost, CancellationToken cancellationToken)
     {
         string jsonString = JsonSerializer.Serialize(toPost);
 
         StringContent content = new(jsonString, Encoding.UTF8, "application/json");
-        string contentHash = SDHelpers.GenerateHashFromStringContent(content);
-        string cacheKey = SDHelpers.GenerateCacheKey($"{command}_{contentHash}");
-        string cachePath = Path.Combine(BuildInfo.SDCacheFolder, cacheKey);
-
-
-        // Check if cache exists and is valid
-        if (!ignoreCache && File.Exists(cachePath) && DateTime.UtcNow - File.GetLastWriteTimeUtc(cachePath) <= CacheDuration)
-        {
-            string cachedContent = await File.ReadAllTextAsync(cachePath, cancellationToken);
-            SDCacheEntry<T>? cacheEntry = JsonSerializer.Deserialize<SDCacheEntry<T>>(cachedContent);
-
-            if (cacheEntry != null && DateTime.UtcNow - cacheEntry.Timestamp <= CacheDuration)
-            {
-                return cacheEntry.Data;
-            }
-        }
 
         int retry = 0;
         try
@@ -281,19 +266,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
                 {
                     return default;
                 }
-                if (!ignoreCache)
-                {
-                    SDCacheEntry<T> entry = new()
-                    {
-                        Timestamp = DateTime.UtcNow,
-                        Command = command,
-                        Content = "",
-                        Data = result
-                    };
-
-                    string jsonResult = JsonSerializer.Serialize(entry);
-                    await File.WriteAllTextAsync(cachePath, jsonResult, cancellationToken);
-                }
+                
                 return result;
             }
         }
@@ -337,7 +310,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
 
         if (programIdsToFetch.Any())
         {
-            List<SDProgram>? fetchedResults = await PostData<List<SDProgram>>("programs", programIdsToFetch, cancellationToken, true).ConfigureAwait(false);
+            List<SDProgram>? fetchedResults = await PostData<List<SDProgram>>("programs", programIdsToFetch, cancellationToken).ConfigureAwait(false);
             if (fetchedResults == null)
             {
 
@@ -442,7 +415,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
 
         if (stationIdsToFetch.Any())
         {
-            List<Schedule>? fetchedResults = await PostData<List<Schedule>>("schedules", stationIdsToFetch, cancellationToken, true).ConfigureAwait(false);
+            List<Schedule>? fetchedResults = await PostData<List<Schedule>>("schedules", stationIdsToFetch, cancellationToken).ConfigureAwait(false);
             if (fetchedResults == null)
             {
 
@@ -522,112 +495,6 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         return ret;
     }
 
-    public async Task<string> GetEpg(CancellationToken cancellationToken)
-    {
-        Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
-        List<StationIdLineUp> stationIdLineUps = setting.SDStationIds;
-        List<string> stationsIds = stationIdLineUps.ConvertAll(a => a.StationId).Distinct().ToList();
-
-        await Sync(stationIdLineUps, cancellationToken);
-
-        List<Schedule>? schedules = await GetSchedules(stationsIds, cancellationToken);
-
-        if (schedules?.Any() != true)
-        {
-            Console.WriteLine("No schedules");
-            return FileUtil.SerializeEpgData(new Tv());
-        }
-
-        List<TvChannel> retChannels = new();
-        List<Programme> retProgrammes = new();
-
-        List<Station> stations = await GetStations(cancellationToken).ConfigureAwait(false);
-
-        foreach (string? stationId in stationsIds)
-        {
-            List<string> names = stations.Where(a => a.StationId == stationId).Select(a => a.Name).Distinct().ToList();
-            List<List<StationLogo>> logos = stations.Where(a => a.StationId == stationId).Select(a => a.StationLogo).Distinct().ToList();
-            ILogo? logo = stations.Where(a => a.StationId == stationId).Select(a => a.Logo).FirstOrDefault();
-            IStation station = stations.First(a => a.StationId == stationId);
-
-            TvChannel channel = new()
-            {
-                Id = stationId,
-                Displayname = names,
-
-            };
-
-            if (station.Logo != null)
-            {
-                channel.Icon = new TvIcon
-                {
-                    Src = station.Logo.URL
-                };
-            }
-
-            retChannels.Add(channel);
-        }
-
-        List<string> progIds = schedules.SelectMany(a => a.Programs).Select(a => a.ProgramID).Distinct().ToList();
-        List<SDProgram> programs = await GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
-
-        foreach (SDProgram sdProg in programs)
-        {
-            foreach (Schedule sched in schedules.Where(a => a.Programs.Any(a => a.ProgramID == sdProg.ProgramID)).ToList())
-            {
-                IStation station = stations.First(a => a.StationId == sched.StationID);
-
-                foreach (Program p in sched.Programs)
-                {
-                    DateTime startt = p.AirDateTime;
-                    DateTime endt = startt.AddSeconds(p.Duration);
-                    string lang = "en";
-                    if (station.BroadcastLanguage.Any())
-                    {
-                        lang = station.BroadcastLanguage[0];
-                    }
-
-                    Programme programme = new()
-                    {
-                        Start = startt.ToString("yyyyMMddHHmmss") + " +0000",
-                        Stop = endt.ToString("yyyyMMddHHmmss") + " +0000",
-                        Channel = sched.StationID,
-
-                        Title = SDHelpers.GetTitles(sdProg.Titles, lang),
-                        Subtitle = SDHelpers.GetSubTitles(sdProg, lang),
-                        Desc = SDHelpers.GetDescriptions(sdProg, lang),
-                        Credits = SDHelpers.GetCredits(sdProg, lang),
-                        Category = SDHelpers.GetCategory(sdProg, lang),
-                        Language = lang,
-                        Episodenum = SDHelpers.GetEpisodeNums(sdProg, lang),
-                        Icon = SDHelpers.GetIcons(p, sdProg, sched, lang),
-                        Rating = SDHelpers.GetRatings(sdProg, lang, setting.SDMaxRatings),
-                        Video = SDHelpers.GetTvVideos(p),
-                        Audio = SDHelpers.GetTvAudios(p),
-
-                    };
-
-                    if (p.New is not null)
-                    {
-                        programme.New = ((bool)p.New).ToString();
-                    }
-
-                    if (!string.IsNullOrEmpty(p.LiveTapeDelay) && p.LiveTapeDelay.Equals("Live"))
-                    {
-                        programme.Live = "";
-                    }
-
-                    retProgrammes.Add(programme);
-                }
-            }
-        }
-
-        Tv tv = new()
-        {
-            Channel = retChannels.OrderBy(a => int.Parse(a!.Id)).ToList(),
-            Programme = retProgrammes.OrderBy(a => int.Parse(a.Channel)).ThenBy(a => a.StartDateTime).ToList()
-        };
-        return FileUtil.SerializeEpgData(tv);
-    }
+    
 
 }

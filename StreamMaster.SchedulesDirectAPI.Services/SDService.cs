@@ -18,38 +18,9 @@ namespace StreamMaster.SchedulesDirectAPI.Services;
 [LogExecutionTimeAspect]
 public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISettingsService settingsService, ISchedulesDirect sd) : ISDService
 {
-    //private readonly SchedulesDirect sd;
-
-    //private async Task<bool> EnsureSDAsync(CancellationToken cancellationToken = default)
-    //{
-    //    if (sd != null)
-    //    {
-    //        return true;
-    //    }
-
-    //    Setting setting = await settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
-    //    if (!setting.SDEnabled)
-    //    {
-    //        return false;
-    //    }
-
-    //    sd = new(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
-    //    if (sd is not null)
-    //    {
-
-    //        await sd.Sync(setting.SDStationIds, cancellationToken);
-    //    }
-
-    //    return sd != null;
-    //}
     [LogExecutionTimeAspect]
     public async Task SDSync(CancellationToken cancellationToken)
     {
-        //if (!await EnsureSDAsync(cancellationToken).ConfigureAwait(false))
-        //{
-        //    return;
-        //}
-
         Setting setting = await settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
         if (!setting.SDEnabled)
         {
@@ -58,6 +29,115 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
 
         await sd.Sync(setting.SDStationIds, cancellationToken);
 
+    }
+
+    [LogExecutionTimeAspect]
+    public async Task<string> GetEpg(CancellationToken cancellationToken)
+    {
+        Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
+        List<StationIdLineUp> stationIdLineUps = setting.SDStationIds;
+        List<string> stationsIds = stationIdLineUps.ConvertAll(a => a.StationId).Distinct().ToList();
+
+        await sd.Sync(stationIdLineUps, cancellationToken);
+
+        List<Schedule>? schedules = await GetSchedules(stationsIds, cancellationToken);
+
+        if (schedules?.Any() != true)
+        {
+            Console.WriteLine("No schedules");
+            return FileUtil.SerializeEpgData(new Tv());
+        }
+
+        List<TvChannel> retChannels = new();
+        List<Programme> retProgrammes = new();
+
+        List<Station> stations = await GetStations(cancellationToken).ConfigureAwait(false);
+
+        foreach (string? stationId in stationsIds)
+        {
+            List<string> names = stations.Where(a => a.StationId == stationId).Select(a => a.Name).Distinct().ToList();
+            List<List<StationLogo>> logos = stations.Where(a => a.StationId == stationId).Select(a => a.StationLogo).Distinct().ToList();
+            ILogo? logo = stations.Where(a => a.StationId == stationId).Select(a => a.Logo).FirstOrDefault();
+            IStation station = stations.First(a => a.StationId == stationId);
+
+            TvChannel channel = new()
+            {
+                Id = stationId,
+                Displayname = names,
+
+            };
+
+            if (station.Logo != null)
+            {
+                channel.Icon = new TvIcon
+                {
+                    Src = station.Logo.URL
+                };
+            }
+
+            retChannels.Add(channel);
+        }
+
+        List<string> progIds = schedules.SelectMany(a => a.Programs).Select(a => a.ProgramID).Distinct().ToList();
+        List<SDProgram> programs = await GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
+
+        foreach (SDProgram sdProg in programs)
+        {
+            foreach (Schedule sched in schedules.Where(a => a.Programs.Any(a => a.ProgramID == sdProg.ProgramID)).ToList())
+            {
+                IStation station = stations.First(a => a.StationId == sched.StationID);
+
+                foreach (Program p in sched.Programs)
+                {
+                    DateTime startt = p.AirDateTime;
+                    DateTime endt = startt.AddSeconds(p.Duration);
+                    string lang = "en";
+                    if (station.BroadcastLanguage.Any())
+                    {
+                        lang = station.BroadcastLanguage[0];
+                    }
+
+                    Programme programme = new()
+                    {
+                        Start = startt.ToString("yyyyMMddHHmmss") + " +0000",
+                        Stop = endt.ToString("yyyyMMddHHmmss") + " +0000",
+                        Channel = sched.StationID,
+
+                        Title = SDHelpers.GetTitles(sdProg.Titles, lang),
+                        Subtitle = SDHelpers.GetSubTitles(sdProg, lang),
+                        Desc = SDHelpers.GetDescriptions(sdProg, lang),
+                        Credits = SDHelpers.GetCredits(sdProg, lang),
+                        Category = SDHelpers.GetCategory(sdProg, lang),
+                        Language = lang,
+                        Episodenum = SDHelpers.GetEpisodeNums(sdProg, lang),
+                        Icon = SDHelpers.GetIcons(p, sdProg, sched, lang),
+                        Rating = SDHelpers.GetRatings(sdProg, lang, setting.SDMaxRatings),
+                        Video = SDHelpers.GetTvVideos(p),
+                        Audio = SDHelpers.GetTvAudios(p),
+
+                    };
+
+                    if (p.New is not null)
+                    {
+                        programme.New = ((bool)p.New).ToString();
+                    }
+
+                    if (!string.IsNullOrEmpty(p.LiveTapeDelay) && p.LiveTapeDelay.Equals("Live"))
+                    {
+                        programme.Live = "";
+                    }
+
+                    retProgrammes.Add(programme);
+                }
+            }
+        }
+
+        Tv tv = new()
+        {
+            Channel = retChannels.OrderBy(a => int.Parse(a!.Id)).ToList(),
+            Programme = retProgrammes.OrderBy(a => int.Parse(a.Channel)).ThenBy(a => a.StartDateTime).ToList()
+        };
+        return FileUtil.SerializeEpgData(tv);
     }
 
     [LogExecutionTimeAspect]
@@ -175,55 +255,27 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
 
     public async Task<List<StationPreview>> GetStationPreviews(CancellationToken cancellationToken)
     {
-        //if (!await EnsureSDAsync(cancellationToken).ConfigureAwait(false))
-        //{
-        //    return new();
-        //}
-
         return await sd.GetStationPreviews(cancellationToken);
     }
 
     public async Task<List<Schedule>?> GetSchedules(List<string> stationsIds, CancellationToken cancellationToken)
     {
-        //if (!await EnsureSDAsync(cancellationToken).ConfigureAwait(false))
-        //{
-        //    return new();
-        //}
-
-        return await sd.GetSchedules(stationsIds, cancellationToken);
+       return await sd.GetSchedules(stationsIds, cancellationToken);
     }
 
     public async Task<List<SDProgram>> GetSDPrograms(List<string> progIds, CancellationToken cancellationToken)
     {
-        //if (!await EnsureSDAsync(cancellationToken).ConfigureAwait(false))
-        //{
-        //    return new();
-        //}
         return await sd.GetSDPrograms(progIds, cancellationToken);
     }
 
     public async Task<List<Station>> GetStations(CancellationToken cancellationToken)
     {
-        //if (!await EnsureSDAsync(cancellationToken).ConfigureAwait(false))
-        //{
-        //    return new();
-        //}
         return await sd.GetStations(cancellationToken);
     }
 
     public async Task<SDStatus> GetStatus(CancellationToken cancellationToken)
     {
-        //if (!await EnsureSDAsync(cancellationToken).ConfigureAwait(false))
-        //{
-        //    return SDHelpers.GetSDStatusOffline();
-        //}
-
-        return await sd.GetStatus(cancellationToken);
-    }
-
-    public async Task<string> GetEpg(CancellationToken cancellationToken)
-    {
-        return await sd.GetEpg(cancellationToken);
+         return await sd.GetStatus(cancellationToken);
     }
 
     public async Task<List<Headend>?> GetHeadends(string country, string postalCode, CancellationToken cancellationToken = default)
