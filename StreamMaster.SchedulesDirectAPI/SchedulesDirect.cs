@@ -16,40 +16,13 @@ using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirectAPI;
 
-public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService settingsService,ISDToken SdToken, IMemoryCache memoryCache) : ISchedulesDirect
+public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService settingsService,ISDToken SdToken, IMemoryCache memoryCache, HttpClient httpClient) : ISchedulesDirect
 {
     public static readonly int MAX_RETRIES = 2;
-    private HttpClient _httpClient = null!;
-    private ISDToken _sdToken = null!;
     private readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
     private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
     private readonly ILogger _logger = logger;
 
-    //private ISDToken SdToken
-    //{
-    //    get
-    //    {
-    //        if (_sdToken == null)
-    //        {
-    //            Setting setting = settingsService.GetSettingsAsync().Result;
-    //            _sdToken = new SDToken(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
-    //        }
-    //        return _sdToken;
-    //    }
-    //}
-
-    private HttpClient httpClient
-    {
-        get
-        {
-            if (_httpClient == null)
-            {
-                Setting setting = settingsService.GetSettingsAsync().Result;
-                _httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
-            }
-            return _httpClient;
-        }
-    }
 
     public async Task<Countries?> GetCountries(CancellationToken cancellationToken)
     {
@@ -191,13 +164,13 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
 
                 if (responseCode == SDHttpResponseCode.ACCOUNT_LOCKOUT || responseCode == SDHttpResponseCode.ACCOUNT_DISABLED || responseCode == SDHttpResponseCode.ACCOUNT_EXPIRED)
                 {
-                    SdToken.LockOutToken();
+                    await SdToken.LockOutTokenAsync(cancellationToken: cancellationToken);
                     return default;
                 }
 
                 if (responseCode == SDHttpResponseCode.TOKEN_EXPIRED || responseCode == SDHttpResponseCode.INVALID_USER)
                 {
-                    if (await SdToken.ResetToken(cancellationToken).ConfigureAwait(false) == null)
+                    if (await SdToken.ResetTokenAsync(cancellationToken).ConfigureAwait(false) == null)
                     {
                         return default;
                     }
@@ -249,13 +222,13 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
 
                 if (responseCode == SDHttpResponseCode.ACCOUNT_LOCKOUT || responseCode == SDHttpResponseCode.ACCOUNT_DISABLED || responseCode == SDHttpResponseCode.ACCOUNT_EXPIRED)
                 {
-                    SdToken.LockOutToken();
+                    await SdToken.LockOutTokenAsync(cancellationToken: cancellationToken);
                     return default;
                 }
 
                 if (responseCode == SDHttpResponseCode.TOKEN_EXPIRED || responseCode == SDHttpResponseCode.INVALID_USER)
                 {
-                    if (await SdToken.ResetToken(cancellationToken).ConfigureAwait(false) == null)
+                    if (await SdToken.ResetTokenAsync(cancellationToken).ConfigureAwait(false) == null)
                     {
                         return default;
                     }

@@ -47,7 +47,7 @@ public enum SDHttpResponseCode
 
 public static class SDHttpResponseCodeExtensions
 {
-    public static string GetErrorMessage(this SDHttpResponseCode responseCode)
+    public static string GetMessage(this SDHttpResponseCode responseCode)
     {
         switch (responseCode)
         {
