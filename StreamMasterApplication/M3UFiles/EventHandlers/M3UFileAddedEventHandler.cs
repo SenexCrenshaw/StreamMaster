@@ -1,9 +1,4 @@
-﻿using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-
-using StreamMasterApplication.Hubs;
-using StreamMasterApplication.Services;
+﻿using StreamMasterApplication.Services;
 
 namespace StreamMasterApplication.M3UFiles.EventHandlers;
 
@@ -24,6 +19,8 @@ public class M3UFileAddedEventHandler : INotificationHandler<M3UFileAddedEvent>
     public async Task Handle(M3UFileAddedEvent notification, CancellationToken cancellationToken)
     {
         await _taskQueue.ProcessM3UFile(notification.Item.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
-        //await _hubContext.Clients.All.M3UFilesRefresh().ConfigureAwait(false);
+        await _hubContext.Clients.All.M3UFilesRefresh().ConfigureAwait(false);
+        await _hubContext.Clients.All.ChannelGroupsRefresh().ConfigureAwait(false);
+        await _hubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);
     }
 }

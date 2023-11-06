@@ -6,7 +6,7 @@ public class M3UFileProcessedEventHandler : BaseMediatorRequestHandler, INotific
 {
     private readonly IBackgroundTaskQueue _taskQueue;
 
-    public M3UFileProcessedEventHandler(IBackgroundTaskQueue taskQueue, ILogger<M3UFileProcessedEventHandler> logger, IRepositoryWrapper repository, IMapper mapper,ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+    public M3UFileProcessedEventHandler(IBackgroundTaskQueue taskQueue, ILogger<M3UFileProcessedEventHandler> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
         : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { _taskQueue = taskQueue; }
 
 
@@ -14,6 +14,7 @@ public class M3UFileProcessedEventHandler : BaseMediatorRequestHandler, INotific
     {
         await _taskQueue.BuildIconsCacheFromVideoStreams(cancellationToken).ConfigureAwait(false);
         await HubContext.Clients.All.M3UFilesRefresh().ConfigureAwait(false);
+        await HubContext.Clients.All.ChannelGroupsRefresh().ConfigureAwait(false);
         await HubContext.Clients.All.VideoStreamsRefresh().ConfigureAwait(false);
     }
 }
