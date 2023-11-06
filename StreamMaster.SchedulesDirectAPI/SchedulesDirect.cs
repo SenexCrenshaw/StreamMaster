@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.SchedulesDirectAPI.Domain.EPG;
-using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Cache;
@@ -16,13 +14,12 @@ using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirectAPI;
 
-public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService settingsService,ISDToken SdToken, IMemoryCache memoryCache, HttpClient httpClient) : ISchedulesDirect
+public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService settingsService, ISDToken SdToken, IMemoryCache memoryCache) : ISchedulesDirect
 {
     public static readonly int MAX_RETRIES = 2;
     private readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
     private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
     private readonly ILogger _logger = logger;
-
 
     public async Task<Countries?> GetCountries(CancellationToken cancellationToken)
     {
@@ -52,7 +49,6 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
 
         return success;
     }
-
 
     public async Task Sync(List<StationIdLineUp> StationIdLineUps, CancellationToken cancellationToken)
     {
@@ -104,12 +100,10 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
             }
 
             res.AddRange(results);
-
         }
 
         return res;
     }
-
 
     public async Task<bool> GetSystemReady(CancellationToken cancellationToken)
     {
@@ -117,7 +111,6 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
 
         return status?.systemStatus[0].status?.ToLower() == "online";
     }
-
 
     public async Task<SDStatus> GetStatus(CancellationToken cancellationToken)
     {
@@ -158,6 +151,10 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
             while (retry <= MAX_RETRIES)
             {
                 string? url = await SdToken.GetAPIUrl(command, cancellationToken);
+
+                Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
+
+                HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
                 using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
                 (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? result) = await SDHandler.ProcessResponse<T?>(response, cancellationToken).ConfigureAwait(false);
@@ -203,7 +200,6 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         return default;
     }
 
-
     private async Task<T?> PostData<T>(string command, object toPost, CancellationToken cancellationToken)
     {
         string jsonString = JsonSerializer.Serialize(toPost);
@@ -216,6 +212,9 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
             while (retry <= MAX_RETRIES)
             {
                 string? url = await SdToken.GetAPIUrl(command, cancellationToken);
+                Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
+
+                HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
                 using HttpResponseMessage response = await httpClient.PostAsync(url, content, cancellationToken).ConfigureAwait(false);
 
                 (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? result) = await SDHandler.ProcessResponse<T?>(response, cancellationToken).ConfigureAwait(false);
@@ -239,7 +238,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
                 {
                     return default;
                 }
-                
+
                 return result;
             }
         }
@@ -259,7 +258,6 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         }
 
         return status.lineups.Where(a => !a.IsDeleted).ToList();
-
     }
 
     public async Task<List<SDProgram>> GetSDPrograms(List<string> programIds, CancellationToken cancellationToken)
@@ -286,7 +284,6 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
             List<SDProgram>? fetchedResults = await PostData<List<SDProgram>>("programs", programIdsToFetch, cancellationToken).ConfigureAwait(false);
             if (fetchedResults == null)
             {
-
                 return new List<SDProgram>();
             }
 
@@ -305,14 +302,11 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
                 }
                 else
                 {
-                    int aaa = 1;
                 }
-
             }
         }
 
         return results;
-
     }
 
     private async Task WriteToCacheAsync<T>(string name, T data, CancellationToken cancellationToken = default)
@@ -391,7 +385,6 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
             List<Schedule>? fetchedResults = await PostData<List<Schedule>>("schedules", stationIdsToFetch, cancellationToken).ConfigureAwait(false);
             if (fetchedResults == null)
             {
-
                 return new List<Schedule>();
             }
 
@@ -439,13 +432,11 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
 
         foreach (Lineup lineUp in lineUps)
         {
-
             ILineUpResult? res = await GetLineup(lineUp.LineupString, cancellationToken).ConfigureAwait(false);
             if (res == null)
             {
                 continue;
             }
-
 
             foreach (Station station in res.Stations)
             {
@@ -467,7 +458,4 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
 
         return ret;
     }
-
-    
-
 }

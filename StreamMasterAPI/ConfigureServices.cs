@@ -12,11 +12,6 @@ using Microsoft.AspNetCore.StaticFiles;
 using NSwag;
 using NSwag.Generation.Processors.Security;
 
-using StreamMaster.SchedulesDirectAPI;
-using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
-using StreamMaster.SchedulesDirectAPI.Helpers;
-using StreamMaster.SchedulesDirectAPI.Services;
-
 using StreamMasterAPI.SchemaHelpers;
 using StreamMasterAPI.Services;
 
@@ -25,11 +20,9 @@ using StreamMasterApplication.Common.Logging;
 using StreamMasterApplication.Hubs;
 using StreamMasterApplication.Services;
 
-using StreamMasterDomain.Common;
 using StreamMasterDomain.Enums;
 using StreamMasterDomain.EnvironmentInfo;
 using StreamMasterDomain.Logging;
-using StreamMasterDomain.Services;
 
 using StreamMasterInfrastructure;
 using StreamMasterInfrastructure.Authentication;
@@ -46,7 +39,6 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddWebUIServices(this IServiceCollection services)
     {
-
         services.AddLogging(logging =>
         {
             logging.AddFilter("StreamMasterDomain.Logging.CustomLogger", LogLevel.Information);
@@ -119,18 +111,7 @@ public static class ConfigureServices
 
         _ = services.AddFluentValidationAutoValidation();
 
-
         services.AddHttpClient();
-        services.AddHttpClient<ISDToken, SDToken>((serviceProvider, client) =>
-        {
-            var setting = FileUtil.GetSetting();
-            client = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
-        });
-        services.AddHttpClient<ISchedulesDirect, SchedulesDirect>((serviceProvider, client) =>
-        {
-            var setting = FileUtil.GetSetting();
-            client = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
-        });
 
         services.AddControllersWithViews();
         _ = services.AddRazorPages();
@@ -192,10 +173,7 @@ public static class ConfigureServices
 
         services.AddSingleton<IAuthorizationPolicyProvider, UiAuthorizationPolicyProvider>();
 
-
         services.AddAppAuthentication();
-
-
 
         return services;
     }

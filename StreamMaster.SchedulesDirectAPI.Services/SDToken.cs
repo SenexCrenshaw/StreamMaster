@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMaster.SchedulesDirectAPI.Helpers;
+
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Services;
 
@@ -8,7 +10,7 @@ using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirectAPI.Services;
 
-public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, HttpClient httpClient) : ISDToken
+public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService) : ISDToken
 {
     private const string SD_BASE_URL = "https://json.schedulesdirect.org/20141201/";
     private readonly SemaphoreSlim _fileSemaphore = new(1, 1);
@@ -24,7 +26,6 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
         {
             await LoadTokenAsync(cancellationToken);
         }
-
 
         if (!string.IsNullOrEmpty(_token) && _tokenDateTime.AddHours(23) > DateTime.UtcNow)
         {
@@ -95,6 +96,7 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
             _ = _fileSemaphore.Release();
         }
     }
+
     private async Task<string?> RetrieveTokenAsync(CancellationToken cancellationToken)
     {
         try
@@ -111,6 +113,8 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
             string jsonString = JsonSerializer.Serialize(data);
             using StringContent content = new(jsonString, Encoding.UTF8, "application/json");
 
+            HttpClient httpClient = SDHelpers.CreateHttpClient("Mozilla/5.0 (compatible; streammaster/1.0)");
+
             using HttpResponseMessage response = await httpClient.PostAsync($"{SD_BASE_URL}token", content, cancellationToken).ConfigureAwait(false);
             (System.Net.HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, SDGetToken? result) = await SDHandler.ProcessResponse<SDGetToken?>(response, cancellationToken).ConfigureAwait(false);
 
@@ -121,7 +125,7 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
                     {
                         logger.LogWarning("SD Retrieved Token");
                         _token = result.token;
-                        _tokenDateTime = DateTime.UtcNow; 
+                        _tokenDateTime = DateTime.UtcNow;
                         _lockOutTokenDateTime = DateTime.MinValue;
                         await SaveTokenAsync(cancellationToken);
                         return _token;
@@ -143,7 +147,6 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
                     logger.LogWarning("SD Account issue: {message}", message);
                     await LockOutTokenAsync(cancellationToken: cancellationToken);
                     break;
-
 
                 default:
                     // Log unexpected status codes
