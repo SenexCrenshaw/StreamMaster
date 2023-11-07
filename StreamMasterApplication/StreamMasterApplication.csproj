@@ -11,6 +11,11 @@
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="SchedulesDirectAPI\NewFolder\**" />
+    <EmbeddedResource Remove="SchedulesDirectAPI\NewFolder\**" />
+    <None Remove="SchedulesDirectAPI\NewFolder\**" />
+  </ItemGroup>
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
@@ -40,7 +45,6 @@
     <Folder Include="Common\Attributes\" />
     <Folder Include="Common\Repository\" />
     <Folder Include="EPG\Commands\" />
-    <Folder Include="SchedulesDirectAPI\NewFolder\" />
     <Folder Include="StreamGroupVideoStreams\EventHandlers\" />
     <Folder Include="StreamGroupVideoStreams\Events\" />
     <Folder Include="VideoStreamLinks\EventHandlers\" />

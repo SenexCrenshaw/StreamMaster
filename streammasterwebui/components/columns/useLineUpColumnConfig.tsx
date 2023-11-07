@@ -1,9 +1,6 @@
-import { useM3UFilesGetM3UFileNamesQuery } from '@lib/iptvApi';
-import createMultiSelectColumnConfigHook from './createMultiSelectColumnConfigHook';
+import createMultiSelectLineUpColumnConfigHook from './createMultiSelectLineUpColumnConfigHook';
 
-export const useLineUpColumnConfig = createMultiSelectColumnConfigHook({
-  dataField: 'm3UFileName',
-  headerTitle: 'File',
-  maxWidth: 8,
-  queryHook: useM3UFilesGetM3UFileNamesQuery
+export const useLineUpColumnConfig = createMultiSelectLineUpColumnConfigHook({
+  headerTitle: 'Line Up',
+  maxWidth: 8
 });

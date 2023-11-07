@@ -3,7 +3,6 @@ import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 import SettingsNameRegexAddDialog from './SettingsNameRegexAddDialog';
 import SettingsNameRegexDeleteDialog from './SettingsNameRegexDeleteDialog';
-//const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
 interface RankedString {
   rank: number;

@@ -4,8 +4,8 @@
     {
         string Affiliate { get; set; }
         string Callsign { get; set; }
-        string Id => LineUp + "|" + StationId;
-        string LineUp { get; set; }
+        string Id => Lineup + "|" + StationId;
+        string Lineup { get; set; }
         Logo Logo { get; set; }
         string Name { get; set; }
         string StationId { get; set; }

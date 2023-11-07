@@ -8,9 +8,9 @@
         string Callsign { get; set; }
         List<string> DescriptionLanguage { get; set; }
         bool? IsCommercialFree { get; set; }
-        string LineUp { get; set; }
+        string Lineup { get; set; }
         Logo Logo { get; set; }
-        string Id => LineUp + "|" + StationId;
+        string Id => Lineup + "|" + StationId;
         string Name { get; set; }
         string StationId { get; set; }
         List<StationLogo> StationLogo { get; set; }

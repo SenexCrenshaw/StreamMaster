@@ -1,6 +1,6 @@
 import { findDifferenceStationIdLineUps } from '@lib/common/common';
 import {
-  StationIdLineUp,
+  StationIdLineup,
   UpdateSettingRequest,
   useSchedulesDirectGetSelectedStationIdsQuery,
   useSchedulesDirectGetStationPreviewsQuery,
@@ -12,6 +12,7 @@ import { Toast } from 'primereact/toast';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
+import { useLineUpColumnConfig } from '@components/columns/useLineUpColumnConfig';
 
 const SchedulesDirectStationPreviewDataSelector = () => {
   const toast = useRef<Toast>(null);
@@ -21,6 +22,8 @@ const SchedulesDirectStationPreviewDataSelector = () => {
   const schedulesDirectGetSelectedStationIdsQuery = useSchedulesDirectGetSelectedStationIdsQuery();
   const stationPreviews = useSchedulesDirectGetStationPreviewsQuery();
   const [isLoading, setIsLoading] = useState(false);
+
+  const { columnConfig: lineUpColumnConfig } = useLineUpColumnConfig();
 
   useEffect(() => {
     if (
@@ -34,7 +37,7 @@ const SchedulesDirectStationPreviewDataSelector = () => {
     const sp = schedulesDirectGetSelectedStationIdsQuery.data
       .map((stationIdLineUp) =>
         stationPreviews.data?.find(
-          (stationPreview) => stationPreview.stationId === stationIdLineUp.stationId && stationPreview.lineUp === stationIdLineUp.lineUp
+          (stationPreview) => stationPreview.stationId === stationIdLineUp.stationId && stationPreview.lineup === stationIdLineUp.lineup
         )
       )
       .filter((station) => station !== undefined) as StationPreview[];
@@ -51,7 +54,7 @@ const SchedulesDirectStationPreviewDataSelector = () => {
   ]);
 
   const onSave = useCallback(
-    (stationIdLineUps: StationIdLineUp[]) => {
+    (stationIdLineUps: StationIdLineup[]) => {
       if (stationIdLineUps === undefined || schedulesDirectGetSelectedStationIdsQuery.data === undefined) {
         return;
       }
@@ -106,17 +109,21 @@ const SchedulesDirectStationPreviewDataSelector = () => {
     );
   }
 
-  const columns = useMemo(
-    (): ColumnMeta[] => [
+  const columns = useMemo((): ColumnMeta[] => {
+    const columnConfigs: ColumnMeta[] = [
       { field: 'stationId', filter: true, header: 'Station Id', sortable: true, width: '18rem' },
-      { bodyTemplate: imageBodyTemplate, field: 'logo', fieldType: 'image' },
-      { field: 'lineUp', header: 'Line Up', sortable: true },
-      { field: 'name', filter: true, header: 'Name', sortable: true },
-      { field: 'callsign', filter: true, header: 'Call Sign', sortable: true },
-      { field: 'affiliate', filter: true, header: 'Affiliate', sortable: true }
-    ],
-    []
-  );
+      { bodyTemplate: imageBodyTemplate, field: 'logo', fieldType: 'image' }
+    ];
+    // // columnConfigs.push(channelGroupConfig);
+    columnConfigs.push(lineUpColumnConfig);
+
+    // columnConfigs.push({ field: 'lineup', header: 'Line Up', sortable: true });
+    columnConfigs.push({ field: 'name', filter: true, header: 'Name', sortable: true });
+    columnConfigs.push({ field: 'callsign', filter: true, header: 'Call Sign', sortable: true });
+    columnConfigs.push({ field: 'affiliate', filter: true, header: 'Affiliate', sortable: true });
+
+    return columnConfigs;
+  }, [lineUpColumnConfig]);
 
   return (
     <>

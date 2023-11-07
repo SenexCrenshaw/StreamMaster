@@ -33,7 +33,7 @@ internal class GetHeadendsHandler(ISDService sdService) : IRequestHandler<GetHea
             //{
             //    continue;
             //}
-            foreach (Lineup lineup in headend.lineups)
+            foreach (StreamMaster.SchedulesDirectAPI.Domain.Models.Lineup lineup in headend.lineups)
             {
                 if (lineup.IsDeleted)
                 {

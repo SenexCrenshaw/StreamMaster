@@ -4,7 +4,7 @@ import { type ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import ExportButton from '@components/export/ExportButton';
 import GlobalSearch from '@components/search/GlobalSearch';
 import { SMFileTypes } from '@lib/common/streammaster_enums';
-import { StationIdLineUp, type ChildVideoStreamDto, type IconFileDto, type VideoStreamDto } from '@lib/iptvApi';
+import { StationIdLineup, type ChildVideoStreamDto, type IconFileDto, type VideoStreamDto } from '@lib/iptvApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { Checkbox } from 'primereact/checkbox';
 import { type DataTableFilterMeta, type DataTableFilterMetaData } from 'primereact/datatable';
@@ -484,9 +484,9 @@ function getApiUrl(path: SMFileTypes, originalUrl: string): string {
   return `${isDevelopment ? baseHostURL : ''}/api/files/${path}/${encodeURIComponent(originalUrl)}`;
 }
 
-export function findDifferenceStationIdLineUps(firstArray: StationIdLineUp[], secondArray: StationIdLineUp[]): StationIdLineUp[] {
-  const missingFromFirst = secondArray.filter((item2) => !firstArray.some((item1) => item2.lineUp === item1.lineUp && item2.stationId === item1.stationId));
-  const missingFromSecond = firstArray.filter((item1) => !secondArray.some((item2) => item1.lineUp === item2.lineUp && item1.stationId === item2.stationId));
+export function findDifferenceStationIdLineUps(firstArray: StationIdLineup[], secondArray: StationIdLineup[]): StationIdLineup[] {
+  const missingFromFirst = secondArray.filter((item2) => !firstArray.some((item1) => item2.lineup === item1.lineup && item2.stationId === item1.stationId));
+  const missingFromSecond = firstArray.filter((item1) => !secondArray.some((item2) => item1.lineup === item2.lineup && item1.stationId === item2.stationId));
 
   return [...missingFromFirst, ...missingFromSecond];
 }

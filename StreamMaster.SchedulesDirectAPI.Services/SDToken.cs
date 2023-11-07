@@ -45,9 +45,11 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService) 
 
     public async Task<string?> ResetTokenAsync(CancellationToken cancellationToken)
     {
-        _token = null;
-        await SaveTokenAsync(cancellationToken).ConfigureAwait(false);
-        return await GetTokenAsync(cancellationToken).ConfigureAwait(false);
+        //_token = null;
+        //await SaveTokenAsync(cancellationToken).ConfigureAwait(false);
+        _token = await RetrieveTokenAsync(cancellationToken).ConfigureAwait(false);
+        return _token;
+        //return await GetTokenAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public async Task LockOutTokenAsync(int minutes = 15, CancellationToken cancellationToken = default)

@@ -6,18 +6,18 @@ public static class SDExtensions
     {
         List<string> ret = new();
 
-        foreach (Lineup lineUp in status.lineups)
+        foreach (Lineup lineup in status.lineups)
         {
-            if (lineUp.IsDeleted)
+            if (lineup.IsDeleted)
             {
-                ret.Add($"Lineup {lineUp.LineupString} is deleted");
+                ret.Add($"Lineup {lineup.LineupString} is deleted");
             }
         }
 
         return ret.Any() ? ret : null;
     }
 
-    public static void OutputFormattedResult(this LineUpResult result)
+    public static void OutputFormattedResult(this LineupResult result)
     {
         if (result is null)
         {
@@ -63,7 +63,7 @@ public static class SDExtensions
         Console.WriteLine($"\t\tLineup: {result.Metadata.Lineup}\n\t\tModified: {result.Metadata.Modified}\n\t\tTransport: {result.Metadata.Transport}\n");
     }
 
-    public static void OutputFormattedResult(this LineUpsResult result)
+    public static void OutputFormattedResult(this LineupsResult result)
     {
         Console.WriteLine($"Code: {result.Code}\nServerID: {result.ServerID}\nDatetime: {result.Datetime}\nLineups:");
         foreach (Lineup lineup in result.Lineups)

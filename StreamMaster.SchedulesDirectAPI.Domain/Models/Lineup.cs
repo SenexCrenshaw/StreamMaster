@@ -1,12 +1,11 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.Interfaces.Models;
-
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
+
 public class Lineup : ILineup
 {
     [JsonPropertyName("id")]
-    public string Id { get; set; }
+    public string Id => LineupString;
 
     [JsonPropertyName("lineup")]
     public string LineupString { get; set; }
@@ -25,5 +24,4 @@ public class Lineup : ILineup
 
     [JsonPropertyName("isDeleted")]
     public bool IsDeleted { get; set; }
-
 }

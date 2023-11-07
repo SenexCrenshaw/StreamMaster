@@ -7,11 +7,11 @@ using System.Text.Json;
 namespace StreamMasterApplication.StreamGroups.Queries;
 
 [RequireAll]
-public record GetStreamGroupLineUpStatus(int StreamGroupId) : IRequest<string>;
+public record GetStreamGroupLineupStatus(int StreamGroupId) : IRequest<string>;
 
-public class GetStreamGroupLineUpStatusValidator : AbstractValidator<GetStreamGroupLineUpStatus>
+public class GetStreamGroupLineupStatusValidator : AbstractValidator<GetStreamGroupLineupStatus>
 {
-    public GetStreamGroupLineUpStatusValidator()
+    public GetStreamGroupLineupStatusValidator()
     {
         _ = RuleFor(v => v.StreamGroupId)
             .NotNull().GreaterThanOrEqualTo(0);
@@ -19,11 +19,10 @@ public class GetStreamGroupLineUpStatusValidator : AbstractValidator<GetStreamGr
 }
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupLineUpStatusHandler(ILogger<GetStreamGroupLineUpStatus> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupLineUpStatus, string>
+public class GetStreamGroupLineupStatusHandler(ILogger<GetStreamGroupLineupStatus> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupLineupStatus, string>
 {
-    public Task<string> Handle(GetStreamGroupLineUpStatus request, CancellationToken cancellationToken)
+    public Task<string> Handle(GetStreamGroupLineupStatus request, CancellationToken cancellationToken)
     {
-
         if (request.StreamGroupId > 1)
         {
             IQueryable<StreamGroup> streamGroupExists = Repository.StreamGroup.GetStreamGroupQuery().Where(x => x.Id == request.StreamGroupId);

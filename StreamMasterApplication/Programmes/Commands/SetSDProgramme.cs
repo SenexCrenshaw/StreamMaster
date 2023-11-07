@@ -16,7 +16,7 @@ public class SetSDProgrammeHandler(ISDService sdService, ILogger<SetSDProgramme>
             return;
         }
 
-        List<Programme> res = await sdService.GetProgrammes(setting.SDEPGDays, setting.SDMaxRatings, setting.SDUseLineUpInName, cancellationToken).ConfigureAwait(false);
+        List<Programme> res = await sdService.GetProgrammes(setting.SDEPGDays, setting.SDMaxRatings, setting.SDUseLineupInName, cancellationToken).ConfigureAwait(false);
 
         MemoryCache.SetSDProgreammesCache(res);
     }

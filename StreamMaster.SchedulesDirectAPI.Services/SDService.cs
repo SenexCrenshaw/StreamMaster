@@ -14,7 +14,6 @@ using StreamMasterDomain.Services;
 
 namespace StreamMaster.SchedulesDirectAPI.Services;
 
-
 [LogExecutionTimeAspect]
 public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISettingsService settingsService, ISchedulesDirect sd) : ISDService
 {
@@ -28,17 +27,16 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
         }
 
         await sd.Sync(setting.SDStationIds, cancellationToken);
-
     }
 
     [LogExecutionTimeAspect]
     public async Task<string> GetEpg(CancellationToken cancellationToken)
     {
         Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
-        List<StationIdLineUp> stationIdLineUps = setting.SDStationIds;
-        List<string> stationsIds = stationIdLineUps.ConvertAll(a => a.StationId).Distinct().ToList();
+        List<StationIdLineup> stationIdLineups = setting.SDStationIds;
+        List<string> stationsIds = stationIdLineups.ConvertAll(a => a.StationId).Distinct().ToList();
 
-        await sd.Sync(stationIdLineUps, cancellationToken);
+        await sd.Sync(stationIdLineups, cancellationToken);
 
         List<Schedule>? schedules = await GetSchedules(stationsIds, cancellationToken);
 
@@ -64,7 +62,6 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
             {
                 Id = stationId,
                 Displayname = names,
-
             };
 
             if (station.Logo != null)
@@ -114,7 +111,6 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
                         Rating = SDHelpers.GetRatings(sdProg, lang, setting.SDMaxRatings),
                         Video = SDHelpers.GetTvVideos(p),
                         Audio = SDHelpers.GetTvAudios(p),
-
                     };
 
                     if (p.New is not null)
@@ -141,7 +137,7 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
     }
 
     [LogExecutionTimeAspect]
-    public async Task<List<Programme>> GetProgrammes(int maxDays, int maxRatings, bool useLineUpInName, CancellationToken cancellationToken)
+    public async Task<List<Programme>> GetProgrammes(int maxDays, int maxRatings, bool useLineupInName, CancellationToken cancellationToken)
     {
         if (memoryCache.SDProgrammess()?.Any() != true)
         {
@@ -160,7 +156,7 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
             // Process logos in parallel
             List<ChannelLogoDto> logoTasks = setting.SDStationIds.AsParallel().WithCancellation(cancellationToken).SelectMany(SDStationId =>
             {
-                if (stationDictionary.TryGetValue(SDStationId.StationId, out Station? station) && station.LineUp == SDStationId.LineUp)
+                if (stationDictionary.TryGetValue(SDStationId.StationId, out Station? station) && station.Lineup == SDStationId.Lineup)
                 {
                     return station.StationLogo?.Where(logo => !channelLogos.Any(a => a.LogoUrl == logo.URL))
                         .Select(logo => new ChannelLogoDto
@@ -194,7 +190,7 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
                 }
 
                 string channelNameSuffix = station.Name ?? sched.StationID;
-                string displayName = useLineUpInName ? $"{station.LineUp}-{channelNameSuffix}" : channelNameSuffix;
+                string displayName = useLineupInName ? $"{station.Lineup}-{channelNameSuffix}" : channelNameSuffix;
                 string channelName = $"SD - {channelNameSuffix}";
 
                 List<Program> relevantPrograms = sched.Programs.Where(p => p.AirDateTime <= maxDate).ToList();
@@ -258,14 +254,29 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
         return await sd.GetStationPreviews(cancellationToken);
     }
 
+    public async Task<bool> AddLineup(string lineup, CancellationToken cancellationToken)
+    {
+        return await sd.AddLineup(lineup, cancellationToken);
+    }
+
+    public async Task<bool> DeleteLineup(string lineup, CancellationToken cancellationToken)
+    {
+        return await sd.DeleteLineup(lineup, cancellationToken);
+    }
+
     public async Task<List<Schedule>?> GetSchedules(List<string> stationsIds, CancellationToken cancellationToken)
     {
-       return await sd.GetSchedules(stationsIds, cancellationToken);
+        return await sd.GetSchedules(stationsIds, cancellationToken);
     }
 
     public async Task<List<SDProgram>> GetSDPrograms(List<string> progIds, CancellationToken cancellationToken)
     {
         return await sd.GetSDPrograms(progIds, cancellationToken);
+    }
+
+    public void ResetCache(string command)
+    {
+        sd.ResetCache(command);
     }
 
     public async Task<List<Station>> GetStations(CancellationToken cancellationToken)
@@ -275,24 +286,25 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
 
     public async Task<SDStatus> GetStatus(CancellationToken cancellationToken)
     {
-         return await sd.GetStatus(cancellationToken);
+        return await sd.GetStatus(cancellationToken);
     }
 
     public async Task<List<Headend>?> GetHeadends(string country, string postalCode, CancellationToken cancellationToken = default)
     {
         return await sd.GetHeadends(country, postalCode, cancellationToken);
     }
-    public async Task<LineUpResult?> GetLineup(string lineUp, CancellationToken cancellationToken)
+
+    public async Task<LineupResult?> GetLineup(string lineup, CancellationToken cancellationToken)
     {
-        return await sd.GetLineup(lineUp, cancellationToken);
+        return await sd.GetLineup(lineup, cancellationToken);
     }
 
-    public async Task<List<LineUpPreview>> GetLineUpPreviews(CancellationToken cancellationToken)
+    public async Task<List<LineupPreview>> GetLineupPreviews(CancellationToken cancellationToken)
     {
-        return await sd.GetLineUpPreviews(cancellationToken);
+        return await sd.GetLineupPreviews(cancellationToken);
     }
 
-    public async Task<List<Lineup>> GetLineups(CancellationToken cancellationToken)
+    public async Task<List<Domain.Models.Lineup>> GetLineups(CancellationToken cancellationToken)
     {
         return await sd.GetLineups(cancellationToken);
     }

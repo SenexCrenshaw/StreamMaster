@@ -2,8 +2,8 @@
 
 using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
-
 using StreamMasterApplication.SchedulesDirectAPI;
+using StreamMasterApplication.SchedulesDirectAPI.Commands;
 using StreamMasterApplication.SchedulesDirectAPI.Queries;
 
 using StreamMasterDomain.Dto;
@@ -30,14 +30,14 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<LineUpResult?>> GetLineup(string lineup)
+    public async Task<ActionResult<LineupResult?>> GetLineup(string lineup)
     {
         return await Mediator.Send(new GetLineup(lineup)).ConfigureAwait(false);
     }
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<List<LineUpPreview>>> GetLineupPreviews()
+    public async Task<ActionResult<List<LineupPreview>>> GetLineupPreviews()
     {
         return await Mediator.Send(new GetLineupPreviews()).ConfigureAwait(false);
     }
@@ -48,7 +48,6 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
     {
         return await Mediator.Send(new GetLineups()).ConfigureAwait(false);
     }
-
 
     [HttpGet]
     [Route("[action]")]
@@ -63,9 +62,10 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
     {
         return await Mediator.Send(new GetSchedules()).ConfigureAwait(false);
     }
+
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<List<StationIdLineUp>>> GetSelectedStationIds()
+    public async Task<ActionResult<List<StationIdLineup>>> GetSelectedStationIds()
     {
         return await Mediator.Send(new GetSelectedStationIds()).ConfigureAwait(false);
     }
@@ -101,5 +101,26 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
         {
             FileDownloadName = "epg-schedules-direct.xml"
         };
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<string>>> GetLineupNames()
+    {
+        return await Mediator.Send(new GetLineupNames()).ConfigureAwait(false);
+    }
+
+    [HttpPut]
+    [Route("[action]")]
+    public async Task<ActionResult<bool>> AddLineup(AddLineup request)
+    {
+        return await Mediator.Send(request).ConfigureAwait(false);
+    }
+
+    [HttpPut]
+    [Route("[action]")]
+    public async Task<ActionResult<bool>> DeleteLineup(DeleteLineup request)
+    {
+        return await Mediator.Send(request).ConfigureAwait(false);
     }
 }

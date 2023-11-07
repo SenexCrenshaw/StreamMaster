@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
+using StreamMaster.SchedulesDirectAPI.Domain.Commands;
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Cache;
@@ -50,7 +51,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         return success;
     }
 
-    public async Task Sync(List<StationIdLineUp> StationIdLineUps, CancellationToken cancellationToken)
+    public async Task Sync(List<StationIdLineup> StationIdLineups, CancellationToken cancellationToken)
     {
         SDStatus status = await GetStatus(cancellationToken);
 
@@ -62,21 +63,21 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         DateTime now = DateTime.Now;
 
         List<Station> stations = await GetStations(cancellationToken).ConfigureAwait(false);
-        List<Schedule>? schedules = await GetSchedules(StationIdLineUps.ConvertAll(a => a.StationId), cancellationToken).ConfigureAwait(false);
+        List<Schedule>? schedules = await GetSchedules(StationIdLineups.ConvertAll(a => a.StationId), cancellationToken).ConfigureAwait(false);
         List<string> progIds = schedules.SelectMany(a => a.Programs).Where(a => a.AirDateTime >= now.AddDays(-1) && a.AirDateTime <= now.AddDays(setting.SDEPGDays)).Select(a => a.ProgramID).Distinct().ToList();
         List<SDProgram> programs = await GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
         memoryCache.SetSDProgreammesCache(programs);
     }
 
-    public async Task<LineUpResult?> GetLineup(string lineUp, CancellationToken cancellationToken)
+    public async Task<LineupResult?> GetLineup(string lineup, CancellationToken cancellationToken)
     {
-        return await GetData<LineUpResult>($"lineups/{lineUp}", cancellationToken).ConfigureAwait(false);
+        return await GetData<LineupResult>($"lineups/{lineup}", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<List<LineUpPreview>> GetLineUpPreviews(CancellationToken cancellationToken)
+    public async Task<List<LineupPreview>> GetLineupPreviews(CancellationToken cancellationToken)
     {
-        List<LineUpPreview> res = new();
-        List<Lineup>? lineups = await GetLineups(cancellationToken);
+        List<LineupPreview> res = new();
+        List<Domain.Models.Lineup>? lineups = await GetLineups(cancellationToken);
 
         if (lineups is null)
         {
@@ -85,7 +86,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
 
         foreach (ILineup lineup in lineups)
         {
-            List<LineUpPreview>? results = await GetData<List<LineUpPreview>>($"lineups/preview/{lineup.LineupString}", cancellationToken).ConfigureAwait(false);
+            List<LineupPreview>? results = await GetData<List<LineupPreview>>($"lineups/preview/{lineup.LineupString}", cancellationToken).ConfigureAwait(false);
 
             if (results == null)
             {
@@ -94,9 +95,9 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
 
             for (int index = 0; index < results.Count; index++)
             {
-                ILineUpPreview lineUpPreview = results[index];
-                lineUpPreview.LineUp = lineup.LineupString;
-                lineUpPreview.Id = index;
+                ILineupPreview lineupPreview = results[index];
+                lineupPreview.Lineup = lineup.LineupString;
+                lineupPreview.Id = index;
             }
 
             res.AddRange(results);
@@ -122,9 +123,20 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         return status;
     }
 
+    public void ResetCache(string command)
+    {
+        string cacheKey = SDHelpers.GenerateCacheKey(command);
+        string cachePath = Path.Combine(BuildInfo.SDCacheFolder, cacheKey);
+
+        if (File.Exists(cachePath))
+        {
+            File.Delete(cachePath);
+        }
+    }
+
     private async Task<SDStatus> GetStatusInternal(CancellationToken cancellationToken)
     {
-        SDStatus? result = await GetData<SDStatus>("status", cancellationToken).ConfigureAwait(false);
+        SDStatus? result = await GetData<SDStatus>(SDCommands.Status, cancellationToken).ConfigureAwait(false);
         return result ?? SDHelpers.GetSDStatusOffline();
     }
 
@@ -249,15 +261,109 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         return default;
     }
 
+    private async Task<PutResponse?> DeleteData(string command, CancellationToken cancellationToken)
+    {
+        int retry = 0;
+        try
+        {
+            while (retry <= MAX_RETRIES)
+            {
+                string? url = await SdToken.GetAPIUrl(command, cancellationToken);
+
+                Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
+
+                HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
+                using HttpResponseMessage response = await httpClient.DeleteAsync(url).ConfigureAwait(false);
+
+                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, PutResponse? result) = await SDHandler.ProcessResponse<PutResponse?>(response, cancellationToken).ConfigureAwait(false);
+
+                if (responseCode == SDHttpResponseCode.ACCOUNT_LOCKOUT || responseCode == SDHttpResponseCode.ACCOUNT_DISABLED || responseCode == SDHttpResponseCode.ACCOUNT_EXPIRED)
+                {
+                    await SdToken.LockOutTokenAsync(cancellationToken: cancellationToken);
+                    return default;
+                }
+
+                if (responseCode == SDHttpResponseCode.TOKEN_EXPIRED || responseCode == SDHttpResponseCode.INVALID_USER)
+                {
+                    if (await SdToken.ResetTokenAsync(cancellationToken).ConfigureAwait(false) == null)
+                    {
+                        return default;
+                    }
+                    ++retry;
+                    continue;
+                }
+
+                if (result == null)
+                {
+                    return default;
+                }
+
+                return result;
+            }
+        }
+        catch (Exception)
+        {
+            return default;
+        }
+        return default;
+    }
+
+    private async Task<PutResponse?> PutData(string command, CancellationToken cancellationToken)
+    {
+        int retry = 0;
+        try
+        {
+            while (retry <= MAX_RETRIES)
+            {
+                string? url = await SdToken.GetAPIUrl(command, cancellationToken);
+
+                Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
+
+                HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
+                using HttpResponseMessage response = await httpClient.PutAsync(url, null).ConfigureAwait(false);
+
+                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, PutResponse? result) = await SDHandler.ProcessResponse<PutResponse?>(response, cancellationToken).ConfigureAwait(false);
+
+                if (responseCode == SDHttpResponseCode.ACCOUNT_LOCKOUT || responseCode == SDHttpResponseCode.ACCOUNT_DISABLED || responseCode == SDHttpResponseCode.ACCOUNT_EXPIRED)
+                {
+                    await SdToken.LockOutTokenAsync(cancellationToken: cancellationToken);
+                    return default;
+                }
+
+                if (responseCode == SDHttpResponseCode.TOKEN_EXPIRED || responseCode == SDHttpResponseCode.INVALID_USER)
+                {
+                    if (await SdToken.ResetTokenAsync(cancellationToken).ConfigureAwait(false) == null)
+                    {
+                        return default;
+                    }
+                    ++retry;
+                    continue;
+                }
+
+                if (result == null)
+                {
+                    return default;
+                }
+
+                return result;
+            }
+        }
+        catch (Exception)
+        {
+            return default;
+        }
+        return default;
+    }
+
     public async Task<List<Lineup>> GetLineups(CancellationToken cancellationToken)
     {
-        SDStatus status = await GetStatus(cancellationToken);
-        if (status.lineups == null || !status.lineups.Any())
+        var res = await GetData<LineupsResult>(SDCommands.LineUps, cancellationToken).ConfigureAwait(false);
+        if (res == null)
         {
             return new();
         }
-
-        return status.lineups.Where(a => !a.IsDeleted).ToList();
+        var lineups = res.Lineups.Where(a => !a.IsDeleted).ToList();
+        return lineups;
     }
 
     public async Task<List<SDProgram>> GetSDPrograms(List<string> programIds, CancellationToken cancellationToken)
@@ -361,6 +467,28 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         }
     }
 
+    public async Task<bool> AddLineup(string lineup, CancellationToken cancellationToken)
+    {
+        var fetchedResults = await PutData($"lineups/{lineup}", cancellationToken).ConfigureAwait(false);
+        if (fetchedResults == null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public async Task<bool> DeleteLineup(string lineup, CancellationToken cancellationToken)
+    {
+        var fetchedResults = await DeleteData($"lineups/{lineup}", cancellationToken).ConfigureAwait(false);
+        if (fetchedResults == null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     public async Task<List<Schedule>> GetSchedules(List<string> stationIds, CancellationToken cancellationToken)
     {
         List<string> distinctStationIds = stationIds.Distinct().ToList();
@@ -424,15 +552,15 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
     {
         List<Station> ret = new();
 
-        List<Lineup> lineUps = await GetLineups(cancellationToken).ConfigureAwait(false);
-        if (lineUps?.Any() != true)
+        List<Domain.Models.Lineup> lineups = await GetLineups(cancellationToken).ConfigureAwait(false);
+        if (lineups?.Any() != true)
         {
             return ret;
         }
 
-        foreach (Lineup lineUp in lineUps)
+        foreach (Lineup lineup in lineups)
         {
-            ILineUpResult? res = await GetLineup(lineUp.LineupString, cancellationToken).ConfigureAwait(false);
+            ILineupResult? res = await GetLineup(lineup.LineupString, cancellationToken).ConfigureAwait(false);
             if (res == null)
             {
                 continue;
@@ -440,14 +568,14 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
 
             foreach (Station station in res.Stations)
             {
-                station.LineUp = lineUp.LineupString;
+                station.Lineup = lineup.LineupString;
             }
 
             HashSet<string> existingIds = new(ret.Select(station => station.StationId));
 
             foreach (Station station in res.Stations)
             {
-                station.LineUp = lineUp.LineupString;
+                station.Lineup = lineup.LineupString;
                 if (!existingIds.Contains(station.StationId))
                 {
                     ret.Add(station);

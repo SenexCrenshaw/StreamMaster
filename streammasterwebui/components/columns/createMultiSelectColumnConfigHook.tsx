@@ -24,7 +24,11 @@ const createMultiSelectColumnConfigHook =
   ({ enableEdit = false, useFilter = true, values }: { enableEdit?: boolean; useFilter?: boolean; values?: string[] | undefined }) => {
     const { data, isLoading, isFetching, isError } = queryHook ? queryHook() : { data: undefined, isError: false, isFetching: false, isLoading: false };
 
-    const bodyTemplate = (bodyData: VideoStreamDto) => {
+    const bodyTemplate = (bodyData: VideoStreamDto | string) => {
+      if (typeof bodyData === 'string') {
+        return <span>{bodyData}</span>;
+      }
+
       const value = bodyData[dataField];
 
       if (value === undefined) {
@@ -36,10 +40,6 @@ const createMultiSelectColumnConfigHook =
       }
 
       if (EditorComponent) {
-        // if (headerTitle === 'Group') {
-        //   console.log('EditorComponent', bodyData)
-        // }
-
         return <EditorComponent data={bodyData} />;
       }
 

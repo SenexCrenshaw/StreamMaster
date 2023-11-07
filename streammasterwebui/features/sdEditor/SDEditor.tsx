@@ -1,4 +1,4 @@
-import SchedulesDirectStationPreviewDataSelector from '@components/schedulesDirect/SchedulesDirectStationPreviewDataSelector';
+import SchedulesDirectLineUpsDataSelector from '@components/schedulesDirect/SchedulesDirectLineUpsDataSelector';
 import { useSchedulesDirectGetStatusQuery } from '@lib/iptvApi';
 
 import useSettings from '@lib/useSettings';
@@ -31,7 +31,8 @@ const SDEditor = () => {
     <>
       {status}
       <BlockUI blocked={getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() !== 'online' || settings.data?.sdEnabled !== true}>
-        <SchedulesDirectStationPreviewDataSelector />
+        <SchedulesDirectLineUpsDataSelector id={'SDEditor'} />
+        {/* <SchedulesDirectStationPreviewDataSelector /> */}
       </BlockUI>
     </>
   );

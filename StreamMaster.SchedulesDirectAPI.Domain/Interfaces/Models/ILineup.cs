@@ -2,7 +2,7 @@
 {
     public interface ILineup
     {
-        string Id { get; set; }
+        string Id { get; }
         bool IsDeleted { get; set; }
         string LineupString { get; set; }
         string Location { get; set; }

@@ -2,7 +2,7 @@
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
-public class LineUpsResult : ILineUpsResult
+public class LineupsResult : ILineupsResult
 {
     [JsonPropertyName("code")]
     public int Code { get; set; }

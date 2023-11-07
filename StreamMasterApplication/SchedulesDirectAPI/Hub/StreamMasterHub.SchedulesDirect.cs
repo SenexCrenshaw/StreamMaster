@@ -1,7 +1,7 @@
-﻿
-using StreamMaster.SchedulesDirectAPI.Domain.Models;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 using StreamMasterApplication.SchedulesDirectAPI;
+using StreamMasterApplication.SchedulesDirectAPI.Commands;
 using StreamMasterApplication.SchedulesDirectAPI.Queries;
 
 namespace StreamMasterApplication.Hubs;
@@ -18,17 +18,17 @@ public partial class StreamMasterHub : ISchedulesDirectHub
         return await mediator.Send(new GetHeadends(country, postalCode)).ConfigureAwait(false);
     }
 
-    public async Task<LineUpResult?> GetLineup(string lineup)
+    public async Task<LineupResult?> GetLineup(string lineup)
     {
         return await mediator.Send(new GetLineup(lineup)).ConfigureAwait(false);
     }
 
-    public async Task<List<LineUpPreview>> GetLineupPreviews()
+    public async Task<List<LineupPreview>> GetLineupPreviews()
     {
         return await mediator.Send(new GetLineupPreviews()).ConfigureAwait(false);
     }
 
-    public async Task<List<Lineup>> GetLineups()
+    public async Task<List<StreamMaster.SchedulesDirectAPI.Domain.Models.Lineup>> GetLineups()
     {
         return await mediator.Send(new GetLineups()).ConfigureAwait(false);
     }
@@ -43,7 +43,7 @@ public partial class StreamMasterHub : ISchedulesDirectHub
         return await mediator.Send(new GetSchedules()).ConfigureAwait(false);
     }
 
-    public async Task<List<StationIdLineUp>> GetSelectedStationIds()
+    public async Task<List<StationIdLineup>> GetSelectedStationIds()
     {
         return await mediator.Send(new GetSelectedStationIds()).ConfigureAwait(false);
     }
@@ -66,5 +66,20 @@ public partial class StreamMasterHub : ISchedulesDirectHub
     public async Task<string> GetEpg()
     {
         return await mediator.Send(new GetEpg()).ConfigureAwait(false);
+    }
+
+    public async Task<List<string>> GetLineupNames()
+    {
+        return await mediator.Send(new GetLineupNames()).ConfigureAwait(false);
+    }
+
+    public async Task<bool> AddLineup(AddLineup request)
+    {
+        return await mediator.Send(request).ConfigureAwait(false);
+    }
+
+    public async Task<bool> DeleteLineup(DeleteLineup request)
+    {
+        return await mediator.Send(request).ConfigureAwait(false);
     }
 }

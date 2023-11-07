@@ -137,7 +137,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [HttpGet]
     [Authorize(Policy = "SGLinks")]
     [Route("{encodedId}/lineup.json")]
-    public async Task<IActionResult> GetStreamGroupLineUp(string encodedId)
+    public async Task<IActionResult> GetStreamGroupLineup(string encodedId)
     {
         Setting setting = await SettingsService.GetSettingsAsync();
         int? streamGroupNumber = encodedId.DecodeValue128(setting.ServerKey);
@@ -146,7 +146,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
             return new NotFoundResult();
         }
 
-        string json = await Mediator.Send(new GetStreamGroupLineUp((int)streamGroupNumber)).ConfigureAwait(false);
+        string json = await Mediator.Send(new GetStreamGroupLineup((int)streamGroupNumber)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,
@@ -158,7 +158,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
     [HttpGet]
     [Authorize(Policy = "SGLinks")]
     [Route("{encodedId}/lineup_status.json")]
-    public async Task<IActionResult> GetStreamGroupLineUpStatus(string encodedId)
+    public async Task<IActionResult> GetStreamGroupLineupStatus(string encodedId)
     {
         Setting setting = await SettingsService.GetSettingsAsync();
         int? streamGroupNumber = encodedId.DecodeValue128(setting.ServerKey);
@@ -166,7 +166,7 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         {
             return new NotFoundResult();
         }
-        string json = await Mediator.Send(new GetStreamGroupLineUpStatus((int)streamGroupNumber)).ConfigureAwait(false);
+        string json = await Mediator.Send(new GetStreamGroupLineupStatus((int)streamGroupNumber)).ConfigureAwait(false);
         return new ContentResult
         {
             Content = json,

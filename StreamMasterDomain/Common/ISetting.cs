@@ -36,7 +36,7 @@ namespace StreamMasterDomain.Common
         string SDCountry { get; set; }
         string SDPassword { get; set; }
         string SDPostalCode { get; set; }
-        List<StationIdLineUp> SDStationIds { get; set; }
+        List<StationIdLineup> SDStationIds { get; set; }
         string SDUserName { get; set; }
         string ServerKey { get; set; }
         string SSLCertPassword { get; set; }

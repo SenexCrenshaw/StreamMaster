@@ -1,8 +1,8 @@
 ﻿namespace StreamMaster.SchedulesDirectAPI.Domain.Interfaces.Models
 {
-    public interface IStationIdLineUp
+    public interface IStationIdLineup
     {
-        string LineUp { get; set; }
+        string Lineup { get; set; }
         string StationId { get; set; }
     }
 }

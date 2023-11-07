@@ -19,7 +19,7 @@ public class M3USettings
 
 public class SDSettings : M3USettings
 {
-    public bool SDUseLineUpInName { get; set; }
+    public bool SDUseLineupInName { get; set; }
     public int SDEPGDays { get; set; } = 7;
     public int SDMaxRatings { get; set; } = 2;
     public bool SDEnabled { get; set; }
@@ -28,7 +28,7 @@ public class SDSettings : M3USettings
     public string SDPassword { get; set; } = string.Empty;
     public string SDPostalCode { get; set; } = string.Empty;
 
-    public List<StationIdLineUp> SDStationIds { get; set; } = new();
+    public List<StationIdLineup> SDStationIds { get; set; } = new();
 }
 
 public class BaseSettings : SDSettings

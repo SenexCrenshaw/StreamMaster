@@ -22,7 +22,7 @@ public class Station : IStation
     [JsonPropertyName("isCommercialFree")]
     public bool? IsCommercialFree { get; set; }
 
-    public string LineUp { get; set; }
+    public string Lineup { get; set; }
 
     [JsonPropertyName("logo")]
     public Logo Logo { get; set; }

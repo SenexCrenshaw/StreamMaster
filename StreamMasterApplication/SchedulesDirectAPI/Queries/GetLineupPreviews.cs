@@ -3,14 +3,14 @@ using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 
-public record GetLineupPreviews : IRequest<List<LineUpPreview>>;
+public record GetLineupPreviews : IRequest<List<LineupPreview>>;
 
-internal class GetLineupPreviewsHandler(ISDService sdService) : IRequestHandler<GetLineupPreviews, List<LineUpPreview>>
+internal class GetLineupPreviewsHandler(ISDService sdService) : IRequestHandler<GetLineupPreviews, List<LineupPreview>>
 {
-    public async Task<List<LineUpPreview>> Handle(GetLineupPreviews request, CancellationToken cancellationToken)
+    public async Task<List<LineupPreview>> Handle(GetLineupPreviews request, CancellationToken cancellationToken)
     {
 
-        List<LineUpPreview> ret = await sdService.GetLineUpPreviews(cancellationToken).ConfigureAwait(false);
+        List<LineupPreview> ret = await sdService.GetLineupPreviews(cancellationToken).ConfigureAwait(false);
 
         return ret;
     }

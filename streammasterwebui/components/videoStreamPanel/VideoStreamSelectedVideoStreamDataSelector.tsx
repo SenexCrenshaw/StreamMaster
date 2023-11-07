@@ -9,7 +9,6 @@ import { useChannelNameColumnConfig } from '../columns/useChannelNameColumnConfi
 import { useChannelNumberColumnConfig } from '../columns/useChannelNumberColumnConfig';
 import DataSelector from '../dataSelector/DataSelector';
 import VideoStreamRemoveFromVideoStreamDialog from './VideoStreamRemoveFromVideoStreamDialog';
-//const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
 interface VideoStreamSelectedVideoStreamDataSelectorProperties {
   readonly id: string;

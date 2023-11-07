@@ -41,7 +41,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? SDCountry { get; set; }
     public string? SDPassword { get; set; }
     public string? SDPostalCode { get; set; }
-    public List<StationIdLineUp>? SDStationIds { get; set; }
+    public List<StationIdLineup>? SDStationIds { get; set; }
     public string? SDUserName { get; set; }
     public int? SourceBufferPreBufferPercentage { get; set; }
     public string? SSLCertPassword { get; set; }
@@ -283,7 +283,7 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
 
         if (request.SDStationIds != null)
         {
-            bool haveSameElements = new HashSet<StationIdLineUp>(currentSetting.SDStationIds).SetEquals(request.SDStationIds);
+            bool haveSameElements = new HashSet<StationIdLineup>(currentSetting.SDStationIds).SetEquals(request.SDStationIds);
             if (!haveSameElements)
             {
                 currentSetting.SDStationIds = request.SDStationIds;

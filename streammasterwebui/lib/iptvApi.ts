@@ -338,6 +338,18 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/schedulesdirect/getepg` }),
         providesTags: ['SchedulesDirect']
       }),
+      schedulesDirectGetLineupNames: build.query<SchedulesDirectGetLineupNamesApiResponse, SchedulesDirectGetLineupNamesApiArg>({
+        query: () => ({ url: `/api/schedulesdirect/getlineupnames` }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectAddLineup: build.mutation<SchedulesDirectAddLineupApiResponse, SchedulesDirectAddLineupApiArg>({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/addlineup`, method: 'PUT', body: queryArg }),
+        invalidatesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectDeleteLineup: build.mutation<SchedulesDirectDeleteLineupApiResponse, SchedulesDirectDeleteLineupApiArg>({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/deletelineup`, method: 'PUT', body: queryArg }),
+        invalidatesTags: ['SchedulesDirect']
+      }),
       settingsGetIsSystemReady: build.query<SettingsGetIsSystemReadyApiResponse, SettingsGetIsSystemReadyApiArg>({
         query: () => ({ url: `/api/settings/getissystemready` }),
         providesTags: ['Settings']
@@ -412,11 +424,11 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/epgguide.json` }),
         providesTags: ['StreamGroups']
       }),
-      streamGroupsGetStreamGroupLineUp: build.query<StreamGroupsGetStreamGroupLineUpApiResponse, StreamGroupsGetStreamGroupLineUpApiArg>({
+      streamGroupsGetStreamGroupLineup: build.query<StreamGroupsGetStreamGroupLineupApiResponse, StreamGroupsGetStreamGroupLineupApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/lineup.json` }),
         providesTags: ['StreamGroups']
       }),
-      streamGroupsGetStreamGroupLineUpStatus: build.query<StreamGroupsGetStreamGroupLineUpStatusApiResponse, StreamGroupsGetStreamGroupLineUpStatusApiArg>({
+      streamGroupsGetStreamGroupLineupStatus: build.query<StreamGroupsGetStreamGroupLineupStatusApiResponse, StreamGroupsGetStreamGroupLineupStatusApiArg>({
         query: (queryArg) => ({ url: `/api/streamgroups/${queryArg}/lineup_status.json` }),
         providesTags: ['StreamGroups']
       }),
@@ -870,17 +882,17 @@ export type SchedulesDirectGetHeadendsApiArg = {
   country?: string;
   postalCode?: string;
 };
-export type SchedulesDirectGetLineupApiResponse = /** status 200  */ LineUpResult;
+export type SchedulesDirectGetLineupApiResponse = /** status 200  */ LineupResult;
 export type SchedulesDirectGetLineupApiArg = string;
-export type SchedulesDirectGetLineupPreviewsApiResponse = /** status 200  */ LineUpPreview[];
+export type SchedulesDirectGetLineupPreviewsApiResponse = /** status 200  */ LineupPreview[];
 export type SchedulesDirectGetLineupPreviewsApiArg = void;
-export type SchedulesDirectGetLineupsApiResponse = /** status 200  */ LineUpsResult;
+export type SchedulesDirectGetLineupsApiResponse = /** status 200  */ Lineup[];
 export type SchedulesDirectGetLineupsApiArg = void;
 export type SchedulesDirectGetSdProgramsApiResponse = /** status 200  */ SdProgram[];
 export type SchedulesDirectGetSdProgramsApiArg = void;
 export type SchedulesDirectGetSchedulesApiResponse = /** status 200  */ Schedule[];
 export type SchedulesDirectGetSchedulesApiArg = void;
-export type SchedulesDirectGetSelectedStationIdsApiResponse = /** status 200  */ StationIdLineUp[];
+export type SchedulesDirectGetSelectedStationIdsApiResponse = /** status 200  */ StationIdLineup[];
 export type SchedulesDirectGetSelectedStationIdsApiArg = void;
 export type SchedulesDirectGetStationPreviewsApiResponse = /** status 200  */ StationPreview[];
 export type SchedulesDirectGetStationPreviewsApiArg = void;
@@ -890,6 +902,12 @@ export type SchedulesDirectGetStatusApiResponse = /** status 200  */ SdStatus;
 export type SchedulesDirectGetStatusApiArg = void;
 export type SchedulesDirectGetEpgApiResponse = unknown;
 export type SchedulesDirectGetEpgApiArg = void;
+export type SchedulesDirectGetLineupNamesApiResponse = /** status 200  */ string[];
+export type SchedulesDirectGetLineupNamesApiArg = void;
+export type SchedulesDirectAddLineupApiResponse = /** status 200  */ boolean;
+export type SchedulesDirectAddLineupApiArg = AddLineup;
+export type SchedulesDirectDeleteLineupApiResponse = /** status 200  */ boolean;
+export type SchedulesDirectDeleteLineupApiArg = DeleteLineup;
 export type SettingsGetIsSystemReadyApiResponse = /** status 200  */ boolean;
 export type SettingsGetIsSystemReadyApiArg = void;
 export type SettingsGetQueueStatusApiResponse = /** status 200  */ TaskQueueStatusDto[];
@@ -924,10 +942,10 @@ export type StreamGroupsGetStreamGroupEpgApiResponse = unknown;
 export type StreamGroupsGetStreamGroupEpgApiArg = string;
 export type StreamGroupsGetStreamGroupEpgForGuideApiResponse = /** status 200  */ EpgGuide;
 export type StreamGroupsGetStreamGroupEpgForGuideApiArg = number;
-export type StreamGroupsGetStreamGroupLineUpApiResponse = unknown;
-export type StreamGroupsGetStreamGroupLineUpApiArg = string;
-export type StreamGroupsGetStreamGroupLineUpStatusApiResponse = unknown;
-export type StreamGroupsGetStreamGroupLineUpStatusApiArg = string;
+export type StreamGroupsGetStreamGroupLineupApiResponse = unknown;
+export type StreamGroupsGetStreamGroupLineupApiArg = string;
+export type StreamGroupsGetStreamGroupLineupStatusApiResponse = unknown;
+export type StreamGroupsGetStreamGroupLineupStatusApiArg = string;
 export type StreamGroupsGetStreamGroupM3UApiResponse = unknown;
 export type StreamGroupsGetStreamGroupM3UApiArg = string;
 export type StreamGroupsGetPagedStreamGroupsApiResponse = /** status 200  */ PagedResponseOfStreamGroupDto;
@@ -1402,7 +1420,7 @@ export type Station = {
   callsign?: string;
   descriptionLanguage?: string[];
   isCommercialFree?: boolean | null;
-  lineUp?: string;
+  lineup?: string;
   logo?: Logo;
   name?: string;
   stationID?: string;
@@ -1413,17 +1431,17 @@ export type Metadata = {
   modified?: string;
   transport?: string;
 };
-export type LineUpResult = {
+export type LineupResult = {
   map?: Map[];
   stations?: Station[];
   metadata?: Metadata;
 };
-export type LineUpPreview = {
+export type LineupPreview = {
   id?: number;
   affiliate?: string;
   callsign?: string;
   channel?: string;
-  lineUp?: string;
+  lineup?: string;
   name?: string;
 };
 export type Lineup = {
@@ -1434,12 +1452,6 @@ export type Lineup = {
   location?: string;
   uri?: string;
   isDeleted?: boolean;
-};
-export type LineUpsResult = {
-  code?: number;
-  serverID?: string;
-  datetime?: string;
-  lineups?: Lineup[];
 };
 export type Title = {
   title120?: string;
@@ -1572,8 +1584,8 @@ export type Schedule = {
   programs?: Program[];
   metadata?: ScheduleMetadata;
 };
-export type StationIdLineUp = {
-  lineUp?: string;
+export type StationIdLineup = {
+  lineup?: string;
   stationId?: string;
   id?: string;
 };
@@ -1582,7 +1594,7 @@ export type StationPreview = {
   affiliate?: string;
   callsign?: string;
   id?: string;
-  lineUp?: string;
+  lineup?: string;
   name?: string;
   stationId?: string;
 };
@@ -1606,6 +1618,12 @@ export type SdStatus = {
   serverID?: string;
   systemStatus?: SdSystemStatus[];
 };
+export type AddLineup = {
+  lineup?: string;
+};
+export type DeleteLineup = {
+  lineup?: string;
+};
 export type TaskQueueStatusDto = {
   command?: string;
   id?: string;
@@ -1625,9 +1643,20 @@ export type M3USettings = {
   m3UFieldTvgName: boolean;
   m3UIgnoreEmptyEPGID: boolean;
 };
+export type SdSettings = M3USettings & {
+  sdUseLineupInName: boolean;
+  sdepgDays: number;
+  sdMaxRatings: number;
+  sdEnabled: boolean;
+  sdUserName: string;
+  sdCountry: string;
+  sdPassword: string;
+  sdPostalCode: string;
+  sdStationIds: StationIdLineup[];
+};
 export type AuthenticationType = 0 | 2;
 export type StreamingProxyTypes = 0 | 1 | 2 | 3;
-export type BaseSettings = M3USettings & {
+export type BaseSettings = SdSettings & {
   adminPassword: string;
   adminUserName: string;
   defaultIcon: string;
@@ -1651,13 +1680,7 @@ export type BaseSettings = M3USettings & {
   overWriteM3UChannels: boolean;
   preloadPercentage: number;
   ringBufferSizeMB: number;
-  sdEnabled: boolean;
-  sdCountry: string;
-  sdPassword: string;
-  sdPostalCode: string;
-  sdStationIds: StationIdLineUp[];
   nameRegex: string[];
-  sdUserName: string;
   sslCertPassword: string;
   sslCertPath: string;
   streamingClientUserAgent: string;
@@ -1711,7 +1734,7 @@ export type UpdateSettingRequest = {
   sdCountry?: string | null;
   sdPassword?: string | null;
   sdPostalCode?: string | null;
-  sdStationIds?: StationIdLineUp[] | null;
+  sdStationIds?: StationIdLineup[] | null;
   sdUserName?: string | null;
   sourceBufferPreBufferPercentage?: number | null;
   sslCertPassword?: string | null;
@@ -2019,6 +2042,9 @@ export const {
   useSchedulesDirectGetStationsQuery,
   useSchedulesDirectGetStatusQuery,
   useSchedulesDirectGetEpgQuery,
+  useSchedulesDirectGetLineupNamesQuery,
+  useSchedulesDirectAddLineupMutation,
+  useSchedulesDirectDeleteLineupMutation,
   useSettingsGetIsSystemReadyQuery,
   useSettingsGetQueueStatusQuery,
   useSettingsGetSettingQuery,
@@ -2036,8 +2062,8 @@ export const {
   useStreamGroupsGetStreamGroupDiscoverQuery,
   useStreamGroupsGetStreamGroupEpgQuery,
   useStreamGroupsGetStreamGroupEpgForGuideQuery,
-  useStreamGroupsGetStreamGroupLineUpQuery,
-  useStreamGroupsGetStreamGroupLineUpStatusQuery,
+  useStreamGroupsGetStreamGroupLineupQuery,
+  useStreamGroupsGetStreamGroupLineupStatusQuery,
   useStreamGroupsGetStreamGroupM3UQuery,
   useStreamGroupsGetPagedStreamGroupsQuery,
   useStreamGroupsUpdateStreamGroupMutation,

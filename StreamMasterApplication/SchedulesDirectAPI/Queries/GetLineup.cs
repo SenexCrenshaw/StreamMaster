@@ -3,11 +3,11 @@ using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 
-public record GetLineup(string lineup) : IRequest<LineUpResult?>;
+public record GetLineup(string lineup) : IRequest<LineupResult?>;
 
-internal class GetLineupHandler(ISDService sdService) : IRequestHandler<GetLineup, LineUpResult?>
+internal class GetLineupHandler(ISDService sdService) : IRequestHandler<GetLineup, LineupResult?>
 {
-    public async Task<LineUpResult?> Handle(GetLineup request, CancellationToken cancellationToken)
+    public async Task<LineupResult?> Handle(GetLineup request, CancellationToken cancellationToken)
     {
         //Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
         //SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
@@ -25,7 +25,7 @@ internal class GetLineupHandler(ISDService sdService) : IRequestHandler<GetLineu
         //    return null;
         //}
 
-        LineUpResult? ret = await sdService.GetLineup(request.lineup, cancellationToken).ConfigureAwait(false);
+        LineupResult? ret = await sdService.GetLineup(request.lineup, cancellationToken).ConfigureAwait(false);
 
         return ret;
     }

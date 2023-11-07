@@ -1,6 +1,6 @@
 ﻿namespace StreamMaster.SchedulesDirectAPI.Domain.Interfaces.Models
 {
-    public interface ILineUpsResult
+    public interface ILineupsResult
     {
         int Code { get; set; }
         DateTime Datetime { get; set; }

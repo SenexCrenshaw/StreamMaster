@@ -1,6 +1,6 @@
 ﻿namespace StreamMaster.SchedulesDirectAPI.Domain.Interfaces.Models
 {
-    public interface ILineUpResult
+    public interface ILineupResult
     {
         List<Map> Map { get; set; }
         Metadata Metadata { get; set; }

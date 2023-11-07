@@ -1,15 +1,15 @@
 ﻿namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
-public class StationIdLineUp : IStationIdLineUp
+public class StationIdLineup : IStationIdLineup
 {
-    public string LineUp { get; set; } = string.Empty;
+    public string Lineup { get; set; } = string.Empty;
     public string StationId { get; set; } = string.Empty;
-    public StationIdLineUp() { }
-    public string Id => LineUp + "|" + StationId;
+    public StationIdLineup() { }
+    public string Id => Lineup + "|" + StationId;
 
-    public StationIdLineUp(string lineUp, string stationId)
+    public StationIdLineup(string lineup, string stationId)
     {
-        LineUp = lineUp;
+        Lineup = lineup;
         StationId = stationId;
     }
 }
