@@ -26,6 +26,8 @@ import selectedVideoStreamsSliceReducer from '@lib/redux/slices/selectedVideoStr
 import showHiddenSliceReducer from '@lib/redux/slices/showHiddenSlice';
 import showSelectionsSliceReducer from '@lib/redux/slices/showSelectionsSlice';
 import sortInfoSliceReducer from '@lib/redux/slices/sortInfoSlice';
+import selectedCountrySlice from '@lib/redux/slices/selectedCountrySlice';
+import selectedZipCodeSlice from '@lib/redux/slices/selectedZipCodeSlice';
 
 import { enhancedApiVideoStreamsGetAllStatisticsLocal } from '@lib/smAPILocal/enhancedApiVideoStreamsGetAllStatisticsLocal';
 import { persistReducer, persistStore } from 'redux-persist';
@@ -67,6 +69,16 @@ const selectedStreamGroupConfig = {
   storage
 };
 
+const selectedCountryConfig = {
+  key: 'selectedCountry',
+  storage
+};
+
+const selectedZipCodeConfig = {
+  key: 'selectedZipCode',
+  storage
+};
+
 const rootReducer = combineReducers({
   appInfo: appInfoSliceReducer,
   [enhancedApiChannelGroups.reducerPath]: enhancedApiChannelGroups.reducer,
@@ -85,7 +97,9 @@ const rootReducer = combineReducers({
   channelGroupToRemove: channelGroupToRemoveSliceReducer,
   queryAdditionalFilters: queryAdditionalFiltersReducer,
   queryFilter: queryFilterReducer,
+  selectedZipCodeSlice: persistReducer(selectedZipCodeConfig, selectedZipCodeSlice),
   selectAll: persistReducer(selectAllConfig, selectAllSliceReducer),
+  selectedCountry: persistReducer(selectedCountryConfig, selectedCountrySlice),
   selectedChannelGroups: persistReducer(selectedItemsGroupsConfig, selectedChannelGroupsSliceReducer),
   selectedItems: selectedItemsSliceReducer,
   selectedStreamGroup: persistReducer(selectedStreamGroupConfig, selectedStreamGroupSliceReducer),
@@ -96,33 +110,6 @@ const rootReducer = combineReducers({
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
-
-// const rootReducer = combineReducers({
-//   appInfo:appInfoSliceReducer,
-//   [enhancedApiChannelGroups.reducerPath]: enhancedApiChannelGroups.reducer,
-//   [enhancedApiEpgFiles.reducerPath]: enhancedApiEpgFiles.reducer,
-//   [enhancedApiM3UFiles.reducerPath]: enhancedApiM3UFiles.reducer,
-//   [enhancedApiProgrammes.reducerPath]: enhancedApiProgrammes.reducer,
-//   [enhancedApiSchedulesDirect.reducerPath]: enhancedApiSchedulesDirect.reducer,
-//   [enhancedApiSettings.reducerPath]: enhancedApiSettings.reducer,
-//   [enhancedApiStreamGroupChannelGroup.reducerPath]: enhancedApiStreamGroupChannelGroup.reducer,
-//   [enhancedApiStreamGroupVideoStreams.reducerPath]: enhancedApiStreamGroupVideoStreams.reducer,
-//   [enhancedApiStreamGroups.reducerPath]: enhancedApiStreamGroups.reducer,
-//   [enhancedApiVideoStreamLinks.reducerPath]: enhancedApiVideoStreamLinks.reducer,
-//   [enhancedApiVideoStreams.reducerPath]: enhancedApiVideoStreams.reducer,
-//   [enhancedApiVideoStreamLinksLocal.reducerPath]: enhancedApiVideoStreamLinksLocal.reducer,
-//   [enhancedApiVideoStreamsGetAllStatisticsLocal.reducerPath]: enhancedApiVideoStreamsGetAllStatisticsLocal.reducer,
-//   channelGroupToRemove:channelGroupToRemoveSliceReducer,
-//   queryAdditionalFilters: queryAdditionalFiltersReducer,
-//   queryFilter: queryFilterReducer,
-//   selectAll:  selectAllSliceReducer,
-//   selectedChannelGroups: selectedChannelGroupsSliceReducer,
-//   selectedItems: selectedItemsSliceReducer,
-//   selectedStreamGroup: selectedStreamGroupSliceReducer,
-//   selectedVideoStreams: selectedVideoStreamsSliceReducer,
-//   showHidden: showHiddenSliceReducer,
-//   sortInfo: sortInfoSliceReducer,
-// });
 
 const store = configureStore({
   devTools: process.env.NODE_ENV !== 'production',
@@ -148,27 +135,9 @@ const store = configureStore({
   reducer: rootReducer
 });
 
-// export const initializeStore = (): Store<RootState> => {
-//   let _store = store ?? makeStore();
-
-//   // For SSG and SSR always create a new store
-//   if (typeof window === 'undefined') return _store;
-
-//   // Create the store once in the client
-//   if (!store) store = _store;
-
-//   return _store;
-// };
-
 export type AppDispatch = typeof store.dispatch;
-// setupListeners(store.dispatch);
 
 export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, Action<string>>;
-
-// export function useStore(): Store<RootState> {
-//   const store = useMemo(() => initializeStore(), []);
-//   return store;
-// }
 
 export const persistor = persistStore(store);
 

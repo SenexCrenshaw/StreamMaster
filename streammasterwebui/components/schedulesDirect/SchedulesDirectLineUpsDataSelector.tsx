@@ -10,7 +10,7 @@ const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSe
   const getLineUpsQuery = useSchedulesDirectGetLineupsQuery();
 
   const sourceColumns = useMemo((): ColumnMeta[] => [{ field: 'lineup' }, { field: 'location' }, { field: 'name' }, { field: 'transport' }], []);
-  console.log(getLineUpsQuery.data);
+  // console.log(getLineUpsQuery.data);
   return (
     <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border">
       {/* <h3><span className='text-bold'>LineUps | </span><span className='text-bold text-blue-500'>{props.country}</span> - <span className='text-bold text-500'>{props.postalCode}</span></h3> */}

@@ -16,7 +16,7 @@ interface TextInputProperties {
   readonly placeHolder?: string;
   readonly showClear?: boolean;
   readonly showCopy?: boolean;
-  readonly value: string;
+  readonly value: string | undefined;
 }
 
 const TextInput = ({
@@ -91,7 +91,9 @@ const TextInput = ({
       setOriginalInput(processValue(value));
     }
 
-    setInput(processValue(value));
+    if (value !== undefined) {
+      setInput(processValue(value));
+    }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
@@ -102,7 +104,7 @@ const TextInput = ({
 
   return (
     <div className={placeHolder && !label ? 'flex grid w-full align-items-center' : 'flex grid w-full mt-3 align-items-center'} ref={overlayReference}>
-      <span className={placeHolder && !label ? 'col-11 p-input-icon-right' : 'col-11 p-input-icon-right p-float-label'}>
+      <span className={placeHolder && !label ? 'col-11 p-input-icon-right w-full' : 'col-11 p-input-icon-right p-float-label w-full'}>
         {doShowClear() && originalInput && (
           <i
             className="pi pi-times-circle"
@@ -130,6 +132,7 @@ const TextInput = ({
           value={input}
         />
         {label && <label htmlFor={uuid}>{label}</label>}
+        {/* {!label && placeHolder && <span className="absolute top-25 left-50 text-xs">{placeHolder}</span>} */}
       </span>
       {doShowCopy() && (
         <div className="col-1 p-0 m-0">
