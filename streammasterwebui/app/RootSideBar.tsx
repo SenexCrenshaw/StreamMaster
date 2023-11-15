@@ -5,6 +5,7 @@ import {
   LogIcon,
   PlayListEditorIcon,
   QueueStatisIcon,
+  SDChannelIcon,
   SDIcon,
   SettingsEditorIcon,
   SideBarMenuIcon,
@@ -63,7 +64,8 @@ export const RootSideBar = () => {
         <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/editor/playlist" name="Playlist" />
         <MenuItemSM collapsed={collapsed} icon={<StreamGroupEditorIcon />} link="/editor/streamgroup" name="Stream Group" />
         <MenuItemSM collapsed={collapsed} icon={<FilesEditorIcon />} link="/editor/files" name="Files" />
-        {settings.data.sdEnabled === true ? <MenuItemSM collapsed={collapsed} icon={<SDIcon />} link="/editor/sd" name="SD" /> : null}
+        {settings.data.sdEnabled === true ? <MenuItemSM collapsed={collapsed} icon={<SDIcon />} link="/editor/sdHeadEndLineUps" name="SD HeadEnds" /> : null}
+        {settings.data.sdEnabled === true ? <MenuItemSM collapsed={collapsed} icon={<SDChannelIcon />} link="/editor/sdChannels" name="SD Channels" /> : null}
         <MenuItemSM collapsed={collapsed} icon={<StreamingStatusIcon />} link="/streamingstatus" name="Status" />
         <MenuItemSM collapsed={collapsed} icon={<QueueStatisIcon />} link="/queuestatus" name="Queue" />
         <MenuItemSM collapsed={collapsed} icon={<SettingsEditorIcon />} link="/settings" name="Settings" />

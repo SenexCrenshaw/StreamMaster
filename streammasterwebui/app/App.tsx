@@ -9,7 +9,7 @@ import FilesEditor from '@features/filesEditor/FilesEditor';
 import LogViewer from '@features/logViewer/LogViewer';
 import PlayListEditor from '@features/playListEditor/PlayListEditor';
 import QueueStatus from '@features/queueStatus/QueueStatus';
-import SDEditor from '@features/sdEditor/SDEditor';
+import SDEditorHeadEndsAndLineUps from '@features/sdEditor/SDEditorHeadEndsAndLineUps';
 import SettingsEditor from '@features/settings/SettingsEditor';
 import StreamGroupEditor from '@features/streamGroupEditor/StreamGroupEditor';
 import StreamingStatus from '@features/streamingStatus/StreamingStatus';
@@ -24,6 +24,7 @@ import { ProSidebarProvider } from 'react-pro-sidebar';
 import { useStore } from 'react-redux';
 import { persistStore } from 'redux-persist';
 import { RootLayout } from './RootLayout';
+import SDEditorChannels from '@features/sdEditor/SDEditorChannels';
 
 // const albert_sans = Albert_Sans({
 //   subsets: ['latin'],
@@ -51,7 +52,9 @@ const App = (): JSX.Element => {
 
         <Route element={<FilesEditor />} path="/editor/files" />
 
-        <Route element={<SDEditor />} path="/editor/sd" />
+        <Route element={<SDEditorHeadEndsAndLineUps />} path="/editor/sdHeadEndLineUps" />
+
+        <Route element={<SDEditorChannels />} path="/editor/sdChannels" />
 
         <Route element={<StreamingStatus />} path="/streamingstatus" />
 

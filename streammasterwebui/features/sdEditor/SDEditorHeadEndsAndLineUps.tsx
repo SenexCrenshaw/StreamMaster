@@ -4,11 +4,18 @@ import SchedulesDirectHeadendDataSelector from '@components/schedulesDirect/Sche
 import SchedulesDirectLineUpsDataSelector from '@components/schedulesDirect/SchedulesDirectLineUpsDataSelector';
 import { SDIcon } from '@lib/common/icons';
 import { useSchedulesDirectGetStatusQuery } from '@lib/iptvApi';
+import useSettings from '@lib/useSettings';
+import { BlockUI } from 'primereact/blockui';
 
 import { memo, useMemo } from 'react';
 
-const SDEditor = () => {
+const SDEditorHeadEndsAndLineUps = () => {
   const getStatusQuery = useSchedulesDirectGetStatusQuery();
+  const settings = useSettings();
+
+  const isSDReady = useMemo((): boolean => {
+    return getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() === 'online' && settings.data?.sdEnabled === true;
+  }, [getStatusQuery.data?.systemStatus, settings.data?.sdEnabled]);
 
   const status = useMemo(() => {
     if (getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() === 'online') {
@@ -28,20 +35,18 @@ const SDEditor = () => {
   }, [getStatusQuery.data]);
   console.log(status);
   return (
-    <StandardHeader displayName={status} icon={<SDIcon />}>
-      {/* <BlockUI blocked={getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() !== 'online' || settings.data?.sdEnabled !== true}> */}
-
-      <div className="col-6 m-0 p-0 pr-1">
-        {/* <SchedulesDirectCountrySelector /> */}
-        <SchedulesDirectHeadendDataSelector />
-      </div>
-      <div className="col-6 m-0 p-0 border-2 border-round surface-border">
-        <div className="flex grid col-12 pl-1 justify-content-start align-items-center m-0 w-full smallpt"></div>
-        <SchedulesDirectLineUpsDataSelector id={'SDEditor'} />
-      </div>
-      {/* </BlockUI> */}
-    </StandardHeader>
+    <BlockUI blocked={!isSDReady}>
+      <StandardHeader displayName={status} icon={<SDIcon />}>
+        <div className="col-6 m-0 p-0 pr-1">
+          <SchedulesDirectHeadendDataSelector />
+        </div>
+        <div className="col-6 m-0 p-0 border-2 border-round surface-border">
+          <div className="flex grid col-12 pl-1 justify-content-start align-items-center m-0 w-full smallpt"></div>
+          <SchedulesDirectLineUpsDataSelector id={'SDEditor'} />
+        </div>
+      </StandardHeader>
+    </BlockUI>
   );
 };
 
-export default memo(SDEditor);
+export default memo(SDEditorHeadEndsAndLineUps);

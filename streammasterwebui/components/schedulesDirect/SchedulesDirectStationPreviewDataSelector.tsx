@@ -128,7 +128,7 @@ const SchedulesDirectStationPreviewDataSelector = () => {
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
-      <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border">
+      <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border w-full">
         <DataSelector
           columns={columns}
           dataSource={stationPreviews.data}

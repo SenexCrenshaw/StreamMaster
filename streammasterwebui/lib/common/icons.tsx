@@ -2,6 +2,7 @@
 
 export const EPGFilecon = <div> </div>;
 
+export { default as SDChannelIcon } from '@mui/icons-material/ScheduleSend';
 export { default as AutoMatchIcon } from '@mui/icons-material/AutoAwesome';
 export { default as QueueStatisIcon } from '@mui/icons-material/AutorenewSharp';
 export { default as FilesEditorIcon } from '@mui/icons-material/FolderCopy';
