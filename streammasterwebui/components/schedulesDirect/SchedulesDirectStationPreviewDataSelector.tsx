@@ -116,8 +116,6 @@ const SchedulesDirectStationPreviewDataSelector = () => {
     ];
     // // columnConfigs.push(channelGroupConfig);
     columnConfigs.push(lineUpColumnConfig);
-
-    // columnConfigs.push({ field: 'lineup', header: 'Line Up', sortable: true });
     columnConfigs.push({ field: 'name', filter: true, header: 'Name', sortable: true });
     columnConfigs.push({ field: 'callsign', filter: true, header: 'Call Sign', sortable: true });
     columnConfigs.push({ field: 'affiliate', filter: true, header: 'Affiliate', sortable: true });
@@ -128,7 +126,7 @@ const SchedulesDirectStationPreviewDataSelector = () => {
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
-      <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border w-full">
+      <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border w-full p-0">
         <DataSelector
           columns={columns}
           dataSource={stationPreviews.data}
@@ -140,12 +138,11 @@ const SchedulesDirectStationPreviewDataSelector = () => {
           isLoading={stationPreviews.isLoading || isLoading}
           onSelectionChange={(e) => {
             onSave(e);
-            //console.log('e', e);
           }}
           selectedItemsKey="SchedulesDirectSchedulesDataSelector"
           selectionMode="multiple"
           showSelections
-          style={{ height: 'calc(100vh - 40px)' }}
+          style={{ height: 'calc(100vh - 60px)' }}
         />
       </div>
     </>

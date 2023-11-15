@@ -98,6 +98,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
                 ILineupPreview lineupPreview = results[index];
                 lineupPreview.Lineup = lineup.LineupString;
                 lineupPreview.Id = index;
+                lineupPreview.Affiliate ??= "";
             }
 
             res.AddRange(results);
@@ -542,7 +543,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         {
             IStation station = stations[index];
             StationPreview sp = new(station);
-
+            sp.Affiliate ??= "";
             ret.Add(sp);
         }
         return ret;

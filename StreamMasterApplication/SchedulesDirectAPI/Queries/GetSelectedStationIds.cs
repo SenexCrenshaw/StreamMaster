@@ -8,7 +8,7 @@ internal class GetSelectedStationIdsHandler(ISettingsService settingsService) : 
 {
     public async Task<List<StationIdLineup>> Handle(GetSelectedStationIds request, CancellationToken cancellationToken)
     {
-        Setting setting = await settingsService.GetSettingsAsync();
+        Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
 
         return setting.SDStationIds;
     }
