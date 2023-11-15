@@ -12,10 +12,11 @@ const SDEditor = () => {
 
   const status = useMemo(() => {
     if (getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() === 'online') {
+      console.log(getStatusQuery.data);
       return (
-        <div>
+        <span>
           Schedules Direct System Status: <span className="text-green-500">Online</span>
-        </div>
+        </span>
       );
     }
 
@@ -25,9 +26,9 @@ const SDEditor = () => {
       </div>
     );
   }, [getStatusQuery.data]);
-
+  console.log(status);
   return (
-    <StandardHeader displayName={`Schedules Direct - ${status}`} icon={<SDIcon />}>
+    <StandardHeader displayName={status} icon={<SDIcon />}>
       {/* <BlockUI blocked={getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() !== 'online' || settings.data?.sdEnabled !== true}> */}
 
       <div className="col-6 m-0 p-0 pr-1">

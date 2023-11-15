@@ -25,13 +25,13 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
     if (selectedCountry !== undefined && selectedCountry !== originalCountry) {
       setOriginalCountry(selectedCountry);
     }
-  }, [selectedCountry, setOriginalCountry]);
+  }, [originalCountry, selectedCountry, setOriginalCountry]);
 
   React.useEffect(() => {
     if (selectedPostalCode !== undefined && selectedPostalCode !== originalPostalCode) {
       setOriginalPostalCode(selectedPostalCode);
     }
-  }, [selectedPostalCode, setOriginalPostalCode]);
+  }, [originalPostalCode, selectedPostalCode, setOriginalPostalCode]);
 
   interface Country {
     shortName: string;
@@ -63,8 +63,8 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
   }, [getCountriesQuery.data]);
 
   return (
-    <div className="flex grid col-12 pl-1 justify-content-start align-items-center p-0 m-0 w-full">
-      <div className="flex col-2 p-0 pr-2">
+    <div className="flex grid col-12 pl-1 justify-content-start align-items-center p-0 m-0">
+      <div className="flex col-6 p-0 pr-2">
         <Dropdown
           className="bordered-text w-full"
           filter
@@ -83,8 +83,8 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
           value={selectedCountry}
         />
       </div>
-      <div className="flex col-2 p-0">
-        <div className="flex col-10 pt-2 p-0 w-full">
+      <div className="flex col-6 p-0">
+        <div className="flex col-6 p-0">
           <TextInput
             placeHolder="Postal Code"
             onChange={(e) => {

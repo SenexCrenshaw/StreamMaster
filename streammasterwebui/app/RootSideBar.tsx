@@ -55,21 +55,15 @@ export const RootSideBar = () => {
             onsetCollapsed(!collapsed);
           }}
         >
-          <MenuItem className="menu1" icon={<SideBarMenuIcon sx={{ color: 'var(--orange-color)', fontSize: 32 }} />}>
-            <h2
-              style={{
-                color: 'var(--orange-color)'
-              }}
-            >
-              Stream Master
-            </h2>
+          <MenuItem icon={<SideBarMenuIcon sx={{ color: 'var(--orange-color)', fontSize: 32 }} />}>
+            <h2 className="orange-color">Stream Master</h2>
           </MenuItem>
         </div>
         {/* <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/testpanel" name='Test Panel' /> */}
         <MenuItemSM collapsed={collapsed} icon={<PlayListEditorIcon />} link="/editor/playlist" name="Playlist" />
         <MenuItemSM collapsed={collapsed} icon={<StreamGroupEditorIcon />} link="/editor/streamgroup" name="Stream Group" />
         <MenuItemSM collapsed={collapsed} icon={<FilesEditorIcon />} link="/editor/files" name="Files" />
-        {settings.data.sdEnabled === true && <MenuItemSM collapsed={collapsed} icon={<SDIcon />} link="/editor/sd" name="SD" />}
+        {settings.data.sdEnabled === true ? <MenuItemSM collapsed={collapsed} icon={<SDIcon />} link="/editor/sd" name="SD" /> : null}
         <MenuItemSM collapsed={collapsed} icon={<StreamingStatusIcon />} link="/streamingstatus" name="Status" />
         <MenuItemSM collapsed={collapsed} icon={<QueueStatisIcon />} link="/queuestatus" name="Queue" />
         <MenuItemSM collapsed={collapsed} icon={<SettingsEditorIcon />} link="/settings" name="Settings" />
@@ -79,13 +73,7 @@ export const RootSideBar = () => {
 
       <div className="absolute bottom-0 left-0 pb-2 flex flex-column m-0 p-0 justify-content-center align-items-center">
         <div className="flex col-12 justify-content-center align-items-center">
-          <img
-            alt="Stream Master Logo"
-            src="/images/StreamMasterx32.png"
-            style={{
-              objectFit: 'contain' // cover, contain, none
-            }}
-          />
+          <img alt="Stream Master Logo" src="/images/StreamMasterx32.png" />
         </div>
         <Tooltip target=".custom-target-icon" />
         <div
