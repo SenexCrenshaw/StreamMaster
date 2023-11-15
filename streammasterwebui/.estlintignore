@@ -4,6 +4,7 @@ node_modules
 **/_next/**
 **/.vscode/**
 **/dist/**
+**/styles/**
 vite.config.ts
 iptvApi.ts
 package.json

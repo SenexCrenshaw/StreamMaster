@@ -9,8 +9,6 @@ import { ChannelGroupDto, useChannelGroupsGetPagedChannelGroupsQuery } from '@li
 import { useShowHidden } from '@lib/redux/slices/useShowHidden';
 import { memo, useCallback, useEffect, useMemo } from 'react';
 
-// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
-
 export interface PlayListDataSelectorProperties {
   readonly hideAddRemoveControls?: boolean;
   readonly hideControls?: boolean;

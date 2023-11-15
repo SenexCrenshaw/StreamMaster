@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\StreamMaster.SchedulesDirectAPI.Domain\StreamMaster.SchedulesDirectAPI.Domain.csproj" />
     <ProjectReference Include="..\StreamMasterDomain\StreamMasterDomain.csproj" />
   </ItemGroup>
 

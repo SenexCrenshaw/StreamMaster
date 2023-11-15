@@ -1,5 +1,5 @@
-import SDEditor from '@features/sdEditor/SDEditor';
+import SDEditorHeadEndsAndLineUps from '@features/sdEditor/SDEditorHeadEndsAndLineUps';
 
 export default function SDEditorLayout() {
-  return <SDEditor />;
+  return <SDEditorHeadEndsAndLineUps />;
 }

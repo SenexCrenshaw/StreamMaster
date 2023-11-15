@@ -20,8 +20,8 @@
       "command": "npm run dev",
       "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
       "serverReadyAction": {
-        "pattern": "Local:.+(http://.+)",
-        "uriFormat": "http://%s",
+        "pattern": "Local:.+(https?://\\S+|[0-9]+)",
+        "uriFormat": "http://localhost:300%s",
         "action": "debugWithEdge"
       }
     },

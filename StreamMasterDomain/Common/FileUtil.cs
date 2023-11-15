@@ -1,4 +1,5 @@
-using StreamMasterDomain.EPG;
+using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+
 using StreamMasterDomain.Models;
 
 using System.IO.Compression;

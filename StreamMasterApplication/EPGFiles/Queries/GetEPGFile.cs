@@ -1,6 +1,5 @@
-﻿using StreamMasterApplication.Programmes.Queries;
-
-using StreamMasterDomain.EPG;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+using StreamMasterApplication.Programmes.Queries;
 
 namespace StreamMasterApplication.EPGFiles.Queries;
 

@@ -2,7 +2,7 @@
 
 namespace StreamMaster.SchedulesDirectAPI;
 
-public class SDAPIResponse
+internal class SDAPIResponse
 {
     [JsonPropertyName("code")]
     public int Code { get; set; }

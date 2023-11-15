@@ -2,7 +2,7 @@
   "prettier.enable": true,
   "explorer.confirmDelete": true,
   "editor.formatOnSave": true,
-  "editor.fontFamily": "'Victor Mono', Consolas, 'Courier New', monospace",
+  // "editor.fontFamily": "'Victor Mono', Consolas, 'Courier New', monospace",
   "editor.fontLigatures": true,
   // "typescript.updateImportsOnFileMove.enabled": "always",
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",

@@ -17,8 +17,6 @@ import { skipToken } from '@reduxjs/toolkit/dist/query';
 import { type DataTableRowClickEvent } from 'primereact/datatable';
 import { memo, useMemo } from 'react';
 
-// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
-
 interface StreamGroupVideoStreamDataSelectorProperties {
   readonly id: string;
 }

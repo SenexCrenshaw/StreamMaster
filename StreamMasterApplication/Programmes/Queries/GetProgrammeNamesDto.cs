@@ -1,4 +1,4 @@
-﻿using StreamMasterDomain.EPG;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
 
 namespace StreamMasterApplication.Programmes.Queries;
 

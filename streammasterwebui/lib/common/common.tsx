@@ -1,10 +1,9 @@
-/* eslint-disable react/prop-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import ExportButton from '@components/export/ExportButton';
 import GlobalSearch from '@components/search/GlobalSearch';
 import { SMFileTypes } from '@lib/common/streammaster_enums';
-import { StationIdLineUp, type ChildVideoStreamDto, type IconFileDto, type VideoStreamDto } from '@lib/iptvApi';
+import { StationIdLineup, type ChildVideoStreamDto, type IconFileDto, type VideoStreamDto } from '@lib/iptvApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { Checkbox } from 'primereact/checkbox';
 import { type DataTableFilterMeta, type DataTableFilterMetaData } from 'primereact/datatable';
@@ -484,9 +483,9 @@ function getApiUrl(path: SMFileTypes, originalUrl: string): string {
   return `${isDevelopment ? baseHostURL : ''}/api/files/${path}/${encodeURIComponent(originalUrl)}`;
 }
 
-export function findDifferenceStationIdLineUps(firstArray: StationIdLineUp[], secondArray: StationIdLineUp[]): StationIdLineUp[] {
-  const missingFromFirst = secondArray.filter((item2) => !firstArray.some((item1) => item2.lineUp === item1.lineUp && item2.stationId === item1.stationId));
-  const missingFromSecond = firstArray.filter((item1) => !secondArray.some((item2) => item1.lineUp === item2.lineUp && item1.stationId === item2.stationId));
+export function findDifferenceStationIdLineUps(firstArray: StationIdLineup[], secondArray: StationIdLineup[]): StationIdLineup[] {
+  const missingFromFirst = secondArray.filter((item2) => !firstArray.some((item1) => item2.lineup === item1.lineup && item2.stationId === item1.stationId));
+  const missingFromSecond = firstArray.filter((item1) => !secondArray.some((item2) => item1.lineup === item2.lineup && item1.stationId === item2.stationId));
 
   return [...missingFromFirst, ...missingFromSecond];
 }
@@ -599,9 +598,8 @@ export const getColumnClass = (size?: number, secondSize?: number) => {
 
 export const HeaderLeft: React.FC<{ readonly props: any }> = ({ props }) => (
   <div
-    className={`flex debug flex-nowrap justify-content-start header p-0 m-0 align-items-center ${
-      props?.headerLeftTemplate ? getColumnClass(props.leftColSize, 4) : 'col-1'
-    }`}
+    className={`flex debug flex-nowrap justify-content-end header p-0 m-0 align-items-center ${props?.headerLeftTemplate ? getColumnClass(props.leftColSize, 4) : 'col-1'
+      }`}
   >
     {props.headerLeftTemplate}
   </div>
@@ -614,17 +612,17 @@ export const GlobalSearchComponent: React.FC<{
   readonly onGlobalSourceFilterChange: any;
   readonly props: any;
 }> = ({ clearSourceFilter, props, globalSearchName, globalSourceFilterValue, onGlobalSourceFilterChange }) =>
-  // eslint-disable-next-line react/prop-types
-  props.globalSearchEnabled && (
-    <GlobalSearch
-      clearSourceFilter={clearSourceFilter}
-      // eslint-disable-next-line react/prop-types
-      columns={props.columns}
-      globalSearchName={globalSearchName}
-      globalSourceFilterValue={globalSourceFilterValue}
-      onGlobalSourceFilterChange={onGlobalSourceFilterChange}
-    />
-  );
+    // eslint-disable-next-line react/prop-types
+    props.globalSearchEnabled && (
+      <GlobalSearch
+        clearSourceFilter={clearSourceFilter}
+        // eslint-disable-next-line react/prop-types
+        columns={props.columns}
+        globalSearchName={globalSearchName}
+        globalSourceFilterValue={globalSourceFilterValue}
+        onGlobalSourceFilterChange={onGlobalSourceFilterChange}
+      />
+    );
 
 export const ExportComponent: React.FC<{ readonly exportCSV: any }> = ({ exportCSV }) => <ExportButton exportCSV={exportCSV} />;
 

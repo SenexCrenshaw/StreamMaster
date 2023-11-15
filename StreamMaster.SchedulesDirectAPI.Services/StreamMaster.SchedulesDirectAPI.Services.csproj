@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+
+    <ItemGroup>
+	    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+	
+  <ItemGroup>
+    <ProjectReference Include="..\StreamMaster.SchedulesDirectAPI\StreamMaster.SchedulesDirectAPI.csproj" />
+    <ProjectReference Include="..\StreamMasterApplication\StreamMasterApplication.csproj" />
+    <ProjectReference Include="..\StreamMasterDomain\StreamMasterDomain.csproj" />
+  </ItemGroup>
+
+</Project>

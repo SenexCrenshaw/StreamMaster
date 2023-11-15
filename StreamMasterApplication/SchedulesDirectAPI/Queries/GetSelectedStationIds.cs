@@ -1,12 +1,14 @@
-﻿namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
-public record GetSelectedStationIds() : IRequest<List<StationIdLineUp>>;
+namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 
-internal class GetSelectedStationIdsHandler(ISettingsService settingsService) : IRequestHandler<GetSelectedStationIds, List<StationIdLineUp>>
+public record GetSelectedStationIds() : IRequest<List<StationIdLineup>>;
+
+internal class GetSelectedStationIdsHandler(ISettingsService settingsService) : IRequestHandler<GetSelectedStationIds, List<StationIdLineup>>
 {
-    public async Task<List<StationIdLineUp>> Handle(GetSelectedStationIds request, CancellationToken cancellationToken)
+    public async Task<List<StationIdLineup>> Handle(GetSelectedStationIds request, CancellationToken cancellationToken)
     {
-        Setting setting = await settingsService.GetSettingsAsync();
+        Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
 
         return setting.SDStationIds;
     }

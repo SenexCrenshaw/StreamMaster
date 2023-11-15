@@ -1,9 +1,8 @@
 ﻿using AutoMapper;
 
 using Microsoft.Extensions.Caching.Memory;
-
+using StreamMaster.SchedulesDirectAPI.Domain.EPG;
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.EPG;
 using StreamMasterDomain.Models;
 
 namespace StreamMasterDomain.Cache;

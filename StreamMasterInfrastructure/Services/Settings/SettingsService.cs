@@ -12,11 +12,11 @@ public class SettingsService(IMemoryCache cache) : ISettingsService
     private readonly string _settingsFilePath = BuildInfo.SettingFile;
     private readonly SemaphoreSlim _semaphore = new(1, 1);
 
-    public async Task<Setting> GetSettingsAsync()
+    public async Task<Setting> GetSettingsAsync(CancellationToken cancellationToken = default)
     {
         if (!cache.TryGetValue("Setting", out Setting? settings))
         {
-            await _semaphore.WaitAsync();
+            await _semaphore.WaitAsync(cancellationToken);
 
             try
             {
@@ -28,7 +28,7 @@ public class SettingsService(IMemoryCache cache) : ISettingsService
                     }
                     using (FileStream fs = File.OpenRead(_settingsFilePath))
                     {
-                        settings = await JsonSerializer.DeserializeAsync<Setting>(fs);
+                        settings = await JsonSerializer.DeserializeAsync<Setting>(fs, cancellationToken: cancellationToken);
                     }
 
                     if (settings == null)

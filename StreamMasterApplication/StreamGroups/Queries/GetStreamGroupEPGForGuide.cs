@@ -3,10 +3,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
+using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+
 using StreamMasterApplication.Common.Extensions;
 using StreamMasterApplication.Programmes.Queries;
-
-using StreamMasterDomain.EPG;
 
 using System.Collections.Concurrent;
 using System.Web;
@@ -77,7 +77,8 @@ public partial class GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpC
         ConcurrentBag<EPGChannel> retChannels = new();
         ConcurrentBag<EPGProgram> retProgrammes = new();
         EPGGuide ret = new();
-
+        Setting setting = await GetSettingsAsync();
+        int epgdays = setting.SDEPGDays;
         if (videoStreams.Any())
         {
             List<string> epgids = videoStreams.Where(a => !a.IsHidden).Select(a => a.User_Tvg_ID.ToLower()).Distinct().ToList();
@@ -94,14 +95,13 @@ public partial class GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpC
             else
             {
                 ret.StartDate = DateTime.Now.AddHours(-1);
-                ret.EndDate = DateTime.Now.AddDays(7);
+                ret.EndDate = DateTime.Now.AddDays(epgdays);
             }
 
             //ret.StartDate = programmes.Min(a => a.StartDateTime);
             //ret.EndDate = programmes.Max(a => a.StopDateTime);
 
             List<IconFileDto> icons = MemoryCache.Icons();
-            Setting setting = await GetSettingsAsync();
 
             List<IconFileDto> progIcons = icons.Where(a => a.SMFileType == SMFileTypes.ProgrammeIcon).ToList();
 
@@ -169,7 +169,7 @@ public partial class GetStreamGroupEPGForGuideHandler(IHttpContextAccessor httpC
                         };
                         prog.Icon.Add(new TvIcon { Height = "10", Width = "10", Src = $"{Url}/images/transparent.png" });
                         prog.StartDateTime = DateTime.Now.AddHours(-1);
-                        prog.StopDateTime = DateTime.Now.AddDays(7);
+                        prog.StopDateTime = DateTime.Now.AddDays(epgdays);
 
                         retProgrammes.Add(GetEPGProgramFromProgramme(prog, videoStream.Id));
                     }

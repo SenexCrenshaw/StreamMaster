@@ -44,15 +44,15 @@ function streamsBodyTemplate(activeCount: string, totalCount: string) {
 }
 
 function m3uLinkTemplate(data: object) {
-  return <LinkButton link={getRecordString(data, 'm3ULink')} />;
+  return <LinkButton filled link={getRecordString(data, 'm3ULink')} />;
 }
 
 function epgLinkTemplate(data: object) {
-  return <LinkButton link={getRecordString(data, 'xmlLink')} />;
+  return <LinkButton filled link={getRecordString(data, 'xmlLink')} />;
 }
 
 function urlTemplate(data: object) {
-  return <LinkButton link={getRecordString(data, 'hdhrLink')} />;
+  return <LinkButton filled link={getRecordString(data, 'hdhrLink')} />;
 }
 
 function blankTemplate() {

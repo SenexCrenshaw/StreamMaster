@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
+using StreamMaster.SchedulesDirectAPI.Domain.EPG;
 using StreamMasterApplication.Programmes;
 using StreamMasterApplication.Programmes.Queries;
 
 using StreamMasterDomain.Dto;
-using StreamMasterDomain.EPG;
 using StreamMasterDomain.Models;
 using StreamMasterDomain.Pagination;
 

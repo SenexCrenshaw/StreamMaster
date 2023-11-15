@@ -1,82 +1,76 @@
-import { useSchedulesDirectGetCountriesQuery } from '@lib/iptvApi';
+import SearchButton from '@components/buttons/SearchButton';
+import TextInput from '@components/inputs/TextInput';
+import { Countries, SettingDto, useSchedulesDirectGetCountriesQuery } from '@lib/iptvApi';
+import { useSelectedCountry } from '@lib/redux/slices/selectedCountrySlice';
+import { useSelectedPostalCode } from '@lib/redux/slices/selectedPostalCodeSlice';
+import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
 import { Dropdown } from 'primereact/dropdown';
-import { Toast } from 'primereact/toast';
-import React from 'react';
+import React, { useState } from 'react';
+
+interface SchedulesDirectCountrySelectorProperties {
+  readonly onChange?: (value: string) => void;
+  // readonly value?: string | null;
+}
 
 const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorProperties) => {
-  const toast = React.useRef<Toast>(null);
-  const [country, setCountry] = React.useState<string>('USA');
+  const { selectedCountry, setSelectedCountry } = useSelectedCountry('Country');
+  const { selectedPostalCode, setSelectedPostalCode } = useSelectedPostalCode('ZipCode');
+
+  const [originalCountry, setOriginalCountry] = useState<string | undefined>();
+  const [originalPostalCode, setOriginalPostalCode] = useState<string | undefined>();
 
   const getCountriesQuery = useSchedulesDirectGetCountriesQuery();
 
   React.useEffect(() => {
-    if (props.value !== undefined && props.value !== null && props.value !== '') {
-      setCountry(props.value);
+    if (selectedCountry !== undefined && selectedCountry !== originalCountry) {
+      setOriginalCountry(selectedCountry);
     }
-  }, [props.value]);
+  }, [originalCountry, selectedCountry, setOriginalCountry]);
 
-  const options = React.useMemo(() => {
+  React.useEffect(() => {
+    if (selectedPostalCode !== undefined && selectedPostalCode !== originalPostalCode) {
+      setOriginalPostalCode(selectedPostalCode);
+    }
+  }, [originalPostalCode, selectedPostalCode, setOriginalPostalCode]);
+
+  interface Country {
+    shortName: string;
+    fullName?: string;
+  }
+
+  interface CountryOption {
+    label: string;
+    value: string;
+  }
+
+  const options: CountryOption[] = React.useMemo(() => {
     if (!getCountriesQuery.data) return [];
 
-    const countries = [];
+    const countries: CountryOption[] = [];
 
-    if (getCountriesQuery.data['North America']) {
-      countries.push(
-        ...getCountriesQuery.data['North America']
-          .filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '')
-          .map((c) => ({ label: c.fullName, value: c.shortName }))
-      );
-    }
+    Object.values(getCountriesQuery.data as Countries).forEach((continentCountries) => {
+      continentCountries
+        .filter((c): c is Country => c.shortName !== undefined && c.shortName.trim() !== '')
+        .forEach((c) => {
+          countries.push({
+            label: c.fullName || 'Unknown Country',
+            value: c.shortName ?? ''
+          });
+        });
+    });
 
-    if (getCountriesQuery.data.Europe) {
-      countries.push(
-        ...getCountriesQuery.data.Europe.filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '').map((c) => ({
-          label: c.fullName,
-          value: c.shortName
-        }))
-      );
-    }
-
-    if (getCountriesQuery.data['Latin America']) {
-      countries.push(
-        ...getCountriesQuery.data['Latin America']
-          .filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '')
-          .map((c) => ({ label: c.fullName, value: c.shortName }))
-      );
-    }
-
-    if (getCountriesQuery.data.Caribbean) {
-      countries.push(
-        ...getCountriesQuery.data.Caribbean.filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '').map((c) => ({
-          label: c.fullName,
-          value: c.shortName
-        }))
-      );
-    }
-
-    if (getCountriesQuery.data.Oceania) {
-      countries.push(
-        ...getCountriesQuery.data.Oceania.filter((c) => c?.shortName !== undefined && c.shortName.trim() !== '').map((c) => ({
-          label: `${c.shortName}-${c.fullName}`,
-          value: c.shortName
-        }))
-      );
-    }
-
-    return countries; // .sort((a, b) => a.label.localeCompare(b.label));
+    return countries.sort((a, b) => a.label.localeCompare(b.label));
   }, [getCountriesQuery.data]);
 
   return (
-    <>
-      <Toast position="bottom-right" ref={toast} />
-
-      <div className="iconSelector flex w-full justify-content-start align-items-center">
+    <div className="flex grid col-12 pl-1 justify-content-start align-items-center p-0 m-0">
+      <div className="flex col-6 p-0 pr-2">
         <Dropdown
-          className="iconSelector p-0 m-0 w-full"
+          className="bordered-text w-full"
           filter
           onChange={(e) => {
-            setCountry(e.value);
-            props.onChange(e.value);
+            setSelectedCountry(e.value);
+            props.onChange?.(e.value);
           }}
           options={options}
           placeholder="Country"
@@ -86,18 +80,45 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap'
           }}
-          value={country}
+          value={selectedCountry}
         />
       </div>
-    </>
+      <div className="flex col-6 p-0">
+        <div className="flex col-6 p-0">
+          <TextInput
+            placeHolder="Postal Code"
+            onChange={(e) => {
+              setOriginalPostalCode(e);
+            }}
+            value={originalPostalCode}
+          />
+        </div>
+        <div className="flex col-2 pt-2 p-0 pr-3">
+          <SearchButton
+            tooltip="Go"
+            onClick={() => {
+              console.log('PostalCode', originalPostalCode);
+
+              if (!originalPostalCode || !originalCountry) {
+                return;
+              }
+
+              setSelectedCountry(originalCountry);
+              setSelectedPostalCode(originalPostalCode);
+
+              const newData: SettingDto = { sdPostalCode: originalPostalCode, sdCountry: originalCountry };
+
+              UpdateSetting(newData)
+                .then(() => {})
+                .catch(() => {});
+            }}
+          />
+        </div>
+      </div>
+    </div>
   );
 };
 
 SchedulesDirectCountrySelector.displayName = 'SchedulesDirectCountrySelector';
-
-interface SchedulesDirectCountrySelectorProperties {
-  readonly onChange: (value: string) => void;
-  readonly value?: string | null;
-}
 
 export default React.memo(SchedulesDirectCountrySelector);

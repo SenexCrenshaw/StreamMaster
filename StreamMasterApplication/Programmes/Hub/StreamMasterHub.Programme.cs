@@ -1,7 +1,7 @@
-﻿using StreamMasterApplication.Programmes;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+using StreamMasterApplication.Programmes;
 using StreamMasterApplication.Programmes.Queries;
 
-using StreamMasterDomain.EPG;
 using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.Hubs;

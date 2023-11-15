@@ -12,11 +12,11 @@ using System.Web;
 namespace StreamMasterApplication.StreamGroups.Queries;
 
 [RequireAll]
-public record GetStreamGroupLineUp(int StreamGroupId) : IRequest<string>;
+public record GetStreamGroupLineup(int StreamGroupId) : IRequest<string>;
 
-public class GetStreamGroupLineUpValidator : AbstractValidator<GetStreamGroupLineUp>
+public class GetStreamGroupLineupValidator : AbstractValidator<GetStreamGroupLineup>
 {
-    public GetStreamGroupLineUpValidator()
+    public GetStreamGroupLineupValidator()
     {
         _ = RuleFor(v => v.StreamGroupId)
             .NotNull().GreaterThanOrEqualTo(0);
@@ -24,25 +24,20 @@ public class GetStreamGroupLineUpValidator : AbstractValidator<GetStreamGroupLin
 }
 
 [LogExecutionTimeAspect]
-public class GetStreamGroupLineUpHandler : BaseMediatorRequestHandler, IRequestHandler<GetStreamGroupLineUp, string>
+public class GetStreamGroupLineupHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupLineup> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache) : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetStreamGroupLineup, string>
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    public GetStreamGroupLineUpHandler(IHttpContextAccessor httpContextAccessor, ILogger<GetStreamGroupLineUp> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-  : base(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache) { _httpContextAccessor = httpContextAccessor; }
-
-
-    public async Task<string> Handle(GetStreamGroupLineUp request, CancellationToken cancellationToken)
+    public async Task<string> Handle(GetStreamGroupLineup request, CancellationToken cancellationToken)
     {
         Setting setting = await GetSettingsAsync();
-        string requestPath = _httpContextAccessor.GetUrlWithPathValue();
+        string requestPath = httpContextAccessor.GetUrlWithPathValue();
         byte[]? iv = requestPath.GetIVFromPath(setting.ServerKey, 128);
         if (iv == null)
         {
             return "";
         }
 
-        string url = _httpContextAccessor.GetUrl();
-        List<LineUp> ret = new();
+        string url = httpContextAccessor.GetUrl();
+        List<SGLineup> ret = new();
 
         //IEnumerable<VideoStream> videoStreams;
         //if (request.StreamGroupId > 1)
@@ -66,7 +61,6 @@ public class GetStreamGroupLineUpHandler : BaseMediatorRequestHandler, IRequestH
 
         List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
 
-
         if (!videoStreams.Any())
         {
             return JsonSerializer.Serialize(ret);
@@ -74,22 +68,20 @@ public class GetStreamGroupLineUpHandler : BaseMediatorRequestHandler, IRequestH
 
         foreach (VideoStreamDto videoStream in videoStreams)
         {
-
             if (setting.M3UIgnoreEmptyEPGID &&
             (string.IsNullOrEmpty(videoStream.User_Tvg_ID) || videoStream.User_Tvg_ID.ToLower() == "dummy"))
             {
                 continue;
             }
 
-
-            string videoUrl = videoStream.Url;
+            //string videoUrl = videoStream.Url;
 
             string encodedNumbers = request.StreamGroupId.EncodeValues128(videoStream.Id, setting.ServerKey, iv);
 
             string encodedName = HttpUtility.HtmlEncode(videoStream.User_Tvg_name).Trim().Replace(" ", "_");
-            videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
+            string videoUrl = $"{url}/api/videostreams/stream/{encodedNumbers}/{encodedName}";
 
-            LineUp lu = new()
+            SGLineup lu = new()
             {
                 GuideNumber = videoStream.User_Tvg_chno.ToString(),
                 GuideName = videoStream.User_Tvg_name,

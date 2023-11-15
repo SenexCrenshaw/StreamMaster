@@ -3,7 +3,6 @@ import { Toast } from 'primereact/toast';
 import { memo, useMemo, useRef } from 'react';
 import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
-//const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
 interface SchedulesDirectSchedulesDataSelectorProperties {
   readonly id: string;

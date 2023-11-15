@@ -11,6 +11,11 @@
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="SchedulesDirectAPI\NewFolder\**" />
+    <EmbeddedResource Remove="SchedulesDirectAPI\NewFolder\**" />
+    <None Remove="SchedulesDirectAPI\NewFolder\**" />
+  </ItemGroup>
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>

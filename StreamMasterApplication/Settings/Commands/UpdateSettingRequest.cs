@@ -1,4 +1,5 @@
 ﻿using StreamMaster.SchedulesDirectAPI;
+using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 using StreamMasterApplication.Services;
 
@@ -40,7 +41,7 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? SDCountry { get; set; }
     public string? SDPassword { get; set; }
     public string? SDPostalCode { get; set; }
-    public List<StationIdLineUp>? SDStationIds { get; set; }
+    public List<StationIdLineup>? SDStationIds { get; set; }
     public string? SDUserName { get; set; }
     public int? SourceBufferPreBufferPercentage { get; set; }
     public string? SSLCertPassword { get; set; }
@@ -63,6 +64,12 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
 
         Logger.LogInformation("UpdateSettingRequest");
         FileUtil.UpdateSetting(currentSetting);
+
+        MemoryCacheEntryOptions cacheEntryOptions = new()
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
+        };
+        memoryCache.Set("Setting", currentSetting, cacheEntryOptions);
 
         SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
         await HubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
@@ -276,7 +283,7 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
 
         if (request.SDStationIds != null)
         {
-            bool haveSameElements = new HashSet<StationIdLineUp>(currentSetting.SDStationIds).SetEquals(request.SDStationIds);
+            bool haveSameElements = new HashSet<StationIdLineup>(currentSetting.SDStationIds).SetEquals(request.SDStationIds);
             if (!haveSameElements)
             {
                 currentSetting.SDStationIds = request.SDStationIds;
@@ -305,7 +312,9 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
         if (needsSetProgrammes)
         {
             /*await Sender.Send(new SetSDProgramme(), cancellationToken).ConfigureAwait(false);*/
-            await taskQueue.SetSDProgramme(cancellationToken).ConfigureAwait(false);
+            //memoryCache.ClearSDProgrammes();
+            await taskQueue.SDSync(cancellationToken).ConfigureAwait(false);
+
         }
 
         return needsLogOut;

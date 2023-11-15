@@ -1,49 +1,47 @@
-﻿using StreamMaster.SchedulesDirectAPI.Models;
-
-namespace StreamMaster.SchedulesDirectAPI;
+﻿namespace StreamMaster.SchedulesDirectAPI;
 
 public static class SDExtensions
 {
     public static List<string>? CheckStatus(this SDStatus status)
     {
-        var ret = new List<string>();
+        List<string> ret = new();
 
-        foreach (var lineUp in status.lineups)
+        foreach (Lineup lineup in status.lineups)
         {
-            if (lineUp.IsDeleted)
+            if (lineup.IsDeleted)
             {
-                ret.Add($"Lineup {lineUp.LineupString} is deleted");
+                ret.Add($"Lineup {lineup.LineupString} is deleted");
             }
         }
 
         return ret.Any() ? ret : null;
     }
 
-    public static void OutputFormattedResult(this LineUpResult result)
+    public static void OutputFormattedResult(this LineupResult result)
     {
         if (result is null)
         {
             throw new ArgumentNullException(nameof(result));
         }
         Console.WriteLine($"Lineup:\n---------\n");
-        foreach (var map in result.Map)
+        foreach (Map map in result.Map)
         {
-            Console.WriteLine($"\t\tID: {map.StationID}\n\t\tUhfVhf: {map.UhfVhf}\n\t\tAtscMajor: {map.AtscMajor}\n\t\tAtscMinor: {map.AtscMinor}\n");
+            Console.WriteLine($"\t\tID: {map.StationId}\n\t\tUhfVhf: {map.UhfVhf}\n\t\tAtscMajor: {map.AtscMajor}\n\t\tAtscMinor: {map.AtscMinor}\n");
         }
         Console.WriteLine($"\nStations:\n---------\n");
-        foreach (var station in result.Stations)
+        foreach (Station station in result.Stations)
         {
             if (station.Broadcaster == null)
             {
             }
             else
             {
-                Console.WriteLine($"\t\tID: {station.StationID}\n\t\tName: {station.Name}\n\t\tCallsign: {station.Callsign}\n\t\tAffiliate: {station.Affiliate}\n\t\tBroadcastLanguage: {string.Join(",", station.BroadcastLanguage)}\n\t\tDescriptionLanguage: {string.Join(",", station.DescriptionLanguage)}\n\t\t\t\tStationLogo:");
+                Console.WriteLine($"\t\tID: {station.StationId}\n\t\tName: {station.Name}\n\t\tCallsign: {station.Callsign}\n\t\tAffiliate: {station.Affiliate}\n\t\tBroadcastLanguage: {string.Join(",", station.BroadcastLanguage)}\n\t\tDescriptionLanguage: {string.Join(",", station.DescriptionLanguage)}\n\t\t\t\tStationLogo:");
             }
 
             if (station.StationLogo != null)
             {
-                foreach (var stationLogo in station.StationLogo)
+                foreach (StationLogo stationLogo in station.StationLogo)
                 {
                     Console.WriteLine($"\t\t\t\t\t\tURL: {stationLogo.URL}\n\t\t\t\t\t\tHeight: {stationLogo.Height}\n\t\t\t\t\t\tWidth: {stationLogo.Width}\n\t\t\t\t\t\tMd5: {stationLogo.Md5}\n\t\t\t\t\t\tSource: {stationLogo.Source}\n\t\t\t\t\t\tCategory: {stationLogo.Category}\n");
                 }
@@ -65,10 +63,10 @@ public static class SDExtensions
         Console.WriteLine($"\t\tLineup: {result.Metadata.Lineup}\n\t\tModified: {result.Metadata.Modified}\n\t\tTransport: {result.Metadata.Transport}\n");
     }
 
-    public static void OutputFormattedResult(this LineUpsResult result)
+    public static void OutputFormattedResult(this LineupsResult result)
     {
         Console.WriteLine($"Code: {result.Code}\nServerID: {result.ServerID}\nDatetime: {result.Datetime}\nLineups:");
-        foreach (var lineup in result.Lineups)
+        foreach (Lineup lineup in result.Lineups)
         {
             Console.WriteLine($"ID: {lineup.Id}\nLineup: {lineup.LineupString}\nName: {lineup.Name}\nTransport: {lineup.Transport}\nLocation: {lineup.Location}\nUri: {lineup.Uri}\nIsDeleted: {lineup.IsDeleted}\n");
         }

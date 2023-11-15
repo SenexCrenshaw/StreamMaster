@@ -2,10 +2,10 @@
 
 using Microsoft.AspNetCore.Http;
 
+using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+
 using StreamMasterApplication.Common.Extensions;
 using StreamMasterApplication.Programmes.Queries;
-
-using StreamMasterDomain.EPG;
 
 using System.Collections.Concurrent;
 using System.Net;
@@ -58,15 +58,15 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         if (iconOriginalSource.StartsWith("images/"))
         {
-            iconOriginalSource = $"{url}/{iconOriginalSource}";
+            return $"{url}/{iconOriginalSource}";
         }
         else if (!iconOriginalSource.StartsWith("http"))
         {
-            iconOriginalSource = GetApiUrl(SMFileTypes.TvLogo, originalUrl);
+            return GetApiUrl(SMFileTypes.TvLogo, originalUrl);
         }
         else if (setting.CacheIcons)
         {
-            iconOriginalSource = GetApiUrl(SMFileTypes.Icon, originalUrl);
+            return GetApiUrl(SMFileTypes.Icon, originalUrl);
         }
 
         return iconOriginalSource;
@@ -93,8 +93,11 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         HashSet<string> epgids = new(videoStreams.Where(a => !a.IsHidden).Select(r => r.User_Tvg_ID));
 
         List<Programme> cachedProgrammes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
-
-        IEnumerable<Programme> programmes = cachedProgrammes.Where(a => a.StartDateTime > DateTime.Now.AddDays(-1) &&
+        Setting setting = await GetSettingsAsync();
+        List<string> channels = cachedProgrammes.ConvertAll(a => a.Channel).Distinct().Order().ToList();
+        IEnumerable<Programme> programmes = cachedProgrammes.Where(a =>
+        a.StartDateTime > DateTime.Now.AddDays(-1) &&
+        a.StartDateTime <= DateTime.Now.AddDays(setting.SDEPGDays) &&
                         a.Channel != null &&
                         (epgids.Contains(a.Channel) || epgids.Contains(a.DisplayName))).DeepCopy();
 
@@ -102,7 +105,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         ConcurrentBag<TvChannel> retChannels = new();
         ConcurrentBag<Programme> retProgrammes = new();
-        Setting setting = await GetSettingsAsync();
+
 
         Parallel.ForEach(videoStreams, parallelOptions, videoStream =>
         {
@@ -140,7 +143,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         // Build the TvChannel based on whether it's a dummy or not
         if (isDummyStream)
         {
-
             return new TvChannel
             {
                 Id = videoStream.User_Tvg_chno.ToString(),
@@ -280,7 +282,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
     private void AdjustProgrammeIcons(Programme prog, List<IconFileDto> cachedIcons)
     {
-
         if (!prog.Icon.Any())
         {
             prog.Icon.Add(new TvIcon { Height = "", Width = "", Src = "" });
@@ -289,10 +290,9 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         {
             foreach (TvIcon icon in prog.Icon.DeepCopy())
             {
-
                 if (!string.IsNullOrEmpty(icon.Src))
                 {
-                    IconFileDto? programmeIcon = cachedIcons.FirstOrDefault(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == icon.Src);
+                    IconFileDto? programmeIcon = cachedIcons.Find(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == icon.Src);
                     if (programmeIcon != null)
                     {
                         icon.Src = GetApiUrl(SMFileTypes.ProgrammeIcon, programmeIcon.Source);
@@ -314,19 +314,19 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         return textWriter.ToString();
     }
 
-    [LogExecutionTimeAspect]
-    private async Task<List<Programme>> GetRelevantProgrammes(List<string> epgids, CancellationToken cancellationToken)
-    {
-        List<Programme> programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
-        return programmes
-            .Where(a =>
-                a.StartDateTime > DateTime.Now.AddDays(-1) &&
-                a.StopDateTime < DateTime.Now.AddDays(7) &&
-                a.Channel != null &&
-                (epgids.Contains(a.Channel) ||
-                epgids.Contains(a.DisplayName))
-            ).ToList();
-    }
+    //[LogExecutionTimeAspect]
+    //private async Task<List<Programme>> GetRelevantProgrammes(List<string> epgids, CancellationToken cancellationToken)
+    //{
+    //    List<Programme> programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+    //    return programmes
+    //        .Where(a =>
+    //            a.StartDateTime > DateTime.Now.AddDays(-1) &&
+    //            a.StopDateTime < DateTime.Now.AddDays(7) &&
+    //            a.Channel != null &&
+    //            (epgids.Contains(a.Channel) ||
+    //            epgids.Contains(a.DisplayName))
+    //        ).ToList();
+    //}
 
     private string GetApiUrl(SMFileTypes path, string source)
     {

@@ -1,4 +1,4 @@
-﻿using StreamMasterDomain.EPG;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
 
 using System.Text.Json;
 using System.Xml.Serialization;

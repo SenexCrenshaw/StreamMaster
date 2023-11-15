@@ -1,4 +1,4 @@
-﻿using StreamMasterDomain.EPG;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
 
 namespace StreamMasterApplication.Programmes.Queries;
 
@@ -6,6 +6,7 @@ public record GetProgramme(string Channel) : IRequest<IEnumerable<Programme>?>;
 
 internal class GetProgrammeHandler(ISender sender) : IRequestHandler<GetProgramme, IEnumerable<Programme>?>
 {
+    [LogExecutionTimeAspect]
     public async Task<IEnumerable<Programme>?> Handle(GetProgramme request, CancellationToken cancellationToken)
     {
         IEnumerable<Programme> cprogrammes = await sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);

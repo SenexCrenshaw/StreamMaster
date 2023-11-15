@@ -1,6 +1,6 @@
 import { findDifferenceStationIdLineUps } from '@lib/common/common';
 import {
-  StationIdLineUp,
+  StationIdLineup,
   UpdateSettingRequest,
   useSchedulesDirectGetSelectedStationIdsQuery,
   useSchedulesDirectGetStationPreviewsQuery,
@@ -12,7 +12,7 @@ import { Toast } from 'primereact/toast';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
-//const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+import { useLineUpColumnConfig } from '@components/columns/useLineUpColumnConfig';
 
 const SchedulesDirectStationPreviewDataSelector = () => {
   const toast = useRef<Toast>(null);
@@ -22,6 +22,8 @@ const SchedulesDirectStationPreviewDataSelector = () => {
   const schedulesDirectGetSelectedStationIdsQuery = useSchedulesDirectGetSelectedStationIdsQuery();
   const stationPreviews = useSchedulesDirectGetStationPreviewsQuery();
   const [isLoading, setIsLoading] = useState(false);
+
+  const { columnConfig: lineUpColumnConfig } = useLineUpColumnConfig();
 
   useEffect(() => {
     if (
@@ -35,18 +37,24 @@ const SchedulesDirectStationPreviewDataSelector = () => {
     const sp = schedulesDirectGetSelectedStationIdsQuery.data
       .map((stationIdLineUp) =>
         stationPreviews.data?.find(
-          (stationPreview) => stationPreview.stationId === stationIdLineUp.stationId && stationPreview.lineUp === stationIdLineUp.lineUp
+          (stationPreview) => stationPreview.stationId === stationIdLineUp.stationId && stationPreview.lineup === stationIdLineUp.lineup
         )
       )
       .filter((station) => station !== undefined) as StationPreview[];
 
-    if (findDifferenceStationIdLineUps(sp, schedulesDirectGetSelectedStationIdsQuery.data).length > 0) {
+    if (findDifferenceStationIdLineUps(sp, selectSelectedItems).length > 0) {
       setSelectSelectedItems(sp as StationPreview[]);
     }
-  }, [schedulesDirectGetSelectedStationIdsQuery.data, schedulesDirectGetSelectedStationIdsQuery.isLoading, setSelectSelectedItems, stationPreviews.data]);
+  }, [
+    schedulesDirectGetSelectedStationIdsQuery.data,
+    schedulesDirectGetSelectedStationIdsQuery.isLoading,
+    selectSelectedItems,
+    setSelectSelectedItems,
+    stationPreviews.data
+  ]);
 
   const onSave = useCallback(
-    (stationIdLineUps: StationIdLineUp[]) => {
+    (stationIdLineUps: StationIdLineup[]) => {
       if (stationIdLineUps === undefined || schedulesDirectGetSelectedStationIdsQuery.data === undefined) {
         return;
       }
@@ -89,14 +97,6 @@ const SchedulesDirectStationPreviewDataSelector = () => {
     [schedulesDirectGetSelectedStationIdsQuery.data]
   );
 
-  useEffect(() => {
-    const lineUps = selectSelectedItems.map((stationPreview) => ({
-      lineUp: stationPreview.lineUp,
-      stationId: stationPreview.stationId
-    }));
-    onSave(lineUps);
-  }, [onSave, selectSelectedItems]);
-
   function imageBodyTemplate(data: StationPreview) {
     if (!data?.logo || data.logo.URL === '') {
       return <div />;
@@ -109,22 +109,24 @@ const SchedulesDirectStationPreviewDataSelector = () => {
     );
   }
 
-  const columns = useMemo(
-    (): ColumnMeta[] => [
+  const columns = useMemo((): ColumnMeta[] => {
+    const columnConfigs: ColumnMeta[] = [
       { field: 'stationId', filter: true, header: 'Station Id', sortable: true, width: '18rem' },
-      { bodyTemplate: imageBodyTemplate, field: 'logo', fieldType: 'image' },
-      { field: 'lineUp', header: 'Line Up', sortable: true },
-      { field: 'name', filter: true, header: 'Name', sortable: true },
-      { field: 'callsign', filter: true, header: 'Call Sign', sortable: true },
-      { field: 'affiliate', filter: true, header: 'Affiliate', sortable: true }
-    ],
-    []
-  );
+      { bodyTemplate: imageBodyTemplate, field: 'logo', fieldType: 'image' }
+    ];
+    // // columnConfigs.push(channelGroupConfig);
+    columnConfigs.push(lineUpColumnConfig);
+    columnConfigs.push({ field: 'name', filter: true, header: 'Name', sortable: true });
+    columnConfigs.push({ field: 'callsign', filter: true, header: 'Call Sign', sortable: true });
+    columnConfigs.push({ field: 'affiliate', filter: true, header: 'Affiliate', sortable: true });
+
+    return columnConfigs;
+  }, [lineUpColumnConfig]);
 
   return (
     <>
       <Toast position="bottom-right" ref={toast} />
-      <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border">
+      <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border w-full p-0">
         <DataSelector
           columns={columns}
           dataSource={stationPreviews.data}
@@ -134,15 +136,14 @@ const SchedulesDirectStationPreviewDataSelector = () => {
           headerName="Line Up Preview"
           id="SchedulesDirectStationPreviewDataSelector"
           isLoading={stationPreviews.isLoading || isLoading}
-          onRowClick={(e) => {
-            console.log(e);
+          onSelectionChange={(e) => {
+            onSave(e);
           }}
           selectedItemsKey="SchedulesDirectSchedulesDataSelector"
           selectionMode="multiple"
           showSelections
-          style={{ height: 'calc(100vh - 40px)' }}
+          style={{ height: 'calc(100vh - 60px)' }}
         />
-        {/* <SchedulesDirectProgramsDataSelector id="SchedulesDirectStationPreviewDataSelector2" /> */}
       </div>
     </>
   );

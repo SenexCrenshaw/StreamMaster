@@ -39,7 +39,6 @@ public static class ConfigureServices
 {
     public static IServiceCollection AddWebUIServices(this IServiceCollection services)
     {
-
         services.AddLogging(logging =>
         {
             logging.AddFilter("StreamMasterDomain.Logging.CustomLogger", LogLevel.Information);
@@ -112,7 +111,6 @@ public static class ConfigureServices
 
         _ = services.AddFluentValidationAutoValidation();
 
-
         services.AddHttpClient();
 
         services.AddControllersWithViews();
@@ -175,10 +173,7 @@ public static class ConfigureServices
 
         services.AddSingleton<IAuthorizationPolicyProvider, UiAuthorizationPolicyProvider>();
 
-
         services.AddAppAuthentication();
-
-
 
         return services;
     }

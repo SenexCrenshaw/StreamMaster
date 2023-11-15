@@ -1,23 +1,34 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using StreamMaster.SchedulesDirectAPI;
-using StreamMaster.SchedulesDirectAPI.Models;
+using StreamMaster.SchedulesDirectAPI.Domain.Models;
+
+using StreamMasterApplication.SchedulesDirectAPI.Commands;
 
 namespace StreamMasterApplication.SchedulesDirectAPI;
 
 public interface ISchedulesDirectController
 {
-    Task<IActionResult> GetEpg();
+    Task<ActionResult<bool>> AddLineup(AddLineup request);
+
+    Task<ActionResult<bool>> RemoveLineup(RemoveLineup request);
+
+    Task<ActionResult<List<string>>> GetLineupNames();
+
+    Task<ActionResult> GetEpg();
+
     Task<ActionResult<Countries?>> GetCountries();
-    Task<ActionResult<List<StationIdLineUp>>> GetSelectedStationIds();
+
+    Task<ActionResult<List<StationIdLineup>>> GetSelectedStationIds();
+
     Task<ActionResult<List<SDProgram>>> GetSDPrograms();
+
     Task<ActionResult<List<HeadendDto>>> GetHeadends(string country, string postalCode);
 
-    Task<ActionResult<LineUpResult?>> GetLineup(string lineup);
+    Task<ActionResult<LineupResult?>> GetLineup(string lineup);
 
-    Task<ActionResult<List<LineUpPreview>>> GetLineupPreviews();
+    Task<ActionResult<List<LineupPreview>>> GetLineupPreviews();
 
-    Task<ActionResult<LineUpsResult?>> GetLineups();
+    Task<ActionResult<List<StreamMaster.SchedulesDirectAPI.Domain.Models.Lineup>>> GetLineups();
 
     Task<ActionResult<List<Schedule>>> GetSchedules();
 
@@ -30,22 +41,31 @@ public interface ISchedulesDirectController
 
 public interface ISchedulesDirectDB
 {
-
 }
 
 public interface ISchedulesDirectHub
 {
+    Task<bool> AddLineup(AddLineup request);
+
+    Task<bool> RemoveLineup(RemoveLineup request);
+
+    Task<List<string>> GetLineupNames();
+
     Task<string> GetEpg();
-    Task<List<StationIdLineUp>> GetSelectedStationIds();
+
+    Task<List<StationIdLineup>> GetSelectedStationIds();
+
     Task<Countries> GetCountries();
+
     Task<List<SDProgram>> GetSDPrograms();
+
     Task<List<HeadendDto>> GetHeadends(string country, string postalCode);
 
-    Task<LineUpResult> GetLineup(string lineup);
+    Task<LineupResult> GetLineup(string lineup);
 
-    Task<List<LineUpPreview>> GetLineupPreviews();
+    Task<List<LineupPreview>> GetLineupPreviews();
 
-    Task<LineUpsResult> GetLineups();
+    Task<List<StreamMaster.SchedulesDirectAPI.Domain.Models.Lineup>> GetLineups();
 
     Task<List<Schedule>> GetSchedules();
 

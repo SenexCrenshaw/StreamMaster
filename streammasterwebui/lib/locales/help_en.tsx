@@ -30,7 +30,7 @@ const help_en: help_enType = {
   preloadPercentage: 'How much of the buffer (in percentage) to preload before starting playback. 0 Disables preloading',
   rememberme: 'Remember Me',
   ringBufferSizeMB: 'Buffer Size (MB)',
-  sdPassword: 'Sched Direct Password',
+  sdPassword: 'Sched Direct Password - The displayed value is encypted and not the real password. Re-enter the real password to change',
   sdUserName: 'Sched Direct Username',
   settings: 'Settings',
   signInSuccessful: 'Sign In Successful',

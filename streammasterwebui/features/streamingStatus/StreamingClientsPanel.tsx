@@ -7,8 +7,6 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { memo, useRef, type CSSProperties } from 'react';
 
-// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
-
 interface StreamingClientsPanelProperties {
   readonly className?: string;
   readonly style?: CSSProperties;
