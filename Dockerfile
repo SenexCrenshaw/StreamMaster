@@ -32,14 +32,15 @@ RUN apt-get update -yq \
     && curl -sL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
     && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
     && apt-get update && apt-get install -yq nodejs build-essential \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && update-ca-certificates
 
 WORKDIR /src/streammasterwebui
 COPY ["streammasterwebui/", "."]
 RUN npm install \
     && npm run build \
     && cp -r dist/* /src/StreamMasterAPI/wwwroot/
-    
+
 WORKDIR "/src/StreamMasterAPI"
 FROM build AS publish
 ARG TARGETPLATFORM
@@ -53,11 +54,11 @@ ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
 ARG TARGETARCH
 ARG BUILDPLATFORM
 LABEL org.opencontainers.image.url="https://hub.docker.com/r/SenexCrenshaw/streammaster/" \
-      org.opencontainers.image.source="https://github.com/SenexCrenshaw/StreamMaster" \      
-      org.opencontainers.image.vendor="SenexCrenshaw" \
-      org.opencontainers.image.title="Stream Master" \
-      org.opencontainers.image.description="Dockerized Stream Master by SenexCrenshaw" \
-      org.opencontainers.image.authors="SenexCrenshaw"
+    org.opencontainers.image.source="https://github.com/SenexCrenshaw/StreamMaster" \      
+    org.opencontainers.image.vendor="SenexCrenshaw" \
+    org.opencontainers.image.title="Stream Master" \
+    org.opencontainers.image.description="Dockerized Stream Master by SenexCrenshaw" \
+    org.opencontainers.image.authors="SenexCrenshaw"
 
 ENV REACT_API_URL=$REACT_API_URL
 ENV STREAMMASTER_BASEHOSTURL=http://localhost:7095/

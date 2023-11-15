@@ -1,8 +1,7 @@
 param (
     [switch]$PrintOnly,
     [switch]$BuildProd,
-    [switch]$DebugLog,
-    [switch]$ShowCommand
+    [switch]$DebugLog
 )
 
 $gitVersion = "dotnet-gitversion"
@@ -11,9 +10,12 @@ $gitVersion = "dotnet-gitversion"
 $json = &$gitVersion /output json | Out-String
 $obj = $json | ConvertFrom-Json 
 $semVer = $obj.SemVer
-$buildMetaDataPadded = $obj.BuildMetaDataPadded
+$buildMetaDataPadded = $obj.AssemblySemVer
 $branchName = $obj.BranchName
 
+if ($PrintOnly -or $DebugLog) {
+    Write-Output  $obj
+}
 
 $env:DOCKER_BUILDKIT = 1
 $env:COMPOSE_DOCKER_CLI_BUILD = 1
@@ -22,7 +24,7 @@ $env:COMPOSE_DOCKER_CLI_BUILD = 1
 $tags = if ($BuildProd) {
     "docker.io/senexcrenshaw/streammaster:latest",
     "docker.io/senexcrenshaw/streammaster:$semVer",
-    "docker.io/senexcrenshaw/streammaster:$semVer-$buildMetaDataPadded"
+    "docker.io/senexcrenshaw/streammaster:$buildMetaDataPadded"
 }
 else {
     "docker.io/senexcrenshaw/streammaster:$branchName-$semVer-$buildMetaDataPadded"  
@@ -31,10 +33,17 @@ else {
 Write-Output "Tags to be used:"
 $tags | ForEach-Object { Write-Output $_ }
 
+if ($PrintOnly -or $DebugLog) {
+    $buildCommand = "docker buildx build --platform ""linux/amd64,linux/arm64"" -f ./Dockerfile . --push " + ($tags | ForEach-Object { "--tag=$_" })
+    Write-Output "Build Command: $buildCommand"
+}
+
 if ($PrintOnly) {
     Write-Output "PrintOnly flag is set. Exiting without building."
     exit
 }
+
+# Show the build command if either PrintOnly or DebugLog is set
 
 # Capture the start time
 $startTime = Get-Date
@@ -44,14 +53,6 @@ $lineCounter = 0
 
 # Prefix for the dots
 Write-Host -NoNewline "Building Image "
-
-# Prepare the build command
-$buildCommand = "docker buildx build --platform ""linux/amd64,linux/arm64"" -f ./Dockerfile . --push " + ($tags | ForEach-Object { "--tag=$_" })
-
-# Show the build command if either ShowCommand or DebugLog is set
-if ($ShowCommand -or $DebugLog) {
-    Write-Output "Build Command: $buildCommand"
-}
 
 # Skip build process if PrintOnly flag is set
 if ($PrintOnly) {
