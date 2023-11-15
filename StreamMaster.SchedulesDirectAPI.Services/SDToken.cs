@@ -125,7 +125,7 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService) 
                 case SDHttpResponseCode.OK:
                     if (!string.IsNullOrEmpty(result?.token))
                     {
-                        logger.LogWarning("SD Retrieved Token");
+                        logger.LogInformation("SD Retrieved Token");
                         _token = result.token;
                         _tokenDateTime = DateTime.UtcNow;
                         _lockOutTokenDateTime = DateTime.MinValue;

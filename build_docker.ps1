@@ -1,6 +1,8 @@
 param (
     [switch]$PrintOnly,
-    [switch]$BuildProd
+    [switch]$BuildProd,
+    [switch]$DebugLog,
+    [switch]$ShowCommand
 )
 
 $gitVersion = "dotnet-gitversion"
@@ -43,12 +45,35 @@ $lineCounter = 0
 # Prefix for the dots
 Write-Host -NoNewline "Building Image "
 
+# Prepare the build command
+$buildCommand = "docker buildx build --platform ""linux/amd64,linux/arm64"" -f ./Dockerfile . --push " + ($tags | ForEach-Object { "--tag=$_" })
+
+# Show the build command if either ShowCommand or DebugLog is set
+if ($ShowCommand -or $DebugLog) {
+    Write-Output "Build Command: $buildCommand"
+}
+
+# Skip build process if PrintOnly flag is set
+if ($PrintOnly) {
+    Write-Output "PrintOnly flag is set. Exiting without building."
+    exit
+}
+
 # Run the build and push operation, displaying a dot for every 10 lines of output
-docker buildx build --platform linux/amd64, linux/arm64 -f ./Dockerfile . --push $(foreach ($tag in $tags) { "--tag=$tag" }) 2>&1 | ForEach-Object { 
-    $lineCounter++
-    if ($lineCounter % 10 -eq 0) {
-        Write-Host -NoNewline "."
+try {
+    docker buildx build --platform "linux/amd64,linux/arm64" -f ./Dockerfile . --push $(foreach ($tag in $tags) { "--tag=$tag" }) 2>&1 | ForEach-Object {
+        if ($DebugLog) {
+            $_ # Output the line for logging purposes if DebugLog flag is set
+        }
+        $lineCounter++
+        if ($lineCounter % 10 -eq 0) {
+            Write-Host -NoNewline "."
+        }
     }
+}
+catch {
+    Write-Error "Docker build failed with error: $_"
+    exit 1
 }
 
 # Capture the end time
