@@ -10,7 +10,7 @@ public interface ISchedulesDirectController
 {
     Task<ActionResult<bool>> AddLineup(AddLineup request);
 
-    Task<ActionResult<bool>> DeleteLineup(DeleteLineup request);
+    Task<ActionResult<bool>> RemoveLineup(RemoveLineup request);
 
     Task<ActionResult<List<string>>> GetLineupNames();
 
@@ -47,7 +47,7 @@ public interface ISchedulesDirectHub
 {
     Task<bool> AddLineup(AddLineup request);
 
-    Task<bool> DeleteLineup(DeleteLineup request);
+    Task<bool> RemoveLineup(RemoveLineup request);
 
     Task<List<string>> GetLineupNames();
 

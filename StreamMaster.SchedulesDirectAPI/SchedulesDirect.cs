@@ -77,7 +77,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
     public async Task<List<LineupPreview>> GetLineupPreviews(CancellationToken cancellationToken)
     {
         List<LineupPreview> res = new();
-        List<Domain.Models.Lineup>? lineups = await GetLineups(cancellationToken);
+        List<Lineup>? lineups = await GetLineups(cancellationToken);
 
         if (lineups is null)
         {
@@ -478,7 +478,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         return true;
     }
 
-    public async Task<bool> DeleteLineup(string lineup, CancellationToken cancellationToken)
+    public async Task<bool> RemoveLineup(string lineup, CancellationToken cancellationToken)
     {
         var fetchedResults = await DeleteData($"lineups/{lineup}", cancellationToken).ConfigureAwait(false);
         if (fetchedResults == null)

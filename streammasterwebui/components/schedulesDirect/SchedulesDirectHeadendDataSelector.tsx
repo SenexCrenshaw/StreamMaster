@@ -1,31 +1,55 @@
-import { useSchedulesDirectGetHeadendsQuery } from '@lib/iptvApi';
-import { memo, useEffect, useMemo, useState } from 'react';
+import { HeadendDto, SchedulesDirectGetHeadendsApiArg, useSchedulesDirectGetHeadendsQuery } from '@lib/iptvApi';
+import { memo, useCallback, useMemo } from 'react';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
-// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+
 import DataSelector from '../dataSelector/DataSelector';
-const SchedulesDirectHeadendDataSelector = (props: SchedulesDirectHeadendDataSelectorProperties) => {
-  const [country, setCountry] = useState<string>('USA');
-  const [postalCode, setPostalCode] = useState<string>('19082');
+import { useSelectedCountry } from '@lib/redux/slices/selectedCountrySlice';
+import { useSelectedPostalCode } from '@lib/redux/slices/selectedPostalCodeSlice';
+import { skipToken } from '@reduxjs/toolkit/query';
+import SchedulesDirectAddHeadendDialog from './SchedulesDirectAddHeadendDialog';
+import SchedulesDirectCountrySelector from './SchedulesDirectCountrySelector';
 
-  const getHeadendsQuery = useSchedulesDirectGetHeadendsQuery({
-    country,
-    postalCode
-  });
+const SchedulesDirectHeadendDataSelector = () => {
+  const { selectedCountry } = useSelectedCountry('Country');
+  const { selectedPostalCode } = useSelectedPostalCode('ZipCode');
 
-  useEffect(() => {
-    if (props.country !== undefined && props.country !== null && props.country !== '') {
-      setCountry(props.country);
-    }
-  }, [props.country]);
+  const getHeadendsQuery = useSchedulesDirectGetHeadendsQuery(
+    ({ country: selectedCountry, postalCode: selectedPostalCode } as SchedulesDirectGetHeadendsApiArg) ?? skipToken
+  );
 
-  useEffect(() => {
-    if (props.postalCode !== undefined && props.postalCode !== null && props.postalCode !== '') {
-      setPostalCode(props.postalCode);
-    }
-  }, [props.postalCode]);
+  const actionBodyTemplate = useCallback((data: HeadendDto) => {
+    return (
+      <div className="flex p-0 justify-content-end align-items-center">
+        <SchedulesDirectAddHeadendDialog value={data} />
+      </div>
+    );
+  }, []);
 
-  const sourceColumns = useMemo(
-    (): ColumnMeta[] => [{ field: 'headend' }, { field: 'lineup' }, { field: 'location' }, { field: 'name' }, { field: 'transport' }],
+  const columns = useMemo(
+    (): ColumnMeta[] => [
+      { field: 'headend', sortable: true },
+      { field: 'lineup', sortable: true },
+      { field: 'location', sortable: true },
+      { field: 'name', sortable: true },
+      { field: 'transport', sortable: true },
+      {
+        bodyTemplate: actionBodyTemplate,
+        field: 'Add',
+        header: '',
+        resizeable: false,
+        sortable: false,
+        width: '3rem'
+      }
+    ],
+    [actionBodyTemplate]
+  );
+
+  const rightHeaderTemplate = useMemo(
+    () => (
+      <div className="flex justify-content-end align-items-center w-full gap-1">
+        <SchedulesDirectCountrySelector />
+      </div>
+    ),
     []
   );
 
@@ -33,28 +57,23 @@ const SchedulesDirectHeadendDataSelector = (props: SchedulesDirectHeadendDataSel
     <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border">
       <h3>
         <span className="text-bold">TV Headends | </span>
-        <span className="text-bold text-blue-500">{props.country}</span> -<span className="text-bold text-500">{props.postalCode}</span>
+        <span className="text-bold text-blue-500">{selectedCountry}</span> -<span className="text-bold text-500">{selectedPostalCode}</span>
       </h3>
       <DataSelector
-        columns={sourceColumns}
+        columns={columns}
         defaultSortField="name"
         dataSource={getHeadendsQuery.data}
         emptyMessage="No Streams"
         id="StreamingServerStatusPanel"
         isLoading={getHeadendsQuery.isLoading}
+        headerRightTemplate={rightHeaderTemplate}
         selectedItemsKey="selectSelectedItems"
-        style={{ height: 'calc(50vh - 40px)' }}
+        style={{ height: 'calc(100vh - 120px)' }}
       />
     </div>
   );
 };
 
 SchedulesDirectHeadendDataSelector.displayName = 'SchedulesDirectHeadendDataSelector';
-
-interface SchedulesDirectHeadendDataSelectorProperties {
-  readonly country: string | null;
-  // onChange: ((value: string) => void);
-  readonly postalCode: string | null;
-}
 
 export default memo(SchedulesDirectHeadendDataSelector);

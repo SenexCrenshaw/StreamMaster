@@ -16,8 +16,6 @@ import { v4 as uuidv4 } from 'uuid';
 import StreamGroupChannelGroupsSelector from './StreamGroupChannelGroupsSelector';
 import VideoStreamRemoveFromStreamGroupDialog from './VideoStreamRemoveFromStreamGroupDialog';
 
-// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
-
 interface StreamGroupSelectedVideoStreamDataSelectorProperties {
   readonly id: string;
 }

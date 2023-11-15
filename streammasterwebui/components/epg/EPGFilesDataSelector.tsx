@@ -9,7 +9,6 @@ import DataSelector from '../dataSelector/DataSelector';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 import EPGFileRefreshDialog from './EPGFileRefreshDialog';
 import EPGFileRemoveDialog from './EPGFileRemoveDialog';
-// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
 
 const EPGFilesDataSelector = () => {
   const toast = useRef<Toast>(null);
@@ -117,7 +116,7 @@ const EPGFilesDataSelector = () => {
     return <div>{rowData.programmeCount}</div>;
   }, []);
 
-  const targetActionBodyTemplate = useCallback(
+  const actionBodyTemplate = useCallback(
     (rowData: EpgFileDto) => {
       if (rowData.id === 0) {
         return <div />;
@@ -213,12 +212,12 @@ const EPGFilesDataSelector = () => {
       { bodyTemplate: urlEditorBodyTemplate, field: 'url', sortable: true },
       {
         align: 'center',
-        bodyTemplate: targetActionBodyTemplate,
+        bodyTemplate: actionBodyTemplate,
         field: 'autoUpdate',
         width: '10rem'
       }
     ],
-    [lastDownloadedTemplate, nameEditorBodyTemplate, programmeCountTemplate, targetActionBodyTemplate, urlEditorBodyTemplate]
+    [lastDownloadedTemplate, nameEditorBodyTemplate, programmeCountTemplate, actionBodyTemplate, urlEditorBodyTemplate]
   );
 
   return (

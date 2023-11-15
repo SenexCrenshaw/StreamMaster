@@ -259,9 +259,9 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
         return await sd.AddLineup(lineup, cancellationToken);
     }
 
-    public async Task<bool> DeleteLineup(string lineup, CancellationToken cancellationToken)
+    public async Task<bool> RemoveLineup(string lineup, CancellationToken cancellationToken)
     {
-        return await sd.DeleteLineup(lineup, cancellationToken);
+        return await sd.RemoveLineup(lineup, cancellationToken);
     }
 
     public async Task<List<Schedule>?> GetSchedules(List<string> stationsIds, CancellationToken cancellationToken)
@@ -304,7 +304,7 @@ public class SDService(IMemoryCache memoryCache, ILogger<SDService> logger, ISet
         return await sd.GetLineupPreviews(cancellationToken);
     }
 
-    public async Task<List<Domain.Models.Lineup>> GetLineups(CancellationToken cancellationToken)
+    public async Task<List<Lineup>> GetLineups(CancellationToken cancellationToken)
     {
         return await sd.GetLineups(cancellationToken);
     }

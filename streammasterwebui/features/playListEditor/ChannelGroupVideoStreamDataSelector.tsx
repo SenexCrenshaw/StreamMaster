@@ -27,8 +27,6 @@ import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { useSelectedVideoStreams } from '@lib/redux/slices/useSelectedVideoStreams';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
-// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
-
 interface ChannelGroupVideoStreamDataSelectorProperties {
   readonly enableEdit?: boolean;
   readonly id: string;

@@ -9,7 +9,7 @@ import StringEditorBodyTemplate from '../StringEditorBodyTemplate';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 import M3UFileRefreshDialog from './M3UFileRefreshDialog';
 import M3UFileRemoveDialog from './M3UFileRemoveDialog';
-// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
+
 import DataSelector from '../dataSelector/DataSelector';
 interface M3UUpdateProperties {
   id: number;

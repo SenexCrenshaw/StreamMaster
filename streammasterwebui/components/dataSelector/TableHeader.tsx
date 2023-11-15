@@ -29,8 +29,9 @@ const TableHeader: React.FC<TableHeaderProperties> = ({
       </div>
     </div>
     <div className="flex col-10 h-full align-items-center p-0 px-2 m-0 debug">
-      <div className="grid mt-2 flex flex-nowrap flex-row justify-content-between align-items-center col-12 px-0">
+      <div className="grid mt-2 flex flex-nowrap flex-row justify-content-between align-items-center col-12 px-0 border-1">
         <HeaderLeft props={dataSelectorProps} />
+
         {dataSelectorProps.headerRightTemplate}
         {enableExport && <ExportComponent exportCSV={exportCSV} />}
       </div>

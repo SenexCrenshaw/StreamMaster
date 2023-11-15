@@ -2,6 +2,7 @@
 
 public class HeadendDto
 {
+    public string Id => Headend;
     public string Headend { get; set; }
     public string Lineup { get; set; }
     public string location { get; set; }

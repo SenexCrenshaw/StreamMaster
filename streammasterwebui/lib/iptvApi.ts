@@ -346,8 +346,8 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/schedulesdirect/addlineup`, method: 'PUT', body: queryArg }),
         invalidatesTags: ['SchedulesDirect']
       }),
-      schedulesDirectDeleteLineup: build.mutation<SchedulesDirectDeleteLineupApiResponse, SchedulesDirectDeleteLineupApiArg>({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/deletelineup`, method: 'PUT', body: queryArg }),
+      schedulesDirectRemoveLineup: build.mutation<SchedulesDirectRemoveLineupApiResponse, SchedulesDirectRemoveLineupApiArg>({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/removelineup`, method: 'PUT', body: queryArg }),
         invalidatesTags: ['SchedulesDirect']
       }),
       settingsGetIsSystemReady: build.query<SettingsGetIsSystemReadyApiResponse, SettingsGetIsSystemReadyApiArg>({
@@ -906,8 +906,8 @@ export type SchedulesDirectGetLineupNamesApiResponse = /** status 200  */ string
 export type SchedulesDirectGetLineupNamesApiArg = void;
 export type SchedulesDirectAddLineupApiResponse = /** status 200  */ boolean;
 export type SchedulesDirectAddLineupApiArg = AddLineup;
-export type SchedulesDirectDeleteLineupApiResponse = /** status 200  */ boolean;
-export type SchedulesDirectDeleteLineupApiArg = DeleteLineup;
+export type SchedulesDirectRemoveLineupApiResponse = /** status 200  */ boolean;
+export type SchedulesDirectRemoveLineupApiArg = RemoveLineup;
 export type SettingsGetIsSystemReadyApiResponse = /** status 200  */ boolean;
 export type SettingsGetIsSystemReadyApiArg = void;
 export type SettingsGetQueueStatusApiResponse = /** status 200  */ TaskQueueStatusDto[];
@@ -1385,6 +1385,7 @@ export type Countries = {
   Oceania?: Oceanium[];
 };
 export type HeadendDto = {
+  id?: string;
   headend?: string;
   lineup?: string;
   location?: string;
@@ -1621,7 +1622,7 @@ export type SdStatus = {
 export type AddLineup = {
   lineup?: string;
 };
-export type DeleteLineup = {
+export type RemoveLineup = {
   lineup?: string;
 };
 export type TaskQueueStatusDto = {
@@ -1633,66 +1634,66 @@ export type TaskQueueStatusDto = {
   stopTS?: string;
 };
 export type M3USettings = {
-  m3UFieldChannelId: boolean;
-  m3UFieldChannelNumber: boolean;
-  m3UFieldCUID: boolean;
-  m3UFieldGroupTitle: boolean;
-  m3UFieldTvgChno: boolean;
-  m3UFieldTvgId: boolean;
-  m3UFieldTvgLogo: boolean;
-  m3UFieldTvgName: boolean;
-  m3UIgnoreEmptyEPGID: boolean;
+  m3UFieldChannelId?: boolean;
+  m3UFieldChannelNumber?: boolean;
+  m3UFieldCUID?: boolean;
+  m3UFieldGroupTitle?: boolean;
+  m3UFieldTvgChno?: boolean;
+  m3UFieldTvgId?: boolean;
+  m3UFieldTvgLogo?: boolean;
+  m3UFieldTvgName?: boolean;
+  m3UIgnoreEmptyEPGID?: boolean;
 };
 export type SdSettings = M3USettings & {
-  sdUseLineupInName: boolean;
-  sdepgDays: number;
-  sdMaxRatings: number;
-  sdEnabled: boolean;
-  sdUserName: string;
-  sdCountry: string;
-  sdPassword: string;
-  sdPostalCode: string;
-  sdStationIds: StationIdLineup[];
+  sdUseLineupInName?: boolean;
+  sdepgDays?: number;
+  sdMaxRatings?: number;
+  sdEnabled?: boolean;
+  sdUserName?: string;
+  sdCountry?: string;
+  sdPassword?: string;
+  sdPostalCode?: string;
+  sdStationIds?: StationIdLineup[];
 };
 export type AuthenticationType = 0 | 2;
 export type StreamingProxyTypes = 0 | 1 | 2 | 3;
 export type BaseSettings = SdSettings & {
-  adminPassword: string;
-  adminUserName: string;
-  defaultIcon: string;
-  uiFolder: string;
-  urlBase: string;
-  logPerformance: string[];
-  apiKey: string;
-  authenticationMethod: AuthenticationType;
-  cacheIcons: boolean;
-  cleanURLs: boolean;
-  clientUserAgent: string;
-  deviceID: string;
-  dummyRegex: string;
-  ffMpegOptions: string;
-  enableSSL: boolean;
-  epgAlwaysUseVideoStreamName: boolean;
-  ffmPegExecutable: string;
-  globalStreamLimit: number;
-  maxConnectRetry: number;
-  maxConnectRetryTimeMS: number;
-  overWriteM3UChannels: boolean;
-  preloadPercentage: number;
-  ringBufferSizeMB: number;
-  nameRegex: string[];
-  sslCertPassword: string;
-  sslCertPath: string;
-  streamingClientUserAgent: string;
-  streamingProxyType: StreamingProxyTypes;
-  videoStreamAlwaysUseEPGLogo: boolean;
-  showClientHostNames: boolean;
+  adminPassword?: string;
+  adminUserName?: string;
+  defaultIcon?: string;
+  uiFolder?: string;
+  urlBase?: string;
+  logPerformance?: string[];
+  apiKey?: string;
+  authenticationMethod?: AuthenticationType;
+  cacheIcons?: boolean;
+  cleanURLs?: boolean;
+  clientUserAgent?: string;
+  deviceID?: string;
+  dummyRegex?: string;
+  ffMpegOptions?: string;
+  enableSSL?: boolean;
+  epgAlwaysUseVideoStreamName?: boolean;
+  ffmPegExecutable?: string;
+  globalStreamLimit?: number;
+  maxConnectRetry?: number;
+  maxConnectRetryTimeMS?: number;
+  overWriteM3UChannels?: boolean;
+  preloadPercentage?: number;
+  ringBufferSizeMB?: number;
+  nameRegex?: string[];
+  sslCertPassword?: string;
+  sslCertPath?: string;
+  streamingClientUserAgent?: string;
+  streamingProxyType?: StreamingProxyTypes;
+  videoStreamAlwaysUseEPGLogo?: boolean;
+  showClientHostNames?: boolean;
 };
 export type SettingDto = BaseSettings & {
-  release: string;
-  version: string;
-  ffmpegDefaultOptions: string;
-  isDebug: boolean;
+  release?: string;
+  version?: string;
+  ffmpegDefaultOptions?: string;
+  isDebug?: boolean;
 };
 export type SystemStatus = {
   isSystemReady?: boolean;
@@ -2044,7 +2045,7 @@ export const {
   useSchedulesDirectGetEpgQuery,
   useSchedulesDirectGetLineupNamesQuery,
   useSchedulesDirectAddLineupMutation,
-  useSchedulesDirectDeleteLineupMutation,
+  useSchedulesDirectRemoveLineupMutation,
   useSettingsGetIsSystemReadyQuery,
   useSettingsGetQueueStatusQuery,
   useSettingsGetSettingQuery,

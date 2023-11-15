@@ -119,7 +119,7 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
 
     [HttpPut]
     [Route("[action]")]
-    public async Task<ActionResult<bool>> DeleteLineup(DeleteLineup request)
+    public async Task<ActionResult<bool>> RemoveLineup(RemoveLineup request)
     {
         return await Mediator.Send(request).ConfigureAwait(false);
     }

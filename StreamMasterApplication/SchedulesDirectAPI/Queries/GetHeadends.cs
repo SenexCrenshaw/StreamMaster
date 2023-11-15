@@ -10,6 +10,11 @@ internal class GetHeadendsHandler(ISDService sdService) : IRequestHandler<GetHea
     public async Task<List<HeadendDto>> Handle(GetHeadends request, CancellationToken cancellationToken)
     {
         List<HeadendDto> ret = new();
+        if (string.IsNullOrEmpty(request.country) || string.IsNullOrEmpty(request.postalCode))
+        {
+            return ret;
+        }
+
         //Setting setting = await settingsService.GetSettingsAsync();
         //SchedulesDirect sd = new(setting.ClientUserAgent, setting.SDUserName, setting.SDPassword);
         //SDStatus status = await sd.GetStatus(cancellationToken).ConfigureAwait(false);
@@ -27,6 +32,10 @@ internal class GetHeadendsHandler(ISDService sdService) : IRequestHandler<GetHea
         //}
 
         List<Headend>? headends = await sdService.GetHeadends(request.country, request.postalCode, cancellationToken).ConfigureAwait(false);
+        if (headends == null || !headends.Any())
+        {
+            return ret;
+        }
         foreach (Headend headend in headends)
         {
             //if (headend.lineups.Count() > 1)

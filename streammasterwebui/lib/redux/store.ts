@@ -27,7 +27,7 @@ import showHiddenSliceReducer from '@lib/redux/slices/showHiddenSlice';
 import showSelectionsSliceReducer from '@lib/redux/slices/showSelectionsSlice';
 import sortInfoSliceReducer from '@lib/redux/slices/sortInfoSlice';
 import selectedCountrySlice from '@lib/redux/slices/selectedCountrySlice';
-import selectedZipCodeSlice from '@lib/redux/slices/selectedZipCodeSlice';
+import selectedPostalCodeSlice from '@lib/redux/slices/selectedPostalCodeSlice';
 
 import { enhancedApiVideoStreamsGetAllStatisticsLocal } from '@lib/smAPILocal/enhancedApiVideoStreamsGetAllStatisticsLocal';
 import { persistReducer, persistStore } from 'redux-persist';
@@ -74,8 +74,8 @@ const selectedCountryConfig = {
   storage
 };
 
-const selectedZipCodeConfig = {
-  key: 'selectedZipCode',
+const selectedPostalCodeConfig = {
+  key: 'selectedPostalCode',
   storage
 };
 
@@ -97,7 +97,7 @@ const rootReducer = combineReducers({
   channelGroupToRemove: channelGroupToRemoveSliceReducer,
   queryAdditionalFilters: queryAdditionalFiltersReducer,
   queryFilter: queryFilterReducer,
-  selectedZipCodeSlice: persistReducer(selectedZipCodeConfig, selectedZipCodeSlice),
+  selectedPostalCode: persistReducer(selectedPostalCodeConfig, selectedPostalCodeSlice),
   selectAll: persistReducer(selectAllConfig, selectAllSliceReducer),
   selectedCountry: persistReducer(selectedCountryConfig, selectedCountrySlice),
   selectedChannelGroups: persistReducer(selectedItemsGroupsConfig, selectedChannelGroupsSliceReducer),

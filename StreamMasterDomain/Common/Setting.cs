@@ -3,7 +3,7 @@
 using StreamMasterDomain.Attributes;
 
 namespace StreamMasterDomain.Common;
-[RequireAll]
+
 public class M3USettings
 {
     public bool M3UFieldChannelId { get; set; } = true;

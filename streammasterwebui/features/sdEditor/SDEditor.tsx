@@ -1,16 +1,14 @@
-import SchedulesDirectCountrySelector from '@components/schedulesDirect/SchedulesDirectCountrySelector';
+import StandardHeader from '@components/StandardHeader';
+import SchedulesDirectHeadendDataSelector from '@components/schedulesDirect/SchedulesDirectHeadendDataSelector';
+
 import SchedulesDirectLineUpsDataSelector from '@components/schedulesDirect/SchedulesDirectLineUpsDataSelector';
+import { SDIcon } from '@lib/common/icons';
 import { useSchedulesDirectGetStatusQuery } from '@lib/iptvApi';
 
-import useSettings from '@lib/useSettings';
-import { BlockUI } from 'primereact/blockui';
 import { memo, useMemo } from 'react';
-
-// const SchedulesDirectStationPreviewDataSelector = React.lazy(() => import('@components/schedulesDirect/SchedulesDirectStationPreviewDataSelector'));
 
 const SDEditor = () => {
   const getStatusQuery = useSchedulesDirectGetStatusQuery();
-  const settings = useSettings();
 
   const status = useMemo(() => {
     if (getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() === 'online') {
@@ -29,14 +27,19 @@ const SDEditor = () => {
   }, [getStatusQuery.data]);
 
   return (
-    <>
-      {status}
-      <BlockUI blocked={getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() !== 'online' || settings.data?.sdEnabled !== true}>
-        <SchedulesDirectCountrySelector id={'SDEditor'} />
+    <StandardHeader displayName={`Schedules Direct - ${status}`} icon={<SDIcon />}>
+      {/* <BlockUI blocked={getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() !== 'online' || settings.data?.sdEnabled !== true}> */}
+
+      <div className="col-6 m-0 p-0 pr-1">
+        {/* <SchedulesDirectCountrySelector /> */}
+        <SchedulesDirectHeadendDataSelector />
+      </div>
+      <div className="col-6 m-0 p-0 border-2 border-round surface-border">
+        <div className="flex grid col-12 pl-1 justify-content-start align-items-center m-0 w-full smallpt"></div>
         <SchedulesDirectLineUpsDataSelector id={'SDEditor'} />
-        {/* <SchedulesDirectStationPreviewDataSelector /> */}
-      </BlockUI>
-    </>
+      </div>
+      {/* </BlockUI> */}
+    </StandardHeader>
   );
 };
 

@@ -1,21 +1,46 @@
-import { useSchedulesDirectGetLineupsQuery } from '@lib/iptvApi';
-import { memo, useMemo } from 'react';
+import { HeadendDto, useSchedulesDirectGetLineupsQuery } from '@lib/iptvApi';
+import { memo, useCallback, useMemo } from 'react';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 
 import DataSelector from '../dataSelector/DataSelector';
+import SchedulesDirectRemoveHeadendDialog from './SchedulesDirectRemoveHeadendDialog';
 interface SchedulesDirectLineUpsDataSelectorProperties {
   id: string;
 }
 const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSelectorProperties) => {
   const getLineUpsQuery = useSchedulesDirectGetLineupsQuery();
 
-  const sourceColumns = useMemo((): ColumnMeta[] => [{ field: 'lineup' }, { field: 'location' }, { field: 'name' }, { field: 'transport' }], []);
-  // console.log(getLineUpsQuery.data);
+  const actionBodyTemplate = useCallback((data: HeadendDto) => {
+    return (
+      <div className="flex p-0 justify-content-center align-items-center">
+        <SchedulesDirectRemoveHeadendDialog value={data} />
+      </div>
+    );
+  }, []);
+
+  const columns = useMemo(
+    (): ColumnMeta[] => [
+      { field: 'lineup', sortable: true },
+      { field: 'location', sortable: true },
+      { field: 'name', sortable: true },
+      { field: 'transport', sortable: true },
+      {
+        align: 'center',
+        bodyTemplate: actionBodyTemplate,
+        field: 'Remove',
+        header: '',
+        resizeable: false,
+        sortable: false,
+        width: '3rem'
+      }
+    ],
+    [actionBodyTemplate]
+  );
+
   return (
-    <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border">
-      {/* <h3><span className='text-bold'>LineUps | </span><span className='text-bold text-blue-500'>{props.country}</span> - <span className='text-bold text-500'>{props.postalCode}</span></h3> */}
+    <div className="flex flex-column">
       <DataSelector
-        columns={sourceColumns}
+        columns={columns}
         defaultSortField="name"
         dataSource={getLineUpsQuery.data}
         emptyMessage="No Streams"
@@ -23,7 +48,7 @@ const SchedulesDirectLineUpsDataSelector = ({ id }: SchedulesDirectLineUpsDataSe
         isLoading={getLineUpsQuery.isLoading}
         selectionMode="single"
         selectedItemsKey="sdEditorSelectSelectedItems"
-        style={{ height: 'calc(50vh - 40px)' }}
+        style={{ height: 'calc(100vh - 120px)' }}
       />
       {/* <SchedulesDirectLineUpPreviewDataSelector lineUps={getLineUpsQuery.data?.lineups} /> */}
     </div>

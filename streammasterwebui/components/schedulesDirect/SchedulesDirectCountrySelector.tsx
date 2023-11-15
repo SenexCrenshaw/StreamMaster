@@ -1,22 +1,37 @@
 import SearchButton from '@components/buttons/SearchButton';
 import TextInput from '@components/inputs/TextInput';
-import { Countries, useSchedulesDirectGetCountriesQuery } from '@lib/iptvApi';
+import { Countries, SettingDto, useSchedulesDirectGetCountriesQuery } from '@lib/iptvApi';
 import { useSelectedCountry } from '@lib/redux/slices/selectedCountrySlice';
-import { useSelectedZipCode } from '@lib/redux/slices/selectedZipCodeSlice';
+import { useSelectedPostalCode } from '@lib/redux/slices/selectedPostalCodeSlice';
+import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
 import { Dropdown } from 'primereact/dropdown';
-import React from 'react';
+import React, { useState } from 'react';
+
+interface SchedulesDirectCountrySelectorProperties {
+  readonly onChange?: (value: string) => void;
+  // readonly value?: string | null;
+}
 
 const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorProperties) => {
   const { selectedCountry, setSelectedCountry } = useSelectedCountry('Country');
-  const { selectedZipCode, setSelectedZipCode } = useSelectedZipCode('ZipCode');
+  const { selectedPostalCode, setSelectedPostalCode } = useSelectedPostalCode('ZipCode');
+
+  const [originalCountry, setOriginalCountry] = useState<string | undefined>();
+  const [originalPostalCode, setOriginalPostalCode] = useState<string | undefined>();
 
   const getCountriesQuery = useSchedulesDirectGetCountriesQuery();
 
   React.useEffect(() => {
-    if (props.value !== undefined && props.value !== null && props.value !== '') {
-      setSelectedCountry(props.value);
+    if (selectedCountry !== undefined && selectedCountry !== originalCountry) {
+      setOriginalCountry(selectedCountry);
     }
-  }, [props.value, setSelectedCountry]);
+  }, [selectedCountry, setOriginalCountry]);
+
+  React.useEffect(() => {
+    if (selectedPostalCode !== undefined && selectedPostalCode !== originalPostalCode) {
+      setOriginalPostalCode(selectedPostalCode);
+    }
+  }, [selectedPostalCode, setOriginalPostalCode]);
 
   interface Country {
     shortName: string;
@@ -48,8 +63,8 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
   }, [getCountriesQuery.data]);
 
   return (
-    <div className="flex grid pl-1 justify-content-start align-items-center p-0 m-0 w-full">
-      <div className="flex col-4">
+    <div className="flex grid col-12 pl-1 justify-content-start align-items-center p-0 m-0 w-full">
+      <div className="flex col-2 p-0 pr-2">
         <Dropdown
           className="bordered-text w-full"
           filter
@@ -70,10 +85,34 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
       </div>
       <div className="flex col-2 p-0">
         <div className="flex col-10 pt-2 p-0 w-full">
-          <TextInput placeHolder="Zip Code" onChange={setSelectedZipCode} value={selectedZipCode} />
+          <TextInput
+            placeHolder="Postal Code"
+            onChange={(e) => {
+              setOriginalPostalCode(e);
+            }}
+            value={originalPostalCode}
+          />
         </div>
         <div className="flex col-2 pt-2 p-0 pr-3">
-          <SearchButton onClick={(e) => console.log(e)} />
+          <SearchButton
+            tooltip="Go"
+            onClick={() => {
+              console.log('PostalCode', originalPostalCode);
+
+              if (!originalPostalCode || !originalCountry) {
+                return;
+              }
+
+              setSelectedCountry(originalCountry);
+              setSelectedPostalCode(originalPostalCode);
+
+              const newData: SettingDto = { sdPostalCode: originalPostalCode, sdCountry: originalCountry };
+
+              UpdateSetting(newData)
+                .then(() => {})
+                .catch(() => {});
+            }}
+          />
         </div>
       </div>
     </div>
@@ -81,10 +120,5 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
 };
 
 SchedulesDirectCountrySelector.displayName = 'SchedulesDirectCountrySelector';
-
-interface SchedulesDirectCountrySelectorProperties {
-  readonly onChange: (value: string) => void;
-  readonly value?: string | null;
-}
 
 export default React.memo(SchedulesDirectCountrySelector);

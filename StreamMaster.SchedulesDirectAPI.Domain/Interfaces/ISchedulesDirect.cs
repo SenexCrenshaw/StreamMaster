@@ -6,7 +6,7 @@ public interface ISchedulesDirect
 
     Task<bool> AddLineup(string lineup, CancellationToken cancellationToken);
 
-    Task<bool> DeleteLineup(string lineup, CancellationToken cancellationToken);
+    Task<bool> RemoveLineup(string lineup, CancellationToken cancellationToken);
 
     Task Sync(List<StationIdLineup> StationIdLineups, CancellationToken cancellationToken);
 

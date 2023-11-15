@@ -78,7 +78,7 @@ public partial class StreamMasterHub : ISchedulesDirectHub
         return await mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<bool> DeleteLineup(DeleteLineup request)
+    public async Task<bool> RemoveLineup(RemoveLineup request)
     {
         return await mediator.Send(request).ConfigureAwait(false);
     }

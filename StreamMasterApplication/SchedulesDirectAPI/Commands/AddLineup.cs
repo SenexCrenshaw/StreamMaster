@@ -19,7 +19,9 @@ public class AddLineupHandler(ISDService sdService, ILogger<AddLineup> logger, I
         if (await sdService.AddLineup(request.lineup, cancellationToken).ConfigureAwait(false))
         {
             sdService.ResetCache(SDCommands.Status);
-            await hubContext.Clients.All.SchedulesDirectsRefresh();
+            sdService.ResetCache(SDCommands.LineUps);
+            await sdService.SDSync(cancellationToken);
+            await HubContext.Clients.All.SchedulesDirectsRefresh();
             return true;
         }
         return false;

@@ -7,8 +7,6 @@ import { StreamGroupDto, useStreamGroupsGetPagedStreamGroupsQuery } from '@lib/i
 import { useSelectedStreamGroup } from '@lib/redux/slices/useSelectedStreamGroup';
 import { memo, useMemo, type CSSProperties } from 'react';
 
-// const DataSelector = React.lazy(() => import('@components/dataSelector/DataSelector'));
-
 export interface StreamGroupDataSelectorProperties {
   readonly id: string;
 }
