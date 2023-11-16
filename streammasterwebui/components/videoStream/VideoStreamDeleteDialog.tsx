@@ -133,7 +133,7 @@ const VideoStreamDeleteDialog = ({ iconFilled, id, onClose, skipOverLayer, value
     <>
       <InfoMessageOverLayDialog
         blocked={block}
-        header="Delete Streams?"
+        header="Delete?"
         infoMessage={infoMessage}
         onClose={() => {
           ReturnToParent();
