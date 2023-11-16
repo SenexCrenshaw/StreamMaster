@@ -1,19 +1,19 @@
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+ARG FFMPEG_BASE_IMAGE_TAG
+FROM nvidia/cuda:12.3.0-base-ubuntu22.04 as base
 ARG TARGETPLATFORM
 ARG TARGETARCH
 ARG BUILDPLATFORM
+
+FROM senexcrenshaw/streammaster_base:${FFMPEG_BASE_IMAGE_TAG} AS ffmpeg
+
 WORKDIR /app
 EXPOSE 7095
-ENV ASPNETCORE_URLS=http://+:7095
-RUN apt-get update -yq \
-    && apt-get upgrade -yq \
-    && apt-get install -yq ffmpeg gosu\
-    && rm -rf /var/lib/apt/lists/*
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 ARG TARGETPLATFORM
 ARG TARGETARCH
 ARG BUILDPLATFORM
+
 WORKDIR /src
 COPY ["StreamMasterAPI/StreamMasterAPI.csproj", "StreamMasterAPI/"]
 COPY ["StreamMasterApplication/StreamMasterApplication.csproj", "StreamMasterApplication/"]
@@ -28,10 +28,10 @@ RUN dotnet build "StreamMasterAPI.csproj" -c Debug -o /app/build -a $TARGETARCH
 RUN mkdir -p /etc/apt/keyrings
 RUN apt-get update -yq \
     && apt-get upgrade -yq \
-    && apt-get install -yq ca-certificates curl gnupg git nano \
+    && apt-get install -yq --no-install-recommends ca-certificates curl gnupg git \
     && curl -sL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
     && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
-    && apt-get update && apt-get install -yq nodejs build-essential \
+    && apt-get update && apt-get install -yq --no-install-recommends nodejs build-essential \
     && rm -rf /var/lib/apt/lists/* \
     && update-ca-certificates
 
@@ -46,7 +46,10 @@ FROM build AS publish
 ARG TARGETPLATFORM
 ARG TARGETARCH
 ARG BUILDPLATFORM
+
 RUN dotnet publish --no-restore "StreamMasterAPI.csproj" -c Debug -o /app/publish /p:UseAppHost=false -a $TARGETARCH
+
+
 
 FROM base AS final
 ARG TARGETPLATFORM
@@ -64,7 +67,10 @@ ENV REACT_API_URL=$REACT_API_URL
 ENV STREAMMASTER_BASEHOSTURL=http://localhost:7095/
 ENV PUID=0
 ENV PGID=0
+RUN apt-get update -yq && \
+    apt-get install -yq aspnetcore-runtime-7.0
 COPY --from=publish /app/publish .
+COPY --from=ffmpeg /usr/local/bin/ffmpeg /bin/ffmpeg
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
