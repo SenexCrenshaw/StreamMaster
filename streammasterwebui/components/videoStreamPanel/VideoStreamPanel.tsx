@@ -38,6 +38,12 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
   const [dataSource, setDataSource] = useState<VideoStreamDto[] | undefined>();
 
   useEffect(() => {
+    if (!videoStream) {
+      setDataSource([] as VideoStreamDto[]);
+    }
+  }, [videoStream]);
+
+  useEffect(() => {
     if (group) {
       setChannelGroup(group);
     }
