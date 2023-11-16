@@ -231,7 +231,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
     }
 
     const scroller = tableReference.current?.getVirtualScroller();
-    console.log('Scroll to', props.scrollTo ?? 0, 'smooth');
+    // console.log('Scroll to', props.scrollTo ?? 0, 'smooth');
     // scroller?.scrollTo({ behavior: 'auto', left: 0, top: props.scrollTo })
     // scroller?.scrollInView({ behavior: 'auto', left: 0, top: props.scrollTo })
     scroller?.scrollToIndex(props.scrollTo ?? 0, 'smooth');
