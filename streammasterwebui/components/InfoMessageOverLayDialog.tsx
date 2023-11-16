@@ -88,9 +88,9 @@ const InfoMessageOverLayDialog: React.FC<InfoMessageOverLayDialogProperties> = (
         </BlockUI>
       </Dialog>
 
-      <OverlayPanel className={`col-${overlayColSize} p-0 h-full`} dismissable={false} ref={op} showCloseIcon={false}>
-        <div className="flex m-0  p-1 border-1 border-round surface-border h-full justify-contents-center">
-          <div className="surface-overlay surface-overlay min-h-full min-w-full">
+      <OverlayPanel className={`col-${overlayColSize} p-0 `} dismissable={false} ref={op} showCloseIcon={false}>
+        <div className="flex m-0  p-1 border-1 border-round surface-border  justify-contents-center">
+          <div className="surface-overlay surface-overlay  min-w-full">
             <h4 className={`text-center ${determineSeverityColor()}`}>{infoMessage}</h4>
           </div>
         </div>

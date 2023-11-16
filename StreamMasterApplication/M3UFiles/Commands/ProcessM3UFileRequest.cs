@@ -127,7 +127,6 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
             if (toVideoStreamLinkDel.Any())
             {
                 await Repository.VideoStreamLink.BulkDeleteAsync(toVideoStreamLinkDel);
-
             }
 
             IQueryable<StreamGroupVideoStream> toStreamGroupVideoStreamDel = Repository.StreamGroupVideoStream.FindByCondition(a => ids.Contains(a.ChildVideoStreamId));
@@ -138,7 +137,6 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
 
             await Repository.VideoStream.BulkDeleteAsync(toDelete);
         }
-
     }
 
     private async Task ProcessStreamsConcurrently(List<VideoStream> streams, List<VideoStream> existing, List<ChannelGroup> groups, M3UFile m3uFile)
@@ -304,7 +302,7 @@ public class ProcessM3UFileRequestHandler(ILogger<ProcessM3UFileRequest> logger,
 
         Setting setting = await GetSettingsAsync();
 
-        if (setting.OverWriteM3UChannels || dbStream.Tvg_chno != stream.Tvg_chno)
+        if (setting.OverWriteM3UChannels || (stream.Tvg_chno != 0 && dbStream.Tvg_chno != stream.Tvg_chno))
         {
             int localNextChno = setting.OverWriteM3UChannels ? existingChannels.GetNextInt() : existingChannels.GetNextInt(stream.Tvg_chno);
             if (dbStream.Tvg_chno != localNextChno)

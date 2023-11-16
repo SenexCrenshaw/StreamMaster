@@ -55,7 +55,6 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
 public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger<UpdateSettingRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
 : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
 {
-
     public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
     {
         Setting currentSetting = await GetSettingsAsync();
@@ -140,7 +139,6 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
         {
             currentSetting.M3UFieldTvgName = (bool)request.M3UFieldTvgName;
         }
-
 
         if (request.ShowClientHostNames != null)
         {
@@ -280,7 +278,6 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
             currentSetting.SDUserName = request.SDUserName;
         }
 
-
         if (request.SDStationIds != null)
         {
             bool haveSameElements = new HashSet<StationIdLineup>(currentSetting.SDStationIds).SetEquals(request.SDStationIds);
@@ -289,14 +286,12 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
                 currentSetting.SDStationIds = request.SDStationIds;
                 needsSetProgrammes = true;
             }
-
         }
 
         if (request.NameRegex != null)
         {
             currentSetting.NameRegex = request.NameRegex;
         }
-
 
         if (request.StreamingProxyType != null && request.StreamingProxyType != currentSetting.StreamingProxyType)
         {
@@ -311,10 +306,7 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
 
         if (needsSetProgrammes)
         {
-            /*await Sender.Send(new SetSDProgramme(), cancellationToken).ConfigureAwait(false);*/
-            //memoryCache.ClearSDProgrammes();
             await taskQueue.SDSync(cancellationToken).ConfigureAwait(false);
-
         }
 
         return needsLogOut;
@@ -323,6 +315,6 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
     public class UpdateSettingResponse
     {
         public bool NeedsLogOut { get; set; }
-        public required SettingDto Settings { get; set; }
+        public SettingDto Settings { get; set; }
     }
 }

@@ -37,6 +37,16 @@
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Common\**" />
+    <Compile Remove="Models\**" />
+    <Content Remove="Common\**" />
+    <Content Remove="Models\**" />
+    <EmbeddedResource Remove="Common\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <None Remove="Common\**" />
+    <None Remove="Models\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Remove="sd_token.json" />
   </ItemGroup>
   <ItemGroup>
@@ -57,9 +67,5 @@
     <ProjectReference Include="..\StreamMaster.SchedulesDirectAPI\StreamMaster.SchedulesDirectAPI.csproj" />
     <ProjectReference Include="..\StreamMasterApplication\StreamMasterApplication.csproj" />
     <ProjectReference Include="..\StreamMasterInfrastructure\StreamMasterInfrastructure.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Common\" />
-    <Folder Include="Models\" />
   </ItemGroup>
 </Project>

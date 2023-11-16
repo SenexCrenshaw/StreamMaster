@@ -14,7 +14,7 @@ const VideoStreamCopyLinkDialog = ({ iconFilled, onClose, value }: VideoStreamCo
 
   useEffect(() => {
     if (!url.isLoading) {
-      console.log(url);
+      // console.log(url);
     }
   }, [url]);
 
