@@ -17,7 +17,7 @@ public class SDSyncHandler(ISDService sdService, ILogger<SDSync> logger, IReposi
 
         if (await sdService.SDSync(cancellationToken).ConfigureAwait(false))
         {
-            logger.LogInformation("Synced Schedules Direct");
+            logger.LogInformation("Updated Schedules Direct");
             await HubContext.Clients.All.SchedulesDirectsRefresh();
             return true;
         }

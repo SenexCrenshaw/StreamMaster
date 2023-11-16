@@ -260,6 +260,17 @@ public static class CacheKeys
         return Get<Programme>(ListSDProgrammes, cache);
     }
 
+    public static bool AreProgrammeListsEqual(List<Programme> list1, List<Programme> list2)
+    {
+        if (list1 == null || list2 == null) throw new ArgumentNullException(nameof(list1));
+        if (list1.Count != list2.Count) return false;
+
+        var comparer = new ProgrammeNameStartComparer();
+        var set = new HashSet<Programme>(list1, comparer);
+
+        return list2.All(set.Contains);
+    }
+
     public static bool SetSDProgreammesCache(this IMemoryCache cache, List<Programme> data, TimeSpan? expiration = null)
     {
         MemoryCacheEntryOptions CacheEntryOptions;
@@ -273,12 +284,12 @@ public static class CacheKeys
             CacheEntryOptions = new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiration };
         }
 
-        //if (!AreListsEqual(cache.SDProgrammess(), data))
-        //{
-        cache.Set(ListSDProgrammes, data, CacheEntryOptions);
-        return true;
-        //}
-        //return false;
+        if (!AreProgrammeListsEqual(cache.SDProgrammess(), data))
+        {
+            cache.Set(ListSDProgrammes, data, CacheEntryOptions);
+            return true;
+        }
+        return false;
     }
 
     public static void SetCache(this IMemoryCache cache, object data, TimeSpan? expiration = null)
