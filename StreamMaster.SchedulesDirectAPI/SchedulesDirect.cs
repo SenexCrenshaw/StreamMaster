@@ -69,11 +69,10 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         //List<string> progIds = schedules.SelectMany(a => a.Programs).Where(a => a.AirDateTime >= now.AddDays(-1) && a.AirDateTime <= now.AddDays(setting.SDEPGDays)).Select(a => a.ProgramID).Distinct().ToList();
         //List<SDProgram> programs = await GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
 
-        await UpdateSDProgrammes(cancellationToken).ConfigureAwait(false);
-        return true;
+        return await UpdateSDProgrammes(cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task UpdateSDProgrammes(CancellationToken cancellationToken)
+    private async Task<bool> UpdateSDProgrammes(CancellationToken cancellationToken)
     {
         Setting setting = await settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
 
@@ -111,7 +110,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         List<Schedule>? schedules = await GetSchedules(stationsIds.ToList(), cancellationToken).ConfigureAwait(false);
         if (schedules == null || !schedules.Any())
         {
-            return;
+            return false;
         }
 
         List<Programme> programmes = new();
@@ -171,7 +170,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
             }
         }
 
-        memoryCache.SetSDProgreammesCache(programmes);
+        return memoryCache.SetSDProgreammesCache(programmes);
     }
 
     public async Task<LineupResult?> GetLineup(string lineup, CancellationToken cancellationToken)
