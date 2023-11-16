@@ -141,12 +141,12 @@ const VideoStreamDeleteDialog = ({ iconFilled, id, onClose, skipOverLayer, value
         overlayColSize={2}
         show={showOverlay}
       >
-        <div className="m-0 p-0 border-1 border-round surface-border">
-          <div className="m-3">
-            <div className="card flex mt-3 flex-wrap gap-2 justify-content-center">
-              <OKButton onClick={async () => await deleteVideoStream()} />
-            </div>
+        <div className="m-0 p-0 w-full">
+          {/* <div className="m-3 border-1 border-red-500 w-full"> */}
+          <div className="card flex mt-3 flex-wrap gap-2 justify-content-center ">
+            <OKButton onClick={async () => await deleteVideoStream()} />
           </div>
+          {/* </div> */}
         </div>
       </InfoMessageOverLayDialog>
 
