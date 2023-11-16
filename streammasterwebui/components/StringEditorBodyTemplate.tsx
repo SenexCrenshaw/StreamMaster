@@ -1,6 +1,5 @@
 import { getTopToolOptions } from '@lib/common/common';
 import { ResetLogoIcon } from '@lib/common/icons';
-import { BlockUI } from 'primereact/blockui';
 import { Button } from 'primereact/button';
 import { useClickOutside } from 'primereact/hooks';
 import { InputText } from 'primereact/inputtext';
@@ -103,31 +102,26 @@ const StringEditorBodyTemplate = (props: StringEditorBodyTemplateProperties) => 
         />
       )}
       {originalValue !== inputValue && <i className="absolute right-0 pt-1 pi pi-save pr-2 text-500" />}
-      <BlockUI>
-        <InputText
-          className="p-0 flex justify-content-start w-full h-full"
-          onChange={(e) => {
-            setInputValue(e.target.value as string);
-            debounced(e.target.value as string);
-          }}
-          onClick={() => {
-            props.onClick?.();
-          }}
-          onFocus={() => setIsFocused(true)}
-          placeholder={props.placeholder}
-          tooltip={props.tooltip}
-          tooltipOptions={props.tooltipOptions}
-          value={inputValue}
-        />
-      </BlockUI>
+      <InputText
+        className="p-0 flex justify-content-start w-full h-full"
+        onChange={(e) => {
+          setInputValue(e.target.value as string);
+          debounced(e.target.value as string);
+        }}
+        onClick={() => {
+          props.onClick?.();
+        }}
+        onFocus={() => setIsFocused(true)}
+        placeholder={props.placeholder}
+        tooltip={props.tooltip}
+        tooltipOptions={props.tooltipOptions}
+        value={inputValue}
+      />
     </div>
   );
 };
 
 StringEditorBodyTemplate.displayName = 'String Editor Body Template';
-// StringEditorBodyTemplate.defaultProps = {
-//   debounceMs: 1500
-// }
 
 export interface StringEditorBodyTemplateProperties {
   readonly debounceMs?: number;
