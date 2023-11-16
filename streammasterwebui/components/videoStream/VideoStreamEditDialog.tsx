@@ -57,7 +57,7 @@ const VideoStreamEditDialog = (props: VideoStreamEditDialogProperties) => {
         onClose={() => {
           ReturnToParent();
         }}
-        overlayColSize={6}
+        overlayColSize={8}
         show={showOverlay}
       >
         <VideoStreamPanel onEdit={async (e) => await onEdit(e)} videoStream={videoStream} />

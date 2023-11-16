@@ -2,10 +2,12 @@
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain.Commands;
+using StreamMaster.SchedulesDirectAPI.Domain.EPG;
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
+using StreamMasterDomain.Dto;
 using StreamMasterDomain.Models;
 using StreamMasterDomain.Services;
 
@@ -51,22 +53,125 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         return success;
     }
 
-    public async Task Sync(List<StationIdLineup> StationIdLineups, CancellationToken cancellationToken)
+    public async Task<bool> SDSync(List<StationIdLineup> StationIdLineups, CancellationToken cancellationToken)
     {
-        SDStatus status = await GetStatus(cancellationToken);
+        //SDStatus status = await GetStatus(cancellationToken);
 
         if (!await GetSystemReady(cancellationToken))
         {
-            return;
+            return false;
         }
-        Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
-        DateTime now = DateTime.Now;
+
+        //DateTime now = DateTime.Now;
+
+        //List<Station> stations = await GetStations(cancellationToken).ConfigureAwait(false);
+        //List<Schedule>? schedules = await GetSchedules(StationIdLineups.ConvertAll(a => a.StationId), cancellationToken).ConfigureAwait(false);
+        //List<string> progIds = schedules.SelectMany(a => a.Programs).Where(a => a.AirDateTime >= now.AddDays(-1) && a.AirDateTime <= now.AddDays(setting.SDEPGDays)).Select(a => a.ProgramID).Distinct().ToList();
+        //List<SDProgram> programs = await GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
+
+        await UpdateSDProgrammes(cancellationToken).ConfigureAwait(false);
+        return true;
+    }
+
+    private async Task UpdateSDProgrammes(CancellationToken cancellationToken)
+    {
+        Setting setting = await settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
+
+        int maxDays = setting.SDEPGDays;
+        int maxRatings = setting.SDMaxRatings;
+        bool useLineupInName = setting.SDUseLineupInName;
 
         List<Station> stations = await GetStations(cancellationToken).ConfigureAwait(false);
-        List<Schedule>? schedules = await GetSchedules(StationIdLineups.ConvertAll(a => a.StationId), cancellationToken).ConfigureAwait(false);
-        List<string> progIds = schedules.SelectMany(a => a.Programs).Where(a => a.AirDateTime >= now.AddDays(-1) && a.AirDateTime <= now.AddDays(setting.SDEPGDays)).Select(a => a.ProgramID).Distinct().ToList();
-        List<SDProgram> programs = await GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
-        memoryCache.SetSDProgreammesCache(programs);
+
+        HashSet<string> stationsIds = setting.SDStationIds.Select(a => a.StationId).ToHashSet();
+        Dictionary<string, Station> stationDictionary = stations.ToDictionary(s => s.StationId);
+
+        List<ChannelLogoDto> channelLogos = memoryCache.ChannelLogos();
+        int nextId = channelLogos.Any() ? channelLogos.Max(a => a.Id) + 1 : 0;
+
+        // Process logos in parallel
+        List<ChannelLogoDto> logoTasks = setting.SDStationIds.AsParallel().WithCancellation(cancellationToken).SelectMany(SDStationId =>
+        {
+            if (stationDictionary.TryGetValue(SDStationId.StationId, out Station? station) && station.Lineup == SDStationId.Lineup)
+            {
+                return station.StationLogo?.Where(logo => !channelLogos.Any(a => a.LogoUrl == logo.URL))
+                    .Select(logo => new ChannelLogoDto
+                    {
+                        Id = Interlocked.Increment(ref nextId),
+                        LogoUrl = logo.URL,
+                        EPGId = "SD|" + SDStationId.StationId,
+                        EPGFileId = 0
+                    }) ?? Enumerable.Empty<ChannelLogoDto>();
+            }
+            return Enumerable.Empty<ChannelLogoDto>();
+        }).ToList();
+
+        logoTasks.ForEach(logo => memoryCache.Add(logo));
+
+        List<Schedule>? schedules = await GetSchedules(stationsIds.ToList(), cancellationToken).ConfigureAwait(false);
+        if (schedules == null || !schedules.Any())
+        {
+            return;
+        }
+
+        List<Programme> programmes = new();
+        DateTime now = DateTime.Now;
+        DateTime maxDate = now.AddDays(maxDays);
+
+        foreach (Schedule sched in schedules)
+        {
+            if (!stationDictionary.TryGetValue(sched.StationID, out Station? station))
+            {
+                continue;
+            }
+
+            string channelNameSuffix = station.Name ?? sched.StationID;
+            string displayName = useLineupInName ? $"{station.Lineup}-{channelNameSuffix}" : channelNameSuffix;
+            string channelName = $"SD - {channelNameSuffix}";
+
+            List<Program> relevantPrograms = sched.Programs.Where(p => p.AirDateTime <= maxDate).ToList();
+            List<string> progIds = relevantPrograms.Select(p => p.ProgramID).Distinct().ToList();
+
+            List<SDProgram> sdPrograms = await GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
+            Dictionary<string, SDProgram> sdProgramsDict = sdPrograms.ToDictionary(p => p.ProgramID);
+
+            foreach (Program? p in relevantPrograms)
+            {
+                if (!sdProgramsDict.TryGetValue(p.ProgramID, out SDProgram? sdProg))
+                {
+                    continue;
+                }
+
+                DateTime startt = p.AirDateTime;
+                DateTime endt = startt.AddSeconds(p.Duration);
+                string lang = station.BroadcastLanguage.FirstOrDefault() ?? "en";
+
+                Programme programme = new()
+                {
+                    Start = startt.ToString("yyyyMMddHHmmss") + " +0000",
+                    Stop = endt.ToString("yyyyMMddHHmmss") + " +0000",
+                    Channel = $"SD|{sched.StationID}",
+                    ChannelName = channelName,
+                    Name = channelNameSuffix,
+                    DisplayName = displayName,
+                    Title = SDHelpers.GetTitles(sdProg.Titles, lang),
+                    Subtitle = SDHelpers.GetSubTitles(sdProg, lang),
+                    Desc = SDHelpers.GetDescriptions(sdProg, lang),
+                    Credits = SDHelpers.GetCredits(sdProg, lang),
+                    Category = SDHelpers.GetCategory(sdProg, lang),
+                    Language = lang,
+                    Episodenum = SDHelpers.GetEpisodeNums(sdProg, lang),
+                    Icon = SDHelpers.GetIcons(p, sdProg, sched, lang),
+                    Rating = SDHelpers.GetRatings(sdProg, lang, maxRatings),
+                    Video = SDHelpers.GetTvVideos(p),
+                    Audio = SDHelpers.GetTvAudios(p),
+                };
+
+                programmes.Add(programme);
+            }
+        }
+
+        memoryCache.SetSDProgreammesCache(programmes);
     }
 
     public async Task<LineupResult?> GetLineup(string lineup, CancellationToken cancellationToken)

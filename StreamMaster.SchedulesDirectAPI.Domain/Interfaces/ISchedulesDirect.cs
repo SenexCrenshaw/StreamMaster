@@ -8,7 +8,7 @@ public interface ISchedulesDirect
 
     Task<bool> RemoveLineup(string lineup, CancellationToken cancellationToken);
 
-    Task Sync(List<StationIdLineup> StationIdLineups, CancellationToken cancellationToken);
+    Task<bool> SDSync(List<StationIdLineup> StationIdLineups, CancellationToken cancellationToken);
 
     Task<Countries?> GetCountries(CancellationToken cancellationToken);
 

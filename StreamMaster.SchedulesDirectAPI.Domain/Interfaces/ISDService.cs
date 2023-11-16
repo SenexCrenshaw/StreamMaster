@@ -22,9 +22,9 @@ public interface ISDService
 
     Task<Countries?> GetCountries(CancellationToken cancellationToken);
 
-    Task SDSync(CancellationToken cancellationToken);
+    Task<bool> SDSync(CancellationToken cancellationToken);
 
-    Task<List<Programme>> GetProgrammes(int maxDays, int maxRatings, bool useLineupInName, CancellationToken cancellationToken);
+    List<Programme> GetProgrammes();
 
     Task<List<Schedule>?> GetSchedules(List<string> stationsIds, CancellationToken cancellationToken);
 

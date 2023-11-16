@@ -50,7 +50,7 @@ const VideoStreamAddDialog = ({ group, onClose }: VideoStreamAddDialogProperties
         onClose={() => {
           ReturnToParent();
         }}
-        overlayColSize={6}
+        overlayColSize={8}
         show={showOverlay}
       >
         <VideoStreamPanel group={group} onSave={async (e) => await onSave(e)} />

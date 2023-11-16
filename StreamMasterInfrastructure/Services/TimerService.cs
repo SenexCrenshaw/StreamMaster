@@ -9,6 +9,7 @@ using StreamMasterApplication.EPGFiles.Commands;
 using StreamMasterApplication.EPGFiles.Queries;
 using StreamMasterApplication.M3UFiles.Commands;
 using StreamMasterApplication.M3UFiles.Queries;
+using StreamMasterApplication.SchedulesDirectAPI.Commands;
 using StreamMasterApplication.Settings.Queries;
 
 using StreamMasterDomain.Cache;
@@ -78,7 +79,6 @@ public class TimerService(
         using IServiceScope scope = _serviceProvider.CreateScope();
         IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-
         IRepositoryWrapper repository = scope.ServiceProvider.GetRequiredService<IRepositoryWrapper>();
 
         //_logger.LogInformation("Timer Service is working.");
@@ -106,6 +106,8 @@ public class TimerService(
                 _ = await mediator.Send(new RefreshM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
             }
         }
+
+        await mediator.Send(new SDSync(), cancellationToken).ConfigureAwait(false);
 
         lock (Lock)
         {

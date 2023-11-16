@@ -11,6 +11,14 @@
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Services\SD\**" />
+    <Compile Remove="Statistics\**" />
+    <EmbeddedResource Remove="Services\SD\**" />
+    <EmbeddedResource Remove="Statistics\**" />
+    <None Remove="Services\SD\**" />
+    <None Remove="Statistics\**" />
+  </ItemGroup>
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
@@ -33,9 +41,5 @@
     <ProjectReference Include="..\StreamMaster.SchedulesDirectAPI.Services\StreamMaster.SchedulesDirectAPI.Services.csproj" />
     <ProjectReference Include="..\StreamMasterApplication\StreamMasterApplication.csproj" />
     <ProjectReference Include="..\StreamMasterInfrastructure.EF\StreamMasterInfrastructureEF.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Services\SD\" />
-    <Folder Include="Statistics\" />
   </ItemGroup>
 </Project>

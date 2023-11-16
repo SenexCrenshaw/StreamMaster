@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 
 using Microsoft.Extensions.Caching.Memory;
+
 using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Models;
 
@@ -123,6 +125,7 @@ public static class CacheKeys
     {
         cache.Remove(ListSDProgrammes);
     }
+
     public static void ClearProgrammes(this IMemoryCache cache)
     {
         cache.Remove(ListProgrammes);
@@ -132,79 +135,6 @@ public static class CacheKeys
     {
         cache.Remove(ListTVLogos);
     }
-
-    //public static string? GetEPGNameTvgName(this IMemoryCache cache, string User_Tvg_Name)
-    //{
-    //    IEnumerable<ProgrammeNameDto> programmeNames = cache.ProgrammeNames();
-
-    //    ProgrammeNameDto? pn = programmeNames.FirstOrDefault(a => a.DisplayName == User_Tvg_Name);
-    //    if (pn == null)
-    //    {
-    //        pn = programmeNames.FirstOrDefault(a => a.ChannelName == User_Tvg_Name);
-    //        if (pn == null)
-    //        {
-    //            return null;
-    //        }
-    //    }
-    //    return User_Tvg_Name;
-    //}
-
-    //public static string? GetEPGChannelLogoByTvgId(this IMemoryCache cache, string User_Tvg_ID)
-    //{
-    //    IEnumerable<ProgrammeNameDto> programmeNames = cache.ProgrammeNames();
-
-    //    List<ChannelLogoDto> channelLogos = cache.ChannelLogos();
-
-    //    ProgrammeNameDto? pn = programmeNames.FirstOrDefault(a => a.DisplayName == User_Tvg_ID);
-    //    if (pn == null)
-    //    {
-    //        pn = programmeNames.FirstOrDefault(a => a.Channel == User_Tvg_ID);
-    //        if (pn == null)
-    //        {
-    //            return null;
-    //        }
-    //    }
-
-    //    ChannelLogoDto? channelLogo = channelLogos.FirstOrDefault(a => a.EPGId == pn.Channel);
-    //    if (channelLogo != null)
-    //    {
-    //        return channelLogo.LogoUrl;
-    //    }
-    //    return null;
-    //}
-
-    //public static ProgrammeNameDto? GetEPGChannelByDisplayName(this IMemoryCache cache, string displayName)
-    //{
-
-    //    IEnumerable<ProgrammeNameDto> programmeNames = cache.ProgrammeNames();
-
-    //    ProgrammeNameDto? pn = programmeNames.FirstOrDefault(a => a.DisplayName == displayName);
-    //    if (pn == null)
-    //    {
-    //        pn = programmeNames.FirstOrDefault(a => a.ChannelName == displayName);
-    //        if (pn == null)
-    //        {
-    //            return programmeNames.FirstOrDefault(a => a.Channel == displayName); ;
-    //        }
-    //    }
-    //    return pn;
-    //}
-
-    //public static string? GetEPGChannelNameByDisplayName(this IMemoryCache cache, string displayName)
-    //{
-    //    IEnumerable<ProgrammeNameDto> programmeNames = cache.ProgrammeNames();
-
-    //    ProgrammeNameDto? pn = programmeNames.FirstOrDefault(a => a.DisplayName == displayName);
-    //    if (pn == null)
-    //    {
-    //        pn = programmeNames.FirstOrDefault(a => a.ChannelName == displayName);
-    //        if (pn == null)
-    //        {
-    //            return null;
-    //        }
-    //    }
-    //    return pn.Channel;
-    //}
 
     public static List<IconFileDto> GetIcons(this IMemoryCache cache, IMapper mapper)
     {
@@ -314,23 +244,6 @@ public static class CacheKeys
         return Get<IconFileDto>(ListProgrammesLogos, cache);
     }
 
-    //public static IEnumerable<ProgrammeNameDto> ProgrammeNames(this IMemoryCache cache)
-    //{
-    //    List<Programme> programmes = cache.Programmess().Where(a => !string.IsNullOrEmpty(a.Channel)).ToList();
-    //    if (programmes.Any())
-    //    {
-    //        IEnumerable<ProgrammeNameDto> ret = programmes.GroupBy(a => a.Channel).Select(group => group.First()).Select(a => new ProgrammeNameDto
-    //        {
-    //            Channel = a.Channel,
-    //            ChannelName = a.ChannelName,
-    //            DisplayName = a.DisplayName
-    //        });
-
-    //        return ret.OrderBy(a => a.DisplayName);
-    //    }
-    //    return new List<ProgrammeNameDto>();
-    //}
-
     public static ChannelGroupStreamCount? GetChannelGroupVideoStreamCount(this IMemoryCache cache, int channelGroupId)
     {
         ChannelGroupStreamCount? ret = cache.ChannelGroupStreamCounts().FirstOrDefault(a => a.ChannelGroupId == channelGroupId);
@@ -346,7 +259,8 @@ public static class CacheKeys
     {
         return Get<Programme>(ListSDProgrammes, cache);
     }
-    public static void SetSDProgreammesCache(this IMemoryCache cache, object data, TimeSpan? expiration = null)
+
+    public static bool SetSDProgreammesCache(this IMemoryCache cache, List<Programme> data, TimeSpan? expiration = null)
     {
         MemoryCacheEntryOptions CacheEntryOptions;
 
@@ -358,12 +272,17 @@ public static class CacheKeys
         {
             CacheEntryOptions = new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiration };
         }
-        cache.Set(ListSDProgrammes, data, CacheEntryOptions);
 
+        //if (!AreListsEqual(cache.SDProgrammess(), data))
+        //{
+        cache.Set(ListSDProgrammes, data, CacheEntryOptions);
+        return true;
+        //}
+        //return false;
     }
+
     public static void SetCache(this IMemoryCache cache, object data, TimeSpan? expiration = null)
     {
-
         MemoryCacheEntryOptions CacheEntryOptions;
 
         if (expiration == null)
@@ -374,8 +293,6 @@ public static class CacheKeys
         {
             CacheEntryOptions = new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiration };
         }
-
-
 
         if (data.GetType().GenericTypeArguments.Contains(typeof(IconFileDto)))
         {
