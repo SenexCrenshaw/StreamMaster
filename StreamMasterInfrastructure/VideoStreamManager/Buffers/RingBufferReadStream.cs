@@ -62,8 +62,13 @@ public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ILog
 
             if (availableBytes == 0)
             {
-                await Buffer.WaitSemaphoreAsync(_clientId, cancellationToken);
-                availableBytes = Buffer.GetAvailableBytes(_clientId);
+                    // await Buffer.WaitSemaphoreAsync(_clientId, cancellationToken);
+                    // logger.LogInformation("Going to wait on the buffer");
+               lock(Buffer) {
+                    Monitor.Wait(Buffer);
+                    availableBytes = Buffer.GetAvailableBytes(_clientId);
+                    // logger.LogInformation("Done waiting for the buffer: {availableBytes}", availableBytes);
+                }
             }
 
             int bytesToRead = Math.Min(buffer.Length - bytesRead, availableBytes);
@@ -83,12 +88,17 @@ public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ILog
 
         while (!cancellationToken.IsCancellationRequested && !_clientMasterToken.Token.IsCancellationRequested && bytesRead < count)
         {
-            availableBytes = Buffer.GetAvailableBytes(_clientId);
-
-            if (availableBytes == 0)
-            {
-                await Buffer.WaitSemaphoreAsync(_clientId, cancellationToken);
+            lock(Buffer) {
                 availableBytes = Buffer.GetAvailableBytes(_clientId);
+
+                if (availableBytes == 0)
+                {
+                    // await Buffer.WaitSemaphoreAsync(_clientId, cancellationToken);
+                    logger.LogInformation("Going to wait on the buffer");
+                    Monitor.Wait(Buffer);
+                    availableBytes = Buffer.GetAvailableBytes(_clientId);
+                    logger.LogInformation("Done waiting for the buffer: {availableBytes}", availableBytes);
+                }
             }
 
             int bytesToRead = Math.Min(count - bytesRead, availableBytes);

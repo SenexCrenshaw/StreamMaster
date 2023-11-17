@@ -154,8 +154,10 @@ public class CircularRingBuffer : ICircularRingBuffer
             return true;
         }
 
-        int dataInBuffer = (_writeIndex - _oldestDataIndex + _buffer.Length) % _buffer.Length;
+        int dataInBuffer = _oldestDataIndex > 0 ? _buffer.Length : _writeIndex;
+        _logger.LogInformation("Data in buffer: {dataInBuffer}", dataInBuffer);
         float percentBuffered = (float)dataInBuffer / _buffer.Length * 100;
+        _logger.LogInformation("Percent buffered: {percentBuffered}", percentBuffered);
 
         InternalIsPreBuffered = percentBuffered >= _preBuffPercent;
 
@@ -211,10 +213,11 @@ public class CircularRingBuffer : ICircularRingBuffer
 
     public async Task<int> ReadChunkMemory(Guid clientId, Memory<byte> target, CancellationToken cancellationToken)
     {
-        _logger.LogDebug("Starting ReadChunkMemory for clientId: {clientId}", clientId);
+        // _logger.LogInformation("Starting ReadChunkMemory for clientId: {clientId}", clientId);
 
         while (!IsPreBuffered())
         {
+            _logger.LogInformation("Not pre buffered");
             await Task.Delay(50, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
         }
@@ -225,23 +228,28 @@ public class CircularRingBuffer : ICircularRingBuffer
             return 0; // or throw new Exception($"Client {clientId} not found");
         }
 
-        int bytesToRead = Math.Min(target.Length, GetAvailableBytes(clientId));
-        int bytesRead = 0;
-        while (bytesToRead > 0)
-        {
-            // Calculate how much we can read before we have to wrap
-            int canRead = Math.Min(bytesToRead, _buffer.Length - readIndex);
+        // _logger.LogInformation("About to lock for read");
+        lock(this) {
+            // _logger.LogInformation("Locked for read");
+            int bytesToRead = Math.Min(target.Length, GetAvailableBytes(clientId));
+            int bytesRead = 0;
+            while (bytesToRead > 0)
+            {
+                // _logger.LogInformation("{bytesToRead} more bytes to read", bytesToRead);
+                // Calculate how much we can read before we have to wrap
+                int canRead = Math.Min(bytesToRead, _buffer.Length - readIndex);
 
-            // Create a slice from the readIndex to the end of what we can read
-            Memory<byte> slice = _buffer.Slice(readIndex, canRead);
+                // Create a slice from the readIndex to the end of what we can read
+                Memory<byte> slice = _buffer.Slice(readIndex, canRead);
 
-            // Copy to the target buffer
-            slice.CopyTo(target.Slice(bytesRead, canRead));
+                // Copy to the target buffer
+                slice.CopyTo(target.Slice(bytesRead, canRead));
 
-            // Update readIndex and bytesToRead
-            readIndex = (readIndex + canRead) % _buffer.Length;
-            bytesRead += canRead;
-            bytesToRead -= canRead;
+                // Update readIndex and bytesToRead
+                readIndex = (readIndex + canRead) % _buffer.Length;
+                bytesRead += canRead;
+                bytesToRead -= canRead;
+            }
         }
 
         _clientReadIndexes[clientId] = readIndex;
@@ -312,6 +320,7 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         SemaphoreSlim semaphore = _clientSemaphores[clientId];
         await semaphore.WaitAsync(50, cancellationToken);
+        // _logger.LogInformation("WaitSemaphoreAsync semaphore acquired = {gotIt}", gotIt);
 
         _logger.LogDebug("WaitSemaphoreAsync for clientId: {clientId}", clientId);
     }
@@ -351,30 +360,53 @@ public class CircularRingBuffer : ICircularRingBuffer
         int bytesWritten = 0;
         Span<byte> dataSpan = data.Span;
 
-        for (int i = 0; i < data.Length; i++)
-        {
-            int nextWriteIndex = (_writeIndex + 1) % _buffer.Length;
+        // for (int i = 0; i < data.Length; i++)
+        // {
+        //     int nextWriteIndex = (_writeIndex + 1) % _buffer.Length;
 
-            if (nextWriteIndex == _oldestDataIndex)
-            {
-                _oldestDataIndex = (_oldestDataIndex + 1) % _buffer.Length;
+        //     if (nextWriteIndex == _oldestDataIndex)
+        //     {
+        //         _oldestDataIndex = (_oldestDataIndex + 1) % _buffer.Length;
+        //     }
+
+        //     _buffer.Span[_writeIndex] = dataSpan[i];
+        //     _writeIndex = nextWriteIndex;
+        //     bytesWritten++;
+        // }
+        // _logger.LogInformation("Writing {num} bytes to the buffer", data.Length);
+        lock(this) {
+            if(_writeIndex + data.Length > _buffer.Length) {
+                int write1Length = _buffer.Length - _writeIndex;
+                int write2Length = data.Length - write1Length;
+
+                data[..write1Length].CopyTo(_buffer[_writeIndex..]);
+                data[write1Length..].CopyTo(_buffer[..write2Length]);
+
+                _oldestDataIndex = write2Length;
+                // _logger.LogInformation("Need to wrap the data {start1}-{end1} then 0-{end2}; oldest = {_oldestDataIndex}", _writeIndex, _buffer.Length, write2Length, _oldestDataIndex);
             }
-
-            _buffer.Span[_writeIndex] = dataSpan[i];
-            _writeIndex = nextWriteIndex;
-            bytesWritten++;
+            else {
+                data.CopyTo(_buffer.Slice(_writeIndex, data.Length));
+                if(_oldestDataIndex >= _writeIndex) {
+                    _oldestDataIndex = (_oldestDataIndex + data.Length) % _buffer.Length;
+                }
+                // _logger.LogInformation("Continuous write to buffer {start}-{end}; oldest = {_oldestDataIndex}", _writeIndex, _writeIndex+data.Length, _oldestDataIndex);
+            }
+            _writeIndex = (_writeIndex + data.Length) % _buffer.Length;
+            Monitor.PulseAll(this);
         }
+        bytesWritten += data.Length;
 
         _inputStreamStatistics.AddBytesWritten(bytesWritten);
 
-        try
-        {
-            ReleaseSemaphores();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An error occurred while releasing semaphores during WriteChunk for {VideoStreamId}.", VideoStreamId);
-        }
+        // try
+        // {
+        //     ReleaseSemaphores();
+        // }
+        // catch (Exception ex)
+        // {
+        //     _logger.LogError(ex, "An error occurred while releasing semaphores during WriteChunk for {VideoStreamId}.", VideoStreamId);
+        // }
 
         _logger.LogDebug("WriteChunk completed with {VideoStreamId} count: {data.Length}", VideoStreamId, data.Length);
 
