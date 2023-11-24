@@ -19,6 +19,7 @@ public class ChannelManager(
     IServiceProvider serviceProvider
     ) : IChannelManager
 {
+
     private readonly SemaphoreSlim _registerSemaphore = new(1, 1);
     private readonly SemaphoreSlim _unregisterSemaphore = new(1, 1);
 
@@ -47,7 +48,6 @@ public class ChannelManager(
 
         return;
     }
-
     public void Dispose()
     {
         broadcastService.StopBroadcasting();
@@ -59,10 +59,23 @@ public class ChannelManager(
         clientStreamerManager.FailClient(clientId);
     }
 
-    public async Task<Stream?> GetStream(IClientStreamerConfiguration config)
+    public async Task<Stream?> GetChannel(IClientStreamerConfiguration config)
     {
+        if (config.ClientMasterToken.IsCancellationRequested)
+        {
+            logger.LogInformation("Exiting GetChannel due to ClientMasterToken being cancelled");
+            return null;
+        }
+
+        Stream? res = await RegisterClientAndGetStream(config);
+        if (res is null)
+        {
+            logger.LogInformation("Exiting GetChannel due to RegisterClient returning null");
+            return null;
+        }
+
         broadcastService.StartBroadcasting();
-        return await RegisterClient(config);
+        return res;
     }
 
     public async Task RemoveClient(IClientStreamerConfiguration config)
@@ -135,8 +148,8 @@ public class ChannelManager(
                     if (quit)
                     {
                         logger.LogDebug("Exiting ChannelWatcher loop due to quit condition for channel: {VideoStreamId}", channelStatus.CurrentVideoStreamId);
-                        ChannelWatcherToken.Cancel();
-                        break;
+                        //ChannelWatcherToken.Cancel();
+                        continue;
                     }
                 }
                 if (channelService.GetChannelStatuses().Count == 0)
@@ -145,7 +158,7 @@ public class ChannelManager(
                     ChannelWatcherToken.Cancel();
                     break;
                 }
-                await ChannelWatcherToken.Token.ApplyDelay(50);
+                await ChannelWatcherToken.Token.ApplyDelay(25);
             }
         }
         catch (TaskCanceledException)
@@ -192,32 +205,33 @@ public class ChannelManager(
     private async Task<bool> ProcessStreamStatus(IChannelStatus channelStatus)
     {
         IStreamHandler? streamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStreamId);
-        if (streamHandler is null)
+        //if (streamHandler is null)
+        //{
+        //    return true;
+        //}
+
+        if (streamHandler?.VideoStreamingCancellationToken.IsCancellationRequested == false)
         {
-            return true;
+            return false;
         }
 
-        if (streamHandler.VideoStreamingCancellationToken.IsCancellationRequested)
+
+        logger.LogDebug("Video Streaming cancellation requested for channelStatus: {channelStatus}, stopping stream and attempting to handle next video stream", channelStatus.ChannelVideoStreamId);
+
+        try
         {
-            logger.LogDebug("Video Streaming cancellation requested for channelStatus: {channelStatus}, stopping stream and attempting to handle next video stream", channelStatus.ChannelVideoStreamId);
-
-            try
-            {
-                bool handled = await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
-                logger.LogDebug("ProcessStreamStatus handled: {handled} after stopping streaming and handling next video stream", handled);
-                return !handled;
-            }
-            catch (TaskCanceledException)
-            {
-                logger.LogInformation("Task was cancelled");
-                throw;
-            }
+            bool handled = await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
+            logger.LogDebug("ProcessStreamStatus handled: {handled} after stopping streaming and handling next video stream", handled);
+            return !handled;
         }
-
-        return false;
+        catch (TaskCanceledException)
+        {
+            logger.LogInformation("Task was cancelled");
+            throw;
+        }
     }
 
-    private async Task<Stream?> RegisterClient(IClientStreamerConfiguration config)
+    private async Task<Stream?> RegisterClientAndGetStream(IClientStreamerConfiguration config)
     {
         IChannelStatus? channelStatus = await RegisterWithChannelManager(config);
         if (channelStatus is null || config.ReadBuffer is null)
@@ -232,6 +246,7 @@ public class ChannelManager(
 
     private async Task<IChannelStatus?> RegisterWithChannelManager(IClientStreamerConfiguration config)
     {
+
         await _registerSemaphore.WaitAsync();
         try
         {
@@ -241,7 +256,7 @@ public class ChannelManager(
 
             if (channelStatus == null)
             {
-                logger.LogError("Failed to register with channel manager.");
+                logger.LogError("Failed to register with channel manager. channelStatus is null");
                 channelService.UnregisterChannel(config.ChannelVideoStreamId);
                 return null;
             }
@@ -250,7 +265,7 @@ public class ChannelManager(
 
             if (streamHandler == null)
             {
-                logger.LogError("Failed to register with channel manager.");
+                logger.LogError("Failed to register with channel manager. streamHandler is null");
                 channelService.UnregisterChannel(config.ChannelVideoStreamId);
                 return null;
             }
@@ -319,7 +334,7 @@ public class ChannelManager(
         {
             if (!channelService.HasChannel(config.ChannelVideoStreamId))
             {
-                logger.LogDebug("Exiting UnRegisterWithChannelManager due to VideoStreamId not found in _channelStatuses");
+                logger.LogDebug("UnRegisterWithChannelManager finished early, VideoStreamId not found in _channelStatuses");
                 return;
             }
 
