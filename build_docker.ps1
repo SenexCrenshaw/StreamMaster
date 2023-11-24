@@ -1,41 +1,80 @@
 param (
-    [switch]$buildProd
-    # Add $branchName parameter if needed
+    [switch]$buildProd,
+    [switch]$printCommands
 )
+
+$env:DOCKER_BUILDKIT = 1
+$env:COMPOSE_DOCKER_CLI_BUILD = 1
 
 # Define the base image name
 $imageName = "docker.io/senexcrenshaw/streammaster"
 
-# Generate version tags using dotnet-gitversion
-$semVer = dotnet gitversion /showvariable FullSemVer
-$buildMetaDataPadded = dotnet gitversion /showvariable CommitsSinceVersionSourcePadded
+$gitVersion = "dotnet-gitversion"
+&$gitVersion /updateAssemblyInfo | Out-Null
 
-if ($buildProd) {
-    $tag = "latest"
-} else {
-    # Define or pass $branchName correctly
-    $tag = "$branchName-$semVer-$buildMetaDataPadded"
+$json = &$gitVersion /output json | Out-String
+$obj = $json | ConvertFrom-Json 
+$semVer = $obj.SemVer
+$buildMetaDataPadded = $obj.AssemblySemVer
+$branchName = $obj.BranchName
+
+# Set the tag based on the build type
+
+# Multiple tags
+$tags = if ($BuildProd) {
+    "${imageName}:latest",
+    "${imageName}:$semVer",
+    "${imageName}:$buildMetaDataPadded"
+}
+else {
+    "${imageName}:$branchName-$semVer-$buildMetaDataPadded"  
 }
 
-# Build and tag for linux/amd64
-docker build --platform linux/amd64 -t "${imageName}:$tag" .
+Write-Output "Tags to be used:"
+$tags | ForEach-Object { Write-Output $_ }
 
-# Build and tag for linux/arm64
-docker build --platform linux/arm64 -t "${imageName}:$tag-arm64" .
+if ($printCommands) {
+    $buildCommand = "docker buildx build --platform ""linux/amd64,linux/arm64"" -f ./Dockerfile . --push " + ($tags | ForEach-Object { "--tag=$_" })
+    Write-Output "Build Command: $buildCommand"
+}
+# Show the build command if either PrintOnly or DebugLog is set
 
-# Push the images
-docker push "${imageName}:latest"
-docker push "${imageName}:$semVer"
-docker push "${imageName}:$buildMetaDataPadded"
-docker push "${imageName}:latest-arm64"
-docker push "${imageName}:$semVer-arm64"
-docker push "${imageName}:$buildMetaDataPadded-arm64"
+# Capture the start time
+$startTime = Get-Date
 
-# Create and push the manifest
-docker manifest create "${imageName}:latest" --amend "${imageName}:latest" --amend "${imageName}:latest-arm64"
-docker manifest create "${imageName}:$semVer" --amend "${imageName}:$semVer" --amend "${imageName}:$semVer-arm64"
-docker manifest create "${imageName}:$buildMetaDataPadded" --amend "${imageName}:$buildMetaDataPadded" --amend "${imageName}:$buildMetaDataPadded-arm64"
+# Initialize line counter
+$lineCounter = 0
 
-docker manifest push "${imageName}:latest"
-docker manifest push "${imageName}:$semVer"
-docker manifest push "${imageName}:$buildMetaDataPadded"
+# Prefix for the dots
+Write-Host -NoNewline "Building Image "
+
+# Skip build process if PrintOnly flag is set
+if ($printCommands) {
+    Write-Output "PrintOnly flag is set. Exiting without building."
+    exit
+}
+
+# Run the build and push operation, displaying a dot for every 10 lines of output
+try {
+    docker buildx build --platform "linux/amd64,linux/arm64" -f ./Dockerfile . --push $(foreach ($tag in $tags) { "--tag=$tag" }) 2>&1 | ForEach-Object {
+        if ($DebugLog) {
+            $_ # Output the line for logging purposes if DebugLog flag is set
+        }
+        $lineCounter++
+        if ($lineCounter % 10 -eq 0) {
+            Write-Host -NoNewline "."
+        }
+    }
+}
+catch {
+    Write-Error "Docker build failed with error: $_"
+    exit 1
+}
+
+# Capture the end time
+$endTime = Get-Date
+
+# Calculate the total time taken
+$overallTime = $endTime - $startTime
+
+Write-Output "`nOverall time taken: $($overallTime.TotalSeconds) seconds"

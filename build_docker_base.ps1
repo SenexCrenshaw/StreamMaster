@@ -3,11 +3,18 @@ param (
     [switch]$printCommands
 )
 
+$env:DOCKER_BUILDKIT = 1
+$env:COMPOSE_DOCKER_CLI_BUILD = 1
+
 # Define the base image name
 $imageName = "docker.io/senexcrenshaw/streammaster_base"
 
-# Generate version tags using dotnet-gitversion
-$buildMetaDataPadded = dotnet gitversion /showvariable CommitsSinceVersionSourcePadded
+$gitVersion = "dotnet-gitversion"
+&$gitVersion /updateAssemblyInfo | Out-Null
+
+$json = &$gitVersion /output json | Out-String
+$obj = $json | ConvertFrom-Json 
+$buildMetaDataPadded = $obj.AssemblySemVer
 
 # Set the tag based on the build type
 if ($buildProd) {
@@ -27,17 +34,16 @@ Add-Type -AssemblyName System.Management.Automation
 # Function to create and start a runspace
 function ExecuteOrPrint {
     param([string]$command)
-    
-    # Print mode
+
+    write-host $command 
     if ($printCommands) {
-        write-host $command 
         return $null
     }
-    write-host $command 
+
     # Create a PowerShell instance and add the script
     $powershell = [powershell]::Create().AddScript({
             param($cmd)
-            Invoke-Expression $cmd
+            Invoke-Expression $cmd 2>&1 | ForEach-Object { Write-Host $_ }
         }).AddArgument($command)
 
     # Create the runspace and begin execution
@@ -47,6 +53,7 @@ function ExecuteOrPrint {
     $asyncResult = $powershell.BeginInvoke()
     return @{ PowerShell = $powershell; AsyncResult = $asyncResult }
 }
+
 
 # Execute, print, or run the commands in parallel
 $amd64Job = ExecuteOrPrint -command $amd64Command
@@ -83,13 +90,19 @@ if (-not $printCommands) {
 }
 
 # Create and push the manifest
+$rmManifestCommand1 = "docker manifest rm ""${imageName}:${tag}"""
 $manifestCommand1 = "docker manifest create ""${imageName}:${tag}"" --amend ""${imageName}:${tag}-amd64"" --amend ""${imageName}:${tag}-arm64"""
 $manifestCommand2 = "docker manifest push ""${imageName}:${tag}"""
 
+$rmManifestJob = ExecuteOrPrint -command $rmManifestCommand1
 $manifestJob1 = ExecuteOrPrint -command $manifestCommand1
 $manifestJob2 = ExecuteOrPrint -command $manifestCommand2
 
 if (-not $printCommands) {
+    $rmManifestJob.PowerShell.EndInvoke($rmManifestJob.AsyncResult)
+    $rmManifestJob.PowerShell.Runspace.Close()
+    $rmManifestJob.PowerShell.Dispose()
+
     $manifestJob1.PowerShell.EndInvoke($manifestJob1.AsyncResult)
     $manifestJob2.PowerShell.EndInvoke($manifestJob2.AsyncResult)
 

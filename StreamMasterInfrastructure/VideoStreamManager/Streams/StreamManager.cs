@@ -43,7 +43,7 @@ public class StreamManager(
             return null;
         }
 
-        StreamHandler streamHandler = new(videoStreamDto.User_Url, videoStreamDto.Id, processId, streamHandlerlogger, ringBuffer, clientStreamerManager, cancellationTokenSource);
+        StreamHandler streamHandler = new(videoStreamDto.User_Url, videoStreamDto.Id, videoStreamDto.User_Tvg_name, processId, streamHandlerlogger, ringBuffer, clientStreamerManager, cancellationTokenSource);
 
         _ = streamHandler.StartVideoStreamingAsync(stream, ringBuffer);
 
@@ -64,7 +64,7 @@ public class StreamManager(
     {
         if (!_streamHandlers.TryGetValue(videoStreamDto.Id, out IStreamHandler? streamHandler))
         {
-            logger.LogInformation("Creating new handler for stream: {Id}", videoStreamDto.Id);
+            logger.LogInformation("Creating new handler for stream: {Id} {name}", videoStreamDto.Id, videoStreamDto.User_Tvg_name);
             streamHandler = await CreateStreamHandler(videoStreamDto, rank, cancellation);
             if (streamHandler == null)
             {
@@ -74,7 +74,7 @@ public class StreamManager(
             return streamHandler;
         }
 
-        logger.LogInformation("Reusing handler for stream: {Id}", videoStreamDto.Id);
+        logger.LogInformation("Reusing handler for stream: {Id} {name}", videoStreamDto.Id, videoStreamDto.User_Tvg_name);
         return streamHandler;
     }
 
@@ -98,12 +98,12 @@ public class StreamManager(
         return _streamHandlers.Values.ToList();
     }
 
-    public void MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler)
+    public void MoveClientStreamers(IEnumerable<Guid> cliendIds, IStreamHandler newStreamHandler)
     {
-        clientStreamerManager.MoveClientStreamers(oldStreamHandler, newStreamHandler);
+        clientStreamerManager.MoveClientStreamers(cliendIds, newStreamHandler);
         //if (oldStreamHandler.ClientCount == 0)
         //{
-        StopAndUnRegisterHandler(oldStreamHandler.VideoStreamId);
+        StopAndUnRegisterHandler(newStreamHandler.VideoStreamId);
         //}
     }
 
@@ -121,7 +121,6 @@ public class StreamManager(
     {
         if (_streamHandlers.TryRemove(VideoStreamId, out IStreamHandler? streamHandler))
         {
-            logger.LogWarning("Stopping stream of {VideoStreamId}", VideoStreamId);
             streamHandler.Stop();
             return true;
         }

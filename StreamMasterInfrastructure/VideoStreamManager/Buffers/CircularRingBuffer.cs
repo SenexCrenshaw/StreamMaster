@@ -62,7 +62,7 @@ public class CircularRingBuffer : ICircularRingBuffer
         _buffer = new byte[_bufferSize];
         _writeIndex = 0;
         _oldestDataIndex = 0;
-        logger.LogInformation("New Circular Buffer {Id} for stream {videoStreamId}", Id, videoStreamDto.Id);
+        logger.LogInformation("New Circular Buffer {Id} for stream {videoStreamId} {name}", Id, videoStreamDto.Id, videoStreamDto.User_Tvg_name);
     }
 
     public Guid Id { get; } = Guid.NewGuid();

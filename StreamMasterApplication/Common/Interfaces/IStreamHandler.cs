@@ -60,4 +60,6 @@ public interface IStreamHandler : IDisposable
     /// </summary>
     /// <returns>A collection of client streamer configurations; null if none found.</returns>
     ICollection<IClientStreamerConfiguration>? GetClientStreamerConfigurations();
+
+    IEnumerable<Guid> GetClientStreamerClientIds();
 }

@@ -41,7 +41,7 @@ public interface IStreamManager
     ///// </summary>
     ///// <returns>A collection of IStreamHandler objects.</returns>
     //ICollection<IStreamHandler> GetStreamHandlers();
-    void MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler);
+    void MoveClientStreamers(IEnumerable<Guid> cliendIds, IStreamHandler newStreamHandler);
     /// <summary>
     /// Retrieves all stream handlers.
     /// </summary>

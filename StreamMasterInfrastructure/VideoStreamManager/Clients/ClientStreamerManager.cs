@@ -12,18 +12,18 @@ public class ClientStreamerManager(ILogger<ClientStreamerManager> logger, ILogge
 {
     private readonly ConcurrentDictionary<Guid, IClientStreamerConfiguration> clientStreamerConfigurations = new();
 
-    public void MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler)
+    public void MoveClientStreamers(IEnumerable<Guid> ClientIds, IStreamHandler newStreamHandler)
     {
-        ICollection<IClientStreamerConfiguration>? oldConfigs = oldStreamHandler.GetClientStreamerConfigurations();
+        //ICollection<IClientStreamerConfiguration>? oldConfigs = oldStreamHandler.GetClientStreamerConfigurations();
 
-        if (oldConfigs == null)
+        if (!ClientIds.Any())
         {
             return;
         }
 
-        foreach (Guid clientId in oldConfigs.Select(a => a.ClientId))
+        foreach (Guid clientId in ClientIds)
         {
-            oldStreamHandler.UnRegisterClientStreamer(clientId);
+            //oldStreamHandler.UnRegisterClientStreamer(clientId);
             newStreamHandler.RegisterClientStreamer(clientId);
         }
     }

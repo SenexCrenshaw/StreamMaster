@@ -1,10 +1,9 @@
-ARG FFMPEG_BASE_IMAGE_TAG
 FROM nvidia/cuda:12.3.0-base-ubuntu22.04 as base
 ARG TARGETPLATFORM
 ARG TARGETARCH
 ARG BUILDPLATFORM
 
-FROM senexcrenshaw/streammaster_base:${FFMPEG_BASE_IMAGE_TAG} AS ffmpeg
+FROM senexcrenshaw/streammaster_base:latest AS ffmpeg
 
 WORKDIR /app
 EXPOSE 7095
@@ -25,6 +24,9 @@ COPY . .
 
 WORKDIR "/src/StreamMasterAPI"
 RUN dotnet build "StreamMasterAPI.csproj" -c Debug -o /app/build -a $TARGETARCH
+
+WORKDIR /src/streammasterwebui
+COPY ["streammasterwebui/", "."]
 RUN mkdir -p /etc/apt/keyrings
 RUN apt-get update -yq \
     && apt-get upgrade -yq \
@@ -34,9 +36,6 @@ RUN apt-get update -yq \
     && apt-get update && apt-get install -yq --no-install-recommends nodejs build-essential \
     && rm -rf /var/lib/apt/lists/* \
     && update-ca-certificates
-
-WORKDIR /src/streammasterwebui
-COPY ["streammasterwebui/", "."]
 RUN npm install \
     && npm run build \
     && cp -r dist/* /src/StreamMasterAPI/wwwroot/
@@ -48,7 +47,6 @@ ARG TARGETARCH
 ARG BUILDPLATFORM
 
 RUN dotnet publish --no-restore "StreamMasterAPI.csproj" -c Debug -o /app/publish /p:UseAppHost=false -a $TARGETARCH
-
 
 
 FROM base AS final
@@ -68,11 +66,12 @@ ENV STREAMMASTER_BASEHOSTURL=http://localhost:7095/
 ENV PUID=0
 ENV PGID=0
 RUN apt-get update -yq && \
-    apt-get install -yq aspnetcore-runtime-7.0
-COPY --from=publish /app/publish .
-COPY --from=ffmpeg /usr/local/bin/ffmpeg /bin/ffmpeg
+    apt-get install -yq aspnetcore-runtime-7.0 gosu
 
+COPY --from=publish /app/publish .
+COPY --from=ffmpeg /usr/bin/ffmpeg /usr/bin/ffmpeg
 COPY entrypoint.sh /entrypoint.sh
+
 RUN chmod +x /entrypoint.sh
 RUN mkdir /config
 
