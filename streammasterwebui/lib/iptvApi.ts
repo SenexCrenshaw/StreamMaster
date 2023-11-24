@@ -13,6 +13,7 @@ export const addTagTypes = [
   'StreamGroupChannelGroup',
   'StreamGroups',
   'StreamGroupVideoStreams',
+  'Test',
   'VideoStreamLinks',
   'VideoStreams'
 ] as const;
@@ -512,6 +513,10 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/streamgroupvideostreams/setstreamgroupvideostreamchannelnumbers`, method: 'PATCH', body: queryArg }),
         invalidatesTags: ['StreamGroupVideoStreams']
       }),
+      testSdSync: build.mutation<TestSdSyncApiResponse, TestSdSyncApiArg>({
+        query: () => ({ url: `/api/test/sdsync`, method: 'PUT' }),
+        invalidatesTags: ['Test']
+      }),
       videoStreamLinksAddVideoStreamToVideoStream: build.mutation<
         VideoStreamLinksAddVideoStreamToVideoStreamApiResponse,
         VideoStreamLinksAddVideoStreamToVideoStreamApiArg
@@ -979,6 +984,8 @@ export type StreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteApiResponse
 export type StreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteApiArg = SyncVideoStreamToStreamGroupRequest;
 export type StreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersApiResponse = unknown;
 export type StreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersApiArg = SetStreamGroupVideoStreamChannelNumbersRequest;
+export type TestSdSyncApiResponse = /** status 200  */ boolean;
+export type TestSdSyncApiArg = void;
 export type VideoStreamLinksAddVideoStreamToVideoStreamApiResponse = unknown;
 export type VideoStreamLinksAddVideoStreamToVideoStreamApiArg = AddVideoStreamToVideoStreamRequest;
 export type VideoStreamLinksGetVideoStreamVideoStreamIdsApiResponse = /** status 200  */ string[];
@@ -1562,18 +1569,34 @@ export type SdProgram = {
   duration?: number | null;
   audience?: string;
 };
+export type Rating = {
+  body?: string;
+  code?: string;
+  subRating?: string;
+};
+export type Multipart = {
+  partNumber?: number;
+  totalParts?: number;
+};
 export type Program = {
   programID?: string;
   airDateTime?: string;
   duration?: number;
+  hash?: string;
   md5?: string;
   audioProperties?: string[];
-  videoProperties?: string[];
+  ratings?: Rating[];
   new?: boolean | null;
-  liveTapeDelay?: string;
-  educational?: boolean | null;
   isPremiereOrFinale?: string;
+  multipart?: Multipart;
+  SAPLanguage?: string;
   premiere?: boolean | null;
+  liveTapeDelay?: string;
+  repeat?: boolean | null;
+  subtitledLanguage?: string;
+  videoProperties?: string[];
+  educational?: boolean | null;
+  joinedInProgress?: boolean | null;
 };
 export type ScheduleMetadata = {
   modified?: string;
@@ -2075,6 +2098,7 @@ export const {
   useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupPostMutation,
   useStreamGroupVideoStreamsSyncVideoStreamToStreamGroupDeleteMutation,
   useStreamGroupVideoStreamsSetStreamGroupVideoStreamChannelNumbersMutation,
+  useTestSdSyncMutation,
   useVideoStreamLinksAddVideoStreamToVideoStreamMutation,
   useVideoStreamLinksGetVideoStreamVideoStreamIdsQuery,
   useVideoStreamLinksGetPagedVideoStreamVideoStreamsQuery,
