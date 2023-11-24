@@ -70,8 +70,15 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
         }
 
         IStreamHandler? newStreamHandler = streamManager.GetStreamHandler(videoStreamDto.Id);
+        if (newStreamHandler is null)
+        {
+            channelStatus.FailoverInProgress = false;
+            logger.LogDebug("newStreamHandler is null");
 
-        if (oldStreamHandler is not null && newStreamHandler is not null)
+            return false;
+
+        }
+        if (oldStreamHandler is not null)
         {
             streamManager.MoveClientStreamers(oldStreamHandler, newStreamHandler);
         }
