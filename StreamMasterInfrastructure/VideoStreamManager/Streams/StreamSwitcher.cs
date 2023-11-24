@@ -17,21 +17,6 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Streams;
 
 public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService channelService, IServiceProvider serviceProvider, IMemoryCache memoryCache, IStreamManager streamManager) : IStreamSwitcher
 {
-    private async Task<bool> UpdateStreamHandler(IChannelStatus channelStatus, VideoStreamDto videoStreamDto)
-    {
-        try
-        {
-            IStreamHandler? handler = await streamManager.GetOrCreateStreamHandler(videoStreamDto, channelStatus.Rank);
-
-            return handler != null;
-        }
-        catch (TaskCanceledException)
-        {
-            logger.LogInformation("Task was cancelled");
-            throw;
-        }
-    }
-
     public async Task<bool> SwitchToNextVideoStreamAsync(string ChannelVideoStreamId, string? overrideNextVideoStreamId = null)
     {
         logger.LogDebug("Start SwitchToNextVideoStream {ChannelVideoStreamId}", ChannelVideoStreamId);
@@ -62,29 +47,24 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
             return false;
         }
 
-        if (!await UpdateStreamHandler(channelStatus, videoStreamDto))
-        {
-            logger.LogDebug("Exiting SwitchToNextVideoStream with false due to channelStatus.StreamInformation being null");
-            channelStatus.FailoverInProgress = false;
-            return false;
-        }
+        IStreamHandler? newStreamHandler = await streamManager.GetOrCreateStreamHandler(videoStreamDto, channelStatus.Rank);
 
-        IStreamHandler? newStreamHandler = streamManager.GetStreamHandler(videoStreamDto.Id);
         if (newStreamHandler is null)
         {
+            logger.LogDebug("Exiting SwitchToNextVideoStream with false due to channelStatus. newStreamHandler is null");
             channelStatus.FailoverInProgress = false;
-            logger.LogDebug("newStreamHandler is null");
-
             return false;
-
         }
+
         if (oldStreamHandler is not null)
         {
-            streamManager.MoveClientStreamers(oldStreamHandler, newStreamHandler);
+            streamManager.MoveClientStreamers(oldStreamHandler.GetClientStreamerClientIds(), newStreamHandler);
         }
         channelStatus.CurrentVideoStreamName = videoStreamDto.User_Tvg_name;
         channelStatus.CurrentVideoStreamId = videoStreamDto.Id;
         channelStatus.FailoverInProgress = false;
+
+
         logger.LogDebug("Finished SwitchToNextVideoStream");
 
         return true;
@@ -196,7 +176,7 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
                     continue;
                 }
             }
-            logger.LogDebug("Exiting FetchNextChildVideoStream with toReturn: {toReturn}", toReturn);
+            logger.LogDebug("Exiting FetchNextChildVideoStream with to Return: {Id} {Name}", toReturn.Id, toReturn.User_Tvg_name);
             channelStatus.CurrentVideoStreamId = toReturn.Id;
             channelStatus.CurrentVideoStreamName = toReturn.User_Tvg_name;
             return toReturn;
