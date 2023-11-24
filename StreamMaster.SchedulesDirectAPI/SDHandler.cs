@@ -10,9 +10,22 @@ public static class SDHandler
         string responseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
         SDHttpResponseCode responseCode = SDHttpResponseCode.UNKNOWN_ERROR;
 
-        if (!string.IsNullOrEmpty(responseContent))
+        try
         {
-            if (responseContent.Contains("serverID"))
+            T? result = JsonSerializer.Deserialize<T>(responseContent);
+            if (result != null)
+            {
+                return (response.StatusCode, SDHttpResponseCode.OK, responseContent, result);
+            }
+        }
+        catch (JsonException ex)
+        {
+            //Logger.LogWarning("Deserialization to type {Type} failed: {Message}", typeof(T).Name, ex.Message);
+        }
+
+        if (responseContent.Contains("serverID"))
+        {
+            try
             {
                 SDTokenResponse? responseObj = JsonSerializer.Deserialize<SDTokenResponse>(responseContent);
                 if (responseObj is not null)
@@ -24,12 +37,12 @@ public static class SDHandler
                     }
                 }
             }
-
-            T? result = JsonSerializer.Deserialize<T>(responseContent);
-            return (response.StatusCode, SDHttpResponseCode.OK, responseContent, result);
-
-
+            catch (JsonException ex)
+            {
+                //logger.LogWarning("Deserialization to SDTokenResponse failed: {Message}", ex.Message);
+            }
         }
+
         return (response.StatusCode, responseCode, responseContent, default(T?));
     }
 }

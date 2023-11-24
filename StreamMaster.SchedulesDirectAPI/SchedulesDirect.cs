@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using AutoMapper;
+
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain.Commands;
@@ -359,7 +361,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
                 return result;
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             return default;
         }
@@ -462,12 +464,12 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
 
     public async Task<List<Lineup>> GetLineups(CancellationToken cancellationToken)
     {
-        var res = await GetData<LineupsResult>(SDCommands.LineUps, cancellationToken).ConfigureAwait(false);
+        LineupsResult? res = await GetData<LineupsResult>(SDCommands.LineUps, cancellationToken).ConfigureAwait(false);
         if (res == null)
         {
             return new();
         }
-        var lineups = res.Lineups.Where(a => !a.IsDeleted).ToList();
+        List<Lineup> lineups = res.Lineups.Where(a => !a.IsDeleted).ToList();
         return lineups;
     }
 
@@ -574,7 +576,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
 
     public async Task<bool> AddLineup(string lineup, CancellationToken cancellationToken)
     {
-        var fetchedResults = await PutData($"lineups/{lineup}", cancellationToken).ConfigureAwait(false);
+        PutResponse? fetchedResults = await PutData($"lineups/{lineup}", cancellationToken).ConfigureAwait(false);
         if (fetchedResults == null)
         {
             return false;
@@ -585,7 +587,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
 
     public async Task<bool> RemoveLineup(string lineup, CancellationToken cancellationToken)
     {
-        var fetchedResults = await DeleteData($"lineups/{lineup}", cancellationToken).ConfigureAwait(false);
+        PutResponse? fetchedResults = await DeleteData($"lineups/{lineup}", cancellationToken).ConfigureAwait(false);
         if (fetchedResults == null)
         {
             return false;
@@ -597,8 +599,8 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
     public async Task<List<Schedule>> GetSchedules(List<string> stationIds, CancellationToken cancellationToken)
     {
         List<string> distinctStationIds = stationIds.Distinct().ToList();
-        List<Schedule> results = new();
-        List<StationId> stationIdsToFetch = new();
+        List<Schedule> results = [];
+        List<StationId> stationIdsToFetch = [];
 
         foreach (string? stationId in distinctStationIds)
         {
@@ -618,16 +620,23 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
             List<Schedule>? fetchedResults = await PostData<List<Schedule>>("schedules", stationIdsToFetch, cancellationToken).ConfigureAwait(false);
             if (fetchedResults == null)
             {
-                return new List<Schedule>();
+                return [];
             }
 
             foreach (IGrouping<string, Schedule> group in fetchedResults.GroupBy(s => s.StationID))
             {
                 string stationId = group.Key;
-                List<Schedule> schedulesForStation = group.ToList();
+                List<Schedule> schedulesForStation = [.. group];
                 await WriteToCacheAsync("StationId_" + stationId, schedulesForStation, cancellationToken).ConfigureAwait(false);
 
-                // Add the schedules to the results list
+                //// Add the schedules to the results list'
+                //foreach (Schedule t in schedulesForStation)
+                //{
+                //    //List<Schedule> schedulesForStations = Mapper.Map<List<Schedule>>(schedulesForStation);
+                //    results.AddRange(schedulesForStation);
+                //}
+
+                //List<Schedule> schedulesForStations = Mapper.Map<List<Schedule>>(schedulesForStation);
                 results.AddRange(schedulesForStation);
             }
         }
