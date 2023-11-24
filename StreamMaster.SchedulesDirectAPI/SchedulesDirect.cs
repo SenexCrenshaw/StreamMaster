@@ -217,7 +217,20 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
     {
         SDStatus status = await GetStatusInternal(cancellationToken);
 
-        return status?.systemStatus[0].status?.ToLower() == "online";
+        try
+        {
+            if (status.systemStatus.Any())
+            {
+                return status.systemStatus[0].status?.ToLower() == "online";
+            }
+            return false;
+        }
+        catch (Exception ex)
+        {
+
+        }
+        return false;
+
     }
 
     public async Task<SDStatus> GetStatus(CancellationToken cancellationToken)
