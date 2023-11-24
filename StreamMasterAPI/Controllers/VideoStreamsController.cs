@@ -155,7 +155,7 @@ public class VideoStreamsController : ApiControllerBase, IVideoStreamController
         ClientStreamerConfiguration config = new(videoStream.Id, Request.Headers["User-Agent"].ToString(), ipAddress ?? "unkown", cancellationToken);
 
         // Get the read stream for the client
-        Stream? stream = await _channelManager.GetStream(config);
+        Stream? stream = await _channelManager.GetChannel(config);
 
         HttpContext.Response.RegisterForDispose(new UnregisterClientOnDispose(_channelManager, config));
         if (stream != null)
