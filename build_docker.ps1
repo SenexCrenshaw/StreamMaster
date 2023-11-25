@@ -1,6 +1,7 @@
 param (
-    [switch]$buildProd,
-    [switch]$printCommands
+    [switch]$DebugLog,
+    [switch]$BuildProd,
+    [switch]$PrintCommands
 )
 
 $env:DOCKER_BUILDKIT = 1
@@ -34,7 +35,7 @@ Write-Output "Tags to be used:"
 $tags | ForEach-Object { Write-Output $_ }
 $buildCommand = "docker buildx build --platform ""linux/amd64,linux/arm64"" -f ./Dockerfile . --push " + ($tags | ForEach-Object { "--tag=$_" })
 
-if ($printCommands) {    
+if ($PrintCommands) {    
     Write-Output "Build Command: $buildCommand"
 }
 # Show the build command if either PrintOnly or DebugLog is set
@@ -49,7 +50,7 @@ $lineCounter = 0
 Write-Host -NoNewline "Building Image "
 
 # Skip build process if PrintOnly flag is set
-if ($printCommands) {
+if ($PrintCommands) {
     Write-Output "PrintOnly flag is set. Exiting without building."
     exit
 }

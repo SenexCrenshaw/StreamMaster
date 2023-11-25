@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMasterApplication.Common.Interfaces;
-
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Enums;
 using StreamMasterDomain.Services;
@@ -15,7 +13,7 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Factories;
 
 public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpClientFactory, ISettingsService settingsService) : IProxyFactory
 {
-    public async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl, CancellationToken cancellationToken)
+    public async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl, string streamName, CancellationToken cancellationToken)
     {
         Setting setting = await settingsService.GetSettingsAsync();
 
@@ -26,22 +24,22 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
         if (setting.StreamingProxyType == StreamingProxyTypes.FFMpeg)
         {
             (stream, processId, error) = await GetFFMpegStream(streamUrl);
-            LogErrorIfAny(stream, error, streamUrl);
+            LogErrorIfAny(stream, error, streamUrl, streamName);
         }
         else
         {
             (stream, processId, error) = await GetProxyStream(streamUrl, cancellationToken);
-            LogErrorIfAny(stream, error, streamUrl);
+            LogErrorIfAny(stream, error, streamUrl, streamName);
         }
 
         return (stream, processId, error);
     }
 
-    private void LogErrorIfAny(Stream? stream, ProxyStreamError? error, string streamUrl)
+    private void LogErrorIfAny(Stream? stream, ProxyStreamError? error, string streamUrl, string streamName)
     {
         if (stream == null || error != null)
         {
-            logger.LogError("Error getting proxy stream for {StreamUrl}: {ErrorMessage}", streamUrl, error?.Message);
+            logger.LogError("Error getting proxy stream for {StreamUrl} {streamName}: {ErrorMessage}", streamUrl, streamName, error?.Message);
         }
     }
 
@@ -118,7 +116,7 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
     private (Stream? stream, int processId, ProxyStreamError? error) HandleFFMpegStreamException<T>(ProxyStreamErrorCode errorCode, T exception) where T : Exception
     {
         ProxyStreamError error = new() { ErrorCode = errorCode, Message = exception.Message };
-        logger.LogError(exception, "GetFFMpegStream Error: ", error.Message);
+        logger.LogError(exception, "GetFFMpegStream Error: {message}", error.Message);
         return (null, -1, error);
     }
 
@@ -133,7 +131,7 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
             if (response?.IsSuccessStatusCode != true)
             {
                 ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = "Could not retrieve stream url" };
-                logger.LogError("GetProxyStream Error: ", error.Message);
+                logger.LogError("GetProxyStream Error: {message}", error.Message);
                 return (null, -1, error);
             }
 

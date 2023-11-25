@@ -38,11 +38,17 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
             return false;
         }
         IStreamHandler? oldStreamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStreamId);
+
         IEnumerable<Guid>? oldClientIds = null;
         if (oldStreamHandler is not null)
         {
             oldClientIds = oldStreamHandler.GetClientStreamerClientIds();
-            streamManager.StopAndUnRegisterHandler(oldStreamHandler.VideoStreamId);
+            if (oldStreamHandler.IsFailed)
+            {
+                logger.LogError("SwitchToNextVideoStream oldStreamHandler is failed for id {ChannelVideoStreamId}, oldStreamHandler is already failed", ChannelVideoStreamId);
+            }
+            oldStreamHandler.SetFailed();
+            //streamManager.StopAndUnRegisterHandler(oldStreamHandler.VideoStreamId);
         }
 
         VideoStreamDto? videoStreamDto = await RetrieveNextChildVideoStream(channelStatus, overrideNextVideoStreamId);
