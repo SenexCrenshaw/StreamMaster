@@ -38,6 +38,12 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
             return false;
         }
         IStreamHandler? oldStreamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStreamId);
+        IEnumerable<Guid>? oldClientIds = null;
+        if (oldStreamHandler is not null)
+        {
+            oldClientIds = oldStreamHandler.GetClientStreamerClientIds();
+            streamManager.StopAndUnRegisterHandler(oldStreamHandler.VideoStreamId);
+        }
 
         VideoStreamDto? videoStreamDto = await RetrieveNextChildVideoStream(channelStatus, overrideNextVideoStreamId);
         if (videoStreamDto is null)
@@ -56,9 +62,9 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
             return false;
         }
 
-        if (oldStreamHandler is not null)
+        if (oldClientIds is not null)
         {
-            streamManager.MoveClientStreamers(oldStreamHandler.GetClientStreamerClientIds(), newStreamHandler);
+            streamManager.MoveClientStreamers(oldClientIds, newStreamHandler);
         }
         channelStatus.CurrentVideoStreamName = videoStreamDto.User_Tvg_name;
         channelStatus.CurrentVideoStreamId = videoStreamDto.Id;
