@@ -8,18 +8,18 @@ public class ChannelService(IClientStreamerManager clientManager) : IChannelServ
 {
     private readonly ConcurrentDictionary<string, IChannelStatus> _channelStatuses = new();
 
-    public IChannelStatus RegisterChannel(string channelVideoStreamId, string videoStreamName)
+    public IChannelStatus RegisterChannel(string channelVideoStreamId, string videoStreamName, string channelName)
     {
         if (!_channelStatuses.TryGetValue(channelVideoStreamId, out IChannelStatus? channelStatus))
         {
-            channelStatus = new ChannelStatus(channelVideoStreamId, videoStreamName);
+            channelStatus = new ChannelStatus(channelVideoStreamId, videoStreamName, channelName);
             _channelStatuses.TryAdd(channelVideoStreamId, channelStatus);
         }
 
         return channelStatus;
     }
 
-    public void UnregisterChannel(string channelVideoStreamId)
+    public void UnRegisterChannel(string channelVideoStreamId)
     {
         _channelStatuses.TryRemove(channelVideoStreamId, out _);
     }

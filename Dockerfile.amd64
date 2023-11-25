@@ -1,0 +1,184 @@
+# Start with the NVIDIA base image.
+FROM nvidia/cuda:12.3.0-devel-ubuntu22.04
+
+# Ignore input prompts.
+ENV DEBIAN_FRONTEND noninteractive
+
+# Update NVIDIA keys and sources as required for the specific CUDA and Ubuntu version
+RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/3bf863cc.pub
+
+# Install necessary dependencies
+RUN apt-get update && apt-get install -y \
+    automake \
+    build-essential \
+    ca-certificates \
+    cmake \
+    curl \
+    fonts-liberation \
+    frei0r-plugins-dev \
+    git \
+    gnupg2 \
+    gpg \
+    libaom-dev \
+    libasound2 \
+    libass-dev \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libatspi2.0-0 \
+    libcaca-dev \
+    libcodec2-dev \
+    libchromaprint-dev \
+    libcups2 \
+    libdav1d-dev \
+    libfdk-aac-dev \
+    libgl-dev \
+    libgme-dev \
+    libgmp-dev \
+    libgnutls28-dev \
+    libgtk-3-0 \
+    libleptonica-dev \
+    libmfx-gen-dev \
+    libmp3lame-dev \
+    libmysofa-dev \
+    libnspr4 \
+    libnss3 \
+    libopencore-amrnb-dev \
+    libopencore-amrwb-dev \
+    libopus-dev \
+    libpng-dev \
+    librsvg2-dev \
+    librtmp-dev \
+    librubberband-dev \
+    libsmbclient-dev \
+    libsoxr-dev \
+    libspeex-dev \
+    libspeexdsp-dev \
+    libsrt-gnutls-dev \
+    libsvtav1enc-dev \
+    libtool \
+    libtheora-dev \
+    libu2f-udev \
+    libva-dev \
+    libvorbis-dev \
+    libvpl2 \
+    libvpl-dev \
+    libvpx-dev \
+    libvulkan1 \
+    libvidstab-dev \
+    libwebp-dev \
+    libxvidcore-dev \
+    libx264-dev \
+    libx265-dev \
+    libxcomposite1 \
+    libxdamage1 \
+    libzimg-dev \
+    libzmq3-dev \
+    libzvbi-dev \
+    nasm \
+    pkgconf \
+    unzip \
+    vim \
+    wget \
+    xdg-utils \
+    yasm \
+    zip \
+    zlib1g-dev
+
+# RUN curl -sL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+#     && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+#     && update-ca-certificates \
+#     && apt-get update && apt-get install -yq nodejs
+
+# Clone and install nv-codec-headers
+RUN git clone https://github.com/FFmpeg/nv-codec-headers.git && cd nv-codec-headers && git checkout n12.1.14.0 && make install && cd ..
+
+# Clone FFMPEG
+RUN git clone https://git.ffmpeg.org/ffmpeg.git
+RUN cd ffmpeg && git checkout n6.1 
+
+# SVT-AV1 Support
+RUN cd ffmpeg && \
+    git -C SVT-AV1 pull 2> /dev/null || git clone --depth 1 https://gitlab.com/AOMediaCodec/SVT-AV1.git && \
+    mkdir -p SVT-AV1/build && \
+    cd SVT-AV1/build && \
+    cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="/usr" -DCMAKE_BUILD_TYPE=Release -DBUILD_DEC=OFF -DBUILD_SHARED_LIBS=OFF .. && \
+    make -j$(nproc) && \
+    make install && \
+    ldconfig 
+
+# Tesseract
+RUN cd ffmpeg && git clone --depth 1  https://github.com/tesseract-ocr/tesseract.git && \
+    cd tesseract && \
+    ./autogen.sh && \
+    ./configure && \
+    make -j$(nproc) && \
+    make install && \
+    ldconfig 
+
+RUN cd ffmpeg && git checkout n6.1
+RUN cd ffmpeg && \
+    ./configure \
+    --fatal-warnings \
+    --disable-ffplay \
+    --enable-gpl \
+    --enable-gnutls \
+    --enable-nonfree \
+    --enable-hardcoded-tables \
+    --enable-libtesseract \
+    --enable-chromaprint \
+    --enable-frei0r \
+    --enable-gmp \
+    --enable-libaom \
+    --enable-libass \
+    --enable-libcaca \
+    --enable-libcodec2 \
+    --enable-libdav1d \
+    --enable-libfdk-aac \
+    --enable-libfontconfig \
+    --enable-libfreetype \
+    --enable-libgme \
+    --enable-libmp3lame \
+    --enable-libmysofa \
+    --enable-version3 --enable-libopencore-amrnb \
+    --enable-libopencore-amrwb \
+    --enable-libopus \
+    --enable-librsvg \
+    --enable-librubberband \
+    --enable-librtmp \
+    --enable-libsmbclient \
+    --enable-libsoxr \
+    --enable-libspeex \
+    --enable-libsrt \
+    --enable-libsvtav1 \
+    --enable-libtheora \
+    --enable-libvidstab \
+    --enable-libvorbis \
+    --enable-libvpx \
+    --enable-libwebp \
+    --enable-libx264 \
+    --enable-libx265 \
+    --enable-libxvid \
+    --enable-libxml2 \
+    --enable-libzimg \
+    --enable-libzmq \
+    --enable-libzvbi \
+    --enable-libvpl \
+    --enable-opencl \
+    --enable-opengl \
+    --enable-cuda \
+    --enable-cuvid \
+    --enable-nvdec --enable-nvenc \
+    --enable-cuda-nvcc \
+    --enable-cuda-llvm  \
+    --enable-libnpp\
+    --enable-vaapi \
+    --extra-cflags=-I/usr/local/cuda/include \
+    --extra-ldflags=-L/usr/local/cuda/lib64 
+
+# Just needed the pkgconfig from libsvtav1enc. this is a hack but works
+RUN apt remove libsvtav1enc-dev -y
+
+RUN cd ffmpeg && make -j$(nproc) && make install && cd .. && ffmpeg -codecs
+RUN cp /usr/local/bin/ffmpeg /usr/bin/ffmpeg
+
+RUN rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* ./nv-codec-headers ./ffmpeg

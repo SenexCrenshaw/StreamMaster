@@ -15,5 +15,5 @@ public class VideoStreamDto : BaseVideoStreamDto, IMapFrom<VideoStream>
     public int Rank { get; set; } = 0;
 
     [Ignore]
-    public List<ChildVideoStreamDto> ChildVideoStreams { get; set; } = new();
+    public List<VideoStreamDto> ChildVideoStreams { get; set; } = new();
 }

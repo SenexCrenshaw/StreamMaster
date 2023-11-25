@@ -9,6 +9,7 @@ public class ClientStreamerConfiguration : IClientStreamerConfiguration
 {
     public ClientStreamerConfiguration(
         string channelVideoStreamId,
+         string channelName,
         string clientUserAgent,
         string clientIPAddress,
         CancellationToken cancellationToken)
@@ -18,6 +19,7 @@ public class ClientStreamerConfiguration : IClientStreamerConfiguration
         ClientId = Guid.NewGuid();
         ClientUserAgent = clientUserAgent;
         ChannelVideoStreamId = channelVideoStreamId;
+        ChannelName = channelName;
         ClientCancellationTokenSource = new();
         ClientMasterToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ClientHTTPRequestCancellationToken, ClientCancellationTokenSource.Token);
     }
@@ -39,5 +41,5 @@ public class ClientStreamerConfiguration : IClientStreamerConfiguration
 
     //Current Streaming info
     public string ChannelVideoStreamId { get; set; }
-
+    public string ChannelName { get; set; }
 }

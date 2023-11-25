@@ -2,8 +2,6 @@
 
 using StreamMasterApplication.Common.Interfaces;
 
-using StreamMasterDomain.Events;
-
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
@@ -15,6 +13,7 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Streams;
 public class StreamHandler(
     string streamURL,
     string videoStreamId,
+    string videoStreamName,
     int processId,
     ILogger<IStreamHandler> logger,
     ICircularRingBuffer ringBuffer,
@@ -30,6 +29,7 @@ public class StreamHandler(
     public ICircularRingBuffer RingBuffer { get; } = ringBuffer;
     public string StreamUrl { get; } = streamURL;
     public string VideoStreamId { get; } = videoStreamId;
+    public string VideoStreamName { get; } = videoStreamName;
 
     private async Task DelayWithCancellation(int milliseconds)
     {
@@ -48,13 +48,13 @@ public class StreamHandler(
     {
         if (VideoStreamingCancellationToken.Token.IsCancellationRequested)
         {
-            logger.LogInformation("Stream was cancelled for: {StreamUrl}", StreamUrl);
+            logger.LogInformation("Stream was cancelled for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
         }
 
-        logger.LogInformation("Stream received 0 bytes for stream: {StreamUrl} Retry {retryCount}/{maxRetries}",
+        logger.LogInformation("Stream received 0 bytes for stream: {StreamUrl} Retry {retryCount}/{maxRetries} {name}",
             StreamUrl,
             retryCount,
-            maxRetries);
+            maxRetries, VideoStreamName);
 
         await DelayWithCancellation(waitTime);
     }
@@ -63,7 +63,7 @@ public class StreamHandler(
     {
         const int chunkSize = 24 * 1024;
 
-        logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl}", chunkSize, StreamUrl);
+        logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} {name}", chunkSize, StreamUrl, VideoStreamName);
 
         Memory<byte> bufferMemory = new byte[chunkSize];
 
@@ -95,21 +95,22 @@ public class StreamHandler(
                 }
                 catch (TaskCanceledException ex)
                 {
-                    logger.LogError(ex, "Stream cancelled for: {StreamUrl}", StreamUrl);
+                    logger.LogError(ex, "Stream cancelled for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Stream error for: {StreamUrl}", StreamUrl);
+                    logger.LogError(ex, "Stream error for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
                     break;
                 }
             }
         }
 
-        logger.LogInformation("Stream stopped for: {StreamUrl}", StreamUrl);
+        logger.LogInformation("Stream stopped for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
         if (!VideoStreamingCancellationToken.IsCancellationRequested)
         {
             VideoStreamingCancellationToken.Cancel();
         }
+
     }
 
     private async Task<int> TryReadStream(Memory<byte> bufferChunk, Stream stream)
@@ -118,7 +119,7 @@ public class StreamHandler(
         {
             if (!stream.CanRead || VideoStreamingCancellationToken.Token.IsCancellationRequested)
             {
-                logger.LogWarning("Stream is not readable or cancelled");
+                logger.LogWarning("Stream is not readable or cancelled for: {StreamUrl} {name}", StreamUrl, VideoStreamName);
                 return -1;
             }
 
@@ -134,29 +135,12 @@ public class StreamHandler(
         }
     }
 
-    /// <summary>
-    /// Raised when an error occurs during stream operations.
-    /// </summary>
-    public event EventHandler<StreamFailedEventArgs>? StreamFailed;
-
-    /// <summary>
-    /// Raised when a new client is registered.
-    /// </summary>
-    public event EventHandler<ClientRegisteredEventArgs>? ClientRegistered;
-
-    /// <summary>
-    /// Raised when a client is unregistered.
-    /// </summary>
-    public event EventHandler<ClientUnregisteredEventArgs>? ClientUnregistered;
-
-    /// <summary>
-    /// Raised when a stream stops.
-    /// </summary>
-    public event EventHandler<StreamHandlerStoppedEventArgs>? StreamControllerStopped;
 
     public CancellationTokenSource VideoStreamingCancellationToken { get; set; } = cancellationTokenSource;
 
     public int ClientCount => clientStreamerIds.Count;
+
+    public bool IsFailed { get; private set; }
 
     public void Dispose()
     {
@@ -164,13 +148,17 @@ public class StreamHandler(
         GC.SuppressFinalize(this);
     }
 
+    private string FormatLog(string message)
+    {
+        return "";
+    }
+
     public async Task RegisterClientStreamer(Guid ClientId, CancellationToken cancellationToken = default)
     {
         IClientStreamerConfiguration? streamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(ClientId, cancellationToken);
         if (streamerConfiguration == null)
         {
-            logger.LogError("Error registering stream configuration for client {ClientId}, streamerConfiguration null.", ClientId);
-            StreamFailed?.Invoke(this, new StreamFailedEventArgs($"Failed to register client {ClientId}."));
+            logger.LogError("Error registering stream configuration for client {ClientId} {name}, streamerConfiguration null.", ClientId, VideoStreamName);
             return;
         }
         try
@@ -180,20 +168,19 @@ public class StreamHandler(
             RingBuffer.RegisterClient(streamerConfiguration.ClientId, streamerConfiguration.ClientUserAgent, streamerConfiguration.ClientIPAddress);
             await clientStreamerManager.SetClientBufferDelegate(streamerConfiguration.ClientId, RingBuffer, cancellationToken);
 
-            // Raise event
-            ClientRegistered?.Invoke(this, new ClientRegisteredEventArgs(streamerConfiguration.ClientId));
-            logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId}", streamerConfiguration.ClientId, videoStreamId);
+            logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name}", streamerConfiguration.ClientId, VideoStreamId, VideoStreamName);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error registering stream configuration for client {ClientId}.", streamerConfiguration.ClientId);
-            StreamFailed?.Invoke(this, new StreamFailedEventArgs($"Failed to register client {streamerConfiguration.ClientId}."));
+            logger.LogError(ex, "Error registering stream configuration for client {ClientId} {name}.", streamerConfiguration.ClientId, VideoStreamName);
+
         }
     }
 
     protected virtual void OnStreamControllerStopped()
     {
-        StreamControllerStopped?.Invoke(this, new());
+        logger.LogWarning("Stopping stream of {VideoStreamId}", VideoStreamId);
+
     }
 
     public void Stop()
@@ -227,17 +214,15 @@ public class StreamHandler(
 
         try
         {
-            logger.LogInformation("UnRegisterClientStreamer ClientId: {ClientId}", ClientId);
+            logger.LogInformation("UnRegisterClientStreamer ClientId: {ClientId} {name}", ClientId, VideoStreamName);
             bool result = clientStreamerIds.TryRemove(ClientId, out _);
             RingBuffer.UnRegisterClient(ClientId);
-            // Raise event
-            ClientUnregistered?.Invoke(this, new ClientUnregisteredEventArgs(ClientId));
 
             return result;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error unregistering stream configuration for client {ClientId}.", ClientId);
+            logger.LogError(ex, "Error unregistering stream configuration for client {ClientId} {name}", ClientId, VideoStreamName);
             return false;
         }
     }
@@ -260,11 +245,21 @@ public class StreamHandler(
 
     public ICollection<IClientStreamerConfiguration>? GetClientStreamerConfigurations()
     {
-        return clientStreamerManager.GetClientStreamerConfigurations;
+        return clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(VideoStreamId);
+    }
+
+    public IEnumerable<Guid> GetClientStreamerClientIds()
+    {
+        return clientStreamerIds.Keys;
     }
 
     public bool HasClient(Guid clientId)
     {
-        return clientStreamerManager.HasClient(videoStreamId, clientId);
+        return clientStreamerManager.HasClient(VideoStreamId, clientId);
+    }
+
+    public void SetFailed()
+    {
+        IsFailed = true;
     }
 }

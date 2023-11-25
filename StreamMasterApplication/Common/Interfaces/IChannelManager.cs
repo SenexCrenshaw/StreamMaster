@@ -25,7 +25,7 @@ public interface IChannelManager : IDisposable
     /// </summary>
     /// <param name="config">The configuration settings for the client streamer.</param>
     /// <returns>A Task returning the stream. Returns null if the stream could not be obtained.</returns>
-    Task<Stream?> GetStream(IClientStreamerConfiguration config);
+    Task<Stream?> GetChannel(IClientStreamerConfiguration config);
 
     /// <summary>
     /// Asynchronously removes a client based on the given client streamer configuration.

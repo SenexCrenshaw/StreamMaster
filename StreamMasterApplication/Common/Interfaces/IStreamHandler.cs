@@ -4,6 +4,7 @@ namespace StreamMasterApplication.Common.Interfaces;
 
 public interface IStreamHandler : IDisposable
 {
+    bool IsFailed { get; }
     /// <summary>
     /// true if there is an existing client registered; otherwise, false.
     /// </summary>
@@ -60,4 +61,7 @@ public interface IStreamHandler : IDisposable
     /// </summary>
     /// <returns>A collection of client streamer configurations; null if none found.</returns>
     ICollection<IClientStreamerConfiguration>? GetClientStreamerConfigurations();
+
+    IEnumerable<Guid> GetClientStreamerClientIds();
+    void SetFailed();
 }

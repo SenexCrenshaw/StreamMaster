@@ -60,7 +60,7 @@ namespace StreamMasterDomain.Repository
 
         IQueryable<VideoStream> GetVideoStreamQuery();
 
-        Task<(VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(string videoStreamId, CancellationToken cancellationToken = default);
+        Task<(VideoStreamHandlers videoStreamHandler, List<VideoStreamDto> childVideoStreamDtos)?> GetStreamsFromVideoStreamById(string videoStreamId, CancellationToken cancellationToken = default);
 
         //Task<List<VideoStreamDto>> SetGroupVisibleByGroupId(int id, bool isHidden, CancellationToken cancellationToken);
         Task<List<VideoStreamDto>> SetGroupVisibleByGroupName(string channelGroupName, bool isHidden, CancellationToken cancellationToken);

@@ -269,7 +269,7 @@ public static class SDHelpers
 
     }
 
-    public static List<TvIcon> GetIcons(IProgram program, ISDProgram sdProgram, ISchedule sched, string lang)
+    public static List<TvIcon> GetIcons(Program program, ISDProgram sdProgram, ISchedule sched, string lang)
     {
         List<TvIcon> ret = new();
         List<string> aspects = new() { "2x3", "4x3", "3x4", "16x9" };

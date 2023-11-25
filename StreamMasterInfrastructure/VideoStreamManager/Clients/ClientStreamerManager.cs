@@ -14,14 +14,14 @@ public class ClientStreamerManager(ILogger<ClientStreamerManager> logger, ILogge
 
     public void MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler)
     {
-        ICollection<IClientStreamerConfiguration>? oldConfigs = oldStreamHandler.GetClientStreamerConfigurations();
+        IEnumerable<Guid> ClientIds = oldStreamHandler.GetClientStreamerClientIds();
 
-        if (oldConfigs == null)
+        if (!ClientIds.Any())
         {
             return;
         }
 
-        foreach (Guid clientId in oldConfigs.Select(a => a.ClientId))
+        foreach (Guid clientId in ClientIds)
         {
             oldStreamHandler.UnRegisterClientStreamer(clientId);
             newStreamHandler.RegisterClientStreamer(clientId);
@@ -60,7 +60,7 @@ public class ClientStreamerManager(ILogger<ClientStreamerManager> logger, ILogge
 
     public List<IClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds)
     {
-        return GetClientStreamerConfigurations.Where(a => clientIds.Contains(a.ClientId)).ToList();
+        return GetAllClientStreamerConfigurations.Where(a => clientIds.Contains(a.ClientId)).ToList();
     }
     public async Task<IClientStreamerConfiguration?> GetClientStreamerConfiguration(Guid clientId, CancellationToken cancellationToken = default)
     {
@@ -86,14 +86,14 @@ public class ClientStreamerManager(ILogger<ClientStreamerManager> logger, ILogge
 
     public List<IClientStreamerConfiguration> GetClientStreamerConfigurationsByChannelVideoStreamId(string ChannelVideoStreamId)
     {
-        List<IClientStreamerConfiguration> client = GetClientStreamerConfigurations.Where(a => a.ChannelVideoStreamId.Equals(ChannelVideoStreamId)).ToList();
+        List<IClientStreamerConfiguration> client = GetAllClientStreamerConfigurations.Where(a => a.ChannelVideoStreamId.Equals(ChannelVideoStreamId)).ToList();
 
         return client;
     }
 
     public IClientStreamerConfiguration? GetClientStreamerConfiguration(string ChannelVideoStreamId, Guid ClientId)
     {
-        IClientStreamerConfiguration? test = GetClientStreamerConfigurations.FirstOrDefault(a => a.ChannelVideoStreamId.Equals(ChannelVideoStreamId) && a.ClientId == ClientId);
+        IClientStreamerConfiguration? test = GetAllClientStreamerConfigurations.FirstOrDefault(a => a.ChannelVideoStreamId.Equals(ChannelVideoStreamId) && a.ClientId == ClientId);
         return test;
     }
 
@@ -124,7 +124,7 @@ public class ClientStreamerManager(ILogger<ClientStreamerManager> logger, ILogge
         }
     }
 
-    public ICollection<IClientStreamerConfiguration> GetClientStreamerConfigurations => clientStreamerConfigurations.Values;
+    public ICollection<IClientStreamerConfiguration> GetAllClientStreamerConfigurations => clientStreamerConfigurations.Values;
 
     public bool HasClient(string ChannelVideoStreamId, Guid ClientId)
     {

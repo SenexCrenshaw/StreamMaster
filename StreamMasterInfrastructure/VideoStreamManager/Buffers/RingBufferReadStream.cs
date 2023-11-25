@@ -73,7 +73,7 @@ public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ILog
             }
         }
 
-        return bytesRead;
+        return cancellationToken.IsCancellationRequested ? -1 : bytesRead;
     }
 
     public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)

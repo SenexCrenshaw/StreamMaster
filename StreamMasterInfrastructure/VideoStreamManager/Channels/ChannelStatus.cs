@@ -2,7 +2,7 @@
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Channels;
 
-public class ChannelStatus(string videoStreamId, string videoStreamName) : IChannelStatus
+public class ChannelStatus(string videoStreamId, string videoStreamName, string channelName) : IChannelStatus
 {
     public bool IsGlobal { get; set; }
     public bool FailoverInProgress { get; set; }
@@ -11,6 +11,7 @@ public class ChannelStatus(string videoStreamId, string videoStreamName) : IChan
     public string CurrentVideoStreamId { get; set; } = videoStreamId;
     public string CurrentVideoStreamName { get; set; } = videoStreamName;
     public string VideoStreamURL { get; set; } = videoStreamName;
+    public string ChannelName { get; set; } = channelName;
 
     public void SetIsGlobal()
     {
