@@ -8,7 +8,7 @@
         /// <summary>
         /// Moves client streamers from one stream handler to another.
         /// </summary>
-        void MoveClientStreamers(IEnumerable<Guid> ClientIds, IStreamHandler newStreamHandler);
+        void MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler);
 
         /// <summary>
         /// Gets client streamer configurations by channel video stream ID.

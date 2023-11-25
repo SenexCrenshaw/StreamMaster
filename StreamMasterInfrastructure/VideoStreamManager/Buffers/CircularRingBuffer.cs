@@ -31,7 +31,7 @@ public class CircularRingBuffer : ICircularRingBuffer
     private readonly float _preBuffPercent;
     private int _writeIndex;
 
-    public CircularRingBuffer(VideoStreamDto videoStreamDto, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILogger<ICircularRingBuffer> logger)
+    public CircularRingBuffer(VideoStreamDto videoStreamDto, string channelName, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILogger<ICircularRingBuffer> logger)
     {
         Setting setting = memoryCache.GetSetting();
 
@@ -50,6 +50,7 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         StreamInfo = new StreamInfo
         {
+            ChannelName = channelName,
             VideoStreamId = videoStreamDto.Id,
             VideoStreamName = videoStreamDto.User_Tvg_name,
             Logo = videoStreamDto.User_Tvg_logo,
@@ -81,6 +82,7 @@ public class CircularRingBuffer : ICircularRingBuffer
             allStatistics.Add(new StreamStatisticsResult
             {
                 Id = Id.ToString(),
+                ChannelName = StreamInfo.ChannelName,
                 VideoStreamId = StreamInfo.VideoStreamId,
                 VideoStreamName = StreamInfo.VideoStreamName,
                 M3UStreamProxyType = StreamInfo.StreamProxyType,
@@ -254,7 +256,6 @@ public class CircularRingBuffer : ICircularRingBuffer
 
     public void RegisterClient(Guid clientId, string clientAgent, string clientIPAddress)
     {
-
         if (!_clientReadIndexes.ContainsKey(clientId))
         {
             _ = _clientReadIndexes.TryAdd(clientId, _oldestDataIndex);
@@ -285,7 +286,7 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         _ = _clientReadIndexes.TryRemove(clientId, out _);
         _ = _clientSemaphores.Remove(clientId);
-        _statisticsManager.UnregisterClient(clientId);
+        _statisticsManager.UnRegisterClient(clientId);
 
         _logger.LogInformation("UnRegisterClient for clientId: {clientId}  {VideoStreamName}", clientId, StreamInfo.VideoStreamName);
     }

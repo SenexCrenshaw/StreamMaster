@@ -31,11 +31,11 @@ public class StreamManager(
         _streamHandlers.Clear();
     }
 
-    private async Task<StreamHandler?> CreateStreamHandler(VideoStreamDto videoStreamDto, int rank, CancellationToken cancellation)
+    private async Task<StreamHandler?> CreateStreamHandler(VideoStreamDto videoStreamDto, string ChannelName, int rank, CancellationToken cancellation)
     {
         CancellationTokenSource cancellationTokenSource = new();
 
-        ICircularRingBuffer ringBuffer = circularRingBufferFactory.CreateCircularRingBuffer(videoStreamDto, rank);
+        ICircularRingBuffer ringBuffer = circularRingBufferFactory.CreateCircularRingBuffer(videoStreamDto, ChannelName, rank);
 
         (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(videoStreamDto.User_Url, videoStreamDto.User_Tvg_name, cancellation);
         if (stream == null || error != null || processId == 0)
@@ -52,14 +52,7 @@ public class StreamManager(
 
     public IStreamHandler? GetStreamHandler(string videoStreamId)
     {
-        ICollection<string> videoStreamIds = _streamHandlers.Keys;
-        foreach (IStreamHandler handler in _streamHandlers.Values)
-        {
-            if (handler.ClientCount > 1)
-            {
-                logger.LogInformation("GetStreamHandler StreamHandler: {videoStreamId} has more than one client: {count}", videoStreamId, handler.ClientCount);
-            }
-        }
+
         if (!_streamHandlers.TryGetValue(videoStreamId, out IStreamHandler? streamHandler))
         {
             return null;
@@ -68,14 +61,20 @@ public class StreamManager(
         return streamHandler;
     }
 
-    public async Task<IStreamHandler?> GetOrCreateStreamHandler(VideoStreamDto videoStreamDto, int rank, CancellationToken cancellation = default)
+    public async Task<IStreamHandler?> GetOrCreateStreamHandler(VideoStreamDto videoStreamDto, string ChannelName, int rank, CancellationToken cancellation = default)
     {
         _streamHandlers.TryGetValue(videoStreamDto.Id, out IStreamHandler? streamHandler);
 
-        if (streamHandler?.IsFailed != false)
+        if (streamHandler != null && streamHandler.IsFailed)
+        {
+            StopAndUnRegisterHandler(videoStreamDto.Id);
+            _streamHandlers.TryGetValue(videoStreamDto.Id, out streamHandler);
+        }
+
+        if (streamHandler == null || streamHandler.IsFailed)
         {
             logger.LogInformation("Creating new handler for stream: {Id} {name}", videoStreamDto.Id, videoStreamDto.User_Tvg_name);
-            streamHandler = await CreateStreamHandler(videoStreamDto, rank, cancellation);
+            streamHandler = await CreateStreamHandler(videoStreamDto, ChannelName, rank, cancellation);
             if (streamHandler == null)
             {
                 return null;
@@ -108,13 +107,13 @@ public class StreamManager(
         return _streamHandlers.Values.ToList();
     }
 
-    public void MoveClientStreamers(IEnumerable<Guid> cliendIds, IStreamHandler newStreamHandler)
+    public void MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler)
     {
-        clientStreamerManager.MoveClientStreamers(cliendIds, newStreamHandler);
-        //if (oldStreamHandler.ClientCount == 0)
-        //{
-        StopAndUnRegisterHandler(newStreamHandler.VideoStreamId);
-        //}
+        clientStreamerManager.MoveClientStreamers(oldStreamHandler, newStreamHandler);
+        if (oldStreamHandler.ClientCount == 0)
+        {
+            StopAndUnRegisterHandler(oldStreamHandler.VideoStreamId);
+        }
     }
 
     public IStreamHandler? GetStreamHandlerByClientId(Guid ClientId)
@@ -129,6 +128,7 @@ public class StreamManager(
 
     public bool StopAndUnRegisterHandler(string VideoStreamId)
     {
+
         if (_streamHandlers.TryRemove(VideoStreamId, out IStreamHandler? streamHandler))
         {
             streamHandler.Stop();

@@ -4,6 +4,6 @@ namespace StreamMasterApplication.Common.Interfaces
 {
     public interface IStreamStatisticService
     {
-        Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls();
+        Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls(CancellationToken cancellationToken = default);
     }
 }

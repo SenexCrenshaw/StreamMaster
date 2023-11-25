@@ -3,6 +3,7 @@
 public interface IClientStreamerConfiguration
 {
     string ChannelVideoStreamId { get; set; }
+    string ChannelName { get; set; }
     Guid ClientId { get; set; }
     string ClientIPAddress { get; set; }
     string ClientUserAgent { get; set; }

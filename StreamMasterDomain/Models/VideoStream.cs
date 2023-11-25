@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace StreamMasterDomain.Models;
 
-public class VideoStream : IMapFrom<VideoStreamDto>, IMapFrom<ChildVideoStreamDto>
+public class VideoStream : IMapFrom<VideoStreamDto>
 {
     public VideoStream()
     {

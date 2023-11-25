@@ -37,18 +37,15 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
             channelStatus.FailoverInProgress = false;
             return false;
         }
-        IStreamHandler? oldStreamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStreamId);
 
-        IEnumerable<Guid>? oldClientIds = null;
+        IStreamHandler? oldStreamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStreamId);
         if (oldStreamHandler is not null)
         {
-            oldClientIds = oldStreamHandler.GetClientStreamerClientIds();
             if (oldStreamHandler.IsFailed)
             {
                 logger.LogError("SwitchToNextVideoStream oldStreamHandler is failed for id {ChannelVideoStreamId}, oldStreamHandler is already failed", ChannelVideoStreamId);
             }
             oldStreamHandler.SetFailed();
-            //streamManager.StopAndUnRegisterHandler(oldStreamHandler.VideoStreamId);
         }
 
         VideoStreamDto? videoStreamDto = await RetrieveNextChildVideoStream(channelStatus, overrideNextVideoStreamId);
@@ -59,7 +56,7 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
             return false;
         }
 
-        IStreamHandler? newStreamHandler = await streamManager.GetOrCreateStreamHandler(videoStreamDto, channelStatus.Rank);
+        IStreamHandler? newStreamHandler = await streamManager.GetOrCreateStreamHandler(videoStreamDto, channelStatus.ChannelName, channelStatus.Rank);
 
         if (newStreamHandler is null)
         {
@@ -68,9 +65,9 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
             return false;
         }
 
-        if (oldClientIds is not null)
+        if (oldStreamHandler is not null)
         {
-            streamManager.MoveClientStreamers(oldClientIds, newStreamHandler);
+            streamManager.MoveClientStreamers(oldStreamHandler, newStreamHandler);
         }
         channelStatus.CurrentVideoStreamName = videoStreamDto.User_Tvg_name;
         channelStatus.CurrentVideoStreamId = videoStreamDto.Id;
@@ -138,10 +135,10 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
         return null;
     }
 
-    private async Task<ChildVideoStreamDto?> FetchNextChildVideoStream(IChannelStatus channelStatus, IRepositoryWrapper repository)
+    private async Task<VideoStreamDto?> FetchNextChildVideoStream(IChannelStatus channelStatus, IRepositoryWrapper repository)
     {
         Setting setting = memoryCache.GetSetting();
-        (VideoStreamHandlers videoStreamHandler, List<ChildVideoStreamDto> childVideoStreamDtos)? result = await repository.VideoStream.GetStreamsFromVideoStreamById(channelStatus.ChannelVideoStreamId);
+        (VideoStreamHandlers videoStreamHandler, List<VideoStreamDto> childVideoStreamDtos)? result = await repository.VideoStream.GetStreamsFromVideoStreamById(channelStatus.ChannelVideoStreamId);
         if (result == null)
         {
             logger.LogError("FetchNextChildVideoStream could not get videoStreams for id {ParentVideoStreamId}", channelStatus.ChannelVideoStreamId);
@@ -149,7 +146,7 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
             return null;
         }
 
-        ChildVideoStreamDto[] videoStreams = result.Value.childVideoStreamDtos.OrderBy(a => a.Rank).ToArray();
+        VideoStreamDto[] videoStreams = result.Value.childVideoStreamDtos.OrderBy(a => a.Rank).ToArray();
         if (!videoStreams.Any())
         {
             return null;
@@ -164,7 +161,7 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
 
         while (channelStatus.Rank < videoStreams.Length)
         {
-            ChildVideoStreamDto toReturn = videoStreams[channelStatus.Rank++];
+            VideoStreamDto toReturn = videoStreams[channelStatus.Rank++];
             List<M3UFileDto> m3uFilesRepo = await repository.M3UFile.GetM3UFiles().ConfigureAwait(false);
 
             M3UFileDto? m3uFile = m3uFilesRepo.Find(a => a.Id == toReturn.M3UFileId);
@@ -209,10 +206,12 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
         if (!string.IsNullOrEmpty(overrideNextVideoStreamId))
         {
             VideoStreamDto? handled = await HandleOverrideStream(overrideNextVideoStreamId, repository, channelStatus, mapper);
-            if (handled != null || (handled == null && !string.IsNullOrEmpty(overrideNextVideoStreamId)))
+            if (handled != null)//|| (handled == null && !string.IsNullOrEmpty(overrideNextVideoStreamId)))
             {
                 return handled;
             }
+            logger.LogDebug("Exiting RetrieveNextChildVideoStream with null due to no overrideNextVideoStreamId not found");
+            return null;
         }
         VideoStreamDto? result = await FetchNextChildVideoStream(channelStatus, repository);
         if (result != null)

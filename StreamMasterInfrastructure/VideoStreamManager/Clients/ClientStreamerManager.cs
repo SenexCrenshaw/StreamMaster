@@ -12,9 +12,9 @@ public class ClientStreamerManager(ILogger<ClientStreamerManager> logger, ILogge
 {
     private readonly ConcurrentDictionary<Guid, IClientStreamerConfiguration> clientStreamerConfigurations = new();
 
-    public void MoveClientStreamers(IEnumerable<Guid> ClientIds, IStreamHandler newStreamHandler)
+    public void MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler)
     {
-        //ICollection<IClientStreamerConfiguration>? oldConfigs = oldStreamHandler.GetClientStreamerConfigurations();
+        IEnumerable<Guid> ClientIds = oldStreamHandler.GetClientStreamerClientIds();
 
         if (!ClientIds.Any())
         {
@@ -23,7 +23,7 @@ public class ClientStreamerManager(ILogger<ClientStreamerManager> logger, ILogge
 
         foreach (Guid clientId in ClientIds)
         {
-            //oldStreamHandler.UnRegisterClientStreamer(clientId);
+            oldStreamHandler.UnRegisterClientStreamer(clientId);
             newStreamHandler.RegisterClientStreamer(clientId);
         }
     }

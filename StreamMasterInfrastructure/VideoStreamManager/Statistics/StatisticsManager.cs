@@ -20,7 +20,7 @@ public class StatisticsManager(ILogger<StatisticsManager> logger) : IStatisticsM
         }
     }
 
-    public void UnregisterClient(Guid clientId)
+    public void UnRegisterClient(Guid clientId)
     {
         _clientStatistics.TryRemove(clientId, out _);
     }

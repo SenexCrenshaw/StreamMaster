@@ -97,13 +97,13 @@ public class ChannelManager(
 
     public void SimulateStreamFailure(string streamUrl)
     {
-        IStreamHandler? _streamInformation = streamManager.GetStreamHandlerFromStreamUrl(streamUrl);
+        IStreamHandler? handler = streamManager.GetStreamHandlerFromStreamUrl(streamUrl);
 
-        if (_streamInformation is not null)
+        if (handler is not null)
         {
-            if (_streamInformation.VideoStreamingCancellationToken?.IsCancellationRequested == false)
+            if (handler.VideoStreamingCancellationToken?.IsCancellationRequested == false)
             {
-                _streamInformation.VideoStreamingCancellationToken.Cancel();
+                handler.VideoStreamingCancellationToken.Cancel();
             }
             logger.LogInformation("Simulating stream failure for: {StreamUrl}", streamUrl);
         }
@@ -135,12 +135,14 @@ public class ChannelManager(
                     int clientCount = clientStreamerManager.ClientCount(channelStatus.ChannelVideoStreamId);
                     if (clientCount == 0)
                     {
+                        //channelService.UnRegisterChannel(channelStatus.ChannelVideoStreamId);
                         continue;
                     }
 
                     bool hasClients = await CheckClients(channelStatus);
                     if (!hasClients)
                     {
+                        //channelService.UnRegisterChannel(channelStatus.ChannelVideoStreamId);
                         continue;
                     }
 
@@ -152,6 +154,7 @@ public class ChannelManager(
                         continue;
                     }
                 }
+
                 if (channelService.GetChannelStatuses().Count == 0)
                 {
                     logger.LogInformation("Exiting ChannelWatcher loop due to no channels");
@@ -210,7 +213,7 @@ public class ChannelManager(
         //    return true;
         //}
 
-        if (streamHandler is null || streamHandler.VideoStreamingCancellationToken.IsCancellationRequested == false)
+        if (streamHandler is null || !streamHandler.VideoStreamingCancellationToken.IsCancellationRequested)
         {
             return false;
         }
@@ -261,7 +264,7 @@ public class ChannelManager(
             if (channelStatus == null)
             {
                 logger.LogError("Failed to register with channel manager. channelStatus is null");
-                channelService.UnregisterChannel(config.ChannelVideoStreamId);
+                channelService.UnRegisterChannel(config.ChannelVideoStreamId);
                 return null;
             }
 
@@ -270,7 +273,7 @@ public class ChannelManager(
             if (streamHandler == null)
             {
                 logger.LogError("Failed to register with channel manager. streamHandler is null");
-                channelService.UnregisterChannel(config.ChannelVideoStreamId);
+                channelService.UnRegisterChannel(config.ChannelVideoStreamId);
                 return null;
             }
 
@@ -308,11 +311,11 @@ public class ChannelManager(
 
         if (channelStatus == null)
         {
-            channelStatus = channelService.RegisterChannel(config.ChannelVideoStreamId, config.ChannelVideoStreamId);
+            channelStatus = channelService.RegisterChannel(config.ChannelVideoStreamId, config.ChannelVideoStreamId, config.ChannelName);
             if (channelStatus == null)
             {
                 logger.LogError("Could not register new channel for {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.ChannelVideoStreamId, videoStream.User_Tvg_name);
-                channelService.UnregisterChannel(config.ChannelVideoStreamId);
+                channelService.UnRegisterChannel(config.ChannelVideoStreamId);
                 return null;
             }
 
@@ -320,7 +323,7 @@ public class ChannelManager(
             if (!await streamSwitcher.SwitchToNextVideoStreamAsync(config.ChannelVideoStreamId).ConfigureAwait(false))
             {
                 logger.LogError("Cannot create new channel {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.ChannelVideoStreamId, videoStream.User_Tvg_name);
-                channelService.UnregisterChannel(config.ChannelVideoStreamId);
+                channelService.UnRegisterChannel(config.ChannelVideoStreamId);
                 return null;
             }
         }
@@ -364,7 +367,7 @@ public class ChannelManager(
                 logger.LogInformation("ChannelManager No more clients, stopping streaming for {videoStreamId}", StreamHandler.VideoStreamId);
                 _ = streamManager.StopAndUnRegisterHandler(StreamHandler.VideoStreamId);
 
-                channelService.UnregisterChannel(config.ChannelVideoStreamId);
+                channelService.UnRegisterChannel(config.ChannelVideoStreamId);
             }
 
             logger.LogInformation("Finished UnRegisterWithChannelManager with config: {config}", config.ClientId);

@@ -178,7 +178,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
         width: '4rem'
       },
 
-      { field: 'videoStreamName', header: 'Name' },
+      { field: 'channelName', header: 'Channel' },
       {
         align: 'center',
         bodyTemplate: videoStreamTemplate,
@@ -197,7 +197,7 @@ export const StreamingServerStatusPanel = ({ className, style }: StreamingServer
         align: 'center',
         bodyTemplate: streamCount,
         field: 'Count',
-        header: 'Count',
+        header: 'Streams',
         width: '4rem'
       },
       {

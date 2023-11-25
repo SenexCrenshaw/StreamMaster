@@ -1853,13 +1853,12 @@ export type BaseVideoStreamDto = {
   user_Url: string;
   videoStreamHandler: VideoStreamHandlers;
 };
-export type ChildVideoStreamDto = VideoStreamDto & object;
 export type VideoStreamDto = BaseVideoStreamDto & {
   maxStreams: number;
   isLoading: boolean;
   channelGroupId: number;
   rank: number;
-  childVideoStreams: ChildVideoStreamDto[];
+  childVideoStreams: VideoStreamDto[];
 };
 export type PagedResponseOfVideoStreamDto = {
   data: VideoStreamDto[];
@@ -1904,7 +1903,7 @@ export type VideoStreamBaseRequest = {
   tvg_logo?: string | null;
   tvg_name?: string | null;
   url?: string | null;
-  childVideoStreams?: ChildVideoStreamDto[] | null;
+  videoStreams?: VideoStreamDto[] | null;
 };
 export type CreateVideoStreamRequest = VideoStreamBaseRequest & object;
 export type ChangeVideoStreamChannelRequest = {
@@ -1936,6 +1935,7 @@ export type StreamStatisticsResult = {
   rank?: number;
   streamUrl?: string | null;
   videoStreamId?: string;
+  channelName?: string;
   videoStreamName?: string;
   clientIPAddress?: string;
 };

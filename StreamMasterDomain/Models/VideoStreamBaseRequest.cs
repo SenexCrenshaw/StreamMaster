@@ -19,5 +19,5 @@ public class VideoStreamBaseRequest
 
     public string? Url { get; set; }
 
-    public List<ChildVideoStreamDto>? ChildVideoStreams { get; set; }
+    public List<VideoStreamDto>? VideoStreams { get; set; }
 }

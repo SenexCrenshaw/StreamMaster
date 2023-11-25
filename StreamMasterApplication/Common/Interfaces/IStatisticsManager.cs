@@ -9,6 +9,6 @@ namespace StreamMasterApplication.Common.Interfaces
         List<ClientStreamingStatistics> GetAllClientStatistics();
         void IncrementBytesRead(Guid clientId);
         void RegisterClient(Guid clientId, string clientAgent, string clientIPAddress);
-        void UnregisterClient(Guid clientId);
+        void UnRegisterClient(Guid clientId);
     }
 }
