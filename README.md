@@ -32,4 +32,4 @@ Please go to the wiki for further details and installation instructions.
 
 - **And much more!** With new features and updates being added all the time, StreamMaster is constantly evolving to meet the needs of today's streamers and content creators.
 
-Docker Repo: [Stream Master Docker IO](https://hub.docker.com/repository/docker/senexcrenshaw/streammaster/general)
+Docker Repo: [Stream Master Docker IO](https://hub.docker.com/r/senexcrenshaw/streammaster)

@@ -61,6 +61,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
 
         if (!await GetSystemReady(cancellationToken))
         {
+            _logger.LogWarning("SD Not Ready");
             return false;
         }
 
@@ -107,6 +108,8 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
             return Enumerable.Empty<ChannelLogoDto>();
         }).ToList();
 
+        _logger.LogInformation("SD working on {num} logos", logoTasks.Count);
+
         logoTasks.ForEach(logo => memoryCache.Add(logo));
 
         List<Schedule>? schedules = await GetSchedules(stationsIds.ToList(), cancellationToken).ConfigureAwait(false);
@@ -119,6 +122,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         DateTime now = DateTime.Now;
         DateTime maxDate = now.AddDays(maxDays);
 
+        _logger.LogInformation("SD working on {num} schedules", schedules.Count);
         foreach (Schedule sched in schedules)
         {
             if (!stationDictionary.TryGetValue(sched.StationID, out Station? station))
@@ -136,12 +140,22 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
             List<SDProgram> sdPrograms = await GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
             Dictionary<string, SDProgram> sdProgramsDict = sdPrograms.ToDictionary(p => p.ProgramID);
 
+            int counter = 0;
+            _logger.LogInformation("SD working on {num} programs", relevantPrograms.Count);
             foreach (Program? p in relevantPrograms)
             {
+                counter++;
+                if (counter % 100 == 0)
+                {
+                    _logger.LogInformation("Processed {counter} programs out of {totalPrograms}", counter, relevantPrograms.Count);
+                }
+
                 if (!sdProgramsDict.TryGetValue(p.ProgramID, out SDProgram? sdProg))
                 {
                     continue;
                 }
+
+
 
                 DateTime startt = p.AirDateTime;
                 DateTime endt = startt.AddSeconds(p.Duration);
