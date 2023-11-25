@@ -108,7 +108,11 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
             return Enumerable.Empty<ChannelLogoDto>();
         }).ToList();
 
-        _logger.LogInformation("SD working on {num} logos", logoTasks.Count);
+        if (logoTasks.Count != 0)
+        {
+            _logger.LogInformation("SD working on {num} logos", logoTasks.Count);
+        }
+
 
         logoTasks.ForEach(logo => memoryCache.Add(logo));
 
@@ -122,7 +126,12 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         DateTime now = DateTime.Now;
         DateTime maxDate = now.AddDays(maxDays);
 
-        _logger.LogInformation("SD working on {num} schedules", schedules.Count);
+
+
+        if (schedules.Count != 0)
+        {
+            _logger.LogInformation("SD working on {num} schedules", schedules.Count);
+        }
         foreach (Schedule sched in schedules)
         {
             if (!stationDictionary.TryGetValue(sched.StationID, out Station? station))
@@ -141,7 +150,11 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
             Dictionary<string, SDProgram> sdProgramsDict = sdPrograms.ToDictionary(p => p.ProgramID);
 
             int counter = 0;
-            _logger.LogInformation("SD working on {num} programs", relevantPrograms.Count);
+            if (relevantPrograms.Count != 0)
+            {
+                _logger.LogInformation("SD working on {num} programs", relevantPrograms.Count);
+            }
+
             foreach (Program? p in relevantPrograms)
             {
                 counter++;
