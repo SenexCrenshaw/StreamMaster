@@ -161,6 +161,8 @@ public class StreamHandler(
 
     public int ClientCount => clientStreamerIds.Count;
 
+    public bool IsFailed { get; private set; }
+
     public void Dispose()
     {
         Stop();
@@ -190,7 +192,7 @@ public class StreamHandler(
 
             // Raise event
             ClientRegistered?.Invoke(this, new ClientRegisteredEventArgs(streamerConfiguration.ClientId));
-            logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name}", streamerConfiguration.ClientId, videoStreamId, VideoStreamName);
+            logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name}", streamerConfiguration.ClientId, VideoStreamId, VideoStreamName);
         }
         catch (Exception ex)
         {
@@ -270,16 +272,21 @@ public class StreamHandler(
 
     public ICollection<IClientStreamerConfiguration>? GetClientStreamerConfigurations()
     {
-        return clientStreamerManager.GetClientStreamerConfigurations;
+        return clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(VideoStreamId);
     }
 
     public IEnumerable<Guid> GetClientStreamerClientIds()
     {
-        return clientStreamerManager.GetClientStreamerConfigurations.Select(a => a.ClientId);
+        return clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(VideoStreamId).Select(a => a.ClientId);
     }
 
     public bool HasClient(Guid clientId)
     {
-        return clientStreamerManager.HasClient(videoStreamId, clientId);
+        return clientStreamerManager.HasClient(VideoStreamId, clientId);
+    }
+
+    public void SetFailed()
+    {
+        IsFailed = true;
     }
 }
