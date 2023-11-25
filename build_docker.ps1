@@ -16,7 +16,7 @@ $gitVersion = "dotnet-gitversion"
 $json = &$gitVersion /output json | Out-String
 $obj = $json | ConvertFrom-Json 
 $semVer = $obj.SemVer
-$buildMetaDataPadded = $obj.AssemblySemVer
+$buildMetaDataPadded = $obj.BuildMetaDataPadded
 $branchName = $obj.BranchName
 
 $obj |  Write-Output
@@ -28,7 +28,7 @@ $tags = if ($BuildProd) {
     "${imageName}:$buildMetaDataPadded"
 }
 else {
-    "${imageName}:$branchName-$semVer"  
+    "${imageName}:$branchName-$semVer-$buildMetaDataPadded"
 }
 
 Write-Output "Tags to be used:"
@@ -59,7 +59,7 @@ if ($PrintCommands) {
 try {
     Invoke-Expression $buildCommand 2>&1 | ForEach-Object {
         if ($DebugLog) {
-            $_ # Output the line for logging purposes if DebugLog flag is set
+            Write-Host $_ # Output the line for logging purposes if DebugLog flag is set
         }
         else {
             $lineCounter++
