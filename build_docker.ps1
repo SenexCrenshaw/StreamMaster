@@ -18,7 +18,7 @@ $semVer = $obj.SemVer
 $buildMetaDataPadded = $obj.AssemblySemVer
 $branchName = $obj.BranchName
 
-# Set the tag based on the build type
+$obj |  Write-Output
 
 # Multiple tags
 $tags = if ($BuildProd) {
@@ -27,14 +27,14 @@ $tags = if ($BuildProd) {
     "${imageName}:$buildMetaDataPadded"
 }
 else {
-    "${imageName}:$branchName-$semVer-$buildMetaDataPadded"  
+    "${imageName}:$branchName-$semVer"  
 }
 
 Write-Output "Tags to be used:"
 $tags | ForEach-Object { Write-Output $_ }
+$buildCommand = "docker buildx build --platform ""linux/amd64,linux/arm64"" -f ./Dockerfile . --push " + ($tags | ForEach-Object { "--tag=$_" })
 
-if ($printCommands) {
-    $buildCommand = "docker buildx build --platform ""linux/amd64,linux/arm64"" -f ./Dockerfile . --push " + ($tags | ForEach-Object { "--tag=$_" })
+if ($printCommands) {    
     Write-Output "Build Command: $buildCommand"
 }
 # Show the build command if either PrintOnly or DebugLog is set
@@ -56,13 +56,15 @@ if ($printCommands) {
 
 # Run the build and push operation, displaying a dot for every 10 lines of output
 try {
-    docker buildx build --platform "linux/amd64,linux/arm64" -f ./Dockerfile . --push $(foreach ($tag in $tags) { "--tag=$tag" }) 2>&1 | ForEach-Object {
+    Invoke-Expression $buildCommand 2>&1 | ForEach-Object {
         if ($DebugLog) {
             $_ # Output the line for logging purposes if DebugLog flag is set
         }
-        $lineCounter++
-        if ($lineCounter % 10 -eq 0) {
-            Write-Host -NoNewline "."
+        else {
+            $lineCounter++
+            if ($lineCounter % 10 -eq 0) {
+                Write-Host -NoNewline "."
+            }
         }
     }
 }
