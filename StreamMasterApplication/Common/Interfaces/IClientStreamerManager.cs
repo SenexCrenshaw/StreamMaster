@@ -48,7 +48,7 @@
         /// <summary>
         /// Gets all client streamer configurations.
         /// </summary>
-        ICollection<IClientStreamerConfiguration> GetClientStreamerConfigurations { get; }
+        ICollection<IClientStreamerConfiguration> GetAllClientStreamerConfigurations { get; }
 
         /// <summary>
         /// Gets client streamer configurations based on a list of client IDs.
