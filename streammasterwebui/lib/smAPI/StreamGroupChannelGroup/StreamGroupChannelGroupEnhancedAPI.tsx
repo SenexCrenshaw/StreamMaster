@@ -55,7 +55,7 @@ export const enhancedApiStreamGroupChannelGroup = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-    // eslint-disable-next-line comma-dangle
-    },
+      // eslint-disable-next-line comma-dangle
+    }
   }
 });

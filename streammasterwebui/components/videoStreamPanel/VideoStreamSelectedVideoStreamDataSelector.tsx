@@ -103,7 +103,7 @@ const VideoStreamSelectedVideoStreamDataSelector = ({
     const toSend = {} as VideoStreamsUpdateVideoStreamApiArg;
 
     toSend.id = videoStreamId;
-    toSend.childVideoStreams = newData;
+    toSend.videoStreams = newData;
 
     await UpdateVideoStream(toSend)
       .then(() => {})

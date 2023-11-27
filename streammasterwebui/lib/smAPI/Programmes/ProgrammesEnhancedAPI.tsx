@@ -55,7 +55,7 @@ export const enhancedApiProgrammes = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-    // eslint-disable-next-line comma-dangle
+      // eslint-disable-next-line comma-dangle
     },
     programmesGetProgrammsSimpleQuery: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -105,7 +105,7 @@ export const enhancedApiProgrammes = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-    // eslint-disable-next-line comma-dangle
-    },
+      // eslint-disable-next-line comma-dangle
+    }
   }
 });

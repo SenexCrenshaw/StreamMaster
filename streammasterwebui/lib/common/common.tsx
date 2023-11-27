@@ -598,8 +598,9 @@ export const getColumnClass = (size?: number, secondSize?: number) => {
 
 export const HeaderLeft: React.FC<{ readonly props: any }> = ({ props }) => (
   <div
-    className={`flex debug flex-nowrap justify-content-end header p-0 m-0 align-items-center ${props?.headerLeftTemplate ? getColumnClass(props.leftColSize, 4) : 'col-1'
-      }`}
+    className={`flex debug flex-nowrap justify-content-end header p-0 m-0 align-items-center ${
+      props?.headerLeftTemplate ? getColumnClass(props.leftColSize, 4) : 'col-1'
+    }`}
   >
     {props.headerLeftTemplate}
   </div>
@@ -612,17 +613,17 @@ export const GlobalSearchComponent: React.FC<{
   readonly onGlobalSourceFilterChange: any;
   readonly props: any;
 }> = ({ clearSourceFilter, props, globalSearchName, globalSourceFilterValue, onGlobalSourceFilterChange }) =>
-    // eslint-disable-next-line react/prop-types
-    props.globalSearchEnabled && (
-      <GlobalSearch
-        clearSourceFilter={clearSourceFilter}
-        // eslint-disable-next-line react/prop-types
-        columns={props.columns}
-        globalSearchName={globalSearchName}
-        globalSourceFilterValue={globalSourceFilterValue}
-        onGlobalSourceFilterChange={onGlobalSourceFilterChange}
-      />
-    );
+  // eslint-disable-next-line react/prop-types
+  props.globalSearchEnabled && (
+    <GlobalSearch
+      clearSourceFilter={clearSourceFilter}
+      // eslint-disable-next-line react/prop-types
+      columns={props.columns}
+      globalSearchName={globalSearchName}
+      globalSourceFilterValue={globalSourceFilterValue}
+      onGlobalSourceFilterChange={onGlobalSourceFilterChange}
+    />
+  );
 
 export const ExportComponent: React.FC<{ readonly exportCSV: any }> = ({ exportCSV }) => <ExportButton exportCSV={exportCSV} />;
 

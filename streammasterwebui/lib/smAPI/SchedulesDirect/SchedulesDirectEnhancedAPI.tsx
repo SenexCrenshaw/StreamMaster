@@ -13,15 +13,20 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.Countries) => {
-            updateCachedData(() => {{
-              if (isDev) console.log('updateCachedData', data);
-              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'SchedulesDirect' }])) {
-                if (endpointName !== 'schedulesDirectGetCountries') continue;
-                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{
-                    if (isDev) console.log('updateCachedData', data, draft);
-                   }})
-                   );
-                 }}
+            updateCachedData(() => {
+              {
+                if (isDev) console.log('updateCachedData', data);
+                for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'SchedulesDirect' }])) {
+                  if (endpointName !== 'schedulesDirectGetCountries') continue;
+                  dispatch(
+                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                      {
+                        if (isDev) console.log('updateCachedData', data, draft);
+                      }
+                    })
+                  );
+                }
+              }
             });
           };
 
@@ -33,7 +38,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-    // eslint-disable-next-line comma-dangle
+      // eslint-disable-next-line comma-dangle
     },
     schedulesDirectGetLineup: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -41,15 +46,20 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.LineupResult) => {
-            updateCachedData(() => {{
-              if (isDev) console.log('updateCachedData', data);
-              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'SchedulesDirect' }])) {
-                if (endpointName !== 'schedulesDirectGetLineup') continue;
-                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{
-                    if (isDev) console.log('updateCachedData', data, draft);
-                   }})
-                   );
-                 }}
+            updateCachedData(() => {
+              {
+                if (isDev) console.log('updateCachedData', data);
+                for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'SchedulesDirect' }])) {
+                  if (endpointName !== 'schedulesDirectGetLineup') continue;
+                  dispatch(
+                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                      {
+                        if (isDev) console.log('updateCachedData', data, draft);
+                      }
+                    })
+                  );
+                }
+              }
             });
           };
 
@@ -61,7 +71,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-    // eslint-disable-next-line comma-dangle
+      // eslint-disable-next-line comma-dangle
     },
     schedulesDirectGetLineupPreviews: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -111,7 +121,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-    // eslint-disable-next-line comma-dangle
+      // eslint-disable-next-line comma-dangle
     },
     schedulesDirectGetLineups: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -161,7 +171,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-    // eslint-disable-next-line comma-dangle
+      // eslint-disable-next-line comma-dangle
     },
     schedulesDirectGetSelectedStationIds: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -211,7 +221,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-    // eslint-disable-next-line comma-dangle
+      // eslint-disable-next-line comma-dangle
     },
     schedulesDirectGetStationPreviews: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -261,7 +271,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-    // eslint-disable-next-line comma-dangle
+      // eslint-disable-next-line comma-dangle
     },
     schedulesDirectGetStatus: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -269,15 +279,20 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.SdStatus) => {
-            updateCachedData(() => {{
-              if (isDev) console.log('updateCachedData', data);
-              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'SchedulesDirect' }])) {
-                if (endpointName !== 'schedulesDirectGetStatus') continue;
-                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{
-                    if (isDev) console.log('updateCachedData', data, draft);
-                   }})
-                   );
-                 }}
+            updateCachedData(() => {
+              {
+                if (isDev) console.log('updateCachedData', data);
+                for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'SchedulesDirect' }])) {
+                  if (endpointName !== 'schedulesDirectGetStatus') continue;
+                  dispatch(
+                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                      {
+                        if (isDev) console.log('updateCachedData', data, draft);
+                      }
+                    })
+                  );
+                }
+              }
             });
           };
 
@@ -289,7 +304,7 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-    // eslint-disable-next-line comma-dangle
-    },
+      // eslint-disable-next-line comma-dangle
+    }
   }
 });

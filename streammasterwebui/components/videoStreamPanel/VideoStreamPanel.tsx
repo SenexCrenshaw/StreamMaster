@@ -270,7 +270,9 @@ const VideoStreamPanel = ({ group, onEdit, onSave, videoStream }: VideoStreamPan
                   }
                 }}
                 OnRowReorder={(e) => {
-                  setDataSource(e);
+                  if (dataSource !== undefined && dataSource.length > 0) {
+                    setDataSource(e);
+                  }
                 }}
                 videoStreamId={videoStream?.id}
               />

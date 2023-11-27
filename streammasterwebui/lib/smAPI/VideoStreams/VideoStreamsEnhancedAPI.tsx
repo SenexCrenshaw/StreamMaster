@@ -55,7 +55,7 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-    // eslint-disable-next-line comma-dangle
+      // eslint-disable-next-line comma-dangle
     },
     videoStreamsGetVideoStream: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -63,15 +63,20 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
           await cacheDataLoaded;
 
           const updateCachedDataWithResults = (data: iptv.VideoStreamDto) => {
-            updateCachedData(() => {{
-              if (isDev) console.log('updateCachedData', data);
-              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'VideoStreams' }])) {
-                if (endpointName !== 'videoStreamsGetVideoStream') continue;
-                  dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{
-                    if (isDev) console.log('updateCachedData', data, draft);
-                   }})
-                   );
-                 }}
+            updateCachedData(() => {
+              {
+                if (isDev) console.log('updateCachedData', data);
+                for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'VideoStreams' }])) {
+                  if (endpointName !== 'videoStreamsGetVideoStream') continue;
+                  dispatch(
+                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                      {
+                        if (isDev) console.log('updateCachedData', data, draft);
+                      }
+                    })
+                  );
+                }
+              }
             });
           };
 
@@ -83,7 +88,7 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-    // eslint-disable-next-line comma-dangle
+      // eslint-disable-next-line comma-dangle
     },
     videoStreamsGetVideoStreamNames: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -133,7 +138,7 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-    // eslint-disable-next-line comma-dangle
+      // eslint-disable-next-line comma-dangle
     },
     videoStreamsGetPagedVideoStreams: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
@@ -183,7 +188,7 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
           console.error('Error in onCacheEntryAdded:', error);
         }
       }
-    // eslint-disable-next-line comma-dangle
-    },
+      // eslint-disable-next-line comma-dangle
+    }
   }
 });
