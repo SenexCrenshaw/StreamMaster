@@ -110,7 +110,6 @@ public class StreamHandler(
         {
             VideoStreamingCancellationToken.Cancel();
         }
-
     }
 
     private async Task<int> TryReadStream(Memory<byte> bufferChunk, Stream stream)
@@ -135,7 +134,6 @@ public class StreamHandler(
         }
     }
 
-
     public CancellationTokenSource VideoStreamingCancellationToken { get; set; } = cancellationTokenSource;
 
     public int ClientCount => clientStreamerIds.Count;
@@ -147,12 +145,6 @@ public class StreamHandler(
         Stop();
         GC.SuppressFinalize(this);
     }
-
-    private string FormatLog(string message)
-    {
-        return "";
-    }
-
     public async Task RegisterClientStreamer(Guid ClientId, CancellationToken cancellationToken = default)
     {
         IClientStreamerConfiguration? streamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(ClientId, cancellationToken);
@@ -163,7 +155,6 @@ public class StreamHandler(
         }
         try
         {
-
             clientStreamerIds.TryAdd(streamerConfiguration.ClientId, streamerConfiguration.ClientId);
             RingBuffer.RegisterClient(streamerConfiguration.ClientId, streamerConfiguration.ClientUserAgent, streamerConfiguration.ClientIPAddress);
             await clientStreamerManager.SetClientBufferDelegate(streamerConfiguration.ClientId, RingBuffer, cancellationToken);
@@ -173,14 +164,12 @@ public class StreamHandler(
         catch (Exception ex)
         {
             logger.LogError(ex, "Error registering stream configuration for client {ClientId} {name}.", streamerConfiguration.ClientId, VideoStreamName);
-
         }
     }
 
     protected virtual void OnStreamControllerStopped()
     {
         logger.LogWarning("Stopping stream of {VideoStreamId}", VideoStreamId);
-
     }
 
     public void Stop()
@@ -211,7 +200,6 @@ public class StreamHandler(
 
     public bool UnRegisterClientStreamer(Guid ClientId)
     {
-
         try
         {
             logger.LogInformation("UnRegisterClientStreamer ClientId: {ClientId} {name}", ClientId, VideoStreamName);
@@ -241,7 +229,6 @@ public class StreamHandler(
             return null;
         }
     }
-
 
     public ICollection<IClientStreamerConfiguration>? GetClientStreamerConfigurations()
     {
