@@ -19,10 +19,11 @@ public class ChannelManager(
     IServiceProvider serviceProvider
     ) : IChannelManager
 {
+
     private readonly SemaphoreSlim _registerSemaphore = new(1, 1);
     private readonly SemaphoreSlim _unregisterSemaphore = new(1, 1);
 
-    private static readonly CancellationTokenSource ChannelWatcherToken = new();
+    private static CancellationTokenSource ChannelWatcherToken = new();
     private static bool ChannelWatcherStarted;
 
     public async Task ChangeVideoStreamChannel(string playingVideoStreamId, string newVideoStreamId)
@@ -47,7 +48,6 @@ public class ChannelManager(
 
         return;
     }
-
     public void Dispose()
     {
         broadcastService.StopBroadcasting();
@@ -59,10 +59,23 @@ public class ChannelManager(
         clientStreamerManager.FailClient(clientId);
     }
 
-    public async Task<Stream?> GetStream(IClientStreamerConfiguration config)
+    public async Task<Stream?> GetChannel(IClientStreamerConfiguration config)
     {
+        if (config.ClientMasterToken.IsCancellationRequested)
+        {
+            logger.LogInformation("Exiting GetChannel due to ClientMasterToken being cancelled");
+            return null;
+        }
+
+        Stream? res = await RegisterClientAndGetStream(config);
+        if (res is null)
+        {
+            logger.LogInformation("Exiting GetChannel due to RegisterClient returning null");
+            return null;
+        }
+
         broadcastService.StartBroadcasting();
-        return await RegisterClient(config);
+        return res;
     }
 
     public async Task RemoveClient(IClientStreamerConfiguration config)
@@ -84,13 +97,13 @@ public class ChannelManager(
 
     public void SimulateStreamFailure(string streamUrl)
     {
-        IStreamHandler? _streamInformation = streamManager.GetStreamHandlerFromStreamUrl(streamUrl);
+        IStreamHandler? handler = streamManager.GetStreamHandlerFromStreamUrl(streamUrl);
 
-        if (_streamInformation is not null)
+        if (handler is not null)
         {
-            if (_streamInformation.VideoStreamingCancellationToken?.IsCancellationRequested == false)
+            if (handler.VideoStreamingCancellationToken?.IsCancellationRequested == false)
             {
-                _streamInformation.VideoStreamingCancellationToken.Cancel();
+                handler.VideoStreamingCancellationToken.Cancel();
             }
             logger.LogInformation("Simulating stream failure for: {StreamUrl}", streamUrl);
         }
@@ -111,7 +124,7 @@ public class ChannelManager(
     private async Task ChannelWatcher()
     {
         ChannelWatcherStarted = true;
-        logger.LogInformation("Channel watcher starting");
+        logger.LogInformation("Channel watcher starting, is cancelled: {isCancelled}", ChannelWatcherToken.IsCancellationRequested);
         try
         {
             while (!ChannelWatcherToken.IsCancellationRequested)
@@ -122,12 +135,14 @@ public class ChannelManager(
                     int clientCount = clientStreamerManager.ClientCount(channelStatus.ChannelVideoStreamId);
                     if (clientCount == 0)
                     {
+                        //channelService.UnRegisterChannel(channelStatus.ChannelVideoStreamId);
                         continue;
                     }
 
                     bool hasClients = await CheckClients(channelStatus);
                     if (!hasClients)
                     {
+                        //channelService.UnRegisterChannel(channelStatus.ChannelVideoStreamId);
                         continue;
                     }
 
@@ -135,17 +150,18 @@ public class ChannelManager(
                     if (quit)
                     {
                         logger.LogDebug("Exiting ChannelWatcher loop due to quit condition for channel: {VideoStreamId}", channelStatus.CurrentVideoStreamId);
-                        ChannelWatcherToken.Cancel();
-                        break;
+                        //ChannelWatcherToken.Cancel();
+                        continue;
                     }
                 }
+
                 if (channelService.GetChannelStatuses().Count == 0)
                 {
                     logger.LogInformation("Exiting ChannelWatcher loop due to no channels");
                     ChannelWatcherToken.Cancel();
                     break;
                 }
-                await ChannelWatcherToken.Token.ApplyDelay(50);
+                await ChannelWatcherToken.Token.ApplyDelay(25);
             }
         }
         catch (TaskCanceledException)
@@ -167,7 +183,7 @@ public class ChannelManager(
 
         if (a.Any())
         {
-            foreach (IClientStreamerConfiguration client in clientStreamerManager.GetClientStreamerConfigurations)
+            foreach (IClientStreamerConfiguration client in clientStreamerManager.GetAllClientStreamerConfigurations)
             {
                 if (client.ClientMasterToken.IsCancellationRequested)
                 {
@@ -192,32 +208,37 @@ public class ChannelManager(
     private async Task<bool> ProcessStreamStatus(IChannelStatus channelStatus)
     {
         IStreamHandler? streamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStreamId);
-        if (streamHandler is null)
+        //if (streamHandler is null)
+        //{
+        //    return true;
+        //}
+
+        if (streamHandler is null || !streamHandler.VideoStreamingCancellationToken.IsCancellationRequested)
         {
-            return true;
+            return false;
         }
 
-        if (streamHandler.VideoStreamingCancellationToken.IsCancellationRequested)
+        if (streamHandler.IsFailed)
         {
-            logger.LogDebug("Video Streaming cancellation requested for channelStatus: {channelStatus}, stopping stream and attempting to handle next video stream", channelStatus.ChannelVideoStreamId);
-
-            try
-            {
-                bool handled = await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
-                logger.LogDebug("ProcessStreamStatus handled: {handled} after stopping streaming and handling next video stream", handled);
-                return !handled;
-            }
-            catch (TaskCanceledException)
-            {
-                logger.LogInformation("Task was cancelled");
-                throw;
-            }
+            return false;
         }
 
-        return false;
+        logger.LogDebug("Video Streaming cancellation requested for channelStatus: {channelStatus}, stopping stream and attempting to handle next video stream", channelStatus.ChannelVideoStreamId);
+
+        try
+        {
+            bool handled = await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
+            logger.LogDebug("ProcessStreamStatus handled: {handled} after stopping streaming and handling next video stream", handled);
+            return !handled;
+        }
+        catch (TaskCanceledException)
+        {
+            logger.LogInformation("Task was cancelled");
+            throw;
+        }
     }
 
-    private async Task<Stream?> RegisterClient(IClientStreamerConfiguration config)
+    private async Task<Stream?> RegisterClientAndGetStream(IClientStreamerConfiguration config)
     {
         IChannelStatus? channelStatus = await RegisterWithChannelManager(config);
         if (channelStatus is null || config.ReadBuffer is null)
@@ -232,6 +253,7 @@ public class ChannelManager(
 
     private async Task<IChannelStatus?> RegisterWithChannelManager(IClientStreamerConfiguration config)
     {
+
         await _registerSemaphore.WaitAsync();
         try
         {
@@ -241,8 +263,8 @@ public class ChannelManager(
 
             if (channelStatus == null)
             {
-                logger.LogError("Failed to register with channel manager.");
-                channelService.UnregisterChannel(config.ChannelVideoStreamId);
+                logger.LogError("Failed to register with channel manager. channelStatus is null");
+                channelService.UnRegisterChannel(config.ChannelVideoStreamId);
                 return null;
             }
 
@@ -250,8 +272,8 @@ public class ChannelManager(
 
             if (streamHandler == null)
             {
-                logger.LogError("Failed to register with channel manager.");
-                channelService.UnregisterChannel(config.ChannelVideoStreamId);
+                logger.LogError("Failed to register with channel manager. streamHandler is null");
+                channelService.UnRegisterChannel(config.ChannelVideoStreamId);
                 return null;
             }
 
@@ -261,6 +283,7 @@ public class ChannelManager(
 
             if (!ChannelWatcherStarted)
             {
+                ChannelWatcherToken = new();
                 _ = ChannelWatcher().ConfigureAwait(false);
             }
 
@@ -288,25 +311,25 @@ public class ChannelManager(
 
         if (channelStatus == null)
         {
-            channelStatus = channelService.RegisterChannel(config.ChannelVideoStreamId, config.ChannelVideoStreamId);
+            channelStatus = channelService.RegisterChannel(config.ChannelVideoStreamId, config.ChannelVideoStreamId, config.ChannelName);
             if (channelStatus == null)
             {
-                logger.LogError("Could not register new channel for {ClientId} {ChannelVideoStreamId}", config.ClientId, config.ChannelVideoStreamId);
-                channelService.UnregisterChannel(config.ChannelVideoStreamId);
+                logger.LogError("Could not register new channel for {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.ChannelVideoStreamId, videoStream.User_Tvg_name);
+                channelService.UnRegisterChannel(config.ChannelVideoStreamId);
                 return null;
             }
 
-            logger.LogInformation("No existing channel for {ClientId} {ChannelVideoStreamId}", config.ClientId, config.ChannelVideoStreamId);
+            logger.LogInformation("No existing channel for {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.ChannelVideoStreamId, videoStream.User_Tvg_name);
             if (!await streamSwitcher.SwitchToNextVideoStreamAsync(config.ChannelVideoStreamId).ConfigureAwait(false))
             {
-                logger.LogError("Cannot create new channel {ClientId} {ChannelVideoStreamId}", config.ClientId, config.ChannelVideoStreamId);
-                channelService.UnregisterChannel(config.ChannelVideoStreamId);
+                logger.LogError("Cannot create new channel {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.ChannelVideoStreamId, videoStream.User_Tvg_name);
+                channelService.UnRegisterChannel(config.ChannelVideoStreamId);
                 return null;
             }
         }
         else
         {
-            logger.LogInformation("Reuse existing stream handler for {ClientId} {ChannelVideoStreamId}", config.ClientId, config.ChannelVideoStreamId);
+            logger.LogInformation("Reuse existing stream handler for {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.ChannelVideoStreamId, videoStream.User_Tvg_name);
         }
 
         return channelStatus;
@@ -319,7 +342,7 @@ public class ChannelManager(
         {
             if (!channelService.HasChannel(config.ChannelVideoStreamId))
             {
-                logger.LogDebug("Exiting UnRegisterWithChannelManager due to VideoStreamId not found in _channelStatuses");
+                logger.LogDebug("UnRegisterWithChannelManager finished early, VideoStreamId not found in _channelStatuses");
                 return;
             }
 
@@ -344,7 +367,7 @@ public class ChannelManager(
                 logger.LogInformation("ChannelManager No more clients, stopping streaming for {videoStreamId}", StreamHandler.VideoStreamId);
                 _ = streamManager.StopAndUnRegisterHandler(StreamHandler.VideoStreamId);
 
-                channelService.UnregisterChannel(config.ChannelVideoStreamId);
+                channelService.UnRegisterChannel(config.ChannelVideoStreamId);
             }
 
             logger.LogInformation("Finished UnRegisterWithChannelManager with config: {config}", config.ClientId);

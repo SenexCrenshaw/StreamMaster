@@ -40,4 +40,5 @@ public interface IChannelStatus
     /// Gets or sets the name of the video stream associated with this channel.
     /// </summary>
     string CurrentVideoStreamName { get; set; }
+    string ChannelName { get; set; }
 }

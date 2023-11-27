@@ -11,7 +11,7 @@ public interface ICircularRingBufferFactory
     /// <param name="childVideoStreamDto">The DTO containing details about the child video stream.</param>
     /// <param name="rank">The rank or priority of the buffer.</param>
     /// <returns>A new ICircularRingBuffer instance.</returns>
-    ICircularRingBuffer CreateCircularRingBuffer(VideoStreamDto videoStreamDto, int rank);
+    ICircularRingBuffer CreateCircularRingBuffer(VideoStreamDto videoStreamDto, string ChannelName, int rank);
 
     ///// <summary>
     ///// Retrieves an existing ICircularRingBuffer instance based on the provided stream URL.
