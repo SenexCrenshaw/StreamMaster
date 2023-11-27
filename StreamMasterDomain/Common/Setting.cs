@@ -52,7 +52,7 @@ public class BaseSettings : SDSettings
     public string FFMPegExecutable { get; set; } = "ffmpeg";
     public int GlobalStreamLimit { get; set; } = 1;
     public int MaxConnectRetry { get; set; } = 20;
-    public int MaxConnectRetryTimeMS { get; set; } = 100;
+    public int MaxConnectRetryTimeMS { get; set; } = 200;
     public bool OverWriteM3UChannels { get; set; }
     public int PreloadPercentage { get; set; } = 25;
     public int RingBufferSizeMB { get; set; } = 4;

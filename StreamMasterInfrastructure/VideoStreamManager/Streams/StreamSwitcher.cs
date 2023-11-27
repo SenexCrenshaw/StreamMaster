@@ -20,16 +20,25 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
     public async Task<bool> SwitchToNextVideoStreamAsync(string ChannelVideoStreamId, string? overrideNextVideoStreamId = null)
     {
         logger.LogDebug("Start SwitchToNextVideoStream {ChannelVideoStreamId}", ChannelVideoStreamId);
-        IChannelStatus? channelStatus = channelService.GetChannelStatus(ChannelVideoStreamId);
-        if (channelStatus is null)
+        IChannelStatus? channelStatus = null;
+        lock (channelService)
         {
-            logger.LogError("SwitchToNextVideoStream could not get channelStatus for id {ChannelVideoStreamId}", ChannelVideoStreamId);
-            logger.LogDebug("Exiting SwitchToNextVideoStream with false due to channelStatus being null");
-            return false;
+            channelStatus = channelService.GetChannelStatus(ChannelVideoStreamId);
+            if (channelStatus is null)
+            {
+                logger.LogError("SwitchToNextVideoStream could not get channelStatus for id {ChannelVideoStreamId}", ChannelVideoStreamId);
+                logger.LogDebug("Exiting SwitchToNextVideoStream with false due to channelStatus being null");
+                return false;
+            }
+            if (channelStatus.FailoverInProgress)
+            {
+                logger.LogDebug("Exiting SwitchToNextVideoStream with false due to FailoverInProgress being true");
+                return false;
+            }
+            channelStatus.FailoverInProgress = true;
         }
-        logger.LogDebug("Starting SwitchToNextVideoStream with channelStatus: {channelStatus} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus, overrideNextVideoStreamId);
 
-        channelStatus.FailoverInProgress = true;
+        logger.LogDebug("Starting SwitchToNextVideoStream with channelStatus: {channelStatus} and overrideNextVideoStreamId: {overrideNextVideoStreamId}", channelStatus, overrideNextVideoStreamId);
 
         if (!await TokenExtensions.ApplyDelay())
         {

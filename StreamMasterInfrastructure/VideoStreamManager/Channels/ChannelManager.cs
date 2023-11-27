@@ -3,9 +3,11 @@ using Microsoft.Extensions.Logging;
 
 using StreamMasterApplication.Common.Interfaces;
 
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Extensions;
 using StreamMasterDomain.Repository;
+using StreamMasterDomain.Services;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Channels;
 
@@ -16,10 +18,10 @@ public class ChannelManager(
     IChannelService channelService,
     IStreamManager streamManager,
     IClientStreamerManager clientStreamerManager,
+    ISettingsService settingService,
     IServiceProvider serviceProvider
     ) : IChannelManager
 {
-
     private readonly SemaphoreSlim _registerSemaphore = new(1, 1);
     private readonly SemaphoreSlim _unregisterSemaphore = new(1, 1);
 
@@ -32,7 +34,6 @@ public class ChannelManager(
 
         foreach (IChannelStatus channelStatus in channelService.GetChannelStatusesFromVideoStreamId(playingVideoStreamId))
         {
-
             if (channelStatus != null)
             {
                 if (!await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId, newVideoStreamId))
@@ -129,28 +130,24 @@ public class ChannelManager(
         {
             while (!ChannelWatcherToken.IsCancellationRequested)
             {
-
                 foreach (IChannelStatus channelStatus in channelService.GetChannelStatuses())
                 {
                     int clientCount = clientStreamerManager.ClientCount(channelStatus.ChannelVideoStreamId);
                     if (clientCount == 0)
                     {
-                        //channelService.UnRegisterChannel(channelStatus.ChannelVideoStreamId);
                         continue;
                     }
 
                     bool hasClients = await CheckClients(channelStatus);
                     if (!hasClients)
                     {
-                        //channelService.UnRegisterChannel(channelStatus.ChannelVideoStreamId);
                         continue;
                     }
 
                     bool quit = await ProcessStreamStatus(channelStatus);
                     if (quit)
                     {
-                        logger.LogDebug("Exiting ChannelWatcher loop due to quit condition for channel: {VideoStreamId}", channelStatus.CurrentVideoStreamId);
-                        //ChannelWatcherToken.Cancel();
+                        logger.LogDebug("ChannelWatcher ProcessStreamStatus failed for: {ChannelName} {VideoStreamId}", channelStatus.ChannelName, channelStatus.CurrentVideoStreamId);
                         continue;
                     }
                 }
@@ -208,12 +205,8 @@ public class ChannelManager(
     private async Task<bool> ProcessStreamStatus(IChannelStatus channelStatus)
     {
         IStreamHandler? streamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStreamId);
-        //if (streamHandler is null)
-        //{
-        //    return true;
-        //}
 
-        if (streamHandler is null || !streamHandler.VideoStreamingCancellationToken.IsCancellationRequested)
+        if (streamHandler?.VideoStreamingCancellationToken.IsCancellationRequested != true)
         {
             return false;
         }
@@ -225,9 +218,25 @@ public class ChannelManager(
 
         logger.LogDebug("Video Streaming cancellation requested for channelStatus: {channelStatus}, stopping stream and attempting to handle next video stream", channelStatus.ChannelVideoStreamId);
 
+        Setting setting = await settingService.GetSettingsAsync().ConfigureAwait(false);
+
+        int maxRetries = setting.MaxConnectRetry > 0 ? setting.MaxConnectRetry : 3;
+        int waitTime = setting.MaxConnectRetryTimeMS > 0 ? setting.MaxConnectRetryTimeMS : 50;
+
         try
         {
-            bool handled = await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
+            bool handled = false;
+            while (!handled || maxRetries > 0)
+            {
+                handled = await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId);
+                if (handled)
+                {
+                    break;
+                }
+                await Task.Delay(waitTime);
+                maxRetries--;
+            }
+
             logger.LogDebug("ProcessStreamStatus handled: {handled} after stopping streaming and handling next video stream", handled);
             return !handled;
         }
@@ -253,7 +262,6 @@ public class ChannelManager(
 
     private async Task<IChannelStatus?> RegisterWithChannelManager(IClientStreamerConfiguration config)
     {
-
         await _registerSemaphore.WaitAsync();
         try
         {
