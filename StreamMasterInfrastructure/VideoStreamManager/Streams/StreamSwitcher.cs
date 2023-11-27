@@ -63,6 +63,7 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
             logger.LogDebug("Exiting SwitchToNextVideoStream with false due to channelStatus. newStreamHandler is null");
             channelStatus.FailoverInProgress = false;
             return false;
+
         }
 
         if (oldStreamHandler is not null)

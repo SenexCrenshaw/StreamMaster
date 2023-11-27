@@ -364,7 +364,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         string jsonString = JsonSerializer.Serialize(toPost);
 
         StringContent content = new(jsonString, Encoding.UTF8, "application/json");
-
+        string? responseContent = "";
         int retry = 0;
         try
         {
@@ -376,7 +376,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
                 HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
                 using HttpResponseMessage response = await httpClient.PostAsync(url, content, cancellationToken).ConfigureAwait(false);
 
-                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? result) = await SDHandler.ProcessResponse<T?>(response, cancellationToken).ConfigureAwait(false);
+                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, responseContent, T? result) = await SDHandler.ProcessResponse<T?>(response, cancellationToken).ConfigureAwait(false);
 
                 if (responseCode == SDHttpResponseCode.ACCOUNT_LOCKOUT || responseCode == SDHttpResponseCode.ACCOUNT_DISABLED || responseCode == SDHttpResponseCode.ACCOUNT_EXPIRED)
                 {
@@ -403,6 +403,8 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         }
         catch (Exception ex)
         {
+            Console.WriteLine("Exception cannot deserialize data for {command} to ", command);
+            Console.WriteLine(responseContent);
             return default;
         }
         return default;
