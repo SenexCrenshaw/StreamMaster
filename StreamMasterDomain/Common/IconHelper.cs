@@ -96,11 +96,11 @@ public static class IconHelper
 
         DirectoryInfo dirInfo = new(BuildInfo.TVLogoDataFolder);
 
-        List<TvLogoFile> tvLogos = new()
-        {
+        List<TvLogoFile> tvLogos =
+        [
             new TvLogoFile
             {
-                Id=0,
+                Id = 0,
                 Source = BuildInfo.IconDefault,
                 FileExists = true,
                 Name = "Default Icon"
@@ -108,14 +108,14 @@ public static class IconHelper
 
             new TvLogoFile
             {
-                Id=1,
+                Id = 1,
                 Source = "images/StreamMaster.png",
                 FileExists = true,
                 Name = "Stream Master"
             }
-        };
+        ];
 
-        tvLogos.AddRange(await FileUtil.GetIconFilesFromDirectory(dirInfo, fd.DirectoryLocation, tvLogos.Count, cancellationToken).ConfigureAwait(false));
+        tvLogos.AddRange(await FileUtil.GetIconFilesFromDirectory(dirInfo, dirInfo.FullName, tvLogos.Count, cancellationToken).ConfigureAwait(false));
 
         memoryCache.ClearIcons();
         memoryCache.SetCache(tvLogos);

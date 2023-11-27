@@ -1,27 +1,11 @@
-﻿using FluentValidation;
-
-namespace StreamMasterApplication.Icons.Commands;
+﻿namespace StreamMasterApplication.Icons.Commands;
 
 public record ReadDirectoryLogosRequest : IRequest
 {
 }
 
-public class ReadDirectoryLogosRequestValidator : AbstractValidator<ReadDirectoryLogosRequest>
+public class ReadDirectoryLogosRequestHandler(IMemoryCache memoryCache) : IRequestHandler<ReadDirectoryLogosRequest>
 {
-    public ReadDirectoryLogosRequestValidator()
-    {
-    }
-}
-
-public class ReadDirectoryLogosRequestHandler : IRequestHandler<ReadDirectoryLogosRequest>
-{
-    private readonly IMemoryCache _memoryCache;
-
-    public ReadDirectoryLogosRequestHandler(IMemoryCache memoryCache)
-    {
-        _memoryCache = memoryCache;
-    }
-
     public async Task Handle(ReadDirectoryLogosRequest command, CancellationToken cancellationToken)
     {
         if (!Directory.Exists(BuildInfo.TVLogoDataFolder))
@@ -29,14 +13,13 @@ public class ReadDirectoryLogosRequestHandler : IRequestHandler<ReadDirectoryLog
             return;
         }
 
-
         DirectoryInfo dirInfo = new(BuildInfo.TVLogoDataFolder);
 
-        List<TvLogoFile> tvLogos = new()
-        {
+        List<TvLogoFile> tvLogos =
+        [
             new TvLogoFile
             {
-                Id=0,
+                Id = 0,
                 Source = BuildInfo.IconDefault,
                 FileExists = true,
                 Name = "Default Icon"
@@ -44,16 +27,16 @@ public class ReadDirectoryLogosRequestHandler : IRequestHandler<ReadDirectoryLog
 
             new TvLogoFile
             {
-                Id=1,
+                Id = 1,
                 Source = "images/StreamMaster.png",
                 FileExists = true,
                 Name = "Stream Master"
             }
-        };
+        ];
 
-        tvLogos.AddRange(await FileUtil.GetIconFilesFromDirectory(dirInfo, BuildInfo.TVLogoDataFolder, tvLogos.Count, cancellationToken).ConfigureAwait(false));
+        tvLogos.AddRange(await FileUtil.GetIconFilesFromDirectory(dirInfo, dirInfo.FullName, tvLogos.Count, cancellationToken).ConfigureAwait(false));
 
-        _memoryCache.ClearIcons();
-        _memoryCache.SetCache(tvLogos);
+        memoryCache.ClearIcons();
+        memoryCache.SetCache(tvLogos);
     }
 }
