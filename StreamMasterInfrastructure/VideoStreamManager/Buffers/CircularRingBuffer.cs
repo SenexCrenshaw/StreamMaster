@@ -25,7 +25,7 @@ public class CircularRingBuffer : ICircularRingBuffer
     private readonly Memory<byte> _buffer;
     private readonly int _bufferSize;
     private readonly ConcurrentDictionary<Guid, int> _clientReadIndexes = new();
-    private readonly Dictionary<Guid, SemaphoreSlim> _clientSemaphores = new();
+    private readonly Dictionary<Guid, SemaphoreSlim> _clientSemaphores = [];
     private readonly ILogger<ICircularRingBuffer> _logger;
     private int _oldestDataIndex;
     private readonly float _preBuffPercent;
@@ -73,7 +73,7 @@ public class CircularRingBuffer : ICircularRingBuffer
 
     public List<StreamStatisticsResult> GetAllStatisticsForAllUrls()
     {
-        List<StreamStatisticsResult> allStatistics = new();
+        List<StreamStatisticsResult> allStatistics = [];
 
         IInputStreamingStatistics input = GetInputStreamStatistics();
 
@@ -107,29 +107,14 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         return allStatistics;
     }
-    //private readonly Dictionary<Guid, DateTime> _lastLogTime = new();
 
     public int GetAvailableBytes(Guid clientId)
     {
-        //DateTime currentTime = DateTime.UtcNow;
-
-        //if (!_lastLogTime.ContainsKey(clientId) || (currentTime - _lastLogTime[clientId]).TotalSeconds >= 2)
-        //{
-        //    _logger.LogInformation("GetAvailableBytes for {Id} {CurrentVideoStreamId} clientId: {clientId}", Id, CurrentVideoStreamId, clientId);
-        //    foreach (KeyValuePair<Guid, int> kvp in _clientReadIndexes)
-        //    {
-        //        _logger.LogInformation("GetAvailableBytes for {Id} {CurrentVideoStreamId} clientId: {clientId} kvp: {kvp}", Id, CurrentVideoStreamId, clientId, kvp);
-        //    }
-        //    _lastLogTime[clientId] = currentTime;
-        //}
-
-        if (!_clientReadIndexes.ContainsKey(clientId))
+        if (_clientReadIndexes.TryGetValue(clientId, out int readIndex))
         {
-            return 0;
+            return (_writeIndex - readIndex + _buffer.Length) % _buffer.Length;
         }
-
-        int readIndex = _clientReadIndexes[clientId];
-        return (_writeIndex - readIndex + _buffer.Length) % _buffer.Length;
+        return 0;
     }
 
     public ICollection<Guid> GetClientIds()
@@ -148,8 +133,6 @@ public class CircularRingBuffer : ICircularRingBuffer
     }
     public bool IsPreBuffered()
     {
-        _logger.LogDebug("Starting IsPreBuffered {VideoStreamId}", VideoStreamId);
-
         if (InternalIsPreBuffered)
         {
             _logger.LogDebug("Finished IsPreBuffered with true (already pre-buffered) {VideoStreamId}", VideoStreamId);
@@ -191,29 +174,45 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         while (!IsPreBuffered())
         {
-            await Task.Delay(100, cancellationToken);
+            await Task.Delay(100, cancellationToken).ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
         }
 
-        int readIndex = _clientReadIndexes[clientId];
-
-        for (int i = 0; i < count && !cancellationToken.IsCancellationRequested; i++)
+        if (!_clientReadIndexes.TryGetValue(clientId, out int readIndex))
         {
-            buffer[offset + i] = _buffer.Span[readIndex];
-            readIndex = (readIndex + 1) % _buffer.Length;
+            _logger.LogWarning("Client {clientId} not found in ReadChunk", clientId);
+            return 0; // Or throw an exception
+        }
+
+        int bytesRead = 0;
+        while (bytesRead < count)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            int availableToRead = Math.Min(count - bytesRead, _buffer.Length - readIndex);
+            if (availableToRead == 0)
+            {
+                // Handle wrap-around
+                readIndex = 0;
+                continue;
+            }
+
+            _buffer.Slice(readIndex, availableToRead).Span.CopyTo(buffer.AsSpan(offset + bytesRead));
+            bytesRead += availableToRead;
+            readIndex = (readIndex + availableToRead) % _buffer.Length;
         }
 
         _clientReadIndexes[clientId] = readIndex;
 
-        _statisticsManager.AddBytesRead(clientId, count);
-        _logger.LogDebug("Finished ReadChunk for clientId: {clientId}", clientId);
+        _statisticsManager.AddBytesRead(clientId, bytesRead);
+        _logger.LogDebug("Finished ReadChunk for clientId: {clientId} with bytes read: {bytesRead}", clientId, bytesRead);
 
-        return count;
+        return bytesRead;
     }
 
     public async Task<int> ReadChunkMemory(Guid clientId, Memory<byte> target, CancellationToken cancellationToken)
     {
-        _logger.LogDebug("Starting ReadChunkMemory for clientId: {clientId}", clientId);
+        // _logger.LogInformation("Starting ReadChunkMemory for clientId: {clientId}", clientId);
 
         while (!IsPreBuffered())
         {
@@ -231,6 +230,7 @@ public class CircularRingBuffer : ICircularRingBuffer
         int bytesRead = 0;
         while (bytesToRead > 0)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             // Calculate how much we can read before we have to wrap
             int canRead = Math.Min(bytesToRead, _buffer.Length - readIndex);
 
@@ -283,7 +283,6 @@ public class CircularRingBuffer : ICircularRingBuffer
 
     public void UnRegisterClient(Guid clientId)
     {
-
         _ = _clientReadIndexes.TryRemove(clientId, out _);
         _ = _clientSemaphores.Remove(clientId);
         _statisticsManager.UnRegisterClient(clientId);
@@ -298,23 +297,22 @@ public class CircularRingBuffer : ICircularRingBuffer
 
     public async Task WaitSemaphoreAsync(Guid clientId, CancellationToken cancellationToken)
     {
-
         if (cancellationToken.IsCancellationRequested)
         {
             _logger.LogDebug("Exiting WaitSemaphoreAsync early due to CancellationToken cancellation request for clientId: {clientId}", clientId);
             return;
         }
 
-        if (!_clientSemaphores.ContainsKey(clientId))
+        if (_clientSemaphores.TryGetValue(clientId, out SemaphoreSlim? value))
         {
-            _logger.LogDebug("Exiting WaitSemaphoreAsync early due to clientId not registered: {clientId}", clientId);
+            SemaphoreSlim semaphore = value;
+            await semaphore.WaitAsync(50, cancellationToken);
+
+            _logger.LogDebug("WaitSemaphoreAsync for clientId: {clientId}", clientId);
             return;
         }
 
-        SemaphoreSlim semaphore = _clientSemaphores[clientId];
-        await semaphore.WaitAsync(50, cancellationToken);
-
-        _logger.LogDebug("WaitSemaphoreAsync for clientId: {clientId}", clientId);
+        _logger.LogDebug("Exiting WaitSemaphoreAsync early due to clientId not registered: {clientId}", clientId);
     }
 
     public void Write(byte data)
@@ -350,20 +348,32 @@ public class CircularRingBuffer : ICircularRingBuffer
         _logger.LogDebug("Starting WriteChunk {VideoStreamId} with count: {count}", VideoStreamId, data.Length);
 
         int bytesWritten = 0;
-        Span<byte> dataSpan = data.Span;
 
-        for (int i = 0; i < data.Length; i++)
+        while (data.Length > 0)
         {
-            int nextWriteIndex = (_writeIndex + 1) % _buffer.Length;
-
-            if (nextWriteIndex == _oldestDataIndex)
+            int availableSpace = _buffer.Length - _writeIndex;
+            if (availableSpace == 0)
             {
-                _oldestDataIndex = (_oldestDataIndex + 1) % _buffer.Length;
+                // Handle buffer wrap around
+                _writeIndex = 0;
+                availableSpace = _buffer.Length;
             }
 
-            _buffer.Span[_writeIndex] = dataSpan[i];
-            _writeIndex = nextWriteIndex;
-            bytesWritten++;
+            int lengthToWrite = Math.Min(data.Length, availableSpace);
+
+            try
+            {
+                Memory<byte> bufferSlice = _buffer.Slice(_writeIndex, lengthToWrite);
+                data[..lengthToWrite].CopyTo(bufferSlice);
+                _writeIndex = (_writeIndex + lengthToWrite) % _buffer.Length;
+                bytesWritten += lengthToWrite;
+                data = data[lengthToWrite..];
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error writing chunk in WriteChunk for {VideoStreamId}.", VideoStreamId);
+                throw;
+            }
         }
 
         _inputStreamStatistics.AddBytesWritten(bytesWritten);
@@ -387,8 +397,9 @@ public class CircularRingBuffer : ICircularRingBuffer
         _logger.LogDebug("Starting WriteChunk {VideoStreamId} with count: {count}", VideoStreamId, count);
 
         int bytesWritten = 0;
+        int dataIndex = 0;
 
-        for (int i = 0; i < count; i++)
+        while (dataIndex < count)
         {
             int nextWriteIndex = (_writeIndex + 1) % _buffer.Length;
 
@@ -397,9 +408,23 @@ public class CircularRingBuffer : ICircularRingBuffer
                 _oldestDataIndex = (_oldestDataIndex + 1) % _buffer.Length;
             }
 
-            _buffer.Span[_writeIndex] = data[i];
-            _writeIndex = nextWriteIndex;
-            bytesWritten++;
+            int availableSpace = _buffer.Length - _writeIndex;
+            if (availableSpace == 0)
+            {
+                // Handle buffer wrap around
+                _writeIndex = 0;
+                availableSpace = _buffer.Length;
+            }
+
+            int lengthToWrite = Math.Min(count - dataIndex, availableSpace);
+
+            Span<byte> bufferSpan = _buffer.Span.Slice(_writeIndex, lengthToWrite);
+            Span<byte> dataSpan = new(data, dataIndex, lengthToWrite);
+            dataSpan.CopyTo(bufferSpan);
+
+            _writeIndex = (_writeIndex + lengthToWrite) % _buffer.Length;
+            dataIndex += lengthToWrite;
+            bytesWritten += lengthToWrite;
         }
 
         _inputStreamStatistics.AddBytesWritten(bytesWritten);
@@ -417,7 +442,6 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         return bytesWritten;
     }
-
     public float GetBufferUtilization()
     {
         int dataInBuffer = (_writeIndex - _oldestDataIndex + _buffer.Length) % _buffer.Length;
