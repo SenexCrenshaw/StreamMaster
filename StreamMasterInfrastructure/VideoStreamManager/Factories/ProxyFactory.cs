@@ -28,7 +28,7 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
         }
         else
         {
-            (stream, processId, error) = await GetProxyStream(streamUrl, cancellationToken);
+            (stream, processId, error) = await GetProxyStream(streamUrl, streamName, cancellationToken);
             LogErrorIfAny(stream, error, streamUrl, streamName);
         }
 
@@ -120,7 +120,7 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
         return (null, -1, error);
     }
 
-    private async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxyStream(string sourceUrl, CancellationToken cancellationToken)
+    private async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxyStream(string sourceUrl, string streamName, CancellationToken cancellationToken)
     {
         try
         {
@@ -130,7 +130,7 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
 
             if (response?.IsSuccessStatusCode != true)
             {
-                ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = "Could not retrieve stream url" };
+                ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = $"Could not retrieve stream for {streamName}", };
                 logger.LogError("GetProxyStream Error: {message}", error.Message);
                 return (null, -1, error);
             }
@@ -138,24 +138,23 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
             string? contentType = response.Content.Headers?.ContentType?.MediaType;
 
             if ((!string.IsNullOrEmpty(contentType) &&
-
                     contentType.Equals("application/vnd.apple.mpegurl", StringComparison.OrdinalIgnoreCase)) ||
                     contentType.Equals("audio/mpegurl", StringComparison.OrdinalIgnoreCase) ||
                     contentType.Equals("application/x-mpegURL", StringComparison.OrdinalIgnoreCase)
                 )
             {
-                logger.LogInformation("Stream URL has HLS content, using FFMpeg for streaming: {StreamUrl}", sourceUrl);
+                logger.LogInformation("Stream URL has HLS content, using FFMpeg for streaming: {StreamUrl} {streamName}", sourceUrl);
                 return await GetFFMpegStream(sourceUrl).ConfigureAwait(false);
             }
 
             Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-            logger.LogInformation("Successfully retrieved stream for: {StreamUrl}", sourceUrl);
+            logger.LogInformation("Successfully retrieved stream for: {StreamUrl} {streamName}", sourceUrl);
             return (stream, -1, null);
         }
         catch (Exception ex)
         {
             ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = ex.Message };
-            logger.LogError(ex, "GetProxyStream Error: ", error.Message);
+            logger.LogError(ex, $"GetProxyStream Error for {streamName} :", error.Message);
             return (null, -1, error);
         }
     }
