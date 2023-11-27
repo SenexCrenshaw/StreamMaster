@@ -25,7 +25,7 @@ $obj |  Write-Output
 $tags = if ($BuildProd) {
     "${imageName}:latest",
     "${imageName}:$semVer",
-    "${imageName}:$buildMetaDataPadded"
+    "${imageName}:$semVer-$buildMetaDataPadded"
 }
 else {
     "${imageName}:$branchName-$semVer-$buildMetaDataPadded"
