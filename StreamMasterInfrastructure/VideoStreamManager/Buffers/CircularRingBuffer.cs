@@ -303,16 +303,15 @@ public class CircularRingBuffer : ICircularRingBuffer
             return;
         }
 
-        if (_clientSemaphores.TryGetValue(clientId, out SemaphoreSlim? value))
+        if (_clientSemaphores.TryGetValue(clientId, out SemaphoreSlim? semaphore))
         {
-            SemaphoreSlim semaphore = value;
-            await semaphore.WaitAsync(50, cancellationToken);
-
+            await semaphore.WaitAsync(1000, cancellationToken);
             _logger.LogDebug("WaitSemaphoreAsync for clientId: {clientId}", clientId);
-            return;
         }
-
-        _logger.LogDebug("Exiting WaitSemaphoreAsync early due to clientId not registered: {clientId}", clientId);
+        else
+        {
+            _logger.LogDebug("Exiting WaitSemaphoreAsync early due to clientId not registered: {clientId}", clientId);
+        }
     }
 
     public void Write(byte data)
