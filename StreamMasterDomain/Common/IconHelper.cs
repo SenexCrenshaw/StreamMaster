@@ -86,7 +86,7 @@ public static class IconHelper
         return icon;
     }
 
-    public static async Task<bool> ReadDirectoryLogos(IMemoryCache memoryCache, CancellationToken cancellationToken)
+    public static async Task<bool> ReadDirectoryLogos(IMemoryCache memoryCache, CancellationToken cancellationToken = default)
     {
         FileDefinition fd = FileDefinitions.TVLogo;
         if (!Directory.Exists(fd.DirectoryLocation))
@@ -117,7 +117,7 @@ public static class IconHelper
 
         tvLogos.AddRange(await FileUtil.GetIconFilesFromDirectory(dirInfo, dirInfo.FullName, tvLogos.Count, cancellationToken).ConfigureAwait(false));
 
-        memoryCache.ClearIcons();
+        memoryCache.ClearTvLogos();
         memoryCache.SetCache(tvLogos);
         return true;
     }

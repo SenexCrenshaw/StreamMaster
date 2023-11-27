@@ -3,7 +3,7 @@ import { type ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import ExportButton from '@components/export/ExportButton';
 import GlobalSearch from '@components/search/GlobalSearch';
 import { SMFileTypes } from '@lib/common/streammaster_enums';
-import { StationIdLineup, type ChildVideoStreamDto, type IconFileDto, type VideoStreamDto } from '@lib/iptvApi';
+import { StationIdLineup, type IconFileDto, type VideoStreamDto } from '@lib/iptvApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { Checkbox } from 'primereact/checkbox';
 import { type DataTableFilterMeta, type DataTableFilterMetaData } from 'primereact/datatable';
@@ -390,10 +390,10 @@ export const doSetsContainSameIds = (set1: Set<number | string>, set2: Set<numbe
   return true;
 };
 
-export function isChildVideoStreamDto(value: unknown): value is ChildVideoStreamDto {
-  // Perform the necessary type checks to determine if 'value' is of type 'ChildVideoStreamDto'
+export function isVideoStreamDto(value: unknown): value is VideoStreamDto {
+  // Perform the necessary type checks to determine if 'value' is of type 'VideoStreamDto'
   if (typeof value === 'object' && value !== null) {
-    const dto = value as ChildVideoStreamDto;
+    const dto = value as VideoStreamDto;
 
     return dto.rank !== undefined;
   }
@@ -412,7 +412,7 @@ export const GetMessageDiv = (id: string, upperCase?: boolean | null): React.Rea
   return <div>{message}</div>;
 };
 
-export function areVideoStreamsEqual(streams1: ChildVideoStreamDto[] | VideoStreamDto[], streams2: ChildVideoStreamDto[] | VideoStreamDto[]): boolean {
+export function areVideoStreamsEqual(streams1: VideoStreamDto[] | VideoStreamDto[], streams2: VideoStreamDto[] | VideoStreamDto[]): boolean {
   if (streams1.length !== streams2.length) {
     return false;
   }
@@ -422,11 +422,7 @@ export function areVideoStreamsEqual(streams1: ChildVideoStreamDto[] | VideoStre
       return false;
     }
 
-    if (
-      isChildVideoStreamDto(element) &&
-      isChildVideoStreamDto(streams2[index]) &&
-      (element as ChildVideoStreamDto).rank !== (streams2[index] as ChildVideoStreamDto).rank
-    ) {
+    if (isVideoStreamDto(element) && isVideoStreamDto(streams2[index]) && (element as VideoStreamDto).rank !== (streams2[index] as VideoStreamDto).rank) {
       return false;
     }
   }

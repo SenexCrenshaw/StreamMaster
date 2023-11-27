@@ -37,7 +37,7 @@ export interface BaseSelectorProperties<T extends HasId> {
   readonly disabled?: boolean;
   readonly editable?: boolean | undefined;
   readonly isLoading?: boolean;
-  readonly itemSize: number[] | number | undefined;
+  readonly itemSize: number;
   readonly itemTemplate: (option: T) => JSX.Element;
   readonly onChange: (value: string) => void;
   readonly optionLabel: string;
@@ -102,7 +102,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
           console.error(error);
         }
       }
-      const item = data.find((x) => x.id === props.value);
+      const item = data.find((x) => x.id === props.value || x.source === props.value);
 
       if (item) {
         setSelectedItem(item);
@@ -247,14 +247,14 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
           lazy: true,
           loaderDisabled: true,
           // loadingTemplate: loadingTemplate,
-          numToleratedItems: 40,
+          numToleratedItems: 100,
 
           onLazyLoad: (e: any) => {
             if (e.filter === '' && (e.last as number) >= index) {
               const firstRecord = (e.first as number) < index ? index : (e.first as number);
               setSimpleQuery({
                 first: firstRecord,
-                last: (e.last as number) + 100
+                last: (e.last as number) + 200
               } as SimpleQueryApiArgument);
             }
           },

@@ -1,5 +1,7 @@
 ﻿using StreamMasterApplication.Common.Interfaces;
 
+using StreamMasterDomain.Dto;
+
 using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Channels;
@@ -8,13 +10,16 @@ public class ChannelService(IClientStreamerManager clientManager) : IChannelServ
 {
     private readonly ConcurrentDictionary<string, IChannelStatus> _channelStatuses = new();
 
-    public IChannelStatus RegisterChannel(string channelVideoStreamId, string videoStreamName, string channelName)
+    public IChannelStatus RegisterChannel(VideoStreamDto ChannelVideoStream, string ChannelName)
     {
-        if (!_channelStatuses.TryGetValue(channelVideoStreamId, out IChannelStatus? channelStatus))
+
+        if (!_channelStatuses.TryGetValue(ChannelVideoStream.Id, out IChannelStatus? channelStatus))
         {
-            channelStatus = new ChannelStatus(channelVideoStreamId, videoStreamName, channelName);
-            _ = _channelStatuses.TryAdd(channelVideoStreamId, channelStatus);
+            channelStatus = new ChannelStatus(ChannelVideoStream.Id, ChannelVideoStream.User_Tvg_name, ChannelName);
+            _ = _channelStatuses.TryAdd(ChannelVideoStream.Id, channelStatus);
         }
+
+        channelStatus.CurrentVideoStream = ChannelVideoStream;
 
         return channelStatus;
     }
@@ -64,4 +69,5 @@ public class ChannelService(IClientStreamerManager clientManager) : IChannelServ
         List<IClientStreamerConfiguration> test = clientManager.GetClientStreamerConfigurationFromIds(clientIds);
         return test;
     }
+
 }

@@ -43,7 +43,8 @@ public class BuildIconsCacheFromVideoStreamRequestHandler : BaseMediatorRequestH
             toWrite.Add(icon);
         });
 
-        List<IconFileDto> icons = MemoryCache.GetIcons(Mapper);
+
+        List<IconFileDto> icons = MemoryCache.Icons();
         IEnumerable<IconFileDto> missingIcons = toWrite.Except(icons, new IconFileDtoComparer());
         missingIcons = missingIcons.Distinct(new IconFileDtoComparer());
         icons.AddRange(missingIcons);

@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 
+using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+
 namespace StreamMasterApplication.EPGFiles.Commands;
 
 public record DeleteEPGFileRequest(bool DeleteFile, int Id) : IRequest<int?> { }
@@ -42,11 +44,11 @@ public class DeleteEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestH
             }
         }
 
-        List<ChannelLogoDto> programmes = MemoryCache.ChannelLogos();
+        List<Programme> programmes = MemoryCache.Programmes();
         _ = programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
         MemoryCache.SetCache(programmes);
 
-        List<ChannelLogoDto> channels = MemoryCache.ChannelLogos();
+        List<ProgrammeChannel> channels = MemoryCache.ProgrammeChannels();
         _ = channels.RemoveAll(a => a.EPGFileId == epgFile.Id);
         MemoryCache.SetCache(channels);
 

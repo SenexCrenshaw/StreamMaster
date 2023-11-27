@@ -4,9 +4,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterApplication.Services;
 
-using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Dto;
 
 namespace StreamMasterAPI.Services;
 
@@ -50,8 +48,8 @@ public class PostStartup : BackgroundService
 
         if (await IconHelper.ReadDirectoryLogos(_memoryCache, cancellationToken).ConfigureAwait(false))
         {
-            List<IconFileDto> cacheValue = _mapper.Map<List<IconFileDto>>(_memoryCache.TvLogos());
-            _memoryCache.SetCache(cacheValue);
+            //List<IconFileDto> cacheValue = _mapper.Map<List<IconFileDto>>(_memoryCache.TvLogos());
+            //_memoryCache.SetCache(cacheValue);
         }
 
         await _taskQueue.ScanDirectoryForEPGFiles(cancellationToken).ConfigureAwait(false);

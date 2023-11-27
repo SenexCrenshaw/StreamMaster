@@ -315,7 +315,7 @@ public class ChannelManager(
 
         if (channelStatus == null)
         {
-            channelStatus = channelService.RegisterChannel(config.ChannelVideoStreamId, config.ChannelVideoStreamId, config.ChannelName);
+            channelStatus = channelService.RegisterChannel(videoStream, config.ChannelName);
             if (channelStatus == null)
             {
                 logger.LogError("Could not register new channel for {ClientId} {ChannelVideoStreamId} {name}", config.ClientId, config.ChannelVideoStreamId, videoStream.User_Tvg_name);
@@ -346,7 +346,7 @@ public class ChannelManager(
         {
             if (!channelService.HasChannel(config.ChannelVideoStreamId))
             {
-                logger.LogDebug("UnRegisterWithChannelManager finished early, VideoStreamId not found in _channelStatuses");
+                logger.LogDebug("UnRegisterWithChannelManager finished early, VideoStreamId not found in channelService");
                 return;
             }
 

@@ -14,6 +14,8 @@ const IconSelector: React.FC<Partial<IconSelectorProperties>> = ({ enableEditMod
   const setting = useSettings();
 
   const selectedTemplate = (option: any) => {
+    if (option === null) return <div />;
+
     const iconUrl = option?.source ? getIconUrl(restProperties.value, setting.defaultIcon, false) : '';
 
     if (!iconUrl) return <div />;
@@ -54,7 +56,8 @@ const IconSelector: React.FC<Partial<IconSelectorProperties>> = ({ enableEditMod
   return (
     <BaseSelector
       {...restProperties}
-      itemSize={64}
+      className="iconselector"
+      itemSize={42}
       itemTemplate={iconOptionTemplate}
       onChange={handleOnChange}
       optionLabel="name"

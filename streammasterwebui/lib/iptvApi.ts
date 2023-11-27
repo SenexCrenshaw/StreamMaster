@@ -1943,7 +1943,8 @@ export type ChannelLogoDto = {
   id?: number;
   epgId?: string;
   epgFileId?: number;
-  logoUrl?: string;
+  source?: string;
+  name?: string;
 };
 export type IdName = {
   id: string;

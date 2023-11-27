@@ -97,11 +97,12 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
             .. setting.SDStationIds.AsParallel().WithCancellation(cancellationToken).SelectMany(SDStationId =>
                     {
                         return stationDictionary.TryGetValue(SDStationId.StationId, out Station? station) && station.Lineup == SDStationId.Lineup
-                            ? station.StationLogo?.Where(logo => !channelLogos.Any(a => a.LogoUrl == logo.URL))
+                            ? station.StationLogo?.Where(logo => !channelLogos.Any(a => a.Source == logo.URL))
                                 .Select(logo => new ChannelLogoDto
                                 {
                                     Id = Interlocked.Increment(ref nextId),
-                                    LogoUrl = logo.URL,
+                                    Source = logo.URL,
+                                    Name = station.Name,
                                     EPGId = "SD|" + SDStationId.StationId,
                                     EPGFileId = 0
                                 }) ?? Enumerable.Empty<ChannelLogoDto>()
@@ -134,6 +135,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         int totalPrograms = schedules.SelectMany(a => a.Programs).Count(p => p.AirDateTime <= maxDate);
 
         _logger.LogInformation("SD working on {num} programs", totalPrograms);
+        int counter = 0;
 
         foreach (Schedule sched in schedules)
         {
@@ -152,14 +154,13 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
             List<SDProgram> sdPrograms = await GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
             Dictionary<string, SDProgram> sdProgramsDict = sdPrograms.ToDictionary(p => p.ProgramID);
 
-            int counter = 0;
 
             foreach (Program? p in relevantPrograms)
             {
                 counter++;
                 if (counter % 100 == 0)
                 {
-                    _logger.LogInformation("Processed {counter} programs out of {totalPrograms}", counter, relevantPrograms.Count);
+                    _logger.LogInformation("Processed {counter} programs out of {totalPrograms}", counter, totalPrograms);
                 }
 
                 if (!sdProgramsDict.TryGetValue(p.ProgramID, out SDProgram? sdProg))

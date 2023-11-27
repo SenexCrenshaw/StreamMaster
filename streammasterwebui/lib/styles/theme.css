@@ -137,12 +137,21 @@
   min-width: 100% !important;
 }
 
-.p-inputtext,
+.p-inputtext {
+  font-size: var(--common-font-size) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
 .p-dropdown-item {
   font-size: var(--common-font-size) !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: start !important;
 }
 
 .p-dropdown {

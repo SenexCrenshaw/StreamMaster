@@ -39,12 +39,11 @@ public interface IChannelService
 
     /// <summary>
     /// Registers a new channel with the given video stream ID and name.
-    /// </summary>
-    /// <param name="channelVideoStreamId">The ID of the video stream to associate with the channel.</param>
-    /// <param name="videoStreamName">The name of the video stream to associate with the channel.</param>
-    ///   /// <param name="channelName">The channel name</param>
+    /// </summary>    
+    /// <param name="ChannelVideoStream">The video stream to associate with the channel.</param>
+    /// <param name="ChannelName">The channel name</param>
     /// <returns>An IChannelStatus object representing the newly registered channel.</returns>
-    IChannelStatus RegisterChannel(string channelVideoStreamId, string videoStreamName, string channelName);
+    IChannelStatus RegisterChannel(VideoStreamDto ChannelVideoStream, string ChannelName);
 
     /// <summary>
     /// Unregisters a channel by its video stream ID.

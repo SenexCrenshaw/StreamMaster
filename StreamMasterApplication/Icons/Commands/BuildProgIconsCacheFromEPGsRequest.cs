@@ -101,13 +101,14 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
                 }
 
                 List<ChannelLogoDto> channelLogos = MemoryCache.ChannelLogos();
-                if (!channelLogos.Any(a => a.LogoUrl == source))
+                if (!channelLogos.Any(a => a.Source == source))
                 {
                     ChannelLogoDto cl = new()
                     {
                         Id = iconDto.Id,
-                        LogoUrl = source,
+                        Source = source,
                         EPGId = channel.Id,
+                        Name = name,
                         EPGFileId = epgFileId
                     };
 

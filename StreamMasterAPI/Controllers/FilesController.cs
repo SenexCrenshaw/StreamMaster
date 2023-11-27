@@ -5,6 +5,8 @@ using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterAPI.Interfaces;
 
+using StreamMasterApplication.Common.Logging;
+
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Enums;
@@ -16,10 +18,9 @@ namespace StreamMasterAPI.Controllers;
 
 public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mimeTypeProvider) : ApiControllerBase, IFileController
 {
-    private static readonly IDictionary<string, string> _contentTypesCache = new Dictionary<string, string>();
-
     [AllowAnonymous]
     [Route("{filetype}/{source}")]
+    [LogExecutionTimeAspect]
     public async Task<IActionResult> GetFile(string source, SMFileTypes filetype, CancellationToken cancellationToken)
     {
         string sourceDecoded = HttpUtility.UrlDecode(source);
@@ -38,6 +39,7 @@ public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mime
         return File(image, contentType, fileName);
     }
 
+    [LogExecutionTimeAspect]
     private async Task<(byte[]? image, string? fileName)> GetCacheEntryAsync(string URL, SMFileTypes IPTVFileType, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(URL))
@@ -132,17 +134,20 @@ public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mime
 
     private string GetContentType(string fileName)
     {
-        if (_contentTypesCache.TryGetValue(fileName, out string? cachedContentType))
+        string cacheKey = $"ContentType-{fileName}";
+
+        if (!memoryCache.TryGetValue(cacheKey, out string? contentType))
         {
-            return cachedContentType;
+            if (!mimeTypeProvider.TryGetContentType(fileName, out contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+            contentType ??= "application/octet-stream";
+
+            memoryCache.Set(cacheKey, contentType, CacheKeys.NeverRemoveCacheEntryOptions);
         }
 
-        if (!mimeTypeProvider.TryGetContentType(fileName, out string? contentType))
-        {
-            contentType = "application/octet-stream";
-        }
-
-        _contentTypesCache[fileName] = contentType;
-        return contentType;
+        return contentType ?? "application/octet-stream";
     }
+
 }

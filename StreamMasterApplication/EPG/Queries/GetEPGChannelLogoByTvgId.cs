@@ -16,10 +16,10 @@ internal class GetEPGChannelLogoByTvgIdHandler(ILogger<GetEPGChannelLogoByTvgId>
             return null;
         }
 
-        ChannelLogoDto? channelLogo = channelLogos.FirstOrDefault(a => a.EPGId == pn.Channel);
+        ChannelLogoDto? channelLogo = channelLogos.Find(a => a.EPGId == pn.Channel);
         if (channelLogo != null)
         {
-            return channelLogo.LogoUrl;
+            return channelLogo.Source;
         }
         return null;
     }
