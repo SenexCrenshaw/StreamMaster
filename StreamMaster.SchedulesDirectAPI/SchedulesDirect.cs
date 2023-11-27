@@ -196,7 +196,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
                 programmes.Add(programme);
             }
         }
-
+        _logger.LogInformation("SD Finished");
         return memoryCache.SetSDProgreammesCache(programmes);
     }
 
@@ -665,7 +665,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
     {
         List<Station> ret = [];
 
-        List<Domain.Models.Lineup> lineups = await GetLineups(cancellationToken).ConfigureAwait(false);
+        List<Lineup> lineups = await GetLineups(cancellationToken).ConfigureAwait(false);
         if (lineups?.Any() != true)
         {
             return ret;
