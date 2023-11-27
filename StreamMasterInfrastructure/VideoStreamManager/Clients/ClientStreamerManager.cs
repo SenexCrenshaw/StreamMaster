@@ -23,8 +23,8 @@ public class ClientStreamerManager(ILogger<ClientStreamerManager> logger, ILogge
 
         foreach (Guid clientId in ClientIds)
         {
-            oldStreamHandler.UnRegisterClientStreamer(clientId);
-            newStreamHandler.RegisterClientStreamer(clientId);
+            _ = oldStreamHandler.UnRegisterClientStreamer(clientId);
+            _ = newStreamHandler.RegisterClientStreamer(clientId);
         }
     }
 
@@ -55,7 +55,6 @@ public class ClientStreamerManager(ILogger<ClientStreamerManager> logger, ILogge
         {
             logger.LogWarning("Failed to unregister client: {ClientId}", clientId);
         }
-
     }
 
     public List<IClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds)
@@ -103,10 +102,7 @@ public class ClientStreamerManager(ILogger<ClientStreamerManager> logger, ILogge
         IClientStreamerConfiguration? config = await GetClientStreamerConfiguration(clientId, cancellationToken).ConfigureAwait(false);
         if (config == null) { return; }
 
-        if (config.ReadBuffer is null)
-        {
-            config.ReadBuffer = new RingBufferReadStream(() => RingBuffer, ringBufferReadStreamLogger, config);
-        }
+        config.ReadBuffer ??= new RingBufferReadStream(() => RingBuffer, ringBufferReadStreamLogger, config);
 
         config.ReadBuffer.SetBufferDelegate(() => RingBuffer, config);
     }

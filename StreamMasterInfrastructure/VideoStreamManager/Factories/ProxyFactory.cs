@@ -15,7 +15,7 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
 {
     public async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl, string streamName, CancellationToken cancellationToken)
     {
-        Setting setting = await settingsService.GetSettingsAsync();
+        Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
 
         Stream? stream;
         ProxyStreamError? error;
@@ -112,7 +112,6 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
         }
     }
 
-
     private (Stream? stream, int processId, ProxyStreamError? error) HandleFFMpegStreamException<T>(ProxyStreamErrorCode errorCode, T exception) where T : Exception
     {
         ProxyStreamError error = new() { ErrorCode = errorCode, Message = exception.Message };
@@ -124,7 +123,7 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
     {
         try
         {
-            Setting settings = await settingsService.GetSettingsAsync().ConfigureAwait(false);
+            Setting settings = await settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
             HttpClient client = CreateHttpClient(settings.StreamingClientUserAgent);
             HttpResponseMessage? response = await client.GetWithRedirectAsync(sourceUrl, cancellationToken: cancellationToken).ConfigureAwait(false);
 
@@ -143,18 +142,19 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
                     contentType.Equals("application/x-mpegURL", StringComparison.OrdinalIgnoreCase)
                 )
             {
-                logger.LogInformation("Stream URL has HLS content, using FFMpeg for streaming: {StreamUrl} {streamName}", sourceUrl);
+                logger.LogInformation("Stream URL has HLS content, using FFMpeg for streaming: {StreamUrl} {streamName}", sourceUrl, streamName);
                 return await GetFFMpegStream(sourceUrl).ConfigureAwait(false);
             }
 
             Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-            logger.LogInformation("Successfully retrieved stream for: {StreamUrl} {streamName}", sourceUrl);
+            logger.LogInformation("Successfully retrieved stream for: {StreamUrl} {streamName}", sourceUrl, streamName);
             return (stream, -1, null);
         }
         catch (Exception ex)
         {
             ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = ex.Message };
-            logger.LogError(ex, $"GetProxyStream Error for {streamName} :", error.Message);
+            string message = $"GetProxyStream Error for {streamName}";
+            logger.LogError(ex, message, error.Message);
             return (null, -1, error);
         }
     }
@@ -179,7 +179,7 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
         {
             StartInfo = startInfo
         };
-        process.Start();
+        _ = process.Start();
         process.WaitForExit();
         return process.ExitCode == 0;
     }

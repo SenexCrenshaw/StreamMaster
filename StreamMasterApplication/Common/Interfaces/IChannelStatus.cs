@@ -31,14 +31,19 @@ public interface IChannelStatus
     /// </summary>
     string ChannelVideoStreamId { get; set; }
 
-    /// <summary>
-    /// Gets or sets the ID of the video stream associated with this channel.
-    /// </summary>
-    string CurrentVideoStreamId { get; set; }
+    ///// <summary>
+    ///// Gets or sets the ID of the video stream associated with this channel.
+    ///// </summary>
+    //string CurrentVideoStreamId { get; set; }
+
+    ///// <summary>
+    ///// Gets or sets the name of the video stream associated with this channel.
+    ///// </summary>
+    //string CurrentVideoStreamName { get; set; }
+    string ChannelName { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the video stream associated with this channel.
     /// </summary>
-    string CurrentVideoStreamName { get; set; }
-    string ChannelName { get; set; }
+    VideoStreamDto CurrentVideoStream { get; set; }
 }

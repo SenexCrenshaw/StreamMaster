@@ -11,7 +11,7 @@
         void MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler);
 
         /// <summary>
-        /// Gets client streamer configurations by channel video stream ID.
+        /// Gets client streamer configurations by channel video stream Url.
         /// </summary>
         List<IClientStreamerConfiguration> GetClientStreamerConfigurationsByChannelVideoStreamId(string ChannelVideoStreamId);
 
@@ -21,9 +21,9 @@
         Task SetClientBufferDelegate(Guid clientId, ICircularRingBuffer RingBuffer, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Gets the count of clients for a specific channel video stream ID.
+        /// Gets the count of clients for a specific channel video stream Url.
         /// </summary>
-        int ClientCount(string ChannelVideoStreamId);
+        int ClientCount(string ChannelVideoStreamUrl);
 
         /// <summary>
         /// Asynchronously cancels a client.

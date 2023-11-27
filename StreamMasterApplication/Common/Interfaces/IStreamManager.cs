@@ -5,7 +5,6 @@
 /// </summary>
 public interface IStreamManager
 {
-
     /// <summary>
     /// Disposes of the resources used by the StreamManager.
     /// </summary>
@@ -58,7 +57,7 @@ public interface IStreamManager
     /// <summary>
     /// UnRegister a handler and stops a stream based on a given video stream ID.
     /// </summary>
-    /// <param name="videoStreamId">The ID of the video stream to stop.</param>
+    /// <param name="VideoStreamUrl">The URL of the video stream to stop.</param>
     /// <returns>Returns true if the stopped stream, false if CurrentVideoStreamId not found.</returns>
-    bool StopAndUnRegisterHandler(string VideoStreamId);
+    bool StopAndUnRegisterHandler(string VideoStreamUrl);
 }

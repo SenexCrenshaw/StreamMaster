@@ -13,7 +13,7 @@ public class ChannelService(IClientStreamerManager clientManager) : IChannelServ
         if (!_channelStatuses.TryGetValue(channelVideoStreamId, out IChannelStatus? channelStatus))
         {
             channelStatus = new ChannelStatus(channelVideoStreamId, videoStreamName, channelName);
-            _channelStatuses.TryAdd(channelVideoStreamId, channelStatus);
+            _ = _channelStatuses.TryAdd(channelVideoStreamId, channelStatus);
         }
 
         return channelStatus;
@@ -21,25 +21,25 @@ public class ChannelService(IClientStreamerManager clientManager) : IChannelServ
 
     public void UnRegisterChannel(string channelVideoStreamId)
     {
-        _channelStatuses.TryRemove(channelVideoStreamId, out _);
+        _ = _channelStatuses.TryRemove(channelVideoStreamId, out _);
     }
 
     public IChannelStatus? GetChannelStatus(string channelVideoStreamId)
     {
-        _channelStatuses.TryGetValue(channelVideoStreamId, out IChannelStatus? channelStatus);
+        _ = _channelStatuses.TryGetValue(channelVideoStreamId, out IChannelStatus? channelStatus);
         return channelStatus;
     }
 
     public List<IChannelStatus> GetChannelStatusesFromVideoStreamId(string VideoStreamId)
     {
-        List<IChannelStatus> test = _channelStatuses.Values.Where(a => a.ChannelVideoStreamId == VideoStreamId || a.CurrentVideoStreamId == VideoStreamId).ToList();
+        List<IChannelStatus> test = _channelStatuses.Values.Where(a => a.ChannelVideoStreamId == VideoStreamId || a.CurrentVideoStream.Id == VideoStreamId).ToList();
 
         return test;
     }
 
     public List<IChannelStatus> GetChannelStatuses()
     {
-        return _channelStatuses.Values.ToList();
+        return [.. _channelStatuses.Values];
     }
 
     public bool HasChannel(string channelVideoStreamId)
