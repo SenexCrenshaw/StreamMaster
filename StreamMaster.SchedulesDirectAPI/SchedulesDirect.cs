@@ -126,12 +126,16 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         DateTime now = DateTime.Now;
         DateTime maxDate = now.AddDays(maxDays);
 
-
-
         if (schedules.Count != 0)
         {
             _logger.LogInformation("SD working on {num} schedules", schedules.Count);
         }
+
+        int totalPrograms = schedules.SelectMany(a => a.Programs).Where(p => p.AirDateTime <= maxDate).Count();
+
+        _logger.LogInformation("SD working on {num} programs", totalPrograms);
+
+
         foreach (Schedule sched in schedules)
         {
             if (!stationDictionary.TryGetValue(sched.StationID, out Station? station))
@@ -150,10 +154,6 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
             Dictionary<string, SDProgram> sdProgramsDict = sdPrograms.ToDictionary(p => p.ProgramID);
 
             int counter = 0;
-            if (relevantPrograms.Count != 0)
-            {
-                _logger.LogInformation("SD working on {num} programs", relevantPrograms.Count);
-            }
 
             foreach (Program? p in relevantPrograms)
             {
