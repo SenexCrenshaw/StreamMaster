@@ -1,4 +1,5 @@
 ﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+
 using StreamMasterDomain.Filtering;
 using StreamMasterDomain.Pagination;
 
@@ -45,11 +46,7 @@ internal class GetPagedProgrammeNameSelectionsHandler(ILogger<GetPagedProgrammeN
         List<string> distinctChannels = programmes.Select(a => a.Channel).Distinct().ToList();
 
         // Map to DTO
-        List<ProgrammeNameDto> mappedProgrammes = distinctChannels.Select(channel =>
-        {
-            Programme? programme = programmes.FirstOrDefault(a => a.Channel == channel);
-            return programme != null ? Mapper.Map<ProgrammeNameDto>(programme) : null;
-        }).Where(dto => dto != null).ToList();
+        List<ProgrammeNameDto> mappedProgrammes = Mapper.Map<List<ProgrammeNameDto>>(distinctChannels);
 
         IPagedList<ProgrammeNameDto> pagedList = await mappedProgrammes.OrderBy(a => a.DisplayName)
             .ToPagedListAsync(request.Parameters.PageNumber, request.Parameters.PageSize)

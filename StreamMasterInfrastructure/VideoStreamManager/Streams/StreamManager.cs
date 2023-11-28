@@ -2,50 +2,66 @@
 
 using StreamMasterApplication.Common.Interfaces;
 
-using StreamMasterDomain.Common;
 using StreamMasterDomain.Dto;
 
 using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Streams;
 
-public class StreamManager(
-    ICircularRingBufferFactory circularRingBufferFactory,
-    IProxyFactory proxyFactory,
+public sealed class StreamManager(
     IClientStreamerManager clientStreamerManager,
-    ILogger<StreamHandler> streamHandlerlogger,
+    IStreamHandlerFactory streamHandlerFactory,
     ILogger<StreamManager> logger
     ) : IStreamManager
 {
     private readonly ConcurrentDictionary<string, IStreamHandler> _streamHandlers = new();
+    private readonly object _disposeLock = new();
+    private bool _disposed = false;
 
     public void Dispose()
     {
-        // Dispose of each stream controller
-        foreach (IStreamHandler streamController in _streamHandlers.Values)
+        lock (_disposeLock)
         {
-            streamController.Dispose();
-        }
+            if (_disposed)
+            {
+                return;
+            }
 
-        // Clear the dictionary
-        _streamHandlers.Clear();
+            try
+            {
+                // Dispose of each stream controller
+                foreach (IStreamHandler streamHandler in _streamHandlers.Values)
+                {
+                    try
+                    {
+                        streamHandler.Stop();
+                        streamHandler.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Error disposing stream handler {VideoStreamId}", streamHandler.VideoStreamId);
+                    }
+                }
+
+                // Clear the dictionary
+                _streamHandlers.Clear();
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred during disposing of StreamManager");
+            }
+            finally
+            {
+                _disposed = true;
+            }
+        }
     }
 
-    private async Task<StreamHandler?> CreateStreamHandler(VideoStreamDto videoStreamDto, string ChannelName, int rank, CancellationToken cancellation)
+    private async Task<IStreamHandler?> CreateStreamHandler(VideoStreamDto videoStreamDto, string ChannelName, int rank, CancellationToken cancellation)
     {
-        CancellationTokenSource cancellationTokenSource = new();
 
-        ICircularRingBuffer ringBuffer = circularRingBufferFactory.CreateCircularRingBuffer(videoStreamDto, ChannelName, rank);
-
-        (Stream? stream, int processId, ProxyStreamError? error) = await proxyFactory.GetProxy(videoStreamDto.User_Url, videoStreamDto.User_Tvg_name, cancellation);
-        if (stream == null || error != null || processId == 0)
-        {
-            return null;
-        }
-
-        StreamHandler streamHandler = new(videoStreamDto.User_Url, videoStreamDto.Id, videoStreamDto.User_Tvg_name, processId, streamHandlerlogger, ringBuffer, clientStreamerManager, cancellationTokenSource);
-
-        _ = streamHandler.StartVideoStreamingAsync(stream, ringBuffer);
+        IStreamHandler? streamHandler = await streamHandlerFactory.CreateStreamHandlerAsync(videoStreamDto, ChannelName, rank, cancellation);
 
         return streamHandler;
     }
@@ -74,6 +90,7 @@ public class StreamManager(
                 return null;
             }
             _ = _streamHandlers.TryAdd(videoStreamDto.User_Url, streamHandler);
+
             return streamHandler;
         }
 
@@ -96,22 +113,38 @@ public class StreamManager(
         return _streamHandlers.Values == null ? ([]) : ([.. _streamHandlers.Values]);
     }
 
-    public void MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler)
+    public async Task MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler, CancellationToken cancellationToken = default)
     {
-        clientStreamerManager.MoveClientStreamers(oldStreamHandler, newStreamHandler);
+        IEnumerable<Guid> ClientIds = oldStreamHandler.GetClientStreamerClientIds();
+
+        if (!ClientIds.Any())
+        {
+            return;
+        }
+
+        foreach (Guid clientId in ClientIds)
+        {
+            _ = oldStreamHandler.UnRegisterClientStreamer(clientId);
+
+            IClientStreamerConfiguration? streamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(clientId, cancellationToken);
+            if (streamerConfiguration == null)
+            {
+                logger.LogError("Error registering stream configuration for client {ClientId}, streamerConfiguration null.", clientId);
+                return;
+            }
+
+            newStreamHandler.RegisterClientStreamer(streamerConfiguration);
+            await clientStreamerManager.SetClientBufferDelegate(streamerConfiguration.ClientId, newStreamHandler.RingBuffer, cancellationToken);
+        }
+
         if (oldStreamHandler.ClientCount == 0)
         {
-            _ = StopAndUnRegisterHandler(oldStreamHandler.VideoStreamId);
+            _ = StopAndUnRegisterHandler(oldStreamHandler.StreamUrl);
         }
     }
 
     public IStreamHandler? GetStreamHandlerByClientId(Guid ClientId)
     {
-        //List<IStreamHandler> handlers = GetStreamHandlers();
-        //foreach (IStreamHandler handler in handlers)
-        //{
-        //    ICollection<IClientStreamerConfiguration>? test = handler.GetClientStreamerConfigurations();
-        //}
         return _streamHandlers.Values.FirstOrDefault(x => x.HasClient(ClientId));
     }
 
@@ -123,7 +156,7 @@ public class StreamManager(
             return true;
         }
 
-        //logger.LogWarning("Failed to remove stream information for {VideoStreamId}", VideoStreamId);
+        logger.LogWarning("Failed to remove stream information for {VideoStreamUrl}", VideoStreamUrl);
         return false;
     }
 }

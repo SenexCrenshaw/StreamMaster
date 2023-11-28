@@ -4,7 +4,7 @@ using StreamMasterApplication.Common.Interfaces;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
 
-public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ILogger<RingBufferReadStream> logger, IClientStreamerConfiguration config) : Stream, IRingBufferReadStream
+public sealed class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ILogger<RingBufferReadStream> logger, IClientStreamerConfiguration config) : Stream, IRingBufferReadStream
 {
     private Func<ICircularRingBuffer> _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
     private CancellationTokenSource _clientMasterToken = config.ClientMasterToken;
@@ -52,19 +52,29 @@ public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ILog
 
             if (availableBytes == 0)
             {
-                await Buffer.WaitSemaphoreAsync(ClientId, cancellationToken);
+                try
+                {
+                    await Buffer.WaitSemaphoreAsync(ClientId, cancellationToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Propagate the cancellation exception if the operation was cancelled.
+                    throw;
+                }
                 availableBytes = Buffer.GetAvailableBytes(ClientId);
             }
 
-            int bytesToRead = Math.Min(buffer.Length - bytesRead, availableBytes);
+            int remainingBufferSpace = buffer.Length - bytesRead;
+            int bytesToRead = Math.Min(remainingBufferSpace, availableBytes);
             if (bytesToRead > 0)
             {
-                bytesRead += await Buffer.ReadChunkMemory(ClientId, buffer.Slice(bytesRead, bytesToRead), cancellationToken);
+                bytesRead += await Buffer.ReadChunkMemory(ClientId, buffer.Slice(bytesRead, bytesToRead), cancellationToken).ConfigureAwait(false);
             }
         }
 
-        return cancellationToken.IsCancellationRequested ? -1 : bytesRead;
+        return bytesRead;
     }
+
 
     public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
     {
@@ -101,7 +111,7 @@ public class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegate, ILog
     {
         ClientId = config.ClientId;
         _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
-        logger.LogInformation("Setting buffer delegate for Buffer.Id: {Id} Circular.Id: {Buffer.Id} ClientId: {ClientId} VideoStreamId: {VideoStreamId}", Id, Buffer.Id, config.ClientId, config.ChannelVideoStreamId);
+        logger.LogInformation("Setting buffer delegate for Buffer.Id: {Id} Circular.Id: {Buffer.Id} {Name} ClientId: {ClientId}", Id, config.ChannelName, Buffer.Id, config.ClientId);
         _clientMasterToken = config.ClientMasterToken;
     }
 

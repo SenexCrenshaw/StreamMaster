@@ -2,6 +2,8 @@
 
 using StreamMasterApplication.Common.Interfaces;
 
+using StreamMasterDomain.Dto;
+
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
@@ -10,26 +12,21 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Streams;
 /// <summary>
 /// Manages the streaming of a single video stream, including client registrations and circularRingbuffer handling.
 /// </summary>
-public class StreamHandler(
-    string streamURL,
-    string videoStreamId,
-    string videoStreamName,
+public sealed class StreamHandler(
+    VideoStreamDto videoStreamDto,
     int processId,
     ILogger<IStreamHandler> logger,
-    ICircularRingBuffer ringBuffer,
-    IClientStreamerManager clientStreamerManager,
-    CancellationTokenSource cancellationTokenSource
+    ICircularRingBuffer ringBuffer
     ) : IStreamHandler
 {
     private readonly ConcurrentDictionary<Guid, Guid> clientStreamerIds = new();
 
-    public bool FailoverInProgress { get; set; }
-    public int M3UFileId { get; set; }
+    public int M3UFileId { get; } = videoStreamDto.M3UFileId;
     public int ProcessId { get; set; } = processId;
     public ICircularRingBuffer RingBuffer { get; } = ringBuffer;
-    public string StreamUrl { get; } = streamURL;
-    public string VideoStreamId { get; } = videoStreamId;
-    public string VideoStreamName { get; } = videoStreamName;
+    public string StreamUrl { get; } = videoStreamDto.User_Url;
+    public string VideoStreamId { get; } = videoStreamDto.Id;
+    public string VideoStreamName { get; } = videoStreamDto.User_Tvg_name;
 
     private async Task DelayWithCancellation(int milliseconds)
     {
@@ -61,14 +58,14 @@ public class StreamHandler(
 
     public async Task StartVideoStreamingAsync(Stream stream, ICircularRingBuffer circularRingbuffer)
     {
-        const int chunkSize = 24 * 1024;
+        const int chunkSize = 128 * 1024;
 
         logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} {name}", chunkSize, StreamUrl, VideoStreamName);
 
         Memory<byte> bufferMemory = new byte[chunkSize];
 
-        const int maxRetries = 3; //setting.MaxConnectRetry > 0 ? setting.MaxConnectRetry : 3;
-        const int waitTime = 50;// setting.MaxConnectRetryTimeMS > 0 ? setting.MaxConnectRetryTimeMS : 50;
+        const int maxRetries = 3;
+        const int waitTime = 50;
 
         using (stream)
         {
@@ -134,7 +131,7 @@ public class StreamHandler(
         }
     }
 
-    public CancellationTokenSource VideoStreamingCancellationToken { get; set; } = cancellationTokenSource;
+    public CancellationTokenSource VideoStreamingCancellationToken { get; set; } = new();
 
     public int ClientCount => clientStreamerIds.Count;
 
@@ -142,34 +139,9 @@ public class StreamHandler(
 
     public void Dispose()
     {
+        clientStreamerIds.Clear();
         Stop();
         GC.SuppressFinalize(this);
-    }
-    public async Task RegisterClientStreamer(Guid ClientId, CancellationToken cancellationToken = default)
-    {
-        IClientStreamerConfiguration? streamerConfiguration = await clientStreamerManager.GetClientStreamerConfiguration(ClientId, cancellationToken);
-        if (streamerConfiguration == null)
-        {
-            logger.LogError("Error registering stream configuration for client {ClientId} {name}, streamerConfiguration null.", ClientId, VideoStreamName);
-            return;
-        }
-        try
-        {
-            clientStreamerIds.TryAdd(streamerConfiguration.ClientId, streamerConfiguration.ClientId);
-            RingBuffer.RegisterClient(streamerConfiguration.ClientId, streamerConfiguration.ClientUserAgent, streamerConfiguration.ClientIPAddress);
-            await clientStreamerManager.SetClientBufferDelegate(streamerConfiguration.ClientId, RingBuffer, cancellationToken);
-
-            logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name}", streamerConfiguration.ClientId, VideoStreamId, VideoStreamName);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error registering stream configuration for client {ClientId} {name}.", streamerConfiguration.ClientId, VideoStreamName);
-        }
-    }
-
-    protected virtual void OnStreamControllerStopped()
-    {
-        logger.LogWarning("Stopping stream of {VideoStreamId}", VideoStreamId);
     }
 
     public void Stop()
@@ -195,8 +167,23 @@ public class StreamHandler(
                 logger.LogError(ex, "Error killing process {ProcessId}.", ProcessId);
             }
         }
-        OnStreamControllerStopped();
     }
+
+    public void RegisterClientStreamer(IClientStreamerConfiguration streamerConfiguration)
+    {
+        try
+        {
+            clientStreamerIds.TryAdd(streamerConfiguration.ClientId, streamerConfiguration.ClientId);
+            RingBuffer.RegisterClient(streamerConfiguration);
+
+            logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name}", streamerConfiguration.ClientId, VideoStreamId, VideoStreamName);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error registering stream configuration for client {ClientId} {name}.", streamerConfiguration.ClientId, VideoStreamName);
+        }
+    }
+
 
     public bool UnRegisterClientStreamer(Guid ClientId)
     {
@@ -230,23 +217,20 @@ public class StreamHandler(
         }
     }
 
-    public ICollection<IClientStreamerConfiguration>? GetClientStreamerConfigurations()
-    {
-        return clientStreamerManager.GetClientStreamerConfigurationsByChannelVideoStreamId(VideoStreamId);
-    }
 
     public IEnumerable<Guid> GetClientStreamerClientIds()
     {
         return clientStreamerIds.Keys;
     }
 
-    public bool HasClient(Guid clientId)
-    {
-        return clientStreamerManager.HasClient(VideoStreamId, clientId);
-    }
 
     public void SetFailed()
     {
         IsFailed = true;
+    }
+
+    public bool HasClient(Guid clientId)
+    {
+        return clientStreamerIds.ContainsKey(clientId);
     }
 }

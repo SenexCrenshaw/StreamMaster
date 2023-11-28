@@ -18,7 +18,7 @@ public interface IStreamHandler : IDisposable
     /// <summary>
     /// Gets or sets the M3U file ID.
     /// </summary>
-    int M3UFileId { get; set; }
+    int M3UFileId { get; }
 
     /// <summary>
     /// Gets or sets the URL of the stream.
@@ -42,7 +42,7 @@ public interface IStreamHandler : IDisposable
     /// Registers a client streamer with the given configuration.
     /// </summary>
     /// <param name="streamerConfiguration">The configuration for the client streamer.</param>
-    Task RegisterClientStreamer(Guid ClientId, CancellationToken cancellationToken = default);
+    void RegisterClientStreamer(IClientStreamerConfiguration streamerConfiguration);
 
     /// <summary>
     /// Stops all video streaming activities.
@@ -60,7 +60,7 @@ public interface IStreamHandler : IDisposable
     /// Gets all registered client streamer configurations.
     /// </summary>
     /// <returns>A collection of client streamer configurations; null if none found.</returns>
-    ICollection<IClientStreamerConfiguration>? GetClientStreamerConfigurations();
+    //ICollection<IClientStreamerConfiguration>? GetClientStreamerConfigurations();
 
     IEnumerable<Guid> GetClientStreamerClientIds();
     void SetFailed();

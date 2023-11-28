@@ -15,7 +15,7 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Buffers;
 /// <summary>
 /// Represents a circular ring buffer for streaming data.
 /// </summary>
-public class CircularRingBuffer : ICircularRingBuffer
+public sealed class CircularRingBuffer : ICircularRingBuffer
 {
     private readonly IStatisticsManager _statisticsManager;
     private readonly IInputStatisticsManager _inputStatisticsManager;
@@ -30,17 +30,19 @@ public class CircularRingBuffer : ICircularRingBuffer
     private int _oldestDataIndex;
     private readonly float _preBuffPercent;
     private int _writeIndex;
-
-    public CircularRingBuffer(VideoStreamDto videoStreamDto, string channelName, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILogger<ICircularRingBuffer> logger)
+    private readonly int _waitDelayMS;
+    public CircularRingBuffer(VideoStreamDto videoStreamDto, string channelName, IStatisticsManager statisticsManager, IInputStatisticsManager inputStatisticsManager, IMemoryCache memoryCache, int rank, ILogger<ICircularRingBuffer> logger, int? waitDelayMS = null)
     {
         Setting setting = memoryCache.GetSetting();
+
+        _waitDelayMS = waitDelayMS != null ? (int)waitDelayMS : (setting.MaxConnectRetry + 1) * setting.MaxConnectRetryTimeMS;
 
         _statisticsManager = statisticsManager ?? throw new ArgumentNullException(nameof(statisticsManager));
         _inputStatisticsManager = inputStatisticsManager ?? throw new ArgumentNullException(nameof(inputStatisticsManager));
         _inputStreamStatistics = _inputStatisticsManager.RegisterReader(videoStreamDto.Id);
 
         _logger = logger;
-        if (setting.PreloadPercentage < 0 || setting.PreloadPercentage > 100)
+        if (setting.PreloadPercentage is < 0 or > 100)
         {
             setting.PreloadPercentage = 0;
         }
@@ -254,15 +256,15 @@ public class CircularRingBuffer : ICircularRingBuffer
         return target.Length;
     }
 
-    public void RegisterClient(Guid clientId, string clientAgent, string clientIPAddress)
+    public void RegisterClient(IClientStreamerConfiguration streamerConfiguration)
     {
-        if (!_clientReadIndexes.ContainsKey(clientId))
+        if (!_clientReadIndexes.ContainsKey(streamerConfiguration.ClientId))
         {
-            _ = _clientReadIndexes.TryAdd(clientId, _oldestDataIndex);
-            _ = _clientSemaphores.TryAdd(clientId, new SemaphoreSlim(0, 1));
-            _statisticsManager.RegisterClient(clientId, clientAgent, clientIPAddress);
+            _ = _clientReadIndexes.TryAdd(streamerConfiguration.ClientId, _oldestDataIndex);
+            _ = _clientSemaphores.TryAdd(streamerConfiguration.ClientId, new SemaphoreSlim(0, 1));
+            _statisticsManager.RegisterClient(streamerConfiguration.ClientId, streamerConfiguration.ClientUserAgent, streamerConfiguration.ClientIPAddress);
         }
-        _logger.LogInformation("RegisterClient for Circular.Id: {Id} ClientId: {ClientId} {VideoStreamName} {_oldestDataIndex}", Id, clientId, StreamInfo.VideoStreamName, _oldestDataIndex);
+        _logger.LogInformation("RegisterClient for ClientId: {ClientId} {VideoStreamName} {_oldestDataIndex}", streamerConfiguration.ClientId, StreamInfo.VideoStreamName, _oldestDataIndex);
     }
 
     private void ReleaseSemaphores()
@@ -305,7 +307,7 @@ public class CircularRingBuffer : ICircularRingBuffer
 
         if (_clientSemaphores.TryGetValue(clientId, out SemaphoreSlim? semaphore))
         {
-            await semaphore.WaitAsync(1000, cancellationToken);
+            await semaphore.WaitAsync(_waitDelayMS, cancellationToken);
             _logger.LogDebug("WaitSemaphoreAsync for clientId: {clientId}", clientId);
         }
         else

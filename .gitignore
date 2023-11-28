@@ -361,3 +361,4 @@ streammasterwebui/deps.txt
 build
 coverage
 dist
+ffmpeg/ffmpeg
