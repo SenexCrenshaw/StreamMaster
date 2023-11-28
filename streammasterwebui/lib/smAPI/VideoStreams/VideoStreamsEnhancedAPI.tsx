@@ -1,9 +1,9 @@
-import { isDev } from '@lib/settings';
-import { singletonVideoStreamsListener } from '@lib/signalr/singletonListeners';
 import { isEmptyObject } from '@lib/common/common';
 import isPagedTableDto from '@lib/common/isPagedTableDto';
-import { iptvApi } from '@lib/iptvApi';
 import type * as iptv from '@lib/iptvApi';
+import { iptvApi } from '@lib/iptvApi';
+import { isDev } from '@lib/settings';
+import { singletonVideoStreamsListener } from '@lib/signalr/singletonListeners';
 
 export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
   endpoints: {
@@ -167,6 +167,12 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
                         return draft;
                       }
                       for (const item of data) {
+                        console.log('draft', draft);
+                        console.log(
+                          'draft.data',
+                          draft.data.map((x) => x.id)
+                        );
+
                         const index = draft.data.findIndex((existingItem) => existingItem.id === item.id);
                         if (index !== -1) {
                           draft.data[index] = item;

@@ -2,6 +2,7 @@ import { GetMessage, isFetchBaseQueryError } from '@lib/common/common';
 import { type ChannelGroupDto, type UpdateChannelGroupRequest } from '@lib/iptvApi';
 import { memo, useCallback, useEffect, useState } from 'react';
 
+import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { UpdateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsMutateAPI';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
@@ -9,18 +10,21 @@ import EditButton from '../buttons/EditButton';
 import TextInput from '../inputs/TextInput';
 
 interface ChannelGroupEditDialogProperties {
+  readonly id: string;
   readonly onClose?: (newName: string) => void;
   readonly value?: ChannelGroupDto | undefined;
 }
 
-const ChannelGroupEditDialog = ({ onClose, value }: ChannelGroupEditDialogProperties) => {
+const ChannelGroupEditDialog = ({ id, onClose, value }: ChannelGroupEditDialogProperties) => {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [block, setBlock] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [newGroupName, setNewGroupName] = useState('');
 
+  const { queryFilter, setQueryFilter } = useQueryFilter(id);
+
   const [channelGroupDto, setChannelGroupDto] = useState<ChannelGroupDto>();
-  const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
+  const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
 
   const ReturnToParent = useCallback(() => {
     setShowOverlay(false);
@@ -43,8 +47,6 @@ const ChannelGroupEditDialog = ({ onClose, value }: ChannelGroupEditDialogProper
 
     if (selectSelectedItems && selectSelectedItems.length > 0) {
       setNewGroupName(selectSelectedItems[0].name);
-      // if (props.value.regexMatch !== null)
-      //   setRegex(props.value.regexMatch);
     }
   }, [channelGroupDto, selectSelectedItems]);
 
@@ -63,6 +65,22 @@ const ChannelGroupEditDialog = ({ onClose, value }: ChannelGroupEditDialogProper
 
     UpdateChannelGroup(toSend)
       .then(() => {
+        console.log(selectSelectedItems);
+
+        const updatedSelectSelectedItems = selectSelectedItems.map((item) => (item.id === value.id ? { ...item, name: newGroupName } : item));
+        if (updatedSelectSelectedItems) {
+          setSelectSelectedItems(updatedSelectSelectedItems);
+          console.log(updatedSelectSelectedItems);
+        }
+        if (queryFilter) {
+          // console.log(queryFilter);
+          const js = queryFilter.jsonFiltersString;
+          console.log('jsonFiltersString', js);
+          // if (cg) {
+          //   cg.name = newGroupName;
+          //   setQueryFilter(queryFilter);
+          // }
+        }
         setInfoMessage('Channel Group Edit Successfully');
       })
       .catch((error) => {
@@ -70,7 +88,7 @@ const ChannelGroupEditDialog = ({ onClose, value }: ChannelGroupEditDialogProper
           setInfoMessage(`Delete Error: ${error.status}`);
         }
       });
-  }, [ReturnToParent, newGroupName, value]);
+  }, [ReturnToParent, newGroupName, queryFilter, selectSelectedItems, setSelectSelectedItems, value]);
 
   return (
     <>

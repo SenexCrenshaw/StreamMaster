@@ -19,15 +19,14 @@ import channelGroupToRemoveSliceReducer from '@lib/redux/slices/channelGroupToRe
 import queryAdditionalFiltersReducer from '@lib/redux/slices/queryAdditionalFiltersSlice';
 import queryFilterReducer from '@lib/redux/slices/queryFilterSlice';
 import selectAllSliceReducer from '@lib/redux/slices/selectAllSlice';
-import selectedChannelGroupsSliceReducer from '@lib/redux/slices/selectedChannelGroupsSlice';
+import selectedCountrySlice from '@lib/redux/slices/selectedCountrySlice';
 import selectedItemsSliceReducer from '@lib/redux/slices/selectedItemsSlice';
+import selectedPostalCodeSlice from '@lib/redux/slices/selectedPostalCodeSlice';
 import selectedStreamGroupSliceReducer from '@lib/redux/slices/selectedStreamGroupSlice';
 import selectedVideoStreamsSliceReducer from '@lib/redux/slices/selectedVideoStreamsSlice';
 import showHiddenSliceReducer from '@lib/redux/slices/showHiddenSlice';
 import showSelectionsSliceReducer from '@lib/redux/slices/showSelectionsSlice';
 import sortInfoSliceReducer from '@lib/redux/slices/sortInfoSlice';
-import selectedCountrySlice from '@lib/redux/slices/selectedCountrySlice';
-import selectedPostalCodeSlice from '@lib/redux/slices/selectedPostalCodeSlice';
 
 import { enhancedApiVideoStreamsGetAllStatisticsLocal } from '@lib/smAPILocal/enhancedApiVideoStreamsGetAllStatisticsLocal';
 import { persistReducer, persistStore } from 'redux-persist';
@@ -79,6 +78,11 @@ const selectedPostalCodeConfig = {
   storage
 };
 
+const selectedItemsConfig = {
+  key: 'selectedItems',
+  storage
+};
+
 const rootReducer = combineReducers({
   appInfo: appInfoSliceReducer,
   [enhancedApiChannelGroups.reducerPath]: enhancedApiChannelGroups.reducer,
@@ -100,8 +104,7 @@ const rootReducer = combineReducers({
   selectedPostalCode: persistReducer(selectedPostalCodeConfig, selectedPostalCodeSlice),
   selectAll: persistReducer(selectAllConfig, selectAllSliceReducer),
   selectedCountry: persistReducer(selectedCountryConfig, selectedCountrySlice),
-  selectedChannelGroups: persistReducer(selectedItemsGroupsConfig, selectedChannelGroupsSliceReducer),
-  selectedItems: selectedItemsSliceReducer,
+  selectedItems: persistReducer(selectedItemsConfig, selectedItemsSliceReducer),
   selectedStreamGroup: persistReducer(selectedStreamGroupConfig, selectedStreamGroupSliceReducer),
   selectedVideoStreams: persistReducer(selectedVideoStreamsConfig, selectedVideoStreamsSliceReducer),
   showHidden: persistReducer(showHiddenConfig, showHiddenSliceReducer),

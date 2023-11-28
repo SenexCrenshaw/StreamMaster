@@ -42,7 +42,7 @@ const PlayListDataSelector = ({
           <ChannelGroupDeleteDialog iconFilled={false} id={dataKey} value={data} />
         </div>
 
-        <ChannelGroupEditDialog value={data} />
+        <ChannelGroupEditDialog id={dataKey} value={data} />
         <ChannelGroupVisibleDialog id={dataKey} skipOverLayer value={data} />
       </div>
     ),
