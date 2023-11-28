@@ -36,7 +36,7 @@ public sealed class ChannelManager(
         {
             if (channelStatus != null)
             {
-                if (!await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.CurrentVideoStream.Id, newVideoStreamId))
+                if (!await streamSwitcher.SwitchToNextVideoStreamAsync(channelStatus.ChannelVideoStreamId, newVideoStreamId))
                 {
                     logger.LogWarning("Exiting ChangeVideoStreamChannel. Could not change channel to {newVideoStreamId}", newVideoStreamId);
                     return;

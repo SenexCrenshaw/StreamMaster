@@ -111,7 +111,7 @@ public sealed class RingBufferReadStream(Func<ICircularRingBuffer> bufferDelegat
     {
         ClientId = config.ClientId;
         _bufferDelegate = bufferDelegate ?? throw new ArgumentNullException(nameof(bufferDelegate));
-        logger.LogInformation("Setting buffer delegate for Buffer.Id: {Id} Circular.Id: {Buffer.Id} {Name} ClientId: {ClientId}", Id, config.ChannelName, Buffer.Id, config.ClientId);
+        logger.LogInformation("Setting buffer delegate for Buffer.Id: {Id} Circular.Id: {Buffer.Id} {Name} ClientId: {ClientId}", Id, Buffer.Id, config.ChannelName, config.ClientId);
         _clientMasterToken = config.ClientMasterToken;
     }
 

@@ -134,7 +134,7 @@ public sealed class StreamManager(
             }
 
             newStreamHandler.RegisterClientStreamer(streamerConfiguration);
-            await clientStreamerManager.SetClientBufferDelegate(streamerConfiguration.ClientId, newStreamHandler.RingBuffer, cancellationToken);
+            await clientStreamerManager.SetClientBufferDelegate(clientId, newStreamHandler.RingBuffer, cancellationToken);
         }
 
         if (oldStreamHandler.ClientCount == 0)

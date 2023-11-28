@@ -60,7 +60,7 @@ public sealed class StreamHandler(
     {
         const int chunkSize = 128 * 1024;
 
-        logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} {name}", chunkSize, StreamUrl, VideoStreamName);
+        logger.LogInformation("Starting video read streaming, chunk size is {ChunkSize}, for stream: {StreamUrl} name: {name} circularRingbuffer id: {circularRingbuffer}", chunkSize, StreamUrl, VideoStreamName, circularRingbuffer.Id);
 
         Memory<byte> bufferMemory = new byte[chunkSize];
 
@@ -176,7 +176,7 @@ public sealed class StreamHandler(
             clientStreamerIds.TryAdd(streamerConfiguration.ClientId, streamerConfiguration.ClientId);
             RingBuffer.RegisterClient(streamerConfiguration);
 
-            logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} to Video Stream Id {videoStreamId} {name}", streamerConfiguration.ClientId, VideoStreamId, VideoStreamName);
+            logger.LogInformation("RegisterClientStreamer for Client ID {ClientId} read buffer id: {BufferId} to Video Stream Id {videoStreamId} {name}", streamerConfiguration.ClientId, streamerConfiguration.ReadBuffer?.Id, VideoStreamId, VideoStreamName);
         }
         catch (Exception ex)
         {

@@ -55,24 +55,26 @@ if ($PrintCommands) {
     exit
 }
 
-# Run the build and push operation, displaying a dot for every 10 lines of output
-try {
-    Invoke-Expression $buildCommand 2>&1 | ForEach-Object {
-        if ($DebugLog) {
-            Write-Host $_ # Output the line for logging purposes if DebugLog flag is set
-        }
-        else {
-            $lineCounter++
-            if ($lineCounter % 10 -eq 0) {
-                Write-Host -NoNewline "."
-            }
-        }
-    }
-}
-catch {
-    Write-Error "Docker build failed with error: $_"
-    exit 1
-}
+Invoke-Expression $buildCommand
+
+# # Run the build and push operation, displaying a dot for every 10 lines of output
+# try {
+#     Invoke-Expression $buildCommand 2>&1 | ForEach-Object {
+#         if ($DebugLog) {
+#             Write-Host $_ # Output the line for logging purposes if DebugLog flag is set
+#         }
+#         else {
+#             $lineCounter++
+#             if ($lineCounter % 10 -eq 0) {
+#                 Write-Host -NoNewline "."
+#             }
+#         }
+#     }
+# }
+# catch {
+#     Write-Error "Docker build failed with error: $_"
+#     exit 1
+# }
 
 # Capture the end time
 $endTime = Get-Date

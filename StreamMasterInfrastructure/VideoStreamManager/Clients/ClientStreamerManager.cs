@@ -122,10 +122,12 @@ public sealed class ClientStreamerManager(ILogger<ClientStreamerManager> logger,
     {
         cancellationToken.ThrowIfCancellationRequested();
         IClientStreamerConfiguration? config = await GetClientStreamerConfiguration(clientId, cancellationToken).ConfigureAwait(false);
-        if (config == null) { return; }
+        if (config == null)
+        {
+            return;
+        }
 
         config.ReadBuffer ??= new RingBufferReadStream(() => RingBuffer, ringBufferReadStreamLogger, config);
-
         config.ReadBuffer.SetBufferDelegate(() => RingBuffer, config);
     }
 
