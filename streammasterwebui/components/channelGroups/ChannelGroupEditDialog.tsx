@@ -2,7 +2,6 @@ import { GetMessage, isFetchBaseQueryError } from '@lib/common/common';
 import { type ChannelGroupDto, type UpdateChannelGroupRequest } from '@lib/iptvApi';
 import { memo, useCallback, useEffect, useState } from 'react';
 
-import { useQueryFilter } from '@lib/redux/slices/useQueryFilter';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
 import { UpdateChannelGroup } from '@lib/smAPI/ChannelGroups/ChannelGroupsMutateAPI';
 import InfoMessageOverLayDialog from '../InfoMessageOverLayDialog';
@@ -20,8 +19,6 @@ const ChannelGroupEditDialog = ({ id, onClose, value }: ChannelGroupEditDialogPr
   const [block, setBlock] = useState<boolean>(false);
   const [infoMessage, setInfoMessage] = useState('');
   const [newGroupName, setNewGroupName] = useState('');
-
-  const { queryFilter, setQueryFilter } = useQueryFilter(id);
 
   const [channelGroupDto, setChannelGroupDto] = useState<ChannelGroupDto>();
   const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
@@ -70,16 +67,6 @@ const ChannelGroupEditDialog = ({ id, onClose, value }: ChannelGroupEditDialogPr
         const updatedSelectSelectedItems = selectSelectedItems.map((item) => (item.id === value.id ? { ...item, name: newGroupName } : item));
         if (updatedSelectSelectedItems) {
           setSelectSelectedItems(updatedSelectSelectedItems);
-          console.log(updatedSelectSelectedItems);
-        }
-        if (queryFilter) {
-          // console.log(queryFilter);
-          const js = queryFilter.jsonFiltersString;
-          console.log('jsonFiltersString', js);
-          // if (cg) {
-          //   cg.name = newGroupName;
-          //   setQueryFilter(queryFilter);
-          // }
         }
         setInfoMessage('Channel Group Edit Successfully');
       })
@@ -88,7 +75,7 @@ const ChannelGroupEditDialog = ({ id, onClose, value }: ChannelGroupEditDialogPr
           setInfoMessage(`Delete Error: ${error.status}`);
         }
       });
-  }, [ReturnToParent, newGroupName, queryFilter, selectSelectedItems, setSelectSelectedItems, value]);
+  }, [ReturnToParent, newGroupName, selectSelectedItems, setSelectSelectedItems, value]);
 
   return (
     <>
