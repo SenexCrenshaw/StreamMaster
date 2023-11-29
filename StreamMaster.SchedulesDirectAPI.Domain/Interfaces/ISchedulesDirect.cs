@@ -14,7 +14,7 @@ public interface ISchedulesDirect
 
     Task<List<Headend>?> GetHeadends(string country, string postalCode, CancellationToken cancellationToken = default);
 
-    Task<bool> GetImageUrl(string source, string fileName, CancellationToken cancellationToken);
+    Task<bool> GetImageUrl(string programId, ImageData icon, CancellationToken cancellationToken);
 
     Task<LineupResult?> GetLineup(string lineup, CancellationToken cancellationToken);
 
@@ -22,7 +22,7 @@ public interface ISchedulesDirect
 
     Task<List<Lineup>> GetLineups(CancellationToken cancellationToken);
 
-    Task<List<Schedule>?> GetSchedules(List<string> stationIds, CancellationToken cancellationToken);
+    Task<List<Schedule>> GetSchedules(List<string> stationIds, CancellationToken cancellationToken);
 
     Task<List<SDProgram>> GetSDPrograms(List<string> programIds, CancellationToken cancellationToken);
 

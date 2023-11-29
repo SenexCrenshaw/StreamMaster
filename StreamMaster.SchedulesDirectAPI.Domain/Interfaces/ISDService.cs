@@ -18,7 +18,7 @@ public interface ISDService
 
     Task<List<Headend>?> GetHeadends(string country, string postalCode, CancellationToken cancellationToken = default);
 
-    Task<string> GetEpg(CancellationToken cancellationToken);
+    //Task<string> GetEpg(CancellationToken cancellationToken);
 
     Task<Countries?> GetCountries(CancellationToken cancellationToken);
 

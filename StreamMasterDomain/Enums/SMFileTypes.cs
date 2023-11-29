@@ -11,5 +11,6 @@ public enum SMFileTypes
     Image = 6,
     TvLogo = 7,
     ProgrammeIcon = 8,
-    ChannelIcon = 9
+    ChannelIcon = 9,
+    SDImage = 10,
 }

@@ -3,16 +3,17 @@
 using Microsoft.AspNetCore.Http;
 
 using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 using StreamMasterApplication.Common.Extensions;
 using StreamMasterApplication.Programmes.Queries;
 
 using System.Collections.Concurrent;
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
 using System.Xml.Serialization;
-
-using static StreamMasterDomain.Common.GetStreamGroupEPGHandler;
 
 namespace StreamMasterApplication.StreamGroups.Queries;
 
@@ -32,8 +33,6 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-    private int dummyCount;
-
     private readonly ParallelOptions parallelOptions = new()
     {
         MaxDegreeOfParallelism = Environment.ProcessorCount
@@ -45,8 +44,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         if (string.IsNullOrEmpty(iconOriginalSource))
         {
-            iconOriginalSource = $"{url}{setting.DefaultIcon}";
-            return iconOriginalSource;
+            return $"{url}{setting.DefaultIcon}";
         }
 
         string originalUrl = iconOriginalSource;
@@ -66,6 +64,10 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         }
         else if (setting.CacheIcons)
         {
+            if (iconOriginalSource.StartsWith("https://json.schedulesdirect.org"))
+            {
+                return GetApiUrl(SMFileTypes.SDImage, originalUrl);
+            }
             return GetApiUrl(SMFileTypes.Icon, originalUrl);
         }
 
@@ -94,18 +96,17 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         List<Programme> cachedProgrammes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
         Setting setting = await GetSettingsAsync();
-        List<string> channels = cachedProgrammes.ConvertAll(a => a.Channel).Distinct().Order().ToList();
+        List<string> channels = [.. cachedProgrammes.ConvertAll(a => a.Channel).Distinct().Order()];
         IEnumerable<Programme> programmes = cachedProgrammes.Where(a =>
         a.StartDateTime > DateTime.Now.AddDays(-1) &&
         a.StartDateTime <= DateTime.Now.AddDays(setting.SDEPGDays) &&
                         a.Channel != null &&
                         (epgids.Contains(a.Channel) || epgids.Contains(a.DisplayName))).DeepCopy();
 
-        List<IconFileDto> icons = MemoryCache.Icons().ToList();
+        List<IconFileDto> icons = [.. MemoryCache.Icons()];
 
-        ConcurrentBag<TvChannel> retChannels = new();
-        ConcurrentBag<Programme> retProgrammes = new();
-
+        ConcurrentBag<TvChannel> retChannels = [];
+        ConcurrentBag<Programme> retProgrammes = [];
 
         Parallel.ForEach(videoStreams, parallelOptions, videoStream =>
         {
@@ -123,8 +124,8 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
         return new Tv
         {
-            Channel = retChannels.OrderBy(a => int.Parse(a.Id)).ToList(),
-            Programme = retProgrammes.OrderBy(a => int.Parse(a.Channel)).ThenBy(a => a.StartDateTime).ToList()
+            Channel = [.. retChannels.OrderBy(a => int.Parse(a.Id))],
+            Programme = [.. retProgrammes.OrderBy(a => int.Parse(a.Channel)).ThenBy(a => a.StartDateTime)]
         };
     }
 
@@ -147,10 +148,10 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             {
                 Id = videoStream.User_Tvg_chno.ToString(),
                 Icon = new TvIcon { Src = logo ?? string.Empty },
-                Displayname = new List<string>
-            {
+                Displayname =
+            [
               videoStream.User_Tvg_name
-            }
+            ]
             };
         }
         else
@@ -159,10 +160,10 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             {
                 Id = videoStream.User_Tvg_chno.ToString(),
                 Icon = new TvIcon { Src = logo ?? string.Empty },
-                Displayname = new List<string>
-            {
+                Displayname =
+            [
                videoStream.User_Tvg_name
-            }
+            ]
             };
         }
     }
@@ -172,7 +173,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         if (videoStream.User_Tvg_ID == null)
         {
             // Decide what to do if User_Tvg_ID is null. Here, we're returning an empty list.
-            return new List<Programme>();
+            return [];
         }
 
         //string userTvgIdLower = videoStream.User_Tvg_ID.ToLower();
@@ -189,18 +190,18 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
     private List<Programme> HandleDummyStream(VideoStreamDto videoStream)
     {
-        List<Programme> programmesForStream = new();
+        List<Programme> programmesForStream = [];
 
         Programme prog = new()
         {
             Channel = videoStream.User_Tvg_chno.ToString(),
-            Title = new List<TvTitle>{
-                new TvTitle
+            Title = [
+                new()
                 {
                     Lang = "en",
                     Text = videoStream.User_Tvg_name
                 }
-            },
+            ],
             Desc = new TvDesc
             {
                 Lang = "en",
@@ -228,7 +229,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
 
     private List<Programme> ProcessNonDummyStream(VideoStreamDto videoStream, IEnumerable<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
     {
-        List<Programme> programmesForStream = new();
+        List<Programme> programmesForStream = [];
 
         foreach (Programme? aprog in cachedProgrammes.Where(p => p.Channel == videoStream.User_Tvg_ID))
         {
@@ -236,25 +237,25 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
             AdjustProgrammeIcons(prog, cachedIcons);
 
             prog.Channel = videoStream.User_Tvg_chno.ToString();
-            if (string.IsNullOrEmpty(prog.New))
-            {
-                prog.New = null;
-            }
+            //if (string.IsNullOrEmpty(prog.New))
+            //{
+            //    prog.New = null;
+            //}
 
-            if (string.IsNullOrEmpty(prog.Live))
-            {
-                prog.Live = null;
-            }
+            //if (string.IsNullOrEmpty(prog.Live))
+            //{
+            //    prog.Live = null;
+            //}
 
-            if (string.IsNullOrEmpty(prog.Premiere))
-            {
-                prog.Premiere = null;
-            }
+            //if (string.IsNullOrEmpty(prog.Premiere))
+            //{
+            //    prog.Premiere = null;
+            //}
 
-            if (prog.Previouslyshown == null || string.IsNullOrEmpty(prog.Previouslyshown.Start))
-            {
-                prog.Previouslyshown = null;
-            }
+            //if (prog.Previouslyshown == null || string.IsNullOrEmpty(prog.Previouslyshown.Start))
+            //{
+            //    prog.Previouslyshown = null;
+            //}
 
             if (!string.IsNullOrEmpty(videoStream.TimeShift) && videoStream.TimeShift != "0000")
             {
@@ -288,14 +289,25 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         }
         else
         {
-            foreach (TvIcon icon in prog.Icon.DeepCopy())
+            foreach (TvIcon icon in prog.Icon)
             {
                 if (!string.IsNullOrEmpty(icon.Src))
                 {
-                    IconFileDto? programmeIcon = cachedIcons.Find(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == icon.Src);
-                    if (programmeIcon != null)
+                    if (icon.Src.StartsWith("https://json.schedulesdirect.org"))
                     {
-                        icon.Src = GetApiUrl(SMFileTypes.ProgrammeIcon, programmeIcon.Source);
+                        ImageInfo? programmeIcon = MemoryCache.ImageInfos().Find(a => a.RealUrl == icon.Src);
+                        if (programmeIcon != null)
+                        {
+                            icon.Src = GetApiUrl(SMFileTypes.SDImage, programmeIcon.IconUri);
+                        }
+                    }
+                    else
+                    {
+                        IconFileDto? programmeIcon = cachedIcons.Find(a => a.SMFileType == SMFileTypes.ProgrammeIcon && a.Source == icon.Src);
+                        if (programmeIcon != null)
+                        {
+                            icon.Src = GetApiUrl(SMFileTypes.ProgrammeIcon, programmeIcon.Source);
+                        }
                     }
                 }
             }
@@ -308,40 +320,36 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         XmlSerializerNamespaces ns = new();
         ns.Add("", "");
 
-        using Utf8StringWriter textWriter = new();
-        XmlSerializer serializer = new(typeof(Tv));
-        serializer.Serialize(textWriter, epgData, ns);
-        return textWriter.ToString();
-    }
+        XmlWriterSettings settings = new()
+        {
+            //settings.NewLineHandling = NewLineHandling.Entitize;
+            Indent = true,
+            OmitXmlDeclaration = true,
+            NewLineHandling = NewLineHandling.Entitize,
+            NewLineChars = "\n"
+        };
 
-    //[LogExecutionTimeAspect]
-    //private async Task<List<Programme>> GetRelevantProgrammes(List<string> epgids, CancellationToken cancellationToken)
-    //{
-    //    List<Programme> programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
-    //    return programmes
-    //        .Where(a =>
-    //            a.StartDateTime > DateTime.Now.AddDays(-1) &&
-    //            a.StopDateTime < DateTime.Now.AddDays(7) &&
-    //            a.Channel != null &&
-    //            (epgids.Contains(a.Channel) ||
-    //            epgids.Contains(a.DisplayName))
-    //        ).ToList();
-    //}
+        //using Utf8StringWriter textWriter = new();
+        UTF8Encoding utf8NoBOM = new(false);
+
+        //XmlSerializer serializer = new(typeof(Tv));
+        string xmlText = "";
+
+        using (MemoryStream stream = new())
+        {
+            using XmlWriter writer = XmlWriter.Create(stream, settings); // Create XmlWriter with settings
+            XmlSerializer xml = new(typeof(Tv));
+
+            xml.Serialize(writer, epgData, ns);
+            xmlText = utf8NoBOM.GetString(stream.ToArray());
+        }
+        return xmlText;
+    }
 
     private string GetApiUrl(SMFileTypes path, string source)
     {
         string url = _httpContextAccessor.GetUrl();
         return $"{url}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
-    }
-
-    private int GetDummy()
-    {
-        return Interlocked.Increment(ref dummyCount);
-    }
-
-    private bool IsNotInProgrammes(IEnumerable<Programme> programmes, VideoStream videoStream)
-    {
-        return !programmes.Any(p => p.Channel == videoStream.User_Tvg_ID);
     }
 
     private static bool IsVideoStreamADummy(VideoStreamDto videoStream, Setting setting)

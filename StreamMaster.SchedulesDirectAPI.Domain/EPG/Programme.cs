@@ -20,6 +20,9 @@ public class Programme
     public string Channel { get; set; } = string.Empty;
 
 
+    [XmlAttribute(AttributeName = "date")]
+    public string Date { get; set; } = string.Empty;
+
     [XmlIgnore]
     public string ChannelName { get; set; } = string.Empty;
     [XmlIgnore]

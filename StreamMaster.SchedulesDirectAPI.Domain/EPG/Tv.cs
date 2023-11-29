@@ -15,11 +15,11 @@ public class Tv
     public List<Programme> Programme { get; set; } = new();
 
     [XmlAttribute(AttributeName = "source-info-name")]
-    public string Sourceinfoname { get; set; } = string.Empty;
+    public string Sourceinfoname { get; set; } = "Stream Master";
 
     [XmlAttribute(AttributeName = "generator-info-name")]
-    public string Generatorinfoname { get; set; } = string.Empty;
+    public string Generatorinfoname { get; set; } = "Stream Master";
 
     [XmlAttribute(AttributeName = "source-info-url")]
-    public string Sourceinfourl { get; set; } = string.Empty;
+    public string Sourceinfourl { get; set; } = "Stream Master";
 }

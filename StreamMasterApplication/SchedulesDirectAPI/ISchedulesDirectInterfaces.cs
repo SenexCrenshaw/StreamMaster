@@ -14,8 +14,6 @@ public interface ISchedulesDirectController
 
     Task<ActionResult<List<string>>> GetLineupNames();
 
-    Task<ActionResult> GetEpg();
-
     Task<ActionResult<Countries?>> GetCountries();
 
     Task<ActionResult<List<StationIdLineup>>> GetSelectedStationIds();
@@ -50,8 +48,6 @@ public interface ISchedulesDirectHub
     Task<bool> RemoveLineup(RemoveLineup request);
 
     Task<List<string>> GetLineupNames();
-
-    Task<string> GetEpg();
 
     Task<List<StationIdLineup>> GetSelectedStationIds();
 

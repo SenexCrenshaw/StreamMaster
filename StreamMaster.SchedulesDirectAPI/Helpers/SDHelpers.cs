@@ -1,4 +1,8 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+﻿using Microsoft.Extensions.Caching.Memory;
+
+using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+
+using StreamMasterDomain.Cache;
 
 using System.Net;
 using System.Net.Http.Headers;
@@ -50,13 +54,11 @@ public static class SDHelpers
 
     public static List<TvTitle> GetTitles(List<Title> Titles, string lang)
     {
-
-        List<TvTitle> ret = Titles.ConvertAll(a => new TvTitle
+        return Titles.ConvertAll(a => new TvTitle
         {
             Lang = lang,
             Text = a.Title120
         });
-        return ret;
     }
 
     public static TvSubtitle GetSubTitles(ISDProgram sdProgram, string lang)
@@ -73,7 +75,7 @@ public static class SDHelpers
         string description = "";
         if (sdProgram.Descriptions?.Description100 is not null)
         {
-            IDescription100? test = sdProgram.Descriptions.Description100.FirstOrDefault(a => a.DescriptionLanguage == lang && a.Description != "");
+            IDescription100? test = sdProgram.Descriptions.Description100.Find(a => a.DescriptionLanguage == lang && a.Description != "");
             if (test == null)
             {
                 if (!string.IsNullOrEmpty(sdProgram.Descriptions.Description100[0].Description))
@@ -94,41 +96,65 @@ public static class SDHelpers
         };
     }
 
-    public static TvCredits GetCredits(ISDProgram sdProgram, string lang)
+    public static TvCredits GetCredits(ISDProgram sdProgram)
     {
-        TvCredits ret = new();
+        TvCredits ret = new()
+        {
+            Actors = [],
+            Directors = [],
+            Producers = [],
+            Presenters = [],
+            Writers = [],
+            Adapters = [],
+            Composers = [],
+            Editors = [],
+            Commentators = [],
+            Guests = []
+        };
+
         if (sdProgram.Crew == null)
         {
             return ret;
-
         }
+        List<string> roles = sdProgram.Crew.Select(a => a.Role).Distinct().ToList();
+        string rolesName = string.Join(',', roles);
         foreach (Crew crew in sdProgram.Crew)
         {
             switch (crew.Role)
             {
                 case "Actor":
-                    ret.Actor ??= new();
-                    ret.Actor.Add(new TvActor
+                    ret.Actors.Add(new TvActor
                     {
                         Text = crew.Name,
                         Role = crew.Role
                     });
                     break;
                 case "Director":
-                    ret.Director ??= new();
-                    ret.Director.Add(crew.Name);
+                    ret.Directors.Add(crew.Name);
+                    break;
+                case "Adapter":
+                    ret.Adapters.Add(crew.Name);
                     break;
                 case "Producer":
-                    ret.Producer ??= new();
-                    ret.Producer.Add(crew.Name);
+                    ret.Producers.Add(crew.Name);
+                    break;
+                case "Composer":
+                    ret.Composers.Add(crew.Name);
+                    break;
+                case "Editor":
+                    ret.Editors.Add(crew.Name);
                     break;
                 case "Presenter":
-                    ret.Presenter ??= new();
-                    ret.Presenter.Add(crew.Name);
+                    ret.Presenters.Add(crew.Name);
                     break;
                 case "Writer":
-                    ret.Writer ??= new();
-                    ret.Writer.Add(crew.Name);
+                    ret.Writers.Add(crew.Name);
+                    break;
+                case "Commentator":
+                    ret.Commentators.Add(crew.Name);
+                    break;
+                case "Guest":
+                    ret.Guests.Add(crew.Name);
                     break;
             }
         }
@@ -137,13 +163,11 @@ public static class SDHelpers
         {
             foreach (ICast? cast in sdProgram.Cast.OrderBy(a => a.BillingOrder))
             {
-                ret.Actor ??= new();
-                ret.Actor.Add(new TvActor
+                ret.Actors.Add(new TvActor
                 {
                     Text = cast.Name,
                     Role = cast.CharacterName
                 });
-                break;
             }
         }
 
@@ -152,13 +176,12 @@ public static class SDHelpers
 
     public static TvDesc GetDescriptions(ISDProgram sdProgram, string lang)
     {
-
         string description = "";
         if (sdProgram.Descriptions is not null)
         {
-            if (sdProgram.Descriptions.Description1000 is not null && sdProgram.Descriptions.Description1000.Any())
+            if (sdProgram.Descriptions.Description1000?.Any() == true)
             {
-                IDescription1000? test = sdProgram.Descriptions.Description1000.FirstOrDefault(a => a.DescriptionLanguage == lang && a.Description != "");
+                IDescription1000? test = sdProgram.Descriptions.Description1000.Find(a => a.DescriptionLanguage == lang && a.Description != "");
                 if (test == null)
                 {
                     if (!string.IsNullOrEmpty(sdProgram.Descriptions.Description1000[0].Description))
@@ -171,7 +194,12 @@ public static class SDHelpers
                     description = test.Description;
                 }
             }
+        }
+        TvSubtitle subTitle = GetSubTitles(sdProgram, lang);
 
+        if (!string.IsNullOrEmpty(subTitle.Text) && !string.IsNullOrEmpty(description))
+        {
+            description = $"[{subTitle.Text}]\n" + description;
         }
 
         return new TvDesc
@@ -183,7 +211,7 @@ public static class SDHelpers
 
     public static List<TvCategory> GetCategory(ISDProgram sdProgram, string lang)
     {
-        List<TvCategory> ret = new();
+        List<TvCategory> ret = [];
 
         if (sdProgram.Genres is not null)
         {
@@ -200,13 +228,13 @@ public static class SDHelpers
         return ret;
     }
 
-    public static List<TvEpisodenum> GetEpisodeNums(ISDProgram sdProgram, string lang)
+    public static List<TvEpisodenum> GetEpisodeNums(ISDProgram sdProgram)
     {
-        List<TvEpisodenum> ret = new();
+        List<TvEpisodenum> ret = [];
         int season = 0;
         int episode = 0;
 
-        if (sdProgram.Metadata is not null && sdProgram.Metadata.Any())
+        if (sdProgram.Metadata?.Any() == true)
         {
             foreach (ProgramMetadata m in sdProgram.Metadata.Where(a => a.Gracenote != null))
             {
@@ -215,7 +243,7 @@ public static class SDHelpers
                 ret.Add(new TvEpisodenum
                 {
                     System = "xmltv_ns",
-                    Text = $"{season:00}.{episode:00}"
+                    Text = $"{season}.{episode}."
                 });
             }
         }
@@ -232,23 +260,12 @@ public static class SDHelpers
         if (ret.Count == 0)
         {
             string prefix = sdProgram.ProgramID[..2];
-            string newValue;
-
-            switch (prefix)
+            string newValue = prefix switch
             {
-                case "EP":
-                    newValue = sdProgram.ProgramID[..10] + "." + sdProgram.ProgramID[10..];
-                    break;
-
-                case "SH":
-                case "MV":
-                    newValue = sdProgram.ProgramID[..10] + ".0000";
-                    break;
-
-                default:
-                    newValue = sdProgram.ProgramID;
-                    break;
-            }
+                "EP" => sdProgram.ProgramID[..10] + "." + sdProgram.ProgramID[10..],
+                "SH" or "MV" => sdProgram.ProgramID[..10] + ".0000",
+                _ => sdProgram.ProgramID,
+            };
             ret.Add(new TvEpisodenum
             {
                 System = "dd_progid",
@@ -266,31 +283,33 @@ public static class SDHelpers
         }
 
         return ret;
-
     }
 
-    public static List<TvIcon> GetIcons(Program program, ISDProgram sdProgram, ISchedule sched, string lang)
+    public static List<TvIcon> GetIcons(ISDProgram sdProgram, IMemoryCache memoryCache)
     {
-        List<TvIcon> ret = new();
-        List<string> aspects = new() { "2x3", "4x3", "3x4", "16x9" };
-
-        if (sdProgram.Metadata is not null && sdProgram.Metadata.Any())
+        List<ImageInfo> imageInfos = memoryCache.ImageInfos();
+        IEnumerable<ImageInfo> icons = imageInfos.Where(a => a.ProgramId == sdProgram.ProgramID);
+        if (!icons.Any())
         {
-
+            return [];
         }
 
-        return ret;
+        List<TvIcon> ret = icons.Select(a => new TvIcon
+        {
+            Src = a.RealUrl,
+            Width = a.Width.ToString(),
+            Height = a.Height.ToString()
+        }).ToList();
 
+        return ret;
     }
 
-    public static List<TvRating> GetRatings(ISDProgram sdProgram, string countryCode, int maxRatings)
+    public static List<TvRating> GetRatings(ISDProgram sdProgram, int maxRatings)
     {
-        List<TvRating> ratings = new();
-
+        List<TvRating> ratings = [];
 
         if (sdProgram?.ContentRating == null)
         {
-
             return ratings;
         }
 
@@ -308,36 +327,54 @@ public static class SDHelpers
         return ratings;
     }
 
-
     public static TvVideo GetTvVideos(Program sdProgram)
     {
         TvVideo ret = new();
 
         if (sdProgram.VideoProperties?.Any() == true)
         {
-            ret.Quality = sdProgram.VideoProperties.ToList();
+            ret.Quality = [.. sdProgram.VideoProperties];
         }
 
         return ret;
-
     }
 
     public static TvAudio GetTvAudios(Program sdProgram)
     {
         TvAudio ret = new();
 
-        if (sdProgram.AudioProperties != null && sdProgram.AudioProperties.Any())
+        if (sdProgram.AudioProperties?.Any() == true)
         {
-            List<string> a = sdProgram.AudioProperties.ToList();
+            List<string> a = [.. sdProgram.AudioProperties];
             if (a.Any())
             {
-                ret.Stereo = a[0];
+                ret.Stereo = a.Last() switch
+                {
+                    "stereo" => "stereo",
+                    "dvs" => "stereo",
+                    "DD 5.1" => "dolby digital",
+                    "Atmos" => "dolby digital",
+                    "Dolby" => "dolby",
+                    "dubbed" => "mono",
+                    "mono" => "mono",
+                    _ => "mono",
+                };
             }
-
         }
 
         return ret;
+    }
 
+    public static TvPreviouslyshown GetPreviouslyShown(ISDProgram sdProgram)
+    {
+        return new()
+        {
+            Start = sdProgram.OriginalAirDate ?? ""
+        };
+    }
+    public static string? GetNew(Program sdProgram)
+    {
+        return sdProgram.New != null ? "" : null;
     }
     public static SDStatus GetSDStatusOffline()
     {

@@ -63,11 +63,6 @@ public partial class StreamMasterHub : ISchedulesDirectHub
         return await mediator.Send(new GetStatus()).ConfigureAwait(false);
     }
 
-    public async Task<string> GetEpg()
-    {
-        return await mediator.Send(new GetEpg()).ConfigureAwait(false);
-    }
-
     public async Task<List<string>> GetLineupNames()
     {
         return await mediator.Send(new GetLineupNames()).ConfigureAwait(false);

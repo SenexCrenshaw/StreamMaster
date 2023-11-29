@@ -71,7 +71,7 @@ public sealed class FileUtil
                 }
                 using FileStream fileStream = new(fullName, FileMode.Create);
                 using HttpResponseMessage response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationdefault).ConfigureAwait(false);
-                if (response.StatusCode == HttpStatusCode.Forbidden || response.StatusCode == HttpStatusCode.NotFound)
+                if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.NotFound)
                 {
                     return (false, null);
                 }
@@ -314,6 +314,7 @@ public sealed class FileUtil
         CreateDir(BuildInfo.EPGFolder);
         CreateDir(BuildInfo.M3UFolder);
         CreateDir(BuildInfo.SDCacheFolder);
+        CreateDir(BuildInfo.SDImagesFolder);
     }
 
     public static void UpdateSetting(Setting setting)

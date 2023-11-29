@@ -27,7 +27,7 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService) 
             await LoadTokenAsync(cancellationToken);
         }
 
-        if (!string.IsNullOrEmpty(_token) && _tokenDateTime.AddHours(23) > DateTime.UtcNow)
+        if (!string.IsNullOrEmpty(_token) && _tokenDateTime.AddHours(12) > DateTime.UtcNow)
         {
             return _token;
         }

@@ -82,6 +82,12 @@ public class SDProgram : ISDProgram
     [JsonPropertyName("holiday")]
     public string Holiday { get; set; }
 
+    [JsonPropertyName("episodeImage")]
+    public string EpisodeImage { get; set; }
+
+    [JsonPropertyName("hasSportsArtwork")]
+    public bool? HasSportsArtwork { get; set; }
+
     [JsonPropertyName("duration")]
     public int? Duration { get; set; }
 

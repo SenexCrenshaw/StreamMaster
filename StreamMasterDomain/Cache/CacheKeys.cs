@@ -3,6 +3,7 @@
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Models;
@@ -21,6 +22,7 @@ public static class CacheKeys
     private const string ListTVLogos = "ListTVLogos";
     private const string ListChannelGroupStreamCounts = "ListChannelGroupStreamCounts";
     private const string SettingKey = "Setting";
+    private const string ListImageInfos = "ListImageInfos";
 
     public static readonly MemoryCacheEntryOptions NeverRemoveCacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
 
@@ -40,6 +42,18 @@ public static class CacheKeys
                 datas.Add((IconFileDto)data);
 
                 _ = cache.Set(ListIconFiles, datas, NeverRemoveCacheEntryOptions);
+            }
+            return;
+        }
+
+        if (data.GetType() == typeof(ImageInfo))
+        {
+            lock (_lock)
+            {
+                List<ImageInfo> datas = Get<ImageInfo>(ListImageInfos, cache);
+                datas.Add((ImageInfo)data);
+
+                _ = cache.Set(ListImageInfos, datas, NeverRemoveCacheEntryOptions);
             }
             return;
         }
@@ -70,7 +84,7 @@ public static class CacheKeys
         lock (_lock)
         {
             List<ChannelGroupStreamCount> datas = cache.ChannelGroupStreamCounts();
-            ChannelGroupStreamCount? data = datas.FirstOrDefault(x => x.ChannelGroupId == channelGroupId);
+            ChannelGroupStreamCount? data = datas.Find(x => x.ChannelGroupId == channelGroupId);
             if (data != null)
             {
                 _ = datas.Remove(data);
@@ -99,6 +113,11 @@ public static class CacheKeys
         datas.Add(icon);
         _ = cache.Set(ListProgrammesLogos, datas, NeverRemoveCacheEntryOptions);
         return;
+    }
+
+    public static List<ImageInfo> ImageInfos(this IMemoryCache cache)
+    {
+        return Get<ImageInfo>(ListImageInfos, cache);
     }
 
     public static List<ChannelLogoDto> ChannelLogos(this IMemoryCache cache)
@@ -141,9 +160,9 @@ public static class CacheKeys
         //if (!cache.TryGetValue(ListIconFiles, out List<IconFileDto>? cacheValue))
         //{
         List<IconFileDto> cacheValue = mapper.Map<List<IconFileDto>>(cache.TvLogos());
-        List<ChannelLogoDto> a = cache.ChannelLogos();
+        //List<ChannelLogoDto> a = cache.ChannelLogos();
         cacheValue.AddRange(cache.Icons());
-        cacheValue.AddRange(mapper.Map<List<IconFileDto>>(cache.ChannelLogos()));
+        //cacheValue.AddRange(mapper.Map<List<IconFileDto>>(cache.ChannelLogos()));
 
         //MemoryCacheEntryOptions cacheEntryOptions = new MemoryCacheEntryOptions()
         //    .SetPriority(CacheItemPriority.NeverRemove);
@@ -180,7 +199,7 @@ public static class CacheKeys
 
     public static void UpdateChannelGroupWithActives(this IMemoryCache cache, ChannelGroupDto channelGroup)
     {
-        ChannelGroupStreamCount? active = cache.ChannelGroupStreamCounts().FirstOrDefault(a => a.ChannelGroupId == channelGroup.Id);
+        ChannelGroupStreamCount? active = cache.ChannelGroupStreamCounts().Find(a => a.ChannelGroupId == channelGroup.Id);
         if (active == null)
         {
             return;
@@ -203,7 +222,7 @@ public static class CacheKeys
     public static void AddOrUpdateChannelGroupVideoStreamCount(this IMemoryCache cache, ChannelGroupDto ChannelGroupDto)
     {
         List<ChannelGroupStreamCount> datas = cache.ChannelGroupStreamCounts();
-        ChannelGroupStreamCount? data = datas.FirstOrDefault(a => a.ChannelGroupId == ChannelGroupDto.Id);
+        ChannelGroupStreamCount? data = datas.Find(a => a.ChannelGroupId == ChannelGroupDto.Id);
 
         if (data == null)
         {
@@ -226,7 +245,7 @@ public static class CacheKeys
     {
         lock (_lock)
         {
-            IconFileDto? testIcon = cache.Icons().FirstOrDefault(a => a.Source == source && a.SMFileType == sMFileTypes);
+            IconFileDto? testIcon = cache.Icons().Find(a => a.Source == source && a.SMFileType == sMFileTypes);
             return testIcon;
         }
     }
@@ -255,7 +274,7 @@ public static class CacheKeys
 
     public static ChannelGroupStreamCount? GetChannelGroupVideoStreamCount(this IMemoryCache cache, int channelGroupId)
     {
-        ChannelGroupStreamCount? ret = cache.ChannelGroupStreamCounts().FirstOrDefault(a => a.ChannelGroupId == channelGroupId);
+        ChannelGroupStreamCount? ret = cache.ChannelGroupStreamCounts().Find(a => a.ChannelGroupId == channelGroupId);
         return ret;
     }
 
@@ -290,11 +309,10 @@ public static class CacheKeys
     public static bool SetSDProgreammesCache(this IMemoryCache cache, List<Programme> data, TimeSpan? expiration = null)
     {
         MemoryCacheEntryOptions CacheEntryOptions = expiration == null
-            ? new MemoryCacheEntryOptions { }.SetPriority(CacheItemPriority.NeverRemove)
+            ? new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove)
             : new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiration };
         if (!AreProgrammeListsEqual(cache.SDProgrammess(), data))
         {
-
             _ = cache.Set(ListSDProgrammes, data, CacheEntryOptions);
             return true;
         }
@@ -304,7 +322,7 @@ public static class CacheKeys
     public static void SetCache(this IMemoryCache cache, object data, TimeSpan? expiration = null)
     {
         MemoryCacheEntryOptions CacheEntryOptions = expiration == null
-            ? new MemoryCacheEntryOptions { }.SetPriority(CacheItemPriority.NeverRemove)
+            ? new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove)
             : new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiration };
         if (data.GetType().GenericTypeArguments.Contains(typeof(IconFileDto)))
         {
@@ -315,6 +333,12 @@ public static class CacheKeys
         if (data.GetType().GenericTypeArguments.Contains(typeof(TvLogoFile)))
         {
             _ = cache.Set(ListTVLogos, data, CacheEntryOptions);
+            return;
+        }
+
+        if (data.GetType().GenericTypeArguments.Contains(typeof(ImageInfo)))
+        {
+            _ = cache.Set(ListImageInfos, data, CacheEntryOptions);
             return;
         }
 

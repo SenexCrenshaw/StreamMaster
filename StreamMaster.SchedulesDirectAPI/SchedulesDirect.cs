@@ -18,13 +18,14 @@ using System.Text;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirectAPI;
-
 public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService settingsService, ISDToken SdToken, IMemoryCache memoryCache) : ISchedulesDirect
 {
+    private readonly object fileLock = new();
     public static readonly int MAX_RETRIES = 2;
     private readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
     private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
     private readonly ILogger _logger = logger;
+    private readonly string ImageInfoFilePath = Path.Combine(BuildInfo.SDImagesFolder, "ImageInfo.json");
 
     public async Task<Countries?> GetCountries(CancellationToken cancellationToken)
     {
@@ -36,23 +37,196 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         return await GetData<List<Headend>>($"headends?country={country}&postalcode={postalCode}", cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<bool> GetImageUrl(string source, string fileName, CancellationToken cancellationToken)
+    public async Task ProcessProgramsImages(List<SDProgram> sDPrograms, CancellationToken cancellationToken)
     {
-        string? url = await SdToken.GetAPIUrl($"image/{source}", cancellationToken);
-        if (url == null)
+        List<string> programIds = sDPrograms.Select(a => a.ProgramID).Distinct().ToList();
+        List<string> distinctProgramIds = programIds
+                                             .Distinct()
+                                             .Select(a => a.Length >= 10 ? a[..10] : a) // Select the leftmost 10 characters
+                                             .ToList();
+
+        if (programIds.Any())
         {
-            _logger.LogWarning("Image URL for source {Source} not found.", source);
-            return false;
+            List<ProgramMediaMetaData>? fetchedResults = await PostData<List<ProgramMediaMetaData>>("metadata/programs/", programIds, cancellationToken).ConfigureAwait(false);
+            if (fetchedResults == null)
+            {
+                return;
+            }
+            //string cats = string.Join(',', fetchedResults.SelectMany(a => a.ImageData.Select(a => a.Category)).Distinct());
+            //string tiers = string.Join(',', fetchedResults.SelectMany(a => a.ImageData.Select(a => a.Tier)).Distinct());
+
+            //string catSeason = string.Join(",", fetchedResults.SelectMany(a => a.ImageData.Where(item => item.Tier == "Season")).Select(item => item.Category).Distinct().OrderBy(name => name));
+            //string catEpisode = string.Join(",", fetchedResults.SelectMany(a => a.ImageData.Where(item => item.Tier == "Episode")).Select(item => item.Category).Distinct().OrderBy(name => name));
+            //string catSeries = string.Join(",", fetchedResults.SelectMany(a => a.ImageData.Where(item => item.Tier == "Series")).Select(item => item.Category).Distinct().OrderBy(name => name));
+
+            int count = 0;
+
+            foreach (ProgramMediaMetaData m in fetchedResults)
+            {
+                ++count;
+                logger.LogInformation("Caching program icons for {count}/{totalCount} programs", count, fetchedResults.Count);
+                SDProgram? sdProg = sDPrograms.Find(a => a.ProgramID == m.ProgramID);
+                string cats = string.Join(',', m.ImageData.Select(a => a.Category).Distinct());
+                string tiers = string.Join(',', m.ImageData.Select(a => a.Tier).Distinct());
+
+                if (sdProg is null)
+                {
+                    continue;
+                }
+
+                if (sdProg.HasEpisodeArtwork == true)
+                {
+                    //List<ImageData> catEpisode = m.ImageData.Where(item => item.Tier == "Episode").ToList();
+                    //await DownloadImages(m.ProgramID, catEpisode, cancellationToken);
+                }
+
+                if (sdProg.HasMovieArtwork == true)
+                {
+                    List<ImageData> iconsSports = m.ImageData.Where(item => item.Category.StartsWith("Poster")).ToList();
+                    await DownloadImages(m.ProgramID, iconsSports, cancellationToken);
+                    continue;
+                }
+
+                if (sdProg.HasSeasonArtwork == true)
+                {
+                    List<ImageData> catSeason = m.ImageData.Where(item => item.Tier == "Season").ToList();
+                    await DownloadImages(m.ProgramID, catSeason, cancellationToken);
+                }
+
+                if (sdProg.HasSeriesArtwork == true)
+                {
+                    List<ImageData> catSeries = m.ImageData.Where(item => item.Tier == "Series").ToList();
+                    await DownloadImages(m.ProgramID, catSeries, cancellationToken);
+                }
+
+                if (sdProg.HasSportsArtwork == true)
+                {
+                    List<ImageData> iconsSports = [.. m.ImageData];
+                    await DownloadImages(m.ProgramID, iconsSports, cancellationToken);
+                }
+
+                if (sdProg.HasImageArtwork == true)
+                {
+                    await DownloadImages(m.ProgramID, m.ImageData, cancellationToken);
+                }
+            }
+        }
+    }
+
+    private async Task DownloadImages(string programId, List<ImageData> iconsList, CancellationToken cancellationToken)
+    {
+        List<ImageData> icons = iconsList.Where(a => a.Category == "Banner-L1").ToList();
+        if (!icons.Any())
+        {
+            icons = iconsList.Where(a => a.Category == "Iconic").ToList();
+            if (!icons.Any())
+            {
+                icons = iconsList;
+            }
         }
 
-        (bool success, Exception? ex) = await FileUtil.DownloadUrlAsync(url, fileName, cancellationToken).ConfigureAwait(false);
+        icons = icons.Where(a => !string.IsNullOrEmpty(a.Uri) && a.Width <= 600 && a.Height <= 600).ToList();
 
-        if (!success && ex != null)
+        logger.LogInformation("Downloading {count} icons for {ProgramID} programs", icons.Count, programId);
+        foreach (ImageData icon in icons)
         {
-            _logger.LogError(ex, "Failed to download image from {Url} to {FileName}.", url, fileName);
+            bool a = await GetImageUrl(programId, icon, cancellationToken);
+        }
+    }
+
+    public async Task<bool> GetImageUrl(string programId, ImageData icon, CancellationToken cancellationToken)
+    {
+        List<ImageInfo> imageInfos = memoryCache.ImageInfos();
+
+        if (File.Exists(ImageInfoFilePath) && !imageInfos.Any())
+        {
+            imageInfos = JsonSerializer.Deserialize<List<ImageInfo>>(File.ReadAllText(ImageInfoFilePath)) ?? [];
+            memoryCache.SetCache(imageInfos);
         }
 
-        return success;
+        if (imageInfos.Find(a => a.IconUri == icon.Uri) != null)
+        {
+            return true;
+        }
+
+        string fullName = Path.Combine(BuildInfo.SDImagesFolder, $"{programId}_{icon.Category}_{icon.Tier}_{icon.Width}x{icon.Height}.png");
+
+        try
+        {
+            string url = "";
+            if (icon.Uri.StartsWith("http"))
+            {
+                url = icon.Uri;
+            }
+            else
+            {
+                url = await SdToken.GetAPIUrl($"image/{icon.Uri}", cancellationToken);
+            }
+
+            Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
+            _ = await EnsureToken(cancellationToken);
+
+            HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
+            using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
+
+            if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.NotFound)
+            {
+                return false;
+            }
+
+            _ = response.EnsureSuccessStatusCode();
+
+            Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+            if (stream != null)
+            {
+                using FileStream fileStream = new(fullName, FileMode.Create);
+                await stream.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
+                WriteImageInfoToJsonFile(programId, icon, url, fullName);
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to download image from {Url} to {FileName}.", icon.Uri, fullName);
+        }
+        return false;
+    }
+    private void WriteImageInfoToJsonFile(string programId, ImageData icon, string realUrl, string fullName)
+    {
+        lock (fileLock)
+        {
+            try
+            {
+                List<ImageInfo> imageInfos = memoryCache.ImageInfos();
+
+                if (imageInfos.Find(a => a.IconUri == icon.Uri) != null)
+                {
+                    return;
+                }
+
+                UriBuilder uriBuilder = new(realUrl)
+                {
+                    // Remove all query parameters by setting the Query property to an empty string
+                    Query = ""
+                };
+
+                // Get the modified URL
+                string modifiedUrl = uriBuilder.Uri.ToString();
+
+                // Add the new imageInfo
+                imageInfos.Add(new ImageInfo(programId, icon.Uri, modifiedUrl, fullName, icon.Width, icon.Height));
+
+                // Serialize the updated imageInfos to JSON and write it to the file using System.Text.Json
+                string json = JsonSerializer.Serialize(imageInfos, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(ImageInfoFilePath, json);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to update image information in JSON file.");
+            }
+        }
     }
 
     public async Task<bool> SDSync(List<StationIdLineup> StationIdLineups, CancellationToken cancellationToken)
@@ -152,8 +326,9 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
             List<string> progIds = relevantPrograms.Select(p => p.ProgramID).Distinct().ToList();
 
             List<SDProgram> sdPrograms = await GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
-            Dictionary<string, SDProgram> sdProgramsDict = sdPrograms.ToDictionary(p => p.ProgramID);
+            await ProcessProgramsImages(sdPrograms, cancellationToken).ConfigureAwait(false);
 
+            Dictionary<string, SDProgram> sdProgramsDict = sdPrograms.ToDictionary(p => p.ProgramID);
 
             foreach (Program? p in relevantPrograms)
             {
@@ -178,23 +353,39 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
                     Stop = endt.ToString("yyyyMMddHHmmss") + " +0000",
                     Channel = $"SD|{sched.StationID}",
                     ChannelName = channelName,
-                    Name = channelNameSuffix,
+                    //Name = channelNameSuffix,
                     DisplayName = displayName,
                     Title = SDHelpers.GetTitles(sdProg.Titles, lang),
                     Subtitle = SDHelpers.GetSubTitles(sdProg, lang),
                     Desc = SDHelpers.GetDescriptions(sdProg, lang),
-                    Credits = SDHelpers.GetCredits(sdProg, lang),
+                    Credits = SDHelpers.GetCredits(sdProg),
                     Category = SDHelpers.GetCategory(sdProg, lang),
                     Language = lang,
-                    Episodenum = SDHelpers.GetEpisodeNums(sdProg, lang),
-                    Icon = SDHelpers.GetIcons(p, sdProg, sched, lang),
-                    Rating = SDHelpers.GetRatings(sdProg, lang, maxRatings),
+                    Episodenum = SDHelpers.GetEpisodeNums(sdProg),
+                    Icon = SDHelpers.GetIcons(sdProg, memoryCache),
+                    Rating = SDHelpers.GetRatings(sdProg, maxRatings),
                     Video = SDHelpers.GetTvVideos(p),
                     Audio = SDHelpers.GetTvAudios(p),
                 };
 
+                if (p.New != null)
+                {
+                    programme.New = "";
+                }
+                else
+                {
+                    programme.New = null;
+                    programme.Previouslyshown = SDHelpers.GetPreviouslyShown(sdProg);
+                }
+
+                if (!string.IsNullOrEmpty(p.LiveTapeDelay) && p.LiveTapeDelay.Equals("Live"))
+                {
+                    programme.Live = "";
+                }
+
                 programmes.Add(programme);
             }
+            _logger.LogInformation("Processed {counter} programs out of {totalPrograms}", counter, totalPrograms);
         }
         _logger.LogInformation("SD Finished");
         return memoryCache.SetSDProgreammesCache(programmes);
@@ -255,7 +446,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
     public async Task<SDStatus> GetStatus(CancellationToken cancellationToken)
     {
         SDStatus status = await GetStatusInternal(cancellationToken);
-        return status ?? SDHelpers.GetSDStatusOffline();
+        return status;
     }
 
     public void ResetCache(string command)
@@ -272,23 +463,58 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
     private async Task<SDStatus> GetStatusInternal(CancellationToken cancellationToken)
     {
         SDStatus? result = await GetData<SDStatus>(SDCommands.Status, cancellationToken).ConfigureAwait(false);
+        if (result == null)
+        {
+            return SDHelpers.GetSDStatusOffline();
+        }
+        result = await HandleStatus(result, cancellationToken).ConfigureAwait(false);
+
         return result ?? SDHelpers.GetSDStatusOffline();
     }
 
-    private async Task<T?> GetData<T>(string command, CancellationToken cancellationToken)
+    private async Task<SDStatus?> HandleStatus(SDStatus sdstatus, CancellationToken cancellationToken)
+    {
+        if ((SDHttpResponseCode)sdstatus.code is SDHttpResponseCode.ACCOUNT_LOCKOUT or SDHttpResponseCode.ACCOUNT_DISABLED or SDHttpResponseCode.ACCOUNT_EXPIRED or SDHttpResponseCode.TOKEN_EXPIRED or SDHttpResponseCode.INVALID_USER)
+        {
+            if (await SdToken.ResetTokenAsync(cancellationToken).ConfigureAwait(false) == null)
+            {
+                return null;
+            }
+            ResetCache(SDCommands.Status);
+            return await GetStatusInternal(cancellationToken).ConfigureAwait(false);
+        }
+        return sdstatus;
+    }
+
+    private async Task<string?> EnsureToken(CancellationToken cancellationToken)
+    {
+        return await SdToken.GetTokenAsync(cancellationToken);
+    }
+
+    private async Task<T?> GetData<T>(string command, CancellationToken cancellationToken, bool dontCache = false)
     {
         string cacheKey = SDHelpers.GenerateCacheKey(command);
         string cachePath = Path.Combine(BuildInfo.SDCacheFolder, cacheKey);
 
-        // Check if cache exists and is valid
-        if (File.Exists(cachePath) && DateTime.UtcNow - File.GetLastWriteTimeUtc(cachePath) <= CacheDuration)
+        if (!dontCache)
         {
-            string cachedContent = await File.ReadAllTextAsync(cachePath, cancellationToken);
-            SDCacheEntry<T>? cacheEntry = JsonSerializer.Deserialize<SDCacheEntry<T>>(cachedContent);
-
-            if (cacheEntry != null && DateTime.UtcNow - cacheEntry.Timestamp <= CacheDuration)
+            // Check if cache exists and is valid
+            TimeSpan duration = CacheDuration;
+            if (command == SDCommands.Status || command == SDCommands.LineUps)
             {
-                return cacheEntry.Data;
+                duration = TimeSpan.FromMinutes(5);
+            }
+
+            string? token = await EnsureToken(cancellationToken);
+            if (!string.IsNullOrEmpty(token) && File.Exists(cachePath) && DateTime.UtcNow - File.GetLastWriteTimeUtc(cachePath) <= duration)
+            {
+                string cachedContent = await File.ReadAllTextAsync(cachePath, cancellationToken);
+                SDCacheEntry<T>? cacheEntry = JsonSerializer.Deserialize<SDCacheEntry<T>>(cachedContent);
+
+                if (cacheEntry != null && DateTime.UtcNow - cacheEntry.Timestamp <= duration)
+                {
+                    return cacheEntry.Data;
+                }
             }
         }
 
@@ -327,16 +553,18 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
                     return default;
                 }
 
-                SDCacheEntry<T> entry = new()
+                if (!dontCache)
                 {
-                    Timestamp = DateTime.UtcNow,
-                    Command = command,
-                    Content = "",
-                    Data = result
-                };
-
-                string jsonResult = JsonSerializer.Serialize(entry);
-                await File.WriteAllTextAsync(cachePath, jsonResult, cancellationToken);
+                    SDCacheEntry<T> entry = new()
+                    {
+                        Timestamp = DateTime.UtcNow,
+                        Command = command,
+                        Content = "",
+                        Data = result
+                    };
+                    string jsonResult = JsonSerializer.Serialize(entry);
+                    await File.WriteAllTextAsync(cachePath, jsonResult, cancellationToken);
+                }
                 return result;
             }
         }
