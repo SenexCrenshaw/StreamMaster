@@ -11,7 +11,9 @@ $env:COMPOSE_DOCKER_CLI_BUILD = 1
 $imageName = "docker.io/senexcrenshaw/streammaster"
 
 $gitVersion = "dotnet-gitversion"
-&$gitVersion /updateAssemblyInfo | Out-Null
+if (!$PrintCommands) {    
+    &$gitVersion /updateAssemblyInfo | Out-Null
+}
 
 $json = &$gitVersion /output json | Out-String
 $obj = $json | ConvertFrom-Json 
@@ -44,7 +46,7 @@ if ($PrintCommands) {
 $startTime = Get-Date
 
 # Initialize line counter
-$lineCounter = 0
+# $lineCounter = 0
 
 # Prefix for the dots
 Write-Host -NoNewline "Building Image "

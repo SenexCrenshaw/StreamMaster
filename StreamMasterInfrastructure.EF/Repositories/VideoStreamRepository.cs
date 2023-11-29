@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using StreamMaster.SchedulesDirectAPI.Domain.EPG;
 
 using StreamMasterApplication.ChannelGroups.Queries;
+using StreamMasterApplication.Common.Logging;
 using StreamMasterApplication.EPG.Queries;
 using StreamMasterApplication.Icons.Queries;
 using StreamMasterApplication.M3UFiles.Queries;
@@ -28,7 +29,7 @@ using System.Linq.Dynamic.Core;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
-public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender, ISettingsService settingsService) : RepositoryBase<VideoStream>(repositoryContext, logger), IVideoStreamRepository
+public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, RepositoryContext repositoryContext, IMapper mapper, IMemoryCache memoryCache, ISender sender, ISettingsService settingsService) : RepositoryBase<VideoStream>(repositoryContext, intlogger), IVideoStreamRepository
 {
     public PagedResponse<VideoStreamDto> CreateEmptyPagedResponse()
     {
@@ -173,6 +174,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
         return videoStreamsToUpdate;
     }
 
+    [LogExecutionTimeAspect]
     public async Task<List<VideoStreamDto>> DeleteVideoStreamsByM3UFiledId(int M3UFileId, CancellationToken cancellationToken)
     {
         IQueryable<VideoStream> query = FindByCondition(a => a.M3UFileId == M3UFileId);
@@ -182,6 +184,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
         return await query.ProjectTo<VideoStreamDto>(mapper.ConfigurationProvider).ToListAsync(cancellationToken).ConfigureAwait(false);
     }
 
+    [LogExecutionTimeAspect]
     public async Task<List<string>> DeleteVideoStreamsAsync(IQueryable<VideoStream> videoStreams, CancellationToken cancellationToken)
     {
         // Get the VideoStreams
@@ -223,8 +226,27 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
 
         //}
 
+
+
         // Remove the VideoStreams
-        await RepositoryContext.BulkDeleteAsync(videoStreams, cancellationToken: cancellationToken).ConfigureAwait(false);
+        int count = 0;
+        int numberOfDeletedRows = 0;
+        int chunkSize = 500;
+        int totalCount = videoStreams.Count();
+        logger.LogInformation($"Deleting {totalCount} video streams");
+        while (count < totalCount)
+        {
+
+            IQueryable<VideoStream> recordsToDelete = videoStreams.OrderBy(v => v.Id).Skip(count).Take(chunkSize);
+
+            RepositoryContext.VideoStreams.RemoveRange(recordsToDelete);
+
+            await RepositoryContext.SaveChangesAsync(cancellationToken);
+            count += chunkSize;
+            logger.LogInformation($"Deleted {count} of {totalCount} video streams");
+        }
+
+        //await RepositoryContext.BulkDeleteAsync(videoStreams, cancellationToken: cancellationToken).ConfigureAwait(false);
         //RepositoryContext.VideoStreams.RemoveRange(videoStreams);
         deletedCount += videoStreams.Count();
 
@@ -238,10 +260,9 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> logger, Reposi
             // You can decide how to handle exceptions here, for example by
             // logging them. In this case, we're simply swallowing the exception.
         }
-
+        await RepositoryContext.VacuumDatabaseAsync().ConfigureAwait(false);
         return videoStreamIds;
     }
-
     public async Task<VideoStreamDto?> DeleteVideoStream(string videoStreamId, CancellationToken cancellationToken)
     {
         // Get the VideoStream
