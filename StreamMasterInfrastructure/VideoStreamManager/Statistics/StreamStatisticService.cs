@@ -11,7 +11,7 @@ using System.Net.Sockets;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Statistics;
 
-public class StreamStatisticService(IStreamManager streamManager, ISettingsService settingsService, IMemoryCache memoryCache) : IStreamStatisticService
+public sealed class StreamStatisticService(IStreamManager streamManager, ISettingsService settingsService, IMemoryCache memoryCache) : IStreamStatisticService
 {
 
     public async Task<List<StreamStatisticsResult>> GetAllStatisticsForAllUrls(CancellationToken cancellationToken = default)

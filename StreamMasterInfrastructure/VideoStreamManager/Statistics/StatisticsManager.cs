@@ -7,7 +7,7 @@ using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Statistics;
 
-public class StatisticsManager(ILogger<StatisticsManager> logger) : IStatisticsManager
+public sealed class StatisticsManager(ILogger<StatisticsManager> logger) : IStatisticsManager
 {
     private readonly ConcurrentDictionary<Guid, StreamingStatistics> _clientStatistics = new();
     private readonly ILogger<StatisticsManager> _logger = logger ?? throw new ArgumentNullException(nameof(logger));

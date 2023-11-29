@@ -174,7 +174,12 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
   }, [dataSource, filterQuery, filteredDataSource, queryFilter, selectedItem, totalItems]);
 
   useEffect(() => {
-    if (!query?.data) return;
+    if (query.data == null) return;
+
+    if (query.data.length === 0 && props.value !== undefined) {
+      setSelectedItemName(props.value);
+      return;
+    }
 
     const existingIds = new Set(dataSource.map((x) => x.id));
     const newItems = query.data.filter((cn: T) => cn?.id && !existingIds.has(cn.id));
@@ -186,7 +191,7 @@ const BaseSelector = <T extends HasId>(props: BaseSelectorProperties<T>) => {
       setIndex(d.length);
       setFilteredDataSource(d);
     }
-  }, [dataSource, dothing, query]);
+  }, [dataSource, dothing, props.value, query]);
 
   const onChange = useCallback(
     (event: DropdownChangeEvent) => {

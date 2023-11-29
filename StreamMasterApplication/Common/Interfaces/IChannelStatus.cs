@@ -5,6 +5,7 @@
 /// </summary>
 public interface IChannelStatus
 {
+    bool IsStarted { get; set; }
     //List<Guid> GetChannelClientIds { get; }
     /// <summary>
     /// Sets the channel to a global state.
@@ -30,11 +31,6 @@ public interface IChannelStatus
     /// Gets or sets the ID of the parent video stream, if applicable.
     /// </summary>
     string ChannelVideoStreamId { get; set; }
-
-    ///// <summary>
-    ///// Gets or sets the ID of the video stream associated with this channel.
-    ///// </summary>
-    //string CurrentVideoStreamId { get; set; }
 
     ///// <summary>
     ///// Gets or sets the name of the video stream associated with this channel.

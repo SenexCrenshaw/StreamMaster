@@ -40,7 +40,7 @@ public interface IStreamManager
     ///// </summary>
     ///// <returns>A collection of IStreamHandler objects.</returns>
     //ICollection<IStreamHandler> GetStreamHandlers();
-    void MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler);
+    Task MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler, CancellationToken cancellationToken = default);
     /// <summary>
     /// Retrieves all stream handlers.
     /// </summary>

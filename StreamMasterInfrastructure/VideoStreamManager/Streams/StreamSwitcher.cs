@@ -15,11 +15,11 @@ using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Streams;
 
-public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService channelService, IServiceProvider serviceProvider, IMemoryCache memoryCache, IStreamManager streamManager) : IStreamSwitcher
+public sealed class StreamSwitcher(ILogger<StreamSwitcher> logger, IClientStreamerManager clientStreamerManager, IChannelService channelService, IServiceProvider serviceProvider, IMemoryCache memoryCache, IStreamManager streamManager) : IStreamSwitcher
 {
     public async Task<bool> SwitchToNextVideoStreamAsync(string ChannelVideoStreamId, string? overrideNextVideoStreamId = null)
     {
-        logger.LogDebug("Start SwitchToNextVideoStream {ChannelVideoStreamId}", ChannelVideoStreamId);
+
         IChannelStatus? channelStatus = null;
         lock (channelService)
         {
@@ -32,7 +32,7 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
             }
             if (channelStatus.FailoverInProgress)
             {
-                logger.LogDebug("Exiting SwitchToNextVideoStream with false due to FailoverInProgress being true");
+                //logger.LogDebug("Exiting SwitchToNextVideoStream with false due to FailoverInProgress being true");
                 return false;
             }
             channelStatus.FailoverInProgress = true;
@@ -47,20 +47,7 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
             return false;
         }
 
-        IStreamHandler? oldStreamHandler = null;
-
-        if (channelStatus.CurrentVideoStream is not null)
-        {
-            _ = streamManager.GetStreamHandler(channelStatus.CurrentVideoStream.User_Url);
-            if (oldStreamHandler is not null)
-            {
-                if (oldStreamHandler.IsFailed)
-                {
-                    logger.LogError("SwitchToNextVideoStream oldStreamHandler is failed for id {ChannelVideoStreamId}, oldStreamHandler is already failed", ChannelVideoStreamId);
-                }
-                oldStreamHandler.SetFailed();
-            }
-        }
+        IStreamHandler? oldStreamHandler = streamManager.GetStreamHandler(channelStatus.CurrentVideoStream.User_Url);
 
         VideoStreamDto? videoStreamDto = await RetrieveNextChildVideoStream(channelStatus, overrideNextVideoStreamId);
         if (videoStreamDto is null)
@@ -79,11 +66,22 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
             return false;
         }
 
-        if (oldStreamHandler is not null)
+        if (channelStatus.CurrentVideoStream is not null && oldStreamHandler is not null)
         {
-            streamManager.MoveClientStreamers(oldStreamHandler, newStreamHandler);
+
+            if (!oldStreamHandler.IsFailed)
+            {
+                oldStreamHandler.SetFailed();
+            }
+
+            await streamManager.MoveClientStreamers(oldStreamHandler, newStreamHandler);
+        }
+        else if (!channelStatus.IsStarted)
+        {
+            await clientStreamerManager.AddClientsToHandler(ChannelVideoStreamId, newStreamHandler);
         }
 
+        channelStatus.IsStarted = true;
         channelStatus.CurrentVideoStream = videoStreamDto;
         channelStatus.FailoverInProgress = false;
 
@@ -190,7 +188,7 @@ public class StreamSwitcher(ILogger<StreamSwitcher> logger, IChannelService chan
                 }
             }
             logger.LogDebug("Exiting FetchNextChildVideoStream with to Return: {Id} {Name}", toReturn.Id, toReturn.User_Tvg_name);
-            channelStatus.CurrentVideoStream = toReturn;
+
             return toReturn;
         }
 

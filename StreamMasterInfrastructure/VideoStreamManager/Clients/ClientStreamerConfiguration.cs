@@ -5,7 +5,7 @@ namespace StreamMasterInfrastructure.VideoStreamManager.Clients;
 /// <summary>
 /// Defines the configuration options for a video streamer.
 /// </summary>
-public class ClientStreamerConfiguration : IClientStreamerConfiguration
+public sealed class ClientStreamerConfiguration : IClientStreamerConfiguration
 {
     public ClientStreamerConfiguration(
         string channelVideoStreamId,

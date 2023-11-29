@@ -6,16 +6,42 @@ using System.Collections.Concurrent;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Channels;
 
-public class ChannelService(IClientStreamerManager clientManager) : IChannelService
+public sealed class ChannelService() : IChannelService
 {
     private readonly ConcurrentDictionary<string, IChannelStatus> _channelStatuses = new();
 
-    public IChannelStatus RegisterChannel(VideoStreamDto ChannelVideoStream, string ChannelName)
+    private readonly object _disposeLock = new();
+    private bool _disposed = false;
+
+    public void Dispose()
+    {
+        lock (_disposeLock)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            try
+            {
+                _channelStatuses.Clear();
+
+            }
+            catch { }
+            finally
+            {
+                _disposed = true;
+            }
+        }
+
+    }
+
+    public IChannelStatus RegisterChannel(VideoStreamDto ChannelVideoStream)
     {
 
         if (!_channelStatuses.TryGetValue(ChannelVideoStream.Id, out IChannelStatus? channelStatus))
         {
-            channelStatus = new ChannelStatus(ChannelVideoStream.Id, ChannelVideoStream.User_Tvg_name, ChannelName);
+            channelStatus = new ChannelStatus(ChannelVideoStream);
             _ = _channelStatuses.TryAdd(ChannelVideoStream.Id, channelStatus);
         }
 
@@ -37,9 +63,7 @@ public class ChannelService(IClientStreamerManager clientManager) : IChannelServ
 
     public List<IChannelStatus> GetChannelStatusesFromVideoStreamId(string VideoStreamId)
     {
-        List<IChannelStatus> test = _channelStatuses.Values.Where(a => a.ChannelVideoStreamId == VideoStreamId || a.CurrentVideoStream.Id == VideoStreamId).ToList();
-
-        return test;
+        return _channelStatuses.Values.Where(a => a.ChannelVideoStreamId == VideoStreamId || a.CurrentVideoStream.Id == VideoStreamId).ToList();
     }
 
     public List<IChannelStatus> GetChannelStatuses()
@@ -55,19 +79,6 @@ public class ChannelService(IClientStreamerManager clientManager) : IChannelServ
     public int GetGlobalStreamsCount()
     {
         return _channelStatuses.Count(a => a.Value.IsGlobal);
-    }
-
-    public async Task<IClientStreamerConfiguration?> GetClientStreamerConfiguration(Guid clientId, CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        IClientStreamerConfiguration? test = await clientManager.GetClientStreamerConfiguration(clientId, cancellationToken);
-        return test;
-    }
-
-    public List<IClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds)
-    {
-        List<IClientStreamerConfiguration> test = clientManager.GetClientStreamerConfigurationFromIds(clientIds);
-        return test;
     }
 
 }

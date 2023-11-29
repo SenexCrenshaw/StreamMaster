@@ -27,7 +27,7 @@ public interface ICircularRingBuffer
     Task<int> ReadChunkMemory(Guid clientId, Memory<byte> target, CancellationToken cancellationToken);
     Task<int> ReadChunk(Guid clientId, byte[] buffer, int offset, int count, CancellationToken cancellationToken);
 
-    void RegisterClient(Guid clientId, string clientAgent, string clientIPAddress);
+    void RegisterClient(IClientStreamerConfiguration streamerConfiguration);
 
     void UnRegisterClient(Guid clientId);
 

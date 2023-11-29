@@ -11,12 +11,15 @@ const SDEditorChannels = () => {
   const settings = useSettings();
 
   const isSDReady = useMemo((): boolean => {
-    return getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() === 'online' && settings.data?.sdEnabled === true;
+    if (!getStatusQuery.data?.systemStatus || getStatusQuery.data?.systemStatus.length === 0 || settings.data?.sdEnabled !== true) {
+      return false;
+    }
+    console.log(getStatusQuery.data.systemStatus);
+    return getStatusQuery.data.systemStatus[0].status?.toLocaleLowerCase() === 'online';
   }, [getStatusQuery.data?.systemStatus, settings.data?.sdEnabled]);
 
   const status = useMemo(() => {
-    if (getStatusQuery.data?.systemStatus?.[0].status?.toLocaleLowerCase() === 'online') {
-      console.log(getStatusQuery.data);
+    if (isSDReady) {
       return (
         <span>
           Schedules Direct System Status: <span className="text-green-500">Online</span>
@@ -29,7 +32,7 @@ const SDEditorChannels = () => {
         Schedules Direct System Status: <span className="text-red-500">Offline</span>
       </div>
     );
-  }, [getStatusQuery.data]);
+  }, [isSDReady]);
   console.log(status);
   return (
     <BlockUI blocked={!isSDReady}>

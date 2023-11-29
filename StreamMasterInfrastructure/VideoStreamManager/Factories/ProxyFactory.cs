@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 
 namespace StreamMasterInfrastructure.VideoStreamManager.Factories;
 
-public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpClientFactory, ISettingsService settingsService) : IProxyFactory
+public sealed class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpClientFactory, ISettingsService settingsService) : IProxyFactory
 {
     public async Task<(Stream? stream, int processId, ProxyStreamError? error)> GetProxy(string streamUrl, string streamName, CancellationToken cancellationToken)
     {
@@ -65,11 +65,11 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
         }
         catch (IOException ex)
         {
-            return HandleFFMpegStreamException<IOException>(ProxyStreamErrorCode.IoError, ex);
+            return HandleFFMpegStreamException(ProxyStreamErrorCode.IoError, ex);
         }
         catch (Exception ex)
         {
-            return HandleFFMpegStreamException<Exception>(ProxyStreamErrorCode.UnknownError, ex);
+            return HandleFFMpegStreamException(ProxyStreamErrorCode.UnknownError, ex);
         }
     }
 
@@ -129,7 +129,7 @@ public class ProxyFactory(ILogger<ProxyFactory> logger, IHttpClientFactory httpC
 
             if (response?.IsSuccessStatusCode != true)
             {
-                ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = $"Could not retrieve stream for {streamName}", };
+                ProxyStreamError error = new() { ErrorCode = ProxyStreamErrorCode.DownloadError, Message = $"Could not retrieve stream for {streamName} {response?.StatusCode}", };
                 logger.LogError("GetProxyStream Error: {message}", error.Message);
                 return (null, -1, error);
             }

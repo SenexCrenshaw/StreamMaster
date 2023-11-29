@@ -3,12 +3,9 @@
 /// <summary>
 /// Provides methods for managing and querying channels.
 /// </summary>
-public interface IChannelService
+public interface IChannelService : IDisposable
 {
-    List<IClientStreamerConfiguration> GetClientStreamerConfigurationFromIds(List<Guid> clientIds);
-
     List<IChannelStatus> GetChannelStatusesFromVideoStreamId(string VideoStreamId);
-    Task<IClientStreamerConfiguration?> GetClientStreamerConfiguration(Guid clientId, CancellationToken cancellationToken = default);
 
     //void UpdateChannelStatusVideoStreamId(string videoStreamId);
     /// <summary>
@@ -41,9 +38,8 @@ public interface IChannelService
     /// Registers a new channel with the given video stream ID and name.
     /// </summary>    
     /// <param name="ChannelVideoStream">The video stream to associate with the channel.</param>
-    /// <param name="ChannelName">The channel name</param>
     /// <returns>An IChannelStatus object representing the newly registered channel.</returns>
-    IChannelStatus RegisterChannel(VideoStreamDto ChannelVideoStream, string ChannelName);
+    IChannelStatus RegisterChannel(VideoStreamDto ChannelVideoStream);
 
     /// <summary>
     /// Unregisters a channel by its video stream ID.

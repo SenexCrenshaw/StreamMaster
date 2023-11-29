@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 
 using StreamMasterDomain.Common;
-using StreamMasterDomain.Models;
 
 namespace StreamMasterInfrastructureEF
 {
@@ -12,6 +11,11 @@ namespace StreamMasterInfrastructureEF
           : base(options)
         {
             DbPath = Path.Join(BuildInfo.DataFolder, "StreamMaster.db");
+        }
+
+        public async Task VacuumDatabaseAsync()
+        {
+            await Database.ExecuteSqlRawAsync("VACUUM;");
         }
 
         public string DbPath { get; }

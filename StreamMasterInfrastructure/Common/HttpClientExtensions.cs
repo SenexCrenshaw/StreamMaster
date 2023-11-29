@@ -25,7 +25,8 @@ public static class HttpClientExtensions
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return null;
+                throw;
+                //return null;
             }
             if (response.StatusCode == HttpStatusCode.Redirect)
             {

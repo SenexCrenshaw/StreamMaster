@@ -5,11 +5,8 @@
     /// </summary>
     public interface IClientStreamerManager
     {
-        /// <summary>
-        /// Moves client streamers from one stream handler to another.
-        /// </summary>
-        void MoveClientStreamers(IStreamHandler oldStreamHandler, IStreamHandler newStreamHandler);
-
+        Task AddClientToHandler(Guid clientId, IStreamHandler streamHandler);
+        Task AddClientsToHandler(string ChannelVideoStreamId, IStreamHandler streamHandler);
         /// <summary>
         /// Gets client streamer configurations by channel video stream Url.
         /// </summary>
@@ -34,12 +31,6 @@
         /// Disposes of the object, releasing all allocated resources.
         /// </summary>
         void Dispose();
-
-        /// <summary>
-        /// Asynchronously fails a client, triggering any necessary cleanup.
-        /// </summary>
-        Task FailClient(Guid clientId, CancellationToken cancellationToken = default);
-
         /// <summary>
         /// Asynchronously gets the configuration for a specific client.
         /// </summary>
