@@ -11,9 +11,7 @@ $env:COMPOSE_DOCKER_CLI_BUILD = 1
 $imageName = "docker.io/senexcrenshaw/streammaster"
 
 $gitVersion = "dotnet-gitversion"
-if (!$PrintCommands) {    
-    &$gitVersion /updateAssemblyInfo | Out-Null
-}
+&$gitVersion /updateAssemblyInfo | Out-Null
 
 $json = &$gitVersion /output json | Out-String
 $obj = $json | ConvertFrom-Json 
