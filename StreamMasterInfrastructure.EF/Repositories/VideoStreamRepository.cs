@@ -201,53 +201,32 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
         IQueryable<VideoStreamLink> parentLinks = RepositoryContext.VideoStreamLinks.Where(vsl => videoStreamIds.Contains(vsl.ParentVideoStreamId));
         await RepositoryContext.BulkDeleteAsync(parentLinks, cancellationToken: cancellationToken).ConfigureAwait(false);
 
-        //if (parentLinks.isem > 0)
-        //{
-        //RepositoryContext.VideoStreamLinks.RemoveRange(parentLinks);
-
-        //await RepositoryContext.VideoStreamLinks.BatchDeleteAsync(parentLinks);
-        //}
-
         // Remove associated VideoStreamLinks where the VideoStream is a child
         IQueryable<VideoStreamLink> childLinks = RepositoryContext.VideoStreamLinks.Where(vsl => videoStreamIds.Contains(vsl.ChildVideoStreamId));
         await RepositoryContext.BulkDeleteAsync(childLinks, cancellationToken: cancellationToken).ConfigureAwait(false);
 
-        //if (childLinks.Count > 0)
-        //{
-        //    RepositoryContext.VideoStreamLinks.RemoveRange(childLinks);
-
-        //}
-
         IQueryable<StreamGroupVideoStream> streamgroupLinks = RepositoryContext.StreamGroupVideoStreams.Where(vsl => videoStreamIds.Contains(vsl.ChildVideoStreamId));
         await RepositoryContext.BulkDeleteAsync(streamgroupLinks, cancellationToken: cancellationToken).ConfigureAwait(false);
-        //if (streamgroupLinks.Count > 0)
-        //{
-        //    RepositoryContext.StreamGroupVideoStreams.RemoveRange(streamgroupLinks);
-
-        //}
-
-
 
         // Remove the VideoStreams
         int count = 0;
-        int numberOfDeletedRows = 0;
         int chunkSize = 500;
         int totalCount = videoStreams.Count();
         logger.LogInformation($"Deleting {totalCount} video streams");
         while (count < totalCount)
         {
+            // Calculate the size of the next chunk
+            int nextChunkSize = Math.Min(chunkSize, totalCount - count);
 
-            IQueryable<VideoStream> recordsToDelete = videoStreams.OrderBy(v => v.Id).Skip(count).Take(chunkSize);
-
-            RepositoryContext.VideoStreams.RemoveRange(recordsToDelete);
+            IQueryable<VideoStream> recordsToDelete = videoStreams.OrderBy(v => v.Id).Skip(count).Take(nextChunkSize);
 
             await RepositoryContext.SaveChangesAsync(cancellationToken);
-            count += chunkSize;
+
+            // Increment count by the size of the chunk just processed
+            count += nextChunkSize;
             logger.LogInformation($"Deleted {count} of {totalCount} video streams");
         }
 
-        //await RepositoryContext.BulkDeleteAsync(videoStreams, cancellationToken: cancellationToken).ConfigureAwait(false);
-        //RepositoryContext.VideoStreams.RemoveRange(videoStreams);
         deletedCount += videoStreams.Count();
 
         // Save changes
@@ -265,13 +244,6 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
     }
     public async Task<VideoStreamDto?> DeleteVideoStream(string videoStreamId, CancellationToken cancellationToken)
     {
-        // Get the VideoStream
-        //VideoStream? videoStream = await RepositoryContext.VideoStreams.FindAsync(new object[] { videoStreamId }, cancellationToken).ConfigureAwait(false);
-        //if (videoStream == null)
-        //{
-        //    return null;
-        //}
-
         List<string> result = await DeleteVideoStreamsAsync(FindByCondition(a => a.Id == videoStreamId), cancellationToken).ConfigureAwait(false);
         if (result.Any())
         {
@@ -288,11 +260,6 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
             .ConfigureAwait(false);
 
         await RepositoryContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-
-        //await RepositoryContext.ChannelGroups
-        //  .Where(a => a.Name == channelGroupName)
-        //  .ExecuteUpdateAsync(s => s.SetProperty(b => b.IsHidden, isHidden), cancellationToken: cancellationToken)
-        //  .ConfigureAwait(false);
 
         List<VideoStreamDto> videoStreamsToUpdate = await RepositoryContext.VideoStreams
            .Where(a => a.User_Tvg_group != null && a.User_Tvg_group == channelGroupName)

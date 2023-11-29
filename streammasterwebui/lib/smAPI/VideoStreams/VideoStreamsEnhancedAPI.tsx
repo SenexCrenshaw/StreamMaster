@@ -167,12 +167,6 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
                         return draft;
                       }
                       for (const item of data) {
-                        console.log('draft', draft);
-                        console.log(
-                          'draft.data',
-                          draft.data.map((x) => x.id)
-                        );
-
                         const index = draft.data.findIndex((existingItem) => existingItem.id === item.id);
                         if (index !== -1) {
                           draft.data[index] = item;
