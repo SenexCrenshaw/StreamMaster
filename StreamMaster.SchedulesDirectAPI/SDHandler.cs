@@ -1,11 +1,13 @@
-﻿using System.Net;
+﻿using Microsoft.Extensions.Logging;
+
+using System.Net;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirectAPI;
 
 public static class SDHandler
 {
-    public static async Task<(HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? data)> ProcessResponse<T>(HttpResponseMessage response, CancellationToken cancellationToken)
+    public static async Task<(HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? data)> ProcessResponse<T>(HttpResponseMessage response, ILogger logger, CancellationToken cancellationToken)
     {
         string responseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
         SDHttpResponseCode responseCode = SDHttpResponseCode.UNKNOWN_ERROR;
@@ -20,10 +22,10 @@ public static class SDHandler
         }
         catch (JsonException ex)
         {
-            //Logger.LogWarning("Deserialization to type {Type} failed: {Message}", typeof(T).Name, ex.Message);
+            logger.LogWarning("Deserialization to type {Type} failed: {Message}", typeof(T).Name, ex.Message);
         }
 
-        if (responseContent.Contains("serverID"))
+        if (!responseContent.StartsWith("[{\"programID\"") && responseContent.Contains("serverID"))
         {
             try
             {

@@ -39,7 +39,9 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
 
     public async Task ProcessProgramsImages(List<SDProgram> sDPrograms, CancellationToken cancellationToken)
     {
-        List<string> programIds = sDPrograms.Select(a => a.ProgramID).Distinct().ToList();
+        List<string> programIds = sDPrograms
+            .Where(a=>  a.HasImageArtwork==true || a.HasSportsArtwork == true || a.HasSeriesArtwork == true || a.HasSeasonArtwork == true || a.HasMovieArtwork== true || a.HasEpisodeArtwork == true)
+            .Select(a => a.ProgramID).Distinct().ToList();
         List<string> distinctProgramIds = programIds
                                              .Distinct()
                                              .Select(a => a.Length >= 10 ? a[..10] : a) // Select the leftmost 10 characters
@@ -565,7 +567,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
                 HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
                 using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
-                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? result) = await SDHandler.ProcessResponse<T?>(response, cancellationToken).ConfigureAwait(false);
+                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? result) = await SDHandler.ProcessResponse<T?>(response, logger,cancellationToken).ConfigureAwait(false);
 
                 if (responseCode is SDHttpResponseCode.ACCOUNT_LOCKOUT or SDHttpResponseCode.ACCOUNT_DISABLED or SDHttpResponseCode.ACCOUNT_EXPIRED)
                 {
@@ -628,7 +630,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
                 HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
                 using HttpResponseMessage response = await httpClient.PostAsync(url, content, cancellationToken).ConfigureAwait(false);
 
-                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, responseContent, T? result) = await SDHandler.ProcessResponse<T?>(response, cancellationToken).ConfigureAwait(false);
+                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, responseContent, T? result) = await SDHandler.ProcessResponse<T?>(response, logger, cancellationToken).ConfigureAwait(false);
 
                 if (responseCode is SDHttpResponseCode.ACCOUNT_LOCKOUT or SDHttpResponseCode.ACCOUNT_DISABLED or SDHttpResponseCode.ACCOUNT_EXPIRED)
                 {
@@ -672,7 +674,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
                 HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
                 using HttpResponseMessage response = await httpClient.DeleteAsync(url, cancellationToken).ConfigureAwait(false);
 
-                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, PutResponse? result) = await SDHandler.ProcessResponse<PutResponse?>(response, cancellationToken).ConfigureAwait(false);
+                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, PutResponse? result) = await SDHandler.ProcessResponse<PutResponse?>(response, logger, cancellationToken).ConfigureAwait(false);
 
                 if (responseCode is SDHttpResponseCode.ACCOUNT_LOCKOUT or SDHttpResponseCode.ACCOUNT_DISABLED or SDHttpResponseCode.ACCOUNT_EXPIRED)
                 {
@@ -714,7 +716,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
                 HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
                 using HttpResponseMessage response = await httpClient.PutAsync(url, null, cancellationToken).ConfigureAwait(false);
 
-                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, PutResponse? result) = await SDHandler.ProcessResponse<PutResponse?>(response, cancellationToken).ConfigureAwait(false);
+                (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, PutResponse? result) = await SDHandler.ProcessResponse<PutResponse?>(response, logger, cancellationToken).ConfigureAwait(false);
 
                 if (responseCode is SDHttpResponseCode.ACCOUNT_LOCKOUT or SDHttpResponseCode.ACCOUNT_DISABLED or SDHttpResponseCode.ACCOUNT_EXPIRED)
                 {

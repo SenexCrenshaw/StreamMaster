@@ -118,7 +118,7 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService) 
             HttpClient httpClient = SDHelpers.CreateHttpClient("Mozilla/5.0 (compatible; streammaster/1.0)");
 
             using HttpResponseMessage response = await httpClient.PostAsync($"{SD_BASE_URL}token", content, cancellationToken).ConfigureAwait(false);
-            (System.Net.HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, SDGetToken? result) = await SDHandler.ProcessResponse<SDGetToken?>(response, cancellationToken).ConfigureAwait(false);
+            (System.Net.HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, SDGetToken? result) = await SDHandler.ProcessResponse<SDGetToken?>(response, logger, cancellationToken).ConfigureAwait(false);
 
             switch (responseCode)
             {
