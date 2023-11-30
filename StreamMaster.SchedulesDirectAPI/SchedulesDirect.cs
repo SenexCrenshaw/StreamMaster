@@ -52,12 +52,6 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
             {
                 return;
             }
-            //string cats = string.Join(',', fetchedResults.SelectMany(a => a.ImageData.Select(a => a.Category)).Distinct());
-            //string tiers = string.Join(',', fetchedResults.SelectMany(a => a.ImageData.Select(a => a.Tier)).Distinct());
-
-            //string catSeason = string.Join(",", fetchedResults.SelectMany(a => a.ImageData.Where(item => item.Tier == "Season")).Select(item => item.Category).Distinct().OrderBy(name => name));
-            //string catEpisode = string.Join(",", fetchedResults.SelectMany(a => a.ImageData.Where(item => item.Tier == "Episode")).Select(item => item.Category).Distinct().OrderBy(name => name));
-            //string catSeries = string.Join(",", fetchedResults.SelectMany(a => a.ImageData.Where(item => item.Tier == "Series")).Select(item => item.Category).Distinct().OrderBy(name => name));
 
             int count = 0;
 
@@ -126,12 +120,52 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         }
 
         icons = icons.Where(a => !string.IsNullOrEmpty(a.Uri) && a.Width <= 600 && a.Height <= 600).ToList();
-
-        logger.LogInformation("Downloading {count} icons for {ProgramID} programs", icons.Count, programId);
-        foreach (ImageData icon in icons)
+        if (!icons.Any())
         {
-            bool a = await GetImageUrl(programId, icon, cancellationToken);
+            return;
         }
+
+        logger.LogInformation("Downloading {count} icons for {ProgramID} program", icons.Count, programId);
+
+        // Create a SemaphoreSlim for limiting concurrent downloads
+        using SemaphoreSlim semaphore = new(4);
+        List<Task<bool>> tasks = icons.ConvertAll(async icon =>
+        {
+            // Wait to enter the semaphore (limits the concurrency level)
+            await semaphore.WaitAsync(cancellationToken);
+
+            try
+            {
+                // Perform the download task
+                return await GetImageUrl(programId, icon, cancellationToken);
+            }
+            finally
+            {
+                // Release the semaphore
+                semaphore.Release();
+            }
+        });
+
+        // Wait for all tasks to complete
+        await Task.WhenAll(tasks);
+    }
+
+    private static string CleanUpFileName(string fullName)
+    {
+        // Remove double spaces, trim, and replace spaces with underscores
+        fullName = string.Join("_", fullName.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()));
+
+        // Ensure the file name doesn't start or end with an underscore
+        if (fullName.StartsWith("_"))
+        {
+            fullName = fullName.TrimStart('_');
+        }
+
+        if (fullName.EndsWith("_"))
+        {
+            fullName = fullName.TrimEnd('_');
+        }
+        return fullName;
     }
 
     public async Task<bool> GetImageUrl(string programId, ImageData icon, CancellationToken cancellationToken)
@@ -150,6 +184,7 @@ public class SchedulesDirect(ILogger<SchedulesDirect> logger, ISettingsService s
         }
 
         string fullName = Path.Combine(BuildInfo.SDImagesFolder, $"{programId}_{icon.Category}_{icon.Tier}_{icon.Width}x{icon.Height}.png");
+        fullName = CleanUpFileName(fullName);
 
         try
         {
