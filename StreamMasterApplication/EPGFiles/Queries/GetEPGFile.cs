@@ -1,5 +1,4 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
-using StreamMasterApplication.Programmes.Queries;
+﻿using StreamMasterApplication.Programmes.Queries;
 
 namespace StreamMasterApplication.EPGFiles.Queries;
 
@@ -19,8 +18,8 @@ internal class GetEPGFileHandler : BaseMediatorRequestHandler, IRequestHandler<G
         }
         EPGFileDto epgFileDto = Mapper.Map<EPGFileDto>(epgFile);
 
-        List<Programme> c = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
-        List<Programme> proprammes = c.Where(a => a.EPGFileId == epgFile.Id).ToList();
+      var c = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+        var proprammes = c.Where(a => a.EPGFileId == epgFile.Id).ToList();
         if (proprammes.Any())
         {
             epgFileDto.EPGStartDate = proprammes.Min(a => a.StartDateTime);

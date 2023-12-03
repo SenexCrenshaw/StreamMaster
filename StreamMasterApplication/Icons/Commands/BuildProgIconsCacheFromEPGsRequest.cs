@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Win32.SafeHandles;
 
 using StreamMaster.SchedulesDirectAPI.Domain.EPG;
 
@@ -135,11 +136,11 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
 
         //IEnumerable<string> epgids = sgs.SelectMany(x => x.ChildVideoStreams.Select(a => a.User_Tvg_ID)).Distinct();
 
-        List<Programme> c = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
-        List<Programme> c1 = c.Where(a => string.IsNullOrEmpty(a.Channel)).ToList();
-        List<Programme> d1 = c.Where(a => string.IsNullOrEmpty(a.DisplayName)).ToList();
+        List<EPGProgramme> c = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+        List<EPGProgramme> c1 = c.Where(a => string.IsNullOrEmpty(a.Channel)).ToList();
+        List<EPGProgramme> d1 = c.Where(a => string.IsNullOrEmpty(a.DisplayName)).ToList();
 
-        List<Programme> programmes = c.Where(a =>
+        List<EPGProgramme> programmes = c.Where(a =>
                a.Channel != null &&
                (
                    epgids.Contains(a.Channel.ToLower()) ||
@@ -150,7 +151,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
 
         if (!programmes.Any()) { return; }
 
-        foreach (Programme? programme in programmes)
+        foreach (EPGProgramme? programme in programmes)
         {
             if (cancellationToken.IsCancellationRequested) { return; }
 
@@ -158,6 +159,7 @@ public class BuildProgIconsCacheFromEPGsRequestHandler(ILogger<BuildProgIconsCac
             {
                 continue;
             }
+
 
             string source = HttpUtility.UrlDecode(programme.Icon[0].Src);
             string? ext = Path.GetExtension(source);

@@ -39,7 +39,7 @@ public class SettingsController : ApiControllerBase, ISettingController
     [HttpGet]
     [AllowAnonymous]
     [Route("[action]")]
-    public async Task<ActionResult<SystemStatus>> GetSystemStatus()
+    public async Task<ActionResult<SDSystemStatus>> GetSystemStatus()
     {
         return await Mediator.Send(new GetSystemStatus()).ConfigureAwait(false);
     }

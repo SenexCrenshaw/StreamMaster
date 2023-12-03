@@ -9,7 +9,7 @@ namespace StreamMasterApplication.Hubs;
 public partial class StreamMasterHub : IProgrammeChannelHub
 {
     [BuilderIgnore]
-    public async Task<IEnumerable<Programme>?> GetProgramme(string Channel)
+    public async Task<IEnumerable<EPGProgramme>?> GetProgramme(string Channel)
     {
         return await mediator.Send(new GetProgramme(Channel)).ConfigureAwait(false);
     }
@@ -27,7 +27,7 @@ public partial class StreamMasterHub : IProgrammeChannelHub
     }
 
     [BuilderIgnore]
-    public async Task<IEnumerable<Programme>> GetProgrammes()
+    public async Task<IEnumerable<EPGProgramme>> GetProgrammes()
     {
         return await mediator.Send(new GetProgrammesRequest()).ConfigureAwait(false);
     }

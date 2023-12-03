@@ -8,7 +8,7 @@ internal class GetProgrammeNamesDtoHandler(ILogger<GetProgrammeNamesDto> logger,
 {
     public async Task<IEnumerable<ProgrammeNameDto>> Handle(GetProgrammeNamesDto request, CancellationToken cancellationToken)
     {
-        List<Programme> programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+        List<EPGProgramme> programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
 
         if (programmes.Any())
         {

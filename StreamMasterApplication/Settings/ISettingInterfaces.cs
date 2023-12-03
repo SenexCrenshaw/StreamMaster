@@ -11,7 +11,7 @@ public interface ISettingController
 
     Task<ActionResult<SettingDto>> GetSetting();
 
-    Task<ActionResult<SystemStatus>> GetSystemStatus();
+    Task<ActionResult<SDSystemStatus>> GetSystemStatus();
 
     Task<ActionResult<bool>> LogIn(LogInRequest logInRequest);
 
@@ -28,7 +28,7 @@ public interface ISettingHub
 
     Task<SettingDto> GetSetting();
 
-    Task<SystemStatus> GetSystemStatus();
+    Task<SDSystemStatus> GetSystemStatus();
 
     Task<bool> LogIn(LogInRequest logInRequest);
 

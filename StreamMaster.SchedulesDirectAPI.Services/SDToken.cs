@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMaster.SchedulesDirectAPI.Domain;
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Common;

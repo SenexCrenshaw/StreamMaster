@@ -1,4 +1,6 @@
 ﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
+
 using StreamMasterDomain.Attributes;
 using StreamMasterDomain.Mappings;
 

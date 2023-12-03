@@ -44,7 +44,7 @@ public class DeleteEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestH
             }
         }
 
-        List<Programme> programmes = MemoryCache.Programmes();
+        var programmes = MemoryCache.Programmes();
         _ = programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
         MemoryCache.SetCache(programmes);
 

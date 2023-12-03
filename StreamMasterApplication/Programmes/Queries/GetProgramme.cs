@@ -2,16 +2,16 @@
 
 namespace StreamMasterApplication.Programmes.Queries;
 
-public record GetProgramme(string Channel) : IRequest<IEnumerable<Programme>?>;
+public record GetProgramme(string Channel) : IRequest<IEnumerable<EPGProgramme>?>;
 
-internal class GetProgrammeHandler(ISender sender) : IRequestHandler<GetProgramme, IEnumerable<Programme>?>
+internal class GetProgrammeHandler(ISender sender) : IRequestHandler<GetProgramme, IEnumerable<EPGProgramme>?>
 {
     [LogExecutionTimeAspect]
-    public async Task<IEnumerable<Programme>?> Handle(GetProgramme request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<EPGProgramme>?> Handle(GetProgramme request, CancellationToken cancellationToken)
     {
-        IEnumerable<Programme> cprogrammes = await sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+        IEnumerable<EPGProgramme> cprogrammes = await sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
 
-        IEnumerable<Programme> programmes = cprogrammes.Where(a => a.Channel.ToLower() == request.Channel.ToLower());
+        IEnumerable<EPGProgramme> programmes = cprogrammes.Where(a => a.Channel.ToLower() == request.Channel.ToLower());
         if (programmes == null)
         {
             return null;

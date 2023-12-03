@@ -65,7 +65,7 @@ public class TimerService(
             isActive = true;
         }
 
-        SystemStatus status = new() { IsSystemReady = _memoryCache.IsSystemReady() };
+        SDSystemStatus status = new() { IsSystemReady = _memoryCache.IsSystemReady() };
 
         if (!status.IsSystemReady)
         {

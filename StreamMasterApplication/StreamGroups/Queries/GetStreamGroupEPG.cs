@@ -94,10 +94,10 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     {
         HashSet<string> epgids = new(videoStreams.Where(a => !a.IsHidden).Select(r => r.User_Tvg_ID));
 
-        List<Programme> cachedProgrammes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+        List<EPGProgramme> cachedProgrammes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
         Setting setting = await GetSettingsAsync();
         List<string> channels = [.. cachedProgrammes.ConvertAll(a => a.Channel).Distinct().Order()];
-        IEnumerable<Programme> programmes = cachedProgrammes.Where(a =>
+        IEnumerable<EPGProgramme> programmes = cachedProgrammes.Where(a =>
         a.StartDateTime > DateTime.Now.AddDays(-1) &&
         a.StartDateTime <= DateTime.Now.AddDays(setting.SDEPGDays) &&
                         a.Channel != null &&
@@ -106,7 +106,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         List<IconFileDto> icons = [.. MemoryCache.Icons()];
 
         ConcurrentBag<TvChannel> retChannels = [];
-        ConcurrentBag<Programme> retProgrammes = [];
+        ConcurrentBag<EPGProgramme> retProgrammes = [];
 
         Parallel.ForEach(videoStreams, parallelOptions, videoStream =>
         {
@@ -116,7 +116,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
                 retChannels.Add(tvChannel);
             }
 
-            foreach (Programme programme in ProcessProgrammesForVideoStream(videoStream, programmes, icons, setting))
+            foreach (EPGProgramme programme in ProcessProgrammesForVideoStream(videoStream, programmes, icons, setting))
             {
                 retProgrammes.Add(programme);
             }
@@ -168,7 +168,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         }
     }
 
-    private List<Programme> ProcessProgrammesForVideoStream(VideoStreamDto videoStream, IEnumerable<Programme> cachedProgrammes, List<IconFileDto> cachedIcons, Setting setting)
+    private List<EPGProgramme> ProcessProgrammesForVideoStream(VideoStreamDto videoStream, IEnumerable<EPGProgramme> cachedProgrammes, List<IconFileDto> cachedIcons, Setting setting)
     {
         if (videoStream.User_Tvg_ID == null)
         {
@@ -188,11 +188,11 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         }
     }
 
-    private List<Programme> HandleDummyStream(VideoStreamDto videoStream)
+    private List<EPGProgramme> HandleDummyStream(VideoStreamDto videoStream)
     {
-        List<Programme> programmesForStream = [];
+        List<EPGProgramme> programmesForStream = [];
 
-        Programme prog = new()
+        EPGProgramme prog = new()
         {
             Channel = videoStream.User_Tvg_chno.ToString(),
             Title = [
@@ -227,13 +227,13 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         return programmesForStream;
     }
 
-    private List<Programme> ProcessNonDummyStream(VideoStreamDto videoStream, IEnumerable<Programme> cachedProgrammes, List<IconFileDto> cachedIcons)
+    private List<EPGProgramme> ProcessNonDummyStream(VideoStreamDto videoStream, IEnumerable<EPGProgramme> cachedProgrammes, List<IconFileDto> cachedIcons)
     {
-        List<Programme> programmesForStream = [];
+        List<EPGProgramme> programmesForStream = [];
 
-        foreach (Programme? aprog in cachedProgrammes.Where(p => p.Channel == videoStream.User_Tvg_ID))
+        foreach (EPGProgramme? aprog in cachedProgrammes.Where(p => p.Channel == videoStream.User_Tvg_ID))
         {
-            Programme prog = aprog.DeepCopy();
+            EPGProgramme prog = aprog.DeepCopy();
             AdjustProgrammeIcons(prog, cachedIcons);
 
             prog.Channel = videoStream.User_Tvg_chno.ToString();
@@ -281,7 +281,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         return Regex.Replace(input, @"\+\d{4}", $"+{newOffset}");
     }
 
-    private void AdjustProgrammeIcons(Programme prog, List<IconFileDto> cachedIcons)
+    private void AdjustProgrammeIcons(EPGProgramme prog, List<IconFileDto> cachedIcons)
     {
         if (!prog.Icon.Any())
         {

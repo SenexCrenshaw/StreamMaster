@@ -126,13 +126,6 @@ public class StreamGroupsController : ApiControllerBase, IStreamGroupController
         };
     }
 
-    [HttpGet]
-    [Route("{StreamGroupNumber}/epgGuide.json")]
-    public async Task<ActionResult<EPGGuide>> GetStreamGroupEPGForGuide(int StreamGroupNumber)
-    {
-        EPGGuide data = await Mediator.Send(new GetStreamGroupEPGForGuide(StreamGroupNumber)).ConfigureAwait(false);
-        return data != null ? (ActionResult<EPGGuide>)data : (ActionResult<EPGGuide>)NotFound();
-    }
 
     [HttpGet]
     [Authorize(Policy = "SGLinks")]

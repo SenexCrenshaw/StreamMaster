@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMaster.SchedulesDirectAPI.Domain;
+
 using System.Net;
 using System.Text.Json;
 
@@ -29,10 +31,10 @@ public static class SDHandler
         {
             try
             {
-                SDTokenResponse? responseObj = JsonSerializer.Deserialize<SDTokenResponse>(responseContent);
+                TokenResponse? responseObj = JsonSerializer.Deserialize<TokenResponse>(responseContent);
                 if (responseObj is not null)
                 {
-                    responseCode = (SDHttpResponseCode)responseObj.code;
+                    responseCode = (SDHttpResponseCode)responseObj.Code;
                     if (responseCode != SDHttpResponseCode.OK || !response.IsSuccessStatusCode)
                     {
                         return (response.StatusCode, responseCode, responseContent, default(T?));

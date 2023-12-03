@@ -1,13 +1,8 @@
-﻿using MediatR;
+﻿namespace StreamMasterApplication.Settings.Queries;
 
-using Microsoft.Extensions.Caching.Memory;
-using StreamMasterDomain.Cache;
+public record GetSystemStatus : IRequest<SDSystemStatus>;
 
-namespace StreamMasterApplication.Settings.Queries;
-
-public record GetSystemStatus : IRequest<SystemStatus>;
-
-internal class GetSystemStatusHandler : IRequestHandler<GetSystemStatus, SystemStatus>
+internal class GetSystemStatusHandler : IRequestHandler<GetSystemStatus, SDSystemStatus>
 {
     private readonly IMemoryCache _memoryCache;
 
@@ -16,8 +11,8 @@ internal class GetSystemStatusHandler : IRequestHandler<GetSystemStatus, SystemS
         _memoryCache = memoryCache;
     }
 
-    public Task<SystemStatus> Handle(GetSystemStatus request, CancellationToken cancellationToken)
+    public Task<SDSystemStatus> Handle(GetSystemStatus request, CancellationToken cancellationToken)
     {
-        return Task.FromResult(new SystemStatus { IsSystemReady = _memoryCache.IsSystemReady() });
+        return Task.FromResult(new SDSystemStatus { IsSystemReady = _memoryCache.IsSystemReady() });
     }
 }

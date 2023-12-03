@@ -3,6 +3,7 @@
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
 using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 using StreamMasterDomain.Dto;
@@ -278,46 +279,47 @@ public static class CacheKeys
         return ret;
     }
 
-    public static List<Programme> Programmes(this IMemoryCache cache)
+    public static List<EPGProgramme> Programmes(this IMemoryCache cache)
     {
-        return Get<Programme>(ListProgrammes, cache);
+        return Get<EPGProgramme>(ListProgrammes, cache);
     }
 
-    public static List<Programme> SDProgrammess(this IMemoryCache cache)
+    public static List<EPGProgramme> SDProgrammess(this IMemoryCache cache)
     {
-        return Get<Programme>(ListSDProgrammes, cache);
+        return Get<EPGProgramme>(ListSDProgrammes, cache);
     }
 
-    public static bool AreProgrammeListsEqual(List<Programme> list1, List<Programme> list2)
-    {
-        if (list1 == null || list2 == null)
-        {
-            throw new ArgumentNullException(nameof(list1));
-        }
+    //public static bool AreProgrammeListsEqual(List<Programme> list1, List<Programme> list2)
+    //{
+    //    if (list1 == null || list2 == null)
+    //    {
+    //        throw new ArgumentNullException(nameof(list1));
+    //    }
 
-        if (list1.Count != list2.Count)
-        {
-            return false;
-        }
+    //    if (list1.Count != list2.Count)
+    //    {
+    //        return false;
+    //    }
 
-        ProgrammeNameStartComparer comparer = new();
-        HashSet<Programme> set = new(list1, comparer);
+    //    ProgrammeNameStartComparer comparer = new();
+    //    HashSet<Programme> set = new(list1, comparer);
 
-        return list2.All(set.Contains);
-    }
+    //    return list2.All(set.Contains);
+    //}
 
-    public static bool SetSDProgreammesCache(this IMemoryCache cache, List<Programme> data, TimeSpan? expiration = null)
-    {
-        MemoryCacheEntryOptions CacheEntryOptions = expiration == null
-            ? new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove)
-            : new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiration };
-        if (!AreProgrammeListsEqual(cache.SDProgrammess(), data))
-        {
-            _ = cache.Set(ListSDProgrammes, data, CacheEntryOptions);
-            return true;
-        }
-        return false;
-    }
+    //public static bool SetSDProgreammesCache(this IMemoryCache cache, List<Programme> data, TimeSpan? expiration = null)
+    //{
+    //    MemoryCacheEntryOptions CacheEntryOptions = expiration == null
+    //        ? new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove)
+    //        : new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiration };
+
+    //    if (!AreProgrammeListsEqual(cache.SDProgrammess(), data))
+    //    {
+    //        _ = cache.Set(ListSDProgrammes, data, CacheEntryOptions);
+    //        return true;
+    //    }
+    //    return false;
+    //}
 
     public static void SetCache(this IMemoryCache cache, object data, TimeSpan? expiration = null)
     {

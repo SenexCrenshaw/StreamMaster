@@ -24,8 +24,8 @@ internal class GetPagedEPGFilesHandler : BaseMediatorRequestHandler, IRequestHan
 
         foreach (EPGFileDto epgFileDto in epgFiles.Data)
         {
-            List<Programme> c = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
-            List<Programme> proprammes = c.Where(a => a.EPGFileId == epgFileDto.Id).ToList();
+            var c = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+           var proprammes = c.Where(a => a.EPGFileId == epgFileDto.Id).ToList();
             if (proprammes.Any())
             {
                 epgFileDto.EPGStartDate = proprammes.Min(a => a.StartDateTime);

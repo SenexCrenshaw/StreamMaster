@@ -1,12 +1,4 @@
-﻿using MediatR;
-
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Caching.Memory;
-
-using StreamMasterApplication.Hubs;
-using StreamMasterDomain.Cache;
-
-namespace StreamMasterApplication.General.Commands;
+﻿namespace StreamMasterApplication.General.Commands;
 
 public record SetIsSystemReadyRequest(bool IsSystemReady) : IRequest;
 
@@ -26,6 +18,6 @@ public class SetIsSystemReadyRequestHandler : IRequestHandler<SetIsSystemReadyRe
     public async Task Handle(SetIsSystemReadyRequest request, CancellationToken cancellationToken)
     {
         _memoryCache.SetIsSystemReady(request.IsSystemReady);
-        await _hubContext.Clients.All.SystemStatusUpdate(new SystemStatus { IsSystemReady = request.IsSystemReady }).ConfigureAwait(false);
+        await _hubContext.Clients.All.SystemStatusUpdate(new SDSystemStatus { IsSystemReady = request.IsSystemReady }).ConfigureAwait(false);
     }
 }

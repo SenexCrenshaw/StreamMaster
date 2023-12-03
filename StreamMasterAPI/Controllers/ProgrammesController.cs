@@ -13,10 +13,10 @@ public class ProgrammesController : ApiControllerBase, IProgrammeChannelControll
 {
     [HttpGet]
     [Route("GetProgramme/{channel}")]
-    public async Task<ActionResult<IEnumerable<Programme>?>> GetProgramme(string channel)
+    public async Task<ActionResult<IEnumerable<EPGProgramme>?>> GetProgramme(string channel)
     {
-        IEnumerable<Programme>? data = await Mediator.Send(new GetProgramme(channel)).ConfigureAwait(false);
-        return data is not null ? (ActionResult<IEnumerable<Programme>?>)Ok(data.ToList()) : (ActionResult<IEnumerable<Programme>?>)NotFound();
+        IEnumerable<EPGProgramme>? data = await Mediator.Send(new GetProgramme(channel)).ConfigureAwait(false);
+        return data is not null ? (ActionResult<IEnumerable<EPGProgramme>?>)Ok(data.ToList()) : (ActionResult<IEnumerable<EPGProgramme>?>)NotFound();
     }
 
     [HttpGet]
@@ -36,7 +36,7 @@ public class ProgrammesController : ApiControllerBase, IProgrammeChannelControll
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<IEnumerable<Programme>>> GetProgrammes()
+    public async Task<ActionResult<IEnumerable<EPGProgramme>>> GetProgrammes()
     {
         return Ok(await Mediator.Send(new GetProgrammesRequest()).ConfigureAwait(false));
     }

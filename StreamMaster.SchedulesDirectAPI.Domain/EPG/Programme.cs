@@ -4,7 +4,7 @@ using System.Xml.Serialization;
 namespace StreamMaster.SchedulesDirectAPI.Domain.EPG;
 
 [XmlRoot(ElementName = "programme")]
-public class Programme
+public class EPGProgramme
 {
     private string start = string.Empty;
 

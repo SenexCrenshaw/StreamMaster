@@ -10,6 +10,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
 
 using StreamMasterApplication.ChannelGroups.Queries;
 using StreamMasterApplication.Common.Logging;
@@ -872,7 +873,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
 
     private async Task<List<VideoStreamDto>> AutoSetEPGs(IQueryable<VideoStream> videoStreams, CancellationToken cancellationToken)
     {
-        List<Programme> programmes = await sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+        var programmes = await sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
         List<ChannelNamePair> distinctChannelAndNames = programmes
             .Select(p => new ChannelNamePair { Channel = p.Channel, Name = p.Name })
             .Distinct()

@@ -65,7 +65,7 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
     {
         try
         {
-            List<Programme> cacheValues = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);// MemoryCache.Programmes();
+           var cacheValues = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);// MemoryCache.Programmes();
             //if (MemoryCache.ProgrammeIcons().Count == 0)
             //{
             //    DateTime start = DateTime.Now.AddDays(-1);
@@ -117,7 +117,7 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
                 .GroupBy(ch => ch.Id)
                 .ToDictionary(group => group.Key, group => group.First());
 
-            foreach (Programme p in epg.Programme)
+            foreach (var p in epg.Programme)
             {
                 if (cancellationToken.IsCancellationRequested)
                 {

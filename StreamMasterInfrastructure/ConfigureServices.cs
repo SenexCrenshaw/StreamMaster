@@ -41,8 +41,7 @@ public static class ConfigureServices
         services.AddSingleton<ICircularRingBufferFactory, CircularRingBufferFactory>();
         services.AddSingleton<IStatisticsManager, StatisticsManager>();
         services.AddSingleton<IInputStatisticsManager, InputStatisticsManager>();
-        services.AddSingleton<IStreamManager, StreamManager>();
-        services.AddSingleton<ISDService, SDService>();
+        services.AddSingleton<IStreamManager, StreamManager>();        
         services.AddSingleton<ICacheableSpecification, CacheableSpecification>();
 
         // Dynamically find and register services implementing IMapHttpRequestsToDisk

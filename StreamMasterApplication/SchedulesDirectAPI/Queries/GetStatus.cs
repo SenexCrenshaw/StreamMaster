@@ -1,16 +1,15 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
-using StreamMaster.SchedulesDirectAPI.Domain.Models;
+﻿using StreamMaster.SchedulesDirectAPI;
 
 namespace StreamMasterApplication.SchedulesDirectAPI.Queries;
 
-public record GetStatus : IRequest<SDStatus>;
+public record GetStatus : IRequest<UserStatus>;
 
-internal class GetStatusHandler(ISDService SDService) : IRequestHandler<GetStatus, SDStatus>
+internal class GetStatusHandler(ISchedulesDirect schedulesDirect) : IRequestHandler<GetStatus, UserStatus>
 {
 
-    public async Task<SDStatus> Handle(GetStatus request, CancellationToken cancellationToken)
+    public async Task<UserStatus> Handle(GetStatus request, CancellationToken cancellationToken)
     {
-        SDStatus status = await SDService.GetStatus(cancellationToken).ConfigureAwait(false);
-        return status ?? new SDStatus();
+        UserStatus status = await schedulesDirect.GetStatus(cancellationToken).ConfigureAwait(false);
+        return status ?? new UserStatus();
     }
 }

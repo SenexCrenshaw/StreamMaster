@@ -24,4 +24,8 @@ global using StreamMasterDomain.Models;
 global using StreamMasterDomain.Repository;
 global using StreamMasterDomain.Services;
 
+global using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+global using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
+global using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
+
 global using X.PagedList;

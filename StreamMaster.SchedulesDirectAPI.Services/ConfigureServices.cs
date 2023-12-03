@@ -8,9 +8,9 @@ public static class ConfigureServices
     {
 
         services.AddSingleton<ISDToken, SDToken>();
-        services.AddSingleton<ISchedulesDirect, SchedulesDirect>();
-        services.AddSingleton<ISDService, SDService>();
-
+        services.AddSingleton<ISchedulesDirectAPI, SchedulesDirectAPI>();
+        services.AddSingleton<ISchedulesDirect, SchedulesDirect>();        
+        
         return services;
     }
 }

@@ -20,7 +20,7 @@ public interface IStreamMasterHub : ISharedHub
     Task SettingsUpdate(SettingDto setting);
     Task StreamingStatusDtoUpdate(StreamingStatusDto result);
     Task StreamStatisticsResultsUpdate(List<StreamStatisticsResult> result);
-    Task SystemStatusUpdate(SystemStatus result);
+    Task SystemStatusUpdate(SDSystemStatus result);
     Task TaskQueueStatusDtoesUpdate(IEnumerable<TaskQueueStatusDto> results);
     Task VideoStreamsRefresh(VideoStreamDto[]? results = null);
     Task ChannelGroupCreated(ChannelGroupDto channelGroup);

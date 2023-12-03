@@ -72,7 +72,7 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
 
             if (isNameChanged)
             {
-                List<Programme> programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+                var programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
                 int c = programmes.Count;
                 _ = programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
                 int d = programmes.Count;
