@@ -13,7 +13,13 @@ namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,ISchedulesDirectData schedulesDirectData, ISchedulesDirectAPI schedulesDirectAPI, ISettingsService settingsService, ISDToken SdToken, IMemoryCache memoryCache) : ISchedulesDirect
 {
     private readonly object fileLock = new();
+    private const int MaxQueries = 1250;
+    private const int MaxImgQueries = 125;
+    private const int MaxParallelDownloads = 4;
 
+    private static int processedObjects;
+    private static int totalObjects;
+    private static int processStage;
     private readonly ILogger _logger = logger;
 
     //public async Task<bool> SDSync( CancellationToken cancellationToken)
@@ -22,8 +28,7 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,ISchedulesD
     //    return await SDSync([], cancellationToken).ConfigureAwait(false);
     //}
     public async Task<bool> SDSync(CancellationToken cancellationToken)
-    {
-      
+    {      
         if (!await EnsureToken(cancellationToken).ConfigureAwait(false))
         {
             _logger.LogWarning("Schedules Direct Token Not Ready");
@@ -38,18 +43,37 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,ISchedulesD
         }
 
         var startTime = DateTime.UtcNow;
-        logger.LogInformation($"DaysToDownload: {1}");
+        var setting = memoryCache.GetSetting();
+        logger.LogInformation($"DaysToDownload: {setting.SDEPGDays}");
 
-
+     
         //DateTime now = DateTime.Now;
 
         //List<Station> stations = await GetStations(cancellationToken).ConfigureAwait(false);
         //List<Schedule>? schedules = await GetSchedules(StationIdLineups.ConvertAll(a => a.StationId), cancellationToken).ConfigureAwait(false);
         //List<string> progIds = schedules.SelectMany(a => a.Programs).Where(a => a.AirDateTime >= now.AddDays(-1) && a.AirDateTime <= now.AddDays(setting.SDEPGDays)).Select(a => a.ProgramID).Distinct().ToList();
         //List<SDProgram> programs = await GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
+        if (
+             await BuildLineupServices(cancellationToken)
+                && await GetAllScheduleEntryMd5S(setting.SDEPGDays)
+            )
+        {
+            //do good things
+            return true;
+        }
 
-        return await UpdateSDProgrammes(cancellationToken).ConfigureAwait(false);
+        return false;
     }
+
+    //private  bool ServiceCountSafetyCheck()
+    //{
+    //    var setting = memoryCache.GetSetting();
+
+    //    if (setting.ExpectedServiceCount < 20 || !(setting.SDStationIds.Count < setting.ExpectedServiceCount * 0.95)) return true;
+    //    logger.LogError($"Of the expected {setting.SDStationIds.Count} stations to download, there are only {config.ExpectedServicecount - MissingStations} stations available from Schedules Direct. Aborting update for review by user.");
+    //    return false;
+    //}
+
 
     public async Task<bool> GetSystemReady(CancellationToken cancellationToken)
     {

@@ -17,8 +17,8 @@ using StreamMaster.SchedulesDirectAPI.Domain.Models;
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
 {
-    public static List<KeyValuePair<MxfService, string[]>> StationLogosToDownload = [];
-    public static volatile bool StationLogosDownloadComplete = true;
+    private static List<KeyValuePair<MxfService, string[]>> StationLogosToDownload = [];
+    private static volatile bool StationLogosDownloadComplete = true;
 
     private async Task<bool> BuildLineupServices(CancellationToken cancellationToken = default)
     {

@@ -5,12 +5,7 @@ using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
 {
-    private async Task<bool> UpdateSDProgrammes(CancellationToken cancellationToken)
-    {
-        await BuildLineupServices(cancellationToken);
-        return true;
-    }
-
+  
     public  async Task<StationChannelMap?> GetStationChannelMap(string lineup)
     {
         StationChannelMap? ret =await schedulesDirectAPI.GetApiResponse<StationChannelMap>(APIMethod.GET, $"lineups/{lineup}");

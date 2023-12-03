@@ -56,19 +56,4 @@ public partial class SchedulesDirect
         return ret;
     }
 
-    public async Task<List<ScheduleResponse>?> GetScheduleListings(ScheduleRequest[] request)
-    {
-        DateTime dtStart = DateTime.Now;
-        List<ScheduleResponse>? ret = await schedulesDirectAPI.GetApiResponse<List<ScheduleResponse>>(APIMethod.POST, "schedules", request);
-        if (ret != null)
-        {
-            logger.LogDebug($"Successfully retrieved {request.Length} stations' daily schedules. ({DateTime.Now - dtStart:G})");
-        }
-        else
-        {
-            logger.LogError($"Did not receive a response from Schedules Direct for {request.Length} stations' daily schedules. ({DateTime.Now - dtStart:G})");
-        }
-
-        return ret;
-    }
 }

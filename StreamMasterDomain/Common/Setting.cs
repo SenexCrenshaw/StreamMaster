@@ -33,6 +33,7 @@ public class SDSettings : M3USettings
 
 public class BaseSettings : SDSettings
 {
+    public int ExpectedServiceCount { get; set; } = 20;
     public string AdminPassword { get; set; } = string.Empty;
     public string AdminUserName { get; set; } = string.Empty;
     public string DefaultIcon { get; set; } = "images/default.png";
@@ -76,5 +77,5 @@ public class ProtectedSettings : BaseSettings
 
 public class Setting : ProtectedSettings, ISetting
 {
-
+   
 }
