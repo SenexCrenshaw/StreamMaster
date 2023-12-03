@@ -1,11 +1,12 @@
-﻿using System.Net;
+﻿
+using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace StreamMaster.SchedulesDirectAPI.Helpers;
 
-internal static partial class SDHelpers
+public static partial class SDHelpers
 {
     public static string GenerateHashFromStringContent(StringContent content)
     {

@@ -8,8 +8,7 @@ using StreamMasterDomain.Dto;
 
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
-{
-
+{ 
     public async Task<StationChannelMap?> GetStationChannelMapAsync(string lineup)
     {
         StationChannelMap? ret = await schedulesDirectAPI.GetApiResponse<StationChannelMap?>(APIMethod.GET, $"lineups/{lineup}");

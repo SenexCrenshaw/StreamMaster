@@ -153,7 +153,7 @@ public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mime
             }
             contentType ??= "application/octet-stream";
 
-            memoryCache.Set(cacheKey, contentType, CacheKeys.NeverRemoveCacheEntryOptions);
+            memoryCache.Set(cacheKey, contentType, CacheManagerExtensions.NeverRemoveCacheEntryOptions);
         }
 
         return contentType ?? "application/octet-stream";

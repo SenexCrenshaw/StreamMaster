@@ -1,15 +1,20 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
+using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
 using StreamMaster.SchedulesDirectAPI.Domain.Models;
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 
+using System;
 using System.Net;
 
 using System.Text.Json;
+using System.Threading;
+
+using static System.Net.Mime.MediaTypeNames;
 
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
@@ -35,8 +40,11 @@ public partial class SchedulesDirect
     public async Task<List<string>?> GetCustomLogosFromServerAsync(string server)
     {
         return await schedulesDirectAPI.GetApiResponse<List<string>>(APIMethod.GET, server);
-
     }
+
+    
+
+
     //public async Task ProcessProgramsImages(List<Programme> sDPrograms, CancellationToken cancellationToken)
     //{
     //    List<string> programIds = sDPrograms
@@ -109,48 +117,48 @@ public partial class SchedulesDirect
     //    }
     //}
 
-    private async Task DownloadImages(string programId, List<ProgramArtwork> iconsList, CancellationToken cancellationToken)
-    {
-        List<ProgramArtwork> icons = iconsList.Where(a => a.Category == "Banner-L1").ToList();
-        if (!icons.Any())
-        {
-            icons = iconsList.Where(a => a.Category == "Iconic").ToList();
-            if (!icons.Any())
-            {
-                icons = iconsList;
-            }
-        }
+    //private async Task DownloadImages(string programId, List<ProgramArtwork> iconsList, CancellationToken cancellationToken)
+    //{
+    //    List<ProgramArtwork> icons = iconsList.Where(a => a.Category == "Banner-L1").ToList();
+    //    if (!icons.Any())
+    //    {
+    //        icons = iconsList.Where(a => a.Category == "Iconic").ToList();
+    //        if (!icons.Any())
+    //        {
+    //            icons = iconsList;
+    //        }
+    //    }
 
-        icons = icons.Where(a => !string.IsNullOrEmpty(a.Uri) && a.Width <= 600 && a.Height <= 600).ToList();
-        if (!icons.Any())
-        {
-            return;
-        }
+    //    icons = icons.Where(a => !string.IsNullOrEmpty(a.Uri) && a.Width <= 600 && a.Height <= 600).ToList();
+    //    if (!icons.Any())
+    //    {
+    //        return;
+    //    }
 
-        logger.LogInformation("Downloading {count} icons for {ProgramID} program", icons.Count, programId);
+    //    logger.LogInformation("Downloading {count} icons for {ProgramID} program", icons.Count, programId);
 
-        // Create a SemaphoreSlim for limiting concurrent downloads
-        using SemaphoreSlim semaphore = new(4);
-        List<Task<bool>> tasks = icons.ConvertAll(async icon =>
-        {
-            // Wait to enter the semaphore (limits the concurrency level)
-            await semaphore.WaitAsync(cancellationToken);
+    //    // Create a SemaphoreSlim for limiting concurrent downloads
+    //    using SemaphoreSlim semaphore = new(4);
+    //    List<Task<bool>> tasks = icons.ConvertAll(async icon =>
+    //    {
+    //        // Wait to enter the semaphore (limits the concurrency level)
+    //        await semaphore.WaitAsync(cancellationToken);
 
-            try
-            {
-                // Perform the download task
-                return await GetImageUrl(programId, icon, cancellationToken);
-            }
-            finally
-            {
-                // Release the semaphore
-                semaphore.Release();
-            }
-        });
+    //        try
+    //        {
+    //            // Perform the download task
+    //            return await GetImageUrl(programId, icon, cancellationToken);
+    //        }
+    //        finally
+    //        {
+    //            // Release the semaphore
+    //            semaphore.Release();
+    //        }
+    //    });
 
-        // Wait for all tasks to complete
-        await Task.WhenAll(tasks);
-    }
+    //    // Wait for all tasks to complete
+    //    await Task.WhenAll(tasks);
+    //}
 
     private static string CleanUpFileName(string fullName)
     {
@@ -170,66 +178,69 @@ public partial class SchedulesDirect
         return fullName;
     }
 
-    public async Task<bool> GetImageUrl(string programId, ProgramArtwork icon, CancellationToken cancellationToken)
-    {
-        List<ImageInfo> imageInfos = memoryCache.ImageInfos();
+    //public async Task<bool> GetImageUrl(string programId, ProgramArtwork icon, CancellationToken cancellationToken)
+    
 
-        if (File.Exists(ImageInfoFilePath) && !imageInfos.Any())
-        {
-            imageInfos = JsonSerializer.Deserialize<List<ImageInfo>>(File.ReadAllText(ImageInfoFilePath)) ?? [];
-            memoryCache.SetCache(imageInfos);
-        }
+    //public async Task<bool> DownloadSdLogo(string uri, string filepath)
+    //{
+    //    //List<ImageInfo> imageInfos = memoryCache.ImageInfos();
 
-        if (imageInfos.Find(a => a.IconUri == icon.Uri) != null)
-        {
-            return true;
-        }
+    //    //if (File.Exists(ImageInfoFilePath) && !imageInfos.Any())
+    //    //{
+    //    //    imageInfos = JsonSerializer.Deserialize<List<ImageInfo>>(File.ReadAllText(ImageInfoFilePath)) ?? [];
+    //    //    memoryCache.SetCache(imageInfos);
+    //    //}
 
-        string fullName = Path.Combine(BuildInfo.SDImagesFolder, $"{programId}_{icon.Category}_{icon.Tier}_{icon.Width}x{icon.Height}.png");
-        fullName = CleanUpFileName(fullName);
+    //    //if (imageInfos.Find(a => a.IconUri == icon.Uri) != null)
+    //    //{
+    //    //    return true;
+    //    //}
 
-        try
-        {
-            string url = "";
-            if (icon.Uri.StartsWith("http"))
-            {
-                url = icon.Uri;
-            }
-            else
-            {
-                url = await SdToken.GetAPIUrl($"image/{icon.Uri}", cancellationToken);
-            }
+    //    //string fullName = Path.Combine(BuildInfo.SDImagesFolder, $"{programId}_{icon.Category}_{icon.Tier}_{icon.Width}x{icon.Height}.png");
+    //    filepath = CleanUpFileName(filepath);
 
-            Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
-            _ = await EnsureToken(cancellationToken);
+    //    try
+    //    {
+    //        string url = "";
+    //        if (icon.Uri.StartsWith("http"))
+    //        {
+    //            url = icon.Uri;
+    //        }
+    //        else
+    //        {
+    //            url = await SdToken.GetAPIUrl($"image/{icon.Uri}", cancellationToken);
+    //        }
 
-            HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
-            using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
+    //        Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
+    //        _ = await EnsureToken(cancellationToken);
 
-            if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.NotFound)
-            {
-                return false;
-            }
+    //        HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
+    //        using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
 
-            _ = response.EnsureSuccessStatusCode();
+    //        if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.NotFound)
+    //        {
+    //            return false;
+    //        }
 
-            Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+    //        _ = response.EnsureSuccessStatusCode();
 
-            if (stream != null)
-            {
-                using FileStream fileStream = new(fullName, FileMode.Create);
-                await stream.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
-                WriteImageInfoToJsonFile(programId, icon, url, fullName);
-            }
+    //        Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
 
-            return true;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to download image from {Url} to {FileName}.", icon.Uri, fullName);
-        }
-        return false;
-    }
+    //        if (stream != null)
+    //        {
+    //            using FileStream fileStream = new(fullName, FileMode.Create);
+    //            await stream.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
+    //            WriteImageInfoToJsonFile(programId, icon, url, fullName);
+    //        }
+
+    //        return true;
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        logger.LogError(ex, "Failed to download image from {Url} to {FileName}.", icon.Uri, fullName);
+    //    }
+    //    return false;
+    //}
     private void WriteImageInfoToJsonFile(string programId, ProgramArtwork icon, string realUrl, string fullName)
     {
         lock (fileLock)

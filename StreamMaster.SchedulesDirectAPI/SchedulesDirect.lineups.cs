@@ -2,11 +2,6 @@
 
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 
-using StreamMasterDomain.Cache;
-using StreamMasterDomain.Common;
-using StreamMasterDomain.Dto;
-using System.Threading;
-
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
 {
@@ -81,7 +76,7 @@ public partial class SchedulesDirect
 
         foreach (var lineup in lineups.Lineups)
         {
-            List<LineupPreviewChannel>? results = await schedulesDirectAPI.GetApiResponse<List<LineupPreviewChannel>>(APIMethod.GET, $"lineups/preview/{lineup.LineupString}", cancellationToken: cancellationToken).ConfigureAwait(false);
+            List<LineupPreviewChannel>? results = await schedulesDirectAPI.GetApiResponse<List<LineupPreviewChannel>>(APIMethod.GET, $"lineups/preview/{lineup.Lineup}", cancellationToken: cancellationToken).ConfigureAwait(false);
 
             if (results == null)
             {
@@ -135,63 +130,5 @@ public partial class SchedulesDirect
         return ret != null;
     }
 
-    private  async Task<bool> BuildLineupServices(CancellationToken cancellationToken=default)
-    {
-        var clientLineups = await GetSubscribedLineups(cancellationToken).ConfigureAwait(false);
-        if (clientLineups == null || !clientLineups.Lineups.Any()) return false;
-
-        Setting setting = await settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
-
-        int maxDays = setting.SDEPGDays;
-        int maxRatings = setting.SDMaxRatings;
-        bool useLineupInName = setting.SDUseLineupInName;
-
-
-        foreach (var clientLineup in clientLineups.Lineups)
-        {
-            // don't download station map if lineup not included
-            if (setting.SDStationIds.FirstOrDefault(a => a.Lineup == clientLineup.Lineup) == null)
-            {
-                logger.LogWarning($"Subscribed lineup {clientLineup.Lineup} has been EXCLUDED by user from download and processing.");
-                continue;
-            }
-
-            if (clientLineup.IsDeleted)
-            {
-                logger.LogWarning($"Subscribed lineup {clientLineup.Lineup} has been DELETED at the headend.");
-                continue;
-            }
-
-            // request the lineup's station maps
-            var lineupMap = await GetStationChannelMap(clientLineup.Lineup);
-            if (lineupMap == null || ((lineupMap?.Stations?.Count ?? 0) == 0))
-            {
-                logger.LogError($"Subscribed lineup {clientLineup.Lineup} does not contain any stations.");
-                return false;
-            }
-
-            //HashSet<string> stationsIds = setting.SDStationIds.Select(a => a.StationId).ToHashSet();
-            //if (stationsIds.Count == 0)
-            //{
-            //    logger.LogError($"Subscribed lineup {clientLineup.Lineup} does not contain any stations.");
-            //    return false;
-            //}
-
-            Dictionary<string, LineupStation> stationDictionary = [];
-
-            List<ChannelLogoDto> channelLogos = memoryCache.ChannelLogos();
-            int nextId = channelLogos.Any() ? channelLogos.Max(a => a.Id) + 1 : 0;
-
-            // build the services and lineup
-            foreach (var station in lineupMap.Stations)
-            {
-                // check if station should be downloaded and processed
-                if (station == null || stationDictionary.ContainsKey(station.StationId)) continue;
-
-                stationDictionary.Add(station.StationId, station);
-            }
-        }
-        return true;
-    }
-
+    
 }

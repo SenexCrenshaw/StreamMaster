@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace StreamMaster.SchedulesDirectAPI.Helpers;
 
-internal static partial class SDHelpers
+public static partial class SDHelpers
 {
     
 }

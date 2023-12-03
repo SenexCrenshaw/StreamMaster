@@ -1,6 +1,4 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
-
-namespace StreamMasterApplication.SchedulesDirectAPI.Commands;
+﻿namespace StreamMasterApplication.SchedulesDirectAPI.Commands;
 
 public record SDSync() : IRequest<bool>;
 

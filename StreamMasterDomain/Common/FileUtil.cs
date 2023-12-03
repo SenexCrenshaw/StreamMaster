@@ -315,6 +315,8 @@ public sealed class FileUtil
         CreateDir(BuildInfo.M3UFolder);
         CreateDir(BuildInfo.SDCacheFolder);
         CreateDir(BuildInfo.SDImagesFolder);
+        CreateDir(BuildInfo.SDStationLogos);
+        CreateDir(BuildInfo.SDStationLogosCache);
     }
 
     public static void UpdateSetting(Setting setting)

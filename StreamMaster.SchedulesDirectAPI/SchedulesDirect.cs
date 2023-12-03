@@ -10,7 +10,7 @@ using StreamMasterDomain.Common;
 using StreamMasterDomain.Services;
 
 namespace StreamMaster.SchedulesDirectAPI;
-public partial class SchedulesDirect(ILogger<SchedulesDirect> logger, ISchedulesDirectAPI schedulesDirectAPI, ISettingsService settingsService, ISDToken SdToken, IMemoryCache memoryCache) : ISchedulesDirect
+public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,ISchedulesDirectData schedulesDirectData, ISchedulesDirectAPI schedulesDirectAPI, ISettingsService settingsService, ISDToken SdToken, IMemoryCache memoryCache) : ISchedulesDirect
 {
     private readonly object fileLock = new();
 

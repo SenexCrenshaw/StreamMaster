@@ -2,16 +2,12 @@
 
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 
-using StreamMasterDomain.Cache;
-using StreamMasterDomain.Common;
-using StreamMasterDomain.Dto;
-
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
 {
     private async Task<bool> UpdateSDProgrammes(CancellationToken cancellationToken)
     {
-       
+        await BuildLineupServices(cancellationToken);
         return true;
     }
 

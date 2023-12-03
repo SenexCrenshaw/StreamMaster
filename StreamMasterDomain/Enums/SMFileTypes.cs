@@ -13,4 +13,5 @@ public enum SMFileTypes
     ProgrammeIcon = 8,
     ChannelIcon = 9,
     SDImage = 10,
+    SDStationLogo = 11,
 }

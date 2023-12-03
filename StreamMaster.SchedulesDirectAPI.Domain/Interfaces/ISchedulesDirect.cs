@@ -9,7 +9,7 @@
         Task<List<string>?> GetCustomLogosFromServerAsync(string server);
         Task<Dictionary<string, GenericDescription>?> GetGenericDescriptionsAsync(string[] request);
         Task<List<Headend>?> GetHeadends(string country, string postalCode, CancellationToken cancellationToken = default);
-        Task<bool> GetImageUrl(string programId, ProgramArtwork icon, CancellationToken cancellationToken);
+        //Task<bool> GetImageUrl(string programId, ProgramArtwork icon, CancellationToken cancellationToken);
         Task<List<LineupPreviewChannel>?> GetLineupPreviewChannel(string lineup);
         Task<List<LineupPreviewChannel>> GetLineupPreviewChannels(CancellationToken cancellationToken);
         Task<List<Programme>?> GetProgramsAsync(string[] request);
@@ -22,6 +22,7 @@
         Task<bool> RemoveLineup(string lineup, CancellationToken cancellationToken);
         void ResetCache(string command);
 
-        Task<bool> SDSync( CancellationToken cancellationToken);        
+        Task<bool> SDSync( CancellationToken cancellationToken);
+        //Task DownloadStationLogos(CancellationToken cancellationToken);
     }
 }

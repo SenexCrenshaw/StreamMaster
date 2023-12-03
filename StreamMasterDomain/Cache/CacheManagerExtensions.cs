@@ -11,9 +11,9 @@ using StreamMasterDomain.Models;
 
 namespace StreamMasterDomain.Cache;
 
-public static class CacheKeys
+public static class CacheManagerExtensions  
 {
-    private const string IsSystemReadyKey = "IsSystemReady";
+    //private const string IsSystemReadyKey = "IsSystemReady";
     private const string ListChannelLogos = "ListChannelLogos";
     private const string ListIconFiles = "ListIconFiles";
     private const string ListProgrammeChannel = "ListProgrammeChannel";
@@ -24,14 +24,11 @@ public static class CacheKeys
     private const string ListChannelGroupStreamCounts = "ListChannelGroupStreamCounts";
     private const string SettingKey = "Setting";
     private const string ListImageInfos = "ListImageInfos";
+    //private const string ListAffiliates = "ListAffiliates";
 
     public static readonly MemoryCacheEntryOptions NeverRemoveCacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
 
-    public static Setting GetSetting(this IMemoryCache cache)
-    {
-        _ = cache.TryGetValue(SettingKey, out Setting? settings);
-        return settings ?? new Setting();
-    }
+  
 
     public static void Add(this IMemoryCache cache, object data)
     {
@@ -39,10 +36,10 @@ public static class CacheKeys
         {
             lock (_lock)
             {
-                List<IconFileDto> datas = Get<IconFileDto>(ListIconFiles, cache);
-                datas.Add((IconFileDto)data);
+                List<IconFileDto> cachedData = cache.GetListFromCache<IconFileDto>(ListIconFiles);
+                cachedData.Add((IconFileDto)data);
 
-                _ = cache.Set(ListIconFiles, datas, NeverRemoveCacheEntryOptions);
+                _ = cache.Set(ListIconFiles, cachedData, NeverRemoveCacheEntryOptions);
             }
             return;
         }
@@ -51,10 +48,10 @@ public static class CacheKeys
         {
             lock (_lock)
             {
-                List<ImageInfo> datas = Get<ImageInfo>(ListImageInfos, cache);
-                datas.Add((ImageInfo)data);
+                List<ImageInfo> cachedData = cache.GetListFromCache<ImageInfo>(ListImageInfos);
+                cachedData.Add((ImageInfo)data);
 
-                _ = cache.Set(ListImageInfos, datas, NeverRemoveCacheEntryOptions);
+                _ = cache.Set(ListImageInfos, cachedData, NeverRemoveCacheEntryOptions);
             }
             return;
         }
@@ -63,19 +60,19 @@ public static class CacheKeys
         {
             lock (_lock)
             {
-                List<ChannelGroupStreamCount> datas = cache.ChannelGroupStreamCounts();
-                datas.Add((ChannelGroupStreamCount)data);
+                List<ChannelGroupStreamCount> cachedData = cache.ChannelGroupStreamCounts();
+                cachedData.Add((ChannelGroupStreamCount)data);
 
-                _ = cache.Set(ListChannelGroupStreamCounts, datas, NeverRemoveCacheEntryOptions);
+                _ = cache.Set(ListChannelGroupStreamCounts, cachedData, NeverRemoveCacheEntryOptions);
             }
             return;
         }
 
         if (data.GetType() == typeof(ChannelLogoDto))
         {
-            List<ChannelLogoDto> datas = Get<ChannelLogoDto>(ListChannelLogos, cache);
-            datas.Add((ChannelLogoDto)data);
-            _ = cache.Set(ListChannelLogos, datas, NeverRemoveCacheEntryOptions);
+            List<ChannelLogoDto> cachedData = cache.GetListFromCache<ChannelLogoDto>(ListChannelLogos);
+            cachedData.Add((ChannelLogoDto)data);
+            _ = cache.Set(ListChannelLogos, cachedData, NeverRemoveCacheEntryOptions);
             return;
         }
     }
@@ -84,12 +81,12 @@ public static class CacheKeys
     {
         lock (_lock)
         {
-            List<ChannelGroupStreamCount> datas = cache.ChannelGroupStreamCounts();
-            ChannelGroupStreamCount? data = datas.Find(x => x.ChannelGroupId == channelGroupId);
+            List<ChannelGroupStreamCount> cachedData = cache.ChannelGroupStreamCounts();
+            ChannelGroupStreamCount? data = cachedData.Find(x => x.ChannelGroupId == channelGroupId);
             if (data != null)
             {
-                _ = datas.Remove(data);
-                _ = cache.Set(ListChannelGroupStreamCounts, datas, NeverRemoveCacheEntryOptions);
+                _ = cachedData.Remove(data);
+                _ = cache.Set(ListChannelGroupStreamCounts, cachedData, NeverRemoveCacheEntryOptions);
             }
         }
     }
@@ -100,9 +97,9 @@ public static class CacheKeys
         {
             lock (_lock)
             {
-                List<ChannelGroupStreamCount> datas = cache.ChannelGroupStreamCounts();
-                _ = datas.Remove((ChannelGroupStreamCount)data);
-                _ = cache.Set(ListChannelGroupStreamCounts, datas, NeverRemoveCacheEntryOptions);
+                List<ChannelGroupStreamCount> cachedData = cache.ChannelGroupStreamCounts();
+                _ = cachedData.Remove((ChannelGroupStreamCount)data);
+                _ = cache.Set(ListChannelGroupStreamCounts, cachedData, NeverRemoveCacheEntryOptions);
             }
             return;
         }
@@ -110,21 +107,12 @@ public static class CacheKeys
 
     public static void AddProgrammeLogo(this IMemoryCache cache, IconFileDto icon)
     {
-        List<IconFileDto> datas = Get<IconFileDto>(ListProgrammesLogos, cache);
-        datas.Add(icon);
-        _ = cache.Set(ListProgrammesLogos, datas, NeverRemoveCacheEntryOptions);
+        List<IconFileDto> cachedData = cache.GetListFromCache<IconFileDto>(ListProgrammesLogos);
+        cachedData.Add(icon);
+        _ = cache.Set(ListProgrammesLogos, cachedData, NeverRemoveCacheEntryOptions);
         return;
     }
 
-    public static List<ImageInfo> ImageInfos(this IMemoryCache cache)
-    {
-        return Get<ImageInfo>(ListImageInfos, cache);
-    }
-
-    public static List<ChannelLogoDto> ChannelLogos(this IMemoryCache cache)
-    {
-        return Get<ChannelLogoDto>(ListChannelLogos, cache);
-    }
 
     public static void ClearChannelLogos(this IMemoryCache cache)
     {
@@ -180,16 +168,6 @@ public static class CacheKeys
         return [.. ret];
     }
 
-    public static List<IconFileDto> Icons(this IMemoryCache cache)
-    {
-        return Get<IconFileDto>(ListIconFiles, cache);
-    }
-
-    public static List<ChannelGroupStreamCount> ChannelGroupStreamCounts(this IMemoryCache cache)
-    {
-        return Get<ChannelGroupStreamCount>(ListChannelGroupStreamCounts, cache);
-    }
-
     public static void AddOrUpdateChannelGroupVideoStreamCounts(this IMemoryCache cache, List<ChannelGroupDto> responses)
     {
         foreach (ChannelGroupDto response in responses)
@@ -222,8 +200,8 @@ public static class CacheKeys
 
     public static void AddOrUpdateChannelGroupVideoStreamCount(this IMemoryCache cache, ChannelGroupDto ChannelGroupDto)
     {
-        List<ChannelGroupStreamCount> datas = cache.ChannelGroupStreamCounts();
-        ChannelGroupStreamCount? data = datas.Find(a => a.ChannelGroupId == ChannelGroupDto.Id);
+        List<ChannelGroupStreamCount> cachedData = cache.ChannelGroupStreamCounts();
+        ChannelGroupStreamCount? data = cachedData.Find(a => a.ChannelGroupId == ChannelGroupDto.Id);
 
         if (data == null)
         {
@@ -231,16 +209,98 @@ public static class CacheKeys
         }
         else
         {
-            _ = datas.Remove(data);
+            _ = cachedData.Remove(data);
             data.ActiveCount = ChannelGroupDto.ActiveCount;
             data.TotalCount = ChannelGroupDto.TotalCount;
             data.HiddenCount = ChannelGroupDto.HiddenCount;
-            datas.Add(data);
-            _ = cache.Set(ListChannelGroupStreamCounts, datas, NeverRemoveCacheEntryOptions);
+            cachedData.Add(data);
+            _ = cache.Set(ListChannelGroupStreamCounts, cachedData, NeverRemoveCacheEntryOptions);
         }
     }
 
     private static readonly object _lock = new();
+
+
+    #region Gets
+    public static Setting GetSetting(this IMemoryCache cache)
+    {
+        _ = cache.TryGetValue(SettingKey, out Setting? settings);
+        return settings ?? new Setting();
+    }
+
+    public static bool IsSystemReady(this IMemoryCache cache)
+    {
+        return cache.GetFromCache<bool?>(IsSystemReadyConfig.Key) ?? false;       
+    }
+
+    //public static List<MxfAffiliate> GetAffiliates(this IMemoryCache cache)
+    //{
+    //    return cache.GetListFromCache<MxfAffiliate>(AffiliateConfig.Key);
+    //}
+
+    //public static MxfAffiliate? GetAffiliate(this IMemoryCache cache, string affiliateName)
+    //{
+    //    return cache.GetListFromCache<MxfAffiliate>(AffiliateConfig.Key).Find(a => a.Name == affiliateName);
+    //}
+
+    //public static List<MxfService> GetServices(this IMemoryCache cache)
+    //{
+    //    return cache.GetListFromCache<MxfService>(StationConfig.Key);
+    //}
+
+    //public static MxfService? GetService(this IMemoryCache cache, string stationId)
+    //{
+    //    return cache.GetListFromCache<MxfService>(StationConfig.Key).Find(a => a.StationId == stationId);
+    //}
+
+    //public static List<MxfGuideImage> GetGuideImages(this IMemoryCache cache)
+    //{
+    //    return cache.GetListFromCache<MxfGuideImage>(GuideImageConfig.Key);
+    //}
+
+    //public static MxfGuideImage? GetGuideImage(this IMemoryCache cache, string pathname)
+    //{
+    //    return cache.GetListFromCache<MxfGuideImage>(GuideImageConfig.Key).Find(a => a.ImageUrl == pathname);
+    //}
+
+    //public static List<MxfLineup> GetLineUps(this IMemoryCache cache)
+    //{
+    //    return cache.GetListFromCache<MxfLineup>(LineupConfig.Key);
+    //}
+
+    //public static MxfLineup? GetLineUp(this IMemoryCache cache, string lineupId)
+    //{
+    //    return cache.GetListFromCache<MxfLineup>(LineupConfig.Key).Find(a => a.LineupId == lineupId);
+    //}
+
+    //public static List<KeyValuePair<MxfService, string[]>> GetStationLogos(this IMemoryCache cache)
+    //{
+    //    return cache.GetListFromCache<KeyValuePair<MxfService, string[]>>(StationLogoConfig.Key);
+    //}
+
+    //public static KeyValuePair<MxfService, string[]?> GetStationLogo(this IMemoryCache cache, string url)
+    //{
+    //    return cache.GetListFromCache<KeyValuePair<MxfService, string[]?>>(StationLogoConfig.Key).Find(a => a == url);
+    //}
+
+    public static List<ImageInfo> ImageInfos(this IMemoryCache cache)
+    {
+        return cache.GetListFromCache<ImageInfo>(ListImageInfos);
+    }
+
+    public static List<ChannelLogoDto> ChannelLogos(this IMemoryCache cache)
+    {
+        return cache.GetListFromCache<ChannelLogoDto>(ListChannelLogos);
+    }
+    public static List<IconFileDto> Icons(this IMemoryCache cache)
+    {
+        return cache.GetListFromCache<IconFileDto>(ListIconFiles);
+    }
+
+    public static List<ChannelGroupStreamCount> ChannelGroupStreamCounts(this IMemoryCache cache)
+    {
+        return cache.GetListFromCache<ChannelGroupStreamCount>(ListChannelGroupStreamCounts);
+    }
 
     public static IconFileDto? GetIcon(this IMemoryCache cache, string source, SMFileTypes sMFileTypes)
     {
@@ -251,26 +311,14 @@ public static class CacheKeys
         }
     }
 
-    public static bool IsSystemReady(this IMemoryCache cache)
-    {
-        if (cache.TryGetValue(IsSystemReadyKey, out bool? cacheValue))
-        {
-            if (cacheValue != null)
-            {
-                return (bool)cacheValue;
-            }
-        }
-        return false;
-    }
-
     public static List<ProgrammeChannel> ProgrammeChannels(this IMemoryCache cache)
     {
-        return Get<ProgrammeChannel>(ListProgrammeChannel, cache);
+        return cache.GetListFromCache<ProgrammeChannel>(ListProgrammeChannel);
     }
 
     public static List<IconFileDto> ProgrammeIcons(this IMemoryCache cache)
     {
-        return Get<IconFileDto>(ListProgrammesLogos, cache);
+        return cache.GetListFromCache<IconFileDto>(ListProgrammesLogos);
     }
 
     public static ChannelGroupStreamCount? GetChannelGroupVideoStreamCount(this IMemoryCache cache, int channelGroupId)
@@ -281,13 +329,49 @@ public static class CacheKeys
 
     public static List<EPGProgramme> Programmes(this IMemoryCache cache)
     {
-        return Get<EPGProgramme>(ListProgrammes, cache);
+        return cache.GetListFromCache<EPGProgramme>(ListProgrammes);
     }
 
     public static List<EPGProgramme> SDProgrammess(this IMemoryCache cache)
     {
-        return Get<EPGProgramme>(ListSDProgrammes, cache);
+        return cache.GetListFromCache<EPGProgramme>(ListSDProgrammes );
     }
+
+    public static List<TvLogoFile> TvLogos(this IMemoryCache cache)
+    {
+        return cache.GetListFromCache<TvLogoFile>(ListTVLogos );
+    }
+
+    private static T? GetFromCache<T>(this IMemoryCache cache, string key)
+    {
+        if (cache.TryGetValue(key, out T? cacheValue))
+        {
+            if (cacheValue != null)
+            {
+                return cacheValue;
+            }
+        }
+        return default;
+    }
+
+    private static List<T> GetListFromCache<T>(this IMemoryCache cache, string key)
+    {
+        if (cache.TryGetValue(key, out List<T>? cacheValue))
+        {
+            if (cacheValue != null)
+            {
+                return cacheValue;
+            }
+        }
+
+        var ret = new List<T>();
+        cache.Set(key, ret, NeverRemoveCacheEntryOptions);
+        return ret;
+    }
+
+    #endregion
+
+    #region Sets
 
     //public static bool AreProgrammeListsEqual(List<Programme> list1, List<Programme> list2)
     //{
@@ -319,6 +403,67 @@ public static class CacheKeys
     //        return true;
     //    }
     //    return false;
+    //}
+
+    
+    //     public static void AddLineUp(this IMemoryCache cache, MxfLineup lineUp)
+    //{
+    //    lock (LineupConfig.Lock)
+    //    {
+    //        List<MxfLineup> lineUps = cache.GetLineUps();
+    //        if (lineUps.Any(a => a.LineupId == lineUp.LineupId))
+    //        {
+    //            return;
+    //        }
+
+    //        lineUps.Add(lineUp);
+    //        _ = cache.Set(LineupConfig.Key, lineUps, NeverRemoveCacheEntryOptions);
+    //    }
+    //}
+
+    //public static void AddAffiliate(this IMemoryCache cache, MxfAffiliate affiliate)
+    //{
+    //    lock (AffiliateConfig.Lock)
+    //    {
+    //        List<MxfAffiliate> affiliates = cache.GetAffiliates();
+    //        if (affiliates.Any(a => a.Name == affiliate.Name))
+    //        {
+    //            return;
+    //        }
+
+    //        affiliates.Add(affiliate);
+    //        _ = cache.Set(AffiliateConfig.Key, affiliates, NeverRemoveCacheEntryOptions);
+    //    }
+    //}
+
+    //public static void AddGuideImage(this IMemoryCache cache, MxfGuideImage guideImage)
+    //{
+    //    lock (GuideImageConfig.Lock)
+    //    {
+    //        var guideImages = cache.GetGuideImages();
+    //        if (guideImages.Any(a => a.ImageUrl == guideImage.ImageUrl))
+    //        {
+    //            return;
+    //        }
+
+    //        guideImages.Add(guideImage);
+    //        _ = cache.Set(GuideImageConfig.Key, guideImages, NeverRemoveCacheEntryOptions);
+    //    }
+    //}
+
+    //public static void AddService(this IMemoryCache cache, MxfService service)
+    //{
+    //    lock (StationConfig.Lock)
+    //    {
+    //        var services = cache.GetServices();
+    //        if (services.Any(a => a.StationId == service.StationId))
+    //        {
+    //            return;
+    //        }
+
+    //        services.Add(service);
+    //        _ = cache.Set(StationConfig.Key, services, NeverRemoveCacheEntryOptions);
+    //    }
     //}
 
     public static void SetCache(this IMemoryCache cache, object data, TimeSpan? expiration = null)
@@ -374,7 +519,7 @@ public static class CacheKeys
 
     public static void SetIsSystemReady(this IMemoryCache cache, bool isSystemReady)
     {
-        _ = cache.Set(IsSystemReadyKey, isSystemReady, NeverRemoveCacheEntryOptions);
+        _ = cache.Set(IsSystemReadyConfig.Key, isSystemReady, IsSystemReadyConfig.CacheEntryOptions);
     }
 
     public static void SetProgrammeLogos(this IMemoryCache cache, List<IconFileDto> icons)
@@ -382,24 +527,6 @@ public static class CacheKeys
         _ = cache.Set(ListProgrammesLogos, icons, NeverRemoveCacheEntryOptions);
         return;
     }
+    #endregion
 
-    public static List<TvLogoFile> TvLogos(this IMemoryCache cache)
-    {
-        return Get<TvLogoFile>(ListTVLogos, cache);
-    }
-
-    private static List<T> Get<T>(string key, IMemoryCache cache)
-    {
-        lock (_lock)
-        {
-            if (cache.TryGetValue(key, out List<T>? cacheValue))
-            {
-                if (cacheValue != null)
-                {
-                    return cacheValue;
-                }
-            }
-            return [];
-        }
-    }
 }

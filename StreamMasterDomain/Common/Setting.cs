@@ -43,7 +43,7 @@ public class BaseSettings : SDSettings
     public AuthenticationType AuthenticationMethod { get; set; } = AuthenticationType.None;
     public bool CacheIcons { get; set; } = true;
     public bool CleanURLs { get; set; } = true;
-    public string ClientUserAgent { get; set; } = "Mozilla/5.0 (compatible; streammaster/1.0)";
+    public string ClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";
     public string DeviceID { get; set; } = "device1";
     public string DummyRegex { get; set; } = "(no tvg-id)";
     public string FFMpegOptions { get; set; } = "-hide_banner -loglevel error -i {streamUrl} -c copy -f mpegts pipe:1";
