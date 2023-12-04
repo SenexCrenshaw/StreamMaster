@@ -1,9 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 
+using StreamMasterDomain.Common;
+
 using System.Collections.Concurrent;
 using System.Collections.Specialized;
 using System.Text.Json;
+using System.Threading;
 
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
@@ -11,7 +14,7 @@ public partial class SchedulesDirect
     private  ConcurrentBag<ProgramMetadata> imageResponses=[];
     private  NameValueCollection sportsSeries = new NameValueCollection();
     private  List<string> imageQueue = [];
-    private  bool GetAllSeriesImages()
+    private  async Task<bool> GetAllSeriesImages(CancellationToken cancellationToken)
     {
         // reset counters
         imageQueue = new List<string>();
@@ -89,6 +92,7 @@ public partial class SchedulesDirect
             });
 
             ProcessSeriesImageResponses();
+            await DownloadImages(cancellationToken);
             if (processedObjects != totalObjects)
             {
                 logger.LogWarning($"Failed to download and process {schedulesDirectData.SeriesInfosToProcess.Count - processedObjects} series image links.");
@@ -122,7 +126,10 @@ public partial class SchedulesDirect
         }
     }
 
-    private  void ProcessSeriesImageResponses()
+   
+
+
+    private void ProcessSeriesImageResponses()
     {
         // process request response
         foreach (var response in imageResponses)
@@ -153,6 +160,68 @@ public partial class SchedulesDirect
             series.extras.Add("artwork", artwork);
             series.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Series, uid);
         }
+    }
+
+    private async Task<bool> DownloadImages(CancellationToken cancellationToken)
+    {
+        Setting setting = memoryCache.GetSetting();
+        if (!setting.SDSettings.SDEnabled)
+        {
+            return false;
+        }
+
+        if (imageResponses.Count == 0)
+        {
+            return false;
+        }
+      
+        int maxConcurrentDownloads = 4;
+        var semaphore = new SemaphoreSlim(maxConcurrentDownloads);
+
+        
+        var tasks = imageResponses.Select(async response =>
+        {
+            await semaphore.WaitAsync(cancellationToken);
+
+            try
+            {
+               var series = schedulesDirectData.FindOrCreateSeriesInfo(response.ProgramId.Substring(2, 8));
+                if (series == null || string.IsNullOrEmpty(series.GuideImage) || !series.extras.ContainsKey("artwork"))
+                {
+                    return;
+                }
+                else
+                {
+                    var a = 1;
+                }
+
+               
+                //var logoPath = serviceLogo.Value[0];
+                //if ((File.Exists(logoPath) || await DownloadSdLogo(serviceLogo.Value[1], logoPath, cancellationToken)) && string.IsNullOrEmpty(serviceLogo.Key.LogoImage))
+                //{
+
+                //    serviceLogo.Key.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(logoPath);
+
+                //    if (File.Exists(logoPath))
+                //    {
+                //        // update dimensions
+                //        using var stream = File.OpenRead(logoPath);
+                //        using var image = await Image.LoadAsync(stream, cancellationToken);
+                //        serviceLogo.Key.extras["logo"].Height = image.Height;
+                //        serviceLogo.Key.extras["logo"].Width = image.Width;
+                //        StationLogosToDownload.Remove(serviceLogo);
+                //    }
+                //}
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        }).ToArray();
+
+        await Task.WhenAll(tasks);
+
+        return true;
     }
 
     private  List<ProgramArtwork> GetTieredImages(List<ProgramArtwork> sdImages, List<string> tiers)

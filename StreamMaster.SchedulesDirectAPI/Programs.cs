@@ -7,8 +7,6 @@ using System.Collections.Concurrent;
 using System.Globalization;
 using System.Text.Json;
 
-using static System.Collections.Specialized.BitVector32;
-
 namespace StreamMaster.SchedulesDirectAPI;
 
 public partial class SchedulesDirect

@@ -3,12 +3,14 @@
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 
 using System.Collections.Concurrent;
+using System.Formats.Asn1;
 using System.Text.Json;
+using System.Threading;
 
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
 {
-    private  bool GetAllMoviePosters()
+    private async Task<bool> GetAllMoviePosters(CancellationToken cancellationToken)
     {
         var moviePrograms = schedulesDirectData.ProgramsToProcess.Where(arg => arg.IsMovie).Where(arg => !arg.IsAdultOnly).ToList();
 
@@ -56,6 +58,7 @@ public partial class SchedulesDirect
             });
 
             ProcessMovieImageResponses();
+            await DownloadImages(cancellationToken);
             if (processedObjects != totalObjects)
             {
                 logger.LogWarning($"Failed to download and process {moviePrograms.Count - processedObjects} movie poster links.");
@@ -94,6 +97,8 @@ public partial class SchedulesDirect
             mxfProgram.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Movie, mxfProgram.extras["md5"]);
         }
     }
+
+
 
     //private  List<ProgramArtwork> GetTmdbMoviePoster(string title, int year, string language)
     //{

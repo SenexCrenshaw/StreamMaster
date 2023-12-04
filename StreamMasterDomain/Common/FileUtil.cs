@@ -18,7 +18,28 @@ public sealed class FileUtil
 {
     private static bool setupDirectories = false;
 
+    public static dynamic? ReadXmlFile(string filepath, Type type)
+    {
+        if (!File.Exists(filepath))
+        {
+            //Logger.WriteInformation($"File \"{filepath}\" does not exist.");
+            return null;
+        }
 
+        try
+        {
+            XmlSerializer serializer = new XmlSerializer(type);
+            using (var reader = new StreamReader(filepath, Encoding.Default))
+            {
+                return serializer.Deserialize(reader);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to read file \"{filepath}\". Exception:{ReportExceptionMessages(ex)}");
+        }
+        return null;
+    }
     public static string BytesToString(long bytes)
     {
         string[] unit = { "", "K", "M", "G", "T" };

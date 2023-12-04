@@ -59,16 +59,16 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,IEPGCache e
                 await GetAllScheduleEntryMd5S(setting.SDSettings.SDEPGDays) &&
                 BuildAllProgramEntries() &&
                 BuildAllGenericSeriesInfoDescriptions() &&
-                GetAllMoviePosters() &&
-                GetAllSeriesImages() &&
+                await GetAllMoviePosters(cancellationToken) &&
+                await GetAllSeriesImages(cancellationToken) &&
                 GetAllSeasonImages() &&
                 GetAllSportsImages() &&
                 BuildKeywords()
             )
         {
-            epgCache.WriteCache();
+            //epgCache.WriteCache();
             CreateDummLineupChannel();
-            var xml = CreateXmltv();
+            var xml = CreateXmltv("");
             if (xml is not null)
             {
                 WriteXmltv(xml);

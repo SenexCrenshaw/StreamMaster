@@ -6,7 +6,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
 public interface ISchedulesDirect
 {
     List<StationChannelName> GetStationChannelNames();
-    XMLTV? CreateXmltv(IEnumerable<string>? stationIds = null);
+    XMLTV? CreateXmltv(string baseUrl, IEnumerable<string>? stationIds = null);
     Task<StationChannelMap?> GetStationChannelMap(string lineup);
     Task<bool> AddLineup(string lineup, CancellationToken cancellationToken);
     Task<List<ProgramMetadata>?> GetArtworkAsync(string[] request);

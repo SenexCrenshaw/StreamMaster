@@ -71,7 +71,7 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     }
 
     [LogExecutionTimeAspect]
-    public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
+    public  Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
         //return "";
         //List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
@@ -81,17 +81,18 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
         //    return "";
         //}
 
-        XMLTV epgData =  GetEpgData();
+        XMLTV epgData =GetEpgData();
 
-        return SerializeXMLTVData(epgData);
+        return Task.FromResult( SerializeXMLTVData(epgData));
     }
 
 
     [LogExecutionTimeAspect]
     private XMLTV GetEpgData()
     {
-        var settings = MemoryCache.GetSetting();
-        var xmltv =schedulesDirect.CreateXmltv(settings.SDSettings.SDStationIds.Select(a=>a.StationId));
+        //var settings = MemoryCache.GetSetting();
+        //var xmltv =schedulesDirect.CreateXmltv(settings.SDSettings.SDStationIds.Select(a=>a.StationId));
+        var xmltv = schedulesDirect.CreateXmltv(_httpContextAccessor.GetUrl());
         return xmltv;
     }
 

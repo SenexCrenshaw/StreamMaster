@@ -1,16 +1,18 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
-
 using StreamMasterDomain.Common;
+using StreamMasterDomain.Enums;
 
 using System.Globalization;
+using System.Net;
 
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
 {
-    public XMLTV? CreateXmltv(IEnumerable<string>? stationIds=null)
-    { 
+    private string _baseUrl;
+    public XMLTV? CreateXmltv(string baseUrl,IEnumerable<string>? stationIds=null)
+    {
+        _baseUrl = baseUrl;
         try
         {
             var xmltv = new XMLTV
@@ -74,6 +76,45 @@ public partial class SchedulesDirect
         }
         return null;
     }
+    public string GetIconUrl(string iconOriginalSource)
+    {
+        var settings = memoryCache.GetSetting();
+        if (string.IsNullOrEmpty(iconOriginalSource))
+        {
+            return $"{_baseUrl}{settings.DefaultIcon}";
+        }
+
+        string originalUrl = iconOriginalSource;
+
+        if (iconOriginalSource.StartsWith('/'))
+        {
+            iconOriginalSource = iconOriginalSource[1..];
+        }
+
+        if (iconOriginalSource.StartsWith("images/"))
+        {
+            return $"{_baseUrl}/{iconOriginalSource}";
+        }
+        else if (!iconOriginalSource.StartsWith("http"))
+        {
+            return GetApiUrl(SMFileTypes.TvLogo, originalUrl);
+        }
+        else if (settings.CacheIcons)
+        {
+            if (iconOriginalSource.StartsWith("https://json.schedulesdirect.org"))
+            {
+                return GetApiUrl(SMFileTypes.SDImage, originalUrl);
+            }
+            return GetApiUrl(SMFileTypes.Icon, originalUrl);
+        }
+
+        return iconOriginalSource;
+    }
+
+    private string GetApiUrl(SMFileTypes path, string source)
+    {
+        return $"{_baseUrl}/api/files/{(int)path}/{WebUtility.UrlEncode(source)}";
+    }
 
     #region ========== XMLTV Channels and Functions ==========
     public  XmltvChannel BuildXmltvChannel(MxfService mxfService)
@@ -122,11 +163,12 @@ public partial class SchedulesDirect
         // add logo if available
         if (mxfService.extras.ContainsKey("logo"))
         {
+            var a = mxfService.extras["logo"];
             ret.Icons = new List<XmltvIcon>
                 {
                     new XmltvIcon
                     {
-                        Src = mxfService.extras["logo"].Url,
+                        Src = GetIconUrl( mxfService.extras["logo"].Url),
                         Height = mxfService.extras["logo"].Height,
                         Width = mxfService.extras["logo"].Width
                     }
@@ -344,7 +386,7 @@ public partial class SchedulesDirect
         {
             var url = mxfProgram.mxfGuideImage?.ImageUrl ?? mxfProgram.mxfSeason?.mxfGuideImage?.ImageUrl ??
                 mxfProgram.mxfSeriesInfo?.mxfGuideImage?.ImageUrl;
-            return url == null ? null : new List<XmltvIcon> { new XmltvIcon { Src = url } };
+            return url == null ? null : new List<XmltvIcon> { new XmltvIcon { Src = GetIconUrl( url) } };
         }
 
         var artwork = new List<ProgramArtwork>();
@@ -367,7 +409,7 @@ public partial class SchedulesDirect
             artwork = mxfProgram.mxfSeriesInfo.extras["artwork"];
         }
 
-        return artwork.Count == 0 ? null : artwork.Select(image => new XmltvIcon { Src = image.Uri , Height = image.Height, Width = image.Width }).ToList();
+        return artwork.Count == 0 ? null : artwork.Select(image => new XmltvIcon { Src = GetIconUrl(image.Uri) , Height = image.Height, Width = image.Width }).ToList();
     }
 
     private static XmltvText GrabSportEvent(MxfProgram program)
