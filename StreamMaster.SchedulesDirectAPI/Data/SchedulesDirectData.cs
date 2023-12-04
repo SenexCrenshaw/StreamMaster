@@ -13,6 +13,21 @@ public partial class SchedulesDirectData(ILogger<SchedulesDirectData> logger, IS
 {
     [XmlAttribute("provider")]
     public string Provider { get; set; } = string.Empty;
+    [XmlArrayItem("Keyword")]
+    public List<MxfKeyword> Keywords { get; set; } = [];
+    public bool ShouldSerializeKeywords()
+    {
+        Keywords = Keywords?.OrderBy(k => k.GrpIndex).ThenBy(k => k.Id).ToList();
+        return true;
+    }
+
+    [XmlArrayItem("KeywordGroup")]
+    public List<MxfKeywordGroup> KeywordGroups { get; set; } = [];
+    public bool ShouldSerializeKeywordGroups()
+    {
+        KeywordGroups = KeywordGroups?.OrderBy(k => k.Index).ThenBy(k => k.Uid).ToList();
+        return true;
+    }
 
     [XmlArrayItem("GuideImage")]
     public List<MxfGuideImage> GuideImages { get; set; } = [];

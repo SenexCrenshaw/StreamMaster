@@ -19,6 +19,11 @@ public class M3USettings
 
 public class SDSettings : M3USettings
 {
+    public bool ExcludeCastAndCrew { get; set; }
+    public bool AlternateSEFormat { get; set; }
+    public bool PrefixEpisodeDescription { get; set; }
+    public bool PrefixEpisodeTitle { get; set; }
+    public bool AppendEpisodeDesc { get; set; }
     public bool SDUseLineupInName { get; set; }
     public int SDEPGDays { get; set; } = 7;
     public int SDMaxRatings { get; set; } = 2;
@@ -77,5 +82,5 @@ public class ProtectedSettings : BaseSettings
 
 public class Setting : ProtectedSettings, ISetting
 {
-   
+
 }

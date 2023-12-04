@@ -7,7 +7,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
     public class LineupResponse : BaseResponse
     {
         [JsonPropertyName("lineups")]
-        [JsonConverter(typeof(SingleOrListConverter<SubscribedLineup>))]
+       // //[JsonConverter(typeof(SingleOrListConverter<SubscribedLineup>))]
         public List<SubscribedLineup> Lineups { get; set; }
     }
 

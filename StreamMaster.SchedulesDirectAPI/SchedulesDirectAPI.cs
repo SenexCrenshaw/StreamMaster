@@ -8,6 +8,7 @@ using StreamMasterDomain.Common;
 using StreamMasterDomain.Models;
 using StreamMasterDomain.Services;
 
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -94,58 +95,89 @@ public class SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, ISDToken SdT
         string? url = await SdToken.GetAPIUrl(command, cancellationToken);
 
         Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
-
-        using HttpRequestMessage request = new(method, url)
-        {
-            Content = (content != null)
-                ? new StringContent(JsonSerializer.Serialize(content), Encoding.UTF8, "application/json")
-                : null
-        };
-
+        string? json = null;
         HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
-
-        using HttpResponseMessage response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-
-        if (!response.IsSuccessStatusCode)
+        try
         {
-            return await HandleHttpResponseError<T>(response, await response.Content?.ReadAsStringAsync());
+            var c =  (content != null)
+                    ?  JsonSerializer.Serialize(content)
+                    : null;
+
+
+
+            using HttpRequestMessage request = new(method, url)
+            {
+                Content = (content != null)
+                    ? new StringContent(JsonSerializer.Serialize(content), Encoding.UTF8, "application/json")
+                    : null
+            };
+
+            using HttpResponseMessage response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return HandleHttpResponseError<T>(response, await response.Content?.ReadAsStringAsync());
+            }
+
+            JsonSerializerOptions jsonOptions = new()
+            {
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+
+            using Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+
+            if (typeof(T) != typeof(List<LineupPreviewChannel>) &&
+                typeof(T) != typeof(StationChannelMap) &&
+                typeof(T) != typeof(Dictionary<string, Dictionary<string, ScheduleMd5Response>>))
+            {
+                using var sr = new StreamReader(stream);
+                json = await sr.ReadToEndAsync(cancellationToken);
+                return JsonSerializer.Deserialize<T>(json, jsonOptions);
+            }
+
+
+
+            if (typeof(T) == typeof(List<LineupPreviewChannel>) || typeof(T) == typeof(StationChannelMap))
+            {
+                using var sr = new StreamReader(stream);
+                json = await sr.ReadToEndAsync(cancellationToken);
+                json = json.Replace("[],", ""); // Modify the JSON string as needed
+                return JsonSerializer.Deserialize<T>(json);
+            }
+
+            if (typeof(T) == typeof(Dictionary<string, Dictionary<string, ScheduleMd5Response>>))
+            {
+                using var sr = new StreamReader(stream);
+                json = await sr.ReadToEndAsync(cancellationToken);
+                json = json.Replace("[]", "{}"); // Modify the JSON string as needed
+                return JsonSerializer.Deserialize<T>(json);
+            }
+
+            using var jsonStream = new StreamReader(stream);
+            return await JsonSerializer.DeserializeAsync<T>(jsonStream.BaseStream, cancellationToken: cancellationToken);
         }
-
-        JsonSerializerOptions jsonOptions = new()
+        catch (JsonException ex)
         {
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-        };
+            // Handle the JSON deserialization error
+            // Log the error and decide how to proceed
 
-        if (typeof(T) != typeof(List<LineupPreviewChannel>) &&
-            typeof(T) != typeof(StationChannelMap) &&
-            typeof(T) != typeof(Dictionary<string, Dictionary<string, ScheduleMd5Response>>))
-        {
-            return JsonSerializer.Deserialize<T>(await response.Content.ReadAsStringAsync(), jsonOptions);
+            if (json != null)
+            {
+                var start = Math.Max((int)ex.BytePositionInLine-40, 0);
+                var line = json.Substring(start, 100);
+            }
+            Debug.Assert(true);
+            var a = 1;
         }
-
-        using Stream stream = await response.Content.ReadAsStreamAsync();
-
-        if (typeof(T) == typeof(List<LineupPreviewChannel>) || typeof(T) == typeof(StationChannelMap))
+        catch (Exception ex)
         {
-            using var sr = new StreamReader(stream);
-            var json = await sr.ReadToEndAsync();
-            json = json.Replace("[],", ""); // Modify the JSON string as needed
-            return JsonSerializer.Deserialize<T>(json);
+            Debug.Assert(true);
+            var a = 1;
         }
-
-        if (typeof(T) == typeof(Dictionary<string, Dictionary<string, ScheduleMd5Response>>))
-        {
-            using var sr = new StreamReader(stream);
-            var json = await sr.ReadToEndAsync();
-            json = json.Replace("[]", "{}"); // Modify the JSON string as needed
-            return JsonSerializer.Deserialize<T>(json);
-        }
-
-        using var jsonStream = new StreamReader(stream);
-        return await JsonSerializer.DeserializeAsync<T>(jsonStream.BaseStream);
+        return default;
     }
 
-    private async Task<T> HandleHttpResponseError<T>(HttpResponseMessage response, string content)
+    private  T HandleHttpResponseError<T>(HttpResponseMessage response, string? content)
     {
         if (string.IsNullOrEmpty(content) || !(response.Content?.Headers?.ContentType?.MediaType?.Contains("json") ?? false)) logger.LogDebug($"HTTP request failed with status code \"{(int)response.StatusCode} {response.ReasonPhrase}\"");
         else

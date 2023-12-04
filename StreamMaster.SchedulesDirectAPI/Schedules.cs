@@ -1,7 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using StreamMaster.SchedulesDirectAPI.Helpers;
+
 using System.Globalization;
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace StreamMaster.SchedulesDirectAPI;
@@ -75,6 +81,7 @@ public partial class SchedulesDirect
         logger.LogInformation("Exiting GetAllScheduleEntryMd5s(). SUCCESS.");
         return true;
     }
+
     private  async Task<bool> GetMd5ScheduleEntries(string[] dates, int start)
     {
         // reject 0 requests
@@ -210,18 +217,22 @@ public partial class SchedulesDirect
                 // serialize JSON directly to a file
                 if (ScheduleEntries.TryGetValue(response.Metadata.Md5, out var serviceDate))
                 {
-                    using (var writer = new StringWriter())
+                    try
                     {
-                        try
+                        var jsonSerializerOptions = new JsonSerializerOptions
                         {
-                            var serializer = new JsonSerializer();
-                            serializer.Serialize(writer, response);
-                            epgCache.AddAsset(response.Metadata.Md5, writer.ToString());
-                        }
-                        catch
-                        {
-                            logger.LogInformation($"Failed to write station daily schedule file to cache file. station: {serviceDate[0]} ; date: {serviceDate[1]}");
-                        }
+                            // Add any desired JsonSerializerOptions here
+                            // For example, to ignore null values during serialization:
+                            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+                            WriteIndented = false // Formatting.None equivalent
+                        };
+
+                        string jsonString = JsonSerializer.Serialize(response, jsonSerializerOptions);
+                        epgCache.AddAsset(response.Metadata.Md5, jsonString);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogInformation($"Failed to write station daily schedule file to cache file. station: {serviceDate[0]} ; date: {serviceDate[1]}. Exception: {SDHelpers.ReportExceptionMessages(ex)}");
                     }
                 }
                 else
@@ -256,22 +267,28 @@ public partial class SchedulesDirect
         ScheduleResponse schedule;
         try
         {
-            using (var reader = new StringReader(epgCache.GetAsset(md5)))
+            var jsonSerializerOptions = new JsonSerializerOptions
             {
-                var serializer = new JsonSerializer();
-                schedule = (ScheduleResponse)serializer.Deserialize(reader, typeof(ScheduleResponse));
-                if (schedule == null)
-                {
-                    Logger.WriteError("Failed to read Md5Schedule entry in cache file.");
-                    return;
-                }
+                // Add any desired JsonSerializerOptions here
+                // For example, to ignore null values during deserialization:
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+
+            using var reader = new StringReader(epgCache.GetAsset(md5));
+            var jsonString = reader.ReadToEnd();
+            schedule = JsonSerializer.Deserialize<ScheduleResponse>(jsonString, jsonSerializerOptions);
+            if (schedule == null)
+            {
+                logger.LogError("Failed to read Md5Schedule entry in cache file.");
+                return;
             }
         }
         catch (Exception ex)
         {
-            logger.LogError($"Error occurred when trying to read Md5Schedule entry in cache file. Exception:{Helper.ReportExceptionMessages(ex)}");
+            logger.LogError($"Error occurred when trying to read Md5Schedule entry in cache file. Exception: {SDHelpers.ReportExceptionMessages(ex)}");
             return;
         }
+
 
         // determine which service entry applies to
         var mxfService = schedulesDirectData.FindOrCreateService(schedule.StationId);
@@ -292,15 +309,15 @@ public partial class SchedulesDirect
                 {
                     mxfProgram.extras.Add("multipart", $"{scheduleProgram.Multipart.PartNumber}/{scheduleProgram.Multipart.TotalParts}");
                 }
-                if (config.OadOverride && scheduleProgram.New)
-                {
-                    mxfProgram.extras.Add("newAirDate", scheduleProgram.AirDateTime.ToLocalTime());
-                }
+                //if (config.OadOverride && scheduleProgram.New)
+                //{
+                //    mxfProgram.extras.Add("newAirDate", scheduleProgram.AirDateTime.ToLocalTime());
+                //}
             }
-            mxfProgram.IsSeasonFinale |= Helper.StringContains(scheduleProgram.IsPremiereOrFinale, "Season Finale");
-            mxfProgram.IsSeasonPremiere |= Helper.StringContains(scheduleProgram.IsPremiereOrFinale, "Season Premiere");
-            mxfProgram.IsSeriesFinale |= Helper.StringContains(scheduleProgram.IsPremiereOrFinale, "Series Finale");
-            mxfProgram.IsSeriesPremiere |= Helper.StringContains(scheduleProgram.IsPremiereOrFinale, "Series Premiere");
+            mxfProgram.IsSeasonFinale |= scheduleProgram.IsPremiereOrFinale.StringContains( "Season Finale");
+            mxfProgram.IsSeasonPremiere |= scheduleProgram.IsPremiereOrFinale.StringContains( "Season Premiere");
+            mxfProgram.IsSeriesFinale |= scheduleProgram.IsPremiereOrFinale.StringContains("Series Finale");
+            mxfProgram.IsSeriesPremiere |= scheduleProgram.IsPremiereOrFinale.StringContains("Series Premiere");
             if (!mxfProgram.extras.ContainsKey("premiere")) mxfProgram.extras.Add("premiere", false);
             if (scheduleProgram.Premiere) mxfProgram.extras["premiere"] = true; // used only for movie and miniseries premieres
 
@@ -308,25 +325,25 @@ public partial class SchedulesDirect
             var scheduleTvRatings = new Dictionary<string, string>();
             if (scheduleProgram.Ratings != null)
             {
-                var origins = !string.IsNullOrEmpty(config.RatingsOrigin) ? config.RatingsOrigin.Split(',') : new[] { RegionInfo.CurrentRegion.ThreeLetterISORegionName };
-                if (Helper.TableContains(origins, "ALL"))
-                {
+                //var origins = !string.IsNullOrEmpty(config.RatingsOrigin) ? config.RatingsOrigin.Split(',') : new[] { RegionInfo.CurrentRegion.ThreeLetterISORegionName };
+                //if (Helper.TableContains(origins, "ALL"))
+                //{
                     foreach (var rating in scheduleProgram.Ratings)
                     {
                         scheduleTvRatings.Add(rating.Body, rating.Code);
                     }
-                }
-                else
-                {
-                    foreach (var origin in origins)
-                    {
-                        foreach (var rating in scheduleProgram.Ratings.Where(arg => arg.Country?.Equals(origin) ?? false))
-                        {
-                            scheduleTvRatings.Add(rating.Body, rating.Code);
-                        }
-                        if (scheduleTvRatings.Count > 0) break;
-                    }
-                }
+                //}
+                //else
+                //{
+                //    foreach (var origin in origins)
+                //    {
+                //        foreach (var rating in scheduleProgram.Ratings.Where(arg => arg.Country?.Equals(origin) ?? false))
+                //        {
+                //            scheduleTvRatings.Add(rating.Body, rating.Code);
+                //        }
+                //        if (scheduleTvRatings.Count > 0) break;
+                //    }
+                //}
             }
 
             // populate the schedule entry and create program entry as required
@@ -334,25 +351,25 @@ public partial class SchedulesDirect
             {
                 AudioFormat = EncodeAudioFormat(scheduleProgram.AudioProperties),
                 Duration = scheduleProgram.Duration,
-                Is3D = Helper.TableContains(scheduleProgram.VideoProperties, "3d"),
+                Is3D = SDHelpers.TableContains(scheduleProgram.VideoProperties, "3d"),
                 IsBlackout = scheduleProgram.SubjectToBlackout,
                 IsClassroom = scheduleProgram.CableInTheClassroom,
-                IsCc = Helper.TableContains(scheduleProgram.AudioProperties, "cc"),
-                IsDelay = Helper.StringContains(scheduleProgram.LiveTapeDelay, "delay"),
-                IsDvs = Helper.TableContains(scheduleProgram.AudioProperties, "dvs"),
-                IsEnhanced = Helper.TableContains(scheduleProgram.VideoProperties, "enhanced"),
-                IsFinale = Helper.StringContains(scheduleProgram.IsPremiereOrFinale, "finale"),
-                IsHdtv = CheckHdOverride(schedule.StationId) || !CheckSdOverride(schedule.StationId) && Helper.TableContains(scheduleProgram.VideoProperties, "hd"),
+                IsCc = SDHelpers.TableContains(scheduleProgram.AudioProperties, "cc"),
+                IsDelay = scheduleProgram.LiveTapeDelay.StringContains("delay"),
+                IsDvs = SDHelpers.TableContains(scheduleProgram.AudioProperties, "dvs"),
+                IsEnhanced = SDHelpers.TableContains(scheduleProgram.VideoProperties, "enhanced"),
+                IsFinale = scheduleProgram.IsPremiereOrFinale.StringContains( "finale"),
+                IsHdtv = SDHelpers.TableContains(scheduleProgram.VideoProperties, "hd"),
                 //IsHdtvSimulCast = null,
                 IsInProgress = scheduleProgram.JoinedInProgress,
-                IsLetterbox = Helper.TableContains(scheduleProgram.VideoProperties, "letterbox"),
-                IsLive = Helper.StringContains(scheduleProgram.LiveTapeDelay, "live"),
+                IsLetterbox = SDHelpers.TableContains(scheduleProgram.VideoProperties, "letterbox"),
+                IsLive = scheduleProgram.LiveTapeDelay.StringContains("live"),
                 //IsLiveSports = null,
-                IsPremiere = scheduleProgram.Premiere || Helper.StringContains(scheduleProgram.IsPremiereOrFinale, "premiere"),
+                IsPremiere = scheduleProgram.Premiere || scheduleProgram.IsPremiereOrFinale.StringContains("premiere"),
                 IsRepeat = !scheduleProgram.New,
-                IsSap = Helper.TableContains(scheduleProgram.AudioProperties, "sap"),
-                IsSubtitled = Helper.TableContains(scheduleProgram.AudioProperties, "subtitled"),
-                IsTape = Helper.StringContains(scheduleProgram.LiveTapeDelay, "tape"),
+                IsSap = SDHelpers.TableContains(scheduleProgram.AudioProperties, "sap"),
+                IsSubtitled = SDHelpers.TableContains(scheduleProgram.AudioProperties, "subtitled"),
+                IsTape = scheduleProgram.LiveTapeDelay.StringContains( "tape"),
                 Part = scheduleProgram.Multipart?.PartNumber ?? 0,
                 Parts = scheduleProgram.Multipart?.TotalParts ?? 0,
                 mxfProgram = mxfProgram,
@@ -364,7 +381,7 @@ public partial class SchedulesDirect
         }
     }
 
-    private static int EncodeAudioFormat(string[] audioProperties)
+    private  int EncodeAudioFormat(string[] audioProperties)
     {
         var maxValue = 0;
         if (audioProperties == null) return maxValue;
@@ -388,29 +405,9 @@ public partial class SchedulesDirect
         return maxValue;
     }
 
-    //private static bool CheckHdOverride(string stationId)
-    //{
-    //    return (from station in config.StationId ?? new List<SdChannelDownload>() where station.StationId == stationId select station.HdOverride).FirstOrDefault();
-    //}
-
-    //private static bool CheckSdOverride(string stationId)
-    //{
-    //    return (from station in config.StationId ?? new List<SdChannelDownload>() where station.StationId == stationId select station.SdOverride).FirstOrDefault();
-    //}
-
-    //private static bool CheckSuppressWarnings(string callsign)
-    //{
-    //    if (suppressedPrefixes.Contains("*")) return true;
-    //    foreach (var prefix in suppressedPrefixes)
-    //    {
-    //        if (callsign.Equals(prefix)) return true;
-    //        if (prefix.Contains("*") && callsign.StartsWith(prefix.Replace("*", ""))) return true;
-    //    }
-    //    return false;
-    //}
-
-    private static string SafeFilename(string md5)
+        private static string SafeFilename(string md5)
     {
         return md5 == null ? null : Regex.Replace(md5, @"[^\w\.@-]", "-");
     }
+
 }

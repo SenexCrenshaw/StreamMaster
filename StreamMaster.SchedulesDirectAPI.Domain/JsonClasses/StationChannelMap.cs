@@ -8,15 +8,15 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
     public class StationChannelMap
     {
         [JsonPropertyName("map")]
-        [JsonConverter(typeof(SingleOrListConverter<LineupChannel>))]
-        public List<LineupChannel> Map { get; set; }
+        //[JsonConverter(typeof(SingleOrListConverter<LineupChannel>))]
+        public List<LineupChannel> Map { get; set; } = [];
 
         [JsonPropertyName("stations")]
-        [JsonConverter(typeof(SingleOrListConverter<LineupStation>))]
-        public List<LineupStation> Stations { get; set; }
+        //[JsonConverter(typeof(SingleOrListConverter<LineupStation>))]
+        public List<LineupStation> Stations { get; set; } = [];
 
         [JsonPropertyName("metadata")]
-        public LineupMetadata Metadata { get; set; }
+        public LineupMetadata? Metadata { get; set; }
     }
 
     public class LineupChannel
@@ -146,11 +146,11 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         public string Affiliate { get; set; }
 
         [JsonPropertyName("broadcastLanguage")]
-        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        //[JsonConverter(typeof(SingleOrArrayConverter<string>))]
         public string[] BroadcastLanguage { get; set; }
 
         [JsonPropertyName("descriptionLanguage")]
-        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        //[JsonConverter(typeof(SingleOrArrayConverter<string>))]
         public string[] DescriptionLanguage { get; set; }
 
         [JsonPropertyName("broadcaster")]
@@ -160,7 +160,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         public bool? IsCommercialFree { get; set; }
 
         [JsonPropertyName("stationLogo")]
-        [JsonConverter(typeof(SingleOrListConverter<StationImage>))]
+        //[JsonConverter(typeof(SingleOrListConverter<StationImage>))]
         public List<StationImage> StationLogos { get; set; }
 
         [JsonPropertyName("logo")]

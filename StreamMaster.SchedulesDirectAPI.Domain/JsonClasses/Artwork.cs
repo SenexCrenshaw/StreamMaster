@@ -10,7 +10,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         public string ProgramID { get; set; }
 
         [JsonPropertyName("data")]
-        [JsonConverter(typeof(SingleOrListConverter<ProgramArtwork>))]
+        //[JsonConverter(typeof(SingleOrListConverter<ProgramArtwork>))]
         public List<ProgramArtwork> ProgramArtwork { get; set; }
     }
 

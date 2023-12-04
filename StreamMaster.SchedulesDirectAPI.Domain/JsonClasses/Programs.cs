@@ -10,13 +10,13 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
     public class Programme : BaseResponse
     {
         [JsonPropertyName("programID")]
-        public string ProgramID { get; set; }
+        public string ProgramId { get; set; }
 
         [JsonPropertyName("resourceID"), JsonIgnore]
         public string ResourceId { get; set; }
 
         [JsonPropertyName("titles")]
-        [JsonConverter(typeof(SingleOrListConverter<ProgramTitle>))]
+        //[JsonConverter(typeof(SingleOrListConverter<ProgramTitle>))]
         public List<ProgramTitle> Titles { get; set; }
 
         [JsonPropertyName("episodeTitle150")]
@@ -44,30 +44,30 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         public int Duration { get; set; }
 
         [JsonPropertyName("movie")]
-        public ProgramMovie Movie { get; set; }
+        public ProgramMovie Movie { get; set; } = new();
 
         [JsonPropertyName("genres")]
-        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        //[JsonConverter(typeof(SingleOrArrayConverter<string>))]
         public string[] Genres { get; set; }
 
         [JsonPropertyName("officialURL")]
         public string OfficialUrl { get; set; }
 
         [JsonPropertyName("contentRating")]
-        [JsonConverter(typeof(SingleOrListConverter<ProgramContentRating>))]
-        public List<ProgramContentRating> ContentRating { get; set; }
+       // //[JsonConverter(typeof(SingleOrListConverter<ProgramContentRating>))]
+        public List<ProgramContentRating> ContentRating { get; set; } = [];
 
         [JsonPropertyName("contentAdvisory")]
-        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        //[JsonConverter(typeof(SingleOrArrayConverter<string>))]
         public string[] ContentAdvisory { get; set; }
 
         [JsonPropertyName("cast")]
-        [JsonConverter(typeof(SingleOrListConverter<ProgramPerson>))]
-        public List<ProgramPerson> Cast { get; set; }
+        // //[JsonConverter(typeof(SingleOrListConverter<ProgramPerson>))]
+        public List<ProgramPerson> Cast { get; set; } = [];
 
         [JsonPropertyName("crew")]
-        [JsonConverter(typeof(SingleOrListConverter<ProgramPerson>))]
-        public List<ProgramPerson> Crew { get; set; }
+        // //[JsonConverter(typeof(SingleOrListConverter<ProgramPerson>))]
+        public List<ProgramPerson> Crew { get; set; } = [];
 
         /// <summary>
         /// program type; one of following values;
@@ -125,8 +125,8 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         public string Venue100 { get; set; }
 
         [JsonPropertyName("teams")]
-        [JsonConverter(typeof(SingleOrListConverter<ProgramEventDetailsTeam>))]
-        public List<ProgramEventDetailsTeam> Teams { get; set; }
+        //  //[JsonConverter(typeof(SingleOrListConverter<ProgramEventDetailsTeam>))]
+        public List<ProgramEventDetailsTeam> Teams { get; set; } = [];
 
         [JsonPropertyName("gameDate")]
         public DateTime GameDate { get; set; }
@@ -146,11 +146,11 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
     public class ProgramDescriptions
     {
         [JsonPropertyName("description100")]
-        [JsonConverter(typeof(SingleOrListConverter<ProgramDescription>))]
+        //   //[JsonConverter(typeof(SingleOrListConverter<ProgramDescription>))]
         public List<ProgramDescription> Description100 { get; set; }
 
         [JsonPropertyName("description1000")]
-        [JsonConverter(typeof(SingleOrListConverter<ProgramDescription>))]
+        //   //[JsonConverter(typeof(SingleOrListConverter<ProgramDescription>))]
         public List<ProgramDescription> Description1000 { get; set; }
     }
 
@@ -166,31 +166,31 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
     public class ProgramKeyWords
     {
         [JsonPropertyName("Mood")]
-        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        //[JsonConverter(typeof(SingleOrArrayConverter<string>))]
         public string[] Mood { get; set; }
 
         [JsonPropertyName("Time Period")]
-        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        //[JsonConverter(typeof(SingleOrArrayConverter<string>))]
         public string[] TimePeriod { get; set; }
 
         [JsonPropertyName("Theme")]
-        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        //[JsonConverter(typeof(SingleOrArrayConverter<string>))]
         public string[] Theme { get; set; }
 
         [JsonPropertyName("Character")]
-        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        //[JsonConverter(typeof(SingleOrArrayConverter<string>))]
         public string[] Character { get; set; }
 
         [JsonPropertyName("Setting")]
-        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        //[JsonConverter(typeof(SingleOrArrayConverter<string>))]
         public string[] Setting { get; set; }
 
         [JsonPropertyName("Subject")]
-        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        //[JsonConverter(typeof(SingleOrArrayConverter<string>))]
         public string[] Subject { get; set; }
 
         [JsonPropertyName("General")]
-        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        //[JsonConverter(typeof(SingleOrArrayConverter<string>))]
         public string[] General { get; set; }
     }
 
@@ -230,12 +230,15 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         public string Country { get; set; }
 
         [JsonPropertyName("contentAdvisory")]
-        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        //[JsonConverter(typeof(SingleOrArrayConverter<string>))]
         public string[] ContentAdvisory { get; set; }
     }
 
+
+
     public class ProgramMovie
     {
+        [JsonConverter(typeof(IntConverter))]
         [JsonPropertyName("year")]
         public int Year { get; set; }
 
@@ -243,7 +246,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         public int Duration { get; set; }
 
         [JsonPropertyName("qualityRating")]
-        [JsonConverter(typeof(SingleOrListConverter<ProgramQualityRating>))]
+        //  //[JsonConverter(typeof(SingleOrListConverter<ProgramQualityRating>))]
         public List<ProgramQualityRating> QualityRating { get; set; }
     }
 

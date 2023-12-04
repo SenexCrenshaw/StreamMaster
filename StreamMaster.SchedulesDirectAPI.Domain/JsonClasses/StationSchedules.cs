@@ -11,7 +11,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         public string StationId { get; set; }
 
         [JsonPropertyName("date")]
-        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        //[JsonConverter(typeof(SingleOrArrayConverter<string>))]
         public string[] Date { get; set; }
     }
 
@@ -42,7 +42,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         public string RequestedDate { get; set; }
 
         [JsonPropertyName("programs")]
-        [JsonConverter(typeof(SingleOrListConverter<ScheduleProgram>))]
+        //[JsonConverter(typeof(SingleOrListConverter<ScheduleProgram>))]
         public List<ScheduleProgram> Programs { get; set; }
 
         [JsonPropertyName("metadata")]
@@ -167,7 +167,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         /// stereo := Program is available in some form of stereo sound.
         /// </summary>
         [JsonPropertyName("audioProperties")]
-        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        //[JsonConverter(typeof(SingleOrArrayConverter<string>))]
         public string[] AudioProperties { get; set; }
 
         /// <summary>
@@ -180,14 +180,14 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         /// Widescreen := Same as Letterbox.
         /// </summary>
         [JsonPropertyName("videoProperties")]
-        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        //[JsonConverter(typeof(SingleOrArrayConverter<string>))]
         public string[] VideoProperties { get; set; }
 
         /// <summary>
         /// Programs for which provider suggests parental advisory based on program content.
         /// </summary>
         [JsonPropertyName("ratings")]
-        [JsonConverter(typeof(SingleOrListConverter<ScheduleTvRating>))]
+        //[JsonConverter(typeof(SingleOrListConverter<ScheduleTvRating>))]
         public List<ScheduleTvRating> Ratings { get; set; }
 
         [JsonPropertyName("multipart")]

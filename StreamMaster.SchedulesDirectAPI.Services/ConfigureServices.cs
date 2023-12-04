@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.SchedulesDirectAPI.Data;
+using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 
 namespace StreamMaster.SchedulesDirectAPI.Services;
 
@@ -11,7 +12,7 @@ public static class ConfigureServices
 
         services.AddSingleton<ISDToken, SDToken>();
         services.AddSingleton<ISchedulesDirectAPI, SchedulesDirectAPI>();
-
+        services.AddSingleton<IEPGCache, EPGCache>();
         services.AddSingleton<ISchedulesDirectData, SchedulesDirectData>();
         services.AddSingleton<ISchedulesDirect, SchedulesDirect>();        
         

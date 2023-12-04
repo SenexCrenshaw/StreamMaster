@@ -8,6 +8,37 @@ namespace StreamMaster.SchedulesDirectAPI.Helpers;
 
 public static partial class SDHelpers
 {
+
+    public static bool TableContains(string[] table, string text, bool exactMatch = false)
+    {
+        if (table == null) return false;
+        foreach (var str in table)
+        {
+            if (string.IsNullOrEmpty(str)) continue;
+            if (!exactMatch && str.ToLower().Contains(text.ToLower())) return true;
+            if (str.ToLower().Equals(text.ToLower())) return true;
+        }
+
+        return false;
+    }
+
+    public static bool StringContains(this string str, string text)
+    {
+        return str != null && str.ToLower().Contains(text.ToLower());
+    }
+
+    public static string ReportExceptionMessages(Exception ex)
+    {
+        var ret = string.Empty;
+        var innerException = ex;
+        do
+        {
+            ret += $" {innerException.Message} ";
+            innerException = innerException.InnerException;
+        } while (innerException != null);
+        return ret;
+    }
+
     public static string GenerateHashFromStringContent(StringContent content)
     {
         byte[] contentBytes = Encoding.UTF8.GetBytes(content.ReadAsStringAsync().Result); // Extract string from StringContent and convert to bytes

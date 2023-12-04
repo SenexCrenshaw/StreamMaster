@@ -10,7 +10,7 @@ using StreamMasterDomain.Common;
 using StreamMasterDomain.Services;
 
 namespace StreamMaster.SchedulesDirectAPI;
-public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,ISchedulesDirectData schedulesDirectData, ISchedulesDirectAPI schedulesDirectAPI, ISettingsService settingsService, ISDToken SdToken, IMemoryCache memoryCache) : ISchedulesDirect
+public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,IEPGCache epgCache, ISchedulesDirectData schedulesDirectData, ISchedulesDirectAPI schedulesDirectAPI, ISettingsService settingsService, ISDToken SdToken, IMemoryCache memoryCache) : ISchedulesDirect
 {
     private readonly object fileLock = new();
     private const int MaxQueries = 1250;
@@ -21,6 +21,7 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,ISchedulesD
     private static int totalObjects;
     private static int processStage;
     private readonly ILogger _logger = logger;
+  
 
     //public async Task<bool> SDSync( CancellationToken cancellationToken)
     //{
@@ -46,18 +47,23 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,ISchedulesD
         var setting = memoryCache.GetSetting();
         logger.LogInformation($"DaysToDownload: {setting.SDEPGDays}");
 
-     
+
         //DateTime now = DateTime.Now;
 
         //List<Station> stations = await GetStations(cancellationToken).ConfigureAwait(false);
         //List<Schedule>? schedules = await GetSchedules(StationIdLineups.ConvertAll(a => a.StationId), cancellationToken).ConfigureAwait(false);
         //List<string> progIds = schedules.SelectMany(a => a.Programs).Where(a => a.AirDateTime >= now.AddDays(-1) && a.AirDateTime <= now.AddDays(setting.SDEPGDays)).Select(a => a.ProgramID).Distinct().ToList();
         //List<SDProgram> programs = await GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
+
+        // load cache file
+        epgCache.LoadCache();
         if (
-             await BuildLineupServices(cancellationToken)
-                && await GetAllScheduleEntryMd5S(setting.SDEPGDays)
+             await BuildLineupServices(cancellationToken) &&
+             await GetAllScheduleEntryMd5S(setting.SDEPGDays) &&
+              BuildAllProgramEntries()
             )
         {
+            epgCache.WriteCache();
             //do good things
             return true;
         }

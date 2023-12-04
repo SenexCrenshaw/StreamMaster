@@ -11,18 +11,18 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         public StatusAccount Account { get; set; }
 
         [JsonPropertyName("lineups")]
-        [JsonConverter(typeof(SingleOrListConverter<StatusLineup>))]
+       // //[JsonConverter(typeof(SingleOrListConverter<StatusLineup>))]
         public List<StatusLineup> Lineups { get; set; }
 
         [JsonPropertyName("lastDataUpdate")]
         public DateTime LastDataUpdate { get; set; }
 
         [JsonPropertyName("notifications")]
-        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        //[JsonConverter(typeof(SingleOrArrayConverter<string>))]
         public string[] Notifications { get; set; }
 
         [JsonPropertyName("systemStatus")]
-        [JsonConverter(typeof(SingleOrListConverter<SystemStatus>))]
+        //[JsonConverter(typeof(SingleOrListConverter<SystemStatus>))]
         public List<SystemStatus> SystemStatus { get; set; } = [];
     }
 
@@ -32,7 +32,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         public DateTime Expires { get; set; }
 
         [JsonPropertyName("messages")]
-        [JsonConverter(typeof(SingleOrArrayConverter<string>))]
+        //[JsonConverter(typeof(SingleOrArrayConverter<string>))]
         public string[] Messages { get; set; }
 
         [JsonPropertyName("maxLineups")]

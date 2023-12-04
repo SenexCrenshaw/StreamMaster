@@ -27,7 +27,7 @@ public partial class SchedulesDirect
     public async Task<Dictionary<string, Dictionary<string, ScheduleMd5Response>>?> GetScheduleMd5sAsync(ScheduleRequest[] request)
     {
         DateTime dtStart = DateTime.Now;
-        Dictionary<string, Dictionary<string, ScheduleMd5Response>>? ret = await schedulesDirectAPI.GetApiResponse<Dictionary<string, Dictionary<string, ScheduleMd5Response>>?>(APIMethod.POST, "schedules/md5", request);
+        Dictionary<string, Dictionary<string, ScheduleMd5Response>>? ret = await schedulesDirectAPI.GetApiResponse<Dictionary<string, Dictionary<string, ScheduleMd5Response>>>(APIMethod.POST, "schedules/md5", request);
         if (ret != null)
         {
             logger.LogDebug($"Successfully retrieved Md5s for {ret.Count}/{request.Length} stations' daily schedules. ({DateTime.Now - dtStart:G})");
