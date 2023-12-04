@@ -1,17 +1,15 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Common;
 
 using System.Net;
 using System.Text.RegularExpressions;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Formats.Jpeg;
-using static System.Collections.Specialized.BitVector32;
-using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 
 namespace StreamMaster.SchedulesDirectAPI;
@@ -27,14 +25,14 @@ public partial class SchedulesDirect
 
         Setting setting = await settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
 
-        int maxDays = setting.SDEPGDays;
-        int maxRatings = setting.SDMaxRatings;
-        bool useLineupInName = setting.SDUseLineupInName;
+        int maxDays = setting.SDSettings.SDEPGDays;
+        int maxRatings = setting.SDSettings.SDMaxRatings;
+        bool useLineupInName = setting.SDSettings.SDUseLineupInName;
 
         foreach (var clientLineup in clientLineups.Lineups)
         {
             // don't download station map if lineup not included
-            if (setting.SDStationIds.FirstOrDefault(a => a.Lineup == clientLineup.Lineup) == null)
+            if (setting.SDSettings.SDStationIds.FirstOrDefault(a => a.Lineup == clientLineup.Lineup) == null)
             {
                 logger.LogWarning($"Subscribed lineup {clientLineup.Lineup} has been EXCLUDED by user from download and processing.");
                 continue;
@@ -65,7 +63,7 @@ public partial class SchedulesDirect
             foreach (var station in lineupMap.Stations)
             {
                 // check if station should be downloaded and processed
-                if (station == null || setting.SDStationIds.FirstOrDefault(a => a.StationId == station.StationId) == null) continue;
+                if (station == null || setting.SDSettings.SDStationIds.FirstOrDefault(a => a.StationId == station.StationId) == null) continue;
                
                 // build the service if necessary
                 var mxfService = schedulesDirectData.FindOrCreateService(station.StationId);
@@ -260,7 +258,7 @@ public partial class SchedulesDirect
     private async Task<bool> DownloadStationLogos(CancellationToken cancellationToken)
     {
         Setting setting = memoryCache.GetSetting();
-        if (!setting.SDEnabled)
+        if (!setting.SDSettings.SDEnabled)
         {
             return false;
         }
@@ -282,6 +280,7 @@ public partial class SchedulesDirect
                 var logoPath = serviceLogo.Value[0];
                 if ((File.Exists(logoPath) || await DownloadSdLogo(serviceLogo.Value[1], logoPath, cancellationToken)) && string.IsNullOrEmpty(serviceLogo.Key.LogoImage))
                 {
+                    
                     serviceLogo.Key.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(logoPath);
 
                     if (File.Exists(logoPath))
@@ -291,6 +290,7 @@ public partial class SchedulesDirect
                         using var image = await Image.LoadAsync(stream, cancellationToken);
                         serviceLogo.Key.extras["logo"].Height = image.Height;
                         serviceLogo.Key.extras["logo"].Width = image.Width;
+                        StationLogosToDownload.Remove(serviceLogo);
                     }
                 }
             }

@@ -1,23 +1,25 @@
-﻿
-using System.Web;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
 
 namespace StreamMasterApplication.Programmes.Queries;
 
-public record GetProgrammesRequest : IRequest<List<EPGProgramme>>;
+public record GetProgrammesRequest : IRequest<List<XmltvProgramme>>;
 
-public class GetProgrammesRequestHandler(ILogger<GetProgrammesRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
-: BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetProgrammesRequest, List<EPGProgramme>>
+public class GetProgrammesRequestHandler(ILogger<GetProgrammesRequest> logger, ISchedulesDirect schedulesDirect, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
+: BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<GetProgrammesRequest, List<XmltvProgramme>>
 {
-    public async Task<List<EPGProgramme>> Handle(GetProgrammesRequest request, CancellationToken cancellationToken)
+    public async Task<List<XmltvProgramme>> Handle(GetProgrammesRequest request, CancellationToken cancellationToken)
     {
-        List<EPGProgramme> programmes = MemoryCache.Programmes();
+        //List<EPGProgramme> programmes = MemoryCache.Programmes();
 
         Setting setting = await GetSettingsAsync();
-        //if (setting.SDEnabled)
-        //{
-        //    List<Programme> sdprogrammes = schedulesDirect.GetProgrammes();
-        //    programmes = programmes.Concat(sdprogrammes).OrderBy(a => a.Channel).ToList();
-        //}
+        if (setting.SDSettings.SDEnabled)
+        {
+            var xmltv = schedulesDirect.CreateXmltv();
+
+            var sdprogrammes = xmltv.Programs.OrderBy(a => a.Channel).ToList();
+            //programmes = programmes.Concat(sdprogrammes).OrderBy(a => a.Channel).ToList();
+            return sdprogrammes;
+        }
 
         //List<IconFileDto> icons = MemoryCache.Icons();
 
@@ -37,6 +39,6 @@ public class GetProgrammesRequestHandler(ILogger<GetProgrammesRequest> logger, I
         //    }
         //}
 
-        return programmes;
+        return [];
     }
 }

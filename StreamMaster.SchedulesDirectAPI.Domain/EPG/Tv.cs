@@ -1,4 +1,6 @@
-﻿using System.Xml.Serialization;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
+
+using System.Xml.Serialization;
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.EPG;
 
@@ -12,7 +14,7 @@ public class Tv
     public string Guide2go { get; set; } = string.Empty;
 
     [XmlElement(ElementName = "programme")]
-    public List<EPGProgramme> Programme { get; set; } = new();
+    public List<XmltvProgramme> Programme { get; set; } = new();
 
     [XmlAttribute(AttributeName = "source-info-name")]
     public string Sourceinfoname { get; set; } = "Stream Master";

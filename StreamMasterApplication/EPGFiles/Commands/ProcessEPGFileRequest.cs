@@ -65,7 +65,7 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
     {
         try
         {
-           var cacheValues = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);// MemoryCache.Programmes();
+           //var cacheValues = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);// MemoryCache.Programmes();
             //if (MemoryCache.ProgrammeIcons().Count == 0)
             //{
             //    DateTime start = DateTime.Now.AddDays(-1);
@@ -81,23 +81,24 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
             //    });
             //}
             Setting setting = await GetSettingsAsync().ConfigureAwait(false);
-            if (cacheValues.Count == 0)
-            {
-                DateTime start = DateTime.Now.AddDays(-1);
-                DateTime end = DateTime.Now.AddDays(setting.SDEPGDays);
 
-                List<ProgrammeChannel> programmeChannels = new(){
-                new ProgrammeChannel
-                {
-                    Channel = "Dummy",
-                    StartDateTime = start,
-                    EndDateTime = end,
-                    ProgrammeCount = 1
-                }
-            };
+            //if (cacheValues.Count == 0)
+            //{
+            //    DateTime start = DateTime.Now.AddDays(-1);
+            //    DateTime end = DateTime.Now.AddDays(setting.SDSettings.SDEPGDays);
 
-                MemoryCache.SetCache(programmeChannels);
-            }
+            //    List<ProgrammeChannel> programmeChannels = new(){
+            //    new ProgrammeChannel
+            //    {
+            //        Channel = "Dummy",
+            //        StartDateTime = start,
+            //        EndDateTime = end,
+            //        ProgrammeCount = 1
+            //    }
+            //};
+
+            //    MemoryCache.SetCache(programmeChannels);
+            //}
 
             if (cancellationToken.IsCancellationRequested) { return; }
 
@@ -128,24 +129,24 @@ public class ProcessEPGFileRequestHandler(ILogger<ProcessEPGFileRequest> logger,
                 {
                     string channelNameSuffix = channel.Displayname?.LastOrDefault();
 
-                    if (channelNameSuffix != null && channelNameSuffix != p.Channel)
-                    {
-                        p.DisplayName = epgFile.Name + " : " + channelNameSuffix;
-                        p.ChannelName = p.Channel + " - " + channelNameSuffix;
-                        p.Name = channelNameSuffix;
-                    }
-                    else
-                    {
-                        p.DisplayName = epgFile.Name + " : " + p.Channel;
-                        p.ChannelName = p.Channel;
-                        p.Name = p.Channel;
-                    }
+                    //if (channelNameSuffix != null && channelNameSuffix != p.Channel)
+                    //{
+                    //    p.DisplayName = epgFile.Name + " : " + channelNameSuffix;
+                    //    p.ChannelName = p.Channel + " - " + channelNameSuffix;
+                    //    p.Name = channelNameSuffix;
+                    //}
+                    //else
+                    //{
+                    //    p.DisplayName = epgFile.Name + " : " + p.Channel;
+                    //    p.ChannelName = p.Channel;
+                    //    p.Name = p.Channel;
+                    //}
                 }
                 else
                 {
-                    p.DisplayName = epgFile.Name + " : " + p.Channel;
-                    p.ChannelName = p.Channel;
-                    p.Name = p.Channel;
+                    //p.DisplayName = epgFile.Name + " : " + p.Channel;
+                    //p.ChannelName = p.Channel;
+                    //p.Name = p.Channel;
                 }
 
                 p.EPGFileId = epgFile.Id;

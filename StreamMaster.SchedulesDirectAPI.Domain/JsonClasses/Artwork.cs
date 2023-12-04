@@ -7,14 +7,14 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
     public class ProgramMetadata : BaseResponse
     {
         [JsonPropertyName("programID")]
-        public string ProgramID { get; set; }
+        public string ProgramId { get; set; }
 
         [JsonPropertyName("data")]
-        //[JsonConverter(typeof(SingleOrListConverter<ProgramArtwork>))]
-        public List<ProgramArtwork> ProgramArtwork { get; set; }
+        [JsonConverter(typeof(SingleOrListConverter<ProgramArtwork>))]
+        public List<ProgramArtwork> Data { get; set; }
     }
 
-    public class ProgramArtwork
+    public class ProgramArtwork: BaseResponse
     {
         private string _size;
 
@@ -32,7 +32,11 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         {
             get
             {
-                if (!string.IsNullOrEmpty(_size)) return _size;
+                if (!string.IsNullOrEmpty(_size))
+                {
+                    return _size;
+                }
+
                 switch (Width * Height)
                 {
                     case 21600: // 2x3 (120 x 180)

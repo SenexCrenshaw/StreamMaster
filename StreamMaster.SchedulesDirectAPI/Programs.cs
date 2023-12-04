@@ -4,9 +4,10 @@ using StreamMaster.SchedulesDirectAPI.Data;
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using System.Collections.Concurrent;
-using System.Collections.Specialized;
 using System.Globalization;
 using System.Text.Json;
+
+using static System.Collections.Specialized.BitVector32;
 
 namespace StreamMaster.SchedulesDirectAPI;
 
@@ -14,8 +15,7 @@ public partial class SchedulesDirect
 {
     private  List<string> programQueue;
     private  ConcurrentBag<Programme> programResponses;
-    private static NameValueCollection sportsSeries = new NameValueCollection();
-
+    
     private  bool BuildAllProgramEntries()
     {
         // reset counters
@@ -34,12 +34,13 @@ public partial class SchedulesDirect
             {
                 try
                 {
+                    var cache = epgCache.GetAsset(mxfProgram.extras["md5"]);
                     using var reader = new StringReader(epgCache.GetAsset(mxfProgram.extras["md5"]));
                     var sdProgram = JsonSerializer.Deserialize<Programme>(reader.ReadToEnd()) ?? throw new Exception("Deserialization failed.");
                     BuildMxfProgram(mxfProgram, sdProgram);
                     //IncrementProgress();
                 }
-                catch
+                catch(Exception ex)
                 {
                     programQueue.Add(mxfProgram.ProgramId);
                 }
@@ -110,8 +111,6 @@ public partial class SchedulesDirect
             if (sdProgram.Md5 != null)
             {
                 mxfProgram.extras["md5"] = sdProgram.Md5;
-                using (var writer = new StringWriter())
-                {
                     try
                     {
                         var jsonString = JsonSerializer.Serialize(sdProgram);
@@ -121,8 +120,6 @@ public partial class SchedulesDirect
                     {
                         // Ignored
                     }
-                }
-
             }
             else
             {
@@ -185,6 +182,8 @@ public partial class SchedulesDirect
         {
             logger.LogWarning($"Program {sdProgram.ProgramId} is missing required content.");
         }
+
+    
         mxfProgram.EpisodeTitle = sdProgram.EpisodeTitle150;
 
         // populate descriptions and language
@@ -195,7 +194,7 @@ public partial class SchedulesDirect
 
             // if short description is empty, not a movie, and append episode option is enabled
             // copy long description into short description
-            if (setting.AppendEpisodeDesc && !mxfProgram.IsMovie && string.IsNullOrEmpty(mxfProgram.ShortDescription))
+            if (setting.SDSettings.AppendEpisodeDesc && !mxfProgram.IsMovie && string.IsNullOrEmpty(mxfProgram.ShortDescription))
             {
                 mxfProgram.ShortDescription = mxfProgram.Description;
             }
@@ -471,7 +470,7 @@ public partial class SchedulesDirect
                 sdProgram.HasSeasonArtwork ? mxfProgram.ProgramId : null);
 
             var setting = memoryCache.GetSetting();
-            if (setting.AppendEpisodeDesc || setting.PrefixEpisodeDescription || setting.PrefixEpisodeTitle)
+            if (setting.SDSettings.AppendEpisodeDesc || setting.SDSettings.PrefixEpisodeDescription || setting.SDSettings.PrefixEpisodeTitle)
             {
                 mxfProgram.mxfSeason.HideSeasonTitle = true;
             }
@@ -488,7 +487,7 @@ public partial class SchedulesDirect
         else if (string.IsNullOrEmpty(mxfProgram.EpisodeTitle)) return;
 
         var setting = memoryCache.GetSetting();
-        var se = setting.AlternateSEFormat ? "S{0}:E{1} " : "s{0:D2}e{1:D2} ";
+        var se = setting.SDSettings.AlternateSEFormat ? "S{0}:E{1} " : "s{0:D2}e{1:D2} ";
         if (mxfProgram.SeasonNumber != 0)
         {
             se = string.Format(se, mxfProgram.SeasonNumber, mxfProgram.EpisodeNumber);
@@ -500,13 +499,13 @@ public partial class SchedulesDirect
         else se = string.Empty;
 
         // prefix episode title with season and episode numbers as configured
-        if (setting.PrefixEpisodeTitle)
+        if (setting.SDSettings.PrefixEpisodeTitle)
         {
             mxfProgram.EpisodeTitle = se + mxfProgram.EpisodeTitle;
         }
 
         // prefix episode description with season and episode numbers as configured
-        if (setting.PrefixEpisodeDescription)
+        if (setting.SDSettings.PrefixEpisodeDescription)
         {
             mxfProgram.Description = se + mxfProgram.Description;
             if (!string.IsNullOrEmpty(mxfProgram.ShortDescription))
@@ -516,7 +515,7 @@ public partial class SchedulesDirect
         }
 
         // append season and episode numbers to the program description as configured
-        if (setting.AppendEpisodeDesc)
+        if (setting.SDSettings.AppendEpisodeDesc)
         {
             // add space before appending season and episode numbers in case there is no short description
             if (mxfProgram.SeasonNumber != 0 && mxfProgram.EpisodeNumber != 0)
@@ -592,7 +591,7 @@ public partial class SchedulesDirect
     private  void DetermineCastAndCrew(MxfProgram prg, Programme sd)
     {
         var setting = memoryCache.GetSetting();
-        if (setting.ExcludeCastAndCrew) return;
+        if (setting.SDSettings.ExcludeCastAndCrew) return;
         prg.ActorRole = GetPersons(sd.Cast, new[] { "Actor", "Voice", "Judge", "Self" });
         prg.DirectorRole = GetPersons(sd.Crew, new[] { "Director" });
         prg.GuestActorRole = GetPersons(sd.Cast, new[] { "Guest" }); // "Guest Star", "Guest"

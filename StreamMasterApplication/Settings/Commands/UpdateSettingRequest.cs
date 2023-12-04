@@ -110,10 +110,10 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
             currentSetting.VideoStreamAlwaysUseEPGLogo = (bool)request.VideoStreamAlwaysUseEPGLogo;
         }
 
-        if (request.EPGAlwaysUseVideoStreamName != null && request.EPGAlwaysUseVideoStreamName != currentSetting.EPGAlwaysUseVideoStreamName)
-        {
-            currentSetting.EPGAlwaysUseVideoStreamName = (bool)request.EPGAlwaysUseVideoStreamName;
-        }
+        //if (request.EPGAlwaysUseVideoStreamName != null && request.EPGAlwaysUseVideoStreamName != currentSetting.EPGAlwaysUseVideoStreamName)
+        //{
+        //    currentSetting.EPGAlwaysUseVideoStreamName = (bool)request.EPGAlwaysUseVideoStreamName;
+        //}
 
         if (request.M3UIgnoreEmptyEPGID != null)
         {
@@ -147,7 +147,7 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
 
         if (request.SDEnabled != null)
         {
-            currentSetting.SDEnabled = (bool)request.SDEnabled;
+            currentSetting.SDSettings.SDEnabled = (bool)request.SDEnabled;
 
             needsSetProgrammes = request.SDEnabled != null && request.SDEnabled == true;
         }
@@ -255,35 +255,35 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
 
         if (request.SDPassword != null)
         {
-            currentSetting.SDPassword = HashHelper.GetSHA1Hash(request.SDPassword);
+            currentSetting.SDSettings.SDPassword = HashHelper.GetSHA1Hash(request.SDPassword);
         }
 
         if (request.SDCountry != null)
         {
-            currentSetting.SDCountry = request.SDCountry;
+            currentSetting.SDSettings.SDCountry = request.SDCountry;
         }
 
         if (request.SDPostalCode != null)
         {
-            currentSetting.SDPostalCode = request.SDPostalCode;
+            currentSetting.SDSettings.SDPostalCode = request.SDPostalCode;
         }
 
         if (request.SDPassword != null)
         {
-            currentSetting.SDPassword = HashHelper.GetSHA1Hash(request.SDPassword);
+            currentSetting.SDSettings.SDPassword = HashHelper.GetSHA1Hash(request.SDPassword);
         }
 
-        if (request.SDUserName != null && request.SDUserName != currentSetting.SDUserName)
+        if (request.SDUserName != null && request.SDUserName != currentSetting.SDSettings.SDUserName)
         {
-            currentSetting.SDUserName = request.SDUserName;
+            currentSetting.SDSettings.SDUserName = request.SDUserName;
         }
 
         if (request.SDStationIds != null)
         {
-            bool haveSameElements = new HashSet<StationIdLineup>(currentSetting.SDStationIds).SetEquals(request.SDStationIds);
+            bool haveSameElements = new HashSet<StationIdLineup>(currentSetting.SDSettings.SDStationIds).SetEquals(request.SDStationIds);
             if (!haveSameElements)
             {
-                currentSetting.SDStationIds = request.SDStationIds;
+                currentSetting.SDSettings.SDStationIds = request.SDStationIds;
                 needsSetProgrammes = true;
             }
         }

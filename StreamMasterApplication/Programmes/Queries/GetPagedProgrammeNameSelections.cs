@@ -1,4 +1,4 @@
-﻿using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+﻿using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
 
 using StreamMasterDomain.Filtering;
 using StreamMasterDomain.Pagination;
@@ -15,7 +15,7 @@ internal class GetPagedProgrammeNameSelectionsHandler(ILogger<GetPagedProgrammeN
     {
         if (request.Parameters.PageSize == 0)
         {
-            IEnumerable<EPGProgramme> programmes2 = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+            IEnumerable<XmltvProgramme> programmes2 = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
 
             PagedResponse<ProgrammeNameDto> emptyResponse = new()
             {
@@ -24,9 +24,9 @@ internal class GetPagedProgrammeNameSelectionsHandler(ILogger<GetPagedProgrammeN
             return emptyResponse;
         }
 
-        IEnumerable<EPGProgramme> c = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+        IEnumerable<XmltvProgramme> c = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
 
-        IQueryable<EPGProgramme> programmes = c.Where(a => !string.IsNullOrEmpty(a.Channel)).AsQueryable();
+        IQueryable<XmltvProgramme> programmes = c.Where(a => !string.IsNullOrEmpty(a.Channel)).AsQueryable();
 
         if (!string.IsNullOrEmpty(request.Parameters.JSONFiltersString))
         {
@@ -38,7 +38,7 @@ internal class GetPagedProgrammeNameSelectionsHandler(ILogger<GetPagedProgrammeN
                 {
                     nameFilter.FieldName = "DisplayName";
                 }
-                programmes = FilterHelper<EPGProgramme>.ApplyFiltersAndSort(programmes, filters, "DisplayName asc");
+                programmes = FilterHelper<XmltvProgramme>.ApplyFiltersAndSort(programmes, filters, "DisplayName asc");
             }
         }
 

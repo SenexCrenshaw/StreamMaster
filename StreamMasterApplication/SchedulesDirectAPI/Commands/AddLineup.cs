@@ -11,7 +11,7 @@ public class AddLineupHandler( ISchedulesDirect schedulesDirect, ILogger<AddLine
     public async Task<bool> Handle(AddLineup request, CancellationToken cancellationToken)
     {
         Setting setting = await GetSettingsAsync().ConfigureAwait(false);
-        if (!setting.SDEnabled)
+        if (!setting.SDSettings.SDEnabled)
         {
             return false;
         }

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Caching.Memory;
 using StreamMaster.SchedulesDirectAPI.Domain.EPG;
 using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
 using StreamMaster.SchedulesDirectAPI.Domain.Models;
+using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
 
 using StreamMasterDomain.Dto;
 using StreamMasterDomain.Models;
@@ -327,14 +328,14 @@ public static class CacheManagerExtensions
         return ret;
     }
 
-    public static List<EPGProgramme> Programmes(this IMemoryCache cache)
+    public static List<XmltvProgramme> Programmes(this IMemoryCache cache)
     {
-        return cache.GetListFromCache<EPGProgramme>(ListProgrammes);
+        return cache.GetListFromCache<XmltvProgramme>(ListProgrammes);
     }
 
-    public static List<EPGProgramme> SDProgrammess(this IMemoryCache cache)
+    public static List<XmltvProgramme> SDProgrammess(this IMemoryCache cache)
     {
-        return cache.GetListFromCache<EPGProgramme>(ListSDProgrammes );
+        return cache.GetListFromCache<XmltvProgramme>(ListSDProgrammes );
     }
 
     public static List<TvLogoFile> TvLogos(this IMemoryCache cache)

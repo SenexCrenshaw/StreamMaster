@@ -4,7 +4,7 @@ namespace StreamMaster.SchedulesDirectAPI.Data;
 
 public partial class SchedulesDirectData
 {
-    [XmlIgnore] public List<MxfSeriesInfo> SeriesInfosToProcess = [];
+    [XmlIgnore] public List<MxfSeriesInfo> SeriesInfosToProcess { get; set; } = [];
 
     private readonly Dictionary<string, MxfSeriesInfo> _seriesInfos = [];
     public MxfSeriesInfo FindOrCreateSeriesInfo(string seriesId, string? protoTypicalProgram = null)

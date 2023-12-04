@@ -12,6 +12,8 @@ using StreamMasterDomain.Services;
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,IEPGCache epgCache, ISchedulesDirectData schedulesDirectData, ISchedulesDirectAPI schedulesDirectAPI, ISettingsService settingsService, ISDToken SdToken, IMemoryCache memoryCache) : ISchedulesDirect
 {
+    public bool IsSyncing { get; set; }
+
     private readonly object fileLock = new();
     private const int MaxQueries = 1250;
     private const int MaxImgQueries = 125;
@@ -21,18 +23,20 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,IEPGCache e
     private static int totalObjects;
     private static int processStage;
     private readonly ILogger _logger = logger;
-  
 
-    //public async Task<bool> SDSync( CancellationToken cancellationToken)
-    //{
-    //    var lineups = await GetSubscribedLineups(cancellationToken).ConfigureAwait(false);
-    //    return await SDSync([], cancellationToken).ConfigureAwait(false);
-    //}
     public async Task<bool> SDSync(CancellationToken cancellationToken)
-    {      
+    {
+        if (IsSyncing)
+        {
+            _logger.LogWarning("Schedules Direct already Syncing");
+            return false;
+        }
+
+        IsSyncing = true;
         if (!await EnsureToken(cancellationToken).ConfigureAwait(false))
         {
             _logger.LogWarning("Schedules Direct Token Not Ready");
+            IsSyncing = false;
             return false;
         }
         //UserStatus status = await GetStatus(cancellationToken);
@@ -40,35 +44,64 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,IEPGCache e
         if (!await GetSystemReady(cancellationToken))
         {
             _logger.LogWarning("Schedules Direct Not Ready");
+            IsSyncing = false;
             return false;
         }
 
-        var startTime = DateTime.UtcNow;
+        //var startTime = DateTime.UtcNow;
         var setting = memoryCache.GetSetting();
-        logger.LogInformation($"DaysToDownload: {setting.SDEPGDays}");
-
-
-        //DateTime now = DateTime.Now;
-
-        //List<Station> stations = await GetStations(cancellationToken).ConfigureAwait(false);
-        //List<Schedule>? schedules = await GetSchedules(StationIdLineups.ConvertAll(a => a.StationId), cancellationToken).ConfigureAwait(false);
-        //List<string> progIds = schedules.SelectMany(a => a.Programs).Where(a => a.AirDateTime >= now.AddDays(-1) && a.AirDateTime <= now.AddDays(setting.SDEPGDays)).Select(a => a.ProgramID).Distinct().ToList();
-        //List<SDProgram> programs = await GetSDPrograms(progIds, cancellationToken).ConfigureAwait(false);
+        logger.LogInformation($"DaysToDownload: {setting.SDSettings.SDEPGDays}");
 
         // load cache file
         epgCache.LoadCache();
         if (
              await BuildLineupServices(cancellationToken) &&
-             await GetAllScheduleEntryMd5S(setting.SDEPGDays) &&
-              BuildAllProgramEntries()
+                await GetAllScheduleEntryMd5S(setting.SDSettings.SDEPGDays) &&
+                BuildAllProgramEntries() &&
+                BuildAllGenericSeriesInfoDescriptions() &&
+                GetAllMoviePosters() &&
+                GetAllSeriesImages() &&
+                GetAllSeasonImages() &&
+                GetAllSportsImages() &&
+                BuildKeywords()
             )
         {
             epgCache.WriteCache();
-            //do good things
+            CreateDummLineupChannel();
+            var xml = CreateXmltv();
+            if (xml is not null)
+            {
+                WriteXmltv(xml);
+            }
+            
+            logger.LogInformation("Completed Schedules Direct update execution. SUCCESS.");
+            IsSyncing = false;
             return true;
         }
-
+        //StationLogosToDownload = [];
+        IsSyncing = false;
         return false;
+    }
+
+    private  void WriteXmltv(XMLTV xmltv)
+    {
+        var fileName = Path.Combine(BuildInfo.SDCacheFolder, "epg123.xmltv");
+        if (!FileUtil.WriteXmlFile(xmltv, fileName)) return;
+
+        var fi = new FileInfo(fileName);
+        var imageCount = xmltv.Programs.SelectMany(program => program.Icons?.Select(icon => icon.Src) ?? new List<string>()).Distinct().Count();
+        logger.LogInformation($"Completed save of the XMLTV file to \"{fileName}\". ({FileUtil.BytesToString(fi.Length)})");
+        logger.LogDebug($"Generated XMLTV file contains {xmltv.Channels.Count} channels and {xmltv.Programs.Count} programs with {imageCount} distinct program image links.");
+    }
+
+    private  void CreateDummLineupChannel()
+    {
+        var mxfService = schedulesDirectData.FindOrCreateService("DUMMY");
+        mxfService.CallSign = "DUMMY";
+        mxfService.Name = "DUMMY Station";
+
+        var mxfLineup = schedulesDirectData.FindOrCreateLineup("ZZZ-DUMMY-EPG123", "ZZZ123 Dummy Lineup");
+        mxfLineup.channels.Add(new MxfChannel(mxfLineup, mxfService));
     }
 
     //private  bool ServiceCountSafetyCheck()
@@ -79,7 +112,6 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,IEPGCache e
     //    logger.LogError($"Of the expected {setting.SDStationIds.Count} stations to download, there are only {config.ExpectedServicecount - MissingStations} stations available from Schedules Direct. Aborting update for review by user.");
     //    return false;
     //}
-
 
     public async Task<bool> GetSystemReady(CancellationToken cancellationToken)
     {
@@ -99,14 +131,11 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,IEPGCache e
     {
         return await SdToken.GetTokenAsync(cancellationToken) != null;
     }
-
-
     public async Task<UserStatus> GetStatus(CancellationToken cancellationToken)
     {
         UserStatus status = await GetStatusInternal(cancellationToken);
         return status;
     }
-
     public void ResetCache(string command)
     {
         string cacheKey = SDHelpers.GenerateCacheKey(command);

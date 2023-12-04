@@ -8,7 +8,7 @@ public class SDSyncHandler(ISchedulesDirect schedulesDirect, ILogger<SDSync> log
     public async Task<bool> Handle(SDSync request, CancellationToken cancellationToken)
     {
         Setting setting = await GetSettingsAsync().ConfigureAwait(false);
-        if (!setting.SDEnabled)
+        if (!setting.SDSettings.SDEnabled)
         {
             return false;
         }

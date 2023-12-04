@@ -11,6 +11,7 @@ using StreamMasterDomain.Services;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace StreamMaster.SchedulesDirectAPI;
@@ -46,17 +47,6 @@ public class SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, ISDToken SdT
     }
 
 
-    public static string ReportExceptionMessages(Exception ex)
-    {
-        var ret = string.Empty;
-        var innerException = ex;
-        do
-        {
-            ret += $" {innerException.Message} ";
-            innerException = innerException.InnerException;
-        } while (innerException != null);
-        return ret;
-    }
 
     /// <summary>
     /// 
@@ -84,7 +74,7 @@ public class SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, ISDToken SdT
         }
         catch (Exception ex)
         {
-            logger.LogDebug($"HTTP request exception thrown. Message:{ReportExceptionMessages(ex)}");
+            logger.LogDebug($"HTTP request exception thrown. Message:{FileUtil.ReportExceptionMessages(ex)}");
         }
         return default;
     }
@@ -135,8 +125,6 @@ public class SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, ISDToken SdT
                 return JsonSerializer.Deserialize<T>(json, jsonOptions);
             }
 
-
-
             if (typeof(T) == typeof(List<LineupPreviewChannel>) || typeof(T) == typeof(StationChannelMap))
             {
                 using var sr = new StreamReader(stream);
@@ -163,11 +151,22 @@ public class SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, ISDToken SdT
 
             if (json != null)
             {
-                var start = Math.Max((int)ex.BytePositionInLine-40, 0);
-                var line = json.Substring(start, 100);
+                var startOrig = Math.Max((int)ex.BytePositionInLine, 0);
+                var start = Math.Max((int)ex.BytePositionInLine - 40, 0);
+                var lineOrig = json.Substring(startOrig, 200);
+                var line = json.Substring(start, 200);
+                if (line.Contains("INVALID_PROGRAMID"))
+                {
+
+    
+                }
+                else
+                {
+                    Debug.Assert(true);
+                    var a = 1;
+                }
             }
-            Debug.Assert(true);
-            var a = 1;
+          
         }
         catch (Exception ex)
         {

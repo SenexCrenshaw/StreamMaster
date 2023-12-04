@@ -27,17 +27,6 @@ public static partial class SDHelpers
         return str != null && str.ToLower().Contains(text.ToLower());
     }
 
-    public static string ReportExceptionMessages(Exception ex)
-    {
-        var ret = string.Empty;
-        var innerException = ex;
-        do
-        {
-            ret += $" {innerException.Message} ";
-            innerException = innerException.InnerException;
-        } while (innerException != null);
-        return ret;
-    }
 
     public static string GenerateHashFromStringContent(StringContent content)
     {

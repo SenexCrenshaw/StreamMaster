@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using StreamMaster.SchedulesDirectAPI.Domain.Models;
-
 using StreamMasterDomain.Services;
 
 using System.Xml.Serialization;
@@ -11,6 +9,9 @@ namespace StreamMaster.SchedulesDirectAPI.Data;
 
 public partial class SchedulesDirectData(ILogger<SchedulesDirectData> logger, ISettingsService settingsService, IMemoryCache memoryCache) : ISchedulesDirectData
 {
+    [XmlArrayItem("Provider")]
+    public List<MxfProvider> Providers { get; set; }
+
     [XmlAttribute("provider")]
     public string Provider { get; set; } = string.Empty;
     [XmlArrayItem("Keyword")]

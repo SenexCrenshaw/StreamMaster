@@ -17,6 +17,60 @@ namespace StreamMasterDomain.Common;
 public sealed class FileUtil
 {
     private static bool setupDirectories = false;
+
+
+    public static string BytesToString(long bytes)
+    {
+        string[] unit = { "", "K", "M", "G", "T" };
+        for (var i = 0; i < unit.Length; ++i)
+        {
+            double calc;
+            if ((calc = bytes / Math.Pow(1024, i)) < 1024)
+            {
+                return $"{calc:N3} {unit[i]}B";
+            }
+        }
+        return "0 bytes";
+    }
+
+    public static bool WriteXmlFile(object obj, string filepath)
+    {
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(filepath));
+            XmlSerializer serializer = new XmlSerializer(obj.GetType());
+            var ns = new XmlSerializerNamespaces();
+            ns.Add("", "");
+            using (var writer = new StreamWriter(filepath, false, Encoding.UTF8))
+            {
+                serializer.Serialize(writer, obj, ns);
+            }
+            //if (compress)
+            //{
+            //    GZipCompressFile(filepath);
+            //    DeflateCompressFile(filepath);
+            //}
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to write file \"{filepath}\". Exception:{ReportExceptionMessages(ex)}");
+        }
+        return false;
+    }
+
+    public static string ReportExceptionMessages(Exception ex)
+    {
+        var ret = string.Empty;
+        var innerException = ex;
+        do
+        {
+            ret += $" {innerException.Message} ";
+            innerException = innerException.InnerException;
+        } while (innerException != null);
+        return ret;
+    }
+
     public static string SerializeEpgData(Tv epgData)
     {
         XmlSerializerNamespaces ns = new();

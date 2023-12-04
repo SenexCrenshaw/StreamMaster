@@ -38,7 +38,7 @@ public class EPGCache(ILogger<EPGCache> logger) : IEPGCache
         }
         catch (Exception ex)
         {
-            logger.LogError($"Failed to read file \"{filepath}\". Exception: {SDHelpers.ReportExceptionMessages(ex)}");
+            logger.LogError($"Failed to read file \"{filepath}\". Exception: {FileUtil.ReportExceptionMessages(ex)}");
         }
         return null;
     }
@@ -81,7 +81,7 @@ public class EPGCache(ILogger<EPGCache> logger) : IEPGCache
         }
         catch (Exception ex)
         {
-            logger.LogError($"Failed to write file \"{filepath}\". Exception: {SDHelpers.ReportExceptionMessages(ex)}");
+            logger.LogError($"Failed to write file \"{filepath}\". Exception: {FileUtil.ReportExceptionMessages(ex)}");
         }
         return false;
     }
@@ -108,7 +108,7 @@ public class EPGCache(ILogger<EPGCache> logger) : IEPGCache
         }
         catch (Exception ex)
         {
-            logger.LogInformation($"Failed to delete file \"{filepath}\". Exception:{SDHelpers.ReportExceptionMessages(ex)}");
+            logger.LogInformation($"Failed to delete file \"{filepath}\". Exception:{FileUtil.ReportExceptionMessages(ex)}");
         }
         return false;
     }

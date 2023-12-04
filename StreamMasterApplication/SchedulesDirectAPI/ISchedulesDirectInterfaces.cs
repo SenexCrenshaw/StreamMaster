@@ -3,6 +3,9 @@
 using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 using StreamMasterApplication.SchedulesDirectAPI.Commands;
+using StreamMasterApplication.SchedulesDirectAPI.Queries;
+
+using StreamMasterDomain.Pagination;
 
 namespace StreamMasterApplication.SchedulesDirectAPI;
 
@@ -30,7 +33,9 @@ public interface ISchedulesDirectController
 
     //Task<ActionResult<List<StationPreview>>> GetStationPreviews();
 
-    //Task<ActionResult<List<Station>>> GetStations();
+    Task<ActionResult<List<StationChannelName>>> GetStationChannelNamesSimpleQuery([FromQuery] StationChannelNameParameters Parameters);
+    Task<ActionResult<PagedResponse<StationChannelName>>> GetPagedStationChannelNameSelections([FromQuery] StationChannelNameParameters Parameters);
+    Task<ActionResult<StationChannelName>> GetStationChannelNameFromDisplayName(string DisplayName);
 
     Task<ActionResult<UserStatus>> GetStatus();
 }
@@ -64,6 +69,10 @@ public interface ISchedulesDirectHub
     //Task<List<StationPreview>> GetStationPreviews();
 
     //Task<List<Station>> GetStations();
+
+    Task<List<StationChannelName>> GetStationChannelNamesSimpleQuery([FromQuery] StationChannelNameParameters Parameters);
+    Task<PagedResponse<StationChannelName>> GetPagedStationChannelNameSelections([FromQuery] StationChannelNameParameters Parameters);
+    Task<StationChannelName?> GetStationChannelNameFromDisplayName(string DisplayName);
 
     Task<UserStatus> GetStatus();
 }

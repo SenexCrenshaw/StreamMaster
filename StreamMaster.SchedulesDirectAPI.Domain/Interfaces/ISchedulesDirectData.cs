@@ -1,15 +1,24 @@
 ﻿using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
+using System.Xml.Serialization;
+
 
 namespace StreamMaster.SchedulesDirectAPI.Domain.Interfaces
 {
     public interface ISchedulesDirectData
     {
-        //List<MxfKeywordGroup> KeywordGroups { get; set; }
+        [XmlArrayItem("Lineup")]
+        public List<MxfLineup> Lineups { get; set; }
+        [XmlArrayItem("SeriesInfo")]
+        public List<MxfSeriesInfo> SeriesInfos { get; set; }
+        public List<MxfProvider> Providers { get; set; }
+        List<MxfKeywordGroup> KeywordGroups { get; set; }
+        List<MxfKeyword> Keywords { get; set; }
+        List<MxfSeason> SeasonsToProcess { get; set; }
         List<MxfProgram> ProgramsToProcess { get; set; }
         List<MxfProgram> Programs { get; set; }
         List<MxfService> Services { get; set; }
-
+        List<MxfSeriesInfo> SeriesInfosToProcess { get; set; }
         MxfPerson FindOrCreatePerson(string name);
         MxfSeason FindOrCreateSeason(string seriesId, int seasonNumber, string protoTypicalProgram);
         MxfSeriesInfo FindOrCreateSeriesInfo(string seriesId, string? protoTypicalProgram = null);

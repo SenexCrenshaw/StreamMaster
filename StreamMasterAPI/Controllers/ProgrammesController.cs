@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+
+using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
+
 using StreamMasterApplication.Programmes;
 using StreamMasterApplication.Programmes.Queries;
 
@@ -13,10 +15,10 @@ public class ProgrammesController : ApiControllerBase, IProgrammeChannelControll
 {
     [HttpGet]
     [Route("GetProgramme/{channel}")]
-    public async Task<ActionResult<IEnumerable<EPGProgramme>?>> GetProgramme(string channel)
+    public async Task<ActionResult<IEnumerable<XmltvProgramme>?>> GetProgramme(string channel)
     {
-        IEnumerable<EPGProgramme>? data = await Mediator.Send(new GetProgramme(channel)).ConfigureAwait(false);
-        return data is not null ? (ActionResult<IEnumerable<EPGProgramme>?>)Ok(data.ToList()) : (ActionResult<IEnumerable<EPGProgramme>?>)NotFound();
+        IEnumerable<XmltvProgramme>? data = await Mediator.Send(new GetProgramme(channel)).ConfigureAwait(false);
+        return data is not null ? (ActionResult<IEnumerable<XmltvProgramme>?>)Ok(data.ToList()) : (ActionResult<IEnumerable<XmltvProgramme>?>)NotFound();
     }
 
     [HttpGet]
@@ -36,7 +38,7 @@ public class ProgrammesController : ApiControllerBase, IProgrammeChannelControll
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<IEnumerable<EPGProgramme>>> GetProgrammes()
+    public async Task<ActionResult<IEnumerable<XmltvProgramme>>> GetProgrammes()
     {
         return Ok(await Mediator.Send(new GetProgrammesRequest()).ConfigureAwait(false));
     }

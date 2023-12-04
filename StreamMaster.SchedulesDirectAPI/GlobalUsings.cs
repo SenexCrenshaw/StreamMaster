@@ -2,3 +2,5 @@
 global using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
 global using StreamMaster.SchedulesDirectAPI.Domain.Models;
 global using StreamMasterDomain.Cache;
+
+global using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;

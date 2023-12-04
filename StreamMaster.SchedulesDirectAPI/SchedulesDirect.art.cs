@@ -1,24 +1,17 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
-using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
-using StreamMaster.SchedulesDirectAPI.Domain.Models;
-using StreamMaster.SchedulesDirectAPI.Helpers;
 
-using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 
-using System;
-using System.Net;
+using System.Collections.Concurrent;
 
 using System.Text.Json;
-using System.Threading;
-
-using static System.Net.Mime.MediaTypeNames;
 
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
 {
+
     private readonly string ImageInfoFilePath = Path.Combine(BuildInfo.SDImagesFolder, "ImageInfo.json");
 
     public async Task<List<ProgramMetadata>?> GetArtworkAsync(string[] request)

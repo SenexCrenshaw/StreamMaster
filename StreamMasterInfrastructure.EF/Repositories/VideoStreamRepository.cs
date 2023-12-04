@@ -347,14 +347,14 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
         if (request.Tvg_name != null && (videoStream.User_Tvg_name != request.Tvg_name || videoStream.IsUserCreated))
         {
             videoStream.User_Tvg_name = request.Tvg_name;
-            if (setting.EPGAlwaysUseVideoStreamName)
-            {
-                string? test = await sender.Send(new GetEPGChannelLogoByTvgId(videoStream.User_Tvg_ID), cancellationToken).ConfigureAwait(false);
-                if (test is not null)
-                {
-                    videoStream.User_Tvg_ID = test;
-                }
-            }
+            //if (setting.SDSettings.EPGAlwaysUseVideoStreamName)
+            //{
+            //    string? test = await sender.Send(new GetEPGChannelLogoByTvgId(videoStream.User_Tvg_ID), cancellationToken).ConfigureAwait(false);
+            //    if (test is not null)
+            //    {
+            //        videoStream.User_Tvg_ID = test;
+            //    }
+            //}
         }
 
         if (request.TimeShift != null && videoStream.TimeShift != request.Tvg_name)
@@ -875,7 +875,7 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
     {
         var programmes = await sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
         List<ChannelNamePair> distinctChannelAndNames = programmes
-            .Select(p => new ChannelNamePair { Channel = p.Channel, Name = p.Name })
+            .Select(p => new ChannelNamePair { Channel = p.Channel, Name = p.Titles[0].Text })
             .Distinct()
             .ToList();
 

@@ -2,6 +2,8 @@
 
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
+using StreamMasterDomain.Common;
+
 using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -232,7 +234,7 @@ public partial class SchedulesDirect
                     }
                     catch (Exception ex)
                     {
-                        logger.LogInformation($"Failed to write station daily schedule file to cache file. station: {serviceDate[0]} ; date: {serviceDate[1]}. Exception: {SDHelpers.ReportExceptionMessages(ex)}");
+                        logger.LogInformation($"Failed to write station daily schedule file to cache file. station: {serviceDate[0]} ; date: {serviceDate[1]}. Exception: {FileUtil.ReportExceptionMessages(ex)}");
                     }
                 }
                 else
@@ -285,7 +287,7 @@ public partial class SchedulesDirect
         }
         catch (Exception ex)
         {
-            logger.LogError($"Error occurred when trying to read Md5Schedule entry in cache file. Exception: {SDHelpers.ReportExceptionMessages(ex)}");
+            logger.LogError($"Error occurred when trying to read Md5Schedule entry in cache file. Exception: {FileUtil.ReportExceptionMessages(ex)}");
             return;
         }
 

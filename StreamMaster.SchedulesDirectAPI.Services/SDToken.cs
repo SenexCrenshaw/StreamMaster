@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain;
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
+using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Services;
 
@@ -11,7 +13,7 @@ using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirectAPI.Services;
 
-public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService) : ISDToken
+public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, IMemoryCache memoryCache) : ISDToken
 {
     private const string SD_BASE_URL = "https://json.schedulesdirect.org/20141201/";
     private readonly SemaphoreSlim _fileSemaphore = new(1, 1);
@@ -106,19 +108,19 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService) 
     {
         try
         {
-            Setting setting = await settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
-            string? sdHashedPassword = HashHelper.TestSha1HexHash(setting.SDPassword) ? setting.SDPassword : setting.SDPassword.GetSHA1Hash();
+            Setting setting = memoryCache.GetSetting();
+            string? sdHashedPassword = HashHelper.TestSha1HexHash(setting.SDSettings.SDPassword) ? setting.SDSettings.SDPassword : setting.SDSettings.SDPassword.GetSHA1Hash();
 
             if (string.IsNullOrEmpty(sdHashedPassword))
             {
                 return null;
             }
 
-            SDGetTokenRequest data = new() { username = setting.SDUserName, password = sdHashedPassword };
+            SDGetTokenRequest data = new() { username = setting.SDSettings.SDUserName, password = sdHashedPassword };
             string jsonString = JsonSerializer.Serialize(data);
             using StringContent content = new(jsonString, Encoding.UTF8, "application/json");
 
-            HttpClient httpClient = SDHelpers.CreateHttpClient("Mozilla/5.0 (compatible; streammaster/1.0)");
+            HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
 
             using HttpResponseMessage response = await httpClient.PostAsync($"{SD_BASE_URL}token", content, cancellationToken).ConfigureAwait(false);
             (System.Net.HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, SDGetToken? result) = await SDHandler.ProcessResponse<SDGetToken?>(response, logger, cancellationToken).ConfigureAwait(false);

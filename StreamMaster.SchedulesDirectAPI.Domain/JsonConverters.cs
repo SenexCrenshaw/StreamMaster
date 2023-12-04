@@ -13,36 +13,62 @@ public class IntConverter : JsonConverter<int>
 {
     public override int Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType == JsonTokenType.String)
+        try
         {
-            if (int.TryParse(reader.GetString(), out int intValue))
+            if (reader.TokenType == JsonTokenType.String)
             {
-                return intValue;
+                if (int.TryParse(reader.GetString(), out int intValue))
+                {
+                    return intValue;
+                }
+            }
+            else if (reader.TokenType == JsonTokenType.Number)
+            {
+                if (reader.TryGetInt32(out int intValue))
+                {
+                    return intValue;
+                }
+            }
+            else if (reader.TokenType == JsonTokenType.StartObject)
+            {
+                // Handle JSON object when the TokenType is StartObject
+                // Assuming "year" is a property within this object
+                while (reader.Read())
+                {
+                    if (reader.TokenType == JsonTokenType.PropertyName && reader.GetString() == "year")
+                    {
+                        reader.Read(); // Move to the property value
+                      
+                        if (reader.TryGetInt32(out int yearValue))
+                        {
+                            reader.Read();
+                            return yearValue;
+                        }
+                        else
+                        {
+                            // Handle the case where the "year" property is not a valid integer
+                            // You can return a default value or throw an exception as needed
+                            return 0; // Default value or another meaningful value
+                        }
+                    }
+                }
             }
         }
-        else if (reader.TokenType == JsonTokenType.Number)
+        catch (JsonException ex)
         {
-            if (reader.TryGetInt32(out int intValue))
-            {
-                return intValue;
-            }
+            // Handle bad values by returning a default value or throwing a custom exception if needed
+            var a= 1;
         }
 
-        // Handle other cases or throw an exception if needed
-        throw new JsonException("Unable to convert JSON value to int.");
+        // Return a default value for bad or unexpected data
+        return 0;
     }
 
     public override void Write(Utf8JsonWriter writer, int value, JsonSerializerOptions options)
     {
-        // This method is not needed in your case since you are focused on deserialization.
         writer.WriteStartObject();
-
-        // Serialize properties of YourObjectType here
-        writer.WritePropertyName("year"); // Replace with the actual property name
+        writer.WritePropertyName("year"); 
         JsonSerializer.Serialize(writer, value, options);
-
-        // Add more properties as needed
-
         writer.WriteEndObject();
     }
 }

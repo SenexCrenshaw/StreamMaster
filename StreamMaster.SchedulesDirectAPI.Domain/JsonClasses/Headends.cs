@@ -16,7 +16,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
         public string Location { get; set; }
 
         [JsonPropertyName("lineups")]
-      //  //[JsonConverter(typeof(SingleOrListConverter<HeadendLineup>))]
+      [JsonConverter(typeof(SingleOrListConverter<HeadendLineup>))]
         public List<HeadendLineup> Lineups { get; set; }
     }
 
