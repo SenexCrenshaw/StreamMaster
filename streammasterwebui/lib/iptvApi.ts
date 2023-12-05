@@ -228,13 +228,9 @@ const injectedRtkApi = api
         query: () => ({ url: `/api/m3ufiles/getm3ufilenames` }),
         providesTags: ['M3UFiles']
       }),
-      miscBuildIconsCacheFromVideoStreams: build.mutation<MiscBuildIconsCacheFromVideoStreamsApiResponse, MiscBuildIconsCacheFromVideoStreamsApiArg>({
-        query: () => ({ url: `/api/misc/buildiconscachefromvideostreams`, method: 'PATCH' }),
-        invalidatesTags: ['Misc']
-      }),
-      miscBuildProgIconsCacheFromEpGsRequest: build.mutation<MiscBuildProgIconsCacheFromEpGsRequestApiResponse, MiscBuildProgIconsCacheFromEpGsRequestApiArg>({
-        query: () => ({ url: `/api/misc/buildprogiconscachefromepgsrequest`, method: 'PATCH' }),
-        invalidatesTags: ['Misc']
+      miscGetDownloadServiceStatus: build.query<MiscGetDownloadServiceStatusApiResponse, MiscGetDownloadServiceStatusApiArg>({
+        query: () => ({ url: `/api/misc/getdownloadservicestatus` }),
+        providesTags: ['Misc']
       }),
       programmesGetProgramme: build.query<ProgrammesGetProgrammeApiResponse, ProgrammesGetProgrammeApiArg>({
         query: (queryArg) => ({ url: `/api/programmes/getprogramme/${queryArg}` }),
@@ -822,10 +818,8 @@ export type M3UFilesUpdateM3UFileApiResponse = unknown;
 export type M3UFilesUpdateM3UFileApiArg = UpdateM3UFileRequest;
 export type M3UFilesGetM3UFileNamesApiResponse = /** status 200  */ string[];
 export type M3UFilesGetM3UFileNamesApiArg = void;
-export type MiscBuildIconsCacheFromVideoStreamsApiResponse = unknown;
-export type MiscBuildIconsCacheFromVideoStreamsApiArg = void;
-export type MiscBuildProgIconsCacheFromEpGsRequestApiResponse = unknown;
-export type MiscBuildProgIconsCacheFromEpGsRequestApiArg = void;
+export type MiscGetDownloadServiceStatusApiResponse = unknown;
+export type MiscGetDownloadServiceStatusApiArg = void;
 export type ProgrammesGetProgrammeApiResponse = /** status 200  */ XmltvProgramme[];
 export type ProgrammesGetProgrammeApiArg = string;
 export type ProgrammesGetProgrammeChannelsApiResponse = /** status 200  */ ProgrammeChannel[];
@@ -834,9 +828,7 @@ export type ProgrammesGetProgrammesApiResponse = /** status 200  */ XmltvProgram
 export type ProgrammesGetProgrammesApiArg = void;
 export type SchedulesDirectAddLineupApiResponse = /** status 200  */ boolean;
 export type SchedulesDirectAddLineupApiArg = AddLineup;
-export type SchedulesDirectGetAvailableCountriesApiResponse = /** status 200  */ {
-  [key: string]: Country[];
-};
+export type SchedulesDirectGetAvailableCountriesApiResponse = /** status 200  */ CountryData[];
 export type SchedulesDirectGetAvailableCountriesApiArg = void;
 export type SchedulesDirectGetChannelNamesApiResponse = /** status 200  */ string[];
 export type SchedulesDirectGetChannelNamesApiArg = void;
@@ -1294,32 +1286,32 @@ export type XmltvProgramme = {
   videoPlus?: string;
   channel?: string;
   clumpIdx?: string;
-  titles?: XmltvText[];
-  subTitles?: XmltvText[];
-  descriptions?: XmltvText[];
-  credits?: XmltvCredit;
-  date?: string;
-  categories?: XmltvText[];
-  keywords?: XmltvText[];
-  language?: XmltvText;
+  titles?: XmltvText[] | null;
+  subTitles?: XmltvText[] | null;
+  descriptions?: XmltvText[] | null;
+  credits?: XmltvCredit | null;
+  date?: string | null;
+  categories?: XmltvText[] | null;
+  keywords?: XmltvText[] | null;
+  language?: XmltvText | null;
   origLanguage?: XmltvText;
   length?: XmltvLength;
-  icons?: XmltvIcon[];
+  icons?: XmltvIcon[] | null;
   urls?: string[];
   countries?: XmltvText[];
-  sport?: XmltvText;
-  teams?: XmltvText[];
+  sport?: XmltvText | null;
+  teams?: XmltvText[] | null;
   episodeNums?: XmltvEpisodeNum[];
-  video?: XmltvVideo;
-  audio?: XmltvAudio;
-  previouslyShown?: XmltvPreviouslyShown;
-  premiere?: XmltvText;
+  video?: XmltvVideo | null;
+  audio?: XmltvAudio | null;
+  previouslyShown?: XmltvPreviouslyShown | null;
+  premiere?: XmltvText | null;
   lastChance?: XmltvText;
-  new?: string;
-  live?: string;
-  subtitles?: XmltvSubtitles[];
+  new?: string | null;
+  live?: string | null;
+  subtitles?: XmltvSubtitles[] | null;
   rating?: XmltvRating[];
-  starRating?: XmltvRating[];
+  starRating?: XmltvRating[] | null;
   review?: XmltvReview[];
 };
 export type ProgrammeChannel = {
@@ -1338,6 +1330,10 @@ export type Country = {
   postalCodeExample?: string;
   postalCode?: string;
   onePostalCode?: boolean;
+};
+export type CountryData = {
+  key?: string;
+  countries?: Country[];
 };
 export type HeadendDto = {
   id?: string;
@@ -1536,6 +1532,7 @@ export type SdSettings = {
 export type AuthenticationType = 0 | 2;
 export type StreamingProxyTypes = 0 | 1 | 2 | 3;
 export type BaseSettings = M3USettings & {
+  maxConcurrentDownloads?: number;
   sdSettings?: SdSettings;
   expectedServiceCount?: number;
   adminPassword?: string;
@@ -1893,8 +1890,7 @@ export const {
   useM3UFilesScanDirectoryForM3UFilesMutation,
   useM3UFilesUpdateM3UFileMutation,
   useM3UFilesGetM3UFileNamesQuery,
-  useMiscBuildIconsCacheFromVideoStreamsMutation,
-  useMiscBuildProgIconsCacheFromEpGsRequestMutation,
+  useMiscGetDownloadServiceStatusQuery,
   useProgrammesGetProgrammeQuery,
   useProgrammesGetProgrammeChannelsQuery,
   useProgrammesGetProgrammesQuery,
