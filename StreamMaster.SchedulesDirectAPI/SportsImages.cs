@@ -1,19 +1,22 @@
 ﻿using Microsoft.Extensions.Logging;
+
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
+
 using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
 {
-    private  readonly List<MxfProgram> sportEvents = new List<MxfProgram>();
-
-    private  bool GetAllSportsImages()
+    private  readonly List<MxfProgram> sportEvents = [];
+    private List<string> sportsImageQueue = [];
+    private ConcurrentBag<ProgramMetadata> sportsImageResponses = [];
+    private async Task <bool> GetAllSportsImages(CancellationToken cancellationToken)
     {
         var settings = memoryCache.GetSetting();
         // reset counters
-        imageQueue = new List<string>();
-        imageResponses = new ConcurrentBag<ProgramMetadata>();
+        sportsImageQueue = [];
+        sportsImageResponses = [];
         //IncrementNextStage(sportEvents.Count);
         if (!settings.SDSettings.SeasonEventImages) return true;
 
@@ -35,35 +38,37 @@ public partial class SchedulesDirect
             }
             else
             {
-                imageQueue.Add(sportEvent.ProgramId);
+                sportsImageQueue.Add(sportEvent.ProgramId);
             }
         }
         logger.LogDebug($"Found {processedObjects} cached/unavailable sport event image links.");
 
         // maximum 500 queries at a time
-        if (imageQueue.Count > 0)
+        if (sportsImageQueue.Count > 0)
         {
-            Parallel.For(0, (imageQueue.Count / MaxImgQueries + 1), new ParallelOptions { MaxDegreeOfParallelism = MaxParallelDownloads }, i =>
+            Parallel.For(0, (sportsImageQueue.Count / MaxImgQueries + 1), new ParallelOptions { MaxDegreeOfParallelism = MaxParallelDownloads }, i =>
             {
-                DownloadImageResponses(i * MaxImgQueries);
+                 DownloadImageResponses(sportsImageQueue, sportsImageResponses,i * MaxImgQueries);
             });
 
             ProcessSportsImageResponses();
+            await DownloadImages(sportsImageResponses, cancellationToken);
             if (processedObjects != totalObjects)
             {
                 logger.LogWarning($"Failed to download and process {sportEvents.Count - processedObjects} sport event image links.");
             }
         }
-        logger.LogInformation("Exiting GetAllSportsImages(). SUCCESS.");
-        imageQueue = null; imageResponses = null; sportEvents.Clear();
+        logger.LogInformation("Exiting GetAllSportsImages(). SUCCESS.");        
+        sportsImageQueue = []; sportsImageResponses = []; sportEvents.Clear();
+
         return true;
     }
 
     private  void ProcessSportsImageResponses()
     {
         // process request response
-        if (imageResponses == null) return;
-        foreach (var response in imageResponses)
+        if (sportsImageResponses == null) return;
+        foreach (var response in sportsImageResponses)
         {
             //IncrementProgress();
             if (response.Data == null) continue;

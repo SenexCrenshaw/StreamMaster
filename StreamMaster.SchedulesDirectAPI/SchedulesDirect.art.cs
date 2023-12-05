@@ -1,18 +1,22 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
+using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Common;
 
 using System.Collections.Concurrent;
-
+using System.Net;
+using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
 {
-
+  
     private readonly string ImageInfoFilePath = Path.Combine(BuildInfo.SDImagesFolder, "ImageInfo.json");
+    private static readonly SemaphoreSlim downloadSemaphore = new(MaxParallelDownloads);
+
 
     public async Task<List<ProgramMetadata>?> GetArtworkAsync(string[] request)
     {
@@ -35,80 +39,306 @@ public partial class SchedulesDirect
         return await schedulesDirectAPI.GetApiResponse<List<string>>(APIMethod.GET, server);
     }
 
-    
+
+    private void DownloadImageResponses(List<string> imageQueue, ConcurrentBag<ProgramMetadata> programMetadata,  int start = 0)
+    {
+        // reject 0 requests
+        if (imageQueue.Count - start < 1) return;
+
+        // build the array of series to request images for
+        var series = new string[Math.Min(imageQueue.Count - start, MaxImgQueries)];
+        for (var i = 0; i < series.Length; ++i)
+        {
+            series[i] = imageQueue[start + i];
+        }
+
+        // request images from Schedules Direct
+        var responses =  GetArtworkAsync(series).Result;
+        if (responses != null)
+        {
+            Parallel.ForEach(responses, programMetadata.Add);
+        }
+        else
+        {
+            logger.LogInformation("Did not receive a response from Schedules Direct for artwork info of {count} programs, first entry {entry}.", series.Length, series.Any()? series[0]:"");
+            var AA = 1;
+        }
+    }
+
+    private async Task<bool> DownloadImages(ConcurrentBag<ProgramMetadata> programMetadata,CancellationToken cancellationToken)
+    {
+        Setting setting = memoryCache.GetSetting();
+        if (!setting.SDSettings.SDEnabled)
+        {
+            return false;
+        }
+
+        if (programMetadata.Count == 0)
+        {
+            return false;
+        }
+
+        var a = programMetadata.SelectMany(a => a.Data.Where(a => a.Uri != null && a.Uri.Contains("44e952d7aa918caab9eca88693ab94644ecee06d00daffad06055e33c8994175"))).ToList();
+        if (a.Any())
+        {
+            var b = a;
+        }
+
+        var tasks = programMetadata.Select(async response =>
+        {
+         
+            try
+            {
+                string programId = response.ProgramId;
+                //if (programId.StartsWith("SH"))
+                //{
+                //    programId = programId.Substring(2, 8);
+                //}
+                var artwork = new List<ProgramArtwork>();
+
+               
+                var program = schedulesDirectData.Programs.Find(a => a.ProgramId == programId);
+                //if ( program == null || program.extras == null || !program.extras.TryGetValue("artwork", out dynamic? value))
+                //{
+                   
+                //}
+
+                if (program != null && program.extras != null)
+                {
+                    // a movie or sport event will have a guide image from the program
+                    if (program.extras.TryGetValue("artwork", out dynamic? value))
+                    {
+                        artwork = value;
+                    }
+
+                    // get the season class from the program if it is has a season
+                    if (artwork.Count == 0 && (program.mxfSeason?.extras.ContainsKey("artwork") ?? false))
+                    {
+                        artwork = program.mxfSeason.extras["artwork"];
+                    }
+
+                    // get the series info class from the program if it is a series
+                    if (artwork.Count == 0 && (program.mxfSeriesInfo?.extras.ContainsKey("artwork") ?? false))
+                    {
+                        artwork = program.mxfSeriesInfo.extras["artwork"];
+                    }
+                }
+
+                if (!artwork.Any() )
+                {
+                    if ( response.Data != null && response.Data.Any())
+                    {                        
+                        artwork = GetTieredImages(response.Data, ["series", "sport", "episode"]);                     
+                    }
+                    else
+                    {
+                        return;
+                    }                    
+                }                             
+
+                foreach (ProgramArtwork art in artwork)
+                {
+                    if (art.Uri.Contains("44e952d7aa918caab9eca88693ab94644ecee06d00daffad06055e33c8994175"))
+                    {
+                        var a33323 = 1;
+                    }
+
+                    await downloadSemaphore.WaitAsync(cancellationToken);
+                    try
+                    {
+                            var logoPath = Path.Combine(BuildInfo.SDImagesFolder, art.Uri);
+                        if (File.Exists(logoPath))
+                        {                       
+                            continue;
+                        }
+
+                        string url = "";
+                        if (art.Uri.StartsWith("http"))
+                        {
+                            continue;
+                        }
+
+                        url = await SdToken.GetAPIUrl($"image/{art.Uri}", cancellationToken);
+                        if (await DownloadSdLogo(url, logoPath, cancellationToken))
+                        {
+                            //series.extras["artwork"].Remove(a);
+                            //series.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(logoPath);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        var a = 1;
+                    }
+                    finally
+                    {
+                        downloadSemaphore.Release();
+                    }
+                }
+
+                //var logoPath = serviceLogo.Value[0];
+                //if ((File.Exists(logoPath) || await DownloadSdLogo(serviceLogo.Value[1], logoPath, cancellationToken)) && string.IsNullOrEmpty(serviceLogo.Key.LogoImage))
+                //{
+
+                //    serviceLogo.Key.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(logoPath);
+
+                //    if (File.Exists(logoPath))
+                //    {
+                //        // update dimensions
+                //        using var stream = File.OpenRead(logoPath);
+                //        using var image = await Image.LoadAsync(stream, cancellationToken);
+                //        serviceLogo.Key.extras["logo"].Height = image.Height;
+                //        serviceLogo.Key.extras["logo"].Width = image.Width;
+                //        StationLogosToDownload.Remove(serviceLogo);
+                //    }
+                //}
+            }
+            catch(Exception ex)
+            {
+                var a = 1;
+            }
+            finally
+            {
+               
+            }
+        }).ToArray();
+
+        await Task.WhenAll(tasks);
+
+        return true;
+    }
 
 
-    //public async Task ProcessProgramsImages(List<Programme> sDPrograms, CancellationToken cancellationToken)
-    //{
-    //    List<string> programIds = sDPrograms
-    //        .Where(a => a.HasImageArtwork == true || a.HasSportsArtwork == true || a.HasSeriesArtwork == true || a.HasSeasonArtwork == true || a.HasMovieArtwork == true || a.HasEpisodeArtwork == true)
-    //        .Select(a => a.ProgramID).Distinct().ToList();
-    //    List<string> distinctProgramIds = programIds
-    //                                         .Distinct()
-    //                                         .Select(a => a.Length >= 10 ? a[..10] : a) // Select the leftmost 10 characters
-    //                                         .ToList();
+    private async Task<bool> DownloadSdLogo(string uri, string filePath, CancellationToken cancellationToken)
+    {
 
-    //    if (programIds.Any())
-    //    {
-    //        List<ProgramMetadata>? fetchedResults = await schedulesDirectAPI.PostData<List<ProgramMetadata>>("metadata/programs/", programIds, cancellationToken).ConfigureAwait(false);
-    //        if (fetchedResults == null)
-    //        {
-    //            return;
-    //        }
+        filePath = CleanUpFileName(filePath);
+        try
+        {
+            if (!await EnsureToken(cancellationToken).ConfigureAwait(false))
+            {
+                return false;
+            }
 
-    //        int count = 0;
+                Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
 
-    //        foreach (ProgramMetadata m in fetchedResults)
-    //        {
-    //            ++count;
-    //            logger.LogInformation("Caching program icons for {count}/{totalCount} programs", count, fetchedResults.Count);
-    //            Programme? sdProg = sDPrograms.Find(a => a.ProgramID == m.ProgramID);
-    //            string cats = string.Join(',', m.ProgramArtwork.Select(a => a.Category).Distinct());
-    //            string tiers = string.Join(',', m.ProgramArtwork.Select(a => a.Tier).Distinct());
+            HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
+            using HttpResponseMessage response = await httpClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
 
-    //            if (sdProg is null)
-    //            {
-    //                continue;
-    //            }
+            if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.NotFound)
+            {
+                return false;
+            }
 
-    //            if (sdProg.HasEpisodeArtwork == true)
-    //            {
-    //                //List<ProgramArtwork> catEpisode = m.ProgramArtwork.Where(item => item.Tier == "Episode").ToList();
-    //                //await DownloadImages(m.ProgramID, catEpisode, cancellationToken);
-    //            }
+            if (response.IsSuccessStatusCode)
+            {
+                Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+                if (stream != null)
+                {
+                    //var cropImg = await CropAndResizeImageAsync(stream);
 
-    //            if (sdProg.HasMovieArtwork == true)
-    //            {
-    //                List<ProgramArtwork> iconsSports = m.ProgramArtwork.Where(item => item.Category.StartsWith("Poster")).ToList();
-    //                await DownloadImages(m.ProgramID, iconsSports, cancellationToken);
-    //                continue;
-    //            }
+                    //// Crop and save image
+                    //using (var outputStream = File.Create(filePath))
+                    //{
+                    //    cropImg.Save(outputStream, new JpegEncoder());
+                    //}
 
-    //            if (sdProg.HasSeasonArtwork == true)
-    //            {
-    //                List<ProgramArtwork> catSeason = m.ProgramArtwork.Where(item => item.Tier == "Season").ToList();
-    //                await DownloadImages(m.ProgramID, catSeason, cancellationToken);
-    //            }
 
-    //            if (sdProg.HasSeriesArtwork == true)
-    //            {
-    //                List<ProgramArtwork> catSeries = m.ProgramArtwork.Where(item => item.Tier == "Series").ToList();
-    //                await DownloadImages(m.ProgramID, catSeries, cancellationToken);
-    //            }
+                    using var outputStream = File.Create(filePath);
+                    await stream.CopyToAsync(outputStream, cancellationToken);
+                    stream.Close();
+                    stream.Dispose();
+                    logger.LogDebug($"Downloaded image from {uri} to {filePath}: {response.StatusCode}");
+                    return true;
+                }
 
-    //            if (sdProg.HasSportsArtwork == true)
-    //            {
-    //                List<ProgramArtwork> iconsSports = [.. m.ProgramArtwork];
-    //                await DownloadImages(m.ProgramID, iconsSports, cancellationToken);
-    //            }
 
-    //            if (sdProg.HasImageArtwork == true)
-    //            {
-    //                await DownloadImages(m.ProgramID, m.ProgramArtwork, cancellationToken);
-    //            }
-    //        }
-    //    }
-    //}
+            }
+            else
+            {
+                logger.LogError($"Failed to download image from {uri} to {filePath}: {response.StatusCode}");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to download image from {Url} to {FileName}.", uri, filePath);
+        }
+        return false;
+    }
+
+
+
+    ////public async Task ProcessProgramsImages(List<Programme> sDPrograms, CancellationToken cancellationToken)
+    ////{
+    ////    List<string> programIds = sDPrograms
+    ////        .Where(a => a.HasImageArtwork == true || a.HasSportsArtwork == true || a.HasSeriesArtwork == true || a.HasSeasonArtwork == true || a.HasMovieArtwork == true || a.HasEpisodeArtwork == true)
+    ////        .Select(a => a.ProgramID).Distinct().ToList();
+    ////    List<string> distinctProgramIds = programIds
+    ////                                         .Distinct()
+    ////                                         .Select(a => a.Length >= 10 ? a[..10] : a) // Select the leftmost 10 characters
+    ////                                         .ToList();
+
+    ////    if (programIds.Any())
+    ////    {
+    ////        List<ProgramMetadata>? fetchedResults = await schedulesDirectAPI.PostData<List<ProgramMetadata>>("metadata/programs/", programIds, cancellationToken).ConfigureAwait(false);
+    ////        if (fetchedResults == null)
+    ////        {
+    ////            return;
+    ////        }
+
+    ////        int count = 0;
+
+    ////        foreach (ProgramMetadata m in fetchedResults)
+    ////        {
+    ////            ++count;
+    ////            logger.LogInformation("Caching program icons for {count}/{totalCount} programs", count, fetchedResults.Count);
+    ////            Programme? sdProg = sDPrograms.Find(a => a.ProgramID == m.ProgramID);
+    ////            string cats = string.Join(',', m.ProgramArtwork.Select(a => a.Category).Distinct());
+    ////            string tiers = string.Join(',', m.ProgramArtwork.Select(a => a.Tier).Distinct());
+
+    ////            if (sdProg is null)
+    ////            {
+    ////                continue;
+    ////            }
+
+    ////            if (sdProg.HasEpisodeArtwork == true)
+    ////            {
+    ////                //List<ProgramArtwork> catEpisode = m.ProgramArtwork.Where(item => item.Tier == "Episode").ToList();
+    ////                //await DownloadImages(m.ProgramID, catEpisode, cancellationToken);
+    ////            }
+
+    ////            if (sdProg.HasMovieArtwork == true)
+    ////            {
+    ////                List<ProgramArtwork> iconsSports = m.ProgramArtwork.Where(item => item.Category.StartsWith("Poster")).ToList();
+    ////                await DownloadImages(m.ProgramID, iconsSports, cancellationToken);
+    ////                continue;
+    ////            }
+
+    ////            if (sdProg.HasSeasonArtwork == true)
+    ////            {
+    ////                List<ProgramArtwork> catSeason = m.ProgramArtwork.Where(item => item.Tier == "Season").ToList();
+    ////                await DownloadImages(m.ProgramID, catSeason, cancellationToken);
+    ////            }
+
+    ////            if (sdProg.HasSeriesArtwork == true)
+    ////            {
+    ////                List<ProgramArtwork> catSeries = m.ProgramArtwork.Where(item => item.Tier == "Series").ToList();
+    ////                await DownloadImages(m.ProgramID, catSeries, cancellationToken);
+    ////            }
+
+    ////            if (sdProg.HasSportsArtwork == true)
+    ////            {
+    ////                List<ProgramArtwork> iconsSports = [.. m.ProgramArtwork];
+    ////                await DownloadImages(m.ProgramID, iconsSports, cancellationToken);
+    ////            }
+
+    ////            if (sdProg.HasImageArtwork == true)
+    ////            {
+    ////                await DownloadImages(m.ProgramID, m.ProgramArtwork, cancellationToken);
+    ////            }
+    ////        }
+    ////    }
+    ////}
 
     //private async Task DownloadImages(string programId, List<ProgramArtwork> iconsList, CancellationToken cancellationToken)
     //{

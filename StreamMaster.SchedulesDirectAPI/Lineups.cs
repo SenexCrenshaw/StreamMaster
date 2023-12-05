@@ -305,57 +305,6 @@ public partial class SchedulesDirect
         return true;
     }
 
-    private async Task<bool> DownloadSdLogo(string uri, string filePath, CancellationToken cancellationToken)
-    {
-
-        filePath = CleanUpFileName(filePath);
-        try
-        {
-            Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
-
-            HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
-            using HttpResponseMessage response = await httpClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
-
-            if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.NotFound)
-            {
-                return false;
-            }
-
-            if (response.IsSuccessStatusCode)
-            {
-                Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-                if (stream != null)
-                {                    
-                    //var cropImg = await CropAndResizeImageAsync(stream);
-
-                    //// Crop and save image
-                    //using (var outputStream = File.Create(filePath))
-                    //{
-                    //    cropImg.Save(outputStream, new JpegEncoder());
-                    //}
-
-
-                    using (var outputStream = File.Create(filePath))
-                    {
-                        await stream.CopyToAsync(outputStream, cancellationToken);
-                    }
-                }
-       
-                return true;
-            }
-            else
-            {
-                logger.LogError($"Failed to download image from {uri} to {filePath}: {response.StatusCode}");
-            }
-
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to download image from {Url} to {FileName}.", uri, filePath);
-        }
-        return false;
-    }
-
     private async Task<Image<Rgba32>> CropAndResizeImageAsync(Stream stream)
     {
         try

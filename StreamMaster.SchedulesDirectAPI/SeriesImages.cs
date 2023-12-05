@@ -1,24 +1,25 @@
 ﻿using Microsoft.Extensions.Logging;
-using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 
-using StreamMasterDomain.Common;
+using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 
 using System.Collections.Concurrent;
 using System.Collections.Specialized;
 using System.Text.Json;
-using System.Threading;
 
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
 {
-    private  ConcurrentBag<ProgramMetadata> imageResponses=[];
-    private  NameValueCollection sportsSeries = new NameValueCollection();
-    private  List<string> imageQueue = [];
+    
+    private  NameValueCollection sportsSeries = [];
+
+    private List<string> seriesImageQueue = [];
+    private ConcurrentBag<ProgramMetadata> seriesImageResponses = [];
+
     private  async Task<bool> GetAllSeriesImages(CancellationToken cancellationToken)
     {
         // reset counters
-        imageQueue = new List<string>();
-        imageResponses = new ConcurrentBag<ProgramMetadata>();
+        seriesImageQueue = [];
+        seriesImageResponses = [];
         //IncrementNextStage(schedulesDirectData.SeriesInfosToProcess.Count);
         
         logger.LogInformation($"Entering GetAllSeriesImages() for {totalObjects} series.");
@@ -70,11 +71,11 @@ public partial class SchedulesDirect
                 {
                     ++refreshing;
                 }
-                imageQueue.Add($"SH{series.SeriesId}0000");
+                seriesImageQueue.Add($"SH{series.SeriesId}0000");
             }
             else
             {
-                imageQueue.AddRange(sportsSeries.GetValues(series.SeriesId));
+                seriesImageQueue.AddRange(sportsSeries.GetValues(series.SeriesId));
             }
         }
         logger.LogDebug($"Found {processedObjects} cached/unavailable series image links.");
@@ -84,55 +85,29 @@ public partial class SchedulesDirect
         }
 
         // maximum 500 queries at a time
-        if (imageQueue.Count > 0)
+        if (seriesImageQueue.Count > 0)
         {
-            Parallel.For(0, (imageQueue.Count / MaxImgQueries + 1), new ParallelOptions { MaxDegreeOfParallelism = MaxParallelDownloads }, i =>
+            Parallel.For(0, (seriesImageQueue.Count / MaxImgQueries + 1), new ParallelOptions { MaxDegreeOfParallelism = MaxParallelDownloads }, i =>
             {
-                DownloadImageResponses(i * MaxImgQueries);
+                DownloadImageResponses( seriesImageQueue, seriesImageResponses, i * MaxImgQueries);
             });
 
             ProcessSeriesImageResponses();
-            await DownloadImages(cancellationToken);
+             await DownloadImages(seriesImageResponses, cancellationToken);
             if (processedObjects != totalObjects)
             {
                 logger.LogWarning($"Failed to download and process {schedulesDirectData.SeriesInfosToProcess.Count - processedObjects} series image links.");
             }
         }
         logger.LogInformation("Exiting GetAllSeriesImages(). SUCCESS.");
-        imageQueue = null; sportsSeries = null; imageResponses = null;
+        seriesImageQueue = []; sportsSeries = []; seriesImageResponses = [];
         return true;
-    }
-
-    private  void DownloadImageResponses(int start = 0)
-    {
-        // reject 0 requests
-        if (imageQueue.Count - start < 1) return;
-
-        // build the array of series to request images for
-        var series = new string[Math.Min(imageQueue.Count - start, MaxImgQueries)];
-        for (var i = 0; i < series.Length; ++i)
-        {
-            series[i] = imageQueue[start + i];
-        }
-
-        // request images from Schedules Direct
-        var responses = GetArtworkAsync(series).Result;
-        if (responses != null)
-        {
-            Parallel.ForEach(responses, (response) =>
-            {
-                imageResponses.Add(response);
-            });
-        }
-    }
-
-   
-
+    } 
 
     private void ProcessSeriesImageResponses()
     {
         // process request response
-        foreach (var response in imageResponses)
+        foreach (var response in seriesImageResponses)
         {
             //IncrementProgress();
             var uid = response.ProgramId;
@@ -160,68 +135,6 @@ public partial class SchedulesDirect
             series.extras.Add("artwork", artwork);
             series.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Series, uid);
         }
-    }
-
-    private async Task<bool> DownloadImages(CancellationToken cancellationToken)
-    {
-        Setting setting = memoryCache.GetSetting();
-        if (!setting.SDSettings.SDEnabled)
-        {
-            return false;
-        }
-
-        if (imageResponses.Count == 0)
-        {
-            return false;
-        }
-      
-        int maxConcurrentDownloads = 4;
-        var semaphore = new SemaphoreSlim(maxConcurrentDownloads);
-
-        
-        var tasks = imageResponses.Select(async response =>
-        {
-            await semaphore.WaitAsync(cancellationToken);
-
-            try
-            {
-               var series = schedulesDirectData.FindOrCreateSeriesInfo(response.ProgramId.Substring(2, 8));
-                if (series == null || string.IsNullOrEmpty(series.GuideImage) || !series.extras.ContainsKey("artwork"))
-                {
-                    return;
-                }
-                else
-                {
-                    var a = 1;
-                }
-
-               
-                //var logoPath = serviceLogo.Value[0];
-                //if ((File.Exists(logoPath) || await DownloadSdLogo(serviceLogo.Value[1], logoPath, cancellationToken)) && string.IsNullOrEmpty(serviceLogo.Key.LogoImage))
-                //{
-
-                //    serviceLogo.Key.mxfGuideImage = schedulesDirectData.FindOrCreateGuideImage(logoPath);
-
-                //    if (File.Exists(logoPath))
-                //    {
-                //        // update dimensions
-                //        using var stream = File.OpenRead(logoPath);
-                //        using var image = await Image.LoadAsync(stream, cancellationToken);
-                //        serviceLogo.Key.extras["logo"].Height = image.Height;
-                //        serviceLogo.Key.extras["logo"].Width = image.Width;
-                //        StationLogosToDownload.Remove(serviceLogo);
-                //    }
-                //}
-            }
-            finally
-            {
-                semaphore.Release();
-            }
-        }).ToArray();
-
-        await Task.WhenAll(tasks);
-
-        return true;
     }
 
     private  List<ProgramArtwork> GetTieredImages(List<ProgramArtwork> sdImages, List<string> tiers)
@@ -317,11 +230,9 @@ public partial class SchedulesDirect
         }
         if (cacheKey != null)
         {
-            using (var writer = new StringWriter())
-            {
-                var artworkJson = JsonSerializer.Serialize(artwork);
-                epgCache.UpdateAssetImages(cacheKey, artworkJson);
-            }
+            using var writer = new StringWriter();
+            var artworkJson = JsonSerializer.Serialize(artwork);
+            epgCache.UpdateAssetImages(cacheKey, artworkJson);
         }
 
         var setting = memoryCache.GetSetting();

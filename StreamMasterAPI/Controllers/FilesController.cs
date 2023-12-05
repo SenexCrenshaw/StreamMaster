@@ -54,11 +54,12 @@ public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mime
 
         if (IPTVFileType == SMFileTypes.SDImage)
         {
-            StreamMaster.SchedulesDirectAPI.Domain.Models.ImageInfo? cache = memoryCache.ImageInfos().FirstOrDefault(a => a.IconUri == source);
-            if (cache == null) { return (null, null); }
-            string fullName = Path.GetFileName(cache.FullName);
+            //StreamMaster.SchedulesDirectAPI.Domain.Models.ImageInfo? cache = memoryCache.ImageInfos().FirstOrDefault(a => a.IconUri == source);
+            //if (cache == null) { return (null, null); }
+            string fullPath = Path.Combine(FileDefinitions.SDImage.DirectoryLocation, source);
+            string fullName = Path.GetFileName(fullPath);
             returnName = fullName;
-            fileName = cache.FullName;
+            fileName = fullPath;
         }
         else
         if (IPTVFileType == SMFileTypes.TvLogo)

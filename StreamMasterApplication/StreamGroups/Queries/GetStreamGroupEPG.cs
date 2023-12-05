@@ -71,30 +71,30 @@ public class GetStreamGroupEPGHandler(IHttpContextAccessor httpContextAccessor, 
     }
 
     [LogExecutionTimeAspect]
-    public  Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
+    public async Task<string> Handle(GetStreamGroupEPG request, CancellationToken cancellationToken)
     {
         //return "";
-        //List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
+        //if ( request.StreamGroupId == 0)
+        //{
+        //    XMLTV epgData2 = schedulesDirect.CreateXmltv(_httpContextAccessor.GetUrl());
+        //    return SerializeXMLTVData(epgData2);
+        //}
 
-        //if (!videoStreams.Any())
+        //List<VideoStreamDto> videoStreams = await Repository.StreamGroupVideoStream.GetStreamGroupVideoStreams(request.StreamGroupId, cancellationToken);
+        //var ids = videoStreams.Where(a=>a.User_Tvg_ID.StartsWith("SD|")).Select(a=>a.User_Tvg_ID[4..]).Distinct().ToList();
+        //if (!ids.Any())
         //{
         //    return "";
         //}
 
-        XMLTV epgData =GetEpgData();
+        var settings = MemoryCache.GetSetting();
+        var goodIds =  settings.SDSettings.SDStationIds.Select(a => a.StationId).Distinct().ToList();
 
-        return Task.FromResult( SerializeXMLTVData(epgData));
+        XMLTV epgData = schedulesDirect.CreateXmltv(_httpContextAccessor.GetUrl(), goodIds);
+
+        return  SerializeXMLTVData(epgData);
     }
 
-
-    [LogExecutionTimeAspect]
-    private XMLTV GetEpgData()
-    {
-        //var settings = MemoryCache.GetSetting();
-        //var xmltv =schedulesDirect.CreateXmltv(settings.SDSettings.SDStationIds.Select(a=>a.StationId));
-        var xmltv = schedulesDirect.CreateXmltv(_httpContextAccessor.GetUrl());
-        return xmltv;
-    }
 
 
     //    [LogExecutionTimeAspect]

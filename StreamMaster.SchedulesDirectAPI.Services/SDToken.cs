@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain;
+using StreamMaster.SchedulesDirectAPI.Domain.Models;
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Cache;
@@ -30,7 +31,7 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
             await LoadTokenAsync(cancellationToken);
         }
 
-        if (!string.IsNullOrEmpty(_token) && _tokenDateTime.AddHours(12) > DateTime.UtcNow)
+        if (!string.IsNullOrEmpty(_token) && _tokenDateTime.AddHours(1) > DateTime.UtcNow)
         {
             return _token;
         }
@@ -49,7 +50,7 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
     public async Task<string?> ResetTokenAsync(CancellationToken cancellationToken)
     {
         //_token = null;
-        //await SaveTokenAsync(cancellationToken).ConfigureAwait(false);
+        await SaveTokenAsync(cancellationToken).ConfigureAwait(false);
         _token = await RetrieveTokenAsync(cancellationToken).ConfigureAwait(false);
         return _token;
         //return await GetTokenAsync(cancellationToken).ConfigureAwait(false);
@@ -75,33 +76,37 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
 
     private async Task LoadTokenAsync(CancellationToken cancellationToken = default)
     {
-        _token = null;
-        return;
-        //await _fileSemaphore.WaitAsync(cancellationToken);
-        //try
-        //{
-        //    if (!File.Exists(_sdTokenFilename))
-        //    {
-        //        _token = null;
-        //        return;
-        //    }
 
-        //    string jsonString = File.ReadAllText(_sdTokenFilename);
-        //    SDTokenFile? result = JsonSerializer.Deserialize<SDTokenFile>(jsonString)!;
-        //    if (result is null)
-        //    {
-        //        _token = null;
-        //        return;
-        //    }
 
-        //    _token = result.Token;
-        //    _tokenDateTime = result.TokenDateTime;
-        //    _lockOutTokenDateTime = result.LockOutTokenDateTime;
-        //}
-        //finally
-        //{
-        //    _ = _fileSemaphore.Release();
-        //}
+        await _fileSemaphore.WaitAsync(cancellationToken);
+        try
+        {
+            //if (!File.Exists(_sdTokenFilename))
+            //{
+            //    _token = null;
+            //    return;
+            //}
+
+            //string jsonString = File.ReadAllText(_sdTokenFilename);
+            //SDTokenFile? result = JsonSerializer.Deserialize<SDTokenFile>(jsonString)!;
+            //if (result is null)
+            //{
+            //    _token = null;
+            //    return;
+            //}
+
+            var result = memoryCache.GetSDToken();
+            if (result != null)
+            {
+                _token = result.Token;
+                _tokenDateTime = result.TokenDateTime;
+                _lockOutTokenDateTime = result.LockOutTokenDateTime;
+            }
+        }
+        finally
+        {
+            _ = _fileSemaphore.Release();
+        }
     }
 
     private async Task<string?> RetrieveTokenAsync(CancellationToken cancellationToken)
@@ -181,7 +186,8 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
             }
 
             SDTokenFile tokenFile = new() { Token = _token, TokenDateTime = _tokenDateTime, LockOutTokenDateTime = _lockOutTokenDateTime };
-            string jsonString = JsonSerializer.Serialize(tokenFile);
+            memoryCache.SetSDToken(tokenFile);
+            //string jsonString = JsonSerializer.Serialize(tokenFile);
 
             //await File.WriteAllTextAsync(_sdTokenFilename, jsonString, cancellationToken);
         }

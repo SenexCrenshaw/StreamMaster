@@ -1,6 +1,6 @@
-﻿namespace StreamMaster.SchedulesDirectAPI;
+﻿namespace StreamMaster.SchedulesDirectAPI.Domain.Models;
 
-internal class SDTokenFile
+public class SDTokenFile
 {
     public string? Token { get; set; }
     public DateTime TokenDateTime { get; set; }

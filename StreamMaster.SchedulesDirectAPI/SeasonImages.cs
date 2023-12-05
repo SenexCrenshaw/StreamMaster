@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
+
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
+
 using System.Collections.Concurrent;
 using System.Text.Json;
 
@@ -7,14 +9,15 @@ namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
 {
     private  readonly List<MxfSeason> seasons = [];
-
-    private  bool GetAllSeasonImages()
+    private List<string> seasonImageQueue = [];
+    private ConcurrentBag<ProgramMetadata> seasonImageResponses = [];
+    private  async Task<bool> GetAllSeasonImages(CancellationToken cancellationToken)
     {
         var settings = memoryCache.GetSetting();
 
         // reset counters
-        imageQueue = new List<string>();
-        imageResponses = new ConcurrentBag<ProgramMetadata>();
+        seasonImageQueue = [];
+        seasonImageResponses = [];
         //IncrementNextStage(mxf.SeasonsToProcess.Count);
         if (!settings.SDSettings.SeasonEventImages) return true;
 
@@ -41,7 +44,7 @@ public partial class SchedulesDirect
             else if (!string.IsNullOrEmpty(season.ProtoTypicalProgram))
             {
                 seasons.Add(season);
-                imageQueue.Add(season.ProtoTypicalProgram);
+                seasonImageQueue.Add(season.ProtoTypicalProgram);
             }
             else
             {
@@ -51,28 +54,29 @@ public partial class SchedulesDirect
         logger.LogDebug($"Found {processedObjects} cached/unavailable season image links.");
 
         // maximum 500 queries at a time
-        if (imageQueue.Count > 0)
+        if (seasonImageQueue.Count > 0)
         {
-            Parallel.For(0, (imageQueue.Count / MaxImgQueries + 1), new ParallelOptions { MaxDegreeOfParallelism = MaxParallelDownloads }, i =>
+            Parallel.For(0, (seasonImageQueue.Count / MaxImgQueries + 1), new ParallelOptions { MaxDegreeOfParallelism = MaxParallelDownloads }, i =>
             {
-                DownloadImageResponses(i * MaxImgQueries);
+                DownloadImageResponses(seasonImageQueue, seriesImageResponses,i * MaxImgQueries);
             });
 
             ProcessSeasonImageResponses();
+            await DownloadImages(seasonImageResponses, cancellationToken);
             if (processedObjects != totalObjects)
             {
                 logger.LogWarning($"Failed to download and process {seasons.Count - processedObjects} season image links.");
             }
         }
         logger.LogInformation("Exiting GetAllSeasonImages(). SUCCESS.");
-        imageQueue = null; imageResponses = null; seasons.Clear();
+        seasonImageQueue = []; seasonImageResponses = []; seasons.Clear();
         return true;
     }
 
     private  void ProcessSeasonImageResponses()
     {
         // process request response
-        foreach (var response in imageResponses)
+        foreach (var response in seasonImageResponses)
         {
             //IncrementProgress();
             if (response.Data == null) continue;

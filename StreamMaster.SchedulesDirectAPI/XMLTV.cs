@@ -76,7 +76,7 @@ public partial class SchedulesDirect
         }
         return null;
     }
-    public string GetIconUrl(string iconOriginalSource)
+    public string GetIconUrl(string iconOriginalSource, SMFileTypes? sMFileTypes=null)
     {
         var settings = memoryCache.GetSetting();
         if (string.IsNullOrEmpty(iconOriginalSource))
@@ -97,15 +97,15 @@ public partial class SchedulesDirect
         }
         else if (!iconOriginalSource.StartsWith("http"))
         {
-            return GetApiUrl(SMFileTypes.TvLogo, originalUrl);
+            return GetApiUrl(sMFileTypes??SMFileTypes.SDImage, originalUrl);
+        }
+        if (iconOriginalSource.StartsWith("https://json.schedulesdirect.org"))
+        {
+            return GetApiUrl(sMFileTypes ?? SMFileTypes.SDImage, originalUrl);
         }
         else if (settings.CacheIcons)
-        {
-            if (iconOriginalSource.StartsWith("https://json.schedulesdirect.org"))
-            {
-                return GetApiUrl(SMFileTypes.SDImage, originalUrl);
-            }
-            return GetApiUrl(SMFileTypes.Icon, originalUrl);
+        {           
+            return GetApiUrl(sMFileTypes ?? SMFileTypes.Icon, originalUrl);
         }
 
         return iconOriginalSource;
@@ -161,18 +161,18 @@ public partial class SchedulesDirect
         if (!string.IsNullOrEmpty(affiliate) && !mxfService.Name.Equals(affiliate)) ret.DisplayNames.Add(new XmltvText { Text = affiliate });
 
         // add logo if available
-        if (mxfService.extras.ContainsKey("logo"))
+        if (mxfService.extras.TryGetValue("logo", out dynamic? logos))
         {
-            var a = mxfService.extras["logo"];
-            ret.Icons = new List<XmltvIcon>
-                {
-                    new XmltvIcon
-                    {
+        
+            ret.Icons =
+                [
+                    new() {
                         Src = GetIconUrl( mxfService.extras["logo"].Url),
                         Height = mxfService.extras["logo"].Height,
                         Width = mxfService.extras["logo"].Width
                     }
-                };
+                ];
+
         }
         return ret;
     }

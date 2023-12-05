@@ -3,20 +3,21 @@
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 
 using System.Collections.Concurrent;
-using System.Formats.Asn1;
 using System.Text.Json;
-using System.Threading;
 
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
 {
+    private List<string> movieImageQueue = [];
+    private ConcurrentBag<ProgramMetadata> movieImageResponses = [];
     private async Task<bool> GetAllMoviePosters(CancellationToken cancellationToken)
     {
+
         var moviePrograms = schedulesDirectData.ProgramsToProcess.Where(arg => arg.IsMovie).Where(arg => !arg.IsAdultOnly).ToList();
 
         // reset counters
-        imageQueue = [];
-        imageResponses = new ConcurrentBag<ProgramMetadata>();
+        movieImageQueue = [];
+        movieImageResponses =[];
         //IncrementNextStage(moviePrograms.Count);
         
         logger.LogInformation($"Entering GetAllMoviePosters() for {totalObjects} movies.");
@@ -44,35 +45,35 @@ public partial class SchedulesDirect
             }
             else
             {
-                imageQueue.Add(mxfProgram.ProgramId);
+                movieImageQueue.Add(mxfProgram.ProgramId);
             }
         }
         logger.LogDebug($"Found {processedObjects} cached/unavailable movie poster links.");
 
         // maximum 500 queries at a time
-        if (imageQueue.Count > 0)
+        if (movieImageQueue.Count > 0)
         {
-            Parallel.For(0, (imageQueue.Count / MaxImgQueries + 1), new ParallelOptions { MaxDegreeOfParallelism = MaxParallelDownloads }, i =>
+            Parallel.For(0, (movieImageQueue.Count / MaxImgQueries + 1), new ParallelOptions { MaxDegreeOfParallelism = MaxParallelDownloads }, i =>
             {
-                DownloadImageResponses(i * MaxImgQueries);
+                DownloadImageResponses(movieImageQueue,movieImageResponses, i * MaxImgQueries);
             });
 
             ProcessMovieImageResponses();
-            await DownloadImages(cancellationToken);
+            await DownloadImages(movieImageResponses, cancellationToken);
             if (processedObjects != totalObjects)
             {
                 logger.LogWarning($"Failed to download and process {moviePrograms.Count - processedObjects} movie poster links.");
             }
         }
         logger.LogInformation("Exiting GetAllMoviePosters(). SUCCESS.");
-        imageQueue = null; imageResponses = null;
+        movieImageQueue = []; movieImageResponses = [];
         return true;
     }
 
     private  void ProcessMovieImageResponses()
     {
         // process request response
-        foreach (var response in imageResponses)
+        foreach (var response in movieImageResponses)
         {
             //IncrementProgress();
             if (response.Data == null) continue;

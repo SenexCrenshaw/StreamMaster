@@ -17,7 +17,7 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,IEPGCache e
     private readonly object fileLock = new();
     private const int MaxQueries = 1250;
     private const int MaxImgQueries = 125;
-    private const int MaxParallelDownloads = 4;
+    private const int MaxParallelDownloads = 8;
 
     private static int processedObjects;
     private static int totalObjects;
@@ -61,8 +61,8 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,IEPGCache e
                 BuildAllGenericSeriesInfoDescriptions() &&
                 await GetAllMoviePosters(cancellationToken) &&
                 await GetAllSeriesImages(cancellationToken) &&
-                GetAllSeasonImages() &&
-                GetAllSportsImages() &&
+                await GetAllSeasonImages(cancellationToken) &&
+                await GetAllSportsImages(cancellationToken) &&
                 BuildKeywords()
             )
         {

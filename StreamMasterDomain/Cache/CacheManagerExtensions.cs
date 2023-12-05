@@ -3,6 +3,7 @@
 using Microsoft.Extensions.Caching.Memory;
 
 using StreamMaster.SchedulesDirectAPI.Domain.EPG;
+using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
 using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
 using StreamMaster.SchedulesDirectAPI.Domain.Models;
 using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
@@ -249,6 +250,11 @@ public static class CacheManagerExtensions
     //    return cache.GetListFromCache<MxfService>(StationConfig.Key);
     //}
 
+    public static SDTokenFile? GetSDToken(this IMemoryCache cache)
+    {
+        return cache.GetFromCache<SDTokenFile>(SDTokenConfig.Key);
+    }
+
     //public static MxfService? GetService(this IMemoryCache cache, string stationId)
     //{
     //    return cache.GetListFromCache<MxfService>(StationConfig.Key).Find(a => a.StationId == stationId);
@@ -406,7 +412,7 @@ public static class CacheManagerExtensions
     //    return false;
     //}
 
-    
+
     //     public static void AddLineUp(this IMemoryCache cache, MxfLineup lineUp)
     //{
     //    lock (LineupConfig.Lock)
@@ -466,6 +472,14 @@ public static class CacheManagerExtensions
     //        _ = cache.Set(StationConfig.Key, services, NeverRemoveCacheEntryOptions);
     //    }
     //}
+
+    public static void SetSDToken(this IMemoryCache cache, SDTokenFile sdTokenFile)
+    {
+        lock (SDTokenConfig.Lock)
+        {
+            _ = cache.Set(SDTokenConfig.Key, sdTokenFile, SDTokenConfig.CacheEntryOptions);
+        }
+    }
 
     public static void SetCache(this IMemoryCache cache, object data, TimeSpan? expiration = null)
     {

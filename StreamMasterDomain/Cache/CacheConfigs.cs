@@ -9,12 +9,12 @@ internal static class IsSystemReadyConfig
     public static readonly object Lock = new();
 }
 
-//internal static class AffiliateConfig
-//{
-//    public static readonly MemoryCacheEntryOptions CacheEntryOptions = CacheManagerExtensions.NeverRemoveCacheEntryOptions;
-//    public static readonly string Key = "ListAffiliates";
-//    public static readonly object Lock = new();
-//}
+internal static class SDTokenConfig
+{
+    public static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions { AbsoluteExpiration= DateTimeOffset.UtcNow.AddHours(1) };
+    public static readonly string Key = "SDToken";
+    public static readonly object Lock = new();
+}
 
 //internal static class GuideImageConfig
 //{

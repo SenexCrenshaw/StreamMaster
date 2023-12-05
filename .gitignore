@@ -362,3 +362,4 @@ build
 coverage
 dist
 ffmpeg/ffmpeg
+epg.xml
