@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
+using StreamMaster.SchedulesDirectAPI.Domain.Models;
+
 using StreamMasterDomain.Services;
 
 namespace StreamMasterAPI.Controllers;
@@ -15,16 +17,17 @@ public class MiscController : ApiControllerBase
 
     [HttpGet]
     [Route("[action]")]
-    public ActionResult GetDownloadServiceStatus()
+    public ActionResult<ImageDownloadServiceStatus> GetDownloadServiceStatus()
     {
         var status = imageDownloadService.GetStatus();
-        var json = System.Text.Json.JsonSerializer.Serialize(status);
-        return new ContentResult
-        {
-            Content = json,
-            ContentType = "text/json",
-            StatusCode = 200
-        };
+        //var json = System.Text.Json.JsonSerializer.Serialize(status);
+        //return new ContentResult
+        //{
+        //    Content = json,
+        //    ContentType = "text/json",
+        //    StatusCode = 200
+        //};
+        return Ok(status);
     }
 
     //[HttpPatch]

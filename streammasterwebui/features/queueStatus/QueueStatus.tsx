@@ -1,32 +1,34 @@
 import StandardHeader from '@components/StandardHeader';
+import DataSelector from '@components/dataSelector/DataSelector';
+import { ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import { formatJSONDateString } from '@lib/common/common';
 import { QueueStatisIcon } from '@lib/common/icons';
-import { TaskQueueStatusDto, useSettingsGetQueueStatusQuery } from '@lib/iptvApi';
-import { Column } from 'primereact/column';
-import { DataTable } from 'primereact/datatable';
-import React from 'react';
+import { TaskQueueStatusDto, useMiscGetDownloadServiceStatusQuery, useSettingsGetQueueStatusQuery } from '@lib/iptvApi';
+import React, { useMemo } from 'react';
 
 // const StandardHeader = React.lazy(() => import('@components/StandardHeader'));
 
 const QueueStatus = () => {
   const status = useSettingsGetQueueStatusQuery();
+  const downloadStatus = useMiscGetDownloadServiceStatusQuery();
 
   const startDateTimeTemplate = (rowData: TaskQueueStatusDto) => {
     if (rowData.startTS === '0001-01-01T00:00:00') {
-      return 'Queued';
+      return <div>Queued</div>;
     }
-
-    return formatJSONDateString(rowData.startTS ?? '');
+    return <div>{formatJSONDateString(rowData.startTS ?? '')}</div>;
   };
 
-  const queuedDateTimeTemplate = (rowData: TaskQueueStatusDto) => formatJSONDateString(rowData.queueTS ?? '');
+  const queuedDateTimeTemplate = (rowData: TaskQueueStatusDto) => {
+    return <div>{formatJSONDateString(rowData.queueTS ?? '')}</div>;
+  };
 
   const stopDateTimeTemplate = (rowData: TaskQueueStatusDto) => {
     if (rowData.startTS && rowData.stopTS && rowData.startTS < rowData.stopTS) {
-      return formatJSONDateString(rowData.stopTS ?? '');
+      return <div>{formatJSONDateString(rowData.stopTS ?? '')}</div>;
     }
 
-    return '';
+    return <div></div>;
   };
 
   const elaspsedTemplate = (rowData: TaskQueueStatusDto) => {
@@ -34,10 +36,10 @@ const QueueStatus = () => {
       const diff = new Date(rowData.stopTS).getTime() - new Date(rowData.startTS).getTime();
       const seconds = diff / 1000;
 
-      return seconds.toString();
+      return <div>{seconds.toString()}</div>;
     }
 
-    return '';
+    return <div></div>;
   };
 
   const isRunningTemplate = (rowData: TaskQueueStatusDto) => {
@@ -52,75 +54,110 @@ const QueueStatus = () => {
     return <span className="pi pi-check" />;
   };
 
+  const columns = useMemo(
+    (): ColumnMeta[] => [
+      {
+        bodyTemplate: isRunningTemplate,
+        field: 'isRunning',
+        header: 'Running',
+        width: '10rem'
+      },
+      {
+        field: 'command',
+        header: 'Command'
+      },
+      {
+        bodyTemplate: queuedDateTimeTemplate,
+        field: 'queueTS',
+        header: 'Queued Time',
+        width: '16rem'
+      },
+
+      {
+        align: 'center',
+        bodyTemplate: startDateTimeTemplate,
+        field: 'startTS',
+        header: 'Start Time',
+        width: '16rem'
+      },
+      {
+        align: 'center',
+        bodyTemplate: stopDateTimeTemplate,
+        field: 'stopTS',
+        header: 'Stop Time',
+        width: '16rem'
+      },
+      {
+        align: 'center',
+        bodyTemplate: elaspsedTemplate,
+        field: '',
+        header: 'Elapsed Seconds',
+        width: '10rem'
+      }
+    ],
+    []
+  );
+
+  const downloadColumns = useMemo(
+    (): ColumnMeta[] => [
+      {
+        align: 'center',
+        field: 'totalDownloadAttempts'
+      },
+      {
+        align: 'center',
+        field: 'totalInQueue',
+        width: '10rem'
+      },
+      {
+        align: 'center',
+        field: 'totalSuccessful',
+        width: '16rem'
+      },
+      {
+        align: 'center',
+        field: 'totalAlreadyExists',
+        width: '10rem'
+      },
+      {
+        align: 'center',
+        field: 'totalNoArt',
+        width: '10rem'
+      },
+      {
+        align: 'center',
+        field: 'totalErrors'
+      }
+    ],
+    []
+  );
+
   return (
     <StandardHeader displayName="QUEUE STATUS" icon={<QueueStatisIcon />}>
-      <DataTable
-        className="w-full text-sm"
-        emptyMessage="No Status Found"
-        key="id"
-        loading={status.isLoading}
-        showGridlines
-        size="small"
-        sortField="startTS"
-        sortMode="single"
-        sortOrder={1}
-        stripedRows
-        value={status.data}
-      >
-        <Column
-          body={isRunningTemplate}
-          field="isRunning"
-          header="Running"
-          key="isRunning"
-          style={{
-            maxWidth: '10rem',
-            width: '10rem'
-          }}
+      <div className="flex grid flex-col">
+        <DataSelector
+          isLoading={status.isLoading}
+          columns={columns}
+          dataSource={status.data}
+          enablePaginator={false}
+          id="queustatus"
+          defaultSortField="startTS"
+          selectedItemsKey="queustatus"
+          style={{ height: 'calc(50vh)' }}
         />
 
-        <Column field="command" header="Command" key="command" />
-
-        <Column
-          body={queuedDateTimeTemplate}
-          field="queueTS"
-          header="Queued Time"
-          key="queueTS"
-          style={{
-            maxWidth: '16rem',
-            width: '16rem'
-          }}
+        <span className="ml-2 mt-4">Image Download Service</span>
+        <DataSelector
+          className="mt-4"
+          isLoading={downloadStatus.isLoading}
+          columns={downloadColumns}
+          dataSource={downloadStatus.data ? [downloadStatus.data] : []}
+          enablePaginator={false}
+          id="queustatus"
+          defaultSortField="startTS"
+          selectedItemsKey="queustatus"
         />
-
-        <Column
-          body={startDateTimeTemplate}
-          field="startTS"
-          header="Start Time"
-          key="startTS"
-          style={{
-            maxWidth: '16rem',
-            width: '16rem'
-          }}
-        />
-        <Column
-          body={stopDateTimeTemplate}
-          field="stopTS"
-          header="Stop Time"
-          key="stopTS"
-          style={{
-            maxWidth: '16rem',
-            width: '16rem'
-          }}
-        />
-
-        <Column
-          body={elaspsedTemplate}
-          header="Elapsed Seconds"
-          style={{
-            maxWidth: '10rem',
-            width: '10rem'
-          }}
-        />
-      </DataTable>
+      </div>
     </StandardHeader>
   );
 };

@@ -818,7 +818,7 @@ export type M3UFilesUpdateM3UFileApiResponse = unknown;
 export type M3UFilesUpdateM3UFileApiArg = UpdateM3UFileRequest;
 export type M3UFilesGetM3UFileNamesApiResponse = /** status 200  */ string[];
 export type M3UFilesGetM3UFileNamesApiArg = void;
-export type MiscGetDownloadServiceStatusApiResponse = unknown;
+export type MiscGetDownloadServiceStatusApiResponse = /** status 200  */ ImageDownloadServiceStatus[];
 export type MiscGetDownloadServiceStatusApiArg = void;
 export type ProgrammesGetProgrammeApiResponse = /** status 200  */ XmltvProgramme[];
 export type ProgrammesGetProgrammeApiArg = string;
@@ -1209,6 +1209,14 @@ export type RefreshM3UFileRequest = {
 export type UpdateM3UFileRequest = BaseFileRequest & {
   maxStreamCount?: number | null;
   startingChannelNumber?: number | null;
+};
+export type ImageDownloadServiceStatus = {
+  totalDownloadAttempts?: number;
+  totalInQueue?: number;
+  totalSuccessful?: number;
+  totalAlreadyExists?: number;
+  totalNoArt?: number;
+  totalErrors?: number;
 };
 export type XmltvText = {
   language?: string;

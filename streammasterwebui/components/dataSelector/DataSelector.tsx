@@ -554,7 +554,7 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
             onSelectionChange(e);
           }}
           onSort={onSort}
-          paginator
+          paginator={props.enablePaginator ?? true}
           paginatorClassName="text-xs p-0 m-0 withpadding"
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           ref={tableReference}
@@ -653,6 +653,7 @@ interface BaseDataSelectorProperties<T = any> {
   defaultSortOrder?: -1 | 0 | 1;
   emptyMessage?: ReactNode;
   enableExport?: boolean;
+  enablePaginator?: boolean;
   disableSelectAll?: boolean;
   exportFilename?: string;
   groupRowsBy?: string;
