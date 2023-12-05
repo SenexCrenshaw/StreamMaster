@@ -1,6 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
+using StreamMaster.SchedulesDirectAPI.Helpers;
+
+using StreamMasterDomain.Services;
 
 using System.Collections.Concurrent;
 using System.Text.Json;
@@ -30,18 +33,16 @@ public partial class SchedulesDirect
                 //IncrementProgress();
                 if (string.IsNullOrEmpty(epgCache.JsonFiles[mxfProgram.extras["md5"]].Images)) continue;
 
-                List<ProgramArtwork> artwork;
-                using (var reader = new StringReader(epgCache.JsonFiles[mxfProgram.extras["md5"]].Images))
-                {
-                       artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(reader.ReadToEnd());
+                List<ProgramArtwork>? artwork;
+                using var reader = new StringReader(epgCache.JsonFiles[mxfProgram.extras["md5"]].Images);
+                artwork = JsonSerializer.Deserialize<List<ProgramArtwork>>(reader.ReadToEnd());
 
-                    if (artwork != null)
-                    {
-                        mxfProgram.extras["artwork"] = artwork;
-                    }
+                if (artwork != null)
+                {
+                    mxfProgram.extras["artwork"] = artwork;
+                    mxfProgram.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Movie);
                 }
 
-                mxfProgram.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Movie);
             }
             else
             {
@@ -59,7 +60,8 @@ public partial class SchedulesDirect
             });
 
             ProcessMovieImageResponses();
-            await DownloadImages(movieImageResponses, cancellationToken);
+            imageDownloadService.EnqueueProgramMetadataCollection(movieImageResponses);
+            //await DownloadImages(movieImageResponses, cancellationToken);
             if (processedObjects != totalObjects)
             {
                 logger.LogWarning($"Failed to download and process {moviePrograms.Count - processedObjects} movie poster links.");
@@ -83,7 +85,7 @@ public partial class SchedulesDirect
 
             // first choice is return from Schedules Direct
             List<ProgramArtwork> artwork;
-            artwork = GetTieredImages(response.Data, new List<string> { "episode" }).Where(arg => arg.Aspect.Equals("2x3")).ToList();
+            artwork = SDHelpers.GetTieredImages(response.Data, ["episode"]).Where(arg => arg.Aspect.Equals("2x3")).ToList();
 
             //// second choice is from TMDb if allowed and available
             //if (artwork.Count == 0 || artwork[0].Category.Equals("Staple"))

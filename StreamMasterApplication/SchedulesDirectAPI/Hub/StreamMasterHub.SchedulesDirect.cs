@@ -17,7 +17,7 @@ public partial class StreamMasterHub : ISchedulesDirectHub
         return await mediator.Send(request).ConfigureAwait(false);
     }
 
-    public async Task<Dictionary<string, List<Country>>> GetAvailableCountries()
+    public async Task<List<CountryData>?> GetAvailableCountries()
     {
         return await mediator.Send(new GetAvailableCountries()).ConfigureAwait(false);
     }

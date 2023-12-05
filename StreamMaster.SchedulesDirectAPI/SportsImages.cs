@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
+using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using System.Collections.Concurrent;
 using System.Text.Json;
@@ -52,7 +53,8 @@ public partial class SchedulesDirect
             });
 
             ProcessSportsImageResponses();
-            await DownloadImages(sportsImageResponses, cancellationToken);
+             imageDownloadService.EnqueueProgramMetadataCollection(sportsImageResponses);
+            //await DownloadImages(sportsImageResponses, cancellationToken);
             if (processedObjects != totalObjects)
             {
                 logger.LogWarning($"Failed to download and process {sportEvents.Count - processedObjects} sport event image links.");
@@ -78,7 +80,7 @@ public partial class SchedulesDirect
 
             // get sports event images
             List<ProgramArtwork> artwork;
-            mxfProgram.extras.Add("artwork", artwork = GetTieredImages(response.Data, new List<string> { "team event", "sport event" }));
+            mxfProgram.extras.Add("artwork", artwork = SDHelpers.GetTieredImages(response.Data, new List<string> { "team event", "sport event" }));
             mxfProgram.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Program, mxfProgram.extras["md5"]);
         }
     }

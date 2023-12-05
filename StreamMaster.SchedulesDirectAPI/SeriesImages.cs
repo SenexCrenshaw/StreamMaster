@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
+using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using System.Collections.Concurrent;
 using System.Collections.Specialized;
@@ -93,7 +94,8 @@ public partial class SchedulesDirect
             });
 
             ProcessSeriesImageResponses();
-             await DownloadImages(seriesImageResponses, cancellationToken);
+            imageDownloadService.EnqueueProgramMetadataCollection(seriesImageResponses);
+            //await DownloadImages(seriesImageResponses, cancellationToken);
             if (processedObjects != totalObjects)
             {
                 logger.LogWarning($"Failed to download and process {schedulesDirectData.SeriesInfosToProcess.Count - processedObjects} series image links.");
@@ -130,96 +132,14 @@ public partial class SchedulesDirect
             if (series == null || !string.IsNullOrEmpty(series.GuideImage) || series.extras.ContainsKey("artwork")) continue;
 
             // get series images
-            var artwork = GetTieredImages(response.Data, new List<string> { "series", "sport", "episode" });
+            var artwork = SDHelpers.GetTieredImages(response.Data, new List<string> { "series", "sport", "episode" });
             if (response.ProgramId.StartsWith("SP") && artwork.Count <= 0) continue;
             series.extras.Add("artwork", artwork);
             series.mxfGuideImage = GetGuideImageAndUpdateCache(artwork, ImageType.Series, uid);
         }
     }
 
-    private  List<ProgramArtwork> GetTieredImages(List<ProgramArtwork> sdImages, List<string> tiers)
-    {
-        var setting = memoryCache.GetSetting();
-        var ret = new List<ProgramArtwork>();
-        var images = sdImages.Where(arg =>
-            !string.IsNullOrEmpty(arg.Category) && !string.IsNullOrEmpty(arg.Aspect) && !string.IsNullOrEmpty(arg.Uri) &&
-            (string.IsNullOrEmpty(arg.Tier) || tiers.Contains(arg.Tier.ToLower())) &&
-            !string.IsNullOrEmpty(arg.Size) && arg.Size.Equals(setting.SDSettings.ArtworkSize));
-
-        // get the aspect ratios available and fix the URI
-        var aspects = new HashSet<string>();
-        foreach (var image in images)
-        {
-            aspects.Add(image.Aspect);
-            //if (!image.Uri.ToLower().StartsWith("http"))
-            //{
-            //    image.Uri = $"{api.BaseArtworkAddress}image/{image.Uri.ToLower()}";
-            //}
-        }
-
-        // determine which image to return with each aspect
-        foreach (var aspect in aspects)
-        {
-            var imgAspects = images.Where(arg => arg.Aspect.Equals(aspect));
-
-            var links = new ProgramArtwork[11];
-            foreach (var image in imgAspects)
-            {
-                switch (image.Category.ToLower())
-                {
-                    case "box art":     // DVD box art, for movies only
-                        if (links[0] == null) links[0] = image;
-                        break;
-                    case "vod art":
-                        if (links[1] == null) links[1] = image;
-                        break;
-                    case "poster art":  // theatrical movie poster, standard sizes
-                        if (links[2] == null) links[2] = image;
-                        break;
-                    case "banner":      // source-provided image, usually shows cast ensemble with source-provided text
-                        if (links[3] == null) links[3] = image;
-                        break;
-                    case "banner-l1":   // same as Banner
-                        if (links[4] == null) links[4] = image;
-                        break;
-                    case "banner-l2":   // source-provided image with plain text
-                        if (links[5] == null) links[5] = image;
-                        break;
-                    case "banner-lo":   // banner with Logo Only
-                        if (links[6] == null) links[6] = image;
-                        break;
-                    case "logo":        // official logo for program, sports organization, sports conference, or TV station
-                        if (links[7] == null) links[7] = image;
-                        break;
-                    case "banner-l3":   // stock photo image with plain text
-                        if (links[8] == null) links[8] = image;
-                        break;
-                    case "iconic":      // representative series/season/episode image, no text
-                        if (tiers.Contains("series") && links[9] == null) links[9] = image;
-                        break;
-                    case "staple":      // the staple image is intended to cover programs which do not have a unique banner image
-                        if (links[10] == null) links[10] = image;
-                        break;
-                    case "banner-l1t":
-                    case "banner-lot":  // banner with Logo Only + Text indicating season number
-                        break;
-                }
-            }
-
-            foreach (var link in links)
-            {
-                if (link == null) continue;
-                ret.Add(link);
-                break;
-            }
-        }
-
-        if (ret.Count > 1)
-        {
-            ret = ret.OrderBy(arg => arg.Width).ToList();
-        }
-        return ret;
-    }
+    
 
     private  MxfGuideImage GetGuideImageAndUpdateCache(List<ProgramArtwork> artwork, ImageType type, string cacheKey = null)
     {

@@ -2,9 +2,6 @@
 
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 
-using StreamMasterDomain.Common;
-
-using static System.Collections.Specialized.BitVector32;
 
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
@@ -24,18 +21,21 @@ public partial class SchedulesDirect
         return ret;
     }
 
-    public async Task<Dictionary<string, List<Country>>?> GetAvailableCountries(CancellationToken cancellationToken)
+    public async Task<List<CountryData>?> GetAvailableCountries(CancellationToken cancellationToken)
     {
         var ret = await schedulesDirectAPI.GetApiResponse<Dictionary<string, List<Country>>>(APIMethod.GET, "available/countries", cancellationToken: cancellationToken);
-        if (ret != null)
-        {
-            logger.LogDebug("Successfully retrieved list of available countries from Schedules Direct.");
-        }
-        else
+        if (ret == null)  
         {
             logger.LogError("Did not receive a response from Schedules Direct for a list of available countries.");
+            return null;
         }
-        return ret;
+
+        logger.LogDebug("Successfully retrieved list of available countries from Schedules Direct.");
+        List<CountryData> serializableDataList = ret
+         .Select(kv => new CountryData { Key = kv.Key, Countries = kv.Value })
+         .ToList();
+
+        return serializableDataList;
     }
 
     public async Task<List<Headend>?> GetHeadends(string country, string postalCode, CancellationToken cancellationToken = default)

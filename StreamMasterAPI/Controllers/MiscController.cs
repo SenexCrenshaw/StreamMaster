@@ -1,38 +1,49 @@
-﻿using MediatR;
+﻿using Microsoft.AspNetCore.Mvc;
 
-using Microsoft.AspNetCore.Mvc;
-
-using StreamMasterApplication.Icons.Commands;
-using StreamMasterApplication.Services;
+using StreamMasterDomain.Services;
 
 namespace StreamMasterAPI.Controllers;
 
 public class MiscController : ApiControllerBase
 {
-    private readonly IBackgroundTaskQueue _taskQueue;
-    private readonly ISender _sender;
-
-    public MiscController(IBackgroundTaskQueue taskQueue, ISender sender)
+    private readonly IImageDownloadService imageDownloadService;
+    
+    public MiscController(IImageDownloadService imageDownloadService)
     {
-        _taskQueue = taskQueue;
-        _sender = sender;
+        this.imageDownloadService = imageDownloadService;        
     }
 
-    [HttpPatch]
+    [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult> BuildIconsCacheFromVideoStreams()
+    public ActionResult GetDownloadServiceStatus()
     {
-        await _taskQueue.BuildIconsCacheFromVideoStreams().ConfigureAwait(false);
-        return NoContent();
+        var status = imageDownloadService.GetStatus();
+        var json = System.Text.Json.JsonSerializer.Serialize(status);
+        return new ContentResult
+        {
+            Content = json,
+            ContentType = "text/json",
+            StatusCode = 200
+        };
     }
 
+    //[HttpPatch]
+    //[Route("[action]")]
+    //public async Task<ActionResult> BuildIconsCacheFromVideoStreams()
+    //{
+    //    await _taskQueue.BuildIconsCacheFromVideoStreams().ConfigureAwait(false);
+    //    return NoContent();
+    //}
 
-    [HttpPatch]
-    [Route("[action]")]
-    public async Task<ActionResult> BuildProgIconsCacheFromEPGsRequest()
-    {
-        await _sender.Send(new BuildProgIconsCacheFromEPGsRequest()).ConfigureAwait(false);
 
-        return NoContent();
-    }
+
+
+    //[HttpPatch]
+    //[Route("[action]")]
+    //public async Task<ActionResult> BuildProgIconsCacheFromEPGsRequest()
+    //{
+    //    await _sender.Send(new BuildProgIconsCacheFromEPGsRequest()).ConfigureAwait(false);
+
+    //    return NoContent();
+    //}
 }

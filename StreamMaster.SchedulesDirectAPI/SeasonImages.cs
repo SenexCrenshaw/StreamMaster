@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
+using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using System.Collections.Concurrent;
 using System.Text.Json;
@@ -62,7 +63,9 @@ public partial class SchedulesDirect
             });
 
             ProcessSeasonImageResponses();
-            await DownloadImages(seasonImageResponses, cancellationToken);
+            imageDownloadService.EnqueueProgramMetadataCollection(seasonImageResponses);
+
+            //await DownloadImages(seasonImageResponses, cancellationToken);
             if (processedObjects != totalObjects)
             {
                 logger.LogWarning($"Failed to download and process {seasons.Count - processedObjects} season image links.");
@@ -86,7 +89,7 @@ public partial class SchedulesDirect
 
             // get season images
             List<ProgramArtwork> artwork;
-            season.extras.Add("artwork", artwork = GetTieredImages(response.Data, new List<string> { "season" }));
+            season.extras.Add("artwork", artwork = SDHelpers.GetTieredImages(response.Data, new List<string> { "season" }));
 
             // create a season entry in cache
             var uid = $"{season.SeriesId}_{season.SeasonNumber}";

@@ -11,7 +11,7 @@ public interface ISchedulesDirect
     Task<StationChannelMap?> GetStationChannelMap(string lineup);
     Task<bool> AddLineup(string lineup, CancellationToken cancellationToken);
     Task<List<ProgramMetadata>?> GetArtworkAsync(string[] request);
-    Task<Dictionary<string, List<Country>>?> GetAvailableCountries(CancellationToken cancellationToken);
+    Task<List<CountryData>?> GetAvailableCountries(CancellationToken cancellationToken);
     Task<List<string>?> GetCustomLogosFromServerAsync(string server);
     Task<Dictionary<string, GenericDescription>?> GetGenericDescriptionsAsync(string[] request);
     Task<List<Headend>?> GetHeadends(string country, string postalCode, CancellationToken cancellationToken = default);

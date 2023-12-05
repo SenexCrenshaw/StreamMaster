@@ -128,7 +128,7 @@ public partial class SchedulesDirect
                 {
                     if ( response.Data != null && response.Data.Any())
                     {                        
-                        artwork = GetTieredImages(response.Data, ["series", "sport", "episode"]);                     
+                        artwork = SDHelpers.GetTieredImages(response.Data, ["series", "sport", "episode"]);                     
                     }
                     else
                     {
@@ -211,7 +211,7 @@ public partial class SchedulesDirect
     private async Task<bool> DownloadSdLogo(string uri, string filePath, CancellationToken cancellationToken)
     {
 
-        filePath = CleanUpFileName(filePath);
+        filePath = FileUtil.CleanUpFileName(filePath);
         try
         {
             if (!await EnsureToken(cancellationToken).ConfigureAwait(false))
@@ -383,23 +383,7 @@ public partial class SchedulesDirect
     //    await Task.WhenAll(tasks);
     //}
 
-    private static string CleanUpFileName(string fullName)
-    {
-        // Remove double spaces, trim, and replace spaces with underscores
-        fullName = string.Join("_", fullName.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()));
-
-        // Ensure the file name doesn't start or end with an underscore
-        if (fullName.StartsWith("_"))
-        {
-            fullName = fullName.TrimStart('_');
-        }
-
-        if (fullName.EndsWith("_"))
-        {
-            fullName = fullName.TrimEnd('_');
-        }
-        return fullName;
-    }
+    
 
     //public async Task<bool> GetImageUrl(string programId, ProgramArtwork icon, CancellationToken cancellationToken)
     

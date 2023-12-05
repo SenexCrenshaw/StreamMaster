@@ -27,7 +27,7 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<Dictionary<string, List<Country>>>> GetAvailableCountries()
+    public async Task<ActionResult<List<CountryData>?>> GetAvailableCountries()
     {
         return Ok(await Mediator.Send(new GetAvailableCountries()).ConfigureAwait(false));
     }

@@ -18,6 +18,24 @@ public sealed class FileUtil
 {
     private static bool setupDirectories = false;
 
+    public static string CleanUpFileName(string fullName)
+    {
+        // Remove double spaces, trim, and replace spaces with underscores
+        fullName = string.Join("_", fullName.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()));
+
+        // Ensure the file name doesn't start or end with an underscore
+        if (fullName.StartsWith("_"))
+        {
+            fullName = fullName.TrimStart('_');
+        }
+
+        if (fullName.EndsWith("_"))
+        {
+            fullName = fullName.TrimEnd('_');
+        }
+        return fullName;
+    }
+
     public static dynamic? ReadXmlFile(string filepath, Type type)
     {
         if (!File.Exists(filepath))

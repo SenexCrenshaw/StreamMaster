@@ -64,7 +64,7 @@ public class PostStartup : BackgroundService
         await _taskQueue.BuildIconCaches(cancellationToken).ConfigureAwait(false);
 
 
-        while (!_taskQueue.IsCurrent())
+        while (_taskQueue.HasJobs())
         {
             await Task.Delay(250, cancellationToken).ConfigureAwait(false);
         }

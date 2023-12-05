@@ -2,7 +2,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 using StreamMaster.SchedulesDirectAPI.Converters;
 using StreamMaster.SchedulesDirectAPI.Data;
-using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 
 namespace StreamMaster.SchedulesDirectAPI.Services;
 

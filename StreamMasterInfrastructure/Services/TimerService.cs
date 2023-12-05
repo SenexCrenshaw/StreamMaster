@@ -13,15 +13,12 @@ using StreamMasterApplication.SchedulesDirectAPI.Commands;
 using StreamMasterApplication.Settings.Queries;
 
 using StreamMasterDomain.Cache;
+using StreamMasterDomain.Dto;
 using StreamMasterDomain.Repository;
 
 namespace StreamMasterInfrastructure.Services;
 
-public class TimerService(
-    IServiceProvider serviceProvider,
-    IMemoryCache memoryCache,
-    ILogger<TimerService> logger
-       ) : IHostedService, IDisposable
+public class TimerService(    IServiceProvider serviceProvider,    IMemoryCache memoryCache,    ILogger<TimerService> logger       ) : IHostedService, IDisposable
 {
     private readonly ILogger<TimerService> _logger = logger;
     private readonly IMemoryCache _memoryCache = memoryCache;
@@ -85,13 +82,13 @@ public class TimerService(
 
         DateTime now = DateTime.Now;
 
-        IEnumerable<StreamMasterDomain.Dto.EPGFileDto> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
-        IEnumerable<StreamMasterDomain.Dto.M3UFileDto> m3uFilesToUpdated = await mediator.Send(new GetM3UFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
+        IEnumerable<EPGFileDto> epgFilesToUpdated = await mediator.Send(new GetEPGFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
+        IEnumerable<M3UFileDto> m3uFilesToUpdated = await mediator.Send(new GetM3UFilesNeedUpdating(), cancellationToken).ConfigureAwait(false);
 
         if (epgFilesToUpdated.Any())
         {
             _logger.LogInformation("EPG Files to update count: {epgFiles.Count()}", epgFilesToUpdated.Count());
-            foreach (StreamMasterDomain.Dto.EPGFileDto? epgFile in epgFilesToUpdated)
+            foreach (EPGFileDto? epgFile in epgFilesToUpdated)
             {
                 _ = await mediator.Send(new RefreshEPGFileRequest(epgFile.Id), cancellationToken).ConfigureAwait(false);
             }
@@ -101,7 +98,7 @@ public class TimerService(
         {
             _logger.LogInformation("M3U Files to update count: {m3uFiles.Count()}", m3uFilesToUpdated.Count());
 
-            foreach (StreamMasterDomain.Dto.M3UFileDto? m3uFile in m3uFilesToUpdated)
+            foreach (M3UFileDto? m3uFile in m3uFilesToUpdated)
             {
                 _ = await mediator.Send(new RefreshM3UFileRequest(m3uFile.Id), cancellationToken).ConfigureAwait(false);
             }

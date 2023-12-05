@@ -47,8 +47,9 @@ public class SDSettings
     public bool XmltvSingleImage { get; set; }
 }
 
-public class BaseSettings : M3USettings { 
+public class BaseSettings : M3USettings {
 
+    public int MaxConcurrentDownloads { get; set; } = 8;
     public SDSettings SDSettings { get; set; } = new();
     public int ExpectedServiceCount { get; set; } = 20;
     public string AdminPassword { get; set; } = string.Empty;
@@ -94,5 +95,5 @@ public class ProtectedSettings : BaseSettings
 
 public class Setting : ProtectedSettings
 {
-  
+    
 }

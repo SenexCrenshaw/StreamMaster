@@ -10,7 +10,7 @@ using StreamMasterDomain.Common;
 using StreamMasterDomain.Services;
 
 namespace StreamMaster.SchedulesDirectAPI;
-public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,IEPGCache epgCache, ISchedulesDirectData schedulesDirectData, ISchedulesDirectAPI schedulesDirectAPI, ISettingsService settingsService, ISDToken SdToken, IMemoryCache memoryCache) : ISchedulesDirect
+public partial class SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDownloadService imageDownloadService,  IEPGCache epgCache, ISchedulesDirectData schedulesDirectData, ISchedulesDirectAPI schedulesDirectAPI, ISettingsService settingsService, ISDToken SdToken, IMemoryCache memoryCache) : ISchedulesDirect
 {
     public bool IsSyncing { get; set; }
 

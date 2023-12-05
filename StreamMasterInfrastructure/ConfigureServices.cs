@@ -1,9 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-using StreamMaster.SchedulesDirectAPI.Domain.Interfaces;
-using StreamMaster.SchedulesDirectAPI.Services;
-
 using StreamMasterApplication.Common.Interfaces;
 using StreamMasterApplication.LogApp;
 
@@ -13,6 +10,7 @@ using StreamMasterDomain.Services;
 using StreamMasterInfrastructure.Logging;
 using StreamMasterInfrastructure.Middleware;
 using StreamMasterInfrastructure.Services;
+using StreamMasterInfrastructure.Services.Downloads;
 using StreamMasterInfrastructure.Services.Frontend.Mappers;
 using StreamMasterInfrastructure.Services.Settings;
 using StreamMasterInfrastructure.VideoStreamManager.Channels;
@@ -87,7 +85,8 @@ public static class ConfigureServices
         services.AddSingleton<IBroadcastService, BroadcastService>();
 
         _ = services.AddHostedService<TimerService>();
-
+        //_ = services.AddHostedService<ImageDownloadService>();
+        services.AddSingleton<IImageDownloadService, ImageDownloadService>();
         return services;
     }
 }
