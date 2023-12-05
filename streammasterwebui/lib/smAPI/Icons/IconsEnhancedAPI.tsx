@@ -15,6 +15,10 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
           const updateCachedDataWithResults = (data: iptv.IconFileDto) => {
             updateCachedData(() => {{
               if (isDev) console.log('updateCachedData', data);
+              if (!data) {
+                dispatch(iptvApi.util.invalidateTags(['Icons']));
+                return;
+              }
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Icons' }])) {
                 if (endpointName !== 'iconsGetIcon') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{
@@ -43,6 +47,10 @@ export const enhancedApiIcons = iptvApi.enhanceEndpoints({
           const updateCachedDataWithResults = (data: iptv.IconFileDto) => {
             updateCachedData(() => {{
               if (isDev) console.log('updateCachedData', data);
+              if (!data) {
+                dispatch(iptvApi.util.invalidateTags(['Icons']));
+                return;
+              }
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'Icons' }])) {
                 if (endpointName !== 'iconsGetIconFromSource') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{

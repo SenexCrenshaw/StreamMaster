@@ -68,11 +68,11 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDown
         {
             epgCache.WriteCache();
             CreateDummLineupChannel();
-            var xml = CreateXmltv("");
-            if (xml is not null)
-            {
-                WriteXmltv(xml);
-            }
+            //var xml = CreateXmltv("");
+            //if (xml is not null)
+            //{
+            //    WriteXmltv(xml);
+            //}
             
             logger.LogInformation("Completed Schedules Direct update execution. SUCCESS.");
             IsSyncing = false;

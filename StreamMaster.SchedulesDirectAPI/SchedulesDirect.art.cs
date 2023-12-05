@@ -4,6 +4,8 @@ using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Common;
+using StreamMasterDomain.Dto;
+using StreamMasterDomain.Enums;
 
 using System.Collections.Concurrent;
 using System.Net;
@@ -63,6 +65,85 @@ public partial class SchedulesDirect
             logger.LogInformation("Did not receive a response from Schedules Direct for artwork info of {count} programs, first entry {entry}.", series.Length, series.Any()? series[0]:"");
             var AA = 1;
         }
+    }
+
+    private void UpdateMovieIcons(List<MxfProgram> mxfPrograms)
+    {
+        foreach (var prog in mxfPrograms.Where(a => a.extras.ContainsKey("artwork")))
+        {
+            List<ProgramArtwork> artwork = prog.extras["artwork"];
+            //artwork = SDHelpers.GetTieredImages(artwork, ["episode"]).Where(arg => arg.Aspect.Equals("2x3")).ToList();
+            UpdateIcons(artwork.Select(a => a.Uri), prog.Title);
+        }
+    }
+      
+
+          private void UpdateIcons(List<MxfService> Services)
+    {
+        foreach (var service in Services.Where(a => a.extras.ContainsKey("logo")))
+        {
+           StationImage artwork = service.extras["logo"];
+            //artwork = SDHelpers.GetTieredImages(artwork);
+
+            UpdateIcon(artwork.Url, service.CallSign);
+        }
+    }
+    private void UpdateIcons(List<MxfProgram> mxfPrograms)
+    {
+        foreach (var prog in mxfPrograms.Where(a => a.extras.ContainsKey("artwork")))
+        {
+            List<ProgramArtwork> artwork = prog.extras["artwork"];
+            //artwork = SDHelpers.GetTieredImages(artwork);
+
+            UpdateIcons(artwork.Select(a => a.Uri), prog.Title);
+        }
+    }
+
+    private void UpdateSeasonIcons(List<MxfSeason> mxfSeasons)
+    {
+        foreach (var prog in mxfSeasons.Where(a => a.extras.ContainsKey("artwork")))
+        {
+            List<ProgramArtwork> artwork = prog.extras["artwork"];
+            //artwork = SDHelpers.GetTieredImages(artwork, new List<string> { "season" })
+            UpdateIcons(artwork.Select(a => a.Uri), prog.Title);
+        }
+    }
+    private void UpdateIcons(List<MxfSeriesInfo> mxfSeriesInfos)
+    {
+        foreach (var prog in mxfSeriesInfos.Where(a => a.extras.ContainsKey("artwork")))
+        {
+            List<ProgramArtwork> artwork = prog.extras["artwork"];
+            UpdateIcons(artwork.Select(a=>a.Uri), prog.Title);
+        }
+    }
+    private void UpdateIcon(string artworkUri, string title)
+    {
+        if (string.IsNullOrEmpty(artworkUri)) return;
+
+        List<IconFileDto> icons = memoryCache.Icons();
+        
+            if (icons.Any(a => a.SMFileType == SMFileTypes.SDImage && a.Source == artworkUri)) return;
+
+            icons.Add(new IconFileDto { Id = icons.Count, Source = artworkUri, SMFileType = SMFileTypes.SDImage, Name = title });
+        
+        memoryCache.SetCache(icons);
+    }
+    private void UpdateIcons(IEnumerable<string> artworkUris, string title)
+    {
+        if (!artworkUris.Any()) return;
+        List<IconFileDto> icons = memoryCache.Icons();
+        //var logos = art.ToList();
+        foreach (var artworkUri in artworkUris)        
+        {
+            UpdateIcon(artworkUri, title);
+
+        }
+
+        //for (int i = 0; i < icons.Count; i++)
+        //{
+        //    icons[i].Id = i;
+        //}
+        memoryCache.SetCache(icons);
     }
 
     private async Task<bool> DownloadImages(ConcurrentBag<ProgramMetadata> programMetadata,CancellationToken cancellationToken)

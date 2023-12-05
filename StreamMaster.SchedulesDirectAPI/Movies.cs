@@ -67,6 +67,9 @@ public partial class SchedulesDirect
                 logger.LogWarning($"Failed to download and process {moviePrograms.Count - processedObjects} movie poster links.");
             }
         }
+
+        //UpdateIcons(moviePrograms);
+
         logger.LogInformation("Exiting GetAllMoviePosters(). SUCCESS.");
         movieImageQueue = []; movieImageResponses = [];
         return true;

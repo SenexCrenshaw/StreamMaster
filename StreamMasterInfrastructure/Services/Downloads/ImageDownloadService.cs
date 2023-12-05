@@ -15,6 +15,10 @@ using StreamMasterDomain.Services;
 
 using System.Collections.Concurrent;
 using System.Net;
+using Microsoft.AspNetCore.SignalR;
+using StreamMasterApplication.Common.Interfaces;
+using StreamMasterApplication.Hubs;
+using Microsoft.EntityFrameworkCore;
 
 namespace StreamMasterInfrastructure.Services.Downloads;
 
@@ -25,6 +29,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
     private readonly ISDToken sDToken;
     private readonly SemaphoreSlim downloadSemaphore;
     private readonly IMemoryCache memoryCache;
+    private readonly IHubContext<StreamMasterHub, IStreamMasterHub> hubContext;
     private readonly ConcurrentQueue<ProgramMetadata> downloadQueue = new();
     private bool IsActive = false;
     private readonly object Lock = new();
@@ -49,9 +54,10 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         };
     } 
 
-    public ImageDownloadService(ILogger<ImageDownloadService> logger, IMemoryCache memoryCache, ISchedulesDirectData schedulesDirectData, ISDToken sDToken)
+    public ImageDownloadService(ILogger<ImageDownloadService> logger, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache, ISchedulesDirectData schedulesDirectData, ISDToken sDToken)
     {
         this.logger = logger;
+        this.hubContext = hubContext;
         this.schedulesDirectData = schedulesDirectData;
         this.sDToken = sDToken;
         this.memoryCache = memoryCache;
@@ -201,7 +207,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                 var program = schedulesDirectData.Programs.Find(a => a.ProgramId == programId);
                 if (program != null && program.extras != null)
                 {
-                    artwork = GetArtWork(program);
+                    artwork = program.GetArtWork();
                 }
 
                 if (!artwork.Any())
@@ -213,6 +219,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                     else
                     {
                         ++TotalNoArt;
+                        await hubContext.Clients.All.MiscRefresh();
                         return;
                     }
                 }
@@ -241,6 +248,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                     }
                     finally
                     {
+                        await hubContext.Clients.All.MiscRefresh();
                         downloadSemaphore.Release();
                     }
                 }
@@ -257,29 +265,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
         }
     }
 
-    private static List<ProgramArtwork> GetArtWork(MxfProgram program)
-    {
-        var artwork = new List<ProgramArtwork>();
-        // a movie or sport event will have a guide image from the program
-        if (program.extras.TryGetValue("artwork", out dynamic? value))
-        {
-            artwork = value;
-        }
-
-        // get the season class from the program if it has a season
-        if (artwork.Count == 0 && (program.mxfSeason?.extras.ContainsKey("artwork") ?? false))
-        {
-            artwork = program.mxfSeason.extras["artwork"];
-        }
-
-        // get the series info class from the program if it is a series
-        if (artwork.Count == 0 && (program.mxfSeriesInfo?.extras.ContainsKey("artwork") ?? false))
-        {
-            artwork = program.mxfSeriesInfo.extras["artwork"];
-        }
-        return artwork;
-    }
-
+   
     public void Dispose()
     {
         downloadSemaphore.Dispose();

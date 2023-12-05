@@ -7,6 +7,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.Interfaces
 {
     public interface ISchedulesDirectData
     {
+        MxfService? GetService(string stationId);
         [XmlArrayItem("Lineup")]
         public List<MxfLineup> Lineups { get; set; }
         [XmlArrayItem("SeriesInfo")]

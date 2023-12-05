@@ -17,4 +17,9 @@ public partial class SchedulesDirectData
         return service;
     }
 
+    public MxfService? GetService(string stationId)
+    {
+        return _services.TryGetValue(stationId, out var service) ? service : null;
+    }
+
 }

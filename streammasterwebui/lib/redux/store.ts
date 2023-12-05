@@ -28,6 +28,7 @@ import showHiddenSliceReducer from '@lib/redux/slices/showHiddenSlice';
 import showSelectionsSliceReducer from '@lib/redux/slices/showSelectionsSlice';
 import sortInfoSliceReducer from '@lib/redux/slices/sortInfoSlice';
 
+import { enhancedApiMisc } from '@lib/smAPI/Misc/MiscEnhancedAPI';
 import { enhancedApiVideoStreamsGetAllStatisticsLocal } from '@lib/smAPILocal/enhancedApiVideoStreamsGetAllStatisticsLocal';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
@@ -58,10 +59,10 @@ const showSelectionsConfig = {
   storage
 };
 
-const selectedItemsGroupsConfig = {
-  key: 'selectedItems',
-  storage
-};
+// const selectedItemsGroupsConfig = {
+//   key: 'selectedItems',
+//   storage
+// };
 
 const selectedStreamGroupConfig = {
   key: 'selectedStreamGroup',
@@ -98,6 +99,7 @@ const rootReducer = combineReducers({
   [enhancedApiVideoStreams.reducerPath]: enhancedApiVideoStreams.reducer,
   [enhancedApiVideoStreamLinksLocal.reducerPath]: enhancedApiVideoStreamLinksLocal.reducer,
   [enhancedApiVideoStreamsGetAllStatisticsLocal.reducerPath]: enhancedApiVideoStreamsGetAllStatisticsLocal.reducer,
+  [enhancedApiMisc.reducerPath]: enhancedApiMisc.reducer,
   channelGroupToRemove: channelGroupToRemoveSliceReducer,
   queryAdditionalFilters: queryAdditionalFiltersReducer,
   queryFilter: queryFilterReducer,
@@ -124,6 +126,7 @@ const store = configureStore({
       enhancedApiChannelGroups.middleware,
       enhancedApiEpgFiles.middleware,
       enhancedApiM3UFiles.middleware,
+      enhancedApiMisc.middleware,
       enhancedApiProgrammes.middleware,
       enhancedApiSchedulesDirect.middleware,
       enhancedApiSettings.middleware,

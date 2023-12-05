@@ -101,6 +101,9 @@ public partial class SchedulesDirect
                 logger.LogWarning($"Failed to download and process {schedulesDirectData.SeriesInfosToProcess.Count - processedObjects} series image links.");
             }
         }
+
+        //UpdateIcons(schedulesDirectData.SeriesInfosToProcess);
+
         logger.LogInformation("Exiting GetAllSeriesImages(). SUCCESS.");
         seriesImageQueue = []; sportsSeries = []; seriesImageResponses = [];
         return true;

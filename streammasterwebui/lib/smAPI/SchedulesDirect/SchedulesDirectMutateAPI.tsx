@@ -6,6 +6,6 @@ import { invokeHubConnection } from '@lib/signalr/signalr';
 export const AddLineup = async (argument: iptv.AddLineup): Promise<void | null> => {
   await invokeHubConnection<void>('AddLineup', argument);
 };
-export const DeleteLineup = async (argument: iptv.DeleteLineup): Promise<void | null> => {
-  await invokeHubConnection<void>('DeleteLineup', argument);
+export const RemoveLineup = async (argument: iptv.RemoveLineup): Promise<void | null> => {
+  await invokeHubConnection<void>('RemoveLineup', argument);
 };

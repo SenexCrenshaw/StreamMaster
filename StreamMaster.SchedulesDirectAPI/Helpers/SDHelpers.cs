@@ -8,7 +8,29 @@ namespace StreamMaster.SchedulesDirectAPI.Helpers;
 
 public static partial class SDHelpers
 {
-   
+    public static List<ProgramArtwork> GetArtWork(this MxfProgram program)
+    {
+        var artwork = new List<ProgramArtwork>();
+        // a movie or sport event will have a guide image from the program
+        if (program.extras.TryGetValue("artwork", out dynamic? value))
+        {
+            artwork = value;
+        }
+
+        // get the season class from the program if it has a season
+        if (artwork.Count == 0 && (program.mxfSeason?.extras.ContainsKey("artwork") ?? false))
+        {
+            artwork = program.mxfSeason.extras["artwork"];
+        }
+
+        // get the series info class from the program if it is a series
+        if (artwork.Count == 0 && (program.mxfSeriesInfo?.extras.ContainsKey("artwork") ?? false))
+        {
+            artwork = program.mxfSeriesInfo.extras["artwork"];
+        }
+        return artwork;
+    }
+
     public static List<ProgramArtwork> GetTieredImages(List<ProgramArtwork> sdImages, List<string> tiers, string artWorkSize = "Md")
     {
         var ret = new List<ProgramArtwork>();

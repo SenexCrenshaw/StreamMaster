@@ -71,6 +71,7 @@ public partial class SchedulesDirect
                 logger.LogWarning($"Failed to download and process {seasons.Count - processedObjects} season image links.");
             }
         }
+        //UpdateSeasonIcons(schedulesDirectData.SeasonsToProcess);
         logger.LogInformation("Exiting GetAllSeasonImages(). SUCCESS.");
         seasonImageQueue = []; seasonImageResponses = []; seasons.Clear();
         return true;

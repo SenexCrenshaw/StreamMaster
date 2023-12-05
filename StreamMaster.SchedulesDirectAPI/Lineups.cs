@@ -8,6 +8,7 @@ using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Common;
 
+using System.Collections.Generic;
 using System.Net;
 using System.Text.RegularExpressions;
 
@@ -245,6 +246,11 @@ public partial class SchedulesDirect
             //    AddedStations = extras.Count;
             //    Logger.WriteInformation($"Stations added for download since last configuration save are: {string.Join(", ", extras.Select(e => e.CallSign))}");
             //}
+
+     
+                 UpdateIcons(schedulesDirectData.Services);
+            
+            
 
             logger.LogInformation("Exiting BuildLineupServices(). SUCCESS.");
             return true;

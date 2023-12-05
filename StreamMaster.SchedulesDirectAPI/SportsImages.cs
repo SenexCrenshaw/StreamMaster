@@ -1,7 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
+using StreamMaster.SchedulesDirectAPI.Domain.Models;
 using StreamMaster.SchedulesDirectAPI.Helpers;
+
+using StreamMasterDomain.Dto;
+using StreamMasterDomain.Enums;
+using StreamMasterDomain.Extensions;
 
 using System.Collections.Concurrent;
 using System.Text.Json;
@@ -48,8 +54,8 @@ public partial class SchedulesDirect
         if (sportsImageQueue.Count > 0)
         {
             Parallel.For(0, (sportsImageQueue.Count / MaxImgQueries + 1), new ParallelOptions { MaxDegreeOfParallelism = MaxParallelDownloads }, i =>
-            {
-                 DownloadImageResponses(sportsImageQueue, sportsImageResponses,i * MaxImgQueries);
+            {               
+                DownloadImageResponses(sportsImageQueue, sportsImageResponses,i * MaxImgQueries);
             });
 
             ProcessSportsImageResponses();
@@ -60,11 +66,17 @@ public partial class SchedulesDirect
                 logger.LogWarning($"Failed to download and process {sportEvents.Count - processedObjects} sport event image links.");
             }
         }
-        logger.LogInformation("Exiting GetAllSportsImages(). SUCCESS.");        
+
+        //UpdateIcons(sportEvents);
+
+        logger.LogInformation("Exiting GetAllSportsImages(). SUCCESS.");  
+        
         sportsImageQueue = []; sportsImageResponses = []; sportEvents.Clear();
 
         return true;
     }
+
+    
 
     private  void ProcessSportsImageResponses()
     {

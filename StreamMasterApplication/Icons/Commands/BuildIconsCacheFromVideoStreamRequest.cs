@@ -14,6 +14,7 @@ public class BuildIconsCacheFromVideoStreamRequestHandler : BaseMediatorRequestH
 
     public Task<bool> Handle(BuildIconsCacheFromVideoStreamRequest command, CancellationToken cancellationToken)
     {
+        return Task.FromResult( true);
         IQueryable<VideoStream> streams = Repository.VideoStream.GetVideoStreamQuery()
          .Where(a => a.User_Tvg_logo != null && a.User_Tvg_logo.Contains("://"))
          .AsQueryable();

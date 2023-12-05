@@ -15,6 +15,10 @@ export const enhancedApiChannelGroups = iptvApi.enhanceEndpoints({
           const updateCachedDataWithResults = (data: iptv.ChannelGroupDto) => {
             updateCachedData(() => {{
               if (isDev) console.log('updateCachedData', data);
+              if (!data) {
+                dispatch(iptvApi.util.invalidateTags(['ChannelGroups']));
+                return;
+              }
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'ChannelGroups' }])) {
                 if (endpointName !== 'channelGroupsGetChannelGroup') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{

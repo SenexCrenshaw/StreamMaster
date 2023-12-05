@@ -65,6 +65,10 @@ export const enhancedApiVideoStreams = iptvApi.enhanceEndpoints({
           const updateCachedDataWithResults = (data: iptv.VideoStreamDto) => {
             updateCachedData(() => {{
               if (isDev) console.log('updateCachedData', data);
+              if (!data) {
+                dispatch(iptvApi.util.invalidateTags(['VideoStreams']));
+                return;
+              }
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'VideoStreams' }])) {
                 if (endpointName !== 'videoStreamsGetVideoStream') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{

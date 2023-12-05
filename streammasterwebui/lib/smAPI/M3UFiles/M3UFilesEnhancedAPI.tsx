@@ -15,6 +15,10 @@ export const enhancedApiM3UFiles = iptvApi.enhanceEndpoints({
           const updateCachedDataWithResults = (data: iptv.M3UFileDto) => {
             updateCachedData(() => {{
               if (isDev) console.log('updateCachedData', data);
+              if (!data) {
+                dispatch(iptvApi.util.invalidateTags(['M3UFiles']));
+                return;
+              }
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'M3UFiles' }])) {
                 if (endpointName !== 'm3UFilesGetM3UFile') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{

@@ -15,6 +15,10 @@ export const enhancedApiEpgFiles = iptvApi.enhanceEndpoints({
           const updateCachedDataWithResults = (data: iptv.EpgFileDto) => {
             updateCachedData(() => {{
               if (isDev) console.log('updateCachedData', data);
+              if (!data) {
+                dispatch(iptvApi.util.invalidateTags(['EPGFiles']));
+                return;
+              }
               for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'EPGFiles' }])) {
                 if (endpointName !== 'epgFilesGetEpgFile') continue;
                   dispatch(iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {{
