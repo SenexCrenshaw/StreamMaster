@@ -149,7 +149,7 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,IEPGCache e
 
     private async Task<UserStatus> GetStatusInternal(CancellationToken cancellationToken)
     {
-        UserStatus? result = await schedulesDirectAPI.GetApiResponse<UserStatus>(APIMethod.GET, SDCommands.Status, cancellationToken).ConfigureAwait(false);
+        UserStatus? result = await schedulesDirectAPI.GetApiResponse<UserStatus>(APIMethod.GET, SDCommands.Status, cancellationToken, cancellationToken).ConfigureAwait(false);
         if (result == null)
         {
             return SDHelpers.GetStatusOffline();

@@ -11,21 +11,21 @@ namespace StreamMaster.SchedulesDirectAPI;
 
 public partial class SchedulesDirect
 {
-    private  List<string> programQueue;
-    private  ConcurrentBag<Programme> programResponses;
+    private List<string> programQueue = [];
+    private ConcurrentBag<Programme> programResponses= [];
     
     private  bool BuildAllProgramEntries()
     {
         // reset counters
-        programQueue = new List<string>();
-        programResponses = new ConcurrentBag<Programme>();
-        sportsSeries = new System.Collections.Specialized.NameValueCollection();
+        programQueue = [];
+        programResponses = [];
+        sportsSeries = [];
         //sportsEvents = new List<MxfProgram>();
         //IncrementNextStage(mxf.ProgramsToProcess.Count);
         logger.LogInformation($"Entering BuildAllProgramEntries() for {totalObjects} programs.");
 
         // fill mxf programs with cached values and queue the rest
-        programQueue = new List<string>();
+        programQueue = [];
         foreach (var mxfProgram in schedulesDirectData.Programs)
         {
             if (epgCache.JsonFiles.ContainsKey(mxfProgram.extras["md5"]))
@@ -65,7 +65,7 @@ public partial class SchedulesDirect
             }
         }
         logger.LogInformation("Exiting BuildAllProgramEntries(). SUCCESS.");
-        programQueue = null; programResponses = null;
+        programQueue = []; programResponses = [];
         return true;
     }
 

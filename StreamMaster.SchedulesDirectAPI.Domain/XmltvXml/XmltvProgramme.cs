@@ -78,28 +78,28 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.XmltvXml
         public string ClumpIdx { get; set; }
 
         [XmlElement("title")]
-        public List<XmltvText> Titles { get; set; }
+        public List<XmltvText>? Titles { get; set; }
 
         [XmlElement("sub-title")]
-        public List<XmltvText> SubTitles { get; set; }
+        public List<XmltvText>? SubTitles { get; set; }
 
         [XmlElement("desc")]
-        public List<XmltvText> Descriptions { get; set; }
+        public List<XmltvText>? Descriptions { get; set; }
 
         [XmlElement("credits")]
-        public XmltvCredit Credits { get; set; }
+        public XmltvCredit? Credits { get; set; }
 
         [XmlElement("date")]
-        public string Date { get; set; }
+        public string? Date { get; set; }
 
         [XmlElement("category")]
-        public List<XmltvText> Categories { get; set; }
+        public List<XmltvText>? Categories { get; set; }
 
         [XmlElement("keyword")]
-        public List<XmltvText> Keywords { get; set; }
+        public List<XmltvText>? Keywords { get; set; }
 
         [XmlElement("language")]
-        public XmltvText Language { get; set; }
+        public XmltvText? Language { get; set; }
 
         [XmlElement("orig-language")]
         public XmltvText OrigLanguage { get; set; }
@@ -108,7 +108,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.XmltvXml
         public XmltvLength Length { get; set; }
 
         [XmlElement("icon")]
-        public List<XmltvIcon> Icons { get; set; }
+        public List<XmltvIcon>? Icons { get; set; }
 
         [XmlElement("url")]
         public List<string> Urls { get; set; }
@@ -119,43 +119,43 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.XmltvXml
         // sport and team elements are from the ICETV xmltv.dtd file; unknown if supported anywhere
         // reference https://sourceforge.net/p/xmltv/mailman/message/36126297/
         [XmlElement("sport")]
-        public XmltvText Sport { get; set; }
+        public XmltvText? Sport { get; set; }
 
         [XmlElement("team")]
-        public List<XmltvText> Teams { get; set; }
+        public List<XmltvText>? Teams { get; set; }
 
         [XmlElement("episode-num")]
         public List<XmltvEpisodeNum> EpisodeNums { get; set; }
 
         [XmlElement("video")]
-        public XmltvVideo Video { get; set; }
+        public XmltvVideo? Video { get; set; }
 
         [XmlElement("audio")]
-        public XmltvAudio Audio { get; set; }
+        public XmltvAudio? Audio { get; set; }
 
         [XmlElement("previously-shown")]
-        public XmltvPreviouslyShown PreviouslyShown { get; set; }
+        public XmltvPreviouslyShown? PreviouslyShown { get; set; }
 
         [XmlElement("premiere")]
-        public XmltvText Premiere { get; set; }
+        public XmltvText? Premiere { get; set; }
 
         [XmlElement("last-chance")]
         public XmltvText LastChance { get; set; }
 
         [XmlElement("new")]
-        public string New { get; set; }
+        public string? New { get; set; }
 
         [XmlElement("live")]
-        public string Live { get; set; }
+        public string? Live { get; set; }
 
         [XmlElement("subtitles")]
-        public List<XmltvSubtitles> Subtitles { get; set; }
+        public List<XmltvSubtitles>? Subtitles { get; set; }
 
         [XmlElement("rating")]
         public List<XmltvRating> Rating { get; set; }
 
         [XmlElement("star-rating")]
-        public List<XmltvRating> StarRating { get; set; }
+        public List<XmltvRating>? StarRating { get; set; }
 
         [XmlElement("review")]
         public List<XmltvReview> Review { get; set; }

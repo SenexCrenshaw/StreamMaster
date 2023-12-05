@@ -9,7 +9,7 @@ using System.Net;
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
 {
-    private string _baseUrl;
+    private string _baseUrl = "";
     public XMLTV? CreateXmltv(string baseUrl,IEnumerable<string>? stationIds=null)
     {
         _baseUrl = baseUrl;
@@ -125,7 +125,7 @@ public partial class SchedulesDirect
         var ret = new XmltvChannel
         {
             Id = $"EPG123.{mxfService.StationId}.schedulesdirect.org",
-            DisplayNames = new List<XmltvText>()
+            DisplayNames = []
         };
 
         // minimum display names
@@ -198,7 +198,7 @@ public partial class SchedulesDirect
                 Credits = BuildProgramCredits(mxfProgram),
                 Date = BuildProgramDate(mxfProgram),
                 Categories = BuildProgramCategories(mxfProgram),
-                Language = MxfStringToXmlText(!string.IsNullOrEmpty(mxfProgram.Language) ? mxfProgram.Language.Substring(0, 2) : null),
+                Language = MxfStringToXmlText(!string.IsNullOrEmpty(mxfProgram.Language) ? mxfProgram.Language[..2] : null),
                 Icons = BuildProgramIcons(mxfProgram),
                 Sport = GrabSportEvent(mxfProgram),
                 Teams = BuildSportTeams(mxfProgram),
@@ -237,12 +237,12 @@ public partial class SchedulesDirect
         //if (scheduleEntry.IsSap) descriptionExtended += " SAP";
         //if (scheduleEntry.IsSubtitled) descriptionExtended += " SUB";
 
-        string[] tvRatings = { "", "TV-Y", "TV-Y7", "TV-G", "TV-PG", "TV-14", "TV-MA",
+        string[] tvRatings = [ "", "TV-Y", "TV-Y7", "TV-G", "TV-PG", "TV-14", "TV-MA",
                 "", "Kinder bis 12 Jahren", "Freigabe ab 12 Jahren", "Freigabe ab 16 Jahren", "Keine Jugendfreigabe",
                 "", "Déconseillé aux moins de 10 ans", "Déconseillé aux moins de 12 ans", "Déconseillé aux moins de 16 ans", "Déconseillé aux moins de 18 ans",
                 "모든 연령 시청가", "7세 이상 시청가", "12세 이상 시청가", "15세 이상 시청가", "19세 이상 시청가",
-                "SKY-UC", "SKY-U", "SKY-PG", "SKY-12", "SKY-15", "SKY-18", "SKY-R18" };
-        string[] mpaaRatings = { "", "G", "PG", "PG-13", "R", "NC-17", "X", "NR", "AO" };
+                "SKY-UC", "SKY-U", "SKY-PG", "SKY-12", "SKY-15", "SKY-18", "SKY-R18" ];
+        string[] mpaaRatings = ["", "G", "PG", "PG-13", "R", "NC-17", "X", "NR", "AO"];
 
         if (!string.IsNullOrEmpty(tvRatings[scheduleEntry.TvRating]))
         {
@@ -291,7 +291,7 @@ public partial class SchedulesDirect
             Credits = BuildProgramCredits(mxfProgram),
             Date = BuildProgramDate(mxfProgram),
             Categories = BuildProgramCategories(mxfProgram),
-            Language = MxfStringToXmlText(!string.IsNullOrEmpty(mxfProgram.Language) ? mxfProgram.Language.Substring(0, 2) : null),
+            Language = MxfStringToXmlText(!string.IsNullOrEmpty(mxfProgram.Language) ? mxfProgram.Language[..2] : null),
             Icons = BuildProgramIcons(mxfProgram),
             Sport = GrabSportEvent(mxfProgram),
             Teams = BuildSportTeams(mxfProgram),
@@ -308,14 +308,15 @@ public partial class SchedulesDirect
         };
     }
 
+   
     // Titles, SubTitles, and Descriptions
-    private static List<XmltvText> MxfStringToXmlTextArray(string mxfString)
+    private static List<XmltvText>? MxfStringToXmlTextArray(string mxfString)
     {
-        return string.IsNullOrEmpty(mxfString) ? null : new List<XmltvText> { new XmltvText { Text = mxfString } };
+        return string.IsNullOrEmpty(mxfString) ? null : [new() { Text = mxfString }];
     }
 
     // Credits
-    private static XmltvCredit BuildProgramCredits(MxfProgram mxfProgram)
+    private static XmltvCredit? BuildProgramCredits(MxfProgram mxfProgram)
     {
         if (mxfProgram.DirectorRole != null && mxfProgram.DirectorRole.Count > 0 || mxfProgram.ActorRole != null && mxfProgram.ActorRole.Count > 0 ||
             mxfProgram.WriterRole != null && mxfProgram.WriterRole.Count > 0 || mxfProgram.ProducerRole != null && mxfProgram.ProducerRole.Count > 0 ||
@@ -333,24 +334,24 @@ public partial class SchedulesDirect
         }
         return null;
     }
-    private static List<string> MxfPersonRankToXmltvCrew(List<MxfPersonRank> mxfPersons)
+    private static List<string>? MxfPersonRankToXmltvCrew(List<MxfPersonRank> mxfPersons)
     {
         return mxfPersons?.Select(person => person.Name).ToList();
     }
-    private static List<XmltvActor> MxfPersonRankToXmltvActors(List<MxfPersonRank> mxfPersons)
+    private static List<XmltvActor>? MxfPersonRankToXmltvActors(List<MxfPersonRank> mxfPersons)
     {
         return mxfPersons?.Select(person => new XmltvActor { Actor = person.Name, Role = person.Character }).ToList();
     }
 
     // Date
-    private static string BuildProgramDate(MxfProgram mxfProgram)
+    private static string? BuildProgramDate(MxfProgram mxfProgram)
     {
         if (mxfProgram.IsMovie && mxfProgram.Year > 0) return mxfProgram.Year.ToString();
         return !string.IsNullOrEmpty(mxfProgram.OriginalAirdate) ? $"{DateTime.Parse(mxfProgram.OriginalAirdate):yyyyMMdd}" : null;
     }
 
     // Categories
-    private  List<XmltvText> BuildProgramCategories(MxfProgram mxfProgram)
+    private  List<XmltvText>? BuildProgramCategories(MxfProgram mxfProgram)
     {
         if (string.IsNullOrEmpty(mxfProgram.Keywords)) return null;
         var categories = new HashSet<string>();
@@ -373,28 +374,35 @@ public partial class SchedulesDirect
     }
 
     // Language
-    private static XmltvText MxfStringToXmlText(string mxfString)
+    private static XmltvText? MxfStringToXmlText(string mxfString)
     {
         return !string.IsNullOrEmpty(mxfString) ? new XmltvText { Text = mxfString } : null;
     }
 
     // Icons
-    private  List<XmltvIcon> BuildProgramIcons(MxfProgram mxfProgram)
+    private  List<XmltvIcon>? BuildProgramIcons(MxfProgram mxfProgram)
     {
         var settings = memoryCache.GetSetting();
         if (settings.SDSettings.XmltvSingleImage)
         {
             var url = mxfProgram.mxfGuideImage?.ImageUrl ?? mxfProgram.mxfSeason?.mxfGuideImage?.ImageUrl ??
                 mxfProgram.mxfSeriesInfo?.mxfGuideImage?.ImageUrl;
-            return url == null ? null : new List<XmltvIcon> { new XmltvIcon { Src = GetIconUrl( url) } };
+            if (url == null)
+            {
+                return null;
+            }
+            else
+            {
+                return (List<XmltvIcon>?)[new() { Src = GetIconUrl( url) }];
+            }
         }
 
         var artwork = new List<ProgramArtwork>();
 
         // a movie or sport event will have a guide image from the program
-        if (mxfProgram.extras.ContainsKey("artwork"))
+        if (mxfProgram.extras.TryGetValue("artwork", out dynamic? value))
         {
-            artwork = mxfProgram.extras["artwork"];
+            artwork = value;
         }
 
         // get the season class from the program if it is has a season
@@ -412,20 +420,20 @@ public partial class SchedulesDirect
         return artwork.Count == 0 ? null : artwork.Select(image => new XmltvIcon { Src = GetIconUrl(image.Uri) , Height = image.Height, Width = image.Width }).ToList();
     }
 
-    private static XmltvText GrabSportEvent(MxfProgram program)
+    private static XmltvText? GrabSportEvent(MxfProgram program)
     {
-        if (!program.IsSports || !program.extras.ContainsKey("genres")) return null;
-        return (from category in ((string[])program.extras["genres"]) where !category.ToLower().StartsWith("sport") select new XmltvText { Text = category }).FirstOrDefault();
+        if (!program.IsSports || !program.extras.TryGetValue("genres", out dynamic? value)) return null;
+        return (from category in ((string[])value) where !category.ToLower().StartsWith("sport") select new XmltvText { Text = category }).FirstOrDefault();
     }
 
-    private static List<XmltvText> BuildSportTeams(MxfProgram program)
+    private static List<XmltvText>? BuildSportTeams(MxfProgram program)
     {
-        if (!program.IsSports || !program.extras.ContainsKey("teams")) return null;
-        return ((List<string>)program.extras["teams"]).Select(team => new XmltvText { Text = team }).ToList();
+        if (!program.IsSports || !program.extras.TryGetValue("teams", out dynamic? value)) return null;
+        return ((List<string>)value).Select(team => new XmltvText { Text = team }).ToList();
     }
 
     // EpisodeNums
-    private static readonly Random RandomNumber = new Random();
+    private static readonly Random RandomNumber = new();
     private  List<XmltvEpisodeNum> BuildEpisodeNumbers(MxfScheduleEntry mxfScheduleEntry)
     {
         var list = new List<XmltvEpisodeNum>();
@@ -435,7 +443,7 @@ public partial class SchedulesDirect
             list.Add(new XmltvEpisodeNum()
             {
                 System = "dd_progid",
-                Text = mxfProgram.Uid.Substring(9).Replace("_", ".")
+                Text = mxfProgram.Uid[9..].Replace("_", ".")
             });
         }
 
@@ -470,22 +478,22 @@ public partial class SchedulesDirect
         }
         if (mxfProgram.Series == null) return list;
 
-        var mxfSeriesInfo = schedulesDirectData.SeriesInfos[int.Parse(mxfProgram.Series.Substring(2)) - 1];
-        if (mxfSeriesInfo.extras.ContainsKey("tvdb"))
+        var mxfSeriesInfo = schedulesDirectData.SeriesInfos[int.Parse(mxfProgram.Series[2..]) - 1];
+        if (mxfSeriesInfo.extras.TryGetValue("tvdb", out dynamic? value))
         {
-            list.Add(new XmltvEpisodeNum { System = "thetvdb.com", Text = $"series/{mxfSeriesInfo.extras["tvdb"]}" });
+            list.Add(new XmltvEpisodeNum { System = "thetvdb.com", Text = $"series/{value}" });
         }
         return list;
     }
 
     // Video
-    private static XmltvVideo BuildProgramVideo(MxfScheduleEntry mxfScheduleEntry)
+    private static XmltvVideo? BuildProgramVideo(MxfScheduleEntry mxfScheduleEntry)
     {
         return mxfScheduleEntry.IsHdtv ? new XmltvVideo { Quality = "HDTV" } : null;
     }
 
     // Audio
-    private static XmltvAudio BuildProgramAudio(MxfScheduleEntry mxfScheduleEntry)
+    private static XmltvAudio? BuildProgramAudio(MxfScheduleEntry mxfScheduleEntry)
     {
         if (mxfScheduleEntry.AudioFormat <= 0) return null;
         var format = string.Empty;
@@ -501,7 +509,7 @@ public partial class SchedulesDirect
     }
 
     // Previously Shown
-    private static XmltvPreviouslyShown BuildProgramPreviouslyShown(MxfScheduleEntry mxfScheduleEntry)
+    private static XmltvPreviouslyShown? BuildProgramPreviouslyShown(MxfScheduleEntry mxfScheduleEntry)
     {
         if (mxfScheduleEntry.IsRepeat && !mxfScheduleEntry.mxfProgram.IsMovie)
         {
@@ -511,7 +519,7 @@ public partial class SchedulesDirect
     }
 
     // Premiere
-    private static XmltvText BuildProgramPremiere(MxfScheduleEntry mxfScheduleEntry)
+    private static XmltvText? BuildProgramPremiere(MxfScheduleEntry mxfScheduleEntry)
     {
         if (!mxfScheduleEntry.IsPremiere) return null;
 
@@ -525,13 +533,13 @@ public partial class SchedulesDirect
         return new XmltvText { Text = text };
     }
 
-    private static string BuildLiveFlag(MxfScheduleEntry mxfScheduleEntry)
+    private static string? BuildLiveFlag(MxfScheduleEntry mxfScheduleEntry)
     {
         return !mxfScheduleEntry.IsLive ? null : string.Empty;
     }
 
     // Subtitles
-    private static List<XmltvSubtitles> BuildProgramSubtitles(MxfScheduleEntry mxfScheduleEntry)
+    private static List<XmltvSubtitles>? BuildProgramSubtitles(MxfScheduleEntry mxfScheduleEntry)
     {
         if (!mxfScheduleEntry.IsCc && !mxfScheduleEntry.IsSubtitled && !mxfScheduleEntry.IsSigned) return null;
 
@@ -573,18 +581,18 @@ public partial class SchedulesDirect
     private static void AddProgramRating(MxfScheduleEntry mxfScheduleEntry, List<XmltvRating> list)
     {
         var hashSet = new HashSet<string>();
-        if (mxfScheduleEntry.extras.ContainsKey("ratings"))
+        if (mxfScheduleEntry.extras.TryGetValue("ratings", out dynamic? value))
         {
-            foreach (KeyValuePair<string, string> rating in mxfScheduleEntry.extras["ratings"])
+            foreach (KeyValuePair<string, string> rating in value)
             {
                 if (hashSet.Contains(rating.Key)) continue;
                 hashSet.Add(rating.Key);
                 list.Add(new XmltvRating { System = rating.Key, Value = rating.Value });
             }
         }
-        if (mxfScheduleEntry.mxfProgram.extras.ContainsKey("ratings"))
+        if (mxfScheduleEntry.mxfProgram.extras.TryGetValue("ratings", out dynamic? valueRatings))
         {
-            foreach (KeyValuePair<string, string> rating in mxfScheduleEntry.mxfProgram.extras["ratings"])
+            foreach (KeyValuePair<string, string> rating in valueRatings)
             {
                 if (hashSet.Contains(rating.Key)) continue;
                 hashSet.Add(rating.Key);
@@ -620,16 +628,15 @@ public partial class SchedulesDirect
     }
 
     // StarRating
-    private static List<XmltvRating> BuildProgramStarRatings(MxfProgram mxfProgram)
+    private static List<XmltvRating>? BuildProgramStarRatings(MxfProgram mxfProgram)
     {
         if (mxfProgram.HalfStars == 0) return null;
-        return new List<XmltvRating>
-            {
-                new XmltvRating
-                {
+        return
+            [
+                new() {
                     Value = $"{mxfProgram.HalfStars * 0.5:N1}/4"
                 }
-            };
+            ];
     }
     #endregion
 }
