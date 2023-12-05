@@ -2,6 +2,10 @@
 
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 
+using StreamMasterDomain.Common;
+
+using static System.Collections.Specialized.BitVector32;
+
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
 {
@@ -59,6 +63,83 @@ public partial class SchedulesDirect
         else
         {
             logger.LogError($"Did not receive a response from Schedules Direct for retrieval of lineup {lineup} for preview.");
+        }
+
+        return ret;
+    }
+
+    public async Task<LineupResult?> GetLineup(string lineup, CancellationToken cancellationToken)
+    {
+        return await schedulesDirectAPI.GetApiResponse<LineupResult>(APIMethod.GET, $"lineups/{lineup}", cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<List<SubscribedLineup>> GetLineups(CancellationToken cancellationToken)
+    {
+        List<LineupPreviewChannel> res = [];
+        var lineups = await GetSubscribedLineups(cancellationToken);
+
+        if (lineups is null)
+        {
+            return [];
+        }
+
+        return lineups.Lineups;
+    }
+
+    public async Task<List<StationPreview>> GetStationPreviews(CancellationToken cancellationToken)
+    {
+        List<Station>? stations = await GetStations(cancellationToken).ConfigureAwait(false);
+        if (stations is null)
+        {
+            return [];
+        }
+        List<StationPreview> ret = [];
+        for (int index = 0; index < stations.Count; index++)
+        {
+            Station station = stations[index];
+            StationPreview sp = new(station);
+            sp.Affiliate ??= "";
+            ret.Add(sp);
+        }
+        return ret;
+    }
+
+  
+
+    public async Task<List<Station>> GetStations(CancellationToken cancellationToken)
+    {
+        List<Station> ret = [];
+
+        List<SubscribedLineup> lineups = await GetLineups(cancellationToken).ConfigureAwait(false);
+        if (lineups?.Any() != true)
+        {
+            return ret;
+        }
+
+        foreach (SubscribedLineup lineup in lineups)
+        {
+            LineupResult? res = await GetLineup(lineup.Lineup, cancellationToken).ConfigureAwait(false);
+            if (res == null)
+            {
+                continue;
+            }
+
+            foreach (Station station in res.Stations)
+            {
+                station.Lineup = lineup.Lineup;
+            }
+
+            HashSet<string> existingIds = new(ret.Select(station => station.StationId));
+
+            foreach (Station station in res.Stations)
+            {
+                station.Lineup = lineup.Lineup;
+                if (!existingIds.Contains(station.StationId))
+                {
+                    ret.Add(station);
+                    _ = existingIds.Add(station.StationId);
+                }
+            }
         }
 
         return ret;

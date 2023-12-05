@@ -18,13 +18,6 @@ public interface IProgrammeChannelHub
 
     Task<IEnumerable<ProgrammeChannel>> GetProgrammeChannels();
 
-    Task<PagedResponse<ProgrammeNameDto>> GetPagedProgrammeNameSelections(ProgrammeParameters Parameters);
-
-    Task<ProgrammeNameDto?> GetProgrammeFromDisplayName(GetProgrammeFromDisplayNameRequest request);
-
-    Task<List<ProgrammeNameDto>> GetProgrammsSimpleQuery(ProgrammeParameters Parameters);
-    Task<IEnumerable<string>> GetProgrammeNames();
-
     Task<IEnumerable<XmltvProgramme>> GetProgrammes();
 }
 
@@ -43,11 +36,6 @@ public interface IProgrammeChannelController
 
     Task<ActionResult<IEnumerable<ProgrammeChannel>>> GetProgrammeChannels();
 
-    Task<ActionResult<List<ProgrammeNameDto>>> GetProgrammsSimpleQuery(ProgrammeParameters Parameters);
-    Task<ActionResult<PagedResponse<ProgrammeNameDto>>> GetPagedProgrammeNameSelections(ProgrammeParameters Parameters);
-    Task<ActionResult<IEnumerable<string>>> GetProgrammeNames();
-
     Task<ActionResult<IEnumerable<XmltvProgramme>>> GetProgrammes();
 
-    Task<ActionResult<ProgrammeNameDto?>> GetProgrammeFromDisplayName(GetProgrammeFromDisplayNameRequest request);
 }

@@ -1,6 +1,6 @@
 import SearchButton from '@components/buttons/SearchButton';
 import TextInput from '@components/inputs/TextInput';
-import { Countries, SettingDto, useSchedulesDirectGetCountriesQuery } from '@lib/iptvApi';
+import { SchedulesDirectGetAvailableCountriesApiResponse, SettingDto, useSchedulesDirectGetAvailableCountriesQuery } from '@lib/iptvApi';
 import { useSelectedCountry } from '@lib/redux/slices/selectedCountrySlice';
 import { useSelectedPostalCode } from '@lib/redux/slices/selectedPostalCodeSlice';
 import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
@@ -19,7 +19,7 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
   const [originalCountry, setOriginalCountry] = useState<string | undefined>();
   const [originalPostalCode, setOriginalPostalCode] = useState<string | undefined>();
 
-  const getCountriesQuery = useSchedulesDirectGetCountriesQuery();
+  const getCountriesQuery = useSchedulesDirectGetAvailableCountriesQuery();
 
   React.useEffect(() => {
     if (selectedCountry !== undefined && selectedCountry !== originalCountry) {
@@ -48,7 +48,7 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
 
     const countries: CountryOption[] = [];
 
-    Object.values(getCountriesQuery.data as Countries).forEach((continentCountries) => {
+    Object.values(getCountriesQuery.data as SchedulesDirectGetAvailableCountriesApiResponse).forEach((continentCountries) => {
       continentCountries
         .filter((c): c is Country => c.shortName !== undefined && c.shortName.trim() !== '')
         .forEach((c) => {
@@ -106,7 +106,7 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
               setSelectedCountry(originalCountry);
               setSelectedPostalCode(originalPostalCode);
 
-              const newData: SettingDto = { sdPostalCode: originalPostalCode, sdCountry: originalCountry };
+              const newData: SettingDto = { sdSettings: { sdPostalCode: originalPostalCode, sdCountry: originalCountry } };
 
               UpdateSetting(newData)
                 .then(() => {})

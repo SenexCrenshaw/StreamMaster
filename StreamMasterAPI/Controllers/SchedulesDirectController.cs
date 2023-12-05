@@ -1,23 +1,76 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Core;
+
+using Microsoft.AspNetCore.Mvc;
 
 using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
 using StreamMaster.SchedulesDirectAPI.Domain.Models;
 
 using StreamMasterApplication.SchedulesDirectAPI;
+using StreamMasterApplication.SchedulesDirectAPI.Commands;
 using StreamMasterApplication.SchedulesDirectAPI.Queries;
 
+using StreamMasterDomain.Dto;
 using StreamMasterDomain.Pagination;
+
+using System.Diagnostics.Metrics;
 
 namespace StreamMasterAPI.Controllers;
 
 public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectController
 {
+    [HttpPatch]
+    [Route("[action]")]
+    public async Task<ActionResult<bool>> AddLineup(AddLineup request)
+    {
+        return Ok(await Mediator.Send(request).ConfigureAwait(false));
+    }
 
     [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<Dictionary<string, List<Country>>>> GetAvailableCountries()
+    {
+        return Ok(await Mediator.Send(new GetAvailableCountries()).ConfigureAwait(false));
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<string>>> GetChannelNames()
+    {
+        return Ok(await Mediator.Send(new GetChannelNames()).ConfigureAwait(false));
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<HeadendDto>>> GetHeadends(string country, string postalCode)
+    {
+        return Ok(await Mediator.Send(new GetHeadends(country, postalCode)).ConfigureAwait(false));
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<SubscribedLineup>>> GetLineups()
+    {
+        return Ok(await Mediator.Send(new GetLineups()).ConfigureAwait(false));
+    }
+
+        [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<PagedResponse<StationChannelName>>> GetPagedStationChannelNameSelections([FromQuery] StationChannelNameParameters Parameters)
     {
         return Ok(await Mediator.Send(new GetPagedStationChannelNameSelections(Parameters)).ConfigureAwait(false));
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<StationIdLineup>>> GetSelectedStationIds()
+    {
+        return Ok(await Mediator.Send(new GetSelectedStationIds()).ConfigureAwait(false));
+    }
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<StationChannelMap>>> GetStationChannelMaps()
+    {
+        return Ok(await Mediator.Send(new GetStationChannelMaps()).ConfigureAwait(false));
     }
 
     [HttpGet]
@@ -36,8 +89,21 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
 
     [HttpGet]
     [Route("[action]")]
+    public async Task<ActionResult<List<StationPreview>>> GetStationPreviews()
+    {
+        return Ok(await Mediator.Send(new GetStationPreviews()).ConfigureAwait(false));
+    }
+
+    [HttpGet]
+    [Route("[action]")]
     public async Task<ActionResult<UserStatus>> GetStatus()
     {
         return await Mediator.Send(new GetStatus()).ConfigureAwait(false);
+    }
+    [HttpPatch]
+    [Route("[action]")]
+    public async Task<ActionResult<bool>> RemoveLineup(RemoveLineup request)
+    {
+        return Ok(await Mediator.Send(request).ConfigureAwait(false));
     }
 }

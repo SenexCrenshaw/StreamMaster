@@ -66,7 +66,7 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger,IEPGCache e
                 BuildKeywords()
             )
         {
-            //epgCache.WriteCache();
+            epgCache.WriteCache();
             CreateDummLineupChannel();
             var xml = CreateXmltv("");
             if (xml is not null)

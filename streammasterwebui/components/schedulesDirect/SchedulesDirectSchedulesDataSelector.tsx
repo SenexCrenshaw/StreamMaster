@@ -51,8 +51,8 @@ const SchedulesDirectSchedulesDataSelector = ({ id }: SchedulesDirectSchedulesDa
 
   const sourceColumns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'stationID', header: 'Station Id' },
-      { field: 'metadata.startDate', header: 'metadata Id' }
+      { field: 'stationID', header: 'Station Id' }
+      // { field: 'metadata.startDate', header: 'metadata Id' }
     ],
     []
   );

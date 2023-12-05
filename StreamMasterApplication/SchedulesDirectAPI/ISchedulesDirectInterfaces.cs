@@ -11,19 +11,21 @@ namespace StreamMasterApplication.SchedulesDirectAPI;
 
 public interface ISchedulesDirectController
 {
-    //Task<ActionResult<bool>> AddLineup(AddLineup request);
+    Task<ActionResult<bool>> AddLineup(AddLineup request);
 
-    //Task<ActionResult<bool>> RemoveLineup(RemoveLineup request);
+    Task<ActionResult<bool>> RemoveLineup(RemoveLineup request);
 
     //Task<ActionResult<List<string>>> GetLineupNames();
 
     //Task<ActionResult<Country?>> GetCountry();
 
-    //Task<ActionResult<List<StationIdLineup>>> GetSelectedStationIds();
+    Task<ActionResult<List<StationIdLineup>>> GetSelectedStationIds();
 
     //Task<ActionResult<List<Programme>>> GetSDPrograms();
 
-    //Task<ActionResult<List<HeadendDto>>> GetHeadends(string country, string postalCode);
+    Task<ActionResult<List<HeadendDto>>> GetHeadends(string country, string postalCode);
+    Task<ActionResult<List<SubscribedLineup>>> GetLineups();
+    
 
     //Task<ActionResult<LineupPreviewChannel?>> GetLineup(string lineup);
 
@@ -31,13 +33,16 @@ public interface ISchedulesDirectController
 
     //Task<ActionResult<List<Schedule>>> GetSchedules();
 
-    //Task<ActionResult<List<StationPreview>>> GetStationPreviews();
+    Task<ActionResult<List<StationPreview>>> GetStationPreviews();
 
     Task<ActionResult<List<StationChannelName>>> GetStationChannelNamesSimpleQuery([FromQuery] StationChannelNameParameters Parameters);
     Task<ActionResult<PagedResponse<StationChannelName>>> GetPagedStationChannelNameSelections([FromQuery] StationChannelNameParameters Parameters);
     Task<ActionResult<StationChannelName>> GetStationChannelNameFromDisplayName(string DisplayName);
-
+    Task<ActionResult<Dictionary<string, List<Country>>>> GetAvailableCountries();
+    Task<ActionResult<List<string>>> GetChannelNames();
     Task<ActionResult<UserStatus>> GetStatus();
+    Task<ActionResult<List<StationChannelMap>>> GetStationChannelMaps();
+    
 }
 
 public interface ISchedulesDirectDB
@@ -46,19 +51,23 @@ public interface ISchedulesDirectDB
 
 public interface ISchedulesDirectHub
 {
-    //Task<bool> AddLineup(AddLineup request);
+    Task<bool> AddLineup(AddLineup request);
 
-    //Task<bool> RemoveLineup(RemoveLineup request);
+    Task<bool> RemoveLineup(RemoveLineup request);
 
-    //Task<List<string>> GetLineupNames();
 
-    //Task<List<StationIdLineup>> GetSelectedStationIds();
+    Task<List<StationChannelMap>> GetStationChannelMaps();
+    Task<List<SubscribedLineup>> GetLineups();
+        
+        //Task<List<string>> GetLineupNames();
+
+    Task<List<StationIdLineup>> GetSelectedStationIds();
 
     //Task<Country> GetCountry();
 
     //Task<List<Programme>> GetSDPrograms();
 
-    //Task<List<HeadendDto>> GetHeadends(string country, string postalCode);
+    Task<List<HeadendDto>> GetHeadends(string country, string postalCode);
 
     //Task<LineupPreviewChannel> GetLineup(string lineup);
 
@@ -66,10 +75,13 @@ public interface ISchedulesDirectHub
 
     //Task<List<Schedule>> GetSchedules();
 
-    //Task<List<StationPreview>> GetStationPreviews();
+    Task<List<StationPreview>> GetStationPreviews();
 
     //Task<List<Station>> GetStations();
 
+    Task<Dictionary<string, List<Country>>> GetAvailableCountries();
+
+    Task<List<string>> GetChannelNames();
     Task<List<StationChannelName>> GetStationChannelNamesSimpleQuery([FromQuery] StationChannelNameParameters Parameters);
     Task<PagedResponse<StationChannelName>> GetPagedStationChannelNameSelections([FromQuery] StationChannelNameParameters Parameters);
     Task<StationChannelName?> GetStationChannelNameFromDisplayName(string DisplayName);

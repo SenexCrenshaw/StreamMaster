@@ -20,8 +20,6 @@ export const GetStreamGroupDiscover = async (argument: string): Promise<void | n
 export const GetStreamGroupEpg = async (argument: string): Promise<void | null> => {
   await invokeHubConnection<void>('GetStreamGroupEpg', argument);
 };
-export const GetStreamGroupEpgForGuide = async (argument: iptv.EpgGuide): Promise<iptv.EpgGuide | null> =>
-  invokeHubConnection<iptv.EpgGuide>('GetStreamGroupEpgForGuide', argument);
 export const GetStreamGroupLineup = async (argument: string): Promise<void | null> => {
   await invokeHubConnection<void>('GetStreamGroupLineup', argument);
 };
