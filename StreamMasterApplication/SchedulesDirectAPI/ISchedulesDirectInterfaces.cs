@@ -37,7 +37,7 @@ public interface ISchedulesDirectController
 
     Task<ActionResult<List<StationChannelName>>> GetStationChannelNamesSimpleQuery([FromQuery] StationChannelNameParameters Parameters);
     Task<ActionResult<PagedResponse<StationChannelName>>> GetPagedStationChannelNameSelections([FromQuery] StationChannelNameParameters Parameters);
-    Task<ActionResult<StationChannelName>> GetStationChannelNameFromDisplayName(string DisplayName);
+    Task<ActionResult<StationChannelName>> GetStationChannelNameFromDisplayName(GetStationChannelNameFromDisplayName request);
     Task<ActionResult<List<CountryData>?>> GetAvailableCountries();
     Task<ActionResult<List<string>>> GetChannelNames();
     Task<ActionResult<UserStatus>> GetStatus();
@@ -84,7 +84,7 @@ public interface ISchedulesDirectHub
     Task<List<string>> GetChannelNames();
     Task<List<StationChannelName>> GetStationChannelNamesSimpleQuery([FromQuery] StationChannelNameParameters Parameters);
     Task<PagedResponse<StationChannelName>> GetPagedStationChannelNameSelections([FromQuery] StationChannelNameParameters Parameters);
-    Task<StationChannelName?> GetStationChannelNameFromDisplayName(string DisplayName);
+    Task<StationChannelName?> GetStationChannelNameFromDisplayName(GetStationChannelNameFromDisplayName request);
 
     Task<UserStatus> GetStatus();
 }

@@ -151,35 +151,56 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
             Setting setting = FileUtil.GetSetting();
 
             HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
-            using HttpResponseMessage response = await httpClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
 
-            if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.NotFound)
-            {
-                ++TotalErrors;
-                return false;
-            }
+            int maxRetryCount = 1; // Set the maximum number of retries
 
-           
-            if (response.IsSuccessStatusCode)
+            for (int retryCount = 0; retryCount <= maxRetryCount; retryCount++)
             {
-                Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-                if (stream != null)
+                HttpResponseMessage response = await httpClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
+
+                if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    using var outputStream = File.Create(logoPath);
-                    await stream.CopyToAsync(outputStream, cancellationToken);
-                    stream.Close();
-                    stream.Dispose();
-                    logger.LogDebug($"Downloaded image from {uri} to {logoPath}: {response.StatusCode}");
+                    ++TotalErrors;
+                    return false;
+                }
+
+                if (response.StatusCode == HttpStatusCode.Forbidden)
+                {
+                    await sDToken.ResetTokenAsync(cancellationToken);
                   
-                    ++ TotalSuccessful;
-                    return true;
+                    if (retryCount < maxRetryCount)
+                    {
+                        // Retry the request after resetting the token
+                        continue;
+                    }
+                    else
+                    {
+                        ++TotalErrors;
+                        return false; // Maximum retry attempts reached
+                    }
+                }
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+                    if (stream != null)
+                    {
+                        using var outputStream = File.Create(logoPath);
+                        await stream.CopyToAsync(outputStream, cancellationToken);
+                        stream.Close();
+                        stream.Dispose();
+                        logger.LogDebug($"Downloaded image from {uri} to {logoPath}: {response.StatusCode}");
+
+                        ++TotalSuccessful;
+                        return true;
+                    }
+                }
+                else
+                {
+                    ++TotalErrors;
+                    logger.LogError($"Failed to download image from {uri} to {logoPath}: {response.StatusCode}");
                 }
             }
-            else
-            {
-                logger.LogError($"Failed to download image from {uri} to {logoPath}: {response.StatusCode}");
-            }
-
         }
         catch (Exception ex)
         {

@@ -52,9 +52,9 @@ public partial class StreamMasterHub : ISchedulesDirectHub
         return await mediator.Send(new GetStationChannelMaps()).ConfigureAwait(false);
     }
 
-    public async Task<StationChannelName?> GetStationChannelNameFromDisplayName(string DisplayName)
+    public async Task<StationChannelName?> GetStationChannelNameFromDisplayName(GetStationChannelNameFromDisplayName request)
     {
-        return await mediator.Send(new GetStationChannelNameFromDisplayName(DisplayName)).ConfigureAwait(false);
+        return await mediator.Send(request).ConfigureAwait(false);
     }
 
     public async Task<List<StationChannelName>> GetStationChannelNamesSimpleQuery([FromQuery] StationChannelNameParameters Parameters)

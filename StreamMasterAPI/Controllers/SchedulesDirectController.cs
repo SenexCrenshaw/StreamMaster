@@ -75,9 +75,9 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<StationChannelName>> GetStationChannelNameFromDisplayName(string DisplayName)
+    public async Task<ActionResult<StationChannelName>> GetStationChannelNameFromDisplayName(GetStationChannelNameFromDisplayName request)
     {
-        return Ok(await Mediator.Send(new GetStationChannelNameFromDisplayName(DisplayName)).ConfigureAwait(false));
+        return Ok(await Mediator.Send(request).ConfigureAwait(false));
     }
 
     [HttpGet]

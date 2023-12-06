@@ -295,7 +295,7 @@ const injectedRtkApi = api
         SchedulesDirectGetStationChannelNameFromDisplayNameApiResponse,
         SchedulesDirectGetStationChannelNameFromDisplayNameApiArg
       >({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/getstationchannelnamefromdisplayname`, params: { DisplayName: queryArg } }),
+        query: (queryArg) => ({ url: `/api/schedulesdirect/getstationchannelnamefromdisplayname`, body: queryArg }),
         providesTags: ['SchedulesDirect']
       }),
       schedulesDirectGetStationChannelNamesSimpleQuery: build.query<
@@ -855,7 +855,7 @@ export type SchedulesDirectGetSelectedStationIdsApiArg = void;
 export type SchedulesDirectGetStationChannelMapsApiResponse = /** status 200  */ StationChannelMap[];
 export type SchedulesDirectGetStationChannelMapsApiArg = void;
 export type SchedulesDirectGetStationChannelNameFromDisplayNameApiResponse = /** status 200  */ StationChannelName;
-export type SchedulesDirectGetStationChannelNameFromDisplayNameApiArg = string;
+export type SchedulesDirectGetStationChannelNameFromDisplayNameApiArg = GetStationChannelNameFromDisplayName;
 export type SchedulesDirectGetStationChannelNamesSimpleQueryApiResponse = /** status 200  */ StationChannelName[];
 export type SchedulesDirectGetStationChannelNamesSimpleQueryApiArg = {
   count?: number;
@@ -1211,6 +1211,7 @@ export type UpdateM3UFileRequest = BaseFileRequest & {
   startingChannelNumber?: number | null;
 };
 export type ImageDownloadServiceStatus = {
+  id?: number;
   totalDownloadAttempts?: number;
   totalInQueue?: number;
   totalSuccessful?: number;
@@ -1441,6 +1442,9 @@ export type StationChannelMap = {
   map?: LineupChannel[];
   stations?: LineupStation[];
   metadata?: LineupMetadata | null;
+};
+export type GetStationChannelNameFromDisplayName = {
+  displayName?: string;
 };
 export type Logo = {
   URL?: string;
