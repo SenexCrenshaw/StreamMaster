@@ -177,11 +177,20 @@ public partial class SchedulesDirect
             }
         }
 
-
         if (sdProgram.EventDetails?.Teams != null)
+        {
+            if (mxfProgram.extras.ContainsKey("teams"))
             {
+                // Update the existing "teams" property with the new value
+                mxfProgram.extras["teams"] = sdProgram.EventDetails.Teams.Select(team => team.Name).ToList();
+            }
+            else
+            {
+                // Add the "teams" property to mxfProgram.extras
                 mxfProgram.extras.Add("teams", sdProgram.EventDetails.Teams.Select(team => team.Name).ToList());
             }
+        }
+
         //}
 
     }

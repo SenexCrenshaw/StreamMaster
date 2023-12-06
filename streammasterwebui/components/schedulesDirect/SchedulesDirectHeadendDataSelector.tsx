@@ -11,7 +11,7 @@ import SchedulesDirectCountrySelector from './SchedulesDirectCountrySelector';
 
 const SchedulesDirectHeadendDataSelector = () => {
   const { selectedCountry } = useSelectedCountry('Country');
-  const { selectedPostalCode } = useSelectedPostalCode('ZipCode');
+  const { selectedPostalCode } = useSelectedPostalCode('PostalCode');
 
   const getHeadendsQuery = useSchedulesDirectGetHeadendsQuery(
     ({ country: selectedCountry ?? 'USA', postalCode: selectedPostalCode ?? '0000' } as SchedulesDirectGetHeadendsApiArg) ?? skipToken

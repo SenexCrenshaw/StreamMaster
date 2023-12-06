@@ -1,7 +1,7 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
-import { useCallback } from 'react';
 import type { RootState } from '@lib/redux/store';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { useCallback } from 'react';
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 interface SelectedCountryPayload {
   value: string;
@@ -10,7 +10,7 @@ interface SelectedCountryPayload {
 
 type SelectedCountryState = Record<string, string | undefined>;
 
-const initialState: SelectedCountryState = { Country: 'USA' };
+const initialState: SelectedCountryState = {};
 
 const selectedCountrySlice = createSlice({
   name: 'selectedCountry',

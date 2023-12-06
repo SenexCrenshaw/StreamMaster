@@ -63,7 +63,7 @@ public partial class SchedulesDirect
                     }
                 }
             }
-            else if (!int.TryParse(series.SeriesId, out var dummy) || series.ProtoTypicalProgram.StartsWith("SH"))
+            else if (!int.TryParse(series.SeriesId, out var dummy) || (series.ProtoTypicalProgram is not null && series.ProtoTypicalProgram.StartsWith("SH")))
             {
                 //IncrementProgress();
             }

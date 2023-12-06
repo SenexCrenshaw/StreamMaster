@@ -1,9 +1,10 @@
 import SearchButton from '@components/buttons/SearchButton';
 import TextInput from '@components/inputs/TextInput';
-import { CountryData, SchedulesDirectGetAvailableCountriesApiResponse, SettingDto, useSchedulesDirectGetAvailableCountriesQuery } from '@lib/iptvApi';
+import { CountryData, SchedulesDirectGetAvailableCountriesApiResponse, UpdateSettingRequest, useSchedulesDirectGetAvailableCountriesQuery } from '@lib/iptvApi';
 import { useSelectedCountry } from '@lib/redux/slices/selectedCountrySlice';
 import { useSelectedPostalCode } from '@lib/redux/slices/selectedPostalCodeSlice';
 import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
+import useSettings from '@lib/useSettings';
 import { Dropdown } from 'primereact/dropdown';
 import React, { useState } from 'react';
 
@@ -12,25 +13,45 @@ interface SchedulesDirectCountrySelectorProperties {
 }
 
 const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorProperties) => {
+  const setting = useSettings();
   const { selectedCountry, setSelectedCountry } = useSelectedCountry('Country');
-  const { selectedPostalCode, setSelectedPostalCode } = useSelectedPostalCode('ZipCode');
+  const { selectedPostalCode, setSelectedPostalCode } = useSelectedPostalCode('PostalCode');
 
-  const [originalCountry, setOriginalCountry] = useState<string | undefined>();
-  const [originalPostalCode, setOriginalPostalCode] = useState<string | undefined>();
+  const [countryValue, setCountryValue] = useState<string | undefined>();
+  const [postalCodeValue, setPostalCodeValue] = useState<string | undefined>();
 
   const getCountriesQuery = useSchedulesDirectGetAvailableCountriesQuery();
 
   React.useEffect(() => {
-    if (selectedCountry !== undefined && selectedCountry !== originalCountry) {
-      setOriginalCountry(selectedCountry);
+    // console.log('sdCountry', setting.data?.sdSettings?.sdCountry, selectedCountry);
+    if (setting.data?.sdSettings?.sdCountry !== undefined) {
+      if (setting.data?.sdSettings?.sdCountry !== selectedCountry) {
+        setSelectedCountry(setting.data?.sdSettings?.sdCountry);
+      }
+      if (setting.data?.sdSettings?.sdCountry !== countryValue) {
+        setCountryValue(setting.data?.sdSettings?.sdCountry);
+      }
     }
-  }, [originalCountry, selectedCountry, setOriginalCountry]);
 
-  React.useEffect(() => {
-    if (selectedPostalCode !== undefined && selectedPostalCode !== originalPostalCode) {
-      setOriginalPostalCode(selectedPostalCode);
+    //console.log('sdPostalCode', setting.data?.sdSettings?.sdPostalCode, selectedPostalCode);
+    if (setting.data?.sdSettings?.sdPostalCode !== undefined) {
+      if (setting.data?.sdSettings?.sdPostalCode !== selectedPostalCode) {
+        setSelectedPostalCode(setting.data?.sdSettings?.sdPostalCode);
+      }
+      if (setting.data?.sdSettings?.sdPostalCode !== postalCodeValue) {
+        setPostalCodeValue(setting.data?.sdSettings?.sdPostalCode);
+      }
     }
-  }, [originalPostalCode, selectedPostalCode, setOriginalPostalCode]);
+  }, [
+    countryValue,
+    postalCodeValue,
+    selectedCountry,
+    selectedPostalCode,
+    setSelectedCountry,
+    setSelectedPostalCode,
+    setting.data?.sdSettings?.sdCountry,
+    setting.data?.sdSettings?.sdPostalCode
+  ]);
 
   interface Country {
     shortName: string;
@@ -89,25 +110,32 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
           <TextInput
             placeHolder="Postal Code"
             onChange={(e) => {
-              setOriginalPostalCode(e);
+              setPostalCodeValue(e);
             }}
-            value={originalPostalCode}
+            value={postalCodeValue}
           />
         </div>
         <div className="flex col-2 pt-2 p-0 pr-3">
           <SearchButton
             tooltip="Go"
             onClick={() => {
-              console.log('PostalCode', originalPostalCode);
+              // console.log('PostalCode', postalCodeValue);
 
-              if (!originalPostalCode || !originalCountry) {
+              if (!postalCodeValue || !countryValue) {
                 return;
               }
 
-              setSelectedCountry(originalCountry);
-              setSelectedPostalCode(originalPostalCode);
+              // console.log('UpdateSetting', postalCodeValue, countryValue);
+              // console.log('UpdateSetting', setting.data.sdSettings?.sdPostalCode, setting.data.sdSettings?.sdCountry);
 
-              const newData: SettingDto = { sdSettings: { sdPostalCode: originalPostalCode, sdCountry: originalCountry } };
+              // if (setting.data.sdSettings?.sdPostalCode === postalCodeValue && setting.data.sdSettings?.sdCountry === countryValue) {
+              //   return;
+              // }
+
+              // setSelectedCountry(countryValue);
+              // setSelectedPostalCode(postalCodeValue);
+
+              const newData: UpdateSettingRequest = { sdSettings: { sdPostalCode: postalCodeValue, sdCountry: countryValue } };
 
               UpdateSetting(newData)
                 .then(() => {})

@@ -33,7 +33,7 @@ export const SettingsEditor = () => {
     setSelectedCurrentSettingDto({ ...settingsQuery.data });
     setSelectedUpdateSettingRequest({} as UpdateSettingRequest);
     setOriginalData({ ...settingsQuery.data });
-  }, [setSelectedCurrentSettingDto, settingsQuery]);
+  }, [setSelectedCurrentSettingDto, setSelectedUpdateSettingRequest, settingsQuery]);
 
   const adminUserNameError = useMemo((): string | undefined => {
     if (selectedCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectedCurrentSettingDto?.adminUserName === '')
