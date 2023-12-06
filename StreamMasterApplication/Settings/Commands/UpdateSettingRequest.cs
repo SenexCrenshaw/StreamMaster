@@ -9,6 +9,7 @@ namespace StreamMasterApplication.Settings.Commands;
 
 public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
 {
+    public SDSettingsRequest? SDSettings { get; set; }
     public bool? ShowClientHostNames { get; set; }
     public string? AdminPassword { get; set; }
     public string? AdminUserName { get; set; }
@@ -20,7 +21,6 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public string? DeviceID { get; set; }
     public string? DummyRegex { get; set; }
     public bool? EnableSSL { get; set; }
-    public bool? EPGAlwaysUseVideoStreamName { get; set; } = false;
     public string? FFMPegExecutable { get; set; }
     public int? GlobalStreamLimit { get; set; }
     public bool? M3UFieldChannelId { get; set; }
@@ -55,6 +55,132 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
 public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger<UpdateSettingRequest> logger, IRepositoryWrapper repository, IMapper mapper, ISettingsService settingsService, IPublisher publisher, ISender sender, IHubContext<StreamMasterHub, IStreamMasterHub> hubContext, IMemoryCache memoryCache)
 : BaseMediatorRequestHandler(logger, repository, mapper, settingsService, publisher, sender, hubContext, memoryCache), IRequestHandler<UpdateSettingRequest, UpdateSettingResponse>
 {
+    public static void CopyNonNullFields(SDSettingsRequest source, SDSettings destination)
+    {
+        if (source == null || destination == null)
+        {
+            throw new ArgumentNullException("Source and destination must not be null.");
+        }
+
+        if (source.SeriesPosterArt != null)
+        {
+            destination.SeriesPosterArt = (bool)source.SeriesPosterArt;
+        }
+
+        if (source.SeriesWsArt != null)
+        {
+            destination.SeriesWsArt = (bool)source.SeriesWsArt;
+        }
+
+        if (source.SeriesPosterAspect != null)
+        {
+            destination.SeriesPosterAspect = source.SeriesPosterAspect;
+        }
+
+        if (source.ArtworkSize != null)
+        {
+            destination.ArtworkSize = source.ArtworkSize;
+        }
+
+        if (source.ExcludeCastAndCrew != null)
+        {
+            destination.ExcludeCastAndCrew = (bool)source.ExcludeCastAndCrew;
+        }
+
+        if (source.AlternateSEFormat != null)
+        {
+            destination.AlternateSEFormat = (bool)source.AlternateSEFormat;
+        }
+
+        if (source.PrefixEpisodeDescription != null)
+        {
+            destination.PrefixEpisodeDescription = (bool)source.PrefixEpisodeDescription;
+        }
+
+        if (source.PrefixEpisodeTitle != null)
+        {
+            destination.PrefixEpisodeTitle = (bool)source.PrefixEpisodeTitle;
+        }
+
+        if (source.AppendEpisodeDesc != null)
+        {
+            destination.AppendEpisodeDesc = (bool)source.AppendEpisodeDesc;
+        }
+
+        if (source.SDEPGDays != null)
+        {
+            destination.SDEPGDays = (int)source.SDEPGDays;
+        }
+
+        if (source.SDEnabled != null)
+        {
+            destination.SDEnabled = (bool)source.SDEnabled;
+        }
+
+        if (source.SDUserName != null)
+        {
+            destination.SDUserName = source.SDUserName;
+        }
+
+        if (source.SDCountry != null)
+        {
+            destination.SDCountry = source.SDCountry;
+        }
+
+        if (source.SDPassword != null)
+        {
+            destination.SDPassword = source.SDPassword;
+        }
+
+        if (source.SDPostalCode != null)
+        {
+            destination.SDPostalCode = source.SDPostalCode;
+        }
+
+        if (source.SDStationIds != null)
+        {
+            destination.SDStationIds = source.SDStationIds;
+        }
+
+        if (source.SeasonEventImages != null)
+        {
+            destination.SeasonEventImages = (bool)source.SeasonEventImages;
+        }
+
+        if (source.XmltvAddFillerData != null)
+        {
+            destination.XmltvAddFillerData = (bool)source.XmltvAddFillerData;
+        }
+
+        if (source.XmltvFillerProgramDescription != null)
+        {
+            destination.XmltvFillerProgramDescription = source.XmltvFillerProgramDescription;
+        }
+
+        if (source.XmltvFillerProgramLength != null)
+        {
+            destination.XmltvFillerProgramLength = (int)source.XmltvFillerProgramLength;
+        }
+
+        if (source.XmltvIncludeChannelNumbers != null)
+        {
+            destination.XmltvIncludeChannelNumbers = (bool)source.XmltvIncludeChannelNumbers;
+        }
+
+        if (source.XmltvExtendedInfoInTitleDescriptions != null)
+        {
+            destination.XmltvExtendedInfoInTitleDescriptions = (bool)source.XmltvExtendedInfoInTitleDescriptions;
+        }
+
+        if (source.XmltvSingleImage != null)
+        {
+            destination.XmltvSingleImage = (bool)source.XmltvSingleImage;
+        }
+    }
+
+
+
+
     public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
     {
         Setting currentSetting = await GetSettingsAsync();
@@ -98,6 +224,11 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
         if (request.CleanURLs != null && request.CleanURLs != currentSetting.CleanURLs)
         {
             currentSetting.CleanURLs = (bool)request.CleanURLs;
+        }
+
+        if ( request.SDSettings != null)
+        {
+            CopyNonNullFields( request.SDSettings,  currentSetting.SDSettings);
         }
 
         if (request.EnableSSL != null && request.EnableSSL != currentSetting.EnableSSL)

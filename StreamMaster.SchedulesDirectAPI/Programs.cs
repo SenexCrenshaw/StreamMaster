@@ -564,7 +564,16 @@ public partial class SchedulesDirect
                     if (contentRatings.Count > 0) break;
                 }
             }
-            mxfProgram.extras.Add("ratings", contentRatings);
+            if (mxfProgram.extras.ContainsKey("ratings"))
+            {
+                // Key exists, update the value
+                mxfProgram.extras["ratings"] = contentRatings;
+            }
+            else
+            {
+                // Key does not exist, add a new key-value pair
+                mxfProgram.extras.Add("ratings", contentRatings);
+            }
         }
 
         if (sdProgram.ContentAdvisory != null)
