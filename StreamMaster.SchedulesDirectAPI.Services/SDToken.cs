@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain;
+using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
 using StreamMaster.SchedulesDirectAPI.Domain.Models;
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
@@ -9,6 +10,7 @@ using StreamMasterDomain.Cache;
 using StreamMasterDomain.Common;
 using StreamMasterDomain.Services;
 
+using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -144,6 +146,33 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
         }
     }
 
+    private static async Task<(HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? data)> ProcessResponse<T>(HttpResponseMessage response, ILogger logger, CancellationToken cancellationToken)
+    {
+        string responseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        SDHttpResponseCode responseCode = SDHttpResponseCode.UNKNOWN_ERROR;
+
+        try
+        {
+            TokenResponse? responseObj = JsonSerializer.Deserialize<TokenResponse>(responseContent);
+            if (responseObj is not null)
+            {
+                responseCode = (SDHttpResponseCode)responseObj.Code;
+                if (responseCode == SDHttpResponseCode.OK)
+                {
+                    T? result = JsonSerializer.Deserialize<T>(responseContent);
+                    if (result != null)
+                    {
+                        return (response.StatusCode, responseCode, responseContent, result);
+                    }
+                }
+            }                       
+        }
+        catch (JsonException ex)
+        {
+            logger.LogWarning("Deserialization to type {Type} failed: {Message}", typeof(T).Name, ex.Message);
+        }
+        return (response.StatusCode, responseCode, responseContent, default(T?));
+    }
     private async Task<string?> RetrieveTokenAsync(CancellationToken cancellationToken)
     {
         try
@@ -163,7 +192,7 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
             HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
 
             using HttpResponseMessage response = await httpClient.PostAsync($"{SD_BASE_URL}token", content, cancellationToken).ConfigureAwait(false);
-            (System.Net.HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, SDGetToken? result) = await SDHandler.ProcessResponse<SDGetToken?>(response, logger, cancellationToken).ConfigureAwait(false);
+            (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, SDGetToken? result) = await ProcessResponse<SDGetToken?>(response, logger, cancellationToken).ConfigureAwait(false);
            
             if (responseCode != SDHttpResponseCode.OK) { 
             logger.LogWarning("Schedules Direct Retrieve Token Response Code: {responseCode}", responseCode.GetMessage());
