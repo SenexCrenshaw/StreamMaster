@@ -13,7 +13,7 @@ public partial class SchedulesDirect
             var stationChannelName = new StationChannelName
             {
                 Channel = station.StationId,
-                DisplayName = station.CallSign+";"+station.Name,
+                DisplayName = $"[{station.CallSign}] {station.Name}",
                 ChannelName = station.CallSign
             };
             ret.Add(stationChannelName);
