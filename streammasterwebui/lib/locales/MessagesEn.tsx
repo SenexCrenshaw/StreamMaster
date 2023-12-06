@@ -120,7 +120,21 @@ const MessagesEn: messages_enType = {
   'sdSettings.sdPassword': 'Sched Direct Password',
 
   'sdSettings.sdUserName': 'Sched Direct Username',
+  'sdSettings.seriesWsArt': 'Enable Series Wide Sceen Art',
+  'sdSettings.seriesPosterAspect': 'Series Poster Aspect Ratio',
+  'sdSettings.artworkSize': 'Artwork Size Md',
   'sdSettings.seriesPosterArt': 'Enable Series Poster Art',
+  'sdSettings.excludeCastAndCrew': 'Exclude Cast and Crew',
+  'sdSettings.alternateSEFormat': 'Alternate Season/Episode Format',
+  'sdSettings.prefixEpisodeDescription': 'Prefix Episode Description',
+  'sdSettings.prefixEpisodeTitle': 'Prefix Episode Title',
+  'sdSettings.appendEpisodeDesc': 'Append Season and Episode Numbers to the Program Description',
+  'sdSettings.seasonEventImages': 'Season Event Images',
+  'sdSettings.xmltvAddFillerData': 'Add Filler Data to EPG',
+  'sdSettings.xmltvIncludeChannelNumbers': 'Include Channel Numbers in EPG',
+  'sdSettings.xmltvExtendedInfoInTitleDescriptions': 'Include Extended Info in Title Descriptions',
+  'sdSettings.xmltvSingleImage': 'Use Single Image for EPG',
+  'sdSettings.sdepgDays': 'EPG Days to download',
 
   set: 'Set',
 

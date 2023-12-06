@@ -46,7 +46,9 @@ const help_en: help_enType = {
   useDummyEPGForBlanks: 'Use Dummy EPG for streams with missing EPG',
   user: 'User',
   videoStreamAlwaysUseEPGLogo:
-    'Always use EPG Logo for Video Stream. If the EPG is changed to one containing a logo then the video stream logo will be set to that'
+    'Always use EPG Logo for Video Stream. If the EPG is changed to one containing a logo then the video stream logo will be set to that',
+
+  'sdSettings.alternateSEFormat': 'True: "S{0}:E{1} "  False: "s{0:D2}e{1:D2} ";'
 };
 
 export const getHelp = (key: string) => help_en[key];

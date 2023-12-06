@@ -28,6 +28,10 @@ public partial class SchedulesDirect
         programQueue = [];
         foreach (var mxfProgram in schedulesDirectData.Programs)
         {
+            if (!mxfProgram.extras.ContainsKey("md5"))
+            {
+                continue;
+            }
             if (epgCache.JsonFiles.ContainsKey(mxfProgram.extras["md5"]))
             {
                 try

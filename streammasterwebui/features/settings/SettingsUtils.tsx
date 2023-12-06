@@ -24,3 +24,19 @@ export function getRecordString<T>(fieldName: string, newData: T): string | unde
 
   return toDisplay;
 }
+
+export function updateNestedProperty(obj: Record<string, any>, path: string, value: any) {
+  const keys = path.split('.');
+  let currentObj = obj;
+
+  for (let i = 0; i < keys.length - 1; i++) {
+    const key = keys[i];
+    if (!currentObj[key]) {
+      currentObj[key] = {};
+    }
+    currentObj = currentObj[key];
+  }
+
+  const lastKey = keys[keys.length - 1];
+  currentObj[lastKey] = value;
+}

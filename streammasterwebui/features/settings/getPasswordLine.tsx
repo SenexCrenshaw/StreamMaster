@@ -3,17 +3,17 @@ import { SettingDto } from '@lib/iptvApi';
 import { getHelp } from '@lib/locales/help_en';
 import { Password } from 'primereact/password';
 import React from 'react';
-import { getRecordString } from './SettingsUtils';
-import { getLine } from './getLine'; // Import the getLine function
+import { getRecordString, updateNestedProperty } from './SettingsUtils';
+import { getLine } from './getLine';
 
 type PasswordLineProps = {
   field: string;
   warning?: string | null;
-  newData: SettingDto; // Adjust the type accordingly
-  setNewData: React.Dispatch<React.SetStateAction<SettingDto>>; // Adjust the type accordingly
+  selectCurrentSettingDto: SettingDto | undefined;
+  onChange: (newValue: SettingDto) => void | undefined;
 };
 
-export function getPasswordLine({ field, warning, newData, setNewData }: PasswordLineProps): React.ReactElement {
+export function getPasswordLine({ field, warning, selectCurrentSettingDto, onChange }: PasswordLineProps): React.ReactElement {
   const label = GetMessage(field);
   const help = getHelp(field);
 
@@ -24,10 +24,15 @@ export function getPasswordLine({ field, warning, newData, setNewData }: Passwor
         <Password
           className="password withpadding w-full text-left"
           feedback={false}
-          onChange={(e) => setNewData({ ...newData, [field]: e.target.value })}
+          onChange={(e) => {
+            if (selectCurrentSettingDto?.sdSettings === undefined) return;
+            const updatedSettingDto = { ...selectCurrentSettingDto, sdSettings: { ...selectCurrentSettingDto.sdSettings } };
+            updateNestedProperty(updatedSettingDto, field, e.target.value);
+            onChange(updatedSettingDto);
+          }}
           placeholder={label}
           toggleMask
-          value={getRecordString<SettingDto>(field, newData)}
+          value={selectCurrentSettingDto ? getRecordString<SettingDto>(field, selectCurrentSettingDto) : undefined}
         />
         <br />
         {warning !== null && warning !== undefined && <span className="text-xs text-orange-500">{warning}</span>}

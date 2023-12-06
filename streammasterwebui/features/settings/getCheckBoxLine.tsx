@@ -3,16 +3,16 @@ import { SettingDto } from '@lib/iptvApi';
 import { getHelp } from '@lib/locales/help_en';
 import { Checkbox } from 'primereact/checkbox';
 import React from 'react';
-import { getRecord } from './SettingsUtils';
+import { getRecord, updateNestedProperty } from './SettingsUtils';
 import { getLine } from './getLine'; // Import the getLine function
 
 type CheckBoxLineProps = {
   field: string;
-  newData: SettingDto; // Adjust the type accordingly
-  setNewData: React.Dispatch<React.SetStateAction<SettingDto>>; // Adjust the type accordingly
+  selectCurrentSettingDto: SettingDto | undefined;
+  onChange: (newValue: SettingDto) => void | undefined;
 };
 
-export function getCheckBoxLine({ field, newData, setNewData }: CheckBoxLineProps): React.ReactElement {
+export function getCheckBoxLine({ field, selectCurrentSettingDto, onChange }: CheckBoxLineProps): React.ReactElement {
   const label = GetMessage(field);
   const help = getHelp(field);
 
@@ -20,11 +20,16 @@ export function getCheckBoxLine({ field, newData, setNewData }: CheckBoxLineProp
     label: `${label}:`,
     value: (
       <Checkbox
-        checked={getRecord<SettingDto, boolean>(field, newData) ?? false}
+        checked={selectCurrentSettingDto ? getRecord<SettingDto, boolean>(field, selectCurrentSettingDto as SettingDto)! : false}
         className="w-full text-left"
-        onChange={(e) => setNewData({ ...newData, [field]: !e.target.value })}
+        onChange={(e) => {
+          if (selectCurrentSettingDto?.sdSettings === undefined) return;
+          const updatedSettingDto = { ...selectCurrentSettingDto, sdSettings: { ...selectCurrentSettingDto.sdSettings } };
+          updateNestedProperty(updatedSettingDto, field, !e.target.value);
+          onChange(updatedSettingDto);
+        }}
         placeholder={label}
-        value={getRecord<SettingDto, boolean>(field, newData)}
+        value={selectCurrentSettingDto ? getRecord<SettingDto, boolean>(field, selectCurrentSettingDto) : undefined}
       />
     ),
     help

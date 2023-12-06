@@ -25,11 +25,7 @@ public partial class SchedulesDirect
         if (clientLineups == null || !clientLineups.Lineups.Any()) return false;
 
         Setting setting = await settingsService.GetSettingsAsync(cancellationToken).ConfigureAwait(false);
-
-        int maxDays = setting.SDSettings.SDEPGDays;
-        int maxRatings = setting.SDSettings.SDMaxRatings;
-        bool useLineupInName = setting.SDSettings.SDUseLineupInName;
-
+       
         foreach (var clientLineup in clientLineups.Lineups)
         {
             // don't download station map if lineup not included

@@ -1444,7 +1444,7 @@ export type StationChannelMap = {
   metadata?: LineupMetadata | null;
 };
 export type GetStationChannelNameFromDisplayName = {
-  displayName?: string;
+  value?: string;
 };
 export type Logo = {
   URL?: string;
@@ -1524,9 +1524,7 @@ export type SdSettings = {
   prefixEpisodeDescription?: boolean;
   prefixEpisodeTitle?: boolean;
   appendEpisodeDesc?: boolean;
-  sdUseLineupInName?: boolean;
   sdepgDays?: number;
-  sdMaxRatings?: number;
   sdEnabled?: boolean;
   sdUserName?: string;
   sdCountry?: string;

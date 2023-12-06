@@ -3,6 +3,7 @@ import { GetMessage } from '@lib/common/common';
 import { SettingsEditorIcon } from '@lib/common/icons';
 import { AuthenticationType } from '@lib/common/streammaster_enums';
 import { SettingDto, useSettingsGetSettingQuery } from '@lib/iptvApi';
+import { useSelectCurrentSettingDto } from '@lib/redux/slices/selectedCurrentSettingDto';
 import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
 import HistoryIcon from '@mui/icons-material/History';
 import SaveIcon from '@mui/icons-material/Save';
@@ -18,7 +19,10 @@ import { SDSettings } from './SDSettings';
 import { StreamingSettings } from './StreamingSettings';
 
 export const SettingsEditor = () => {
-  const [newData, setNewData] = useState<SettingDto>({} as SettingDto);
+  const { selectCurrentSettingDto, setSelectedCurrentSettingDto } = useSelectCurrentSettingDto('CurrentSettingDto');
+
+  // const [, setNewData] = useState<SettingDto>({} as SettingDto);
+
   const [originalData, setOriginalData] = useState<SettingDto>({} as SettingDto);
 
   const settingsQuery = useSettingsGetSettingQuery();
@@ -26,45 +30,47 @@ export const SettingsEditor = () => {
   useEffect(() => {
     if (settingsQuery.isLoading || !settingsQuery.data) return;
 
-    setNewData({ ...settingsQuery.data });
+    setSelectedCurrentSettingDto({ ...settingsQuery.data });
     setOriginalData({ ...settingsQuery.data });
-  }, [settingsQuery]);
+  }, [setSelectedCurrentSettingDto, settingsQuery]);
 
   const adminUserNameError = useMemo((): string | undefined => {
-    if (newData.authenticationMethod === AuthenticationType.Forms && newData.adminUserName === '') return GetMessage('formsAuthRequiresAdminUserName');
+    if (selectCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectCurrentSettingDto?.adminUserName === '')
+      return GetMessage('formsAuthRequiresAdminUserName');
 
     return undefined;
-  }, [newData.adminUserName, newData.authenticationMethod]);
+  }, [selectCurrentSettingDto?.adminUserName, selectCurrentSettingDto?.authenticationMethod]);
 
   const adminPasswordError = useMemo((): string | undefined => {
-    if (newData.authenticationMethod === AuthenticationType.Forms && newData.adminPassword === '') return GetMessage('formsAuthRequiresAdminPassword');
+    if (selectCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectCurrentSettingDto?.adminPassword === '')
+      return GetMessage('formsAuthRequiresAdminPassword');
 
     return undefined;
-  }, [newData.adminPassword, newData.authenticationMethod]);
+  }, [selectCurrentSettingDto?.adminPassword, selectCurrentSettingDto?.authenticationMethod]);
 
   const isSaveEnabled = useMemo((): boolean => {
-    if (JSON.stringify(newData) === JSON.stringify(originalData)) return false;
+    if (JSON.stringify(selectCurrentSettingDto) === JSON.stringify(originalData)) return false;
 
     if (adminUserNameError !== undefined || adminPasswordError !== undefined) {
       return false;
     }
 
-    if (newData.enableSSL === true && newData.sslCertPath === '') {
+    if (selectCurrentSettingDto?.enableSSL === true && selectCurrentSettingDto?.sslCertPath === '') {
       return false;
     }
 
     return true;
-  }, [adminPasswordError, adminUserNameError, newData, originalData]);
+  }, [adminPasswordError, adminUserNameError, selectCurrentSettingDto, originalData]);
 
   const onSave = useCallback(() => {
-    if (!isSaveEnabled) {
+    if (!isSaveEnabled || !selectCurrentSettingDto) {
       return;
     }
 
-    UpdateSetting(newData)
+    UpdateSetting(selectCurrentSettingDto)
       .then(() => {})
       .catch(() => {});
-  }, [isSaveEnabled, newData]);
+  }, [isSaveEnabled, selectCurrentSettingDto]);
 
   const items: MenuItem[] = [
     {
@@ -77,7 +83,7 @@ export const SettingsEditor = () => {
     },
     {
       command: () => {
-        setNewData({ ...originalData });
+        setSelectedCurrentSettingDto({ ...originalData });
       },
       disabled: !isSaveEnabled,
       icon: <HistoryIcon sx={{ fontSize: 40 }} />,
@@ -90,17 +96,17 @@ export const SettingsEditor = () => {
       <ScrollPanel style={{ height: 'calc(100vh - 58px)', width: '100%' }}>
         <Dock model={items} position="right" />
 
-        <GeneralSettings newData={newData} setNewData={setNewData} />
+        <GeneralSettings />
 
-        <AuthenticationSettings newData={newData} setNewData={setNewData} />
+        <AuthenticationSettings />
 
-        <StreamingSettings newData={newData} setNewData={setNewData} />
+        <StreamingSettings />
 
-        <SDSettings newData={newData} setNewData={setNewData} />
+        <SDSettings />
 
-        <FilesEPGM3USettings newData={newData} setNewData={setNewData} />
+        <FilesEPGM3USettings />
 
-        <DevelopmentSettings newData={newData} setNewData={setNewData} />
+        <DevelopmentSettings />
       </ScrollPanel>
     </StandardHeader>
   );

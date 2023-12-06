@@ -27,10 +27,8 @@ public class SDSettings
     public bool AlternateSEFormat { get; set; }
     public bool PrefixEpisodeDescription { get; set; } = true;
     public bool PrefixEpisodeTitle { get; set; } = true;
-    public bool AppendEpisodeDesc { get; set; } = true;
-    public bool SDUseLineupInName { get; set; } = true;
+    public bool AppendEpisodeDesc { get; set; } = true;    
     public int SDEPGDays { get; set; } = 7;
-    public int SDMaxRatings { get; set; } = 2;
     public bool SDEnabled { get; set; }
     public string SDUserName { get; set; } = string.Empty;
     public string SDCountry { get; set; } = string.Empty;
@@ -80,7 +78,7 @@ public class BaseSettings : M3USettings {
 
     public string SSLCertPassword { get; set; } = string.Empty;
     public string SSLCertPath { get; set; } = string.Empty;
-    public string StreamingClientUserAgent { get; set; } = "Mozilla/5.0 (compatible; streammaster/1.0)";
+    public string StreamingClientUserAgent { get; set; } = "VLC/3.0.20-git LibVLC/3.0.20-git";
     public StreamingProxyTypes StreamingProxyType { get; set; } = StreamingProxyTypes.StreamMaster;
     public bool VideoStreamAlwaysUseEPGLogo { get; set; }
 

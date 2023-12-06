@@ -1,8 +1,9 @@
 import { GetMessage } from '@lib/common/common';
-import { SettingDto } from '@lib/iptvApi';
 import React, { useMemo } from 'react';
 // Import the getLine function
 import { AuthenticationType } from '@lib/common/streammaster_enums';
+import { SettingDto } from '@lib/iptvApi';
+import { useSelectCurrentSettingDto } from '@lib/redux/slices/selectedCurrentSettingDto';
 import useSettings from '@lib/useSettings';
 import { Button } from 'primereact/button';
 import { Fieldset } from 'primereact/fieldset';
@@ -11,25 +12,23 @@ import { getDropDownLine } from './getDropDownLine';
 import { getInputTextLine } from './getInputTextLine';
 import { getPasswordLine } from './getPasswordLine';
 
-type AuthenticationSettingsProps = {
-  newData: SettingDto; // Adjust the type accordingly
-  setNewData: React.Dispatch<React.SetStateAction<SettingDto>>; // Adjust the type accordingly
-};
-
-export function AuthenticationSettings({ newData, setNewData }: AuthenticationSettingsProps): React.ReactElement {
+export function AuthenticationSettings(): React.ReactElement {
   const setting = useSettings();
+  const { selectCurrentSettingDto, setSelectedCurrentSettingDto } = useSelectCurrentSettingDto('CurrentSettingDto');
 
   const adminUserNameError = useMemo((): string | undefined => {
-    if (newData.authenticationMethod === AuthenticationType.Forms && newData.adminUserName === '') return GetMessage('formsAuthRequiresAdminUserName');
+    if (selectCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectCurrentSettingDto?.adminUserName === '')
+      return GetMessage('formsAuthRequiresAdminUserName');
 
     return undefined;
-  }, [newData.adminUserName, newData.authenticationMethod]);
+  }, [selectCurrentSettingDto?.adminUserName, selectCurrentSettingDto?.authenticationMethod]);
 
   const adminPasswordError = useMemo((): string | undefined => {
-    if (newData.authenticationMethod === AuthenticationType.Forms && newData.adminPassword === '') return GetMessage('formsAuthRequiresAdminPassword');
+    if (selectCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectCurrentSettingDto?.adminPassword === '')
+      return GetMessage('formsAuthRequiresAdminPassword');
 
     return undefined;
-  }, [newData.adminPassword, newData.authenticationMethod]);
+  }, [selectCurrentSettingDto?.adminPassword, selectCurrentSettingDto?.authenticationMethod]);
 
   const getAuthTypeOptions = (): SelectItem[] => {
     const test = Object.entries(AuthenticationType)
@@ -45,12 +44,17 @@ export function AuthenticationSettings({ newData, setNewData }: AuthenticationSe
     return test;
   };
 
+  const onChange = (newValue: SettingDto) => {
+    if (selectCurrentSettingDto === undefined || setSelectedCurrentSettingDto === undefined || newValue === null || newValue === undefined) return;
+    setSelectedCurrentSettingDto(newValue);
+  };
+
   return (
     <Fieldset className="mt-4 pt-10" legend={GetMessage('authentication')}>
-      {getInputTextLine({ field: 'apiKey', newData, setNewData })}
-      {getDropDownLine({ field: 'authenticationMethod', options: getAuthTypeOptions(), newData, setNewData })}
-      {getInputTextLine({ field: 'adminUserName', warning: adminUserNameError, newData, setNewData })}
-      {getPasswordLine({ field: 'adminPassword', warning: adminPasswordError, newData, setNewData })}
+      {getInputTextLine({ field: 'apiKey', selectCurrentSettingDto, onChange })}
+      {getDropDownLine({ field: 'authenticationMethod', options: getAuthTypeOptions(), selectCurrentSettingDto, onChange })}
+      {getInputTextLine({ field: 'adminUserName', warning: adminUserNameError, selectCurrentSettingDto, onChange })}
+      {getPasswordLine({ field: 'adminPassword', warning: adminPasswordError, selectCurrentSettingDto, onChange })}
       <div className="flex col-12">
         <div className="flex col-2 col-offset-1">
           <span>{GetMessage('signout')}</span>
