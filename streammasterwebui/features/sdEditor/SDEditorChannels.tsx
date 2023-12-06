@@ -11,12 +11,12 @@ const SDEditorChannels = () => {
   const settings = useSettings();
 
   const isSDReady = useMemo((): boolean => {
-    if (!getStatusQuery.data?.systemStatus || getStatusQuery.data?.systemStatus.length === 0 || settings.data?.sdEnabled !== true) {
+    if (!getStatusQuery.data?.systemStatus || getStatusQuery.data?.systemStatus.length === 0 || settings.data?.sdSettings?.sdEnabled !== true) {
       return false;
     }
     console.log(getStatusQuery.data.systemStatus);
     return getStatusQuery.data.systemStatus[0].status?.toLocaleLowerCase() === 'online';
-  }, [getStatusQuery.data?.systemStatus, settings.data?.sdEnabled]);
+  }, [getStatusQuery.data?.systemStatus, settings.data?.sdSettings?.sdEnabled]);
 
   const status = useMemo(() => {
     if (isSDReady) {
