@@ -28,6 +28,7 @@ using StreamMasterDomain.Pagination;
 using StreamMasterDomain.Repository;
 
 using System.Linq.Dynamic.Core;
+using System.Text.RegularExpressions;
 
 namespace StreamMasterInfrastructureEF.Repositories;
 
@@ -910,46 +911,66 @@ public class VideoStreamRepository(ILogger<VideoStreamRepository> intlogger, Rep
     {
         int score = 0;
 
-        // Normalize and remove spaces for comparison
-        string normalizedUserTvgName = userTvgName.Replace(" ", "").ToLower();
+        // Normalize inputs for case-insensitive comparison
+        string normalizedUserTvgName = userTvgName.ToLower();
         string normalizedProgrammeName = programmeName.ToLower();
 
-          
-        List<string> userTvgNameWords = normalizedUserTvgName.Split(' ').ToList();
-        List<string> programmeNameWords = normalizedProgrammeName.Split(' ').ToList();
+        // List of common suffixes
+        string[] commonSuffixes = new[] { "us", "gb", "dt", "hd" };
 
-        // Direct match
-        if (normalizedUserTvgName.Contains(normalizedProgrammeName))
+        // Removing common suffixes from normalizedUserTvgName
+        foreach (var suffix in commonSuffixes)
         {
-            score += 20;
-        }
-
-        // Word intersection count
-        int intersectionCount = userTvgNameWords.Intersect(programmeNameWords).Count();
-        score += intersectionCount * 30; // Each intersecting word adds 30 to the score
-
-        // Extracting the base name by removing 'HD' or similar suffixes
-        string baseName = normalizedProgrammeName.Split(new[] { "-", " ", "hd" }, StringSplitOptions.RemoveEmptyEntries)[0];
-
-        if (normalizedUserTvgName.Contains(baseName))
-        {
-            score += 50;
-        }
-
-        // Additional scoring for "HD" suffix
-        if (normalizedProgrammeName.EndsWith("hd"))
-        {
-            string userTvgNameWithHd = normalizedUserTvgName + "hd";
-            // Additional score if the base name matches and it has an HD suffix
-            if (userTvgNameWithHd.Equals(baseName))
+            if (normalizedUserTvgName.EndsWith(suffix))
             {
-                score += 50;
+                normalizedUserTvgName = normalizedUserTvgName.Substring(0, normalizedUserTvgName.Length - suffix.Length);
+                break;
             }
         }
 
+        // Removing common suffixes from normalizedProgrammeName to extract the base name
+        string baseName = normalizedProgrammeName;
+        foreach (var suffix in commonSuffixes)
+        {
+            if (baseName.EndsWith(suffix))
+            {
+                baseName = baseName.Substring(0, baseName.Length - suffix.Length);
+                break;
+            }
+        }
+
+        // Extract call sign from normalizedUserTvgName (expected to be within parentheses)
+        var match = Regex.Match(normalizedUserTvgName, @"\((.*?)\)"); // Matches content within parentheses
+        string callSign = match.Success ? match.Groups[1].Value.ToLower() : "";
+
+        // Check for direct match with both the full and base name of normalizedProgrammeName
+        if (!string.IsNullOrEmpty(callSign))
+        {
+            if (callSign.Equals(baseName) || callSign.Equals(normalizedProgrammeName))
+            {
+                score += 40;
+            }
+        }
+
+        // Base name match (without suffix)
+        // This checks if the programmeName without its suffix (like 'HD' or 'DT') is contained in the userTvgName
+        if (normalizedUserTvgName.Contains(baseName))
+        {
+            score += 30;
+        }
+
+        // Splitting the names into words for further analysis
+        List<string> userTvgNameWords = normalizedUserTvgName.Split(' ').ToList();
+        List<string> programmeNameWords = normalizedProgrammeName.Split(' ').ToList();
+
+        // Word intersection count
+        // Each intersecting word adds to the score, useful for partial matches in names
+        int intersectionCount = userTvgNameWords.Intersect(programmeNameWords).Count();
+        score += intersectionCount * 10;
+
+        // Returning the final calculated score
         return score;
     }
-
 
     public async Task<List<VideoStreamDto>> AutoSetEPGFromIds(List<string> ids, CancellationToken cancellationToken)
     {

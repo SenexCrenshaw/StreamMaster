@@ -414,7 +414,36 @@ public sealed class FileUtil
         CreateDir(BuildInfo.SDImagesFolder);
         CreateDir(BuildInfo.SDStationLogos);
         CreateDir(BuildInfo.SDStationLogosCache);
+
+        for (char c = '0'; c <= '9'; c++)
+        {
+            Console.WriteLine(c);
+
+            string subdirectoryName = c.ToString();
+            string subdirectoryPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName);
+
+            // Create the subdirectory if it doesn't exist
+            if (!Directory.Exists(subdirectoryPath))
+            {
+                Directory.CreateDirectory(subdirectoryPath);
+            }
+        }
+
+        for (char c = 'A'; c <= 'F'; c++)
+        {
+            Console.WriteLine(c);
+
+            string subdirectoryName = c.ToString();
+            string subdirectoryPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName);
+
+            // Create the subdirectory if it doesn't exist
+            if (!Directory.Exists(subdirectoryPath))
+            {
+                Directory.CreateDirectory(subdirectoryPath);
+            }
+        }
     }
+
 
     public static void UpdateSetting(Setting setting)
     {

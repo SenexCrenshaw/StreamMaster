@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
 
+using StreamMaster.SchedulesDirectAPI.Helpers;
+
 using StreamMasterAPI.Interfaces;
 
 using StreamMasterApplication.Common.Logging;
@@ -56,7 +58,8 @@ public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mime
         {
             //StreamMaster.SchedulesDirectAPI.Domain.Models.ImageInfo? cache = memoryCache.ImageInfos().FirstOrDefault(a => a.IconUri == source);
             //if (cache == null) { return (null, null); }
-            string fullPath = Path.Combine(FileDefinitions.SDImage.DirectoryLocation, source);
+            string fullPath = source.GetSDImageDir();// Path.Combine(FileDefinitions.SDImage.DirectoryLocation, source);
+
             string fullName = Path.GetFileName(fullPath);
             returnName = fullName;
             fileName = fullPath;

@@ -9,14 +9,11 @@ using StreamMasterDomain.Enums;
 
 using System.Collections.Concurrent;
 using System.Net;
-using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
-{
-  
-    private readonly string ImageInfoFilePath = Path.Combine(BuildInfo.SDImagesFolder, "ImageInfo.json");
+{   
     private static readonly SemaphoreSlim downloadSemaphore = new(MaxParallelDownloads);
 
 
@@ -227,7 +224,7 @@ public partial class SchedulesDirect
                     await downloadSemaphore.WaitAsync(cancellationToken);
                     try
                     {
-                            var logoPath = Path.Combine(BuildInfo.SDImagesFolder, art.Uri);
+                        var logoPath = art.Uri.GetSDImageDir();
                         if (File.Exists(logoPath))
                         {                       
                             continue;
@@ -529,40 +526,40 @@ public partial class SchedulesDirect
     //    }
     //    return false;
     //}
-    private void WriteImageInfoToJsonFile(string programId, ProgramArtwork icon, string realUrl, string fullName)
-    {
-        lock (fileLock)
-        {
-            try
-            {
-                List<ImageInfo> imageInfos = memoryCache.ImageInfos();
+    //private void WriteImageInfoToJsonFile(string programId, ProgramArtwork icon, string realUrl, string fullName)
+    //{
+    //    lock (fileLock)
+    //    {
+    //        try
+    //        {
+    //            List<ImageInfo> imageInfos = memoryCache.ImageInfos();
 
-                if (imageInfos.Find(a => a.IconUri == icon.Uri) != null)
-                {
-                    return;
-                }
+    //            if (imageInfos.Find(a => a.IconUri == icon.Uri) != null)
+    //            {
+    //                return;
+    //            }
 
-                UriBuilder uriBuilder = new(realUrl)
-                {
-                    // Remove all query parameters by setting the Query property to an empty string
-                    Query = ""
-                };
+    //            UriBuilder uriBuilder = new(realUrl)
+    //            {
+    //                // Remove all query parameters by setting the Query property to an empty string
+    //                Query = ""
+    //            };
 
-                // Get the modified URL
-                string modifiedUrl = uriBuilder.Uri.ToString();
+    //            // Get the modified URL
+    //            string modifiedUrl = uriBuilder.Uri.ToString();
 
-                // Add the new imageInfo
-                imageInfos.Add(new ImageInfo(programId, icon.Uri, modifiedUrl, fullName, icon.Width, icon.Height));
+    //            // Add the new imageInfo
+    //            imageInfos.Add(new ImageInfo(programId, icon.Uri, modifiedUrl, fullName, icon.Width, icon.Height));
 
-                // Serialize the updated imageInfos to JSON and write it to the file using System.Text.Json
-                string json = JsonSerializer.Serialize(imageInfos, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(ImageInfoFilePath, json);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Failed to update image information in JSON file.");
-            }
-        }
-    }
+    //            // Serialize the updated imageInfos to JSON and write it to the file using System.Text.Json
+    //            string json = JsonSerializer.Serialize(imageInfos, new JsonSerializerOptions { WriteIndented = true });
+    //            File.WriteAllText(ImageInfoFilePath, json);
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            logger.LogError(ex, "Failed to update image information in JSON file.");
+    //        }
+    //    }
+    //}
 
 }

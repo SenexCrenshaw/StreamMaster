@@ -1,4 +1,6 @@
 ﻿
+using StreamMasterDomain.Common;
+
 using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
@@ -8,6 +10,17 @@ namespace StreamMaster.SchedulesDirectAPI.Helpers;
 
 public static partial class SDHelpers
 {
+
+    public static string GetSDImageDir(this string fileName)
+    {
+        char subdirectoryChar = fileName[0];
+        string subdirectoryName = subdirectoryChar.ToString();
+        string subdirectoryPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName);
+        string logoPath = Path.Combine(subdirectoryPath, fileName);
+
+        return logoPath;
+    }
+
     public static List<ProgramArtwork> GetArtWork(this MxfProgram program)
     {
         var artwork = new List<ProgramArtwork>();
