@@ -58,7 +58,7 @@ public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mime
         {
             //StreamMaster.SchedulesDirectAPI.Domain.Models.ImageInfo? cache = memoryCache.ImageInfos().FirstOrDefault(a => a.IconUri == source);
             //if (cache == null) { return (null, null); }
-            string fullPath = source.GetSDImageDir();// Path.Combine(FileDefinitions.SDImage.DirectoryLocation, source);
+            string fullPath = source.GetSDImageFullPath();// Path.Combine(FileDefinitions.SDImage.DirectoryLocation, source);
 
             string fullName = Path.GetFileName(fullPath);
             returnName = fullName;

@@ -8,6 +8,7 @@ import { TriSelectShowHidden } from '@components/selectors/TriSelectShowHidden';
 import VideoStreamSetTimeShiftDialog from '@components/videoStream/VideoStreamSetTimeShiftDialog';
 import VideoStreamSetTimeShiftsDialog from '@components/videoStream/VideoStreamSetTimeShiftsDialog';
 
+import { useM3UFileNameColumnConfig } from '@components/columns/useM3UFileNameColumnConfig';
 import DataSelector from '@components/dataSelector/DataSelector';
 import AutoSetChannelNumbers from '@components/videoStream/AutoSetChannelNumbers';
 import VideoStreamAddDialog from '@components/videoStream/VideoStreamAddDialog';
@@ -38,6 +39,7 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
   const { selectSelectedItems } = useSelectedItems<ChannelGroupDto>('selectSelectedChannelGroupDtoItems');
   const [enableEdit, setEnableEdit] = useState<boolean>(true);
 
+  const { columnConfig: m3uFileNameColumnConfig } = useM3UFileNameColumnConfig({ enableEdit: false });
   const { columnConfig: epgColumnConfig } = useEPGColumnConfig({ enableEdit });
   const { columnConfig: channelNumberColumnConfig } = useChannelNumberColumnConfig({ enableEdit, useFilter: false });
   const { columnConfig: channelNameColumnConfig } = useChannelNameColumnConfig({ enableEdit });
@@ -87,7 +89,14 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
   );
 
   const columns = useMemo((): ColumnMeta[] => {
-    const columnConfigs = [channelNumberColumnConfig, channelLogoColumnConfig, channelNameColumnConfig, channelGroupConfig, epgColumnConfig];
+    const columnConfigs = [
+      channelNumberColumnConfig,
+      channelLogoColumnConfig,
+      channelNameColumnConfig,
+      channelGroupConfig,
+      epgColumnConfig,
+      m3uFileNameColumnConfig
+    ];
 
     // columnConfigs.push(channelGroupConfig);
     // columnConfigs.push(epgColumnConfig);
@@ -103,7 +112,16 @@ const ChannelGroupVideoStreamDataSelector = ({ enableEdit: propsEnableEdit, id, 
     });
 
     return columnConfigs;
-  }, [channelGroupConfig, channelLogoColumnConfig, channelNameColumnConfig, channelNumberColumnConfig, enableEdit, epgColumnConfig, targetActionBodyTemplate]);
+  }, [
+    channelGroupConfig,
+    channelLogoColumnConfig,
+    channelNameColumnConfig,
+    channelNumberColumnConfig,
+    enableEdit,
+    epgColumnConfig,
+    m3uFileNameColumnConfig,
+    targetActionBodyTemplate
+  ]);
 
   const rightHeaderTemplate = useMemo(
     () => (

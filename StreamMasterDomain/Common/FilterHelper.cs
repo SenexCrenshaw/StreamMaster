@@ -78,10 +78,15 @@ public static class FilterHelper<T> where T : class
     private static Expression CreateArrayExpression(DataTableFilterMetaData filter, Expression propertyAccess)
     {
         string stringValue = filter.Value?.ToString() ?? string.Empty;
-        if (filter.MatchMode == "channelGroupsMatch")
+
+        if (string.IsNullOrEmpty(filter.MatchMode))
+        {
+            filter.MatchMode = "contains";
+        } else  if (filter.MatchMode == "channelGroupsMatch")
         {
             filter.MatchMode = "equals";
         }
+        
         List<Expression> containsExpressions = new();
 
         MethodInfo? methodInfoString = GetMethodCaseInsensitive(typeof(string), filter.MatchMode, new[] { typeof(string) });

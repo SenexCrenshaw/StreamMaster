@@ -25,13 +25,7 @@ function getHeader(field: string, header: string | undefined, fieldType: ColumnF
       return 'HDHR';
     }
     case 'streams': {
-      return (
-        <div>
-          Streams
-          <br />
-          (active/total)
-        </div>
-      );
+      return <div>Streams</div>;
     }
     default: {
       if (header === '') {

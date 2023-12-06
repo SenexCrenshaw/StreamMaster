@@ -11,12 +11,10 @@ namespace StreamMaster.SchedulesDirectAPI.Helpers;
 public static partial class SDHelpers
 {
 
-    public static string GetSDImageDir(this string fileName)
-    {
-        char subdirectoryChar = fileName[0];
-        string subdirectoryName = subdirectoryChar.ToString();
-        string subdirectoryPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName);
-        string logoPath = Path.Combine(subdirectoryPath, fileName);
+    public static string GetSDImageFullPath(this string fileName)
+    {        
+        string subdirectoryName = fileName[0].ToString();
+        string logoPath = Path.Combine(BuildInfo.SDImagesFolder, subdirectoryName, fileName);        
 
         return logoPath;
     }

@@ -14,10 +14,10 @@ const PlayListEditor = () => {
 
   return (
     <StandardHeader className="playListEditor" displayName="PLAYLIST" icon={<PlayListEditorIcon />}>
-      <div className="col-4 m-0 p-0 pr-1">
+      <div className="col-3 m-0 p-0 pr-1">
         <PlayListDataSelector id={id} />
       </div>
-      <div className="col-8 m-0 p-0">
+      <div className="col-9 m-0 p-0">
         <ChannelGroupVideoStreamDataSelector id={id} />
       </div>
     </StandardHeader>

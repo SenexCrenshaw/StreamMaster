@@ -69,7 +69,6 @@ public partial class SchedulesDirect
         foreach (var prog in mxfPrograms.Where(a => a.extras.ContainsKey("artwork")))
         {
             List<ProgramArtwork> artwork = prog.extras["artwork"];
-            //artwork = SDHelpers.GetTieredImages(artwork, ["episode"]).Where(arg => arg.Aspect.Equals("2x3")).ToList();
             UpdateIcons(artwork.Select(a => a.Uri), prog.Title);
         }
     }
@@ -80,8 +79,6 @@ public partial class SchedulesDirect
         foreach (var service in Services.Where(a => a.extras.ContainsKey("logo")))
         {
            StationImage artwork = service.extras["logo"];
-            //artwork = SDHelpers.GetTieredImages(artwork);
-
             UpdateIcon(artwork.Url, service.CallSign);
         }
     }
@@ -90,8 +87,6 @@ public partial class SchedulesDirect
         foreach (var prog in mxfPrograms.Where(a => a.extras.ContainsKey("artwork")))
         {
             List<ProgramArtwork> artwork = prog.extras["artwork"];
-            //artwork = SDHelpers.GetTieredImages(artwork);
-
             UpdateIcons(artwork.Select(a => a.Uri), prog.Title);
         }
     }
@@ -101,7 +96,6 @@ public partial class SchedulesDirect
         foreach (var prog in mxfSeasons.Where(a => a.extras.ContainsKey("artwork")))
         {
             List<ProgramArtwork> artwork = prog.extras["artwork"];
-            //artwork = SDHelpers.GetTieredImages(artwork, new List<string> { "season" })
             UpdateIcons(artwork.Select(a => a.Uri), prog.Title);
         }
     }
@@ -129,17 +123,12 @@ public partial class SchedulesDirect
     {
         if (!artworkUris.Any()) return;
         List<IconFileDto> icons = memoryCache.Icons();
-        //var logos = art.ToList();
+
         foreach (var artworkUri in artworkUris)        
         {
             UpdateIcon(artworkUri, title);
 
         }
-
-        //for (int i = 0; i < icons.Count; i++)
-        //{
-        //    icons[i].Id = i;
-        //}
         memoryCache.SetCache(icons);
     }
 
@@ -186,8 +175,6 @@ public partial class SchedulesDirect
                     logger.LogDebug($"Downloaded image from {uri} to {filePath}: {response.StatusCode}");
                     return true;
                 }
-
-
             }
             else
             {
@@ -201,223 +188,4 @@ public partial class SchedulesDirect
         }
         return false;
     }
-
-
-
-    ////public async Task ProcessProgramsImages(List<Programme> sDPrograms, CancellationToken cancellationToken)
-    ////{
-    ////    List<string> programIds = sDPrograms
-    ////        .Where(a => a.HasImageArtwork == true || a.HasSportsArtwork == true || a.HasSeriesArtwork == true || a.HasSeasonArtwork == true || a.HasMovieArtwork == true || a.HasEpisodeArtwork == true)
-    ////        .Select(a => a.ProgramID).Distinct().ToList();
-    ////    List<string> distinctProgramIds = programIds
-    ////                                         .Distinct()
-    ////                                         .Select(a => a.Length >= 10 ? a[..10] : a) // Select the leftmost 10 characters
-    ////                                         .ToList();
-
-    ////    if (programIds.Any())
-    ////    {
-    ////        List<ProgramMetadata>? fetchedResults = await schedulesDirectAPI.PostData<List<ProgramMetadata>>("metadata/programs/", programIds, cancellationToken).ConfigureAwait(false);
-    ////        if (fetchedResults == null)
-    ////        {
-    ////            return;
-    ////        }
-
-    ////        int count = 0;
-
-    ////        foreach (ProgramMetadata m in fetchedResults)
-    ////        {
-    ////            ++count;
-    ////            logger.LogInformation("Caching program icons for {count}/{totalCount} programs", count, fetchedResults.Count);
-    ////            Programme? sdProg = sDPrograms.Find(a => a.ProgramID == m.ProgramID);
-    ////            string cats = string.Join(',', m.ProgramArtwork.Select(a => a.Category).Distinct());
-    ////            string tiers = string.Join(',', m.ProgramArtwork.Select(a => a.Tier).Distinct());
-
-    ////            if (sdProg is null)
-    ////            {
-    ////                continue;
-    ////            }
-
-    ////            if (sdProg.HasEpisodeArtwork == true)
-    ////            {
-    ////                //List<ProgramArtwork> catEpisode = m.ProgramArtwork.Where(item => item.Tier == "Episode").ToList();
-    ////                //await DownloadImages(m.ProgramID, catEpisode, cancellationToken);
-    ////            }
-
-    ////            if (sdProg.HasMovieArtwork == true)
-    ////            {
-    ////                List<ProgramArtwork> iconsSports = m.ProgramArtwork.Where(item => item.Category.StartsWith("Poster")).ToList();
-    ////                await DownloadImages(m.ProgramID, iconsSports, cancellationToken);
-    ////                continue;
-    ////            }
-
-    ////            if (sdProg.HasSeasonArtwork == true)
-    ////            {
-    ////                List<ProgramArtwork> catSeason = m.ProgramArtwork.Where(item => item.Tier == "Season").ToList();
-    ////                await DownloadImages(m.ProgramID, catSeason, cancellationToken);
-    ////            }
-
-    ////            if (sdProg.HasSeriesArtwork == true)
-    ////            {
-    ////                List<ProgramArtwork> catSeries = m.ProgramArtwork.Where(item => item.Tier == "Series").ToList();
-    ////                await DownloadImages(m.ProgramID, catSeries, cancellationToken);
-    ////            }
-
-    ////            if (sdProg.HasSportsArtwork == true)
-    ////            {
-    ////                List<ProgramArtwork> iconsSports = [.. m.ProgramArtwork];
-    ////                await DownloadImages(m.ProgramID, iconsSports, cancellationToken);
-    ////            }
-
-    ////            if (sdProg.HasImageArtwork == true)
-    ////            {
-    ////                await DownloadImages(m.ProgramID, m.ProgramArtwork, cancellationToken);
-    ////            }
-    ////        }
-    ////    }
-    ////}
-
-    //private async Task DownloadImages(string programId, List<ProgramArtwork> iconsList, CancellationToken cancellationToken)
-    //{
-    //    List<ProgramArtwork> icons = iconsList.Where(a => a.Category == "Banner-L1").ToList();
-    //    if (!icons.Any())
-    //    {
-    //        icons = iconsList.Where(a => a.Category == "Iconic").ToList();
-    //        if (!icons.Any())
-    //        {
-    //            icons = iconsList;
-    //        }
-    //    }
-
-    //    icons = icons.Where(a => !string.IsNullOrEmpty(a.Uri) && a.Width <= 600 && a.Height <= 600).ToList();
-    //    if (!icons.Any())
-    //    {
-    //        return;
-    //    }
-
-    //    logger.LogInformation("Downloading {count} icons for {ProgramID} program", icons.Count, programId);
-
-    //    // Create a SemaphoreSlim for limiting concurrent downloads
-    //    using SemaphoreSlim semaphore = new(4);
-    //    List<Task<bool>> tasks = icons.ConvertAll(async icon =>
-    //    {
-    //        // Wait to enter the semaphore (limits the concurrency level)
-    //        await semaphore.WaitAsync(cancellationToken);
-
-    //        try
-    //        {
-    //            // Perform the download task
-    //            return await GetImageUrl(programId, icon, cancellationToken);
-    //        }
-    //        finally
-    //        {
-    //            // Release the semaphore
-    //            semaphore.Release();
-    //        }
-    //    });
-
-    //    // Wait for all tasks to complete
-    //    await Task.WhenAll(tasks);
-    //}
-
-    
-
-    //public async Task<bool> GetImageUrl(string programId, ProgramArtwork icon, CancellationToken cancellationToken)
-    
-
-    //public async Task<bool> DownloadSdLogo(string uri, string filepath)
-    //{
-    //    //List<ImageInfo> imageInfos = memoryCache.ImageInfos();
-
-    //    //if (File.Exists(ImageInfoFilePath) && !imageInfos.Any())
-    //    //{
-    //    //    imageInfos = JsonSerializer.Deserialize<List<ImageInfo>>(File.ReadAllText(ImageInfoFilePath)) ?? [];
-    //    //    memoryCache.SetCache(imageInfos);
-    //    //}
-
-    //    //if (imageInfos.Find(a => a.IconUri == icon.Uri) != null)
-    //    //{
-    //    //    return true;
-    //    //}
-
-    //    //string fullName = Path.Combine(BuildInfo.SDImagesFolder, $"{programId}_{icon.Category}_{icon.Tier}_{icon.Width}x{icon.Height}.png");
-    //    filepath = CleanUpFileName(filepath);
-
-    //    try
-    //    {
-    //        string url = "";
-    //        if (icon.Uri.StartsWith("http"))
-    //        {
-    //            url = icon.Uri;
-    //        }
-    //        else
-    //        {
-    //            url = await SdToken.GetAPIUrl($"image/{icon.Uri}", cancellationToken);
-    //        }
-
-    //        Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
-    //        _ = await EnsureToken(cancellationToken);
-
-    //        HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
-    //        using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
-
-    //        if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.NotFound)
-    //        {
-    //            return false;
-    //        }
-
-    //        _ = response.EnsureSuccessStatusCode();
-
-    //        Stream stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-
-    //        if (stream != null)
-    //        {
-    //            using FileStream fileStream = new(fullName, FileMode.Create);
-    //            await stream.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
-    //            WriteImageInfoToJsonFile(programId, icon, url, fullName);
-    //        }
-
-    //        return true;
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        logger.LogError(ex, "Failed to download image from {Url} to {FileName}.", icon.Uri, fullName);
-    //    }
-    //    return false;
-    //}
-    //private void WriteImageInfoToJsonFile(string programId, ProgramArtwork icon, string realUrl, string fullName)
-    //{
-    //    lock (fileLock)
-    //    {
-    //        try
-    //        {
-    //            List<ImageInfo> imageInfos = memoryCache.ImageInfos();
-
-    //            if (imageInfos.Find(a => a.IconUri == icon.Uri) != null)
-    //            {
-    //                return;
-    //            }
-
-    //            UriBuilder uriBuilder = new(realUrl)
-    //            {
-    //                // Remove all query parameters by setting the Query property to an empty string
-    //                Query = ""
-    //            };
-
-    //            // Get the modified URL
-    //            string modifiedUrl = uriBuilder.Uri.ToString();
-
-    //            // Add the new imageInfo
-    //            imageInfos.Add(new ImageInfo(programId, icon.Uri, modifiedUrl, fullName, icon.Width, icon.Height));
-
-    //            // Serialize the updated imageInfos to JSON and write it to the file using System.Text.Json
-    //            string json = JsonSerializer.Serialize(imageInfos, new JsonSerializerOptions { WriteIndented = true });
-    //            File.WriteAllText(ImageInfoFilePath, json);
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            logger.LogError(ex, "Failed to update image information in JSON file.");
-    //        }
-    //    }
-    //}
-
 }

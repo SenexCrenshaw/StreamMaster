@@ -250,7 +250,7 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                     await downloadSemaphore.WaitAsync(cancellationToken);
                     try
                     {
-                        var logoPath = art.Uri.GetSDImageDir();// Path.Combine(BuildInfo.SDImagesFolder, art.Uri);
+                        var logoPath = art.Uri.GetSDImageFullPath();
                        
                         string url = "";
                         if (art.Uri.StartsWith("http"))
