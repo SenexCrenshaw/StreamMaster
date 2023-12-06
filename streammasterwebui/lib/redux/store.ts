@@ -20,6 +20,7 @@ import queryAdditionalFiltersReducer from '@lib/redux/slices/queryAdditionalFilt
 import queryFilterReducer from '@lib/redux/slices/queryFilterSlice';
 import selectAllSliceReducer from '@lib/redux/slices/selectAllSlice';
 import selectedCountrySlice from '@lib/redux/slices/selectedCountrySlice';
+import selectCurrentSettingDtoReducer from '@lib/redux/slices/selectedCurrentSettingDto';
 import selectedItemsSliceReducer from '@lib/redux/slices/selectedItemsSlice';
 import selectedPostalCodeSlice from '@lib/redux/slices/selectedPostalCodeSlice';
 import selectedStreamGroupSliceReducer from '@lib/redux/slices/selectedStreamGroupSlice';
@@ -27,7 +28,6 @@ import selectedVideoStreamsSliceReducer from '@lib/redux/slices/selectedVideoStr
 import showHiddenSliceReducer from '@lib/redux/slices/showHiddenSlice';
 import showSelectionsSliceReducer from '@lib/redux/slices/showSelectionsSlice';
 import sortInfoSliceReducer from '@lib/redux/slices/sortInfoSlice';
-
 import { enhancedApiMisc } from '@lib/smAPI/Misc/MiscEnhancedAPI';
 import { enhancedApiVideoStreamsGetAllStatisticsLocal } from '@lib/smAPILocal/enhancedApiVideoStreamsGetAllStatisticsLocal';
 import { persistReducer, persistStore } from 'redux-persist';
@@ -79,6 +79,11 @@ const selectedPostalCodeConfig = {
   storage
 };
 
+const currentSettingDtoSliceConfig = {
+  key: 'currentSettingDtoSlice',
+  storage
+};
+
 const selectedItemsConfig = {
   key: 'selectedItems',
   storage
@@ -103,6 +108,7 @@ const rootReducer = combineReducers({
   channelGroupToRemove: channelGroupToRemoveSliceReducer,
   queryAdditionalFilters: queryAdditionalFiltersReducer,
   queryFilter: queryFilterReducer,
+  selectCurrentSettingDto: persistReducer(currentSettingDtoSliceConfig, selectCurrentSettingDtoReducer),
   selectedPostalCode: persistReducer(selectedPostalCodeConfig, selectedPostalCodeSlice),
   selectAll: persistReducer(selectAllConfig, selectAllSliceReducer),
   selectedCountry: persistReducer(selectedCountryConfig, selectedCountrySlice),

@@ -93,11 +93,12 @@ public partial class SchedulesDirect
                     }
 
                     // add station logo if available
-                    var cats = station.StationLogos.Select(a=>a.Category).Distinct  ().ToList();
-                    stationLogo = station.StationLogos?.FirstOrDefault(arg => arg.Category != null && arg.Category.Equals("DARK", StringComparison.OrdinalIgnoreCase)) ??
-                                  station.StationLogos?.FirstOrDefault(arg => arg.Category != null && arg.Category.Equals("WHITE", StringComparison.OrdinalIgnoreCase)) ??
-                                  station.Logo;
-
+                    if (station.StationLogos != null) {
+                        var cats = station.StationLogos.Select(a => a.Category).Distinct().ToList();
+                        stationLogo = station.StationLogos?.FirstOrDefault(arg => arg.Category != null && arg.Category.Equals("DARK", StringComparison.OrdinalIgnoreCase)) ??
+                                      station.StationLogos?.FirstOrDefault(arg => arg.Category != null && arg.Category.Equals("WHITE", StringComparison.OrdinalIgnoreCase)) ??
+                                      station.Logo;
+                   
                     // initialize as custom logo
                     var logoPath = string.Empty;
                     var urlLogoPath = string.Empty;
@@ -153,6 +154,7 @@ public partial class SchedulesDirect
                             {
                                 Url =  urlLogoPath
                             });
+                        }
                         }
                     }
                 }

@@ -429,7 +429,7 @@ public sealed class FileUtil
             }
         }
 
-        for (char c = 'A'; c <= 'F'; c++)
+        for (char c = 'a'; c <= 'f'; c++)
         {
             Console.WriteLine(c);
 

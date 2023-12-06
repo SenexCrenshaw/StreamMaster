@@ -51,6 +51,8 @@ const MessagesEn: messages_enType = {
 
   ffmPegExecutable: 'FFMPeg Executable',
 
+  SD: 'Schedules Direct',
+
   filesEPGM3U: 'Files / EPG / M3U',
 
   formsAuthRequiresAdminUserName: 'Forms Authentication requires an Admin Username',
@@ -113,11 +115,12 @@ const MessagesEn: messages_enType = {
 
   ringBufferSizeMB: 'Buffer Size (MB)',
 
-  sdEnabled: 'Sched Direct Enabled',
+  'sdSettings.sdEnabled': 'Sched Direct Enabled',
 
-  sdPassword: 'Sched Direct Password',
+  'sdSettings.sdPassword': 'Sched Direct Password',
 
-  sdUserName: 'Sched Direct Username',
+  'sdSettings.sdUserName': 'Sched Direct Username',
+  'sdSettings.seriesPosterArt': 'Enable Series Poster Art',
 
   set: 'Set',
 
