@@ -17,6 +17,11 @@ public partial class StreamMasterHub : ISchedulesDirectHub
         return await mediator.Send(request).ConfigureAwait(false);
     }
 
+    public async Task<bool> AddStation(AddStation request)
+    {
+        return await mediator.Send(request).ConfigureAwait(false);
+    }
+
     public async Task<List<CountryData>?> GetAvailableCountries()
     {
         return await mediator.Send(new GetAvailableCountries()).ConfigureAwait(false);
@@ -73,6 +78,11 @@ public partial class StreamMasterHub : ISchedulesDirectHub
     }
 
     public async Task<bool> RemoveLineup(RemoveLineup request)
+    {
+        return await mediator.Send(request).ConfigureAwait(false);
+    }
+
+    public async Task<bool> RemoveStation(RemoveStation request)
     {
         return await mediator.Send(request).ConfigureAwait(false);
     }

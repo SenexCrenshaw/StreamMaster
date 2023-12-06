@@ -1,20 +1,20 @@
 import { GetMessage } from '@lib/common/common';
-import { SettingDto } from '@lib/iptvApi';
+import { SettingDto, UpdateSettingRequest } from '@lib/iptvApi';
 import { getHelp } from '@lib/locales/help_en';
 import { Dropdown } from 'primereact/dropdown';
 import { SelectItem } from 'primereact/selectitem';
 import React from 'react';
-import { getRecordString, updateNestedProperty } from './SettingsUtils';
+import { UpdateChanges, getRecordString } from './SettingsUtils';
 import { getLine } from './getLine'; // Import the getLine function
 
 type DropDownLineProps = {
   field: string;
   options: SelectItem[];
-  selectCurrentSettingDto: SettingDto | undefined;
-  onChange: (newValue: SettingDto) => void | undefined;
+  selectedCurrentSettingDto: SettingDto;
+  onChange: (existing: SettingDto, updatedValues: UpdateSettingRequest) => void | undefined;
 };
 
-export function getDropDownLine({ field, options, selectCurrentSettingDto, onChange }: DropDownLineProps): React.ReactElement {
+export function getDropDownLine({ field, options, selectedCurrentSettingDto, onChange }: DropDownLineProps): React.ReactElement {
   const label = GetMessage(field);
   const help = getHelp(field);
 
@@ -24,14 +24,11 @@ export function getDropDownLine({ field, options, selectCurrentSettingDto, onCha
       <Dropdown
         className="withpadding w-full text-left"
         onChange={(e) => {
-          if (selectCurrentSettingDto?.sdSettings === undefined) return;
-          const updatedSettingDto = { ...selectCurrentSettingDto, sdSettings: { ...selectCurrentSettingDto.sdSettings } };
-          updateNestedProperty(updatedSettingDto, field, e.target.value);
-          onChange(updatedSettingDto);
+          UpdateChanges({ field, selectedCurrentSettingDto, onChange, value: e.target.value });
         }}
         options={options}
         placeholder={label}
-        value={selectCurrentSettingDto ? getRecordString<SettingDto>(field, selectCurrentSettingDto) : undefined}
+        value={selectedCurrentSettingDto ? getRecordString<SettingDto>(field, selectedCurrentSettingDto) : undefined}
       />
     ),
     help

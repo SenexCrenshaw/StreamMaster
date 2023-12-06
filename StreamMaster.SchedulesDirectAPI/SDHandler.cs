@@ -19,7 +19,16 @@ public static class SDHandler
             T? result = JsonSerializer.Deserialize<T>(responseContent);
             if (result != null)
             {
-                return (response.StatusCode, SDHttpResponseCode.OK, responseContent, result);
+                TokenResponse? responseObj = JsonSerializer.Deserialize<TokenResponse>(responseContent);
+                if (responseObj is not null)
+                {
+                    responseCode = (SDHttpResponseCode)responseObj.Code;
+                    if (responseCode != SDHttpResponseCode.OK || !response.IsSuccessStatusCode)
+                    {
+                        return (response.StatusCode, responseCode, responseContent, default(T?));
+                    }
+                }
+                return (response.StatusCode, SDHttpResponseCode.UNKNOWN_ERROR, responseContent, result);
             }
         }
         catch (JsonException ex)

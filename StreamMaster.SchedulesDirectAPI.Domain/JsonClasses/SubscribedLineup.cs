@@ -13,6 +13,7 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
 
     public class SubscribedLineup
     {
+        public string Id { get => Lineup; }
         public override string ToString()
         {
             return $"{Name} ({Location})";

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using StreamMaster.SchedulesDirectAPI.Domain;
+using StreamMaster.SchedulesDirectAPI.Domain.Commands;
 using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
@@ -13,6 +14,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using System.Threading;
 
 namespace StreamMaster.SchedulesDirectAPI;
 
@@ -63,7 +65,7 @@ public class SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, ISDToken SdT
             switch (method)
             {
                 case APIMethod.GET:
-                    return await GetHttpResponse<T>(HttpMethod.Get, uri,cancellationToken: cancellationToken);
+                    return await GetHttpResponse<T>(HttpMethod.Get, uri, cancellationToken: cancellationToken);
                 case APIMethod.POST:
                     return await GetHttpResponse<T>(HttpMethod.Post, uri, classObject, cancellationToken: cancellationToken);
                 case APIMethod.PUT:
@@ -89,8 +91,8 @@ public class SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, ISDToken SdT
         HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
         try
         {
-            var c =  (content != null)
-                    ?  JsonSerializer.Serialize(content)
+            var c = (content != null)
+                    ? JsonSerializer.Serialize(content)
                     : null;
 
 
@@ -102,11 +104,13 @@ public class SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, ISDToken SdT
                     : null
             };
 
-            using HttpResponseMessage response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+
+            //using HttpResponseMessage response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+            using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
-                return HandleHttpResponseError<T>(response, await response.Content?.ReadAsStringAsync());
+                return await HandleHttpResponseError<T>(response, await response.Content?.ReadAsStringAsync(), cancellationToken);
             }
 
             JsonSerializerOptions jsonOptions = new()
@@ -158,7 +162,7 @@ public class SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, ISDToken SdT
                 if (line.Contains("INVALID_PROGRAMID"))
                 {
 
-    
+
                 }
                 else
                 {
@@ -166,7 +170,7 @@ public class SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, ISDToken SdT
                     var a = 1;
                 }
             }
-          
+
         }
         catch (Exception ex)
         {
@@ -176,7 +180,7 @@ public class SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, ISDToken SdT
         return default;
     }
 
-    private  T HandleHttpResponseError<T>(HttpResponseMessage response, string? content)
+    private async Task<T> HandleHttpResponseError<T>(HttpResponseMessage response, string? content, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(content) || !(response.Content?.Headers?.ContentType?.MediaType?.Contains("json") ?? false)) logger.LogDebug($"HTTP request failed with status code \"{(int)response.StatusCode} {response.ReasonPhrase}\"");
         else
@@ -186,253 +190,20 @@ public class SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, ISDToken SdT
             //SdErrorMessage = $"{err.Response}: {err.Message}";
 
             var responseCode = (SDHttpResponseCode)err.Code;
+
+            if (responseCode is SDHttpResponseCode.ACCOUNT_LOCKOUT or SDHttpResponseCode.ACCOUNT_DISABLED or SDHttpResponseCode.ACCOUNT_EXPIRED or SDHttpResponseCode.TOKEN_EXPIRED or SDHttpResponseCode.INVALID_USER)
+            {
+                if (await SdToken.ResetTokenAsync(cancellationToken).ConfigureAwait(false) == null)
+                {
+                    return default;
+                }
+
+                return default;
+            }
+
             logger.LogDebug("SD Error: response code: {responseCode}", responseCode.GetMessage());
 
         }
         return default;
     }
-
-    //public async Task<T?> GetData<T>(HttpMethod method, string command, object? content = null, CancellationToken cancellationToken = default, bool dontCache = false)
-    //{
-    //    string cacheKey = SDHelpers.GenerateCacheKey(command);
-    //    string cachePath = Path.Combine(BuildInfo.SDCacheFolder, cacheKey);
-
-    //    if (!dontCache && method == HttpMethod.Get)
-    //    {
-    //        // Check if cache exists and is valid
-    //        TimeSpan duration = CacheDuration;
-    //        if (command == SDCommands.Status || command == SDCommands.LineUps)
-    //        {
-    //            duration = TimeSpan.FromMinutes(5);
-    //        }
-
-    //        string? token = await EnsureToken(cancellationToken);
-    //        if (!string.IsNullOrEmpty(token) && File.Exists(cachePath) && DateTime.UtcNow - File.GetLastWriteTimeUtc(cachePath) <= duration)
-    //        {
-    //            string cachedContent = await File.ReadAllTextAsync(cachePath, cancellationToken);
-    //            SDCacheEntry<T>? cacheEntry = JsonSerializer.Deserialize<SDCacheEntry<T>>(cachedContent);
-
-    //            if (cacheEntry != null && DateTime.UtcNow - cacheEntry.Timestamp <= duration)
-    //            {
-    //                return cacheEntry.Data;
-    //            }
-    //        }
-    //    }
-
-    //    try
-    //    {
-
-    //        string? url = await SdToken.GetAPIUrl(command, cancellationToken);
-
-    //        Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
-
-    //        HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
-    //        using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
-
-    //        if (!response.IsSuccessStatusCode)
-    //        {
-    //            return HandleHttpResponseError<T>(response, await response.Content?.ReadAsStringAsync());
-    //        }
-
-    //        (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? result) = await SDHandler.ProcessResponse<T?>(response, logger, cancellationToken).ConfigureAwait(false);
-
-    //        if (responseCode is SDHttpResponseCode.ACCOUNT_LOCKOUT or SDHttpResponseCode.ACCOUNT_DISABLED or SDHttpResponseCode.ACCOUNT_EXPIRED)
-    //        {
-    //            await SdToken.LockOutTokenAsync(cancellationToken: cancellationToken);
-    //            return default;
-    //        }
-
-    //        if (responseCode is SDHttpResponseCode.TOKEN_EXPIRED or SDHttpResponseCode.INVALID_USER)
-    //        {
-    //            if (await SdToken.ResetTokenAsync(cancellationToken).ConfigureAwait(false) == null)
-    //            {
-    //                return default;
-    //            }
-    //            ++retry;
-    //            continue;
-    //        }
-
-    //        if (result == null)
-    //        {
-    //            return default;
-    //        }
-
-    //        if (!dontCache)
-    //        {
-    //            SDCacheEntry<T> entry = new()
-    //            {
-    //                Timestamp = DateTime.UtcNow,
-    //                Command = command,
-    //                Content = "",
-    //                Data = result
-    //            };
-    //            string jsonResult = JsonSerializer.Serialize(entry);
-    //            await File.WriteAllTextAsync(cachePath, jsonResult, cancellationToken);
-    //        }
-    //        return result;
-
-    //    }
-    //    catch (Exception)
-    //    {
-    //        return default;
-    //    }
-    //    return default;
-    //}
-
-    private async Task<T?> GetValidCachedDataAsync<T>(string name, CancellationToken cancellationToken = default)
-    {
-        await _cacheSemaphore.WaitAsync(cancellationToken);
-        try
-        {
-            string cacheKey = SDHelpers.GenerateCacheKey(name);
-            string cachePath = Path.Combine(BuildInfo.SDCacheFolder, cacheKey);
-            if (!File.Exists(cachePath))
-            {
-                return default;
-            }
-
-            string cachedContent = await File.ReadAllTextAsync(cachePath, cancellationToken).ConfigureAwait(false);
-            SDCacheEntry<T>? cacheEntry = JsonSerializer.Deserialize<SDCacheEntry<T>>(cachedContent);
-
-            return cacheEntry != null && DateTime.Now - cacheEntry.Timestamp <= CacheDuration ? cacheEntry.Data : default;
-        }
-        finally
-        {
-            _ = _cacheSemaphore.Release();
-        }
-    }
-
-    //public async Task<T?> PostData<T>(string command, object toPost, CancellationToken cancellationToken)
-    //{
-    //    string jsonString = JsonSerializer.Serialize(toPost);
-
-    //    StringContent content = new(jsonString, Encoding.UTF8, "application/json");
-    //    string? responseContent = "";
-    //    int retry = 0;
-    //    try
-    //    {
-    //        while (retry <= MAX_RETRIES)
-    //        {
-    //            ++retry;
-    //            string? url = await SdToken.GetAPIUrl(command, cancellationToken);
-    //            Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
-
-    //            HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
-    //            using HttpResponseMessage response = await httpClient.PostAsync(url, content, cancellationToken).ConfigureAwait(false);
-
-    //            (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, responseContent, T? result) = await SDHandler.ProcessResponse<T?>(response, logger, cancellationToken).ConfigureAwait(false);
-
-    //            if (responseCode is SDHttpResponseCode.ACCOUNT_LOCKOUT or SDHttpResponseCode.ACCOUNT_DISABLED or SDHttpResponseCode.ACCOUNT_EXPIRED)
-    //            {
-    //                await SdToken.LockOutTokenAsync(cancellationToken: cancellationToken);
-    //                return default;
-    //            }
-
-    //            if (responseCode is SDHttpResponseCode.TOKEN_EXPIRED or SDHttpResponseCode.INVALID_USER)
-    //            {
-    //                if (await SdToken.ResetTokenAsync(cancellationToken).ConfigureAwait(false) == null)
-    //                {
-    //                    return default;
-    //                }
-
-    //                continue;
-    //            }
-
-    //            return result == null ? default : result;
-    //        }
-    //    }
-    //    catch (Exception)
-    //    {
-    //        Console.WriteLine($"Exception cannot deserialize data for {command} to {typeof(T).Name}");
-    //        Console.WriteLine(responseContent);
-    //        return default;
-    //    }
-    //    return default;
-    //}
-
-    //public async Task<T?> DeleteData<T>(string command, CancellationToken cancellationToken)
-    //{
-    //    int retry = 0;
-    //    try
-    //    {
-    //        while (retry <= MAX_RETRIES)
-    //        {
-    //            string? url = await SdToken.GetAPIUrl(command, cancellationToken);
-
-    //            Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
-
-    //            HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
-    //            using HttpResponseMessage response = await httpClient.DeleteAsync(url, cancellationToken).ConfigureAwait(false);
-
-    //            (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? result) = await SDHandler.ProcessResponse<T?>(response, logger, cancellationToken).ConfigureAwait(false);
-
-    //            if (responseCode is SDHttpResponseCode.ACCOUNT_LOCKOUT or SDHttpResponseCode.ACCOUNT_DISABLED or SDHttpResponseCode.ACCOUNT_EXPIRED)
-    //            {
-    //                await SdToken.LockOutTokenAsync(cancellationToken: cancellationToken);
-    //                return default;
-    //            }
-
-    //            if (responseCode is SDHttpResponseCode.TOKEN_EXPIRED or SDHttpResponseCode.INVALID_USER)
-    //            {
-    //                if (await SdToken.ResetTokenAsync(cancellationToken).ConfigureAwait(false) == null)
-    //                {
-    //                    return default;
-    //                }
-    //                ++retry;
-    //                continue;
-    //            }
-
-    //            return result ?? default;
-    //        }
-    //    }
-    //    catch (Exception)
-    //    {
-    //        return default;
-    //    }
-    //    return default;
-    //}
-
-    //public async Task<T?> PutData<T>(string command, CancellationToken cancellationToken = default)
-    //{
-    //    int retry = 0;
-    //    try
-    //    {
-
-    //        while (retry <= MAX_RETRIES)
-    //        {
-    //            string? url = await SdToken.GetAPIUrl(command, cancellationToken);
-
-    //            Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
-
-    //            HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
-    //            using HttpResponseMessage response = await httpClient.PutAsync(url, null, cancellationToken).ConfigureAwait(false);
-
-    //            (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? result) = await SDHandler.ProcessResponse<T?>(response, logger, cancellationToken).ConfigureAwait(false);
-
-    //            if (responseCode is SDHttpResponseCode.ACCOUNT_LOCKOUT or SDHttpResponseCode.ACCOUNT_DISABLED or SDHttpResponseCode.ACCOUNT_EXPIRED)
-    //            {
-    //                await SdToken.LockOutTokenAsync(cancellationToken: cancellationToken);
-    //                return default;
-    //            }
-
-    //            if (responseCode is SDHttpResponseCode.TOKEN_EXPIRED or SDHttpResponseCode.INVALID_USER)
-    //            {
-    //                if (await SdToken.ResetTokenAsync(cancellationToken).ConfigureAwait(false) == null)
-    //                {
-    //                    return default;
-    //                }
-    //                ++retry;
-    //                continue;
-    //            }
-
-    //            return result ?? default;
-    //        }
-    //    }
-    //    catch (Exception)
-    //    {
-    //        return default;
-    //    }
-    //    return default;
-    //}
-
 }

@@ -4,6 +4,9 @@ import { StringArgument } from '@components/selectors/BaseSelector';
 import type * as iptv from '@lib/iptvApi';
 import { invokeHubConnection } from '@lib/signalr/signalr';
 
+export const AddStation = async (argument: iptv.AddStation): Promise<void | null> => {
+  await invokeHubConnection<void>('AddStation', argument);
+};
 export const GetAvailableCountries = async (argument: iptv.CountryData[]): Promise<iptv.CountryData[] | null> =>
   invokeHubConnection<iptv.CountryData[]>('GetAvailableCountries', argument);
 export const GetChannelNames = async (): Promise<void | null> => {
@@ -27,3 +30,6 @@ export const GetStationPreviews = async (argument: iptv.StationPreview[]): Promi
   invokeHubConnection<iptv.StationPreview[]>('GetStationPreviews', argument);
 export const GetStatus = async (argument: iptv.UserStatus): Promise<iptv.UserStatus | null> =>
   invokeHubConnection<iptv.UserStatus>('GetStatus', argument);
+export const RemoveStation = async (argument: iptv.RemoveStation): Promise<void | null> => {
+  await invokeHubConnection<void>('RemoveStation', argument);
+};

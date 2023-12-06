@@ -6,19 +6,19 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.XmltvXml
     public class XmltvCredit
     {
         [XmlElement("director")]
-        public List<string> Directors { get; set; }
+        public List<string>? Directors { get; set; }
 
         [XmlElement("actor")]
-        public List<XmltvActor> Actors { get; set; }
+        public List<XmltvActor>? Actors { get; set; }
 
         [XmlElement("writer")]
-        public List<string> Writers { get; set; }
+        public List<string>? Writers { get; set; }
 
         [XmlElement("adapter")]
         public List<string> Adapters { get; set; }
 
         [XmlElement("producer")]
-        public List<string> Producers { get; set; }
+        public List<string>? Producers { get; set; }
 
         [XmlElement("composer")]
         public List<string> Composers { get; set; }
@@ -27,12 +27,12 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.XmltvXml
         public List<string> Editors { get; set; }
 
         [XmlElement("presenter")]
-        public List<string> Presenters { get; set; }
+        public List<string>? Presenters { get; set; }
 
         [XmlElement("commentator")]
         public List<string> Commentators { get; set; }
 
         [XmlElement("guest")]
-        public List<string> Guests { get; set; }
+        public List<string>? Guests { get; set; }
     }
 }

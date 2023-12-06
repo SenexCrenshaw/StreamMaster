@@ -40,6 +40,12 @@ public partial class SchedulesDirect
 
     public async Task<List<Headend>?> GetHeadends(string country, string postalCode, CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrEmpty(country) || string.IsNullOrEmpty(postalCode))
+        {
+            logger.LogWarning($"Country {country} or postal code {postalCode} is empty");
+            return null;
+        }
+        
         var ret = await schedulesDirectAPI.GetApiResponse<List<Headend>>(APIMethod.GET, $"headends?country={country}&postalcode={postalCode}", cancellationToken: cancellationToken).ConfigureAwait(false);
         if (ret != null)
         {

@@ -1,9 +1,10 @@
 import StandardHeader from '@components/StandardHeader';
-import { GetMessage } from '@lib/common/common';
+import { GetMessage, isEmptyObject } from '@lib/common/common';
 import { SettingsEditorIcon } from '@lib/common/icons';
 import { AuthenticationType } from '@lib/common/streammaster_enums';
-import { SettingDto, useSettingsGetSettingQuery } from '@lib/iptvApi';
+import { SettingDto, UpdateSettingRequest, useSettingsGetSettingQuery } from '@lib/iptvApi';
 import { useSelectCurrentSettingDto } from '@lib/redux/slices/selectedCurrentSettingDto';
+import { useSelectUpdateSettingRequest } from '@lib/redux/slices/selectedUpdateSettingRequestSlice';
 import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
 import HistoryIcon from '@mui/icons-material/History';
 import SaveIcon from '@mui/icons-material/Save';
@@ -19,9 +20,8 @@ import { SDSettings } from './SDSettings';
 import { StreamingSettings } from './StreamingSettings';
 
 export const SettingsEditor = () => {
-  const { selectCurrentSettingDto, setSelectedCurrentSettingDto } = useSelectCurrentSettingDto('CurrentSettingDto');
-
-  // const [, setNewData] = useState<SettingDto>({} as SettingDto);
+  const { selectedCurrentSettingDto, setSelectedCurrentSettingDto } = useSelectCurrentSettingDto('CurrentSettingDto');
+  const { selectUpdateSettingRequest, setSelectedUpdateSettingRequest } = useSelectUpdateSettingRequest('UpdateSettingRequest');
 
   const [originalData, setOriginalData] = useState<SettingDto>({} as SettingDto);
 
@@ -31,46 +31,64 @@ export const SettingsEditor = () => {
     if (settingsQuery.isLoading || !settingsQuery.data) return;
 
     setSelectedCurrentSettingDto({ ...settingsQuery.data });
+    setSelectedUpdateSettingRequest({} as UpdateSettingRequest);
     setOriginalData({ ...settingsQuery.data });
   }, [setSelectedCurrentSettingDto, settingsQuery]);
 
   const adminUserNameError = useMemo((): string | undefined => {
-    if (selectCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectCurrentSettingDto?.adminUserName === '')
+    if (selectedCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectedCurrentSettingDto?.adminUserName === '')
       return GetMessage('formsAuthRequiresAdminUserName');
 
     return undefined;
-  }, [selectCurrentSettingDto?.adminUserName, selectCurrentSettingDto?.authenticationMethod]);
+  }, [selectedCurrentSettingDto?.adminUserName, selectedCurrentSettingDto?.authenticationMethod]);
 
   const adminPasswordError = useMemo((): string | undefined => {
-    if (selectCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectCurrentSettingDto?.adminPassword === '')
+    if (selectedCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectedCurrentSettingDto?.adminPassword === '')
       return GetMessage('formsAuthRequiresAdminPassword');
 
     return undefined;
-  }, [selectCurrentSettingDto?.adminPassword, selectCurrentSettingDto?.authenticationMethod]);
+  }, [selectedCurrentSettingDto?.adminPassword, selectedCurrentSettingDto?.authenticationMethod]);
 
   const isSaveEnabled = useMemo((): boolean => {
-    if (JSON.stringify(selectCurrentSettingDto) === JSON.stringify(originalData)) return false;
+    console.log('Start', isEmptyObject(selectUpdateSettingRequest), selectUpdateSettingRequest);
+
+    if (selectedCurrentSettingDto?.enableSSL === true && selectedCurrentSettingDto?.sslCertPath === '') {
+      console.log('enableSSL');
+      return false;
+    }
 
     if (adminUserNameError !== undefined || adminPasswordError !== undefined) {
+      console.log('adminUserNameError');
       return false;
     }
 
-    if (selectCurrentSettingDto?.enableSSL === true && selectCurrentSettingDto?.sslCertPath === '') {
+    if (isEmptyObject(selectUpdateSettingRequest)) {
+      console.log('selectUpdateSettingRequest', selectUpdateSettingRequest);
       return false;
     }
 
+    // if (JSON.stringify(selectedCurrentSettingDto) === JSON.stringify(originalData)) {
+    //   console.log('equals');
+    //   return false;
+    // }
+
+    console.log(true);
     return true;
-  }, [adminPasswordError, adminUserNameError, selectCurrentSettingDto, originalData]);
+  }, [adminPasswordError, adminUserNameError, selectUpdateSettingRequest, selectedCurrentSettingDto?.enableSSL, selectedCurrentSettingDto?.sslCertPath]);
 
   const onSave = useCallback(() => {
-    if (!isSaveEnabled || !selectCurrentSettingDto) {
+    if (!isSaveEnabled || !selectUpdateSettingRequest) {
       return;
     }
 
-    UpdateSetting(selectCurrentSettingDto)
-      .then(() => {})
-      .catch(() => {});
-  }, [isSaveEnabled, selectCurrentSettingDto]);
+    UpdateSetting(selectUpdateSettingRequest)
+      .then(() => {
+        const reset: UpdateSettingRequest = {};
+        setSelectedUpdateSettingRequest(reset);
+      })
+      .catch(() => {})
+      .finally(() => {});
+  }, [isSaveEnabled, selectUpdateSettingRequest, setSelectedUpdateSettingRequest]);
 
   const items: MenuItem[] = [
     {

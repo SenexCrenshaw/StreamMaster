@@ -11,28 +11,49 @@ internal static class IsSystemReadyConfig
 
 internal static class SDTokenConfig
 {
-    public static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions { AbsoluteExpiration= DateTimeOffset.UtcNow.AddHours(1) };
+    public static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions { AbsoluteExpiration= DateTimeOffset.UtcNow.AddMinutes(15) };
     public static readonly string Key = "SDToken";
     public static readonly object Lock = new();
 }
 
-//internal static class GuideImageConfig
-//{
-//    public static readonly MemoryCacheEntryOptions CacheEntryOptions = CacheManagerExtensions.NeverRemoveCacheEntryOptions;
-//    public static readonly string Key = "ListGuideImages";
-//    public static readonly object Lock = new();
-//}
+internal static class SDUserStatusConfig
+{
+    public static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions { AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(15) };
+    public static readonly string Key = "SDUserStatus";
+    public static readonly object Lock = new();
+}
 
-//internal static class LineupConfig
-//{
-//    public static readonly MemoryCacheEntryOptions CacheEntryOptions = CacheManagerExtensions.NeverRemoveCacheEntryOptions;
-//    public static readonly string Key = "ListLineUps";
-//    public static readonly object Lock = new();
-//}
+internal static class ChannelLogosConfig
+{
+    public static readonly MemoryCacheEntryOptions CacheEntryOptions = CacheManagerExtensions.NeverRemoveCacheEntryOptions;
+    public static readonly string Key = "ChannelLogos";
+    public static readonly object Lock = new();
+}
 
-//internal static class StationConfig
-//{
-//    public static readonly MemoryCacheEntryOptions CacheEntryOptions = CacheManagerExtensions.NeverRemoveCacheEntryOptions;
-//    public static readonly string Key = "ListStations";
-//    public static readonly object Lock = new();
-//}
+internal static class TVLogosConfig
+{
+    public static readonly MemoryCacheEntryOptions CacheEntryOptions = CacheManagerExtensions.NeverRemoveCacheEntryOptions;
+    public static readonly string Key = "TVLogos";
+    public static readonly object Lock = new();
+}
+
+internal static class ChannelGroupStreamCountsConfig
+{
+    public static readonly MemoryCacheEntryOptions CacheEntryOptions = CacheManagerExtensions.NeverRemoveCacheEntryOptions;
+    public static readonly string Key = "ChannelGroupStreamCounts";
+    public static readonly object Lock = new();
+}
+
+internal static class SettingConfig
+{
+    public static readonly MemoryCacheEntryOptions CacheEntryOptions = CacheManagerExtensions.NeverRemoveCacheEntryOptions;
+    public static readonly string Key = "Setting";
+    public static readonly object Lock = new();
+}
+
+internal static class IconsConfig
+{
+    public static readonly MemoryCacheEntryOptions CacheEntryOptions = CacheManagerExtensions.NeverRemoveCacheEntryOptions;
+    public static readonly string Key = "Icons";
+    public static readonly object Lock = new();
+}

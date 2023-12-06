@@ -6,6 +6,8 @@ namespace StreamMaster.SchedulesDirectAPI.Domain.JsonClasses
 {
     public class Headend
     {
+        public string Id { get => HeadendId;  }
+
         [JsonPropertyName("headend")]
         public string HeadendId { get; set; }
 

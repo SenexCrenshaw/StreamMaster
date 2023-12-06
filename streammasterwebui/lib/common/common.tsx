@@ -3,7 +3,7 @@ import { type ColumnMeta } from '@components/dataSelector/DataSelectorTypes';
 import ExportButton from '@components/export/ExportButton';
 import GlobalSearch from '@components/search/GlobalSearch';
 import { SMFileTypes } from '@lib/common/streammaster_enums';
-import { StationIdLineup, type IconFileDto, type VideoStreamDto } from '@lib/iptvApi';
+import { StationIdLineup, StationPreview, type IconFileDto, type VideoStreamDto } from '@lib/iptvApi';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { Checkbox } from 'primereact/checkbox';
 import { type DataTableFilterMeta, type DataTableFilterMetaData } from 'primereact/datatable';
@@ -49,6 +49,27 @@ export const getLeftToolOptions = {
   showDelay: 400
 } as TooltipOptions;
 <FormattedMessage defaultMessage="Stream Master" id="app.title" />;
+
+export function compareStationPreviews(source: StationPreview[], changes: StationPreview[]): { added: StationPreview[]; removed: StationPreview[] } {
+  const added: StationPreview[] = [];
+  const removed: StationPreview[] = [];
+
+  // Find added items by comparing the id property
+  for (const change of changes) {
+    if (!source.some((src) => src.id === change.id)) {
+      added.push(change);
+    }
+  }
+
+  // Find removed items by comparing the id property
+  for (const src of source) {
+    if (!changes.some((change) => change.id === src.id)) {
+      removed.push(src);
+    }
+  }
+
+  return { added, removed };
+}
 
 export const hasValidAdditionalProps = (additionalFilterProperties: AdditionalFilterProperties | undefined) => additionalFilterProperties?.values;
 

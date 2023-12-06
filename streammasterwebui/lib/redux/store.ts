@@ -13,8 +13,6 @@ import { enhancedApiStreamGroups } from '@lib/smAPI/StreamGroups/StreamGroupsEnh
 import { enhancedApiVideoStreamLinks } from '@lib/smAPI/VideoStreamLinks/VideoStreamLinksEnhancedAPI';
 import { enhancedApiVideoStreams } from '@lib/smAPI/VideoStreams/VideoStreamsEnhancedAPI';
 
-import { enhancedApiVideoStreamLinksLocal } from '@lib/smAPILocal/VideoStreamLinksEnhancedAPILocal';
-
 import channelGroupToRemoveSliceReducer from '@lib/redux/slices/channelGroupToRemoveSlice';
 import queryAdditionalFiltersReducer from '@lib/redux/slices/queryAdditionalFiltersSlice';
 import queryFilterReducer from '@lib/redux/slices/queryFilterSlice';
@@ -24,11 +22,13 @@ import selectCurrentSettingDtoReducer from '@lib/redux/slices/selectedCurrentSet
 import selectedItemsSliceReducer from '@lib/redux/slices/selectedItemsSlice';
 import selectedPostalCodeSlice from '@lib/redux/slices/selectedPostalCodeSlice';
 import selectedStreamGroupSliceReducer from '@lib/redux/slices/selectedStreamGroupSlice';
+import selectUpdateSettingRequestReducer from '@lib/redux/slices/selectedUpdateSettingRequestSlice';
 import selectedVideoStreamsSliceReducer from '@lib/redux/slices/selectedVideoStreamsSlice';
 import showHiddenSliceReducer from '@lib/redux/slices/showHiddenSlice';
 import showSelectionsSliceReducer from '@lib/redux/slices/showSelectionsSlice';
 import sortInfoSliceReducer from '@lib/redux/slices/sortInfoSlice';
 import { enhancedApiMisc } from '@lib/smAPI/Misc/MiscEnhancedAPI';
+import { enhancedApiVideoStreamLinksLocal } from '@lib/smAPILocal/VideoStreamLinksEnhancedAPILocal';
 import { enhancedApiVideoStreamsGetAllStatisticsLocal } from '@lib/smAPILocal/enhancedApiVideoStreamsGetAllStatisticsLocal';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
@@ -84,6 +84,11 @@ const currentSettingDtoSliceConfig = {
   storage
 };
 
+const selectUpdateSettingRequestSliceConfig = {
+  key: 'selectUpdateSettingRequestSlice',
+  storage
+};
+
 const selectedItemsConfig = {
   key: 'selectedItems',
   storage
@@ -108,6 +113,7 @@ const rootReducer = combineReducers({
   channelGroupToRemove: channelGroupToRemoveSliceReducer,
   queryAdditionalFilters: queryAdditionalFiltersReducer,
   queryFilter: queryFilterReducer,
+  selectUpdateSettingRequest: persistReducer(selectUpdateSettingRequestSliceConfig, selectUpdateSettingRequestReducer),
   selectCurrentSettingDto: persistReducer(currentSettingDtoSliceConfig, selectCurrentSettingDtoReducer),
   selectedPostalCode: persistReducer(selectedPostalCodeConfig, selectedPostalCodeSlice),
   selectAll: persistReducer(selectAllConfig, selectAllSliceReducer),

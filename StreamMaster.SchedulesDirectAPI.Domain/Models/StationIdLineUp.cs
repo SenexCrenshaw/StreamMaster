@@ -9,7 +9,7 @@ public class StationIdLineup
     public StationIdLineup() { }
     public string Id => Lineup + "|" + StationId;
 
-    public StationIdLineup(string lineup, string stationId)
+    public StationIdLineup( string stationId, string lineup)
     {
         Lineup = lineup;
         StationId = stationId;

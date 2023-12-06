@@ -334,12 +334,14 @@ public partial class SchedulesDirect
         }
         return null;
     }
-    private static List<string>? MxfPersonRankToXmltvCrew(List<MxfPersonRank> mxfPersons)
+    private static List<string>? MxfPersonRankToXmltvCrew(List<MxfPersonRank>? mxfPersons)
     {
+        if ( mxfPersons is null) return null;
         return mxfPersons?.Select(person => person.Name).ToList();
     }
-    private static List<XmltvActor>? MxfPersonRankToXmltvActors(List<MxfPersonRank> mxfPersons)
+    private static List<XmltvActor>? MxfPersonRankToXmltvActors(List<MxfPersonRank>? mxfPersons)
     {
+        if (mxfPersons is null) return null;
         return mxfPersons?.Select(person => new XmltvActor { Actor = person.Name, Role = person.Character }).ToList();
     }
 

@@ -1,34 +1,32 @@
 import { GetMessage } from '@lib/common/common';
-import React, { useMemo } from 'react';
-// Import the getLine function
 import { AuthenticationType } from '@lib/common/streammaster_enums';
-import { SettingDto } from '@lib/iptvApi';
-import { useSelectCurrentSettingDto } from '@lib/redux/slices/selectedCurrentSettingDto';
 import useSettings from '@lib/useSettings';
 import { Button } from 'primereact/button';
 import { Fieldset } from 'primereact/fieldset';
 import { SelectItem } from 'primereact/selectitem';
+import React, { useMemo } from 'react';
 import { getDropDownLine } from './getDropDownLine';
 import { getInputTextLine } from './getInputTextLine';
 import { getPasswordLine } from './getPasswordLine';
+import { useSettingChangeHandler } from './useSettingChangeHandler';
 
 export function AuthenticationSettings(): React.ReactElement {
   const setting = useSettings();
-  const { selectCurrentSettingDto, setSelectedCurrentSettingDto } = useSelectCurrentSettingDto('CurrentSettingDto');
+  const { onChange, selectedCurrentSettingDto } = useSettingChangeHandler();
 
   const adminUserNameError = useMemo((): string | undefined => {
-    if (selectCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectCurrentSettingDto?.adminUserName === '')
+    if (selectedCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectedCurrentSettingDto?.adminUserName === '')
       return GetMessage('formsAuthRequiresAdminUserName');
 
     return undefined;
-  }, [selectCurrentSettingDto?.adminUserName, selectCurrentSettingDto?.authenticationMethod]);
+  }, [selectedCurrentSettingDto?.adminUserName, selectedCurrentSettingDto?.authenticationMethod]);
 
   const adminPasswordError = useMemo((): string | undefined => {
-    if (selectCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectCurrentSettingDto?.adminPassword === '')
+    if (selectedCurrentSettingDto?.authenticationMethod === AuthenticationType.Forms && selectedCurrentSettingDto?.adminPassword === '')
       return GetMessage('formsAuthRequiresAdminPassword');
 
     return undefined;
-  }, [selectCurrentSettingDto?.adminPassword, selectCurrentSettingDto?.authenticationMethod]);
+  }, [selectedCurrentSettingDto?.adminPassword, selectedCurrentSettingDto?.authenticationMethod]);
 
   const getAuthTypeOptions = (): SelectItem[] => {
     const test = Object.entries(AuthenticationType)
@@ -44,17 +42,20 @@ export function AuthenticationSettings(): React.ReactElement {
     return test;
   };
 
-  const onChange = (newValue: SettingDto) => {
-    if (selectCurrentSettingDto === undefined || setSelectedCurrentSettingDto === undefined || newValue === null || newValue === undefined) return;
-    setSelectedCurrentSettingDto(newValue);
-  };
+  if (selectedCurrentSettingDto === null || selectedCurrentSettingDto === undefined) {
+    return (
+      <Fieldset className="mt-4 pt-10" legend={GetMessage('SD')}>
+        <div className="text-center">{GetMessage('loading')}</div>
+      </Fieldset>
+    );
+  }
 
   return (
     <Fieldset className="mt-4 pt-10" legend={GetMessage('authentication')}>
-      {getInputTextLine({ field: 'apiKey', selectCurrentSettingDto, onChange })}
-      {getDropDownLine({ field: 'authenticationMethod', options: getAuthTypeOptions(), selectCurrentSettingDto, onChange })}
-      {getInputTextLine({ field: 'adminUserName', warning: adminUserNameError, selectCurrentSettingDto, onChange })}
-      {getPasswordLine({ field: 'adminPassword', warning: adminPasswordError, selectCurrentSettingDto, onChange })}
+      {getInputTextLine({ field: 'apiKey', selectedCurrentSettingDto, onChange })}
+      {getDropDownLine({ field: 'authenticationMethod', options: getAuthTypeOptions(), selectedCurrentSettingDto, onChange })}
+      {getInputTextLine({ field: 'adminUserName', warning: adminUserNameError, selectedCurrentSettingDto, onChange })}
+      {getPasswordLine({ field: 'adminPassword', warning: adminPasswordError, selectedCurrentSettingDto, onChange })}
       <div className="flex col-12">
         <div className="flex col-2 col-offset-1">
           <span>{GetMessage('signout')}</span>

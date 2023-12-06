@@ -1,5 +1,5 @@
 import StandardHeader from '@components/StandardHeader';
-import SchedulesDirectStationPreviewDataSelector from '@components/schedulesDirect/SchedulesDirectStationPreviewDataSelector';
+import SchedulesDirectStationDataSelector from '@components/schedulesDirect/SchedulesDirectStationDataSelector';
 import { SDIcon } from '@lib/common/icons';
 import { useSchedulesDirectGetStatusQuery } from '@lib/iptvApi';
 import useSettings from '@lib/useSettings';
@@ -14,7 +14,7 @@ const SDEditorChannels = () => {
     if (!getStatusQuery.data?.systemStatus || getStatusQuery.data?.systemStatus.length === 0 || settings.data?.sdSettings?.sdEnabled !== true) {
       return false;
     }
-    console.log(getStatusQuery.data.systemStatus);
+
     return getStatusQuery.data.systemStatus[0].status?.toLocaleLowerCase() === 'online';
   }, [getStatusQuery.data?.systemStatus, settings.data?.sdSettings?.sdEnabled]);
 
@@ -33,11 +33,11 @@ const SDEditorChannels = () => {
       </div>
     );
   }, [isSDReady]);
-  console.log(status);
+
   return (
     <BlockUI blocked={!isSDReady}>
       <StandardHeader displayName={status} icon={<SDIcon />}>
-        <SchedulesDirectStationPreviewDataSelector />
+        <SchedulesDirectStationDataSelector />
       </StandardHeader>
     </BlockUI>
   );

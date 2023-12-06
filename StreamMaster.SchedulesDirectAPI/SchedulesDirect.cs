@@ -149,12 +149,16 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDown
 
     private async Task<UserStatus> GetStatusInternal(CancellationToken cancellationToken)
     {
-        UserStatus? result = await schedulesDirectAPI.GetApiResponse<UserStatus>(APIMethod.GET, SDCommands.Status, cancellationToken, cancellationToken).ConfigureAwait(false);
+        UserStatus? result = memoryCache.GetSDUserStatus();
+        result ??= await schedulesDirectAPI.GetApiResponse<UserStatus>(APIMethod.GET, SDCommands.Status, cancellationToken, cancellationToken).ConfigureAwait(false);
+            
         if (result == null)
         {
             return SDHelpers.GetStatusOffline();
         }
         result = await HandleStatus(result, cancellationToken).ConfigureAwait(false);
+        
+        memoryCache.SetSDUserStatus(result);
 
         return result ?? SDHelpers.GetStatusOffline();
     }

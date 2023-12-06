@@ -2,10 +2,10 @@ import { HeadendDto, SchedulesDirectGetHeadendsApiArg, useSchedulesDirectGetHead
 import { memo, useCallback, useMemo } from 'react';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 
-import DataSelector from '../dataSelector/DataSelector';
 import { useSelectedCountry } from '@lib/redux/slices/selectedCountrySlice';
 import { useSelectedPostalCode } from '@lib/redux/slices/selectedPostalCodeSlice';
 import { skipToken } from '@reduxjs/toolkit/query';
+import DataSelector from '../dataSelector/DataSelector';
 import SchedulesDirectAddHeadendDialog from './SchedulesDirectAddHeadendDialog';
 import SchedulesDirectCountrySelector from './SchedulesDirectCountrySelector';
 
@@ -14,7 +14,7 @@ const SchedulesDirectHeadendDataSelector = () => {
   const { selectedPostalCode } = useSelectedPostalCode('ZipCode');
 
   const getHeadendsQuery = useSchedulesDirectGetHeadendsQuery(
-    ({ country: selectedCountry, postalCode: selectedPostalCode } as SchedulesDirectGetHeadendsApiArg) ?? skipToken
+    ({ country: selectedCountry ?? 'USA', postalCode: selectedPostalCode ?? '0000' } as SchedulesDirectGetHeadendsApiArg) ?? skipToken
   );
 
   const actionBodyTemplate = useCallback((data: HeadendDto) => {
@@ -27,7 +27,7 @@ const SchedulesDirectHeadendDataSelector = () => {
 
   const columns = useMemo(
     (): ColumnMeta[] => [
-      { field: 'headend', sortable: true },
+      { field: 'headendId', sortable: true },
       { field: 'lineup', sortable: true },
       { field: 'location', sortable: true },
       { field: 'name', sortable: true },

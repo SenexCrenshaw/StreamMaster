@@ -163,8 +163,22 @@ public partial class SchedulesDirect
         // populate stuff for xmltv
         //if (config.CreateXmltv)
         //{
-            if (sdProgram.Genres != null && sdProgram.Genres.Length > 0) mxfProgram.extras.Add("genres", sdProgram.Genres.Clone());
-            if (sdProgram.EventDetails?.Teams != null)
+        if (sdProgram.Genres != null && sdProgram.Genres.Length > 0)
+        {
+            if (mxfProgram.extras.ContainsKey("genres"))
+            {
+                // Update the existing "genres" property with the new value
+                mxfProgram.extras["genres"] = sdProgram.Genres.Clone();
+            }
+            else
+            {
+                // Add the "genres" property to mxfProgram.extras
+                mxfProgram.extras.Add("genres", sdProgram.Genres.Clone());
+            }
+        }
+
+
+        if (sdProgram.EventDetails?.Teams != null)
             {
                 mxfProgram.extras.Add("teams", sdProgram.EventDetails.Teams.Select(team => team.Name).ToList());
             }

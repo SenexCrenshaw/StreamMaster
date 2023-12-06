@@ -13,11 +13,6 @@ public partial class StreamMasterHub : IProgrammeChannelHub
         return await mediator.Send(new GetProgramme(Channel)).ConfigureAwait(false);
     }
 
-    [BuilderIgnore]
-    public async Task<IEnumerable<ProgrammeChannel>> GetProgrammeChannels()
-    {
-        return await mediator.Send(new GetProgrammeChannels()).ConfigureAwait(false);
-    }
 
     [BuilderIgnore]
     public async Task<IEnumerable<XmltvProgramme>> GetProgrammes()

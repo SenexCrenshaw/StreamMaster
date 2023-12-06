@@ -5,8 +5,6 @@ using StreamMaster.SchedulesDirectAPI.Domain.XmltvXml;
 using StreamMasterApplication.Programmes;
 using StreamMasterApplication.Programmes.Queries;
 
-using StreamMasterDomain.Models;
-
 namespace StreamMasterAPI.Controllers;
 
 public class ProgrammesController : ApiControllerBase, IProgrammeChannelController
@@ -18,14 +16,6 @@ public class ProgrammesController : ApiControllerBase, IProgrammeChannelControll
         IEnumerable<XmltvProgramme>? data = await Mediator.Send(new GetProgramme(channel)).ConfigureAwait(false);
         return data is not null ? (ActionResult<IEnumerable<XmltvProgramme>?>)Ok(data.ToList()) : (ActionResult<IEnumerable<XmltvProgramme>?>)NotFound();
     }
-
-    [HttpGet]
-    [Route("[action]")]
-    public async Task<ActionResult<IEnumerable<ProgrammeChannel>>> GetProgrammeChannels()
-    {
-        return Ok(await Mediator.Send(new GetProgrammeChannels()).ConfigureAwait(false));
-    }
-
 
   
     [HttpGet]

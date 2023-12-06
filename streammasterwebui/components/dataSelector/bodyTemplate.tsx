@@ -66,18 +66,18 @@ function isHiddenTemplate(data: object, fieldName: string) {
 }
 
 function defaultTemplate(data: object, fieldName: string, camelize?: boolean) {
-  let displayValue = JSON.stringify(getRecord(data, fieldName));
+  let recordJson = JSON.stringify(getRecord(data, fieldName));
 
-  if (!displayValue) {
-    console.error('displayValue is null', data, fieldName);
-    displayValue = '';
+  if (!recordJson) {
+    console.error('recordJson is null', data, fieldName);
+    recordJson = '';
   }
-  if (displayValue.startsWith('"') && displayValue.endsWith('"')) {
-    displayValue = displayValue.substring(1, displayValue.length - 1);
+  if (recordJson.startsWith('"') && recordJson.endsWith('"')) {
+    recordJson = recordJson.substring(1, recordJson.length - 1);
   }
 
   if (camelize) {
-    displayValue = camel2title(displayValue);
+    recordJson = camel2title(recordJson);
   }
 
   return (
@@ -90,7 +90,7 @@ function defaultTemplate(data: object, fieldName: string, camelize?: boolean) {
         whiteSpace: 'nowrap'
       }}
     >
-      {displayValue}
+      {recordJson}
     </span>
   );
 }

@@ -16,7 +16,6 @@ public interface IProgrammeChannelHub
 {
     Task<IEnumerable<XmltvProgramme>?> GetProgramme(string Channel);
 
-    Task<IEnumerable<ProgrammeChannel>> GetProgrammeChannels();
 
     Task<IEnumerable<XmltvProgramme>> GetProgrammes();
 }
@@ -34,7 +33,6 @@ public interface IProgrammeChannelController
 {
     Task<ActionResult<IEnumerable<XmltvProgramme>?>> GetProgramme(string Channel);
 
-    Task<ActionResult<IEnumerable<ProgrammeChannel>>> GetProgrammeChannels();
 
     Task<ActionResult<IEnumerable<XmltvProgramme>>> GetProgrammes();
 

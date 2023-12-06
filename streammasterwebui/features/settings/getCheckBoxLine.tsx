@@ -1,18 +1,18 @@
 import { GetMessage } from '@lib/common/common';
-import { SettingDto } from '@lib/iptvApi';
+import { SettingDto, UpdateSettingRequest } from '@lib/iptvApi';
 import { getHelp } from '@lib/locales/help_en';
 import { Checkbox } from 'primereact/checkbox';
 import React from 'react';
-import { getRecord, updateNestedProperty } from './SettingsUtils';
+import { UpdateChanges, getRecord } from './SettingsUtils';
 import { getLine } from './getLine'; // Import the getLine function
 
 type CheckBoxLineProps = {
   field: string;
-  selectCurrentSettingDto: SettingDto | undefined;
-  onChange: (newValue: SettingDto) => void | undefined;
+  selectedCurrentSettingDto: SettingDto;
+  onChange: (existing: SettingDto, updatedValues: UpdateSettingRequest) => void | undefined;
 };
 
-export function getCheckBoxLine({ field, selectCurrentSettingDto, onChange }: CheckBoxLineProps): React.ReactElement {
+export function getCheckBoxLine({ field, selectedCurrentSettingDto, onChange }: CheckBoxLineProps): React.ReactElement {
   const label = GetMessage(field);
   const help = getHelp(field);
 
@@ -20,16 +20,13 @@ export function getCheckBoxLine({ field, selectCurrentSettingDto, onChange }: Ch
     label: `${label}:`,
     value: (
       <Checkbox
-        checked={selectCurrentSettingDto ? getRecord<SettingDto, boolean>(field, selectCurrentSettingDto as SettingDto)! : false}
+        checked={selectedCurrentSettingDto ? getRecord<SettingDto, boolean>(field, selectedCurrentSettingDto as SettingDto)! : false}
         className="w-full text-left"
         onChange={(e) => {
-          if (selectCurrentSettingDto?.sdSettings === undefined) return;
-          const updatedSettingDto = { ...selectCurrentSettingDto, sdSettings: { ...selectCurrentSettingDto.sdSettings } };
-          updateNestedProperty(updatedSettingDto, field, !e.target.value);
-          onChange(updatedSettingDto);
+          UpdateChanges({ field, selectedCurrentSettingDto, onChange, value: !e.target.value });
         }}
         placeholder={label}
-        value={selectCurrentSettingDto ? getRecord<SettingDto, boolean>(field, selectCurrentSettingDto) : undefined}
+        value={selectedCurrentSettingDto ? getRecord<SettingDto, boolean>(field, selectedCurrentSettingDto) : undefined}
       />
     ),
     help

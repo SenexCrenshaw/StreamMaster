@@ -67,7 +67,7 @@ public class FilesController(IMemoryCache memoryCache, IContentTypeProvider mime
         else
         if (IPTVFileType == SMFileTypes.TvLogo)
         {
-            TvLogoFile? cache = memoryCache.TvLogos().FirstOrDefault(a => a.Source == source);
+            TvLogoFile? cache = memoryCache.GetTvLogos().FirstOrDefault(a => a.Source == source);
             if (cache == null || !cache.FileExists) { return (null, null); }
             returnName = cache.Source;
             fileName = FileDefinitions.TVLogo.DirectoryLocation + returnName;

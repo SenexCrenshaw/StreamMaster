@@ -26,8 +26,6 @@ public interface IVideoStreamController
 
     Task<ActionResult<List<StreamStatisticsResult>>> GetAllStatisticsForAllUrls();
 
-    Task<ActionResult<List<ChannelLogoDto>>> GetChannelLogoDtos();
-
     Task<ActionResult<VideoStreamDto?>> GetVideoStream(string id);
 
     Task<ActionResult<List<IdName>>> GetVideoStreamNames();
@@ -67,9 +65,7 @@ public interface IVideoStreamHub
 
     Task ChangeVideoStreamChannel(ChangeVideoStreamChannelRequest request);
 
-    Task DeleteVideoStream(DeleteVideoStreamRequest request);
-
-    Task<IEnumerable<ChannelLogoDto>> GetChannelLogoDtos();
+    Task DeleteVideoStream(DeleteVideoStreamRequest request);    
 
     Task<VideoStreamDto?> GetVideoStream(string id);
 

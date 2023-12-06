@@ -36,7 +36,7 @@ const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
 // Hook
 export const useSelectCurrentSettingDto = (typename: string) => {
   const dispatch = useDispatch();
-  const selectCurrentSettingDto = useTypedSelector(selectSelectedCurrentSettingDto(typename));
+  const selectedCurrentSettingDto = useTypedSelector(selectSelectedCurrentSettingDto(typename));
 
   const handleSetcurrentSettingDtoSlice = useCallback(
     (newValue: SettingDto) => {
@@ -45,7 +45,7 @@ export const useSelectCurrentSettingDto = (typename: string) => {
     [dispatch, typename]
   );
 
-  return { selectCurrentSettingDto, setSelectedCurrentSettingDto: handleSetcurrentSettingDtoSlice };
+  return { selectedCurrentSettingDto, setSelectedCurrentSettingDto: handleSetcurrentSettingDtoSlice };
 };
 
 export const { setSelectedCurrentSettingDto, clearSelectedCurrentSettingDto } = selectCurrentSettingDtoSlice.actions;

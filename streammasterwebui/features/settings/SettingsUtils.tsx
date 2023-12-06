@@ -1,3 +1,5 @@
+import { SettingDto, UpdateSettingRequest } from '@lib/iptvApi';
+
 export function getRecord<T, R>(fieldName: string, newData: T): R | undefined {
   const record = fieldName.split('.').reduce((obj, key) => {
     return obj?.[key];
@@ -39,4 +41,25 @@ export function updateNestedProperty(obj: Record<string, any>, path: string, val
 
   const lastKey = keys[keys.length - 1];
   currentObj[lastKey] = value;
+}
+
+type UpdateChangesProps = {
+  field: string;
+  warning?: string | null;
+  selectedCurrentSettingDto: SettingDto;
+  onChange: (existing: SettingDto, updatedValues: UpdateSettingRequest) => void | undefined;
+  value: boolean | string | number | null;
+};
+
+export function UpdateChanges({ field, selectedCurrentSettingDto, onChange, value }: UpdateChangesProps) {
+  let toReturn: UpdateSettingRequest = {};
+  let updatedSettingDto: SettingDto = {};
+
+  if (selectedCurrentSettingDto?.sdSettings !== undefined) {
+    updatedSettingDto = { ...selectedCurrentSettingDto, sdSettings: { ...selectedCurrentSettingDto.sdSettings } };
+    updateNestedProperty(updatedSettingDto, field, value);
+  }
+
+  updateNestedProperty(toReturn, field, value);
+  onChange(updatedSettingDto, toReturn);
 }

@@ -22,7 +22,6 @@ const SDEditorHeadEndsAndLineUps = () => {
 
   const status = useMemo(() => {
     if (isSDReady) {
-      console.log(getStatusQuery.data);
       return (
         <span>
           Schedules Direct System Status: <span className="text-green-500">Online</span>
@@ -35,8 +34,8 @@ const SDEditorHeadEndsAndLineUps = () => {
         Schedules Direct System Status: <span className="text-red-500">Offline</span>
       </div>
     );
-  }, [getStatusQuery.data, isSDReady]);
-  console.log(status);
+  }, [isSDReady]);
+
   return (
     <BlockUI blocked={!isSDReady}>
       <StandardHeader displayName={status} icon={<SDIcon />}>

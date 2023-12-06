@@ -1,6 +1,6 @@
 import SearchButton from '@components/buttons/SearchButton';
 import TextInput from '@components/inputs/TextInput';
-import { SchedulesDirectGetAvailableCountriesApiResponse, SettingDto, useSchedulesDirectGetAvailableCountriesQuery } from '@lib/iptvApi';
+import { CountryData, SchedulesDirectGetAvailableCountriesApiResponse, SettingDto, useSchedulesDirectGetAvailableCountriesQuery } from '@lib/iptvApi';
 import { useSelectedCountry } from '@lib/redux/slices/selectedCountrySlice';
 import { useSelectedPostalCode } from '@lib/redux/slices/selectedPostalCodeSlice';
 import { UpdateSetting } from '@lib/smAPI/Settings/SettingsMutateAPI';
@@ -9,7 +9,6 @@ import React, { useState } from 'react';
 
 interface SchedulesDirectCountrySelectorProperties {
   readonly onChange?: (value: string) => void;
-  // readonly value?: string | null;
 }
 
 const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorProperties) => {
@@ -48,13 +47,15 @@ const SchedulesDirectCountrySelector = (props: SchedulesDirectCountrySelectorPro
 
     const countries: CountryOption[] = [];
 
-    Object.values(getCountriesQuery.data as SchedulesDirectGetAvailableCountriesApiResponse).forEach((continentCountries) => {
-      continentCountries
+    Object.values(getCountriesQuery.data as SchedulesDirectGetAvailableCountriesApiResponse).forEach((continentCountry: CountryData) => {
+      if (continentCountry.countries === undefined) return;
+
+      continentCountry.countries
         .filter((c): c is Country => c.shortName !== undefined && c.shortName.trim() !== '')
-        .forEach((c) => {
+        ?.forEach((country: Country) => {
           countries.push({
-            label: c.fullName || 'Unknown Country',
-            value: c.shortName ?? ''
+            label: country.fullName || 'Unknown Country',
+            value: country.shortName ?? ''
           });
         });
     });

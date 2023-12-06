@@ -135,7 +135,7 @@ const MessagesEn: messages_enType = {
   'sdSettings.xmltvExtendedInfoInTitleDescriptions': 'Include Extended Info in Title Descriptions',
   'sdSettings.xmltvSingleImage': 'Use Single Image for EPG',
   'sdSettings.sdepgDays': 'EPG Days to download',
-
+  loading: 'Loading',
   set: 'Set',
 
   settings: 'Settings',

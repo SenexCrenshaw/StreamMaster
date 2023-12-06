@@ -117,7 +117,7 @@ public partial class SchedulesDirect
 
             icons.Add(new IconFileDto { Id = icons.Count, Source = artworkUri, SMFileType = SMFileTypes.SDImage, Name = title });
         
-        memoryCache.SetCache(icons);
+        memoryCache.SetIcons(icons);
     }
     private void UpdateIcons(IEnumerable<string> artworkUris, string title)
     {
@@ -129,7 +129,7 @@ public partial class SchedulesDirect
             UpdateIcon(artworkUri, title);
 
         }
-        memoryCache.SetCache(icons);
+        memoryCache.SetIcons(icons);
     }
 
     

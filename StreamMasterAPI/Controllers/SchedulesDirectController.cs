@@ -27,6 +27,13 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
 
     [HttpGet]
     [Route("[action]")]
+    public async Task<ActionResult<bool>> AddStation(AddStation request)
+    {
+        return Ok(await Mediator.Send(request).ConfigureAwait(false));
+    }
+
+    [HttpGet]
+    [Route("[action]")]
     public async Task<ActionResult<List<CountryData>?>> GetAvailableCountries()
     {
         return Ok(await Mediator.Send(new GetAvailableCountries()).ConfigureAwait(false));
@@ -103,6 +110,13 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
     [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult<bool>> RemoveLineup(RemoveLineup request)
+    {
+        return Ok(await Mediator.Send(request).ConfigureAwait(false));
+    }
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<bool>> RemoveStation(RemoveStation request)
     {
         return Ok(await Mediator.Send(request).ConfigureAwait(false));
     }

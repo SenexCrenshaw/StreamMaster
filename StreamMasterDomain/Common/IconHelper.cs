@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 
 using StreamMasterDomain.Cache;
 using StreamMasterDomain.Dto;
@@ -42,49 +40,49 @@ public static class IconHelper
         return icon;
     }
 
-    /// <summary>
-    /// AddIcon from URL
-    /// </summary>
-    /// <param name="sourceUrl"></param>
-    /// <param name="recommendedName"></param>
-    /// <param name="context"></param>
-    /// <param name="_mapper"></param>
-    /// <param name="setting"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    public static IconFileDto AddIcon(string sourceUrl, string? recommendedName, int fileId, int Id, IMemoryCache memoryCache, FileDefinition fileDefinition, CancellationToken cancellationToken, bool ignoreAdd = false)
-    {
-        string source = HttpUtility.UrlDecode(sourceUrl);
+    ///// <summary>
+    ///// AddIcon from URL
+    ///// </summary>
+    ///// <param name="sourceUrl"></param>
+    ///// <param name="recommendedName"></param>
+    ///// <param name="context"></param>
+    ///// <param name="_mapper"></param>
+    ///// <param name="setting"></param>
+    ///// <param name="cancellationToken"></param>
+    ///// <returns></returns>
+    //public static IconFileDto AddIcon(string sourceUrl, string? recommendedName, int fileId, int Id, IMemoryCache memoryCache, FileDefinition fileDefinition, CancellationToken cancellationToken, bool ignoreAdd = false)
+    //{
+    //    string source = HttpUtility.UrlDecode(sourceUrl);
 
-        IconFileDto? testIcon = memoryCache.GetIcon(source, fileDefinition.SMFileType);
+    //    IconFileDto? testIcon = memoryCache.GetIcon(source, fileDefinition.SMFileType);
 
-        //var testIcon = icons.FirstOrDefault(a => a.Source == source && a.SMFileType == fileDefinition.SMFileType);
+    //    //var testIcon = icons.FirstOrDefault(a => a.Source == source && a.SMFileType == fileDefinition.SMFileType);
 
-        if (testIcon != null)
-        {
-            return testIcon;
-        }
+    //    if (testIcon != null)
+    //    {
+    //        return testIcon;
+    //    }
 
-        IconFileDto icon = GetIcon(sourceUrl, recommendedName, fileId, fileDefinition);
-        icon.Id = Id;
+    //    IconFileDto icon = GetIcon(sourceUrl, recommendedName, fileId, fileDefinition);
+    //    icon.Id = Id;
 
 
-        if (ignoreAdd)
-        {
-            return icon;
-        }
+    //    if (ignoreAdd)
+    //    {
+    //        return icon;
+    //    }
 
-        if (fileDefinition.SMFileType != SMFileTypes.ProgrammeIcon)
-        {
-            memoryCache.Add(icon);
-        }
-        else
-        {
-            memoryCache.AddProgrammeLogo(icon);
-        }
+    //    if (fileDefinition.SMFileType != SMFileTypes.ProgrammeIcon)
+    //    {
+    //        memoryCache.AddIcon(icon);
+    //    }
+    //    else
+    //    {
+    //        memoryCache.AddProgrammeLogo(icon);
+    //    }
 
-        return icon;
-    }
+    //    return icon;
+    //}
 
     public static async Task<bool> ReadDirectoryLogos(IMemoryCache memoryCache, CancellationToken cancellationToken = default)
     {
@@ -117,8 +115,8 @@ public static class IconHelper
 
         tvLogos.AddRange(await FileUtil.GetIconFilesFromDirectory(dirInfo, dirInfo.FullName, tvLogos.Count, cancellationToken).ConfigureAwait(false));
 
-        memoryCache.ClearTvLogos();
-        memoryCache.SetCache(tvLogos);
+        //memoryCache.ClearTvLogos();
+        memoryCache.SetTvLogos(tvLogos);
         return true;
     }
 }

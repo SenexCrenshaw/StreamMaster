@@ -37,12 +37,12 @@ public class UpdateSettingRequest : IRequest<UpdateSettingResponse>
     public bool? OverWriteM3UChannels { get; set; }
     public int? PreloadPercentage { get; set; }
     public int? RingBufferSizeMB { get; set; }
-    public bool? SDEnabled { get; set; }
-    public string? SDCountry { get; set; }
-    public string? SDPassword { get; set; }
-    public string? SDPostalCode { get; set; }
-    public List<StationIdLineup>? SDStationIds { get; set; }
-    public string? SDUserName { get; set; }
+    //public bool? SDEnabled { get; set; }
+    //public string? SDCountry { get; set; }
+    //public string? SDPassword { get; set; }
+    //public string? SDPostalCode { get; set; }
+    //public List<StationIdLineup>? SDStationIds { get; set; }
+    //public string? SDUserName { get; set; }
     public int? SourceBufferPreBufferPercentage { get; set; }
     public string? SSLCertPassword { get; set; }
     public string? SSLCertPath { get; set; }
@@ -59,7 +59,7 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
     {
         if (source == null || destination == null)
         {
-            throw new ArgumentNullException("Source and destination must not be null.");
+            return;
         }
 
         if (source.SeriesPosterArt != null)
@@ -129,10 +129,10 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
 
         if (source.SDPassword != null)
         {
-            destination.SDPassword = source.SDPassword;
+            destination.SDPassword = HashHelper.GetSHA1Hash(source.SDPassword);
         }
 
-        if (source.SDPostalCode != null)
+        if (!string.IsNullOrEmpty(source.SDPostalCode))
         {
             destination.SDPostalCode = source.SDPostalCode;
         }
@@ -178,10 +178,7 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
         }
     }
 
-
-
-
-    public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
+        public async Task<UpdateSettingResponse> Handle(UpdateSettingRequest request, CancellationToken cancellationToken)
     {
         Setting currentSetting = await GetSettingsAsync();
 
@@ -198,7 +195,7 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
 
         SettingDto ret = Mapper.Map<SettingDto>(currentSetting);
         await HubContext.Clients.All.SettingsUpdate(ret).ConfigureAwait(false);
-        if (request.SDStationIds != null)
+        if (request.SDSettings?.SDStationIds != null)
         {
             await HubContext.Clients.All.SchedulesDirectsRefresh().ConfigureAwait(false);
         }
@@ -276,12 +273,12 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
             currentSetting.ShowClientHostNames = (bool)request.ShowClientHostNames;
         }
 
-        if (request.SDEnabled != null)
-        {
-            currentSetting.SDSettings.SDEnabled = (bool)request.SDEnabled;
+        //if (request.SDEnabled != null)
+        //{
+        //    currentSetting.SDSettings.SDEnabled = (bool)request.SDEnabled;
 
-            needsSetProgrammes = request.SDEnabled != null && request.SDEnabled == true;
-        }
+        //    needsSetProgrammes = request.SDEnabled != null && request.SDEnabled == true;
+        //}
 
         if (request.DummyRegex != null)
         {
@@ -384,40 +381,7 @@ public class UpdateSettingRequestHandler(IBackgroundTaskQueue taskQueue, ILogger
             currentSetting.RingBufferSizeMB = (int)request.RingBufferSizeMB;
         }
 
-        if (request.SDPassword != null)
-        {
-            currentSetting.SDSettings.SDPassword = HashHelper.GetSHA1Hash(request.SDPassword);
-        }
-
-        if (request.SDCountry != null)
-        {
-            currentSetting.SDSettings.SDCountry = request.SDCountry;
-        }
-
-        if (request.SDPostalCode != null)
-        {
-            currentSetting.SDSettings.SDPostalCode = request.SDPostalCode;
-        }
-
-        if (request.SDPassword != null)
-        {
-            currentSetting.SDSettings.SDPassword = HashHelper.GetSHA1Hash(request.SDPassword);
-        }
-
-        if (request.SDUserName != null && request.SDUserName != currentSetting.SDSettings.SDUserName)
-        {
-            currentSetting.SDSettings.SDUserName = request.SDUserName;
-        }
-
-        if (request.SDStationIds != null)
-        {
-            bool haveSameElements = new HashSet<StationIdLineup>(currentSetting.SDSettings.SDStationIds).SetEquals(request.SDStationIds);
-            if (!haveSameElements)
-            {
-                currentSetting.SDSettings.SDStationIds = request.SDStationIds;
-                needsSetProgrammes = true;
-            }
-        }
+        
 
         if (request.NameRegex != null)
         {

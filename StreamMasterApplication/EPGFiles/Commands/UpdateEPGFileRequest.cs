@@ -72,19 +72,19 @@ public class UpdateEPGFileRequestHandler(ILogger<UpdateEPGFileRequest> logger, I
 
             if (isNameChanged)
             {
-                var programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
-                int c = programmes.Count;
-                _ = programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                int d = programmes.Count;
-                MemoryCache.SetCache(programmes);
+                //var programmes = await Sender.Send(new GetProgrammesRequest(), cancellationToken).ConfigureAwait(false);
+                //int c = programmes.Count;
+                //_ = programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
+                //int d = programmes.Count;
+                //MemoryCache.SetCache(programmes);
 
-                List<ChannelLogoDto> channelLogos = MemoryCache.ChannelLogos();
-                _ = channelLogos.RemoveAll(a => a.EPGFileId == epgFile.Id);
-                MemoryCache.SetCache(channelLogos);
+                //List<ChannelLogoDto> channelLogos = MemoryCache.ChannelLogos();
+                //_ = channelLogos.RemoveAll(a => a.EPGFileId == epgFile.Id);
+                //MemoryCache.SetCache(channelLogos);
 
-                List<IconFileDto> programmeIcons = MemoryCache.ProgrammeIcons();
-                _ = programmeIcons.RemoveAll(a => a.FileId == epgFile.Id);
-                MemoryCache.SetProgrammeLogos(programmeIcons);
+                //List<IconFileDto> programmeIcons = MemoryCache.ProgrammeIcons();
+                //_ = programmeIcons.RemoveAll(a => a.FileId == epgFile.Id);
+                //MemoryCache.SetProgrammeLogos(programmeIcons);
 
                 await Publisher.Publish(new EPGFileAddedEvent(ret), cancellationToken).ConfigureAwait(false);
             }

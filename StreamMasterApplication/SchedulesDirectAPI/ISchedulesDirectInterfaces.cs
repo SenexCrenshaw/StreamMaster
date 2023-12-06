@@ -12,8 +12,11 @@ namespace StreamMasterApplication.SchedulesDirectAPI;
 public interface ISchedulesDirectController
 {
     Task<ActionResult<bool>> AddLineup(AddLineup request);
+    Task<ActionResult<bool>> AddStation(AddStation request);
 
+    Task<ActionResult<bool>> RemoveStation(RemoveStation request);
     Task<ActionResult<bool>> RemoveLineup(RemoveLineup request);
+
 
     //Task<ActionResult<List<string>>> GetLineupNames();
 
@@ -52,7 +55,9 @@ public interface ISchedulesDirectDB
 public interface ISchedulesDirectHub
 {
     Task<bool> AddLineup(AddLineup request);
+    Task<bool> AddStation(AddStation request);
 
+    Task<bool> RemoveStation(RemoveStation request);
     Task<bool> RemoveLineup(RemoveLineup request);
 
 

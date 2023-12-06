@@ -44,21 +44,21 @@ public class DeleteEPGFileRequestHandler : BaseMediatorRequestHandler, IRequestH
             }
         }
 
-        var programmes = MemoryCache.Programmes();
-        _ = programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
-        MemoryCache.SetCache(programmes);
+        //var programmes = MemoryCache.Programmes();
+        //_ = programmes.RemoveAll(a => a.EPGFileId == epgFile.Id);
+        //MemoryCache.SetCache(programmes);
 
-        List<ProgrammeChannel> channels = MemoryCache.ProgrammeChannels();
-        _ = channels.RemoveAll(a => a.EPGFileId == epgFile.Id);
-        MemoryCache.SetCache(channels);
+        //List<ProgrammeChannel> channels = MemoryCache.ProgrammeChannels();
+        //_ = channels.RemoveAll(a => a.EPGFileId == epgFile.Id);
+        //MemoryCache.SetCache(channels);
 
-        List<ChannelLogoDto> channelLogos = MemoryCache.ChannelLogos();
-        _ = channelLogos.RemoveAll(a => a.EPGFileId == epgFile.Id);
-        MemoryCache.SetCache(channelLogos);
+        //List<ChannelLogoDto> channelLogos = MemoryCache.ChannelLogos();
+        //_ = channelLogos.RemoveAll(a => a.EPGFileId == epgFile.Id);
+        //MemoryCache.SetCache(channelLogos);
 
-        List<IconFileDto> programmeIcons = MemoryCache.ProgrammeIcons();
-        _ = programmeIcons.RemoveAll(a => a.FileId == epgFile.Id);
-        MemoryCache.SetProgrammeLogos(programmeIcons);
+        //List<IconFileDto> programmeIcons = MemoryCache.ProgrammeIcons();
+        //_ = programmeIcons.RemoveAll(a => a.FileId == epgFile.Id);
+        //MemoryCache.SetProgrammeLogos(programmeIcons);
 
         _ = await Repository.SaveAsync().ConfigureAwait(false);
 
