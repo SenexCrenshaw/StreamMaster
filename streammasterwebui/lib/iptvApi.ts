@@ -244,9 +244,9 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/schedulesdirect/addlineup`, method: 'PATCH', body: queryArg }),
         invalidatesTags: ['SchedulesDirect']
       }),
-      schedulesDirectAddStation: build.query<SchedulesDirectAddStationApiResponse, SchedulesDirectAddStationApiArg>({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/addstation`, body: queryArg }),
-        providesTags: ['SchedulesDirect']
+      schedulesDirectAddStation: build.mutation<SchedulesDirectAddStationApiResponse, SchedulesDirectAddStationApiArg>({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/addstation`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['SchedulesDirect']
       }),
       schedulesDirectGetAvailableCountries: build.query<SchedulesDirectGetAvailableCountriesApiResponse, SchedulesDirectGetAvailableCountriesApiArg>({
         query: () => ({ url: `/api/schedulesdirect/getavailablecountries` }),
@@ -258,6 +258,10 @@ const injectedRtkApi = api
       }),
       schedulesDirectGetHeadends: build.query<SchedulesDirectGetHeadendsApiResponse, SchedulesDirectGetHeadendsApiArg>({
         query: (queryArg) => ({ url: `/api/schedulesdirect/getheadends`, params: { country: queryArg.country, postalCode: queryArg.postalCode } }),
+        providesTags: ['SchedulesDirect']
+      }),
+      schedulesDirectGetLineupPreviewChannel: build.query<SchedulesDirectGetLineupPreviewChannelApiResponse, SchedulesDirectGetLineupPreviewChannelApiArg>({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/getlineuppreviewchannel`, params: { Lineup: queryArg } }),
         providesTags: ['SchedulesDirect']
       }),
       schedulesDirectGetLineups: build.query<SchedulesDirectGetLineupsApiResponse, SchedulesDirectGetLineupsApiArg>({
@@ -329,9 +333,9 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/api/schedulesdirect/removelineup`, method: 'PATCH', body: queryArg }),
         invalidatesTags: ['SchedulesDirect']
       }),
-      schedulesDirectRemoveStation: build.query<SchedulesDirectRemoveStationApiResponse, SchedulesDirectRemoveStationApiArg>({
-        query: (queryArg) => ({ url: `/api/schedulesdirect/removestation`, body: queryArg }),
-        providesTags: ['SchedulesDirect']
+      schedulesDirectRemoveStation: build.mutation<SchedulesDirectRemoveStationApiResponse, SchedulesDirectRemoveStationApiArg>({
+        query: (queryArg) => ({ url: `/api/schedulesdirect/removestation`, method: 'PATCH', body: queryArg }),
+        invalidatesTags: ['SchedulesDirect']
       }),
       settingsGetIsSystemReady: build.query<SettingsGetIsSystemReadyApiResponse, SettingsGetIsSystemReadyApiArg>({
         query: () => ({ url: `/api/settings/getissystemready` }),
@@ -837,6 +841,8 @@ export type SchedulesDirectGetHeadendsApiArg = {
   country?: string;
   postalCode?: string;
 };
+export type SchedulesDirectGetLineupPreviewChannelApiResponse = /** status 200  */ LineupPreviewChannel[];
+export type SchedulesDirectGetLineupPreviewChannelApiArg = string;
 export type SchedulesDirectGetLineupsApiResponse = /** status 200  */ SubscribedLineup[];
 export type SchedulesDirectGetLineupsApiArg = void;
 export type SchedulesDirectGetPagedStationChannelNameSelectionsApiResponse = /** status 200  */ PagedResponseOfStationChannelName;
@@ -1351,6 +1357,13 @@ export type HeadendDto = {
   location?: string;
   name?: string;
   transport?: string;
+};
+export type LineupPreviewChannel = {
+  id?: number;
+  channel?: string;
+  name?: string;
+  callsign?: string;
+  affiliate?: string;
 };
 export type SubscribedLineup = {
   id?: string;
@@ -1908,10 +1921,11 @@ export const {
   useProgrammesGetProgrammeQuery,
   useProgrammesGetProgrammesQuery,
   useSchedulesDirectAddLineupMutation,
-  useSchedulesDirectAddStationQuery,
+  useSchedulesDirectAddStationMutation,
   useSchedulesDirectGetAvailableCountriesQuery,
   useSchedulesDirectGetChannelNamesQuery,
   useSchedulesDirectGetHeadendsQuery,
+  useSchedulesDirectGetLineupPreviewChannelQuery,
   useSchedulesDirectGetLineupsQuery,
   useSchedulesDirectGetPagedStationChannelNameSelectionsQuery,
   useSchedulesDirectGetSelectedStationIdsQuery,
@@ -1921,7 +1935,7 @@ export const {
   useSchedulesDirectGetStationPreviewsQuery,
   useSchedulesDirectGetStatusQuery,
   useSchedulesDirectRemoveLineupMutation,
-  useSchedulesDirectRemoveStationQuery,
+  useSchedulesDirectRemoveStationMutation,
   useSettingsGetIsSystemReadyQuery,
   useSettingsGetQueueStatusQuery,
   useSettingsGetSettingQuery,

@@ -21,8 +21,6 @@ const SchedulesDirectStationDataSelector = () => {
 
   const { selectSelectedItems, setSelectSelectedItems } = useSelectedItems<StationPreview>('SchedulesDirectSchedulesDataSelector');
 
-  // const [previousSelectedItems, setPreviousSelectedItems] = useState<StationPreview[]>([]);
-
   const schedulesDirectGetSelectedStationIdsQuery = useSchedulesDirectGetSelectedStationIdsQuery();
   const stationPreviews = useSchedulesDirectGetStationPreviewsQuery();
   const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +36,6 @@ const SchedulesDirectStationDataSelector = () => {
       return;
     }
 
-    // setPreviousSelectedItems(schedulesDirectGetSelectedStationIdsQuery.data);
     const sp = schedulesDirectGetSelectedStationIdsQuery.data
       .map((stationIdLineUp) =>
         stationPreviews.data?.find(
@@ -66,10 +63,6 @@ const SchedulesDirectStationDataSelector = () => {
 
       const { added, removed } = compareStationPreviews(schedulesDirectGetSelectedStationIdsQuery.data, stationIdLineUps);
 
-      // const test = findDifferenceStationIdLineUps(schedulesDirectGetSelectedStationIdsQuery.data, stationIdLineUps);
-      // if (test.length === 0) {
-      //   return;
-      // }
       if (added.length === 0 && removed.length === 0) {
         return;
       }
@@ -144,37 +137,6 @@ const SchedulesDirectStationDataSelector = () => {
             }
           });
       }
-
-      // console.log('loading');
-      // const newData = {} as UpdateSettingRequest;
-
-      // newData.sdStationIds = stationIdLineUps;
-
-      // UpdateSetting(newData)
-      //   .then(() => {
-      //     setIsLoading(false);
-      //     if (toast.current) {
-      //       toast.current.show({
-      //         detail: 'Update Station Ids Successful',
-      //         life: 3000,
-      //         severity: 'success',
-      //         summary: 'Successful'
-      //       });
-      //     }
-      //   })
-      //   .catch(() => {
-      //     setIsLoading(false);
-      //     if (toast.current) {
-      //       toast.current.show({
-      //         detail: 'Update Station Ids Failed',
-      //         life: 3000,
-      //         severity: 'error',
-      //         summary: 'Error'
-      //       });
-      //     }
-      //   });
-
-      // console.log('done');
     },
     [schedulesDirectGetSelectedStationIdsQuery.data]
   );

@@ -25,7 +25,7 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
         return Ok(await Mediator.Send(request).ConfigureAwait(false));
     }
 
-    [HttpGet]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult<bool>> AddStation(AddStation request)
     {
@@ -51,6 +51,14 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
     public async Task<ActionResult<List<HeadendDto>>> GetHeadends(string country, string postalCode)
     {
         return Ok(await Mediator.Send(new GetHeadends(country, postalCode)).ConfigureAwait(false));
+    }
+
+
+    [HttpGet]
+    [Route("[action]")]
+    public async Task<ActionResult<List<LineupPreviewChannel>>> GetLineupPreviewChannel(string Lineup)
+    {
+        return Ok(await Mediator.Send(new GetLineupPreviewChannel(Lineup)).ConfigureAwait(false));
     }
 
     [HttpGet]
@@ -114,7 +122,7 @@ public class SchedulesDirectController : ApiControllerBase, ISchedulesDirectCont
         return Ok(await Mediator.Send(request).ConfigureAwait(false));
     }
 
-    [HttpGet]
+    [HttpPatch]
     [Route("[action]")]
     public async Task<ActionResult<bool>> RemoveStation(RemoveStation request)
     {

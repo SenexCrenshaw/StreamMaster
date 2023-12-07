@@ -1,17 +1,20 @@
 import { HeadendDto, SchedulesDirectGetHeadendsApiArg, useSchedulesDirectGetHeadendsQuery } from '@lib/iptvApi';
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { type ColumnMeta } from '../dataSelector/DataSelectorTypes';
 
 import { useSelectedCountry } from '@lib/redux/slices/selectedCountrySlice';
 import { useSelectedPostalCode } from '@lib/redux/slices/selectedPostalCodeSlice';
 import { skipToken } from '@reduxjs/toolkit/query';
+import { Dialog } from 'primereact/dialog';
 import DataSelector from '../dataSelector/DataSelector';
 import SchedulesDirectAddHeadendDialog from './SchedulesDirectAddHeadendDialog';
 import SchedulesDirectCountrySelector from './SchedulesDirectCountrySelector';
+import SchedulesDirectLineupPreviewChannel from './SchedulesDirectLineupPreviewChannel';
 
 const SchedulesDirectHeadendDataSelector = () => {
   const { selectedCountry } = useSelectedCountry('Country');
   const { selectedPostalCode } = useSelectedPostalCode('PostalCode');
+  const [lineupToPreview, setLineupToPreview] = useState<string | undefined>(undefined);
 
   const getHeadendsQuery = useSchedulesDirectGetHeadendsQuery(
     ({ country: selectedCountry ?? 'USA', postalCode: selectedPostalCode ?? '0000' } as SchedulesDirectGetHeadendsApiArg) ?? skipToken
@@ -55,6 +58,14 @@ const SchedulesDirectHeadendDataSelector = () => {
 
   return (
     <div className="m3uFilesEditor flex flex-column border-2 border-round surface-border">
+      <Dialog
+        header={lineupToPreview ? lineupToPreview : ''}
+        visible={lineupToPreview !== undefined}
+        style={{ width: '50vw' }}
+        onHide={() => setLineupToPreview(undefined)}
+      >
+        <SchedulesDirectLineupPreviewChannel lineup={lineupToPreview} />
+      </Dialog>
       <h3>
         <span className="text-bold">TV Headends | </span>
         <span className="text-bold text-blue-500">{selectedCountry}</span> -<span className="text-bold text-500">{selectedPostalCode}</span>
@@ -67,6 +78,11 @@ const SchedulesDirectHeadendDataSelector = () => {
         id="StreamingServerStatusPanel"
         isLoading={getHeadendsQuery.isLoading}
         headerRightTemplate={rightHeaderTemplate}
+        onRowClick={(e) => {
+          const data: HeadendDto = e.data;
+          console.log('onRowSelect', data.lineup);
+          setLineupToPreview(data.lineup);
+        }}
         selectedItemsKey="selectSelectedItems"
         style={{ height: 'calc(100vh - 120px)' }}
       />

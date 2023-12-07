@@ -50,6 +50,7 @@ public static class BuildInfo
     public static readonly string ChannelIconDataFolder = $"{CacheFolder}ChannelIcons{Path.DirectorySeparatorChar}";
     public static readonly string ProgrammeIconDataFolder = $"{CacheFolder}ProgrammeIcons{Path.DirectorySeparatorChar}";
     public static readonly string SDCacheFolder = $"{CacheFolder}SD{Path.DirectorySeparatorChar}";
+    public static readonly string SDJSONFolder = $"{CacheFolder}SDJson{Path.DirectorySeparatorChar}";
     public static readonly string SDStationLogos = $"{CacheFolder}SDStationLogos{Path.DirectorySeparatorChar}";
     public static readonly string SDStationLogosCache = $"{CacheFolder}SDStationLogosCache{Path.DirectorySeparatorChar}";
     public static readonly string SDImagesFolder = $"{CacheFolder}SDImages{Path.DirectorySeparatorChar}";

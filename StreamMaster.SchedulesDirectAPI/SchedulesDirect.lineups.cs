@@ -24,7 +24,7 @@ public partial class SchedulesDirect
     public async Task<List<CountryData>?> GetAvailableCountries(CancellationToken cancellationToken)
     {
         var ret = await schedulesDirectAPI.GetApiResponse<Dictionary<string, List<Country>>>(APIMethod.GET, "available/countries", cancellationToken: cancellationToken);
-        if (ret == null)  
+        if (ret == null)
         {
             logger.LogError("Did not receive a response from Schedules Direct for a list of available countries.");
             return null;
@@ -45,7 +45,7 @@ public partial class SchedulesDirect
             logger.LogWarning($"Country {country} or postal code {postalCode} is empty");
             return null;
         }
-        
+
         var ret = await schedulesDirectAPI.GetApiResponse<List<Headend>>(APIMethod.GET, $"headends?country={country}&postalcode={postalCode}", cancellationToken: cancellationToken).ConfigureAwait(false);
         if (ret != null)
         {
@@ -59,11 +59,19 @@ public partial class SchedulesDirect
         return ret;
     }
 
-    public async Task<List<LineupPreviewChannel>?> GetLineupPreviewChannel(string lineup)
+    public async Task<List<LineupPreviewChannel>?> GetLineupPreviewChannel(string lineup, CancellationToken cancellationToken)
     {
-        List<LineupPreviewChannel>? ret = await schedulesDirectAPI.GetApiResponse<List<LineupPreviewChannel>>(APIMethod.GET, $"lineups/preview/{lineup}");
+        List<LineupPreviewChannel>? ret = await GetValidCachedDataAsync<List<LineupPreviewChannel>>("LineupPreviewChannel" + lineup, cancellationToken).ConfigureAwait(false);
+
         if (ret != null)
         {
+            return ret;
+        }
+
+        ret = await schedulesDirectAPI.GetApiResponse<List<LineupPreviewChannel>>(APIMethod.GET, $"lineups/preview/{lineup}", cancellationToken: cancellationToken);
+        if (ret != null)
+        {
+            await WriteToCacheAsync("LineupPreviewChannel" + lineup, ret, cancellationToken).ConfigureAwait(false);
             logger.LogDebug($"Successfully retrieved the channels in lineup {lineup} for preview.");
         }
         else
@@ -76,7 +84,7 @@ public partial class SchedulesDirect
 
     public async Task<LineupResult?> GetLineup(string lineup, CancellationToken cancellationToken)
     {
-        return await schedulesDirectAPI.GetApiResponse<LineupResult>(APIMethod.GET, $"lineups/{lineup}", cancellationToken).ConfigureAwait(false);
+        return await schedulesDirectAPI.GetApiResponse<LineupResult>(APIMethod.GET, $"lineups/{lineup}", cancellationToken, cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<List<SubscribedLineup>> GetLineups(CancellationToken cancellationToken)
@@ -84,12 +92,7 @@ public partial class SchedulesDirect
         List<LineupPreviewChannel> res = [];
         var lineups = await GetSubscribedLineups(cancellationToken);
 
-        if (lineups is null)
-        {
-            return [];
-        }
-
-        return lineups.Lineups;
+        return lineups is null ? ([]) : lineups.Lineups;
     }
 
     public async Task<List<StationPreview>> GetStationPreviews(CancellationToken cancellationToken)
@@ -110,7 +113,7 @@ public partial class SchedulesDirect
         return ret;
     }
 
-  
+
 
     public async Task<List<Station>> GetStations(CancellationToken cancellationToken)
     {
@@ -184,14 +187,14 @@ public partial class SchedulesDirect
             res.AddRange(results);
         }
 
-      
+
 
         return res;
     }
-  
+
     public async Task<bool> AddLineup(string lineup, CancellationToken cancellationToken)
     {
-        AddRemoveLineupResponse? ret = await schedulesDirectAPI.GetApiResponse< AddRemoveLineupResponse>(APIMethod.PUT, $"lineups/{lineup}", cancellationToken: cancellationToken).ConfigureAwait(false);
+        AddRemoveLineupResponse? ret = await schedulesDirectAPI.GetApiResponse<AddRemoveLineupResponse>(APIMethod.PUT, $"lineups/{lineup}", cancellationToken: cancellationToken).ConfigureAwait(false);
         if (ret != null)
         {
             logger.LogDebug($"Successfully added lineup {lineup} to account. serverID: {ret.ServerId} , message: {ret.Message} , changesRemaining: {ret.ChangesRemaining}");
@@ -217,5 +220,5 @@ public partial class SchedulesDirect
         return ret != null;
     }
 
-    
+
 }

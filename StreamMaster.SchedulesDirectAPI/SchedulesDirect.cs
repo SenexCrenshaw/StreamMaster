@@ -7,13 +7,18 @@ using StreamMaster.SchedulesDirectAPI.Domain.Enums;
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
 using StreamMasterDomain.Common;
+using StreamMasterDomain.Models;
 using StreamMasterDomain.Services;
 
-namespace StreamMaster.SchedulesDirectAPI;
-public partial class SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDownloadService imageDownloadService,  IEPGCache epgCache, ISchedulesDirectData schedulesDirectData, ISchedulesDirectAPI schedulesDirectAPI, ISettingsService settingsService, ISDToken SdToken, IMemoryCache memoryCache) : ISchedulesDirect
-{
-    public bool IsSyncing { get; set; }
+using System.Text.Json;
 
+namespace StreamMaster.SchedulesDirectAPI;
+public partial class SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDownloadService imageDownloadService, IEPGCache epgCache, ISchedulesDirectData schedulesDirectData, ISchedulesDirectAPI schedulesDirectAPI, ISettingsService settingsService, ISDToken SdToken, IMemoryCache memoryCache) : ISchedulesDirect
+{
+    public static readonly int MAX_RETRIES = 3;
+    public bool IsSyncing { get; set; }
+    private readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
+    private readonly SemaphoreSlim _cacheSemaphore = new(1, 1);
     private readonly object fileLock = new();
     private const int MaxQueries = 1250;
     private const int MaxImgQueries = 125;
@@ -73,7 +78,7 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDown
             //{
             //    WriteXmltv(xml);
             //}
-            
+
             logger.LogInformation("Completed Schedules Direct update execution. SUCCESS.");
             IsSyncing = false;
             return true;
@@ -83,10 +88,13 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDown
         return false;
     }
 
-    private  void WriteXmltv(XMLTV xmltv)
+    private void WriteXmltv(XMLTV xmltv)
     {
         var fileName = Path.Combine(BuildInfo.SDCacheFolder, "epg123.xmltv");
-        if (!FileUtil.WriteXmlFile(xmltv, fileName)) return;
+        if (!FileUtil.WriteXmlFile(xmltv, fileName))
+        {
+            return;
+        }
 
         var fi = new FileInfo(fileName);
         var imageCount = xmltv.Programs.SelectMany(program => program.Icons?.Select(icon => icon.Src) ?? new List<string>()).Distinct().Count();
@@ -94,7 +102,7 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDown
         logger.LogDebug($"Generated XMLTV file contains {xmltv.Channels.Count} channels and {xmltv.Programs.Count} programs with {imageCount} distinct program image links.");
     }
 
-    private  void CreateDummLineupChannel()
+    private void CreateDummLineupChannel()
     {
         var mxfService = schedulesDirectData.FindOrCreateService("DUMMY");
         mxfService.CallSign = "DUMMY";
@@ -151,13 +159,13 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDown
     {
         UserStatus? result = memoryCache.GetSDUserStatus();
         result ??= await schedulesDirectAPI.GetApiResponse<UserStatus>(APIMethod.GET, SDCommands.Status, cancellationToken, cancellationToken).ConfigureAwait(false);
-            
+
         if (result == null)
         {
             return SDHelpers.GetStatusOffline();
         }
         result = await HandleStatus(result, cancellationToken).ConfigureAwait(false);
-        
+
         memoryCache.SetSDUserStatus(result);
 
         return result ?? SDHelpers.GetStatusOffline();
@@ -175,5 +183,52 @@ public partial class SchedulesDirect(ILogger<SchedulesDirect> logger, IImageDown
             return await GetStatusInternal(cancellationToken).ConfigureAwait(false);
         }
         return UserStatus;
+    }
+
+    private async Task WriteToCacheAsync<T>(string name, T data, CancellationToken cancellationToken = default)
+    {
+        await _cacheSemaphore.WaitAsync(cancellationToken);
+        try
+        {
+            string cacheKey = SDHelpers.GenerateCacheKey(name);
+            string cachePath = Path.Combine(BuildInfo.SDJSONFolder, cacheKey);
+            SDCacheEntry<T> cacheEntry = new()
+            {
+                Data = data,
+                Command = name,
+                Content = "",
+                Timestamp = DateTime.UtcNow
+            };
+
+            string contentToCache = JsonSerializer.Serialize(cacheEntry);
+            await File.WriteAllTextAsync(cachePath, contentToCache, cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            _ = _cacheSemaphore.Release();
+        }
+    }
+
+    private async Task<T?> GetValidCachedDataAsync<T>(string name, CancellationToken cancellationToken = default)
+    {
+        await _cacheSemaphore.WaitAsync(cancellationToken);
+        try
+        {
+            string cacheKey = SDHelpers.GenerateCacheKey(name);
+            string cachePath = Path.Combine(BuildInfo.SDJSONFolder, cacheKey);
+            if (!File.Exists(cachePath))
+            {
+                return default;
+            }
+
+            string cachedContent = await File.ReadAllTextAsync(cachePath, cancellationToken).ConfigureAwait(false);
+            SDCacheEntry<T>? cacheEntry = JsonSerializer.Deserialize<SDCacheEntry<T>>(cachedContent);
+
+            return cacheEntry != null && DateTime.Now - cacheEntry.Timestamp <= CacheDuration ? cacheEntry.Data : default;
+        }
+        finally
+        {
+            _ = _cacheSemaphore.Release();
+        }
     }
 }

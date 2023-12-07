@@ -11,14 +11,14 @@ internal static class IsSystemReadyConfig
 
 internal static class SDTokenConfig
 {
-    public static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions { AbsoluteExpiration= DateTimeOffset.UtcNow.AddMinutes(15) };
+    public static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions { AbsoluteExpiration= DateTimeOffset.UtcNow.AddMinutes(5) };
     public static readonly string Key = "SDToken";
     public static readonly object Lock = new();
 }
 
 internal static class SDUserStatusConfig
 {
-    public static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions { AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(15) };
+    public static readonly MemoryCacheEntryOptions CacheEntryOptions = new MemoryCacheEntryOptions { AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(5) };
     public static readonly string Key = "SDUserStatus";
     public static readonly object Lock = new();
 }

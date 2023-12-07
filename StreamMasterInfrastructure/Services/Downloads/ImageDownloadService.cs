@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -7,18 +8,15 @@ using StreamMaster.SchedulesDirectAPI.Domain.JsonClasses;
 using StreamMaster.SchedulesDirectAPI.Domain.Models;
 using StreamMaster.SchedulesDirectAPI.Helpers;
 
-using StreamMasterApplication.Settings.Queries;
+using StreamMasterApplication.Common.Interfaces;
+using StreamMasterApplication.Hubs;
 
-using StreamMasterDomain.Common;
 using StreamMasterDomain.Cache;
+using StreamMasterDomain.Common;
 using StreamMasterDomain.Services;
 
 using System.Collections.Concurrent;
 using System.Net;
-using Microsoft.AspNetCore.SignalR;
-using StreamMasterApplication.Common.Interfaces;
-using StreamMasterApplication.Hubs;
-using Microsoft.EntityFrameworkCore;
 
 namespace StreamMasterInfrastructure.Services.Downloads;
 
@@ -189,6 +187,13 @@ public class ImageDownloadService : IHostedService, IDisposable, IImageDownloadS
                         await stream.CopyToAsync(outputStream, cancellationToken);
                         stream.Close();
                         stream.Dispose();
+                        var fileInfo = new FileInfo(logoPath);
+                        if ( fileInfo.Length < 2000)
+                        {
+                            ++TotalErrors;
+                            logger.LogError($"Failed to download image from {uri} to {logoPath}: {response.StatusCode}");
+                            return false;
+                        }
                         logger.LogDebug($"Downloaded image from {uri} to {logoPath}: {response.StatusCode}");
 
                         ++TotalSuccessful;

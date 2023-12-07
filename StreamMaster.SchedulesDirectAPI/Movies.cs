@@ -28,7 +28,7 @@ public partial class SchedulesDirect
         // query all movies from Schedules Direct
         foreach (var mxfProgram in moviePrograms)
         {
-            if (epgCache.JsonFiles.ContainsKey(mxfProgram.extras["md5"]) && epgCache.JsonFiles[mxfProgram.extras["md5"]].Images != null)
+            if (mxfProgram.extras.ContainsKey("md5") && epgCache.JsonFiles.ContainsKey(mxfProgram.extras["md5"]) && epgCache.JsonFiles[mxfProgram.extras["md5"]].Images != null)
             {
                 //IncrementProgress();
                 if (string.IsNullOrEmpty(epgCache.JsonFiles[mxfProgram.extras["md5"]].Images)) continue;

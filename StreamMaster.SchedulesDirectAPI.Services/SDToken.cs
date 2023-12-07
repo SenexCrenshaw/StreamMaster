@@ -30,27 +30,25 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
        public async Task<string?> GetTokenAsync(CancellationToken cancellationToken)
     {
         logger.LogDebug("Schedules Direct Get Token");
-        if (string.IsNullOrEmpty(_token))
-        {
-            await LoadTokenAsync(cancellationToken);
-        }
+        LoadToken();
 
-        if (!string.IsNullOrEmpty(_token) && _tokenDateTime.AddHours(1) > DateTime.UtcNow)
+        if (!string.IsNullOrEmpty(_token))
         {
             return _token;
         }
 
-        if (_lockOutTokenDateTime > DateTime.UtcNow)
-        {
-            logger.LogWarning("Token retrieval is currently locked out.");
-            return null;
-        }
+        //if (_lockOutTokenDateTime > DateTime.UtcNow)
+        //{
+        //    logger.LogWarning("Token retrieval is currently locked out.");
+        //    return null;
+        //}
 
         await _tokenLock.WaitAsync(cancellationToken);
         try
         {
+            LoadToken();
             // Double-check the token after acquiring the lock
-            if (!string.IsNullOrEmpty(_token) && _tokenDateTime.AddHours(1) > DateTime.UtcNow)
+            if (!string.IsNullOrEmpty(_token) )
             {
                 return _token;
             }
@@ -106,44 +104,24 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
         return command.Contains('?') ? $"{SD_BASE_URL}{command}&token={token}" : $"{SD_BASE_URL}{command}?token={token}";
     }
 
-    private async Task LoadTokenAsync(CancellationToken cancellationToken = default)
+    private bool LoadToken()
     {
         logger.LogDebug("Schedules Direct Loading Token");
 
-        await _fileSemaphore.WaitAsync(cancellationToken);
-        try
-        {
-            //if (!File.Exists(_sdTokenFilename))
-            //{
-            //    _token = null;
-            //    return;
-            //}
-
-            //string jsonString = File.ReadAllText(_sdTokenFilename);
-            //SDTokenFile? result = JsonSerializer.Deserialize<SDTokenFile>(jsonString)!;
-            //if (result is null)
-            //{
-            //    _token = null;
-            //    return;
-            //}
-
             var result = memoryCache.GetSDToken();
+        
             if (result != null && ! string.IsNullOrEmpty(result.Token))
             {
                 _token = result.Token;
                 _tokenDateTime = result.TokenDateTime;
                 _lockOutTokenDateTime = result.LockOutTokenDateTime;
                 logger.LogDebug("Schedules Direct Loading Token Successful");
+                return true;
             }
-            else
-            {
+            
                 logger.LogDebug("Schedules Direct Loading Token, none found");
-            }
-        }
-        finally
-        {
-            _ = _fileSemaphore.Release();
-        }
+            return false;
+
     }
 
     private static async Task<(HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, T? data)> ProcessResponse<T>(HttpResponseMessage response, ILogger logger, CancellationToken cancellationToken)
@@ -248,10 +226,10 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
         await _fileSemaphore.WaitAsync(cancellationToken);
         try
         {
-            if (_token is null)
-            {
-                return;
-            }
+            //if (_token is null)
+            //{
+            //    return;
+            //}
 
             SDTokenFile tokenFile = new() { Token = _token, TokenDateTime = _tokenDateTime, LockOutTokenDateTime = _lockOutTokenDateTime };
             memoryCache.SetSDToken(tokenFile);
@@ -261,7 +239,7 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred while saving the token to the file");
+            logger.LogError(ex, "An error occurred while saving the token");
         }
         finally
         {

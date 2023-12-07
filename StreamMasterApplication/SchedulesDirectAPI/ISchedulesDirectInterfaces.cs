@@ -17,7 +17,7 @@ public interface ISchedulesDirectController
     Task<ActionResult<bool>> RemoveStation(RemoveStation request);
     Task<ActionResult<bool>> RemoveLineup(RemoveLineup request);
 
-
+    Task<ActionResult<List<LineupPreviewChannel>>> GetLineupPreviewChannel(string Lineup);
     //Task<ActionResult<List<string>>> GetLineupNames();
 
     //Task<ActionResult<Country?>> GetCountry();
@@ -54,6 +54,7 @@ public interface ISchedulesDirectDB
 
 public interface ISchedulesDirectHub
 {
+    Task<List<LineupPreviewChannel>> GetLineupPreviewChannel(string Lineup);
     Task<bool> AddLineup(AddLineup request);
     Task<bool> AddStation(AddStation request);
 

@@ -414,6 +414,7 @@ public sealed class FileUtil
         CreateDir(BuildInfo.SDImagesFolder);
         CreateDir(BuildInfo.SDStationLogos);
         CreateDir(BuildInfo.SDStationLogosCache);
+        CreateDir(BuildInfo.SDJSONFolder);
 
         for (char c = '0'; c <= '9'; c++)
         {
