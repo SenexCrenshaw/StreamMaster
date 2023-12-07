@@ -23,6 +23,12 @@ public partial class SchedulesDirect
 
     public async Task<List<CountryData>?> GetAvailableCountries(CancellationToken cancellationToken)
     {
+        List<CountryData>? cache = await GetValidCachedDataAsync<List<CountryData>>("AvailableCountries", cancellationToken).ConfigureAwait(false);
+        if (cache != null)
+        {
+            return cache;
+        }
+
         var ret = await schedulesDirectAPI.GetApiResponse<Dictionary<string, List<Country>>>(APIMethod.GET, "available/countries", cancellationToken: cancellationToken);
         if (ret == null)
         {
@@ -34,6 +40,8 @@ public partial class SchedulesDirect
         List<CountryData> serializableDataList = ret
          .Select(kv => new CountryData { Key = kv.Key, Countries = kv.Value })
          .ToList();
+
+        await WriteToCacheAsync("AvailableCountries", serializableDataList, cancellationToken).ConfigureAwait(false);
 
         return serializableDataList;
     }
@@ -84,7 +92,23 @@ public partial class SchedulesDirect
 
     public async Task<LineupResult?> GetLineup(string lineup, CancellationToken cancellationToken)
     {
-        return await schedulesDirectAPI.GetApiResponse<LineupResult>(APIMethod.GET, $"lineups/{lineup}", cancellationToken, cancellationToken).ConfigureAwait(false);
+        LineupResult? cache = await GetValidCachedDataAsync<LineupResult>("Lineup-" + lineup, cancellationToken).ConfigureAwait(false);
+        if (cache != null)
+        {
+            return cache;
+        }
+        cache = await schedulesDirectAPI.GetApiResponse<LineupResult>(APIMethod.GET, $"lineups/{lineup}", cancellationToken, cancellationToken).ConfigureAwait(false);
+        if (cache != null)
+        {
+            await WriteToCacheAsync("Lineup-" + lineup, cache, cancellationToken).ConfigureAwait(false);
+            logger.LogDebug($"Successfully retrieved the channels in lineup {lineup}.");
+            return cache;
+        }
+        else
+        {
+            logger.LogError($"Did not receive a response from Schedules Direct for retrieval of lineup {lineup}.");
+        }
+        return null;
     }
 
     public async Task<List<SubscribedLineup>> GetLineups(CancellationToken cancellationToken)
@@ -154,43 +178,43 @@ public partial class SchedulesDirect
         return ret;
     }
 
-    public async Task<List<LineupPreviewChannel>> GetLineupPreviewChannels(CancellationToken cancellationToken)
-    {
-        List<LineupPreviewChannel> res = [];
-        var lineups = await GetSubscribedLineups(cancellationToken);
+    //public async Task<List<LineupPreviewChannel>> GetLineupPreviewChannels(CancellationToken cancellationToken)
+    //{
+    //    List<LineupPreviewChannel> res = [];
+    //    var lineups = await GetSubscribedLineups(cancellationToken);
 
-        if (lineups is null)
-        {
-            return [];
-        }
+    //    if (lineups is null)
+    //    {
+    //        return [];
+    //    }
 
-        foreach (var lineup in lineups.Lineups)
-        {
-            List<LineupPreviewChannel>? results = await schedulesDirectAPI.GetApiResponse<List<LineupPreviewChannel>>(APIMethod.GET, $"lineups/preview/{lineup.Lineup}", cancellationToken: cancellationToken).ConfigureAwait(false);
+    //    foreach (var lineup in lineups.Lineups)
+    //    {
+    //        List<LineupPreviewChannel>? results = await schedulesDirectAPI.GetApiResponse<List<LineupPreviewChannel>>(APIMethod.GET, $"lineups/preview/{lineup.Lineup}", cancellationToken: cancellationToken).ConfigureAwait(false);
 
-            if (results == null)
-            {
-                logger.LogError($"Did not receive a response from Schedules Direct for retrieval of lineup {lineup} for preview.");
-                continue;
-            }
+    //        if (results == null)
+    //        {
+    //            logger.LogError($"Did not receive a response from Schedules Direct for retrieval of lineup {lineup} for preview.");
+    //            continue;
+    //        }
 
-            logger.LogDebug($"Successfully retrieved the channels in lineup {lineup} for preview.");
+    //        logger.LogDebug($"Successfully retrieved the channels in lineup {lineup} for preview.");
 
-            for (int index = 0; index < results.Count; index++)
-            {
-                var lineupPreview = results[index];
-                lineupPreview.Channel = lineup.Lineup;
-                lineupPreview.Id = index;
-                lineupPreview.Affiliate ??= "";
-            }
+    //        for (int index = 0; index < results.Count; index++)
+    //        {
+    //            var lineupPreview = results[index];
+    //            lineupPreview.Channel = lineup.Lineup;
+    //            lineupPreview.Id = index;
+    //            lineupPreview.Affiliate ??= "";
+    //        }
 
-            res.AddRange(results);
-        }
+    //        res.AddRange(results);
+    //    }
 
 
 
-        return res;
-    }
+    //    return res;
+    //}
 
     public async Task<bool> AddLineup(string lineup, CancellationToken cancellationToken)
     {

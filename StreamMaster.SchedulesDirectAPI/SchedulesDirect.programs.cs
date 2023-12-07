@@ -8,6 +8,7 @@ public partial class SchedulesDirect
 
     public async Task<List<StationChannelMap>> GetStationChannelMaps(CancellationToken cancellationToken)
     {
+
         var ret = new List<StationChannelMap>();
         foreach (var station in await GetStations(cancellationToken))
         {
@@ -16,15 +17,24 @@ public partial class SchedulesDirect
             {
                 ret.Add(s);
             }
-        }        
+        }
         return ret;
     }
 
-    public  async Task<StationChannelMap?> GetStationChannelMap(string lineup)
+    public async Task<StationChannelMap?> GetStationChannelMap(string lineup)
     {
-        StationChannelMap? ret =await schedulesDirectAPI.GetApiResponse<StationChannelMap>(APIMethod.GET, $"lineups/{lineup}");
+        StationChannelMap? cache = await GetValidCachedDataAsync<StationChannelMap>("StationChannelMap-" + lineup).ConfigureAwait(false);
+        if (cache != null)
+        {
+            return cache;
+        }
+
+
+        StationChannelMap? ret = await schedulesDirectAPI.GetApiResponse<StationChannelMap>(APIMethod.GET, $"lineups/{lineup}");
         if (ret != null)
         {
+            await WriteToCacheAsync("StationChannelMap-" + lineup, ret).ConfigureAwait(false);
+
             logger.LogDebug($"Successfully retrieved the station mapping for lineup {lineup}. ({ret.Stations.Count} stations; {ret.Map.Count} channels)");
         }
         else

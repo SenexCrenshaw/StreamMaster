@@ -27,10 +27,10 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
     private DateTime _lockOutTokenDateTime;
     private readonly SemaphoreSlim _tokenLock = new(1, 1);
 
-       public async Task<string?> GetTokenAsync(CancellationToken cancellationToken)
+    public async Task<string?> GetTokenAsync(CancellationToken cancellationToken)
     {
         logger.LogDebug("Schedules Direct Get Token");
-        LoadToken();
+        _ = LoadToken();
 
         if (!string.IsNullOrEmpty(_token))
         {
@@ -46,36 +46,36 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
         await _tokenLock.WaitAsync(cancellationToken);
         try
         {
-            LoadToken();
+            _ = LoadToken();
             // Double-check the token after acquiring the lock
-            if (!string.IsNullOrEmpty(_token) )
+            if (!string.IsNullOrEmpty(_token))
             {
                 return _token;
             }
 
             _token = await RetrieveTokenAsync(cancellationToken).ConfigureAwait(false);
-            if (! string.IsNullOrEmpty(_token) )
+            if (!string.IsNullOrEmpty(_token))
             {
                 logger.LogInformation("Schedules Direct Retrieved Token Successful");
                 return _token;
-                
+
             }
             else
             {
                 logger.LogError("Schedules Direct Retrieved Token Error");
                 return null;
             }
-           
+
         }
         finally
         {
-            _tokenLock.Release();
+            _ = _tokenLock.Release();
         }
     }
 
     public async Task<string?> ResetTokenAsync(CancellationToken cancellationToken)
     {
-        //_token = null;
+        _token = null;
         await SaveTokenAsync(cancellationToken).ConfigureAwait(false);
         _token = await RetrieveTokenAsync(cancellationToken).ConfigureAwait(false);
         return _token;
@@ -92,11 +92,7 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
     public async Task<string?> GetAPIUrl(string command, CancellationToken cancellationToken)
     {
         string? token = await GetTokenAsync(cancellationToken).ConfigureAwait(false);
-        if ( string.IsNullOrEmpty(token) )
-        {
-            return null;
-        }
-        return ConstructAPIUrlWithToken(command, token);
+        return string.IsNullOrEmpty(token) ? null : ConstructAPIUrlWithToken(command, token);
     }
 
     private static string ConstructAPIUrlWithToken(string command, string? token)
@@ -108,19 +104,19 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
     {
         logger.LogDebug("Schedules Direct Loading Token");
 
-            var result = memoryCache.GetSDToken();
-        
-            if (result != null && ! string.IsNullOrEmpty(result.Token))
-            {
-                _token = result.Token;
-                _tokenDateTime = result.TokenDateTime;
-                _lockOutTokenDateTime = result.LockOutTokenDateTime;
-                logger.LogDebug("Schedules Direct Loading Token Successful");
-                return true;
-            }
-            
-                logger.LogDebug("Schedules Direct Loading Token, none found");
-            return false;
+        var result = memoryCache.GetSDToken();
+
+        if (result != null && !string.IsNullOrEmpty(result.Token))
+        {
+            _token = result.Token;
+            _tokenDateTime = result.TokenDateTime;
+            _lockOutTokenDateTime = result.LockOutTokenDateTime;
+            logger.LogDebug("Schedules Direct Loading Token Successful");
+            return true;
+        }
+
+        logger.LogDebug("Schedules Direct Loading Token, none found");
+        return false;
 
     }
 
@@ -143,7 +139,7 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
                         return (response.StatusCode, responseCode, responseContent, result);
                     }
                 }
-            }                       
+            }
         }
         catch (JsonException ex)
         {
@@ -171,10 +167,11 @@ public class SDToken(ILogger<SDToken> logger, ISettingsService settingsService, 
 
             using HttpResponseMessage response = await httpClient.PostAsync($"{SD_BASE_URL}token", content, cancellationToken).ConfigureAwait(false);
             (HttpStatusCode httpStatusCode, SDHttpResponseCode responseCode, string? responseContent, SDGetToken? result) = await ProcessResponse<SDGetToken?>(response, logger, cancellationToken).ConfigureAwait(false);
-           
-            if (responseCode != SDHttpResponseCode.OK) { 
-            logger.LogWarning("Schedules Direct Retrieve Token Response Code: {responseCode}", responseCode.GetMessage());
-        }
+
+            if (responseCode != SDHttpResponseCode.OK)
+            {
+                logger.LogWarning("Schedules Direct Retrieve Token Response Code: {responseCode}", responseCode.GetMessage());
+            }
             switch (responseCode)
             {
                 case SDHttpResponseCode.OK:

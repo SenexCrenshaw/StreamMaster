@@ -9,11 +9,10 @@ using StreamMasterDomain.Enums;
 
 using System.Collections.Concurrent;
 using System.Net;
-using System.Text.Json;
 
 namespace StreamMaster.SchedulesDirectAPI;
 public partial class SchedulesDirect
-{   
+{
     private static readonly SemaphoreSlim downloadSemaphore = new(MaxParallelDownloads);
 
 
@@ -39,10 +38,13 @@ public partial class SchedulesDirect
     }
 
 
-    private void DownloadImageResponses(List<string> imageQueue, ConcurrentBag<ProgramMetadata> programMetadata,  int start = 0)
+    private void DownloadImageResponses(List<string> imageQueue, ConcurrentBag<ProgramMetadata> programMetadata, int start = 0)
     {
         // reject 0 requests
-        if (imageQueue.Count - start < 1) return;
+        if (imageQueue.Count - start < 1)
+        {
+            return;
+        }
 
         // build the array of series to request images for
         var series = new string[Math.Min(imageQueue.Count - start, MaxImgQueries)];
@@ -52,14 +54,14 @@ public partial class SchedulesDirect
         }
 
         // request images from Schedules Direct
-        var responses =  GetArtworkAsync(series).Result;
+        var responses = GetArtworkAsync(series).Result;
         if (responses != null)
         {
-            Parallel.ForEach(responses, programMetadata.Add);
+            _ = Parallel.ForEach(responses, programMetadata.Add);
         }
         else
         {
-            logger.LogInformation("Did not receive a response from Schedules Direct for artwork info of {count} programs, first entry {entry}.", series.Length, series.Any()? series[0]:"");
+            logger.LogInformation("Did not receive a response from Schedules Direct for artwork info of {count} programs, first entry {entry}.", series.Length, series.Any() ? series[0] : "");
             var AA = 1;
         }
     }
@@ -72,13 +74,13 @@ public partial class SchedulesDirect
             UpdateIcons(artwork.Select(a => a.Uri), prog.Title);
         }
     }
-      
 
-          private void UpdateIcons(List<MxfService> Services)
+
+    private void UpdateIcons(List<MxfService> Services)
     {
         foreach (var service in Services.Where(a => a.extras.ContainsKey("logo")))
         {
-           StationImage artwork = service.extras["logo"];
+            StationImage artwork = service.extras["logo"];
             UpdateIcon(artwork.Url, service.CallSign);
         }
     }
@@ -104,27 +106,37 @@ public partial class SchedulesDirect
         foreach (var prog in mxfSeriesInfos.Where(a => a.extras.ContainsKey("artwork")))
         {
             List<ProgramArtwork> artwork = prog.extras["artwork"];
-            UpdateIcons(artwork.Select(a=>a.Uri), prog.Title);
+            UpdateIcons(artwork.Select(a => a.Uri), prog.Title);
         }
     }
     private void UpdateIcon(string artworkUri, string title)
     {
-        if (string.IsNullOrEmpty(artworkUri)) return;
+        if (string.IsNullOrEmpty(artworkUri))
+        {
+            return;
+        }
 
         List<IconFileDto> icons = memoryCache.Icons();
-        
-            if (icons.Any(a => a.SMFileType == SMFileTypes.SDImage && a.Source == artworkUri)) return;
 
-            icons.Add(new IconFileDto { Id = icons.Count, Source = artworkUri, SMFileType = SMFileTypes.SDImage, Name = title });
-        
+        if (icons.Any(a => a.SMFileType == SMFileTypes.SDImage && a.Source == artworkUri))
+        {
+            return;
+        }
+
+        icons.Add(new IconFileDto { Id = icons.Count, Source = artworkUri, SMFileType = SMFileTypes.SDImage, Name = title });
+
         memoryCache.SetIcons(icons);
     }
     private void UpdateIcons(IEnumerable<string> artworkUris, string title)
     {
-        if (!artworkUris.Any()) return;
+        if (!artworkUris.Any())
+        {
+            return;
+        }
+
         List<IconFileDto> icons = memoryCache.Icons();
 
-        foreach (var artworkUri in artworkUris)        
+        foreach (var artworkUri in artworkUris)
         {
             UpdateIcon(artworkUri, title);
 
@@ -132,7 +144,7 @@ public partial class SchedulesDirect
         memoryCache.SetIcons(icons);
     }
 
-    
+
     private async Task<bool> DownloadSdLogo(string uri, string filePath, CancellationToken cancellationToken)
     {
 
@@ -144,7 +156,7 @@ public partial class SchedulesDirect
                 return false;
             }
 
-                Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
+            Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
 
             HttpClient httpClient = SDHelpers.CreateHttpClient(setting.ClientUserAgent);
             using HttpResponseMessage response = await httpClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);

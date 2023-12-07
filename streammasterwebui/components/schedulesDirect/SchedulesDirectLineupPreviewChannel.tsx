@@ -11,7 +11,6 @@ type SchedulesDirectLineupPreviewChannelProps = {
 const SchedulesDirectLineupPreviewChannel = ({ lineup }: SchedulesDirectLineupPreviewChannelProps) => {
   const getPreviewQuery = useSchedulesDirectGetLineupPreviewChannelQuery(lineup ? lineup : skipToken);
 
-  console.log('getPreviewQuery', getPreviewQuery.data);
   const columns = useMemo(
     (): ColumnMeta[] => [
       { field: 'channel', filter: true, sortable: true },

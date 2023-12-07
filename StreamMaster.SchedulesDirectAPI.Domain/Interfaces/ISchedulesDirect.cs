@@ -17,7 +17,6 @@ public interface ISchedulesDirect
     Task<List<Headend>?> GetHeadends(string country, string postalCode, CancellationToken cancellationToken = default);
     //Task<bool> GetImageUrl(string programId, ProgramArtwork icon, CancellationToken cancellationToken);
     Task<List<LineupPreviewChannel>?> GetLineupPreviewChannel(string lineup, CancellationToken cancellationToken);
-    Task<List<LineupPreviewChannel>> GetLineupPreviewChannels(CancellationToken cancellationToken);
     Task<List<Programme>?> GetProgramsAsync(string[] request);
     Task<List<ScheduleResponse>?> GetScheduleListingsAsync(ScheduleRequest[] request);
     Task<Dictionary<string, Dictionary<string, ScheduleMd5Response>>?> GetScheduleMd5sAsync(ScheduleRequest[] request);
