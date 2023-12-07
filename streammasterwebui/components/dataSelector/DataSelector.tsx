@@ -226,6 +226,13 @@ const DataSelector = <T extends DataTableValue>(props: DataSelectorProps<T>) => 
   };
 
   useEffect(() => {
+    if (props.reset === true) {
+      tableReference.current?.reset();
+      props.OnReset?.();
+    }
+  }, [props, props.reset]);
+
+  useEffect(() => {
     if (!props.scrollTo) {
       return;
     }
@@ -667,6 +674,7 @@ interface BaseDataSelectorProperties<T = any> {
 
   // onLazyLoad?: (e: any) => void;
   onMultiSelectClick?: (value: boolean) => void;
+  OnReset?: () => void;
   onRowClick?: (event: DataTableRowClickEvent) => void;
   onRowReorder?: (value: T[]) => void;
   onRowVisibleClick?: (value: T) => void;
@@ -683,6 +691,7 @@ interface BaseDataSelectorProperties<T = any> {
   sortField?: string;
   sortOrder?: number;
   style?: CSSProperties;
+  reset?: boolean | undefined;
   videoStreamIdsIsReadOnly?: string[] | undefined;
   // virtualScrollHeight?: string | undefined;
 }

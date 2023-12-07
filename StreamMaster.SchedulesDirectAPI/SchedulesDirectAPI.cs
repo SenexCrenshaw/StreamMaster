@@ -81,7 +81,7 @@ public class SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, ISDToken SdT
 
     private async Task<T?> GetHttpResponse<T>(HttpMethod method, string command, object? content = null, CancellationToken cancellationToken = default)
     {
-        string? url = await SdToken.GetAPIUrl(command, cancellationToken);
+
 
         Setting setting = await settingsService.GetSettingsAsync(cancellationToken);
         string? json = null;
@@ -93,16 +93,15 @@ public class SchedulesDirectAPI(ILogger<SchedulesDirectAPI> logger, ISDToken SdT
             retryCount++;
             try
             {
+                string? url = await SdToken.GetAPIUrl(command, cancellationToken);
+
                 using HttpRequestMessage request = new(method, url)
                 {
                     Content = (content != null)
                         ? new StringContent(JsonSerializer.Serialize(content), Encoding.UTF8, "application/json")
                         : null
                 };
-
-
                 using HttpResponseMessage response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                //using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {

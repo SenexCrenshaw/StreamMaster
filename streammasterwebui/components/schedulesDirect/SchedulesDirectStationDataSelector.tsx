@@ -10,7 +10,8 @@ import {
   type StationPreview
 } from '@lib/iptvApi';
 import { useSelectedItems } from '@lib/redux/slices/useSelectedItemsSlice';
-import { AddStation, RemoveStation } from '@lib/smAPI/SchedulesDirect/SchedulesDirectGetAPI';
+
+import { AddStation, RemoveStation } from '@lib/smAPI/SchedulesDirect/SchedulesDirectMutateAPI';
 import { Toast } from 'primereact/toast';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import DataSelector from '../dataSelector/DataSelector';

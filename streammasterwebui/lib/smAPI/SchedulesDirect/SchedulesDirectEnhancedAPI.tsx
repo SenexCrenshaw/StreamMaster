@@ -57,6 +57,56 @@ export const enhancedApiSchedulesDirect = iptvApi.enhanceEndpoints({
       }
     // eslint-disable-next-line comma-dangle
     },
+    schedulesDirectGetLineupPreviewChannel: {
+      async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
+        try {
+          await cacheDataLoaded;
+
+          const updateCachedDataWithResults = (data: iptv.LineupPreviewChannel[]) => {
+            if (!data || isEmptyObject(data)) {
+              if (isDev) console.log('SchedulesDirect Full Refresh');
+              dispatch(iptvApi.util.invalidateTags(['SchedulesDirect']));
+              return;
+            }
+
+            updateCachedData(() => {
+              for (const { endpointName, originalArgs } of iptvApi.util.selectInvalidatedBy(getState(), [{ type: 'SchedulesDirect' }])) {
+                if (endpointName === 'schedulesDirectGetLineupPreviewChannel') {
+                  dispatch(
+                    iptvApi.util.updateQueryData(endpointName, originalArgs, (draft) => {
+                      if (isPagedTableDto(data)) {
+                        for (const item of data) {
+                          const index = draft.findIndex((existingItem) => existingItem.id === item.id);
+                          if (index !== -1) {
+                            draft[index] = item;
+                          }
+                        }
+                        return draft;
+                      }
+                      for (const item of data) {
+                        const index = draft.findIndex((existingItem) => existingItem.id === item.id);
+                        if (index !== -1) {
+                          draft[index] = item;
+                        }
+                      }
+                      return draft;
+                    })
+                  );
+                }
+              }
+            });
+          };
+
+          singletonSchedulesDirectListener.addListener(updateCachedDataWithResults);
+
+          await cacheEntryRemoved;
+          singletonSchedulesDirectListener.removeListener(updateCachedDataWithResults);
+        } catch (error) {
+          console.error('Error in onCacheEntryAdded:', error);
+        }
+      }
+    // eslint-disable-next-line comma-dangle
+    },
     schedulesDirectGetLineups: {
       async onCacheEntryAdded(api, { dispatch, getState, updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         try {
